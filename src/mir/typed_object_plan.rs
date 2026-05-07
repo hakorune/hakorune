@@ -96,6 +96,7 @@ fn observed_user_newbox_names(module: &MirModule) -> BTreeSet<String> {
 }
 
 type FieldKey = (String, String);
+type ParamKey = (String, usize);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum FieldStorageInference {
@@ -142,6 +143,7 @@ fn infer_untyped_field_storages(module: &MirModule) -> BTreeMap<FieldKey, FieldS
 
     for _ in 0..4 {
         let mut changed = false;
+        let param_storages = infer_birth_param_storages(module, &inferred);
         for function in module.functions.values() {
             let def_map = build_value_def_map(function);
             for block in function.blocks.values() {
@@ -167,7 +169,15 @@ fn infer_untyped_field_storages(module: &MirModule) -> BTreeMap<FieldKey, FieldS
                     let storage = declared_type
                         .as_ref()
                         .and_then(storage_for_mir_type)
-                        .or_else(|| storage_for_value(function, &def_map, *value, &inferred));
+                        .or_else(|| {
+                            storage_for_value(
+                                function,
+                                &def_map,
+                                *value,
+                                &inferred,
+                                &param_storages,
+                            )
+                        });
                     if let Some(storage) = storage {
                         changed |= merge_storage_observation(
                             &mut inferred,
@@ -186,6 +196,47 @@ fn infer_untyped_field_storages(module: &MirModule) -> BTreeMap<FieldKey, FieldS
     inferred
 }
 
+fn infer_birth_param_storages(
+    module: &MirModule,
+    inferred: &BTreeMap<FieldKey, FieldStorageInference>,
+) -> BTreeMap<ParamKey, FieldStorageInference> {
+    let mut param_storages = BTreeMap::new();
+    for function in module.functions.values() {
+        let def_map = build_value_def_map(function);
+        for block in function.blocks.values() {
+            for inst in &block.instructions {
+                let MirInstruction::NewBox { box_type, args, .. } = inst else {
+                    continue;
+                };
+                if !module.metadata.user_box_decls.contains_key(box_type)
+                    && !module.metadata.user_box_field_decls.contains_key(box_type)
+                {
+                    continue;
+                }
+                let birth_symbol = format!("{box_type}.birth/{}", args.len());
+                if !module.functions.contains_key(&birth_symbol) {
+                    continue;
+                }
+                for (arg_index, arg) in args.iter().enumerate() {
+                    let Some(storage) =
+                        storage_for_value(function, &def_map, *arg, inferred, &BTreeMap::new())
+                    else {
+                        continue;
+                    };
+                    // Method parameter 0 is the receiver; explicit constructor
+                    // arguments start at parameter 1.
+                    merge_param_storage_observation(
+                        &mut param_storages,
+                        (birth_symbol.clone(), arg_index + 1),
+                        storage,
+                    );
+                }
+            }
+        }
+    }
+    param_storages
+}
+
 fn declared_field_sets(metadata: &ModuleMetadata) -> BTreeMap<String, BTreeSet<String>> {
     metadata
         .user_box_field_decls
@@ -202,6 +253,22 @@ fn declared_field_sets(metadata: &ModuleMetadata) -> BTreeMap<String, BTreeSet<S
 fn merge_storage_observation(
     inferred: &mut BTreeMap<FieldKey, FieldStorageInference>,
     key: FieldKey,
+    storage: TypedObjectFieldStorage,
+) -> bool {
+    merge_storage_inference(inferred, key, storage)
+}
+
+fn merge_param_storage_observation(
+    inferred: &mut BTreeMap<ParamKey, FieldStorageInference>,
+    key: ParamKey,
+    storage: TypedObjectFieldStorage,
+) -> bool {
+    merge_storage_inference(inferred, key, storage)
+}
+
+fn merge_storage_inference<K: Ord>(
+    inferred: &mut BTreeMap<K, FieldStorageInference>,
+    key: K,
     storage: TypedObjectFieldStorage,
 ) -> bool {
     use std::collections::btree_map::Entry;
@@ -261,12 +328,15 @@ fn storage_for_value(
     def_map: &ValueDefMap,
     value: ValueId,
     inferred: &BTreeMap<FieldKey, FieldStorageInference>,
+    param_storages: &BTreeMap<ParamKey, FieldStorageInference>,
 ) -> Option<TypedObjectFieldStorage> {
     let origin = resolve_value_origin(function, def_map, value);
     value_type_for(function, value)
         .or_else(|| value_type_for(function, origin))
         .and_then(storage_for_mir_type)
-        .or_else(|| storage_from_origin_instruction(function, def_map, origin, inferred))
+        .or_else(|| {
+            storage_from_origin_instruction(function, def_map, origin, inferred, param_storages)
+        })
 }
 
 fn storage_from_origin_instruction(
@@ -274,8 +344,11 @@ fn storage_from_origin_instruction(
     def_map: &ValueDefMap,
     origin: ValueId,
     inferred: &BTreeMap<FieldKey, FieldStorageInference>,
+    param_storages: &BTreeMap<ParamKey, FieldStorageInference>,
 ) -> Option<TypedObjectFieldStorage> {
-    let (block_id, instruction_index) = def_map.get(&origin).copied()?;
+    let Some((block_id, instruction_index)) = def_map.get(&origin).copied() else {
+        return storage_from_param(function, origin, param_storages);
+    };
     let block = function.blocks.get(&block_id)?;
     match block.instructions.get(instruction_index)? {
         MirInstruction::Const { value, .. } => storage_for_const(value),
@@ -292,6 +365,18 @@ fn storage_from_origin_instruction(
             .and_then(storage_for_mir_type)
             .or_else(|| field_storage_for_get(function, def_map, *base, field, inferred)),
         _ => None,
+    }
+}
+
+fn storage_from_param(
+    function: &MirFunction,
+    value: ValueId,
+    param_storages: &BTreeMap<ParamKey, FieldStorageInference>,
+) -> Option<TypedObjectFieldStorage> {
+    let param_index = function.params.iter().position(|param| *param == value)?;
+    match param_storages.get(&(function.signature.name.clone(), param_index)) {
+        Some(FieldStorageInference::Known(storage)) => Some(*storage),
+        Some(FieldStorageInference::Conflict) | None => None,
     }
 }
 
@@ -558,6 +643,105 @@ mod tests {
         let plans = build_typed_object_plans(&module);
 
         assert!(plans.is_empty());
+    }
+
+    #[test]
+    fn build_typed_object_plans_infers_birth_param_field_storage_from_newbox_args() {
+        let mut module = MirModule::new("typed_object_birth_param".to_string());
+        module.metadata.user_box_decls.insert(
+            "Page".to_string(),
+            vec!["page_id".to_string(), "capacity".to_string()],
+        );
+        module.metadata.user_box_field_decls.insert(
+            "Page".to_string(),
+            vec![
+                UserBoxFieldDecl {
+                    name: "page_id".to_string(),
+                    declared_type_name: None,
+                    is_weak: false,
+                },
+                UserBoxFieldDecl {
+                    name: "capacity".to_string(),
+                    declared_type_name: None,
+                    is_weak: false,
+                },
+            ],
+        );
+
+        let mut birth = MirFunction::new(
+            FunctionSignature {
+                name: "Page.birth/2".to_string(),
+                params: vec![
+                    MirType::Box("Page".to_string()),
+                    MirType::Unknown,
+                    MirType::Unknown,
+                ],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        birth.params = vec![ValueId::new(0), ValueId::new(1), ValueId::new(2)];
+        let mut birth_block = BasicBlock::new(BasicBlockId::new(0));
+        birth_block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(3),
+            src: ValueId::new(0),
+        });
+        birth_block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(4),
+            src: ValueId::new(1),
+        });
+        birth_block.add_instruction(MirInstruction::FieldSet {
+            base: ValueId::new(3),
+            field: "page_id".to_string(),
+            value: ValueId::new(4),
+            declared_type: None,
+        });
+        birth_block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(5),
+            src: ValueId::new(2),
+        });
+        birth_block.add_instruction(MirInstruction::FieldSet {
+            base: ValueId::new(3),
+            field: "capacity".to_string(),
+            value: ValueId::new(5),
+            declared_type: None,
+        });
+        birth.add_block(birth_block);
+
+        let mut main = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let mut main_block = BasicBlock::new(BasicBlockId::new(0));
+        main_block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::Integer(7),
+        });
+        main_block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::Integer(9),
+        });
+        main_block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(3),
+            box_type: "Page".to_string(),
+            args: vec![ValueId::new(1), ValueId::new(2)],
+        });
+        main.add_block(main_block);
+        module.add_function(birth);
+        module.add_function(main);
+
+        let plans = build_typed_object_plans(&module);
+
+        assert_eq!(plans.len(), 1);
+        assert_eq!(plans[0].box_name, "Page");
+        assert_eq!(plans[0].fields[0].storage, TypedObjectFieldStorage::I64);
+        assert_eq!(plans[0].fields[1].storage, TypedObjectFieldStorage::I64);
     }
 
     #[test]

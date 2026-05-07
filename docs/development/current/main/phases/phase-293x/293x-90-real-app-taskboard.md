@@ -22,7 +22,8 @@
 - [x] `293x-014` typed object route expansion for init-only untyped fields, handle storage, and empty user-box allocation
 - [x] `293x-015` typed user-box `birth` same-module EXE route
 - [x] `293x-016` typed user-box scalar method same-module EXE route
-- [ ] `293x-017` next real-app method / birth-body route expansion before real-app EXE parity
+- [x] `293x-017` typed object birth-param storage EXE route
+- [ ] `293x-018` next real-app method / birth-body route expansion before real-app EXE parity
 
 ## Gates
 

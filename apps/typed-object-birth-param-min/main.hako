@@ -1,0 +1,26 @@
+// typed-object-birth-param-min
+//
+// EXE typed-object birth-param inference shape:
+// - untyped fields receive constructor/birth parameters
+// - storage is inferred from observed newbox argument values
+// - scalar method route reads those typed slots
+
+box Page {
+  init { page_id, capacity }
+
+  birth(page_id, capacity) {
+    me.page_id = page_id
+    me.capacity = capacity
+  }
+
+  sum() {
+    return me.page_id + me.capacity
+  }
+}
+
+static box Main {
+  main() {
+    local page = new Page(7, 23)
+    return page.sum()
+  }
+}
