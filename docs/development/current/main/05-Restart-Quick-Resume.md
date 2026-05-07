@@ -33,14 +33,14 @@ cargo check -q
 - active lane: `phase-293x real-app bringup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-293x EXE boundary blocker: pure-first unsupported newbox before allocator port`
+- current blocker token: `phase-293x allocator port mode: VM-only policy/state prototype until typed object EXE plan`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-293x EXE boundary blocker: pure-first unsupported newbox before allocator port`
+- current blocker token: `phase-293x allocator port mode: VM-only policy/state prototype until typed object EXE plan`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -58,7 +58,8 @@ cargo check -q
   general `newbox`
 - EXE boundary gate:
   `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
-- next: decide pure-first general-newbox ownership before claiming EXE parity
+- next: port allocator policy/state under `hako_alloc` as VM-only; keep EXE
+  parity blocked until typed object planning owns general user-box `newbox`
 - do not hide compiler blockers in app code; if a real app exposes a Stage0 or
   VM/compiler seam, fix the compiler structurally first
 - real-app gate:

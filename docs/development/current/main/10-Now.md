@@ -20,7 +20,7 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-293x EXE boundary blocker: pure-first unsupported newbox before allocator port`
+- current blocker token: `phase-293x allocator port mode: VM-only policy/state prototype until typed object EXE plan`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
@@ -28,8 +28,7 @@ Related:
 
 - continue `phase-293x` real-app bringup
 - BoxTorrent mini, binary-trees, and mimalloc-lite are landed; real allocator
-  port waits behind the EXE boundary decision unless it is explicitly scoped as
-  a VM-only policy/state prototype
+  port now proceeds as VM-only policy/state under `hako_alloc`
 - real-app order: BoxTorrent mini -> binary-trees -> mimalloc-lite -> allocator port
 - run `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
   for the active app suite

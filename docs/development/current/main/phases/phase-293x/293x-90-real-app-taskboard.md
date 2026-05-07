@@ -2,7 +2,7 @@
 
 - Status: Active
 - Lane: `phase-293x real-app bringup`
-- Current blocker token: `phase-293x real-app bringup order: BoxTorrent mini -> binary-trees -> mimalloc-lite -> allocator port`
+- Current blocker token: `phase-293x allocator port mode: VM-only policy/state prototype until typed object EXE plan`
 
 ## Tasks
 
@@ -10,7 +10,7 @@
 - [x] `293x-002` binary-trees allocation/GC benchmark
 - [x] `293x-003` mimalloc-lite allocator-shaped app
 - [x] `293x-004` real-app EXE boundary probe
-- [ ] `293x-005` pure-first general-newbox owner decision
+- [x] `293x-005` pure-first general-newbox owner decision
 - [ ] `293x-006` real allocator port
 
 ## Gates

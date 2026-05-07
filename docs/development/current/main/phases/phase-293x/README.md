@@ -5,7 +5,7 @@
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
 - Active lane token: `phase-293x real-app bringup`
-- Current blocker token: `phase-293x real-app bringup order: BoxTorrent mini -> binary-trees -> mimalloc-lite -> allocator port`
+- Current blocker token: `phase-293x allocator port mode: VM-only policy/state prototype until typed object EXE plan`
 
 ## Order
 
@@ -46,5 +46,6 @@ This is a blocker probe, not EXE parity. The current direct EXE route reaches
 - `293x-002`: binary-trees allocation/shape benchmark app landed.
 - `293x-003`: mimalloc-lite allocator-shaped app landed.
 - `293x-004`: real-app EXE boundary probe landed.
-- Next: decide the pure-first general-newbox owner before treating real app EXE
-  parity as green.
+- `293x-005`: pure-first general-newbox owner decision landed.
+- Next: port allocator policy/state under `hako_alloc` as VM-only; do not claim
+  real-app EXE parity until the typed object plan lands.

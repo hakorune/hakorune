@@ -38,7 +38,7 @@ Scope: current lane / next lane / restart order only.
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - current blocker token:
-  `phase-293x EXE boundary blocker: pure-first unsupported newbox before allocator port`
+  `phase-293x allocator port mode: VM-only policy/state prototype until typed object EXE plan`
 - primary mode: real-app bringup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -52,8 +52,8 @@ Scope: current lane / next lane / restart order only.
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
 - resume point: continue `phase-293x` from the real-app suite; BoxTorrent
-  mini, binary-trees, and mimalloc-lite are VM-green; EXE boundary is pinned at
-  pure-first unsupported `newbox`
+  mini, binary-trees, and mimalloc-lite are VM-green; allocator port is
+  VM-only until typed object EXE planning lands
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
@@ -67,9 +67,8 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: decide the pure-first general-newbox owner before treating real app EXE
-  parity as green; keep allocator port VM-only unless explicitly scoped as a
-  policy/state prototype
+- next: port allocator policy/state under `hako_alloc` as VM-only; keep direct
+  EXE parity blocked until typed object planning owns general user-box `newbox`
   only change compiler acceptance when the app exposes a real blocker
 - MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
   standalone MIR hints scaffold is retired and that audited MIR vocabulary set
@@ -91,7 +90,8 @@ Scope: current lane / next lane / restart order only.
   3. mimalloc-lite
   4. real allocator port
 - current status: BoxTorrent mini, binary-trees, and mimalloc-lite landed;
-  direct EXE currently stops at pure-first unsupported `newbox`
+  direct EXE currently stops at pure-first unsupported `newbox`; owner decision
+  landed and allocator port proceeds VM-only
 - compiler rule: do not hide a real compiler blocker in app code; fix the
   compiler seam structurally when needed
 
@@ -108,7 +108,7 @@ Scope: current lane / next lane / restart order only.
 - Current app checkpoint: read `latest_card_path` in
   `docs/development/current/main/CURRENT_STATE.toml`
 - Current app card:
-  `docs/development/current/main/phases/phase-293x/293x-004-REAL-APPS-EXE-BOUNDARY-PROBE.md`
+  `docs/development/current/main/phases/phase-293x/293x-005-PURE-FIRST-GENERAL-NEWBOX-OWNER-DECISION.md`
 - Bootstrap route SSOT:
   `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
 - Perf owner-first policy:
