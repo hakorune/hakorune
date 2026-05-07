@@ -1,0 +1,20 @@
+// typed-object-newbox-min
+//
+// First EXE typed-object shape:
+// - user box with non-weak i64 fields
+// - newbox allocates only
+// - field_set / field_get route through MIR TypedObjectPlan slots
+
+box Pair {
+  left: IntegerBox
+  right: IntegerBox
+}
+
+static box Main {
+  main() {
+    local pair = new Pair()
+    pair.left = 10
+    pair.right = 20
+    return pair.left + pair.right
+  }
+}

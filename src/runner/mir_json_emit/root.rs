@@ -826,6 +826,7 @@ pub(super) fn build_mir_json_root(
 
     // Phase 285LLVM-1.1: Extract user box declarations for LLVM harness
     let user_box_decls = collect_sorted_user_box_decl_values(module);
+    let typed_object_plans = collect_typed_object_plan_values(module);
     let enum_decls = collect_sorted_enum_decl_values(module);
 
     let root = if use_v1_schema {
@@ -834,6 +835,7 @@ pub(super) fn build_mir_json_root(
         if let Some(obj) = root.as_object_mut() {
             obj.insert("cfg".to_string(), cfg_info);
             obj.insert("user_box_decls".to_string(), json!(user_box_decls)); // Phase 285LLVM-1.1
+            obj.insert("typed_object_plans".to_string(), json!(typed_object_plans));
             obj.insert("enum_decls".to_string(), json!(enum_decls));
         }
         root
@@ -843,6 +845,7 @@ pub(super) fn build_mir_json_root(
             "functions": funs,
             "cfg": cfg_info,
             "user_box_decls": user_box_decls,  // Phase 285LLVM-1.1
+            "typed_object_plans": typed_object_plans,
             "enum_decls": enum_decls
         })
     };

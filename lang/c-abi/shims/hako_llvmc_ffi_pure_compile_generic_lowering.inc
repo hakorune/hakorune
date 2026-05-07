@@ -316,6 +316,7 @@
           if (strcmp(op, "newbox")==0) {
             long long dst = read_int(ins, "dst");
             const char* tname = read_str(ins, "type");
+            int typed_plan_index = -1;
             if (tname && strcmp(tname, "ArrayBox") == 0) {
               if (dst) {
                 EMIT("  %%r%lld = call i64 @\"nyash.array.birth_h\"()\n", dst);
@@ -362,8 +363,91 @@
                 continue;
               }
             }
+            if (tname && find_typed_object_plan_index(tname, &typed_plan_index)) {
+              long long type_id = typed_object_plan_type_id(typed_plan_index);
+              long long field_count = typed_object_plan_field_count(typed_plan_index);
+              if (dst && type_id > 0 && field_count >= 0) {
+                EMIT("  %%r%lld = call i64 @\"nyash.object.new_typed_hi\"(i64 %lld, i64 %lld)\n",
+                     dst,
+                     type_id,
+                     field_count);
+                set_type(dst, T_I64);
+                set_origin(dst, ORG_TYPED_OBJECT);
+                set_scan_origin(dst, ORG_TYPED_OBJECT);
+                set_typed_object_binding(dst, typed_plan_index);
+                continue;
+              }
+              note_pure_unsupported_shape(
+                  bid,
+                  ii,
+                  op,
+                  "typed_object_plan_invalid_new",
+                  NULL);
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
+            }
             note_pure_unsupported_shape(bid, ii, op, "unsupported_newbox_type", NULL);
             yyjson_doc_free(d); goto GEN_ABORT;
+          }
+          if (strcmp(op, "field_set")==0) {
+            long long box_reg = read_int(ins, "box");
+            long long value_reg = read_int(ins, "value");
+            const char* field = read_str(ins, "field");
+            int typed_plan_index = -1;
+            long long slot = -1;
+            long long value_base = resolve_copy_source_reg(value_reg);
+            long long value_const = 0;
+            if (box_reg && value_reg &&
+                get_typed_object_binding(box_reg, &typed_plan_index) &&
+                typed_object_plan_field_i64_slot(typed_plan_index, field, &slot)) {
+              long long box_base = resolve_copy_source_reg(box_reg);
+              if (has_const(value_base, &value_const)) {
+                EMIT("  call void @\"nyash.object.field_set_hii\"(i64 %%r%lld, i64 %lld, i64 %lld)\n",
+                     box_base,
+                     slot,
+                     value_const);
+              } else {
+                EMIT("  call void @\"nyash.object.field_set_hii\"(i64 %%r%lld, i64 %lld, i64 %%r%lld)\n",
+                     box_base,
+                     slot,
+                     value_base);
+              }
+              continue;
+            }
+            note_pure_unsupported_shape(
+                bid,
+                ii,
+                op,
+                "typed_object_field_set_plan_missing",
+                NULL);
+            yyjson_doc_free(d);
+            goto GEN_ABORT;
+          }
+          if (strcmp(op, "field_get")==0) {
+            long long dst = read_int(ins, "dst");
+            long long box_reg = read_int(ins, "box");
+            const char* field = read_str(ins, "field");
+            int typed_plan_index = -1;
+            long long slot = -1;
+            if (dst && box_reg &&
+                get_typed_object_binding(box_reg, &typed_plan_index) &&
+                typed_object_plan_field_i64_slot(typed_plan_index, field, &slot)) {
+              long long box_base = resolve_copy_source_reg(box_reg);
+              EMIT("  %%r%lld = call i64 @\"nyash.object.field_get_hii\"(i64 %%r%lld, i64 %lld)\n",
+                   dst,
+                   box_base,
+                   slot);
+              set_type(dst, T_I64);
+              continue;
+            }
+            note_pure_unsupported_shape(
+                bid,
+                ii,
+                op,
+                "typed_object_field_get_plan_missing",
+                NULL);
+            yyjson_doc_free(d);
+            goto GEN_ABORT;
           }
           if (strcmp(op, "copy")==0) {
             long long dst = read_int(ins, "dst");

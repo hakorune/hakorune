@@ -88,7 +88,7 @@ Initial lowering uses runtime helpers, not inline LLVM struct layout:
 
 ```text
 %p = newbox Point()
-  -> call i64 @nyash.object.new_typed_h(i64 type_id)
+  -> call i64 @nyash.object.new_typed_hi(i64 type_id, i64 field_count)
 
 field_set %p.x = %v
   -> call void @nyash.object.field_set_hii(i64 %p, i64 slot, i64 %v)

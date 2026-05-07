@@ -561,7 +561,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       }
       enum { T_NONE=0, T_I64=1, T_I1=2 };
       // Track simple origin kinds for selective unbox at ret
-      enum { ORG_NONE=0, ORG_MAP_GET=1, ORG_MAP_BIRTH=2, ORG_ARRAY_BIRTH=3, ORG_STRING=4, ORG_ARRAY_STRING_BIRTH=5 };
+      enum { ORG_NONE=0, ORG_MAP_GET=1, ORG_MAP_BIRTH=2, ORG_ARRAY_BIRTH=3, ORG_STRING=4, ORG_ARRAY_STRING_BIRTH=5, ORG_TYPED_OBJECT=6 };
       struct GenericPureI64Const { long long reg; long long val; };
       struct GenericPureStringConst { long long reg; const char* val; };
       struct GenericPureKnownStringLen { long long reg; long long len; };
@@ -569,6 +569,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       struct GenericPureTypeBinding { long long reg; int ty; };
       struct GenericPureCopyAlias { long long reg; long long src; };
       struct GenericPureOriginBinding { long long reg; int kind; };
+      struct GenericPureTypedObjectBinding { long long reg; int plan_index; };
       struct Incoming { long long pred; long long val_reg; };
       struct PhiRec { long long dst; struct Incoming in[16]; int in_n; };
       struct BlockPhi { long long bid; struct PhiRec recs[24]; int rec_n; };
@@ -580,6 +581,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         GENERIC_PURE_TYPE_BINDING_CAP = 8192,
         GENERIC_PURE_COPY_ALIAS_CAP = 2048,
         GENERIC_PURE_ORIGIN_BINDING_CAP = 2048,
+        GENERIC_PURE_TYPED_OBJECT_BINDING_CAP = 2048,
         GENERIC_PURE_BLOCK_PHI_CAP = 512
       };
       struct GenericPureFunctionLoweringState {
@@ -603,6 +605,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         size_t scan_origin_n;
         struct GenericPureOriginBinding origin[GENERIC_PURE_ORIGIN_BINDING_CAP];
         size_t origin_n;
+        struct GenericPureTypedObjectBinding typed_object_bindings[GENERIC_PURE_TYPED_OBJECT_BINDING_CAP];
+        size_t typed_object_bindings_n;
         struct BlockPhi phis[GENERIC_PURE_BLOCK_PHI_CAP];
         int phi_n;
         int generic_walk_trace_budget;
@@ -641,6 +645,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #define scan_origin_n lowering_state.scan_origin_n
       #define origin lowering_state.origin
       #define origin_n lowering_state.origin_n
+      #define typed_object_bindings lowering_state.typed_object_bindings
+      #define typed_object_bindings_n lowering_state.typed_object_bindings_n
       #define phis lowering_state.phis
       #define phi_n lowering_state.phi_n
       #define generic_walk_trace_budget lowering_state.generic_walk_trace_budget
@@ -712,6 +718,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         return 0;
       }
       #include "hako_llvmc_ffi_compiler_state.inc"
+      #include "hako_llvmc_ffi_typed_object_plan.inc"
       auto struct BlockPhi* ensure_phi_block(long long bid){ for (int i=0;i<phi_n;i++){ if (phis[i].bid==bid) return &phis[i]; } if (phi_n<ARR_LEN(phis)){ phis[phi_n].bid=bid; phis[phi_n].rec_n=0; return &phis[phi_n++]; } note_generic_capacity_overflow("generic_phi_block_inventory_full"); return NULL; }
       auto long long read_int(yyjson_val* obj, const char* key){ yyjson_val* v= yyjson_obj_get(obj,key); return v? (long long)yyjson_get_sint(v) : 0; }
       auto const char* read_str(yyjson_val* obj, const char* key){ yyjson_val* v= yyjson_obj_get(obj,key); return v? yyjson_get_str(v) : NULL; }
@@ -816,6 +823,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #undef scan_origin_n
       #undef origin
       #undef origin_n
+      #undef typed_object_bindings
+      #undef typed_object_bindings_n
       #undef phis
       #undef phi_n
       #undef generic_walk_trace_budget

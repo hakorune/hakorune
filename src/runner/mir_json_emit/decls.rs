@@ -55,3 +55,28 @@ pub(super) fn collect_sorted_enum_decl_values(
         })
         .collect()
 }
+
+pub(super) fn collect_typed_object_plan_values(
+    module: &crate::mir::MirModule,
+) -> Vec<serde_json::Value> {
+    module
+        .metadata
+        .typed_object_plans
+        .iter()
+        .map(|plan| {
+            json!({
+                "box_name": plan.box_name,
+                "type_id": plan.type_id,
+                "layout_kind": plan.layout_kind,
+                "field_count": plan.field_count,
+                "fields": plan.fields.iter().map(|field| json!({
+                    "name": field.name,
+                    "slot": field.slot,
+                    "declared_type": field.declared_type_name,
+                    "storage": field.storage.as_str(),
+                    "weak": field.is_weak,
+                })).collect::<Vec<_>>(),
+            })
+        })
+        .collect()
+}

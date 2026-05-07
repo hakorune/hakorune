@@ -20,6 +20,7 @@ pub(crate) mod string_search;
 pub(crate) mod string_span_cache;
 pub(crate) mod string_trace;
 pub(crate) mod string_view;
+pub(crate) mod typed_object;
 pub(crate) mod user_box;
 
 pub use any::*;
@@ -33,4 +34,5 @@ pub use primitive::*;
 pub use runtime::*;
 pub use stage1::*;
 pub use string::*;
+pub use typed_object::*;
 pub use user_box::*;

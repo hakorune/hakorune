@@ -325,6 +325,40 @@ pub struct UserBoxFieldDecl {
     pub is_weak: bool,
 }
 
+/// Runtime storage class accepted by the first typed-object EXE route.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TypedObjectFieldStorage {
+    I64,
+}
+
+impl TypedObjectFieldStorage {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::I64 => "i64",
+        }
+    }
+}
+
+/// Backend-readable slot layout for one field in a typed user object.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TypedObjectFieldPlan {
+    pub name: String,
+    pub slot: u32,
+    pub declared_type_name: Option<String>,
+    pub storage: TypedObjectFieldStorage,
+    pub is_weak: bool,
+}
+
+/// MIR-owned object layout truth consumed by EXE backends.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TypedObjectPlan {
+    pub box_name: String,
+    pub type_id: u32,
+    pub layout_kind: String,
+    pub field_count: u32,
+    pub fields: Vec<TypedObjectFieldPlan>,
+}
+
 /// Declared variant inventory for first-class enum/sum metadata.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MirEnumVariantDecl {
@@ -381,6 +415,9 @@ pub struct ModuleMetadata {
     /// Typed field declarations for user-defined boxes.
     /// This stays parallel to `user_box_decls` so names-only compatibility remains intact.
     pub user_box_field_decls: HashMap<String, Vec<UserBoxFieldDecl>>,
+
+    /// Backend-readable typed object layouts derived from user box field metadata.
+    pub typed_object_plans: Vec<TypedObjectPlan>,
 
     /// Declared enum inventory for canonical sum lowering and runtime/codegen handoff.
     pub enum_decls: BTreeMap<String, MirEnumDecl>,

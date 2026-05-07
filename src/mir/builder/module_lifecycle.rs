@@ -488,6 +488,7 @@ impl super::MirBuilder {
                 )
             })
             .collect();
+        crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module);
 
         Ok(module)
     }

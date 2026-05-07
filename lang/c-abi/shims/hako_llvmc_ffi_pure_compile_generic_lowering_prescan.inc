@@ -37,6 +37,7 @@
           } else if (strcmp(op, "newbox")==0) {
             long long dst = read_int(ins, "dst");
             const char* tname = read_str(ins, "type");
+            int typed_plan_index = -1;
             if (tname && strcmp(tname, "ArrayBox") == 0) {
               needs.arr_birth = 1;
               if (dst) {
@@ -65,6 +66,38 @@
                   }
                 }
               }
+            } else if (tname && find_typed_object_plan_index(tname, &typed_plan_index)) {
+              needs.typed_object = 1;
+              if (dst) {
+                set_type(dst, T_I64);
+                set_scan_origin(dst, ORG_TYPED_OBJECT);
+                set_origin(dst, ORG_TYPED_OBJECT);
+                set_typed_object_binding(dst, typed_plan_index);
+              }
+            }
+          } else if (strcmp(op, "field_set")==0) {
+            long long box_reg = read_int(ins, "box");
+            const char* field = read_str(ins, "field");
+            int typed_plan_index = -1;
+            long long slot = -1;
+            if (box_reg &&
+                get_typed_object_binding(box_reg, &typed_plan_index) &&
+                typed_object_plan_field_i64_slot(typed_plan_index, field, &slot)) {
+              (void)slot;
+              needs.typed_object = 1;
+            }
+          } else if (strcmp(op, "field_get")==0) {
+            long long dst = read_int(ins, "dst");
+            long long box_reg = read_int(ins, "box");
+            const char* field = read_str(ins, "field");
+            int typed_plan_index = -1;
+            long long slot = -1;
+            if (box_reg &&
+                get_typed_object_binding(box_reg, &typed_plan_index) &&
+                typed_object_plan_field_i64_slot(typed_plan_index, field, &slot)) {
+              (void)slot;
+              needs.typed_object = 1;
+              if (dst) set_type(dst, T_I64);
             }
           } else if (strcmp(op, "copy")==0) {
             long long dst = read_int(ins, "dst");
@@ -470,6 +503,11 @@
       if (needs.arr_string_indexof_const_utf8) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hisi\"(i64, i64, ptr, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_slot_load || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
+      if (needs.typed_object) {
+        fprintf(f, "declare i64 @\"nyash.object.new_typed_hi\"(i64, i64)\n");
+        fprintf(f, "declare void @\"nyash.object.field_set_hii\"(i64, i64, i64)\n");
+        fprintf(f, "declare i64 @\"nyash.object.field_get_hii\"(i64, i64)\n");
+      }
       if (needs.string_const_box || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.box.from_i8_string_const\"(ptr)\n");
       if (needs.string_len || module_has_planned_same_module_function_definition())

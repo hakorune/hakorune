@@ -5,7 +5,7 @@
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
 - Active lane token: `phase-293x real-app bringup`
-- Current blocker token: `phase-293x typed object i64 field EXE route: newbox field_get field_set before real-app parity`
+- Current blocker token: `phase-293x typed object EXE route expansion: untyped/handle fields plus birth/method calls before real-app parity`
 
 ## Order
 
@@ -36,9 +36,9 @@ tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight
 tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight
 ```
 
-This is a blocker probe, not EXE parity. The current direct EXE route reaches
-`ny-llvmc` pure-first and stops at `first_op=newbox` until the first typed
-object i64-field EXE route lands.
+This is a blocker probe, not EXE parity. The declared-i64 typed object route is
+now accepted by pure-first, but the real-app boundary still stops at the broader
+general-user-box gap for untyped/handle fields plus birth/method call expansion.
 
 ## Current Status
 
@@ -54,6 +54,8 @@ object i64-field EXE route lands.
 - `293x-010`: smoke env Hako alias cleanup landed.
 - `293x-011`: config env Hako root/bin alias cleanup landed.
 - `293x-012`: typed object EXE plan for general user-box `newbox` landed.
-- Next: implement the first typed object i64-field EXE route for `newbox` plus
-  `field_set` / `field_get`; do not claim real-app EXE parity until that route
-  lands.
+- `293x-013`: declared-i64 typed object EXE route for `newbox` plus
+  `field_set` / `field_get` landed.
+- Next: expand typed object EXE coverage beyond declared i64 fields; do not
+  claim real-app EXE parity until untyped/handle field storage and birth/method
+  call seams land.

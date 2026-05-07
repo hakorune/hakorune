@@ -38,7 +38,7 @@ Scope: current lane / next lane / restart order only.
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - current blocker token:
-  `phase-293x typed object i64 field EXE route: newbox field_get field_set before real-app parity`
+  `phase-293x typed object EXE route expansion: untyped/handle fields plus birth/method calls before real-app parity`
 - primary mode: real-app bringup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -52,8 +52,9 @@ Scope: current lane / next lane / restart order only.
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
 - resume point: continue `phase-293x` from the real-app suite; BoxTorrent
-  mini, binary-trees, and mimalloc-lite are VM-green; allocator port is
-  VM-only until the first typed object i64-field EXE route lands
+  mini, binary-trees, and mimalloc-lite are VM-green; declared-i64 typed object
+  EXE allocation/field get/set has landed, while real-app EXE remains blocked
+  on broader user-object storage and call seams
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
@@ -67,9 +68,10 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: implement the first typed object i64-field EXE route for general
-  user-box `newbox`; keep direct EXE parity blocked until that route lands
-  only change compiler acceptance when the app exposes a real blocker
+- next: expand typed-object EXE coverage beyond declared i64 fields toward
+  untyped/handle field storage plus birth/method call seams; keep direct EXE
+  parity blocked until those routes land and only change compiler acceptance
+  when the app exposes a real blocker
 - MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
   standalone MIR hints scaffold is retired and that audited MIR vocabulary set
   no longer carries a broad dead-code hold

@@ -30,6 +30,7 @@
         int stage1_emit_mir_from_source;
         int stage1_emit_mir_from_program_json;
         int printf;
+        int typed_object;
       };
 
       enum MirCallNeedKind {

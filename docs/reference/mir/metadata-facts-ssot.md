@@ -1,18 +1,84 @@
 # MIR Metadata Facts (SSOT)
 
-Status: Canonical for emitted MIR function metadata  
+Status: Canonical for emitted MIR metadata
 Primary sources:
 
 - `src/mir/function.rs`
 - `src/runner/mir_json_emit/mod.rs`
 - `src/mir/printer.rs`
 
-This document covers the inspection-only metadata emitted under
-`functions[].metadata` in MIR JSON. These facts do **not** create a second MIR
-dialect. They annotate canonical MIR so backends and diagnostics can make
-placement/entry decisions without guessing from helper names.
+This document covers inspection-only metadata emitted in MIR JSON. These facts
+do **not** create a second MIR dialect. They annotate canonical MIR so backends
+and diagnostics can make placement/entry decisions without guessing from helper
+names.
 
-## Current emitted metadata keys
+## Module-level metadata keys
+
+| Key | Shape | Purpose |
+| --- | --- | --- |
+| `typed_object_plans` | array | MIR-owned layout plans for accepted typed user objects; backends read these plans for general user-box `newbox` / `field_set` / `field_get` lowering |
+
+### `typed_object_plans[]`
+
+`typed_object_plans[]` is the module-level layout truth for the first direct EXE
+typed-object route. It is derived from `user_box_decls` /
+`user_box_field_decls` during MIR semantic metadata refresh.
+
+Current accepted shape:
+
+- non-weak user box fields
+- declared i64 storage only: `IntegerBox`, `Integer`, or `i64`
+- runtime slot object layout
+- allocation plus slot `field_set` / `field_get`
+
+Current intentionally unsupported shape:
+
+- weak fields
+- untyped / unknown / mixed storage fields
+- handle fields such as String / Array / Map
+- dynamic field add
+- constructor inline or method-call lowering ownership
+
+Example:
+
+```json
+{
+  "typed_object_plans": [
+    {
+      "box_name": "Pair",
+      "type_id": 1,
+      "layout_kind": "runtime_slot_object_v0",
+      "field_count": 2,
+      "fields": [
+        {
+          "name": "left",
+          "slot": 0,
+          "declared_type": "IntegerBox",
+          "storage": "i64",
+          "weak": false
+        },
+        {
+          "name": "right",
+          "slot": 1,
+          "declared_type": "IntegerBox",
+          "storage": "i64",
+          "weak": false
+        }
+      ]
+    }
+  ]
+}
+```
+
+Contract:
+
+- MIR owns slot assignment and type ids.
+- The backend reads `typed_object_plans[]`; it must not infer slots from raw
+  declarations or app-specific names.
+- The runtime owns opaque typed-object allocation and field storage helpers.
+- `VM InstanceBox` remains reference semantics, not the EXE layout owner.
+
+## Function-level metadata keys
 
 | Key | Shape | Purpose |
 | --- | --- | --- |

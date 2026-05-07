@@ -1,4 +1,8 @@
-use super::super::{collect_sorted_enum_decl_values, collect_sorted_user_box_decl_values};
+use super::super::{
+    collect_sorted_enum_decl_values, collect_sorted_user_box_decl_values,
+    collect_typed_object_plan_values,
+};
+use crate::mir::function::{TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan};
 use crate::mir::MirModule;
 use serde_json::json;
 
@@ -119,4 +123,43 @@ fn collect_sorted_enum_decl_values_preserves_variant_inventory() {
     assert_eq!(decls[0]["type_parameters"], json!(["T"]));
     assert_eq!(decls[0]["variants"][1]["name"], "Some");
     assert_eq!(decls[0]["variants"][1]["payload_type"], "T");
+}
+
+#[test]
+fn collect_typed_object_plan_values_preserves_backend_layout_truth() {
+    let mut module = MirModule::new("test".to_string());
+    module.metadata.typed_object_plans.push(TypedObjectPlan {
+        box_name: "Pair".to_string(),
+        type_id: 1,
+        layout_kind: "runtime_slot_object_v0".to_string(),
+        field_count: 2,
+        fields: vec![
+            TypedObjectFieldPlan {
+                name: "left".to_string(),
+                slot: 0,
+                declared_type_name: Some("IntegerBox".to_string()),
+                storage: TypedObjectFieldStorage::I64,
+                is_weak: false,
+            },
+            TypedObjectFieldPlan {
+                name: "right".to_string(),
+                slot: 1,
+                declared_type_name: Some("IntegerBox".to_string()),
+                storage: TypedObjectFieldStorage::I64,
+                is_weak: false,
+            },
+        ],
+    });
+
+    let plans = collect_typed_object_plan_values(&module);
+
+    assert_eq!(plans.len(), 1);
+    assert_eq!(plans[0]["box_name"], "Pair");
+    assert_eq!(plans[0]["type_id"], 1);
+    assert_eq!(plans[0]["layout_kind"], "runtime_slot_object_v0");
+    assert_eq!(plans[0]["field_count"], 2);
+    assert_eq!(plans[0]["fields"][0]["name"], "left");
+    assert_eq!(plans[0]["fields"][0]["slot"], 0);
+    assert_eq!(plans[0]["fields"][0]["storage"], "i64");
+    assert_eq!(plans[0]["fields"][0]["weak"], false);
 }

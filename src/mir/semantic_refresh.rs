@@ -40,6 +40,7 @@ use super::{
     refresh_function_thin_entry_selections, refresh_function_userbox_local_scalar_seed_route,
     refresh_function_userbox_loop_micro_seed_route, refresh_function_value_consumer_facts,
     substring_views_micro_seed_plan::refresh_function_substring_views_micro_seed_route,
+    typed_object_plan::refresh_module_typed_object_plans,
     userbox_known_receiver_method_seed_plan::refresh_module_userbox_known_receiver_method_seed_routes,
     MirFunction, MirModule,
 };
@@ -102,6 +103,7 @@ pub fn refresh_function_semantic_metadata(
 
 /// Refresh MIR semantic metadata for the whole module.
 pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
+    refresh_module_typed_object_plans(module);
     let module_metadata = module.metadata.clone();
     for function in module.functions.values_mut() {
         refresh_function_semantic_metadata(function, &module_metadata);
