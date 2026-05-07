@@ -16,6 +16,7 @@ mod builder_registry_dispatch_body;
 mod generic_i64_body;
 mod generic_string_abi;
 mod generic_string_body;
+mod generic_string_body_analysis;
 mod generic_string_corridor;
 mod generic_string_facts;
 mod generic_string_guards;
@@ -50,8 +51,7 @@ use mir_schema_map_constructor_body::{
     is_mir_schema_map_constructor_body_candidate, mir_schema_map_constructor_body_reject_reason,
 };
 use model::{
-    GlobalCallLoweringOverride, GlobalCallProof, GlobalCallReturnContract,
-    GlobalCallShapeBlocker,
+    GlobalCallLoweringOverride, GlobalCallProof, GlobalCallReturnContract, GlobalCallShapeBlocker,
     GlobalCallTargetClassification, GlobalCallTargetShapeReason,
 };
 pub use model::{
@@ -344,11 +344,9 @@ fn refresh_function_global_call_routes_with_targets(
                         .cloned()
                         .unwrap_or_else(GlobalCallTargetFacts::missing),
                 )
-                .with_optional_lowering_override(classify_global_call_lowering_override(
-                    name,
-                    args,
-                    &const_null_sentinels,
-                )),
+                .with_optional_lowering_override(
+                    classify_global_call_lowering_override(name, args, &const_null_sentinels),
+                ),
             );
         }
     }
