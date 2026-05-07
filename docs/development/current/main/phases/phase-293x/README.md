@@ -5,7 +5,7 @@
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
 - Active lane token: `phase-293x real-app bringup`
-- Current blocker token: `phase-293x typed object EXE plan: general user-box newbox owner before real-app parity`
+- Current blocker token: `phase-293x typed object i64 field EXE route: newbox field_get field_set before real-app parity`
 
 ## Order
 
@@ -37,8 +37,8 @@ tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --sk
 ```
 
 This is a blocker probe, not EXE parity. The current direct EXE route reaches
-`ny-llvmc` pure-first and stops at `first_op=newbox` with
-`unsupported pure shape for current backend recipe`.
+`ny-llvmc` pure-first and stops at `first_op=newbox` until the first typed
+object i64-field EXE route lands.
 
 ## Current Status
 
@@ -53,5 +53,7 @@ This is a blocker probe, not EXE parity. The current direct EXE route reaches
 - `293x-009`: JSON stream aggregator app landed.
 - `293x-010`: smoke env Hako alias cleanup landed.
 - `293x-011`: config env Hako root/bin alias cleanup landed.
-- Next: typed object EXE planning for general user-box `newbox`; do not claim
-  real-app EXE parity until that plan lands.
+- `293x-012`: typed object EXE plan for general user-box `newbox` landed.
+- Next: implement the first typed object i64-field EXE route for `newbox` plus
+  `field_set` / `field_get`; do not claim real-app EXE parity until that route
+  lands.

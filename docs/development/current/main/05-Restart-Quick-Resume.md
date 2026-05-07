@@ -33,14 +33,14 @@ cargo check -q
 - active lane: `phase-293x real-app bringup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-293x typed object EXE plan: general user-box newbox owner before real-app parity`
+- current blocker token: `phase-293x typed object i64 field EXE route: newbox field_get field_set before real-app parity`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-293x typed object EXE plan: general user-box newbox owner before real-app parity`
+- current blocker token: `phase-293x typed object i64 field EXE route: newbox field_get field_set before real-app parity`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -56,11 +56,12 @@ cargo check -q
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed with `real-apps` smoke coverage
 - direct EXE currently reaches `ny-llvmc` pure-first and stops at unsupported
-  general `newbox`
+  general `newbox`; the next route is typed object i64-field allocation plus
+  slot field get/set
 - EXE boundary gate:
   `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
-- next: design typed object EXE planning for general user-box `newbox`; keep
-  EXE parity blocked until that plan lands
+- next: implement the first typed object i64-field EXE route for general
+  user-box `newbox`; keep EXE parity blocked until that route lands
 - do not hide compiler blockers in app code; if a real app exposes a Stage0 or
   VM/compiler seam, fix the compiler structurally first
 - real-app gate:

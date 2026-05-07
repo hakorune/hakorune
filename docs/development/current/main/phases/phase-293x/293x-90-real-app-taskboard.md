@@ -2,7 +2,7 @@
 
 - Status: Active
 - Lane: `phase-293x real-app bringup`
-- Current blocker token: `phase-293x typed object EXE plan: general user-box newbox owner before real-app parity`
+- Current blocker token: `phase-293x typed object i64 field EXE route: newbox field_get field_set before real-app parity`
 
 ## Tasks
 
@@ -17,7 +17,8 @@
 - [x] `293x-009` JSON stream aggregator
 - [x] `293x-010` smoke env Hako alias cleanup
 - [x] `293x-011` config env Hako root/bin alias cleanup
-- [ ] `293x-012` typed object EXE plan for general user-box `newbox`
+- [x] `293x-012` typed object EXE plan for general user-box `newbox`
+- [ ] `293x-013` i64 field typed-object EXE route for `newbox` + `field_set` / `field_get`
 
 ## Gates
 

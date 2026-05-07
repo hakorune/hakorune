@@ -20,7 +20,7 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-293x typed object EXE plan: general user-box newbox owner before real-app parity`
+- current blocker token: `phase-293x typed object i64 field EXE route: newbox field_get field_set before real-app parity`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
@@ -37,6 +37,8 @@ Related:
   for the active app suite
 - run `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
   for the current EXE blocker probe
+- next route: typed object i64-field allocation plus slot `field_set` /
+  `field_get` for general user-box `newbox`
 - if a real app exposes a compiler expressivity blocker, fix the compiler seam
   structurally instead of adding app-side workaround code
 - current mirrors are thinned; update `CURRENT_STATE.toml` and the phase-293x
