@@ -24,10 +24,8 @@ pub(super) fn is_parser_program_json_body_function(function: &MirFunction) -> bo
         return false;
     };
 
-    let mut state = ParserProgramJsonBodyState::new(
-        function.params[0],
-        function.params.get(1).copied(),
-    );
+    let mut state =
+        ParserProgramJsonBodyState::new(function.params[0], function.params.get(1).copied());
     for instruction in block.instructions.iter().chain(block.terminator.iter()) {
         if !state.observe(instruction) {
             return false;

@@ -43,9 +43,7 @@ pub(super) fn is_void_side_effect_body_function(
                     }
                     MirInstruction::Phi { dst, inputs, .. }
                         if !inputs.is_empty()
-                            && inputs
-                                .iter()
-                                .all(|(_, value)| void_values.contains(value)) =>
+                            && inputs.iter().all(|(_, value)| void_values.contains(value)) =>
                     {
                         if void_values.insert(*dst) {
                             changed = true;
@@ -117,7 +115,9 @@ fn void_side_effect_instruction_supported(
         ),
         MirInstruction::Return { value } => {
             *saw_return = true;
-            value.map(|value| void_values.contains(&value)).unwrap_or(true)
+            value
+                .map(|value| void_values.contains(&value))
+                .unwrap_or(true)
         }
         MirInstruction::Call {
             callee: Some(Callee::Method { .. }),
@@ -126,13 +126,20 @@ fn void_side_effect_instruction_supported(
             let supported = function.metadata.generic_method_routes.iter().any(|route| {
                 route.block() == block_id
                     && route.instruction_index() == instruction_index
-                    && matches!(route.route_id(), "generic_method.push" | "generic_method.set")
-            }) || function.metadata.user_box_method_routes.iter().any(|route| {
-                route.block() == block_id
-                    && route.instruction_index() == instruction_index
-                    && route.return_shape() == Some("void_sentinel_i64_zero")
-                    && route.reason().is_none()
-            });
+                    && matches!(
+                        route.route_id(),
+                        "generic_method.push" | "generic_method.set"
+                    )
+            }) || function
+                .metadata
+                .user_box_method_routes
+                .iter()
+                .any(|route| {
+                    route.block() == block_id
+                        && route.instruction_index() == instruction_index
+                        && route.return_shape() == Some("void_sentinel_i64_zero")
+                        && route.reason().is_none()
+                });
             if supported {
                 *saw_route_backed_effect = true;
             }

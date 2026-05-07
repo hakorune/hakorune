@@ -187,7 +187,9 @@ fn build_mir_json_root_emits_direct_plan_for_program_json_emit_body() {
         MirInstruction::Call {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("BuildBox.emit_program_json_v0/2".to_string())),
+            callee: Some(Callee::Global(
+                "BuildBox.emit_program_json_v0/2".to_string(),
+            )),
             args: vec![ValueId::new(1), ValueId::new(2)],
             effects: EffectMask::PURE,
         },
@@ -218,7 +220,10 @@ fn build_mir_json_root_emits_direct_plan_for_program_json_emit_body() {
     assert_eq!(route["return_shape"], "string_handle");
     assert_eq!(route["value_demand"], "runtime_i64_or_handle");
     assert_eq!(route["definition_owner"], "module_generic");
-    assert_eq!(route["emit_trace_consumer"], "mir_call_global_module_generic_emit");
+    assert_eq!(
+        route["emit_trace_consumer"],
+        "mir_call_global_module_generic_emit"
+    );
 
     let plan = &root["functions"][0]["metadata"]["lowering_plan"][0];
     assert_eq!(plan["source"], "global_call_routes");
@@ -239,7 +244,10 @@ fn build_mir_json_root_emits_direct_plan_for_program_json_emit_body() {
     assert_eq!(plan["return_shape"], "string_handle");
     assert_eq!(plan["value_demand"], "runtime_i64_or_handle");
     assert_eq!(plan["definition_owner"], "module_generic");
-    assert_eq!(plan["emit_trace_consumer"], "mir_call_global_module_generic_emit");
+    assert_eq!(
+        plan["emit_trace_consumer"],
+        "mir_call_global_module_generic_emit"
+    );
 }
 
 #[test]
@@ -264,7 +272,9 @@ fn build_mir_json_root_emits_runtime_plan_for_buildbox_emit_program_json_null_op
             MirInstruction::Call {
                 dst: Some(ValueId::new(3)),
                 func: ValueId::INVALID,
-                callee: Some(Callee::Global("BuildBox.emit_program_json_v0/2".to_string())),
+                callee: Some(Callee::Global(
+                    "BuildBox.emit_program_json_v0/2".to_string(),
+                )),
                 args: vec![ValueId::new(1), ValueId::new(2)],
                 effects: EffectMask::PURE,
             },
@@ -275,7 +285,10 @@ fn build_mir_json_root_emits_runtime_plan_for_buildbox_emit_program_json_null_op
     let root = build_mir_json_root(&module).expect("mir json root");
     let route = &root["functions"][0]["metadata"]["global_call_routes"][0];
     assert_eq!(route["target_exists"], false);
-    assert_eq!(route["target_symbol"], "nyash.stage1.emit_program_json_v0_h");
+    assert_eq!(
+        route["target_symbol"],
+        "nyash.stage1.emit_program_json_v0_h"
+    );
     assert_eq!(route["tier"], "ColdRuntime");
     assert_eq!(route["emit_kind"], "runtime_call");
     assert_eq!(route["proof"], "typed_global_call_stage1_emit_program_json");
@@ -296,7 +309,10 @@ fn build_mir_json_root_emits_runtime_plan_for_buildbox_emit_program_json_null_op
     assert_eq!(plan["tier"], "ColdRuntime");
     assert_eq!(plan["emit_kind"], "runtime_call");
     assert_eq!(plan["proof"], "typed_global_call_stage1_emit_program_json");
-    assert_eq!(plan["route_proof"], "typed_global_call_stage1_emit_program_json");
+    assert_eq!(
+        plan["route_proof"],
+        "typed_global_call_stage1_emit_program_json"
+    );
     assert_eq!(plan["route_kind"], "stage1.emit_program_json_v0");
     assert_eq!(plan["symbol"], "nyash.stage1.emit_program_json_v0_h");
 }

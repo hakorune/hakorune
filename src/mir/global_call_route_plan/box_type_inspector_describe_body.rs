@@ -89,9 +89,7 @@ fn box_type_inspector_describe_signature_blocker(
         return Some(GlobalCallTargetShapeReason::ParamBindingMismatch);
     }
     if !box_type_inspector_return_type_candidate(&function.signature.return_type) {
-        return Some(
-            GlobalCallTargetShapeReason::GenericStringReturnObjectAbiNotHandleCompatible,
-        );
+        return Some(GlobalCallTargetShapeReason::GenericStringReturnObjectAbiNotHandleCompatible);
     }
     None
 }

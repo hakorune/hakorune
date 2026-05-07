@@ -298,7 +298,9 @@ fn refresh_module_global_call_routes_marks_program_json_emit_body_direct_target(
         MirInstruction::Call {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("BuildBox.emit_program_json_v0/2".to_string())),
+            callee: Some(Callee::Global(
+                "BuildBox.emit_program_json_v0/2".to_string(),
+            )),
             args: vec![ValueId::new(2), ValueId::new(3)],
             effects: EffectMask::PURE,
         },
@@ -325,7 +327,10 @@ fn refresh_module_global_call_routes_marks_program_json_emit_body_direct_target(
     assert_eq!(route.return_shape(), Some("string_handle"));
     assert_eq!(route.value_demand(), "runtime_i64_or_handle");
     assert_eq!(route.definition_owner(), "module_generic");
-    assert_eq!(route.emit_trace_consumer(), "mir_call_global_module_generic_emit");
+    assert_eq!(
+        route.emit_trace_consumer(),
+        "mir_call_global_module_generic_emit"
+    );
     assert_eq!(route.reason(), None);
 }
 
@@ -353,7 +358,9 @@ fn refresh_function_global_call_routes_marks_buildbox_emit_program_json_null_opt
         MirInstruction::Call {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("BuildBox.emit_program_json_v0/2".to_string())),
+            callee: Some(Callee::Global(
+                "BuildBox.emit_program_json_v0/2".to_string(),
+            )),
             args: vec![ValueId::new(1), ValueId::new(2)],
             effects: EffectMask::PURE,
         },
@@ -363,7 +370,10 @@ fn refresh_function_global_call_routes_marks_buildbox_emit_program_json_null_opt
 
     let route = &caller.metadata.global_call_routes[0];
     assert_eq!(route.target_exists(), false);
-    assert_eq!(route.target_symbol(), Some("nyash.stage1.emit_program_json_v0_h"));
+    assert_eq!(
+        route.target_symbol(),
+        Some("nyash.stage1.emit_program_json_v0_h")
+    );
     assert_eq!(route.tier(), "ColdRuntime");
     assert_eq!(route.emit_kind(), "runtime_call");
     assert_eq!(route.proof(), "typed_global_call_stage1_emit_program_json");

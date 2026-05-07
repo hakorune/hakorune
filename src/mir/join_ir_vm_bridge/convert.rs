@@ -1,13 +1,13 @@
-use crate::mir::join_ir::{BinOpKind, CompareOp, ConstValue, MirLikeInst};
 #[cfg(test)]
 use crate::mir::join_ir::JoinModule;
+use crate::mir::join_ir::{BinOpKind, CompareOp, ConstValue, MirLikeInst};
 use crate::mir::ssot::extern_call::extern_call as build_extern_call;
+#[cfg(test)]
+use crate::mir::MirModule;
 use crate::mir::{
     BinaryOp, CompareOp as MirCompareOp, ConstValue as MirConstValue, Effect, EffectMask,
     MirInstruction,
 };
-#[cfg(test)]
-use crate::mir::MirModule;
 
 use super::JoinIrVmBridgeError;
 

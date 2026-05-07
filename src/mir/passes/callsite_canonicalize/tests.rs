@@ -166,7 +166,9 @@ fn stage1_buildbox_emit_program_json_null_opts_stays_global_call() {
     block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId(3)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("BuildBox.emit_program_json_v0/2".to_string())),
+        callee: Some(Callee::Global(
+            "BuildBox.emit_program_json_v0/2".to_string(),
+        )),
         args: vec![ValueId(1), ValueId(2)],
         effects: EffectMask::PURE,
     });

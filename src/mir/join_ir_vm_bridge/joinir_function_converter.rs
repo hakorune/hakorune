@@ -5,12 +5,12 @@
 //! - ブロック変換の統合
 //! - 関数署名の管理
 
-use crate::mir::join_ir::{JoinFuncId, JoinFunction};
 #[cfg(test)]
 use crate::mir::join_ir::JoinModule;
-use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirType};
+use crate::mir::join_ir::{JoinFuncId, JoinFunction};
 #[cfg(test)]
 use crate::mir::MirModule;
+use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirType};
 use std::collections::BTreeMap;
 
 #[cfg(test)]

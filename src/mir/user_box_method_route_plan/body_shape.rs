@@ -63,11 +63,15 @@ fn user_box_method_instruction_supported(
         MirInstruction::Call {
             callee: Some(Callee::Method { .. }),
             ..
-        } => function.metadata.user_box_method_routes.iter().any(|route| {
-            route.block() == block_id
-                && route.instruction_index() == instruction_index
-                && route.reason().is_none()
-        }),
+        } => function
+            .metadata
+            .user_box_method_routes
+            .iter()
+            .any(|route| {
+                route.block() == block_id
+                    && route.instruction_index() == instruction_index
+                    && route.reason().is_none()
+            }),
         _ => false,
     }
 }

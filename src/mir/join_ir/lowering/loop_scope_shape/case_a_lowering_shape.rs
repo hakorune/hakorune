@@ -29,7 +29,8 @@ pub enum CaseALoweringShape {
     /// - Return value: final progress carrier
     ///
     /// Signature: (StringBox, ...) -> Integer
-    #[allow(dead_code)] // Structural vocabulary hold: kept until recognized Case-A routing is reintroduced.
+    #[allow(dead_code)]
+    // Structural vocabulary hold: kept until recognized Case-A routing is reintroduced.
     StringExamination,
 
     /// Array accumulation loop: linear iteration with collection mutation
@@ -45,7 +46,8 @@ pub enum CaseALoweringShape {
     /// - Pinned: 1-2 (array/collection, optional length)
     ///
     /// Signature: (CollectionBox, ...) -> Void or CollectionBox
-    #[allow(dead_code)] // Structural vocabulary hold: kept until recognized Case-A routing is reintroduced.
+    #[allow(dead_code)]
+    // Structural vocabulary hold: kept until recognized Case-A routing is reintroduced.
     ArrayAccumulation,
 
     /// Iteration with accumulation: linear iteration + value accumulation
@@ -61,7 +63,8 @@ pub enum CaseALoweringShape {
     /// - Pinned: 2+ (array, initial value, etc.)
     ///
     /// Signature: (CollectionBox, InitialValueBox, ...) -> ResultBox
-    #[allow(dead_code)] // Structural vocabulary hold: kept until recognized Case-A routing is reintroduced.
+    #[allow(dead_code)]
+    // Structural vocabulary hold: kept until recognized Case-A routing is reintroduced.
     IterationWithAccumulation,
 
     /// Generic Case-A: falls outside recognized patterns
