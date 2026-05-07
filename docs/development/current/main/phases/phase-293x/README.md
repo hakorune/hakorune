@@ -38,11 +38,14 @@ tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --sk
 
 This is a blocker probe, not EXE parity. TypedObjectPlan now covers declared
 i64 fields, init-only untyped fields, handle storage, observed empty user
-boxes, and observed `newbox` argument storage flowing into same-module `birth`
-parameters. Conservative same-module `birth` and scalar user-box method routes
-are available for the minimal typed-object fixtures. BoxTorrent allocator page
-seeding now lowers through a MIR-owned void side-effect global route, but the
-real-app boundary still stops at the broader user-box method call route seam.
+boxes, observed `newbox` argument storage flowing into same-module `birth`
+parameters, same-module call argument storage propagation, and same-module
+string-like global return storage. Conservative same-module `birth` and scalar
+user-box method routes are available for the minimal typed-object fixtures.
+BoxTorrent allocator page seeding now lowers through a MIR-owned void
+side-effect global route, and `BoxTorrentManifest` now has a typed object plan;
+the real-app boundary still stops at the broader `BoxTorrentChunker.ingest`
+method body route seam.
 
 ## Current Status
 
@@ -70,5 +73,7 @@ real-app boundary still stops at the broader user-box method call route seam.
   fields initialized from observed `newbox` constructor arguments.
 - `293x-018`: typed void side-effect global route landed for the BoxTorrent
   allocator page seeding chain.
+- `293x-019`: typed object call-param / global-return storage flow landed,
+  making `BoxTorrentManifest` plan-backed.
 - Next: expand pure-first route coverage for `BoxTorrentChunker.ingest`; do not
   claim real-app EXE parity until that method seam lands.

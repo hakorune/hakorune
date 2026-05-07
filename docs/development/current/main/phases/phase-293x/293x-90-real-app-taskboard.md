@@ -24,7 +24,8 @@
 - [x] `293x-016` typed user-box scalar method same-module EXE route
 - [x] `293x-017` typed object birth-param storage EXE route
 - [x] `293x-018` typed void side-effect global route for BoxTorrent allocator seeding
-- [ ] `293x-019` BoxTorrentChunker.ingest route expansion before real-app EXE parity
+- [x] `293x-019` typed object call-param / global-return storage flow
+- [ ] `293x-020` BoxTorrentChunker.ingest route expansion before real-app EXE parity
 
 ## Gates
 
