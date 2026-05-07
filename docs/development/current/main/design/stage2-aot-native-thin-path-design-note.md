@@ -251,7 +251,8 @@ Related:
 - `hako_alloc policy/state contract` is now landed as the allocator stop-line for:
   - handle reuse policy
   - GC trigger threshold policy
-  - reserved-only `RawBuf / Layout / MaybeInit`
+  - VM-only page/free-list policy-state prototype
+  - reserved-only `RawBuf / native Layout / MaybeInit`
 - `plugin route-manifest hardening` is landed; plugin metadata/resolver/host_bridge now treat compat fallback as an explicit cold lane instead of a mainline default.
 - `FastLeafManifest widen judgment` is landed with `no widen now`.
 - there is no active stage2 implementation slice until a real backend-private consumer patch exists.

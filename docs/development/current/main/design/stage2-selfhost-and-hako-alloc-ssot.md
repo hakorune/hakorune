@@ -162,7 +162,8 @@ Native keep remains below those layers:
 - `hako-alloc-policy-state-contract-ssot.md` owns the first concrete allocator policy/state rows:
   - handle reuse policy
   - GC trigger threshold policy
-  - stop-line for reserved-only `RawBuf / Layout / MaybeInit`
+  - VM-only page/free-list policy-state prototype
+  - stop-line for reserved-only `RawBuf / native Layout / MaybeInit`
 - boundary artifacts are not semantic owners:
   - headers/shims stay thin
   - owner truth is fixed separately by `hako.abi` / `hako.value_repr` / ownership-layout manifests

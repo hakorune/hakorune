@@ -47,5 +47,6 @@ This is a blocker probe, not EXE parity. The current direct EXE route reaches
 - `293x-003`: mimalloc-lite allocator-shaped app landed.
 - `293x-004`: real-app EXE boundary probe landed.
 - `293x-005`: pure-first general-newbox owner decision landed.
-- Next: port allocator policy/state under `hako_alloc` as VM-only; do not claim
-  real-app EXE parity until the typed object plan lands.
+- `293x-006`: `hako_alloc` VM-only page/free-list policy-state port landed.
+- Next: add allocator-stress app coverage over the `hako_alloc` seam; do not
+  claim real-app EXE parity until the typed object plan lands.

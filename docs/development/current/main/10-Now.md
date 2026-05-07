@@ -27,9 +27,11 @@ Related:
 ## Next
 
 - continue `phase-293x` real-app bringup
-- BoxTorrent mini, binary-trees, and mimalloc-lite are landed; real allocator
-  port now proceeds as VM-only policy/state under `hako_alloc`
-- real-app order: BoxTorrent mini -> binary-trees -> mimalloc-lite -> allocator port
+- BoxTorrent mini, binary-trees, mimalloc-lite, and the `hako_alloc` VM-only
+  page/free-list port are landed
+- real-app order: BoxTorrent mini -> binary-trees -> mimalloc-lite ->
+  allocator port -> allocator-stress app -> BoxTorrent allocator-backed store ->
+  JSON stream aggregator
 - run `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
   for the active app suite
 - run `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`

@@ -1,0 +1,166 @@
+// page_heap_box.hako — Hako Alloc page/free-list policy-state prototype
+// Responsibility: VM-only fixed-size page heap used by real-app allocator bringup.
+
+using selfhost.hako_alloc.memory.layout_box as LayoutBox
+
+box HakoAllocHandle {
+    init { page_id, block_id, requested_size }
+
+    birth(page_id, block_id, requested_size) {
+        me.page_id = page_id
+        me.block_id = block_id
+        me.requested_size = requested_size
+    }
+}
+
+box HakoAllocPage {
+    init {
+        page_id, block_size, capacity, free_stack, block_used, use_counts,
+        requested_sizes, free_top,
+        alloc_count, free_count, reuse_count, current_used, peak_used,
+        requested_bytes
+    }
+
+    birth(page_id, block_size, capacity) {
+        me.page_id = page_id
+        me.block_size = block_size
+        me.capacity = capacity
+        me.free_stack = new ArrayBox()
+        me.block_used = new ArrayBox()
+        me.use_counts = new ArrayBox()
+        me.requested_sizes = new ArrayBox()
+        me.free_top = capacity
+        me.alloc_count = 0
+        me.free_count = 0
+        me.reuse_count = 0
+        me.current_used = 0
+        me.peak_used = 0
+        me.requested_bytes = 0
+    }
+
+    seedBlocks() {
+        local free_stack = me.free_stack
+        local block_used = me.block_used
+        local use_counts = me.use_counts
+        local requested_sizes = me.requested_sizes
+        local capacity = me.capacity
+        local i = 0
+        loop(i < capacity) {
+            free_stack.push(i)
+            block_used.push(0)
+            use_counts.push(0)
+            requested_sizes.push(0)
+            i = i + 1
+        }
+    }
+
+    allocate(requested_size) {
+        if requested_size > me.block_size {
+            return null
+        }
+
+        if me.free_top == 0 {
+            return null
+        }
+
+        me.free_top = me.free_top - 1
+        local block_id = me.free_stack.get(me.free_top)
+        local use_count = me.use_counts.get(block_id)
+
+        if use_count > 0 {
+            me.reuse_count = me.reuse_count + 1
+        }
+
+        me.block_used.set(block_id, 1)
+        me.use_counts.set(block_id, use_count + 1)
+        me.requested_sizes.set(block_id, requested_size)
+        me.alloc_count = me.alloc_count + 1
+        me.current_used = me.current_used + 1
+        me.requested_bytes = me.requested_bytes + requested_size
+
+        if me.current_used > me.peak_used {
+            me.peak_used = me.current_used
+        }
+
+        return new HakoAllocHandle(me.page_id, block_id, requested_size)
+    }
+
+    release(handle) {
+        if handle == null {
+            return false
+        }
+
+        local used = me.block_used.get(handle.block_id)
+        if used == 0 {
+            return false
+        }
+
+        me.block_used.set(handle.block_id, 0)
+        me.requested_sizes.set(handle.block_id, 0)
+        me.free_stack.set(me.free_top, handle.block_id)
+        me.free_top = me.free_top + 1
+        me.free_count = me.free_count + 1
+        me.current_used = me.current_used - 1
+        return true
+    }
+
+    freeCount() {
+        return me.free_top
+    }
+}
+
+box HakoAllocHeap {
+    init { small_page, medium_page }
+
+    birth() {
+        me.small_page = new HakoAllocPage(
+            0,
+            LayoutBox.class_size(0),
+            LayoutBox.class_capacity(0)
+        )
+        me.medium_page = new HakoAllocPage(
+            1,
+            LayoutBox.class_size(1),
+            LayoutBox.class_capacity(1)
+        )
+        me.small_page.seedBlocks()
+        me.medium_page.seedBlocks()
+    }
+
+    allocate(size) {
+        local class_id = LayoutBox.class_id(size)
+        if class_id == 0 {
+            return me.small_page.allocate(size)
+        }
+
+        if class_id == 1 {
+            return me.medium_page.allocate(size)
+        }
+
+        return null
+    }
+
+    release(handle) {
+        if handle == null {
+            return false
+        }
+
+        if handle.page_id == 0 {
+            return me.small_page.release(handle)
+        }
+
+        if handle.page_id == 1 {
+            return me.medium_page.release(handle)
+        }
+
+        return false
+    }
+
+    requestedBytes() {
+        return me.small_page.requested_bytes + me.medium_page.requested_bytes
+    }
+
+    outstandingBlocks() {
+        return me.small_page.current_used + me.medium_page.current_used
+    }
+}

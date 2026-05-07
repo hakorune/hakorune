@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-05-07"
 
 active_lane = "phase-293x real-app bringup"
-active_lane_status = "Real app lane is active after Program(JSON v0) cleanup; BoxTorrent mini, binary-trees, and mimalloc-lite are VM-green, while direct EXE remains pinned at the pure-first general-newbox boundary. The owner decision is landed, so the allocator port proceeds as VM-only policy/state until typed object EXE planning lands."
+active_lane_status = "Real app lane is active after Program(JSON v0) cleanup; BoxTorrent mini, binary-trees, mimalloc-lite, and the hako_alloc page-heap port are VM-green, while direct EXE remains pinned at the pure-first general-newbox boundary until typed object EXE planning lands."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
 phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORRENT-MINI-LOCAL-STORE.md"
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-005-PURE-FIRST-GENERAL-NEWBOX-OWNER-DECISION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-005-PURE-FIRST-GENERAL-NEWBOX-OWNER-DECISION.md"
-latest_card_summary = "Fixed pure-first general user-box newbox ownership at MIR/BackendRecipe typed object planning, not the C shim; allocator port is VM-only until typed object EXE planning lands."
+latest_card = "293x-006-HAKO-ALLOC-PAGE-HEAP-PORT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-006-HAKO-ALLOC-PAGE-HEAP-PORT.md"
+latest_card_summary = "Moved the mimalloc-lite page/free-list policy-state slice under hako_alloc and kept the app output stable through the public alloc seam."
 
 current_blocker_token = "phase-293x allocator port mode: VM-only policy/state prototype until typed object EXE plan"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -227,4 +227,5 @@ landed_tail = [
   "293x-003 mimalloc-lite real app landed",
   "293x-004 real-app EXE boundary probe landed",
   "293x-005 pure-first general-newbox owner decision landed",
+  "293x-006 hako_alloc page-heap port landed",
 ]

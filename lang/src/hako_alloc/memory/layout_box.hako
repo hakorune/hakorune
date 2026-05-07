@@ -1,0 +1,33 @@
+// layout_box.hako — Hako Alloc size-class policy
+// Responsibility: VM-only allocator layout decisions for the real-app port.
+
+static box LayoutBox {
+  normalize_size(size) {
+    if size <= 0 { return 1 }
+    return size
+  }
+
+  class_id(size) {
+    local n = me.normalize_size(size)
+    if n <= 32 { return 0 }
+    if n <= 64 { return 1 }
+    return -1
+  }
+
+  class_size(class_id) {
+    if class_id == 0 { return 32 }
+    if class_id == 1 { return 64 }
+    return -1
+  }
+
+  class_capacity(class_id) {
+    if class_id == 0 { return 8 }
+    if class_id == 1 { return 4 }
+    return 0
+  }
+
+  accepts(size) {
+    if me.class_id(size) >= 0 { return true }
+    return false
+  }
+}

@@ -13,10 +13,13 @@ Principles
 - Current stop-line:
   - current live implementation row is GC trigger threshold policy
   - first landed policy rows are handle reuse policy and GC trigger threshold policy
-  - no third live allocator row is open yet
+  - third live allocator row is VM-only page/free-list policy-state prototype
   - live Rust bodies still remain under `src/runtime/**`
-  - `RawBuf / Layout / MaybeInit` stay reserved-only for now
+  - `RawBuf / MaybeInit` stay reserved-only for now
+  - `LayoutBox` is size-class policy only; it is not native layout/ABI ownership
 
 Current modules
 - `memory.arc_box`
+- `memory.layout_box`
+- `memory.page_heap_box`
 - `memory.refcell_box`

@@ -7,4 +7,6 @@ Scope
 
 Current modules
 - `arc_box.hako`
+- `layout_box.hako`
+- `page_heap_box.hako`
 - `refcell_box.hako`

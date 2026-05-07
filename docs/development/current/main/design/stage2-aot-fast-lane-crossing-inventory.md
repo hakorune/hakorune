@@ -107,7 +107,7 @@ Related:
 
 | Layer | Current owner | Current truth |
 | --- | --- | --- |
-| policy/state | `lang/src/hako_alloc/**` | policy-plane root only; current live modules are `memory.arc_box` and `memory.refcell_box` |
+| policy/state | `lang/src/hako_alloc/**` | policy-plane root only; current live modules are `memory.arc_box`, `memory.refcell_box`, `memory.layout_box`, and `memory.page_heap_box` |
 | capability substrate | `lang/src/runtime/substrate/{mem,buf,ptr,atomic,tls,gc}/**` | helper-shaped substrate rows and truthful seams |
 | metal keep | C ABI shims + Rust runtime/kernel | actual alloc/free/realloc, handle registry, GC hooks, TLS/atomic body |
 
@@ -123,9 +123,9 @@ Related:
 
 - Reserved-only future rows are still not live:
   - `RawBuf`
-  - `Layout`
   - `MaybeInit`
-  - size/bin/reclaim/locality policy
+  - native `Layout`
+  - general size/bin/reclaim/locality policy
 - `atomic/tls/gc` truthful first rows exist, but allocator/state migration stops before moving their metal body.
 
 ### Next exact implementation buckets
@@ -138,6 +138,8 @@ Related:
      - handle reuse policy vs slot-table body
      - GC trigger threshold policy vs root-trace/metrics body
    - keep metal body native
+   - VM-only page/free-list policy-state prototype is live under
+     `lang/src/hako_alloc/memory/page_heap_box.hako`
 
 ## Bucket C: Dynamic Fallback Op
 
@@ -209,7 +211,7 @@ Related:
 - `phase-29ck` `P8` reopen judgment is landed with `no reopen now`
 - the next `ny-llvm` code-facing front is `P9-METHOD-CALL-ONLY-PERF-ENTRY-INVENTORY.md`, not a new stage2 fast-lane slice and not immediate `kilo` retune
 - reopen only when a concrete `ny-llvm` / `ny-llvmc` consumer patch needs new rows
-- `RawBuf / Layout / MaybeInit` stay reserved-only after the allocator stop-line
+- `RawBuf / native Layout / MaybeInit` stay reserved-only after the allocator stop-line
 
 ## Non-Goals
 
