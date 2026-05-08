@@ -468,7 +468,8 @@ proof.
 
 ## Inline Planning
 
-Decision: reserved for the M11c InlinePlan rows.
+Decision: M11c-preserve is live for advisory `Hint(...)` preservation into MIR
+`inline_plans`; transforms and required inline remain future rows.
 
 Inline is required for allocator-grade fast paths, but it is not a backend
 keyword and not a `.inc` responsibility.
@@ -478,6 +479,7 @@ Required future flow:
 ```text
 @rune Hint(inline/noinline/hot/cold)
 -> MIR InlinePlan / CallsiteInlinePlan
+-> current M11c-preserve metadata-only row
 -> verifier where required
 -> MIR transform or intrinsic route
 -> backend emits the result

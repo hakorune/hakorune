@@ -811,6 +811,29 @@ pub(super) fn build_mir_json_root(
                 .map(|rune| json!({"name": rune.name, "args": rune.args}))
                 .collect::<Vec<_>>()
         });
+        if let serde_json::Value::Object(obj) = &mut metadata_json {
+            obj.insert(
+                "inline_plans".to_string(),
+                serde_json::Value::Array(
+                    f.metadata
+                        .inline_plans
+                        .iter()
+                        .map(|plan| {
+                            json!({
+                                "function": plan.function.as_str(),
+                                "request": plan.request.as_str(),
+                                "hotness": plan.hotness.as_ref().map(|hotness| hotness.as_str()),
+                                "max_ir": plan.max_ir,
+                                "requires": &plan.requires,
+                                "verified": plan.verified,
+                                "fallback": plan.fallback.as_str(),
+                                "source": plan.source.as_str(),
+                            })
+                        })
+                        .collect(),
+                ),
+            );
+        }
 
         funs.push(json!({
             "name": name,

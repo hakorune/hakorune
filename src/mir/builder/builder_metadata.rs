@@ -63,6 +63,7 @@ impl MirBuilder {
     pub(super) fn set_current_function_runes(&mut self, attrs: &crate::ast::DeclarationAttrs) {
         if let Some(function) = self.scope_ctx.current_function.as_mut() {
             function.metadata.runes = attrs.runes.clone();
+            crate::mir::inline_plan::refresh_function_inline_plans(function);
         }
     }
 }

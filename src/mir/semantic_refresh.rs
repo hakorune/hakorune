@@ -72,6 +72,7 @@ pub fn refresh_function_semantic_metadata(
     function: &mut MirFunction,
     module_metadata: &ModuleMetadata,
 ) {
+    crate::mir::inline_plan::refresh_function_inline_plans(function);
     refresh_function_string_corridor_metadata(function);
     refresh_function_storage_class_facts(function);
     refresh_function_thin_entry_candidates(function, module_metadata);

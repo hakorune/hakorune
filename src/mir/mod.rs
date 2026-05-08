@@ -43,6 +43,7 @@ pub mod generic_method_route_plan; // MIR-owned generic method route policy plan
 pub mod global_call_route_plan; // MIR-owned unsupported global user-call route inventory
 pub mod if_in_loop_phi; // Phase 187-2: Minimal if-in-loop PHI emitter (extracted from loop_builder)
 pub mod indexof_search_micro_seed_plan; // MIR-owned route plan for temporary indexOf search micro seed bridge
+pub mod inline_plan; // MIR-owned InlinePlan metadata derived from rune hints
 pub mod instruction;
 pub mod instruction_introspection; // Introspection helpers for tests (instruction names)
 pub mod instruction_kinds; // small kind-specific metadata (Const/BinOp)

@@ -51,8 +51,9 @@ Current live verifier row:
 - `Contract(pure)` and `Contract(readonly)` remain metadata-only until their
   verifier rows land.
 - No contract is currently exported for backend optimization use.
-- `Hint(inline/noinline/hot/cold)` is parsed metadata only. Inline transforms
-  require a future MIR-owned InlinePlan row.
+- `Hint(inline/noinline/hot/cold)` is preserved into MIR-owned
+  `metadata.inline_plans`. Inline transforms are still disabled until the next
+  InlinePlan transform row lands.
 
 Fail-fast diagnostics use the stable tags:
 
@@ -65,11 +66,12 @@ Fail-fast diagnostics use the stable tags:
 
 Inline is not a backend-local keyword.
 
-Accepted future flow:
+Accepted flow:
 
 ```text
 @rune Hint(inline)
 -> MIR InlinePlan request=prefer
+-> currently preserved as metadata only
 -> MIR optimizer may inline or keep the call
 -> backend emits the resulting MIR
 ```

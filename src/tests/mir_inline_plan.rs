@@ -1,0 +1,114 @@
+use crate::mir::MirCompiler;
+use crate::parser::NyashParser;
+use std::sync::{Mutex, MutexGuard, OnceLock};
+
+fn ensure_ring0_initialized() {
+    use crate::runtime::ring0::{default_ring0, init_global_ring0};
+    let _ = std::panic::catch_unwind(|| {
+        init_global_ring0(default_ring0());
+    });
+}
+
+fn env_guard() -> &'static Mutex<()> {
+    static GUARD: OnceLock<Mutex<()>> = OnceLock::new();
+    GUARD.get_or_init(|| Mutex::new(()))
+}
+
+struct FeatureOverrideGuard {
+    prev: Option<String>,
+    _lock: MutexGuard<'static, ()>,
+}
+
+impl FeatureOverrideGuard {
+    fn new(features: &str) -> Self {
+        let lock = match env_guard().lock() {
+            Ok(lock) => lock,
+            Err(poisoned) => poisoned.into_inner(),
+        };
+        let prev = std::env::var("NYASH_FEATURES").ok();
+        std::env::set_var("NYASH_FEATURES", features);
+        Self { prev, _lock: lock }
+    }
+}
+
+impl Drop for FeatureOverrideGuard {
+    fn drop(&mut self) {
+        match &self.prev {
+            Some(value) => std::env::set_var("NYASH_FEATURES", value),
+            None => std::env::remove_var("NYASH_FEATURES"),
+        }
+    }
+}
+
+#[test]
+fn mir_preserves_rune_hint_inline_as_inline_plan_metadata() {
+    ensure_ring0_initialized();
+    let _guard = FeatureOverrideGuard::new("rune");
+    let ast = NyashParser::parse_from_string(
+        r#"
+static box Main {
+  @rune Hint(inline)
+  main() {
+    return 0
+  }
+}
+"#,
+    )
+    .expect("parse inline hint");
+
+    let mut compiler = MirCompiler::with_options(false);
+    let module = compiler.compile(ast).expect("compile inline hint").module;
+    let main = module
+        .functions
+        .values()
+        .find(|function| function.signature.name.contains("main"))
+        .expect("main function");
+
+    assert_eq!(main.metadata.inline_plans.len(), 1);
+    let plan = &main.metadata.inline_plans[0];
+    assert_eq!(plan.function, main.signature.name);
+    assert_eq!(plan.request.as_str(), "prefer");
+    assert_eq!(plan.hotness, None);
+    assert_eq!(plan.max_ir, None);
+    assert!(plan.requires.is_empty());
+    assert!(!plan.verified);
+    assert_eq!(plan.fallback, "keep_call");
+    assert_eq!(plan.source, "rune_hint");
+}
+
+#[test]
+fn mir_preserves_rune_hint_hot_as_inline_plan_metadata_without_inline_request() {
+    ensure_ring0_initialized();
+    let _guard = FeatureOverrideGuard::new("rune");
+    let ast = NyashParser::parse_from_string(
+        r#"
+static box Main {
+  @rune Hint(hot)
+  main() {
+    return 0
+  }
+}
+"#,
+    )
+    .expect("parse hot hint");
+
+    let mut compiler = MirCompiler::with_options(false);
+    let module = compiler.compile(ast).expect("compile hot hint").module;
+    let main = module
+        .functions
+        .values()
+        .find(|function| function.signature.name.contains("main"))
+        .expect("main function");
+
+    assert_eq!(main.metadata.inline_plans.len(), 1);
+    let plan = &main.metadata.inline_plans[0];
+    assert_eq!(plan.request.as_str(), "none");
+    assert_eq!(
+        plan.hotness
+            .as_ref()
+            .map(crate::mir::inline_plan::InlineHotness::as_str),
+        Some("hot")
+    );
+    assert_eq!(plan.fallback, "keep_call");
+    assert!(!plan.verified);
+}

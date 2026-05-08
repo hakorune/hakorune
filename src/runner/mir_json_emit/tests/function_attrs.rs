@@ -29,3 +29,31 @@ fn build_mir_json_root_emits_function_runes_as_attrs() {
     assert_eq!(runes[1]["name"], "CallConv");
     assert_eq!(runes[1]["args"], serde_json::json!(["c"]));
 }
+
+#[test]
+fn build_mir_json_root_emits_inline_plans_from_hint_runes() {
+    let mut module = MirModule::new("test".to_string());
+    let mut function = make_function("Main.align_up/2", false);
+    function.metadata.runes = vec![RuneAttr {
+        name: "Hint".to_string(),
+        args: vec!["inline".to_string()],
+    }];
+    crate::mir::inline_plan::refresh_function_inline_plans(&mut function);
+    module
+        .functions
+        .insert("Main.align_up/2".to_string(), function);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let plans = root["functions"][0]["metadata"]["inline_plans"]
+        .as_array()
+        .expect("metadata.inline_plans array");
+    assert_eq!(plans.len(), 1);
+    assert_eq!(plans[0]["function"], "Main.align_up/2");
+    assert_eq!(plans[0]["request"], "prefer");
+    assert_eq!(plans[0]["hotness"], serde_json::Value::Null);
+    assert_eq!(plans[0]["max_ir"], serde_json::Value::Null);
+    assert_eq!(plans[0]["requires"], serde_json::json!([]));
+    assert_eq!(plans[0]["verified"], false);
+    assert_eq!(plans[0]["fallback"], "keep_call");
+    assert_eq!(plans[0]["source"], "rune_hint");
+}

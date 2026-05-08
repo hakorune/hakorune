@@ -14,9 +14,9 @@ use crate::mir::{
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
     exact_seed_backend_route::ExactSeedBackendRoute, extern_call_route_plan::ExternCallRoute,
     generic_method_route_plan::GenericMethodRoute, global_call_route_plan::GlobalCallRoute,
-    map_lookup_fusion_plan::MapLookupFusionRoute, placement_effect::PlacementEffectRoute,
-    storage_class::StorageClass, string_corridor::StringCorridorFact,
-    string_corridor_placement::StringCorridorCandidate,
+    inline_plan::InlinePlan, map_lookup_fusion_plan::MapLookupFusionRoute,
+    placement_effect::PlacementEffectRoute, storage_class::StorageClass,
+    string_corridor::StringCorridorFact, string_corridor_placement::StringCorridorCandidate,
     string_corridor_relation::StringCorridorRelation,
     string_direct_set_window_plan::StringDirectSetWindowRoute,
     string_kernel_plan::StringKernelPlan,
@@ -108,6 +108,10 @@ pub struct FunctionMetadata {
 
     /// Declaration-local Rune attrs carried from AST/direct MIR routes.
     pub runes: Vec<crate::ast::RuneAttr>,
+
+    /// MIR-owned inline metadata derived from advisory `Hint(...)` runes.
+    /// This is preservation-only until an InlinePlan transform/verifier row lands.
+    pub inline_plans: Vec<InlinePlan>,
 
     /// No-op string corridor facts attached to current MIR values.
     /// These facts inventory current carriers (`str.slice`, `str.len`, `freeze.str`)

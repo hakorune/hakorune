@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-046-M11B-STATIC-CONST-TABLE-EVAL"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-046-M11B-STATIC-CONST-TABLE-EVAL.md"
-latest_card_summary = "Implemented M11b-eval for narrow integer const expressions in static const u16 table initializers across Rust parser, .hako parser, Program(JSON), MIR metadata, and VM load fixtures."
+latest_card = "293x-047-M11C-INLINE-PLAN-PRESERVE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-047-M11C-INLINE-PLAN-PRESERVE.md"
+latest_card_summary = "Implemented M11c-preserve by deriving advisory Hint(inline/noinline/hot/cold) runes into MIR-owned metadata.inline_plans with no backend or .inc inline use."
 
 current_blocker_token = "phase-293x mimalloc substrate capability ladder after real-app EXE parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -234,4 +234,5 @@ landed_tail = [
   "293x-010 smoke env Hako alias cleanup landed",
   "293x-045 InlinePlan docs lock landed",
   "293x-046 M11b static const table eval landed",
+  "293x-047 M11c InlinePlan preserve landed",
 ]

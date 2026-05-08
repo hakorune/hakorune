@@ -125,6 +125,37 @@ The exact serialized schema may be narrowed by implementation cards, but the
 truth remains MIR-owned. `.inc`, ll_emit, and C shims do not infer inline policy
 from function names.
 
+M11c-preserve live schema:
+
+```json
+{
+  "inline_plans": [
+    {
+      "function": "Main.align_up/2",
+      "request": "prefer",
+      "hotness": null,
+      "max_ir": null,
+      "requires": [],
+      "verified": false,
+      "fallback": "keep_call",
+      "source": "rune_hint"
+    }
+  ]
+}
+```
+
+Current hint mapping:
+
+```text
+Hint(inline)   -> request=prefer
+Hint(noinline) -> request=avoid
+Hint(hot)      -> request=none, hotness=hot
+Hint(cold)     -> request=none, hotness=cold
+```
+
+`verified=false` and `fallback=keep_call` are part of the preservation
+contract. Backends must not treat this row as a mandate.
+
 ## Inline Kinds
 
 ### MIR Function Inline
@@ -224,7 +255,7 @@ M11b-eval:
 
 M11c-preserve:
   preserve existing Hint(inline/noinline/hot/cold) into MIR InlinePlan metadata.
-  No backend use.
+  Live-narrow. No backend use.
 
 M11c-soft-leaf:
   best-effort same-module leaf MIR inline.

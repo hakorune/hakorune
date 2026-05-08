@@ -25,6 +25,8 @@ pub mod mir_funcscanner_ssa;
 #[cfg(feature = "legacy-tests")]
 #[path = "../mir_funcscanner_trim_min.rs"]
 pub mod mir_funcscanner_trim_min;
+#[path = "../mir_inline_plan.rs"]
+pub mod mir_inline_plan;
 #[cfg(feature = "legacy-tests")]
 #[path = "../mir_lambda_functionbox.rs"]
 pub mod mir_lambda_functionbox;

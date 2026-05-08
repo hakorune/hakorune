@@ -88,6 +88,7 @@ Contract:
 | `string_corridor_candidates` | object map `{value_id: [candidate, ...]}` | Placement/effect candidate inventory derived from string corridor facts |
 | `thin_entry_candidates` | array | Candidate sites for public-entry vs thin-entry selection |
 | `thin_entry_selections` | array | Manifest-bound thin-entry decisions |
+| `inline_plans` | array | Advisory InlinePlan rows derived from declaration-local `Hint(inline/noinline/hot/cold)` runes; preservation-only until inline transform rows land |
 | `sum_placement_facts` | array | Observed sum objectization / local-aggregate facts |
 | `sum_placement_selections` | array | Selected sum path (`local_aggregate` vs compat fallback) |
 | `sum_placement_layouts` | array | LLVM-side local aggregate layout choice for selected sums |
@@ -95,6 +96,40 @@ Contract:
 | `sum_variant_project_seed_route` | object or null | Exact Sum `variant_project` seed route selected from Sum placement metadata |
 | `userbox_local_scalar_seed_route` | object or null | Exact UserBox Point local/copy scalar seed route selected from thin-entry field metadata |
 | `exact_seed_backend_route` | object or null | Function-level backend route tag for one already-proven exact seed payload |
+
+## InlinePlan metadata
+
+`inline_plans` is the M11c-preserve row. It records advisory inline metadata in
+MIR JSON without changing lowering or backend behavior.
+
+Example:
+
+```json
+{
+  "inline_plans": [
+    {
+      "function": "Main.align_up/2",
+      "request": "prefer",
+      "hotness": null,
+      "max_ir": null,
+      "requires": [],
+      "verified": false,
+      "fallback": "keep_call",
+      "source": "rune_hint"
+    }
+  ]
+}
+```
+
+Current request mapping:
+
+- `Hint(inline)` -> `request = "prefer"`
+- `Hint(noinline)` -> `request = "avoid"`
+- `Hint(hot)` -> `request = "none"`, `hotness = "hot"`
+- `Hint(cold)` -> `request = "none"`, `hotness = "cold"`
+
+Backends must not consume this row as an inline mandate. Required inline remains
+reserved for verifier-backed `Lowering(inline_required)` rows.
 
 ## Value maps
 
