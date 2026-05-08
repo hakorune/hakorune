@@ -1,4 +1,5 @@
 use super::*;
+use crate::mir::BinaryOp;
 
 #[test]
 fn records_i64_const_key_route() {
