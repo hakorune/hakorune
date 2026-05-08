@@ -281,6 +281,25 @@ static box LlTextEmitBox {
     return null
   }
 
+  _emit_static_data_load(func, facts, inst) {
+    local dst = inst.get("dst")
+    local source_name = "" + inst.get("source_name")
+    local symbol = "" + inst.get("symbol")
+    local element = "" + inst.get("element")
+    local len = inst.get("len")
+    local align = inst.get("align")
+    local index_reg = inst.get("index")
+    if element != "u16" { return null }
+    local idx = me._operand_i64(func, facts, index_reg)
+    local ptr = "%sdptr" + ("" + dst)
+    local val = "%sdv" + ("" + dst)
+    local out = ""
+    out = out + "  " + ptr + " = getelementptr inbounds ([" + ("" + len) + " x i16], ptr @" + symbol + ", i64 0, i64 " + idx + ")\n"
+    out = out + "  " + val + " = load i16, ptr " + ptr + ", align " + ("" + align) + "\n"
+    out = out + "  " + me._reg(dst) + " = zext i16 " + val + " to i64\n"
+    return out
+  }
+
   _emit_instruction(func, facts, inst) {
     local op = "" + inst.get("op")
     if op == "const" {
@@ -294,6 +313,7 @@ static box LlTextEmitBox {
     }
     if op == "copy" { return "" }
     if op == "newbox" { return me._emit_newbox(inst) }
+    if op == "static_data_load" { return me._emit_static_data_load(func, facts, inst) }
     if op == "release_strong" { return "" }
     if op == "binop" {
       local dst = inst.get("dst")

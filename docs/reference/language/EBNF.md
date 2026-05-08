@@ -13,8 +13,8 @@ Design SSOT note (Scope Exit Semantics):
 
 program   := (static_const_table_decl | stmt)* EOF
 
-; M11b-decl static const table syntax.
-; Declaration-only row: no table read expression or const evaluation yet.
+; M11b static const table syntax.
+; Reads use the existing postfix index expression. Const evaluation is not live.
 static_const_table_decl :=
              'static' 'const' IDENT ':' 'u16' '[' ']' '=' '[' int_list? ']'
 int_list  := INT (',' INT)* ','?
@@ -120,7 +120,7 @@ Notes
 - Known-enum shorthand: `Some(v)` / `None` is accepted only when the arm set resolves to a known enum declaration in the current source inventory.
 - Known-enum exhaustiveness: shorthand enum matches must name every variant explicitly; `_` does not satisfy exhaustiveness for that lane.
 - `Option<T>` does not add new grammar in the first cut. It uses the existing enum declaration, qualified constructor, and known-enum match surface. Future `some` / `none` / `if some` sugar is reserved and must be implemented in both Rust and `.hako` parsers together.
-- Static const tables: `static const NAME: u16[] = [...]` is accepted for M11b-decl. Reads from the table, const expressions, and const fn are still reserved.
+- Static const tables: `static const NAME: u16[] = [...]` and `NAME[index]` reads are accepted for the narrow M11b row. Const expressions and const fn are still reserved.
 
 ## Box Members (Phase‑15, env gate: NYASH_ENABLE_UNIFIED_MEMBERS; default ON)
 

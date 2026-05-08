@@ -80,7 +80,7 @@ backend may trust them for lowering or optimization.
 | `M10c-pre pointer/handle return proof vocabulary` | `reserved` | optimization export proof | separates handle return classes from native pointer return classes before any strong LLVM pointer attrs |
 | `M10c LLVM export attrs widening` | `blocked` | optimization export | `noalias`, `nonnull`, `dereferenceable`, alignment, stronger `nocapture` only after pointer/native-ptr proof and verifier/export consistency proof |
 | `M11a static readonly data segment` | `live-narrow` | backend-private const data | backend-private static data manifest emits a readonly u16 size-class fixture as LLVM data; no source syntax or const eval |
-| `M11b const eval/static table syntax` | `next-card` | language + MIR const data | split into `M11b-decl` source static const table declarations, `M11b-load` table reads, and `M11b-eval` const eval/const fn; first implementation target is u16 declaration metadata only |
+| `M11b const eval/static table syntax` | `live-narrow` | language + MIR const data | `M11b-decl` source `u16` static const table declarations and `M11b-load` static table reads are live; `M11b-eval` const eval/const fn remains the next split |
 | `M12 mimalloc raw-page proof` | `blocked` | allocator substrate consumer | page/free-list fixture on raw substrate with `no_alloc` / `no_safepoint` proof gates |
 | `M13 allocator fast-path EXE proof` | `blocked` | EXE backend + substrate | direct EXE proof for allocator fast path; helper calls only where capability route says so |
 
@@ -215,8 +215,10 @@ to backend optimization yet. `M9a` now exposes `hako.intrin` bit-count rows for
 current-lane non-negative i64 values; this does not activate
 `@rune IntrinsicCandidate` or backend optimization use. `M11a` now proves the
 backend-private static readonly data seam with a generated u16 size-class
-fixture. The next implementation target is `M11b-decl`: source-level
-`static const NAME: u16[] = [...]` declarations flowing into MIR
-`static_data_plans`, with both Rust and `.hako` parser fronts considered. Do
-not jump to allocator fast-path lowering before the remaining verifier facts
-make raw access auditable.
+fixture. `M11b-decl` now accepts source-level
+`static const NAME: u16[] = [...]` declarations into MIR `static_data_plans`.
+`M11b-load` now accepts `NAME[index]` as a MIR-owned static-data load for those
+tables. The next implementation target is `M11b-eval`: const expression/table
+generation, still without arbitrary compile-time side effects. Do not jump to
+allocator fast-path lowering before the remaining verifier facts make raw access
+auditable.

@@ -535,6 +535,47 @@ impl super::MirBuilder {
         target: ASTNode,
         index: ASTNode,
     ) -> Result<ValueId, String> {
+        if let ASTNode::Variable { name, .. } = &target {
+            if let Some(plan) = self
+                .current_module
+                .as_ref()
+                .and_then(|module| {
+                    crate::mir::static_data_plan::find_static_data_plan(
+                        &module.metadata.static_data_plans,
+                        name,
+                    )
+                })
+                .cloned()
+            {
+                if plan.element != "u16" {
+                    return Err(format!(
+                        "[static-const/load-unsupported-element] {} element={}",
+                        plan.source_name, plan.element
+                    ));
+                }
+                let index_val = self.build_expression(index)?;
+                let dst = self.next_value_id();
+                self.emit_instruction(MirInstruction::StaticDataLoad {
+                    dst,
+                    source_name: plan.source_name,
+                    symbol: plan.symbol,
+                    element: plan.element,
+                    len: plan.values.len() as u32,
+                    align: plan.align,
+                    index: index_val,
+                })?;
+                if let Some(func) = self.scope_ctx.current_function.as_mut() {
+                    func.metadata
+                        .value_types
+                        .insert(dst, super::MirType::Integer);
+                }
+                self.type_ctx
+                    .value_types
+                    .insert(dst, super::MirType::Integer);
+                return Ok(dst);
+            }
+        }
+
         let target_val = self.build_expression(target)?;
         let class_hint = self.infer_index_target_class(target_val);
 

@@ -17,7 +17,7 @@ use call::*;
 use helpers::*;
 
 /// Parse minimal MIR JSON v0 (no schema_version, root has `functions` and each function has `blocks`).
-/// Supported ops (minimal): const, copy, load, array_get, array_set, store, binop, compare, typeop, ref_new, weak_new, weak_load, future_new, future_set, await, branch, jump, phi, ret, newbox, boxcall, call, mir_call, externcall, safepoint, keepalive, release_strong, debug, select, barrier.
+/// Supported ops (minimal): const, copy, load, static_data_load, array_get, array_set, store, binop, compare, typeop, ref_new, weak_new, weak_load, future_new, future_set, await, branch, jump, phi, ret, newbox, boxcall, call, mir_call, externcall, safepoint, keepalive, release_strong, debug, select, barrier.
 pub fn parse_mir_v0_to_module(json: &str) -> Result<MirModule, String> {
     let value: Value = serde_json::from_str(json).map_err(|e| format!("invalid JSON: {}", e))?;
     let functions = value
@@ -26,6 +26,7 @@ pub fn parse_mir_v0_to_module(json: &str) -> Result<MirModule, String> {
         .ok_or_else(|| "JSON missing functions array".to_string())?;
 
     let mut module = MirModule::new("mir_json_v0".to_string());
+    module.metadata.static_data_plans = parse_static_data_plans(value.get("static_data_plans"))?;
 
     for func in functions {
         let func_name = func
@@ -132,6 +133,37 @@ pub fn parse_mir_v0_to_module(json: &str) -> Result<MirModule, String> {
                         block_ref.add_instruction(MirInstruction::Load {
                             dst: ValueId::new(dst),
                             ptr: ValueId::new(ptr),
+                        });
+                        max_value_id = max_value_id.max(dst + 1);
+                    }
+                    "static_data_load" => {
+                        let dst = require_u64(inst, "dst", "static_data_load dst")? as u32;
+                        let source_name = inst
+                            .get("source_name")
+                            .and_then(Value::as_str)
+                            .ok_or_else(|| "static_data_load missing source_name".to_string())?
+                            .to_string();
+                        let symbol = inst
+                            .get("symbol")
+                            .and_then(Value::as_str)
+                            .ok_or_else(|| "static_data_load missing symbol".to_string())?
+                            .to_string();
+                        let element = inst
+                            .get("element")
+                            .and_then(Value::as_str)
+                            .ok_or_else(|| "static_data_load missing element".to_string())?
+                            .to_string();
+                        let len = require_u64(inst, "len", "static_data_load len")? as u32;
+                        let align = require_u64(inst, "align", "static_data_load align")? as u32;
+                        let index = require_u64(inst, "index", "static_data_load index")? as u32;
+                        block_ref.add_instruction(MirInstruction::StaticDataLoad {
+                            dst: ValueId::new(dst),
+                            source_name,
+                            symbol,
+                            element,
+                            len,
+                            align,
+                            index: ValueId::new(index),
                         });
                         max_value_id = max_value_id.max(dst + 1);
                     }
@@ -576,4 +608,67 @@ pub fn parse_mir_v0_to_module(json: &str) -> Result<MirModule, String> {
     let _ = crate::mir::passes::callsite_canonicalize::canonicalize_callsites(&mut module);
 
     Ok(module)
+}
+
+fn parse_static_data_plans(
+    value: Option<&Value>,
+) -> Result<Vec<crate::mir::function::StaticDataPlan>, String> {
+    let Some(value) = value else {
+        return Ok(Vec::new());
+    };
+    let rows = value
+        .as_array()
+        .ok_or_else(|| "static_data_plans must be an array".to_string())?;
+    let mut out = Vec::with_capacity(rows.len());
+    for row in rows {
+        let source_name = row
+            .get("source_name")
+            .and_then(Value::as_str)
+            .ok_or_else(|| "static_data_plans row missing source_name".to_string())?
+            .to_string();
+        let symbol = row
+            .get("symbol")
+            .and_then(Value::as_str)
+            .ok_or_else(|| "static_data_plans row missing symbol".to_string())?
+            .to_string();
+        let element = row
+            .get("element")
+            .and_then(Value::as_str)
+            .ok_or_else(|| "static_data_plans row missing element".to_string())?
+            .to_string();
+        let align = row
+            .get("align")
+            .and_then(Value::as_u64)
+            .ok_or_else(|| "static_data_plans row missing align".to_string())?
+            as u32;
+        let linkage = row
+            .get("linkage")
+            .and_then(Value::as_str)
+            .unwrap_or("private")
+            .to_string();
+        let unnamed_addr = row
+            .get("unnamed_addr")
+            .and_then(Value::as_bool)
+            .unwrap_or(true);
+        let values = row
+            .get("values")
+            .and_then(Value::as_array)
+            .ok_or_else(|| "static_data_plans row missing values".to_string())?
+            .iter()
+            .map(|item| {
+                item.as_u64()
+                    .ok_or_else(|| "static_data_plans values must be unsigned integers".to_string())
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        out.push(crate::mir::function::StaticDataPlan {
+            source_name,
+            symbol,
+            element,
+            align,
+            linkage,
+            unnamed_addr,
+            values,
+        });
+    }
+    Ok(out)
 }

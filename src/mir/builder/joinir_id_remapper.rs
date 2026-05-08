@@ -71,6 +71,7 @@ impl JoinIrIdRemapper {
             BinOp { dst, lhs, rhs, .. } => vec![*dst, *lhs, *rhs],
             Compare { dst, lhs, rhs, .. } => vec![*dst, *lhs, *rhs],
             Load { dst, ptr } => vec![*dst, *ptr],
+            StaticDataLoad { dst, index, .. } => vec![*dst, *index],
             Store { value, ptr } => vec![*value, *ptr],
             FieldGet { dst, base, .. } => vec![*dst, *base],
             FieldSet { base, value, .. } => vec![*base, *value],
@@ -242,6 +243,23 @@ impl JoinIrIdRemapper {
             Load { dst, ptr } => Load {
                 dst: remap(*dst),
                 ptr: remap(*ptr),
+            },
+            StaticDataLoad {
+                dst,
+                source_name,
+                symbol,
+                element,
+                len,
+                align,
+                index,
+            } => StaticDataLoad {
+                dst: remap(*dst),
+                source_name: source_name.clone(),
+                symbol: symbol.clone(),
+                element: element.clone(),
+                len: *len,
+                align: *align,
+                index: remap(*index),
             },
             Store { value, ptr } => Store {
                 value: remap(*value),

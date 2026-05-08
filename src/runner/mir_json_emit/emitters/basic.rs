@@ -40,6 +40,27 @@ pub(crate) fn emit_const(dst: &ValueId, value: &ConstValue) -> serde_json::Value
     }
 }
 
+pub(crate) fn emit_static_data_load(
+    dst: &ValueId,
+    source_name: &str,
+    symbol: &str,
+    element: &str,
+    len: u32,
+    align: u32,
+    index: &ValueId,
+) -> serde_json::Value {
+    json!({
+        "op": "static_data_load",
+        "dst": dst.as_u32(),
+        "source_name": source_name,
+        "symbol": symbol,
+        "element": element,
+        "len": len,
+        "align": align,
+        "index": index.as_u32(),
+    })
+}
+
 pub(crate) fn emit_type_op(
     dst: &ValueId,
     op: &TypeOpKind,

@@ -49,7 +49,7 @@ The current live surface is intentionally narrow.
 | `hako.osvm` | page-size plus reserve/commit/decommit rows exist |
 | `hako.intrin` | current-lane non-negative i64 bit-count rows exist: `clz_i64`, `ctz_i64`, `popcnt_i64`; backend optimization use is not live |
 | backend export attrs | consistency guard is live; only current weak attrs are allowed, runtime-decl `readonly` rows must carry `memory = "read"`, while `noalias`/`nonnull`/`dereferenceable`/alignment export remain blocked |
-| static readonly data | backend-private static-data manifest can emit a u16 size-class fixture, and source `static const NAME: u16[] = [...]` declarations lower to MIR `static_data_plans`; table reads and const eval are not live |
+| static readonly data | backend-private static-data manifest can emit a u16 size-class fixture; source `static const NAME: u16[] = [...]` declarations lower to MIR `static_data_plans`; `NAME[index]` reads lower to MIR `StaticDataLoad` and current-lane `i64` values; const eval is not live |
 
 ## Reserved Surface
 
@@ -73,8 +73,7 @@ These names are reserved but not fully live as user-facing allocator substrate:
 - `prefetch`, `assume`, `unreachable`
 - full unsigned-width runtime semantics for intrinsic rows
 - `noalias`, `nonnull`, `dereferenceable`, stronger alignment export
-- source-level static const table declarations, table loads, and const-evaluated
-  static tables
+- const-evaluated static tables and const fn table generation
 
 ## Pointer/Handle Return Proof Vocabulary
 

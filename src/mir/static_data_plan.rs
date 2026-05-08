@@ -40,6 +40,13 @@ pub fn static_const_table_plan(name: &str, element_type: &str, values: &[u64]) -
     }
 }
 
+pub fn find_static_data_plan<'a>(
+    plans: &'a [StaticDataPlan],
+    source_name: &str,
+) -> Option<&'a StaticDataPlan> {
+    plans.iter().find(|plan| plan.source_name == source_name)
+}
+
 fn static_data_alignment(element_type: &str) -> u32 {
     match element_type {
         "u8" => 1,

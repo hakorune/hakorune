@@ -68,6 +68,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             VariantMake { payload, .. } => payload.iter().copied().collect(),
             VariantTag { value, .. } | VariantProject { value, .. } => vec![*value],
             Load { ptr, .. } => vec![*ptr],
+            StaticDataLoad { index, .. } => vec![*index],
             Store { ptr, value } => vec![*ptr, *value],
             Call {
                 callee, func, args, ..
@@ -135,6 +136,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | VariantTag { dst, .. }
             | VariantProject { dst, .. }
             | Load { dst, .. }
+            | StaticDataLoad { dst, .. }
             | Call { dst: Some(dst), .. }
             | Phi { dst, .. }
             | NewBox { dst, .. }

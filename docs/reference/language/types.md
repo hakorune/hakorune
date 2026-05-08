@@ -58,10 +58,10 @@ Deferred and not accepted by this row:
 Backends must not infer exact unsigned or fixed-width behavior from these names
 until the corresponding verifier/lowering rows are live.
 
-### Static Const Tables (M11b-decl live)
+### Static Const Tables (M11b live)
 
-Decision: the first declaration-only row is live. Static table reads and const
-evaluation are still reserved.
+Decision: the first declaration and read rows are live. Const evaluation is
+still reserved.
 
 Accepted first shape:
 
@@ -77,13 +77,17 @@ Current status:
 - The only accepted element type is `u16`.
 - Values must be integer literals in the `0..65535` range.
 - The declaration lowers to MIR module metadata `static_data_plans`.
+- `NAME[index]` reads from a declared static const table and lowers to MIR
+  `StaticDataLoad`.
+- Static table reads return current-lane `Integer(i64)` values by zero-extending
+  the `u16` element.
+- VM execution fail-fasts on negative or out-of-range indices.
 - Backends emit readonly data from that plan.
 - Runtime `ArrayBox` / `MapBox` construction is not an accepted
   implementation strategy for fixed static tables.
 
 Reserved follow-ups:
 
-- table read route
 - const expression evaluation
 - const fn
 - additional element types

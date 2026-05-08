@@ -91,6 +91,7 @@ impl MirBuilder {
                 MirInstruction::UnaryOp { dst, .. } => Some(*dst),
                 MirInstruction::Compare { dst, .. } => Some(*dst),
                 MirInstruction::Load { dst, .. } => Some(*dst),
+                MirInstruction::StaticDataLoad { dst, .. } => Some(*dst),
                 MirInstruction::Call { dst, .. } => *dst,
                 MirInstruction::Phi { dst, .. } => Some(*dst),
                 MirInstruction::NewClosure { dst, .. } => Some(*dst),

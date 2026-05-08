@@ -417,6 +417,7 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
         }
         MirInstruction::UnaryOp { operand, .. }
         | MirInstruction::Load { ptr: operand, .. }
+        | MirInstruction::StaticDataLoad { index: operand, .. }
         | MirInstruction::FieldGet { base: operand, .. }
         | MirInstruction::VariantTag { value: operand, .. }
         | MirInstruction::VariantProject { value: operand, .. }

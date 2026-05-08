@@ -32,7 +32,9 @@ impl MirInstruction {
             | MirInstruction::KeepAlive { .. } => EffectMask::PURE,
 
             // Memory operations
-            MirInstruction::Load { .. } | MirInstruction::FieldGet { .. } => EffectMask::READ,
+            MirInstruction::Load { .. }
+            | MirInstruction::StaticDataLoad { .. }
+            | MirInstruction::FieldGet { .. } => EffectMask::READ,
             MirInstruction::Store { .. } | MirInstruction::FieldSet { .. } => EffectMask::WRITE,
 
             // Phase 287: Reference lifecycle
@@ -90,6 +92,7 @@ impl MirInstruction {
             | MirInstruction::UnaryOp { dst, .. }
             | MirInstruction::Compare { dst, .. }
             | MirInstruction::Load { dst, .. }
+            | MirInstruction::StaticDataLoad { dst, .. }
             | MirInstruction::FieldGet { dst, .. }
             | MirInstruction::VariantMake { dst, .. }
             | MirInstruction::VariantTag { dst, .. }
@@ -188,6 +191,7 @@ impl MirInstruction {
 
             MirInstruction::UnaryOp { operand, .. }
             | MirInstruction::Load { ptr: operand, .. }
+            | MirInstruction::StaticDataLoad { index: operand, .. }
             | MirInstruction::TypeOp { value: operand, .. }
             | MirInstruction::Copy { src: operand, .. }
             | MirInstruction::Debug { value: operand, .. } => vec![*operand],

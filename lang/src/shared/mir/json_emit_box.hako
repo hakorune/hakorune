@@ -207,6 +207,15 @@ static box MirJsonEmitBox {
       return "{\"op\":\"const\",\"dst\":" + me._int_str(inst.get("dst")) +
              ",\"value\":" + me._emit_box_value(inst.get("value")) + "}"
     }
+    if op == "static_data_load" {
+      return "{\"op\":\"static_data_load\",\"dst\":" + me._int_str(inst.get("dst")) +
+             ",\"source_name\":" + me._quote(inst.get("source_name")) +
+             ",\"symbol\":" + me._quote(inst.get("symbol")) +
+             ",\"element\":" + me._quote(inst.get("element")) +
+             ",\"len\":" + me._int_str(inst.get("len")) +
+             ",\"align\":" + me._int_str(inst.get("align")) +
+             ",\"index\":" + me._int_str(inst.get("index")) + "}"
+    }
     if op == "ret" || op == "return" {
       return "{\"op\":\"ret\",\"value\":" + me._int_str(inst.get("value")) + "}"
     }

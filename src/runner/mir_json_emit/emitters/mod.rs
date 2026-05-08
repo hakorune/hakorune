@@ -70,6 +70,23 @@ fn emit_instruction(
         I::Copy { dst, src } => Ok(basic::emit_copy(dst, src)),
         I::UnaryOp { dst, op, operand } => Ok(basic::emit_unary_op(dst, op, operand)),
         I::Const { dst, value } => Ok(basic::emit_const(dst, value)),
+        I::StaticDataLoad {
+            dst,
+            source_name,
+            symbol,
+            element,
+            len,
+            align,
+            index,
+        } => Ok(basic::emit_static_data_load(
+            dst,
+            source_name,
+            symbol,
+            element,
+            *len,
+            *align,
+            index,
+        )),
         I::TypeOp { dst, op, value, ty } => Ok(basic::emit_type_op(dst, op, value, ty)),
         I::BinOp { dst, op, lhs, rhs } => Ok(basic::emit_bin_op(
             dst,

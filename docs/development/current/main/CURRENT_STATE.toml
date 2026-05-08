@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-043-M11B-STATIC-CONST-TABLE-DECL"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-043-M11B-STATIC-CONST-TABLE-DECL.md"
-latest_card_summary = "Implemented the M11b-decl static const u16 table row through both parser fronts, Program JSON, MIR static_data_plans, and ll_emit readonly globals."
+latest_card = "293x-044-M11B-STATIC-TABLE-LOAD"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-044-M11B-STATIC-TABLE-LOAD.md"
+latest_card_summary = "Implemented the M11b-load static const u16 table read route through MIR StaticDataLoad, MIR JSON, VM metadata reads, and ll_emit direct LLVM loads."
 
 current_blocker_token = "phase-293x mimalloc substrate capability ladder after real-app EXE parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

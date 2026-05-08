@@ -9,6 +9,7 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::Compare { .. } => "Compare",
         MirInstruction::FieldGet { .. } => "FieldGet",
         MirInstruction::FieldSet { .. } => "FieldSet",
+        MirInstruction::StaticDataLoad { .. } => "StaticDataLoad",
         MirInstruction::VariantMake { .. } => "VariantMake",
         MirInstruction::VariantTag { .. } => "VariantTag",
         MirInstruction::VariantProject { .. } => "VariantProject",
@@ -76,6 +77,7 @@ pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "Safepoint",
     "Select",
     "Store",
+    "StaticDataLoad",
     "Throw",
     "TypeOp",
     "UnaryOp",
@@ -116,6 +118,7 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
         | MirInstruction::Call { .. }
         | MirInstruction::Catch { .. }
         | MirInstruction::Compare { .. }
+        | MirInstruction::StaticDataLoad { .. }
         | MirInstruction::Const { .. }
         | MirInstruction::Copy { .. }
         | MirInstruction::Debug { .. }
@@ -190,6 +193,7 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::TypeOp { .. }
             | MirInstruction::BinOp { .. }
             | MirInstruction::Compare { .. }
+            | MirInstruction::StaticDataLoad { .. }
             | MirInstruction::Debug { .. }
             | MirInstruction::Select { .. }
             | MirInstruction::FieldGet { .. }
@@ -230,6 +234,7 @@ pub fn is_supported_vm_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::BinOp { .. }
             | MirInstruction::UnaryOp { .. }
             | MirInstruction::Compare { .. }
+            | MirInstruction::StaticDataLoad { .. }
             | MirInstruction::TypeOp { .. }
             | MirInstruction::Copy { .. }
             | MirInstruction::FieldGet { .. }
@@ -268,6 +273,7 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         MirInstruction::BinOp { .. } => &["binop"],
         MirInstruction::UnaryOp { .. } => &["unop"],
         MirInstruction::Compare { .. } => &["compare"],
+        MirInstruction::StaticDataLoad { .. } => &["static_data_load"],
         MirInstruction::FieldGet { .. } => &["field_get"],
         MirInstruction::FieldSet { .. } => &["field_set"],
         MirInstruction::VariantMake { .. } => &["variant_make"],
@@ -311,6 +317,7 @@ pub const LLVM_SUPPORTED_JSON_OPS: &[&str] = &[
     "ret",
     "phi",
     "compare",
+    "static_data_load",
     "field_get",
     "field_set",
     "unop",
@@ -566,10 +573,10 @@ mod tests {
 
     #[test]
     fn instruction_diet_ledger_counts_match_ssot() {
-        assert_eq!(MIR_INSTRUCTION_KEPT_TAGS.len(), 33);
+        assert_eq!(MIR_INSTRUCTION_KEPT_TAGS.len(), 34);
         assert_eq!(MIR_INSTRUCTION_LOWERED_AWAY_TAGS.len(), 0);
         assert_eq!(MIR_INSTRUCTION_REMOVED_TAGS.len(), 16);
-        assert_eq!(MIR_INSTRUCTION_VOCABULARY_COUNT, 49);
+        assert_eq!(MIR_INSTRUCTION_VOCABULARY_COUNT, 50);
     }
 
     #[test]

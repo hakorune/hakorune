@@ -54,6 +54,18 @@ pub enum MirInstruction {
     /// `%dst = load %ptr`
     Load { dst: ValueId, ptr: ValueId },
 
+    /// Read a module-owned static readonly data row.
+    /// `%dst = static_data.load @symbol[%index]`
+    StaticDataLoad {
+        dst: ValueId,
+        source_name: String,
+        symbol: String,
+        element: String,
+        len: u32,
+        align: u32,
+        index: ValueId,
+    },
+
     /// Store to memory/variable
     /// `store %value -> %ptr`
     Store { value: ValueId, ptr: ValueId },

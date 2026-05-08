@@ -51,6 +51,24 @@ pub fn format_instruction(
             format!("{} load {}", format_dst(dst, types), ptr)
         }
 
+        MirInstruction::StaticDataLoad {
+            dst,
+            source_name,
+            symbol,
+            element,
+            len,
+            index,
+            ..
+        } => format!(
+            "{} static_data.load {} @{}[{}] : {}[{}]",
+            format_dst(dst, types),
+            source_name,
+            symbol,
+            index,
+            element,
+            len
+        ),
+
         MirInstruction::Store { value, ptr } => {
             format!("store {} -> {}", value, ptr)
         }

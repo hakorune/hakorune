@@ -21,10 +21,10 @@ Primary implementation pointers:
 
 以下の行は CI/テストで参照する契約値（編集時は実装と同時更新）。
 
-DOC_SYNC_MIR_KEPT_COUNT=33
+DOC_SYNC_MIR_KEPT_COUNT=34
 DOC_SYNC_MIR_LOWERED_AWAY_COUNT=0
 DOC_SYNC_MIR_REMOVED_COUNT=16
-DOC_SYNC_MIR_VOCABULARY_COUNT=49
+DOC_SYNC_MIR_VOCABULARY_COUNT=50
 DOC_SYNC_MIR14_COUNT=13
 DOC_SYNC_CORE26_COUNT=26
 
@@ -50,7 +50,7 @@ Transition Note
 - VariantTag
 - VariantProject
 
-## Current Kept Vocabulary（33）
+## Current Kept Vocabulary（34）
 
 This is the current executable kept vocabulary from
 `src/mir/contracts/backend_core_ops.rs::MIR_INSTRUCTION_KEPT_TAGS`.
@@ -62,6 +62,7 @@ allowlists are being updated.
 - Const
 - Copy
 - Load
+- StaticDataLoad
 - Store
 - UnaryOp
 - BinOp
@@ -124,6 +125,24 @@ Notes:
   compat transport above MIR.
 - `variant_make` / `variant_project` can be paired with the phase-163x metadata chain in
   `functions[].metadata`; see `docs/reference/mir/metadata-facts-ssot.md`.
+
+## Static Data JSON Ops
+
+`StaticDataLoad` is the M11b-load instruction for source-declared readonly
+static tables. It is not a general pointer load and must reference a
+`static_data_plans` row owned by the MIR module.
+
+| MIR instruction | JSON op | Required fields | Optional fields |
+| --- | --- | --- | --- |
+| `StaticDataLoad` | `static_data_load` | `dst`, `source_name`, `symbol`, `element`, `len`, `align`, `index` | none |
+
+Current live limits:
+
+- `element` is `u16`.
+- the result is the current `i64` value lane.
+- VM execution checks table presence, element/len consistency, and bounds.
+- backend emitters read the JSON fields and must not infer table meaning from
+  source names.
 
 ## Core Instructions（26）
 - Const

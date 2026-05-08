@@ -89,6 +89,18 @@ static box MirSchemaBox {
     m.set("value", v)
     return m
   }
+  inst_static_data_load(dst, source_name, symbol, element, len, align, index) {
+    local m = new MapBox()
+    m.set("op", "static_data_load")
+    m.set("dst", this.i(dst))
+    m.set("source_name", source_name)
+    m.set("symbol", symbol)
+    m.set("element", element)
+    m.set("len", this.i(len))
+    m.set("align", this.i(align))
+    m.set("index", this.i(index))
+    return m
+  }
   inst_ret(val) {
     local m = new MapBox()
     m.set("op", "ret")

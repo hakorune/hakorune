@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Decision: M11b-decl accepted; M11b-load and M11b-eval provisional
+Decision: M11b-decl and M11b-load accepted; M11b-eval provisional
 Date: 2026-05-08
 Scope: M11b static const table source surface, MIR/static-data ownership, and parser rollout order.
 Related:
@@ -35,8 +35,8 @@ M11b-eval:
   source values may be derived at compile time
 ```
 
-`M11b-decl` is implemented for the first narrow shape. `M11b-load` and
-`M11b-eval` remain follow-up rows.
+`M11b-decl` and `M11b-load` are implemented for the first narrow `u16` shape.
+`M11b-eval` remains a follow-up row.
 
 ## Relationship To M11a
 
@@ -93,7 +93,6 @@ Reserved for later rows:
 - constant arithmetic in initializers
 - references to other consts
 - const fn
-- table read syntax
 - mutation or publication as an `ArrayBox`
 
 ## Parser Rollout Contract
@@ -185,11 +184,13 @@ Goal:
 
 - read from a static table without constructing a runtime collection
 - route through a MIR/backend-owned static data load fact
+- emit `static_data_load` in MIR JSON with table symbol/element/len/align
+- VM reads the module metadata row and fail-fasts on out-of-bounds index
 
 Non-goals:
 
 - general pointer arithmetic
-- dynamic index proof beyond the first narrow range behavior
+- LLVM-side dynamic index proof beyond the first narrow direct-load behavior
 - allocator policy ownership
 
 ### M11b-eval
@@ -226,4 +227,29 @@ Suggested gate:
 
 ```bash
 bash tools/checks/k2_wide_static_const_table_decl_guard.sh
+```
+
+## Acceptance For M11b-load
+
+Required outputs:
+
+- `NAME[index]` resolves to a static-data load only when `NAME` is declared in
+  module `static_data_plans`
+- MIR owns a canonical `StaticDataLoad` operation
+- MIR JSON emits `op = "static_data_load"`
+- VM executes the load from module metadata with negative/out-of-range fail-fast
+- `.hako` ll_emit emits direct LLVM `getelementptr` + `load` + zero-extend to
+  current `i64` lane
+- unknown table names still use the existing Array/Map-only index diagnostic
+
+Suggested fixture:
+
+```text
+apps/smokes/static_const_table_load_u16/main.hako
+```
+
+Suggested gate:
+
+```bash
+bash tools/checks/k2_wide_static_const_table_load_guard.sh
 ```

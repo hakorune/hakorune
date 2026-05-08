@@ -65,6 +65,15 @@ impl MirInterpreter {
             }
             MirInstruction::Copy { dst, src } => self.handle_copy(*dst, *src)?,
             MirInstruction::Load { dst, ptr } => self.handle_load(*dst, *ptr)?,
+            MirInstruction::StaticDataLoad {
+                dst,
+                source_name,
+                symbol,
+                element,
+                len,
+                index,
+                ..
+            } => self.handle_static_data_load(*dst, source_name, symbol, element, *len, *index)?,
             MirInstruction::Store { ptr, value } => self.handle_store(*ptr, *value)?,
             MirInstruction::FieldGet {
                 dst, base, field, ..

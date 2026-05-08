@@ -59,6 +59,7 @@ fn def_inst_kind(inst: &MirInstruction) -> &'static str {
         MirInstruction::VariantTag { .. } => "VariantTag",
         MirInstruction::VariantProject { .. } => "VariantProject",
         MirInstruction::Load { .. } => "Load",
+        MirInstruction::StaticDataLoad { .. } => "StaticDataLoad",
         MirInstruction::Store { .. } => "Store",
         MirInstruction::Call { .. } => "Call",
         MirInstruction::NewClosure { .. } => "NewClosure",

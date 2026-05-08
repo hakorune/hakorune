@@ -50,6 +50,7 @@ pub struct MirInterpreter {
     // legacy runtime consumers and old payload compatibility.
     pub(super) user_box_field_decls: FxHashMap<String, Vec<String>>,
     pub(super) enum_decls: BTreeMap<String, crate::mir::MirEnumDecl>,
+    pub(super) static_data_plans: Vec<crate::mir::function::StaticDataPlan>,
     // Trace context (dev-only; enabled with NYASH_VM_TRACE=1)
     pub(super) last_block: Option<BasicBlockId>,
     pub(super) last_inst: Option<MirInstruction>,
@@ -134,6 +135,7 @@ impl MirInterpreter {
             cur_fn: None,
             user_box_field_decls: FxHashMap::default(),
             enum_decls: BTreeMap::new(),
+            static_data_plans: Vec::new(),
             last_block: None,
             last_inst: None,
             last_inst_index: None,
@@ -336,6 +338,7 @@ impl MirInterpreter {
         self.refresh_operator_box_flags();
         self.user_box_field_decls = module.metadata.user_box_decls.clone().into_iter().collect();
         self.enum_decls = module.metadata.enum_decls.clone();
+        self.static_data_plans = module.metadata.static_data_plans.clone();
 
         // 🎯 Phase 173-B: Auto-detect static boxes from MIR function names
         // This handles using-imported static boxes that aren't in AST
@@ -463,6 +466,7 @@ impl MirInterpreter {
         self.refresh_operator_box_flags();
         self.user_box_field_decls = module.metadata.user_box_decls.clone().into_iter().collect();
         self.enum_decls = module.metadata.enum_decls.clone();
+        self.static_data_plans = module.metadata.static_data_plans.clone();
 
         let func = self
             .functions
