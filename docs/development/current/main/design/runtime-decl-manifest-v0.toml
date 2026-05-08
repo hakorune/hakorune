@@ -241,3 +241,11 @@ ret = "handle_owned"
 attrs = ["nounwind", "willreturn"]
 memory = "readwrite"
 lanes = ["pure-first", "compare"]
+
+[[rows]]
+symbol = "hako_mem_alloc"
+args = ["imm_i64"]
+ret = "native_ptr_nullable"
+attrs = ["nounwind", "willreturn"]
+memory = "readwrite"
+lanes = ["hako-ll-min-v0", "compare"]

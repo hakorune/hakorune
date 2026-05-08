@@ -57,7 +57,8 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_inline_plan_soft_leaf_guard.sh` | M11c-soft-leaf の narrow same-module MIR leaf inline が optimizer pass に閉じ、`.inc` が inline 判断を持たないことを固定する。 |
 | `tools/checks/k2_wide_return_proof_vocab_guard.sh` | M10c-pre の return proof vocabulary が docs/TOML/Rust で同期し、handle return class が LLVM pointer attrs を持たないことを固定する。 |
 | `tools/checks/k2_wide_runtime_decl_return_proof_row_guard.sh` | M10c-proof-row の runtime-decl return proof row schema が fixture/Rust validator/docs で同期し、active runtime-decl と `.inc` が strong attrs を出さないことを固定する。 |
-| `tools/checks/k2_wide_native_ptr_decl_type_guard.sh` | M10c-native-ptr-declare-type の `native_ptr_* -> ptr` 型名対応を `.hako` ll_emit reader に閉じ、active runtime-decl native pointer row と strong attrs がまだ出ないことを固定する。 |
+| `tools/checks/k2_wide_native_ptr_decl_type_guard.sh` | M10c-native-ptr-declare-type の `native_ptr_* -> ptr` 型名対応を `.hako` ll_emit reader に閉じ、型名 reader が `.inc` に漏れないことを固定する。 |
+| `tools/checks/k2_wide_hako_mem_alloc_runtime_decl_guard.sh` | M10c-hako-mem-alloc-row の `hako_mem_alloc -> native_ptr_nullable` runtime-decl row と generated defaults 同期を固定し、他 native pointer row / `ret_proofs` / strong attrs の混入を防ぐ。 |
 
 ## Env Hygiene
 

@@ -150,6 +150,35 @@ any runtime-decl row.
 The purpose is to prevent future native pointer rows from silently falling back
 to the generic `i64` type spelling before M10c export gates are ready.
 
+## First Active Native Pointer Runtime-Decl Row
+
+Decision: accepted M10c-hako-mem-alloc-row lock.
+
+The first active native pointer runtime-decl row is:
+
+```text
+hako_mem_alloc -> native_ptr_nullable
+```
+
+Contract:
+
+```toml
+symbol = "hako_mem_alloc"
+args = ["imm_i64"]
+ret = "native_ptr_nullable"
+attrs = ["nounwind", "willreturn"]
+memory = "readwrite"
+lanes = ["hako-ll-min-v0", "compare"]
+```
+
+This row is intentionally nullable because the C ABI contract permits OOM to
+return `NULL`. Therefore this row must not export `nonnull`,
+`dereferenceable`, alignment, or `noalias`.
+
+No `ret_proofs` are active in `runtime-decl-manifest-v0.toml` yet. The row only
+locks the backend-private declaration/type seam for the existing `hako.mem`
+facade and C ABI symbol.
+
 ## Machine Truth
 
 The machine-readable vocabulary lock is:

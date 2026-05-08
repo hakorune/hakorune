@@ -537,6 +537,23 @@ static box RuntimeDeclDefaultsBox {
     lanes_28.push("compare")
     row_28.set("lanes", lanes_28)
     rows.push(row_28)
+    local row_29 = new MapBox()
+    row_29.set("symbol", "hako_mem_alloc")
+    row_29.set("ret", "native_ptr_nullable")
+    row_29.set("memory", "readwrite")
+    row_29.set("varargs", "0")
+    local args_29 = new ArrayBox()
+    args_29.push("imm_i64")
+    row_29.set("args", args_29)
+    local attrs_29 = new ArrayBox()
+    attrs_29.push("nounwind")
+    attrs_29.push("willreturn")
+    row_29.set("attrs", attrs_29)
+    local lanes_29 = new ArrayBox()
+    lanes_29.push("hako-ll-min-v0")
+    lanes_29.push("compare")
+    row_29.set("lanes", lanes_29)
+    rows.push(row_29)
     return rows
   }
 }
