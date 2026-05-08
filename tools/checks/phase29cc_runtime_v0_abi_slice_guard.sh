@@ -256,6 +256,18 @@ if ! rg -F -q 'PtrCoreBox.slot_len_i64(handle)' "$RAW_ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] raw array missing ptr len route" >&2
   exit 1
 fi
+if ! rg -F -q 'slot_cap_i64(handle)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing cap observer route" >&2
+  exit 1
+fi
+if ! rg -F -q 'BufCoreBox.cap_i64(handle)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array cap must route through buf substrate" >&2
+  exit 1
+fi
+if ! rg -F -q '[vm/adapter/raw_array:slot_cap_i64]' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing cap trace tag" >&2
+  exit 1
+fi
 if ! rg -F -q 'PtrCoreBox.slot_append_any(handle, value_any)' "$RAW_ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] raw array missing ptr append route" >&2
   exit 1

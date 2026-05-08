@@ -77,7 +77,7 @@ This phase has already widened into the first live `RawArrayCoreBox` path.
 - current first live probe path is:
   - `ArrayCoreBox.get_i64/set_i64/len_i64/push_hh`
   - `RawArrayCoreBox.slot_load_i64/slot_store_i64/slot_len_i64/slot_append_any`
-  - `RawArrayCoreBox.slot_reserve_i64/slot_grow_i64`
+  - `RawArrayCoreBox.slot_cap_i64/slot_reserve_i64/slot_grow_i64`
   - `OwnershipCoreBox.ensure_handle_readable_i64/ensure_handle_writable_i64/ensure_any_readable_i64`
   - `BoundsCoreBox.ensure_index_i64(handle, idx)`
   - `InitializedRangeCoreBox.ensure_initialized_index_i64(handle, idx)`
@@ -85,12 +85,15 @@ This phase has already widened into the first live `RawArrayCoreBox` path.
   - `PtrCoreBox.slot_load_i64/slot_store_i64/slot_len_i64/slot_append_any`
   - existing native
     `nyash.array.slot_load_hi` / `nyash.array.slot_store_hii` /
-    `nyash.array.slot_len_h` / `nyash.array.slot_append_hh` /
-    `nyash.array.slot_reserve_hi` / `nyash.array.slot_grow_hi`
+    `nyash.array.slot_len_h` / `nyash.array.slot_cap_h` /
+    `nyash.array.slot_append_hh` / `nyash.array.slot_reserve_hi` /
+    `nyash.array.slot_grow_hi`
 - `reserve` / `grow` now sit on the widened RawArray substrate path; `ArrayCoreBox` does not expose them yet
 - `slot_load_i64` now uses `ownership -> bounds -> initialized-range -> ptr`
 - `slot_store_i64` now uses `ownership -> bounds -> ptr`
-- `slot_len_i64` / `slot_append_any` / `slot_reserve_i64` / `slot_grow_i64` now gate through ownership before the current substrate backend
+- `slot_len_i64` / `slot_cap_i64` / `slot_append_any` /
+  `slot_reserve_i64` / `slot_grow_i64` now gate through ownership before the
+  current substrate backend
 
 ## Non-Goals
 

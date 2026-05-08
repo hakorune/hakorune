@@ -13,7 +13,8 @@ Responsibilities:
   - `slot_remove_any` via `OwnershipCoreBox` + `BoundsCoreBox` + `InitializedRangeCoreBox` + `PtrCoreBox`
   - `slot_insert_any` via `OwnershipCoreBox` + `BoundsCoreBox.insert` + `OwnershipCoreBox.any` + `PtrCoreBox`
   - `slot_len_i64` / `slot_append_any` via `OwnershipCoreBox` + `PtrCoreBox`
-  - `slot_reserve_i64` / `slot_grow_i64` via `BufCoreBox`, which remains a thin shape facade over the current capacity backend
+  - `slot_cap_i64` via `OwnershipCoreBox` + `BufCoreBox`
+  - `slot_reserve_i64` / `slot_grow_i64` via `BufCoreBox`, which remains a thin shape facade over `PtrCoreBox` slot routes
 
 Rules:
 - `RawArray` is not a semantic owner box.

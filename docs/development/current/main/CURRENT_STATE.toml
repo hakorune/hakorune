@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-032-M2-BUF-CAP-PTR-ROUTE-LOCK"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-032-M2-BUF-CAP-PTR-ROUTE-LOCK.md"
-latest_card_summary = "Routed BufCoreBox capacity through PtrCoreBox.slot_cap_i64 so buffer shape facades no longer own direct slot-cap ABI names."
+latest_card = "293x-033-M3-RAWARRAY-CAP-SHAPE-LOCK"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-033-M3-RAWARRAY-CAP-SHAPE-LOCK.md"
+latest_card_summary = "Added a readable ownership-gated RawArray capacity observer over BufCoreBox.cap_i64 for the allocator-shaped substrate row."
 
 current_blocker_token = "phase-293x mimalloc substrate capability ladder after real-app EXE parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

@@ -1,4 +1,4 @@
-// RawArrayCoreBox — first live algorithm-substrate box above `hako.ptr`.
+// RawArrayCoreBox — first live algorithm-substrate box above `hako.buf` / `hako.ptr`.
 // Responsibility:
 // - provide the narrowest runnable RawArray substrate probe path
 // - keep the first substrate hop below ArrayCoreBox and above PtrCoreBox
@@ -65,6 +65,15 @@ static box RawArrayCoreBox {
     }
     local out = PtrCoreBox.slot_len_i64(handle)
     me._trace("[vm/adapter/raw_array:slot_len_i64]")
+    return out
+  }
+
+  slot_cap_i64(handle) {
+    if OwnershipCoreBox.ensure_handle_readable_i64(handle) != 1 {
+      return 0
+    }
+    local out = BufCoreBox.cap_i64(handle)
+    me._trace("[vm/adapter/raw_array:slot_cap_i64]")
     return out
   }
 

@@ -31,7 +31,8 @@ Current phase reading:
   - `verifier/bounds/README.md`
   - `verifier/initialized_range/README.md`
   - `verifier/ownership/README.md`
-- The next algorithm-substrate consumer lock is docs-first, and its physical reservation lives at `raw_array/README.md`.
+- The first algorithm-substrate consumer has a live RawArray path at
+  `raw_array/README.md`.
 - The following algorithm-substrate consumer now has a live observer slice at:
   - `raw_map/README.md`
   - `raw_map/raw_map_core_box.hako`
@@ -50,6 +51,8 @@ Current live capability subset:
 - `ptr` remains the typed pointer/span facade used by the current array slot
   and capacity paths.
 - `verifier` now has live `bounds`, `initialized-range`, and `ownership` gates for the current raw collection routes.
+- `raw_array` now has live slot load/store/len/cap/append/remove/insert/slice
+  and reserve/grow facades under `ArrayCoreBox`.
 - `raw_buf` now has live `alloc_bytes_i64`, `realloc_bytes_i64`, and `free_bytes_i64` facades over `MemCoreBox`.
 - `raw_map` now has live `entry_count_i64`, `cap_i64`, `probe_*`, and `slot_load/store_*` facades under `MapCoreBox`.
 - `atomic` now has a live `fence_i64` helper-shaped facade.

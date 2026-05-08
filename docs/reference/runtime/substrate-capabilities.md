@@ -40,7 +40,7 @@ The current live surface is intentionally narrow.
 | `hako.buf` | `len/cap/reserve/grow` facade rows exist under `BufCoreBox`; capacity routes through `PtrCoreBox.slot_cap_i64` |
 | `hako.ptr` | typed pointer/span facade is staged for current raw collection routes and owns direct array-slot backend route names for the live row |
 | verifier | bounds, initialized-range, and ownership gates exist for current raw collection routes; RawArray remove/insert are verifier-gated before pointer-substrate calls |
-| `RawArray` | first raw-array path exists for slot load/store/len/append/reserve/grow |
+| `RawArray` | first raw-array path exists for slot load/store/len/cap/append/reserve/grow |
 | `RawBuf` | first allocation facade exists over `MemCoreBox` |
 | `hako.atomic` | helper-shaped `fence_i64` row exists |
 | `hako.tls` | helper-shaped `last_error_text_h` row exists |
@@ -237,6 +237,42 @@ Safety/verifier contract:
 
 - This row is route ownership cleanup only. It adds no new lifetime, aliasing,
   or bounds proof.
+
+Fixture/gate:
+
+- `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
+- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh`
+
+## RawArray Capacity Observer Row
+
+Decision: accepted for the M3 RawArray capacity-shape lock.
+
+New surface:
+
+- `RawArrayCoreBox.slot_cap_i64(handle)`
+
+Owner modules:
+
+- `lang/src/runtime/substrate/raw_array/raw_array_core_box.hako`
+- `lang/src/runtime/substrate/buf/buf_core_box.hako`
+
+Accepted consumers:
+
+- RawArray substrate consumers may observe current array-backed capacity through
+  `RawArrayCoreBox.slot_cap_i64`.
+- The route is readable ownership-gated and then delegates to
+  `BufCoreBox.cap_i64`.
+
+Unsupported behavior:
+
+- This row does not expose user-visible `ArrayBox.capacity`.
+- This row does not add `set_len`, `shrink`, `RawBuf` length/capacity state,
+  `MaybeInit`, or allocator policy.
+
+Safety/verifier contract:
+
+- The observed handle must pass `OwnershipCoreBox.ensure_handle_readable_i64`.
+- The row adds no allocation, aliasing, or initialized-range proof.
 
 Fixture/gate:
 

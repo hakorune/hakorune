@@ -310,6 +310,12 @@ current implementation note:
 
 collection owner の次の本命はここ。
 
+current implementation note:
+- `RawArrayCoreBox.slot_cap_i64` is live as a readable ownership-gated
+  capacity observer over `BufCoreBox.cap_i64`.
+- `RawArrayCoreBox.slot_reserve_i64/slot_grow_i64` stay writable
+  ownership-gated over `BufCoreBox`.
+
 ### C2.5. `RawBuf`
 
 - raw byte-buffer allocation vocabulary

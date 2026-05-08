@@ -67,7 +67,7 @@ backend may trust them for lowering or optimization.
 | `M0b numeric arithmetic semantics lock` | `live-narrow` | language + MIR + backends | current `>>` is signed i64 arithmetic shift; logical shift and wrapping/checked arithmetic remain explicit future rows |
 | `M1 raw layout vocabulary` | `live-narrow` | language + MIR layout facts | MIR-owned `repr_c_v0` vocabulary for fixed-width numeric fields; source syntax, pointer-sized fields, and backend-active native layout remain future rows |
 | `M2 hako.mem/buf/ptr widening` | `live-narrow` | capability substrate | restricted memory/buffer/pointer facades; `BufCoreBox.cap_i64` routes through `PtrCoreBox.slot_cap_i64`; no unrestricted unsafe |
-| `M3 RawBuf + RawArray allocator fixture` | `live-narrow` | algorithm substrate | allocator-shaped fixture using RawBuf/RawArray only; no TLS/atomic/OSVM dependency |
+| `M3 RawBuf + RawArray allocator fixture` | `live-narrow` | algorithm substrate | allocator-shaped fixture using RawBuf/RawArray only; RawArray has len/cap/reserve/grow shape; no TLS/atomic/OSVM dependency |
 | `M4 minimum verifier hardening` | `live-narrow` | verifier substrate | RawArray remove/insert now pass bounds/initialized-range gates; slice, double-free, and use-after-free remain follow-up splits |
 | `M5 rune contract verifier` | `reserved` | rune metadata + verifier | `@rune Contract(no_alloc)` / `@rune Contract(no_safepoint)` parsed facts become verifier-checked before backend use |
 | `M6 hako.atomic useful rows` | `blocked` | capability substrate | load/store/CAS/fetch_add/fence with memory order; no allocator policy inside atomic module |
@@ -197,5 +197,6 @@ vocabulary` now gives future allocator rows a MIR-owned `repr_c_v0` layout
 target for fixed-width numeric fields only. `M4 minimum verifier hardening`
 now covers RawArray remove/insert verifier gates. `M2` is narrowing the current
 memory/buffer/pointer capability split so buffer shape facades do not own direct
-backend slot ABI names. Do not jump to allocator fast-path lowering before the
+backend slot ABI names. `M3` now has a readable RawArray capacity observer over
+the buffer facade. Do not jump to allocator fast-path lowering before the
 remaining verifier facts make raw access auditable.

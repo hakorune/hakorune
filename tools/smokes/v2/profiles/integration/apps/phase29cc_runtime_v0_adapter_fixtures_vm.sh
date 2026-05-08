@@ -178,6 +178,14 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: raw array ptr len hop contract missing"
     exit 1
   fi
+  if ! rg -F -q 'slot_cap_i64(handle)' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array cap observer contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'BufCoreBox.cap_i64(handle)' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array cap must route through buf substrate"
+    exit 1
+  fi
   if ! rg -F -q 'PtrCoreBox.slot_append_any(handle, value_any)' "$RAW_ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: raw array ptr append hop contract missing"
     exit 1
@@ -220,6 +228,10 @@ check_collection_adapter_route_contract() {
   fi
   if ! rg -F -q '[vm/adapter/raw_array:slot_len_i64]' "$RAW_ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: raw array len trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/raw_array:slot_cap_i64]' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array cap trace tag contract missing"
     exit 1
   fi
   if ! rg -F -q '[vm/adapter/raw_array:slot_append_any]' "$RAW_ARRAY_CORE_FILE"; then
