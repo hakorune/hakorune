@@ -203,6 +203,14 @@ to return `NULL`. It must not export `nonnull`, `dereferenceable`, alignment,
 or `noalias`. Its pointer argument is a declaration type spelling only; it does
 not prove aliasing, lifetime, or dereferenceability.
 
+Decision: accepted M10c-native-ptr-call-arg-emit lock.
+
+When a runtime-decl row uses a `native_ptr_*` argument class, `.hako` ll_emit
+must validate that the source value is already a native pointer class and emit
+the LLVM call operand as `ptr`. It must not silently pass an `i64` value to a
+`ptr` declaration, and it must not insert backend-local casts to recover from a
+missing proof.
+
 `hako_mem_free` remains blocked from this runtime-decl lane until a void return
 class or explicit no-return-value declaration contract is fixed.
 

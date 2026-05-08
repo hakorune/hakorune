@@ -47,12 +47,18 @@ static box RuntimeDeclRegistryBox {
     return 0
   }
 
+  is_native_ptr_class(value_class) {
+    local vc = "" + value_class
+    if vc == "native_ptr_nonnull" { return 1 }
+    if vc == "native_ptr_nullable" { return 1 }
+    if vc == "native_ptr_dereferenceable" { return 1 }
+    return 0
+  }
+
   llvm_type_name(value_class) {
     local vc = "" + value_class
     if vc == "ptr_const_i8" { return "ptr" }
-    if vc == "native_ptr_nonnull" { return "ptr" }
-    if vc == "native_ptr_nullable" { return "ptr" }
-    if vc == "native_ptr_dereferenceable" { return "ptr" }
+    if me.is_native_ptr_class(vc) == 1 { return "ptr" }
     if vc == "imm_i32" { return "i32" }
     return "i64"
   }

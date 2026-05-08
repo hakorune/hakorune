@@ -249,7 +249,11 @@ static box LlTextEmitBox {
       if arg_kind == "ptr_const_i8" {
         out = out + "ptr getelementptr inbounds ([" + (((("" + me._const_string_text(facts, src_reg)).length()) + 1)) + " x i8], ptr " + me._string_global_name(src_reg) + ", i64 0, i64 0)"
       } else {
-        out = out + "i64 " + me._operand_i64(func, facts, src_reg)
+        if RuntimeDeclRegistryBox.is_native_ptr_class(arg_kind) == 1 {
+          out = out + "ptr " + me._reg(me._resolve_alias(facts, src_reg))
+        } else {
+          out = out + "i64 " + me._operand_i64(func, facts, src_reg)
+        }
       }
       i = i + 1
     }

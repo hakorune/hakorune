@@ -19,8 +19,12 @@ MANIFEST = ROOT / "docs/development/current/main/design/runtime-decl-manifest-v0
 GENERATED = ROOT / "lang/src/shared/backend/ll_emit/generated/runtime_decl_defaults.hako"
 SSOT = ROOT / "docs/development/current/main/design/return-proof-vocabulary-ssot.md"
 TASKBOARD = ROOT / "docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
-CARD = ROOT / "docs/development/current/main/phases/phase-293x/293x-053-HAKO-MEM-REALLOC-RUNTIME-DECL.md"
+REALLOC_CARD = ROOT / "docs/development/current/main/phases/phase-293x/293x-053-HAKO-MEM-REALLOC-RUNTIME-DECL.md"
+ARG_EMIT_CARD = ROOT / "docs/development/current/main/phases/phase-293x/293x-054-NATIVE-PTR-CALL-ARG-EMIT.md"
 CURRENT = ROOT / "docs/development/current/main/CURRENT_STATE.toml"
+CALL_POLICY = ROOT / "lang/src/shared/backend/ll_emit/call_policy_box.hako"
+LL_TEXT = ROOT / "lang/src/shared/backend/ll_emit/ll_text_emit_box.hako"
+REGISTRY = ROOT / "lang/src/shared/backend/ll_emit/runtime_decl_registry_box.hako"
 
 ALLOWED_NATIVE_PTR_ROWS = {
     "hako_mem_alloc": {
@@ -100,11 +104,23 @@ for path, needle in [
     (SSOT, "hako_mem_realloc -> native_ptr_nullable"),
     (TASKBOARD, "`M10c-hako-mem-alloc-row` | `live-narrow`"),
     (TASKBOARD, "`M10c-hako-mem-realloc-row` | `live-narrow`"),
-    (CARD, "M10c-hako-mem-realloc-row is live as the second active native pointer runtime-decl row."),
-    (CURRENT, "293x-053 hako_mem_realloc runtime-decl row landed"),
+    (REALLOC_CARD, "M10c-hako-mem-realloc-row is live as the second active native pointer runtime-decl row."),
+    (ARG_EMIT_CARD, "M10c-native-ptr-call-arg-emit is live for `.hako` ll_emit."),
+    (CURRENT, "293x-054 native pointer manifest args now validate"),
 ]:
     if needle not in path.read_text():
         fail(f"{path}: missing lock text: {needle}")
+
+for path, needle in [
+    (REGISTRY, "is_native_ptr_class(value_class)"),
+    (CALL_POLICY, "_accept_manifest_extern_call"),
+    (CALL_POLICY, "_manifest_arg_accepts"),
+    (CALL_POLICY, "extern_arg_class_mismatch"),
+    (LL_TEXT, "RuntimeDeclRegistryBox.is_native_ptr_class(arg_kind)"),
+    (LL_TEXT, 'out = out + "ptr " + me._reg(me._resolve_alias(facts, src_reg))'),
+]:
+    if needle not in path.read_text():
+        fail(f"{path}: missing native pointer arg emit lock: {needle}")
 PY
 
 if rg -F -q 'native_ptr_nullable' lang/c-abi/shims -g '*.inc'; then

@@ -190,6 +190,10 @@ static box RecipeFactsV0Box {
     return LlEmitCallPolicyBox._accept_manifest_call(out, dst, symbol)
   }
 
+  _accept_manifest_extern_call(out, inst, symbol) {
+    return LlEmitCallPolicyBox._accept_manifest_extern_call(out, inst, symbol)
+  }
+
   _accept_global_print_call(out, call) {
     return LlEmitCallPolicyBox._accept_global_print_call(out, call)
   }
@@ -383,7 +387,7 @@ static box RecipeFactsV0Box {
                                   return me._reject(out, "mir_call_not_direct_extern_or_print")
                                 }
                                 local symbol = "" + callee.get("name")
-                                local extern_reason = me._accept_manifest_call(out, inst.get("dst"), symbol)
+                                local extern_reason = me._accept_manifest_extern_call(out, inst, symbol)
                                 if extern_reason != null {
                                   return me._reject(out, extern_reason)
                                 }

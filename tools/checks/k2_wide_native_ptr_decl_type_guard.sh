@@ -12,9 +12,11 @@ SSOT="docs/development/current/main/design/return-proof-vocabulary-ssot.md"
 TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-051-M10C-NATIVE-PTR-DECLARE-TYPE.md"
 
-rg -F -q 'if vc == "native_ptr_nonnull" { return "ptr" }' "$REGISTRY"
-rg -F -q 'if vc == "native_ptr_nullable" { return "ptr" }' "$REGISTRY"
-rg -F -q 'if vc == "native_ptr_dereferenceable" { return "ptr" }' "$REGISTRY"
+rg -F -q 'is_native_ptr_class(value_class)' "$REGISTRY"
+rg -F -q 'if vc == "native_ptr_nonnull" { return 1 }' "$REGISTRY"
+rg -F -q 'if vc == "native_ptr_nullable" { return 1 }' "$REGISTRY"
+rg -F -q 'if vc == "native_ptr_dereferenceable" { return 1 }' "$REGISTRY"
+rg -F -q 'if me.is_native_ptr_class(vc) == 1 { return "ptr" }' "$REGISTRY"
 
 python3 - <<'PY'
 import pathlib
