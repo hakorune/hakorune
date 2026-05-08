@@ -46,8 +46,9 @@ Current phase reading:
 
 Current live capability subset:
 - `mem` now has a live `alloc/realloc/free` facade.
-- `buf` now has a live `len/cap/reserve/grow` facade.
-- `ptr` remains the typed pointer/span facade used by the current array capacity path.
+- `buf` now has a live `len/cap/reserve/grow` facade over ptr slot routes.
+- `ptr` remains the typed pointer/span facade used by the current array slot
+  and capacity paths.
 - `verifier` now has live `bounds`, `initialized-range`, and `ownership` gates for the current raw collection routes.
 - `raw_buf` now has live `alloc_bytes_i64`, `realloc_bytes_i64`, and `free_bytes_i64` facades over `MemCoreBox`.
 - `raw_map` now has live `entry_count_i64`, `cap_i64`, `probe_*`, and `slot_load/store_*` facades under `MapCoreBox`.

@@ -190,6 +190,18 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: buf core cap contract missing"
     exit 1
   fi
+  if ! rg -F -q 'PtrCoreBox.slot_cap_i64(handle)' "$BUF_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: buf cap must route through ptr substrate"
+    exit 1
+  fi
+  if rg -F -q 'externcall "nyash.array.slot_cap_h"' "$BUF_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: buf core must not own direct slot_cap extern route"
+    exit 1
+  fi
+  if ! rg -F -q 'externcall "nyash.array.slot_cap_h"' "$PTR_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: ptr core slot_cap extern route contract missing"
+    exit 1
+  fi
   if ! rg -F -q 'BufCoreBox.grow_i64(handle, target_capacity)' "$RAW_ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: raw array buf grow hop contract missing"
     exit 1
@@ -306,8 +318,12 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: buf core cap contract missing"
     exit 1
   fi
-  if ! rg -F -q 'externcall "nyash.array.slot_cap_h"' "$BUF_CORE_FILE"; then
-    test_fail "$SMOKE_NAME: buf core slot_cap backend contract missing"
+  if ! rg -F -q 'PtrCoreBox.slot_cap_i64(handle)' "$BUF_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: buf core cap ptr-route contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'externcall "nyash.array.slot_cap_h"' "$PTR_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: ptr core slot_cap backend contract missing"
     exit 1
   fi
   if ! rg -F -q 'reserve_i64(handle, additional)' "$BUF_CORE_FILE"; then

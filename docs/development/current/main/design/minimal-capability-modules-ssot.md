@@ -56,8 +56,10 @@ Related:
   - set_len
 - depends on:
   - `hako.mem`
+  - the current `hako.ptr` slot-route owner for live array-backed rows
 - does not own:
   - raw allocation primitive itself
+  - direct backend ABI symbol names
   - typed pointer dereference semantics
   - collection policy
 
@@ -68,9 +70,11 @@ Related:
   - typed pointer naming
   - span/slice-like view vocabulary
   - inbounds/raw read-write entry vocabulary
+  - direct array-slot backend route names for the current live substrate row
 - depends on:
   - `hako.mem`
-  - `hako.buf`
+  - future span/view rows may consume `hako.buf` shape facts, but the current
+    slot-route owner does not import `hako.buf`
 - does not own:
   - allocator policy
   - TLS/atomic/GC policy
@@ -113,6 +117,8 @@ current physical staging path は次。
 current implementation note:
 - the first live subset now exists as `MemCoreBox.alloc_i64/realloc_i64/free_i64`
 - `BufCoreBox.len_i64/cap_i64/reserve_i64/grow_i64` is the first live buffer-shaped facade
+- `BufCoreBox.cap_i64` routes through `PtrCoreBox.slot_cap_i64`; direct
+  `nyash.array.slot_cap_h` ownership stays in `hako.ptr`
 - `shrink` / `set_len` remain future widening targets
 
 ## Non-Goals

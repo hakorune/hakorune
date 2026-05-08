@@ -21,7 +21,7 @@ static box BufCoreBox {
   }
 
   cap_i64(handle) {
-    local out = externcall "nyash.array.slot_cap_h"(handle)
+    local out = PtrCoreBox.slot_cap_i64(handle)
     me._trace("[vm/adapter/buf:cap_i64]")
     return out
   }

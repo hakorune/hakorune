@@ -37,8 +37,8 @@ The current live surface is intentionally narrow.
 | numeric substrate | fixed-width and pointer-sized type names are classified by MIR metadata for storage planning; runtime values still use the current `Integer(i64)` lane; current `>>` is signed i64 arithmetic shift |
 | raw layout | MIR-owned `repr_c_v0` vocabulary can plan fixed-width numeric field offsets/size; no source syntax or backend-active native allocation yet |
 | `hako.mem` | allocation facade rows exist under `MemCoreBox`; exact public surface is still substrate-internal |
-| `hako.buf` | `len/cap/reserve/grow` facade rows exist under `BufCoreBox` |
-| `hako.ptr` | typed pointer/span facade is staged for current raw collection routes |
+| `hako.buf` | `len/cap/reserve/grow` facade rows exist under `BufCoreBox`; capacity routes through `PtrCoreBox.slot_cap_i64` |
+| `hako.ptr` | typed pointer/span facade is staged for current raw collection routes and owns direct array-slot backend route names for the live row |
 | verifier | bounds, initialized-range, and ownership gates exist for current raw collection routes; RawArray remove/insert are verifier-gated before pointer-substrate calls |
 | `RawArray` | first raw-array path exists for slot load/store/len/append/reserve/grow |
 | `RawBuf` | first allocation facade exists over `MemCoreBox` |
@@ -205,6 +205,43 @@ Safety/verifier contract:
 Fixture/gate:
 
 - `cargo test -q raw_layout --lib`
+
+## Memory/Buffer/Pointer Capability Row
+
+Decision: accepted for the M2 buffer-capacity route ownership lock.
+
+New surface:
+
+- `PtrCoreBox.slot_cap_i64(handle)`
+- `BufCoreBox.cap_i64(handle)` delegates to `PtrCoreBox.slot_cap_i64(handle)`.
+
+Owner modules:
+
+- `lang/src/runtime/substrate/ptr/ptr_core_box.hako`
+- `lang/src/runtime/substrate/buf/buf_core_box.hako`
+
+Accepted consumers:
+
+- VM adapter and current raw collection routes may observe array-backed capacity
+  through `BufCoreBox.cap_i64`.
+- The direct `nyash.array.slot_cap_h` backend symbol is owned by `PtrCoreBox`
+  for this live row.
+
+Unsupported behavior:
+
+- `hako.buf` must not own direct backend ABI symbol names.
+- This row does not add unrestricted raw pointer arithmetic, `shrink`,
+  `set_len`, native raw allocation policy, or user-facing pointer syntax.
+
+Safety/verifier contract:
+
+- This row is route ownership cleanup only. It adds no new lifetime, aliasing,
+  or bounds proof.
+
+Fixture/gate:
+
+- `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
+- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh`
 
 ## Minimum Verifier Hardening Row
 

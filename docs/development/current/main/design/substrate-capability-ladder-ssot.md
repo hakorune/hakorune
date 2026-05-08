@@ -275,6 +275,8 @@ Do not introduce parser syntax first and leave backend meaning implicit.
 - current implementation note:
   - `MemCoreBox.alloc_i64/realloc_i64/free_i64` is live
   - `BufCoreBox.len_i64/cap_i64/reserve_i64/grow_i64` is live
+  - `BufCoreBox.cap_i64` routes through `PtrCoreBox.slot_cap_i64`; direct
+    `nyash.array.slot_cap_h` ownership stays below the buf facade
   - `RawArrayCoreBox.slot_reserve_i64/slot_grow_i64` now route through `BufCoreBox`
 
 ここでは native intrinsic lowering を許可する。

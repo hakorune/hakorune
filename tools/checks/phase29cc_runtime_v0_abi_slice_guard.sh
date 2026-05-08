@@ -268,6 +268,14 @@ if ! rg -F -q 'cap_i64(handle)' "$BUF_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] buf core missing cap route" >&2
   exit 1
 fi
+if ! rg -F -q 'PtrCoreBox.slot_cap_i64(handle)' "$BUF_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] buf core cap route must go through ptr substrate" >&2
+  exit 1
+fi
+if rg -F -q 'externcall "nyash.array.slot_cap_h"' "$BUF_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] buf core must not own direct slot_cap extern route" >&2
+  exit 1
+fi
 if ! rg -F -q 'BufCoreBox.grow_i64(handle, target_capacity)' "$RAW_ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] raw array missing buf grow route" >&2
   exit 1
@@ -286,6 +294,10 @@ if ! rg -F -q 'externcall "nyash.array.set_his"' "$PTR_CORE_FILE"; then
 fi
 if ! rg -F -q 'externcall "nyash.array.slot_len_h"' "$PTR_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] ptr core missing nyash.array.slot_len_h extern route" >&2
+  exit 1
+fi
+if ! rg -F -q 'externcall "nyash.array.slot_cap_h"' "$PTR_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] ptr core missing nyash.array.slot_cap_h extern route" >&2
   exit 1
 fi
 if ! rg -F -q 'externcall "nyash.array.slot_append_hh"' "$PTR_CORE_FILE"; then

@@ -15,8 +15,10 @@ Current live surface:
 
 Rules:
 - Treat `hako.buf` as shape/control vocabulary, not allocator policy.
-- Keep the current implementation as a thin bridge over the existing array capacity backend.
-- Keep this directory docs-first for the current phase.
+- Keep the current implementation as a thin bridge over `PtrCoreBox` slot
+  routes.
+- Do not own direct backend ABI symbol names such as
+  `nyash.array.slot_cap_h`; those live in `hako.ptr` for the current row.
 
 Non-goals:
 - No allocator policy here.
