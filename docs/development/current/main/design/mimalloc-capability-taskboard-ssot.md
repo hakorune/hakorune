@@ -88,7 +88,7 @@ backend may trust them for lowering or optimization.
 | `M10c LLVM export attrs widening` | `blocked` | optimization export | `noalias`, `nonnull`, `dereferenceable`, alignment, stronger `nocapture` only after pointer/native-ptr proof and verifier/export consistency proof |
 | `M11a static readonly data segment` | `live-narrow` | backend-private const data | backend-private static data manifest emits a readonly u16 size-class fixture as LLVM data; no source syntax or const eval |
 | `M11b const eval/static table syntax` | `live-narrow` | language + MIR const data | `M11b-decl` source `u16` static const table declarations, `M11b-load` static table reads, and `M11b-eval` narrow integer initializer expressions are live; const fn remains future |
-| `M11c InlinePlan rows` | `live-narrow` | rune metadata + MIR optimizer | `M11c-preserve` keeps `Hint(inline/noinline/hot/cold)` as MIR `inline_plans`; `M11c-soft-leaf` expands best-effort same-module pure leaf `Hint(inline)` calls in MIR; substrate-only `Lowering(inline_required)` remains future |
+| `M11c InlinePlan rows` | `live-narrow` | rune metadata + MIR optimizer | `M11c-preserve` keeps `Hint(inline/noinline/hot/cold)` as MIR `inline_plans`; `M11c-soft-leaf` expands best-effort same-module pure leaf `Hint(inline)` calls in MIR; `M11c-required-vocab` preserves substrate-only `Lowering(inline_required)` as MIR `request=required` metadata without verifier/backend use |
 | `M12 mimalloc raw-page proof` | `blocked` | allocator substrate consumer | page/free-list fixture on raw substrate with `no_alloc` / `no_safepoint` proof gates |
 | `M13 allocator fast-path EXE proof` | `blocked` | EXE backend + substrate | direct EXE proof for allocator fast path; helper calls only where capability route says so |
 
@@ -121,14 +121,18 @@ backend may trust them for lowering or optimization.
 25. `M10c-hako-mem-realloc-row`
 26. `M10c-native-ptr-call-arg-emit`
 27. `M10c-hako-mem-free-void-row`
-28. `M10c LLVM export attrs widening`
+28. `M10c LLVM export attrs widening` (blocked until an eligible native-pointer proof/export row exists)
 29. `M11c-required-vocab substrate-only Lowering(inline_required)`
 30. `M11c-required-verify verifier-backed required inline acceptance`
 31. `M12 mimalloc raw-page proof`
 32. `M13 allocator fast-path EXE proof`
 
 This order may be split further, but it must not be inverted unless a new SSOT
-card explains the dependency change.
+card explains the dependency change. `M11c-required-vocab` is allowed to proceed
+while `M10c LLVM export attrs widening` remains blocked because it does not
+export pointer attributes, infer native-pointer proof, or lower allocator fast
+paths. It only widens rune vocabulary and preserves a MIR-owned metadata row
+for a later verifier card.
 
 ## Per-Row Acceptance Contract
 
@@ -263,8 +267,12 @@ manifest extern arg classes before accepting direct extern calls and emits
 `native_ptr_*` operands through the manifest arg class. The target after that is
 `M10c-hako-mem-free-void-row` now adds the third hako.mem runtime-decl row and
 teaches `.hako` ll_emit to emit `call void` for the C ABI free seam instead of
-inventing an `i64` result. The target after that is still blocked `M10c`:
-strong LLVM attrs widening, gated by verifier/export consistency and
-native-pointer proof only. Implement that before any required-inline or
-allocator fast-path proof. Do not jump to allocator fast-path lowering before
-the remaining verifier facts make raw access auditable.
+inventing an `i64` result. `M10c LLVM export attrs widening` is still blocked:
+the active hako.mem rows are nullable native pointers or void and have no
+eligible `nonnull` / `noalias` / `dereferenceable` proof row. The next
+actionable implementation target is `M11c-required-vocab`, because it only
+accepts and preserves `@rune Lowering(inline_required)` as MIR-owned
+InlinePlan metadata and does not make required inline, pointer attrs, or
+allocator fast-path lowering backend-active. Do not jump to required verifier
+acceptance or allocator fast-path lowering before the remaining verifier facts
+make raw access auditable.

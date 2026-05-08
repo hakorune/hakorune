@@ -53,6 +53,7 @@ fn has_soft_inline_request(function: &MirFunction) -> bool {
             crate::mir::inline_plan::InlineRequest::Avoid => return false,
             crate::mir::inline_plan::InlineRequest::Prefer => has_prefer = true,
             crate::mir::inline_plan::InlineRequest::None => {}
+            crate::mir::inline_plan::InlineRequest::Required => {}
         }
     }
     has_prefer

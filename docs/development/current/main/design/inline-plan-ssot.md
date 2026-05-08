@@ -62,6 +62,20 @@ Reserved substrate-only surface:
 @rune Lowering(inline_required)
 ```
 
+M11c-required-vocab live surface:
+
+```text
+@rune Lowering(inline_required)
+-> MIR InlinePlan request=required
+-> requires=["no_alloc", "no_safepoint"]
+-> verified=false
+-> fallback=fail_fast
+-> source=rune_lowering
+```
+
+This row is vocabulary and preservation only. It does not make required inline
+backend-active and does not fail a program for missing verifier proof yet.
+
 `Hint(inline)` is not `inline_required`.
 
 `Hint(always_inline)` is also not `inline_required`; do not introduce it as a
@@ -185,6 +199,28 @@ Return
 does not add required-inline semantics and does not make backends read
 `inline_plans`.
 
+M11c-required-vocab live schema:
+
+```json
+{
+  "inline_plans": [
+    {
+      "function": "MiHeap.alloc_small/1",
+      "request": "required",
+      "hotness": null,
+      "max_ir": null,
+      "requires": ["no_alloc", "no_safepoint"],
+      "verified": false,
+      "fallback": "fail_fast",
+      "source": "rune_lowering"
+    }
+  ]
+}
+```
+
+`verified=false` is intentional for this row. `M11c-required-verify` owns the
+future transition from preserved vocabulary to accepted required inline.
+
 ## Inline Kinds
 
 ### MIR Function Inline
@@ -237,7 +273,8 @@ considered.
 
 ## Required Inline Verifier Conditions
 
-`Lowering(inline_required)` is accepted only after verifier proof.
+`Lowering(inline_required)` vocabulary is accepted by M11c-required-vocab, but
+required inline lowering is accepted only after verifier proof.
 
 Minimum required checks:
 
@@ -299,6 +336,7 @@ M10c:
 M11c-required-vocab:
   substrate-only Lowering(inline_required) vocabulary.
   Parser parity is required because this adds rune vocabulary.
+  Live-narrow. Preserves request=required metadata only; no verifier/backend use.
 
 M11c-required-verify:
   required inline verifier connection to no_alloc/no_safepoint and call graph

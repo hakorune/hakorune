@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-055-HAKO-MEM-FREE-VOID-RUNTIME-DECL"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-055-HAKO-MEM-FREE-VOID-RUNTIME-DECL.md"
-latest_card_summary = "293x-055 hako_mem_free is now a void runtime-decl row and .hako ll_emit emits call void without ret_proofs or strong attrs."
+latest_card = "293x-056-M11C-REQUIRED-INLINE-VOCAB"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-056-M11C-REQUIRED-INLINE-VOCAB.md"
+latest_card_summary = "293x-056 M11c-required-vocab now preserves @rune Lowering(inline_required) as MIR request=required metadata with parser parity and no backend use."
 
 current_blocker_token = "phase-293x mimalloc substrate capability ladder after real-app EXE parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

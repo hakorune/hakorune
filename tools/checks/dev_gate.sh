@@ -360,6 +360,9 @@ run_quick() {
   run_step "K2-wide InlinePlan soft leaf guard" \
     bash tools/checks/k2_wide_inline_plan_soft_leaf_guard.sh
 
+  run_step "K2-wide Inline required vocab guard" \
+    bash tools/checks/k2_wide_inline_required_vocab_guard.sh
+
   run_step "K2-wide return proof vocabulary guard" \
     bash tools/checks/k2_wide_return_proof_vocab_guard.sh
 

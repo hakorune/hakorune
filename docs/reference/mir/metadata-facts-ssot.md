@@ -88,7 +88,7 @@ Contract:
 | `string_corridor_candidates` | object map `{value_id: [candidate, ...]}` | Placement/effect candidate inventory derived from string corridor facts |
 | `thin_entry_candidates` | array | Candidate sites for public-entry vs thin-entry selection |
 | `thin_entry_selections` | array | Manifest-bound thin-entry decisions |
-| `inline_plans` | array | Advisory InlinePlan rows derived from declaration-local `Hint(inline/noinline/hot/cold)` runes; M11c-soft-leaf may consume `request=prefer` for narrow same-module MIR leaf inline |
+| `inline_plans` | array | InlinePlan rows derived from declaration-local `Hint(inline/noinline/hot/cold)` and `Lowering(inline_required)` runes; M11c-soft-leaf may consume `request=prefer` for narrow same-module MIR leaf inline, while `request=required` remains verifier-pending metadata |
 | `sum_placement_facts` | array | Observed sum objectization / local-aggregate facts |
 | `sum_placement_selections` | array | Selected sum path (`local_aggregate` vs compat fallback) |
 | `sum_placement_layouts` | array | LLVM-side local aggregate layout choice for selected sums |
@@ -99,10 +99,11 @@ Contract:
 
 ## InlinePlan metadata
 
-`inline_plans` is the M11c-preserve row. It records advisory inline metadata in
-MIR JSON. M11c-soft-leaf may consume `request = "prefer"` inside the MIR
-optimizer for narrow same-module pure leaf calls. Backends still must not
-consume this row as an inline mandate.
+`inline_plans` records MIR-owned inline metadata in MIR JSON. M11c-soft-leaf
+may consume advisory `request = "prefer"` inside the MIR optimizer for narrow
+same-module pure leaf calls. `request = "required"` is vocabulary-only until
+the required verifier row lands. Backends still must not consume this row as an
+inline mandate.
 
 Example:
 
@@ -129,11 +130,14 @@ Current request mapping:
 - `Hint(noinline)` -> `request = "avoid"`
 - `Hint(hot)` -> `request = "none"`, `hotness = "hot"`
 - `Hint(cold)` -> `request = "none"`, `hotness = "cold"`
+- `Lowering(inline_required)` -> `request = "required"`,
+  `requires = ["no_alloc", "no_safepoint"]`, `verified = false`,
+  `fallback = "fail_fast"`, `source = "rune_lowering"`
 
 Soft inline is accepted only for one-block same-module `Callee::Global` bodies
 with no nested call/control and a narrow pure instruction vocabulary. Failed
-soft inline keeps the original call. Required inline remains reserved for
-verifier-backed `Lowering(inline_required)` rows.
+soft inline keeps the original call. Required inline metadata is preserved now,
+but required inline acceptance remains reserved for verifier-backed rows.
 
 ## Value maps
 

@@ -59,6 +59,24 @@ static box Main {
 }
 
 #[test]
+fn parser_rejects_invalid_lowering_rune_value() {
+    with_features(Some("rune"), || {
+        let src = r#"
+static box Main {
+  @rune Lowering(always_inline)
+  main() { return 0 }
+}
+"#;
+        let err = NyashParser::parse_from_string(src).expect_err("parse should fail");
+        let msg = err.to_string();
+        assert!(
+            msg.contains("[freeze:contract][parser/rune] Lowering(inline_required)"),
+            "unexpected error: {msg}"
+        );
+    });
+}
+
+#[test]
 fn parser_rejects_invalid_callconv_value() {
     with_features(Some("rune"), || {
         let src = r#"

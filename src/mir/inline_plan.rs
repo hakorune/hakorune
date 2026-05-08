@@ -6,6 +6,7 @@ pub enum InlineRequest {
     None,
     Prefer,
     Avoid,
+    Required,
 }
 
 impl InlineRequest {
@@ -14,6 +15,7 @@ impl InlineRequest {
             Self::None => "none",
             Self::Prefer => "prefer",
             Self::Avoid => "avoid",
+            Self::Required => "required",
         }
     }
 }
@@ -66,14 +68,36 @@ impl InlinePlan {
             source: "rune_hint".to_string(),
         })
     }
+
+    pub fn from_lowering(function: &str, lowering: &str) -> Option<Self> {
+        if lowering != "inline_required" {
+            return None;
+        }
+
+        Some(Self {
+            function: function.to_string(),
+            request: InlineRequest::Required,
+            hotness: None,
+            max_ir: None,
+            requires: vec!["no_alloc".to_string(), "no_safepoint".to_string()],
+            verified: false,
+            fallback: "fail_fast".to_string(),
+            source: "rune_lowering".to_string(),
+        })
+    }
 }
 
 pub fn inline_plans_from_runes(function: &str, runes: &[RuneAttr]) -> Vec<InlinePlan> {
     runes
         .iter()
-        .filter(|rune| rune.name == "Hint")
-        .filter_map(|rune| rune.args.first())
-        .filter_map(|hint| InlinePlan::from_hint(function, hint))
+        .filter_map(|rune| {
+            let value = rune.args.first()?;
+            match rune.name.as_str() {
+                "Hint" => InlinePlan::from_hint(function, value),
+                "Lowering" => InlinePlan::from_lowering(function, value),
+                _ => None,
+            }
+        })
         .collect()
 }
 

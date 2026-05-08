@@ -112,3 +112,45 @@ static box Main {
     assert_eq!(plan.fallback, "keep_call");
     assert!(!plan.verified);
 }
+
+#[test]
+fn mir_preserves_rune_lowering_inline_required_as_inline_plan_metadata() {
+    ensure_ring0_initialized();
+    let _guard = FeatureOverrideGuard::new("rune");
+    let ast = NyashParser::parse_from_string(
+        r#"
+static box Main {
+  @rune Lowering(inline_required)
+  main() {
+    return 0
+  }
+}
+"#,
+    )
+    .expect("parse required inline lowering");
+
+    let mut compiler = MirCompiler::with_options(false);
+    let module = compiler
+        .compile(ast)
+        .expect("compile required inline lowering")
+        .module;
+    let main = module
+        .functions
+        .values()
+        .find(|function| function.signature.name.contains("main"))
+        .expect("main function");
+
+    assert_eq!(main.metadata.inline_plans.len(), 1);
+    let plan = &main.metadata.inline_plans[0];
+    assert_eq!(plan.function, main.signature.name);
+    assert_eq!(plan.request.as_str(), "required");
+    assert_eq!(plan.hotness, None);
+    assert_eq!(plan.max_ir, None);
+    assert_eq!(
+        plan.requires,
+        vec!["no_alloc".to_string(), "no_safepoint".to_string()]
+    );
+    assert!(!plan.verified);
+    assert_eq!(plan.fallback, "fail_fast");
+    assert_eq!(plan.source, "rune_lowering");
+}

@@ -139,6 +139,7 @@ static box Main {
   @rune Symbol("main_sym")
   @rune CallConv("c")
   @rune Hint(inline)
+  @rune Lowering(inline_required)
   @rune Contract(no_alloc)
   @rune IntrinsicCandidate("Main.main/0")
   main() {
@@ -159,6 +160,7 @@ static box Main {
                 ("Symbol".to_string(), vec!["main_sym".to_string()]),
                 ("CallConv".to_string(), vec!["c".to_string()]),
                 ("Hint".to_string(), vec!["inline".to_string()]),
+                ("Lowering".to_string(), vec!["inline_required".to_string()]),
                 ("Contract".to_string(), vec!["no_alloc".to_string()]),
                 (
                     "IntrinsicCandidate".to_string(),
@@ -178,6 +180,7 @@ static box Main {
                 ("Symbol".to_string(), vec!["main_sym".to_string()]),
                 ("CallConv".to_string(), vec!["c".to_string()]),
                 ("Hint".to_string(), vec!["inline".to_string()]),
+                ("Lowering".to_string(), vec!["inline_required".to_string()]),
                 ("Contract".to_string(), vec!["no_alloc".to_string()]),
                 (
                     "IntrinsicCandidate".to_string(),

@@ -37,6 +37,7 @@ Canonical declaration metadata uses `@rune`:
 
 ```hako
 @rune Hint(inline)
+@rune Lowering(inline_required)
 @rune Contract(no_alloc)
 @rune Contract(no_safepoint)
 @rune IntrinsicCandidate("StringBox.length/0")
@@ -55,6 +56,10 @@ Current live verifier row:
   `metadata.inline_plans`.
 - `Hint(inline)` may trigger the narrow M11c-soft-leaf MIR optimizer row:
   best-effort same-module pure leaf inline. Unsupported shapes keep the call.
+- `Lowering(inline_required)` is preserved into MIR-owned
+  `metadata.inline_plans` as `request=required`, `verified=false`, and
+  `fallback=fail_fast`. It is not backend-active until the required verifier
+  row lands.
 
 Fail-fast diagnostics use the stable tags:
 
@@ -84,7 +89,8 @@ Reserved substrate-only required inline flow:
 @rune Contract(no_alloc)
 @rune Contract(no_safepoint)
 -> MIR InlinePlan request=required
--> verifier accepts or fail-fast rejects
+-> metadata preserved now
+-> future verifier accepts or fail-fast rejects
 ```
 
 Backends and `.inc` readers must not discover inline policy from function names,
