@@ -130,6 +130,26 @@ The active `runtime-decl-manifest-v0.toml` must not grow `ret_proofs` or strong
 attrs until a later card wires verifier/export consumption. The fixture file is
 the only accepted schema host for M10c-proof-row.
 
+## Native Pointer LLVM Type Name
+
+Decision: accepted M10c-native-ptr-declare-type lock.
+
+The `.hako` ll_emit runtime declaration registry may map native pointer return
+classes to LLVM `ptr` type names:
+
+```text
+native_ptr_nonnull -> ptr
+native_ptr_nullable -> ptr
+native_ptr_dereferenceable -> ptr
+```
+
+This mapping is type spelling only. It does not prove ownership, nonnull,
+dereferenceability, alignment, noalias, or lifetime. It also does not activate
+any runtime-decl row.
+
+The purpose is to prevent future native pointer rows from silently falling back
+to the generic `i64` type spelling before M10c export gates are ready.
+
 ## Machine Truth
 
 The machine-readable vocabulary lock is:
@@ -154,6 +174,12 @@ The runtime-decl proof-row validator is:
 
 ```text
 src/abi/runtime_decl_return_proof.rs
+```
+
+The `.hako` type-name consumer for runtime-decl value classes is:
+
+```text
+lang/src/shared/backend/ll_emit/runtime_decl_registry_box.hako
 ```
 
 The guard must keep these in sync and must keep strong attrs absent from active

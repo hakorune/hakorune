@@ -50,6 +50,9 @@ static box RuntimeDeclRegistryBox {
   llvm_type_name(value_class) {
     local vc = "" + value_class
     if vc == "ptr_const_i8" { return "ptr" }
+    if vc == "native_ptr_nonnull" { return "ptr" }
+    if vc == "native_ptr_nullable" { return "ptr" }
+    if vc == "native_ptr_dereferenceable" { return "ptr" }
     if vc == "imm_i32" { return "i32" }
     return "i64"
   }

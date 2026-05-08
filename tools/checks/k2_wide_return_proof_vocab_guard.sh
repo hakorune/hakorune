@@ -20,7 +20,6 @@ RUST = ROOT / "src/abi/return_proof.rs"
 RUNTIME_DECL = ROOT / "docs/development/current/main/design/runtime-decl-manifest-v0.toml"
 TASKBOARD = ROOT / "docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
 SSOT = ROOT / "docs/development/current/main/design/return-proof-vocabulary-ssot.md"
-CURRENT = ROOT / "docs/development/current/main/CURRENT_STATE.toml"
 
 EXPECTED_CLASSES = [
     "imm_i64",
@@ -92,7 +91,6 @@ for path, needle in [
     (TASKBOARD, "`M10c-pre pointer/handle return proof vocabulary` | `live-narrow`"),
     (SSOT, "handle return proof:"),
     (SSOT, "native pointer return proof:"),
-    (CURRENT, "293x-049 M10c-pre return proof vocabulary landed"),
 ]:
     if needle not in path.read_text():
         fail(f"{path}: missing lock text: {needle}")

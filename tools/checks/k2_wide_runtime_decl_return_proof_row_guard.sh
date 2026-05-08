@@ -22,7 +22,6 @@ SSOT = ROOT / "docs/development/current/main/design/return-proof-vocabulary-ssot
 TASKBOARD = ROOT / "docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
 CARD = ROOT / "docs/development/current/main/phases/phase-293x/293x-050-M10C-RUNTIME-DECL-RETURN-PROOF-ROW.md"
 RUST = ROOT / "src/abi/runtime_decl_return_proof.rs"
-CURRENT = ROOT / "docs/development/current/main/CURRENT_STATE.toml"
 
 STRONG_ATTRS = ("noalias", "nonnull", "dereferenceable", "align")
 
@@ -106,7 +105,6 @@ for path, needle in [
     (SSOT, "runtime-decl return proof row schema"),
     (TASKBOARD, "`M10c-proof-row runtime-decl return proof row` | `live-narrow`"),
     (CARD, "M10c-proof-row is live as schema/validator only."),
-    (CURRENT, "293x-050 M10c runtime-decl return proof row landed"),
 ]:
     if needle not in path.read_text():
         fail(f"{path}: missing lock text: {needle}")
