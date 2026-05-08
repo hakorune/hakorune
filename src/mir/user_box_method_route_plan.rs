@@ -699,5 +699,5 @@ fn format_user_box_method_type_label(ty: &MirType) -> String {
 }
 
 #[cfg(test)]
-#[path = "user_box_method_route_plan/tests.rs"]
+#[path = "user_box_method_route_plan/tests/mod.rs"]
 mod tests;
