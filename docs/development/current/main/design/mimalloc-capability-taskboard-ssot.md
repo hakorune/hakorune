@@ -13,6 +13,7 @@ Related:
   - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
   - docs/development/current/main/design/static-const-table-syntax-ssot.md
   - docs/development/current/main/design/inline-plan-ssot.md
+  - docs/development/current/main/design/rune-profile-effect-capability-plan-ssot.md
   - docs/reference/runtime/substrate-capabilities.md
 ---
 
@@ -33,6 +34,7 @@ hako.atomic
 hako.tls
 hako.osvm
 @rune Contract(...)
+MIR InlinePlan / EffectPlan / CapabilityPlan
 minimum verifier
 ```
 
@@ -40,6 +42,9 @@ This keeps low-level power explicit, staged, and auditable. Capability modules
 provide the substrate vocabulary. `@rune Contract(...)` states obligations such
 as `no_alloc` / `no_safepoint`. Verifiers must prove those obligations before a
 backend may trust them for lowering or optimization.
+
+`@rune Profile(...)` is a future authoring shortcut over these facts. It is not
+a new truth source and is not backend-readable.
 
 ## Non-Goals
 
@@ -49,6 +54,8 @@ backend may trust them for lowering or optimization.
   any app-specific box name.
 - Do not treat syntax acceptance as implementation acceptance.
 - Do not make `@rune Contract(...)` backend-active without verifier proof.
+- Do not make `@rune Profile(...)` backend-active or let `.inc` / ll_emit branch
+  on profile names.
 - Do not mix real-app EXE parity cards with broad substrate widening in the
   same commit.
 
@@ -89,7 +96,10 @@ backend may trust them for lowering or optimization.
 | `M11a static readonly data segment` | `live-narrow` | backend-private const data | backend-private static data manifest emits a readonly u16 size-class fixture as LLVM data; no source syntax or const eval |
 | `M11b const eval/static table syntax` | `live-narrow` | language + MIR const data | `M11b-decl` source `u16` static const table declarations, `M11b-load` static table reads, and `M11b-eval` narrow integer initializer expressions are live; const fn remains future |
 | `M11c InlinePlan rows` | `live-narrow` | rune metadata + MIR optimizer | `M11c-preserve` keeps `Hint(inline/noinline/hot/cold)` as MIR `inline_plans`; `M11c-soft-leaf` expands best-effort same-module pure leaf `Hint(inline)` calls in MIR; `M11c-required-vocab` preserves substrate-only `Lowering(inline_required)` as MIR `request=required` metadata without verifier/backend use; `M11c-contract-repeat` permits distinct `Contract(...)` runes on one declaration for required-inline proof inputs |
+| `M11d EffectPlan/CapabilityPlan boundary` | `reserved` | MIR metadata + verifier | MIR-owned effect and capability facts for future strict substrate rows; no Profile expansion, no parser surface, and no backend use in the first boundary card |
 | `M12 mimalloc raw-page proof` | `blocked` | allocator substrate consumer | page/free-list fixture on raw substrate with `no_alloc` / `no_safepoint` proof gates |
+| `M12b Profile registry docs` | `reserved` | rune metadata + docs | reserve `allocator.fast`, `allocator.slow`, `substrate.leaf`, `intrinsic.leaf`, and `raw.layout` expansion targets; no parser acceptance unless a later row explicitly owns parser parity |
+| `M12c Profile expansion to facts` | `blocked` | rune metadata + MIR plans + verifier | expand `Profile(...)` to primitive `Hint` / `Lowering` / `Contract` / EffectPlan / CapabilityPlan facts after those facts exist; backend reads only expanded facts |
 | `M13 allocator fast-path EXE proof` | `blocked` | EXE backend + substrate | direct EXE proof for allocator fast path; helper calls only where capability route says so |
 
 ## Fixed Implementation Order
@@ -125,8 +135,11 @@ backend may trust them for lowering or optimization.
 29. `M11c-required-vocab substrate-only Lowering(inline_required)`
 30. `M11c-contract-repeat distinct Contract(...) parser metadata`
 31. `M11c-required-verify verifier-backed required inline acceptance`
-32. `M12 mimalloc raw-page proof`
-33. `M13 allocator fast-path EXE proof`
+32. `M11d EffectPlan/CapabilityPlan boundary`
+33. `M12 mimalloc raw-page proof`
+34. `M12b Profile registry docs`
+35. `M12c Profile expansion to facts`
+36. `M13 allocator fast-path EXE proof`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed
@@ -134,6 +147,10 @@ while `M10c LLVM export attrs widening` remains blocked because it does not
 export pointer attributes, infer native-pointer proof, or lower allocator fast
 paths. It only widens rune vocabulary and preserves a MIR-owned metadata row
 for a later verifier card.
+
+`@rune Profile(...)` must stay after the plan-boundary rows. Profile is allowed
+to reduce authoring noise only after the primitive facts it expands to already
+exist and are verifier-owned.
 
 ## Per-Row Acceptance Contract
 
@@ -271,11 +288,11 @@ teaches `.hako` ll_emit to emit `call void` for the C ABI free seam instead of
 inventing an `i64` result. `M10c LLVM export attrs widening` is still blocked:
 the active hako.mem rows are nullable native pointers or void and have no
 eligible `nonnull` / `noalias` / `dereferenceable` proof row. The next
-actionable implementation target is `M11c-required-vocab`, because it only
-accepts and preserves `@rune Lowering(inline_required)` as MIR-owned
-InlinePlan metadata and does not make required inline, pointer attrs, or
-allocator fast-path lowering backend-active. `M11c-contract-repeat` then keeps
-distinct `Contract(no_alloc)` and `Contract(no_safepoint)` metadata on the same
-declaration so required-inline verifier inputs can exist without a parser
-workaround. Do not jump to required verifier acceptance or allocator fast-path
-lowering before the remaining verifier facts make raw access auditable.
+actionable implementation target is `M11c-required-verify`, because
+`Lowering(inline_required)` and distinct `Contract(no_alloc)` /
+`Contract(no_safepoint)` metadata are now available but still untrusted. After
+that, `M11d` must lock the EffectPlan/CapabilityPlan boundary before raw-page
+or Profile rows become active. Do not jump to allocator fast-path lowering
+before required inline verification and the EffectPlan/CapabilityPlan boundary
+make raw access auditable. Do not implement `@rune Profile(...)` first; Profile
+is a compact authoring surface over facts that must already exist.

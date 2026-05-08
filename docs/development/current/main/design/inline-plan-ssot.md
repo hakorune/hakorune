@@ -5,6 +5,7 @@ Date: 2026-05-08
 Scope: inline metadata, MIR InlinePlan ownership, verifier gates, and backend responsibility boundaries.
 Related:
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
+  - docs/development/current/main/design/rune-profile-effect-capability-plan-ssot.md
   - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
   - docs/development/current/main/design/rune-v1-metadata-unification-ssot.md
   - docs/reference/mir/hints.md
@@ -77,6 +78,11 @@ This row is vocabulary and preservation only. It does not make required inline
 backend-active and does not fail a program for missing verifier proof yet.
 
 `Hint(inline)` is not `inline_required`.
+
+Future `@rune Profile(...)` expansion may produce `Hint(...)`,
+`Lowering(inline_required)`, and `Contract(...)` facts, but Profile is not an
+InlinePlan truth source. The MIR facts produced by expansion are the only facts
+the optimizer and backend may consume.
 
 `Hint(always_inline)` is also not `inline_required`; do not introduce it as a
 public guarantee. If an always-inline spelling is ever accepted, it remains an
@@ -348,8 +354,22 @@ M11c-required-verify:
   required inline verifier connection to no_alloc/no_safepoint and call graph
   checks.
 
+M11d:
+  EffectPlan / CapabilityPlan boundary.
+  Defines the MIR-owned effect and capability facts required before Profile can
+  safely expand allocator.fast or substrate.leaf into strict lowering facts.
+
 M12:
   mimalloc raw-page proof.
+
+M12b:
+  Profile registry docs.
+  Reserves profile names and expansion targets only.
+
+M12c:
+  Profile expansion to primitive rune/Plan facts.
+  Backend still reads InlinePlan / EffectPlan / CapabilityPlan, not Profile
+  strings.
 
 M13:
   allocator fast-path EXE proof.

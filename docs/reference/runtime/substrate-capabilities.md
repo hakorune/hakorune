@@ -10,6 +10,7 @@ The design SSOT is:
 - `docs/development/current/main/design/substrate-capability-ladder-ssot.md`
 - `docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md`
 - `docs/development/current/main/design/inline-plan-ssot.md`
+- `docs/development/current/main/design/rune-profile-effect-capability-plan-ssot.md`
 
 ## Core Rule
 
@@ -52,6 +53,7 @@ The current live surface is intentionally narrow.
 | backend export attrs | consistency guard is live; only current weak attrs are allowed, runtime-decl `readonly` rows must carry `memory = "read"`, while `noalias`/`nonnull`/`dereferenceable`/alignment export remain blocked |
 | static readonly data | backend-private static-data manifest can emit a u16 size-class fixture; source `static const NAME: u16[] = [...]` declarations lower to MIR `static_data_plans`; `NAME[index]` reads lower to MIR `StaticDataLoad` and current-lane `i64` values; narrow integer const expressions in u16 table initializers are live |
 | inline planning | `@rune Hint(inline/noinline/hot/cold)` and substrate-only `@rune Lowering(inline_required)` preserve MIR InlinePlan metadata; `Hint(inline)` has a narrow best-effort same-module MIR leaf inline row; required inline verifier/backend use is not live |
+| profile/effect/capability planning | `@rune Profile(...)`, EffectPlan, and CapabilityPlan are design-reserved only; Profile is future sugar over MIR facts and is not backend-readable |
 
 ## Reserved Surface
 
@@ -78,6 +80,10 @@ These names are reserved but not fully live as user-facing allocator substrate:
 - const fn table generation and references to other const declarations
 - backend-active required inline from `@rune Lowering(inline_required)`
 - verifier-backed required inline acceptance
+- `@rune Profile(...)` parser acceptance and expansion
+- backend-readable profile names
+- MIR EffectPlan / CapabilityPlan backend use
+- unrestricted `unsafe(...)` blocks
 
 ## Pointer/Handle Return Proof Vocabulary
 
@@ -504,6 +510,41 @@ Strict allocator/substrate rows may later reserve:
 `.hako` parser parity because it widens rune metadata. It is preserved with
 `verified=false`, so backends must not infer required inline from this row or
 from symbol names.
+
+## Rune Profile / Plan Ordering
+
+Decision: `@rune Profile(...)` is reserved as a future authoring shortcut. It is
+not live syntax and is not a backend contract.
+
+The required future flow is:
+
+```text
+@rune Profile(...)
+-> primitive rune metadata and MIR Plan facts
+-> EffectPlan / CapabilityPlan / InlinePlan verifier acceptance
+-> MIR transform or capability route
+-> backend emits the result
+```
+
+Reserved profile names:
+
+- `allocator.fast`
+- `allocator.slow`
+- `substrate.leaf`
+- `intrinsic.leaf`
+- `raw.layout`
+
+Task order:
+
+1. verifier-backed required inline acceptance
+2. EffectPlan / CapabilityPlan boundary
+3. mimalloc raw-page proof using explicit facts
+4. Profile registry docs
+5. Profile expansion to primitive facts
+6. allocator fast-path EXE proof
+
+Backends must not branch on profile names. `.inc` / ll_emit must continue to
+read already-expanded MIR facts and routes only.
 
 ## Allocator Reading
 

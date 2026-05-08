@@ -24,6 +24,7 @@
   - `docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md`
   - `docs/development/current/main/design/static-const-table-syntax-ssot.md`
   - `docs/development/current/main/design/inline-plan-ssot.md`
+  - `docs/development/current/main/design/rune-profile-effect-capability-plan-ssot.md`
   - `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
   - `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
@@ -87,6 +88,7 @@
 - Mimalloc capability taskboard（C風unsafeではなく capability module + `@rune Contract` verifier で進める実装順SSOT）: `docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md`
 - Static const table syntax（M11b の source static table / MIR static_data_plans / parser rollout 順序SSOT）: `docs/development/current/main/design/static-const-table-syntax-ssot.md`
 - InlinePlan（`@rune Hint(inline)` から MIR InlinePlan / verifier / backend reader 境界へ流す inline 設計SSOT）: `docs/development/current/main/design/inline-plan-ssot.md`
+- Rune Profile / Effect / Capability Plan（`@rune Profile(...)` は糖衣、MIR Plan/Verifier が真実という新機能順序SSOT）: `docs/development/current/main/design/rune-profile-effect-capability-plan-ssot.md`
 - Stage2 AOT/native thin path（current native perf/mainline の thin-owner design note）: `docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md`
 - Value repr and ABI manifest（current value classes / ownership / manifest row truth）: `docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md`
 - Return proof vocabulary（M10c-pre の handle/native pointer return proof 語彙SSOT）: `docs/development/current/main/design/return-proof-vocabulary-ssot.md`
