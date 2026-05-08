@@ -76,6 +76,29 @@ static box MirVmS0BoxcallBuiltinBox {
     return me._args_nth(seg, offset + index)
   }
 
+  _rawbuf_next_key() {
+    return "__vm_hako_rawbuf_next_ptr"
+  }
+
+  _rawbuf_span(size_hint) {
+    if size_hint == null || size_hint <= 0 { return 1 }
+    return size_hint
+  }
+
+  _rawbuf_next_ptr(regs) {
+    local raw = regs.get(me._rawbuf_next_key())
+    local ptr = MirVmS0JsonScanBox._to_i64(raw)
+    if ptr <= 0 { return 4096 }
+    return ptr
+  }
+
+  _rawbuf_issue_ptr(regs, size_hint) {
+    local base = me._rawbuf_next_ptr(regs)
+    local span = me._rawbuf_span(size_hint)
+    regs.set(me._rawbuf_next_key(), "" + (base + span + 8))
+    return base
+  }
+
   apply_birth(box_birth, dst_birth, regs, kinds, array_lens) {
     if box_birth != null {
       MirVmS0StateOpsBox.box_len_set(array_lens, box_birth, 0)
@@ -342,6 +365,47 @@ static box MirVmS0BoxcallBuiltinBox {
       if dst_barrier == null { return "[vm-hako/contract][boxcall-missing-dst]" }
       regs.set("" + dst_barrier, "0")
       kinds.set("" + dst_barrier, "scalar")
+      return "__NEXT__"
+    }
+
+    if method == "alloc_bytes_i64" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local size_arg = me._args_first(seg)
+      if size_arg == null { return "[vm-hako/contract][boxcall-alloc_bytes_i64-arg0-missing]" }
+      local dst_alloc = me._find_int(seg, "dst")
+      if dst_alloc == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      local size_val = MirVmS0StateOpsBox.reg_i64_get(regs, size_arg)
+      regs.set("" + dst_alloc, "" + me._rawbuf_issue_ptr(regs, size_val))
+      kinds.set("" + dst_alloc, "scalar")
+      return "__NEXT__"
+    }
+
+    if method == "realloc_bytes_i64" {
+      if me._args_has_third(seg) { return "[vm-hako/unimplemented op=boxcall args>2]" }
+      local ptr_arg = me._args_first(seg)
+      local size_arg2 = me._args_second(seg)
+      if ptr_arg == null || size_arg2 == null { return "[vm-hako/contract][boxcall-realloc_bytes_i64-arg-missing]" }
+      local dst_realloc = me._find_int(seg, "dst")
+      if dst_realloc == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      local ptr_val = MirVmS0StateOpsBox.reg_i64_get(regs, ptr_arg)
+      local size_val2 = MirVmS0StateOpsBox.reg_i64_get(regs, size_arg2)
+      local out_realloc = ptr_val
+      if out_realloc <= 0 {
+        out_realloc = me._rawbuf_issue_ptr(regs, size_val2)
+      }
+      regs.set("" + dst_realloc, "" + out_realloc)
+      kinds.set("" + dst_realloc, "scalar")
+      return "__NEXT__"
+    }
+
+    if method == "free_bytes_i64" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local free_arg = me._args_first(seg)
+      if free_arg == null { return "[vm-hako/contract][boxcall-free_bytes_i64-arg0-missing]" }
+      local dst_free = me._find_int(seg, "dst")
+      if dst_free == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      regs.set("" + dst_free, "0")
+      kinds.set("" + dst_free, "scalar")
       return "__NEXT__"
     }
 

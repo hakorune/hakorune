@@ -6,6 +6,8 @@ cd "$ROOT_DIR"
 
 RAW_BUF_README="lang/src/runtime/substrate/raw_buf/README.md"
 RAW_BUF_CORE_FILE="lang/src/runtime/substrate/raw_buf/raw_buf_core_box.hako"
+VM_SUBSET_FILE="src/runner/reference/vm_hako/subset_check/mod.rs"
+VM_BOXCALL_FILE="lang/src/vm/boxes/mir_vm_s0_boxcall_builtin.hako"
 SUBSTRATE_README="lang/src/runtime/substrate/README.md"
 SUBSTRATE_LADDER_DOC="docs/development/current/main/design/substrate-capability-ladder-ssot.md"
 HAKO_ALLOC_DOC="docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md"
@@ -13,6 +15,12 @@ HAKO_ALLOC_README="lang/src/hako_alloc/README.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 
 echo "[k2-wide-rawbuf-first-row] running narrow RawBuf first-row acceptance pack"
+echo "[k2-wide-rawbuf-first-row] --- vm-hako subset acceptance ---"
+cargo test -q subset_accepts_boxcall_rawbufcore_alloc_bytes_i64 -- --nocapture
+cargo test -q subset_accepts_boxcall_rawbufcore_realloc_bytes_i64 -- --nocapture
+cargo test -q subset_accepts_boxcall_rawbufcore_free_bytes_i64 -- --nocapture
+cargo test -q subset_rejects_boxcall_rawbufcore_set_len_i64 -- --nocapture
+
 echo "[k2-wide-rawbuf-first-row] --- file/owner lock ---"
 for file in \
   "$RAW_BUF_README" \
@@ -38,6 +46,15 @@ rg -F -q 'MemCoreBox.free_i64(ptr)' "$RAW_BUF_CORE_FILE"
 rg -F -q '[vm/adapter/raw_buf:alloc_bytes_i64]' "$RAW_BUF_CORE_FILE"
 rg -F -q '[vm/adapter/raw_buf:realloc_bytes_i64]' "$RAW_BUF_CORE_FILE"
 rg -F -q '[vm/adapter/raw_buf:free_bytes_i64]' "$RAW_BUF_CORE_FILE"
+rg -F -q '&& box_type != "RawBufCoreBox"' "$VM_SUBSET_FILE"
+rg -F -q 'box_type == "RawBufCoreBox"' "$VM_SUBSET_FILE"
+rg -F -q 'method != "alloc_bytes_i64"' "$VM_SUBSET_FILE"
+rg -F -q 'method != "realloc_bytes_i64"' "$VM_SUBSET_FILE"
+rg -F -q 'method != "free_bytes_i64"' "$VM_SUBSET_FILE"
+rg -F -q 'if method == "alloc_bytes_i64"' "$VM_BOXCALL_FILE"
+rg -F -q 'if method == "realloc_bytes_i64"' "$VM_BOXCALL_FILE"
+rg -F -q 'if method == "free_bytes_i64"' "$VM_BOXCALL_FILE"
+rg -F -q '__vm_hako_rawbuf_next_ptr' "$VM_BOXCALL_FILE"
 
 echo "[k2-wide-rawbuf-first-row] --- stop-line lock ---"
 rg -F -q 'No len/cap policy here.' "$RAW_BUF_README"

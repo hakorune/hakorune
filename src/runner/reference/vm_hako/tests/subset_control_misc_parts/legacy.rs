@@ -75,6 +75,43 @@ fn subset_rejects_externcall_hako_osvm_page_size_i64() {
 }
 
 #[test]
+fn subset_rejects_boxcall_rawbufcore_set_len_i64() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "newbox",
+                        "dst": 1,
+                        "type": "RawBufCoreBox"
+                    },
+                    {
+                        "op": "boxcall",
+                        "method": "set_len_i64",
+                        "box": 1,
+                        "dst": 2,
+                        "args": []
+                    }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(
+        out,
+        Err((
+            "main".to_string(),
+            0,
+            "boxcall(rawbuf:set_len_i64)".to_string()
+        ))
+    );
+}
+
+#[test]
 fn subset_accepts_boxcall_atomiccore_fence_i64() {
     let mir_json = json!({
         "functions": [{

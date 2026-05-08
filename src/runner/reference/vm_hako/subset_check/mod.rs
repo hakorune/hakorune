@@ -230,6 +230,7 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                         && box_type != "TlsCoreBox"
                         && box_type != "AtomicCoreBox"
                         && box_type != "GcCoreBox"
+                        && box_type != "RawBufCoreBox"
                         && box_type != "Main"
                     {
                         return Err((func_name.clone(), bb, format!("newbox({})", box_type)));
@@ -254,6 +255,17 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                                     func_name.clone(),
                                     bb,
                                     format!("boxcall(osvm:{})", method),
+                                ));
+                            }
+                            if box_type == "RawBufCoreBox"
+                                && method != "alloc_bytes_i64"
+                                && method != "realloc_bytes_i64"
+                                && method != "free_bytes_i64"
+                            {
+                                return Err((
+                                    func_name.clone(),
+                                    bb,
+                                    format!("boxcall(rawbuf:{})", method),
                                 ));
                             }
                         }

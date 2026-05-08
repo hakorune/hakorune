@@ -355,6 +355,119 @@ fn subset_accepts_boxcall_osvmcore_reserve_bytes_i64() {
 }
 
 #[test]
+fn subset_accepts_boxcall_rawbufcore_alloc_bytes_i64() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "newbox",
+                        "dst": 1,
+                        "type": "RawBufCoreBox"
+                    },
+                    {
+                        "op": "const",
+                        "dst": 2,
+                        "value": { "type": "i64", "value": 64 }
+                    },
+                    {
+                        "op": "boxcall",
+                        "method": "alloc_bytes_i64",
+                        "box": 1,
+                        "dst": 3,
+                        "args": [2]
+                    },
+                    { "op": "ret", "value": 3 }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
+fn subset_accepts_boxcall_rawbufcore_realloc_bytes_i64() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "newbox",
+                        "dst": 1,
+                        "type": "RawBufCoreBox"
+                    },
+                    {
+                        "op": "const",
+                        "dst": 2,
+                        "value": { "type": "i64", "value": 4096 }
+                    },
+                    {
+                        "op": "const",
+                        "dst": 3,
+                        "value": { "type": "i64", "value": 128 }
+                    },
+                    {
+                        "op": "boxcall",
+                        "method": "realloc_bytes_i64",
+                        "box": 1,
+                        "dst": 4,
+                        "args": [2, 3]
+                    },
+                    { "op": "ret", "value": 4 }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
+fn subset_accepts_boxcall_rawbufcore_free_bytes_i64() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "newbox",
+                        "dst": 1,
+                        "type": "RawBufCoreBox"
+                    },
+                    {
+                        "op": "const",
+                        "dst": 2,
+                        "value": { "type": "i64", "value": 4096 }
+                    },
+                    {
+                        "op": "boxcall",
+                        "method": "free_bytes_i64",
+                        "box": 1,
+                        "dst": 3,
+                        "args": [2]
+                    },
+                    { "op": "ret", "value": 3 }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
 fn subset_accepts_boxcall_osvmcore_commit_bytes_i64() {
     let mir_json = json!({
         "functions": [{
