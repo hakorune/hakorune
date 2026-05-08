@@ -21,6 +21,7 @@ mod generic_string_corridor;
 mod generic_string_facts;
 mod generic_string_guards;
 mod generic_string_reject;
+mod generic_string_route_value_class;
 mod generic_string_surface;
 mod jsonfrag_normalizer_body;
 mod mir_schema_map_constructor_body;
