@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-05-07
+Date: 2026-05-08
 Scope: current lane / blocker / next pointer only.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -20,7 +20,7 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-293x birth/method call route expansion before real-app EXE parity`
+- current blocker token: `phase-293x mimalloc substrate capability ladder after real-app EXE parity`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
@@ -36,16 +36,18 @@ Related:
 - run `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
   for the active app suite
 - run `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
-  for the current EXE blocker probe
+  for the real-app EXE parity suite
 - typed-object EXE allocation plus slot `field_set` / `field_get` now covers
   declared i64 fields, init-only untyped fields, handle storage, and observed
   empty user boxes, nullable handle storage through same-module RuntimeDataBox
   receiver origins, and the BoxTorrent `firstChunkId` / `refCount`
   module-generic prepass seam, plus BoxTorrent user-box string field returns,
   recursive same-module user-box method bodies, and typed-object handle
-  global-call returns; BoxTorrent mini, binary-trees, and JSON stream
-  aggregator direct EXE parity now pass, and the next compiler seam should come
-  from mimalloc-lite or allocator-stress
+  global-call returns, allocator handle param-origin inference, and explicit
+  same-module PHI type preservation; BoxTorrent mini, binary-trees, JSON stream
+  aggregator, mimalloc-lite, and allocator-stress direct EXE parity now pass,
+  and the next compiler/runtime seam should come from the mimalloc substrate
+  capability ladder
 - if a real app exposes a compiler expressivity blocker, fix the compiler seam
   structurally instead of adding app-side workaround code
 - current mirrors are thinned; update `CURRENT_STATE.toml` and the phase-293x

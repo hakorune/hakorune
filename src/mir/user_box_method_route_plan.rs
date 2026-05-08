@@ -543,6 +543,7 @@ fn infer_user_box_method_param_box_origins(
             .iter()
             .map(|plan| plan.box_name.clone()),
     );
+    let typed_plan_fields = typed_object_plan_field_sets(module);
     let mut origins = ParamBoxOriginMap::new();
 
     for _ in 0..module.functions.len().max(1) {
@@ -550,6 +551,18 @@ fn infer_user_box_method_param_box_origins(
         let mut changed = false;
         for function in module.functions.values() {
             let def_map = build_value_def_map(function);
+            for (param_index, box_name) in
+                infer_param_box_origins_from_field_uses(function, &def_map, &typed_plan_fields)
+            {
+                if !user_box_names.contains(&box_name) {
+                    continue;
+                }
+                changed |= merge_param_box_origin(
+                    &mut origins,
+                    (function.signature.name.clone(), param_index),
+                    box_name,
+                );
+            }
             for block_id in sorted_block_ids(function) {
                 let Some(block) = function.blocks.get(&block_id) else {
                     continue;
@@ -611,6 +624,25 @@ fn infer_user_box_method_param_box_origins(
                             arg_box_name,
                         );
                     }
+                    for (arg_index, arg) in args.iter().enumerate() {
+                        let Some(target_param_box_name) =
+                            param_box_origin(&current, &target_symbol, arg_index + 1)
+                        else {
+                            continue;
+                        };
+                        let Some(caller_param_index) = value_param_index(function, &def_map, *arg)
+                        else {
+                            continue;
+                        };
+                        if !param_accepts_inferred_box_origin(function, caller_param_index) {
+                            continue;
+                        }
+                        changed |= merge_param_box_origin(
+                            &mut origins,
+                            (function.signature.name.clone(), caller_param_index),
+                            target_param_box_name,
+                        );
+                    }
                 }
             }
         }
@@ -620,6 +652,88 @@ fn infer_user_box_method_param_box_origins(
     }
 
     origins
+}
+
+fn typed_object_plan_field_sets(module: &MirModule) -> BTreeMap<String, BTreeSet<String>> {
+    module
+        .metadata
+        .typed_object_plans
+        .iter()
+        .map(|plan| {
+            (
+                plan.box_name.clone(),
+                plan.fields
+                    .iter()
+                    .map(|field| field.name.clone())
+                    .collect::<BTreeSet<_>>(),
+            )
+        })
+        .collect()
+}
+
+fn infer_param_box_origins_from_field_uses(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    typed_plan_fields: &BTreeMap<String, BTreeSet<String>>,
+) -> Vec<(usize, String)> {
+    let mut param_fields = BTreeMap::<usize, BTreeSet<String>>::new();
+    for block_id in sorted_block_ids(function) {
+        let Some(block) = function.blocks.get(&block_id) else {
+            continue;
+        };
+        for instruction in &block.instructions {
+            match instruction {
+                MirInstruction::FieldGet { base, field, .. }
+                | MirInstruction::FieldSet { base, field, .. } => {
+                    let Some(param_index) = value_param_index(function, def_map, *base) else {
+                        continue;
+                    };
+                    if !param_accepts_inferred_box_origin(function, param_index) {
+                        continue;
+                    }
+                    param_fields
+                        .entry(param_index)
+                        .or_default()
+                        .insert(field.clone());
+                }
+                _ => {}
+            }
+        }
+    }
+
+    param_fields
+        .into_iter()
+        .filter_map(|(param_index, fields)| {
+            let box_name = unique_typed_object_plan_for_fields(&fields, typed_plan_fields)?;
+            Some((param_index, box_name))
+        })
+        .collect()
+}
+
+fn unique_typed_object_plan_for_fields(
+    fields: &BTreeSet<String>,
+    typed_plan_fields: &BTreeMap<String, BTreeSet<String>>,
+) -> Option<String> {
+    if fields.is_empty() {
+        return None;
+    }
+    let mut candidates = typed_plan_fields
+        .iter()
+        .filter(|(_box_name, plan_fields)| fields.is_subset(plan_fields))
+        .map(|(box_name, _plan_fields)| box_name.clone());
+    let first = candidates.next()?;
+    if candidates.next().is_none() {
+        Some(first)
+    } else {
+        None
+    }
+}
+
+fn param_accepts_inferred_box_origin(function: &MirFunction, param_index: usize) -> bool {
+    matches!(
+        function.signature.params.get(param_index),
+        Some(MirType::Unknown) | None
+    )
 }
 
 fn infer_user_box_field_box_origins(
@@ -943,6 +1057,59 @@ fn user_box_value_box_name(
                     .flatten()
             })
         })
+}
+
+fn value_param_index(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+) -> Option<usize> {
+    let mut visiting = BTreeSet::new();
+    value_param_index_inner(function, def_map, value, &mut visiting)
+}
+
+fn value_param_index_inner(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+    visiting: &mut BTreeSet<ValueId>,
+) -> Option<usize> {
+    if !visiting.insert(value) {
+        return None;
+    }
+    if let Some(index) = function.params.iter().position(|param| *param == value) {
+        visiting.remove(&value);
+        return Some(index);
+    }
+    let result = def_map
+        .get(&value)
+        .and_then(|(block_id, instruction_index)| {
+            function
+                .blocks
+                .get(block_id)
+                .and_then(|block| block.instructions.get(*instruction_index))
+        })
+        .and_then(|instruction| match instruction {
+            MirInstruction::Copy { src, .. } => {
+                value_param_index_inner(function, def_map, *src, visiting)
+            }
+            MirInstruction::Phi { inputs, .. } => {
+                let mut inferred = None;
+                for (_incoming_block, incoming_value) in inputs {
+                    let index =
+                        value_param_index_inner(function, def_map, *incoming_value, visiting)?;
+                    inferred = match inferred {
+                        None => Some(index),
+                        Some(existing) if existing == index => Some(existing),
+                        Some(_) => return None,
+                    };
+                }
+                inferred
+            }
+            _ => None,
+        });
+    visiting.remove(&value);
+    result
 }
 
 fn phi_input_box_name(
@@ -2207,6 +2374,155 @@ mod tests {
         assert_eq!(put_route.box_name(), "Store");
         assert_eq!(put_route.reason(), None, "{put_route:?}");
         assert_eq!(put_route.return_shape(), Some("scalar_i64"));
+    }
+
+    #[test]
+    fn refresh_module_user_box_method_routes_propagates_callee_param_box_to_caller_param() {
+        let mut module = MirModule::new("user_box_callee_param_origin_backprop_test".to_string());
+        for name in ["Handle", "Page", "Heap"] {
+            module
+                .metadata
+                .user_box_decls
+                .insert(name.to_string(), Vec::new());
+        }
+        module.metadata.typed_object_plans.push(TypedObjectPlan {
+            box_name: "Handle".to_string(),
+            type_id: 51,
+            layout_kind: "runtime_slot_object_v0".to_string(),
+            field_count: 2,
+            fields: vec![
+                TypedObjectFieldPlan {
+                    name: "page_id".to_string(),
+                    slot: 0,
+                    declared_type_name: None,
+                    storage: TypedObjectFieldStorage::I64,
+                    is_weak: false,
+                },
+                TypedObjectFieldPlan {
+                    name: "block_id".to_string(),
+                    slot: 1,
+                    declared_type_name: None,
+                    storage: TypedObjectFieldStorage::I64,
+                    is_weak: false,
+                },
+            ],
+        });
+        module.metadata.typed_object_plans.push(TypedObjectPlan {
+            box_name: "Page".to_string(),
+            type_id: 52,
+            layout_kind: "runtime_slot_object_v0".to_string(),
+            field_count: 1,
+            fields: vec![TypedObjectFieldPlan {
+                name: "page_id".to_string(),
+                slot: 0,
+                declared_type_name: None,
+                storage: TypedObjectFieldStorage::I64,
+                is_weak: false,
+            }],
+        });
+        module.metadata.typed_object_plans.push(TypedObjectPlan {
+            box_name: "Heap".to_string(),
+            type_id: 53,
+            layout_kind: "runtime_slot_object_v0".to_string(),
+            field_count: 0,
+            fields: Vec::new(),
+        });
+
+        let mut page_release = MirFunction::new(
+            FunctionSignature {
+                name: "Page.release/1".to_string(),
+                params: vec![MirType::Box("Page".to_string()), MirType::Unknown],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        page_release.params = vec![ValueId::new(0), ValueId::new(1)];
+        let mut page_block = BasicBlock::new(BasicBlockId::new(0));
+        page_block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(2),
+            src: ValueId::new(1),
+        });
+        page_block.add_instruction(MirInstruction::FieldGet {
+            dst: ValueId::new(3),
+            base: ValueId::new(2),
+            field: "block_id".to_string(),
+            declared_type: None,
+        });
+        page_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(3)),
+        });
+        page_release.add_block(page_block);
+
+        let mut heap_release = MirFunction::new(
+            FunctionSignature {
+                name: "Heap.release/1".to_string(),
+                params: vec![MirType::Box("Heap".to_string()), MirType::Unknown],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        heap_release.params = vec![ValueId::new(10), ValueId::new(11)];
+        let mut heap_block = BasicBlock::new(BasicBlockId::new(0));
+        heap_block.add_instruction(MirInstruction::Phi {
+            dst: ValueId::new(12),
+            inputs: vec![(BasicBlockId::new(0), ValueId::new(11))],
+            type_hint: None,
+        });
+        heap_block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(13),
+            src: ValueId::new(12),
+        });
+        heap_block.add_instruction(MirInstruction::FieldGet {
+            dst: ValueId::new(14),
+            base: ValueId::new(13),
+            field: "page_id".to_string(),
+            declared_type: None,
+        });
+        heap_block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(15),
+            box_type: "Page".to_string(),
+            args: Vec::new(),
+        });
+        heap_block.add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(16)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "Page".to_string(),
+                method: "release".to_string(),
+                receiver: Some(ValueId::new(15)),
+                certainty: TypeCertainty::Known,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::UserDefined,
+            }),
+            args: vec![ValueId::new(13)],
+            effects: EffectMask::PURE,
+        });
+        heap_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(16)),
+        });
+        heap_release.add_block(heap_block);
+
+        module.add_function(page_release);
+        module.add_function(heap_release);
+
+        refresh_module_user_box_method_routes(&mut module);
+
+        let page_release = module.get_function("Page.release/1").expect("Page.release");
+        assert_eq!(
+            page_release.metadata.value_types.get(&ValueId::new(1)),
+            Some(&MirType::Box("Handle".to_string()))
+        );
+
+        let heap_release = module.get_function("Heap.release/1").expect("Heap.release");
+        assert_eq!(
+            heap_release.metadata.value_types.get(&ValueId::new(11)),
+            Some(&MirType::Box("Handle".to_string()))
+        );
+        assert_eq!(
+            heap_release.metadata.value_types.get(&ValueId::new(13)),
+            Some(&MirType::Box("Handle".to_string()))
+        );
     }
 
     #[test]

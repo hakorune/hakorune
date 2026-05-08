@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-05-07
+Date: 2026-05-08
 Scope: 再起動直後に 2-5 分で current lane に戻るための最短手順。
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -33,14 +33,14 @@ cargo check -q
 - active lane: `phase-293x real-app bringup`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-293x birth/method call route expansion before real-app EXE parity`
+- current blocker token: `phase-293x mimalloc substrate capability ladder after real-app EXE parity`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-293x birth/method call route expansion before real-app EXE parity`
+- current blocker token: `phase-293x mimalloc substrate capability ladder after real-app EXE parity`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -59,12 +59,14 @@ cargo check -q
   fields, init-only untyped fields, handle storage, and observed empty user
   boxes, nullable handle storage through same-module RuntimeDataBox receiver
   origins, and the BoxTorrent `firstChunkId` / `refCount` module-generic
-  prepass seam, plus recursive same-module user-box method bodies and
-  typed-object handle global-call returns; BoxTorrent mini, binary-trees, and
-  JSON stream aggregator direct EXE parity now pass
+  prepass seam, plus recursive same-module user-box method bodies,
+  typed-object handle global-call returns, allocator handle param-origin
+  inference, and explicit same-module PHI type preservation; BoxTorrent mini,
+  binary-trees, JSON stream aggregator, mimalloc-lite, and allocator-stress
+  direct EXE parity now pass
 - EXE boundary gate:
   `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
-- next: continue with mimalloc-lite / allocator-stress EXE boundary blockers
+- next: start the mimalloc substrate capability ladder from `293x-026`
 - do not hide compiler blockers in app code; if a real app exposes a Stage0 or
   VM/compiler seam, fix the compiler structurally first
 - real-app gate:

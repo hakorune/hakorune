@@ -38,7 +38,7 @@ Scope: current lane / next lane / restart order only.
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - current blocker token:
-  `phase-293x birth/method call route expansion before real-app EXE parity`
+  `phase-293x mimalloc substrate capability ladder after real-app EXE parity`
 - primary mode: real-app bringup lane
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -59,9 +59,11 @@ Scope: current lane / next lane / restart order only.
   `firstChunkId` / `refCount` module-generic prepass seam, global-call handle
   param metadata publication, substring handle result publication, recursive
   same-module user-box method bodies, and typed-object handle global-call
-  returns; BoxTorrent mini, binary-trees, and JSON stream aggregator direct EXE
-  parity now pass, while the real-app EXE boundary suite still pins
-  mimalloc-lite and allocator-stress at pure-first unsupported-shape boundaries
+  returns, allocator handle param-origin inference, and explicit same-module
+  PHI type preservation; BoxTorrent mini, binary-trees, JSON stream
+  aggregator, mimalloc-lite, and allocator-stress direct EXE parity now pass,
+  and the real-app EXE boundary probe has no remaining unsupported-shape app
+  pins
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
@@ -75,8 +77,9 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: continue the remaining real-app EXE boundary apps one at a time; only
-  change compiler acceptance when an app exposes a real blocker
+- next: start the mimalloc substrate capability ladder from `293x-026`;
+  continue to change compiler/runtime acceptance only when a fixture or app
+  exposes a real blocker
 - MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
   standalone MIR hints scaffold is retired and that audited MIR vocabulary set
   no longer carries a broad dead-code hold
@@ -105,9 +108,11 @@ Scope: current lane / next lane / restart order only.
   lowers typed-object allocation/field slots, the BoxTorrent `firstChunkId` /
   `refCount` module-generic seam, BoxTorrent mini user-box string field
   returns, global-call handle param metadata, substring handle result
-  publication, recursive same-module user-box method bodies, and typed-object
-  handle global-call returns; BoxTorrent mini, binary-trees, and JSON stream
-  aggregator direct EXE parity now exit 0
+  publication, recursive same-module user-box method bodies, typed-object
+  handle global-call returns, allocator handle param-origin inference, and
+  explicit same-module PHI type preservation; BoxTorrent mini, binary-trees,
+  JSON stream aggregator, mimalloc-lite, and allocator-stress direct EXE
+  parity now exit 0
 - compiler rule: do not hide a real compiler blocker in app code; fix the
   compiler seam structurally when needed
 

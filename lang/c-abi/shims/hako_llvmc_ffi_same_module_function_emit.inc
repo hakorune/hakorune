@@ -320,10 +320,12 @@
         yyjson_val* vals = ins ? yyjson_obj_get(ins, "values") : NULL;
         yyjson_val* dst_type = ins ? yyjson_obj_get(ins, "dst_type") : NULL;
         const char* dst_type_s = ins ? read_str(ins, "dst_type") : NULL;
+        int explicit_type = 0;
         if (!vals) vals = ins ? yyjson_obj_get(ins, "incoming") : NULL;
         if (!pb) return 0;
         pr.dst = read_int(ins, "dst");
         pr.in_n = 0;
+        pr.explicit_type = 0;
         if (vals && yyjson_is_arr(vals)) {
           size_t vn = yyjson_arr_size(vals);
           for (size_t vi = 0; vi < vn && pr.in_n < 16; vi++) {
@@ -346,15 +348,17 @@
           }
         }
         if (pb->rec_n >= 24) return 0;
-        pb->recs[pb->rec_n++] = pr;
         if (dst_type_s &&
             (!strcmp(dst_type_s, "i1") || !strcmp(dst_type_s, "bool") ||
              !strcmp(dst_type_s, "Bool"))) {
           set_type(pr.dst, T_I1);
+          explicit_type = 1;
         } else if (dst_type_s && !strcmp(dst_type_s, "i64")) {
           set_type(pr.dst, T_I64);
+          explicit_type = 1;
         } else if (dst_type && yyjson_is_obj(dst_type)) {
-          same_module_function_publish_handle_value_metadata(pr.dst, dst_type);
+          explicit_type =
+              same_module_function_publish_handle_value_metadata(pr.dst, dst_type);
         } else if (pr.dst && pr.in_n > 0) {
           int all_typed_object = 1;
           int typed_plan_index = -1;
@@ -377,6 +381,8 @@
             set_typed_object_binding(pr.dst, typed_plan_index);
           }
         }
+        pr.explicit_type = explicit_type;
+        pb->recs[pb->rec_n++] = pr;
         return 1;
       }
 
@@ -424,7 +430,7 @@
                   same_module_function_publish_i64_origin(pr->dst, ORG_STRING);
                   changed = 1;
                 }
-              } else if (all_bool) {
+              } else if (!pr->explicit_type && all_bool) {
                 if (get_type(pr->dst) != T_I1) {
                   set_type(pr->dst, T_I1);
                   changed = 1;

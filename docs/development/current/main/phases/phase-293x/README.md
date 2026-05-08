@@ -5,7 +5,7 @@
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
 - Active lane token: `phase-293x real-app bringup`
-- Current blocker token: `phase-293x birth/method call route expansion before real-app EXE parity`
+- Current blocker token: `phase-293x mimalloc substrate capability ladder after real-app EXE parity`
 
 ## Order
 
@@ -49,11 +49,11 @@ BoxTorrent module-generic prepass seam for `firstChunkId` / `refCount` is
 lowered, `ContentChunk` is plan-backed through nullable-handle storage flow,
 user-box string field returns now flow through MIR route facts, and
 global-call/string-substring handle metadata now flows into downstream
-same-module params. BoxTorrent mini, binary-trees, and JSON stream aggregator
-direct EXE parity pass. The real-app EXE boundary suite still pins
-mimalloc-lite and allocator-stress at pure-first unsupported-shape boundaries.
-`HakoAllocHandle` typed-object planning remains a later allocator-detail seam
-unless it reappears as the active EXE boundary.
+same-module params. BoxTorrent mini, binary-trees, JSON stream aggregator,
+mimalloc-lite, and allocator-stress direct EXE parity pass. The real-app EXE
+boundary probe currently has no remaining unsupported-shape app pins.
+`HakoAllocHandle` typed-object planning is now covered by MIR-owned param origin
+inference for the allocator release path.
 
 ## Current Status
 
@@ -102,5 +102,8 @@ unless it reappears as the active EXE boundary.
 - `293x-026`: mimalloc capability taskboard lock landed; mimalloc-grade work
   proceeds through capability modules plus `@rune Contract(...)` verifier rows,
   with manual updates required per implementation row.
-- Next: continue the remaining real-app EXE boundary apps one at a time; do not
-  hide compiler blockers in app code.
+- `293x-027`: mimalloc-lite and allocator-stress EXE parity landed. MIR-owned
+  param-origin inference clears `HakoAllocHeap.release/1`, and same-module
+  pure-first PHI refinement now respects explicit `dst_type`.
+- Next: move into the mimalloc-grade substrate ladder from `293x-026`; keep
+  future blockers as compiler/runtime seams and do not hide them in app code.

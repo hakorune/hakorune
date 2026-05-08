@@ -2,7 +2,7 @@
 
 - Status: Active
 - Lane: `phase-293x real-app bringup`
-- Current blocker token: `phase-293x birth/method call route expansion before real-app EXE parity`
+- Current blocker token: `phase-293x mimalloc substrate capability ladder after real-app EXE parity`
 
 ## Tasks
 
@@ -32,6 +32,7 @@
 - [x] `293x-024` binary-trees EXE parity
 - [x] `293x-025` same-module body-shape cleanup
 - [x] `293x-026` mimalloc capability taskboard lock
+- [x] `293x-027` mimalloc-lite / allocator-stress EXE parity
 
 ## Gates
 

@@ -230,7 +230,7 @@
             }
           } else if (strcmp(op, "phi")==0) {
             struct BlockPhi* pb = ensure_phi_block(bid); if (!pb) { yyjson_doc_free(d); goto GEN_END; }
-            struct PhiRec pr; pr.dst = read_int(ins, "dst"); pr.in_n=0;
+            struct PhiRec pr; pr.dst = read_int(ins, "dst"); pr.in_n=0; pr.explicit_type=0;
             yyjson_val* dst_type = yyjson_obj_get(ins, "dst_type");
             const char* dst_type_s = read_str(ins, "dst_type");
             int explicit_phi_ty = T_NONE;
