@@ -117,8 +117,14 @@ Current partitions:
   - same-module generic method body emit helpers and dispatcher; route facts
     stay MIR-owned, not key-allowlist-owned
 - `hako_llvmc_ffi_same_module_function_emit.inc`
-  - same-module uniform ABI function body emitter; keep this as orchestration
-    plus direct ABI call emission, not a semantic planner
+  - same-module uniform ABI function definition facade; keep this as
+    orchestration/context plumbing, not a semantic planner
+- `hako_llvmc_ffi_same_module_prepass.inc`
+  - same-module prepass helper partition; publishes backend-local reg/origin
+    facts from MIR-owned metadata before body emit
+- `hako_llvmc_ffi_same_module_body_emit.inc`
+  - same-module body instruction emitter partition; lowers accepted prepass
+    shapes to LLVM text and must not add new legality rules
 - `hako_llvmc_ffi_same_module_method_views.inc`
   - same-module generic-method route view predicates backed by route-rule
     rows; MIR JSON key acceptance is owned by MIR route facts, not C-side key
