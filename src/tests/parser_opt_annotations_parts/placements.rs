@@ -13,7 +13,7 @@ static box Main {
         let msg = err.to_string();
         assert!(
             msg.contains(
-                "[freeze:contract][parser/rune] supported: Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership|Hint|Contract|IntrinsicCandidate|Lowering"
+                "[freeze:contract][parser/rune] supported: Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership|Hint|Contract|IntrinsicCandidate|Lowering|Profile"
             ),
             "unexpected error: {msg}"
         );
@@ -155,7 +155,7 @@ box Main {
         let msg = err.to_string();
         assert!(
             msg.contains(
-                "[freeze:contract][parser/rune] instance method target supports only Public|Internal|Ownership|Hint|Contract|IntrinsicCandidate|Lowering"
+                "[freeze:contract][parser/rune] instance method target supports only Public|Internal|Ownership|Hint|Contract|IntrinsicCandidate|Lowering|Profile"
             ),
             "unexpected error: {msg}"
         );
@@ -175,7 +175,7 @@ box Main {
         let msg = err.to_string();
         assert!(
             msg.contains(
-                "[freeze:contract][parser/rune] constructor target supports only Public|Internal|Ownership|Hint|Contract|IntrinsicCandidate|Lowering"
+                "[freeze:contract][parser/rune] constructor target supports only Public|Internal|Ownership|Hint|Contract|IntrinsicCandidate|Lowering|Profile"
             ),
             "unexpected error: {msg}"
         );
@@ -195,7 +195,7 @@ interface box Main {
         let msg = err.to_string();
         assert!(
             msg.contains(
-                "[freeze:contract][parser/rune] interface method target supports only Public|Internal|Ownership|Hint|Contract|IntrinsicCandidate|Lowering"
+                "[freeze:contract][parser/rune] interface method target supports only Public|Internal|Ownership|Hint|Contract|IntrinsicCandidate|Lowering|Profile"
             ),
             "unexpected error: {msg}"
         );
