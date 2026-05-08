@@ -10,6 +10,8 @@ Rules:
 
 Current live surface:
 - `ensure_initialized_index_i64(handle, idx)` gate for the RawArray slot read path.
+- The same gate also protects RawArray remove before the removed value is read
+  and shifted out of the underlying storage.
 - Current readable range is intentionally locked to `BufCoreBox.len_i64(handle)` until `set_len/shrink` widening lands.
 
 Non-goals:

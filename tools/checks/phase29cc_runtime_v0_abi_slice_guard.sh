@@ -22,6 +22,7 @@ TLS_CORE_FILE="lang/src/runtime/substrate/tls/tls_core_box.hako"
 GC_CORE_FILE="lang/src/runtime/substrate/gc/gc_core_box.hako"
 OSVM_CORE_FILE="lang/src/runtime/substrate/osvm/osvm_core_box.hako"
 INITIALIZED_RANGE_CORE_FILE="lang/src/runtime/substrate/verifier/initialized_range/initialized_range_core_box.hako"
+BOUNDS_CORE_FILE="lang/src/runtime/substrate/verifier/bounds/bounds_core_box.hako"
 OWNERSHIP_CORE_FILE="lang/src/runtime/substrate/verifier/ownership/ownership_core_box.hako"
 BUF_CORE_FILE="lang/src/runtime/substrate/buf/buf_core_box.hako"
 PTR_CORE_FILE="lang/src/runtime/substrate/ptr/ptr_core_box.hako"
@@ -47,6 +48,7 @@ for file in \
   "$TLS_CORE_FILE" \
   "$GC_CORE_FILE" \
   "$OSVM_CORE_FILE" \
+  "$BOUNDS_CORE_FILE" \
   "$INITIALIZED_RANGE_CORE_FILE" \
   "$OWNERSHIP_CORE_FILE" \
   "$BUF_CORE_FILE" \
@@ -190,6 +192,24 @@ if ! rg -F -q 'PtrCoreBox.slot_store_string_handle(handle, idx, value_h)' "$RAW_
 fi
 if ! rg -F -q 'InitializedRangeCoreBox.ensure_initialized_index_i64(handle, idx)' "$RAW_ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] raw array missing initialized-range gate" >&2
+  exit 1
+fi
+raw_array_bounds_count="$(rg -F 'BoundsCoreBox.ensure_index_i64(handle, idx)' "$RAW_ARRAY_CORE_FILE" | wc -l | tr -d ' ')"
+if [[ "${raw_array_bounds_count:-0}" -lt 4 ]]; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing bounds gates for load/store/string-store/remove" >&2
+  exit 1
+fi
+raw_array_init_count="$(rg -F 'InitializedRangeCoreBox.ensure_initialized_index_i64(handle, idx)' "$RAW_ARRAY_CORE_FILE" | wc -l | tr -d ' ')"
+if [[ "${raw_array_init_count:-0}" -lt 2 ]]; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing initialized-range gates for load/remove" >&2
+  exit 1
+fi
+if ! rg -F -q 'BoundsCoreBox.ensure_insert_index_i64(handle, idx)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing insert-index bounds gate" >&2
+  exit 1
+fi
+if ! rg -F -q '[vm/adapter/verifier:bounds_insert_i64]' "$BOUNDS_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] bounds core missing insert trace tag" >&2
   exit 1
 fi
 if ! rg -F -q 'OwnershipCoreBox.ensure_handle_readable_i64(handle)' "$RAW_ARRAY_CORE_FILE"; then

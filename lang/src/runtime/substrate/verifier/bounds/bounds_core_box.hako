@@ -22,4 +22,13 @@ static box BoundsCoreBox {
     me._trace("[vm/adapter/verifier:bounds_i64]")
     return ok
   }
+
+  ensure_insert_index_i64(handle, idx) {
+    local len = BufCoreBox.len_i64(handle)
+    local ok = 1
+    if idx < 0 { ok = 0 }
+    if idx > len { ok = 0 }
+    me._trace("[vm/adapter/verifier:bounds_insert_i64]")
+    return ok
+  }
 }

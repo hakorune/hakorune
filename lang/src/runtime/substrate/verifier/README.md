@@ -20,6 +20,8 @@ Current live subset:
 - `bounds` lives at `bounds/README.md`
 - `initialized-range` now lives at `initialized_range/README.md`
 - `ownership` now lives at `ownership/README.md`
+- RawArray remove/insert paths now use the same verifier layer instead of
+  calling the pointer substrate after ownership only.
 
 Non-goals:
 - No `RawMap` logic here.

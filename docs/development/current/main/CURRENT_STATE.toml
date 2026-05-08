@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-030-M1-RAW-LAYOUT-VOCABULARY-LOCK"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-030-M1-RAW-LAYOUT-VOCABULARY-LOCK.md"
-latest_card_summary = "Added MIR-owned raw-layout vocabulary with narrow repr_c_v0 planning for fixed-width numeric fields and fail-fast unsupported pointer/Box fields."
+latest_card = "293x-031-M4-RAWARRAY-REMOVE-INSERT-VERIFIER-HARDENING"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-031-M4-RAWARRAY-REMOVE-INSERT-VERIFIER-HARDENING.md"
+latest_card_summary = "Hardened RawArray remove/insert routes so they pass through bounds and initialized-range verifier gates before pointer-substrate calls."
 
 current_blocker_token = "phase-293x mimalloc substrate capability ladder after real-app EXE parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

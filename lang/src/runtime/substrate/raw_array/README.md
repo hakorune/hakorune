@@ -10,6 +10,8 @@ Responsibilities:
 - Current widened substrate path includes:
   - `slot_load_i64` via `OwnershipCoreBox` + `BoundsCoreBox` + `InitializedRangeCoreBox` + `PtrCoreBox`
   - `slot_store_i64` via `OwnershipCoreBox` + `BoundsCoreBox` + `PtrCoreBox`
+  - `slot_remove_any` via `OwnershipCoreBox` + `BoundsCoreBox` + `InitializedRangeCoreBox` + `PtrCoreBox`
+  - `slot_insert_any` via `OwnershipCoreBox` + `BoundsCoreBox.insert` + `OwnershipCoreBox.any` + `PtrCoreBox`
   - `slot_len_i64` / `slot_append_any` via `OwnershipCoreBox` + `PtrCoreBox`
   - `slot_reserve_i64` / `slot_grow_i64` via `BufCoreBox`, which remains a thin shape facade over the current capacity backend
 

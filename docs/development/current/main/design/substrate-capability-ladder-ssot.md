@@ -289,8 +289,11 @@ Do not introduce parser syntax first and leave backend meaning implicit.
 
 current implementation note:
 - `BoundsCoreBox.ensure_index_i64` is live
+- `BoundsCoreBox.ensure_insert_index_i64` is live for RawArray insert
 - `InitializedRangeCoreBox.ensure_initialized_index_i64` is live
 - `OwnershipCoreBox.ensure_handle_readable_i64/ensure_handle_writable_i64/ensure_any_readable_i64` is live
+  - RawArray remove/insert now compose these verifier gates before pointer
+    substrate calls
 
 これは `C1` と同時導入する。
 

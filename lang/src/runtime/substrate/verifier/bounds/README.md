@@ -10,6 +10,8 @@ Rules:
 
 Current live surface:
 - `ensure_index_i64(handle, idx)` gate for RawArray slot read/write paths.
+- `ensure_insert_index_i64(handle, idx)` gate for RawArray insert paths where
+  `idx == len` is valid.
 
 Non-goals:
 - No initialized-range verifier here.

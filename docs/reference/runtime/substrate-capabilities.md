@@ -39,7 +39,7 @@ The current live surface is intentionally narrow.
 | `hako.mem` | allocation facade rows exist under `MemCoreBox`; exact public surface is still substrate-internal |
 | `hako.buf` | `len/cap/reserve/grow` facade rows exist under `BufCoreBox` |
 | `hako.ptr` | typed pointer/span facade is staged for current raw collection routes |
-| verifier | bounds, initialized-range, and ownership gates exist for current raw collection routes |
+| verifier | bounds, initialized-range, and ownership gates exist for current raw collection routes; RawArray remove/insert are verifier-gated before pointer-substrate calls |
 | `RawArray` | first raw-array path exists for slot load/store/len/append/reserve/grow |
 | `RawBuf` | first allocation facade exists over `MemCoreBox` |
 | `hako.atomic` | helper-shaped `fence_i64` row exists |
@@ -205,3 +205,33 @@ Safety/verifier contract:
 Fixture/gate:
 
 - `cargo test -q raw_layout --lib`
+
+## Minimum Verifier Hardening Row
+
+Decision: accepted for the M4 RawArray remove/insert hardening slice.
+
+New surface:
+
+- `BoundsCoreBox.ensure_insert_index_i64(handle, idx)`
+- RawArray remove route uses ownership + bounds + initialized-range before
+  calling `PtrCoreBox.slot_remove_any`.
+- RawArray insert route uses ownership + insert-bounds + value ownership before
+  calling `PtrCoreBox.slot_insert_any`.
+
+Owner modules:
+
+- `lang/src/runtime/substrate/verifier/bounds/bounds_core_box.hako`
+- `lang/src/runtime/substrate/verifier/initialized_range/initialized_range_core_box.hako`
+- `lang/src/runtime/substrate/verifier/ownership/ownership_core_box.hako`
+- `lang/src/runtime/substrate/raw_array/raw_array_core_box.hako`
+
+Unsupported behavior:
+
+- RawArray slice hardening is deferred because visible slice semantics currently
+  clamp out-of-range endpoints.
+- Double-free / use-after-free detection is not live.
+- Borrowed alias expiry is not owned by this verifier row.
+
+Fixture/gate:
+
+- `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`

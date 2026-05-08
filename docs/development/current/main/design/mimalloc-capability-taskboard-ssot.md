@@ -68,7 +68,7 @@ backend may trust them for lowering or optimization.
 | `M1 raw layout vocabulary` | `live-narrow` | language + MIR layout facts | MIR-owned `repr_c_v0` vocabulary for fixed-width numeric fields; source syntax, pointer-sized fields, and backend-active native layout remain future rows |
 | `M2 hako.mem/buf/ptr widening` | `live-narrow` | capability substrate | restricted memory/buffer/pointer facades, no unrestricted unsafe, verifier hooks named |
 | `M3 RawBuf + RawArray allocator fixture` | `live-narrow` | algorithm substrate | allocator-shaped fixture using RawBuf/RawArray only; no TLS/atomic/OSVM dependency |
-| `M4 minimum verifier hardening` | `next-card` | verifier substrate | bounds, initialized range, ownership, double-free/use-after-free follow-up split |
+| `M4 minimum verifier hardening` | `live-narrow` | verifier substrate | RawArray remove/insert now pass bounds/initialized-range gates; slice, double-free, and use-after-free remain follow-up splits |
 | `M5 rune contract verifier` | `reserved` | rune metadata + verifier | `@rune Contract(no_alloc)` / `@rune Contract(no_safepoint)` parsed facts become verifier-checked before backend use |
 | `M6 hako.atomic useful rows` | `blocked` | capability substrate | load/store/CAS/fetch_add/fence with memory order; no allocator policy inside atomic module |
 | `M7 hako.tls useful rows` | `blocked` | capability substrate | thread/task-local slot and cache-slot primitive; no helper-local cache exposure as final API |
@@ -194,6 +194,7 @@ storage lock`. `M0b numeric arithmetic semantics lock` now fixes the current
 `>>` behavior as signed i64 arithmetic shift, while logical shift and
 wrapping/checked arithmetic remain future explicit rows. `M1 raw layout
 vocabulary` now gives future allocator rows a MIR-owned `repr_c_v0` layout
-target for fixed-width numeric fields only. The next active row is `M4 minimum
-verifier hardening`; do not jump to allocator fast-path lowering before
-verifier facts make raw access auditable.
+target for fixed-width numeric fields only. `M4 minimum verifier hardening`
+now covers RawArray remove/insert verifier gates. Do not jump to allocator
+fast-path lowering before the remaining verifier facts make raw access
+auditable.

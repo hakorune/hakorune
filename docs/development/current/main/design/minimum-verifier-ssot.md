@@ -79,6 +79,10 @@ minimum verifier の順番は次で固定する。
   - [`lang/src/runtime/substrate/verifier/initialized_range/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/verifier/initialized_range/README.md)
   - [`lang/src/runtime/substrate/verifier/ownership/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/verifier/ownership/README.md)
 - RawArray slot load now routes through the bounds and initialized-range gates before raw pointer access
+- RawArray remove now routes through bounds and initialized-range gates before
+  raw pointer access
+- RawArray insert now routes through an insert-index bounds gate before raw
+  pointer access
 - current readable initialized range is intentionally locked to `BufCoreBox.len_i64(handle)` until `set_len/shrink` widening lands
 - ownership live subset is intentionally carrier-liveness only; borrowed alias expiry remains governed by `value_codec`
 
@@ -93,6 +97,8 @@ minimum verifier の順番は次で固定する。
 - `runtime/collections/` owner migration
 - perf lane reopen
 - full sanitizer (`double free` / `use-after-free` / exhaustive alias analysis)
+- strict slice bounds hardening without first documenting visible slice clamp
+  semantics
 
 ## Follow-Up
 
