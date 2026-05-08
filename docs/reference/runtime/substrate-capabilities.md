@@ -555,10 +555,12 @@ Reserved profile names:
 - `intrinsic.leaf`
 - `raw.layout`
 
+Profile registry SSOT: `docs/reference/mir/rune-profile-registry.md`.
+
 Task order:
 
 1. mimalloc raw-page proof using explicit facts
-2. Profile registry docs
+2. Profile registry docs [live-docs]
 3. Profile expansion to primitive facts
 4. allocator fast-path EXE proof
 

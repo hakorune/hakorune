@@ -307,7 +307,14 @@ Forbidden backend behavior:
 
 ## Current Reading
 
-`M12 mimalloc raw-page proof` is live-narrow. The next implementation step is
-`M12b Profile registry docs`, before any Profile parser acceptance. Profile
-exists only as a reserved design target. It must expand over existing facts
-rather than becoming a backend-readable semantic string.
+`M12 mimalloc raw-page proof` is live-narrow. `M12b Profile registry docs` is
+live-docs. The registry SSOT is:
+
+```text
+docs/reference/mir/rune-profile-registry.md
+```
+
+The next implementation step is `M12c Profile expansion to facts`. Profile
+exists only as a reserved design target until that row explicitly owns parser
+parity and expansion. It must expand over existing facts rather than becoming a
+backend-readable semantic string.

@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-062-M12-MIMALLOC-RAW-PAGE-PROOF"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-062-M12-MIMALLOC-RAW-PAGE-PROOF.md"
-latest_card_summary = "293x-062 lands M12 raw-page proof as a fixed fixture over RawBufCoreBox and RawArrayCoreBox, with no_alloc/no_safepoint EffectPlan checks and no Profile/Capability parser or backend use."
+latest_card = "293x-063-M12B-PROFILE-REGISTRY-DOCS"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-063-M12B-PROFILE-REGISTRY-DOCS.md"
+latest_card_summary = "293x-063 lands M12b Profile registry docs as a docs-only SSOT for reserved profile names and primitive expansion targets; Profile/Capability parser surface stays disabled."
 
 current_blocker_token = "phase-293x mimalloc substrate capability ladder after real-app EXE parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
