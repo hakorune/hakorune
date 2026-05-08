@@ -38,7 +38,7 @@ fn build_mir_json_root_emits_inline_plans_from_hint_runes() {
         name: "Hint".to_string(),
         args: vec!["inline".to_string()],
     }];
-    crate::mir::inline_plan::refresh_function_inline_plans(&mut function);
+    crate::mir::rune_plan_refresh::refresh_function_rune_plans(&mut function);
     module
         .functions
         .insert("Main.align_up/2".to_string(), function);
@@ -72,7 +72,7 @@ fn build_mir_json_root_emits_effect_and_capability_plans() {
             args: vec!["no_safepoint".to_string()],
         },
     ];
-    crate::mir::effect_capability_plan::refresh_function_effect_capability_plans(&mut function);
+    crate::mir::rune_plan_refresh::refresh_function_rune_plans(&mut function);
     module.functions.insert("Main.fast/0".to_string(), function);
 
     let root = build_mir_json_root(&module).expect("mir json root");

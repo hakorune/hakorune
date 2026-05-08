@@ -253,8 +253,7 @@ pub(super) fn lower_program(
     {
         if let Some(main_fn) = module.functions.get_mut("main") {
             main_fn.metadata.runes = program::rune_attrs_from_json_v0(&entry_def.attrs);
-            crate::mir::effect_capability_plan::refresh_function_effect_capability_plans(main_fn);
-            crate::mir::inline_plan::refresh_function_inline_plans(main_fn);
+            crate::mir::rune_plan_refresh::refresh_function_rune_plans(main_fn);
         }
     }
     let func_map = program::lower_defs_into_module(&mut module, prog.defs, &env)?;

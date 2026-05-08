@@ -329,7 +329,7 @@ mod tests {
             name: "Hint".to_string(),
             args: vec!["inline".to_string()],
         }];
-        crate::mir::inline_plan::refresh_function_inline_plans(&mut function);
+        crate::mir::rune_plan_refresh::refresh_function_rune_plans(&mut function);
         function
     }
 
@@ -390,7 +390,7 @@ mod tests {
         let mut module = MirModule::new("inline_soft_leaf_no_plan_test".to_string());
         let mut callee = make_add1_inline_function();
         callee.metadata.runes.clear();
-        crate::mir::inline_plan::refresh_function_inline_plans(&mut callee);
+        crate::mir::rune_plan_refresh::refresh_function_rune_plans(&mut callee);
         module.add_function(callee);
         module.add_function(make_main_calling_add1());
 

@@ -20,7 +20,6 @@ use super::{
     array_text_residence_session_plan::refresh_function_array_text_residence_session_routes,
     array_text_state_residence_plan::refresh_function_array_text_state_residence_route,
     concat_const_suffix_micro_seed_plan::refresh_function_concat_const_suffix_micro_seed_route,
-    effect_capability_plan::refresh_function_effect_capability_plans,
     exact_seed_backend_route::{
         refresh_function_exact_seed_backend_route, refresh_module_exact_seed_backend_routes,
     },
@@ -42,6 +41,7 @@ use super::{
     refresh_function_sum_variant_tag_seed_route, refresh_function_thin_entry_candidates,
     refresh_function_thin_entry_selections, refresh_function_userbox_local_scalar_seed_route,
     refresh_function_userbox_loop_micro_seed_route, refresh_function_value_consumer_facts,
+    rune_plan_refresh::refresh_function_rune_plans,
     substring_views_micro_seed_plan::refresh_function_substring_views_micro_seed_route,
     typed_object_plan::{
         refresh_module_typed_object_field_value_types, refresh_module_typed_object_plans,
@@ -73,8 +73,7 @@ pub fn refresh_function_semantic_metadata(
     function: &mut MirFunction,
     module_metadata: &ModuleMetadata,
 ) {
-    refresh_function_effect_capability_plans(function);
-    crate::mir::inline_plan::refresh_function_inline_plans(function);
+    refresh_function_rune_plans(function);
     refresh_function_string_corridor_metadata(function);
     refresh_function_storage_class_facts(function);
     refresh_function_thin_entry_candidates(function, module_metadata);

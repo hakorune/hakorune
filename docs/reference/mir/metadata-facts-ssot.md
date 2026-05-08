@@ -166,6 +166,19 @@ The rune contract verifier consumes `effect_plans` as the obligation source.
 `Contract(pure)` / `Contract(readonly)` are not live EffectPlan requirements
 yet. `Profile(...)` and `Capability(...)` are not accepted parser surface.
 
+Refresh owner:
+
+```text
+src/mir/rune_plan_refresh.rs
+  refresh_function_rune_plans(function)
+```
+
+MIR JSON emit owner:
+
+```text
+src/runner/mir_json_emit/plan_metadata.rs
+```
+
 ## Value maps
 
 ### `value_types`

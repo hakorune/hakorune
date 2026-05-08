@@ -528,6 +528,9 @@ syntax or Profile expansion is explicitly added. `Profile(...)` and
 `Capability(...)` are not parser surface yet.
 
 Backends and `.inc` must not consume `effect_plans` or `capability_plans`.
+After a declaration's rune metadata changes, callers must use
+`refresh_function_rune_plans(function)` rather than refreshing individual plan
+families by hand.
 
 ## Rune Profile / Plan Ordering
 

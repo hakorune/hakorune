@@ -52,7 +52,7 @@ mod tests {
         for instruction in instructions {
             block.add_instruction(instruction);
         }
-        crate::mir::inline_plan::refresh_function_inline_plans(&mut function);
+        crate::mir::rune_plan_refresh::refresh_function_rune_plans(&mut function);
         function
     }
 

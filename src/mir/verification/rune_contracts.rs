@@ -125,7 +125,7 @@ mod tests {
         for instruction in instructions {
             block.add_instruction(instruction);
         }
-        crate::mir::effect_capability_plan::refresh_function_effect_capability_plans(&mut function);
+        crate::mir::rune_plan_refresh::refresh_function_rune_plans(&mut function);
         function
     }
 

@@ -53,8 +53,7 @@ pub(super) fn lower_defs_into_module(
         let entry = BasicBlockId::new(0);
         let mut func = MirFunction::new(sig, entry);
         func.metadata.runes = rune_attrs_from_json_v0(&func_def.attrs);
-        crate::mir::effect_capability_plan::refresh_function_effect_capability_plans(&mut func);
-        crate::mir::inline_plan::refresh_function_inline_plans(&mut func);
+        crate::mir::rune_plan_refresh::refresh_function_rune_plans(&mut func);
 
         // Build variable map from the function's reserved parameter ValueIds (SSOT)
         let param_ids = func.params.clone();

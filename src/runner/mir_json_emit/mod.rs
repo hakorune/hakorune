@@ -8,6 +8,7 @@ mod helpers;
 mod io;
 mod order;
 mod placement_effect;
+mod plan_metadata;
 mod plans;
 mod root;
 mod route_json;
@@ -24,5 +25,6 @@ pub use io::{
 };
 use order::ordered_harness_functions;
 use placement_effect::build_placement_effect_routes_json;
+use plan_metadata::insert_plan_metadata_json;
 use plans::build_string_kernel_plan_json;
 use root::build_mir_json_root;

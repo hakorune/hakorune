@@ -82,6 +82,7 @@ mod printer_helpers; // internal helpers extracted from printer.rs
 pub mod query; // Phase 26-G: MIR read/write/CFGビュー (MirQuery)
 pub(crate) mod raw_layout; // fixed raw-layout vocabulary for substrate metadata
 pub mod region; // Phase 25.1l: Region/GC観測レイヤ（LoopForm v2 × RefKind）
+pub mod rune_plan_refresh; // SSOT refresh entry for rune-derived MIR plans
 pub(crate) mod same_module_body_shape; // shared body-shape facts for same-module route planners
 pub mod semantic_refresh; // MIR semantic metadata refresh owner (SSOT)
 pub mod slot_registry; // Phase 9.79b.1: method slot resolution (IDs)
