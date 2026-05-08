@@ -7,6 +7,7 @@ using selfhost.vm.helpers.mir_s0_json_scan as MirVmS0JsonScanBox
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
 using lang.runtime.collections.map_state_core_box as MapStateCoreBox
 using lang.runtime.collections.array_state_core_box as ArrayStateCoreBox
+using selfhost.vm.boxes.mir_i64_intrinsics as MirI64IntrinsicsBox
 
 static box MirVmS0BoxcallBuiltinBox {
   _starts_with(text, prefix) {
@@ -63,6 +64,20 @@ static box MirVmS0BoxcallBuiltinBox {
     if order < 0 { return 0 }
     if order > 4 { return 0 }
     return 1
+  }
+
+  _intrin_method(method) {
+    if method == "clz_i64" { return 1 }
+    if method == "ctz_i64" { return 1 }
+    if method == "popcnt_i64" { return 1 }
+    return 0
+  }
+
+  _intrin_apply(method, value) {
+    if method == "clz_i64" { return MirI64IntrinsicsBox.clz_i64(value) }
+    if method == "ctz_i64" { return MirI64IntrinsicsBox.ctz_i64(value) }
+    if method == "popcnt_i64" { return MirI64IntrinsicsBox.popcnt_i64(value) }
+    return -1
   }
 
   _first_arg_is_duplicate_receiver(seg, box_recv, regs) {
@@ -318,6 +333,19 @@ static box MirVmS0BoxcallBuiltinBox {
   }
 
   dispatch_misc_builtin_method(method, seg, box_recv, regs, kinds, array_lens, handle_regs) {
+    if me._intrin_method(method) == 1 {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall(intrin) args>1]" }
+      local intrin_arg = me._args_first(seg)
+      if intrin_arg == null { return "[vm-hako/contract][boxcall-intrin-arg0-missing]" }
+      local dst_intrin = me._find_int(seg, "dst")
+      if dst_intrin == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      local intrin_value = MirVmS0StateOpsBox.reg_i64_get(regs, intrin_arg)
+      if MirI64IntrinsicsBox.valid_i64_lane(intrin_value) == 0 { return "[vm-hako/contract][boxcall-intrin-non-negative-i64]" }
+      regs.set("" + dst_intrin, "" + me._intrin_apply(method, intrin_value))
+      kinds.set("" + dst_intrin, "scalar")
+      return "__NEXT__"
+    }
+
     local atomic_order_value = me._atomic_order_value(method)
     if atomic_order_value != null {
       if me._args_count(seg) != 0 { return "[vm-hako/unimplemented op=boxcall(atomic-order) args!=0]" }

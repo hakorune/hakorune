@@ -18,6 +18,7 @@ using lang.runtime.collections.array_core_box as ArrayCoreBox
 using lang.runtime.collections.map_core_box as MapCoreBox
 using lang.runtime.collections.runtime_data_core_box as RuntimeDataCoreBox
 using lang.runtime.collections.string_core_box as StringCoreBox
+using selfhost.vm.boxes.mir_i64_intrinsics as MirI64IntrinsicsBox
 
 static box MirCallV1HandlerBox {
   _recv_box_key(rid) {
@@ -179,6 +180,20 @@ static box MirCallV1HandlerBox {
       }
     }
     return text
+  }
+
+  _intrin_extern_method(name) {
+    if name == "hako_intrin_clz_i64" || name == "hako_intrin_clz_i64/1" { return "clz_i64" }
+    if name == "hako_intrin_ctz_i64" || name == "hako_intrin_ctz_i64/1" { return "ctz_i64" }
+    if name == "hako_intrin_popcnt_i64" || name == "hako_intrin_popcnt_i64/1" { return "popcnt_i64" }
+    return ""
+  }
+
+  _intrin_apply(method, value) {
+    if method == "clz_i64" { return MirI64IntrinsicsBox.clz_i64(value) }
+    if method == "ctz_i64" { return MirI64IntrinsicsBox.ctz_i64(value) }
+    if method == "popcnt_i64" { return MirI64IntrinsicsBox.popcnt_i64(value) }
+    return -1
   }
 
   _mem_alloc_next_key() {
@@ -465,6 +480,20 @@ static box MirCallV1HandlerBox {
           me._write_scalar_dst(regs, kinds, handle_regs, dst_tls_code, 0)
           return
         }
+        if btype == "IntrinCoreBox" {
+          local intrin_method_call = mname
+          if intrin_method_call == "clz_i64" || intrin_method_call == "ctz_i64" || intrin_method_call == "popcnt_i64" {
+            local dst_intrin_call = JsonFragBox.get_int(seg, "dst")
+            local arg0_intrin_call = MiniMirV1Scan.first_arg_register(seg)
+            local value_intrin_call = me._read_reg_i64_or_null(regs, arg0_intrin_call)
+            if value_intrin_call == null || MirI64IntrinsicsBox.valid_i64_lane(value_intrin_call) == 0 {
+              print("[vm-hako/contract][mir-call-intrin-non-negative-i64]")
+              return
+            }
+            me._write_scalar_dst(regs, kinds, handle_regs, dst_intrin_call, me._intrin_apply(intrin_method_call, value_intrin_call))
+            return
+          }
+        }
         if me._try_handle_runtime_data_box(seg, regs, btype, mname) == 1 { return }
         if btype == "RuntimeDataBox" {
           if mname == "indexOf" || mname == "lastIndexOf" || mname == "substring" || mname == "substr" {
@@ -567,6 +596,19 @@ static box MirCallV1HandlerBox {
     }
     // Minimal externs
     if arg0id == null { arg0id = -1 }
+    local intrin_method = me._intrin_extern_method(name)
+    if intrin_method != "" {
+      local dst_intrin = JsonFragBox.get_int(seg, "dst")
+      local value_intrin = me._read_reg_i64_or_null(regs, arg0id)
+      if value_intrin == null || MirI64IntrinsicsBox.valid_i64_lane(value_intrin) == 0 {
+        print("[vm-hako/contract][mir-call-hako_intrin-non-negative-i64]")
+        return
+      }
+      if dst_intrin != null {
+        regs.setField(StringHelpers.int_to_str(dst_intrin), StringHelpers.int_to_str(me._intrin_apply(intrin_method, value_intrin)))
+      }
+      return
+    }
     if name == "env.get" || name == "env.get/1" {
       local dstp = JsonFragBox.get_int(seg, "dst")
       local keyv = null

@@ -126,6 +126,62 @@ void hako_barrier_touch_i64(int64_t x) {
 #endif
 }
 
+static int64_t hako_intrin_validate_nonnegative_i64(int64_t x) {
+  if (x < 0) {
+    hako_set_last_error("VALIDATION");
+    return 0;
+  }
+  hako_set_last_error(NULL);
+  return 1;
+}
+
+int64_t hako_intrin_clz_i64(int64_t x) {
+  if (!hako_intrin_validate_nonnegative_i64(x)) { return -1; }
+  uint64_t v = (uint64_t)x;
+  if (v == 0) { return 64; }
+#if defined(__GNUC__) || defined(__clang__)
+  return (int64_t)__builtin_clzll((unsigned long long)v);
+#else
+  int64_t count = 0;
+  for (int bit = 63; bit >= 0; bit--) {
+    if (((v >> bit) & 1ULL) != 0) { break; }
+    count++;
+  }
+  return count;
+#endif
+}
+
+int64_t hako_intrin_ctz_i64(int64_t x) {
+  if (!hako_intrin_validate_nonnegative_i64(x)) { return -1; }
+  uint64_t v = (uint64_t)x;
+  if (v == 0) { return 64; }
+#if defined(__GNUC__) || defined(__clang__)
+  return (int64_t)__builtin_ctzll((unsigned long long)v);
+#else
+  int64_t count = 0;
+  while ((v & 1ULL) == 0) {
+    count++;
+    v >>= 1;
+  }
+  return count;
+#endif
+}
+
+int64_t hako_intrin_popcnt_i64(int64_t x) {
+  if (!hako_intrin_validate_nonnegative_i64(x)) { return -1; }
+  uint64_t v = (uint64_t)x;
+#if defined(__GNUC__) || defined(__clang__)
+  return (int64_t)__builtin_popcountll((unsigned long long)v);
+#else
+  int64_t count = 0;
+  while (v != 0) {
+    count += (int64_t)(v & 1ULL);
+    v >>= 1;
+  }
+  return count;
+#endif
+}
+
 // No-op bench hook: ensures a cheap, non-optimizable call boundary for micro benches
 #if defined(__GNUC__) || defined(__clang__)
 __attribute__((visibility("default")))

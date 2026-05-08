@@ -1,0 +1,45 @@
+// IntrinCoreBox — first live `hako.intrin` capability facade for phase-29ct.
+// Responsibility:
+// - expose truthful current-lane i64 bit-count intrinsic rows
+// - keep optimizer metadata and backend activation out of this substrate box
+// Non-responsibility:
+// - prefetch/assume/unreachable hint semantics
+// - full unsigned-width integer runtime semantics
+// - @rune IntrinsicCandidate registry activation
+
+static box IntrinCoreBox {
+  _trace(tag) {
+    if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
+  }
+
+  _valid_i64_lane(value) {
+    if value < 0 { return 0 }
+    return 1
+  }
+
+  _reject_i64_lane() {
+    print("[freeze:contract][intrin/non-negative-i64]")
+    return -1
+  }
+
+  clz_i64(value) {
+    if me._valid_i64_lane(value) == 0 { return me._reject_i64_lane() }
+    local out = externcall "hako_intrin_clz_i64"(value)
+    me._trace("[vm/adapter/intrin:clz_i64]")
+    return out
+  }
+
+  ctz_i64(value) {
+    if me._valid_i64_lane(value) == 0 { return me._reject_i64_lane() }
+    local out = externcall "hako_intrin_ctz_i64"(value)
+    me._trace("[vm/adapter/intrin:ctz_i64]")
+    return out
+  }
+
+  popcnt_i64(value) {
+    if me._valid_i64_lane(value) == 0 { return me._reject_i64_lane() }
+    local out = externcall "hako_intrin_popcnt_i64"(value)
+    me._trace("[vm/adapter/intrin:popcnt_i64]")
+    return out
+  }
+}

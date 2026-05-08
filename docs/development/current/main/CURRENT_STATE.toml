@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-037-M8-OSVM-PAGE-SIZE-ROW"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-037-M8-OSVM-PAGE-SIZE-ROW.md"
-latest_card_summary = "Added hako.osvm page_size_i64 across C ABI, .hako facade, VM-hako subset, and docs."
+latest_card = "293x-038-M9A-INTRIN-BIT-COUNT-ROWS"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-038-M9A-INTRIN-BIT-COUNT-ROWS.md"
+latest_card_summary = "Added hako.intrin clz/ctz/popcnt current-lane i64 rows across C ABI, .hako facade, VM-hako subset, and docs."
 
 current_blocker_token = "phase-293x mimalloc substrate capability ladder after real-app EXE parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

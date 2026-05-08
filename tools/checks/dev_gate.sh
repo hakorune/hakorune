@@ -73,6 +73,7 @@ list_profiles() {
     - tools/checks/k2_wide_tls_first_row_guard.sh
     - tools/checks/k2_wide_gc_first_row_guard.sh
     - tools/checks/k2_wide_osvm_first_row_guard.sh
+    - tools/checks/k2_wide_intrin_first_row_guard.sh
     - tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
     - tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
     - tools/checks/k2_wide_metal_keep_inventory_guard.sh
@@ -334,6 +335,9 @@ run_quick() {
 
   run_step "K2-wide OSVM first-row guard" \
     bash tools/checks/k2_wide_osvm_first_row_guard.sh
+
+  run_step "K2-wide Intrin first-row guard" \
+    bash tools/checks/k2_wide_intrin_first_row_guard.sh
 
   run_step "K2-wide hako_alloc handle policy guard" \
     bash tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh

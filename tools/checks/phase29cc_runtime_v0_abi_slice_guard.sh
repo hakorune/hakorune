@@ -21,6 +21,7 @@ ATOMIC_CORE_FILE="lang/src/runtime/substrate/atomic/atomic_core_box.hako"
 TLS_CORE_FILE="lang/src/runtime/substrate/tls/tls_core_box.hako"
 GC_CORE_FILE="lang/src/runtime/substrate/gc/gc_core_box.hako"
 OSVM_CORE_FILE="lang/src/runtime/substrate/osvm/osvm_core_box.hako"
+INTRIN_CORE_FILE="lang/src/runtime/substrate/intrin/intrin_core_box.hako"
 INITIALIZED_RANGE_CORE_FILE="lang/src/runtime/substrate/verifier/initialized_range/initialized_range_core_box.hako"
 BOUNDS_CORE_FILE="lang/src/runtime/substrate/verifier/bounds/bounds_core_box.hako"
 OWNERSHIP_CORE_FILE="lang/src/runtime/substrate/verifier/ownership/ownership_core_box.hako"
@@ -48,6 +49,7 @@ for file in \
   "$TLS_CORE_FILE" \
   "$GC_CORE_FILE" \
   "$OSVM_CORE_FILE" \
+  "$INTRIN_CORE_FILE" \
   "$BOUNDS_CORE_FILE" \
   "$INITIALIZED_RANGE_CORE_FILE" \
   "$OWNERSHIP_CORE_FILE" \
@@ -470,6 +472,42 @@ if ! rg -F -q '[vm/adapter/osvm:decommit_bytes_i64]' "$OSVM_CORE_FILE"; then
 fi
 if ! rg -F -q '[vm/adapter/osvm:page_size_i64]' "$OSVM_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] osvm core missing page_size trace tag" >&2
+  exit 1
+fi
+if ! rg -F -q 'clz_i64(value)' "$INTRIN_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] intrin core missing clz_i64 contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'ctz_i64(value)' "$INTRIN_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] intrin core missing ctz_i64 contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'popcnt_i64(value)' "$INTRIN_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] intrin core missing popcnt_i64 contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'externcall "hako_intrin_clz_i64"(value)' "$INTRIN_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] intrin core missing hako_intrin_clz_i64 route" >&2
+  exit 1
+fi
+if ! rg -F -q 'externcall "hako_intrin_ctz_i64"(value)' "$INTRIN_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] intrin core missing hako_intrin_ctz_i64 route" >&2
+  exit 1
+fi
+if ! rg -F -q 'externcall "hako_intrin_popcnt_i64"(value)' "$INTRIN_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] intrin core missing hako_intrin_popcnt_i64 route" >&2
+  exit 1
+fi
+if ! rg -F -q '[vm/adapter/intrin:clz_i64]' "$INTRIN_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] intrin core missing clz trace tag" >&2
+  exit 1
+fi
+if ! rg -F -q '[vm/adapter/intrin:ctz_i64]' "$INTRIN_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] intrin core missing ctz trace tag" >&2
+  exit 1
+fi
+if ! rg -F -q '[vm/adapter/intrin:popcnt_i64]' "$INTRIN_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] intrin core missing popcnt trace tag" >&2
   exit 1
 fi
 if ! rg -F -q 'entry_count_i64(handle)' "$RAW_MAP_CORE_FILE"; then

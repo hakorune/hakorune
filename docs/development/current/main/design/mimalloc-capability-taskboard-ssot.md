@@ -73,7 +73,7 @@ backend may trust them for lowering or optimization.
 | `M6 hako.atomic useful rows` | `live-narrow` | capability substrate | memory-order vocabulary plus ordered fence row are live; load/store/CAS/fetch_add remain future splits; no allocator policy inside atomic module |
 | `M7 hako.tls useful rows` | `live-narrow` | capability substrate | diagnostics TLS status helpers are live; generic thread/task-local slot and cache-slot primitive remain future splits; no helper-local cache exposure as final API |
 | `M8 hako.osvm allocator rows` | `live-narrow` | capability substrate + native keep | page_size/reserve/commit/decommit facades are live with native metal leaf below; allocator policy remains outside osvm |
-| `M9 intrinsic rows` | `reserved` | intrinsic metadata + LLVM/VM | `clz`, `ctz`, `popcnt`, `prefetch`, `assume`, `unreachable`, fail-fast unsupported backends |
+| `M9 intrinsic rows` | `live-narrow` | intrinsic metadata + LLVM/VM | `clz_i64`, `ctz_i64`, and `popcnt_i64` current-lane non-negative i64 rows are live; `prefetch`, `assume`, `unreachable`, unsigned-width semantics, and backend optimization use remain future splits |
 | `M10 LLVM export attrs` | `blocked` | optimization export | `noalias`, `nonnull`, `dereferenceable`, alignment, stronger `nocapture` only after verifier/export consistency gate |
 | `M11 const/static table rows` | `reserved` | language + MIR const data | static const tables for size classes; no runtime Array/Map construction for fixed tables |
 | `M12 mimalloc raw-page proof` | `blocked` | allocator substrate consumer | page/free-list fixture on raw substrate with `no_alloc` / `no_safepoint` proof gates |
@@ -200,5 +200,8 @@ memory/buffer/pointer capability split so buffer shape facades do not own direct
 backend slot ABI names. `M3` now has a readable RawArray capacity observer over
 the buffer facade. `M5` now checks `Contract(no_alloc)` and
 `Contract(no_safepoint)` in the MIR verifier, but those facts are not exported
-to backend optimization yet. Do not jump to allocator fast-path lowering before
-the remaining verifier facts make raw access auditable.
+to backend optimization yet. `M9a` now exposes `hako.intrin` bit-count rows for
+current-lane non-negative i64 values; this does not activate
+`@rune IntrinsicCandidate` or backend optimization use. Do not jump to allocator
+fast-path lowering before the remaining verifier facts make raw access
+auditable.

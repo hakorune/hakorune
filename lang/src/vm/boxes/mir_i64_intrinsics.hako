@@ -1,0 +1,45 @@
+// MirI64IntrinsicsBox — deterministic VM-hako mirror for current-lane i64 intrinsic rows.
+// Responsibility: compute the narrow non-negative i64 bit-count rows used by IntrinCoreBox.
+// Non-responsibility: full unsigned-width runtime semantics or backend optimization hints.
+
+static box MirI64IntrinsicsBox {
+  valid_i64_lane(value) {
+    if value < 0 { return 0 }
+    return 1
+  }
+
+  clz_i64(value) {
+    if me.valid_i64_lane(value) == 0 { return -1 }
+    if value == 0 { return 64 }
+    local bits = 0
+    local v = value
+    loop(v > 0) {
+      bits = bits + 1
+      v = v >> 1
+    }
+    return 64 - bits
+  }
+
+  ctz_i64(value) {
+    if me.valid_i64_lane(value) == 0 { return -1 }
+    if value == 0 { return 64 }
+    local zeros = 0
+    local v = value
+    loop((v & 1) == 0) {
+      zeros = zeros + 1
+      v = v >> 1
+    }
+    return zeros
+  }
+
+  popcnt_i64(value) {
+    if me.valid_i64_lane(value) == 0 { return -1 }
+    local count = 0
+    local v = value
+    loop(v > 0) {
+      if (v & 1) != 0 { count = count + 1 }
+      v = v >> 1
+    }
+    return count
+  }
+}

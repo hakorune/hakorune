@@ -229,6 +229,7 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                         && box_type != "OsVmCoreBox"
                         && box_type != "TlsCoreBox"
                         && box_type != "AtomicCoreBox"
+                        && box_type != "IntrinCoreBox"
                         && box_type != "GcCoreBox"
                         && box_type != "RawBufCoreBox"
                         && box_type != "Main"
@@ -267,6 +268,17 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                                     func_name.clone(),
                                     bb,
                                     format!("boxcall(rawbuf:{})", method),
+                                ));
+                            }
+                            if box_type == "IntrinCoreBox"
+                                && method != "clz_i64"
+                                && method != "ctz_i64"
+                                && method != "popcnt_i64"
+                            {
+                                return Err((
+                                    func_name.clone(),
+                                    bb,
+                                    format!("boxcall(intrin:{})", method),
                                 ));
                             }
                         }
@@ -389,6 +401,24 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                             return Err((func_name.clone(), bb, reason));
                         }
                         continue;
+                    }
+                    if func == "hako_intrin_clz_i64"
+                        || func == "hako_intrin_clz_i64/1"
+                        || func == "hako_intrin_ctz_i64"
+                        || func == "hako_intrin_ctz_i64/1"
+                        || func == "hako_intrin_popcnt_i64"
+                        || func == "hako_intrin_popcnt_i64/1"
+                    {
+                        if let Err(reason) = externcalls::validate_single_arg_externcall_shape(
+                            inst,
+                            func.trim_end_matches("/1"),
+                        ) {
+                            return Err((func_name.clone(), bb, reason));
+                        }
+                        continue;
+                    }
+                    if func.starts_with("hako_intrin_") {
+                        return Err((func_name.clone(), bb, format!("externcall({})", func)));
                     }
                     if func == "hako_osvm_page_size_i64" || func == "hako_osvm_page_size_i64/0" {
                         if let Err(reason) = externcalls::validate_no_arg_externcall_shape(

@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: accepted
 Date: 2026-04-01
-Scope: `K2-wide` metal keep review の truthful seam inventory として、`hako.atomic` / `hako.tls` / `hako.gc` / `hako.osvm` の live 面と parked 面を固定する。
+Scope: `K2-wide` metal keep review の truthful seam inventory として、`hako.atomic` / `hako.tls` / `hako.gc` / `hako.osvm` / `hako.intrin` の live 面と parked 面を固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -18,11 +18,11 @@ Related:
   - lang/c-abi/README.md
 ---
 
-# Atomic/TLS/GC/OSVM Truthful Native Seam Inventory
+# Atomic/TLS/GC/OSVM/Intrin Truthful Native Seam Inventory
 
 ## Goal
 
-- `hako.atomic` / `hako.tls` / `hako.gc` / `hako.osvm` を docs 名だけで live 化せず、current native seam の truth に合わせて widening 順を固定する。
+- `hako.atomic` / `hako.tls` / `hako.gc` / `hako.osvm` / `hako.intrin` を docs 名だけで live 化せず、current native seam の truth に合わせて widening 順を固定する。
 - `GC` は current truthful seam があるので first live slice に進める。
 - `atomic` / `tls` / `osvm` は truthful seam から narrow rows だけ live にし、 broad vocabulary は parked に保つ。
 - `hako_alloc` policy/state rows は sibling SSOT で管理し、この inventory では capability/native seam だけを扱う。
@@ -55,6 +55,15 @@ These have a truthful substrate-facing seam today:
 - `hako_osvm_page_size_i64`
   - implemented at `lang/c-abi/shims/hako_kernel.c`
   - now a live `hako.osvm` page-size row
+- `hako_intrin_clz_i64`
+  - implemented at `lang/c-abi/shims/hako_kernel.c`
+  - now a live `hako.intrin` current-lane i64 bit-count row
+- `hako_intrin_ctz_i64`
+  - implemented at `lang/c-abi/shims/hako_kernel.c`
+  - now a live `hako.intrin` current-lane i64 bit-count row
+- `hako_intrin_popcnt_i64`
+  - implemented at `lang/c-abi/shims/hako_kernel.c`
+  - now a live `hako.intrin` current-lane i64 bit-count row
 
 ### B. Truthful native helpers, but not substrate rows yet
 
@@ -98,8 +107,9 @@ These remain parked until a truthful exported/native seam exists:
   2. first truthful rows (`gc`, helper-shaped `tls` / `atomic`, reserve/commit/decommit `osvm`)
   3. `hako.atomic` memory-order vocabulary plus ordered fence
   4. `hako.tls` diagnostics status helpers
-  5. generic atomic load/store/CAS/fetch_add and final TLS remain parked until truthful seams exist
-  6. `hako_alloc` policy/state rows widen beside this inventory, not inside it
+  5. `hako.intrin` bit-count rows for current-lane non-negative i64 values
+  6. generic atomic load/store/CAS/fetch_add, final TLS, broad OSVM, and broad intrinsic hint/control rows remain parked until truthful seams exist
+  7. `hako_alloc` policy/state rows widen beside this inventory, not inside it
 
 ## Decision
 
@@ -116,5 +126,8 @@ These remain parked until a truthful exported/native seam exists:
   - `hako.osvm.reserve_bytes_i64`
   - `hako.osvm.commit_bytes_i64`
   - `hako.osvm.decommit_bytes_i64`
-- generic atomic load/store/CAS/fetch_add, final language-level TLS, and broad OS VM vocabulary beyond page_size/reserve/commit/decommit are not implemented in `.hako` in this wave.
+  - `hako.intrin.clz_i64`
+  - `hako.intrin.ctz_i64`
+  - `hako.intrin.popcnt_i64`
+- generic atomic load/store/CAS/fetch_add, final language-level TLS, broad OS VM vocabulary beyond page_size/reserve/commit/decommit, and broad intrinsic rows such as prefetch/assume/unreachable are not implemented in `.hako` in this wave.
 - no false generic `atomic/tls/osvm` substrate rows are introduced just to satisfy the conceptual order.

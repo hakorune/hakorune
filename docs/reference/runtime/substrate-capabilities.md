@@ -24,6 +24,7 @@ Low-level operations are exposed through explicit capability modules:
 - `hako.tls`
 - `hako.gc`
 - `hako.osvm`
+- `hako.intrin`
 
 Optimization and safety obligations are expressed with `@rune Contract(...)`
 and must be verified before a backend may use them.
@@ -46,6 +47,7 @@ The current live surface is intentionally narrow.
 | `hako.tls` | helper-shaped diagnostics TLS rows exist: `last_error_text_h`, `last_error_is_ok_i64`, and `last_error_code_i64`; generic thread/task-local slots are not live |
 | `hako.gc` | helper-shaped `write_barrier_i64` row exists |
 | `hako.osvm` | page-size plus reserve/commit/decommit rows exist |
+| `hako.intrin` | current-lane non-negative i64 bit-count rows exist: `clz_i64`, `ctz_i64`, `popcnt_i64`; backend optimization use is not live |
 
 ## Reserved Surface
 
@@ -66,7 +68,8 @@ These names are reserved but not fully live as user-facing allocator substrate:
 - TLS cache-slot primitives
 - `@rune Contract(no_alloc)` backend optimization/export use
 - `@rune Contract(no_safepoint)` backend optimization/export use
-- `clz`, `ctz`, `popcnt`, `prefetch`, `assume`, `unreachable`
+- `prefetch`, `assume`, `unreachable`
+- full unsigned-width runtime semantics for intrinsic rows
 - `noalias`, `nonnull`, `dereferenceable`, stronger alignment export
 - const-evaluated static tables
 
@@ -167,6 +170,39 @@ VM-hako subset behavior:
 - `boxcall(OsVmCoreBox.page_size_i64)` is accepted with no arguments.
 - `externcall(hako_osvm_page_size_i64/0)` is accepted with no arguments.
 - VM-hako returns deterministic `4096` for page size.
+
+## Intrin Bit-Count Row
+
+Owner module:
+
+- `lang/src/runtime/substrate/intrin/intrin_core_box.hako`
+
+Live operations:
+
+- `clz_i64(value)` returns the count of leading zero bits for a current-lane
+  non-negative `i64` value.
+- `ctz_i64(value)` returns the count of trailing zero bits for a current-lane
+  non-negative `i64` value.
+- `popcnt_i64(value)` returns the number of set bits for a current-lane
+  non-negative `i64` value.
+- `clz_i64(0)` and `ctz_i64(0)` return `64`.
+
+Unsupported operations:
+
+- negative current-lane values
+- full `u64` runtime values
+- `prefetch`
+- `assume`
+- `unreachable`
+- backend optimization/export use
+
+VM-hako subset behavior:
+
+- `boxcall(IntrinCoreBox.clz_i64)` is accepted with one register argument.
+- `boxcall(IntrinCoreBox.ctz_i64)` is accepted with one register argument.
+- `boxcall(IntrinCoreBox.popcnt_i64)` is accepted with one register argument.
+- `externcall(hako_intrin_*_i64/1)` is accepted for the three live rows.
+- unknown `hako_intrin_*` extern rows are rejected.
 
 Native behavior:
 

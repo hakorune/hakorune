@@ -8,6 +8,7 @@ using selfhost.vm.helpers.mir_s0_block_runner as MirVmS0BlockRunnerBox
 using selfhost.vm.helpers.mir_s0_json_scan as MirVmS0JsonScanBox
 using selfhost.vm.helpers.mir_s0_reg_utils as MirVmS0RegUtilsBox
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
+using selfhost.vm.boxes.mir_i64_intrinsics as MirI64IntrinsicsBox
 
 static box MirVmS0CallExecBox {
   _to_i64(x) {
@@ -72,6 +73,20 @@ static box MirVmS0CallExecBox {
 
   _call_is_env_get(seg) {
     return MirVmS0StateOpsBox._call_is_env_get(seg)
+  }
+
+  _intrin_extern_method(func) {
+    if func == "hako_intrin_clz_i64" || func == "hako_intrin_clz_i64/1" { return "clz_i64" }
+    if func == "hako_intrin_ctz_i64" || func == "hako_intrin_ctz_i64/1" { return "ctz_i64" }
+    if func == "hako_intrin_popcnt_i64" || func == "hako_intrin_popcnt_i64/1" { return "popcnt_i64" }
+    return ""
+  }
+
+  _intrin_apply(method, value) {
+    if method == "clz_i64" { return MirI64IntrinsicsBox.clz_i64(value) }
+    if method == "ctz_i64" { return MirI64IntrinsicsBox.ctz_i64(value) }
+    if method == "popcnt_i64" { return MirI64IntrinsicsBox.popcnt_i64(value) }
+    return -1
   }
 
   _find_call0_const(src, func_id) {
@@ -234,6 +249,20 @@ static box MirVmS0CallExecBox {
 
     if op == "externcall" {
       local func = me._find_str(seg, "func")
+      local intrin_method = me._intrin_extern_method(func)
+      if intrin_method != "" {
+        if me._args_has_second(seg) { return "[vm-hako/unimplemented op=externcall(hako_intrin) args>1]" }
+        local arg0_intrin = me._args_first(seg)
+        if arg0_intrin == null { return "[vm-hako/contract][externcall-hako_intrin-arg0-missing]" }
+        local value_intrin = MirVmS0RegUtilsBox._reg_get(regs, arg0_intrin)
+        if MirI64IntrinsicsBox.valid_i64_lane(value_intrin) == 0 { return "[vm-hako/contract][externcall-hako_intrin-non-negative-i64]" }
+        local dst_intrin = me._find_int(seg, "dst")
+        if dst_intrin != null {
+          MirVmS0RegUtilsBox._reg_set(regs, dst_intrin, me._intrin_apply(intrin_method, value_intrin))
+          MirVmS0RegUtilsBox._reg_kind_set(kinds, dst_intrin, "scalar")
+        }
+        return "__NEXT__"
+      }
       if func == "nyash.console.log" {
         if me._args_has_second(seg) { return "[vm-hako/unimplemented op=externcall args>1]" }
         local arg0 = me._args_first(seg)

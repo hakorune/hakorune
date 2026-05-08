@@ -12,6 +12,7 @@ Responsibilities:
   - `hako.tls`
   - `hako.gc`
   - `hako.osvm`
+  - `hako.intrin`
 - Keep this layer below semantic owner boxes and above native metal keep.
 
 Current phase reading:
@@ -39,11 +40,13 @@ Current phase reading:
 - The first allocator-substrate consumer now has a live allocation-facade slice at:
   - `raw_buf/README.md`
   - `raw_buf/raw_buf_core_box.hako`
-- The current capability-widening locks live at `atomic/README.md`, `tls/README.md`, `gc/README.md`, and `osvm/README.md`.
+- The current capability-widening locks live at `atomic/README.md`, `tls/README.md`, `gc/README.md`, `osvm/README.md`, and `intrin/README.md`.
 - `gc` now also has a first live box at:
   - `gc/gc_core_box.hako`
 - `osvm` now also has a first live box at:
   - `osvm/osvm_core_box.hako`
+- `intrin` now also has a first live box at:
+  - `intrin/intrin_core_box.hako`
 
 Current live capability subset:
 - `mem` now has a live `alloc/realloc/free` facade.
@@ -62,6 +65,8 @@ Current live capability subset:
 - `gc` now has a live `write_barrier_i64` facade.
 - `osvm` now has live `page_size_i64` / `reserve_bytes_i64` /
   `commit_bytes_i64` / `decommit_bytes_i64` facades.
+- `intrin` now has live `clz_i64` / `ctz_i64` / `popcnt_i64` facades for
+  current-lane non-negative i64 values.
 
 Native keep stays outside this directory:
 - OS virtual memory

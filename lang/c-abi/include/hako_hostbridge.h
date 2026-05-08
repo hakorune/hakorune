@@ -119,6 +119,10 @@ void        hako_console_error(const char* s);
 void        hako_console_log_i64(int64_t x);
 // Bench barrier: very light side-effect to prevent over-aggressive optimization
 void        hako_barrier_touch_i64(int64_t x);
+// Intrinsics: current-lane non-negative i64 bit-count helpers.
+int64_t     hako_intrin_clz_i64(int64_t x);
+int64_t     hako_intrin_ctz_i64(int64_t x);
+int64_t     hako_intrin_popcnt_i64(int64_t x);
 // OS virtual memory: reserve address space and return a pointer-like i64, or 0 on failure.
 // commit/decommit operate on a previously reserved base address and return a status-like i64.
 int64_t     hako_osvm_page_size_i64(void);

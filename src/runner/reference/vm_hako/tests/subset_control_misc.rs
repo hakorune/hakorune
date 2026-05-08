@@ -4,5 +4,7 @@ mod allowlist;
 mod calls;
 #[path = "subset_control_misc_parts/externcalls.rs"]
 mod externcalls;
+#[path = "subset_control_misc_parts/intrin.rs"]
+mod intrin;
 #[path = "subset_control_misc_parts/legacy.rs"]
 mod legacy;

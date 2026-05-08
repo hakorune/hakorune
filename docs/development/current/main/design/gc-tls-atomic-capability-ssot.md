@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: provisional
 Date: 2026-03-23
-Scope: `phase-29ct` の C4 として、`hako.atomic` / `hako.tls` / `hako.gc` を docs-first で固定する。
+Scope: `phase-29ct` の C4 として、`hako.atomic` / `hako.tls` / `hako.gc` / `hako.intrin` を docs-first で固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -25,7 +25,7 @@ Related:
 
 - `RawArray` / `RawMap` の次に必要な capability widening を docs-first で固定する。
 - current repo reading treats this doc as the capability-widening subset inside `K2-wide`, not as a separate `K3`.
-- `hako.atomic` / `hako.tls` / `hako.gc` の責務を分けて、allocator/runtime policy owner と混ざらないようにする。
+- `hako.atomic` / `hako.tls` / `hako.gc` / `hako.intrin` の責務を分けて、allocator/runtime policy owner と混ざらないようにする。
 - `Hakozuna portability layer` の前提になる最小 capability vocabulary を決める。
 - `hako.sys` のような catch-all unsafe shelf は作らず、capability family のまま widening する。
 - `.hako` から raw syscall や final platform glue を散らして呼ばず、capability facade と native keep leaf を分けたまま Linux / Windows (`WSL`/`cmd.exe`) / macOS portability を保つ。
@@ -48,7 +48,8 @@ current implementation order is seam-first:
 3. helper-shaped first truthful `hako.tls` / `hako.atomic` rows
 4. `hako.atomic` memory-order vocabulary plus ordered fence row
 5. `hako.tls` diagnostics status helpers
-6. generic atomic load/store/CAS/fetch_add and final TLS vocabulary remain
+6. `hako.intrin` current-lane i64 bit-count rows
+7. generic atomic load/store/CAS/fetch_add and final TLS vocabulary remain
    parked until truthful seams exist
 
 ## Module Roles
@@ -89,6 +90,18 @@ current implementation order is seam-first:
   - final collector backend
   - allocator state machine
 
+### `hako.intrin`
+
+- owns:
+  - `clz_i64`
+  - `ctz_i64`
+  - `popcnt_i64`
+- does not own:
+  - optimizer metadata activation
+  - backend export attributes
+  - `prefetch` / `assume` / `unreachable`
+  - full unsigned-width integer runtime semantics
+
 ## Reading
 
 - current wave is not docs-first only anymore
@@ -109,6 +122,9 @@ current implementation order is seam-first:
   - `OsVmCoreBox.reserve_bytes_i64(len_bytes)`
   - `OsVmCoreBox.commit_bytes_i64(base, len_bytes)`
   - `OsVmCoreBox.decommit_bytes_i64(base, len_bytes)`
+  - `IntrinCoreBox.clz_i64(value)`
+  - `IntrinCoreBox.ctz_i64(value)`
+  - `IntrinCoreBox.popcnt_i64(value)`
 - first-row acceptance for `hako.atomic` is:
   - vm-hako subset accepts `externcall(hako_barrier_touch_i64/1)`
   - vm-hako subset accepts `boxcall(AtomicCoreBox.fence_i64)`
@@ -143,6 +159,16 @@ current implementation order is seam-first:
   - compile v0 emits `mir_call(Extern:hako_osvm_commit_bytes_i64)`
   - compile v0 emits `mir_call(Extern:hako_osvm_decommit_bytes_i64)`
   - substrate/vm route lock keeps `OsVmCoreBox.page_size_i64()`, `reserve_bytes_i64()`, `commit_bytes_i64()`, and `decommit_bytes_i64()` on their respective `hako_osvm_*` symbols
+- first live `hako.intrin` rows are:
+  - vm-hako subset accepts `externcall(hako_intrin_clz_i64/1)`
+  - vm-hako subset accepts `externcall(hako_intrin_ctz_i64/1)`
+  - vm-hako subset accepts `externcall(hako_intrin_popcnt_i64/1)`
+  - vm-hako subset accepts `boxcall(IntrinCoreBox.clz_i64)`
+  - vm-hako subset accepts `boxcall(IntrinCoreBox.ctz_i64)`
+  - vm-hako subset accepts `boxcall(IntrinCoreBox.popcnt_i64)`
+  - compile v0 emits `mir_call(Extern:hako_intrin_clz_i64)`
+  - substrate/vm route lock keeps `IntrinCoreBox` on the corresponding
+    `hako_intrin_*_i64` symbols
 - these rows are already landed
 - `hako.osvm` remains part of the same capability family even when its reserve/commit/decommit first truthful rows are live
 - `atomic` / `tls` / `gc` は substrate capability であり、semantic owner ではない
@@ -175,6 +201,7 @@ current staging roots are reserved at:
 - broad `atomic` widening beyond memory-order vocabulary and ordered fence
 - broad `tls` widening beyond diagnostics status helpers
 - broad `gc` widening beyond `write_barrier_i64`
+- broad `intrin` widening beyond current-lane i64 bit-count rows
 - perf lane reopen
 
 ## Follow-Up
