@@ -34,8 +34,14 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - current docs update policy and mirror-thinning contract
 - `design/kernel-replacement-axis-ssot.md`
   - `K-axis` / artifact / task-placement vocabulary owner
+- `design/substrate-capability-ladder-ssot.md`
+  - allocator / collection / runtime substrate capability ladder owner
+- `design/hako-alloc-policy-state-contract-ssot.md`
+  - allocator policy/state owner vs native metal keep stop-line owner
 - `lang/README.md`
   - source-root / logical-layer placement contract
+- `lang/src/hako_alloc/README.md`
+  - physical root contract for allocator policy/state modules
 - `tools/smokes/v2/README.md`
   - smoke profile / suite placement contract
 - `main/phases/**`
@@ -81,6 +87,8 @@ Rule:
   - Join-Explicit CFG Construction（north star）: `docs/development/current/main/design/join-explicit-cfg-construction.md`
   - EdgeCFG Flow Fragments（Structured→CFG lowering SSOT）: `docs/development/current/main/design/edgecfg-fragments.md`
   - Hotline CoreMethodContract（zero-cost hot-line / method contract migration SSOT）: `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
+  - Substrate Capability Ladder（allocator/collection/runtime substrate parent SSOT）: `docs/development/current/main/design/substrate-capability-ladder-ssot.md`
+  - Hako Alloc Policy/State（allocator policy/state stop-line SSOT）: `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
 
 ### `docs/development/current/main/design/archive/`（historical design）
 

@@ -1,15 +1,17 @@
 ---
 Status: SSOT
 Decision: provisional
-Date: 2026-03-23
-Scope: `.hako` kernel を collection owner stop-line の先へ進めるため、capability ladder と native keep の境界を 1 枚で固定する。
+Date: 2026-05-08
+Scope: `.hako` kernel / collection / allocator owner を low-level substrate stop-line の先へ進めるため、capability ladder と native keep の境界を 1 枚で固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/phases/phase-29cm/README.md
   - docs/development/current/main/phases/phase-29ct/README.md
+  - docs/development/current/main/phases/phase-293x/README.md
   - docs/development/current/main/design/abi-export-inventory.md
   - docs/development/current/main/design/handle-cache-metal-helper-contract-ssot.md
+  - docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md
   - docs/development/current/main/design/minimal-capability-modules-ssot.md
   - docs/development/current/main/design/minimum-verifier-ssot.md
   - docs/development/current/main/design/raw-array-substrate-ssot.md
@@ -20,6 +22,7 @@ Related:
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
   - lang/src/runtime/collections/README.md
+  - lang/src/hako_alloc/README.md
   - crates/nyash_kernel/src/plugin/handle_cache.rs
 ---
 
@@ -30,6 +33,7 @@ Related:
 - end-state を「OCaml で止まる」でも「native metal を即 `.hako` 完全再現する」でもなく、capability ladder を経由して Rust-class の低層表現力へ近づく形で固定する。
 - collection owner cutover の次を、perf micro-tuning ではなく substrate capability widening として読む。
 - `hakozuna` のような allocator/runtime policy owner を将来 `.hako` に寄せるための、最小能力集合と fixed order を決める。
+- `mimalloc-lite` と本物の allocator fast path を混同せず、`.hako` で allocator を深く書くための substrate prerequisite を固定する。
 
 ## Final Shape
 
@@ -72,6 +76,42 @@ Related:
   - native keeps only OS/ABI/GC metal
 - do not introduce `hako.sys` as a monolithic unsafe shelf; keep the capability family split and name the two `.hako` owner layers as `hako_kernel` and `hako_substrate`.
 - do not mirror a single `std::sys::pal`-style giant OS layer under `.hako`; split future OS-facing substrate work by capability family and keep final libc / platform glue below that seam.
+
+## Allocator / Mimalloc Reading
+
+This doc is the owner for allocator-grade substrate capability reading.
+Do not create a separate mimalloc capability ladder. Add concrete rows here,
+or to the narrower `hako_alloc` policy/state contract when the row is
+allocator-specific.
+
+`mimalloc-lite` and allocator policy models are allowed to stay at the current
+Box/VM policy level. They can prove size-class choices, page/free-list state,
+statistics, and app-level behavior.
+
+`mimalloc`-grade native fast paths are different. They require substrate
+capabilities before `.hako` code can claim ownership of the hot path:
+
+- numeric substrate: `usize` / fixed-width signed and unsigned integers,
+  logical shift semantics, wrapping arithmetic, checked arithmetic
+- memory substrate: `hako.mem`, `hako.buf`, `hako.ptr`, `RawBuf`,
+  `RawArray`, `MaybeInit`
+- layout substrate: fixed layout vocabulary, alignment, `sizeof`, `offsetof`,
+  and repr-like contracts separate from semantic `box` objects
+- verifier substrate: bounds, initialized range, ownership, double-free,
+  `no_alloc`, and `no_safepoint`
+- parallel/runtime substrate: TLS slots, atomics with memory order, GC barrier
+  hooks, and OS VM page reserve/commit/decommit
+- optimization/export substrate: `noalias`, `nocapture`, `nonnull`,
+  `readonly`/`readnone`, alignment attributes, `clz`/`ctz`/`popcnt`,
+  prefetch/assume, and static const tables
+
+Syntax alone does not make a row live. A capability row becomes live only when
+the MIR/value representation, VM/LLVM/Stage0 consumer, fail-fast diagnostics,
+fixture, and gate are all named. Until then, it remains reserved vocabulary.
+
+`box` remains the semantic object mechanism. Allocator metadata must not rely
+on dynamic user-box fields as its native layout. Fixed allocator metadata
+belongs to the raw/layout substrate family, not to broad Box semantics.
 
 ## Capability Modules
 
@@ -157,6 +197,29 @@ It is the final libc / syscall / platform-difference absorber for Linux, Windows
 
 - `hako.value_repr` と ABI manifest を先に固定する。
 - current hand-written export surface はこの lock より先に増やさない。
+
+### C0.5. Numeric substrate lock
+
+- fixed-width integer and pointer-sized vocabulary is locked before allocator
+  fast-path substrate.
+- reserved target vocabulary:
+  - `usize` / `isize`
+  - `u8` / `u16` / `u32` / `u64`
+  - `i8` / `i16` / `i32` / `i64`
+  - explicit wrapping arithmetic
+  - explicit checked arithmetic
+  - logical vs arithmetic shift distinction
+- live acceptance requires:
+  - docs/reference Decision
+  - value representation row
+  - MIR type/literal/op row
+  - VM and LLVM lowering row
+  - Stage0/JSON behavior row when exposed across that boundary
+  - fixture and gate
+
+Until this lock is live, allocator policy rows that need width/overflow facts
+must stay as narrow `i64` models or helper-backed probes. Do not introduce
+parser syntax first and leave backend meaning implicit.
 
 ### C1. Minimal memory capabilities
 
@@ -250,9 +313,11 @@ current reading:
 - current docs lock:
   - [`final-metal-split-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/final-metal-split-ssot.md)
 
-## Immediate Task Pack
+## Capability Foundation Pack
 
-いま先に切るべき実作業は次。
+This pack is the substrate foundation order. It is not the active
+`phase-293x` real-app task list; current active work remains owned by
+`CURRENT_STATE.toml` and the phase docs.
 
 1. ABI export surface を manifest 化する
    - docs-side inventory truth:
@@ -269,9 +334,39 @@ current reading:
 4. `RawArray` 用の substrate module layout を docs で確定する
    - future physical home: `lang/src/runtime/substrate/`
 
+## Allocator Follow-On Pack
+
+This pack is not the active `phase-293x` real-app task by itself. It is the
+docs-side order to use when the allocator substrate lane opens.
+
+1. numeric substrate lock
+   - fixed-width unsigned/pointer-sized vocabulary
+   - wrapping/checked arithmetic semantics
+   - MIR/VM/LLVM/Stage0 acceptance named before syntax expansion
+2. raw layout vocabulary
+   - fixed layout / alignment / `sizeof` / `offsetof`
+   - `box` vs raw metadata boundary documented before implementation
+3. minimal `RawBuf` + `RawArray` allocator fixture
+   - no TLS
+   - no atomics
+   - no OS VM ownership
+   - verifier-gated slot load/store and reserve/grow only
+4. `hako.mem` / `hako.buf` / `hako.ptr` widening
+   - restricted unsafe only
+   - bounds/initialized/ownership fail-fast
+5. `no_alloc` / `no_safepoint` verifier row
+   - contract must be checked before it is used as optimization metadata
+6. TLS/atomic first rows
+   - memory order vocabulary is required before remote-free style algorithms
+7. native allocator fast-path proof
+   - may use native keep for final metal
+   - must not move OS VM or final allocator call ownership into `.hako`
+     without the C5/C6 split
+
 ## Non-Goals
 
 - native allocator/OS VM を即 `.hako` 実装すること
 - current perf micro leaf を capability widening と混ぜること
 - collection owner cutover を無効化して Rust method-shaped owner に戻すこと
 - unrestricted unsafe surface を導入すること
+- broad C shim / by-name app matcher で allocator-shaped user boxes を通すこと

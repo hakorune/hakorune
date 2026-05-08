@@ -13,6 +13,11 @@
 - current axis / artifact / task placement: `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
 - zero-cost hot-line / CoreMethodContract migration: `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 - current `K2-wide` technical detail:
+  - `docs/development/current/main/design/substrate-capability-ladder-ssot.md`
+  - `docs/development/current/main/design/minimal-capability-modules-ssot.md`
+  - `docs/development/current/main/design/minimum-verifier-ssot.md`
+  - `docs/development/current/main/design/raw-array-substrate-ssot.md`
+  - `docs/development/current/main/design/raw-map-substrate-ssot.md`
   - `docs/development/current/main/design/gc-tls-atomic-capability-ssot.md`
   - `docs/development/current/main/design/atomic-tls-gc-truthful-native-seam-inventory.md`
   - `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
@@ -27,6 +32,13 @@
 - `execution-lanes-and-axis-separation-ssot.md`
 - `stage2-selfhost-and-hako-alloc-ssot.md`
 - `stage2-hako-owner-vs-inc-thin-shim-ssot.md`
+- `substrate-capability-ladder-ssot.md`
+- `minimal-capability-modules-ssot.md`
+- `minimum-verifier-ssot.md`
+- `raw-array-substrate-ssot.md`
+- `raw-map-substrate-ssot.md`
+- `gc-tls-atomic-capability-ssot.md`
+- `hako-alloc-policy-state-contract-ssot.md`
 - `final-metal-split-ssot.md`
 
 ## Full Design Inventory
@@ -62,6 +74,13 @@
 - Execution lanes legacy retirement inventory（移行中に見つかった legacy/delete 候補の全体台帳）: `docs/development/current/main/design/execution-lanes-legacy-retirement-inventory-ssot.md`
 - Hakoruneup release distribution（self-contained bundle + package manager + explicit system LLVM dev mode）: `docs/development/current/main/design/hakoruneup-release-distribution-ssot.md`
 - Stage2 selfhost and hako-alloc（stage軸 + `hako_core/alloc/std` layering SSOT）: `docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md`
+- Substrate capability ladder（allocator/collection/runtime substrate の親SSOT）: `docs/development/current/main/design/substrate-capability-ladder-ssot.md`
+- Minimal capability modules（`hako.mem` / `hako.buf` / `hako.ptr` の最小責務SSOT）: `docs/development/current/main/design/minimal-capability-modules-ssot.md`
+- Minimum verifier（bounds / initialized range / ownership fail-fast の最小SSOT）: `docs/development/current/main/design/minimum-verifier-ssot.md`
+- RawArray substrate（最初の concrete substrate consumer SSOT）: `docs/development/current/main/design/raw-array-substrate-ssot.md`
+- RawMap substrate（HashMap backend で深掘りしてよい substrate row SSOT）: `docs/development/current/main/design/raw-map-substrate-ssot.md`
+- GC/TLS/Atomic capability（allocator/runtime policy owner を深くする前の C4 SSOT）: `docs/development/current/main/design/gc-tls-atomic-capability-ssot.md`
+- Hako Alloc Policy/State（allocator policy/state owner と native metal keep の stop-line SSOT）: `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
 - Stage2 AOT/native thin path（current native perf/mainline の thin-owner design note）: `docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md`
 - Value repr and ABI manifest（current value classes / ownership / manifest row truth）: `docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md`
 - Stage2 Fast Leaf Manifest（backend-private fast lane row contract）: `docs/development/current/main/design/stage2-fast-leaf-manifest-ssot.md`

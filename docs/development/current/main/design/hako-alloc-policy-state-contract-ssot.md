@@ -1,12 +1,18 @@
 ---
 Status: SSOT
 Decision: provisional
-Date: 2026-05-07
+Date: 2026-05-08
 Scope: `stage2` allocator/handle wave and `phase-293x` real-app allocator port stop-lineとして、`hako_alloc` policy/state owner と native metal keep の concrete rows を固定する。
 Related:
   - docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
   - docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md
   - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
+  - docs/development/current/main/design/substrate-capability-ladder-ssot.md
+  - docs/development/current/main/design/minimal-capability-modules-ssot.md
+  - docs/development/current/main/design/minimum-verifier-ssot.md
+  - docs/development/current/main/design/raw-array-substrate-ssot.md
+  - docs/development/current/main/design/raw-map-substrate-ssot.md
+  - docs/development/current/main/design/gc-tls-atomic-capability-ssot.md
   - docs/development/current/main/design/final-metal-split-ssot.md
   - docs/development/current/main/design/helper-boundary-policy-ssot.md
   - docs/development/current/main/design/recipe-scope-effect-policy-ssot.md
@@ -25,6 +31,7 @@ Related:
 - allocator series の concrete rows を narrow に止め、`RawBuf / MaybeInit` や actual allocator backend migration と混ぜない。
 - `host_handles` / `gc_controller` の mixed seam を、挙動不変の policy/body split として読む。
 - allocator-like user boxes also follow the shared `recipe / scope / effect / policy / leaf` split; this doc owns only the allocator-specific policy/state rows.
+- `mimalloc-lite` model と本物の native allocator fast path の境界を固定し、substrate capability なしで `hako_alloc` に metal owner を持たせない。
 
 ## Current Split
 
@@ -33,6 +40,43 @@ Related:
 | policy/state owner | `hako_alloc` reading + narrow Rust policy helpers | handle reuse policy, GC trigger threshold policy, VM-only page/free-list policy-state prototype |
 | capability substrate | `lang/src/runtime/substrate/{mem,buf,ptr,atomic,tls,gc}/**` | truthful capability seams only |
 | native metal keep | Rust runtime/kernel + C ABI shims | host handle slot table, `drop_epoch`, GC root snapshot/reachability walk, actual alloc/free/realloc, TLS/atomic/GC body |
+
+## Mimalloc / Native Allocator Boundary
+
+`mimalloc-lite` belongs to the current policy/state lane. It can model:
+
+- size-class policy
+- VM-only page/free-list state
+- allocation/free accounting
+- allocator stress behavior in real apps
+- statistics and validation output
+
+`mimalloc`-grade native fast path does not belong to this wave. It requires the
+substrate capability ladder first:
+
+- numeric substrate for `usize` and fixed-width unsigned arithmetic
+- explicit wrapping/checked arithmetic semantics
+- `hako.mem` / `hako.buf` / `hako.ptr` plus verifier-backed raw buffers
+- fixed layout vocabulary for allocator metadata
+- `MaybeInit` and initialized-range verification
+- `no_alloc` / `no_safepoint` verifier before fast-path contracts are trusted
+- TLS and atomics with memory order before remote-free style algorithms
+- OS VM facade before page reserve/commit policy moves upward
+
+The split is:
+
+- `hako_alloc` owns allocator policy/state rows.
+- capability substrate owns raw memory, pointer, buffer, verifier, TLS, atomic,
+  GC, and OS VM vocabulary.
+- native metal keep owns final alloc/free/realloc, platform atomics/TLS, GC body,
+  and OS syscall glue.
+
+`LayoutBox` stays narrow VM-only size-class policy. It is not `repr(C)`,
+`sizeof`, `alignof`, native alignment, or ABI layout ownership.
+
+Allocator-shaped user boxes do not get special broad lowering here. General
+user-box EXE parity follows typed-object planning and shared recipe/scope/effect
+boundaries, not allocator-specific C shim branches.
 
 ## First Concrete Policy Rows
 
@@ -109,6 +153,8 @@ These remain docs/root-reserved only in this wave.
 - This wave does **not** move `drop_epoch`, root snapshot, or reachability tracing into policy modules.
 - This wave does **not** widen `FastLeafManifest`.
 - This wave does **not** reopen `HostFacade/provider/plugin loader`.
+- This wave does **not** add fixed-width numeric syntax or raw pointer syntax.
+- This wave does **not** make `no_alloc` / `no_safepoint` backend-active.
 - `LayoutBox` is narrow VM-only size-class policy. It is not native layout,
   alignment, or ABI ownership.
 
@@ -147,5 +193,7 @@ Umbrella gate:
 - `FastLeafManifest widen judgment` is landed with `no widen now`
 - there is no active stage2 code bucket until a concrete backend-private consumer patch appears
 - `RawBuf / native Layout / MaybeInit` live migration is a later allocator wave
+- mimalloc-grade fast-path work follows `substrate-capability-ladder-ssot.md`
+  and must name its numeric/layout/verifier gates first
 - direct EXE parity waits for typed object planning for general user-box
   `newbox`
