@@ -37,11 +37,6 @@ if rg -F -q 'refresh_function_inline_plans(' src/mir/builder src/runner/json_v0_
   exit 1
 fi
 
-if rg -F -q '"Profile"' src/ast/attrs.rs lang/src/compiler/parser/rune/rune_contract_box.hako; then
-  echo "[$TAG] ERROR: Profile parser surface must stay disabled in M11d" >&2
-  exit 1
-fi
-
 if rg -F -q '"Capability"' src/ast/attrs.rs lang/src/compiler/parser/rune/rune_contract_box.hako; then
   echo "[$TAG] ERROR: Capability parser surface must stay disabled in M11d" >&2
   exit 1

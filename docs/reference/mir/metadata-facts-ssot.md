@@ -89,8 +89,8 @@ Contract:
 | `thin_entry_candidates` | array | Candidate sites for public-entry vs thin-entry selection |
 | `thin_entry_selections` | array | Manifest-bound thin-entry decisions |
 | `inline_plans` | array | InlinePlan rows derived from declaration-local `Hint(inline/noinline/hot/cold)` and `Lowering(inline_required)` runes; M11c-soft-leaf may consume `request=prefer` for narrow same-module MIR leaf inline, while `request=required` is verifier-backed metadata but not backend-active |
-| `effect_plans` | array | EffectPlan rows derived from live verifier-backed `Contract(no_alloc/no_safepoint)` runes; consumed by the MIR verifier, not by backends |
-| `capability_plans` | array | CapabilityPlan rows for future capability allowances; currently empty because Profile/Capability parser surfaces are disabled |
+| `effect_plans` | array | EffectPlan rows derived from live verifier-backed `Contract(no_alloc/no_safepoint)` runes and reserved `Profile(...)` expansions; consumed by the MIR verifier, not by backends |
+| `capability_plans` | array | CapabilityPlan rows derived from reserved `Profile(...)` expansions; metadata only until capability verification lands |
 | `sum_placement_facts` | array | Observed sum objectization / local-aggregate facts |
 | `sum_placement_selections` | array | Selected sum path (`local_aggregate` vs compat fallback) |
 | `sum_placement_layouts` | array | LLVM-side local aggregate layout choice for selected sums |
@@ -145,8 +145,9 @@ live-narrow, but backend-required lowering remains reserved.
 
 ## EffectPlan / CapabilityPlan Metadata
 
-M11d adds MIR-owned effect/capability boundaries without adding syntax or
-backend use.
+M11d added MIR-owned effect/capability boundaries. M12c adds reserved
+`Profile(...)` parser acceptance and expands profiles into those existing
+metadata boundaries without adding backend use.
 
 ```text
 @rune Contract(no_alloc)
@@ -160,11 +161,23 @@ backend use.
      }
    ]
 -> metadata.capability_plans = []
+
+@rune Profile(allocator.fast)
+-> metadata.inline_plans = [
+     { request: "none", hotness: "hot", source: "rune_profile:allocator.fast" },
+     { request: "required", source: "rune_profile:allocator.fast" }
+   ]
+-> metadata.effect_plans = [
+     { requires: ["no_alloc", "no_safepoint"], source: "rune_profile" }
+   ]
+-> metadata.capability_plans = [
+     { allow: ["hako.mem", "hako.ptr", "hako.tls"], source: "rune_profile" }
+   ]
 ```
 
 The rune contract verifier consumes `effect_plans` as the obligation source.
 `Contract(pure)` / `Contract(readonly)` are not live EffectPlan requirements
-yet. `Profile(...)` and `Capability(...)` are not accepted parser surface.
+yet. `Capability(...)` is not accepted parser surface.
 
 Refresh owner:
 

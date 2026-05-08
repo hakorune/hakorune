@@ -319,6 +319,45 @@ impl NyashParser {
 
     fn parse_rune_annotation(&mut self) -> Result<bool, ParseError> {
         fn parse_rune_name(this: &mut NyashParser) -> Result<RuneAttr, ParseError> {
+            fn parse_rune_arg(
+                this: &mut NyashParser,
+                rune_name: &str,
+            ) -> Result<String, ParseError> {
+                if let TokenType::IDENTIFIER(name) = &this.current_token().token_type {
+                    let mut n = name.clone();
+                    this.advance();
+                    if rune_name == "Profile" {
+                        while this.match_token(&TokenType::DOT) {
+                            this.advance();
+                            if let TokenType::IDENTIFIER(segment) = &this.current_token().token_type
+                            {
+                                n.push('.');
+                                n.push_str(segment);
+                                this.advance();
+                            } else {
+                                return Err(ParseError::UnexpectedToken {
+                                    found: this.current_token().token_type.clone(),
+                                    expected: "[freeze:contract][parser/rune] profile name segment"
+                                        .to_string(),
+                                    line: this.current_token().line,
+                                });
+                            }
+                        }
+                    }
+                    Ok(n)
+                } else if let TokenType::STRING(name) = &this.current_token().token_type {
+                    let n = name.clone();
+                    this.advance();
+                    Ok(n)
+                } else {
+                    Err(ParseError::UnexpectedToken {
+                        found: this.current_token().token_type.clone(),
+                        expected: "[freeze:contract][parser/rune] rune argument".to_string(),
+                        line: this.current_token().line,
+                    })
+                }
+            }
+
             let rune_name = if let TokenType::IDENTIFIER(name) = &this.current_token().token_type {
                 let n = name.clone();
                 this.advance();
@@ -350,22 +389,7 @@ impl NyashParser {
             if this.match_token(&TokenType::LPAREN) {
                 this.advance();
                 while !this.match_token(&TokenType::RPAREN) {
-                    let arg = if let TokenType::IDENTIFIER(name) = &this.current_token().token_type
-                    {
-                        let n = name.clone();
-                        this.advance();
-                        n
-                    } else if let TokenType::STRING(name) = &this.current_token().token_type {
-                        let n = name.clone();
-                        this.advance();
-                        n
-                    } else {
-                        return Err(ParseError::UnexpectedToken {
-                            found: this.current_token().token_type.clone(),
-                            expected: "[freeze:contract][parser/rune] rune argument".to_string(),
-                            line: this.current_token().line,
-                        });
-                    };
+                    let arg = parse_rune_arg(this, &rune_name)?;
                     args.push(arg);
                     if this.match_token(&TokenType::COMMA) {
                         this.advance();
@@ -377,23 +401,14 @@ impl NyashParser {
             } else if RuneAttr::noarg_name(&rune_name) {
                 // no-arg bare form
             } else {
-                let arg = if let TokenType::IDENTIFIER(name) = &this.current_token().token_type {
-                    let n = name.clone();
-                    this.advance();
-                    n
-                } else if let TokenType::STRING(name) = &this.current_token().token_type {
-                    let n = name.clone();
-                    this.advance();
-                    n
-                } else {
-                    return Err(ParseError::UnexpectedToken {
+                let arg =
+                    parse_rune_arg(this, &rune_name).map_err(|_| ParseError::UnexpectedToken {
                         found: this.current_token().token_type.clone(),
                         expected:
                             "[freeze:contract][parser/rune] rune argument after bare rune name"
                                 .to_string(),
                         line: this.current_token().line,
-                    });
-                };
+                    })?;
                 args.push(arg);
             }
 

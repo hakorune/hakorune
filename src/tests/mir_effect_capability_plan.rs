@@ -79,3 +79,66 @@ static box Main {
     assert_eq!(plan.source, "rune_contract");
     assert!(main.metadata.capability_plans.is_empty());
 }
+
+#[test]
+fn mir_expands_profile_allocator_fast_to_primitive_plan_facts() {
+    ensure_ring0_initialized();
+    let _guard = FeatureOverrideGuard::new("rune");
+    let ast = NyashParser::parse_from_string(
+        r#"
+static box Main {
+  @rune Profile(allocator.fast)
+  main() {
+    return 0
+  }
+}
+"#,
+    )
+    .expect("parse profile plan");
+
+    let mut compiler = MirCompiler::with_options(false);
+    let module = compiler.compile(ast).expect("compile profile plan").module;
+    let main = module
+        .functions
+        .values()
+        .find(|function| function.signature.name.contains("main"))
+        .expect("main function");
+
+    assert_eq!(
+        main.metadata
+            .inline_plans
+            .iter()
+            .map(|plan| (
+                plan.request.as_str(),
+                plan.hotness.as_ref().map(|hotness| hotness.as_str()),
+                plan.source.as_str(),
+                plan.verified
+            ))
+            .collect::<Vec<_>>(),
+        vec![
+            ("none", Some("hot"), "rune_profile:allocator.fast", false),
+            ("required", None, "rune_profile:allocator.fast", true),
+        ]
+    );
+
+    assert_eq!(main.metadata.effect_plans.len(), 1);
+    let effect_plan = &main.metadata.effect_plans[0];
+    assert_eq!(
+        effect_plan
+            .requires
+            .iter()
+            .map(|requirement| requirement.as_str())
+            .collect::<Vec<_>>(),
+        vec!["no_alloc", "no_safepoint"]
+    );
+    assert_eq!(effect_plan.source, "rune_profile");
+
+    assert_eq!(main.metadata.capability_plans.len(), 1);
+    let capability_plan = &main.metadata.capability_plans[0];
+    assert_eq!(
+        capability_plan.allow,
+        vec!["hako.mem", "hako.ptr", "hako.tls"]
+    );
+    assert_eq!(capability_plan.source, "rune_profile");
+    assert!(!capability_plan.verified);
+}

@@ -10,8 +10,10 @@ Scope: M12b Profile registry docs
 
 M12b is live-docs only.
 
-`@rune Profile(...)` remains disabled parser surface. The registry reserves
-profile names and future primitive expansion targets in one SSOT:
+At M12b landing, `@rune Profile(...)` remained disabled parser surface. M12c
+later enabled reserved-name parser acceptance and expansion. The M12b decision
+is still the registry SSOT itself: profile names and primitive expansion targets
+live in one file:
 
 ```text
 docs/reference/mir/rune-profile-registry.md

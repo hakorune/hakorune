@@ -25,19 +25,14 @@ for profile in allocator.fast allocator.slow substrate.leaf intrinsic.leaf raw.l
   rg -F -q "\`$profile\`" "$CARD"
 done
 
-rg -F -q 'Status: M12b live-docs registry.' "$REGISTRY"
-rg -F -q '`@rune Profile(...)` is not accepted parser surface yet.' "$REGISTRY"
+rg -F -q 'Status: M12c live-narrow profile expansion.' "$REGISTRY"
+rg -F -q '`@rune Profile(...)` is accepted for the reserved profile names in this file.' "$REGISTRY"
 rg -F -q 'Backends, `.inc`, and ll_emit must never branch on profile names.' "$REGISTRY"
-rg -F -q 'profile expansion into primitive rune metadata' "$REGISTRY"
+rg -F -q 'Profile-derived `CapabilityPlan allow=[...]` metadata emission' "$REGISTRY"
 rg -F -q '| `M12b Profile registry docs` | `live-docs` |' "$TASKBOARD"
-rg -F -q '`M12b Profile registry docs` is' "$RUNE_PROFILE_SSOT"
+rg -F -q 'M12b Profile registry docs [live-docs]' "$RUNE_PROFILE_SSOT"
 rg -F -q 'Profile registry SSOT: `docs/reference/mir/rune-profile-registry.md`.' "$SUBSTRATE_DOC"
 rg -F -q 'M12b is live-docs only.' "$CARD"
-
-if rg -F -q '"Profile"' src/ast/attrs.rs lang/src/compiler/parser/rune/rune_contract_box.hako; then
-  echo "[$TAG] ERROR: Profile parser surface must stay disabled in M12b" >&2
-  exit 1
-fi
 
 if rg -F -q '"Capability"' src/ast/attrs.rs lang/src/compiler/parser/rune/rune_contract_box.hako; then
   echo "[$TAG] ERROR: Capability parser surface must stay disabled in M12b" >&2

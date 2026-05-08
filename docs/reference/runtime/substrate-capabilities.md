@@ -53,7 +53,7 @@ The current live surface is intentionally narrow.
 | backend export attrs | consistency guard is live; only current weak attrs are allowed, runtime-decl `readonly` rows must carry `memory = "read"`, while `noalias`/`nonnull`/`dereferenceable`/alignment export remain blocked |
 | static readonly data | backend-private static-data manifest can emit a u16 size-class fixture; source `static const NAME: u16[] = [...]` declarations lower to MIR `static_data_plans`; `NAME[index]` reads lower to MIR `StaticDataLoad` and current-lane `i64` values; narrow integer const expressions in u16 table initializers are live |
 | inline planning | `@rune Hint(inline/noinline/hot/cold)` and substrate-only `@rune Lowering(inline_required)` preserve MIR InlinePlan metadata; `Hint(inline)` has a narrow best-effort same-module MIR leaf inline row; required inline verifier acceptance is live-narrow for contract-proven leaf bodies; backend required-inline use is not live |
-| profile/effect/capability planning | `EffectPlan` is live-narrow from `Contract(no_alloc/no_safepoint)` and feeds the MIR verifier; `CapabilityPlan` is emitted empty; `@rune Profile(...)` and `@rune Capability(...)` are not live parser surface |
+| profile/effect/capability planning | `EffectPlan` is live-narrow from `Contract(no_alloc/no_safepoint)` and reserved `Profile(...)` expansions; `CapabilityPlan` is emitted from reserved `Profile(...)` expansions as metadata only; `@rune Capability(...)` is not live parser surface |
 
 ## Reserved Surface
 
@@ -79,7 +79,6 @@ These names are reserved but not fully live as user-facing allocator substrate:
 - `noalias`, `nonnull`, `dereferenceable`, stronger alignment export
 - const fn table generation and references to other const declarations
 - backend-active required inline from `@rune Lowering(inline_required)`
-- `@rune Profile(...)` parser acceptance and expansion
 - backend-readable profile names
 - MIR EffectPlan / CapabilityPlan backend use
 - unrestricted `unsafe(...)` blocks
@@ -523,9 +522,9 @@ Decision: M11d is live as a MIR metadata boundary.
 -> rune contract verifier consumes EffectPlan
 ```
 
-`metadata.capability_plans` is also emitted, but it is empty until capability
-syntax or Profile expansion is explicitly added. `Profile(...)` and
-`Capability(...)` are not parser surface yet.
+`metadata.capability_plans` is also emitted. It remains empty for plain
+`Contract(...)` runes and is populated only by reserved `Profile(...)`
+expansions in M12c. `Capability(...)` is not parser surface yet.
 
 Backends and `.inc` must not consume `effect_plans` or `capability_plans`.
 After a declaration's rune metadata changes, callers must use
@@ -534,8 +533,8 @@ families by hand.
 
 ## Rune Profile / Plan Ordering
 
-Decision: `@rune Profile(...)` is reserved as a future authoring shortcut. It is
-not live syntax and is not a backend contract.
+Decision: `@rune Profile(...)` is live-narrow as an authoring shortcut for the
+reserved names below. It is not a backend contract.
 
 The required future flow is:
 
@@ -547,7 +546,7 @@ The required future flow is:
 -> backend emits the result
 ```
 
-Reserved profile names:
+Live reserved profile names:
 
 - `allocator.fast`
 - `allocator.slow`
@@ -557,11 +556,11 @@ Reserved profile names:
 
 Profile registry SSOT: `docs/reference/mir/rune-profile-registry.md`.
 
-Task order:
+Current task order:
 
 1. mimalloc raw-page proof using explicit facts
 2. Profile registry docs [live-docs]
-3. Profile expansion to primitive facts
+3. Profile expansion to primitive facts [live-narrow]
 4. allocator fast-path EXE proof
 
 Backends must not branch on profile names. `.inc` / ll_emit must continue to
@@ -610,7 +609,7 @@ Accepted shape:
 Not accepted by this row:
 
 - VM execution of `hako_mem_alloc` through the regular VM backend.
-- `@rune Profile(...)` parser acceptance.
+- `@rune Profile(...)` use inside this fixture.
 - `@rune Capability(...)` parser acceptance.
 - restricted `unsafe(...)` blocks.
 - backend or `.inc` allocator fast-path special cases.

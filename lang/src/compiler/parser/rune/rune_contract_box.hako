@@ -9,7 +9,7 @@ using lang.compiler.parser.scan.parser_string_utils_box as ParserStringUtilsBox
 
 static box RuneContractBox {
   supported_names_msg() {
-    return "Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership|Hint|Contract|IntrinsicCandidate|Lowering"
+    return "Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership|Hint|Contract|IntrinsicCandidate|Lowering|Profile"
   }
 
   supported_name(rune_name) {
@@ -26,6 +26,7 @@ static box RuneContractBox {
     if name == "Contract" { return 1 }
     if name == "IntrinsicCandidate" { return 1 }
     if name == "Lowering" { return 1 }
+    if name == "Profile" { return 1 }
     return 0
   }
 
@@ -45,6 +46,7 @@ static box RuneContractBox {
     if name == "Hint" || name == "Contract" || name == "IntrinsicCandidate" || name == "Lowering" {
       return 1
     }
+    if name == "Profile" { return 1 }
     return 0
   }
 
@@ -104,6 +106,12 @@ static box RuneContractBox {
     if name == "Lowering" {
       if arg0 != "inline_required" {
         return "[freeze:contract][parser/rune] Lowering(inline_required)"
+      }
+    }
+
+    if name == "Profile" {
+      if arg0 != "allocator.fast" && arg0 != "allocator.slow" && arg0 != "substrate.leaf" && arg0 != "intrinsic.leaf" && arg0 != "raw.layout" {
+        return "[freeze:contract][parser/rune] Profile(allocator.fast|allocator.slow|substrate.leaf|intrinsic.leaf|raw.layout)"
       }
     }
 

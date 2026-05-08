@@ -43,8 +43,10 @@ provide the substrate vocabulary. `@rune Contract(...)` states obligations such
 as `no_alloc` / `no_safepoint`. Verifiers must prove those obligations before a
 backend may trust them for lowering or optimization.
 
-`@rune Profile(...)` is a future authoring shortcut over these facts. It is not
-a new truth source and is not backend-readable.
+`@rune Profile(...)` is an authoring shortcut over these facts. It is not a new
+truth source and is not backend-readable. The live M12c surface accepts only the
+reserved names in `docs/reference/mir/rune-profile-registry.md` and expands
+them into MIR-owned plan facts.
 
 ## Non-Goals
 
@@ -96,10 +98,10 @@ a new truth source and is not backend-readable.
 | `M11a static readonly data segment` | `live-narrow` | backend-private const data | backend-private static data manifest emits a readonly u16 size-class fixture as LLVM data; no source syntax or const eval |
 | `M11b const eval/static table syntax` | `live-narrow` | language + MIR const data | `M11b-decl` source `u16` static const table declarations, `M11b-load` static table reads, and `M11b-eval` narrow integer initializer expressions are live; const fn remains future |
 | `M11c InlinePlan rows` | `live-narrow` | rune metadata + MIR optimizer/verifier | `M11c-preserve` keeps `Hint(inline/noinline/hot/cold)` as MIR `inline_plans`; `M11c-soft-leaf` expands best-effort same-module pure leaf `Hint(inline)` calls in MIR; `M11c-required-vocab` preserves substrate-only `Lowering(inline_required)` as MIR `request=required`; `M11c-contract-repeat` permits distinct `Contract(...)` runes on one declaration; `M11c-required-verify` fail-fast verifies required contracts plus narrow leaf shape and sets accepted plans to `verified=true`; no backend use |
-| `M11d EffectPlan/CapabilityPlan boundary` | `live-narrow` | MIR metadata + verifier | `Contract(no_alloc/no_safepoint)` now populates MIR `effect_plans`, the rune contract verifier consumes `EffectPlan`, and `capability_plans` exists as an empty metadata boundary; no Profile/Capability parser surface and no backend use |
-| `M12 mimalloc raw-page proof` | `live-narrow` | allocator substrate consumer | `apps/mimalloc-raw-page-proof` proves a fixed raw page/free-list fixture over `RawBufCoreBox` + `RawArrayCoreBox`; fast-path acquire/release carry `Contract(no_alloc/no_safepoint)` and are MIR-verified, with no Profile/Capability parser surface or backend use |
+| `M11d EffectPlan/CapabilityPlan boundary` | `live-narrow` | MIR metadata + verifier | `Contract(no_alloc/no_safepoint)` now populates MIR `effect_plans`, the rune contract verifier consumes `EffectPlan`, and `capability_plans` exists as a metadata boundary; no backend use |
+| `M12 mimalloc raw-page proof` | `live-narrow` | allocator substrate consumer | `apps/mimalloc-raw-page-proof` proves a fixed raw page/free-list fixture over `RawBufCoreBox` + `RawArrayCoreBox`; fast-path acquire/release carry `Contract(no_alloc/no_safepoint)` and are MIR-verified, with no Profile/Capability parser surface or backend use in that fixture |
 | `M12b Profile registry docs` | `live-docs` | rune metadata + docs | `docs/reference/mir/rune-profile-registry.md` reserves `allocator.fast`, `allocator.slow`, `substrate.leaf`, `intrinsic.leaf`, and `raw.layout` expansion targets; no parser acceptance unless a later row explicitly owns parser parity |
-| `M12c Profile expansion to facts` | `blocked` | rune metadata + MIR plans + verifier | expand `Profile(...)` to primitive `Hint` / `Lowering` / `Contract` / EffectPlan / CapabilityPlan facts after those facts exist; backend reads only expanded facts |
+| `M12c Profile expansion to facts` | `live-narrow` | rune metadata + MIR plans + verifier | `Profile(...)` accepts the reserved registry names and expands to primitive `Hint` / `Lowering` / `Contract` / EffectPlan / CapabilityPlan facts; backend reads only expanded facts and must not read profile names |
 | `M13 allocator fast-path EXE proof` | `blocked` | EXE backend + substrate | direct EXE proof for allocator fast path; helper calls only where capability route says so |
 
 ## Fixed Implementation Order
@@ -148,9 +150,9 @@ export pointer attributes, infer native-pointer proof, or lower allocator fast
 paths. It only widens rune vocabulary and preserves a MIR-owned metadata row
 for a later verifier card.
 
-`@rune Profile(...)` must stay after the plan-boundary rows. Profile is allowed
-to reduce authoring noise only after the primitive facts it expands to already
-exist and are verifier-owned.
+`@rune Profile(...)` stays after the plan-boundary rows. Profile is allowed to
+reduce authoring noise only because the primitive facts it expands to already
+exist and are MIR/verifier-owned.
 
 ## Per-Row Acceptance Contract
 
@@ -294,7 +296,8 @@ that metadata, and `capability_plans` is present but empty until capability
 syntax/profile expansion lands. `M12` proves the first raw page/free-list
 consumer fixture against those explicit facts. `M12b` now reserves profile names
 and primitive expansion targets in `docs/reference/mir/rune-profile-registry.md`.
-The next actionable target is `M12c Profile expansion to facts`. Do not add
-Profile parser acceptance before an expansion card owns parser parity, verifier
-behavior, and backend non-consumption guards. Do not add allocator fast-path
-backend use before Profile expansion and fast-path proof rows are owned.
+`M12c` now accepts the reserved `Profile(...)` names and expands them to
+primitive InlinePlan / EffectPlan / CapabilityPlan facts while keeping backend
+and `.inc` consumers profile-name-free. The next actionable target is
+`M13 allocator fast-path EXE proof`. Do not add allocator fast-path backend use
+before the fast-path proof row owns the route, fixture, and fail-fast behavior.

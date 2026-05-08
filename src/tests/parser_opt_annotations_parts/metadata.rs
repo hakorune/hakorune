@@ -222,6 +222,35 @@ static box Main {
 }
 
 #[test]
+fn parser_accepts_profile_rune_reserved_name_and_roundtrips_ast_json() {
+    with_features(Some("rune"), || {
+        let src = r#"
+static box Main {
+  @rune Profile(allocator.fast)
+  main() {
+    return 0
+  }
+}
+"#;
+        let (ast, metadata) =
+            NyashParser::parse_from_string_with_metadata(src).expect("parse Profile rune");
+        let runes = find_runes(&metadata);
+        assert_eq!(
+            runes,
+            vec![("Profile".to_string(), vec!["allocator.fast".to_string()])]
+        );
+
+        let (_box_runes, method_runes) = find_box_and_method_runes(&ast, "Main", "main");
+        assert_eq!(method_runes, runes);
+
+        let roundtrip = json_to_ast(&ast_to_json_roundtrip(&ast)).expect("ast roundtrip");
+        let (_roundtrip_box_runes, roundtrip_method_runes) =
+            find_box_and_method_runes(&roundtrip, "Main", "main");
+        assert_eq!(roundtrip_method_runes, method_runes);
+    });
+}
+
+#[test]
 fn parser_accepts_rune_annotations_and_preserves_metadata() {
     with_features(Some("rune"), || {
         let src = r#"

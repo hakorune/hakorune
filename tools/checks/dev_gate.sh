@@ -392,6 +392,9 @@ run_quick() {
   run_step "K2-wide Profile registry docs guard" \
     bash tools/checks/k2_wide_profile_registry_docs_guard.sh
 
+  run_step "K2-wide Profile expansion to facts guard" \
+    bash tools/checks/k2_wide_profile_expansion_to_facts_guard.sh
+
   run_step "K2-wide hako_alloc handle policy guard" \
     bash tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
 

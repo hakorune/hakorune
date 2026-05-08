@@ -40,6 +40,7 @@ pub mod method_box;
 #[path = "boxes/operator_traits.rs"]
 pub mod operator_traits; // trait-based operator overloading
 pub mod parser; // using historical parser.rs
+pub mod rune_profile_registry;
 #[path = "core/scope_tracker.rs"]
 pub mod scope_tracker; // Box lifecycle tracking for VM
 pub mod stdlib;

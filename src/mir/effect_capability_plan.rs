@@ -33,12 +33,12 @@ pub struct EffectPlan {
 }
 
 impl EffectPlan {
-    fn rune_contract(function: &str, requires: Vec<EffectRequirement>) -> Self {
+    fn rune_contract(function: &str, requires: Vec<EffectRequirement>, source: &str) -> Self {
         Self {
             function: function.to_string(),
             requires,
             verified: false,
-            source: "rune_contract".to_string(),
+            source: source.to_string(),
         }
     }
 }
@@ -53,19 +53,40 @@ pub struct CapabilityPlan {
 
 pub fn effect_plans_from_runes(function: &str, runes: &[RuneAttr]) -> Vec<EffectPlan> {
     let mut requires = Vec::new();
+    let mut saw_profile_requirement = false;
     for rune in runes {
-        if rune.name != "Contract" {
-            continue;
-        }
-        let Some(requirement) = rune
-            .args
-            .first()
-            .and_then(|arg| EffectRequirement::from_contract_arg(arg))
-        else {
-            continue;
-        };
-        if !requires.contains(&requirement) {
-            requires.push(requirement);
+        match rune.name.as_str() {
+            "Contract" => {
+                let Some(requirement) = rune
+                    .args
+                    .first()
+                    .and_then(|arg| EffectRequirement::from_contract_arg(arg))
+                else {
+                    continue;
+                };
+                if !requires.contains(&requirement) {
+                    requires.push(requirement);
+                }
+            }
+            "Profile" => {
+                let Some(expansion) = rune
+                    .args
+                    .first()
+                    .and_then(|name| crate::rune_profile_registry::expansion(name))
+                else {
+                    continue;
+                };
+                for contract in expansion.contracts {
+                    let Some(requirement) = EffectRequirement::from_contract_arg(contract) else {
+                        continue;
+                    };
+                    if !requires.contains(&requirement) {
+                        requires.push(requirement);
+                    }
+                    saw_profile_requirement = true;
+                }
+            }
+            _ => {}
         }
     }
 
@@ -73,12 +94,46 @@ pub fn effect_plans_from_runes(function: &str, runes: &[RuneAttr]) -> Vec<Effect
         Vec::new()
     } else {
         requires.sort();
-        vec![EffectPlan::rune_contract(function, requires)]
+        let source = if saw_profile_requirement {
+            "rune_profile"
+        } else {
+            "rune_contract"
+        };
+        vec![EffectPlan::rune_contract(function, requires, source)]
     }
 }
 
-pub fn capability_plans_from_runes(_function: &str, _runes: &[RuneAttr]) -> Vec<CapabilityPlan> {
-    Vec::new()
+pub fn capability_plans_from_runes(function: &str, runes: &[RuneAttr]) -> Vec<CapabilityPlan> {
+    let mut allow = Vec::new();
+    for rune in runes {
+        if rune.name != "Profile" {
+            continue;
+        }
+        let Some(expansion) = rune
+            .args
+            .first()
+            .and_then(|name| crate::rune_profile_registry::expansion(name))
+        else {
+            continue;
+        };
+        for capability in expansion.capabilities {
+            let value = capability.to_string();
+            if !allow.contains(&value) {
+                allow.push(value);
+            }
+        }
+    }
+    if allow.is_empty() {
+        Vec::new()
+    } else {
+        allow.sort();
+        vec![CapabilityPlan {
+            function: function.to_string(),
+            allow,
+            verified: false,
+            source: "rune_profile".to_string(),
+        }]
+    }
 }
 
 pub fn refresh_function_effect_capability_plans(function: &mut MirFunction) {
@@ -129,5 +184,31 @@ mod tests {
         assert!(
             capability_plans_from_runes("Main.fast/0", &[rune("Contract", "no_alloc")]).is_empty()
         );
+    }
+
+    #[test]
+    fn profile_expands_to_effect_and_capability_plans() {
+        let effect_plans =
+            effect_plans_from_runes("Main.fast/0", &[rune("Profile", "allocator.fast")]);
+        assert_eq!(effect_plans.len(), 1);
+        assert_eq!(
+            effect_plans[0]
+                .requires
+                .iter()
+                .map(|requirement| requirement.as_str())
+                .collect::<Vec<_>>(),
+            vec!["no_alloc", "no_safepoint"]
+        );
+        assert_eq!(effect_plans[0].source, "rune_profile");
+
+        let capability_plans =
+            capability_plans_from_runes("Main.fast/0", &[rune("Profile", "allocator.fast")]);
+        assert_eq!(capability_plans.len(), 1);
+        assert_eq!(
+            capability_plans[0].allow,
+            vec!["hako.mem", "hako.ptr", "hako.tls"]
+        );
+        assert_eq!(capability_plans[0].source, "rune_profile");
+        assert!(!capability_plans[0].verified);
     }
 }

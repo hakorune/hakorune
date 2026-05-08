@@ -185,11 +185,12 @@ fn validate_runes_for_target(
                         | "Contract"
                         | "IntrinsicCandidate"
                         | "Lowering"
+                        | "Profile"
                 ) {
                     return Err(ParseError::UnexpectedToken {
                         found: TokenType::IDENTIFIER(rune.name.clone()),
                         expected: format!(
-                            "[freeze:contract][parser/rune] {} target supports only Public|Internal|Ownership|Hint|Contract|IntrinsicCandidate|Lowering",
+                            "[freeze:contract][parser/rune] {} target supports only Public|Internal|Ownership|Hint|Contract|IntrinsicCandidate|Lowering|Profile",
                             target_label(&target)
                         ),
                         line,

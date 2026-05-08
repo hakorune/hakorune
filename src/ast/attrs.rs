@@ -5,7 +5,7 @@ pub struct RuneAttr {
 }
 
 pub const RUNE_SUPPORTED_NAMES_MSG: &str =
-    "Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership|Hint|Contract|IntrinsicCandidate|Lowering";
+    "Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership|Hint|Contract|IntrinsicCandidate|Lowering|Profile";
 
 impl RuneAttr {
     pub fn supported_names_msg() -> &'static str {
@@ -27,6 +27,7 @@ impl RuneAttr {
                 | "Contract"
                 | "IntrinsicCandidate"
                 | "Lowering"
+                | "Profile"
         )
     }
 
@@ -45,6 +46,7 @@ impl RuneAttr {
                 | "Contract"
                 | "IntrinsicCandidate"
                 | "Lowering"
+                | "Profile"
         )
     }
 
@@ -75,6 +77,10 @@ impl RuneAttr {
             "Lowering" if arg0 != "inline_required" => Some(
                 "[freeze:contract][parser/rune] Lowering(inline_required)".to_string(),
             ),
+            "Profile" if !crate::rune_profile_registry::supported_name(arg0) => Some(format!(
+                "[freeze:contract][parser/rune] Profile({})",
+                crate::rune_profile_registry::SUPPORTED_PROFILE_NAMES_MSG
+            )),
             _ => None,
         }
     }

@@ -57,8 +57,10 @@ Current live verifier row:
 - `Contract(pure)` and `Contract(readonly)` remain metadata-only until their
   verifier rows land.
 - No contract is currently exported for backend optimization use.
-- `metadata.capability_plans` exists but is empty until capability syntax or
-  Profile expansion lands.
+- `metadata.capability_plans` exists and is populated only by reserved
+  `Profile(...)` expansions; capability verifier/backend use remains future.
+- `Profile(allocator.fast|allocator.slow|substrate.leaf|intrinsic.leaf|raw.layout)`
+  is accepted as authoring sugar and expands to primitive MIR plan facts.
 - `Hint(inline/noinline/hot/cold)` is preserved into MIR-owned
   `metadata.inline_plans`.
 - `Hint(inline)` may trigger the narrow M11c-soft-leaf MIR optimizer row:

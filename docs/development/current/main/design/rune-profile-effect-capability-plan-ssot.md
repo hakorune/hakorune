@@ -53,7 +53,7 @@ facts, and verifiers. Do not add a broad C-style unsafe language shelf.
 
 ## Rune Profile Rule
 
-Future source shape:
+Live M12c source shape:
 
 ```hako
 @rune Profile(allocator.fast)
@@ -62,9 +62,10 @@ method alloc_small(size: usize) -> Ptr<u8> {
 }
 ```
 
-Profile expansion is allowed only after the target primitive facts exist.
+Profile expansion is allowed only because the target primitive facts already
+exist as MIR-owned plan rows.
 
-Example future expansion target:
+M12c expansion target:
 
 ```text
 Profile(allocator.fast)
@@ -72,15 +73,14 @@ Profile(allocator.fast)
 -> Lowering(inline_required)
 -> Contract(no_alloc)
 -> Contract(no_safepoint)
--> Contract(no_panic)
 -> CapabilityPlan allow=[hako.ptr, hako.mem, hako.tls]
--> EffectPlan no_alloc/no_safepoint/no_panic verified before strict use
+-> EffectPlan no_alloc/no_safepoint verified before strict use
 ```
 
 The profile string is not a backend contract. The expanded and verified MIR
 facts are the contract.
 
-Initial profile names are reserved only:
+Live profile names are:
 
 ```text
 allocator.fast
@@ -90,8 +90,8 @@ intrinsic.leaf
 raw.layout
 ```
 
-No parser acceptance, expansion, verifier behavior, or backend behavior is
-implied by this reservation.
+Parser acceptance and expansion are live-narrow only for those reserved names.
+Backend behavior is still not implied by the profile string.
 
 ## Plan Ownership
 
@@ -126,11 +126,14 @@ no_cache_write
 summary used to decide whether rune contracts and profile expansions are
 eligible for strict lowering.
 
-M11d live surface:
+M12c live surface:
 
 ```text
-Contract(no_alloc)      -> EffectRequirement::NoAlloc
-Contract(no_safepoint) -> EffectRequirement::NoSafepoint
+Contract(no_alloc)       -> EffectRequirement::NoAlloc
+Contract(no_safepoint)   -> EffectRequirement::NoSafepoint
+Profile(allocator.fast)  -> no_alloc + no_safepoint
+Profile(substrate.leaf)  -> no_alloc + no_safepoint
+Profile(intrinsic.leaf)  -> no_alloc + no_safepoint
 -> MIR metadata.effect_plans
 -> rune contract verifier consumes EffectPlan
 ```
@@ -158,14 +161,17 @@ hako.intrin
 Capability use must be checked structurally. Backends must not infer capability
 rights from method names, file names, or profile names.
 
-M11d live surface:
+M12c live surface:
 
 ```text
-metadata.capability_plans = []
+Profile(allocator.fast) -> CapabilityPlan allow=[hako.mem,hako.ptr,hako.tls]
+Profile(allocator.slow) -> CapabilityPlan allow=[hako.mem,hako.osvm,hako.gc]
+Profile(substrate.leaf) -> CapabilityPlan allow=[hako.mem,hako.buf,hako.ptr]
+Profile(raw.layout)     -> CapabilityPlan allow=[hako.ptr]
 ```
 
-There is no `@rune Capability(...)` syntax and no `@rune Profile(...)`
-expansion yet.
+There is no `@rune Capability(...)` syntax. CapabilityPlan rows produced from
+profiles are metadata only; capability verifier/backend use remains future.
 
 ### LayoutPlan
 
@@ -240,11 +246,10 @@ Immediate order after M11d:
    Prove a raw page/free-list fixture using explicit capability calls and
    existing contracts.
 
-2. M12b Profile registry docs
-   Reserve profile names and expansion targets in one registry. No parser
-   acceptance yet unless the row explicitly includes parser parity.
+2. M12b Profile registry docs [live-docs]
+   Reserve profile names and expansion targets in one registry.
 
-3. M12c Profile expansion to facts
+3. M12c Profile expansion to facts [live-narrow]
    Expand Profile(...) to primitive rune/Plan facts. Backend still reads only
    facts, not profile names.
 
@@ -275,8 +280,8 @@ skip the immediate verifier and plan-boundary rows.
 
 Do not implement these before their owners exist:
 
-- `@rune Profile(...)` parser acceptance before EffectPlan/CapabilityPlan
-  boundaries exist.
+- new or widened `@rune Profile(...)` names before their primitive
+  EffectPlan/CapabilityPlan/InlinePlan targets exist.
 - `unsafe(...)` blocks before capability verification is defined.
 - `struct` / `repr(C)` source syntax before LayoutPlan source acceptance is
   scoped.
@@ -307,14 +312,13 @@ Forbidden backend behavior:
 
 ## Current Reading
 
-`M12 mimalloc raw-page proof` is live-narrow. `M12b Profile registry docs` is
-live-docs. The registry SSOT is:
+`M12 mimalloc raw-page proof`, `M12b Profile registry docs`, and `M12c Profile
+expansion to facts` are live-narrow/live-docs as above. The registry SSOT is:
 
 ```text
 docs/reference/mir/rune-profile-registry.md
 ```
 
-The next implementation step is `M12c Profile expansion to facts`. Profile
-exists only as a reserved design target until that row explicitly owns parser
-parity and expansion. It must expand over existing facts rather than becoming a
-backend-readable semantic string.
+The next implementation step is `M13 allocator fast-path EXE proof`. Profile
+already expands over existing facts and must not become a backend-readable
+semantic string.

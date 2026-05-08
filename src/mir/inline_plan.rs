@@ -120,17 +120,43 @@ impl RequiredInlineViolation {
 }
 
 pub fn inline_plans_from_runes(function: &str, runes: &[RuneAttr]) -> Vec<InlinePlan> {
-    runes
-        .iter()
-        .filter_map(|rune| {
-            let value = rune.args.first()?;
-            match rune.name.as_str() {
-                "Hint" => InlinePlan::from_hint(function, value),
-                "Lowering" => InlinePlan::from_lowering(function, value),
-                _ => None,
+    let mut plans = Vec::new();
+    for rune in runes {
+        let Some(value) = rune.args.first() else {
+            continue;
+        };
+        match rune.name.as_str() {
+            "Hint" => {
+                if let Some(plan) = InlinePlan::from_hint(function, value) {
+                    plans.push(plan);
+                }
             }
-        })
-        .collect()
+            "Lowering" => {
+                if let Some(plan) = InlinePlan::from_lowering(function, value) {
+                    plans.push(plan);
+                }
+            }
+            "Profile" => {
+                let Some(expansion) = crate::rune_profile_registry::expansion(value) else {
+                    continue;
+                };
+                for hint in expansion.hints {
+                    if let Some(mut plan) = InlinePlan::from_hint(function, hint) {
+                        plan.source = format!("rune_profile:{}", expansion.name);
+                        plans.push(plan);
+                    }
+                }
+                for lowering in expansion.lowerings {
+                    if let Some(mut plan) = InlinePlan::from_lowering(function, lowering) {
+                        plan.source = format!("rune_profile:{}", expansion.name);
+                        plans.push(plan);
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+    plans
 }
 
 pub fn required_inline_plan_violations(
@@ -172,7 +198,14 @@ pub fn refresh_function_inline_plans(function: &mut MirFunction) {
 }
 
 fn has_contract(runes: &[RuneAttr], contract: &str) -> bool {
-    runes.iter().any(|rune| {
-        rune.name == "Contract" && rune.args.first().map(String::as_str) == Some(contract)
+    runes.iter().any(|rune| match rune.name.as_str() {
+        "Contract" => rune.args.first().map(String::as_str) == Some(contract),
+        "Profile" => rune
+            .args
+            .first()
+            .and_then(|name| crate::rune_profile_registry::expansion(name))
+            .map(|expansion| expansion.contracts.contains(&contract))
+            .unwrap_or(false),
+        _ => false,
     })
 }

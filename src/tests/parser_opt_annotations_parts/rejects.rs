@@ -39,6 +39,26 @@ static box Main {
 }
 
 #[test]
+fn parser_rejects_invalid_profile_rune_value() {
+    with_features(Some("rune"), || {
+        let src = r#"
+static box Main {
+  @rune Profile(allocator.turbo)
+  main() { return 0 }
+}
+"#;
+        let err = NyashParser::parse_from_string(src).expect_err("parse should fail");
+        let msg = err.to_string();
+        assert!(
+            msg.contains(
+                "[freeze:contract][parser/rune] Profile(allocator.fast|allocator.slow|substrate.leaf|intrinsic.leaf|raw.layout)"
+            ),
+            "unexpected error: {msg}"
+        );
+    });
+}
+
+#[test]
 fn parser_rejects_duplicate_contract_rune_value() {
     with_features(Some("rune"), || {
         let src = r#"
