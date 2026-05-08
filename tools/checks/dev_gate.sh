@@ -339,6 +339,9 @@ run_quick() {
   run_step "K2-wide Intrin first-row guard" \
     bash tools/checks/k2_wide_intrin_first_row_guard.sh
 
+  run_step "K2-wide export attrs consistency guard" \
+    bash tools/checks/k2_wide_export_attrs_consistency_guard.sh
+
   run_step "K2-wide hako_alloc handle policy guard" \
     bash tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
 

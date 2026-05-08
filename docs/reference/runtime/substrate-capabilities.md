@@ -48,6 +48,7 @@ The current live surface is intentionally narrow.
 | `hako.gc` | helper-shaped `write_barrier_i64` row exists |
 | `hako.osvm` | page-size plus reserve/commit/decommit rows exist |
 | `hako.intrin` | current-lane non-negative i64 bit-count rows exist: `clz_i64`, `ctz_i64`, `popcnt_i64`; backend optimization use is not live |
+| backend export attrs | consistency guard is live; only current weak attrs are allowed, while `noalias`/`nonnull`/`dereferenceable`/alignment export remain blocked |
 
 ## Reserved Surface
 
@@ -206,8 +207,49 @@ VM-hako subset behavior:
 
 Native behavior:
 
-- `hako_osvm_page_size_i64()` returns the platform page size using the native
-  keep below `hako.osvm`.
+- `hako_intrin_clz_i64`, `hako_intrin_ctz_i64`, and
+  `hako_intrin_popcnt_i64` validate current-lane non-negative `i64` values.
+- negative values set diagnostics TLS to `VALIDATION` and return `-1`.
+- `clz(0)` and `ctz(0)` return `64`.
+
+## LLVM Export Attrs Consistency Gate Row
+
+Decision: accepted for the M10a guard only. This row does not widen backend
+facts.
+
+Current live export attrs:
+
+- `llvm_py` runtime-helper policy may emit function `readonly`.
+- `llvm_py` runtime-helper policy may emit pointer-argument `nocapture`.
+- `.hako` runtime-decl manifest rows may emit only `nounwind`, `readonly`,
+  and `willreturn`.
+
+Owner modules:
+
+- `src/llvm_py/instructions/llvm_attrs.py`
+- `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
+- `lang/src/shared/backend/ll_emit/generated/runtime_decl_defaults.hako`
+- `tools/checks/k2_wide_export_attrs_consistency_guard.sh`
+
+Unsupported behavior:
+
+- `noalias`
+- `nonnull`
+- `dereferenceable`
+- backend alignment export
+- stronger `nocapture`
+- `readnone`
+
+Safety/verifier contract:
+
+- Strong attrs remain blocked until MIR contract facts and boundary export
+  facts have a verifier-owned consistency proof.
+- Backends must not infer strong attrs from helper names, app names, method
+  names, or manifest spelling alone.
+
+Fixture/gate:
+
+- `bash tools/checks/k2_wide_export_attrs_consistency_guard.sh`
 
 ## Manual Update Rule
 

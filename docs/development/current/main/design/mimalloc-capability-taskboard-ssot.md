@@ -74,7 +74,8 @@ backend may trust them for lowering or optimization.
 | `M7 hako.tls useful rows` | `live-narrow` | capability substrate | diagnostics TLS status helpers are live; generic thread/task-local slot and cache-slot primitive remain future splits; no helper-local cache exposure as final API |
 | `M8 hako.osvm allocator rows` | `live-narrow` | capability substrate + native keep | page_size/reserve/commit/decommit facades are live with native metal leaf below; allocator policy remains outside osvm |
 | `M9 intrinsic rows` | `live-narrow` | intrinsic metadata + LLVM/VM | `clz_i64`, `ctz_i64`, and `popcnt_i64` current-lane non-negative i64 rows are live; `prefetch`, `assume`, `unreachable`, unsigned-width semantics, and backend optimization use remain future splits |
-| `M10 LLVM export attrs` | `blocked` | optimization export | `noalias`, `nonnull`, `dereferenceable`, alignment, stronger `nocapture` only after verifier/export consistency gate |
+| `M10a export attrs consistency gate` | `live-narrow` | optimization export service | guard locks current weak export attrs and rejects strong attr names in active LLVM/runtime-decl export points; no backend fact widening |
+| `M10b LLVM export attrs widening` | `blocked` | optimization export | `noalias`, `nonnull`, `dereferenceable`, alignment, stronger `nocapture` only after verifier/export consistency proof |
 | `M11 const/static table rows` | `reserved` | language + MIR const data | static const tables for size classes; no runtime Array/Map construction for fixed tables |
 | `M12 mimalloc raw-page proof` | `blocked` | allocator substrate consumer | page/free-list fixture on raw substrate with `no_alloc` / `no_safepoint` proof gates |
 | `M13 allocator fast-path EXE proof` | `blocked` | EXE backend + substrate | direct EXE proof for allocator fast path; helper calls only where capability route says so |
@@ -92,10 +93,11 @@ backend may trust them for lowering or optimization.
 9. `M7 hako.tls useful rows`
 10. `M8 hako.osvm allocator rows`
 11. `M9 intrinsic rows`
-12. `M10 LLVM export attrs`
-13. `M11 const/static table rows`
-14. `M12 mimalloc raw-page proof`
-15. `M13 allocator fast-path EXE proof`
+12. `M10a export attrs consistency gate`
+13. `M10b LLVM export attrs widening`
+14. `M11 const/static table rows`
+15. `M12 mimalloc raw-page proof`
+16. `M13 allocator fast-path EXE proof`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change.

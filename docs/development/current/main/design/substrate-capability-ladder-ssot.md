@@ -125,6 +125,11 @@ capabilities before `.hako` code can claim ownership of the hot path:
   `readonly`/`readnone`, alignment attributes, `clz`/`ctz`/`popcnt`,
   prefetch/assume, and static const tables
 
+Current note: the export-attrs consistency guard is live for the narrow
+`readonly` / `nocapture` / runtime-decl attr surface. It is a drift guard only;
+it does not make `noalias`, `nonnull`, `dereferenceable`, or alignment export
+backend-active.
+
 Syntax alone does not make a row live. A capability row becomes live only when
 the MIR/value representation, VM/LLVM/Stage0 consumer, fail-fast diagnostics,
 fixture, and gate are all named. Until then, it remains reserved vocabulary.

@@ -101,7 +101,7 @@ Related:
 
 | Area | Role | Status | Current truth |
 | --- | --- | --- | --- |
-| `LLVM fact export` | `exporter` | `landed mechanism (narrow)` | conservative `readonly` and `nocapture` are applied late at builder finalization; stronger attrs/metadata such as `noalias`, `parallel_accesses`, and TBAA remain backlog. See [src/llvm_py/instructions/llvm_attrs.py](/home/tomoaki/git/hakorune-selfhost/src/llvm_py/instructions/llvm_attrs.py), [docs/development/current/main/phases/phase-261x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-261x/README.md). |
+| `LLVM fact export` | `exporter` | `landed mechanism (narrow)` | conservative `readonly` and `nocapture` are applied late at builder finalization; the export-attrs consistency guard now prevents strong attr drift in active export points. Stronger attrs/metadata such as `noalias`, `parallel_accesses`, and TBAA remain backlog. See [src/llvm_py/instructions/llvm_attrs.py](/home/tomoaki/git/hakorune-selfhost/src/llvm_py/instructions/llvm_attrs.py), [tools/checks/k2_wide_export_attrs_consistency_guard.sh](/home/tomoaki/git/hakorune-selfhost/tools/checks/k2_wide_export_attrs_consistency_guard.sh), [docs/development/current/main/phases/phase-261x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-261x/README.md). |
 | `boundary / C ABI export` | `exporter` | `landed mechanism (narrow)` | the live perf/mainline route is `.hako -> ny-llvmc(boundary pure-first) -> C ABI`, and narrow string/user-box corridors already consume MIR-side metadata there. This remains an operational mainline route, but architecturally it is an exporter/boundary row rather than an authority row. See [docs/development/current/main/design/optimization-tag-flow-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-tag-flow-ssot.md), [docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md), [crates/nyash_kernel/src/exports/string.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/exports/string.rs). |
 | `numeric loop / SIMD consumer` | `consumer` | `landed mechanism (narrow)` | integer map/sum/compare-select cuts already consume loop proofs and emit conservative loop-vectorization hints, while profitability stays downstream. See [docs/development/current/main/phases/phase-266x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-266x/README.md), [docs/development/current/main/phases/phase-267x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-267x/README.md), [docs/development/current/main/phases/phase-268x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-268x/README.md). |
 | `IPO / build-time consumer` | `consumer` | `owner seam + scaffold` | callable-node/call-edge contracts and build-policy seams are landed; ThinLTO can emit a companion bitcode artifact, but actual LLVM-side widening remains narrow. See [docs/development/current/main/phases/phase-272x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-272x/README.md), [docs/development/current/main/phases/phase-273x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-273x/README.md), [docs/development/current/main/phases/phase-274x/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-274x/README.md), [src/llvm_py/builders/ipo_build_policy.py](/home/tomoaki/git/hakorune-selfhost/src/llvm_py/builders/ipo_build_policy.py). |
@@ -111,7 +111,7 @@ Related:
 
 | Area | Role | Status | Current truth |
 | --- | --- | --- | --- |
-| `optimization export verifier` | `service` | `backlog` | a cross-cutting verifier for MIR contract -> LLVM/C-boundary export consistency is still missing. This should land before widening strong attrs/metadata such as `noalias`, `parallel_accesses`, and TBAA. |
+| `optimization export verifier` | `service` | `scaffold + backlog` | the export-attrs consistency guard is live and locks current weak attrs, but the cross-cutting MIR contract -> LLVM/C-boundary proof verifier is still missing. That proof must land before widening strong attrs/metadata such as `noalias`, `parallel_accesses`, and TBAA. |
 | `optimization task-card OS` | `service` | `landed mechanism` | live optimization work now reads through an explicit task-card OS with one `primary owner`, one `proof delta`, fixed verdict taxonomy, and immediate revert on reject. See [optimization-task-card-os-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-task-card-os-ssot.md), [perf-optimization-method-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/perf-optimization-method-ssot.md), [CURRENT_TASK.md](/home/tomoaki/git/hakorune-selfhost/CURRENT_TASK.md). |
 
 ## Current Strong vs Weak
@@ -127,11 +127,11 @@ Current strong points:
 Current weak points:
 
 - backend-active high-level hint consumption is not live yet
-- generic `noalias` / broader LLVM attr feed is not live yet
+- generic `noalias` / broader LLVM attr feed is not live yet; current guard only prevents accidental strong attr drift
 - full value-ABI coverage is not live yet
 - thin-entry still lacks a universal backend consumer
 - float-specific widening is still backlog
-- optimization export verifier is still missing
+- full optimization export proof verifier is still missing
 - current LLVM lane ownership must be read through `ny-llvmc(boundary pure-first)` daily ownership; `llvm_py` and `native_driver` remain keep/bootstrap lanes rather than perf authority owners
 
 ## Phase Pointers

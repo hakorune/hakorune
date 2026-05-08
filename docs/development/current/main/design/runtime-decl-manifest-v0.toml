@@ -1,6 +1,9 @@
 # Runtime Decl Manifest (V0)
 # Backend-private declare truth for `.hako ll emitter` compare/daily lanes.
 # Public ABI semantics remain owned by `abi-export-manifest-v0.toml`.
+# Current attr surface is intentionally weak: `nounwind`, `readonly`, and
+# `willreturn` only. Strong attrs such as noalias/nonnull/dereferenceable or
+# backend alignment export require verifier-owned proof before appearing here.
 
 manifest_version = "0"
 
