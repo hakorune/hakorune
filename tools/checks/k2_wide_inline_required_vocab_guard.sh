@@ -17,7 +17,8 @@ rg -F -q 'InlineRequest::Required' src/mir/inline_plan.rs
 rg -F -q 'source: "rune_lowering"' src/mir/inline_plan.rs
 rg -F -q 'InlineRequest::Required => {}' src/mir/passes/inline_soft_leaf.rs
 rg -F -q 'M11c-required-vocab live schema' docs/development/current/main/design/inline-plan-ssot.md
-rg -F -q '293x-056-M11C-REQUIRED-INLINE-VOCAB' docs/development/current/main/CURRENT_STATE.toml
+rg -F -q 'M11c-required-vocab is live as a vocabulary/preservation row.' \
+  docs/development/current/main/phases/phase-293x/293x-056-M11C-REQUIRED-INLINE-VOCAB.md
 
 if rg -F -q 'inline_required' lang/c-abi/shims -g '*.inc'; then
   echo "[$TAG] ERROR: .inc must not consume inline_required in M11c-required-vocab" >&2
