@@ -30,6 +30,8 @@
 - [x] `293x-022` BoxTorrent string field return EXE parity
 - [x] `293x-023` json-stream-aggregator EXE runtime parity boundary
 - [x] `293x-024` binary-trees EXE parity
+- [x] `293x-025` same-module body-shape cleanup
+- [x] `293x-026` mimalloc capability taskboard lock
 
 ## Gates
 

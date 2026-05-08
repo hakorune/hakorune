@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md
   - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
+  - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
   - docs/development/current/main/design/minimal-capability-modules-ssot.md
   - docs/development/current/main/design/minimum-verifier-ssot.md
   - docs/development/current/main/design/raw-array-substrate-ssot.md
@@ -62,6 +63,13 @@ substrate capability ladder first:
 - `no_alloc` / `no_safepoint` verifier before fast-path contracts are trusted
 - TLS and atomics with memory order before remote-free style algorithms
 - OS VM facade before page reserve/commit policy moves upward
+
+Implementation task order is fixed by:
+
+- [`mimalloc-capability-taskboard-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md)
+
+The implementation path is capability modules plus verifier-backed rune
+contracts, not a broad C-style unsafe language surface.
 
 The split is:
 

@@ -97,5 +97,10 @@ unless it reappears as the active EXE boundary.
   downstream global calls.
 - `293x-024`: binary-trees EXE parity landed, expanding same-module recursive
   user-box method body routes and typed-object handle global-call returns.
+- `293x-025`: same-module body-shape cleanup landed, moving shared body-shape
+  facts to a neutral MIR owner and tightening allocator-stress boundary pins.
+- `293x-026`: mimalloc capability taskboard lock landed; mimalloc-grade work
+  proceeds through capability modules plus `@rune Contract(...)` verifier rows,
+  with manual updates required per implementation row.
 - Next: continue the remaining real-app EXE boundary apps one at a time; do not
   hide compiler blockers in app code.

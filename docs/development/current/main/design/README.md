@@ -21,6 +21,7 @@
   - `docs/development/current/main/design/gc-tls-atomic-capability-ssot.md`
   - `docs/development/current/main/design/atomic-tls-gc-truthful-native-seam-inventory.md`
   - `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
+  - `docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md`
   - `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
   - `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
@@ -81,6 +82,7 @@
 - RawMap substrate（HashMap backend で深掘りしてよい substrate row SSOT）: `docs/development/current/main/design/raw-map-substrate-ssot.md`
 - GC/TLS/Atomic capability（allocator/runtime policy owner を深くする前の C4 SSOT）: `docs/development/current/main/design/gc-tls-atomic-capability-ssot.md`
 - Hako Alloc Policy/State（allocator policy/state owner と native metal keep の stop-line SSOT）: `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
+- Mimalloc capability taskboard（C風unsafeではなく capability module + `@rune Contract` verifier で進める実装順SSOT）: `docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md`
 - Stage2 AOT/native thin path（current native perf/mainline の thin-owner design note）: `docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md`
 - Value repr and ABI manifest（current value classes / ownership / manifest row truth）: `docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md`
 - Stage2 Fast Leaf Manifest（backend-private fast lane row contract）: `docs/development/current/main/design/stage2-fast-leaf-manifest-ssot.md`

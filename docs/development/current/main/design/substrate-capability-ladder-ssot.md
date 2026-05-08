@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/design/abi-export-inventory.md
   - docs/development/current/main/design/handle-cache-metal-helper-contract-ssot.md
   - docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md
+  - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
   - docs/development/current/main/design/minimal-capability-modules-ssot.md
   - docs/development/current/main/design/minimum-verifier-ssot.md
   - docs/development/current/main/design/raw-array-substrate-ssot.md
@@ -83,6 +84,25 @@ This doc is the owner for allocator-grade substrate capability reading.
 Do not create a separate mimalloc capability ladder. Add concrete rows here,
 or to the narrower `hako_alloc` policy/state contract when the row is
 allocator-specific.
+
+Concrete implementation ordering now lives in:
+
+- [`mimalloc-capability-taskboard-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md)
+
+The accepted design is capability-module based:
+
+```text
+hako.mem
+hako.buf
+hako.ptr
+hako.atomic
+hako.tls
+hako.osvm
+@rune Contract(...)
+minimum verifier
+```
+
+Do not replace this with a broad C-style unsafe surface.
 
 `mimalloc-lite` and allocator policy models are allowed to stay at the current
 Box/VM policy level. They can prove size-class choices, page/free-list state,

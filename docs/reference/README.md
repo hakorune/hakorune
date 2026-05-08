@@ -17,6 +17,10 @@
 - `task_scope` / `nowait` / `await` / `lock` / `scoped` / `worker_local` の reference
 - current structured-concurrency Phase-0 manual
 
+### runtime/
+- runtime/kernel/substrate reference manuals
+- current substrate capability manual: `docs/reference/runtime/substrate-capabilities.md`
+
 ### api/
 - ビルトインBoxのAPI仕様
 - 標準ライブラリリファレンス
@@ -33,3 +37,6 @@
 Concurrency note:
 - current user-facing concurrency manual owner は `docs/reference/concurrency/semantics.md`
 - `lock` / `scoped` / `worker_local` の state-model SSOT は `docs/reference/concurrency/lock_scoped_worker_local.md`
+
+Runtime substrate note:
+- current capability manual owner は `docs/reference/runtime/substrate-capabilities.md`
