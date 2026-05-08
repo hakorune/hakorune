@@ -10,6 +10,8 @@ pub mod mir_corebox_router_unified;
 #[cfg(feature = "legacy-tests")]
 #[path = "../mir_ctrlflow_break_continue.rs"]
 pub mod mir_ctrlflow_break_continue;
+#[path = "../mir_effect_capability_plan.rs"]
+pub mod mir_effect_capability_plan;
 #[cfg(feature = "legacy-tests")]
 #[path = "../mir_funcscanner_parse_params_trim_min.rs"]
 pub mod mir_funcscanner_parse_params_trim_min;

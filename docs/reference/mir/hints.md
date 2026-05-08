@@ -49,11 +49,16 @@ Current live verifier row:
   whose effect mask contains `Alloc`.
 - `Contract(no_safepoint)` is checked by the MIR verifier and rejects explicit
   `Safepoint` instructions.
+- `Contract(no_alloc)` / `Contract(no_safepoint)` populate MIR-owned
+  `metadata.effect_plans`; the verifier consumes those plans as the obligation
+  source.
 - Distinct `Contract(...)` runes may appear on the same declaration. Exact
   duplicate contract values are rejected.
 - `Contract(pure)` and `Contract(readonly)` remain metadata-only until their
   verifier rows land.
 - No contract is currently exported for backend optimization use.
+- `metadata.capability_plans` exists but is empty until capability syntax or
+  Profile expansion lands.
 - `Hint(inline/noinline/hot/cold)` is preserved into MIR-owned
   `metadata.inline_plans`.
 - `Hint(inline)` may trigger the narrow M11c-soft-leaf MIR optimizer row:

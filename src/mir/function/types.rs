@@ -12,22 +12,33 @@ use crate::mir::{
     array_text_residence_session_plan::ArrayTextResidenceSessionRoute,
     array_text_state_residence_plan::ArrayTextStateResidenceRoute,
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
-    exact_seed_backend_route::ExactSeedBackendRoute, extern_call_route_plan::ExternCallRoute,
-    generic_method_route_plan::GenericMethodRoute, global_call_route_plan::GlobalCallRoute,
-    inline_plan::InlinePlan, map_lookup_fusion_plan::MapLookupFusionRoute,
-    placement_effect::PlacementEffectRoute, storage_class::StorageClass,
-    string_corridor::StringCorridorFact, string_corridor_placement::StringCorridorCandidate,
+    effect_capability_plan::{CapabilityPlan, EffectPlan},
+    exact_seed_backend_route::ExactSeedBackendRoute,
+    extern_call_route_plan::ExternCallRoute,
+    generic_method_route_plan::GenericMethodRoute,
+    global_call_route_plan::GlobalCallRoute,
+    inline_plan::InlinePlan,
+    map_lookup_fusion_plan::MapLookupFusionRoute,
+    placement_effect::PlacementEffectRoute,
+    storage_class::StorageClass,
+    string_corridor::StringCorridorFact,
+    string_corridor_placement::StringCorridorCandidate,
     string_corridor_relation::StringCorridorRelation,
     string_direct_set_window_plan::StringDirectSetWindowRoute,
     string_kernel_plan::StringKernelPlan,
-    substring_views_micro_seed_plan::SubstringViewsMicroSeedRoute, sum_placement::SumPlacementFact,
-    sum_placement_layout::SumPlacementLayout, sum_placement_selection::SumPlacementSelection,
+    substring_views_micro_seed_plan::SubstringViewsMicroSeedRoute,
+    sum_placement::SumPlacementFact,
+    sum_placement_layout::SumPlacementLayout,
+    sum_placement_selection::SumPlacementSelection,
     sum_variant_project_seed_plan::SumVariantProjectSeedRoute,
-    sum_variant_tag_seed_plan::SumVariantTagSeedRoute, thin_entry::ThinEntryCandidate,
-    thin_entry_selection::ThinEntrySelection, user_box_method_route_plan::UserBoxMethodRoute,
+    sum_variant_tag_seed_plan::SumVariantTagSeedRoute,
+    thin_entry::ThinEntryCandidate,
+    thin_entry_selection::ThinEntrySelection,
+    user_box_method_route_plan::UserBoxMethodRoute,
     userbox_known_receiver_method_seed_plan::UserBoxKnownReceiverMethodSeedRoute,
     userbox_local_scalar_seed_plan::UserBoxLocalScalarSeedRoute,
-    userbox_loop_micro_seed_plan::UserBoxLoopMicroSeedRoute, value_consumer::ValueConsumerFacts,
+    userbox_loop_micro_seed_plan::UserBoxLoopMicroSeedRoute,
+    value_consumer::ValueConsumerFacts,
     BasicBlock, BasicBlockId, ConstValue, EffectMask, MirType, ValueId,
 };
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -112,6 +123,12 @@ pub struct FunctionMetadata {
     /// MIR-owned inline metadata derived from advisory `Hint(...)` runes.
     /// This is preservation-only until an InlinePlan transform/verifier row lands.
     pub inline_plans: Vec<InlinePlan>,
+
+    /// MIR-owned effect obligations derived from verifier-backed Contract runes.
+    pub effect_plans: Vec<EffectPlan>,
+
+    /// MIR-owned capability allowances. Empty until capability syntax/profile rows land.
+    pub capability_plans: Vec<CapabilityPlan>,
 
     /// No-op string corridor facts attached to current MIR values.
     /// These facts inventory current carriers (`str.slice`, `str.len`, `freeze.str`)

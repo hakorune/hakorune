@@ -833,6 +833,44 @@ pub(super) fn build_mir_json_root(
                         .collect(),
                 ),
             );
+            obj.insert(
+                "effect_plans".to_string(),
+                serde_json::Value::Array(
+                    f.metadata
+                        .effect_plans
+                        .iter()
+                        .map(|plan| {
+                            json!({
+                                "function": plan.function.as_str(),
+                                "requires": plan
+                                    .requires
+                                    .iter()
+                                    .map(|requirement| requirement.as_str())
+                                    .collect::<Vec<_>>(),
+                                "verified": plan.verified,
+                                "source": plan.source.as_str(),
+                            })
+                        })
+                        .collect(),
+                ),
+            );
+            obj.insert(
+                "capability_plans".to_string(),
+                serde_json::Value::Array(
+                    f.metadata
+                        .capability_plans
+                        .iter()
+                        .map(|plan| {
+                            json!({
+                                "function": plan.function.as_str(),
+                                "allow": &plan.allow,
+                                "verified": plan.verified,
+                                "source": plan.source.as_str(),
+                            })
+                        })
+                        .collect(),
+                ),
+            );
         }
 
         funs.push(json!({

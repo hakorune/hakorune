@@ -53,7 +53,7 @@ The current live surface is intentionally narrow.
 | backend export attrs | consistency guard is live; only current weak attrs are allowed, runtime-decl `readonly` rows must carry `memory = "read"`, while `noalias`/`nonnull`/`dereferenceable`/alignment export remain blocked |
 | static readonly data | backend-private static-data manifest can emit a u16 size-class fixture; source `static const NAME: u16[] = [...]` declarations lower to MIR `static_data_plans`; `NAME[index]` reads lower to MIR `StaticDataLoad` and current-lane `i64` values; narrow integer const expressions in u16 table initializers are live |
 | inline planning | `@rune Hint(inline/noinline/hot/cold)` and substrate-only `@rune Lowering(inline_required)` preserve MIR InlinePlan metadata; `Hint(inline)` has a narrow best-effort same-module MIR leaf inline row; required inline verifier acceptance is live-narrow for contract-proven leaf bodies; backend required-inline use is not live |
-| profile/effect/capability planning | `@rune Profile(...)`, EffectPlan, and CapabilityPlan are design-reserved only; Profile is future sugar over MIR facts and is not backend-readable |
+| profile/effect/capability planning | `EffectPlan` is live-narrow from `Contract(no_alloc/no_safepoint)` and feeds the MIR verifier; `CapabilityPlan` is emitted empty; `@rune Profile(...)` and `@rune Capability(...)` are not live parser surface |
 
 ## Reserved Surface
 
@@ -512,6 +512,23 @@ Strict allocator/substrate rows may later reserve:
 the narrow leaf-inline shape pass. Backends must not infer required inline from
 this row or from symbol names.
 
+## Effect / Capability Planning
+
+Decision: M11d is live as a MIR metadata boundary.
+
+```text
+@rune Contract(no_alloc)
+@rune Contract(no_safepoint)
+-> metadata.effect_plans
+-> rune contract verifier consumes EffectPlan
+```
+
+`metadata.capability_plans` is also emitted, but it is empty until capability
+syntax or Profile expansion is explicitly added. `Profile(...)` and
+`Capability(...)` are not parser surface yet.
+
+Backends and `.inc` must not consume `effect_plans` or `capability_plans`.
+
 ## Rune Profile / Plan Ordering
 
 Decision: `@rune Profile(...)` is reserved as a future authoring shortcut. It is
@@ -537,11 +554,10 @@ Reserved profile names:
 
 Task order:
 
-1. EffectPlan / CapabilityPlan boundary
-2. mimalloc raw-page proof using explicit facts
-3. Profile registry docs
-4. Profile expansion to primitive facts
-5. allocator fast-path EXE proof
+1. mimalloc raw-page proof using explicit facts
+2. Profile registry docs
+3. Profile expansion to primitive facts
+4. allocator fast-path EXE proof
 
 Backends must not branch on profile names. `.inc` / ll_emit must continue to
 read already-expanded MIR facts and routes only.

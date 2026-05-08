@@ -126,6 +126,18 @@ no_cache_write
 summary used to decide whether rune contracts and profile expansions are
 eligible for strict lowering.
 
+M11d live surface:
+
+```text
+Contract(no_alloc)      -> EffectRequirement::NoAlloc
+Contract(no_safepoint) -> EffectRequirement::NoSafepoint
+-> MIR metadata.effect_plans
+-> rune contract verifier consumes EffectPlan
+```
+
+`Contract(pure)` and `Contract(readonly)` are not live `EffectPlan`
+requirements yet.
+
 ### CapabilityPlan
 
 Owner: MIR metadata plus verifier.
@@ -145,6 +157,15 @@ hako.intrin
 
 Capability use must be checked structurally. Backends must not infer capability
 rights from method names, file names, or profile names.
+
+M11d live surface:
+
+```text
+metadata.capability_plans = []
+```
+
+There is no `@rune Capability(...)` syntax and no `@rune Profile(...)`
+expansion yet.
 
 ### LayoutPlan
 
@@ -212,26 +233,22 @@ intrin.ctz / intrin.popcnt / intrin.prefetch / intrin.assume
 This SSOT refines the mimalloc taskboard order without making any new behavior
 live.
 
-Immediate order after M11c-required-verify:
+Immediate order after M11d:
 
 ```text
-1. M11d EffectPlan / CapabilityPlan boundary
-   Add MIR-owned vocabulary/metadata boundaries for effect and capability
-   facts. No Profile expansion and no backend use yet.
-
-2. M12 mimalloc raw-page proof
+1. M12 mimalloc raw-page proof
    Prove a raw page/free-list fixture using explicit capability calls and
    existing contracts.
 
-3. M12b Profile registry docs
+2. M12b Profile registry docs
    Reserve profile names and expansion targets in one registry. No parser
    acceptance yet unless the row explicitly includes parser parity.
 
-4. M12c Profile expansion to facts
+3. M12c Profile expansion to facts
    Expand Profile(...) to primitive rune/Plan facts. Backend still reads only
    facts, not profile names.
 
-5. M13 allocator fast-path EXE proof
+4. M13 allocator fast-path EXE proof
    Use verified inline/effect/capability facts and route facts to prove the
    fast path in EXE.
 ```
@@ -290,7 +307,7 @@ Forbidden backend behavior:
 
 ## Current Reading
 
-The next implementation step is `M11d EffectPlan/CapabilityPlan boundary`.
-Profile exists only as a reserved design target. The clean path is to prove the
-effect/capability boundaries before adding Profile as a compact authoring
-surface over facts that already exist.
+The next implementation step is `M12 mimalloc raw-page proof`, with
+`M12b Profile registry docs` before any Profile parser acceptance. Profile
+exists only as a reserved design target. It must expand over existing facts
+rather than becoming a backend-readable semantic string.

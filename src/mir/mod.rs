@@ -34,6 +34,7 @@ pub mod core_method_op; // MIR-side CoreMethodOp carrier vocabulary
 pub mod definitions; // Unified MIR definitions (MirCall, Callee, etc.)
 pub mod diagnostics; // freeze diagnostics helpers (SSOT)
 pub mod effect;
+pub mod effect_capability_plan; // MIR-owned EffectPlan/CapabilityPlan metadata boundary
 pub mod escape_barrier; // escape operand-role vocabulary (SSOT)
 pub mod exact_seed_backend_route; // function-level backend route tags for exact seed bridges
 pub mod extern_call_route_plan; // MIR-owned extern call route policy plans

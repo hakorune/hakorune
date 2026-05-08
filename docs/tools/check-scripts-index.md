@@ -57,6 +57,8 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_inline_plan_soft_leaf_guard.sh` | M11c-soft-leaf の narrow same-module MIR leaf inline が optimizer pass に閉じ、`.inc` が inline 判断を持たないことを固定する。 |
 | `tools/checks/k2_wide_inline_required_vocab_guard.sh` | M11c-required-vocab の `@rune Lowering(inline_required)` が Rust parser / `.hako` parser / MIR `request=required` metadata に流れ、`.inc` が required inline 判断を持たないことを固定する。 |
 | `tools/checks/k2_wide_rune_contract_repeat_guard.sh` | M11c-contract-repeat の distinct `Contract(...)` repeatable parser policy を Rust parser / `.hako` parser に閉じ、同一 Contract 重複を fail-fast に保つことを固定する。 |
+| `tools/checks/k2_wide_inline_required_verify_guard.sh` | M11c-required-verify の `Lowering(inline_required)` verifier acceptance が `Contract(no_alloc/no_safepoint)` と narrow leaf-inline shape に閉じ、`.inc` が required inline を消費しないことを固定する。 |
+| `tools/checks/k2_wide_effect_capability_plan_guard.sh` | M11d の `EffectPlan` / `CapabilityPlan` metadata boundary が MIR/verifier に閉じ、Profile/Capability parser surface と `.inc` consumption が増えないことを固定する。 |
 | `tools/checks/k2_wide_return_proof_vocab_guard.sh` | M10c-pre の return proof vocabulary が docs/TOML/Rust で同期し、handle return class が LLVM pointer attrs を持たないことを固定する。 |
 | `tools/checks/k2_wide_runtime_decl_return_proof_row_guard.sh` | M10c-proof-row の runtime-decl return proof row schema が fixture/Rust validator/docs で同期し、active runtime-decl と `.inc` が strong attrs を出さないことを固定する。 |
 | `tools/checks/k2_wide_native_ptr_decl_type_guard.sh` | M10c-native-ptr-declare-type の `native_ptr_* -> ptr` 型名対応を `.hako` ll_emit reader に閉じ、型名 reader が `.inc` に漏れないことを固定する。 |

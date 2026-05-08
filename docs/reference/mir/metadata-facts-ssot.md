@@ -89,6 +89,8 @@ Contract:
 | `thin_entry_candidates` | array | Candidate sites for public-entry vs thin-entry selection |
 | `thin_entry_selections` | array | Manifest-bound thin-entry decisions |
 | `inline_plans` | array | InlinePlan rows derived from declaration-local `Hint(inline/noinline/hot/cold)` and `Lowering(inline_required)` runes; M11c-soft-leaf may consume `request=prefer` for narrow same-module MIR leaf inline, while `request=required` is verifier-backed metadata but not backend-active |
+| `effect_plans` | array | EffectPlan rows derived from live verifier-backed `Contract(no_alloc/no_safepoint)` runes; consumed by the MIR verifier, not by backends |
+| `capability_plans` | array | CapabilityPlan rows for future capability allowances; currently empty because Profile/Capability parser surfaces are disabled |
 | `sum_placement_facts` | array | Observed sum objectization / local-aggregate facts |
 | `sum_placement_selections` | array | Selected sum path (`local_aggregate` vs compat fallback) |
 | `sum_placement_layouts` | array | LLVM-side local aggregate layout choice for selected sums |
@@ -140,6 +142,29 @@ Soft inline is accepted only for one-block same-module `Callee::Global` bodies
 with no nested call/control and a narrow pure instruction vocabulary. Failed
 soft inline keeps the original call. Required inline verifier acceptance is
 live-narrow, but backend-required lowering remains reserved.
+
+## EffectPlan / CapabilityPlan Metadata
+
+M11d adds MIR-owned effect/capability boundaries without adding syntax or
+backend use.
+
+```text
+@rune Contract(no_alloc)
+@rune Contract(no_safepoint)
+-> metadata.effect_plans = [
+     {
+       function,
+       requires: ["no_alloc", "no_safepoint"],
+       verified: false,
+       source: "rune_contract"
+     }
+   ]
+-> metadata.capability_plans = []
+```
+
+The rune contract verifier consumes `effect_plans` as the obligation source.
+`Contract(pure)` / `Contract(readonly)` are not live EffectPlan requirements
+yet. `Profile(...)` and `Capability(...)` are not accepted parser surface.
 
 ## Value maps
 

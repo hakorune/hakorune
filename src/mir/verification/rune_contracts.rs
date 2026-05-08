@@ -1,5 +1,5 @@
-use crate::ast::RuneAttr;
 use crate::mir::contracts::backend_core_ops::instruction_tag;
+use crate::mir::effect_capability_plan::EffectRequirement;
 use crate::mir::function::MirFunction;
 use crate::mir::verification_types::VerificationError;
 use crate::mir::{Effect, MirInstruction};
@@ -11,16 +11,14 @@ struct RuneContractSet {
 }
 
 impl RuneContractSet {
-    fn from_runes(runes: &[RuneAttr]) -> Self {
+    fn from_effect_plans(function: &MirFunction) -> Self {
         let mut set = Self::default();
-        for rune in runes {
-            if rune.name != "Contract" {
-                continue;
-            }
-            match rune.args.first().map(String::as_str) {
-                Some("no_alloc") => set.no_alloc = true,
-                Some("no_safepoint") => set.no_safepoint = true,
-                _ => {}
+        for plan in &function.metadata.effect_plans {
+            for requirement in &plan.requires {
+                match requirement {
+                    EffectRequirement::NoAlloc => set.no_alloc = true,
+                    EffectRequirement::NoSafepoint => set.no_safepoint = true,
+                }
             }
         }
         set
@@ -32,7 +30,7 @@ impl RuneContractSet {
 }
 
 pub(super) fn check_rune_contracts(function: &MirFunction) -> Result<(), Vec<VerificationError>> {
-    let contracts = RuneContractSet::from_runes(&function.metadata.runes);
+    let contracts = RuneContractSet::from_effect_plans(function);
     if !contracts.has_live_checks() {
         return Ok(());
     }
@@ -97,6 +95,7 @@ fn contract_error(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ast::RuneAttr;
     use crate::mir::{
         BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction, MirType, ValueId,
     };
@@ -126,6 +125,7 @@ mod tests {
         for instruction in instructions {
             block.add_instruction(instruction);
         }
+        crate::mir::effect_capability_plan::refresh_function_effect_capability_plans(&mut function);
         function
     }
 
@@ -136,6 +136,23 @@ mod tests {
             .map(|error| error.to_string())
             .collect::<Vec<_>>()
             .join("\n")
+    }
+
+    #[test]
+    fn rune_contract_verifier_consumes_effect_plan_metadata() {
+        let mut function = test_function_with_contracts(
+            &["no_alloc"],
+            vec![MirInstruction::NewBox {
+                dst: ValueId::new(1),
+                box_type: "Box".to_string(),
+                args: vec![],
+            }],
+        );
+        function.metadata.runes.clear();
+
+        let text = error_text(&function);
+        assert!(text.contains("[freeze:contract][rune/no_alloc]"));
+        assert_eq!(function.metadata.effect_plans.len(), 1);
     }
 
     #[test]

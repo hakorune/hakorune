@@ -57,3 +57,37 @@ fn build_mir_json_root_emits_inline_plans_from_hint_runes() {
     assert_eq!(plans[0]["fallback"], "keep_call");
     assert_eq!(plans[0]["source"], "rune_hint");
 }
+
+#[test]
+fn build_mir_json_root_emits_effect_and_capability_plans() {
+    let mut module = MirModule::new("test".to_string());
+    let mut function = make_function("Main.fast/0", false);
+    function.metadata.runes = vec![
+        RuneAttr {
+            name: "Contract".to_string(),
+            args: vec!["no_alloc".to_string()],
+        },
+        RuneAttr {
+            name: "Contract".to_string(),
+            args: vec!["no_safepoint".to_string()],
+        },
+    ];
+    crate::mir::effect_capability_plan::refresh_function_effect_capability_plans(&mut function);
+    module.functions.insert("Main.fast/0".to_string(), function);
+
+    let root = build_mir_json_root(&module).expect("mir json root");
+    let metadata = &root["functions"][0]["metadata"];
+    let effect_plans = metadata["effect_plans"]
+        .as_array()
+        .expect("metadata.effect_plans array");
+    assert_eq!(effect_plans.len(), 1);
+    assert_eq!(effect_plans[0]["function"], "Main.fast/0");
+    assert_eq!(
+        effect_plans[0]["requires"],
+        serde_json::json!(["no_alloc", "no_safepoint"])
+    );
+    assert_eq!(effect_plans[0]["verified"], false);
+    assert_eq!(effect_plans[0]["source"], "rune_contract");
+
+    assert_eq!(metadata["capability_plans"], serde_json::json!([]));
+}

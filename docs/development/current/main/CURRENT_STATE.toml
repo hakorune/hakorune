@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-059-M11C-REQUIRED-INLINE-VERIFY"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-059-M11C-REQUIRED-INLINE-VERIFY.md"
-latest_card_summary = "293x-059 M11c-required-verify now fail-fast verifies Lowering(inline_required) against required contracts and the shared narrow leaf-inline shape."
+latest_card = "293x-060-M11D-EFFECT-CAPABILITY-PLAN"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-060-M11D-EFFECT-CAPABILITY-PLAN.md"
+latest_card_summary = "293x-060 M11d adds MIR-owned EffectPlan/CapabilityPlan metadata boundaries; Contract(no_alloc/no_safepoint) now feeds verifier through EffectPlan while Profile/Capability syntax and backend use stay disabled."
 
 current_blocker_token = "phase-293x mimalloc substrate capability ladder after real-app EXE parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
