@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/design/raw-array-substrate-ssot.md
   - docs/development/current/main/design/gc-tls-atomic-capability-ssot.md
   - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
+  - docs/development/current/main/design/static-const-table-syntax-ssot.md
   - docs/reference/runtime/substrate-capabilities.md
 ---
 
@@ -79,7 +80,7 @@ backend may trust them for lowering or optimization.
 | `M10c-pre pointer/handle return proof vocabulary` | `reserved` | optimization export proof | separates handle return classes from native pointer return classes before any strong LLVM pointer attrs |
 | `M10c LLVM export attrs widening` | `blocked` | optimization export | `noalias`, `nonnull`, `dereferenceable`, alignment, stronger `nocapture` only after pointer/native-ptr proof and verifier/export consistency proof |
 | `M11a static readonly data segment` | `live-narrow` | backend-private const data | backend-private static data manifest emits a readonly u16 size-class fixture as LLVM data; no source syntax or const eval |
-| `M11b const eval/static table syntax` | `reserved` | language + MIR const data | source-level static const tables and const eval/const fn for size classes; no runtime Array/Map construction for fixed tables |
+| `M11b const eval/static table syntax` | `next-card` | language + MIR const data | split into `M11b-decl` source static const table declarations, `M11b-load` table reads, and `M11b-eval` const eval/const fn; first implementation target is u16 declaration metadata only |
 | `M12 mimalloc raw-page proof` | `blocked` | allocator substrate consumer | page/free-list fixture on raw substrate with `no_alloc` / `no_safepoint` proof gates |
 | `M13 allocator fast-path EXE proof` | `blocked` | EXE backend + substrate | direct EXE proof for allocator fast path; helper calls only where capability route says so |
 
@@ -99,11 +100,13 @@ backend may trust them for lowering or optimization.
 12. `M10a export attrs consistency gate`
 13. `M10b runtime-decl readonly fact guard`
 14. `M11a static readonly data segment`
-15. `M11b const eval/static table syntax`
-16. `M10c-pre pointer/handle return proof vocabulary`
-17. `M10c LLVM export attrs widening`
-18. `M12 mimalloc raw-page proof`
-19. `M13 allocator fast-path EXE proof`
+15. `M11b-decl source static const table declaration`
+16. `M11b-load static table read route`
+17. `M11b-eval const eval/static table generation`
+18. `M10c-pre pointer/handle return proof vocabulary`
+19. `M10c LLVM export attrs widening`
+20. `M12 mimalloc raw-page proof`
+21. `M13 allocator fast-path EXE proof`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change.
@@ -210,6 +213,10 @@ the buffer facade. `M5` now checks `Contract(no_alloc)` and
 `Contract(no_safepoint)` in the MIR verifier, but those facts are not exported
 to backend optimization yet. `M9a` now exposes `hako.intrin` bit-count rows for
 current-lane non-negative i64 values; this does not activate
-`@rune IntrinsicCandidate` or backend optimization use. Do not jump to allocator
-fast-path lowering before the remaining verifier facts make raw access
-auditable.
+`@rune IntrinsicCandidate` or backend optimization use. `M11a` now proves the
+backend-private static readonly data seam with a generated u16 size-class
+fixture. The next implementation target is `M11b-decl`: source-level
+`static const NAME: u16[] = [...]` declarations flowing into MIR
+`static_data_plans`, with both Rust and `.hako` parser fronts considered. Do
+not jump to allocator fast-path lowering before the remaining verifier facts
+make raw access auditable.

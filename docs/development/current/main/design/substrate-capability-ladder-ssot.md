@@ -22,6 +22,7 @@ Related:
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
+  - docs/development/current/main/design/static-const-table-syntax-ssot.md
   - lang/src/runtime/collections/README.md
   - lang/src/hako_alloc/README.md
   - crates/nyash_kernel/src/plugin/handle_cache.rs
@@ -135,6 +136,11 @@ live. `handle_*` return classes and `native_ptr_*` return classes must not be
 collapsed: `handle_owned` is a runtime value class, not an LLVM pointer attr
 target. The next strong-attrs prerequisite is `M10c-pre pointer/handle return
 proof vocabulary`.
+
+Static const tables are split from that attrs lane. `M11a` is backend-private
+static readonly data only. `M11b` must flow through source parser metadata and
+MIR-owned `static_data_plans`; the backend must remain a row reader and must not
+infer allocator table meaning from symbol names.
 
 Syntax alone does not make a row live. A capability row becomes live only when
 the MIR/value representation, VM/LLVM/Stage0 consumer, fail-fast diagnostics,

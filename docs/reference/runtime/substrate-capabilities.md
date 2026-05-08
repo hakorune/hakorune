@@ -73,7 +73,8 @@ These names are reserved but not fully live as user-facing allocator substrate:
 - `prefetch`, `assume`, `unreachable`
 - full unsigned-width runtime semantics for intrinsic rows
 - `noalias`, `nonnull`, `dereferenceable`, stronger alignment export
-- const-evaluated static tables
+- source-level static const table declarations, table loads, and const-evaluated
+  static tables
 
 ## Pointer/Handle Return Proof Vocabulary
 
@@ -353,6 +354,53 @@ Safety/verifier contract:
 Fixture/gate:
 
 - `bash tools/checks/k2_wide_static_data_first_row_guard.sh`
+
+## Static Const Table Source Row
+
+Decision: reserved for M11b source syntax. The design SSOT is:
+
+- `docs/development/current/main/design/static-const-table-syntax-ssot.md`
+
+M11b is split into:
+
+- `M11b-decl`: source declaration to MIR `static_data_plans`
+- `M11b-load`: read route from static data
+- `M11b-eval`: const expressions and const fn
+
+Reserved first source shape:
+
+```hako
+static const SIZE_CLASS: u16[] = [
+  8, 16, 24, 32,
+]
+```
+
+Required future flow:
+
+```text
+source static const
+-> AST/Program metadata
+-> MIR module metadata static_data_plans
+-> backend data row reader
+-> LLVM readonly global
+```
+
+Current unsupported behavior:
+
+- The source syntax is not accepted yet.
+- Static table reads are not accepted yet.
+- Const eval and const fn are not accepted yet.
+- Source static const tables must not be lowered into runtime `ArrayBox` /
+  `MapBox` construction.
+
+Safety/verifier contract:
+
+- `M11b-decl` must handle Rust parser and `.hako` parser fronts explicitly.
+- MIR-owned `static_data_plans` must be the truth after parsing.
+- Backends must consume static data rows; they must not infer allocator table
+  meaning from symbol names or app names.
+- Unsupported element types, initializers, and out-of-range values must fail
+  fast at the declaration boundary.
 
 ## Manual Update Rule
 

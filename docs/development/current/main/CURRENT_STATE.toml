@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-041-M11A-STATIC-READONLY-DATA-SEGMENT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-041-M11A-STATIC-READONLY-DATA-SEGMENT.md"
-latest_card_summary = "Added the M11a backend-private static readonly data segment row with a generated u16 size-class fixture and ll_emit registry consumer."
+latest_card = "293x-042-M11B-STATIC-CONST-TABLE-DOCS-LOCK"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-042-M11B-STATIC-CONST-TABLE-DOCS-LOCK.md"
+latest_card_summary = "Locked the M11b static const table docs-first boundary, splitting declaration, load, and const-eval rows before implementation."
 
 current_blocker_token = "phase-293x mimalloc substrate capability ladder after real-app EXE parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

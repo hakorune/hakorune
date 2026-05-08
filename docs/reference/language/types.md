@@ -58,6 +58,40 @@ Deferred and not accepted by this row:
 Backends must not infer exact unsigned or fixed-width behavior from these names
 until the corresponding verifier/lowering rows are live.
 
+### Static Const Tables (M11b reserved)
+
+Decision: reserved, not live.
+
+The next static table direction is:
+
+```hako
+static const SIZE_CLASS: u16[] = [
+  8, 16, 24, 32,
+]
+```
+
+Current status:
+
+- The syntax is not accepted by current parsers yet.
+- The first planned element type is `u16`.
+- Values must be integer literals in the `0..65535` range when the row lands.
+- The declaration must lower to MIR module metadata `static_data_plans`.
+- Backends must emit readonly data from that plan.
+- Runtime `ArrayBox` / `MapBox` construction is not an accepted
+  implementation strategy for fixed static tables.
+
+Reserved follow-ups:
+
+- table read route
+- const expression evaluation
+- const fn
+- additional element types
+- explicit length in the type
+
+Design SSOT:
+
+- `docs/development/current/main/design/static-const-table-syntax-ssot.md`
+
 ### First-class enum surface (current landing)
 
 - `enum Name<T> { ... }` now parses as a first-class declaration surface.

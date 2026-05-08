@@ -25,6 +25,7 @@ Variables and scope
 Type system (SSOT)
 - See: reference/language/types.md — runtime truthiness, `+`/compare/equality semantics, and the role/limits of MIR type facts.
 - See: reference/language/option.md — public `Option<T>` direction and why compiler helper no-match must not use Option on Stage0.
+- Static const tables are reserved for M11b, not live yet. See reference/language/types.md “Static Const Tables (M11b reserved)” and `docs/development/current/main/design/static-const-table-syntax-ssot.md`.
 
 Grammar (EBNF)
 - See: reference/language/EBNF.md — Stage‑2 grammar specification used by parser implementations.
