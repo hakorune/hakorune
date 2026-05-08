@@ -59,6 +59,7 @@ static box RuntimeDeclRegistryBox {
     local vc = "" + value_class
     if vc == "ptr_const_i8" { return "ptr" }
     if me.is_native_ptr_class(vc) == 1 { return "ptr" }
+    if vc == "void" { return "void" }
     if vc == "imm_i32" { return "i32" }
     return "i64"
   }

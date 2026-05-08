@@ -21,6 +21,7 @@ SSOT = ROOT / "docs/development/current/main/design/return-proof-vocabulary-ssot
 TASKBOARD = ROOT / "docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
 REALLOC_CARD = ROOT / "docs/development/current/main/phases/phase-293x/293x-053-HAKO-MEM-REALLOC-RUNTIME-DECL.md"
 ARG_EMIT_CARD = ROOT / "docs/development/current/main/phases/phase-293x/293x-054-NATIVE-PTR-CALL-ARG-EMIT.md"
+FREE_CARD = ROOT / "docs/development/current/main/phases/phase-293x/293x-055-HAKO-MEM-FREE-VOID-RUNTIME-DECL.md"
 CURRENT = ROOT / "docs/development/current/main/CURRENT_STATE.toml"
 CALL_POLICY = ROOT / "lang/src/shared/backend/ll_emit/call_policy_box.hako"
 LL_TEXT = ROOT / "lang/src/shared/backend/ll_emit/ll_text_emit_box.hako"
@@ -37,6 +38,13 @@ ALLOWED_NATIVE_PTR_ROWS = {
     "hako_mem_realloc": {
         "args": ["native_ptr_nullable", "imm_i64"],
         "ret": "native_ptr_nullable",
+        "attrs": ["nounwind", "willreturn"],
+        "memory": "readwrite",
+        "lanes": ["hako-ll-min-v0", "compare"],
+    },
+    "hako_mem_free": {
+        "args": ["native_ptr_nullable"],
+        "ret": "void",
         "attrs": ["nounwind", "willreturn"],
         "memory": "readwrite",
         "lanes": ["hako-ll-min-v0", "compare"],
@@ -85,7 +93,9 @@ generated = GENERATED.read_text()
 for needle in [
     '.set("symbol", "hako_mem_alloc")',
     '.set("symbol", "hako_mem_realloc")',
+    '.set("symbol", "hako_mem_free")',
     '.set("ret", "native_ptr_nullable")',
+    '.set("ret", "void")',
     '.push("native_ptr_nullable")',
     '.push("imm_i64")',
     '.push("nounwind")',
@@ -100,13 +110,17 @@ for forbidden in ['"noalias"', '"nonnull"', '"dereferenceable"', '"align"', "ret
 for path, needle in [
     (SSOT, "Decision: accepted M10c-hako-mem-alloc-row lock."),
     (SSOT, "Decision: accepted M10c-hako-mem-realloc-row lock."),
+    (SSOT, "Decision: accepted M10c-hako-mem-free-void-row lock."),
     (SSOT, "hako_mem_alloc -> native_ptr_nullable"),
     (SSOT, "hako_mem_realloc -> native_ptr_nullable"),
+    (SSOT, "hako_mem_free(native_ptr_nullable) -> void"),
     (TASKBOARD, "`M10c-hako-mem-alloc-row` | `live-narrow`"),
     (TASKBOARD, "`M10c-hako-mem-realloc-row` | `live-narrow`"),
+    (TASKBOARD, "`M10c-hako-mem-free-void-row` | `live-narrow`"),
     (REALLOC_CARD, "M10c-hako-mem-realloc-row is live as the second active native pointer runtime-decl row."),
     (ARG_EMIT_CARD, "M10c-native-ptr-call-arg-emit is live for `.hako` ll_emit."),
-    (CURRENT, "293x-054 native pointer manifest args now validate"),
+    (FREE_CARD, "M10c-hako-mem-free-void-row is live as the third active hako.mem"),
+    (CURRENT, "293x-055 hako_mem_free is now a void runtime-decl row"),
 ]:
     if needle not in path.read_text():
         fail(f"{path}: missing lock text: {needle}")
@@ -118,6 +132,9 @@ for path, needle in [
     (CALL_POLICY, "extern_arg_class_mismatch"),
     (LL_TEXT, "RuntimeDeclRegistryBox.is_native_ptr_class(arg_kind)"),
     (LL_TEXT, 'out = out + "ptr " + me._reg(me._resolve_alias(facts, src_reg))'),
+    (REGISTRY, 'if vc == "void" { return "void" }'),
+    (LL_TEXT, 'if ret_ty == "void"'),
+    (LL_TEXT, 'call void @'),
 ]:
     if needle not in path.read_text():
         fail(f"{path}: missing native pointer arg emit lock: {needle}")

@@ -225,10 +225,14 @@ static box LlTextEmitBox {
     local ret_ty = RuntimeDeclRegistryBox.llvm_type_name(decl.get("ret"))
     local dst = inst.get("dst")
     local out = ""
-    if dst != null {
-      out = "  " + me._reg(dst) + " = call " + ret_ty + " @\"" + symbol + "\"("
+    if ret_ty == "void" {
+      out = "  call void @\"" + symbol + "\"("
     } else {
-      out = "  call " + ret_ty + " @\"" + symbol + "\"("
+      if dst != null {
+        out = "  " + me._reg(dst) + " = call " + ret_ty + " @\"" + symbol + "\"("
+      } else {
+        out = "  call " + ret_ty + " @\"" + symbol + "\"("
+      }
     }
     local arg_count = args.size()
     if callee_type == "Method" { arg_count = arg_count + 1 }
@@ -425,6 +429,7 @@ static box LlTextEmitBox {
     }
     if op == "ret" {
       local value_reg = inst.get("value")
+      if me._value_class(facts, value_reg) == "void" { return null }
       local operand = me._operand_i64(func, facts, value_reg)
       if me._is_bool_i1(facts, value_reg) == 1 {
         return "  %retz" + ("" + value_reg) + " = zext i1 " + operand + " to i64\n  ret i64 %retz" + ("" + value_reg) + "\n"

@@ -211,8 +211,30 @@ the LLVM call operand as `ptr`. It must not silently pass an `i64` value to a
 `ptr` declaration, and it must not insert backend-local casts to recover from a
 missing proof.
 
-`hako_mem_free` remains blocked from this runtime-decl lane until a void return
-class or explicit no-return-value declaration contract is fixed.
+Decision: accepted M10c-hako-mem-free-void-row lock.
+
+The third active memory runtime-decl row is:
+
+```text
+hako_mem_free(native_ptr_nullable) -> void
+```
+
+Contract:
+
+```toml
+symbol = "hako_mem_free"
+args = ["native_ptr_nullable"]
+ret = "void"
+attrs = ["nounwind", "willreturn"]
+memory = "readwrite"
+lanes = ["hako-ll-min-v0", "compare"]
+```
+
+This row exists to keep the memory capability ABI honest: the C ABI returns no
+value, and `.hako` ll_emit must emit `call void` rather than inventing an `i64`
+result. The argument is nullable because `hako_mem_free(NULL)` is a no-op at the
+C seam. This row does not introduce `ret_proofs`, pointer attrs, aliasing
+facts, or ownership inference.
 
 ## Machine Truth
 
