@@ -17,7 +17,10 @@ bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh
 
 echo "[k2-wide-metal-keep-inventory] --- doc/inventory lock ---"
 rg -F -q 'hako.atomic.fence_i64' "$INVENTORY_DOC"
+rg -F -q 'hako.atomic.fence_order_i64' "$INVENTORY_DOC"
 rg -F -q 'hako.tls.last_error_text_h' "$INVENTORY_DOC"
+rg -F -q 'hako.tls.last_error_is_ok_i64' "$INVENTORY_DOC"
+rg -F -q 'hako.tls.last_error_code_i64' "$INVENTORY_DOC"
 rg -F -q 'hako.gc.write_barrier_i64' "$INVENTORY_DOC"
 rg -F -q 'hako.osvm.reserve_bytes_i64' "$INVENTORY_DOC"
 rg -F -q 'The current live implementation row is `VM-only page/free-list policy-state prototype`.' "$ALLOC_DOC"

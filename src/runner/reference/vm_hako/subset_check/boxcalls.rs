@@ -261,6 +261,9 @@ pub(super) fn validate_boxcall_shape(inst: &Value) -> Result<(), String> {
         "read" | "close" => validate_boxcall_zero_or_one_reg_shape(inst, args, method),
         "order_relaxed_i64" | "order_acquire_i64" | "order_release_i64" | "order_acq_rel_i64"
         | "order_seq_cst_i64" => validate_boxcall_noarg_shape(inst, args, method),
+        "last_error_text_h" | "last_error_is_ok_i64" | "last_error_code_i64" => {
+            validate_boxcall_noarg_shape(inst, args, method)
+        }
         "is_valid_order_i64" | "fence_order_i64" => {
             validate_boxcall_one_reg_shape(inst, args, method)
         }

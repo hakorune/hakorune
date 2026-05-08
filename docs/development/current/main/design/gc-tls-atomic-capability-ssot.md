@@ -47,7 +47,8 @@ current implementation order is seam-first:
 2. `hako.gc` first live row
 3. helper-shaped first truthful `hako.tls` / `hako.atomic` rows
 4. `hako.atomic` memory-order vocabulary plus ordered fence row
-5. generic atomic load/store/CAS/fetch_add and final TLS vocabulary remain
+5. `hako.tls` diagnostics status helpers
+6. generic atomic load/store/CAS/fetch_add and final TLS vocabulary remain
    parked until truthful seams exist
 
 ## Module Roles
@@ -101,6 +102,8 @@ current implementation order is seam-first:
   - `AtomicCoreBox.is_valid_order_i64(order)`
   - `AtomicCoreBox.fence_order_i64(order)`
   - `TlsCoreBox.last_error_text_h()`
+  - `TlsCoreBox.last_error_is_ok_i64()`
+  - `TlsCoreBox.last_error_code_i64()`
   - `GcCoreBox.write_barrier_i64(handle_or_ptr)`
   - `OsVmCoreBox.reserve_bytes_i64(len_bytes)`
   - `OsVmCoreBox.commit_bytes_i64(base, len_bytes)`
@@ -116,7 +119,11 @@ current implementation order is seam-first:
 - first-row acceptance for `hako.tls` is:
   - vm-hako subset accepts `externcall(hako_last_error/1)`
   - vm-hako subset accepts `boxcall(TlsCoreBox.last_error_text_h)`
+  - vm-hako subset accepts `boxcall(TlsCoreBox.last_error_is_ok_i64)`
+  - vm-hako subset accepts `boxcall(TlsCoreBox.last_error_code_i64)`
   - substrate/vm route lock keeps `TlsCoreBox.last_error_text_h()` on `hako_last_error -> nyash.box.from_i8_string`
+  - diagnostics status helpers remain derived from the same diagnostics TLS
+    truth; they do not expose generic TLS slots
 - first-row acceptance for `hako.gc` is:
   - vm-hako subset accepts `externcall(nyash.gc.barrier_write/1)`
   - vm-hako subset accepts `boxcall(GcCoreBox.write_barrier_i64)`
@@ -162,7 +169,7 @@ current staging roots are reserved at:
 - unrestricted unsafe surface
 - minimum verifier broadening beyond the current docs lock
 - broad `atomic` widening beyond memory-order vocabulary and ordered fence
-- broad `tls` widening beyond `last_error_text_h`
+- broad `tls` widening beyond diagnostics status helpers
 - broad `gc` widening beyond `write_barrier_i64`
 - perf lane reopen
 

@@ -57,7 +57,8 @@ Current live capability subset:
 - `raw_map` now has live `entry_count_i64`, `cap_i64`, `probe_*`, and `slot_load/store_*` facades under `MapCoreBox`.
 - `atomic` now has live `fence_i64`, memory-order vocabulary, and
   `fence_order_i64(order)` helper-shaped facades.
-- `tls` now has a live `last_error_text_h` helper-shaped facade.
+- `tls` now has live diagnostics helpers: `last_error_text_h`,
+  `last_error_is_ok_i64`, and `last_error_code_i64`.
 - `gc` now has a live `write_barrier_i64` facade.
 - `osvm` now has already-landed `reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` facades; `page_size` stays parked.
 

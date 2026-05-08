@@ -453,6 +453,18 @@ static box MirCallV1HandlerBox {
           me._write_text_dst(regs, kinds, handle_regs, dst_tls, "OK")
           return
         }
+        if btype == "TlsCoreBox" && mname == "last_error_is_ok_i64" {
+          local dst_tls_ok = JsonFragBox.get_int(seg, "dst")
+          if dst_tls_ok == null { return }
+          me._write_scalar_dst(regs, kinds, handle_regs, dst_tls_ok, 1)
+          return
+        }
+        if btype == "TlsCoreBox" && mname == "last_error_code_i64" {
+          local dst_tls_code = JsonFragBox.get_int(seg, "dst")
+          if dst_tls_code == null { return }
+          me._write_scalar_dst(regs, kinds, handle_regs, dst_tls_code, 0)
+          return
+        }
         if me._try_handle_runtime_data_box(seg, regs, btype, mname) == 1 { return }
         if btype == "RuntimeDataBox" {
           if mname == "indexOf" || mname == "lastIndexOf" || mname == "substring" || mname == "substr" {

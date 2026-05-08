@@ -341,12 +341,30 @@ static box MirVmS0BoxcallBuiltinBox {
     }
 
     if method == "last_error_text_h" {
-      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      if me._args_count(seg) != 0 { return "[vm-hako/unimplemented op=boxcall(tls-last-error-text) args!=0]" }
       local dst_tls = me._find_int(seg, "dst")
       if dst_tls == null { return "[vm-hako/contract][boxcall-missing-dst]" }
       regs.set("" + dst_tls, "0")
       kinds.set("" + dst_tls, "handle")
       MirVmS0StateOpsBox.handle_set(handle_regs, dst_tls, "OK")
+      return "__NEXT__"
+    }
+
+    if method == "last_error_is_ok_i64" {
+      if me._args_count(seg) != 0 { return "[vm-hako/unimplemented op=boxcall(tls-last-error-status) args!=0]" }
+      local dst_tls_ok = me._find_int(seg, "dst")
+      if dst_tls_ok == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      regs.set("" + dst_tls_ok, "1")
+      kinds.set("" + dst_tls_ok, "scalar")
+      return "__NEXT__"
+    }
+
+    if method == "last_error_code_i64" {
+      if me._args_count(seg) != 0 { return "[vm-hako/unimplemented op=boxcall(tls-last-error-code) args!=0]" }
+      local dst_tls_code = me._find_int(seg, "dst")
+      if dst_tls_code == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      regs.set("" + dst_tls_code, "0")
+      kinds.set("" + dst_tls_code, "scalar")
       return "__NEXT__"
     }
 

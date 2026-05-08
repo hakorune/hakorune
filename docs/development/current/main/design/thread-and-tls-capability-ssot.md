@@ -29,11 +29,14 @@ Related:
 ### Current live strategy
 
 - current live TLS rows are helper-shaped only.
-- current first truthful row is:
+- current truthful diagnostics rows are:
   - `TlsCoreBox.last_error_text_h()`
+  - `TlsCoreBox.last_error_is_ok_i64()`
+  - `TlsCoreBox.last_error_code_i64()`
 - current helper truth includes:
   - diagnostics TLS (`hako_last_error`)
   - helper-local Rust TLS caches (`HANDLE_CACHE`, string span cache)
+  - diagnostics status helpers derived from `hako_last_error`
 
 ### Final end-state
 
@@ -61,3 +64,4 @@ Lowering rule:
 - keep final `thread_local` / `TlsCell<T>` as docs-locked end-state until a later widening wave
 - do not widen `hako.tls` into allocator policy or generic slot orchestration in this slice
 - do not define `ThreadLocal` as public Rune v0 surface; declaration form / library abstraction remains the preferred end-state
+- diagnostics status helpers do not make raw TLS slots or cache slots live

@@ -95,8 +95,9 @@ These remain parked until a truthful exported/native seam exists:
   1. truthful seam inventory
   2. first truthful rows (`gc`, helper-shaped `tls` / `atomic`, reserve/commit/decommit `osvm`)
   3. `hako.atomic` memory-order vocabulary plus ordered fence
-  4. generic atomic load/store/CAS/fetch_add and final TLS remain parked until truthful seams exist
-  5. `hako_alloc` policy/state rows widen beside this inventory, not inside it
+  4. `hako.tls` diagnostics status helpers
+  5. generic atomic load/store/CAS/fetch_add and final TLS remain parked until truthful seams exist
+  6. `hako_alloc` policy/state rows widen beside this inventory, not inside it
 
 ## Decision
 
@@ -106,6 +107,8 @@ These remain parked until a truthful exported/native seam exists:
   - `hako.atomic.is_valid_order_i64`
   - `hako.atomic.fence_order_i64`
   - `hako.tls.last_error_text_h`
+  - `hako.tls.last_error_is_ok_i64`
+  - `hako.tls.last_error_code_i64`
   - `hako.gc.write_barrier_i64`
   - `hako.osvm.reserve_bytes_i64`
   - `hako.osvm.commit_bytes_i64`

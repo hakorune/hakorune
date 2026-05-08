@@ -392,6 +392,14 @@ if ! rg -F -q 'last_error_text_h()' "$TLS_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] tls core missing last_error_text contract" >&2
   exit 1
 fi
+if ! rg -F -q 'last_error_is_ok_i64()' "$TLS_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] tls core missing last_error_is_ok contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'last_error_code_i64()' "$TLS_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] tls core missing last_error_code contract" >&2
+  exit 1
+fi
 if ! rg -F -q 'externcall "hako_last_error"(0)' "$TLS_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] tls core missing hako_last_error route" >&2
   exit 1
