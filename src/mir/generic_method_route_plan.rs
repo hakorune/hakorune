@@ -13,7 +13,7 @@ use super::generic_method_route_facts::{
 };
 use super::string_corridor::StringCorridorOp;
 use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
-use super::{BasicBlockId, Callee, ConstValue, MirFunction, MirInstruction, MirModule, ValueId};
+use super::{BasicBlockId, Callee, MirFunction, MirInstruction, MirModule, ValueId};
 use std::collections::BTreeMap;
 
 mod flow_origin;
