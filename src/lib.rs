@@ -102,6 +102,7 @@ pub mod providers;
 pub mod abi {
     pub mod nyrt_shim;
     pub mod return_proof;
+    pub mod runtime_decl_return_proof;
 }
 
 // Expose the macro engine module under a raw identifier; the source lives under `src/macro/`.

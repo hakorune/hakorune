@@ -1,0 +1,27 @@
+# Runtime Decl Return Proof Fixture (V0)
+# Schema fixture only. This file is not consumed by the runtime-decl defaults
+# generator and must not cause LLVM attrs to appear in `.inc` or generated
+# `.hako` defaults.
+
+manifest_version = "0"
+status = "schema-fixture-only"
+
+[[rows]]
+symbol = "fixture.handle.borrowed"
+ret = "handle_existing_borrowed"
+ret_proofs = ["no_refcount_mutation", "no_registry_write"]
+ret_proof_export = "disabled"
+
+[[rows]]
+symbol = "fixture.native.nonnull"
+ret = "native_ptr_nonnull"
+ret_proofs = ["nonnull"]
+ret_proof_export = "disabled"
+
+[[rows]]
+symbol = "fixture.native.dereferenceable"
+ret = "native_ptr_dereferenceable"
+ret_dereferenceable_len = "len"
+ret_dereferenceable_align = 16
+ret_proofs = ["nonnull", "dereferenceable_bytes", "alignment"]
+ret_proof_export = "disabled"

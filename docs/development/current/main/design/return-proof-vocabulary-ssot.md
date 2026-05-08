@@ -6,6 +6,7 @@ Scope: pointer-return / handle-return ownership proof vocabulary before strong L
 Related:
   - docs/development/current/main/design/runtime-decl-manifest-v0.toml
   - docs/development/current/main/design/return-proof-vocabulary-v0.toml
+  - docs/development/current/main/design/runtime-decl-return-proof-fixture-v0.toml
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
   - docs/reference/runtime/substrate-capabilities.md
 ---
@@ -86,6 +87,49 @@ native_ptr_dereferenceable(len, align):
 M10c-pre therefore enables future verification vocabulary, not optimizer
 behavior.
 
+## Runtime-Decl Return Proof Row
+
+Decision: accepted M10c-proof-row schema lock.
+
+This section owns the runtime-decl return proof row schema.
+
+Runtime-decl return proof rows may use the vocabulary above, but in the current
+lane they are schema/proof records only. They do not emit LLVM attrs.
+
+Row shape:
+
+```toml
+symbol = "..."
+ret = "native_ptr_nonnull"
+ret_proofs = ["nonnull"]
+ret_proof_export = "disabled"
+```
+
+Allowed `ret_proof_export` values:
+
+```text
+disabled
+verifier_required
+exported
+```
+
+Current rule:
+
+```text
+disabled:
+  allowed as schema/proof fixture only; emits no attrs
+
+verifier_required:
+  may be validated for native pointer rows only; emits no attrs
+
+exported:
+  blocked until M10c lands with verifier-owned export gates
+```
+
+The active `runtime-decl-manifest-v0.toml` must not grow `ret_proofs` or strong
+attrs until a later card wires verifier/export consumption. The fixture file is
+the only accepted schema host for M10c-proof-row.
+
 ## Machine Truth
 
 The machine-readable vocabulary lock is:
@@ -94,10 +138,22 @@ The machine-readable vocabulary lock is:
 docs/development/current/main/design/return-proof-vocabulary-v0.toml
 ```
 
+The runtime-decl row schema fixture is:
+
+```text
+docs/development/current/main/design/runtime-decl-return-proof-fixture-v0.toml
+```
+
 The Rust vocabulary mirror is:
 
 ```text
 src/abi/return_proof.rs
+```
+
+The runtime-decl proof-row validator is:
+
+```text
+src/abi/runtime_decl_return_proof.rs
 ```
 
 The guard must keep these in sync and must keep strong attrs absent from active
@@ -107,6 +163,7 @@ runtime declaration export surfaces until M10c lands with verifier-owned proof.
 
 - No new LLVM attrs.
 - No `runtime-decl` strong attrs.
+- No active `runtime-decl` `ret_proofs` rows.
 - No backend `.inc` pointer-attr inference.
 - No public ABI manifest widening.
 - No aliasing/lifetime verifier yet.
