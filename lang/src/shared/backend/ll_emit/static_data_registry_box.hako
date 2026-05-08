@@ -1,0 +1,56 @@
+using selfhost.shared.common.box_helpers as BoxHelpers
+using selfhost.shared.backend.ll_emit.generated.static_data_defaults as StaticDataDefaultsBox
+
+static box StaticDataRegistryBox {
+  rows() {
+    return StaticDataDefaultsBox.rows()
+  }
+
+  llvm_element_type(element_name) {
+    local name = "" + element_name
+    if name == "u8" { return "i8" }
+    if name == "u16" { return "i16" }
+    if name == "u32" { return "i32" }
+    if name == "u64" { return "i64" }
+    return null
+  }
+
+  build_global_line(row) {
+    if row == null { return null }
+    local values = row.get("values")
+    if values == null || BoxHelpers.is_array(values) != 1 { return null }
+    local ty = me.llvm_element_type(row.get("element"))
+    if ty == null { return null }
+
+    local n = BoxHelpers.array_len(values)
+    local out = "@" + ("" + row.get("symbol")) + " = " + ("" + row.get("linkage"))
+    if ("" + row.get("unnamed_addr")) == "1" { out = out + " unnamed_addr" }
+    out = out + " constant [" + ("" + n) + " x " + ty + "] ["
+
+    local i = 0
+    loop(i < n) {
+      if i > 0 { out = out + ", " }
+      out = out + ty + " " + ("" + BoxHelpers.array_get(values, i))
+      i = i + 1
+    }
+
+    out = out + "], align " + ("" + row.get("align"))
+    return out
+  }
+
+  emit_globals() {
+    local rows = me.rows()
+    local out = ""
+    local i = 0
+    local n = BoxHelpers.array_len(rows)
+    loop(i < n) {
+      local line = me.build_global_line(BoxHelpers.array_get(rows, i))
+      if line == null { return null }
+      out = out + line + "\n"
+      i = i + 1
+    }
+    return out
+  }
+}
+
+static box StaticDataRegistryMain { main(args) { return 0 } }

@@ -1,5 +1,6 @@
 using selfhost.shared.backend.ll_emit.call_selector as LlEmitCallSelectorBox
 using selfhost.shared.backend.ll_emit.runtime_decl_registry as RuntimeDeclRegistryBox
+using selfhost.shared.backend.ll_emit.static_data_registry as StaticDataRegistryBox
 
 static box LlTextEmitBox {
   _reg(reg_id) { return "%r" + ("" + reg_id) }
@@ -434,6 +435,9 @@ static box LlTextEmitBox {
     out = out + "\n"
     local blocks = func.get("blocks")
     local bi = 0
+    local static_data = StaticDataRegistryBox.emit_globals()
+    if static_data == null { return null }
+    out = out + static_data
     out = out + me._emit_string_globals(func, facts)
     if out.substring(out.length() - 1, out.length()) != "\n" { out = out + "\n" }
     out = out + "define i64 @\"ny_main\"() {\n"

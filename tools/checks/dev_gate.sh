@@ -304,7 +304,7 @@ run_quick() {
     cargo check --bin hakorune
 
   run_step "ABI/decl codegen drift guard" \
-    bash -lc 'python3 tools/abi_manifest_codegen.py --check && python3 tools/backend_runtime_decl_manifest_codegen.py --check'
+    bash -lc 'python3 tools/abi_manifest_codegen.py --check && python3 tools/backend_runtime_decl_manifest_codegen.py --check && python3 tools/backend_static_data_manifest_codegen.py --check'
 
   run_step "llvm_py unittest (strlen_fast)" \
     env PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py
@@ -341,6 +341,9 @@ run_quick() {
 
   run_step "K2-wide export attrs consistency guard" \
     bash tools/checks/k2_wide_export_attrs_consistency_guard.sh
+
+  run_step "K2-wide static data first-row guard" \
+    bash tools/checks/k2_wide_static_data_first_row_guard.sh
 
   run_step "K2-wide hako_alloc handle policy guard" \
     bash tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh

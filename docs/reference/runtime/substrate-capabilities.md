@@ -49,6 +49,7 @@ The current live surface is intentionally narrow.
 | `hako.osvm` | page-size plus reserve/commit/decommit rows exist |
 | `hako.intrin` | current-lane non-negative i64 bit-count rows exist: `clz_i64`, `ctz_i64`, `popcnt_i64`; backend optimization use is not live |
 | backend export attrs | consistency guard is live; only current weak attrs are allowed, runtime-decl `readonly` rows must carry `memory = "read"`, while `noalias`/`nonnull`/`dereferenceable`/alignment export remain blocked |
+| static readonly data | backend-private static-data manifest can emit a u16 size-class fixture as an LLVM readonly data segment; source syntax and const eval are not live |
 
 ## Reserved Surface
 
@@ -73,6 +74,38 @@ These names are reserved but not fully live as user-facing allocator substrate:
 - full unsigned-width runtime semantics for intrinsic rows
 - `noalias`, `nonnull`, `dereferenceable`, stronger alignment export
 - const-evaluated static tables
+
+## Pointer/Handle Return Proof Vocabulary
+
+Decision: reserved prerequisite for M10c strong LLVM attrs.
+
+Required future return classes:
+
+- `imm_i64`
+- `handle_existing_borrowed`
+- `handle_existing_owned_ref`
+- `handle_fresh_owned`
+- `native_ptr_nonnull`
+- `native_ptr_nullable`
+- `native_ptr_dereferenceable(len, align)`
+
+Required future proof vocabulary:
+
+- `fresh`
+- `nonnull`
+- `dereferenceable_bytes`
+- `alignment`
+- `noalias_scope`
+- `no_refcount_mutation`
+- `no_registry_write`
+
+Current rule:
+
+- `handle_*` return classes are runtime values, not LLVM pointer attr targets.
+- `native_ptr_*` return classes are the only future target for LLVM pointer
+  attrs such as `nonnull`, `dereferenceable`, alignment, and `noalias`.
+- M10c strong attrs remain blocked until this vocabulary has verifier-owned
+  proof and exporter gates.
 
 ## Atomic Ordered Fence Row
 
@@ -281,6 +314,45 @@ Safety/verifier contract:
 Fixture/gate:
 
 - `bash tools/checks/k2_wide_export_attrs_consistency_guard.sh`
+
+## Static Readonly Data Segment Row
+
+Decision: accepted for M11a backend-private static readonly data only.
+
+New surface:
+
+- `docs/development/current/main/design/static-data-manifest-v0.toml` owns
+  backend-private static data rows.
+- `lang/src/shared/backend/ll_emit/generated/static_data_defaults.hako` is
+  generated from the manifest.
+- `StaticDataRegistryBox` emits LLVM readonly global data rows for the
+  `.hako ll emitter`.
+
+Live row:
+
+- `.hako_size_class_u16_v0`
+  - element: `u16`
+  - count: `64`
+  - align: `2`
+  - purpose: mimalloc size-class fixture
+
+Unsupported behavior:
+
+- No source-level `static const` syntax.
+- No `const fn` or const eval.
+- No runtime `ArrayBox` / `MapBox` table construction in the target program.
+- No semantic size-class policy owner is implied by this manifest row.
+
+Safety/verifier contract:
+
+- The static-data manifest is backend-private declare/data truth.
+- The `.hako ll emitter` reads manifest rows and emits data; it does not
+  rediscover table meaning.
+- Public ABI semantics remain separate from this manifest.
+
+Fixture/gate:
+
+- `bash tools/checks/k2_wide_static_data_first_row_guard.sh`
 
 ## Manual Update Rule
 

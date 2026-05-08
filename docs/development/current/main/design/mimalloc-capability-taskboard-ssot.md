@@ -76,8 +76,10 @@ backend may trust them for lowering or optimization.
 | `M9 intrinsic rows` | `live-narrow` | intrinsic metadata + LLVM/VM | `clz_i64`, `ctz_i64`, and `popcnt_i64` current-lane non-negative i64 rows are live; `prefetch`, `assume`, `unreachable`, unsigned-width semantics, and backend optimization use remain future splits |
 | `M10a export attrs consistency gate` | `live-narrow` | optimization export service | guard locks current weak export attrs and rejects strong attr names in active LLVM/runtime-decl export points; no backend fact widening |
 | `M10b runtime-decl readonly fact guard` | `live-narrow` | optimization export service | manifest `readonly` attrs must match `memory = "read"`; missing readonly remains allowed for conservative rows |
-| `M10c LLVM export attrs widening` | `blocked` | optimization export | `noalias`, `nonnull`, `dereferenceable`, alignment, stronger `nocapture` only after verifier/export consistency proof |
-| `M11 const/static table rows` | `reserved` | language + MIR const data | static const tables for size classes; no runtime Array/Map construction for fixed tables |
+| `M10c-pre pointer/handle return proof vocabulary` | `reserved` | optimization export proof | separates handle return classes from native pointer return classes before any strong LLVM pointer attrs |
+| `M10c LLVM export attrs widening` | `blocked` | optimization export | `noalias`, `nonnull`, `dereferenceable`, alignment, stronger `nocapture` only after pointer/native-ptr proof and verifier/export consistency proof |
+| `M11a static readonly data segment` | `live-narrow` | backend-private const data | backend-private static data manifest emits a readonly u16 size-class fixture as LLVM data; no source syntax or const eval |
+| `M11b const eval/static table syntax` | `reserved` | language + MIR const data | source-level static const tables and const eval/const fn for size classes; no runtime Array/Map construction for fixed tables |
 | `M12 mimalloc raw-page proof` | `blocked` | allocator substrate consumer | page/free-list fixture on raw substrate with `no_alloc` / `no_safepoint` proof gates |
 | `M13 allocator fast-path EXE proof` | `blocked` | EXE backend + substrate | direct EXE proof for allocator fast path; helper calls only where capability route says so |
 
@@ -96,10 +98,12 @@ backend may trust them for lowering or optimization.
 11. `M9 intrinsic rows`
 12. `M10a export attrs consistency gate`
 13. `M10b runtime-decl readonly fact guard`
-14. `M10c LLVM export attrs widening`
-15. `M11 const/static table rows`
-16. `M12 mimalloc raw-page proof`
-17. `M13 allocator fast-path EXE proof`
+14. `M11a static readonly data segment`
+15. `M11b const eval/static table syntax`
+16. `M10c-pre pointer/handle return proof vocabulary`
+17. `M10c LLVM export attrs widening`
+18. `M12 mimalloc raw-page proof`
+19. `M13 allocator fast-path EXE proof`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change.

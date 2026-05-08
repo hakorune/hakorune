@@ -1,0 +1,24 @@
+# Static Data Manifest (V0)
+# Backend-private static readonly data truth for `.hako ll emitter` compare/daily lanes.
+# This is not language-level `static const` syntax and not public ABI.
+
+manifest_version = "0"
+
+[[rows]]
+symbol = ".hako_size_class_u16_v0"
+element = "u16"
+align = 2
+linkage = "private"
+unnamed_addr = true
+lanes = ["hako-ll-min-v0", "compare"]
+purpose = "mimalloc-size-class-fixture"
+values = [
+  8, 16, 24, 32, 40, 48, 56, 64,
+  80, 96, 112, 128, 160, 192, 224, 256,
+  320, 384, 448, 512, 640, 768, 896, 1024,
+  1280, 1536, 1792, 2048, 2560, 3072, 3584, 4096,
+  5120, 6144, 7168, 8192, 10240, 12288, 14336, 16384,
+  20480, 24576, 28672, 32768, 40960, 49152, 57344, 65535,
+  65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535,
+  65535, 65535, 65535, 65535, 65535, 65535, 65535, 65535,
+]

@@ -39,6 +39,7 @@ cards are added, so decisions should follow owner/gate/capsule evidence.
 | --- | --- | --- | --- | --- |
 | `tools/abi_manifest_codegen.py` | protected/generator | ABI manifest SSOT and generated Hako defaults | keep | maintain with ABI manifest |
 | `tools/backend_runtime_decl_manifest_codegen.py` | protected/generator | runtime-decl manifest SSOT and generated Hako defaults | keep | maintain with runtime-decl manifest |
+| `tools/backend_static_data_manifest_codegen.py` | protected/generator | static-data manifest SSOT and generated Hako defaults | keep | maintain with static-data manifest |
 | `tools/build_aot.ps1` | protected/platform | current README and Cranelift AOT guide refs | keep | keep with Windows AOT docs owner |
 | `tools/build_aot.sh` | protected/build | current README and Cranelift AOT guide refs | keep | keep with current AOT docs owner |
 | `tools/build_compiler_exe.sh` | protected/build | EXE-first parser bundle builder | keep | keep while EXE-first smokes call it |

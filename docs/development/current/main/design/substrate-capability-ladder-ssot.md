@@ -130,6 +130,12 @@ Current note: the export-attrs consistency guard is live for the narrow
 it does not make `noalias`, `nonnull`, `dereferenceable`, or alignment export
 backend-active.
 
+Strong pointer attrs require a separate proof vocabulary before they can become
+live. `handle_*` return classes and `native_ptr_*` return classes must not be
+collapsed: `handle_owned` is a runtime value class, not an LLVM pointer attr
+target. The next strong-attrs prerequisite is `M10c-pre pointer/handle return
+proof vocabulary`.
+
 Syntax alone does not make a row live. A capability row becomes live only when
 the MIR/value representation, VM/LLVM/Stage0 consumer, fail-fast diagnostics,
 fixture, and gate are all named. Until then, it remains reserved vocabulary.

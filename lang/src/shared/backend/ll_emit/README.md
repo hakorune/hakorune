@@ -8,6 +8,8 @@
 Current scope
 - `runtime_decl_registry_box.hako`
   - backend-private runtime declare truth の consumer
+- `static_data_registry_box.hako`
+  - backend-private static readonly data truth の consumer
 - `recipe_facts_v0_box.hako`
   - analysis-only facts sidecar
 - `ll_text_emit_box.hako`
@@ -28,6 +30,8 @@ Current subset
 - narrow `Global print`
 - narrow `StringBox.length`
 - narrow `StringBox.indexOf(StringBox)`
+- backend-private static readonly data globals from
+  `static-data-manifest-v0.toml`
 
 Non-goals
 - `AST -> LLVM` direct route
