@@ -1,7 +1,7 @@
 use super::*;
 use crate::mir::{
-    BasicBlock, BasicBlockId, BinaryOp, Callee, EffectMask, FunctionSignature, MirInstruction,
-    MirType, UserBoxFieldDecl, ValueId,
+    BasicBlock, BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, FunctionSignature,
+    MirInstruction, MirType, UserBoxFieldDecl, ValueId,
 };
 
 fn module_with_metadata(metadata: ModuleMetadata) -> MirModule {
