@@ -91,6 +91,21 @@ CLBG風の二分木生成・破棄・再帰checksumを行う小型ベンチ。
 - oversize と double-free の reject を固定
 - `hako_alloc` public seam 経由の deterministic accounting
 
+#### mimalloc-raw-page-proof
+**場所**: `mimalloc-raw-page-proof/main.hako`
+M12 substrate proof。`RawBufCoreBox` と `RawArrayCoreBox` を明示的に使う
+raw page/free-list fixture。
+
+```bash
+apps/mimalloc-raw-page-proof/test.sh
+```
+
+**特徴**:
+- raw page allocation/free は `RawBufCoreBox` 経由
+- free-list slot 操作は `RawArrayCoreBox` 経由
+- fast path に `Contract(no_alloc/no_safepoint)` を付けて MIR verify
+- Profile/Capability/unsafe/backend special-case は未使用
+
 #### json-stream-aggregator
 **場所**: `json-stream-aggregator/main.hako`
 JSONL風イベントを逐次読み、userごとのbytes/ok/failを集計する小型アプリ。
@@ -240,6 +255,7 @@ box TreeNode {
 - [x] BoxTorrent Mini（内容アドレスBox + 参照カウント連携）
 - [x] binary-trees（GC性能測定）
 - [x] mimalloc-lite（allocator-shaped model）
+- [x] mimalloc-raw-page-proof（M12 substrate proof）
 
 ### 🚧 実装予定（論文・ベンチマーク用）
 - [ ] n-body（数値計算）

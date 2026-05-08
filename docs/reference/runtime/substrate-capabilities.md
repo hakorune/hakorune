@@ -584,6 +584,37 @@ Mimalloc-grade native fast paths require:
 Until those rows are live, allocator code must remain narrow and fail-fast
 instead of silently relying on unsupported substrate behavior.
 
+## M12 Raw Page Proof
+
+Decision: M12 raw-page proof is live-narrow.
+
+Live fixture:
+
+```text
+apps/mimalloc-raw-page-proof/
+```
+
+Accepted shape:
+
+- `RawBufCoreBox.alloc_bytes_i64` / `free_bytes_i64` owns raw page byte
+  allocation/free calls.
+- `RawArrayCoreBox.slot_append_any` / `slot_load_i64` / `slot_store_i64` owns
+  explicit free-list slot operations.
+- `MiRawPageProof.acquireBlock` and `MiRawPageProof.releaseBlock` carry
+  `Contract(no_alloc)` and `Contract(no_safepoint)`.
+- The acceptance gate runs MIR verification and inspects emitted MIR JSON for
+  the expected `effect_plans` and capability calls.
+
+Not accepted by this row:
+
+- VM execution of `hako_mem_alloc` through the regular VM backend.
+- `@rune Profile(...)` parser acceptance.
+- `@rune Capability(...)` parser acceptance.
+- restricted `unsafe(...)` blocks.
+- backend or `.inc` allocator fast-path special cases.
+- pointer arithmetic, `repr(C)` layout, `sizeof`, `offsetof`, TLS, atomics, or
+  native pointer strong attrs.
+
 ## Numeric Substrate Row
 
 Decision: accepted for the M0 type-name/storage lock and current shift

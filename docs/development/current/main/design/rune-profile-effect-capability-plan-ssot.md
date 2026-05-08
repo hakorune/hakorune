@@ -236,7 +236,7 @@ live.
 Immediate order after M11d:
 
 ```text
-1. M12 mimalloc raw-page proof
+1. M12 mimalloc raw-page proof [live-narrow]
    Prove a raw page/free-list fixture using explicit capability calls and
    existing contracts.
 
@@ -307,7 +307,7 @@ Forbidden backend behavior:
 
 ## Current Reading
 
-The next implementation step is `M12 mimalloc raw-page proof`, with
-`M12b Profile registry docs` before any Profile parser acceptance. Profile
+`M12 mimalloc raw-page proof` is live-narrow. The next implementation step is
+`M12b Profile registry docs`, before any Profile parser acceptance. Profile
 exists only as a reserved design target. It must expand over existing facts
 rather than becoming a backend-readable semantic string.

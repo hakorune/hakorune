@@ -97,7 +97,7 @@ a new truth source and is not backend-readable.
 | `M11b const eval/static table syntax` | `live-narrow` | language + MIR const data | `M11b-decl` source `u16` static const table declarations, `M11b-load` static table reads, and `M11b-eval` narrow integer initializer expressions are live; const fn remains future |
 | `M11c InlinePlan rows` | `live-narrow` | rune metadata + MIR optimizer/verifier | `M11c-preserve` keeps `Hint(inline/noinline/hot/cold)` as MIR `inline_plans`; `M11c-soft-leaf` expands best-effort same-module pure leaf `Hint(inline)` calls in MIR; `M11c-required-vocab` preserves substrate-only `Lowering(inline_required)` as MIR `request=required`; `M11c-contract-repeat` permits distinct `Contract(...)` runes on one declaration; `M11c-required-verify` fail-fast verifies required contracts plus narrow leaf shape and sets accepted plans to `verified=true`; no backend use |
 | `M11d EffectPlan/CapabilityPlan boundary` | `live-narrow` | MIR metadata + verifier | `Contract(no_alloc/no_safepoint)` now populates MIR `effect_plans`, the rune contract verifier consumes `EffectPlan`, and `capability_plans` exists as an empty metadata boundary; no Profile/Capability parser surface and no backend use |
-| `M12 mimalloc raw-page proof` | `blocked` | allocator substrate consumer | page/free-list fixture on raw substrate with `no_alloc` / `no_safepoint` proof gates |
+| `M12 mimalloc raw-page proof` | `live-narrow` | allocator substrate consumer | `apps/mimalloc-raw-page-proof` proves a fixed raw page/free-list fixture over `RawBufCoreBox` + `RawArrayCoreBox`; fast-path acquire/release carry `Contract(no_alloc/no_safepoint)` and are MIR-verified, with no Profile/Capability parser surface or backend use |
 | `M12b Profile registry docs` | `reserved` | rune metadata + docs | reserve `allocator.fast`, `allocator.slow`, `substrate.leaf`, `intrinsic.leaf`, and `raw.layout` expansion targets; no parser acceptance unless a later row explicitly owns parser parity |
 | `M12c Profile expansion to facts` | `blocked` | rune metadata + MIR plans + verifier | expand `Profile(...)` to primitive `Hint` / `Lowering` / `Contract` / EffectPlan / CapabilityPlan facts after those facts exist; backend reads only expanded facts |
 | `M13 allocator fast-path EXE proof` | `blocked` | EXE backend + substrate | direct EXE proof for allocator fast path; helper calls only where capability route says so |
@@ -287,11 +287,12 @@ manifest extern arg classes before accepting direct extern calls and emits
 teaches `.hako` ll_emit to emit `call void` for the C ABI free seam instead of
 inventing an `i64` result. `M10c LLVM export attrs widening` is still blocked:
 the active hako.mem rows are nullable native pointers or void and have no
-eligible `nonnull` / `noalias` / `dereferenceable` proof row. The next
-actionable implementation target is `M12 mimalloc raw-page proof`. `M11d` now
-gives strict substrate work a MIR-owned effect/capability boundary:
+eligible `nonnull` / `noalias` / `dereferenceable` proof row. `M11d` gives
+strict substrate work a MIR-owned effect/capability boundary:
 `Contract(no_alloc/no_safepoint)` feeds `effect_plans`, the verifier consumes
 that metadata, and `capability_plans` is present but empty until capability
-syntax/profile expansion lands. Do not add Profile parser acceptance before a
+syntax/profile expansion lands. `M12` now proves the first raw page/free-list
+consumer fixture against those explicit facts. The next actionable target is
+`M12b Profile registry docs`. Do not add Profile parser acceptance before a
 profile registry card reserves exact expansions. Do not add allocator fast-path
-backend use before the raw-page proof has a fixture and gate.
+backend use before Profile expansion and fast-path proof rows are owned.
