@@ -230,10 +230,11 @@ It is the final libc / syscall / platform-difference absorber for Linux, Windows
   - these names are MIR-classified type annotation text
   - typed-object storage planning may use them as inline i64 storage hints
   - runtime values still use the current dynamic `Integer(i64)` lane
+  - current `>>` in that lane is signed i64 arithmetic shift
 - reserved target vocabulary:
   - explicit wrapping arithmetic
   - explicit checked arithmetic
-  - logical vs arithmetic shift distinction
+  - explicit logical right-shift surface distinct from current `>>`
 - live acceptance requires:
   - docs/reference Decision
   - value representation row
@@ -379,6 +380,7 @@ docs-side order to use when the allocator substrate lane opens.
 
 1. numeric substrate lock
    - fixed-width unsigned/pointer-sized vocabulary
+   - current `>>` signed i64 arithmetic shift lock
    - wrapping/checked arithmetic semantics
    - MIR/VM/LLVM/Stage0 acceptance named before syntax expansion
 2. raw layout vocabulary

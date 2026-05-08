@@ -34,7 +34,7 @@ The current live surface is intentionally narrow.
 
 | Capability | Current live reading |
 | --- | --- |
-| numeric substrate | fixed-width and pointer-sized type names are classified by MIR metadata for storage planning; runtime values still use the current `Integer(i64)` lane |
+| numeric substrate | fixed-width and pointer-sized type names are classified by MIR metadata for storage planning; runtime values still use the current `Integer(i64)` lane; current `>>` is signed i64 arithmetic shift |
 | `hako.mem` | allocation facade rows exist under `MemCoreBox`; exact public surface is still substrate-internal |
 | `hako.buf` | `len/cap/reserve/grow` facade rows exist under `BufCoreBox` |
 | `hako.ptr` | typed pointer/span facade is staged for current raw collection routes |
@@ -53,7 +53,7 @@ These names are reserved but not fully live as user-facing allocator substrate:
 - exact-width integer runtime semantics beyond the current `Integer(i64)` lane
 - numeric literal suffixes such as `1u64` / `64usize`
 - wrapping and checked arithmetic syntax
-- logical vs arithmetic shift distinction
+- logical right-shift surface distinct from current `>>`
 - raw layout / repr-like structs
 - `sizeof`, `offsetof`, explicit alignment
 - `MaybeInit`
@@ -128,7 +128,8 @@ instead of silently relying on unsupported substrate behavior.
 
 ## Numeric Substrate Row
 
-Decision: accepted for the M0 type-name/storage lock.
+Decision: accepted for the M0 type-name/storage lock and current shift
+semantics lock.
 
 New surface:
 
@@ -142,15 +143,16 @@ Owner module:
 Accepted backends:
 
 - VM: current dynamic `Integer(i64)` behavior only.
+- MIR/VM/LLVM: current `>>` is signed i64 arithmetic right shift.
 - EXE: typed-object slots may use inline i64 storage for these declared type
   names.
 
 Unsupported backend behavior:
 
 - Any consumer that requires exact width, unsigned range, literal suffixes,
-  wrapping arithmetic, checked arithmetic, or logical-vs-arithmetic shift
-  semantics must fail fast or stay reserved. It must not silently infer those
-  semantics from the type name.
+  wrapping arithmetic, checked arithmetic, or logical right shift must fail
+  fast or stay reserved. It must not silently infer those semantics from the
+  type name or from current `>>`.
 
 Safety/verifier contract:
 
@@ -161,3 +163,5 @@ Fixture/gate:
 
 - `cargo test -q numeric_substrate --lib`
 - `cargo test -q typed_object_plan --lib`
+- `cargo test -q mir_numeric_shift_semantics --lib`
+- `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_binop_numeric_tail.py`

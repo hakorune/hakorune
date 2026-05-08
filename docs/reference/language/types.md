@@ -40,6 +40,7 @@ Current live semantics are intentionally narrow:
 - The parser treats these as ordinary `TYPE_REF` identifiers; no new tokenizer
   tokens are required in Rust or `.hako` parser fronts.
 - Runtime values still execute on the current dynamic `Integer(i64)` lane.
+- The current `>>` operator in that lane is signed i64 arithmetic right shift.
 - Typed-object EXE storage planning may use these names as inline i64 slot
   storage hints.
 - The original declared type name is preserved so later exact-width rows can
@@ -51,7 +52,7 @@ Deferred and not accepted by this row:
 - static range checks and unsigned overflow behavior
 - `u64` values outside signed i64
 - wrapping / checked arithmetic syntax
-- logical shift vs arithmetic shift distinction
+- logical right-shift syntax or intrinsic distinct from current `>>`
 - MIR JSON exact-width numeric const tags
 
 Backends must not infer exact unsigned or fixed-width behavior from these names

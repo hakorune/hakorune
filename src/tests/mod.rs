@@ -21,6 +21,7 @@ pub mod llvm_bitops_test;
 pub mod macro_tests;
 pub mod mir;
 pub mod mir_direct_route_decode_escapes;
+pub mod mir_numeric_shift_semantics;
 pub mod namingbox_static_method_id; // Phase 21.7++ Phase 1: StaticMethodId structure tests
 pub mod nyash_abi_basic;
 pub mod parser;

@@ -64,7 +64,7 @@ backend may trust them for lowering or optimization.
 | Row | Status | Owner | Required output |
 | --- | --- | --- | --- |
 | `M0a numeric type-name storage lock` | `live-narrow` | language + MIR + typed-object storage | `usize/isize` and fixed-width integer type-name classifier; typed-object inline i64 storage hints; exact width/range/overflow deferred |
-| `M0b numeric arithmetic semantics lock` | `next-card` | language + MIR + backends | logical/arithmetic shift distinction, wrapping/checked arithmetic decision, fixtures, manual update |
+| `M0b numeric arithmetic semantics lock` | `live-narrow` | language + MIR + backends | current `>>` is signed i64 arithmetic shift; logical shift and wrapping/checked arithmetic remain explicit future rows |
 | `M1 raw layout vocabulary` | `reserved` | language + MIR layout facts | raw layout distinct from `box`, alignment, `sizeof`, `offsetof`, repr-like contract, fail-fast unsupported backends |
 | `M2 hako.mem/buf/ptr widening` | `live-narrow` | capability substrate | restricted memory/buffer/pointer facades, no unrestricted unsafe, verifier hooks named |
 | `M3 RawBuf + RawArray allocator fixture` | `live-narrow` | algorithm substrate | allocator-shaped fixture using RawBuf/RawArray only; no TLS/atomic/OSVM dependency |
@@ -190,6 +190,8 @@ Current real-app work may continue on VM/EXE parity using typed-object planning.
 That is separate from this taskboard.
 
 The first mimalloc-grade substrate card landed as `M0a numeric type-name
-storage lock`. The next numeric row is `M0b numeric arithmetic semantics lock`;
-do not jump to raw pointers or allocator fast-path lowering when exact
-width/overflow semantics are the active blocker.
+storage lock`. `M0b numeric arithmetic semantics lock` now fixes the current
+`>>` behavior as signed i64 arithmetic shift, while logical shift and
+wrapping/checked arithmetic remain future explicit rows. Do not jump to raw
+pointers or allocator fast-path lowering when exact width/overflow semantics
+are the active blocker.

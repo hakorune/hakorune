@@ -93,6 +93,31 @@ class TestBinopNumericTail(unittest.TestCase):
         self.assertIn("shl_", getattr(vmap[3], "name", ""))
         self.assertIn(" shl i64 ", str(mod))
 
+    def test_right_shift_lowers_to_arithmetic_shift(self):
+        mod, builder, bb, i64 = self._make_builder()
+        resolver = _ResolverStub()
+        vmap = {1: ir.Constant(i64, -8), 2: ir.Constant(i64, 1)}
+
+        lower_binop(
+            builder,
+            resolver,
+            ">>",
+            1,
+            2,
+            3,
+            vmap,
+            bb,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+            dst_type="i64",
+        )
+
+        ir_text = str(mod)
+        self.assertIn("ashr_", getattr(vmap[3], "name", ""))
+        self.assertIn(" ashr i64 ", ir_text)
+        self.assertNotIn(" lshr i64 ", ir_text)
+
 
 if __name__ == "__main__":
     unittest.main()
