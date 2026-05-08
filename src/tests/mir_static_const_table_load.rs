@@ -68,6 +68,30 @@ static box Main {
 }
 
 #[test]
+fn static_const_table_const_exprs_flow_to_load_value() {
+    let source = r#"
+static const SIZE_CLASS: u16[] = [8 + 8, 3 * 8, 1 << 5, (40 - 8) | 1]
+static box Main {
+  main() {
+    return SIZE_CLASS[3]
+  }
+}
+"#;
+
+    let module = compile_static_table_source(source);
+    let plan = module
+        .metadata
+        .static_data_plans
+        .first()
+        .expect("static data plan");
+    assert_eq!(plan.values, vec![16, 24, 32, 33]);
+
+    let mut vm = VM::new();
+    let out = vm.execute_module(&module).expect("vm exec");
+    assert_eq!(out.to_string_box().value, "33");
+}
+
+#[test]
 fn static_const_table_load_vm_rejects_out_of_range_index() {
     let source = r#"
 static const SIZE_CLASS: u16[] = [8, 16, 24, 32]

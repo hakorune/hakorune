@@ -108,7 +108,7 @@ fn source_to_program_json_v0_strict_accepts_stage1_cli_env_source() {
 #[test]
 fn source_to_program_json_v0_emits_static_data_plans_for_static_const_table() {
     let source = r#"
-static const SIZE_CLASS: u16[] = [8, 16, 24, 32]
+static const SIZE_CLASS: u16[] = [8 + 8, 3 * 8, 1 << 5, (40 - 8) | 1]
 static box Main {
   main() {
     return 0
@@ -128,7 +128,7 @@ static box Main {
     assert_eq!(plans[0]["align"], 2);
     assert_eq!(plans[0]["linkage"], "private");
     assert_eq!(plans[0]["unnamed_addr"], true);
-    assert_eq!(plans[0]["values"], serde_json::json!([8, 16, 24, 32]));
+    assert_eq!(plans[0]["values"], serde_json::json!([16, 24, 32, 33]));
 }
 
 #[test]

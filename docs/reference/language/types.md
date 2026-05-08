@@ -60,14 +60,14 @@ until the corresponding verifier/lowering rows are live.
 
 ### Static Const Tables (M11b live)
 
-Decision: the first declaration and read rows are live. Const evaluation is
-still reserved.
+Decision: the first declaration, read, and narrow integer const-expression rows
+are live. Const fn is still reserved.
 
 Accepted first shape:
 
 ```hako
 static const SIZE_CLASS: u16[] = [
-  8, 16, 24, 32,
+  8 + 8, 3 * 8, 1 << 5, (40 - 8) | 1,
 ]
 ```
 
@@ -75,7 +75,9 @@ Current status:
 
 - Rust parser and `.hako` parser accept the first `u16[]` declaration shape.
 - The only accepted element type is `u16`.
-- Values must be integer literals in the `0..65535` range.
+- Values must evaluate to the `0..65535` range.
+- Initializer elements may use integer literals, unary `-`, parentheses, and
+  `+`, `-`, `*`, `/`, `%`, `<<`, `>>`, `&`, `|`, `^`.
 - The declaration lowers to MIR module metadata `static_data_plans`.
 - `NAME[index]` reads from a declared static const table and lowers to MIR
   `StaticDataLoad`.

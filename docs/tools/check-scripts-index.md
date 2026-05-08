@@ -52,6 +52,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_rawbuf_first_row_guard.sh` | `RawBufCoreBox` の最小 allocation facade が `MemCoreBox` 直上に留まり、allocator policy/state や layout/MaybeInit/TLS/atomic/OSVM に広がらないことを固定する。 |
 | `tools/checks/k2_wide_static_const_table_decl_guard.sh` | M11b-decl の `static const NAME: u16[]` 受理形が Rust parser / `.hako` parser / Program JSON / MIR `static_data_plans` / ll_emit reader に流れることを固定する。 |
 | `tools/checks/k2_wide_static_const_table_load_guard.sh` | M11b-load の `NAME[index]` 受理形が MIR `StaticDataLoad` / MIR JSON `static_data_load` / VM metadata read / ll_emit direct load に流れることを固定する。 |
+| `tools/checks/k2_wide_static_const_table_eval_guard.sh` | M11b-eval の `u16[]` initializer integer const expressions が Rust parser / `.hako` parser / Program JSON / MIR metadata に evaluated values として流れることを固定する。 |
 
 ## Env Hygiene
 

@@ -376,6 +376,243 @@ box ParserBox {
     return "[freeze:contract][static-const/" + tag + "]"
   }
 
+  static_const_eval_error(tag) {
+    return "!" + tag
+  }
+
+  static_const_eval_is_error(ret) {
+    if ret == null { return 1 }
+    if ("" + ret).length() == 0 { return 1 }
+    if ("" + ret).substring(0, 1) == "!" { return 1 }
+    return 0
+  }
+
+  static_const_eval_error_tag(ret) {
+    local s = "" + ret
+    if s.length() <= 1 { return "unsupported-initializer" }
+    return s.substring(1, s.length())
+  }
+
+  static_const_eval_pair(value, pos) {
+    return StringHelpers.int_to_str(value) + "@" + StringHelpers.int_to_str(pos)
+  }
+
+  static_const_eval_value(ret) {
+    local s = "" + ret
+    local at = s.lastIndexOf("@")
+    if at < 0 { return 0 }
+    return StringHelpers.to_i64(s.substring(0, at))
+  }
+
+  static_const_eval_pos(ret) {
+    local s = "" + ret
+    local at = s.lastIndexOf("@")
+    if at < 0 { return 0 }
+    return StringHelpers.to_i64(s.substring(at + 1, s.length()))
+  }
+
+  static_const_bitand(lhs, rhs) {
+    local a = lhs
+    local b = rhs
+    local bit = 1
+    local out = 0
+    loop(a > 0 || b > 0) {
+      local abit = a % 2
+      local bbit = b % 2
+      if abit == 1 && bbit == 1 { out = out + bit }
+      a = a / 2
+      b = b / 2
+      bit = bit * 2
+    }
+    return out
+  }
+
+  static_const_bitor(lhs, rhs) {
+    local a = lhs
+    local b = rhs
+    local bit = 1
+    local out = 0
+    loop(a > 0 || b > 0) {
+      local abit = a % 2
+      local bbit = b % 2
+      if abit == 1 || bbit == 1 { out = out + bit }
+      a = a / 2
+      b = b / 2
+      bit = bit * 2
+    }
+    return out
+  }
+
+  static_const_bitxor(lhs, rhs) {
+    local a = lhs
+    local b = rhs
+    local bit = 1
+    local out = 0
+    loop(a > 0 || b > 0) {
+      local abit = a % 2
+      local bbit = b % 2
+      if (abit == 1 && bbit == 0) || (abit == 0 && bbit == 1) { out = out + bit }
+      a = a / 2
+      b = b / 2
+      bit = bit * 2
+    }
+    return out
+  }
+
+  static_const_eval_u16_expr(expr) {
+    local text = ParserStringUtilsBox.trim(expr)
+    if text.length() == 0 { return me.static_const_eval_error("unsupported-initializer") }
+    local ret = me.static_const_parse_bitor(text, 0)
+    if me.static_const_eval_is_error(ret) == 1 { return ret }
+    local pos = ParserStringUtilsBox.skip_ws(text, me.static_const_eval_pos(ret))
+    if pos != text.length() { return me.static_const_eval_error("unsupported-initializer") }
+    local value = me.static_const_eval_value(ret)
+    if value < 0 || value > 65535 { return me.static_const_eval_error("value-out-of-range") }
+    return StringHelpers.int_to_str(value)
+  }
+
+  static_const_parse_bitor(text, pos) {
+    local ret = me.static_const_parse_bitxor(text, pos)
+    if me.static_const_eval_is_error(ret) == 1 { return ret }
+    local value = me.static_const_eval_value(ret)
+    pos = ParserStringUtilsBox.skip_ws(text, me.static_const_eval_pos(ret))
+    loop(pos < text.length() && text.substring(pos, pos + 1) == "|") {
+      local rhs = me.static_const_parse_bitxor(text, pos + 1)
+      if me.static_const_eval_is_error(rhs) == 1 { return rhs }
+      local rv = me.static_const_eval_value(rhs)
+      if value < 0 || rv < 0 { return me.static_const_eval_error("unsupported-initializer") }
+      value = me.static_const_bitor(value, rv)
+      pos = ParserStringUtilsBox.skip_ws(text, me.static_const_eval_pos(rhs))
+    }
+    return me.static_const_eval_pair(value, pos)
+  }
+
+  static_const_parse_bitxor(text, pos) {
+    local ret = me.static_const_parse_bitand(text, pos)
+    if me.static_const_eval_is_error(ret) == 1 { return ret }
+    local value = me.static_const_eval_value(ret)
+    pos = ParserStringUtilsBox.skip_ws(text, me.static_const_eval_pos(ret))
+    loop(pos < text.length() && text.substring(pos, pos + 1) == "^") {
+      local rhs = me.static_const_parse_bitand(text, pos + 1)
+      if me.static_const_eval_is_error(rhs) == 1 { return rhs }
+      local rv = me.static_const_eval_value(rhs)
+      if value < 0 || rv < 0 { return me.static_const_eval_error("unsupported-initializer") }
+      value = me.static_const_bitxor(value, rv)
+      pos = ParserStringUtilsBox.skip_ws(text, me.static_const_eval_pos(rhs))
+    }
+    return me.static_const_eval_pair(value, pos)
+  }
+
+  static_const_parse_bitand(text, pos) {
+    local ret = me.static_const_parse_shift(text, pos)
+    if me.static_const_eval_is_error(ret) == 1 { return ret }
+    local value = me.static_const_eval_value(ret)
+    pos = ParserStringUtilsBox.skip_ws(text, me.static_const_eval_pos(ret))
+    loop(pos < text.length() && text.substring(pos, pos + 1) == "&") {
+      local rhs = me.static_const_parse_shift(text, pos + 1)
+      if me.static_const_eval_is_error(rhs) == 1 { return rhs }
+      local rv = me.static_const_eval_value(rhs)
+      if value < 0 || rv < 0 { return me.static_const_eval_error("unsupported-initializer") }
+      value = me.static_const_bitand(value, rv)
+      pos = ParserStringUtilsBox.skip_ws(text, me.static_const_eval_pos(rhs))
+    }
+    return me.static_const_eval_pair(value, pos)
+  }
+
+  static_const_parse_shift(text, pos) {
+    local ret = me.static_const_parse_add(text, pos)
+    if me.static_const_eval_is_error(ret) == 1 { return ret }
+    local value = me.static_const_eval_value(ret)
+    pos = ParserStringUtilsBox.skip_ws(text, me.static_const_eval_pos(ret))
+    loop(pos + 1 < text.length() && (text.substring(pos, pos + 2) == "<<" || text.substring(pos, pos + 2) == ">>")) {
+      local op = text.substring(pos, pos + 2)
+      local rhs = me.static_const_parse_add(text, pos + 2)
+      if me.static_const_eval_is_error(rhs) == 1 { return rhs }
+      local amount = me.static_const_eval_value(rhs)
+      if amount < 0 || amount > 63 { return me.static_const_eval_error("unsupported-initializer") }
+      if value < 0 { return me.static_const_eval_error("unsupported-initializer") }
+      if op == "<<" {
+        local c = 0
+        loop(c < amount) {
+          value = value * 2
+          c = c + 1
+        }
+      } else {
+        local c2 = 0
+        loop(c2 < amount) {
+          value = value / 2
+          c2 = c2 + 1
+        }
+      }
+      pos = ParserStringUtilsBox.skip_ws(text, me.static_const_eval_pos(rhs))
+    }
+    return me.static_const_eval_pair(value, pos)
+  }
+
+  static_const_parse_add(text, pos) {
+    local ret = me.static_const_parse_mul(text, pos)
+    if me.static_const_eval_is_error(ret) == 1 { return ret }
+    local value = me.static_const_eval_value(ret)
+    pos = ParserStringUtilsBox.skip_ws(text, me.static_const_eval_pos(ret))
+    loop(pos < text.length() && (text.substring(pos, pos + 1) == "+" || text.substring(pos, pos + 1) == "-")) {
+      local op = text.substring(pos, pos + 1)
+      local rhs = me.static_const_parse_mul(text, pos + 1)
+      if me.static_const_eval_is_error(rhs) == 1 { return rhs }
+      local rv = me.static_const_eval_value(rhs)
+      if op == "+" { value = value + rv } else { value = value - rv }
+      pos = ParserStringUtilsBox.skip_ws(text, me.static_const_eval_pos(rhs))
+    }
+    return me.static_const_eval_pair(value, pos)
+  }
+
+  static_const_parse_mul(text, pos) {
+    local ret = me.static_const_parse_unary(text, pos)
+    if me.static_const_eval_is_error(ret) == 1 { return ret }
+    local value = me.static_const_eval_value(ret)
+    pos = ParserStringUtilsBox.skip_ws(text, me.static_const_eval_pos(ret))
+    loop(pos < text.length() && (text.substring(pos, pos + 1) == "*" || text.substring(pos, pos + 1) == "/" || text.substring(pos, pos + 1) == "%")) {
+      local op = text.substring(pos, pos + 1)
+      local rhs = me.static_const_parse_unary(text, pos + 1)
+      if me.static_const_eval_is_error(rhs) == 1 { return rhs }
+      local rv = me.static_const_eval_value(rhs)
+      if (op == "/" || op == "%") && rv == 0 { return me.static_const_eval_error("unsupported-initializer") }
+      if op == "*" { value = value * rv }
+      else { if op == "/" { value = value / rv } else { value = value % rv } }
+      pos = ParserStringUtilsBox.skip_ws(text, me.static_const_eval_pos(rhs))
+    }
+    return me.static_const_eval_pair(value, pos)
+  }
+
+  static_const_parse_unary(text, pos) {
+    pos = ParserStringUtilsBox.skip_ws(text, pos)
+    if pos < text.length() && text.substring(pos, pos + 1) == "-" {
+      local ret = me.static_const_parse_unary(text, pos + 1)
+      if me.static_const_eval_is_error(ret) == 1 { return ret }
+      return me.static_const_eval_pair(0 - me.static_const_eval_value(ret), me.static_const_eval_pos(ret))
+    }
+    return me.static_const_parse_primary(text, pos)
+  }
+
+  static_const_parse_primary(text, pos) {
+    pos = ParserStringUtilsBox.skip_ws(text, pos)
+    if pos >= text.length() { return me.static_const_eval_error("unsupported-initializer") }
+    if text.substring(pos, pos + 1) == "(" {
+      local inner = me.static_const_parse_bitor(text, pos + 1)
+      if me.static_const_eval_is_error(inner) == 1 { return inner }
+      local after = ParserStringUtilsBox.skip_ws(text, me.static_const_eval_pos(inner))
+      if after >= text.length() || text.substring(after, after + 1) != ")" {
+        return me.static_const_eval_error("unsupported-initializer")
+      }
+      return me.static_const_eval_pair(me.static_const_eval_value(inner), after + 1)
+    }
+    local start = pos
+    loop(pos < text.length() && ParserStringUtilsBox.is_digit(text.substring(pos, pos + 1)) == 1) {
+      pos = pos + 1
+    }
+    if pos <= start { return me.static_const_eval_error("unsupported-initializer") }
+    return me.static_const_eval_pair(StringHelpers.to_i64(text.substring(start, pos)), pos)
+  }
+
   parse_static_const_table_decl(src, i) {
     local j = ParserStringUtilsBox.skip_ws(src, i)
     if ParserStringUtilsBox.starts_with_kw(src, j, "static") != 1 { return null }
@@ -423,19 +660,34 @@ box ParserBox {
         j = j + 1
         reading_values = 0
       } else {
-        local num_start = j
-        loop(j < src.length() && ParserStringUtilsBox.is_digit(src.substring(j, j + 1)) == 1) {
+        local expr_start = j
+        local depth = 0
+        local scanning_expr = 1
+        loop(scanning_expr == 1 && j < src.length()) {
+          local ch_expr = src.substring(j, j + 1)
+          if ch_expr == "(" { depth = depth + 1 }
+          else { if ch_expr == ")" {
+            depth = depth - 1
+            if depth < 0 { return me.static_const_table_fail(src, "unsupported-initializer") }
+          } else {
+            if depth == 0 && (ch_expr == "," || ch_expr == "]") {
+              scanning_expr = 0
+              break
+            }
+          }}
           j = j + 1
         }
-        if j <= num_start { return me.static_const_table_fail(src, "unsupported-initializer") }
-        local digits = src.substring(num_start, j)
-        local value = StringHelpers.to_i64(digits)
-        if value < 0 || value > 65535 { return me.static_const_table_fail(src, "value-out-of-range") }
+        if depth != 0 { return me.static_const_table_fail(src, "unsupported-initializer") }
+        if j <= expr_start { return me.static_const_table_fail(src, "unsupported-initializer") }
+        local value_text = me.static_const_eval_u16_expr(src.substring(expr_start, j))
+        if me.static_const_eval_is_error(value_text) == 1 {
+          return me.static_const_table_fail(src, me.static_const_eval_error_tag(value_text))
+        }
         if first_value == 1 {
-          values = values + digits
+          values = values + value_text
           first_value = 0
         } else {
-          values = values + "," + digits
+          values = values + "," + value_text
         }
 
         j = ParserStringUtilsBox.skip_ws(src, j)

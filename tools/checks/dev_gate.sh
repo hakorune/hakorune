@@ -351,6 +351,9 @@ run_quick() {
   run_step "K2-wide static const table load guard" \
     bash tools/checks/k2_wide_static_const_table_load_guard.sh
 
+  run_step "K2-wide static const table eval guard" \
+    bash tools/checks/k2_wide_static_const_table_eval_guard.sh
+
   run_step "K2-wide hako_alloc handle policy guard" \
     bash tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
 

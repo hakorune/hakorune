@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Decision: M11b-decl and M11b-load accepted; M11b-eval provisional
+Decision: M11b-decl, M11b-load, and M11b-eval accepted for narrow u16 rows
 Date: 2026-05-08
 Scope: M11b static const table source surface, MIR/static-data ownership, and parser rollout order.
 Related:
@@ -31,12 +31,12 @@ M11b-load:
   no runtime ArrayBox / MapBox construction
 
 M11b-eval:
-  const expression / const fn evaluation
+  narrow integer const expression evaluation
   source values may be derived at compile time
 ```
 
-`M11b-decl` and `M11b-load` are implemented for the first narrow `u16` shape.
-`M11b-eval` remains a follow-up row.
+`M11b-decl`, `M11b-load`, and `M11b-eval` are implemented for the first narrow
+`u16` shape.
 
 ## Relationship To M11a
 
@@ -79,7 +79,8 @@ Acceptance rules:
 - identifier name
 - element type `u16` only for the first row
 - array suffix `[]`
-- initializer is a bracketed list of integer literals
+- initializer is a bracketed list of integer literals or narrow integer const
+  expressions
 - trailing comma is allowed
 - every value must fit `0..65535`
 - emitted data is readonly
@@ -90,10 +91,34 @@ Reserved for later rows:
 - `u8`, `u32`, `u64`, signed integer element types
 - explicit element count in the type
 - literal suffixes such as `8u16`
-- constant arithmetic in initializers
 - references to other consts
 - const fn
 - mutation or publication as an `ArrayBox`
+
+## M11b-eval Integer Const Expressions
+
+The first const-eval row is intentionally side-effect-free.
+
+Accepted expression vocabulary inside static const table initializers:
+
+```text
+integer literal
+unary -
+parentheses
++ - * / %
+<< >>
+& | ^
+```
+
+Rules:
+
+- expression evaluation happens before MIR `static_data_plans` are produced
+- the concrete evaluated values are the MIR truth
+- final values must fit `0..65535`
+- bitwise and shift operands must be non-negative in this narrow row
+- divide/modulo by zero is rejected as unsupported initializer
+- no function calls, method calls, variable reads, allocation, or runtime code
+  execution
 
 ## Parser Rollout Contract
 
@@ -197,13 +222,16 @@ Non-goals:
 
 Goal:
 
-- allow compile-time expressions and eventually const fn for table generation
+- allow narrow integer compile-time expressions for table generation
+- keep const fn as a later split
 
 Non-goals:
 
 - executing arbitrary user code at compile time
 - side effects during const evaluation
 - allocation during const evaluation
+- references to other const declarations
+- function or method calls
 
 ## Acceptance For M11b-decl
 
@@ -252,4 +280,28 @@ Suggested gate:
 
 ```bash
 bash tools/checks/k2_wide_static_const_table_load_guard.sh
+```
+
+## Acceptance For M11b-eval
+
+Required outputs:
+
+- Rust parser evaluates narrow integer const expressions in `u16[]`
+  initializers
+- `.hako` parser emits the same evaluated values in Program(JSON v0)
+  `static_data_plans`
+- MIR metadata contains concrete values only
+- VM/ll_emit behavior remains table-row reading; no backend re-evaluation
+- unsupported expressions fail fast with `[static-const/unsupported-initializer]`
+
+Suggested fixture:
+
+```hako
+static const SIZE_CLASS: u16[] = [8 + 8, 3 * 8, 1 << 5, (40 - 8) | 1]
+```
+
+Suggested gate:
+
+```bash
+bash tools/checks/k2_wide_static_const_table_eval_guard.sh
 ```

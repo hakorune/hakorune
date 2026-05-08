@@ -50,7 +50,7 @@ The current live surface is intentionally narrow.
 | `hako.osvm` | page-size plus reserve/commit/decommit rows exist |
 | `hako.intrin` | current-lane non-negative i64 bit-count rows exist: `clz_i64`, `ctz_i64`, `popcnt_i64`; backend optimization use is not live |
 | backend export attrs | consistency guard is live; only current weak attrs are allowed, runtime-decl `readonly` rows must carry `memory = "read"`, while `noalias`/`nonnull`/`dereferenceable`/alignment export remain blocked |
-| static readonly data | backend-private static-data manifest can emit a u16 size-class fixture; source `static const NAME: u16[] = [...]` declarations lower to MIR `static_data_plans`; `NAME[index]` reads lower to MIR `StaticDataLoad` and current-lane `i64` values; const eval is not live |
+| static readonly data | backend-private static-data manifest can emit a u16 size-class fixture; source `static const NAME: u16[] = [...]` declarations lower to MIR `static_data_plans`; `NAME[index]` reads lower to MIR `StaticDataLoad` and current-lane `i64` values; narrow integer const expressions in u16 table initializers are live |
 | inline planning | `@rune Hint(inline/noinline/hot/cold)` is parsed metadata only; MIR InlinePlan and backend-active inline transforms are reserved |
 
 ## Reserved Surface
@@ -75,7 +75,7 @@ These names are reserved but not fully live as user-facing allocator substrate:
 - `prefetch`, `assume`, `unreachable`
 - full unsigned-width runtime semantics for intrinsic rows
 - `noalias`, `nonnull`, `dereferenceable`, stronger alignment export
-- const-evaluated static tables and const fn table generation
+- const fn table generation and references to other const declarations
 - MIR InlinePlan preservation and best-effort leaf inline
 - substrate-only `@rune Lowering(inline_required)`
 - verifier-backed required inline acceptance
@@ -371,13 +371,13 @@ M11b is split into:
 
 - `M11b-decl`: source declaration to MIR `static_data_plans`
 - `M11b-load`: read route from static data
-- `M11b-eval`: const expressions and const fn
+- `M11b-eval`: narrow integer const expressions; const fn remains future
 
 Live first source shape:
 
 ```hako
 static const SIZE_CLASS: u16[] = [
-  8, 16, 24, 32,
+  8 + 8, 3 * 8, 1 << 5, (40 - 8) | 1,
 ]
 ```
 
@@ -391,10 +391,20 @@ source static const
 -> LLVM readonly global
 ```
 
+Implemented M11b-eval surface:
+
+- expressions are evaluated before MIR `static_data_plans` are produced
+- accepted operators are integer-only: `+`, `-`, `*`, `/`, `%`, `<<`, `>>`,
+  `&`, `|`, `^`, unary `-`, and parentheses
+- final values must fit `0..65535`
+- bitwise and shift operands must be non-negative in this narrow row
+
 Current unsupported behavior:
 
-- Static table reads are not accepted yet.
-- Const eval and const fn are not accepted yet.
+- Const fn is not accepted yet.
+- References to other const declarations are not accepted yet.
+- Function calls, method calls, variable reads, allocation, and runtime code
+  execution are not accepted during const evaluation.
 - Source static const tables must not be lowered into runtime `ArrayBox` /
   `MapBox` construction.
 

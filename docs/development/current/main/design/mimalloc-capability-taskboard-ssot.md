@@ -81,7 +81,7 @@ backend may trust them for lowering or optimization.
 | `M10c-pre pointer/handle return proof vocabulary` | `reserved` | optimization export proof | separates handle return classes from native pointer return classes before any strong LLVM pointer attrs |
 | `M10c LLVM export attrs widening` | `blocked` | optimization export | `noalias`, `nonnull`, `dereferenceable`, alignment, stronger `nocapture` only after pointer/native-ptr proof and verifier/export consistency proof |
 | `M11a static readonly data segment` | `live-narrow` | backend-private const data | backend-private static data manifest emits a readonly u16 size-class fixture as LLVM data; no source syntax or const eval |
-| `M11b const eval/static table syntax` | `live-narrow` | language + MIR const data | `M11b-decl` source `u16` static const table declarations and `M11b-load` static table reads are live; `M11b-eval` const eval/const fn remains the next split |
+| `M11b const eval/static table syntax` | `live-narrow` | language + MIR const data | `M11b-decl` source `u16` static const table declarations, `M11b-load` static table reads, and `M11b-eval` narrow integer initializer expressions are live; const fn remains future |
 | `M11c InlinePlan rows` | `reserved` | rune metadata + MIR optimizer | InlinePlan boundary is accepted; implementation starts with Hint preservation, then soft same-module leaf inline, then substrate-only `Lowering(inline_required)` after verifier proof |
 | `M12 mimalloc raw-page proof` | `blocked` | allocator substrate consumer | page/free-list fixture on raw substrate with `no_alloc` / `no_safepoint` proof gates |
 | `M13 allocator fast-path EXE proof` | `blocked` | EXE backend + substrate | direct EXE proof for allocator fast path; helper calls only where capability route says so |
@@ -105,7 +105,7 @@ backend may trust them for lowering or optimization.
 15. `M11b-decl source static const table declaration`
 16. `M11b-load static table read route`
 17. `M11c-docs InlinePlan boundary lock`
-18. `M11b-eval const eval/static table generation`
+18. `M11b-eval const integer expression table generation`
 19. `M11c-preserve Hint inline/noinline/hot/cold into MIR InlinePlan`
 20. `M11c-soft-leaf best-effort same-module MIR inline`
 21. `M10c-pre pointer/handle return proof vocabulary`
@@ -226,9 +226,10 @@ fixture. `M11b-decl` now accepts source-level
 `static const NAME: u16[] = [...]` declarations into MIR `static_data_plans`.
 `M11b-load` now accepts `NAME[index]` as a MIR-owned static-data load for those
 tables. `M11c-docs` now reserves the InlinePlan boundary so allocator fast-path
-work does not grow `.inc` or backend-local inliners. The next code
-implementation target is `M11b-eval`: const expression/table generation, still
-without arbitrary compile-time side effects. After that, implement
-`M11c-preserve` and `M11c-soft-leaf` before any required-inline or allocator
-fast-path proof. Do not jump to allocator fast-path lowering before the
-remaining verifier facts make raw access auditable.
+work does not grow `.inc` or backend-local inliners. `M11b-eval` now evaluates
+narrow integer const expressions in source static `u16` table initializers.
+The next code implementation target is `M11c-preserve`: preserve existing
+`Hint(inline/noinline/hot/cold)` into MIR InlinePlan metadata with no backend
+use. After that, implement `M11c-soft-leaf` before any required-inline or
+allocator fast-path proof. Do not jump to allocator fast-path lowering before
+the remaining verifier facts make raw access auditable.
