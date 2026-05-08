@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-047-M11C-INLINE-PLAN-PRESERVE"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-047-M11C-INLINE-PLAN-PRESERVE.md"
-latest_card_summary = "Implemented M11c-preserve by deriving advisory Hint(inline/noinline/hot/cold) runes into MIR-owned metadata.inline_plans with no backend or .inc inline use."
+latest_card = "293x-048-M11C-SOFT-LEAF-INLINE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-048-M11C-SOFT-LEAF-INLINE.md"
+latest_card_summary = "Implemented M11c-soft-leaf by expanding narrow same-module pure leaf Hint(inline) calls in the MIR optimizer while unsupported shapes keep the call and backends remain non-owners."
 
 current_blocker_token = "phase-293x mimalloc substrate capability ladder after real-app EXE parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -235,4 +235,5 @@ landed_tail = [
   "293x-045 InlinePlan docs lock landed",
   "293x-046 M11b static const table eval landed",
   "293x-047 M11c InlinePlan preserve landed",
+  "293x-048 M11c soft leaf inline landed",
 ]

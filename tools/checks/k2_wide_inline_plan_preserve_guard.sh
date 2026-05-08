@@ -18,7 +18,7 @@ rg -F -q 'refresh_function_inline_plans' src/mir/semantic_refresh.rs
 rg -F -q 'metadata.inline_plans' docs/reference/mir/hints.md
 rg -F -q 'inline_plans' docs/reference/mir/metadata-facts-ssot.md
 rg -F -q 'M11c-preserve' docs/development/current/main/design/inline-plan-ssot.md
-rg -F -q '293x-047-M11C-INLINE-PLAN-PRESERVE' docs/development/current/main/CURRENT_STATE.toml
+rg -F -q '293x-047 M11c InlinePlan preserve landed' docs/development/current/main/CURRENT_STATE.toml
 
 if rg -F -q 'inline_plans' lang/c-abi/shims -g '*.inc'; then
   echo "[$TAG] ERROR: .inc must not consume inline_plans in M11c-preserve" >&2

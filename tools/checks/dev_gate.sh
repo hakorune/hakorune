@@ -357,6 +357,9 @@ run_quick() {
   run_step "K2-wide InlinePlan preserve guard" \
     bash tools/checks/k2_wide_inline_plan_preserve_guard.sh
 
+  run_step "K2-wide InlinePlan soft leaf guard" \
+    bash tools/checks/k2_wide_inline_plan_soft_leaf_guard.sh
+
   run_step "K2-wide hako_alloc handle policy guard" \
     bash tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
 

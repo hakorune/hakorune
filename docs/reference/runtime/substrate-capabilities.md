@@ -469,7 +469,8 @@ proof.
 ## Inline Planning
 
 Decision: M11c-preserve is live for advisory `Hint(...)` preservation into MIR
-`inline_plans`; transforms and required inline remain future rows.
+`inline_plans`, and M11c-soft-leaf is live for best-effort same-module MIR
+leaf inline. Required inline remains a future verifier-backed row.
 
 Inline is required for allocator-grade fast paths, but it is not a backend
 keyword and not a `.inc` responsibility.
@@ -479,7 +480,8 @@ Required future flow:
 ```text
 @rune Hint(inline/noinline/hot/cold)
 -> MIR InlinePlan / CallsiteInlinePlan
--> current M11c-preserve metadata-only row
+-> M11c-preserve metadata row
+-> current M11c-soft-leaf best-effort same-module leaf inline where accepted
 -> verifier where required
 -> MIR transform or intrinsic route
 -> backend emits the result

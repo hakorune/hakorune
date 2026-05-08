@@ -154,7 +154,15 @@ impl MirOptimizer {
             stats.intrinsic_optimizations += canonicalized;
         }
 
-        // Pass 5.6 (opt-in): String concat chain canonicalization
+        // Pass 5.6: advisory same-module leaf inline.
+        // This consumes MIR InlinePlan metadata only. Failed inline keeps the
+        // original call; required inline/verifier semantics are future rows.
+        let inline_soft_leaf = crate::mir::passes::inline_soft_leaf::apply(module);
+        if inline_soft_leaf > 0 {
+            stats.intrinsic_optimizations += inline_soft_leaf;
+        }
+
+        // Pass 5.7 (opt-in): String concat chain canonicalization
         //   (a + b) + c / a + (b + c) -> call extern nyash.string.concat3_hhh(a, b, c)
         // NOTE: kept behind env gate while tuning perf parity with backend-local concat folding.
         if std::env::var("NYASH_MIR_CONCAT3_CANON").ok().as_deref() == Some("1") {

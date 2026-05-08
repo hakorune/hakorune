@@ -156,6 +156,35 @@ Hint(cold)     -> request=none, hotness=cold
 `verified=false` and `fallback=keep_call` are part of the preservation
 contract. Backends must not treat this row as a mandate.
 
+M11c-soft-leaf live transform:
+
+```text
+Hint(inline) / request=prefer
+-> same-module Callee::Global(name)
+-> callee has one entry block, no PHI/control, no nested Call
+-> callee body size <= 8 supported pure instructions
+-> MIR optimizer expands the body at the callsite
+-> unsupported shapes keep the original call
+```
+
+The supported first-row body vocabulary is intentionally narrow:
+
+```text
+Const
+UnaryOp
+BinOp
+Compare
+StaticDataLoad
+Copy
+Select
+TypeOp
+Return
+```
+
+`Hint(noinline)` / `request=avoid` wins over any soft inline attempt. This row
+does not add required-inline semantics and does not make backends read
+`inline_plans`.
+
 ## Inline Kinds
 
 ### MIR Function Inline
@@ -259,7 +288,7 @@ M11c-preserve:
 
 M11c-soft-leaf:
   best-effort same-module leaf MIR inline.
-  Failed inline keeps the call.
+  Live-narrow. Failed inline keeps the call.
 
 M10c-pre:
   pointer/handle return proof vocabulary.

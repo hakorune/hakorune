@@ -37,7 +37,7 @@ perf AOT lane の正本ルートは次だけ。
 
 | Tag / Knob family | Primary examples | Effective zone | Crosses `ny-llvmc` boundary | Current reading |
 |---|---|---|---|---|
-| Language optimization annotations | `@rune Hint(inline)`, `@rune Contract(pure)`, `@rune IntrinsicCandidate(...)` (`@hint/@contract/@intrinsic_candidate` are compat aliases) | parser / Program(JSON) metadata + MIR verifier for narrow Contract rows + MIR `inline_plans` preservation | No | `Contract(no_alloc/no_safepoint)` is verifier-checked; `Hint(inline)` is preserved into MIR InlinePlan metadata but is not backend-active |
+| Language optimization annotations | `@rune Hint(inline)`, `@rune Contract(pure)`, `@rune IntrinsicCandidate(...)` (`@hint/@contract/@intrinsic_candidate` are compat aliases) | parser / Program(JSON) metadata + MIR verifier for narrow Contract rows + MIR `inline_plans` preservation + M11c-soft-leaf MIR inline | No | `Contract(no_alloc/no_safepoint)` is verifier-checked; `Hint(inline)` can trigger narrow same-module MIR leaf inline but is not backend-active |
 | AotPrep / MIR shaping | `NYASH_AOT_COLLECTIONS_HOT`, `NYASH_MIR_LOOP_HOIST`, `NYASH_AOT_MAP_KEY_MODE`, `NYASH_AOT_NUMERIC_CORE`, `HAKO_APPLY_AOT_PREP` | `.hako` / MIR before `ny-llvmc` | No | valid pre-boundary shaping knobs |
 | Boundary compile request | `HAKO_BACKEND_COMPILE_RECIPE`, `HAKO_BACKEND_COMPAT_REPLAY` | Rust/C boundary transport | Yes | reaches compile/link boundary as explicit route/profile request |
 | LLVM opt / link contract | `HAKO_LLVM_OPT_LEVEL`, `NYASH_LLVM_OPT_LEVEL`, `NYASH_EMIT_EXE_NYRT`, `HAKO_AOT_LDFLAGS` | object / exe generation | Yes | valid post-boundary knobs |
@@ -53,10 +53,12 @@ perf AOT lane の正本ルートは次だけ。
 - legacy `@hint` / `@contract` / `@intrinsic_candidate` remain compat aliases during the current migration window.
 - `Contract(no_alloc)` / `Contract(no_safepoint)` are checked by the MIR
   verifier.
-- `Hint`, `IntrinsicCandidate`, `Contract(pure)`, and `Contract(readonly)`
-  remain metadata-only here.
-- `Hint(inline)` must first flow into MIR-owned InlinePlan metadata; backends
-  must not infer inline behavior from source rune strings or symbol names.
+- `IntrinsicCandidate`, `Contract(pure)`, and `Contract(readonly)` remain
+  metadata-only here.
+- `Hint(inline)` flows into MIR-owned InlinePlan metadata and may be consumed by
+  the M11c-soft-leaf MIR optimizer row for narrow same-module pure leaf calls.
+  Backends must not infer inline behavior from source rune strings or symbol
+  names.
 - Do not use any language annotation as proof that `ny-llvmc` or LLVM is
   honoring a new optimization until a backend export row lands.
 

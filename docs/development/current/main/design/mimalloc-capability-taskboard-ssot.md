@@ -82,7 +82,7 @@ backend may trust them for lowering or optimization.
 | `M10c LLVM export attrs widening` | `blocked` | optimization export | `noalias`, `nonnull`, `dereferenceable`, alignment, stronger `nocapture` only after pointer/native-ptr proof and verifier/export consistency proof |
 | `M11a static readonly data segment` | `live-narrow` | backend-private const data | backend-private static data manifest emits a readonly u16 size-class fixture as LLVM data; no source syntax or const eval |
 | `M11b const eval/static table syntax` | `live-narrow` | language + MIR const data | `M11b-decl` source `u16` static const table declarations, `M11b-load` static table reads, and `M11b-eval` narrow integer initializer expressions are live; const fn remains future |
-| `M11c InlinePlan rows` | `live-narrow` | rune metadata + MIR optimizer | `M11c-preserve` keeps `Hint(inline/noinline/hot/cold)` as MIR `inline_plans` metadata with no backend use; soft same-module leaf inline and substrate-only `Lowering(inline_required)` remain future rows |
+| `M11c InlinePlan rows` | `live-narrow` | rune metadata + MIR optimizer | `M11c-preserve` keeps `Hint(inline/noinline/hot/cold)` as MIR `inline_plans`; `M11c-soft-leaf` expands best-effort same-module pure leaf `Hint(inline)` calls in MIR; substrate-only `Lowering(inline_required)` remains future |
 | `M12 mimalloc raw-page proof` | `blocked` | allocator substrate consumer | page/free-list fixture on raw substrate with `no_alloc` / `no_safepoint` proof gates |
 | `M13 allocator fast-path EXE proof` | `blocked` | EXE backend + substrate | direct EXE proof for allocator fast path; helper calls only where capability route says so |
 
@@ -229,8 +229,10 @@ tables. `M11c-docs` now reserves the InlinePlan boundary so allocator fast-path
 work does not grow `.inc` or backend-local inliners. `M11b-eval` now evaluates
 narrow integer const expressions in source static `u16` table initializers.
 `M11c-preserve` now keeps existing `Hint(inline/noinline/hot/cold)` as MIR
-InlinePlan metadata with no backend use. The next code implementation target is
-`M11c-soft-leaf`: best-effort same-module MIR inline. Implement that before any
+InlinePlan metadata with no backend use. `M11c-soft-leaf` now expands narrow
+same-module pure leaf `Hint(inline)` calls in the MIR optimizer, while
+unsupported shapes keep the call. The next code implementation target is
+`M10c-pre`: pointer/handle return proof vocabulary. Implement that before any
 required-inline or
 allocator fast-path proof. Do not jump to allocator fast-path lowering before
 the remaining verifier facts make raw access auditable.

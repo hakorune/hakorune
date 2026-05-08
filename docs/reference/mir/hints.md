@@ -52,8 +52,9 @@ Current live verifier row:
   verifier rows land.
 - No contract is currently exported for backend optimization use.
 - `Hint(inline/noinline/hot/cold)` is preserved into MIR-owned
-  `metadata.inline_plans`. Inline transforms are still disabled until the next
-  InlinePlan transform row lands.
+  `metadata.inline_plans`.
+- `Hint(inline)` may trigger the narrow M11c-soft-leaf MIR optimizer row:
+  best-effort same-module pure leaf inline. Unsupported shapes keep the call.
 
 Fail-fast diagnostics use the stable tags:
 
@@ -71,8 +72,8 @@ Accepted flow:
 ```text
 @rune Hint(inline)
 -> MIR InlinePlan request=prefer
--> currently preserved as metadata only
--> MIR optimizer may inline or keep the call
+-> M11c-soft-leaf may inline same-module pure leaf calls
+-> unsupported shapes keep the call
 -> backend emits the resulting MIR
 ```
 

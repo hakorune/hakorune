@@ -54,6 +54,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_static_const_table_load_guard.sh` | M11b-load の `NAME[index]` 受理形が MIR `StaticDataLoad` / MIR JSON `static_data_load` / VM metadata read / ll_emit direct load に流れることを固定する。 |
 | `tools/checks/k2_wide_static_const_table_eval_guard.sh` | M11b-eval の `u16[]` initializer integer const expressions が Rust parser / `.hako` parser / Program JSON / MIR metadata に evaluated values として流れることを固定する。 |
 | `tools/checks/k2_wide_inline_plan_preserve_guard.sh` | M11c-preserve の `@rune Hint(inline/noinline/hot/cold)` が MIR `metadata.inline_plans` に保存され、`.inc` が inline 判断を持たないことを固定する。 |
+| `tools/checks/k2_wide_inline_plan_soft_leaf_guard.sh` | M11c-soft-leaf の narrow same-module MIR leaf inline が optimizer pass に閉じ、`.inc` が inline 判断を持たないことを固定する。 |
 
 ## Env Hygiene
 
