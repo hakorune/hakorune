@@ -12,6 +12,7 @@ mod barrier;
 mod cfg;
 mod dom;
 mod legacy;
+mod rune_contracts;
 mod ssa;
 mod string_kernel;
 pub(crate) mod utils; // Phase 257 P1-2: Made public for loop_header_phi_builder
@@ -238,6 +239,11 @@ impl MirVerifier {
             local_errors.append(&mut string_kernel_errors);
         }
 
+        // 12. Rune contract metadata verification before any backend may trust it.
+        if let Err(mut rune_contract_errors) = self.verify_rune_contracts(function) {
+            local_errors.append(&mut rune_contract_errors);
+        }
+
         if local_errors.is_empty() {
             Ok(())
         } else {
@@ -437,6 +443,10 @@ impl MirVerifier {
         function: &MirFunction,
     ) -> Result<(), Vec<VerificationError>> {
         string_kernel::check_string_kernel_plans(function)
+    }
+
+    fn verify_rune_contracts(&self, function: &MirFunction) -> Result<(), Vec<VerificationError>> {
+        rune_contracts::check_rune_contracts(function)
     }
 
     /// Reject legacy instructions that should be rewritten to Core-15 equivalents

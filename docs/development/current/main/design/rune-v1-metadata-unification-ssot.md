@@ -44,7 +44,7 @@ Related:
 | compat gate | `NYASH_FEATURES=opt-annotations` also enables the unified metadata parser path during the compat window |
 | statement-position legacy aliases | parse/noop compat keep |
 | statement-position canonical optimization runes | fail-fast (`declaration required`) |
-| backend semantics | parse/noop only for optimization families in this wave |
+| backend semantics | `Contract(no_alloc/no_safepoint)` has MIR verifier proof; backend optimization/export use is still disabled |
 | compat removal | post-Array phase only |
 
 ## Canonical Surface
@@ -115,6 +115,7 @@ The old split-gate reading is superseded for parser/front-door behavior.
 | `.hako` Stage-B selected-entry keep | landed | declaration-leading legacy aliases are normalized into selected-entry rune JSON |
 | AST/direct MIR carrier | landed | still declaration-local `attrs.runes` only |
 | Program(JSON v0) | locked | root/body attrs are not widened |
+| MIR contract verifier | live-narrow | `Contract(no_alloc)` rejects allocation effects; `Contract(no_safepoint)` rejects explicit `Safepoint`; backend use remains disabled |
 | tests/smokes | landed | dual-route noop + selected-entry rune attr parity cover the unified path |
 
 ## Non-Goals

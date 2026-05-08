@@ -39,7 +39,7 @@ The current live surface is intentionally narrow.
 | `hako.mem` | allocation facade rows exist under `MemCoreBox`; exact public surface is still substrate-internal |
 | `hako.buf` | `len/cap/reserve/grow` facade rows exist under `BufCoreBox`; capacity routes through `PtrCoreBox.slot_cap_i64` |
 | `hako.ptr` | typed pointer/span facade is staged for current raw collection routes and owns direct array-slot backend route names for the live row |
-| verifier | bounds, initialized-range, and ownership gates exist for current raw collection routes; RawArray remove/insert are verifier-gated before pointer-substrate calls |
+| verifier | bounds, initialized-range, ownership, and rune contract gates exist for current rows; RawArray remove/insert are verifier-gated before pointer-substrate calls; `Contract(no_alloc/no_safepoint)` is MIR-verifier checked |
 | `RawArray` | first raw-array path exists for slot load/store/len/cap/append/reserve/grow |
 | `RawBuf` | first allocation facade exists over `MemCoreBox` |
 | `hako.atomic` | helper-shaped `fence_i64` row exists |
@@ -62,8 +62,8 @@ These names are reserved but not fully live as user-facing allocator substrate:
 - unrestricted raw pointer arithmetic
 - atomic CAS/fetch operations with memory order
 - language-level TLS cells
-- `@rune Contract(no_alloc)` backend-active use
-- `@rune Contract(no_safepoint)` backend-active use
+- `@rune Contract(no_alloc)` backend optimization/export use
+- `@rune Contract(no_safepoint)` backend optimization/export use
 - `clz`, `ctz`, `popcnt`, `prefetch`, `assume`, `unreachable`
 - `noalias`, `nonnull`, `dereferenceable`, stronger alignment export
 - const-evaluated static tables
@@ -96,6 +96,13 @@ If a new row changes ABI or exported backend facts, update these manuals too:
 ## Contract Verification
 
 `@rune Contract(...)` is only backend-active after verifier proof.
+
+The current live verifier row proves a narrow subset only:
+
+- `Contract(no_alloc)` rejects MIR instructions whose effect mask contains
+  `Alloc`.
+- `Contract(no_safepoint)` rejects explicit MIR `Safepoint` instructions.
+- The proven facts are not exported to backend optimization yet.
 
 Required flow:
 
@@ -308,3 +315,39 @@ Unsupported behavior:
 Fixture/gate:
 
 - `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
+
+## Rune Contract Verifier Row
+
+Decision: accepted for the M5 MIR verifier core only.
+
+New surface:
+
+- `@rune Contract(no_alloc)` has a MIR verifier check.
+- `@rune Contract(no_safepoint)` has a MIR verifier check.
+
+Owner modules:
+
+- `src/mir/verification/rune_contracts.rs`
+- `src/mir/verification_types.rs`
+
+Accepted consumers:
+
+- `MirVerifier::verify_function` checks declaration-local
+  `FunctionMetadata.runes`.
+
+Unsupported behavior:
+
+- Backend optimization/export use is not live.
+- `Contract(pure)` and `Contract(readonly)` are still metadata-only.
+- This row does not infer contracts from function names, app names, helper
+  calls, or backend route choices.
+
+Safety/verifier contract:
+
+- `no_alloc` rejects instructions with `Effect::Alloc`, including `NewBox`,
+  `NewClosure`, `FutureNew`, and calls whose effect mask carries `Alloc`.
+- `no_safepoint` rejects explicit `MirInstruction::Safepoint`.
+
+Fixture/gate:
+
+- `cargo test -q rune_contracts --lib`

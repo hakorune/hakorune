@@ -69,7 +69,7 @@ backend may trust them for lowering or optimization.
 | `M2 hako.mem/buf/ptr widening` | `live-narrow` | capability substrate | restricted memory/buffer/pointer facades; `BufCoreBox.cap_i64` routes through `PtrCoreBox.slot_cap_i64`; no unrestricted unsafe |
 | `M3 RawBuf + RawArray allocator fixture` | `live-narrow` | algorithm substrate | allocator-shaped fixture using RawBuf/RawArray only; RawArray has len/cap/reserve/grow shape; no TLS/atomic/OSVM dependency |
 | `M4 minimum verifier hardening` | `live-narrow` | verifier substrate | RawArray remove/insert now pass bounds/initialized-range gates; slice, double-free, and use-after-free remain follow-up splits |
-| `M5 rune contract verifier` | `reserved` | rune metadata + verifier | `@rune Contract(no_alloc)` / `@rune Contract(no_safepoint)` parsed facts become verifier-checked before backend use |
+| `M5 rune contract verifier` | `live-narrow` | rune metadata + verifier | `@rune Contract(no_alloc)` / `@rune Contract(no_safepoint)` are checked by the MIR verifier before backend use; backend export/use remains disabled |
 | `M6 hako.atomic useful rows` | `blocked` | capability substrate | load/store/CAS/fetch_add/fence with memory order; no allocator policy inside atomic module |
 | `M7 hako.tls useful rows` | `blocked` | capability substrate | thread/task-local slot and cache-slot primitive; no helper-local cache exposure as final API |
 | `M8 hako.osvm allocator rows` | `reserved` | capability substrate + native keep | page reserve/commit/decommit/page-size facade with native metal leaf below |
@@ -198,5 +198,7 @@ target for fixed-width numeric fields only. `M4 minimum verifier hardening`
 now covers RawArray remove/insert verifier gates. `M2` is narrowing the current
 memory/buffer/pointer capability split so buffer shape facades do not own direct
 backend slot ABI names. `M3` now has a readable RawArray capacity observer over
-the buffer facade. Do not jump to allocator fast-path lowering before the
-remaining verifier facts make raw access auditable.
+the buffer facade. `M5` now checks `Contract(no_alloc)` and
+`Contract(no_safepoint)` in the MIR verifier, but those facts are not exported
+to backend optimization yet. Do not jump to allocator fast-path lowering before
+the remaining verifier facts make raw access auditable.

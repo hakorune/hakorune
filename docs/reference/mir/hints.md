@@ -31,3 +31,30 @@
 - 既存の機能（マクロ・正規化）で構造を整えた上で使う。ヒントのみでは誤構造は正せない。
 - CI の軽量ゲートでは `hint.no_empty_phi` 相当のスモークで IR 健全性を監視する。
 
+## Rune Optimization Metadata
+
+Canonical declaration metadata uses `@rune`:
+
+```hako
+@rune Hint(inline)
+@rune Contract(no_alloc)
+@rune Contract(no_safepoint)
+@rune IntrinsicCandidate("StringBox.length/0")
+```
+
+Current live verifier row:
+
+- `Contract(no_alloc)` is checked by the MIR verifier and rejects instructions
+  whose effect mask contains `Alloc`.
+- `Contract(no_safepoint)` is checked by the MIR verifier and rejects explicit
+  `Safepoint` instructions.
+- `Contract(pure)` and `Contract(readonly)` remain metadata-only until their
+  verifier rows land.
+- No contract is currently exported for backend optimization use.
+
+Fail-fast diagnostics use the stable tags:
+
+```text
+[freeze:contract][rune/no_alloc]
+[freeze:contract][rune/no_safepoint]
+```

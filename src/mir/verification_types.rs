@@ -84,6 +84,14 @@ pub enum VerificationError {
         value: ValueId,
         reason: String,
     },
+    /// Rune contract metadata violation before backend export/use.
+    RuneContractViolation {
+        block: BasicBlockId,
+        instruction_index: usize,
+        contract: String,
+        instruction: String,
+        reason: String,
+    },
 }
 
 impl std::fmt::Display for VerificationError {
@@ -243,6 +251,19 @@ impl std::fmt::Display for VerificationError {
                     f,
                     "StringKernelPlanViolation for value {}: {}",
                     value, reason
+                )
+            }
+            VerificationError::RuneContractViolation {
+                block,
+                instruction_index,
+                contract,
+                instruction,
+                reason,
+            } => {
+                write!(
+                    f,
+                    "RuneContractViolation contract={} instruction={} at block {} instruction {}: {}",
+                    contract, instruction, block, instruction_index, reason
                 )
             }
         }
