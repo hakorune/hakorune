@@ -29,6 +29,8 @@ navigation order must stay narrow and explicit.
 - `numeric_substrate.rs`: fixed-width and pointer-sized numeric type-name
   vocabulary for substrate metadata. It does not add exact-width runtime
   semantics by itself.
+- `raw_layout.rs`: fixed raw-layout vocabulary for substrate metadata. It does
+  not add `.hako struct` syntax or backend-active native layout by itself.
 - `optimizer_passes/`, `passes/`: MIR pass implementations. Docs-first only for now.
 - `phi_core/`: PHI / loopform helpers and supporting state.
 - `policies/`: shared policy SSOT used by builder/canonicalizer/router.

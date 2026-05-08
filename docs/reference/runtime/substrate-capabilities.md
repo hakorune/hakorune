@@ -35,6 +35,7 @@ The current live surface is intentionally narrow.
 | Capability | Current live reading |
 | --- | --- |
 | numeric substrate | fixed-width and pointer-sized type names are classified by MIR metadata for storage planning; runtime values still use the current `Integer(i64)` lane; current `>>` is signed i64 arithmetic shift |
+| raw layout | MIR-owned `repr_c_v0` vocabulary can plan fixed-width numeric field offsets/size; no source syntax or backend-active native allocation yet |
 | `hako.mem` | allocation facade rows exist under `MemCoreBox`; exact public surface is still substrate-internal |
 | `hako.buf` | `len/cap/reserve/grow` facade rows exist under `BufCoreBox` |
 | `hako.ptr` | typed pointer/span facade is staged for current raw collection routes |
@@ -54,8 +55,9 @@ These names are reserved but not fully live as user-facing allocator substrate:
 - numeric literal suffixes such as `1u64` / `64usize`
 - wrapping and checked arithmetic syntax
 - logical right-shift surface distinct from current `>>`
-- raw layout / repr-like structs
-- `sizeof`, `offsetof`, explicit alignment
+- raw layout source syntax / repr-like structs
+- backend-active `sizeof`, `offsetof`, explicit alignment
+- pointer-sized, pointer, handle, or Box fields inside raw layouts
 - `MaybeInit`
 - unrestricted raw pointer arithmetic
 - atomic CAS/fetch operations with memory order
@@ -165,3 +167,41 @@ Fixture/gate:
 - `cargo test -q typed_object_plan --lib`
 - `cargo test -q mir_numeric_shift_semantics --lib`
 - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_binop_numeric_tail.py`
+
+## Raw Layout Substrate Row
+
+Decision: accepted for the M1 MIR vocabulary lock only.
+
+New surface:
+
+- MIR `repr_c_v0` raw-layout plan vocabulary.
+- fixed-width numeric field storage:
+  - `i8`, `i16`, `i32`, `i64`
+  - `u8`, `u16`, `u32`, `u64`
+
+Owner module:
+
+- MIR: `src/mir/raw_layout.rs`
+
+Accepted consumers:
+
+- MIR tests and future metadata producers may build a `repr_c_v0` plan for the
+  fixed-width numeric field set.
+
+Unsupported backend behavior:
+
+- Source syntax such as `struct`, `@rune Repr(C)`, `@rune Align(N)`, `sizeof`,
+  and `offsetof` is not live.
+- Pointer-sized fields (`usize` / `isize`), pointer fields, handle fields, and
+  semantic Box fields must fail fast or stay reserved.
+- Backends must not compute raw layout from semantic `box` declarations or
+  application-specific field names.
+
+Safety/verifier contract:
+
+- This row is layout vocabulary only. It provides no pointer dereference,
+  lifetime, bounds, ownership, or no-safepoint proof.
+
+Fixture/gate:
+
+- `cargo test -q raw_layout --lib`

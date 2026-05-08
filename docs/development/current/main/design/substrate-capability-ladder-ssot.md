@@ -247,6 +247,24 @@ Until the arithmetic half of this lock is live, allocator policy rows that need
 width/overflow facts must stay as narrow `i64` models or helper-backed probes.
 Do not introduce parser syntax first and leave backend meaning implicit.
 
+### C0.75. Raw layout vocabulary
+
+- `box` remains the semantic object surface.
+- raw allocator metadata uses MIR-owned raw-layout facts, not dynamic Box
+  fields.
+- current live reading:
+  - MIR `raw_layout` module owns `repr_c_v0`
+  - fixed-width numeric fields are accepted:
+    - `i8` / `i16` / `i32` / `i64`
+    - `u8` / `u16` / `u32` / `u64`
+  - natural alignment, field offsets, and final size are planned by MIR
+  - pointer-sized fields, Box fields, and source syntax are still reserved
+- live acceptance requires:
+  - docs/reference Decision
+  - MIR-owned vocabulary row
+  - fail-fast unsupported type row
+  - fixture and gate
+
 ### C1. Minimal memory capabilities
 
 - `hako.mem`
@@ -386,6 +404,8 @@ docs-side order to use when the allocator substrate lane opens.
 2. raw layout vocabulary
    - fixed layout / alignment / `sizeof` / `offsetof`
    - `box` vs raw metadata boundary documented before implementation
+   - current live row is MIR `repr_c_v0` fixed-width numeric field planning
+   - source syntax and backend-active `sizeof` / `offsetof` remain future rows
 3. minimal `RawBuf` + `RawArray` allocator fixture
    - `RawBuf` allocation facade is now live above `MemCoreBox`
    - no TLS

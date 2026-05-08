@@ -65,7 +65,7 @@ backend may trust them for lowering or optimization.
 | --- | --- | --- | --- |
 | `M0a numeric type-name storage lock` | `live-narrow` | language + MIR + typed-object storage | `usize/isize` and fixed-width integer type-name classifier; typed-object inline i64 storage hints; exact width/range/overflow deferred |
 | `M0b numeric arithmetic semantics lock` | `live-narrow` | language + MIR + backends | current `>>` is signed i64 arithmetic shift; logical shift and wrapping/checked arithmetic remain explicit future rows |
-| `M1 raw layout vocabulary` | `reserved` | language + MIR layout facts | raw layout distinct from `box`, alignment, `sizeof`, `offsetof`, repr-like contract, fail-fast unsupported backends |
+| `M1 raw layout vocabulary` | `live-narrow` | language + MIR layout facts | MIR-owned `repr_c_v0` vocabulary for fixed-width numeric fields; source syntax, pointer-sized fields, and backend-active native layout remain future rows |
 | `M2 hako.mem/buf/ptr widening` | `live-narrow` | capability substrate | restricted memory/buffer/pointer facades, no unrestricted unsafe, verifier hooks named |
 | `M3 RawBuf + RawArray allocator fixture` | `live-narrow` | algorithm substrate | allocator-shaped fixture using RawBuf/RawArray only; no TLS/atomic/OSVM dependency |
 | `M4 minimum verifier hardening` | `next-card` | verifier substrate | bounds, initialized range, ownership, double-free/use-after-free follow-up split |
@@ -192,6 +192,8 @@ That is separate from this taskboard.
 The first mimalloc-grade substrate card landed as `M0a numeric type-name
 storage lock`. `M0b numeric arithmetic semantics lock` now fixes the current
 `>>` behavior as signed i64 arithmetic shift, while logical shift and
-wrapping/checked arithmetic remain future explicit rows. Do not jump to raw
-pointers or allocator fast-path lowering when exact width/overflow semantics
-are the active blocker.
+wrapping/checked arithmetic remain future explicit rows. `M1 raw layout
+vocabulary` now gives future allocator rows a MIR-owned `repr_c_v0` layout
+target for fixed-width numeric fields only. The next active row is `M4 minimum
+verifier hardening`; do not jump to allocator fast-path lowering before
+verifier facts make raw access auditable.
