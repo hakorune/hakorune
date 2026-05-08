@@ -51,8 +51,10 @@ static box JsonProgramBox {
     local body_raw = JsonUtilsBox.extract_value(trimmed, "body")
     if body_raw == null { body_raw = "[]" }
     local body_norm = me.normalize_stmt_array(body_raw)
+    local static_data_raw = JsonUtilsBox.extract_value(trimmed, "static_data_plans")
+    if static_data_raw == null { static_data_raw = "[]" }
 
-    return "{\"version\":" + version + ",\"kind\":" + me.quote(kind_name) + ",\"body\":" + body_norm + "}"
+    return "{\"version\":" + version + ",\"kind\":" + me.quote(kind_name) + ",\"body\":" + body_norm + ",\"static_data_plans\":" + static_data_raw + "}"
   }
 
   // fix_null_arrays: よくある null 配列を [] に正規化（string ベース、保守的）

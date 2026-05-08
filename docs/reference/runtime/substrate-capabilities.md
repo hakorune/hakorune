@@ -49,7 +49,7 @@ The current live surface is intentionally narrow.
 | `hako.osvm` | page-size plus reserve/commit/decommit rows exist |
 | `hako.intrin` | current-lane non-negative i64 bit-count rows exist: `clz_i64`, `ctz_i64`, `popcnt_i64`; backend optimization use is not live |
 | backend export attrs | consistency guard is live; only current weak attrs are allowed, runtime-decl `readonly` rows must carry `memory = "read"`, while `noalias`/`nonnull`/`dereferenceable`/alignment export remain blocked |
-| static readonly data | backend-private static-data manifest can emit a u16 size-class fixture as an LLVM readonly data segment; source syntax and const eval are not live |
+| static readonly data | backend-private static-data manifest can emit a u16 size-class fixture, and source `static const NAME: u16[] = [...]` declarations lower to MIR `static_data_plans`; table reads and const eval are not live |
 
 ## Reserved Surface
 
@@ -354,10 +354,12 @@ Safety/verifier contract:
 Fixture/gate:
 
 - `bash tools/checks/k2_wide_static_data_first_row_guard.sh`
+- `bash tools/checks/k2_wide_static_const_table_decl_guard.sh`
 
 ## Static Const Table Source Row
 
-Decision: reserved for M11b source syntax. The design SSOT is:
+Decision: M11b-decl is live for the first narrow source declaration shape. The
+design SSOT is:
 
 - `docs/development/current/main/design/static-const-table-syntax-ssot.md`
 
@@ -367,7 +369,7 @@ M11b is split into:
 - `M11b-load`: read route from static data
 - `M11b-eval`: const expressions and const fn
 
-Reserved first source shape:
+Live first source shape:
 
 ```hako
 static const SIZE_CLASS: u16[] = [
@@ -375,7 +377,7 @@ static const SIZE_CLASS: u16[] = [
 ]
 ```
 
-Required future flow:
+Implemented M11b-decl flow:
 
 ```text
 source static const
@@ -387,7 +389,6 @@ source static const
 
 Current unsupported behavior:
 
-- The source syntax is not accepted yet.
 - Static table reads are not accepted yet.
 - Const eval and const fn are not accepted yet.
 - Source static const tables must not be lowered into runtime `ArrayBox` /

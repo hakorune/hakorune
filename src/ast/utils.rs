@@ -128,6 +128,19 @@ impl ASTNode {
             ASTNode::GlobalVar { name, .. } => {
                 format!("GlobalVar({})", name)
             }
+            ASTNode::StaticConstTable {
+                name,
+                element_type,
+                values,
+                ..
+            } => {
+                format!(
+                    "StaticConstTable({}: {}[{}])",
+                    name,
+                    element_type,
+                    values.len()
+                )
+            }
             ASTNode::Literal { .. } => "Literal".to_string(),
             ASTNode::Variable { name, .. } => {
                 format!("Variable({})", name)
@@ -274,6 +287,7 @@ impl ASTNode {
             ASTNode::EnumDeclaration { span, .. } => *span,
             ASTNode::FunctionDeclaration { span, .. } => *span,
             ASTNode::GlobalVar { span, .. } => *span,
+            ASTNode::StaticConstTable { span, .. } => *span,
             ASTNode::Literal { span, .. } => *span,
             ASTNode::Variable { span, .. } => *span,
             ASTNode::UnaryOp { span, .. } => *span,
@@ -333,7 +347,8 @@ impl ASTNode {
                 ASTNode::Lambda { .. }
                 | ASTNode::FunctionDeclaration { .. }
                 | ASTNode::EnumDeclaration { .. }
-                | ASTNode::BoxDeclaration { .. } => false,
+                | ASTNode::BoxDeclaration { .. }
+                | ASTNode::StaticConstTable { .. } => false,
 
                 ASTNode::Program { statements, .. } => statements.iter().any(contains),
                 ASTNode::ScopeBox { body, .. } => body.iter().any(contains),
@@ -450,7 +465,8 @@ impl ASTNode {
                 ASTNode::Lambda { .. }
                 | ASTNode::FunctionDeclaration { .. }
                 | ASTNode::EnumDeclaration { .. }
-                | ASTNode::BoxDeclaration { .. } => false,
+                | ASTNode::BoxDeclaration { .. }
+                | ASTNode::StaticConstTable { .. } => false,
 
                 ASTNode::Program { statements, .. } => statements.iter().any(contains),
                 ASTNode::ScopeBox { body, .. } => body.iter().any(contains),
@@ -567,7 +583,8 @@ impl ASTNode {
             ASTNode::Lambda { .. }
             | ASTNode::FunctionDeclaration { .. }
             | ASTNode::EnumDeclaration { .. }
-            | ASTNode::BoxDeclaration { .. } => false,
+            | ASTNode::BoxDeclaration { .. }
+            | ASTNode::StaticConstTable { .. } => false,
 
             ASTNode::Program { statements, .. } => {
                 statements.iter().any(ASTNode::contains_non_local_exit)
@@ -726,7 +743,8 @@ impl ASTNode {
                 ASTNode::Lambda { .. }
                 | ASTNode::FunctionDeclaration { .. }
                 | ASTNode::EnumDeclaration { .. }
-                | ASTNode::BoxDeclaration { .. } => false,
+                | ASTNode::BoxDeclaration { .. }
+                | ASTNode::StaticConstTable { .. } => false,
 
                 ASTNode::Program { statements, .. } => {
                     statements.iter().any(|s| contains(s, loop_depth))

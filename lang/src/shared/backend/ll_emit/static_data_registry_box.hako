@@ -24,7 +24,8 @@ static box StaticDataRegistryBox {
 
     local n = BoxHelpers.array_len(values)
     local out = "@" + ("" + row.get("symbol")) + " = " + ("" + row.get("linkage"))
-    if ("" + row.get("unnamed_addr")) == "1" { out = out + " unnamed_addr" }
+    local unnamed = "" + row.get("unnamed_addr")
+    if unnamed == "1" || unnamed == "true" { out = out + " unnamed_addr" }
     out = out + " constant [" + ("" + n) + " x " + ty + "] ["
 
     local i = 0
@@ -39,7 +40,35 @@ static box StaticDataRegistryBox {
   }
 
   emit_globals() {
-    local rows = me.rows()
+    return me.emit_globals_from_rows(me.rows())
+  }
+
+  emit_globals_for_root(root) {
+    local rows = new ArrayBox()
+    local defaults = me.rows()
+    local i = 0
+    local n = BoxHelpers.array_len(defaults)
+    loop(i < n) {
+      rows.push(BoxHelpers.array_get(defaults, i))
+      i = i + 1
+    }
+
+    if root != null {
+      local source_rows = root.get("static_data_plans")
+      if source_rows != null && BoxHelpers.is_array(source_rows) == 1 {
+        i = 0
+        n = BoxHelpers.array_len(source_rows)
+        loop(i < n) {
+          rows.push(BoxHelpers.array_get(source_rows, i))
+          i = i + 1
+        }
+      }
+    }
+
+    return me.emit_globals_from_rows(rows)
+  }
+
+  emit_globals_from_rows(rows) {
     local out = ""
     local i = 0
     local n = BoxHelpers.array_len(rows)

@@ -8,6 +8,7 @@ impl ASTNode {
             ASTNode::BoxDeclaration { .. } => St,
             ASTNode::EnumDeclaration { .. } => St,
             ASTNode::FunctionDeclaration { .. } => St,
+            ASTNode::StaticConstTable { .. } => St,
             ASTNode::If { .. } => St,
             ASTNode::Loop { .. } => St,
             ASTNode::While { .. } => St,

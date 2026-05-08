@@ -45,7 +45,7 @@ impl AstOwnershipAnalyzer {
                 self.analyze_function_decl(node, Some(current_scope))?;
             }
 
-            ASTNode::EnumDeclaration { .. } => {}
+            ASTNode::EnumDeclaration { .. } | ASTNode::StaticConstTable { .. } => {}
 
             ASTNode::BoxDeclaration {
                 methods,

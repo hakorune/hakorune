@@ -427,6 +427,10 @@ pub struct ModuleMetadata {
     /// Backend-readable typed object layouts derived from user box field metadata.
     pub typed_object_plans: Vec<TypedObjectPlan>,
 
+    /// Backend-readable static readonly table rows.
+    /// MIR owns this row shape; backend emitters only serialize rows.
+    pub static_data_plans: Vec<StaticDataPlan>,
+
     /// Declared enum inventory for canonical sum lowering and runtime/codegen handoff.
     pub enum_decls: BTreeMap<String, MirEnumDecl>,
 
@@ -436,6 +440,17 @@ pub struct ModuleMetadata {
 
     /// NCL-1: Next stable id for `closure_bodies`.
     pub next_closure_body_id: ClosureBodyId,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StaticDataPlan {
+    pub source_name: String,
+    pub symbol: String,
+    pub element: String,
+    pub align: u32,
+    pub linkage: String,
+    pub unnamed_addr: bool,
+    pub values: Vec<u64>,
 }
 
 /// Module statistics

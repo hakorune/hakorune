@@ -371,6 +371,91 @@ box ParserBox {
     return ParserStmtBox.parse(src, i, me)
   }
 
+  static_const_table_fail(src, tag) {
+    me.gpos_set(src.length())
+    return "[freeze:contract][static-const/" + tag + "]"
+  }
+
+  parse_static_const_table_decl(src, i) {
+    local j = ParserStringUtilsBox.skip_ws(src, i)
+    if ParserStringUtilsBox.starts_with_kw(src, j, "static") != 1 { return null }
+    j = ParserStringUtilsBox.skip_ws(src, j + 6)
+    if ParserStringUtilsBox.starts_with_kw(src, j, "const") != 1 { return null }
+    j = ParserStringUtilsBox.skip_ws(src, j + 5)
+
+    local namep = me.read_ident2(src, j)
+    local at_name = namep.lastIndexOf("@")
+    if at_name < 0 { return me.static_const_table_fail(src, "declaration") }
+    local name = namep.substring(0, at_name)
+    if name.length() == 0 { return me.static_const_table_fail(src, "declaration") }
+    j = StringHelpers.to_i64(namep.substring(at_name + 1, namep.length()))
+    j = ParserStringUtilsBox.skip_ws(src, j)
+
+    if j >= src.length() || src.substring(j, j + 1) != ":" {
+      return me.static_const_table_fail(src, "declaration")
+    }
+    j = ParserStringUtilsBox.skip_ws(src, j + 1)
+    if ParserStringUtilsBox.starts_with_kw(src, j, "u16") != 1 {
+      return me.static_const_table_fail(src, "unsupported-element")
+    }
+    j = ParserStringUtilsBox.skip_ws(src, j + 3)
+    if j + 1 >= src.length() || src.substring(j, j + 1) != "[" || src.substring(j + 1, j + 2) != "]" {
+      return me.static_const_table_fail(src, "unsupported-element")
+    }
+    j = ParserStringUtilsBox.skip_ws(src, j + 2)
+
+    if j >= src.length() || src.substring(j, j + 1) != "=" {
+      return me.static_const_table_fail(src, "declaration")
+    }
+    j = ParserStringUtilsBox.skip_ws(src, j + 1)
+    if j >= src.length() || src.substring(j, j + 1) != "[" {
+      return me.static_const_table_fail(src, "unsupported-initializer")
+    }
+    j = ParserStringUtilsBox.skip_ws(src, j + 1)
+
+    local values = "["
+    local first_value = 1
+    local reading_values = 1
+    loop(reading_values == 1) {
+      j = ParserStringUtilsBox.skip_ws(src, j)
+      if j >= src.length() { return me.static_const_table_fail(src, "unsupported-initializer") }
+      if src.substring(j, j + 1) == "]" {
+        j = j + 1
+        reading_values = 0
+      } else {
+        local num_start = j
+        loop(j < src.length() && ParserStringUtilsBox.is_digit(src.substring(j, j + 1)) == 1) {
+          j = j + 1
+        }
+        if j <= num_start { return me.static_const_table_fail(src, "unsupported-initializer") }
+        local digits = src.substring(num_start, j)
+        local value = StringHelpers.to_i64(digits)
+        if value < 0 || value > 65535 { return me.static_const_table_fail(src, "value-out-of-range") }
+        if first_value == 1 {
+          values = values + digits
+          first_value = 0
+        } else {
+          values = values + "," + digits
+        }
+
+        j = ParserStringUtilsBox.skip_ws(src, j)
+        if j < src.length() && src.substring(j, j + 1) == "," {
+          j = ParserStringUtilsBox.skip_ws(src, j + 1)
+        } else {
+          if j < src.length() && src.substring(j, j + 1) == "]" {
+            j = j + 1
+            reading_values = 0
+          } else {
+            return me.static_const_table_fail(src, "declaration")
+          }
+        }
+      }
+    }
+    values = values + "]"
+    me.gpos_set(j)
+    return "{\"source_name\":\"" + me.esc_json(name) + "\",\"symbol\":\".hako.static." + me.esc_json(name) + "\",\"element\":\"u16\",\"align\":2,\"linkage\":\"private\",\"unnamed_addr\":true,\"values\":" + values + "}"
+  }
+
   // === Delegation to ParserControlBox ===
   parse_block2(src, i) {
     return ParserControlBox.parse_block(src, i, me)
@@ -445,6 +530,8 @@ box ParserBox {
 
     local body = "["
     local first = 1
+    local static_data = "["
+    local static_first = 1
     local cont_prog = 1
 
     // Dev-only program-level progress guard (Phase 25.1c):
@@ -481,66 +568,101 @@ box ParserBox {
         }
       }
 
-      // ===== 3) PARSE_STMT2 + GPOS_GET (unconditional execution) =====
-      local start_i = i
-      local s = me.parse_stmt2(src, i)
-      i = me.gpos_get()
-
-      if ParserStringUtilsBox.starts_with("" + s, 0, "[freeze:contract]") == 1 {
-        env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
-        return "" + s
-      }
-
-      // ===== 4) PROGRESS GUARD (ensure i always advances) =====
-      if i <= start_i {
-        if trace == 1 {
-          print("[parser/trace:program2] progress-guard bump i from " + ("" + start_i) + " to " + ("" + (start_i + 1)))
+      // ===== 3) SOURCE-LEVEL METADATA DECLS =====
+      local skip_statement_parse = 0
+      local static_row = me.parse_static_const_table_decl(src, i)
+      if static_row != null {
+        if ParserStringUtilsBox.starts_with("" + static_row, 0, "[freeze:contract]") == 1 {
+          env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
+          return "" + static_row
         }
-        i = start_i + 1
-        if i > n { i = n }
-        me.gpos_set(i)
-      }
-
-      // ===== 5) TRACE (simplified, at end) =====
-      if trace == 1 {
-        print("[parser/trace:program2] i=" + ("" + i) + " stmt_len=" + ("" + s.length()) + " guard=" + ("" + guard_prog))
-      }
-
-      // ===== 6) CONSUME OPTIONAL SEMICOLONS - MirBuilder-friendly =====
-      loop(true) {
-        i = ParserStringUtilsBox.skip_ws(src, i)
-
-        if i < n && src.substring(i, i+1) == ";" {
-          i = i + 1
-          continue
-        }
-
-        break
-      }
-
-      // ===== 7) EMIT STATEMENT =====
-      local pending_runes = me.consume_runes_json()
-      if pending_runes != "[]" {
-        env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
-        return RuneContractBox.invalid_placement_tag("statement")
-      }
-      if s.length() > 0 {
-        if first == 1 {
-          if trace == 1 {
-            print("[parser/trace:program2] emit-first stmt_len=" + ("" + s.length()))
+        i = me.gpos_get()
+        local static_semis = 1
+        loop(static_semis == 1) {
+          i = ParserStringUtilsBox.skip_ws(src, i)
+          if i < n && src.substring(i, i+1) == ";" {
+            i = i + 1
+          } else {
+            static_semis = 0
           }
-          body = body + s
-          first = 0
+        }
+        local pending_static_runes = me.consume_runes_json()
+        if pending_static_runes != "[]" {
+          env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
+          return RuneContractBox.invalid_placement_tag("static const")
+        }
+        if static_first == 1 {
+          static_data = static_data + static_row
+          static_first = 0
         } else {
+          static_data = static_data + "," + static_row
+        }
+        skip_statement_parse = 1
+      }
+
+      if skip_statement_parse == 0 {
+        // ===== 4) PARSE_STMT2 + GPOS_GET (unconditional execution) =====
+        local start_i = i
+        local s = me.parse_stmt2(src, i)
+        i = me.gpos_get()
+
+        if ParserStringUtilsBox.starts_with("" + s, 0, "[freeze:contract]") == 1 {
+          env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
+          return "" + s
+        }
+
+        // ===== 5) PROGRESS GUARD (ensure i always advances) =====
+        if i <= start_i {
           if trace == 1 {
-            print("[parser/trace:program2] emit stmt_len=" + ("" + s.length()))
+            print("[parser/trace:program2] progress-guard bump i from " + ("" + start_i) + " to " + ("" + (start_i + 1)))
           }
-          body = body + "," + s
+          i = start_i + 1
+          if i > n { i = n }
+          me.gpos_set(i)
+        }
+
+        // ===== 6) TRACE (simplified, at end) =====
+        if trace == 1 {
+          print("[parser/trace:program2] i=" + ("" + i) + " stmt_len=" + ("" + s.length()) + " guard=" + ("" + guard_prog))
+        }
+
+        // ===== 7) CONSUME OPTIONAL SEMICOLONS - MirBuilder-friendly =====
+        loop(true) {
+          i = ParserStringUtilsBox.skip_ws(src, i)
+
+          if i < n && src.substring(i, i+1) == ";" {
+            i = i + 1
+            continue
+          }
+
+          break
+        }
+
+        // ===== 8) EMIT STATEMENT =====
+        local pending_runes = me.consume_runes_json()
+        if pending_runes != "[]" {
+          env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
+          return RuneContractBox.invalid_placement_tag("statement")
+        }
+        if s.length() > 0 {
+          if first == 1 {
+            if trace == 1 {
+              print("[parser/trace:program2] emit-first stmt_len=" + ("" + s.length()))
+            }
+            body = body + s
+            first = 0
+          } else {
+            if trace == 1 {
+              print("[parser/trace:program2] emit stmt_len=" + ("" + s.length()))
+            }
+            body = body + "," + s
+          }
         }
       }
     }
 
     body = body + "]"
+    static_data = static_data + "]"
     if me.consume_runes_json() != "[]" {
       env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
       return RuneContractBox.invalid_placement_tag("statement")
@@ -549,7 +671,7 @@ box ParserBox {
       print("[parser/trace:program2] done pos=" + ("" + i) + " len=" + ("" + n))
     }
     env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
-    return "{\"version\":0,\"kind\":\"Program\",\"body\":" + body + "}"
+    return "{\"version\":0,\"kind\":\"Program\",\"body\":" + body + ",\"static_data_plans\":" + static_data + "}"
   }
 }
 

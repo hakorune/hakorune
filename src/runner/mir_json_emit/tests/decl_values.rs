@@ -1,8 +1,10 @@
 use super::super::{
     collect_sorted_enum_decl_values, collect_sorted_user_box_decl_values,
-    collect_typed_object_plan_values,
+    collect_static_data_plan_values, collect_typed_object_plan_values,
 };
-use crate::mir::function::{TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan};
+use crate::mir::function::{
+    StaticDataPlan, TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan,
+};
 use crate::mir::MirModule;
 use serde_json::json;
 
@@ -163,4 +165,29 @@ fn collect_typed_object_plan_values_preserves_backend_layout_truth() {
     assert_eq!(plans[0]["fields"][0]["storage"], "i64");
     assert_eq!(plans[0]["fields"][0]["weak"], false);
     assert_eq!(plans[0]["fields"][1]["storage"], "handle");
+}
+
+#[test]
+fn collect_static_data_plan_values_preserves_backend_row_truth() {
+    let mut module = MirModule::new("test".to_string());
+    module.metadata.static_data_plans.push(StaticDataPlan {
+        source_name: "SIZE_CLASS".to_string(),
+        symbol: ".hako.static.SIZE_CLASS".to_string(),
+        element: "u16".to_string(),
+        align: 2,
+        linkage: "private".to_string(),
+        unnamed_addr: true,
+        values: vec![8, 16, 24, 32],
+    });
+
+    let plans = collect_static_data_plan_values(&module);
+
+    assert_eq!(plans.len(), 1);
+    assert_eq!(plans[0]["source_name"], "SIZE_CLASS");
+    assert_eq!(plans[0]["symbol"], ".hako.static.SIZE_CLASS");
+    assert_eq!(plans[0]["element"], "u16");
+    assert_eq!(plans[0]["align"], 2);
+    assert_eq!(plans[0]["linkage"], "private");
+    assert_eq!(plans[0]["unnamed_addr"], true);
+    assert_eq!(plans[0]["values"], json!([8, 16, 24, 32]));
 }

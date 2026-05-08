@@ -93,6 +93,16 @@ fn ast_to_program_json_v0_with_imports(
             serde_json::Value::Array(enum_decls),
         );
     }
+    let static_data_plans = collect_static_data_plans(ast);
+    if !static_data_plans.is_empty() {
+        let object = program
+            .as_object_mut()
+            .ok_or_else(|| "program json root must be object".to_string())?;
+        object.insert(
+            "static_data_plans".to_string(),
+            serde_json::Value::Array(static_data_plans),
+        );
+    }
     if !imports.is_empty() {
         let object = program
             .as_object_mut()
@@ -187,4 +197,44 @@ fn collect_enum_decls(ast: &ASTNode) -> Vec<serde_json::Value> {
             }))
         })
         .collect()
+}
+
+fn collect_static_data_plans(ast: &ASTNode) -> Vec<serde_json::Value> {
+    let ASTNode::Program { statements, .. } = ast else {
+        return Vec::new();
+    };
+
+    statements
+        .iter()
+        .filter_map(|statement| {
+            let ASTNode::StaticConstTable {
+                name,
+                element_type,
+                values,
+                ..
+            } = statement
+            else {
+                return None;
+            };
+            Some(serde_json::json!({
+                "source_name": name,
+                "symbol": format!(".hako.static.{}", name),
+                "element": element_type,
+                "align": static_data_alignment(element_type),
+                "linkage": "private",
+                "unnamed_addr": true,
+                "values": values,
+            }))
+        })
+        .collect()
+}
+
+fn static_data_alignment(element_type: &str) -> u32 {
+    match element_type {
+        "u8" => 1,
+        "u16" => 2,
+        "u32" => 4,
+        "u64" => 8,
+        _ => 1,
+    }
 }

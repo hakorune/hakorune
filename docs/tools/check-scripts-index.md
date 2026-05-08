@@ -50,6 +50,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/phase29cl_by_name_mainline_guard.sh` | `nyash.plugin.invoke_by_name_i64` の owner 集合を allowlist で固定し、新しい mainline caller を fail-fast で防ぐ。 |
 | `tools/checks/ring1_core_scope_guard.sh` | ring1 provider の受理ドメイン境界検証。 |
 | `tools/checks/k2_wide_rawbuf_first_row_guard.sh` | `RawBufCoreBox` の最小 allocation facade が `MemCoreBox` 直上に留まり、allocator policy/state や layout/MaybeInit/TLS/atomic/OSVM に広がらないことを固定する。 |
+| `tools/checks/k2_wide_static_const_table_decl_guard.sh` | M11b-decl の `static const NAME: u16[]` 受理形が Rust parser / `.hako` parser / Program JSON / MIR `static_data_plans` / ll_emit reader に流れることを固定する。 |
 
 ## Env Hygiene
 

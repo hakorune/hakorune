@@ -20,6 +20,7 @@ impl ASTNode {
             ASTNode::EnumDeclaration { .. } => "EnumDeclaration",
             ASTNode::FunctionDeclaration { .. } => "FunctionDeclaration",
             ASTNode::GlobalVar { .. } => "GlobalVar",
+            ASTNode::StaticConstTable { .. } => "StaticConstTable",
             ASTNode::Literal { .. } => "Literal",
             ASTNode::Variable { .. } => "Variable",
             ASTNode::UnaryOp { .. } => "UnaryOp",

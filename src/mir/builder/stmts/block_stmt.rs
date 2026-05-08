@@ -185,6 +185,10 @@ pub(in crate::mir::builder) fn build_statement(
             // Statement なので値は使わない（Void を返す）
             Ok(crate::mir::builder::emission::constant::emit_void(builder)?)
         }
+        ASTNode::StaticConstTable { .. } => {
+            // Metadata-only declaration; execution observes no runtime statement.
+            Ok(crate::mir::builder::emission::constant::emit_void(builder)?)
+        }
         // 将来ここに While / ForRange / Match / Using など statement 専用分岐を追加する。
         other => builder.build_expression(other),
     }

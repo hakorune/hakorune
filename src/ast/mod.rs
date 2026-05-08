@@ -621,6 +621,15 @@ pub enum ASTNode {
         span: Span,
     },
 
+    /// Backend-private static readonly table declaration:
+    /// `static const NAME: u16[] = [ ... ]`
+    StaticConstTable {
+        name: String,
+        element_type: String,
+        values: Vec<u64>,
+        span: Span,
+    },
+
     // ===== 式 (Expressions) =====
     /// リテラル値: "string", 42, true, etc
     Literal { value: LiteralValue, span: Span },

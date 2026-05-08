@@ -17,6 +17,8 @@ pub(super) struct ProgramV0 {
     pub(super) user_box_decls: Vec<UserBoxDeclV0>,
     #[serde(default)]
     pub(super) enum_decls: Vec<EnumDeclV0>,
+    #[serde(default)]
+    pub(super) static_data_plans: Vec<StaticDataPlanV0>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, Default)]
@@ -148,6 +150,19 @@ pub(super) struct EnumDeclV0 {
     pub(super) type_parameters: Vec<String>,
     #[serde(default)]
     pub(super) variants: Vec<EnumVariantDeclV0>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub(super) struct StaticDataPlanV0 {
+    pub(super) source_name: String,
+    pub(super) symbol: String,
+    pub(super) element: String,
+    pub(super) align: u32,
+    pub(super) linkage: String,
+    #[serde(default)]
+    pub(super) unnamed_addr: bool,
+    #[serde(default)]
+    pub(super) values: Vec<u64>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

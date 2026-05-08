@@ -58,11 +58,12 @@ Deferred and not accepted by this row:
 Backends must not infer exact unsigned or fixed-width behavior from these names
 until the corresponding verifier/lowering rows are live.
 
-### Static Const Tables (M11b reserved)
+### Static Const Tables (M11b-decl live)
 
-Decision: reserved, not live.
+Decision: the first declaration-only row is live. Static table reads and const
+evaluation are still reserved.
 
-The next static table direction is:
+Accepted first shape:
 
 ```hako
 static const SIZE_CLASS: u16[] = [
@@ -72,11 +73,11 @@ static const SIZE_CLASS: u16[] = [
 
 Current status:
 
-- The syntax is not accepted by current parsers yet.
-- The first planned element type is `u16`.
-- Values must be integer literals in the `0..65535` range when the row lands.
-- The declaration must lower to MIR module metadata `static_data_plans`.
-- Backends must emit readonly data from that plan.
+- Rust parser and `.hako` parser accept the first `u16[]` declaration shape.
+- The only accepted element type is `u16`.
+- Values must be integer literals in the `0..65535` range.
+- The declaration lowers to MIR module metadata `static_data_plans`.
+- Backends emit readonly data from that plan.
 - Runtime `ArrayBox` / `MapBox` construction is not an accepted
   implementation strategy for fixed static tables.
 

@@ -17,15 +17,97 @@ impl NyashParser {
         match &self.current_token().token_type {
             TokenType::FUNCTION => self.parse_static_function(),
             TokenType::BOX => crate::parser::declarations::static_def::parse_static_box(self),
+            TokenType::IDENTIFIER(word) if word == "const" => self.parse_static_const_table(),
             _ => {
                 let line = self.current_token().line;
                 Err(ParseError::UnexpectedToken {
                     found: self.current_token().token_type.clone(),
-                    expected: "function or box after static".to_string(),
+                    expected: "function, box, or const after static".to_string(),
                     line,
                 })
             }
         }
+    }
+
+    /// Backend-private static readonly table declaration.
+    ///
+    /// Accepted M11b-decl shape:
+    /// `static const NAME: u16[] = [1, 2, 3]`
+    fn parse_static_const_table(&mut self) -> Result<ASTNode, ParseError> {
+        self.advance(); // consume identifier `const`
+
+        let name = if let TokenType::IDENTIFIER(name) = &self.current_token().token_type {
+            let name = name.clone();
+            self.advance();
+            name
+        } else {
+            let line = self.current_token().line;
+            return Err(ParseError::UnexpectedToken {
+                found: self.current_token().token_type.clone(),
+                expected: "[static-const/declaration] table name".to_string(),
+                line,
+            });
+        };
+
+        self.consume(TokenType::COLON)?;
+        let type_text =
+            crate::parser::common::type_refs::parse_type_ref_text(self, "static const table")?;
+        if type_text != "u16[]" {
+            let line = self.current_token().line;
+            return Err(ParseError::UnexpectedToken {
+                found: self.current_token().token_type.clone(),
+                expected: "[static-const/unsupported-element] u16[]".to_string(),
+                line,
+            });
+        }
+
+        self.consume(TokenType::ASSIGN)?;
+        self.consume(TokenType::LBRACK)?;
+        let mut values = Vec::new();
+        while !self.match_token(&TokenType::RBRACK) && !self.is_at_end() {
+            let value = if let TokenType::NUMBER(value) = &self.current_token().token_type {
+                *value
+            } else {
+                let line = self.current_token().line;
+                return Err(ParseError::UnexpectedToken {
+                    found: self.current_token().token_type.clone(),
+                    expected: "[static-const/unsupported-initializer] integer literal".to_string(),
+                    line,
+                });
+            };
+            if !(0..=u16::MAX as i64).contains(&value) {
+                let line = self.current_token().line;
+                return Err(ParseError::UnexpectedToken {
+                    found: self.current_token().token_type.clone(),
+                    expected: "[static-const/value-out-of-range] 0..65535".to_string(),
+                    line,
+                });
+            }
+            values.push(value as u64);
+            self.advance();
+
+            if self.match_token(&TokenType::COMMA) {
+                self.advance();
+                continue;
+            }
+            if self.match_token(&TokenType::RBRACK) {
+                break;
+            }
+            let line = self.current_token().line;
+            return Err(ParseError::UnexpectedToken {
+                found: self.current_token().token_type.clone(),
+                expected: "[static-const/declaration] comma or closing bracket".to_string(),
+                line,
+            });
+        }
+        self.consume(TokenType::RBRACK)?;
+
+        Ok(ASTNode::StaticConstTable {
+            name,
+            element_type: "u16".to_string(),
+            values,
+            span: Span::unknown(),
+        })
     }
 
     /// 静的関数宣言をパース - static function Name() { ... }

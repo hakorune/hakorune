@@ -80,3 +80,24 @@ pub(super) fn collect_typed_object_plan_values(
         })
         .collect()
 }
+
+pub(super) fn collect_static_data_plan_values(
+    module: &crate::mir::MirModule,
+) -> Vec<serde_json::Value> {
+    module
+        .metadata
+        .static_data_plans
+        .iter()
+        .map(|plan| {
+            json!({
+                "source_name": plan.source_name,
+                "symbol": plan.symbol,
+                "element": plan.element,
+                "align": plan.align,
+                "linkage": plan.linkage,
+                "unnamed_addr": plan.unnamed_addr,
+                "values": plan.values,
+            })
+        })
+        .collect()
+}

@@ -83,6 +83,7 @@ pub(crate) mod same_module_body_shape; // shared body-shape facts for same-modul
 pub mod semantic_refresh; // MIR semantic metadata refresh owner (SSOT)
 pub mod slot_registry; // Phase 9.79b.1: method slot resolution (IDs)
 mod spanned_instruction;
+pub mod static_data_plan; // MIR-owned static readonly table rows for backend emission
 pub mod storage_class; // primitive / user-box storage-class inventory + refresh helper
 pub mod string_corridor; // string canonical corridor facts + refresh helper
 pub(crate) mod string_corridor_compat; // compat semantic recovery quarantined from canonical facts

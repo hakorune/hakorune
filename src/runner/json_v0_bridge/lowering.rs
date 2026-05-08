@@ -1,4 +1,4 @@
-use super::ast::{EnumDeclV0, ProgramV0, StmtV0, UserBoxDeclV0};
+use super::ast::{EnumDeclV0, ProgramV0, StaticDataPlanV0, StmtV0, UserBoxDeclV0};
 use crate::mir::{
     BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType, ValueId,
 };
@@ -240,6 +240,11 @@ pub(super) fn lower_program(
             )
         })
         .collect();
+    module.metadata.static_data_plans = prog
+        .static_data_plans
+        .iter()
+        .map(static_data_plan_from_json_v0)
+        .collect();
     program::lower_main_body(&mut module, &prog.body, &env)?;
     if let Some(entry_def) = prog
         .defs
@@ -254,6 +259,18 @@ pub(super) fn lower_program(
     program::maybe_resolve_calls(&mut module, &func_map);
 
     Ok(module)
+}
+
+fn static_data_plan_from_json_v0(row: &StaticDataPlanV0) -> crate::mir::function::StaticDataPlan {
+    crate::mir::function::StaticDataPlan {
+        source_name: row.source_name.clone(),
+        symbol: row.symbol.clone(),
+        element: row.element.clone(),
+        align: row.align,
+        linkage: row.linkage.clone(),
+        unnamed_addr: row.unnamed_addr,
+        values: row.values.clone(),
+    }
 }
 
 pub(super) fn maybe_dump_mir(module: &MirModule) {

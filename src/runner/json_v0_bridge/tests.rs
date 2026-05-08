@@ -112,6 +112,44 @@ fn parse_json_v0_to_module_lowers_enum_ctor_to_variant_make() {
 }
 
 #[test]
+fn parse_json_v0_to_module_preserves_static_data_plans() {
+    let json = json!({
+        "version": 0,
+        "kind": "Program",
+        "static_data_plans": [
+            {
+                "source_name": "SIZE_CLASS",
+                "symbol": ".hako.static.SIZE_CLASS",
+                "element": "u16",
+                "align": 2,
+                "linkage": "private",
+                "unnamed_addr": true,
+                "values": [8, 16, 24, 32]
+            }
+        ],
+        "body": [
+            {
+                "type": "Return",
+                "expr": { "type": "Int", "value": 0 }
+            }
+        ]
+    })
+    .to_string();
+
+    let module = parse_json_v0_to_module(&json).expect("module");
+    let plans = &module.metadata.static_data_plans;
+
+    assert_eq!(plans.len(), 1);
+    assert_eq!(plans[0].source_name, "SIZE_CLASS");
+    assert_eq!(plans[0].symbol, ".hako.static.SIZE_CLASS");
+    assert_eq!(plans[0].element, "u16");
+    assert_eq!(plans[0].align, 2);
+    assert_eq!(plans[0].linkage, "private");
+    assert!(plans[0].unnamed_addr);
+    assert_eq!(plans[0].values, vec![8, 16, 24, 32]);
+}
+
+#[test]
 fn parse_json_v0_to_module_rejects_option_some_null_payload() {
     let json = json!({
         "version": 0,

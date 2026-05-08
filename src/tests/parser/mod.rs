@@ -43,6 +43,8 @@ pub mod parser_scope_exit_fini;
 pub mod parser_semicolon;
 #[path = "../parser_static_box_members.rs"]
 pub mod parser_static_box_members;
+#[path = "../parser_static_const_table.rs"]
+pub mod parser_static_const_table;
 #[path = "../parser_unified_members_get.rs"]
 pub mod parser_unified_members_get;
 #[path = "../parser_unified_members_property_emit.rs"]

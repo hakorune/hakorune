@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Decision: provisional
+Decision: M11b-decl accepted; M11b-load and M11b-eval provisional
 Date: 2026-05-08
 Scope: M11b static const table source surface, MIR/static-data ownership, and parser rollout order.
 Related:
@@ -35,7 +35,8 @@ M11b-eval:
   source values may be derived at compile time
 ```
 
-Only `M11b-decl` is the next narrow implementation target.
+`M11b-decl` is implemented for the first narrow shape. `M11b-load` and
+`M11b-eval` remain follow-up rows.
 
 ## Relationship To M11a
 

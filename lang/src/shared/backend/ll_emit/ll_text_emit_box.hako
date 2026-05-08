@@ -435,7 +435,7 @@ static box LlTextEmitBox {
     out = out + "\n"
     local blocks = func.get("blocks")
     local bi = 0
-    local static_data = StaticDataRegistryBox.emit_globals()
+    local static_data = StaticDataRegistryBox.emit_globals_for_root(root)
     if static_data == null { return null }
     out = out + static_data
     out = out + me._emit_string_globals(func, facts)
