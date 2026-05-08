@@ -35,6 +35,9 @@ Current phase reading:
 - The following algorithm-substrate consumer now has a live observer slice at:
   - `raw_map/README.md`
   - `raw_map/raw_map_core_box.hako`
+- The first allocator-substrate consumer now has a live allocation-facade slice at:
+  - `raw_buf/README.md`
+  - `raw_buf/raw_buf_core_box.hako`
 - The current capability-widening locks live at `atomic/README.md`, `tls/README.md`, `gc/README.md`, and `osvm/README.md`.
 - `gc` now also has a first live box at:
   - `gc/gc_core_box.hako`
@@ -46,6 +49,7 @@ Current live capability subset:
 - `buf` now has a live `len/cap/reserve/grow` facade.
 - `ptr` remains the typed pointer/span facade used by the current array capacity path.
 - `verifier` now has live `bounds`, `initialized-range`, and `ownership` gates for the current raw collection routes.
+- `raw_buf` now has live `alloc_bytes_i64`, `realloc_bytes_i64`, and `free_bytes_i64` facades over `MemCoreBox`.
 - `raw_map` now has live `entry_count_i64`, `cap_i64`, `probe_*`, and `slot_load/store_*` facades under `MapCoreBox`.
 - `atomic` now has a live `fence_i64` helper-shaped facade.
 - `tls` now has a live `last_error_text_h` helper-shaped facade.
@@ -66,7 +70,8 @@ Relationship to existing runtime boxes:
 
 Non-goals:
 - Do not grow `hako.mem` / `hako.buf` into allocator policy here.
-- Do not add `RawArray` / `RawMap` here yet.
+- Do not move `RawArray` / `RawMap` / `RawBuf` owner semantics here just
+  because substrate facades exist.
 - Do not move allocator / TLS / atomic / GC policy here yet.
 - Do not invent false `atomic/tls` substrate rows here.
 - Do not rewrite native metal helpers here.

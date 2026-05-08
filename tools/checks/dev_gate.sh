@@ -65,6 +65,7 @@ list_profiles() {
     - cargo check --bin hakorune
     - PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py
     - tools/checks/k2_core_rawarray_acceptance_guard.sh
+    - tools/checks/k2_wide_rawbuf_first_row_guard.sh
     - tools/checks/k2_wide_rawmap_first_slice_guard.sh
     - tools/checks/k2_wide_rawmap_clear_guard.sh
     - tools/checks/k2_wide_rawmap_delete_guard.sh
@@ -309,6 +310,9 @@ run_quick() {
 
   run_step "K2-core RawArray acceptance guard" \
     bash tools/checks/k2_core_rawarray_acceptance_guard.sh
+
+  run_step "K2-wide RawBuf first-row guard" \
+    bash tools/checks/k2_wide_rawbuf_first_row_guard.sh
 
   run_step "K2-wide RawMap first-slice guard" \
     bash tools/checks/k2_wide_rawmap_first_slice_guard.sh

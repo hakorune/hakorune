@@ -261,6 +261,19 @@ current implementation note:
 
 collection owner の次の本命はここ。
 
+### C2.5. `RawBuf`
+
+- raw byte-buffer allocation vocabulary
+- alloc/realloc/free facade above `hako.mem`
+- future home for verifier-backed raw buffer state
+- current live surface:
+  - [`raw_buf/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/raw_buf/README.md)
+  - [`raw_buf/raw_buf_core_box.hako`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/raw_buf/raw_buf_core_box.hako)
+
+This is an allocator-substrate consumer, not allocator policy/state owner.
+`len/cap`, native layout, `MaybeInit`, `no_alloc`, `no_safepoint`,
+TLS/atomic/OS VM, and double-free verification remain future rows.
+
 ### C3. `RawMap`
 
 - probe
@@ -347,10 +360,11 @@ docs-side order to use when the allocator substrate lane opens.
    - fixed layout / alignment / `sizeof` / `offsetof`
    - `box` vs raw metadata boundary documented before implementation
 3. minimal `RawBuf` + `RawArray` allocator fixture
+   - `RawBuf` allocation facade is now live above `MemCoreBox`
    - no TLS
    - no atomics
    - no OS VM ownership
-   - verifier-gated slot load/store and reserve/grow only
+   - verifier-gated slot load/store and reserve/grow only for `RawArray`
 4. `hako.mem` / `hako.buf` / `hako.ptr` widening
    - restricted unsafe only
    - bounds/initialized/ownership fail-fast

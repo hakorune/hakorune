@@ -10,6 +10,7 @@ version = "1.0.0"
 # - mem.*
 # - buf.*
 # - ptr.*
+# - raw_buf.*
 # - atomic.*
 # - tls.*
 # - gc.*

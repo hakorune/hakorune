@@ -1,0 +1,34 @@
+// RawBufCoreBox - first live allocator-substrate row above `hako.mem`.
+// Responsibility:
+// - expose raw byte-buffer allocation vocabulary without owning allocator policy
+// - keep allocator-shaped users off direct MemCoreBox calls
+// Non-responsibility:
+// - len/cap/layout state
+// - initialization-state tracking
+// - TLS/atomic/GC/OS VM policy
+
+using selfhost.runtime.substrate.mem.mem_core_box as MemCoreBox
+
+static box RawBufCoreBox {
+  _trace(tag) {
+    if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
+  }
+
+  alloc_bytes_i64(size) {
+    local out = MemCoreBox.alloc_i64(size)
+    me._trace("[vm/adapter/raw_buf:alloc_bytes_i64]")
+    return out
+  }
+
+  realloc_bytes_i64(ptr, new_size) {
+    local out = MemCoreBox.realloc_i64(ptr, new_size)
+    me._trace("[vm/adapter/raw_buf:realloc_bytes_i64]")
+    return out
+  }
+
+  free_bytes_i64(ptr) {
+    local out = MemCoreBox.free_i64(ptr)
+    me._trace("[vm/adapter/raw_buf:free_bytes_i64]")
+    return out
+  }
+}

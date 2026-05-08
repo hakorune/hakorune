@@ -139,7 +139,7 @@ consumer appears.
 
 These remain docs/root-reserved only in this wave.
 
-- `RawBuf`
+- `RawBuf` policy/state and native-layout-backed buffer ownership
 - `MaybeInit`
 - native `Layout`
 - general size/bin policy
@@ -192,7 +192,9 @@ Umbrella gate:
 - `plugin route-manifest hardening` is landed
 - `FastLeafManifest widen judgment` is landed with `no widen now`
 - there is no active stage2 code bucket until a concrete backend-private consumer patch appears
-- `RawBuf / native Layout / MaybeInit` live migration is a later allocator wave
+- `RawBuf` policy/state, native `Layout`, and `MaybeInit` live migration is a
+  later allocator wave; the narrow substrate allocation facade lives under
+  `lang/src/runtime/substrate/raw_buf/`
 - mimalloc-grade fast-path work follows `substrate-capability-ladder-ssot.md`
   and must name its numeric/layout/verifier gates first
 - direct EXE parity waits for typed object planning for general user-box

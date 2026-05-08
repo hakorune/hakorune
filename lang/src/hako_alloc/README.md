@@ -18,7 +18,7 @@ Principles
   - first landed policy rows are handle reuse policy and GC trigger threshold policy
   - third live allocator row is VM-only page/free-list policy-state prototype
   - live Rust bodies still remain under `src/runtime/**`
-  - `RawBuf / MaybeInit` stay reserved-only for now
+  - `RawBuf` policy/state and `MaybeInit` stay reserved-only for now
   - `LayoutBox` is size-class policy only; it is not native layout/ABI ownership
 
 Design owners
@@ -34,9 +34,12 @@ Design owners
 Allocator fast-path rule
 - `mimalloc-lite` and allocator policy models can live here as policy/state rows.
 - mimalloc-grade native fast paths require the substrate ladder first.
-- `RawBuf`, `MaybeInit`, native `Layout`, `repr`-like layout, `sizeof`,
-  `alignof`, `no_alloc`, `no_safepoint`, TLS, atomics, and OS VM rows stay
-  reserved until their docs/gates are named.
+- `RawBuf` policy/state, `MaybeInit`, native `Layout`, `repr`-like layout,
+  `sizeof`, `alignof`, `no_alloc`, `no_safepoint`, TLS, atomics, and OS VM rows
+  stay reserved until their docs/gates are named.
+- The narrow `RawBufCoreBox` allocation facade lives under
+  `lang/src/runtime/substrate/raw_buf/`; it is not this layer's allocator
+  policy/state owner.
 
 Current modules
 - `memory.arc_box`
