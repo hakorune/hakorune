@@ -51,6 +51,10 @@ static uint64_t hako_osvm_round_up_bytes(uint64_t size, uint64_t page) {
   return ((size + page - 1) / page) * page;
 }
 
+int64_t hako_osvm_page_size_i64(void) {
+  return (int64_t)hako_osvm_page_size_bytes();
+}
+
 // ---- GC read-only externs
 // Returns a newly allocated JSON string with basic counters (dummy values).
 // Caller must free via hako_mem_free().

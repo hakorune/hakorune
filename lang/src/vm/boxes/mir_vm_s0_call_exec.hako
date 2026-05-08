@@ -346,6 +346,15 @@ static box MirVmS0CallExecBox {
         }
         return "__NEXT__"
       }
+      if func == "hako_osvm_page_size_i64" || func == "hako_osvm_page_size_i64/0" {
+        if !(me._args_is_empty(seg)) { return "[vm-hako/unimplemented op=externcall(hako_osvm_page_size_i64) args!=0]" }
+        local dst_page_size = me._find_int(seg, "dst")
+        if dst_page_size != null {
+          MirVmS0RegUtilsBox._reg_set(regs, dst_page_size, 4096)
+          MirVmS0RegUtilsBox._reg_kind_set(kinds, dst_page_size, "scalar")
+        }
+        return "__NEXT__"
+      }
       if func == "hako_osvm_reserve_bytes_i64" || func == "hako_osvm_reserve_bytes_i64/1" {
         if me._args_has_second(seg) { return "[vm-hako/unimplemented op=externcall(hako_osvm_reserve_bytes_i64) args>1]" }
         local arg0_osvm = me._args_first(seg)

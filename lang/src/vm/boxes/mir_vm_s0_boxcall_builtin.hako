@@ -390,6 +390,15 @@ static box MirVmS0BoxcallBuiltinBox {
       return "__NEXT__"
     }
 
+    if method == "page_size_i64" {
+      if me._args_count(seg) != 0 { return "[vm-hako/unimplemented op=boxcall(osvm-page-size) args!=0]" }
+      local dst_page = me._find_int(seg, "dst")
+      if dst_page == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      regs.set("" + dst_page, "4096")
+      kinds.set("" + dst_page, "scalar")
+      return "__NEXT__"
+    }
+
     if method == "reserve_bytes_i64" {
       if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
       local reserve_arg = me._args_first(seg)

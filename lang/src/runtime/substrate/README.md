@@ -60,7 +60,8 @@ Current live capability subset:
 - `tls` now has live diagnostics helpers: `last_error_text_h`,
   `last_error_is_ok_i64`, and `last_error_code_i64`.
 - `gc` now has a live `write_barrier_i64` facade.
-- `osvm` now has already-landed `reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` facades; `page_size` stays parked.
+- `osvm` now has live `page_size_i64` / `reserve_bytes_i64` /
+  `commit_bytes_i64` / `decommit_bytes_i64` facades.
 
 Native keep stays outside this directory:
 - OS virtual memory

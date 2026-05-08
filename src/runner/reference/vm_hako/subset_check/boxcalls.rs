@@ -256,6 +256,7 @@ pub(super) fn validate_boxcall_shape(inst: &Value) -> Result<(), String> {
         "commit_bytes_i64" | "decommit_bytes_i64" => {
             validate_boxcall_two_reg_shape(inst, args, method)
         }
+        "page_size_i64" => validate_boxcall_noarg_shape(inst, args, method),
         "realloc_bytes_i64" => validate_boxcall_two_reg_shape(inst, args, method),
         "set" | "setField" => validate_boxcall_set_shape(inst, args, method),
         "read" | "close" => validate_boxcall_zero_or_one_reg_shape(inst, args, method),

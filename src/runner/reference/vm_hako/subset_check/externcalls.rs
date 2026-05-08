@@ -60,6 +60,22 @@ pub(super) fn validate_single_arg_externcall_shape(
     Ok(())
 }
 
+pub(super) fn validate_no_arg_externcall_shape(inst: &Value, label: &str) -> Result<(), String> {
+    let args = inst
+        .get("args")
+        .and_then(|v| v.as_array())
+        .ok_or_else(|| format!("externcall({}:malformed)", label))?;
+    if !args.is_empty() {
+        return Err(format!("externcall({}:args!=0)", label));
+    }
+    if let Some(dst) = inst.get("dst") {
+        if !(dst.is_u64() || dst.is_null()) {
+            return Err(format!("externcall({}:dst:non-reg)", label));
+        }
+    }
+    Ok(())
+}
+
 pub(super) fn validate_two_arg_externcall_shape(inst: &Value, label: &str) -> Result<(), String> {
     let args = inst
         .get("args")

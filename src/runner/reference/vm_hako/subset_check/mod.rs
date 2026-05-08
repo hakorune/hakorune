@@ -247,6 +247,7 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                     if let Some(box_reg) = inst.get("box").and_then(|v| v.as_u64()) {
                         if let Some(box_type) = box_type_by_reg.get(&box_reg) {
                             if box_type == "OsVmCoreBox"
+                                && method != "page_size_i64"
                                 && method != "reserve_bytes_i64"
                                 && method != "commit_bytes_i64"
                                 && method != "decommit_bytes_i64"
@@ -384,6 +385,15 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                         if let Err(reason) = externcalls::validate_single_arg_externcall_shape(
                             inst,
                             "hako_barrier_touch_i64",
+                        ) {
+                            return Err((func_name.clone(), bb, reason));
+                        }
+                        continue;
+                    }
+                    if func == "hako_osvm_page_size_i64" || func == "hako_osvm_page_size_i64/0" {
+                        if let Err(reason) = externcalls::validate_no_arg_externcall_shape(
+                            inst,
+                            "hako_osvm_page_size_i64",
                         ) {
                             return Err((func_name.clone(), bb, reason));
                         }

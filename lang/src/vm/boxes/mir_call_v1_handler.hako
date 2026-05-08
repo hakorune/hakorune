@@ -665,6 +665,13 @@ static box MirCallV1HandlerBox {
       }
       return
     }
+    if name == "hako_osvm_page_size_i64" || name == "hako_osvm_page_size_i64/0" {
+      local dst_page = JsonFragBox.get_int(seg, "dst")
+      if dst_page != null {
+        regs.setField(StringHelpers.int_to_str(dst_page), "4096")
+      }
+      return
+    }
     if name == "hako_osvm_reserve_bytes_i64" || name == "hako_osvm_reserve_bytes_i64/1" {
       local dst_osvm = JsonFragBox.get_int(seg, "dst")
       if dst_osvm != null {

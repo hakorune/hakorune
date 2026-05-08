@@ -45,7 +45,7 @@ The current live surface is intentionally narrow.
 | `hako.atomic` | helper-shaped `fence_i64`, memory-order vocabulary, and `fence_order_i64(order)` rows exist; generic load/store/CAS/fetch_add are not live |
 | `hako.tls` | helper-shaped diagnostics TLS rows exist: `last_error_text_h`, `last_error_is_ok_i64`, and `last_error_code_i64`; generic thread/task-local slots are not live |
 | `hako.gc` | helper-shaped `write_barrier_i64` row exists |
-| `hako.osvm` | reserve/commit/decommit rows exist; page-size is not the public row yet |
+| `hako.osvm` | page-size plus reserve/commit/decommit rows exist |
 
 ## Reserved Surface
 
@@ -147,6 +147,31 @@ VM-hako subset behavior:
 - `boxcall(TlsCoreBox.last_error_is_ok_i64)` is accepted with no arguments.
 - `boxcall(TlsCoreBox.last_error_code_i64)` is accepted with no arguments.
 - accidental arguments are rejected by the subset checker.
+
+## OS VM Page Row
+
+Owner module:
+
+- `lang/src/runtime/substrate/osvm/osvm_core_box.hako`
+
+Live operations:
+
+- `page_size_i64()` returns the current platform page size through
+  `hako_osvm_page_size_i64`.
+- `reserve_bytes_i64(len_bytes)` reserves address space.
+- `commit_bytes_i64(base, len_bytes)` commits a reserved range.
+- `decommit_bytes_i64(base, len_bytes)` decommits a committed range.
+
+VM-hako subset behavior:
+
+- `boxcall(OsVmCoreBox.page_size_i64)` is accepted with no arguments.
+- `externcall(hako_osvm_page_size_i64/0)` is accepted with no arguments.
+- VM-hako returns deterministic `4096` for page size.
+
+Native behavior:
+
+- `hako_osvm_page_size_i64()` returns the platform page size using the native
+  keep below `hako.osvm`.
 
 ## Manual Update Rule
 

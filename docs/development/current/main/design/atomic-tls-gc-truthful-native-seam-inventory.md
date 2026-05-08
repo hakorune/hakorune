@@ -52,6 +52,9 @@ These have a truthful substrate-facing seam today:
 - `hako_osvm_decommit_bytes_i64`
   - implemented at `lang/c-abi/shims/hako_kernel.c`
   - already the third `hako.osvm` live row
+- `hako_osvm_page_size_i64`
+  - implemented at `lang/c-abi/shims/hako_kernel.c`
+  - now a live `hako.osvm` page-size row
 
 ### B. Truthful native helpers, but not substrate rows yet
 
@@ -82,7 +85,6 @@ These remain parked until a truthful exported/native seam exists:
 - `hako.gc.root_scope`
 - `hako.gc.pin/unpin`
 - `hako.gc.collect/start/stop`
-- broad `hako.osvm.page_size`
 
 ## Implementation Reading
 
@@ -110,8 +112,9 @@ These remain parked until a truthful exported/native seam exists:
   - `hako.tls.last_error_is_ok_i64`
   - `hako.tls.last_error_code_i64`
   - `hako.gc.write_barrier_i64`
+  - `hako.osvm.page_size_i64`
   - `hako.osvm.reserve_bytes_i64`
   - `hako.osvm.commit_bytes_i64`
   - `hako.osvm.decommit_bytes_i64`
-- generic atomic load/store/CAS/fetch_add, final language-level TLS, and broad OS VM vocabulary are not implemented in `.hako` in this wave.
+- generic atomic load/store/CAS/fetch_add, final language-level TLS, and broad OS VM vocabulary beyond page_size/reserve/commit/decommit are not implemented in `.hako` in this wave.
 - no false generic `atomic/tls/osvm` substrate rows are introduced just to satisfy the conceptual order.

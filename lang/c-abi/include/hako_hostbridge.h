@@ -121,6 +121,7 @@ void        hako_console_log_i64(int64_t x);
 void        hako_barrier_touch_i64(int64_t x);
 // OS virtual memory: reserve address space and return a pointer-like i64, or 0 on failure.
 // commit/decommit operate on a previously reserved base address and return a status-like i64.
+int64_t     hako_osvm_page_size_i64(void);
 int64_t     hako_osvm_reserve_bytes_i64(int64_t len_bytes);
 int64_t     hako_osvm_commit_bytes_i64(int64_t base, int64_t len_bytes);
 int64_t     hako_osvm_decommit_bytes_i64(int64_t base, int64_t len_bytes);
