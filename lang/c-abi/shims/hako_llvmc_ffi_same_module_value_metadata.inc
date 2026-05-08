@@ -108,3 +108,12 @@
         }
         return same_module_function_publish_handle_value_metadata(reg, value_type);
       }
+
+      auto void same_module_function_publish_result_box_or_reg_metadata(
+          long long reg,
+          const char* box_name) {
+        if (!box_name) return;
+        if (!same_module_function_publish_result_origin_box(reg, box_name)) {
+          (void)same_module_function_publish_reg_metadata(reg);
+        }
+      }

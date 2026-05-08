@@ -1,10 +1,8 @@
 use super::generic_string_surface::generic_pure_compare_proves_i64;
 use super::model::GlobalCallReturnContract;
-use super::{
-    lookup_global_call_target, supported_backend_global, GlobalCallTargetFacts,
-    GlobalCallTargetShape,
-};
+use super::{lookup_global_call_target, GlobalCallTargetFacts, GlobalCallTargetShape};
 use crate::mir::extern_call_route_plan::{classify_extern_call_route, ExternCallRouteKind};
+use crate::mir::same_module_body_shape::supported_backend_global;
 use crate::mir::{
     BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, UnaryOp,
     ValueId,

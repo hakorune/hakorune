@@ -69,11 +69,7 @@ use value_type_publish::{
 };
 use void_side_effect_body::is_void_side_effect_body_function;
 
-use crate::mir::user_box_method_route_plan::user_box_method_body_supported;
-
-pub(crate) fn supported_backend_global(name: &str) -> bool {
-    matches!(name, "print")
-}
+use crate::mir::same_module_body_shape::{same_module_body_supported, supported_backend_global};
 
 fn string_or_void_sentinel_return_type_candidate(return_type: &MirType) -> bool {
     matches!(
@@ -299,7 +295,7 @@ fn classify_global_call_target_shape(
     if same_module_object_handle_return_type_candidate(
         &function.signature.return_type,
         typed_plan_type_ids,
-    ) && user_box_method_body_supported(function, typed_plan_type_ids)
+    ) && same_module_body_supported(function, typed_plan_type_ids)
     {
         return GlobalCallTargetClassification::direct_contract(
             GlobalCallProof::SameModuleObjectHandle,

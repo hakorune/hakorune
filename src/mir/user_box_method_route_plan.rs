@@ -11,12 +11,11 @@ use std::collections::{BTreeMap, BTreeSet};
 use crate::mir::core_method_op::{LoweringPlanEmitKind, LoweringPlanTier};
 use crate::mir::definitions::call_unified::TypeCertainty;
 use crate::mir::function::TypedObjectFieldStorage;
+use crate::mir::same_module_body_shape::same_module_body_supported;
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
-mod body_shape;
 mod return_shape;
 mod value_type_publish;
 
-pub(crate) use body_shape::user_box_method_body_supported;
 use return_shape::{
     infer_user_box_method_return, UserBoxFieldReturnHints, UserBoxMethodInferredReturn,
 };
@@ -1125,7 +1124,7 @@ fn collect_method_targets(
                     return_type: function.signature.return_type.clone(),
                     inferred_return: infer_user_box_method_return(function, field_return_hints),
                     result_box_name: infer_user_box_method_result_box_name(function),
-                    body_supported: user_box_method_body_supported(function, typed_plan_type_ids),
+                    body_supported: same_module_body_supported(function, typed_plan_type_ids),
                 },
             ))
         })

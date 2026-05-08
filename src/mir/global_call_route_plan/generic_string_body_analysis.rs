@@ -3,6 +3,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use crate::mir::extern_call_route_plan::{
     classify_extern_call_route, is_hostbridge_extern_invoke_symbol, ExternCallRouteKind,
 };
+use crate::mir::same_module_body_shape::supported_backend_global;
 use crate::mir::{
     BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, UnaryOp,
     ValueId,
@@ -730,13 +731,13 @@ pub(super) fn generic_pure_string_instruction_reject_reason(
         MirInstruction::Call {
             callee: Some(Callee::Global(name)),
             ..
-        } if super::supported_backend_global(name) => None,
+        } if supported_backend_global(name) => None,
         MirInstruction::Call {
             dst,
             callee: Some(Callee::Global(name)),
             args,
             ..
-        } if !super::supported_backend_global(name) => {
+        } if !supported_backend_global(name) => {
             if is_hostbridge_extern_invoke_symbol(name, args.len()) {
                 if let Some(dst) = dst {
                     *has_string_surface = true;

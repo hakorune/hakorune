@@ -126,6 +126,8 @@ probe_one() {
 probe_one "mimalloc-lite" \
   "first_op=field_get" \
   "target_shape_blocker_symbol=HakoAllocHeap.release/1"
-probe_one "allocator-stress"
+probe_one "allocator-stress" \
+  "first_op=field_get" \
+  "target_shape_blocker_symbol=HakoAllocHeap.release/1"
 
 test_pass "$SMOKE_NAME"

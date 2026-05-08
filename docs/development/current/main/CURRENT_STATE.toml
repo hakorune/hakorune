@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-024-BINARY-TREES-EXE-PARITY"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-024-BINARY-TREES-EXE-PARITY.md"
-latest_card_summary = "Completed binary-trees direct EXE parity by expanding recursive same-module user-box method body routes, adding typed-object handle global-call return contracts, and promoting binary-trees from the boundary probe to an EXE parity smoke."
+latest_card = "293x-025-SAME-MODULE-BODY-SHAPE-CLEANUP"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-025-SAME-MODULE-BODY-SHAPE-CLEANUP.md"
+latest_card_summary = "Cleaned the post-binary-trees same-module body-shape seam by moving shared body acceptance to a neutral MIR owner, tightening allocator-stress boundary pinning, and deduplicating C shim result box metadata publication."
 
 current_blocker_token = "phase-293x birth/method call route expansion before real-app EXE parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
