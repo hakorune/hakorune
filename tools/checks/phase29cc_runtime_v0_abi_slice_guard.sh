@@ -376,6 +376,18 @@ if ! rg -F -q '[vm/adapter/atomic:fence_i64]' "$ATOMIC_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] atomic core missing fence trace tag" >&2
   exit 1
 fi
+if ! rg -F -q 'order_seq_cst_i64()' "$ATOMIC_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] atomic core missing memory-order vocabulary" >&2
+  exit 1
+fi
+if ! rg -F -q 'fence_order_i64(order)' "$ATOMIC_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] atomic core missing ordered fence contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'externcall "hako_barrier_touch_i64"(order)' "$ATOMIC_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] atomic core missing ordered fence barrier route" >&2
+  exit 1
+fi
 if ! rg -F -q 'last_error_text_h()' "$TLS_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] tls core missing last_error_text contract" >&2
   exit 1

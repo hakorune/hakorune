@@ -46,7 +46,9 @@ current implementation order is seam-first:
 1. truthful native seam inventory
 2. `hako.gc` first live row
 3. helper-shaped first truthful `hako.tls` / `hako.atomic` rows
-4. generic `atomic/tls` vocabulary remains parked until truthful seams exist
+4. `hako.atomic` memory-order vocabulary plus ordered fence row
+5. generic atomic load/store/CAS/fetch_add and final TLS vocabulary remain
+   parked until truthful seams exist
 
 ## Module Roles
 
@@ -91,6 +93,13 @@ current implementation order is seam-first:
 - current wave is not docs-first only anymore
 - current first live subset is:
   - `AtomicCoreBox.fence_i64()`
+  - `AtomicCoreBox.order_relaxed_i64()`
+  - `AtomicCoreBox.order_acquire_i64()`
+  - `AtomicCoreBox.order_release_i64()`
+  - `AtomicCoreBox.order_acq_rel_i64()`
+  - `AtomicCoreBox.order_seq_cst_i64()`
+  - `AtomicCoreBox.is_valid_order_i64(order)`
+  - `AtomicCoreBox.fence_order_i64(order)`
   - `TlsCoreBox.last_error_text_h()`
   - `GcCoreBox.write_barrier_i64(handle_or_ptr)`
   - `OsVmCoreBox.reserve_bytes_i64(len_bytes)`
@@ -99,7 +108,11 @@ current implementation order is seam-first:
 - first-row acceptance for `hako.atomic` is:
   - vm-hako subset accepts `externcall(hako_barrier_touch_i64/1)`
   - vm-hako subset accepts `boxcall(AtomicCoreBox.fence_i64)`
+  - vm-hako subset accepts `boxcall(AtomicCoreBox.fence_order_i64)`
   - substrate/vm route lock keeps `AtomicCoreBox.fence_i64()` on `hako_barrier_touch_i64`
+  - substrate/vm route lock keeps `AtomicCoreBox.fence_order_i64(order)` on `hako_barrier_touch_i64(order)`
+  - invalid ordered-fence values fail-fast with
+    `[vm-hako/contract][boxcall-fence_order_i64-invalid-order]`
 - first-row acceptance for `hako.tls` is:
   - vm-hako subset accepts `externcall(hako_last_error/1)`
   - vm-hako subset accepts `boxcall(TlsCoreBox.last_error_text_h)`
@@ -148,7 +161,7 @@ current staging roots are reserved at:
 - final allocator backend rewrite
 - unrestricted unsafe surface
 - minimum verifier broadening beyond the current docs lock
-- broad `atomic` widening beyond `fence_i64`
+- broad `atomic` widening beyond memory-order vocabulary and ordered fence
 - broad `tls` widening beyond `last_error_text_h`
 - broad `gc` widening beyond `write_barrier_i64`
 - perf lane reopen

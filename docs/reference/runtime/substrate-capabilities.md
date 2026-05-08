@@ -42,7 +42,7 @@ The current live surface is intentionally narrow.
 | verifier | bounds, initialized-range, ownership, and rune contract gates exist for current rows; RawArray remove/insert are verifier-gated before pointer-substrate calls; `Contract(no_alloc/no_safepoint)` is MIR-verifier checked |
 | `RawArray` | first raw-array path exists for slot load/store/len/cap/append/reserve/grow |
 | `RawBuf` | first allocation facade exists over `MemCoreBox` |
-| `hako.atomic` | helper-shaped `fence_i64` row exists |
+| `hako.atomic` | helper-shaped `fence_i64`, memory-order vocabulary, and `fence_order_i64(order)` rows exist; generic load/store/CAS/fetch_add are not live |
 | `hako.tls` | helper-shaped `last_error_text_h` row exists |
 | `hako.gc` | helper-shaped `write_barrier_i64` row exists |
 | `hako.osvm` | reserve/commit/decommit rows exist; page-size is not the public row yet |
@@ -60,13 +60,53 @@ These names are reserved but not fully live as user-facing allocator substrate:
 - pointer-sized, pointer, handle, or Box fields inside raw layouts
 - `MaybeInit`
 - unrestricted raw pointer arithmetic
-- atomic CAS/fetch operations with memory order
+- atomic load/store/CAS/fetch_add operations with memory order
 - language-level TLS cells
 - `@rune Contract(no_alloc)` backend optimization/export use
 - `@rune Contract(no_safepoint)` backend optimization/export use
 - `clz`, `ctz`, `popcnt`, `prefetch`, `assume`, `unreachable`
 - `noalias`, `nonnull`, `dereferenceable`, stronger alignment export
 - const-evaluated static tables
+
+## Atomic Ordered Fence Row
+
+Owner module:
+
+- `lang/src/runtime/substrate/atomic/atomic_core_box.hako`
+
+Current memory-order vocabulary:
+
+| Method | Value |
+| --- | --- |
+| `order_relaxed_i64()` | `0` |
+| `order_acquire_i64()` | `1` |
+| `order_release_i64()` | `2` |
+| `order_acq_rel_i64()` | `3` |
+| `order_seq_cst_i64()` | `4` |
+
+Live operations:
+
+- `is_valid_order_i64(order)` returns `1` for the five vocabulary values and
+  `0` otherwise.
+- `fence_i64()` remains the compatibility fence row over
+  `hako_barrier_touch_i64(0)`.
+- `fence_order_i64(order)` validates the order vocabulary and routes to
+  `hako_barrier_touch_i64(order)`.
+
+Unsupported operations:
+
+- `load`
+- `store`
+- `CAS`
+- `fetch_add`
+- `pause/yield`
+
+VM-hako subset behavior:
+
+- `boxcall(AtomicCoreBox.fence_order_i64)` is accepted with one register
+  argument.
+- invalid order values fail-fast with
+  `[vm-hako/contract][boxcall-fence_order_i64-invalid-order]`.
 
 ## Manual Update Rule
 

@@ -158,6 +158,27 @@ fn validate_boxcall_zero_or_one_reg_shape(
     Ok(())
 }
 
+fn validate_boxcall_one_reg_shape(
+    inst: &Value,
+    args: &[Value],
+    method: &str,
+) -> Result<(), String> {
+    if args.len() != 1 {
+        return Err(format!("boxcall({}:args!=1)", method));
+    }
+    if args.first().and_then(|v| v.as_u64()).is_none() {
+        return Err(format!("boxcall({}:arg0:non-reg)", method));
+    }
+    ensure_u64_fields(
+        inst,
+        &[
+            ("dst", "boxcall(missing-dst)"),
+            ("box", "boxcall(missing-box)"),
+        ],
+    )?;
+    Ok(())
+}
+
 fn validate_boxcall_two_reg_shape(
     inst: &Value,
     args: &[Value],
@@ -238,6 +259,11 @@ pub(super) fn validate_boxcall_shape(inst: &Value) -> Result<(), String> {
         "realloc_bytes_i64" => validate_boxcall_two_reg_shape(inst, args, method),
         "set" | "setField" => validate_boxcall_set_shape(inst, args, method),
         "read" | "close" => validate_boxcall_zero_or_one_reg_shape(inst, args, method),
+        "order_relaxed_i64" | "order_acquire_i64" | "order_release_i64" | "order_acq_rel_i64"
+        | "order_seq_cst_i64" => validate_boxcall_noarg_shape(inst, args, method),
+        "is_valid_order_i64" | "fence_order_i64" => {
+            validate_boxcall_one_reg_shape(inst, args, method)
+        }
         "length" => validate_boxcall_noarg_shape(inst, args, method),
         "indexOf" => validate_boxcall_indexof_shape(inst, args),
         "substring" => validate_boxcall_substring_shape(inst, args),

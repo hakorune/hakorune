@@ -55,7 +55,8 @@ Current live capability subset:
   and reserve/grow facades under `ArrayCoreBox`.
 - `raw_buf` now has live `alloc_bytes_i64`, `realloc_bytes_i64`, and `free_bytes_i64` facades over `MemCoreBox`.
 - `raw_map` now has live `entry_count_i64`, `cap_i64`, `probe_*`, and `slot_load/store_*` facades under `MapCoreBox`.
-- `atomic` now has a live `fence_i64` helper-shaped facade.
+- `atomic` now has live `fence_i64`, memory-order vocabulary, and
+  `fence_order_i64(order)` helper-shaped facades.
 - `tls` now has a live `last_error_text_h` helper-shaped facade.
 - `gc` now has a live `write_barrier_i64` facade.
 - `osvm` now has already-landed `reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` facades; `page_size` stays parked.

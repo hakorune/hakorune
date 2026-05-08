@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-034-M5-RUNE-CONTRACT-VERIFIER-CORE"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-034-M5-RUNE-CONTRACT-VERIFIER-CORE.md"
-latest_card_summary = "Added MIR verifier checks for Contract(no_alloc) and Contract(no_safepoint) while keeping backend optimization/export use disabled."
+latest_card = "293x-035-M6-ATOMIC-MEMORY-ORDER-VOCAB-LOCK"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-035-M6-ATOMIC-MEMORY-ORDER-VOCAB-LOCK.md"
+latest_card_summary = "Added hako.atomic memory-order vocabulary and ordered fence while keeping generic load/store/CAS/fetch_add parked."
 
 current_blocker_token = "phase-293x mimalloc substrate capability ladder after real-app EXE parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

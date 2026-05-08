@@ -50,6 +50,21 @@ static box MirVmS0BoxcallBuiltinBox {
     return MirVmS0ArgsPhiBox._args_nth(seg, index)
   }
 
+  _atomic_order_value(method) {
+    if method == "order_relaxed_i64" { return 0 }
+    if method == "order_acquire_i64" { return 1 }
+    if method == "order_release_i64" { return 2 }
+    if method == "order_acq_rel_i64" { return 3 }
+    if method == "order_seq_cst_i64" { return 4 }
+    return null
+  }
+
+  _atomic_order_valid(order) {
+    if order < 0 { return 0 }
+    if order > 4 { return 0 }
+    return 1
+  }
+
   _first_arg_is_duplicate_receiver(seg, box_recv, regs) {
     local arg0 = me._args_first(seg)
     if arg0 == null || box_recv == null { return 0 }
@@ -303,6 +318,28 @@ static box MirVmS0BoxcallBuiltinBox {
   }
 
   dispatch_misc_builtin_method(method, seg, box_recv, regs, kinds, array_lens, handle_regs) {
+    local atomic_order_value = me._atomic_order_value(method)
+    if atomic_order_value != null {
+      if me._args_count(seg) != 0 { return "[vm-hako/unimplemented op=boxcall(atomic-order) args!=0]" }
+      local dst_atomic_order = me._find_int(seg, "dst")
+      if dst_atomic_order == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      regs.set("" + dst_atomic_order, "" + atomic_order_value)
+      kinds.set("" + dst_atomic_order, "scalar")
+      return "__NEXT__"
+    }
+
+    if method == "is_valid_order_i64" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local order_check_arg = me._args_first(seg)
+      if order_check_arg == null { return "[vm-hako/contract][boxcall-is_valid_order_i64-arg0-missing]" }
+      local dst_order_check = me._find_int(seg, "dst")
+      if dst_order_check == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      local order_check_value = MirVmS0StateOpsBox.reg_i64_get(regs, order_check_arg)
+      regs.set("" + dst_order_check, "" + me._atomic_order_valid(order_check_value))
+      kinds.set("" + dst_order_check, "scalar")
+      return "__NEXT__"
+    }
+
     if method == "last_error_text_h" {
       if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
       local dst_tls = me._find_int(seg, "dst")
@@ -319,6 +356,19 @@ static box MirVmS0BoxcallBuiltinBox {
       if dst_fence == null { return "[vm-hako/contract][boxcall-missing-dst]" }
       regs.set("" + dst_fence, "0")
       kinds.set("" + dst_fence, "scalar")
+      return "__NEXT__"
+    }
+
+    if method == "fence_order_i64" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local order_arg = me._args_first(seg)
+      if order_arg == null { return "[vm-hako/contract][boxcall-fence_order_i64-arg0-missing]" }
+      local order_value = MirVmS0StateOpsBox.reg_i64_get(regs, order_arg)
+      if me._atomic_order_valid(order_value) == 0 { return "[vm-hako/contract][boxcall-fence_order_i64-invalid-order]" }
+      local dst_fence_order = me._find_int(seg, "dst")
+      if dst_fence_order == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      regs.set("" + dst_fence_order, "0")
+      kinds.set("" + dst_fence_order, "scalar")
       return "__NEXT__"
     }
 

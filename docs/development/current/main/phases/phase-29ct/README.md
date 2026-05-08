@@ -289,7 +289,9 @@ Related:
 - `I13 helper-shaped TLS/atomic proof rows` landed
   - `AtomicCoreBox.fence_i64()` is now the first live `hako.atomic` row
   - `TlsCoreBox.last_error_text_h()` is now the first live `hako.tls` row
-  - generic atomics and language-level TLS stay parked / docs-locked
+  - later `phase-293x` M6a extends atomic only to memory-order vocabulary plus
+    `fence_order_i64`; generic load/store/CAS/fetch_add and language-level TLS
+    stay parked / docs-locked
 
 - `C6 final metal split detail lock` landed
   - [`final-metal-split-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/final-metal-split-ssot.md) fixes:

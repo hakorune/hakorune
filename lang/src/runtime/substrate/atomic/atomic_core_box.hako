@@ -8,6 +8,35 @@
 // - allocator policy
 
 static box AtomicCoreBox {
+  order_relaxed_i64() {
+    return 0
+  }
+
+  order_acquire_i64() {
+    return 1
+  }
+
+  order_release_i64() {
+    return 2
+  }
+
+  order_acq_rel_i64() {
+    return 3
+  }
+
+  order_seq_cst_i64() {
+    return 4
+  }
+
+  is_valid_order_i64(order) {
+    if order == me.order_relaxed_i64() { return 1 }
+    if order == me.order_acquire_i64() { return 1 }
+    if order == me.order_release_i64() { return 1 }
+    if order == me.order_acq_rel_i64() { return 1 }
+    if order == me.order_seq_cst_i64() { return 1 }
+    return 0
+  }
+
   _trace(tag) {
     if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
   }
@@ -15,6 +44,16 @@ static box AtomicCoreBox {
   fence_i64() {
     externcall "hako_barrier_touch_i64"(0)
     me._trace("[vm/adapter/atomic:fence_i64]")
+    return 0
+  }
+
+  fence_order_i64(order) {
+    if me.is_valid_order_i64(order) == 0 {
+      print("[freeze:contract][atomic/order] invalid memory order")
+      return -1
+    }
+    externcall "hako_barrier_touch_i64"(order)
+    me._trace("[vm/adapter/atomic:fence_order_i64]")
     return 0
   }
 }
