@@ -249,3 +249,11 @@ ret = "native_ptr_nullable"
 attrs = ["nounwind", "willreturn"]
 memory = "readwrite"
 lanes = ["hako-ll-min-v0", "compare"]
+
+[[rows]]
+symbol = "hako_mem_realloc"
+args = ["native_ptr_nullable", "imm_i64"]
+ret = "native_ptr_nullable"
+attrs = ["nounwind", "willreturn"]
+memory = "readwrite"
+lanes = ["hako-ll-min-v0", "compare"]

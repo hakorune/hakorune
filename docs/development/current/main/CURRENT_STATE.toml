@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-052-HAKO-MEM-ALLOC-RUNTIME-DECL"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-052-HAKO-MEM-ALLOC-RUNTIME-DECL.md"
-latest_card_summary = "293x-052 hako_mem_alloc runtime-decl row landed as the first active nullable native pointer row, without ret_proofs or strong LLVM attrs."
+latest_card = "293x-053-HAKO-MEM-REALLOC-RUNTIME-DECL"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-053-HAKO-MEM-REALLOC-RUNTIME-DECL.md"
+latest_card_summary = "293x-053 hako_mem_realloc runtime-decl row landed as the second active nullable native pointer row, without ret_proofs or strong LLVM attrs."
 
 current_blocker_token = "phase-293x mimalloc substrate capability ladder after real-app EXE parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

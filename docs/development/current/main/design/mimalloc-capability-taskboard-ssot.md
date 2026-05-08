@@ -82,6 +82,7 @@ backend may trust them for lowering or optimization.
 | `M10c-proof-row runtime-decl return proof row` | `live-narrow` | optimization export proof | locks backend-private return proof row schema and validator in fixture/code while keeping active runtime-decl attrs and `.inc` unchanged |
 | `M10c-native-ptr-declare-type` | `live-narrow` | `.hako` ll_emit runtime-decl reader | maps native pointer value classes to LLVM `ptr` spelling only; no attrs, no active native pointer rows, no proof inference |
 | `M10c-hako-mem-alloc-row` | `live-narrow` | runtime-decl manifest + hako.mem seam | adds the first active native pointer runtime-decl row for existing `hako_mem_alloc`, nullable only and without `ret_proofs` or strong attrs |
+| `M10c-hako-mem-realloc-row` | `live-narrow` | runtime-decl manifest + hako.mem seam | adds the second active native pointer runtime-decl row for existing `hako_mem_realloc`, nullable only and without `ret_proofs` or strong attrs |
 | `M10c LLVM export attrs widening` | `blocked` | optimization export | `noalias`, `nonnull`, `dereferenceable`, alignment, stronger `nocapture` only after pointer/native-ptr proof and verifier/export consistency proof |
 | `M11a static readonly data segment` | `live-narrow` | backend-private const data | backend-private static data manifest emits a readonly u16 size-class fixture as LLVM data; no source syntax or const eval |
 | `M11b const eval/static table syntax` | `live-narrow` | language + MIR const data | `M11b-decl` source `u16` static const table declarations, `M11b-load` static table reads, and `M11b-eval` narrow integer initializer expressions are live; const fn remains future |
@@ -115,11 +116,12 @@ backend may trust them for lowering or optimization.
 22. `M10c-proof-row runtime-decl return proof row`
 23. `M10c-native-ptr-declare-type`
 24. `M10c-hako-mem-alloc-row`
-25. `M10c LLVM export attrs widening`
-26. `M11c-required-vocab substrate-only Lowering(inline_required)`
-27. `M11c-required-verify verifier-backed required inline acceptance`
-28. `M12 mimalloc raw-page proof`
-29. `M13 allocator fast-path EXE proof`
+25. `M10c-hako-mem-realloc-row`
+26. `M10c LLVM export attrs widening`
+27. `M11c-required-vocab substrate-only Lowering(inline_required)`
+28. `M11c-required-verify verifier-backed required inline acceptance`
+29. `M12 mimalloc raw-page proof`
+30. `M13 allocator fast-path EXE proof`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change.
@@ -246,9 +248,12 @@ free of strong attrs or pointer-proof inference. `M10c-native-ptr-declare-type`
 now maps native pointer value classes to LLVM `ptr` spelling in the `.hako`
 runtime-decl reader, but still keeps attrs and active native pointer rows
 disabled. `M10c-hako-mem-alloc-row` now adds `hako_mem_alloc` as the first
-active native pointer runtime-decl row, with nullable return and no `ret_proofs`
-or strong attrs. The next implementation target after that is still blocked
-`M10c`: strong LLVM attrs widening, gated by verifier/export consistency and
-native-pointer proof only. Implement that before any required-inline or
-allocator fast-path proof. Do not jump to allocator fast-path lowering before
-the remaining verifier facts make raw access auditable.
+active native pointer runtime-decl row, with nullable return and no
+`ret_proofs` or strong attrs. `M10c-hako-mem-realloc-row` adds
+`hako_mem_realloc` as the second active native pointer runtime-decl row, with a
+nullable native pointer argument and nullable return. The next implementation
+target after that is still blocked `M10c`: strong LLVM attrs widening, gated by
+verifier/export consistency and native-pointer proof only. Implement that before
+any required-inline or allocator fast-path proof. Do not jump to allocator
+fast-path lowering before the remaining verifier facts make raw access
+auditable.
