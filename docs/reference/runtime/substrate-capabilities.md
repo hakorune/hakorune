@@ -451,6 +451,8 @@ The current live verifier row proves a narrow subset only:
 - `Contract(no_alloc)` rejects MIR instructions whose effect mask contains
   `Alloc`.
 - `Contract(no_safepoint)` rejects explicit MIR `Safepoint` instructions.
+- Distinct `Contract(...)` values may appear together on one declaration;
+  exact duplicate contract values are rejected by the parser.
 - The proven facts are not exported to backend optimization yet.
 
 Required flow:

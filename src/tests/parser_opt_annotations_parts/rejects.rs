@@ -39,6 +39,25 @@ static box Main {
 }
 
 #[test]
+fn parser_rejects_duplicate_contract_rune_value() {
+    with_features(Some("rune"), || {
+        let src = r#"
+static box Main {
+  @rune Contract(no_alloc)
+  @rune Contract(no_alloc)
+  main() { return 0 }
+}
+"#;
+        let err = NyashParser::parse_from_string(src).expect_err("parse should fail");
+        let msg = err.to_string();
+        assert!(
+            msg.contains("[freeze:contract][parser/rune] duplicate rune Contract"),
+            "unexpected error: {msg}"
+        );
+    });
+}
+
+#[test]
 fn parser_rejects_empty_intrinsic_candidate_rune_value() {
     with_features(Some("rune"), || {
         let src = r#"

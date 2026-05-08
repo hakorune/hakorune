@@ -49,6 +49,8 @@ Current live verifier row:
   whose effect mask contains `Alloc`.
 - `Contract(no_safepoint)` is checked by the MIR verifier and rejects explicit
   `Safepoint` instructions.
+- Distinct `Contract(...)` runes may appear on the same declaration. Exact
+  duplicate contract values are rejected.
 - `Contract(pure)` and `Contract(readonly)` remain metadata-only until their
   verifier rows land.
 - No contract is currently exported for backend optimization use.

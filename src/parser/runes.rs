@@ -138,7 +138,7 @@ fn validate_runes_for_target(
     let mut visibility: Option<&str> = None;
 
     for rune in runes {
-        if !seen.insert(rune.name.clone()) {
+        if !seen.insert(rune_duplicate_key(rune)) {
             return Err(ParseError::UnexpectedToken {
                 found: TokenType::IDENTIFIER(rune.name.clone()),
                 expected: format!(
@@ -210,6 +210,18 @@ fn validate_runes_for_target(
     }
 
     Ok(())
+}
+
+fn rune_duplicate_key(rune: &RuneAttr) -> String {
+    if repeatable_rune_name(&rune.name) {
+        format!("{}({})", rune.name, rune.args.join("\u{1f}"))
+    } else {
+        rune.name.clone()
+    }
+}
+
+fn repeatable_rune_name(name: &str) -> bool {
+    matches!(name, "Contract")
 }
 
 fn target_label(target: &RuneTarget) -> &'static str {

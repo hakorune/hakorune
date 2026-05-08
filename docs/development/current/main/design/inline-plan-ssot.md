@@ -338,6 +338,12 @@ M11c-required-vocab:
   Parser parity is required because this adds rune vocabulary.
   Live-narrow. Preserves request=required metadata only; no verifier/backend use.
 
+M11c-contract-repeat:
+  allow distinct Contract(...) runes on the same declaration.
+  Live-narrow. This is parser metadata shape only and exists so
+  Contract(no_alloc) + Contract(no_safepoint) can both be present before
+  required-inline verification.
+
 M11c-required-verify:
   required inline verifier connection to no_alloc/no_safepoint and call graph
   checks.

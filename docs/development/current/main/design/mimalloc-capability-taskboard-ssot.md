@@ -88,7 +88,7 @@ backend may trust them for lowering or optimization.
 | `M10c LLVM export attrs widening` | `blocked` | optimization export | `noalias`, `nonnull`, `dereferenceable`, alignment, stronger `nocapture` only after pointer/native-ptr proof and verifier/export consistency proof |
 | `M11a static readonly data segment` | `live-narrow` | backend-private const data | backend-private static data manifest emits a readonly u16 size-class fixture as LLVM data; no source syntax or const eval |
 | `M11b const eval/static table syntax` | `live-narrow` | language + MIR const data | `M11b-decl` source `u16` static const table declarations, `M11b-load` static table reads, and `M11b-eval` narrow integer initializer expressions are live; const fn remains future |
-| `M11c InlinePlan rows` | `live-narrow` | rune metadata + MIR optimizer | `M11c-preserve` keeps `Hint(inline/noinline/hot/cold)` as MIR `inline_plans`; `M11c-soft-leaf` expands best-effort same-module pure leaf `Hint(inline)` calls in MIR; `M11c-required-vocab` preserves substrate-only `Lowering(inline_required)` as MIR `request=required` metadata without verifier/backend use |
+| `M11c InlinePlan rows` | `live-narrow` | rune metadata + MIR optimizer | `M11c-preserve` keeps `Hint(inline/noinline/hot/cold)` as MIR `inline_plans`; `M11c-soft-leaf` expands best-effort same-module pure leaf `Hint(inline)` calls in MIR; `M11c-required-vocab` preserves substrate-only `Lowering(inline_required)` as MIR `request=required` metadata without verifier/backend use; `M11c-contract-repeat` permits distinct `Contract(...)` runes on one declaration for required-inline proof inputs |
 | `M12 mimalloc raw-page proof` | `blocked` | allocator substrate consumer | page/free-list fixture on raw substrate with `no_alloc` / `no_safepoint` proof gates |
 | `M13 allocator fast-path EXE proof` | `blocked` | EXE backend + substrate | direct EXE proof for allocator fast path; helper calls only where capability route says so |
 
@@ -123,9 +123,10 @@ backend may trust them for lowering or optimization.
 27. `M10c-hako-mem-free-void-row`
 28. `M10c LLVM export attrs widening` (blocked until an eligible native-pointer proof/export row exists)
 29. `M11c-required-vocab substrate-only Lowering(inline_required)`
-30. `M11c-required-verify verifier-backed required inline acceptance`
-31. `M12 mimalloc raw-page proof`
-32. `M13 allocator fast-path EXE proof`
+30. `M11c-contract-repeat distinct Contract(...) parser metadata`
+31. `M11c-required-verify verifier-backed required inline acceptance`
+32. `M12 mimalloc raw-page proof`
+33. `M13 allocator fast-path EXE proof`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed
@@ -273,6 +274,8 @@ eligible `nonnull` / `noalias` / `dereferenceable` proof row. The next
 actionable implementation target is `M11c-required-vocab`, because it only
 accepts and preserves `@rune Lowering(inline_required)` as MIR-owned
 InlinePlan metadata and does not make required inline, pointer attrs, or
-allocator fast-path lowering backend-active. Do not jump to required verifier
-acceptance or allocator fast-path lowering before the remaining verifier facts
-make raw access auditable.
+allocator fast-path lowering backend-active. `M11c-contract-repeat` then keeps
+distinct `Contract(no_alloc)` and `Contract(no_safepoint)` metadata on the same
+declaration so required-inline verifier inputs can exist without a parser
+workaround. Do not jump to required verifier acceptance or allocator fast-path
+lowering before the remaining verifier facts make raw access auditable.

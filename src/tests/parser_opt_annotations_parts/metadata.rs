@@ -76,6 +76,30 @@ static box Main {
 }
 
 #[test]
+fn parser_accepts_distinct_contract_runes_on_same_declaration() {
+    with_features(Some("rune"), || {
+        let src = r#"
+static box Main {
+  @rune Contract(no_alloc)
+  @rune Contract(no_safepoint)
+  main() {
+    return 0
+  }
+}
+"#;
+        let ast = NyashParser::parse_from_string(src).expect("parse distinct contracts");
+        let (_box_runes, method_runes) = find_box_and_method_runes(&ast, "Main", "main");
+        assert_eq!(
+            method_runes,
+            vec![
+                ("Contract".to_string(), vec!["no_alloc".to_string()]),
+                ("Contract".to_string(), vec!["no_safepoint".to_string()]),
+            ]
+        );
+    });
+}
+
+#[test]
 fn parser_accepts_mixed_legacy_aliases_and_canonical_runes_on_same_declaration() {
     with_features(Some("rune"), || {
         let src = r#"
