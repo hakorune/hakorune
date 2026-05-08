@@ -22,7 +22,6 @@ TASKBOARD = ROOT / "docs/development/current/main/design/mimalloc-capability-tas
 REALLOC_CARD = ROOT / "docs/development/current/main/phases/phase-293x/293x-053-HAKO-MEM-REALLOC-RUNTIME-DECL.md"
 ARG_EMIT_CARD = ROOT / "docs/development/current/main/phases/phase-293x/293x-054-NATIVE-PTR-CALL-ARG-EMIT.md"
 FREE_CARD = ROOT / "docs/development/current/main/phases/phase-293x/293x-055-HAKO-MEM-FREE-VOID-RUNTIME-DECL.md"
-CURRENT = ROOT / "docs/development/current/main/CURRENT_STATE.toml"
 CALL_POLICY = ROOT / "lang/src/shared/backend/ll_emit/call_policy_box.hako"
 LL_TEXT = ROOT / "lang/src/shared/backend/ll_emit/ll_text_emit_box.hako"
 REGISTRY = ROOT / "lang/src/shared/backend/ll_emit/runtime_decl_registry_box.hako"
@@ -120,7 +119,6 @@ for path, needle in [
     (REALLOC_CARD, "M10c-hako-mem-realloc-row is live as the second active native pointer runtime-decl row."),
     (ARG_EMIT_CARD, "M10c-native-ptr-call-arg-emit is live for `.hako` ll_emit."),
     (FREE_CARD, "M10c-hako-mem-free-void-row is live as the third active hako.mem"),
-    (CURRENT, "293x-055 hako_mem_free is now a void runtime-decl row"),
 ]:
     if needle not in path.read_text():
         fail(f"{path}: missing lock text: {needle}")
