@@ -222,6 +222,95 @@
         append_i64_arg_ref(out, out_cap, reg, first);
       }
 
+      auto int string_concat_arg_is_string_handle(long long reg) {
+        long long base = resolve_copy_source_reg(reg);
+        return get_origin(reg) == ORG_STRING ||
+               get_scan_origin(reg) == ORG_STRING ||
+               get_origin(base) == ORG_STRING ||
+               get_scan_origin(base) == ORG_STRING;
+      }
+
+      auto void append_string_concat_marshaled_arg_ref(
+          FILE* f,
+          char* out,
+          size_t out_cap,
+          long long reg,
+          int first,
+          long long dst,
+          const char* side) {
+        long long base = resolve_copy_source_reg(reg);
+        long long cv = 0;
+        int ty = get_type(reg);
+        int base_ty = get_type(base);
+        char buf[128];
+        if (string_concat_arg_is_string_handle(reg)) {
+          append_string_concat_arg_ref(out, out_cap, reg, first);
+          return;
+        }
+        if (ty == T_I1 || base_ty == T_I1) {
+          if (has_const(base, &cv)) {
+            fprintf(
+                f,
+                "  %%str_arg_box_%lld_%lld_%s = call i64 @\"nyash.box.from_bool\"(i64 %lld)\n",
+                dst,
+                base,
+                side,
+                cv ? 1LL : 0LL);
+          } else {
+            fprintf(
+                f,
+                "  %%str_arg_i64_%lld_%lld_%s = zext i1 %%r%lld to i64\n",
+                dst,
+                base,
+                side,
+                base);
+            fprintf(
+                f,
+                "  %%str_arg_box_%lld_%lld_%s = call i64 @\"nyash.box.from_bool\"(i64 %%str_arg_i64_%lld_%lld_%s)\n",
+                dst,
+                base,
+                side,
+                dst,
+                base,
+                side);
+          }
+        } else if (has_const(base, &cv)) {
+          fprintf(
+              f,
+              "  %%str_arg_box_%lld_%lld_%s = call i64 @\"nyash.box.from_i64\"(i64 %lld)\n",
+              dst,
+              base,
+              side,
+              cv);
+        } else {
+          fprintf(
+              f,
+              "  %%str_arg_box_%lld_%lld_%s = call i64 @\"nyash.box.from_i64\"(i64 %%r%lld)\n",
+              dst,
+              base,
+              side,
+              base);
+        }
+        fprintf(
+            f,
+            "  %%str_arg_text_%lld_%lld_%s = call i64 @\"nyash.any.toString_h\"(i64 %%str_arg_box_%lld_%lld_%s)\n",
+            dst,
+            base,
+            side,
+            dst,
+            base,
+            side);
+        snprintf(
+            buf,
+            sizeof(buf),
+            "%si64 %%str_arg_text_%lld_%lld_%s",
+            first ? "" : ", ",
+            dst,
+            base,
+            side);
+        strncat(out, buf, out_cap - strlen(out) - 1);
+      }
+
       auto void finalize_string_concat_result(long long dst) {
         if (!dst) return;
         set_type(dst, T_I64);
@@ -274,8 +363,10 @@
           long long rhs) {
         char ab[128];
         ab[0] = '\0';
-        append_string_concat_arg_ref(ab, sizeof(ab), lhs, 1);
-        append_string_concat_arg_ref(ab, sizeof(ab), rhs, 0);
+        append_string_concat_marshaled_arg_ref(
+            f, ab, sizeof(ab), lhs, 1, dst, "lhs");
+        append_string_concat_marshaled_arg_ref(
+            f, ab, sizeof(ab), rhs, 0, dst, "rhs");
         if (dst) {
           fprintf(f, "  %%r%lld = call i64 @\"nyash.string.concat_hh\"(%s)\n", dst, ab);
           finalize_string_concat_result(dst);

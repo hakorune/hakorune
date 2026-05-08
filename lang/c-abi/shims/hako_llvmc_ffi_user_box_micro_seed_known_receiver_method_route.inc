@@ -146,16 +146,9 @@ static int hako_llvmc_userbox_known_receiver_method_route_shape_ok(
 static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
     const char* json_in,
     const char* obj_out) {
-  yyjson_read_err rerr;
-  yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
-  yyjson_val* root;
-  yyjson_val* fns;
-  yyjson_val* fn;
+  struct hako_llvmc_userbox_route_context ctx;
   yyjson_val* method_fn;
   yyjson_val* leaf_method_fn = NULL;
-  yyjson_val* metadata;
-  yyjson_val* route;
-  hako_llvmc_entry_rune_selection selection;
   const char* kind = NULL;
   const char* box_name = NULL;
   const char* method = NULL;
@@ -193,45 +186,35 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
   char extra[128];
   int rc = -1;
 
-  if (!doc) return -1;
-  root = yyjson_doc_get_root(doc);
-  fns = yyjson_obj_get(root, "functions");
-  fn = hako_llvmc_find_entry_function(fns);
-  if (!(fn && yyjson_is_obj(fn))) {
-    yyjson_doc_free(doc);
-    return -1;
-  }
-  hako_llvmc_select_entry_runes(fn, &selection);
-
-  metadata = yyjson_obj_get(fn, "metadata");
-  route = metadata ? yyjson_obj_get(metadata, "userbox_known_receiver_method_seed_route") : NULL;
-  if (!(route && yyjson_is_obj(route))) {
-    yyjson_doc_free(doc);
+  if (!hako_llvmc_userbox_route_context_open(
+          json_in,
+          "userbox_known_receiver_method_seed_route",
+          &ctx)) {
     return -1;
   }
 
-  kind = yyjson_get_str(yyjson_obj_get(route, "kind"));
-  box_name = yyjson_get_str(yyjson_obj_get(route, "box"));
-  method = yyjson_get_str(yyjson_obj_get(route, "method"));
-  method_function = yyjson_get_str(yyjson_obj_get(route, "method_function"));
-  leaf_method_function = yyjson_get_str(yyjson_obj_get(route, "leaf_method_function"));
-  proof = yyjson_get_str(yyjson_obj_get(route, "proof"));
-  consumer_capability = yyjson_get_str(yyjson_obj_get(route, "consumer_capability"));
-  publication_boundary = yyjson_get_str(yyjson_obj_get(route, "publication_boundary"));
+  kind = yyjson_get_str(yyjson_obj_get(ctx.route, "kind"));
+  box_name = yyjson_get_str(yyjson_obj_get(ctx.route, "box"));
+  method = yyjson_get_str(yyjson_obj_get(ctx.route, "method"));
+  method_function = yyjson_get_str(yyjson_obj_get(ctx.route, "method_function"));
+  leaf_method_function = yyjson_get_str(yyjson_obj_get(ctx.route, "leaf_method_function"));
+  proof = yyjson_get_str(yyjson_obj_get(ctx.route, "proof"));
+  consumer_capability = yyjson_get_str(yyjson_obj_get(ctx.route, "consumer_capability"));
+  publication_boundary = yyjson_get_str(yyjson_obj_get(ctx.route, "publication_boundary"));
 
-  if (!hako_llvmc_userbox_route_get_i64(route, "block_count", &block_count) ||
-      !hako_llvmc_userbox_route_get_i64(route, "method_block_count", &method_block_count) ||
-      !hako_llvmc_userbox_route_get_i64(route, "block", &block) ||
-      !hako_llvmc_userbox_route_get_i64(route, "method_block", &method_block) ||
+  if (!hako_llvmc_userbox_route_get_i64(ctx.route, "block_count", &block_count) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "method_block_count", &method_block_count) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "block", &block) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "method_block", &method_block) ||
       !hako_llvmc_userbox_route_get_i64(
-          route, "newbox_instruction_index", &newbox_instruction_index) ||
+          ctx.route, "newbox_instruction_index", &newbox_instruction_index) ||
       !hako_llvmc_userbox_route_get_optional_i64(
-          route, "copy_instruction_index", &copy_instruction_index) ||
+          ctx.route, "copy_instruction_index", &copy_instruction_index) ||
       !hako_llvmc_userbox_route_get_i64(
-          route, "call_instruction_index", &call_instruction_index) ||
-      !hako_llvmc_userbox_route_get_i64(route, "box_value", &box_value) ||
-      !hako_llvmc_userbox_route_get_optional_i64(route, "copy_value", &copy_value) ||
-      !hako_llvmc_userbox_route_get_i64(route, "result_value", &result_value) ||
+          ctx.route, "call_instruction_index", &call_instruction_index) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "box_value", &box_value) ||
+      !hako_llvmc_userbox_route_get_optional_i64(ctx.route, "copy_value", &copy_value) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "result_value", &result_value) ||
       !hako_llvmc_userbox_known_receiver_method_route_shape_ok(
           kind,
           box_name,
@@ -257,24 +240,24 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
           "metadata_contract_mismatch",
           "userbox_known_receiver_method_seed_route");
     }
-    yyjson_doc_free(doc);
+    hako_llvmc_userbox_route_context_close(&ctx);
     return -1;
   }
 
-  method_fn = hako_llvmc_find_named_function(fns, method_function);
+  method_fn = hako_llvmc_find_named_function(ctx.fns, method_function);
   if (!method_fn) {
-    yyjson_doc_free(doc);
+    hako_llvmc_userbox_route_context_close(&ctx);
     return -1;
   }
 
   if (hako_llvmc_str_eq(kind, "counter_step_local_i64") ||
       hako_llvmc_str_eq(kind, "counter_step_copy_local_i64")) {
-    if (!(hako_llvmc_userbox_route_get_i64(route, "base_i64", &base_i64) &&
-          hako_llvmc_userbox_route_get_i64(route, "delta_i64", &delta_i64) &&
-          hako_llvmc_userbox_counter_decl_ok(root) &&
-          hako_llvmc_userbox_counter_inline_scalar_selection_ok(fn, method_fn) &&
-          hako_llvmc_userbox_has_known_receiver_selection(fn, "Counter.step"))) {
-      yyjson_doc_free(doc);
+    if (!(hako_llvmc_userbox_route_get_i64(ctx.route, "base_i64", &base_i64) &&
+          hako_llvmc_userbox_route_get_i64(ctx.route, "delta_i64", &delta_i64) &&
+          hako_llvmc_userbox_counter_decl_ok(ctx.root) &&
+          hako_llvmc_userbox_counter_inline_scalar_selection_ok(ctx.fn, method_fn) &&
+          hako_llvmc_userbox_has_known_receiver_selection(ctx.fn, "Counter.step"))) {
+      hako_llvmc_userbox_route_context_close(&ctx);
       return -1;
     }
     if (hako_llvmc_route_trace_enabled()) {
@@ -286,55 +269,55 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
           extra);
     }
     rc = hako_llvmc_emit_userbox_counter_step_local_i64_ir(
-        obj_out, &selection, base_i64, delta_i64);
-    yyjson_doc_free(doc);
+        obj_out, &ctx.selection, base_i64, delta_i64);
+    hako_llvmc_userbox_route_context_close(&ctx);
     return rc;
   }
 
   if (hako_llvmc_str_eq(kind, "counter_step_chain_local_i64") ||
       hako_llvmc_str_eq(kind, "counter_step_chain_micro")) {
     if (!(leaf_method_function &&
-          hako_llvmc_userbox_route_get_i64(route, "base_i64", &base_i64) &&
-          hako_llvmc_userbox_route_get_i64(route, "delta_i64", &delta_i64) &&
+          hako_llvmc_userbox_route_get_i64(ctx.route, "base_i64", &base_i64) &&
+          hako_llvmc_userbox_route_get_i64(ctx.route, "delta_i64", &delta_i64) &&
           hako_llvmc_userbox_route_get_i64(
-              route, "known_receiver_count", &known_receiver_count) &&
-          hako_llvmc_userbox_route_get_i64(route, "field_set_count", &field_set_count) &&
+              ctx.route, "known_receiver_count", &known_receiver_count) &&
+          hako_llvmc_userbox_route_get_i64(ctx.route, "field_set_count", &field_set_count) &&
           hako_llvmc_userbox_route_get_i64(
-              route, "leaf_method_block_count", &leaf_method_block_count) &&
+              ctx.route, "leaf_method_block_count", &leaf_method_block_count) &&
           hako_llvmc_userbox_route_get_i64(
-              route, "leaf_method_block", &leaf_method_block) &&
+              ctx.route, "leaf_method_block", &leaf_method_block) &&
           base_i64 == 41 &&
           delta_i64 == 2 &&
           field_set_count == 1 &&
           leaf_method_block_count == 1 &&
           leaf_method_block >= 0 &&
-          hako_llvmc_userbox_counter_decl_ok(root) &&
+          hako_llvmc_userbox_counter_decl_ok(ctx.root) &&
           hako_llvmc_userbox_has_inline_scalar_selection(
-              fn, "user_box_field_set", "Counter.value") &&
-          hako_llvmc_userbox_has_known_receiver_selection(fn, "Counter.step_chain"))) {
-      yyjson_doc_free(doc);
+              ctx.fn, "user_box_field_set", "Counter.value") &&
+          hako_llvmc_userbox_has_known_receiver_selection(ctx.fn, "Counter.step_chain"))) {
+      hako_llvmc_userbox_route_context_close(&ctx);
       return -1;
     }
 
-    leaf_method_fn = hako_llvmc_find_named_function(fns, leaf_method_function);
+    leaf_method_fn = hako_llvmc_find_named_function(ctx.fns, leaf_method_function);
     if (!(leaf_method_fn &&
           hako_llvmc_userbox_has_inline_scalar_selection(
               leaf_method_fn, "user_box_field_get", "Counter.value"))) {
-      yyjson_doc_free(doc);
+      hako_llvmc_userbox_route_context_close(&ctx);
       return -1;
     }
 
     if (hako_llvmc_str_eq(kind, "counter_step_chain_micro")) {
-      if (!(hako_llvmc_userbox_route_get_i64(route, "ops", &ops) &&
+      if (!(hako_llvmc_userbox_route_get_i64(ctx.route, "ops", &ops) &&
             ops == 2000000 &&
             known_receiver_count == 2 &&
             hako_llvmc_userbox_has_known_receiver_selection(
                 method_fn, "Counter.step"))) {
-        yyjson_doc_free(doc);
+        hako_llvmc_userbox_route_context_close(&ctx);
         return -1;
       }
     } else if (known_receiver_count != 1) {
-      yyjson_doc_free(doc);
+      hako_llvmc_userbox_route_context_close(&ctx);
       return -1;
     }
 
@@ -347,29 +330,29 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
           extra);
     }
     rc = hako_llvmc_emit_userbox_counter_step_local_i64_ir(
-        obj_out, &selection, base_i64, delta_i64);
-    yyjson_doc_free(doc);
+        obj_out, &ctx.selection, base_i64, delta_i64);
+    hako_llvmc_userbox_route_context_close(&ctx);
     return rc;
   }
 
   if (hako_llvmc_str_eq(kind, "counter_step_micro")) {
-    if (!(hako_llvmc_userbox_route_get_i64(route, "base_i64", &base_i64) &&
-          hako_llvmc_userbox_route_get_i64(route, "delta_i64", &delta_i64) &&
-          hako_llvmc_userbox_route_get_i64(route, "ops", &ops) &&
-          hako_llvmc_userbox_route_get_i64(route, "step_i64", &step_i64) &&
+    if (!(hako_llvmc_userbox_route_get_i64(ctx.route, "base_i64", &base_i64) &&
+          hako_llvmc_userbox_route_get_i64(ctx.route, "delta_i64", &delta_i64) &&
+          hako_llvmc_userbox_route_get_i64(ctx.route, "ops", &ops) &&
+          hako_llvmc_userbox_route_get_i64(ctx.route, "step_i64", &step_i64) &&
           hako_llvmc_userbox_route_get_i64(
-              route, "known_receiver_count", &known_receiver_count) &&
-          hako_llvmc_userbox_route_get_i64(route, "field_set_count", &field_set_count) &&
+              ctx.route, "known_receiver_count", &known_receiver_count) &&
+          hako_llvmc_userbox_route_get_i64(ctx.route, "field_set_count", &field_set_count) &&
           base_i64 == 41 &&
           delta_i64 == 2 &&
           step_i64 == 43 &&
           ops == 2000000 &&
           known_receiver_count == 2 &&
           field_set_count == 1 &&
-          hako_llvmc_userbox_counter_decl_ok(root) &&
-          hako_llvmc_userbox_counter_inline_scalar_selection_ok(fn, method_fn) &&
-          hako_llvmc_userbox_has_known_receiver_selection(fn, "Counter.step"))) {
-      yyjson_doc_free(doc);
+          hako_llvmc_userbox_counter_decl_ok(ctx.root) &&
+          hako_llvmc_userbox_counter_inline_scalar_selection_ok(ctx.fn, method_fn) &&
+          hako_llvmc_userbox_has_known_receiver_selection(ctx.fn, "Counter.step"))) {
+      hako_llvmc_userbox_route_context_close(&ctx);
       return -1;
     }
     if (hako_llvmc_route_trace_enabled()) {
@@ -381,19 +364,19 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
           extra);
     }
     rc = hako_llvmc_emit_userbox_counter_step_micro_ir(
-        obj_out, &selection, ops, step_i64);
-    yyjson_doc_free(doc);
+        obj_out, &ctx.selection, ops, step_i64);
+    hako_llvmc_userbox_route_context_close(&ctx);
     return rc;
   }
 
   if (hako_llvmc_str_eq(kind, "point_sum_local_i64") ||
       hako_llvmc_str_eq(kind, "point_sum_copy_local_i64")) {
-    if (!(hako_llvmc_userbox_route_get_i64(route, "x_i64", &x_i64) &&
-          hako_llvmc_userbox_route_get_i64(route, "y_i64", &y_i64) &&
-          hako_llvmc_userbox_point_decl_ok(root) &&
-          hako_llvmc_userbox_point_sum_local_i64_selection_ok(fn, method_fn) &&
-          hako_llvmc_userbox_has_known_receiver_selection(fn, "Point.sum"))) {
-      yyjson_doc_free(doc);
+    if (!(hako_llvmc_userbox_route_get_i64(ctx.route, "x_i64", &x_i64) &&
+          hako_llvmc_userbox_route_get_i64(ctx.route, "y_i64", &y_i64) &&
+          hako_llvmc_userbox_point_decl_ok(ctx.root) &&
+          hako_llvmc_userbox_point_sum_local_i64_selection_ok(ctx.fn, method_fn) &&
+          hako_llvmc_userbox_has_known_receiver_selection(ctx.fn, "Point.sum"))) {
+      hako_llvmc_userbox_route_context_close(&ctx);
       return -1;
     }
     if (hako_llvmc_route_trace_enabled()) {
@@ -405,25 +388,25 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
           extra);
     }
     rc = hako_llvmc_emit_userbox_point_sum_local_i64_ir(
-        obj_out, &selection, x_i64, y_i64);
-    yyjson_doc_free(doc);
+        obj_out, &ctx.selection, x_i64, y_i64);
+    hako_llvmc_userbox_route_context_close(&ctx);
     return rc;
   }
 
   if (hako_llvmc_str_eq(kind, "point_sum_micro")) {
-    if (!(hako_llvmc_userbox_route_get_i64(route, "x_i64", &x_i64) &&
-          hako_llvmc_userbox_route_get_i64(route, "y_i64", &y_i64) &&
-          hako_llvmc_userbox_route_get_i64(route, "ops", &ops) &&
-          hako_llvmc_userbox_route_get_i64(route, "sum_i64", &sum_i64) &&
+    if (!(hako_llvmc_userbox_route_get_i64(ctx.route, "x_i64", &x_i64) &&
+          hako_llvmc_userbox_route_get_i64(ctx.route, "y_i64", &y_i64) &&
+          hako_llvmc_userbox_route_get_i64(ctx.route, "ops", &ops) &&
+          hako_llvmc_userbox_route_get_i64(ctx.route, "sum_i64", &sum_i64) &&
           hako_llvmc_userbox_route_get_i64(
-              route, "known_receiver_count", &known_receiver_count) &&
-          hako_llvmc_userbox_route_get_i64(route, "field_set_count", &field_set_count) &&
+              ctx.route, "known_receiver_count", &known_receiver_count) &&
+          hako_llvmc_userbox_route_get_i64(ctx.route, "field_set_count", &field_set_count) &&
           hako_llvmc_userbox_route_get_i64(
-              route, "compare_lt_count", &compare_lt_count) &&
-          hako_llvmc_userbox_route_get_i64(route, "branch_count", &branch_count) &&
-          hako_llvmc_userbox_route_get_i64(route, "jump_count", &jump_count) &&
-          hako_llvmc_userbox_route_get_i64(route, "ret_count", &ret_count) &&
-          hako_llvmc_userbox_route_get_i64(route, "add_count", &add_count) &&
+              ctx.route, "compare_lt_count", &compare_lt_count) &&
+          hako_llvmc_userbox_route_get_i64(ctx.route, "branch_count", &branch_count) &&
+          hako_llvmc_userbox_route_get_i64(ctx.route, "jump_count", &jump_count) &&
+          hako_llvmc_userbox_route_get_i64(ctx.route, "ret_count", &ret_count) &&
+          hako_llvmc_userbox_route_get_i64(ctx.route, "add_count", &add_count) &&
           x_i64 == 1 &&
           y_i64 == 2 &&
           sum_i64 == 3 &&
@@ -435,10 +418,10 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
           jump_count >= 2 &&
           ret_count == 1 &&
           add_count >= 3 &&
-          hako_llvmc_userbox_point_decl_ok(root) &&
-          hako_llvmc_userbox_point_sum_local_i64_selection_ok(fn, method_fn) &&
-          hako_llvmc_userbox_has_known_receiver_selection(fn, "Point.sum"))) {
-      yyjson_doc_free(doc);
+          hako_llvmc_userbox_point_decl_ok(ctx.root) &&
+          hako_llvmc_userbox_point_sum_local_i64_selection_ok(ctx.fn, method_fn) &&
+          hako_llvmc_userbox_has_known_receiver_selection(ctx.fn, "Point.sum"))) {
+      hako_llvmc_userbox_route_context_close(&ctx);
       return -1;
     }
     if (hako_llvmc_route_trace_enabled()) {
@@ -450,11 +433,11 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
           extra);
     }
     rc = hako_llvmc_emit_userbox_point_sum_micro_ir(
-        obj_out, &selection, ops, sum_i64);
-    yyjson_doc_free(doc);
+        obj_out, &ctx.selection, ops, sum_i64);
+    hako_llvmc_userbox_route_context_close(&ctx);
     return rc;
   }
 
-  yyjson_doc_free(doc);
+  hako_llvmc_userbox_route_context_close(&ctx);
   return -1;
 }

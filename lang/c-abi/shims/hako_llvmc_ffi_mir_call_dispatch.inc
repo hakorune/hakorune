@@ -1,3 +1,45 @@
+      auto int hako_llvmc_mir_call_arg_reg_at(
+          yyjson_val* args,
+          size_t index,
+          long long* out) {
+        yyjson_val* val = args && yyjson_is_arr(args) && yyjson_arr_size(args) > index
+                              ? yyjson_arr_get(args, index)
+                              : NULL;
+        if (!(val && yyjson_is_num(val))) return 0;
+        if (out) *out = (long long)yyjson_get_sint(val);
+        return 1;
+      }
+
+      auto void hako_llvmc_normalize_generic_method_logical_args(
+          yyjson_val* entry,
+          yyjson_val* args,
+          long long recv,
+          long long* a0,
+          long long* a1) {
+        long long arity = -1;
+        size_t argc = args && yyjson_is_arr(args) ? yyjson_arr_size(args) : 0;
+        size_t start = 0;
+        long long raw0 = 0;
+        const char* source = entry ? read_str(entry, "source") : NULL;
+        if (!(source && !strcmp(source, "generic_method_routes"))) return;
+        if (!lowering_plan_read_i64_field(entry, "arity", &arity)) return;
+        if (arity < 0) return;
+        if (recv &&
+            argc == (size_t)(arity + 1) &&
+            hako_llvmc_mir_call_arg_reg_at(args, 0, &raw0) &&
+            resolve_copy_source_reg(raw0) == resolve_copy_source_reg(recv)) {
+          start = 1;
+        }
+        if (a0) {
+          *a0 = 0;
+          hako_llvmc_mir_call_arg_reg_at(args, start, a0);
+        }
+        if (a1) {
+          *a1 = 0;
+          hako_llvmc_mir_call_arg_reg_at(args, start + 1, a1);
+        }
+      }
+
       auto int emit_mir_call_dispatch(
           FILE* f,
           yyjson_val* blocks,
@@ -59,12 +101,22 @@
 
           struct GenericMethodRouteState route =
               classify_generic_method_route(bid, ii, bname, mname, recv);
+          yyjson_val* generic_method_entry = find_lowering_plan_entry_for_site(bid, ii);
+          long long generic_a0 = a0;
+          long long generic_a1 = a1;
+          hako_llvmc_normalize_generic_method_logical_args(
+              generic_method_entry,
+              args,
+              recv,
+              &generic_a0,
+              &generic_a1);
           trace_generic_method_route_state(
-              ii, dst, recv, ctype, bname, mname, a0, a1, &route);
+              ii, dst, recv, ctype, bname, mname, generic_a0, generic_a1, &route);
           enum GenericMethodEmitKind emit_kind =
               classify_generic_method_emit_kind_from_core_method_metadata(bid, ii);
           if (emit_kind == HAKO_LLVMC_GENERIC_METHOD_EMIT_NONE) {
-            emit_kind = classify_generic_method_emit_kind(bname, mname, &route, a0, a1);
+            emit_kind = classify_generic_method_emit_kind(
+                bname, mname, &route, generic_a0, generic_a1);
           }
           append_array_string_indexof_method_receiver_args(
               route.deferred_array_string_indexof,
@@ -83,8 +135,8 @@
                 mname,
                 dst,
                 recv,
-                a0,
-                a1,
+                generic_a0,
+                generic_a1,
                 emit_kind,
                 &route,
                 ab,
@@ -97,7 +149,9 @@
           if (route.runtime_string_indexof) {
             if (!emit_deferred_array_string_indexof_call(
                     f, route.deferred_array_string_indexof, dst, ab)) {
-              if (a0) append_i64_arg_ref(ab, sizeof(ab), a0, ab[0] == '\0');
+              if (generic_a0) {
+                append_i64_arg_ref(ab, sizeof(ab), generic_a0, ab[0] == '\0');
+              }
               if (dst) {
                 EMIT("  %%r%lld = call i64 @\"nyash.string.indexOf_hh\"(%s)\n", dst, ab);
                 set_type(dst, T_I64);
@@ -108,7 +162,9 @@
             return 1;
           }
           if (route.runtime_string_lastindexof) {
-            if (a0) append_i64_arg_ref(ab, sizeof(ab), a0, ab[0] == '\0');
+            if (generic_a0) {
+              append_i64_arg_ref(ab, sizeof(ab), generic_a0, ab[0] == '\0');
+            }
             if (dst) {
               EMIT("  %%r%lld = call i64 @\"nyash.string.lastIndexOf_hh\"(%s)\n", dst, ab);
               set_type(dst, T_I64);
@@ -118,7 +174,9 @@
             return 1;
           }
           if (route.runtime_string_contains) {
-            if (a0) append_i64_arg_ref(ab, sizeof(ab), a0, ab[0] == '\0');
+            if (generic_a0) {
+              append_i64_arg_ref(ab, sizeof(ab), generic_a0, ab[0] == '\0');
+            }
             if (dst) {
               EMIT("  %%r%lld = call i64 @\"nyash.string.contains_hh\"(%s)\n", dst, ab);
               set_type(dst, T_I64);

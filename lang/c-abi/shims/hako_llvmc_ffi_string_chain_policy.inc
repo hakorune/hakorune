@@ -14,6 +14,48 @@
         return HAKO_LLVMC_STRING_CONCAT3_ROUTE_FALLBACK;
       }
 
+      auto int string_concat_deferred_pair_can_materialize_later(
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
+          long long dst,
+          long long lhs,
+          long long rhs) {
+        size_t use_ii = 0;
+        long long final_reg = 0;
+        yyjson_val* use_inst = NULL;
+        const char* op = NULL;
+        const char* bop = NULL;
+        long long use_lhs = 0;
+        long long use_rhs = 0;
+        long long other = 0;
+        if (!string_concat_arg_is_string_handle(lhs) ||
+            !string_concat_arg_is_string_handle(rhs)) {
+          return 0;
+        }
+        if (!follow_single_use_copy_chain_to_use(
+                ii + 1, ilen, insts, dst, &use_ii, &final_reg, NULL, NULL)) {
+          return 0;
+        }
+        use_inst = yyjson_arr_get(insts, use_ii);
+        op = read_str(use_inst, "op");
+        bop = read_str(use_inst, "operation");
+        if (!(op && !strcmp(op, "binop") && bop && !strcmp(bop, "+"))) {
+          return 1;
+        }
+        use_lhs = resolve_copy_chain_source_reg(insts, use_ii, read_int(use_inst, "lhs"));
+        use_rhs = resolve_copy_chain_source_reg(insts, use_ii, read_int(use_inst, "rhs"));
+        final_reg = resolve_copy_chain_source_reg(insts, use_ii, final_reg);
+        if (use_lhs == final_reg) {
+          other = use_rhs;
+        } else if (use_rhs == final_reg) {
+          other = use_lhs;
+        } else {
+          return 0;
+        }
+        return string_concat_arg_is_string_handle(other);
+      }
+
       auto enum StringConcatPairRouteKind classify_string_concat_pair_route(
           size_t ii,
           size_t ilen,
@@ -30,7 +72,9 @@
         }
         if (direct_set_out) *direct_set_out = direct_set || shared_receiver;
         if (shared_receiver_out) *shared_receiver_out = shared_receiver;
-        if (should_defer_string_concat_pair(ii, ilen, insts, dst)) {
+        if (should_defer_string_concat_pair(ii, ilen, insts, dst) &&
+            string_concat_deferred_pair_can_materialize_later(
+                ii, ilen, insts, dst, lhs, rhs)) {
           return HAKO_LLVMC_STRING_CONCAT_PAIR_ROUTE_DEFER_PAIR;
         }
         if (get_str_const(rhs) != NULL && direct_set) {

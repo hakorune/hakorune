@@ -74,6 +74,7 @@
         const char* box_name;
         const char* method;
         const char* target_symbol;
+        const char* target_result_box_name;
         const char* core_op;
         const char* route_kind;
         const char* emit_kind;
@@ -555,6 +556,7 @@
           out->box_name = read_str(entry, "box_name");
           out->method = read_str(entry, "method");
           out->target_symbol = read_str(entry, "target_symbol");
+          out->target_result_box_name = read_str(entry, "target_result_box_name");
           out->core_op = read_str(entry, "core_op");
           out->route_kind = read_str(entry, "route_kind");
           out->emit_kind = read_str(entry, "emit_kind");

@@ -87,6 +87,13 @@
             HAKO_LLVMC_GENERIC_METHOD_EMIT_LEN,
           },
           {
+            "generic_method.keys",
+            "MapKeys",
+            "map_keys_array",
+            HAKO_LLVMC_LOWERING_PLAN_TIER_DIRECT_ABI,
+            HAKO_LLVMC_GENERIC_METHOD_EMIT_KEYS,
+          },
+          {
             "generic_method.push",
             "ArrayPush",
             "array_append_any",
@@ -248,6 +255,15 @@
               core_method_metadata_proof_is_contract_manifest(proof) &&
               core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
             return HAKO_LLVMC_GENERIC_METHOD_EMIT_LEN;
+          }
+          if (!invalid &&
+              op &&
+              !strcmp(op, "MapKeys") &&
+              route_id &&
+              !strcmp(route_id, "generic_method.keys") &&
+              core_method_metadata_proof_is_contract_manifest(proof) &&
+              core_method_lowering_tier_is_warm_direct_abi(lowering_tier)) {
+            return HAKO_LLVMC_GENERIC_METHOD_EMIT_KEYS;
           }
           if (!invalid &&
               op &&

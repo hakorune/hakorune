@@ -1,34 +1,3 @@
-static int hako_llvmc_userbox_route_get_i64(
-    yyjson_val* route,
-    const char* field,
-    long long* out) {
-  yyjson_val* value = route ? yyjson_obj_get(route, field) : NULL;
-  if (!(value && yyjson_is_num(value) && out)) {
-    return 0;
-  }
-  *out = (long long)yyjson_get_sint(value);
-  return 1;
-}
-
-static int hako_llvmc_userbox_route_get_optional_i64(
-    yyjson_val* route,
-    const char* field,
-    long long* out) {
-  yyjson_val* value = route ? yyjson_obj_get(route, field) : NULL;
-  if (!out) {
-    return 0;
-  }
-  *out = 0;
-  if (!value || yyjson_is_null(value)) {
-    return 1;
-  }
-  if (!yyjson_is_num(value)) {
-    return 0;
-  }
-  *out = (long long)yyjson_get_sint(value);
-  return 1;
-}
-
 static int hako_llvmc_userbox_point_route_shape_ok(
     const char* kind,
     long long block,
@@ -80,14 +49,7 @@ static int hako_llvmc_userbox_point_route_shape_ok(
 static int hako_llvmc_consume_userbox_point_local_scalar_route(
     const char* json_in,
     const char* obj_out) {
-  yyjson_read_err rerr;
-  yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
-  yyjson_val* root;
-  yyjson_val* fns;
-  yyjson_val* fn;
-  yyjson_val* metadata;
-  yyjson_val* route;
-  hako_llvmc_entry_rune_selection selection;
+  struct hako_llvmc_userbox_route_context ctx;
   const char* kind = NULL;
   const char* box_name = NULL;
   const char* x_field = NULL;
@@ -113,47 +75,37 @@ static int hako_llvmc_consume_userbox_point_local_scalar_route(
   char extra[128];
   int rc;
 
-  if (!doc) return -1;
-  root = yyjson_doc_get_root(doc);
-  fns = yyjson_obj_get(root, "functions");
-  fn = hako_llvmc_find_entry_function(fns);
-  if (!(fn && yyjson_is_obj(fn))) {
-    yyjson_doc_free(doc);
-    return -1;
-  }
-  hako_llvmc_select_entry_runes(fn, &selection);
-
-  metadata = yyjson_obj_get(fn, "metadata");
-  route = metadata ? yyjson_obj_get(metadata, "userbox_local_scalar_seed_route") : NULL;
-  if (!(route && yyjson_is_obj(route))) {
-    yyjson_doc_free(doc);
+  if (!hako_llvmc_userbox_route_context_open(
+          json_in,
+          "userbox_local_scalar_seed_route",
+          &ctx)) {
     return -1;
   }
 
-  kind = yyjson_get_str(yyjson_obj_get(route, "kind"));
-  box_name = yyjson_get_str(yyjson_obj_get(route, "box"));
-  x_field = yyjson_get_str(yyjson_obj_get(route, "x_field"));
-  y_field = yyjson_get_str(yyjson_obj_get(route, "y_field"));
-  proof = yyjson_get_str(yyjson_obj_get(route, "proof"));
-  consumer_capability = yyjson_get_str(yyjson_obj_get(route, "consumer_capability"));
-  publication_boundary = yyjson_get_str(yyjson_obj_get(route, "publication_boundary"));
+  kind = yyjson_get_str(yyjson_obj_get(ctx.route, "kind"));
+  box_name = yyjson_get_str(yyjson_obj_get(ctx.route, "box"));
+  x_field = yyjson_get_str(yyjson_obj_get(ctx.route, "x_field"));
+  y_field = yyjson_get_str(yyjson_obj_get(ctx.route, "y_field"));
+  proof = yyjson_get_str(yyjson_obj_get(ctx.route, "proof"));
+  consumer_capability = yyjson_get_str(yyjson_obj_get(ctx.route, "consumer_capability"));
+  publication_boundary = yyjson_get_str(yyjson_obj_get(ctx.route, "publication_boundary"));
 
-  if (!hako_llvmc_userbox_route_get_i64(route, "block", &block) ||
-      !hako_llvmc_userbox_route_get_i64(route, "newbox_instruction_index", &newbox_instruction_index) ||
-      !hako_llvmc_userbox_route_get_i64(route, "set_x_instruction_index", &set_x_instruction_index) ||
-      !hako_llvmc_userbox_route_get_i64(route, "set_y_instruction_index", &set_y_instruction_index) ||
-      !hako_llvmc_userbox_route_get_i64(route, "get_x_instruction_index", &get_x_instruction_index) ||
-      !hako_llvmc_userbox_route_get_i64(route, "get_y_instruction_index", &get_y_instruction_index) ||
-      !hako_llvmc_userbox_route_get_i64(route, "point_value", &point_value) ||
-      !hako_llvmc_userbox_route_get_optional_i64(route, "copy_value", &copy_value) ||
-      !hako_llvmc_userbox_route_get_i64(route, "x_value", &x_value) ||
-      !hako_llvmc_userbox_route_get_i64(route, "y_value", &y_value) ||
-      !hako_llvmc_userbox_route_get_i64(route, "get_x_value", &get_x_value) ||
-      !hako_llvmc_userbox_route_get_i64(route, "get_y_value", &get_y_value) ||
-      !hako_llvmc_userbox_route_get_i64(route, "result_value", &result_value) ||
-      !hako_llvmc_userbox_route_get_i64(route, "x_i64", &x_i64) ||
-      !hako_llvmc_userbox_route_get_i64(route, "y_i64", &y_i64)) {
-    yyjson_doc_free(doc);
+  if (!hako_llvmc_userbox_route_get_i64(ctx.route, "block", &block) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "newbox_instruction_index", &newbox_instruction_index) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "set_x_instruction_index", &set_x_instruction_index) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "set_y_instruction_index", &set_y_instruction_index) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "get_x_instruction_index", &get_x_instruction_index) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "get_y_instruction_index", &get_y_instruction_index) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "point_value", &point_value) ||
+      !hako_llvmc_userbox_route_get_optional_i64(ctx.route, "copy_value", &copy_value) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "x_value", &x_value) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "y_value", &y_value) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "get_x_value", &get_x_value) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "get_y_value", &get_y_value) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "result_value", &result_value) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "x_i64", &x_i64) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "y_i64", &y_i64)) {
+    hako_llvmc_userbox_route_context_close(&ctx);
     return -1;
   }
 
@@ -165,8 +117,8 @@ static int hako_llvmc_consume_userbox_point_local_scalar_route(
         hako_llvmc_str_eq(proof, "userbox_point_field_local_scalar_seed") &&
         hako_llvmc_str_eq(consumer_capability, "direct_userbox_point_local_scalar") &&
         hako_llvmc_str_eq(publication_boundary, "none") &&
-        hako_llvmc_userbox_point_inline_scalar_selection_ok(fn) &&
-        hako_llvmc_userbox_point_decl_ok(root) &&
+        hako_llvmc_userbox_point_inline_scalar_selection_ok(ctx.fn) &&
+        hako_llvmc_userbox_point_decl_ok(ctx.root) &&
         hako_llvmc_userbox_point_route_shape_ok(
             kind,
             block,
@@ -191,7 +143,7 @@ static int hako_llvmc_consume_userbox_point_local_scalar_route(
           "metadata_contract_mismatch",
           "userbox_local_scalar_seed_route");
     }
-    yyjson_doc_free(doc);
+    hako_llvmc_userbox_route_context_close(&ctx);
     return -1;
   }
 
@@ -204,7 +156,7 @@ static int hako_llvmc_consume_userbox_point_local_scalar_route(
         extra);
   }
 
-  rc = hako_llvmc_emit_userbox_point_local_i64_ir(obj_out, &selection);
-  yyjson_doc_free(doc);
+  rc = hako_llvmc_emit_userbox_point_local_i64_ir(obj_out, &ctx.selection);
+  hako_llvmc_userbox_route_context_close(&ctx);
   return rc;
 }

@@ -221,6 +221,11 @@
         char ab[192];
         ab[0] = '\0';
         if (find_string_concat_pair(lhs, &a, &b)) {
+          if (!string_concat_arg_is_string_handle(a) ||
+              !string_concat_arg_is_string_handle(b) ||
+              !string_concat_arg_is_string_handle(rhs)) {
+            return 0;
+          }
           append_string_concat_arg_ref(ab, sizeof(ab), a, 1);
           append_string_concat_arg_ref(ab, sizeof(ab), b, 0);
           append_string_concat_arg_ref(ab, sizeof(ab), rhs, 0);
@@ -241,6 +246,11 @@
           return 1;
         }
         if (find_string_concat_pair(rhs, &a, &b)) {
+          if (!string_concat_arg_is_string_handle(lhs) ||
+              !string_concat_arg_is_string_handle(a) ||
+              !string_concat_arg_is_string_handle(b)) {
+            return 0;
+          }
           append_string_concat_arg_ref(ab, sizeof(ab), lhs, 1);
           append_string_concat_arg_ref(ab, sizeof(ab), a, 0);
           append_string_concat_arg_ref(ab, sizeof(ab), b, 0);

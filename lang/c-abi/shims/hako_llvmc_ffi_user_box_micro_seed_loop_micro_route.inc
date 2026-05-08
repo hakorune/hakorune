@@ -54,14 +54,7 @@ static int hako_llvmc_userbox_loop_micro_shape_ok(
 static int hako_llvmc_consume_userbox_loop_micro_route(
     const char* json_in,
     const char* obj_out) {
-  yyjson_read_err rerr;
-  yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
-  yyjson_val* root;
-  yyjson_val* fns;
-  yyjson_val* fn;
-  yyjson_val* metadata;
-  yyjson_val* route;
-  hako_llvmc_entry_rune_selection selection;
+  struct hako_llvmc_userbox_route_context ctx;
   const char* kind = NULL;
   const char* box_name = NULL;
   const char* proof = NULL;
@@ -81,41 +74,31 @@ static int hako_llvmc_consume_userbox_loop_micro_route(
   char extra[128];
   int rc = -1;
 
-  if (!doc) return -1;
-  root = yyjson_doc_get_root(doc);
-  fns = yyjson_obj_get(root, "functions");
-  fn = hako_llvmc_find_entry_function(fns);
-  if (!(fn && yyjson_is_obj(fn))) {
-    yyjson_doc_free(doc);
-    return -1;
-  }
-  hako_llvmc_select_entry_runes(fn, &selection);
-
-  metadata = yyjson_obj_get(fn, "metadata");
-  route = metadata ? yyjson_obj_get(metadata, "userbox_loop_micro_seed_route") : NULL;
-  if (!(route && yyjson_is_obj(route))) {
-    yyjson_doc_free(doc);
+  if (!hako_llvmc_userbox_route_context_open(
+          json_in,
+          "userbox_loop_micro_seed_route",
+          &ctx)) {
     return -1;
   }
 
-  kind = yyjson_get_str(yyjson_obj_get(route, "kind"));
-  box_name = yyjson_get_str(yyjson_obj_get(route, "box"));
-  proof = yyjson_get_str(yyjson_obj_get(route, "proof"));
-  consumer_capability = yyjson_get_str(yyjson_obj_get(route, "consumer_capability"));
-  publication_boundary = yyjson_get_str(yyjson_obj_get(route, "publication_boundary"));
+  kind = yyjson_get_str(yyjson_obj_get(ctx.route, "kind"));
+  box_name = yyjson_get_str(yyjson_obj_get(ctx.route, "box"));
+  proof = yyjson_get_str(yyjson_obj_get(ctx.route, "proof"));
+  consumer_capability = yyjson_get_str(yyjson_obj_get(ctx.route, "consumer_capability"));
+  publication_boundary = yyjson_get_str(yyjson_obj_get(ctx.route, "publication_boundary"));
 
-  if (!hako_llvmc_userbox_route_get_i64(route, "block_count", &block_count) ||
-      !hako_llvmc_userbox_route_get_i64(route, "newbox_block", &newbox_block) ||
+  if (!hako_llvmc_userbox_route_get_i64(ctx.route, "block_count", &block_count) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "newbox_block", &newbox_block) ||
       !hako_llvmc_userbox_route_get_i64(
-          route, "newbox_instruction_index", &newbox_instruction_index) ||
-      !hako_llvmc_userbox_route_get_i64(route, "box_value", &box_value) ||
-      !hako_llvmc_userbox_route_get_i64(route, "ops", &ops) ||
-      !hako_llvmc_userbox_route_get_optional_i64(route, "flip_at", &flip_at) ||
-      !hako_llvmc_userbox_route_get_i64(route, "field_get_count", &field_get_count) ||
-      !hako_llvmc_userbox_route_get_i64(route, "field_set_count", &field_set_count) ||
-      !hako_llvmc_userbox_route_get_i64(route, "compare_lt_count", &compare_lt_count) ||
-      !hako_llvmc_userbox_route_get_i64(route, "compare_eq_count", &compare_eq_count) ||
-      !hako_llvmc_userbox_route_get_i64(route, "binop_count", &binop_count) ||
+          ctx.route, "newbox_instruction_index", &newbox_instruction_index) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "box_value", &box_value) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "ops", &ops) ||
+      !hako_llvmc_userbox_route_get_optional_i64(ctx.route, "flip_at", &flip_at) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "field_get_count", &field_get_count) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "field_set_count", &field_set_count) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "compare_lt_count", &compare_lt_count) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "compare_eq_count", &compare_eq_count) ||
+      !hako_llvmc_userbox_route_get_i64(ctx.route, "binop_count", &binop_count) ||
       !hako_llvmc_userbox_loop_micro_shape_ok(
           kind,
           box_name,
@@ -140,14 +123,14 @@ static int hako_llvmc_consume_userbox_loop_micro_route(
           "metadata_contract_mismatch",
           "userbox_loop_micro_seed_route");
     }
-    yyjson_doc_free(doc);
+    hako_llvmc_userbox_route_context_close(&ctx);
     return -1;
   }
 
   if (hako_llvmc_str_eq(kind, "point_add_micro")) {
-    if (!(hako_llvmc_userbox_point_inline_scalar_selection_ok(fn) &&
-          hako_llvmc_userbox_point_decl_ok(root))) {
-      yyjson_doc_free(doc);
+    if (!(hako_llvmc_userbox_point_inline_scalar_selection_ok(ctx.fn) &&
+          hako_llvmc_userbox_point_decl_ok(ctx.root))) {
+      hako_llvmc_userbox_route_context_close(&ctx);
       return -1;
     }
     if (hako_llvmc_route_trace_enabled()) {
@@ -158,15 +141,18 @@ static int hako_llvmc_consume_userbox_loop_micro_route(
           "exact_match",
           extra);
     }
-    rc = hako_llvmc_emit_userbox_point_add_micro_ir(obj_out, &selection, ops);
-    yyjson_doc_free(doc);
+    rc = hako_llvmc_emit_userbox_point_add_micro_ir(
+        obj_out,
+        &ctx.selection,
+        ops);
+    hako_llvmc_userbox_route_context_close(&ctx);
     return rc;
   }
 
   if (hako_llvmc_str_eq(kind, "flag_toggle_micro")) {
-    if (!(hako_llvmc_userbox_flag_inline_scalar_selection_ok(fn) &&
-          hako_llvmc_userbox_flag_decl_ok(root))) {
-      yyjson_doc_free(doc);
+    if (!(hako_llvmc_userbox_flag_inline_scalar_selection_ok(ctx.fn) &&
+          hako_llvmc_userbox_flag_decl_ok(ctx.root))) {
+      hako_llvmc_userbox_route_context_close(&ctx);
       return -1;
     }
     if (hako_llvmc_route_trace_enabled()) {
@@ -177,11 +163,15 @@ static int hako_llvmc_consume_userbox_loop_micro_route(
           "exact_match",
           extra);
     }
-    rc = hako_llvmc_emit_userbox_flag_toggle_micro_ir(obj_out, &selection, ops, flip_at);
-    yyjson_doc_free(doc);
+    rc = hako_llvmc_emit_userbox_flag_toggle_micro_ir(
+        obj_out,
+        &ctx.selection,
+        ops,
+        flip_at);
+    hako_llvmc_userbox_route_context_close(&ctx);
     return rc;
   }
 
-  yyjson_doc_free(doc);
+  hako_llvmc_userbox_route_context_close(&ctx);
   return -1;
 }

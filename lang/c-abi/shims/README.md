@@ -7,6 +7,17 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
 - `.inc` files consume MIR-owned metadata and emit backend calls.
 - `.inc` files may perform backend-local operand normalization and variant selection only after MIR has already decided legality.
 - `.inc` files must not become semantic planners for publication defer, provenance, StableView legality, or read-side alias continuation.
+- Active typed-object EXE lowering consumes `typed_object_plans` and
+  LoweringPlan route facts only. It must not infer user-box layout from
+  `user_box_decls`, hard-code app box names, or rediscover field slots from
+  `.hako` source shape.
+- `hako_llvmc_ffi_user_box_micro_seed*.inc` is a legacy exact-seed exception
+  for old narrow fixtures. Do not extend it for real-app bringup; migrate or
+  retire rows into TypedObjectPlan / LoweringPlan-owned facts instead. See
+  [`LEGACY_RETIREMENT.md`](LEGACY_RETIREMENT.md).
+- Same-module `.inc` partitions may publish backend-local register type/origin
+  facts from metadata, but MIRBuilder owns the semantic truth that produces
+  those facts.
 - Temporary exact matchers must be listed in the phase-137x Legacy Retirement Ledger or moved to explicit legacy fixtures before they can be kept.
 - Active seam closeout SSOT: `../../../docs/development/current/main/phases/phase-137x/137x-95-mir-backend-seam-closeout-before-textlane.md`.
 
@@ -51,6 +62,9 @@ Current partitions:
 - `hako_llvmc_ffi_user_box_micro_seed.inc`
   - pure-first seed emit/match helpers for the narrow typed user-box local scalar and point-add / flag-toggle micro paths
   - now partitioned further into `hako_llvmc_ffi_user_box_micro_seed_helpers.inc` plus typed family slices
+- `hako_llvmc_ffi_user_box_micro_seed_helpers.inc`
+  - shared legacy seed helpers, including route JSON open/select context helpers
+  - owns boilerplate only; per-route metadata contracts stay in the typed route slices
 - `hako_llvmc_ffi_user_box_micro_seed_point_route.inc`
   - metadata consumer for the UserBox Point local/copy scalar exact seed route
   - consumes MIR `userbox_local_scalar_seed_route`; do not regrow raw block scanners here
@@ -87,6 +101,28 @@ Current partitions:
   - shared emit primitives used by pure compile (`emit_branch` / `emit_ret` / `emit_call_*`)
 - `hako_llvmc_ffi_compiler_state.inc`
   - shared origin / type / const / alias helper tables used by pure compile and generic method lowering
+- `hako_llvmc_ffi_typed_object_plan.inc`
+  - reader for MIR-owned `typed_object_plans`; field access must go through
+    this seam instead of raw declaration scans
+- `hako_llvmc_ffi_lowering_plan_metadata.inc`
+  - typed LoweringPlan row readers for extern/global/generic/user-box calls;
+    row predicates validate route facts but must not invent new legality
+- `hako_llvmc_ffi_same_module_value_metadata.inc`
+  - same-module register metadata publisher; consumes `value_types`,
+    `target_result_box_name`, and TypedObjectPlan bindings only
+- `hako_llvmc_ffi_same_module_typed_object_emit.inc`
+  - same-module typed-object newbox / field get / field set emitter; consumes
+    TypedObjectPlan bindings and runtime slots only
+- `hako_llvmc_ffi_same_module_generic_method_emit.inc`
+  - same-module generic method body emit helpers and dispatcher; route facts
+    stay MIR-owned, not key-allowlist-owned
+- `hako_llvmc_ffi_same_module_function_emit.inc`
+  - same-module uniform ABI function body emitter; keep this as orchestration
+    plus direct ABI call emission, not a semantic planner
+- `hako_llvmc_ffi_same_module_method_views.inc`
+  - same-module generic-method route view predicates backed by route-rule
+    rows; MIR JSON key acceptance is owned by MIR route facts, not C-side key
+    allowlists
 - `hako_llvmc_ffi_string_concat_lowering.inc`
   - thin wrapper for string concat lowering that now delegates emit details
 - `hako_llvmc_ffi_string_concat_emit.inc`
@@ -106,6 +142,20 @@ Current partitions:
     stable-object / publish / invalidation need flags
   - current shape is table-driven; add rule rows or shared match helpers instead
     of reopening local by-name ladders
+- `hako_llvmc_ffi_mir_call_need_vocab.inc`
+  - shared declaration need flags and need-kind vocabulary for
+    `hako_llvmc_ffi_mir_call_need_policy.inc`
+- `hako_llvmc_ffi_mir_call_need_apply.inc`
+  - route-agnostic mapping from `MirCallNeedKind` to declaration need flags
+- `hako_llvmc_ffi_mir_call_need_name_fallback.inc`
+  - compatibility name-based declaration need classifiers kept separate from
+    metadata-first LoweringPlan route consumption
+- `hako_llvmc_ffi_mir_call_need_metadata_rules.inc`
+  - metadata-first declaration need rule tables for generic-method and extern
+    LoweringPlan/core-method route rows
+- `hako_llvmc_ffi_pure_typed_object_helpers.inc`
+  - generic pure typed-object register metadata and newbox plan validation
+    helpers shared by prescan and lowering
 - `hako_llvmc_ffi_mir_call_surface_policy.inc`
   - current executable `mir_call` surface-policy consumer; keep native until a
     generated producer or typed LoweringPlan feeds constructor / global /

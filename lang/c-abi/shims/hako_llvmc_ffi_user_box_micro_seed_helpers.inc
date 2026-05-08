@@ -25,6 +25,86 @@ static long long hako_llvmc_userbox_read_int(yyjson_val* obj, const char* key) {
   return value ? (long long)yyjson_get_sint(value) : 0;
 }
 
+static int hako_llvmc_userbox_route_get_i64(
+    yyjson_val* route,
+    const char* field,
+    long long* out) {
+  yyjson_val* value = route ? yyjson_obj_get(route, field) : NULL;
+  if (!(value && yyjson_is_num(value) && out)) {
+    return 0;
+  }
+  *out = (long long)yyjson_get_sint(value);
+  return 1;
+}
+
+static int hako_llvmc_userbox_route_get_optional_i64(
+    yyjson_val* route,
+    const char* field,
+    long long* out) {
+  yyjson_val* value = route ? yyjson_obj_get(route, field) : NULL;
+  if (!out) {
+    return 0;
+  }
+  *out = 0;
+  if (!value || yyjson_is_null(value)) {
+    return 1;
+  }
+  if (!yyjson_is_num(value)) {
+    return 0;
+  }
+  *out = (long long)yyjson_get_sint(value);
+  return 1;
+}
+
+struct hako_llvmc_userbox_route_context {
+  yyjson_doc* doc;
+  yyjson_val* root;
+  yyjson_val* fns;
+  yyjson_val* fn;
+  yyjson_val* metadata;
+  yyjson_val* route;
+  hako_llvmc_entry_rune_selection selection;
+};
+
+static void hako_llvmc_userbox_route_context_close(
+    struct hako_llvmc_userbox_route_context* ctx) {
+  if (ctx && ctx->doc) {
+    yyjson_doc_free(ctx->doc);
+    ctx->doc = NULL;
+  }
+}
+
+static int hako_llvmc_userbox_route_context_open(
+    const char* json_in,
+    const char* route_key,
+    struct hako_llvmc_userbox_route_context* ctx) {
+  yyjson_read_err rerr;
+  if (!(json_in && route_key && ctx)) {
+    return 0;
+  }
+  memset(ctx, 0, sizeof(*ctx));
+  ctx->doc = yyjson_read_file(json_in, 0, NULL, &rerr);
+  if (!ctx->doc) {
+    return 0;
+  }
+  ctx->root = yyjson_doc_get_root(ctx->doc);
+  ctx->fns = yyjson_obj_get(ctx->root, "functions");
+  ctx->fn = hako_llvmc_find_entry_function(ctx->fns);
+  if (!(ctx->fn && yyjson_is_obj(ctx->fn))) {
+    hako_llvmc_userbox_route_context_close(ctx);
+    return 0;
+  }
+  hako_llvmc_select_entry_runes(ctx->fn, &ctx->selection);
+
+  ctx->metadata = yyjson_obj_get(ctx->fn, "metadata");
+  ctx->route = ctx->metadata ? yyjson_obj_get(ctx->metadata, route_key) : NULL;
+  if (!(ctx->route && yyjson_is_obj(ctx->route))) {
+    hako_llvmc_userbox_route_context_close(ctx);
+    return 0;
+  }
+  return 1;
+}
+
 static int hako_llvmc_userbox_reg_matches_aliases(
     long long reg,
     const long long* aliases,

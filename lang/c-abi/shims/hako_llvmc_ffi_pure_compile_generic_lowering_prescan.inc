@@ -1,3 +1,81 @@
+      auto void generic_pure_publish_origin(long long reg, int origin_kind) {
+        set_origin(reg, origin_kind);
+        set_scan_origin(reg, origin_kind);
+      }
+
+      auto void generic_pure_publish_i64_origin(long long reg, int origin_kind) {
+        set_type(reg, T_I64);
+        generic_pure_publish_origin(reg, origin_kind);
+      }
+
+      #include "hako_llvmc_ffi_pure_typed_object_helpers.inc"
+
+      auto int generic_pure_publish_value_type_metadata(
+          long long reg,
+          yyjson_val* value_type) {
+        const char* scalar_type = NULL;
+        const char* kind = NULL;
+        const char* box_type = NULL;
+        if (!reg || !value_type) return 0;
+        if (yyjson_is_str(value_type)) {
+          scalar_type = yyjson_get_str(value_type);
+          if (scalar_type && !strcmp(scalar_type, "i1")) {
+            set_type(reg, T_I1);
+            return 1;
+          }
+          if (scalar_type &&
+              (!strcmp(scalar_type, "i64") ||
+               !strcmp(scalar_type, "void"))) {
+            set_type(reg, T_I64);
+            return 1;
+          }
+          return 0;
+        }
+        if (!yyjson_is_obj(value_type)) return 0;
+        kind = read_str(value_type, "kind");
+        box_type = read_str(value_type, "box_type");
+        if (kind && !strcmp(kind, "string")) {
+          generic_pure_publish_i64_origin(reg, ORG_STRING);
+          return 1;
+        }
+        if (!(kind && !strcmp(kind, "handle"))) return 0;
+        if (box_type && !strcmp(box_type, "StringBox")) {
+          generic_pure_publish_i64_origin(reg, ORG_STRING);
+          return 1;
+        }
+        if (box_type && !strcmp(box_type, "ArrayBox")) {
+          generic_pure_publish_i64_origin(reg, ORG_ARRAY_BIRTH);
+          return 1;
+        }
+        if (box_type && !strcmp(box_type, "MapBox")) {
+          generic_pure_publish_i64_origin(reg, ORG_MAP_BIRTH);
+          return 1;
+        }
+        if (generic_pure_publish_typed_object_if_plan(reg, box_type)) {
+          return 1;
+        }
+        set_type(reg, T_I64);
+        return 1;
+      }
+
+      auto int generic_pure_publish_reg_metadata(long long reg) {
+        char key[32];
+        yyjson_val* value_types = fn_metadata ? yyjson_obj_get(fn_metadata, "value_types") : NULL;
+        yyjson_val* value_type = NULL;
+        if (!reg || !(value_types && yyjson_is_obj(value_types))) return 0;
+        snprintf(key, sizeof(key), "%lld", reg);
+        value_type = yyjson_obj_get(value_types, key);
+        return generic_pure_publish_value_type_metadata(reg, value_type);
+      }
+
+      auto int generic_pure_value_has_string_origin(long long reg) {
+        long long base = resolve_copy_source_reg(reg);
+        return get_origin(reg) == ORG_STRING ||
+               get_scan_origin(reg) == ORG_STRING ||
+               get_origin(base) == ORG_STRING ||
+               get_scan_origin(base) == ORG_STRING;
+      }
+
       // Pre-scan: consts + phis + needed method decls
       struct MirCallNeedFlags needs;
       memset(&needs, 0, sizeof(needs));
@@ -69,35 +147,32 @@
             } else if (tname && find_typed_object_plan_index(tname, &typed_plan_index)) {
               needs.typed_object = 1;
               if (dst) {
-                set_type(dst, T_I64);
-                set_scan_origin(dst, ORG_TYPED_OBJECT);
-                set_origin(dst, ORG_TYPED_OBJECT);
-                set_typed_object_binding(dst, typed_plan_index);
+                generic_pure_publish_typed_object_plan_index(
+                    dst,
+                    typed_plan_index);
               }
             }
           } else if (strcmp(op, "field_set")==0) {
             long long box_reg = read_int(ins, "box");
             const char* field = read_str(ins, "field");
-            int typed_plan_index = -1;
-            long long slot = -1;
-            if (box_reg &&
-                get_typed_object_binding(box_reg, &typed_plan_index) &&
-                typed_object_plan_field_runtime_slot(typed_plan_index, field, &slot)) {
-              (void)slot;
+            struct GenericPureTypedObjectFieldSlotView field_slot;
+            if (generic_pure_read_typed_object_field_slot(
+                    box_reg,
+                    field,
+                    &field_slot)) {
               needs.typed_object = 1;
             }
           } else if (strcmp(op, "field_get")==0) {
             long long dst = read_int(ins, "dst");
             long long box_reg = read_int(ins, "box");
             const char* field = read_str(ins, "field");
-            int typed_plan_index = -1;
-            long long slot = -1;
-            if (box_reg &&
-                get_typed_object_binding(box_reg, &typed_plan_index) &&
-                typed_object_plan_field_runtime_slot(typed_plan_index, field, &slot)) {
-              (void)slot;
+            struct GenericPureTypedObjectFieldSlotView field_slot;
+            if (generic_pure_read_typed_object_field_slot(
+                    box_reg,
+                    field,
+                    &field_slot)) {
               needs.typed_object = 1;
-              if (dst) set_type(dst, T_I64);
+              if (dst && !generic_pure_publish_reg_metadata(dst)) set_type(dst, T_I64);
             }
           } else if (strcmp(op, "copy")==0) {
             long long dst = read_int(ins, "dst");
@@ -114,6 +189,7 @@
               if (get_typed_object_binding(src, &typed_plan_index)) {
                 set_typed_object_binding(dst, typed_plan_index);
               }
+              generic_pure_publish_reg_metadata(dst);
             }
             if (dst && src) {
               long long known_len = 0;
@@ -155,8 +231,10 @@
           } else if (strcmp(op, "phi")==0) {
             struct BlockPhi* pb = ensure_phi_block(bid); if (!pb) { yyjson_doc_free(d); goto GEN_END; }
             struct PhiRec pr; pr.dst = read_int(ins, "dst"); pr.in_n=0;
+            yyjson_val* dst_type = yyjson_obj_get(ins, "dst_type");
             const char* dst_type_s = read_str(ins, "dst_type");
             int explicit_phi_ty = T_NONE;
+            int explicit_phi_metadata = 0;
             yyjson_val* vals = yyjson_obj_get(ins, "values"); if (!vals) vals = yyjson_obj_get(ins, "incoming");
             if (dst_type_s) {
               if (!strcmp(dst_type_s, "i1") || !strcmp(dst_type_s, "bool") ||
@@ -212,9 +290,15 @@
                 }
               }
               pb->recs[pb->rec_n++] = pr;
+              if (dst_type && yyjson_is_obj(dst_type)) {
+                explicit_phi_metadata =
+                    generic_pure_publish_value_type_metadata(pr.dst, dst_type);
+              } else {
+                explicit_phi_metadata = generic_pure_publish_reg_metadata(pr.dst);
+              }
               if (explicit_phi_ty != T_NONE) {
                 set_type(pr.dst, explicit_phi_ty);
-              } else {
+              } else if (!explicit_phi_metadata) {
                 set_type(pr.dst, (phi_bool_ok && phi_bool_seen) ? T_I1 : T_I64);
               }
               if (scan_same && scan_first != ORG_NONE) {
@@ -289,7 +373,8 @@
             long long lhs_const_val = 0;
             long long rhs_const_val = 0;
             if ((bop && (strcmp(bop, "+") == 0 || strcmp(bop, "Add") == 0)) &&
-                get_scan_origin(lhs) == ORG_STRING && get_scan_origin(rhs) == ORG_STRING) {
+                (generic_pure_value_has_string_origin(lhs) ||
+                 generic_pure_value_has_string_origin(rhs))) {
               const char* lhs_const = get_str_const(lhs);
               const char* rhs_const = get_str_const(rhs);
               long long lhs_len = 0;
@@ -311,7 +396,9 @@
               if (dst) {
                 set_scan_origin(dst, ORG_STRING);
                 set_origin(dst, ORG_STRING);
-                if (get_known_string_len(lhs, &lhs_len) &&
+                if (generic_pure_value_has_string_origin(lhs) &&
+                    generic_pure_value_has_string_origin(rhs) &&
+                    get_known_string_len(lhs, &lhs_len) &&
                     get_known_string_len(rhs, &rhs_len)) {
                   put_known_string_len(dst, lhs_len + rhs_len);
                 }
@@ -452,9 +539,14 @@
         fprintf(f, "declare i64 @\"nyash.map.slot_store_hhh\"(i64, i64, i64)\n");
       if (needs.map_get || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.map.slot_load_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
-      if (needs.map_has)   fprintf(f, "declare i64 @\"nyash.map.probe_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
-      if (needs.map_has)   fprintf(f, "declare i64 @\"nyash.map.probe_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
-      if (needs.map_size)  fprintf(f, "declare i64 @\"nyash.map.entry_count_i64\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
+      if (needs.map_has || module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"nyash.map.probe_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
+      if (needs.map_has || module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"nyash.map.probe_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
+      if (needs.map_delete || module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"nyash.map.delete_hh\"(i64, i64)\n");
+      if (needs.map_size || module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"nyash.map.entry_count_i64\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.map_keys || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.map.keys_h\"(i64)\n");
       fprintf(f, "declare i64 @\"nyash.runtime_data.get_hh\"(i64, i64)\n");
@@ -470,9 +562,12 @@
       if (needs.arr_len || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_has)   fprintf(f, "declare i64 @\"nyash.array.has_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
-      if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.slot_store_hih\"(i64, i64, i64)\n");
-      if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.set_his\"(i64, i64, i64)\n");
-      if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.slot_store_hii\"(i64, i64, i64)\n");
+      if (needs.arr_set || module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"nyash.array.slot_store_hih\"(i64, i64, i64)\n");
+      if (needs.arr_set || module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"nyash.array.set_his\"(i64, i64, i64)\n");
+      if (needs.arr_set || module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"nyash.array.slot_store_hii\"(i64, i64, i64)\n");
       if (needs.arr_set && (needs.string_concat || needs.string_substring || needs.arr_get || needs.arr_string_indexof || needs.arr_kernel_slot_concat_by_index))
         fprintf(f, "declare i64 @\"nyash.array.kernel_slot_store_hi\"(i64, i64, ptr)\n");
       if (needs.arr_set && (needs.string_concat || needs.string_substring || needs.arr_get || needs.arr_string_indexof || needs.arr_kernel_slot_concat_by_index))
@@ -552,6 +647,9 @@
         fprintf(f, "declare i64 @\"nyash.stage1.emit_mir_from_program_json_v0_h\"(i64)\n");
       if (needs.string_concat || needs.string_substring || needs.arr_get ||
           needs.arr_string_indexof || module_has_planned_same_module_function_definition()) {
+        fprintf(f, "declare i64 @\"nyash.box.from_i64\"(i64)\n");
+        fprintf(f, "declare i64 @\"nyash.box.from_bool\"(i64)\n");
+        fprintf(f, "declare i64 @\"nyash.any.toString_h\"(i64)\n");
         fprintf(f, "declare i64 @\"nyash.string.concat_hh\"(i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.string.concat_hs\"(i64, ptr)\n");
         fprintf(f, "declare i64 @\"nyash.string.kernel_slot_concat_hs\"(ptr, i64, ptr)\n");

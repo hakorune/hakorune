@@ -313,9 +313,6 @@
         if (!is_direct_void && !is_direct_scalar && !is_direct_handle) {
           return 0;
         }
-        if ((is_direct_scalar || is_direct_handle) && !dst) {
-          return -1;
-        }
         if (view.has_result_value) {
           if (!dst || view.result_value != dst) return -1;
         } else if (dst) {
@@ -344,8 +341,14 @@
           fprintf(f, "  %%r%lld = call i64 @\"%s\"(%s)\n", dst, view.target_symbol, ab);
           set_type(dst, T_I64);
           if (is_direct_handle) {
+            int typed_plan_index = -1;
             int origin_kind = lowering_plan_user_box_method_view_result_origin_kind(&view);
-            if (origin_kind != ORG_NONE) {
+            if (view.target_result_box_name &&
+                find_typed_object_plan_index(view.target_result_box_name, &typed_plan_index)) {
+              set_origin(dst, ORG_TYPED_OBJECT);
+              set_scan_origin(dst, ORG_TYPED_OBJECT);
+              set_typed_object_binding(dst, typed_plan_index);
+            } else if (origin_kind != ORG_NONE) {
               set_origin(dst, origin_kind);
               set_scan_origin(dst, origin_kind);
             }

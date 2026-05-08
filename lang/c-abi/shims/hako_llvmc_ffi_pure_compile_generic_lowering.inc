@@ -316,7 +316,9 @@
           if (strcmp(op, "newbox")==0) {
             long long dst = read_int(ins, "dst");
             const char* tname = read_str(ins, "type");
-            int typed_plan_index = -1;
+            struct GenericPureTypedObjectNewPlanView typed_new_plan;
+            enum GenericPureTypedObjectNewPlanStatus typed_new_status =
+                GENERIC_PURE_TYPED_OBJECT_NEW_PLAN_MISSING;
             if (tname && strcmp(tname, "ArrayBox") == 0) {
               if (dst) {
                 EMIT("  %%r%lld = call i64 @\"nyash.array.birth_h\"()\n", dst);
@@ -363,20 +365,21 @@
                 continue;
               }
             }
-            if (tname && find_typed_object_plan_index(tname, &typed_plan_index)) {
-              long long type_id = typed_object_plan_type_id(typed_plan_index);
-              long long field_count = typed_object_plan_field_count(typed_plan_index);
-              if (dst && type_id > 0 && field_count >= 0) {
-                EMIT("  %%r%lld = call i64 @\"nyash.object.new_typed_hi\"(i64 %lld, i64 %lld)\n",
-                     dst,
-                     type_id,
-                     field_count);
-                set_type(dst, T_I64);
-                set_origin(dst, ORG_TYPED_OBJECT);
-                set_scan_origin(dst, ORG_TYPED_OBJECT);
-                set_typed_object_binding(dst, typed_plan_index);
-                continue;
-              }
+            typed_new_status = generic_pure_validate_typed_object_new_plan(
+                dst,
+                tname,
+                &typed_new_plan);
+            if (typed_new_status == GENERIC_PURE_TYPED_OBJECT_NEW_PLAN_OK) {
+              EMIT("  %%r%lld = call i64 @\"nyash.object.new_typed_hi\"(i64 %lld, i64 %lld)\n",
+                   dst,
+                   typed_new_plan.type_id,
+                   typed_new_plan.field_count);
+              generic_pure_publish_typed_object_plan_index(
+                  dst,
+                  typed_new_plan.typed_plan_index);
+              continue;
+            }
+            if (typed_new_status == GENERIC_PURE_TYPED_OBJECT_NEW_PLAN_INVALID) {
               note_pure_unsupported_shape(
                   bid,
                   ii,
@@ -393,23 +396,24 @@
             long long box_reg = read_int(ins, "box");
             long long value_reg = read_int(ins, "value");
             const char* field = read_str(ins, "field");
-            int typed_plan_index = -1;
-            long long slot = -1;
+            struct GenericPureTypedObjectFieldSlotView field_slot;
             long long value_base = resolve_copy_source_reg(value_reg);
             long long value_const = 0;
-            if (box_reg && value_reg &&
-                get_typed_object_binding(box_reg, &typed_plan_index) &&
-                typed_object_plan_field_runtime_slot(typed_plan_index, field, &slot)) {
+            if (value_reg &&
+                generic_pure_read_typed_object_field_slot(
+                    box_reg,
+                    field,
+                    &field_slot)) {
               long long box_base = resolve_copy_source_reg(box_reg);
               if (has_const(value_base, &value_const)) {
                 EMIT("  call void @\"nyash.object.field_set_hii\"(i64 %%r%lld, i64 %lld, i64 %lld)\n",
                      box_base,
-                     slot,
+                     field_slot.slot,
                      value_const);
               } else {
                 EMIT("  call void @\"nyash.object.field_set_hii\"(i64 %%r%lld, i64 %lld, i64 %%r%lld)\n",
                      box_base,
-                     slot,
+                     field_slot.slot,
                      value_base);
               }
               continue;
@@ -427,17 +431,20 @@
             long long dst = read_int(ins, "dst");
             long long box_reg = read_int(ins, "box");
             const char* field = read_str(ins, "field");
-            int typed_plan_index = -1;
-            long long slot = -1;
-            if (dst && box_reg &&
-                get_typed_object_binding(box_reg, &typed_plan_index) &&
-                typed_object_plan_field_runtime_slot(typed_plan_index, field, &slot)) {
+            struct GenericPureTypedObjectFieldSlotView field_slot;
+            if (dst &&
+                generic_pure_read_typed_object_field_slot(
+                    box_reg,
+                    field,
+                    &field_slot)) {
               long long box_base = resolve_copy_source_reg(box_reg);
               EMIT("  %%r%lld = call i64 @\"nyash.object.field_get_hii\"(i64 %%r%lld, i64 %lld)\n",
                    dst,
                    box_base,
-                   slot);
-              set_type(dst, T_I64);
+                   field_slot.slot);
+              if (!generic_pure_publish_reg_metadata(dst)) {
+                set_type(dst, T_I64);
+              }
               continue;
             }
             note_pure_unsupported_shape(
@@ -472,6 +479,7 @@
               if (get_typed_object_binding(src, &typed_plan_index)) {
                 set_typed_object_binding(dst, typed_plan_index);
               }
+              generic_pure_publish_reg_metadata(dst);
             }
             continue;
           }
@@ -595,8 +603,6 @@
           if (strcmp(op, "binop")==0) {
             const char* k = read_str(ins, "op_kind"); if (!k) k = read_str(ins, "operation");
             const char* irop = NULL;
-            int lhs_org = get_origin(read_int(ins, "lhs"));
-            int rhs_org = get_origin(read_int(ins, "rhs"));
             if (k) {
               if (!strcmp(k, "Add") || !strcmp(k, "+")) irop = "add";
               else if (!strcmp(k, "Sub") || !strcmp(k, "-")) irop = "sub";
@@ -609,7 +615,9 @@
               yyjson_doc_free(d); goto GEN_ABORT;
             }
             long long dst = read_int(ins, "dst"); long long lhs = read_int(ins, "lhs"); long long rhs = read_int(ins, "rhs");
-            if (!strcmp(irop, "add") && lhs_org == ORG_STRING && rhs_org == ORG_STRING) {
+            if (!strcmp(irop, "add") &&
+                (generic_pure_value_has_string_origin(lhs) ||
+                 generic_pure_value_has_string_origin(rhs))) {
               emit_string_concat_pair_by_policy(f, ii, ilen, insts, dst, lhs, rhs);
               continue;
             }
