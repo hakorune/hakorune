@@ -74,8 +74,34 @@ M11c-required-vocab live surface:
 -> source=rune_lowering
 ```
 
-This row is vocabulary and preservation only. It does not make required inline
-backend-active and does not fail a program for missing verifier proof yet.
+This row was vocabulary and preservation only. `M11c-required-verify` now owns
+the verifier transition for the same metadata. Required inline still is not
+backend-active.
+
+M11c-required-verify live surface:
+
+```text
+@rune Lowering(inline_required)
+@rune Contract(no_alloc)
+@rune Contract(no_safepoint)
+-> MIR InlinePlan request=required
+-> verifier checks required contracts and narrow leaf-inline shape
+-> verified=true only when accepted
+-> fail-fast diagnostics on missing contracts or unsupported shapes
+```
+
+The first verifier row accepts only the same narrow leaf body shape used by
+M11c-soft-leaf:
+
+```text
+one entry block
+Return terminator
+instruction_count <= 8
+Const / UnaryOp / BinOp / Compare / StaticDataLoad / Copy / Select / TypeOp
+no nested Call
+no dynamic dispatch
+no recursive cycle
+```
 
 `Hint(inline)` is not `inline_required`.
 
@@ -224,8 +250,10 @@ M11c-required-vocab live schema:
 }
 ```
 
-`verified=false` is intentional for this row. `M11c-required-verify` owns the
-future transition from preserved vocabulary to accepted required inline.
+`verified=false` remains valid for rejected or unverified shapes.
+`M11c-required-verify` sets `verified=true` only after required contracts and
+leaf-inline shape checks pass. This still does not authorize backend-local
+inlining.
 
 ## Inline Kinds
 
@@ -279,8 +307,10 @@ considered.
 
 ## Required Inline Verifier Conditions
 
-`Lowering(inline_required)` vocabulary is accepted by M11c-required-vocab, but
-required inline lowering is accepted only after verifier proof.
+`Lowering(inline_required)` vocabulary is accepted by M11c-required-vocab.
+M11c-required-verify now fail-fast rejects required-inline plans that lack
+`Contract(no_alloc)` / `Contract(no_safepoint)` or do not satisfy the narrow
+leaf-inline shape.
 
 Minimum required checks:
 
@@ -353,6 +383,8 @@ M11c-contract-repeat:
 M11c-required-verify:
   required inline verifier connection to no_alloc/no_safepoint and call graph
   checks.
+  Live-narrow. Sets verified=true only for accepted leaf required-inline plans;
+  backend use remains disabled.
 
 M11d:
   EffectPlan / CapabilityPlan boundary.
@@ -399,4 +431,5 @@ Stable diagnostics for future rows:
 - no `.inc` / ll_emit inliner
 - no app-specific inline switch
 - no backend-active use of `Hint(inline)` before MIR InlinePlan exists
-- no required inline before verifier proof exists
+- no backend-active required inline before a later lowering row consumes the
+  verified MIR fact

@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-058-RUNE-PROFILE-EFFECT-CAPABILITY-PLAN-DOCS"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-058-RUNE-PROFILE-EFFECT-CAPABILITY-PLAN-DOCS.md"
-latest_card_summary = "293x-058 reserves Profile as future sugar over MIR InlinePlan/EffectPlan/CapabilityPlan facts and fixes the mimalloc substrate task order."
+latest_card = "293x-059-M11C-REQUIRED-INLINE-VERIFY"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-059-M11C-REQUIRED-INLINE-VERIFY.md"
+latest_card_summary = "293x-059 M11c-required-verify now fail-fast verifies Lowering(inline_required) against required contracts and the shared narrow leaf-inline shape."
 
 current_blocker_token = "phase-293x mimalloc substrate capability ladder after real-app EXE parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

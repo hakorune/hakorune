@@ -59,15 +59,21 @@ Current live verifier row:
 - `Hint(inline)` may trigger the narrow M11c-soft-leaf MIR optimizer row:
   best-effort same-module pure leaf inline. Unsupported shapes keep the call.
 - `Lowering(inline_required)` is preserved into MIR-owned
-  `metadata.inline_plans` as `request=required`, `verified=false`, and
-  `fallback=fail_fast`. It is not backend-active until the required verifier
-  row lands.
+  `metadata.inline_plans` as `request=required` and `fallback=fail_fast`.
+  M11c-required-verify sets `verified=true` only when required contracts and
+  the narrow leaf-inline shape pass. It is still not backend-active.
 
 Fail-fast diagnostics use the stable tags:
 
 ```text
 [freeze:contract][rune/no_alloc]
 [freeze:contract][rune/no_safepoint]
+[inline-plan/missing-contract]
+[inline-plan/body-too-large]
+[inline-plan/recursive-cycle]
+[inline-plan/dynamic-dispatch]
+[inline-plan/unsupported-call]
+[inline-plan/required-not-verified]
 ```
 
 ## InlinePlan Boundary
@@ -84,15 +90,15 @@ Accepted flow:
 -> backend emits the resulting MIR
 ```
 
-Reserved substrate-only required inline flow:
+Substrate-only required inline flow:
 
 ```text
 @rune Lowering(inline_required)
 @rune Contract(no_alloc)
 @rune Contract(no_safepoint)
 -> MIR InlinePlan request=required
--> metadata preserved now
--> future verifier accepts or fail-fast rejects
+-> verifier accepts or fail-fast rejects
+-> accepted plans carry verified=true
 ```
 
 Backends and `.inc` readers must not discover inline policy from function names,

@@ -1,8 +1,6 @@
 use crate::mir::{BasicBlock, Callee, EffectMask, MirFunction, MirInstruction, MirModule, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
 
-const SOFT_LEAF_MAX_INSTRUCTIONS: usize = 8;
-
 #[derive(Debug, Clone)]
 struct LeafInlineBody {
     params: Vec<ValueId>,
@@ -67,10 +65,14 @@ fn leaf_inline_body(function: &MirFunction) -> Option<LeafInlineBody> {
     if block.return_env.is_some() || block.return_env_layout.is_some() {
         return None;
     }
-    if block.instructions.len() > SOFT_LEAF_MAX_INSTRUCTIONS {
+    if block.instructions.len() > crate::mir::inline_leaf::DEFAULT_LEAF_INLINE_MAX_INSTRUCTIONS {
         return None;
     }
-    if !block.instructions.iter().all(is_supported_leaf_instruction) {
+    if !block
+        .instructions
+        .iter()
+        .all(crate::mir::inline_leaf::is_supported_leaf_instruction)
+    {
         return None;
     }
     let Some(MirInstruction::Return { value }) = block.terminator else {
@@ -82,20 +84,6 @@ fn leaf_inline_body(function: &MirFunction) -> Option<LeafInlineBody> {
         return_value: value,
         value_types: function.metadata.value_types.clone(),
     })
-}
-
-fn is_supported_leaf_instruction(inst: &MirInstruction) -> bool {
-    matches!(
-        inst,
-        MirInstruction::Const { .. }
-            | MirInstruction::UnaryOp { .. }
-            | MirInstruction::BinOp { .. }
-            | MirInstruction::Compare { .. }
-            | MirInstruction::StaticDataLoad { .. }
-            | MirInstruction::Copy { .. }
-            | MirInstruction::Select { .. }
-            | MirInstruction::TypeOp { .. }
-    ) && inst.effects().is_pure()
 }
 
 fn inline_calls_in_function(

@@ -366,6 +366,9 @@ run_quick() {
   run_step "K2-wide rune Contract repeat guard" \
     bash tools/checks/k2_wide_rune_contract_repeat_guard.sh
 
+  run_step "K2-wide Inline required verify guard" \
+    bash tools/checks/k2_wide_inline_required_verify_guard.sh
+
   run_step "K2-wide return proof vocabulary guard" \
     bash tools/checks/k2_wide_return_proof_vocab_guard.sh
 

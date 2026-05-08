@@ -92,6 +92,14 @@ pub enum VerificationError {
         instruction: String,
         reason: String,
     },
+    /// InlinePlan verifier violation before any backend may rely on strict inline.
+    InlinePlanViolation {
+        function: String,
+        tag: String,
+        block: Option<BasicBlockId>,
+        instruction_index: Option<usize>,
+        reason: String,
+    },
 }
 
 impl std::fmt::Display for VerificationError {
@@ -265,6 +273,27 @@ impl std::fmt::Display for VerificationError {
                     "RuneContractViolation contract={} instruction={} at block {} instruction {}: {}",
                     contract, instruction, block, instruction_index, reason
                 )
+            }
+            VerificationError::InlinePlanViolation {
+                function,
+                tag,
+                block,
+                instruction_index,
+                reason,
+            } => {
+                if let (Some(block), Some(instruction_index)) = (block, instruction_index) {
+                    write!(
+                        f,
+                        "InlinePlanViolation tag={} function={} at block {} instruction {}: {}",
+                        tag, function, block, instruction_index, reason
+                    )
+                } else {
+                    write!(
+                        f,
+                        "InlinePlanViolation tag={} function={}: {}",
+                        tag, function, reason
+                    )
+                }
             }
         }
     }

@@ -11,6 +11,7 @@ mod awaits;
 mod barrier;
 mod cfg;
 mod dom;
+mod inline_required;
 mod legacy;
 mod rune_contracts;
 mod ssa;
@@ -244,6 +245,11 @@ impl MirVerifier {
             local_errors.append(&mut rune_contract_errors);
         }
 
+        // 13. Required inline verification before strict lowering may trust it.
+        if let Err(mut inline_required_errors) = self.verify_required_inline_plans(function) {
+            local_errors.append(&mut inline_required_errors);
+        }
+
         if local_errors.is_empty() {
             Ok(())
         } else {
@@ -447,6 +453,13 @@ impl MirVerifier {
 
     fn verify_rune_contracts(&self, function: &MirFunction) -> Result<(), Vec<VerificationError>> {
         rune_contracts::check_rune_contracts(function)
+    }
+
+    fn verify_required_inline_plans(
+        &self,
+        function: &MirFunction,
+    ) -> Result<(), Vec<VerificationError>> {
+        inline_required::check_required_inline_plans(function)
     }
 
     /// Reject legacy instructions that should be rewritten to Core-15 equivalents

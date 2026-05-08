@@ -212,30 +212,26 @@ intrin.ctz / intrin.popcnt / intrin.prefetch / intrin.assume
 This SSOT refines the mimalloc taskboard order without making any new behavior
 live.
 
-Immediate order:
+Immediate order after M11c-required-verify:
 
 ```text
-1. M11c-required-verify
-   Connect Lowering(inline_required) to verifier-backed no_alloc /
-   no_safepoint and call-graph checks.
-
-2. M11d EffectPlan / CapabilityPlan boundary
+1. M11d EffectPlan / CapabilityPlan boundary
    Add MIR-owned vocabulary/metadata boundaries for effect and capability
    facts. No Profile expansion and no backend use yet.
 
-3. M12 mimalloc raw-page proof
+2. M12 mimalloc raw-page proof
    Prove a raw page/free-list fixture using explicit capability calls and
    existing contracts.
 
-4. M12b Profile registry docs
+3. M12b Profile registry docs
    Reserve profile names and expansion targets in one registry. No parser
    acceptance yet unless the row explicitly includes parser parity.
 
-5. M12c Profile expansion to facts
+4. M12c Profile expansion to facts
    Expand Profile(...) to primitive rune/Plan facts. Backend still reads only
    facts, not profile names.
 
-6. M13 allocator fast-path EXE proof
+5. M13 allocator fast-path EXE proof
    Use verified inline/effect/capability facts and route facts to prove the
    fast path in EXE.
 ```
@@ -294,7 +290,7 @@ Forbidden backend behavior:
 
 ## Current Reading
 
-The next implementation step remains `M11c-required-verify`. Profile exists
-only as a reserved design target. The clean path is to prove required inline and
-effect/capability boundaries first, then add Profile as a compact authoring
+The next implementation step is `M11d EffectPlan/CapabilityPlan boundary`.
+Profile exists only as a reserved design target. The clean path is to prove the
+effect/capability boundaries before adding Profile as a compact authoring
 surface over facts that already exist.

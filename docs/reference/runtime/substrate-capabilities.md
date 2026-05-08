@@ -52,7 +52,7 @@ The current live surface is intentionally narrow.
 | `hako.intrin` | current-lane non-negative i64 bit-count rows exist: `clz_i64`, `ctz_i64`, `popcnt_i64`; backend optimization use is not live |
 | backend export attrs | consistency guard is live; only current weak attrs are allowed, runtime-decl `readonly` rows must carry `memory = "read"`, while `noalias`/`nonnull`/`dereferenceable`/alignment export remain blocked |
 | static readonly data | backend-private static-data manifest can emit a u16 size-class fixture; source `static const NAME: u16[] = [...]` declarations lower to MIR `static_data_plans`; `NAME[index]` reads lower to MIR `StaticDataLoad` and current-lane `i64` values; narrow integer const expressions in u16 table initializers are live |
-| inline planning | `@rune Hint(inline/noinline/hot/cold)` and substrate-only `@rune Lowering(inline_required)` preserve MIR InlinePlan metadata; `Hint(inline)` has a narrow best-effort same-module MIR leaf inline row; required inline verifier/backend use is not live |
+| inline planning | `@rune Hint(inline/noinline/hot/cold)` and substrate-only `@rune Lowering(inline_required)` preserve MIR InlinePlan metadata; `Hint(inline)` has a narrow best-effort same-module MIR leaf inline row; required inline verifier acceptance is live-narrow for contract-proven leaf bodies; backend required-inline use is not live |
 | profile/effect/capability planning | `@rune Profile(...)`, EffectPlan, and CapabilityPlan are design-reserved only; Profile is future sugar over MIR facts and is not backend-readable |
 
 ## Reserved Surface
@@ -79,7 +79,6 @@ These names are reserved but not fully live as user-facing allocator substrate:
 - `noalias`, `nonnull`, `dereferenceable`, stronger alignment export
 - const fn table generation and references to other const declarations
 - backend-active required inline from `@rune Lowering(inline_required)`
-- verifier-backed required inline acceptance
 - `@rune Profile(...)` parser acceptance and expansion
 - backend-readable profile names
 - MIR EffectPlan / CapabilityPlan backend use
@@ -478,9 +477,10 @@ proof.
 
 Decision: M11c-preserve is live for advisory `Hint(...)` preservation into MIR
 `inline_plans`, M11c-soft-leaf is live for best-effort same-module MIR leaf
-inline, and M11c-required-vocab is live for preserving substrate-only
-`Lowering(inline_required)` as MIR `request=required` metadata. Required
-inline acceptance remains a future verifier-backed row.
+inline, M11c-required-vocab is live for preserving substrate-only
+`Lowering(inline_required)` as MIR `request=required` metadata, and
+M11c-required-verify is live for verifier-backed required inline acceptance.
+Backend-required inline use remains future.
 
 Inline is required for allocator-grade fast paths, but it is not a backend
 keyword and not a `.inc` responsibility.
@@ -493,7 +493,7 @@ Required future flow:
 -> M11c-preserve metadata row
 -> current M11c-soft-leaf best-effort same-module leaf inline where accepted
 -> required-vocab metadata where Lowering(inline_required) is present
--> future verifier where required
+-> required verifier where required
 -> MIR transform or intrinsic route
 -> backend emits the result
 ```
@@ -507,9 +507,10 @@ Strict allocator/substrate rows may later reserve:
 ```
 
 `Lowering(inline_required)` is live vocabulary now and requires Rust parser /
-`.hako` parser parity because it widens rune metadata. It is preserved with
-`verified=false`, so backends must not infer required inline from this row or
-from symbol names.
+`.hako` parser parity because it widens rune metadata. Required plans are marked
+`verified=true` only after `Contract(no_alloc)`, `Contract(no_safepoint)`, and
+the narrow leaf-inline shape pass. Backends must not infer required inline from
+this row or from symbol names.
 
 ## Rune Profile / Plan Ordering
 
@@ -536,12 +537,11 @@ Reserved profile names:
 
 Task order:
 
-1. verifier-backed required inline acceptance
-2. EffectPlan / CapabilityPlan boundary
-3. mimalloc raw-page proof using explicit facts
-4. Profile registry docs
-5. Profile expansion to primitive facts
-6. allocator fast-path EXE proof
+1. EffectPlan / CapabilityPlan boundary
+2. mimalloc raw-page proof using explicit facts
+3. Profile registry docs
+4. Profile expansion to primitive facts
+5. allocator fast-path EXE proof
 
 Backends must not branch on profile names. `.inc` / ll_emit must continue to
 read already-expanded MIR facts and routes only.
@@ -781,3 +781,42 @@ Safety/verifier contract:
 Fixture/gate:
 
 - `cargo test -q rune_contracts --lib`
+
+## Required Inline Verifier Row
+
+Decision: accepted for the M11c MIR verifier core only.
+
+New surface:
+
+- `@rune Lowering(inline_required)` has a verifier check.
+- Required inline acceptance needs both `@rune Contract(no_alloc)` and
+  `@rune Contract(no_safepoint)`.
+- Accepted plans are marked `verified=true` in MIR `inline_plans`.
+
+Owner modules:
+
+- `src/mir/inline_leaf.rs`
+- `src/mir/inline_plan.rs`
+- `src/mir/verification/inline_required.rs`
+- `src/mir/verification_types.rs`
+
+Accepted first shape:
+
+- one block
+- return terminator
+- at most 8 body instructions
+- pure `Const`, `UnaryOp`, `BinOp`, `Compare`, `StaticDataLoad`, `Copy`,
+  `Select`, or `TypeOp`
+- no nested call
+- no dynamic dispatch
+- no recursive cycle
+
+Unsupported behavior:
+
+- Backend-required inline use is not live.
+- `.inc` / ll_emit must not consume `inline_required` or `inline_plans`.
+- Required inline does not infer contracts from function names or helper names.
+
+Fixture/gate:
+
+- `bash tools/checks/k2_wide_inline_required_verify_guard.sh`

@@ -1,5 +1,6 @@
 use crate::ast::RuneAttr;
-use crate::mir::MirFunction;
+use crate::mir::inline_leaf::{check_leaf_inline_shape, InlineLeafViolation};
+use crate::mir::{BasicBlockId, MirFunction};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InlineRequest {
@@ -87,6 +88,37 @@ impl InlinePlan {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RequiredInlineViolation {
+    pub tag: &'static str,
+    pub block: Option<BasicBlockId>,
+    pub instruction_index: Option<usize>,
+    pub reason: String,
+}
+
+impl RequiredInlineViolation {
+    fn missing_contract(function: &MirFunction, contract: &str) -> Self {
+        Self {
+            tag: "missing-contract",
+            block: None,
+            instruction_index: None,
+            reason: format!(
+                "[inline-plan/missing-contract] fn={} contract={} reason=required inline needs verified Contract({})",
+                function.signature.name, contract, contract
+            ),
+        }
+    }
+
+    fn from_leaf_violation(violation: InlineLeafViolation) -> Self {
+        Self {
+            tag: violation.tag,
+            block: violation.block,
+            instruction_index: violation.instruction_index,
+            reason: violation.reason,
+        }
+    }
+}
+
 pub fn inline_plans_from_runes(function: &str, runes: &[RuneAttr]) -> Vec<InlinePlan> {
     runes
         .iter()
@@ -101,7 +133,46 @@ pub fn inline_plans_from_runes(function: &str, runes: &[RuneAttr]) -> Vec<Inline
         .collect()
 }
 
+pub fn required_inline_plan_violations(
+    function: &MirFunction,
+    plan: &InlinePlan,
+) -> Vec<RequiredInlineViolation> {
+    if plan.request != InlineRequest::Required {
+        return Vec::new();
+    }
+
+    let mut violations = Vec::new();
+    for required in &plan.requires {
+        if !has_contract(&function.metadata.runes, required) {
+            violations.push(RequiredInlineViolation::missing_contract(
+                function, required,
+            ));
+        }
+    }
+    violations.extend(
+        check_leaf_inline_shape(function, plan.max_ir)
+            .into_iter()
+            .map(RequiredInlineViolation::from_leaf_violation),
+    );
+    violations
+}
+
+pub fn required_inline_plan_verified(function: &MirFunction, plan: &InlinePlan) -> bool {
+    required_inline_plan_violations(function, plan).is_empty()
+}
+
 pub fn refresh_function_inline_plans(function: &mut MirFunction) {
-    function.metadata.inline_plans =
-        inline_plans_from_runes(&function.signature.name, &function.metadata.runes);
+    let mut plans = inline_plans_from_runes(&function.signature.name, &function.metadata.runes);
+    for plan in &mut plans {
+        if plan.request == InlineRequest::Required {
+            plan.verified = required_inline_plan_verified(function, plan);
+        }
+    }
+    function.metadata.inline_plans = plans;
+}
+
+fn has_contract(runes: &[RuneAttr], contract: &str) -> bool {
+    runes.iter().any(|rune| {
+        rune.name == "Contract" && rune.args.first().map(String::as_str) == Some(contract)
+    })
 }
