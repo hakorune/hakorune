@@ -27,8 +27,8 @@
 - [x] `293x-019` typed object call-param / global-return storage flow
 - [x] `293x-020` BoxTorrentChunker.ingest route expansion to BoxTorrentStore.put visibility
 - [x] `293x-021` BoxTorrent module-generic prepass seam
-- [ ] `293x-022` BoxTorrentChunker.ingest direct user-box method route
-- [ ] `293x-023` nullable handle typed-object planning for HakoAllocHandle allocator details
+- [x] `293x-022` BoxTorrent string field return EXE parity
+- [ ] `293x-023` json-stream-aggregator EXE runtime parity boundary
 
 ## Gates
 

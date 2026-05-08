@@ -59,12 +59,12 @@ cargo check -q
   fields, init-only untyped fields, handle storage, and observed empty user
   boxes, nullable handle storage through same-module RuntimeDataBox receiver
   origins, and the BoxTorrent `firstChunkId` / `refCount` module-generic
-  prepass seam; direct real-app EXE now stops at the
-  `BoxTorrentChunker.ingest/4` user-box method route boundary
+  prepass seam; BoxTorrent mini direct EXE parity now passes through user-box
+  string field returns, and json-stream-aggregator is pinned at an EXE runtime
+  parity mismatch boundary
 - EXE boundary gate:
   `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
-- next: expand the `BoxTorrentChunker.ingest/4` direct user-box method route;
-  keep EXE parity blocked until the remaining nested method routes land
+- next: fix the json-stream-aggregator EXE runtime parity boundary
 - do not hide compiler blockers in app code; if a real app exposes a Stage0 or
   VM/compiler seam, fix the compiler structurally first
 - real-app gate:

@@ -44,12 +44,14 @@ string-like global return storage. Conservative same-module `birth` and scalar
 user-box method routes are available for the minimal typed-object fixtures.
 BoxTorrent allocator page seeding now lowers through a MIR-owned void
 side-effect global route, `BoxTorrentManifest` now has a typed object plan, and
-`BoxTorrentChunker.ingest` now exposes the nested `BoxTorrentStore.put` route.
-The BoxTorrent module-generic prepass seam for `firstChunkId` / `refCount` is
-lowered; the real-app EXE probe is currently pinned at the next
-`BoxTorrentChunker.ingest` user-box method route boundary. `ContentChunk` is now
-plan-backed through nullable-handle storage flow; `HakoAllocHandle` typed-object
-planning remains a later allocator-detail seam, not the current EXE boundary.
+`BoxTorrentChunker.ingest` exposes the nested `BoxTorrentStore.put` route. The
+BoxTorrent module-generic prepass seam for `firstChunkId` / `refCount` is
+lowered, `ContentChunk` is plan-backed through nullable-handle storage flow, and
+user-box string field returns now flow through MIR route facts. BoxTorrent mini
+direct EXE parity passes. The real-app EXE boundary suite now pins
+json-stream-aggregator at a runtime parity mismatch boundary.
+`HakoAllocHandle` typed-object planning remains a later allocator-detail seam
+unless it reappears as the active EXE boundary.
 
 ## Current Status
 
@@ -85,5 +87,8 @@ planning remains a later allocator-detail seam, not the current EXE boundary.
 - `293x-021`: BoxTorrent module-generic prepass seam landed for
   `firstChunkId` / `refCount`, including `ContentChunk` typed-object planning
   and same-module typed object PHI propagation in the EXE shim.
-- Next: expand the `BoxTorrentChunker.ingest` direct user-box method route; do
-  not claim real-app EXE parity until the remaining nested method seams land.
+- `293x-022`: BoxTorrent string field return EXE parity landed, making
+  `BoxTorrentStore.readData/1` return a `string_handle` through route-fact
+  placeholder refinement and allowing BoxTorrent mini direct EXE to exit 0.
+- Next: fix the json-stream-aggregator EXE runtime parity boundary; do not hide
+  compiler blockers in app code.
