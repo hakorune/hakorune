@@ -3,7 +3,7 @@ use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
 use crate::mir::global_call_route_plan::{
     GlobalCallRoute, GlobalCallRouteSite, GlobalCallTargetFacts, GlobalCallTargetShape,
 };
-use crate::mir::{BasicBlock, BasicBlockId, EffectMask, FunctionSignature, MirType};
+use crate::mir::{BasicBlock, BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirType};
 
 fn method_call(
     dst: Option<u32>,
