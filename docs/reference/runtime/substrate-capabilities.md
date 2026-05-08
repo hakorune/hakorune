@@ -82,9 +82,10 @@ These names are reserved but not fully live as user-facing allocator substrate:
 
 ## Pointer/Handle Return Proof Vocabulary
 
-Decision: reserved prerequisite for M10c strong LLVM attrs.
+Decision: M10c-pre vocabulary is live as a proof/ownership vocabulary lock.
+It is still not an LLVM attr export row.
 
-Required future return classes:
+Locked return classes:
 
 - `imm_i64`
 - `handle_existing_borrowed`
@@ -94,7 +95,7 @@ Required future return classes:
 - `native_ptr_nullable`
 - `native_ptr_dereferenceable(len, align)`
 
-Required future proof vocabulary:
+Locked proof vocabulary:
 
 - `fresh`
 - `nonnull`
@@ -109,8 +110,8 @@ Current rule:
 - `handle_*` return classes are runtime values, not LLVM pointer attr targets.
 - `native_ptr_*` return classes are the only future target for LLVM pointer
   attrs such as `nonnull`, `dereferenceable`, alignment, and `noalias`.
-- M10c strong attrs remain blocked until this vocabulary has verifier-owned
-  proof and exporter gates.
+- M10c strong attrs remain blocked until verifier-owned proof and exporter
+  gates consume this vocabulary.
 
 ## Atomic Ordered Fence Row
 

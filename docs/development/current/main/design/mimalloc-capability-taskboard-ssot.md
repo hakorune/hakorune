@@ -78,7 +78,7 @@ backend may trust them for lowering or optimization.
 | `M9 intrinsic rows` | `live-narrow` | intrinsic metadata + LLVM/VM | `clz_i64`, `ctz_i64`, and `popcnt_i64` current-lane non-negative i64 rows are live; `prefetch`, `assume`, `unreachable`, unsigned-width semantics, and backend optimization use remain future splits |
 | `M10a export attrs consistency gate` | `live-narrow` | optimization export service | guard locks current weak export attrs and rejects strong attr names in active LLVM/runtime-decl export points; no backend fact widening |
 | `M10b runtime-decl readonly fact guard` | `live-narrow` | optimization export service | manifest `readonly` attrs must match `memory = "read"`; missing readonly remains allowed for conservative rows |
-| `M10c-pre pointer/handle return proof vocabulary` | `reserved` | optimization export proof | separates handle return classes from native pointer return classes before any strong LLVM pointer attrs |
+| `M10c-pre pointer/handle return proof vocabulary` | `live-narrow` | optimization export proof | locks handle return classes separately from native pointer return classes before any strong LLVM pointer attrs; no attr export yet |
 | `M10c LLVM export attrs widening` | `blocked` | optimization export | `noalias`, `nonnull`, `dereferenceable`, alignment, stronger `nocapture` only after pointer/native-ptr proof and verifier/export consistency proof |
 | `M11a static readonly data segment` | `live-narrow` | backend-private const data | backend-private static data manifest emits a readonly u16 size-class fixture as LLVM data; no source syntax or const eval |
 | `M11b const eval/static table syntax` | `live-narrow` | language + MIR const data | `M11b-decl` source `u16` static const table declarations, `M11b-load` static table reads, and `M11b-eval` narrow integer initializer expressions are live; const fn remains future |
@@ -232,7 +232,9 @@ narrow integer const expressions in source static `u16` table initializers.
 InlinePlan metadata with no backend use. `M11c-soft-leaf` now expands narrow
 same-module pure leaf `Hint(inline)` calls in the MIR optimizer, while
 unsupported shapes keep the call. The next code implementation target is
-`M10c-pre`: pointer/handle return proof vocabulary. Implement that before any
-required-inline or
+`M10c-pre` now locks pointer/handle return proof vocabulary in docs, TOML, and
+Rust code without exporting strong attrs. The next code implementation target is
+`M10c`: strong LLVM attrs widening, still gated by verifier/export consistency
+and native-pointer proof only. Implement that before any required-inline or
 allocator fast-path proof. Do not jump to allocator fast-path lowering before
 the remaining verifier facts make raw access auditable.

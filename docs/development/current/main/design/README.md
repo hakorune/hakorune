@@ -89,6 +89,7 @@
 - InlinePlan（`@rune Hint(inline)` から MIR InlinePlan / verifier / backend reader 境界へ流す inline 設計SSOT）: `docs/development/current/main/design/inline-plan-ssot.md`
 - Stage2 AOT/native thin path（current native perf/mainline の thin-owner design note）: `docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md`
 - Value repr and ABI manifest（current value classes / ownership / manifest row truth）: `docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md`
+- Return proof vocabulary（M10c-pre の handle/native pointer return proof 語彙SSOT）: `docs/development/current/main/design/return-proof-vocabulary-ssot.md`
 - Stage2 Fast Leaf Manifest（backend-private fast lane row contract）: `docs/development/current/main/design/stage2-fast-leaf-manifest-ssot.md`
 - Stage2 AOT-Core proof vocabulary（future AOT-Core MIR staged lock / current proof vocabulary SSOT）: `docs/development/current/main/design/stage2-aot-core-proof-vocabulary-ssot.md`
 - Stage2 optimization debug bundle（route/window/IR/symbol/perf を same artifact で束ねる SSOT）: `docs/development/current/main/design/stage2-optimization-debug-bundle-ssot.md`

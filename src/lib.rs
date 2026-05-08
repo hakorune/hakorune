@@ -101,6 +101,7 @@ pub mod providers;
 // C‑ABI PoC shim (20.36/20.37)
 pub mod abi {
     pub mod nyrt_shim;
+    pub mod return_proof;
 }
 
 // Expose the macro engine module under a raw identifier; the source lives under `src/macro/`.

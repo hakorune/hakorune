@@ -134,8 +134,9 @@ backend-active.
 Strong pointer attrs require a separate proof vocabulary before they can become
 live. `handle_*` return classes and `native_ptr_*` return classes must not be
 collapsed: `handle_owned` is a runtime value class, not an LLVM pointer attr
-target. The next strong-attrs prerequisite is `M10c-pre pointer/handle return
-proof vocabulary`.
+target. `M10c-pre pointer/handle return proof vocabulary` is now live as a
+vocabulary lock only; strong attr export still waits for M10c verifier/export
+gates.
 
 Static const tables are split from that attrs lane. `M11a` is backend-private
 static readonly data only. `M11b` must flow through source parser metadata and

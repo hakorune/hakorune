@@ -108,8 +108,8 @@ For live cuts:
      to current weak attrs until verifier-owned proof exists (`293x-039`)
    - landed fact guard: runtime-decl `readonly` rows must be backed by
      `memory = "read"` (`293x-040`)
-   - strong pointer attrs are blocked until `M10c-pre` separates handle-return
-     classes from native pointer-return classes
+   - `M10c-pre` now separates handle-return classes from native pointer-return
+     classes; strong pointer attrs stay blocked until M10c verifier/export gates
 2. `boundary / C ABI export`
    - `.hako -> ny-llvmc(boundary pure-first) -> C ABI`
    - boundary stub / runtime helper / manifest export row

@@ -1,0 +1,50 @@
+# Return Proof Vocabulary (V0)
+# M10c-pre machine-readable vocabulary lock.
+# This is not an LLVM attr export manifest.
+
+manifest_version = "0"
+
+return_classes = [
+  "imm_i64",
+  "handle_existing_borrowed",
+  "handle_existing_owned_ref",
+  "handle_fresh_owned",
+  "native_ptr_nonnull",
+  "native_ptr_nullable",
+  "native_ptr_dereferenceable",
+]
+
+handle_return_classes = [
+  "handle_existing_borrowed",
+  "handle_existing_owned_ref",
+  "handle_fresh_owned",
+]
+
+native_pointer_return_classes = [
+  "native_ptr_nonnull",
+  "native_ptr_nullable",
+  "native_ptr_dereferenceable",
+]
+
+proofs = [
+  "fresh",
+  "nonnull",
+  "dereferenceable_bytes",
+  "alignment",
+  "noalias_scope",
+  "no_refcount_mutation",
+  "no_registry_write",
+]
+
+llvm_pointer_attr_proofs = [
+  "fresh",
+  "nonnull",
+  "dereferenceable_bytes",
+  "alignment",
+  "noalias_scope",
+]
+
+non_llvm_side_effect_proofs = [
+  "no_refcount_mutation",
+  "no_registry_write",
+]
