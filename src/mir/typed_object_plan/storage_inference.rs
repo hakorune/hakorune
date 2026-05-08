@@ -32,6 +32,8 @@ enum BoxOriginInference {
 }
 
 #[cfg(test)]
+mod numeric_substrate_tests;
+#[cfg(test)]
 mod tests;
 
 pub(super) fn build_typed_object_plans(module: &MirModule) -> Vec<TypedObjectPlan> {

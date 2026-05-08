@@ -222,10 +222,15 @@ It is the final libc / syscall / platform-difference absorber for Linux, Windows
 
 - fixed-width integer and pointer-sized vocabulary is locked before allocator
   fast-path substrate.
-- reserved target vocabulary:
+- live narrow vocabulary:
   - `usize` / `isize`
   - `u8` / `u16` / `u32` / `u64`
   - `i8` / `i16` / `i32` / `i64`
+- current live reading:
+  - these names are MIR-classified type annotation text
+  - typed-object storage planning may use them as inline i64 storage hints
+  - runtime values still use the current dynamic `Integer(i64)` lane
+- reserved target vocabulary:
   - explicit wrapping arithmetic
   - explicit checked arithmetic
   - logical vs arithmetic shift distinction
@@ -237,9 +242,9 @@ It is the final libc / syscall / platform-difference absorber for Linux, Windows
   - Stage0/JSON behavior row when exposed across that boundary
   - fixture and gate
 
-Until this lock is live, allocator policy rows that need width/overflow facts
-must stay as narrow `i64` models or helper-backed probes. Do not introduce
-parser syntax first and leave backend meaning implicit.
+Until the arithmetic half of this lock is live, allocator policy rows that need
+width/overflow facts must stay as narrow `i64` models or helper-backed probes.
+Do not introduce parser syntax first and leave backend meaning implicit.
 
 ### C1. Minimal memory capabilities
 

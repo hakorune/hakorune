@@ -23,6 +23,40 @@ Coercion SSOT status:
 - `local` declares a variable; **re-assignment is allowed** (single keyword policy).
 - There is currently no static type checker. Some parts of MIR carry **type facts** as metadata for optimization / routing, not for semantics.
 
+### Numeric Substrate Vocabulary (M0)
+
+Decision: accepted for the type-name/storage lock only.
+
+The following fixed-width and pointer-sized integer names are reserved and now
+classified by MIR metadata when they appear as type annotation text:
+
+```text
+i8 i16 i32 i64 isize
+u8 u16 u32 u64 usize
+```
+
+Current live semantics are intentionally narrow:
+
+- The parser treats these as ordinary `TYPE_REF` identifiers; no new tokenizer
+  tokens are required in Rust or `.hako` parser fronts.
+- Runtime values still execute on the current dynamic `Integer(i64)` lane.
+- Typed-object EXE storage planning may use these names as inline i64 slot
+  storage hints.
+- The original declared type name is preserved so later exact-width rows can
+  refine semantics without rediscovering source text.
+
+Deferred and not accepted by this row:
+
+- literal suffixes such as `1u64` or `64usize`
+- static range checks and unsigned overflow behavior
+- `u64` values outside signed i64
+- wrapping / checked arithmetic syntax
+- logical shift vs arithmetic shift distinction
+- MIR JSON exact-width numeric const tags
+
+Backends must not infer exact unsigned or fixed-width behavior from these names
+until the corresponding verifier/lowering rows are live.
+
 ### First-class enum surface (current landing)
 
 - `enum Name<T> { ... }` now parses as a first-class declaration surface.

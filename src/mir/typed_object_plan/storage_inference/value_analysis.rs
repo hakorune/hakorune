@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::function::{ModuleMetadata, TypedObjectFieldStorage};
+use crate::mir::numeric_substrate::is_inline_i64_storage_type_name;
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use crate::mir::{
     BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirModule, MirType, ValueId,
@@ -826,8 +827,7 @@ pub(super) fn storage_for_declared_type(
     type_name: Option<&str>,
 ) -> Option<TypedObjectFieldStorage> {
     match type_name {
-        Some("IntegerBox") | Some("Integer") | Some("i64") | Some("BoolBox") | Some("Bool")
-        | Some("bool") | Some("i1") => Some(TypedObjectFieldStorage::I64),
+        Some(name) if is_inline_i64_storage_type_name(name) => Some(TypedObjectFieldStorage::I64),
         Some("StringBox") | Some("String") | Some("str") | Some("ArrayBox") | Some("MapBox") => {
             Some(TypedObjectFieldStorage::Handle)
         }

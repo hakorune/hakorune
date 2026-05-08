@@ -50,6 +50,7 @@ pub mod loop_api; // Minimal LoopBuilder facade (adapter-ready)
 pub mod loop_canonicalizer; // Phase 1: Loop skeleton canonicalization (AST preprocessing)
 pub mod map_lookup_fusion_plan; // MIR-owned MapGet/MapHas same-key fusion metadata
 pub mod naming; // Static box / entry naming rules（NamingBox）
+pub(crate) mod numeric_substrate; // fixed-width/pointer-sized numeric type-name vocabulary
 pub mod optimizer;
 pub mod policies; // shared routing policies (SSOT)
 pub mod ssot; // Shared helpers (SSOT) for instruction lowering

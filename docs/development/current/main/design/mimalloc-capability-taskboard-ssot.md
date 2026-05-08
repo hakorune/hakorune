@@ -63,7 +63,8 @@ backend may trust them for lowering or optimization.
 
 | Row | Status | Owner | Required output |
 | --- | --- | --- | --- |
-| `M0 numeric substrate lock` | `next-card` | language + MIR + backends | `usize/isize`, fixed-width integers, logical/arithmetic shift distinction, wrapping/checked arithmetic decision, fixtures, manual update |
+| `M0a numeric type-name storage lock` | `live-narrow` | language + MIR + typed-object storage | `usize/isize` and fixed-width integer type-name classifier; typed-object inline i64 storage hints; exact width/range/overflow deferred |
+| `M0b numeric arithmetic semantics lock` | `next-card` | language + MIR + backends | logical/arithmetic shift distinction, wrapping/checked arithmetic decision, fixtures, manual update |
 | `M1 raw layout vocabulary` | `reserved` | language + MIR layout facts | raw layout distinct from `box`, alignment, `sizeof`, `offsetof`, repr-like contract, fail-fast unsupported backends |
 | `M2 hako.mem/buf/ptr widening` | `live-narrow` | capability substrate | restricted memory/buffer/pointer facades, no unrestricted unsafe, verifier hooks named |
 | `M3 RawBuf + RawArray allocator fixture` | `live-narrow` | algorithm substrate | allocator-shaped fixture using RawBuf/RawArray only; no TLS/atomic/OSVM dependency |
@@ -80,20 +81,21 @@ backend may trust them for lowering or optimization.
 
 ## Fixed Implementation Order
 
-1. `M0 numeric substrate lock`
-2. `M1 raw layout vocabulary`
-3. `M4 minimum verifier hardening`
-4. `M2 hako.mem/buf/ptr widening`
-5. `M3 RawBuf + RawArray allocator fixture`
-6. `M5 rune contract verifier`
-7. `M6 hako.atomic useful rows`
-8. `M7 hako.tls useful rows`
-9. `M8 hako.osvm allocator rows`
-10. `M9 intrinsic rows`
-11. `M10 LLVM export attrs`
-12. `M11 const/static table rows`
-13. `M12 mimalloc raw-page proof`
-14. `M13 allocator fast-path EXE proof`
+1. `M0a numeric type-name storage lock`
+2. `M0b numeric arithmetic semantics lock`
+3. `M1 raw layout vocabulary`
+4. `M4 minimum verifier hardening`
+5. `M2 hako.mem/buf/ptr widening`
+6. `M3 RawBuf + RawArray allocator fixture`
+7. `M5 rune contract verifier`
+8. `M6 hako.atomic useful rows`
+9. `M7 hako.tls useful rows`
+10. `M8 hako.osvm allocator rows`
+11. `M9 intrinsic rows`
+12. `M10 LLVM export attrs`
+13. `M11 const/static table rows`
+14. `M12 mimalloc raw-page proof`
+15. `M13 allocator fast-path EXE proof`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change.
@@ -187,5 +189,7 @@ choice.
 Current real-app work may continue on VM/EXE parity using typed-object planning.
 That is separate from this taskboard.
 
-The first mimalloc-grade substrate card should be `M0 numeric substrate lock`,
-not raw pointers and not allocator fast-path lowering.
+The first mimalloc-grade substrate card landed as `M0a numeric type-name
+storage lock`. The next numeric row is `M0b numeric arithmetic semantics lock`;
+do not jump to raw pointers or allocator fast-path lowering when exact
+width/overflow semantics are the active blocker.

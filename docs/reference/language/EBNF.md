@@ -167,6 +167,8 @@ param          := IDENT (':' TYPE_REF)?
 TYPE_REF       := IDENT ('.' IDENT)* ('<' TYPE_REF (',' TYPE_REF)* '>')? ('[' ']')*
                   ; parameter list (Phase 285A1.5+)
                   ; Type annotations are syntax-only in AST v0 (param names remain canonical).
+                  ; Numeric substrate names such as i64/u64/usize are IDENT
+                  ; names here. Literal suffix grammar is not live.
 
 ; nyash-mode (block-first) variant — gated with NYASH_ENABLE_UNIFIED_MEMBERS=1
 block_as_role  := block 'as' ( 'once' | 'birth_once' )? IDENT ':' TYPE
