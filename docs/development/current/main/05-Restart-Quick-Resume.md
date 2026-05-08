@@ -59,12 +59,12 @@ cargo check -q
   fields, init-only untyped fields, handle storage, and observed empty user
   boxes, nullable handle storage through same-module RuntimeDataBox receiver
   origins, and the BoxTorrent `firstChunkId` / `refCount` module-generic
-  prepass seam; BoxTorrent mini direct EXE parity now passes through user-box
-  string field returns, and json-stream-aggregator is pinned at an EXE runtime
-  parity mismatch boundary
+  prepass seam, plus recursive same-module user-box method bodies and
+  typed-object handle global-call returns; BoxTorrent mini, binary-trees, and
+  JSON stream aggregator direct EXE parity now pass
 - EXE boundary gate:
   `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
-- next: fix the json-stream-aggregator EXE runtime parity boundary
+- next: continue with mimalloc-lite / allocator-stress EXE boundary blockers
 - do not hide compiler blockers in app code; if a real app exposes a Stage0 or
   VM/compiler seam, fix the compiler structurally first
 - real-app gate:

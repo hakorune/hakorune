@@ -47,6 +47,7 @@ pub(super) enum GlobalCallReturnContract {
     VoidSentinelI64Zero,
     ArrayHandle,
     MapHandle,
+    ObjectHandle,
     MixedRuntimeI64OrHandle,
 }
 
@@ -64,6 +65,7 @@ pub(super) enum GlobalCallProof {
     MirSchemaMapConstructor,
     BoxTypeInspectorDescribe,
     PatternUtilLocalValueProbe,
+    SameModuleObjectHandle,
     VoidSideEffect,
 }
 
@@ -140,6 +142,7 @@ impl GlobalCallProof {
             Self::MirSchemaMapConstructor => "typed_global_call_mir_schema_map_constructor",
             Self::BoxTypeInspectorDescribe => "typed_global_call_box_type_inspector_describe",
             Self::PatternUtilLocalValueProbe => "typed_global_call_pattern_util_local_value_probe",
+            Self::SameModuleObjectHandle => "typed_global_call_same_module_object_handle",
             Self::VoidSideEffect => "typed_global_call_void_side_effect",
         }
     }
@@ -170,6 +173,7 @@ impl GlobalCallProof {
             | Self::GenericStringVoidLogging
             | Self::GenericI64
             | Self::PatternUtilLocalValueProbe
+            | Self::SameModuleObjectHandle
             | Self::VoidSideEffect => "none",
         }
     }
@@ -186,6 +190,7 @@ impl GlobalCallProof {
             | Self::BoxTypeInspectorDescribe
             | Self::GenericStringOrVoidSentinel
             | Self::PatternUtilLocalValueProbe
+            | Self::SameModuleObjectHandle
             | Self::VoidSideEffect => GlobalCallDefinitionOwner::UniformMir,
             Self::Stage1EmitProgramJson => GlobalCallDefinitionOwner::RuntimeHelper,
             Self::GenericPureString => GlobalCallDefinitionOwner::ModuleGeneric,
@@ -208,6 +213,7 @@ impl GlobalCallReturnContract {
             Self::VoidSentinelI64Zero => "void_sentinel_i64_zero",
             Self::ArrayHandle => "array_handle",
             Self::MapHandle => "map_handle",
+            Self::ObjectHandle => "object_handle",
             Self::MixedRuntimeI64OrHandle => "mixed_runtime_i64_or_handle",
         }
     }
@@ -219,6 +225,7 @@ impl GlobalCallReturnContract {
             | Self::StringHandleOrNull
             | Self::ArrayHandle
             | Self::MapHandle
+            | Self::ObjectHandle
             | Self::MixedRuntimeI64OrHandle => "runtime_i64_or_handle",
         }
     }
@@ -639,6 +646,18 @@ impl GlobalCallRoute {
             return None;
         }
         self.target.return_type().map(format_mir_type_label)
+    }
+
+    pub fn target_result_box_name(&self) -> Option<&str> {
+        if !self.is_direct_abi_target() {
+            return None;
+        }
+        match self.target.return_type()? {
+            MirType::String => Some("StringBox"),
+            MirType::Box(name) => Some(name.as_str()),
+            MirType::Array(_) => Some("ArrayBox"),
+            _ => None,
+        }
     }
 
     pub fn target_shape(&self) -> Option<&'static str> {

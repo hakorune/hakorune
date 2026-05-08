@@ -69,7 +69,9 @@ use value_type_publish::{
 };
 use void_side_effect_body::is_void_side_effect_body_function;
 
-fn supported_backend_global(name: &str) -> bool {
+use crate::mir::user_box_method_route_plan::user_box_method_body_supported;
+
+pub(crate) fn supported_backend_global(name: &str) -> bool {
     matches!(name, "print")
 }
 
@@ -81,13 +83,19 @@ fn string_or_void_sentinel_return_type_candidate(return_type: &MirType) -> bool 
 }
 
 pub fn refresh_module_global_call_routes(module: &mut MirModule) {
+    let typed_plan_type_ids = module
+        .metadata
+        .typed_object_plans
+        .iter()
+        .map(|plan| (plan.box_name.clone(), plan.type_id))
+        .collect::<BTreeMap<_, _>>();
     for _ in 0..module.functions.len().saturating_mul(4).max(8) {
         let before = module
             .functions
             .iter()
             .map(|(name, function)| (name.clone(), function.metadata.global_call_routes.clone()))
             .collect::<BTreeMap<_, _>>();
-        let targets = collect_global_call_targets(module);
+        let targets = collect_global_call_targets(module, &typed_plan_type_ids);
         for function in module.functions.values_mut() {
             refresh_function_global_call_routes_with_targets(function, &targets);
         }
@@ -108,7 +116,10 @@ pub fn refresh_function_global_call_routes(function: &mut MirFunction) {
     refresh_function_global_call_routes_with_targets(function, &BTreeMap::new());
 }
 
-fn collect_global_call_targets(module: &MirModule) -> BTreeMap<String, GlobalCallTargetFacts> {
+fn collect_global_call_targets(
+    module: &MirModule,
+    typed_plan_type_ids: &BTreeMap<String, u32>,
+) -> BTreeMap<String, GlobalCallTargetFacts> {
     let mut targets = module
         .functions
         .iter()
@@ -140,7 +151,8 @@ fn collect_global_call_targets(module: &MirModule) -> BTreeMap<String, GlobalCal
             let Some(current) = targets.get(name).cloned() else {
                 continue;
             };
-            let classification = classify_global_call_target_shape(function, &targets);
+            let classification =
+                classify_global_call_target_shape(function, &targets, typed_plan_type_ids);
             if current.shape() != classification.shape
                 || current.return_contract() != classification.return_contract
                 || current.proof() != classification.proof
@@ -161,6 +173,7 @@ fn collect_global_call_targets(module: &MirModule) -> BTreeMap<String, GlobalCal
 fn classify_global_call_target_shape(
     function: &MirFunction,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
+    typed_plan_type_ids: &BTreeMap<String, u32>,
 ) -> GlobalCallTargetClassification {
     if function.params.len() != function.signature.params.len() {
         return GlobalCallTargetClassification::unknown(
@@ -283,6 +296,16 @@ fn classify_global_call_target_shape(
             GlobalCallReturnContract::VoidSentinelI64Zero,
         );
     }
+    if same_module_object_handle_return_type_candidate(
+        &function.signature.return_type,
+        typed_plan_type_ids,
+    ) && user_box_method_body_supported(function, typed_plan_type_ids)
+    {
+        return GlobalCallTargetClassification::direct_contract(
+            GlobalCallProof::SameModuleObjectHandle,
+            GlobalCallReturnContract::ObjectHandle,
+        );
+    }
     if let Some(reject) = generic_pure_string_body_reject_reason(function, targets) {
         if let Some(blocker) = reject.blocker {
             GlobalCallTargetClassification::unknown_with_blocker(
@@ -296,6 +319,13 @@ fn classify_global_call_target_shape(
     } else {
         GlobalCallTargetClassification::direct(GlobalCallTargetShape::GenericPureStringBody)
     }
+}
+
+fn same_module_object_handle_return_type_candidate(
+    return_type: &MirType,
+    typed_plan_type_ids: &BTreeMap<String, u32>,
+) -> bool {
+    matches!(return_type, MirType::Box(name) if typed_plan_type_ids.contains_key(name))
 }
 
 fn is_numeric_i64_leaf_function(function: &MirFunction) -> bool {

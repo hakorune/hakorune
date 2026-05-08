@@ -49,9 +49,9 @@ BoxTorrent module-generic prepass seam for `firstChunkId` / `refCount` is
 lowered, `ContentChunk` is plan-backed through nullable-handle storage flow,
 user-box string field returns now flow through MIR route facts, and
 global-call/string-substring handle metadata now flows into downstream
-same-module params. BoxTorrent mini and JSON stream aggregator direct EXE parity
-pass. The real-app EXE boundary suite still pins binary-trees, mimalloc-lite,
-and allocator-stress at pure-first unsupported-shape boundaries.
+same-module params. BoxTorrent mini, binary-trees, and JSON stream aggregator
+direct EXE parity pass. The real-app EXE boundary suite still pins
+mimalloc-lite and allocator-stress at pure-first unsupported-shape boundaries.
 `HakoAllocHandle` typed-object planning remains a later allocator-detail seam
 unless it reappears as the active EXE boundary.
 
@@ -95,5 +95,7 @@ unless it reappears as the active EXE boundary.
 - `293x-023`: JSON stream aggregator EXE parity landed, publishing global-call
   handle argument types to target params and substring handle results to
   downstream global calls.
+- `293x-024`: binary-trees EXE parity landed, expanding same-module recursive
+  user-box method body routes and typed-object handle global-call returns.
 - Next: continue the remaining real-app EXE boundary apps one at a time; do not
   hide compiler blockers in app code.

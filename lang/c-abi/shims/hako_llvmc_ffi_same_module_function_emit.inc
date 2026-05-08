@@ -600,12 +600,23 @@
         if (global_view &&
             lowering_plan_global_call_view_is_stage1_emit_program_json(global_view)) {
           set_type(dst, T_I64);
+          if (global_view->target_result_box_name) {
+            (void)same_module_function_publish_result_origin_box(
+                dst,
+                global_view->target_result_box_name);
+          }
           mark_global_call_result_origin_from_view(global_view, dst);
           return 1;
         }
         if (global_view &&
             lowering_plan_global_call_view_requires_same_module_function_definition(global_view)) {
           set_type(dst, T_I64);
+          if (global_view->target_result_box_name &&
+              !same_module_function_publish_result_origin_box(
+                  dst,
+                  global_view->target_result_box_name)) {
+            (void)same_module_function_publish_reg_metadata(dst);
+          }
           mark_global_call_result_origin_from_view(global_view, dst);
           return 1;
         }
@@ -1187,6 +1198,18 @@
           yyjson_val* args,
           long long dst) {
         int rc = emit_global_call_lowering_plan_mir_call(f, bid, ii, dst, args);
+        if (rc == 1) {
+          yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+          struct LoweringPlanGlobalCallView global_view;
+          if (read_lowering_plan_global_call_view(entry, &global_view)) {
+            if (global_view.target_result_box_name &&
+                !same_module_function_publish_result_origin_box(
+                    dst,
+                    global_view.target_result_box_name)) {
+              (void)same_module_function_publish_reg_metadata(dst);
+            }
+          }
+        }
         if (rc != 1) {
           long long a0 = 0;
           if (same_module_function_read_arg_reg(args, 0, &a0)) {

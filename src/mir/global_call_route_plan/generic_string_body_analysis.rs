@@ -810,6 +810,17 @@ pub(super) fn generic_pure_string_instruction_reject_reason(
                     }
                     None
                 }
+                GlobalCallReturnContract::ObjectHandle => {
+                    if let Some(dst) = dst {
+                        set_proven_flow_value_class(
+                            values,
+                            *dst,
+                            GenericPureValueClass::Unknown,
+                            changed,
+                        );
+                    }
+                    None
+                }
                 GlobalCallReturnContract::MixedRuntimeI64OrHandle => {
                     if let Some(dst) = dst {
                         set_proven_flow_value_class(

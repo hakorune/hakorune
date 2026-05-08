@@ -29,6 +29,7 @@
 - [x] `293x-021` BoxTorrent module-generic prepass seam
 - [x] `293x-022` BoxTorrent string field return EXE parity
 - [x] `293x-023` json-stream-aggregator EXE runtime parity boundary
+- [x] `293x-024` binary-trees EXE parity
 
 ## Gates
 

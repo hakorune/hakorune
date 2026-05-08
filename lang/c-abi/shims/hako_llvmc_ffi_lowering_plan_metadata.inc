@@ -43,6 +43,7 @@
         const char* callee_name;
         const char* target_symbol;
         const char* target_return_type;
+        const char* target_result_box_name;
         const char* core_op;
         const char* route_kind;
         const char* emit_kind;
@@ -213,6 +214,7 @@
                 !strcmp(proof, "typed_global_call_static_string_array") ||
                 !strcmp(proof, "typed_global_call_mir_schema_map_constructor") ||
                 !strcmp(proof, "typed_global_call_box_type_inspector_describe") ||
+                !strcmp(proof, "typed_global_call_same_module_object_handle") ||
                 !strcmp(proof, "typed_global_call_void_side_effect") ||
                 !strcmp(proof, "typed_global_call_pattern_util_local_value_probe"));
       }
@@ -418,6 +420,7 @@
           out->callee_name = read_str(entry, "callee_name");
           out->target_symbol = read_str(entry, "target_symbol");
           out->target_return_type = read_str(entry, "target_return_type");
+          out->target_result_box_name = read_str(entry, "target_result_box_name");
           out->core_op = read_str(entry, "core_op");
           out->route_kind = read_str(entry, "route_kind");
           out->emit_kind = read_str(entry, "emit_kind");

@@ -600,7 +600,8 @@ fn refine_generic_string_return_value_class(
                         }
                         Some(
                             GlobalCallReturnContract::ArrayHandle
-                            | GlobalCallReturnContract::MapHandle,
+                            | GlobalCallReturnContract::MapHandle
+                            | GlobalCallReturnContract::ObjectHandle,
                         ) => GenericStringReturnValueClass::Object,
                         Some(GlobalCallReturnContract::StringHandleOrNull) => {
                             GenericStringReturnValueClass::StringOrVoid

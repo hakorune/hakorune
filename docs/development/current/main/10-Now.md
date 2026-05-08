@@ -41,9 +41,11 @@ Related:
   declared i64 fields, init-only untyped fields, handle storage, and observed
   empty user boxes, nullable handle storage through same-module RuntimeDataBox
   receiver origins, and the BoxTorrent `firstChunkId` / `refCount`
-  module-generic prepass seam, plus BoxTorrent user-box string field returns;
-  BoxTorrent mini direct EXE parity now passes, and the next compiler seam is
-  the json-stream-aggregator EXE runtime parity boundary
+  module-generic prepass seam, plus BoxTorrent user-box string field returns,
+  recursive same-module user-box method bodies, and typed-object handle
+  global-call returns; BoxTorrent mini, binary-trees, and JSON stream
+  aggregator direct EXE parity now pass, and the next compiler seam should come
+  from mimalloc-lite or allocator-stress
 - if a real app exposes a compiler expressivity blocker, fix the compiler seam
   structurally instead of adding app-side workaround code
 - current mirrors are thinned; update `CURRENT_STATE.toml` and the phase-293x

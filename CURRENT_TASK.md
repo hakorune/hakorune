@@ -57,10 +57,11 @@ Scope: current lane / next lane / restart order only.
   fields, handle storage, observed empty user boxes, nullable handle storage
   through same-module RuntimeDataBox receiver origins, and the BoxTorrent
   `firstChunkId` / `refCount` module-generic prepass seam, global-call handle
-  param metadata publication, and substring handle result publication;
-  BoxTorrent mini and JSON stream aggregator direct EXE parity now pass, while
-  the real-app EXE boundary suite still pins binary-trees, mimalloc-lite, and
-  allocator-stress at pure-first unsupported-shape boundaries
+  param metadata publication, substring handle result publication, recursive
+  same-module user-box method bodies, and typed-object handle global-call
+  returns; BoxTorrent mini, binary-trees, and JSON stream aggregator direct EXE
+  parity now pass, while the real-app EXE boundary suite still pins
+  mimalloc-lite and allocator-stress at pure-first unsupported-shape boundaries
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
@@ -103,9 +104,10 @@ Scope: current lane / next lane / restart order only.
   allocator-backed store, and JSON stream aggregator landed; direct EXE now
   lowers typed-object allocation/field slots, the BoxTorrent `firstChunkId` /
   `refCount` module-generic seam, BoxTorrent mini user-box string field
-  returns, global-call handle param metadata, and substring handle result
-  publication; BoxTorrent mini and JSON stream aggregator direct EXE parity now
-  exit 0
+  returns, global-call handle param metadata, substring handle result
+  publication, recursive same-module user-box method bodies, and typed-object
+  handle global-call returns; BoxTorrent mini, binary-trees, and JSON stream
+  aggregator direct EXE parity now exit 0
 - compiler rule: do not hide a real compiler blocker in app code; fix the
   compiler seam structurally when needed
 

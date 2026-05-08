@@ -2,7 +2,9 @@ use std::collections::BTreeMap;
 
 use crate::mir::{BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction};
 
-pub(super) fn user_box_method_body_supported(
+use crate::mir::global_call_route_plan::supported_backend_global;
+
+pub(crate) fn user_box_method_body_supported(
     function: &MirFunction,
     typed_plan_type_ids: &BTreeMap<String, u32>,
 ) -> bool {
@@ -24,12 +26,18 @@ pub(super) fn user_box_method_body_supported(
                         typed_plan_type_ids,
                     )
                 });
-        instructions_supported
-            && block
-                .terminator
-                .as_ref()
-                .map(user_box_method_terminator_supported)
-                .unwrap_or(false)
+        let terminator_supported = block
+            .terminator
+            .as_ref()
+            .map(user_box_method_terminator_supported)
+            .or_else(|| {
+                block
+                    .instructions
+                    .last()
+                    .map(user_box_method_terminator_supported)
+            })
+            .unwrap_or(false);
+        instructions_supported && terminator_supported
     })
 }
 
@@ -62,32 +70,50 @@ fn user_box_method_instruction_supported(
         ),
         MirInstruction::Compare { .. } | MirInstruction::Select { .. } => true,
         MirInstruction::KeepAlive { .. } | MirInstruction::ReleaseStrong { .. } => true,
+        instruction if user_box_method_terminator_supported(instruction) => true,
         MirInstruction::Call {
-            callee: Some(Callee::Global(_)),
-            ..
-        } => function.metadata.global_call_routes.iter().any(|route| {
-            route.block() == block_id
-                && route.instruction_index() == instruction_index
-                && route.reason().is_none()
-        }),
-        MirInstruction::Call {
-            callee: Some(Callee::Method { .. }),
+            callee: Some(Callee::Global(name)),
             ..
         } => {
-            function.metadata.generic_method_routes.iter().any(|route| {
-                route.block() == block_id && route.instruction_index() == instruction_index
-            }) || function
-                .metadata
-                .user_box_method_routes
-                .iter()
-                .any(|route| {
+            supported_backend_global(name)
+                || function.metadata.global_call_routes.iter().any(|route| {
                     route.block() == block_id
                         && route.instruction_index() == instruction_index
                         && route.reason().is_none()
                 })
         }
+        MirInstruction::Call {
+            callee: Some(Callee::Method {
+                box_name, method, ..
+            }),
+            args,
+            ..
+        } => {
+            function.metadata.generic_method_routes.iter().any(|route| {
+                route.block() == block_id && route.instruction_index() == instruction_index
+            }) || is_self_recursive_user_box_call(function, box_name, method, args.len())
+                || function
+                    .metadata
+                    .user_box_method_routes
+                    .iter()
+                    .any(|route| {
+                        route.block() == block_id
+                            && route.instruction_index() == instruction_index
+                            && (route.reason().is_none()
+                                || route.target_symbol() == function.signature.name)
+                    })
+        }
         _ => false,
     }
+}
+
+fn is_self_recursive_user_box_call(
+    function: &MirFunction,
+    box_name: &str,
+    method: &str,
+    arity: usize,
+) -> bool {
+    function.signature.name == format!("{box_name}.{method}/{arity}")
 }
 
 fn user_box_method_terminator_supported(instruction: &MirInstruction) -> bool {

@@ -4,9 +4,11 @@
 # Contract pin:
 # - VM real-app suite is the executable correctness gate.
 # - Direct EXE currently reaches ny-llvmc pure-first for the remaining real
-#   apps that do not yet have parity smokes.
+#   apps that do not yet have parity smokes. As accepted routes expand, a
+#   remaining app may move from a call-route stop to a same-module prepass stop.
 # - BoxTorrent mini moved to `boxtorrent_mini_exe.sh`; this probe should only
 #   pin the next unsupported-shape boundary for the remaining apps.
+# - binary-trees moved to `binary_trees_exe.sh`.
 # - json-stream-aggregator moved to
 #   `json_stream_aggregator_exe_runtime_boundary.sh`.
 # - Do not enable compat replay as mainline proof.
@@ -85,7 +87,8 @@ probe_one() {
     return 1
   fi
 
-  if ! grep -Fq "first_op=mir_call" "$build_log"; then
+  if ! grep -Fq "first_op=mir_call" "$build_log" &&
+     ! grep -Fq "first_op=field_get" "$build_log"; then
     echo "[INFO] build output tail for $app_name:"
     tail -n 120 "$build_log" || true
     test_fail "$SMOKE_NAME: $app_name unsupported-shape owner changed"
@@ -120,8 +123,9 @@ probe_one() {
   return 0
 }
 
-probe_one "binary-trees"
-probe_one "mimalloc-lite"
+probe_one "mimalloc-lite" \
+  "first_op=field_get" \
+  "target_shape_blocker_symbol=HakoAllocHeap.release/1"
 probe_one "allocator-stress"
 
 test_pass "$SMOKE_NAME"

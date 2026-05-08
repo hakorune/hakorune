@@ -16,7 +16,7 @@ mod body_shape;
 mod return_shape;
 mod value_type_publish;
 
-use body_shape::user_box_method_body_supported;
+pub(crate) use body_shape::user_box_method_body_supported;
 use return_shape::{
     infer_user_box_method_return, UserBoxFieldReturnHints, UserBoxMethodInferredReturn,
 };

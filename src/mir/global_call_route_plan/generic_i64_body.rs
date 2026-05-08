@@ -566,9 +566,9 @@ fn generic_i64_body_refine_instruction(
             };
             let class = match contract {
                 GlobalCallReturnContract::StringHandle => GenericI64ValueClass::String,
-                GlobalCallReturnContract::ArrayHandle | GlobalCallReturnContract::MapHandle => {
-                    GenericI64ValueClass::Unknown
-                }
+                GlobalCallReturnContract::ArrayHandle
+                | GlobalCallReturnContract::MapHandle
+                | GlobalCallReturnContract::ObjectHandle => GenericI64ValueClass::Unknown,
                 GlobalCallReturnContract::StringHandleOrNull
                 | GlobalCallReturnContract::MixedRuntimeI64OrHandle => {
                     GenericI64ValueClass::StringOrVoid

@@ -585,6 +585,7 @@ impl MirSchemaMapConstructorFacts {
             GlobalCallReturnContract::StringHandle
             | GlobalCallReturnContract::StringHandleOrNull => Some(MirSchemaValueClass::String),
             GlobalCallReturnContract::ScalarI64
+            | GlobalCallReturnContract::ObjectHandle
             | GlobalCallReturnContract::VoidSentinelI64Zero
             | GlobalCallReturnContract::MixedRuntimeI64OrHandle => {
                 Some(MirSchemaValueClass::Scalar)

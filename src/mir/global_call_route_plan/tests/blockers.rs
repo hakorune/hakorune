@@ -169,6 +169,54 @@ fn refresh_module_global_call_routes_marks_object_return_abi_reason() {
 }
 
 #[test]
+fn refresh_module_global_call_routes_accepts_typed_object_handle_return() {
+    let mut module = MirModule::new("global_call_typed_object_return_test".to_string());
+    module
+        .metadata
+        .typed_object_plans
+        .push(crate::mir::function::TypedObjectPlan {
+            box_name: "TreeNode".to_string(),
+            type_id: 7,
+            layout_kind: "runtime_slot_object_v0".to_string(),
+            field_count: 0,
+            fields: Vec::new(),
+        });
+    let caller =
+        make_function_with_global_call_args("TreeFactory.make/0", Some(ValueId::new(7)), vec![]);
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "TreeFactory.make/0".to_string(),
+            params: vec![],
+            return_type: MirType::Box("TreeNode".to_string()),
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    entry.instructions.push(MirInstruction::NewBox {
+        dst: ValueId::new(1),
+        box_type: "TreeNode".to_string(),
+        args: vec![],
+    });
+    entry.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(1)),
+    });
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("TreeFactory.make/0".to_string(), callee);
+
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.reason(), None);
+    assert_eq!(route.return_shape(), Some("object_handle"));
+    assert_eq!(route.target_result_box_name(), Some("TreeNode"));
+    assert_eq!(route.definition_owner(), "uniform_mir");
+    assert_eq!(route.proof(), "typed_global_call_same_module_object_handle");
+}
+
+#[test]
 fn refresh_module_global_call_routes_marks_void_signature_object_or_void_return_reason() {
     let mut module =
         MirModule::new("global_call_void_signature_object_return_reason_test".to_string());
