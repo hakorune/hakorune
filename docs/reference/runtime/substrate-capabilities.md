@@ -48,7 +48,7 @@ The current live surface is intentionally narrow.
 | `hako.gc` | helper-shaped `write_barrier_i64` row exists |
 | `hako.osvm` | page-size plus reserve/commit/decommit rows exist |
 | `hako.intrin` | current-lane non-negative i64 bit-count rows exist: `clz_i64`, `ctz_i64`, `popcnt_i64`; backend optimization use is not live |
-| backend export attrs | consistency guard is live; only current weak attrs are allowed, while `noalias`/`nonnull`/`dereferenceable`/alignment export remain blocked |
+| backend export attrs | consistency guard is live; only current weak attrs are allowed, runtime-decl `readonly` rows must carry `memory = "read"`, while `noalias`/`nonnull`/`dereferenceable`/alignment export remain blocked |
 
 ## Reserved Surface
 
@@ -246,6 +246,37 @@ Safety/verifier contract:
   facts have a verifier-owned consistency proof.
 - Backends must not infer strong attrs from helper names, app names, method
   names, or manifest spelling alone.
+
+Fixture/gate:
+
+- `bash tools/checks/k2_wide_export_attrs_consistency_guard.sh`
+
+## Runtime-Decl Readonly Fact Guard Row
+
+Decision: accepted for the M10b runtime-decl weak-attr verifier.
+
+New rule:
+
+- A runtime-decl manifest row with `readonly` must declare `memory = "read"`.
+- Rows with `memory = "read"` are not required to add `readonly`; conservative
+  omission remains allowed.
+
+Owner modules:
+
+- `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
+- `tools/checks/k2_wide_export_attrs_consistency_guard.sh`
+
+Unsupported behavior:
+
+- This row does not prove helper semantics from implementation bodies.
+- This row does not make strong attrs backend-active.
+- This row does not infer attrs from symbol names.
+
+Safety/verifier contract:
+
+- Manifest facts and emitted attrs must not contradict each other.
+- If a future row wants `readonly` on a `memory = "readwrite"` helper, the
+  manifest fact must be fixed first or the guard fails.
 
 Fixture/gate:
 

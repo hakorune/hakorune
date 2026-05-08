@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-039-M10A-EXPORT-ATTRS-CONSISTENCY-GATE"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-039-M10A-EXPORT-ATTRS-CONSISTENCY-GATE.md"
-latest_card_summary = "Added the M10a export attrs consistency guard, locking active LLVM/runtime-decl export points to current weak attrs while strong attrs remain blocked."
+latest_card = "293x-040-M10B-RUNTIME-DECL-READONLY-FACT-GUARD"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-040-M10B-RUNTIME-DECL-READONLY-FACT-GUARD.md"
+latest_card_summary = "Added the M10b runtime-decl readonly fact guard: manifest readonly attrs now require memory = read while strong attrs remain blocked."
 
 current_blocker_token = "phase-293x mimalloc substrate capability ladder after real-app EXE parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

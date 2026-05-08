@@ -85,10 +85,16 @@ def check_runtime_decl_manifest() -> None:
     data = tomllib.loads(RUNTIME_DECL_MANIFEST.read_text())
     for row in data.get("rows", []):
         symbol = row.get("symbol", "<unknown>")
-        for attr in row.get("attrs", []):
+        attrs = row.get("attrs", [])
+        for attr in attrs:
             check_forbidden_attr(attr, f"{RUNTIME_DECL_MANIFEST}:{symbol}")
             if attr not in WEAK_RUNTIME_DECL_ATTRS:
                 fail(f"{RUNTIME_DECL_MANIFEST}:{symbol}: unexpected attr {attr!r}")
+        if "readonly" in attrs and row.get("memory") != "read":
+            fail(
+                f"{RUNTIME_DECL_MANIFEST}:{symbol}: "
+                "readonly attr requires memory = \"read\""
+            )
 
     generated_attrs = set(
         re.findall(r'attrs_\d+\.push\("([^"]+)"\)', RUNTIME_DECL_DEFAULTS.read_text())
@@ -106,9 +112,12 @@ def require_text(path: pathlib.Path, needle: str) -> None:
 
 def check_docs_lock() -> None:
     require_text(TASKBOARD, "`M10a export attrs consistency gate`")
-    require_text(TASKBOARD, "`M10b LLVM export attrs widening`")
+    require_text(TASKBOARD, "`M10b runtime-decl readonly fact guard`")
+    require_text(TASKBOARD, "`M10c LLVM export attrs widening`")
     require_text(CURRENT_OPT, "export-attrs consistency guard")
+    require_text(CURRENT_OPT, "runtime-decl readonly fact guard")
     require_text(ROADMAP, "export-attrs consistency guard")
+    require_text(ROADMAP, "runtime-decl readonly fact guard")
 
 
 check_llvm_py_policy()

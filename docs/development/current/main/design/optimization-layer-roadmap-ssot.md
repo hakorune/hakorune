@@ -106,6 +106,8 @@ For live cuts:
    - landed first attrs seam: compat/probe keep builder now applies conservative `readonly` / `nocapture` runtime helper attrs at finalization (`phase261x`)
    - landed consistency guard: active LLVM/runtime-decl export points are locked
      to current weak attrs until verifier-owned proof exists (`293x-039`)
+   - landed fact guard: runtime-decl `readonly` rows must be backed by
+     `memory = "read"` (`293x-040`)
 2. `boundary / C ABI export`
    - `.hako -> ny-llvmc(boundary pure-first) -> C ABI`
    - boundary stub / runtime helper / manifest export row
@@ -127,7 +129,7 @@ For live cuts:
 6. `optimization export verifier`
    - cross-cutting verifier for MIR contract -> LLVM/C-boundary export consistency
    - needed before widening strong attrs / metadata rows such as `noalias`, `parallel_accesses`, and TBAA
-   - current state: export-attrs consistency guard live; full proof verifier backlog
+   - current state: export-attrs consistency guard and runtime-decl readonly fact guard live; full proof verifier backlog
 
 ## Closeout
 
