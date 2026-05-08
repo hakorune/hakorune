@@ -13,6 +13,8 @@ pub(super) enum UserBoxMethodInferredReturn {
     VoidSentinel,
 }
 
+pub(super) type UserBoxFieldReturnHints = BTreeMap<(String, String), UserBoxMethodInferredReturn>;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ValueClass {
     ScalarI64,
@@ -23,6 +25,7 @@ enum ValueClass {
 
 pub(super) fn infer_user_box_method_return(
     function: &MirFunction,
+    field_return_hints: &UserBoxFieldReturnHints,
 ) -> Option<UserBoxMethodInferredReturn> {
     let mut values = BTreeMap::<ValueId, ValueClass>::new();
     let mut fields = BTreeMap::<String, ValueClass>::new();
@@ -43,6 +46,7 @@ pub(super) fn infer_user_box_method_return(
                     instruction,
                     &mut values,
                     &mut fields,
+                    field_return_hints,
                     &mut changed,
                 );
             }
@@ -54,6 +58,7 @@ pub(super) fn infer_user_box_method_return(
                     terminator,
                     &mut values,
                     &mut fields,
+                    field_return_hints,
                     &mut changed,
                 );
             }
@@ -64,12 +69,17 @@ pub(super) fn infer_user_box_method_return(
     }
 
     let mut result = None;
+    let mut saw_void_sentinel = false;
     for block in function.blocks.values() {
         for instruction in block.instructions.iter().chain(block.terminator.iter()) {
             let MirInstruction::Return { value: Some(value) } = instruction else {
                 continue;
             };
             let class = values.get(value).copied()?;
+            if class == ValueClass::VoidSentinel {
+                saw_void_sentinel = true;
+                continue;
+            }
             let inferred = inferred_return_from_value_class(class);
             result = match result {
                 None => Some(inferred),
@@ -78,7 +88,7 @@ pub(super) fn infer_user_box_method_return(
             };
         }
     }
-    result
+    result.or_else(|| saw_void_sentinel.then_some(UserBoxMethodInferredReturn::VoidSentinel))
 }
 
 fn observe_instruction(
@@ -88,8 +98,15 @@ fn observe_instruction(
     instruction: &MirInstruction,
     values: &mut BTreeMap<ValueId, ValueClass>,
     fields: &mut BTreeMap<String, ValueClass>,
+    field_return_hints: &UserBoxFieldReturnHints,
     changed: &mut bool,
 ) {
+    if let Some(dst) = instruction.dst_value() {
+        if let Some(class) = value_metadata_class(function, dst) {
+            set_value(values, dst, class, changed);
+        }
+    }
+
     match instruction {
         MirInstruction::Const { dst, value } => {
             if let Some(class) = const_value_class(value) {
@@ -116,6 +133,7 @@ fn observe_instruction(
         }
         MirInstruction::FieldGet {
             dst,
+            base,
             field,
             declared_type,
             ..
@@ -123,6 +141,10 @@ fn observe_instruction(
             if let Some(class) = declared_type.as_ref().and_then(value_class_from_type) {
                 set_value(values, *dst, class, changed);
             } else if let Some(class) = fields.get(field).copied() {
+                set_value(values, *dst, class, changed);
+            } else if let Some(class) =
+                field_return_hint_class(function, *base, field, field_return_hints)
+            {
                 set_value(values, *dst, class, changed);
             }
         }
@@ -167,22 +189,24 @@ fn observe_instruction(
             inputs,
             type_hint,
         } => {
-            if let Some(class) = type_hint.as_ref().and_then(value_class_from_type) {
-                set_value(values, *dst, class, changed);
-                return;
-            }
             let mut input_class = None;
             for (_, value) in inputs {
                 let Some(class) = values.get(value).copied() else {
-                    return;
+                    input_class = None;
+                    break;
                 };
                 input_class = match input_class {
                     None => Some(class),
                     Some(existing) if existing == class => Some(existing),
-                    _ => return,
+                    _ => None,
                 };
+                if input_class.is_none() {
+                    break;
+                }
             }
             if let Some(class) = input_class {
+                set_value(values, *dst, class, changed);
+            } else if let Some(class) = type_hint.as_ref().and_then(value_class_from_type) {
                 set_value(values, *dst, class, changed);
             }
         }
@@ -192,6 +216,51 @@ fn observe_instruction(
             }
         }
         _ => {}
+    }
+}
+
+fn value_metadata_class(function: &MirFunction, value: ValueId) -> Option<ValueClass> {
+    function
+        .metadata
+        .value_types
+        .get(&value)
+        .and_then(value_class_from_type)
+}
+
+fn field_return_hint_class(
+    function: &MirFunction,
+    base: ValueId,
+    field: &str,
+    field_return_hints: &UserBoxFieldReturnHints,
+) -> Option<ValueClass> {
+    let box_name = value_box_name(function, base)?;
+    field_return_hints
+        .get(&(box_name.to_string(), field.to_string()))
+        .copied()
+        .and_then(value_class_from_inferred_return)
+}
+
+fn value_box_name(function: &MirFunction, value: ValueId) -> Option<&str> {
+    function
+        .metadata
+        .value_types
+        .get(&value)
+        .and_then(box_name_from_type)
+        .or_else(|| {
+            function
+                .params
+                .iter()
+                .position(|param| *param == value)
+                .and_then(|index| function.signature.params.get(index))
+                .and_then(box_name_from_type)
+        })
+}
+
+fn box_name_from_type(ty: &MirType) -> Option<&str> {
+    match ty {
+        MirType::String => Some("StringBox"),
+        MirType::Box(name) => Some(name.as_str()),
+        _ => None,
     }
 }
 
@@ -290,6 +359,15 @@ fn value_class_from_return_shape(shape: &str) -> Option<ValueClass> {
         "object_handle" | "array_handle" | "map_handle" => Some(ValueClass::ObjectHandle),
         "void_sentinel_i64_zero" => Some(ValueClass::VoidSentinel),
         _ => None,
+    }
+}
+
+fn value_class_from_inferred_return(inferred: UserBoxMethodInferredReturn) -> Option<ValueClass> {
+    match inferred {
+        UserBoxMethodInferredReturn::ScalarI64 => Some(ValueClass::ScalarI64),
+        UserBoxMethodInferredReturn::StringHandle => Some(ValueClass::StringHandle),
+        UserBoxMethodInferredReturn::ObjectHandle => Some(ValueClass::ObjectHandle),
+        UserBoxMethodInferredReturn::VoidSentinel => None,
     }
 }
 

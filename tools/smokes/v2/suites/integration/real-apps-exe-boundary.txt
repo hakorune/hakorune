@@ -6,4 +6,6 @@ apps/typed_object_untyped_field_min_exe.sh
 apps/typed_object_birth_min_exe.sh
 apps/typed_object_method_min_exe.sh
 apps/typed_object_birth_param_min_exe.sh
+apps/boxtorrent_mini_exe.sh
 apps/real_apps_exe_boundary_probe.sh
+apps/json_stream_aggregator_exe_runtime_boundary.sh

@@ -963,6 +963,9 @@ fn generic_pure_string_get_route_value_class(
         "mir_json_flags_keys" if route.route_kind_tag() == "map_keys_array" => {
             Some(GenericPureValueClass::Array)
         }
+        "keys_surface_policy" if route.route_kind_tag() == "map_keys_array" => {
+            Some(GenericPureValueClass::Array)
+        }
         "mir_json_block_field" if route.route_kind_tag() == "runtime_data_load_any" => {
             match route.key_const_text()? {
                 "instructions" => Some(GenericPureValueClass::Array),

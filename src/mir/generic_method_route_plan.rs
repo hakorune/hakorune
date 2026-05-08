@@ -156,6 +156,16 @@ fn refresh_function_generic_method_routes_with_context(
                     instruction_index,
                     inst,
                 )
+            })
+            .or_else(|| {
+                match_generic_delete_route(
+                    function,
+                    &def_map,
+                    field_handle_origins,
+                    block_id,
+                    instruction_index,
+                    inst,
+                )
             }) {
                 routes.push(route);
             }
@@ -828,6 +838,26 @@ fn match_generic_get_route(
     }
 
     if box_name == "MapBox" && receiver_origin_box.as_deref() == Some("MapBox") {
+        let typed_object_result =
+            map_get_result_origin_requires_runtime_data_load(result_origin_box.as_deref());
+        let (route_kind, lowering_tier, return_shape, value_demand, publication_policy) =
+            if typed_object_result {
+                (
+                    GenericMethodRouteKind::RuntimeDataLoadAny,
+                    CoreMethodLoweringTier::ColdFallback,
+                    Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle),
+                    GenericMethodValueDemand::RuntimeI64OrHandle,
+                    Some(GenericMethodPublicationPolicy::RuntimeDataFacade),
+                )
+            } else {
+                (
+                    GenericMethodRouteKind::MapLoadAny,
+                    CoreMethodLoweringTier::WarmDirectAbi,
+                    None,
+                    GenericMethodValueDemand::ReadRef,
+                    None,
+                )
+            };
         return Some(GenericMethodRoute::new(
             GenericMethodRouteSite::new(block, instruction_index),
             GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
@@ -835,15 +865,15 @@ fn match_generic_get_route(
                 .with_result_origin_box(result_origin_box),
             GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
             GenericMethodRouteDecision::new(
-                GenericMethodRouteKind::MapLoadAny,
+                route_kind,
                 GenericMethodRouteProof::GetSurfacePolicy,
                 Some(CoreMethodOpCarrier::manifest(
                     CoreMethodOp::MapGet,
-                    CoreMethodLoweringTier::WarmDirectAbi,
+                    lowering_tier,
                 )),
-                None,
-                GenericMethodValueDemand::ReadRef,
-                None,
+                return_shape,
+                value_demand,
+                publication_policy,
             ),
         ));
     }
@@ -916,6 +946,13 @@ fn match_generic_get_route(
             publication_policy,
         ),
     ))
+}
+
+fn map_get_result_origin_requires_runtime_data_load(result_origin_box: Option<&str>) -> bool {
+    match result_origin_box {
+        Some("StringBox" | "ArrayBox" | "MapBox") | None => false,
+        Some(_) => true,
+    }
 }
 
 fn match_generic_len_route(
@@ -992,7 +1029,7 @@ fn match_generic_len_route(
 
 fn match_generic_keys_route(
     function: &MirFunction,
-    _def_map: &ValueDefMap,
+    def_map: &ValueDefMap,
     block: BasicBlockId,
     instruction_index: usize,
     inst: &MirInstruction,
@@ -1012,16 +1049,41 @@ fn match_generic_keys_route(
     else {
         return None;
     };
-    if method != "keys" || !args.is_empty() {
+    if method != "keys" {
         return None;
     }
+    let args = method_args_without_redundant_receiver(function, def_map, *receiver, args, 0)?;
     if function.signature.name != "MirJsonEmitBox._emit_flags/1" || box_name != "RuntimeDataBox" {
-        return None;
+        let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
+            .or_else(|| (box_name == "MapBox").then(|| box_name.clone()));
+        if !matches!(box_name.as_str(), "MapBox" | "RuntimeDataBox")
+            || receiver_origin_box.as_deref() != Some("MapBox")
+        {
+            return None;
+        }
+        return Some(GenericMethodRoute::new(
+            GenericMethodRouteSite::new(block, instruction_index),
+            GenericMethodRouteSurface::new(box_name.clone(), method.clone(), args.len()),
+            GenericMethodRouteEvidence::new(receiver_origin_box, None)
+                .with_result_origin_box(Some("ArrayBox".to_string())),
+            GenericMethodRouteOperands::new(*receiver, None, *dst),
+            GenericMethodRouteDecision::new(
+                GenericMethodRouteKind::MapKeysArray,
+                GenericMethodRouteProof::KeysSurfacePolicy,
+                Some(CoreMethodOpCarrier::manifest(
+                    CoreMethodOp::MapKeys,
+                    CoreMethodLoweringTier::WarmDirectAbi,
+                )),
+                Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle),
+                GenericMethodValueDemand::RuntimeI64OrHandle,
+                Some(GenericMethodPublicationPolicy::NoPublication),
+            ),
+        ));
     }
 
     Some(GenericMethodRoute::new(
         GenericMethodRouteSite::new(block, instruction_index),
-        GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 0),
+        GenericMethodRouteSurface::new(box_name.clone(), method.clone(), args.len()),
         GenericMethodRouteEvidence::new(None, None),
         GenericMethodRouteOperands::new(*receiver, None, *dst),
         GenericMethodRouteDecision::new(
@@ -1506,6 +1568,64 @@ fn match_generic_set_route(
     ))
 }
 
+fn match_generic_delete_route(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    field_handle_origins: &FieldHandleOriginMap,
+    block: BasicBlockId,
+    instruction_index: usize,
+    inst: &MirInstruction,
+) -> Option<GenericMethodRoute> {
+    let MirInstruction::Call {
+        dst,
+        callee:
+            Some(Callee::Method {
+                box_name,
+                method,
+                receiver: Some(receiver),
+                ..
+            }),
+        args,
+        ..
+    } = inst
+    else {
+        return None;
+    };
+    if method != "delete" {
+        return None;
+    }
+    let args = method_args_without_redundant_receiver(function, def_map, *receiver, args, 1)?;
+    let receiver_origin_box = receiver_origin_box_name(function, def_map, *receiver)
+        .or_else(|| {
+            generic_array_flow_origin_box_name(function, def_map, field_handle_origins, *receiver)
+        })
+        .or_else(|| (box_name == "MapBox").then(|| "MapBox".to_string()));
+    if receiver_origin_box.as_deref() != Some("MapBox")
+        || !matches!(box_name.as_str(), "MapBox" | "RuntimeDataBox")
+    {
+        return None;
+    }
+    let key_route = classify_key_route(function, def_map, args[0]);
+
+    Some(GenericMethodRoute::new(
+        GenericMethodRouteSite::new(block, instruction_index),
+        GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
+        GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route)),
+        GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
+        GenericMethodRouteDecision::new(
+            GenericMethodRouteKind::MapDeleteAny,
+            GenericMethodRouteProof::DeleteSurfacePolicy,
+            Some(CoreMethodOpCarrier::manifest(
+                CoreMethodOp::MapDelete,
+                CoreMethodLoweringTier::ColdFallback,
+            )),
+            Some(GenericMethodReturnShape::ScalarI64),
+            GenericMethodValueDemand::WriteAny,
+            None,
+        ),
+    ))
+}
+
 fn method_args_without_redundant_receiver<'a>(
     function: &MirFunction,
     def_map: &ValueDefMap,
@@ -1729,7 +1849,10 @@ fn generic_array_flow_origin_box_name(
                         dst: Some(dst),
                         callee:
                             Some(Callee::Method {
-                                box_name, method, ..
+                                box_name,
+                                method,
+                                receiver: Some(_receiver),
+                                ..
                             }),
                         args,
                         ..
@@ -1737,6 +1860,32 @@ fn generic_array_flow_origin_box_name(
                         && box_name == "RuntimeDataBox"
                         && method == "keys"
                         && args.is_empty() =>
+                    {
+                        if array_values.insert(*dst, "ArrayBox") != Some("ArrayBox") {
+                            changed = true;
+                        }
+                    }
+                    MirInstruction::Call {
+                        dst: Some(dst),
+                        callee:
+                            Some(Callee::Method {
+                                box_name,
+                                method,
+                                receiver: Some(receiver),
+                                ..
+                            }),
+                        args,
+                        ..
+                    } if method == "keys"
+                        && method_args_without_redundant_receiver(
+                            function, def_map, *receiver, args, 0,
+                        )
+                        .is_some()
+                        && matches!(box_name.as_str(), "MapBox" | "RuntimeDataBox")
+                        && (box_name == "MapBox"
+                            || receiver_origin_box_name(function, def_map, *receiver)
+                                .as_deref()
+                                == Some("MapBox")) =>
                     {
                         if array_values.insert(*dst, "ArrayBox") != Some("ArrayBox") {
                             changed = true;

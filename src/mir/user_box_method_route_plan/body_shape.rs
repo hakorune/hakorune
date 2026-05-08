@@ -61,6 +61,7 @@ fn user_box_method_instruction_supported(
             BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul | BinaryOp::Div | BinaryOp::Mod
         ),
         MirInstruction::Compare { .. } | MirInstruction::Select { .. } => true,
+        MirInstruction::KeepAlive { .. } | MirInstruction::ReleaseStrong { .. } => true,
         MirInstruction::Call {
             callee: Some(Callee::Global(_)),
             ..

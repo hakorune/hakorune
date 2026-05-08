@@ -1,4 +1,3 @@
-use super::generic_string_abi::generic_pure_string_abi_type_is_handle_compatible;
 use super::generic_string_surface::generic_pure_compare_proves_i64;
 use super::model::GlobalCallReturnContract;
 use super::{
@@ -19,6 +18,7 @@ enum GenericI64ValueClass {
     Bool,
     String,
     StringOrVoid,
+    Object,
     VoidSentinel,
 }
 
@@ -58,8 +58,9 @@ fn generic_i64_value_class_from_type(ty: &MirType) -> Option<GenericI64ValueClas
             "IntegerBox" => Some(GenericI64ValueClass::I64),
             "BoolBox" => Some(GenericI64ValueClass::Bool),
             "StringBox" => Some(GenericI64ValueClass::String),
-            _ => None,
+            _ => Some(GenericI64ValueClass::Object),
         },
+        MirType::Array(_) | MirType::WeakRef => Some(GenericI64ValueClass::Object),
         MirType::Void => Some(GenericI64ValueClass::VoidSentinel),
         _ => None,
     }
@@ -79,7 +80,7 @@ pub(super) fn is_generic_i64_body_function(
         .signature
         .params
         .iter()
-        .all(generic_pure_string_abi_type_is_handle_compatible)
+        .all(generic_i64_abi_type_is_i64_word_compatible)
     {
         return false;
     }
@@ -164,6 +165,19 @@ pub(super) fn is_generic_i64_body_function(
     saw_return && (!saw_void_sentinel_return || saw_scalar_return)
 }
 
+fn generic_i64_abi_type_is_i64_word_compatible(ty: &MirType) -> bool {
+    matches!(
+        ty,
+        MirType::Integer
+            | MirType::Bool
+            | MirType::String
+            | MirType::Unknown
+            | MirType::Void
+            | MirType::Array(_)
+            | MirType::WeakRef
+    ) || matches!(ty, MirType::Box(_))
+}
+
 fn generic_i64_return_type_is_scalar(ty: &MirType) -> bool {
     matches!(
         ty,
@@ -210,6 +224,24 @@ fn generic_i64_body_refine_instruction(
                     true
                 }
             }
+        }
+        MirInstruction::FieldGet { dst, base, .. } => {
+            let base_class = generic_i64_value_class(values, *base);
+            if base_class == GenericI64ValueClass::Unknown {
+                return true;
+            }
+            if base_class != GenericI64ValueClass::Object {
+                return false;
+            }
+            let Some(field_class) = function
+                .metadata
+                .value_types
+                .get(dst)
+                .and_then(generic_i64_value_class_from_type)
+            else {
+                return false;
+            };
+            set_generic_i64_value_class(values, *dst, field_class, changed)
         }
         MirInstruction::BinOp {
             dst, op, lhs, rhs, ..

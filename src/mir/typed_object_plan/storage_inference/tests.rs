@@ -836,3 +836,164 @@ fn build_typed_object_plans_uses_param_box_origins_for_runtime_method_receiver_s
     assert_eq!(chunk.fields[1].storage, TypedObjectFieldStorage::Handle);
     assert_eq!(chunk.fields[2].storage, TypedObjectFieldStorage::Handle);
 }
+
+#[test]
+fn build_typed_object_plans_infers_birth_param_storage_from_collection_get_element_storage() {
+    let mut module = MirModule::new("typed_object_collection_element_storage".to_string());
+    module
+        .metadata
+        .user_box_decls
+        .insert("Handle".to_string(), vec!["block_id".to_string()]);
+    module.metadata.user_box_field_decls.insert(
+        "Handle".to_string(),
+        vec![UserBoxFieldDecl {
+            name: "block_id".to_string(),
+            declared_type_name: None,
+            is_weak: false,
+        }],
+    );
+    module
+        .metadata
+        .user_box_decls
+        .insert("Page".to_string(), vec!["free_stack".to_string()]);
+    module.metadata.user_box_field_decls.insert(
+        "Page".to_string(),
+        vec![UserBoxFieldDecl {
+            name: "free_stack".to_string(),
+            declared_type_name: None,
+            is_weak: false,
+        }],
+    );
+
+    let mut handle_birth = MirFunction::new(
+        FunctionSignature {
+            name: "Handle.birth/1".to_string(),
+            params: vec![MirType::Box("Handle".to_string()), MirType::Unknown],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    handle_birth.params = vec![ValueId::new(0), ValueId::new(1)];
+    let mut handle_birth_block = BasicBlock::new(BasicBlockId::new(0));
+    handle_birth_block.add_instruction(MirInstruction::FieldSet {
+        base: ValueId::new(0),
+        field: "block_id".to_string(),
+        value: ValueId::new(1),
+        declared_type: None,
+    });
+    handle_birth.add_block(handle_birth_block);
+
+    let mut page_birth = MirFunction::new(
+        FunctionSignature {
+            name: "Page.birth/0".to_string(),
+            params: vec![MirType::Box("Page".to_string())],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    page_birth.params = vec![ValueId::new(0)];
+    let mut page_birth_block = BasicBlock::new(BasicBlockId::new(0));
+    page_birth_block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(1),
+        box_type: "ArrayBox".to_string(),
+        args: Vec::new(),
+    });
+    page_birth_block.add_instruction(MirInstruction::FieldSet {
+        base: ValueId::new(0),
+        field: "free_stack".to_string(),
+        value: ValueId::new(1),
+        declared_type: None,
+    });
+    page_birth.add_block(page_birth_block);
+
+    let mut seed = MirFunction::new(
+        FunctionSignature {
+            name: "Page.seed/0".to_string(),
+            params: vec![MirType::Box("Page".to_string())],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    seed.params = vec![ValueId::new(0)];
+    let mut seed_block = BasicBlock::new(BasicBlockId::new(0));
+    seed_block.add_instruction(MirInstruction::FieldGet {
+        dst: ValueId::new(1),
+        base: ValueId::new(0),
+        field: "free_stack".to_string(),
+        declared_type: None,
+    });
+    seed_block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(2),
+        value: ConstValue::Integer(7),
+    });
+    seed_block.add_instruction(MirInstruction::Call {
+        dst: Some(ValueId::new(3)),
+        func: ValueId::INVALID,
+        callee: Some(Callee::Method {
+            box_name: "RuntimeDataBox".to_string(),
+            method: "push".to_string(),
+            receiver: Some(ValueId::new(1)),
+            certainty: crate::mir::definitions::call_unified::TypeCertainty::Union,
+            box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+        }),
+        args: vec![ValueId::new(2)],
+        effects: EffectMask::PURE,
+    });
+    seed.add_block(seed_block);
+
+    let mut allocate = MirFunction::new(
+        FunctionSignature {
+            name: "Page.allocate/0".to_string(),
+            params: vec![MirType::Box("Page".to_string())],
+            return_type: MirType::Box("Handle".to_string()),
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    allocate.params = vec![ValueId::new(0)];
+    let mut allocate_block = BasicBlock::new(BasicBlockId::new(0));
+    allocate_block.add_instruction(MirInstruction::FieldGet {
+        dst: ValueId::new(1),
+        base: ValueId::new(0),
+        field: "free_stack".to_string(),
+        declared_type: None,
+    });
+    allocate_block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(2),
+        value: ConstValue::Integer(0),
+    });
+    allocate_block.add_instruction(MirInstruction::Call {
+        dst: Some(ValueId::new(3)),
+        func: ValueId::INVALID,
+        callee: Some(Callee::Method {
+            box_name: "RuntimeDataBox".to_string(),
+            method: "get".to_string(),
+            receiver: Some(ValueId::new(1)),
+            certainty: crate::mir::definitions::call_unified::TypeCertainty::Union,
+            box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+        }),
+        args: vec![ValueId::new(2)],
+        effects: EffectMask::PURE,
+    });
+    allocate_block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(4),
+        box_type: "Handle".to_string(),
+        args: vec![ValueId::new(3)],
+    });
+    allocate.add_block(allocate_block);
+
+    module.add_function(handle_birth);
+    module.add_function(page_birth);
+    module.add_function(seed);
+    module.add_function(allocate);
+
+    let plans = build_typed_object_plans(&module);
+    let handle = plans
+        .iter()
+        .find(|plan| plan.box_name == "Handle")
+        .expect("Handle plan");
+    assert_eq!(handle.fields[0].storage, TypedObjectFieldStorage::I64);
+}

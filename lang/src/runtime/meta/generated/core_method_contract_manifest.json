@@ -14,7 +14,7 @@
     "status",
     "guards"
   ],
-  "row_count": 14,
+  "row_count": 16,
   "rows": [
     {
       "box": "ArrayBox",
@@ -130,6 +130,36 @@
       "status": "seed",
       "guards": [],
       "id": "MapBox.has/1"
+    },
+    {
+      "box": "MapBox",
+      "canonical": "delete",
+      "aliases": [
+        "remove"
+      ],
+      "arity": "1",
+      "effect": "mutates_shape",
+      "core_op": "MapDelete",
+      "lowering_tier": "cold_fallback",
+      "cold_lowering": "nyash.map.delete_hh",
+      "runtime_owner": ".hako MapBox contract / Rust map substrate",
+      "status": "seed",
+      "guards": [],
+      "id": "MapBox.delete/1"
+    },
+    {
+      "box": "MapBox",
+      "canonical": "keys",
+      "aliases": [],
+      "arity": "0",
+      "effect": "pure_read",
+      "core_op": "MapKeys",
+      "lowering_tier": "warm_direct_abi",
+      "cold_lowering": "nyash.map.keys_h",
+      "runtime_owner": ".hako MapBox contract / Rust map substrate",
+      "status": "seed",
+      "guards": [],
+      "id": "MapBox.keys/0"
     },
     {
       "box": "MapBox",

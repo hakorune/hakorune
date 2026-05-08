@@ -3,10 +3,12 @@
 #
 # Contract pin:
 # - VM real-app suite is the executable correctness gate.
-# - Direct EXE currently reaches ny-llvmc pure-first, lowers general user-box
-#   allocation/field slots through TypedObjectPlan, and stops at the known
-#   typed user-box/generic method routes, and stops at the remaining known
-#   BoxTorrentChunker.ingest user-box method route boundary.
+# - Direct EXE currently reaches ny-llvmc pure-first for the remaining real
+#   apps that do not yet have parity smokes.
+# - BoxTorrent mini moved to `boxtorrent_mini_exe.sh`; this probe should only
+#   pin the next unsupported-shape boundary for the remaining apps.
+# - json-stream-aggregator moved to
+#   `json_stream_aggregator_exe_runtime_boundary.sh`.
 # - Do not enable compat replay as mainline proof.
 
 set -euo pipefail
@@ -83,34 +85,19 @@ probe_one() {
     return 1
   fi
 
-  if [ "$app_name" = "boxtorrent-mini" ]; then
-    if ! grep -Fq "reason=mir_call_no_route" "$build_log"; then
-      echo "[INFO] build output tail for $app_name:"
-      tail -n 120 "$build_log" || true
-      test_fail "$SMOKE_NAME: $app_name did not stop at the pinned ingest boundary"
-      return 1
-    fi
-    if ! grep -Fq "bname=BoxTorrentChunker mname=ingest" "$build_log"; then
-      echo "[INFO] build output tail for $app_name:"
-      tail -n 120 "$build_log" || true
-      test_fail "$SMOKE_NAME: $app_name ingest blocker changed"
-      return 1
-    fi
-  else
-    if ! grep -Fq "first_op=mir_call" "$build_log"; then
-      echo "[INFO] build output tail for $app_name:"
-      tail -n 120 "$build_log" || true
-      test_fail "$SMOKE_NAME: $app_name unsupported-shape owner changed"
-      return 1
-    fi
+  if ! grep -Fq "first_op=mir_call" "$build_log"; then
+    echo "[INFO] build output tail for $app_name:"
+    tail -n 120 "$build_log" || true
+    test_fail "$SMOKE_NAME: $app_name unsupported-shape owner changed"
+    return 1
+  fi
 
-    if ! grep -Fq "reason=mir_call_no_route" "$build_log" &&
-       ! grep -Fq "reason=module_generic_prepass_failed" "$build_log"; then
-      echo "[INFO] build output tail for $app_name:"
-      tail -n 120 "$build_log" || true
-      test_fail "$SMOKE_NAME: $app_name did not stop at a pinned route/prepass boundary"
-      return 1
-    fi
+  if ! grep -Fq "reason=mir_call_no_route" "$build_log" &&
+     ! grep -Fq "reason=module_generic_prepass_failed" "$build_log"; then
+    echo "[INFO] build output tail for $app_name:"
+    tail -n 120 "$build_log" || true
+    test_fail "$SMOKE_NAME: $app_name did not stop at a pinned route/prepass boundary"
+    return 1
   fi
 
   if grep -Fq "compat_replay=harness" "$build_log"; then
@@ -133,11 +120,8 @@ probe_one() {
   return 0
 }
 
-probe_one "boxtorrent-mini" \
-  "consumer=mir_call_user_box_birth_same_module_emit site=b116.i11 route=user_box.method_call core_op=UserBoxMethodCall tier=DirectAbi symbol=HakoAllocHeap.birth/0"
 probe_one "binary-trees"
 probe_one "mimalloc-lite"
 probe_one "allocator-stress"
-probe_one "json-stream-aggregator"
 
 test_pass "$SMOKE_NAME"

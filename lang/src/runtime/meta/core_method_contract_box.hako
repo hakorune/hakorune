@@ -28,7 +28,9 @@ static box CoreMethodContractBox {
   op_map_get() { return "MapGet" }
   op_map_set() { return "MapSet" }
   op_map_has() { return "MapHas" }
+  op_map_delete() { return "MapDelete" }
   op_map_len() { return "MapLen" }
+  op_map_keys() { return "MapKeys" }
   op_string_len() { return "StringLen" }
   op_string_substring() { return "StringSubstring" }
   op_string_indexof() { return "StringIndexOf" }
@@ -204,6 +206,34 @@ static box CoreMethodContractBox {
     )
   }
 
+  _map_delete_row() {
+    return me._row(
+      "MapBox",
+      "delete",
+      me._aliases1("remove"),
+      "1",
+      me.effect_mutates_shape(),
+      me.op_map_delete(),
+      me.tier_cold_fallback(),
+      "nyash.map.delete_hh",
+      me._runtime_owner_map()
+    )
+  }
+
+  _map_keys_row() {
+    return me._row(
+      "MapBox",
+      "keys",
+      me._aliases0(),
+      "0",
+      me.effect_pure_read(),
+      me.op_map_keys(),
+      me.tier_warm_direct_abi(),
+      "nyash.map.keys_h",
+      me._runtime_owner_map()
+    )
+  }
+
   _map_len_row() {
     return me._row(
       "MapBox",
@@ -298,6 +328,8 @@ static box CoreMethodContractBox {
     out.push(me._map_get_row())
     out.push(me._map_set_row())
     out.push(me._map_has_row())
+    out.push(me._map_delete_row())
+    out.push(me._map_keys_row())
     out.push(me._map_len_row())
     out.push(me._string_len_row())
     out.push(me._string_substring_row())

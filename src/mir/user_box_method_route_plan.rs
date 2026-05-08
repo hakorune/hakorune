@@ -10,20 +10,33 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::core_method_op::{LoweringPlanEmitKind, LoweringPlanTier};
 use crate::mir::definitions::call_unified::TypeCertainty;
+use crate::mir::function::TypedObjectFieldStorage;
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 mod body_shape;
 mod return_shape;
+mod value_type_publish;
 
 use body_shape::user_box_method_body_supported;
-use return_shape::{infer_user_box_method_return, UserBoxMethodInferredReturn};
+use return_shape::{
+    infer_user_box_method_return, UserBoxFieldReturnHints, UserBoxMethodInferredReturn,
+};
+use value_type_publish::{
+    propagate_user_box_box_value_types, publish_generic_route_result_value_types,
+    publish_user_box_field_get_value_types, publish_user_box_param_origin_value_types,
+    publish_user_box_route_param_value_types, publish_user_box_route_result_value_types,
+};
 
-use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction, MirModule, MirType, ValueId};
+use crate::mir::{
+    BasicBlockId, Callee, ConstValue, MirFunction, MirInstruction, MirModule, MirType, ValueId,
+};
 
 type ParamBoxOriginKey = (String, usize);
-type ParamBoxOriginMap = BTreeMap<ParamBoxOriginKey, BoxOriginInference>;
+pub(super) type ParamBoxOriginMap = BTreeMap<ParamBoxOriginKey, BoxOriginInference>;
+type FieldBoxOriginKey = (String, String);
+pub(super) type FieldBoxOriginMap = BTreeMap<FieldBoxOriginKey, BoxOriginInference>;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-enum BoxOriginInference {
+pub(super) enum BoxOriginInference {
     Known(String),
     Conflict,
 }
@@ -56,6 +69,7 @@ pub struct UserBoxMethodRoute {
     target_arity: Option<usize>,
     target_return_type: Option<MirType>,
     target_inferred_return: Option<UserBoxMethodInferredReturn>,
+    target_result_box_name: Option<String>,
     target_body_supported: bool,
     type_id: Option<u32>,
 }
@@ -199,6 +213,9 @@ impl UserBoxMethodRoute {
     }
 
     pub fn target_result_box_name(&self) -> Option<&str> {
+        if let Some(box_name) = &self.target_result_box_name {
+            return Some(box_name.as_str());
+        }
         if self.target_returns_string_handle() {
             return Some("StringBox");
         }
@@ -303,16 +320,31 @@ impl UserBoxMethodRoute {
     }
 
     fn target_returns_scalar(&self) -> bool {
-        matches!(
-            self.target_return_type,
-            Some(MirType::Integer | MirType::Bool)
-        ) || matches!(
-            self.target_inferred_return,
-            Some(UserBoxMethodInferredReturn::ScalarI64)
-        )
+        match self.target_inferred_return {
+            Some(UserBoxMethodInferredReturn::ScalarI64) => true,
+            Some(
+                UserBoxMethodInferredReturn::StringHandle
+                | UserBoxMethodInferredReturn::ObjectHandle
+                | UserBoxMethodInferredReturn::VoidSentinel,
+            ) => false,
+            None => matches!(
+                self.target_return_type,
+                Some(MirType::Integer | MirType::Bool)
+            ),
+        }
     }
 
     fn target_returns_void(&self) -> bool {
+        if matches!(
+            self.target_inferred_return,
+            Some(
+                UserBoxMethodInferredReturn::ScalarI64
+                    | UserBoxMethodInferredReturn::StringHandle
+                    | UserBoxMethodInferredReturn::ObjectHandle
+            )
+        ) {
+            return false;
+        }
         matches!(self.target_return_type, Some(MirType::Void))
             || matches!(
                 self.target_inferred_return,
@@ -346,7 +378,7 @@ pub fn refresh_module_user_box_method_routes(module: &mut MirModule) {
         .iter()
         .map(|plan| (plan.box_name.clone(), plan.type_id))
         .collect::<BTreeMap<_, _>>();
-    for _ in 0..module.functions.len().max(1) {
+    for _ in 0..module.functions.len().saturating_mul(4).max(8) {
         let before = module
             .functions
             .iter()
@@ -357,21 +389,54 @@ pub fn refresh_module_user_box_method_routes(module: &mut MirModule) {
                 )
             })
             .collect::<BTreeMap<_, _>>();
-        let targets = collect_method_targets(module, &typed_plan_type_ids);
-        let param_box_origins = infer_user_box_method_param_box_origins(module, &targets);
+        let empty_field_return_hints = UserBoxFieldReturnHints::new();
+        let targets =
+            collect_method_targets(module, &typed_plan_type_ids, &empty_field_return_hints);
+        let initial_param_box_origins =
+            infer_user_box_method_param_box_origins(module, &targets, &BTreeMap::new());
+        let field_box_origins =
+            infer_user_box_field_box_origins(module, &targets, &initial_param_box_origins);
+        let param_box_origins =
+            infer_user_box_method_param_box_origins(module, &targets, &field_box_origins);
+        let field_box_origins =
+            infer_user_box_field_box_origins(module, &targets, &param_box_origins);
+        let param_box_origins =
+            infer_user_box_method_param_box_origins(module, &targets, &field_box_origins);
+        let value_type_changed =
+            publish_user_box_param_origin_value_types(module, &param_box_origins);
+        let field_get_value_type_changed =
+            publish_user_box_field_get_value_types(module, &param_box_origins, &field_box_origins);
+        let field_return_hints = build_user_box_field_return_hints(module, &field_box_origins);
+        let targets = collect_method_targets(module, &typed_plan_type_ids, &field_return_hints);
         for function in module.functions.values_mut() {
             refresh_function_user_box_method_routes_with_context(
                 function,
                 &targets,
                 &typed_plan_type_ids,
                 &param_box_origins,
+                &field_box_origins,
             );
         }
-        let changed = module.functions.iter().any(|(name, function)| {
+        let route_result_value_type_changed = publish_user_box_route_result_value_types(module);
+        let generic_result_value_type_changed = publish_generic_route_result_value_types(module);
+        let propagated_value_type_changed = propagate_user_box_box_value_types(module);
+        let route_value_type_changed = publish_user_box_route_param_value_types(
+            module,
+            &param_box_origins,
+            &field_box_origins,
+        );
+        let route_changed = module.functions.iter().any(|(name, function)| {
             before.get(name).map_or(true, |routes| {
                 routes != &function.metadata.user_box_method_routes
             })
         });
+        let changed = value_type_changed
+            || field_get_value_type_changed
+            || route_result_value_type_changed
+            || generic_result_value_type_changed
+            || propagated_value_type_changed
+            || route_value_type_changed
+            || route_changed;
         if !changed {
             break;
         }
@@ -384,6 +449,7 @@ pub fn refresh_function_user_box_method_routes(function: &mut MirFunction) {
         &BTreeMap::new(),
         &BTreeMap::new(),
         &BTreeMap::new(),
+        &BTreeMap::new(),
     );
 }
 
@@ -392,12 +458,14 @@ fn refresh_function_user_box_method_routes_with_context(
     targets: &BTreeMap<String, UserBoxMethodTargetFacts>,
     typed_plan_type_ids: &BTreeMap<String, u32>,
     param_box_origins: &ParamBoxOriginMap,
+    field_box_origins: &FieldBoxOriginMap,
 ) {
     let mut routes = Vec::new();
-    let user_box_names = targets
+    let mut user_box_names = targets
         .values()
         .map(|target| target.box_name.clone())
         .collect::<BTreeSet<_>>();
+    user_box_names.extend(typed_plan_type_ids.keys().cloned());
     let def_map = build_value_def_map(function);
     let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
     block_ids.sort_by_key(|id| id.as_u32());
@@ -431,6 +499,7 @@ fn refresh_function_user_box_method_routes_with_context(
                 *certainty,
                 *receiver,
                 param_box_origins,
+                field_box_origins,
             ) else {
                 continue;
             };
@@ -449,6 +518,7 @@ fn refresh_function_user_box_method_routes_with_context(
                 target_arity: target.map(|target| target.arity),
                 target_return_type: target.map(|target| target.return_type.clone()),
                 target_inferred_return: target.and_then(|target| target.inferred_return),
+                target_result_box_name: target.and_then(|target| target.result_box_name.clone()),
                 target_body_supported: target.map(|target| target.body_supported).unwrap_or(false),
                 type_id,
             });
@@ -461,11 +531,19 @@ fn refresh_function_user_box_method_routes_with_context(
 fn infer_user_box_method_param_box_origins(
     module: &MirModule,
     targets: &BTreeMap<String, UserBoxMethodTargetFacts>,
+    field_box_origins: &FieldBoxOriginMap,
 ) -> ParamBoxOriginMap {
-    let user_box_names = targets
+    let mut user_box_names = targets
         .values()
         .map(|target| target.box_name.clone())
         .collect::<BTreeSet<_>>();
+    user_box_names.extend(
+        module
+            .metadata
+            .typed_object_plans
+            .iter()
+            .map(|plan| plan.box_name.clone()),
+    );
     let mut origins = ParamBoxOriginMap::new();
 
     for _ in 0..module.functions.len().max(1) {
@@ -501,6 +579,7 @@ fn infer_user_box_method_param_box_origins(
                         *certainty,
                         *receiver,
                         &current,
+                        field_box_origins,
                     ) else {
                         continue;
                     };
@@ -515,9 +594,13 @@ fn infer_user_box_method_param_box_origins(
                         route_box_name,
                     );
                     for (arg_index, arg) in args.iter().enumerate() {
-                        let Some(arg_box_name) =
-                            user_box_value_box_name(function, &def_map, *arg, &current)
-                        else {
+                        let Some(arg_box_name) = user_box_value_box_name(
+                            function,
+                            &def_map,
+                            *arg,
+                            &current,
+                            field_box_origins,
+                        ) else {
                             continue;
                         };
                         if !user_box_names.contains(&arg_box_name) {
@@ -540,9 +623,230 @@ fn infer_user_box_method_param_box_origins(
     origins
 }
 
+fn infer_user_box_field_box_origins(
+    module: &MirModule,
+    targets: &BTreeMap<String, UserBoxMethodTargetFacts>,
+    param_box_origins: &ParamBoxOriginMap,
+) -> FieldBoxOriginMap {
+    let mut user_box_names = targets
+        .values()
+        .map(|target| target.box_name.clone())
+        .collect::<BTreeSet<_>>();
+    user_box_names.extend(
+        module
+            .metadata
+            .typed_object_plans
+            .iter()
+            .map(|plan| plan.box_name.clone()),
+    );
+    let birth_field_params = collect_birth_field_param_bindings(module);
+    let mut origins = FieldBoxOriginMap::new();
+
+    for _ in 0..module.functions.len().saturating_mul(2).max(1) {
+        let current = origins.clone();
+        let mut changed = false;
+        for function in module.functions.values() {
+            let def_map = build_value_def_map(function);
+            for block_id in sorted_block_ids(function) {
+                let Some(block) = function.blocks.get(&block_id) else {
+                    continue;
+                };
+                for instruction in &block.instructions {
+                    let MirInstruction::FieldSet {
+                        base, field, value, ..
+                    } = instruction
+                    else {
+                        continue;
+                    };
+                    let Some(base_box) = user_box_value_box_name(
+                        function,
+                        &def_map,
+                        *base,
+                        param_box_origins,
+                        &current,
+                    ) else {
+                        continue;
+                    };
+                    let Some(value_box) = user_box_value_box_name(
+                        function,
+                        &def_map,
+                        *value,
+                        param_box_origins,
+                        &current,
+                    ) else {
+                        continue;
+                    };
+                    if !user_box_names.contains(&base_box)
+                        || !(user_box_names.contains(&value_box) || value_box == "StringBox")
+                    {
+                        continue;
+                    }
+                    changed |=
+                        merge_field_box_origin(&mut origins, (base_box, field.clone()), value_box);
+                }
+                for instruction in &block.instructions {
+                    let MirInstruction::Call {
+                        callee:
+                            Some(Callee::Method {
+                                box_name,
+                                method,
+                                receiver: Some(receiver),
+                                certainty,
+                                ..
+                            }),
+                        args,
+                        ..
+                    } = instruction
+                    else {
+                        continue;
+                    };
+                    if method != "birth" {
+                        continue;
+                    }
+                    let Some(route_box_name) = user_box_route_receiver_box_name(
+                        function,
+                        &def_map,
+                        &user_box_names,
+                        box_name,
+                        *certainty,
+                        *receiver,
+                        param_box_origins,
+                        &current,
+                    ) else {
+                        continue;
+                    };
+                    for ((birth_box, field), param_index) in &birth_field_params {
+                        if birth_box != &route_box_name || *param_index == 0 {
+                            continue;
+                        }
+                        let Some(arg) = args.get(param_index - 1) else {
+                            continue;
+                        };
+                        let Some(value_box) = user_box_value_box_name(
+                            function,
+                            &def_map,
+                            *arg,
+                            param_box_origins,
+                            &current,
+                        ) else {
+                            continue;
+                        };
+                        if !(user_box_names.contains(&value_box) || value_box == "StringBox") {
+                            continue;
+                        }
+                        changed |= merge_field_box_origin(
+                            &mut origins,
+                            (route_box_name.clone(), field.clone()),
+                            value_box,
+                        );
+                    }
+                }
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+
+    origins
+}
+
+fn collect_birth_field_param_bindings(module: &MirModule) -> BTreeMap<(String, String), usize> {
+    let mut bindings = BTreeMap::new();
+    for (name, function) in &module.functions {
+        let Some((box_name, method, _arity)) = parse_method_symbol(name) else {
+            continue;
+        };
+        if method != "birth" {
+            continue;
+        }
+        let def_map = build_value_def_map(function);
+        let receiver = function.params.first().copied();
+        for block_id in sorted_block_ids(function) {
+            let Some(block) = function.blocks.get(&block_id) else {
+                continue;
+            };
+            for instruction in &block.instructions {
+                let MirInstruction::FieldSet {
+                    base, field, value, ..
+                } = instruction
+                else {
+                    continue;
+                };
+                if Some(resolve_value_origin(function, &def_map, *base)) != receiver {
+                    continue;
+                }
+                let value_origin = resolve_value_origin(function, &def_map, *value);
+                let Some(param_index) = function
+                    .params
+                    .iter()
+                    .position(|param| param == value)
+                    .or_else(|| {
+                        function
+                            .params
+                            .iter()
+                            .position(|param| *param == value_origin)
+                    })
+                else {
+                    continue;
+                };
+                bindings.insert((box_name.to_string(), field.clone()), param_index);
+            }
+        }
+    }
+    bindings
+}
+
+fn build_user_box_field_return_hints(
+    module: &MirModule,
+    field_box_origins: &FieldBoxOriginMap,
+) -> UserBoxFieldReturnHints {
+    let mut hints = UserBoxFieldReturnHints::new();
+    for plan in &module.metadata.typed_object_plans {
+        for field in &plan.fields {
+            let hint = match field.storage {
+                TypedObjectFieldStorage::I64 => UserBoxMethodInferredReturn::ScalarI64,
+                TypedObjectFieldStorage::Handle => UserBoxMethodInferredReturn::ObjectHandle,
+            };
+            hints.insert((plan.box_name.clone(), field.name.clone()), hint);
+        }
+    }
+    for ((box_name, field), origin) in field_box_origins {
+        let Some(field_box) = box_origin_known(origin) else {
+            continue;
+        };
+        let hint = if field_box == "StringBox" {
+            UserBoxMethodInferredReturn::StringHandle
+        } else {
+            UserBoxMethodInferredReturn::ObjectHandle
+        };
+        hints.insert((box_name.clone(), field.clone()), hint);
+    }
+    hints
+}
+
 fn merge_param_box_origin(
     origins: &mut ParamBoxOriginMap,
     key: ParamBoxOriginKey,
+    box_name: String,
+) -> bool {
+    match origins.get(&key) {
+        Some(BoxOriginInference::Known(existing)) if existing == &box_name => false,
+        Some(BoxOriginInference::Conflict) => false,
+        Some(BoxOriginInference::Known(_)) => {
+            origins.insert(key, BoxOriginInference::Conflict);
+            true
+        }
+        None => {
+            origins.insert(key, BoxOriginInference::Known(box_name));
+            true
+        }
+    }
+}
+
+fn merge_field_box_origin(
+    origins: &mut FieldBoxOriginMap,
+    key: FieldBoxOriginKey,
     box_name: String,
 ) -> bool {
     match origins.get(&key) {
@@ -567,12 +871,19 @@ fn user_box_route_receiver_box_name(
     certainty: TypeCertainty,
     receiver: ValueId,
     param_box_origins: &ParamBoxOriginMap,
+    field_box_origins: &FieldBoxOriginMap,
 ) -> Option<String> {
     if certainty == TypeCertainty::Known && user_box_names.contains(callee_box_name) {
         return Some(callee_box_name.to_string());
     }
-    user_box_value_box_name(function, def_map, receiver, param_box_origins)
-        .filter(|box_name| user_box_names.contains(box_name))
+    user_box_value_box_name(
+        function,
+        def_map,
+        receiver,
+        param_box_origins,
+        field_box_origins,
+    )
+    .filter(|box_name| user_box_names.contains(box_name))
 }
 
 fn user_box_value_box_name(
@@ -580,18 +891,43 @@ fn user_box_value_box_name(
     def_map: &ValueDefMap,
     value: ValueId,
     param_box_origins: &ParamBoxOriginMap,
+    field_box_origins: &FieldBoxOriginMap,
 ) -> Option<String> {
     let origin = resolve_value_origin(function, def_map, value);
     if let Some(box_name) = value_box_name(function, origin).map(str::to_string) {
         return Some(box_name);
     }
+    if let Some(box_name) = route_result_box_name(function, origin).map(str::to_string) {
+        return Some(box_name);
+    }
     if let Some((block_id, instruction_index)) = def_map.get(&origin).copied() {
         let block = function.blocks.get(&block_id)?;
         match block.instructions.get(instruction_index)? {
+            MirInstruction::Const {
+                value: ConstValue::String(_),
+                ..
+            } => return Some("StringBox".to_string()),
             MirInstruction::NewBox { box_type, .. } => return Some(box_type.clone()),
-            MirInstruction::Phi { type_hint, .. } => {
+            MirInstruction::Phi {
+                inputs, type_hint, ..
+            } => {
                 if let Some(box_name) = type_hint.as_ref().and_then(box_name_from_type) {
                     return Some(box_name.to_string());
+                }
+                if let Some(box_name) = phi_input_box_name(function, def_map, inputs) {
+                    return Some(box_name);
+                }
+            }
+            MirInstruction::FieldGet { base, field, .. } => {
+                let base_box = user_box_value_box_name(
+                    function,
+                    def_map,
+                    *base,
+                    param_box_origins,
+                    field_box_origins,
+                )?;
+                if let Some(field_box) = field_box_origin(field_box_origins, &base_box, field) {
+                    return Some(field_box);
                 }
             }
             _ => {}
@@ -607,6 +943,63 @@ fn user_box_value_box_name(
                     .then(|| method_receiver_box_name(&function.signature.name))
                     .flatten()
             })
+        })
+}
+
+fn phi_input_box_name(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    inputs: &[(BasicBlockId, ValueId)],
+) -> Option<String> {
+    let mut inferred = None;
+    for (_, input) in inputs {
+        let origin = resolve_value_origin(function, def_map, *input);
+        let box_name = value_box_name(function, origin)
+            .or_else(|| route_result_box_name(function, origin))?
+            .to_string();
+        inferred = match inferred {
+            None => Some(box_name),
+            Some(existing) if existing == box_name => Some(existing),
+            _ => return None,
+        };
+    }
+    inferred
+}
+
+fn route_result_box_name(function: &MirFunction, value: ValueId) -> Option<&str> {
+    function
+        .metadata
+        .user_box_method_routes
+        .iter()
+        .find(|route| route.reason().is_none() && route.result_value() == Some(value))
+        .and_then(UserBoxMethodRoute::target_result_box_name)
+        .or_else(|| {
+            function
+                .metadata
+                .generic_method_routes
+                .iter()
+                .find(|route| route.result_value() == Some(value))
+                .and_then(generic_method_route_result_box_name)
+        })
+        .or_else(|| {
+            function
+                .metadata
+                .global_call_routes
+                .iter()
+                .find(|route| route.result_value() == Some(value))
+                .and_then(global_call_route_result_box_name)
+        })
+}
+
+fn generic_method_route_result_box_name(
+    route: &crate::mir::generic_method_route_plan::GenericMethodRoute,
+) -> Option<&str> {
+    route
+        .result_origin_box()
+        .or_else(|| match route.route_kind_tag() {
+            "string_substring" => Some("StringBox"),
+            "map_keys_array" => Some("ArrayBox"),
+            _ => None,
         })
 }
 
@@ -628,7 +1021,22 @@ fn value_box_name(function: &MirFunction, value: ValueId) -> Option<&str> {
 
 fn box_name_from_type(ty: &MirType) -> Option<&str> {
     match ty {
+        MirType::String => Some("StringBox"),
         MirType::Box(name) => Some(name.as_str()),
+        _ => None,
+    }
+}
+
+fn global_call_route_result_box_name(
+    route: &crate::mir::global_call_route_plan::GlobalCallRoute,
+) -> Option<&'static str> {
+    if route.result_origin() == "string" {
+        return Some("StringBox");
+    }
+    match route.return_shape() {
+        Some("string_handle" | "string_handle_or_null") => Some("StringBox"),
+        Some("array_handle") => Some("ArrayBox"),
+        Some("map_handle") => Some("MapBox"),
         _ => None,
     }
 }
@@ -641,6 +1049,24 @@ fn param_box_origin(
     match param_box_origins.get(&(function_name.to_string(), index)) {
         Some(BoxOriginInference::Known(box_name)) => Some(box_name.clone()),
         Some(BoxOriginInference::Conflict) | None => None,
+    }
+}
+
+fn field_box_origin(
+    field_box_origins: &FieldBoxOriginMap,
+    box_name: &str,
+    field: &str,
+) -> Option<String> {
+    match field_box_origins.get(&(box_name.to_string(), field.to_string())) {
+        Some(BoxOriginInference::Known(field_box)) => Some(field_box.clone()),
+        Some(BoxOriginInference::Conflict) | None => None,
+    }
+}
+
+fn box_origin_known(origin: &BoxOriginInference) -> Option<&str> {
+    match origin {
+        BoxOriginInference::Known(box_name) => Some(box_name.as_str()),
+        BoxOriginInference::Conflict => None,
     }
 }
 
@@ -662,12 +1088,14 @@ struct UserBoxMethodTargetFacts {
     arity: usize,
     return_type: MirType,
     inferred_return: Option<UserBoxMethodInferredReturn>,
+    result_box_name: Option<String>,
     body_supported: bool,
 }
 
 fn collect_method_targets(
     module: &MirModule,
     typed_plan_type_ids: &BTreeMap<String, u32>,
+    field_return_hints: &UserBoxFieldReturnHints,
 ) -> BTreeMap<String, UserBoxMethodTargetFacts> {
     module
         .functions
@@ -695,7 +1123,8 @@ fn collect_method_targets(
                     box_name: box_name.to_string(),
                     arity: target_arity,
                     return_type: function.signature.return_type.clone(),
-                    inferred_return: infer_user_box_method_return(function),
+                    inferred_return: infer_user_box_method_return(function, field_return_hints),
+                    result_box_name: infer_user_box_method_result_box_name(function),
                     body_supported: user_box_method_body_supported(function, typed_plan_type_ids),
                 },
             ))
@@ -712,6 +1141,96 @@ fn parse_method_symbol(name: &str) -> Option<(&str, &str, usize)> {
 
 fn method_target_symbol(box_name: &str, method: &str, arity: usize) -> String {
     format!("{box_name}.{method}/{arity}")
+}
+
+fn infer_user_box_method_result_box_name(function: &MirFunction) -> Option<String> {
+    let def_map = build_value_def_map(function);
+    let mut result = None;
+    let mut saw_box = false;
+    for block in function.blocks.values() {
+        for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+            let MirInstruction::Return { value: Some(value) } = instruction else {
+                continue;
+            };
+            let mut visiting = BTreeSet::new();
+            let box_name = return_value_box_name(function, &def_map, *value, &mut visiting)?;
+            let Some(box_name) = box_name else {
+                continue;
+            };
+            saw_box = true;
+            match &result {
+                None => result = Some(box_name),
+                Some(existing) if existing == &box_name => {}
+                Some(_) => return None,
+            }
+        }
+    }
+    if saw_box {
+        result
+    } else {
+        None
+    }
+}
+
+fn return_value_box_name(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+    visiting: &mut BTreeSet<ValueId>,
+) -> Option<Option<String>> {
+    let origin = resolve_value_origin(function, def_map, value);
+    if !visiting.insert(origin) {
+        return None;
+    }
+    let result = return_value_box_name_inner(function, def_map, origin, visiting);
+    visiting.remove(&origin);
+    result
+}
+
+fn return_value_box_name_inner(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    origin: ValueId,
+    visiting: &mut BTreeSet<ValueId>,
+) -> Option<Option<String>> {
+    if let Some(box_name) = value_box_name(function, origin) {
+        return Some(Some(box_name.to_string()));
+    }
+    if let Some(box_name) = route_result_box_name(function, origin) {
+        return Some(Some(box_name.to_string()));
+    }
+    let Some((block_id, instruction_index)) = def_map.get(&origin).copied() else {
+        return None;
+    };
+    let block = function.blocks.get(&block_id)?;
+    match block.instructions.get(instruction_index)? {
+        MirInstruction::Const {
+            value: ConstValue::Null | ConstValue::Void,
+            ..
+        } => Some(None),
+        MirInstruction::NewBox { box_type, .. } => Some(Some(box_type.clone())),
+        MirInstruction::Phi {
+            inputs, type_hint, ..
+        } => {
+            if let Some(box_name) = type_hint.as_ref().and_then(box_name_from_type) {
+                return Some(Some(box_name.to_string()));
+            }
+            let mut result = None;
+            for (_incoming_block, incoming_value) in inputs {
+                let box_name = return_value_box_name(function, def_map, *incoming_value, visiting)?;
+                let Some(box_name) = box_name else {
+                    continue;
+                };
+                match &result {
+                    None => result = Some(box_name),
+                    Some(existing) if existing == &box_name => {}
+                    Some(_) => return None,
+                }
+            }
+            Some(result)
+        }
+        _ => None,
+    }
 }
 
 fn format_user_box_method_type_label(ty: &MirType) -> String {
@@ -732,9 +1251,13 @@ fn format_user_box_method_type_label(ty: &MirType) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::function::TypedObjectPlan;
-    use crate::mir::generic_method_route_plan::test_support::array_push;
-    use crate::mir::{BasicBlock, ConstValue, EffectMask, FunctionSignature, MirInstruction};
+    use crate::mir::function::{TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan};
+    use crate::mir::generic_method_route_plan::test_support::{
+        array_push, runtime_data_map_get_mixed_i64_key_with_result_origin_box,
+    };
+    use crate::mir::{
+        BasicBlock, BinaryOp, ConstValue, EffectMask, FunctionSignature, MirInstruction,
+    };
 
     #[test]
     fn refresh_module_user_box_method_routes_accepts_birth_same_module_target() {
@@ -1021,6 +1544,9 @@ mod tests {
             dst: ValueId::new(4),
             value: ConstValue::Void,
         });
+        add_block.add_instruction(MirInstruction::KeepAlive {
+            values: vec![ValueId::new(0), ValueId::new(1)],
+        });
         add_block.set_terminator(MirInstruction::Return {
             value: Some(ValueId::new(4)),
         });
@@ -1166,7 +1692,7 @@ mod tests {
             FunctionSignature {
                 name: "Manifest.name/0".to_string(),
                 params: vec![MirType::Box("Manifest".to_string())],
-                return_type: MirType::Box("StringBox".to_string()),
+                return_type: MirType::Integer,
                 effects: EffectMask::PURE,
             },
             BasicBlockId::new(0),
@@ -1177,8 +1703,13 @@ mod tests {
             dst: ValueId::new(1),
             value: ConstValue::String("payload-a".to_string()),
         });
+        name_block.add_instruction(MirInstruction::Phi {
+            dst: ValueId::new(3),
+            inputs: vec![(BasicBlockId::new(0), ValueId::new(1))],
+            type_hint: Some(MirType::Integer),
+        });
         name_block.set_terminator(MirInstruction::Return {
-            value: Some(ValueId::new(1)),
+            value: Some(ValueId::new(3)),
         });
         name.add_block(name_block);
 
@@ -1457,6 +1988,10 @@ mod tests {
         assert_eq!(route.box_name(), "Store");
         assert_eq!(route.reason(), None, "{route:?}");
         assert_eq!(route.return_shape(), Some("string_handle"));
+        assert_eq!(
+            run.metadata.value_types.get(&ValueId::new(1)),
+            Some(&MirType::Box("Store".to_string()))
+        );
 
         let main = module.get_function("main").expect("main");
         let route = main
@@ -1467,6 +2002,622 @@ mod tests {
             .expect("Worker.run route");
         assert_eq!(route.reason(), None, "{route:?}");
         assert_eq!(route.return_shape(), Some("string_handle"));
+    }
+
+    #[test]
+    fn refresh_module_user_box_method_routes_recovers_receiver_box_from_generic_result_origin() {
+        let mut module = MirModule::new("user_box_generic_result_receiver_route_test".to_string());
+        for name in ["ContentChunk", "Store"] {
+            module
+                .metadata
+                .user_box_decls
+                .insert(name.to_string(), Vec::new());
+        }
+        module.metadata.typed_object_plans.push(TypedObjectPlan {
+            box_name: "ContentChunk".to_string(),
+            type_id: 21,
+            layout_kind: "runtime_slot_object_v0".to_string(),
+            field_count: 0,
+            fields: Vec::new(),
+        });
+        module.metadata.typed_object_plans.push(TypedObjectPlan {
+            box_name: "Store".to_string(),
+            type_id: 22,
+            layout_kind: "runtime_slot_object_v0".to_string(),
+            field_count: 0,
+            fields: Vec::new(),
+        });
+
+        let mut retain = MirFunction::new(
+            FunctionSignature {
+                name: "ContentChunk.retain/0".to_string(),
+                params: vec![MirType::Box("ContentChunk".to_string())],
+                return_type: MirType::Unknown,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        retain.params = vec![ValueId::new(0)];
+        let mut retain_block = BasicBlock::new(BasicBlockId::new(0));
+        retain_block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(1),
+            src: ValueId::new(0),
+        });
+        retain_block.add_instruction(MirInstruction::FieldGet {
+            dst: ValueId::new(2),
+            base: ValueId::new(1),
+            field: "ref_count".to_string(),
+            declared_type: None,
+        });
+        retain_block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(3),
+            src: ValueId::new(2),
+        });
+        retain_block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(4),
+            value: ConstValue::Integer(1),
+        });
+        retain_block.add_instruction(MirInstruction::BinOp {
+            dst: ValueId::new(5),
+            op: BinaryOp::Add,
+            lhs: ValueId::new(3),
+            rhs: ValueId::new(4),
+        });
+        retain_block.add_instruction(MirInstruction::FieldSet {
+            base: ValueId::new(1),
+            field: "ref_count".to_string(),
+            value: ValueId::new(5),
+            declared_type: None,
+        });
+        retain_block.add_instruction(MirInstruction::FieldGet {
+            dst: ValueId::new(6),
+            base: ValueId::new(1),
+            field: "ref_count".to_string(),
+            declared_type: None,
+        });
+        retain_block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(7),
+            src: ValueId::new(6),
+        });
+        retain_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(7)),
+        });
+        retain.add_block(retain_block);
+        retain
+            .metadata
+            .value_types
+            .insert(ValueId::new(5), MirType::Integer);
+
+        let mut put = MirFunction::new(
+            FunctionSignature {
+                name: "Store.put/0".to_string(),
+                params: vec![MirType::Box("Store".to_string())],
+                return_type: MirType::Unknown,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        put.params = vec![ValueId::new(0)];
+        let mut put_block = BasicBlock::new(BasicBlockId::new(0));
+        put_block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::Integer(7),
+        });
+        put_block.add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(2)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "get".to_string(),
+                receiver: Some(ValueId::new(10)),
+                certainty: TypeCertainty::Union,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![ValueId::new(1)],
+            effects: EffectMask::PURE,
+        });
+        put_block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(3),
+            src: ValueId::new(2),
+        });
+        put_block.add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(4)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "retain".to_string(),
+                receiver: Some(ValueId::new(3)),
+                certainty: TypeCertainty::Union,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+            }),
+            args: Vec::new(),
+            effects: EffectMask::PURE,
+        });
+        put_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(4)),
+        });
+        put.add_block(put_block);
+        put.metadata.generic_method_routes.push(
+            runtime_data_map_get_mixed_i64_key_with_result_origin_box(
+                0,
+                1,
+                10,
+                1,
+                2,
+                "ContentChunk",
+            ),
+        );
+
+        let mut main = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let mut main_block = BasicBlock::new(BasicBlockId::new(0));
+        main_block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(20),
+            box_type: "Store".to_string(),
+            args: Vec::new(),
+        });
+        main_block.add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(21)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "put".to_string(),
+                receiver: Some(ValueId::new(20)),
+                certainty: TypeCertainty::Union,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+            }),
+            args: Vec::new(),
+            effects: EffectMask::PURE,
+        });
+        main_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(21)),
+        });
+        main.add_block(main_block);
+
+        module.add_function(retain);
+        module.add_function(put);
+        module.add_function(main);
+
+        refresh_module_user_box_method_routes(&mut module);
+
+        let put = module.get_function("Store.put/0").expect("Store.put");
+        let retain_route = put
+            .metadata
+            .user_box_method_routes
+            .iter()
+            .find(|route| route.method() == "retain")
+            .expect("ContentChunk.retain route");
+        assert_eq!(retain_route.box_name(), "ContentChunk");
+        assert_eq!(retain_route.reason(), None, "{retain_route:?}");
+        assert_eq!(retain_route.return_shape(), Some("scalar_i64"));
+
+        let main = module.get_function("main").expect("main");
+        let put_route = main
+            .metadata
+            .user_box_method_routes
+            .iter()
+            .find(|route| route.method() == "put")
+            .expect("Store.put route");
+        assert_eq!(put_route.box_name(), "Store");
+        assert_eq!(put_route.reason(), None, "{put_route:?}");
+        assert_eq!(put_route.return_shape(), Some("scalar_i64"));
+    }
+
+    #[test]
+    fn refresh_module_user_box_method_routes_refines_placeholder_param_for_string_field_return() {
+        let mut module = MirModule::new("user_box_string_field_return_refinement_test".to_string());
+        for name in ["ContentChunk", "Store"] {
+            module
+                .metadata
+                .user_box_decls
+                .insert(name.to_string(), Vec::new());
+        }
+        module.metadata.typed_object_plans.push(TypedObjectPlan {
+            box_name: "ContentChunk".to_string(),
+            type_id: 41,
+            layout_kind: "runtime_slot_object_v0".to_string(),
+            field_count: 1,
+            fields: vec![TypedObjectFieldPlan {
+                name: "data".to_string(),
+                slot: 0,
+                declared_type_name: None,
+                storage: TypedObjectFieldStorage::Handle,
+                is_weak: false,
+            }],
+        });
+        module.metadata.typed_object_plans.push(TypedObjectPlan {
+            box_name: "Store".to_string(),
+            type_id: 42,
+            layout_kind: "runtime_slot_object_v0".to_string(),
+            field_count: 0,
+            fields: Vec::new(),
+        });
+
+        let mut chunk_birth = MirFunction::new(
+            FunctionSignature {
+                name: "ContentChunk.birth/1".to_string(),
+                params: vec![MirType::Box("ContentChunk".to_string()), MirType::Integer],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        chunk_birth.params = vec![ValueId::new(0), ValueId::new(1)];
+        let mut chunk_birth_block = BasicBlock::new(BasicBlockId::new(0));
+        chunk_birth_block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(2),
+            src: ValueId::new(0),
+        });
+        chunk_birth_block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(3),
+            src: ValueId::new(1),
+        });
+        chunk_birth_block.add_instruction(MirInstruction::FieldSet {
+            base: ValueId::new(2),
+            field: "data".to_string(),
+            value: ValueId::new(3),
+            declared_type: None,
+        });
+        chunk_birth_block.set_terminator(MirInstruction::Return { value: None });
+        chunk_birth.add_block(chunk_birth_block);
+
+        let mut put = MirFunction::new(
+            FunctionSignature {
+                name: "Store.put/1".to_string(),
+                params: vec![MirType::Box("Store".to_string()), MirType::Integer],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        put.params = vec![ValueId::new(10), ValueId::new(11)];
+        let mut put_block = BasicBlock::new(BasicBlockId::new(0));
+        put_block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(12),
+            box_type: "ContentChunk".to_string(),
+            args: vec![ValueId::new(11)],
+        });
+        put_block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(13),
+            src: ValueId::new(12),
+        });
+        put_block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(14),
+            src: ValueId::new(11),
+        });
+        put_block.add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(15)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "ContentChunk".to_string(),
+                method: "birth".to_string(),
+                receiver: Some(ValueId::new(13)),
+                certainty: TypeCertainty::Known,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::UserDefined,
+            }),
+            args: vec![ValueId::new(14)],
+            effects: EffectMask::PURE,
+        });
+        put_block.set_terminator(MirInstruction::Return { value: None });
+        put.add_block(put_block);
+
+        let mut read_data = MirFunction::new(
+            FunctionSignature {
+                name: "Store.readData/1".to_string(),
+                params: vec![
+                    MirType::Box("Store".to_string()),
+                    MirType::Box("StringBox".to_string()),
+                ],
+                return_type: MirType::Unknown,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        read_data.params = vec![ValueId::new(20), ValueId::new(21)];
+        let mut read_block = BasicBlock::new(BasicBlockId::new(0));
+        read_block.add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(22)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "get".to_string(),
+                receiver: Some(ValueId::new(30)),
+                certainty: TypeCertainty::Union,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![ValueId::new(21)],
+            effects: EffectMask::PURE,
+        });
+        read_block.add_instruction(MirInstruction::FieldGet {
+            dst: ValueId::new(23),
+            base: ValueId::new(22),
+            field: "data".to_string(),
+            declared_type: None,
+        });
+        read_block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(24),
+            src: ValueId::new(23),
+        });
+        read_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(24)),
+        });
+        read_data.add_block(read_block);
+        read_data.metadata.generic_method_routes.push(
+            runtime_data_map_get_mixed_i64_key_with_result_origin_box(
+                0,
+                0,
+                30,
+                21,
+                22,
+                "ContentChunk",
+            ),
+        );
+
+        let mut main = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: Vec::new(),
+                return_type: MirType::Box("StringBox".to_string()),
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let mut main_block = BasicBlock::new(BasicBlockId::new(0));
+        main_block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(40),
+            box_type: "Store".to_string(),
+            args: Vec::new(),
+        });
+        main_block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(41),
+            value: ConstValue::String("chunk".to_string()),
+        });
+        main_block.add_instruction(MirInstruction::Call {
+            dst: None,
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "Store".to_string(),
+                method: "put".to_string(),
+                receiver: Some(ValueId::new(40)),
+                certainty: TypeCertainty::Known,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::UserDefined,
+            }),
+            args: vec![ValueId::new(41)],
+            effects: EffectMask::PURE,
+        });
+        main_block.add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(42)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "Store".to_string(),
+                method: "readData".to_string(),
+                receiver: Some(ValueId::new(40)),
+                certainty: TypeCertainty::Known,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::UserDefined,
+            }),
+            args: vec![ValueId::new(41)],
+            effects: EffectMask::PURE,
+        });
+        main_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(42)),
+        });
+        main.add_block(main_block);
+
+        module.add_function(chunk_birth);
+        module.add_function(put);
+        module.add_function(read_data);
+        module.add_function(main);
+
+        refresh_module_user_box_method_routes(&mut module);
+
+        let put = module.get_function("Store.put/1").expect("Store.put");
+        assert_eq!(
+            put.metadata.value_types.get(&ValueId::new(11)),
+            Some(&MirType::Box("StringBox".to_string()))
+        );
+
+        let read_data = module
+            .get_function("Store.readData/1")
+            .expect("Store.readData");
+        assert_eq!(
+            read_data.metadata.value_types.get(&ValueId::new(23)),
+            Some(&MirType::Box("StringBox".to_string()))
+        );
+
+        let main = module.get_function("main").expect("main");
+        let read_route = main
+            .metadata
+            .user_box_method_routes
+            .iter()
+            .find(|route| route.method() == "readData")
+            .expect("Store.readData route");
+        assert_eq!(read_route.reason(), None, "{read_route:?}");
+        assert_eq!(read_route.return_shape(), Some("string_handle"));
+        assert_eq!(read_route.target_result_box_name(), Some("StringBox"));
+    }
+
+    #[test]
+    fn refresh_module_user_box_method_routes_recovers_receiver_box_from_field_origin() {
+        let mut module = MirModule::new("user_box_field_receiver_route_test".to_string());
+        for name in ["Heap", "Store"] {
+            module
+                .metadata
+                .user_box_decls
+                .insert(name.to_string(), Vec::new());
+        }
+        module.metadata.typed_object_plans.push(TypedObjectPlan {
+            box_name: "Heap".to_string(),
+            type_id: 31,
+            layout_kind: "runtime_slot_object_v0".to_string(),
+            field_count: 0,
+            fields: Vec::new(),
+        });
+        module.metadata.typed_object_plans.push(TypedObjectPlan {
+            box_name: "Store".to_string(),
+            type_id: 32,
+            layout_kind: "runtime_slot_object_v0".to_string(),
+            field_count: 0,
+            fields: Vec::new(),
+        });
+
+        let mut allocate = MirFunction::new(
+            FunctionSignature {
+                name: "Heap.allocate/0".to_string(),
+                params: vec![MirType::Box("Heap".to_string())],
+                return_type: MirType::Unknown,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        allocate.params = vec![ValueId::new(0)];
+        let mut allocate_block = BasicBlock::new(BasicBlockId::new(0));
+        allocate_block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::Integer(99),
+        });
+        allocate_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(1)),
+        });
+        allocate.add_block(allocate_block);
+
+        let mut birth = MirFunction::new(
+            FunctionSignature {
+                name: "Store.birth/0".to_string(),
+                params: vec![MirType::Box("Store".to_string())],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        birth.params = vec![ValueId::new(0)];
+        let mut birth_block = BasicBlock::new(BasicBlockId::new(0));
+        birth_block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "Heap".to_string(),
+            args: Vec::new(),
+        });
+        birth_block.add_instruction(MirInstruction::FieldSet {
+            base: ValueId::new(0),
+            field: "allocator".to_string(),
+            value: ValueId::new(1),
+            declared_type: None,
+        });
+        birth_block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::Void,
+        });
+        birth_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(2)),
+        });
+        birth.add_block(birth_block);
+
+        let mut put = MirFunction::new(
+            FunctionSignature {
+                name: "Store.put/0".to_string(),
+                params: vec![MirType::Box("Store".to_string())],
+                return_type: MirType::Unknown,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        put.params = vec![ValueId::new(0)];
+        let mut put_block = BasicBlock::new(BasicBlockId::new(0));
+        put_block.add_instruction(MirInstruction::FieldGet {
+            dst: ValueId::new(1),
+            base: ValueId::new(0),
+            field: "allocator".to_string(),
+            declared_type: None,
+        });
+        put_block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(2),
+            src: ValueId::new(1),
+        });
+        put_block.add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(3)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "allocate".to_string(),
+                receiver: Some(ValueId::new(2)),
+                certainty: TypeCertainty::Union,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+            }),
+            args: Vec::new(),
+            effects: EffectMask::PURE,
+        });
+        put_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(3)),
+        });
+        put.add_block(put_block);
+
+        let mut main = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let mut main_block = BasicBlock::new(BasicBlockId::new(0));
+        main_block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(10),
+            box_type: "Store".to_string(),
+            args: Vec::new(),
+        });
+        main_block.add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(11)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "put".to_string(),
+                receiver: Some(ValueId::new(10)),
+                certainty: TypeCertainty::Union,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+            }),
+            args: Vec::new(),
+            effects: EffectMask::PURE,
+        });
+        main_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(11)),
+        });
+        main.add_block(main_block);
+
+        module.add_function(allocate);
+        module.add_function(birth);
+        module.add_function(put);
+        module.add_function(main);
+
+        refresh_module_user_box_method_routes(&mut module);
+
+        let put = module.get_function("Store.put/0").expect("Store.put");
+        let allocate_route = put
+            .metadata
+            .user_box_method_routes
+            .iter()
+            .find(|route| route.method() == "allocate")
+            .expect("Heap.allocate route");
+        assert_eq!(allocate_route.box_name(), "Heap");
+        assert_eq!(allocate_route.reason(), None, "{allocate_route:?}");
+        assert_eq!(allocate_route.return_shape(), Some("scalar_i64"));
+
+        let main = module.get_function("main").expect("main");
+        let put_route = main
+            .metadata
+            .user_box_method_routes
+            .iter()
+            .find(|route| route.method() == "put")
+            .expect("Store.put route");
+        assert_eq!(put_route.box_name(), "Store");
+        assert_eq!(put_route.reason(), None, "{put_route:?}");
+        assert_eq!(put_route.return_shape(), Some("scalar_i64"));
     }
 
     #[test]
@@ -1542,5 +2693,105 @@ mod tests {
         assert_eq!(route.value_demand(), "runtime_i64_or_handle");
         assert_eq!(route.result_origin(), "none");
         assert_eq!(route.definition_owner(), "typed_object_method");
+    }
+
+    #[test]
+    fn refresh_module_user_box_method_routes_accepts_nullable_object_handle_method_target() {
+        let mut module =
+            MirModule::new("user_box_nullable_object_handle_method_route_test".to_string());
+        for name in ["Allocator", "Handle"] {
+            module
+                .metadata
+                .user_box_decls
+                .insert(name.to_string(), Vec::new());
+        }
+        module.metadata.typed_object_plans.push(TypedObjectPlan {
+            box_name: "Allocator".to_string(),
+            type_id: 41,
+            layout_kind: "runtime_slot_object_v0".to_string(),
+            field_count: 0,
+            fields: Vec::new(),
+        });
+        module.metadata.typed_object_plans.push(TypedObjectPlan {
+            box_name: "Handle".to_string(),
+            type_id: 42,
+            layout_kind: "runtime_slot_object_v0".to_string(),
+            field_count: 0,
+            fields: Vec::new(),
+        });
+
+        let mut allocate = MirFunction::new(
+            FunctionSignature {
+                name: "Allocator.allocate/0".to_string(),
+                params: vec![MirType::Box("Allocator".to_string())],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        allocate.params = vec![ValueId::new(0)];
+        let mut null_block = BasicBlock::new(BasicBlockId::new(0));
+        null_block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::Null,
+        });
+        null_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(1)),
+        });
+        let mut handle_block = BasicBlock::new(BasicBlockId::new(1));
+        handle_block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(2),
+            box_type: "Handle".to_string(),
+            args: Vec::new(),
+        });
+        handle_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(2)),
+        });
+        allocate.add_block(null_block);
+        allocate.add_block(handle_block);
+
+        let mut main = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Box("Handle".to_string()),
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(3),
+            box_type: "Allocator".to_string(),
+            args: Vec::new(),
+        });
+        block.add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(4)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "allocate".to_string(),
+                receiver: Some(ValueId::new(3)),
+                certainty: TypeCertainty::Union,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+            }),
+            args: Vec::new(),
+            effects: EffectMask::PURE,
+        });
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(4)),
+        });
+        main.add_block(block);
+
+        module.add_function(allocate);
+        module.add_function(main);
+
+        refresh_module_user_box_method_routes(&mut module);
+
+        let main = module.get_function("main").expect("main");
+        let route = &main.metadata.user_box_method_routes[0];
+        assert_eq!(route.reason(), None, "{route:?}");
+        assert_eq!(route.return_shape(), Some("object_handle"));
+        assert_eq!(route.value_demand(), "runtime_i64_or_handle");
     }
 }

@@ -149,6 +149,32 @@ pub(crate) fn runtime_data_map_get_mixed_i64_key(
     })
 }
 
+pub(crate) fn runtime_data_map_get_mixed_i64_key_with_result_origin_box(
+    block: u32,
+    instruction_index: usize,
+    receiver: u32,
+    key: u32,
+    result: u32,
+    result_origin_box: &str,
+) -> GenericMethodRoute {
+    GenericMethodRoute::new(
+        site(block, instruction_index),
+        GenericMethodRouteSurface::new("RuntimeDataBox", "get", 1),
+        evidence(Some("MapBox"), Some(GenericMethodKeyRoute::I64Const))
+            .with_result_origin_box(Some(result_origin_box.to_string())),
+        operands(receiver, Some(key), result),
+        decision(
+            GenericMethodRouteKind::RuntimeDataLoadAny,
+            GenericMethodRouteProof::GetSurfacePolicy,
+            CoreMethodOp::MapGet,
+            CoreMethodLoweringTier::ColdFallback,
+            Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle),
+            GenericMethodValueDemand::RuntimeI64OrHandle,
+            Some(GenericMethodPublicationPolicy::RuntimeDataFacade),
+        ),
+    )
+}
+
 pub(crate) fn runtime_data_map_get_scalar_i64_same_key(
     block: u32,
     instruction_index: usize,

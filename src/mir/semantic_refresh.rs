@@ -42,7 +42,9 @@ use super::{
     refresh_function_thin_entry_selections, refresh_function_userbox_local_scalar_seed_route,
     refresh_function_userbox_loop_micro_seed_route, refresh_function_value_consumer_facts,
     substring_views_micro_seed_plan::refresh_function_substring_views_micro_seed_route,
-    typed_object_plan::refresh_module_typed_object_plans,
+    typed_object_plan::{
+        refresh_module_typed_object_field_value_types, refresh_module_typed_object_plans,
+    },
     user_box_method_route_plan::{
         refresh_function_user_box_method_routes, refresh_module_user_box_method_routes,
     },
@@ -110,6 +112,7 @@ pub fn refresh_function_semantic_metadata(
 /// Refresh MIR semantic metadata for the whole module.
 pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
     refresh_module_typed_object_plans(module);
+    refresh_module_typed_object_field_value_types(module);
     let module_metadata = module.metadata.clone();
     for function in module.functions.values_mut() {
         refresh_function_semantic_metadata(function, &module_metadata);
@@ -122,7 +125,9 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
         // discovered only at module scope.
         refresh_function_map_lookup_fusion_routes(function);
     }
+    refresh_module_typed_object_field_value_types(module);
     refresh_module_generic_method_routes(module);
+    refresh_module_global_call_routes(module);
     refresh_module_user_box_method_routes(module);
     refresh_module_userbox_known_receiver_method_seed_routes(module);
     refresh_module_exact_seed_backend_routes(module);

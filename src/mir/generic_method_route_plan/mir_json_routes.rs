@@ -14,6 +14,31 @@ use super::{
     GenericMethodRouteSite, GenericMethodRouteSurface, GenericMethodValueDemand,
 };
 
+fn mir_json_inst_field_result_origin_box(key: &str) -> Option<String> {
+    match key {
+        "op" | "operation" | "op_kind" | "cmp" | "value" => Some("StringBox".to_string()),
+        "args" | "effects" => Some("ArrayBox".to_string()),
+        _ => None,
+    }
+}
+
+fn mir_json_function_field_result_origin_box(key: &str) -> Option<String> {
+    match key {
+        "name" => Some("StringBox".to_string()),
+        "params" | "blocks" => Some("ArrayBox".to_string()),
+        "flags" => Some("MapBox".to_string()),
+        _ => None,
+    }
+}
+
+fn mir_json_module_field_result_origin_box(key: &str) -> Option<String> {
+    match key {
+        "functions" => Some("ArrayBox".to_string()),
+        "functions_0" => Some("MapBox".to_string()),
+        _ => None,
+    }
+}
+
 pub(super) fn match_mir_json_get_route(
     function: &MirFunction,
     def_map: &ValueDefMap,
@@ -762,12 +787,14 @@ fn match_mir_json_function_field_get_route(
     if !matches!(key_text.as_str(), "name" | "params" | "flags" | "blocks") {
         return None;
     }
+    let result_origin_box = mir_json_function_field_result_origin_box(&key_text);
 
     Some(GenericMethodRoute::new(
         GenericMethodRouteSite::new(block, instruction_index),
         GenericMethodRouteSurface::new(box_name.to_string(), method.to_string(), 1),
         GenericMethodRouteEvidence::new(None, Some(GenericMethodKeyRoute::UnknownAny))
-            .with_key_const_text(key_text),
+            .with_key_const_text(key_text)
+            .with_result_origin_box(result_origin_box),
         GenericMethodRouteOperands::new(receiver, Some(key), Some(result)),
         GenericMethodRouteDecision::new(
             GenericMethodRouteKind::RuntimeDataLoadAny,
@@ -804,12 +831,14 @@ fn match_mir_json_module_field_get_route(
     if !matches!(key_text.as_str(), "functions" | "functions_0") {
         return None;
     }
+    let result_origin_box = mir_json_module_field_result_origin_box(&key_text);
 
     Some(GenericMethodRoute::new(
         GenericMethodRouteSite::new(block, instruction_index),
         GenericMethodRouteSurface::new(box_name.to_string(), method.to_string(), 1),
         GenericMethodRouteEvidence::new(None, Some(GenericMethodKeyRoute::UnknownAny))
-            .with_key_const_text(key_text),
+            .with_key_const_text(key_text)
+            .with_result_origin_box(result_origin_box),
         GenericMethodRouteOperands::new(receiver, Some(key), Some(result)),
         GenericMethodRouteDecision::new(
             GenericMethodRouteKind::RuntimeDataLoadAny,
@@ -867,12 +896,14 @@ fn match_mir_json_inst_field_get_route(
     ) {
         return None;
     }
+    let result_origin_box = mir_json_inst_field_result_origin_box(&key_text);
 
     Some(GenericMethodRoute::new(
         GenericMethodRouteSite::new(block, instruction_index),
         GenericMethodRouteSurface::new(box_name.to_string(), method.to_string(), 1),
         GenericMethodRouteEvidence::new(None, Some(GenericMethodKeyRoute::UnknownAny))
-            .with_key_const_text(key_text),
+            .with_key_const_text(key_text)
+            .with_result_origin_box(result_origin_box),
         GenericMethodRouteOperands::new(receiver, Some(key), Some(result)),
         GenericMethodRouteDecision::new(
             GenericMethodRouteKind::RuntimeDataLoadAny,

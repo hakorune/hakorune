@@ -14,6 +14,7 @@ type FieldKey = (String, String);
 type ParamKey = (String, usize);
 type FieldBoxOriginMap = BTreeMap<FieldKey, BoxOriginInference>;
 type ParamBoxOriginMap = BTreeMap<ParamKey, BoxOriginInference>;
+type CollectionElementStorageMap = BTreeMap<FieldKey, FieldStorageInference>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum FieldStorageInference {
@@ -145,6 +146,12 @@ fn infer_untyped_field_storages(module: &MirModule) -> BTreeMap<FieldKey, FieldS
     for _ in 0..4 {
         let mut changed = false;
         let param_storages = infer_param_storages(module, &inferred, &field_box_origins);
+        let collection_element_storages = infer_collection_element_storages(
+            module,
+            &inferred,
+            &field_box_origins,
+            &param_storages,
+        );
         for function in module.functions.values() {
             let def_map = build_value_def_map(function);
             for block in function.blocks.values() {
@@ -179,6 +186,7 @@ fn infer_untyped_field_storages(module: &MirModule) -> BTreeMap<FieldKey, FieldS
                                 &inferred,
                                 &field_box_origins,
                                 &param_storages,
+                                &collection_element_storages,
                             )
                         });
                     if let Some(storage) = storage {
@@ -439,11 +447,14 @@ fn infer_param_storages(
     let mut param_storages = BTreeMap::new();
     for _ in 0..4 {
         let current = param_storages.clone();
+        let collection_element_storages =
+            infer_collection_element_storages(module, inferred, field_box_origins, &current);
         let mut changed = false;
         changed |= infer_birth_param_storages(
             module,
             inferred,
             field_box_origins,
+            &collection_element_storages,
             &current,
             &mut param_storages,
         );
@@ -452,6 +463,7 @@ fn infer_param_storages(
             inferred,
             field_box_origins,
             &param_box_origins,
+            &collection_element_storages,
             &current,
             &mut param_storages,
         );
@@ -466,6 +478,7 @@ fn infer_birth_param_storages(
     module: &MirModule,
     inferred: &BTreeMap<FieldKey, FieldStorageInference>,
     field_box_origins: &FieldBoxOriginMap,
+    collection_element_storages: &CollectionElementStorageMap,
     known_param_storages: &BTreeMap<ParamKey, FieldStorageInference>,
     param_storages: &mut BTreeMap<ParamKey, FieldStorageInference>,
 ) -> bool {
@@ -495,6 +508,7 @@ fn infer_birth_param_storages(
                         inferred,
                         field_box_origins,
                         known_param_storages,
+                        collection_element_storages,
                     ) else {
                         continue;
                     };
@@ -515,6 +529,7 @@ fn infer_call_param_storages(
     inferred: &BTreeMap<FieldKey, FieldStorageInference>,
     field_box_origins: &FieldBoxOriginMap,
     param_box_origins: &ParamBoxOriginMap,
+    collection_element_storages: &CollectionElementStorageMap,
     known_param_storages: &BTreeMap<ParamKey, FieldStorageInference>,
     param_storages: &mut BTreeMap<ParamKey, FieldStorageInference>,
 ) -> bool {
@@ -542,6 +557,7 @@ fn infer_call_param_storages(
                                 inferred,
                                 field_box_origins,
                                 known_param_storages,
+                                collection_element_storages,
                             ) else {
                                 continue;
                             };
@@ -580,6 +596,7 @@ fn infer_call_param_storages(
                                 inferred,
                                 field_box_origins,
                                 known_param_storages,
+                                collection_element_storages,
                             ) {
                                 changed |= merge_param_storage_observation(
                                     param_storages,
@@ -597,6 +614,7 @@ fn infer_call_param_storages(
                                 inferred,
                                 field_box_origins,
                                 known_param_storages,
+                                collection_element_storages,
                             ) else {
                                 continue;
                             };
@@ -613,6 +631,173 @@ fn infer_call_param_storages(
         }
     }
     changed
+}
+
+fn infer_collection_element_storages(
+    module: &MirModule,
+    inferred: &BTreeMap<FieldKey, FieldStorageInference>,
+    field_box_origins: &FieldBoxOriginMap,
+    param_storages: &BTreeMap<ParamKey, FieldStorageInference>,
+) -> CollectionElementStorageMap {
+    let mut element_storages = CollectionElementStorageMap::new();
+    for function in module.functions.values() {
+        let def_map = build_value_def_map(function);
+        for block in function.blocks.values() {
+            for inst in &block.instructions {
+                let MirInstruction::Call {
+                    callee:
+                        Some(Callee::Method {
+                            method,
+                            receiver: Some(receiver),
+                            ..
+                        }),
+                    args,
+                    ..
+                } = inst
+                else {
+                    continue;
+                };
+                let Some(field_key) =
+                    typed_object_collection_field_key(function, &def_map, *receiver)
+                else {
+                    continue;
+                };
+                let Some(collection_box) = field_box_origin(field_box_origins, &field_key) else {
+                    continue;
+                };
+                let Some(value) = collection_write_value(
+                    function,
+                    &def_map,
+                    *receiver,
+                    method,
+                    args,
+                    collection_box.as_str(),
+                ) else {
+                    continue;
+                };
+                let Some(storage) = storage_for_value(
+                    module,
+                    function,
+                    &def_map,
+                    value,
+                    inferred,
+                    field_box_origins,
+                    param_storages,
+                    &CollectionElementStorageMap::new(),
+                ) else {
+                    continue;
+                };
+                merge_storage_inference(&mut element_storages, field_key, storage);
+            }
+        }
+    }
+    element_storages
+}
+
+fn collection_write_value(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    receiver: ValueId,
+    method: &str,
+    args: &[ValueId],
+    collection_box: &str,
+) -> Option<ValueId> {
+    match (collection_box, method, args.len()) {
+        ("ArrayBox", "push", 1) => Some(args[0]),
+        ("ArrayBox", "push", 2)
+            if resolve_value_origin(function, def_map, args[0])
+                == resolve_value_origin(function, def_map, receiver) =>
+        {
+            Some(args[1])
+        }
+        ("ArrayBox" | "MapBox", "set", 2) => Some(args[1]),
+        ("ArrayBox" | "MapBox", "set", 3)
+            if resolve_value_origin(function, def_map, args[0])
+                == resolve_value_origin(function, def_map, receiver) =>
+        {
+            Some(args[2])
+        }
+        _ => None,
+    }
+}
+
+fn collection_element_storage_for_get(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    callee: &Callee,
+    args: &[ValueId],
+    collection_element_storages: &CollectionElementStorageMap,
+) -> Option<TypedObjectFieldStorage> {
+    let Callee::Method {
+        method,
+        receiver: Some(receiver),
+        ..
+    } = callee
+    else {
+        return None;
+    };
+    if method != "get" {
+        return None;
+    }
+    let field_key = typed_object_collection_field_key(function, def_map, *receiver)?;
+    let _key = collection_read_key(function, def_map, *receiver, args)?;
+    match collection_element_storages.get(&field_key) {
+        Some(FieldStorageInference::Known(storage)) => Some(*storage),
+        Some(FieldStorageInference::Conflict) | None => None,
+    }
+}
+
+fn collection_read_key(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    receiver: ValueId,
+    args: &[ValueId],
+) -> Option<ValueId> {
+    match args.len() {
+        1 => Some(args[0]),
+        2 if resolve_value_origin(function, def_map, args[0])
+            == resolve_value_origin(function, def_map, receiver) =>
+        {
+            Some(args[1])
+        }
+        _ => None,
+    }
+}
+
+fn typed_object_collection_field_key(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+) -> Option<FieldKey> {
+    let origin = resolve_value_origin(function, def_map, value);
+    let (block_id, instruction_index) = def_map.get(&origin).copied()?;
+    let block = function.blocks.get(&block_id)?;
+    match block.instructions.get(instruction_index)? {
+        MirInstruction::FieldGet { base, field, .. } => {
+            let box_name = box_name_for_value(function, def_map, *base)?;
+            Some((box_name, field.clone()))
+        }
+        MirInstruction::Phi { inputs, .. } if !inputs.is_empty() => {
+            let mut field_key = None;
+            for (_, input) in inputs {
+                let next = typed_object_collection_field_key(function, def_map, *input)?;
+                field_key = match field_key {
+                    None => Some(next),
+                    Some(existing) if existing == next => Some(existing),
+                    _ => return None,
+                };
+            }
+            field_key
+        }
+        _ => None,
+    }
+}
+
+fn field_box_origin(origins: &FieldBoxOriginMap, key: &FieldKey) -> Option<String> {
+    match origins.get(key) {
+        Some(BoxOriginInference::Known(box_name)) => Some(box_name.clone()),
+        Some(BoxOriginInference::Conflict) | None => None,
+    }
 }
 
 fn declared_field_sets(metadata: &ModuleMetadata) -> BTreeMap<String, BTreeSet<String>> {
@@ -1026,6 +1211,7 @@ fn storage_for_value(
     inferred: &BTreeMap<FieldKey, FieldStorageInference>,
     field_box_origins: &FieldBoxOriginMap,
     param_storages: &BTreeMap<ParamKey, FieldStorageInference>,
+    collection_element_storages: &CollectionElementStorageMap,
 ) -> Option<TypedObjectFieldStorage> {
     let mut visiting_globals = BTreeSet::new();
     let mut visiting_values = BTreeSet::new();
@@ -1037,6 +1223,7 @@ fn storage_for_value(
         inferred,
         field_box_origins,
         param_storages,
+        collection_element_storages,
         &mut visiting_globals,
         &mut visiting_values,
     )
@@ -1050,6 +1237,7 @@ fn storage_for_value_inner(
     inferred: &BTreeMap<FieldKey, FieldStorageInference>,
     field_box_origins: &FieldBoxOriginMap,
     param_storages: &BTreeMap<ParamKey, FieldStorageInference>,
+    collection_element_storages: &CollectionElementStorageMap,
     visiting_globals: &mut BTreeSet<String>,
     visiting_values: &mut BTreeSet<(String, ValueId)>,
 ) -> Option<TypedObjectFieldStorage> {
@@ -1066,6 +1254,7 @@ fn storage_for_value_inner(
         inferred,
         field_box_origins,
         param_storages,
+        collection_element_storages,
         visiting_globals,
         visiting_values,
     );
@@ -1085,6 +1274,7 @@ fn storage_from_origin_instruction(
     inferred: &BTreeMap<FieldKey, FieldStorageInference>,
     field_box_origins: &FieldBoxOriginMap,
     param_storages: &BTreeMap<ParamKey, FieldStorageInference>,
+    collection_element_storages: &CollectionElementStorageMap,
     visiting_globals: &mut BTreeSet<String>,
     visiting_values: &mut BTreeSet<(String, ValueId)>,
 ) -> Option<TypedObjectFieldStorage> {
@@ -1104,6 +1294,7 @@ fn storage_from_origin_instruction(
             inferred,
             field_box_origins,
             param_storages,
+            collection_element_storages,
             visiting_globals,
             visiting_values,
         ),
@@ -1116,6 +1307,7 @@ fn storage_from_origin_instruction(
             inferred,
             field_box_origins,
             param_storages,
+            collection_element_storages,
             visiting_globals,
             visiting_values,
         ),
@@ -1123,18 +1315,28 @@ fn storage_from_origin_instruction(
             callee: Some(callee @ Callee::Method { .. }),
             args,
             ..
-        } => storage_for_method_return(
-            module,
+        } => collection_element_storage_for_get(
             function,
             def_map,
             callee,
-            args.len(),
-            inferred,
-            field_box_origins,
-            param_storages,
-            visiting_globals,
-            visiting_values,
-        ),
+            args,
+            collection_element_storages,
+        )
+        .or_else(|| {
+            storage_for_method_return(
+                module,
+                function,
+                def_map,
+                callee,
+                args.len(),
+                inferred,
+                field_box_origins,
+                param_storages,
+                collection_element_storages,
+                visiting_globals,
+                visiting_values,
+            )
+        }),
         MirInstruction::Phi {
             inputs, type_hint, ..
         } => type_hint
@@ -1151,6 +1353,7 @@ fn storage_from_origin_instruction(
                         inferred,
                         field_box_origins,
                         param_storages,
+                        collection_element_storages,
                         visiting_globals,
                         visiting_values,
                     );
@@ -1194,6 +1397,7 @@ fn storage_for_binop(
     inferred: &BTreeMap<FieldKey, FieldStorageInference>,
     field_box_origins: &FieldBoxOriginMap,
     param_storages: &BTreeMap<ParamKey, FieldStorageInference>,
+    collection_element_storages: &CollectionElementStorageMap,
     visiting_globals: &mut BTreeSet<String>,
     visiting_values: &mut BTreeSet<(String, ValueId)>,
 ) -> Option<TypedObjectFieldStorage> {
@@ -1205,6 +1409,7 @@ fn storage_for_binop(
         inferred,
         field_box_origins,
         param_storages,
+        collection_element_storages,
         visiting_globals,
         visiting_values,
     );
@@ -1216,6 +1421,7 @@ fn storage_for_binop(
         inferred,
         field_box_origins,
         param_storages,
+        collection_element_storages,
         visiting_globals,
         visiting_values,
     );
@@ -1253,6 +1459,7 @@ fn storage_for_global_return(
     inferred: &BTreeMap<FieldKey, FieldStorageInference>,
     field_box_origins: &FieldBoxOriginMap,
     param_storages: &BTreeMap<ParamKey, FieldStorageInference>,
+    collection_element_storages: &CollectionElementStorageMap,
     visiting_globals: &mut BTreeSet<String>,
     visiting_values: &mut BTreeSet<(String, ValueId)>,
 ) -> Option<TypedObjectFieldStorage> {
@@ -1266,6 +1473,7 @@ fn storage_for_global_return(
             inferred,
             field_box_origins,
             param_storages,
+            collection_element_storages,
             visiting_globals,
             visiting_values,
         )
@@ -1283,6 +1491,7 @@ fn storage_for_method_return(
     inferred: &BTreeMap<FieldKey, FieldStorageInference>,
     field_box_origins: &FieldBoxOriginMap,
     param_storages: &BTreeMap<ParamKey, FieldStorageInference>,
+    collection_element_storages: &CollectionElementStorageMap,
     visiting_globals: &mut BTreeSet<String>,
     visiting_values: &mut BTreeSet<(String, ValueId)>,
 ) -> Option<TypedObjectFieldStorage> {
@@ -1315,6 +1524,7 @@ fn storage_for_method_return(
         inferred,
         field_box_origins,
         param_storages,
+        collection_element_storages,
         visiting_globals,
         visiting_values,
     )
@@ -1341,6 +1551,7 @@ fn storage_for_function_returns(
     inferred: &BTreeMap<FieldKey, FieldStorageInference>,
     field_box_origins: &FieldBoxOriginMap,
     param_storages: &BTreeMap<ParamKey, FieldStorageInference>,
+    collection_element_storages: &CollectionElementStorageMap,
     visiting_globals: &mut BTreeSet<String>,
     visiting_values: &mut BTreeSet<(String, ValueId)>,
 ) -> Option<TypedObjectFieldStorage> {
@@ -1362,6 +1573,7 @@ fn storage_for_function_returns(
                 inferred,
                 field_box_origins,
                 param_storages,
+                collection_element_storages,
                 visiting_globals,
                 visiting_values,
             );
