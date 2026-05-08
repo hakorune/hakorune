@@ -51,6 +51,8 @@ Current live verifier row:
 - `Contract(pure)` and `Contract(readonly)` remain metadata-only until their
   verifier rows land.
 - No contract is currently exported for backend optimization use.
+- `Hint(inline/noinline/hot/cold)` is parsed metadata only. Inline transforms
+  require a future MIR-owned InlinePlan row.
 
 Fail-fast diagnostics use the stable tags:
 
@@ -58,3 +60,29 @@ Fail-fast diagnostics use the stable tags:
 [freeze:contract][rune/no_alloc]
 [freeze:contract][rune/no_safepoint]
 ```
+
+## InlinePlan Boundary
+
+Inline is not a backend-local keyword.
+
+Accepted future flow:
+
+```text
+@rune Hint(inline)
+-> MIR InlinePlan request=prefer
+-> MIR optimizer may inline or keep the call
+-> backend emits the resulting MIR
+```
+
+Reserved substrate-only required inline flow:
+
+```text
+@rune Lowering(inline_required)
+@rune Contract(no_alloc)
+@rune Contract(no_safepoint)
+-> MIR InlinePlan request=required
+-> verifier accepts or fail-fast rejects
+```
+
+Backends and `.inc` readers must not discover inline policy from function names,
+box names, or allocator-specific symbols.

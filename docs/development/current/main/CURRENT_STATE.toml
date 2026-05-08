@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-044-M11B-STATIC-TABLE-LOAD"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-044-M11B-STATIC-TABLE-LOAD.md"
-latest_card_summary = "Implemented the M11b-load static const u16 table read route through MIR StaticDataLoad, MIR JSON, VM metadata reads, and ll_emit direct LLVM loads."
+latest_card = "293x-045-INLINE-PLAN-DOCS-LOCK"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-045-INLINE-PLAN-DOCS-LOCK.md"
+latest_card_summary = "Locked the M11c InlinePlan boundary and allocator-substrate task order: rune hints flow into MIR InlinePlan, verifier owns required inline, and backends stay readers."
 
 current_blocker_token = "phase-293x mimalloc substrate capability ladder after real-app EXE parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -232,4 +232,5 @@ landed_tail = [
   "293x-008 BoxTorrent allocator-backed store landed",
   "293x-009 JSON stream aggregator app landed",
   "293x-010 smoke env Hako alias cleanup landed",
+  "293x-045 InlinePlan docs lock landed",
 ]

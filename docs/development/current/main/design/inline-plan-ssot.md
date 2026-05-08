@@ -1,0 +1,278 @@
+---
+Status: SSOT
+Decision: accepted boundary, implementation rows reserved
+Date: 2026-05-08
+Scope: inline metadata, MIR InlinePlan ownership, verifier gates, and backend responsibility boundaries.
+Related:
+  - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
+  - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
+  - docs/development/current/main/design/rune-v1-metadata-unification-ssot.md
+  - docs/reference/mir/hints.md
+  - docs/reference/runtime/substrate-capabilities.md
+---
+
+# InlinePlan SSOT
+
+## Decision
+
+Inline support is required for allocator-grade fast paths, but it must not be
+implemented as an ad-hoc `inline` keyword or as backend-local symbol matching.
+
+The accepted flow is:
+
+```text
+source rune metadata
+-> MIR-owned InlinePlan / CallsiteInlinePlan
+-> verifier acceptance
+-> MIR transform or intrinsic route selection
+-> backend emits the already-decided MIR/route
+```
+
+The backend is a consumer of already-decided shapes. It is not the inline
+planner.
+
+## Vocabulary Split
+
+Inline-related annotations have three different meanings:
+
+```text
+Hint:
+  advisory; may be ignored without changing program meaning
+
+Contract:
+  verifier-backed obligation; may be used only after proof
+
+Lowering:
+  backend/lane acceptance requirement; failure is a compile-time reject in the
+  lanes that opt into it
+```
+
+Current public surface:
+
+```hako
+@rune Hint(inline)
+@rune Hint(noinline)
+@rune Hint(hot)
+@rune Hint(cold)
+```
+
+Reserved substrate-only surface:
+
+```hako
+@rune Lowering(inline_required)
+```
+
+`Hint(inline)` is not `inline_required`.
+
+`Hint(always_inline)` is also not `inline_required`; do not introduce it as a
+public guarantee. If an always-inline spelling is ever accepted, it remains an
+optimizer hint. Required inline belongs to the `Lowering(...)` family.
+
+## MIR Ownership
+
+Backends must not read source rune strings and decide to inline. Source metadata
+is normalized into MIR-owned facts first.
+
+Proposed function-level shape:
+
+```json
+{
+  "inline_plans": [
+    {
+      "function": "Main.align_up/2",
+      "request": "prefer",
+      "hotness": "hot",
+      "max_ir": null,
+      "requires": [],
+      "verified": false,
+      "fallback": "keep_call"
+    }
+  ]
+}
+```
+
+Proposed callsite-level shape:
+
+```json
+{
+  "callsite_inline_plans": [
+    {
+      "callsite": 17,
+      "callee": "Main.align_up/2",
+      "mode": "prefer",
+      "proof": null,
+      "fallback": "keep_call"
+    }
+  ]
+}
+```
+
+Required inline rows may use:
+
+```json
+{
+  "function": "MiHeap.alloc_small/1",
+  "request": "required",
+  "reason": "allocator_fast_path",
+  "max_ir": 48,
+  "requires": ["no_alloc", "no_safepoint"],
+  "verified": true,
+  "fallback": "fail_fast"
+}
+```
+
+The exact serialized schema may be narrowed by implementation cards, but the
+truth remains MIR-owned. `.inc`, ll_emit, and C shims do not infer inline policy
+from function names.
+
+## Inline Kinds
+
+### MIR Function Inline
+
+Use this for small `.hako` functions whose body can be expanded in MIR:
+
+```text
+align_up
+size_to_bin
+page_free_is_empty
+block_next
+```
+
+First rows must be same-module and non-recursive. Cross-module, virtual method,
+generic specialization, and dynamic dispatch inline are future rows.
+
+### Intrinsic Route Lowering
+
+Some calls should not be expanded as function bodies. They should lower to a
+primitive route:
+
+```text
+hako.ptr.load_u64
+hako.ptr.store_u64
+hako.atomic.cas
+hako.intrin.ctz_i64
+hako.intrin.popcnt_i64
+hako.intrin.prefetch
+```
+
+This remains separate from `@rune Hint(inline)`. Intrinsic route selection must
+flow through a registry/route fact, not through source-name matching in a
+backend.
+
+### Native Bitcode / LTO Inline
+
+Native helper body import is reserved. It must not be the first allocator fast
+path strategy because it risks moving semantic ownership back into C/native
+helpers.
+
+Preferred first strategy:
+
+```text
+hako.ptr / hako.atomic / hako.intrin route
+-> direct MIR/LLVM primitive
+```
+
+Only after the substrate route is truthful should native bitcode/LTO be
+considered.
+
+## Required Inline Verifier Conditions
+
+`Lowering(inline_required)` is accepted only after verifier proof.
+
+Minimum required checks:
+
+- callee exists and resolves to a single same-module body
+- body size is within the row budget
+- recursive inline cycle is absent
+- unsupported dynamic dispatch is absent
+- unsupported call is absent, unless it is intrinsic-routed or itself verified
+  inline
+- `Contract(no_alloc)` is present and verified when required by the row
+- `Contract(no_safepoint)` is present and verified when required by the row
+- capability access stays within the row's allowed modules
+
+## Backend Boundary
+
+Allowed backend behavior:
+
+- emit already-inlined MIR
+- emit already-selected intrinsic/capability routes
+- emit fail-fast diagnostics carried by MIR/lowering facts
+
+Forbidden backend behavior:
+
+- searching callee bodies and inlining them
+- checking `Mi*`, `Allocator*`, or other app-specific names
+- treating `Hint(inline)` as a semantic guarantee
+- deriving `no_alloc` / `no_safepoint` from a method name
+- adding `.inc` branches such as "if symbol is size_to_bin, inline it"
+
+## Implementation Rows
+
+Use `M11c` for InlinePlan work. `M11b` is already reserved for static const
+tables.
+
+Recommended order relative to existing allocator substrate rows:
+
+```text
+M11c-docs:
+  InlinePlan boundary lock. No behavior change.
+
+M11b-eval:
+  const expression / const fn table generation.
+  Keeps table generation complete before inline transforms start.
+
+M11c-preserve:
+  preserve existing Hint(inline/noinline/hot/cold) into MIR InlinePlan metadata.
+  No backend use.
+
+M11c-soft-leaf:
+  best-effort same-module leaf MIR inline.
+  Failed inline keeps the call.
+
+M10c-pre:
+  pointer/handle return proof vocabulary.
+
+M10c:
+  strong LLVM attrs widening after pointer proof.
+
+M11c-required-vocab:
+  substrate-only Lowering(inline_required) vocabulary.
+  Parser parity is required because this adds rune vocabulary.
+
+M11c-required-verify:
+  required inline verifier connection to no_alloc/no_safepoint and call graph
+  checks.
+
+M12:
+  mimalloc raw-page proof.
+
+M13:
+  allocator fast-path EXE proof.
+```
+
+This order keeps static table data, inline planning, pointer proof, and
+allocator proof separated.
+
+## Diagnostics
+
+Stable diagnostics for future rows:
+
+```text
+[inline-plan/required-not-verified]
+[inline-plan/body-too-large]
+[inline-plan/recursive-cycle]
+[inline-plan/dynamic-dispatch]
+[inline-plan/unsupported-call]
+[inline-plan/missing-contract]
+[inline-plan/backend-boundary]
+```
+
+## Non-Goals
+
+- no `inline` keyword
+- no public `always_inline` guarantee
+- no `.inc` / ll_emit inliner
+- no app-specific inline switch
+- no backend-active use of `Hint(inline)` before MIR InlinePlan exists
+- no required inline before verifier proof exists

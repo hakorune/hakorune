@@ -23,6 +23,7 @@
   - `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
   - `docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md`
   - `docs/development/current/main/design/static-const-table-syntax-ssot.md`
+  - `docs/development/current/main/design/inline-plan-ssot.md`
   - `docs/development/current/main/design/runtime-hot-lane-optimization-patterns-ssot.md`
   - `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
   - `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
@@ -85,6 +86,7 @@
 - Hako Alloc Policy/State（allocator policy/state owner と native metal keep の stop-line SSOT）: `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
 - Mimalloc capability taskboard（C風unsafeではなく capability module + `@rune Contract` verifier で進める実装順SSOT）: `docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md`
 - Static const table syntax（M11b の source static table / MIR static_data_plans / parser rollout 順序SSOT）: `docs/development/current/main/design/static-const-table-syntax-ssot.md`
+- InlinePlan（`@rune Hint(inline)` から MIR InlinePlan / verifier / backend reader 境界へ流す inline 設計SSOT）: `docs/development/current/main/design/inline-plan-ssot.md`
 - Stage2 AOT/native thin path（current native perf/mainline の thin-owner design note）: `docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md`
 - Value repr and ABI manifest（current value classes / ownership / manifest row truth）: `docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md`
 - Stage2 Fast Leaf Manifest（backend-private fast lane row contract）: `docs/development/current/main/design/stage2-fast-leaf-manifest-ssot.md`

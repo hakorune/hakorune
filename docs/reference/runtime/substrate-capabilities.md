@@ -9,6 +9,7 @@ The design SSOT is:
 
 - `docs/development/current/main/design/substrate-capability-ladder-ssot.md`
 - `docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md`
+- `docs/development/current/main/design/inline-plan-ssot.md`
 
 ## Core Rule
 
@@ -50,6 +51,7 @@ The current live surface is intentionally narrow.
 | `hako.intrin` | current-lane non-negative i64 bit-count rows exist: `clz_i64`, `ctz_i64`, `popcnt_i64`; backend optimization use is not live |
 | backend export attrs | consistency guard is live; only current weak attrs are allowed, runtime-decl `readonly` rows must carry `memory = "read"`, while `noalias`/`nonnull`/`dereferenceable`/alignment export remain blocked |
 | static readonly data | backend-private static-data manifest can emit a u16 size-class fixture; source `static const NAME: u16[] = [...]` declarations lower to MIR `static_data_plans`; `NAME[index]` reads lower to MIR `StaticDataLoad` and current-lane `i64` values; const eval is not live |
+| inline planning | `@rune Hint(inline/noinline/hot/cold)` is parsed metadata only; MIR InlinePlan and backend-active inline transforms are reserved |
 
 ## Reserved Surface
 
@@ -74,6 +76,9 @@ These names are reserved but not fully live as user-facing allocator substrate:
 - full unsigned-width runtime semantics for intrinsic rows
 - `noalias`, `nonnull`, `dereferenceable`, stronger alignment export
 - const-evaluated static tables and const fn table generation
+- MIR InlinePlan preservation and best-effort leaf inline
+- substrate-only `@rune Lowering(inline_required)`
+- verifier-backed required inline acceptance
 
 ## Pointer/Handle Return Proof Vocabulary
 
@@ -451,6 +456,35 @@ source rune
 Backends must not trust method names, app names, or helper names as contract
 proof.
 
+## Inline Planning
+
+Decision: reserved for the M11c InlinePlan rows.
+
+Inline is required for allocator-grade fast paths, but it is not a backend
+keyword and not a `.inc` responsibility.
+
+Required future flow:
+
+```text
+@rune Hint(inline/noinline/hot/cold)
+-> MIR InlinePlan / CallsiteInlinePlan
+-> verifier where required
+-> MIR transform or intrinsic route
+-> backend emits the result
+```
+
+Strict allocator/substrate rows may later reserve:
+
+```hako
+@rune Lowering(inline_required)
+@rune Contract(no_alloc)
+@rune Contract(no_safepoint)
+```
+
+`Lowering(inline_required)` is not live syntax yet. When it becomes live, Rust
+parser and `.hako` parser parity is required because it widens rune vocabulary.
+Backends must not infer required inline from symbol names.
+
 ## Allocator Reading
 
 `mimalloc-lite` may remain a policy/state model at the Box level.
@@ -465,6 +499,7 @@ Mimalloc-grade native fast paths require:
 - TLS and atomics
 - OS VM capability
 - intrinsic and backend export facts
+- InlinePlan rows for hot helper expansion without backend-local inliners
 
 Until those rows are live, allocator code must remain narrow and fail-fast
 instead of silently relying on unsupported substrate behavior.

@@ -142,6 +142,10 @@ static readonly data only. `M11b` must flow through source parser metadata and
 MIR-owned `static_data_plans`; the backend must remain a row reader and must not
 infer allocator table meaning from symbol names.
 
+Inline planning is another separate lane. `M11c` uses rune metadata as the
+source surface, but the truth is MIR-owned `InlinePlan`; `.inc` and backend
+emitters must not become inliners or symbol-name policy owners.
+
 Syntax alone does not make a row live. A capability row becomes live only when
 the MIR/value representation, VM/LLVM/Stage0 consumer, fail-fast diagnostics,
 fixture, and gate are all named. Until then, it remains reserved vocabulary.
@@ -447,7 +451,10 @@ docs-side order to use when the allocator substrate lane opens.
    - contract must be checked before it is used as optimization metadata
 6. TLS/atomic first rows
    - memory order vocabulary is required before remote-free style algorithms
-7. native allocator fast-path proof
+7. InlinePlan rows
+   - preserve hints, then best-effort MIR inline, then verifier-backed
+     substrate-only required inline
+8. native allocator fast-path proof
    - may use native keep for final metal
    - must not move OS VM or final allocator call ownership into `.hako`
      without the C5/C6 split
