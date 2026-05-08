@@ -6,18 +6,18 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-05-07"
+date = "2026-05-08"
 
 active_lane = "phase-293x real-app bringup"
-active_lane_status = "Real app lane is active after Program(JSON v0) cleanup; BoxTorrent mini, binary-trees, mimalloc-lite, the hako_alloc page-heap port, allocator-stress, BoxTorrent allocator-backed store, and JSON stream aggregator are VM-green. TypedObjectPlan now covers declared i64 fields, init-only untyped fields, handle storage, observed empty user boxes, observed newbox argument storage flowing into same-module birth params, same-module call argument storage propagation, same-module string-like global return storage, nullable handle storage flowing through same-module RuntimeDataBox receiver origins, conservative same-module birth routes, conservative scalar/handle user-box methods, BoxTorrent allocator page seeding through typed void side-effect global routes, module-generic result origins, and user-box string field returns through route-fact placeholder refinement. BoxTorrent mini direct EXE parity now passes; the real-app EXE boundary suite now pins json-stream-aggregator at a runtime parity mismatch boundary."
+active_lane_status = "Real app lane is active after Program(JSON v0) cleanup; BoxTorrent mini, binary-trees, mimalloc-lite, the hako_alloc page-heap port, allocator-stress, BoxTorrent allocator-backed store, and JSON stream aggregator are VM-green. TypedObjectPlan now covers declared i64 fields, init-only untyped fields, handle storage, observed empty user boxes, observed newbox argument storage flowing into same-module birth params, same-module call argument storage propagation, same-module string-like global return storage, nullable handle storage flowing through same-module RuntimeDataBox receiver origins, conservative same-module birth routes, conservative scalar/handle user-box methods, BoxTorrent allocator page seeding through typed void side-effect global routes, module-generic result origins, user-box string field returns through route-fact placeholder refinement, global-call handle param metadata publication, and substring handle result publication. BoxTorrent mini and JSON stream aggregator direct EXE parity now pass; the real-app EXE boundary suite still pins binary-trees, mimalloc-lite, and allocator-stress at pure-first unsupported-shape boundaries."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
 phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORRENT-MINI-LOCAL-STORE.md"
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-022-BOXTORRENT-STRING-FIELD-RETURN-EXE-PARITY"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-022-BOXTORRENT-STRING-FIELD-RETURN-EXE-PARITY.md"
-latest_card_summary = "Completed BoxTorrent mini direct EXE parity by refining placeholder value metadata from MIR route facts, carrying ContentChunk.data as a StringBox field return, lowering materialize out+data to string concat, and promoting BoxTorrent to a parity smoke while the boundary probe pins json-stream-aggregator runtime mismatch."
+latest_card = "293x-023-JSON-STREAM-AGGREGATOR-EXE-PARITY"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-023-JSON-STREAM-AGGREGATOR-EXE-PARITY.md"
+latest_card_summary = "Completed JSON stream aggregator direct EXE parity by publishing global-call handle argument types into target params, publishing substring handle results for downstream global calls, and promoting the JSON boundary smoke to parity output."
 
 current_blocker_token = "phase-293x birth/method call route expansion before real-app EXE parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

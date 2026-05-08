@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-05-07
+Date: 2026-05-08
 Scope: current lane / next lane / restart order only.
 
 ## Purpose
@@ -56,10 +56,11 @@ Scope: current lane / next lane / restart order only.
   allocation/field get/set covers declared i64 fields, init-only untyped
   fields, handle storage, observed empty user boxes, nullable handle storage
   through same-module RuntimeDataBox receiver origins, and the BoxTorrent
-  `firstChunkId` / `refCount` module-generic prepass seam; BoxTorrent mini
-  direct EXE parity now passes through user-box string field returns, and the
-  real-app EXE boundary suite pins json-stream-aggregator at a runtime parity
-  mismatch boundary
+  `firstChunkId` / `refCount` module-generic prepass seam, global-call handle
+  param metadata publication, and substring handle result publication;
+  BoxTorrent mini and JSON stream aggregator direct EXE parity now pass, while
+  the real-app EXE boundary suite still pins binary-trees, mimalloc-lite, and
+  allocator-stress at pure-first unsupported-shape boundaries
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
@@ -73,8 +74,8 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: fix the json-stream-aggregator EXE runtime parity boundary; only
-  change compiler acceptance when the app exposes a real blocker
+- next: continue the remaining real-app EXE boundary apps one at a time; only
+  change compiler acceptance when an app exposes a real blocker
 - MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
   standalone MIR hints scaffold is retired and that audited MIR vocabulary set
   no longer carries a broad dead-code hold
@@ -101,9 +102,10 @@ Scope: current lane / next lane / restart order only.
   `hako_alloc` VM-only page/free-list port, allocator-stress, BoxTorrent
   allocator-backed store, and JSON stream aggregator landed; direct EXE now
   lowers typed-object allocation/field slots, the BoxTorrent `firstChunkId` /
-  `refCount` module-generic seam, and BoxTorrent mini user-box string field
-  returns; BoxTorrent mini direct EXE parity now exits 0, while
-  json-stream-aggregator builds but exits at `summary=fail`
+  `refCount` module-generic seam, BoxTorrent mini user-box string field
+  returns, global-call handle param metadata, and substring handle result
+  publication; BoxTorrent mini and JSON stream aggregator direct EXE parity now
+  exit 0
 - compiler rule: do not hide a real compiler blocker in app code; fix the
   compiler seam structurally when needed
 

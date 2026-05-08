@@ -108,7 +108,7 @@ pub(super) fn publish_generic_route_result_value_types(module: &mut MirModule) -
             .filter_map(|route| {
                 Some((
                     route.result_value()?,
-                    route.result_origin_box()?.to_string(),
+                    super::generic_method_route_result_box_name(route)?.to_string(),
                 ))
             })
             .collect::<Vec<_>>();

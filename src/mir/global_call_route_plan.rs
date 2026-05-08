@@ -32,6 +32,7 @@ mod shape_blocker;
 mod static_string_array_body;
 mod string_return_profile;
 mod type_label;
+mod value_type_publish;
 mod void_side_effect_body;
 
 use box_type_inspector_describe_body::{
@@ -63,6 +64,9 @@ use pattern_util_local_value_probe_body::{
 };
 use program_json_emit_body::is_program_json_emit_body_function;
 use static_string_array_body::is_static_string_array_body_function;
+use value_type_publish::{
+    propagate_global_call_box_value_types, publish_global_call_route_param_value_types,
+};
 use void_side_effect_body::is_void_side_effect_body_function;
 
 fn supported_backend_global(name: &str) -> bool {
@@ -77,9 +81,26 @@ fn string_or_void_sentinel_return_type_candidate(return_type: &MirType) -> bool 
 }
 
 pub fn refresh_module_global_call_routes(module: &mut MirModule) {
-    let targets = collect_global_call_targets(module);
-    for function in module.functions.values_mut() {
-        refresh_function_global_call_routes_with_targets(function, &targets);
+    for _ in 0..module.functions.len().saturating_mul(4).max(8) {
+        let before = module
+            .functions
+            .iter()
+            .map(|(name, function)| (name.clone(), function.metadata.global_call_routes.clone()))
+            .collect::<BTreeMap<_, _>>();
+        let targets = collect_global_call_targets(module);
+        for function in module.functions.values_mut() {
+            refresh_function_global_call_routes_with_targets(function, &targets);
+        }
+        let param_value_type_changed = publish_global_call_route_param_value_types(module);
+        let propagated_value_type_changed = propagate_global_call_box_value_types(module);
+        let route_changed = module.functions.iter().any(|(name, function)| {
+            before.get(name).map_or(true, |routes| {
+                routes != &function.metadata.global_call_routes
+            })
+        });
+        if !(route_changed || param_value_type_changed || propagated_value_type_changed) {
+            break;
+        }
     }
 }
 

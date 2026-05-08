@@ -288,4 +288,108 @@ mod tests {
             Some("generic_pure_string_body")
         );
     }
+
+    #[test]
+    fn refresh_module_semantic_metadata_publishes_substring_result_to_global_param() {
+        let mut module = MirModule::new("semantic_refresh_substring_global_arg_test".to_string());
+
+        let mut parse = MirFunction::new(
+            FunctionSignature {
+                name: "Helper.parse/1".to_string(),
+                params: vec![MirType::Unknown],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        parse.params = vec![ValueId::new(0)];
+        let parse_entry = parse
+            .get_block_mut(BasicBlockId::new(0))
+            .expect("parse entry");
+        parse_entry.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::Integer(0),
+        });
+        parse_entry.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(1)),
+        });
+
+        let mut caller = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let caller_entry = caller
+            .get_block_mut(BasicBlockId::new(0))
+            .expect("main entry");
+        caller_entry.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::String("123".to_string()),
+        });
+        caller_entry.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(3),
+            value: ConstValue::Integer(0),
+        });
+        caller_entry.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(4),
+            value: ConstValue::Integer(2),
+        });
+        caller_entry.add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(5)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "substring".to_string(),
+                receiver: Some(ValueId::new(2)),
+                certainty: TypeCertainty::Union,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![ValueId::new(3), ValueId::new(4)],
+            effects: EffectMask::PURE,
+        });
+        caller_entry.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(6),
+            src: ValueId::new(5),
+        });
+        caller_entry.add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(7)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("Helper.parse/1".to_string())),
+            args: vec![ValueId::new(6)],
+            effects: EffectMask::PURE,
+        });
+        caller_entry.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(7)),
+        });
+        caller
+            .metadata
+            .value_types
+            .insert(ValueId::new(2), MirType::String);
+
+        module.add_function(parse);
+        module.add_function(caller);
+
+        refresh_module_semantic_metadata(&mut module);
+
+        let caller = module.get_function("main").expect("main");
+        let string_box = MirType::Box("StringBox".to_string());
+        assert_eq!(
+            caller.metadata.value_types.get(&ValueId::new(5)),
+            Some(&string_box)
+        );
+        assert_eq!(
+            caller.metadata.value_types.get(&ValueId::new(6)),
+            Some(&string_box)
+        );
+
+        let parse = module.get_function("Helper.parse/1").expect("parse");
+        assert_eq!(
+            parse.metadata.value_types.get(&ValueId::new(0)),
+            Some(&string_box)
+        );
+    }
 }

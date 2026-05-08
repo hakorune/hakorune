@@ -1,10 +1,9 @@
 #!/bin/bash
 # JSON stream aggregator EXE runtime boundary probe
 #
-# Contract pin:
-# - The app now compiles through pure-first EXE without compat replay.
-# - Runtime output still diverges from the VM correctness smoke and is the next
-#   real-app EXE parity boundary.
+# Contract:
+# - The app compiles through pure-first EXE without compat replay.
+# - Runtime output matches the VM correctness smoke.
 
 set -euo pipefail
 
@@ -59,23 +58,23 @@ output=$(NYASH_DISABLE_PLUGINS=1 timeout "$RUN_TIMEOUT_SECS" "$EXE_OUT" 2>&1 | f
 run_rc=$?
 set -e
 
-if [ "$run_rc" -eq 0 ]; then
+if [ "$run_rc" -ne 0 ]; then
   echo "$output"
-  test_fail "$SMOKE_NAME: unexpectedly reached EXE parity; promote to a parity smoke"
+  test_fail "$SMOKE_NAME: EXE parity run failed"
   exit 1
 fi
 
 expected=$(cat << 'TXT'
 json-stream-aggregator
-events=0
-users=0
-ana_bytes=0 ok=0 fail=0
-bob_bytes=0 ok=0 fail=0
-cy_bytes=0 ok=0 fail=0
-total_bytes=0
-ok=0 fail=0
-summary=fail
-Result: 1
+events=5
+users=3
+ana_bytes=42 ok=2 fail=0
+bob_bytes=27 ok=1 fail=1
+cy_bytes=9 ok=1 fail=0
+total_bytes=78
+ok=4 fail=1
+summary=ok
+Result: 0
 TXT
 )
 
