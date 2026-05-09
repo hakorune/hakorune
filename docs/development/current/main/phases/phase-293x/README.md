@@ -114,5 +114,7 @@ inference for the allocator release path.
   release, and reuse, without adding new compiler vocabulary.
 - `293x-075`: M23 mimalloc dynamic bin EXE proof landed, proving non-constant
   `static_data_load` indices for `u16` size-class tables under pure-first EXE.
+- `293x-076`: M24 mimalloc size_to_bin inline EXE proof landed, composing
+  `Profile(allocator.fast)` verified inline with dynamic static table loads.
 - Next: move into the mimalloc-grade substrate ladder from `293x-026`; keep
   future blockers as compiler/runtime seams and do not hide them in app code.

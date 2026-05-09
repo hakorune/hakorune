@@ -152,6 +152,21 @@ bash tools/checks/k2_wide_mimalloc_dynamic_bin_exe_guard.sh
 - RawBuf/RawArray route は既存 M14-M20 facts を再利用
 - general `size_to_bin` / allocator policy は追加しない
 
+#### mimalloc-size-to-bin-inline-proof
+**場所**: `mimalloc-size-to-bin-inline-proof/main.hako`
+M24 substrate proof。`Profile(allocator.fast)` の `size_to_bin` helper を
+MIR optimizer で inline し、その結果を static size-class table load に流す fixture。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_size_to_bin_inline_exe_guard.sh
+```
+
+**特徴**:
+- `size_to_bin` は source helper のまま、pure-first backend 前に展開
+- backend/.inc は `Profile(allocator.fast)` を読まない
+- dynamic `static_data_load` と RawBuf/RawArray route を合成
+- wider inline shape / general mimalloc bin algorithm は追加しない
+
 #### allocator-fast-path-exe-proof
 **場所**: `allocator-fast-path-exe-proof/main.hako`
 M13 scalar EXE proof。`Profile(allocator.fast)` を MIR-owned verified
@@ -321,6 +336,7 @@ box TreeNode {
 - [x] mimalloc-size-class-table-proof（M21 static size-class table proof）
 - [x] mimalloc-two-class-page-proof（M22 two-class page proof）
 - [x] mimalloc-dynamic-bin-proof（M23 dynamic bin proof）
+- [x] mimalloc-size-to-bin-inline-proof（M24 size_to_bin inline proof）
 
 ### 🚧 実装予定（論文・ベンチマーク用）
 - [ ] n-body（数値計算）

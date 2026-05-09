@@ -71,6 +71,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_mimalloc_size_class_table_exe_guard.sh` | M21 の static u16 size-class table + raw-page pure-first EXE 合成 proof を固定し、runtime Array/Map table materialization、app-specific `.inc` matcher、新しい source syntax / allocator policy の混入を防ぐ。 |
 | `tools/checks/k2_wide_mimalloc_two_class_page_exe_guard.sh` | M22 の static u16 size-class table + two-class raw-page pure-first EXE proof を固定し、small/medium の reject/release/reuse が既存 route surface だけで動くことを検証する。 |
 | `tools/checks/k2_wide_mimalloc_dynamic_bin_exe_guard.sh` | M23 の runtime-indexed static u16 size-class table + raw-page pure-first EXE proof を固定し、非定数 `static_data_load` index が app-specific `.inc` matcher なしで動くことを検証する。 |
+| `tools/checks/k2_wide_mimalloc_size_to_bin_inline_exe_guard.sh` | M24 の `Profile(allocator.fast)` size_to_bin inline + runtime-indexed static u16 table + raw-page pure-first EXE proof を固定し、backend/.inc が profile 名を読まないことを検証する。 |
 
 ## Env Hygiene
 

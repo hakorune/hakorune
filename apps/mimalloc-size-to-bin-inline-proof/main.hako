@@ -1,0 +1,99 @@
+// mimalloc-size-to-bin-inline-proof
+// Purpose: prove allocator.fast size_to_bin inline feeds static table loads in EXE.
+
+static const MI_SIZE_CLASS: u16[] = [
+    16 + 16,
+    2 * 32,
+]
+
+static const MI_CLASS_CAP: u16[] = [
+    1 << 2,
+    1 + 1,
+]
+
+using selfhost.runtime.substrate.raw_buf.raw_buf_core_box as RawBufCoreBox
+using selfhost.runtime.substrate.raw_array.raw_array_core_box as RawArrayCoreBox
+
+static box MiBinSelector {
+    @rune Profile(allocator.fast)
+    size_to_bin(size) {
+        return size / 32
+    }
+}
+
+static box Main {
+    main(args) {
+        local request = 48
+        local bin = MiBinSelector.size_to_bin(request)
+        local block_size = MI_SIZE_CLASS[bin]
+        local capacity = MI_CLASS_CAP[bin]
+        local raw_ptr = RawBufCoreBox.alloc_bytes_i64(block_size * capacity)
+        local free_stack = new ArrayBox()
+        local free_top = capacity
+        local alloc_count = 0
+        local free_count = 0
+        local reuse_count = 0
+        local peak_used = 0
+        local current_used = 0
+        local rejects = 0
+
+        RawArrayCoreBox.slot_append_any(free_stack, 0)
+        RawArrayCoreBox.slot_append_any(free_stack, 1)
+
+        free_top = free_top - 1
+        local b0 = RawArrayCoreBox.slot_load_i64(free_stack, free_top)
+        alloc_count = alloc_count + 1
+        current_used = current_used + 1
+        if current_used > peak_used {
+            peak_used = current_used
+        }
+
+        free_top = free_top - 1
+        local b1 = RawArrayCoreBox.slot_load_i64(free_stack, free_top)
+        alloc_count = alloc_count + 1
+        current_used = current_used + 1
+        if current_used > peak_used {
+            peak_used = current_used
+        }
+
+        if free_top == 0 {
+            rejects = rejects + 1
+        }
+
+        RawArrayCoreBox.slot_store_i64(free_stack, free_top, b0)
+        free_top = free_top + 1
+        free_count = free_count + 1
+        current_used = current_used - 1
+
+        free_top = free_top - 1
+        local b2 = RawArrayCoreBox.slot_load_i64(free_stack, free_top)
+        if alloc_count >= capacity {
+            reuse_count = reuse_count + 1
+        }
+        alloc_count = alloc_count + 1
+        current_used = current_used + 1
+        if current_used > peak_used {
+            peak_used = current_used
+        }
+
+        if 80 > block_size {
+            rejects = rejects + 1
+        }
+
+        local id_sum = b0 + b1 + b2
+
+        print("mimalloc-size-to-bin-inline-proof")
+        print("bin=" + bin + " table=" + block_size + "/" + capacity)
+        print("allocs=" + alloc_count + " frees=" + free_count + " reused=" + reuse_count + " peak=" + peak_used + " free=" + free_top)
+        print("rejects=" + rejects)
+
+        RawBufCoreBox.free_bytes_i64(raw_ptr)
+        if raw_ptr != 0 && bin == 1 && block_size == 64 && capacity == 2 && id_sum == 2 && alloc_count == 3 && free_count == 1 && reuse_count == 1 && peak_used == 2 && free_top == 0 && rejects == 2 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
