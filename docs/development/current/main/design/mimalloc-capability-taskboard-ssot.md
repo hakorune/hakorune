@@ -112,6 +112,7 @@ them into MIR-owned plan facts.
 | `M20 mimalloc raw-page EXE parity guard` | `live-narrow` | pure-first EXE regression guard | locks `apps/mimalloc-raw-page-proof` build/run under pure-first over M14-M19 routes; no new route shape or allocator policy |
 | `M21 mimalloc size-class table EXE proof` | `live-narrow` | allocator app proof + pure-first static-data reader | composes M11b static const u16 size-class tables with the M14-M20 raw-page route surface in `apps/mimalloc-size-class-table-proof`; adds only narrow `u16` `static_data_plans` / `static_data_load` lowering in pure-first, with no new source syntax or allocator policy |
 | `M22 mimalloc two-class page EXE proof` | `live-narrow` | allocator app proof | composes M21 static tables with two M14-M20 raw pages in `apps/mimalloc-two-class-page-proof`; proves small/medium page reject/release/reuse without new source syntax, table type, route shape, or allocator policy |
+| `M23 mimalloc dynamic bin EXE proof` | `live-narrow` | allocator app proof | proves non-constant `static_data_load` indices for `u16` size-class tables in `apps/mimalloc-dynamic-bin-proof`; raw-page operations still use existing M14-M20 route facts |
 
 ## Fixed Implementation Order
 
@@ -160,6 +161,7 @@ them into MIR-owned plan facts.
 43. `M20 mimalloc raw-page EXE parity guard`
 44. `M21 mimalloc size-class table EXE proof`
 45. `M22 mimalloc two-class page EXE proof`
+46. `M23 mimalloc dynamic bin EXE proof`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed
@@ -368,3 +370,6 @@ pure-first reader/emitter for MIR-owned `u16` `static_data_plans` and
 static table seam and the M14-M20 raw-page route surface compose for two
 classes. M22 owns only the app proof; dynamic bin selection, TLS, atomics,
 OSVM, native pointer attrs, and allocator ownership proof remain future rows.
+`M23 mimalloc dynamic bin EXE proof` is now live-narrow because the M21
+pure-first `static_data_load` reader also accepts runtime `i64` indices. M23
+does not add a general `size_to_bin` algorithm or new backend vocabulary.

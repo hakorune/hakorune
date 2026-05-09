@@ -137,6 +137,21 @@ bash tools/checks/k2_wide_mimalloc_two_class_page_exe_guard.sh
 - full-page reject、oversize reject、release 後 reuse を固定
 - 新しい source syntax / allocator policy は追加しない
 
+#### mimalloc-dynamic-bin-proof
+**場所**: `mimalloc-dynamic-bin-proof/main.hako`
+M23 substrate proof。実行時に選んだ class index で static size-class table
+を読み、raw page sequence を pure-first EXE で固定する fixture。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_dynamic_bin_exe_guard.sh
+```
+
+**特徴**:
+- `MI_SIZE_CLASS[class_idx]` / `MI_CLASS_CAP[class_idx]` の非定数 index を固定
+- request=48 から medium class `64/2` を選ぶ
+- RawBuf/RawArray route は既存 M14-M20 facts を再利用
+- general `size_to_bin` / allocator policy は追加しない
+
 #### allocator-fast-path-exe-proof
 **場所**: `allocator-fast-path-exe-proof/main.hako`
 M13 scalar EXE proof。`Profile(allocator.fast)` を MIR-owned verified
@@ -305,6 +320,7 @@ box TreeNode {
 - [x] mimalloc-raw-page-proof（M12 substrate proof）
 - [x] mimalloc-size-class-table-proof（M21 static size-class table proof）
 - [x] mimalloc-two-class-page-proof（M22 two-class page proof）
+- [x] mimalloc-dynamic-bin-proof（M23 dynamic bin proof）
 
 ### 🚧 実装予定（論文・ベンチマーク用）
 - [ ] n-body（数値計算）

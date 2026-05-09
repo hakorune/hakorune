@@ -87,6 +87,7 @@ list_profiles() {
     - tools/checks/k2_wide_mimalloc_raw_page_exe_guard.sh
     - tools/checks/k2_wide_mimalloc_size_class_table_exe_guard.sh
     - tools/checks/k2_wide_mimalloc_two_class_page_exe_guard.sh
+    - tools/checks/k2_wide_mimalloc_dynamic_bin_exe_guard.sh
     - tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
     - tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
     - tools/checks/k2_wide_metal_keep_inventory_guard.sh
@@ -435,6 +436,9 @@ run_quick() {
 
   run_step "K2-wide mimalloc two-class page EXE guard" \
     bash tools/checks/k2_wide_mimalloc_two_class_page_exe_guard.sh
+
+  run_step "K2-wide mimalloc dynamic bin EXE guard" \
+    bash tools/checks/k2_wide_mimalloc_dynamic_bin_exe_guard.sh
 
   run_step "K2-wide hako_alloc handle policy guard" \
     bash tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
