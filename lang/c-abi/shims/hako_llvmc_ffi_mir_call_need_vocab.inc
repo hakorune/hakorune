@@ -32,6 +32,8 @@
         int string_concat;
         int env_get;
         int env_set;
+        int hako_mem_alloc;
+        int hako_mem_free;
         int hostbridge_extern_invoke_trap;
         int stage1_emit_program_json;
         int stage1_emit_mir_from_source;
@@ -65,6 +67,8 @@
         HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT,
         HAKO_LLVMC_MIR_CALL_NEED_ENV_GET,
         HAKO_LLVMC_MIR_CALL_NEED_ENV_SET,
+        HAKO_LLVMC_MIR_CALL_NEED_HAKO_MEM_ALLOC,
+        HAKO_LLVMC_MIR_CALL_NEED_HAKO_MEM_FREE,
         HAKO_LLVMC_MIR_CALL_NEED_HOSTBRIDGE_EXTERN_INVOKE_TRAP,
         HAKO_LLVMC_MIR_CALL_NEED_STAGE1_EMIT_PROGRAM_JSON,
         HAKO_LLVMC_MIR_CALL_NEED_STAGE1_EMIT_MIR_FROM_SOURCE,

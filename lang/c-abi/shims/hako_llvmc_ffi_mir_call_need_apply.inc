@@ -79,6 +79,12 @@
           case HAKO_LLVMC_MIR_CALL_NEED_ENV_SET:
             needs->env_set = 1;
             break;
+          case HAKO_LLVMC_MIR_CALL_NEED_HAKO_MEM_ALLOC:
+            needs->hako_mem_alloc = 1;
+            break;
+          case HAKO_LLVMC_MIR_CALL_NEED_HAKO_MEM_FREE:
+            needs->hako_mem_free = 1;
+            break;
           case HAKO_LLVMC_MIR_CALL_NEED_HOSTBRIDGE_EXTERN_INVOKE_TRAP:
             needs->hostbridge_extern_invoke_trap = 1;
             break;

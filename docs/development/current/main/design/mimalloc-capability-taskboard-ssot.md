@@ -103,6 +103,7 @@ them into MIR-owned plan facts.
 | `M12b Profile registry docs` | `live-docs` | rune metadata + docs | `docs/reference/mir/rune-profile-registry.md` reserves `allocator.fast`, `allocator.slow`, `substrate.leaf`, `intrinsic.leaf`, and `raw.layout` expansion targets; no parser acceptance unless a later row explicitly owns parser parity |
 | `M12c Profile expansion to facts` | `live-narrow` | rune metadata + MIR plans + verifier | `Profile(...)` accepts the reserved registry names and expands to primitive `Hint` / `Lowering` / `Contract` / EffectPlan / CapabilityPlan facts; backend reads only expanded facts and must not read profile names |
 | `M13 allocator fast-path EXE proof` | `live-narrow` | MIR optimizer + EXE proof | `apps/allocator-fast-path-exe-proof` proves scalar `Profile(allocator.fast)` lowering through verified required InlinePlan consumption before pure-first EXE; backend/.inc remain profile-name-free, and RawBuf/RawArray/native pointer EXE lowering remains future |
+| `M14 hako.mem extern pure-first route` | `live-narrow` | MIR extern route + pure-first EXE | accepts only `hako_mem_alloc` and `hako_mem_free` as MIR-owned extern route facts; pure-first emits native `ptr` calls plus i64 transport conversion/zero sentinel and links through NyRT exports; no strong pointer attrs, no realloc, no RawBuf/RawArray parity |
 
 ## Fixed Implementation Order
 
@@ -142,6 +143,7 @@ them into MIR-owned plan facts.
 34. `M12b Profile registry docs`
 35. `M12c Profile expansion to facts`
 36. `M13 allocator fast-path EXE proof`
+37. `M14 hako.mem extern pure-first route`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed
@@ -303,3 +305,8 @@ live-narrow for the scalar fast-path lane: verified required InlinePlan is
 consumed by the MIR optimizer before pure-first EXE, and the backend still sees
 only expanded scalar MIR. Full raw-page EXE remains future work and must split
 RawBuf/RawArray/native pointer route acceptance into separate rows.
+`M14 hako.mem extern pure-first route` is now live-narrow because the first
+raw-page EXE probe reached an inner `hako_mem_alloc/free` extern route blocker
+through `RawBufCoreBox -> MemCoreBox`. M14 owns only native pointer transport
+emission for direct hako.mem extern calls plus NyRT link exports, and keeps
+RawBuf/RawArray wrapper parity for later rows.

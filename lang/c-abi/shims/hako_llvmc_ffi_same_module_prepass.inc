@@ -89,6 +89,13 @@
           set_type(dst, T_I64);
           return 1;
         }
+        if (lowering_plan_extern_call_view_returns_native_ptr_nullable_transport_i64(
+                extern_view) ||
+            lowering_plan_extern_call_view_returns_void_sentinel_i64_zero(
+                extern_view)) {
+          set_type(dst, T_I64);
+          return 1;
+        }
         return 0;
       }
 

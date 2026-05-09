@@ -397,6 +397,24 @@
                !strcmp(view->value_demand, "runtime_i64");
       }
 
+      auto int lowering_plan_extern_call_view_returns_native_ptr_nullable_transport_i64(
+          const struct LoweringPlanExternCallView* view) {
+        return view &&
+               view->return_shape &&
+               !strcmp(view->return_shape, "native_ptr_nullable") &&
+               view->value_demand &&
+               !strcmp(view->value_demand, "native_ptr_nullable");
+      }
+
+      auto int lowering_plan_extern_call_view_returns_void_sentinel_i64_zero(
+          const struct LoweringPlanExternCallView* view) {
+        return view &&
+               view->return_shape &&
+               !strcmp(view->return_shape, "void_sentinel_i64_zero") &&
+               view->value_demand &&
+               !strcmp(view->value_demand, "scalar_i64");
+      }
+
       auto int read_lowering_plan_global_call_view(
           yyjson_val* entry,
           struct LoweringPlanGlobalCallView* out) {

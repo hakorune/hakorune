@@ -13,6 +13,8 @@ use crate::mir::core_method_op::{LoweringPlanEmitKind, LoweringPlanTier};
 pub enum ExternCallRouteKind {
     EnvGet,
     EnvSet,
+    HakoMemAlloc,
+    HakoMemFree,
     HostBridgeExternInvoke,
     Stage1EmitProgramJson,
     Stage1EmitMirFromSource,
@@ -24,6 +26,8 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => "extern.env.get",
             Self::EnvSet => "extern.env.set",
+            Self::HakoMemAlloc => "extern.hako_mem.alloc",
+            Self::HakoMemFree => "extern.hako_mem.free",
             Self::HostBridgeExternInvoke => "extern.hostbridge.extern_invoke",
             Self::Stage1EmitProgramJson => "extern.stage1.emit_program_json_v0",
             Self::Stage1EmitMirFromSource => "extern.stage1.emit_mir_from_source_v0",
@@ -35,6 +39,8 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => "EnvGet",
             Self::EnvSet => "EnvSet",
+            Self::HakoMemAlloc => "HakoMemAlloc",
+            Self::HakoMemFree => "HakoMemFree",
             Self::HostBridgeExternInvoke => "HostBridgeExternInvoke",
             Self::Stage1EmitProgramJson => "Stage1EmitProgramJson",
             Self::Stage1EmitMirFromSource => "Stage1EmitMirFromSource",
@@ -46,6 +52,8 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => "nyash.env.get",
             Self::EnvSet => "nyash.env.set",
+            Self::HakoMemAlloc => "hako_mem_alloc",
+            Self::HakoMemFree => "hako_mem_free",
             Self::HostBridgeExternInvoke => "nyash.hostbridge.extern_invoke",
             Self::Stage1EmitProgramJson => "nyash.stage1.emit_program_json_v0_h",
             Self::Stage1EmitMirFromSource => "nyash.stage1.emit_mir_from_source_v0_h",
@@ -73,6 +81,8 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => "extern_registry",
             Self::EnvSet => "extern_registry",
+            Self::HakoMemAlloc => "extern_registry",
+            Self::HakoMemFree => "extern_registry",
             Self::HostBridgeExternInvoke => "extern_registry",
             Self::Stage1EmitProgramJson => "extern_registry",
             Self::Stage1EmitMirFromSource => "extern_registry",
@@ -84,6 +94,8 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => "string_handle_or_null",
             Self::EnvSet => "scalar_i64",
+            Self::HakoMemAlloc => "native_ptr_nullable",
+            Self::HakoMemFree => "void_sentinel_i64_zero",
             Self::HostBridgeExternInvoke => "string_handle_or_null",
             Self::Stage1EmitProgramJson => "string_handle",
             Self::Stage1EmitMirFromSource => "string_handle",
@@ -95,6 +107,8 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => "runtime_i64_or_handle",
             Self::EnvSet => "runtime_i64",
+            Self::HakoMemAlloc => "native_ptr_nullable",
+            Self::HakoMemFree => "scalar_i64",
             Self::HostBridgeExternInvoke => "runtime_i64_or_handle",
             Self::Stage1EmitProgramJson => "runtime_i64_or_handle",
             Self::Stage1EmitMirFromSource => "runtime_i64_or_handle",
@@ -106,6 +120,8 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => &["read.env"],
             Self::EnvSet => &["write.env"],
+            Self::HakoMemAlloc => &["hako.mem.alloc"],
+            Self::HakoMemFree => &["hako.mem.free"],
             Self::HostBridgeExternInvoke => &["hostbridge.extern"],
             Self::Stage1EmitProgramJson => &["stage1.emit_program_json"],
             Self::Stage1EmitMirFromSource => &["stage1.emit_mir_from_source"],
@@ -218,6 +234,8 @@ impl ExternCallRoute {
         match self.kind {
             ExternCallRouteKind::EnvGet => 1,
             ExternCallRouteKind::EnvSet => 2,
+            ExternCallRouteKind::HakoMemAlloc => 1,
+            ExternCallRouteKind::HakoMemFree => 1,
             ExternCallRouteKind::HostBridgeExternInvoke => 3,
             ExternCallRouteKind::Stage1EmitProgramJson => 1,
             ExternCallRouteKind::Stage1EmitMirFromSource => 1,
@@ -249,6 +267,8 @@ pub fn classify_extern_call_route(name: &str, argc: usize) -> Option<ExternCallR
     match (normalize_extern_symbol(name), argc) {
         ("env.get", 1) | ("nyash.env.get", 1) => Some(ExternCallRouteKind::EnvGet),
         ("env.set", 2) | ("nyash.env.set", 2) => Some(ExternCallRouteKind::EnvSet),
+        ("hako_mem_alloc", 1) => Some(ExternCallRouteKind::HakoMemAlloc),
+        ("hako_mem_free", 1) => Some(ExternCallRouteKind::HakoMemFree),
         ("hostbridge.extern_invoke", 3) => Some(ExternCallRouteKind::HostBridgeExternInvoke),
         ("nyash.stage1.emit_program_json_v0_h", 1) => {
             Some(ExternCallRouteKind::Stage1EmitProgramJson)
@@ -308,6 +328,8 @@ pub fn refresh_function_extern_call_routes(function: &mut MirFunction) {
             let value_value = match kind {
                 ExternCallRouteKind::EnvGet => None,
                 ExternCallRouteKind::EnvSet => args.get(1).copied(),
+                ExternCallRouteKind::HakoMemAlloc => None,
+                ExternCallRouteKind::HakoMemFree => None,
                 ExternCallRouteKind::HostBridgeExternInvoke => args.get(2).copied(),
                 ExternCallRouteKind::Stage1EmitProgramJson => None,
                 ExternCallRouteKind::Stage1EmitMirFromSource => None,
@@ -423,6 +445,62 @@ mod tests {
         assert_eq!(route.return_shape(), "scalar_i64");
         assert_eq!(route.value_demand(), "runtime_i64");
         assert_eq!(route.effect_tags(), &["write.env"]);
+    }
+
+    #[test]
+    fn refresh_function_extern_call_routes_records_hako_mem_alloc_route() {
+        let mut function = make_function_with_call(
+            "hako_mem_alloc",
+            vec![ValueId::new(1)],
+            Some(ValueId::new(2)),
+        );
+
+        refresh_function_extern_call_routes(&mut function);
+
+        assert_eq!(function.metadata.extern_call_routes.len(), 1);
+        let route = &function.metadata.extern_call_routes[0];
+        assert_eq!(route.route_id(), "extern.hako_mem.alloc");
+        assert_eq!(route.core_op(), "HakoMemAlloc");
+        assert_eq!(route.symbol(), "hako_mem_alloc");
+        assert_eq!(route.tier(), "ColdRuntime");
+        assert_eq!(route.emit_kind(), "runtime_call");
+        assert_eq!(route.proof(), "extern_registry");
+        assert_eq!(route.source_symbol(), "hako_mem_alloc");
+        assert_eq!(route.key_value(), ValueId::new(1));
+        assert_eq!(route.value_value(), None);
+        assert_eq!(route.result_value(), ValueId::new(2));
+        assert_eq!(route.arity(), 1);
+        assert_eq!(route.return_shape(), "native_ptr_nullable");
+        assert_eq!(route.value_demand(), "native_ptr_nullable");
+        assert_eq!(route.effect_tags(), &["hako.mem.alloc"]);
+    }
+
+    #[test]
+    fn refresh_function_extern_call_routes_records_hako_mem_free_route() {
+        let mut function = make_function_with_call(
+            "hako_mem_free/1",
+            vec![ValueId::new(1)],
+            Some(ValueId::new(2)),
+        );
+
+        refresh_function_extern_call_routes(&mut function);
+
+        assert_eq!(function.metadata.extern_call_routes.len(), 1);
+        let route = &function.metadata.extern_call_routes[0];
+        assert_eq!(route.route_id(), "extern.hako_mem.free");
+        assert_eq!(route.core_op(), "HakoMemFree");
+        assert_eq!(route.symbol(), "hako_mem_free");
+        assert_eq!(route.tier(), "ColdRuntime");
+        assert_eq!(route.emit_kind(), "runtime_call");
+        assert_eq!(route.proof(), "extern_registry");
+        assert_eq!(route.source_symbol(), "hako_mem_free/1");
+        assert_eq!(route.key_value(), ValueId::new(1));
+        assert_eq!(route.value_value(), None);
+        assert_eq!(route.result_value(), ValueId::new(2));
+        assert_eq!(route.arity(), 1);
+        assert_eq!(route.return_shape(), "void_sentinel_i64_zero");
+        assert_eq!(route.value_demand(), "scalar_i64");
+        assert_eq!(route.effect_tags(), &["hako.mem.free"]);
     }
 
     #[test]

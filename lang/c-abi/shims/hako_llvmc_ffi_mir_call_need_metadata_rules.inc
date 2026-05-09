@@ -435,6 +435,20 @@
             HAKO_LLVMC_MIR_CALL_NEED_ENV_SET,
           },
           {
+            "extern.hako_mem.alloc",
+            "HakoMemAlloc",
+            "extern.hako_mem.alloc",
+            "hako_mem_alloc",
+            HAKO_LLVMC_MIR_CALL_NEED_HAKO_MEM_ALLOC,
+          },
+          {
+            "extern.hako_mem.free",
+            "HakoMemFree",
+            "extern.hako_mem.free",
+            "hako_mem_free",
+            HAKO_LLVMC_MIR_CALL_NEED_HAKO_MEM_FREE,
+          },
+          {
             "extern.hostbridge.extern_invoke",
             "HostBridgeExternInvoke",
             "extern.hostbridge.extern_invoke",

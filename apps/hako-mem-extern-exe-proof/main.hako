@@ -1,0 +1,20 @@
+// hako-mem-extern-exe-proof
+// Purpose: M14 direct hako.mem extern route proof for pure-first EXE.
+
+static box Main {
+    main(args) {
+        local ptr = externcall "hako_mem_alloc"(64)
+
+        if ptr == 0 {
+            print("hako-mem-extern-exe-proof")
+            print("summary=alloc_failed")
+            return 1
+        }
+
+        externcall "hako_mem_free"(ptr)
+
+        print("hako-mem-extern-exe-proof")
+        print("summary=ok")
+        return 0
+    }
+}

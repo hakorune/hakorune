@@ -447,18 +447,24 @@ fn generic_i64_body_refine_instruction(
             callee: Some(Callee::Extern(name)),
             args,
             ..
-        } if classify_extern_call_route(name, args.len()) == Some(ExternCallRouteKind::EnvGet) => {
-            if let Some(dst) = dst {
-                set_generic_i64_value_class(values, *dst, GenericI64ValueClass::String, changed)
-            } else {
-                false
+        } => match classify_extern_call_route(name, args.len()) {
+            Some(ExternCallRouteKind::EnvGet) => {
+                if let Some(dst) = dst {
+                    set_generic_i64_value_class(values, *dst, GenericI64ValueClass::String, changed)
+                } else {
+                    false
+                }
             }
-        }
+            Some(ExternCallRouteKind::HakoMemAlloc | ExternCallRouteKind::HakoMemFree) => {
+                if let Some(dst) = dst {
+                    set_generic_i64_value_class(values, *dst, GenericI64ValueClass::I64, changed)
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        },
         MirInstruction::Call {
-            callee: Some(Callee::Extern(_)),
-            ..
-        }
-        | MirInstruction::Call {
             callee: Some(Callee::Method { receiver: None, .. }),
             ..
         } => false,

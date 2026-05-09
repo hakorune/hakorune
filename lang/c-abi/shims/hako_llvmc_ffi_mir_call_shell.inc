@@ -386,6 +386,8 @@
 
       enum MirCallExternEmitBehavior {
         HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL = 0,
+        HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR_RETURN_I64,
+        HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR_ARG_VOID_ZERO,
         HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_TRAP_SENTINEL,
       };
 
@@ -445,6 +447,30 @@
            0,
            "mir_call_extern_emit",
            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL},
+          {"extern.hako_mem.alloc",
+           "HakoMemAlloc",
+           "extern.hako_mem.alloc",
+           "hako_mem_alloc",
+           "native_ptr_nullable",
+           "native_ptr_nullable",
+           1,
+           0,
+           0,
+           0,
+           "mir_call_hako_mem_alloc_emit",
+           HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR_RETURN_I64},
+          {"extern.hako_mem.free",
+           "HakoMemFree",
+           "extern.hako_mem.free",
+           "hako_mem_free",
+           "void_sentinel_i64_zero",
+           "scalar_i64",
+           1,
+           0,
+           0,
+           0,
+           "mir_call_hako_mem_free_emit",
+           HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR_ARG_VOID_ZERO},
           {"extern.hostbridge.extern_invoke",
            "HostBridgeExternInvoke",
            "extern.hostbridge.extern_invoke",
@@ -571,6 +597,16 @@
             view, "extern.stage1.emit_mir_from_program_json_v0");
       }
 
+      auto void format_extern_i64_value_ref(
+          char* out,
+          size_t out_cap,
+          long long reg) {
+        long long cv = 0;
+        long long base = resolve_copy_source_reg(reg);
+        if (has_const(base, &cv)) snprintf(out, out_cap, "%lld", cv);
+        else snprintf(out, out_cap, "%%r%lld", base);
+      }
+
       auto int emit_extern_call_lowering_plan_mir_call(
           FILE* f,
           long long bid,
@@ -646,6 +682,57 @@
               set_scan_origin(dst, ORG_STRING);
             }
           }
+          trace_lowering_plan_entry_hit(entry, rule->trace_consumer);
+          return 1;
+        }
+        if (rule->behavior ==
+            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR_RETURN_I64) {
+          char size_ref[64];
+          if (argc != 1) return -1;
+          if (!materialize_direct_global_call_arg_if_needed(f, actual_args[0])) {
+            return -1;
+          }
+          format_extern_i64_value_ref(size_ref, sizeof(size_ref), actual_args[0]);
+          fprintf(
+              f,
+              "  %%hako_mem_alloc_ptr_b%lld_i%zu = call ptr @\"%s\"(i64 %s)\n",
+              bid,
+              ii,
+              rule->symbol,
+              size_ref);
+          fprintf(
+              f,
+              "  %%r%lld = ptrtoint ptr %%hako_mem_alloc_ptr_b%lld_i%zu to i64\n",
+              dst,
+              bid,
+              ii);
+          set_type(dst, T_I64);
+          trace_lowering_plan_entry_hit(entry, rule->trace_consumer);
+          return 1;
+        }
+        if (rule->behavior ==
+            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR_ARG_VOID_ZERO) {
+          char ptr_ref[64];
+          if (argc != 1) return -1;
+          if (!materialize_direct_global_call_arg_if_needed(f, actual_args[0])) {
+            return -1;
+          }
+          format_extern_i64_value_ref(ptr_ref, sizeof(ptr_ref), actual_args[0]);
+          fprintf(
+              f,
+              "  %%hako_mem_free_ptr_b%lld_i%zu = inttoptr i64 %s to ptr\n",
+              bid,
+              ii,
+              ptr_ref);
+          fprintf(
+              f,
+              "  call void @\"%s\"(ptr %%hako_mem_free_ptr_b%lld_i%zu)\n",
+              rule->symbol,
+              bid,
+              ii);
+          fprintf(f, "  %%r%lld = add i64 0, 0\n", dst);
+          set_type(dst, T_I64);
+          put_const(dst, 0);
           trace_lowering_plan_entry_hit(entry, rule->trace_consumer);
           return 1;
         }
