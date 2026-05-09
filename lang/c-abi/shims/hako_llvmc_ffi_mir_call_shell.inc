@@ -388,6 +388,7 @@
         HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL = 0,
         HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR_RETURN_I64,
         HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR_ARG_VOID_ZERO,
+        HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR1_I64_ARG_RETURN_I64,
         HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR2_I64_ARG_CALL,
         HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_TRAP_SENTINEL,
       };
@@ -592,6 +593,18 @@
            0,
            "mir_call_hako_atomic_ptr_store_ordered_emit",
            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR2_I64_ARG_CALL},
+          {"extern.hako_atomic.ptr_load_ordered",
+           "HakoAtomicPtrLoadOrdered",
+           "extern.hako_atomic.ptr_load_ordered",
+           "hako_atomic_ptr_load_ordered",
+           "native_ptr_nullable",
+           "native_ptr_nullable",
+           2,
+           0,
+           0,
+           0,
+           "mir_call_hako_atomic_ptr_load_ordered_emit",
+           HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR1_I64_ARG_RETURN_I64},
           {"extern.hako_osvm.reserve_bytes_i64",
            "HakoOsvmReserveBytesI64",
            "extern.hako_osvm.reserve_bytes_i64",
@@ -914,6 +927,43 @@
           fprintf(f, "  %%r%lld = add i64 0, 0\n", dst);
           set_type(dst, T_I64);
           put_const(dst, 0);
+          trace_lowering_plan_entry_hit(entry, rule->trace_consumer);
+          return 1;
+        }
+        if (rule->behavior ==
+            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR1_I64_ARG_RETURN_I64) {
+          char cell_ref[64];
+          char order_ref[64];
+          if (argc != 2) return -1;
+          for (ai = 0; ai < argc; ai++) {
+            if (!materialize_direct_global_call_arg_if_needed(f, actual_args[ai])) {
+              return -1;
+            }
+          }
+          format_extern_i64_value_ref(cell_ref, sizeof(cell_ref), actual_args[0]);
+          format_extern_i64_value_ref(order_ref, sizeof(order_ref), actual_args[1]);
+          fprintf(
+              f,
+              "  %%hako_atomic_ptr_load_cell_b%lld_i%zu = inttoptr i64 %s to ptr\n",
+              bid,
+              ii,
+              cell_ref);
+          fprintf(
+              f,
+              "  %%hako_atomic_ptr_load_ptr_b%lld_i%zu = call ptr @\"%s\"(ptr %%hako_atomic_ptr_load_cell_b%lld_i%zu, i64 %s)\n",
+              bid,
+              ii,
+              rule->symbol,
+              bid,
+              ii,
+              order_ref);
+          fprintf(
+              f,
+              "  %%r%lld = ptrtoint ptr %%hako_atomic_ptr_load_ptr_b%lld_i%zu to i64\n",
+              dst,
+              bid,
+              ii);
+          set_type(dst, T_I64);
           trace_lowering_plan_entry_hit(entry, rule->trace_consumer);
           return 1;
         }

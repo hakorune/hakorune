@@ -34,6 +34,15 @@ fn ptr_store_ordering(order: i64) -> Option<Ordering> {
     }
 }
 
+fn ptr_load_ordering(order: i64) -> Option<Ordering> {
+    match order {
+        0 => Some(Ordering::Relaxed),
+        1 => Some(Ordering::Acquire),
+        4 => Some(Ordering::SeqCst),
+        _ => None,
+    }
+}
+
 #[no_mangle]
 pub extern "C" fn hako_atomic_slot_cas_i64(slot: i64, expected: i64, desired: i64) -> i64 {
     let Some(cell) = atomic_slot(slot) else {
@@ -88,6 +97,23 @@ pub extern "C" fn hako_atomic_ptr_store_ordered(
     HAKO_OK
 }
 
+#[no_mangle]
+pub extern "C" fn hako_atomic_ptr_load_ordered(
+    cell_ptr: *mut c_void,
+    order: i64,
+) -> *mut c_void {
+    if cell_ptr.is_null() {
+        return std::ptr::null_mut();
+    }
+    let Some(ordering) = ptr_load_ordering(order) else {
+        return std::ptr::null_mut();
+    };
+    unsafe {
+        let cell = cell_ptr.cast::<AtomicUsize>();
+        (*cell).load(ordering) as *mut c_void
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -138,6 +164,28 @@ mod tests {
                 1,
             ),
             HAKO_VALIDATION
+        );
+    }
+
+    #[test]
+    fn ptr_load_ordered_reads_native_pointer_value() {
+        let value = 0x2000usize as *mut c_void;
+        let cell = AtomicUsize::new(value as usize);
+
+        assert_eq!(
+            hako_atomic_ptr_load_ordered(
+                (&cell as *const AtomicUsize).cast_mut().cast::<c_void>(),
+                0,
+            ),
+            value
+        );
+        assert!(hako_atomic_ptr_load_ordered(std::ptr::null_mut(), 0).is_null());
+        assert!(
+            hako_atomic_ptr_load_ordered(
+                (&cell as *const AtomicUsize).cast_mut().cast::<c_void>(),
+                2,
+            )
+            .is_null()
         );
     }
 }

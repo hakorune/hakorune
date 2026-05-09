@@ -1,0 +1,39 @@
+// mimalloc-ptr-atomic-load-proof
+// Purpose: prove direct native pointer atomic load route in pure-first EXE.
+
+static box Main {
+    main(args) {
+        local cell = externcall "hako_mem_alloc"(8)
+        local value = externcall "hako_mem_alloc"(16)
+
+        if cell == 0 || value == 0 {
+            print("mimalloc-ptr-atomic-load-proof")
+            print("summary=alloc_failed")
+            if value != 0 { externcall "hako_mem_free"(value) }
+            if cell != 0 { externcall "hako_mem_free"(cell) }
+            return 1
+        }
+
+        local store = externcall "hako_atomic_ptr_store_ordered"(cell, value, 2)
+        local loaded = externcall "hako_atomic_ptr_load_ordered"(cell, 1)
+        local loaded_matches = 0
+        if loaded == value {
+            loaded_matches = 1
+        }
+
+        externcall "hako_mem_free"(value)
+        externcall "hako_mem_free"(cell)
+
+        print("mimalloc-ptr-atomic-load-proof")
+        print("store=" + store)
+        print("loaded_matches=" + loaded_matches)
+
+        if store == 0 && loaded_matches == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

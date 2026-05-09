@@ -158,5 +158,10 @@ inference for the allocator release path.
 - `293x-090`: M38 mimalloc allocator app closeout guard landed, locking
   M20-M37 mimalloc proof coverage in docs index and `dev_gate.sh quick` without
   adding another app, route row, or backend matcher.
-- Next: select the next mimalloc-grade substrate row from `293x-026`; keep
-  future blockers as compiler/runtime seams and do not hide them in app code.
+- `293x-091`: M39 native pointer atomic load route proof landed, routing
+  `hako_atomic_ptr_load_ordered/2` through MIR-owned extern facts, NyRT export,
+  and pure-first native pointer return lowering while keeping pointer
+  CAS/fetch_add and native pointer attrs inactive.
+- Next: M40 native pointer atomic CAS route proof, if the allocator lane needs
+  read-modify-write pointer publication; keep future blockers as
+  compiler/runtime seams and do not hide them in app code.

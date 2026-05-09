@@ -655,6 +655,9 @@
       if (needs.hako_atomic_slot_store_i64 ||
           module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"hako_atomic_slot_store_i64\"(i64, i64)\n");
+      if (needs.hako_atomic_ptr_load_ordered ||
+          module_has_planned_same_module_function_definition())
+        fprintf(f, "declare ptr @\"hako_atomic_ptr_load_ordered\"(ptr, i64)\n");
       if (needs.hako_atomic_ptr_store_ordered ||
           module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"hako_atomic_ptr_store_ordered\"(ptr, ptr, i64)\n");

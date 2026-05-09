@@ -37,6 +37,7 @@
         int hako_atomic_slot_fetch_add_i64;
         int hako_atomic_slot_load_i64;
         int hako_atomic_slot_store_i64;
+        int hako_atomic_ptr_load_ordered;
         int hako_atomic_ptr_store_ordered;
         int hako_mem_alloc;
         int hako_mem_free;
@@ -83,6 +84,7 @@
         HAKO_LLVMC_MIR_CALL_NEED_HAKO_ATOMIC_SLOT_FETCH_ADD_I64,
         HAKO_LLVMC_MIR_CALL_NEED_HAKO_ATOMIC_SLOT_LOAD_I64,
         HAKO_LLVMC_MIR_CALL_NEED_HAKO_ATOMIC_SLOT_STORE_I64,
+        HAKO_LLVMC_MIR_CALL_NEED_HAKO_ATOMIC_PTR_LOAD_ORDERED,
         HAKO_LLVMC_MIR_CALL_NEED_HAKO_ATOMIC_PTR_STORE_ORDERED,
         HAKO_LLVMC_MIR_CALL_NEED_HAKO_MEM_ALLOC,
         HAKO_LLVMC_MIR_CALL_NEED_HAKO_MEM_FREE,

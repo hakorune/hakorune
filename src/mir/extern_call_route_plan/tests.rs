@@ -480,6 +480,34 @@ fn refresh_function_extern_call_routes_records_hako_atomic_slot_store_route() {
 }
 
 #[test]
+fn refresh_function_extern_call_routes_records_hako_atomic_ptr_load_ordered_route() {
+    let mut function = make_function_with_call(
+        "hako_atomic_ptr_load_ordered/2",
+        vec![ValueId::new(1), ValueId::new(2)],
+        Some(ValueId::new(3)),
+    );
+
+    refresh_function_extern_call_routes(&mut function);
+
+    assert_eq!(function.metadata.extern_call_routes.len(), 1);
+    let route = &function.metadata.extern_call_routes[0];
+    assert_eq!(route.route_id(), "extern.hako_atomic.ptr_load_ordered");
+    assert_eq!(route.core_op(), "HakoAtomicPtrLoadOrdered");
+    assert_eq!(route.symbol(), "hako_atomic_ptr_load_ordered");
+    assert_eq!(route.tier(), "ColdRuntime");
+    assert_eq!(route.emit_kind(), "runtime_call");
+    assert_eq!(route.proof(), "extern_registry");
+    assert_eq!(route.source_symbol(), "hako_atomic_ptr_load_ordered/2");
+    assert_eq!(route.key_value(), ValueId::new(1));
+    assert_eq!(route.value_value(), None);
+    assert_eq!(route.result_value(), ValueId::new(3));
+    assert_eq!(route.arity(), 2);
+    assert_eq!(route.return_shape(), "native_ptr_nullable");
+    assert_eq!(route.value_demand(), "native_ptr_nullable");
+    assert_eq!(route.effect_tags(), &["hako.atomic.ptr_load"]);
+}
+
+#[test]
 fn refresh_function_extern_call_routes_records_hako_atomic_ptr_store_ordered_route() {
     let mut function = make_function_with_call(
         "hako_atomic_ptr_store_ordered/3",

@@ -61,9 +61,9 @@ if rg -n 'ptr_load_ordered|ptr_store_ordered|ptr_cas_ordered|ptr_fetch_add' "$AT
 fi
 rm -f /tmp/"$TAG".atomic_core
 
-if rg -n 'hako_atomic_ptr_(load|cas)_ordered|HakoAtomicPtr(Load|Cas)Ordered|extern\\.hako_atomic\\.ptr_(load|cas)_ordered|ptr_fetch_add' \
+if rg -n 'hako_atomic_ptr_cas_ordered|HakoAtomicPtrCasOrdered|extern\\.hako_atomic\\.ptr_cas_ordered|ptr_fetch_add' \
   src lang/c-abi/shims crates/nyash_kernel >/tmp/"$TAG".active_rows 2>&1; then
-  echo "[$TAG] ERROR: pointer atomic load/CAS/fetch_add row leaked into active implementation" >&2
+  echo "[$TAG] ERROR: pointer atomic CAS/fetch_add row leaked into active implementation" >&2
   cat /tmp/"$TAG".active_rows >&2
   rm -f /tmp/"$TAG".active_rows
   exit 1

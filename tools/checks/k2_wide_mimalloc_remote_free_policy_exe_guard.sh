@@ -23,9 +23,9 @@ if rg -n 'mimalloc-remote-free-policy-proof' lang/c-abi/shims >/tmp/"$TAG".app_s
 fi
 rm -f /tmp/"$TAG".app_specific.inc
 
-if rg -n 'hako_atomic_ptr_(load|cas)_ordered|HakoAtomicPtr(Load|Cas)Ordered|extern\\.hako_atomic\\.ptr_(load|cas)_ordered|ptr_fetch_add' \
+if rg -n 'hako_atomic_ptr_cas_ordered|HakoAtomicPtrCasOrdered|extern\\.hako_atomic\\.ptr_cas_ordered|ptr_fetch_add' \
   src lang/c-abi/shims crates/nyash_kernel >/tmp/"$TAG".inactive_pointer_rows 2>&1; then
-  echo "[$TAG] ERROR: pointer atomic load/CAS/fetch_add rows must stay inactive in M37" >&2
+  echo "[$TAG] ERROR: pointer atomic CAS/fetch_add rows must stay inactive after M39" >&2
   cat /tmp/"$TAG".inactive_pointer_rows >&2
   rm -f /tmp/"$TAG".inactive_pointer_rows
   exit 1

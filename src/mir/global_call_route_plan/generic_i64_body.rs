@@ -476,6 +476,7 @@ fn generic_i64_body_refine_instruction(
                 | ExternCallRouteKind::HakoAtomicSlotFetchAddI64
                 | ExternCallRouteKind::HakoAtomicSlotLoadI64
                 | ExternCallRouteKind::HakoAtomicSlotStoreI64
+                | ExternCallRouteKind::HakoAtomicPtrLoadOrdered
                 | ExternCallRouteKind::HakoAtomicPtrStoreOrdered
                 | ExternCallRouteKind::HakoMemAlloc
                 | ExternCallRouteKind::HakoMemFree

@@ -22,6 +22,7 @@ pub enum ExternCallRouteKind {
     HakoAtomicSlotFetchAddI64,
     HakoAtomicSlotLoadI64,
     HakoAtomicSlotStoreI64,
+    HakoAtomicPtrLoadOrdered,
     HakoAtomicPtrStoreOrdered,
     HakoMemAlloc,
     HakoMemFree,
@@ -50,6 +51,7 @@ impl ExternCallRouteKind {
             Self::HakoAtomicSlotFetchAddI64 => "extern.hako_atomic.slot_fetch_add_i64",
             Self::HakoAtomicSlotLoadI64 => "extern.hako_atomic.slot_load_i64",
             Self::HakoAtomicSlotStoreI64 => "extern.hako_atomic.slot_store_i64",
+            Self::HakoAtomicPtrLoadOrdered => "extern.hako_atomic.ptr_load_ordered",
             Self::HakoAtomicPtrStoreOrdered => "extern.hako_atomic.ptr_store_ordered",
             Self::HakoMemAlloc => "extern.hako_mem.alloc",
             Self::HakoMemFree => "extern.hako_mem.free",
@@ -78,6 +80,7 @@ impl ExternCallRouteKind {
             Self::HakoAtomicSlotFetchAddI64 => "HakoAtomicSlotFetchAddI64",
             Self::HakoAtomicSlotLoadI64 => "HakoAtomicSlotLoadI64",
             Self::HakoAtomicSlotStoreI64 => "HakoAtomicSlotStoreI64",
+            Self::HakoAtomicPtrLoadOrdered => "HakoAtomicPtrLoadOrdered",
             Self::HakoAtomicPtrStoreOrdered => "HakoAtomicPtrStoreOrdered",
             Self::HakoMemAlloc => "HakoMemAlloc",
             Self::HakoMemFree => "HakoMemFree",
@@ -106,6 +109,7 @@ impl ExternCallRouteKind {
             Self::HakoAtomicSlotFetchAddI64 => "hako_atomic_slot_fetch_add_i64",
             Self::HakoAtomicSlotLoadI64 => "hako_atomic_slot_load_i64",
             Self::HakoAtomicSlotStoreI64 => "hako_atomic_slot_store_i64",
+            Self::HakoAtomicPtrLoadOrdered => "hako_atomic_ptr_load_ordered",
             Self::HakoAtomicPtrStoreOrdered => "hako_atomic_ptr_store_ordered",
             Self::HakoMemAlloc => "hako_mem_alloc",
             Self::HakoMemFree => "hako_mem_free",
@@ -150,6 +154,7 @@ impl ExternCallRouteKind {
             Self::HakoAtomicSlotFetchAddI64 => "extern_registry",
             Self::HakoAtomicSlotLoadI64 => "extern_registry",
             Self::HakoAtomicSlotStoreI64 => "extern_registry",
+            Self::HakoAtomicPtrLoadOrdered => "extern_registry",
             Self::HakoAtomicPtrStoreOrdered => "extern_registry",
             Self::HakoMemAlloc => "extern_registry",
             Self::HakoMemFree => "extern_registry",
@@ -178,6 +183,7 @@ impl ExternCallRouteKind {
             Self::HakoAtomicSlotFetchAddI64 => "scalar_i64",
             Self::HakoAtomicSlotLoadI64 => "scalar_i64",
             Self::HakoAtomicSlotStoreI64 => "scalar_i64",
+            Self::HakoAtomicPtrLoadOrdered => "native_ptr_nullable",
             Self::HakoAtomicPtrStoreOrdered => "scalar_i64",
             Self::HakoMemAlloc => "native_ptr_nullable",
             Self::HakoMemFree => "void_sentinel_i64_zero",
@@ -206,6 +212,7 @@ impl ExternCallRouteKind {
             Self::HakoAtomicSlotFetchAddI64 => "runtime_i64",
             Self::HakoAtomicSlotLoadI64 => "runtime_i64",
             Self::HakoAtomicSlotStoreI64 => "runtime_i64",
+            Self::HakoAtomicPtrLoadOrdered => "native_ptr_nullable",
             Self::HakoAtomicPtrStoreOrdered => "native_ptr_nullable",
             Self::HakoMemAlloc => "native_ptr_nullable",
             Self::HakoMemFree => "scalar_i64",
@@ -234,6 +241,7 @@ impl ExternCallRouteKind {
             Self::HakoAtomicSlotFetchAddI64 => &["hako.atomic.slot_fetch_add"],
             Self::HakoAtomicSlotLoadI64 => &["hako.atomic.slot_load"],
             Self::HakoAtomicSlotStoreI64 => &["hako.atomic.slot_store"],
+            Self::HakoAtomicPtrLoadOrdered => &["hako.atomic.ptr_load"],
             Self::HakoAtomicPtrStoreOrdered => &["hako.atomic.ptr_store"],
             Self::HakoMemAlloc => &["hako.mem.alloc"],
             Self::HakoMemFree => &["hako.mem.free"],
@@ -363,6 +371,7 @@ impl ExternCallRoute {
             ExternCallRouteKind::HakoAtomicSlotFetchAddI64 => 2,
             ExternCallRouteKind::HakoAtomicSlotLoadI64 => 1,
             ExternCallRouteKind::HakoAtomicSlotStoreI64 => 2,
+            ExternCallRouteKind::HakoAtomicPtrLoadOrdered => 2,
             ExternCallRouteKind::HakoAtomicPtrStoreOrdered => 3,
             ExternCallRouteKind::HakoMemAlloc => 1,
             ExternCallRouteKind::HakoMemFree => 1,
@@ -413,6 +422,9 @@ pub fn classify_extern_call_route(name: &str, argc: usize) -> Option<ExternCallR
         }
         ("hako_atomic_slot_load_i64", 1) => Some(ExternCallRouteKind::HakoAtomicSlotLoadI64),
         ("hako_atomic_slot_store_i64", 2) => Some(ExternCallRouteKind::HakoAtomicSlotStoreI64),
+        ("hako_atomic_ptr_load_ordered", 2) => {
+            Some(ExternCallRouteKind::HakoAtomicPtrLoadOrdered)
+        }
         ("hako_atomic_ptr_store_ordered", 3) => {
             Some(ExternCallRouteKind::HakoAtomicPtrStoreOrdered)
         }
@@ -491,6 +503,7 @@ pub fn refresh_function_extern_call_routes(function: &mut MirFunction) {
                 ExternCallRouteKind::HakoAtomicSlotFetchAddI64 => args.get(1).copied(),
                 ExternCallRouteKind::HakoAtomicSlotLoadI64 => None,
                 ExternCallRouteKind::HakoAtomicSlotStoreI64 => args.get(1).copied(),
+                ExternCallRouteKind::HakoAtomicPtrLoadOrdered => None,
                 ExternCallRouteKind::HakoAtomicPtrStoreOrdered => args.get(1).copied(),
                 ExternCallRouteKind::HakoMemAlloc => None,
                 ExternCallRouteKind::HakoMemFree => None,
