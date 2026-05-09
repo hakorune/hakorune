@@ -46,6 +46,7 @@
 - [x] `293x-083` M31 mimalloc remote-free i64 sketch EXE proof
 - [x] `293x-084` M32 mimalloc post-M31 task-order lock
 - [x] `293x-085` M33 atomic memory-order args docs/route vocabulary lock
+- [x] `293x-086` M34 pointer atomic vocabulary docs lock
 
 ## Gates
 

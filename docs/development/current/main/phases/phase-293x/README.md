@@ -142,5 +142,8 @@ inference for the allocator release path.
 - `293x-085`: M33 atomic memory-order args docs/route vocabulary lock landed,
   reserving ordered fixed-slot i64 atomic facade/route names while keeping
   implementation rows inactive.
+- `293x-086`: M34 pointer atomic vocabulary docs lock landed, reserving
+  native-pointer atomic load/store/CAS facade/route names while keeping
+  implementation rows inactive.
 - Next: move into the mimalloc-grade substrate ladder from `293x-026`; keep
   future blockers as compiler/runtime seams and do not hide them in app code.

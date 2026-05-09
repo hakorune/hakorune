@@ -23,11 +23,14 @@ Current live subset:
   - truthful fence rows over `hako_barrier_touch_i64`
   - memory-order values are integer vocabulary only; M33 reserves ordered
     fixed-slot operation names but does not make ordered methods live
+  - M34 reserves pointer atomic load/store/CAS names but does not make pointer
+    atomic methods live
 
 Non-goals:
 - No generic atomic API in this wave.
 - No ordered load/store/CAS/fetch_add implementation in this row.
 - No pointer atomic API in this wave.
+- No pointer fetch_add vocabulary in this wave.
 - No TLS policy here.
 - No GC policy here.
 - No final platform atomics fallback here.

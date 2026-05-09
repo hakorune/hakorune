@@ -97,6 +97,7 @@ list_profiles() {
     - tools/checks/k2_wide_mimalloc_atomic_fetch_add_exe_guard.sh
     - tools/checks/k2_wide_mimalloc_remote_free_i64_exe_guard.sh
     - tools/checks/k2_wide_atomic_memory_order_args_vocab_guard.sh
+    - tools/checks/k2_wide_pointer_atomic_vocab_guard.sh
     - tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
     - tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
     - tools/checks/k2_wide_metal_keep_inventory_guard.sh
@@ -475,6 +476,9 @@ run_quick() {
 
   run_step "K2-wide atomic memory-order args vocab guard" \
     bash tools/checks/k2_wide_atomic_memory_order_args_vocab_guard.sh
+
+  run_step "K2-wide pointer atomic vocab guard" \
+    bash tools/checks/k2_wide_pointer_atomic_vocab_guard.sh
 
   run_step "K2-wide hako_alloc handle policy guard" \
     bash tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh

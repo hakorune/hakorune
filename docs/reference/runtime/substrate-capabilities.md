@@ -183,6 +183,25 @@ Order argument contract:
 - failure order is restricted to Relaxed, Acquire, or SeqCst.
 - invalid order values must fail-fast before backend lowering.
 
+Reserved pointer atomic vocabulary:
+
+| Facade | Reserved route id | Reserved symbol | Arity | Return |
+| --- | --- | --- | --- | --- |
+| `ptr_load_ordered(cell_ptr, order)` | `extern.hako_atomic.ptr_load_ordered` | `hako_atomic_ptr_load_ordered` | 2 | `native_ptr_nullable` |
+| `ptr_store_ordered(cell_ptr, value_ptr, order)` | `extern.hako_atomic.ptr_store_ordered` | `hako_atomic_ptr_store_ordered` | 3 | `scalar_i64` |
+| `ptr_cas_ordered(cell_ptr, expected_ptr, desired_ptr, success_order, failure_order)` | `extern.hako_atomic.ptr_cas_ordered` | `hako_atomic_ptr_cas_ordered` | 5 | `native_ptr_nullable` |
+
+These names are reserved by M34 only. They are not active methods, MIR route
+rows, NyRT exports, or `.inc` lowering rows yet.
+
+Pointer boundary contract:
+
+- pointer atomic operands are native pointer transport values, not runtime
+  handles.
+- pointer atomic rows must not imply `nonnull`, `dereferenceable`, `noalias`,
+  or alignment attrs.
+- pointer fetch_add is not reserved by M34.
+
 VM-hako subset behavior:
 
 - `boxcall(AtomicCoreBox.fence_order_i64)` is accepted with one register
