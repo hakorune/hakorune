@@ -456,6 +456,13 @@
             HAKO_LLVMC_MIR_CALL_NEED_ARRAY_LEN,
           },
           {
+            "extern.array.slot_load_i64",
+            "ArraySlotLoadI64",
+            "extern.array.slot_load_i64",
+            "nyash.array.slot_load_hi",
+            HAKO_LLVMC_MIR_CALL_NEED_ARRAY_GET,
+          },
+          {
             "extern.hako_mem.alloc",
             "HakoMemAlloc",
             "extern.hako_mem.alloc",

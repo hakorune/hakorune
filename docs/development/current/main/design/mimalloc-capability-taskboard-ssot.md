@@ -107,6 +107,7 @@ them into MIR-owned plan facts.
 | `M15 RawBuf global wrapper generic-i64 route` | `live-narrow` | MIR global route + pure-first EXE | accepts only `RawBufCoreBox.alloc_bytes_i64/free_bytes_i64` as generic-i64 same-module global wrappers over M14 hako.mem routes; preserves void-sentinel trace call results as void sentinel; no RawArray parity, no realloc, no pointer attrs |
 | `M16 RawArray slot_append_any generic-i64 route` | `live-narrow` | MIR extern/global route + pure-first EXE | accepts only `RawArrayCoreBox.slot_append_any` over explicit `nyash.any.handle_live_h` and `nyash.array.slot_append_hh` extern routes; no slot load/store, bounds, initialized range, slot_len, or full RawArray parity |
 | `M17 RawArray slot_len_i64 generic-i64 route` | `live-narrow` | MIR extern/global route + pure-first EXE | accepts only `RawArrayCoreBox.slot_len_i64`, `BufCoreBox.len_i64`, bounds, and initialized-range wrappers over explicit `nyash.array.slot_len_h` extern route facts; no slot load/store or full RawArray parity |
+| `M18 RawArray slot_load_i64 generic-i64 route` | `live-narrow` | MIR extern/global route + pure-first EXE | accepts only `RawArrayCoreBox.slot_load_i64` over ownership, bounds, initialized-range, and explicit `nyash.array.slot_load_hi` extern route facts; no slot_store or full RawArray parity |
 
 ## Fixed Implementation Order
 
@@ -150,6 +151,7 @@ them into MIR-owned plan facts.
 38. `M15 RawBuf global wrapper generic-i64 route`
 39. `M16 RawArray slot_append_any generic-i64 route`
 40. `M17 RawArray slot_len_i64 generic-i64 route`
+41. `M18 RawArray slot_load_i64 generic-i64 route`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed
@@ -333,3 +335,8 @@ post-M16 raw-page probe moved to verifier wrappers blocked by
 `PtrCoreBox.slot_len_i64/1`, `BufCoreBox.len_i64/1`, bounds, initialized-range,
 and `RawArrayCoreBox.slot_len_i64/1`; load, store, and full RawArray parity stay
 future.
+`M18 RawArray slot_load_i64 generic-i64 route` is now live-narrow because the
+post-M17 raw-page probe moved to the actual read leaf
+`PtrCoreBox.slot_load_i64/2`. M18 owns only load-path route facts over
+`PtrCoreBox.slot_load_i64/2` and the already-routed verifier wrappers; store and
+full RawArray parity stay future.

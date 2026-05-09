@@ -16,6 +16,7 @@ pub enum ExternCallRouteKind {
     AnyHandleLive,
     ArraySlotAppendAny,
     ArraySlotLenI64,
+    ArraySlotLoadI64,
     HakoMemAlloc,
     HakoMemFree,
     HostBridgeExternInvoke,
@@ -32,6 +33,7 @@ impl ExternCallRouteKind {
             Self::AnyHandleLive => "extern.any.handle_live",
             Self::ArraySlotAppendAny => "extern.array.slot_append_any",
             Self::ArraySlotLenI64 => "extern.array.slot_len_i64",
+            Self::ArraySlotLoadI64 => "extern.array.slot_load_i64",
             Self::HakoMemAlloc => "extern.hako_mem.alloc",
             Self::HakoMemFree => "extern.hako_mem.free",
             Self::HostBridgeExternInvoke => "extern.hostbridge.extern_invoke",
@@ -48,6 +50,7 @@ impl ExternCallRouteKind {
             Self::AnyHandleLive => "AnyHandleLive",
             Self::ArraySlotAppendAny => "ArraySlotAppendAny",
             Self::ArraySlotLenI64 => "ArraySlotLenI64",
+            Self::ArraySlotLoadI64 => "ArraySlotLoadI64",
             Self::HakoMemAlloc => "HakoMemAlloc",
             Self::HakoMemFree => "HakoMemFree",
             Self::HostBridgeExternInvoke => "HostBridgeExternInvoke",
@@ -64,6 +67,7 @@ impl ExternCallRouteKind {
             Self::AnyHandleLive => "nyash.any.handle_live_h",
             Self::ArraySlotAppendAny => "nyash.array.slot_append_hh",
             Self::ArraySlotLenI64 => "nyash.array.slot_len_h",
+            Self::ArraySlotLoadI64 => "nyash.array.slot_load_hi",
             Self::HakoMemAlloc => "hako_mem_alloc",
             Self::HakoMemFree => "hako_mem_free",
             Self::HostBridgeExternInvoke => "nyash.hostbridge.extern_invoke",
@@ -96,6 +100,7 @@ impl ExternCallRouteKind {
             Self::AnyHandleLive => "extern_registry",
             Self::ArraySlotAppendAny => "extern_registry",
             Self::ArraySlotLenI64 => "extern_registry",
+            Self::ArraySlotLoadI64 => "extern_registry",
             Self::HakoMemAlloc => "extern_registry",
             Self::HakoMemFree => "extern_registry",
             Self::HostBridgeExternInvoke => "extern_registry",
@@ -112,6 +117,7 @@ impl ExternCallRouteKind {
             Self::AnyHandleLive => "scalar_i64",
             Self::ArraySlotAppendAny => "scalar_i64",
             Self::ArraySlotLenI64 => "scalar_i64",
+            Self::ArraySlotLoadI64 => "scalar_i64",
             Self::HakoMemAlloc => "native_ptr_nullable",
             Self::HakoMemFree => "void_sentinel_i64_zero",
             Self::HostBridgeExternInvoke => "string_handle_or_null",
@@ -128,6 +134,7 @@ impl ExternCallRouteKind {
             Self::AnyHandleLive => "runtime_i64",
             Self::ArraySlotAppendAny => "runtime_i64",
             Self::ArraySlotLenI64 => "runtime_i64",
+            Self::ArraySlotLoadI64 => "runtime_i64",
             Self::HakoMemAlloc => "native_ptr_nullable",
             Self::HakoMemFree => "scalar_i64",
             Self::HostBridgeExternInvoke => "runtime_i64_or_handle",
@@ -144,6 +151,7 @@ impl ExternCallRouteKind {
             Self::AnyHandleLive => &["read.any.handle_live"],
             Self::ArraySlotAppendAny => &["array.slot_append"],
             Self::ArraySlotLenI64 => &["array.slot_len"],
+            Self::ArraySlotLoadI64 => &["array.slot_load"],
             Self::HakoMemAlloc => &["hako.mem.alloc"],
             Self::HakoMemFree => &["hako.mem.free"],
             Self::HostBridgeExternInvoke => &["hostbridge.extern"],
@@ -261,6 +269,7 @@ impl ExternCallRoute {
             ExternCallRouteKind::AnyHandleLive => 1,
             ExternCallRouteKind::ArraySlotAppendAny => 2,
             ExternCallRouteKind::ArraySlotLenI64 => 1,
+            ExternCallRouteKind::ArraySlotLoadI64 => 2,
             ExternCallRouteKind::HakoMemAlloc => 1,
             ExternCallRouteKind::HakoMemFree => 1,
             ExternCallRouteKind::HostBridgeExternInvoke => 3,
@@ -297,6 +306,7 @@ pub fn classify_extern_call_route(name: &str, argc: usize) -> Option<ExternCallR
         ("nyash.any.handle_live_h", 1) => Some(ExternCallRouteKind::AnyHandleLive),
         ("nyash.array.slot_append_hh", 2) => Some(ExternCallRouteKind::ArraySlotAppendAny),
         ("nyash.array.slot_len_h", 1) => Some(ExternCallRouteKind::ArraySlotLenI64),
+        ("nyash.array.slot_load_hi", 2) => Some(ExternCallRouteKind::ArraySlotLoadI64),
         ("hako_mem_alloc", 1) => Some(ExternCallRouteKind::HakoMemAlloc),
         ("hako_mem_free", 1) => Some(ExternCallRouteKind::HakoMemFree),
         ("hostbridge.extern_invoke", 3) => Some(ExternCallRouteKind::HostBridgeExternInvoke),
@@ -361,6 +371,7 @@ pub fn refresh_function_extern_call_routes(function: &mut MirFunction) {
                 ExternCallRouteKind::AnyHandleLive => None,
                 ExternCallRouteKind::ArraySlotAppendAny => args.get(1).copied(),
                 ExternCallRouteKind::ArraySlotLenI64 => None,
+                ExternCallRouteKind::ArraySlotLoadI64 => args.get(1).copied(),
                 ExternCallRouteKind::HakoMemAlloc => None,
                 ExternCallRouteKind::HakoMemFree => None,
                 ExternCallRouteKind::HostBridgeExternInvoke => args.get(2).copied(),
@@ -562,6 +573,34 @@ mod tests {
         assert_eq!(route.return_shape(), "scalar_i64");
         assert_eq!(route.value_demand(), "runtime_i64");
         assert_eq!(route.effect_tags(), &["array.slot_len"]);
+    }
+
+    #[test]
+    fn refresh_function_extern_call_routes_records_array_slot_load_route() {
+        let mut function = make_function_with_call(
+            "nyash.array.slot_load_hi",
+            vec![ValueId::new(1), ValueId::new(2)],
+            Some(ValueId::new(3)),
+        );
+
+        refresh_function_extern_call_routes(&mut function);
+
+        assert_eq!(function.metadata.extern_call_routes.len(), 1);
+        let route = &function.metadata.extern_call_routes[0];
+        assert_eq!(route.route_id(), "extern.array.slot_load_i64");
+        assert_eq!(route.core_op(), "ArraySlotLoadI64");
+        assert_eq!(route.symbol(), "nyash.array.slot_load_hi");
+        assert_eq!(route.tier(), "ColdRuntime");
+        assert_eq!(route.emit_kind(), "runtime_call");
+        assert_eq!(route.proof(), "extern_registry");
+        assert_eq!(route.source_symbol(), "nyash.array.slot_load_hi");
+        assert_eq!(route.key_value(), ValueId::new(1));
+        assert_eq!(route.value_value(), Some(ValueId::new(2)));
+        assert_eq!(route.result_value(), ValueId::new(3));
+        assert_eq!(route.arity(), 2);
+        assert_eq!(route.return_shape(), "scalar_i64");
+        assert_eq!(route.value_demand(), "runtime_i64");
+        assert_eq!(route.effect_tags(), &["array.slot_load"]);
     }
 
     #[test]
