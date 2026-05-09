@@ -88,7 +88,7 @@ Contract:
 | `string_corridor_candidates` | object map `{value_id: [candidate, ...]}` | Placement/effect candidate inventory derived from string corridor facts |
 | `thin_entry_candidates` | array | Candidate sites for public-entry vs thin-entry selection |
 | `thin_entry_selections` | array | Manifest-bound thin-entry decisions |
-| `inline_plans` | array | InlinePlan rows derived from declaration-local `Hint(inline/noinline/hot/cold)` and `Lowering(inline_required)` runes; M11c-soft-leaf may consume `request=prefer` for narrow same-module MIR leaf inline, while `request=required` is verifier-backed metadata but not backend-active |
+| `inline_plans` | array | InlinePlan rows derived from declaration-local `Hint(inline/noinline/hot/cold)` and `Lowering(inline_required)` runes; M11c-soft-leaf may consume `request=prefer` for narrow same-module MIR leaf inline, and M13 may consume verified `request=required` for narrow same-module scalar leaf inline before backend emission |
 | `effect_plans` | array | EffectPlan rows derived from live verifier-backed `Contract(no_alloc/no_safepoint)` runes and reserved `Profile(...)` expansions; consumed by the MIR verifier, not by backends |
 | `capability_plans` | array | CapabilityPlan rows derived from reserved `Profile(...)` expansions; metadata only until capability verification lands |
 | `sum_placement_facts` | array | Observed sum objectization / local-aggregate facts |
@@ -103,10 +103,11 @@ Contract:
 
 `inline_plans` records MIR-owned inline metadata in MIR JSON. M11c-soft-leaf
 may consume advisory `request = "prefer"` inside the MIR optimizer for narrow
-same-module pure leaf calls. M11c-required-verify now accepts or rejects
+same-module pure leaf calls. M11c-required-verify accepts or rejects
 `request = "required"` plans with verifier diagnostics and marks accepted plans
-as `verified = true`. Backends still must not consume this row as an inline
-mandate.
+as `verified = true`. M13 lets the MIR optimizer consume verified required
+plans for the scalar allocator-fast proof. Backends still must not consume this
+row as an inline mandate.
 
 Example:
 

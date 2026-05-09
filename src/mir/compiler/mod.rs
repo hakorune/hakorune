@@ -85,6 +85,11 @@ impl MirCompiler {
         // Convert AST to MIR using builder
         let mut module = self.builder.build_module(ast)?;
 
+        // Builder attaches declaration runes before each function body is fully
+        // lowered. Refresh once after module build so optimizer consumers see
+        // body-dependent rune facts such as verified required InlinePlan.
+        super::rune_plan_refresh::refresh_module_rune_plans(&mut module);
+
         if self.optimize {
             let mut optimizer = MirOptimizer::new();
             let stats = optimizer.optimize_module(&mut module);

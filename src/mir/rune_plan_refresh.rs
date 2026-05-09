@@ -1,4 +1,4 @@
-use crate::mir::MirFunction;
+use crate::mir::{MirFunction, MirModule};
 
 /// Refresh every MIR-owned plan derived directly from declaration-local runes.
 ///
@@ -7,4 +7,16 @@ use crate::mir::MirFunction;
 pub fn refresh_function_rune_plans(function: &mut MirFunction) {
     crate::mir::effect_capability_plan::refresh_function_effect_capability_plans(function);
     crate::mir::inline_plan::refresh_function_inline_plans(function);
+}
+
+/// Refresh rune-derived plans for every function after module construction.
+///
+/// Builder installs declaration runes before a function body is complete. Plans
+/// such as required InlinePlan verification depend on the final body shape, so
+/// compiler lanes must refresh once at the module boundary before optimizer
+/// consumers inspect those plans.
+pub fn refresh_module_rune_plans(module: &mut MirModule) {
+    for function in module.functions.values_mut() {
+        refresh_function_rune_plans(function);
+    }
 }

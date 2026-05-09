@@ -106,6 +106,22 @@ apps/mimalloc-raw-page-proof/test.sh
 - fast path に `Contract(no_alloc/no_safepoint)` を付けて MIR verify
 - Profile/Capability/unsafe/backend special-case は未使用
 
+#### allocator-fast-path-exe-proof
+**場所**: `allocator-fast-path-exe-proof/main.hako`
+M13 scalar EXE proof。`Profile(allocator.fast)` を MIR-owned verified
+required InlinePlan として消費し、pure-first EXE には展開済み scalar MIR
+だけを渡す fixture。
+
+```bash
+bash tools/checks/k2_wide_allocator_fast_path_exe_guard.sh
+```
+
+**特徴**:
+- `Profile(allocator.fast)` は InlinePlan/EffectPlan/CapabilityPlan facts に展開
+- verified required inline は MIR optimizer が消費
+- backend/.inc は profile 名を読まない
+- RawBuf/RawArray/native pointer EXE lowering は未受理
+
 #### json-stream-aggregator
 **場所**: `json-stream-aggregator/main.hako`
 JSONL風イベントを逐次読み、userごとのbytes/ok/failを集計する小型アプリ。

@@ -25,7 +25,7 @@ for profile in allocator.fast allocator.slow substrate.leaf intrinsic.leaf raw.l
   rg -F -q "\`$profile\`" "$CARD"
 done
 
-rg -F -q 'Status: M12c live-narrow profile expansion.' "$REGISTRY"
+rg -F -q 'Status: M13 live-narrow allocator fast-path EXE proof.' "$REGISTRY"
 rg -F -q '`@rune Profile(...)` is accepted for the reserved profile names in this file.' "$REGISTRY"
 rg -F -q 'Backends, `.inc`, and ll_emit must never branch on profile names.' "$REGISTRY"
 rg -F -q 'Profile-derived `CapabilityPlan allow=[...]` metadata emission' "$REGISTRY"

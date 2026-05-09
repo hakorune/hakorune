@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-064-M12C-PROFILE-EXPANSION-TO-FACTS"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-064-M12C-PROFILE-EXPANSION-TO-FACTS.md"
-latest_card_summary = "293x-064 lands M12c Profile expansion to facts: reserved Profile names are accepted by parser fronts and expand into MIR InlinePlan, EffectPlan, and CapabilityPlan facts while backend/.inc remain profile-name-free."
+latest_card = "293x-065-M13-ALLOCATOR-FAST-PATH-EXE-PROOF"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-065-M13-ALLOCATOR-FAST-PATH-EXE-PROOF.md"
+latest_card_summary = "293x-065 lands M13 allocator fast-path EXE proof: Profile(allocator.fast) expands to MIR facts, verified required InlinePlan is consumed by the MIR optimizer, and pure-first EXE receives profile-name-free scalar MIR."
 
 current_blocker_token = "phase-293x mimalloc substrate capability ladder after real-app EXE parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

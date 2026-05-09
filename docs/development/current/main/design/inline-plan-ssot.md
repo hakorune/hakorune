@@ -405,6 +405,9 @@ M12c:
 
 M13:
   allocator fast-path EXE proof.
+  Verified required InlinePlan is consumed by the MIR optimizer for a scalar
+  same-module allocator-fast leaf before pure-first EXE. Backends still do not
+  inspect InlinePlan rows or profile names.
 ```
 
 This order keeps static table data, inline planning, pointer proof, and

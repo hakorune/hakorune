@@ -62,6 +62,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_mimalloc_raw_page_proof_guard.sh` | M12 raw-page proof が `RawBufCoreBox` + `RawArrayCoreBox` + `Contract(no_alloc/no_safepoint)` の MIR verifier/metadata fixture に閉じ、Profile/Capability/unsafe/backend special-case を増やさないことを固定する。 |
 | `tools/checks/k2_wide_profile_registry_docs_guard.sh` | M12b/M12c Profile registry docs が `docs/reference/mir/rune-profile-registry.md` に閉じ、Capability parser surface と `.inc` profile-name consumption が増えないことを固定する。 |
 | `tools/checks/k2_wide_profile_expansion_to_facts_guard.sh` | M12c Profile expansion が reserved registry names だけを parser surface とし、MIR InlinePlan / EffectPlan / CapabilityPlan facts へ展開し、backend/.inc が profile names を読まないことを固定する。 |
+| `tools/checks/k2_wide_allocator_fast_path_exe_guard.sh` | M13 scalar allocator-fast proof が `Profile(allocator.fast)` を verified required InlinePlan として MIR optimizer で消費し、pure-first EXE へ profile-name-free の scalar MIR として渡ることを固定する。 |
 | `tools/checks/k2_wide_return_proof_vocab_guard.sh` | M10c-pre の return proof vocabulary が docs/TOML/Rust で同期し、handle return class が LLVM pointer attrs を持たないことを固定する。 |
 | `tools/checks/k2_wide_runtime_decl_return_proof_row_guard.sh` | M10c-proof-row の runtime-decl return proof row schema が fixture/Rust validator/docs で同期し、active runtime-decl と `.inc` が strong attrs を出さないことを固定する。 |
 | `tools/checks/k2_wide_native_ptr_decl_type_guard.sh` | M10c-native-ptr-declare-type の `native_ptr_* -> ptr` 型名対応を `.hako` ll_emit reader に閉じ、型名 reader が `.inc` に漏れないことを固定する。 |

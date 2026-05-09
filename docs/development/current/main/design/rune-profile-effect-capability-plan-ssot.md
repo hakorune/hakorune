@@ -253,9 +253,9 @@ Immediate order after M11d:
    Expand Profile(...) to primitive rune/Plan facts. Backend still reads only
    facts, not profile names.
 
-4. M13 allocator fast-path EXE proof
-   Use verified inline/effect/capability facts and route facts to prove the
-   fast path in EXE.
+4. M13 allocator fast-path EXE proof [live-narrow]
+   Use verified inline/effect/capability facts to prove a scalar fast path in
+   pure-first EXE without backend profile-name handling.
 ```
 
 Deferred rows:
@@ -319,6 +319,7 @@ expansion to facts` are live-narrow/live-docs as above. The registry SSOT is:
 docs/reference/mir/rune-profile-registry.md
 ```
 
-The next implementation step is `M13 allocator fast-path EXE proof`. Profile
-already expands over existing facts and must not become a backend-readable
-semantic string.
+`M13 allocator fast-path EXE proof` is live-narrow. Profile already expands
+over existing facts and must not become a backend-readable semantic string.
+The next widening must be a separate raw-substrate EXE row rather than a broad
+allocator special case.

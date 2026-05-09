@@ -1,0 +1,28 @@
+// allocator-fast-path-exe-proof
+// Purpose: M13 scalar allocator fast-path proof for MIR-owned required inline.
+
+static box AllocFastProof {
+    @rune Profile(allocator.fast)
+    size_to_bin(size) {
+        local adjusted = size + 7
+        return adjusted / 8
+    }
+}
+
+static box Main {
+    main(args) {
+        local a = AllocFastProof.size_to_bin(17)
+        local b = AllocFastProof.size_to_bin(32)
+
+        print("allocator-fast-path-exe-proof")
+        print("bins=" + a + "," + b)
+
+        if a == 3 && b == 4 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

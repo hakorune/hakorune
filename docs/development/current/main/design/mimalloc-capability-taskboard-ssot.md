@@ -102,7 +102,7 @@ them into MIR-owned plan facts.
 | `M12 mimalloc raw-page proof` | `live-narrow` | allocator substrate consumer | `apps/mimalloc-raw-page-proof` proves a fixed raw page/free-list fixture over `RawBufCoreBox` + `RawArrayCoreBox`; fast-path acquire/release carry `Contract(no_alloc/no_safepoint)` and are MIR-verified, with no Profile/Capability parser surface or backend use in that fixture |
 | `M12b Profile registry docs` | `live-docs` | rune metadata + docs | `docs/reference/mir/rune-profile-registry.md` reserves `allocator.fast`, `allocator.slow`, `substrate.leaf`, `intrinsic.leaf`, and `raw.layout` expansion targets; no parser acceptance unless a later row explicitly owns parser parity |
 | `M12c Profile expansion to facts` | `live-narrow` | rune metadata + MIR plans + verifier | `Profile(...)` accepts the reserved registry names and expands to primitive `Hint` / `Lowering` / `Contract` / EffectPlan / CapabilityPlan facts; backend reads only expanded facts and must not read profile names |
-| `M13 allocator fast-path EXE proof` | `blocked` | EXE backend + substrate | direct EXE proof for allocator fast path; helper calls only where capability route says so |
+| `M13 allocator fast-path EXE proof` | `live-narrow` | MIR optimizer + EXE proof | `apps/allocator-fast-path-exe-proof` proves scalar `Profile(allocator.fast)` lowering through verified required InlinePlan consumption before pure-first EXE; backend/.inc remain profile-name-free, and RawBuf/RawArray/native pointer EXE lowering remains future |
 
 ## Fixed Implementation Order
 
@@ -298,6 +298,8 @@ consumer fixture against those explicit facts. `M12b` now reserves profile names
 and primitive expansion targets in `docs/reference/mir/rune-profile-registry.md`.
 `M12c` now accepts the reserved `Profile(...)` names and expands them to
 primitive InlinePlan / EffectPlan / CapabilityPlan facts while keeping backend
-and `.inc` consumers profile-name-free. The next actionable target is
-`M13 allocator fast-path EXE proof`. Do not add allocator fast-path backend use
-before the fast-path proof row owns the route, fixture, and fail-fast behavior.
+and `.inc` consumers profile-name-free. `M13 allocator fast-path EXE proof` is
+live-narrow for the scalar fast-path lane: verified required InlinePlan is
+consumed by the MIR optimizer before pure-first EXE, and the backend still sees
+only expanded scalar MIR. Full raw-page EXE remains future work and must split
+RawBuf/RawArray/native pointer route acceptance into separate rows.

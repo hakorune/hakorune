@@ -52,7 +52,7 @@ The current live surface is intentionally narrow.
 | `hako.intrin` | current-lane non-negative i64 bit-count rows exist: `clz_i64`, `ctz_i64`, `popcnt_i64`; backend optimization use is not live |
 | backend export attrs | consistency guard is live; only current weak attrs are allowed, runtime-decl `readonly` rows must carry `memory = "read"`, while `noalias`/`nonnull`/`dereferenceable`/alignment export remain blocked |
 | static readonly data | backend-private static-data manifest can emit a u16 size-class fixture; source `static const NAME: u16[] = [...]` declarations lower to MIR `static_data_plans`; `NAME[index]` reads lower to MIR `StaticDataLoad` and current-lane `i64` values; narrow integer const expressions in u16 table initializers are live |
-| inline planning | `@rune Hint(inline/noinline/hot/cold)` and substrate-only `@rune Lowering(inline_required)` preserve MIR InlinePlan metadata; `Hint(inline)` has a narrow best-effort same-module MIR leaf inline row; required inline verifier acceptance is live-narrow for contract-proven leaf bodies; backend required-inline use is not live |
+| inline planning | `@rune Hint(inline/noinline/hot/cold)` and substrate-only `@rune Lowering(inline_required)` preserve MIR InlinePlan metadata; `Hint(inline)` has a narrow best-effort same-module MIR leaf inline row; required inline verifier acceptance is live-narrow for contract-proven leaf bodies; verified required inline is consumed by the MIR optimizer for the M13 scalar allocator-fast EXE proof |
 | profile/effect/capability planning | `EffectPlan` is live-narrow from `Contract(no_alloc/no_safepoint)` and reserved `Profile(...)` expansions; `CapabilityPlan` is emitted from reserved `Profile(...)` expansions as metadata only; `@rune Capability(...)` is not live parser surface |
 
 ## Reserved Surface
@@ -561,10 +561,38 @@ Current task order:
 1. mimalloc raw-page proof using explicit facts
 2. Profile registry docs [live-docs]
 3. Profile expansion to primitive facts [live-narrow]
-4. allocator fast-path EXE proof
+4. allocator fast-path EXE proof [live-narrow]
 
 Backends must not branch on profile names. `.inc` / ll_emit must continue to
 read already-expanded MIR facts and routes only.
+
+## M13 Allocator Fast-Path EXE Proof
+
+Decision: M13 allocator fast-path EXE proof is live-narrow.
+
+Live fixture:
+
+```text
+apps/allocator-fast-path-exe-proof/
+```
+
+Accepted shape:
+
+- `@rune Profile(allocator.fast)` expands to `InlinePlan`, `EffectPlan`, and
+  `CapabilityPlan` facts.
+- The required InlinePlan is verified after optimizer cleanup has exposed the
+  narrow leaf body.
+- The MIR optimizer expands same-module scalar leaf helper calls before
+  pure-first EXE.
+- The EXE backend sees only scalar MIR operations and existing runtime print
+  calls.
+
+Not accepted by this row:
+
+- RawBuf/RawArray EXE lowering.
+- Native pointer, TLS, atomic, or `hako.mem` backend lowering.
+- `.inc` profile-name dispatch.
+- Strong LLVM pointer attrs.
 
 ## Allocator Reading
 

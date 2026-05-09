@@ -9,11 +9,11 @@ struct LeafInlineBody {
     value_types: BTreeMap<ValueId, crate::mir::MirType>,
 }
 
-/// Apply advisory `Hint(inline)` plans for narrow same-module leaf functions.
+/// Apply inline plans for narrow same-module leaf functions.
 ///
-/// This is a best-effort transform. Any unsupported shape keeps the original
-/// call intact; required inline and verifier-backed failures belong to a later
-/// row.
+/// Advisory `Hint(inline)` remains best-effort. Verified required inline plans
+/// are also consumed here so allocator/substrate fast paths reach backends as
+/// already-expanded MIR instead of asking a backend to inline.
 pub fn apply(module: &mut MirModule) -> usize {
     let candidates = collect_leaf_candidates(module);
     if candidates.is_empty() {
@@ -34,7 +34,7 @@ pub fn apply(module: &mut MirModule) -> usize {
 fn collect_leaf_candidates(module: &MirModule) -> BTreeMap<String, LeafInlineBody> {
     let mut candidates = BTreeMap::new();
     for (name, function) in &module.functions {
-        if !has_soft_inline_request(function) {
+        if !has_leaf_inline_request(function) {
             continue;
         }
         if let Some(body) = leaf_inline_body(function) {
@@ -44,17 +44,21 @@ fn collect_leaf_candidates(module: &MirModule) -> BTreeMap<String, LeafInlineBod
     candidates
 }
 
-fn has_soft_inline_request(function: &MirFunction) -> bool {
+fn has_leaf_inline_request(function: &MirFunction) -> bool {
     let mut has_prefer = false;
+    let mut has_verified_required = false;
     for plan in &function.metadata.inline_plans {
         match plan.request {
             crate::mir::inline_plan::InlineRequest::Avoid => return false,
             crate::mir::inline_plan::InlineRequest::Prefer => has_prefer = true,
             crate::mir::inline_plan::InlineRequest::None => {}
+            crate::mir::inline_plan::InlineRequest::Required if plan.verified => {
+                has_verified_required = true
+            }
             crate::mir::inline_plan::InlineRequest::Required => {}
         }
     }
-    has_prefer
+    has_prefer || has_verified_required
 }
 
 fn leaf_inline_body(function: &MirFunction) -> Option<LeafInlineBody> {
@@ -398,6 +402,32 @@ mod tests {
 
         let main = module.get_function("Main.main/0").expect("main function");
         assert!(main
+            .entry_block()
+            .instructions
+            .iter()
+            .any(|inst| matches!(inst, MirInstruction::Call { .. })));
+    }
+
+    #[test]
+    fn inline_soft_leaf_rewrites_verified_required_global_call() {
+        let mut module = MirModule::new("inline_required_leaf_test".to_string());
+        let mut callee = make_add1_inline_function();
+        callee.metadata.runes = vec![RuneAttr {
+            name: "Profile".to_string(),
+            args: vec!["allocator.fast".to_string()],
+        }];
+        crate::mir::rune_plan_refresh::refresh_function_rune_plans(&mut callee);
+        assert!(callee.metadata.inline_plans.iter().any(|plan| matches!(
+            plan.request,
+            crate::mir::inline_plan::InlineRequest::Required
+        ) && plan.verified));
+        module.add_function(callee);
+        module.add_function(make_main_calling_add1());
+
+        assert_eq!(apply(&mut module), 1);
+
+        let main = module.get_function("Main.main/0").expect("main function");
+        assert!(!main
             .entry_block()
             .instructions
             .iter()

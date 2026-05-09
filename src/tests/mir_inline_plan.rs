@@ -1,4 +1,4 @@
-use crate::mir::MirCompiler;
+use crate::mir::{Callee, MirCompiler, MirInstruction};
 use crate::parser::NyashParser;
 use std::sync::{Mutex, MutexGuard, OnceLock};
 
@@ -153,4 +153,58 @@ static box Main {
     assert!(!plan.verified);
     assert_eq!(plan.fallback, "fail_fast");
     assert_eq!(plan.source, "rune_lowering");
+}
+
+#[test]
+fn mir_optimizer_consumes_verified_profile_allocator_fast_required_inline() {
+    ensure_ring0_initialized();
+    let _guard = FeatureOverrideGuard::new("rune");
+    let ast = NyashParser::parse_from_string(
+        r#"
+static box AllocFastProof {
+  @rune Profile(allocator.fast)
+  size_to_bin(size) {
+    local adjusted = size + 7
+    return adjusted / 8
+  }
+}
+
+static box Main {
+  main() {
+    return AllocFastProof.size_to_bin(17)
+  }
+}
+"#,
+    )
+    .expect("parse allocator fast profile");
+
+    let mut compiler = MirCompiler::with_options(true);
+    let module = compiler
+        .compile(ast)
+        .expect("compile allocator fast profile")
+        .module;
+
+    let callee = module
+        .functions
+        .get("AllocFastProof.size_to_bin/1")
+        .expect("allocator fast helper");
+    assert!(callee.metadata.inline_plans.iter().any(|plan| {
+        plan.request.as_str() == "required"
+            && plan.source == "rune_profile:allocator.fast"
+            && plan.verified
+    }));
+
+    let main = module.functions.get("main").expect("main function");
+    let has_helper_call = main.blocks.values().any(|block| {
+        block.all_instructions().any(|inst| {
+            matches!(
+                inst,
+                MirInstruction::Call {
+                    callee: Some(Callee::Global(name)),
+                    ..
+                } if name == "AllocFastProof.size_to_bin/1"
+            )
+        })
+    });
+    assert!(!has_helper_call);
 }

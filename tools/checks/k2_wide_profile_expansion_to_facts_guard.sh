@@ -41,8 +41,8 @@ rg -F -q 'source: "rune_profile".to_string()' src/mir/effect_capability_plan.rs
 
 rg -F -q '| `M12c Profile expansion to facts` | `live-narrow` |' "$TASKBOARD"
 rg -F -q 'M12c Profile expansion to facts [live-narrow]' "$RUNE_PROFILE_SSOT"
-rg -F -q 'The next implementation step is `M13 allocator fast-path EXE proof`.' "$RUNE_PROFILE_SSOT"
-rg -F -q 'Status: M12c live-narrow profile expansion.' "$REGISTRY"
+rg -F -q '`M13 allocator fast-path EXE proof` is live-narrow.' "$RUNE_PROFILE_SSOT"
+rg -F -q 'Status: M13 live-narrow allocator fast-path EXE proof.' "$REGISTRY"
 rg -F -q 'Profile expansion to primitive facts [live-narrow]' "$SUBSTRATE_DOC"
 rg -F -q 'Profile(allocator.fast)' "$METADATA_FACTS"
 rg -F -q 'M12c is live-narrow.' "$CARD"

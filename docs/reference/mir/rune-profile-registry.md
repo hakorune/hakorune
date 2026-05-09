@@ -1,6 +1,6 @@
 # Rune Profile Registry
 
-Status: M12c live-narrow profile expansion.
+Status: M13 live-narrow allocator fast-path EXE proof.
 
 `@rune Profile(...)` is accepted for the reserved profile names in this file.
 The profile name is authoring sugar only: parsers validate it here, MIR plan
@@ -24,7 +24,7 @@ Backends, `.inc`, and ll_emit must never branch on profile names.
 
 | Profile | Status | Future primitive expansion target | Notes |
 | --- | --- | --- | --- |
-| `allocator.fast` | live-narrow | `Hint(hot)`, `Lowering(inline_required)`, `Contract(no_alloc)`, `Contract(no_safepoint)`, future `Contract(no_panic)`, `CapabilityPlan allow=[hako.mem,hako.ptr,hako.tls]` | Strict allocator fast path. Required inline is verified by the existing narrow inline verifier; capability allowance is metadata only. |
+| `allocator.fast` | live-narrow | `Hint(hot)`, `Lowering(inline_required)`, `Contract(no_alloc)`, `Contract(no_safepoint)`, future `Contract(no_panic)`, `CapabilityPlan allow=[hako.mem,hako.ptr,hako.tls]` | Strict allocator fast path. Verified required inline is consumed by the MIR optimizer for narrow scalar same-module leaf helpers; capability allowance remains metadata only. |
 | `allocator.slow` | live-narrow | `Hint(cold)`, `Hint(noinline)`, `CapabilityPlan allow=[hako.mem,hako.osvm,hako.gc]` | Slow path may allocate and may safepoint, so it does not expand to `no_alloc` or `no_safepoint`. |
 | `substrate.leaf` | live-narrow | `Hint(inline)`, `Lowering(inline_required)`, `Contract(no_alloc)`, `Contract(no_safepoint)`, `CapabilityPlan allow=[hako.mem,hako.buf,hako.ptr]` | Small substrate helper leaf. Backend still sees only verified MIR facts. |
 | `intrinsic.leaf` | live-narrow | `Hint(inline)`, `Contract(no_alloc)`, `Contract(no_safepoint)`, future `IntrinsicCandidate(...)` | Intrinsic selection remains registry/verifier owned, not symbol-name inferred. |

@@ -154,9 +154,16 @@ impl MirOptimizer {
             stats.intrinsic_optimizations += canonicalized;
         }
 
-        // Pass 5.6: advisory same-module leaf inline.
+        // Pass 5.6: same-module leaf inline.
         // This consumes MIR InlinePlan metadata only. Failed inline keeps the
-        // original call; required inline/verifier semantics are future rows.
+        // original call. Required inline is accepted only when the MIR-owned
+        // plan verifies against the current optimized leaf shape.
+        //
+        // Earlier cleanup passes can turn a required-inline body from
+        // over-budget into a narrow leaf. Refresh rune-derived plans here so
+        // inline acceptance reads the current MIR shape, not the builder-time
+        // pre-cleanup shape.
+        crate::mir::rune_plan_refresh::refresh_module_rune_plans(module);
         let inline_soft_leaf = crate::mir::passes::inline_soft_leaf::apply(module);
         if inline_soft_leaf > 0 {
             stats.intrinsic_optimizations += inline_soft_leaf;
