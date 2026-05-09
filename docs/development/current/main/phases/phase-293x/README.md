@@ -149,5 +149,8 @@ inference for the allocator release path.
   `hako_atomic_ptr_store_ordered/3` through MIR-owned extern facts, NyRT export,
   and pure-first native pointer argument lowering without activating pointer
   load/CAS or native pointer attrs.
+- `293x-088`: M36 TLS pointer remote-free composition proof landed, composing
+  M26 TLS cache-slot rows with the M35 pointer-store row in pure-first EXE
+  without adding new route rows or allocator policy.
 - Next: move into the mimalloc-grade substrate ladder from `293x-026`; keep
   future blockers as compiler/runtime seams and do not hide them in app code.

@@ -156,6 +156,9 @@ Live operations:
   direct extern route. It stores a native pointer transport value into a native
   pointer cell and returns `0` on success. Accepted order values for this first
   route are Relaxed, Release, and SeqCst.
+- `apps/mimalloc-tls-ptr-remote-free-proof` composes the direct pointer-store
+  route with TLS cache-slot get/set to publish through a native mailbox pointer
+  under pure-first EXE. This is a proof fixture, not allocator policy.
 
 Unsupported operations:
 

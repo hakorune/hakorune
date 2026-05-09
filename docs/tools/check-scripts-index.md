@@ -82,6 +82,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_atomic_memory_order_args_vocab_guard.sh` | M33 の ordered fixed-slot i64 atomic facade/route vocabulary を docs-only で固定し、active source / `.inc` / NyRT に ordered implementation row が混入しないことを検証する。 |
 | `tools/checks/k2_wide_pointer_atomic_vocab_guard.sh` | M34 の native-pointer atomic load/store/CAS facade/route vocabulary を固定し、M35 以降も pointer load/CAS/fetch_add implementation row が混入しないことを検証する。 |
 | `tools/checks/k2_wide_mimalloc_ptr_atomic_store_exe_guard.sh` | M35 の direct native-pointer atomic store route + pure-first EXE proof を固定し、`hako_atomic_ptr_store_ordered` が MIR-owned extern route facts から emit されることを検証する。 |
+| `tools/checks/k2_wide_mimalloc_tls_ptr_remote_free_exe_guard.sh` | M36 の TLS cache-slot + direct native-pointer atomic store composition proof を固定し、remote-free mailbox seam が既存 route facts だけで pure-first EXE 実行できることを検証する。 |
 
 ## Env Hygiene
 

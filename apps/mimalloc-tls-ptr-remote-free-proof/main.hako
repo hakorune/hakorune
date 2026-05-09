@@ -1,0 +1,44 @@
+// mimalloc-tls-ptr-remote-free-proof
+// Purpose: compose TLS cache-slot and native pointer atomic store routes.
+
+using selfhost.runtime.substrate.tls.tls_core_box as TlsCoreBox
+
+static box Main {
+    main(args) {
+        local mailbox = externcall "hako_mem_alloc"(8)
+        local block = externcall "hako_mem_alloc"(24)
+
+        if mailbox == 0 || block == 0 {
+            print("mimalloc-tls-ptr-remote-free-proof")
+            print("summary=alloc_failed")
+            if block != 0 { externcall "hako_mem_free"(block) }
+            if mailbox != 0 { externcall "hako_mem_free"(mailbox) }
+            return 1
+        }
+
+        local set_mailbox = TlsCoreBox.cache_slot_set_i64(0, mailbox)
+        local mailbox_from_tls = TlsCoreBox.cache_slot_get_i64(0)
+        local publish = externcall "hako_atomic_ptr_store_ordered"(mailbox_from_tls, block, 2)
+        local clear_mailbox = TlsCoreBox.cache_slot_set_i64(0, 0)
+        local final_mailbox = TlsCoreBox.cache_slot_get_i64(0)
+        local mailbox_match = 0
+        if mailbox_from_tls == mailbox {
+            mailbox_match = 1
+        }
+
+        externcall "hako_mem_free"(block)
+        externcall "hako_mem_free"(mailbox)
+
+        print("mimalloc-tls-ptr-remote-free-proof")
+        print("tls=" + set_mailbox + "," + clear_mailbox + " final=" + final_mailbox)
+        print("mailbox_match=" + mailbox_match + " publish=" + publish)
+
+        if set_mailbox == 0 && mailbox_match == 1 && publish == 0 && clear_mailbox == 0 && final_mailbox == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
