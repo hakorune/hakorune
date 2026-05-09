@@ -122,6 +122,21 @@ bash tools/checks/k2_wide_mimalloc_size_class_table_exe_guard.sh
 - pure-first は MIR-owned static data facts だけを読む。新しい source syntax
   / allocator policy は追加しない
 
+#### mimalloc-two-class-page-proof
+**場所**: `mimalloc-two-class-page-proof/main.hako`
+M22 substrate proof。static size-class table から small/medium の2ページを作り、
+reject/release/reuse を pure-first EXE で固定する fixture。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_two_class_page_exe_guard.sh
+```
+
+**特徴**:
+- small=32/4、medium=64/2 を MIR `static_data_plans` から読む
+- 2つの raw page が M14-M20 RawBuf/RawArray route を再利用
+- full-page reject、oversize reject、release 後 reuse を固定
+- 新しい source syntax / allocator policy は追加しない
+
 #### allocator-fast-path-exe-proof
 **場所**: `allocator-fast-path-exe-proof/main.hako`
 M13 scalar EXE proof。`Profile(allocator.fast)` を MIR-owned verified
@@ -289,6 +304,7 @@ box TreeNode {
 - [x] mimalloc-lite（allocator-shaped model）
 - [x] mimalloc-raw-page-proof（M12 substrate proof）
 - [x] mimalloc-size-class-table-proof（M21 static size-class table proof）
+- [x] mimalloc-two-class-page-proof（M22 two-class page proof）
 
 ### 🚧 実装予定（論文・ベンチマーク用）
 - [ ] n-body（数値計算）

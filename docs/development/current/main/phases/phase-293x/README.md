@@ -109,5 +109,8 @@ inference for the allocator release path.
   static `u16` size-class tables with the M14-M20 raw-page pure-first route
   surface through a narrow MIR-owned `static_data_load` reader, without adding
   new source syntax or allocator policy.
+- `293x-074`: M22 mimalloc two-class page EXE proof landed, composing the M21
+  static table seam with two M14-M20 raw pages for small/medium reject,
+  release, and reuse, without adding new compiler vocabulary.
 - Next: move into the mimalloc-grade substrate ladder from `293x-026`; keep
   future blockers as compiler/runtime seams and do not hide them in app code.

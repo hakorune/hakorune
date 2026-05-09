@@ -111,6 +111,7 @@ them into MIR-owned plan facts.
 | `M19 RawArray slot_store_i64 generic-i64 route` | `live-narrow` | MIR extern/global route + pure-first EXE | accepts only `RawArrayCoreBox.slot_store_i64` over ownership, bounds, and explicit `nyash.array.slot_store_hii` extern route facts; no handle/string store or broad ArrayBox parity |
 | `M20 mimalloc raw-page EXE parity guard` | `live-narrow` | pure-first EXE regression guard | locks `apps/mimalloc-raw-page-proof` build/run under pure-first over M14-M19 routes; no new route shape or allocator policy |
 | `M21 mimalloc size-class table EXE proof` | `live-narrow` | allocator app proof + pure-first static-data reader | composes M11b static const u16 size-class tables with the M14-M20 raw-page route surface in `apps/mimalloc-size-class-table-proof`; adds only narrow `u16` `static_data_plans` / `static_data_load` lowering in pure-first, with no new source syntax or allocator policy |
+| `M22 mimalloc two-class page EXE proof` | `live-narrow` | allocator app proof | composes M21 static tables with two M14-M20 raw pages in `apps/mimalloc-two-class-page-proof`; proves small/medium page reject/release/reuse without new source syntax, table type, route shape, or allocator policy |
 
 ## Fixed Implementation Order
 
@@ -158,6 +159,7 @@ them into MIR-owned plan facts.
 42. `M19 RawArray slot_store_i64 generic-i64 route`
 43. `M20 mimalloc raw-page EXE parity guard`
 44. `M21 mimalloc size-class table EXE proof`
+45. `M22 mimalloc two-class page EXE proof`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed
@@ -362,3 +364,7 @@ M21 owns only that composed app proof; it adds no new route shape, table type,
 or allocator policy. The only backend acceptance added by M21 is the narrow
 pure-first reader/emitter for MIR-owned `u16` `static_data_plans` and
 `static_data_load`; `.inc` must not match app table names.
+`M22 mimalloc two-class page EXE proof` is now live-narrow because the M21
+static table seam and the M14-M20 raw-page route surface compose for two
+classes. M22 owns only the app proof; dynamic bin selection, TLS, atomics,
+OSVM, native pointer attrs, and allocator ownership proof remain future rows.

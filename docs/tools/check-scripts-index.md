@@ -69,6 +69,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_hako_mem_runtime_decl_guard.sh` | M10c-hako-mem alloc/realloc/free rows の `hako_mem_alloc` / `hako_mem_realloc -> native_ptr_nullable` と `hako_mem_free -> void` runtime-decl row / generated defaults 同期を固定し、native pointer arg emission が `ptr` で void call が `call void` であること、他 native pointer row / `ret_proofs` / strong attrs の混入を防ぐ。 |
 | `tools/checks/k2_wide_hako_mem_alloc_runtime_decl_guard.sh` | 293x-052 互換入口。現在は `k2_wide_hako_mem_runtime_decl_guard.sh` に委譲する。 |
 | `tools/checks/k2_wide_mimalloc_size_class_table_exe_guard.sh` | M21 の static u16 size-class table + raw-page pure-first EXE 合成 proof を固定し、runtime Array/Map table materialization、app-specific `.inc` matcher、新しい source syntax / allocator policy の混入を防ぐ。 |
+| `tools/checks/k2_wide_mimalloc_two_class_page_exe_guard.sh` | M22 の static u16 size-class table + two-class raw-page pure-first EXE proof を固定し、small/medium の reject/release/reuse が既存 route surface だけで動くことを検証する。 |
 
 ## Env Hygiene
 
