@@ -6,6 +6,9 @@ Shared helpers for check guards.
 
 - `guard_common.sh`
   - Generic guard helpers used across non-perf checks.
+- `pure_first_exe_guard.sh`
+  - Shared pure-first EXE guard helpers for build, MIR emit, EXE build,
+    clean-build-log checks, and EXE run checks.
 - `perf_guard_common.sh`
   - Shared perf regression helpers:
   - percent/ratio math (`perf_guard_calc_*`)
