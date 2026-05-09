@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/design/artifact-policy-ssot.md
+  - docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
   - docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md
   - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
   - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
@@ -94,6 +95,32 @@ Important:
    - `stage2+` remains the umbrella / end-state reading, not the daily lane name.
 6. `llvmlite keep/probe green != llvm/exe product acceptance`
    - compat/probe keep buckets remain observer evidence only and do not become the product smoke home.
+
+## 2.5 VM Retreat Reading
+
+`VM撤退` means retiring VM lanes from mainline / performance / daily feature
+ownership. It does not mean immediate deletion of every VM or interpreter
+implementation.
+
+Fixed reading:
+
+- `llvm/exe` / `ny-llvmc(boundary pure-first)` owns new mainline acceptance.
+- `vm-hako` remains reference / monitor / debug / bootstrap-proof only.
+- `rust-vm` remains bootstrap / recovery / compat keep while its route surface
+  follows the retirement corridor owned by the runtime-lane docs.
+- New substrate or allocator features must not require broad VM parity by
+  default.
+
+Implementation rule:
+
+- If a new feature needs executable proof, prefer an `llvm/exe` or pure-first
+  gate.
+- If a VM lane is useful, keep it thin: semantic reference, monitor canary, or
+  fail-fast unsupported diagnostic.
+- Do not add VM-only feature growth, performance lowering, or app-specific
+  fallback branches to clear an EXE/mainline blocker.
+- A remaining `*_vm.sh` smoke name is not owner proof; read its suite and SSOT
+  owner before treating it as a VM requirement.
 
 ## 3. Child Ownership Map
 

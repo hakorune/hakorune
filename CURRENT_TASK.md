@@ -80,6 +80,10 @@ Scope: current lane / next lane / restart order only.
 - next: start the mimalloc substrate capability ladder from `293x-026`;
   continue to change compiler/runtime acceptance only when a fixture or app
   exposes a real blocker
+- VM retreat reading: new substrate / allocator features should target
+  `llvm/exe` / pure-first acceptance first; `vm-hako` is reference/monitor only
+  and `rust-vm` is bootstrap/recovery/compat keep, so broad VM parity is not a
+  default requirement for new rows
 - MIR structural dead-shelf cleanup is closed through `291x-791`; the obsolete
   standalone MIR hints scaffold is retired and that audited MIR vocabulary set
   no longer carries a broad dead-code hold

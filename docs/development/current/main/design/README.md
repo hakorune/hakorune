@@ -72,7 +72,7 @@
 - Kernel replacement axis（`K0 / K1 / K2` build/runtime stages / `K2-core` and `K2-wide` task packs inside `K2` / current active order is `stage / docs / naming` -> `K1 done-enough` -> `K2-core` -> `K2-wide deferred` -> `zero-rust default`）: `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
 - Stage2 `.hako` owner vs `.inc` thin shim（stage2 主体化 / thin boundary SSOT）: `docs/development/current/main/design/stage2-hako-owner-vs-inc-thin-shim-ssot.md`
 - Hako fullstack host-ABI completion（意味論`.hako`集約 + host最小ABIの最終形SSOT）: `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
-- Execution lanes and axis separation（stage/owner/artifact-lane の親SSOT）: `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
+- Execution lanes and axis separation（stage/owner/artifact-lane の親SSOT。`VM撤退` は VM code deletion ではなく mainline/performance/daily feature owner から降ろす意味として読む）: `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
 - Artifact policy（`llvm-exe` mainline / current `vm-hako` reference / future interpreter reservation の child SSOT）: `docs/development/current/main/design/artifact-policy-ssot.md`
 - Execution lanes migration task pack（cross-phase 実装順SSOT）: `docs/development/current/main/design/execution-lanes-migration-task-pack-ssot.md`
 - Execution lanes legacy retirement inventory（移行中に見つかった legacy/delete 候補の全体台帳）: `docs/development/current/main/design/execution-lanes-legacy-retirement-inventory-ssot.md`
