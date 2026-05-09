@@ -73,6 +73,9 @@
           case HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT:
             needs->string_concat = 1;
             break;
+          case HAKO_LLVMC_MIR_CALL_NEED_ANY_HANDLE_LIVE:
+            needs->any_handle_live = 1;
+            break;
           case HAKO_LLVMC_MIR_CALL_NEED_ENV_GET:
             needs->env_get = 1;
             break;

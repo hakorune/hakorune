@@ -30,6 +30,7 @@
         int string_indexof;
         int string_contains;
         int string_concat;
+        int any_handle_live;
         int env_get;
         int env_set;
         int hako_mem_alloc;
@@ -65,6 +66,7 @@
         HAKO_LLVMC_MIR_CALL_NEED_STRING_INDEXOF,
         HAKO_LLVMC_MIR_CALL_NEED_STRING_CONTAINS,
         HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT,
+        HAKO_LLVMC_MIR_CALL_NEED_ANY_HANDLE_LIVE,
         HAKO_LLVMC_MIR_CALL_NEED_ENV_GET,
         HAKO_LLVMC_MIR_CALL_NEED_ENV_SET,
         HAKO_LLVMC_MIR_CALL_NEED_HAKO_MEM_ALLOC,

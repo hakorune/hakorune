@@ -13,6 +13,8 @@ use crate::mir::core_method_op::{LoweringPlanEmitKind, LoweringPlanTier};
 pub enum ExternCallRouteKind {
     EnvGet,
     EnvSet,
+    AnyHandleLive,
+    ArraySlotAppendAny,
     HakoMemAlloc,
     HakoMemFree,
     HostBridgeExternInvoke,
@@ -26,6 +28,8 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => "extern.env.get",
             Self::EnvSet => "extern.env.set",
+            Self::AnyHandleLive => "extern.any.handle_live",
+            Self::ArraySlotAppendAny => "extern.array.slot_append_any",
             Self::HakoMemAlloc => "extern.hako_mem.alloc",
             Self::HakoMemFree => "extern.hako_mem.free",
             Self::HostBridgeExternInvoke => "extern.hostbridge.extern_invoke",
@@ -39,6 +43,8 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => "EnvGet",
             Self::EnvSet => "EnvSet",
+            Self::AnyHandleLive => "AnyHandleLive",
+            Self::ArraySlotAppendAny => "ArraySlotAppendAny",
             Self::HakoMemAlloc => "HakoMemAlloc",
             Self::HakoMemFree => "HakoMemFree",
             Self::HostBridgeExternInvoke => "HostBridgeExternInvoke",
@@ -52,6 +58,8 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => "nyash.env.get",
             Self::EnvSet => "nyash.env.set",
+            Self::AnyHandleLive => "nyash.any.handle_live_h",
+            Self::ArraySlotAppendAny => "nyash.array.slot_append_hh",
             Self::HakoMemAlloc => "hako_mem_alloc",
             Self::HakoMemFree => "hako_mem_free",
             Self::HostBridgeExternInvoke => "nyash.hostbridge.extern_invoke",
@@ -81,6 +89,8 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => "extern_registry",
             Self::EnvSet => "extern_registry",
+            Self::AnyHandleLive => "extern_registry",
+            Self::ArraySlotAppendAny => "extern_registry",
             Self::HakoMemAlloc => "extern_registry",
             Self::HakoMemFree => "extern_registry",
             Self::HostBridgeExternInvoke => "extern_registry",
@@ -94,6 +104,8 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => "string_handle_or_null",
             Self::EnvSet => "scalar_i64",
+            Self::AnyHandleLive => "scalar_i64",
+            Self::ArraySlotAppendAny => "scalar_i64",
             Self::HakoMemAlloc => "native_ptr_nullable",
             Self::HakoMemFree => "void_sentinel_i64_zero",
             Self::HostBridgeExternInvoke => "string_handle_or_null",
@@ -107,6 +119,8 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => "runtime_i64_or_handle",
             Self::EnvSet => "runtime_i64",
+            Self::AnyHandleLive => "runtime_i64",
+            Self::ArraySlotAppendAny => "runtime_i64",
             Self::HakoMemAlloc => "native_ptr_nullable",
             Self::HakoMemFree => "scalar_i64",
             Self::HostBridgeExternInvoke => "runtime_i64_or_handle",
@@ -120,6 +134,8 @@ impl ExternCallRouteKind {
         match self {
             Self::EnvGet => &["read.env"],
             Self::EnvSet => &["write.env"],
+            Self::AnyHandleLive => &["read.any.handle_live"],
+            Self::ArraySlotAppendAny => &["array.slot_append"],
             Self::HakoMemAlloc => &["hako.mem.alloc"],
             Self::HakoMemFree => &["hako.mem.free"],
             Self::HostBridgeExternInvoke => &["hostbridge.extern"],
@@ -234,6 +250,8 @@ impl ExternCallRoute {
         match self.kind {
             ExternCallRouteKind::EnvGet => 1,
             ExternCallRouteKind::EnvSet => 2,
+            ExternCallRouteKind::AnyHandleLive => 1,
+            ExternCallRouteKind::ArraySlotAppendAny => 2,
             ExternCallRouteKind::HakoMemAlloc => 1,
             ExternCallRouteKind::HakoMemFree => 1,
             ExternCallRouteKind::HostBridgeExternInvoke => 3,
@@ -267,6 +285,8 @@ pub fn classify_extern_call_route(name: &str, argc: usize) -> Option<ExternCallR
     match (normalize_extern_symbol(name), argc) {
         ("env.get", 1) | ("nyash.env.get", 1) => Some(ExternCallRouteKind::EnvGet),
         ("env.set", 2) | ("nyash.env.set", 2) => Some(ExternCallRouteKind::EnvSet),
+        ("nyash.any.handle_live_h", 1) => Some(ExternCallRouteKind::AnyHandleLive),
+        ("nyash.array.slot_append_hh", 2) => Some(ExternCallRouteKind::ArraySlotAppendAny),
         ("hako_mem_alloc", 1) => Some(ExternCallRouteKind::HakoMemAlloc),
         ("hako_mem_free", 1) => Some(ExternCallRouteKind::HakoMemFree),
         ("hostbridge.extern_invoke", 3) => Some(ExternCallRouteKind::HostBridgeExternInvoke),
@@ -328,6 +348,8 @@ pub fn refresh_function_extern_call_routes(function: &mut MirFunction) {
             let value_value = match kind {
                 ExternCallRouteKind::EnvGet => None,
                 ExternCallRouteKind::EnvSet => args.get(1).copied(),
+                ExternCallRouteKind::AnyHandleLive => None,
+                ExternCallRouteKind::ArraySlotAppendAny => args.get(1).copied(),
                 ExternCallRouteKind::HakoMemAlloc => None,
                 ExternCallRouteKind::HakoMemFree => None,
                 ExternCallRouteKind::HostBridgeExternInvoke => args.get(2).copied(),
@@ -445,6 +467,62 @@ mod tests {
         assert_eq!(route.return_shape(), "scalar_i64");
         assert_eq!(route.value_demand(), "runtime_i64");
         assert_eq!(route.effect_tags(), &["write.env"]);
+    }
+
+    #[test]
+    fn refresh_function_extern_call_routes_records_any_handle_live_route() {
+        let mut function = make_function_with_call(
+            "nyash.any.handle_live_h",
+            vec![ValueId::new(1)],
+            Some(ValueId::new(2)),
+        );
+
+        refresh_function_extern_call_routes(&mut function);
+
+        assert_eq!(function.metadata.extern_call_routes.len(), 1);
+        let route = &function.metadata.extern_call_routes[0];
+        assert_eq!(route.route_id(), "extern.any.handle_live");
+        assert_eq!(route.core_op(), "AnyHandleLive");
+        assert_eq!(route.symbol(), "nyash.any.handle_live_h");
+        assert_eq!(route.tier(), "ColdRuntime");
+        assert_eq!(route.emit_kind(), "runtime_call");
+        assert_eq!(route.proof(), "extern_registry");
+        assert_eq!(route.source_symbol(), "nyash.any.handle_live_h");
+        assert_eq!(route.key_value(), ValueId::new(1));
+        assert_eq!(route.value_value(), None);
+        assert_eq!(route.result_value(), ValueId::new(2));
+        assert_eq!(route.arity(), 1);
+        assert_eq!(route.return_shape(), "scalar_i64");
+        assert_eq!(route.value_demand(), "runtime_i64");
+        assert_eq!(route.effect_tags(), &["read.any.handle_live"]);
+    }
+
+    #[test]
+    fn refresh_function_extern_call_routes_records_array_slot_append_route() {
+        let mut function = make_function_with_call(
+            "nyash.array.slot_append_hh",
+            vec![ValueId::new(1), ValueId::new(2)],
+            Some(ValueId::new(3)),
+        );
+
+        refresh_function_extern_call_routes(&mut function);
+
+        assert_eq!(function.metadata.extern_call_routes.len(), 1);
+        let route = &function.metadata.extern_call_routes[0];
+        assert_eq!(route.route_id(), "extern.array.slot_append_any");
+        assert_eq!(route.core_op(), "ArraySlotAppendAny");
+        assert_eq!(route.symbol(), "nyash.array.slot_append_hh");
+        assert_eq!(route.tier(), "ColdRuntime");
+        assert_eq!(route.emit_kind(), "runtime_call");
+        assert_eq!(route.proof(), "extern_registry");
+        assert_eq!(route.source_symbol(), "nyash.array.slot_append_hh");
+        assert_eq!(route.key_value(), ValueId::new(1));
+        assert_eq!(route.value_value(), Some(ValueId::new(2)));
+        assert_eq!(route.result_value(), ValueId::new(3));
+        assert_eq!(route.arity(), 2);
+        assert_eq!(route.return_shape(), "scalar_i64");
+        assert_eq!(route.value_demand(), "runtime_i64");
+        assert_eq!(route.effect_tags(), &["array.slot_append"]);
     }
 
     #[test]

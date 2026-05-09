@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-067-M15-RAWBUF-GLOBAL-WRAPPER-GENERIC-I64-ROUTE"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-067-M15-RAWBUF-GLOBAL-WRAPPER-GENERIC-I64-ROUTE.md"
-latest_card_summary = "293x-067 lands M15 RawBuf global wrapper generic-i64 route: RawBufCoreBox alloc/free wrappers lower through MIR-owned global_call_routes over M14 hako.mem leaves, preserving void-sentinel trace results without RawArray parity or pointer attrs."
+latest_card = "293x-068-M16-RAWARRAY-SLOT-APPEND-GENERIC-I64-ROUTE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-068-M16-RAWARRAY-SLOT-APPEND-GENERIC-I64-ROUTE.md"
+latest_card_summary = "293x-068 lands M16 RawArray slot_append_any generic-i64 route: RawArrayCoreBox append lowers through MIR-owned extern/global route facts over nyash.any.handle_live_h and nyash.array.slot_append_hh, without slot load/store, bounds, initialized-range, or full RawArray parity."
 
 current_blocker_token = "phase-293x mimalloc substrate capability ladder after real-app EXE parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

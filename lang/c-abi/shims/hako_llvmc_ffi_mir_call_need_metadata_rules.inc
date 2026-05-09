@@ -435,6 +435,20 @@
             HAKO_LLVMC_MIR_CALL_NEED_ENV_SET,
           },
           {
+            "extern.any.handle_live",
+            "AnyHandleLive",
+            "extern.any.handle_live",
+            "nyash.any.handle_live_h",
+            HAKO_LLVMC_MIR_CALL_NEED_ANY_HANDLE_LIVE,
+          },
+          {
+            "extern.array.slot_append_any",
+            "ArraySlotAppendAny",
+            "extern.array.slot_append_any",
+            "nyash.array.slot_append_hh",
+            HAKO_LLVMC_MIR_CALL_NEED_ARRAY_PUSH,
+          },
+          {
             "extern.hako_mem.alloc",
             "HakoMemAlloc",
             "extern.hako_mem.alloc",

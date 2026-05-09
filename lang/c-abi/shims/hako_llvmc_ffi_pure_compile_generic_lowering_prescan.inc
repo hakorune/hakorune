@@ -633,6 +633,8 @@
         fprintf(f, "declare i64 @\"nyash.string.lastIndexOf_hh\"(i64, i64)\n");
       if (needs.string_contains || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.string.contains_hh\"(i64, i64)\n");
+      if (needs.any_handle_live || module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"nyash.any.handle_live_h\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.env_get || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.env.get\"(i64)\n");
       if (needs.env_set || module_has_planned_same_module_function_definition())

@@ -1,0 +1,21 @@
+// rawarray-slot-append-exe-proof
+// Purpose: M16 RawArray slot_append_any route proof for pure-first EXE.
+
+using selfhost.runtime.substrate.raw_array.raw_array_core_box as RawArrayCoreBox
+
+static box Main {
+    main(args) {
+        local arr = new ArrayBox()
+        local rc = RawArrayCoreBox.slot_append_any(arr, 0)
+
+        if rc != 1 {
+            print("rawarray-slot-append-exe-proof")
+            print("summary=append_failed")
+            return 1
+        }
+
+        print("rawarray-slot-append-exe-proof")
+        print("summary=ok")
+        return 0
+    }
+}

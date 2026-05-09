@@ -335,6 +335,10 @@ fn generic_i64_body_refine_instruction(
                 | (GenericI64ValueClass::StringOrVoid, GenericI64ValueClass::VoidSentinel)
                 | (GenericI64ValueClass::VoidSentinel, GenericI64ValueClass::StringOrVoid) => eq_ne,
                 (GenericI64ValueClass::I64, GenericI64ValueClass::I64) => true,
+                (GenericI64ValueClass::Object, GenericI64ValueClass::I64)
+                | (GenericI64ValueClass::I64, GenericI64ValueClass::Object) => {
+                    generic_pure_compare_proves_i64(*op)
+                }
                 (GenericI64ValueClass::Bool, GenericI64ValueClass::Bool) => eq_ne,
                 _ => false,
             };
@@ -455,7 +459,12 @@ fn generic_i64_body_refine_instruction(
                     false
                 }
             }
-            Some(ExternCallRouteKind::HakoMemAlloc | ExternCallRouteKind::HakoMemFree) => {
+            Some(
+                ExternCallRouteKind::AnyHandleLive
+                | ExternCallRouteKind::ArraySlotAppendAny
+                | ExternCallRouteKind::HakoMemAlloc
+                | ExternCallRouteKind::HakoMemFree,
+            ) => {
                 if let Some(dst) = dst {
                     set_generic_i64_value_class(values, *dst, GenericI64ValueClass::I64, changed)
                 } else {
