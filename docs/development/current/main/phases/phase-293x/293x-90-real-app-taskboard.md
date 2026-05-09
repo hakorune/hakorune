@@ -53,6 +53,7 @@
 - [x] `293x-090` M38 mimalloc allocator app closeout guard
 - [x] `293x-091` M39 native pointer atomic load route proof
 - [x] `293x-092` M40 native pointer atomic CAS route proof
+- [x] `293x-093` M41 pointer CAS remote-free list proof
 
 ## Gates
 

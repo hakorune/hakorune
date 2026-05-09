@@ -166,6 +166,10 @@ inference for the allocator release path.
   `hako_atomic_ptr_cas_ordered/5` through MIR-owned extern facts, NyRT export,
   and pure-first native pointer return lowering while keeping pointer
   fetch_add and native pointer attrs inactive.
-- Next: M41 pointer CAS remote-free list proof, if the allocator lane needs a
-  full list push fixture; keep future blockers as compiler/runtime seams and do
-  not hide them in app code.
+- `293x-093`: M41 pointer CAS remote-free list proof landed, composing the
+  existing M35/M39/M40 pointer store/load/CAS routes into a two-node remote-free
+  list push fixture without adding a route row or backend matcher.
+- Next: M42 allocator remote-free list policy integration proof, if the
+  allocator lane needs the M41 list push shape behind a same-module policy box;
+  keep future blockers as compiler/runtime seams and do not hide them in app
+  code.

@@ -1,0 +1,92 @@
+// mimalloc-ptr-remote-free-list-proof
+// Purpose: compose native pointer store/load/CAS routes into a remote-free list push proof.
+
+static box Main {
+    main(args) {
+        local head_cell = externcall "hako_mem_alloc"(8)
+        local block_a = externcall "hako_mem_alloc"(24)
+        local block_b = externcall "hako_mem_alloc"(24)
+
+        if head_cell == 0 || block_a == 0 || block_b == 0 {
+            print("mimalloc-ptr-remote-free-list-proof")
+            print("summary=alloc_failed")
+            if block_b != 0 { externcall "hako_mem_free"(block_b) }
+            if block_a != 0 { externcall "hako_mem_free"(block_a) }
+            if head_cell != 0 { externcall "hako_mem_free"(head_cell) }
+            return 1
+        }
+
+        local init_store = externcall "hako_atomic_ptr_store_ordered"(head_cell, 0, 2)
+
+        local old_head_a = externcall "hako_atomic_ptr_load_ordered"(head_cell, 1)
+        local link_a = externcall "hako_atomic_ptr_store_ordered"(block_a, old_head_a, 2)
+        local cas_a = externcall "hako_atomic_ptr_cas_ordered"(head_cell, old_head_a, block_a, 3, 1)
+        local head_after_a = externcall "hako_atomic_ptr_load_ordered"(head_cell, 1)
+        local next_a_after_a = externcall "hako_atomic_ptr_load_ordered"(block_a, 1)
+
+        local old_head_b = externcall "hako_atomic_ptr_load_ordered"(head_cell, 1)
+        local link_b = externcall "hako_atomic_ptr_store_ordered"(block_b, old_head_b, 2)
+        local cas_b = externcall "hako_atomic_ptr_cas_ordered"(head_cell, old_head_b, block_b, 3, 1)
+        local final_head = externcall "hako_atomic_ptr_load_ordered"(head_cell, 1)
+        local next_b = externcall "hako_atomic_ptr_load_ordered"(block_b, 1)
+        local next_a = externcall "hako_atomic_ptr_load_ordered"(block_a, 1)
+
+        local first_old_empty = 0
+        if old_head_a == 0 {
+            first_old_empty = 1
+        }
+        local first_cas_observed_empty = 0
+        if cas_a == old_head_a {
+            first_cas_observed_empty = 1
+        }
+        local head_a_matches = 0
+        if head_after_a == block_a {
+            head_a_matches = 1
+        }
+        local next_a_empty = 0
+        if next_a_after_a == 0 {
+            next_a_empty = 1
+        }
+        local second_old_is_a = 0
+        if old_head_b == block_a {
+            second_old_is_a = 1
+        }
+        local second_cas_observed_a = 0
+        if cas_b == old_head_b {
+            second_cas_observed_a = 1
+        }
+        local final_head_is_b = 0
+        if final_head == block_b {
+            final_head_is_b = 1
+        }
+        local next_b_is_a = 0
+        if next_b == block_a {
+            next_b_is_a = 1
+        }
+        local next_a_still_empty = 0
+        if next_a == 0 {
+            next_a_still_empty = 1
+        }
+
+        externcall "hako_mem_free"(block_b)
+        externcall "hako_mem_free"(block_a)
+        externcall "hako_mem_free"(head_cell)
+
+        print("mimalloc-ptr-remote-free-list-proof")
+        print("stores=" + init_store + "," + link_a + "," + link_b)
+        print("first=" + first_old_empty + "," + first_cas_observed_empty + "," + head_a_matches + "," + next_a_empty)
+        print("second=" + second_old_is_a + "," + second_cas_observed_a + "," + final_head_is_b + "," + next_b_is_a + "," + next_a_still_empty)
+
+        local store_ok = init_store + link_a + link_b
+        local first_matches = first_old_empty + first_cas_observed_empty + head_a_matches + next_a_empty
+        local second_matches = second_old_is_a + second_cas_observed_a + final_head_is_b + next_b_is_a + next_a_still_empty
+        local matches = first_matches + second_matches
+        if store_ok == 0 && matches == 9 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

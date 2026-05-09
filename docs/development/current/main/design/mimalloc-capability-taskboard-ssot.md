@@ -130,7 +130,8 @@ them into MIR-owned plan facts.
 | `M38 mimalloc allocator app closeout guard` | `live-narrow` | regression guard | locks the M20-M37 mimalloc allocator app proof path through a fast coverage guard; adds no app, route row, NyRT export, or `.inc` matcher |
 | `M39 native pointer atomic load route proof` | `live-narrow` | MIR extern route + pure-first EXE | proves `hako_atomic_ptr_load_ordered(cell_ptr, order)` through MIR-owned extern route facts, NyRT export, and pure-first native-ptr return lowering without activating pointer fetch_add or native pointer attrs |
 | `M40 native pointer atomic CAS route proof` | `live-narrow` | MIR extern route + pure-first EXE | proves `hako_atomic_ptr_cas_ordered(cell_ptr, expected_ptr, desired_ptr, success_order, failure_order)` after M39; keeps pointer fetch_add and native pointer attrs inactive |
-| `M41 pointer CAS remote-free list proof` | `next-card` | allocator app composition proof | future split that composes pointer store/load/CAS routes into a remote-free list proof; must add no new route row or allocator production policy |
+| `M41 pointer CAS remote-free list proof` | `live-narrow` | allocator app composition proof | composes pointer store/load/CAS routes into a two-node remote-free list push proof; adds no new route row, NyRT export, `.inc` emit behavior, pointer fetch_add, or allocator production policy |
+| `M42 allocator remote-free list policy integration proof` | `next-card` | allocator policy app proof | future split that moves the M41 list push shape behind a same-module policy box; must add no new route row or backend-specific matcher |
 
 ## Fixed Implementation Order
 
@@ -198,6 +199,7 @@ them into MIR-owned plan facts.
 62. `M39 native pointer atomic load route proof`
 63. `M40 native pointer atomic CAS route proof`
 64. `M41 pointer CAS remote-free list proof`
+65. `M42 allocator remote-free list policy integration proof`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed

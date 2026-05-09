@@ -321,6 +321,22 @@ bash tools/checks/k2_wide_mimalloc_ptr_atomic_cas_exe_guard.sh
 - pure-first は native pointer args/return を i64 transport として変換して emit する
 - pointer fetch_add / production remote-free policy は追加しない
 
+#### mimalloc-ptr-remote-free-list-proof
+**場所**: `mimalloc-ptr-remote-free-list-proof/main.hako`
+M41 composition proof。既存の `hako_atomic_ptr_store_ordered` /
+`hako_atomic_ptr_load_ordered` / `hako_atomic_ptr_cas_ordered` route facts だけで
+two-node remote-free list push を pure-first EXE で固定する fixture。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_ptr_remote_free_list_exe_guard.sh
+```
+
+**特徴**:
+- source は direct externcall を使い、`AtomicCoreBox` pointer method は追加しない
+- block 先頭 word を next pointer cell として使う
+- MIR-owned route facts の合成だけで head CAS publish と next link を表す
+- 新しい route row / pointer fetch_add / production remote-free policy は追加しない
+
 #### mimalloc-tls-ptr-remote-free-proof
 **場所**: `mimalloc-tls-ptr-remote-free-proof/main.hako`
 M36 composition proof。TLS cache-slot に native mailbox pointer を置き、
@@ -527,6 +543,7 @@ box TreeNode {
 - [x] mimalloc-ptr-atomic-store-proof（M35 native pointer atomic store proof）
 - [x] mimalloc-ptr-atomic-load-proof（M39 native pointer atomic load proof）
 - [x] mimalloc-ptr-atomic-cas-proof（M40 native pointer atomic CAS proof）
+- [x] mimalloc-ptr-remote-free-list-proof（M41 pointer CAS remote-free list proof）
 - [x] mimalloc-tls-ptr-remote-free-proof（M36 TLS pointer remote-free proof）
 - [x] mimalloc-remote-free-policy-proof（M37 remote-free policy integration proof）
 
