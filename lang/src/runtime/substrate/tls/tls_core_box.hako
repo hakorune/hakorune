@@ -3,7 +3,7 @@
 // - expose the narrowest truthful TLS-backed diagnostics row under `runtime/substrate/`
 // - keep helper-shaped TLS proof separate from final language-level TLS design
 // Non-responsibility:
-// - generic thread-local slot API
+// - generic thread-local cell API
 // - allocator/TLS cache policy
 // - final platform fallback routing
 
@@ -32,5 +32,17 @@ static box TlsCoreBox {
     if text == "UNSUPPORTED" { return 3 }
     if text == "NOT_FOUND" { return 4 }
     return -1
+  }
+
+  cache_slot_get_i64(slot) {
+    local out = externcall "hako_tls_cache_slot_get_i64"(slot)
+    me._trace("[vm/adapter/tls:cache_slot_get_i64]")
+    return out
+  }
+
+  cache_slot_set_i64(slot, value) {
+    local out = externcall "hako_tls_cache_slot_set_i64"(slot, value)
+    me._trace("[vm/adapter/tls:cache_slot_set_i64]")
+    return out
   }
 }

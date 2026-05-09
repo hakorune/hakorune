@@ -652,6 +652,12 @@
       if (needs.hako_osvm_decommit_bytes_i64 ||
           module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"hako_osvm_decommit_bytes_i64\"(i64, i64)\n");
+      if (needs.hako_tls_cache_slot_get_i64 ||
+          module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"hako_tls_cache_slot_get_i64\"(i64)\n");
+      if (needs.hako_tls_cache_slot_set_i64 ||
+          module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"hako_tls_cache_slot_set_i64\"(i64, i64)\n");
       if (needs.stage1_emit_program_json || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.stage1.emit_program_json_v0_h\"(i64)\n");
       if (needs.stage1_emit_mir_from_source ||

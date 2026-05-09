@@ -91,6 +91,8 @@ Contract:
 | `inline_plans` | array | InlinePlan rows derived from declaration-local `Hint(inline/noinline/hot/cold)` and `Lowering(inline_required)` runes; M11c-soft-leaf may consume `request=prefer` for narrow same-module MIR leaf inline, and M13 may consume verified `request=required` for narrow same-module scalar leaf inline before backend emission |
 | `effect_plans` | array | EffectPlan rows derived from live verifier-backed `Contract(no_alloc/no_safepoint)` runes and reserved `Profile(...)` expansions; consumed by the MIR verifier, not by backends |
 | `capability_plans` | array | CapabilityPlan rows derived from reserved `Profile(...)` expansions; metadata only until capability verification lands |
+| `extern_call_routes` | array | MIR-owned route facts for accepted `externcall` sites; pure-first reads these rows instead of classifying helper names locally |
+| `lowering_plan` | array | Flattened backend route entries derived from explicit route facts, including `extern_call_routes`; backends consume these entries as lowering decisions, not as semantic discovery |
 | `sum_placement_facts` | array | Observed sum objectization / local-aggregate facts |
 | `sum_placement_selections` | array | Selected sum path (`local_aggregate` vs compat fallback) |
 | `sum_placement_layouts` | array | LLVM-side local aggregate layout choice for selected sums |
@@ -192,6 +194,37 @@ MIR JSON emit owner:
 ```text
 src/runner/mir_json_emit/plan_metadata.rs
 ```
+
+## ExternCallRoute Metadata
+
+`extern_call_routes` records narrow, MIR-owned facts for accepted
+`externcall` sites. The backend must read these facts through `lowering_plan`
+and must not re-infer accepted routes from raw symbol strings, fixture names, or
+box names.
+
+Current allocator-substrate extern families include:
+
+- `hako_mem_alloc` / `hako_mem_free`
+- `hako_osvm_reserve_bytes_i64` / `hako_osvm_commit_bytes_i64` /
+  `hako_osvm_decommit_bytes_i64`
+- `hako_tls_cache_slot_get_i64` / `hako_tls_cache_slot_set_i64`
+
+Required row facts include:
+
+- `route_id`
+- `core_op`
+- `symbol`
+- `tier`
+- `emit_kind`
+- `return_shape`
+- `value_demand`
+- `effects`
+- source and operand value ids
+
+`lowering_plan` mirrors the same decision with backend-facing fields such as
+`route_id`, `core_op`, `symbol`, `arity`, `return_shape`, and `value_demand`.
+The row is a lowering contract; it does not create a second source of language
+semantics.
 
 ## Value maps
 

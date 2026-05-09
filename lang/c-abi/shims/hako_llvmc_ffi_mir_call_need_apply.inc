@@ -97,6 +97,12 @@
           case HAKO_LLVMC_MIR_CALL_NEED_HAKO_OSVM_DECOMMIT_BYTES_I64:
             needs->hako_osvm_decommit_bytes_i64 = 1;
             break;
+          case HAKO_LLVMC_MIR_CALL_NEED_HAKO_TLS_CACHE_SLOT_GET_I64:
+            needs->hako_tls_cache_slot_get_i64 = 1;
+            break;
+          case HAKO_LLVMC_MIR_CALL_NEED_HAKO_TLS_CACHE_SLOT_SET_I64:
+            needs->hako_tls_cache_slot_set_i64 = 1;
+            break;
           case HAKO_LLVMC_MIR_CALL_NEED_HOSTBRIDGE_EXTERN_INVOKE_TRAP:
             needs->hostbridge_extern_invoke_trap = 1;
             break;

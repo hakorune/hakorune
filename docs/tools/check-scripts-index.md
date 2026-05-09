@@ -73,6 +73,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_mimalloc_dynamic_bin_exe_guard.sh` | M23 の runtime-indexed static u16 size-class table + raw-page pure-first EXE proof を固定し、非定数 `static_data_load` index が app-specific `.inc` matcher なしで動くことを検証する。 |
 | `tools/checks/k2_wide_mimalloc_size_to_bin_inline_exe_guard.sh` | M24 の `Profile(allocator.fast)` size_to_bin inline + runtime-indexed static u16 table + raw-page pure-first EXE proof を固定し、backend/.inc が profile 名を読まないことを検証する。 |
 | `tools/checks/k2_wide_mimalloc_osvm_page_exe_guard.sh` | M25 の `OsVmCoreBox.reserve_bytes_i64/commit_bytes_i64/decommit_bytes_i64` + pure-first EXE proof を固定し、OSVM route が MIR-owned extern route facts から emit されることを検証する。 |
+| `tools/checks/k2_wide_mimalloc_tls_cache_slot_exe_guard.sh` | M26 の `TlsCoreBox.cache_slot_get_i64/cache_slot_set_i64` + pure-first EXE proof を固定し、TLS cache-slot route が MIR-owned extern route facts から emit されることを検証する。 |
 
 ## Env Hygiene
 

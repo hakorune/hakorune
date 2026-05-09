@@ -1,0 +1,26 @@
+// mimalloc-tls-cache-slot-proof
+// Purpose: prove hako.tls cache-slot get/set routes in pure-first EXE.
+
+using selfhost.runtime.substrate.tls.tls_core_box as TlsCoreBox
+
+static box Main {
+    main(args) {
+        local before = TlsCoreBox.cache_slot_get_i64(0)
+        local set_rc = TlsCoreBox.cache_slot_set_i64(0, 4096)
+        local after = TlsCoreBox.cache_slot_get_i64(0)
+        local clear_rc = TlsCoreBox.cache_slot_set_i64(0, 0)
+        local final = TlsCoreBox.cache_slot_get_i64(0)
+
+        print("mimalloc-tls-cache-slot-proof")
+        print("before=" + before + " after=" + after + " final=" + final)
+        print("set=" + set_rc + " clear=" + clear_rc)
+
+        if before == 0 && set_rc == 0 && after == 4096 && clear_rc == 0 && final == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

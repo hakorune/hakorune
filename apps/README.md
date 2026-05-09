@@ -182,6 +182,22 @@ bash tools/checks/k2_wide_mimalloc_osvm_page_exe_guard.sh
 - pure-first は route facts を emit するだけで、app-specific matcher を持たない
 - page-size row / unreserve API / TLS / atomic は追加しない
 
+#### mimalloc-tls-cache-slot-proof
+**場所**: `mimalloc-tls-cache-slot-proof/main.hako`
+M26 substrate proof。`TlsCoreBox.cache_slot_get_i64/cache_slot_set_i64`
+を pure-first EXE で実行し、allocator fast-path 前の TLS cache-slot seam
+を固定する fixture。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_tls_cache_slot_exe_guard.sh
+```
+
+**特徴**:
+- source は `hako.tls` facade を使う
+- MIR-owned extern route facts が cache-slot get/set を表す
+- pure-first は route facts を emit するだけで、app-specific matcher を持たない
+- generic TLS cell / allocator policy / atomic remote-free は追加しない
+
 #### allocator-fast-path-exe-proof
 **場所**: `allocator-fast-path-exe-proof/main.hako`
 M13 scalar EXE proof。`Profile(allocator.fast)` を MIR-owned verified

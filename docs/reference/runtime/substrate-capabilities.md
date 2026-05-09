@@ -46,7 +46,7 @@ The current live surface is intentionally narrow.
 | `RawArray` | first raw-array path exists for slot load/store/len/cap/append/reserve/grow |
 | `RawBuf` | first allocation facade exists over `MemCoreBox` |
 | `hako.atomic` | helper-shaped `fence_i64`, memory-order vocabulary, and `fence_order_i64(order)` rows exist; generic load/store/CAS/fetch_add are not live |
-| `hako.tls` | helper-shaped diagnostics TLS rows exist: `last_error_text_h`, `last_error_is_ok_i64`, and `last_error_code_i64`; generic thread/task-local slots are not live |
+| `hako.tls` | helper-shaped diagnostics TLS rows exist; narrow allocator cache-slot `i64` get/set rows exist for pure-first EXE; generic thread/task-local cells are not live |
 | `hako.gc` | helper-shaped `write_barrier_i64` row exists |
 | `hako.osvm` | page-size plus reserve/commit/decommit rows exist |
 | `hako.intrin` | current-lane non-negative i64 bit-count rows exist: `clz_i64`, `ctz_i64`, `popcnt_i64`; backend optimization use is not live |
@@ -71,7 +71,6 @@ These names are reserved but not fully live as user-facing allocator substrate:
 - atomic load/store/CAS/fetch_add operations with memory order
 - language-level TLS cells
 - raw numeric TLS slot APIs
-- TLS cache-slot primitives
 - `@rune Contract(no_alloc)` backend optimization/export use
 - `@rune Contract(no_safepoint)` backend optimization/export use
 - `prefetch`, `assume`, `unreachable`
@@ -156,7 +155,7 @@ VM-hako subset behavior:
 - invalid order values fail-fast with
   `[vm-hako/contract][boxcall-fence_order_i64-invalid-order]`.
 
-## TLS Diagnostics Row
+## TLS Diagnostics And Cache-Slot Rows
 
 Owner module:
 
@@ -180,11 +179,18 @@ Live operations:
 | `NOT_FOUND` | `4` |
 | other | `-1` |
 
+Allocator cache-slot operations:
+
+- `cache_slot_get_i64(slot)` reads a narrow runtime-owned per-thread i64 slot.
+- `cache_slot_set_i64(slot, value)` writes a narrow runtime-owned per-thread
+  i64 slot and returns `0` on success.
+- Invalid slot ids fail-fast at the runtime boundary by returning the narrow
+  validation code; this row does not define language-level TLS cells.
+
 Unsupported operations:
 
 - generic thread/task-local slots
 - `TlsCell<T>`
-- cache-slot primitives
 - allocator-local cache policy
 
 VM-hako subset behavior:
@@ -193,6 +199,12 @@ VM-hako subset behavior:
 - `boxcall(TlsCoreBox.last_error_is_ok_i64)` is accepted with no arguments.
 - `boxcall(TlsCoreBox.last_error_code_i64)` is accepted with no arguments.
 - accidental arguments are rejected by the subset checker.
+
+EXE behavior:
+
+- `cache_slot_get_i64` / `cache_slot_set_i64` lower only through MIR-owned
+  `extern_call_routes` and `lowering_plan` rows.
+- Backends must not infer TLS semantics from symbol names or fixture names.
 
 ## OS VM Page Row
 

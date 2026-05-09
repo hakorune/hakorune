@@ -505,6 +505,20 @@
             HAKO_LLVMC_MIR_CALL_NEED_HAKO_OSVM_DECOMMIT_BYTES_I64,
           },
           {
+            "extern.hako_tls.cache_slot_get_i64",
+            "HakoTlsCacheSlotGetI64",
+            "extern.hako_tls.cache_slot_get_i64",
+            "hako_tls_cache_slot_get_i64",
+            HAKO_LLVMC_MIR_CALL_NEED_HAKO_TLS_CACHE_SLOT_GET_I64,
+          },
+          {
+            "extern.hako_tls.cache_slot_set_i64",
+            "HakoTlsCacheSlotSetI64",
+            "extern.hako_tls.cache_slot_set_i64",
+            "hako_tls_cache_slot_set_i64",
+            HAKO_LLVMC_MIR_CALL_NEED_HAKO_TLS_CACHE_SLOT_SET_I64,
+          },
+          {
             "extern.hostbridge.extern_invoke",
             "HostBridgeExternInvoke",
             "extern.hostbridge.extern_invoke",
