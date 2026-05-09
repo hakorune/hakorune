@@ -1,0 +1,40 @@
+using selfhost.runtime.substrate.raw_array.raw_array_core_box as RawArrayCoreBox
+using selfhost.runtime.substrate.verifier.bounds.bounds_core_box as BoundsCoreBox
+using selfhost.runtime.substrate.verifier.initialized_range.initialized_range_core_box as InitializedRangeCoreBox
+
+static box Main {
+  main(args) {
+    local arr = new ArrayBox()
+    local append_rc = RawArrayCoreBox.slot_append_any(arr, 0)
+    if append_rc != 1 {
+      print("rawarray-slot-len-exe-proof")
+      print("summary=append_failed")
+      return 1
+    }
+
+    local len = RawArrayCoreBox.slot_len_i64(arr)
+    if len != 1 {
+      print("rawarray-slot-len-exe-proof")
+      print("summary=len_failed")
+      return 2
+    }
+
+    local in_bounds = BoundsCoreBox.ensure_index_i64(arr, 0)
+    if in_bounds != 1 {
+      print("rawarray-slot-len-exe-proof")
+      print("summary=bounds_failed")
+      return 3
+    }
+
+    local initialized = InitializedRangeCoreBox.ensure_initialized_index_i64(arr, 0)
+    if initialized != 1 {
+      print("rawarray-slot-len-exe-proof")
+      print("summary=initialized_failed")
+      return 4
+    }
+
+    print("rawarray-slot-len-exe-proof")
+    print("summary=ok")
+    return 0
+  }
+}

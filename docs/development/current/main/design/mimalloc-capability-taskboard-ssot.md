@@ -106,6 +106,7 @@ them into MIR-owned plan facts.
 | `M14 hako.mem extern pure-first route` | `live-narrow` | MIR extern route + pure-first EXE | accepts only `hako_mem_alloc` and `hako_mem_free` as MIR-owned extern route facts; pure-first emits native `ptr` calls plus i64 transport conversion/zero sentinel and links through NyRT exports; no strong pointer attrs, no realloc, no RawBuf/RawArray parity |
 | `M15 RawBuf global wrapper generic-i64 route` | `live-narrow` | MIR global route + pure-first EXE | accepts only `RawBufCoreBox.alloc_bytes_i64/free_bytes_i64` as generic-i64 same-module global wrappers over M14 hako.mem routes; preserves void-sentinel trace call results as void sentinel; no RawArray parity, no realloc, no pointer attrs |
 | `M16 RawArray slot_append_any generic-i64 route` | `live-narrow` | MIR extern/global route + pure-first EXE | accepts only `RawArrayCoreBox.slot_append_any` over explicit `nyash.any.handle_live_h` and `nyash.array.slot_append_hh` extern routes; no slot load/store, bounds, initialized range, slot_len, or full RawArray parity |
+| `M17 RawArray slot_len_i64 generic-i64 route` | `live-narrow` | MIR extern/global route + pure-first EXE | accepts only `RawArrayCoreBox.slot_len_i64`, `BufCoreBox.len_i64`, bounds, and initialized-range wrappers over explicit `nyash.array.slot_len_h` extern route facts; no slot load/store or full RawArray parity |
 
 ## Fixed Implementation Order
 
@@ -148,6 +149,7 @@ them into MIR-owned plan facts.
 37. `M14 hako.mem extern pure-first route`
 38. `M15 RawBuf global wrapper generic-i64 route`
 39. `M16 RawArray slot_append_any generic-i64 route`
+40. `M17 RawArray slot_len_i64 generic-i64 route`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed
@@ -325,3 +327,9 @@ post-M15 raw-page probe moved to `RawArrayCoreBox.slot_append_any/2` during
 free-stack seeding. M16 owns only append-path route facts over
 `OwnershipCoreBox._handle_live_i64/1` and `PtrCoreBox.slot_append_any/2`; load,
 store, bounds, initialized-range, and slot length stay future.
+`M17 RawArray slot_len_i64 generic-i64 route` is now live-narrow because the
+post-M16 raw-page probe moved to verifier wrappers blocked by
+`PtrCoreBox.slot_len_i64/1`. M17 owns only length-path route facts over
+`PtrCoreBox.slot_len_i64/1`, `BufCoreBox.len_i64/1`, bounds, initialized-range,
+and `RawArrayCoreBox.slot_len_i64/1`; load, store, and full RawArray parity stay
+future.
