@@ -110,6 +110,7 @@ them into MIR-owned plan facts.
 | `M18 RawArray slot_load_i64 generic-i64 route` | `live-narrow` | MIR extern/global route + pure-first EXE | accepts only `RawArrayCoreBox.slot_load_i64` over ownership, bounds, initialized-range, and explicit `nyash.array.slot_load_hi` extern route facts; no slot_store or full RawArray parity |
 | `M19 RawArray slot_store_i64 generic-i64 route` | `live-narrow` | MIR extern/global route + pure-first EXE | accepts only `RawArrayCoreBox.slot_store_i64` over ownership, bounds, and explicit `nyash.array.slot_store_hii` extern route facts; no handle/string store or broad ArrayBox parity |
 | `M20 mimalloc raw-page EXE parity guard` | `live-narrow` | pure-first EXE regression guard | locks `apps/mimalloc-raw-page-proof` build/run under pure-first over M14-M19 routes; no new route shape or allocator policy |
+| `M21 mimalloc size-class table EXE proof` | `live-narrow` | allocator app proof + pure-first static-data reader | composes M11b static const u16 size-class tables with the M14-M20 raw-page route surface in `apps/mimalloc-size-class-table-proof`; adds only narrow `u16` `static_data_plans` / `static_data_load` lowering in pure-first, with no new source syntax or allocator policy |
 
 ## Fixed Implementation Order
 
@@ -156,6 +157,7 @@ them into MIR-owned plan facts.
 41. `M18 RawArray slot_load_i64 generic-i64 route`
 42. `M19 RawArray slot_store_i64 generic-i64 route`
 43. `M20 mimalloc raw-page EXE parity guard`
+44. `M21 mimalloc size-class table EXE proof`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed
@@ -353,3 +355,10 @@ ArrayBox parity stay future.
 compose into a pure-first EXE build/run for `apps/mimalloc-raw-page-proof`.
 M20 owns only the regression guard for that composed surface; it adds no new
 route shape and no allocator policy.
+`M21 mimalloc size-class table EXE proof` is now live-narrow because source
+static `u16` size-class tables and the M14-M20 raw-page route surface compose
+into a pure-first EXE build/run for `apps/mimalloc-size-class-table-proof`.
+M21 owns only that composed app proof; it adds no new route shape, table type,
+or allocator policy. The only backend acceptance added by M21 is the narrow
+pure-first reader/emitter for MIR-owned `u16` `static_data_plans` and
+`static_data_load`; `.inc` must not match app table names.

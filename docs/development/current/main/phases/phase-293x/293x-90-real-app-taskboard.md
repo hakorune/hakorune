@@ -33,6 +33,7 @@
 - [x] `293x-025` same-module body-shape cleanup
 - [x] `293x-026` mimalloc capability taskboard lock
 - [x] `293x-027` mimalloc-lite / allocator-stress EXE parity
+- [x] `293x-073` M21 mimalloc size-class table EXE proof
 
 ## Gates
 

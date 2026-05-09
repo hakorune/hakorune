@@ -1,0 +1,140 @@
+// mimalloc-size-class-table-proof
+// Purpose: prove static size-class tables compose with the raw-page EXE route.
+
+static const MI_SIZE_CLASS: u16[] = [
+    16 + 16,
+    2 * 32,
+]
+
+static const MI_CLASS_CAP: u16[] = [
+    1 << 2,
+    2 + 2,
+]
+
+using selfhost.runtime.substrate.raw_buf.raw_buf_core_box as RawBufCoreBox
+using selfhost.runtime.substrate.raw_array.raw_array_core_box as RawArrayCoreBox
+
+box MiTablePageProof {
+    init {
+        raw_ptr, block_size, capacity, free_stack, free_top,
+        alloc_count, free_count, reuse_count, peak_used, current_used
+    }
+
+    birth(block_size, capacity) {
+        me.raw_ptr = RawBufCoreBox.alloc_bytes_i64(block_size * capacity)
+        me.block_size = block_size
+        me.capacity = capacity
+        me.free_stack = new ArrayBox()
+        me.free_top = capacity
+        me.alloc_count = 0
+        me.free_count = 0
+        me.reuse_count = 0
+        me.peak_used = 0
+        me.current_used = 0
+
+        RawArrayCoreBox.slot_append_any(me.free_stack, 0)
+        RawArrayCoreBox.slot_append_any(me.free_stack, 1)
+        RawArrayCoreBox.slot_append_any(me.free_stack, 2)
+        RawArrayCoreBox.slot_append_any(me.free_stack, 3)
+    }
+
+    @rune Contract(no_alloc)
+    @rune Contract(no_safepoint)
+    acquireBlock(requested_size) {
+        if requested_size > me.block_size {
+            return -1
+        }
+
+        if me.free_top == 0 {
+            return -1
+        }
+
+        me.free_top = me.free_top - 1
+        local block_id = RawArrayCoreBox.slot_load_i64(me.free_stack, me.free_top)
+
+        if me.alloc_count >= me.capacity {
+            me.reuse_count = me.reuse_count + 1
+        }
+
+        me.alloc_count = me.alloc_count + 1
+        me.current_used = me.current_used + 1
+        if me.current_used > me.peak_used {
+            me.peak_used = me.current_used
+        }
+
+        return block_id
+    }
+
+    @rune Contract(no_alloc)
+    @rune Contract(no_safepoint)
+    releaseBlock(block_id) {
+        if block_id < 0 {
+            return false
+        }
+
+        if me.free_top >= me.capacity {
+            return false
+        }
+
+        RawArrayCoreBox.slot_store_i64(me.free_stack, me.free_top, block_id)
+        me.free_top = me.free_top + 1
+        me.free_count = me.free_count + 1
+        me.current_used = me.current_used - 1
+        return true
+    }
+
+    destroy() {
+        RawBufCoreBox.free_bytes_i64(me.raw_ptr)
+        me.raw_ptr = 0
+        return 0
+    }
+}
+
+static box Main {
+    main(args) {
+        local small_idx = 0
+        local medium_idx = 1
+        local block_size = MI_SIZE_CLASS[small_idx]
+        local capacity = MI_CLASS_CAP[small_idx]
+        local medium_size = MI_SIZE_CLASS[medium_idx]
+        local medium_capacity = MI_CLASS_CAP[medium_idx]
+        local table_sum = block_size + capacity + medium_size + medium_capacity
+
+        local page = new MiTablePageProof(block_size, capacity)
+        local blocks = new ArrayBox()
+        local rejects = 0
+
+        blocks.push(page.acquireBlock(8))
+        blocks.push(page.acquireBlock(16))
+        blocks.push(page.acquireBlock(24))
+        blocks.push(page.acquireBlock(32))
+
+        if page.acquireBlock(8) == -1 {
+            rejects = rejects + 1
+        }
+
+        page.releaseBlock(blocks.get(0))
+        page.releaseBlock(blocks.get(2))
+
+        blocks.push(page.acquireBlock(12))
+        blocks.push(page.acquireBlock(20))
+
+        if page.acquireBlock(medium_size) == -1 {
+            rejects = rejects + 1
+        }
+
+        print("mimalloc-size-class-table-proof")
+        print("table=" + block_size + "/" + capacity + "," + medium_size + "/" + medium_capacity)
+        print("allocs=" + page.alloc_count + " frees=" + page.free_count + " reused=" + page.reuse_count + " peak=" + page.peak_used + " free=" + page.free_top)
+        print("rejects=" + rejects)
+
+        page.destroy()
+        if page.raw_ptr == 0 && table_sum == 104 && page.alloc_count == 6 && page.free_count == 2 && page.reuse_count == 2 && page.peak_used == 4 && page.free_top == 0 && rejects == 2 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -106,6 +106,22 @@ apps/mimalloc-raw-page-proof/test.sh
 - fast path に `Contract(no_alloc/no_safepoint)` を付けて MIR verify
 - Profile/Capability/unsafe/backend special-case は未使用
 
+#### mimalloc-size-class-table-proof
+**場所**: `mimalloc-size-class-table-proof/main.hako`
+M21 substrate proof。source `static const u16[]` size-class tables と
+raw page/free-list pure-first EXE route を合成する fixture。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_size_class_table_exe_guard.sh
+```
+
+**特徴**:
+- size-class metadata は runtime Array/Map ではなく MIR `static_data_plans`
+- table read は `static_data_load` 経由
+- RawBuf/RawArray route は M14-M20 の既存 facts を再利用
+- pure-first は MIR-owned static data facts だけを読む。新しい source syntax
+  / allocator policy は追加しない
+
 #### allocator-fast-path-exe-proof
 **場所**: `allocator-fast-path-exe-proof/main.hako`
 M13 scalar EXE proof。`Profile(allocator.fast)` を MIR-owned verified
@@ -272,6 +288,7 @@ box TreeNode {
 - [x] binary-trees（GC性能測定）
 - [x] mimalloc-lite（allocator-shaped model）
 - [x] mimalloc-raw-page-proof（M12 substrate proof）
+- [x] mimalloc-size-class-table-proof（M21 static size-class table proof）
 
 ### 🚧 実装予定（論文・ベンチマーク用）
 - [ ] n-body（数値計算）

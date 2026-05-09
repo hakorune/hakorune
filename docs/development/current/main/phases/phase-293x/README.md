@@ -105,5 +105,9 @@ inference for the allocator release path.
 - `293x-027`: mimalloc-lite and allocator-stress EXE parity landed. MIR-owned
   param-origin inference clears `HakoAllocHeap.release/1`, and same-module
   pure-first PHI refinement now respects explicit `dst_type`.
+- `293x-073`: M21 mimalloc size-class table EXE proof landed, composing M11b
+  static `u16` size-class tables with the M14-M20 raw-page pure-first route
+  surface through a narrow MIR-owned `static_data_load` reader, without adding
+  new source syntax or allocator policy.
 - Next: move into the mimalloc-grade substrate ladder from `293x-026`; keep
   future blockers as compiler/runtime seams and do not hide them in app code.

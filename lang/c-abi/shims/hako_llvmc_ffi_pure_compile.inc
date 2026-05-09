@@ -280,6 +280,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
     }
     if (strcmp(op, "const") == 0 ||
         strcmp(op, "compare") == 0 ||
+        strcmp(op, "static_data_load") == 0 ||
         strcmp(op, "select") == 0 ||
         strcmp(op, "branch") == 0 ||
         strcmp(op, "jump") == 0 ||

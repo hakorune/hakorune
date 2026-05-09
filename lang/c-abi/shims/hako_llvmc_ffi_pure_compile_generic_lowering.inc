@@ -5,6 +5,7 @@
         goto GEN_ABORT;
       }
       #include "hako_llvmc_ffi_emit_seam.inc"
+      #include "hako_llvmc_ffi_static_data_emit.inc"
       #include "hako_llvmc_ffi_generic_method_lowering.inc"
       #include "hako_llvmc_ffi_mir_call_dispatch.inc"
       auto int note_global_call_lowering_plan_unsupported_shape(
@@ -165,6 +166,17 @@
         set_type(dst, T_I1);
       }
       #include "hako_llvmc_ffi_same_module_function_emit.inc"
+      if (hako_llvmc_emit_static_data_globals_for_root(f, root) < 0) {
+        note_pure_unsupported_shape(
+            -1,
+            0,
+            "static_data_plan",
+            "unsupported_static_data_plan",
+            NULL);
+        fclose(f);
+        yyjson_doc_free(d);
+        goto GEN_ABORT;
+      }
       if (emit_same_module_function_definitions(f) < 0) {
         fclose(f);
         yyjson_doc_free(d);
@@ -455,6 +467,23 @@
                 NULL);
             yyjson_doc_free(d);
             goto GEN_ABORT;
+          }
+          if (strcmp(op, "static_data_load")==0) {
+            char reason[64];
+            if (!hako_llvmc_emit_static_data_load_instruction(
+                    ins,
+                    reason,
+                    sizeof(reason))) {
+              note_pure_unsupported_shape(
+                  bid,
+                  ii,
+                  op,
+                  reason[0] ? reason : "static_data_load_lowering_failed",
+                  NULL);
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
+            }
+            continue;
           }
           if (strcmp(op, "copy")==0) {
             long long dst = read_int(ins, "dst");
