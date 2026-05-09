@@ -1,0 +1,27 @@
+// mimalloc-atomic-store-proof
+// Purpose: prove hako.atomic fixed i64 store route in pure-first EXE.
+
+using selfhost.runtime.substrate.atomic.atomic_core_box as AtomicCoreBox
+
+static box Main {
+    main(args) {
+        local clear = AtomicCoreBox.store_i64(2, 0)
+        local before = AtomicCoreBox.load_i64(2)
+        local store = AtomicCoreBox.store_i64(2, 8192)
+        local after = AtomicCoreBox.load_i64(2)
+        local reset = AtomicCoreBox.store_i64(2, 0)
+        local final = AtomicCoreBox.load_i64(2)
+
+        print("mimalloc-atomic-store-proof")
+        print("clear=" + clear + " before=" + before + " store=" + store)
+        print("after=" + after + " reset=" + reset + " final=" + final)
+
+        if clear == 0 && before == 0 && store == 0 && after == 8192 && reset == 0 && final == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

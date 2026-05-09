@@ -649,6 +649,9 @@
       if (needs.hako_atomic_slot_load_i64 ||
           module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"hako_atomic_slot_load_i64\"(i64)\n");
+      if (needs.hako_atomic_slot_store_i64 ||
+          module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"hako_atomic_slot_store_i64\"(i64, i64)\n");
       if (needs.hako_osvm_reserve_bytes_i64 ||
           module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"hako_osvm_reserve_bytes_i64\"(i64)\n");

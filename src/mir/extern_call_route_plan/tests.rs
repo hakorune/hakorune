@@ -452,6 +452,34 @@ fn refresh_function_extern_call_routes_records_hako_atomic_slot_load_route() {
 }
 
 #[test]
+fn refresh_function_extern_call_routes_records_hako_atomic_slot_store_route() {
+    let mut function = make_function_with_call(
+        "hako_atomic_slot_store_i64/2",
+        vec![ValueId::new(1), ValueId::new(2)],
+        Some(ValueId::new(3)),
+    );
+
+    refresh_function_extern_call_routes(&mut function);
+
+    assert_eq!(function.metadata.extern_call_routes.len(), 1);
+    let route = &function.metadata.extern_call_routes[0];
+    assert_eq!(route.route_id(), "extern.hako_atomic.slot_store_i64");
+    assert_eq!(route.core_op(), "HakoAtomicSlotStoreI64");
+    assert_eq!(route.symbol(), "hako_atomic_slot_store_i64");
+    assert_eq!(route.tier(), "ColdRuntime");
+    assert_eq!(route.emit_kind(), "runtime_call");
+    assert_eq!(route.proof(), "extern_registry");
+    assert_eq!(route.source_symbol(), "hako_atomic_slot_store_i64/2");
+    assert_eq!(route.key_value(), ValueId::new(1));
+    assert_eq!(route.value_value(), Some(ValueId::new(2)));
+    assert_eq!(route.result_value(), ValueId::new(3));
+    assert_eq!(route.arity(), 2);
+    assert_eq!(route.return_shape(), "scalar_i64");
+    assert_eq!(route.value_demand(), "runtime_i64");
+    assert_eq!(route.effect_tags(), &["hako.atomic.slot_store"]);
+}
+
+#[test]
 fn refresh_function_extern_call_routes_records_hostbridge_extern_invoke_global_source() {
     let mut function = MirFunction::new(
         FunctionSignature {

@@ -5,6 +5,7 @@
 
 use std::sync::atomic::{AtomicI64, Ordering};
 
+const HAKO_OK: i64 = 0;
 const HAKO_VALIDATION: i64 = 6;
 
 static HAKO_ATOMIC_SLOT0: AtomicI64 = AtomicI64::new(0);
@@ -40,6 +41,15 @@ pub extern "C" fn hako_atomic_slot_load_i64(slot: i64) -> i64 {
     cell.load(Ordering::SeqCst)
 }
 
+#[no_mangle]
+pub extern "C" fn hako_atomic_slot_store_i64(slot: i64, value: i64) -> i64 {
+    let Some(cell) = atomic_slot(slot) else {
+        return HAKO_VALIDATION;
+    };
+    cell.store(value, Ordering::SeqCst);
+    HAKO_OK
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -52,7 +62,11 @@ mod tests {
         assert_eq!(hako_atomic_slot_cas_i64(0, 0, 1), 4096);
         assert_eq!(hako_atomic_slot_cas_i64(0, 4096, 0), 4096);
         assert_eq!(hako_atomic_slot_load_i64(0), 0);
+        assert_eq!(hako_atomic_slot_store_i64(0, 7), HAKO_OK);
+        assert_eq!(hako_atomic_slot_load_i64(0), 7);
+        assert_eq!(hako_atomic_slot_store_i64(0, 0), HAKO_OK);
         assert_eq!(hako_atomic_slot_cas_i64(4, 0, 1), HAKO_VALIDATION);
         assert_eq!(hako_atomic_slot_load_i64(4), HAKO_VALIDATION);
+        assert_eq!(hako_atomic_slot_store_i64(4, 0), HAKO_VALIDATION);
     }
 }

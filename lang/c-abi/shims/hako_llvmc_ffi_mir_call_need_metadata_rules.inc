@@ -491,6 +491,13 @@
             HAKO_LLVMC_MIR_CALL_NEED_HAKO_ATOMIC_SLOT_LOAD_I64,
           },
           {
+            "extern.hako_atomic.slot_store_i64",
+            "HakoAtomicSlotStoreI64",
+            "extern.hako_atomic.slot_store_i64",
+            "hako_atomic_slot_store_i64",
+            HAKO_LLVMC_MIR_CALL_NEED_HAKO_ATOMIC_SLOT_STORE_I64,
+          },
+          {
             "extern.hako_mem.free",
             "HakoMemFree",
             "extern.hako_mem.free",
