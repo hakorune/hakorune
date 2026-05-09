@@ -68,6 +68,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_native_ptr_decl_type_guard.sh` | M10c-native-ptr-declare-type の `native_ptr_* -> ptr` 型名対応を `.hako` ll_emit reader に閉じ、型名 reader が `.inc` に漏れないことを固定する。 |
 | `tools/checks/k2_wide_hako_mem_runtime_decl_guard.sh` | M10c-hako-mem alloc/realloc/free rows の `hako_mem_alloc` / `hako_mem_realloc -> native_ptr_nullable` と `hako_mem_free -> void` runtime-decl row / generated defaults 同期を固定し、native pointer arg emission が `ptr` で void call が `call void` であること、他 native pointer row / `ret_proofs` / strong attrs の混入を防ぐ。 |
 | `tools/checks/k2_wide_hako_mem_alloc_runtime_decl_guard.sh` | 293x-052 互換入口。現在は `k2_wide_hako_mem_runtime_decl_guard.sh` に委譲する。 |
+| `tools/checks/k2_wide_mimalloc_raw_page_exe_guard.sh` | M20 の mimalloc raw-page pure-first EXE parity guard を固定し、M14-M19 raw memory / RawBuf / RawArray route surface の合成が allocator policy なしで実行できることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_size_class_table_exe_guard.sh` | M21 の static u16 size-class table + raw-page pure-first EXE 合成 proof を固定し、runtime Array/Map table materialization、app-specific `.inc` matcher、新しい source syntax / allocator policy の混入を防ぐ。 |
 | `tools/checks/k2_wide_mimalloc_two_class_page_exe_guard.sh` | M22 の static u16 size-class table + two-class raw-page pure-first EXE proof を固定し、small/medium の reject/release/reuse が既存 route surface だけで動くことを検証する。 |
 | `tools/checks/k2_wide_mimalloc_dynamic_bin_exe_guard.sh` | M23 の runtime-indexed static u16 size-class table + raw-page pure-first EXE proof を固定し、非定数 `static_data_load` index が app-specific `.inc` matcher なしで動くことを検証する。 |
@@ -84,6 +85,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_mimalloc_ptr_atomic_store_exe_guard.sh` | M35 の direct native-pointer atomic store route + pure-first EXE proof を固定し、`hako_atomic_ptr_store_ordered` が MIR-owned extern route facts から emit されることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_tls_ptr_remote_free_exe_guard.sh` | M36 の TLS cache-slot + direct native-pointer atomic store composition proof を固定し、remote-free mailbox seam が既存 route facts だけで pure-first EXE 実行できることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_remote_free_policy_exe_guard.sh` | M37 の allocator remote-free policy integration proof を固定し、`AllocatorRemoteFreePolicy` が既存 TLS/pointer-store route facts だけで pure-first EXE 実行できることを検証する。 |
+| `tools/checks/k2_wide_mimalloc_allocator_closeout_guard.sh` | M38 の mimalloc allocator app closeout coverage を固定し、M20-M37 proof apps / guards / docs index / dev_gate quick の導線が欠けていないことと、app-specific `.inc` matcher がないことを検証する。 |
 
 ## Env Hygiene
 

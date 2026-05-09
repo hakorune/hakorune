@@ -162,6 +162,8 @@ Live operations:
 - `apps/mimalloc-remote-free-policy-proof` connects that mailbox seam to a
   same-module `AllocatorRemoteFreePolicy` box. It proves policy integration
   over existing route facts only; it is not a full remote-free list.
+- `tools/checks/k2_wide_mimalloc_allocator_closeout_guard.sh` locks the
+  M20-M37 mimalloc allocator proof coverage as a closeout inventory guard.
 
 Unsupported operations:
 

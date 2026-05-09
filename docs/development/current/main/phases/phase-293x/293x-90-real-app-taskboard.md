@@ -50,6 +50,7 @@
 - [x] `293x-087` M35 native pointer atomic store route proof
 - [x] `293x-088` M36 TLS pointer remote-free composition proof
 - [x] `293x-089` M37 allocator remote-free policy integration proof
+- [x] `293x-090` M38 mimalloc allocator app closeout guard
 
 ## Gates
 

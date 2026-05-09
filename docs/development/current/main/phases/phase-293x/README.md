@@ -155,5 +155,8 @@ inference for the allocator release path.
 - `293x-089`: M37 allocator remote-free policy integration proof landed,
   routing `AllocatorRemoteFreePolicy` as same-module generic-i64 bodies over
   the existing M26/M35 mailbox seam without adding backend-specific matchers.
-- Next: move into the mimalloc-grade substrate ladder from `293x-026`; keep
+- `293x-090`: M38 mimalloc allocator app closeout guard landed, locking
+  M20-M37 mimalloc proof coverage in docs index and `dev_gate.sh quick` without
+  adding another app, route row, or backend matcher.
+- Next: select the next mimalloc-grade substrate row from `293x-026`; keep
   future blockers as compiler/runtime seams and do not hide them in app code.
