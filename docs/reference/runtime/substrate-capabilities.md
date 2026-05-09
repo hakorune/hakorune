@@ -45,7 +45,7 @@ The current live surface is intentionally narrow.
 | verifier | bounds, initialized-range, ownership, and rune contract gates exist for current rows; RawArray remove/insert are verifier-gated before pointer-substrate calls; `Contract(no_alloc/no_safepoint)` is MIR-verifier checked |
 | `RawArray` | first raw-array path exists for slot load/store/len/cap/append/reserve/grow |
 | `RawBuf` | first allocation facade exists over `MemCoreBox` |
-| `hako.atomic` | helper-shaped `fence_i64`, memory-order vocabulary, `fence_order_i64(order)`, and narrow fixed-slot `cas_i64` rows exist; generic load/store/fetch_add and pointer atomics are not live |
+| `hako.atomic` | helper-shaped `fence_i64`, memory-order vocabulary, `fence_order_i64(order)`, and narrow fixed-slot `cas_i64` / `load_i64` rows exist; generic store/fetch_add and pointer atomics are not live |
 | `hako.tls` | helper-shaped diagnostics TLS rows exist; narrow allocator cache-slot `i64` get/set rows exist for pure-first EXE; generic thread/task-local cells are not live |
 | `hako.gc` | helper-shaped `write_barrier_i64` row exists |
 | `hako.osvm` | page-size plus reserve/commit/decommit rows exist |
@@ -68,7 +68,8 @@ These names are reserved but not fully live as user-facing allocator substrate:
 - pointer-sized, pointer, handle, or Box fields inside raw layouts
 - `MaybeInit`
 - unrestricted raw pointer arithmetic
-- atomic load/store/fetch_add operations with memory order
+- atomic store/fetch_add operations with memory order
+- generic atomic load with memory-order arguments or pointer operands
 - generic CAS with memory-order arguments or pointer operands
 - language-level TLS cells
 - raw numeric TLS slot APIs
@@ -144,13 +145,16 @@ Live operations:
   compare-exchange on a fixed i64 slot and returns the previous value. A
   successful CAS returns `expected`; a failed CAS returns the observed value.
   This row uses the runtime export's current default order.
+- `load_i64(slot)` reads a narrow runtime-owned atomic i64 slot and returns the
+  current value. This row uses the runtime export's current default order.
 
 Unsupported operations:
 
-- `load`
 - `store`
 - `fetch_add`
 - pointer CAS
+- pointer load/store
+- memory-order arguments on load
 - memory-order arguments on CAS
 - `pause/yield`
 

@@ -40,6 +40,7 @@
 - [x] `293x-077` M25 mimalloc OSVM page EXE proof
 - [x] `293x-078` M26 mimalloc TLS cache-slot EXE proof
 - [x] `293x-079` M27 mimalloc atomic CAS slot EXE proof
+- [x] `293x-080` M28 mimalloc atomic load slot EXE proof
 
 ## Gates
 

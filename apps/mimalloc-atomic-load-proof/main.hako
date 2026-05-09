@@ -1,0 +1,26 @@
+// mimalloc-atomic-load-proof
+// Purpose: prove hako.atomic fixed i64 load route in pure-first EXE.
+
+using selfhost.runtime.substrate.atomic.atomic_core_box as AtomicCoreBox
+
+static box Main {
+    main(args) {
+        local before = AtomicCoreBox.load_i64(1)
+        local set = AtomicCoreBox.cas_i64(1, 0, 2048)
+        local after = AtomicCoreBox.load_i64(1)
+        local reset = AtomicCoreBox.cas_i64(1, 2048, 0)
+        local final = AtomicCoreBox.load_i64(1)
+
+        print("mimalloc-atomic-load-proof")
+        print("before=" + before + " set=" + set)
+        print("after=" + after + " reset=" + reset + " final=" + final)
+
+        if before == 0 && set == 0 && after == 2048 && reset == 2048 && final == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

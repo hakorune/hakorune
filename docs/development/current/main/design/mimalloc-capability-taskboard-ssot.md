@@ -117,6 +117,7 @@ them into MIR-owned plan facts.
 | `M25 mimalloc OSVM page EXE proof` | `live-narrow` | allocator app proof + MIR extern route + NyRT export | proves `OsVmCoreBox.reserve_bytes_i64/commit_bytes_i64/decommit_bytes_i64` as MIR-owned extern route facts in `apps/mimalloc-osvm-page-proof`; pure-first emits only those route rows and links matching NyRT exports, with no page-size route row, unreserve API, TLS, atomic, or allocator policy |
 | `M26 mimalloc TLS cache-slot EXE proof` | `live-narrow` | allocator app proof + MIR extern route + NyRT export | proves `TlsCoreBox.cache_slot_get_i64/cache_slot_set_i64` as MIR-owned extern route facts in `apps/mimalloc-tls-cache-slot-proof`; pure-first emits only those route rows and links matching NyRT exports, with no generic TLS cell, atomic remote-free, native pointer attrs, or allocator policy |
 | `M27 mimalloc atomic CAS slot EXE proof` | `live-narrow` | allocator app proof + MIR extern route + NyRT export | proves `AtomicCoreBox.cas_i64` as a fixed i64 atomic-slot CAS route in `apps/mimalloc-atomic-cas-proof`; pure-first emits only that route row and links the matching NyRT export, with no load/store/fetch_add, pointer atomics, memory-order args, or remote-free policy |
+| `M28 mimalloc atomic load slot EXE proof` | `live-narrow` | allocator app proof + MIR extern route + NyRT export | proves `AtomicCoreBox.load_i64` as a fixed i64 atomic-slot load route in `apps/mimalloc-atomic-load-proof`; pure-first emits only that route row and links the matching NyRT export, with no store/fetch_add, pointer atomics, memory-order args, or remote-free policy |
 
 ## Fixed Implementation Order
 
@@ -170,6 +171,7 @@ them into MIR-owned plan facts.
 48. `M25 mimalloc OSVM page EXE proof`
 49. `M26 mimalloc TLS cache-slot EXE proof`
 50. `M27 mimalloc atomic CAS slot EXE proof`
+51. `M28 mimalloc atomic load slot EXE proof`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed

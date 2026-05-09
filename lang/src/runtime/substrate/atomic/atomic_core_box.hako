@@ -3,8 +3,9 @@
 // - expose the narrowest truthful atomic-adjacent row under `runtime/substrate/`
 // - keep barrier/fence proof separate from future generic atomics
 // Non-responsibility:
-// - load/store/fetch_add vocabulary
+// - store/fetch_add vocabulary
 // - pointer CAS or memory-order arguments on CAS
+// - pointer load/store or memory-order arguments on load
 // - TLS policy
 // - allocator policy
 
@@ -61,6 +62,12 @@ static box AtomicCoreBox {
   cas_i64(slot, expected, desired) {
     local out = externcall "hako_atomic_slot_cas_i64"(slot, expected, desired)
     me._trace("[vm/adapter/atomic:cas_i64]")
+    return out
+  }
+
+  load_i64(slot) {
+    local out = externcall "hako_atomic_slot_load_i64"(slot)
+    me._trace("[vm/adapter/atomic:load_i64]")
     return out
   }
 }

@@ -32,6 +32,14 @@ pub extern "C" fn hako_atomic_slot_cas_i64(slot: i64, expected: i64, desired: i6
     }
 }
 
+#[no_mangle]
+pub extern "C" fn hako_atomic_slot_load_i64(slot: i64) -> i64 {
+    let Some(cell) = atomic_slot(slot) else {
+        return HAKO_VALIDATION;
+    };
+    cell.load(Ordering::SeqCst)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -40,8 +48,11 @@ mod tests {
     fn slot_cas_returns_previous_value_for_success_and_failure() {
         assert_eq!(hako_atomic_slot_cas_i64(0, 0, 0), 0);
         assert_eq!(hako_atomic_slot_cas_i64(0, 0, 4096), 0);
+        assert_eq!(hako_atomic_slot_load_i64(0), 4096);
         assert_eq!(hako_atomic_slot_cas_i64(0, 0, 1), 4096);
         assert_eq!(hako_atomic_slot_cas_i64(0, 4096, 0), 4096);
+        assert_eq!(hako_atomic_slot_load_i64(0), 0);
         assert_eq!(hako_atomic_slot_cas_i64(4, 0, 1), HAKO_VALIDATION);
+        assert_eq!(hako_atomic_slot_load_i64(4), HAKO_VALIDATION);
     }
 }

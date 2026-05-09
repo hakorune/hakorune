@@ -75,6 +75,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_mimalloc_osvm_page_exe_guard.sh` | M25 の `OsVmCoreBox.reserve_bytes_i64/commit_bytes_i64/decommit_bytes_i64` + pure-first EXE proof を固定し、OSVM route が MIR-owned extern route facts から emit されることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_tls_cache_slot_exe_guard.sh` | M26 の `TlsCoreBox.cache_slot_get_i64/cache_slot_set_i64` + pure-first EXE proof を固定し、TLS cache-slot route が MIR-owned extern route facts から emit されることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_atomic_cas_exe_guard.sh` | M27 の `AtomicCoreBox.cas_i64` + pure-first EXE proof を固定し、atomic CAS route が MIR-owned extern route facts から emit されることを検証する。 |
+| `tools/checks/k2_wide_mimalloc_atomic_load_exe_guard.sh` | M28 の `AtomicCoreBox.load_i64` + pure-first EXE proof を固定し、atomic load route が MIR-owned extern route facts から emit されることを検証する。 |
 
 ## Env Hygiene
 

@@ -125,5 +125,8 @@ inference for the allocator release path.
 - `293x-079`: M27 mimalloc atomic CAS slot EXE proof landed, routing
   `AtomicCoreBox.cas_i64/3` through MIR-owned extern route facts into
   pure-first EXE.
+- `293x-080`: M28 mimalloc atomic load slot EXE proof landed, routing
+  `AtomicCoreBox.load_i64/1` through MIR-owned extern route facts into
+  pure-first EXE.
 - Next: move into the mimalloc-grade substrate ladder from `293x-026`; keep
   future blockers as compiler/runtime seams and do not hide them in app code.
