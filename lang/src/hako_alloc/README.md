@@ -16,7 +16,9 @@ Principles
 - Current stop-line:
   - current live implementation row is GC trigger threshold policy
   - first landed policy rows are handle reuse policy and GC trigger threshold policy
-  - third live allocator row is VM-only page/free-list policy-state prototype
+  - third live allocator row is the page/free-list policy-state prototype
+    (the original row name says VM-only; current EXE parity rides typed-object
+    and pure-first routes, not native allocator fast-path ownership)
   - live Rust bodies still remain under `src/runtime/**`
   - `RawBuf` policy/state and `MaybeInit` stay reserved-only for now
   - `LayoutBox` is size-class policy only; it is not native layout/ABI ownership

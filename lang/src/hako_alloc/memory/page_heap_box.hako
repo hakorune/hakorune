@@ -1,5 +1,6 @@
 // page_heap_box.hako — Hako Alloc page/free-list policy-state prototype
-// Responsibility: VM-only fixed-size page heap used by real-app allocator bringup.
+// Responsibility: fixed-size page heap model used by real-app allocator bringup.
+// This is allocator policy/state, not native allocator metal or a VM feature owner.
 
 using selfhost.hako_alloc.memory.layout_box as LayoutBox
 

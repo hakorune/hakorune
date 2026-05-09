@@ -1,5 +1,6 @@
 // layout_box.hako — Hako Alloc size-class policy
-// Responsibility: VM-only allocator layout decisions for the real-app port.
+// Responsibility: allocator policy decisions for the real-app port.
+// This is not native layout/ABI ownership.
 
 static box LayoutBox {
   normalize_size(size) {

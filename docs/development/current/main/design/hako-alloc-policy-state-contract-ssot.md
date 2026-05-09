@@ -99,6 +99,12 @@ The current live implementation row is `VM-only page/free-list policy-state prot
 Later native allocator work stays reserved-only until a concrete backend-private
 consumer appears.
 
+Reading note: the `VM-only` wording is the historical row name for the first
+policy/state prototype. It does not make VM the owner for later allocator
+feature growth. Current EXE parity for the real apps rides the shared
+typed-object / pure-first compiler seams, while native allocator fast-path work
+still belongs to the substrate capability ladder.
+
 ### Handle policy
 
 - policy owner:
