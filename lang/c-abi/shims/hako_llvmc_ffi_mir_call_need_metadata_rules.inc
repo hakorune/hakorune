@@ -484,6 +484,27 @@
             HAKO_LLVMC_MIR_CALL_NEED_HAKO_MEM_FREE,
           },
           {
+            "extern.hako_osvm.reserve_bytes_i64",
+            "HakoOsvmReserveBytesI64",
+            "extern.hako_osvm.reserve_bytes_i64",
+            "hako_osvm_reserve_bytes_i64",
+            HAKO_LLVMC_MIR_CALL_NEED_HAKO_OSVM_RESERVE_BYTES_I64,
+          },
+          {
+            "extern.hako_osvm.commit_bytes_i64",
+            "HakoOsvmCommitBytesI64",
+            "extern.hako_osvm.commit_bytes_i64",
+            "hako_osvm_commit_bytes_i64",
+            HAKO_LLVMC_MIR_CALL_NEED_HAKO_OSVM_COMMIT_BYTES_I64,
+          },
+          {
+            "extern.hako_osvm.decommit_bytes_i64",
+            "HakoOsvmDecommitBytesI64",
+            "extern.hako_osvm.decommit_bytes_i64",
+            "hako_osvm_decommit_bytes_i64",
+            HAKO_LLVMC_MIR_CALL_NEED_HAKO_OSVM_DECOMMIT_BYTES_I64,
+          },
+          {
             "extern.hostbridge.extern_invoke",
             "HostBridgeExternInvoke",
             "extern.hostbridge.extern_invoke",

@@ -116,5 +116,8 @@ inference for the allocator release path.
   `static_data_load` indices for `u16` size-class tables under pure-first EXE.
 - `293x-076`: M24 mimalloc size_to_bin inline EXE proof landed, composing
   `Profile(allocator.fast)` verified inline with dynamic static table loads.
+- `293x-077`: M25 mimalloc OSVM page EXE proof landed, routing
+  `OsVmCoreBox.reserve_bytes_i64/commit_bytes_i64/decommit_bytes_i64` through
+  MIR-owned extern route facts into pure-first EXE.
 - Next: move into the mimalloc-grade substrate ladder from `293x-026`; keep
   future blockers as compiler/runtime seams and do not hide them in app code.

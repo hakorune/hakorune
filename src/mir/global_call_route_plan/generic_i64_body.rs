@@ -473,7 +473,10 @@ fn generic_i64_body_refine_instruction(
                 | ExternCallRouteKind::ArraySlotLoadI64
                 | ExternCallRouteKind::ArraySlotStoreI64
                 | ExternCallRouteKind::HakoMemAlloc
-                | ExternCallRouteKind::HakoMemFree,
+                | ExternCallRouteKind::HakoMemFree
+                | ExternCallRouteKind::HakoOsvmReserveBytesI64
+                | ExternCallRouteKind::HakoOsvmCommitBytesI64
+                | ExternCallRouteKind::HakoOsvmDecommitBytesI64,
             ) => {
                 if let Some(dst) = dst {
                     set_generic_i64_value_class(values, *dst, GenericI64ValueClass::I64, changed)

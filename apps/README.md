@@ -167,6 +167,21 @@ bash tools/checks/k2_wide_mimalloc_size_to_bin_inline_exe_guard.sh
 - dynamic `static_data_load` と RawBuf/RawArray route を合成
 - wider inline shape / general mimalloc bin algorithm は追加しない
 
+#### mimalloc-osvm-page-proof
+**場所**: `mimalloc-osvm-page-proof/main.hako`
+M25 substrate proof。`OsVmCoreBox.reserve_bytes_i64/commit_bytes_i64/decommit_bytes_i64`
+を pure-first EXE で実行し、OSVM page reservation seam を固定する fixture。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_osvm_page_exe_guard.sh
+```
+
+**特徴**:
+- source は `hako.osvm` facade を使う
+- MIR-owned extern route facts が reserve/commit/decommit を表す
+- pure-first は route facts を emit するだけで、app-specific matcher を持たない
+- page-size row / unreserve API / TLS / atomic は追加しない
+
 #### allocator-fast-path-exe-proof
 **場所**: `allocator-fast-path-exe-proof/main.hako`
 M13 scalar EXE proof。`Profile(allocator.fast)` を MIR-owned verified
@@ -337,6 +352,7 @@ box TreeNode {
 - [x] mimalloc-two-class-page-proof（M22 two-class page proof）
 - [x] mimalloc-dynamic-bin-proof（M23 dynamic bin proof）
 - [x] mimalloc-size-to-bin-inline-proof（M24 size_to_bin inline proof）
+- [x] mimalloc-osvm-page-proof（M25 OSVM page proof）
 
 ### 🚧 実装予定（論文・ベンチマーク用）
 - [ ] n-body（数値計算）

@@ -423,6 +423,9 @@ impl MirBuilder {
             "hako_mem_alloc"
             | "hako_mem_realloc"
             | "hako_mem_free"
+            | "hako_osvm_page_size_i64"
+            | "hako_osvm_commit_bytes_i64"
+            | "hako_osvm_decommit_bytes_i64"
             | "hako_osvm_reserve_bytes_i64" => MirType::Integer,
             "nyash.box.from_i8_string" => MirType::Box("StringBox".to_string()),
             _ => MirType::Unknown,

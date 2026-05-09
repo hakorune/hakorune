@@ -114,6 +114,7 @@ them into MIR-owned plan facts.
 | `M22 mimalloc two-class page EXE proof` | `live-narrow` | allocator app proof | composes M21 static tables with two M14-M20 raw pages in `apps/mimalloc-two-class-page-proof`; proves small/medium page reject/release/reuse without new source syntax, table type, route shape, or allocator policy |
 | `M23 mimalloc dynamic bin EXE proof` | `live-narrow` | allocator app proof | proves non-constant `static_data_load` indices for `u16` size-class tables in `apps/mimalloc-dynamic-bin-proof`; raw-page operations still use existing M14-M20 route facts |
 | `M24 mimalloc size_to_bin inline EXE proof` | `live-narrow` | allocator app proof + MIR inline consumption | proves a `Profile(allocator.fast)` `size_to_bin` helper is verified and inlined before pure-first lowering, then feeds dynamic `static_data_load` indices in `apps/mimalloc-size-to-bin-inline-proof`; no backend profile consumption |
+| `M25 mimalloc OSVM page EXE proof` | `live-narrow` | allocator app proof + MIR extern route + NyRT export | proves `OsVmCoreBox.reserve_bytes_i64/commit_bytes_i64/decommit_bytes_i64` as MIR-owned extern route facts in `apps/mimalloc-osvm-page-proof`; pure-first emits only those route rows and links matching NyRT exports, with no page-size route row, unreserve API, TLS, atomic, or allocator policy |
 
 ## Fixed Implementation Order
 
@@ -164,6 +165,7 @@ them into MIR-owned plan facts.
 45. `M22 mimalloc two-class page EXE proof`
 46. `M23 mimalloc dynamic bin EXE proof`
 47. `M24 mimalloc size_to_bin inline EXE proof`
+48. `M25 mimalloc OSVM page EXE proof`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed
@@ -378,3 +380,8 @@ does not add a general `size_to_bin` algorithm or new backend vocabulary.
 `M24 mimalloc size_to_bin inline EXE proof` is now live-narrow because the M13
 verified required inline path composes with M23 runtime-indexed static tables.
 M24 owns only the narrow helper proof; the backend remains profile-name-free.
+`M25 mimalloc OSVM page EXE proof` is now live-narrow because the existing
+`hako.osvm` facade composes with MIR-owned extern route facts and NyRT exports
+for reserve/commit/decommit. M25 owns only those three OSVM route rows, matching
+runtime exports, and the app proof; page-size pure-first lowering, unreserve,
+TLS, atomics, and allocator ownership proof remain future rows.

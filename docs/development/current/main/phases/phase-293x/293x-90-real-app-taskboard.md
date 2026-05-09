@@ -37,6 +37,7 @@
 - [x] `293x-074` M22 mimalloc two-class page EXE proof
 - [x] `293x-075` M23 mimalloc dynamic bin EXE proof
 - [x] `293x-076` M24 mimalloc size_to_bin inline EXE proof
+- [x] `293x-077` M25 mimalloc OSVM page EXE proof
 
 ## Gates
 

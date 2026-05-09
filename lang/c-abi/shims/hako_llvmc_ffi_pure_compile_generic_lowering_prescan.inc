@@ -643,6 +643,15 @@
         fprintf(f, "declare ptr @\"hako_mem_alloc\"(i64)\n");
       if (needs.hako_mem_free || module_has_planned_same_module_function_definition())
         fprintf(f, "declare void @\"hako_mem_free\"(ptr)\n");
+      if (needs.hako_osvm_reserve_bytes_i64 ||
+          module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"hako_osvm_reserve_bytes_i64\"(i64)\n");
+      if (needs.hako_osvm_commit_bytes_i64 ||
+          module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"hako_osvm_commit_bytes_i64\"(i64, i64)\n");
+      if (needs.hako_osvm_decommit_bytes_i64 ||
+          module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"hako_osvm_decommit_bytes_i64\"(i64, i64)\n");
       if (needs.stage1_emit_program_json || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.stage1.emit_program_json_v0_h\"(i64)\n");
       if (needs.stage1_emit_mir_from_source ||

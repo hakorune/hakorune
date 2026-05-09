@@ -88,6 +88,15 @@
           case HAKO_LLVMC_MIR_CALL_NEED_HAKO_MEM_FREE:
             needs->hako_mem_free = 1;
             break;
+          case HAKO_LLVMC_MIR_CALL_NEED_HAKO_OSVM_RESERVE_BYTES_I64:
+            needs->hako_osvm_reserve_bytes_i64 = 1;
+            break;
+          case HAKO_LLVMC_MIR_CALL_NEED_HAKO_OSVM_COMMIT_BYTES_I64:
+            needs->hako_osvm_commit_bytes_i64 = 1;
+            break;
+          case HAKO_LLVMC_MIR_CALL_NEED_HAKO_OSVM_DECOMMIT_BYTES_I64:
+            needs->hako_osvm_decommit_bytes_i64 = 1;
+            break;
           case HAKO_LLVMC_MIR_CALL_NEED_HOSTBRIDGE_EXTERN_INVOKE_TRAP:
             needs->hostbridge_extern_invoke_trap = 1;
             break;
