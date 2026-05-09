@@ -1,0 +1,69 @@
+---
+Status: Done
+Decision: accepted
+Date: 2026-05-10
+Scope: M27 mimalloc atomic CAS slot EXE proof
+---
+
+# 293x-079 M27 Mimalloc Atomic CAS Slot EXE Proof
+
+## Decision
+
+`M27 mimalloc atomic CAS slot EXE proof` is live-narrow.
+
+The row adds one allocator-shaped `hako.atomic` primitive for pure-first EXE:
+a fixed runtime-owned i64 atomic slot CAS. This is not a generic atomic API and
+does not introduce raw pointer atomics.
+
+Accepted shape:
+
+```text
+AtomicCoreBox.cas_i64(slot, expected, desired)
+  -> externcall "hako_atomic_slot_cas_i64"(slot, expected, desired)
+```
+
+The runtime operation uses the current narrow default order owned by the
+runtime export. Memory-order argument threading remains a future split.
+
+## Owned
+
+- `apps/mimalloc-atomic-cas-proof/`
+- `AtomicCoreBox.cas_i64/3`
+- MIR extern route row for `hako_atomic_slot_cas_i64/3`
+- pure-first `.inc` declaration/need/emit row for that route id.
+- NyRT export for the symbol.
+- Guard:
+  `tools/checks/k2_wide_mimalloc_atomic_cas_exe_guard.sh`
+
+## Not Owned
+
+- Atomic load/store/fetch_add.
+- Pointer atomics.
+- Memory-order arguments on CAS.
+- Remote-free list policy.
+- TLS coupling.
+- Native pointer strong attrs.
+- Backend-local helper-name inference.
+
+## Gate
+
+```bash
+bash tools/checks/k2_wide_mimalloc_atomic_cas_exe_guard.sh
+```
+
+The guard must verify:
+
+- MIR JSON publishes the `extern_call_routes` row.
+- `lowering_plan` carries the same route id/symbol/arity.
+- pure-first build logs hit only the route-fact emit consumer.
+- the EXE proves success and failure CAS outcomes.
+- `.inc` does not branch on the fixture app name.
+
+## Result
+
+Result on 2026-05-10: `k2_wide_mimalloc_atomic_cas_exe_guard.sh` passes.
+
+## Follow-Up
+
+Future rows may add `load`, `store`, `fetch_add`, and memory-order arguments.
+Those must remain separate BoxCount cards.

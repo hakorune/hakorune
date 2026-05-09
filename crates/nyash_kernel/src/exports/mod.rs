@@ -3,6 +3,7 @@
 //! This module keeps export symbols grouped by responsibility.
 
 pub(crate) mod any;
+pub(crate) mod atomic;
 pub(crate) mod birth;
 pub(crate) mod box_helpers;
 pub(crate) mod cmp;
@@ -27,6 +28,7 @@ pub(crate) mod typed_object;
 pub(crate) mod user_box;
 
 pub use any::*;
+pub use atomic::*;
 pub use birth::*;
 pub use box_helpers::*;
 pub use cmp::*;

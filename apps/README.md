@@ -198,6 +198,21 @@ bash tools/checks/k2_wide_mimalloc_tls_cache_slot_exe_guard.sh
 - pure-first は route facts を emit するだけで、app-specific matcher を持たない
 - generic TLS cell / allocator policy / atomic remote-free は追加しない
 
+#### mimalloc-atomic-cas-proof
+**場所**: `mimalloc-atomic-cas-proof/main.hako`
+M27 substrate proof。`AtomicCoreBox.cas_i64/3` を pure-first EXE で実行し、
+remote-free 前の最小 atomic CAS seam を固定する fixture。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_atomic_cas_exe_guard.sh
+```
+
+**特徴**:
+- source は `hako.atomic` facade を使う
+- MIR-owned extern route facts が fixed i64 CAS を表す
+- pure-first は route facts を emit するだけで、app-specific matcher を持たない
+- load/store/fetch_add / pointer CAS / memory-order args / remote-free policy は追加しない
+
 #### allocator-fast-path-exe-proof
 **場所**: `allocator-fast-path-exe-proof/main.hako`
 M13 scalar EXE proof。`Profile(allocator.fast)` を MIR-owned verified

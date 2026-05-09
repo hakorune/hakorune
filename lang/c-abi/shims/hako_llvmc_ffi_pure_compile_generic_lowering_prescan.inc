@@ -643,6 +643,9 @@
         fprintf(f, "declare ptr @\"hako_mem_alloc\"(i64)\n");
       if (needs.hako_mem_free || module_has_planned_same_module_function_definition())
         fprintf(f, "declare void @\"hako_mem_free\"(ptr)\n");
+      if (needs.hako_atomic_slot_cas_i64 ||
+          module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"hako_atomic_slot_cas_i64\"(i64, i64, i64)\n");
       if (needs.hako_osvm_reserve_bytes_i64 ||
           module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"hako_osvm_reserve_bytes_i64\"(i64)\n");

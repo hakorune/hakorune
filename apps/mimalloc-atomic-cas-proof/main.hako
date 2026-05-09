@@ -1,0 +1,26 @@
+// mimalloc-atomic-cas-proof
+// Purpose: prove hako.atomic fixed i64 CAS route in pure-first EXE.
+
+using selfhost.runtime.substrate.atomic.atomic_core_box as AtomicCoreBox
+
+static box Main {
+    main(args) {
+        local reset = AtomicCoreBox.cas_i64(0, 4096, 0)
+        local first = AtomicCoreBox.cas_i64(0, 0, 4096)
+        local failed = AtomicCoreBox.cas_i64(0, 0, 1)
+        local clear = AtomicCoreBox.cas_i64(0, 4096, 0)
+        local after = AtomicCoreBox.cas_i64(0, 0, 0)
+
+        print("mimalloc-atomic-cas-proof")
+        print("reset=" + reset + " first=" + first + " failed=" + failed)
+        print("clear=" + clear + " after=" + after)
+
+        if first == 0 && failed == 4096 && clear == 4096 && after == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

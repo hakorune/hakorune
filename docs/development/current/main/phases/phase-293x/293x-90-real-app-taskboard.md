@@ -39,6 +39,7 @@
 - [x] `293x-076` M24 mimalloc size_to_bin inline EXE proof
 - [x] `293x-077` M25 mimalloc OSVM page EXE proof
 - [x] `293x-078` M26 mimalloc TLS cache-slot EXE proof
+- [x] `293x-079` M27 mimalloc atomic CAS slot EXE proof
 
 ## Gates
 

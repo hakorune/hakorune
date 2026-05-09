@@ -472,6 +472,7 @@ fn generic_i64_body_refine_instruction(
                 | ExternCallRouteKind::ArraySlotLenI64
                 | ExternCallRouteKind::ArraySlotLoadI64
                 | ExternCallRouteKind::ArraySlotStoreI64
+                | ExternCallRouteKind::HakoAtomicSlotCasI64
                 | ExternCallRouteKind::HakoMemAlloc
                 | ExternCallRouteKind::HakoMemFree
                 | ExternCallRouteKind::HakoOsvmReserveBytesI64

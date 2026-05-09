@@ -477,6 +477,13 @@
             HAKO_LLVMC_MIR_CALL_NEED_HAKO_MEM_ALLOC,
           },
           {
+            "extern.hako_atomic.slot_cas_i64",
+            "HakoAtomicSlotCasI64",
+            "extern.hako_atomic.slot_cas_i64",
+            "hako_atomic_slot_cas_i64",
+            HAKO_LLVMC_MIR_CALL_NEED_HAKO_ATOMIC_SLOT_CAS_I64,
+          },
+          {
             "extern.hako_mem.free",
             "HakoMemFree",
             "extern.hako_mem.free",

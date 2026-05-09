@@ -421,6 +421,7 @@ impl MirBuilder {
         let arg_values = self.build_call_args(&args[1..])?;
         let return_type = match extern_name.as_str() {
             "hako_mem_alloc"
+            | "hako_atomic_slot_cas_i64"
             | "hako_mem_realloc"
             | "hako_mem_free"
             | "hako_osvm_page_size_i64"

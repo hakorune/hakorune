@@ -33,6 +33,7 @@
         int any_handle_live;
         int env_get;
         int env_set;
+        int hako_atomic_slot_cas_i64;
         int hako_mem_alloc;
         int hako_mem_free;
         int hako_osvm_reserve_bytes_i64;
@@ -74,6 +75,7 @@
         HAKO_LLVMC_MIR_CALL_NEED_ANY_HANDLE_LIVE,
         HAKO_LLVMC_MIR_CALL_NEED_ENV_GET,
         HAKO_LLVMC_MIR_CALL_NEED_ENV_SET,
+        HAKO_LLVMC_MIR_CALL_NEED_HAKO_ATOMIC_SLOT_CAS_I64,
         HAKO_LLVMC_MIR_CALL_NEED_HAKO_MEM_ALLOC,
         HAKO_LLVMC_MIR_CALL_NEED_HAKO_MEM_FREE,
         HAKO_LLVMC_MIR_CALL_NEED_HAKO_OSVM_RESERVE_BYTES_I64,
