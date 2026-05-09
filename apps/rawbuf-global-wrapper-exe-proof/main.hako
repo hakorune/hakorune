@@ -1,0 +1,22 @@
+// rawbuf-global-wrapper-exe-proof
+// Purpose: M15 RawBuf global wrapper route proof for pure-first EXE.
+
+using selfhost.runtime.substrate.raw_buf.raw_buf_core_box as RawBufCoreBox
+
+static box Main {
+    main(args) {
+        local ptr = RawBufCoreBox.alloc_bytes_i64(64)
+
+        if ptr == 0 {
+            print("rawbuf-global-wrapper-exe-proof")
+            print("summary=alloc_failed")
+            return 1
+        }
+
+        RawBufCoreBox.free_bytes_i64(ptr)
+
+        print("rawbuf-global-wrapper-exe-proof")
+        print("summary=ok")
+        return 0
+    }
+}

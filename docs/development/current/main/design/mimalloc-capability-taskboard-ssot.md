@@ -104,6 +104,7 @@ them into MIR-owned plan facts.
 | `M12c Profile expansion to facts` | `live-narrow` | rune metadata + MIR plans + verifier | `Profile(...)` accepts the reserved registry names and expands to primitive `Hint` / `Lowering` / `Contract` / EffectPlan / CapabilityPlan facts; backend reads only expanded facts and must not read profile names |
 | `M13 allocator fast-path EXE proof` | `live-narrow` | MIR optimizer + EXE proof | `apps/allocator-fast-path-exe-proof` proves scalar `Profile(allocator.fast)` lowering through verified required InlinePlan consumption before pure-first EXE; backend/.inc remain profile-name-free, and RawBuf/RawArray/native pointer EXE lowering remains future |
 | `M14 hako.mem extern pure-first route` | `live-narrow` | MIR extern route + pure-first EXE | accepts only `hako_mem_alloc` and `hako_mem_free` as MIR-owned extern route facts; pure-first emits native `ptr` calls plus i64 transport conversion/zero sentinel and links through NyRT exports; no strong pointer attrs, no realloc, no RawBuf/RawArray parity |
+| `M15 RawBuf global wrapper generic-i64 route` | `live-narrow` | MIR global route + pure-first EXE | accepts only `RawBufCoreBox.alloc_bytes_i64/free_bytes_i64` as generic-i64 same-module global wrappers over M14 hako.mem routes; preserves void-sentinel trace call results as void sentinel; no RawArray parity, no realloc, no pointer attrs |
 
 ## Fixed Implementation Order
 
@@ -144,6 +145,7 @@ them into MIR-owned plan facts.
 35. `M12c Profile expansion to facts`
 36. `M13 allocator fast-path EXE proof`
 37. `M14 hako.mem extern pure-first route`
+38. `M15 RawBuf global wrapper generic-i64 route`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed
@@ -310,3 +312,9 @@ raw-page EXE probe reached an inner `hako_mem_alloc/free` extern route blocker
 through `RawBufCoreBox -> MemCoreBox`. M14 owns only native pointer transport
 emission for direct hako.mem extern calls plus NyRT link exports, and keeps
 RawBuf/RawArray wrapper parity for later rows.
+`M15 RawBuf global wrapper generic-i64 route` is now live-narrow because the
+post-M14 raw-page probe reached `RawBufCoreBox.alloc_bytes_i64/free_bytes_i64`
+through the `MiRawPageProof.birth/destroy` bodies. M15 owns only RawBuf wrapper
+classification over already-routed hako.mem calls and keeps RawArray,
+Ownership/Bounds/InitializedRange, PtrCoreBox, and full raw-page EXE parity for
+later rows.

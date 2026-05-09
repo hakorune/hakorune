@@ -582,8 +582,8 @@ fn generic_i64_body_refine_instruction(
                 {
                     generic_i64_global_call_result_class(values, dst)
                 }
-                GlobalCallReturnContract::ScalarI64
-                | GlobalCallReturnContract::VoidSentinelI64Zero => GenericI64ValueClass::I64,
+                GlobalCallReturnContract::ScalarI64 => GenericI64ValueClass::I64,
+                GlobalCallReturnContract::VoidSentinelI64Zero => GenericI64ValueClass::VoidSentinel,
             };
             if let Some(dst) = dst {
                 set_generic_i64_value_class(values, *dst, class, changed)
