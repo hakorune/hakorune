@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-allocator-fast-path-exe"
 cd "$ROOT_DIR"
+source "$ROOT_DIR/tools/checks/lib/pure_first_exe_guard.sh"
 
 APP="apps/allocator-fast-path-exe-proof/main.hako"
 APP_README="apps/allocator-fast-path-exe-proof/README.md"
@@ -24,8 +25,7 @@ for file in "$APP" "$APP_README" "$CARD" "$TASKBOARD" "$RUNE_PROFILE_SSOT" "$REG
 done
 
 cargo test -q mir_optimizer_consumes_verified_profile_allocator_fast_required_inline -- --nocapture
-cargo build -q --bin hakorune
-cargo build --release -q -p nyash-llvm-compiler --bin ny-llvmc
+pure_first_guard_build_toolchain
 
 tmp_dir="$(mktemp -d /tmp/hakorune_m13_fast_path.XXXXXX)"
 trap 'rm -rf "$tmp_dir"' EXIT
@@ -37,7 +37,7 @@ run_log="$tmp_dir/run.log"
 
 NYASH_FEATURES=rune \
 NYASH_DISABLE_PLUGINS=1 \
-"$ROOT_DIR/target/debug/hakorune" --emit-mir-json "$mir_json" "$APP" >/dev/null
+pure_first_guard_emit_mir "$ROOT_DIR" "$APP" "$mir_json"
 
 python3 - "$mir_json" <<'PY'
 import json
@@ -108,17 +108,7 @@ timeout 120 tools/selfhost/selfhost_build.sh \
   --mir "$mir_json" \
   --exe "$exe_out" >"$build_log" 2>&1
 
-if rg -F -q 'unsupported_pure_shape' "$build_log"; then
-  echo "[$TAG] ERROR: pure-first reported unsupported shape" >&2
-  sed -n '1,160p' "$build_log" >&2
-  exit 1
-fi
-
-if rg -F -q 'compat_replay=harness' "$build_log"; then
-  echo "[$TAG] ERROR: compat replay must stay disabled for M13 proof" >&2
-  sed -n '1,160p' "$build_log" >&2
-  exit 1
-fi
+pure_first_guard_assert_clean_build_log "$TAG" "$build_log"
 
 if rg -F -q 'AllocFastProof.size_to_bin/1' "$build_log"; then
   echo "[$TAG] ERROR: allocator fast helper must be inlined before backend route trace" >&2
@@ -126,7 +116,7 @@ if rg -F -q 'AllocFastProof.size_to_bin/1' "$build_log"; then
   exit 1
 fi
 
-NYASH_DISABLE_PLUGINS=1 "$exe_out" >"$run_log" 2>&1
+pure_first_guard_run_exe "$TAG" "$exe_out" "$run_log"
 rg -F -q 'allocator-fast-path-exe-proof' "$run_log"
 rg -F -q 'bins=3,4' "$run_log"
 rg -F -q 'summary=ok' "$run_log"

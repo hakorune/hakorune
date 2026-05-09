@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-rawbuf-global-wrapper-exe"
 cd "$ROOT_DIR"
+source "$ROOT_DIR/tools/checks/lib/pure_first_exe_guard.sh"
 
 APP="apps/rawbuf-global-wrapper-exe-proof/main.hako"
 APP_README="apps/rawbuf-global-wrapper-exe-proof/README.md"
@@ -20,10 +21,7 @@ for file in "$APP" "$APP_README" "$CARD" "$TASKBOARD"; do
 done
 
 cargo test -q generic_i64_body_accepts_void_sentinel_global_side_call -- --nocapture
-cargo build -q --bin hakorune
-cargo build --release -q -p nyash_kernel
-cargo build --release -q -p nyash-llvm-compiler --bin ny-llvmc
-bash tools/build_hako_llvmc_ffi.sh >/dev/null
+pure_first_guard_build_toolchain
 
 tmp_dir="$(mktemp -d /tmp/hakorune_m15_rawbuf.XXXXXX)"
 trap 'rm -rf "$tmp_dir"' EXIT
@@ -35,7 +33,7 @@ run_log="$tmp_dir/run.log"
 
 NYASH_FEATURES=rune \
 NYASH_DISABLE_PLUGINS=1 \
-"$ROOT_DIR/target/debug/hakorune" --emit-mir-json "$mir_json" "$APP" >/dev/null
+pure_first_guard_emit_mir "$ROOT_DIR" "$APP" "$mir_json"
 
 python3 - "$mir_json" <<'PY'
 import json
@@ -87,24 +85,13 @@ timeout 120 tools/selfhost/selfhost_build.sh \
   --mir "$mir_json" \
   --exe "$exe_out" >"$build_log" 2>&1
 
-if rg -F -q 'unsupported_pure_shape' "$build_log"; then
-  echo "[$TAG] ERROR: pure-first reported unsupported shape" >&2
-  sed -n '1,180p' "$build_log" >&2
-  exit 1
-fi
-
-if rg -F -q 'compat_replay=harness' "$build_log"; then
-  echo "[$TAG] ERROR: compat replay must stay disabled for M15 proof" >&2
-  sed -n '1,180p' "$build_log" >&2
-  exit 1
-fi
+pure_first_guard_assert_clean_build_log "$TAG" "$build_log"
 
 rg -F -q 'mir_call_global_generic_i64_emit' "$build_log"
 rg -F -q 'mir_call_hako_mem_alloc_emit' "$build_log"
 rg -F -q 'mir_call_hako_mem_free_emit' "$build_log"
 
-"$exe_out" >"$run_log" 2>&1
-
+pure_first_guard_run_exe "$TAG" "$exe_out" "$run_log"
 rg -F -q 'rawbuf-global-wrapper-exe-proof' "$run_log"
 rg -F -q 'summary=ok' "$run_log"
 
