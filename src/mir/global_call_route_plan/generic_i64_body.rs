@@ -464,6 +464,7 @@ fn generic_i64_body_refine_instruction(
                 | ExternCallRouteKind::ArraySlotAppendAny
                 | ExternCallRouteKind::ArraySlotLenI64
                 | ExternCallRouteKind::ArraySlotLoadI64
+                | ExternCallRouteKind::ArraySlotStoreI64
                 | ExternCallRouteKind::HakoMemAlloc
                 | ExternCallRouteKind::HakoMemFree,
             ) => {

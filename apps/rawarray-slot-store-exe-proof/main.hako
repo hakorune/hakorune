@@ -1,0 +1,31 @@
+using selfhost.runtime.substrate.raw_array.raw_array_core_box as RawArrayCoreBox
+
+static box Main {
+  main(args) {
+    local arr = new ArrayBox()
+    local append_rc = RawArrayCoreBox.slot_append_any(arr, 0)
+    if append_rc != 1 {
+      print("rawarray-slot-store-exe-proof")
+      print("summary=append_failed")
+      return 1
+    }
+
+    local store_rc = RawArrayCoreBox.slot_store_i64(arr, 0, 42)
+    if store_rc != 1 {
+      print("rawarray-slot-store-exe-proof")
+      print("summary=store_failed")
+      return 2
+    }
+
+    local value = RawArrayCoreBox.slot_load_i64(arr, 0)
+    if value != 42 {
+      print("rawarray-slot-store-exe-proof")
+      print("summary=verify_failed")
+      return 3
+    }
+
+    print("rawarray-slot-store-exe-proof")
+    print("summary=ok")
+    return 0
+  }
+}

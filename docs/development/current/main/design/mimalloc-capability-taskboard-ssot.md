@@ -108,6 +108,7 @@ them into MIR-owned plan facts.
 | `M16 RawArray slot_append_any generic-i64 route` | `live-narrow` | MIR extern/global route + pure-first EXE | accepts only `RawArrayCoreBox.slot_append_any` over explicit `nyash.any.handle_live_h` and `nyash.array.slot_append_hh` extern routes; no slot load/store, bounds, initialized range, slot_len, or full RawArray parity |
 | `M17 RawArray slot_len_i64 generic-i64 route` | `live-narrow` | MIR extern/global route + pure-first EXE | accepts only `RawArrayCoreBox.slot_len_i64`, `BufCoreBox.len_i64`, bounds, and initialized-range wrappers over explicit `nyash.array.slot_len_h` extern route facts; no slot load/store or full RawArray parity |
 | `M18 RawArray slot_load_i64 generic-i64 route` | `live-narrow` | MIR extern/global route + pure-first EXE | accepts only `RawArrayCoreBox.slot_load_i64` over ownership, bounds, initialized-range, and explicit `nyash.array.slot_load_hi` extern route facts; no slot_store or full RawArray parity |
+| `M19 RawArray slot_store_i64 generic-i64 route` | `live-narrow` | MIR extern/global route + pure-first EXE | accepts only `RawArrayCoreBox.slot_store_i64` over ownership, bounds, and explicit `nyash.array.slot_store_hii` extern route facts; no handle/string store or broad ArrayBox parity |
 
 ## Fixed Implementation Order
 
@@ -152,6 +153,7 @@ them into MIR-owned plan facts.
 39. `M16 RawArray slot_append_any generic-i64 route`
 40. `M17 RawArray slot_len_i64 generic-i64 route`
 41. `M18 RawArray slot_load_i64 generic-i64 route`
+42. `M19 RawArray slot_store_i64 generic-i64 route`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed
@@ -340,3 +342,8 @@ post-M17 raw-page probe moved to the actual read leaf
 `PtrCoreBox.slot_load_i64/2`. M18 owns only load-path route facts over
 `PtrCoreBox.slot_load_i64/2` and the already-routed verifier wrappers; store and
 full RawArray parity stay future.
+`M19 RawArray slot_store_i64 generic-i64 route` is now live-narrow because the
+post-M18 raw-page probe moved to the write leaf `PtrCoreBox.slot_store_i64/3`.
+M19 owns only i64 store-path route facts over `PtrCoreBox.slot_store_i64/3` and
+the already-routed verifier wrappers; handle/string store variants and broad
+ArrayBox parity stay future.

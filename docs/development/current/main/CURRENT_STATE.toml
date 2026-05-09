@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-001-BOXTORR
 method_anchor = "apps/README.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-070-M18-RAWARRAY-SLOT-LOAD-GENERIC-I64-ROUTE"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-070-M18-RAWARRAY-SLOT-LOAD-GENERIC-I64-ROUTE.md"
-latest_card_summary = "293x-070 lands M18 RawArray slot_load_i64 generic-i64 route: RawArrayCoreBox load lowers through MIR-owned extern/global route facts over nyash.array.slot_load_hi plus M17 verifier wrappers, without slot_store or full RawArray parity."
+latest_card = "293x-071-M19-RAWARRAY-SLOT-STORE-GENERIC-I64-ROUTE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-071-M19-RAWARRAY-SLOT-STORE-GENERIC-I64-ROUTE.md"
+latest_card_summary = "293x-071 lands M19 RawArray slot_store_i64 generic-i64 route: RawArrayCoreBox i64 store lowers through MIR-owned extern/global route facts over nyash.array.slot_store_hii plus M17 bounds wrappers, without handle/string store or broad ArrayBox parity."
 
 current_blocker_token = "phase-293x mimalloc substrate capability ladder after real-app EXE parity"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
