@@ -1,8 +1,8 @@
 // hako.atomic exports for pure-first EXE lowering.
 //
 // This is a narrow allocator-substrate seam. It owns fixed i64 atomic slots and
-// the first native pointer store route only; generic atomics and allocator
-// policy remain above it.
+// the first native pointer store/load/CAS routes only; generic atomics and
+// allocator policy remain above it.
 
 use std::ffi::c_void;
 use std::sync::atomic::{AtomicI64, AtomicUsize, Ordering};
@@ -38,6 +38,17 @@ fn ptr_load_ordering(order: i64) -> Option<Ordering> {
     match order {
         0 => Some(Ordering::Relaxed),
         1 => Some(Ordering::Acquire),
+        4 => Some(Ordering::SeqCst),
+        _ => None,
+    }
+}
+
+fn ptr_cas_success_ordering(order: i64) -> Option<Ordering> {
+    match order {
+        0 => Some(Ordering::Relaxed),
+        1 => Some(Ordering::Acquire),
+        2 => Some(Ordering::Release),
+        3 => Some(Ordering::AcqRel),
         4 => Some(Ordering::SeqCst),
         _ => None,
     }
@@ -98,10 +109,7 @@ pub extern "C" fn hako_atomic_ptr_store_ordered(
 }
 
 #[no_mangle]
-pub extern "C" fn hako_atomic_ptr_load_ordered(
-    cell_ptr: *mut c_void,
-    order: i64,
-) -> *mut c_void {
+pub extern "C" fn hako_atomic_ptr_load_ordered(cell_ptr: *mut c_void, order: i64) -> *mut c_void {
     if cell_ptr.is_null() {
         return std::ptr::null_mut();
     }
@@ -111,6 +119,36 @@ pub extern "C" fn hako_atomic_ptr_load_ordered(
     unsafe {
         let cell = cell_ptr.cast::<AtomicUsize>();
         (*cell).load(ordering) as *mut c_void
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn hako_atomic_ptr_cas_ordered(
+    cell_ptr: *mut c_void,
+    expected_ptr: *mut c_void,
+    desired_ptr: *mut c_void,
+    success_order: i64,
+    failure_order: i64,
+) -> *mut c_void {
+    if cell_ptr.is_null() {
+        return std::ptr::null_mut();
+    }
+    let Some(success) = ptr_cas_success_ordering(success_order) else {
+        return std::ptr::null_mut();
+    };
+    let Some(failure) = ptr_load_ordering(failure_order) else {
+        return std::ptr::null_mut();
+    };
+    unsafe {
+        let cell = cell_ptr.cast::<AtomicUsize>();
+        match (*cell).compare_exchange(
+            expected_ptr as usize,
+            desired_ptr as usize,
+            success,
+            failure,
+        ) {
+            Ok(previous) | Err(previous) => previous as *mut c_void,
+        }
     }
 }
 
@@ -180,12 +218,27 @@ mod tests {
             value
         );
         assert!(hako_atomic_ptr_load_ordered(std::ptr::null_mut(), 0).is_null());
-        assert!(
-            hako_atomic_ptr_load_ordered(
-                (&cell as *const AtomicUsize).cast_mut().cast::<c_void>(),
-                2,
-            )
-            .is_null()
-        );
+        assert!(hako_atomic_ptr_load_ordered(
+            (&cell as *const AtomicUsize).cast_mut().cast::<c_void>(),
+            2,
+        )
+        .is_null());
+    }
+
+    #[test]
+    fn ptr_cas_ordered_returns_previous_pointer_and_updates_on_success() {
+        let old = 0x2000usize as *mut c_void;
+        let new = 0x3000usize as *mut c_void;
+        let other = 0x4000usize as *mut c_void;
+        let cell = AtomicUsize::new(old as usize);
+        let cell_ptr = (&cell as *const AtomicUsize).cast_mut().cast::<c_void>();
+
+        assert_eq!(hako_atomic_ptr_cas_ordered(cell_ptr, old, new, 3, 1), old);
+        assert_eq!(cell.load(Ordering::SeqCst), new as usize);
+        assert_eq!(hako_atomic_ptr_cas_ordered(cell_ptr, old, other, 3, 1), new);
+        assert_eq!(cell.load(Ordering::SeqCst), new as usize);
+        assert!(hako_atomic_ptr_cas_ordered(std::ptr::null_mut(), old, new, 3, 1).is_null());
+        assert!(hako_atomic_ptr_cas_ordered(cell_ptr, new, old, 9, 1).is_null());
+        assert!(hako_atomic_ptr_cas_ordered(cell_ptr, new, old, 3, 2).is_null());
     }
 }

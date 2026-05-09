@@ -81,7 +81,7 @@ them into MIR-owned plan facts.
 | `M3 RawBuf + RawArray allocator fixture` | `live-narrow` | algorithm substrate | allocator-shaped fixture using RawBuf/RawArray only; RawArray has len/cap/reserve/grow shape; no TLS/atomic/OSVM dependency |
 | `M4 minimum verifier hardening` | `live-narrow` | verifier substrate | RawArray remove/insert now pass bounds/initialized-range gates; slice, double-free, and use-after-free remain follow-up splits |
 | `M5 rune contract verifier` | `live-narrow` | rune metadata + verifier | `@rune Contract(no_alloc)` / `@rune Contract(no_safepoint)` are checked by the MIR verifier before backend use; backend export/use remains disabled |
-| `M6 hako.atomic useful rows` | `live-narrow` | capability substrate | memory-order vocabulary plus ordered fence row are live; fixed-slot CAS/load/store/fetch_add are live through M27-M30 EXE proof rows; M35 activates the direct native-pointer store route and M39 activates the direct native-pointer load route; ordered fixed-slot args and pointer CAS remain future splits; no allocator policy inside atomic module |
+| `M6 hako.atomic useful rows` | `live-narrow` | capability substrate | memory-order vocabulary plus ordered fence row are live; fixed-slot CAS/load/store/fetch_add are live through M27-M30 EXE proof rows; M35/M39/M40 activate direct native-pointer store/load/CAS routes; ordered fixed-slot args remain future splits; no allocator policy inside atomic module |
 | `M7 hako.tls useful rows` | `live-narrow` | capability substrate | diagnostics TLS status helpers and fixed cache-slot get/set EXE proof are live; generic thread/task-local slot remains a future split; no helper-local cache exposure as final API |
 | `M8 hako.osvm allocator rows` | `live-narrow` | capability substrate + native keep | page_size/reserve/commit/decommit facades are live with native metal leaf below; allocator policy remains outside osvm |
 | `M9 intrinsic rows` | `live-narrow` | intrinsic metadata + LLVM/VM | `clz_i64`, `ctz_i64`, and `popcnt_i64` current-lane non-negative i64 rows are live; `prefetch`, `assume`, `unreachable`, unsigned-width semantics, and backend optimization use remain future splits |
@@ -123,13 +123,14 @@ them into MIR-owned plan facts.
 | `M31 mimalloc remote-free i64 sketch EXE proof` | `live-narrow` | allocator app composition proof | composes the existing CAS/load/store/fetch_add fixed-slot i64 routes in `apps/mimalloc-remote-free-i64-proof` to prove the remote-free push pattern under pure-first EXE; adds no new route row, NyRT export, pointer atomics, memory-order args, or production allocator policy |
 | `M32 mimalloc post-M31 task-order lock` | `live-docs` | taskboard/docs | locks the post-M31 order and syncs stale M6/M7 wording; no source, route, `.inc`, NyRT, or allocator policy change |
 | `M33 atomic memory-order args docs/route vocabulary lock` | `live-docs` | capability substrate + docs | names ordered fixed-slot i64 facade shapes and route vocabulary for future rows while keeping AtomicCoreBox methods, MIR routes, `.inc`, NyRT exports, pointer atomics, and allocator policy inactive |
-| `M34 pointer atomic vocabulary docs lock` | `live-docs` | capability substrate + docs | reserves native-pointer atomic load/store/CAS facade and route vocabulary after M33 while keeping AtomicCoreBox methods, pointer attrs, and allocator policy inactive; M35 activates the store route row and M39 activates the load route row |
+| `M34 pointer atomic vocabulary docs lock` | `live-docs` | capability substrate + docs | reserves native-pointer atomic load/store/CAS facade and route vocabulary after M33 while keeping AtomicCoreBox methods, pointer attrs, and allocator policy inactive; M35 activates store, M39 activates load, and M40 activates CAS |
 | `M35 native pointer atomic route proof` | `live-narrow` | MIR extern route + pure-first EXE | proves the first active pointer-shaped atomic row, `hako_atomic_ptr_store_ordered(cell_ptr, value_ptr, order)`, through MIR-owned extern route facts, NyRT export, and pure-first native-ptr argument lowering without noalias/nonnull widening |
 | `M36 TLS + pointer remote-free composition proof` | `live-narrow` | allocator app composition proof | composes M26 TLS cache-slot rows with the M35 direct pointer-store route in `apps/mimalloc-tls-ptr-remote-free-proof`; proves mailbox pointer publication under pure-first without adding route rows, pointer CAS/fetch_add, or production allocator policy |
 | `M37 allocator remote-free policy integration proof` | `live-narrow` | allocator policy app proof | connects the M36 remote-free mailbox seam to `AllocatorRemoteFreePolicy` in `apps/mimalloc-remote-free-policy-proof`; adds no route rows, NyRT exports, pointer CAS/fetch_add, or backend-specific matchers |
 | `M38 mimalloc allocator app closeout guard` | `live-narrow` | regression guard | locks the M20-M37 mimalloc allocator app proof path through a fast coverage guard; adds no app, route row, NyRT export, or `.inc` matcher |
-| `M39 native pointer atomic load route proof` | `live-narrow` | MIR extern route + pure-first EXE | proves `hako_atomic_ptr_load_ordered(cell_ptr, order)` through MIR-owned extern route facts, NyRT export, and pure-first native-ptr return lowering without activating pointer CAS/fetch_add or native pointer attrs |
-| `M40 native pointer atomic CAS route proof` | `next-card` | MIR extern route + pure-first EXE | future split for `hako_atomic_ptr_cas_ordered(cell_ptr, expected_ptr, desired_ptr, success_order, failure_order)` after M39; must keep pointer fetch_add and native pointer attrs inactive |
+| `M39 native pointer atomic load route proof` | `live-narrow` | MIR extern route + pure-first EXE | proves `hako_atomic_ptr_load_ordered(cell_ptr, order)` through MIR-owned extern route facts, NyRT export, and pure-first native-ptr return lowering without activating pointer fetch_add or native pointer attrs |
+| `M40 native pointer atomic CAS route proof` | `live-narrow` | MIR extern route + pure-first EXE | proves `hako_atomic_ptr_cas_ordered(cell_ptr, expected_ptr, desired_ptr, success_order, failure_order)` after M39; keeps pointer fetch_add and native pointer attrs inactive |
+| `M41 pointer CAS remote-free list proof` | `next-card` | allocator app composition proof | future split that composes pointer store/load/CAS routes into a remote-free list proof; must add no new route row or allocator production policy |
 
 ## Fixed Implementation Order
 
@@ -196,6 +197,7 @@ them into MIR-owned plan facts.
 61. `M38 mimalloc allocator app closeout guard`
 62. `M39 native pointer atomic load route proof`
 63. `M40 native pointer atomic CAS route proof`
+64. `M41 pointer CAS remote-free list proof`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed

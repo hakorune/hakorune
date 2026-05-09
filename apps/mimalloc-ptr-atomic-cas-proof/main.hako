@@ -1,0 +1,65 @@
+// mimalloc-ptr-atomic-cas-proof
+// Purpose: prove direct native pointer atomic CAS route in pure-first EXE.
+
+static box Main {
+    main(args) {
+        local cell = externcall "hako_mem_alloc"(8)
+        local old_value = externcall "hako_mem_alloc"(16)
+        local new_value = externcall "hako_mem_alloc"(16)
+        local other_value = externcall "hako_mem_alloc"(16)
+
+        if cell == 0 || old_value == 0 || new_value == 0 || other_value == 0 {
+            print("mimalloc-ptr-atomic-cas-proof")
+            print("summary=alloc_failed")
+            if other_value != 0 { externcall "hako_mem_free"(other_value) }
+            if new_value != 0 { externcall "hako_mem_free"(new_value) }
+            if old_value != 0 { externcall "hako_mem_free"(old_value) }
+            if cell != 0 { externcall "hako_mem_free"(cell) }
+            return 1
+        }
+
+        local store = externcall "hako_atomic_ptr_store_ordered"(cell, old_value, 2)
+        local previous = externcall "hako_atomic_ptr_cas_ordered"(cell, old_value, new_value, 3, 1)
+        local after_success = externcall "hako_atomic_ptr_load_ordered"(cell, 1)
+        local failed_previous = externcall "hako_atomic_ptr_cas_ordered"(cell, old_value, other_value, 3, 1)
+        local after_failure = externcall "hako_atomic_ptr_load_ordered"(cell, 1)
+
+        local success_previous_matches = 0
+        if previous == old_value {
+            success_previous_matches = 1
+        }
+        local after_success_matches = 0
+        if after_success == new_value {
+            after_success_matches = 1
+        }
+        local failed_previous_matches = 0
+        if failed_previous == new_value {
+            failed_previous_matches = 1
+        }
+        local after_failure_matches = 0
+        if after_failure == new_value {
+            after_failure_matches = 1
+        }
+
+        externcall "hako_mem_free"(other_value)
+        externcall "hako_mem_free"(new_value)
+        externcall "hako_mem_free"(old_value)
+        externcall "hako_mem_free"(cell)
+
+        print("mimalloc-ptr-atomic-cas-proof")
+        print("store=" + store)
+        print("success_previous_matches=" + success_previous_matches)
+        print("after_success_matches=" + after_success_matches)
+        print("failed_previous_matches=" + failed_previous_matches)
+        print("after_failure_matches=" + after_failure_matches)
+
+        local matches = success_previous_matches + after_success_matches + failed_previous_matches + after_failure_matches
+        if store == 0 && matches == 4 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -160,8 +160,12 @@ inference for the allocator release path.
   adding another app, route row, or backend matcher.
 - `293x-091`: M39 native pointer atomic load route proof landed, routing
   `hako_atomic_ptr_load_ordered/2` through MIR-owned extern facts, NyRT export,
+  and pure-first native pointer return lowering while leaving CAS to M40 and
+  keeping pointer fetch_add and native pointer attrs inactive.
+- `293x-092`: M40 native pointer atomic CAS route proof landed, routing
+  `hako_atomic_ptr_cas_ordered/5` through MIR-owned extern facts, NyRT export,
   and pure-first native pointer return lowering while keeping pointer
-  CAS/fetch_add and native pointer attrs inactive.
-- Next: M40 native pointer atomic CAS route proof, if the allocator lane needs
-  read-modify-write pointer publication; keep future blockers as
-  compiler/runtime seams and do not hide them in app code.
+  fetch_add and native pointer attrs inactive.
+- Next: M41 pointer CAS remote-free list proof, if the allocator lane needs a
+  full list push fixture; keep future blockers as compiler/runtime seams and do
+  not hide them in app code.

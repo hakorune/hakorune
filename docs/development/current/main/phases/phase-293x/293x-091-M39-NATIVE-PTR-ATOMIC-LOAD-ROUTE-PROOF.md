@@ -38,12 +38,12 @@ the result back to i64 transport. No native pointer attrs are emitted.
 - NyRT export for the symbol.
 - Guard:
   `tools/checks/k2_wide_mimalloc_ptr_atomic_load_exe_guard.sh`
-- Guard contract sync: M35-M38/M34 guards now keep pointer CAS/fetch_add
-  inactive while allowing the M39 load row.
+- Guard contract sync: M35-M38/M34 guards allow the M39 load row; after M40
+  they also allow the CAS row while keeping pointer fetch_add inactive.
 
 ## Not Owned
 
-- `ptr_cas_ordered`.
+- `ptr_cas_ordered` (owned by M40).
 - pointer `fetch_add`.
 - AtomicCoreBox pointer methods.
 - Production remote-free allocator policy.
@@ -65,7 +65,7 @@ The guard must verify:
 - the EXE stores a native pointer, loads it back, compares i64 transport
   values, and exits `0`.
 - `.inc` does not branch on the fixture app name.
-- pointer CAS/fetch_add rows remain inactive.
+- pointer fetch_add rows remain inactive. M40 owns the later pointer CAS row.
 
 ## Result
 

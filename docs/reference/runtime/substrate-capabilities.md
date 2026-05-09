@@ -45,7 +45,7 @@ The current live surface is intentionally narrow.
 | verifier | bounds, initialized-range, ownership, and rune contract gates exist for current rows; RawArray remove/insert are verifier-gated before pointer-substrate calls; `Contract(no_alloc/no_safepoint)` is MIR-verifier checked |
 | `RawArray` | first raw-array path exists for slot load/store/len/cap/append/reserve/grow |
 | `RawBuf` | first allocation facade exists over `MemCoreBox` |
-| `hako.atomic` | helper-shaped `fence_i64`, memory-order vocabulary, `fence_order_i64(order)`, narrow fixed-slot `cas_i64` / `load_i64` / `store_i64` / `fetch_add_i64` rows, and direct native-pointer store/load routes exist; pointer CAS and generic memory-order arguments are not live |
+| `hako.atomic` | helper-shaped `fence_i64`, memory-order vocabulary, `fence_order_i64(order)`, narrow fixed-slot `cas_i64` / `load_i64` / `store_i64` / `fetch_add_i64` rows, and direct native-pointer store/load/CAS routes exist; generic memory-order arguments are not live |
 | `hako.tls` | helper-shaped diagnostics TLS rows exist; narrow allocator cache-slot `i64` get/set rows exist for pure-first EXE; generic thread/task-local cells are not live |
 | `hako.gc` | helper-shaped `write_barrier_i64` row exists |
 | `hako.osvm` | page-size plus reserve/commit/decommit rows exist |
@@ -69,7 +69,7 @@ These names are reserved but not fully live as user-facing allocator substrate:
 - `MaybeInit`
 - unrestricted raw pointer arithmetic
 - generic atomic load/store/fetch_add with memory-order arguments or pointer operands beyond the live direct pointer store/load routes
-- generic CAS with memory-order arguments or pointer operands
+- generic CAS with memory-order arguments or pointer operands beyond the live direct pointer CAS route
 - language-level TLS cells
 - raw numeric TLS slot APIs
 - `@rune Contract(no_alloc)` backend optimization/export use
@@ -160,6 +160,12 @@ Live operations:
   extern route. It loads a native pointer transport value from a native pointer
   cell and returns nullable native pointer transport. Accepted order values for
   this first route are Relaxed, Acquire, and SeqCst.
+- `hako_atomic_ptr_cas_ordered(cell_ptr, expected_ptr, desired_ptr,
+  success_order, failure_order)` is live only as a direct extern route. It
+  performs compare-exchange on a native pointer cell and returns the observed
+  previous pointer as nullable native pointer transport. Accepted success order
+  values are Relaxed, Acquire, Release, AcqRel, and SeqCst; accepted failure
+  order values are Relaxed, Acquire, and SeqCst.
 - `apps/mimalloc-tls-ptr-remote-free-proof` composes the direct pointer-store
   route with TLS cache-slot get/set to publish through a native mailbox pointer
   under pure-first EXE. This is a proof fixture, not allocator policy.
@@ -171,7 +177,6 @@ Live operations:
 
 Unsupported operations:
 
-- pointer CAS
 - pointer fetch_add
 - live memory-order arguments on fixed-slot load
 - live memory-order arguments on fixed-slot store
@@ -207,9 +212,10 @@ Reserved pointer atomic vocabulary:
 | `ptr_cas_ordered(cell_ptr, expected_ptr, desired_ptr, success_order, failure_order)` | `extern.hako_atomic.ptr_cas_ordered` | `hako_atomic_ptr_cas_ordered` | 5 | `native_ptr_nullable` |
 
 M34 reserves these names. M35 activates the `ptr_store_ordered` route as a
-direct extern row, and M39 activates the `ptr_load_ordered` route as a direct
-extern row. `ptr_cas_ordered` remains reserved only and is not an active method,
-MIR route row, NyRT export, or `.inc` lowering row yet.
+direct extern row, M39 activates the `ptr_load_ordered` route as a direct extern
+row, and M40 activates the `ptr_cas_ordered` route as a direct extern row. They
+are still not active `AtomicCoreBox` methods, and they do not imply native
+pointer attrs.
 
 Pointer boundary contract:
 

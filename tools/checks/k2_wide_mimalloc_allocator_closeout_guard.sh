@@ -107,11 +107,11 @@ if rg -n 'mimalloc-(raw-page|size-class-table|two-class-page|dynamic-bin|size-to
 fi
 rm -f /tmp/"$TAG".app_specific.inc
 
-if rg -n 'hako_atomic_ptr_cas_ordered|HakoAtomicPtrCasOrdered|extern\\.hako_atomic\\.ptr_cas_ordered|ptr_fetch_add' \
+if rg -n 'hako_atomic_ptr_fetch_add|ptr_fetch_add' \
   src lang/c-abi/shims crates/nyash_kernel >/tmp/"$TAG".inactive_pointer_rows 2>&1; then
   cat /tmp/"$TAG".inactive_pointer_rows >&2
   rm -f /tmp/"$TAG".inactive_pointer_rows
-  fail "pointer atomic CAS/fetch_add rows must stay inactive after M39"
+  fail "pointer atomic fetch_add rows must stay inactive after M40"
 fi
 rm -f /tmp/"$TAG".inactive_pointer_rows
 

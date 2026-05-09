@@ -505,6 +505,13 @@
             HAKO_LLVMC_MIR_CALL_NEED_HAKO_ATOMIC_SLOT_STORE_I64,
           },
           {
+            "extern.hako_atomic.ptr_cas_ordered",
+            "HakoAtomicPtrCasOrdered",
+            "extern.hako_atomic.ptr_cas_ordered",
+            "hako_atomic_ptr_cas_ordered",
+            HAKO_LLVMC_MIR_CALL_NEED_HAKO_ATOMIC_PTR_CAS_ORDERED,
+          },
+          {
             "extern.hako_atomic.ptr_load_ordered",
             "HakoAtomicPtrLoadOrdered",
             "extern.hako_atomic.ptr_load_ordered",

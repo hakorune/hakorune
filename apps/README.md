@@ -287,7 +287,7 @@ bash tools/checks/k2_wide_mimalloc_ptr_atomic_store_exe_guard.sh
 - source は direct externcall を使い、`AtomicCoreBox` pointer method は追加しない
 - MIR-owned extern route facts が `extern.hako_atomic.ptr_store_ordered` を表す
 - pure-first は native pointer transport を `ptr` 引数に変換して emit する
-- pointer CAS / pointer fetch_add / production remote-free policy は追加しない
+- pointer fetch_add / production remote-free policy は追加しない
 
 #### mimalloc-ptr-atomic-load-proof
 **場所**: `mimalloc-ptr-atomic-load-proof/main.hako`
@@ -303,7 +303,23 @@ bash tools/checks/k2_wide_mimalloc_ptr_atomic_load_exe_guard.sh
 - source は direct externcall を使い、`AtomicCoreBox` pointer method は追加しない
 - MIR-owned extern route facts が `extern.hako_atomic.ptr_load_ordered` を表す
 - pure-first は native pointer return を i64 transport に変換して emit する
-- pointer CAS / pointer fetch_add / production remote-free policy は追加しない
+- pointer fetch_add / production remote-free policy は追加しない
+
+#### mimalloc-ptr-atomic-cas-proof
+**場所**: `mimalloc-ptr-atomic-cas-proof/main.hako`
+M40 route proof。`hako_atomic_ptr_cas_ordered(cell_ptr, expected_ptr,
+desired_ptr, success_order, failure_order)` を direct extern route として
+pure-first EXE で実行し、native pointer atomic CAS seam を固定する fixture。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_ptr_atomic_cas_exe_guard.sh
+```
+
+**特徴**:
+- source は direct externcall を使い、`AtomicCoreBox` pointer method は追加しない
+- MIR-owned extern route facts が `extern.hako_atomic.ptr_cas_ordered` を表す
+- pure-first は native pointer args/return を i64 transport として変換して emit する
+- pointer fetch_add / production remote-free policy は追加しない
 
 #### mimalloc-tls-ptr-remote-free-proof
 **場所**: `mimalloc-tls-ptr-remote-free-proof/main.hako`
@@ -319,7 +335,7 @@ bash tools/checks/k2_wide_mimalloc_tls_ptr_remote_free_exe_guard.sh
 - M26 TLS cache-slot rows と M35 pointer-store row だけを合成する
 - MIR-owned route facts が TLS helper と direct pointer store を表す
 - pure-first は既存 route facts を emit するだけで、新しい route row を持たない
-- pointer CAS / pointer fetch_add / production allocator policy は追加しない
+- pointer fetch_add / production allocator policy は追加しない
 
 #### mimalloc-remote-free-policy-proof
 **場所**: `mimalloc-remote-free-policy-proof/main.hako`
@@ -335,7 +351,7 @@ bash tools/checks/k2_wide_mimalloc_remote_free_policy_exe_guard.sh
 - same-module policy box が remote-free mailbox seam の app-level policy を持つ
 - MIR-owned route facts が TLS helper と direct pointer store を表す
 - pure-first は既存 route facts を emit するだけで、新しい route row を持たない
-- pointer CAS / pointer fetch_add / full remote-free list policy は追加しない
+- pointer fetch_add / full remote-free list policy は追加しない
 
 #### allocator-fast-path-exe-proof
 **場所**: `allocator-fast-path-exe-proof/main.hako`
@@ -510,6 +526,7 @@ box TreeNode {
 - [x] mimalloc-osvm-page-proof（M25 OSVM page proof）
 - [x] mimalloc-ptr-atomic-store-proof（M35 native pointer atomic store proof）
 - [x] mimalloc-ptr-atomic-load-proof（M39 native pointer atomic load proof）
+- [x] mimalloc-ptr-atomic-cas-proof（M40 native pointer atomic CAS proof）
 - [x] mimalloc-tls-ptr-remote-free-proof（M36 TLS pointer remote-free proof）
 - [x] mimalloc-remote-free-policy-proof（M37 remote-free policy integration proof）
 

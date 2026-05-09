@@ -23,9 +23,9 @@ if rg -n 'mimalloc-ptr-atomic-store-proof' lang/c-abi/shims >/tmp/"$TAG".app_spe
 fi
 rm -f /tmp/"$TAG".app_specific.inc
 
-if rg -n 'hako_atomic_ptr_cas_ordered|HakoAtomicPtrCasOrdered|extern\\.hako_atomic\\.ptr_cas_ordered|ptr_fetch_add' \
+if rg -n 'hako_atomic_ptr_fetch_add|ptr_fetch_add' \
   src lang/c-abi/shims crates/nyash_kernel >/tmp/"$TAG".inactive_pointer_rows 2>&1; then
-  echo "[$TAG] ERROR: pointer atomic CAS/fetch_add rows must stay inactive after M39" >&2
+  echo "[$TAG] ERROR: pointer atomic fetch_add rows must stay inactive after M40" >&2
   cat /tmp/"$TAG".inactive_pointer_rows >&2
   rm -f /tmp/"$TAG".inactive_pointer_rows
   exit 1

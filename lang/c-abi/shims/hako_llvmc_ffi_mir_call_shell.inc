@@ -389,6 +389,7 @@
         HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR_RETURN_I64,
         HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR_ARG_VOID_ZERO,
         HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR1_I64_ARG_RETURN_I64,
+        HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR3_I64_I64_ARG_RETURN_I64,
         HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR2_I64_ARG_CALL,
         HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_TRAP_SENTINEL,
       };
@@ -593,6 +594,18 @@
            0,
            "mir_call_hako_atomic_ptr_store_ordered_emit",
            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR2_I64_ARG_CALL},
+          {"extern.hako_atomic.ptr_cas_ordered",
+           "HakoAtomicPtrCasOrdered",
+           "extern.hako_atomic.ptr_cas_ordered",
+           "hako_atomic_ptr_cas_ordered",
+           "native_ptr_nullable",
+           "native_ptr_nullable",
+           5,
+           0,
+           0,
+           0,
+           "mir_call_hako_atomic_ptr_cas_ordered_emit",
+           HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR3_I64_I64_ARG_RETURN_I64},
           {"extern.hako_atomic.ptr_load_ordered",
            "HakoAtomicPtrLoadOrdered",
            "extern.hako_atomic.ptr_load_ordered",
@@ -816,7 +829,7 @@
         long long value_value = 0;
         long long result_value = 0;
         long long actual_value = 0;
-        long long actual_args[4] = {0, 0, 0, 0};
+        long long actual_args[5] = {0, 0, 0, 0, 0};
         size_t argc = 0;
         size_t ai = 0;
         char ab[160];
@@ -927,6 +940,66 @@
           fprintf(f, "  %%r%lld = add i64 0, 0\n", dst);
           set_type(dst, T_I64);
           put_const(dst, 0);
+          trace_lowering_plan_entry_hit(entry, rule->trace_consumer);
+          return 1;
+        }
+        if (rule->behavior ==
+            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR3_I64_I64_ARG_RETURN_I64) {
+          char cell_ref[64];
+          char expected_ref[64];
+          char desired_ref[64];
+          char success_order_ref[64];
+          char failure_order_ref[64];
+          if (argc != 5) return -1;
+          for (ai = 0; ai < argc; ai++) {
+            if (!materialize_direct_global_call_arg_if_needed(f, actual_args[ai])) {
+              return -1;
+            }
+          }
+          format_extern_i64_value_ref(cell_ref, sizeof(cell_ref), actual_args[0]);
+          format_extern_i64_value_ref(expected_ref, sizeof(expected_ref), actual_args[1]);
+          format_extern_i64_value_ref(desired_ref, sizeof(desired_ref), actual_args[2]);
+          format_extern_i64_value_ref(success_order_ref, sizeof(success_order_ref), actual_args[3]);
+          format_extern_i64_value_ref(failure_order_ref, sizeof(failure_order_ref), actual_args[4]);
+          fprintf(
+              f,
+              "  %%hako_atomic_ptr_cas_cell_b%lld_i%zu = inttoptr i64 %s to ptr\n",
+              bid,
+              ii,
+              cell_ref);
+          fprintf(
+              f,
+              "  %%hako_atomic_ptr_cas_expected_b%lld_i%zu = inttoptr i64 %s to ptr\n",
+              bid,
+              ii,
+              expected_ref);
+          fprintf(
+              f,
+              "  %%hako_atomic_ptr_cas_desired_b%lld_i%zu = inttoptr i64 %s to ptr\n",
+              bid,
+              ii,
+              desired_ref);
+          fprintf(
+              f,
+              "  %%hako_atomic_ptr_cas_ptr_b%lld_i%zu = call ptr @\"%s\"(ptr %%hako_atomic_ptr_cas_cell_b%lld_i%zu, ptr %%hako_atomic_ptr_cas_expected_b%lld_i%zu, ptr %%hako_atomic_ptr_cas_desired_b%lld_i%zu, i64 %s, i64 %s)\n",
+              bid,
+              ii,
+              rule->symbol,
+              bid,
+              ii,
+              bid,
+              ii,
+              bid,
+              ii,
+              success_order_ref,
+              failure_order_ref);
+          fprintf(
+              f,
+              "  %%r%lld = ptrtoint ptr %%hako_atomic_ptr_cas_ptr_b%lld_i%zu to i64\n",
+              dst,
+              bid,
+              ii);
+          set_type(dst, T_I64);
           trace_lowering_plan_entry_hit(entry, rule->trace_consumer);
           return 1;
         }
