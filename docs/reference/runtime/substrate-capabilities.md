@@ -158,11 +158,30 @@ Unsupported operations:
 - pointer CAS
 - pointer load/store
 - pointer fetch_add
-- memory-order arguments on load
-- memory-order arguments on store
-- memory-order arguments on CAS
-- memory-order arguments on fetch_add
+- live memory-order arguments on load
+- live memory-order arguments on store
+- live memory-order arguments on CAS
+- live memory-order arguments on fetch_add
 - `pause/yield`
+
+Reserved ordered fixed-slot i64 vocabulary:
+
+| Facade | Reserved route id | Reserved symbol | Arity |
+| --- | --- | --- | --- |
+| `load_i64_ordered(slot, order)` | `extern.hako_atomic.slot_load_i64_ordered` | `hako_atomic_slot_load_i64_ordered` | 2 |
+| `store_i64_ordered(slot, value, order)` | `extern.hako_atomic.slot_store_i64_ordered` | `hako_atomic_slot_store_i64_ordered` | 3 |
+| `fetch_add_i64_ordered(slot, delta, order)` | `extern.hako_atomic.slot_fetch_add_i64_ordered` | `hako_atomic_slot_fetch_add_i64_ordered` | 3 |
+| `cas_i64_ordered(slot, expected, desired, success_order, failure_order)` | `extern.hako_atomic.slot_cas_i64_ordered` | `hako_atomic_slot_cas_i64_ordered` | 5 |
+
+These names are reserved by M33 only. They are not active methods, MIR route
+rows, NyRT exports, or `.inc` lowering rows yet.
+
+Order argument contract:
+
+- non-CAS ordered operations take exactly one order argument.
+- ordered CAS takes separate success and failure order arguments.
+- failure order is restricted to Relaxed, Acquire, or SeqCst.
+- invalid order values must fail-fast before backend lowering.
 
 VM-hako subset behavior:
 

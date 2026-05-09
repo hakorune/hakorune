@@ -139,5 +139,8 @@ inference for the allocator release path.
   remote-free push sketch without adding a new backend route.
 - `293x-084`: M32 mimalloc post-M31 task-order lock landed, fixing the next
   M33-M38 order and syncing stale atomic/TLS taskboard wording.
+- `293x-085`: M33 atomic memory-order args docs/route vocabulary lock landed,
+  reserving ordered fixed-slot i64 atomic facade/route names while keeping
+  implementation rows inactive.
 - Next: move into the mimalloc-grade substrate ladder from `293x-026`; keep
   future blockers as compiler/runtime seams and do not hide them in app code.
