@@ -1,0 +1,27 @@
+// mimalloc-atomic-fetch-add-proof
+// Purpose: prove hako.atomic fixed i64 fetch-add route in pure-first EXE.
+
+using selfhost.runtime.substrate.atomic.atomic_core_box as AtomicCoreBox
+
+static box Main {
+    main(args) {
+        local clear = AtomicCoreBox.store_i64(3, 0)
+        local first = AtomicCoreBox.fetch_add_i64(3, 5)
+        local second = AtomicCoreBox.fetch_add_i64(3, 7)
+        local total = AtomicCoreBox.load_i64(3)
+        local reset = AtomicCoreBox.store_i64(3, 0)
+        local final = AtomicCoreBox.load_i64(3)
+
+        print("mimalloc-atomic-fetch-add-proof")
+        print("clear=" + clear + " first=" + first + " second=" + second)
+        print("total=" + total + " reset=" + reset + " final=" + final)
+
+        if clear == 0 && first == 0 && second == 5 && total == 12 && reset == 0 && final == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

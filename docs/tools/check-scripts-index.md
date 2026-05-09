@@ -77,6 +77,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_mimalloc_atomic_cas_exe_guard.sh` | M27 の `AtomicCoreBox.cas_i64` + pure-first EXE proof を固定し、atomic CAS route が MIR-owned extern route facts から emit されることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_atomic_load_exe_guard.sh` | M28 の `AtomicCoreBox.load_i64` + pure-first EXE proof を固定し、atomic load route が MIR-owned extern route facts から emit されることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_atomic_store_exe_guard.sh` | M29 の `AtomicCoreBox.store_i64` + pure-first EXE proof を固定し、atomic store route が MIR-owned extern route facts から emit されることを検証する。 |
+| `tools/checks/k2_wide_mimalloc_atomic_fetch_add_exe_guard.sh` | M30 の `AtomicCoreBox.fetch_add_i64` + pure-first EXE proof を固定し、atomic fetch-add route が MIR-owned extern route facts から emit されることを検証する。 |
 
 ## Env Hygiene
 

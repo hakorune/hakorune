@@ -243,6 +243,21 @@ bash tools/checks/k2_wide_mimalloc_atomic_store_exe_guard.sh
 - pure-first は route facts を emit するだけで、app-specific matcher を持たない
 - fetch_add / pointer store / memory-order args / remote-free policy は追加しない
 
+#### mimalloc-atomic-fetch-add-proof
+**場所**: `mimalloc-atomic-fetch-add-proof/main.hako`
+M30 substrate proof。`AtomicCoreBox.fetch_add_i64/2` を pure-first EXE で実行し、
+fixed i64 fetch-add seam を固定する fixture。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_atomic_fetch_add_exe_guard.sh
+```
+
+**特徴**:
+- source は `hako.atomic` facade を使う
+- MIR-owned extern route facts が fixed i64 fetch-add を表す
+- pure-first は route facts を emit するだけで、app-specific matcher を持たない
+- pointer fetch-add / memory-order args / remote-free policy は追加しない
+
 #### allocator-fast-path-exe-proof
 **場所**: `allocator-fast-path-exe-proof/main.hako`
 M13 scalar EXE proof。`Profile(allocator.fast)` を MIR-owned verified

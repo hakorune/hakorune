@@ -42,6 +42,14 @@ pub extern "C" fn hako_atomic_slot_load_i64(slot: i64) -> i64 {
 }
 
 #[no_mangle]
+pub extern "C" fn hako_atomic_slot_fetch_add_i64(slot: i64, delta: i64) -> i64 {
+    let Some(cell) = atomic_slot(slot) else {
+        return HAKO_VALIDATION;
+    };
+    cell.fetch_add(delta, Ordering::SeqCst)
+}
+
+#[no_mangle]
 pub extern "C" fn hako_atomic_slot_store_i64(slot: i64, value: i64) -> i64 {
     let Some(cell) = atomic_slot(slot) else {
         return HAKO_VALIDATION;
@@ -65,8 +73,13 @@ mod tests {
         assert_eq!(hako_atomic_slot_store_i64(0, 7), HAKO_OK);
         assert_eq!(hako_atomic_slot_load_i64(0), 7);
         assert_eq!(hako_atomic_slot_store_i64(0, 0), HAKO_OK);
+        assert_eq!(hako_atomic_slot_fetch_add_i64(0, 5), 0);
+        assert_eq!(hako_atomic_slot_fetch_add_i64(0, 7), 5);
+        assert_eq!(hako_atomic_slot_load_i64(0), 12);
+        assert_eq!(hako_atomic_slot_store_i64(0, 0), HAKO_OK);
         assert_eq!(hako_atomic_slot_cas_i64(4, 0, 1), HAKO_VALIDATION);
         assert_eq!(hako_atomic_slot_load_i64(4), HAKO_VALIDATION);
         assert_eq!(hako_atomic_slot_store_i64(4, 0), HAKO_VALIDATION);
+        assert_eq!(hako_atomic_slot_fetch_add_i64(4, 1), HAKO_VALIDATION);
     }
 }

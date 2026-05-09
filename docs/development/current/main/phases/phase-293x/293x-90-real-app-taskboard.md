@@ -42,6 +42,7 @@
 - [x] `293x-079` M27 mimalloc atomic CAS slot EXE proof
 - [x] `293x-080` M28 mimalloc atomic load slot EXE proof
 - [x] `293x-081` M29 mimalloc atomic store slot EXE proof
+- [x] `293x-082` M30 mimalloc atomic fetch-add slot EXE proof
 
 ## Gates
 

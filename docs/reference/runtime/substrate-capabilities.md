@@ -45,7 +45,7 @@ The current live surface is intentionally narrow.
 | verifier | bounds, initialized-range, ownership, and rune contract gates exist for current rows; RawArray remove/insert are verifier-gated before pointer-substrate calls; `Contract(no_alloc/no_safepoint)` is MIR-verifier checked |
 | `RawArray` | first raw-array path exists for slot load/store/len/cap/append/reserve/grow |
 | `RawBuf` | first allocation facade exists over `MemCoreBox` |
-| `hako.atomic` | helper-shaped `fence_i64`, memory-order vocabulary, `fence_order_i64(order)`, and narrow fixed-slot `cas_i64` / `load_i64` / `store_i64` rows exist; generic fetch_add and pointer atomics are not live |
+| `hako.atomic` | helper-shaped `fence_i64`, memory-order vocabulary, `fence_order_i64(order)`, and narrow fixed-slot `cas_i64` / `load_i64` / `store_i64` / `fetch_add_i64` rows exist; pointer atomics and memory-order arguments are not live |
 | `hako.tls` | helper-shaped diagnostics TLS rows exist; narrow allocator cache-slot `i64` get/set rows exist for pure-first EXE; generic thread/task-local cells are not live |
 | `hako.gc` | helper-shaped `write_barrier_i64` row exists |
 | `hako.osvm` | page-size plus reserve/commit/decommit rows exist |
@@ -68,8 +68,7 @@ These names are reserved but not fully live as user-facing allocator substrate:
 - pointer-sized, pointer, handle, or Box fields inside raw layouts
 - `MaybeInit`
 - unrestricted raw pointer arithmetic
-- atomic fetch_add operations with memory order
-- generic atomic load/store with memory-order arguments or pointer operands
+- generic atomic load/store/fetch_add with memory-order arguments or pointer operands
 - generic CAS with memory-order arguments or pointer operands
 - language-level TLS cells
 - raw numeric TLS slot APIs
@@ -150,15 +149,19 @@ Live operations:
 - `store_i64(slot, value)` writes a narrow runtime-owned atomic i64 slot and
   returns `0` on success. This row uses the runtime export's current default
   order.
+- `fetch_add_i64(slot, delta)` adds `delta` to a narrow runtime-owned atomic
+  i64 slot and returns the previous value. This row uses the runtime export's
+  current default order.
 
 Unsupported operations:
 
-- `fetch_add`
 - pointer CAS
 - pointer load/store
+- pointer fetch_add
 - memory-order arguments on load
 - memory-order arguments on store
 - memory-order arguments on CAS
+- memory-order arguments on fetch_add
 - `pause/yield`
 
 VM-hako subset behavior:

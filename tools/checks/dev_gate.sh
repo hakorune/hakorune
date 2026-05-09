@@ -94,6 +94,7 @@ list_profiles() {
     - tools/checks/k2_wide_mimalloc_atomic_cas_exe_guard.sh
     - tools/checks/k2_wide_mimalloc_atomic_load_exe_guard.sh
     - tools/checks/k2_wide_mimalloc_atomic_store_exe_guard.sh
+    - tools/checks/k2_wide_mimalloc_atomic_fetch_add_exe_guard.sh
     - tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
     - tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
     - tools/checks/k2_wide_metal_keep_inventory_guard.sh
@@ -463,6 +464,9 @@ run_quick() {
 
   run_step "K2-wide mimalloc atomic store EXE guard" \
     bash tools/checks/k2_wide_mimalloc_atomic_store_exe_guard.sh
+
+  run_step "K2-wide mimalloc atomic fetch-add EXE guard" \
+    bash tools/checks/k2_wide_mimalloc_atomic_fetch_add_exe_guard.sh
 
   run_step "K2-wide hako_alloc handle policy guard" \
     bash tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh

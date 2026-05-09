@@ -131,5 +131,8 @@ inference for the allocator release path.
 - `293x-081`: M29 mimalloc atomic store slot EXE proof landed, routing
   `AtomicCoreBox.store_i64/2` through MIR-owned extern route facts into
   pure-first EXE.
+- `293x-082`: M30 mimalloc atomic fetch-add slot EXE proof landed, routing
+  `AtomicCoreBox.fetch_add_i64/2` through MIR-owned extern route facts into
+  pure-first EXE.
 - Next: move into the mimalloc-grade substrate ladder from `293x-026`; keep
   future blockers as compiler/runtime seams and do not hide them in app code.

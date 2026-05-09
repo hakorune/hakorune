@@ -211,6 +211,7 @@ Current allocator-substrate extern families include:
 - `hako_atomic_slot_cas_i64`
 - `hako_atomic_slot_load_i64`
 - `hako_atomic_slot_store_i64`
+- `hako_atomic_slot_fetch_add_i64`
 
 Required row facts include:
 

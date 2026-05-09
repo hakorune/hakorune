@@ -85,6 +85,9 @@
           case HAKO_LLVMC_MIR_CALL_NEED_HAKO_ATOMIC_SLOT_CAS_I64:
             needs->hako_atomic_slot_cas_i64 = 1;
             break;
+          case HAKO_LLVMC_MIR_CALL_NEED_HAKO_ATOMIC_SLOT_FETCH_ADD_I64:
+            needs->hako_atomic_slot_fetch_add_i64 = 1;
+            break;
           case HAKO_LLVMC_MIR_CALL_NEED_HAKO_ATOMIC_SLOT_LOAD_I64:
             needs->hako_atomic_slot_load_i64 = 1;
             break;
