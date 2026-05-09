@@ -126,8 +126,8 @@ them into MIR-owned plan facts.
 | `M34 pointer atomic vocabulary docs lock` | `live-docs` | capability substrate + docs | reserves native-pointer atomic load/store/CAS facade and route vocabulary after M33 while keeping AtomicCoreBox methods, pointer attrs, and allocator policy inactive; M35 activates only the store route row |
 | `M35 native pointer atomic route proof` | `live-narrow` | MIR extern route + pure-first EXE | proves the first active pointer-shaped atomic row, `hako_atomic_ptr_store_ordered(cell_ptr, value_ptr, order)`, through MIR-owned extern route facts, NyRT export, and pure-first native-ptr argument lowering without noalias/nonnull widening |
 | `M36 TLS + pointer remote-free composition proof` | `live-narrow` | allocator app composition proof | composes M26 TLS cache-slot rows with the M35 direct pointer-store route in `apps/mimalloc-tls-ptr-remote-free-proof`; proves mailbox pointer publication under pure-first without adding route rows, pointer load/CAS, or production allocator policy |
-| `M37 allocator remote-free policy integration proof` | `next-card` | allocator policy app proof | waits for M36; connects the remote-free seam to allocator policy without adding backend-specific matchers |
-| `M38 mimalloc allocator app closeout guard` | `blocked` | regression guard | waits for M37; locks the allocator app path as a closeout guard rather than a new substrate feature |
+| `M37 allocator remote-free policy integration proof` | `live-narrow` | allocator policy app proof | connects the M36 remote-free mailbox seam to `AllocatorRemoteFreePolicy` in `apps/mimalloc-remote-free-policy-proof`; adds no route rows, NyRT exports, pointer load/CAS, or backend-specific matchers |
+| `M38 mimalloc allocator app closeout guard` | `next-card` | regression guard | waits for M37; locks the allocator app path as a closeout guard rather than a new substrate feature |
 
 ## Fixed Implementation Order
 

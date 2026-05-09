@@ -1,0 +1,58 @@
+// mimalloc-remote-free-policy-proof
+// Purpose: connect the remote-free mailbox seam to a small allocator policy box.
+
+using selfhost.runtime.substrate.tls.tls_core_box as TlsCoreBox
+
+static box AllocatorRemoteFreePolicy {
+    install_mailbox(slot, mailbox_ptr) {
+        return TlsCoreBox.cache_slot_set_i64(slot, mailbox_ptr)
+    }
+
+    publish_remote_free(slot, block_ptr) {
+        local mailbox = TlsCoreBox.cache_slot_get_i64(slot)
+        return externcall "hako_atomic_ptr_store_ordered"(mailbox, block_ptr, 2)
+    }
+
+    release_mailbox(slot) {
+        return TlsCoreBox.cache_slot_set_i64(slot, 0)
+    }
+}
+
+static box Main {
+    main(args) {
+        local mailbox = externcall "hako_mem_alloc"(8)
+        local block_a = externcall "hako_mem_alloc"(24)
+        local block_b = externcall "hako_mem_alloc"(32)
+
+        if mailbox == 0 || block_a == 0 || block_b == 0 {
+            print("mimalloc-remote-free-policy-proof")
+            print("summary=alloc_failed")
+            if block_b != 0 { externcall "hako_mem_free"(block_b) }
+            if block_a != 0 { externcall "hako_mem_free"(block_a) }
+            if mailbox != 0 { externcall "hako_mem_free"(mailbox) }
+            return 1
+        }
+
+        local install = AllocatorRemoteFreePolicy.install_mailbox(0, mailbox)
+        local publish_a = AllocatorRemoteFreePolicy.publish_remote_free(0, block_a)
+        local publish_b = AllocatorRemoteFreePolicy.publish_remote_free(0, block_b)
+        local release = AllocatorRemoteFreePolicy.release_mailbox(0)
+        local final_mailbox = TlsCoreBox.cache_slot_get_i64(0)
+
+        externcall "hako_mem_free"(block_b)
+        externcall "hako_mem_free"(block_a)
+        externcall "hako_mem_free"(mailbox)
+
+        print("mimalloc-remote-free-policy-proof")
+        print("policy=" + install + "," + publish_a + "," + publish_b + "," + release)
+        print("final_mailbox=" + final_mailbox)
+
+        if install == 0 && publish_a == 0 && publish_b == 0 && release == 0 && final_mailbox == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

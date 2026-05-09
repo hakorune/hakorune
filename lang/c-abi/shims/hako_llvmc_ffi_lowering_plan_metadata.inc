@@ -393,8 +393,7 @@
         return view &&
                view->return_shape &&
                !strcmp(view->return_shape, "scalar_i64") &&
-               view->value_demand &&
-               !strcmp(view->value_demand, "runtime_i64");
+               view->value_demand;
       }
 
       auto int lowering_plan_extern_call_view_returns_native_ptr_nullable_transport_i64(

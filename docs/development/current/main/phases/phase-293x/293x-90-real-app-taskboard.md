@@ -49,6 +49,7 @@
 - [x] `293x-086` M34 pointer atomic vocabulary docs lock
 - [x] `293x-087` M35 native pointer atomic store route proof
 - [x] `293x-088` M36 TLS pointer remote-free composition proof
+- [x] `293x-089` M37 allocator remote-free policy integration proof
 
 ## Gates
 

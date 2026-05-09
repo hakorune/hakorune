@@ -305,6 +305,22 @@ bash tools/checks/k2_wide_mimalloc_tls_ptr_remote_free_exe_guard.sh
 - pure-first は既存 route facts を emit するだけで、新しい route row を持たない
 - pointer load/CAS / pointer fetch_add / production allocator policy は追加しない
 
+#### mimalloc-remote-free-policy-proof
+**場所**: `mimalloc-remote-free-policy-proof/main.hako`
+M37 policy integration proof。`AllocatorRemoteFreePolicy` が TLS mailbox の
+install/publish/release を所有し、既存 M26/M35 route facts だけで pure-first
+EXE 実行できることを固定する fixture。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_remote_free_policy_exe_guard.sh
+```
+
+**特徴**:
+- same-module policy box が remote-free mailbox seam の app-level policy を持つ
+- MIR-owned route facts が TLS helper と direct pointer store を表す
+- pure-first は既存 route facts を emit するだけで、新しい route row を持たない
+- pointer load/CAS / pointer fetch_add / full remote-free list policy は追加しない
+
 #### allocator-fast-path-exe-proof
 **場所**: `allocator-fast-path-exe-proof/main.hako`
 M13 scalar EXE proof。`Profile(allocator.fast)` を MIR-owned verified
@@ -478,6 +494,7 @@ box TreeNode {
 - [x] mimalloc-osvm-page-proof（M25 OSVM page proof）
 - [x] mimalloc-ptr-atomic-store-proof（M35 native pointer atomic store proof）
 - [x] mimalloc-tls-ptr-remote-free-proof（M36 TLS pointer remote-free proof）
+- [x] mimalloc-remote-free-policy-proof（M37 remote-free policy integration proof）
 
 ### 🚧 実装予定（論文・ベンチマーク用）
 - [ ] n-body（数値計算）

@@ -159,6 +159,9 @@ Live operations:
 - `apps/mimalloc-tls-ptr-remote-free-proof` composes the direct pointer-store
   route with TLS cache-slot get/set to publish through a native mailbox pointer
   under pure-first EXE. This is a proof fixture, not allocator policy.
+- `apps/mimalloc-remote-free-policy-proof` connects that mailbox seam to a
+  same-module `AllocatorRemoteFreePolicy` box. It proves policy integration
+  over existing route facts only; it is not a full remote-free list.
 
 Unsupported operations:
 

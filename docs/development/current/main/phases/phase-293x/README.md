@@ -152,5 +152,8 @@ inference for the allocator release path.
 - `293x-088`: M36 TLS pointer remote-free composition proof landed, composing
   M26 TLS cache-slot rows with the M35 pointer-store row in pure-first EXE
   without adding new route rows or allocator policy.
+- `293x-089`: M37 allocator remote-free policy integration proof landed,
+  routing `AllocatorRemoteFreePolicy` as same-module generic-i64 bodies over
+  the existing M26/M35 mailbox seam without adding backend-specific matchers.
 - Next: move into the mimalloc-grade substrate ladder from `293x-026`; keep
   future blockers as compiler/runtime seams and do not hide them in app code.
