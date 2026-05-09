@@ -25,11 +25,15 @@ Current live subset:
     fixed-slot operation names but does not make ordered methods live
   - M34 reserves pointer atomic load/store/CAS names but does not make pointer
     atomic methods live
+  - M35 makes only the direct extern route
+    `hako_atomic_ptr_store_ordered(cell_ptr, value_ptr, order)` live; it is not
+    an `AtomicCoreBox` pointer method
 
 Non-goals:
 - No generic atomic API in this wave.
 - No ordered load/store/CAS/fetch_add implementation in this row.
-- No pointer atomic API in this wave.
+- No `AtomicCoreBox` pointer atomic API in this wave.
+- No pointer load/CAS implementation in this wave.
 - No pointer fetch_add vocabulary in this wave.
 - No TLS policy here.
 - No GC policy here.

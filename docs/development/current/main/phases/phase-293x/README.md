@@ -145,5 +145,9 @@ inference for the allocator release path.
 - `293x-086`: M34 pointer atomic vocabulary docs lock landed, reserving
   native-pointer atomic load/store/CAS facade/route names while keeping
   implementation rows inactive.
+- `293x-087`: M35 native pointer atomic store route proof landed, routing
+  `hako_atomic_ptr_store_ordered/3` through MIR-owned extern facts, NyRT export,
+  and pure-first native pointer argument lowering without activating pointer
+  load/CAS or native pointer attrs.
 - Next: move into the mimalloc-grade substrate ladder from `293x-026`; keep
   future blockers as compiler/runtime seams and do not hide them in app code.

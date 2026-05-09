@@ -94,6 +94,9 @@
           case HAKO_LLVMC_MIR_CALL_NEED_HAKO_ATOMIC_SLOT_STORE_I64:
             needs->hako_atomic_slot_store_i64 = 1;
             break;
+          case HAKO_LLVMC_MIR_CALL_NEED_HAKO_ATOMIC_PTR_STORE_ORDERED:
+            needs->hako_atomic_ptr_store_ordered = 1;
+            break;
           case HAKO_LLVMC_MIR_CALL_NEED_HAKO_MEM_ALLOC:
             needs->hako_mem_alloc = 1;
             break;

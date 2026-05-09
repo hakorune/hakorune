@@ -1,0 +1,33 @@
+// mimalloc-ptr-atomic-store-proof
+// Purpose: prove the first native pointer atomic store route in pure-first EXE.
+
+static box Main {
+    main(args) {
+        local cell = externcall "hako_mem_alloc"(8)
+        local value = externcall "hako_mem_alloc"(16)
+
+        if cell == 0 || value == 0 {
+            print("mimalloc-ptr-atomic-store-proof")
+            print("summary=alloc_failed")
+            if value != 0 { externcall "hako_mem_free"(value) }
+            if cell != 0 { externcall "hako_mem_free"(cell) }
+            return 1
+        }
+
+        local store = externcall "hako_atomic_ptr_store_ordered"(cell, value, 0)
+
+        externcall "hako_mem_free"(value)
+        externcall "hako_mem_free"(cell)
+
+        print("mimalloc-ptr-atomic-store-proof")
+        print("store=" + store)
+
+        if store == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

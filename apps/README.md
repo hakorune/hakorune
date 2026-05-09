@@ -273,6 +273,22 @@ bash tools/checks/k2_wide_mimalloc_remote_free_i64_exe_guard.sh
 - pure-first は既存 route facts を emit するだけで、新しい route row を持たない
 - pointer atomics / memory-order args / production remote-free policy は追加しない
 
+#### mimalloc-ptr-atomic-store-proof
+**場所**: `mimalloc-ptr-atomic-store-proof/main.hako`
+M35 route proof。`hako_atomic_ptr_store_ordered(cell_ptr, value_ptr, order)`
+を direct extern route として pure-first EXE で実行し、最初の native pointer
+atomic store seam を固定する fixture。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_ptr_atomic_store_exe_guard.sh
+```
+
+**特徴**:
+- source は direct externcall を使い、`AtomicCoreBox` pointer method は追加しない
+- MIR-owned extern route facts が `extern.hako_atomic.ptr_store_ordered` を表す
+- pure-first は native pointer transport を `ptr` 引数に変換して emit する
+- pointer load/CAS / pointer fetch_add / production remote-free policy は追加しない
+
 #### allocator-fast-path-exe-proof
 **場所**: `allocator-fast-path-exe-proof/main.hako`
 M13 scalar EXE proof。`Profile(allocator.fast)` を MIR-owned verified
@@ -444,6 +460,7 @@ box TreeNode {
 - [x] mimalloc-dynamic-bin-proof（M23 dynamic bin proof）
 - [x] mimalloc-size-to-bin-inline-proof（M24 size_to_bin inline proof）
 - [x] mimalloc-osvm-page-proof（M25 OSVM page proof）
+- [x] mimalloc-ptr-atomic-store-proof（M35 native pointer atomic store proof）
 
 ### 🚧 実装予定（論文・ベンチマーク用）
 - [ ] n-body（数値計算）

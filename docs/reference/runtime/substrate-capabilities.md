@@ -45,7 +45,7 @@ The current live surface is intentionally narrow.
 | verifier | bounds, initialized-range, ownership, and rune contract gates exist for current rows; RawArray remove/insert are verifier-gated before pointer-substrate calls; `Contract(no_alloc/no_safepoint)` is MIR-verifier checked |
 | `RawArray` | first raw-array path exists for slot load/store/len/cap/append/reserve/grow |
 | `RawBuf` | first allocation facade exists over `MemCoreBox` |
-| `hako.atomic` | helper-shaped `fence_i64`, memory-order vocabulary, `fence_order_i64(order)`, and narrow fixed-slot `cas_i64` / `load_i64` / `store_i64` / `fetch_add_i64` rows exist; pointer atomics and memory-order arguments are not live |
+| `hako.atomic` | helper-shaped `fence_i64`, memory-order vocabulary, `fence_order_i64(order)`, narrow fixed-slot `cas_i64` / `load_i64` / `store_i64` / `fetch_add_i64` rows, and the first direct native-pointer store route exist; pointer load/CAS and generic memory-order arguments are not live |
 | `hako.tls` | helper-shaped diagnostics TLS rows exist; narrow allocator cache-slot `i64` get/set rows exist for pure-first EXE; generic thread/task-local cells are not live |
 | `hako.gc` | helper-shaped `write_barrier_i64` row exists |
 | `hako.osvm` | page-size plus reserve/commit/decommit rows exist |
@@ -68,7 +68,7 @@ These names are reserved but not fully live as user-facing allocator substrate:
 - pointer-sized, pointer, handle, or Box fields inside raw layouts
 - `MaybeInit`
 - unrestricted raw pointer arithmetic
-- generic atomic load/store/fetch_add with memory-order arguments or pointer operands
+- generic atomic load/store/fetch_add with memory-order arguments or pointer operands beyond the live direct pointer-store route
 - generic CAS with memory-order arguments or pointer operands
 - language-level TLS cells
 - raw numeric TLS slot APIs
@@ -152,16 +152,20 @@ Live operations:
 - `fetch_add_i64(slot, delta)` adds `delta` to a narrow runtime-owned atomic
   i64 slot and returns the previous value. This row uses the runtime export's
   current default order.
+- `hako_atomic_ptr_store_ordered(cell_ptr, value_ptr, order)` is live only as a
+  direct extern route. It stores a native pointer transport value into a native
+  pointer cell and returns `0` on success. Accepted order values for this first
+  route are Relaxed, Release, and SeqCst.
 
 Unsupported operations:
 
 - pointer CAS
-- pointer load/store
+- pointer load
 - pointer fetch_add
-- live memory-order arguments on load
-- live memory-order arguments on store
-- live memory-order arguments on CAS
-- live memory-order arguments on fetch_add
+- live memory-order arguments on fixed-slot load
+- live memory-order arguments on fixed-slot store
+- live memory-order arguments on fixed-slot CAS
+- live memory-order arguments on fixed-slot fetch_add
 - `pause/yield`
 
 Reserved ordered fixed-slot i64 vocabulary:
@@ -191,8 +195,10 @@ Reserved pointer atomic vocabulary:
 | `ptr_store_ordered(cell_ptr, value_ptr, order)` | `extern.hako_atomic.ptr_store_ordered` | `hako_atomic_ptr_store_ordered` | 3 | `scalar_i64` |
 | `ptr_cas_ordered(cell_ptr, expected_ptr, desired_ptr, success_order, failure_order)` | `extern.hako_atomic.ptr_cas_ordered` | `hako_atomic_ptr_cas_ordered` | 5 | `native_ptr_nullable` |
 
-These names are reserved by M34 only. They are not active methods, MIR route
-rows, NyRT exports, or `.inc` lowering rows yet.
+M34 reserves these names. M35 activates only the `ptr_store_ordered` route as a
+direct extern row; `ptr_load_ordered` and `ptr_cas_ordered` remain reserved
+only and are not active methods, MIR route rows, NyRT exports, or `.inc`
+lowering rows yet.
 
 Pointer boundary contract:
 

@@ -47,6 +47,7 @@
 - [x] `293x-084` M32 mimalloc post-M31 task-order lock
 - [x] `293x-085` M33 atomic memory-order args docs/route vocabulary lock
 - [x] `293x-086` M34 pointer atomic vocabulary docs lock
+- [x] `293x-087` M35 native pointer atomic store route proof
 
 ## Gates
 
