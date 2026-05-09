@@ -120,6 +120,7 @@ them into MIR-owned plan facts.
 | `M28 mimalloc atomic load slot EXE proof` | `live-narrow` | allocator app proof + MIR extern route + NyRT export | proves `AtomicCoreBox.load_i64` as a fixed i64 atomic-slot load route in `apps/mimalloc-atomic-load-proof`; pure-first emits only that route row and links the matching NyRT export, with no store/fetch_add, pointer atomics, memory-order args, or remote-free policy |
 | `M29 mimalloc atomic store slot EXE proof` | `live-narrow` | allocator app proof + MIR extern route + NyRT export | proves `AtomicCoreBox.store_i64` as a fixed i64 atomic-slot store route in `apps/mimalloc-atomic-store-proof`; pure-first emits only that route row and links the matching NyRT export, with no fetch_add, pointer atomics, memory-order args, or remote-free policy |
 | `M30 mimalloc atomic fetch-add slot EXE proof` | `live-narrow` | allocator app proof + MIR extern route + NyRT export | proves `AtomicCoreBox.fetch_add_i64` as a fixed i64 atomic-slot fetch-add route in `apps/mimalloc-atomic-fetch-add-proof`; pure-first emits only that route row and links the matching NyRT export, with no pointer atomics, memory-order args, or remote-free policy |
+| `M31 mimalloc remote-free i64 sketch EXE proof` | `live-narrow` | allocator app composition proof | composes the existing CAS/load/store/fetch_add fixed-slot i64 routes in `apps/mimalloc-remote-free-i64-proof` to prove the remote-free push pattern under pure-first EXE; adds no new route row, NyRT export, pointer atomics, memory-order args, or production allocator policy |
 
 ## Fixed Implementation Order
 
@@ -176,6 +177,7 @@ them into MIR-owned plan facts.
 51. `M28 mimalloc atomic load slot EXE proof`
 52. `M29 mimalloc atomic store slot EXE proof`
 53. `M30 mimalloc atomic fetch-add slot EXE proof`
+54. `M31 mimalloc remote-free i64 sketch EXE proof`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed

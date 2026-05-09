@@ -1,0 +1,67 @@
+// mimalloc-remote-free-i64-proof
+// Purpose: prove a fixed-slot i64 remote-free push sketch in pure-first EXE.
+
+using selfhost.runtime.substrate.atomic.atomic_core_box as AtomicCoreBox
+
+static box RemoteFreeI64Proof {
+    push(head_slot, next_slot, block_id) {
+        local done = 0
+        local spins = 0
+
+        loop(done == 0) {
+            local old = AtomicCoreBox.load_i64(head_slot)
+            local link = AtomicCoreBox.store_i64(next_slot, old)
+            local prev = AtomicCoreBox.cas_i64(head_slot, old, block_id)
+            spins = spins + 1
+
+            if prev == old {
+                local count_before = AtomicCoreBox.fetch_add_i64(3, 1)
+                done = 1
+            }
+
+            if spins > 8 {
+                return -1
+            }
+        }
+
+        return spins
+    }
+}
+
+static box Main {
+    main(args) {
+        local clear0 = AtomicCoreBox.store_i64(0, 0)
+        local clear1 = AtomicCoreBox.store_i64(1, 0)
+        local clear2 = AtomicCoreBox.store_i64(2, 0)
+        local clear3 = AtomicCoreBox.store_i64(3, 0)
+
+        local push1 = RemoteFreeI64Proof.push(0, 1, 101)
+        local head1 = AtomicCoreBox.load_i64(0)
+        local next1 = AtomicCoreBox.load_i64(1)
+        local count1 = AtomicCoreBox.load_i64(3)
+
+        local push2 = RemoteFreeI64Proof.push(0, 2, 202)
+        local head2 = AtomicCoreBox.load_i64(0)
+        local next2 = AtomicCoreBox.load_i64(2)
+        local count2 = AtomicCoreBox.load_i64(3)
+
+        local reset0 = AtomicCoreBox.store_i64(0, 0)
+        local reset1 = AtomicCoreBox.store_i64(1, 0)
+        local reset2 = AtomicCoreBox.store_i64(2, 0)
+        local reset3 = AtomicCoreBox.store_i64(3, 0)
+
+        print("mimalloc-remote-free-i64-proof")
+        print("clear=" + clear0 + "," + clear1 + "," + clear2 + "," + clear3)
+        print("push=" + push1 + "," + push2 + " head=" + head1 + "," + head2)
+        print("next=" + next1 + "," + next2 + " count=" + count1 + "," + count2)
+        print("reset=" + reset0 + "," + reset1 + "," + reset2 + "," + reset3)
+
+        if clear0 == 0 && clear1 == 0 && clear2 == 0 && clear3 == 0 && push1 == 1 && head1 == 101 && next1 == 0 && count1 == 1 && push2 == 1 && head2 == 202 && next2 == 101 && count2 == 2 && reset0 == 0 && reset1 == 0 && reset2 == 0 && reset3 == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

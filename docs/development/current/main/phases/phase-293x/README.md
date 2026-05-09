@@ -134,5 +134,8 @@ inference for the allocator release path.
 - `293x-082`: M30 mimalloc atomic fetch-add slot EXE proof landed, routing
   `AtomicCoreBox.fetch_add_i64/2` through MIR-owned extern route facts into
   pure-first EXE.
+- `293x-083`: M31 mimalloc remote-free i64 sketch EXE proof landed, composing
+  the existing CAS/load/store/fetch_add route facts into a pure-first EXE
+  remote-free push sketch without adding a new backend route.
 - Next: move into the mimalloc-grade substrate ladder from `293x-026`; keep
   future blockers as compiler/runtime seams and do not hide them in app code.
