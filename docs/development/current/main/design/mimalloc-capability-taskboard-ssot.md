@@ -81,8 +81,8 @@ them into MIR-owned plan facts.
 | `M3 RawBuf + RawArray allocator fixture` | `live-narrow` | algorithm substrate | allocator-shaped fixture using RawBuf/RawArray only; RawArray has len/cap/reserve/grow shape; no TLS/atomic/OSVM dependency |
 | `M4 minimum verifier hardening` | `live-narrow` | verifier substrate | RawArray remove/insert now pass bounds/initialized-range gates; slice, double-free, and use-after-free remain follow-up splits |
 | `M5 rune contract verifier` | `live-narrow` | rune metadata + verifier | `@rune Contract(no_alloc)` / `@rune Contract(no_safepoint)` are checked by the MIR verifier before backend use; backend export/use remains disabled |
-| `M6 hako.atomic useful rows` | `live-narrow` | capability substrate | memory-order vocabulary plus ordered fence row are live; load/store/CAS/fetch_add remain future splits; no allocator policy inside atomic module |
-| `M7 hako.tls useful rows` | `live-narrow` | capability substrate | diagnostics TLS status helpers are live; generic thread/task-local slot and cache-slot primitive remain future splits; no helper-local cache exposure as final API |
+| `M6 hako.atomic useful rows` | `live-narrow` | capability substrate | memory-order vocabulary plus ordered fence row are live; fixed-slot CAS/load/store/fetch_add are live through M27-M30 EXE proof rows; memory-order arguments and pointer atomics remain future splits; no allocator policy inside atomic module |
+| `M7 hako.tls useful rows` | `live-narrow` | capability substrate | diagnostics TLS status helpers and fixed cache-slot get/set EXE proof are live; generic thread/task-local slot remains a future split; no helper-local cache exposure as final API |
 | `M8 hako.osvm allocator rows` | `live-narrow` | capability substrate + native keep | page_size/reserve/commit/decommit facades are live with native metal leaf below; allocator policy remains outside osvm |
 | `M9 intrinsic rows` | `live-narrow` | intrinsic metadata + LLVM/VM | `clz_i64`, `ctz_i64`, and `popcnt_i64` current-lane non-negative i64 rows are live; `prefetch`, `assume`, `unreachable`, unsigned-width semantics, and backend optimization use remain future splits |
 | `M10a export attrs consistency gate` | `live-narrow` | optimization export service | guard locks current weak export attrs and rejects strong attr names in active LLVM/runtime-decl export points; no backend fact widening |
@@ -121,6 +121,13 @@ them into MIR-owned plan facts.
 | `M29 mimalloc atomic store slot EXE proof` | `live-narrow` | allocator app proof + MIR extern route + NyRT export | proves `AtomicCoreBox.store_i64` as a fixed i64 atomic-slot store route in `apps/mimalloc-atomic-store-proof`; pure-first emits only that route row and links the matching NyRT export, with no fetch_add, pointer atomics, memory-order args, or remote-free policy |
 | `M30 mimalloc atomic fetch-add slot EXE proof` | `live-narrow` | allocator app proof + MIR extern route + NyRT export | proves `AtomicCoreBox.fetch_add_i64` as a fixed i64 atomic-slot fetch-add route in `apps/mimalloc-atomic-fetch-add-proof`; pure-first emits only that route row and links the matching NyRT export, with no pointer atomics, memory-order args, or remote-free policy |
 | `M31 mimalloc remote-free i64 sketch EXE proof` | `live-narrow` | allocator app composition proof | composes the existing CAS/load/store/fetch_add fixed-slot i64 routes in `apps/mimalloc-remote-free-i64-proof` to prove the remote-free push pattern under pure-first EXE; adds no new route row, NyRT export, pointer atomics, memory-order args, or production allocator policy |
+| `M32 mimalloc post-M31 task-order lock` | `live-docs` | taskboard/docs | locks the post-M31 order and syncs stale M6/M7 wording; no source, route, `.inc`, NyRT, or allocator policy change |
+| `M33 atomic memory-order args docs/route vocabulary lock` | `next-card` | capability substrate + docs | name the memory-order argument contract for future atomic rows before pointer atomics consume it; no pointer atomics or allocator policy |
+| `M34 pointer atomic vocabulary docs lock` | `blocked` | capability substrate + docs | waits for M33; reserves pointer atomic vocabulary without lowering production remote-free policy |
+| `M35 native pointer atomic route proof` | `blocked` | MIR extern route + pure-first EXE | waits for M34 and native pointer proof boundaries; proves one pointer-shaped atomic route without noalias/nonnull widening |
+| `M36 TLS + pointer remote-free composition proof` | `blocked` | allocator app composition proof | waits for M35; composes TLS cache-slot and pointer atomic rows without owning production allocator policy |
+| `M37 allocator remote-free policy integration proof` | `blocked` | allocator policy app proof | waits for M36; connects the remote-free seam to allocator policy without adding backend-specific matchers |
+| `M38 mimalloc allocator app closeout guard` | `blocked` | regression guard | waits for M37; locks the allocator app path as a closeout guard rather than a new substrate feature |
 
 ## Fixed Implementation Order
 
@@ -178,6 +185,13 @@ them into MIR-owned plan facts.
 52. `M29 mimalloc atomic store slot EXE proof`
 53. `M30 mimalloc atomic fetch-add slot EXE proof`
 54. `M31 mimalloc remote-free i64 sketch EXE proof`
+55. `M32 mimalloc post-M31 task-order lock`
+56. `M33 atomic memory-order args docs/route vocabulary lock`
+57. `M34 pointer atomic vocabulary docs lock`
+58. `M35 native pointer atomic route proof`
+59. `M36 TLS + pointer remote-free composition proof`
+60. `M37 allocator remote-free policy integration proof`
+61. `M38 mimalloc allocator app closeout guard`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed

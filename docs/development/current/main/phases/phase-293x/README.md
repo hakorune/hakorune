@@ -137,5 +137,7 @@ inference for the allocator release path.
 - `293x-083`: M31 mimalloc remote-free i64 sketch EXE proof landed, composing
   the existing CAS/load/store/fetch_add route facts into a pure-first EXE
   remote-free push sketch without adding a new backend route.
+- `293x-084`: M32 mimalloc post-M31 task-order lock landed, fixing the next
+  M33-M38 order and syncing stale atomic/TLS taskboard wording.
 - Next: move into the mimalloc-grade substrate ladder from `293x-026`; keep
   future blockers as compiler/runtime seams and do not hide them in app code.

@@ -44,6 +44,7 @@
 - [x] `293x-081` M29 mimalloc atomic store slot EXE proof
 - [x] `293x-082` M30 mimalloc atomic fetch-add slot EXE proof
 - [x] `293x-083` M31 mimalloc remote-free i64 sketch EXE proof
+- [x] `293x-084` M32 mimalloc post-M31 task-order lock
 
 ## Gates
 
