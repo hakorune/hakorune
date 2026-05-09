@@ -13,12 +13,7 @@ TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ss
 
 echo "[$TAG] running M15 RawBuf global wrapper EXE guard"
 
-for file in "$APP" "$APP_README" "$CARD" "$TASKBOARD"; do
-  if [ ! -f "$file" ]; then
-    echo "[$TAG] missing file: $file" >&2
-    exit 1
-  fi
-done
+guard_require_files "$TAG" "$APP" "$APP_README" "$CARD" "$TASKBOARD"
 
 cargo test -q generic_i64_body_accepts_void_sentinel_global_side_call -- --nocapture
 pure_first_guard_build_toolchain
@@ -31,8 +26,6 @@ exe_out="$tmp_dir/m15.exe"
 build_log="$tmp_dir/build.log"
 run_log="$tmp_dir/run.log"
 
-NYASH_FEATURES=rune \
-NYASH_DISABLE_PLUGINS=1 \
 pure_first_guard_emit_mir "$ROOT_DIR" "$APP" "$mir_json"
 
 python3 - "$mir_json" <<'PY'
@@ -74,17 +67,7 @@ if missing:
 print("[m15-mir-json] ok")
 PY
 
-NYASH_BIN="$ROOT_DIR/target/debug/hakorune" \
-NYASH_FEATURES=rune \
-NYASH_DISABLE_PLUGINS=1 \
-NYASH_LLVM_ROUTE_TRACE=1 \
-HAKO_BACKEND_COMPILE_RECIPE=pure-first \
-HAKO_BACKEND_COMPAT_REPLAY=none \
-timeout 120 tools/selfhost/selfhost_build.sh \
-  --in "$APP" \
-  --mir "$mir_json" \
-  --exe "$exe_out" >"$build_log" 2>&1
-
+pure_first_guard_build_exe "$TAG" "$ROOT_DIR" "$APP" "$mir_json" "$exe_out" "$build_log"
 pure_first_guard_assert_clean_build_log "$TAG" "$build_log"
 
 rg -F -q 'mir_call_global_generic_i64_emit' "$build_log"

@@ -17,12 +17,16 @@ METADATA_FACTS="docs/reference/mir/metadata-facts-ssot.md"
 
 echo "[$TAG] running M13 allocator fast-path EXE guard"
 
-for file in "$APP" "$APP_README" "$CARD" "$TASKBOARD" "$RUNE_PROFILE_SSOT" "$REGISTRY" "$SUBSTRATE_DOC" "$METADATA_FACTS"; do
-  if [ ! -f "$file" ]; then
-    echo "[$TAG] missing file: $file" >&2
-    exit 1
-  fi
-done
+guard_require_files \
+  "$TAG" \
+  "$APP" \
+  "$APP_README" \
+  "$CARD" \
+  "$TASKBOARD" \
+  "$RUNE_PROFILE_SSOT" \
+  "$REGISTRY" \
+  "$SUBSTRATE_DOC" \
+  "$METADATA_FACTS"
 
 cargo test -q mir_optimizer_consumes_verified_profile_allocator_fast_required_inline -- --nocapture
 pure_first_guard_build_toolchain
@@ -35,8 +39,6 @@ exe_out="$tmp_dir/m13.exe"
 build_log="$tmp_dir/build.log"
 run_log="$tmp_dir/run.log"
 
-NYASH_FEATURES=rune \
-NYASH_DISABLE_PLUGINS=1 \
 pure_first_guard_emit_mir "$ROOT_DIR" "$APP" "$mir_json"
 
 python3 - "$mir_json" <<'PY'
@@ -97,17 +99,7 @@ for block in main.get("blocks", []):
 print("[m13-mir-json] ok")
 PY
 
-NYASH_BIN="$ROOT_DIR/target/debug/hakorune" \
-NYASH_FEATURES=rune \
-NYASH_DISABLE_PLUGINS=1 \
-NYASH_LLVM_ROUTE_TRACE=1 \
-HAKO_BACKEND_COMPILE_RECIPE=pure-first \
-HAKO_BACKEND_COMPAT_REPLAY=none \
-timeout 120 tools/selfhost/selfhost_build.sh \
-  --in "$APP" \
-  --mir "$mir_json" \
-  --exe "$exe_out" >"$build_log" 2>&1
-
+pure_first_guard_build_exe "$TAG" "$ROOT_DIR" "$APP" "$mir_json" "$exe_out" "$build_log"
 pure_first_guard_assert_clean_build_log "$TAG" "$build_log"
 
 if rg -F -q 'AllocFastProof.size_to_bin/1' "$build_log"; then
