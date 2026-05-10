@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: accepted
 Date: 2026-05-10
-Scope: current allocator provider / replacement hook task breakdown after M70.
+Scope: current allocator provider / replacement hook task breakdown after M71.
 Related:
   - docs/development/current/main/design/allocator-provider-boundary-v0-ssot.md
   - docs/development/current/main/design/allocator-provider-manifest-v0-ssot.md
@@ -32,7 +32,7 @@ then and only then consider process allocator replacement
 | M52-M56 | allocator replacement hook boundary, reserved hook plan/proof vocabulary, runtime owner named | complete |
 | M57-M61 | diagnostic-only dry-run runtime validator, manifest text callsite, test surface, proof validator, CLI surface | complete |
 | M62-M63 | activation preflight boundary and diagnostic preflight facts/report | complete |
-| M64-M70 | provider ids, reserved provider manifest fixture, diagnostic parser, explicit CLI surface, readiness preflight facts, and combined hook/provider dry-run report | complete |
+| M64-M71 | provider ids, reserved provider manifest fixture, diagnostic parser, explicit CLI surface, readiness preflight facts, combined hook/provider dry-run report, and registry boundary docs | complete |
 
 ## Layer Model
 
@@ -114,6 +114,6 @@ Every next row should land as:
 
 ## Next Step
 
-M71 may add provider registry boundary docs that name ownership and future API
-shape. It must not add active registry implementation, provider selection,
-implicit manifest discovery, or allocator replacement.
+M72 may add a hako model provider proof fixture. It must not add native metal
+activation, active registry implementation, provider selection, implicit
+manifest discovery, or allocator replacement.

@@ -249,6 +249,9 @@ inference for the allocator release path.
 - `293x-122`: M70 combined hook/provider dry-run report landed, composing
   explicit hook plan, activation proof, and provider manifest diagnostics while
   keeping install, provider selection, and activation false.
-- Next: M71 may add provider registry boundary docs, but active registry
-  implementation and process allocator replacement remain blocked until later
-  rows prove ownership and safety.
+- `293x-123`: M71 allocator provider registry boundary landed, naming the
+  future registry owner/API shape while keeping active registry implementation,
+  provider selection, and allocator replacement absent.
+- Next: M72 may add a hako model provider proof fixture, but native metal
+  activation, active registry implementation, and process allocator replacement
+  remain blocked.
