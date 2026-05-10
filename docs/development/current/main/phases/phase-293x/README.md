@@ -188,5 +188,8 @@ inference for the allocator release path.
 - `293x-100`: M48 allocator remote-free policy proof landed, composing the
   M43 bounded CAS retry-loop shape behind the production facade while keeping
   pointer atomics in substrate.
-- Next: M49 allocator OSVM page-source proof; keep future blockers as
+- `293x-101`: M49 allocator OSVM page-source proof landed, composing
+  reserve/commit/decommit through `HakoAllocPageSourcePolicy` behind the
+  production facade while keeping OSVM metal in substrate/native keep.
+- Next: M50 allocator stress production-facade parity; keep future blockers as
   compiler/runtime seams and do not hide them in app code.

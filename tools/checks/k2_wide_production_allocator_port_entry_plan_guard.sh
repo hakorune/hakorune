@@ -60,7 +60,8 @@ require_text "$TASKBOARD" '| `M45 production allocator port entry plan` | `live-
 require_text "$TASKBOARD" '| `M46 hako_alloc production facade boundary` | `live-narrow` |'
 require_text "$TASKBOARD" '| `M47 allocator local page policy proof` | `live-narrow` |'
 require_text "$TASKBOARD" '| `M48 allocator remote-free policy proof` | `live-narrow` |'
-require_text "$TASKBOARD" '| `M49 allocator OSVM page-source proof` | `next-card` |'
+require_text "$TASKBOARD" '| `M49 allocator OSVM page-source proof` | `live-narrow` |'
+require_text "$TASKBOARD" '| `M50 allocator stress production-facade parity` | `next-card` |'
 require_text "$PHASE_README" '`293x-097`'
 require_text "$REAL_APP_TASKBOARD" '`293x-097` M45 production allocator port entry plan'
 require_text "$INDEX" "tools/checks/k2_wide_production_allocator_port_entry_plan_guard.sh"

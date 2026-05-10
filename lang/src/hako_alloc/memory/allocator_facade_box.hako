@@ -3,11 +3,13 @@
 // - provide the public allocator port facade name under hako_alloc
 // - delegate local policy/state to the existing page/free-list heap row
 // - expose remote-free policy through the production facade seam
+// - expose page-source policy through the production facade seam
 // Non-responsibility:
 // - process allocator replacement
 // - direct ABI symbols or native metal calls
-// - implementing pointer atomics, OS VM page-source ownership, or native pointer attrs
+// - implementing pointer atomics, OS VM metal, or native pointer attrs
 
+using selfhost.hako_alloc.memory.page_source_policy_box as HakoAllocPageSourcePolicy
 using selfhost.hako_alloc.memory.page_heap_box as HakoAllocPageHeap
 using selfhost.hako_alloc.memory.remote_free_policy_box as HakoAllocRemoteFreePolicy
 
@@ -73,5 +75,17 @@ box HakoAllocProductionFacade {
 
     remotePeekNext(block_ptr) {
         return HakoAllocRemoteFreePolicy.peekNext(block_ptr)
+    }
+
+    pageSourceReserve(bytes) {
+        return HakoAllocPageSourcePolicy.reservePage(bytes)
+    }
+
+    pageSourceCommit(base, bytes) {
+        return HakoAllocPageSourcePolicy.commitPage(base, bytes)
+    }
+
+    pageSourceDecommit(base, bytes) {
+        return HakoAllocPageSourcePolicy.decommitPage(base, bytes)
     }
 }

@@ -24,6 +24,8 @@ Principles
   - `LayoutBox` is size-class policy only; it is not native layout/ABI ownership
   - `HakoAllocRemoteFreePolicy` owns the `.hako` remote-free retry policy only;
     pointer atomics remain substrate route facts.
+  - `HakoAllocPageSourcePolicy` owns the `.hako` page-source policy seam only;
+    OSVM reserve/commit/decommit metal remains substrate/native keep.
 
 Design owners
 - Policy/state stop-line:
@@ -64,5 +66,6 @@ Current modules
 - `memory.allocator_facade_box`
 - `memory.layout_box`
 - `memory.page_heap_box`
+- `memory.page_source_policy_box`
 - `memory.remote_free_policy_box`
 - `memory.refcell_box`

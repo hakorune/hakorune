@@ -1,0 +1,19 @@
+// page_source_policy_box.hako — hako_alloc OSVM page-source policy seam
+// Responsibility: own allocator page-source policy over hako.osvm substrate rows.
+// Non-responsibility: implement OS VM metal, unreserve, or allocator replacement.
+
+using selfhost.runtime.substrate.osvm.osvm_core_box as OsVmCoreBox
+
+static box HakoAllocPageSourcePolicy {
+    reservePage(bytes) {
+        return OsVmCoreBox.reserve_bytes_i64(bytes)
+    }
+
+    commitPage(base, bytes) {
+        return OsVmCoreBox.commit_bytes_i64(base, bytes)
+    }
+
+    decommitPage(base, bytes) {
+        return OsVmCoreBox.decommit_bytes_i64(base, bytes)
+    }
+}
