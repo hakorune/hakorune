@@ -45,7 +45,7 @@ The current live surface is intentionally narrow.
 | verifier | bounds, initialized-range, ownership, and rune contract gates exist for current rows; RawArray remove/insert are verifier-gated before pointer-substrate calls; `Contract(no_alloc/no_safepoint)` is MIR-verifier checked |
 | `RawArray` | first raw-array path exists for slot load/store/len/cap/append/reserve/grow |
 | `RawBuf` | first allocation facade exists over `MemCoreBox` |
-| `hako_alloc` facade | `HakoAllocProductionFacade` is the production-facing policy seam over the existing `HakoAllocHeap` page/free-list state; current proof rows cover local small/medium allocate/free/reject/reuse accounting only |
+| `hako_alloc` facade | `HakoAllocProductionFacade` is the production-facing policy seam over the existing `HakoAllocHeap` page/free-list state and `HakoAllocRemoteFreePolicy`; current proof rows cover local small/medium allocate/free/reject/reuse accounting and bounded CAS retry-loop remote-free policy |
 | `hako.atomic` | helper-shaped `fence_i64`, memory-order vocabulary, `fence_order_i64(order)`, narrow fixed-slot `cas_i64` / `load_i64` / `store_i64` / `fetch_add_i64` rows, and direct native-pointer store/load/CAS routes exist; generic memory-order arguments are not live |
 | `hako.tls` | helper-shaped diagnostics TLS rows exist; narrow allocator cache-slot `i64` get/set rows exist for pure-first EXE; generic thread/task-local cells are not live |
 | `hako.gc` | helper-shaped `write_barrier_i64` row exists |

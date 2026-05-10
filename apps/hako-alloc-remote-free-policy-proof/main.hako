@@ -1,0 +1,83 @@
+// hako-alloc-remote-free-policy-proof
+// Purpose: prove remote-free retry policy through HakoAllocProductionFacade.
+
+using selfhost.hako_alloc.memory.allocator_facade_box as HakoAllocFacade
+
+static box Main {
+    main(args) {
+        local head_cell = externcall "hako_mem_alloc"(8)
+        local block_a = externcall "hako_mem_alloc"(24)
+        local block_b = externcall "hako_mem_alloc"(24)
+        local block_c = externcall "hako_mem_alloc"(24)
+
+        if head_cell == 0 || block_a == 0 || block_b == 0 || block_c == 0 {
+            print("hako-alloc-remote-free-policy-proof")
+            print("summary=alloc_failed")
+            if block_c != 0 { externcall "hako_mem_free"(block_c) }
+            if block_b != 0 { externcall "hako_mem_free"(block_b) }
+            if block_a != 0 { externcall "hako_mem_free"(block_a) }
+            if head_cell != 0 { externcall "hako_mem_free"(head_cell) }
+            return 1
+        }
+
+        local alloc = new HakoAllocProductionFacade()
+
+        local local_handle = alloc.allocate(8)
+        local local_release = alloc.release(local_handle)
+
+        local init_store = alloc.remoteInitHead(head_cell)
+        local first_retries = alloc.remotePushRetry(head_cell, block_a, 0)
+        local second_retries = alloc.remotePushRetry(head_cell, block_b, block_c)
+
+        local final_head = alloc.remotePeekHead(head_cell)
+        local next_b = alloc.remotePeekNext(block_b)
+        local next_c = alloc.remotePeekNext(block_c)
+        local next_a = alloc.remotePeekNext(block_a)
+
+        local first_retry_zero = 0
+        if first_retries == 0 {
+            first_retry_zero = 1
+        }
+        local second_retry_once = 0
+        if second_retries == 1 {
+            second_retry_once = 1
+        }
+        local final_head_is_b = 0
+        if final_head == block_b {
+            final_head_is_b = 1
+        }
+        local next_b_is_c = 0
+        if next_b == block_c {
+            next_b_is_c = 1
+        }
+        local next_c_is_a = 0
+        if next_c == block_a {
+            next_c_is_a = 1
+        }
+        local next_a_empty = 0
+        if next_a == 0 {
+            next_a_empty = 1
+        }
+
+        externcall "hako_mem_free"(block_c)
+        externcall "hako_mem_free"(block_b)
+        externcall "hako_mem_free"(block_a)
+        externcall "hako_mem_free"(head_cell)
+
+        print("hako-alloc-remote-free-policy-proof")
+        print("facade=" + alloc.alloc_count + "," + alloc.free_count + "," + alloc.reject_count)
+        print("init=" + init_store)
+        print("retries=" + first_retries + "," + second_retries)
+        print("shape=" + final_head_is_b + "," + next_b_is_c + "," + next_c_is_a + "," + next_a_empty)
+
+        local retry_matches = first_retry_zero + second_retry_once
+        local shape_matches = final_head_is_b + next_b_is_c + next_c_is_a + next_a_empty
+        if init_store == 0 && retry_matches == 2 && shape_matches == 4 && local_release == 1 && alloc.alloc_count == 1 && alloc.free_count == 1 && alloc.reject_count == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

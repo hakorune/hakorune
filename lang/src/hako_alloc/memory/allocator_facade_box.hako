@@ -1,13 +1,15 @@
 // allocator_facade_box.hako — production-facing hako_alloc facade boundary
 // Responsibility:
 // - provide the public allocator port facade name under hako_alloc
-// - delegate policy/state to the existing page/free-list heap row
+// - delegate local policy/state to the existing page/free-list heap row
+// - expose remote-free policy through the production facade seam
 // Non-responsibility:
 // - process allocator replacement
 // - direct ABI symbols or native metal calls
-// - pointer atomics, OS VM policy, or native pointer attrs
+// - implementing pointer atomics, OS VM page-source ownership, or native pointer attrs
 
 using selfhost.hako_alloc.memory.page_heap_box as HakoAllocPageHeap
+using selfhost.hako_alloc.memory.remote_free_policy_box as HakoAllocRemoteFreePolicy
 
 box HakoAllocProductionFacade {
     heap: HakoAllocHeap
@@ -55,5 +57,21 @@ box HakoAllocProductionFacade {
 
     mediumFreeCount() {
         return me.heap.medium_page.freeCount()
+    }
+
+    remoteInitHead(head_cell) {
+        return HakoAllocRemoteFreePolicy.initHead(head_cell)
+    }
+
+    remotePushRetry(head_cell, block_ptr, interferer_ptr) {
+        return HakoAllocRemoteFreePolicy.pushRetry(head_cell, block_ptr, interferer_ptr)
+    }
+
+    remotePeekHead(head_cell) {
+        return HakoAllocRemoteFreePolicy.peekHead(head_cell)
+    }
+
+    remotePeekNext(block_ptr) {
+        return HakoAllocRemoteFreePolicy.peekNext(block_ptr)
     }
 }

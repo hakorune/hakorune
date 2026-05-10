@@ -60,6 +60,7 @@
 - [x] `293x-097` M45 production allocator port entry plan
 - [x] `293x-098` M46 hako_alloc production facade boundary
 - [x] `293x-099` M47 allocator local page policy proof
+- [x] `293x-100` M48 allocator remote-free policy proof
 
 ## Gates
 

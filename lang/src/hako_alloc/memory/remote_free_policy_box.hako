@@ -1,0 +1,47 @@
+// remote_free_policy_box.hako — hako_alloc remote-free policy seam
+// Responsibility: own allocator remote-free retry policy over substrate atomics.
+// Non-responsibility: implement pointer atomics, native attrs, or allocator metal.
+
+static box HakoAllocRemoteFreePolicy {
+    initHead(head_cell) {
+        return externcall "hako_atomic_ptr_store_ordered"(head_cell, 0, 2)
+    }
+
+    pushRetry(head_cell, block_ptr, interferer_ptr) {
+        local retries = 0
+        local injected = 0
+        local done = 0
+
+        loop (done == 0 && retries < 5) {
+            local old_head = externcall "hako_atomic_ptr_load_ordered"(head_cell, 1)
+            externcall "hako_atomic_ptr_store_ordered"(block_ptr, old_head, 2)
+
+            if injected == 0 && interferer_ptr != 0 {
+                externcall "hako_atomic_ptr_store_ordered"(interferer_ptr, old_head, 2)
+                externcall "hako_atomic_ptr_cas_ordered"(head_cell, old_head, interferer_ptr, 3, 1)
+                injected = 1
+            }
+
+            local observed = externcall "hako_atomic_ptr_cas_ordered"(head_cell, old_head, block_ptr, 3, 1)
+            if observed == old_head {
+                done = 1
+            } else {
+                retries = retries + 1
+            }
+        }
+
+        if done == 1 {
+            return retries
+        }
+
+        return -1
+    }
+
+    peekHead(head_cell) {
+        return externcall "hako_atomic_ptr_load_ordered"(head_cell, 1)
+    }
+
+    peekNext(block_ptr) {
+        return externcall "hako_atomic_ptr_load_ordered"(block_ptr, 1)
+    }
+}

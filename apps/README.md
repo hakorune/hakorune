@@ -120,6 +120,20 @@ bash tools/checks/k2_wide_hako_alloc_local_page_policy_exe_guard.sh
 - oversize reject と double-free reject を public seam 経由で検証
 - remote-free / OSVM page-source / allocator replacement hook はまだ扱わない
 
+#### hako-alloc-remote-free-policy-proof
+**場所**: `hako-alloc-remote-free-policy-proof/main.hako`
+M48 proof。`HakoAllocProductionFacade` 経由で M43 の bounded CAS retry-loop
+remote-free policy を pure-first EXE で固定する。
+
+```bash
+bash tools/checks/k2_wide_hako_alloc_remote_free_policy_exe_guard.sh
+```
+
+**特徴**:
+- facade が `HakoAllocRemoteFreePolicy` へ委譲する public seam を検証
+- pointer store/load/CAS route facts は substrate 所有のまま
+- pointer fetch_add / native pointer attrs / OSVM page-source は追加しない
+
 #### mimalloc-raw-page-proof
 **場所**: `mimalloc-raw-page-proof/main.hako`
 M12 substrate proof。`RawBufCoreBox` と `RawArrayCoreBox` を明示的に使う
@@ -596,6 +610,8 @@ box TreeNode {
 - [x] binary-trees（GC性能測定）
 - [x] mimalloc-lite（allocator-shaped model）
 - [x] hako-alloc-production-facade-proof（M46 production allocator facade boundary）
+- [x] hako-alloc-local-page-policy-proof（M47 local page policy proof）
+- [x] hako-alloc-remote-free-policy-proof（M48 remote-free policy proof）
 - [x] mimalloc-raw-page-proof（M12 substrate proof）
 - [x] mimalloc-size-class-table-proof（M21 static size-class table proof）
 - [x] mimalloc-two-class-page-proof（M22 two-class page proof）

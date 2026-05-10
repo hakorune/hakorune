@@ -111,6 +111,7 @@ list_profiles() {
     - tools/checks/k2_wide_production_allocator_port_entry_plan_guard.sh
     - tools/checks/k2_wide_hako_alloc_production_facade_exe_guard.sh
     - tools/checks/k2_wide_hako_alloc_local_page_policy_exe_guard.sh
+    - tools/checks/k2_wide_hako_alloc_remote_free_policy_exe_guard.sh
     - tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
     - tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
     - tools/checks/k2_wide_metal_keep_inventory_guard.sh
@@ -531,6 +532,9 @@ run_quick() {
 
   run_step "K2-wide hako_alloc local page policy EXE guard" \
     bash tools/checks/k2_wide_hako_alloc_local_page_policy_exe_guard.sh
+
+  run_step "K2-wide hako_alloc remote-free policy EXE guard" \
+    bash tools/checks/k2_wide_hako_alloc_remote_free_policy_exe_guard.sh
 
   run_step "K2-wide hako_alloc handle policy guard" \
     bash tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
