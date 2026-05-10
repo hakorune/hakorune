@@ -113,14 +113,6 @@ if seen != expected:
     fail(f"provider ids mismatch: {sorted(seen)}")
 PY
 
-if rg -n 'native_system_malloc|native_mimalloc|hako_model_allocator|debug_guarded_allocator|AllocatorProvider|ProviderManifest|ProviderBoundary' \
-  src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".provider_symbols 2>&1; then
-  cat /tmp/"$TAG".provider_symbols >&2
-  rm -f /tmp/"$TAG".provider_symbols
-  fail "M65 provider manifest must not become runtime/backend symbols yet"
-fi
-rm -f /tmp/"$TAG".provider_symbols
-
 if rg -n 'hako_alloc_(install|replace)_allocator|allocator_replacement_hook|allocator_hook_activate|activate_allocator|HakoAllocatorReplacementHook|AllocatorReplacementHookBox|AllocatorHookPlan|HookPlan' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".activation_symbols 2>&1; then
   cat /tmp/"$TAG".activation_symbols >&2
@@ -136,5 +128,13 @@ if rg -n '#\[global_allocator\]|GlobalAlloc' \
   fail "process allocator replacement must stay inactive in M65"
 fi
 rm -f /tmp/"$TAG".global_allocator
+
+if rg -n 'AllocatorProviderRegistry|allocator_provider_registry|select_allocator_provider|allocator_provider_select|allocator_provider_selection_env|NYASH_ALLOCATOR_PROVIDER' \
+  src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".provider_selection 2>&1; then
+  cat /tmp/"$TAG".provider_selection >&2
+  rm -f /tmp/"$TAG".provider_selection
+  fail "provider registry/selection implementation must stay absent in M65"
+fi
+rm -f /tmp/"$TAG".provider_selection
 
 echo "[$TAG] ok"

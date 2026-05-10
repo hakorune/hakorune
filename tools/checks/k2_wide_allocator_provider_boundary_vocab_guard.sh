@@ -58,14 +58,6 @@ require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_boundary_vocab_gu
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_boundary_vocab_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_boundary_vocab_guard.sh"
 
-if rg -n 'native_system_malloc|native_mimalloc|hako_model_allocator|debug_guarded_allocator|AllocatorProvider|ProviderBoundary' \
-  src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".provider_symbols 2>&1; then
-  cat /tmp/"$TAG".provider_symbols >&2
-  rm -f /tmp/"$TAG".provider_symbols
-  fail "M64 provider vocabulary must not become runtime/backend symbols yet"
-fi
-rm -f /tmp/"$TAG".provider_symbols
-
 if rg -n 'hako_alloc_(install|replace)_allocator|allocator_replacement_hook|allocator_hook_activate|activate_allocator|HakoAllocatorReplacementHook|AllocatorReplacementHookBox|AllocatorHookPlan|HookPlan' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".activation_symbols 2>&1; then
   cat /tmp/"$TAG".activation_symbols >&2
@@ -81,6 +73,14 @@ if rg -n '#\[global_allocator\]|GlobalAlloc' \
   fail "process allocator replacement must stay inactive in M64"
 fi
 rm -f /tmp/"$TAG".global_allocator
+
+if rg -n 'AllocatorProviderRegistry|allocator_provider_registry|select_allocator_provider|allocator_provider_select|allocator_provider_selection_env|NYASH_ALLOCATOR_PROVIDER' \
+  src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".provider_selection 2>&1; then
+  cat /tmp/"$TAG".provider_selection >&2
+  rm -f /tmp/"$TAG".provider_selection
+  fail "provider registry/selection implementation must stay absent in M64"
+fi
+rm -f /tmp/"$TAG".provider_selection
 
 if rg -n 'HakoAllocProductionFacade|HakoAllocRemoteFreePolicy|HakoAllocPageSourcePolicy|AllocatorReplacement|allocator_replacement|replace_allocator|HookPlan|allocator_hook_activate|activate_allocator|native_mimalloc|native_system_malloc' \
   lang/c-abi/shims >/tmp/"$TAG".inc 2>&1; then

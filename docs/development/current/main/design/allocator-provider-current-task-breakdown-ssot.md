@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: accepted
 Date: 2026-05-10
-Scope: current allocator provider / replacement hook task breakdown after M65.
+Scope: current allocator provider / replacement hook task breakdown after M69.
 Related:
   - docs/development/current/main/design/allocator-provider-boundary-v0-ssot.md
   - docs/development/current/main/design/allocator-provider-manifest-v0-ssot.md
@@ -32,7 +32,7 @@ then and only then consider process allocator replacement
 | M52-M56 | allocator replacement hook boundary, reserved hook plan/proof vocabulary, runtime owner named | complete |
 | M57-M61 | diagnostic-only dry-run runtime validator, manifest text callsite, test surface, proof validator, CLI surface | complete |
 | M62-M63 | activation preflight boundary and diagnostic preflight facts/report | complete |
-| M64-M65 | provider ids and reserved provider manifest fixture | complete |
+| M64-M69 | provider ids, reserved provider manifest fixture, diagnostic parser, explicit CLI surface, and readiness preflight facts | complete |
 
 ## Layer Model
 
@@ -114,6 +114,6 @@ Every next row should land as:
 
 ## Next Step
 
-M67 may add a diagnostic-only parser for caller-provided
-`allocator_provider_manifest_v0` TOML text. It must not read the reserved fixture
-from production code, select a provider, or activate allocator replacement.
+M70 may add a combined hook/provider dry-run report that composes hook plan,
+activation proof, and provider manifest diagnostics. It must not add provider
+selection, implicit manifest discovery, or allocator replacement.

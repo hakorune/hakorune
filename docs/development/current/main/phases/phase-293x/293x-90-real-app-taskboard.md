@@ -79,9 +79,9 @@
 - [x] `293x-116` M64 allocator provider boundary vocabulary
 - [x] `293x-117` M65 allocator provider manifest vocabulary
 - [x] `293x-118` M66 allocator provider task breakdown
-- [ ] `293x-119` M67 allocator provider manifest parser
-- [ ] `293x-120` M68 allocator provider manifest CLI surface
-- [ ] `293x-121` M69 allocator provider readiness preflight shape
+- [x] `293x-119` M67 allocator provider manifest parser
+- [x] `293x-120` M68 allocator provider manifest CLI surface
+- [x] `293x-121` M69 allocator provider readiness preflight shape
 - [ ] `293x-122` M70 combined hook/provider dry-run report
 - [ ] `293x-123` M71 allocator provider registry boundary
 - [ ] `293x-124` M72 hako model provider proof fixture

@@ -3,11 +3,13 @@
  */
 
 mod allocator_hook_dry_run;
+mod allocator_provider_manifest;
 mod args;
 mod groups;
 mod utils;
 
 pub use allocator_hook_dry_run::maybe_run_allocator_hook_dry_run;
+pub use allocator_provider_manifest::maybe_run_allocator_provider_manifest_diagnostic;
 
 /// Command-line configuration structure
 #[derive(Debug, Clone)]
@@ -76,6 +78,7 @@ pub struct CliConfig {
     pub allocator_hook_dry_run: bool,
     pub allocator_hook_dry_run_plan: Option<String>,
     pub allocator_hook_dry_run_proof: Option<String>,
+    pub allocator_provider_manifest: Option<String>,
     // Phase 288 P1: REPL mode
     pub repl: bool,
 }
@@ -232,6 +235,7 @@ impl Default for CliConfig {
             allocator_hook_dry_run: false,
             allocator_hook_dry_run_plan: None,
             allocator_hook_dry_run_proof: None,
+            allocator_provider_manifest: None,
             // Phase 288 P1: REPL mode
             repl: false,
         }

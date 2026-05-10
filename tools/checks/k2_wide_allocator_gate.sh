@@ -70,6 +70,9 @@ if [[ "${1:-}" == "--list" ]]; then
   - tools/checks/k2_wide_allocator_provider_boundary_vocab_guard.sh
   - tools/checks/k2_wide_allocator_provider_manifest_vocab_guard.sh
   - tools/checks/k2_wide_allocator_provider_task_breakdown_guard.sh
+  - tools/checks/k2_wide_allocator_provider_manifest_parser_guard.sh
+  - tools/checks/k2_wide_allocator_provider_manifest_cli_surface_guard.sh
+  - tools/checks/k2_wide_allocator_provider_readiness_preflight_guard.sh
 LIST
   exit 0
 fi
@@ -241,3 +244,12 @@ run_step "allocator provider manifest vocab guard" \
 
 run_step "allocator provider task breakdown guard" \
   bash tools/checks/k2_wide_allocator_provider_task_breakdown_guard.sh
+
+run_step "allocator provider manifest parser guard" \
+  bash tools/checks/k2_wide_allocator_provider_manifest_parser_guard.sh
+
+run_step "allocator provider manifest CLI surface guard" \
+  bash tools/checks/k2_wide_allocator_provider_manifest_cli_surface_guard.sh
+
+run_step "allocator provider readiness preflight guard" \
+  bash tools/checks/k2_wide_allocator_provider_readiness_preflight_guard.sh

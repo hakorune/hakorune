@@ -131,6 +131,17 @@ pub fn build_command() -> Command {
         .arg(Arg::new("allocator-hook-dry-run").long("allocator-hook-dry-run").help("[Diagnostic] Validate explicit allocator hook plan/proof TOML without activating hooks").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("allocator-hook-plan").long("allocator-hook-plan").value_name("FILE").help("[Diagnostic] Allocator hook plan TOML for --allocator-hook-dry-run"))
         .arg(Arg::new("allocator-hook-proof").long("allocator-hook-proof").value_name("FILE").help("[Diagnostic] Allocator hook activation proof TOML for --allocator-hook-dry-run"))
+        .arg(
+            Arg::new("allocator-provider-manifest")
+                .long("allocator-provider-manifest")
+                .value_name("FILE")
+                .help("[Diagnostic] Validate explicit allocator provider manifest TOML without selecting a provider")
+                .conflicts_with_all([
+                    "allocator-hook-dry-run",
+                    "allocator-hook-plan",
+                    "allocator-hook-proof",
+                ]),
+        )
         .arg(Arg::new("stage3").long("stage3").help("Enable Stage-3 syntax acceptance for selfhost parser").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("ny-compiler-args").long("ny-compiler-args").value_name("ARGS").help("Pass additional args to selfhost child compiler"))
         .arg(Arg::new("using").long("using").value_name("NAME").help("Add a using directive to current session; repeat").action(clap::ArgAction::Append))
@@ -297,6 +308,9 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
         allocator_hook_dry_run: matches.get_flag("allocator-hook-dry-run"),
         allocator_hook_dry_run_plan: matches.get_one::<String>("allocator-hook-plan").cloned(),
         allocator_hook_dry_run_proof: matches.get_one::<String>("allocator-hook-proof").cloned(),
+        allocator_provider_manifest: matches
+            .get_one::<String>("allocator-provider-manifest")
+            .cloned(),
         // Phase 288 P1: REPL mode
         repl: matches.get_flag("repl"),
     };
@@ -559,6 +573,37 @@ mod tests {
         assert_eq!(
             cfg.allocator_hook_dry_run_proof.as_deref(),
             Some("/tmp/proof.toml")
+        );
+    }
+
+    #[test]
+    fn allocator_provider_manifest_cli_route_parses() {
+        let matches = build_command()
+            .try_get_matches_from([
+                "hakorune",
+                "--allocator-provider-manifest",
+                "/tmp/provider.toml",
+            ])
+            .expect("allocator provider manifest args should parse");
+
+        let cfg = from_matches(&matches);
+        assert_eq!(
+            cfg.allocator_provider_manifest.as_deref(),
+            Some("/tmp/provider.toml")
+        );
+    }
+
+    #[test]
+    fn allocator_provider_manifest_conflicts_with_hook_dry_run() {
+        let result = build_command().try_get_matches_from([
+            "hakorune",
+            "--allocator-provider-manifest",
+            "/tmp/provider.toml",
+            "--allocator-hook-dry-run",
+        ]);
+        assert!(
+            result.is_err(),
+            "provider manifest diagnostic must not share one invocation with hook dry-run"
         );
     }
 }

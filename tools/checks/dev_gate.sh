@@ -131,6 +131,9 @@ list_profiles() {
     - tools/checks/k2_wide_allocator_provider_boundary_vocab_guard.sh
     - tools/checks/k2_wide_allocator_provider_manifest_vocab_guard.sh
     - tools/checks/k2_wide_allocator_provider_task_breakdown_guard.sh
+    - tools/checks/k2_wide_allocator_provider_manifest_parser_guard.sh
+    - tools/checks/k2_wide_allocator_provider_manifest_cli_surface_guard.sh
+    - tools/checks/k2_wide_allocator_provider_readiness_preflight_guard.sh
     - tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
     - tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
     - tools/checks/k2_wide_metal_keep_inventory_guard.sh

@@ -115,6 +115,9 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_allocator_provider_boundary_vocab_guard.sh` | M64 の allocator provider boundary vocabulary を固定し、provider ids と provider registry/selection/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_manifest_vocab_guard.sh` | M65 の allocator provider manifest vocabulary を固定し、reserved provider TOML fixture と runtime parser/registry/selection 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_task_breakdown_guard.sh` | M66 の allocator provider task breakdown を固定し、M67-M75 task ladder と provider/replacement inactive stop line を検証する。 |
+| `tools/checks/k2_wide_allocator_provider_manifest_parser_guard.sh` | M67 の allocator provider manifest diagnostic parser を固定し、caller-provided TOML text parser/report と provider registry/selection/replacement 不在を検証する。 |
+| `tools/checks/k2_wide_allocator_provider_manifest_cli_surface_guard.sh` | M68 の allocator provider manifest CLI surface を固定し、明示 provider manifest file diagnostic と env/implicit discovery/selection/replacement 不在を検証する。 |
+| `tools/checks/k2_wide_allocator_provider_readiness_preflight_guard.sh` | M69 の allocator provider readiness preflight shape を固定し、provider manifest readiness と hook activation preflight diagnostics の接続、および selection/activation/replacement 不在を検証する。 |
 
 ## Env Hygiene
 

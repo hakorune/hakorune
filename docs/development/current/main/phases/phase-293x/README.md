@@ -237,6 +237,15 @@ inference for the allocator release path.
   keeping runtime parser/registry/selection/replacement inactive.
 - `293x-118`: M66 allocator provider task breakdown landed, adding a readable
   M52-M65 checkpoint and M67-M75 task ladder.
-- Next: M67 may add a diagnostic-only provider manifest parser for
-  caller-provided TOML text, but process allocator replacement remains blocked
-  until a separate activation row proves safety.
+- `293x-119`: M67 allocator provider manifest parser landed, adding a
+  diagnostic-only runtime parser/report for caller-provided provider manifest
+  TOML text while keeping provider selection and allocator replacement inactive.
+- `293x-120`: M68 allocator provider manifest CLI surface landed, exposing an
+  explicit provider manifest file diagnostic without env toggles, implicit
+  discovery, runner ownership, provider selection, or replacement.
+- `293x-121`: M69 allocator provider readiness preflight shape landed, tying
+  provider manifest readiness to hook activation preflight diagnostics while
+  keeping provider selection and activation false.
+- Next: M70 may add a combined hook/provider dry-run report, but process
+  allocator replacement remains blocked until a separate activation row proves
+  safety.

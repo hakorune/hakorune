@@ -156,9 +156,9 @@ them into MIR-owned plan facts.
 | `M64 allocator provider boundary vocabulary` | `live-docs` | provider boundary vocabulary | reserves provider ids for system allocator, mimalloc, hako model, and guarded debug providers while keeping provider registry, selection, and replacement inactive |
 | `M65 allocator provider manifest vocabulary` | `live-docs` | provider manifest vocabulary | adds reserved provider manifest TOML fixture for the M64 provider ids while keeping runtime parser, provider registry, selection, and replacement inactive |
 | `M66 allocator provider task breakdown` | `live-docs` | task breakdown | adds a readable task ladder for M52-M65 completion and M67-M75 next rows without runtime/provider activation |
-| `M67 allocator provider manifest parser` | `planned` | diagnostic parser | parse caller-provided provider manifest TOML into a diagnostic report; no file discovery, provider selection, or replacement |
-| `M68 allocator provider manifest CLI surface` | `planned` | diagnostic CLI surface | expose explicit provider manifest dry-run diagnostics; no env toggles or implicit discovery |
-| `M69 allocator provider readiness preflight shape` | `planned` | provider readiness data shape | connect provider readiness facts to activation preflight diagnostics while keeping `would_activate=false` |
+| `M67 allocator provider manifest parser` | `live-narrow` | diagnostic parser | parse caller-provided provider manifest TOML into a diagnostic report; no file discovery, provider selection, or replacement |
+| `M68 allocator provider manifest CLI surface` | `live-narrow` | diagnostic CLI surface | exposes explicit provider manifest file diagnostics without env toggles, implicit discovery, runner ownership, provider selection, or replacement |
+| `M69 allocator provider readiness preflight shape` | `live-narrow` | provider readiness data shape | connects provider manifest readiness to activation preflight diagnostics while keeping `would_select_provider=false` and `would_activate=false` |
 | `M70 combined hook/provider dry-run report` | `planned` | combined diagnostic report | combine hook plan, activation proof, and provider manifest diagnostics; no process allocator replacement |
 | `M71 allocator provider registry boundary` | `planned` | registry boundary docs | name provider registry ownership/API and stop line before implementation |
 | `M72 hako model provider proof fixture` | `planned` | model provider proof | validate `.hako` policy/model provider behavior without native metal activation |
