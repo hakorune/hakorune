@@ -124,6 +124,7 @@ list_profiles() {
     - tools/checks/k2_wide_allocator_hook_runtime_dry_run_code_guard.sh
     - tools/checks/k2_wide_allocator_hook_dry_run_manifest_callsite_guard.sh
     - tools/checks/k2_wide_allocator_hook_dry_run_test_surface_guard.sh
+    - tools/checks/k2_wide_allocator_hook_activation_proof_validator_guard.sh
     - tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
     - tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
     - tools/checks/k2_wide_metal_keep_inventory_guard.sh
