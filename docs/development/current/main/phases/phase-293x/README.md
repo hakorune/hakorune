@@ -258,6 +258,9 @@ inference for the allocator release path.
 - `293x-125`: M73 debug guarded provider proof fixture landed, reserving the
   guarded-provider diagnostic proof shape while keeping provider selection,
   hook activation, and allocator replacement inactive.
-- Next: M74 may add a native system provider proof boundary, but
-  `#[global_allocator]`, active registry implementation, provider selection,
-  and process allocator replacement remain blocked.
+- `293x-126`: M74 native system provider proof boundary landed, reserving the
+  system allocator ABI proof shape while keeping `#[global_allocator]`,
+  provider selection, hook activation, and allocator replacement inactive.
+- Next: M75 may add a native mimalloc provider proof boundary, but production
+  activation, `#[global_allocator]`, active registry implementation, provider
+  selection, and process allocator replacement remain blocked.

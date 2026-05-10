@@ -1,0 +1,30 @@
+# Reserved schema fixture only. Runtime/backend code must not consume this file.
+schema_version = "allocator_provider_native_system_proof_v0"
+status = "reserved"
+active = false
+provider_id = "native_system_malloc"
+provider_kind = "native_system_allocator"
+manifest_schema = "allocator_provider_manifest_v0"
+provider_selection = "inactive"
+diagnostic = "[allocator-provider/native-system-proof-missing]"
+would_select_provider = false
+would_activate = false
+activation = "future_row_required"
+
+operations = ["alloc", "realloc", "free"]
+
+required_native_system_proofs = [
+  "explicit_provider_manifest_fact",
+  "provider_readiness_preflight_ready",
+  "combined_dry_run_ready",
+  "system_allocator_abi_surface_named",
+  "malloc_realloc_free_contract_named",
+  "oom_failure_policy_named",
+  "bootstrap_allocation_path_named",
+  "no_global_allocator_attribute",
+  "no_process_allocator_replacement",
+  "no_runtime_hook_activation",
+  "no_hidden_environment_toggle",
+  "no_app_or_facade_name_matching",
+  "fail_fast_diagnostic_named",
+]

@@ -2,13 +2,14 @@
 Status: SSOT
 Decision: accepted
 Date: 2026-05-10
-Scope: current allocator provider / replacement hook task breakdown after M73.
+Scope: current allocator provider / replacement hook task breakdown after M74.
 Related:
   - docs/development/current/main/design/allocator-provider-boundary-v0-ssot.md
   - docs/development/current/main/design/allocator-provider-manifest-v0-ssot.md
   - docs/development/current/main/design/allocator-hook-activation-preflight-shape-ssot.md
   - docs/development/current/main/design/allocator-provider-hako-model-proof-ssot.md
   - docs/development/current/main/design/allocator-provider-debug-guarded-proof-ssot.md
+  - docs/development/current/main/design/allocator-provider-native-system-proof-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
 ---
 
@@ -34,7 +35,7 @@ then and only then consider process allocator replacement
 | M52-M56 | allocator replacement hook boundary, reserved hook plan/proof vocabulary, runtime owner named | complete |
 | M57-M61 | diagnostic-only dry-run runtime validator, manifest text callsite, test surface, proof validator, CLI surface | complete |
 | M62-M63 | activation preflight boundary and diagnostic preflight facts/report | complete |
-| M64-M73 | provider ids, reserved provider manifest fixture, diagnostic parser, explicit CLI surface, readiness preflight facts, combined hook/provider dry-run report, registry boundary docs, hako model provider proof fixture, and debug guarded provider proof fixture | complete |
+| M64-M74 | provider ids, reserved provider manifest fixture, diagnostic parser, explicit CLI surface, readiness preflight facts, combined hook/provider dry-run report, registry boundary docs, hako model provider proof fixture, debug guarded provider proof fixture, and native system provider proof boundary | complete |
 
 ## Layer Model
 
@@ -117,6 +118,7 @@ Every next row should land as:
 
 ## Next Step
 
-M74 may add a native system provider proof boundary. It must not add
-`#[global_allocator]`, process allocator replacement, active registry
-implementation, provider selection, or implicit manifest discovery.
+M75 may add a native mimalloc provider proof boundary. It must not add
+production activation, `#[global_allocator]`, process allocator replacement,
+active registry implementation, provider selection, or implicit manifest
+discovery.

@@ -138,6 +138,7 @@ list_profiles() {
     - tools/checks/k2_wide_allocator_provider_registry_boundary_guard.sh
     - tools/checks/k2_wide_allocator_provider_hako_model_proof_guard.sh
     - tools/checks/k2_wide_allocator_provider_debug_guarded_proof_guard.sh
+    - tools/checks/k2_wide_allocator_provider_native_system_proof_guard.sh
     - tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
     - tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
     - tools/checks/k2_wide_metal_keep_inventory_guard.sh
