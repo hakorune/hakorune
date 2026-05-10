@@ -54,7 +54,6 @@ require_text "$TASKBOARD" '| `M64 allocator provider boundary vocabulary` | `liv
 require_text "$TASKBOARD" '87. `M64 allocator provider boundary vocabulary`'
 require_text "$PHASE_README" '`293x-116`'
 require_text "$REAL_APP_TASKBOARD" '`293x-116` M64 allocator provider boundary vocabulary'
-require_text "$CURRENT_STATE" 'latest_card = "293x-116-M64-ALLOCATOR-PROVIDER-BOUNDARY-VOCAB"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_boundary_vocab_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_boundary_vocab_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_boundary_vocab_guard.sh"

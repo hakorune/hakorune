@@ -232,6 +232,9 @@ inference for the allocator release path.
 - `293x-116`: M64 allocator provider boundary vocabulary landed, reserving
   provider ids for system allocator, mimalloc, hako model, and guarded debug
   providers while keeping provider registry/selection/replacement inactive.
-- Next: a reserved provider manifest fixture or diagnostic-only provider parser
-  may be added, but process allocator replacement remains blocked until a
-  separate activation row proves safety.
+- `293x-117`: M65 allocator provider manifest vocabulary landed, adding a
+  reserved provider manifest TOML fixture for the M64 provider ids while
+  keeping runtime parser/registry/selection/replacement inactive.
+- Next: a diagnostic-only provider parser may be added for caller-provided TOML
+  text, but process allocator replacement remains blocked until a separate
+  activation row proves safety.

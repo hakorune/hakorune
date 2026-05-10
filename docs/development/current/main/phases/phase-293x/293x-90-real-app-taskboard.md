@@ -77,6 +77,7 @@
 - [x] `293x-114` M62 allocator hook activation preflight boundary
 - [x] `293x-115` M63 allocator hook activation preflight shape
 - [x] `293x-116` M64 allocator provider boundary vocabulary
+- [x] `293x-117` M65 allocator provider manifest vocabulary
 
 ## Gates
 

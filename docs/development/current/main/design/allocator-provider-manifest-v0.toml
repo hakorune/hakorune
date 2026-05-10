@@ -1,0 +1,38 @@
+# Reserved schema fixture only. Runtime/backend code must not consume this file.
+schema_version = "allocator_provider_manifest_v0"
+status = "reserved"
+active = false
+provider_selection = "inactive"
+activation = "future_row_required"
+
+[[providers]]
+provider_id = "native_system_malloc"
+provider_kind = "native_system_allocator"
+role = "diagnostic_system_allocator_provider"
+state = "reserved"
+operations = ["alloc", "realloc", "free"]
+activation = "future_row_required"
+
+[[providers]]
+provider_id = "native_mimalloc"
+provider_kind = "native_mimalloc_allocator"
+role = "future_production_metal_provider"
+state = "reserved"
+operations = ["alloc", "realloc", "free", "page_reserve", "page_commit", "page_decommit"]
+activation = "future_row_required"
+
+[[providers]]
+provider_id = "hako_model_allocator"
+provider_kind = "hako_policy_model"
+role = "policy_state_validation_provider"
+state = "reserved"
+operations = ["model_alloc", "model_free", "stats", "stress_validate"]
+activation = "future_row_required"
+
+[[providers]]
+provider_id = "debug_guarded_allocator"
+provider_kind = "debug_guarded_provider"
+role = "debug_lifecycle_bounds_provider"
+state = "reserved"
+operations = ["alloc", "realloc", "free", "guard_check", "leak_check"]
+activation = "future_row_required"
