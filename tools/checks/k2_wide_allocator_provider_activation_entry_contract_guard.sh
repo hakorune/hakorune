@@ -12,7 +12,6 @@ TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ss
 CARD="docs/development/current/main/phases/phase-293x/293x-128-M76-ALLOCATOR-PROVIDER-ACTIVATION-ENTRY-CONTRACT.md"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
-CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
@@ -43,7 +42,6 @@ require_file "$TASKBOARD"
 require_file "$CARD"
 require_file "$PHASE_README"
 require_file "$REAL_APP_TASKBOARD"
-require_file "$CURRENT_STATE"
 require_file "$INDEX"
 require_file "$DEV_GATE"
 require_file "$ALLOCATOR_GROUP"
@@ -63,8 +61,6 @@ require_text "$TASKBOARD" '| `M76 allocator provider activation entry contract` 
 require_text "$TASKBOARD" '99. `M76 allocator provider activation entry contract`'
 require_text "$PHASE_README" '`293x-128`'
 require_text "$REAL_APP_TASKBOARD" '[x] `293x-128` M76 allocator provider activation entry contract'
-require_text "$CURRENT_STATE" 'latest_card = "293x-128-M76-ALLOCATOR-PROVIDER-ACTIVATION-ENTRY-CONTRACT"'
-require_text "$CURRENT_STATE" 'latest_card_path = "docs/development/current/main/phases/phase-293x/293x-128-M76-ALLOCATOR-PROVIDER-ACTIVATION-ENTRY-CONTRACT.md"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_activation_entry_contract_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_activation_entry_contract_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_activation_entry_contract_guard.sh"

@@ -166,6 +166,7 @@ them into MIR-owned plan facts.
 | `M74 native system provider proof boundary` | `live-docs` | native system provider boundary | adds a reserved native system provider proof boundary while keeping `#[global_allocator]`, provider selection, and replacement inactive |
 | `M75 native mimalloc provider proof boundary` | `live-docs` | native mimalloc provider boundary | adds a reserved native mimalloc provider proof boundary while keeping production activation, provider selection, and replacement inactive |
 | `M76 allocator provider activation entry contract` | `live-docs` | activation entry contract | names future registry/selection ownership, proof consumption, fail-fast diagnostics, and rollback behavior while keeping runtime registry code, activation, and replacement inactive |
+| `M77 allocator provider registry snapshot` | `live-docs` | registry snapshot shape | adds a reserved registry snapshot fixture with provider entries and missing diagnostics while keeping runtime registry code, provider selection, and replacement inactive |
 
 ## Fixed Implementation Order
 
@@ -268,6 +269,7 @@ them into MIR-owned plan facts.
 97. `M74 native system provider proof boundary`
 98. `M75 native mimalloc provider proof boundary`
 99. `M76 allocator provider activation entry contract`
+100. `M77 allocator provider registry snapshot`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed

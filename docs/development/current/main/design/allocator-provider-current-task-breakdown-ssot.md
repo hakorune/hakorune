@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-native-system-proof-ssot.md
   - docs/development/current/main/design/allocator-provider-native-mimalloc-proof-ssot.md
   - docs/development/current/main/design/allocator-provider-activation-entry-contract-ssot.md
+  - docs/development/current/main/design/allocator-provider-registry-snapshot-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
 ---
 
@@ -39,6 +40,7 @@ then and only then consider process allocator replacement
 | M62-M63 | activation preflight boundary and diagnostic preflight facts/report | complete |
 | M64-M75 | provider ids, reserved provider manifest fixture, diagnostic parser, explicit CLI surface, readiness preflight facts, combined hook/provider dry-run report, registry boundary docs, hako model provider proof fixture, debug guarded provider proof fixture, native system provider proof boundary, and native mimalloc provider proof boundary | complete |
 | M76 | activation entry contract naming registry/selection ownership, proof consumption, fail-fast diagnostics, rollback behavior, and the next activation task ladder | complete |
+| M77 | registry snapshot diagnostic shape fixing reserved provider entries and registry snapshot facts | complete |
 
 ## Layer Model
 
@@ -74,6 +76,7 @@ activation entry:
 | M74 | native system provider proof boundary | system provider contract docs/fixture | `#[global_allocator]` |
 | M75 | native mimalloc provider proof boundary | mimalloc provider contract docs/fixture | production activation |
 | M76 | activation entry contract | reserved activation entry fixture naming ownership/proof/rollback facts | runtime registry code |
+| M77 | registry snapshot diagnostic shape | reserved registry snapshot fixture with provider entries | provider selection |
 
 ## Post-M75 Activation Entry Ladder
 
@@ -137,7 +140,8 @@ Every next row should land as:
 ## Next Step
 
 Provider proof boundary ladder is now closed through M75. M76 opens the
-activation entry contract without runtime registry code. The next safe row is
-M77 registry snapshot diagnostic shape. It must not silently enable production
-activation, `#[global_allocator]`, process allocator replacement, environment
-discovery, or `.inc` name matching.
+activation entry contract and M77 fixes the reserved registry snapshot shape
+without runtime registry code. The next safe row is M78 selection decision diagnostic shape.
+It must not silently enable production activation,
+`#[global_allocator]`, process allocator replacement, environment discovery, or
+`.inc` name matching.

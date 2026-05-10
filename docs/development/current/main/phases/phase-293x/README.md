@@ -270,7 +270,10 @@ inference for the allocator release path.
   activation proof consumption, provider proof consumption, rollback behavior,
   and a dedicated guard while keeping runtime registry code, provider
   selection, hook activation, and allocator replacement inactive.
-- Next: M77 registry snapshot diagnostic shape. It must stay caller-provided
-  and diagnostic-only: no provider selection, environment discovery,
-  implicit manifest discovery, hook activation, or process allocator
-  replacement.
+- `293x-129`: M77 allocator provider registry snapshot landed, fixing the
+  reserved provider-entry snapshot shape and registry missing diagnostics while
+  keeping runtime registry code, provider selection, hook activation, and
+  allocator replacement inactive.
+- Next: M78 selection decision diagnostic shape. It must stay caller-provided
+  and diagnostic-only: no environment discovery, implicit manifest discovery,
+  hook activation, `#[global_allocator]`, or process allocator replacement.

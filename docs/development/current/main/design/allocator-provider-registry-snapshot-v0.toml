@@ -1,0 +1,59 @@
+# Reserved schema fixture only. Runtime/backend code must not consume this file.
+schema_version = "allocator_provider_registry_snapshot_v0"
+status = "reserved"
+active = false
+registry_owner = "src/runtime/allocator_provider_registry.rs"
+provider_manifest_input = "allocator_provider_manifest_report"
+provider_readiness_input = "allocator_provider_readiness_preflight_report"
+provider_selection = "inactive"
+would_build_registry = false
+would_select_provider = false
+would_activate = false
+activation = "future_row_required"
+diagnostic = "[allocator-provider/registry-snapshot-missing]"
+missing_provider_diagnostic = "[allocator-provider/registry-provider-missing]"
+missing_capability_diagnostic = "[allocator-provider/registry-capability-missing]"
+
+required_registry_snapshot_facts = [
+  "provider_manifest_ready",
+  "provider_readiness_preflight_ready",
+  "provider_entries_nonempty",
+  "provider_ids_reserved_set",
+  "provider_operations_nonempty",
+  "registry_owner_named",
+  "no_hidden_environment_toggle",
+  "no_implicit_manifest_discovery",
+  "no_app_or_facade_name_matching",
+]
+
+[[entries]]
+provider_id = "native_system_malloc"
+provider_kind = "native_system_allocator"
+role = "diagnostic_system_allocator_provider"
+state = "reserved"
+operations = ["alloc", "realloc", "free"]
+activation = "future_row_required"
+
+[[entries]]
+provider_id = "native_mimalloc"
+provider_kind = "native_mimalloc_allocator"
+role = "future_production_metal_provider"
+state = "reserved"
+operations = ["alloc", "realloc", "free", "page_reserve", "page_commit", "page_decommit"]
+activation = "future_row_required"
+
+[[entries]]
+provider_id = "hako_model_allocator"
+provider_kind = "hako_policy_model"
+role = "policy_state_validation_provider"
+state = "reserved"
+operations = ["model_alloc", "model_free", "stats", "stress_validate"]
+activation = "future_row_required"
+
+[[entries]]
+provider_id = "debug_guarded_allocator"
+provider_kind = "debug_guarded_provider"
+role = "debug_lifecycle_bounds_provider"
+state = "reserved"
+operations = ["alloc", "realloc", "free", "guard_check", "leak_check"]
+activation = "future_row_required"
