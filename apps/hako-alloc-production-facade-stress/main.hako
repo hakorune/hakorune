@@ -1,0 +1,85 @@
+// hako-alloc-production-facade-stress
+// Purpose: run allocator-stress shape through HakoAllocProductionFacade.
+
+using selfhost.hako_alloc.memory.allocator_facade_box as HakoAllocFacade
+
+box HakoAllocProductionFacadeStress {
+    run() {
+        local alloc = new HakoAllocProductionFacade()
+        local small_handles = new ArrayBox()
+        local medium_handles = new ArrayBox()
+
+        local i = 0
+        loop(i < 8) {
+            small_handles.push(alloc.allocate(1 + (i * 4)))
+            i = i + 1
+        }
+
+        local small_overflow = alloc.allocate(32)
+
+        alloc.release(small_handles.get(1))
+        alloc.release(small_handles.get(3))
+        alloc.release(small_handles.get(5))
+
+        local double_free = alloc.release(small_handles.get(1))
+
+        small_handles.push(alloc.allocate(6))
+        small_handles.push(alloc.allocate(10))
+        small_handles.push(alloc.allocate(14))
+
+        medium_handles.push(alloc.allocate(40))
+        medium_handles.push(alloc.allocate(48))
+        medium_handles.push(alloc.allocate(56))
+        medium_handles.push(alloc.allocate(64))
+
+        local medium_overflow = alloc.allocate(48)
+
+        alloc.release(medium_handles.get(0))
+        alloc.release(medium_handles.get(2))
+
+        medium_handles.push(alloc.allocate(52))
+        medium_handles.push(alloc.allocate(44))
+
+        local oversize = alloc.allocate(72)
+
+        local small_allocs = alloc.smallAllocCount()
+        local small_frees = alloc.smallReleaseCount()
+        local small_reused = alloc.smallReuseCount()
+        local small_peak = alloc.smallPeakUsed()
+        local small_free = alloc.smallFreeCount()
+        local medium_allocs = alloc.mediumAllocCount()
+        local medium_frees = alloc.mediumReleaseCount()
+        local medium_reused = alloc.mediumReuseCount()
+        local medium_peak = alloc.mediumPeakUsed()
+        local medium_free = alloc.mediumFreeCount()
+        local total_allocs = alloc.alloc_count
+        local total_frees = alloc.free_count
+        local total_rejects = alloc.reject_count
+        local rejects = total_rejects
+        local requested_bytes = alloc.requestedBytes()
+        local outstanding = alloc.outstandingBlocks()
+
+        print("hako-alloc-production-facade-stress")
+        print("small_allocs=" + small_allocs + " frees=" + small_frees + " reused=" + small_reused + " peak=" + small_peak + " free=" + small_free)
+        print("medium_allocs=" + medium_allocs + " frees=" + medium_frees + " reused=" + medium_reused + " peak=" + medium_peak + " free=" + medium_free)
+        print("facade=" + total_allocs + "," + total_frees + "," + total_rejects)
+        print("requested_bytes=" + requested_bytes)
+        print("outstanding=" + outstanding)
+        print("rejects=" + rejects)
+
+        if small_allocs == 11 && small_frees == 3 && small_reused == 3 && small_peak == 8 && small_free == 0 && medium_allocs == 6 && medium_frees == 2 && medium_reused == 2 && medium_peak == 4 && medium_free == 0 && total_allocs == 17 && total_frees == 5 && total_rejects == 4 && requested_bytes == 454 && outstanding == 12 && rejects == 4 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
+
+static box Main {
+    main(args) {
+        local stress = new HakoAllocProductionFacadeStress()
+        return stress.run()
+    }
+}

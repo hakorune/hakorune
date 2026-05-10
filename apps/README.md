@@ -148,6 +148,20 @@ bash tools/checks/k2_wide_hako_alloc_page_source_policy_exe_guard.sh
 - OSVM route facts は `OsVmCoreBox` / substrate 所有のまま
 - OSVM unreserve/release / allocator replacement hook / native attrs は追加しない
 
+#### hako-alloc-production-facade-stress
+**場所**: `hako-alloc-production-facade-stress/main.hako`
+M50 proof。既存 `allocator-stress` の small/medium saturation・reuse・reject
+accounting shape を `HakoAllocProductionFacade` 経由で pure-first EXE 固定する。
+
+```bash
+bash tools/checks/k2_wide_hako_alloc_production_facade_stress_exe_guard.sh
+```
+
+**特徴**:
+- app から `HakoAllocHeap` / `HakoAllocPage` を直接触らない
+- facade 経由で既存 allocator-stress と同じ deterministic accounting を検証
+- allocator replacement hook / pointer fetch_add / native attrs は追加しない
+
 #### mimalloc-raw-page-proof
 **場所**: `mimalloc-raw-page-proof/main.hako`
 M12 substrate proof。`RawBufCoreBox` と `RawArrayCoreBox` を明示的に使う
@@ -627,6 +641,7 @@ box TreeNode {
 - [x] hako-alloc-local-page-policy-proof（M47 local page policy proof）
 - [x] hako-alloc-remote-free-policy-proof（M48 remote-free policy proof）
 - [x] hako-alloc-page-source-policy-proof（M49 OSVM page-source proof）
+- [x] hako-alloc-production-facade-stress（M50 production facade stress parity）
 - [x] mimalloc-raw-page-proof（M12 substrate proof）
 - [x] mimalloc-size-class-table-proof（M21 static size-class table proof）
 - [x] mimalloc-two-class-page-proof（M22 two-class page proof）

@@ -191,5 +191,8 @@ inference for the allocator release path.
 - `293x-101`: M49 allocator OSVM page-source proof landed, composing
   reserve/commit/decommit through `HakoAllocPageSourcePolicy` behind the
   production facade while keeping OSVM metal in substrate/native keep.
-- Next: M50 allocator stress production-facade parity; keep future blockers as
+- `293x-102`: M50 allocator stress production-facade parity landed, adding
+  production-facade stress coverage while keeping `apps/allocator-stress` as
+  lower-seam regression coverage.
+- Next: M51 production allocator port closeout guard; keep future blockers as
   compiler/runtime seams and do not hide them in app code.

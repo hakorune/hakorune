@@ -57,8 +57,40 @@ box HakoAllocProductionFacade {
         return me.heap.small_page.freeCount()
     }
 
+    smallAllocCount() {
+        return me.heap.small_page.alloc_count
+    }
+
+    smallReleaseCount() {
+        return me.heap.small_page.free_count
+    }
+
+    smallReuseCount() {
+        return me.heap.small_page.reuse_count
+    }
+
+    smallPeakUsed() {
+        return me.heap.small_page.peak_used
+    }
+
     mediumFreeCount() {
         return me.heap.medium_page.freeCount()
+    }
+
+    mediumAllocCount() {
+        return me.heap.medium_page.alloc_count
+    }
+
+    mediumReleaseCount() {
+        return me.heap.medium_page.free_count
+    }
+
+    mediumReuseCount() {
+        return me.heap.medium_page.reuse_count
+    }
+
+    mediumPeakUsed() {
+        return me.heap.medium_page.peak_used
     }
 
     remoteInitHead(head_cell) {
