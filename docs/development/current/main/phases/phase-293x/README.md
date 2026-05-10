@@ -194,5 +194,8 @@ inference for the allocator release path.
 - `293x-102`: M50 allocator stress production-facade parity landed, adding
   production-facade stress coverage while keeping `apps/allocator-stress` as
   lower-seam regression coverage.
-- Next: M51 production allocator port closeout guard; keep future blockers as
+- `293x-103`: M51 production allocator port closeout guard landed, inventorying
+  M46-M50 production allocator port proof coverage and keeping allocator
+  replacement hooks inactive.
+- Next: allocator replacement hook design only after a new SSOT card; keep future blockers as
   compiler/runtime seams and do not hide them in app code.

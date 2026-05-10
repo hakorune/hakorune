@@ -140,7 +140,7 @@ them into MIR-owned plan facts.
 | `M48 allocator remote-free policy proof` | `live-narrow` | allocator policy proof | composes the M43 retry-loop shape behind the production facade while keeping pointer atomics in substrate |
 | `M49 allocator OSVM page-source proof` | `live-narrow` | allocator page-source proof | composes page reserve/commit/decommit rows as a page-source seam without adding unreserve/release rows |
 | `M50 allocator stress production-facade parity` | `live-narrow` | allocator stress app | adds production-facade stress coverage while keeping existing allocator-stress as regression coverage |
-| `M51 production allocator port closeout guard` | `next-card` | regression guard | future split that inventories M46-M50 production allocator port proof coverage before any allocator replacement hook design |
+| `M51 production allocator port closeout guard` | `live-narrow` | regression guard | inventories M46-M50 production allocator port proof coverage before any allocator replacement hook design |
 
 ## Fixed Implementation Order
 
