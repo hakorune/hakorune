@@ -70,6 +70,7 @@
 - [x] `293x-107` M55 allocator hook activation proof
 - [x] `293x-108` M56 allocator hook runtime owner row
 - [x] `293x-109` M57 allocator hook runtime dry-run code
+- [x] `293x-110` M58 allocator hook dry-run manifest callsite
 
 ## Gates
 

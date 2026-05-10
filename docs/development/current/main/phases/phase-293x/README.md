@@ -213,5 +213,7 @@ inference for the allocator release path.
 - `293x-109`: M57 allocator hook runtime dry-run code landed, adding
   diagnostic-only runtime validation that never installs or replaces the process
   allocator.
-- Next: allocator hook dry-run callsite/manifest integration only after a named row; keep future blockers as
+- `293x-110`: M58 allocator hook dry-run manifest callsite landed, feeding
+  reserved HookPlan/proof TOML text into the diagnostic-only runtime validator.
+- Next: allocator hook dry-run CLI/test surface only after a named row; keep future blockers as
   compiler/runtime seams and do not hide them in app code.

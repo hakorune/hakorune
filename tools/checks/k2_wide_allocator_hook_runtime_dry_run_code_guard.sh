@@ -58,7 +58,6 @@ require_text "$TASKBOARD" '| `M57 allocator hook runtime dry-run code` | `live-n
 require_text "$TASKBOARD" '80. `M57 allocator hook runtime dry-run code`'
 require_text "$PHASE_README" '`293x-109`'
 require_text "$REAL_APP_TASKBOARD" '`293x-109` M57 allocator hook runtime dry-run code'
-require_text "$CURRENT_STATE" 'latest_card = "293x-109-M57-ALLOCATOR-HOOK-RUNTIME-DRY-RUN-CODE"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_hook_runtime_dry_run_code_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_hook_runtime_dry_run_code_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_hook_runtime_dry_run_code_guard.sh"
