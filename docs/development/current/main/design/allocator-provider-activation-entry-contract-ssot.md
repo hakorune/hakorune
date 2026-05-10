@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-activation-entry-contract-v0.toml
   - docs/development/current/main/design/allocator-provider-selection-decision-ssot.md
   - docs/development/current/main/design/allocator-provider-proof-bundle-consumption-ssot.md
+  - docs/development/current/main/design/allocator-provider-rollback-preflight-ssot.md
 ---
 
 # Allocator Provider Activation Entry Contract (SSOT)

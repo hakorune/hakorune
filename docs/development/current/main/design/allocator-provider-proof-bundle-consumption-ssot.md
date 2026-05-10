@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-hako-model-proof-ssot.md
   - docs/development/current/main/design/allocator-provider-debug-guarded-proof-ssot.md
   - docs/development/current/main/design/allocator-provider-proof-bundle-consumption-v0.toml
+  - docs/development/current/main/design/allocator-provider-rollback-preflight-ssot.md
 ---
 
 # Allocator Provider Proof Bundle Consumption (SSOT)
@@ -138,9 +139,10 @@ M79 keeps these inactive:
 
 ## Next Row
 
-A later row may consume this fixture only as an explicit diagnostic input to a
-fail-fast implementation. That later row must still choose a single owner for
-registry/selection/proof consumption before any activation code is introduced.
+M80 may consume this fixture only as an explicit diagnostic input to the
+rollback preflight shape. M80 still must not consume proof at runtime, select a
+provider, activate a hook, replace the process allocator, or add implicit
+discovery.
 
 ## Gate
 

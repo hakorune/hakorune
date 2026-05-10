@@ -1,0 +1,139 @@
+# Reserved schema fixture only. Runtime/backend code must not consume this file.
+schema_version = "allocator_provider_rollback_preflight_v0"
+status = "reserved"
+active = false
+rollback_owner = "src/runtime/allocator_provider_registry.rs"
+preflight_input = "caller_provided_diagnostic_preflight"
+activation_entry_input = "allocator_provider_activation_entry_contract"
+registry_snapshot_input = "allocator_provider_registry_snapshot_report"
+selection_decision_input = "allocator_provider_selection_decision_report"
+proof_bundle_input = "allocator_provider_proof_bundle_consumption_report"
+hook_plan_input = "allocator_hook_plan_report"
+hook_activation_preflight_input = "allocator_hook_activation_preflight_report"
+activation_proof_input = "allocator_hook_activation_proof_v0"
+rollback_target_source = "caller_provided_diagnostic_target"
+rollback_target_provider_id = "native_mimalloc"
+current_provider_id = "none_reserved"
+selected_provider_id = "none_reserved"
+provider_selection = "inactive"
+proof_bundle_consumption = "inactive"
+hook_activation = "inactive"
+rollback_preflight = "inactive"
+rollback_status = "reserved_no_rollback"
+would_build_registry = false
+would_select_provider = false
+would_consume_proof_bundle = false
+would_prepare_rollback = false
+would_activate_hook = false
+would_activate = false
+activation = "future_row_required"
+diagnostic = "[allocator-provider/rollback-preflight-missing]"
+missing_preflight_diagnostic = "[allocator-provider/rollback-preflight-missing]"
+missing_input_diagnostic = "[allocator-provider/rollback-input-missing]"
+missing_snapshot_diagnostic = "[allocator-provider/rollback-snapshot-missing]"
+missing_selection_diagnostic = "[allocator-provider/rollback-selection-missing]"
+missing_proof_bundle_diagnostic = "[allocator-provider/rollback-proof-bundle-missing]"
+missing_hook_plan_diagnostic = "[allocator-provider/rollback-hook-plan-missing]"
+missing_activation_preflight_diagnostic = "[allocator-provider/rollback-activation-preflight-missing]"
+missing_activation_proof_diagnostic = "[allocator-provider/rollback-activation-proof-missing]"
+missing_rollback_target_diagnostic = "[allocator-provider/rollback-target-missing]"
+activation_blocked_diagnostic = "[allocator-provider/rollback-activation-blocked]"
+
+required_operations = ["alloc", "realloc", "free"]
+rollback_target_operations = ["alloc", "realloc", "free"]
+candidate_provider_ids = [
+  "native_system_malloc",
+  "native_mimalloc",
+  "hako_model_allocator",
+  "debug_guarded_allocator",
+]
+
+reserved_rollback_facts = [
+  "preflight_input_caller_provided",
+  "activation_entry_contract_ready",
+  "registry_snapshot_ready",
+  "selection_decision_ready",
+  "proof_bundle_ready",
+  "hook_plan_ready",
+  "hook_activation_preflight_ready",
+  "activation_proof_ready",
+  "rollback_target_explicit",
+  "rollback_target_provider_id_explicit",
+  "previous_allocator_state_snapshot_required",
+  "rollback_status_reserved",
+  "rollback_preflight_inactive",
+  "fail_fast_rollback_diagnostic_named",
+  "activation_blocked_until_future_row",
+  "no_hidden_environment_toggle",
+  "no_implicit_manifest_discovery",
+  "no_implicit_proof_discovery",
+  "no_app_or_facade_name_matching",
+  "no_inc_name_matching",
+  "no_runtime_registry_implementation",
+  "no_provider_selection_implementation",
+  "no_proof_consumption_implementation",
+  "no_hook_activation_implementation",
+  "no_global_allocator_attribute",
+  "no_global_alloc_trait",
+  "no_process_allocator_replacement",
+]
+
+[[rollback_inputs]]
+name = "preflight"
+source = "caller_provided_diagnostic_preflight"
+required = true
+missing_diagnostic = "[allocator-provider/rollback-preflight-missing]"
+
+[[rollback_inputs]]
+name = "activation_entry"
+source = "allocator_provider_activation_entry_contract"
+required = true
+missing_diagnostic = "[allocator-provider/rollback-input-missing]"
+
+[[rollback_inputs]]
+name = "input"
+source = "caller_provided_diagnostic_input"
+required = true
+missing_diagnostic = "[allocator-provider/rollback-input-missing]"
+
+[[rollback_inputs]]
+name = "snapshot"
+source = "allocator_provider_registry_snapshot_report"
+required = true
+missing_diagnostic = "[allocator-provider/rollback-snapshot-missing]"
+
+[[rollback_inputs]]
+name = "selection"
+source = "allocator_provider_selection_decision_report"
+required = true
+missing_diagnostic = "[allocator-provider/rollback-selection-missing]"
+
+[[rollback_inputs]]
+name = "proof_bundle"
+source = "allocator_provider_proof_bundle_consumption_report"
+required = true
+missing_diagnostic = "[allocator-provider/rollback-proof-bundle-missing]"
+
+[[rollback_inputs]]
+name = "hook_plan"
+source = "allocator_hook_plan_report"
+required = true
+missing_diagnostic = "[allocator-provider/rollback-hook-plan-missing]"
+
+[[rollback_inputs]]
+name = "activation_preflight"
+source = "allocator_hook_activation_preflight_report"
+required = true
+missing_diagnostic = "[allocator-provider/rollback-activation-preflight-missing]"
+
+[[rollback_inputs]]
+name = "activation_proof"
+source = "allocator_hook_activation_proof_v0"
+required = true
+missing_diagnostic = "[allocator-provider/rollback-activation-proof-missing]"
+
+[[rollback_inputs]]
+name = "rollback_target"
+source = "caller_provided_diagnostic_target"
+required = true
+missing_diagnostic = "[allocator-provider/rollback-target-missing]"

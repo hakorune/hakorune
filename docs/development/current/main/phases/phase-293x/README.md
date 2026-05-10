@@ -281,6 +281,10 @@ inference for the allocator release path.
 - `293x-131`: M79 allocator provider proof bundle consumption landed, fixing
   the reserved proof bundle input/diagnostic shape while keeping runtime proof
   consumption, hook activation, and allocator replacement inactive.
-- Next: M80 rollback preflight contract. It must stay diagnostic-only: no
+- `293x-132`: M80 allocator provider rollback preflight landed, fixing the
+  reserved rollback target facts and activation-blocked diagnostics while
+  keeping rollback preparation, hook activation, and allocator replacement
+  inactive.
+- Next: M81 activation safety gate contract. It must stay diagnostic-only: no
   environment discovery, implicit manifest discovery, hook activation,
   `#[global_allocator]`, or process allocator replacement.

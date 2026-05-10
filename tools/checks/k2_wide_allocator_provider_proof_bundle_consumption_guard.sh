@@ -85,7 +85,6 @@ require_text "$NATIVE_MIMALLOC_PROOF" 'schema_version = "allocator_provider_nati
 require_text "$HAKO_MODEL_PROOF" 'schema_version = "allocator_provider_hako_model_proof_v0"'
 require_text "$DEBUG_GUARDED_PROOF" 'schema_version = "allocator_provider_debug_guarded_proof_v0"'
 require_text "$TASK_BREAKDOWN" "M79 | provider proof bundle consumption"
-require_text "$TASK_BREAKDOWN" "The next safe row is M80 rollback preflight contract."
 require_text "$TASKBOARD" '| `M79 allocator provider proof bundle consumption` | `live-docs` |'
 require_text "$TASKBOARD" '102. `M79 allocator provider proof bundle consumption`'
 require_text "$CARD" "293x-131 M79 Allocator Provider Proof Bundle Consumption"
@@ -93,8 +92,6 @@ require_text "$CARD" "proof_bundle_consumption = \"inactive\""
 require_text "$CARD" "would_consume_proof_bundle = false"
 require_text "$PHASE_README" '`293x-131`'
 require_text "$REAL_APP_TASKBOARD" '[x] `293x-131` M79 allocator provider proof bundle consumption'
-require_text "$CURRENT_STATE" 'latest_card = "293x-131-M79-ALLOCATOR-PROVIDER-PROOF-BUNDLE-CONSUMPTION"'
-require_text "$CURRENT_STATE" 'latest_card_path = "docs/development/current/main/phases/phase-293x/293x-131-M79-ALLOCATOR-PROVIDER-PROOF-BUNDLE-CONSUMPTION.md"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_guard.sh"
