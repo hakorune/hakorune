@@ -263,7 +263,7 @@ print("Sum: " + sum)  # Sum: 60
 
 ### エラーハンドリング
 ```nyash
-try {
+{
     local result = riskyOperation()
 } catch (error) {
     print("Error: " + error.message)

@@ -1,14 +1,23 @@
 Status: SSOT
-Scope: Stage-B JSON v0 bridge execution contract for `fini {}` / `local ... fini {}` / postfix `cleanup`.
+Scope: Stage-B JSON v0 bridge execution contract for canonical `cleanup`,
+legacy `fini {}` / `local ... fini {}`, and postfix `cleanup`.
 Related:
 - `docs/reference/language/scope-exit-semantics.md`
 - `docs/reference/language/lifecycle.md`
 - `src/runner/json_v0_bridge/lowering/scope_exit.rs`
 - `src/runner/json_v0_bridge/lowering/expr/block_expr.rs`
 
-# Fini/Cleanup Execution Contract SSOT
+# Cleanup/Fini Execution Contract SSOT
 
-Purpose: fix one compiler-side contract for DropScope-related execution so parser/runtime/selfhost can share one fail-fast boundary.
+Purpose: fix one compiler-side contract for DropScope-related execution so
+parser/runtime/selfhost can share one fail-fast boundary.
+
+Naming decision:
+- `cleanup` is the canonical scope/block-exit surface.
+- `fini {}` / `local ... fini {}` are legacy DropScope aliases until a parser
+  compatibility row changes them.
+- object `fini()` remains the object lifecycle finalizer and is not lowered as
+  a DropScope handler.
 
 ## 1) Boundary and ownership
 

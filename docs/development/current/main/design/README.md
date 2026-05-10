@@ -170,3 +170,4 @@
 - PlanLowerer entry SSOT（CorePlan→MIR 入口allowlist）: `docs/development/current/main/design/plan-lowering-entry-ssot.md`
 - Builder emit facade SSOT（生emitの層境界/可視性契約）: `docs/development/current/main/design/builder-emit-facade-visibility-ssot.md`
 - Fini/Cleanup execution contract SSOT（Stage-B JSON v0 bridge 実行契約）: `docs/development/current/main/design/fini-cleanup-execution-contract-ssot.md`
+- Scope-exit cleanup canonicalization SSOT（`cleanup` = scope/block exit, `fini()` = object finalizer の表面正本）: `docs/development/current/main/design/scope-exit-surface-cleanup-canonicalization-ssot.md`

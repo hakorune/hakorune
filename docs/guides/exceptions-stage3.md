@@ -5,7 +5,9 @@ Status: Experimental behind gates. Designed to be small, predictable, and PHI‑
 Goals
 - Keep the runtime simple and portable (Rust VM/LLVM/JIT; PyVM is historical opt-in) by avoiding backend‑specific unwinding.
 - Express exceptions via structured control flow (blocks + jumps) in the JSON v0 Bridge.
-- Prefer one `catch` per `try` (single catch), and branch inside the catch for different cases.
+- Prefer postfix `catch/cleanup` over legacy `try`.
+- Prefer one `catch` per protected block/expression, and branch inside the catch for different cases.
+- `cleanup` owns exit timing; object `fini()` owns object finalization.
 
 Enable
 - Parser (Rust): `NYASH_PARSER_STAGE3=1`
@@ -26,6 +28,7 @@ Policy
 - “同じ階層” のブロック内 throw のみ到達。外への自然伝播はしない（必要なら外側ブロックも後置 catch を付与）。
 - MVP 静的検査: 直後に catch のない独立ブロックでの「直接の throw 文」はビルドエラー。
 - 適用対象: 独立ブロック文に限定（if/else/loop ブロック直後には付与しない）。
+- cleanup handler 自体からの `return` / `break` / `continue` / `throw` は canonical ではない。
 
 Lowering（Result‑mode）
 - Parser が後置 catch/cleanup を `TryCatch` に畳み込み（try_body=直前ブロック）。
@@ -100,12 +103,14 @@ box SafeBox {
 Future
 - ブロック先行・メソッド後置 `{ body } method name(..) [catch..] [cleanup..]` は Phase 16.x にて検討。
 
-Syntax (accepted)
+Syntax (legacy accepted)
 - `try { … } catch [(Type x)|(x)|()] { … } cleanup { … }`
 - `throw <expr>`
 
 Policy
 - Single catch only (MVP): Parser may accept multiple, but Bridge uses the first one. Prefer branching inside the catch body.
+- New examples should use block-postfix `{ ... } catch { ... } cleanup { ... }`
+  where possible; `try` is legacy compatibility wording.
 - The thrown value is any Nyash value (string label or ErrorBox recommended). Match inside the catch to handle variants.
 
 Branching patterns inside catch

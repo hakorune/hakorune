@@ -2,8 +2,8 @@
 
 Status: Normative (2026-02).
 
-This page defines the scope-exit lifecycle model around DropScope `fini`, `local ... fini`,
-postfix `catch/cleanup`, and object-level `box.fini()`.
+This page defines the scope-exit lifecycle model around canonical `cleanup`,
+legacy DropScope `fini`, postfix `catch/cleanup`, and object-level `box.fini()`.
 
 ## 0) Scope
 
@@ -18,55 +18,70 @@ This SSOT fixes:
 
 ## 1) Core Surfaces
 
-- `fini { ... }`: registers a scope-exit handler on the current DropScope.
-- `local x = e fini { ... }`: declaration sugar that registers `fini` at the declaration point.
-- `cleanup { ... }`: postfix always-run handler (finally surface) for `try`/block/member handlers.
+- Standalone `cleanup { ... }`: canonical scope-exit handler spelling for the
+  current DropScope. Parser support is phased; until the parser row lands, use
+  the legacy alias below in live source.
+- `local x = e cleanup { ... }`: canonical declaration sugar that registers
+  cleanup at the declaration point. Parser support is phased.
+- `fini { ... }`: legacy compatibility alias for a scope-exit cleanup handler.
+- `local x = e fini { ... }`: legacy declaration sugar that registers cleanup
+  at the declaration point.
+- Postfix `cleanup { ... }`: always-run handler attached to a protected
+  expression/block/member handler.
 - `catch (...) { ... }`: failure handler.
-- `box.fini()`: object-level finalization hook when ownership ends.
+- `box.fini()`: object-level finalization hook when ownership ends. This is not
+  a scope-exit handler.
 
 Constraints:
 
-- `local ... fini` requires exactly one local binding.
+- `local ... cleanup` / `local ... fini` require exactly one local binding.
 - `finally` is terminology only; the surface keyword is `cleanup`.
 - `throw` is prohibited in surface language design (parser always rejects it).
 
+Naming rule:
+
+```text
+cleanup = when lexical/block cleanup runs
+fini()  = what an object does when finalized
+```
+
 ## 2) Unified Cleanup Model
 
-`fini` and `cleanup` are both scope-exit handlers and lower to the same finally-style execution
-channel.
+Canonical `cleanup`, legacy DropScope `fini`, and postfix `cleanup` all lower to
+the same finally-style execution channel.
 
 - Handlers run once per scope exit.
-- Multiple `fini` registrations in the same DropScope run in LIFO order.
-- `fini`/`cleanup` are not jump targets.
+- Multiple DropScope registrations in the same scope run in LIFO order.
+- Cleanup handlers are not jump targets.
 
 ## 3) Exit Ordering
 
 On normal exit, `return`, `break`, `continue`, or failure:
 
 1. evaluate the scope body and route failures to nearest `catch` in lexical context
-2. run scope-exit handlers (`fini` / `cleanup`) for the exiting scope
+2. run scope-exit handlers (`cleanup`, including legacy `fini` aliases) for the exiting scope
 3. drop local bindings of that scope
 4. apply `box.fini()` when ownership actually ends
 5. propagate unhandled failure outward (fatal at top level)
 
 Lexical nesting determines inner/outer handler order.
 
-## 4) `local ... fini` Binding Rule
+## 4) Local Cleanup Binding Rule
 
-`local ... fini` binds to the declaration-time slot.
+`local ... cleanup` and legacy `local ... fini` bind to the declaration-time
+slot.
 
 - later shadowing does not retarget an already-registered handler
 - same-scope redeclaration is fail-fast, so slot identity stays unambiguous
 
 ## 5) Handler Restrictions and Failure Policy
 
-`fini` block restrictions (parser-enforced):
+Cleanup handler restrictions (parser/verifier enforced):
 
 - forbidden: `return`, `break`, `continue`, `throw`
 
-`cleanup` policy:
-
-- keep non-local exits out of cleanup; `return`/`throw` are rejected by default
+If a compatibility path still accepts `break`/`continue` from a cleanup block,
+that path is not canonical and must be narrowed by a dedicated verifier row.
 
 If cleanup/finalization itself fails:
 
@@ -95,7 +110,7 @@ Use **ownership transfer** only as terminology.
 
 `scope-exit-semantics.md` is authoritative for:
 
-- DropScope cleanup surfaces (`fini` / `local ... fini` / `cleanup`)
+- DropScope cleanup surfaces (`cleanup`, legacy `fini` aliases, postfix `cleanup`)
 - exit ordering
 - `catch` routing
 - cleanup/finalization failure policy

@@ -5,6 +5,8 @@ Summary
   - There is no `try` statement in the language spec. Use postfix `catch` and `cleanup` instead.
   - `catch` = handle exceptions from the immediately preceding expression/call.
   - `cleanup` = always-run finalization (formerly finally), regardless of success or failure.
+- Naming rule: `cleanup` is for lexical/block exit timing; object `fini()` is
+  the object finalizer method.
 - This matches the language’s scope unification and keeps blocks shallow and readable.
 
 Spec Clarifications (Stage‑3)
@@ -21,9 +23,11 @@ Spec Clarifications (Stage‑3)
 - Semantics and control‑flow
   - `cleanup` (finally) always runs, regardless of success/failure of the try part.
   - `return` inside the try part is deferred until after `cleanup` executes. This is implemented by the MIR builder as a deferred return slot/jump to the `cleanup`/exit block.
-  - `return` inside `cleanup` is disallowed by default; enable with `NYASH_CLEANUP_ALLOW_RETURN=1`.
-  - `throw` inside `cleanup` is disallowed by default; enable with `NYASH_CLEANUP_ALLOW_THROW=1`.
-  - `break/continue` inside `cleanup` are allowed (no special guard); use with care. Cleanup executes before the loop transfer takes effect.
+  - `return` inside `cleanup` is not canonical and is rejected by default.
+  - `throw` inside `cleanup` is not canonical and is rejected by default.
+  - `break/continue` inside `cleanup` are not canonical. If a compatibility path
+    still accepts them, treat that as an implementation gap rather than a
+    language guarantee.
   - Nested cleanup follows lexical unwinding order (inner cleanup runs before outer cleanup).
   - If no `catch` is present, thrown exceptions still trigger `cleanup`, then propagate outward.
 - Diagnostics
@@ -86,15 +90,19 @@ Semantics
 - catch handles exceptions from the immediately preceding expression only.
 - cleanup is always executed regardless of success/failure (formerly finally).
 - Multiple catch blocks match by type in order; the first match is taken.
-- In loops, `break/continue` cooperate with cleanup: cleanup is run before leaving the scope.
- - Return deferral: A `return` in the try section defers until after cleanup. `return`/`throw` inside cleanup are disabled by default; see env toggles below.
+- In loops, `break/continue` in the protected section cooperate with cleanup:
+  cleanup is run before leaving the scope.
+- Return deferral: A `return` in the protected section defers until after
+  cleanup. Non-local exits from cleanup itself are not canonical.
 
 Environment toggles
 - `NYASH_PARSER_STAGE3=1`: Enable Stage‑3 syntax (postfix catch/cleanup for expressions; also gates others by default)
 - `NYASH_BLOCK_CATCH=1`: Allow block‑postfix (independent of Stage‑3 if needed)
 - `NYASH_METHOD_CATCH=1`: Allow method‑postfix (independent of Stage‑3 if needed)
-- `NYASH_CLEANUP_ALLOW_RETURN=1`: Permit `return` inside cleanup (default: off)
-- `NYASH_CLEANUP_ALLOW_THROW=1`: Permit `throw` inside cleanup (default: off)
+- `NYASH_CLEANUP_ALLOW_RETURN=1`: legacy compatibility knob; do not use in
+  canonical examples
+- `NYASH_CLEANUP_ALLOW_THROW=1`: legacy compatibility knob; do not use in
+  canonical examples
 
 Migration notes
 - try is deprecated: prefer postfix `catch/cleanup`.

@@ -67,7 +67,7 @@ Rules:
 ### 2.3 Fail-fast safety rules (strict/dev)
 Inside a `lock` scope:
 - `await` / `nowait` / `yield` / blocking calls are forbidden (deadlock + scheduling hazards).
-- Finalizers (`fini` / cleanup handlers) must not acquire locks (to avoid lock-order traps).
+- Cleanup handlers and object finalizers (`fini()`) must not acquire locks (to avoid lock-order traps).
 
 Violations are **errors**, not silent fallback.
 

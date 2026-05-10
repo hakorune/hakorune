@@ -3,7 +3,10 @@
 Status: SSOT (language-level), with implementation status notes.
 
 Design note:
-- For normative exit-order, DropScope (`fini {}` / `local ... fini {}`), `catch/cleanup` routing, and ownership-transfer terminology, see `docs/reference/language/scope-exit-semantics.md` (SSOT).
+- For normative exit-order, canonical `cleanup`, legacy DropScope
+  (`fini {}` / `local ... fini {}`), `catch/cleanup` routing, and
+  ownership-transfer terminology, see
+  `docs/reference/language/scope-exit-semantics.md` (SSOT).
 - This file remains authoritative for object states (Alive/Dead/Freed), weak refs, and memory policy.
 
 This document defines the Nyash object lifecycle model: lexical scope, ownership (strong/weak), finalization (`fini()`), and what is (and is not) guaranteed across backends.
@@ -147,35 +150,38 @@ This rule is what keeps “scope finalization” from breaking shared references
 Language guarantee (deterministic):
 - Only **explicit scope-exit constructs** guarantee cleanup execution for all exits (return/break/continue/error).
 - Supported scope-exit surfaces are:
-  - `fini { ... }` (DropScope registration)
-  - `local x ... fini { ... }` (single-binding sugar)
+  - `cleanup { ... }` (canonical DropScope registration; parser rollout is phased)
+  - `local x ... cleanup { ... }` (canonical single-binding sugar; parser rollout is phased)
+  - `fini { ... }` (legacy DropScope registration alias)
+  - `local x ... fini { ... }` (legacy single-binding sugar)
   - postfix `cleanup { ... }` (finally surface)
 
 Recommended SSOT surface:
-- Prefer `fini` / `local ... fini` for lexical-scope resource cleanup.
-- Use postfix `cleanup` when pairing with `catch` or wrapping block/member handlers.
+- Prefer `cleanup` terminology for lexical/block resource cleanup in new docs and examples.
+- Treat DropScope `fini { ... }` / `local ... fini { ... }` as compatibility aliases.
 - Keep object-level `fini()` separate from scope handlers; do not double-release the same resource.
 
 Non-guarantees:
 - “Leaving a block” does not by itself guarantee `fini()` execution for an object, because aliasing/escaping is allowed.
 - GC must not call `fini()` as part of meaning.
 
-### `fini` / `local ... fini` — DropScope cleanup
+### `cleanup` / legacy `fini` — DropScope cleanup
 
 ```nyash
 {
-  local f = open(path) fini {
-    f.close()
+  local f = open(path) cleanup {
+    f.fini()
   }
   do_work(f)
 }
 ```
 
 SSOT semantics:
-- `fini` runs exactly once on every exit path from the attached scope.
-- Multiple `fini` handlers in the same scope run in LIFO order.
-- `local ... fini` is declaration sugar and must target exactly one local binding.
-- `fini` executes before that scope's locals are dropped.
+- `cleanup` runs exactly once on every exit path from the attached scope.
+- Multiple cleanup handlers in the same scope run in LIFO order.
+- `local ... cleanup` is declaration sugar and must target exactly one local binding.
+- Cleanup handlers execute before that scope's locals are dropped.
+- Current live sources may still spell the same DropScope handler as `fini`.
 
 ### `cleanup` (block-postfix) — finally surface
 
