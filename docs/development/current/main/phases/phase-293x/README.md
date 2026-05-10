@@ -303,7 +303,11 @@ inference for the allocator release path.
 - `293x-137`: M85 allocator provider activation safety closeout inventory
   landed, locking M76-M84 SSOT/fixture/card/guard coverage before any later
   activation decision row while keeping runtime activation inactive.
-- Next: M86 activation decision surface proposal. It must be docs-first and
-  must not add environment discovery, implicit manifest/proof discovery, gate
-  opening, hook activation, `#[global_allocator]`, or process allocator
-  replacement.
+- `293x-138`: M86 allocator provider activation decision surface proposal
+  landed, defining the future explicit-input activation decision contract while
+  keeping runtime parsing, CLI routing, provider selection, proof consumption,
+  rollback preparation, hook activation, and allocator replacement inactive.
+- Next: M87 activation decision fixture contract. It must be docs/fixture only
+  and must not add environment discovery, implicit manifest/proof discovery,
+  provider selection, proof consumption, rollback preparation, gate opening,
+  hook activation, `#[global_allocator]`, or process allocator replacement.

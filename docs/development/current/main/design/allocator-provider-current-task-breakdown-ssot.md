@@ -20,6 +20,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-activation-safety-diagnostic-owner-ssot.md
   - docs/development/current/main/design/allocator-provider-activation-safety-diagnostic-report-ssot.md
   - docs/development/current/main/design/allocator-provider-activation-safety-closeout-inventory-ssot.md
+  - docs/development/current/main/design/allocator-provider-activation-decision-surface-proposal-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
 ---
 
@@ -56,6 +57,7 @@ then and only then consider process allocator replacement
 | M83 | activation safety diagnostic report fixing runtime report output while keeping the gate closed | complete |
 | M84 | activation safety diagnostic CLI surface fixing explicit CLI output while keeping the gate closed | complete |
 | M85 | activation safety closeout inventory fixing coverage across M76-M84 without activation | complete |
+| M86 | activation decision surface proposal fixing the future explicit-input decision contract without implementation | complete |
 
 ## Layer Model
 
@@ -100,6 +102,7 @@ activation entry:
 | M83 | activation safety diagnostic report | runtime report over caller-provided safety TOML text | activation gate opening |
 | M84 | activation safety diagnostic CLI surface | explicit CLI over caller-provided safety TOML path | environment discovery |
 | M85 | activation safety closeout inventory | coverage guard for M76-M84 artifacts | runtime activation |
+| M86 | activation decision surface proposal | docs-first explicit decision input/output contract | runtime/CLI implementation |
 
 ## Post-M75 Activation Entry Ladder
 
@@ -115,6 +118,7 @@ activation entry:
 | M83 | activation safety diagnostic report | diagnostic-only runtime report with gate-closed output | activation gate opening |
 | M84 | activation safety diagnostic CLI surface | explicit CLI output for the gate-closed report | environment discovery |
 | M85 | activation safety closeout inventory | inventory guard for the complete diagnostic ladder | runtime activation |
+| M86 | activation decision surface proposal | proposal-only activation decision surface contract | runtime/CLI implementation |
 
 ## Dependency Order
 
@@ -138,6 +142,7 @@ M66 task breakdown
   -> M83 activation safety diagnostic report
   -> M84 activation safety diagnostic CLI surface
   -> M85 activation safety closeout inventory
+  -> M86 activation decision surface proposal
   -> later activation row only after safety proof
 ```
 
@@ -193,7 +198,10 @@ future diagnostic owner files/type names. M83 adds the diagnostic-only runtime
 report in that owner while keeping the gate closed. M84 exposes that report
 through an explicit-input CLI surface without opening the gate. M85 closes out
 the activation safety diagnostic ladder with an inventory guard and no runtime
-activation. The next safe row is M86 activation decision surface proposal. It
-must be docs-first and must not silently enable production activation,
-`#[global_allocator]`, process allocator replacement, environment discovery, or
-`.inc` name matching.
+activation. M86 defines the future explicit-input activation decision surface
+as a proposal-only contract without runtime or CLI implementation. The next
+safe row is M87 activation decision fixture contract. It must be docs/fixture
+only and must not silently enable production activation, `#[global_allocator]`,
+process allocator replacement, environment discovery, provider selection,
+runtime proof consumption, rollback preparation, hook activation, or `.inc`
+name matching.

@@ -89,6 +89,7 @@ if [[ "${1:-}" == "--list" ]]; then
   - tools/checks/k2_wide_allocator_provider_activation_safety_diagnostic_report_guard.sh
   - tools/checks/k2_wide_allocator_provider_activation_safety_cli_surface_guard.sh
   - tools/checks/k2_wide_allocator_provider_activation_safety_closeout_guard.sh
+  - tools/checks/k2_wide_allocator_provider_activation_decision_surface_proposal_guard.sh
 LIST
   exit 0
 fi
@@ -317,3 +318,6 @@ run_step "allocator provider activation safety CLI surface guard" \
 
 run_step "allocator provider activation safety closeout guard" \
   bash tools/checks/k2_wide_allocator_provider_activation_safety_closeout_guard.sh
+
+run_step "allocator provider activation decision surface proposal guard" \
+  bash tools/checks/k2_wide_allocator_provider_activation_decision_surface_proposal_guard.sh

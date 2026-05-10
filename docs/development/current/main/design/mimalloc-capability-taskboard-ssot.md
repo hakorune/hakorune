@@ -175,6 +175,7 @@ them into MIR-owned plan facts.
 | `M83 allocator provider activation safety diagnostic report` | `live-narrow` | runtime diagnostic report | adds the runtime-owned activation safety report over caller-provided TOML text while keeping gate opening, hook activation, and replacement inactive |
 | `M84 allocator provider activation safety CLI surface` | `live-narrow` | diagnostic CLI surface | exposes the activation safety report through an explicit caller-provided TOML path while keeping gate opening, hook activation, and replacement inactive |
 | `M85 allocator provider activation safety closeout inventory` | `live-narrow` | regression guard | inventories M76-M84 activation safety diagnostic coverage before any later activation decision row |
+| `M86 allocator provider activation decision surface proposal` | `live-docs` | decision surface proposal | defines the future explicit-input activation decision contract while keeping runtime/CLI implementation and activation inactive |
 
 ## Fixed Implementation Order
 
@@ -286,6 +287,7 @@ them into MIR-owned plan facts.
 106. `M83 allocator provider activation safety diagnostic report`
 107. `M84 allocator provider activation safety CLI surface`
 108. `M85 allocator provider activation safety closeout inventory`
+109. `M86 allocator provider activation decision surface proposal`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed
