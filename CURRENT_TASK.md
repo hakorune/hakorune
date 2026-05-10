@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-05-08
+Date: 2026-05-10
 Scope: current lane / next lane / restart order only.
 
 ## Purpose
@@ -37,6 +37,8 @@ Scope: current lane / next lane / restart order only.
 - active lane: `phase-293x real-app bringup`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
+- task breakdown:
+  `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
 - current blocker token:
   `phase-293x mimalloc substrate capability ladder after real-app EXE parity`
 - primary mode: real-app bringup lane
@@ -75,11 +77,14 @@ Scope: current lane / next lane / restart order only.
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - prior task-order baseline:
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
+- current allocator/provider ladder:
+  `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: start the mimalloc substrate capability ladder from `293x-026`;
-  continue to change compiler/runtime acceptance only when a fixture or app
-  exposes a real blocker
+- next: continue the allocator provider/replacement ladder from `M67`
+  provider manifest diagnostic parser; `293x-026` remains the historical
+  mimalloc substrate ladder lock, while `M66` is the current readable task
+  breakdown through `M75`
 - VM retreat reading: new substrate / allocator features should target
   `llvm/exe` / pure-first acceptance first; `vm-hako` is reference/monitor only
   and `rust-vm` is bootstrap/recovery/compat keep, so broad VM parity is not a

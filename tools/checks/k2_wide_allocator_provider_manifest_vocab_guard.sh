@@ -57,7 +57,6 @@ require_text "$TASKBOARD" '| `M65 allocator provider manifest vocabulary` | `liv
 require_text "$TASKBOARD" '88. `M65 allocator provider manifest vocabulary`'
 require_text "$PHASE_README" '`293x-117`'
 require_text "$REAL_APP_TASKBOARD" '`293x-117` M65 allocator provider manifest vocabulary'
-require_text "$CURRENT_STATE" 'latest_card = "293x-117-M65-ALLOCATOR-PROVIDER-MANIFEST-VOCAB"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_manifest_vocab_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_manifest_vocab_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_manifest_vocab_guard.sh"

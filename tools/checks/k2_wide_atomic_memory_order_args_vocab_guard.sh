@@ -21,7 +21,7 @@ for path in "$TASKBOARD" "$CARD" "$SUBSTRATE_DOC" "$ATOMIC_README" "$ATOMIC_CORE
 done
 
 rg -F -q '| `M33 atomic memory-order args docs/route vocabulary lock` | `live-docs` |' "$TASKBOARD"
-rg -F -q '| `M34 pointer atomic vocabulary docs lock` | `next-card` |' "$TASKBOARD"
+rg -F -q '| `M34 pointer atomic vocabulary docs lock` | `live-docs` |' "$TASKBOARD"
 rg -F -q 'M33 Atomic Memory-Order Args Vocab Lock' "$CARD"
 rg -F -q 'AtomicCoreBox.load_i64_ordered(slot, order)' "$CARD"
 rg -F -q 'AtomicCoreBox.store_i64_ordered(slot, value, order)' "$CARD"

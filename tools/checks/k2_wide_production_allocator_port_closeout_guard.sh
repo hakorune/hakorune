@@ -124,7 +124,7 @@ if rg -n 'hako-alloc-(production-facade|local-page-policy|remote-free-policy|pag
 fi
 rm -f /tmp/"$TAG".app_specific.inc
 
-if rg -n 'hako_atomic_ptr_fetch_add|ptr_fetch_add|hako_osvm_(unreserve|release)|unreserve_bytes|release_bytes|replace_allocator|allocator_replacement' \
+if rg -n 'hako_atomic_ptr_fetch_add|ptr_fetch_add|hako_osvm_(unreserve|release)|unreserve_bytes|release_bytes|replace_allocator\(|#\[global_allocator\]|GlobalAlloc' \
   src lang/c-abi/shims crates/nyash_kernel lang/src >/tmp/"$TAG".inactive_rows 2>&1; then
   cat /tmp/"$TAG".inactive_rows >&2
   rm -f /tmp/"$TAG".inactive_rows

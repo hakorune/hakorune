@@ -69,6 +69,7 @@ if [[ "${1:-}" == "--list" ]]; then
   - tools/checks/k2_wide_allocator_hook_activation_preflight_shape_guard.sh
   - tools/checks/k2_wide_allocator_provider_boundary_vocab_guard.sh
   - tools/checks/k2_wide_allocator_provider_manifest_vocab_guard.sh
+  - tools/checks/k2_wide_allocator_provider_task_breakdown_guard.sh
 LIST
   exit 0
 fi
@@ -237,3 +238,6 @@ run_step "allocator provider boundary vocab guard" \
 
 run_step "allocator provider manifest vocab guard" \
   bash tools/checks/k2_wide_allocator_provider_manifest_vocab_guard.sh
+
+run_step "allocator provider task breakdown guard" \
+  bash tools/checks/k2_wide_allocator_provider_task_breakdown_guard.sh

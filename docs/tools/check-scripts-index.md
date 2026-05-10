@@ -114,6 +114,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_allocator_hook_activation_preflight_shape_guard.sh` | M63 の allocator hook activation preflight shape を固定し、diagnostic-only runtime facts/report と activation 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_boundary_vocab_guard.sh` | M64 の allocator provider boundary vocabulary を固定し、provider ids と provider registry/selection/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_manifest_vocab_guard.sh` | M65 の allocator provider manifest vocabulary を固定し、reserved provider TOML fixture と runtime parser/registry/selection 不在を検証する。 |
+| `tools/checks/k2_wide_allocator_provider_task_breakdown_guard.sh` | M66 の allocator provider task breakdown を固定し、M67-M75 task ladder と provider/replacement inactive stop line を検証する。 |
 
 ## Env Hygiene
 

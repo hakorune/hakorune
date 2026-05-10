@@ -155,6 +155,16 @@ them into MIR-owned plan facts.
 | `M63 allocator hook activation preflight shape` | `live-narrow` | activation preflight data shape | adds diagnostic-only runtime preflight facts/report with stable missing-fact names and `would_activate=false`; no activation or replacement hook |
 | `M64 allocator provider boundary vocabulary` | `live-docs` | provider boundary vocabulary | reserves provider ids for system allocator, mimalloc, hako model, and guarded debug providers while keeping provider registry, selection, and replacement inactive |
 | `M65 allocator provider manifest vocabulary` | `live-docs` | provider manifest vocabulary | adds reserved provider manifest TOML fixture for the M64 provider ids while keeping runtime parser, provider registry, selection, and replacement inactive |
+| `M66 allocator provider task breakdown` | `live-docs` | task breakdown | adds a readable task ladder for M52-M65 completion and M67-M75 next rows without runtime/provider activation |
+| `M67 allocator provider manifest parser` | `planned` | diagnostic parser | parse caller-provided provider manifest TOML into a diagnostic report; no file discovery, provider selection, or replacement |
+| `M68 allocator provider manifest CLI surface` | `planned` | diagnostic CLI surface | expose explicit provider manifest dry-run diagnostics; no env toggles or implicit discovery |
+| `M69 allocator provider readiness preflight shape` | `planned` | provider readiness data shape | connect provider readiness facts to activation preflight diagnostics while keeping `would_activate=false` |
+| `M70 combined hook/provider dry-run report` | `planned` | combined diagnostic report | combine hook plan, activation proof, and provider manifest diagnostics; no process allocator replacement |
+| `M71 allocator provider registry boundary` | `planned` | registry boundary docs | name provider registry ownership/API and stop line before implementation |
+| `M72 hako model provider proof fixture` | `planned` | model provider proof | validate `.hako` policy/model provider behavior without native metal activation |
+| `M73 debug guarded provider proof fixture` | `planned` | guarded provider proof | validate guarded-provider diagnostics without replacement |
+| `M74 native system provider proof boundary` | `planned` | native system provider boundary | define system allocator provider contract without `#[global_allocator]` |
+| `M75 native mimalloc provider proof boundary` | `planned` | native mimalloc provider boundary | define mimalloc provider contract without production activation |
 
 ## Fixed Implementation Order
 
@@ -246,6 +256,16 @@ them into MIR-owned plan facts.
 86. `M63 allocator hook activation preflight shape`
 87. `M64 allocator provider boundary vocabulary`
 88. `M65 allocator provider manifest vocabulary`
+89. `M66 allocator provider task breakdown`
+90. `M67 allocator provider manifest parser`
+91. `M68 allocator provider manifest CLI surface`
+92. `M69 allocator provider readiness preflight shape`
+93. `M70 combined hook/provider dry-run report`
+94. `M71 allocator provider registry boundary`
+95. `M72 hako model provider proof fixture`
+96. `M73 debug guarded provider proof fixture`
+97. `M74 native system provider proof boundary`
+98. `M75 native mimalloc provider proof boundary`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed

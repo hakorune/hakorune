@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-05-08
+Date: 2026-05-10
 Scope: current lane / blocker / next pointer only.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -20,6 +20,8 @@ Related:
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
+- task breakdown:
+  `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
 - current blocker token: `phase-293x mimalloc substrate capability ladder after real-app EXE parity`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
@@ -52,6 +54,9 @@ Related:
   structurally instead of adding app-side workaround code
 - current mirrors are thinned; update `CURRENT_STATE.toml` and the phase-293x
   card/taskboard first
+- current allocator/provider task ladder is:
+  `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`;
+  next implementation row is `M67` provider manifest diagnostic parser
 - latest docs/inventory baseline: `291x-691` remains the historical backlog
   inventory; current status is in `CURRENT_STATE.toml`
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
@@ -76,11 +81,12 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-293x/README.md`
-3. `docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md`
-4. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
-5. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
-6. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+2. `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
+3. `docs/development/current/main/phases/phase-293x/README.md`
+4. `docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md`
+5. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+6. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
+7. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 
 ## Proof Bundle
 

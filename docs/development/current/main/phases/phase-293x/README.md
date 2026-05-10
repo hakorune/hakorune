@@ -235,6 +235,8 @@ inference for the allocator release path.
 - `293x-117`: M65 allocator provider manifest vocabulary landed, adding a
   reserved provider manifest TOML fixture for the M64 provider ids while
   keeping runtime parser/registry/selection/replacement inactive.
-- Next: a diagnostic-only provider parser may be added for caller-provided TOML
-  text, but process allocator replacement remains blocked until a separate
-  activation row proves safety.
+- `293x-118`: M66 allocator provider task breakdown landed, adding a readable
+  M52-M65 checkpoint and M67-M75 task ladder.
+- Next: M67 may add a diagnostic-only provider manifest parser for
+  caller-provided TOML text, but process allocator replacement remains blocked
+  until a separate activation row proves safety.
