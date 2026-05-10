@@ -59,6 +59,7 @@
 - [x] `293x-096` M44 mimalloc allocator substrate closeout guard
 - [x] `293x-097` M45 production allocator port entry plan
 - [x] `293x-098` M46 hako_alloc production facade boundary
+- [x] `293x-099` M47 allocator local page policy proof
 
 ## Gates
 

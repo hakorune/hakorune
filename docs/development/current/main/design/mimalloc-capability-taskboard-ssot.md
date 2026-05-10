@@ -136,7 +136,8 @@ them into MIR-owned plan facts.
 | `M44 mimalloc allocator substrate closeout guard` | `live-narrow` | regression guard | inventories and locks the M20-M43 mimalloc allocator substrate proof path before starting production allocator port work; adds no app, route row, NyRT export, or `.inc` matcher |
 | `M45 production allocator port entry plan` | `live-narrow` | task split | turns the M20-M44 substrate proof ladder into a production allocator port plan without widening pointer attrs, activating pointer fetch_add, or adding allocator replacement hooks implicitly |
 | `M46 hako_alloc production facade boundary` | `live-narrow` | hako_alloc facade contract | creates the production-facing allocator facade boundary under `hako_alloc` while routing only through existing page/free-list policy state; no replacement hook or route widening |
-| `M47 allocator local page policy proof` | `next-card` | allocator policy proof | future split that proves local allocate/free policy through the production facade without remote-free or OS VM ownership widening |
+| `M47 allocator local page policy proof` | `live-narrow` | allocator policy proof | proves local allocate/free policy through the production facade without remote-free or OS VM ownership widening |
+| `M48 allocator remote-free policy proof` | `next-card` | allocator policy proof | future split that composes the M43 retry-loop shape behind the production facade while keeping pointer atomics in substrate |
 
 ## Fixed Implementation Order
 
@@ -210,6 +211,7 @@ them into MIR-owned plan facts.
 68. `M45 production allocator port entry plan`
 69. `M46 hako_alloc production facade boundary`
 70. `M47 allocator local page policy proof`
+71. `M48 allocator remote-free policy proof`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed

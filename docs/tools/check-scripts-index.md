@@ -94,6 +94,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_mimalloc_allocator_substrate_closeout_guard.sh` | M44 の mimalloc allocator substrate closeout を固定し、M20-M43 proof apps/guards/docs/quick coverage と app-specific `.inc` matcher 不在を検証する。 |
 | `tools/checks/k2_wide_production_allocator_port_entry_plan_guard.sh` | M45 の production allocator port entry plan を固定し、M46-M50 の実装順・境界・pointer fetch_add/native attrs inactive を検証する。 |
 | `tools/checks/k2_wide_hako_alloc_production_facade_exe_guard.sh` | M46 の `hako_alloc` production facade boundary を固定し、`HakoAllocProductionFacade` が pure-first EXE で既存 page/free-list policy state へ委譲することを検証する。 |
+| `tools/checks/k2_wide_hako_alloc_local_page_policy_exe_guard.sh` | M47 の allocator local page policy proof を固定し、`HakoAllocProductionFacade` 経由で small/medium allocate/free/reject/reuse accounting が pure-first EXE 実行できることを検証する。 |
 
 ## Env Hygiene
 

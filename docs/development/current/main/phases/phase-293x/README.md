@@ -183,5 +183,7 @@ inference for the allocator release path.
 - `293x-098`: M46 hako_alloc production facade boundary landed, adding
   `HakoAllocProductionFacade` as the public allocator port seam over existing
   page/free-list policy state.
-- Next: M47 allocator local page policy proof; keep future blockers as
+- `293x-099`: M47 allocator local page policy proof landed, validating
+  small/medium allocate/free/reject behavior through the production facade.
+- Next: M48 allocator remote-free policy proof; keep future blockers as
   compiler/runtime seams and do not hide them in app code.

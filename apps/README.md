@@ -106,6 +106,20 @@ bash tools/checks/k2_wide_hako_alloc_production_facade_exe_guard.sh
 - allocate/release/reject の最小 accounting を検証
 - backend allocator replacement / pointer fetch_add / native pointer attrs は追加しない
 
+#### hako-alloc-local-page-policy-proof
+**場所**: `hako-alloc-local-page-policy-proof/main.hako`
+M47 proof。`HakoAllocProductionFacade` 経由で local page policy の
+small/medium allocate/free/reject/reuse accounting を pure-first EXE で固定する。
+
+```bash
+bash tools/checks/k2_wide_hako_alloc_local_page_policy_exe_guard.sh
+```
+
+**特徴**:
+- production facade から既存 `HakoAllocHeap` page/free-list state へ委譲
+- oversize reject と double-free reject を public seam 経由で検証
+- remote-free / OSVM page-source / allocator replacement hook はまだ扱わない
+
 #### mimalloc-raw-page-proof
 **場所**: `mimalloc-raw-page-proof/main.hako`
 M12 substrate proof。`RawBufCoreBox` と `RawArrayCoreBox` を明示的に使う

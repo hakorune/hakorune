@@ -1,0 +1,48 @@
+// hako-alloc-local-page-policy-proof
+// Purpose: prove local page allocate/free policy through HakoAllocProductionFacade.
+
+using selfhost.hako_alloc.memory.allocator_facade_box as HakoAllocFacade
+
+static box Main {
+    main(args) {
+        local alloc = new HakoAllocProductionFacade()
+
+        local s1 = alloc.allocate(8)
+        local s2 = alloc.allocate(16)
+        local m1 = alloc.allocate(40)
+        local m2 = alloc.allocate(64)
+        local too_large = alloc.allocate(80)
+
+        local free_s1 = alloc.release(s1)
+        local free_m1 = alloc.release(m1)
+        local double_free_s1 = alloc.release(s1)
+
+        local s3 = alloc.allocate(24)
+        local m3 = alloc.allocate(48)
+
+        local shape = 0
+        if s1 != null { shape = shape + 1 }
+        if s2 != null { shape = shape + 1 }
+        if m1 != null { shape = shape + 1 }
+        if m2 != null { shape = shape + 1 }
+        if too_large == null { shape = shape + 1 }
+        if free_s1 == 1 { shape = shape + 1 }
+        if free_m1 == 1 { shape = shape + 1 }
+        if double_free_s1 == 0 { shape = shape + 1 }
+        if s3 != null { shape = shape + 1 }
+        if m3 != null { shape = shape + 1 }
+
+        print("hako-alloc-local-page-policy-proof")
+        print("facade=" + alloc.alloc_count + "," + alloc.free_count + "," + alloc.reject_count)
+        print("shape=" + shape)
+        print("stats=" + alloc.requestedBytes() + "," + alloc.outstandingBlocks() + "," + alloc.smallFreeCount() + "," + alloc.mediumFreeCount())
+
+        if alloc.alloc_count == 6 && alloc.free_count == 2 && alloc.reject_count == 2 && shape == 10 && alloc.requestedBytes() == 200 && alloc.outstandingBlocks() == 4 && alloc.smallFreeCount() == 6 && alloc.mediumFreeCount() == 2 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
