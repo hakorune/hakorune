@@ -141,6 +141,7 @@ them into MIR-owned plan facts.
 | `M49 allocator OSVM page-source proof` | `live-narrow` | allocator page-source proof | composes page reserve/commit/decommit rows as a page-source seam without adding unreserve/release rows |
 | `M50 allocator stress production-facade parity` | `live-narrow` | allocator stress app | adds production-facade stress coverage while keeping existing allocator-stress as regression coverage |
 | `M51 production allocator port closeout guard` | `live-narrow` | regression guard | inventories M46-M50 production allocator port proof coverage before any allocator replacement hook design |
+| `M52 allocator replacement hook boundary` | `live-docs` | hook boundary | adds the allocator replacement hook SSOT and guard while keeping process allocator replacement, hook env toggles, `.inc` name matching, and route widening inactive |
 
 ## Fixed Implementation Order
 
@@ -218,6 +219,7 @@ them into MIR-owned plan facts.
 72. `M49 allocator OSVM page-source proof`
 73. `M50 allocator stress production-facade parity`
 74. `M51 production allocator port closeout guard`
+75. `M52 allocator replacement hook boundary`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed

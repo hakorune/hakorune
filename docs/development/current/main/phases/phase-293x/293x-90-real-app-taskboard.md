@@ -64,6 +64,7 @@
 - [x] `293x-101` M49 allocator OSVM page-source proof
 - [x] `293x-102` M50 allocator stress production-facade parity
 - [x] `293x-103` M51 production allocator port closeout guard
+- [x] `293x-104` M52 allocator replacement hook boundary
 
 ## Gates
 

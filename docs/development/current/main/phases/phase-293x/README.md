@@ -197,5 +197,8 @@ inference for the allocator release path.
 - `293x-103`: M51 production allocator port closeout guard landed, inventorying
   M46-M50 production allocator port proof coverage and keeping allocator
   replacement hooks inactive.
-- Next: allocator replacement hook design only after a new SSOT card; keep future blockers as
+- `293x-104`: M52 allocator replacement hook boundary landed, adding the
+  allocator replacement hook SSOT and guard while keeping process allocator
+  replacement inactive.
+- Next: allocator HookPlan vocabulary lock; keep future blockers as
   compiler/runtime seams and do not hide them in app code.

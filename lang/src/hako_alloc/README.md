@@ -61,6 +61,15 @@ Production allocator port entry
 - Do not add allocator replacement hooks, pointer fetch_add, native pointer
   attrs, or app-specific `.inc` matchers as part of the entry plan.
 
+Allocator replacement hook boundary
+- M52 fixes the hook boundary before implementation:
+  - `hako_alloc` owns policy/control shape; it does not install the process hook.
+  - MIR/manifest HookPlan facts must become the backend-readable truth before
+    any backend/runtime hook is activated.
+  - `.inc` must not infer hook ownership from app, facade, or policy names.
+  - hook environment toggles stay inactive until a named future row documents
+    them with defaults and removal/rollback conditions.
+
 Current modules
 - `memory.arc_box`
 - `memory.allocator_facade_box`
