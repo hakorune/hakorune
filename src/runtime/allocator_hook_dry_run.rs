@@ -123,6 +123,17 @@ fn has_reserved_activation_proof(activation_proof_toml: &str, hook_id: &str) -> 
 }
 
 #[cfg(test)]
+pub(crate) fn validate_allocator_hook_dry_run_reserved_fixtures_for_test(
+) -> AllocatorHookDryRunReport {
+    validate_allocator_hook_dry_run_from_manifest_texts(
+        include_str!("../../docs/development/current/main/design/allocator-hook-plan-v0.toml"),
+        include_str!(
+            "../../docs/development/current/main/design/allocator-hook-activation-proof-v0.toml"
+        ),
+    )
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
 
@@ -176,8 +187,7 @@ mod tests {
 
     #[test]
     fn manifest_callsite_reports_ready_diagnostic_without_installing() {
-        let report =
-            validate_allocator_hook_dry_run_from_manifest_texts(PLAN_FIXTURE, PROOF_FIXTURE);
+        let report = validate_allocator_hook_dry_run_reserved_fixtures_for_test();
 
         assert_eq!(report.hook_id, "hako_alloc.production.v0");
         assert_eq!(report.status, AllocatorHookDryRunStatus::ReadyDiagnostic);

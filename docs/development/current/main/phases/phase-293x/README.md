@@ -215,5 +215,7 @@ inference for the allocator release path.
   allocator.
 - `293x-110`: M58 allocator hook dry-run manifest callsite landed, feeding
   reserved HookPlan/proof TOML text into the diagnostic-only runtime validator.
-- Next: allocator hook dry-run CLI/test surface only after a named row; keep future blockers as
+- `293x-111`: M59 allocator hook dry-run test surface landed, adding a
+  `#[cfg(test)]` reserved-fixture observation helper without CLI/env exposure.
+- Next: allocator hook dry-run CLI surface only after a named row; keep future blockers as
   compiler/runtime seams and do not hide them in app code.

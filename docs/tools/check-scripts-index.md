@@ -107,6 +107,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_allocator_hook_runtime_owner_guard.sh` | M56 の allocator hook runtime owner row を固定し、future owner path の命名と runtime hook code / process allocator replacement / `.inc` name matching 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_hook_runtime_dry_run_code_guard.sh` | M57 の allocator hook runtime dry-run code を固定し、diagnostic-only runtime validation と process allocator replacement / `.inc` name matching 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_hook_dry_run_manifest_callsite_guard.sh` | M58 の allocator hook dry-run manifest callsite を固定し、reserved TOML text input と file/env discovery / process allocator replacement / `.inc` name matching 不在を検証する。 |
+| `tools/checks/k2_wide_allocator_hook_dry_run_test_surface_guard.sh` | M59 の allocator hook dry-run test surface を固定し、`#[cfg(test)]` reserved-fixture observation と CLI/env/file discovery 不在を検証する。 |
 
 ## Env Hygiene
 

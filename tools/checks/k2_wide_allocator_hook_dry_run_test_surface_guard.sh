@@ -2,15 +2,13 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
-TAG="k2-wide-allocator-hook-dry-run-manifest-callsite"
+TAG="k2-wide-allocator-hook-dry-run-test-surface"
 cd "$ROOT_DIR"
 
 RUNTIME_FILE="src/runtime/allocator_hook_dry_run.rs"
-PLAN_FIXTURE="docs/development/current/main/design/allocator-hook-plan-v0.toml"
-PROOF_FIXTURE="docs/development/current/main/design/allocator-hook-activation-proof-v0.toml"
-SSOT="docs/development/current/main/design/allocator-hook-dry-run-manifest-callsite-ssot.md"
+SSOT="docs/development/current/main/design/allocator-hook-dry-run-test-surface-ssot.md"
 TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
-CARD="docs/development/current/main/phases/phase-293x/293x-110-M58-ALLOCATOR-HOOK-DRY-RUN-MANIFEST-CALLSITE.md"
+CARD="docs/development/current/main/phases/phase-293x/293x-111-M59-ALLOCATOR-HOOK-DRY-RUN-TEST-SURFACE.md"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
@@ -18,7 +16,7 @@ INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
 
-echo "[$TAG] checking M58 allocator hook dry-run manifest callsite"
+echo "[$TAG] checking M59 allocator hook dry-run test surface"
 
 fail() {
   echo "[$TAG] ERROR: $*" >&2
@@ -37,8 +35,6 @@ require_text() {
 }
 
 require_file "$RUNTIME_FILE"
-require_file "$PLAN_FIXTURE"
-require_file "$PROOF_FIXTURE"
 require_file "$SSOT"
 require_file "$TASKBOARD"
 require_file "$CARD"
@@ -49,22 +45,18 @@ require_file "$INDEX"
 require_file "$DEV_GATE"
 require_file "$ALLOCATOR_GROUP"
 
-require_text "$RUNTIME_FILE" "validate_allocator_hook_dry_run_from_manifest_texts"
-require_text "$RUNTIME_FILE" "allocator-hook-plan-v0.toml"
-require_text "$RUNTIME_FILE" "allocator-hook-activation-proof-v0.toml"
+require_text "$RUNTIME_FILE" "#[cfg(test)]"
+require_text "$RUNTIME_FILE" "validate_allocator_hook_dry_run_reserved_fixtures_for_test"
 require_text "$RUNTIME_FILE" "manifest_callsite_reports_ready_diagnostic_without_installing"
-require_text "$RUNTIME_FILE" "manifest_callsite_reports_missing_plan_without_installing"
-require_text "$RUNTIME_FILE" "manifest_callsite_reports_missing_activation_proof_without_installing"
-require_text "$PLAN_FIXTURE" 'active = false'
-require_text "$PROOF_FIXTURE" 'active = false'
-require_text "$SSOT" "Allocator Hook Dry-Run Manifest Callsite (SSOT)"
-require_text "$TASKBOARD" '| `M58 allocator hook dry-run manifest callsite` | `live-narrow` |'
-require_text "$TASKBOARD" '81. `M58 allocator hook dry-run manifest callsite`'
-require_text "$PHASE_README" '`293x-110`'
-require_text "$REAL_APP_TASKBOARD" '`293x-110` M58 allocator hook dry-run manifest callsite'
-require_text "$INDEX" "tools/checks/k2_wide_allocator_hook_dry_run_manifest_callsite_guard.sh"
-require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_hook_dry_run_manifest_callsite_guard.sh"
-require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_hook_dry_run_manifest_callsite_guard.sh"
+require_text "$SSOT" "Allocator Hook Dry-Run Test Surface (SSOT)"
+require_text "$TASKBOARD" '| `M59 allocator hook dry-run test surface` | `live-narrow` |'
+require_text "$TASKBOARD" '82. `M59 allocator hook dry-run test surface`'
+require_text "$PHASE_README" '`293x-111`'
+require_text "$REAL_APP_TASKBOARD" '`293x-111` M59 allocator hook dry-run test surface'
+require_text "$CURRENT_STATE" 'latest_card = "293x-111-M59-ALLOCATOR-HOOK-DRY-RUN-TEST-SURFACE"'
+require_text "$INDEX" "tools/checks/k2_wide_allocator_hook_dry_run_test_surface_guard.sh"
+require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_hook_dry_run_test_surface_guard.sh"
+require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_hook_dry_run_test_surface_guard.sh"
 
 cargo test -q allocator_hook_dry_run
 
@@ -72,9 +64,16 @@ if rg -n 'std::env|std::fs|read_to_string|var_os|std::alloc|GlobalAlloc|#\[globa
   "$RUNTIME_FILE" >/tmp/"$TAG".forbidden_runtime 2>&1; then
   cat /tmp/"$TAG".forbidden_runtime >&2
   rm -f /tmp/"$TAG".forbidden_runtime
-  fail "manifest callsite must stay text-input diagnostic-only"
+  fail "test surface must not add env/fs/allocator install behavior"
 fi
 rm -f /tmp/"$TAG".forbidden_runtime
+
+if rg -n 'allocator-hook|allocator.*hook|hook.*allocator' src/cli src/runner -g '*.rs' >/tmp/"$TAG".cli 2>&1; then
+  cat /tmp/"$TAG".cli >&2
+  rm -f /tmp/"$TAG".cli
+  fail "M59 must not add CLI/runner hook surface"
+fi
+rm -f /tmp/"$TAG".cli
 
 if rg -n 'HakoAllocProductionFacade|HakoAllocRemoteFreePolicy|HakoAllocPageSourcePolicy|AllocatorReplacement|allocator_replacement|replace_allocator|HookPlan|allocator_hook_activate|activate_allocator' \
   lang/c-abi/shims >/tmp/"$TAG".inc 2>&1; then
