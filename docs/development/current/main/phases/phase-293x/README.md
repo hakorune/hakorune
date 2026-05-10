@@ -252,6 +252,9 @@ inference for the allocator release path.
 - `293x-123`: M71 allocator provider registry boundary landed, naming the
   future registry owner/API shape while keeping active registry implementation,
   provider selection, and allocator replacement absent.
-- Next: M72 may add a hako model provider proof fixture, but native metal
-  activation, active registry implementation, and process allocator replacement
-  remain blocked.
+- `293x-124`: M72 hako model provider proof fixture landed, reserving the
+  `.hako` policy/model provider proof shape while keeping provider selection,
+  native metal activation, and allocator replacement inactive.
+- Next: M73 may add a debug guarded provider proof fixture, but active registry
+  implementation, provider selection, and process allocator replacement remain
+  blocked.

@@ -2,11 +2,12 @@
 Status: SSOT
 Decision: accepted
 Date: 2026-05-10
-Scope: current allocator provider / replacement hook task breakdown after M71.
+Scope: current allocator provider / replacement hook task breakdown after M72.
 Related:
   - docs/development/current/main/design/allocator-provider-boundary-v0-ssot.md
   - docs/development/current/main/design/allocator-provider-manifest-v0-ssot.md
   - docs/development/current/main/design/allocator-hook-activation-preflight-shape-ssot.md
+  - docs/development/current/main/design/allocator-provider-hako-model-proof-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
 ---
 
@@ -32,7 +33,7 @@ then and only then consider process allocator replacement
 | M52-M56 | allocator replacement hook boundary, reserved hook plan/proof vocabulary, runtime owner named | complete |
 | M57-M61 | diagnostic-only dry-run runtime validator, manifest text callsite, test surface, proof validator, CLI surface | complete |
 | M62-M63 | activation preflight boundary and diagnostic preflight facts/report | complete |
-| M64-M71 | provider ids, reserved provider manifest fixture, diagnostic parser, explicit CLI surface, readiness preflight facts, combined hook/provider dry-run report, and registry boundary docs | complete |
+| M64-M72 | provider ids, reserved provider manifest fixture, diagnostic parser, explicit CLI surface, readiness preflight facts, combined hook/provider dry-run report, registry boundary docs, and hako model provider proof fixture | complete |
 
 ## Layer Model
 
@@ -74,7 +75,8 @@ M66 task breakdown
   -> M69 provider readiness preflight
   -> M70 combined hook/provider dry-run
   -> M71 registry boundary
-  -> M72/M73 debug/model provider proofs
+  -> M72 hako model provider proof
+  -> M73 debug guarded provider proof
   -> M74/M75 native provider proof boundaries
   -> later activation row only after safety proof
 ```
@@ -114,6 +116,6 @@ Every next row should land as:
 
 ## Next Step
 
-M72 may add a hako model provider proof fixture. It must not add native metal
-activation, active registry implementation, provider selection, implicit
-manifest discovery, or allocator replacement.
+M73 may add a debug guarded provider proof fixture. It must not add process
+allocator replacement, active registry implementation, provider selection, or
+implicit manifest discovery.

@@ -84,7 +84,7 @@
 - [x] `293x-121` M69 allocator provider readiness preflight shape
 - [x] `293x-122` M70 combined hook/provider dry-run report
 - [x] `293x-123` M71 allocator provider registry boundary
-- [ ] `293x-124` M72 hako model provider proof fixture
+- [x] `293x-124` M72 hako model provider proof fixture
 - [ ] `293x-125` M73 debug guarded provider proof fixture
 - [ ] `293x-126` M74 native system provider proof boundary
 - [ ] `293x-127` M75 native mimalloc provider proof boundary

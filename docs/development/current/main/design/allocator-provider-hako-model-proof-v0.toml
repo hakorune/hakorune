@@ -1,0 +1,29 @@
+# Reserved schema fixture only. Runtime/backend code must not consume this file.
+schema_version = "allocator_provider_hako_model_proof_v0"
+status = "reserved"
+active = false
+provider_id = "hako_model_allocator"
+provider_kind = "hako_policy_model"
+manifest_schema = "allocator_provider_manifest_v0"
+provider_selection = "inactive"
+diagnostic = "[allocator-provider/hako-model-proof-missing]"
+would_select_provider = false
+would_activate = false
+activation = "future_row_required"
+
+operations = ["model_alloc", "model_free", "stats", "stress_validate"]
+
+required_model_proofs = [
+  "explicit_provider_manifest_fact",
+  "provider_readiness_preflight_ready",
+  "combined_dry_run_ready",
+  "hako_alloc_policy_state_named",
+  "model_alloc_free_state_transition_named",
+  "model_stats_observation_named",
+  "stress_validate_fixture_named",
+  "no_native_pointer_or_metal_activation",
+  "no_process_allocator_replacement",
+  "no_hidden_environment_toggle",
+  "no_app_or_facade_name_matching",
+  "fail_fast_diagnostic_named",
+]

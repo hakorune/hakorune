@@ -120,6 +120,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_allocator_provider_readiness_preflight_guard.sh` | M69 の allocator provider readiness preflight shape を固定し、provider manifest readiness と hook activation preflight diagnostics の接続、および selection/activation/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_combined_dry_run_guard.sh` | M70 の combined hook/provider dry-run report を固定し、明示 hook plan/proof/provider manifest の合成診断と install/selection/activation/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_registry_boundary_guard.sh` | M71 の allocator provider registry boundary docs を固定し、future registry owner/API shape と active registry/selection/replacement 不在を検証する。 |
+| `tools/checks/k2_wide_allocator_provider_hako_model_proof_guard.sh` | M72 の hako model provider proof fixture を固定し、reserved `.hako` policy/model provider proof と selection/native activation/replacement 不在を検証する。 |
 
 ## Env Hygiene
 

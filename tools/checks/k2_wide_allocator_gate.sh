@@ -75,6 +75,7 @@ if [[ "${1:-}" == "--list" ]]; then
   - tools/checks/k2_wide_allocator_provider_readiness_preflight_guard.sh
   - tools/checks/k2_wide_allocator_provider_combined_dry_run_guard.sh
   - tools/checks/k2_wide_allocator_provider_registry_boundary_guard.sh
+  - tools/checks/k2_wide_allocator_provider_hako_model_proof_guard.sh
 LIST
   exit 0
 fi
@@ -261,3 +262,6 @@ run_step "allocator provider combined dry-run guard" \
 
 run_step "allocator provider registry boundary guard" \
   bash tools/checks/k2_wide_allocator_provider_registry_boundary_guard.sh
+
+run_step "allocator provider hako model proof guard" \
+  bash tools/checks/k2_wide_allocator_provider_hako_model_proof_guard.sh
