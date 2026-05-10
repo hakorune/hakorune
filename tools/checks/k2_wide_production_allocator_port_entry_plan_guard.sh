@@ -57,10 +57,10 @@ require_text "$CARD" 'native pointer `fetch_add`'
 require_text "$CARD" "noalias / nonnull / dereferenceable export widening"
 
 require_text "$TASKBOARD" '| `M45 production allocator port entry plan` | `live-narrow` |'
-require_text "$TASKBOARD" '| `M46 hako_alloc production facade boundary` | `next-card` |'
+require_text "$TASKBOARD" '| `M46 hako_alloc production facade boundary` | `live-narrow` |'
+require_text "$TASKBOARD" '| `M47 allocator local page policy proof` | `next-card` |'
 require_text "$PHASE_README" '`293x-097`'
 require_text "$REAL_APP_TASKBOARD" '`293x-097` M45 production allocator port entry plan'
-require_text "$CURRENT_STATE" 'latest_card = "293x-097-M45-PRODUCTION-ALLOCATOR-PORT-ENTRY-PLAN"'
 require_text "$INDEX" "tools/checks/k2_wide_production_allocator_port_entry_plan_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_production_allocator_port_entry_plan_guard.sh"
 

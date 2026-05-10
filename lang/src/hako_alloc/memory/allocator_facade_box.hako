@@ -1,0 +1,59 @@
+// allocator_facade_box.hako — production-facing hako_alloc facade boundary
+// Responsibility:
+// - provide the public allocator port facade name under hako_alloc
+// - delegate policy/state to the existing page/free-list heap row
+// Non-responsibility:
+// - process allocator replacement
+// - direct ABI symbols or native metal calls
+// - pointer atomics, OS VM policy, or native pointer attrs
+
+using selfhost.hako_alloc.memory.page_heap_box as HakoAllocPageHeap
+
+box HakoAllocProductionFacade {
+    heap: HakoAllocHeap
+    init { alloc_count, free_count, reject_count }
+
+    birth() {
+        me.heap = new HakoAllocHeap()
+        me.alloc_count = 0
+        me.free_count = 0
+        me.reject_count = 0
+    }
+
+    allocate(size) {
+        local handle = me.heap.allocate(size)
+        if handle == null {
+            me.reject_count = me.reject_count + 1
+            return null
+        }
+
+        me.alloc_count = me.alloc_count + 1
+        return handle
+    }
+
+    release(handle) {
+        if me.heap.release(handle) {
+            me.free_count = me.free_count + 1
+            return 1
+        }
+
+        me.reject_count = me.reject_count + 1
+        return 0
+    }
+
+    requestedBytes() {
+        return me.heap.requestedBytes()
+    }
+
+    outstandingBlocks() {
+        return me.heap.outstandingBlocks()
+    }
+
+    smallFreeCount() {
+        return me.heap.small_page.freeCount()
+    }
+
+    mediumFreeCount() {
+        return me.heap.medium_page.freeCount()
+    }
+}

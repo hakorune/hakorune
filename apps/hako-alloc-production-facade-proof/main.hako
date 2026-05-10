@@ -1,0 +1,45 @@
+// hako-alloc-production-facade-proof
+// Purpose: prove the hako_alloc production-facing facade boundary.
+
+using selfhost.hako_alloc.memory.allocator_facade_box as HakoAllocFacade
+
+static box Main {
+    main(args) {
+        local alloc = new HakoAllocProductionFacade()
+
+        local h1 = alloc.allocate(8)
+        local h2 = alloc.allocate(48)
+        local h3 = alloc.allocate(80)
+
+        local release_h1 = alloc.release(h1)
+        local h4 = alloc.allocate(16)
+        local release_h3 = alloc.release(h3)
+
+        local h1_ok = 0
+        if h1 != null { h1_ok = 1 }
+        local h2_ok = 0
+        if h2 != null { h2_ok = 1 }
+        local h3_rejected = 0
+        if h3 == null { h3_rejected = 1 }
+        local release_h1_ok = 0
+        if release_h1 == 1 { release_h1_ok = 1 }
+        local h4_ok = 0
+        if h4 != null { h4_ok = 1 }
+        local release_h3_rejected = 0
+        if release_h3 == 0 { release_h3_rejected = 1 }
+
+        print("hako-alloc-production-facade-proof")
+        print("allocs=" + alloc.alloc_count + " frees=" + alloc.free_count + " rejects=" + alloc.reject_count)
+        print("shape=" + h1_ok + "," + h2_ok + "," + h3_rejected + "," + release_h1_ok + "," + h4_ok + "," + release_h3_rejected)
+        print("stats=" + alloc.requestedBytes() + "," + alloc.outstandingBlocks() + "," + alloc.smallFreeCount() + "," + alloc.mediumFreeCount())
+
+        local shape = h1_ok + h2_ok + h3_rejected + release_h1_ok + h4_ok + release_h3_rejected
+        if alloc.alloc_count == 3 && alloc.free_count == 1 && alloc.reject_count == 2 && shape == 6 && alloc.requestedBytes() == 72 && alloc.outstandingBlocks() == 2 && alloc.smallFreeCount() == 7 && alloc.mediumFreeCount() == 3 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

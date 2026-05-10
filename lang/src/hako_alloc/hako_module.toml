@@ -5,6 +5,7 @@ version = "1.0.0"
 [exports]
 README = "README.md"
 memory.arc_box = "memory/arc_box.hako"
+memory.allocator_facade_box = "memory/allocator_facade_box.hako"
 memory.layout_box = "memory/layout_box.hako"
 memory.page_heap_box = "memory/page_heap_box.hako"
 memory.refcell_box = "memory/refcell_box.hako"

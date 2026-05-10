@@ -6,6 +6,7 @@ Scope
 - Future allocator policy helpers should follow the same root.
 
 Current modules
+- `allocator_facade_box.hako`
 - `arc_box.hako`
 - `layout_box.hako`
 - `page_heap_box.hako`

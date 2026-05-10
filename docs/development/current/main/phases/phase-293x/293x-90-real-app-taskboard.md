@@ -58,6 +58,7 @@
 - [x] `293x-095` M43 allocator remote-free retry-loop proof
 - [x] `293x-096` M44 mimalloc allocator substrate closeout guard
 - [x] `293x-097` M45 production allocator port entry plan
+- [x] `293x-098` M46 hako_alloc production facade boundary
 
 ## Gates
 

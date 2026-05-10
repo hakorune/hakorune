@@ -59,6 +59,7 @@ Production allocator port entry
 
 Current modules
 - `memory.arc_box`
+- `memory.allocator_facade_box`
 - `memory.layout_box`
 - `memory.page_heap_box`
 - `memory.refcell_box`

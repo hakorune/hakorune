@@ -91,6 +91,21 @@ CLBG風の二分木生成・破棄・再帰checksumを行う小型ベンチ。
 - oversize と double-free の reject を固定
 - `hako_alloc` public seam 経由の deterministic accounting
 
+#### hako-alloc-production-facade-proof
+**場所**: `hako-alloc-production-facade-proof/main.hako`
+M46 proof。`HakoAllocProductionFacade` が production allocator port の
+public seam として既存 `HakoAllocHeap` page/free-list policy state へ委譲する
+ことを固定する。
+
+```bash
+bash tools/checks/k2_wide_hako_alloc_production_facade_exe_guard.sh
+```
+
+**特徴**:
+- production-facing facade 名を `hako_alloc` 配下に固定
+- allocate/release/reject の最小 accounting を検証
+- backend allocator replacement / pointer fetch_add / native pointer attrs は追加しない
+
 #### mimalloc-raw-page-proof
 **場所**: `mimalloc-raw-page-proof/main.hako`
 M12 substrate proof。`RawBufCoreBox` と `RawArrayCoreBox` を明示的に使う
@@ -566,6 +581,7 @@ box TreeNode {
 - [x] BoxTorrent Mini（内容アドレスBox + 参照カウント連携）
 - [x] binary-trees（GC性能測定）
 - [x] mimalloc-lite（allocator-shaped model）
+- [x] hako-alloc-production-facade-proof（M46 production allocator facade boundary）
 - [x] mimalloc-raw-page-proof（M12 substrate proof）
 - [x] mimalloc-size-class-table-proof（M21 static size-class table proof）
 - [x] mimalloc-two-class-page-proof（M22 two-class page proof）
