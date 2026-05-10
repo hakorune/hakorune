@@ -19,6 +19,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-activation-safety-gate-ssot.md
   - docs/development/current/main/design/allocator-provider-activation-safety-diagnostic-owner-ssot.md
   - docs/development/current/main/design/allocator-provider-activation-safety-diagnostic-report-ssot.md
+  - docs/development/current/main/design/allocator-provider-activation-safety-closeout-inventory-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
 ---
 
@@ -54,6 +55,7 @@ then and only then consider process allocator replacement
 | M82 | activation safety diagnostic owner fixing runtime ownership and future-compatible past guards | complete |
 | M83 | activation safety diagnostic report fixing runtime report output while keeping the gate closed | complete |
 | M84 | activation safety diagnostic CLI surface fixing explicit CLI output while keeping the gate closed | complete |
+| M85 | activation safety closeout inventory fixing coverage across M76-M84 without activation | complete |
 
 ## Layer Model
 
@@ -97,6 +99,7 @@ activation entry:
 | M82 | activation safety diagnostic owner | runtime owner SSOT plus future-compatible provider guards | activation safety implementation |
 | M83 | activation safety diagnostic report | runtime report over caller-provided safety TOML text | activation gate opening |
 | M84 | activation safety diagnostic CLI surface | explicit CLI over caller-provided safety TOML path | environment discovery |
+| M85 | activation safety closeout inventory | coverage guard for M76-M84 artifacts | runtime activation |
 
 ## Post-M75 Activation Entry Ladder
 
@@ -111,6 +114,7 @@ activation entry:
 | M82 | activation safety diagnostic owner | names the runtime diagnostic owner and cleans guard pins | activation safety implementation |
 | M83 | activation safety diagnostic report | diagnostic-only runtime report with gate-closed output | activation gate opening |
 | M84 | activation safety diagnostic CLI surface | explicit CLI output for the gate-closed report | environment discovery |
+| M85 | activation safety closeout inventory | inventory guard for the complete diagnostic ladder | runtime activation |
 
 ## Dependency Order
 
@@ -133,6 +137,7 @@ M66 task breakdown
   -> M82 activation safety diagnostic owner
   -> M83 activation safety diagnostic report
   -> M84 activation safety diagnostic CLI surface
+  -> M85 activation safety closeout inventory
   -> later activation row only after safety proof
 ```
 
@@ -186,7 +191,9 @@ gate shape without opening the gate or activating hooks. M82 fixes the
 activation safety diagnostic owner and removes stale past-guard pins against
 future diagnostic owner files/type names. M83 adds the diagnostic-only runtime
 report in that owner while keeping the gate closed. M84 exposes that report
-through an explicit-input CLI surface without opening the gate. The next safe
-row is M85 activation safety closeout inventory. It must not silently enable
-production activation, `#[global_allocator]`, process allocator replacement,
-environment discovery, or `.inc` name matching.
+through an explicit-input CLI surface without opening the gate. M85 closes out
+the activation safety diagnostic ladder with an inventory guard and no runtime
+activation. The next safe row is M86 activation decision surface proposal. It
+must be docs-first and must not silently enable production activation,
+`#[global_allocator]`, process allocator replacement, environment discovery, or
+`.inc` name matching.

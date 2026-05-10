@@ -18,7 +18,6 @@ TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ss
 CARD="docs/development/current/main/phases/phase-293x/293x-136-M84-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-CLI-SURFACE.md"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
-CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
@@ -53,7 +52,6 @@ require_file "$TASKBOARD"
 require_file "$CARD"
 require_file "$PHASE_README"
 require_file "$REAL_APP_TASKBOARD"
-require_file "$CURRENT_STATE"
 require_file "$INDEX"
 require_file "$DEV_GATE"
 require_file "$ALLOCATOR_GROUP"
@@ -89,14 +87,12 @@ require_text "$SSOT" "would_open_activation_gate=false"
 require_text "$SSOT" "would_activate_hook=false"
 require_text "$SSOT" "would_activate=false"
 require_text "$TASK_BREAKDOWN" "M84 | activation safety diagnostic CLI surface"
-require_text "$TASK_BREAKDOWN" "row is M85 activation safety closeout inventory."
+require_text "$TASK_BREAKDOWN" "explicit CLI over caller-provided safety TOML path"
 require_text "$TASKBOARD" '| `M84 allocator provider activation safety CLI surface` | `live-narrow` |'
 require_text "$TASKBOARD" '107. `M84 allocator provider activation safety CLI surface`'
 require_text "$CARD" "293x-136 M84 Allocator Provider Activation Safety CLI Surface"
 require_text "$PHASE_README" '`293x-136`'
 require_text "$REAL_APP_TASKBOARD" '[x] `293x-136` M84 allocator provider activation safety CLI surface'
-require_text "$CURRENT_STATE" 'latest_card = "293x-136-M84-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-CLI-SURFACE"'
-require_text "$CURRENT_STATE" 'latest_card_path = "docs/development/current/main/phases/phase-293x/293x-136-M84-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-CLI-SURFACE.md"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_activation_safety_cli_surface_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_activation_safety_cli_surface_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_activation_safety_cli_surface_guard.sh"

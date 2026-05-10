@@ -300,7 +300,10 @@ inference for the allocator release path.
   exposing the gate-closed runtime report through an explicit caller-provided
   TOML path while keeping environment discovery, implicit discovery, gate
   opening, hook activation, and allocator replacement inactive.
-- Next: M85 activation safety closeout inventory. It must stay
-  explicit-input-only and must not add environment discovery, implicit
-  manifest/proof discovery, gate opening, hook activation,
-  `#[global_allocator]`, or process allocator replacement.
+- `293x-137`: M85 allocator provider activation safety closeout inventory
+  landed, locking M76-M84 SSOT/fixture/card/guard coverage before any later
+  activation decision row while keeping runtime activation inactive.
+- Next: M86 activation decision surface proposal. It must be docs-first and
+  must not add environment discovery, implicit manifest/proof discovery, gate
+  opening, hook activation, `#[global_allocator]`, or process allocator
+  replacement.

@@ -97,6 +97,7 @@
 - [x] `293x-134` M82 allocator provider activation safety diagnostic owner
 - [x] `293x-135` M83 allocator provider activation safety diagnostic report
 - [x] `293x-136` M84 allocator provider activation safety CLI surface
+- [x] `293x-137` M85 allocator provider activation safety closeout inventory
 
 ## Gates
 
