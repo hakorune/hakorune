@@ -226,6 +226,8 @@ inference for the allocator release path.
 - `293x-114`: M62 allocator hook activation preflight boundary landed, naming
   the reentrancy/bootstrap/no-alloc/rollback/fail-fast handoff required before
   any activation row.
-- Next: diagnostic-only `AllocatorHookActivationPreflight` data shape may be
-  added, but process allocator replacement remains blocked until a separate
-  activation row proves safety.
+- `293x-115`: M63 allocator hook activation preflight shape landed, adding
+  diagnostic-only runtime facts/report and stable missing-fact names while
+  keeping `would_activate=false`.
+- Next: provider boundary vocabulary may be added, but process allocator
+  replacement remains blocked until a separate activation row proves safety.

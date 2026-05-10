@@ -54,7 +54,6 @@ require_text "$TASKBOARD" '| `M62 allocator hook activation preflight boundary` 
 require_text "$TASKBOARD" '85. `M62 allocator hook activation preflight boundary`'
 require_text "$PHASE_README" '`293x-114`'
 require_text "$REAL_APP_TASKBOARD" '`293x-114` M62 allocator hook activation preflight boundary'
-require_text "$CURRENT_STATE" 'latest_card = "293x-114-M62-ALLOCATOR-HOOK-ACTIVATION-PREFLIGHT"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_hook_activation_preflight_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_hook_activation_preflight_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_hook_activation_preflight_guard.sh"

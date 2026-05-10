@@ -111,6 +111,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_allocator_hook_activation_proof_validator_guard.sh` | M60 の allocator hook activation proof validator を固定し、reserved activation-proof TOML text validation と activation/env/CLI/file discovery 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_hook_dry_run_cli_surface_guard.sh` | M61 の allocator hook dry-run CLI surface を固定し、明示 plan/proof file diagnostic と env/implicit discovery/activation 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_hook_activation_preflight_guard.sh` | M62 の allocator hook activation preflight boundary を固定し、activation proof handoff と process allocator replacement 不在を検証する。 |
+| `tools/checks/k2_wide_allocator_hook_activation_preflight_shape_guard.sh` | M63 の allocator hook activation preflight shape を固定し、diagnostic-only runtime facts/report と activation 不在を検証する。 |
 
 ## Env Hygiene
 

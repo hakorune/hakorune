@@ -152,6 +152,7 @@ them into MIR-owned plan facts.
 | `M60 allocator hook activation proof validator` | `live-narrow` | activation proof validator | validates reserved activation-proof TOML text as diagnostics only while keeping activation, env/CLI surface, file discovery, and process allocator replacement inactive |
 | `M61 allocator hook dry-run CLI surface` | `live-narrow` | diagnostic CLI surface | exposes explicit plan/proof file dry-run diagnostics without environment toggles, implicit discovery, runner ownership, activation, or process allocator replacement |
 | `M62 allocator hook activation preflight boundary` | `live-docs` | activation preflight boundary | names the reentrancy/bootstrap/no-alloc/rollback/fail-fast handoff required before any allocator hook activation or process allocator replacement row |
+| `M63 allocator hook activation preflight shape` | `live-narrow` | activation preflight data shape | adds diagnostic-only runtime preflight facts/report with stable missing-fact names and `would_activate=false`; no activation or replacement hook |
 
 ## Fixed Implementation Order
 
@@ -240,6 +241,7 @@ them into MIR-owned plan facts.
 83. `M60 allocator hook activation proof validator`
 84. `M61 allocator hook dry-run CLI surface`
 85. `M62 allocator hook activation preflight boundary`
+86. `M63 allocator hook activation preflight shape`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed
