@@ -49,10 +49,11 @@ require_text "$SSOT" "Immediate Task Ladder"
 require_text "$SSOT" "M67 | provider manifest diagnostic parser"
 require_text "$SSOT" "M70 | combined hook/provider dry-run report"
 require_text "$SSOT" "M75 | native mimalloc provider proof boundary"
+require_text "$SSOT" "Provider proof boundary ladder is now closed"
 require_text "$SSOT" 'Past card guards should not pin `CURRENT_STATE.latest_card`'
 require_text "$TASKBOARD" '| `M66 allocator provider task breakdown` | `live-docs` |'
 require_text "$TASKBOARD" '`M67 allocator provider manifest parser`'
-require_text "$TASKBOARD" '| `M75 native mimalloc provider proof boundary` | `planned` |'
+require_text "$TASKBOARD" '`M75 native mimalloc provider proof boundary`'
 require_text "$TASKBOARD" '89. `M66 allocator provider task breakdown`'
 require_text "$TASKBOARD" '98. `M75 native mimalloc provider proof boundary`'
 require_text "$PHASE_README" '`293x-118`'

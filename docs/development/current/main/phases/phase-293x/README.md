@@ -261,6 +261,11 @@ inference for the allocator release path.
 - `293x-126`: M74 native system provider proof boundary landed, reserving the
   system allocator ABI proof shape while keeping `#[global_allocator]`,
   provider selection, hook activation, and allocator replacement inactive.
-- Next: M75 may add a native mimalloc provider proof boundary, but production
-  activation, `#[global_allocator]`, active registry implementation, provider
-  selection, and process allocator replacement remain blocked.
+- `293x-127`: M75 native mimalloc provider proof boundary landed, reserving the
+  mimalloc provider ABI/page lifecycle proof shape while keeping production
+  activation, provider selection, hook activation, and allocator replacement
+  inactive.
+- Next: provider proof boundary ladder is closed through M75. Any later
+  activation row must explicitly introduce registry/selection ownership,
+  fail-fast diagnostics, activation proof consumption, rollback behavior, and a
+  dedicated guard.

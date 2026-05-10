@@ -78,6 +78,7 @@ if [[ "${1:-}" == "--list" ]]; then
   - tools/checks/k2_wide_allocator_provider_hako_model_proof_guard.sh
   - tools/checks/k2_wide_allocator_provider_debug_guarded_proof_guard.sh
   - tools/checks/k2_wide_allocator_provider_native_system_proof_guard.sh
+  - tools/checks/k2_wide_allocator_provider_native_mimalloc_proof_guard.sh
 LIST
   exit 0
 fi
@@ -273,3 +274,6 @@ run_step "allocator provider debug guarded proof guard" \
 
 run_step "allocator provider native system proof guard" \
   bash tools/checks/k2_wide_allocator_provider_native_system_proof_guard.sh
+
+run_step "allocator provider native mimalloc proof guard" \
+  bash tools/checks/k2_wide_allocator_provider_native_mimalloc_proof_guard.sh
