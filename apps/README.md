@@ -337,6 +337,22 @@ bash tools/checks/k2_wide_mimalloc_ptr_remote_free_list_exe_guard.sh
 - MIR-owned route facts の合成だけで head CAS publish と next link を表す
 - 新しい route row / pointer fetch_add / production remote-free policy は追加しない
 
+#### mimalloc-remote-free-list-policy-proof
+**場所**: `mimalloc-remote-free-list-policy-proof/main.hako`
+M42 policy integration proof。M41 の two-node remote-free list push 形を
+`AllocatorRemoteFreeListPolicy` の same-module method に移し、pure-first EXE で
+generic-i64 global route 経由の policy seam を固定する fixture。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_remote_free_list_policy_exe_guard.sh
+```
+
+**特徴**:
+- same-module policy box が head init / push / peek を所有する
+- method body 内で pointer load → next store → head CAS を実行する
+- main は alloc/free と list shape 検証だけを持つ
+- 新しい route row / pointer fetch_add / production retry loop は追加しない
+
 #### mimalloc-tls-ptr-remote-free-proof
 **場所**: `mimalloc-tls-ptr-remote-free-proof/main.hako`
 M36 composition proof。TLS cache-slot に native mailbox pointer を置き、
@@ -544,6 +560,7 @@ box TreeNode {
 - [x] mimalloc-ptr-atomic-load-proof（M39 native pointer atomic load proof）
 - [x] mimalloc-ptr-atomic-cas-proof（M40 native pointer atomic CAS proof）
 - [x] mimalloc-ptr-remote-free-list-proof（M41 pointer CAS remote-free list proof）
+- [x] mimalloc-remote-free-list-policy-proof（M42 allocator remote-free list policy integration proof）
 - [x] mimalloc-tls-ptr-remote-free-proof（M36 TLS pointer remote-free proof）
 - [x] mimalloc-remote-free-policy-proof（M37 remote-free policy integration proof）
 

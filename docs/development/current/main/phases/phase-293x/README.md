@@ -169,7 +169,9 @@ inference for the allocator release path.
 - `293x-093`: M41 pointer CAS remote-free list proof landed, composing the
   existing M35/M39/M40 pointer store/load/CAS routes into a two-node remote-free
   list push fixture without adding a route row or backend matcher.
-- Next: M42 allocator remote-free list policy integration proof, if the
-  allocator lane needs the M41 list push shape behind a same-module policy box;
-  keep future blockers as compiler/runtime seams and do not hide them in app
-  code.
+- `293x-094`: M42 allocator remote-free list policy integration proof landed,
+  moving the M41 list push shape behind `AllocatorRemoteFreeListPolicy` through
+  same-module generic-i64 routes without adding a route row or backend matcher.
+- Next: M43 allocator remote-free retry-loop proof, if the allocator lane needs
+  a CAS retry-loop acceptance shape; keep future blockers as compiler/runtime
+  seams and do not hide them in app code.

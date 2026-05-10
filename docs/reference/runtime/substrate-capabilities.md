@@ -176,6 +176,10 @@ Live operations:
   store/load/CAS routes into a two-node remote-free list push proof. It uses
   the block's first word as a next-pointer cell and adds no new route row or
   allocator production policy.
+- `apps/mimalloc-remote-free-list-policy-proof` moves that two-node push shape
+  behind `AllocatorRemoteFreeListPolicy` same-module methods. It proves policy
+  integration over existing route facts only; retry loops and production
+  allocator policy remain future work.
 - `tools/checks/k2_wide_mimalloc_allocator_closeout_guard.sh` locks the
   M20-M37 mimalloc allocator proof coverage as a closeout inventory guard.
 

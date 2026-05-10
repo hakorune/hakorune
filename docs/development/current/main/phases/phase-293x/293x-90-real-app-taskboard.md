@@ -54,6 +54,7 @@
 - [x] `293x-091` M39 native pointer atomic load route proof
 - [x] `293x-092` M40 native pointer atomic CAS route proof
 - [x] `293x-093` M41 pointer CAS remote-free list proof
+- [x] `293x-094` M42 allocator remote-free list policy integration proof
 
 ## Gates
 
