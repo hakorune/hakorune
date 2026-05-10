@@ -134,7 +134,8 @@ them into MIR-owned plan facts.
 | `M42 allocator remote-free list policy integration proof` | `live-narrow` | allocator policy app proof | moves the M41 list push shape behind a same-module policy box; adds no new route row, NyRT export, `.inc` emit behavior, pointer fetch_add, or backend-specific matcher |
 | `M43 allocator remote-free retry-loop proof` | `live-narrow` | allocator policy app proof | proves a bounded CAS retry-loop acceptance shape inside a same-module policy box; adds no new route row, NyRT export, pointer fetch_add, or production allocator policy; adds only generic no-result consumption for existing pointer store/CAS route facts, not app-specific backend matching |
 | `M44 mimalloc allocator substrate closeout guard` | `live-narrow` | regression guard | inventories and locks the M20-M43 mimalloc allocator substrate proof path before starting production allocator port work; adds no app, route row, NyRT export, or `.inc` matcher |
-| `M45 production allocator port entry plan` | `next-card` | task split | future split that turns the M20-M44 substrate proof ladder into a production allocator port plan without widening pointer attrs or activating pointer fetch_add implicitly |
+| `M45 production allocator port entry plan` | `live-narrow` | task split | turns the M20-M44 substrate proof ladder into a production allocator port plan without widening pointer attrs, activating pointer fetch_add, or adding allocator replacement hooks implicitly |
+| `M46 hako_alloc production facade boundary` | `next-card` | hako_alloc facade contract | future split that creates the production-facing allocator facade boundary under `hako_alloc` while routing only through existing substrate boxes |
 
 ## Fixed Implementation Order
 
@@ -206,6 +207,7 @@ them into MIR-owned plan facts.
 66. `M43 allocator remote-free retry-loop proof`
 67. `M44 mimalloc allocator substrate closeout guard`
 68. `M45 production allocator port entry plan`
+69. `M46 hako_alloc production facade boundary`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed

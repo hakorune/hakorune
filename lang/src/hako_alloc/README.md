@@ -43,6 +43,20 @@ Allocator fast-path rule
   `lang/src/runtime/substrate/raw_buf/`; it is not this layer's allocator
   policy/state owner.
 
+Production allocator port entry
+- M45 fixes the production allocator port boundary:
+  - `hako_alloc` owns allocator policy/control/facade names.
+  - `runtime/substrate` owns raw capability facades.
+  - native metal keep owns final libc/syscall/platform bodies.
+- First implementation order:
+  1. production facade boundary
+  2. local page policy proof
+  3. remote-free policy proof
+  4. OSVM page-source proof
+  5. stress production-facade parity
+- Do not add allocator replacement hooks, pointer fetch_add, native pointer
+  attrs, or app-specific `.inc` matchers as part of the entry plan.
+
 Current modules
 - `memory.arc_box`
 - `memory.layout_box`

@@ -92,6 +92,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_mimalloc_remote_free_list_policy_exe_guard.sh` | M42 の allocator remote-free list policy proof を固定し、M41 の two-node push shape が same-module policy box 経由で pure-first EXE 実行できることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_remote_free_retry_loop_exe_guard.sh` | M43 の allocator remote-free retry-loop proof を固定し、same-module policy box 内の bounded CAS retry loop が pure-first EXE 実行できることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_allocator_substrate_closeout_guard.sh` | M44 の mimalloc allocator substrate closeout を固定し、M20-M43 proof apps/guards/docs/quick coverage と app-specific `.inc` matcher 不在を検証する。 |
+| `tools/checks/k2_wide_production_allocator_port_entry_plan_guard.sh` | M45 の production allocator port entry plan を固定し、M46-M50 の実装順・境界・pointer fetch_add/native attrs inactive を検証する。 |
 
 ## Env Hygiene
 

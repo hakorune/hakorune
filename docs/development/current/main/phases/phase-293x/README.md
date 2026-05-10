@@ -177,5 +177,8 @@ inference for the allocator release path.
   pointer store/load/CAS routes.
 - `293x-096`: M44 mimalloc allocator substrate closeout guard landed, locking
   the M20-M43 substrate proof ladder before production allocator port work.
-- Next: M45 production allocator port entry plan; keep future blockers as
+- `293x-097`: M45 production allocator port entry plan landed, fixing the
+  first production allocator port order as facade boundary, local page policy,
+  remote-free policy, OSVM page-source, then stress parity.
+- Next: M46 hako_alloc production facade boundary; keep future blockers as
   compiler/runtime seams and do not hide them in app code.

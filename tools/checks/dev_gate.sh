@@ -108,6 +108,7 @@ list_profiles() {
     - tools/checks/k2_wide_mimalloc_remote_free_list_policy_exe_guard.sh
     - tools/checks/k2_wide_mimalloc_remote_free_retry_loop_exe_guard.sh
     - tools/checks/k2_wide_mimalloc_allocator_substrate_closeout_guard.sh
+    - tools/checks/k2_wide_production_allocator_port_entry_plan_guard.sh
     - tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
     - tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
     - tools/checks/k2_wide_metal_keep_inventory_guard.sh
@@ -519,6 +520,9 @@ run_quick() {
 
   run_step "K2-wide mimalloc allocator substrate closeout guard" \
     bash tools/checks/k2_wide_mimalloc_allocator_substrate_closeout_guard.sh
+
+  run_step "K2-wide production allocator port entry plan guard" \
+    bash tools/checks/k2_wide_production_allocator_port_entry_plan_guard.sh
 
   run_step "K2-wide hako_alloc handle policy guard" \
     bash tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
