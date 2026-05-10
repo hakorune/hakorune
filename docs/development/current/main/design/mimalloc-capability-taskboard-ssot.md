@@ -162,7 +162,7 @@ them into MIR-owned plan facts.
 | `M70 combined hook/provider dry-run report` | `live-narrow` | combined diagnostic report | combines hook plan, activation proof, activation preflight, provider manifest, and provider readiness diagnostics while keeping install/selection/activation false |
 | `M71 allocator provider registry boundary` | `live-docs` | registry boundary docs | names future registry ownership/API and stop line while keeping active registry implementation, selection, and replacement absent |
 | `M72 hako model provider proof fixture` | `live-docs` | model provider proof | adds a reserved hako model provider proof fixture while keeping provider selection, native metal activation, and replacement inactive |
-| `M73 debug guarded provider proof fixture` | `planned` | guarded provider proof | validate guarded-provider diagnostics without replacement |
+| `M73 debug guarded provider proof fixture` | `live-docs` | guarded provider proof | adds a reserved debug guarded provider proof fixture while keeping provider selection, hook activation, and replacement inactive |
 | `M74 native system provider proof boundary` | `planned` | native system provider boundary | define system allocator provider contract without `#[global_allocator]` |
 | `M75 native mimalloc provider proof boundary` | `planned` | native mimalloc provider boundary | define mimalloc provider contract without production activation |
 

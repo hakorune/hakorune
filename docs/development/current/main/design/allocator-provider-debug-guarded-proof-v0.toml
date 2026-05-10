@@ -1,0 +1,28 @@
+# Reserved schema fixture only. Runtime/backend code must not consume this file.
+schema_version = "allocator_provider_debug_guarded_proof_v0"
+status = "reserved"
+active = false
+provider_id = "debug_guarded_allocator"
+provider_kind = "debug_guarded_provider"
+manifest_schema = "allocator_provider_manifest_v0"
+provider_selection = "inactive"
+diagnostic = "[allocator-provider/debug-guarded-proof-missing]"
+would_select_provider = false
+would_activate = false
+activation = "future_row_required"
+
+operations = ["alloc", "realloc", "free", "guard_check", "leak_check"]
+
+required_guarded_proofs = [
+  "explicit_provider_manifest_fact",
+  "provider_readiness_preflight_ready",
+  "combined_dry_run_ready",
+  "guard_check_lifecycle_bounds_named",
+  "leak_check_observation_named",
+  "allocation_api_guard_surface_named",
+  "no_process_allocator_replacement",
+  "no_native_metal_activation",
+  "no_hidden_environment_toggle",
+  "no_app_or_facade_name_matching",
+  "fail_fast_diagnostic_named",
+]

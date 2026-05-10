@@ -255,6 +255,9 @@ inference for the allocator release path.
 - `293x-124`: M72 hako model provider proof fixture landed, reserving the
   `.hako` policy/model provider proof shape while keeping provider selection,
   native metal activation, and allocator replacement inactive.
-- Next: M73 may add a debug guarded provider proof fixture, but active registry
-  implementation, provider selection, and process allocator replacement remain
-  blocked.
+- `293x-125`: M73 debug guarded provider proof fixture landed, reserving the
+  guarded-provider diagnostic proof shape while keeping provider selection,
+  hook activation, and allocator replacement inactive.
+- Next: M74 may add a native system provider proof boundary, but
+  `#[global_allocator]`, active registry implementation, provider selection,
+  and process allocator replacement remain blocked.
