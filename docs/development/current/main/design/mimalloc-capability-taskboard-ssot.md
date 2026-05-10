@@ -165,6 +165,7 @@ them into MIR-owned plan facts.
 | `M73 debug guarded provider proof fixture` | `live-docs` | guarded provider proof | adds a reserved debug guarded provider proof fixture while keeping provider selection, hook activation, and replacement inactive |
 | `M74 native system provider proof boundary` | `live-docs` | native system provider boundary | adds a reserved native system provider proof boundary while keeping `#[global_allocator]`, provider selection, and replacement inactive |
 | `M75 native mimalloc provider proof boundary` | `live-docs` | native mimalloc provider boundary | adds a reserved native mimalloc provider proof boundary while keeping production activation, provider selection, and replacement inactive |
+| `M76 allocator provider activation entry contract` | `live-docs` | activation entry contract | names future registry/selection ownership, proof consumption, fail-fast diagnostics, and rollback behavior while keeping runtime registry code, activation, and replacement inactive |
 
 ## Fixed Implementation Order
 
@@ -266,6 +267,7 @@ them into MIR-owned plan facts.
 96. `M73 debug guarded provider proof fixture`
 97. `M74 native system provider proof boundary`
 98. `M75 native mimalloc provider proof boundary`
+99. `M76 allocator provider activation entry contract`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed

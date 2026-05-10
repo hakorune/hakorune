@@ -88,6 +88,7 @@
 - [x] `293x-125` M73 debug guarded provider proof fixture
 - [x] `293x-126` M74 native system provider proof boundary
 - [x] `293x-127` M75 native mimalloc provider proof boundary
+- [x] `293x-128` M76 allocator provider activation entry contract
 
 ## Gates
 

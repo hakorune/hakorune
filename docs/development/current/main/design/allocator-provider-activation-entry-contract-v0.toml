@@ -1,0 +1,37 @@
+# Reserved schema fixture only. Runtime/backend code must not consume this file.
+schema_version = "allocator_provider_activation_entry_contract_v0"
+status = "reserved"
+active = false
+provider_selection = "inactive"
+would_select_provider = false
+would_activate = false
+activation = "future_row_required"
+diagnostic = "[allocator-provider/activation-entry-contract-missing]"
+
+registry_owner = "src/runtime/allocator_provider_registry.rs"
+selection_owner = "src/runtime/allocator_provider_registry.rs"
+activation_preflight_owner = "src/runtime/allocator_hook_dry_run.rs"
+provider_manifest_owner = "src/runtime/allocator_provider_manifest.rs"
+
+required_activation_entry_facts = [
+  "registry_selection_owner_named",
+  "explicit_provider_manifest_fact",
+  "provider_readiness_preflight_ready",
+  "combined_dry_run_ready",
+  "activation_proof_consumed",
+  "native_provider_proof_consumed",
+  "fail_fast_selection_diagnostic_named",
+  "rollback_behavior_named",
+  "no_hidden_environment_toggle",
+  "no_implicit_manifest_discovery",
+  "no_app_or_facade_name_matching",
+  "no_global_allocator_attribute",
+  "no_process_allocator_replacement_without_later_row",
+]
+
+future_rows = [
+  "M77 registry snapshot diagnostic shape",
+  "M78 selection decision diagnostic shape",
+  "M79 provider proof bundle consumption",
+  "M80 rollback preflight contract",
+]

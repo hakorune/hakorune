@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-debug-guarded-proof-ssot.md
   - docs/development/current/main/design/allocator-provider-native-system-proof-ssot.md
   - docs/development/current/main/design/allocator-provider-native-mimalloc-proof-ssot.md
+  - docs/development/current/main/design/allocator-provider-activation-entry-contract-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
 ---
 
@@ -37,6 +38,7 @@ then and only then consider process allocator replacement
 | M57-M61 | diagnostic-only dry-run runtime validator, manifest text callsite, test surface, proof validator, CLI surface | complete |
 | M62-M63 | activation preflight boundary and diagnostic preflight facts/report | complete |
 | M64-M75 | provider ids, reserved provider manifest fixture, diagnostic parser, explicit CLI surface, readiness preflight facts, combined hook/provider dry-run report, registry boundary docs, hako model provider proof fixture, debug guarded provider proof fixture, native system provider proof boundary, and native mimalloc provider proof boundary | complete |
+| M76 | activation entry contract naming registry/selection ownership, proof consumption, fail-fast diagnostics, rollback behavior, and the next activation task ladder | complete |
 
 ## Layer Model
 
@@ -52,6 +54,9 @@ provider diagnostics:
 
 native metal provider:
   system allocator / mimalloc / OS VM glue / platform atomics and TLS
+
+activation entry:
+  registry snapshot / selection decision / proof consumption / rollback preflight
 ```
 
 ## Immediate Task Ladder
@@ -68,6 +73,17 @@ native metal provider:
 | M73 | debug guarded provider proof fixture | guarded-provider diagnostic proof | process allocator replacement |
 | M74 | native system provider proof boundary | system provider contract docs/fixture | `#[global_allocator]` |
 | M75 | native mimalloc provider proof boundary | mimalloc provider contract docs/fixture | production activation |
+| M76 | activation entry contract | reserved activation entry fixture naming ownership/proof/rollback facts | runtime registry code |
+
+## Post-M75 Activation Entry Ladder
+
+| Row | Task | Output | Must Not Add |
+| --- | --- | --- | --- |
+| M76 | activation entry contract | SSOT + reserved fixture + guard | runtime registry code |
+| M77 | registry snapshot diagnostic shape | explicit registry snapshot data shape | provider selection |
+| M78 | selection decision diagnostic shape | deterministic selection request/decision facts | activation |
+| M79 | provider proof bundle consumption | explicit provider proof validation handoff | `#[global_allocator]` |
+| M80 | rollback preflight contract | rollback facts before activation | process allocator replacement |
 
 ## Dependency Order
 
@@ -81,6 +97,7 @@ M66 task breakdown
   -> M72 hako model provider proof
   -> M73 debug guarded provider proof
   -> M74/M75 native provider proof boundaries
+  -> M76 activation entry contract
   -> later activation row only after safety proof
 ```
 
@@ -119,9 +136,8 @@ Every next row should land as:
 
 ## Next Step
 
-Provider proof boundary ladder is now closed through M75. A later activation
-row must first introduce explicit registry/selection ownership, fail-fast
-selection diagnostics, activation proof consumption, rollback behavior, and a
-dedicated guard. It must not silently enable production activation,
-`#[global_allocator]`, process allocator replacement, environment discovery, or
-`.inc` name matching.
+Provider proof boundary ladder is now closed through M75. M76 opens the
+activation entry contract without runtime registry code. The next safe row is
+M77 registry snapshot diagnostic shape. It must not silently enable production
+activation, `#[global_allocator]`, process allocator replacement, environment
+discovery, or `.inc` name matching.

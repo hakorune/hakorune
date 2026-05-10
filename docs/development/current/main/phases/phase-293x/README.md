@@ -265,7 +265,12 @@ inference for the allocator release path.
   mimalloc provider ABI/page lifecycle proof shape while keeping production
   activation, provider selection, hook activation, and allocator replacement
   inactive.
-- Next: provider proof boundary ladder is closed through M75. Any later
-  activation row must explicitly introduce registry/selection ownership,
-  fail-fast diagnostics, activation proof consumption, rollback behavior, and a
-  dedicated guard.
+- `293x-128`: M76 allocator provider activation entry contract landed, naming
+  future registry/selection ownership, fail-fast selection diagnostics,
+  activation proof consumption, provider proof consumption, rollback behavior,
+  and a dedicated guard while keeping runtime registry code, provider
+  selection, hook activation, and allocator replacement inactive.
+- Next: M77 registry snapshot diagnostic shape. It must stay caller-provided
+  and diagnostic-only: no provider selection, environment discovery,
+  implicit manifest discovery, hook activation, or process allocator
+  replacement.

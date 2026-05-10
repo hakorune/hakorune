@@ -14,7 +14,6 @@ TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ss
 CARD="docs/development/current/main/phases/phase-293x/293x-127-M75-NATIVE-MIMALLOC-PROVIDER-PROOF-BOUNDARY.md"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
-CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
@@ -47,7 +46,6 @@ require_file "$TASKBOARD"
 require_file "$CARD"
 require_file "$PHASE_README"
 require_file "$REAL_APP_TASKBOARD"
-require_file "$CURRENT_STATE"
 require_file "$INDEX"
 require_file "$DEV_GATE"
 require_file "$ALLOCATOR_GROUP"
@@ -67,8 +65,6 @@ require_text "$TASKBOARD" '| `M75 native mimalloc provider proof boundary` | `li
 require_text "$TASKBOARD" '98. `M75 native mimalloc provider proof boundary`'
 require_text "$PHASE_README" '`293x-127`'
 require_text "$REAL_APP_TASKBOARD" '[x] `293x-127` M75 native mimalloc provider proof boundary'
-require_text "$CURRENT_STATE" 'latest_card = "293x-127-M75-NATIVE-MIMALLOC-PROVIDER-PROOF-BOUNDARY"'
-require_text "$CURRENT_STATE" 'latest_card_path = "docs/development/current/main/phases/phase-293x/293x-127-M75-NATIVE-MIMALLOC-PROVIDER-PROOF-BOUNDARY.md"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_native_mimalloc_proof_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_native_mimalloc_proof_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_native_mimalloc_proof_guard.sh"
