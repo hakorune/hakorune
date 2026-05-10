@@ -229,5 +229,9 @@ inference for the allocator release path.
 - `293x-115`: M63 allocator hook activation preflight shape landed, adding
   diagnostic-only runtime facts/report and stable missing-fact names while
   keeping `would_activate=false`.
-- Next: provider boundary vocabulary may be added, but process allocator
-  replacement remains blocked until a separate activation row proves safety.
+- `293x-116`: M64 allocator provider boundary vocabulary landed, reserving
+  provider ids for system allocator, mimalloc, hako model, and guarded debug
+  providers while keeping provider registry/selection/replacement inactive.
+- Next: a reserved provider manifest fixture or diagnostic-only provider parser
+  may be added, but process allocator replacement remains blocked until a
+  separate activation row proves safety.

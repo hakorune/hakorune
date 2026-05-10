@@ -153,6 +153,7 @@ them into MIR-owned plan facts.
 | `M61 allocator hook dry-run CLI surface` | `live-narrow` | diagnostic CLI surface | exposes explicit plan/proof file dry-run diagnostics without environment toggles, implicit discovery, runner ownership, activation, or process allocator replacement |
 | `M62 allocator hook activation preflight boundary` | `live-docs` | activation preflight boundary | names the reentrancy/bootstrap/no-alloc/rollback/fail-fast handoff required before any allocator hook activation or process allocator replacement row |
 | `M63 allocator hook activation preflight shape` | `live-narrow` | activation preflight data shape | adds diagnostic-only runtime preflight facts/report with stable missing-fact names and `would_activate=false`; no activation or replacement hook |
+| `M64 allocator provider boundary vocabulary` | `live-docs` | provider boundary vocabulary | reserves provider ids for system allocator, mimalloc, hako model, and guarded debug providers while keeping provider registry, selection, and replacement inactive |
 
 ## Fixed Implementation Order
 
@@ -242,6 +243,7 @@ them into MIR-owned plan facts.
 84. `M61 allocator hook dry-run CLI surface`
 85. `M62 allocator hook activation preflight boundary`
 86. `M63 allocator hook activation preflight shape`
+87. `M64 allocator provider boundary vocabulary`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed

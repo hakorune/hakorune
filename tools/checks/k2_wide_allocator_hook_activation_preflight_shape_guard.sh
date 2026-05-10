@@ -61,7 +61,6 @@ require_text "$TASKBOARD" '| `M63 allocator hook activation preflight shape` | `
 require_text "$TASKBOARD" '86. `M63 allocator hook activation preflight shape`'
 require_text "$PHASE_README" '`293x-115`'
 require_text "$REAL_APP_TASKBOARD" '`293x-115` M63 allocator hook activation preflight shape'
-require_text "$CURRENT_STATE" 'latest_card = "293x-115-M63-ALLOCATOR-HOOK-ACTIVATION-PREFLIGHT-SHAPE"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_hook_activation_preflight_shape_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_hook_activation_preflight_shape_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_hook_activation_preflight_shape_guard.sh"

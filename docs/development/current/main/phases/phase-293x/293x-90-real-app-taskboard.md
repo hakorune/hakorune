@@ -76,6 +76,7 @@
 - [x] `293x-113` M61 allocator hook dry-run CLI surface
 - [x] `293x-114` M62 allocator hook activation preflight boundary
 - [x] `293x-115` M63 allocator hook activation preflight shape
+- [x] `293x-116` M64 allocator provider boundary vocabulary
 
 ## Gates
 
