@@ -111,7 +111,7 @@ for proof in required:
         fail(f"missing required proof: {proof}")
 PY
 
-if rg -n 'hako_alloc_(install|replace)_allocator|allocator_replacement_hook|allocator_hook_(dry_run|activate)|HakoAllocatorReplacementHook|AllocatorReplacementHookBox|AllocatorHookPlan|HookPlan' \
+if rg -n 'hako_alloc_(install|replace)_allocator|allocator_replacement_hook|allocator_hook_activate|HakoAllocatorReplacementHook|AllocatorReplacementHookBox|AllocatorHookPlan|HookPlan' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".implementation 2>&1; then
   cat /tmp/"$TAG".implementation >&2
   rm -f /tmp/"$TAG".implementation

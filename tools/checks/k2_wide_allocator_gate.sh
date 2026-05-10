@@ -60,6 +60,7 @@ if [[ "${1:-}" == "--list" ]]; then
   - tools/checks/k2_wide_allocator_hook_runtime_dry_run_guard.sh
   - tools/checks/k2_wide_allocator_hook_activation_proof_guard.sh
   - tools/checks/k2_wide_allocator_hook_runtime_owner_guard.sh
+  - tools/checks/k2_wide_allocator_hook_runtime_dry_run_code_guard.sh
 LIST
   exit 0
 fi
@@ -201,3 +202,6 @@ run_step "allocator hook activation proof guard" \
 
 run_step "allocator hook runtime owner guard" \
   bash tools/checks/k2_wide_allocator_hook_runtime_owner_guard.sh
+
+run_step "allocator hook runtime dry-run code guard" \
+  bash tools/checks/k2_wide_allocator_hook_runtime_dry_run_code_guard.sh

@@ -64,7 +64,7 @@ require_text "$INDEX" "tools/checks/k2_wide_allocator_hook_runtime_dry_run_guard
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_hook_runtime_dry_run_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_hook_runtime_dry_run_guard.sh"
 
-if rg -n 'hako_alloc_(install|replace)_allocator|allocator_replacement_hook|allocator_hook_dry_run|HakoAllocatorReplacementHook|AllocatorReplacementHookBox|AllocatorHookPlan|HookPlan' \
+if rg -n 'hako_alloc_(install|replace)_allocator|allocator_replacement_hook|HakoAllocatorReplacementHook|AllocatorReplacementHookBox|AllocatorHookPlan|HookPlan' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".implementation 2>&1; then
   cat /tmp/"$TAG".implementation >&2
   rm -f /tmp/"$TAG".implementation

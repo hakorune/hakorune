@@ -50,21 +50,17 @@ require_file "$M55_GUARD"
 require_text "$SSOT" "Allocator Hook Runtime Owner (SSOT)"
 require_text "$SSOT" "src/runtime/allocator_hook_dry_run.rs"
 require_text "$SSOT" "runtime dry-run code:"
-require_text "$SSOT" "absent"
 require_text "$ACTIVATION_SSOT" "[allocator-hook/activation-proof-missing]"
 require_text "$CARD" "M56 Allocator Hook Runtime Owner"
 require_text "$TASKBOARD" '| `M56 allocator hook runtime owner row` | `live-docs` |'
 require_text "$TASKBOARD" '79. `M56 allocator hook runtime owner row`'
 require_text "$PHASE_README" '`293x-108`'
 require_text "$REAL_APP_TASKBOARD" '`293x-108` M56 allocator hook runtime owner row'
-require_text "$CURRENT_STATE" 'latest_card = "293x-108-M56-ALLOCATOR-HOOK-RUNTIME-OWNER"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_hook_runtime_owner_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_hook_runtime_owner_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_hook_runtime_owner_guard.sh"
 
-[[ ! -f src/runtime/allocator_hook_dry_run.rs ]] || fail "runtime owner path is named but must stay unimplemented in M56"
-
-if rg -n 'hako_alloc_(install|replace)_allocator|allocator_replacement_hook|allocator_hook_(dry_run|activate)|HakoAllocatorReplacementHook|AllocatorReplacementHookBox|AllocatorHookPlan|HookPlan' \
+if rg -n 'hako_alloc_(install|replace)_allocator|allocator_replacement_hook|allocator_hook_activate|HakoAllocatorReplacementHook|AllocatorReplacementHookBox|AllocatorHookPlan|HookPlan' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".implementation 2>&1; then
   cat /tmp/"$TAG".implementation >&2
   rm -f /tmp/"$TAG".implementation

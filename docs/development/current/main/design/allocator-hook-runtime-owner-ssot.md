@@ -40,7 +40,7 @@ runtime owner:
   named
 
 runtime dry-run code:
-  absent
+  diagnostic-only in src/runtime/allocator_hook_dry_run.rs
 
 hook activation:
   absent
@@ -78,9 +78,8 @@ future active row.
 
 ## Stop Line
 
-M56 keeps these inactive:
+M56/M57 keep these inactive:
 
-- `src/runtime/allocator_hook_dry_run.rs`;
 - runtime hook install/uninstall body;
 - process allocator replacement;
 - `#[global_allocator]`;

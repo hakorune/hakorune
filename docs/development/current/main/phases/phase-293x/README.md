@@ -210,5 +210,8 @@ inference for the allocator release path.
 - `293x-108`: M56 allocator hook runtime owner row landed, naming the future
   `src/runtime/allocator_hook_dry_run.rs` owner while keeping implementation
   absent.
-- Next: allocator hook dry-run code may start in the named runtime owner only; keep future blockers as
+- `293x-109`: M57 allocator hook runtime dry-run code landed, adding
+  diagnostic-only runtime validation that never installs or replaces the process
+  allocator.
+- Next: allocator hook dry-run callsite/manifest integration only after a named row; keep future blockers as
   compiler/runtime seams and do not hide them in app code.
