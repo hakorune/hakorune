@@ -73,6 +73,7 @@
 - [x] `293x-110` M58 allocator hook dry-run manifest callsite
 - [x] `293x-111` M59 allocator hook dry-run test surface
 - [x] `293x-112` M60 allocator hook activation proof validator
+- [x] `293x-113` M61 allocator hook dry-run CLI surface
 
 ## Gates
 

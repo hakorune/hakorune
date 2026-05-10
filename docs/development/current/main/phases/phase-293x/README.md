@@ -220,5 +220,9 @@ inference for the allocator release path.
 - `293x-112`: M60 allocator hook activation proof validator landed, validating
   reserved activation-proof TOML text while keeping activation and CLI/env/file
   discovery inactive.
-- Next: allocator hook dry-run CLI surface only after a named row; keep future
-  blockers as compiler/runtime seams and do not hide them in app code.
+- `293x-113`: M61 allocator hook dry-run CLI surface landed, exposing explicit
+  plan/proof file diagnostics without env toggles, implicit discovery, runner
+  ownership, or activation.
+- Next: allocator hook activation remains blocked until a named row defines the
+  reentrancy/bootstrap/no-alloc proof handoff; keep future blockers as
+  compiler/runtime seams and do not hide them in app code.

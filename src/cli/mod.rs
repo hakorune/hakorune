@@ -2,9 +2,12 @@
  * CLI Argument Parsing Module - Nyash Command Line Interface (split)
  */
 
+mod allocator_hook_dry_run;
 mod args;
 mod groups;
 mod utils;
+
+pub use allocator_hook_dry_run::maybe_run_allocator_hook_dry_run;
 
 /// Command-line configuration structure
 #[derive(Debug, Clone)]
@@ -70,6 +73,9 @@ pub struct CliConfig {
     pub macro_expand_child: Option<String>,
     pub dump_expanded_ast_json: bool,
     pub macro_ctx_json: Option<String>,
+    pub allocator_hook_dry_run: bool,
+    pub allocator_hook_dry_run_plan: Option<String>,
+    pub allocator_hook_dry_run_proof: Option<String>,
     // Phase 288 P1: REPL mode
     pub repl: bool,
 }
@@ -223,6 +229,9 @@ impl Default for CliConfig {
             macro_expand_child: None,
             dump_expanded_ast_json: false,
             macro_ctx_json: None,
+            allocator_hook_dry_run: false,
+            allocator_hook_dry_run_plan: None,
+            allocator_hook_dry_run_proof: None,
             // Phase 288 P1: REPL mode
             repl: false,
         }

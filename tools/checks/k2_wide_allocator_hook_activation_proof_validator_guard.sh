@@ -57,7 +57,6 @@ require_text "$TASKBOARD" '| `M60 allocator hook activation proof validator` | `
 require_text "$TASKBOARD" '83. `M60 allocator hook activation proof validator`'
 require_text "$PHASE_README" '`293x-112`'
 require_text "$REAL_APP_TASKBOARD" '`293x-112` M60 allocator hook activation proof validator'
-require_text "$CURRENT_STATE" 'latest_card = "293x-112-M60-ALLOCATOR-HOOK-ACTIVATION-PROOF-VALIDATOR"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_hook_activation_proof_validator_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_hook_activation_proof_validator_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_hook_activation_proof_validator_guard.sh"
@@ -71,13 +70,6 @@ if rg -n 'std::env|std::fs|read_to_string|var_os|std::alloc|GlobalAlloc|#\[globa
   fail "activation-proof validator must not add env/fs/allocator install behavior"
 fi
 rm -f /tmp/"$TAG".forbidden_runtime
-
-if rg -n 'allocator-hook|allocator.*hook|hook.*allocator' src/cli src/runner -g '*.rs' >/tmp/"$TAG".cli 2>&1; then
-  cat /tmp/"$TAG".cli >&2
-  rm -f /tmp/"$TAG".cli
-  fail "M60 must not add CLI/runner hook surface"
-fi
-rm -f /tmp/"$TAG".cli
 
 if rg -n 'HakoAllocProductionFacade|HakoAllocRemoteFreePolicy|HakoAllocPageSourcePolicy|AllocatorReplacement|allocator_replacement|replace_allocator|HookPlan|allocator_hook_activate|activate_allocator' \
   lang/c-abi/shims >/tmp/"$TAG".inc 2>&1; then

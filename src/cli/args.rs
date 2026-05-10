@@ -128,6 +128,9 @@ pub fn build_command() -> Command {
         .arg(Arg::new("emit-exe").long("emit-exe").value_name("FILE").help("Emit native executable via ny-llvmc and exit"))
         .arg(Arg::new("emit-exe-nyrt").long("emit-exe-nyrt").value_name("DIR").help("Directory containing libnyash_kernel.a (used with --emit-exe). Hint: build via `cargo build -p nyash_kernel --release` (default output: target/release/libnyash_kernel.a)"))
         .arg(Arg::new("emit-exe-libs").long("emit-exe-libs").value_name("FLAGS").help("Extra linker flags for ny-llvmc when emitting executable"))
+        .arg(Arg::new("allocator-hook-dry-run").long("allocator-hook-dry-run").help("[Diagnostic] Validate explicit allocator hook plan/proof TOML without activating hooks").action(clap::ArgAction::SetTrue))
+        .arg(Arg::new("allocator-hook-plan").long("allocator-hook-plan").value_name("FILE").help("[Diagnostic] Allocator hook plan TOML for --allocator-hook-dry-run"))
+        .arg(Arg::new("allocator-hook-proof").long("allocator-hook-proof").value_name("FILE").help("[Diagnostic] Allocator hook activation proof TOML for --allocator-hook-dry-run"))
         .arg(Arg::new("stage3").long("stage3").help("Enable Stage-3 syntax acceptance for selfhost parser").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("ny-compiler-args").long("ny-compiler-args").value_name("ARGS").help("Pass additional args to selfhost child compiler"))
         .arg(Arg::new("using").long("using").value_name("NAME").help("Add a using directive to current session; repeat").action(clap::ArgAction::Append))
@@ -291,6 +294,9 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
         macro_expand_child: matches.get_one::<String>("macro-expand-child").cloned(),
         dump_expanded_ast_json: matches.get_flag("dump-expanded-ast-json"),
         macro_ctx_json: matches.get_one::<String>("macro-ctx-json").cloned(),
+        allocator_hook_dry_run: matches.get_flag("allocator-hook-dry-run"),
+        allocator_hook_dry_run_plan: matches.get_one::<String>("allocator-hook-plan").cloned(),
+        allocator_hook_dry_run_proof: matches.get_one::<String>("allocator-hook-proof").cloned(),
         // Phase 288 P1: REPL mode
         repl: matches.get_flag("repl"),
     };
@@ -529,5 +535,30 @@ mod tests {
             "apps/min.hako",
         ]);
         assert!(result.is_err(), "emit-wat and compile-wasm must conflict");
+    }
+
+    #[test]
+    fn allocator_hook_dry_run_cli_route_parses() {
+        let matches = build_command()
+            .try_get_matches_from([
+                "hakorune",
+                "--allocator-hook-dry-run",
+                "--allocator-hook-plan",
+                "/tmp/plan.toml",
+                "--allocator-hook-proof",
+                "/tmp/proof.toml",
+            ])
+            .expect("allocator hook dry-run args should parse");
+
+        let cfg = from_matches(&matches);
+        assert!(cfg.allocator_hook_dry_run);
+        assert_eq!(
+            cfg.allocator_hook_dry_run_plan.as_deref(),
+            Some("/tmp/plan.toml")
+        );
+        assert_eq!(
+            cfg.allocator_hook_dry_run_proof.as_deref(),
+            Some("/tmp/proof.toml")
+        );
     }
 }

@@ -67,13 +67,6 @@ if rg -n 'std::env|std::fs|read_to_string|var_os|std::alloc|GlobalAlloc|#\[globa
 fi
 rm -f /tmp/"$TAG".forbidden_runtime
 
-if rg -n 'allocator-hook|allocator.*hook|hook.*allocator' src/cli src/runner -g '*.rs' >/tmp/"$TAG".cli 2>&1; then
-  cat /tmp/"$TAG".cli >&2
-  rm -f /tmp/"$TAG".cli
-  fail "M59 must not add CLI/runner hook surface"
-fi
-rm -f /tmp/"$TAG".cli
-
 if rg -n 'HakoAllocProductionFacade|HakoAllocRemoteFreePolicy|HakoAllocPageSourcePolicy|AllocatorReplacement|allocator_replacement|replace_allocator|HookPlan|allocator_hook_activate|activate_allocator' \
   lang/c-abi/shims >/tmp/"$TAG".inc 2>&1; then
   cat /tmp/"$TAG".inc >&2
