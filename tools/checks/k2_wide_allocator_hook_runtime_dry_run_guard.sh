@@ -60,7 +60,6 @@ require_text "$TASKBOARD" '| `M54 allocator hook runtime dry-run boundary` | `li
 require_text "$TASKBOARD" '77. `M54 allocator hook runtime dry-run boundary`'
 require_text "$PHASE_README" '`293x-106`'
 require_text "$REAL_APP_TASKBOARD" '`293x-106` M54 allocator hook runtime dry-run boundary'
-require_text "$CURRENT_STATE" 'latest_card = "293x-106-M54-ALLOCATOR-HOOK-RUNTIME-DRY-RUN"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_hook_runtime_dry_run_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_hook_runtime_dry_run_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_hook_runtime_dry_run_guard.sh"

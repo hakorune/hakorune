@@ -67,6 +67,7 @@
 - [x] `293x-104` M52 allocator replacement hook boundary
 - [x] `293x-105` M53 allocator HookPlan vocabulary lock
 - [x] `293x-106` M54 allocator hook runtime dry-run boundary
+- [x] `293x-107` M55 allocator hook activation proof
 
 ## Gates
 

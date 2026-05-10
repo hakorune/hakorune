@@ -1,0 +1,22 @@
+# Reserved schema fixture only. Runtime/backend code must not consume this file.
+schema_version = "allocator_hook_activation_proof_v0"
+status = "reserved"
+active = false
+hook_id = "hako_alloc.production.v0"
+diagnostic = "[allocator-hook/activation-proof-missing]"
+
+required_proofs = [
+  "explicit_hook_plan_fact",
+  "runtime_dry_run_validated",
+  "default_inactive",
+  "no_app_or_facade_name_matching",
+  "no_hidden_environment_toggle",
+  "no_process_allocator_replacement_without_activation_row",
+  "reentrancy_guard_named",
+  "bootstrap_allocation_path_named",
+  "no_alloc_no_safepoint_contract_named",
+  "rollback_condition_named",
+  "fail_fast_diagnostic_named",
+]
+
+activation = "future_row_required"

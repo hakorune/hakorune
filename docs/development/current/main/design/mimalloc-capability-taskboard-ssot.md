@@ -144,6 +144,7 @@ them into MIR-owned plan facts.
 | `M52 allocator replacement hook boundary` | `live-docs` | hook boundary | adds the allocator replacement hook SSOT and guard while keeping process allocator replacement, hook env toggles, `.inc` name matching, and route widening inactive |
 | `M53 allocator HookPlan vocabulary lock` | `live-docs` | hook plan vocabulary | adds reserved HookPlan v0 SSOT and TOML fixture while keeping runtime hooks, process allocator replacement, env toggles, and `.inc` name matching inactive |
 | `M54 allocator hook runtime dry-run boundary` | `live-docs` | runtime hook dry-run boundary | names the future runtime dry-run seam while keeping runtime hook code, process allocator replacement, env toggles, and `.inc` name matching inactive |
+| `M55 allocator hook activation proof` | `live-docs` | activation proof vocabulary | adds reserved activation proof SSOT and TOML fixture while keeping runtime hooks, process allocator replacement, env toggles, and `.inc` name matching inactive |
 
 ## Fixed Implementation Order
 
@@ -224,6 +225,7 @@ them into MIR-owned plan facts.
 75. `M52 allocator replacement hook boundary`
 76. `M53 allocator HookPlan vocabulary lock`
 77. `M54 allocator hook runtime dry-run boundary`
+78. `M55 allocator hook activation proof`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed
