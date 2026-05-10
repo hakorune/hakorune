@@ -82,14 +82,11 @@ require_text "$SOURCE" "allocator-provider-activation-safety-gate-v0.toml"
 require_text "$SSOT" "parse_error = Some(...)"
 require_text "$RUNTIME_MOD" "pub mod allocator_provider_registry;"
 require_text "$TASK_BREAKDOWN" "M83 | activation safety diagnostic report"
-require_text "$TASK_BREAKDOWN" "The next safe row is M84 activation safety diagnostic CLI surface."
 require_text "$TASKBOARD" '| `M83 allocator provider activation safety diagnostic report` | `live-narrow` |'
 require_text "$TASKBOARD" '106. `M83 allocator provider activation safety diagnostic report`'
 require_text "$CARD" "293x-135 M83 Allocator Provider Activation Safety Diagnostic Report"
 require_text "$PHASE_README" '`293x-135`'
 require_text "$REAL_APP_TASKBOARD" '[x] `293x-135` M83 allocator provider activation safety diagnostic report'
-require_text "$CURRENT_STATE" 'latest_card = "293x-135-M83-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-DIAGNOSTIC-REPORT"'
-require_text "$CURRENT_STATE" 'latest_card_path = "docs/development/current/main/phases/phase-293x/293x-135-M83-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-DIAGNOSTIC-REPORT.md"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_activation_safety_diagnostic_report_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_activation_safety_diagnostic_report_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_activation_safety_diagnostic_report_guard.sh"

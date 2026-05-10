@@ -173,6 +173,7 @@ them into MIR-owned plan facts.
 | `M81 allocator provider activation safety gate` | `live-docs` | activation safety gate shape | adds a reserved activation evidence bundle fixture with gate-closed facts while keeping gate opening, hook activation, and replacement inactive |
 | `M82 allocator provider activation safety diagnostic owner` | `live-docs` | diagnostic owner boundary | names the runtime diagnostic owner and removes stale past-guard pins against future owner files/type names while keeping activation implementation inactive |
 | `M83 allocator provider activation safety diagnostic report` | `live-narrow` | runtime diagnostic report | adds the runtime-owned activation safety report over caller-provided TOML text while keeping gate opening, hook activation, and replacement inactive |
+| `M84 allocator provider activation safety CLI surface` | `live-narrow` | diagnostic CLI surface | exposes the activation safety report through an explicit caller-provided TOML path while keeping gate opening, hook activation, and replacement inactive |
 
 ## Fixed Implementation Order
 
@@ -282,6 +283,7 @@ them into MIR-owned plan facts.
 104. `M81 allocator provider activation safety gate`
 105. `M82 allocator provider activation safety diagnostic owner`
 106. `M83 allocator provider activation safety diagnostic report`
+107. `M84 allocator provider activation safety CLI surface`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed

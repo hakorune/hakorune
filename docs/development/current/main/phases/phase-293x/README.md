@@ -296,7 +296,11 @@ inference for the allocator release path.
   landed, adding the runtime-owned gate-closed diagnostic report over
   caller-provided activation safety TOML text while keeping gate opening, hook
   activation, and allocator replacement inactive.
-- Next: M84 activation safety diagnostic CLI surface. It must stay
-  explicit-input-only: no environment discovery, implicit manifest discovery,
-  gate opening, hook activation, `#[global_allocator]`, or process allocator
-  replacement.
+- `293x-136`: M84 allocator provider activation safety CLI surface landed,
+  exposing the gate-closed runtime report through an explicit caller-provided
+  TOML path while keeping environment discovery, implicit discovery, gate
+  opening, hook activation, and allocator replacement inactive.
+- Next: M85 activation safety closeout inventory. It must stay
+  explicit-input-only and must not add environment discovery, implicit
+  manifest/proof discovery, gate opening, hook activation,
+  `#[global_allocator]`, or process allocator replacement.

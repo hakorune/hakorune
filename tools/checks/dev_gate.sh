@@ -148,6 +148,7 @@ list_profiles() {
     - tools/checks/k2_wide_allocator_provider_activation_safety_gate_guard.sh
     - tools/checks/k2_wide_allocator_provider_activation_safety_diagnostic_owner_guard.sh
     - tools/checks/k2_wide_allocator_provider_activation_safety_diagnostic_report_guard.sh
+    - tools/checks/k2_wide_allocator_provider_activation_safety_cli_surface_guard.sh
     - tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
     - tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
     - tools/checks/k2_wide_metal_keep_inventory_guard.sh
