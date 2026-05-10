@@ -65,6 +65,7 @@ if [[ "${1:-}" == "--list" ]]; then
   - tools/checks/k2_wide_allocator_hook_dry_run_test_surface_guard.sh
   - tools/checks/k2_wide_allocator_hook_activation_proof_validator_guard.sh
   - tools/checks/k2_wide_allocator_hook_dry_run_cli_surface_guard.sh
+  - tools/checks/k2_wide_allocator_hook_activation_preflight_guard.sh
 LIST
   exit 0
 fi
@@ -221,3 +222,6 @@ run_step "allocator hook activation proof validator guard" \
 
 run_step "allocator hook dry-run CLI surface guard" \
   bash tools/checks/k2_wide_allocator_hook_dry_run_cli_surface_guard.sh
+
+run_step "allocator hook activation preflight guard" \
+  bash tools/checks/k2_wide_allocator_hook_activation_preflight_guard.sh

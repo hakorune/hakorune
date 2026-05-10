@@ -67,7 +67,6 @@ require_text "$TASKBOARD" '| `M61 allocator hook dry-run CLI surface` | `live-na
 require_text "$TASKBOARD" '84. `M61 allocator hook dry-run CLI surface`'
 require_text "$PHASE_README" '`293x-113`'
 require_text "$REAL_APP_TASKBOARD" '`293x-113` M61 allocator hook dry-run CLI surface'
-require_text "$CURRENT_STATE" 'latest_card = "293x-113-M61-ALLOCATOR-HOOK-DRY-RUN-CLI-SURFACE"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_hook_dry_run_cli_surface_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_hook_dry_run_cli_surface_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_hook_dry_run_cli_surface_guard.sh"

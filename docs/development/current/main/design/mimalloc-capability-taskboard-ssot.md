@@ -151,6 +151,7 @@ them into MIR-owned plan facts.
 | `M59 allocator hook dry-run test surface` | `live-narrow` | test-only surface | adds a `#[cfg(test)]` reserved-fixture observation helper without CLI flags, env toggles, file discovery, or hook installation |
 | `M60 allocator hook activation proof validator` | `live-narrow` | activation proof validator | validates reserved activation-proof TOML text as diagnostics only while keeping activation, env/CLI surface, file discovery, and process allocator replacement inactive |
 | `M61 allocator hook dry-run CLI surface` | `live-narrow` | diagnostic CLI surface | exposes explicit plan/proof file dry-run diagnostics without environment toggles, implicit discovery, runner ownership, activation, or process allocator replacement |
+| `M62 allocator hook activation preflight boundary` | `live-docs` | activation preflight boundary | names the reentrancy/bootstrap/no-alloc/rollback/fail-fast handoff required before any allocator hook activation or process allocator replacement row |
 
 ## Fixed Implementation Order
 
@@ -238,6 +239,7 @@ them into MIR-owned plan facts.
 82. `M59 allocator hook dry-run test surface`
 83. `M60 allocator hook activation proof validator`
 84. `M61 allocator hook dry-run CLI surface`
+85. `M62 allocator hook activation preflight boundary`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed

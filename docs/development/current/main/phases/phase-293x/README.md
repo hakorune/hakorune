@@ -223,6 +223,9 @@ inference for the allocator release path.
 - `293x-113`: M61 allocator hook dry-run CLI surface landed, exposing explicit
   plan/proof file diagnostics without env toggles, implicit discovery, runner
   ownership, or activation.
-- Next: allocator hook activation remains blocked until a named row defines the
-  reentrancy/bootstrap/no-alloc proof handoff; keep future blockers as
-  compiler/runtime seams and do not hide them in app code.
+- `293x-114`: M62 allocator hook activation preflight boundary landed, naming
+  the reentrancy/bootstrap/no-alloc/rollback/fail-fast handoff required before
+  any activation row.
+- Next: diagnostic-only `AllocatorHookActivationPreflight` data shape may be
+  added, but process allocator replacement remains blocked until a separate
+  activation row proves safety.
