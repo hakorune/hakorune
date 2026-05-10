@@ -9,7 +9,9 @@ mod groups;
 mod utils;
 
 pub use allocator_hook_dry_run::maybe_run_allocator_hook_dry_run;
-pub use allocator_provider_manifest::maybe_run_allocator_provider_manifest_diagnostic;
+pub use allocator_provider_manifest::{
+    maybe_run_allocator_provider_combined_dry_run, maybe_run_allocator_provider_manifest_diagnostic,
+};
 
 /// Command-line configuration structure
 #[derive(Debug, Clone)]

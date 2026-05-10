@@ -82,7 +82,7 @@
 - [x] `293x-119` M67 allocator provider manifest parser
 - [x] `293x-120` M68 allocator provider manifest CLI surface
 - [x] `293x-121` M69 allocator provider readiness preflight shape
-- [ ] `293x-122` M70 combined hook/provider dry-run report
+- [x] `293x-122` M70 combined hook/provider dry-run report
 - [ ] `293x-123` M71 allocator provider registry boundary
 - [ ] `293x-124` M72 hako model provider proof fixture
 - [ ] `293x-125` M73 debug guarded provider proof fixture

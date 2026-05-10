@@ -136,11 +136,6 @@ pub fn build_command() -> Command {
                 .long("allocator-provider-manifest")
                 .value_name("FILE")
                 .help("[Diagnostic] Validate explicit allocator provider manifest TOML without selecting a provider")
-                .conflicts_with_all([
-                    "allocator-hook-dry-run",
-                    "allocator-hook-plan",
-                    "allocator-hook-proof",
-                ]),
         )
         .arg(Arg::new("stage3").long("stage3").help("Enable Stage-3 syntax acceptance for selfhost parser").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("ny-compiler-args").long("ny-compiler-args").value_name("ARGS").help("Pass additional args to selfhost child compiler"))
@@ -594,16 +589,33 @@ mod tests {
     }
 
     #[test]
-    fn allocator_provider_manifest_conflicts_with_hook_dry_run() {
-        let result = build_command().try_get_matches_from([
-            "hakorune",
-            "--allocator-provider-manifest",
-            "/tmp/provider.toml",
-            "--allocator-hook-dry-run",
-        ]);
-        assert!(
-            result.is_err(),
-            "provider manifest diagnostic must not share one invocation with hook dry-run"
+    fn allocator_provider_manifest_combines_with_hook_dry_run() {
+        let matches = build_command()
+            .try_get_matches_from([
+                "hakorune",
+                "--allocator-provider-manifest",
+                "/tmp/provider.toml",
+                "--allocator-hook-dry-run",
+                "--allocator-hook-plan",
+                "/tmp/plan.toml",
+                "--allocator-hook-proof",
+                "/tmp/proof.toml",
+            ])
+            .expect("combined allocator provider/hook dry-run args should parse");
+
+        let cfg = from_matches(&matches);
+        assert!(cfg.allocator_hook_dry_run);
+        assert_eq!(
+            cfg.allocator_provider_manifest.as_deref(),
+            Some("/tmp/provider.toml")
+        );
+        assert_eq!(
+            cfg.allocator_hook_dry_run_plan.as_deref(),
+            Some("/tmp/plan.toml")
+        );
+        assert_eq!(
+            cfg.allocator_hook_dry_run_proof.as_deref(),
+            Some("/tmp/proof.toml")
         );
     }
 }

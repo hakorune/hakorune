@@ -73,6 +73,7 @@ if [[ "${1:-}" == "--list" ]]; then
   - tools/checks/k2_wide_allocator_provider_manifest_parser_guard.sh
   - tools/checks/k2_wide_allocator_provider_manifest_cli_surface_guard.sh
   - tools/checks/k2_wide_allocator_provider_readiness_preflight_guard.sh
+  - tools/checks/k2_wide_allocator_provider_combined_dry_run_guard.sh
 LIST
   exit 0
 fi
@@ -253,3 +254,6 @@ run_step "allocator provider manifest CLI surface guard" \
 
 run_step "allocator provider readiness preflight guard" \
   bash tools/checks/k2_wide_allocator_provider_readiness_preflight_guard.sh
+
+run_step "allocator provider combined dry-run guard" \
+  bash tools/checks/k2_wide_allocator_provider_combined_dry_run_guard.sh

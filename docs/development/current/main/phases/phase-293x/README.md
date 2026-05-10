@@ -246,6 +246,9 @@ inference for the allocator release path.
 - `293x-121`: M69 allocator provider readiness preflight shape landed, tying
   provider manifest readiness to hook activation preflight diagnostics while
   keeping provider selection and activation false.
-- Next: M70 may add a combined hook/provider dry-run report, but process
-  allocator replacement remains blocked until a separate activation row proves
-  safety.
+- `293x-122`: M70 combined hook/provider dry-run report landed, composing
+  explicit hook plan, activation proof, and provider manifest diagnostics while
+  keeping install, provider selection, and activation false.
+- Next: M71 may add provider registry boundary docs, but active registry
+  implementation and process allocator replacement remain blocked until later
+  rows prove ownership and safety.

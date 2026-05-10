@@ -12,7 +12,6 @@ TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ss
 CARD="docs/development/current/main/phases/phase-293x/293x-121-M69-ALLOCATOR-PROVIDER-READINESS-PREFLIGHT-SHAPE.md"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
-CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
@@ -42,7 +41,6 @@ require_file "$TASKBOARD"
 require_file "$CARD"
 require_file "$PHASE_README"
 require_file "$REAL_APP_TASKBOARD"
-require_file "$CURRENT_STATE"
 require_file "$INDEX"
 require_file "$DEV_GATE"
 require_file "$ALLOCATOR_GROUP"
@@ -66,14 +64,12 @@ require_text "$SSOT" "Allocator Provider Readiness Preflight (SSOT)"
 require_text "$SSOT" "would_select_provider = false"
 require_text "$SSOT" "would_activate = false"
 require_text "$SSOT" "CLI composition is deferred to M70"
-require_text "$TASK_BREAKDOWN" "M64-M69"
-require_text "$TASK_BREAKDOWN" "M70 may add a combined hook/provider dry-run report"
+require_text "$TASK_BREAKDOWN" "M69 | provider readiness preflight shape"
+require_text "$TASK_BREAKDOWN" "M70 | combined hook/provider dry-run report"
 require_text "$TASKBOARD" '| `M69 allocator provider readiness preflight shape` | `live-narrow` |'
 require_text "$TASKBOARD" '92. `M69 allocator provider readiness preflight shape`'
 require_text "$PHASE_README" '`293x-121`'
 require_text "$REAL_APP_TASKBOARD" '[x] `293x-121` M69 allocator provider readiness preflight shape'
-require_text "$CURRENT_STATE" 'latest_card = "293x-121-M69-ALLOCATOR-PROVIDER-READINESS-PREFLIGHT-SHAPE"'
-require_text "$CURRENT_STATE" 'latest_card_path = "docs/development/current/main/phases/phase-293x/293x-121-M69-ALLOCATOR-PROVIDER-READINESS-PREFLIGHT-SHAPE.md"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_readiness_preflight_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_readiness_preflight_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_readiness_preflight_guard.sh"

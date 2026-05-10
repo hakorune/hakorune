@@ -159,7 +159,7 @@ them into MIR-owned plan facts.
 | `M67 allocator provider manifest parser` | `live-narrow` | diagnostic parser | parse caller-provided provider manifest TOML into a diagnostic report; no file discovery, provider selection, or replacement |
 | `M68 allocator provider manifest CLI surface` | `live-narrow` | diagnostic CLI surface | exposes explicit provider manifest file diagnostics without env toggles, implicit discovery, runner ownership, provider selection, or replacement |
 | `M69 allocator provider readiness preflight shape` | `live-narrow` | provider readiness data shape | connects provider manifest readiness to activation preflight diagnostics while keeping `would_select_provider=false` and `would_activate=false` |
-| `M70 combined hook/provider dry-run report` | `planned` | combined diagnostic report | combine hook plan, activation proof, and provider manifest diagnostics; no process allocator replacement |
+| `M70 combined hook/provider dry-run report` | `live-narrow` | combined diagnostic report | combines hook plan, activation proof, activation preflight, provider manifest, and provider readiness diagnostics while keeping install/selection/activation false |
 | `M71 allocator provider registry boundary` | `planned` | registry boundary docs | name provider registry ownership/API and stop line before implementation |
 | `M72 hako model provider proof fixture` | `planned` | model provider proof | validate `.hako` policy/model provider behavior without native metal activation |
 | `M73 debug guarded provider proof fixture` | `planned` | guarded provider proof | validate guarded-provider diagnostics without replacement |

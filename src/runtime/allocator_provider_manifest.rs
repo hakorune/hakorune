@@ -6,9 +6,16 @@
 
 use crate::runtime::allocator_hook_dry_run::{
     validate_allocator_hook_activation_preflight_from_manifest_texts,
-    AllocatorHookActivationPreflightReport, AllocatorHookActivationPreflightStatus,
+    validate_allocator_hook_activation_proof_text,
+    validate_allocator_hook_dry_run_from_manifest_texts, AllocatorHookActivationPreflightReport,
+    AllocatorHookActivationPreflightStatus, AllocatorHookActivationProofStatus,
+    AllocatorHookDryRunStatus,
 };
 
+pub const DIAG_PROVIDER_COMBINED_DRY_RUN_MISSING: &str =
+    "[allocator-provider/combined-dry-run-missing]";
+pub const DIAG_PROVIDER_COMBINED_DRY_RUN_READY: &str =
+    "[allocator-provider/combined-dry-run-ready]";
 pub const DIAG_PROVIDER_MANIFEST_MISSING: &str = "[allocator-provider/manifest-missing]";
 pub const DIAG_PROVIDER_MANIFEST_READY: &str = "[allocator-provider/manifest-ready]";
 pub const DIAG_PROVIDER_READINESS_PREFLIGHT_MISSING: &str =
@@ -30,6 +37,12 @@ pub enum AllocatorProviderManifestStatus {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AllocatorProviderCombinedDryRunStatus {
+    MissingFacts,
+    ReadyDiagnostic,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AllocatorProviderReadinessPreflightStatus {
     MissingFacts,
     ReadyDiagnostic,
@@ -42,6 +55,23 @@ pub struct AllocatorProviderManifestReport {
     pub provider_ids: Vec<String>,
     pub missing_facts: Vec<&'static str>,
     pub would_select_provider: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AllocatorProviderCombinedDryRunReport {
+    pub status: AllocatorProviderCombinedDryRunStatus,
+    pub diagnostic: &'static str,
+    pub hook_id: String,
+    pub hook_dry_run_diagnostic: &'static str,
+    pub activation_proof_diagnostic: &'static str,
+    pub activation_preflight_diagnostic: &'static str,
+    pub provider_manifest_diagnostic: &'static str,
+    pub provider_readiness_diagnostic: &'static str,
+    pub provider_ids: Vec<String>,
+    pub missing_facts: Vec<&'static str>,
+    pub would_install: bool,
+    pub would_select_provider: bool,
+    pub would_activate: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -208,6 +238,58 @@ pub fn validate_allocator_provider_readiness_preflight_from_manifest_texts(
     validate_allocator_provider_readiness_preflight(&provider_manifest, &activation_preflight)
 }
 
+pub fn validate_allocator_provider_combined_dry_run_from_manifest_texts(
+    provider_manifest_toml: &str,
+    hook_plan_toml: &str,
+    activation_proof_toml: &str,
+) -> AllocatorProviderCombinedDryRunReport {
+    let hook_dry_run =
+        validate_allocator_hook_dry_run_from_manifest_texts(hook_plan_toml, activation_proof_toml);
+    let activation_proof =
+        validate_allocator_hook_activation_proof_text(activation_proof_toml, &hook_dry_run.hook_id);
+    let activation_preflight = validate_allocator_hook_activation_preflight_from_manifest_texts(
+        hook_plan_toml,
+        activation_proof_toml,
+    );
+    let provider_manifest = parse_allocator_provider_manifest_text(provider_manifest_toml);
+    let provider_readiness =
+        validate_allocator_provider_readiness_preflight(&provider_manifest, &activation_preflight);
+    let missing_facts = collect_missing_combined_dry_run_facts(
+        hook_dry_run.status == AllocatorHookDryRunStatus::ReadyDiagnostic,
+        activation_proof.status == AllocatorHookActivationProofStatus::ReadyDiagnostic,
+        activation_preflight.status == AllocatorHookActivationPreflightStatus::ReadyDiagnostic,
+        provider_manifest.status == AllocatorProviderManifestStatus::ReadyDiagnostic,
+        provider_readiness.status == AllocatorProviderReadinessPreflightStatus::ReadyDiagnostic,
+    );
+    let (status, diagnostic) = if missing_facts.is_empty() {
+        (
+            AllocatorProviderCombinedDryRunStatus::ReadyDiagnostic,
+            DIAG_PROVIDER_COMBINED_DRY_RUN_READY,
+        )
+    } else {
+        (
+            AllocatorProviderCombinedDryRunStatus::MissingFacts,
+            DIAG_PROVIDER_COMBINED_DRY_RUN_MISSING,
+        )
+    };
+
+    AllocatorProviderCombinedDryRunReport {
+        status,
+        diagnostic,
+        hook_id: hook_dry_run.hook_id,
+        hook_dry_run_diagnostic: hook_dry_run.diagnostic,
+        activation_proof_diagnostic: activation_proof.diagnostic,
+        activation_preflight_diagnostic: activation_preflight.diagnostic,
+        provider_manifest_diagnostic: provider_manifest.diagnostic,
+        provider_readiness_diagnostic: provider_readiness.diagnostic,
+        provider_ids: provider_manifest.provider_ids,
+        missing_facts,
+        would_install: false,
+        would_select_provider: false,
+        would_activate: false,
+    }
+}
+
 #[cfg(test)]
 pub(crate) fn parse_allocator_provider_manifest_reserved_fixture_for_test(
 ) -> AllocatorProviderManifestReport {
@@ -239,6 +321,32 @@ fn collect_missing_readiness_preflight_facts(
     }
     if !facts.provider_ids_reserved_set {
         missing.push("provider_ids_reserved_set");
+    }
+    missing
+}
+
+fn collect_missing_combined_dry_run_facts(
+    hook_dry_run_ready: bool,
+    activation_proof_ready: bool,
+    activation_preflight_ready: bool,
+    provider_manifest_ready: bool,
+    provider_readiness_preflight_ready: bool,
+) -> Vec<&'static str> {
+    let mut missing = Vec::new();
+    if !hook_dry_run_ready {
+        missing.push("hook_dry_run_ready");
+    }
+    if !activation_proof_ready {
+        missing.push("activation_proof_ready");
+    }
+    if !activation_preflight_ready {
+        missing.push("activation_preflight_ready");
+    }
+    if !provider_manifest_ready {
+        missing.push("provider_manifest_ready");
+    }
+    if !provider_readiness_preflight_ready {
+        missing.push("provider_readiness_preflight_ready");
     }
     missing
 }
@@ -454,6 +562,116 @@ provider_id = "native_system_malloc"
         );
         assert!(report.missing_facts.contains(&"activation_preflight_ready"));
         assert!(!report.missing_facts.contains(&"provider_manifest_ready"));
+        assert!(!report.would_select_provider);
+        assert!(!report.would_activate);
+    }
+
+    #[test]
+    fn provider_combined_dry_run_fixtures_report_ready_without_replacement() {
+        let report = validate_allocator_provider_combined_dry_run_from_manifest_texts(
+            PROVIDER_MANIFEST_FIXTURE,
+            HOOK_PLAN_FIXTURE,
+            ACTIVATION_PROOF_FIXTURE,
+        );
+
+        assert_eq!(
+            report.status,
+            AllocatorProviderCombinedDryRunStatus::ReadyDiagnostic
+        );
+        assert_eq!(report.diagnostic, DIAG_PROVIDER_COMBINED_DRY_RUN_READY);
+        assert_eq!(report.hook_id, "hako_alloc.production.v0");
+        assert_eq!(
+            report.hook_dry_run_diagnostic,
+            crate::runtime::allocator_hook_dry_run::DIAG_DRY_RUN_READY
+        );
+        assert_eq!(
+            report.activation_proof_diagnostic,
+            crate::runtime::allocator_hook_dry_run::DIAG_ACTIVATION_PROOF_READY
+        );
+        assert_eq!(
+            report.activation_preflight_diagnostic,
+            crate::runtime::allocator_hook_dry_run::DIAG_ACTIVATION_PREFLIGHT_READY
+        );
+        assert_eq!(
+            report.provider_manifest_diagnostic,
+            DIAG_PROVIDER_MANIFEST_READY
+        );
+        assert_eq!(
+            report.provider_readiness_diagnostic,
+            DIAG_PROVIDER_READINESS_PREFLIGHT_READY
+        );
+        assert_eq!(report.provider_ids.len(), EXPECTED_PROVIDER_IDS.len());
+        assert!(report.missing_facts.is_empty());
+        assert!(!report.would_install);
+        assert!(!report.would_select_provider);
+        assert!(!report.would_activate);
+    }
+
+    #[test]
+    fn provider_combined_dry_run_missing_provider_manifest_reports_missing() {
+        let report = validate_allocator_provider_combined_dry_run_from_manifest_texts(
+            "",
+            HOOK_PLAN_FIXTURE,
+            ACTIVATION_PROOF_FIXTURE,
+        );
+
+        assert_eq!(
+            report.status,
+            AllocatorProviderCombinedDryRunStatus::MissingFacts
+        );
+        assert_eq!(report.diagnostic, DIAG_PROVIDER_COMBINED_DRY_RUN_MISSING);
+        assert_eq!(
+            report.provider_manifest_diagnostic,
+            DIAG_PROVIDER_MANIFEST_MISSING
+        );
+        assert_eq!(
+            report.provider_readiness_diagnostic,
+            DIAG_PROVIDER_READINESS_PREFLIGHT_MISSING
+        );
+        assert!(report.missing_facts.contains(&"provider_manifest_ready"));
+        assert!(report
+            .missing_facts
+            .contains(&"provider_readiness_preflight_ready"));
+        assert!(!report.would_install);
+        assert!(!report.would_select_provider);
+        assert!(!report.would_activate);
+    }
+
+    #[test]
+    fn provider_combined_dry_run_missing_hook_plan_reports_missing() {
+        let report = validate_allocator_provider_combined_dry_run_from_manifest_texts(
+            PROVIDER_MANIFEST_FIXTURE,
+            "",
+            ACTIVATION_PROOF_FIXTURE,
+        );
+
+        assert_eq!(
+            report.status,
+            AllocatorProviderCombinedDryRunStatus::MissingFacts
+        );
+        assert_eq!(report.diagnostic, DIAG_PROVIDER_COMBINED_DRY_RUN_MISSING);
+        assert_eq!(
+            report.hook_dry_run_diagnostic,
+            crate::runtime::allocator_hook_dry_run::DIAG_DRY_RUN_MISSING_PLAN
+        );
+        assert_eq!(
+            report.activation_preflight_diagnostic,
+            crate::runtime::allocator_hook_dry_run::DIAG_ACTIVATION_PREFLIGHT_MISSING
+        );
+        assert_eq!(
+            report.provider_manifest_diagnostic,
+            DIAG_PROVIDER_MANIFEST_READY
+        );
+        assert_eq!(
+            report.provider_readiness_diagnostic,
+            DIAG_PROVIDER_READINESS_PREFLIGHT_MISSING
+        );
+        assert!(report.missing_facts.contains(&"hook_dry_run_ready"));
+        assert!(report.missing_facts.contains(&"activation_preflight_ready"));
+        assert!(report
+            .missing_facts
+            .contains(&"provider_readiness_preflight_ready"));
+        assert!(!report.would_install);
         assert!(!report.would_select_provider);
         assert!(!report.would_activate);
     }

@@ -122,6 +122,10 @@ fn main() {
             }
         }
     }
+    if let Some(exit_code) = nyash_rust::cli::maybe_run_allocator_provider_combined_dry_run(&config)
+    {
+        std::process::exit(exit_code);
+    }
     if let Some(exit_code) = nyash_rust::cli::maybe_run_allocator_hook_dry_run(&config) {
         std::process::exit(exit_code);
     }
