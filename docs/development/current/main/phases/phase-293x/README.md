@@ -292,7 +292,11 @@ inference for the allocator release path.
   landed, naming `src/runtime/allocator_provider_registry.rs` as the diagnostic
   owner and making past provider guards future-compatible with owner-file and
   diagnostic type names while keeping activation implementation inactive.
-- Next: M83 activation safety gate diagnostic report. It must stay
-  diagnostic-only: no environment discovery, implicit manifest discovery, gate
-  opening, hook activation, `#[global_allocator]`, or process allocator
+- `293x-135`: M83 allocator provider activation safety diagnostic report
+  landed, adding the runtime-owned gate-closed diagnostic report over
+  caller-provided activation safety TOML text while keeping gate opening, hook
+  activation, and allocator replacement inactive.
+- Next: M84 activation safety diagnostic CLI surface. It must stay
+  explicit-input-only: no environment discovery, implicit manifest discovery,
+  gate opening, hook activation, `#[global_allocator]`, or process allocator
   replacement.

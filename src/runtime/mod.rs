@@ -4,6 +4,7 @@
 
 pub mod allocator_hook_dry_run;
 pub mod allocator_provider_manifest;
+pub mod allocator_provider_registry;
 pub mod box_registry;
 pub mod core_box_ids; // Phase 87: CoreBoxId/CoreMethodId 型安全enum
 pub mod core_method_aliases; // Phase 29ab: Core method alias SSOT

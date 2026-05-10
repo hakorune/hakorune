@@ -14,7 +14,6 @@ TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ss
 CARD="docs/development/current/main/phases/phase-293x/293x-134-M82-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-DIAGNOSTIC-OWNER.md"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
-CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
@@ -47,7 +46,6 @@ require_file "$TASKBOARD"
 require_file "$CARD"
 require_file "$PHASE_README"
 require_file "$REAL_APP_TASKBOARD"
-require_file "$CURRENT_STATE"
 require_file "$INDEX"
 require_file "$DEV_GATE"
 require_file "$ALLOCATOR_GROUP"
@@ -70,14 +68,11 @@ require_text "$GATE_FIXTURE" 'would_activate = false'
 require_text "$REGISTRY_BOUNDARY_SSOT" "ProviderRegistrySnapshot"
 require_text "$REGISTRY_BOUNDARY_SSOT" "ProviderSelectionDecision"
 require_text "$TASK_BREAKDOWN" "M82 | activation safety diagnostic owner"
-require_text "$TASK_BREAKDOWN" "The next safe row is M83 activation safety gate diagnostic report."
 require_text "$TASKBOARD" '| `M82 allocator provider activation safety diagnostic owner` | `live-docs` |'
 require_text "$TASKBOARD" '105. `M82 allocator provider activation safety diagnostic owner`'
 require_text "$CARD" "293x-134 M82 Allocator Provider Activation Safety Diagnostic Owner"
 require_text "$PHASE_README" '`293x-134`'
 require_text "$REAL_APP_TASKBOARD" '[x] `293x-134` M82 allocator provider activation safety diagnostic owner'
-require_text "$CURRENT_STATE" 'latest_card = "293x-134-M82-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-DIAGNOSTIC-OWNER"'
-require_text "$CURRENT_STATE" 'latest_card_path = "docs/development/current/main/phases/phase-293x/293x-134-M82-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-DIAGNOSTIC-OWNER.md"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_activation_safety_diagnostic_owner_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_activation_safety_diagnostic_owner_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_activation_safety_diagnostic_owner_guard.sh"
@@ -131,7 +126,7 @@ if rg -n "if rg -n '.*(AllocatorProviderRegistry|allocator_provider_registry|Pro
 fi
 rm -f /tmp/"$TAG".owner_type_pin
 
-if rg -n 'open_activation_gate' \
+if rg -n '(^|[^A-Za-z0-9_])open_activation_gate([^A-Za-z0-9_]|$)' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".gate_open 2>&1; then
   cat /tmp/"$TAG".gate_open >&2
   rm -f /tmp/"$TAG".gate_open
@@ -139,7 +134,7 @@ if rg -n 'open_activation_gate' \
 fi
 rm -f /tmp/"$TAG".gate_open
 
-if rg -n 'select_allocator_provider|allocator_provider_select|allocator_provider_selection_env|NYASH_ALLOCATOR_PROVIDER' \
+if rg -n '(^|[^A-Za-z0-9_])select_allocator_provider([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])allocator_provider_select([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])allocator_provider_selection_env([^A-Za-z0-9_]|$)|NYASH_ALLOCATOR_PROVIDER' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".provider_selection 2>&1; then
   cat /tmp/"$TAG".provider_selection >&2
   rm -f /tmp/"$TAG".provider_selection

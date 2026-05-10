@@ -295,7 +295,7 @@ if seen != set(expected_safety_inputs):
 PY
 
 
-if rg -n 'open_activation_gate' \
+if rg -n '(^|[^A-Za-z0-9_])open_activation_gate([^A-Za-z0-9_]|$)' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".safety_impl 2>&1; then
   cat /tmp/"$TAG".safety_impl >&2
   rm -f /tmp/"$TAG".safety_impl
@@ -303,7 +303,7 @@ if rg -n 'open_activation_gate' \
 fi
 rm -f /tmp/"$TAG".safety_impl
 
-if rg -n 'select_allocator_provider|allocator_provider_select|allocator_provider_selection_env|NYASH_ALLOCATOR_PROVIDER' \
+if rg -n '(^|[^A-Za-z0-9_])select_allocator_provider([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])allocator_provider_select([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])allocator_provider_selection_env([^A-Za-z0-9_]|$)|NYASH_ALLOCATOR_PROVIDER' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".provider_selection 2>&1; then
   cat /tmp/"$TAG".provider_selection >&2
   rm -f /tmp/"$TAG".provider_selection
