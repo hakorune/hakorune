@@ -129,6 +129,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_allocator_provider_selection_decision_guard.sh` | M78 の allocator provider selection decision diagnostic shape を固定し、caller-provided request/decision・no selected provider と selection/activation/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_guard.sh` | M79 の allocator provider proof bundle consumption diagnostic shape を固定し、selected-provider proof inputs と runtime proof consumption/activation/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_rollback_preflight_guard.sh` | M80 の allocator provider rollback preflight diagnostic shape を固定し、rollback target facts と rollback preparation/activation/replacement 不在を検証する。 |
+| `tools/checks/k2_wide_allocator_provider_activation_safety_gate_guard.sh` | M81 の allocator provider activation safety gate diagnostic shape を固定し、activation evidence bundle と gate opening/activation/replacement 不在を検証する。 |
 
 ## Env Hygiene
 

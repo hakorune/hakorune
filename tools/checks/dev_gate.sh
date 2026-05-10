@@ -145,6 +145,7 @@ list_profiles() {
     - tools/checks/k2_wide_allocator_provider_selection_decision_guard.sh
     - tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_guard.sh
     - tools/checks/k2_wide_allocator_provider_rollback_preflight_guard.sh
+    - tools/checks/k2_wide_allocator_provider_activation_safety_gate_guard.sh
     - tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
     - tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
     - tools/checks/k2_wide_metal_keep_inventory_guard.sh

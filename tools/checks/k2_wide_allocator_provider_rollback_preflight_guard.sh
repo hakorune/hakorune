@@ -23,7 +23,6 @@ TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ss
 CARD="docs/development/current/main/phases/phase-293x/293x-132-M80-ALLOCATOR-PROVIDER-ROLLBACK-PREFLIGHT.md"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
-CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
@@ -65,7 +64,6 @@ require_file "$TASKBOARD"
 require_file "$CARD"
 require_file "$PHASE_README"
 require_file "$REAL_APP_TASKBOARD"
-require_file "$CURRENT_STATE"
 require_file "$INDEX"
 require_file "$DEV_GATE"
 require_file "$ALLOCATOR_GROUP"
@@ -101,7 +99,6 @@ require_text "$HOOK_ACTIVATION_PREFLIGHT_SSOT" "AllocatorHookActivationPreflight
 require_text "$HOOK_ACTIVATION_PROOF_SSOT" "rollback_condition_named"
 require_text "$HOOK_ACTIVATION_PROOF_FIXTURE" 'rollback_condition_named'
 require_text "$TASK_BREAKDOWN" "M80 | rollback preflight contract"
-require_text "$TASK_BREAKDOWN" "The next safe row is M81 activation safety gate contract."
 require_text "$TASKBOARD" '| `M80 allocator provider rollback preflight` | `live-docs` |'
 require_text "$TASKBOARD" '103. `M80 allocator provider rollback preflight`'
 require_text "$CARD" "293x-132 M80 Allocator Provider Rollback Preflight"
@@ -110,8 +107,6 @@ require_text "$CARD" "rollback_status = \"reserved_no_rollback\""
 require_text "$CARD" "would_prepare_rollback = false"
 require_text "$PHASE_README" '`293x-132`'
 require_text "$REAL_APP_TASKBOARD" '[x] `293x-132` M80 allocator provider rollback preflight'
-require_text "$CURRENT_STATE" 'latest_card = "293x-132-M80-ALLOCATOR-PROVIDER-ROLLBACK-PREFLIGHT"'
-require_text "$CURRENT_STATE" 'latest_card_path = "docs/development/current/main/phases/phase-293x/293x-132-M80-ALLOCATOR-PROVIDER-ROLLBACK-PREFLIGHT.md"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_rollback_preflight_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_rollback_preflight_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_rollback_preflight_guard.sh"

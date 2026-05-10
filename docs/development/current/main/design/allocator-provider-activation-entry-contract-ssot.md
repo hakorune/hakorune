@@ -13,6 +13,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-selection-decision-ssot.md
   - docs/development/current/main/design/allocator-provider-proof-bundle-consumption-ssot.md
   - docs/development/current/main/design/allocator-provider-rollback-preflight-ssot.md
+  - docs/development/current/main/design/allocator-provider-activation-safety-gate-ssot.md
 ---
 
 # Allocator Provider Activation Entry Contract (SSOT)
@@ -87,6 +88,7 @@ provider manifest parser
   -> provider proof bundle consumption
   -> activation proof consumption
   -> rollback preflight
+  -> activation safety gate
   -> later activation row
 ```
 
@@ -130,6 +132,7 @@ M76 opens the post-M75 activation contract ladder:
 | M78 | selection decision diagnostic shape | deterministic selection request/decision facts | activation |
 | M79 | provider proof bundle consumption | explicit provider proof validation handoff | `#[global_allocator]` |
 | M80 | rollback preflight contract | rollback facts before activation | process allocator replacement |
+| M81 | activation safety gate contract | gate-closed activation evidence bundle | hook activation |
 
 ## Gate
 

@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/design/allocator-hook-activation-preflight-shape-ssot.md
   - docs/development/current/main/design/allocator-hook-activation-proof-ssot.md
   - docs/development/current/main/design/allocator-provider-rollback-preflight-v0.toml
+  - docs/development/current/main/design/allocator-provider-activation-safety-gate-ssot.md
 ---
 
 # Allocator Provider Rollback Preflight (SSOT)
@@ -161,10 +162,10 @@ M80 keeps these inactive:
 
 ## Next Row
 
-A later row may consume this fixture only as an explicit diagnostic input to a
-fail-fast rollback preparation implementation. That row must still choose a
-single owner for rollback preparation before any hook activation or process
-allocator replacement code is introduced.
+M81 may consume this fixture only as an explicit diagnostic input to the
+activation safety gate shape. M81 still must not prepare rollback, open an
+activation gate, activate a hook, replace the process allocator, or add
+implicit discovery.
 
 ## Gate
 

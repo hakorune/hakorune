@@ -1,0 +1,157 @@
+# Reserved schema fixture only. Runtime/backend code must not consume this file.
+schema_version = "allocator_provider_activation_safety_gate_v0"
+status = "reserved"
+active = false
+safety_gate_owner = "src/runtime/allocator_provider_registry.rs"
+activation_entry_input = "allocator_provider_activation_entry_contract"
+provider_readiness_input = "allocator_provider_readiness_preflight_report"
+combined_dry_run_input = "allocator_provider_combined_dry_run_report"
+registry_snapshot_input = "allocator_provider_registry_snapshot_report"
+selection_decision_input = "allocator_provider_selection_decision_report"
+proof_bundle_input = "allocator_provider_proof_bundle_consumption_report"
+rollback_preflight_input = "allocator_provider_rollback_preflight_report"
+hook_plan_input = "allocator_hook_plan_report"
+hook_activation_preflight_input = "allocator_hook_activation_preflight_report"
+activation_proof_input = "allocator_hook_activation_proof_v0"
+activation_target_source = "caller_provided_diagnostic_target"
+activation_target_provider_id = "native_mimalloc"
+rollback_target_provider_id = "native_mimalloc"
+current_provider_id = "none_reserved"
+selected_provider_id = "none_reserved"
+safety_gate_policy = "explicit_activation_evidence_bundle_required_reserved"
+provider_selection = "inactive"
+proof_bundle_consumption = "inactive"
+rollback_preflight = "inactive"
+hook_activation = "inactive"
+activation_safety_gate = "inactive"
+safety_status = "reserved_gate_closed"
+activation_gate_open = false
+would_build_registry = false
+would_select_provider = false
+would_consume_proof_bundle = false
+would_prepare_rollback = false
+would_open_activation_gate = false
+would_activate_hook = false
+would_activate = false
+activation = "future_row_required"
+diagnostic = "[allocator-provider/activation-safety-gate-missing]"
+missing_entry_diagnostic = "[allocator-provider/activation-safety-entry-missing]"
+missing_readiness_diagnostic = "[allocator-provider/activation-safety-readiness-missing]"
+missing_combined_dry_run_diagnostic = "[allocator-provider/activation-safety-combined-dry-run-missing]"
+missing_registry_diagnostic = "[allocator-provider/activation-safety-registry-missing]"
+missing_selection_diagnostic = "[allocator-provider/activation-safety-selection-missing]"
+missing_proof_bundle_diagnostic = "[allocator-provider/activation-safety-proof-bundle-missing]"
+missing_rollback_diagnostic = "[allocator-provider/activation-safety-rollback-missing]"
+missing_hook_plan_diagnostic = "[allocator-provider/activation-safety-hook-plan-missing]"
+missing_preflight_diagnostic = "[allocator-provider/activation-safety-preflight-missing]"
+missing_activation_proof_diagnostic = "[allocator-provider/activation-safety-proof-missing]"
+missing_activation_target_diagnostic = "[allocator-provider/activation-safety-target-missing]"
+activation_blocked_diagnostic = "[allocator-provider/activation-safety-blocked]"
+
+required_operations = ["alloc", "realloc", "free"]
+activation_target_operations = ["alloc", "realloc", "free"]
+candidate_provider_ids = [
+  "native_system_malloc",
+  "native_mimalloc",
+  "hako_model_allocator",
+  "debug_guarded_allocator",
+]
+
+reserved_activation_safety_facts = [
+  "activation_entry_contract_ready",
+  "provider_readiness_preflight_ready",
+  "combined_dry_run_ready",
+  "registry_snapshot_ready",
+  "selection_decision_ready",
+  "selected_provider_id_absent",
+  "proof_bundle_ready",
+  "rollback_preflight_ready",
+  "hook_plan_ready",
+  "hook_activation_preflight_ready",
+  "activation_proof_ready",
+  "rollback_target_explicit",
+  "activation_target_provider_id_explicit",
+  "safety_gate_policy_named",
+  "activation_gate_closed",
+  "fail_fast_activation_safety_diagnostic_named",
+  "no_hidden_environment_toggle",
+  "no_implicit_manifest_discovery",
+  "no_implicit_proof_discovery",
+  "no_app_or_facade_name_matching",
+  "no_inc_name_matching",
+  "no_runtime_registry_implementation",
+  "no_provider_selection_implementation",
+  "no_proof_consumption_implementation",
+  "no_rollback_preparation_implementation",
+  "no_hook_activation_implementation",
+  "no_global_allocator_attribute",
+  "no_global_alloc_trait",
+  "no_process_allocator_replacement",
+  "no_route_widening",
+]
+
+[[safety_inputs]]
+name = "activation_entry"
+source = "allocator_provider_activation_entry_contract"
+required = true
+missing_diagnostic = "[allocator-provider/activation-safety-entry-missing]"
+
+[[safety_inputs]]
+name = "provider_readiness"
+source = "allocator_provider_readiness_preflight_report"
+required = true
+missing_diagnostic = "[allocator-provider/activation-safety-readiness-missing]"
+
+[[safety_inputs]]
+name = "combined_dry_run"
+source = "allocator_provider_combined_dry_run_report"
+required = true
+missing_diagnostic = "[allocator-provider/activation-safety-combined-dry-run-missing]"
+
+[[safety_inputs]]
+name = "registry_snapshot"
+source = "allocator_provider_registry_snapshot_report"
+required = true
+missing_diagnostic = "[allocator-provider/activation-safety-registry-missing]"
+
+[[safety_inputs]]
+name = "selection_decision"
+source = "allocator_provider_selection_decision_report"
+required = true
+missing_diagnostic = "[allocator-provider/activation-safety-selection-missing]"
+
+[[safety_inputs]]
+name = "proof_bundle"
+source = "allocator_provider_proof_bundle_consumption_report"
+required = true
+missing_diagnostic = "[allocator-provider/activation-safety-proof-bundle-missing]"
+
+[[safety_inputs]]
+name = "rollback_preflight"
+source = "allocator_provider_rollback_preflight_report"
+required = true
+missing_diagnostic = "[allocator-provider/activation-safety-rollback-missing]"
+
+[[safety_inputs]]
+name = "hook_plan"
+source = "allocator_hook_plan_report"
+required = true
+missing_diagnostic = "[allocator-provider/activation-safety-hook-plan-missing]"
+
+[[safety_inputs]]
+name = "hook_activation_preflight"
+source = "allocator_hook_activation_preflight_report"
+required = true
+missing_diagnostic = "[allocator-provider/activation-safety-preflight-missing]"
+
+[[safety_inputs]]
+name = "activation_proof"
+source = "allocator_hook_activation_proof_v0"
+required = true
+missing_diagnostic = "[allocator-provider/activation-safety-proof-missing]"
+
+[[safety_inputs]]
+name = "activation_target"
+source = "caller_provided_diagnostic_target"
+required = true
+missing_diagnostic = "[allocator-provider/activation-safety-target-missing]"

@@ -285,6 +285,9 @@ inference for the allocator release path.
   reserved rollback target facts and activation-blocked diagnostics while
   keeping rollback preparation, hook activation, and allocator replacement
   inactive.
-- Next: M81 activation safety gate contract. It must stay diagnostic-only: no
-  environment discovery, implicit manifest discovery, hook activation,
-  `#[global_allocator]`, or process allocator replacement.
+- `293x-133`: M81 allocator provider activation safety gate landed, fixing the
+  reserved activation evidence bundle and gate-closed diagnostics while keeping
+  activation gate opening, hook activation, and allocator replacement inactive.
+- Next: M82 activation safety gate diagnostic owner. It must stay
+  diagnostic-only: no environment discovery, implicit manifest discovery, hook
+  activation, `#[global_allocator]`, or process allocator replacement.

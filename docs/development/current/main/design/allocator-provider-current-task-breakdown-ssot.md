@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: accepted
-Date: 2026-05-10
+Date: 2026-05-11
 Scope: current allocator provider / replacement hook task breakdown after M75.
 Related:
   - docs/development/current/main/design/allocator-provider-boundary-v0-ssot.md
@@ -16,6 +16,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-selection-decision-ssot.md
   - docs/development/current/main/design/allocator-provider-proof-bundle-consumption-ssot.md
   - docs/development/current/main/design/allocator-provider-rollback-preflight-ssot.md
+  - docs/development/current/main/design/allocator-provider-activation-safety-gate-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
 ---
 
@@ -47,6 +48,7 @@ then and only then consider process allocator replacement
 | M78 | selection decision diagnostic shape fixing caller-provided request facts and no-selected-provider diagnostics | complete |
 | M79 | provider proof bundle consumption diagnostic shape fixing proof bundle inputs and missing-proof diagnostics | complete |
 | M80 | rollback preflight diagnostic shape fixing rollback target facts and activation-blocked diagnostics | complete |
+| M81 | activation safety gate diagnostic shape fixing evidence bundle facts and gate-closed diagnostics | complete |
 
 ## Layer Model
 
@@ -64,7 +66,7 @@ native metal provider:
   system allocator / mimalloc / OS VM glue / platform atomics and TLS
 
 activation entry:
-  registry snapshot / selection decision / proof consumption / rollback preflight
+  registry snapshot / selection decision / proof consumption / rollback preflight / safety gate
 ```
 
 ## Immediate Task Ladder
@@ -86,6 +88,7 @@ activation entry:
 | M78 | selection decision diagnostic shape | reserved selection request/decision fixture with no selected provider | activation |
 | M79 | provider proof bundle consumption | reserved provider proof bundle fixture with selected-provider proof inputs | `#[global_allocator]` |
 | M80 | rollback preflight contract | reserved rollback preflight fixture with rollback target facts | process allocator replacement |
+| M81 | activation safety gate contract | reserved activation evidence bundle fixture with gate-closed facts | hook activation |
 
 ## Post-M75 Activation Entry Ladder
 
@@ -96,6 +99,7 @@ activation entry:
 | M78 | selection decision diagnostic shape | deterministic selection request/decision facts | activation |
 | M79 | provider proof bundle consumption | explicit provider proof validation handoff | `#[global_allocator]` |
 | M80 | rollback preflight contract | rollback facts before activation | process allocator replacement |
+| M81 | activation safety gate contract | gate-closed activation evidence bundle | hook activation |
 
 ## Dependency Order
 
@@ -114,6 +118,7 @@ M66 task breakdown
   -> M78 selection decision diagnostic shape
   -> M79 provider proof bundle consumption
   -> M80 rollback preflight contract
+  -> M81 activation safety gate contract
   -> later activation row only after safety proof
 ```
 
@@ -158,7 +163,8 @@ M78 fixes the reserved selection request/decision shape without runtime
 registry code or provider selection. M79 fixes the reserved provider proof
 bundle consumption shape without runtime proof consumption or activation. M80
 fixes the reserved rollback preflight shape without rollback preparation, hook
-activation, or process replacement. The next safe row is M81 activation safety gate contract.
+activation, or process replacement. M81 fixes the reserved activation safety
+gate shape without opening the gate or activating hooks. The next safe row is M82 activation safety gate diagnostic owner.
 It must not silently enable production activation,
 `#[global_allocator]`, process allocator replacement, environment discovery, or
 `.inc` name matching.
