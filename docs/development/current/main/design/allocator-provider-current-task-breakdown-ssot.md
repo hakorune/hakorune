@@ -17,6 +17,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-proof-bundle-consumption-ssot.md
   - docs/development/current/main/design/allocator-provider-rollback-preflight-ssot.md
   - docs/development/current/main/design/allocator-provider-activation-safety-gate-ssot.md
+  - docs/development/current/main/design/allocator-provider-activation-safety-diagnostic-owner-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
 ---
 
@@ -49,6 +50,7 @@ then and only then consider process allocator replacement
 | M79 | provider proof bundle consumption diagnostic shape fixing proof bundle inputs and missing-proof diagnostics | complete |
 | M80 | rollback preflight diagnostic shape fixing rollback target facts and activation-blocked diagnostics | complete |
 | M81 | activation safety gate diagnostic shape fixing evidence bundle facts and gate-closed diagnostics | complete |
+| M82 | activation safety diagnostic owner fixing runtime ownership and future-compatible past guards | complete |
 
 ## Layer Model
 
@@ -89,6 +91,7 @@ activation entry:
 | M79 | provider proof bundle consumption | reserved provider proof bundle fixture with selected-provider proof inputs | `#[global_allocator]` |
 | M80 | rollback preflight contract | reserved rollback preflight fixture with rollback target facts | process allocator replacement |
 | M81 | activation safety gate contract | reserved activation evidence bundle fixture with gate-closed facts | hook activation |
+| M82 | activation safety diagnostic owner | runtime owner SSOT plus future-compatible provider guards | activation safety implementation |
 
 ## Post-M75 Activation Entry Ladder
 
@@ -100,6 +103,7 @@ activation entry:
 | M79 | provider proof bundle consumption | explicit provider proof validation handoff | `#[global_allocator]` |
 | M80 | rollback preflight contract | rollback facts before activation | process allocator replacement |
 | M81 | activation safety gate contract | gate-closed activation evidence bundle | hook activation |
+| M82 | activation safety diagnostic owner | names the runtime diagnostic owner and cleans guard pins | activation safety implementation |
 
 ## Dependency Order
 
@@ -119,6 +123,7 @@ M66 task breakdown
   -> M79 provider proof bundle consumption
   -> M80 rollback preflight contract
   -> M81 activation safety gate contract
+  -> M82 activation safety diagnostic owner
   -> later activation row only after safety proof
 ```
 
@@ -145,6 +150,10 @@ prove that its own docs/code/fixtures are still present and that forbidden
 activation behavior has not leaked in. Only the current card guard may require
 the latest-card pointer.
 
+Past provider guards must also avoid pinning future diagnostic owner files or
+diagnostic type names as absent. They may keep blocking active selection,
+environment toggles, hook activation, and process allocator replacement.
+
 ## Acceptance Pattern
 
 Every next row should land as:
@@ -164,7 +173,9 @@ registry code or provider selection. M79 fixes the reserved provider proof
 bundle consumption shape without runtime proof consumption or activation. M80
 fixes the reserved rollback preflight shape without rollback preparation, hook
 activation, or process replacement. M81 fixes the reserved activation safety
-gate shape without opening the gate or activating hooks. The next safe row is M82 activation safety gate diagnostic owner.
+gate shape without opening the gate or activating hooks. M82 fixes the
+activation safety diagnostic owner and removes stale past-guard pins against
+future diagnostic owner files/type names. The next safe row is M83 activation safety gate diagnostic report.
 It must not silently enable production activation,
 `#[global_allocator]`, process allocator replacement, environment discovery, or
 `.inc` name matching.

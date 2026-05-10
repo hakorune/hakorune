@@ -178,9 +178,11 @@ M81 keeps these inactive:
 
 ## Next Row
 
-A later row may consume this fixture only as an explicit diagnostic input to a
-fail-fast runtime diagnostic implementation. That row must still keep the gate
-closed until a separate activation row explicitly opens it.
+M82 names the runtime diagnostic owner and cleans past-guard pins so the next
+implementation row can live in that owner. A later report row may consume this
+fixture only as an explicit diagnostic input to a fail-fast runtime diagnostic
+implementation. That row must still keep the gate closed until a separate
+activation row explicitly opens it.
 
 ## Gate
 

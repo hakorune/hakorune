@@ -23,7 +23,6 @@ CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
-FUTURE_REGISTRY_FILE="src/runtime/allocator_provider_registry.rs"
 
 echo "[$TAG] checking M79 allocator provider proof bundle consumption"
 
@@ -231,23 +230,20 @@ for fact in required_facts:
         fail(f"missing proof bundle consumption fact: {fact}")
 PY
 
-if [[ -e "$FUTURE_REGISTRY_FILE" ]]; then
-  fail "future registry owner file must remain absent in M79: $FUTURE_REGISTRY_FILE"
-fi
 
-if rg -n 'AllocatorProviderProofBundle|ProviderProofBundle|ProofBundleConsumption|allocator_provider_proof_bundle|provider_proof_bundle_consumption|consume_allocator_provider_proof_bundle|consume_provider_proof_bundle' \
+if rg -n 'consume_allocator_provider_proof_bundle|consume_provider_proof_bundle' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".proof_bundle_code 2>&1; then
   cat /tmp/"$TAG".proof_bundle_code >&2
   rm -f /tmp/"$TAG".proof_bundle_code
-  fail "provider proof bundle consumption implementation must stay absent in M79"
+  fail "provider proof bundle consumption must stay inactive in M79"
 fi
 rm -f /tmp/"$TAG".proof_bundle_code
 
-if rg -n 'AllocatorProviderRegistry|allocator_provider_registry|ProviderRegistryEntry|ProviderRegistrySnapshot|ProviderRegistryBuildInput|ProviderSelectionRequest|ProviderSelectionDecision|select_allocator_provider|allocator_provider_select|allocator_provider_selection_env|NYASH_ALLOCATOR_PROVIDER' \
+if rg -n 'select_allocator_provider|allocator_provider_select|allocator_provider_selection_env|NYASH_ALLOCATOR_PROVIDER' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".provider_registry 2>&1; then
   cat /tmp/"$TAG".provider_registry >&2
   rm -f /tmp/"$TAG".provider_registry
-  fail "provider registry/selection implementation must stay absent in M79"
+  fail "provider selection implementation/env toggle must stay absent in M79"
 fi
 rm -f /tmp/"$TAG".provider_registry
 

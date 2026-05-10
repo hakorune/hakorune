@@ -288,6 +288,11 @@ inference for the allocator release path.
 - `293x-133`: M81 allocator provider activation safety gate landed, fixing the
   reserved activation evidence bundle and gate-closed diagnostics while keeping
   activation gate opening, hook activation, and allocator replacement inactive.
-- Next: M82 activation safety gate diagnostic owner. It must stay
-  diagnostic-only: no environment discovery, implicit manifest discovery, hook
-  activation, `#[global_allocator]`, or process allocator replacement.
+- `293x-134`: M82 allocator provider activation safety diagnostic owner
+  landed, naming `src/runtime/allocator_provider_registry.rs` as the diagnostic
+  owner and making past provider guards future-compatible with owner-file and
+  diagnostic type names while keeping activation implementation inactive.
+- Next: M83 activation safety gate diagnostic report. It must stay
+  diagnostic-only: no environment discovery, implicit manifest discovery, gate
+  opening, hook activation, `#[global_allocator]`, or process allocator
+  replacement.

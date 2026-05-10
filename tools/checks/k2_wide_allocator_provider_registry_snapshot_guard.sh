@@ -17,7 +17,6 @@ REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
-FUTURE_REGISTRY_FILE="src/runtime/allocator_provider_registry.rs"
 
 echo "[$TAG] checking M77 allocator provider registry snapshot"
 
@@ -150,15 +149,12 @@ for entry in entries:
         fail("entry operations must be nonempty")
 PY
 
-if [[ -e "$FUTURE_REGISTRY_FILE" ]]; then
-  fail "future registry owner file must remain absent in M77: $FUTURE_REGISTRY_FILE"
-fi
 
-if rg -n 'ProviderSelectionRequest|ProviderSelectionDecision|select_allocator_provider|allocator_provider_select|allocator_provider_selection_env|NYASH_ALLOCATOR_PROVIDER' \
+if rg -n 'select_allocator_provider|allocator_provider_select|allocator_provider_selection_env|NYASH_ALLOCATOR_PROVIDER' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".provider_selection 2>&1; then
   cat /tmp/"$TAG".provider_selection >&2
   rm -f /tmp/"$TAG".provider_selection
-  fail "provider selection implementation must stay absent in M77"
+  fail "provider selection implementation/env toggle must stay absent in M77"
 fi
 rm -f /tmp/"$TAG".provider_selection
 

@@ -15,7 +15,6 @@ REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
-FUTURE_REGISTRY_FILE="src/runtime/allocator_provider_registry.rs"
 
 echo "[$TAG] checking M76 allocator provider activation entry contract"
 
@@ -131,15 +130,12 @@ if not isinstance(future_rows, list) or len(future_rows) != 4:
     fail("future_rows must list the four post-M76 rows")
 PY
 
-if [[ -e "$FUTURE_REGISTRY_FILE" ]]; then
-  fail "future registry owner file must remain absent in M76: $FUTURE_REGISTRY_FILE"
-fi
 
-if rg -n 'AllocatorProviderRegistry|allocator_provider_registry|select_allocator_provider|allocator_provider_select|allocator_provider_selection_env|NYASH_ALLOCATOR_PROVIDER|ProviderSelectionRequest|ProviderSelectionDecision' \
+if rg -n 'select_allocator_provider|allocator_provider_select|allocator_provider_selection_env|NYASH_ALLOCATOR_PROVIDER' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".provider_selection 2>&1; then
   cat /tmp/"$TAG".provider_selection >&2
   rm -f /tmp/"$TAG".provider_selection
-  fail "provider registry/selection implementation must stay absent in M76"
+  fail "provider selection implementation/env toggle must stay absent in M76"
 fi
 rm -f /tmp/"$TAG".provider_selection
 

@@ -25,11 +25,9 @@ TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ss
 CARD="docs/development/current/main/phases/phase-293x/293x-133-M81-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-GATE.md"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
-CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
-FUTURE_REGISTRY_FILE="src/runtime/allocator_provider_registry.rs"
 
 echo "[$TAG] checking M81 allocator provider activation safety gate"
 
@@ -69,7 +67,6 @@ require_file "$TASKBOARD"
 require_file "$CARD"
 require_file "$PHASE_README"
 require_file "$REAL_APP_TASKBOARD"
-require_file "$CURRENT_STATE"
 require_file "$INDEX"
 require_file "$DEV_GATE"
 require_file "$ALLOCATOR_GROUP"
@@ -109,7 +106,6 @@ require_text "$HOOK_ACTIVATION_PREFLIGHT_SSOT" "AllocatorHookActivationPreflight
 require_text "$HOOK_ACTIVATION_PROOF_SSOT" "rollback_condition_named"
 require_text "$HOOK_ACTIVATION_PROOF_FIXTURE" 'rollback_condition_named'
 require_text "$TASK_BREAKDOWN" "M81 | activation safety gate contract"
-require_text "$TASK_BREAKDOWN" "The next safe row is M82 activation safety gate diagnostic owner."
 require_text "$TASKBOARD" '| `M81 allocator provider activation safety gate` | `live-docs` |'
 require_text "$TASKBOARD" '104. `M81 allocator provider activation safety gate`'
 require_text "$CARD" "293x-133 M81 Allocator Provider Activation Safety Gate"
@@ -119,8 +115,6 @@ require_text "$CARD" "activation_gate_open = false"
 require_text "$CARD" "would_open_activation_gate = false"
 require_text "$PHASE_README" '`293x-133`'
 require_text "$REAL_APP_TASKBOARD" '[x] `293x-133` M81 allocator provider activation safety gate'
-require_text "$CURRENT_STATE" 'latest_card = "293x-133-M81-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-GATE"'
-require_text "$CURRENT_STATE" 'latest_card_path = "docs/development/current/main/phases/phase-293x/293x-133-M81-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-GATE.md"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_activation_safety_gate_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_activation_safety_gate_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_activation_safety_gate_guard.sh"
@@ -300,27 +294,24 @@ if seen != set(expected_safety_inputs):
     fail("safety_inputs must cover all reserved diagnostics")
 PY
 
-if [[ -e "$FUTURE_REGISTRY_FILE" ]]; then
-  fail "future registry owner file must remain absent in M81: $FUTURE_REGISTRY_FILE"
-fi
 
-if rg -n 'ActivationSafetyGate|activation_safety_gate|allocator_provider_activation_safety|activation_gate_open|open_activation_gate|would_open_activation_gate' \
+if rg -n 'open_activation_gate' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".safety_impl 2>&1; then
   cat /tmp/"$TAG".safety_impl >&2
   rm -f /tmp/"$TAG".safety_impl
-  fail "activation safety gate implementation must remain docs/fixture-only in M81"
+  fail "activation safety gate opening must stay absent in M81"
 fi
 rm -f /tmp/"$TAG".safety_impl
 
-if rg -n 'ProviderSelectionRequest|ProviderSelectionDecision|select_allocator_provider|allocator_provider_select|allocator_provider_selection_env|NYASH_ALLOCATOR_PROVIDER' \
+if rg -n 'select_allocator_provider|allocator_provider_select|allocator_provider_selection_env|NYASH_ALLOCATOR_PROVIDER' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".provider_selection 2>&1; then
   cat /tmp/"$TAG".provider_selection >&2
   rm -f /tmp/"$TAG".provider_selection
-  fail "provider selection implementation must stay absent in M81"
+  fail "provider selection implementation/env toggle must stay absent in M81"
 fi
 rm -f /tmp/"$TAG".provider_selection
 
-if rg -n 'proof_bundle_consumed|consume_allocator_provider_proof|allocator_provider_proof_bundle_consume|ProofBundleConsumption' \
+if rg -n 'consume_allocator_provider_proof|allocator_provider_proof_bundle_consume' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".proof_consumption 2>&1; then
   cat /tmp/"$TAG".proof_consumption >&2
   rm -f /tmp/"$TAG".proof_consumption
@@ -328,7 +319,7 @@ if rg -n 'proof_bundle_consumed|consume_allocator_provider_proof|allocator_provi
 fi
 rm -f /tmp/"$TAG".proof_consumption
 
-if rg -n 'RollbackPreflight|rollback_preflight|allocator_provider_rollback|rollback_target|prepare_rollback|would_prepare_rollback' \
+if rg -n 'prepare_rollback' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".rollback_impl 2>&1; then
   cat /tmp/"$TAG".rollback_impl >&2
   rm -f /tmp/"$TAG".rollback_impl

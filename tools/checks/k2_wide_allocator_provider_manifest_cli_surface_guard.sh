@@ -77,11 +77,11 @@ if rg -n 'std::env|set_var|var_os|env_bool|env_string' "$CLI_FILE" >/tmp/"$TAG".
 fi
 rm -f /tmp/"$TAG".env
 
-if rg -n 'AllocatorProviderRegistry|allocator_provider_registry|select_allocator_provider|allocator_provider_select|allocator_provider_selection_env|NYASH_ALLOCATOR_PROVIDER' \
+if rg -n 'select_allocator_provider|allocator_provider_select|allocator_provider_selection_env|NYASH_ALLOCATOR_PROVIDER' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".provider_selection 2>&1; then
   cat /tmp/"$TAG".provider_selection >&2
   rm -f /tmp/"$TAG".provider_selection
-  fail "provider registry/selection implementation must stay absent in M68"
+  fail "provider selection implementation/env toggle must stay absent in M68"
 fi
 rm -f /tmp/"$TAG".provider_selection
 

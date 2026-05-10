@@ -94,6 +94,7 @@
 - [x] `293x-131` M79 allocator provider proof bundle consumption
 - [x] `293x-132` M80 allocator provider rollback preflight
 - [x] `293x-133` M81 allocator provider activation safety gate
+- [x] `293x-134` M82 allocator provider activation safety diagnostic owner
 
 ## Gates
 

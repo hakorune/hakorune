@@ -85,6 +85,7 @@ if [[ "${1:-}" == "--list" ]]; then
   - tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_guard.sh
   - tools/checks/k2_wide_allocator_provider_rollback_preflight_guard.sh
   - tools/checks/k2_wide_allocator_provider_activation_safety_gate_guard.sh
+  - tools/checks/k2_wide_allocator_provider_activation_safety_diagnostic_owner_guard.sh
 LIST
   exit 0
 fi
@@ -301,3 +302,6 @@ run_step "allocator provider rollback preflight guard" \
 
 run_step "allocator provider activation safety gate guard" \
   bash tools/checks/k2_wide_allocator_provider_activation_safety_gate_guard.sh
+
+run_step "allocator provider activation safety diagnostic owner guard" \
+  bash tools/checks/k2_wide_allocator_provider_activation_safety_diagnostic_owner_guard.sh

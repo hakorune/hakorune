@@ -26,7 +26,6 @@ REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
-FUTURE_REGISTRY_FILE="src/runtime/allocator_provider_registry.rs"
 
 echo "[$TAG] checking M80 allocator provider rollback preflight"
 
@@ -276,27 +275,24 @@ if seen != set(expected_inputs):
     fail("rollback_inputs must cover all reserved diagnostics")
 PY
 
-if [[ -e "$FUTURE_REGISTRY_FILE" ]]; then
-  fail "future registry owner file must remain absent in M80: $FUTURE_REGISTRY_FILE"
-fi
 
-if rg -n 'RollbackPreflight|rollback_preflight|allocator_provider_rollback|rollback_target|prepare_rollback|would_prepare_rollback' \
+if rg -n 'prepare_rollback' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".rollback_impl 2>&1; then
   cat /tmp/"$TAG".rollback_impl >&2
   rm -f /tmp/"$TAG".rollback_impl
-  fail "rollback preflight must remain docs/fixture-only in M80"
+  fail "rollback preparation implementation must stay absent in M80"
 fi
 rm -f /tmp/"$TAG".rollback_impl
 
-if rg -n 'ProviderSelectionRequest|ProviderSelectionDecision|select_allocator_provider|allocator_provider_select|allocator_provider_selection_env|NYASH_ALLOCATOR_PROVIDER' \
+if rg -n 'select_allocator_provider|allocator_provider_select|allocator_provider_selection_env|NYASH_ALLOCATOR_PROVIDER' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".provider_selection 2>&1; then
   cat /tmp/"$TAG".provider_selection >&2
   rm -f /tmp/"$TAG".provider_selection
-  fail "provider selection implementation must stay absent in M80"
+  fail "provider selection implementation/env toggle must stay absent in M80"
 fi
 rm -f /tmp/"$TAG".provider_selection
 
-if rg -n 'proof_bundle_consumed|consume_allocator_provider_proof|allocator_provider_proof_bundle_consume|ProofBundleConsumption' \
+if rg -n 'consume_allocator_provider_proof|allocator_provider_proof_bundle_consume' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".proof_consumption 2>&1; then
   cat /tmp/"$TAG".proof_consumption >&2
   rm -f /tmp/"$TAG".proof_consumption

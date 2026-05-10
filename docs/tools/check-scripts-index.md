@@ -130,6 +130,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_guard.sh` | M79 の allocator provider proof bundle consumption diagnostic shape を固定し、selected-provider proof inputs と runtime proof consumption/activation/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_rollback_preflight_guard.sh` | M80 の allocator provider rollback preflight diagnostic shape を固定し、rollback target facts と rollback preparation/activation/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_activation_safety_gate_guard.sh` | M81 の allocator provider activation safety gate diagnostic shape を固定し、activation evidence bundle と gate opening/activation/replacement 不在を検証する。 |
+| `tools/checks/k2_wide_allocator_provider_activation_safety_diagnostic_owner_guard.sh` | M82 の allocator provider activation safety diagnostic owner を固定し、runtime owner と過去 guard の future-compatible 化、gate opening/activation/replacement 不在を検証する。 |
 
 ## Env Hygiene
 
