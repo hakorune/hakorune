@@ -17,7 +17,7 @@
 //! - After: 311 lines orchestrator + 4 extracted modules (537 lines total)
 //! - Net reduction: -444 lines of complexity in build.rs
 
-use super::super::{Effect, EffectMask, MirBuilder, MirInstruction, MirType, ValueId};
+use super::super::{Effect, EffectMask, MirBuilder, MirInstruction, ValueId};
 #[allow(unused_imports)]
 use super::debug_method_routing::*;
 use super::special_handlers;
@@ -419,32 +419,9 @@ impl MirBuilder {
             "externcall target must be a string literal: externcall \"name\"(...)".to_string()
         })?;
         let arg_values = self.build_call_args(&args[1..])?;
-        let return_type = match extern_name.as_str() {
-            "hako_mem_alloc"
-            | "hako_atomic_ptr_cas_ordered"
-            | "hako_atomic_ptr_load_ordered"
-            | "hako_atomic_ptr_store_ordered"
-            | "hako_atomic_slot_cas_i64"
-            | "hako_atomic_slot_fetch_add_i64"
-            | "hako_atomic_slot_load_i64"
-            | "hako_atomic_slot_store_i64"
-            | "hako_mem_realloc"
-            | "hako_mem_free"
-            | "hako_osvm_page_size_i64"
-            | "hako_osvm_commit_bytes_i64"
-            | "hako_osvm_decommit_bytes_i64"
-            | "hako_osvm_reserve_bytes_i64"
-            | "hako_tls_cache_slot_get_i64"
-            | "hako_tls_cache_slot_set_i64" => MirType::Integer,
-            "nyash.box.from_i8_string" => MirType::Box("StringBox".to_string()),
-            _ => MirType::Unknown,
-        };
-        let (iface_name, method_name) = match extern_name.rsplit_once('.') {
-            Some((iface, method)) if !iface.is_empty() && !method.is_empty() => {
-                (iface.to_string(), method.to_string())
-            }
-            _ => ("".to_string(), extern_name),
-        };
+        let return_type = super::extern_calls::explicit_extern_return_type(&extern_name);
+        let (iface_name, method_name) =
+            super::extern_calls::split_explicit_extern_name(&extern_name);
 
         let dst = self.next_value_id();
         self.emit_extern_call_with_effects(

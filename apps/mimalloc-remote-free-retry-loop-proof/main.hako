@@ -1,0 +1,119 @@
+// mimalloc-remote-free-retry-loop-proof
+// Purpose: prove a same-module remote-free CAS retry loop over existing pointer atomic routes.
+
+static box AllocatorRemoteFreeRetryPolicy {
+    init_head(head_cell) {
+        return externcall "hako_atomic_ptr_store_ordered"(head_cell, 0, 2)
+    }
+
+    push_retry(head_cell, block_ptr, interferer_ptr) {
+        local retries = 0
+        local injected = 0
+        local done = 0
+
+        loop (done == 0 && retries < 5) {
+            local old_head = externcall "hako_atomic_ptr_load_ordered"(head_cell, 1)
+            externcall "hako_atomic_ptr_store_ordered"(block_ptr, old_head, 2)
+
+            if injected == 0 && interferer_ptr != 0 {
+                externcall "hako_atomic_ptr_store_ordered"(interferer_ptr, old_head, 2)
+                externcall "hako_atomic_ptr_cas_ordered"(head_cell, old_head, interferer_ptr, 3, 1)
+                injected = 1
+            }
+
+            local observed = externcall "hako_atomic_ptr_cas_ordered"(head_cell, old_head, block_ptr, 3, 1)
+            if observed == old_head {
+                done = 1
+            } else {
+                retries = retries + 1
+            }
+        }
+
+        if done == 1 {
+            return retries
+        }
+
+        return -1
+    }
+
+    peek_head(head_cell) {
+        return externcall "hako_atomic_ptr_load_ordered"(head_cell, 1)
+    }
+
+    peek_next(block_ptr) {
+        return externcall "hako_atomic_ptr_load_ordered"(block_ptr, 1)
+    }
+}
+
+static box Main {
+    main(args) {
+        local head_cell = externcall "hako_mem_alloc"(8)
+        local block_a = externcall "hako_mem_alloc"(24)
+        local block_b = externcall "hako_mem_alloc"(24)
+        local block_c = externcall "hako_mem_alloc"(24)
+
+        if head_cell == 0 || block_a == 0 || block_b == 0 || block_c == 0 {
+            print("mimalloc-remote-free-retry-loop-proof")
+            print("summary=alloc_failed")
+            if block_c != 0 { externcall "hako_mem_free"(block_c) }
+            if block_b != 0 { externcall "hako_mem_free"(block_b) }
+            if block_a != 0 { externcall "hako_mem_free"(block_a) }
+            if head_cell != 0 { externcall "hako_mem_free"(head_cell) }
+            return 1
+        }
+
+        local init_store = AllocatorRemoteFreeRetryPolicy.init_head(head_cell)
+        local first_retries = AllocatorRemoteFreeRetryPolicy.push_retry(head_cell, block_a, 0)
+        local second_retries = AllocatorRemoteFreeRetryPolicy.push_retry(head_cell, block_b, block_c)
+
+        local final_head = AllocatorRemoteFreeRetryPolicy.peek_head(head_cell)
+        local next_b = AllocatorRemoteFreeRetryPolicy.peek_next(block_b)
+        local next_c = AllocatorRemoteFreeRetryPolicy.peek_next(block_c)
+        local next_a = AllocatorRemoteFreeRetryPolicy.peek_next(block_a)
+
+        local first_retry_zero = 0
+        if first_retries == 0 {
+            first_retry_zero = 1
+        }
+        local second_retry_once = 0
+        if second_retries == 1 {
+            second_retry_once = 1
+        }
+        local final_head_is_b = 0
+        if final_head == block_b {
+            final_head_is_b = 1
+        }
+        local next_b_is_c = 0
+        if next_b == block_c {
+            next_b_is_c = 1
+        }
+        local next_c_is_a = 0
+        if next_c == block_a {
+            next_c_is_a = 1
+        }
+        local next_a_empty = 0
+        if next_a == 0 {
+            next_a_empty = 1
+        }
+
+        externcall "hako_mem_free"(block_c)
+        externcall "hako_mem_free"(block_b)
+        externcall "hako_mem_free"(block_a)
+        externcall "hako_mem_free"(head_cell)
+
+        print("mimalloc-remote-free-retry-loop-proof")
+        print("init=" + init_store)
+        print("retries=" + first_retries + "," + second_retries)
+        print("shape=" + final_head_is_b + "," + next_b_is_c + "," + next_c_is_a + "," + next_a_empty)
+
+        local retry_matches = first_retry_zero + second_retry_once
+        local shape_matches = final_head_is_b + next_b_is_c + next_c_is_a + next_a_empty
+        if init_store == 0 && retry_matches == 2 && shape_matches == 4 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

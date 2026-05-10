@@ -71,7 +71,7 @@ pub(super) fn verify_effect(
         }
         CoreEffectPlan::ExternCall {
             dst,
-            iface_name,
+            iface_name: _,
             method_name,
             args,
             effects: _,
@@ -79,11 +79,11 @@ pub(super) fn verify_effect(
             if let Some(dst_val) = dst {
                 primitives::verify_value_id_basic(*dst_val, depth, "ExternCall.dst")?;
             }
-            if iface_name.is_empty() || method_name.is_empty() {
+            if method_name.is_empty() {
                 return Err(primitives::err(
                     "V6",
                     "extern_call_empty_name",
-                    format!("ExternCall at depth {} has empty iface/method", depth),
+                    format!("ExternCall at depth {} has empty method/symbol", depth),
                 ));
             }
             for (i, arg) in args.iter().enumerate() {

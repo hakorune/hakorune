@@ -180,6 +180,10 @@ Live operations:
   behind `AllocatorRemoteFreeListPolicy` same-module methods. It proves policy
   integration over existing route facts only; retry loops and production
   allocator policy remain future work.
+- `apps/mimalloc-remote-free-retry-loop-proof` proves a bounded same-module
+  retry loop over the same pointer store/load/CAS route facts. It injects one
+  competing push to force a CAS failure, then retries to publish the requested
+  block. Production allocator policy remains future work.
 - `tools/checks/k2_wide_mimalloc_allocator_closeout_guard.sh` locks the
   M20-M37 mimalloc allocator proof coverage as a closeout inventory guard.
 

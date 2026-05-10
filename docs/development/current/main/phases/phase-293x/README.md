@@ -172,6 +172,9 @@ inference for the allocator release path.
 - `293x-094`: M42 allocator remote-free list policy integration proof landed,
   moving the M41 list push shape behind `AllocatorRemoteFreeListPolicy` through
   same-module generic-i64 routes without adding a route row or backend matcher.
-- Next: M43 allocator remote-free retry-loop proof, if the allocator lane needs
-  a CAS retry-loop acceptance shape; keep future blockers as compiler/runtime
-  seams and do not hide them in app code.
+- `293x-095`: M43 allocator remote-free retry-loop proof landed, proving a
+  bounded CAS retry loop inside `AllocatorRemoteFreeRetryPolicy` over existing
+  pointer store/load/CAS routes.
+- Next: M44 mimalloc allocator substrate closeout guard, before starting a
+  production allocator port; keep future blockers as compiler/runtime seams and
+  do not hide them in app code.

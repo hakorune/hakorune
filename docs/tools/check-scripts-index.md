@@ -81,7 +81,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_mimalloc_atomic_fetch_add_exe_guard.sh` | M30 の `AtomicCoreBox.fetch_add_i64` + pure-first EXE proof を固定し、atomic fetch-add route が MIR-owned extern route facts から emit されることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_remote_free_i64_exe_guard.sh` | M31 の fixed-slot i64 remote-free sketch + pure-first EXE proof を固定し、既存 atomic route facts の合成で LIFO push が動くことを検証する。 |
 | `tools/checks/k2_wide_atomic_memory_order_args_vocab_guard.sh` | M33 の ordered fixed-slot i64 atomic facade/route vocabulary を docs-only で固定し、active source / `.inc` / NyRT に ordered implementation row が混入しないことを検証する。 |
-| `tools/checks/k2_wide_pointer_atomic_vocab_guard.sh` | M34 の native-pointer atomic load/store/CAS facade/route vocabulary を固定し、M35/M39/M40/M41/M42 以降も pointer fetch_add implementation row が混入しないことを検証する。 |
+| `tools/checks/k2_wide_pointer_atomic_vocab_guard.sh` | M34 の native-pointer atomic load/store/CAS facade/route vocabulary を固定し、M35/M39/M40/M41/M42/M43 以降も pointer fetch_add implementation row が混入しないことを検証する。 |
 | `tools/checks/k2_wide_mimalloc_ptr_atomic_store_exe_guard.sh` | M35 の direct native-pointer atomic store route + pure-first EXE proof を固定し、`hako_atomic_ptr_store_ordered` が MIR-owned extern route facts から emit されることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_tls_ptr_remote_free_exe_guard.sh` | M36 の TLS cache-slot + direct native-pointer atomic store composition proof を固定し、remote-free mailbox seam が既存 route facts だけで pure-first EXE 実行できることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_remote_free_policy_exe_guard.sh` | M37 の allocator remote-free policy integration proof を固定し、`AllocatorRemoteFreePolicy` が既存 TLS/pointer-store route facts だけで pure-first EXE 実行できることを検証する。 |
@@ -90,6 +90,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_mimalloc_ptr_atomic_cas_exe_guard.sh` | M40 の direct native-pointer atomic CAS route + pure-first EXE proof を固定し、`hako_atomic_ptr_cas_ordered` が MIR-owned extern route facts から emit されることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_ptr_remote_free_list_exe_guard.sh` | M41 の pointer store/load/CAS composition proof を固定し、既存 route facts だけで two-node remote-free list push が pure-first EXE 実行できることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_remote_free_list_policy_exe_guard.sh` | M42 の allocator remote-free list policy proof を固定し、M41 の two-node push shape が same-module policy box 経由で pure-first EXE 実行できることを検証する。 |
+| `tools/checks/k2_wide_mimalloc_remote_free_retry_loop_exe_guard.sh` | M43 の allocator remote-free retry-loop proof を固定し、same-module policy box 内の bounded CAS retry loop が pure-first EXE 実行できることを検証する。 |
 
 ## Env Hygiene
 

@@ -264,6 +264,24 @@ impl ExternCallRouteKind {
             Self::Stage1EmitMirFromProgramJson => &["stage1.emit_mir_from_program_json"],
         }
     }
+
+    pub fn accepts_void_result(self) -> bool {
+        matches!(
+            self,
+            Self::EnvSet
+                | Self::ArraySlotAppendAny
+                | Self::ArraySlotStoreI64
+                | Self::HakoAtomicSlotCasI64
+                | Self::HakoAtomicSlotFetchAddI64
+                | Self::HakoAtomicSlotStoreI64
+                | Self::HakoAtomicPtrCasOrdered
+                | Self::HakoAtomicPtrStoreOrdered
+                | Self::HakoMemFree
+                | Self::HakoOsvmCommitBytesI64
+                | Self::HakoOsvmDecommitBytesI64
+                | Self::HakoTlsCacheSlotSetI64
+        )
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -364,6 +382,14 @@ impl ExternCallRoute {
 
     pub fn result_value(&self) -> ValueId {
         self.result_value
+    }
+
+    pub fn result_value_opt(&self) -> Option<ValueId> {
+        if self.result_value == ValueId::INVALID {
+            None
+        } else {
+            Some(self.result_value)
+        }
     }
 
     pub fn arity(&self) -> usize {
@@ -480,7 +506,7 @@ pub fn refresh_function_extern_call_routes(function: &mut MirFunction) {
         };
         for (instruction_index, instruction) in block.instructions.iter().enumerate() {
             let MirInstruction::Call {
-                dst: Some(dst),
+                dst,
                 callee: Some(callee),
                 args,
                 ..
@@ -498,6 +524,9 @@ pub fn refresh_function_extern_call_routes(function: &mut MirFunction) {
             let Some(kind) = classify_extern_call_route(name, args.len()) else {
                 continue;
             };
+            if dst.is_none() && !kind.accepts_void_result() {
+                continue;
+            }
             let Some(key_value) = args.first().copied() else {
                 continue;
             };
@@ -534,7 +563,7 @@ pub fn refresh_function_extern_call_routes(function: &mut MirFunction) {
                 name,
                 key_value,
                 value_value,
-                *dst,
+                dst.unwrap_or(ValueId::INVALID),
             ));
         }
     }

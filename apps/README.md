@@ -353,6 +353,22 @@ bash tools/checks/k2_wide_mimalloc_remote_free_list_policy_exe_guard.sh
 - main は alloc/free と list shape 検証だけを持つ
 - 新しい route row / pointer fetch_add / production retry loop は追加しない
 
+#### mimalloc-remote-free-retry-loop-proof
+**場所**: `mimalloc-remote-free-retry-loop-proof/main.hako`
+M43 retry-loop proof。`AllocatorRemoteFreeRetryPolicy` が bounded CAS retry loop
+を所有し、既存 pointer store/load/CAS route facts だけで retry 後の publish を
+pure-first EXE で固定する fixture。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_remote_free_retry_loop_exe_guard.sh
+```
+
+**特徴**:
+- policy method 内で load → next store → CAS → retry を実行する
+- 1回だけ competing push を注入して CAS failure を作る
+- 最終形 `block_b -> block_c -> block_a -> null` を検証する
+- 新しい route row / pointer fetch_add / production allocator policy は追加しない
+
 #### mimalloc-tls-ptr-remote-free-proof
 **場所**: `mimalloc-tls-ptr-remote-free-proof/main.hako`
 M36 composition proof。TLS cache-slot に native mailbox pointer を置き、
@@ -561,6 +577,7 @@ box TreeNode {
 - [x] mimalloc-ptr-atomic-cas-proof（M40 native pointer atomic CAS proof）
 - [x] mimalloc-ptr-remote-free-list-proof（M41 pointer CAS remote-free list proof）
 - [x] mimalloc-remote-free-list-policy-proof（M42 allocator remote-free list policy integration proof）
+- [x] mimalloc-remote-free-retry-loop-proof（M43 allocator remote-free retry-loop proof）
 - [x] mimalloc-tls-ptr-remote-free-proof（M36 TLS pointer remote-free proof）
 - [x] mimalloc-remote-free-policy-proof（M37 remote-free policy integration proof）
 

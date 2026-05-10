@@ -112,6 +112,77 @@ pub(in crate::mir::builder) fn lower_local_init_values(
     Ok((inits, effects))
 }
 
+fn lower_explicit_extern_call_args(
+    builder: &mut MirBuilder,
+    phi_bindings: &BTreeMap<String, ValueId>,
+    arguments: &[ASTNode],
+    error_prefix: &str,
+) -> Result<(String, Vec<ValueId>, Vec<CoreEffectPlan>), String> {
+    if arguments.is_empty() {
+        return Err(format!(
+            "{error_prefix}: externcall requires a target string literal"
+        ));
+    }
+
+    let extern_name =
+        crate::mir::builder::calls::special_handlers::extract_string_literal(&arguments[0])
+            .ok_or_else(|| format!("{error_prefix}: externcall target must be a string literal"))?;
+
+    let mut arg_ids = Vec::new();
+    let mut effects = Vec::new();
+    for arg in &arguments[1..] {
+        let (arg_id, mut arg_effects) =
+            PlanNormalizer::lower_value_ast(arg, builder, phi_bindings)?;
+        arg_ids.push(arg_id);
+        effects.append(&mut arg_effects);
+    }
+
+    Ok((extern_name, arg_ids, effects))
+}
+
+pub(in crate::mir::builder) fn lower_explicit_extern_call_value(
+    builder: &mut MirBuilder,
+    phi_bindings: &BTreeMap<String, ValueId>,
+    arguments: &[ASTNode],
+    error_prefix: &str,
+) -> Result<(ValueId, Vec<CoreEffectPlan>), String> {
+    let (extern_name, arg_ids, mut effects) =
+        lower_explicit_extern_call_args(builder, phi_bindings, arguments, error_prefix)?;
+    let result_id = builder.next_value_id();
+    builder.type_ctx.set_type(
+        result_id,
+        extern_calls::explicit_extern_return_type(&extern_name),
+    );
+    let (iface_name, method_name) = extern_calls::split_explicit_extern_name(&extern_name);
+    effects.push(CoreEffectPlan::ExternCall {
+        dst: Some(result_id),
+        iface_name,
+        method_name,
+        args: arg_ids,
+        effects: EffectMask::IO,
+    });
+    Ok((result_id, effects))
+}
+
+fn lower_explicit_extern_call_stmt(
+    builder: &mut MirBuilder,
+    phi_bindings: &BTreeMap<String, ValueId>,
+    arguments: &[ASTNode],
+    error_prefix: &str,
+) -> Result<Vec<CoreEffectPlan>, String> {
+    let (extern_name, arg_ids, mut effects) =
+        lower_explicit_extern_call_args(builder, phi_bindings, arguments, error_prefix)?;
+    let (iface_name, method_name) = extern_calls::split_explicit_extern_name(&extern_name);
+    effects.push(CoreEffectPlan::ExternCall {
+        dst: None,
+        iface_name,
+        method_name,
+        args: arg_ids,
+        effects: EffectMask::IO,
+    });
+    Ok(effects)
+}
+
 pub(in crate::mir::builder) fn lower_method_call_stmt(
     builder: &mut MirBuilder,
     phi_bindings: &BTreeMap<String, ValueId>,
@@ -284,6 +355,10 @@ pub(in crate::mir::builder) fn lower_function_call_stmt(
         return Err(format!("{error_prefix}: expected function call"));
     };
 
+    if name == "externcall" {
+        return lower_explicit_extern_call_stmt(builder, phi_bindings, arguments, error_prefix);
+    }
+
     let mut arg_ids = Vec::new();
     let mut effects = Vec::new();
     for arg in arguments {
@@ -440,4 +515,117 @@ fn debug_log_bool_expr_binop_lit3(
         rhs.0,
         kind
     ));
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn span() -> Span {
+        Span::unknown()
+    }
+
+    fn lit_str(value: &str) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::String(value.to_string()),
+            span: span(),
+        }
+    }
+
+    fn lit_int(value: i64) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: span(),
+        }
+    }
+
+    fn var(name: &str) -> ASTNode {
+        ASTNode::Variable {
+            name: name.to_string(),
+            span: span(),
+        }
+    }
+
+    #[test]
+    fn explicit_externcall_value_lowers_to_extern_effect() {
+        let mut builder = MirBuilder::new();
+        let mut bindings = BTreeMap::new();
+        bindings.insert("head".to_string(), ValueId::new(10));
+
+        let (dst, effects) = lower_explicit_extern_call_value(
+            &mut builder,
+            &bindings,
+            &[
+                lit_str("hako_atomic_ptr_load_ordered"),
+                var("head"),
+                lit_int(1),
+            ],
+            "test externcall value",
+        )
+        .expect("externcall value must lower");
+
+        assert_eq!(
+            builder.type_ctx.get_type(dst).cloned(),
+            Some(MirType::Integer)
+        );
+        assert!(
+            effects.iter().any(|effect| matches!(
+                effect,
+                CoreEffectPlan::ExternCall {
+                    dst: Some(call_dst),
+                    iface_name,
+                    method_name,
+                    args,
+                    effects,
+                } if *call_dst == dst
+                    && iface_name.is_empty()
+                    && method_name == "hako_atomic_ptr_load_ordered"
+                    && args.first() == Some(&ValueId::new(10))
+                    && *effects == EffectMask::IO
+            )),
+            "explicit externcall value must become CoreEffectPlan::ExternCall: {:?}",
+            effects
+        );
+    }
+
+    #[test]
+    fn explicit_externcall_statement_lowers_to_extern_effect() {
+        let mut builder = MirBuilder::new();
+        let mut bindings = BTreeMap::new();
+        bindings.insert("head".to_string(), ValueId::new(10));
+        bindings.insert("old".to_string(), ValueId::new(11));
+        let stmt = ASTNode::FunctionCall {
+            name: "externcall".to_string(),
+            arguments: vec![
+                lit_str("hako_atomic_ptr_store_ordered"),
+                var("head"),
+                var("old"),
+                lit_int(2),
+            ],
+            span: span(),
+        };
+
+        let effects =
+            lower_function_call_stmt(&mut builder, &bindings, &stmt, "test externcall stmt")
+                .expect("externcall statement must lower");
+
+        assert!(
+            effects.iter().any(|effect| matches!(
+                effect,
+                CoreEffectPlan::ExternCall {
+                    dst: None,
+                    iface_name,
+                    method_name,
+                    args,
+                    effects,
+                } if iface_name.is_empty()
+                    && method_name == "hako_atomic_ptr_store_ordered"
+                    && args.first() == Some(&ValueId::new(10))
+                    && args.get(1) == Some(&ValueId::new(11))
+                    && *effects == EffectMask::IO
+            )),
+            "explicit externcall statement must become CoreEffectPlan::ExternCall: {:?}",
+            effects
+        );
+    }
 }

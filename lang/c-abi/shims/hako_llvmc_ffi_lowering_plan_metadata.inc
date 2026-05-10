@@ -34,6 +34,8 @@
         const char* route_proof;
         const char* return_shape;
         const char* value_demand;
+        long long result_value;
+        int has_result_value;
         enum LoweringPlanTierMetadata tier;
       };
 
@@ -319,6 +321,7 @@
         int invalid = 0;
         enum LoweringPlanTierMetadata tier =
             read_lowering_plan_tier_metadata(entry, &invalid);
+        long long result_value = 0;
         if (out) memset(out, 0, sizeof(*out));
         if (!(source && !strcmp(source, "extern_call_routes")) ||
             invalid ||
@@ -337,6 +340,10 @@
           out->route_proof = read_str(entry, "route_proof");
           out->return_shape = read_str(entry, "return_shape");
           out->value_demand = read_str(entry, "value_demand");
+          if (lowering_plan_read_i64_field(entry, "result_value", &result_value)) {
+            out->result_value = result_value;
+            out->has_result_value = 1;
+          }
           out->tier = tier;
         }
         return out &&

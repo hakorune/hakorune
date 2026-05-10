@@ -842,8 +842,12 @@
         if (!lowering_plan_read_i64_field(entry, "key_value", &key_value)) {
           return -1;
         }
-        if (!lowering_plan_read_i64_field(entry, "result_value", &result_value) ||
-            result_value != dst) {
+        if (view.has_result_value) {
+          if (!dst || view.result_value != dst) {
+            return -1;
+          }
+          result_value = view.result_value;
+        } else if (dst) {
           return -1;
         }
         if (!lowering_plan_read_i64_field(entry, "arity", &arity) ||
@@ -979,27 +983,42 @@
               bid,
               ii,
               desired_ref);
-          fprintf(
-              f,
-              "  %%hako_atomic_ptr_cas_ptr_b%lld_i%zu = call ptr @\"%s\"(ptr %%hako_atomic_ptr_cas_cell_b%lld_i%zu, ptr %%hako_atomic_ptr_cas_expected_b%lld_i%zu, ptr %%hako_atomic_ptr_cas_desired_b%lld_i%zu, i64 %s, i64 %s)\n",
-              bid,
-              ii,
-              rule->symbol,
-              bid,
-              ii,
-              bid,
-              ii,
-              bid,
-              ii,
-              success_order_ref,
-              failure_order_ref);
-          fprintf(
-              f,
-              "  %%r%lld = ptrtoint ptr %%hako_atomic_ptr_cas_ptr_b%lld_i%zu to i64\n",
-              dst,
-              bid,
-              ii);
-          set_type(dst, T_I64);
+          if (dst) {
+            fprintf(
+                f,
+                "  %%hako_atomic_ptr_cas_ptr_b%lld_i%zu = call ptr @\"%s\"(ptr %%hako_atomic_ptr_cas_cell_b%lld_i%zu, ptr %%hako_atomic_ptr_cas_expected_b%lld_i%zu, ptr %%hako_atomic_ptr_cas_desired_b%lld_i%zu, i64 %s, i64 %s)\n",
+                bid,
+                ii,
+                rule->symbol,
+                bid,
+                ii,
+                bid,
+                ii,
+                bid,
+                ii,
+                success_order_ref,
+                failure_order_ref);
+            fprintf(
+                f,
+                "  %%r%lld = ptrtoint ptr %%hako_atomic_ptr_cas_ptr_b%lld_i%zu to i64\n",
+                dst,
+                bid,
+                ii);
+            set_type(dst, T_I64);
+          } else {
+            fprintf(
+                f,
+                "  call ptr @\"%s\"(ptr %%hako_atomic_ptr_cas_cell_b%lld_i%zu, ptr %%hako_atomic_ptr_cas_expected_b%lld_i%zu, ptr %%hako_atomic_ptr_cas_desired_b%lld_i%zu, i64 %s, i64 %s)\n",
+                rule->symbol,
+                bid,
+                ii,
+                bid,
+                ii,
+                bid,
+                ii,
+                success_order_ref,
+                failure_order_ref);
+          }
           trace_lowering_plan_entry_hit(entry, rule->trace_consumer);
           return 1;
         }
@@ -1071,17 +1090,29 @@
               bid,
               ii,
               value_ref);
-          fprintf(
-              f,
-              "  %%r%lld = call i64 @\"%s\"(ptr %%hako_atomic_ptr_store_cell_b%lld_i%zu, ptr %%hako_atomic_ptr_store_value_b%lld_i%zu, i64 %s)\n",
-              dst,
-              rule->symbol,
-              bid,
-              ii,
-              bid,
-              ii,
-              order_ref);
-          set_type(dst, T_I64);
+          if (dst) {
+            fprintf(
+                f,
+                "  %%r%lld = call i64 @\"%s\"(ptr %%hako_atomic_ptr_store_cell_b%lld_i%zu, ptr %%hako_atomic_ptr_store_value_b%lld_i%zu, i64 %s)\n",
+                dst,
+                rule->symbol,
+                bid,
+                ii,
+                bid,
+                ii,
+                order_ref);
+            set_type(dst, T_I64);
+          } else {
+            fprintf(
+                f,
+                "  call i64 @\"%s\"(ptr %%hako_atomic_ptr_store_cell_b%lld_i%zu, ptr %%hako_atomic_ptr_store_value_b%lld_i%zu, i64 %s)\n",
+                rule->symbol,
+                bid,
+                ii,
+                bid,
+                ii,
+                order_ref);
+          }
           trace_lowering_plan_entry_hit(entry, rule->trace_consumer);
           return 1;
         }

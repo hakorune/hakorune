@@ -132,7 +132,8 @@ them into MIR-owned plan facts.
 | `M40 native pointer atomic CAS route proof` | `live-narrow` | MIR extern route + pure-first EXE | proves `hako_atomic_ptr_cas_ordered(cell_ptr, expected_ptr, desired_ptr, success_order, failure_order)` after M39; keeps pointer fetch_add and native pointer attrs inactive |
 | `M41 pointer CAS remote-free list proof` | `live-narrow` | allocator app composition proof | composes pointer store/load/CAS routes into a two-node remote-free list push proof; adds no new route row, NyRT export, `.inc` emit behavior, pointer fetch_add, or allocator production policy |
 | `M42 allocator remote-free list policy integration proof` | `live-narrow` | allocator policy app proof | moves the M41 list push shape behind a same-module policy box; adds no new route row, NyRT export, `.inc` emit behavior, pointer fetch_add, or backend-specific matcher |
-| `M43 allocator remote-free retry-loop proof` | `next-card` | allocator policy app proof | future split for the CAS retry-loop acceptance shape; must stay policy-owned and must not activate production allocator policy implicitly |
+| `M43 allocator remote-free retry-loop proof` | `live-narrow` | allocator policy app proof | proves a bounded CAS retry-loop acceptance shape inside a same-module policy box; adds no new route row, NyRT export, pointer fetch_add, or production allocator policy; adds only generic no-result consumption for existing pointer store/CAS route facts, not app-specific backend matching |
+| `M44 mimalloc allocator substrate closeout guard` | `next-card` | regression guard | future split that inventories and locks the M20-M43 mimalloc allocator substrate proof path before starting production allocator port work |
 
 ## Fixed Implementation Order
 
@@ -202,6 +203,7 @@ them into MIR-owned plan facts.
 64. `M41 pointer CAS remote-free list proof`
 65. `M42 allocator remote-free list policy integration proof`
 66. `M43 allocator remote-free retry-loop proof`
+67. `M44 mimalloc allocator substrate closeout guard`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed

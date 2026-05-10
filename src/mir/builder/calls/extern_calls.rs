@@ -179,6 +179,48 @@ pub fn get_env_method_return_type(iface: &str, method: &str) -> Option<MirType> 
     }
 }
 
+/// Split the source-level explicit externcall target.
+///
+/// `externcall "hako_mem_alloc"(...)` is intentionally kept as the exact
+/// extern symbol rather than defaulting to an interface prefix. Dotted names
+/// still split into `<iface>.<method>` for canonical MIR extern calls.
+pub fn split_explicit_extern_name(name: &str) -> (String, String) {
+    match name.rsplit_once('.') {
+        Some((iface, method)) if !iface.is_empty() && !method.is_empty() => {
+            (iface.to_string(), method.to_string())
+        }
+        _ => ("".to_string(), name.to_string()),
+    }
+}
+
+/// Return type hints for source-level `externcall "symbol"(...)`.
+///
+/// This is shared by the direct MirBuilder path and the JoinIR/loop plan
+/// normalizer so explicit externcall keeps the same MIR type facts in both
+/// lowering lanes.
+pub fn explicit_extern_return_type(name: &str) -> MirType {
+    match name {
+        "hako_mem_alloc"
+        | "hako_atomic_ptr_cas_ordered"
+        | "hako_atomic_ptr_load_ordered"
+        | "hako_atomic_ptr_store_ordered"
+        | "hako_atomic_slot_cas_i64"
+        | "hako_atomic_slot_fetch_add_i64"
+        | "hako_atomic_slot_load_i64"
+        | "hako_atomic_slot_store_i64"
+        | "hako_mem_realloc"
+        | "hako_mem_free"
+        | "hako_osvm_page_size_i64"
+        | "hako_osvm_commit_bytes_i64"
+        | "hako_osvm_decommit_bytes_i64"
+        | "hako_osvm_reserve_bytes_i64"
+        | "hako_tls_cache_slot_get_i64"
+        | "hako_tls_cache_slot_set_i64" => MirType::Integer,
+        "nyash.box.from_i8_string" => MirType::Box("StringBox".to_string()),
+        _ => MirType::Unknown,
+    }
+}
+
 /// Parse external call name into interface and method
 /// E.g., "nyash.builtin.print" -> ("nyash.builtin", "print")
 pub fn parse_extern_name(name: &str) -> (String, String) {

@@ -369,6 +369,15 @@ impl super::PlanNormalizer {
             ASTNode::FunctionCall {
                 name, arguments, ..
             } => {
+                if name == "externcall" {
+                    return super::loop_body_lowering::lower_explicit_extern_call_value(
+                        builder,
+                        phi_bindings,
+                        arguments,
+                        "[normalizer] value externcall",
+                    );
+                }
+
                 let mut arg_ids = Vec::new();
                 let mut arg_effects = Vec::new();
                 for arg in arguments {
