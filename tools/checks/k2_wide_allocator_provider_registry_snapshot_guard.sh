@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-allocator-provider-registry-snapshot"
 cd "$ROOT_DIR"
+source tools/checks/lib/allocator_provider_forbidden_patterns.sh
 
 SSOT="docs/development/current/main/design/allocator-provider-registry-snapshot-ssot.md"
 FIXTURE="docs/development/current/main/design/allocator-provider-registry-snapshot-v0.toml"
@@ -150,21 +151,9 @@ for entry in entries:
 PY
 
 
-if rg -n '(^|[^A-Za-z0-9_])select_allocator_provider([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])allocator_provider_select([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])allocator_provider_selection_env([^A-Za-z0-9_]|$)|NYASH_ALLOCATOR_PROVIDER' \
-  src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".provider_selection 2>&1; then
-  cat /tmp/"$TAG".provider_selection >&2
-  rm -f /tmp/"$TAG".provider_selection
-  fail "provider selection implementation/env toggle must stay absent in M77"
-fi
-rm -f /tmp/"$TAG".provider_selection
+allocator_provider_forbid_selection "$TAG"
 
-if rg -n '#\[global_allocator\]|GlobalAlloc' \
-  src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".global_allocator 2>&1; then
-  cat /tmp/"$TAG".global_allocator >&2
-  rm -f /tmp/"$TAG".global_allocator
-  fail "process allocator replacement must stay inactive in M77"
-fi
-rm -f /tmp/"$TAG".global_allocator
+allocator_provider_forbid_global_allocator "$TAG"
 
 if rg -n 'allocator-provider|allocator_provider|provider.*allocator|allocator.*provider' src/runner -g '*.rs' >/tmp/"$TAG".runner 2>&1; then
   cat /tmp/"$TAG".runner >&2
@@ -173,12 +162,6 @@ if rg -n 'allocator-provider|allocator_provider|provider.*allocator|allocator.*p
 fi
 rm -f /tmp/"$TAG".runner
 
-if rg -n 'HakoAllocProductionFacade|HakoAllocRemoteFreePolicy|HakoAllocPageSourcePolicy|AllocatorReplacement|allocator_replacement|replace_allocator|HookPlan|allocator_hook_activate|activate_allocator|debug_guarded_allocator|hako_model_allocator|native_mimalloc|native_system_malloc' \
-  lang/c-abi/shims >/tmp/"$TAG".inc 2>&1; then
-  cat /tmp/"$TAG".inc >&2
-  rm -f /tmp/"$TAG".inc
-  fail "allocator provider/hook/facade/policy matcher leaked into .inc"
-fi
-rm -f /tmp/"$TAG".inc
+allocator_provider_forbid_inc_matchers "$TAG"
 
 echo "[$TAG] ok"

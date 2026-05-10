@@ -6,6 +6,10 @@ Shared helpers for check guards.
 
 - `guard_common.sh`
   - Generic guard helpers used across non-perf checks.
+- `allocator_provider_forbidden_patterns.sh`
+  - Shared allocator-provider negative guard checks for selection, proof
+    consumption, rollback preparation, hook activation, activation gate opening,
+    process allocator replacement, and `.inc` matcher leaks.
 - `pure_first_exe_guard.sh`
   - Shared pure-first EXE guard helpers for build, MIR emit, EXE build,
     clean-build-log checks, and EXE run checks.

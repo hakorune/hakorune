@@ -66,6 +66,17 @@ would_activate = false
 
 M83 has no activation success state.
 
+Malformed TOML stays diagnostic-only. The report sets:
+
+```text
+parse_error = Some(...)
+missing_facts = ["parse_toml"]
+missing_diagnostics = ["[allocator-provider/activation-safety-gate-missing]"]
+```
+
+Valid-but-incomplete TOML keeps `parse_error = None` and reports the missing
+contract facts instead.
+
 ## Required Diagnostics
 
 The implementation owns these stable diagnostic constants:

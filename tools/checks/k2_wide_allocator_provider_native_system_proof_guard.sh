@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-allocator-provider-native-system-proof"
 cd "$ROOT_DIR"
+source tools/checks/lib/allocator_provider_forbidden_patterns.sh
 
 SSOT="docs/development/current/main/design/allocator-provider-native-system-proof-ssot.md"
 FIXTURE="docs/development/current/main/design/allocator-provider-native-system-proof-v0.toml"
@@ -131,13 +132,7 @@ for proof in required:
 PY
 
 
-if rg -n '(^|[^A-Za-z0-9_])select_allocator_provider([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])allocator_provider_select([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])allocator_provider_selection_env([^A-Za-z0-9_]|$)|NYASH_ALLOCATOR_PROVIDER' \
-  src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".provider_registry 2>&1; then
-  cat /tmp/"$TAG".provider_registry >&2
-  rm -f /tmp/"$TAG".provider_registry
-  fail "provider selection implementation/env toggle must stay absent in M74"
-fi
-rm -f /tmp/"$TAG".provider_registry
+allocator_provider_forbid_selection "$TAG"
 
 if rg -n 'NativeSystemAllocatorProvider|allocator_provider_native_system|native_system_provider|select_native_system_malloc|allocator_provider_native_system_proof' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".native_system_code 2>&1; then
@@ -147,13 +142,7 @@ if rg -n 'NativeSystemAllocatorProvider|allocator_provider_native_system|native_
 fi
 rm -f /tmp/"$TAG".native_system_code
 
-if rg -n '#\[global_allocator\]|GlobalAlloc' \
-  src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".global_allocator 2>&1; then
-  cat /tmp/"$TAG".global_allocator >&2
-  rm -f /tmp/"$TAG".global_allocator
-  fail "process allocator replacement must stay inactive in M74"
-fi
-rm -f /tmp/"$TAG".global_allocator
+allocator_provider_forbid_global_allocator "$TAG"
 
 if rg -n 'allocator-provider|allocator_provider|provider.*allocator|allocator.*provider' src/runner -g '*.rs' >/tmp/"$TAG".runner 2>&1; then
   cat /tmp/"$TAG".runner >&2
@@ -162,12 +151,6 @@ if rg -n 'allocator-provider|allocator_provider|provider.*allocator|allocator.*p
 fi
 rm -f /tmp/"$TAG".runner
 
-if rg -n 'HakoAllocProductionFacade|HakoAllocRemoteFreePolicy|HakoAllocPageSourcePolicy|AllocatorReplacement|allocator_replacement|replace_allocator|HookPlan|allocator_hook_activate|activate_allocator|debug_guarded_allocator|hako_model_allocator|native_mimalloc|native_system_malloc' \
-  lang/c-abi/shims >/tmp/"$TAG".inc 2>&1; then
-  cat /tmp/"$TAG".inc >&2
-  rm -f /tmp/"$TAG".inc
-  fail "allocator provider/hook/facade/policy matcher leaked into .inc"
-fi
-rm -f /tmp/"$TAG".inc
+allocator_provider_forbid_inc_matchers "$TAG"
 
 echo "[$TAG] ok"

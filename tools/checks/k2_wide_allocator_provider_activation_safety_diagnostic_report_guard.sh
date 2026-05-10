@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-allocator-provider-activation-safety-diagnostic-report"
 cd "$ROOT_DIR"
+source tools/checks/lib/allocator_provider_forbidden_patterns.sh
 
 SSOT="docs/development/current/main/design/allocator-provider-activation-safety-diagnostic-report-ssot.md"
 OWNER_SSOT="docs/development/current/main/design/allocator-provider-activation-safety-diagnostic-owner-ssot.md"
@@ -68,12 +69,17 @@ require_text "$SOURCE" "AllocatorProviderActivationSafetyReport"
 require_text "$SOURCE" "AllocatorProviderActivationSafetyStatus"
 require_text "$SOURCE" "validate_allocator_provider_activation_safety_gate("
 require_text "$SOURCE" "validate_allocator_provider_activation_safety_gate_from_text"
+require_text "$SOURCE" "parse_error: Option<String>"
+require_text "$SOURCE" "activation_safety_fact_checks"
+require_text "$SOURCE" "activation_safety_diagnostic_checks"
+require_text "$SOURCE" "activation_safety_malformed_text_reports_parse_error_without_activation"
 require_text "$SOURCE" "DIAG_PROVIDER_ACTIVATION_SAFETY_BLOCKED"
 require_text "$SOURCE" "activation_gate_open: false"
 require_text "$SOURCE" "would_open_activation_gate: false"
 require_text "$SOURCE" "would_activate_hook: false"
 require_text "$SOURCE" "would_activate: false"
 require_text "$SOURCE" "allocator-provider-activation-safety-gate-v0.toml"
+require_text "$SSOT" "parse_error = Some(...)"
 require_text "$RUNTIME_MOD" "pub mod allocator_provider_registry;"
 require_text "$TASK_BREAKDOWN" "M83 | activation safety diagnostic report"
 require_text "$TASK_BREAKDOWN" "The next safe row is M84 activation safety diagnostic CLI surface."
@@ -90,53 +96,17 @@ require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_activat
 
 cargo test -q activation_safety -- --nocapture
 
-if rg -n '(^|[^A-Za-z0-9_])open_activation_gate([^A-Za-z0-9_]|$)' \
-  src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".gate_open 2>&1; then
-  cat /tmp/"$TAG".gate_open >&2
-  rm -f /tmp/"$TAG".gate_open
-  fail "activation gate opening must stay absent in M83"
-fi
-rm -f /tmp/"$TAG".gate_open
+allocator_provider_forbid_activation_gate_open "$TAG"
 
-if rg -n '(^|[^A-Za-z0-9_])select_allocator_provider([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])allocator_provider_select([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])allocator_provider_selection_env([^A-Za-z0-9_]|$)|NYASH_ALLOCATOR_PROVIDER' \
-  src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".provider_selection 2>&1; then
-  cat /tmp/"$TAG".provider_selection >&2
-  rm -f /tmp/"$TAG".provider_selection
-  fail "provider selection implementation/env toggle must stay absent in M83"
-fi
-rm -f /tmp/"$TAG".provider_selection
+allocator_provider_forbid_selection "$TAG"
 
-if rg -n 'consume_allocator_provider_proof|allocator_provider_proof_bundle_consume|consume_allocator_provider_proof_bundle|consume_provider_proof_bundle' \
-  src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".proof_consumption 2>&1; then
-  cat /tmp/"$TAG".proof_consumption >&2
-  rm -f /tmp/"$TAG".proof_consumption
-  fail "proof consumption implementation must stay absent in M83"
-fi
-rm -f /tmp/"$TAG".proof_consumption
+allocator_provider_forbid_proof_consumption "$TAG"
 
-if rg -n 'prepare_rollback' \
-  src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".rollback 2>&1; then
-  cat /tmp/"$TAG".rollback >&2
-  rm -f /tmp/"$TAG".rollback
-  fail "rollback preparation implementation must stay absent in M83"
-fi
-rm -f /tmp/"$TAG".rollback
+allocator_provider_forbid_rollback_preparation "$TAG"
 
-if rg -n 'allocator_hook_activate|activate_allocator|install_allocator_hook|replace_allocator' \
-  src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".hook_activation 2>&1; then
-  cat /tmp/"$TAG".hook_activation >&2
-  rm -f /tmp/"$TAG".hook_activation
-  fail "hook activation/process allocator replacement must stay absent in M83"
-fi
-rm -f /tmp/"$TAG".hook_activation
+allocator_provider_forbid_hook_activation "$TAG"
 
-if rg -n '#\[global_allocator\]|GlobalAlloc' \
-  src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".global_allocator 2>&1; then
-  cat /tmp/"$TAG".global_allocator >&2
-  rm -f /tmp/"$TAG".global_allocator
-  fail "process allocator replacement must stay inactive in M83"
-fi
-rm -f /tmp/"$TAG".global_allocator
+allocator_provider_forbid_global_allocator "$TAG"
 
 if rg -n 'allocator-provider|allocator_provider|provider.*allocator|allocator.*provider' src/runner -g '*.rs' >/tmp/"$TAG".runner 2>&1; then
   cat /tmp/"$TAG".runner >&2
@@ -145,12 +115,6 @@ if rg -n 'allocator-provider|allocator_provider|provider.*allocator|allocator.*p
 fi
 rm -f /tmp/"$TAG".runner
 
-if rg -n 'HakoAllocProductionFacade|HakoAllocRemoteFreePolicy|HakoAllocPageSourcePolicy|AllocatorReplacement|allocator_replacement|replace_allocator|HookPlan|allocator_hook_activate|activate_allocator|debug_guarded_allocator|hako_model_allocator|native_mimalloc|native_system_malloc' \
-  lang/c-abi/shims >/tmp/"$TAG".inc 2>&1; then
-  cat /tmp/"$TAG".inc >&2
-  rm -f /tmp/"$TAG".inc
-  fail "allocator provider/hook/facade/policy matcher leaked into .inc"
-fi
-rm -f /tmp/"$TAG".inc
+allocator_provider_forbid_inc_matchers "$TAG"
 
 echo "[$TAG] ok"

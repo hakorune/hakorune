@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-allocator-provider-task-breakdown"
 cd "$ROOT_DIR"
+source tools/checks/lib/allocator_provider_forbidden_patterns.sh
 
 SSOT="docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md"
 TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
@@ -62,20 +63,8 @@ require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_task_breakdown_gu
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_task_breakdown_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_task_breakdown_guard.sh"
 
-if rg -n '#\[global_allocator\]|GlobalAlloc' \
-  src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".global_allocator 2>&1; then
-  cat /tmp/"$TAG".global_allocator >&2
-  rm -f /tmp/"$TAG".global_allocator
-  fail "process allocator replacement must stay inactive in M66"
-fi
-rm -f /tmp/"$TAG".global_allocator
+allocator_provider_forbid_global_allocator "$TAG"
 
-if rg -n '(^|[^A-Za-z0-9_])select_allocator_provider([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])allocator_provider_select([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])allocator_provider_selection_env([^A-Za-z0-9_]|$)|NYASH_ALLOCATOR_PROVIDER' \
-  src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".provider_selection 2>&1; then
-  cat /tmp/"$TAG".provider_selection >&2
-  rm -f /tmp/"$TAG".provider_selection
-  fail "provider selection implementation/env toggle must stay absent in M66"
-fi
-rm -f /tmp/"$TAG".provider_selection
+allocator_provider_forbid_selection "$TAG"
 
 echo "[$TAG] ok"

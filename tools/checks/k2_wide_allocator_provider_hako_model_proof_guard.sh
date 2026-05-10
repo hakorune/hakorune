@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-allocator-provider-hako-model-proof"
 cd "$ROOT_DIR"
+source tools/checks/lib/allocator_provider_forbidden_patterns.sh
 
 SSOT="docs/development/current/main/design/allocator-provider-hako-model-proof-ssot.md"
 FIXTURE="docs/development/current/main/design/allocator-provider-hako-model-proof-v0.toml"
@@ -129,13 +130,7 @@ for proof in required:
 PY
 
 
-if rg -n '(^|[^A-Za-z0-9_])select_allocator_provider([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])allocator_provider_select([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])allocator_provider_selection_env([^A-Za-z0-9_]|$)|NYASH_ALLOCATOR_PROVIDER' \
-  src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".provider_registry 2>&1; then
-  cat /tmp/"$TAG".provider_registry >&2
-  rm -f /tmp/"$TAG".provider_registry
-  fail "provider selection implementation/env toggle must stay absent in M72"
-fi
-rm -f /tmp/"$TAG".provider_registry
+allocator_provider_forbid_selection "$TAG"
 
 if rg -n 'HakoModelAllocatorProvider|allocator_provider_hako_model|hako_model_provider|select_hako_model_allocator|allocator_provider_hako_model_proof' \
   src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".model_provider_code 2>&1; then
@@ -145,13 +140,7 @@ if rg -n 'HakoModelAllocatorProvider|allocator_provider_hako_model|hako_model_pr
 fi
 rm -f /tmp/"$TAG".model_provider_code
 
-if rg -n '#\[global_allocator\]|GlobalAlloc' \
-  src crates lang/c-abi/shims lang/src -g '!**/*.md' >/tmp/"$TAG".global_allocator 2>&1; then
-  cat /tmp/"$TAG".global_allocator >&2
-  rm -f /tmp/"$TAG".global_allocator
-  fail "process allocator replacement must stay inactive in M72"
-fi
-rm -f /tmp/"$TAG".global_allocator
+allocator_provider_forbid_global_allocator "$TAG"
 
 if rg -n 'allocator-provider|allocator_provider|provider.*allocator|allocator.*provider' src/runner -g '*.rs' >/tmp/"$TAG".runner 2>&1; then
   cat /tmp/"$TAG".runner >&2

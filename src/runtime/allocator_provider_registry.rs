@@ -159,6 +159,7 @@ pub struct AllocatorProviderActivationSafetyFacts<'a> {
 pub struct AllocatorProviderActivationSafetyReport {
     pub status: AllocatorProviderActivationSafetyStatus,
     pub diagnostic: &'static str,
+    pub parse_error: Option<String>,
     pub missing_facts: Vec<&'static str>,
     pub missing_diagnostics: Vec<&'static str>,
     pub rollback_target_provider_id: Option<String>,
@@ -190,6 +191,7 @@ pub fn validate_allocator_provider_activation_safety_gate(
     AllocatorProviderActivationSafetyReport {
         status,
         diagnostic,
+        parse_error: None,
         missing_facts,
         missing_diagnostics,
         rollback_target_provider_id: facts.rollback_target_provider_id.map(str::to_string),
@@ -205,24 +207,192 @@ pub fn validate_allocator_provider_activation_safety_gate(
 pub fn validate_allocator_provider_activation_safety_gate_from_text(
     safety_gate_toml: &str,
 ) -> AllocatorProviderActivationSafetyReport {
-    let Ok(value) = toml::from_str::<toml::Value>(safety_gate_toml) else {
-        return AllocatorProviderActivationSafetyReport {
-            status: AllocatorProviderActivationSafetyStatus::MissingFacts,
-            diagnostic: DIAG_PROVIDER_ACTIVATION_SAFETY_GATE_MISSING,
-            missing_facts: vec!["parse_toml"],
-            missing_diagnostics: vec![DIAG_PROVIDER_ACTIVATION_SAFETY_GATE_MISSING],
-            rollback_target_provider_id: None,
-            activation_target_provider_id: None,
-            safety_status: SAFETY_STATUS_GATE_CLOSED,
-            activation_gate_open: false,
-            would_open_activation_gate: false,
-            would_activate_hook: false,
-            would_activate: false,
-        };
+    let value = match toml::from_str::<toml::Value>(safety_gate_toml) {
+        Ok(value) => value,
+        Err(err) => {
+            return AllocatorProviderActivationSafetyReport {
+                status: AllocatorProviderActivationSafetyStatus::MissingFacts,
+                diagnostic: DIAG_PROVIDER_ACTIVATION_SAFETY_GATE_MISSING,
+                parse_error: Some(err.to_string()),
+                missing_facts: vec!["parse_toml"],
+                missing_diagnostics: vec![DIAG_PROVIDER_ACTIVATION_SAFETY_GATE_MISSING],
+                rollback_target_provider_id: None,
+                activation_target_provider_id: None,
+                safety_status: SAFETY_STATUS_GATE_CLOSED,
+                activation_gate_open: false,
+                would_open_activation_gate: false,
+                would_activate_hook: false,
+                would_activate: false,
+            };
+        }
     };
 
     let facts = read_activation_safety_facts(&value);
     validate_allocator_provider_activation_safety_gate(&facts)
+}
+
+struct ActivationSafetyFactCheck {
+    present: bool,
+    name: &'static str,
+}
+
+struct ActivationSafetyDiagnosticCheck {
+    present: bool,
+    diagnostic: &'static str,
+}
+
+fn activation_safety_fact_checks(
+    facts: &AllocatorProviderActivationSafetyFacts<'_>,
+) -> [ActivationSafetyFactCheck; 24] {
+    [
+        ActivationSafetyFactCheck {
+            present: facts.schema_ready,
+            name: "schema_version",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.status_reserved,
+            name: "status_reserved",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.active_false,
+            name: "active_false",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.owner_named,
+            name: "safety_gate_owner_named",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.activation_entry_contract_ready,
+            name: "activation_entry_contract_ready",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.provider_readiness_preflight_ready,
+            name: "provider_readiness_preflight_ready",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.combined_dry_run_ready,
+            name: "combined_dry_run_ready",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.registry_snapshot_ready,
+            name: "registry_snapshot_ready",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.selection_decision_ready,
+            name: "selection_decision_ready",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.selected_provider_id_absent,
+            name: "selected_provider_id_absent",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.proof_bundle_ready,
+            name: "proof_bundle_ready",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.rollback_preflight_ready,
+            name: "rollback_preflight_ready",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.hook_plan_ready,
+            name: "hook_plan_ready",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.hook_activation_preflight_ready,
+            name: "hook_activation_preflight_ready",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.activation_proof_ready,
+            name: "activation_proof_ready",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.rollback_target_provider_id.is_some(),
+            name: "rollback_target_explicit",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.activation_target_provider_id.is_some(),
+            name: "activation_target_provider_id_explicit",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.safety_gate_policy_named,
+            name: "safety_gate_policy_named",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.activation_gate_closed,
+            name: "activation_gate_closed",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.activation_blocked_diagnostic_named,
+            name: "fail_fast_activation_safety_diagnostic_named",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.required_operations_named,
+            name: "required_operations_named",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.candidate_provider_ids_reserved_set,
+            name: "candidate_provider_ids_reserved_set",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.required_fact_list_complete,
+            name: "reserved_activation_safety_facts_complete",
+        },
+        ActivationSafetyFactCheck {
+            present: facts.safety_inputs_complete,
+            name: "safety_inputs_complete",
+        },
+    ]
+}
+
+fn activation_safety_diagnostic_checks(
+    facts: &AllocatorProviderActivationSafetyFacts<'_>,
+) -> [ActivationSafetyDiagnosticCheck; 11] {
+    [
+        ActivationSafetyDiagnosticCheck {
+            present: facts.activation_entry_contract_ready,
+            diagnostic: DIAG_PROVIDER_ACTIVATION_SAFETY_ENTRY_MISSING,
+        },
+        ActivationSafetyDiagnosticCheck {
+            present: facts.provider_readiness_preflight_ready,
+            diagnostic: DIAG_PROVIDER_ACTIVATION_SAFETY_READINESS_MISSING,
+        },
+        ActivationSafetyDiagnosticCheck {
+            present: facts.combined_dry_run_ready,
+            diagnostic: DIAG_PROVIDER_ACTIVATION_SAFETY_COMBINED_DRY_RUN_MISSING,
+        },
+        ActivationSafetyDiagnosticCheck {
+            present: facts.registry_snapshot_ready,
+            diagnostic: DIAG_PROVIDER_ACTIVATION_SAFETY_REGISTRY_MISSING,
+        },
+        ActivationSafetyDiagnosticCheck {
+            present: facts.selection_decision_ready,
+            diagnostic: DIAG_PROVIDER_ACTIVATION_SAFETY_SELECTION_MISSING,
+        },
+        ActivationSafetyDiagnosticCheck {
+            present: facts.proof_bundle_ready,
+            diagnostic: DIAG_PROVIDER_ACTIVATION_SAFETY_PROOF_BUNDLE_MISSING,
+        },
+        ActivationSafetyDiagnosticCheck {
+            present: facts.rollback_preflight_ready,
+            diagnostic: DIAG_PROVIDER_ACTIVATION_SAFETY_ROLLBACK_MISSING,
+        },
+        ActivationSafetyDiagnosticCheck {
+            present: facts.hook_plan_ready,
+            diagnostic: DIAG_PROVIDER_ACTIVATION_SAFETY_HOOK_PLAN_MISSING,
+        },
+        ActivationSafetyDiagnosticCheck {
+            present: facts.hook_activation_preflight_ready,
+            diagnostic: DIAG_PROVIDER_ACTIVATION_SAFETY_PREFLIGHT_MISSING,
+        },
+        ActivationSafetyDiagnosticCheck {
+            present: facts.activation_proof_ready,
+            diagnostic: DIAG_PROVIDER_ACTIVATION_SAFETY_PROOF_MISSING,
+        },
+        ActivationSafetyDiagnosticCheck {
+            present: facts.activation_target_provider_id.is_some(),
+            diagnostic: DIAG_PROVIDER_ACTIVATION_SAFETY_TARGET_MISSING,
+        },
+    ]
 }
 
 fn read_activation_safety_facts(value: &toml::Value) -> AllocatorProviderActivationSafetyFacts<'_> {
@@ -318,165 +488,19 @@ fn read_activation_safety_facts(value: &toml::Value) -> AllocatorProviderActivat
 fn collect_missing_activation_safety_facts(
     facts: &AllocatorProviderActivationSafetyFacts<'_>,
 ) -> Vec<&'static str> {
-    let mut missing = Vec::new();
-    push_if_missing(&mut missing, facts.schema_ready, "schema_version");
-    push_if_missing(&mut missing, facts.status_reserved, "status_reserved");
-    push_if_missing(&mut missing, facts.active_false, "active_false");
-    push_if_missing(&mut missing, facts.owner_named, "safety_gate_owner_named");
-    push_if_missing(
-        &mut missing,
-        facts.activation_entry_contract_ready,
-        "activation_entry_contract_ready",
-    );
-    push_if_missing(
-        &mut missing,
-        facts.provider_readiness_preflight_ready,
-        "provider_readiness_preflight_ready",
-    );
-    push_if_missing(
-        &mut missing,
-        facts.combined_dry_run_ready,
-        "combined_dry_run_ready",
-    );
-    push_if_missing(
-        &mut missing,
-        facts.registry_snapshot_ready,
-        "registry_snapshot_ready",
-    );
-    push_if_missing(
-        &mut missing,
-        facts.selection_decision_ready,
-        "selection_decision_ready",
-    );
-    push_if_missing(
-        &mut missing,
-        facts.selected_provider_id_absent,
-        "selected_provider_id_absent",
-    );
-    push_if_missing(&mut missing, facts.proof_bundle_ready, "proof_bundle_ready");
-    push_if_missing(
-        &mut missing,
-        facts.rollback_preflight_ready,
-        "rollback_preflight_ready",
-    );
-    push_if_missing(&mut missing, facts.hook_plan_ready, "hook_plan_ready");
-    push_if_missing(
-        &mut missing,
-        facts.hook_activation_preflight_ready,
-        "hook_activation_preflight_ready",
-    );
-    push_if_missing(
-        &mut missing,
-        facts.activation_proof_ready,
-        "activation_proof_ready",
-    );
-    push_if_missing(
-        &mut missing,
-        facts.rollback_target_provider_id.is_some(),
-        "rollback_target_explicit",
-    );
-    push_if_missing(
-        &mut missing,
-        facts.activation_target_provider_id.is_some(),
-        "activation_target_provider_id_explicit",
-    );
-    push_if_missing(
-        &mut missing,
-        facts.safety_gate_policy_named,
-        "safety_gate_policy_named",
-    );
-    push_if_missing(
-        &mut missing,
-        facts.activation_gate_closed,
-        "activation_gate_closed",
-    );
-    push_if_missing(
-        &mut missing,
-        facts.activation_blocked_diagnostic_named,
-        "fail_fast_activation_safety_diagnostic_named",
-    );
-    push_if_missing(
-        &mut missing,
-        facts.required_operations_named,
-        "required_operations_named",
-    );
-    push_if_missing(
-        &mut missing,
-        facts.candidate_provider_ids_reserved_set,
-        "candidate_provider_ids_reserved_set",
-    );
-    push_if_missing(
-        &mut missing,
-        facts.required_fact_list_complete,
-        "reserved_activation_safety_facts_complete",
-    );
-    push_if_missing(
-        &mut missing,
-        facts.safety_inputs_complete,
-        "safety_inputs_complete",
-    );
-    missing
+    activation_safety_fact_checks(facts)
+        .into_iter()
+        .filter_map(|check| (!check.present).then_some(check.name))
+        .collect()
 }
 
 fn collect_activation_safety_missing_diagnostics(
     facts: &AllocatorProviderActivationSafetyFacts<'_>,
 ) -> Vec<&'static str> {
-    let mut diagnostics = Vec::new();
-    push_if_missing(
-        &mut diagnostics,
-        facts.activation_entry_contract_ready,
-        DIAG_PROVIDER_ACTIVATION_SAFETY_ENTRY_MISSING,
-    );
-    push_if_missing(
-        &mut diagnostics,
-        facts.provider_readiness_preflight_ready,
-        DIAG_PROVIDER_ACTIVATION_SAFETY_READINESS_MISSING,
-    );
-    push_if_missing(
-        &mut diagnostics,
-        facts.combined_dry_run_ready,
-        DIAG_PROVIDER_ACTIVATION_SAFETY_COMBINED_DRY_RUN_MISSING,
-    );
-    push_if_missing(
-        &mut diagnostics,
-        facts.registry_snapshot_ready,
-        DIAG_PROVIDER_ACTIVATION_SAFETY_REGISTRY_MISSING,
-    );
-    push_if_missing(
-        &mut diagnostics,
-        facts.selection_decision_ready,
-        DIAG_PROVIDER_ACTIVATION_SAFETY_SELECTION_MISSING,
-    );
-    push_if_missing(
-        &mut diagnostics,
-        facts.proof_bundle_ready,
-        DIAG_PROVIDER_ACTIVATION_SAFETY_PROOF_BUNDLE_MISSING,
-    );
-    push_if_missing(
-        &mut diagnostics,
-        facts.rollback_preflight_ready,
-        DIAG_PROVIDER_ACTIVATION_SAFETY_ROLLBACK_MISSING,
-    );
-    push_if_missing(
-        &mut diagnostics,
-        facts.hook_plan_ready,
-        DIAG_PROVIDER_ACTIVATION_SAFETY_HOOK_PLAN_MISSING,
-    );
-    push_if_missing(
-        &mut diagnostics,
-        facts.hook_activation_preflight_ready,
-        DIAG_PROVIDER_ACTIVATION_SAFETY_PREFLIGHT_MISSING,
-    );
-    push_if_missing(
-        &mut diagnostics,
-        facts.activation_proof_ready,
-        DIAG_PROVIDER_ACTIVATION_SAFETY_PROOF_MISSING,
-    );
-    push_if_missing(
-        &mut diagnostics,
-        facts.activation_target_provider_id.is_some(),
-        DIAG_PROVIDER_ACTIVATION_SAFETY_TARGET_MISSING,
-    );
+    let mut diagnostics: Vec<&'static str> = activation_safety_diagnostic_checks(facts)
+        .into_iter()
+        .filter_map(|check| (!check.present).then_some(check.diagnostic))
+        .collect();
     if diagnostics.is_empty() && !facts.activation_gate_closed {
         diagnostics.push(DIAG_PROVIDER_ACTIVATION_SAFETY_BLOCKED);
     }
@@ -555,12 +579,6 @@ fn string_list_contains_all(value: Option<&toml::Value>, required: &[&str]) -> b
     })
 }
 
-fn push_if_missing(items: &mut Vec<&'static str>, present: bool, name: &'static str) {
-    if !present {
-        items.push(name);
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -579,6 +597,7 @@ mod tests {
             AllocatorProviderActivationSafetyStatus::ReadyGateClosed
         );
         assert_eq!(report.diagnostic, DIAG_PROVIDER_ACTIVATION_SAFETY_BLOCKED);
+        assert_eq!(report.parse_error, None);
         assert!(report.missing_facts.is_empty());
         assert!(report.missing_diagnostics.is_empty());
         assert_eq!(
@@ -608,6 +627,7 @@ mod tests {
             report.diagnostic,
             DIAG_PROVIDER_ACTIVATION_SAFETY_GATE_MISSING
         );
+        assert_eq!(report.parse_error, None);
         assert!(report.missing_facts.contains(&"schema_version"));
         assert!(report
             .missing_facts
@@ -639,6 +659,29 @@ mod tests {
         assert!(report
             .missing_diagnostics
             .contains(&DIAG_PROVIDER_ACTIVATION_SAFETY_TARGET_MISSING));
+        assert!(!report.would_activate);
+    }
+
+    #[test]
+    fn activation_safety_malformed_text_reports_parse_error_without_activation() {
+        let report = validate_allocator_provider_activation_safety_gate_from_text("[");
+
+        assert_eq!(
+            report.status,
+            AllocatorProviderActivationSafetyStatus::MissingFacts
+        );
+        assert_eq!(
+            report.diagnostic,
+            DIAG_PROVIDER_ACTIVATION_SAFETY_GATE_MISSING
+        );
+        assert!(report.parse_error.is_some());
+        assert_eq!(report.missing_facts, vec!["parse_toml"]);
+        assert_eq!(
+            report.missing_diagnostics,
+            vec![DIAG_PROVIDER_ACTIVATION_SAFETY_GATE_MISSING]
+        );
+        assert!(!report.would_open_activation_gate);
+        assert!(!report.would_activate_hook);
         assert!(!report.would_activate);
     }
 }
