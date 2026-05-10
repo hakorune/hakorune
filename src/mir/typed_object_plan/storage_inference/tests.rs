@@ -3,6 +3,7 @@ use crate::mir::{
     BasicBlock, BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, FunctionSignature,
     MirInstruction, MirType, UserBoxFieldDecl, ValueId,
 };
+use std::collections::BTreeMap;
 
 #[path = "runtime_receiver_and_collection.rs"]
 mod runtime_receiver_and_collection;
@@ -136,6 +137,118 @@ fn build_typed_object_plans_infers_untyped_i64_and_handle_fields() {
     assert_eq!(plans[0].box_name, "Holder");
     assert_eq!(plans[0].fields[0].storage, TypedObjectFieldStorage::I64);
     assert_eq!(plans[0].fields[1].storage, TypedObjectFieldStorage::Handle);
+}
+
+#[test]
+fn build_typed_object_plans_uses_phi_value_type_before_input_walk() {
+    let mut module = MirModule::new("typed_object_phi_metadata".to_string());
+    module.metadata.user_box_field_decls.insert(
+        "Holder".to_string(),
+        vec![UserBoxFieldDecl {
+            name: "count".to_string(),
+            declared_type_name: None,
+            is_weak: false,
+        }],
+    );
+
+    let signature = FunctionSignature {
+        name: "main".to_string(),
+        params: vec![],
+        return_type: MirType::Integer,
+        effects: EffectMask::PURE,
+    };
+    let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+    let mut block = BasicBlock::new(BasicBlockId::new(0));
+    let block_id = BasicBlockId::new(0);
+    block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(1),
+        box_type: "Holder".to_string(),
+        args: vec![],
+    });
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(2),
+        value: ConstValue::Integer(1),
+    });
+    block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(3),
+        value: ConstValue::Integer(2),
+    });
+
+    let mut left = ValueId::new(2);
+    let mut right = ValueId::new(3);
+    for offset in 0..40 {
+        let dst = ValueId::new(10 + offset);
+        block.add_instruction(MirInstruction::Phi {
+            dst,
+            inputs: vec![(block_id, left), (block_id, right)],
+            type_hint: None,
+        });
+        function.metadata.value_types.insert(dst, MirType::Integer);
+        left = right;
+        right = dst;
+    }
+    block.add_instruction(MirInstruction::FieldSet {
+        base: ValueId::new(1),
+        field: "count".to_string(),
+        value: right,
+        declared_type: None,
+    });
+    function.add_block(block);
+    module.add_function(function);
+
+    let plans = build_typed_object_plans(&module);
+
+    assert_eq!(plans.len(), 1);
+    assert_eq!(plans[0].box_name, "Holder");
+    assert_eq!(plans[0].fields[0].storage, TypedObjectFieldStorage::I64);
+}
+
+#[test]
+fn box_origin_for_value_uses_phi_value_type_before_input_walk() {
+    let signature = FunctionSignature {
+        name: "main".to_string(),
+        params: vec![],
+        return_type: MirType::Integer,
+        effects: EffectMask::PURE,
+    };
+    let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+    let mut block = BasicBlock::new(BasicBlockId::new(0));
+    let block_id = BasicBlockId::new(0);
+    block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(1),
+        box_type: "Cell".to_string(),
+        args: vec![],
+    });
+    block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(2),
+        box_type: "OtherCell".to_string(),
+        args: vec![],
+    });
+    block.add_instruction(MirInstruction::Phi {
+        dst: ValueId::new(3),
+        inputs: vec![(block_id, ValueId::new(1)), (block_id, ValueId::new(2))],
+        type_hint: None,
+    });
+    function
+        .metadata
+        .value_types
+        .insert(ValueId::new(3), MirType::Box("Cell".to_string()));
+    function.add_block(block);
+
+    let module = MirModule::new("typed_object_phi_box_origin".to_string());
+    let def_map = crate::mir::value_origin::build_value_def_map(&function);
+
+    assert_eq!(
+        box_origin_for_value(
+            &module,
+            &function,
+            &def_map,
+            ValueId::new(3),
+            &BTreeMap::new(),
+            &BTreeMap::new(),
+        ),
+        Some("Cell".to_string())
+    );
 }
 
 #[test]

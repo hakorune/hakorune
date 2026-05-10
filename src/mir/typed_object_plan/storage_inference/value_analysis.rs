@@ -4,7 +4,8 @@ use crate::mir::function::{ModuleMetadata, TypedObjectFieldStorage};
 use crate::mir::numeric_substrate::is_inline_i64_storage_type_name;
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use crate::mir::{
-    BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirModule, MirType, ValueId,
+    BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirModule, MirType,
+    ValueId,
 };
 
 use super::{
@@ -115,8 +116,7 @@ fn box_origin_for_value_inner(
         return None;
     }
 
-    let result = value_box_origin_for(function, value)
-        .or_else(|| value_box_origin_for(function, origin))
+    let result = box_origin_for_value_type_facts(function, value, origin)
         .or_else(|| {
             let (block_id, instruction_index) = def_map.get(&origin).copied()?;
             let block = function.blocks.get(&block_id)?;
@@ -128,36 +128,20 @@ fn box_origin_for_value_inner(
                 MirInstruction::NewBox { box_type, .. } => Some(box_type.clone()),
                 MirInstruction::Phi {
                     inputs, type_hint, ..
-                } => type_hint
-                    .as_ref()
-                    .and_then(box_origin_from_mir_type)
-                    .or_else(|| {
-                        let mut observed = None;
-                        for (_, input) in inputs {
-                            let next = box_origin_for_value_inner(
-                                module,
-                                function,
-                                def_map,
-                                *input,
-                                field_box_origins,
-                                param_box_origins,
-                                visiting_functions,
-                                visiting_values,
-                            );
-                            let Some(next) = next else {
-                                if is_null_or_void_value(function, def_map, *input) {
-                                    continue;
-                                }
-                                return None;
-                            };
-                            observed = match observed {
-                                None => Some(next),
-                                Some(existing) if existing == next => Some(existing),
-                                _ => return None,
-                            };
-                        }
-                        observed
-                    }),
+                } => box_origin_for_phi_type_facts(function, origin, type_hint.as_ref()).or_else(
+                    || {
+                        box_origin_for_phi_inputs(
+                            module,
+                            function,
+                            def_map,
+                            inputs,
+                            field_box_origins,
+                            param_box_origins,
+                            visiting_functions,
+                            visiting_values,
+                        )
+                    },
+                ),
                 MirInstruction::FieldGet { base, field, .. } => {
                     let base_box = box_name_for_value(function, def_map, *base).or_else(|| {
                         box_origin_for_value_inner(
@@ -194,6 +178,61 @@ fn box_origin_for_value_inner(
 
     visiting_values.remove(&value_key);
     result
+}
+
+fn box_origin_for_phi_type_facts(
+    function: &MirFunction,
+    origin: ValueId,
+    type_hint: Option<&MirType>,
+) -> Option<String> {
+    type_hint
+        .and_then(box_origin_from_mir_type)
+        .or_else(|| box_origin_for_value_type_facts(function, origin, origin))
+}
+
+fn box_origin_for_value_type_facts(
+    function: &MirFunction,
+    value: ValueId,
+    origin: ValueId,
+) -> Option<String> {
+    value_box_origin_for(function, value).or_else(|| value_box_origin_for(function, origin))
+}
+
+fn box_origin_for_phi_inputs(
+    module: &MirModule,
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    inputs: &[(BasicBlockId, ValueId)],
+    field_box_origins: &FieldBoxOriginMap,
+    param_box_origins: &ParamBoxOriginMap,
+    visiting_functions: &mut BTreeSet<String>,
+    visiting_values: &mut BTreeSet<(String, ValueId)>,
+) -> Option<String> {
+    let mut observed = None;
+    for (_, input) in inputs {
+        let next = box_origin_for_value_inner(
+            module,
+            function,
+            def_map,
+            *input,
+            field_box_origins,
+            param_box_origins,
+            visiting_functions,
+            visiting_values,
+        );
+        let Some(next) = next else {
+            if is_null_or_void_value(function, def_map, *input) {
+                continue;
+            }
+            return None;
+        };
+        observed = match observed {
+            None => Some(next),
+            Some(existing) if existing == next => Some(existing),
+            _ => return None,
+        };
+    }
+    observed
 }
 
 fn box_origin_for_call_return(
@@ -388,11 +427,7 @@ fn storage_for_value_inner(
         visiting_values,
     );
     visiting_values.remove(&value_key);
-    origin_storage.or_else(|| {
-        value_type_for(function, value)
-            .or_else(|| value_type_for(function, origin))
-            .and_then(storage_for_mir_type)
-    })
+    origin_storage.or_else(|| storage_for_value_type_facts(function, value, origin))
 }
 
 fn storage_from_origin_instruction(
@@ -468,38 +503,20 @@ fn storage_from_origin_instruction(
         }),
         MirInstruction::Phi {
             inputs, type_hint, ..
-        } => type_hint
-            .as_ref()
-            .and_then(storage_for_mir_type)
-            .or_else(|| {
-                let mut observed = None;
-                for (_, input) in inputs {
-                    let storage = storage_for_value_inner(
-                        module,
-                        function,
-                        def_map,
-                        *input,
-                        inferred,
-                        field_box_origins,
-                        param_storages,
-                        collection_element_storages,
-                        visiting_globals,
-                        visiting_values,
-                    );
-                    let Some(storage) = storage else {
-                        if is_null_or_void_value(function, def_map, *input) {
-                            continue;
-                        }
-                        return None;
-                    };
-                    match observed {
-                        Some(existing) if existing != storage => return None,
-                        Some(_) => {}
-                        None => observed = Some(storage),
-                    }
-                }
-                observed
-            }),
+        } => storage_for_phi_type_facts(function, origin, type_hint.as_ref()).or_else(|| {
+            storage_for_phi_inputs(
+                module,
+                function,
+                def_map,
+                inputs,
+                inferred,
+                field_box_origins,
+                param_storages,
+                collection_element_storages,
+                visiting_globals,
+                visiting_values,
+            )
+        }),
         MirInstruction::NewBox { .. } | MirInstruction::NewClosure { .. } => {
             Some(TypedObjectFieldStorage::Handle)
         }
@@ -514,6 +531,67 @@ fn storage_from_origin_instruction(
             .or_else(|| field_storage_for_get(function, def_map, *base, field, inferred)),
         _ => None,
     }
+}
+
+fn storage_for_phi_type_facts(
+    function: &MirFunction,
+    origin: ValueId,
+    type_hint: Option<&MirType>,
+) -> Option<TypedObjectFieldStorage> {
+    type_hint
+        .and_then(storage_for_mir_type)
+        .or_else(|| storage_for_value_type_facts(function, origin, origin))
+}
+
+fn storage_for_value_type_facts(
+    function: &MirFunction,
+    value: ValueId,
+    origin: ValueId,
+) -> Option<TypedObjectFieldStorage> {
+    value_type_for(function, value)
+        .or_else(|| value_type_for(function, origin))
+        .and_then(storage_for_mir_type)
+}
+
+fn storage_for_phi_inputs(
+    module: &MirModule,
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    inputs: &[(BasicBlockId, ValueId)],
+    inferred: &BTreeMap<FieldKey, FieldStorageInference>,
+    field_box_origins: &FieldBoxOriginMap,
+    param_storages: &BTreeMap<ParamKey, FieldStorageInference>,
+    collection_element_storages: &CollectionElementStorageMap,
+    visiting_globals: &mut BTreeSet<String>,
+    visiting_values: &mut BTreeSet<(String, ValueId)>,
+) -> Option<TypedObjectFieldStorage> {
+    let mut observed = None;
+    for (_, input) in inputs {
+        let storage = storage_for_value_inner(
+            module,
+            function,
+            def_map,
+            *input,
+            inferred,
+            field_box_origins,
+            param_storages,
+            collection_element_storages,
+            visiting_globals,
+            visiting_values,
+        );
+        let Some(storage) = storage else {
+            if is_null_or_void_value(function, def_map, *input) {
+                continue;
+            }
+            return None;
+        };
+        match observed {
+            Some(existing) if existing != storage => return None,
+            Some(_) => {}
+            None => observed = Some(storage),
+        }
+    }
+    observed
 }
 
 fn storage_for_binop(
