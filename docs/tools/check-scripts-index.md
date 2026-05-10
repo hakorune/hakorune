@@ -102,6 +102,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_production_allocator_port_closeout_guard.sh` | M51 の production allocator port closeout を固定し、M46-M50 の app/guard/docs/dev_gate coverage と inactive allocator rows を検証する。 |
 | `tools/checks/k2_wide_allocator_replacement_hook_boundary_guard.sh` | M52 の allocator replacement hook boundary を固定し、HookPlan/owner SSOT と process allocator replacement / hook env / `.inc` name matching 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_hook_plan_vocab_guard.sh` | M53 の allocator HookPlan vocabulary を固定し、reserved HookPlan v0 docs/TOML fixture と runtime hook / process allocator replacement / `.inc` name matching 不在を検証する。 |
+| `tools/checks/k2_wide_allocator_hook_runtime_dry_run_guard.sh` | M54 の allocator hook runtime dry-run boundary を固定し、diagnostic-only runtime seam と runtime hook code / process allocator replacement / `.inc` name matching 不在を検証する。 |
 
 ## Env Hygiene
 

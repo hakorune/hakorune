@@ -57,6 +57,7 @@ if [[ "${1:-}" == "--list" ]]; then
   - tools/checks/k2_wide_production_allocator_port_closeout_guard.sh
   - tools/checks/k2_wide_allocator_replacement_hook_boundary_guard.sh
   - tools/checks/k2_wide_allocator_hook_plan_vocab_guard.sh
+  - tools/checks/k2_wide_allocator_hook_runtime_dry_run_guard.sh
 LIST
   exit 0
 fi
@@ -189,3 +190,6 @@ run_step "allocator replacement hook boundary guard" \
 
 run_step "allocator HookPlan vocabulary guard" \
   bash tools/checks/k2_wide_allocator_hook_plan_vocab_guard.sh
+
+run_step "allocator hook runtime dry-run guard" \
+  bash tools/checks/k2_wide_allocator_hook_runtime_dry_run_guard.sh

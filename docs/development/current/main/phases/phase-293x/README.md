@@ -203,5 +203,7 @@ inference for the allocator release path.
 - `293x-105`: M53 allocator HookPlan vocabulary lock landed, adding reserved
   HookPlan v0 docs/TOML vocabulary while keeping runtime hook activation
   inactive.
-- Next: allocator hook runtime dry-run design; keep future blockers as
+- `293x-106`: M54 allocator hook runtime dry-run boundary landed, fixing the
+  diagnostic-only runtime seam shape while keeping hook implementation inactive.
+- Next: allocator hook activation proof design; keep future blockers as
   compiler/runtime seams and do not hide them in app code.

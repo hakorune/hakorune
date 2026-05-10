@@ -56,7 +56,6 @@ require_text "$TASKBOARD" '| `M53 allocator HookPlan vocabulary lock` | `live-do
 require_text "$TASKBOARD" '76. `M53 allocator HookPlan vocabulary lock`'
 require_text "$PHASE_README" '`293x-105`'
 require_text "$REAL_APP_TASKBOARD" '`293x-105` M53 allocator HookPlan vocabulary lock'
-require_text "$CURRENT_STATE" 'latest_card = "293x-105-M53-ALLOCATOR-HOOK-PLAN-VOCAB-LOCK"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_hook_plan_vocab_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_hook_plan_vocab_guard.sh"
 
