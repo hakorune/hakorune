@@ -200,5 +200,8 @@ inference for the allocator release path.
 - `293x-104`: M52 allocator replacement hook boundary landed, adding the
   allocator replacement hook SSOT and guard while keeping process allocator
   replacement inactive.
-- Next: allocator HookPlan vocabulary lock; keep future blockers as
+- `293x-105`: M53 allocator HookPlan vocabulary lock landed, adding reserved
+  HookPlan v0 docs/TOML vocabulary while keeping runtime hook activation
+  inactive.
+- Next: allocator hook runtime dry-run design; keep future blockers as
   compiler/runtime seams and do not hide them in app code.

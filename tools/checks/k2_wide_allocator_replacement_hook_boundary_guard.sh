@@ -58,7 +58,6 @@ require_text "$TASKBOARD" '| `M52 allocator replacement hook boundary` | `live-d
 require_text "$TASKBOARD" '75. `M52 allocator replacement hook boundary`'
 require_text "$PHASE_README" '`293x-104`'
 require_text "$REAL_APP_TASKBOARD" '`293x-104` M52 allocator replacement hook boundary'
-require_text "$CURRENT_STATE" 'latest_card = "293x-104-M52-ALLOCATOR-REPLACEMENT-HOOK-BOUNDARY"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_replacement_hook_boundary_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_replacement_hook_boundary_guard.sh"
 require_text "$HAKO_ALLOC_README" "Allocator replacement hook boundary"

@@ -1,0 +1,28 @@
+# Reserved schema fixture only. Runtime/backend code must not consume this file.
+schema_version = "allocator_hook_plan_v0"
+status = "reserved"
+active = false
+
+[[plans]]
+hook_id = "hako_alloc.production.v0"
+state = "reserved"
+entrypoints = ["alloc", "realloc", "free"]
+policy_owner = "hako_alloc.memory.allocator_facade_box.HakoAllocProductionFacade"
+substrate_routes = [
+  "hako.mem.alloc",
+  "hako.mem.realloc",
+  "hako.mem.free",
+  "hako.osvm.reserve_bytes",
+  "hako.osvm.commit_bytes",
+  "hako.osvm.decommit_bytes",
+]
+reentrancy_mode = "not_active"
+requirements = [
+  "manifest_fact_required",
+  "no_app_name_matching",
+  "no_facade_name_matching",
+  "no_hidden_env_toggle",
+  "fail_fast_diagnostic_required",
+]
+fail_fast_diagnostic = "[allocator-hook/plan-missing]"
+activation = "future_row_required"

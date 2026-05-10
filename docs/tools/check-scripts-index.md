@@ -100,6 +100,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_hako_alloc_production_facade_stress_exe_guard.sh` | M50 の allocator stress production-facade parity を固定し、既存 allocator-stress の accounting shape が `HakoAllocProductionFacade` 経由で pure-first EXE 実行できることを検証する。 |
 | `tools/checks/k2_wide_production_allocator_port_closeout_guard.sh` | M51 の production allocator port closeout を固定し、M46-M50 の app/guard/docs/dev_gate coverage と inactive allocator rows を検証する。 |
 | `tools/checks/k2_wide_allocator_replacement_hook_boundary_guard.sh` | M52 の allocator replacement hook boundary を固定し、HookPlan/owner SSOT と process allocator replacement / hook env / `.inc` name matching 不在を検証する。 |
+| `tools/checks/k2_wide_allocator_hook_plan_vocab_guard.sh` | M53 の allocator HookPlan vocabulary を固定し、reserved HookPlan v0 docs/TOML fixture と runtime hook / process allocator replacement / `.inc` name matching 不在を検証する。 |
 
 ## Env Hygiene
 

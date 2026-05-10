@@ -142,6 +142,7 @@ them into MIR-owned plan facts.
 | `M50 allocator stress production-facade parity` | `live-narrow` | allocator stress app | adds production-facade stress coverage while keeping existing allocator-stress as regression coverage |
 | `M51 production allocator port closeout guard` | `live-narrow` | regression guard | inventories M46-M50 production allocator port proof coverage before any allocator replacement hook design |
 | `M52 allocator replacement hook boundary` | `live-docs` | hook boundary | adds the allocator replacement hook SSOT and guard while keeping process allocator replacement, hook env toggles, `.inc` name matching, and route widening inactive |
+| `M53 allocator HookPlan vocabulary lock` | `live-docs` | hook plan vocabulary | adds reserved HookPlan v0 SSOT and TOML fixture while keeping runtime hooks, process allocator replacement, env toggles, and `.inc` name matching inactive |
 
 ## Fixed Implementation Order
 
@@ -220,6 +221,7 @@ them into MIR-owned plan facts.
 73. `M50 allocator stress production-facade parity`
 74. `M51 production allocator port closeout guard`
 75. `M52 allocator replacement hook boundary`
+76. `M53 allocator HookPlan vocabulary lock`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed
