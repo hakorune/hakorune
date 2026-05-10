@@ -186,6 +186,8 @@ Live operations:
   block. Production allocator policy remains future work.
 - `tools/checks/k2_wide_mimalloc_allocator_closeout_guard.sh` locks the
   M20-M37 mimalloc allocator proof coverage as a closeout inventory guard.
+- `tools/checks/k2_wide_mimalloc_allocator_substrate_closeout_guard.sh` locks
+  the M20-M43 substrate proof coverage before production allocator port work.
 
 Unsupported operations:
 

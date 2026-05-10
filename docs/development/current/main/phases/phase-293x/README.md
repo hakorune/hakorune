@@ -175,6 +175,7 @@ inference for the allocator release path.
 - `293x-095`: M43 allocator remote-free retry-loop proof landed, proving a
   bounded CAS retry loop inside `AllocatorRemoteFreeRetryPolicy` over existing
   pointer store/load/CAS routes.
-- Next: M44 mimalloc allocator substrate closeout guard, before starting a
-  production allocator port; keep future blockers as compiler/runtime seams and
-  do not hide them in app code.
+- `293x-096`: M44 mimalloc allocator substrate closeout guard landed, locking
+  the M20-M43 substrate proof ladder before production allocator port work.
+- Next: M45 production allocator port entry plan; keep future blockers as
+  compiler/runtime seams and do not hide them in app code.

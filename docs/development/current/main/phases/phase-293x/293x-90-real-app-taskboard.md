@@ -56,6 +56,7 @@
 - [x] `293x-093` M41 pointer CAS remote-free list proof
 - [x] `293x-094` M42 allocator remote-free list policy integration proof
 - [x] `293x-095` M43 allocator remote-free retry-loop proof
+- [x] `293x-096` M44 mimalloc allocator substrate closeout guard
 
 ## Gates
 
