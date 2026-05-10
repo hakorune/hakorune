@@ -104,6 +104,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_allocator_hook_plan_vocab_guard.sh` | M53 の allocator HookPlan vocabulary を固定し、reserved HookPlan v0 docs/TOML fixture と runtime hook / process allocator replacement / `.inc` name matching 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_hook_runtime_dry_run_guard.sh` | M54 の allocator hook runtime dry-run boundary を固定し、diagnostic-only runtime seam と runtime hook code / process allocator replacement / `.inc` name matching 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_hook_activation_proof_guard.sh` | M55 の allocator hook activation proof vocabulary を固定し、reserved activation proof docs/TOML fixture と runtime hook / process allocator replacement / `.inc` name matching 不在を検証する。 |
+| `tools/checks/k2_wide_allocator_hook_runtime_owner_guard.sh` | M56 の allocator hook runtime owner row を固定し、future owner path の命名と runtime hook code / process allocator replacement / `.inc` name matching 不在を検証する。 |
 
 ## Env Hygiene
 

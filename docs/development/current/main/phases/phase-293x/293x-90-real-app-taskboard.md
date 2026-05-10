@@ -68,6 +68,7 @@
 - [x] `293x-105` M53 allocator HookPlan vocabulary lock
 - [x] `293x-106` M54 allocator hook runtime dry-run boundary
 - [x] `293x-107` M55 allocator hook activation proof
+- [x] `293x-108` M56 allocator hook runtime owner row
 
 ## Gates
 

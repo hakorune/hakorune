@@ -207,5 +207,8 @@ inference for the allocator release path.
   diagnostic-only runtime seam shape while keeping hook implementation inactive.
 - `293x-107`: M55 allocator hook activation proof landed, adding reserved
   activation proof vocabulary while keeping hook activation inactive.
-- Next: allocator hook dry-run code only after a named runtime owner row; keep future blockers as
+- `293x-108`: M56 allocator hook runtime owner row landed, naming the future
+  `src/runtime/allocator_hook_dry_run.rs` owner while keeping implementation
+  absent.
+- Next: allocator hook dry-run code may start in the named runtime owner only; keep future blockers as
   compiler/runtime seams and do not hide them in app code.
