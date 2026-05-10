@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/design/allocator-hook-activation-proof-ssot.md
   - docs/development/current/main/design/allocator-hook-activation-preflight-shape-ssot.md
   - docs/development/current/main/design/allocator-provider-activation-entry-contract-v0.toml
+  - docs/development/current/main/design/allocator-provider-selection-decision-ssot.md
 ---
 
 # Allocator Provider Activation Entry Contract (SSOT)

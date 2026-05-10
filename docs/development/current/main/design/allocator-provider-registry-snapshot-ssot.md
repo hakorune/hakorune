@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-manifest-v0-ssot.md
   - docs/development/current/main/design/allocator-provider-readiness-preflight-ssot.md
   - docs/development/current/main/design/allocator-provider-registry-snapshot-v0.toml
+  - docs/development/current/main/design/allocator-provider-selection-decision-ssot.md
 ---
 
 # Allocator Provider Registry Snapshot (SSOT)
@@ -102,6 +103,13 @@ M77 keeps these inactive:
 - `GlobalAlloc`;
 - `.inc` hook/provider/facade/policy name matching;
 - route widening for allocator activation.
+
+## Next Row
+
+M78 may consume this snapshot only as an explicit diagnostic input to a
+reserved selection request/decision shape. M78 must still keep
+`would_select_provider = false`, no selected provider id, no activation, and no
+runtime registry implementation.
 
 ## Gate
 

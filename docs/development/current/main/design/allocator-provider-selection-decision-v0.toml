@@ -1,0 +1,50 @@
+# Reserved schema fixture only. Runtime/backend code must not consume this file.
+schema_version = "allocator_provider_selection_decision_v0"
+status = "reserved"
+active = false
+selection_owner = "src/runtime/allocator_provider_registry.rs"
+registry_snapshot_input = "allocator_provider_registry_snapshot_report"
+selection_request_source = "caller_provided_diagnostic_request"
+selection_policy = "explicit_provider_id_required_reserved"
+selection_status = "reserved_no_selection"
+deterministic_provider_order = "registry_snapshot_order"
+provider_selection = "inactive"
+decision_status = "reserved"
+requested_provider_id = "native_mimalloc"
+required_operations = ["alloc", "realloc", "free"]
+candidate_provider_ids = [
+  "native_system_malloc",
+  "native_mimalloc",
+  "hako_model_allocator",
+  "debug_guarded_allocator",
+]
+selected_provider_id = "none_reserved"
+would_build_registry = false
+would_select_provider = false
+would_activate = false
+activation = "future_row_required"
+diagnostic = "[allocator-provider/selection-decision-missing]"
+missing_registry_diagnostic = "[allocator-provider/selection-registry-missing]"
+missing_request_diagnostic = "[allocator-provider/selection-request-missing]"
+unsupported_provider_diagnostic = "[allocator-provider/selection-unsupported-provider]"
+missing_capability_diagnostic = "[allocator-provider/selection-capability-missing]"
+ambiguous_provider_diagnostic = "[allocator-provider/selection-ambiguous]"
+
+required_selection_decision_facts = [
+  "registry_snapshot_ready",
+  "selection_request_caller_provided",
+  "requested_provider_id_explicit",
+  "required_operations_nonempty",
+  "candidate_provider_ids_reserved_set",
+  "deterministic_provider_order_named",
+  "selection_policy_named",
+  "fail_fast_selection_diagnostic_named",
+  "no_selected_provider_id",
+  "no_hidden_environment_toggle",
+  "no_implicit_manifest_discovery",
+  "no_app_or_facade_name_matching",
+  "no_runtime_registry_implementation",
+  "no_runtime_hook_activation",
+  "no_global_allocator_attribute",
+  "no_activation_without_later_row",
+]

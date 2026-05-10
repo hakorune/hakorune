@@ -126,6 +126,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_allocator_provider_native_mimalloc_proof_guard.sh` | M75 の native mimalloc provider proof boundary を固定し、reserved mimalloc provider proof と production activation/selection/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_activation_entry_contract_guard.sh` | M76 の allocator provider activation entry contract を固定し、future registry/selection ownership・proof consumption・rollback contract と activation/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_registry_snapshot_guard.sh` | M77 の allocator provider registry snapshot diagnostic shape を固定し、reserved provider entries と selection/activation/replacement 不在を検証する。 |
+| `tools/checks/k2_wide_allocator_provider_selection_decision_guard.sh` | M78 の allocator provider selection decision diagnostic shape を固定し、caller-provided request/decision・no selected provider と selection/activation/replacement 不在を検証する。 |
 
 ## Env Hygiene
 

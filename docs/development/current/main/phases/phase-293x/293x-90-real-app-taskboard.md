@@ -90,6 +90,7 @@
 - [x] `293x-127` M75 native mimalloc provider proof boundary
 - [x] `293x-128` M76 allocator provider activation entry contract
 - [x] `293x-129` M77 allocator provider registry snapshot
+- [x] `293x-130` M78 allocator provider selection decision
 
 ## Gates
 

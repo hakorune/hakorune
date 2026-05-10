@@ -13,6 +13,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-native-mimalloc-proof-ssot.md
   - docs/development/current/main/design/allocator-provider-activation-entry-contract-ssot.md
   - docs/development/current/main/design/allocator-provider-registry-snapshot-ssot.md
+  - docs/development/current/main/design/allocator-provider-selection-decision-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
 ---
 
@@ -41,6 +42,7 @@ then and only then consider process allocator replacement
 | M64-M75 | provider ids, reserved provider manifest fixture, diagnostic parser, explicit CLI surface, readiness preflight facts, combined hook/provider dry-run report, registry boundary docs, hako model provider proof fixture, debug guarded provider proof fixture, native system provider proof boundary, and native mimalloc provider proof boundary | complete |
 | M76 | activation entry contract naming registry/selection ownership, proof consumption, fail-fast diagnostics, rollback behavior, and the next activation task ladder | complete |
 | M77 | registry snapshot diagnostic shape fixing reserved provider entries and registry snapshot facts | complete |
+| M78 | selection decision diagnostic shape fixing caller-provided request facts and no-selected-provider diagnostics | complete |
 
 ## Layer Model
 
@@ -77,6 +79,7 @@ activation entry:
 | M75 | native mimalloc provider proof boundary | mimalloc provider contract docs/fixture | production activation |
 | M76 | activation entry contract | reserved activation entry fixture naming ownership/proof/rollback facts | runtime registry code |
 | M77 | registry snapshot diagnostic shape | reserved registry snapshot fixture with provider entries | provider selection |
+| M78 | selection decision diagnostic shape | reserved selection request/decision fixture with no selected provider | activation |
 
 ## Post-M75 Activation Entry Ladder
 
@@ -101,6 +104,8 @@ M66 task breakdown
   -> M73 debug guarded provider proof
   -> M74/M75 native provider proof boundaries
   -> M76 activation entry contract
+  -> M77 registry snapshot diagnostic shape
+  -> M78 selection decision diagnostic shape
   -> later activation row only after safety proof
 ```
 
@@ -140,8 +145,9 @@ Every next row should land as:
 ## Next Step
 
 Provider proof boundary ladder is now closed through M75. M76 opens the
-activation entry contract and M77 fixes the reserved registry snapshot shape
-without runtime registry code. The next safe row is M78 selection decision diagnostic shape.
+activation entry contract, M77 fixes the reserved registry snapshot shape, and
+M78 fixes the reserved selection request/decision shape without runtime
+registry code or provider selection. The next safe row is M79 provider proof bundle consumption.
 It must not silently enable production activation,
 `#[global_allocator]`, process allocator replacement, environment discovery, or
 `.inc` name matching.

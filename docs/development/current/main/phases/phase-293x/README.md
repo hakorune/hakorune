@@ -274,6 +274,10 @@ inference for the allocator release path.
   reserved provider-entry snapshot shape and registry missing diagnostics while
   keeping runtime registry code, provider selection, hook activation, and
   allocator replacement inactive.
-- Next: M78 selection decision diagnostic shape. It must stay caller-provided
-  and diagnostic-only: no environment discovery, implicit manifest discovery,
-  hook activation, `#[global_allocator]`, or process allocator replacement.
+- `293x-130`: M78 allocator provider selection decision landed, fixing the
+  reserved caller-provided request/decision shape with no selected provider
+  while keeping selection implementation, hook activation, and allocator
+  replacement inactive.
+- Next: M79 provider proof bundle consumption. It must stay diagnostic-only:
+  no environment discovery, implicit manifest discovery, hook activation,
+  `#[global_allocator]`, or process allocator replacement.
