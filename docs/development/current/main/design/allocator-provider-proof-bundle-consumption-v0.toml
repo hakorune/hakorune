@@ -1,0 +1,94 @@
+# Reserved schema fixture only. Runtime/backend code must not consume this file.
+schema_version = "allocator_provider_proof_bundle_consumption_v0"
+status = "reserved"
+active = false
+consumption_owner = "src/runtime/allocator_provider_registry.rs"
+registry_snapshot_input = "allocator_provider_registry_snapshot_report"
+selection_decision_input = "allocator_provider_selection_decision_report"
+proof_bundle_source = "caller_provided_diagnostic_bundle"
+proof_bundle_policy = "explicit_provider_proof_bundle_required_reserved"
+consumption_status = "reserved_no_consumption"
+proof_bundle_consumption = "inactive"
+provider_selection = "inactive"
+decision_status = "reserved"
+selection_status = "reserved_no_selection"
+requested_provider_id = "native_mimalloc"
+selected_provider_id = "none_reserved"
+proof_bundle_consumed = false
+would_build_registry = false
+would_select_provider = false
+would_consume_proof_bundle = false
+would_activate = false
+activation = "future_row_required"
+diagnostic = "[allocator-provider/proof-bundle-consumption-missing]"
+missing_registry_diagnostic = "[allocator-provider/proof-bundle-registry-missing]"
+missing_selection_diagnostic = "[allocator-provider/proof-bundle-selection-missing]"
+missing_provider_proof_diagnostic = "[allocator-provider/proof-bundle-provider-proof-missing]"
+provider_mismatch_diagnostic = "[allocator-provider/proof-bundle-provider-mismatch]"
+missing_capability_diagnostic = "[allocator-provider/proof-bundle-capability-missing]"
+activation_blocked_diagnostic = "[allocator-provider/proof-bundle-activation-blocked]"
+
+requested_operations = ["alloc", "realloc", "free"]
+provider_proof_inputs = [
+  "allocator_provider_native_system_proof_v0",
+  "allocator_provider_native_mimalloc_proof_v0",
+  "allocator_provider_hako_model_proof_v0",
+  "allocator_provider_debug_guarded_proof_v0",
+]
+candidate_provider_ids = [
+  "native_system_malloc",
+  "native_mimalloc",
+  "hako_model_allocator",
+  "debug_guarded_allocator",
+]
+
+required_proof_bundle_consumption_facts = [
+  "registry_snapshot_ready",
+  "selection_decision_ready",
+  "proof_bundle_caller_provided",
+  "requested_provider_id_explicit",
+  "selected_provider_id_absent",
+  "provider_proof_entries_nonempty",
+  "provider_proof_ids_reserved_set",
+  "provider_proof_operations_cover_request",
+  "proof_bundle_policy_named",
+  "fail_fast_proof_bundle_diagnostic_named",
+  "no_hidden_environment_toggle",
+  "no_implicit_manifest_discovery",
+  "no_app_or_facade_name_matching",
+  "no_inc_name_matching",
+  "no_runtime_registry_implementation",
+  "no_provider_selection_implementation",
+  "no_runtime_hook_activation",
+  "no_global_allocator_attribute",
+  "no_global_alloc_trait",
+  "no_activation_without_later_row",
+]
+
+[[provider_proofs]]
+provider_id = "native_system_malloc"
+proof_schema = "allocator_provider_native_system_proof_v0"
+state = "reserved"
+operations = ["alloc", "realloc", "free"]
+consumption = "future_row_required"
+
+[[provider_proofs]]
+provider_id = "native_mimalloc"
+proof_schema = "allocator_provider_native_mimalloc_proof_v0"
+state = "reserved"
+operations = ["alloc", "realloc", "free", "page_reserve", "page_commit", "page_decommit"]
+consumption = "future_row_required"
+
+[[provider_proofs]]
+provider_id = "hako_model_allocator"
+proof_schema = "allocator_provider_hako_model_proof_v0"
+state = "reserved"
+operations = ["model_alloc", "model_free", "stats", "stress_validate"]
+consumption = "future_row_required"
+
+[[provider_proofs]]
+provider_id = "debug_guarded_allocator"
+proof_schema = "allocator_provider_debug_guarded_proof_v0"
+state = "reserved"
+operations = ["alloc", "realloc", "free", "guard_check", "leak_check"]
+consumption = "future_row_required"

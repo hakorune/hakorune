@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-registry-boundary-ssot.md
   - docs/development/current/main/design/allocator-provider-registry-snapshot-ssot.md
   - docs/development/current/main/design/allocator-provider-selection-decision-v0.toml
+  - docs/development/current/main/design/allocator-provider-proof-bundle-consumption-ssot.md
 ---
 
 # Allocator Provider Selection Decision (SSOT)
@@ -121,6 +122,12 @@ M78 keeps these inactive:
 - `GlobalAlloc`;
 - `.inc` hook/provider/facade/policy name matching;
 - route widening for allocator activation.
+
+## Next Row
+
+M79 may consume this reserved decision only as a diagnostic input to a provider
+proof bundle shape. M79 must still keep no selected provider, no runtime proof
+consumption, no activation, and no process allocator replacement.
 
 ## Gate
 

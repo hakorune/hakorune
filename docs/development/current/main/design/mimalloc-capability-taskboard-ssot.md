@@ -168,6 +168,7 @@ them into MIR-owned plan facts.
 | `M76 allocator provider activation entry contract` | `live-docs` | activation entry contract | names future registry/selection ownership, proof consumption, fail-fast diagnostics, and rollback behavior while keeping runtime registry code, activation, and replacement inactive |
 | `M77 allocator provider registry snapshot` | `live-docs` | registry snapshot shape | adds a reserved registry snapshot fixture with provider entries and missing diagnostics while keeping runtime registry code, provider selection, and replacement inactive |
 | `M78 allocator provider selection decision` | `live-docs` | selection decision shape | adds a reserved caller-provided selection request/decision fixture with no selected provider while keeping selection implementation, activation, and replacement inactive |
+| `M79 allocator provider proof bundle consumption` | `live-docs` | proof bundle shape | adds a reserved provider proof bundle consumption fixture with selected-provider proof inputs while keeping runtime proof consumption, activation, and replacement inactive |
 
 ## Fixed Implementation Order
 
@@ -272,6 +273,7 @@ them into MIR-owned plan facts.
 99. `M76 allocator provider activation entry contract`
 100. `M77 allocator provider registry snapshot`
 101. `M78 allocator provider selection decision`
+102. `M79 allocator provider proof bundle consumption`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed

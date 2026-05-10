@@ -278,6 +278,9 @@ inference for the allocator release path.
   reserved caller-provided request/decision shape with no selected provider
   while keeping selection implementation, hook activation, and allocator
   replacement inactive.
-- Next: M79 provider proof bundle consumption. It must stay diagnostic-only:
-  no environment discovery, implicit manifest discovery, hook activation,
+- `293x-131`: M79 allocator provider proof bundle consumption landed, fixing
+  the reserved proof bundle input/diagnostic shape while keeping runtime proof
+  consumption, hook activation, and allocator replacement inactive.
+- Next: M80 rollback preflight contract. It must stay diagnostic-only: no
+  environment discovery, implicit manifest discovery, hook activation,
   `#[global_allocator]`, or process allocator replacement.

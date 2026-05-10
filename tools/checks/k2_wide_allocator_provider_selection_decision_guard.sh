@@ -15,7 +15,6 @@ TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ss
 CARD="docs/development/current/main/phases/phase-293x/293x-130-M78-ALLOCATOR-PROVIDER-SELECTION-DECISION.md"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
-CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
@@ -49,7 +48,6 @@ require_file "$TASKBOARD"
 require_file "$CARD"
 require_file "$PHASE_README"
 require_file "$REAL_APP_TASKBOARD"
-require_file "$CURRENT_STATE"
 require_file "$INDEX"
 require_file "$DEV_GATE"
 require_file "$ALLOCATOR_GROUP"
@@ -72,13 +70,10 @@ require_text "$REGISTRY_SNAPSHOT_SSOT" "allocator-provider-registry-snapshot-v0.
 require_text "$REGISTRY_SNAPSHOT_FIXTURE" 'provider_id = "native_mimalloc"'
 require_text "$ACTIVATION_ENTRY_SSOT" "M78 | selection decision diagnostic shape"
 require_text "$TASK_BREAKDOWN" "M78 | selection decision diagnostic shape"
-require_text "$TASK_BREAKDOWN" "The next safe row is M79 provider proof bundle consumption."
 require_text "$TASKBOARD" '| `M78 allocator provider selection decision` | `live-docs` |'
 require_text "$TASKBOARD" '101. `M78 allocator provider selection decision`'
 require_text "$PHASE_README" '`293x-130`'
 require_text "$REAL_APP_TASKBOARD" '[x] `293x-130` M78 allocator provider selection decision'
-require_text "$CURRENT_STATE" 'latest_card = "293x-130-M78-ALLOCATOR-PROVIDER-SELECTION-DECISION"'
-require_text "$CURRENT_STATE" 'latest_card_path = "docs/development/current/main/phases/phase-293x/293x-130-M78-ALLOCATOR-PROVIDER-SELECTION-DECISION.md"'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_selection_decision_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_selection_decision_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_selection_decision_guard.sh"

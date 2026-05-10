@@ -91,6 +91,7 @@
 - [x] `293x-128` M76 allocator provider activation entry contract
 - [x] `293x-129` M77 allocator provider registry snapshot
 - [x] `293x-130` M78 allocator provider selection decision
+- [x] `293x-131` M79 allocator provider proof bundle consumption
 
 ## Gates
 

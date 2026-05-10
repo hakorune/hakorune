@@ -14,6 +14,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-activation-entry-contract-ssot.md
   - docs/development/current/main/design/allocator-provider-registry-snapshot-ssot.md
   - docs/development/current/main/design/allocator-provider-selection-decision-ssot.md
+  - docs/development/current/main/design/allocator-provider-proof-bundle-consumption-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
 ---
 
@@ -43,6 +44,7 @@ then and only then consider process allocator replacement
 | M76 | activation entry contract naming registry/selection ownership, proof consumption, fail-fast diagnostics, rollback behavior, and the next activation task ladder | complete |
 | M77 | registry snapshot diagnostic shape fixing reserved provider entries and registry snapshot facts | complete |
 | M78 | selection decision diagnostic shape fixing caller-provided request facts and no-selected-provider diagnostics | complete |
+| M79 | provider proof bundle consumption diagnostic shape fixing proof bundle inputs and missing-proof diagnostics | complete |
 
 ## Layer Model
 
@@ -80,6 +82,7 @@ activation entry:
 | M76 | activation entry contract | reserved activation entry fixture naming ownership/proof/rollback facts | runtime registry code |
 | M77 | registry snapshot diagnostic shape | reserved registry snapshot fixture with provider entries | provider selection |
 | M78 | selection decision diagnostic shape | reserved selection request/decision fixture with no selected provider | activation |
+| M79 | provider proof bundle consumption | reserved provider proof bundle fixture with selected-provider proof inputs | `#[global_allocator]` |
 
 ## Post-M75 Activation Entry Ladder
 
@@ -106,6 +109,7 @@ M66 task breakdown
   -> M76 activation entry contract
   -> M77 registry snapshot diagnostic shape
   -> M78 selection decision diagnostic shape
+  -> M79 provider proof bundle consumption
   -> later activation row only after safety proof
 ```
 
@@ -147,7 +151,8 @@ Every next row should land as:
 Provider proof boundary ladder is now closed through M75. M76 opens the
 activation entry contract, M77 fixes the reserved registry snapshot shape, and
 M78 fixes the reserved selection request/decision shape without runtime
-registry code or provider selection. The next safe row is M79 provider proof bundle consumption.
+registry code or provider selection. M79 fixes the reserved provider proof
+bundle consumption shape without runtime proof consumption or activation. The next safe row is M80 rollback preflight contract.
 It must not silently enable production activation,
 `#[global_allocator]`, process allocator replacement, environment discovery, or
 `.inc` name matching.
