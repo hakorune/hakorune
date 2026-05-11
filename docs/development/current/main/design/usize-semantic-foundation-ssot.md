@@ -87,6 +87,9 @@ Live today:
 - `FunctionMetadata` preserves MIR-side declared parameter/return annotation
   text, and exact numeric return annotations publish function-level advisory
   return facts without changing runtime lowering;
+- exact numeric `BinOp::Add` sites publish MIR-owned route facts and exact
+  numeric result value facts only when both operands already share one exact
+  numeric type;
 - VM exact numeric work in this phase is reference execution only. VM rows may
   consume MIR-owned facts/contracts but do not make VM-only behavior complete
   product support;
@@ -101,8 +104,7 @@ Not live today:
   numeric field-write contracts, non-VM backend lowering/execution of those
   contracts, and exact runtime unsigned range-check construction;
 - numeric literal suffixes such as `0usize`;
-- route-fact wiring for remaining local producers and exact numeric operation
-  routes, live
+- live
   VM/backend exact numeric arithmetic/compare/shift routes, and explicit
   wrapping vocabulary;
 - MIR / Program(JSON) exact numeric constants;

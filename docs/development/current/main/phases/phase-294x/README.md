@@ -94,17 +94,18 @@
 - `294x-09c`: MIR function metadata now preserves declared parameter/return
   annotation text from AST lowering; exact numeric params seed value facts and
   exact numeric returns publish function-level advisory facts.
+- `294x-09d`: exact numeric `BinOp::Add` now publishes MIR-owned route facts
+  and exact numeric result value facts when both operands share the same exact
+  numeric type; mismatches stay visible as rejection metadata.
 
 ## First Implementation Direction
 
 Start with metadata preservation before runtime behavior:
 
 1. attach exact numeric metadata to MIR facts/signature consumers;
-2. attach exact numeric route facts for remaining local producers and first
-   arithmetic routes;
-3. add VM reference exact `usize` behavior, with backend fail-fast/lowering
+2. add VM reference exact `usize` behavior, with backend fail-fast/lowering
    kept visible;
-4. migrate hako_alloc non-negative fields.
+3. migrate hako_alloc non-negative fields.
 
 This keeps the source truth available before any lowerer claims exact
 semantics.

@@ -14,7 +14,8 @@ use crate::mir::{
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
     effect_capability_plan::{CapabilityPlan, EffectPlan},
     exact_numeric_value_facts::{
-        ExactNumericReturnFact, ExactNumericValueFact, ExactNumericValueFactRejection,
+        ExactNumericBinaryOpRouteFact, ExactNumericBinaryOpRouteRejection, ExactNumericReturnFact,
+        ExactNumericValueFact, ExactNumericValueFactRejection,
     },
     exact_seed_backend_route::ExactSeedBackendRoute,
     extern_call_route_plan::ExternCallRoute,
@@ -364,6 +365,16 @@ pub struct FunctionMetadata {
     /// Control-merge sites where exact numeric facts could not be propagated
     /// without mixing exact/dynamic values or mismatched exact source names.
     pub exact_numeric_value_fact_rejections: Vec<ExactNumericValueFactRejection>,
+
+    /// Exact numeric binary-operation route facts. These do not execute or lower
+    /// the operation; they only let later VM/backend rows consume MIR-owned
+    /// exact operation routes.
+    pub exact_numeric_binary_op_route_facts: Vec<ExactNumericBinaryOpRouteFact>,
+
+    /// Binary-operation sites where exact numeric operation routes could not be
+    /// published without mixing exact/dynamic values or mismatched exact source
+    /// names.
+    pub exact_numeric_binary_op_route_rejections: Vec<ExactNumericBinaryOpRouteRejection>,
 
     /// Function-level exact numeric return annotation fact.
     ///

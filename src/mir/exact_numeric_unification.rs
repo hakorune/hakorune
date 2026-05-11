@@ -4,6 +4,7 @@ use crate::mir::numeric_substrate::ExactNumericMirType;
 pub(crate) enum ExactNumericMergeSite {
     Phi,
     Select,
+    BinaryOpAdd,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -19,7 +20,7 @@ pub(crate) enum ExactNumericUnificationError {
     },
 }
 
-pub(crate) fn unify_exact_numeric_control_merge(
+pub(crate) fn unify_exact_numeric_inputs(
     site: ExactNumericMergeSite,
     incoming: &[Option<ExactNumericMirType>],
 ) -> Result<Option<ExactNumericMirType>, ExactNumericUnificationError> {
@@ -58,6 +59,13 @@ pub(crate) fn unify_exact_numeric_control_merge(
     }
 
     Ok(unified)
+}
+
+pub(crate) fn unify_exact_numeric_control_merge(
+    site: ExactNumericMergeSite,
+    incoming: &[Option<ExactNumericMirType>],
+) -> Result<Option<ExactNumericMirType>, ExactNumericUnificationError> {
+    unify_exact_numeric_inputs(site, incoming)
 }
 
 #[cfg(test)]

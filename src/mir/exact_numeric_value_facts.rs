@@ -4,8 +4,20 @@ use crate::mir::exact_numeric_unification::{
 use crate::mir::numeric_substrate::{
     exact_numeric_mir_type_from_declared_name, ExactNumericMirType, NumericTarget,
 };
-use crate::mir::{BasicBlockId, MirFunction, MirInstruction, MirModule, MirType, ValueId};
+use crate::mir::{
+    BasicBlockId, BinaryOp, MirFunction, MirInstruction, MirModule, MirType, ValueId,
+};
 use std::collections::BTreeMap;
+
+mod binary_op_routes;
+use binary_op_routes::{
+    collect_binary_op_route_facts, collect_binary_op_route_rejections,
+    try_publish_binary_op_add_fact,
+};
+pub use binary_op_routes::{
+    ExactNumericBinaryOpRouteFact, ExactNumericBinaryOpRouteRejection,
+    ExactNumericBinaryOpRouteRejectionKind,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExactNumericValueFact {
@@ -17,6 +29,7 @@ pub struct ExactNumericValueFact {
 pub enum ExactNumericValueFactSource {
     Param { index: usize, name: String },
     FieldGet { box_name: String, field: String },
+    BinaryOpAdd { lhs: ValueId, rhs: ValueId },
     Copy { src: ValueId },
     Phi,
     Select,
@@ -87,11 +100,15 @@ pub(crate) fn refresh_function_exact_numeric_value_facts(
     seed_field_get_facts(function, field_decls, &object_defs, &mut facts);
     propagate_exact_numeric_value_facts(function, &mut facts);
     let rejections = collect_control_merge_rejections(function, &facts);
+    let binary_op_route_facts = collect_binary_op_route_facts(function, &facts);
+    let binary_op_route_rejections = collect_binary_op_route_rejections(function, &facts);
     let return_fact = exact_numeric_return_fact(function);
 
     let inserted = facts.len();
     function.metadata.exact_numeric_value_facts = facts;
     function.metadata.exact_numeric_value_fact_rejections = rejections;
+    function.metadata.exact_numeric_binary_op_route_facts = binary_op_route_facts;
+    function.metadata.exact_numeric_binary_op_route_rejections = binary_op_route_rejections;
     function.metadata.exact_numeric_return_fact = return_fact;
     inserted
 }
@@ -250,6 +267,14 @@ fn propagate_exact_numeric_value_facts(
                             [*then_val, *else_val],
                             ExactNumericValueFactSource::Select,
                         );
+                    }
+                    MirInstruction::BinOp {
+                        dst,
+                        op: BinaryOp::Add,
+                        lhs,
+                        rhs,
+                    } => {
+                        changed |= try_publish_binary_op_add_fact(facts, *dst, *lhs, *rhs);
                     }
                     _ => {}
                 }

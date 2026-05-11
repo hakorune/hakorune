@@ -1,6 +1,8 @@
 use super::*;
 use crate::mir::function::MirParamDecl;
-use crate::mir::{ConstValue, EffectMask, FunctionSignature, MirModule, UserBoxFieldDecl};
+use crate::mir::{
+    BinaryOp, ConstValue, EffectMask, FunctionSignature, MirModule, UserBoxFieldDecl,
+};
 
 fn module_with_fields(function: MirFunction) -> MirModule {
     let mut module = MirModule::new("exact_numeric_value_facts_test".to_string());
@@ -215,6 +217,62 @@ fn propagates_select_when_inputs_share_exact_type() {
 }
 
 #[test]
+fn publishes_binop_add_route_and_result_fact_for_same_exact_operands() {
+    let mut function = page_function();
+    let page = function.params[0];
+    let left = function.next_value_id();
+    let right = function.next_value_id();
+    let sum = function.next_value_id();
+    let block = function.get_block_mut(BasicBlockId::new(0)).unwrap();
+    block.add_instruction(MirInstruction::FieldGet {
+        dst: left,
+        base: page,
+        field: "capacity".to_string(),
+        declared_type: Some(MirType::Integer),
+    });
+    block.add_instruction(MirInstruction::FieldGet {
+        dst: right,
+        base: page,
+        field: "capacity".to_string(),
+        declared_type: Some(MirType::Integer),
+    });
+    block.add_instruction(MirInstruction::BinOp {
+        dst: sum,
+        op: BinaryOp::Add,
+        lhs: left,
+        rhs: right,
+    });
+    let mut module = module_with_fields(function);
+
+    refresh_module_exact_numeric_value_facts(&mut module);
+
+    let metadata = &module.get_function("main").unwrap().metadata;
+    assert_eq!(
+        metadata.exact_numeric_value_facts.get(&sum).unwrap(),
+        &ExactNumericValueFact {
+            declared_type_name: "usize".to_string(),
+            source: ExactNumericValueFactSource::BinaryOpAdd {
+                lhs: left,
+                rhs: right,
+            },
+        }
+    );
+    assert_eq!(
+        metadata.exact_numeric_binary_op_route_facts,
+        vec![ExactNumericBinaryOpRouteFact {
+            block: BasicBlockId::new(0),
+            instruction_index: 2,
+            dst: sum,
+            op: BinaryOp::Add,
+            lhs: left,
+            rhs: right,
+            declared_type_name: "usize".to_string(),
+        }]
+    );
+    assert!(metadata.exact_numeric_binary_op_route_rejections.is_empty());
+}
+
+#[test]
 fn records_select_rejection_for_exact_dynamic_mix() {
     let mut function = page_function();
     let page = function.params[0];
@@ -264,6 +322,53 @@ fn records_select_rejection_for_exact_dynamic_mix() {
 }
 
 #[test]
+fn records_binop_add_rejection_for_exact_dynamic_mix() {
+    let mut function = page_function();
+    let page = function.params[0];
+    let exact = function.next_value_id();
+    let dynamic = function.next_value_id();
+    let sum = function.next_value_id();
+    let block = function.get_block_mut(BasicBlockId::new(0)).unwrap();
+    block.add_instruction(MirInstruction::FieldGet {
+        dst: exact,
+        base: page,
+        field: "capacity".to_string(),
+        declared_type: Some(MirType::Integer),
+    });
+    block.add_instruction(MirInstruction::Const {
+        dst: dynamic,
+        value: ConstValue::Integer(7),
+    });
+    block.add_instruction(MirInstruction::BinOp {
+        dst: sum,
+        op: BinaryOp::Add,
+        lhs: exact,
+        rhs: dynamic,
+    });
+    let mut module = module_with_fields(function);
+
+    refresh_module_exact_numeric_value_facts(&mut module);
+
+    let metadata = &module.get_function("main").unwrap().metadata;
+    assert!(!metadata.exact_numeric_value_facts.contains_key(&sum));
+    assert!(metadata.exact_numeric_binary_op_route_facts.is_empty());
+    assert_eq!(
+        metadata.exact_numeric_binary_op_route_rejections,
+        vec![ExactNumericBinaryOpRouteRejection {
+            block: BasicBlockId::new(0),
+            instruction_index: 2,
+            dst: sum,
+            op: BinaryOp::Add,
+            lhs: exact,
+            rhs: dynamic,
+            kind: ExactNumericBinaryOpRouteRejectionKind::MixedExactAndDynamic {
+                exact_source_name: "usize".to_string(),
+            },
+        }]
+    );
+}
+
+#[test]
 fn records_phi_rejection_for_exact_type_mismatch() {
     let mut function = page_function();
     let page = function.params[0];
@@ -302,6 +407,56 @@ fn records_phi_rejection_for_exact_type_mismatch() {
             dst: merged,
             site: ExactNumericValueFactMergeSite::Phi,
             kind: ExactNumericValueFactRejectionKind::TypeMismatch {
+                left_source_name: "usize".to_string(),
+                right_source_name: "u64".to_string(),
+            },
+        }]
+    );
+}
+
+#[test]
+fn records_binop_add_rejection_for_exact_type_mismatch() {
+    let mut function = page_function();
+    let page = function.params[0];
+    let left = function.next_value_id();
+    let right = function.next_value_id();
+    let sum = function.next_value_id();
+    let block = function.get_block_mut(BasicBlockId::new(0)).unwrap();
+    block.add_instruction(MirInstruction::FieldGet {
+        dst: left,
+        base: page,
+        field: "capacity".to_string(),
+        declared_type: Some(MirType::Integer),
+    });
+    block.add_instruction(MirInstruction::FieldGet {
+        dst: right,
+        base: page,
+        field: "count".to_string(),
+        declared_type: Some(MirType::Integer),
+    });
+    block.add_instruction(MirInstruction::BinOp {
+        dst: sum,
+        op: BinaryOp::Add,
+        lhs: left,
+        rhs: right,
+    });
+    let mut module = module_with_fields(function);
+
+    refresh_module_exact_numeric_value_facts(&mut module);
+
+    let metadata = &module.get_function("main").unwrap().metadata;
+    assert!(!metadata.exact_numeric_value_facts.contains_key(&sum));
+    assert!(metadata.exact_numeric_binary_op_route_facts.is_empty());
+    assert_eq!(
+        metadata.exact_numeric_binary_op_route_rejections,
+        vec![ExactNumericBinaryOpRouteRejection {
+            block: BasicBlockId::new(0),
+            instruction_index: 2,
+            dst: sum,
+            op: BinaryOp::Add,
+            lhs: left,
+            rhs: right,
+            kind: ExactNumericBinaryOpRouteRejectionKind::TypeMismatch {
                 left_source_name: "usize".to_string(),
                 right_source_name: "u64".to_string(),
             },
