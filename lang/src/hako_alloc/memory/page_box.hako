@@ -7,34 +7,23 @@ box HakoAllocPageModel {
     block_size: IntegerBox
     capacity: IntegerBox
     reserved: IntegerBox
-    free: ArrayBox
-    local_free: ArrayBox
-    block_used: ArrayBox
-    used: IntegerBox
-    free_top: IntegerBox
-    local_free_top: IntegerBox
-    alloc_count: IntegerBox
-    local_free_count: IntegerBox
-    reject_count: IntegerBox
-    peak_used: IntegerBox
-    requested_bytes: IntegerBox
+    free: ArrayBox = new ArrayBox()
+    local_free: ArrayBox = new ArrayBox()
+    block_used: ArrayBox = new ArrayBox()
+    used: IntegerBox = 0
+    free_top: IntegerBox = 0
+    local_free_top: IntegerBox = 0
+    alloc_count: IntegerBox = 0
+    local_free_count: IntegerBox = 0
+    reject_count: IntegerBox = 0
+    peak_used: IntegerBox = 0
+    requested_bytes: IntegerBox = 0
 
     birth(page_id, block_size, capacity, reserved) {
         me.page_id = page_id
         me.block_size = block_size
         me.capacity = capacity
         me.reserved = reserved
-        me.free = new ArrayBox()
-        me.local_free = new ArrayBox()
-        me.block_used = new ArrayBox()
-        me.used = 0
-        me.free_top = 0
-        me.local_free_top = 0
-        me.alloc_count = 0
-        me.local_free_count = 0
-        me.reject_count = 0
-        me.peak_used = 0
-        me.requested_bytes = 0
         me.seedFreeBlocks()
     }
 

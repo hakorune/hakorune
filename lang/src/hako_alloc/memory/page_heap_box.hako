@@ -5,7 +5,9 @@
 using selfhost.hako_alloc.memory.layout_box as LayoutBox
 
 box HakoAllocHandle {
-    init { page_id, block_id, requested_size }
+    page_id: IntegerBox
+    block_id: IntegerBox
+    requested_size: IntegerBox
 
     birth(page_id, block_id, requested_size) {
         me.page_id = page_id
@@ -15,28 +17,26 @@ box HakoAllocHandle {
 }
 
 box HakoAllocPage {
-    init {
-        page_id, block_size, capacity, free_stack, block_used, use_counts,
-        requested_sizes, free_top,
-        alloc_count, free_count, reuse_count, current_used, peak_used,
-        requested_bytes
-    }
+    page_id: IntegerBox
+    block_size: IntegerBox
+    capacity: IntegerBox
+    free_stack: ArrayBox = new ArrayBox()
+    block_used: ArrayBox = new ArrayBox()
+    use_counts: ArrayBox = new ArrayBox()
+    requested_sizes: ArrayBox = new ArrayBox()
+    free_top: IntegerBox
+    alloc_count: IntegerBox = 0
+    free_count: IntegerBox = 0
+    reuse_count: IntegerBox = 0
+    current_used: IntegerBox = 0
+    peak_used: IntegerBox = 0
+    requested_bytes: IntegerBox = 0
 
     birth(page_id, block_size, capacity) {
         me.page_id = page_id
         me.block_size = block_size
         me.capacity = capacity
-        me.free_stack = new ArrayBox()
-        me.block_used = new ArrayBox()
-        me.use_counts = new ArrayBox()
-        me.requested_sizes = new ArrayBox()
         me.free_top = capacity
-        me.alloc_count = 0
-        me.free_count = 0
-        me.reuse_count = 0
-        me.current_used = 0
-        me.peak_used = 0
-        me.requested_bytes = 0
     }
 
     seedBlocks() {
@@ -111,19 +111,18 @@ box HakoAllocPage {
 }
 
 box HakoAllocHeap {
-    init { small_page, medium_page }
+    small_page: HakoAllocPage = new HakoAllocPage(
+        0,
+        LayoutBox.class_size(0),
+        LayoutBox.class_capacity(0)
+    )
+    medium_page: HakoAllocPage = new HakoAllocPage(
+        1,
+        LayoutBox.class_size(1),
+        LayoutBox.class_capacity(1)
+    )
 
     birth() {
-        me.small_page = new HakoAllocPage(
-            0,
-            LayoutBox.class_size(0),
-            LayoutBox.class_capacity(0)
-        )
-        me.medium_page = new HakoAllocPage(
-            1,
-            LayoutBox.class_size(1),
-            LayoutBox.class_capacity(1)
-        )
         me.small_page.seedBlocks()
         me.medium_page.seedBlocks()
     }

@@ -36,8 +36,8 @@ guard_require_files \
   "$ALLOCATOR_GROUP"
 
 guard_expect_in_file "$TAG" 'box HakoAllocPageQueue' "$QUEUE_BOX" "HakoAllocPageQueue must own page selection"
-guard_expect_in_file "$TAG" 'pages: ArrayBox' "$QUEUE_BOX" "page queue must expose pages as a stored member"
-guard_expect_in_file "$TAG" 'direct_page_index: IntegerBox' "$QUEUE_BOX" "page queue must expose direct-page cache state"
+guard_expect_in_file "$TAG" 'pages: ArrayBox = new ArrayBox\(\)' "$QUEUE_BOX" "page queue must initialize pages as a stored member"
+guard_expect_in_file "$TAG" 'direct_page_index: IntegerBox = -1' "$QUEUE_BOX" "page queue must initialize direct-page cache state"
 guard_expect_in_file "$TAG" 'selectPage' "$QUEUE_BOX" "page queue must expose selectPage"
 guard_expect_in_file "$TAG" 'refreshDirectPage' "$QUEUE_BOX" "page queue must expose refreshDirectPage"
 guard_expect_in_file "$TAG" 'freeCount' "$QUEUE_BOX" "page queue must observe page availability only"

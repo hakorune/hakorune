@@ -14,15 +14,10 @@ using selfhost.hako_alloc.memory.page_heap_box as HakoAllocPageHeap
 using selfhost.hako_alloc.memory.remote_free_policy_box as HakoAllocRemoteFreePolicy
 
 box HakoAllocProductionFacade {
-    heap: HakoAllocHeap
-    init { alloc_count, free_count, reject_count }
-
-    birth() {
-        me.heap = new HakoAllocHeap()
-        me.alloc_count = 0
-        me.free_count = 0
-        me.reject_count = 0
-    }
+    heap: HakoAllocHeap = new HakoAllocHeap()
+    alloc_count: IntegerBox = 0
+    free_count: IntegerBox = 0
+    reject_count: IntegerBox = 0
 
     allocate(size) {
         local handle = me.heap.allocate(size)

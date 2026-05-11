@@ -169,6 +169,10 @@ work. Splitting is mandatory if a row starts adding algorithm bodies back into
 - `M166B` cleaned the new M165/M166 state boxes to the current Unified Members
   stored-field style. New mimalloc `.hako` state boxes should use `field: Type`
   rather than legacy `init { ... }` slot lists.
+- `M172` converged the active mimalloc/hako_alloc state owners onto stored
+  field initializers after the parser row accepted `field = expr` and
+  `field: Type = expr`. Fixed defaults and owner construction now live at
+  declaration site; constructor parameters remain in `birth(...)`.
 - `M167` may create deterministic model pages in memory; it must not reserve
   OS memory. OSVM enters only in `M168`.
 - `M169` owns same-thread local free collection only. Remote-free and abandoned

@@ -41,9 +41,19 @@ guard_expect_in_file "$TAG" 'SizeClassBox.bin_size.8' "$LAYOUT" "LayoutBox mediu
 guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.layout_box as LayoutBox' "$PAGE_HEAP" "page heap should consume the compatibility facade"
 guard_expect_in_file "$TAG" 'LayoutBox.class_size.0' "$PAGE_HEAP" "page heap should keep legacy small-page callsite"
 guard_expect_in_file "$TAG" 'LayoutBox.class_size.1' "$PAGE_HEAP" "page heap should keep legacy medium-page callsite"
+guard_expect_in_file "$TAG" 'free_stack: ArrayBox = new ArrayBox\(\)' "$PAGE_HEAP" "page heap should initialize fixed page arrays at declaration site"
+guard_expect_in_file "$TAG" 'small_page: HakoAllocPage = new HakoAllocPage' "$PAGE_HEAP" "heap small page should use stored field initializer"
 guard_expect_in_file "$TAG" 'M164 layout migration closeout' "$PLAN" "plan must retain M164 row"
 guard_expect_in_file "$TAG" '293x-165 M164 Mimalloc Layout Migration Closeout' "$M164_CARD" "missing M164 card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M164 guard"
+
+if rg -n 'init[[:space:]]*\\{' "$PAGE_HEAP" >/tmp/"$TAG".legacy_init 2>&1; then
+  echo "[$TAG] ERROR: page_heap_box should use stored fields/initializers, not legacy init slots" >&2
+  cat /tmp/"$TAG".legacy_init >&2
+  rm -f /tmp/"$TAG".legacy_init
+  exit 1
+fi
+rm -f /tmp/"$TAG".legacy_init
 
 if rg -n 'class_id\(size\).*if .*<=|if n <= 32|if n <= 64|return 32|return 64' "$LAYOUT" >/tmp/"$TAG".layout 2>&1; then
   echo "[$TAG] ERROR: stale direct size-class ownership remains in LayoutBox" >&2

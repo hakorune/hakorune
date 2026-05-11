@@ -38,6 +38,15 @@ rm -f /tmp/"$TAG".inactive_pointer_rows
 rg -F -q 'memory.allocator_facade_box = "memory/allocator_facade_box.hako"' "$MODULE"
 rg -F -q 'using selfhost.hako_alloc.memory.page_heap_box as HakoAllocPageHeap' "$FACADE"
 rg -F -q 'box HakoAllocProductionFacade' "$FACADE"
+rg -F -q 'heap: HakoAllocHeap = new HakoAllocHeap()' "$FACADE"
+
+if rg -n 'init[[:space:]]*\\{' "$FACADE" >/tmp/"$TAG".legacy_init 2>&1; then
+  echo "[$TAG] ERROR: production facade should use stored fields/initializers, not legacy init slots" >&2
+  cat /tmp/"$TAG".legacy_init >&2
+  rm -f /tmp/"$TAG".legacy_init
+  exit 1
+fi
+rm -f /tmp/"$TAG".legacy_init
 
 pure_first_guard_build_toolchain
 
