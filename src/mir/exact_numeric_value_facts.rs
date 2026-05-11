@@ -18,6 +18,12 @@ pub use binary_op_routes::{
     ExactNumericBinaryOpRouteFact, ExactNumericBinaryOpRouteRejection,
     ExactNumericBinaryOpRouteRejectionKind,
 };
+mod compare_routes;
+use compare_routes::{collect_compare_route_facts, collect_compare_route_rejections};
+pub use compare_routes::{
+    ExactNumericCompareRouteFact, ExactNumericCompareRouteRejection,
+    ExactNumericCompareRouteRejectionKind,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExactNumericValueFact {
@@ -114,6 +120,8 @@ pub(crate) fn refresh_function_exact_numeric_value_facts(
     let rejections = collect_control_merge_rejections(function, &facts);
     let binary_op_route_facts = collect_binary_op_route_facts(function, &facts);
     let binary_op_route_rejections = collect_binary_op_route_rejections(function, &facts);
+    let compare_route_facts = collect_compare_route_facts(function, &facts);
+    let compare_route_rejections = collect_compare_route_rejections(function, &facts);
     let return_fact = exact_numeric_return_fact(function);
 
     let inserted = facts.len();
@@ -121,6 +129,8 @@ pub(crate) fn refresh_function_exact_numeric_value_facts(
     function.metadata.exact_numeric_value_fact_rejections = rejections;
     function.metadata.exact_numeric_binary_op_route_facts = binary_op_route_facts;
     function.metadata.exact_numeric_binary_op_route_rejections = binary_op_route_rejections;
+    function.metadata.exact_numeric_compare_route_facts = compare_route_facts;
+    function.metadata.exact_numeric_compare_route_rejections = compare_route_rejections;
     function.metadata.exact_numeric_return_fact = return_fact;
     inserted
 }

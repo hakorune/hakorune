@@ -1,10 +1,11 @@
 use super::super::{MirInterpreter, VMError, VMValue};
 use crate::mir::numeric_substrate::{
-    exact_numeric_checked_arithmetic, exact_numeric_mir_type_from_declared_name,
-    exact_numeric_value_from_dynamic_integer, ExactNumericArithmeticError,
-    ExactNumericArithmeticOp, ExactNumericConversionError, NumericTarget,
+    exact_numeric_checked_arithmetic, exact_numeric_compare,
+    exact_numeric_mir_type_from_declared_name, exact_numeric_value_from_dynamic_integer,
+    ExactNumericArithmeticError, ExactNumericArithmeticOp, ExactNumericCompareError,
+    ExactNumericCompareOp, ExactNumericConversionError, NumericTarget,
 };
-use crate::mir::{BasicBlockId, BinaryOp, ValueId};
+use crate::mir::{BasicBlockId, BinaryOp, CompareOp, ValueId};
 use std::convert::TryFrom;
 
 impl MirInterpreter {
@@ -79,6 +80,66 @@ impl MirInterpreter {
         Ok(true)
     }
 
+    pub(super) fn try_handle_exact_numeric_compare_reference(
+        &mut self,
+        block: BasicBlockId,
+        instruction_index: usize,
+        dst: ValueId,
+        op: CompareOp,
+        lhs: ValueId,
+        rhs: ValueId,
+    ) -> Result<bool, VMError> {
+        let Some(declared_type_name) = self.exact_numeric_compare_route_declared_type(
+            block,
+            instruction_index,
+            dst,
+            op,
+            lhs,
+            rhs,
+        ) else {
+            return Ok(false);
+        };
+
+        let Some(ty) = exact_numeric_mir_type_from_declared_name(
+            Some(declared_type_name.as_str()),
+            NumericTarget::host(),
+        ) else {
+            return Err(self.err_invalid(format!(
+                "[vm/exact_numeric_compare_route_invalid] declared_type={}",
+                declared_type_name
+            )));
+        };
+
+        let lhs_integer = self.exact_numeric_integer_operand("lhs", &declared_type_name, lhs)?;
+        let rhs_integer = self.exact_numeric_integer_operand("rhs", &declared_type_name, rhs)?;
+        let lhs_exact =
+            exact_numeric_value_from_dynamic_integer(lhs_integer, &ty).map_err(|error| {
+                self.exact_numeric_operand_range_error(
+                    "lhs",
+                    &declared_type_name,
+                    lhs_integer,
+                    error,
+                )
+            })?;
+        let rhs_exact =
+            exact_numeric_value_from_dynamic_integer(rhs_integer, &ty).map_err(|error| {
+                self.exact_numeric_operand_range_error(
+                    "rhs",
+                    &declared_type_name,
+                    rhs_integer,
+                    error,
+                )
+            })?;
+
+        let compare_op = exact_numeric_compare_op(op);
+        let result = exact_numeric_compare(&lhs_exact, &rhs_exact, compare_op)
+            .map_err(|error| self.exact_numeric_compare_error(&declared_type_name, error))?;
+
+        self.vm_fast_cache_set_bool(dst, result);
+        self.write_reg(dst, VMValue::Bool(result));
+        Ok(true)
+    }
+
     fn exact_numeric_binop_route_declared_type(
         &self,
         block: BasicBlockId,
@@ -96,6 +157,35 @@ impl MirInterpreter {
         function
             .metadata
             .exact_numeric_binary_op_route_facts
+            .iter()
+            .find(|fact| {
+                fact.block == block
+                    && fact.instruction_index == instruction_index
+                    && fact.dst == dst
+                    && fact.op == op
+                    && fact.lhs == lhs
+                    && fact.rhs == rhs
+            })
+            .map(|fact| fact.declared_type_name.clone())
+    }
+
+    fn exact_numeric_compare_route_declared_type(
+        &self,
+        block: BasicBlockId,
+        instruction_index: usize,
+        dst: ValueId,
+        op: CompareOp,
+        lhs: ValueId,
+        rhs: ValueId,
+    ) -> Option<String> {
+        let function = self
+            .cur_fn
+            .as_ref()
+            .and_then(|function_name| self.functions.get(function_name))?;
+
+        function
+            .metadata
+            .exact_numeric_compare_route_facts
             .iter()
             .find(|fact| {
                 fact.block == block
@@ -167,6 +257,22 @@ impl MirInterpreter {
             )),
         }
     }
+
+    fn exact_numeric_compare_error(
+        &self,
+        declared_type_name: &str,
+        error: ExactNumericCompareError,
+    ) -> VMError {
+        match error {
+            ExactNumericCompareError::TypeMismatch {
+                left_source_name,
+                right_source_name,
+            } => self.err_invalid(format!(
+                "[vm/exact_numeric_compare_type_mismatch] declared_type={} left={} right={}",
+                declared_type_name, left_source_name, right_source_name
+            )),
+        }
+    }
 }
 
 fn exact_numeric_arithmetic_op(op: BinaryOp) -> Option<ExactNumericArithmeticOp> {
@@ -175,6 +281,17 @@ fn exact_numeric_arithmetic_op(op: BinaryOp) -> Option<ExactNumericArithmeticOp>
         BinaryOp::Sub => Some(ExactNumericArithmeticOp::Sub),
         BinaryOp::Mul => Some(ExactNumericArithmeticOp::Mul),
         _ => None,
+    }
+}
+
+fn exact_numeric_compare_op(op: CompareOp) -> ExactNumericCompareOp {
+    match op {
+        CompareOp::Eq => ExactNumericCompareOp::Eq,
+        CompareOp::Ne => ExactNumericCompareOp::Ne,
+        CompareOp::Lt => ExactNumericCompareOp::Lt,
+        CompareOp::Le => ExactNumericCompareOp::Le,
+        CompareOp::Gt => ExactNumericCompareOp::Gt,
+        CompareOp::Ge => ExactNumericCompareOp::Ge,
     }
 }
 
@@ -236,6 +353,60 @@ mod tests {
             .exact_numeric_binary_op_route_facts
             .len();
         assert_eq!(route_count, 1);
+        module
+    }
+
+    fn module_with_exact_numeric_compare_route(
+        declared_type_name: &str,
+        op: CompareOp,
+    ) -> MirModule {
+        let entry = BasicBlockId::new(0);
+        let signature = FunctionSignature {
+            name: "Main.compare/2".to_string(),
+            params: vec![MirType::Integer, MirType::Integer],
+            return_type: MirType::Bool,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, entry);
+        let lhs = function.params[0];
+        let rhs = function.params[1];
+        let result = function.next_value_id();
+        function.metadata.declared_param_decls = vec![
+            MirParamDecl {
+                name: "lhs".to_string(),
+                declared_type_name: Some(declared_type_name.to_string()),
+            },
+            MirParamDecl {
+                name: "rhs".to_string(),
+                declared_type_name: Some(declared_type_name.to_string()),
+            },
+        ];
+
+        let block = function.get_block_mut(entry).unwrap();
+        block.add_instruction(MirInstruction::Compare {
+            dst: result,
+            op,
+            lhs,
+            rhs,
+        });
+        block.set_terminator(MirInstruction::Return {
+            value: Some(result),
+        });
+        let mut module = MirModule::new("exact_numeric_vm_reference_test".to_string());
+        module.add_function(function);
+
+        refresh_module_exact_numeric_value_facts(&mut module);
+        let route_count = module
+            .functions
+            .get("Main.compare/2")
+            .expect("test function must exist")
+            .metadata
+            .exact_numeric_compare_route_facts
+            .len();
+        assert_eq!(
+            route_count, 1,
+            "test module must publish one exact compare route"
+        );
         module
     }
 
@@ -336,5 +507,37 @@ mod tests {
         assert!(error
             .to_string()
             .contains("[vm/exact_numeric_op_result_unrepresentable]"));
+    }
+
+    #[test]
+    fn vm_reference_executes_exact_usize_compare_route() {
+        let module = module_with_exact_numeric_compare_route("usize", CompareOp::Lt);
+        let mut vm = MirInterpreter::new();
+
+        let result = vm
+            .execute_function_with_args(
+                &module,
+                "Main.compare/2",
+                &[VMValue::Integer(2), VMValue::Integer(40)],
+            )
+            .expect("exact usize compare route should execute");
+
+        assert_eq!(result, VMValue::Bool(true));
+    }
+
+    #[test]
+    fn vm_reference_rejects_negative_usize_compare_operand() {
+        let module = module_with_exact_numeric_compare_route("usize", CompareOp::Lt);
+        let mut vm = MirInterpreter::new();
+
+        let error = vm
+            .execute_function_with_args(
+                &module,
+                "Main.compare/2",
+                &[VMValue::Integer(-1), VMValue::Integer(2)],
+            )
+            .expect_err("negative usize compare operand must fail before generic i64 compare");
+
+        assert!(error.to_string().contains("[vm/exact_numeric_op_range]"));
     }
 }

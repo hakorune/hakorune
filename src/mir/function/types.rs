@@ -14,7 +14,8 @@ use crate::mir::{
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
     effect_capability_plan::{CapabilityPlan, EffectPlan},
     exact_numeric_value_facts::{
-        ExactNumericBinaryOpRouteFact, ExactNumericBinaryOpRouteRejection, ExactNumericReturnFact,
+        ExactNumericBinaryOpRouteFact, ExactNumericBinaryOpRouteRejection,
+        ExactNumericCompareRouteFact, ExactNumericCompareRouteRejection, ExactNumericReturnFact,
         ExactNumericValueFact, ExactNumericValueFactRejection,
     },
     exact_seed_backend_route::ExactSeedBackendRoute,
@@ -375,6 +376,14 @@ pub struct FunctionMetadata {
     /// published without mixing exact/dynamic values or mismatched exact source
     /// names.
     pub exact_numeric_binary_op_route_rejections: Vec<ExactNumericBinaryOpRouteRejection>,
+
+    /// Exact numeric compare route facts. These prove the compare should use
+    /// exact numeric ordering while still producing the canonical Bool result.
+    pub exact_numeric_compare_route_facts: Vec<ExactNumericCompareRouteFact>,
+
+    /// Compare sites where exact numeric compare routes could not be published
+    /// without mixing exact/dynamic values or mismatched exact source names.
+    pub exact_numeric_compare_route_rejections: Vec<ExactNumericCompareRouteRejection>,
 
     /// Function-level exact numeric return annotation fact.
     ///

@@ -52,7 +52,16 @@ impl MirInterpreter {
                         self.handle_unary_op(*dst, *op, *operand)?
                     }
                     MirInstruction::Compare { dst, op, lhs, rhs } => {
-                        self.handle_compare(*dst, *op, *lhs, *rhs)?
+                        if !self.try_handle_exact_numeric_compare_reference(
+                            block.id,
+                            instruction_index,
+                            *dst,
+                            *op,
+                            *lhs,
+                            *rhs,
+                        )? {
+                            self.handle_compare(*dst, *op, *lhs, *rhs)?;
+                        }
                     }
                     MirInstruction::Copy { dst, src } => self.handle_copy(*dst, *src)?,
                     MirInstruction::Load { dst, ptr } => self.handle_load(*dst, *ptr)?,
@@ -140,6 +149,13 @@ impl MirInterpreter {
             }
             if let MirInstruction::BinOp { dst, op, lhs, rhs } = inst {
                 if self.try_handle_exact_numeric_binop_reference(
+                    block.id, idx, *dst, *op, *lhs, *rhs,
+                )? {
+                    continue;
+                }
+            }
+            if let MirInstruction::Compare { dst, op, lhs, rhs } = inst {
+                if self.try_handle_exact_numeric_compare_reference(
                     block.id, idx, *dst, *op, *lhs, *rhs,
                 )? {
                     continue;

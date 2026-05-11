@@ -5,6 +5,7 @@ pub(crate) enum ExactNumericMergeSite {
     Phi,
     Select,
     BinaryOpArithmetic,
+    Compare,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

@@ -1,7 +1,7 @@
 use super::*;
 use crate::mir::function::MirParamDecl;
 use crate::mir::{
-    BinaryOp, ConstValue, EffectMask, FunctionSignature, MirModule, UserBoxFieldDecl,
+    BinaryOp, CompareOp, ConstValue, EffectMask, FunctionSignature, MirModule, UserBoxFieldDecl,
 };
 
 fn module_with_fields(function: MirFunction) -> MirModule {
@@ -359,6 +359,53 @@ fn publishes_sub_and_mul_routes_for_same_exact_operands() {
 }
 
 #[test]
+fn publishes_compare_route_for_same_exact_operands() {
+    let mut function = page_function();
+    let page = function.params[0];
+    let left = function.next_value_id();
+    let right = function.next_value_id();
+    let result = function.next_value_id();
+    let block = function.get_block_mut(BasicBlockId::new(0)).unwrap();
+    block.add_instruction(MirInstruction::FieldGet {
+        dst: left,
+        base: page,
+        field: "capacity".to_string(),
+        declared_type: Some(MirType::Integer),
+    });
+    block.add_instruction(MirInstruction::FieldGet {
+        dst: right,
+        base: page,
+        field: "capacity".to_string(),
+        declared_type: Some(MirType::Integer),
+    });
+    block.add_instruction(MirInstruction::Compare {
+        dst: result,
+        op: CompareOp::Lt,
+        lhs: left,
+        rhs: right,
+    });
+    let mut module = module_with_fields(function);
+
+    refresh_module_exact_numeric_value_facts(&mut module);
+
+    let metadata = &module.get_function("main").unwrap().metadata;
+    assert!(!metadata.exact_numeric_value_facts.contains_key(&result));
+    assert_eq!(
+        metadata.exact_numeric_compare_route_facts,
+        vec![ExactNumericCompareRouteFact {
+            block: BasicBlockId::new(0),
+            instruction_index: 2,
+            dst: result,
+            op: CompareOp::Lt,
+            lhs: left,
+            rhs: right,
+            declared_type_name: "usize".to_string(),
+        }]
+    );
+    assert!(metadata.exact_numeric_compare_route_rejections.is_empty());
+}
+
+#[test]
 fn records_select_rejection_for_exact_dynamic_mix() {
     let mut function = page_function();
     let page = function.params[0];
@@ -495,6 +542,52 @@ fn records_phi_rejection_for_exact_type_mismatch() {
             kind: ExactNumericValueFactRejectionKind::TypeMismatch {
                 left_source_name: "usize".to_string(),
                 right_source_name: "u64".to_string(),
+            },
+        }]
+    );
+}
+
+#[test]
+fn records_compare_rejection_for_exact_dynamic_mix() {
+    let mut function = page_function();
+    let page = function.params[0];
+    let exact = function.next_value_id();
+    let dynamic = function.next_value_id();
+    let result = function.next_value_id();
+    let block = function.get_block_mut(BasicBlockId::new(0)).unwrap();
+    block.add_instruction(MirInstruction::FieldGet {
+        dst: exact,
+        base: page,
+        field: "capacity".to_string(),
+        declared_type: Some(MirType::Integer),
+    });
+    block.add_instruction(MirInstruction::Const {
+        dst: dynamic,
+        value: ConstValue::Integer(7),
+    });
+    block.add_instruction(MirInstruction::Compare {
+        dst: result,
+        op: CompareOp::Ge,
+        lhs: exact,
+        rhs: dynamic,
+    });
+    let mut module = module_with_fields(function);
+
+    refresh_module_exact_numeric_value_facts(&mut module);
+
+    let metadata = &module.get_function("main").unwrap().metadata;
+    assert!(metadata.exact_numeric_compare_route_facts.is_empty());
+    assert_eq!(
+        metadata.exact_numeric_compare_route_rejections,
+        vec![ExactNumericCompareRouteRejection {
+            block: BasicBlockId::new(0),
+            instruction_index: 2,
+            dst: result,
+            op: CompareOp::Ge,
+            lhs: exact,
+            rhs: dynamic,
+            kind: ExactNumericCompareRouteRejectionKind::MixedExactAndDynamic {
+                exact_source_name: "usize".to_string(),
             },
         }]
     );
