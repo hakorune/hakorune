@@ -40,12 +40,16 @@
 - `294x-00`: phase lock and full visible task inventory landed.
 - `294x-01`: code-side target pointer-width and target-resolved numeric kind
   SSOT landed in `src/mir/numeric_substrate.rs`.
+- `294x-02`: parser and AST now preserve parameter declared-type metadata and
+  accepted return type annotations while keeping `params` as the names-only
+  compatibility surface.
 
 ## First Implementation Direction
 
 Start with metadata preservation before runtime behavior:
 
-1. preserve parameter/return declared numeric metadata through AST/JSON/MIR;
+1. round-trip parameter/return declared numeric metadata through AST JSON /
+   Program(JSON);
 2. introduce exact numeric type representation in MIR;
 3. add verifier/fail-fast boundaries;
 4. add VM/backend exact `usize` behavior;

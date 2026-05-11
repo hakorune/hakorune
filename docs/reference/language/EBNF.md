@@ -196,7 +196,8 @@ params         := param (',' param)*
 param          := IDENT (':' TYPE_REF)?
 TYPE_REF       := IDENT ('.' IDENT)* ('<' TYPE_REF (',' TYPE_REF)* '>')? ('[' ']')*
                   ; parameter list (Phase 285A1.5+)
-                  ; Type annotations are syntax-only in AST v0 (param names remain canonical).
+                  ; Type annotations are preserved as AST metadata.
+                  ; `params` remains the canonical names-only compatibility surface.
                   ; Numeric substrate names such as i64/u64/usize are IDENT
                   ; names here. Literal suffix grammar is not live.
 

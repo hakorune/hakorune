@@ -10,6 +10,8 @@ fn function_decl(name: String, body: Vec<ASTNode>) -> ASTNode {
     ASTNode::FunctionDeclaration {
         name,
         params: vec![],
+        param_decls: vec![],
+        return_type_name: None,
         body,
         is_static: false,
         is_override: false,
@@ -271,6 +273,8 @@ fn empty_birth_constructor(body: Vec<ASTNode>) -> ASTNode {
     ASTNode::FunctionDeclaration {
         name: "birth".to_string(),
         params: vec![],
+        param_decls: vec![],
+        return_type_name: None,
         body,
         is_static: false,
         is_override: false,

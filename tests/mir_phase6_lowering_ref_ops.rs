@@ -99,6 +99,8 @@ fn test_mir_phase6_lowering_ref_ops() {
     let main_function = ASTNode::FunctionDeclaration {
         name: "main".to_string(),
         params: vec![],
+        param_decls: vec![],
+        return_type_name: None,
         body: main_body,
         is_static: false,
         is_override: false,

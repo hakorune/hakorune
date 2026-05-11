@@ -40,6 +40,8 @@ mod tests {
         ASTNode::FunctionDeclaration {
             name: "f".to_string(),
             params: vec![],
+            param_decls: vec![],
+            return_type_name: None,
             body: vec![],
             is_static: false,
             is_override: false,

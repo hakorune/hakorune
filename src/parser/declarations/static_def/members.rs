@@ -92,46 +92,13 @@ pub(crate) fn try_parse_method_or_field(
     // Method
     let attrs = p.take_pending_runes_for_static_box_method()?;
     p.advance(); // consume '('
-    let mut params = Vec::new();
-    while !p.match_token(&TokenType::RPAREN) && !p.is_at_end() {
-        // Peek at the current token to ensure forward progress
-        match p.current_token().token_type {
-            TokenType::IDENTIFIER(ref param) => {
-                params.push(param.clone());
-                p.advance();
-                crate::parser::common::params::maybe_consume_param_type_annotation(
-                    p,
-                    "static box method",
-                )?;
-            }
-            TokenType::COMMA => {
-                p.advance();
-            }
-            TokenType::NEWLINE => {
-                // Stage-3 tolerant mode: allow newlines in parameter list
-                p.advance();
-            }
-            TokenType::RPAREN => {
-                break;
-            }
-            _ => {
-                // Unexpected token handling
-                if crate::config::env::parser_method_param_strict_enabled() {
-                    return Err(ParseError::UnexpectedToken {
-                        found: p.current_token().token_type.clone(),
-                        expected:
-                            "parameter identifier (optional ': Type'), comma, newline, or ')'"
-                                .to_string(),
-                        line: p.current_token().line,
-                    });
-                } else {
-                    // Tolerant mode: skip unexpected token to avoid infinite loop
-                    p.advance();
-                }
-            }
-        }
-    }
+    let param_decls = crate::parser::common::params::parse_param_decl_list(p, "static box method")?;
+    let params = crate::ast::ParamDecl::names(&param_decls);
     p.consume(TokenType::RPAREN)?;
+    let return_type_name = crate::parser::common::params::parse_optional_return_type_annotation(
+        p,
+        "static box method",
+    )?;
     // Allow NEWLINE(s) between ')' and '{' of method body
     while p.match_token(&TokenType::NEWLINE) {
         p.advance();
@@ -147,6 +114,8 @@ pub(crate) fn try_parse_method_or_field(
     let method = ASTNode::FunctionDeclaration {
         name: name.clone(),
         params,
+        param_decls,
+        return_type_name,
         body,
         // Methods inside a static box are semantically static
         is_static: true,

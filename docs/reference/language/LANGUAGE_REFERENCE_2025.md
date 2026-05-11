@@ -100,9 +100,9 @@ box ClassName {
     methodName(arg1, arg2) {
         return me.field1 + arg1
     }
-    # 注: 引数の型注釈 `arg: Type` は構文として受理されます。
-    # AST v0 / JSON v0 では param 名だけを保持するため、現時点では
-    # runtime 型契約ではなく parser/tooling 用 metadata です。
+    # 注: 引数の型注釈 `arg: Type` と戻り値注釈 `): Type` は
+    # AST metadata として保持されます。`params` は互換用に
+    # param 名だけを持ち、JSON v0 round-trip と runtime 型契約は後続行です。
 	    
 	    # デストラクタ（fini）
 	    fini() {

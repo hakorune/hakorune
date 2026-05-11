@@ -613,25 +613,30 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
             }),
             span: Span::unknown(),
         },
-        "FunctionDeclaration" => ASTNode::FunctionDeclaration {
-            name: v.get("name")?.as_str()?.to_string(),
-            params: v
+        "FunctionDeclaration" => {
+            let params = v
                 .get("params")?
                 .as_array()?
                 .iter()
                 .filter_map(|s| s.as_str().map(|x| x.to_string()))
-                .collect(),
-            body: v
-                .get("body")?
-                .as_array()?
-                .iter()
-                .filter_map(json_to_ast)
-                .collect(),
-            is_static: v.get("static").and_then(|b| b.as_bool()).unwrap_or(false),
-            is_override: v.get("override").and_then(|b| b.as_bool()).unwrap_or(false),
-            attrs: json_to_attrs(v.get("attrs")),
-            span: Span::unknown(),
-        },
+                .collect::<Vec<_>>();
+            ASTNode::FunctionDeclaration {
+                name: v.get("name")?.as_str()?.to_string(),
+                param_decls: crate::ast::ParamDecl::from_names(&params),
+                params,
+                return_type_name: None,
+                body: v
+                    .get("body")?
+                    .as_array()?
+                    .iter()
+                    .filter_map(json_to_ast)
+                    .collect(),
+                is_static: v.get("static").and_then(|b| b.as_bool()).unwrap_or(false),
+                is_override: v.get("override").and_then(|b| b.as_bool()).unwrap_or(false),
+                attrs: json_to_attrs(v.get("attrs")),
+                span: Span::unknown(),
+            }
+        }
         "EnumDeclaration" => ASTNode::EnumDeclaration {
             name: v.get("name")?.as_str()?.to_string(),
             variants: v

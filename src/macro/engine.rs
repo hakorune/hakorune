@@ -304,6 +304,11 @@ fn build_equals_method(_box_name: &str, fields: &Vec<String>) -> ASTNode {
     ASTNode::FunctionDeclaration {
         name: "equals".to_string(),
         params: vec![param_name.clone()],
+        param_decls: vec![crate::ast::ParamDecl {
+            name: param_name.clone(),
+            declared_type_name: None,
+        }],
+        return_type_name: None,
         body: vec![ASTNode::Return {
             value: Some(Box::new(cond)),
             span: Span::unknown(),
@@ -330,6 +335,8 @@ fn build_tostring_method(box_name: &str, fields: &Vec<String>) -> ASTNode {
     ASTNode::FunctionDeclaration {
         name: "toString".to_string(),
         params: vec![],
+        param_decls: vec![],
+        return_type_name: None,
         body: vec![ASTNode::Return {
             value: Some(Box::new(expr)),
             span: Span::unknown(),

@@ -140,6 +140,8 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
             A::FunctionDeclaration {
                 name,
                 params,
+                param_decls,
+                return_type_name,
                 body,
                 is_static,
                 is_override,
@@ -148,6 +150,8 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
             } => A::FunctionDeclaration {
                 name,
                 params,
+                param_decls,
+                return_type_name,
                 body: body
                     .into_iter()
                     .map(|s| rename_calls(&s, mapping))
@@ -252,6 +256,8 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                 A::FunctionDeclaration {
                     name,
                     params,
+                    param_decls,
+                    return_type_name,
                     body,
                     is_static,
                     is_override,
@@ -263,6 +269,8 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                         &A::FunctionDeclaration {
                             name: name.clone(),
                             params: params.clone(),
+                            param_decls: param_decls.clone(),
+                            return_type_name: return_type_name.clone(),
                             body: body.clone(),
                             is_static,
                             is_override,
@@ -276,6 +284,8 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                         &A::FunctionDeclaration {
                             name: name.clone(),
                             params: params.clone(),
+                            param_decls: param_decls.clone(),
+                            return_type_name: return_type_name.clone(),
                             body: body.clone(),
                             is_static,
                             is_override,
@@ -292,6 +302,8 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                         let lifted = A::FunctionDeclaration {
                             name: new_name.clone(),
                             params,
+                            param_decls,
+                            return_type_name,
                             body,
                             is_static: true,
                             is_override,
@@ -328,6 +340,8 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
             A::FunctionDeclaration {
                 name,
                 params,
+                param_decls,
+                return_type_name,
                 body,
                 is_static,
                 is_override,
@@ -340,6 +354,8 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                 A::FunctionDeclaration {
                     name,
                     params,
+                    param_decls,
+                    return_type_name,
                     body: body3,
                     is_static,
                     is_override,

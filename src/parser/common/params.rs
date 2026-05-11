@@ -16,17 +16,53 @@ fn skip_newlines(p: &mut NyashParser) {
     }
 }
 
-/// Consume an optional `: Type` annotation in a parameter list.
-///
-/// Accepted type token shapes are intentionally syntax-only and conservative:
-/// `Ident`, `Ident.Ident`, optional generic args `<...>`, and optional `[]`.
-/// The parsed type is ignored at AST v0 (params remain `Vec<String>`).
-pub(crate) fn maybe_consume_param_type_annotation(
+#[derive(Clone, Copy)]
+enum TypeAnnotationSite {
+    Parameter,
+    Return,
+}
+
+impl TypeAnnotationSite {
+    fn label(self) -> &'static str {
+        match self {
+            TypeAnnotationSite::Parameter => "parameter",
+            TypeAnnotationSite::Return => "return",
+        }
+    }
+
+    fn empty_expected(self, context: &str) -> String {
+        match self {
+            TypeAnnotationSite::Parameter => {
+                format!("type name after ':' in {} parameter list", context)
+            }
+            TypeAnnotationSite::Return => {
+                format!("type name after ':' in {} return annotation", context)
+            }
+        }
+    }
+
+    fn closed_expected(self, context: &str) -> String {
+        match self {
+            TypeAnnotationSite::Parameter => {
+                format!(
+                    "closed generic/array type annotation in {} parameter list",
+                    context
+                )
+            }
+            TypeAnnotationSite::Return => {
+                format!("closed generic/array return type annotation in {}", context)
+            }
+        }
+    }
+}
+
+fn parse_optional_type_annotation(
     p: &mut NyashParser,
     context: &str,
-) -> Result<(), ParseError> {
+    site: TypeAnnotationSite,
+) -> Result<Option<String>, ParseError> {
     if !p.match_token(&TokenType::COLON) {
-        return Ok(());
+        return Ok(None);
     }
     p.advance(); // consume ':'
     skip_newlines(p);
@@ -34,20 +70,24 @@ pub(crate) fn maybe_consume_param_type_annotation(
     let mut consumed_any = false;
     let mut generic_depth: i32 = 0;
     let mut array_depth: i32 = 0;
+    let mut type_text = String::new();
 
     while !p.is_at_end() {
         match &p.current_token().token_type {
-            TokenType::IDENTIFIER(_) => {
+            TokenType::IDENTIFIER(name) => {
                 consumed_any = true;
+                type_text.push_str(name);
                 p.advance();
             }
             TokenType::DOT => {
                 consumed_any = true;
+                type_text.push('.');
                 p.advance();
             }
             TokenType::LESS => {
                 consumed_any = true;
                 generic_depth += 1;
+                type_text.push('<');
                 p.advance();
             }
             TokenType::GREATER => {
@@ -56,11 +96,13 @@ pub(crate) fn maybe_consume_param_type_annotation(
                 }
                 consumed_any = true;
                 generic_depth -= 1;
+                type_text.push('>');
                 p.advance();
             }
             TokenType::LBRACK => {
                 consumed_any = true;
                 array_depth += 1;
+                type_text.push('[');
                 p.advance();
             }
             TokenType::RBRACK => {
@@ -68,24 +110,65 @@ pub(crate) fn maybe_consume_param_type_annotation(
                     return Err(ParseError::UnexpectedToken {
                         found: p.current_token().token_type.clone(),
                         expected: format!(
-                            "balanced array suffix in {} parameter type annotation",
-                            context
+                            "balanced array suffix in {} {} type annotation",
+                            context,
+                            site.label()
                         ),
                         line: p.current_token().line,
                     });
                 }
                 consumed_any = true;
                 array_depth -= 1;
+                type_text.push(']');
                 p.advance();
             }
-            TokenType::COMMA | TokenType::RPAREN => {
+            TokenType::COMMA => {
+                if generic_depth == 0 && array_depth == 0 {
+                    match site {
+                        TypeAnnotationSite::Parameter => break,
+                        TypeAnnotationSite::Return => {
+                            return Err(ParseError::UnexpectedToken {
+                                found: p.current_token().token_type.clone(),
+                                expected: format!(
+                                    "method body after {} return type annotation",
+                                    context
+                                ),
+                                line: p.current_token().line,
+                            });
+                        }
+                    }
+                }
+                consumed_any = true;
+                type_text.push(',');
+                p.advance();
+            }
+            TokenType::RPAREN => {
+                if matches!(site, TypeAnnotationSite::Parameter)
+                    && generic_depth == 0
+                    && array_depth == 0
+                {
+                    break;
+                }
+                return Err(ParseError::UnexpectedToken {
+                    found: p.current_token().token_type.clone(),
+                    expected: format!(
+                        "balanced generic/array delimiters in {} {} type annotation",
+                        context,
+                        site.label()
+                    ),
+                    line: p.current_token().line,
+                });
+            }
+            TokenType::LBRACE | TokenType::RBRACE | TokenType::SEMICOLON
+                if matches!(site, TypeAnnotationSite::Return) =>
+            {
                 if generic_depth == 0 && array_depth == 0 {
                     break;
                 }
                 return Err(ParseError::UnexpectedToken {
                     found: p.current_token().token_type.clone(),
                     expected: format!(
-                        "balanced generic/array delimiters in {} parameter type annotation",
+                        "balanced generic/array delimiters in {} return type annotation",
                         context
                     ),
                     line: p.current_token().line,
@@ -97,7 +180,7 @@ pub(crate) fn maybe_consume_param_type_annotation(
             _ => {
                 return Err(ParseError::UnexpectedToken {
                     found: p.current_token().token_type.clone(),
-                    expected: format!("type name in {} parameter type annotation", context),
+                    expected: format!("type name in {} {} type annotation", context, site.label()),
                     line: p.current_token().line,
                 });
             }
@@ -107,21 +190,32 @@ pub(crate) fn maybe_consume_param_type_annotation(
     if !consumed_any {
         return Err(ParseError::UnexpectedToken {
             found: p.current_token().token_type.clone(),
-            expected: format!("type name after ':' in {} parameter list", context),
+            expected: site.empty_expected(context),
             line: p.current_token().line,
         });
     }
     if generic_depth != 0 || array_depth != 0 {
         return Err(ParseError::UnexpectedToken {
             found: p.current_token().token_type.clone(),
-            expected: format!(
-                "closed generic/array type annotation in {} parameter list",
-                context
-            ),
+            expected: site.closed_expected(context),
             line: p.current_token().line,
         });
     }
-    Ok(())
+    Ok(Some(type_text))
+}
+
+pub(crate) fn parse_optional_param_type_annotation(
+    p: &mut NyashParser,
+    context: &str,
+) -> Result<Option<String>, ParseError> {
+    parse_optional_type_annotation(p, context, TypeAnnotationSite::Parameter)
+}
+
+pub(crate) fn parse_optional_return_type_annotation(
+    p: &mut NyashParser,
+    context: &str,
+) -> Result<Option<String>, ParseError> {
+    parse_optional_type_annotation(p, context, TypeAnnotationSite::Return)
 }
 
 /// Parse parameter name list with Fail-Fast on unexpected tokens
@@ -134,7 +228,7 @@ pub(crate) fn maybe_consume_param_type_annotation(
 /// * `context` - Context string for error messages ("method", "constructor", "function", etc.)
 ///
 /// # Returns
-/// * `Ok(Vec<String>)` - List of parameter names
+/// * `Ok(Vec<ParamDecl>)` - Parameter names plus preserved source type metadata
 /// * `Err(ParseError)` - Parse error with context-aware message
 ///
 /// # Features
@@ -142,10 +236,10 @@ pub(crate) fn maybe_consume_param_type_annotation(
 /// * Explicit token handling: All token types explicitly matched
 /// * Fail-Fast: Either advances or errors (no infinite loop possible)
 /// * Unified error messages: Single source of truth for error text
-pub(crate) fn parse_param_name_list(
+pub(crate) fn parse_param_decl_list(
     p: &mut NyashParser,
     context: &str,
-) -> Result<Vec<String>, ParseError> {
+) -> Result<Vec<crate::ast::ParamDecl>, ParseError> {
     let mut params = Vec::new();
     let mut last_token_position: Option<(usize, usize)> = None;
 
@@ -170,9 +264,13 @@ pub(crate) fn parse_param_name_list(
 
         match &p.current_token().token_type {
             TokenType::IDENTIFIER(param) => {
-                params.push(param.clone());
+                let name = param.clone();
                 p.advance();
-                maybe_consume_param_type_annotation(p, context)?;
+                let declared_type_name = parse_optional_param_type_annotation(p, context)?;
+                params.push(crate::ast::ParamDecl {
+                    name,
+                    declared_type_name,
+                });
 
                 skip_newlines(p);
 

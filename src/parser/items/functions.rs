@@ -30,10 +30,12 @@ impl NyashParser {
         // パラメータリストをパース
         self.consume(TokenType::LPAREN)?;
 
-        // Phase 285A1.5: Use shared helper to prevent parser hangs on unsupported type annotations
-        let params = crate::parser::common::params::parse_param_name_list(self, "function")?;
+        let param_decls = crate::parser::common::params::parse_param_decl_list(self, "function")?;
+        let params = crate::ast::ParamDecl::names(&param_decls);
 
         self.consume(TokenType::RPAREN)?;
+        let return_type_name =
+            crate::parser::common::params::parse_optional_return_type_annotation(self, "function")?;
 
         // 関数本体をパース（共通ブロックヘルパー）
         let body = self.parse_block_statements()?;
@@ -41,6 +43,8 @@ impl NyashParser {
         Ok(ASTNode::FunctionDeclaration {
             name,
             params,
+            param_decls,
+            return_type_name,
             body,
             is_static: false,   // 通常の関数は静的でない
             is_override: false, // デフォルトは非オーバーライド

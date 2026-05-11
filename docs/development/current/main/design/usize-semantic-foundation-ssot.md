@@ -33,10 +33,12 @@ Live today:
 - target pointer width and target-resolved numeric kind metadata are owned by
   `NumericTarget` / `NumericKind` in `src/mir/numeric_substrate.rs`;
 - field annotations can preserve declared type names;
+- method, constructor, interface, static method, and top-level function
+  parameter annotations are preserved in AST parameter metadata while the
+  existing `params` surface remains names-only;
+- accepted return type annotations are preserved in AST metadata;
 - typed-object planning can use numeric annotations as inline i64 storage
   hints;
-- method and `birth` parameter annotations are accepted by the parser but AST
-  v0 keeps only parameter names;
 - VM runtime values use `Integer(i64)`;
 - current `>>` is signed i64 arithmetic right shift.
 

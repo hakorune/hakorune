@@ -179,6 +179,8 @@ impl ReplAstRewriter {
             ASTNode::FunctionDeclaration {
                 name,
                 params,
+                param_decls,
+                return_type_name,
                 body,
                 is_static,
                 is_override,
@@ -199,6 +201,8 @@ impl ReplAstRewriter {
                 ASTNode::FunctionDeclaration {
                     name,
                     params,
+                    param_decls,
+                    return_type_name,
                     body: rewritten_body,
                     is_static,
                     is_override,

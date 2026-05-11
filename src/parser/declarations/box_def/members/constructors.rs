@@ -25,8 +25,9 @@ pub(crate) fn try_parse_constructor(
         p.advance(); // consume 'init'
         p.consume(TokenType::LPAREN)?;
 
-        // Phase 285A1.5: Use shared helper to prevent parser hangs on unsupported type annotations
-        let params = crate::parser::common::params::parse_param_name_list(p, "constructor (init)")?;
+        let param_decls =
+            crate::parser::common::params::parse_param_decl_list(p, "constructor (init)")?;
+        let params = crate::ast::ParamDecl::names(&param_decls);
 
         p.consume(TokenType::RPAREN)?;
         let mut body = p.parse_block_statements()?;
@@ -41,6 +42,8 @@ pub(crate) fn try_parse_constructor(
         let node = ASTNode::FunctionDeclaration {
             name: name.clone(),
             params: params.clone(),
+            param_decls,
+            return_type_name: None,
             body,
             is_static: false,
             is_override: false,
@@ -65,14 +68,17 @@ pub(crate) fn try_parse_constructor(
         p.advance(); // consume 'pack'
         p.consume(TokenType::LPAREN)?;
 
-        // Phase 285A1.5: Use shared helper to prevent parser hangs on unsupported type annotations
-        let params = crate::parser::common::params::parse_param_name_list(p, "constructor (pack)")?;
+        let param_decls =
+            crate::parser::common::params::parse_param_decl_list(p, "constructor (pack)")?;
+        let params = crate::ast::ParamDecl::names(&param_decls);
 
         p.consume(TokenType::RPAREN)?;
         let body = p.parse_block_statements()?;
         let node = ASTNode::FunctionDeclaration {
             name: name.clone(),
             params: params.clone(),
+            param_decls,
+            return_type_name: None,
             body,
             is_static: false,
             is_override: false,
@@ -97,15 +103,17 @@ pub(crate) fn try_parse_constructor(
         p.advance(); // consume 'birth'
         p.consume(TokenType::LPAREN)?;
 
-        // Phase 285A1.5: Use shared helper to prevent parser hangs on unsupported type annotations
-        let params =
-            crate::parser::common::params::parse_param_name_list(p, "constructor (birth)")?;
+        let param_decls =
+            crate::parser::common::params::parse_param_decl_list(p, "constructor (birth)")?;
+        let params = crate::ast::ParamDecl::names(&param_decls);
 
         p.consume(TokenType::RPAREN)?;
         let body = p.parse_block_statements()?;
         let node = ASTNode::FunctionDeclaration {
             name: name.clone(),
             params: params.clone(),
+            param_decls,
+            return_type_name: None,
             body,
             is_static: false,
             is_override: false,

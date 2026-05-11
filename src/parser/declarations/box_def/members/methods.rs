@@ -17,14 +17,18 @@ pub(crate) fn try_parse_method(
     let attrs = p.take_pending_runes_for_instance_method()?;
     p.advance(); // consume '('
 
-    // Phase 285A1.5: Use shared helper to prevent parser hangs on unsupported type annotations
-    let params = crate::parser::common::params::parse_param_name_list(p, "method")?;
+    let param_decls = crate::parser::common::params::parse_param_decl_list(p, "method")?;
+    let params = crate::ast::ParamDecl::names(&param_decls);
     p.consume(TokenType::RPAREN)?;
+    let return_type_name =
+        crate::parser::common::params::parse_optional_return_type_annotation(p, "method")?;
     let body = p.parse_block_statements()?;
 
     let method = ASTNode::FunctionDeclaration {
         name: method_name.clone(),
         params,
+        param_decls,
+        return_type_name,
         body,
         is_static: false,
         is_override,

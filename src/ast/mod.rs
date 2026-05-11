@@ -62,6 +62,8 @@ pub enum StructureNode {
     FunctionDeclaration {
         name: String,
         params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
         body: Vec<ASTNode>,
         is_static: bool,   // 🔥 静的メソッドフラグ
         is_override: bool, // 🔥 オーバーライドフラグ
@@ -211,6 +213,33 @@ pub struct FieldDecl {
     pub name: String,
     pub declared_type_name: Option<String>,
     pub is_weak: bool,
+}
+
+/// Function or constructor parameter declaration metadata.
+///
+/// `params: Vec<String>` remains the canonical names-only surface for existing
+/// AST v0 consumers. This richer shape preserves source type annotations for
+/// later exact numeric and verifier rows.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ParamDecl {
+    pub name: String,
+    pub declared_type_name: Option<String>,
+}
+
+impl ParamDecl {
+    pub fn names(param_decls: &[ParamDecl]) -> Vec<String> {
+        param_decls.iter().map(|decl| decl.name.clone()).collect()
+    }
+
+    pub fn from_names(params: &[String]) -> Vec<ParamDecl> {
+        params
+            .iter()
+            .map(|name| ParamDecl {
+                name: name.clone(),
+                declared_type_name: None,
+            })
+            .collect()
+    }
 }
 
 /// First-class enum variant declaration carried from parser surface.
@@ -598,6 +627,8 @@ pub enum ASTNode {
     FunctionDeclaration {
         name: String,
         params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
         body: Vec<ASTNode>,
         is_static: bool,   // 🔥 静的メソッドフラグ
         is_override: bool, // 🔥 オーバーライドフラグ

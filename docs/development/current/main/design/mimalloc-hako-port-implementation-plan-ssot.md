@@ -179,9 +179,10 @@ work. Splitting is mandatory if a row starts adding algorithm bodies back into
 - `M174` fixed the pre-port syntax/spec decision: `usize` remains accepted as
   annotation text and MIR numeric substrate metadata, but hako_alloc/mimalloc
   state fields continue to use `i64` until exact pointer-sized unsigned
-  semantics, range checks, and overflow behavior are live. Parameter type
-  annotations are syntax-only metadata in AST v0, and stored field initializers
-  are per-construction values.
+  semantics, range checks, and overflow behavior are live. Parameter and
+  accepted return type annotations are now preserved as AST metadata, JSON
+  round-trip remains a later 294x row, and stored field initializers are
+  per-construction values.
 - `M167` may create deterministic model pages in memory; it must not reserve
   OS memory. OSVM enters only in `M168`.
 - `M169` owns same-thread local free collection only. Remote-free and abandoned

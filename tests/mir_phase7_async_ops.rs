@@ -60,6 +60,8 @@ fn test_mir_phase7_basic_nowait_await() {
     let main_method = ASTNode::FunctionDeclaration {
         name: "main".to_string(),
         params: vec![],
+        param_decls: vec![],
+        return_type_name: None,
         body: main_body,
         is_static: false,
         is_override: false,
@@ -225,6 +227,8 @@ fn test_mir_phase7_multiple_nowait_await() {
     let main_method = ASTNode::FunctionDeclaration {
         name: "main".to_string(),
         params: vec![],
+        param_decls: vec![],
+        return_type_name: None,
         body: main_body,
         is_static: false,
         is_override: false,
@@ -351,6 +355,8 @@ fn test_mir_phase7_nested_await() {
     let main_method = ASTNode::FunctionDeclaration {
         name: "main".to_string(),
         params: vec![],
+        param_decls: vec![],
+        return_type_name: None,
         body: main_body,
         is_static: false,
         is_override: false,

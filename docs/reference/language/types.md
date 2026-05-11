@@ -43,8 +43,10 @@ Current live semantics are intentionally narrow:
 - The current `>>` operator in that lane is signed i64 arithmetic right shift.
 - Typed-object EXE storage planning may use these names as inline i64 slot
   storage hints.
-- The original declared type name is preserved so later exact-width rows can
-  refine semantics without rediscovering source text.
+- Field, parameter, and accepted return annotations preserve the original
+  declared type text in AST metadata so later exact-width rows can refine
+  semantics without rediscovering source text. JSON round-trip of this richer
+  metadata is a later row.
 - Pointer-sized names resolve their metadata width through the MIR numeric
   target owner (`src/mir/numeric_substrate.rs`). This is target metadata only;
   it does not enable exact `usize` runtime behavior by itself.

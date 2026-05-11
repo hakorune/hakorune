@@ -55,6 +55,10 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
     let mut methods = HashMap::new();
 
     while !p.match_token(&TokenType::RBRACE) && !p.is_at_end() {
+        if p.match_token(&TokenType::NEWLINE) || p.match_token(&TokenType::SEMICOLON) {
+            p.advance();
+            continue;
+        }
         if p.maybe_parse_opt_annotation_noop(
             crate::parser::statements::helpers::AnnotationSite::Member,
         )? {
@@ -69,14 +73,22 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
                 let attrs = p.take_pending_runes_for_interface_method()?;
                 p.advance(); // consume '('
 
-                let params =
-                    crate::parser::common::params::parse_param_name_list(p, "interface method")?;
+                let param_decls =
+                    crate::parser::common::params::parse_param_decl_list(p, "interface method")?;
+                let params = crate::ast::ParamDecl::names(&param_decls);
                 p.consume(TokenType::RPAREN)?;
+                let return_type_name =
+                    crate::parser::common::params::parse_optional_return_type_annotation(
+                        p,
+                        "interface method",
+                    )?;
 
                 // インターフェースメソッドは実装なし（空のbody）
                 let method_decl = ASTNode::FunctionDeclaration {
                     name: method_name.clone(),
                     params,
+                    param_decls,
+                    return_type_name,
                     body: vec![],       // 空の実装
                     is_static: false,   // インターフェースメソッドは通常静的でない
                     is_override: false, // デフォルトは非オーバーライド
