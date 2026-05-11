@@ -68,17 +68,18 @@
   contracts for real exact numeric `FieldSet` producers after optimization and
   before verification, with verifier checks consuming the same field-write
   facts owner.
+- `294x-06f`: unsupported non-VM backend routes now fail fast when a module
+  contains exact numeric runtime-check contracts, while MIR JSON diagnostic
+  export stays available.
 
 ## First Implementation Direction
 
 Start with metadata preservation before runtime behavior:
 
 1. attach exact numeric metadata to MIR facts/signature consumers;
-2. make unsupported backend routes fail fast when exact numeric contracts are
-   present;
-3. add VM/backend exact `usize` behavior;
-4. add checked arithmetic / unsigned compare / logical shift;
-5. migrate hako_alloc non-negative fields.
+2. add VM/backend exact `usize` behavior;
+3. add checked arithmetic / unsigned compare / logical shift;
+4. migrate hako_alloc non-negative fields.
 
 This keeps the source truth available before any lowerer claims exact
 semantics.

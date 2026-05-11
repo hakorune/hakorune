@@ -14,9 +14,13 @@ use crate::boxes::ConsoleBox;
 
 /// WASM v2エントリポイント: 統一vtableディスパッチの最小テスト
 pub fn compile_and_execute_v2(
-    _module: &crate::mir::MirModule,
+    module: &crate::mir::MirModule,
     _temp_name: &str,
 ) -> Result<Box<dyn crate::box_trait::NyashBox>, String> {
+    crate::mir::exact_numeric_field_contracts::enforce_exact_numeric_runtime_checks_supported(
+        module, "wasm-v2",
+    )?;
+
     // 1) ConsoleBoxを生成（WASM環境ではブラウザコンソールに委譲）
     let console = Box::new(ConsoleBox::new());
     // 2) slot解決→dispatchでlogを呼ぶ（最小疎通）

@@ -9,6 +9,9 @@ use crate::mir::{
 };
 use std::collections::{BTreeMap, HashMap};
 
+pub(crate) const EXACT_NUMERIC_RUNTIME_CHECK_UNSUPPORTED_BACKEND_TAG: &str =
+    "[freeze:contract][exact-numeric/runtime-check-unsupported-backend]";
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ExactNumericFieldAssignmentFinding {
     RangeViolation(ExactNumericRangeViolationSite),
@@ -119,6 +122,38 @@ pub(crate) fn refresh_module_exact_numeric_runtime_check_contracts(
         inserted += 1;
     }
     inserted
+}
+
+pub(crate) fn exact_numeric_runtime_check_contract_count(module: &MirModule) -> usize {
+    module
+        .functions
+        .values()
+        .map(|function| {
+            function
+                .metadata
+                .exact_numeric_runtime_check_contracts
+                .iter()
+                .filter(|contract| {
+                    contract.kind == ExactNumericRuntimeCheckContractKind::DynamicIntegerRange
+                })
+                .count()
+        })
+        .sum()
+}
+
+pub(crate) fn enforce_exact_numeric_runtime_checks_supported(
+    module: &MirModule,
+    backend: &str,
+) -> Result<(), String> {
+    let contracts = exact_numeric_runtime_check_contract_count(module);
+    if contracts == 0 {
+        return Ok(());
+    }
+
+    Err(format!(
+        "{} backend={} contracts={} require=vm-dynamic-integer-range-check-lowering",
+        EXACT_NUMERIC_RUNTIME_CHECK_UNSUPPORTED_BACKEND_TAG, backend, contracts
+    ))
 }
 
 fn exact_numeric_field_decls(
@@ -548,5 +583,27 @@ mod tests {
                 .len(),
             1
         );
+    }
+
+    #[test]
+    fn unsupported_backend_guard_allows_module_without_runtime_check_contracts() {
+        let module = module_with_numeric_field("i64", field_set_param_value_function());
+
+        assert!(enforce_exact_numeric_runtime_checks_supported(&module, "wasm").is_ok());
+    }
+
+    #[test]
+    fn unsupported_backend_guard_rejects_dynamic_range_contracts() {
+        let mut module = module_with_numeric_field("usize", field_set_param_value_function());
+        assert_eq!(
+            refresh_module_exact_numeric_runtime_check_contracts(&mut module),
+            1
+        );
+
+        let err = enforce_exact_numeric_runtime_checks_supported(&module, "wasm").unwrap_err();
+
+        assert!(err.contains(EXACT_NUMERIC_RUNTIME_CHECK_UNSUPPORTED_BACKEND_TAG));
+        assert!(err.contains("backend=wasm"));
+        assert!(err.contains("contracts=1"));
     }
 }

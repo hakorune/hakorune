@@ -56,6 +56,9 @@ Live today:
 - the VM interpreter executes matching `DynamicIntegerRange` contracts at
   `FieldSet` sites and rejects non-integer, negative-unsigned, and out-of-range
   dynamic values before field mutation;
+- unsupported non-VM backend routes fail fast with
+  `[freeze:contract][exact-numeric/runtime-check-unsupported-backend]` when a
+  module still carries exact numeric runtime-check contracts;
 - typed-object planning can use numeric annotations as inline i64 storage
   hints;
 - VM runtime values use `Integer(i64)`;
@@ -64,8 +67,8 @@ Live today:
 Not live today:
 
 - param/local verifier checks, runtime-check insertion/lowering beyond exact
-  numeric field-write contracts, non-VM backend execution/fail-fast, and exact
-  runtime unsigned range-check construction;
+  numeric field-write contracts, non-VM backend lowering/execution of those
+  contracts, and exact runtime unsigned range-check construction;
 - numeric literal suffixes such as `0usize`;
 - unsigned comparisons distinct from signed i64 comparisons;
 - wrapping / checked arithmetic vocabulary;

@@ -45,6 +45,8 @@ pub struct WasmHakoDefaultLaneTrace {
 pub fn compile_hako_native_shape_emit(
     mir_module: &MirModule,
 ) -> Result<Option<WasmNativeShapeEmit>, WasmError> {
+    enforce_wasm_exact_numeric_runtime_checks_supported(mir_module)?;
+
     let Some(found) = shape_table::match_native_shape(mir_module) else {
         if let Some(shape_id) =
             shape_table::detect_p10_min6_warn_native_promotable_shape(mir_module)
@@ -99,6 +101,15 @@ pub fn compile_hako_native_shape_bytes(
     mir_module: &MirModule,
 ) -> Result<Option<Vec<u8>>, WasmError> {
     Ok(compile_hako_native_shape_emit(mir_module)?.map(|emitted| emitted.bytes))
+}
+
+fn enforce_wasm_exact_numeric_runtime_checks_supported(
+    mir_module: &MirModule,
+) -> Result<(), WasmError> {
+    crate::mir::exact_numeric_field_contracts::enforce_exact_numeric_runtime_checks_supported(
+        mir_module, "wasm",
+    )
+    .map_err(WasmError::CodegenError)
 }
 
 /// WASM compilation error
@@ -193,6 +204,8 @@ impl WasmBackend {
 
     /// Compile MIR module to WASM bytes
     pub fn compile_module(&mut self, mir_module: MirModule) -> Result<Vec<u8>, WasmError> {
+        enforce_wasm_exact_numeric_runtime_checks_supported(&mir_module)?;
+
         // WSM-P5-min6 native shape table:
         // For the native subset (main returns integer const family),
         // bypass WAT and emit wasm binary directly.

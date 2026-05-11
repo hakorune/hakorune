@@ -66,14 +66,16 @@ Current live semantics are intentionally narrow:
   sites and rejects non-integer, negative-unsigned, and out-of-range dynamic
   values before mutation. Param/local verifier checks, contract
   insertion/lowering beyond exact numeric field-write contracts, non-VM backend
-  execution, and exact VM runtime values remain deferred.
+  lowering/execution of those contracts, and exact VM runtime values remain
+  deferred. Unsupported non-VM backend routes fail fast instead of silently
+  dropping exact numeric runtime-check contracts.
 
 Deferred and not accepted by this row:
 
 - literal suffixes such as `1u64` or `64usize`
 - param/local verifier checks, runtime-check insertion/lowering beyond exact
-  numeric field-write contracts, non-VM backend runtime checks, exact runtime
-  unsigned range construction, and unsigned overflow behavior
+  numeric field-write contracts, non-VM backend runtime-check lowering,
+  exact runtime unsigned range construction, and unsigned overflow behavior
 - `u64` values outside signed i64
 - wrapping / checked arithmetic syntax
 - logical right-shift syntax or intrinsic distinct from current `>>`

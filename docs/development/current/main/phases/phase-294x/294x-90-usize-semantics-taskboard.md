@@ -30,6 +30,7 @@ one commit unless a row explicitly says it is docs-only.
 | `294x-06c` | Complete | runtime-check contract metadata | dynamic exact numeric field writes can be verifier-accepted only with a matching `DynamicIntegerRange` contract |
 | `294x-06d` | Complete | VM dynamic range-check execution | the VM interpreter executes existing `DynamicIntegerRange` contracts at `FieldSet` sites and rejects bad dynamic values before mutation |
 | `294x-06e` | Complete | dynamic range-check contract refresh | real MIR `FieldSet` producers receive `DynamicIntegerRange` contracts after optimization and before verification |
+| `294x-06f` | Complete | backend runtime-check contract fail-fast | unsupported non-VM backend routes reject modules that still carry exact numeric runtime-check contracts |
 | `294x-07` | Pending | overflow and checked arithmetic policy | plain typed `usize` arithmetic has checked/fail-fast behavior; wrapping stays explicit |
 | `294x-08` | Pending | unsigned compare and logical shift | comparisons and right shift stop using signed i64 semantics for `usize` |
 | `294x-09` | Pending | PHI/Select numeric unification | exact numeric kinds merge conservatively and fail fast on unsupported mixes |
@@ -54,7 +55,7 @@ one commit unless a row explicitly says it is docs-only.
 - [ ] Define logical shift behavior.
 - [ ] Define unsigned comparison behavior.
 - [x] Define conversion from dynamic `Integer(i64)`.
-- [ ] Define unsupported backend fail-fast tags.
+- [x] Define unsupported backend fail-fast tags.
 - [ ] Define when `i64` remains preferred.
 
 ### Parser / AST / JSON
@@ -103,8 +104,9 @@ one commit unless a row explicitly says it is docs-only.
   field mutation.
 - [x] Keep verifier and contract refresh on one shared exact numeric field-write
   facts owner.
-- [ ] Reject unsupported backend lowering.
-- [ ] Guard against silent fallback to `Integer(i64)`.
+- [x] Reject unsupported backend lowering.
+- [x] Guard against silent fallback to `Integer(i64)` for exact numeric
+  runtime-check contracts.
 - [ ] Keep strict/dev checks before broad production acceptance.
 
 ### Storage / Backend

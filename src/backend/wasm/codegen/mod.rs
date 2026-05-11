@@ -5,7 +5,9 @@
  * Phase 8.3 PoC2: Reference operations (RefNew/RefGet/RefSet)
  */
 
-use super::{MemoryManager, RuntimeImports, WasmError};
+use super::{
+    enforce_wasm_exact_numeric_runtime_checks_supported, MemoryManager, RuntimeImports, WasmError,
+};
 use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction, MirModule, MirType, ValueId};
 use std::collections::{BTreeSet, HashMap, VecDeque};
 
@@ -108,6 +110,8 @@ impl WasmCodegen {
         memory_manager: &MemoryManager,
         runtime: &RuntimeImports,
     ) -> Result<WasmModule, WasmError> {
+        enforce_wasm_exact_numeric_runtime_checks_supported(&mir_module)?;
+
         let mut wasm_module = WasmModule::new();
         self.function_param_counts.clear();
         self.function_return_types.clear();

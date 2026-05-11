@@ -196,6 +196,14 @@ fn emit_requested_object_or_exit(_module: &nyash_rust::mir::MirModule, _out_path
 #[cfg(all(not(feature = "llvm-harness"), feature = "llvm-inkwell-legacy"))]
 fn emit_requested_legacy_object_or_exit(module: &nyash_rust::mir::MirModule, out_path: &str) {
     use nyash_rust::backend::llvm_compile_to_object;
+    if let Err(e) =
+        crate::mir::exact_numeric_field_contracts::enforce_exact_numeric_runtime_checks_supported(
+            module,
+            "llvm-legacy-obj",
+        )
+    {
+        report::emit_error_and_exit(LlvmRunError::fatal(format!("{}", e)));
+    }
     if let Some(parent) = std::path::Path::new(out_path).parent() {
         let _ = std::fs::create_dir_all(parent);
     }
