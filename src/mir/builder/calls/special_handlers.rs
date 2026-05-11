@@ -6,6 +6,7 @@
  */
 
 use crate::ast::{ASTNode, LiteralValue};
+use crate::mir::numeric_substrate::is_numeric_integer_type_name;
 use crate::mir::MirType;
 
 /// Check if a function is a math function
@@ -48,6 +49,10 @@ pub fn extract_string_literal(node: &ASTNode) -> Option<String> {
 
 /// Map a user-facing type name to MIR type
 pub fn parse_type_name_to_mir(name: &str) -> MirType {
+    if is_numeric_integer_type_name(name) {
+        return MirType::Integer;
+    }
+
     match name {
         // Core primitive types only (no Box suffixes)
         "Integer" | "Int" | "I64" => MirType::Integer,
@@ -57,6 +62,29 @@ pub fn parse_type_name_to_mir(name: &str) -> MirType {
         "Void" | "Unit" => MirType::Void,
         // Phase 15.5: All Box types (including former core IntegerBox, StringBox, etc.) treated uniformly
         other => MirType::Box(other.to_string()),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse_type_name_to_mir;
+    use crate::mir::MirType;
+
+    #[test]
+    fn parse_type_name_to_mir_maps_numeric_substrate_names_to_integer_lane() {
+        for name in [
+            "i8", "i16", "i32", "i64", "isize", "u8", "u16", "u32", "u64", "usize",
+        ] {
+            assert_eq!(parse_type_name_to_mir(name), MirType::Integer);
+        }
+    }
+
+    #[test]
+    fn parse_type_name_to_mir_keeps_box_suffix_types_as_boxes() {
+        assert_eq!(
+            parse_type_name_to_mir("IntegerBox"),
+            MirType::Box("IntegerBox".to_string())
+        );
     }
 }
 

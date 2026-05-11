@@ -173,6 +173,9 @@ work. Splitting is mandatory if a row starts adding algorithm bodies back into
   field initializers after the parser row accepted `field = expr` and
   `field: Type = expr`. Fixed defaults and owner construction now live at
   declaration site; constructor parameters remain in `birth(...)`.
+- `M173` converged allocator numeric stored fields from `IntegerBox` spelling to
+  `i64` scalar substrate annotations. The current runtime lane remains
+  `Integer(i64)`; `usize`/exact-width behavior stays reserved.
 - `M167` may create deterministic model pages in memory; it must not reserve
   OS memory. OSVM enters only in `M168`.
 - `M169` owns same-thread local free collection only. Remote-free and abandoned

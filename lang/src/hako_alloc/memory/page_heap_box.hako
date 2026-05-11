@@ -5,9 +5,9 @@
 using selfhost.hako_alloc.memory.layout_box as LayoutBox
 
 box HakoAllocHandle {
-    page_id: IntegerBox
-    block_id: IntegerBox
-    requested_size: IntegerBox
+    page_id: i64
+    block_id: i64
+    requested_size: i64
 
     birth(page_id, block_id, requested_size) {
         me.page_id = page_id
@@ -17,20 +17,20 @@ box HakoAllocHandle {
 }
 
 box HakoAllocPage {
-    page_id: IntegerBox
-    block_size: IntegerBox
-    capacity: IntegerBox
+    page_id: i64
+    block_size: i64
+    capacity: i64
     free_stack: ArrayBox = new ArrayBox()
     block_used: ArrayBox = new ArrayBox()
     use_counts: ArrayBox = new ArrayBox()
     requested_sizes: ArrayBox = new ArrayBox()
-    free_top: IntegerBox
-    alloc_count: IntegerBox = 0
-    free_count: IntegerBox = 0
-    reuse_count: IntegerBox = 0
-    current_used: IntegerBox = 0
-    peak_used: IntegerBox = 0
-    requested_bytes: IntegerBox = 0
+    free_top: i64
+    alloc_count: i64 = 0
+    free_count: i64 = 0
+    reuse_count: i64 = 0
+    current_used: i64 = 0
+    peak_used: i64 = 0
+    requested_bytes: i64 = 0
 
     birth(page_id, block_size, capacity) {
         me.page_id = page_id

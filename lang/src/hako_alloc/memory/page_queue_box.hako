@@ -5,15 +5,15 @@
 using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
 
 box HakoAllocPageQueue {
-    bin: IntegerBox
+    bin: i64
     pages: ArrayBox = new ArrayBox()
-    page_count: IntegerBox = 0
-    direct_page_index: IntegerBox = -1
-    add_count: IntegerBox = 0
-    select_count: IntegerBox = 0
-    direct_hit_count: IntegerBox = 0
-    refresh_count: IntegerBox = 0
-    reject_count: IntegerBox = 0
+    page_count: i64 = 0
+    direct_page_index: i64 = -1
+    add_count: i64 = 0
+    select_count: i64 = 0
+    direct_hit_count: i64 = 0
+    refresh_count: i64 = 0
+    reject_count: i64 = 0
 
     birth(bin) {
         me.bin = bin
