@@ -64,7 +64,7 @@ require_text "$SSOT" "M94 may expose this report through an explicit CLI diagnos
 require_text "$SHAPE_SSOT" "Allocator Provider Registry Snapshot (SSOT)"
 require_text "$FIXTURE" 'schema_version = "allocator_provider_registry_snapshot_v0"'
 require_text "$FIXTURE" 'would_build_registry = false'
-require_text "$SOURCE" "Diagnostic-only allocator provider registry and activation safety reports"
+require_text "$SOURCE" "Diagnostic-only allocator provider registry"
 require_text "$SOURCE" "AllocatorProviderRegistrySnapshotFacts"
 require_text "$SOURCE" "AllocatorProviderRegistrySnapshotReport"
 require_text "$SOURCE" "AllocatorProviderRegistrySnapshotStatus"

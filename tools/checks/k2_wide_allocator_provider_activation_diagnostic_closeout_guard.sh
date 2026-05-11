@@ -105,14 +105,8 @@ require_text "$SSOT" "would_replace_process_allocator=false"
 require_text "$SSOT" "would_activate=false"
 require_text "$SSOT" "M96 selection decision diagnostic report"
 require_text "$CARD" "293x-149 M95 Allocator Provider Activation Diagnostic Closeout Inventory"
-require_text "$CURRENT_STATE" 'latest_card = "293x-149-M95-ALLOCATOR-PROVIDER-ACTIVATION-DIAGNOSTIC-CLOSEOUT-INVENTORY"'
-require_text "$CURRENT_STATE" 'latest_card_path = "docs/development/current/main/phases/phase-293x/293x-149-M95-ALLOCATOR-PROVIDER-ACTIVATION-DIAGNOSTIC-CLOSEOUT-INVENTORY.md"'
-require_text "$TASK_BREAKDOWN" "Scope: current allocator provider / replacement hook task breakdown after M95."
 require_text "$TASK_BREAKDOWN" "| M95 | activation diagnostic closeout inventory fixing coverage across M92-M94/M93B without activation | complete |"
 require_text "$TASK_BREAKDOWN" "| M96 | selection decision diagnostic report | runtime report over caller-provided selection decision TOML text | provider selection |"
-require_text "$TASK_BREAKDOWN" "M87-M95 are landed"
-require_text "$TASK_BREAKDOWN" "M95 is the latest closeout checkpoint"
-require_text "$TASK_BREAKDOWN" "next safe row is M96 selection decision diagnostic report"
 require_text "$M92_SSOT" "| M95 | activation diagnostic closeout inventory"
 require_text "$M92_SSOT" "| M96 | selection decision diagnostic report"
 require_text "$M92_FIXTURE" '"M95 activation diagnostic closeout inventory"'

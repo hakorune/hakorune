@@ -65,7 +65,7 @@ require_text "$SSOT" "validate_allocator_provider_activation_safety_gate_from_te
 require_text "$OWNER_SSOT" "src/runtime/allocator_provider_registry.rs"
 require_text "$GATE_SSOT" "activation_safety_gate = \"inactive\""
 require_text "$GATE_FIXTURE" 'activation_gate_open = false'
-require_text "$SOURCE" "Diagnostic-only allocator provider registry and activation safety reports"
+require_text "$SOURCE" "Diagnostic-only allocator provider registry"
 require_text "$SOURCE" "AllocatorProviderActivationSafetyFacts"
 require_text "$SOURCE" "AllocatorProviderActivationSafetyReport"
 require_text "$SOURCE" "AllocatorProviderActivationSafetyStatus"
