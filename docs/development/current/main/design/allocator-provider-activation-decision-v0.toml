@@ -1,0 +1,104 @@
+# Reserved schema fixture only. Runtime/backend code must not consume this file.
+surface_version = "allocator_provider_activation_decision_v0"
+status = "reserved"
+active = false
+decision_surface_owner = "future_row_required"
+input_source = "caller_provided_activation_decision_bundle"
+operator_intent = "diagnose"
+requested_provider_id = "mimalloc"
+activation_safety_gate_report_path = "activation-safety-gate-v0.toml"
+registry_snapshot_path = "registry-snapshot-v0.toml"
+selection_decision_path = "selection-decision-v0.toml"
+proof_bundle_report_path = "proof-bundle-consumption-v0.toml"
+rollback_preflight_report_path = "rollback-preflight-v0.toml"
+
+activation_decision_surface_status = "reserved_fixture"
+activation_decision_allowed = false
+provider_selection = "inactive"
+proof_bundle_consumption = "inactive"
+rollback_preparation = "inactive"
+activation_gate = "closed_reserved"
+hook_activation = "inactive"
+process_allocator_replacement = "inactive"
+would_select_provider = false
+would_consume_proof = false
+would_prepare_rollback = false
+would_open_activation_gate = false
+would_install_hook = false
+would_replace_process_allocator = false
+would_activate = false
+activation = "future_row_required"
+diagnostic = "[allocator-provider/activation-decision-reserved]"
+missing_activation_safety_gate_diagnostic = "[allocator-provider/activation-decision-safety-gate-missing]"
+missing_registry_snapshot_diagnostic = "[allocator-provider/activation-decision-registry-missing]"
+missing_selection_decision_diagnostic = "[allocator-provider/activation-decision-selection-missing]"
+missing_proof_bundle_diagnostic = "[allocator-provider/activation-decision-proof-bundle-missing]"
+missing_rollback_preflight_diagnostic = "[allocator-provider/activation-decision-rollback-missing]"
+activation_blocked_diagnostic = "[allocator-provider/activation-decision-blocked]"
+
+reserved_activation_decision_facts = [
+  "activation_decision_bundle_caller_provided",
+  "operator_intent_diagnose_only",
+  "requested_provider_id_explicit",
+  "activation_safety_gate_report_path_explicit",
+  "registry_snapshot_path_explicit",
+  "selection_decision_path_explicit",
+  "proof_bundle_report_path_explicit",
+  "rollback_preflight_report_path_explicit",
+  "activation_decision_allowed_false",
+  "activation_gate_closed",
+  "fail_fast_activation_decision_diagnostic_named",
+  "no_hidden_environment_toggle",
+  "no_implicit_manifest_discovery",
+  "no_implicit_proof_discovery",
+  "no_implicit_report_discovery",
+  "no_app_or_facade_name_matching",
+  "no_inc_name_matching",
+  "no_runtime_decision_parser",
+  "no_cli_route",
+  "no_runtime_registry_implementation",
+  "no_provider_selection_implementation",
+  "no_proof_consumption_implementation",
+  "no_rollback_preparation_implementation",
+  "no_activation_gate_opening",
+  "no_hook_activation_implementation",
+  "no_global_allocator_attribute",
+  "no_global_alloc_trait",
+  "no_process_allocator_replacement",
+  "no_route_widening",
+]
+
+[[activation_decision_inputs]]
+name = "activation_safety_gate"
+source = "caller_provided_path"
+path_key = "activation_safety_gate_report_path"
+required = true
+missing_diagnostic = "[allocator-provider/activation-decision-safety-gate-missing]"
+
+[[activation_decision_inputs]]
+name = "registry_snapshot"
+source = "caller_provided_path"
+path_key = "registry_snapshot_path"
+required = true
+missing_diagnostic = "[allocator-provider/activation-decision-registry-missing]"
+
+[[activation_decision_inputs]]
+name = "selection_decision"
+source = "caller_provided_path"
+path_key = "selection_decision_path"
+required = true
+missing_diagnostic = "[allocator-provider/activation-decision-selection-missing]"
+
+[[activation_decision_inputs]]
+name = "proof_bundle"
+source = "caller_provided_path"
+path_key = "proof_bundle_report_path"
+required = true
+missing_diagnostic = "[allocator-provider/activation-decision-proof-bundle-missing]"
+
+[[activation_decision_inputs]]
+name = "rollback_preflight"
+source = "caller_provided_path"
+path_key = "rollback_preflight_report_path"
+required = true
+missing_diagnostic = "[allocator-provider/activation-decision-rollback-missing]"
