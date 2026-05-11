@@ -339,7 +339,20 @@ inference for the allocator release path.
   landed, locking M92-M94/M93B coverage while keeping active registry
   construction, provider selection, proof consumption, rollback preparation,
   gate opening, hook activation, native activation, and replacement inactive.
-- Next: M96 selection decision diagnostic report. It must parse/report
-  caller-provided TOML text only and must not select a provider, consume proof,
+- `293x-150`: M96 allocator provider selection decision diagnostic report
+  landed, adding runtime parsing/reporting over caller-provided selection
+  decision TOML text while keeping provider selection and activation inactive.
+- `293x-151`: M97 allocator provider selection decision CLI surface landed,
+  exposing the inactive selection decision report through an explicit TOML path.
+- `293x-152`: M97B allocator provider diagnostic helper cleanup landed,
+  sharing TOML helper and fact-check ownership without changing report output.
+- `293x-153`: M98 allocator provider proof bundle consumption diagnostic
+  report landed, adding runtime parsing/reporting over caller-provided
+  proof-bundle consumption TOML text while keeping proof consumption inactive.
+- `293x-154`: M98B allocator provider runtime diagnostic module boundaries
+  landed, splitting diagnostic report owners into focused modules behind the
+  historical registry facade without behavior change.
+- Next: M99 proof bundle consumption CLI surface. It must expose only an
+  explicit TOML-path diagnostic and must not consume proof, select a provider,
   prepare rollback, open the gate, activate hooks, or replace the process
   allocator.

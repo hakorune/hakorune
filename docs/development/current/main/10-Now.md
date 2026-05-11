@@ -56,7 +56,9 @@ Related:
   card/taskboard first
 - current allocator/provider task ladder is:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`;
-  next implementation row is `M67` provider manifest diagnostic parser
+  the ladder is closed through M98B, and the next safe implementation row is
+  the explicit proof-bundle diagnostic CLI surface before any proof
+  consumption behavior
 - latest docs/inventory baseline: `291x-691` remains the historical backlog
   inventory; current status is in `CURRENT_STATE.toml`
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
