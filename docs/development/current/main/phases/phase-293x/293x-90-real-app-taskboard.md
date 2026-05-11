@@ -130,6 +130,7 @@
 - [x] `293x-165` M164 mimalloc layout migration closeout
 - [x] `293x-166` M165 mimalloc page model split
 - [x] `293x-167` M166 mimalloc page queue/direct-page cache
+- [x] `293x-168` M166B mimalloc unified-member style cleanup
 
 ## Gates
 

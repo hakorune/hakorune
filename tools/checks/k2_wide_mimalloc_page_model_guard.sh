@@ -34,8 +34,12 @@ guard_require_files \
   "$ALLOCATOR_GROUP"
 
 guard_expect_in_file "$TAG" 'box HakoAllocPageModel' "$PAGE_BOX" "HakoAllocPageModel must own page-local state"
-guard_expect_in_file "$TAG" 'free, local_free, block_used, used' "$PAGE_BOX" "page model must expose free/local_free/used vocabulary"
-guard_expect_in_file "$TAG" 'capacity, reserved' "$PAGE_BOX" "page model must expose capacity/reserved vocabulary"
+guard_expect_in_file "$TAG" 'free: ArrayBox' "$PAGE_BOX" "page model must expose free as a stored member"
+guard_expect_in_file "$TAG" 'local_free: ArrayBox' "$PAGE_BOX" "page model must expose local_free as a stored member"
+guard_expect_in_file "$TAG" 'block_used: ArrayBox' "$PAGE_BOX" "page model must track per-block ownership"
+guard_expect_in_file "$TAG" 'used: IntegerBox' "$PAGE_BOX" "page model must expose used as a stored member"
+guard_expect_in_file "$TAG" 'capacity: IntegerBox' "$PAGE_BOX" "page model must expose capacity as a stored member"
+guard_expect_in_file "$TAG" 'reserved: IntegerBox' "$PAGE_BOX" "page model must expose reserved as a stored member"
 guard_expect_in_file "$TAG" 'seedFreeBlocks' "$PAGE_BOX" "page model must seed free blocks locally"
 guard_expect_in_file "$TAG" 'releaseLocal' "$PAGE_BOX" "page model must have local release seam"
 guard_expect_in_file "$TAG" 'memory.page_box = "memory/page_box.hako"' "$MODULE" "hako module must export page_box"
@@ -44,6 +48,14 @@ guard_expect_in_file "$TAG" 'local_free' "$APP_README" "proof README must descri
 guard_expect_in_file "$TAG" 'M165 page model split' "$PLAN" "plan must retain M165 row"
 guard_expect_in_file "$TAG" '293x-166 M165 Mimalloc Page Model Split' "$CARD" "missing M165 card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M165 guard"
+
+if rg -n 'init[[:space:]]*\\{' "$PAGE_BOX" >/tmp/"$TAG".legacy_init 2>&1; then
+  echo "[$TAG] ERROR: new page model must use Unified Members stored fields, not legacy init slots" >&2
+  cat /tmp/"$TAG".legacy_init >&2
+  rm -f /tmp/"$TAG".legacy_init
+  exit 1
+fi
+rm -f /tmp/"$TAG".legacy_init
 
 if rg -n 'page_queue|queue|direct_page|OSVM|OsVm|Tls|Atomic|remote_free|RemoteFree|fetch_add|cas_|load_ordered|store_ordered' "$PAGE_BOX" "$APP" >/tmp/"$TAG".forbidden 2>&1; then
   echo "[$TAG] ERROR: M166+ or substrate ownership leaked into M165 page model" >&2

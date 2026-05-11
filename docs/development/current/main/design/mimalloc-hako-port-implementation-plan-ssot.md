@@ -166,6 +166,9 @@ work. Splitting is mandatory if a row starts adding algorithm bodies back into
   M166 landed as `HakoAllocPageQueue` in `page_queue_box.hako`: per-bin page
   selection and direct-page cache refresh are testable without queue-owned
   block pops, OSVM sourcing, or remote-free integration.
+- `M166B` cleaned the new M165/M166 state boxes to the current Unified Members
+  stored-field style. New mimalloc `.hako` state boxes should use `field: Type`
+  rather than legacy `init { ... }` slot lists.
 - `M167` may create deterministic model pages in memory; it must not reserve
   OS memory. OSVM enters only in `M168`.
 - `M169` owns same-thread local free collection only. Remote-free and abandoned

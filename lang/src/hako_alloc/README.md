@@ -11,6 +11,8 @@ Principles
 - Keep this root as the alloc/policy anchor.
 - Do not move OS VM, LLVM, or other thin native keep concerns here.
 - Treat `runtime/memory/` as historical location only; new work should land under `hako_alloc/`.
+- New state boxes in this root should use Unified Members stored declarations
+  (`field: Type`) instead of legacy `init { ... }` slot lists.
 - Do not treat this root as the owner for unrestricted raw memory, raw pointer,
   native layout, OS VM, or platform atomics/TLS.
 - Current stop-line:

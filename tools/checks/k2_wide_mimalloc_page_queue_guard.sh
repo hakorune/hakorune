@@ -36,7 +36,8 @@ guard_require_files \
   "$ALLOCATOR_GROUP"
 
 guard_expect_in_file "$TAG" 'box HakoAllocPageQueue' "$QUEUE_BOX" "HakoAllocPageQueue must own page selection"
-guard_expect_in_file "$TAG" 'direct_page_index' "$QUEUE_BOX" "page queue must expose direct-page cache state"
+guard_expect_in_file "$TAG" 'pages: ArrayBox' "$QUEUE_BOX" "page queue must expose pages as a stored member"
+guard_expect_in_file "$TAG" 'direct_page_index: IntegerBox' "$QUEUE_BOX" "page queue must expose direct-page cache state"
 guard_expect_in_file "$TAG" 'selectPage' "$QUEUE_BOX" "page queue must expose selectPage"
 guard_expect_in_file "$TAG" 'refreshDirectPage' "$QUEUE_BOX" "page queue must expose refreshDirectPage"
 guard_expect_in_file "$TAG" 'freeCount' "$QUEUE_BOX" "page queue must observe page availability only"
@@ -45,6 +46,14 @@ guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.page_queue_box as 
 guard_expect_in_file "$TAG" 'M166 page queue and direct-page cache' "$PLAN" "plan must retain M166 row"
 guard_expect_in_file "$TAG" '293x-167 M166 Mimalloc Page Queue Direct Cache' "$CARD" "missing M166 card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M166 guard"
+
+if rg -n 'init[[:space:]]*\\{' "$QUEUE_BOX" >/tmp/"$TAG".legacy_init 2>&1; then
+  echo "[$TAG] ERROR: new page queue must use Unified Members stored fields, not legacy init slots" >&2
+  cat /tmp/"$TAG".legacy_init >&2
+  rm -f /tmp/"$TAG".legacy_init
+  exit 1
+fi
+rm -f /tmp/"$TAG".legacy_init
 
 if rg -n '\.acquire\(' "$QUEUE_BOX" >/tmp/"$TAG".acquire 2>&1; then
   echo "[$TAG] ERROR: M166 queue must choose pages, not pop allocation blocks" >&2

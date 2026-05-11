@@ -3,13 +3,21 @@
 // This module does not own heap ordering, OS memory, TLS, atomics, or remote free.
 
 box HakoAllocPageModel {
-    init {
-        page_id, block_size, capacity, reserved,
-        free, local_free, block_used, used,
-        free_top, local_free_top,
-        alloc_count, local_free_count, reject_count,
-        peak_used, requested_bytes
-    }
+    page_id: IntegerBox
+    block_size: IntegerBox
+    capacity: IntegerBox
+    reserved: IntegerBox
+    free: ArrayBox
+    local_free: ArrayBox
+    block_used: ArrayBox
+    used: IntegerBox
+    free_top: IntegerBox
+    local_free_top: IntegerBox
+    alloc_count: IntegerBox
+    local_free_count: IntegerBox
+    reject_count: IntegerBox
+    peak_used: IntegerBox
+    requested_bytes: IntegerBox
 
     birth(page_id, block_size, capacity, reserved) {
         me.page_id = page_id

@@ -397,6 +397,9 @@ inference for the allocator release path.
 - `293x-167`: M166 mimalloc page queue/direct-page cache landed, adding
   `HakoAllocPageQueue` as the page-selection owner while keeping block pops in
   the M167 lane.
+- `293x-168`: M166B mimalloc unified-member style cleanup landed, converting
+  the new page model and page queue boxes from legacy `init` slot lists to
+  `field: Type` stored declarations.
 - Next: resume `.hako` mimalloc / `hako_alloc` implementation slices on top of
   the capability substrate, continuing with `M167 alloc fast path plus generic
   fallback`.
