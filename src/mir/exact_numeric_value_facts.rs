@@ -12,7 +12,7 @@ use std::collections::BTreeMap;
 mod binary_op_routes;
 use binary_op_routes::{
     collect_binary_op_route_facts, collect_binary_op_route_rejections,
-    try_publish_binary_op_add_fact,
+    try_publish_binary_op_arithmetic_fact,
 };
 pub use binary_op_routes::{
     ExactNumericBinaryOpRouteFact, ExactNumericBinaryOpRouteRejection,
@@ -27,10 +27,22 @@ pub struct ExactNumericValueFact {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ExactNumericValueFactSource {
-    Param { index: usize, name: String },
-    FieldGet { box_name: String, field: String },
-    BinaryOpAdd { lhs: ValueId, rhs: ValueId },
-    Copy { src: ValueId },
+    Param {
+        index: usize,
+        name: String,
+    },
+    FieldGet {
+        box_name: String,
+        field: String,
+    },
+    BinaryOp {
+        op: BinaryOp,
+        lhs: ValueId,
+        rhs: ValueId,
+    },
+    Copy {
+        src: ValueId,
+    },
     Phi,
     Select,
 }
@@ -268,13 +280,9 @@ fn propagate_exact_numeric_value_facts(
                             ExactNumericValueFactSource::Select,
                         );
                     }
-                    MirInstruction::BinOp {
-                        dst,
-                        op: BinaryOp::Add,
-                        lhs,
-                        rhs,
-                    } => {
-                        changed |= try_publish_binary_op_add_fact(facts, *dst, *lhs, *rhs);
+                    MirInstruction::BinOp { dst, op, lhs, rhs } => {
+                        changed |=
+                            try_publish_binary_op_arithmetic_fact(facts, *dst, *op, *lhs, *rhs);
                     }
                     _ => {}
                 }

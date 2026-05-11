@@ -251,7 +251,8 @@ fn publishes_binop_add_route_and_result_fact_for_same_exact_operands() {
         metadata.exact_numeric_value_facts.get(&sum).unwrap(),
         &ExactNumericValueFact {
             declared_type_name: "usize".to_string(),
-            source: ExactNumericValueFactSource::BinaryOpAdd {
+            source: ExactNumericValueFactSource::BinaryOp {
+                op: BinaryOp::Add,
                 lhs: left,
                 rhs: right,
             },
@@ -270,6 +271,91 @@ fn publishes_binop_add_route_and_result_fact_for_same_exact_operands() {
         }]
     );
     assert!(metadata.exact_numeric_binary_op_route_rejections.is_empty());
+}
+
+#[test]
+fn publishes_sub_and_mul_routes_for_same_exact_operands() {
+    let mut function = page_function();
+    let page = function.params[0];
+    let left = function.next_value_id();
+    let right = function.next_value_id();
+    let difference = function.next_value_id();
+    let product = function.next_value_id();
+    let block = function.get_block_mut(BasicBlockId::new(0)).unwrap();
+    block.add_instruction(MirInstruction::FieldGet {
+        dst: left,
+        base: page,
+        field: "capacity".to_string(),
+        declared_type: Some(MirType::Integer),
+    });
+    block.add_instruction(MirInstruction::FieldGet {
+        dst: right,
+        base: page,
+        field: "capacity".to_string(),
+        declared_type: Some(MirType::Integer),
+    });
+    block.add_instruction(MirInstruction::BinOp {
+        dst: difference,
+        op: BinaryOp::Sub,
+        lhs: left,
+        rhs: right,
+    });
+    block.add_instruction(MirInstruction::BinOp {
+        dst: product,
+        op: BinaryOp::Mul,
+        lhs: left,
+        rhs: right,
+    });
+    let mut module = module_with_fields(function);
+
+    refresh_module_exact_numeric_value_facts(&mut module);
+
+    let metadata = &module.get_function("main").unwrap().metadata;
+    assert_eq!(
+        metadata.exact_numeric_value_facts.get(&difference).unwrap(),
+        &ExactNumericValueFact {
+            declared_type_name: "usize".to_string(),
+            source: ExactNumericValueFactSource::BinaryOp {
+                op: BinaryOp::Sub,
+                lhs: left,
+                rhs: right,
+            },
+        }
+    );
+    assert_eq!(
+        metadata.exact_numeric_value_facts.get(&product).unwrap(),
+        &ExactNumericValueFact {
+            declared_type_name: "usize".to_string(),
+            source: ExactNumericValueFactSource::BinaryOp {
+                op: BinaryOp::Mul,
+                lhs: left,
+                rhs: right,
+            },
+        }
+    );
+    assert_eq!(
+        metadata.exact_numeric_binary_op_route_facts,
+        vec![
+            ExactNumericBinaryOpRouteFact {
+                block: BasicBlockId::new(0),
+                instruction_index: 2,
+                dst: difference,
+                op: BinaryOp::Sub,
+                lhs: left,
+                rhs: right,
+                declared_type_name: "usize".to_string(),
+            },
+            ExactNumericBinaryOpRouteFact {
+                block: BasicBlockId::new(0),
+                instruction_index: 3,
+                dst: product,
+                op: BinaryOp::Mul,
+                lhs: left,
+                rhs: right,
+                declared_type_name: "usize".to_string(),
+            },
+        ]
+    );
 }
 
 #[test]

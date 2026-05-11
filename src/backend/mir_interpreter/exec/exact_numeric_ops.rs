@@ -190,10 +190,13 @@ mod tests {
         MirType,
     };
 
-    fn module_with_exact_numeric_add_route(declared_type_name: &str) -> MirModule {
+    fn module_with_exact_numeric_arithmetic_route(
+        declared_type_name: &str,
+        op: BinaryOp,
+    ) -> MirModule {
         let entry = BasicBlockId::new(0);
         let signature = FunctionSignature {
-            name: "Main.add/2".to_string(),
+            name: "Main.arithmetic/2".to_string(),
             params: vec![MirType::Integer, MirType::Integer],
             return_type: MirType::Integer,
             effects: EffectMask::PURE,
@@ -216,7 +219,7 @@ mod tests {
         let block = function.get_block_mut(entry).unwrap();
         block.add_instruction(MirInstruction::BinOp {
             dst: sum,
-            op: BinaryOp::Add,
+            op,
             lhs,
             rhs,
         });
@@ -227,7 +230,7 @@ mod tests {
         refresh_module_exact_numeric_value_facts(&mut module);
         let route_count = module
             .functions
-            .get("Main.add/2")
+            .get("Main.arithmetic/2")
             .expect("test function must exist")
             .metadata
             .exact_numeric_binary_op_route_facts
@@ -238,13 +241,13 @@ mod tests {
 
     #[test]
     fn vm_reference_executes_exact_usize_add_route() {
-        let module = module_with_exact_numeric_add_route("usize");
+        let module = module_with_exact_numeric_arithmetic_route("usize", BinaryOp::Add);
         let mut vm = MirInterpreter::new();
 
         let result = vm
             .execute_function_with_args(
                 &module,
-                "Main.add/2",
+                "Main.arithmetic/2",
                 &[VMValue::Integer(40), VMValue::Integer(2)],
             )
             .expect("exact usize add route should execute");
@@ -253,14 +256,30 @@ mod tests {
     }
 
     #[test]
+    fn vm_reference_executes_exact_usize_sub_route() {
+        let module = module_with_exact_numeric_arithmetic_route("usize", BinaryOp::Sub);
+        let mut vm = MirInterpreter::new();
+
+        let result = vm
+            .execute_function_with_args(
+                &module,
+                "Main.arithmetic/2",
+                &[VMValue::Integer(40), VMValue::Integer(2)],
+            )
+            .expect("exact usize sub route should execute");
+
+        assert_eq!(result, VMValue::Integer(38));
+    }
+
+    #[test]
     fn vm_reference_rejects_negative_usize_add_operand() {
-        let module = module_with_exact_numeric_add_route("usize");
+        let module = module_with_exact_numeric_arithmetic_route("usize", BinaryOp::Add);
         let mut vm = MirInterpreter::new();
 
         let error = vm
             .execute_function_with_args(
                 &module,
-                "Main.add/2",
+                "Main.arithmetic/2",
                 &[VMValue::Integer(-1), VMValue::Integer(2)],
             )
             .expect_err("negative usize operand must fail before generic i64 add");
@@ -271,13 +290,13 @@ mod tests {
 
     #[test]
     fn vm_reference_rejects_exact_u8_add_overflow() {
-        let module = module_with_exact_numeric_add_route("u8");
+        let module = module_with_exact_numeric_arithmetic_route("u8", BinaryOp::Add);
         let mut vm = MirInterpreter::new();
 
         let error = vm
             .execute_function_with_args(
                 &module,
-                "Main.add/2",
+                "Main.arithmetic/2",
                 &[VMValue::Integer(250), VMValue::Integer(10)],
             )
             .expect_err("u8 exact add overflow must fail before generic i64 add");
@@ -286,14 +305,30 @@ mod tests {
     }
 
     #[test]
-    fn vm_reference_rejects_exact_usize_result_outside_current_i64_lane() {
-        let module = module_with_exact_numeric_add_route("usize");
+    fn vm_reference_rejects_exact_u8_mul_overflow() {
+        let module = module_with_exact_numeric_arithmetic_route("u8", BinaryOp::Mul);
         let mut vm = MirInterpreter::new();
 
         let error = vm
             .execute_function_with_args(
                 &module,
-                "Main.add/2",
+                "Main.arithmetic/2",
+                &[VMValue::Integer(16), VMValue::Integer(16)],
+            )
+            .expect_err("u8 exact mul overflow must fail before generic i64 mul");
+
+        assert!(error.to_string().contains("[vm/exact_numeric_op_overflow]"));
+    }
+
+    #[test]
+    fn vm_reference_rejects_exact_usize_result_outside_current_i64_lane() {
+        let module = module_with_exact_numeric_arithmetic_route("usize", BinaryOp::Add);
+        let mut vm = MirInterpreter::new();
+
+        let error = vm
+            .execute_function_with_args(
+                &module,
+                "Main.arithmetic/2",
                 &[VMValue::Integer(i64::MAX), VMValue::Integer(1)],
             )
             .expect_err("usize result above i64 must fail until exact VMValue storage exists");

@@ -45,6 +45,7 @@ hako_alloc or mimalloc migration.
 | `294x-09e` | Complete | dev gate quick profile split | daily quick stays slim while allocator-wide owns the full allocator/mimalloc/provider proof ladder |
 | `294x-09f` | Complete | quick first-row cargo filter grouping | quick first-row guards group related cargo filters without changing semantic coverage |
 | `294x-10` | Complete | VM reference exact `usize` Add route v0 | VM reference execution consumes MIR-owned exact numeric Add route facts without making VM-only behavior a completion criterion |
+| `294x-10b` | Complete | VM reference checked arithmetic routes | VM reference execution consumes MIR-owned exact numeric Add/Sub/Mul route facts without VM-owned inference |
 | `294x-11` | Pending | literal suffix and const-eval row | `0usize` / exact numeric consts are accepted only with range checks |
 | `294x-12` | Pending | typed-object exact numeric storage | typed-object plans and EXE runtime storage distinguish `usize` from i64 |
 | `294x-13` | Pending | backend capability and fail-fast | unsupported backends reject exact `usize`; supported backends lower unsigned ops correctly |
@@ -99,7 +100,7 @@ hako_alloc or mimalloc migration.
 - [x] Attach `DynamicIntegerRange` contracts for real exact numeric field-write
   producers after MIR shape is stable.
 - [ ] Range-check construction beyond exact numeric field-write contracts.
-- [ ] Implement checked add/sub/mul in live VM exact numeric op routes.
+- [x] Implement checked add/sub/mul in live VM exact numeric op routes.
 - [ ] Implement div/mod with zero checks.
 - [ ] Implement bitwise ops.
 - [ ] Implement logical right shift in live VM exact numeric op routes.

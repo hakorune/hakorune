@@ -4,7 +4,7 @@ use crate::mir::numeric_substrate::ExactNumericMirType;
 pub(crate) enum ExactNumericMergeSite {
     Phi,
     Select,
-    BinaryOpAdd,
+    BinaryOpArithmetic,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

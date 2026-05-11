@@ -40,12 +40,16 @@ pub struct ExactNumericBinaryOpRouteRejection {
     pub kind: ExactNumericBinaryOpRouteRejectionKind,
 }
 
-pub(super) fn try_publish_binary_op_add_fact(
+pub(super) fn try_publish_binary_op_arithmetic_fact(
     facts: &mut BTreeMap<ValueId, ExactNumericValueFact>,
     dst: ValueId,
+    op: BinaryOp,
     lhs: ValueId,
     rhs: ValueId,
 ) -> bool {
+    if !is_exact_numeric_arithmetic_op(op) {
+        return false;
+    }
     if facts.contains_key(&dst) {
         return false;
     }
@@ -54,7 +58,8 @@ pub(super) fn try_publish_binary_op_add_fact(
         facts.get(&lhs).and_then(exact_numeric_type_for_value_fact),
         facts.get(&rhs).and_then(exact_numeric_type_for_value_fact),
     ];
-    let Ok(Some(ty)) = unify_exact_numeric_inputs(ExactNumericMergeSite::BinaryOpAdd, &incoming)
+    let Ok(Some(ty)) =
+        unify_exact_numeric_inputs(ExactNumericMergeSite::BinaryOpArithmetic, &incoming)
     else {
         return false;
     };
@@ -63,7 +68,7 @@ pub(super) fn try_publish_binary_op_add_fact(
         dst,
         ExactNumericValueFact {
             declared_type_name: ty.source_name,
-            source: ExactNumericValueFactSource::BinaryOpAdd { lhs, rhs },
+            source: ExactNumericValueFactSource::BinaryOp { op, lhs, rhs },
         },
     );
     true
@@ -79,24 +84,22 @@ pub(super) fn collect_binary_op_route_facts(
             continue;
         };
         for (instruction_index, spanned) in block.all_spanned_instructions_enumerated() {
-            let MirInstruction::BinOp {
-                dst,
-                op: BinaryOp::Add,
-                lhs,
-                rhs,
-            } = spanned.inst
-            else {
+            let MirInstruction::BinOp { dst, op, lhs, rhs } = spanned.inst else {
                 continue;
             };
+            if !is_exact_numeric_arithmetic_op(*op) {
+                continue;
+            }
             let Some(fact) = facts.get(dst) else {
                 continue;
             };
             if !matches!(
                 &fact.source,
-                ExactNumericValueFactSource::BinaryOpAdd {
+                ExactNumericValueFactSource::BinaryOp {
+                    op: source_op,
                     lhs: source_lhs,
                     rhs: source_rhs,
-                } if *source_lhs == *lhs && *source_rhs == *rhs
+                } if *source_op == *op && *source_lhs == *lhs && *source_rhs == *rhs
             ) {
                 continue;
             }
@@ -104,7 +107,7 @@ pub(super) fn collect_binary_op_route_facts(
                 block: block_id,
                 instruction_index,
                 dst: *dst,
-                op: BinaryOp::Add,
+                op: *op,
                 lhs: *lhs,
                 rhs: *rhs,
                 declared_type_name: fact.declared_type_name.clone(),
@@ -124,21 +127,19 @@ pub(super) fn collect_binary_op_route_rejections(
             continue;
         };
         for (instruction_index, spanned) in block.all_spanned_instructions_enumerated() {
-            let MirInstruction::BinOp {
-                dst,
-                op: BinaryOp::Add,
-                lhs,
-                rhs,
-            } = spanned.inst
-            else {
+            let MirInstruction::BinOp { dst, op, lhs, rhs } = spanned.inst else {
                 continue;
             };
+            if !is_exact_numeric_arithmetic_op(*op) {
+                continue;
+            }
             let incoming = [
                 facts.get(lhs).and_then(exact_numeric_type_for_value_fact),
                 facts.get(rhs).and_then(exact_numeric_type_for_value_fact),
             ];
             let Some(error) =
-                unify_exact_numeric_inputs(ExactNumericMergeSite::BinaryOpAdd, &incoming).err()
+                unify_exact_numeric_inputs(ExactNumericMergeSite::BinaryOpArithmetic, &incoming)
+                    .err()
             else {
                 continue;
             };
@@ -146,7 +147,7 @@ pub(super) fn collect_binary_op_route_rejections(
                 block: block_id,
                 instruction_index,
                 dst: *dst,
-                op: BinaryOp::Add,
+                op: *op,
                 lhs: *lhs,
                 rhs: *rhs,
                 kind: binary_op_rejection_kind(error),
@@ -154,6 +155,10 @@ pub(super) fn collect_binary_op_route_rejections(
         }
     }
     rejections
+}
+
+fn is_exact_numeric_arithmetic_op(op: BinaryOp) -> bool {
+    matches!(op, BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul)
 }
 
 fn binary_op_rejection_kind(
