@@ -49,13 +49,15 @@
 - `294x-04`: MIR now has a side-car exact numeric type model that preserves
   source spelling plus target-resolved signedness/width distinctly from
   `MirType::Integer`.
+- `294x-05`: exact numeric constant metadata and dynamic `Integer(i64)`
+  conversions now range-check through the MIR numeric substrate model.
 
 ## First Implementation Direction
 
 Start with metadata preservation before runtime behavior:
 
 1. attach exact numeric metadata to MIR facts/signature consumers;
-2. add verifier/fail-fast boundaries;
+2. add verifier/fail-fast boundaries for assignments and sentinels;
 3. add VM/backend exact `usize` behavior;
 4. migrate hako_alloc non-negative fields.
 

@@ -24,7 +24,7 @@ one commit unless a row explicitly says it is docs-only.
 | `294x-02` | Complete | parser metadata preservation | method, static method, and `birth` params keep declared type metadata; return annotations are preserved where accepted |
 | `294x-03` | Complete | AST JSON / Program(JSON) numeric metadata | declared param/return type text round-trips through JSON metadata without changing runtime semantics |
 | `294x-04` | Complete | MIR exact numeric type model | signedness/width/pointer-width are represented as side-car MIR metadata distinct from `MirType::Integer` |
-| `294x-05` | Pending | exact numeric constants and conversions | constants and dynamic integer conversions range-check into `usize` |
+| `294x-05` | Complete | exact numeric constants and conversions | constants and dynamic integer conversions range-check into exact numeric metadata |
 | `294x-06` | Pending | verifier negative/range fail-fast | `usize` assignments reject negative and out-of-range values under strict/dev gates |
 | `294x-07` | Pending | overflow and checked arithmetic policy | plain typed `usize` arithmetic has checked/fail-fast behavior; wrapping stays explicit |
 | `294x-08` | Pending | unsigned compare and logical shift | comparisons and right shift stop using signed i64 semantics for `usize` |
@@ -49,7 +49,7 @@ one commit unless a row explicitly says it is docs-only.
 - [ ] Define overflow behavior.
 - [ ] Define logical shift behavior.
 - [ ] Define unsigned comparison behavior.
-- [ ] Define conversion from dynamic `Integer(i64)`.
+- [x] Define conversion from dynamic `Integer(i64)`.
 - [ ] Define unsupported backend fail-fast tags.
 - [ ] Define when `i64` remains preferred.
 
@@ -67,8 +67,8 @@ one commit unless a row explicitly says it is docs-only.
 - [x] Add exact numeric MIR type representation.
 - [x] Preserve signedness and width.
 - [x] Preserve pointer-width target metadata owner.
-- [ ] Add exact numeric constants or constant metadata.
-- [ ] Add conversion/cast vocabulary.
+- [x] Add exact numeric constants or constant metadata.
+- [x] Add conversion/cast vocabulary.
 - [ ] Add PHI/Select unification rules.
 - [ ] Publish route facts for numeric params and returns.
 

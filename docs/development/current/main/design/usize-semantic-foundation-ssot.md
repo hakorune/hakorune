@@ -41,6 +41,8 @@ Live today:
   accepted return type annotations, with legacy names-only JSON still readable;
 - MIR owns side-car exact numeric type metadata that preserves source spelling
   plus target-resolved signedness/width distinctly from `MirType::Integer`;
+- exact numeric constant metadata and dynamic `Integer(i64)` conversion helpers
+  range-check values against signedness and resolved width;
 - typed-object planning can use numeric annotations as inline i64 storage
   hints;
 - VM runtime values use `Integer(i64)`;
@@ -48,7 +50,7 @@ Live today:
 
 Not live today:
 
-- unsigned range checks;
+- verifier/runtime unsigned range checks;
 - numeric literal suffixes such as `0usize`;
 - unsigned comparisons distinct from signed i64 comparisons;
 - wrapping / checked arithmetic vocabulary;
@@ -147,7 +149,8 @@ Do not store sentinel values in `usize`.
 - Preserve signedness and width.
 - Represent pointer-width integers through target-width metadata.
 - Add typed constants or constant metadata for exact numeric values.
-- Define conversions between dynamic `Integer(i64)` and exact numeric types.
+- Keep conversions between dynamic `Integer(i64)` and exact numeric metadata
+  range-checked.
 - Define PHI / Select unification rules for exact numeric types.
 - Define route facts for numeric param and return types.
 - Keep facts and lowerers in one SSOT path so type acceptance and lowering do

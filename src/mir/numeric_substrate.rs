@@ -91,6 +91,36 @@ pub struct NumericKind {
     pub width: NumericResolvedWidth,
 }
 
+impl NumericResolvedWidth {
+    pub(crate) const fn bits(self) -> u32 {
+        match self {
+            Self::Bits8 => 8,
+            Self::Bits16 => 16,
+            Self::Bits32 => 32,
+            Self::Bits64 => 64,
+        }
+    }
+}
+
+impl NumericKind {
+    pub(crate) fn value_range(self) -> ExactNumericRange {
+        let bits = self.width.bits();
+        match self.signedness {
+            NumericSignedness::Signed => {
+                let magnitude = 1_i128 << (bits - 1);
+                ExactNumericRange {
+                    min: -magnitude,
+                    max: magnitude - 1,
+                }
+            }
+            NumericSignedness::Unsigned => ExactNumericRange {
+                min: 0,
+                max: (1_i128 << bits) - 1,
+            },
+        }
+    }
+}
+
 /// Exact MIR-side numeric type metadata.
 ///
 /// This is deliberately distinct from `MirType::Integer`: it records the
@@ -108,6 +138,34 @@ pub(crate) struct ExactNumericMirType {
 pub(crate) struct ExactNumericMirSignature {
     pub params: Vec<Option<ExactNumericMirType>>,
     pub return_type: Option<ExactNumericMirType>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct ExactNumericRange {
+    pub min: i128,
+    pub max: i128,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[allow(dead_code)] // 294x-05 model; consumed by later verifier/runtime rows.
+pub(crate) struct ExactNumericConstValue {
+    pub ty: ExactNumericMirType,
+    pub value: i128,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[allow(dead_code)] // 294x-05 model; consumed by later verifier/runtime rows.
+pub(crate) enum ExactNumericConversionError {
+    NegativeToUnsigned {
+        source_name: String,
+        value: i128,
+    },
+    OutOfRange {
+        source_name: String,
+        value: i128,
+        min: i128,
+        max: i128,
+    },
 }
 
 pub(crate) fn classify_numeric_type_name(name: &str) -> Option<NumericTypeName> {
@@ -157,6 +215,52 @@ pub(crate) fn exact_numeric_mir_signature_from_declared_names<'a>(
             .collect(),
         return_type: exact_numeric_mir_type_from_declared_name(return_type_name, target),
     }
+}
+
+#[allow(dead_code)] // 294x-05 model; consumed by later verifier/runtime rows.
+pub(crate) fn exact_numeric_const_from_i128(
+    value: i128,
+    ty: &ExactNumericMirType,
+) -> Result<ExactNumericConstValue, ExactNumericConversionError> {
+    let range = ty.kind.value_range();
+    if ty.kind.signedness == NumericSignedness::Unsigned && value < 0 {
+        return Err(ExactNumericConversionError::NegativeToUnsigned {
+            source_name: ty.source_name.clone(),
+            value,
+        });
+    }
+    if value < range.min || value > range.max {
+        return Err(ExactNumericConversionError::OutOfRange {
+            source_name: ty.source_name.clone(),
+            value,
+            min: range.min,
+            max: range.max,
+        });
+    }
+    Ok(ExactNumericConstValue {
+        ty: ty.clone(),
+        value,
+    })
+}
+
+#[allow(dead_code)] // 294x-05 model; consumed by later verifier/runtime rows.
+pub(crate) fn exact_numeric_value_from_dynamic_integer(
+    value: i64,
+    ty: &ExactNumericMirType,
+) -> Result<ExactNumericConstValue, ExactNumericConversionError> {
+    exact_numeric_const_from_i128(i128::from(value), ty)
+}
+
+#[allow(dead_code)] // 294x-05 model; consumed by later verifier/runtime rows.
+pub(crate) fn exact_numeric_value_from_dynamic_integer_for_declared_name(
+    value: i64,
+    declared_type_name: Option<&str>,
+    target: NumericTarget,
+) -> Result<Option<ExactNumericConstValue>, ExactNumericConversionError> {
+    let Some(ty) = exact_numeric_mir_type_from_declared_name(declared_type_name, target) else {
+        return Ok(None);
+    };
+    exact_numeric_value_from_dynamic_integer(value, &ty).map(Some)
 }
 
 pub(crate) fn is_numeric_integer_type_name(name: &str) -> bool {
@@ -336,6 +440,106 @@ mod tests {
                     width: NumericResolvedWidth::Bits32,
                 },
             })
+        );
+    }
+
+    #[test]
+    fn exact_numeric_kind_ranges_cover_signed_and_unsigned_widths() {
+        assert_eq!(
+            NumericKind {
+                signedness: NumericSignedness::Signed,
+                width: NumericResolvedWidth::Bits8,
+            }
+            .value_range(),
+            ExactNumericRange {
+                min: -128,
+                max: 127,
+            }
+        );
+        assert_eq!(
+            NumericKind {
+                signedness: NumericSignedness::Unsigned,
+                width: NumericResolvedWidth::Bits8,
+            }
+            .value_range(),
+            ExactNumericRange { min: 0, max: 255 }
+        );
+        assert_eq!(
+            NumericKind {
+                signedness: NumericSignedness::Unsigned,
+                width: NumericResolvedWidth::Bits64,
+            }
+            .value_range()
+            .max,
+            18_446_744_073_709_551_615_i128
+        );
+    }
+
+    #[test]
+    fn exact_numeric_const_converts_i64_with_range_checks() {
+        let pointer64 = NumericTarget {
+            pointer_width: NumericResolvedWidth::Bits64,
+        };
+        let usize_ty = exact_numeric_mir_type_from_declared_name(Some("usize"), pointer64).unwrap();
+        let i8_ty = exact_numeric_mir_type_from_declared_name(Some("i8"), pointer64).unwrap();
+
+        assert_eq!(
+            exact_numeric_value_from_dynamic_integer(42, &usize_ty).unwrap(),
+            ExactNumericConstValue {
+                ty: usize_ty.clone(),
+                value: 42,
+            }
+        );
+        assert_eq!(
+            exact_numeric_value_from_dynamic_integer(-1, &usize_ty),
+            Err(ExactNumericConversionError::NegativeToUnsigned {
+                source_name: "usize".to_string(),
+                value: -1,
+            })
+        );
+        assert_eq!(
+            exact_numeric_value_from_dynamic_integer(128, &i8_ty),
+            Err(ExactNumericConversionError::OutOfRange {
+                source_name: "i8".to_string(),
+                value: 128,
+                min: -128,
+                max: 127,
+            })
+        );
+    }
+
+    #[test]
+    fn exact_numeric_dynamic_conversion_by_declared_name_ignores_non_numeric_names() {
+        let pointer32 = NumericTarget {
+            pointer_width: NumericResolvedWidth::Bits32,
+        };
+
+        assert_eq!(
+            exact_numeric_value_from_dynamic_integer_for_declared_name(
+                7,
+                Some("StringBox"),
+                pointer32
+            ),
+            Ok(None)
+        );
+        assert_eq!(
+            exact_numeric_value_from_dynamic_integer_for_declared_name(7, None, pointer32),
+            Ok(None)
+        );
+        assert_eq!(
+            exact_numeric_value_from_dynamic_integer_for_declared_name(7, Some("usize"), pointer32)
+                .unwrap()
+                .unwrap(),
+            ExactNumericConstValue {
+                ty: ExactNumericMirType {
+                    source_name: "usize".to_string(),
+                    kind: NumericKind {
+                        signedness: NumericSignedness::Unsigned,
+                        width: NumericResolvedWidth::Bits32,
+                    },
+                },
+                value: 7,
+            }
         );
     }
 }
