@@ -3,11 +3,13 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
+source tools/checks/lib/cargo_test_filter_group.sh
 
 echo "[k2-wide-static-const-table-decl] running M11b-decl guard"
 
-cargo test -q static_const_table
-cargo test -q static_data_plan
+run_cargo_test_filter_group "k2-wide-static-const-table-decl" "parser/MIR acceptance" \
+  static_const_table \
+  static_data_plan
 
 rg -F -q 'StaticConstTable' src/ast/mod.rs
 rg -F -q 'parse_static_const_table' src/parser/items/static_items.rs

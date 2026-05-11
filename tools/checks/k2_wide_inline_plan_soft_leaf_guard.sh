@@ -4,10 +4,12 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-inline-plan-soft-leaf"
 cd "$ROOT_DIR"
+source tools/checks/lib/cargo_test_filter_group.sh
 
 echo "[$TAG] running M11c-soft-leaf guard"
 
-cargo test -q inline_soft_leaf
+run_cargo_test_filter_group "$TAG" "soft leaf acceptance" \
+  inline_soft_leaf
 
 rg -F -q 'pub mod inline_soft_leaf' src/mir/passes/mod.rs
 rg -F -q 'pub fn apply(module: &mut MirModule) -> usize' src/mir/passes/inline_soft_leaf.rs

@@ -4,11 +4,13 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-inline-plan-preserve"
 cd "$ROOT_DIR"
+source tools/checks/lib/cargo_test_filter_group.sh
 
 echo "[$TAG] running M11c-preserve guard"
 
-cargo test -q mir_preserves_rune_hint
-cargo test -q build_mir_json_root_emits_inline_plans_from_hint_runes
+run_cargo_test_filter_group "$TAG" "inline plan preservation acceptance" \
+  mir_preserves_rune_hint \
+  build_mir_json_root_emits_inline_plans_from_hint_runes
 
 rg -F -q 'pub struct InlinePlan' src/mir/inline_plan.rs
 rg -F -q 'inline_plans_from_runes' src/mir/inline_plan.rs

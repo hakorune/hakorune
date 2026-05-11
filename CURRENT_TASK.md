@@ -29,6 +29,7 @@ Scope: current lane / next lane / restart order only.
 5. `git status -sb`
 6. `bash tools/checks/current_state_pointer_guard.sh`
 7. `tools/checks/dev_gate.sh quick` when a code slice is ready
+   (`allocator-wide` is explicit only for allocator/mimalloc/provider closeout)
 8. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md`
    only when returning to phase-29bq
 
@@ -64,7 +65,9 @@ Scope: current lane / next lane / restart order only.
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `cargo test -q numeric_substrate --lib` for metadata rows; add focused VM,
-  verifier, typed-object, or backend tests as each 294x row lands
+  verifier, typed-object, or backend tests as each 294x row lands. Run
+  `bash tools/checks/dev_gate.sh allocator-wide` only for allocator/mimalloc/
+  provider closeout or explicit wide-gate review.
 
 ## Task Order
 

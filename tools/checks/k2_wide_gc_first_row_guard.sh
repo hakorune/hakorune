@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
+source tools/checks/lib/cargo_test_filter_group.sh
 
 GC_CORE_FILE="lang/src/runtime/substrate/gc/gc_core_box.hako"
 VM_SUBSET_FILE="src/runner/reference/vm_hako/subset_check/mod.rs"
@@ -10,9 +11,9 @@ VM_BOXCALL_FILE="lang/src/vm/boxes/mir_vm_s0_boxcall_builtin.hako"
 VM_EXTERNCALL_FILE="lang/src/vm/boxes/mir_vm_s0_call_exec.hako"
 
 echo "[k2-wide-gc-first-row] running narrow GC first-row acceptance pack"
-echo "[k2-wide-gc-first-row] --- vm-hako subset acceptance ---"
-cargo test -q subset_accepts_externcall_nyash_gc_barrier_write -- --nocapture
-cargo test -q subset_accepts_boxcall_gccore_write_barrier_i64 -- --nocapture
+run_cargo_test_filter_group "k2-wide-gc-first-row" "vm-hako subset acceptance" \
+  subset_accepts_externcall_nyash_gc_barrier_write \
+  subset_accepts_boxcall_gccore_write_barrier_i64
 
 echo "[k2-wide-gc-first-row] --- substrate/vm route lock ---"
 rg -F -q 'write_barrier_i64(handle_or_ptr)' "$GC_CORE_FILE"

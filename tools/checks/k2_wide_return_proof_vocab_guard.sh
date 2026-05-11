@@ -4,10 +4,12 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-return-proof-vocab"
 cd "$ROOT_DIR"
+source tools/checks/lib/cargo_test_filter_group.sh
 
 echo "[$TAG] running M10c-pre return proof vocabulary guard"
 
-cargo test -q return_proof
+run_cargo_test_filter_group "$TAG" "return proof vocabulary acceptance" \
+  return_proof
 
 python3 - <<'PY'
 import pathlib

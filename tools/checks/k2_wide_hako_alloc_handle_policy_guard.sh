@@ -3,20 +3,17 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
+source tools/checks/lib/cargo_test_filter_group.sh
 
 HOST_HANDLES_FILE="src/runtime/host_handles.rs"
 HOST_HANDLES_POLICY_FILE="src/runtime/host_handles_policy.rs"
 ENV_FLAGS_FILE="src/config/env/helper_boundary_flags.rs"
 
 echo "[k2-wide-hako-alloc-handle-policy] running handle reuse policy acceptance pack"
-echo "[k2-wide-hako-alloc-handle-policy] --- parser/policy/registry acceptance ---"
-cargo test -q host_handle_alloc_policy_invalid_value_panics -- --nocapture
-cargo test -q host_handles_policy_lifo_reuses_last_dropped_handle -- --nocapture
-cargo test -q host_handles_policy_none_disables_reuse -- --nocapture
-cargo test -q host_handles_policy_fresh_issue_is_monotonic -- --nocapture
-cargo test -q host_handles_registry_lifo_reuses_dropped_handle -- --nocapture
-cargo test -q host_handles_registry_none_issues_fresh_handle_after_drop -- --nocapture
-cargo test -q host_reverse_call_map_slots -- --nocapture
+run_cargo_test_filter_group "k2-wide-hako-alloc-handle-policy" "parser/policy/registry acceptance" \
+  host_handle_alloc_policy_invalid_value_panics \
+  host_handles_ \
+  host_reverse_call_map_slots
 
 echo "[k2-wide-hako-alloc-handle-policy] --- kernel/cache acceptance ---"
 cargo test -q -p nyash_kernel cache_invalidates_on_drop_epoch_when_handle_is_reused --lib -- --nocapture

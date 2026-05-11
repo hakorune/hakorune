@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
+source tools/checks/lib/cargo_test_filter_group.sh
 
 OSVM_CORE_FILE="lang/src/runtime/substrate/osvm/osvm_core_box.hako"
 VM_SUBSET_FILE="src/runner/reference/vm_hako/subset_check/mod.rs"
@@ -13,20 +14,11 @@ HOSTBRIDGE_FILE="lang/c-abi/include/hako_hostbridge.h"
 KERNEL_SHIM_FILE="lang/c-abi/shims/hako_kernel.c"
 
 echo "[k2-wide-osvm-first-row] running narrow OSVM first-widening acceptance pack"
-echo "[k2-wide-osvm-first-row] --- vm-hako subset acceptance ---"
-cargo test -q subset_accepts_externcall_hako_osvm_page_size_i64 -- --nocapture
-cargo test -q subset_accepts_boxcall_osvmcore_page_size_i64 -- --nocapture
-cargo test -q subset_rejects_boxcall_osvmcore_page_size_i64_with_arg -- --nocapture
-cargo test -q compile_v0_emits_mir_call_extern_hako_osvm_page_size_i64 -- --nocapture
-cargo test -q subset_accepts_externcall_hako_osvm_reserve_bytes_i64 -- --nocapture
-cargo test -q subset_accepts_boxcall_osvmcore_reserve_bytes_i64 -- --nocapture
-cargo test -q compile_v0_emits_mir_call_extern_hako_osvm_reserve_bytes_i64 -- --nocapture
-cargo test -q compile_v0_emits_mir_call_extern_hako_osvm_commit_bytes_i64 -- --nocapture
-cargo test -q compile_v0_emits_mir_call_extern_hako_osvm_decommit_bytes_i64 -- --nocapture
-cargo test -q subset_accepts_boxcall_osvmcore_commit_bytes_i64 -- --nocapture
-cargo test -q subset_accepts_externcall_hako_osvm_commit_bytes_i64 -- --nocapture
-cargo test -q subset_accepts_boxcall_osvmcore_decommit_bytes_i64 -- --nocapture
-cargo test -q subset_accepts_externcall_hako_osvm_decommit_bytes_i64 -- --nocapture
+run_cargo_test_filter_group "k2-wide-osvm-first-row" "vm-hako subset acceptance" \
+  subset_accepts_externcall_hako_osvm \
+  subset_accepts_boxcall_osvmcore \
+  subset_rejects_boxcall_osvmcore \
+  compile_v0_emits_mir_call_extern_hako_osvm
 
 echo "[k2-wide-osvm-first-row] --- substrate/vm/abi route lock ---"
 rg -F -q 'page_size_i64()' "$OSVM_CORE_FILE"

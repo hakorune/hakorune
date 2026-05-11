@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
+source tools/checks/lib/cargo_test_filter_group.sh
 
 INTRIN_CORE_FILE="lang/src/runtime/substrate/intrin/intrin_core_box.hako"
 VM_INTRIN_HELPER_FILE="lang/src/vm/boxes/mir_i64_intrinsics.hako"
@@ -13,12 +14,9 @@ HOSTBRIDGE_FILE="lang/c-abi/include/hako_hostbridge.h"
 KERNEL_FILE="lang/c-abi/shims/hako_kernel.c"
 
 echo "[k2-wide-intrin-first-row] running narrow Intrin first-row acceptance pack"
-echo "[k2-wide-intrin-first-row] --- vm-hako subset acceptance ---"
-cargo test -q subset_accepts_boxcall_intrincore_bit_count_i64_rows -- --nocapture
-cargo test -q subset_accepts_externcall_hako_intrin_bit_count_i64_rows -- --nocapture
-cargo test -q subset_rejects_boxcall_intrincore_bit_count_without_arg -- --nocapture
-cargo test -q subset_rejects_externcall_unknown_hako_intrin_row -- --nocapture
-cargo test -q compile_v0_emits_mir_call_extern_hako_intrin_clz_i64 -- --nocapture
+run_cargo_test_filter_group "k2-wide-intrin-first-row" "vm-hako subset acceptance" \
+  intrincore_bit_count \
+  hako_intrin
 
 echo "[k2-wide-intrin-first-row] --- substrate/vm/native route lock ---"
 rg -F -q 'clz_i64(value)' "$INTRIN_CORE_FILE"

@@ -4,13 +4,15 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-effect-capability-plan"
 cd "$ROOT_DIR"
+source tools/checks/lib/cargo_test_filter_group.sh
 
 echo "[$TAG] running M11d EffectPlan/CapabilityPlan guard"
 
-cargo test -q effect_capability_plan
-cargo test -q mir_preserves_rune_contracts_as_effect_plan_metadata
-cargo test -q build_mir_json_root_emits_effect_and_capability_plans
-cargo test -q rune_contract_verifier_consumes_effect_plan_metadata
+run_cargo_test_filter_group "$TAG" "effect/capability plan acceptance" \
+  effect_capability_plan \
+  mir_preserves_rune_contracts_as_effect_plan_metadata \
+  build_mir_json_root_emits_effect_and_capability_plans \
+  rune_contract_verifier_consumes_effect_plan_metadata
 
 rg -F -q 'pub mod effect_capability_plan' src/mir/mod.rs
 rg -F -q 'pub mod rune_plan_refresh' src/mir/mod.rs

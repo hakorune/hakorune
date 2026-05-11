@@ -4,14 +4,16 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-inline-required-verify"
 cd "$ROOT_DIR"
+source tools/checks/lib/cargo_test_filter_group.sh
 
 echo "[$TAG] running M11c-required-verify guard"
 
-cargo test -q required_inline_verifies_leaf_with_required_contracts
-cargo test -q required_inline_rejects_missing_contracts
-cargo test -q mir_verifier_runs_required_inline_check
-cargo test -q required_inline_rejects_nested_call
-cargo test -q mir_preserves_rune_lowering_inline_required_as_inline_plan_metadata
+run_cargo_test_filter_group "$TAG" "required inline verifier acceptance" \
+  required_inline_verifies_leaf_with_required_contracts \
+  required_inline_rejects_missing_contracts \
+  mir_verifier_runs_required_inline_check \
+  required_inline_rejects_nested_call \
+  mir_preserves_rune_lowering_inline_required_as_inline_plan_metadata
 
 rg -F -q 'pub(crate) mod inline_leaf' src/mir/mod.rs
 rg -F -q 'check_leaf_inline_shape' src/mir/inline_leaf.rs

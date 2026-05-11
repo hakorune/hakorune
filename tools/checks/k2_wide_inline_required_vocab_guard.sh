@@ -4,12 +4,14 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-inline-required-vocab"
 cd "$ROOT_DIR"
+source tools/checks/lib/cargo_test_filter_group.sh
 
 echo "[$TAG] running M11c-required-vocab guard"
 
-cargo test -q parser_accepts_canonical_rune_control_plane_surface_and_roundtrips_ast_json
-cargo test -q parser_rejects_invalid_lowering_rune_value
-cargo test -q mir_preserves_rune_lowering_inline_required_as_inline_plan_metadata
+run_cargo_test_filter_group "$TAG" "required inline vocabulary acceptance" \
+  parser_accepts_canonical_rune_control_plane_surface_and_roundtrips_ast_json \
+  parser_rejects_invalid_lowering_rune_value \
+  mir_preserves_rune_lowering_inline_required_as_inline_plan_metadata
 
 rg -F -q 'Lowering(inline_required)' src/ast/attrs.rs
 rg -F -q 'Lowering(inline_required)' lang/src/compiler/parser/rune/rune_contract_box.hako

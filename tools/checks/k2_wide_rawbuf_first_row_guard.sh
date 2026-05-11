@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
+source tools/checks/lib/cargo_test_filter_group.sh
 
 RAW_BUF_README="lang/src/runtime/substrate/raw_buf/README.md"
 RAW_BUF_CORE_FILE="lang/src/runtime/substrate/raw_buf/raw_buf_core_box.hako"
@@ -15,11 +16,9 @@ HAKO_ALLOC_README="lang/src/hako_alloc/README.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 
 echo "[k2-wide-rawbuf-first-row] running narrow RawBuf first-row acceptance pack"
-echo "[k2-wide-rawbuf-first-row] --- vm-hako subset acceptance ---"
-cargo test -q subset_accepts_boxcall_rawbufcore_alloc_bytes_i64 -- --nocapture
-cargo test -q subset_accepts_boxcall_rawbufcore_realloc_bytes_i64 -- --nocapture
-cargo test -q subset_accepts_boxcall_rawbufcore_free_bytes_i64 -- --nocapture
-cargo test -q subset_rejects_boxcall_rawbufcore_set_len_i64 -- --nocapture
+run_cargo_test_filter_group "k2-wide-rawbuf-first-row" "vm-hako subset acceptance" \
+  subset_accepts_boxcall_rawbufcore \
+  subset_rejects_boxcall_rawbufcore
 
 echo "[k2-wide-rawbuf-first-row] --- file/owner lock ---"
 for file in \

@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
+source tools/checks/lib/cargo_test_filter_group.sh
 
 TLS_CORE_FILE="lang/src/runtime/substrate/tls/tls_core_box.hako"
 VM_SUBSET_FILE="src/runner/reference/vm_hako/subset_check/mod.rs"
@@ -10,11 +11,10 @@ VM_BOXCALL_FILE="lang/src/vm/boxes/mir_vm_s0_boxcall_builtin.hako"
 VM_EXTERNCALL_FILE="lang/src/vm/boxes/mir_vm_s0_call_exec.hako"
 
 echo "[k2-wide-tls-first-row] running narrow TLS first-row acceptance pack"
-echo "[k2-wide-tls-first-row] --- vm-hako subset acceptance ---"
-cargo test -q subset_accepts_externcall_hako_last_error -- --nocapture
-cargo test -q subset_accepts_boxcall_tlscore_last_error_text_h -- --nocapture
-cargo test -q subset_accepts_boxcall_tlscore_last_error_status_rows -- --nocapture
-cargo test -q subset_rejects_boxcall_tlscore_last_error_text_with_arg -- --nocapture
+run_cargo_test_filter_group "k2-wide-tls-first-row" "vm-hako subset acceptance" \
+  subset_accepts_externcall_hako_last_error \
+  subset_accepts_boxcall_tlscore_last_error \
+  subset_rejects_boxcall_tlscore_last_error
 
 echo "[k2-wide-tls-first-row] --- substrate/vm route lock ---"
 rg -F -q 'last_error_text_h()' "$TLS_CORE_FILE"

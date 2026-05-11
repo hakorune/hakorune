@@ -3,10 +3,12 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
+source tools/checks/lib/cargo_test_filter_group.sh
 
 echo "[k2-wide-static-const-table-load] running M11b-load guard"
 
-cargo test -q static_const_table_load
+run_cargo_test_filter_group "k2-wide-static-const-table-load" "load acceptance" \
+  static_const_table_load
 
 rg -F -q 'StaticDataLoad' src/mir/instruction.rs
 rg -F -q 'StaticDataLoad' src/mir/contracts/backend_core_ops.rs

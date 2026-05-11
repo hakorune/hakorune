@@ -4,10 +4,12 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-runtime-decl-return-proof-row"
 cd "$ROOT_DIR"
+source tools/checks/lib/cargo_test_filter_group.sh
 
 echo "[$TAG] running M10c-proof-row runtime-decl return proof row guard"
 
-cargo test -q runtime_decl_return_proof
+run_cargo_test_filter_group "$TAG" "runtime-decl return proof acceptance" \
+  runtime_decl_return_proof
 
 python3 - <<'PY'
 import pathlib

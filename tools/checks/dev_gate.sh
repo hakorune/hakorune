@@ -5,12 +5,13 @@ set -euo pipefail
 # Purpose: single-entry developer gate with tiered profiles.
 #
 # Usage:
-#   tools/checks/dev_gate.sh [quick|hotpath|plugin-module-core8-light|plugin-module-core8|runtime-exec-zero|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3-core|wasm-demo-g3-full|wasm-demo-g3|wasm-freeze-core|wasm-freeze-parity|portability|milestone|milestone-runtime|milestone-perf]
+#   tools/checks/dev_gate.sh [quick|hotpath|allocator-wide|plugin-module-core8-light|plugin-module-core8|runtime-exec-zero|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3-core|wasm-demo-g3-full|wasm-demo-g3|wasm-freeze-core|wasm-freeze-parity|portability|milestone|milestone-runtime|milestone-perf]
 #   tools/checks/dev_gate.sh --list
 #
 # Profiles:
 #   quick     : day-to-day lightweight checks (default)
-#   hotpath   : quick + phase21.5 perf hotpath contract bundle
+#   hotpath   : quick + integration/perf hotpath contract bundle
+#   allocator-wide : quick + full allocator/mimalloc/provider proof gate
 #   wasm-boundary-lite : quick + wasm-backend compile + boundary fast-fail unit locks
 #   portability : cross-platform maintenance guards (Windows WSL/CMD + macOS readiness)
 #   milestone-runtime : hotpath + runtime/selfhost milestone smoke
@@ -24,7 +25,7 @@ source "${ROOT_DIR}/tools/lib/ffi_contract.sh"
 usage() {
   cat <<'USAGE'
 Usage:
-  tools/checks/dev_gate.sh [quick|hotpath|plugin-module-core8-light|plugin-module-core8|runtime-exec-zero|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3-core|wasm-demo-g3-full|wasm-demo-g3|wasm-freeze-core|wasm-freeze-parity|portability|milestone|milestone-runtime|milestone-perf]
+  tools/checks/dev_gate.sh [quick|hotpath|allocator-wide|plugin-module-core8-light|plugin-module-core8|runtime-exec-zero|wasm-boundary-lite|wasm-demo-g2|wasm-demo-g3-core|wasm-demo-g3-full|wasm-demo-g3|wasm-freeze-core|wasm-freeze-parity|portability|milestone|milestone-runtime|milestone-perf]
   tools/checks/dev_gate.sh --list
 USAGE
 }
@@ -74,7 +75,32 @@ list_profiles() {
     - tools/checks/k2_wide_gc_first_row_guard.sh
     - tools/checks/k2_wide_osvm_first_row_guard.sh
     - tools/checks/k2_wide_intrin_first_row_guard.sh
-    - tools/checks/k2_wide_allocator_gate.sh (runs allocator/mimalloc proof group below)
+    - tools/checks/k2_wide_export_attrs_consistency_guard.sh
+    - tools/checks/k2_wide_static_data_first_row_guard.sh
+    - tools/checks/k2_wide_static_const_table_decl_guard.sh
+    - tools/checks/k2_wide_static_const_table_load_guard.sh
+    - tools/checks/k2_wide_static_const_table_eval_guard.sh
+    - tools/checks/k2_wide_inline_plan_preserve_guard.sh
+    - tools/checks/k2_wide_inline_plan_soft_leaf_guard.sh
+    - tools/checks/k2_wide_inline_required_vocab_guard.sh
+    - tools/checks/k2_wide_rune_contract_repeat_guard.sh
+    - tools/checks/k2_wide_inline_required_verify_guard.sh
+    - tools/checks/k2_wide_effect_capability_plan_guard.sh
+    - tools/checks/k2_wide_return_proof_vocab_guard.sh
+    - tools/checks/k2_wide_runtime_decl_return_proof_row_guard.sh
+    - tools/checks/k2_wide_native_ptr_decl_type_guard.sh
+    - tools/checks/k2_wide_hako_mem_runtime_decl_guard.sh
+    - tools/checks/allocator_provider_inactive_sentinel_guard.sh
+    - tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
+    - tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
+  hotpath:
+    - quick
+    - phase291x_maplookup_fusion_const_fold_contract_llvm.sh
+    - phase21_5_perf_chip8_kernel_crosslang_contract.sh
+    - tools/perf/run_phase21_5_perf_gate_bundle.sh hotpath
+  allocator-wide:
+    - quick
+    - tools/checks/k2_wide_allocator_gate.sh (full allocator/mimalloc/provider proof group below)
     - tools/checks/k2_wide_mimalloc_raw_page_proof_guard.sh
     - tools/checks/k2_wide_profile_registry_docs_guard.sh
     - tools/checks/k2_wide_profile_expansion_to_facts_guard.sh
@@ -170,14 +196,7 @@ list_profiles() {
     - tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_entry_contract_guard.sh
     - tools/checks/k2_wide_allocator_provider_proof_consumption_failfast_entry_guard.sh
     - tools/checks/k2_wide_allocator_provider_selected_provider_precondition_guard.sh
-    - tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
-    - tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
     - tools/checks/k2_wide_metal_keep_inventory_guard.sh
-    - phase291x_maplookup_fusion_const_fold_contract_llvm.sh
-    - phase21_5_perf_chip8_kernel_crosslang_contract.sh
-  hotpath:
-    - quick
-    - tools/perf/run_phase21_5_perf_gate_bundle.sh hotpath
   plugin-module-core8-light:
     - cargo check --bin hakorune
     - phase29cc_plg_hm1_contract_tests_vm.sh
@@ -480,32 +499,35 @@ run_quick() {
   run_step "K2-wide hako_mem runtime-decl guard" \
     bash tools/checks/k2_wide_hako_mem_runtime_decl_guard.sh
 
-  run_step "K2-wide allocator gate group" \
-    bash tools/checks/k2_wide_allocator_gate.sh
+  run_step "allocator provider inactive sentinel guard" \
+    bash tools/checks/allocator_provider_inactive_sentinel_guard.sh
 
   run_step "K2-wide hako_alloc handle policy guard" \
     bash tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
 
   run_step "K2-wide hako_alloc GC trigger policy guard" \
     bash tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
-
-  run_step "K2-wide metal keep inventory guard" \
-    bash tools/checks/k2_wide_metal_keep_inventory_guard.sh
-
-  run_step "MapLookup fusion const-fold contract smoke" \
-    env NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
-      bash tools/smokes/v2/profiles/integration/apps/phase291x_maplookup_fusion_const_fold_contract_llvm.sh
-
-  run_step "chip8 crosslang mainline contract smoke" \
-    env NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
-      bash tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/phase21_5_perf_chip8_kernel_crosslang_contract.sh
 }
 
 run_hotpath() {
   run_quick
+  run_step "MapLookup fusion const-fold contract smoke" \
+    env NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
+      bash tools/smokes/v2/profiles/integration/apps/phase291x_maplookup_fusion_const_fold_contract_llvm.sh
+  run_step "chip8 crosslang mainline contract smoke" \
+    env NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
+      bash tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/phase21_5_perf_chip8_kernel_crosslang_contract.sh
   run_step "phase21.5 perf gate bundle (hotpath)" \
     env NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
       tools/perf/run_phase21_5_perf_gate_bundle.sh hotpath
+}
+
+run_allocator_wide() {
+  run_quick
+  run_step "K2-wide allocator gate group" \
+    bash tools/checks/k2_wide_allocator_gate.sh
+  run_step "K2-wide metal keep inventory guard" \
+    bash tools/checks/k2_wide_metal_keep_inventory_guard.sh
 }
 
 run_plugin_module_core8_light() {
@@ -781,6 +803,9 @@ case "${PROFILE}" in
     ;;
   hotpath)
     run_hotpath
+    ;;
+  allocator-wide)
+    run_allocator_wide
     ;;
   plugin-module-core8-light)
     run_plugin_module_core8_light

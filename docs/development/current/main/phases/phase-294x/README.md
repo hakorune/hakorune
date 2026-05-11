@@ -97,6 +97,12 @@
 - `294x-09d`: exact numeric `BinOp::Add` now publishes MIR-owned route facts
   and exact numeric result value facts when both operands share the same exact
   numeric type; mismatches stay visible as rejection metadata.
+- `294x-09e`: `dev_gate.sh quick` is now the slim daily gate; full
+  allocator/mimalloc/provider proof coverage moved to the explicit
+  `allocator-wide` profile, while quick keeps a provider inactive sentinel.
+- `294x-09f`: quick first-row guards now share a cargo filter grouping helper
+  and use contract-family filters to reduce repeated cargo startup without
+  changing route/file locks.
 
 ## First Implementation Direction
 

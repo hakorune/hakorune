@@ -14,8 +14,10 @@ tools/checks/dev_gate.sh quick
 
 | Script | Purpose |
 | --- | --- |
-| `tools/checks/dev_gate.sh` | 日常ゲートの統合実行（quick/hotpath/portability/milestone）。 |
-| `tools/checks/k2_wide_allocator_gate.sh` | dev_gate quick から呼ぶ allocator/mimalloc proof group。個別 guard の docs/dev_gate 導線は維持しつつ、実行本体を1入口へ集約する。 |
+| `tools/checks/dev_gate.sh` | 日常ゲートの統合実行（quick/hotpath/allocator-wide/portability/milestone）。quick は daily slim、allocator-wide は full allocator/mimalloc/provider proof。 |
+| `tools/checks/k2_wide_allocator_gate.sh` | dev_gate allocator-wide から呼ぶ allocator/mimalloc/provider proof group。個別 guard の docs/dev_gate 導線は維持しつつ、実行本体を1入口へ集約する。 |
+| `tools/checks/allocator_provider_inactive_sentinel_guard.sh` | quick 用の軽量 provider inactive sentinel。selection/proof consumption/rollback/gate/hook/replacement/`.inc` matcher の危険信号だけを共有 forbidden-pattern guard で固定する。 |
+| `tools/checks/lib/cargo_test_filter_group.sh` | quick first-row guards 用の共有 helper。main crate lib test target に限定して関連 cargo test filter を contract-family 単位に束ね、route/file lock は各 guard 側に残す。 |
 | `tools/checks/current_state_pointer_guard.sh` | `CURRENT_STATE.toml` をSSOTとして current pointer の必須path / latest-card整合 / stale phase 名を fail-fast で検出する。current mirrors に latest-card履歴の再掲は要求しない。 |
 | `tools/checks/inc_codegen_thin_shim_guard.sh` | `.inc` codegen の raw MIR analysis debt no-growth baseline。削減は許可し、新規/増加を fail-fast で止める。明示された view-owner 領域だけは `tools/checks/inc_codegen_thin_shim_view_allowlist.tsv` で別枠固定する。 |
 | `tools/checks/generic_method_set_policy_mirror_guard.sh` | `CollectionMethodPolicyBox.set_route(...)` と C shim の generic-method `Set` route/demand mirror を固定し、`ArrayStoreString` の source/identity/publication demand drift を fail-fast で検出する。 |
@@ -90,20 +92,20 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_mimalloc_ptr_atomic_store_exe_guard.sh` | M35 の direct native-pointer atomic store route + pure-first EXE proof を固定し、`hako_atomic_ptr_store_ordered` が MIR-owned extern route facts から emit されることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_tls_ptr_remote_free_exe_guard.sh` | M36 の TLS cache-slot + direct native-pointer atomic store composition proof を固定し、remote-free mailbox seam が既存 route facts だけで pure-first EXE 実行できることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_remote_free_policy_exe_guard.sh` | M37 の allocator remote-free policy integration proof を固定し、`AllocatorRemoteFreePolicy` が既存 TLS/pointer-store route facts だけで pure-first EXE 実行できることを検証する。 |
-| `tools/checks/k2_wide_mimalloc_allocator_closeout_guard.sh` | M38 の mimalloc allocator app closeout coverage を固定し、M20-M37 proof apps / guards / docs index / dev_gate quick の導線が欠けていないことと、app-specific `.inc` matcher がないことを検証する。 |
+| `tools/checks/k2_wide_mimalloc_allocator_closeout_guard.sh` | M38 の mimalloc allocator app closeout coverage を固定し、M20-M37 proof apps / guards / docs index / dev_gate allocator-wide の導線が欠けていないことと、app-specific `.inc` matcher がないことを検証する。 |
 | `tools/checks/k2_wide_mimalloc_ptr_atomic_load_exe_guard.sh` | M39 の direct native-pointer atomic load route + pure-first EXE proof を固定し、`hako_atomic_ptr_load_ordered` が MIR-owned extern route facts から emit されることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_ptr_atomic_cas_exe_guard.sh` | M40 の direct native-pointer atomic CAS route + pure-first EXE proof を固定し、`hako_atomic_ptr_cas_ordered` が MIR-owned extern route facts から emit されることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_ptr_remote_free_list_exe_guard.sh` | M41 の pointer store/load/CAS composition proof を固定し、既存 route facts だけで two-node remote-free list push が pure-first EXE 実行できることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_remote_free_list_policy_exe_guard.sh` | M42 の allocator remote-free list policy proof を固定し、M41 の two-node push shape が same-module policy box 経由で pure-first EXE 実行できることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_remote_free_retry_loop_exe_guard.sh` | M43 の allocator remote-free retry-loop proof を固定し、same-module policy box 内の bounded CAS retry loop が pure-first EXE 実行できることを検証する。 |
-| `tools/checks/k2_wide_mimalloc_allocator_substrate_closeout_guard.sh` | M44 の mimalloc allocator substrate closeout を固定し、M20-M43 proof apps/guards/docs/quick coverage と app-specific `.inc` matcher 不在を検証する。 |
+| `tools/checks/k2_wide_mimalloc_allocator_substrate_closeout_guard.sh` | M44 の mimalloc allocator substrate closeout を固定し、M20-M43 proof apps/guards/docs/allocator-wide coverage と app-specific `.inc` matcher 不在を検証する。 |
 | `tools/checks/k2_wide_production_allocator_port_entry_plan_guard.sh` | M45 の production allocator port entry plan を固定し、M46-M50 の実装順・境界・pointer fetch_add/native attrs inactive を検証する。 |
 | `tools/checks/k2_wide_hako_alloc_production_facade_exe_guard.sh` | M46 の `hako_alloc` production facade boundary を固定し、`HakoAllocProductionFacade` が pure-first EXE で既存 page/free-list policy state へ委譲することを検証する。 |
 | `tools/checks/k2_wide_hako_alloc_local_page_policy_exe_guard.sh` | M47 の allocator local page policy proof を固定し、`HakoAllocProductionFacade` 経由で small/medium allocate/free/reject/reuse accounting が pure-first EXE 実行できることを検証する。 |
 | `tools/checks/k2_wide_hako_alloc_remote_free_policy_exe_guard.sh` | M48 の allocator remote-free policy proof を固定し、`HakoAllocProductionFacade` 経由で bounded CAS retry-loop remote-free policy が pure-first EXE 実行できることを検証する。 |
 | `tools/checks/k2_wide_hako_alloc_page_source_policy_exe_guard.sh` | M49 の allocator OSVM page-source proof を固定し、`HakoAllocProductionFacade` 経由で reserve/commit/decommit が pure-first EXE 実行できることを検証する。 |
 | `tools/checks/k2_wide_hako_alloc_production_facade_stress_exe_guard.sh` | M50 の allocator stress production-facade parity を固定し、既存 allocator-stress の accounting shape が `HakoAllocProductionFacade` 経由で pure-first EXE 実行できることを検証する。 |
-| `tools/checks/k2_wide_production_allocator_port_closeout_guard.sh` | M51 の production allocator port closeout を固定し、M46-M50 の app/guard/docs/dev_gate coverage と inactive allocator rows を検証する。 |
+| `tools/checks/k2_wide_production_allocator_port_closeout_guard.sh` | M51 の production allocator port closeout を固定し、M46-M50 の app/guard/docs/dev_gate allocator-wide coverage と inactive allocator rows を検証する。 |
 | `tools/checks/k2_wide_allocator_replacement_hook_boundary_guard.sh` | M52 の allocator replacement hook boundary を固定し、HookPlan/owner SSOT と process allocator replacement / hook env / `.inc` name matching 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_hook_plan_vocab_guard.sh` | M53 の allocator HookPlan vocabulary を固定し、reserved HookPlan v0 docs/TOML fixture と runtime hook / process allocator replacement / `.inc` name matching 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_hook_runtime_dry_run_guard.sh` | M54 の allocator hook runtime dry-run boundary を固定し、diagnostic-only runtime seam と runtime hook code / process allocator replacement / `.inc` name matching 不在を検証する。 |

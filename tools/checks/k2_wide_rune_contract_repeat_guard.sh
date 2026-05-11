@@ -4,11 +4,13 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-rune-contract-repeat"
 cd "$ROOT_DIR"
+source tools/checks/lib/cargo_test_filter_group.sh
 
 echo "[$TAG] running M11c-contract-repeat guard"
 
-cargo test -q parser_accepts_distinct_contract_runes_on_same_declaration
-cargo test -q parser_rejects_duplicate_contract_rune_value
+run_cargo_test_filter_group "$TAG" "repeatable rune parser acceptance" \
+  parser_accepts_distinct_contract_runes_on_same_declaration \
+  parser_rejects_duplicate_contract_rune_value
 
 rg -F -q 'fn repeatable_rune_name(name: &str) -> bool' src/parser/runes.rs
 rg -F -q 'matches!(name, "Contract")' src/parser/runes.rs
