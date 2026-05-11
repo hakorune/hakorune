@@ -391,7 +391,11 @@ inference for the allocator release path.
 - `293x-165`: M164 mimalloc layout migration closeout landed, fixing
   `LayoutBox` as the legacy two-class compatibility facade over `SizeClassBox`
   and preserving current VM/EXE allocator proof behavior.
+- `293x-166`: M165 mimalloc page model split landed, adding
+  `HakoAllocPageModel` as a heap-independent page-local owner for `free`,
+  `local_free`, `used`, `capacity`, and `reserved` invariants.
 - Next: resume `.hako` mimalloc / `hako_alloc` implementation slices on top of
-  the capability substrate, continuing with `M165 page model split`.
+  the capability substrate, continuing with `M166 page queue and direct-page
+  cache`.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.

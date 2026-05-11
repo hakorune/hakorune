@@ -1,0 +1,49 @@
+// mimalloc-page-model-proof
+// Purpose: prove page-local state invariants before page ordering exists.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+
+static box Main {
+    main(args) {
+        local page = new HakoAllocPageModel(7, 32, 3, 5)
+
+        local b0 = page.acquire(8)
+        local b1 = page.acquire(16)
+        local b2 = page.acquire(24)
+        local full = page.acquire(8)
+        local released = page.releaseLocal(b1)
+        local double_release = page.releaseLocal(b1)
+        local still_full_until_collect = page.acquire(8)
+        local invalid_release = page.releaseLocal(99)
+
+        local shape = 0
+        if b0 == 2 { shape = shape + 1 }
+        if b1 == 1 { shape = shape + 1 }
+        if b2 == 0 { shape = shape + 1 }
+        if full == -1 { shape = shape + 1 }
+        if released == 1 { shape = shape + 1 }
+        if double_release == 0 { shape = shape + 1 }
+        if still_full_until_collect == -1 { shape = shape + 1 }
+        if invalid_release == 0 { shape = shape + 1 }
+        if page.used == 2 { shape = shape + 1 }
+        if page.capacity == 3 { shape = shape + 1 }
+        if page.reserved == 5 { shape = shape + 1 }
+        if page.freeCount() == 0 { shape = shape + 1 }
+        if page.localFreeCount() == 1 { shape = shape + 1 }
+        if page.availableBlockCount() == 1 { shape = shape + 1 }
+
+        print("mimalloc-page-model-proof")
+        print("blocks=" + b0 + "," + b1 + "," + b2 + "," + full + "," + still_full_until_collect)
+        print("state=" + page.used + "," + page.capacity + "," + page.reserved + "," + page.freeCount() + "," + page.localFreeCount())
+        print("counts=" + page.alloc_count + "," + page.local_free_count + "," + page.reject_count + "," + page.peak_used + "," + page.requested_bytes)
+        print("shape=" + shape)
+
+        if shape == 14 && page.alloc_count == 3 && page.local_free_count == 1 && page.reject_count == 4 && page.peak_used == 3 && page.requested_bytes == 48 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

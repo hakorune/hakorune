@@ -128,6 +128,7 @@
 - [x] `293x-163` M163 mimalloc size-class policy owner
 - [x] `293x-164` M164-M170 mimalloc port granularity lock
 - [x] `293x-165` M164 mimalloc layout migration closeout
+- [x] `293x-166` M165 mimalloc page model split
 
 ## Gates
 

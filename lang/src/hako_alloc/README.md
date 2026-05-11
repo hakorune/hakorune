@@ -28,6 +28,9 @@ Principles
     OSVM reserve/commit/decommit metal remains substrate/native keep.
   - `SizeClassBox` owns mimalloc-shaped pure size-class policy. `LayoutBox`
     remains the small/medium compatibility facade until the page heap migrates.
+  - `HakoAllocPageModel` owns page-local `free` / `local_free` / `used` /
+    `capacity` / `reserved` invariants. Page queues, OSVM sourcing, TLS,
+    atomics, and remote-free integration stay in later rows.
 
 Design owners
 - Policy/state stop-line:
@@ -76,6 +79,7 @@ Current modules
 - `memory.arc_box`
 - `memory.allocator_facade_box`
 - `memory.layout_box`
+- `memory.page_box`
 - `memory.page_heap_box`
 - `memory.page_source_policy_box`
 - `memory.remote_free_policy_box`

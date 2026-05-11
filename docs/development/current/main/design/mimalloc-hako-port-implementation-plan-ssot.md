@@ -158,6 +158,9 @@ work. Splitting is mandatory if a row starts adding algorithm bodies back into
   `page_heap_box.hako` still consumes that facade without bypassing it.
 - `M165` must create a page-local owner before `M166` creates queues. Do not
   add queue traversal to prove page fields.
+  M165 landed as `HakoAllocPageModel` in `page_box.hako`: `free`,
+  `local_free`, `used`, `capacity`, and `reserved` are testable without a heap,
+  and `local_free` remains non-reusable until the later collection row.
 - `M166` must choose pages, not allocate blocks. If it pops a free block, that
   belongs to `M167`.
 - `M167` may create deterministic model pages in memory; it must not reserve
