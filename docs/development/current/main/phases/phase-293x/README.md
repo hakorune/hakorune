@@ -357,5 +357,8 @@ inference for the allocator release path.
   explicit TOML path while keeping proof consumption, provider selection,
   rollback, gate opening, hook activation, native activation, and replacement
   inactive.
-- Next: any later activation behavior row must first add its own owner/entry
-  SSOT and must not piggyback on the diagnostic CLI surfaces.
+- `293x-156`: M100 allocator provider proof bundle consumption entry contract
+  landed, reserving the future behavior owner/entry under the activation owner
+  while keeping proof consumption and activation inactive.
+- Next: any later activation behavior row must use its own owner/entry SSOT and
+  must not piggyback on the diagnostic CLI surfaces.

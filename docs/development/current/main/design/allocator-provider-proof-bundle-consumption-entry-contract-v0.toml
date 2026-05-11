@@ -1,0 +1,66 @@
+# Reserved schema fixture only. Runtime/backend code must not implicitly
+# discover or consume this file.
+schema_version = "allocator_provider_proof_bundle_consumption_entry_contract_v0"
+status = "reserved"
+active = false
+proof_bundle_consumption_implementation_status = "owner_entry_reserved"
+
+activation_owner = "src/runtime/allocator_provider_activation.rs"
+proof_bundle_consumption_owner = "src/runtime/allocator_provider_activation.rs"
+proof_bundle_consumption_entry = "allocator_provider_proof_bundle_consumption_attempt"
+activation_decision_owner = "src/runtime/allocator_provider_activation_decision.rs"
+diagnostic_report_owner = "src/runtime/allocator_provider_registry.rs"
+diagnostic_cli_owner = "src/cli/allocator_provider_proof_bundle_consumption.rs"
+
+activation_decision_report_input = "allocator_provider_activation_decision_report"
+registry_snapshot_report_input = "allocator_provider_registry_snapshot_report"
+selection_decision_report_input = "allocator_provider_selection_decision_report"
+proof_bundle_consumption_report_input = "allocator_provider_proof_bundle_consumption_report"
+
+selected_provider_requirement = "future_selected_provider_required"
+provider_proof_bundle_source = "caller_provided_explicit_bundle"
+proof_bundle_consumption = "future_row_required"
+provider_selection = "inactive"
+rollback_preparation = "future_row_required"
+activation_gate = "closed_reserved"
+hook_activation = "future_row_required"
+process_allocator_replacement = "future_row_required"
+proof_bundle_consumed = false
+would_build_registry = false
+would_select_provider = false
+would_consume_proof_bundle = false
+would_prepare_rollback = false
+would_open_activation_gate = false
+would_install_hook = false
+would_replace_process_allocator = false
+would_activate = false
+activation = "future_row_required"
+diagnostic = "[allocator-provider/proof-bundle-consumption-entry-missing]"
+
+required_proof_bundle_consumption_entry_facts = [
+  "activation_owner_named",
+  "proof_bundle_consumption_owner_named",
+  "proof_bundle_consumption_entry_named",
+  "activation_decision_report_explicit",
+  "registry_snapshot_report_explicit",
+  "selection_decision_report_explicit",
+  "proof_bundle_consumption_report_explicit",
+  "selected_provider_required_before_consumption",
+  "provider_proof_bundle_explicit",
+  "fail_fast_proof_bundle_entry_diagnostic_named",
+  "no_hidden_environment_toggle",
+  "no_implicit_manifest_discovery",
+  "no_implicit_report_discovery",
+  "no_implicit_proof_discovery",
+  "no_provider_selection_implementation",
+  "no_proof_consumption_implementation",
+  "no_rollback_preparation_implementation",
+  "no_activation_gate_opening",
+  "no_hook_activation_implementation",
+  "no_process_allocator_replacement",
+]
+
+future_rows = [
+  "later proof bundle consumption implementation row",
+  "later rollback preparation entry row",
+]

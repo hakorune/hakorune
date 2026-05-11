@@ -79,9 +79,9 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - current allocator/provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
-  (closed through M99; the proof-bundle diagnostic CLI row is explicit-path
-  only, and any next behavior row still needs its own owner/entry SSOT before
-  proof consumption behavior)
+  (closed through M100; the proof-bundle consumption behavior owner/entry is
+  reserved under the activation owner, and proof consumption remains inactive
+  until a later implementation row)
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
 - next: continue after M99 proof-bundle consumption CLI surface; M92 names
@@ -91,9 +91,10 @@ Scope: current lane / next lane / restart order only.
   adds the inactive selection decision runtime report, and M97 exposes it
   through an explicit TOML-path CLI; M97B centralizes duplicated TOML helper
   and fact-check ownership, M98 adds the inactive proof-bundle consumption
-  runtime report, and M98B splits the runtime diagnostic implementation into
-  focused modules behind the historical registry facade; M99 exposes the
-  inactive proof-bundle report through an explicit TOML-path CLI. Active
+  runtime report, M98B splits the runtime diagnostic implementation into
+  focused modules behind the historical registry facade, M99 exposes the
+  inactive proof-bundle report through an explicit TOML-path CLI, and M100
+  reserves the future proof-bundle consumption behavior owner/entry. Active
   registry construction, provider selection, proof consumption, rollback
   preparation, gate opening, hook activation, native activation, and process
   allocator replacement remain inactive
