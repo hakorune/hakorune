@@ -7,7 +7,6 @@ use nyash_rust::{interpreter::NyashInterpreter, parser::NyashParser};
 // Use the library crate's plugin init module rather than the bin crate root
 use crate::cli_v;
 use crate::runner::pipeline::{resolve_using_target, suggest_in_base};
-use crate::runner::trace::cli_verbose;
 use crate::runtime::get_global_ring0;
 use std::io::Read;
 use std::process::Stdio;

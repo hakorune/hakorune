@@ -38,15 +38,6 @@ impl JoinFragmentMeta {
     pub fn has_expr_result(&self) -> bool {
         self.expr_result.is_some()
     }
-
-    /// Phase 33-14: Backward compatibility - convert to ExitMeta
-    ///
-    /// During migration, some code may still expect ExitMeta.
-    /// This extracts just the carrier bindings.
-    #[deprecated(since = "33-14", note = "Use exit_meta directly for carrier access")]
-    pub fn to_exit_meta(&self) -> ExitMeta {
-        self.exit_meta.clone()
-    }
 }
 
 impl ExitMeta {

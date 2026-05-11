@@ -40,12 +40,6 @@ impl ReplSessionBox {
         self.variables.get(name)
     }
 
-    /// セッションに変数が存在するか確認
-    #[allow(dead_code)]
-    pub(super) fn has(&self, name: &str) -> bool {
-        self.variables.contains_key(name)
-    }
-
     pub(super) fn set_last_value(&mut self, value: VMValue) {
         self.last_value = Some(value.clone());
         self.variables.insert("_".to_string(), value);

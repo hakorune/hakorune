@@ -110,7 +110,7 @@ fn load_required_methods_from_toml() -> HashMap<String, Vec<String>> {
     map
 }
 
-pub fn verify_from_env() -> Result<(), String> {
+pub(crate) fn verify_from_env() -> Result<(), String> {
     let mode = env::env_string("NYASH_PROVIDER_VERIFY").unwrap_or_default();
     let mode = mode.to_ascii_lowercase();
     if !(mode == "warn" || mode == "strict") {

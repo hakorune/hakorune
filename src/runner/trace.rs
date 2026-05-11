@@ -2,12 +2,6 @@
 
 use crate::runtime::get_global_ring0;
 
-/// Return whether CLI verbose logging is enabled
-#[allow(dead_code)]
-pub fn cli_verbose() -> bool {
-    crate::config::env::cli_verbose()
-}
-
 #[macro_export]
 macro_rules! cli_v {
     ($($arg:tt)*) => {{
