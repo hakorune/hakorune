@@ -152,8 +152,14 @@ visibility_weak_sugar := ('public'|'private') 'weak' IDENT ( ':' TYPE )?
                   ; sugar syntax (Phase 285A1.4). Equivalent to visibility block form.
                   ; e.g., `public weak parent` ≡ `public { weak parent }`
 
-stored         := IDENT ':' TYPE ( '=' expr )?
-                  ; stored property (read/write). No handlers supported.
+stored         := IDENT
+                | IDENT ':' TYPE ( '=' expr )?
+                  ; stored property (read/write). `IDENT` alone is the simple
+                  ; untyped stored field form. `IDENT ':' TYPE` carries
+                  ; declared-type metadata for tooling / typed-object planning;
+                  ; it is not a general runtime type check.
+                  ; Bare `IDENT '=' expr` is not live; use `birth(...)` for
+                  ; portable initialization when no declared type is needed.
 
 computed       := get_computed | legacy_computed
 
@@ -195,14 +201,15 @@ postfix_cleanup    := primary_expr 'cleanup' block
 ```
 
 Semantics (summary)
-- stored: O(1) slot read; write via assignment. Initializer (if present) evaluates at construction once.
+- stored: O(1) slot read; write via assignment. Bare stored fields are dynamic/untyped. Typed stored fields keep declared-type metadata for optimizers/verifiers and typed-object planning, but ordinary field writes are not type-enforced by this syntax.
+- stored initializers: `name: Type = expr` is accepted syntax in the unified-member surface, but portable initialization should still be expressed in `birth(...) { me.name = expr }` unless a row explicitly proves initializer lowering for the target path.
 - computed/get: read‑only; each read evaluates the block; assignment is an error unless a setter is explicitly defined.
 - once: first read evaluates the block and caches the value; subsequent reads return the cached value. On exception without a `catch`, the property becomes poisoned and rethrows on later reads (no retries).
 - birth_once: evaluated before the user `birth` body, in declaration order; exceptions without a `catch` abort construction; cycles between `birth_once` members are an error.
 - handlers: `catch/cleanup` are permitted for computed/once/birth_once/method blocks (Stage‑3), not for stored.
 
 Lowering (no JSON v0 change)
-- stored → slot
+- stored → slot; declared type, when present, is copied into field-declaration metadata
 - computed/get → synthesize `__get_name():T { try body; catch; finally }`; reads of `obj.name` become `obj.__get_name()`
 - once → add `__name: Option<T>` and emit `__get_name()` with first‑read initialization; on uncaught exception mark poisoned and rethrow on subsequent reads
 - birth_once → add `__name: T` and insert initialization just before user `birth` in declaration order; handlers apply to each initializer
@@ -216,7 +223,7 @@ Semantics (SSOT):
 - `init { a, b, c }` declares **untyped stored slots** named `a`, `b`, `c` (equivalent to writing `a` / `b` / `c` as stored members without type).
 - `init { weak x, weak y }` declares **weak fields** (equivalent to writing `weak x` / `weak y` as members).
 - It does not execute code. Initialization logic belongs in `birth(...) { ... }` and assignments.
-- **New code** should prefer the direct syntax: `weak field_name` (Phase 285A1.2) or the unified member model (`stored/computed/once/birth_once`).
+- **New code** should prefer the direct syntax: `field_name` for simple dynamic slots, `field_name: Type` for declared-type metadata, `weak field_name` for weak fields, or the rest of the unified member model (`get`/`once`/`birth_once`).
 - Legacy `init { weak field }` syntax still works for backward compatibility but is superseded by `weak field`.
 
 ## Enum Declarations (Phase-163x parser surface)

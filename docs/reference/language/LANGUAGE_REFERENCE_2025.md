@@ -82,10 +82,10 @@ Note (concurrency / async SSOT):
 #### **基本Box**
 ```nyash
 box ClassName {
-    # フィールド宣言（Phase 12.7形式）
-    field1: TypeBox              # 型アノテーション（現状は契約として未強制。SSOT: docs/reference/language/types.md）
-    field2: TypeBox
-    field3                       # 型なしも可
+    # フィールド宣言
+    field1                       # 簡単な型なし stored field
+    field2: TypeBox              # 明示metadataつき stored field（現状は一般代入の型検査ではない）
+    field3: TypeBox              # typed-object plan / optimizer / verifier の材料
     
     # コンストラクタ
     birth(param1, param2) {      # birth構文に統一
@@ -109,13 +109,21 @@ box ClassName {
 
 注: `fini()` / strong・weak / スコープ終了 / GC の方針（cycle の扱い含む）の SSOT は `docs/reference/language/lifecycle.md`。
 
+フィールド宣言の設計:
+- `field` は一番簡単な untyped stored field です。試作・一般アプリ・動的なBoxではこれを使えます。
+- `field: Type` は stored field に declared-type metadata を付ける形です。現時点では一般代入の型強制ではなく、TypedObjectPlan / optimizer / verifier / AI読み取りの材料です。
+- 初期値は、互換性を重視する場合は `birth(...) { me.field = value }` に書くのが現在の安定した形です。
+- `init { field }` は下記の legacy compatibility です。新規コードの第一推奨ではありません。
+
 注（`init { ... }` について）:
 - `init { a, b, c }` は **互換のために残っているフィールド宣言（slot）**です（コード実行の「初期化ブロック」ではありません）。
 - これは「untyped な stored slot を宣言する糖衣」として扱います（例: `a` / `b` / `c` の stored を追加する）。
 - `init { weak field }` は弱フィールド宣言です（Phase 285A1.2 の直接構文 `weak field` に統一されました）。
 - 新規コードでは、可能なら以下を推奨します:
+  - **簡単な通常フィールド**: `field_name`
+  - **明示metadataつきフィールド**: `field_name: Type`
   - **弱フィールド**: 直接構文 `weak field_name`（Phase 285A1.2）
-  - **その他**: `docs/reference/language/EBNF.md` の Unified Members（stored/computed/once/birth_once）
+  - **その他**: `docs/reference/language/EBNF.md` の Unified Members（get/computed/once/birth_once）
 
 #### **デリゲーションBox**
 ```nyash
@@ -363,7 +371,9 @@ local double = fn(x) { x * 2 }  # 単一式なら省略可
 
 分類と構文（header‑first）
 - stored（格納・読み書き可）
-  - `name: Type` または `name: Type = expr`（初期値は生成時に一度だけ評価）
+  - `name`（簡単な untyped stored field）
+  - `name: Type`（declared-type metadata つき stored field。一般代入の型強制ではありません）
+  - `name: Type = expr`（受理される syntax。現在の移植性重視コードでは `birth` 代入を優先）
 - computed / get（計算・読み専用）
   - `get name: Type { /* body */ }` または `get name: Type => expr`（読むたびに計算。代入不可）
   - 互換短縮形として `name: Type { /* body */ }` / `name: Type => expr` も受理
@@ -384,11 +394,13 @@ nyashモード（block‑first、オプション）
 - 代入:
   - stored のみ許可（`obj.name = v`）。
   - computed/once/birth_once は代入不可（エラー）。setter を定義した場合のみ糖衣で許可（`obj.name = v` → `__set_name(v)`）。
+- typed stored field の型名は現時点では metadata です。実行時の一般代入を強制する型契約ではなく、TypedObjectPlan / optimizer / verifier などが利用するための情報です。
 
 例
 ```nyash
 box MyBox {
-  name: StringBox                 # stored
+  tag                            # untyped stored
+  name: StringBox                 # typed metadata stored
   get size: IntegerBox { me.items.len() } # computed/get
   once cache: CacheBox { buildCache() } # once
   birth_once token: StringBox { readEnv("TOKEN") } # eager once

@@ -400,6 +400,9 @@ inference for the allocator release path.
 - `293x-168`: M166B mimalloc unified-member style cleanup landed, converting
   the new page model and page queue boxes from legacy `init` slot lists to
   `field: Type` stored declarations.
+- `293x-169`: Box field syntax reference sync landed, documenting the
+  simple/explicit/legacy split as `field`, `field: Type`, and
+  `init { field }`.
 - Next: resume `.hako` mimalloc / `hako_alloc` implementation slices on top of
   the capability substrate, continuing with `M167 alloc fast path plus generic
   fallback`.

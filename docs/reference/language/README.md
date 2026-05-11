@@ -32,10 +32,10 @@ Type system (SSOT)
 
 Grammar (EBNF)
 - See: reference/language/EBNF.md — Stage‑2 grammar specification used by parser implementations.
-- Unified Members (stored/computed/once/birth_once): see reference/language/EBNF.md “Box Members (Phase 15)” and the Language Reference section. Canonical computed syntax is `get name: Type { ... }`; legacy `name: Type { ... }` remains accepted. Default ON (disable with `NYASH_ENABLE_UNIFIED_MEMBERS=0`).
+- Unified Members (stored/computed/once/birth_once): see reference/language/EBNF.md “Box Members (Phase 15)” and the Language Reference section. Stored fields use `name` for simple dynamic slots and `name: Type` when declared-type metadata helps typed-object planning / optimization / verification. Canonical computed syntax is `get name: Type { ... }`; legacy `name: Type { ... }` remains accepted. Default ON (disable with `NYASH_ENABLE_UNIFIED_MEMBERS=0`).
 
 Member exceptions and handlers (Stage‑3)
-- Postfix `catch/cleanup` may be attached to computed/once/birth_once/method blocks when Stage‑3 is enabled. Stored members (plain `name: Type [= expr]`) do not support handlers.
+- Postfix `catch/cleanup` may be attached to computed/once/birth_once/method blocks when Stage‑3 is enabled. Stored members (`name` or `name: Type`) do not support handlers.
 
 Related implementation notes
 - Tokenizer: src/tokenizer.rs

@@ -7,7 +7,7 @@ Nyashの核心哲学「**Everything is Box**」に関する完全な設計ドキ
 
 注（`init { ... }` について）:
 - `init { a, b, c }` は legacy のフィールド宣言（slot）です（互換のために残っています）。
-- 新規コードでは、可能なら Unified Members（stored/computed/once/birth_once）での宣言を推奨します（SSOT: `docs/reference/language/EBNF.md` / ライフサイクルSSOT: `docs/reference/language/lifecycle.md`）。
+- 新規コードでは、簡単な通常フィールドは `field`、型metadataを明示したいフィールドは `field: Type`、弱フィールドは `weak field` を推奨します。`init { ... }` は新規推奨ではなく互換用です（SSOT: `docs/reference/language/EBNF.md` / ライフサイクルSSOT: `docs/reference/language/lifecycle.md`）。
 
 ## 📚 ドキュメント構成
 
