@@ -17,11 +17,11 @@ pub(super) mod if_legacy;
 pub(super) mod lambda_legacy;
 pub(super) mod loop_;
 pub(super) mod loop_runtime;
-pub(super) mod match_expr; // placeholder (not wired)
+pub(super) mod match_expr;
 pub(super) mod program;
 pub(super) mod scope_exit;
 pub(super) mod stmts;
-pub(super) mod ternary; // placeholder (not wired)
+pub(super) mod ternary;
 pub(super) mod throw_ctx;
 pub(super) mod throw_lower;
 pub(super) mod try_catch; // thread-local ctx for Result-mode throw routing

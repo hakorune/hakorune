@@ -1,7 +1,4 @@
-//! Ternary lowering (skeleton)
-//!
-//! NOTE: This module is introduced as part of the helper split.
-//! It is not wired yet and should not alter behavior.
+//! Ternary lowering for the JSON v0 bridge.
 
 use super::super::ast::ExprV0;
 use super::merge::new_block;
@@ -11,7 +8,6 @@ use crate::mir::{BasicBlockId, MirFunction, ValueId};
 
 use super::expr::{lower_expr_with_scope, VarScope};
 
-#[allow(dead_code)]
 pub(super) fn lower_ternary_expr_with_scope<S: VarScope>(
     env: &BridgeEnv,
     f: &mut MirFunction,

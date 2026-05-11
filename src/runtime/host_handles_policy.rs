@@ -1,15 +1,8 @@
 use crate::config::env::HostHandleAllocPolicyMode;
 
-#[allow(dead_code)]
-trait HostHandleReusePolicy {
-    fn take_reusable_handle(free: &mut Vec<u64>) -> Option<u64>;
-    fn issue_fresh_handle(next: &mut u64) -> u64;
-    fn recycle_handle(free: &mut Vec<u64>, handle: u64);
-}
-
 struct LifoHostHandleReusePolicy;
 
-impl HostHandleReusePolicy for LifoHostHandleReusePolicy {
+impl LifoHostHandleReusePolicy {
     #[inline(always)]
     fn take_reusable_handle(free: &mut Vec<u64>) -> Option<u64> {
         free.pop()
@@ -32,7 +25,7 @@ impl HostHandleReusePolicy for LifoHostHandleReusePolicy {
 
 struct NoReuseHostHandleReusePolicy;
 
-impl HostHandleReusePolicy for NoReuseHostHandleReusePolicy {
+impl NoReuseHostHandleReusePolicy {
     #[inline(always)]
     fn take_reusable_handle(_free: &mut Vec<u64>) -> Option<u64> {
         None
@@ -53,7 +46,6 @@ pub(crate) fn active_host_handle_alloc_policy_mode() -> HostHandleAllocPolicyMod
 }
 
 #[inline(always)]
-#[allow(dead_code)]
 pub(crate) fn take_reusable_handle(
     mode: HostHandleAllocPolicyMode,
     free: &mut Vec<u64>,
@@ -65,7 +57,6 @@ pub(crate) fn take_reusable_handle(
 }
 
 #[inline(always)]
-#[allow(dead_code)]
 pub(crate) fn issue_fresh_handle(mode: HostHandleAllocPolicyMode, next: &mut u64) -> u64 {
     match mode {
         HostHandleAllocPolicyMode::Lifo => LifoHostHandleReusePolicy::issue_fresh_handle(next),
