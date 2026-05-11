@@ -30,6 +30,8 @@ Live today:
 
 - numeric substrate names are classified by `src/mir/numeric_substrate.rs`;
 - `usize` is recognized as unsigned pointer-width metadata;
+- target pointer width and target-resolved numeric kind metadata are owned by
+  `NumericTarget` / `NumericKind` in `src/mir/numeric_substrate.rs`;
 - field annotations can preserve declared type names;
 - typed-object planning can use numeric annotations as inline i64 storage
   hints;
@@ -40,7 +42,6 @@ Live today:
 
 Not live today:
 
-- exact pointer-width target semantics;
 - unsigned range checks;
 - numeric literal suffixes such as `0usize`;
 - unsigned comparisons distinct from signed i64 comparisons;

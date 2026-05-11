@@ -27,8 +27,8 @@ navigation order must stay narrow and explicit.
 - `loop_canonicalizer/`: loop normalization and route detection.
 - `lowerers/`: lowering helpers that are not part of the builder core.
 - `numeric_substrate.rs`: fixed-width and pointer-sized numeric type-name
-  vocabulary for substrate metadata. It does not add exact-width runtime
-  semantics by itself.
+  vocabulary, target pointer-width resolution, and target-resolved numeric kind
+  metadata. It does not add exact-width runtime semantics by itself.
 - `raw_layout.rs`: fixed raw-layout vocabulary for substrate metadata. It does
   not add `.hako struct` syntax or backend-active native layout by itself.
 - `optimizer_passes/`, `passes/`: MIR pass implementations. Docs-first only for now.

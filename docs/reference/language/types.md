@@ -45,6 +45,9 @@ Current live semantics are intentionally narrow:
   storage hints.
 - The original declared type name is preserved so later exact-width rows can
   refine semantics without rediscovering source text.
+- Pointer-sized names resolve their metadata width through the MIR numeric
+  target owner (`src/mir/numeric_substrate.rs`). This is target metadata only;
+  it does not enable exact `usize` runtime behavior by itself.
 
 Deferred and not accepted by this row:
 

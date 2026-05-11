@@ -20,7 +20,7 @@ one commit unless a row explicitly says it is docs-only.
 | Row | Status | Scope | Done When |
 | --- | --- | --- | --- |
 | `294x-00` | Complete | phase lock and full visible task inventory | SSOT, README, taskboard, current pointers are in place |
-| `294x-01` | Pending | target-width and numeric-kind SSOT in code | target pointer width owner exists; `usize` no longer depends on ad hoc host assumptions |
+| `294x-01` | Complete | target-width and numeric-kind SSOT in code | target pointer width owner exists; `usize` no longer depends on ad hoc host assumptions |
 | `294x-02` | Pending | parser metadata preservation | method, static method, and `birth` params keep declared type metadata; return annotations are either preserved or rejected consistently |
 | `294x-03` | Pending | AST JSON / Program(JSON) numeric metadata | declared param/return numeric kinds round-trip without changing runtime semantics |
 | `294x-04` | Pending | MIR exact numeric type model | signedness/width/pointer-width are represented distinctly from `MirType::Integer` |
@@ -45,7 +45,7 @@ one commit unless a row explicitly says it is docs-only.
 
 ### Spec
 
-- [ ] Define exact `usize` range by target pointer width.
+- [x] Define exact `usize` range owner by target pointer width.
 - [ ] Define overflow behavior.
 - [ ] Define logical shift behavior.
 - [ ] Define unsigned comparison behavior.
@@ -66,7 +66,7 @@ one commit unless a row explicitly says it is docs-only.
 
 - [ ] Add exact numeric MIR type representation.
 - [ ] Preserve signedness and width.
-- [ ] Preserve pointer-width target metadata.
+- [x] Preserve pointer-width target metadata owner.
 - [ ] Add exact numeric constants or constant metadata.
 - [ ] Add conversion/cast vocabulary.
 - [ ] Add PHI/Select unification rules.

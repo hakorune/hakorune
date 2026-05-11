@@ -38,6 +38,8 @@
 ## Current Status
 
 - `294x-00`: phase lock and full visible task inventory landed.
+- `294x-01`: code-side target pointer-width and target-resolved numeric kind
+  SSOT landed in `src/mir/numeric_substrate.rs`.
 
 ## First Implementation Direction
 

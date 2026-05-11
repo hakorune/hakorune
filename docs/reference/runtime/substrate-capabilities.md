@@ -792,6 +792,8 @@ New surface:
 Owner module:
 
 - MIR: `src/mir/numeric_substrate.rs`
+- Target-width owner: `NumericTarget`
+- Target-resolved kind owner: `NumericKind`
 
 Accepted backends:
 
@@ -799,6 +801,8 @@ Accepted backends:
 - MIR/VM/LLVM: current `>>` is signed i64 arithmetic right shift.
 - EXE: typed-object slots may use inline i64 storage for these declared type
   names.
+- Pointer-sized type names resolve to target-width metadata through
+  `NumericTarget`; this does not enable exact backend lowering yet.
 
 Unsupported backend behavior:
 

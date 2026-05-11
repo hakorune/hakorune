@@ -23,9 +23,72 @@ pub enum NumericWidth {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum NumericResolvedWidth {
+    Bits8,
+    Bits16,
+    Bits32,
+    Bits64,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct NumericTarget {
+    pointer_width: NumericResolvedWidth,
+}
+
+impl NumericTarget {
+    #[cfg(target_pointer_width = "32")]
+    pub(crate) const HOST: Self = Self {
+        pointer_width: NumericResolvedWidth::Bits32,
+    };
+
+    #[cfg(target_pointer_width = "64")]
+    pub(crate) const HOST: Self = Self {
+        pointer_width: NumericResolvedWidth::Bits64,
+    };
+
+    pub(crate) const fn host() -> Self {
+        Self::HOST
+    }
+
+    pub(crate) const fn pointer_width(self) -> NumericResolvedWidth {
+        self.pointer_width
+    }
+}
+
+#[cfg(not(any(target_pointer_width = "32", target_pointer_width = "64")))]
+compile_error!("Hakorune numeric substrate requires an explicit 32-bit or 64-bit pointer target");
+
+impl NumericWidth {
+    pub(crate) const fn resolve_for_target(self, target: NumericTarget) -> NumericResolvedWidth {
+        match self {
+            Self::Bits8 => NumericResolvedWidth::Bits8,
+            Self::Bits16 => NumericResolvedWidth::Bits16,
+            Self::Bits32 => NumericResolvedWidth::Bits32,
+            Self::Bits64 => NumericResolvedWidth::Bits64,
+            Self::Pointer => target.pointer_width(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct NumericTypeName {
     pub signedness: NumericSignedness,
     pub width: NumericWidth,
+}
+
+impl NumericTypeName {
+    pub(crate) const fn kind_for_target(self, target: NumericTarget) -> NumericKind {
+        NumericKind {
+            signedness: self.signedness,
+            width: self.width.resolve_for_target(target),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct NumericKind {
+    pub signedness: NumericSignedness,
+    pub width: NumericResolvedWidth,
 }
 
 pub(crate) fn classify_numeric_type_name(name: &str) -> Option<NumericTypeName> {
@@ -45,8 +108,15 @@ pub(crate) fn classify_numeric_type_name(name: &str) -> Option<NumericTypeName> 
     Some(NumericTypeName { signedness, width })
 }
 
+pub(crate) fn classify_numeric_kind_for_target(
+    name: &str,
+    target: NumericTarget,
+) -> Option<NumericKind> {
+    classify_numeric_type_name(name).map(|type_name| type_name.kind_for_target(target))
+}
+
 pub(crate) fn is_numeric_integer_type_name(name: &str) -> bool {
-    classify_numeric_type_name(name).is_some()
+    classify_numeric_kind_for_target(name, NumericTarget::host()).is_some()
 }
 
 pub(crate) fn is_inline_i64_storage_type_name(name: &str) -> bool {
@@ -86,6 +156,58 @@ mod tests {
         );
         assert_eq!(classify_numeric_type_name("IntegerBox"), None);
         assert_eq!(classify_numeric_type_name("String"), None);
+    }
+
+    #[test]
+    fn host_target_width_matches_rust_compilation_target() {
+        #[cfg(target_pointer_width = "32")]
+        assert_eq!(
+            NumericTarget::host().pointer_width(),
+            NumericResolvedWidth::Bits32
+        );
+        #[cfg(target_pointer_width = "64")]
+        assert_eq!(
+            NumericTarget::host().pointer_width(),
+            NumericResolvedWidth::Bits64
+        );
+    }
+
+    #[test]
+    fn resolves_pointer_sized_kinds_through_target_width() {
+        let pointer64 = NumericTarget {
+            pointer_width: NumericResolvedWidth::Bits64,
+        };
+        let pointer32 = NumericTarget {
+            pointer_width: NumericResolvedWidth::Bits32,
+        };
+        assert_eq!(
+            classify_numeric_kind_for_target("usize", pointer64),
+            Some(NumericKind {
+                signedness: NumericSignedness::Unsigned,
+                width: NumericResolvedWidth::Bits64,
+            })
+        );
+        assert_eq!(
+            classify_numeric_kind_for_target("isize", pointer32),
+            Some(NumericKind {
+                signedness: NumericSignedness::Signed,
+                width: NumericResolvedWidth::Bits32,
+            })
+        );
+    }
+
+    #[test]
+    fn fixed_width_kinds_do_not_depend_on_target_width() {
+        let pointer32 = NumericTarget {
+            pointer_width: NumericResolvedWidth::Bits32,
+        };
+        let pointer64 = NumericTarget {
+            pointer_width: NumericResolvedWidth::Bits64,
+        };
+        assert_eq!(
+            classify_numeric_kind_for_target("u32", pointer32),
+            classify_numeric_kind_for_target("u32", pointer64)
+        );
     }
 
     #[test]
