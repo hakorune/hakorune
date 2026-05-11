@@ -38,11 +38,22 @@ pub(super) struct RuneAttrV0 {
 pub(super) struct FuncDefV0 {
     pub(super) name: String,
     pub(super) params: Vec<String>,
+    #[serde(default)]
+    pub(super) param_decls: Vec<ParamDeclV0>,
+    #[serde(default, rename = "return_type")]
+    pub(super) return_type_name: Option<String>,
     pub(super) body: ProgramV0,
     #[serde(default)]
     pub(super) attrs: FuncAttrsV0,
     #[serde(rename = "box")]
     pub(super) box_name: String,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, Default)]
+pub(super) struct ParamDeclV0 {
+    pub(super) name: String,
+    #[serde(default, rename = "declared_type")]
+    pub(super) declared_type_name: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, Default)]

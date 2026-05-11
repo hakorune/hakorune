@@ -102,7 +102,8 @@ box ClassName {
     }
     # 注: 引数の型注釈 `arg: Type` と戻り値注釈 `): Type` は
     # AST metadata として保持されます。`params` は互換用に
-    # param 名だけを持ち、JSON v0 round-trip と runtime 型契約は後続行です。
+    # param 名だけを持ち、AST JSON / Program(JSON) は追加 metadata として
+    # 型名を運びます。runtime 型契約は後続行です。
 	    
 	    # デストラクタ（fini）
 	    fini() {

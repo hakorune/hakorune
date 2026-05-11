@@ -37,6 +37,8 @@ Live today:
   parameter annotations are preserved in AST parameter metadata while the
   existing `params` surface remains names-only;
 - accepted return type annotations are preserved in AST metadata;
+- AST JSON and Stage1 Program(JSON) carry declared parameter metadata and
+  accepted return type annotations, with legacy names-only JSON still readable;
 - typed-object planning can use numeric annotations as inline i64 storage
   hints;
 - VM runtime values use `Integer(i64)`;
@@ -130,8 +132,8 @@ Do not store sentinel values in `usize`.
 - Preserve return type annotations if the parser accepts `method(...): Type`.
 - Preserve static-box method annotations with the same representation as box
   methods.
-- Round-trip declared numeric metadata through AST JSON / Program(JSON) or an
-  explicit side table.
+- Keep declared numeric metadata round-tripping through AST JSON /
+  Program(JSON).
 - Keep Rust and `.hako` parser fronts aligned.
 - Keep annotation parsing structural: do not add by-name special cases for
   mimalloc or allocator code.

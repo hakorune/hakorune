@@ -43,17 +43,18 @@
 - `294x-02`: parser and AST now preserve parameter declared-type metadata and
   accepted return type annotations while keeping `params` as the names-only
   compatibility surface.
+- `294x-03`: AST JSON and Stage1 Program(JSON) now transport declared
+  parameter metadata and accepted return type annotations without changing
+  runtime semantics.
 
 ## First Implementation Direction
 
 Start with metadata preservation before runtime behavior:
 
-1. round-trip parameter/return declared numeric metadata through AST JSON /
-   Program(JSON);
-2. introduce exact numeric type representation in MIR;
-3. add verifier/fail-fast boundaries;
-4. add VM/backend exact `usize` behavior;
-5. migrate hako_alloc non-negative fields.
+1. introduce exact numeric type representation in MIR;
+2. add verifier/fail-fast boundaries;
+3. add VM/backend exact `usize` behavior;
+4. migrate hako_alloc non-negative fields.
 
 This keeps the source truth available before any lowerer claims exact
 semantics.

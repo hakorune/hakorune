@@ -1,4 +1,4 @@
-use nyash_rust::ast::{BinaryOperator, LiteralValue, UnaryOperator};
+use nyash_rust::ast::{BinaryOperator, LiteralValue, ParamDecl, UnaryOperator};
 use serde_json::{json, Value};
 
 pub(crate) fn lit_to_json(v: &LiteralValue) -> Value {
@@ -101,4 +101,48 @@ pub(crate) fn is_compare_op(op: &BinaryOperator) -> bool {
             | BinaryOperator::LessEqual
             | BinaryOperator::GreaterEqual
     )
+}
+
+pub(crate) fn param_decls_to_json(param_decls: &[ParamDecl], params: &[String]) -> Vec<Value> {
+    let fallback;
+    let decls = if param_decls.is_empty() && !params.is_empty() {
+        fallback = ParamDecl::from_names(params);
+        fallback.as_slice()
+    } else {
+        param_decls
+    };
+    decls
+        .iter()
+        .map(|decl| {
+            json!({
+                "name": decl.name,
+                "declared_type": decl.declared_type_name,
+            })
+        })
+        .collect()
+}
+
+pub(crate) fn json_to_param_decls(v: &Value, params: &[String]) -> Option<Vec<ParamDecl>> {
+    let Some(values) = v.get("param_decls").and_then(Value::as_array) else {
+        return Some(ParamDecl::from_names(params));
+    };
+    if values.len() != params.len() {
+        return None;
+    }
+    let mut decls = Vec::with_capacity(values.len());
+    for (index, value) in values.iter().enumerate() {
+        let name = value.get("name")?.as_str()?.to_string();
+        if name != params[index] {
+            return None;
+        }
+        let declared_type_name = value
+            .get("declared_type")
+            .and_then(Value::as_str)
+            .map(str::to_string);
+        decls.push(ParamDecl {
+            name,
+            declared_type_name,
+        });
+    }
+    Some(decls)
 }

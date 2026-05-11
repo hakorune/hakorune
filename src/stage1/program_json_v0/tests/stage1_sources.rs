@@ -16,7 +16,7 @@ static box Main {
 return me.helper(41)
   }
 
-  method helper(x) {
+  method helper(x: usize): i64 {
 return x + 1
   }
 }
@@ -28,6 +28,11 @@ return x + 1
     assert_eq!(defs[0]["name"], "helper");
     assert_eq!(defs[0]["box"], "Main");
     assert_eq!(defs[0]["params"], serde_json::json!(["x"]));
+    assert_eq!(
+        defs[0]["param_decls"],
+        serde_json::json!([{"name": "x", "declared_type": "usize"}])
+    );
+    assert_eq!(defs[0]["return_type"], "i64");
     assert_eq!(defs[0]["body"]["kind"], "Program");
     assert!(defs[0]["body"]["body"].is_array());
 }

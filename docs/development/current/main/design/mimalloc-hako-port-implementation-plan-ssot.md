@@ -180,9 +180,8 @@ work. Splitting is mandatory if a row starts adding algorithm bodies back into
   annotation text and MIR numeric substrate metadata, but hako_alloc/mimalloc
   state fields continue to use `i64` until exact pointer-sized unsigned
   semantics, range checks, and overflow behavior are live. Parameter and
-  accepted return type annotations are now preserved as AST metadata, JSON
-  round-trip remains a later 294x row, and stored field initializers are
-  per-construction values.
+  accepted return type annotations are now preserved through AST metadata and
+  JSON transport, and stored field initializers are per-construction values.
 - `M167` may create deterministic model pages in memory; it must not reserve
   OS memory. OSVM enters only in `M168`.
 - `M169` owns same-thread local free collection only. Remote-free and abandoned

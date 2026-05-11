@@ -45,8 +45,9 @@ Current live semantics are intentionally narrow:
   storage hints.
 - Field, parameter, and accepted return annotations preserve the original
   declared type text in AST metadata so later exact-width rows can refine
-  semantics without rediscovering source text. JSON round-trip of this richer
-  metadata is a later row.
+  semantics without rediscovering source text. AST JSON and Stage1
+  Program(JSON) carry this metadata while keeping names-only `params` for
+  compatibility.
 - Pointer-sized names resolve their metadata width through the MIR numeric
   target owner (`src/mir/numeric_substrate.rs`). This is target metadata only;
   it does not enable exact `usize` runtime behavior by itself.

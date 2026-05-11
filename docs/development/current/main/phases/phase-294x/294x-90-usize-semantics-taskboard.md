@@ -22,7 +22,7 @@ one commit unless a row explicitly says it is docs-only.
 | `294x-00` | Complete | phase lock and full visible task inventory | SSOT, README, taskboard, current pointers are in place |
 | `294x-01` | Complete | target-width and numeric-kind SSOT in code | target pointer width owner exists; `usize` no longer depends on ad hoc host assumptions |
 | `294x-02` | Complete | parser metadata preservation | method, static method, and `birth` params keep declared type metadata; return annotations are preserved where accepted |
-| `294x-03` | Pending | AST JSON / Program(JSON) numeric metadata | declared param/return numeric kinds round-trip without changing runtime semantics |
+| `294x-03` | Complete | AST JSON / Program(JSON) numeric metadata | declared param/return type text round-trips through JSON metadata without changing runtime semantics |
 | `294x-04` | Pending | MIR exact numeric type model | signedness/width/pointer-width are represented distinctly from `MirType::Integer` |
 | `294x-05` | Pending | exact numeric constants and conversions | constants and dynamic integer conversions range-check into `usize` |
 | `294x-06` | Pending | verifier negative/range fail-fast | `usize` assignments reject negative and out-of-range values under strict/dev gates |
@@ -59,7 +59,7 @@ one commit unless a row explicitly says it is docs-only.
 - [x] Preserve static method parameter type annotations.
 - [x] Preserve `birth` parameter type annotations.
 - [x] Preserve return type annotations or reject them consistently.
-- [ ] Round-trip declared numeric metadata through AST JSON / Program(JSON).
+- [x] Round-trip declared numeric metadata through AST JSON / Program(JSON).
 - [ ] Keep Rust and `.hako` parser fronts aligned.
 
 ### MIR / Analysis

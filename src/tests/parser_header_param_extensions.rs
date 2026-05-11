@@ -1,5 +1,6 @@
 use crate::ast::{ASTNode, ParamDecl};
 use crate::parser::NyashParser;
+use crate::r#macro::ast_json::{ast_to_json_roundtrip, json_to_ast};
 
 fn parse(src: &str) -> ASTNode {
     NyashParser::parse_from_string(src).expect("parse ok")
@@ -194,4 +195,34 @@ static box Main {
     assert_eq!(params, &vec!["argc".to_string()]);
     assert_eq!(param_decls, &vec![param("argc", Some("usize"))]);
     assert_eq!(return_type_name.as_deref(), Some("i64"));
+}
+
+#[test]
+fn ast_json_roundtrip_preserves_param_and_return_type_metadata() {
+    let src = r#"
+box Worker {
+  run(size: usize, tag: i64): usize {
+    return size
+  }
+}
+"#;
+    let ast = parse(src);
+    let json = ast_to_json_roundtrip(&ast);
+    let roundtrip = json_to_ast(&json).expect("ast json roundtrip");
+
+    let ASTNode::FunctionDeclaration {
+        params,
+        param_decls,
+        return_type_name,
+        ..
+    } = find_method_decl(&roundtrip, "Worker", "run")
+    else {
+        panic!("expected FunctionDeclaration");
+    };
+    assert_eq!(params, &vec!["size".to_string(), "tag".to_string()]);
+    assert_eq!(
+        param_decls,
+        &vec![param("size", Some("usize")), param("tag", Some("i64"))]
+    );
+    assert_eq!(return_type_name.as_deref(), Some("usize"));
 }

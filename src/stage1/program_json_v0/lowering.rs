@@ -1,7 +1,7 @@
 use super::extract::HelperMethod;
 use super::record_payload::enum_variant_payload_type_name;
 use crate::ast::{
-    ASTNode, BinaryOperator, CatchClause, EnumVariantDecl, LiteralValue, UnaryOperator,
+    ASTNode, BinaryOperator, CatchClause, EnumVariantDecl, LiteralValue, ParamDecl, UnaryOperator,
 };
 use crate::semantics::option_contract::{nullish_payload_error, requires_non_nullish_payload};
 use std::collections::BTreeMap;
@@ -60,7 +60,12 @@ fn function_def_json_v0(
     context: &ProgramJsonV0LoweringContext,
 ) -> Result<serde_json::Value, String> {
     let ASTNode::FunctionDeclaration {
-        name, params, body, ..
+        name,
+        params,
+        param_decls,
+        return_type_name,
+        body,
+        ..
     } = declaration
     else {
         return Err("expected FunctionDeclaration in helper defs".to_string());
@@ -69,9 +74,30 @@ fn function_def_json_v0(
     Ok(serde_json::json!({
         "name": name,
         "params": params,
+        "param_decls": param_decls_json_v0(params, param_decls),
+        "return_type": return_type_name,
         "body": program_json_v0_from_body_with_context(body, context)?,
         "box": box_name,
     }))
+}
+
+fn param_decls_json_v0(params: &[String], param_decls: &[ParamDecl]) -> Vec<serde_json::Value> {
+    let fallback;
+    let decls = if param_decls.is_empty() && !params.is_empty() {
+        fallback = ParamDecl::from_names(params);
+        fallback.as_slice()
+    } else {
+        param_decls
+    };
+    decls
+        .iter()
+        .map(|decl| {
+            serde_json::json!({
+                "name": decl.name,
+                "declared_type": decl.declared_type_name,
+            })
+        })
+        .collect()
 }
 
 fn statements_to_json_v0(

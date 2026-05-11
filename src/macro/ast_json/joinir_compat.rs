@@ -205,6 +205,8 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
         ASTNode::FunctionDeclaration {
             name,
             params,
+            param_decls,
+            return_type_name,
             body,
             is_static,
             is_override,
@@ -214,6 +216,8 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             "kind": "FunctionDeclaration",
             "name": name,
             "params": params,
+            "param_decls": shared::param_decls_to_json(&param_decls, &params),
+            "return_type": return_type_name,
             "body": body.into_iter().map(|s| ast_to_json(&s)).collect::<Vec<_>>(),
             "static": is_static,
             "override": is_override,
@@ -620,11 +624,16 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                 .iter()
                 .filter_map(|s| s.as_str().map(|x| x.to_string()))
                 .collect::<Vec<_>>();
+            let param_decls = shared::json_to_param_decls(v, &params)?;
+            let return_type_name = v
+                .get("return_type")
+                .and_then(|value| value.as_str())
+                .map(str::to_string);
             ASTNode::FunctionDeclaration {
                 name: v.get("name")?.as_str()?.to_string(),
-                param_decls: crate::ast::ParamDecl::from_names(&params),
+                param_decls,
                 params,
-                return_type_name: None,
+                return_type_name,
                 body: v
                     .get("body")?
                     .as_array()?
