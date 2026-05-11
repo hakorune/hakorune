@@ -7,6 +7,7 @@ mod allocator_provider_activation_decision;
 mod allocator_provider_activation_safety;
 mod allocator_provider_manifest;
 mod args;
+mod diagnostic_output;
 mod groups;
 mod utils;
 

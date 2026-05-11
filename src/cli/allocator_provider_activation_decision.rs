@@ -1,3 +1,4 @@
+use super::diagnostic_output::{finish_result, one_line_option_text, read_labeled_file};
 use super::CliConfig;
 use crate::runtime::allocator_provider_activation_decision::{
     validate_allocator_provider_activation_decision_from_text,
@@ -11,25 +12,19 @@ pub fn maybe_run_allocator_provider_activation_decision_diagnostic(
 ) -> Option<i32> {
     let activation_decision_path = config.allocator_provider_activation_decision.as_deref()?;
 
-    match run_allocator_provider_activation_decision_file(activation_decision_path) {
-        Ok((output, exit_code)) => {
-            print!("{output}");
-            Some(exit_code)
-        }
-        Err(message) => {
-            eprintln!("{message}");
-            Some(2)
-        }
-    }
+    finish_result(run_allocator_provider_activation_decision_file(
+        activation_decision_path,
+    ))
 }
 
 fn run_allocator_provider_activation_decision_file(
     activation_decision_path: &str,
 ) -> Result<(String, i32), String> {
-    let activation_decision_toml =
-        std::fs::read_to_string(activation_decision_path).map_err(|err| {
-            format!("{CLI_READ_ERROR}: activation_decision={activation_decision_path}: {err}")
-        })?;
+    let activation_decision_toml = read_labeled_file(
+        CLI_READ_ERROR,
+        "activation_decision",
+        activation_decision_path,
+    )?;
     Ok(build_allocator_provider_activation_decision_output(
         &activation_decision_toml,
     ))
@@ -98,10 +93,6 @@ fn activation_decision_status_name(
         AllocatorProviderActivationDecisionStatus::MissingFacts => "missing_facts",
         AllocatorProviderActivationDecisionStatus::ReadyBlocked => "ready_blocked",
     }
-}
-
-fn one_line_option_text(value: Option<&str>) -> String {
-    value.unwrap_or("").replace(['\r', '\n'], " ")
 }
 
 #[cfg(test)]

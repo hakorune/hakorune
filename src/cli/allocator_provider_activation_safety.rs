@@ -1,3 +1,4 @@
+use super::diagnostic_output::{finish_result, one_line_option_text, read_labeled_file};
 use super::CliConfig;
 use crate::runtime::allocator_provider_registry::{
     validate_allocator_provider_activation_safety_gate_from_text,
@@ -13,23 +14,15 @@ pub fn maybe_run_allocator_provider_activation_safety_diagnostic(
         .allocator_provider_activation_safety_gate
         .as_deref()?;
 
-    match run_allocator_provider_activation_safety_file(safety_gate_path) {
-        Ok((output, exit_code)) => {
-            print!("{output}");
-            Some(exit_code)
-        }
-        Err(message) => {
-            eprintln!("{message}");
-            Some(2)
-        }
-    }
+    finish_result(run_allocator_provider_activation_safety_file(
+        safety_gate_path,
+    ))
 }
 
 fn run_allocator_provider_activation_safety_file(
     safety_gate_path: &str,
 ) -> Result<(String, i32), String> {
-    let safety_gate_toml = std::fs::read_to_string(safety_gate_path)
-        .map_err(|err| format!("{CLI_READ_ERROR}: safety_gate={safety_gate_path}: {err}"))?;
+    let safety_gate_toml = read_labeled_file(CLI_READ_ERROR, "safety_gate", safety_gate_path)?;
     Ok(build_allocator_provider_activation_safety_output(
         &safety_gate_toml,
     ))
@@ -75,10 +68,6 @@ fn activation_safety_status_name(status: AllocatorProviderActivationSafetyStatus
         AllocatorProviderActivationSafetyStatus::MissingFacts => "missing_facts",
         AllocatorProviderActivationSafetyStatus::ReadyGateClosed => "ready_gate_closed",
     }
-}
-
-fn one_line_option_text(value: Option<&str>) -> String {
-    value.unwrap_or("").replace(['\r', '\n'], " ")
 }
 
 #[cfg(test)]

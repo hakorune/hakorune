@@ -1,3 +1,4 @@
+use super::diagnostic_output::{finish_result, read_labeled_file};
 use super::CliConfig;
 use crate::runtime::allocator_hook_dry_run::{
     validate_allocator_hook_activation_proof_text,
@@ -26,26 +27,15 @@ pub fn maybe_run_allocator_hook_dry_run(config: &CliConfig) -> Option<i32> {
         return Some(2);
     };
 
-    match run_allocator_hook_dry_run_files(plan_path, proof_path) {
-        Ok((output, exit_code)) => {
-            print!("{output}");
-            Some(exit_code)
-        }
-        Err(message) => {
-            eprintln!("{message}");
-            Some(2)
-        }
-    }
+    finish_result(run_allocator_hook_dry_run_files(plan_path, proof_path))
 }
 
 fn run_allocator_hook_dry_run_files(
     plan_path: &str,
     proof_path: &str,
 ) -> Result<(String, i32), String> {
-    let plan_toml = std::fs::read_to_string(plan_path)
-        .map_err(|err| format!("{CLI_READ_ERROR}: plan={plan_path}: {err}"))?;
-    let proof_toml = std::fs::read_to_string(proof_path)
-        .map_err(|err| format!("{CLI_READ_ERROR}: proof={proof_path}: {err}"))?;
+    let plan_toml = read_labeled_file(CLI_READ_ERROR, "plan", plan_path)?;
+    let proof_toml = read_labeled_file(CLI_READ_ERROR, "proof", proof_path)?;
     Ok(build_allocator_hook_dry_run_output(&plan_toml, &proof_toml))
 }
 
