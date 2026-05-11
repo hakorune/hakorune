@@ -50,7 +50,7 @@ The current live surface is intentionally narrow.
 
 | Capability | Current live reading |
 | --- | --- |
-| numeric substrate | fixed-width and pointer-sized type names are classified by MIR metadata for storage planning; exact numeric constant/conversion metadata range-checks values; the MIR verifier rejects statically known out-of-range writes to exact numeric declared fields; runtime values still use the current `Integer(i64)` lane; current `>>` is signed i64 arithmetic shift |
+| numeric substrate | fixed-width and pointer-sized type names are classified by MIR metadata for storage planning; exact numeric constant/conversion metadata range-checks values; the MIR verifier rejects statically known out-of-range writes and unchecked dynamic writes to runtime-range-sensitive exact numeric declared fields; runtime values still use the current `Integer(i64)` lane; current `>>` is signed i64 arithmetic shift |
 | raw layout | MIR-owned `repr_c_v0` vocabulary can plan fixed-width numeric field offsets/size; no source syntax or backend-active native allocation yet |
 | `hako.mem` | allocation facade rows exist under `MemCoreBox`; exact public surface is still substrate-internal |
 | `hako.buf` | `len/cap/reserve/grow` facade rows exist under `BufCoreBox`; capacity routes through `PtrCoreBox.slot_cap_i64` |

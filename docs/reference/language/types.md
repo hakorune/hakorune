@@ -57,13 +57,16 @@ Current live semantics are intentionally narrow:
 - Exact numeric constant metadata and dynamic `Integer(i64)` conversion helpers
   range-check against signedness and resolved width. The MIR verifier uses
   these checks for statically known writes to exact numeric declared fields.
-  Param/local/dynamic verifier checks and VM runtime values remain deferred.
+  The verifier also rejects unchecked dynamic writes to exact numeric fields
+  whose range does not cover every possible dynamic `Integer(i64)` value.
+  Param/local verifier checks, runtime-check lowering, and VM runtime values
+  remain deferred.
 
 Deferred and not accepted by this row:
 
 - literal suffixes such as `1u64` or `64usize`
-- param/local/dynamic verifier checks, runtime range checks, and unsigned
-  overflow behavior
+- param/local verifier checks, runtime-check lowering, runtime range checks,
+  and unsigned overflow behavior
 - `u64` values outside signed i64
 - wrapping / checked arithmetic syntax
 - logical right-shift syntax or intrinsic distinct from current `>>`

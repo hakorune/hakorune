@@ -54,15 +54,20 @@
 - `294x-06`: the MIR verifier now rejects statically known out-of-range writes
   to exact numeric declared fields, including `usize` fields initialized with
   `-1`.
+- `294x-06b`: the MIR verifier now rejects unchecked dynamic writes to exact
+  numeric fields whose range does not cover the full dynamic `Integer(i64)`
+  lane, keeping `i64` compatible while blocking `usize` until runtime-check
+  lowering exists.
 
 ## First Implementation Direction
 
 Start with metadata preservation before runtime behavior:
 
 1. attach exact numeric metadata to MIR facts/signature consumers;
-2. extend verifier/fail-fast boundaries beyond statically known field writes;
+2. add runtime-check contract metadata for dynamic exact numeric writes;
 3. add VM/backend exact `usize` behavior;
-4. migrate hako_alloc non-negative fields.
+4. add checked arithmetic / unsigned compare / logical shift;
+5. migrate hako_alloc non-negative fields.
 
 This keeps the source truth available before any lowerer claims exact
 semantics.

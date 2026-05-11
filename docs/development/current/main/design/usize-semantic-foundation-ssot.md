@@ -46,6 +46,8 @@ Live today:
 - the MIR verifier rejects statically known exact numeric field writes when the
   base object and assigned integer value resolve through same-function
   `NewBox` / Box-typed parameter / `Copy` and `Const(Integer)` / `Copy` chains;
+- the MIR verifier rejects unchecked dynamic writes to exact numeric fields
+  whose value range does not cover every possible dynamic `Integer(i64)` value;
 - typed-object planning can use numeric annotations as inline i64 storage
   hints;
 - VM runtime values use `Integer(i64)`;
@@ -53,7 +55,8 @@ Live today:
 
 Not live today:
 
-- param/local/dynamic verifier checks and runtime unsigned range checks;
+- param/local verifier checks, dynamic runtime-check lowering, and runtime
+  unsigned range checks;
 - numeric literal suffixes such as `0usize`;
 - unsigned comparisons distinct from signed i64 comparisons;
 - wrapping / checked arithmetic vocabulary;
@@ -187,8 +190,8 @@ Do not store sentinel values in `usize`.
 
 ### 6. Verifier
 
-- Extend the first static field-write numeric verifier to annotated params,
-  locals, and dynamic values.
+- Add runtime-check contract metadata for dynamic exact numeric writes.
+- Extend numeric verifier coverage to annotated params and locals.
 - Keep rejecting negative assignment to `usize`.
 - Keep rejecting `-1` sentinel assignment to `usize`.
 - Detect plain arithmetic overflow when statically knowable.

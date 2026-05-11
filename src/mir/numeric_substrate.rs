@@ -251,6 +251,13 @@ pub(crate) fn exact_numeric_value_from_dynamic_integer(
     exact_numeric_const_from_i128(i128::from(value), ty)
 }
 
+pub(crate) fn exact_numeric_type_requires_dynamic_integer_range_check(
+    ty: &ExactNumericMirType,
+) -> bool {
+    let range = ty.kind.value_range();
+    range.min > i128::from(i64::MIN) || range.max < i128::from(i64::MAX)
+}
+
 #[allow(dead_code)] // 294x-05 model; consumed by later verifier/runtime rows.
 pub(crate) fn exact_numeric_value_from_dynamic_integer_for_declared_name(
     value: i64,

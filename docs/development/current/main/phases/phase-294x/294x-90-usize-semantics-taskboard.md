@@ -26,6 +26,7 @@ one commit unless a row explicitly says it is docs-only.
 | `294x-04` | Complete | MIR exact numeric type model | signedness/width/pointer-width are represented as side-car MIR metadata distinct from `MirType::Integer` |
 | `294x-05` | Complete | exact numeric constants and conversions | constants and dynamic integer conversions range-check into exact numeric metadata |
 | `294x-06` | Complete | verifier negative/range fail-fast | statically known exact numeric field writes reject negative and out-of-range values under the MIR verifier |
+| `294x-06b` | Complete | dynamic numeric field write guard | runtime-range-sensitive exact numeric fields reject unchecked dynamic values until runtime-check lowering exists |
 | `294x-07` | Pending | overflow and checked arithmetic policy | plain typed `usize` arithmetic has checked/fail-fast behavior; wrapping stays explicit |
 | `294x-08` | Pending | unsigned compare and logical shift | comparisons and right shift stop using signed i64 semantics for `usize` |
 | `294x-09` | Pending | PHI/Select numeric unification | exact numeric kinds merge conservatively and fail fast on unsupported mixes |
@@ -88,6 +89,8 @@ one commit unless a row explicitly says it is docs-only.
 
 - [x] Reject negative statically known field assignment to `usize`.
 - [x] Reject `-1` sentinel field assignment to `usize` when statically known.
+- [x] Reject unchecked dynamic field assignment when the exact numeric range
+  does not cover all dynamic `Integer(i64)` values.
 - [ ] Reject unsupported backend lowering.
 - [ ] Guard against silent fallback to `Integer(i64)`.
 - [ ] Keep strict/dev checks before broad production acceptance.

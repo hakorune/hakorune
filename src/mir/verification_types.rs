@@ -113,6 +113,19 @@ pub enum VerificationError {
         max: i128,
         reason: String,
     },
+    /// Exact numeric field assignment needs a runtime range check that is not
+    /// represented yet.
+    ExactNumericDynamicCheckRequired {
+        function: String,
+        block: BasicBlockId,
+        instruction_index: usize,
+        box_name: String,
+        field: String,
+        declared_type_name: String,
+        value: ValueId,
+        producer: String,
+        reason: String,
+    },
 }
 
 impl std::fmt::Display for VerificationError {
@@ -332,6 +345,31 @@ impl std::fmt::Display for VerificationError {
                     value,
                     min,
                     max,
+                    reason
+                )
+            }
+            VerificationError::ExactNumericDynamicCheckRequired {
+                function,
+                block,
+                instruction_index,
+                box_name,
+                field,
+                declared_type_name,
+                value,
+                producer,
+                reason,
+            } => {
+                write!(
+                    f,
+                    "[mir/verify:numeric_dynamic_check_required] function={} at block {} instruction {} field={}.{} declared_type={} value={} producer={} reason={}",
+                    function,
+                    block,
+                    instruction_index,
+                    box_name,
+                    field,
+                    declared_type_name,
+                    value,
+                    producer,
                     reason
                 )
             }
