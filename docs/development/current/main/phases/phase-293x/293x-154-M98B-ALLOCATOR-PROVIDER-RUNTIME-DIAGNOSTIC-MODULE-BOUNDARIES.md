@@ -17,8 +17,9 @@ registry file while preserving the historical public API path.
   - `src/runtime/allocator_provider_activation_safety.rs`
 - Added shared contract/helpers:
   - `src/runtime/allocator_provider_registry_common.rs`
-- Kept `src/runtime/allocator_provider_registry.rs` as a facade and regression
-  test owner.
+- Kept `src/runtime/allocator_provider_registry.rs` as a thin facade.
+- Moved historical facade regression tests to
+  `src/runtime/allocator_provider_registry_facade_tests.rs`.
 - Updated older allocator-provider guards so implementation checks target the
   new owning modules instead of the facade.
 

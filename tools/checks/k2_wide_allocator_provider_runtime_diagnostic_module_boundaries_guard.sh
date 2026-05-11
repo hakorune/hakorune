@@ -9,6 +9,7 @@ source tools/checks/lib/allocator_provider_forbidden_patterns.sh
 SSOT="docs/development/current/main/design/allocator-provider-runtime-diagnostic-module-boundaries-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-154-M98B-ALLOCATOR-PROVIDER-RUNTIME-DIAGNOSTIC-MODULE-BOUNDARIES.md"
 FACADE="src/runtime/allocator_provider_registry.rs"
+FACADE_TESTS="src/runtime/allocator_provider_registry_facade_tests.rs"
 COMMON="src/runtime/allocator_provider_registry_common.rs"
 REGISTRY_SNAPSHOT="src/runtime/allocator_provider_registry_snapshot.rs"
 SELECTION_DECISION="src/runtime/allocator_provider_selection_decision.rs"
@@ -41,6 +42,7 @@ require_text() {
 require_file "$SSOT"
 require_file "$CARD"
 require_file "$FACADE"
+require_file "$FACADE_TESTS"
 require_file "$COMMON"
 require_file "$REGISTRY_SNAPSHOT"
 require_file "$SELECTION_DECISION"
@@ -59,7 +61,9 @@ require_text "$SSOT" "allocator_provider_selection_decision.rs"
 require_text "$SSOT" "allocator_provider_proof_bundle_consumption.rs"
 require_text "$SSOT" "allocator_provider_activation_safety.rs"
 require_text "$SSOT" "allocator_provider_registry_common.rs"
+require_text "$SSOT" "allocator_provider_registry_facade_tests.rs"
 require_text "$CARD" "293x-154 M98B Allocator Provider Runtime Diagnostic Module Boundaries"
+require_text "$CARD" "allocator_provider_registry_facade_tests.rs"
 
 for module in \
   "$COMMON" \
@@ -71,9 +75,16 @@ for module in \
 done
 
 line_count="$(wc -l < "$FACADE")"
-if (( line_count >= 1000 )); then
-  fail "$FACADE must stay under 1000 lines; got $line_count"
+if (( line_count >= 200 )); then
+  fail "$FACADE must stay under 200 lines; got $line_count"
 fi
+
+if rg -n '#\[cfg\(test\)\]|mod tests|include_str!\(' "$FACADE" >/tmp/"$TAG".facade_tests 2>&1; then
+  cat /tmp/"$TAG".facade_tests >&2
+  rm -f /tmp/"$TAG".facade_tests
+  fail "$FACADE must stay a thin re-export facade; put regression tests in $FACADE_TESTS"
+fi
+rm -f /tmp/"$TAG".facade_tests
 
 require_text "$FACADE" "Diagnostic-only allocator provider registry facade"
 require_text "$FACADE" "pub use super::allocator_provider_registry_snapshot"
@@ -86,6 +97,11 @@ require_text "$PROOF_BUNDLE" "validate_allocator_provider_proof_bundle_consumpti
 require_text "$ACTIVATION_SAFETY" "validate_allocator_provider_activation_safety_gate_from_text"
 require_text "$COMMON" 'OWNER_PATH: &str = "src/runtime/allocator_provider_registry.rs"'
 require_text "$COMMON" "EXPECTED_PROVIDER_IDS"
+require_text "$FACADE_TESTS" "registry_snapshot_malformed_text_reports_parse_error_without_building_registry"
+require_text "$FACADE_TESTS" "selection_decision_malformed_text_reports_parse_error_without_selection"
+require_text "$FACADE_TESTS" "proof_bundle_consumption_malformed_text_reports_parse_error_without_consuming_proof"
+require_text "$FACADE_TESTS" "activation_safety_malformed_text_reports_parse_error_without_activation"
+require_text "$RUNTIME_MOD" "mod allocator_provider_registry_facade_tests;"
 require_text "$TASK_BREAKDOWN" "M98B | runtime diagnostic module boundaries"
 require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_runtime_diagnostic_module_boundaries_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_runtime_diagnostic_module_boundaries_guard.sh"

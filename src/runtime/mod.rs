@@ -10,6 +10,8 @@ pub mod allocator_provider_manifest;
 pub(crate) mod allocator_provider_proof_bundle_consumption;
 pub mod allocator_provider_registry;
 pub(crate) mod allocator_provider_registry_common;
+#[cfg(test)]
+mod allocator_provider_registry_facade_tests;
 pub(crate) mod allocator_provider_registry_snapshot;
 pub(crate) mod allocator_provider_selection_decision;
 pub(crate) mod allocator_provider_toml_helpers;

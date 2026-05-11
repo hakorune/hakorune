@@ -10,6 +10,7 @@ Related:
   - src/runtime/allocator_provider_proof_bundle_consumption.rs
   - src/runtime/allocator_provider_activation_safety.rs
   - src/runtime/allocator_provider_registry_common.rs
+  - src/runtime/allocator_provider_registry_facade_tests.rs
   - tools/checks/k2_wide_allocator_provider_runtime_diagnostic_module_boundaries_guard.sh
 ---
 
@@ -25,7 +26,8 @@ the historical API path.
 
 | Module | Owns |
 | --- | --- |
-| `allocator_provider_registry.rs` | public re-exports and regression tests for the historical registry API path |
+| `allocator_provider_registry.rs` | public re-exports for the historical registry API path |
+| `allocator_provider_registry_facade_tests.rs` | regression tests that prove the historical facade path still reaches each diagnostic report |
 | `allocator_provider_registry_snapshot.rs` | registry snapshot facts, report, diagnostics, and TOML reader |
 | `allocator_provider_selection_decision.rs` | selection decision facts, report, diagnostics, and TOML reader |
 | `allocator_provider_proof_bundle_consumption.rs` | proof-bundle consumption facts, report, diagnostics, and TOML reader |
@@ -34,7 +36,9 @@ the historical API path.
 
 ## Invariants
 
-- `allocator_provider_registry.rs` remains under 1000 lines.
+- `allocator_provider_registry.rs` remains a thin facade under 200 lines.
+- Regression tests do not live in the facade; they live in
+  `allocator_provider_registry_facade_tests.rs`.
 - Owner strings remain `src/runtime/allocator_provider_registry.rs` until a
   separate fixture/docs migration changes that contract.
 - Public callers may keep importing through
