@@ -90,7 +90,9 @@ Current status:
 
 Reserved follow-ups:
 
-- const expression evaluation
+- general const expression evaluation outside the narrow `u16[]` initializer
+  row
+- const references to other declarations
 - const fn
 - additional element types
 - explicit length in the type
@@ -98,6 +100,10 @@ Reserved follow-ups:
 Design SSOT:
 
 - `docs/development/current/main/design/static-const-table-syntax-ssot.md`
+
+Low-level capability context:
+
+- `docs/reference/language/low-level-capabilities.md`
 
 ### First-class enum surface (current landing)
 

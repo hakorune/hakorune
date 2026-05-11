@@ -6,7 +6,7 @@ Design SSOT note (Scope Exit Semantics):
 - `throw` is prohibited in surface language design.
 - parser は `throw` を常時 reject する（`[freeze:contract][parser/throw_reserved]`）。
 - DropScope surface (`fini {}` / `local ... fini {}`) is part of Stage‑3 parser syntax.
-- Rune declaration metadata is active on both Rust and `.hako` parsers; canonical syntax is `@rune`, optimization families (`Hint` / `Contract` / `IntrinsicCandidate`) are part of the same metadata lane, and legacy `@hint` / `@contract` / `@intrinsic_candidate` remain compat aliases. Program(JSON v0) is not widened for Rune metadata.
+- Rune declaration metadata is active on both Rust and `.hako` parsers; canonical syntax is `@rune`, optimization families (`Hint` / `Contract` / `Lowering` / `Profile` / `IntrinsicCandidate`) are part of the same metadata lane, and legacy `@hint` / `@contract` / `@intrinsic_candidate` remain compat aliases. Program(JSON v0) is not widened for Rune metadata.
 - SSOT:
   - `docs/development/current/main/design/rune-v0-contract-rollout-ssot.md`
   - `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`
@@ -283,7 +283,8 @@ metadata_attr      := rune_attr | legacy_opt_attr
 rune_attr          := '@' 'rune' IDENT rune_arg_list?
 legacy_opt_attr    := '@' ('hint' | 'contract' | 'intrinsic_candidate') '(' rune_arg (',' rune_arg)* ')'
 rune_arg_list      := '(' rune_arg (',' rune_arg)* ')'
-rune_arg           := STRING | IDENT
+rune_arg           := STRING | rune_ident
+rune_ident         := IDENT ('.' IDENT)*
 
 ; abstract target set for v0
 ; concrete declaration grammar remains owned by the relevant parser lane
@@ -295,6 +296,9 @@ metadata_target    := box_decl
 
 Notes
 - canonical docs surface is `@rune`.
+- dotted rune identifiers such as `allocator.fast` are accepted as a single
+  metadata argument; profile names are still expanded to primitive MIR facts and
+  must not become backend-readable route selectors.
 - declaration-leading legacy aliases normalize to declaration-local `attrs.runes`.
 - declaration metadata is allowed only on declaration targets.
 - active grammar requires Rust parser / `.hako` parser parity.

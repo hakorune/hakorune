@@ -4,6 +4,7 @@ Decision: accepted
 Date: 2026-05-11
 Scope: current mimalloc port purpose, ownership, and allocator-provider stop line.
 Related:
+  - docs/reference/language/low-level-capabilities.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
   - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
   - docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md

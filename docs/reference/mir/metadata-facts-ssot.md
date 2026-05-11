@@ -17,6 +17,7 @@ names.
 | Key | Shape | Purpose |
 | --- | --- | --- |
 | `typed_object_plans` | array | MIR-owned layout plans for accepted typed user objects; backends read these plans for general user-box `newbox` / `field_set` / `field_get` lowering |
+| `static_data_plans` | array | MIR-owned readonly static data rows for accepted `static const u16[]` declarations |
 
 ### `typed_object_plans[]`
 
@@ -205,6 +206,8 @@ box names.
 Current allocator-substrate extern families include:
 
 - `hako_mem_alloc` / `hako_mem_free`
+- `hako_atomic_ptr_store_ordered` / `hako_atomic_ptr_load_ordered` /
+  `hako_atomic_ptr_cas_ordered`
 - `hako_osvm_reserve_bytes_i64` / `hako_osvm_commit_bytes_i64` /
   `hako_osvm_decommit_bytes_i64`
 - `hako_tls_cache_slot_get_i64` / `hako_tls_cache_slot_set_i64`
@@ -212,6 +215,11 @@ Current allocator-substrate extern families include:
 - `hako_atomic_slot_load_i64`
 - `hako_atomic_slot_store_i64`
 - `hako_atomic_slot_fetch_add_i64`
+
+Runtime-decl native leaves may include additional symbols such as
+`hako_mem_realloc` and `hako_osvm_page_size_i64`. Do not list them as
+`extern_call_routes` unless a route row exists; runtime-decl presence alone is
+not a language acceptance rule.
 
 Required row facts include:
 

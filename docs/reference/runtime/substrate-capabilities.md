@@ -11,6 +11,7 @@ The design SSOT is:
 - `docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md`
 - `docs/development/current/main/design/inline-plan-ssot.md`
 - `docs/development/current/main/design/rune-profile-effect-capability-plan-ssot.md`
+- `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 
 ## Core Rule
 
@@ -30,6 +31,18 @@ Low-level operations are exposed through explicit capability modules:
 
 Optimization and safety obligations are expressed with `@rune Contract(...)`
 and must be verified before a backend may use them.
+
+Language-facing entry:
+
+- `docs/reference/language/low-level-capabilities.md`
+
+Current mimalloc reading:
+
+- implement allocator algorithms in `.hako` / `hako_alloc`;
+- keep provider activation, hook install, and process allocator replacement as
+  optional future host support;
+- keep `.inc` and Stage0 free of provider, hook, and mimalloc-specific
+  matchers.
 
 ## Current Live Surface
 
@@ -55,6 +68,24 @@ The current live surface is intentionally narrow.
 | static readonly data | backend-private static-data manifest can emit a u16 size-class fixture; source `static const NAME: u16[] = [...]` declarations lower to MIR `static_data_plans`; `NAME[index]` reads lower to MIR `StaticDataLoad` and current-lane `i64` values; narrow integer const expressions in u16 table initializers are live |
 | inline planning | `@rune Hint(inline/noinline/hot/cold)` and substrate-only `@rune Lowering(inline_required)` preserve MIR InlinePlan metadata; `Hint(inline)` has a narrow best-effort same-module MIR leaf inline row; required inline verifier acceptance is live-narrow for contract-proven leaf bodies; verified required inline is consumed by the MIR optimizer for the M13 scalar allocator-fast EXE proof |
 | profile/effect/capability planning | `EffectPlan` is live-narrow from `Contract(no_alloc/no_safepoint)` and reserved `Profile(...)` expansions; `CapabilityPlan` is emitted from reserved `Profile(...)` expansions as metadata only; `@rune Capability(...)` is not live parser surface |
+
+## Pure-First / EXE Proof Chain
+
+Allocator-grade `.hako` code reaches EXE through explicit route facts and proof
+apps. The current route chain is:
+
+| Slice | Current proof reading |
+| --- | --- |
+| `hako.mem` extern leaves | `hako_mem_alloc` and `hako_mem_free` are route-owned native leaves; `hako_mem_realloc` is a runtime-decl native leaf but not part of the current `extern_call_routes` list |
+| `RawBufCoreBox` | `alloc_bytes_i64`, `realloc_bytes_i64`, and `free_bytes_i64` stay thin substrate facades over `MemCoreBox` |
+| `RawArrayCoreBox` | slot append/len/load/store plus reserve/grow route through ownership, bounds, initialized-range, `BufCoreBox`, and `PtrCoreBox` gates |
+| static tables | `u16[]` static const declarations emit readonly static data and `StaticDataLoad` reads |
+| OSVM | reserve/commit/decommit are route-owned page-source leaves; page-size is a native leaf for capability code |
+| TLS | cache-slot get/set rows are narrow allocator substrate leaves, not general language TLS cells |
+| atomics | fixed-slot i64 CAS/load/store/fetch_add and direct native-pointer store/load/CAS route facts are live in narrow rows |
+| `hako_alloc` | page/free-list, remote-free, page-source, and production facade policies live above substrate capabilities |
+
+These proof rows do not activate a host allocator replacement path.
 
 ## Reserved Surface
 

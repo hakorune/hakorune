@@ -20,6 +20,10 @@ Profile(name)
 
 Backends, `.inc`, and ll_emit must never branch on profile names.
 
+Allocator profiles exist to make `.hako` allocator algorithms auditable through
+primitive MIR facts. They do not imply host allocator replacement, provider
+selection, hook activation, or process allocator replacement.
+
 ## Registry
 
 | Profile | Status | Future primitive expansion target | Notes |

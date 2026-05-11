@@ -25,6 +25,7 @@ Host-facing Core C ABI surface lock:
 | Plugin -> host reverse call | Core C ABI | `include/nyrt_host_api.h`, `docs/development/abi/host_api.md` | host handle call by `name` / stable `slot` | Active |
 | Handle lifecycle (retain/release) | Core C ABI | `docs/development/current/main/phases/phase-29y/10-ABI-SSOT.md`, `docs/development/current/main/phases/phase-29x/29x-86-abi-borrowed-owned-conformance-extension-ssot.md`, `crates/nyash_kernel/src/ffi/lifecycle.rs` | `borrowed/owned` contract, strong lifecycle ops + matrix conformance cases | Active |
 | Runtime V0 helper slice (`string_len`, `array_get_i64`, `array_set_i64`, `map_size_i64`) | Core C ABI | `docs/development/current/main/phases/phase-29cc/29cc-216-runtime-v0-abi-slice-lock-ssot.md`, `docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md`, `lang/src/runtime/collections/array_core_box.hako`, `lang/src/runtime/collections/map_core_box.hako`, `lang/src/runtime/collections/string_core_box.hako` | source-zero 向けの最小語彙固定（Step-1） | Active |
+| Runtime substrate native leaf slice (`hako_mem_*`, `hako_osvm_*`, `hako_tls_*`, narrow `hako_atomic_*`) | Core C ABI | `docs/reference/runtime/substrate-capabilities.md`, `docs/reference/language/low-level-capabilities.md`, `lang/src/runtime/substrate/**` | narrow capability leaves for `.hako` allocator/runtime substrate; route facts own acceptance | Active/narrow |
 | Plugin Box method dispatch | TypeBox ABI v2 | `docs/reference/plugin-abi/nyash_abi_v2.md`, `include/nyash_abi.h` | per-Box `resolve + invoke_id(TLV)` | Active |
 | Basic Box direct C facade (`hako_str_*`, `hako_arr_*`, `hako_map_*`) | `hako_abi_v1` draft | `dist/0.1.0-linux-x86_64/include/hako_abi_v1.h` | design proposal only | Non-canonical |
 
@@ -35,6 +36,8 @@ Host-facing Core C ABI surface lock:
 3. Do not add new production symbols to `hako_abi_v1`.
 4. If a facade is needed for migration, generate it from Core C ABI and TypeBox ABI; do not create a new semantic ABI.
 5. Runtime/plugin source-zero cutover でも canonical ABI surface は 2 面固定のまま維持する。
+6. Substrate native leaves are a narrow Core C ABI helper slice, not a third ABI
+   and not a host allocator replacement surface.
 
 ## 4. Verification Hints
 

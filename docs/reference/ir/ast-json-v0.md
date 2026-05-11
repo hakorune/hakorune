@@ -3,7 +3,7 @@
 Status: Draft. This document specifies a minimal JSON schema for representing Nyash AST to enable macro expansion by external processes (e.g., PyVM-based MacroBox).
 
 Decision note (current):
-- Rune declaration metadata carriage is declaration-local on AST JSON v0 and direct MIR; this includes base Rune v0 families plus Rune v1 optimization families (`Hint` / `Contract` / `IntrinsicCandidate`) after normalization. Program(JSON v0) is a retire target and is not widened for Rune metadata.
+- Rune declaration metadata carriage is declaration-local on AST JSON v0 and direct MIR; this includes base Rune v0 families plus Rune v1 optimization families (`Hint` / `Contract` / `Lowering` / `Profile` / `IntrinsicCandidate`) after normalization. Program(JSON v0) is a retire target and is not widened for Rune metadata.
 - SSOT:
   - `docs/development/current/main/design/rune-v0-contract-rollout-ssot.md`
   - `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`

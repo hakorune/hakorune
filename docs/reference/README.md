@@ -40,3 +40,5 @@ Concurrency note:
 
 Runtime substrate note:
 - current capability manual owner は `docs/reference/runtime/substrate-capabilities.md`
+- language-facing low-level capability entry は
+  `docs/reference/language/low-level-capabilities.md`

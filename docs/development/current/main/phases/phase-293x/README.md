@@ -376,6 +376,9 @@ inference for the allocator release path.
 - `293x-160`: mimalloc `.hako` port purpose realignment landed, fixing that
   mimalloc is current `.hako` / `hako_alloc` completeness work while
   allocator-provider M104+ is optional future host-replacement support.
+- `293x-161`: low-level capability language reference sync landed, reflecting
+  static tables, Rune contracts/profiles, capability modules, RawBuf/RawArray,
+  `hako_alloc`, and the no-host-replacement stop line in `docs/reference`.
 - Next: resume `.hako` mimalloc / `hako_alloc` implementation slices on top of
   the capability substrate. M104 is next only if the optional
   allocator-provider host-replacement ladder is explicitly reopened.
