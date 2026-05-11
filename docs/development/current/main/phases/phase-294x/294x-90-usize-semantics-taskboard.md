@@ -15,6 +15,10 @@ One row should add one durable semantic slice. Do not combine metadata
 preservation, runtime behavior, backend lowering, and hako_alloc migration in
 one commit unless a row explicitly says it is docs-only.
 
+VM rows are semantic reference execution rows, not product-owner rows. They may
+consume MIR-owned facts/contracts, but VM-only behavior is not completion for
+hako_alloc or mimalloc migration.
+
 ## Ladder
 
 | Row | Status | Scope | Done When |
@@ -34,7 +38,8 @@ one commit unless a row explicitly says it is docs-only.
 | `294x-07` | Complete | overflow and checked arithmetic policy | exact numeric add/sub/mul policy is checked/fail-fast; wrapping stays explicit future vocabulary |
 | `294x-08` | Complete | unsigned compare and logical shift | exact numeric compare and logical right-shift policy no longer borrow signed i64 semantics |
 | `294x-09` | Complete | PHI/Select numeric unification policy | exact numeric facts merge conservatively and fail fast on exact/dynamic or exact/exact mismatches |
-| `294x-10` | Pending | VM exact `usize` value/ops v0 | VM executes basic `usize` ops without silently aliasing to dynamic `Integer(i64)` |
+| `294x-09a` | Complete | VM reference-executor boundary | VM is a semantic reference executor, not the product/mainline backend owner |
+| `294x-10` | Pending | VM reference exact `usize` ops v0 | VM reference execution consumes MIR-owned exact numeric facts without making VM-only behavior a completion criterion |
 | `294x-11` | Pending | literal suffix and const-eval row | `0usize` / exact numeric consts are accepted only with range checks |
 | `294x-12` | Pending | typed-object exact numeric storage | typed-object plans and EXE runtime storage distinguish `usize` from i64 |
 | `294x-13` | Pending | backend capability and fail-fast | unsupported backends reject exact `usize`; supported backends lower unsigned ops correctly |
@@ -82,6 +87,7 @@ one commit unless a row explicitly says it is docs-only.
 ### Runtime / VM
 
 - [ ] Add exact `usize` runtime representation or equivalent tagged numeric value.
+- [x] Define VM as semantic reference executor, not product/mainline owner.
 - [x] Execute existing `DynamicIntegerRange` contracts in the VM interpreter.
 - [x] Attach `DynamicIntegerRange` contracts for real exact numeric field-write
   producers after MIR shape is stable.

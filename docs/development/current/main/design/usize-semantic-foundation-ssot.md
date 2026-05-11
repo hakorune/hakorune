@@ -24,6 +24,20 @@ accepted as syntax / annotation metadata, while runtime values still execute on
 the dynamic `Integer(i64)` lane. Phase 294x exists to remove that semantic gap
 deliberately.
 
+VM role decision:
+
+```text
+VM is not a product owner.
+VM is a semantic reference executor.
+```
+
+Japanese mirror:
+
+```text
+VMは本線実装者ではない。
+VMは意味論の参照実行器。
+```
+
 ## Current Truth
 
 Live today:
@@ -66,6 +80,9 @@ Live today:
   and shift counts at or above the exact type width;
 - `src/mir/exact_numeric_unification.rs` owns PHI/Select exact numeric merge
   policy, preserving exact facts only for identical incoming exact types;
+- VM exact numeric work in this phase is reference execution only. VM rows may
+  consume MIR-owned facts/contracts but do not make VM-only behavior complete
+  product support;
 - typed-object planning can use numeric annotations as inline i64 storage
   hints;
 - VM runtime values use `Integer(i64)`;
@@ -104,6 +121,20 @@ Phase 294x may initially support only 64-bit targets if that is the active
 compiler/backend reality, but the target-width owner must make that explicit.
 It must not silently call a 64-bit implementation "pointer-sized" on a 32-bit
 target.
+
+## VM Reference Executor Gate
+
+A VM row may land only if:
+
+- a MIR-owned fact, policy, or contract already exists;
+- the VM only executes that MIR-owned semantic contract;
+- unsupported non-VM backend routes fail fast or have a visible lowering row;
+- hako_alloc live field migration is not included in the same row;
+- the next backend/lowering row is visible in the taskboard.
+
+Do not read VM green as hako_alloc/mimalloc green. hako_alloc live field
+migration waits for backend fail-fast/lowering and typed-object exact numeric
+storage.
 
 ## Overflow Policy
 

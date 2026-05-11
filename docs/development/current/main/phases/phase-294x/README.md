@@ -24,6 +24,11 @@
   backend lowering, and hako_alloc migration land as separate slices.
 - Unsupported backends must fail fast. Silent fallback to `Integer(i64)` is not
   allowed once an exact `usize` row claims support.
+- VM is not a product owner. VM rows in this phase are semantic reference
+  execution only: they may execute MIR-owned facts/contracts, but they do not
+  make VM-only behavior a completion criterion.
+- VM green is not hako_alloc/mimalloc green. hako_alloc live field migration
+  waits for backend fail-fast/lowering and typed-object storage boundaries.
 - Allocator-provider activation, host allocator replacement, hook install, and
   `#[global_allocator]` remain out of scope.
 
@@ -80,6 +85,9 @@
 - `294x-09`: exact numeric PHI/Select control-merge policy now lives in its
   own small module and preserves exact facts only when every incoming type is
   identical.
+- `294x-09a`: VM reference-executor boundary is fixed: VM is not a product
+  owner, and future VM exact numeric rows are semantic reference execution
+  only.
 
 ## First Implementation Direction
 
@@ -87,7 +95,8 @@ Start with metadata preservation before runtime behavior:
 
 1. attach exact numeric metadata to MIR facts/signature consumers;
 2. attach exact numeric route facts for params/locals/control merges;
-3. add VM/backend exact `usize` behavior;
+3. add VM reference exact `usize` behavior, with backend fail-fast/lowering
+   kept visible;
 4. migrate hako_alloc non-negative fields.
 
 This keeps the source truth available before any lowerer claims exact
