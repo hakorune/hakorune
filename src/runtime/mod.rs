@@ -4,6 +4,7 @@
 
 pub mod allocator_hook_dry_run;
 pub mod allocator_provider_activation_decision;
+pub(crate) mod allocator_provider_diagnostic_inactive;
 pub mod allocator_provider_manifest;
 pub mod allocator_provider_registry;
 pub mod box_registry;

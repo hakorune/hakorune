@@ -5,6 +5,8 @@
 //! prepare rollback, open an activation gate, install hooks, or replace the
 //! process allocator.
 
+use super::allocator_provider_diagnostic_inactive::DIAGNOSTIC_INACTIVE_ACTIONS;
+
 pub const DIAG_PROVIDER_ACTIVATION_DECISION_RESERVED: &str =
     "[allocator-provider/activation-decision-reserved]";
 pub const DIAG_PROVIDER_ACTIVATION_DECISION_SAFETY_GATE_MISSING: &str =
@@ -153,6 +155,7 @@ pub struct AllocatorProviderActivationDecisionReport {
 pub fn validate_allocator_provider_activation_decision(
     facts: &AllocatorProviderActivationDecisionFacts<'_>,
 ) -> AllocatorProviderActivationDecisionReport {
+    let inactive = DIAGNOSTIC_INACTIVE_ACTIONS;
     let missing_facts = collect_missing_activation_decision_facts(facts);
     let missing_diagnostics = collect_activation_decision_missing_diagnostics(facts);
     let (status, diagnostic) = if missing_facts.is_empty() {
@@ -186,13 +189,13 @@ pub fn validate_allocator_provider_activation_decision(
         rollback_preflight_report_path: facts.rollback_preflight_report_path.map(str::to_string),
         activation_decision_surface_status: DECISION_SURFACE_STATUS_RESERVED,
         activation_decision_allowed: false,
-        would_select_provider: false,
-        would_consume_proof: false,
-        would_prepare_rollback: false,
-        would_open_activation_gate: false,
-        would_install_hook: false,
-        would_replace_process_allocator: false,
-        would_activate: false,
+        would_select_provider: inactive.would_select_provider,
+        would_consume_proof: inactive.would_consume_proof,
+        would_prepare_rollback: inactive.would_prepare_rollback,
+        would_open_activation_gate: inactive.would_open_activation_gate,
+        would_install_hook: inactive.would_install_hook,
+        would_replace_process_allocator: inactive.would_replace_process_allocator,
+        would_activate: inactive.would_activate,
     }
 }
 
@@ -202,6 +205,7 @@ pub fn validate_allocator_provider_activation_decision_from_text(
     let value = match toml::from_str::<toml::Value>(activation_decision_toml) {
         Ok(value) => value,
         Err(err) => {
+            let inactive = DIAGNOSTIC_INACTIVE_ACTIONS;
             return AllocatorProviderActivationDecisionReport {
                 status: AllocatorProviderActivationDecisionStatus::MissingFacts,
                 diagnostic: DIAG_PROVIDER_ACTIVATION_DECISION_RESERVED,
@@ -217,13 +221,13 @@ pub fn validate_allocator_provider_activation_decision_from_text(
                 rollback_preflight_report_path: None,
                 activation_decision_surface_status: DECISION_SURFACE_STATUS_RESERVED,
                 activation_decision_allowed: false,
-                would_select_provider: false,
-                would_consume_proof: false,
-                would_prepare_rollback: false,
-                would_open_activation_gate: false,
-                would_install_hook: false,
-                would_replace_process_allocator: false,
-                would_activate: false,
+                would_select_provider: inactive.would_select_provider,
+                would_consume_proof: inactive.would_consume_proof,
+                would_prepare_rollback: inactive.would_prepare_rollback,
+                would_open_activation_gate: inactive.would_open_activation_gate,
+                would_install_hook: inactive.would_install_hook,
+                would_replace_process_allocator: inactive.would_replace_process_allocator,
+                would_activate: inactive.would_activate,
             };
         }
     };

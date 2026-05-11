@@ -4,6 +4,10 @@
 //! hook, or replace the process allocator. It only owns the provider-registry
 //! side diagnostics reserved by the allocator provider ladder.
 
+use super::allocator_provider_diagnostic_inactive::{
+    REGISTRY_SNAPSHOT_INACTIVE_ACTIONS, SAFETY_GATE_INACTIVE_ACTIONS,
+};
+
 pub const DIAG_PROVIDER_ACTIVATION_SAFETY_GATE_MISSING: &str =
     "[allocator-provider/activation-safety-gate-missing]";
 pub const DIAG_PROVIDER_ACTIVATION_SAFETY_ENTRY_MISSING: &str =
@@ -193,6 +197,8 @@ pub struct AllocatorProviderRegistrySnapshotReport {
 pub fn validate_allocator_provider_registry_snapshot(
     facts: &AllocatorProviderRegistrySnapshotFacts<'_>,
 ) -> AllocatorProviderRegistrySnapshotReport {
+    let inactive = REGISTRY_SNAPSHOT_INACTIVE_ACTIONS;
+    let diagnostic_actions = inactive.diagnostic_actions;
     let missing_facts = collect_missing_registry_snapshot_facts(facts);
     let missing_diagnostics = collect_registry_snapshot_missing_diagnostics(facts);
     let (status, diagnostic) = if missing_facts.is_empty() {
@@ -219,15 +225,15 @@ pub fn validate_allocator_provider_registry_snapshot(
             .map(|id| (*id).to_string())
             .collect(),
         provider_count: facts.provider_ids.len(),
-        active_registry_built: false,
-        would_build_registry: false,
-        would_select_provider: false,
-        would_consume_proof: false,
-        would_prepare_rollback: false,
-        would_open_activation_gate: false,
-        would_install_hook: false,
-        would_replace_process_allocator: false,
-        would_activate: false,
+        active_registry_built: inactive.active_registry_built,
+        would_build_registry: inactive.would_build_registry,
+        would_select_provider: diagnostic_actions.would_select_provider,
+        would_consume_proof: diagnostic_actions.would_consume_proof,
+        would_prepare_rollback: diagnostic_actions.would_prepare_rollback,
+        would_open_activation_gate: diagnostic_actions.would_open_activation_gate,
+        would_install_hook: diagnostic_actions.would_install_hook,
+        would_replace_process_allocator: diagnostic_actions.would_replace_process_allocator,
+        would_activate: diagnostic_actions.would_activate,
     }
 }
 
@@ -237,6 +243,8 @@ pub fn validate_allocator_provider_registry_snapshot_from_text(
     let value = match toml::from_str::<toml::Value>(registry_snapshot_toml) {
         Ok(value) => value,
         Err(err) => {
+            let inactive = REGISTRY_SNAPSHOT_INACTIVE_ACTIONS;
+            let diagnostic_actions = inactive.diagnostic_actions;
             return AllocatorProviderRegistrySnapshotReport {
                 status: AllocatorProviderRegistrySnapshotStatus::MissingFacts,
                 diagnostic: DIAG_PROVIDER_REGISTRY_SNAPSHOT_MISSING,
@@ -245,15 +253,15 @@ pub fn validate_allocator_provider_registry_snapshot_from_text(
                 missing_diagnostics: vec![DIAG_PROVIDER_REGISTRY_SNAPSHOT_MISSING],
                 provider_ids: Vec::new(),
                 provider_count: 0,
-                active_registry_built: false,
-                would_build_registry: false,
-                would_select_provider: false,
-                would_consume_proof: false,
-                would_prepare_rollback: false,
-                would_open_activation_gate: false,
-                would_install_hook: false,
-                would_replace_process_allocator: false,
-                would_activate: false,
+                active_registry_built: inactive.active_registry_built,
+                would_build_registry: inactive.would_build_registry,
+                would_select_provider: diagnostic_actions.would_select_provider,
+                would_consume_proof: diagnostic_actions.would_consume_proof,
+                would_prepare_rollback: diagnostic_actions.would_prepare_rollback,
+                would_open_activation_gate: diagnostic_actions.would_open_activation_gate,
+                would_install_hook: diagnostic_actions.would_install_hook,
+                would_replace_process_allocator: diagnostic_actions.would_replace_process_allocator,
+                would_activate: diagnostic_actions.would_activate,
             };
         }
     };
@@ -320,6 +328,7 @@ pub struct AllocatorProviderActivationSafetyReport {
 pub fn validate_allocator_provider_activation_safety_gate(
     facts: &AllocatorProviderActivationSafetyFacts<'_>,
 ) -> AllocatorProviderActivationSafetyReport {
+    let inactive = SAFETY_GATE_INACTIVE_ACTIONS;
     let missing_facts = collect_missing_activation_safety_facts(facts);
     let missing_diagnostics = collect_activation_safety_missing_diagnostics(facts);
     let (status, diagnostic) = if missing_facts.is_empty() {
@@ -343,10 +352,10 @@ pub fn validate_allocator_provider_activation_safety_gate(
         rollback_target_provider_id: facts.rollback_target_provider_id.map(str::to_string),
         activation_target_provider_id: facts.activation_target_provider_id.map(str::to_string),
         safety_status: SAFETY_STATUS_GATE_CLOSED,
-        activation_gate_open: false,
-        would_open_activation_gate: false,
-        would_activate_hook: false,
-        would_activate: false,
+        activation_gate_open: inactive.activation_gate_open,
+        would_open_activation_gate: inactive.would_open_activation_gate,
+        would_activate_hook: inactive.would_activate_hook,
+        would_activate: inactive.would_activate,
     }
 }
 
@@ -356,6 +365,7 @@ pub fn validate_allocator_provider_activation_safety_gate_from_text(
     let value = match toml::from_str::<toml::Value>(safety_gate_toml) {
         Ok(value) => value,
         Err(err) => {
+            let inactive = SAFETY_GATE_INACTIVE_ACTIONS;
             return AllocatorProviderActivationSafetyReport {
                 status: AllocatorProviderActivationSafetyStatus::MissingFacts,
                 diagnostic: DIAG_PROVIDER_ACTIVATION_SAFETY_GATE_MISSING,
@@ -365,10 +375,10 @@ pub fn validate_allocator_provider_activation_safety_gate_from_text(
                 rollback_target_provider_id: None,
                 activation_target_provider_id: None,
                 safety_status: SAFETY_STATUS_GATE_CLOSED,
-                activation_gate_open: false,
-                would_open_activation_gate: false,
-                would_activate_hook: false,
-                would_activate: false,
+                activation_gate_open: inactive.activation_gate_open,
+                would_open_activation_gate: inactive.would_open_activation_gate,
+                would_activate_hook: inactive.would_activate_hook,
+                would_activate: inactive.would_activate,
             };
         }
     };
