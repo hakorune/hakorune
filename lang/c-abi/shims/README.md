@@ -11,6 +11,9 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
   LoweringPlan route facts only. It must not infer user-box layout from
   `user_box_decls`, hard-code app box names, or rediscover field slots from
   `.hako` source shape.
+- `native_ptr_*` spelling may appear only in MIR-owned LoweringPlan/extern-route
+  consumers. Raw shared C ABI implementation shims must not infer runtime-decl
+  native pointer row semantics from those names.
 - `hako_llvmc_ffi_user_box_micro_seed*.inc` is a legacy exact-seed exception
   for old narrow fixtures. Do not extend it for real-app bringup; migrate or
   retire rows into TypedObjectPlan / LoweringPlan-owned facts instead. See

@@ -22,6 +22,7 @@ TASKBOARD = ROOT / "docs/development/current/main/design/mimalloc-capability-tas
 REALLOC_CARD = ROOT / "docs/development/current/main/phases/phase-293x/293x-053-HAKO-MEM-REALLOC-RUNTIME-DECL.md"
 ARG_EMIT_CARD = ROOT / "docs/development/current/main/phases/phase-293x/293x-054-NATIVE-PTR-CALL-ARG-EMIT.md"
 FREE_CARD = ROOT / "docs/development/current/main/phases/phase-293x/293x-055-HAKO-MEM-FREE-VOID-RUNTIME-DECL.md"
+SHIMS_README = ROOT / "lang/c-abi/shims/README.md"
 CALL_POLICY = ROOT / "lang/src/shared/backend/ll_emit/call_policy_box.hako"
 LL_TEXT = ROOT / "lang/src/shared/backend/ll_emit/ll_text_emit_box.hako"
 REGISTRY = ROOT / "lang/src/shared/backend/ll_emit/runtime_decl_registry_box.hako"
@@ -119,6 +120,7 @@ for path, needle in [
     (REALLOC_CARD, "M10c-hako-mem-realloc-row is live as the second active native pointer runtime-decl row."),
     (ARG_EMIT_CARD, "M10c-native-ptr-call-arg-emit is live for `.hako` ll_emit."),
     (FREE_CARD, "M10c-hako-mem-free-void-row is live as the third active hako.mem"),
+    (SHIMS_README, "`native_ptr_*` spelling may appear only in MIR-owned LoweringPlan/extern-route"),
 ]:
     if needle not in path.read_text():
         fail(f"{path}: missing lock text: {needle}")
@@ -138,9 +140,33 @@ for path, needle in [
         fail(f"{path}: missing native pointer arg emit lock: {needle}")
 PY
 
-if rg -F -q 'native_ptr_nullable' lang/c-abi/shims -g '*.inc'; then
-  echo "[$TAG] ERROR: C shim .inc must not infer native pointer row semantics" >&2
-  exit 1
-fi
+python3 - <<'PY'
+import pathlib
+import sys
+
+ROOT = pathlib.Path.cwd()
+SHIMS = ROOT / "lang/c-abi/shims"
+ALLOWED_ROUTE_FACT_CONSUMERS = {
+    "hako_llvmc_ffi_lowering_plan_metadata.inc",
+    "hako_llvmc_ffi_mir_call_shell.inc",
+    "hako_llvmc_ffi_same_module_prepass.inc",
+}
+
+violations = []
+for path in SHIMS.glob("*.inc"):
+    if path.name in ALLOWED_ROUTE_FACT_CONSUMERS:
+        continue
+    if "native_ptr_nullable" in path.read_text():
+        violations.append(path.relative_to(ROOT))
+
+if violations:
+    print(
+        "[k2-wide-hako-mem-runtime-decl] ERROR: raw C shim .inc must not infer native pointer row semantics",
+        file=sys.stderr,
+    )
+    for path in violations:
+        print(f"  {path}", file=sys.stderr)
+    raise SystemExit(1)
+PY
 
 echo "[$TAG] ok"

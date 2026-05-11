@@ -19,7 +19,8 @@ rg -F -q 'pub effect_plans: Vec<EffectPlan>' src/mir/function/types.rs
 rg -F -q 'pub capability_plans: Vec<CapabilityPlan>' src/mir/function/types.rs
 rg -F -q 'refresh_function_rune_plans(function)' src/mir/semantic_refresh.rs
 rg -F -q 'insert_plan_metadata_json' src/runner/mir_json_emit/plan_metadata.rs
-rg -F -q 'insert_plan_metadata_json(obj, &f.metadata)' src/runner/mir_json_emit/root.rs
+rg -F -q 'build_function_metadata_json(f)' src/runner/mir_json_emit/root.rs
+rg -F -q 'insert_plan_metadata_json(obj, metadata)' src/runner/mir_json_emit/metadata.rs
 rg -F -q 'metadata.effect_plans' docs/reference/mir/metadata-facts-ssot.md
 rg -F -q 'metadata.capability_plans' docs/reference/mir/metadata-facts-ssot.md
 rg -F -q 'M11d is live as a MIR-owned metadata boundary.' \
