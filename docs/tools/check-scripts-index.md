@@ -136,6 +136,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_allocator_provider_activation_safety_closeout_guard.sh` | M85 の allocator provider activation safety closeout inventory を固定し、M76-M84 の SSOT/fixture/card/guard coverage と activation/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_activation_decision_surface_proposal_guard.sh` | M86 の allocator provider activation decision surface proposal を固定し、future explicit-input contract と runtime/CLI 実装・activation/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_activation_decision_fixture_contract_guard.sh` | M87 の allocator provider activation decision fixture contract を固定し、reserved TOML と runtime/CLI 実装・selection/proof/rollback/activation/replacement 不在を検証する。 |
+| `tools/checks/k2_wide_allocator_provider_activation_decision_diagnostic_owner_guard.sh` | M88 の allocator provider activation decision diagnostic owner を固定し、future runtime owner と過去 guard の future-compatible 化、selection/proof/rollback/activation/replacement 不在を検証する。 |
 
 ## Env Hygiene
 

@@ -83,8 +83,11 @@ if data.get("status") != "reserved":
     fail("status must be reserved")
 if data.get("active") is not False:
     fail("active must be false")
-if data.get("decision_surface_owner") != "future_row_required":
-    fail("decision_surface_owner must require a future row")
+if data.get("decision_surface_owner") not in {
+    "future_row_required",
+    "src/runtime/allocator_provider_activation_decision.rs",
+}:
+    fail("decision_surface_owner must be reserved or name the future diagnostic owner")
 if data.get("input_source") != "caller_provided_activation_decision_bundle":
     fail("input_source must be caller-provided")
 if data.get("operator_intent") != "diagnose":
@@ -224,13 +227,6 @@ for item in inputs:
 if seen != set(expected_inputs):
     fail("activation_decision_inputs must cover all explicit diagnostics")
 PY
-
-if rg -n -e '--allocator-provider-activation-decision|activation_decision|ActivationDecision' src -g '*.rs' >/tmp/"$TAG".src 2>&1; then
-  cat /tmp/"$TAG".src >&2
-  rm -f /tmp/"$TAG".src
-  fail "M87 fixture contract must not add activation decision runtime or CLI code"
-fi
-rm -f /tmp/"$TAG".src
 
 allocator_provider_forbid_activation_gate_open "$TAG"
 

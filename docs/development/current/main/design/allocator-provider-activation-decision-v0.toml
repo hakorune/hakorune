@@ -2,7 +2,7 @@
 surface_version = "allocator_provider_activation_decision_v0"
 status = "reserved"
 active = false
-decision_surface_owner = "future_row_required"
+decision_surface_owner = "src/runtime/allocator_provider_activation_decision.rs"
 input_source = "caller_provided_activation_decision_bundle"
 operator_intent = "diagnose"
 requested_provider_id = "mimalloc"
