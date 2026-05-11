@@ -48,6 +48,7 @@ guard_expect_in_file "$TAG" 'local_free' "$APP_README" "proof README must descri
 guard_expect_in_file "$TAG" 'M165 page model split' "$PLAN" "plan must retain M165 row"
 guard_expect_in_file "$TAG" '293x-166 M165 Mimalloc Page Model Split' "$CARD" "missing M165 card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M165 guard"
+guard_expect_in_file "$TAG" 'loop\(i < me\.capacity\)' "$PAGE_BOX" "page seeding must exercise JoinIR field-read loop bound"
 
 if rg -n 'init[[:space:]]*\\{' "$PAGE_BOX" >/tmp/"$TAG".legacy_init 2>&1; then
   echo "[$TAG] ERROR: new page model must use Unified Members stored fields, not legacy init slots" >&2
