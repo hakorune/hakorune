@@ -352,7 +352,10 @@ inference for the allocator release path.
 - `293x-154`: M98B allocator provider runtime diagnostic module boundaries
   landed, splitting diagnostic report owners into focused modules behind the
   historical registry facade without behavior change.
-- Next: M99 proof bundle consumption CLI surface. It must expose only an
-  explicit TOML-path diagnostic and must not consume proof, select a provider,
-  prepare rollback, open the gate, activate hooks, or replace the process
-  allocator.
+- `293x-155`: M99 allocator provider proof bundle consumption CLI surface
+  landed, exposing the inactive proof-bundle consumption report through an
+  explicit TOML path while keeping proof consumption, provider selection,
+  rollback, gate opening, hook activation, native activation, and replacement
+  inactive.
+- Next: any later activation behavior row must first add its own owner/entry
+  SSOT and must not piggyback on the diagnostic CLI surfaces.

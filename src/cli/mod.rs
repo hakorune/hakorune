@@ -6,6 +6,7 @@ mod allocator_hook_dry_run;
 mod allocator_provider_activation_decision;
 mod allocator_provider_activation_safety;
 mod allocator_provider_manifest;
+mod allocator_provider_proof_bundle_consumption;
 mod allocator_provider_registry_snapshot;
 mod allocator_provider_selection_decision;
 mod args;
@@ -19,6 +20,7 @@ pub use allocator_provider_activation_safety::maybe_run_allocator_provider_activ
 pub use allocator_provider_manifest::{
     maybe_run_allocator_provider_combined_dry_run, maybe_run_allocator_provider_manifest_diagnostic,
 };
+pub use allocator_provider_proof_bundle_consumption::maybe_run_allocator_provider_proof_bundle_consumption_diagnostic;
 pub use allocator_provider_registry_snapshot::maybe_run_allocator_provider_registry_snapshot_diagnostic;
 pub use allocator_provider_selection_decision::maybe_run_allocator_provider_selection_decision_diagnostic;
 
@@ -94,6 +96,7 @@ pub struct CliConfig {
     pub allocator_provider_activation_decision: Option<String>,
     pub allocator_provider_registry_snapshot: Option<String>,
     pub allocator_provider_selection_decision: Option<String>,
+    pub allocator_provider_proof_bundle_consumption: Option<String>,
     // Phase 288 P1: REPL mode
     pub repl: bool,
 }
@@ -255,6 +258,7 @@ impl Default for CliConfig {
             allocator_provider_activation_decision: None,
             allocator_provider_registry_snapshot: None,
             allocator_provider_selection_decision: None,
+            allocator_provider_proof_bundle_consumption: None,
             // Phase 288 P1: REPL mode
             repl: false,
         }
@@ -305,6 +309,9 @@ fn allocator_diagnostic_modes(config: &CliConfig) -> Vec<&'static str> {
     }
     if config.allocator_provider_selection_decision.is_some() {
         modes.push("allocator_provider_selection_decision");
+    }
+    if config.allocator_provider_proof_bundle_consumption.is_some() {
+        modes.push("allocator_provider_proof_bundle_consumption");
     }
     modes
 }
@@ -397,6 +404,27 @@ mod tests {
             vec![
                 "allocator_provider_registry_snapshot",
                 "allocator_provider_selection_decision"
+            ]
+        );
+        assert_eq!(
+            maybe_reject_allocator_diagnostic_conflicts(&config),
+            Some(2)
+        );
+    }
+
+    #[test]
+    fn allocator_proof_bundle_consumption_conflicts_with_other_diagnostics() {
+        let config = CliConfig {
+            allocator_provider_proof_bundle_consumption: Some("proof-bundle.toml".to_string()),
+            allocator_provider_selection_decision: Some("selection.toml".to_string()),
+            ..CliConfig::default()
+        };
+
+        assert_eq!(
+            allocator_diagnostic_modes(&config),
+            vec![
+                "allocator_provider_selection_decision",
+                "allocator_provider_proof_bundle_consumption"
             ]
         );
         assert_eq!(

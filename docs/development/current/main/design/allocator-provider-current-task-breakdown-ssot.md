@@ -37,6 +37,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-diagnostic-helper-cleanup-ssot.md
   - docs/development/current/main/design/allocator-provider-proof-bundle-consumption-diagnostic-report-ssot.md
   - docs/development/current/main/design/allocator-provider-runtime-diagnostic-module-boundaries-ssot.md
+  - docs/development/current/main/design/allocator-provider-proof-bundle-consumption-cli-surface-ssot.md
   - docs/development/current/main/design/allocator-provider-lightweight-doc-sync-policy-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
 ---
@@ -90,6 +91,7 @@ then and only then consider process allocator replacement
 | M97B | diagnostic helper cleanup fixing shared TOML helper and fact-check ownership without behavior change | complete |
 | M98 | proof bundle consumption diagnostic report fixing runtime parsing/reporting while proof consumption stays inactive | complete |
 | M98B | runtime diagnostic module boundaries fixing report-owner modules and keeping the registry facade under 1000 lines | complete |
+| M99 | proof bundle consumption CLI surface fixing explicit TOML-path output while proof consumption stays inactive | complete |
 
 ## Layer Model
 
@@ -149,6 +151,7 @@ activation entry:
 | M97 | selection decision CLI surface | explicit CLI output for the inactive selection decision report | activation |
 | M98 | proof bundle consumption diagnostic report | runtime report over caller-provided proof-bundle consumption TOML text | proof consumption |
 | M98B | runtime diagnostic module boundaries | focused runtime modules with registry facade API compatibility | behavior change |
+| M99 | proof bundle consumption CLI surface | explicit CLI output for the inactive proof-bundle consumption report | proof consumption |
 
 ## Post-M75 Activation Entry Ladder
 
@@ -179,6 +182,7 @@ activation entry:
 | M97 | selection decision CLI surface | explicit CLI output for the inactive selection decision report | activation |
 | M98 | proof bundle consumption diagnostic report | runtime report over caller-provided proof-bundle consumption TOML text | proof consumption |
 | M98B | runtime diagnostic module boundaries | focused runtime modules with registry facade API compatibility | behavior change |
+| M99 | proof bundle consumption CLI surface | explicit CLI output for the inactive proof-bundle consumption report | proof consumption |
 
 ## Dependency Order
 
@@ -218,6 +222,7 @@ M66 task breakdown
   -> M97B diagnostic helper cleanup
   -> M98 proof bundle consumption diagnostic report
   -> M98B runtime diagnostic module boundaries
+  -> M99 proof bundle consumption CLI surface
   -> later activation behavior rows only after each owner/entry SSOT
 ```
 
@@ -279,9 +284,9 @@ ladder was being named.
 
 Historical M75 sentence kept for past guards: Provider proof boundary ladder is now closed through M75.
 
-M87 and later follow the lightweight docs sync policy. M87-M98B are landed.
+M87 and later follow the lightweight docs sync policy. M87-M99 are landed.
 M95 is the latest closeout checkpoint, M98 is the latest runtime diagnostic
-checkpoint, M97 is the latest CLI diagnostic checkpoint, and M98B is the latest
+checkpoint, M99 is the latest CLI diagnostic checkpoint, and M98B is the latest
 BoxShape cleanup checkpoint:
 
 1. SSOT or implementation doc first.
@@ -317,6 +322,6 @@ fact-check shape without behavior changes. M98 adds diagnostic-only
 parsing/reporting over caller-provided proof-bundle consumption TOML text while
 keeping proof consumption inactive. M98B splits the runtime diagnostic
 implementation into focused report-owner modules behind the historical registry
-facade without behavior changes. The next safe move is an explicit CLI
-diagnostic surface for the proof-bundle report, still before any proof
-consumption behavior.
+facade without behavior changes. M99 exposes the inactive proof-bundle report
+through an explicit TOML-path CLI while keeping proof consumption inactive. Any
+later activation behavior row must first add its own owner/entry SSOT.

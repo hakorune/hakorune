@@ -161,6 +161,12 @@ pub fn build_command() -> Command {
                 .value_name("FILE")
                 .help("[Diagnostic] Validate explicit allocator provider selection decision TOML without selecting or activating a provider")
         )
+        .arg(
+            Arg::new("allocator-provider-proof-bundle-consumption")
+                .long("allocator-provider-proof-bundle-consumption")
+                .value_name("FILE")
+                .help("[Diagnostic] Validate explicit allocator provider proof bundle consumption TOML without consuming proof or activating a provider")
+        )
         .arg(Arg::new("stage3").long("stage3").help("Enable Stage-3 syntax acceptance for selfhost parser").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("ny-compiler-args").long("ny-compiler-args").value_name("ARGS").help("Pass additional args to selfhost child compiler"))
         .arg(Arg::new("using").long("using").value_name("NAME").help("Add a using directive to current session; repeat").action(clap::ArgAction::Append))
@@ -341,6 +347,9 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
             .cloned(),
         allocator_provider_selection_decision: matches
             .get_one::<String>("allocator-provider-selection-decision")
+            .cloned(),
+        allocator_provider_proof_bundle_consumption: matches
+            .get_one::<String>("allocator-provider-proof-bundle-consumption")
             .cloned(),
         // Phase 288 P1: REPL mode
         repl: matches.get_flag("repl"),
@@ -689,6 +698,23 @@ mod tests {
         assert_eq!(
             cfg.allocator_provider_selection_decision.as_deref(),
             Some("/tmp/selection.toml")
+        );
+    }
+
+    #[test]
+    fn allocator_provider_proof_bundle_consumption_cli_route_parses() {
+        let matches = build_command()
+            .try_get_matches_from([
+                "hakorune",
+                "--allocator-provider-proof-bundle-consumption",
+                "/tmp/proof-bundle.toml",
+            ])
+            .expect("allocator provider proof bundle consumption args should parse");
+
+        let cfg = from_matches(&matches);
+        assert_eq!(
+            cfg.allocator_provider_proof_bundle_consumption.as_deref(),
+            Some("/tmp/proof-bundle.toml")
         );
     }
 
