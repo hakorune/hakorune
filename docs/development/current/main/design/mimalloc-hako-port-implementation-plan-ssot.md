@@ -153,6 +153,9 @@ work. Splitting is mandatory if a row starts adding algorithm bodies back into
 - `M164` is a closeout row because M163 already made `LayoutBox` delegate to
   `SizeClassBox`. If M164 has no useful code delta, it may land as a focused
   guard/card that proves no stale layout owner remains.
+  M164 landed as this closeout guard: `SizeClassBox` remains the truth owner,
+  `LayoutBox` is documented as the legacy two-class compatibility facade, and
+  `page_heap_box.hako` still consumes that facade without bypassing it.
 - `M165` must create a page-local owner before `M166` creates queues. Do not
   add queue traversal to prove page fields.
 - `M166` must choose pages, not allocate blocks. If it pops a free block, that

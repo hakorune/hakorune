@@ -127,6 +127,7 @@
 - [x] `293x-162` mimalloc upstream analysis and `.hako` port plan
 - [x] `293x-163` M163 mimalloc size-class policy owner
 - [x] `293x-164` M164-M170 mimalloc port granularity lock
+- [x] `293x-165` M164 mimalloc layout migration closeout
 
 ## Gates
 

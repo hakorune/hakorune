@@ -388,7 +388,10 @@ inference for the allocator release path.
 - `293x-164`: M164-M170 mimalloc port granularity lock landed, fixing write
   sets, proof targets, and stop lines for layout closeout, page model, page
   queue, fast path, OSVM composition, local free, and remote-free integration.
+- `293x-165`: M164 mimalloc layout migration closeout landed, fixing
+  `LayoutBox` as the legacy two-class compatibility facade over `SizeClassBox`
+  and preserving current VM/EXE allocator proof behavior.
 - Next: resume `.hako` mimalloc / `hako_alloc` implementation slices on top of
-  the capability substrate, continuing with `M164 hako_alloc layout migration`.
+  the capability substrate, continuing with `M165 page model split`.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.

@@ -1,5 +1,6 @@
-// layout_box.hako — Hako Alloc size-class policy
-// Responsibility: allocator policy decisions for the real-app port.
+// layout_box.hako — Hako Alloc legacy two-class compatibility facade
+// Responsibility: preserve the current small/medium allocator app contract
+// while delegating size-class truth to SizeClassBox.
 // This is not native layout/ABI ownership.
 
 using selfhost.hako_alloc.memory.size_class_box as SizeClassBox
