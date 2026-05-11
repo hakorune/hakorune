@@ -143,6 +143,12 @@ pub fn build_command() -> Command {
                 .value_name("FILE")
                 .help("[Diagnostic] Validate explicit allocator provider activation safety gate TOML without opening the gate")
         )
+        .arg(
+            Arg::new("allocator-provider-activation-decision")
+                .long("allocator-provider-activation-decision")
+                .value_name("FILE")
+                .help("[Diagnostic] Validate explicit allocator provider activation decision TOML without selecting or activating a provider")
+        )
         .arg(Arg::new("stage3").long("stage3").help("Enable Stage-3 syntax acceptance for selfhost parser").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("ny-compiler-args").long("ny-compiler-args").value_name("ARGS").help("Pass additional args to selfhost child compiler"))
         .arg(Arg::new("using").long("using").value_name("NAME").help("Add a using directive to current session; repeat").action(clap::ArgAction::Append))
@@ -314,6 +320,9 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
             .cloned(),
         allocator_provider_activation_safety_gate: matches
             .get_one::<String>("allocator-provider-activation-safety-gate")
+            .cloned(),
+        allocator_provider_activation_decision: matches
+            .get_one::<String>("allocator-provider-activation-decision")
             .cloned(),
         // Phase 288 P1: REPL mode
         repl: matches.get_flag("repl"),
@@ -611,6 +620,23 @@ mod tests {
         assert_eq!(
             cfg.allocator_provider_activation_safety_gate.as_deref(),
             Some("/tmp/safety.toml")
+        );
+    }
+
+    #[test]
+    fn allocator_provider_activation_decision_cli_route_parses() {
+        let matches = build_command()
+            .try_get_matches_from([
+                "hakorune",
+                "--allocator-provider-activation-decision",
+                "/tmp/decision.toml",
+            ])
+            .expect("allocator provider activation decision args should parse");
+
+        let cfg = from_matches(&matches);
+        assert_eq!(
+            cfg.allocator_provider_activation_decision.as_deref(),
+            Some("/tmp/decision.toml")
         );
     }
 

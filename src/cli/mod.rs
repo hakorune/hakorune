@@ -3,6 +3,7 @@
  */
 
 mod allocator_hook_dry_run;
+mod allocator_provider_activation_decision;
 mod allocator_provider_activation_safety;
 mod allocator_provider_manifest;
 mod args;
@@ -10,6 +11,7 @@ mod groups;
 mod utils;
 
 pub use allocator_hook_dry_run::maybe_run_allocator_hook_dry_run;
+pub use allocator_provider_activation_decision::maybe_run_allocator_provider_activation_decision_diagnostic;
 pub use allocator_provider_activation_safety::maybe_run_allocator_provider_activation_safety_diagnostic;
 pub use allocator_provider_manifest::{
     maybe_run_allocator_provider_combined_dry_run, maybe_run_allocator_provider_manifest_diagnostic,
@@ -84,6 +86,7 @@ pub struct CliConfig {
     pub allocator_hook_dry_run_proof: Option<String>,
     pub allocator_provider_manifest: Option<String>,
     pub allocator_provider_activation_safety_gate: Option<String>,
+    pub allocator_provider_activation_decision: Option<String>,
     // Phase 288 P1: REPL mode
     pub repl: bool,
 }
@@ -242,6 +245,7 @@ impl Default for CliConfig {
             allocator_hook_dry_run_proof: None,
             allocator_provider_manifest: None,
             allocator_provider_activation_safety_gate: None,
+            allocator_provider_activation_decision: None,
             // Phase 288 P1: REPL mode
             repl: false,
         }
