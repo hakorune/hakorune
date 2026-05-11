@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/allocator-provider-lightweight-doc-sync-policy-ssot.md
   - tools/checks/current_state_pointer_guard.sh
 ---
 
@@ -108,3 +109,11 @@ For a normal implementation card:
 
 Only update mirrors if the card changes the active lane, blocker, restart
 order, or a durable design policy.
+
+## Applied Lane Policy
+
+Allocator provider rows M87 and later follow
+`docs/development/current/main/design/allocator-provider-lightweight-doc-sync-policy-ssot.md`:
+per-row work updates the row SSOT/card, `CURRENT_STATE.toml`, and guard wiring
+when needed. Phase README, phase taskboards, and global taskboards are updated
+at closeout or when their own stable contract changes, not for every row.

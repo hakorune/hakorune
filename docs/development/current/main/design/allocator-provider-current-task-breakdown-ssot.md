@@ -21,6 +21,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-activation-safety-diagnostic-report-ssot.md
   - docs/development/current/main/design/allocator-provider-activation-safety-closeout-inventory-ssot.md
   - docs/development/current/main/design/allocator-provider-activation-decision-surface-proposal-ssot.md
+  - docs/development/current/main/design/allocator-provider-lightweight-doc-sync-policy-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
 ---
 
@@ -175,13 +176,20 @@ environment toggles, hook activation, and process allocator replacement.
 
 ## Acceptance Pattern
 
-Every next row should land as:
+M66-M86 were mirrored in the heavy progress tables while the activation safety
+ladder was being named.
+
+M87 and later follow the lightweight docs sync policy:
 
 1. SSOT or implementation doc first.
 2. Small runtime/CLI code only when the row explicitly allows it.
 3. Dedicated guard.
 4. `current_state_pointer_guard`.
 5. `git diff --check`.
+
+Do not require phase README, phase taskboard, global mimalloc taskboard, or the
+full progress tables in this file to change for every row. Update those mirrors
+at closeout rows or when their own stable contract changes.
 
 ## Next Step
 
