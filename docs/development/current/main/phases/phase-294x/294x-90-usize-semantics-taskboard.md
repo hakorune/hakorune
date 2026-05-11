@@ -48,6 +48,7 @@ hako_alloc or mimalloc migration.
 | `294x-10b` | Complete | VM reference checked arithmetic routes | VM reference execution consumes MIR-owned exact numeric Add/Sub/Mul route facts without VM-owned inference |
 | `294x-10c` | Complete | VM reference exact compare routes | VM reference execution consumes MIR-owned exact numeric compare route facts without VM-owned inference |
 | `294x-10d` | Complete | VM exact ops module split | exact numeric VM reference execution is split by operation family before more rows land |
+| `294x-10e` | Complete | VM reference exact logical shr routes | VM reference execution consumes MIR-owned exact unsigned logical right-shift route facts |
 | `294x-11` | Pending | literal suffix and const-eval row | `0usize` / exact numeric consts are accepted only with range checks |
 | `294x-12` | Pending | typed-object exact numeric storage | typed-object plans and EXE runtime storage distinguish `usize` from i64 |
 | `294x-13` | Pending | backend capability and fail-fast | unsupported backends reject exact `usize`; supported backends lower unsigned ops correctly |
@@ -105,7 +106,7 @@ hako_alloc or mimalloc migration.
 - [x] Implement checked add/sub/mul in live VM exact numeric op routes.
 - [ ] Implement div/mod with zero checks.
 - [ ] Implement bitwise ops.
-- [ ] Implement logical right shift in live VM exact numeric op routes.
+- [x] Implement logical right shift in live VM exact numeric op routes.
 - [x] Implement unsigned compare in live VM exact numeric op routes.
 - [ ] Define display/debug formatting.
 - [ ] Emit stable diagnostics for overflow/range/shift failures.

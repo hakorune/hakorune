@@ -44,6 +44,13 @@ impl MirInterpreter {
                             *op,
                             *lhs,
                             *rhs,
+                        )? && !self.try_handle_exact_numeric_shift_reference(
+                            block.id,
+                            instruction_index,
+                            *dst,
+                            *op,
+                            *lhs,
+                            *rhs,
                         )? {
                             self.handle_binop(*dst, *op, *lhs, *rhs)?;
                         }
@@ -149,6 +156,8 @@ impl MirInterpreter {
             }
             if let MirInstruction::BinOp { dst, op, lhs, rhs } = inst {
                 if self.try_handle_exact_numeric_binop_reference(
+                    block.id, idx, *dst, *op, *lhs, *rhs,
+                )? || self.try_handle_exact_numeric_shift_reference(
                     block.id, idx, *dst, *op, *lhs, *rhs,
                 )? {
                     continue;

@@ -16,7 +16,8 @@ use crate::mir::{
     exact_numeric_value_facts::{
         ExactNumericBinaryOpRouteFact, ExactNumericBinaryOpRouteRejection,
         ExactNumericCompareRouteFact, ExactNumericCompareRouteRejection, ExactNumericReturnFact,
-        ExactNumericValueFact, ExactNumericValueFactRejection,
+        ExactNumericShiftRouteFact, ExactNumericShiftRouteRejection, ExactNumericValueFact,
+        ExactNumericValueFactRejection,
     },
     exact_seed_backend_route::ExactSeedBackendRoute,
     extern_call_route_plan::ExternCallRoute,
@@ -384,6 +385,14 @@ pub struct FunctionMetadata {
     /// Compare sites where exact numeric compare routes could not be published
     /// without mixing exact/dynamic values or mismatched exact source names.
     pub exact_numeric_compare_route_rejections: Vec<ExactNumericCompareRouteRejection>,
+
+    /// Exact numeric logical shift route facts. These require an exact unsigned
+    /// left operand and keep the right operand as the dynamic shift count.
+    pub exact_numeric_shift_route_facts: Vec<ExactNumericShiftRouteFact>,
+
+    /// Shift sites where exact numeric logical shift routes could not be
+    /// published, currently because the exact left operand is signed.
+    pub exact_numeric_shift_route_rejections: Vec<ExactNumericShiftRouteRejection>,
 
     /// Function-level exact numeric return annotation fact.
     ///

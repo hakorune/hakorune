@@ -19,6 +19,11 @@ fn module_with_fields(function: MirFunction) -> MirModule {
                 declared_type_name: Some("u64".to_string()),
                 is_weak: false,
             },
+            UserBoxFieldDecl {
+                name: "delta".to_string(),
+                declared_type_name: Some("i64".to_string()),
+                is_weak: false,
+            },
         ],
     );
     module.add_function(function);
@@ -406,6 +411,61 @@ fn publishes_compare_route_for_same_exact_operands() {
 }
 
 #[test]
+fn publishes_logical_shift_route_for_exact_unsigned_lhs() {
+    let mut function = page_function();
+    let page = function.params[0];
+    let value = function.next_value_id();
+    let shift = function.next_value_id();
+    let shifted = function.next_value_id();
+    let block = function.get_block_mut(BasicBlockId::new(0)).unwrap();
+    block.add_instruction(MirInstruction::FieldGet {
+        dst: value,
+        base: page,
+        field: "capacity".to_string(),
+        declared_type: Some(MirType::Integer),
+    });
+    block.add_instruction(MirInstruction::Const {
+        dst: shift,
+        value: ConstValue::Integer(3),
+    });
+    block.add_instruction(MirInstruction::BinOp {
+        dst: shifted,
+        op: BinaryOp::Shr,
+        lhs: value,
+        rhs: shift,
+    });
+    let mut module = module_with_fields(function);
+
+    refresh_module_exact_numeric_value_facts(&mut module);
+
+    let metadata = &module.get_function("main").unwrap().metadata;
+    assert_eq!(
+        metadata.exact_numeric_value_facts.get(&shifted).unwrap(),
+        &ExactNumericValueFact {
+            declared_type_name: "usize".to_string(),
+            source: ExactNumericValueFactSource::BinaryOp {
+                op: BinaryOp::Shr,
+                lhs: value,
+                rhs: shift,
+            },
+        }
+    );
+    assert_eq!(
+        metadata.exact_numeric_shift_route_facts,
+        vec![ExactNumericShiftRouteFact {
+            block: BasicBlockId::new(0),
+            instruction_index: 2,
+            dst: shifted,
+            op: BinaryOp::Shr,
+            lhs: value,
+            rhs: shift,
+            declared_type_name: "usize".to_string(),
+        }]
+    );
+    assert!(metadata.exact_numeric_shift_route_rejections.is_empty());
+}
+
+#[test]
 fn records_select_rejection_for_exact_dynamic_mix() {
     let mut function = page_function();
     let page = function.params[0];
@@ -588,6 +648,53 @@ fn records_compare_rejection_for_exact_dynamic_mix() {
             rhs: dynamic,
             kind: ExactNumericCompareRouteRejectionKind::MixedExactAndDynamic {
                 exact_source_name: "usize".to_string(),
+            },
+        }]
+    );
+}
+
+#[test]
+fn records_logical_shift_rejection_for_exact_signed_lhs() {
+    let mut function = page_function();
+    let page = function.params[0];
+    let value = function.next_value_id();
+    let shift = function.next_value_id();
+    let shifted = function.next_value_id();
+    let block = function.get_block_mut(BasicBlockId::new(0)).unwrap();
+    block.add_instruction(MirInstruction::FieldGet {
+        dst: value,
+        base: page,
+        field: "delta".to_string(),
+        declared_type: Some(MirType::Integer),
+    });
+    block.add_instruction(MirInstruction::Const {
+        dst: shift,
+        value: ConstValue::Integer(3),
+    });
+    block.add_instruction(MirInstruction::BinOp {
+        dst: shifted,
+        op: BinaryOp::Shr,
+        lhs: value,
+        rhs: shift,
+    });
+    let mut module = module_with_fields(function);
+
+    refresh_module_exact_numeric_value_facts(&mut module);
+
+    let metadata = &module.get_function("main").unwrap().metadata;
+    assert!(!metadata.exact_numeric_value_facts.contains_key(&shifted));
+    assert!(metadata.exact_numeric_shift_route_facts.is_empty());
+    assert_eq!(
+        metadata.exact_numeric_shift_route_rejections,
+        vec![ExactNumericShiftRouteRejection {
+            block: BasicBlockId::new(0),
+            instruction_index: 2,
+            dst: shifted,
+            op: BinaryOp::Shr,
+            lhs: value,
+            rhs: shift,
+            kind: ExactNumericShiftRouteRejectionKind::SignedLogicalShift {
+                source_name: "i64".to_string(),
             },
         }]
     );

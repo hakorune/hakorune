@@ -24,6 +24,14 @@ pub use compare_routes::{
     ExactNumericCompareRouteFact, ExactNumericCompareRouteRejection,
     ExactNumericCompareRouteRejectionKind,
 };
+mod shift_routes;
+use shift_routes::{
+    collect_shift_route_facts, collect_shift_route_rejections, try_publish_logical_shift_fact,
+};
+pub use shift_routes::{
+    ExactNumericShiftRouteFact, ExactNumericShiftRouteRejection,
+    ExactNumericShiftRouteRejectionKind,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExactNumericValueFact {
@@ -122,6 +130,8 @@ pub(crate) fn refresh_function_exact_numeric_value_facts(
     let binary_op_route_rejections = collect_binary_op_route_rejections(function, &facts);
     let compare_route_facts = collect_compare_route_facts(function, &facts);
     let compare_route_rejections = collect_compare_route_rejections(function, &facts);
+    let shift_route_facts = collect_shift_route_facts(function, &facts);
+    let shift_route_rejections = collect_shift_route_rejections(function, &facts);
     let return_fact = exact_numeric_return_fact(function);
 
     let inserted = facts.len();
@@ -131,6 +141,8 @@ pub(crate) fn refresh_function_exact_numeric_value_facts(
     function.metadata.exact_numeric_binary_op_route_rejections = binary_op_route_rejections;
     function.metadata.exact_numeric_compare_route_facts = compare_route_facts;
     function.metadata.exact_numeric_compare_route_rejections = compare_route_rejections;
+    function.metadata.exact_numeric_shift_route_facts = shift_route_facts;
+    function.metadata.exact_numeric_shift_route_rejections = shift_route_rejections;
     function.metadata.exact_numeric_return_fact = return_fact;
     inserted
 }
@@ -293,6 +305,7 @@ fn propagate_exact_numeric_value_facts(
                     MirInstruction::BinOp { dst, op, lhs, rhs } => {
                         changed |=
                             try_publish_binary_op_arithmetic_fact(facts, *dst, *op, *lhs, *rhs);
+                        changed |= try_publish_logical_shift_fact(facts, *dst, *op, *lhs, *rhs);
                     }
                     _ => {}
                 }
