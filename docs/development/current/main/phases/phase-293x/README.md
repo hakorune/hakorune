@@ -6,6 +6,8 @@
   compiler blockers.
 - Active lane token: `phase-293x real-app bringup`
 - Current blocker token: `phase-293x mimalloc substrate capability ladder after real-app EXE parity`
+- Mimalloc purpose SSOT:
+  `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 
 ## Order
 
@@ -23,6 +25,8 @@
 - Keep `phase-137x` observe-only unless app evidence reopens a real blocker.
 - Do not start allocator optimization work before the preceding apps provide
   concrete ownership / allocation evidence.
+- Treat mimalloc as `.hako` / `hako_alloc` completeness work in this lane.
+  Allocator-provider M104+ is optional future host-replacement support.
 
 ## Smoke Entry
 
@@ -369,6 +373,9 @@ inference for the allocator release path.
 - `293x-159`: M103 allocator provider selected-provider proof validation
   landed, validating proof operation coverage while keeping proof consumption
   token creation inactive.
-- Next: M104 may create an in-memory proof bundle consumption token, still
-  without rollback preparation, gate opening, hook activation, native
-  activation, or replacement.
+- `293x-160`: mimalloc `.hako` port purpose realignment landed, fixing that
+  mimalloc is current `.hako` / `hako_alloc` completeness work while
+  allocator-provider M104+ is optional future host-replacement support.
+- Next: resume `.hako` mimalloc / `hako_alloc` implementation slices on top of
+  the capability substrate. M104 is next only if the optional
+  allocator-provider host-replacement ladder is explicitly reopened.

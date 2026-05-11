@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-05-08
+Date: 2026-05-11
 Scope: 再起動直後に 2-5 分で current lane に戻るための最短手順。
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -34,6 +34,8 @@ cargo check -q
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
 - current blocker token: `phase-293x mimalloc substrate capability ladder after real-app EXE parity`
+- mimalloc port purpose:
+  `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
@@ -66,7 +68,11 @@ cargo check -q
   direct EXE parity now pass
 - EXE boundary gate:
   `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
-- next: start the mimalloc substrate capability ladder from `293x-026`
+- next: resume the mimalloc substrate / `hako_alloc` ladder from the latest
+  `CURRENT_STATE.toml` card
+- current reading: continue mimalloc as `.hako` / `hako_alloc`
+  completeness work. Allocator-provider M104+ is optional future host
+  replacement support, not the default next task.
 - do not hide compiler blockers in app code; if a real app exposes a Stage0 or
   VM/compiler seam, fix the compiler structurally first
 - real-app gate:

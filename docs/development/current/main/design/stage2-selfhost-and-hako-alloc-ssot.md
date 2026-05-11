@@ -20,6 +20,7 @@ Related:
   - docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md
   - docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
   - docs/development/current/main/design/stage2-hako-owner-vs-inc-thin-shim-ssot.md
+  - docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md
   - lang/README.md
   - lang/src/runtime/collections/README.md
 ---
@@ -89,6 +90,7 @@ Related:
    - `MaybeInit`
    - `Vec/Map`-class collection substrate
    - future allocator policy / hakozuna policy owner
+   - mimalloc-style allocator algorithms for the current completeness lane
    - physical root reservation: `lang/src/hako_alloc/` (first wave: policy-plane helpers such as `ArcBox` / `RefCellBox`)
 3. `hako_std`
    - process / env / fs / time / net / plugin-host / C ABI convenience
@@ -171,6 +173,9 @@ Native keep remains below those layers:
   - owner truth is fixed separately by `hako.abi` / `hako.value_repr` / ownership-layout manifests
 - current `.hako` kernel migration work lives on the owner/substrate axis and is allowed to proceed before Stage2 distribution packaging is active.
 - `.hako complete` in this doc means authority/mainline completion, not native zero.
+- current mimalloc port completion means `.hako` / `hako_alloc` allocator
+  ownership plus narrow capability leaves; it does not require Rust process
+  allocator replacement.
 - collection owner growth belongs under `hako_alloc` / ring1 collection runtime, not ring0.
 - `runtime/memory/**` is not the canonical home for alloc/policy helpers in the end-state layering.
 - Rune is a contract layer that sits beside `hako_core` / `hako_alloc` / `hako_std`; it does not replace those implementation layers.
@@ -182,3 +187,4 @@ Native keep remains below those layers:
 - This document does not change current daily `phase-29ct` implementation order.
 - This document does not declare Stage2 distribution complete.
 - This document does not move LLVM / OS VM / GC / ABI metal into `.hako`.
+- This document does not activate Hakorune process allocator replacement.

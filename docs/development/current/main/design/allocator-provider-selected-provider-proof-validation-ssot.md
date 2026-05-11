@@ -6,6 +6,7 @@ Scope: M103 allocator provider selected-provider proof validation runtime row.
 Related:
   - docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md
   - docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md
+  - docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md
   - src/runtime/allocator_provider_activation.rs
   - src/runtime/allocator_provider_proof_validation.rs
 ---
@@ -99,7 +100,9 @@ post-M101 allocator gate does not keep growing per row.
 
 ## Next Row
 
-M104 may create an in-memory proof bundle consumption token, but only after the
-selected-provider precondition and M103 proof validation both pass. M104 still
-must not prepare rollback, open the gate, install a hook, activate native
-allocator behavior, or replace the process allocator.
+M104 may create an in-memory proof bundle consumption token inside the optional
+host-replacement ladder, but only after the selected-provider precondition and
+M103 proof validation both pass. It is not the default next implementation task
+for the current mimalloc port. M104 still must not prepare rollback, open the
+gate, install a hook, activate native allocator behavior, or replace the
+process allocator.

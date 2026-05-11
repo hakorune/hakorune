@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-05-10
+Date: 2026-05-11
 Scope: current lane / next lane / restart order only.
 
 ## Purpose
@@ -39,6 +39,8 @@ Scope: current lane / next lane / restart order only.
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - task breakdown:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
+- mimalloc port purpose:
+  `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - current blocker token:
   `phase-293x mimalloc substrate capability ladder after real-app EXE parity`
 - primary mode: real-app bringup lane
@@ -65,7 +67,8 @@ Scope: current lane / next lane / restart order only.
   PHI type preservation; BoxTorrent mini, binary-trees, JSON stream
   aggregator, mimalloc-lite, and allocator-stress direct EXE parity now pass,
   and the real-app EXE boundary probe has no remaining unsupported-shape app
-  pins
+  pins; mimalloc work now resumes as `.hako` / `hako_alloc` completeness work,
+  not as default host allocator replacement
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
@@ -82,7 +85,9 @@ Scope: current lane / next lane / restart order only.
   (closed through M103; the proof-bundle consumption fail-fast runtime entry,
   caller-provided selected-provider precondition, and selected-provider proof
   validation are present under the activation owner, while provider selection
-  and actual proof consumption remain inactive until later token rows)
+  and actual proof consumption remain inactive. M104+ is optional future
+  host-replacement support, not the default current mimalloc implementation
+  path)
 - post-M101 implementation ladder:
   `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`
 - detailed landed history: phase-291x card files and
@@ -103,7 +108,9 @@ Scope: current lane / next lane / restart order only.
   without selecting a provider or consuming proofs. Active registry
   construction, provider selection, proof token creation, rollback preparation,
   gate opening, hook activation, native activation, and process allocator
-  replacement remain inactive
+  replacement remain inactive. Default next implementation work returns to the
+  `.hako` mimalloc / `hako_alloc` lane unless host allocator replacement is
+  explicitly reopened
 - VM retreat reading: new substrate / allocator features should target
   `llvm/exe` / pure-first acceptance first; `vm-hako` is reference/monitor only
   and `rust-vm` is bootstrap/recovery/compat keep, so broad VM parity is not a

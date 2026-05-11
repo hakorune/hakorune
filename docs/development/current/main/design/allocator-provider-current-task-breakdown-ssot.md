@@ -43,6 +43,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md
   - docs/development/current/main/design/allocator-provider-selected-provider-precondition-ssot.md
   - docs/development/current/main/design/allocator-provider-lightweight-doc-sync-policy-ssot.md
+  - docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
 ---
 
@@ -50,7 +51,10 @@ Related:
 
 ## Goal
 
-Make the current allocator replacement/provider lane readable at task granularity.
+Make the allocator replacement/provider lane readable at task granularity.
+
+This is an optional future host-replacement support lane. It is not the primary
+implementation plan for the current mimalloc port.
 
 The current lane is not "replace malloc now". It is:
 
@@ -58,8 +62,14 @@ The current lane is not "replace malloc now". It is:
 make allocator policy/state/proof visible to Hakorune
 then add provider diagnostics
 then prove activation safety
-then and only then consider process allocator replacement
+then and only then, if explicitly reopened, consider process allocator replacement
 ```
+
+The default current mimalloc implementation direction is fixed by
+`mimalloc-hako-port-purpose-ssot.md`: implement allocator logic in `.hako` /
+`hako_alloc`, backed by narrow capability substrate rows. M104+ remains a
+future optional host allocator replacement ladder and does not gate `.hako`
+mimalloc progress.
 
 ## Current Completed Checkpoint
 
@@ -109,6 +119,7 @@ language lifecycle:
 
 hako_alloc policy/state:
   size class / page policy / free-list / reuse / stats / stress proof
+  primary home for current mimalloc algorithm work
 
 provider diagnostics:
   provider manifest / provider readiness / preflight facts / stable diagnostics
@@ -118,6 +129,7 @@ native metal provider:
 
 activation entry:
   registry snapshot / selection decision / proof consumption / rollback preflight / safety gate
+  optional future host replacement support, inactive by default after M103
 ```
 
 ## Immediate Task Ladder
@@ -164,7 +176,7 @@ activation entry:
 | M101 | proof consumption fail-fast entry | runtime attempt report blocking on missing selected provider | actual proof consumption |
 | M102 | selected-provider precondition | runtime attempt report validating caller-provided selected provider | provider selection, proof consumption |
 | M103 | proof validation for selected provider | selected provider proof operation/capability validation | proof consumption token |
-| M104 | proof bundle consumption token | in-memory token after selected provider and proof validation pass | gate opening, hook install, replacement |
+| M104 | proof bundle consumption token | optional future in-memory token after selected provider and proof validation pass | gate opening, hook install, replacement |
 | M105 | rollback preparation fail-fast entry | rollback precondition report blocked without token/facts | rollback execution, gate opening, replacement |
 
 ## Post-M75 Activation Entry Ladder
@@ -201,7 +213,7 @@ activation entry:
 | M101 | proof consumption fail-fast entry | runtime attempt report blocking on missing selected provider | actual proof consumption |
 | M102 | selected-provider precondition | runtime attempt report validating caller-provided selected provider | provider selection, proof consumption |
 | M103 | proof validation for selected provider | selected provider proof operation/capability validation | proof consumption token |
-| M104 | proof bundle consumption token | in-memory token after selected provider and proof validation pass | gate opening, hook install, replacement |
+| M104 | proof bundle consumption token | optional future in-memory token after selected provider and proof validation pass | gate opening, hook install, replacement |
 | M105 | rollback preparation fail-fast entry | rollback precondition report blocked without token/facts | rollback execution, gate opening, replacement |
 
 ## Dependency Order
@@ -247,7 +259,7 @@ M66 task breakdown
   -> M101 proof consumption fail-fast entry
   -> M102 selected-provider precondition
   -> M103 proof validation for selected provider
-  -> M104 proof bundle consumption token
+  -> M104 proof bundle consumption token (optional future host-replacement lane only)
   -> M105 rollback preparation fail-fast entry
   -> later activation behavior rows only after each owner/entry SSOT
 ```
@@ -360,11 +372,14 @@ reserved runtime entry as a fail-fast attempt report that blocks when a real
 selected provider is absent. M102 validates only a caller-provided selected
 provider precondition; it does not select a provider and does not consume
 proofs. M103 validates selected-provider proof facts while still keeping
-`proof_bundle_consumed=false`. The next safe row is M104 proof bundle
-consumption token, still without rollback preparation, gate opening, hook
-activation, native activation, or replacement. Any later activation behavior row
-must keep using explicit owner/entry contracts and must not piggyback on
-diagnostic CLI surfaces.
+`proof_bundle_consumed=false`. The default next implementation work now returns
+to `.hako` mimalloc / `hako_alloc` completeness on top of the capability
+substrate. M104 is the next safe row only if the optional host allocator
+replacement ladder is explicitly reopened; even then, it may create only proof
+custody/readiness and still must not prepare rollback, open the gate, install a
+hook, activate native allocator behavior, or replace the process allocator. Any
+later activation behavior row must keep using explicit owner/entry contracts
+and must not piggyback on diagnostic CLI surfaces.
 
 Post-M101 growth stop-line: if `allocator_provider_activation.rs` starts owning
 detailed proof/rollback/gate internals, keep only the public orchestration entry

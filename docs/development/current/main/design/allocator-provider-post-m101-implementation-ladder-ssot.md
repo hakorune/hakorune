@@ -6,6 +6,7 @@ Scope: post-M101 allocator provider activation implementation ladder.
 Related:
   - docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md
   - docs/development/current/main/design/allocator-provider-proof-consumption-failfast-entry-ssot.md
+  - docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md
   - docs/tools/check-scripts-index.md
   - src/runtime/allocator_provider_activation.rs
   - tools/checks/k2_wide_allocator_gate.sh
@@ -18,6 +19,10 @@ Related:
 Prevent the allocator provider lane from returning to diagnostic-only rows after
 M101. The next rows are small runtime implementation rows with strict stop
 lines.
+
+This ladder is optional future host-replacement support. It is not the default
+implementation path for the current mimalloc port, which belongs in `.hako` /
+`hako_alloc` unless host allocator replacement is explicitly reopened.
 
 The behavior owner remains:
 
@@ -70,6 +75,24 @@ allocator provider semantics.
 | M103 | proof validation for selected provider | validate selected provider proof operations/capability facts | proof consumption token, rollback, gate opening |
 | M104 | proof bundle consumption token | in-memory token only when selected provider and proof validation pass | rollback execution, gate opening, hook install, replacement |
 | M105 | rollback preparation fail-fast entry | block unless a proof token and explicit rollback facts are present | rollback execution, gate opening, hook install, replacement |
+
+## Default Priority After M103
+
+After M103, the default repository task is not M104. The default is to resume
+`.hako` mimalloc / `hako_alloc` completeness work on top of the capability
+substrate.
+
+M104 remains the next concrete row only inside this optional provider ladder.
+If it is resumed, its token is proof custody/readiness only and must keep
+activation closed:
+
+```text
+activation_allowed=false
+rollback_prepared=false
+gate_open=false
+hook_installed=false
+process_allocator_replaced=false
+```
 
 ## Stop Line
 
@@ -124,16 +147,16 @@ M103 is landed when
 precondition and proof operation coverage facts pass. It still returns
 `proof_bundle_consumed=false`.
 
-M104 is the first row allowed to produce an in-memory proof bundle consumption
-token. Even then, rollback, gate opening, hook install, native activation, and
-replacement remain inactive.
+M104 is the first row in this optional ladder allowed to produce an in-memory
+proof bundle consumption token. Even then, rollback, gate opening, hook
+install, native activation, and replacement remain inactive.
 
 M105 introduces rollback preparation as a fail-fast precondition. It does not
 execute rollback and does not open the gate.
 
 ## Next Row
 
-The next concrete row after M103 is:
+The next concrete row after M103 in this optional host-replacement ladder is:
 
 ```text
 M104 ALLOCATOR-PROVIDER-PROOF-BUNDLE-CONSUMPTION-TOKEN

@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-05-10
+Date: 2026-05-11
 Scope: current lane / blocker / next pointer only.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -22,6 +22,8 @@ Related:
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - task breakdown:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
+- mimalloc port purpose:
+  `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - current blocker token: `phase-293x mimalloc substrate capability ladder after real-app EXE parity`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
@@ -47,9 +49,10 @@ Related:
   recursive same-module user-box method bodies, and typed-object handle
   global-call returns, allocator handle param-origin inference, and explicit
   same-module PHI type preservation; BoxTorrent mini, binary-trees, JSON stream
-  aggregator, mimalloc-lite, and allocator-stress direct EXE parity now pass,
-  and the next compiler/runtime seam should come from the mimalloc substrate
-  capability ladder
+  aggregator, mimalloc-lite, and allocator-stress direct EXE parity now pass.
+  The next default implementation work should come from the `.hako`
+  mimalloc / `hako_alloc` completeness lane on top of the capability substrate,
+  not from host allocator replacement.
 - if a real app exposes a compiler expressivity blocker, fix the compiler seam
   structurally instead of adding app-side workaround code
 - current mirrors are thinned; update `CURRENT_STATE.toml` and the phase-293x
@@ -59,8 +62,9 @@ Related:
   the ladder is closed through M103, and proof-bundle consumption now has a
   fail-fast runtime entry, a caller-provided selected-provider precondition,
   and selected-provider proof validation under the activation owner while
-  provider selection and actual consumption remain inactive until later token
-  rows
+  provider selection and actual consumption remain inactive. M104 is the next
+  row only inside the optional future host-replacement ladder; it is not the
+  default next task for the mimalloc port.
 - post-M101 implementation order:
   `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`
 - latest docs/inventory baseline: `291x-691` remains the historical backlog
@@ -87,12 +91,13 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
-3. `docs/development/current/main/phases/phase-293x/README.md`
-4. `docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md`
-5. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
-6. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
-7. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+2. `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
+3. `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
+4. `docs/development/current/main/phases/phase-293x/README.md`
+5. `docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md`
+6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+7. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
+8. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 
 ## Proof Bundle
 

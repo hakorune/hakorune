@@ -3,6 +3,8 @@
 - Status: Active
 - Lane: `phase-293x real-app bringup`
 - Current blocker token: `phase-293x mimalloc substrate capability ladder after real-app EXE parity`
+- Mimalloc purpose SSOT:
+  `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 
 ## Tasks
 
@@ -120,6 +122,7 @@
 - [x] `293x-157` M101 allocator provider proof consumption fail-fast entry
 - [x] `293x-158` M102 allocator provider selected-provider precondition
 - [x] `293x-159` M103 allocator provider selected-provider proof validation
+- [x] `293x-160` mimalloc `.hako` port purpose realignment
 
 ## Gates
 

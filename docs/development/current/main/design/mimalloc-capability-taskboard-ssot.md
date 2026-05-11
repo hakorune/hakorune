@@ -15,6 +15,7 @@ Related:
   - docs/development/current/main/design/inline-plan-ssot.md
   - docs/development/current/main/design/rune-profile-effect-capability-plan-ssot.md
   - docs/reference/runtime/substrate-capabilities.md
+  - docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md
 ---
 
 # Mimalloc Capability Taskboard (SSOT)
@@ -47,6 +48,17 @@ backend may trust them for lowering or optimization.
 truth source and is not backend-readable. The live M12c surface accepts only the
 reserved names in `docs/reference/mir/rune-profile-registry.md` and expands
 them into MIR-owned plan facts.
+
+## Current Reading
+
+The mimalloc-grade work in this taskboard exists to make allocator algorithms
+expressible and auditable in `.hako`, then move production-facing ownership
+toward `hako_alloc`.
+
+It does not mean Hakorune must replace its process allocator now. Provider,
+hook, and native mimalloc proof rows are diagnostics and optional future host
+integration support unless a later row explicitly reopens host allocator
+replacement.
 
 ## Non-Goals
 
