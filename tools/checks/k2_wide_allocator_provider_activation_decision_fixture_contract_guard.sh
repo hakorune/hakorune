@@ -164,7 +164,7 @@ required_facts = [
     "no_implicit_report_discovery",
     "no_app_or_facade_name_matching",
     "no_inc_name_matching",
-    "no_runtime_decision_parser",
+    "diagnostic_runtime_parser_report_only",
     "no_cli_route",
     "no_runtime_registry_implementation",
     "no_provider_selection_implementation",

@@ -1,4 +1,5 @@
-# Reserved schema fixture only. Runtime/backend code must not consume this file.
+# Reserved schema fixture only. Production runtime/backend code must not
+# implicitly discover or consume this file.
 surface_version = "allocator_provider_activation_decision_v0"
 status = "reserved"
 active = false
@@ -54,7 +55,7 @@ reserved_activation_decision_facts = [
   "no_implicit_report_discovery",
   "no_app_or_facade_name_matching",
   "no_inc_name_matching",
-  "no_runtime_decision_parser",
+  "diagnostic_runtime_parser_report_only",
   "no_cli_route",
   "no_runtime_registry_implementation",
   "no_provider_selection_implementation",

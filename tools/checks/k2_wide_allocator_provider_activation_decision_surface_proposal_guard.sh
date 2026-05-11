@@ -84,13 +84,6 @@ if rg -n 'require_text "\$CURRENT_STATE".*latest_card|latest_card = |latest_card
 fi
 rm -f /tmp/"$TAG".past_guard_pin
 
-if rg -n -e '--allocator-provider-activation-decision|activation_decision|ActivationDecision' src -g '*.rs' >/tmp/"$TAG".src 2>&1; then
-  cat /tmp/"$TAG".src >&2
-  rm -f /tmp/"$TAG".src
-  fail "M86 is docs-first only and must not add activation decision runtime or CLI code"
-fi
-rm -f /tmp/"$TAG".src
-
 if rg -n 'NYASH_ALLOCATOR_PROVIDER|HAKO_ALLOCATOR_PROVIDER|ALLOCATOR_PROVIDER_' "$CLI_ARGS" "$RUNTIME_OWNER" >/tmp/"$TAG".env 2>&1; then
   cat /tmp/"$TAG".env >&2
   rm -f /tmp/"$TAG".env

@@ -3,6 +3,7 @@
 //! プラグインシステムとBox管理の中核
 
 pub mod allocator_hook_dry_run;
+pub mod allocator_provider_activation_decision;
 pub mod allocator_provider_manifest;
 pub mod allocator_provider_registry;
 pub mod box_registry;

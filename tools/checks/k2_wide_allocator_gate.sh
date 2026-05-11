@@ -92,6 +92,7 @@ if [[ "${1:-}" == "--list" ]]; then
   - tools/checks/k2_wide_allocator_provider_activation_decision_surface_proposal_guard.sh
   - tools/checks/k2_wide_allocator_provider_activation_decision_fixture_contract_guard.sh
   - tools/checks/k2_wide_allocator_provider_activation_decision_diagnostic_owner_guard.sh
+  - tools/checks/k2_wide_allocator_provider_activation_decision_diagnostic_report_guard.sh
 LIST
   exit 0
 fi
@@ -329,3 +330,6 @@ run_step "allocator provider activation decision fixture contract guard" \
 
 run_step "allocator provider activation decision diagnostic owner guard" \
   bash tools/checks/k2_wide_allocator_provider_activation_decision_diagnostic_owner_guard.sh
+
+run_step "allocator provider activation decision diagnostic report guard" \
+  bash tools/checks/k2_wide_allocator_provider_activation_decision_diagnostic_report_guard.sh
