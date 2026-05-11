@@ -4,9 +4,14 @@
 
 pub mod allocator_hook_dry_run;
 pub mod allocator_provider_activation_decision;
+pub(crate) mod allocator_provider_activation_safety;
 pub(crate) mod allocator_provider_diagnostic_inactive;
 pub mod allocator_provider_manifest;
+pub(crate) mod allocator_provider_proof_bundle_consumption;
 pub mod allocator_provider_registry;
+pub(crate) mod allocator_provider_registry_common;
+pub(crate) mod allocator_provider_registry_snapshot;
+pub(crate) mod allocator_provider_selection_decision;
 pub(crate) mod allocator_provider_toml_helpers;
 pub mod box_registry;
 pub mod core_box_ids; // Phase 87: CoreBoxId/CoreMethodId 型安全enum

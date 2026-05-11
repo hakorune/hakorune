@@ -149,6 +149,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_allocator_provider_selection_decision_cli_surface_guard.sh` | M97 の allocator provider selection decision CLI surface を固定し、明示 TOML path 診断と active registry/selection/proof/rollback/gate/hook/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_diagnostic_helper_cleanup_guard.sh` | M97B の allocator provider diagnostic helper cleanup を固定し、TOML helper / fact-check 共有化と active registry/selection/proof/rollback/gate/hook/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_diagnostic_report_guard.sh` | M98 の allocator provider proof bundle consumption diagnostic report を固定し、caller-provided TOML report と active registry/selection/proof/rollback/gate/hook/replacement 不在を検証する。 |
+| `tools/checks/k2_wide_allocator_provider_runtime_diagnostic_module_boundaries_guard.sh` | M98B の allocator provider runtime diagnostic module boundaries を固定し、registry facade の sub-1000 行化、report-owner module 分割、active registry/selection/proof/rollback/gate/hook/replacement 不在を検証する。 |
 
 ## Env Hygiene
 

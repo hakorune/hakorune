@@ -79,7 +79,7 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - current allocator/provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
-  (closed through M98; next safe move is the proof-bundle diagnostic CLI row
+  (closed through M98B; next safe move is the proof-bundle diagnostic CLI row
   before any proof consumption behavior)
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
@@ -89,10 +89,12 @@ Scope: current lane / next lane / restart order only.
   report through an explicit TOML-path CLI, M95 fixes closeout coverage, M96
   adds the inactive selection decision runtime report, and M97 exposes it
   through an explicit TOML-path CLI; M97B centralizes duplicated TOML helper
-  and fact-check ownership, and M98 adds the inactive proof-bundle consumption
-  runtime report. Active registry construction, provider selection, proof
-  consumption, rollback preparation, gate opening, hook activation, native
-  activation, and process allocator replacement remain inactive
+  and fact-check ownership, M98 adds the inactive proof-bundle consumption
+  runtime report, and M98B splits the runtime diagnostic implementation into
+  focused modules behind the historical registry facade. Active registry
+  construction, provider selection, proof consumption, rollback preparation,
+  gate opening, hook activation, native activation, and process allocator
+  replacement remain inactive
 - VM retreat reading: new substrate / allocator features should target
   `llvm/exe` / pure-first acceptance first; `vm-hako` is reference/monitor only
   and `rust-vm` is bootstrap/recovery/compat keep, so broad VM parity is not a
