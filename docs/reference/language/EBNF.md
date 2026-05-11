@@ -26,6 +26,7 @@ const_int_expr := INT
 stmt      := 'return' expr
            | local_stmt
            | fini_stmt
+           | assign_stmt
            | 'if' expr block ('else' block)?
            | 'loop' '('? expr ')' ? block
            | expr                         ; expression statement
@@ -36,6 +37,18 @@ local_tail := '=' expr local_fini_opt
            | local_fini_opt
 local_fini_opt := ('fini' block)?
 fini_stmt  := 'fini' block
+
+assign_stmt := assign_target '=' expr
+             | assign_target compound_assign_op expr
+assign_target := assign_primary assign_tail*
+assign_primary:= IDENT | 'me'
+assign_tail   := '.' IDENT
+               | '[' expr ']'
+compound_assign_op := '+=' | '-=' | '*=' | '/='
+                  ; compound assignment is syntax sugar and is gated by
+                  ; NYASH_SYNTAX_SUGAR_LEVEL=basic|full. Plain assignment is
+                  ; the canonical form for local variables, fields, and index
+                  ; targets.
 
 ; Semantic constraints:
 ; - local declarations with '=' are single-binding only (`local x = expr`).
@@ -202,7 +215,7 @@ postfix_cleanup    := primary_expr 'cleanup' block
 
 Semantics (summary)
 - stored: O(1) slot read; write via assignment. Bare stored fields are dynamic/untyped. Typed stored fields keep declared-type metadata for optimizers/verifiers and typed-object planning, but ordinary field writes are not type-enforced by this syntax.
-- stored initializers: `name = expr` and `name: Type = expr` are accepted and lower to constructor prologue assignments equivalent to `me.name = expr`. The prologue runs before the user `birth` body, in field declaration order.
+- stored initializers: `name = expr` and `name: Type = expr` are accepted and lower to constructor prologue assignments equivalent to `me.name = expr`. The prologue runs before the user `birth` body, in field declaration order. Initializer expressions are evaluated for each construction, so `field: ArrayBox = new ArrayBox()` creates a per-instance value rather than a shared static default.
 - computed/get: read‑only; each read evaluates the block; assignment is an error unless a setter is explicitly defined.
 - once: first read evaluates the block and caches the value; subsequent reads return the cached value. On exception without a `catch`, the property becomes poisoned and rethrows on later reads (no retries).
 - birth_once: evaluated before the user `birth` body, in declaration order; exceptions without a `catch` abort construction; cycles between `birth_once` members are an error.

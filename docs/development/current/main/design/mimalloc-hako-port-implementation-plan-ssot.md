@@ -176,6 +176,12 @@ work. Splitting is mandatory if a row starts adding algorithm bodies back into
 - `M173` converged allocator numeric stored fields from `IntegerBox` spelling to
   `i64` scalar substrate annotations. The current runtime lane remains
   `Integer(i64)`; `usize`/exact-width behavior stays reserved.
+- `M174` fixed the pre-port syntax/spec decision: `usize` remains accepted as
+  annotation text and MIR numeric substrate metadata, but hako_alloc/mimalloc
+  state fields continue to use `i64` until exact pointer-sized unsigned
+  semantics, range checks, and overflow behavior are live. Parameter type
+  annotations are syntax-only metadata in AST v0, and stored field initializers
+  are per-construction values.
 - `M167` may create deterministic model pages in memory; it must not reserve
   OS memory. OSVM enters only in `M168`.
 - `M169` owns same-thread local free collection only. Remote-free and abandoned

@@ -96,11 +96,13 @@ box ClassName {
         me.field3 = defaultValue()
     }
     
-	    # メソッド
-	    methodName(arg1, arg2) {
-	        return me.field1 + arg1
-	    }
-	    # 注: 引数の型注釈 `arg: Type` は未対応（Phase 285A1.5: 明示エラー。ハングしない）
+    # メソッド
+    methodName(arg1, arg2) {
+        return me.field1 + arg1
+    }
+    # 注: 引数の型注釈 `arg: Type` は構文として受理されます。
+    # AST v0 / JSON v0 では param 名だけを保持するため、現時点では
+    # runtime 型契約ではなく parser/tooling 用 metadata です。
 	    
 	    # デストラクタ（fini）
 	    fini() {
@@ -114,7 +116,7 @@ box ClassName {
 フィールド宣言の設計:
 - `field` は一番簡単な untyped stored field です。試作・一般アプリ・動的なBoxではこれを使えます。
 - `field: Type` は stored field に declared-type metadata を付ける形です。現時点では一般代入の型強制ではなく、TypedObjectPlan / optimizer / verifier / AI読み取りの材料です。
-- `field = expr` / `field: Type = expr` は stored field initializer です。constructor prologue として `me.field = expr` に下ろされ、ユーザー定義 `birth(...)` body より前に宣言順で実行されます。
+- `field = expr` / `field: Type = expr` は stored field initializer です。constructor prologue として `me.field = expr` に下ろされ、ユーザー定義 `birth(...)` body より前に宣言順で実行されます。initializer の式は `new` ごとに評価されるため、`field: ArrayBox = new ArrayBox()` はインスタンスごとの値になり、静的共有 default にはなりません。
 - `init { field }` は下記の legacy compatibility です。新規コードの第一推奨ではありません。
 
 注（`init { ... }` について）:
@@ -955,7 +957,7 @@ static box Main {
 x = 42                      # 変数未宣言 → ランタイムエラー
 while condition { }         # 非対応構文 → パーサーエラー
 this.field                  # thisは使用不可 → me.fieldを使用
-methodName(arg: Type) { }   # 未対応（Phase 285A1.5）。引数は名前だけ：`methodName(arg) { }`
+methodName(arg: Type) { }   # 型契約として頼るのは誤り。AST v0ではarg名だけ保持
 
 # ✅ 正しい書き方（Phase 12.7後）
 field1: TypeBox             # フィールド宣言（型は省略可）
