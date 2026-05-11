@@ -91,6 +91,25 @@ pub struct NumericKind {
     pub width: NumericResolvedWidth,
 }
 
+/// Exact MIR-side numeric type metadata.
+///
+/// This is deliberately distinct from `MirType::Integer`: it records the
+/// resolved signedness/width and the source spelling, but it does not change
+/// runtime values or existing lowerers by itself.
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[allow(dead_code)] // 294x-04 model; consumed by later MIR fact/lowering rows.
+pub(crate) struct ExactNumericMirType {
+    pub source_name: String,
+    pub kind: NumericKind,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[allow(dead_code)] // 294x-04 model; consumed by later MIR fact/lowering rows.
+pub(crate) struct ExactNumericMirSignature {
+    pub params: Vec<Option<ExactNumericMirType>>,
+    pub return_type: Option<ExactNumericMirType>,
+}
+
 pub(crate) fn classify_numeric_type_name(name: &str) -> Option<NumericTypeName> {
     let (signedness, width) = match name {
         "i8" => (NumericSignedness::Signed, NumericWidth::Bits8),
@@ -113,6 +132,31 @@ pub(crate) fn classify_numeric_kind_for_target(
     target: NumericTarget,
 ) -> Option<NumericKind> {
     classify_numeric_type_name(name).map(|type_name| type_name.kind_for_target(target))
+}
+
+#[allow(dead_code)] // 294x-04 model; consumed by later MIR fact/lowering rows.
+pub(crate) fn exact_numeric_mir_type_from_declared_name(
+    declared_type_name: Option<&str>,
+    target: NumericTarget,
+) -> Option<ExactNumericMirType> {
+    let source_name = declared_type_name?.to_string();
+    let kind = classify_numeric_kind_for_target(&source_name, target)?;
+    Some(ExactNumericMirType { source_name, kind })
+}
+
+#[allow(dead_code)] // 294x-04 model; consumed by later MIR fact/lowering rows.
+pub(crate) fn exact_numeric_mir_signature_from_declared_names<'a>(
+    param_type_names: impl IntoIterator<Item = Option<&'a str>>,
+    return_type_name: Option<&'a str>,
+    target: NumericTarget,
+) -> ExactNumericMirSignature {
+    ExactNumericMirSignature {
+        params: param_type_names
+            .into_iter()
+            .map(|name| exact_numeric_mir_type_from_declared_name(name, target))
+            .collect(),
+        return_type: exact_numeric_mir_type_from_declared_name(return_type_name, target),
+    }
 }
 
 pub(crate) fn is_numeric_integer_type_name(name: &str) -> bool {
@@ -221,5 +265,77 @@ mod tests {
         for name in ["FloatBox", "StringBox", "String", "Ptr"] {
             assert!(!is_inline_i64_storage_type_name(name));
         }
+    }
+
+    #[test]
+    fn exact_numeric_mir_type_preserves_source_name_and_resolved_kind() {
+        let pointer64 = NumericTarget {
+            pointer_width: NumericResolvedWidth::Bits64,
+        };
+
+        assert_eq!(
+            exact_numeric_mir_type_from_declared_name(Some("usize"), pointer64),
+            Some(ExactNumericMirType {
+                source_name: "usize".to_string(),
+                kind: NumericKind {
+                    signedness: NumericSignedness::Unsigned,
+                    width: NumericResolvedWidth::Bits64,
+                },
+            })
+        );
+        assert_eq!(
+            exact_numeric_mir_type_from_declared_name(Some("IntegerBox"), pointer64),
+            None
+        );
+        assert_eq!(
+            exact_numeric_mir_type_from_declared_name(None, pointer64),
+            None
+        );
+    }
+
+    #[test]
+    fn exact_numeric_mir_signature_keeps_non_numeric_slots_empty() {
+        let pointer32 = NumericTarget {
+            pointer_width: NumericResolvedWidth::Bits32,
+        };
+        let signature = exact_numeric_mir_signature_from_declared_names(
+            [Some("usize"), Some("StringBox"), Some("i64"), None],
+            Some("isize"),
+            pointer32,
+        );
+
+        assert_eq!(signature.params.len(), 4);
+        assert_eq!(
+            signature.params[0],
+            Some(ExactNumericMirType {
+                source_name: "usize".to_string(),
+                kind: NumericKind {
+                    signedness: NumericSignedness::Unsigned,
+                    width: NumericResolvedWidth::Bits32,
+                },
+            })
+        );
+        assert_eq!(signature.params[1], None);
+        assert_eq!(
+            signature.params[2],
+            Some(ExactNumericMirType {
+                source_name: "i64".to_string(),
+                kind: NumericKind {
+                    signedness: NumericSignedness::Signed,
+                    width: NumericResolvedWidth::Bits64,
+                },
+            })
+        );
+        assert_eq!(signature.params[3], None);
+        assert_eq!(
+            signature.return_type,
+            Some(ExactNumericMirType {
+                source_name: "isize".to_string(),
+                kind: NumericKind {
+                    signedness: NumericSignedness::Signed,
+                    width: NumericResolvedWidth::Bits32,
+                },
+            })
+        );
     }
 }

@@ -46,12 +46,15 @@
 - `294x-03`: AST JSON and Stage1 Program(JSON) now transport declared
   parameter metadata and accepted return type annotations without changing
   runtime semantics.
+- `294x-04`: MIR now has a side-car exact numeric type model that preserves
+  source spelling plus target-resolved signedness/width distinctly from
+  `MirType::Integer`.
 
 ## First Implementation Direction
 
 Start with metadata preservation before runtime behavior:
 
-1. introduce exact numeric type representation in MIR;
+1. attach exact numeric metadata to MIR facts/signature consumers;
 2. add verifier/fail-fast boundaries;
 3. add VM/backend exact `usize` behavior;
 4. migrate hako_alloc non-negative fields.

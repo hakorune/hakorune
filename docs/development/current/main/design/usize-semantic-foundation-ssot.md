@@ -39,6 +39,8 @@ Live today:
 - accepted return type annotations are preserved in AST metadata;
 - AST JSON and Stage1 Program(JSON) carry declared parameter metadata and
   accepted return type annotations, with legacy names-only JSON still readable;
+- MIR owns side-car exact numeric type metadata that preserves source spelling
+  plus target-resolved signedness/width distinctly from `MirType::Integer`;
 - typed-object planning can use numeric annotations as inline i64 storage
   hints;
 - VM runtime values use `Integer(i64)`;
@@ -140,7 +142,7 @@ Do not store sentinel values in `usize`.
 
 ### 3. MIR Type Model
 
-- Add an exact numeric MIR type representation instead of collapsing all
+- Keep an exact numeric MIR type representation instead of collapsing all
   numeric substrate names to `MirType::Integer`.
 - Preserve signedness and width.
 - Represent pointer-width integers through target-width metadata.

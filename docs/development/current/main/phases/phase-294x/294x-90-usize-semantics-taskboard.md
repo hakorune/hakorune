@@ -23,7 +23,7 @@ one commit unless a row explicitly says it is docs-only.
 | `294x-01` | Complete | target-width and numeric-kind SSOT in code | target pointer width owner exists; `usize` no longer depends on ad hoc host assumptions |
 | `294x-02` | Complete | parser metadata preservation | method, static method, and `birth` params keep declared type metadata; return annotations are preserved where accepted |
 | `294x-03` | Complete | AST JSON / Program(JSON) numeric metadata | declared param/return type text round-trips through JSON metadata without changing runtime semantics |
-| `294x-04` | Pending | MIR exact numeric type model | signedness/width/pointer-width are represented distinctly from `MirType::Integer` |
+| `294x-04` | Complete | MIR exact numeric type model | signedness/width/pointer-width are represented as side-car MIR metadata distinct from `MirType::Integer` |
 | `294x-05` | Pending | exact numeric constants and conversions | constants and dynamic integer conversions range-check into `usize` |
 | `294x-06` | Pending | verifier negative/range fail-fast | `usize` assignments reject negative and out-of-range values under strict/dev gates |
 | `294x-07` | Pending | overflow and checked arithmetic policy | plain typed `usize` arithmetic has checked/fail-fast behavior; wrapping stays explicit |
@@ -64,8 +64,8 @@ one commit unless a row explicitly says it is docs-only.
 
 ### MIR / Analysis
 
-- [ ] Add exact numeric MIR type representation.
-- [ ] Preserve signedness and width.
+- [x] Add exact numeric MIR type representation.
+- [x] Preserve signedness and width.
 - [x] Preserve pointer-width target metadata owner.
 - [ ] Add exact numeric constants or constant metadata.
 - [ ] Add conversion/cast vocabulary.

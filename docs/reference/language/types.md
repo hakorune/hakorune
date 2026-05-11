@@ -51,6 +51,9 @@ Current live semantics are intentionally narrow:
 - Pointer-sized names resolve their metadata width through the MIR numeric
   target owner (`src/mir/numeric_substrate.rs`). This is target metadata only;
   it does not enable exact `usize` runtime behavior by itself.
+- MIR-side exact numeric metadata records source spelling and target-resolved
+  signedness/width distinctly from `MirType::Integer`. It is not attached to
+  runtime values yet.
 
 Deferred and not accepted by this row:
 
