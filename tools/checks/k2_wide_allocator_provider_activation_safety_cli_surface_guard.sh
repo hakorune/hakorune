@@ -14,6 +14,7 @@ MAIN_FILE="src/main.rs"
 RUNTIME_FILE="src/runtime/allocator_provider_registry.rs"
 SSOT="docs/development/current/main/design/allocator-provider-activation-safety-cli-surface-ssot.md"
 REPORT_SSOT="docs/development/current/main/design/allocator-provider-activation-safety-diagnostic-report-ssot.md"
+FIXTURE="docs/development/current/main/design/allocator-provider-activation-safety-gate-v0.toml"
 TASK_BREAKDOWN="docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md"
 TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-136-M84-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-CLI-SURFACE.md"
@@ -41,6 +42,12 @@ require_text() {
   rg -F -q "$needle" "$file" || fail "missing text in $file: $needle"
 }
 
+require_output_text() {
+  local output="$1"
+  local needle="$2"
+  [[ "$output" == *"$needle"* ]] || fail "missing CLI output text: $needle"
+}
+
 require_file "$CLI_FILE"
 require_file "$CLI_ARGS"
 require_file "$CLI_MOD"
@@ -49,6 +56,7 @@ require_file "$MAIN_FILE"
 require_file "$RUNTIME_FILE"
 require_file "$SSOT"
 require_file "$REPORT_SSOT"
+require_file "$FIXTURE"
 require_file "$TASK_BREAKDOWN"
 require_file "$TASKBOARD"
 require_file "$CARD"
@@ -74,7 +82,7 @@ require_text "$CLI_FILE" "activation_target_provider_id"
 require_text "$CLI_FILE" "activation_gate_open"
 require_text "$CLI_FILE" "would_open_activation_gate"
 require_text "$CLI_FILE" "would_activate_hook"
-require_text "$CLI_FILE" "would_activate=false"
+require_text "$CLI_FILE" "would_activate"
 require_text "$CLI_FILE" "ready_gate_closed"
 require_text "$CLI_FILE" "one_line_option_text"
 require_text "$RUNTIME_FILE" "AllocatorProviderActivationSafetyReport"
@@ -104,7 +112,18 @@ require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_activat
 
 cargo test -q allocator_provider_activation_safety -- --nocapture
 
-if rg -n 'std::env|set_var|var_os|env_bool|env_string|NYASH_ALLOCATOR_PROVIDER' "$CLI_FILE" >/tmp/"$TAG".env 2>&1; then
+cli_output="$(cargo run -q --bin hakorune -- --allocator-provider-activation-safety-gate "$FIXTURE")"
+require_output_text "$cli_output" "diagnostic=[allocator-provider/activation-safety-blocked]"
+require_output_text "$cli_output" "activation_safety_status=ready_gate_closed"
+require_output_text "$cli_output" "parse_error="
+require_output_text "$cli_output" "missing_facts="
+require_output_text "$cli_output" "missing_diagnostics="
+require_output_text "$cli_output" "activation_gate_open=false"
+require_output_text "$cli_output" "would_open_activation_gate=false"
+require_output_text "$cli_output" "would_activate_hook=false"
+require_output_text "$cli_output" "would_activate=false"
+
+if rg -n 'std::env|set_var|var_os|env_bool|env_string|NYASH_ALLOCATOR_PROVIDER|HAKO_ALLOCATOR_PROVIDER|ALLOCATOR_PROVIDER_' "$CLI_FILE" >/tmp/"$TAG".env 2>&1; then
   cat /tmp/"$TAG".env >&2
   rm -f /tmp/"$TAG".env
   fail "activation safety CLI surface must not add hidden environment toggles"

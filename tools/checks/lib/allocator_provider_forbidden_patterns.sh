@@ -4,7 +4,7 @@
 # Callers must define fail() before invoking these functions.
 
 ALLOCATOR_PROVIDER_FORBIDDEN_SOURCE_ROOTS=(src crates lang/c-abi/shims lang/src -g '!**/*.md')
-ALLOCATOR_PROVIDER_FORBIDDEN_SELECTION_PATTERN='(^|[^A-Za-z0-9_])select_allocator_provider([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])allocator_provider_select([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])allocator_provider_selection_env([^A-Za-z0-9_]|$)|NYASH_ALLOCATOR_PROVIDER'
+ALLOCATOR_PROVIDER_FORBIDDEN_SELECTION_PATTERN='(^|[^A-Za-z0-9_])select_allocator_provider([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])allocator_provider_select([^A-Za-z0-9_]|$)|(^|[^A-Za-z0-9_])allocator_provider_selection_env([^A-Za-z0-9_]|$)|NYASH_ALLOCATOR_PROVIDER|HAKO_ALLOCATOR_PROVIDER|ALLOCATOR_PROVIDER_'
 ALLOCATOR_PROVIDER_FORBIDDEN_GLOBAL_ALLOCATOR_PATTERN='#\[global_allocator\]|GlobalAlloc'
 ALLOCATOR_PROVIDER_FORBIDDEN_PROOF_CONSUMPTION_PATTERN='consume_allocator_provider_proof|allocator_provider_proof_bundle_consume|consume_allocator_provider_proof_bundle|consume_provider_proof_bundle'
 ALLOCATOR_PROVIDER_FORBIDDEN_ROLLBACK_PREPARATION_PATTERN='(^|[^A-Za-z0-9_])prepare_rollback([^A-Za-z0-9_]|$)'

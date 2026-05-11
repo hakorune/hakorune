@@ -15,10 +15,10 @@ Related:
 
 Add a diagnostic-only runtime report for the M87 activation decision fixture.
 
-M89 parses caller-provided TOML text only. It does not expose a CLI route,
-discover files implicitly, select a provider, consume proof bundles, prepare
-rollback, open the activation gate, activate hooks, or replace the process
-allocator.
+M89 parses caller-provided TOML text only. It does not expose an implicit CLI
+route or discover files implicitly. It does not select a provider, consume
+proof bundles, prepare rollback, open the activation gate, activate hooks, or
+replace the process allocator.
 
 ## Runtime Owner
 
@@ -63,9 +63,9 @@ missing_diagnostics = stable diagnostic tags
 
 ## Stop Line
 
-M89 keeps these inactive:
+M89 itself keeps these inactive:
 
-- activation decision CLI route;
+- implicit activation decision CLI route or runtime file discovery;
 - provider selection;
 - provider proof consumption;
 - rollback preparation/execution;

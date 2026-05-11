@@ -42,7 +42,8 @@ M91 proves coverage only. It does not authorize:
 - rollback preparation/execution;
 - activation gate opening;
 - hook activation implementation;
-- provider selection environment toggles;
+- provider selection environment toggles, including `NYASH_ALLOCATOR_PROVIDER`,
+  `HAKO_ALLOCATOR_PROVIDER`, and broad `ALLOCATOR_PROVIDER_*` names;
 - implicit runtime file-system manifest/report/proof discovery;
 - process allocator replacement;
 - `#[global_allocator]`;

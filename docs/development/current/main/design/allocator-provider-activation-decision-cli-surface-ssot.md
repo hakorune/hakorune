@@ -31,6 +31,16 @@ locations, read environment variables, select providers, consume proof bundles,
 prepare rollback, open the activation gate, activate hooks, install native
 allocator hooks, or replace the process allocator.
 
+Allocator diagnostic CLI modes are mutually exclusive. The one allowed
+multi-flag mode is the combined hook/provider dry-run, where
+`--allocator-provider-manifest` is paired with the allocator hook dry-run
+plan/proof inputs. Any other combination of allocator diagnostic surfaces must
+fail fast with:
+
+```text
+[allocator-diagnostic/cli-conflicting-modes]
+```
+
 ## Output Contract
 
 The CLI prints stable key/value diagnostics:
@@ -89,7 +99,9 @@ M90 keeps these inactive:
 - provider rollback preparation/execution;
 - activation gate opening;
 - hook activation implementation;
-- hidden provider selection environment toggles;
+- hidden provider selection environment toggles, including
+  `NYASH_ALLOCATOR_PROVIDER`, `HAKO_ALLOCATOR_PROVIDER`, and broad
+  `ALLOCATOR_PROVIDER_*` names;
 - implicit runtime file-system manifest/report/proof discovery;
 - process allocator replacement;
 - `#[global_allocator]`;

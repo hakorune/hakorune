@@ -79,12 +79,14 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - current allocator/provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
+  (closed through M91; M92 is not assigned until a new owner/entry SSOT names
+  the next activation implementation row)
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: continue the allocator provider/replacement ladder from `M67`
-  provider manifest diagnostic parser; `293x-026` remains the historical
-  mimalloc substrate ladder lock, while `M66` is the current readable task
-  breakdown through `M75`
+- next: continue only from a new M92+ allocator provider owner/entry contract;
+  M91 is the latest closeout checkpoint, and provider selection, proof
+  consumption, rollback preparation, gate opening, hook activation, native
+  activation, and process allocator replacement remain inactive
 - VM retreat reading: new substrate / allocator features should target
   `llvm/exe` / pure-first acceptance first; `vm-hako` is reference/monitor only
   and `rust-vm` is bootstrap/recovery/compat keep, so broad VM parity is not a

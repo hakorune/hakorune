@@ -81,7 +81,8 @@ M84 keeps these inactive:
 - runtime proof consumption implementation;
 - provider rollback preparation/execution;
 - hook activation implementation;
-- provider selection environment toggles;
+- provider selection environment toggles, including `NYASH_ALLOCATOR_PROVIDER`,
+  `HAKO_ALLOCATOR_PROVIDER`, and broad `ALLOCATOR_PROVIDER_*` names;
 - implicit runtime file-system manifest discovery;
 - implicit provider proof discovery;
 - implicit hook plan discovery;

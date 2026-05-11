@@ -38,6 +38,12 @@ require_text() {
   rg -F -q "$needle" "$file" || fail "missing text in $file: $needle"
 }
 
+require_output_text() {
+  local output="$1"
+  local needle="$2"
+  [[ "$output" == *"$needle"* ]] || fail "missing CLI output text: $needle"
+}
+
 require_file "$CLI_FILE"
 require_file "$CLI_ARGS"
 require_file "$CLI_MOD"
@@ -54,7 +60,9 @@ require_file "$ALLOCATOR_GROUP"
 
 require_text "$CLI_ARGS" "allocator-provider-activation-decision"
 require_text "$CLI_MOD" "maybe_run_allocator_provider_activation_decision_diagnostic"
+require_text "$CLI_MOD" "CLI_ALLOCATOR_DIAGNOSTIC_CONFLICT"
 require_text "$MAIN_FILE" "maybe_run_allocator_provider_activation_decision_diagnostic"
+require_text "$MAIN_FILE" "maybe_reject_allocator_diagnostic_conflicts"
 require_text "$CLI_FILE" "maybe_run_allocator_provider_activation_decision_diagnostic"
 require_text "$CLI_FILE" "build_allocator_provider_activation_decision_output"
 require_text "$CLI_FILE" "validate_allocator_provider_activation_decision_from_text"
@@ -71,14 +79,14 @@ require_text "$CLI_FILE" "registry_snapshot_path"
 require_text "$CLI_FILE" "selection_decision_path"
 require_text "$CLI_FILE" "proof_bundle_report_path"
 require_text "$CLI_FILE" "rollback_preflight_report_path"
-require_text "$CLI_FILE" "activation_decision_allowed=false"
-require_text "$CLI_FILE" "would_select_provider=false"
-require_text "$CLI_FILE" "would_consume_proof=false"
-require_text "$CLI_FILE" "would_prepare_rollback=false"
-require_text "$CLI_FILE" "would_open_activation_gate=false"
-require_text "$CLI_FILE" "would_install_hook=false"
-require_text "$CLI_FILE" "would_replace_process_allocator=false"
-require_text "$CLI_FILE" "would_activate=false"
+require_text "$CLI_FILE" "activation_decision_allowed"
+require_text "$CLI_FILE" "would_select_provider"
+require_text "$CLI_FILE" "would_consume_proof"
+require_text "$CLI_FILE" "would_prepare_rollback"
+require_text "$CLI_FILE" "would_open_activation_gate"
+require_text "$CLI_FILE" "would_install_hook"
+require_text "$CLI_FILE" "would_replace_process_allocator"
+require_text "$CLI_FILE" "would_activate"
 require_text "$CLI_FILE" "one_line_option_text"
 require_text "$RUNTIME_FILE" "AllocatorProviderActivationDecisionReport"
 require_text "$RUNTIME_FILE" "validate_allocator_provider_activation_decision_from_text"
@@ -88,6 +96,7 @@ require_text "$CLI_DIAGNOSTIC_OUTPUT" "finish_result"
 require_text "$REPORT_SSOT" "M90 may expose this report through an explicit CLI diagnostic surface"
 require_text "$SSOT" "Allocator Provider Activation Decision CLI Surface (SSOT)"
 require_text "$SSOT" "hakorune --allocator-provider-activation-decision <ACTIVATION_DECISION_TOML>"
+require_text "$SSOT" "[allocator-diagnostic/cli-conflicting-modes]"
 require_text "$SSOT" "activation_decision_status=ready_blocked"
 require_text "$SSOT" "parse_error"
 require_text "$SSOT" "activation_decision_allowed=false"
@@ -105,7 +114,31 @@ require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_activat
 
 cargo test -q allocator_provider_activation_decision -- --nocapture
 
-if rg -n 'std::env|set_var|var_os|env_bool|env_string|NYASH_ALLOCATOR_PROVIDER' "$CLI_FILE" >/tmp/"$TAG".env 2>&1; then
+cli_output="$(cargo run -q --bin hakorune -- --allocator-provider-activation-decision "$FIXTURE")"
+require_output_text "$cli_output" "diagnostic=[allocator-provider/activation-decision-blocked]"
+require_output_text "$cli_output" "activation_decision_status=ready_blocked"
+require_output_text "$cli_output" "parse_error="
+require_output_text "$cli_output" "missing_facts="
+require_output_text "$cli_output" "missing_diagnostics="
+require_output_text "$cli_output" "activation_decision_allowed=false"
+require_output_text "$cli_output" "would_select_provider=false"
+require_output_text "$cli_output" "would_consume_proof=false"
+require_output_text "$cli_output" "would_prepare_rollback=false"
+require_output_text "$cli_output" "would_open_activation_gate=false"
+require_output_text "$cli_output" "would_install_hook=false"
+require_output_text "$cli_output" "would_replace_process_allocator=false"
+require_output_text "$cli_output" "would_activate=false"
+
+set +e
+conflict_output="$(cargo run -q --bin hakorune -- --allocator-provider-manifest /tmp/provider.toml --allocator-provider-activation-decision /tmp/decision.toml 2>&1)"
+conflict_status=$?
+set -e
+[[ "$conflict_status" -eq 2 ]] || fail "conflicting allocator diagnostic CLI modes must exit 2"
+require_output_text "$conflict_output" "[allocator-diagnostic/cli-conflicting-modes]"
+require_output_text "$conflict_output" "allocator_provider_manifest"
+require_output_text "$conflict_output" "allocator_provider_activation_decision"
+
+if rg -n 'std::env|set_var|var_os|env_bool|env_string|NYASH_ALLOCATOR_PROVIDER|HAKO_ALLOCATOR_PROVIDER|ALLOCATOR_PROVIDER_' "$CLI_FILE" >/tmp/"$TAG".env 2>&1; then
   cat /tmp/"$TAG".env >&2
   rm -f /tmp/"$TAG".env
   fail "activation decision CLI surface must not add hidden environment toggles"

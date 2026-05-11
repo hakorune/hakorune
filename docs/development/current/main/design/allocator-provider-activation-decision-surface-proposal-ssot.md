@@ -83,7 +83,8 @@ M86 does not authorize:
 - rollback preparation/execution;
 - activation gate opening;
 - hook activation implementation;
-- provider selection environment toggles;
+- provider selection environment toggles, including `NYASH_ALLOCATOR_PROVIDER`,
+  `HAKO_ALLOCATOR_PROVIDER`, and broad `ALLOCATOR_PROVIDER_*` names;
 - implicit manifest/proof/report discovery;
 - `#[global_allocator]`;
 - `GlobalAlloc`;

@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: accepted
 Date: 2026-05-11
-Scope: current allocator provider / replacement hook task breakdown after M75.
+Scope: current allocator provider / replacement hook task breakdown after M91.
 Related:
   - docs/development/current/main/design/allocator-provider-boundary-v0-ssot.md
   - docs/development/current/main/design/allocator-provider-manifest-v0-ssot.md
@@ -21,6 +21,11 @@ Related:
   - docs/development/current/main/design/allocator-provider-activation-safety-diagnostic-report-ssot.md
   - docs/development/current/main/design/allocator-provider-activation-safety-closeout-inventory-ssot.md
   - docs/development/current/main/design/allocator-provider-activation-decision-surface-proposal-ssot.md
+  - docs/development/current/main/design/allocator-provider-activation-decision-v0.toml
+  - docs/development/current/main/design/allocator-provider-activation-decision-diagnostic-owner-ssot.md
+  - docs/development/current/main/design/allocator-provider-activation-decision-diagnostic-report-ssot.md
+  - docs/development/current/main/design/allocator-provider-activation-decision-cli-surface-ssot.md
+  - docs/development/current/main/design/allocator-provider-activation-decision-closeout-inventory-ssot.md
   - docs/development/current/main/design/allocator-provider-lightweight-doc-sync-policy-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
 ---
@@ -59,6 +64,11 @@ then and only then consider process allocator replacement
 | M84 | activation safety diagnostic CLI surface fixing explicit CLI output while keeping the gate closed | complete |
 | M85 | activation safety closeout inventory fixing coverage across M76-M84 without activation | complete |
 | M86 | activation decision surface proposal fixing the future explicit-input decision contract without implementation | complete |
+| M87 | activation decision fixture contract fixing the reserved caller-provided decision bundle | complete |
+| M88 | activation decision diagnostic owner fixing runtime owner naming without implementation activation | complete |
+| M89 | activation decision diagnostic report fixing runtime parsing/reporting with all activation booleans false | complete |
+| M90 | activation decision diagnostic CLI surface fixing explicit CLI output with no activation | complete |
+| M91 | activation decision closeout inventory fixing coverage across M86-M90 without activation | complete |
 
 ## Layer Model
 
@@ -104,6 +114,11 @@ activation entry:
 | M84 | activation safety diagnostic CLI surface | explicit CLI over caller-provided safety TOML path | environment discovery |
 | M85 | activation safety closeout inventory | coverage guard for M76-M84 artifacts | runtime activation |
 | M86 | activation decision surface proposal | docs-first explicit decision input/output contract | runtime/CLI implementation |
+| M87 | activation decision fixture contract | reserved caller-provided activation decision fixture | runtime/CLI implementation |
+| M88 | activation decision diagnostic owner | owner SSOT naming `src/runtime/allocator_provider_activation_decision.rs` | activation implementation |
+| M89 | activation decision diagnostic report | diagnostic-only parser/report over caller-provided decision TOML | provider selection |
+| M90 | activation decision diagnostic CLI surface | explicit CLI over caller-provided decision TOML path | activation |
+| M91 | activation decision closeout inventory | coverage guard for M86-M90 artifacts | runtime activation |
 
 ## Post-M75 Activation Entry Ladder
 
@@ -120,6 +135,11 @@ activation entry:
 | M84 | activation safety diagnostic CLI surface | explicit CLI output for the gate-closed report | environment discovery |
 | M85 | activation safety closeout inventory | inventory guard for the complete diagnostic ladder | runtime activation |
 | M86 | activation decision surface proposal | proposal-only activation decision surface contract | runtime/CLI implementation |
+| M87 | activation decision fixture contract | explicit decision bundle fixture contract | runtime/CLI implementation |
+| M88 | activation decision diagnostic owner | runtime owner name for the diagnostic parser/report | activation implementation |
+| M89 | activation decision diagnostic report | diagnostic-only report for complete/missing/malformed decision input | provider selection |
+| M90 | activation decision diagnostic CLI surface | explicit CLI output for the blocked decision report | activation |
+| M91 | activation decision closeout inventory | inventory guard for the complete decision diagnostic ladder | runtime activation |
 
 ## Dependency Order
 
@@ -144,17 +164,39 @@ M66 task breakdown
   -> M84 activation safety diagnostic CLI surface
   -> M85 activation safety closeout inventory
   -> M86 activation decision surface proposal
-  -> later activation row only after safety proof
+  -> M87 activation decision fixture contract
+  -> M88 activation decision diagnostic owner
+  -> M89 activation decision diagnostic report
+  -> M90 activation decision diagnostic CLI surface
+  -> M91 activation decision closeout inventory
+  -> later activation implementation row only after an owner/entry SSOT
 ```
+
+## Owner Map
+
+Diagnostic owner files may exist before the active runtime registry exists.
+This prevents stop-line wording from blocking diagnostic-only rows:
+
+- `src/runtime/allocator_provider_registry.rs` may own activation safety
+  diagnostics and reports. It is not an active provider registry or selection
+  implementation.
+- `src/runtime/allocator_provider_activation_decision.rs` may own activation
+  decision diagnostics and reports. It does not select providers, consume
+  proofs, prepare rollback, open the gate, install hooks, or replace the
+  process allocator.
+- "runtime provider registry implementation" in older cards means active
+  registry/selection behavior, not diagnostic owner modules with all activation
+  outputs fixed false.
 
 ## Stop Line
 
 Until a later activation row explicitly changes this, all current tasks keep
 these inactive:
 
-- runtime provider registry;
+- active runtime provider registry or provider selection implementation;
 - provider selection;
-- provider environment toggles;
+- provider environment toggles, including `NYASH_ALLOCATOR_PROVIDER`,
+  `HAKO_ALLOCATOR_PROVIDER`, and broad `ALLOCATOR_PROVIDER_*` names;
 - runtime hook install/uninstall body;
 - process allocator replacement;
 - `#[global_allocator]`;
@@ -179,7 +221,10 @@ environment toggles, hook activation, and process allocator replacement.
 M66-M86 were mirrored in the heavy progress tables while the activation safety
 ladder was being named.
 
-M87 and later follow the lightweight docs sync policy:
+Historical M75 sentence kept for past guards: Provider proof boundary ladder is now closed through M75.
+
+M87 and later follow the lightweight docs sync policy. M87-M91 are landed and
+only M91 is the latest closeout checkpoint:
 
 1. SSOT or implementation doc first.
 2. Small runtime/CLI code only when the row explicitly allows it.
@@ -193,23 +238,14 @@ at closeout rows or when their own stable contract changes.
 
 ## Next Step
 
-Provider proof boundary ladder is now closed through M75. M76 opens the
-activation entry contract, M77 fixes the reserved registry snapshot shape, and
-M78 fixes the reserved selection request/decision shape without runtime
-registry code or provider selection. M79 fixes the reserved provider proof
-bundle consumption shape without runtime proof consumption or activation. M80
-fixes the reserved rollback preflight shape without rollback preparation, hook
-activation, or process replacement. M81 fixes the reserved activation safety
-gate shape without opening the gate or activating hooks. M82 fixes the
-activation safety diagnostic owner and removes stale past-guard pins against
-future diagnostic owner files/type names. M83 adds the diagnostic-only runtime
-report in that owner while keeping the gate closed. M84 exposes that report
-through an explicit-input CLI surface without opening the gate. M85 closes out
-the activation safety diagnostic ladder with an inventory guard and no runtime
-activation. M86 defines the future explicit-input activation decision surface
-as a proposal-only contract without runtime or CLI implementation. The next
-safe row is M87 activation decision fixture contract. It must be docs/fixture
-only and must not silently enable production activation, `#[global_allocator]`,
-process allocator replacement, environment discovery, provider selection,
-runtime proof consumption, rollback preparation, hook activation, or `.inc`
-name matching.
+Historical M86 sentence kept for past guards: The next safe row is M87 activation decision fixture contract.
+
+The activation decision diagnostic ladder is now closed through M91. M87 fixed
+the caller-provided activation decision fixture, M88 named the diagnostic owner,
+M89 added the diagnostic-only runtime report, M90 exposed it through an
+explicit-input CLI surface, and M91 closed coverage across M86-M90. The next
+safe row is not yet assigned a task ID in this SSOT. Before M92 or later opens
+any provider activation implementation, it must first name one owner/entry
+contract and keep proof consumption, rollback preparation, activation gate
+opening, hook activation, process allocator replacement, provider selection,
+and hidden environment discovery split into later guarded rows.

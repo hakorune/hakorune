@@ -135,7 +135,7 @@ require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_activation_safety
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_activation_safety_closeout_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_activation_safety_closeout_guard.sh"
 
-if rg -n 'std::env|set_var|var_os|env_bool|env_string|NYASH_ALLOCATOR_PROVIDER' "$CLI_FILE" >/tmp/"$TAG".env 2>&1; then
+if rg -n 'std::env|set_var|var_os|env_bool|env_string|NYASH_ALLOCATOR_PROVIDER|HAKO_ALLOCATOR_PROVIDER|ALLOCATOR_PROVIDER_' "$CLI_FILE" >/tmp/"$TAG".env 2>&1; then
   cat /tmp/"$TAG".env >&2
   rm -f /tmp/"$TAG".env
   fail "activation safety closeout must not add hidden environment toggles"

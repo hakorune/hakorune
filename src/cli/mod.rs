@@ -253,6 +253,48 @@ impl Default for CliConfig {
     }
 }
 
+pub const CLI_ALLOCATOR_DIAGNOSTIC_CONFLICT: &str = "[allocator-diagnostic/cli-conflicting-modes]";
+
+pub fn maybe_reject_allocator_diagnostic_conflicts(config: &CliConfig) -> Option<i32> {
+    let modes = allocator_diagnostic_modes(config);
+    if modes.len() <= 1 {
+        return None;
+    }
+
+    eprintln!(
+        "{}: modes={}",
+        CLI_ALLOCATOR_DIAGNOSTIC_CONFLICT,
+        modes.join(",")
+    );
+    Some(2)
+}
+
+fn allocator_diagnostic_modes(config: &CliConfig) -> Vec<&'static str> {
+    let hook_dry_run_requested = config.allocator_hook_dry_run
+        || config.allocator_hook_dry_run_plan.is_some()
+        || config.allocator_hook_dry_run_proof.is_some();
+    let provider_manifest_requested = config.allocator_provider_manifest.is_some();
+
+    let mut modes = Vec::new();
+    if provider_manifest_requested && hook_dry_run_requested {
+        modes.push("allocator_provider_combined_dry_run");
+    } else {
+        if hook_dry_run_requested {
+            modes.push("allocator_hook_dry_run");
+        }
+        if provider_manifest_requested {
+            modes.push("allocator_provider_manifest");
+        }
+    }
+    if config.allocator_provider_activation_safety_gate.is_some() {
+        modes.push("allocator_provider_activation_safety");
+    }
+    if config.allocator_provider_activation_decision.is_some() {
+        modes.push("allocator_provider_activation_decision");
+    }
+    modes
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -267,5 +309,43 @@ mod tests {
         let config = CliConfig::default();
         assert_eq!(config.backend, "interpreter");
         assert_eq!(config.iterations, 10);
+    }
+
+    #[test]
+    fn allocator_provider_combined_dry_run_is_one_diagnostic_mode() {
+        let config = CliConfig {
+            allocator_hook_dry_run: true,
+            allocator_hook_dry_run_plan: Some("plan.toml".to_string()),
+            allocator_hook_dry_run_proof: Some("proof.toml".to_string()),
+            allocator_provider_manifest: Some("provider.toml".to_string()),
+            ..CliConfig::default()
+        };
+
+        assert_eq!(
+            allocator_diagnostic_modes(&config),
+            vec!["allocator_provider_combined_dry_run"]
+        );
+        assert_eq!(maybe_reject_allocator_diagnostic_conflicts(&config), None);
+    }
+
+    #[test]
+    fn allocator_diagnostic_modes_reject_conflicting_surfaces() {
+        let config = CliConfig {
+            allocator_provider_manifest: Some("provider.toml".to_string()),
+            allocator_provider_activation_decision: Some("decision.toml".to_string()),
+            ..CliConfig::default()
+        };
+
+        assert_eq!(
+            allocator_diagnostic_modes(&config),
+            vec![
+                "allocator_provider_manifest",
+                "allocator_provider_activation_decision"
+            ]
+        );
+        assert_eq!(
+            maybe_reject_allocator_diagnostic_conflicts(&config),
+            Some(2)
+        );
     }
 }
