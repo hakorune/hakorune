@@ -29,6 +29,7 @@ one commit unless a row explicitly says it is docs-only.
 | `294x-06b` | Complete | dynamic numeric field write guard | runtime-range-sensitive exact numeric fields reject unchecked dynamic values until runtime-check lowering exists |
 | `294x-06c` | Complete | runtime-check contract metadata | dynamic exact numeric field writes can be verifier-accepted only with a matching `DynamicIntegerRange` contract |
 | `294x-06d` | Complete | VM dynamic range-check execution | the VM interpreter executes existing `DynamicIntegerRange` contracts at `FieldSet` sites and rejects bad dynamic values before mutation |
+| `294x-06e` | Complete | dynamic range-check contract refresh | real MIR `FieldSet` producers receive `DynamicIntegerRange` contracts after optimization and before verification |
 | `294x-07` | Pending | overflow and checked arithmetic policy | plain typed `usize` arithmetic has checked/fail-fast behavior; wrapping stays explicit |
 | `294x-08` | Pending | unsigned compare and logical shift | comparisons and right shift stop using signed i64 semantics for `usize` |
 | `294x-09` | Pending | PHI/Select numeric unification | exact numeric kinds merge conservatively and fail fast on unsupported mixes |
@@ -79,7 +80,9 @@ one commit unless a row explicitly says it is docs-only.
 
 - [ ] Add exact `usize` runtime representation or equivalent tagged numeric value.
 - [x] Execute existing `DynamicIntegerRange` contracts in the VM interpreter.
-- [ ] Range-check construction beyond already-attached contracts.
+- [x] Attach `DynamicIntegerRange` contracts for real exact numeric field-write
+  producers after MIR shape is stable.
+- [ ] Range-check construction beyond exact numeric field-write contracts.
 - [ ] Implement checked add/sub/mul.
 - [ ] Implement div/mod with zero checks.
 - [ ] Implement bitwise ops.
@@ -98,6 +101,8 @@ one commit unless a row explicitly says it is docs-only.
   numeric field writes.
 - [x] Execute `DynamicIntegerRange` contracts in the VM interpreter before
   field mutation.
+- [x] Keep verifier and contract refresh on one shared exact numeric field-write
+  facts owner.
 - [ ] Reject unsupported backend lowering.
 - [ ] Guard against silent fallback to `Integer(i64)`.
 - [ ] Keep strict/dev checks before broad production acceptance.

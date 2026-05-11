@@ -103,6 +103,10 @@ impl MirCompiler {
             }
         }
 
+        super::exact_numeric_field_contracts::refresh_module_exact_numeric_runtime_check_contracts(
+            &mut module,
+        );
+
         // Verify the generated MIR
         let verification_result = self.verifier.verify_module(&module);
 
@@ -139,7 +143,10 @@ mod tests {
     use crate::ast::{ASTNode, LiteralValue};
     use crate::mir::string_corridor::StringCorridorOp;
     use crate::mir::string_corridor_placement::StringCorridorCandidateKind;
-    use crate::mir::{MirCompiler, MirInstruction, MirPrinter};
+    use crate::mir::{
+        ExactNumericRuntimeCheckContractKind, MirCompiler, MirInstruction, MirPrinter,
+    };
+    use crate::parser::NyashParser;
 
     #[test]
     fn test_basic_mir_compilation() {
@@ -159,6 +166,54 @@ mod tests {
         assert!(
             !compile_result.module.functions.is_empty(),
             "Module should contain at least one function"
+        );
+    }
+
+    #[test]
+    fn compile_attaches_dynamic_integer_range_contract_before_verify() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let ast = NyashParser::parse_from_string(
+            r#"
+box Page {
+  capacity: usize = 0
+}
+
+static box Main {
+  main(x) {
+    local p = new Page()
+    p.capacity = x
+    return 0
+  }
+}
+"#,
+        )
+        .expect("parse");
+        let mut compiler = MirCompiler::with_options(false);
+        let result = compiler.compile(ast).expect("compile");
+
+        assert!(
+            result.verification_result.is_ok(),
+            "pre-verify contract attach should satisfy exact numeric verifier: {:?}",
+            result.verification_result
+        );
+        let contracts: Vec<_> = result
+            .module
+            .functions
+            .values()
+            .flat_map(|function| {
+                function
+                    .metadata
+                    .exact_numeric_runtime_check_contracts
+                    .iter()
+            })
+            .collect();
+
+        assert_eq!(contracts.len(), 1);
+        assert_eq!(contracts[0].field, "capacity");
+        assert_eq!(contracts[0].declared_type_name, "usize");
+        assert_eq!(
+            contracts[0].kind,
+            ExactNumericRuntimeCheckContractKind::DynamicIntegerRange
         );
     }
 

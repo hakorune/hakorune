@@ -64,19 +64,21 @@
 - `294x-06d`: the VM interpreter now executes existing `DynamicIntegerRange`
   contracts at `FieldSet` sites and rejects non-integer, negative-unsigned, and
   out-of-range dynamic values before field mutation.
+- `294x-06e`: MIR semantic refresh now attaches `DynamicIntegerRange`
+  contracts for real exact numeric `FieldSet` producers after optimization and
+  before verification, with verifier checks consuming the same field-write
+  facts owner.
 
 ## First Implementation Direction
 
 Start with metadata preservation before runtime behavior:
 
 1. attach exact numeric metadata to MIR facts/signature consumers;
-2. attach/insert `DynamicIntegerRange` contracts from real MIR field-write
-   producers;
-3. make unsupported backend routes fail fast when exact numeric contracts are
+2. make unsupported backend routes fail fast when exact numeric contracts are
    present;
-4. add VM/backend exact `usize` behavior;
-5. add checked arithmetic / unsigned compare / logical shift;
-6. migrate hako_alloc non-negative fields.
+3. add VM/backend exact `usize` behavior;
+4. add checked arithmetic / unsigned compare / logical shift;
+5. migrate hako_alloc non-negative fields.
 
 This keeps the source truth available before any lowerer claims exact
 semantics.

@@ -1,47 +1,16 @@
-use crate::mir::numeric_substrate::{
-    exact_numeric_mir_type_from_declared_name,
-    exact_numeric_type_requires_dynamic_integer_range_check,
-    exact_numeric_value_from_dynamic_integer, ExactNumericConversionError, ExactNumericMirType,
-    NumericTarget,
+use crate::mir::exact_numeric_field_contracts::{
+    collect_exact_numeric_field_assignment_findings, ExactNumericFieldAssignmentFinding,
 };
 use crate::mir::verification_types::VerificationError;
-use crate::mir::ExactNumericRuntimeCheckContractKind;
-use crate::mir::{ConstValue, MirFunction, MirInstruction, MirModule, MirType, ValueId};
-use std::collections::{BTreeMap, HashMap};
-
-#[derive(Debug, Clone)]
-enum ObjectDef {
-    Box(String),
-    Copy(ValueId),
-}
-
-#[derive(Debug, Clone, Copy)]
-enum IntegerDef {
-    Const(i64),
-    Copy(ValueId),
-}
-
-#[derive(Debug, Clone)]
-enum ValueProducer {
-    Param,
-    ConstInteger,
-    ConstNonInteger,
-    Copy(ValueId),
-    Dynamic(&'static str),
-}
+use crate::mir::MirModule;
 
 pub(super) fn check_exact_numeric_field_assignments(
     module: &MirModule,
 ) -> Result<(), Vec<VerificationError>> {
-    let fields = exact_numeric_field_decls(module);
-    if fields.is_empty() {
-        return Ok(());
-    }
-
-    let mut errors = Vec::new();
-    for function in module.functions.values() {
-        check_function(function, &fields, &mut errors);
-    }
+    let errors: Vec<VerificationError> = collect_exact_numeric_field_assignment_findings(module)
+        .into_iter()
+        .map(verification_error_from_finding)
+        .collect();
 
     if errors.is_empty() {
         Ok(())
@@ -50,347 +19,37 @@ pub(super) fn check_exact_numeric_field_assignments(
     }
 }
 
-fn exact_numeric_field_decls(
-    module: &MirModule,
-) -> BTreeMap<(String, String), ExactNumericMirType> {
-    let mut fields = BTreeMap::new();
-    let target = NumericTarget::host();
-
-    for (box_name, decls) in &module.metadata.user_box_field_decls {
-        for decl in decls {
-            if let Some(ty) = exact_numeric_mir_type_from_declared_name(
-                decl.declared_type_name.as_deref(),
-                target,
-            ) {
-                fields.insert((box_name.clone(), decl.name.clone()), ty);
-            }
-        }
-    }
-
-    fields
-}
-
-fn check_function(
-    function: &MirFunction,
-    fields: &BTreeMap<(String, String), ExactNumericMirType>,
-    errors: &mut Vec<VerificationError>,
-) {
-    let object_defs = collect_object_defs(function);
-    let integer_defs = collect_integer_defs(function);
-    let value_producers = collect_value_producers(function);
-
-    for (block, basic_block) in &function.blocks {
-        for (instruction_index, spanned) in basic_block.all_spanned_instructions_enumerated() {
-            let MirInstruction::FieldSet {
-                base, field, value, ..
-            } = spanned.inst
-            else {
-                continue;
-            };
-
-            let Some(box_name) = resolve_object_box(*base, &object_defs) else {
-                continue;
-            };
-            let Some(ty) = fields.get(&(box_name.clone(), field.clone())) else {
-                continue;
-            };
-            match resolve_integer_const(*value, &integer_defs) {
-                Some(integer_value) => {
-                    if let Err(error) = exact_numeric_value_from_dynamic_integer(integer_value, ty)
-                    {
-                        errors.push(exact_numeric_violation(
-                            function,
-                            *block,
-                            instruction_index,
-                            box_name,
-                            field.clone(),
-                            integer_value,
-                            ty,
-                            error,
-                        ));
-                    }
-                }
-                None => {
-                    if exact_numeric_type_requires_dynamic_integer_range_check(ty)
-                        && !has_runtime_check_contract(
-                            function,
-                            *block,
-                            instruction_index,
-                            field,
-                            *value,
-                            ty,
-                        )
-                    {
-                        errors.push(exact_numeric_dynamic_check_required(
-                            function,
-                            *block,
-                            instruction_index,
-                            box_name,
-                            field.clone(),
-                            *value,
-                            ty,
-                            resolve_value_producer_label(*value, &value_producers),
-                        ));
-                    }
-                }
-            }
-        }
-    }
-}
-
-fn has_runtime_check_contract(
-    function: &MirFunction,
-    block: crate::mir::BasicBlockId,
-    instruction_index: usize,
-    field: &str,
-    value: ValueId,
-    ty: &ExactNumericMirType,
-) -> bool {
-    function
-        .metadata
-        .exact_numeric_runtime_check_contracts
-        .iter()
-        .any(|contract| {
-            contract.kind == ExactNumericRuntimeCheckContractKind::DynamicIntegerRange
-                && contract.block == block
-                && contract.instruction_index == instruction_index
-                && contract.field == field
-                && contract.value == value
-                && contract.declared_type_name == ty.source_name
-        })
-}
-
-fn collect_object_defs(function: &MirFunction) -> HashMap<ValueId, ObjectDef> {
-    let mut defs = HashMap::new();
-
-    for (idx, param) in function.params.iter().enumerate() {
-        if let Some(MirType::Box(box_name)) = function.signature.params.get(idx) {
-            defs.insert(*param, ObjectDef::Box(box_name.clone()));
-        }
-    }
-
-    for block in function.blocks.values() {
-        for spanned in block.all_spanned_instructions() {
-            match spanned.inst {
-                MirInstruction::NewBox { dst, box_type, .. } => {
-                    defs.insert(*dst, ObjectDef::Box(box_type.clone()));
-                }
-                MirInstruction::Copy { dst, src } => {
-                    defs.insert(*dst, ObjectDef::Copy(*src));
-                }
-                _ => {}
-            }
-        }
-    }
-
-    defs
-}
-
-fn collect_integer_defs(function: &MirFunction) -> HashMap<ValueId, IntegerDef> {
-    let mut defs = HashMap::new();
-
-    for block in function.blocks.values() {
-        for spanned in block.all_spanned_instructions() {
-            match spanned.inst {
-                MirInstruction::Const {
-                    dst,
-                    value: ConstValue::Integer(value),
-                } => {
-                    defs.insert(*dst, IntegerDef::Const(*value));
-                }
-                MirInstruction::Copy { dst, src } => {
-                    defs.insert(*dst, IntegerDef::Copy(*src));
-                }
-                _ => {}
-            }
-        }
-    }
-
-    defs
-}
-
-fn collect_value_producers(function: &MirFunction) -> HashMap<ValueId, ValueProducer> {
-    let mut producers = HashMap::new();
-
-    for param in &function.params {
-        producers.insert(*param, ValueProducer::Param);
-    }
-
-    for block in function.blocks.values() {
-        for spanned in block.all_spanned_instructions() {
-            match spanned.inst {
-                MirInstruction::Const {
-                    dst,
-                    value: ConstValue::Integer(_),
-                } => {
-                    producers.insert(*dst, ValueProducer::ConstInteger);
-                }
-                MirInstruction::Const { dst, .. } => {
-                    producers.insert(*dst, ValueProducer::ConstNonInteger);
-                }
-                MirInstruction::Copy { dst, src } => {
-                    producers.insert(*dst, ValueProducer::Copy(*src));
-                }
-                MirInstruction::BinOp { dst, .. } => {
-                    producers.insert(*dst, ValueProducer::Dynamic("binop"));
-                }
-                MirInstruction::UnaryOp { dst, .. } => {
-                    producers.insert(*dst, ValueProducer::Dynamic("unaryop"));
-                }
-                MirInstruction::Compare { dst, .. } => {
-                    producers.insert(*dst, ValueProducer::Dynamic("compare"));
-                }
-                MirInstruction::Load { dst, .. } => {
-                    producers.insert(*dst, ValueProducer::Dynamic("load"));
-                }
-                MirInstruction::StaticDataLoad { dst, .. } => {
-                    producers.insert(*dst, ValueProducer::Dynamic("static_data_load"));
-                }
-                MirInstruction::FieldGet { dst, .. } => {
-                    producers.insert(*dst, ValueProducer::Dynamic("field_get"));
-                }
-                MirInstruction::VariantMake { dst, .. } => {
-                    producers.insert(*dst, ValueProducer::Dynamic("variant_make"));
-                }
-                MirInstruction::VariantTag { dst, .. } => {
-                    producers.insert(*dst, ValueProducer::Dynamic("variant_tag"));
-                }
-                MirInstruction::VariantProject { dst, .. } => {
-                    producers.insert(*dst, ValueProducer::Dynamic("variant_project"));
-                }
-                MirInstruction::Call { dst: Some(dst), .. } => {
-                    producers.insert(*dst, ValueProducer::Dynamic("call"));
-                }
-                MirInstruction::NewClosure { dst, .. } => {
-                    producers.insert(*dst, ValueProducer::Dynamic("new_closure"));
-                }
-                MirInstruction::Phi { dst, .. } => {
-                    producers.insert(*dst, ValueProducer::Dynamic("phi"));
-                }
-                MirInstruction::NewBox { dst, .. } => {
-                    producers.insert(*dst, ValueProducer::Dynamic("new_box"));
-                }
-                MirInstruction::TypeOp { dst, .. } => {
-                    producers.insert(*dst, ValueProducer::Dynamic("typeop"));
-                }
-                MirInstruction::Catch {
-                    exception_value, ..
-                } => {
-                    producers.insert(*exception_value, ValueProducer::Dynamic("catch"));
-                }
-                MirInstruction::RefNew { dst, .. } => {
-                    producers.insert(*dst, ValueProducer::Dynamic("ref_new"));
-                }
-                MirInstruction::WeakRef { dst, .. } => {
-                    producers.insert(*dst, ValueProducer::Dynamic("weakref"));
-                }
-                MirInstruction::FutureNew { dst, .. } => {
-                    producers.insert(*dst, ValueProducer::Dynamic("future_new"));
-                }
-                MirInstruction::Await { dst, .. } => {
-                    producers.insert(*dst, ValueProducer::Dynamic("await"));
-                }
-                MirInstruction::Select { dst, .. } => {
-                    producers.insert(*dst, ValueProducer::Dynamic("select"));
-                }
-                _ => {}
-            }
-        }
-    }
-
-    producers
-}
-
-fn resolve_object_box(value: ValueId, defs: &HashMap<ValueId, ObjectDef>) -> Option<String> {
-    let mut current = value;
-    for _ in 0..16 {
-        match defs.get(&current)? {
-            ObjectDef::Box(box_name) => return Some(box_name.clone()),
-            ObjectDef::Copy(src) => current = *src,
-        }
-    }
-    None
-}
-
-fn resolve_integer_const(value: ValueId, defs: &HashMap<ValueId, IntegerDef>) -> Option<i64> {
-    let mut current = value;
-    for _ in 0..16 {
-        match defs.get(&current)? {
-            IntegerDef::Const(value) => return Some(*value),
-            IntegerDef::Copy(src) => current = *src,
-        }
-    }
-    None
-}
-
-fn resolve_value_producer_label(
-    value: ValueId,
-    producers: &HashMap<ValueId, ValueProducer>,
-) -> String {
-    let mut current = value;
-    for _ in 0..16 {
-        match producers.get(&current) {
-            Some(ValueProducer::Param) => return "param".to_string(),
-            Some(ValueProducer::ConstInteger) => return "const_integer_unresolved".to_string(),
-            Some(ValueProducer::ConstNonInteger) => return "const_non_integer".to_string(),
-            Some(ValueProducer::Dynamic(label)) => return (*label).to_string(),
-            Some(ValueProducer::Copy(src)) => current = *src,
-            None => return "unknown".to_string(),
-        }
-    }
-    "copy_chain_too_deep".to_string()
-}
-
-fn exact_numeric_violation(
-    function: &MirFunction,
-    block: crate::mir::BasicBlockId,
-    instruction_index: usize,
-    box_name: String,
-    field: String,
-    value: i64,
-    ty: &ExactNumericMirType,
-    error: ExactNumericConversionError,
+fn verification_error_from_finding(
+    finding: ExactNumericFieldAssignmentFinding,
 ) -> VerificationError {
-    let range = ty.kind.value_range();
-    let reason = match error {
-        ExactNumericConversionError::NegativeToUnsigned { .. } => "negative-to-unsigned",
-        ExactNumericConversionError::OutOfRange { .. } => "out-of-range",
-    };
-
-    VerificationError::ExactNumericRangeViolation {
-        function: function.signature.name.clone(),
-        block,
-        instruction_index,
-        box_name,
-        field,
-        declared_type_name: ty.source_name.clone(),
-        value: i128::from(value),
-        min: range.min,
-        max: range.max,
-        reason: reason.to_string(),
-    }
-}
-
-fn exact_numeric_dynamic_check_required(
-    function: &MirFunction,
-    block: crate::mir::BasicBlockId,
-    instruction_index: usize,
-    box_name: String,
-    field: String,
-    value: ValueId,
-    ty: &ExactNumericMirType,
-    producer: String,
-) -> VerificationError {
-    VerificationError::ExactNumericDynamicCheckRequired {
-        function: function.signature.name.clone(),
-        block,
-        instruction_index,
-        box_name,
-        field,
-        declared_type_name: ty.source_name.clone(),
-        value,
-        producer,
-        reason: "dynamic-integer-range-check-required".to_string(),
+    match finding {
+        ExactNumericFieldAssignmentFinding::RangeViolation(site) => {
+            VerificationError::ExactNumericRangeViolation {
+                function: site.function,
+                block: site.block,
+                instruction_index: site.instruction_index,
+                box_name: site.box_name,
+                field: site.field,
+                declared_type_name: site.declared_type_name,
+                value: site.value,
+                min: site.min,
+                max: site.max,
+                reason: site.reason,
+            }
+        }
+        ExactNumericFieldAssignmentFinding::DynamicCheckRequired(site) => {
+            VerificationError::ExactNumericDynamicCheckRequired {
+                function: site.function,
+                block: site.block,
+                instruction_index: site.instruction_index,
+                box_name: site.box_name,
+                field: site.field,
+                declared_type_name: site.declared_type_name,
+                value: site.value,
+                producer: site.producer,
+                reason: site.reason,
+            }
+        }
     }
 }
 
@@ -398,9 +57,9 @@ fn exact_numeric_dynamic_check_required(
 mod tests {
     use super::*;
     use crate::mir::{
-        BasicBlockId, BinaryOp, EffectMask, ExactNumericRuntimeCheckContract,
-        ExactNumericRuntimeCheckContractKind, FunctionSignature, MirFunction, MirModule,
-        UserBoxFieldDecl,
+        BasicBlockId, BinaryOp, ConstValue, EffectMask, ExactNumericRuntimeCheckContract,
+        ExactNumericRuntimeCheckContractKind, FunctionSignature, MirFunction, MirInstruction,
+        MirModule, MirType, UserBoxFieldDecl, ValueId,
     };
 
     fn module_with_numeric_field(declared_type_name: &str, function: MirFunction) -> MirModule {
