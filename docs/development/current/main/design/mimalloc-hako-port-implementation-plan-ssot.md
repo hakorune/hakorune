@@ -131,6 +131,39 @@ allocation, pointer-to-page map, huge/large pages, secure encoded free lists,
 purge, stats, and options each need fresh cards after the basic allocator
 model is running.
 
+## Granular Row Contracts
+
+Each row below is allowed to split into `A/B` cards if the listed write set
+becomes too large or if one row would mix state-model work with orchestration
+work. Splitting is mandatory if a row starts adding algorithm bodies back into
+`page_heap_box.hako`.
+
+| Row | Primary write set | Proof target | Must not touch | Done when |
+| --- | --- | --- | --- | --- |
+| `M164 layout migration closeout` | `layout_box.hako`, existing hako_alloc proof docs, at most callsite cleanup in `page_heap_box.hako` | `mimalloc-size-class-policy-proof`, `mimalloc-lite`, `allocator-stress`, representative production facade EXE guard | new page model, page queues, full-bin heap exposure, app output changes | all remaining size-class decisions outside `SizeClassBox` are compatibility facade decisions explicitly owned by `LayoutBox` |
+| `M165 page model split` | new `page_box.hako`, `hako_module.toml`, focused proof app | `apps/mimalloc-page-model-proof/` | page queues, OSVM, TLS, atomics, remote-free policy | page-local `free`, `local_free`, `used`, `capacity`, and `reserved` invariants are testable without a heap |
+| `M166 page queue and direct-page cache` | new `page_queue_box.hako`, narrow heap adapter only | `apps/mimalloc-page-queue-proof/` | alloc fast path, OSVM, remote-free, page-map | a request bin can find the current page through queue/direct-cache state without app-side scanning |
+| `M167 alloc fast path plus generic fallback` | allocator facade/heap orchestration over `page_box` + `page_queue_box` | `apps/mimalloc-alloc-fast-path-proof/` | OSVM fresh page sourcing, local-free retire, remote-free atomics | fast path pops from a page free list; fallback refills deterministically through the queue model |
+| `M168 OSVM page source composition` | `page_source_policy_box.hako`, heap adapter, proof app | `apps/mimalloc-osvm-page-source-composition-proof/` | new native leaf, OSVM unreserve/release, hook/provider behavior | fresh modeled pages can be backed by existing reserve/commit/decommit rows |
+| `M169 local free collection and retire` | `page_box.hako`, local-free proof app | `apps/mimalloc-local-free-retire-proof/` | remote-free atomics, abandoned-page reclaim, OSVM release | local frees collect into reusable free blocks and empty-page retire state is observable |
+| `M170 remote-free integration` | `remote_free_policy_box.hako`, page model integration, proof app | `apps/mimalloc-remote-free-page-integration-proof/` | pointer fetch_add, page-map, arbitrary pointer free, process replacement | existing pointer load/store/CAS rows push remote frees into page-owned state behind a bounded retry policy |
+
+### Split Rules
+
+- `M164` is a closeout row because M163 already made `LayoutBox` delegate to
+  `SizeClassBox`. If M164 has no useful code delta, it may land as a focused
+  guard/card that proves no stale layout owner remains.
+- `M165` must create a page-local owner before `M166` creates queues. Do not
+  add queue traversal to prove page fields.
+- `M166` must choose pages, not allocate blocks. If it pops a free block, that
+  belongs to `M167`.
+- `M167` may create deterministic model pages in memory; it must not reserve
+  OS memory. OSVM enters only in `M168`.
+- `M169` owns same-thread local free collection only. Remote-free and abandoned
+  reclaim remain out of scope until `M170+`.
+- `M170` composes existing pointer atomics only. It does not add pointer
+  `fetch_add`, page-map lookup, allocator hooks, or host replacement.
+
 ## First Concrete Row
 
 `M163` should be implemented first because it is pure policy:
