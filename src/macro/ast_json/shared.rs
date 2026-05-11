@@ -104,14 +104,7 @@ pub(crate) fn is_compare_op(op: &BinaryOperator) -> bool {
 }
 
 pub(crate) fn param_decls_to_json(param_decls: &[ParamDecl], params: &[String]) -> Vec<Value> {
-    let fallback;
-    let decls = if param_decls.is_empty() && !params.is_empty() {
-        fallback = ParamDecl::from_names(params);
-        fallback.as_slice()
-    } else {
-        param_decls
-    };
-    decls
+    ParamDecl::with_name_fallback(param_decls, params)
         .iter()
         .map(|decl| {
             json!({

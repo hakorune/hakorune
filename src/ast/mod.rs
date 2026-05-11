@@ -231,6 +231,17 @@ impl ParamDecl {
         param_decls.iter().map(|decl| decl.name.clone()).collect()
     }
 
+    pub fn with_name_fallback<'a>(
+        param_decls: &'a [ParamDecl],
+        params: &'a [String],
+    ) -> std::borrow::Cow<'a, [ParamDecl]> {
+        if param_decls.is_empty() && !params.is_empty() {
+            std::borrow::Cow::Owned(Self::from_names(params))
+        } else {
+            std::borrow::Cow::Borrowed(param_decls)
+        }
+    }
+
     pub fn from_names(params: &[String]) -> Vec<ParamDecl> {
         params
             .iter()

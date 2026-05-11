@@ -82,14 +82,7 @@ fn function_def_json_v0(
 }
 
 fn param_decls_json_v0(params: &[String], param_decls: &[ParamDecl]) -> Vec<serde_json::Value> {
-    let fallback;
-    let decls = if param_decls.is_empty() && !params.is_empty() {
-        fallback = ParamDecl::from_names(params);
-        fallback.as_slice()
-    } else {
-        param_decls
-    };
-    decls
+    ParamDecl::with_name_fallback(param_decls, params)
         .iter()
         .map(|decl| {
             serde_json::json!({
