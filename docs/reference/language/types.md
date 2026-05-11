@@ -76,6 +76,9 @@ Current live semantics are intentionally narrow:
   unsigned logical right shift. Type mismatch, signed logical shift, and shift
   counts at or above the exact width fail fast. VM/backend lowering remains
   future.
+- MIR exact numeric PHI/Select merge policy preserves exact facts only when
+  all incoming exact types are identical; exact/dynamic mixes and mismatched
+  exact types fail fast in the policy helper.
 
 Deferred and not accepted by this row:
 
@@ -84,6 +87,7 @@ Deferred and not accepted by this row:
   numeric field-write contracts, non-VM backend runtime-check lowering,
   exact runtime unsigned range construction, and live unsigned arithmetic
   execution
+- route-fact wiring for exact numeric params/locals/control merges
 - `u64` values outside signed i64
 - live VM/backend exact numeric arithmetic/compare/shift routes and wrapping /
   checked helper-call syntax

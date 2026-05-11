@@ -64,6 +64,8 @@ Live today:
 - `src/mir/numeric_substrate.rs` owns exact numeric compare and unsigned
   logical right-shift policy, rejecting type mismatch, signed logical shift,
   and shift counts at or above the exact type width;
+- `src/mir/exact_numeric_unification.rs` owns PHI/Select exact numeric merge
+  policy, preserving exact facts only for identical incoming exact types;
 - typed-object planning can use numeric annotations as inline i64 storage
   hints;
 - VM runtime values use `Integer(i64)`;
@@ -75,7 +77,8 @@ Not live today:
   numeric field-write contracts, non-VM backend lowering/execution of those
   contracts, and exact runtime unsigned range-check construction;
 - numeric literal suffixes such as `0usize`;
-- live VM/backend exact numeric arithmetic/compare/shift routes and explicit
+- route-fact wiring for exact numeric params/locals/control merges, live
+  VM/backend exact numeric arithmetic/compare/shift routes, and explicit
   wrapping vocabulary;
 - MIR / Program(JSON) exact numeric constants;
 - typed-object `usize` storage distinct from i64 storage;

@@ -33,7 +33,7 @@ one commit unless a row explicitly says it is docs-only.
 | `294x-06f` | Complete | backend runtime-check contract fail-fast | unsupported non-VM backend routes reject modules that still carry exact numeric runtime-check contracts |
 | `294x-07` | Complete | overflow and checked arithmetic policy | exact numeric add/sub/mul policy is checked/fail-fast; wrapping stays explicit future vocabulary |
 | `294x-08` | Complete | unsigned compare and logical shift | exact numeric compare and logical right-shift policy no longer borrow signed i64 semantics |
-| `294x-09` | Pending | PHI/Select numeric unification | exact numeric kinds merge conservatively and fail fast on unsupported mixes |
+| `294x-09` | Complete | PHI/Select numeric unification policy | exact numeric facts merge conservatively and fail fast on exact/dynamic or exact/exact mismatches |
 | `294x-10` | Pending | VM exact `usize` value/ops v0 | VM executes basic `usize` ops without silently aliasing to dynamic `Integer(i64)` |
 | `294x-11` | Pending | literal suffix and const-eval row | `0usize` / exact numeric consts are accepted only with range checks |
 | `294x-12` | Pending | typed-object exact numeric storage | typed-object plans and EXE runtime storage distinguish `usize` from i64 |
@@ -74,7 +74,7 @@ one commit unless a row explicitly says it is docs-only.
 - [x] Preserve pointer-width target metadata owner.
 - [x] Add exact numeric constants or constant metadata.
 - [x] Add conversion/cast vocabulary.
-- [ ] Add PHI/Select unification rules.
+- [x] Add PHI/Select unification rules.
 - [ ] Publish route facts for numeric params and returns.
 - [x] Add checked exact numeric add/sub/mul policy helpers.
 - [x] Add exact numeric compare and logical right-shift policy helpers.

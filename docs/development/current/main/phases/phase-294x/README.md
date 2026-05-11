@@ -77,13 +77,16 @@
 - `294x-08`: the MIR numeric substrate now owns exact numeric compare and
   unsigned logical right-shift policy, including type-mismatch and invalid
   shift-count fail-fast paths.
+- `294x-09`: exact numeric PHI/Select control-merge policy now lives in its
+  own small module and preserves exact facts only when every incoming type is
+  identical.
 
 ## First Implementation Direction
 
 Start with metadata preservation before runtime behavior:
 
 1. attach exact numeric metadata to MIR facts/signature consumers;
-2. add PHI/Select exact numeric unification;
+2. attach exact numeric route facts for params/locals/control merges;
 3. add VM/backend exact `usize` behavior;
 4. migrate hako_alloc non-negative fields.
 

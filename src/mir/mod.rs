@@ -37,6 +37,7 @@ pub mod effect;
 pub mod effect_capability_plan; // MIR-owned EffectPlan/CapabilityPlan metadata boundary
 pub mod escape_barrier; // escape operand-role vocabulary (SSOT)
 pub(crate) mod exact_numeric_field_contracts; // exact numeric field-write facts/contracts owner
+pub(crate) mod exact_numeric_unification; // exact numeric PHI/Select merge policy owner
 pub mod exact_seed_backend_route; // function-level backend route tags for exact seed bridges
 pub mod extern_call_route_plan; // MIR-owned extern call route policy plans
 pub mod function;
