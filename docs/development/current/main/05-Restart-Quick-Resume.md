@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-05-11
+Date: 2026-05-12
 Scope: 再起動直後に 2-5 分で current lane に戻るための最短手順。
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -30,10 +30,12 @@ cargo check -q
 ## Current Lane
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- active lane: `phase-293x real-app bringup`
+- active lane: `phase-294x usize semantic foundation`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-293x mimalloc substrate capability ladder after real-app EXE parity`
+- current blocker token: `phase-294x exact usize semantics before mimalloc migration`
+- usize semantic SSOT:
+  `docs/development/current/main/design/usize-semantic-foundation-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - update policy:
@@ -42,7 +44,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-293x mimalloc substrate capability ladder after real-app EXE parity`
+- current blocker token: `phase-294x exact usize semantics before mimalloc migration`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -53,7 +55,7 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` real-app bringup
+- continue `phase-294x` exact `usize` semantics
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed with `real-apps` smoke coverage
@@ -66,18 +68,17 @@ cargo check -q
   inference, and explicit same-module PHI type preservation; BoxTorrent mini,
   binary-trees, JSON stream aggregator, mimalloc-lite, and allocator-stress
   direct EXE parity now pass
-- EXE boundary gate:
+- parent EXE boundary gate, only when checking the parked real-app lane:
   `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
-- next: resume the mimalloc substrate / `hako_alloc` ladder from the latest
-  `CURRENT_STATE.toml` card
-- current reading: continue mimalloc as `.hako` / `hako_alloc`
-  completeness work. Allocator-provider M104+ is optional future host
-  replacement support, not the default next task.
+- next: preserve declared numeric metadata, then build exact MIR/runtime/backend
+  `usize` semantics before hako_alloc live state migration
+- current reading: mimalloc remains `.hako` / `hako_alloc` completeness work,
+  but Phase 294x raises Hakorune's integer substrate before M167+ resumes.
 - do not hide compiler blockers in app code; if a real app exposes a Stage0 or
   VM/compiler seam, fix the compiler structurally first
-- real-app gate:
+- parent real-app gate, only when checking the parked real-app lane:
   `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
-- current mirrors are thinned; update `CURRENT_STATE.toml` and the phase-293x
+- current mirrors are thinned; update `CURRENT_STATE.toml` and the phase-294x
   card/taskboard first
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
   without focused BoxShape lanes and SSOT cards

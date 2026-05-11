@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-05-11
+Date: 2026-05-12
 Scope: current lane / blocker / next pointer only.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -14,33 +14,34 @@ Related:
 ## Current
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- active lane: `phase-293x real-app bringup`
+- active lane: `phase-294x usize semantic foundation`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - phase status: read `phase_status` in `CURRENT_STATE.toml`
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - task breakdown:
-  `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
+  `docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md`
+- usize semantic SSOT:
+  `docs/development/current/main/design/usize-semantic-foundation-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `phase-293x mimalloc substrate capability ladder after real-app EXE parity`
+- current blocker token: `phase-294x exact usize semantics before mimalloc migration`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue `phase-293x` real-app bringup
+- continue `phase-294x` exact `usize` semantics
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed
-- real-app order: BoxTorrent mini -> binary-trees -> mimalloc-lite ->
-  allocator port -> allocator-stress app -> BoxTorrent allocator-backed store ->
-  JSON stream aggregator
-- run `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
-  for the active app suite
-- run `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
-  for the real-app EXE parity suite
+- parent real-app order remains in phase-293x; it is paused while phase-294x
+  raises the integer substrate needed by the mimalloc port
+- start with metadata preservation before runtime behavior:
+  parameter/return declared numeric metadata -> MIR exact numeric type model ->
+  verifier/fail-fast -> VM/backend exact `usize` behavior -> hako_alloc
+  non-negative field migration
 - typed-object EXE allocation plus slot `field_set` / `field_get` now covers
   declared i64 fields, init-only untyped fields, handle storage, and observed
   empty user boxes, nullable handle storage through same-module RuntimeDataBox
@@ -55,7 +56,7 @@ Related:
   not from host allocator replacement.
 - if a real app exposes a compiler expressivity blocker, fix the compiler seam
   structurally instead of adding app-side workaround code
-- current mirrors are thinned; update `CURRENT_STATE.toml` and the phase-293x
+- current mirrors are thinned; update `CURRENT_STATE.toml` and the phase-294x
   card/taskboard first
 - current allocator/provider task ladder is:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`;

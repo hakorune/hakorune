@@ -1,0 +1,270 @@
+---
+Status: SSOT
+Decision: accepted
+Date: 2026-05-12
+Scope: exact `usize` / pointer-sized unsigned integer semantics before the
+  mimalloc `.hako` migration uses `usize` in live allocator state.
+Related:
+  - docs/reference/language/types.md
+  - docs/reference/runtime/substrate-capabilities.md
+  - docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md
+  - docs/development/current/main/phases/phase-294x/README.md
+  - docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md
+---
+
+# Usize Semantic Foundation SSOT
+
+## Decision
+
+Hakorune should grow real `usize` semantics before the mimalloc `.hako` port
+migrates live allocator state from `i64` to `usize`.
+
+The previous 293x decision remains correct as a stop line: `usize` is currently
+accepted as syntax / annotation metadata, while runtime values still execute on
+the dynamic `Integer(i64)` lane. Phase 294x exists to remove that semantic gap
+deliberately.
+
+## Current Truth
+
+Live today:
+
+- numeric substrate names are classified by `src/mir/numeric_substrate.rs`;
+- `usize` is recognized as unsigned pointer-width metadata;
+- field annotations can preserve declared type names;
+- typed-object planning can use numeric annotations as inline i64 storage
+  hints;
+- method and `birth` parameter annotations are accepted by the parser but AST
+  v0 keeps only parameter names;
+- VM runtime values use `Integer(i64)`;
+- current `>>` is signed i64 arithmetic right shift.
+
+Not live today:
+
+- exact pointer-width target semantics;
+- unsigned range checks;
+- numeric literal suffixes such as `0usize`;
+- unsigned comparisons distinct from signed i64 comparisons;
+- wrapping / checked arithmetic vocabulary;
+- logical right shift distinct from current `>>`;
+- MIR / Program(JSON) exact numeric constants;
+- typed-object `usize` storage distinct from i64 storage;
+- backend lowering to native pointer-sized integer classes.
+
+## Target Meaning
+
+`usize` means an unsigned integer with the width of the current compilation
+target pointer size.
+
+Minimum target contract:
+
+- allowed value range is `0..=usize::MAX` for the target;
+- `-1` and any negative value are invalid for `usize`;
+- comparisons are unsigned;
+- right shift is logical;
+- overflow behavior is explicit and never inferred from the old i64 lane;
+- backends that cannot lower `usize` must fail fast with a stable diagnostic;
+- source spelling must remain visible in metadata until exact lowering consumes
+  it.
+
+Phase 294x may initially support only 64-bit targets if that is the active
+compiler/backend reality, but the target-width owner must make that explicit.
+It must not silently call a 64-bit implementation "pointer-sized" on a 32-bit
+target.
+
+## Overflow Policy
+
+The safe default is checked/fail-fast arithmetic for typed `usize` operations.
+
+Wrapping behavior is allowed only through explicit vocabulary added by a later
+row, for example `wrapping_add_usize` / `checked_add_usize` helpers or
+intrinsics. Plain `+`, `-`, `*`, shift, and conversion rows must not silently
+wrap unless this SSOT is updated by an accepted decision card.
+
+This keeps mimalloc policy code honest: size arithmetic failures surface near
+the typed integer operation instead of turning into allocator corruption.
+
+## Signed Sentinel Policy
+
+Sentinel-bearing indexes stay signed.
+
+Examples:
+
+- `direct_page_index: i64 = -1`;
+- not-found indexes;
+- negative error codes;
+- deltas that may be negative.
+
+Non-negative quantities are migration candidates:
+
+- sizes;
+- capacities;
+- counts;
+- byte lengths;
+- page ids when no negative sentinel is used;
+- bin indexes when the not-found state is represented separately.
+
+If a value currently uses `-1` as a sentinel, migrate the state shape first
+using an explicit `has_*` flag, enum/Option-like state, or a signed companion.
+Do not store sentinel values in `usize`.
+
+## Required Feature Inventory
+
+### 1. Spec And Docs
+
+- Define fixed-width and pointer-sized integer semantics in
+  `docs/reference/language/types.md`.
+- Define backend obligations and fail-fast behavior in
+  `docs/reference/runtime/substrate-capabilities.md`.
+- Keep `usize` separate from the legacy `Integer(i64)` lane in wording.
+- Document where `i64` remains the right spelling.
+- Document sentinel-bearing fields as signed.
+- Add migration criteria for hako_alloc/mimalloc fields.
+
+### 2. Parser And Metadata Preservation
+
+- Preserve method parameter declared type names.
+- Preserve `birth` parameter declared type names.
+- Preserve return type annotations if the parser accepts `method(...): Type`.
+- Preserve static-box method annotations with the same representation as box
+  methods.
+- Round-trip declared numeric metadata through AST JSON / Program(JSON) or an
+  explicit side table.
+- Keep Rust and `.hako` parser fronts aligned.
+- Keep annotation parsing structural: do not add by-name special cases for
+  mimalloc or allocator code.
+
+### 3. MIR Type Model
+
+- Add an exact numeric MIR type representation instead of collapsing all
+  numeric substrate names to `MirType::Integer`.
+- Preserve signedness and width.
+- Represent pointer-width integers through target-width metadata.
+- Add typed constants or constant metadata for exact numeric values.
+- Define conversions between dynamic `Integer(i64)` and exact numeric types.
+- Define PHI / Select unification rules for exact numeric types.
+- Define route facts for numeric param and return types.
+- Keep facts and lowerers in one SSOT path so type acceptance and lowering do
+  not drift.
+
+### 4. Runtime / VM Semantics
+
+- Add a runtime representation for exact `usize` or an equivalent typed
+  numeric value.
+- Implement construction/conversion from literals and dynamic integers with
+  range checks.
+- Implement equality and unsigned comparison.
+- Implement `+`, `-`, `*`, `/`, `%` with checked/fail-fast behavior.
+- Implement bitwise `&`, `|`, `^`.
+- Implement logical right shift for unsigned types.
+- Validate shift counts.
+- Define truthiness if exact numeric values can flow into conditions.
+- Define string/debug formatting without losing the numeric kind.
+- Add stable runtime diagnostics for range, overflow, and invalid shift.
+
+### 5. Literal And Const Evaluation
+
+- Accept numeric literal suffixes only when their exact type is implemented.
+- Reject out-of-range suffixed literals at parse/const-eval time when static.
+- Reject negative unsigned literals unless an explicit conversion row accepts a
+  checked form.
+- Extend static const table element types beyond `u16` only after exact numeric
+  consts exist.
+- Define whether unsuffixed integer literals in a `usize` context are checked
+  contextual conversions or remain dynamic `Integer(i64)` until assignment.
+
+### 6. Verifier
+
+- Add a numeric range verifier for annotated fields and params.
+- Reject negative assignment to `usize`.
+- Reject `-1` sentinel assignment to `usize`.
+- Detect plain arithmetic overflow when statically knowable.
+- Insert runtime checks only through an explicit lowering contract.
+- Reject unsupported backend routes with stable diagnostics.
+- Add strict/dev gates before broad production acceptance.
+
+### 7. Typed Object And Storage
+
+- Add typed-object storage classes for exact numeric fields, at minimum
+  `usize` and likely `u64`.
+- Keep `i64` storage for signed values and sentinel-bearing fields.
+- Define field get/set ABI for exact numeric slots.
+- Preserve declared numeric kind in typed-object plans.
+- Ensure EXE runtime storage is not a silent `Vec<i64>` alias for `usize`.
+- Update typed-object plan tests for field get/set, birth params, method params,
+  PHI, and global-call propagation.
+
+### 8. Backend And ABI
+
+- Lower `usize` to the backend target's pointer-sized integer class.
+- For LLVM/native backends, distinguish signed/unsigned comparisons and shifts.
+- For WASM or other backends, document i32/i64 target behavior and fail fast if
+  unsupported.
+- Publish backend capability checks so unsupported `usize` code fails before
+  silent wrong-code.
+- Keep C ABI / externcall mappings explicit for size_t-like rows.
+- Keep backend `.inc` files free of provider, mimalloc, hook, or allocator-name
+  matchers.
+
+### 9. Raw Layout And Low-Level Capabilities
+
+- Accept pointer-sized raw-layout fields only after target-width semantics are
+  live.
+- Define alignment and size-of behavior for `usize` fields.
+- Add `usize` variants for low-level helpers only when their semantics are
+  exact:
+  - raw buffer length/capacity;
+  - raw array length/capacity/index;
+  - OSVM page size and byte length helpers;
+  - bounds checks;
+  - pointer slot capacity;
+  - atomic fixed-slot or pointer-sized counters where needed.
+- Keep existing `*_i64` helper names valid until explicit migration rows move
+  call sites.
+
+### 10. Hako Alloc / Mimalloc Migration
+
+- Inventory every hako_alloc numeric field before migration.
+- Classify each field as signed sentinel, signed delta, non-negative count,
+  size, capacity, index, or byte length.
+- Migrate only non-negative fields first.
+- Split sentinel state before migrating sentinel-bearing fields.
+- Update proof apps per migration slice.
+- Keep allocator-provider activation and host allocator replacement out of
+  scope.
+- Keep `hako_alloc` state boxes on Unified Members and stored field
+  initializers.
+
+### 11. Test And Guard Surface
+
+- Parser tests for param/return metadata preservation.
+- AST JSON / Program(JSON) round-trip tests for numeric declared types.
+- MIR unit tests for numeric type classification and exact type retention.
+- VM tests for range, overflow, unsigned compare, logical shift, and formatting.
+- Verifier tests for negative assignment and sentinel rejection.
+- Typed-object EXE tests for exact numeric field get/set.
+- Backend fail-fast tests for unsupported targets.
+- hako_alloc proof apps for each migrated field group.
+- Guard against silent `usize` aliasing to `Integer(i64)` after the exact row
+  lands.
+
+## Non-Goals
+
+- No full static type checker.
+- No blanket migration of all integer code.
+- No process allocator replacement.
+- No provider activation, hook install, or global allocator.
+- No app-side workaround to make mimalloc pass.
+- No `usize` spelling in hako_alloc live state before the relevant migration
+  row.
+
+## Exit Criteria
+
+Phase 294x is complete when:
+
+- `usize` has exact semantics in the accepted compiler/runtime/backend set;
+- unsupported backends fail fast;
+- hako_alloc can migrate non-negative size/capacity fields without lying about
+  runtime behavior;
+- sentinel-bearing fields remain signed or are structurally split;
+- docs and proof apps make the migration path clear enough that mimalloc rows
+  can resume without reopening the semantic question.

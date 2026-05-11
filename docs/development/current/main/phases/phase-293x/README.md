@@ -1,11 +1,14 @@
 # Phase 293x: real-app bringup
 
-- Status: Active
+- Status: Paused / parent lane while Phase 294x grows exact `usize` semantics
 - Purpose: use real applications to expose compiler/runtime seams after the
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
-- Active lane token: `phase-293x real-app bringup`
-- Current blocker token: `phase-293x mimalloc substrate capability ladder after real-app EXE parity`
+- Parent lane token: `phase-293x real-app bringup`
+- Current successor:
+  `docs/development/current/main/phases/phase-294x/README.md`
+- Current successor blocker token:
+  `phase-294x exact usize semantics before mimalloc migration`
 - Mimalloc purpose SSOT:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 

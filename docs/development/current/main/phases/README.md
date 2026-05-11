@@ -4,7 +4,8 @@
 
 ## Current
 
-- **Current (ACTIVE)**: Phase 292x `.inc` codegen thin tag cleanup
+- **Current (ACTIVE)**: Phase 294x `usize` semantic foundation
+- **Parent (PAUSED)**: Phase 293x real-app / mimalloc `.hako` bringup
 - **Sibling (ACTIVE GUARDRAIL)**: Phase 137x main kilo reopen selection (observe-only)
 
 ## Planned / Parked Successors

@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-05-11
+Date: 2026-05-12
 Scope: current lane / next lane / restart order only.
 
 ## Purpose
@@ -34,16 +34,18 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Lane
 
-- active lane: `phase-293x real-app bringup`
+- active lane: `phase-294x usize semantic foundation`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - task breakdown:
-  `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
+  `docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md`
+- usize semantic SSOT:
+  `docs/development/current/main/design/usize-semantic-foundation-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - current blocker token:
-  `phase-293x mimalloc substrate capability ladder after real-app EXE parity`
-- primary mode: real-app bringup lane
+  `phase-294x exact usize semantics before mimalloc migration`
+- primary mode: language/runtime integer semantics lane for mimalloc completeness
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
@@ -55,62 +57,29 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue `phase-293x` from the real-app suite; BoxTorrent
-  mini, binary-trees, and mimalloc-lite are VM-green; typed-object EXE
-  allocation/field get/set covers declared i64 fields, init-only untyped
-  fields, handle storage, observed empty user boxes, nullable handle storage
-  through same-module RuntimeDataBox receiver origins, and the BoxTorrent
-  `firstChunkId` / `refCount` module-generic prepass seam, global-call handle
-  param metadata publication, substring handle result publication, recursive
-  same-module user-box method bodies, and typed-object handle global-call
-  returns, allocator handle param-origin inference, and explicit same-module
-  PHI type preservation; BoxTorrent mini, binary-trees, JSON stream
-  aggregator, mimalloc-lite, and allocator-stress direct EXE parity now pass,
-  and the real-app EXE boundary probe has no remaining unsupported-shape app
-  pins; mimalloc work now resumes as `.hako` / `hako_alloc` completeness work,
-  not as default host allocator replacement
+- resume point: continue Phase 294x from exact `usize` semantics. Phase 293x
+  proved the real-app and mimalloc `.hako` direction; mimalloc now intentionally
+  raises Hakorune's low-level integer completeness before hako_alloc live state
+  migrates from `i64` to `usize`.
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
-  `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
-  plus `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
-  when checking the EXE boundary
+  `cargo test -q numeric_substrate --lib` for metadata rows; add focused VM,
+  verifier, typed-object, or backend tests as each 294x row lands
 
 ## Task Order
 
-- current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
-- prior task-order baseline:
-  `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
-- current allocator/provider ladder:
+- current task source: `CURRENT_STATE.toml` plus the phase-294x taskboard
+- next 294x order:
+  metadata preservation -> MIR exact numeric model -> verifier/fail-fast ->
+  VM/backend exact `usize` behavior -> typed-object storage -> hako_alloc
+  non-negative field migration -> mimalloc M167+ resume gate
+- parent mimalloc taskboard:
+  `docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md`
+- optional future allocator-provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
-  (closed through M103; the proof-bundle consumption fail-fast runtime entry,
-  caller-provided selected-provider precondition, and selected-provider proof
-  validation are present under the activation owner, while provider selection
-  and actual proof consumption remain inactive. M104+ is optional future
-  host-replacement support, not the default current mimalloc implementation
-  path)
-- post-M101 implementation ladder:
-  `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`
-- detailed landed history: phase-291x card files and
-  `docs/development/current/main/CURRENT_STATE.toml`
-- next: continue after M99 proof-bundle consumption CLI surface; M92 names
-  the future activation owner/entry, M93 adds the inactive registry snapshot
-  runtime report, M93B centralizes diagnostic inactive outputs, M94 exposes the
-  report through an explicit TOML-path CLI, M95 fixes closeout coverage, M96
-  adds the inactive selection decision runtime report, and M97 exposes it
-  through an explicit TOML-path CLI; M97B centralizes duplicated TOML helper
-  and fact-check ownership, M98 adds the inactive proof-bundle consumption
-  runtime report, M98B splits the runtime diagnostic implementation into
-  focused modules behind the historical registry facade, M99 exposes the
-  inactive proof-bundle report through an explicit TOML-path CLI, M100 reserves
-  the future proof-bundle consumption behavior owner/entry, M101 creates the
-  fail-fast runtime entry, M102 validates a caller-provided selected provider
-  precondition, and M103 validates selected-provider proof operation coverage
-  without selecting a provider or consuming proofs. Active registry
-  construction, provider selection, proof token creation, rollback preparation,
-  gate opening, hook activation, native activation, and process allocator
-  replacement remain inactive. Default next implementation work returns to the
-  `.hako` mimalloc / `hako_alloc` lane unless host allocator replacement is
-  explicitly reopened
+  and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`
+  remain parked unless host allocator replacement is explicitly reopened.
+- detailed landed history: phase card files and `CURRENT_STATE.toml`
 - VM retreat reading: new substrate / allocator features should target
   `llvm/exe` / pure-first acceptance first; `vm-hako` is reference/monitor only
   and `rust-vm` is bootstrap/recovery/compat keep, so broad VM parity is not a

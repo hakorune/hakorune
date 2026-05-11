@@ -22,27 +22,26 @@ Related:
 | Front | read `latest_card_path` in `CURRENT_STATE.toml` |
 | Guardrail | `phase-137x observe-only perf reopen rule` |
 | Blocker | read `current_blocker_token` in `CURRENT_STATE.toml` |
-| Next | retire or archive the next Program(JSON v0) keeper bucket from the latest card |
-| After Next | keep Stage-B adapter thinning and native storage lanes separate unless reopened with evidence |
+| Next | land exact `usize` semantics slices from the phase-294x taskboard |
+| After Next | resume mimalloc `.hako` rows after hako_alloc non-negative field migration is safe |
 
 ## Current Read
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/phases/phase-29cv/README.md`
-3. `docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md`
-4. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
+2. `docs/development/current/main/phases/phase-294x/README.md`
+3. `docs/development/current/main/design/usize-semantic-foundation-ssot.md`
+4. `docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md`
 5. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
-6. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+6. `docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md`
 
 ## Immediate Sequence
 
 1. `bash tools/checks/current_state_pointer_guard.sh`
 2. Read `latest_card_path`, `latest_card_summary`, and `current_blocker_token`
    from `CURRENT_STATE.toml`.
-3. If compiler-cleanliness continues, open one focused card for the selected
-   keeper bucket before editing code.
-4. Keep Stage-B adapter thinning as a separate BoxShape series.
-5. Do not add hot inline lowering without proof/evidence gate.
+3. Start with declared numeric metadata preservation before runtime behavior.
+4. Keep runtime semantics, backend lowering, and hako_alloc migration separate.
+5. Do not let exact `usize` silently fall back to `Integer(i64)`.
 
 ## Parked Corridor
 
