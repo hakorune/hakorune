@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: accepted
 Date: 2026-05-11
-Scope: current allocator provider / replacement hook task breakdown after M92.
+Scope: current allocator provider / replacement hook task breakdown after M93.
 Related:
   - docs/development/current/main/design/allocator-provider-boundary-v0-ssot.md
   - docs/development/current/main/design/allocator-provider-manifest-v0-ssot.md
@@ -28,6 +28,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-activation-decision-closeout-inventory-ssot.md
   - docs/development/current/main/design/allocator-provider-activation-implementation-entry-contract-ssot.md
   - docs/development/current/main/design/allocator-provider-activation-implementation-entry-contract-v0.toml
+  - docs/development/current/main/design/allocator-provider-registry-snapshot-diagnostic-report-ssot.md
   - docs/development/current/main/design/allocator-provider-lightweight-doc-sync-policy-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
 ---
@@ -72,6 +73,7 @@ then and only then consider process allocator replacement
 | M90 | activation decision diagnostic CLI surface fixing explicit CLI output with no activation | complete |
 | M91 | activation decision closeout inventory fixing coverage across M86-M90 without activation | complete |
 | M92 | activation implementation entry contract fixing the single future owner/entry while keeping activation inactive | complete |
+| M93 | registry snapshot diagnostic report fixing runtime parsing/reporting while active registry construction stays inactive | complete |
 
 ## Layer Model
 
@@ -123,6 +125,8 @@ activation entry:
 | M90 | activation decision diagnostic CLI surface | explicit CLI over caller-provided decision TOML path | activation |
 | M91 | activation decision closeout inventory | coverage guard for M86-M90 artifacts | runtime activation |
 | M92 | activation implementation entry contract | single future activation owner/entry fixture | runtime activation code |
+| M93 | registry snapshot diagnostic report | diagnostic-only report over caller-provided registry snapshot TOML | active registry construction |
+| M94 | registry snapshot CLI surface | explicit CLI output for the inactive registry snapshot report | environment discovery |
 
 ## Post-M75 Activation Entry Ladder
 
@@ -145,6 +149,8 @@ activation entry:
 | M90 | activation decision diagnostic CLI surface | explicit CLI output for the blocked decision report | activation |
 | M91 | activation decision closeout inventory | inventory guard for the complete decision diagnostic ladder | runtime activation |
 | M92 | activation implementation entry contract | single future activation owner/entry fixture | runtime activation code |
+| M93 | registry snapshot diagnostic report | runtime report for complete/missing/malformed registry snapshot input | active registry construction |
+| M94 | registry snapshot CLI surface | explicit CLI output for the inactive registry snapshot report | implicit discovery |
 
 ## Dependency Order
 
@@ -176,6 +182,7 @@ M66 task breakdown
   -> M91 activation decision closeout inventory
   -> M92 activation implementation entry contract
   -> M93 registry snapshot diagnostic report
+  -> M94 registry snapshot CLI surface
   -> later activation behavior rows only after each owner/entry SSOT
 ```
 
@@ -184,9 +191,9 @@ M66 task breakdown
 Diagnostic owner files may exist before the active runtime registry exists.
 This prevents stop-line wording from blocking diagnostic-only rows:
 
-- `src/runtime/allocator_provider_registry.rs` may own activation safety
-  diagnostics and reports. It is not an active provider registry or selection
-  implementation.
+- `src/runtime/allocator_provider_registry.rs` may own registry snapshot and
+  activation safety diagnostics/reports. It is not an active provider registry
+  or selection implementation.
 - `src/runtime/allocator_provider_activation_decision.rs` may own activation
   decision diagnostics and reports. It does not select providers, consume
   proofs, prepare rollback, open the gate, install hooks, or replace the
@@ -237,7 +244,7 @@ ladder was being named.
 
 Historical M75 sentence kept for past guards: Provider proof boundary ladder is now closed through M75.
 
-M87 and later follow the lightweight docs sync policy. M87-M92 are landed and
+M87 and later follow the lightweight docs sync policy. M87-M93 are landed and
 M91 remains the latest closeout checkpoint:
 
 1. SSOT or implementation doc first.
@@ -256,9 +263,10 @@ Historical M86 sentence kept for past guards: The next safe row is M87 activatio
 
 The activation decision diagnostic ladder is now closed through M91. M92 names
 the single future activation implementation owner/entry without creating
-runtime activation behavior. The next safe row is M93 registry snapshot
-diagnostic report. It may add only diagnostic-only parsing/reporting over
-caller-provided registry snapshot TOML text and must keep active registry
-construction, provider selection, proof consumption, rollback preparation,
-activation gate opening, hook activation, process allocator replacement, and
-hidden environment discovery split into later guarded rows.
+runtime activation behavior. M93 adds diagnostic-only parsing/reporting over
+caller-provided registry snapshot TOML text while keeping active registry
+construction inactive. The next safe row is M94 registry snapshot CLI surface.
+It may expose only an explicit caller-provided TOML path and must keep active
+registry construction, provider selection, proof consumption, rollback
+preparation, activation gate opening, hook activation, process allocator
+replacement, and hidden environment discovery split into later guarded rows.

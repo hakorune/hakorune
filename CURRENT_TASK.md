@@ -79,14 +79,15 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - current allocator/provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
-  (closed through M92; M93 is registry snapshot diagnostic report)
+  (closed through M93; M94 is registry snapshot CLI surface)
 - detailed landed history: phase-291x card files and
   `docs/development/current/main/CURRENT_STATE.toml`
-- next: continue with M93 registry snapshot diagnostic report over
-  caller-provided TOML text; M91 is the latest closeout checkpoint, M92 names
-  the future activation owner/entry, and provider selection, proof consumption,
-  rollback preparation, gate opening, hook activation, native activation, and
-  process allocator replacement remain inactive
+- next: continue with M94 registry snapshot CLI surface over an explicit
+  caller-provided TOML path; M91 is the latest closeout checkpoint, M92 names
+  the future activation owner/entry, M93 adds the inactive registry snapshot
+  runtime report, and active registry construction, provider selection, proof
+  consumption, rollback preparation, gate opening, hook activation, native
+  activation, and process allocator replacement remain inactive
 - VM retreat reading: new substrate / allocator features should target
   `llvm/exe` / pure-first acceptance first; `vm-hako` is reference/monitor only
   and `rust-vm` is bootstrap/recovery/compat keep, so broad VM parity is not a
