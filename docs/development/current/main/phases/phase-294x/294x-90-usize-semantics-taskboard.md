@@ -25,7 +25,7 @@ one commit unless a row explicitly says it is docs-only.
 | `294x-03` | Complete | AST JSON / Program(JSON) numeric metadata | declared param/return type text round-trips through JSON metadata without changing runtime semantics |
 | `294x-04` | Complete | MIR exact numeric type model | signedness/width/pointer-width are represented as side-car MIR metadata distinct from `MirType::Integer` |
 | `294x-05` | Complete | exact numeric constants and conversions | constants and dynamic integer conversions range-check into exact numeric metadata |
-| `294x-06` | Pending | verifier negative/range fail-fast | `usize` assignments reject negative and out-of-range values under strict/dev gates |
+| `294x-06` | Complete | verifier negative/range fail-fast | statically known exact numeric field writes reject negative and out-of-range values under the MIR verifier |
 | `294x-07` | Pending | overflow and checked arithmetic policy | plain typed `usize` arithmetic has checked/fail-fast behavior; wrapping stays explicit |
 | `294x-08` | Pending | unsigned compare and logical shift | comparisons and right shift stop using signed i64 semantics for `usize` |
 | `294x-09` | Pending | PHI/Select numeric unification | exact numeric kinds merge conservatively and fail fast on unsupported mixes |
@@ -86,8 +86,8 @@ one commit unless a row explicitly says it is docs-only.
 
 ### Verifier / Guards
 
-- [ ] Reject negative assignment to `usize`.
-- [ ] Reject `-1` sentinel assignment to `usize`.
+- [x] Reject negative statically known field assignment to `usize`.
+- [x] Reject `-1` sentinel field assignment to `usize` when statically known.
 - [ ] Reject unsupported backend lowering.
 - [ ] Guard against silent fallback to `Integer(i64)`.
 - [ ] Keep strict/dev checks before broad production acceptance.

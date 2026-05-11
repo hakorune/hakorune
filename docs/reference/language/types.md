@@ -55,13 +55,15 @@ Current live semantics are intentionally narrow:
   signedness/width distinctly from `MirType::Integer`. It is not attached to
   runtime values yet.
 - Exact numeric constant metadata and dynamic `Integer(i64)` conversion helpers
-  range-check against signedness and resolved width. These checks are not yet
-  wired into verifier assignment rules or VM runtime values.
+  range-check against signedness and resolved width. The MIR verifier uses
+  these checks for statically known writes to exact numeric declared fields.
+  Param/local/dynamic verifier checks and VM runtime values remain deferred.
 
 Deferred and not accepted by this row:
 
 - literal suffixes such as `1u64` or `64usize`
-- verifier/runtime range checks and unsigned overflow behavior
+- param/local/dynamic verifier checks, runtime range checks, and unsigned
+  overflow behavior
 - `u64` values outside signed i64
 - wrapping / checked arithmetic syntax
 - logical right-shift syntax or intrinsic distinct from current `>>`

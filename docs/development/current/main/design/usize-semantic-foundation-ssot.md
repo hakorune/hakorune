@@ -43,6 +43,9 @@ Live today:
   plus target-resolved signedness/width distinctly from `MirType::Integer`;
 - exact numeric constant metadata and dynamic `Integer(i64)` conversion helpers
   range-check values against signedness and resolved width;
+- the MIR verifier rejects statically known exact numeric field writes when the
+  base object and assigned integer value resolve through same-function
+  `NewBox` / Box-typed parameter / `Copy` and `Const(Integer)` / `Copy` chains;
 - typed-object planning can use numeric annotations as inline i64 storage
   hints;
 - VM runtime values use `Integer(i64)`;
@@ -50,7 +53,7 @@ Live today:
 
 Not live today:
 
-- verifier/runtime unsigned range checks;
+- param/local/dynamic verifier checks and runtime unsigned range checks;
 - numeric literal suffixes such as `0usize`;
 - unsigned comparisons distinct from signed i64 comparisons;
 - wrapping / checked arithmetic vocabulary;
@@ -184,9 +187,10 @@ Do not store sentinel values in `usize`.
 
 ### 6. Verifier
 
-- Add a numeric range verifier for annotated fields and params.
-- Reject negative assignment to `usize`.
-- Reject `-1` sentinel assignment to `usize`.
+- Extend the first static field-write numeric verifier to annotated params,
+  locals, and dynamic values.
+- Keep rejecting negative assignment to `usize`.
+- Keep rejecting `-1` sentinel assignment to `usize`.
 - Detect plain arithmetic overflow when statically knowable.
 - Insert runtime checks only through an explicit lowering contract.
 - Reject unsupported backend routes with stable diagnostics.

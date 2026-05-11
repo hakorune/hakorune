@@ -13,6 +13,7 @@ mod cfg;
 mod dom;
 mod inline_required;
 mod legacy;
+mod numeric_substrate;
 mod rune_contracts;
 mod ssa;
 mod string_kernel;
@@ -37,6 +38,12 @@ impl MirVerifier {
         // Stage‑B/selfhost 専用: dev verify を一時緩和するためのトグル
         if !crate::config::env::stageb_dev_verify_enabled() {
             return Ok(());
+        }
+
+        if let Err(mut numeric_errors) =
+            numeric_substrate::check_exact_numeric_field_assignments(module)
+        {
+            self.errors.append(&mut numeric_errors);
         }
 
         for (_name, function) in &module.functions {

@@ -51,13 +51,16 @@
   `MirType::Integer`.
 - `294x-05`: exact numeric constant metadata and dynamic `Integer(i64)`
   conversions now range-check through the MIR numeric substrate model.
+- `294x-06`: the MIR verifier now rejects statically known out-of-range writes
+  to exact numeric declared fields, including `usize` fields initialized with
+  `-1`.
 
 ## First Implementation Direction
 
 Start with metadata preservation before runtime behavior:
 
 1. attach exact numeric metadata to MIR facts/signature consumers;
-2. add verifier/fail-fast boundaries for assignments and sentinels;
+2. extend verifier/fail-fast boundaries beyond statically known field writes;
 3. add VM/backend exact `usize` behavior;
 4. migrate hako_alloc non-negative fields.
 

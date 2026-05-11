@@ -100,6 +100,19 @@ pub enum VerificationError {
         instruction_index: Option<usize>,
         reason: String,
     },
+    /// Exact numeric field assignment verifier violation.
+    ExactNumericRangeViolation {
+        function: String,
+        block: BasicBlockId,
+        instruction_index: usize,
+        box_name: String,
+        field: String,
+        declared_type_name: String,
+        value: i128,
+        min: i128,
+        max: i128,
+        reason: String,
+    },
 }
 
 impl std::fmt::Display for VerificationError {
@@ -294,6 +307,33 @@ impl std::fmt::Display for VerificationError {
                         tag, function, reason
                     )
                 }
+            }
+            VerificationError::ExactNumericRangeViolation {
+                function,
+                block,
+                instruction_index,
+                box_name,
+                field,
+                declared_type_name,
+                value,
+                min,
+                max,
+                reason,
+            } => {
+                write!(
+                    f,
+                    "[mir/verify:numeric_range] function={} at block {} instruction {} field={}.{} declared_type={} value={} range={}..={} reason={}",
+                    function,
+                    block,
+                    instruction_index,
+                    box_name,
+                    field,
+                    declared_type_name,
+                    value,
+                    min,
+                    max,
+                    reason
+                )
             }
         }
     }
