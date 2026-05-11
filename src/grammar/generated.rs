@@ -50,4 +50,5 @@ pub static SYNTAX_ALLOWED_STATEMENTS: &[&str] = &[
     "box", "global", "function", "static", "if", "loop", "break", "return", "print", "nowait",
     "include", "local", "outbox", "try", "fini", "throw", "using", "from", "peek",
 ];
+
 pub static SYNTAX_ALLOWED_BINOPS: &[&str] = &["add", "sub", "mul", "div", "and", "or", "eq", "ne"];

@@ -33,6 +33,41 @@ fn parse_quoted_string_items(text: &str) -> Vec<String> {
     out
 }
 
+fn push_static_str_slice(code: &mut String, name: &str, items: &[String]) {
+    let inline_items = items
+        .iter()
+        .map(|item| format!("\"{}\"", item))
+        .collect::<Vec<_>>()
+        .join(", ");
+    let inline = format!("\npub static {name}: &[&str] = &[{inline_items}];");
+    if inline.len().saturating_sub(1) <= 100 {
+        code.push_str(&inline);
+        code.push('\n');
+        return;
+    }
+
+    code.push_str(&format!("\npub static {name}: &[&str] = &[\n"));
+    let mut line = String::from("    ");
+    for item in items {
+        let elem = format!("\"{}\",", item);
+        let sep_len = usize::from(line.len() > 4);
+        if line.len() + sep_len + elem.len() > 100 {
+            code.push_str(&line);
+            code.push('\n');
+            line.clear();
+            line.push_str("    ");
+        } else if line.len() > 4 {
+            line.push(' ');
+        }
+        line.push_str(&elem);
+    }
+    if line.len() > 4 {
+        code.push_str(&line);
+        code.push('\n');
+    }
+    code.push_str("];\n");
+}
+
 fn main() {
     // Path to grammar spec
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
@@ -486,7 +521,9 @@ type_rules = [
         r#"
 pub fn lookup_keyword(word: &str) -> Option<&'static str> {
     for (k, t) in KEYWORDS {
-        if *k == word { return Some(*t); }
+        if *k == word {
+            return Some(*t);
+        }
     }
     None
 }
@@ -518,17 +555,9 @@ pub fn lookup_keyword(word: &str) -> Option<&'static str> {
     if syntax_binops.is_empty() {
         syntax_binops = vec!["add".into(), "sub".into(), "mul".into(), "div".into()];
     }
-    // Emit syntax arrays
-    code.push_str("\npub static SYNTAX_ALLOWED_STATEMENTS: &[&str] = &[\n");
-    for k in &syntax_statements {
-        code.push_str(&format!("    \"{}\",\n", k));
-    }
-    code.push_str("];");
-    code.push_str("\npub static SYNTAX_ALLOWED_BINOPS: &[&str] = &[\n");
-    for k in &syntax_binops {
-        code.push_str(&format!("    \"{}\",\n", k));
-    }
-    code.push_str("];");
+    // Emit syntax arrays in rustfmt-stable layout so generated.rs stays clean.
+    push_static_str_slice(&mut code, "SYNTAX_ALLOWED_STATEMENTS", &syntax_statements);
+    push_static_str_slice(&mut code, "SYNTAX_ALLOWED_BINOPS", &syntax_binops);
 
     fs::write(&out_file, code).expect("write generated.rs");
     println!("cargo:rerun-if-changed={}", grammar_file.display());
