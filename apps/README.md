@@ -238,6 +238,22 @@ bash tools/checks/k2_wide_mimalloc_size_to_bin_inline_exe_guard.sh
 - dynamic `static_data_load` と RawBuf/RawArray route を合成
 - wider inline shape / general mimalloc bin algorithm は追加しない
 
+#### mimalloc-size-class-policy-proof
+**場所**: `mimalloc-size-class-policy-proof/main.hako`
+M163 proof。`hako_alloc` の `SizeClassBox` が mimalloc-shaped
+size-to-bin / bin-size policy を純粋関数として持ち、既存 `LayoutBox`
+互換 facade が small/medium 行動を維持することを固定する。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_size_class_policy_guard.sh
+```
+
+**特徴**:
+- upstream mimalloc v3.3.2 の 8-byte word / 73-bin 形を `.hako` policy に固定
+- allocator page state、free-list、RawBuf/RawArray、OSVM、TLS、atomic は触らない
+- `LayoutBox` は現行 `mimalloc-lite` / production facade 互換のまま
+- provider activation / hook / process allocator replacement は追加しない
+
 #### mimalloc-osvm-page-proof
 **場所**: `mimalloc-osvm-page-proof/main.hako`
 M25 substrate proof。`OsVmCoreBox.reserve_bytes_i64/commit_bytes_i64/decommit_bytes_i64`
@@ -647,6 +663,7 @@ box TreeNode {
 - [x] mimalloc-two-class-page-proof（M22 two-class page proof）
 - [x] mimalloc-dynamic-bin-proof（M23 dynamic bin proof）
 - [x] mimalloc-size-to-bin-inline-proof（M24 size_to_bin inline proof）
+- [x] mimalloc-size-class-policy-proof（M163 size-class policy owner proof）
 - [x] mimalloc-osvm-page-proof（M25 OSVM page proof）
 - [x] mimalloc-ptr-atomic-store-proof（M35 native pointer atomic store proof）
 - [x] mimalloc-ptr-atomic-load-proof（M39 native pointer atomic load proof）

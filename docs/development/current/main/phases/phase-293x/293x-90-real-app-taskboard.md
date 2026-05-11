@@ -125,6 +125,7 @@
 - [x] `293x-160` mimalloc `.hako` port purpose realignment
 - [x] `293x-161` low-level capability language reference sync
 - [x] `293x-162` mimalloc upstream analysis and `.hako` port plan
+- [x] `293x-163` M163 mimalloc size-class policy owner
 
 ## Gates
 

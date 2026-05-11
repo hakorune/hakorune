@@ -146,6 +146,10 @@ The current two-class `LayoutBox` may remain as a compatibility shell while
 `HakoAllocHeap` migrates. This avoids changing allocator state and size-class
 policy in the same row.
 
+M163 landed this owner as `lang/src/hako_alloc/memory/size_class_box.hako`.
+`LayoutBox` now delegates size decisions to `SizeClassBox` while preserving the
+current small/medium compatibility behavior for existing allocator apps.
+
 ## Stop-The-Line Signals
 
 Stop and split the row if any implementation attempts to:

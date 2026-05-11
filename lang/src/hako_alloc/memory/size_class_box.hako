@@ -1,0 +1,69 @@
+// size_class_box.hako — mimalloc-shaped size-class policy owner
+// Responsibility: pure size -> bin and bin -> block-size decisions only.
+// This module does not own pages, free lists, OS memory, or allocator hooks.
+
+static box SizeClassBox {
+  word_size() {
+    return 8
+  }
+
+  max_regular_bin() {
+    return 72
+  }
+
+  huge_bin() {
+    return 73
+  }
+
+  normalize_size(size) {
+    if size <= 0 { return 1 }
+    return size
+  }
+
+  bin_size(bin) {
+    if bin <= 0 { return -1 }
+    if bin <= 8 { return bin * me.word_size() }
+    if bin > me.max_regular_bin() { return -1 }
+
+    local x = bin + 3
+    local bit_group = x / 4
+    local top = x - (bit_group * 4)
+    local scale = 1
+    local shift_count = bit_group - 2
+    local i = 0
+    loop(i < shift_count) {
+      scale = scale * 2
+      i = i + 1
+    }
+
+    local words = (5 + top) * scale
+    return words * me.word_size()
+  }
+
+  size_to_bin(size) {
+    local n = me.normalize_size(size)
+    local bin = 1
+    loop(bin <= me.max_regular_bin()) {
+      if n <= me.bin_size(bin) {
+        return bin
+      }
+      bin = bin + 1
+    }
+    return me.huge_bin()
+  }
+
+  good_size(size) {
+    local bin = me.size_to_bin(size)
+    if bin == me.huge_bin() {
+      return -1
+    }
+    return me.bin_size(bin)
+  }
+
+  accepts(size) {
+    if me.size_to_bin(size) == me.huge_bin() {
+      return false
+    }
+    return true
+  }
+}

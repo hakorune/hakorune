@@ -26,6 +26,8 @@ Principles
     pointer atomics remain substrate route facts.
   - `HakoAllocPageSourcePolicy` owns the `.hako` page-source policy seam only;
     OSVM reserve/commit/decommit metal remains substrate/native keep.
+  - `SizeClassBox` owns mimalloc-shaped pure size-class policy. `LayoutBox`
+    remains the small/medium compatibility facade until the page heap migrates.
 
 Design owners
 - Policy/state stop-line:
@@ -78,3 +80,4 @@ Current modules
 - `memory.page_source_policy_box`
 - `memory.remote_free_policy_box`
 - `memory.refcell_box`
+- `memory.size_class_box`

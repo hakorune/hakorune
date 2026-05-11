@@ -1,0 +1,102 @@
+// mimalloc-size-class-policy-proof
+// Purpose: prove the hako_alloc size-class policy owner without allocator state.
+
+using selfhost.hako_alloc.memory.size_class_box as SizeClassBox
+using selfhost.hako_alloc.memory.layout_box as LayoutBox
+
+static box Main {
+    main(args) {
+        local b0 = SizeClassBox.size_to_bin(0)
+        local b1 = SizeClassBox.size_to_bin(1)
+        local b9 = SizeClassBox.size_to_bin(9)
+        local b32 = SizeClassBox.size_to_bin(32)
+        local b48 = SizeClassBox.size_to_bin(48)
+        local b64 = SizeClassBox.size_to_bin(64)
+        local b65 = SizeClassBox.size_to_bin(65)
+        local b81 = SizeClassBox.size_to_bin(81)
+        local b1024 = SizeClassBox.size_to_bin(1024)
+        local b65536 = SizeClassBox.size_to_bin(65536)
+        local b4194304 = SizeClassBox.size_to_bin(4194304)
+        local b4194305 = SizeClassBox.size_to_bin(4194305)
+
+        local s1 = SizeClassBox.bin_size(1)
+        local s4 = SizeClassBox.bin_size(4)
+        local s8 = SizeClassBox.bin_size(8)
+        local s9 = SizeClassBox.bin_size(9)
+        local s10 = SizeClassBox.bin_size(10)
+        local s12 = SizeClassBox.bin_size(12)
+        local s13 = SizeClassBox.bin_size(13)
+        local s24 = SizeClassBox.bin_size(24)
+        local s48 = SizeClassBox.bin_size(48)
+        local s60 = SizeClassBox.bin_size(60)
+        local s72 = SizeClassBox.bin_size(72)
+
+        local g0 = SizeClassBox.good_size(0)
+        local g33 = SizeClassBox.good_size(33)
+        local g65 = SizeClassBox.good_size(65)
+        local g81 = SizeClassBox.good_size(81)
+        local g524289 = SizeClassBox.good_size(524289)
+        local g4194305 = SizeClassBox.good_size(4194305)
+
+        local layout8 = LayoutBox.class_id(8)
+        local layout48 = LayoutBox.class_id(48)
+        local layout80 = LayoutBox.class_id(80)
+        local layout4194305 = LayoutBox.class_id(4194305)
+        local layout_size0 = LayoutBox.class_size(0)
+        local layout_size1 = LayoutBox.class_size(1)
+        local layout_accept64 = 0
+        if LayoutBox.accepts(64) {
+            layout_accept64 = 1
+        }
+        local layout_accept65 = 0
+        if LayoutBox.accepts(65) {
+            layout_accept65 = 1
+        }
+
+        local roundtrip = 0
+        if SizeClassBox.bin_size(SizeClassBox.size_to_bin(1)) >= 1 {
+            roundtrip = roundtrip + 1
+        }
+        if SizeClassBox.bin_size(SizeClassBox.size_to_bin(33)) >= 33 {
+            roundtrip = roundtrip + 1
+        }
+        if SizeClassBox.bin_size(SizeClassBox.size_to_bin(65)) >= 65 {
+            roundtrip = roundtrip + 1
+        }
+        if SizeClassBox.bin_size(SizeClassBox.size_to_bin(1025)) >= 1025 {
+            roundtrip = roundtrip + 1
+        }
+        if SizeClassBox.bin_size(SizeClassBox.size_to_bin(65535)) >= 65535 {
+            roundtrip = roundtrip + 1
+        }
+
+        local monotonic = 0
+        if SizeClassBox.size_to_bin(32) <= SizeClassBox.size_to_bin(33) {
+            monotonic = monotonic + 1
+        }
+        if SizeClassBox.size_to_bin(64) <= SizeClassBox.size_to_bin(65) {
+            monotonic = monotonic + 1
+        }
+        if SizeClassBox.size_to_bin(80) <= SizeClassBox.size_to_bin(81) {
+            monotonic = monotonic + 1
+        }
+        if SizeClassBox.size_to_bin(65536) <= SizeClassBox.size_to_bin(65537) {
+            monotonic = monotonic + 1
+        }
+
+        print("mimalloc-size-class-policy-proof")
+        print("bins=" + b0 + "," + b1 + "," + b9 + "," + b32 + "," + b48 + "," + b64 + "," + b65 + "," + b81 + "," + b1024 + "," + b65536 + "," + b4194304 + "," + b4194305)
+        print("sizes=" + s1 + "," + s4 + "," + s8 + "," + s9 + "," + s10 + "," + s12 + "," + s13 + "," + s24 + "," + s48 + "," + s60 + "," + s72)
+        print("good=" + g0 + "," + g33 + "," + g65 + "," + g81 + "," + g524289 + "," + g4194305)
+        print("layout=" + layout8 + "," + layout48 + "," + layout80 + "," + layout4194305 + "," + layout_size0 + "," + layout_size1 + "," + layout_accept64 + "," + layout_accept65)
+        print("checks=" + roundtrip + "," + monotonic)
+
+        if b0 == 1 && b1 == 1 && b9 == 2 && b32 == 4 && b48 == 6 && b64 == 8 && b65 == 9 && b81 == 10 && b1024 == 24 && b65536 == 48 && b4194304 == 72 && b4194305 == 73 && s1 == 8 && s4 == 32 && s8 == 64 && s9 == 80 && s10 == 96 && s12 == 128 && s13 == 160 && s24 == 1024 && s48 == 65536 && s60 == 524288 && s72 == 4194304 && g0 == 8 && g33 == 40 && g65 == 80 && g81 == 96 && g524289 == 655360 && g4194305 == -1 && layout8 == 0 && layout48 == 1 && layout80 == -1 && layout4194305 == -1 && layout_size0 == 32 && layout_size1 == 64 && layout_accept64 == 1 && layout_accept65 == 0 && roundtrip == 5 && monotonic == 4 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

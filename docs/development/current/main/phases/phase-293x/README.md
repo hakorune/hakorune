@@ -382,7 +382,10 @@ inference for the allocator release path.
 - `293x-162`: mimalloc upstream analysis and `.hako` port plan landed, fixing
   `microsoft/mimalloc` `v3.3.2` as the primary reference and `M163` as the next
   pure size-class policy row under `hako_alloc`.
+- `293x-163`: M163 mimalloc size-class policy owner landed, adding
+  `SizeClassBox` and keeping `LayoutBox` as the current small/medium
+  compatibility facade.
 - Next: resume `.hako` mimalloc / `hako_alloc` implementation slices on top of
-  the capability substrate, starting with `M163 mimalloc size-class policy
-  owner`. M104 is next only if the optional allocator-provider
+  the capability substrate, continuing with `M164 hako_alloc layout migration`.
+  M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.

@@ -2,22 +2,24 @@
 // Responsibility: allocator policy decisions for the real-app port.
 // This is not native layout/ABI ownership.
 
+using selfhost.hako_alloc.memory.size_class_box as SizeClassBox
+
 static box LayoutBox {
   normalize_size(size) {
-    if size <= 0 { return 1 }
-    return size
+    return SizeClassBox.normalize_size(size)
   }
 
   class_id(size) {
-    local n = me.normalize_size(size)
-    if n <= 32 { return 0 }
-    if n <= 64 { return 1 }
+    local block_size = SizeClassBox.good_size(size)
+    if block_size < 0 { return -1 }
+    if block_size <= 32 { return 0 }
+    if block_size <= 64 { return 1 }
     return -1
   }
 
   class_size(class_id) {
-    if class_id == 0 { return 32 }
-    if class_id == 1 { return 64 }
+    if class_id == 0 { return SizeClassBox.bin_size(4) }
+    if class_id == 1 { return SizeClassBox.bin_size(8) }
     return -1
   }
 
