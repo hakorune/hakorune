@@ -169,6 +169,7 @@ list_profiles() {
     - tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_cli_surface_guard.sh
     - tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_entry_contract_guard.sh
     - tools/checks/k2_wide_allocator_provider_proof_consumption_failfast_entry_guard.sh
+    - tools/checks/k2_wide_allocator_provider_selected_provider_precondition_guard.sh
     - tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
     - tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
     - tools/checks/k2_wide_metal_keep_inventory_guard.sh

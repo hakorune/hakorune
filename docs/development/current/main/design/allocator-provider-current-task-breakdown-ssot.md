@@ -40,6 +40,8 @@ Related:
   - docs/development/current/main/design/allocator-provider-proof-bundle-consumption-cli-surface-ssot.md
   - docs/development/current/main/design/allocator-provider-proof-bundle-consumption-entry-contract-ssot.md
   - docs/development/current/main/design/allocator-provider-proof-consumption-failfast-entry-ssot.md
+  - docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md
+  - docs/development/current/main/design/allocator-provider-selected-provider-precondition-ssot.md
   - docs/development/current/main/design/allocator-provider-lightweight-doc-sync-policy-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
 ---
@@ -96,6 +98,7 @@ then and only then consider process allocator replacement
 | M99 | proof bundle consumption CLI surface fixing explicit TOML-path output while proof consumption stays inactive | complete |
 | M100 | proof bundle consumption entry contract fixing the single future behavior owner/entry while proof consumption stays inactive | complete |
 | M101 | proof consumption fail-fast entry fixing the reserved runtime entry while proof consumption stays inactive | complete |
+| M102 | selected-provider precondition fixing caller-provided selected provider validation while proof consumption stays inactive | complete |
 
 ## Layer Model
 
@@ -158,6 +161,10 @@ activation entry:
 | M99 | proof bundle consumption CLI surface | explicit CLI output for the inactive proof-bundle consumption report | proof consumption |
 | M100 | proof bundle consumption entry contract | single future proof-consumption owner/entry fixture | runtime proof consumption |
 | M101 | proof consumption fail-fast entry | runtime attempt report blocking on missing selected provider | actual proof consumption |
+| M102 | selected-provider precondition | runtime attempt report validating caller-provided selected provider | provider selection, proof consumption |
+| M103 | proof validation for selected provider | selected provider proof operation/capability validation | proof consumption token |
+| M104 | proof bundle consumption token | in-memory token after selected provider and proof validation pass | gate opening, hook install, replacement |
+| M105 | rollback preparation fail-fast entry | rollback precondition report blocked without token/facts | rollback execution, gate opening, replacement |
 
 ## Post-M75 Activation Entry Ladder
 
@@ -191,6 +198,10 @@ activation entry:
 | M99 | proof bundle consumption CLI surface | explicit CLI output for the inactive proof-bundle consumption report | proof consumption |
 | M100 | proof bundle consumption entry contract | single future proof-consumption owner/entry fixture | runtime proof consumption |
 | M101 | proof consumption fail-fast entry | runtime attempt report blocking on missing selected provider | actual proof consumption |
+| M102 | selected-provider precondition | runtime attempt report validating caller-provided selected provider | provider selection, proof consumption |
+| M103 | proof validation for selected provider | selected provider proof operation/capability validation | proof consumption token |
+| M104 | proof bundle consumption token | in-memory token after selected provider and proof validation pass | gate opening, hook install, replacement |
+| M105 | rollback preparation fail-fast entry | rollback precondition report blocked without token/facts | rollback execution, gate opening, replacement |
 
 ## Dependency Order
 
@@ -233,6 +244,10 @@ M66 task breakdown
   -> M99 proof bundle consumption CLI surface
   -> M100 proof bundle consumption entry contract
   -> M101 proof consumption fail-fast entry
+  -> M102 selected-provider precondition
+  -> M103 proof validation for selected provider
+  -> M104 proof bundle consumption token
+  -> M105 rollback preparation fail-fast entry
   -> later activation behavior rows only after each owner/entry SSOT
 ```
 
@@ -294,11 +309,12 @@ ladder was being named.
 
 Historical M75 sentence kept for past guards: Provider proof boundary ladder is now closed through M75.
 
-M87 and later follow the lightweight docs sync policy. M87-M101 are landed.
+M87 and later follow the lightweight docs sync policy. M87-M102 are landed.
 M95 is the latest closeout checkpoint, M98 is the latest runtime diagnostic
 checkpoint, M99 is the latest CLI diagnostic checkpoint, M98B is the latest
-BoxShape cleanup checkpoint, and M100 is the latest behavior owner/entry
-checkpoint. M101 is the first small runtime fail-fast implementation row:
+BoxShape cleanup checkpoint, M100 is the latest behavior owner/entry
+checkpoint, M101 is the first small runtime fail-fast implementation row, and
+M102 is the first caller-provided selected-provider precondition row:
 
 1. SSOT or implementation doc first.
 2. Small runtime/CLI code only when the row explicitly allows it.
@@ -338,6 +354,9 @@ through an explicit TOML-path CLI while keeping proof consumption inactive. M100
 reserves the single future proof-bundle consumption behavior owner/entry under
 the activation owner while keeping proof consumption inactive. M101 creates the
 reserved runtime entry as a fail-fast attempt report that blocks when a real
-selected provider is absent. Any later activation behavior row must keep using
-explicit owner/entry contracts and must not piggyback on diagnostic CLI
-surfaces.
+selected provider is absent. M102 validates only a caller-provided selected
+provider precondition; it does not select a provider and does not consume
+proofs. The next safe row is M103 proof validation for the selected provider,
+still without creating a proof consumption token. Any later activation behavior
+row must keep using explicit owner/entry contracts and must not piggyback on
+diagnostic CLI surfaces.

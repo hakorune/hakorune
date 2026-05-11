@@ -360,5 +360,11 @@ inference for the allocator release path.
 - `293x-156`: M100 allocator provider proof bundle consumption entry contract
   landed, reserving the future behavior owner/entry under the activation owner
   while keeping proof consumption and activation inactive.
-- Next: any later activation behavior row must use its own owner/entry SSOT and
-  must not piggyback on the diagnostic CLI surfaces.
+- `293x-157`: M101 allocator provider proof consumption fail-fast entry landed,
+  creating the reserved runtime attempt report and blocking when a real selected
+  provider is absent.
+- `293x-158`: M102 allocator provider selected-provider precondition landed,
+  validating only a caller-provided selected provider while keeping provider
+  selection and proof consumption inactive.
+- Next: M103 may validate selected-provider proof facts, still without creating
+  a proof consumption token or piggybacking on diagnostic CLI surfaces.

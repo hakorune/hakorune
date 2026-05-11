@@ -117,6 +117,8 @@
 - [x] `293x-154` M98B allocator provider runtime diagnostic module boundaries
 - [x] `293x-155` M99 allocator provider proof bundle consumption CLI surface
 - [x] `293x-156` M100 allocator provider proof bundle consumption entry contract
+- [x] `293x-157` M101 allocator provider proof consumption fail-fast entry
+- [x] `293x-158` M102 allocator provider selected-provider precondition
 
 ## Gates
 
