@@ -6,7 +6,9 @@ Scope: post-M101 allocator provider activation implementation ladder.
 Related:
   - docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md
   - docs/development/current/main/design/allocator-provider-proof-consumption-failfast-entry-ssot.md
+  - docs/tools/check-scripts-index.md
   - src/runtime/allocator_provider_activation.rs
+  - tools/checks/k2_wide_allocator_gate.sh
 ---
 
 # Allocator Provider Post-M101 Implementation Ladder (SSOT)
@@ -25,6 +27,40 @@ src/runtime/allocator_provider_activation.rs
 
 Diagnostic report owners remain diagnostic-only. CLI diagnostic surfaces must
 not become behavior entries.
+
+## Growth Control
+
+Post-M101 rows must keep the implementation ladder small. These are stop-line
+signals, not cleanup suggestions:
+
+1. `tools/checks/k2_wide_allocator_gate.sh` keeps growing per row.
+2. `src/runtime/allocator_provider_activation.rs` stops being an orchestration
+   entry and starts owning detailed proof/rollback/gate logic.
+3. Provider names, mimalloc names, hook names, or replacement names appear in
+   `.inc` route/matcher logic.
+
+When signal 1 appears, prefer one post-M101 allocator-provider guard that calls
+focused unit tests and shared forbidden-pattern checks. Do not add a full new
+allocator gate step by default.
+
+M103 must not add a new per-row `k2_wide_allocator_provider_*` step to
+`tools/checks/k2_wide_allocator_gate.sh`. If M103 needs a new guard, make it a
+focused proof-validation guard and run it from a consolidated post-M101
+allocator-provider guard or directly during the row proof bundle. The guard
+should prove it is not individually registered in the wide allocator gate.
+
+When signal 2 appears, keep the public entry in
+`allocator_provider_activation.rs` and move internals into a narrower runtime
+module. Candidate internal owners:
+
+```text
+src/runtime/allocator_provider_proof_validation.rs
+src/runtime/allocator_provider_proof_consumption_token.rs
+src/runtime/allocator_provider_rollback_preflight.rs
+```
+
+When signal 3 appears, stop immediately. Stage0 / `.inc` must not learn
+allocator provider semantics.
 
 ## Runtime Ladder
 
@@ -61,7 +97,26 @@ provider produces a ready precondition report but still keeps
 `proof_bundle_consumed=false`.
 
 M103 validates the proof facts for the selected provider. It may report proof
-coverage, but it must not create a consumption token.
+coverage, but it must not create a consumption token. If the validation logic
+needs more than a small helper, create a proof-validation internal module and
+keep `allocator_provider_activation.rs` as orchestration only.
+
+M103 implementation shape:
+
+```text
+src/runtime/allocator_provider_activation.rs
+  public entry / report assembly only
+
+src/runtime/allocator_provider_proof_validation.rs
+  selected provider proof fact validation
+  requested operation coverage checks
+  capability/readiness checks
+  focused unit tests
+```
+
+The validation module API must stay `pub(crate)` and must not select providers,
+consume proofs, prepare rollback, open gates, install hooks, or replace the
+process allocator.
 
 M104 is the first row allowed to produce an in-memory proof bundle consumption
 token. Even then, rollback, gate opening, hook install, native activation, and
@@ -72,8 +127,8 @@ execute rollback and does not open the gate.
 
 ## Next Row
 
-The next concrete row after M101 is:
+The next concrete row after M102 is:
 
 ```text
-M102 ALLOCATOR-PROVIDER-SELECTED-PROVIDER-PRECONDITION
+M103 ALLOCATOR-PROVIDER-SELECTED-PROVIDER-PROOF-VALIDATION
 ```

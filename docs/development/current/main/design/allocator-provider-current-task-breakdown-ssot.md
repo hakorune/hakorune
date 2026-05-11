@@ -318,7 +318,8 @@ M102 is the first caller-provided selected-provider precondition row:
 
 1. SSOT or implementation doc first.
 2. Small runtime/CLI code only when the row explicitly allows it.
-3. Dedicated guard.
+3. Prefer an existing post-M101 guard or a tiny focused guard; do not grow
+   `tools/checks/k2_wide_allocator_gate.sh` per row by default.
 4. `current_state_pointer_guard`.
 5. `git diff --check`.
 
@@ -360,3 +361,14 @@ proofs. The next safe row is M103 proof validation for the selected provider,
 still without creating a proof consumption token. Any later activation behavior
 row must keep using explicit owner/entry contracts and must not piggyback on
 diagnostic CLI surfaces.
+
+Post-M101 growth stop-line: if `allocator_provider_activation.rs` starts owning
+detailed proof/rollback/gate internals, keep only the public orchestration entry
+there and split internals into focused runtime modules. If provider/mimalloc/hook
+names appear in `.inc` route/matcher logic, stop immediately.
+
+M103 must start with `src/runtime/allocator_provider_proof_validation.rs` for
+proof-validation internals and must not add another per-row step to
+`tools/checks/k2_wide_allocator_gate.sh`. Use a consolidated post-M101 guard or
+a focused row proof that verifies the M103 guard is not individually registered
+in the wide allocator gate.
