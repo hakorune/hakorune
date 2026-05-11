@@ -307,7 +307,39 @@ inference for the allocator release path.
   landed, defining the future explicit-input activation decision contract while
   keeping runtime parsing, CLI routing, provider selection, proof consumption,
   rollback preparation, hook activation, and allocator replacement inactive.
-- Next: M87 activation decision fixture contract. It must be docs/fixture only
-  and must not add environment discovery, implicit manifest/proof discovery,
-  provider selection, proof consumption, rollback preparation, gate opening,
-  hook activation, `#[global_allocator]`, or process allocator replacement.
+- `293x-139`: M86b allocator provider lightweight doc sync policy landed,
+  reserving heavy mirror updates for closeout rows or durable lane-policy
+  changes while keeping all activation behavior inactive.
+- `293x-140`: M87 allocator provider activation decision fixture contract
+  landed, fixing the reserved explicit decision bundle while keeping runtime
+  parsing, CLI routing, provider selection, proof consumption, rollback, gate
+  opening, hook activation, and replacement inactive.
+- `293x-141`: M88 allocator provider activation decision diagnostic owner
+  landed, naming the runtime diagnostic owner while keeping activation
+  implementation inactive.
+- `293x-142`: M89 allocator provider activation decision diagnostic report
+  landed, adding the blocked activation decision runtime report with all
+  activation outputs fixed false.
+- `293x-143`: M90 allocator provider activation decision CLI surface landed,
+  exposing the blocked activation decision report through an explicit TOML path
+  while keeping activation inactive.
+- `293x-144`: M91 allocator provider activation decision closeout inventory
+  landed, locking M86-M90 coverage before any later activation implementation.
+- `293x-145`: M92 allocator provider activation implementation entry contract
+  landed, naming the single future activation owner/entry while keeping
+  activation behavior inactive.
+- `293x-146`: M93 allocator provider registry snapshot diagnostic report
+  landed, adding the inactive registry snapshot runtime report over
+  caller-provided TOML text.
+- `293x-147`: M93B allocator provider diagnostic inactive actions landed,
+  centralizing false diagnostic outputs in one code-side SSOT.
+- `293x-148`: M94 allocator provider registry snapshot CLI surface landed,
+  exposing the inactive registry snapshot report through an explicit TOML path.
+- `293x-149`: M95 allocator provider activation diagnostic closeout inventory
+  landed, locking M92-M94/M93B coverage while keeping active registry
+  construction, provider selection, proof consumption, rollback preparation,
+  gate opening, hook activation, native activation, and replacement inactive.
+- Next: M96 selection decision diagnostic report. It must parse/report
+  caller-provided TOML text only and must not select a provider, consume proof,
+  prepare rollback, open the gate, activate hooks, or replace the process
+  allocator.

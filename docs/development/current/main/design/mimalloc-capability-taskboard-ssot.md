@@ -176,6 +176,17 @@ them into MIR-owned plan facts.
 | `M84 allocator provider activation safety CLI surface` | `live-narrow` | diagnostic CLI surface | exposes the activation safety report through an explicit caller-provided TOML path while keeping gate opening, hook activation, and replacement inactive |
 | `M85 allocator provider activation safety closeout inventory` | `live-narrow` | regression guard | inventories M76-M84 activation safety diagnostic coverage before any later activation decision row |
 | `M86 allocator provider activation decision surface proposal` | `live-docs` | decision surface proposal | defines the future explicit-input activation decision contract while keeping runtime/CLI implementation and activation inactive |
+| `M86b allocator provider lightweight docs sync policy` | `live-docs` | doc sync policy | keeps normal M87+ rows small and reserves heavy mirror updates for closeout rows or durable lane-policy changes |
+| `M87 allocator provider activation decision fixture contract` | `live-docs` | decision fixture contract | fixes the reserved explicit decision bundle while keeping runtime/CLI implementation and activation inactive |
+| `M88 allocator provider activation decision diagnostic owner` | `live-docs` | diagnostic owner boundary | names the activation decision diagnostic owner while keeping activation implementation inactive |
+| `M89 allocator provider activation decision diagnostic report` | `live-narrow` | runtime diagnostic report | adds the blocked activation decision report over caller-provided TOML text while keeping provider selection and activation inactive |
+| `M90 allocator provider activation decision CLI surface` | `live-narrow` | diagnostic CLI surface | exposes the blocked activation decision report through an explicit TOML path while keeping activation inactive |
+| `M91 allocator provider activation decision closeout inventory` | `live-narrow` | regression guard | inventories M86-M90 activation decision diagnostic coverage before any later activation implementation row |
+| `M92 allocator provider activation implementation entry contract` | `live-docs` | activation entry owner | names the single future activation owner/entry while keeping runtime activation behavior inactive |
+| `M93 allocator provider registry snapshot diagnostic report` | `live-narrow` | runtime diagnostic report | adds the inactive registry snapshot report over caller-provided TOML text while keeping active registry construction inactive |
+| `M93B allocator provider diagnostic inactive actions` | `live-narrow` | code-side inactive SSOT | centralizes false provider diagnostic outputs for diagnostic-only reports |
+| `M94 allocator provider registry snapshot CLI surface` | `live-narrow` | diagnostic CLI surface | exposes the inactive registry snapshot report through an explicit TOML path while keeping implicit discovery inactive |
+| `M95 allocator provider activation diagnostic closeout inventory` | `live-narrow` | regression guard | inventories M92-M94/M93B activation diagnostic coverage before any later selection decision report |
 
 ## Fixed Implementation Order
 
@@ -288,6 +299,17 @@ them into MIR-owned plan facts.
 107. `M84 allocator provider activation safety CLI surface`
 108. `M85 allocator provider activation safety closeout inventory`
 109. `M86 allocator provider activation decision surface proposal`
+110. `M86b allocator provider lightweight docs sync policy`
+111. `M87 allocator provider activation decision fixture contract`
+112. `M88 allocator provider activation decision diagnostic owner`
+113. `M89 allocator provider activation decision diagnostic report`
+114. `M90 allocator provider activation decision CLI surface`
+115. `M91 allocator provider activation decision closeout inventory`
+116. `M92 allocator provider activation implementation entry contract`
+117. `M93 allocator provider registry snapshot diagnostic report`
+118. `M93B allocator provider diagnostic inactive actions`
+119. `M94 allocator provider registry snapshot CLI surface`
+120. `M95 allocator provider activation diagnostic closeout inventory`
 
 This order may be split further, but it must not be inverted unless a new SSOT
 card explains the dependency change. `M11c-required-vocab` is allowed to proceed

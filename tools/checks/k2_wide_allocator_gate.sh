@@ -99,6 +99,7 @@ if [[ "${1:-}" == "--list" ]]; then
   - tools/checks/k2_wide_allocator_provider_registry_snapshot_diagnostic_report_guard.sh
   - tools/checks/k2_wide_allocator_provider_diagnostic_inactive_actions_guard.sh
   - tools/checks/k2_wide_allocator_provider_registry_snapshot_cli_surface_guard.sh
+  - tools/checks/k2_wide_allocator_provider_activation_diagnostic_closeout_guard.sh
 LIST
   exit 0
 fi
@@ -357,3 +358,6 @@ run_step "allocator provider diagnostic inactive actions guard" \
 
 run_step "allocator provider registry snapshot CLI surface guard" \
   bash tools/checks/k2_wide_allocator_provider_registry_snapshot_cli_surface_guard.sh
+
+run_step "allocator provider activation diagnostic closeout guard" \
+  bash tools/checks/k2_wide_allocator_provider_activation_diagnostic_closeout_guard.sh

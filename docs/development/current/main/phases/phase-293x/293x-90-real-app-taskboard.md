@@ -99,6 +99,17 @@
 - [x] `293x-136` M84 allocator provider activation safety CLI surface
 - [x] `293x-137` M85 allocator provider activation safety closeout inventory
 - [x] `293x-138` M86 allocator provider activation decision surface proposal
+- [x] `293x-139` M86b allocator provider lightweight doc sync policy
+- [x] `293x-140` M87 allocator provider activation decision fixture contract
+- [x] `293x-141` M88 allocator provider activation decision diagnostic owner
+- [x] `293x-142` M89 allocator provider activation decision diagnostic report
+- [x] `293x-143` M90 allocator provider activation decision CLI surface
+- [x] `293x-144` M91 allocator provider activation decision closeout inventory
+- [x] `293x-145` M92 allocator provider activation implementation entry contract
+- [x] `293x-146` M93 allocator provider registry snapshot diagnostic report
+- [x] `293x-147` M93B allocator provider diagnostic inactive actions
+- [x] `293x-148` M94 allocator provider registry snapshot CLI surface
+- [x] `293x-149` M95 allocator provider activation diagnostic closeout inventory
 
 ## Gates
 

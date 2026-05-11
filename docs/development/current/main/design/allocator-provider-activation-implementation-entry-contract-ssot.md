@@ -126,8 +126,9 @@ M92 opens the post-decision implementation ladder without adding activation:
 | M92 | activation implementation entry contract | this SSOT + reserved fixture + guard | runtime activation code |
 | M93 | registry snapshot diagnostic report | runtime report over caller-provided registry snapshot TOML text | active registry |
 | M94 | registry snapshot CLI surface | explicit CLI over caller-provided registry snapshot TOML path | implicit discovery |
-| M95 | selection decision diagnostic report | runtime report over caller-provided selection decision TOML text | provider selection |
-| M96 | selection decision CLI surface | explicit CLI over caller-provided selection decision TOML path | activation |
+| M95 | activation diagnostic closeout inventory | coverage guard for M92-M94/M93B artifacts | runtime activation |
+| M96 | selection decision diagnostic report | runtime report over caller-provided selection decision TOML text | provider selection |
+| M97 | selection decision CLI surface | explicit CLI over caller-provided selection decision TOML path | activation |
 
 Proof consumption, rollback preparation, gate opening, hook activation, and
 process allocator replacement each require their own later guarded row.

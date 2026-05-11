@@ -58,6 +58,7 @@ required_activation_implementation_entry_facts = [
 future_rows = [
   "M93 registry snapshot diagnostic report",
   "M94 registry snapshot CLI surface",
-  "M95 selection decision diagnostic report",
-  "M96 selection decision CLI surface",
+  "M95 activation diagnostic closeout inventory",
+  "M96 selection decision diagnostic report",
+  "M97 selection decision CLI surface",
 ]

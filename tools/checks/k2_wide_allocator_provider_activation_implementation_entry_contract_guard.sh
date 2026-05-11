@@ -48,6 +48,8 @@ require_text "$SSOT" "src/runtime/allocator_provider_activation.rs"
 require_text "$SSOT" "allocator_provider_activation_attempt"
 require_text "$SSOT" "[allocator-provider/activation-implementation-entry-missing]"
 require_text "$SSOT" "M93 | registry snapshot diagnostic report"
+require_text "$SSOT" "M95 | activation diagnostic closeout inventory"
+require_text "$SSOT" "M96 | selection decision diagnostic report"
 require_text "$SSOT" "would_build_registry = false"
 require_text "$SSOT" "would_select_provider = false"
 require_text "$SSOT" "would_consume_proof = false"
@@ -147,10 +149,15 @@ for fact in required:
         fail(f"missing activation implementation entry fact: {fact}")
 
 future_rows = data.get("future_rows")
-if not isinstance(future_rows, list) or len(future_rows) != 4:
-    fail("future_rows must list M93-M96")
-if future_rows[0] != "M93 registry snapshot diagnostic report":
-    fail("M93 must be registry snapshot diagnostic report")
+expected_future_rows = [
+    "M93 registry snapshot diagnostic report",
+    "M94 registry snapshot CLI surface",
+    "M95 activation diagnostic closeout inventory",
+    "M96 selection decision diagnostic report",
+    "M97 selection decision CLI surface",
+]
+if future_rows != expected_future_rows:
+    fail("future_rows must list M93-M97 in fixed order")
 PY
 
 allocator_provider_forbid_activation_gate_open "$TAG"
