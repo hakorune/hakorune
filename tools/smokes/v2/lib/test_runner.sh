@@ -243,13 +243,16 @@ run_joinir_vm_release() {
 run_quick_vm_release() {
     local fixture="$1"
     shift || true
+    local timeout_secs="${RUN_TIMEOUT_SECS:-10}"
 
-    NYASH_JOINIR_DEV=0 \
-    HAKO_JOINIR_DEV=0 \
-    HAKO_JOINIR_STRICT=0 \
-    NYASH_JOINIR_STRICT=0 \
-    HAKO_JOINIR_PLANNER_REQUIRED=0 \
-    "$NYASH_BIN" --backend vm "$fixture" "$@" 2>&1 | filter_noise
+    timeout "$timeout_secs" env \
+        NYASH_DISABLE_PLUGINS="${SMOKES_QUICK_DISABLE_PLUGINS:-1}" \
+        NYASH_JOINIR_DEV=0 \
+        HAKO_JOINIR_DEV=0 \
+        HAKO_JOINIR_STRICT=0 \
+        NYASH_JOINIR_STRICT=0 \
+        HAKO_JOINIR_PLANNER_REQUIRED=0 \
+        "$NYASH_BIN" --backend vm "$fixture" "$@" 2>&1 | filter_noise
     local exit_code=${PIPESTATUS[0]}
     return $exit_code
 }
@@ -350,6 +353,7 @@ run_test() {
 run_nyash_vm() {
     local program="$1"
     shift
+    local timeout_secs="${RUN_TIMEOUT_SECS:-10}"
     local EXTRA_ARGS=()
     if [ "${SMOKES_USE_DEV:-0}" = "1" ]; then
         EXTRA_ARGS+=("--dev")
@@ -393,6 +397,7 @@ run_nyash_vm() {
             NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 \
             HAKO_ENABLE_USING=${HAKO_ENABLE_USING:-1} NYASH_ENABLE_USING=${NYASH_ENABLE_USING:-1} \
             NYASH_USING_AST=1 NYASH_PARSER_SEAM_TOLERANT=1 \
+            timeout "$timeout_secs" \
             "${ENV_PREFIX[@]}" \
             "$NYASH_BIN" --backend vm "$runfile" "${EXTRA_ARGS[@]}" "$@" 2>&1 | filter_noise
         local exit_code=${PIPESTATUS[0]}
@@ -465,6 +470,7 @@ run_nyash_vm() {
                 NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 \
                 HAKO_ENABLE_USING=${HAKO_ENABLE_USING:-1} NYASH_ENABLE_USING=${NYASH_ENABLE_USING:-1} \
                 NYASH_USING_AST=1 NYASH_PARSER_SEAM_TOLERANT=1 \
+                timeout "$timeout_secs" \
                 "${ENV_PREFIX[@]}" \
                 "$NYASH_BIN" --backend vm "$runfile2" "${EXTRA_ARGS[@]}" "$@" 2>&1 | tee "$trace_tmp" | filter_noise
             local exit_code=${PIPESTATUS[0]}
@@ -476,6 +482,7 @@ run_nyash_vm() {
                 NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 \
                 HAKO_ENABLE_USING=${HAKO_ENABLE_USING:-1} NYASH_ENABLE_USING=${NYASH_ENABLE_USING:-1} \
                 NYASH_USING_AST=1 NYASH_PARSER_SEAM_TOLERANT=1 \
+                timeout "$timeout_secs" \
                 "${ENV_PREFIX[@]}" \
                 "$NYASH_BIN" --backend vm "$runfile2" "${EXTRA_ARGS[@]}" "$@" 2>&1 | filter_noise
             local exit_code=${PIPESTATUS[0]}
