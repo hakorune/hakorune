@@ -77,6 +77,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_mimalloc_size_class_policy_guard.sh` | M163 の `.hako` `SizeClassBox` policy owner を固定し、mimalloc-shaped size-to-bin/bin-size と `LayoutBox` 互換 facade が allocator state や `.inc` matcher なしで動くことを検証する。 |
 | `tools/checks/k2_wide_mimalloc_layout_migration_guard.sh` | M164 の layout migration closeout を固定し、`SizeClassBox` が size-class truth、`LayoutBox` が small/medium 互換 facade、`page_heap_box` が facade consumer に留まることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_page_model_guard.sh` | M165 の `page_box.hako` page-local model owner を固定し、`free` / `local_free` / `used` / `capacity` / `reserved` の不変条件が heap/queue/OSVM/TLS/atomic/remote-free なしで動くことを検証する。 |
+| `tools/checks/k2_wide_mimalloc_page_queue_guard.sh` | M166 の `page_queue_box.hako` page queue/direct-page cache owner を固定し、queue が `freeCount()` でページを選ぶだけで `.acquire()` によるblock popを行わないことを検証する。 |
 | `tools/checks/k2_wide_mimalloc_osvm_page_exe_guard.sh` | M25 の `OsVmCoreBox.reserve_bytes_i64/commit_bytes_i64/decommit_bytes_i64` + pure-first EXE proof を固定し、OSVM route が MIR-owned extern route facts から emit されることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_tls_cache_slot_exe_guard.sh` | M26 の `TlsCoreBox.cache_slot_get_i64/cache_slot_set_i64` + pure-first EXE proof を固定し、TLS cache-slot route が MIR-owned extern route facts から emit されることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_atomic_cas_exe_guard.sh` | M27 の `AtomicCoreBox.cas_i64` + pure-first EXE proof を固定し、atomic CAS route が MIR-owned extern route facts から emit されることを検証する。 |

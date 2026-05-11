@@ -394,8 +394,11 @@ inference for the allocator release path.
 - `293x-166`: M165 mimalloc page model split landed, adding
   `HakoAllocPageModel` as a heap-independent page-local owner for `free`,
   `local_free`, `used`, `capacity`, and `reserved` invariants.
+- `293x-167`: M166 mimalloc page queue/direct-page cache landed, adding
+  `HakoAllocPageQueue` as the page-selection owner while keeping block pops in
+  the M167 lane.
 - Next: resume `.hako` mimalloc / `hako_alloc` implementation slices on top of
-  the capability substrate, continuing with `M166 page queue and direct-page
-  cache`.
+  the capability substrate, continuing with `M167 alloc fast path plus generic
+  fallback`.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.

@@ -1,0 +1,110 @@
+// page_queue_box.hako — mimalloc-shaped page queue/direct-page cache model
+// Responsibility: choose a page candidate for a size-class bin.
+// This module does not pop free blocks, source OS memory, or own remote free.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+
+box HakoAllocPageQueue {
+    init {
+        bin, pages, page_count, direct_page_index,
+        add_count, select_count, direct_hit_count, refresh_count, reject_count
+    }
+
+    birth(bin) {
+        me.bin = bin
+        me.pages = new ArrayBox()
+        me.page_count = 0
+        me.direct_page_index = -1
+        me.add_count = 0
+        me.select_count = 0
+        me.direct_hit_count = 0
+        me.refresh_count = 0
+        me.reject_count = 0
+    }
+
+    addPage(page) {
+        if page == null {
+            me.reject_count = me.reject_count + 1
+            return -1
+        }
+
+        local index = me.page_count
+        me.pages.push(page)
+        me.page_count = me.page_count + 1
+        me.add_count = me.add_count + 1
+
+        if me.direct_page_index < 0 {
+            if page.freeCount() > 0 {
+                me.direct_page_index = index
+            }
+        }
+
+        return index
+    }
+
+    directPage() {
+        if me.direct_page_index < 0 {
+            return null
+        }
+
+        local page = me.pages.get(me.direct_page_index)
+        if page == null {
+            return null
+        }
+
+        if page.freeCount() == 0 {
+            return null
+        }
+
+        return page
+    }
+
+    selectPage() {
+        me.select_count = me.select_count + 1
+
+        local direct_page = me.directPage()
+        if direct_page != null {
+            me.direct_hit_count = me.direct_hit_count + 1
+            return direct_page
+        }
+
+        return me.refreshDirectPage()
+    }
+
+    refreshDirectPage() {
+        me.refresh_count = me.refresh_count + 1
+
+        local pages = me.pages
+        local page_count = me.page_count
+        local found_index = -1
+        local found_page = null
+        local i = 0
+        loop(i < page_count) {
+            if found_index < 0 {
+                local page = pages.get(i)
+                if page != null {
+                    if page.freeCount() > 0 {
+                        found_index = i
+                        found_page = page
+                    }
+                }
+            }
+            i = i + 1
+        }
+
+        me.direct_page_index = found_index
+        if found_page == null {
+            me.reject_count = me.reject_count + 1
+        }
+
+        return found_page
+    }
+
+    directPageId() {
+        local page = me.directPage()
+        if page == null {
+            return -1
+        }
+        return page.page_id
+    }
+}

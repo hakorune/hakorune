@@ -31,6 +31,8 @@ Principles
   - `HakoAllocPageModel` owns page-local `free` / `local_free` / `used` /
     `capacity` / `reserved` invariants. Page queues, OSVM sourcing, TLS,
     atomics, and remote-free integration stay in later rows.
+  - `HakoAllocPageQueue` owns page ordering/direct-page cache state. It chooses
+    pages by observing `freeCount()` and must not pop allocation blocks.
 
 Design owners
 - Policy/state stop-line:
@@ -81,6 +83,7 @@ Current modules
 - `memory.layout_box`
 - `memory.page_box`
 - `memory.page_heap_box`
+- `memory.page_queue_box`
 - `memory.page_source_policy_box`
 - `memory.remote_free_policy_box`
 - `memory.refcell_box`

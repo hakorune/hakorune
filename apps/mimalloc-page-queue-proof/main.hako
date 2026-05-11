@@ -1,0 +1,65 @@
+// mimalloc-page-queue-proof
+// Purpose: prove page selection before allocator fast-path integration.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.page_queue_box as HakoAllocPageQueueBox
+
+static box Main {
+    main(args) {
+        local page0 = new HakoAllocPageModel(10, 32, 2, 2)
+        local page1 = new HakoAllocPageModel(11, 32, 1, 1)
+        local page2 = new HakoAllocPageModel(12, 32, 1, 1)
+        local queue = new HakoAllocPageQueue(4)
+
+        local e0 = queue.addPage(page0)
+        local e1 = queue.addPage(page1)
+
+        local selected0 = queue.selectPage()
+        local id0 = -1
+        if selected0 != null { id0 = selected0.page_id }
+
+        page0.acquire(8)
+        page0.acquire(16)
+
+        local selected1 = queue.selectPage()
+        local id1 = -1
+        if selected1 != null { id1 = selected1.page_id }
+
+        page1.acquire(8)
+
+        local selected2 = queue.selectPage()
+        local id2 = -1
+        if selected2 != null { id2 = selected2.page_id }
+
+        local e2 = queue.addPage(page2)
+        local selected3 = queue.selectPage()
+        local id3 = -1
+        if selected3 != null { id3 = selected3.page_id }
+
+        local shape = 0
+        if e0 == 0 { shape = shape + 1 }
+        if e1 == 1 { shape = shape + 1 }
+        if e2 == 2 { shape = shape + 1 }
+        if id0 == 10 { shape = shape + 1 }
+        if id1 == 11 { shape = shape + 1 }
+        if id2 == -1 { shape = shape + 1 }
+        if id3 == 12 { shape = shape + 1 }
+        if queue.directPageId() == 12 { shape = shape + 1 }
+        if queue.page_count == 3 { shape = shape + 1 }
+
+        print("mimalloc-page-queue-proof")
+        print("entries=" + e0 + "," + e1 + "," + e2)
+        print("ids=" + id0 + "," + id1 + "," + id2 + "," + id3)
+        print("direct=" + queue.direct_page_index + "," + queue.directPageId())
+        print("counts=" + queue.add_count + "," + queue.select_count + "," + queue.direct_hit_count + "," + queue.refresh_count + "," + queue.reject_count)
+        print("shape=" + shape)
+
+        if shape == 9 && queue.add_count == 3 && queue.select_count == 4 && queue.direct_hit_count == 2 && queue.refresh_count == 2 && queue.reject_count == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

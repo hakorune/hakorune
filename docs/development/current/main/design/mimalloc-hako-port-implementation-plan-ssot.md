@@ -163,6 +163,9 @@ work. Splitting is mandatory if a row starts adding algorithm bodies back into
   and `local_free` remains non-reusable until the later collection row.
 - `M166` must choose pages, not allocate blocks. If it pops a free block, that
   belongs to `M167`.
+  M166 landed as `HakoAllocPageQueue` in `page_queue_box.hako`: per-bin page
+  selection and direct-page cache refresh are testable without queue-owned
+  block pops, OSVM sourcing, or remote-free integration.
 - `M167` may create deterministic model pages in memory; it must not reserve
   OS memory. OSVM enters only in `M168`.
 - `M169` owns same-thread local free collection only. Remote-free and abandoned
