@@ -81,9 +81,12 @@ Live today:
 - `src/mir/exact_numeric_unification.rs` owns PHI/Select exact numeric merge
   policy, preserving exact facts only for identical incoming exact types;
 - `src/mir/exact_numeric_value_facts.rs` owns first exact numeric per-value
-  facts for exact numeric field reads, `Copy`, and conservative `Phi`/`Select`
-  merges, including metadata rejections for exact/dynamic or exact/exact
-  mismatches;
+  facts for exact numeric declared params, field reads, `Copy`, and
+  conservative `Phi`/`Select` merges, including metadata rejections for
+  exact/dynamic or exact/exact mismatches;
+- `FunctionMetadata` preserves MIR-side declared parameter/return annotation
+  text, and exact numeric return annotations publish function-level advisory
+  return facts without changing runtime lowering;
 - VM exact numeric work in this phase is reference execution only. VM rows may
   consume MIR-owned facts/contracts but do not make VM-only behavior complete
   product support;
@@ -98,8 +101,8 @@ Not live today:
   numeric field-write contracts, non-VM backend lowering/execution of those
   contracts, and exact runtime unsigned range-check construction;
 - numeric literal suffixes such as `0usize`;
-- route-fact wiring for exact numeric params/returns and remaining local
-  producers, live
+- route-fact wiring for remaining local producers and exact numeric operation
+  routes, live
   VM/backend exact numeric arithmetic/compare/shift routes, and explicit
   wrapping vocabulary;
 - MIR / Program(JSON) exact numeric constants;

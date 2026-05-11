@@ -141,6 +141,9 @@ impl Default for MirCompiler {
 #[cfg(test)]
 mod tests {
     use crate::ast::{ASTNode, LiteralValue};
+    use crate::mir::exact_numeric_value_facts::{
+        ExactNumericReturnFact, ExactNumericValueFactSource,
+    };
     use crate::mir::function::ExactNumericRuntimeCheckContractKind;
     use crate::mir::string_corridor::StringCorridorOp;
     use crate::mir::string_corridor_placement::StringCorridorCandidateKind;
@@ -213,6 +216,65 @@ static box Main {
         assert_eq!(
             contracts[0].kind,
             ExactNumericRuntimeCheckContractKind::DynamicIntegerRange
+        );
+    }
+
+    #[test]
+    fn compile_preserves_exact_numeric_signature_facts() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let ast = NyashParser::parse_from_string(
+            r#"
+static box Main {
+  id(x: usize): u64 {
+    return x
+  }
+
+  main() {
+    return 0
+  }
+}
+"#,
+        )
+        .expect("parse");
+        let mut compiler = MirCompiler::with_options(false);
+        let result = compiler.compile(ast).expect("compile");
+        let function = result.module.get_function("Main.id/1").expect("Main.id/1");
+        let param = function.params[0];
+
+        assert_eq!(
+            function
+                .metadata
+                .declared_param_decls
+                .iter()
+                .map(|decl| (
+                    decl.name.as_str(),
+                    decl.declared_type_name.as_deref().unwrap_or("<none>")
+                ))
+                .collect::<Vec<_>>(),
+            vec![("x", "usize")]
+        );
+        assert_eq!(
+            function.metadata.declared_return_type_name.as_deref(),
+            Some("u64")
+        );
+        let fact = function
+            .metadata
+            .exact_numeric_value_facts
+            .get(&param)
+            .expect("param exact numeric fact");
+        assert_eq!(fact.declared_type_name, "usize");
+        assert_eq!(
+            fact.source,
+            ExactNumericValueFactSource::Param {
+                index: 0,
+                name: "x".to_string(),
+            }
+        );
+        assert_eq!(
+            function.metadata.exact_numeric_return_fact,
+            Some(ExactNumericReturnFact {
+                declared_type_name: "u64".to_string(),
+            })
         );
     }
 

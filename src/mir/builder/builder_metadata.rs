@@ -1,4 +1,5 @@
 use super::{BasicBlockId, FunctionSignature, MirBuilder, MirFunction};
+use crate::mir::function::MirParamDecl;
 
 impl MirBuilder {
     // ---- Hint helpers (no-op by default) ----
@@ -64,6 +65,17 @@ impl MirBuilder {
         if let Some(function) = self.scope_ctx.current_function.as_mut() {
             function.metadata.runes = attrs.runes.clone();
             crate::mir::rune_plan_refresh::refresh_function_rune_plans(function);
+        }
+    }
+
+    pub(super) fn set_current_function_declared_signature(
+        &mut self,
+        declared_param_decls: Vec<MirParamDecl>,
+        declared_return_type_name: Option<String>,
+    ) {
+        if let Some(function) = self.scope_ctx.current_function.as_mut() {
+            function.metadata.declared_param_decls = declared_param_decls;
+            function.metadata.declared_return_type_name = declared_return_type_name;
         }
     }
 }

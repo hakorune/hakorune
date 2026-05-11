@@ -25,8 +25,9 @@
 //! - **Box理論**: BoxCompilationContext による完全独立化、型情報・変数マッピングの適切な管理
 
 use super::function_lowering;
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, ParamDecl};
 use crate::mir::builder::{MirBuilder, MirInstruction, MirType};
+use crate::mir::function::MirParamDecl;
 
 fn parse_declared_method_arity(func_name: &str) -> Option<usize> {
     let (_, tail) = func_name.rsplit_once('/')?;
@@ -55,6 +56,50 @@ fn normalize_instance_method_params(func_name: &str, mut params: Vec<String>) ->
     }
 
     params
+}
+
+fn normalize_instance_method_param_decls(
+    func_name: &str,
+    mut param_decls: Vec<ParamDecl>,
+) -> Vec<ParamDecl> {
+    let Some(declared_arity) = parse_declared_method_arity(func_name) else {
+        return param_decls;
+    };
+
+    if param_decls.len() == declared_arity {
+        return param_decls;
+    }
+
+    if is_constructor_name(func_name) && param_decls.len() == declared_arity + 1 {
+        param_decls.remove(0);
+        return param_decls;
+    }
+
+    param_decls
+}
+
+fn mir_param_decls_from_source(params: &[String], param_decls: &[ParamDecl]) -> Vec<MirParamDecl> {
+    ParamDecl::with_name_fallback(param_decls, params)
+        .iter()
+        .map(|decl| MirParamDecl {
+            name: decl.name.clone(),
+            declared_type_name: decl.declared_type_name.clone(),
+        })
+        .collect()
+}
+
+fn mir_method_param_decls_from_source(
+    _box_name: &str,
+    params: &[String],
+    param_decls: &[ParamDecl],
+) -> Vec<MirParamDecl> {
+    let mut decls = Vec::with_capacity(params.len() + 1);
+    decls.push(MirParamDecl {
+        name: "me".to_string(),
+        declared_type_name: None,
+    });
+    decls.extend(mir_param_decls_from_source(params, param_decls));
+    decls
 }
 
 impl MirBuilder {
@@ -278,6 +323,8 @@ impl MirBuilder {
         &mut self,
         func_name: String,
         params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
         body: Vec<ASTNode>,
         attrs: crate::ast::DeclarationAttrs,
     ) -> Result<(), String> {
@@ -315,6 +362,10 @@ impl MirBuilder {
         // Step 2: 関数スケルトン作成 (skeleton_builder へ委譲)
         // ========================================
         self.create_function_skeleton(func_name, &params, &body, &mut ctx)?;
+        self.set_current_function_declared_signature(
+            mir_param_decls_from_source(&params, &param_decls),
+            return_type_name,
+        );
         self.set_current_function_runes(&attrs);
 
         // ========================================
@@ -365,10 +416,13 @@ impl MirBuilder {
         func_name: String,
         box_name: String,
         params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
         body: Vec<ASTNode>,
         attrs: crate::ast::DeclarationAttrs,
     ) -> Result<(), String> {
         let params = normalize_instance_method_params(&func_name, params);
+        let param_decls = normalize_instance_method_param_decls(&func_name, param_decls);
         if crate::config::env::joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
             ring0.log.debug(&format!(
@@ -404,6 +458,10 @@ impl MirBuilder {
         // Step 2b: メソッドスケルトン作成 (skeleton_builder へ委譲)
         // ========================================
         self.create_method_skeleton(func_name, &box_name, &params, &body, &mut ctx)?;
+        self.set_current_function_declared_signature(
+            mir_method_param_decls_from_source(&box_name, &params, &param_decls),
+            return_type_name,
+        );
         self.set_current_function_runes(&attrs);
 
         // ========================================

@@ -165,6 +165,8 @@ impl super::MirBuilder {
                                         for (mname, mast) in sorted_method_entries(methods) {
                                             if let N::FunctionDeclaration {
                                                 params,
+                                                param_decls,
+                                                return_type_name,
                                                 body,
                                                 attrs,
                                                 ..
@@ -179,6 +181,8 @@ impl super::MirBuilder {
                                                 self.lower_static_method_as_function(
                                                     func_name,
                                                     params.clone(),
+                                                    param_decls.clone(),
+                                                    return_type_name.clone(),
                                                     body.clone(),
                                                     attrs.clone(),
                                                 )?;
@@ -215,6 +219,8 @@ impl super::MirBuilder {
                             for (ctor_key, ctor_ast) in sorted_constructor_entries(constructors) {
                                 if let N::FunctionDeclaration {
                                     params,
+                                    param_decls,
+                                    return_type_name,
                                     body,
                                     attrs,
                                     ..
@@ -227,6 +233,8 @@ impl super::MirBuilder {
                                         func_name,
                                         name.clone(),
                                         params.clone(),
+                                        param_decls.clone(),
+                                        return_type_name.clone(),
                                         body.clone(),
                                         attrs.clone(),
                                     )?;
@@ -235,6 +243,8 @@ impl super::MirBuilder {
                             for (mname, mast) in sorted_method_entries(methods) {
                                 if let N::FunctionDeclaration {
                                     params,
+                                    param_decls,
+                                    return_type_name,
                                     body,
                                     is_static,
                                     attrs,
@@ -252,6 +262,8 @@ impl super::MirBuilder {
                                             func_name,
                                             name.clone(),
                                             params.clone(),
+                                            param_decls.clone(),
+                                            return_type_name.clone(),
                                             body.clone(),
                                             attrs.clone(),
                                         )?;

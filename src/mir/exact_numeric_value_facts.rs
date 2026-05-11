@@ -15,10 +15,16 @@ pub struct ExactNumericValueFact {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ExactNumericValueFactSource {
+    Param { index: usize, name: String },
     FieldGet { box_name: String, field: String },
     Copy { src: ValueId },
     Phi,
     Select,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ExactNumericReturnFact {
+    pub declared_type_name: String,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -77,13 +83,16 @@ pub(crate) fn refresh_function_exact_numeric_value_facts(
     let object_defs = collect_object_defs(function);
     let mut facts = BTreeMap::new();
 
+    seed_param_facts(function, &mut facts);
     seed_field_get_facts(function, field_decls, &object_defs, &mut facts);
     propagate_exact_numeric_value_facts(function, &mut facts);
     let rejections = collect_control_merge_rejections(function, &facts);
+    let return_fact = exact_numeric_return_fact(function);
 
     let inserted = facts.len();
     function.metadata.exact_numeric_value_facts = facts;
     function.metadata.exact_numeric_value_fact_rejections = rejections;
+    function.metadata.exact_numeric_return_fact = return_fact;
     inserted
 }
 
@@ -114,6 +123,44 @@ fn exact_numeric_field_decls(module: &MirModule) -> BTreeMap<(String, String), S
     }
 
     fields
+}
+
+fn seed_param_facts(function: &MirFunction, facts: &mut BTreeMap<ValueId, ExactNumericValueFact>) {
+    let target = NumericTarget::host();
+    for (index, value) in function.params.iter().enumerate() {
+        let Some(decl) = function.metadata.declared_param_decls.get(index) else {
+            continue;
+        };
+        let Some(declared_type_name) = decl.declared_type_name.as_ref() else {
+            continue;
+        };
+        if exact_numeric_mir_type_from_declared_name(Some(declared_type_name.as_str()), target)
+            .is_none()
+        {
+            continue;
+        }
+        facts.insert(
+            *value,
+            ExactNumericValueFact {
+                declared_type_name: declared_type_name.clone(),
+                source: ExactNumericValueFactSource::Param {
+                    index,
+                    name: decl.name.clone(),
+                },
+            },
+        );
+    }
+}
+
+fn exact_numeric_return_fact(function: &MirFunction) -> Option<ExactNumericReturnFact> {
+    let declared_type_name = function.metadata.declared_return_type_name.as_ref()?;
+    exact_numeric_mir_type_from_declared_name(
+        Some(declared_type_name.as_str()),
+        NumericTarget::host(),
+    )?;
+    Some(ExactNumericReturnFact {
+        declared_type_name: declared_type_name.clone(),
+    })
 }
 
 fn seed_field_get_facts(

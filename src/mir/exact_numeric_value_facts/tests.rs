@@ -1,4 +1,5 @@
 use super::*;
+use crate::mir::function::MirParamDecl;
 use crate::mir::{ConstValue, EffectMask, FunctionSignature, MirModule, UserBoxFieldDecl};
 
 fn module_with_fields(function: MirFunction) -> MirModule {
@@ -32,6 +33,68 @@ fn page_function() -> MirFunction {
         },
         BasicBlockId::new(0),
     )
+}
+
+fn numeric_param_function() -> MirFunction {
+    let mut function = MirFunction::new(
+        FunctionSignature {
+            name: "takes_size".to_string(),
+            params: vec![MirType::Integer],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    function.metadata.declared_param_decls = vec![MirParamDecl {
+        name: "size".to_string(),
+        declared_type_name: Some("usize".to_string()),
+    }];
+    function.metadata.declared_return_type_name = Some("u64".to_string());
+    function
+}
+
+#[test]
+fn publishes_exact_numeric_param_fact_from_declared_signature_metadata() {
+    let function = numeric_param_function();
+    let param = function.params[0];
+    let mut module = module_with_fields(function);
+
+    refresh_module_exact_numeric_value_facts(&mut module);
+
+    let fact = module
+        .get_function("takes_size")
+        .unwrap()
+        .metadata
+        .exact_numeric_value_facts
+        .get(&param)
+        .unwrap();
+    assert_eq!(fact.declared_type_name, "usize");
+    assert_eq!(
+        fact.source,
+        ExactNumericValueFactSource::Param {
+            index: 0,
+            name: "size".to_string(),
+        }
+    );
+}
+
+#[test]
+fn publishes_exact_numeric_return_fact_from_declared_signature_metadata() {
+    let function = numeric_param_function();
+    let mut module = module_with_fields(function);
+
+    refresh_module_exact_numeric_value_facts(&mut module);
+
+    assert_eq!(
+        module
+            .get_function("takes_size")
+            .unwrap()
+            .metadata
+            .exact_numeric_return_fact,
+        Some(ExactNumericReturnFact {
+            declared_type_name: "u64".to_string(),
+        })
+    );
 }
 
 #[test]

@@ -20,6 +20,8 @@ impl super::MirBuilder {
             }
             if let ASTNode::FunctionDeclaration {
                 params,
+                param_decls,
+                return_type_name,
                 body,
                 attrs,
                 ..
@@ -31,6 +33,8 @@ impl super::MirBuilder {
                 self.lower_static_method_as_function(
                     func_name,
                     params.clone(),
+                    param_decls.clone(),
+                    return_type_name.clone(),
                     body.clone(),
                     attrs.clone(),
                 )?;
@@ -43,6 +47,8 @@ impl super::MirBuilder {
         let out = if let Some(main_method) = methods.get("main") {
             if let ASTNode::FunctionDeclaration {
                 params,
+                param_decls,
+                return_type_name,
                 body,
                 attrs,
                 ..
@@ -74,6 +80,8 @@ impl super::MirBuilder {
                     let _ = self.lower_static_method_as_function(
                         func_name,
                         params.clone(),
+                        param_decls.clone(),
+                        return_type_name.clone(),
                         body.clone(),
                         attrs.clone(),
                     );
