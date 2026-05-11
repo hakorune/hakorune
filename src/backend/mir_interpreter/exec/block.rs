@@ -37,7 +37,16 @@ impl MirInterpreter {
                 match inst {
                     MirInstruction::Const { dst, value } => self.handle_const(*dst, value)?,
                     MirInstruction::BinOp { dst, op, lhs, rhs } => {
-                        self.handle_binop(*dst, *op, *lhs, *rhs)?
+                        if !self.try_handle_exact_numeric_binop_reference(
+                            block.id,
+                            instruction_index,
+                            *dst,
+                            *op,
+                            *lhs,
+                            *rhs,
+                        )? {
+                            self.handle_binop(*dst, *op, *lhs, *rhs)?;
+                        }
                     }
                     MirInstruction::UnaryOp { dst, op, operand } => {
                         self.handle_unary_op(*dst, *op, *operand)?
@@ -128,6 +137,13 @@ impl MirInterpreter {
             }
             if let MirInstruction::FieldSet { field, value, .. } = inst {
                 self.check_exact_numeric_runtime_check_contract(block.id, idx, field, *value)?;
+            }
+            if let MirInstruction::BinOp { dst, op, lhs, rhs } = inst {
+                if self.try_handle_exact_numeric_binop_reference(
+                    block.id, idx, *dst, *op, *lhs, *rhs,
+                )? {
+                    continue;
+                }
             }
             self.execute_instruction(inst)?;
         }
