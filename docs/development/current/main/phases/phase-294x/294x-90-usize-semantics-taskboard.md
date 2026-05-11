@@ -28,6 +28,7 @@ one commit unless a row explicitly says it is docs-only.
 | `294x-06` | Complete | verifier negative/range fail-fast | statically known exact numeric field writes reject negative and out-of-range values under the MIR verifier |
 | `294x-06b` | Complete | dynamic numeric field write guard | runtime-range-sensitive exact numeric fields reject unchecked dynamic values until runtime-check lowering exists |
 | `294x-06c` | Complete | runtime-check contract metadata | dynamic exact numeric field writes can be verifier-accepted only with a matching `DynamicIntegerRange` contract |
+| `294x-06d` | Complete | VM dynamic range-check execution | the VM interpreter executes existing `DynamicIntegerRange` contracts at `FieldSet` sites and rejects bad dynamic values before mutation |
 | `294x-07` | Pending | overflow and checked arithmetic policy | plain typed `usize` arithmetic has checked/fail-fast behavior; wrapping stays explicit |
 | `294x-08` | Pending | unsigned compare and logical shift | comparisons and right shift stop using signed i64 semantics for `usize` |
 | `294x-09` | Pending | PHI/Select numeric unification | exact numeric kinds merge conservatively and fail fast on unsupported mixes |
@@ -77,7 +78,8 @@ one commit unless a row explicitly says it is docs-only.
 ### Runtime / VM
 
 - [ ] Add exact `usize` runtime representation or equivalent tagged numeric value.
-- [ ] Range-check construction.
+- [x] Execute existing `DynamicIntegerRange` contracts in the VM interpreter.
+- [ ] Range-check construction beyond already-attached contracts.
 - [ ] Implement checked add/sub/mul.
 - [ ] Implement div/mod with zero checks.
 - [ ] Implement bitwise ops.
@@ -94,6 +96,8 @@ one commit unless a row explicitly says it is docs-only.
   does not cover all dynamic `Integer(i64)` values.
 - [x] Publish `DynamicIntegerRange` runtime-check contract metadata for exact
   numeric field writes.
+- [x] Execute `DynamicIntegerRange` contracts in the VM interpreter before
+  field mutation.
 - [ ] Reject unsupported backend lowering.
 - [ ] Guard against silent fallback to `Integer(i64)`.
 - [ ] Keep strict/dev checks before broad production acceptance.

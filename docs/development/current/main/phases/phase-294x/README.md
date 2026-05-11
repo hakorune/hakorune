@@ -61,17 +61,22 @@
 - `294x-06c`: function metadata now owns
   `ExactNumericRuntimeCheckContract::DynamicIntegerRange`; the verifier accepts
   dynamic exact numeric field writes only when a matching contract is present.
+- `294x-06d`: the VM interpreter now executes existing `DynamicIntegerRange`
+  contracts at `FieldSet` sites and rejects non-integer, negative-unsigned, and
+  out-of-range dynamic values before field mutation.
 
 ## First Implementation Direction
 
 Start with metadata preservation before runtime behavior:
 
 1. attach exact numeric metadata to MIR facts/signature consumers;
-2. execute `DynamicIntegerRange` checks in VM/runtime and make unsupported
-   backend routes fail fast;
-3. add VM/backend exact `usize` behavior;
-4. add checked arithmetic / unsigned compare / logical shift;
-5. migrate hako_alloc non-negative fields.
+2. attach/insert `DynamicIntegerRange` contracts from real MIR field-write
+   producers;
+3. make unsupported backend routes fail fast when exact numeric contracts are
+   present;
+4. add VM/backend exact `usize` behavior;
+5. add checked arithmetic / unsigned compare / logical shift;
+6. migrate hako_alloc non-negative fields.
 
 This keeps the source truth available before any lowerer claims exact
 semantics.

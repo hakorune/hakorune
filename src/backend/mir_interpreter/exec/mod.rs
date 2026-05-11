@@ -9,6 +9,7 @@ use super::utils::stepbudget;
 
 mod block;
 mod diagnostics;
+mod numeric_contracts;
 mod phi;
 mod trace;
 

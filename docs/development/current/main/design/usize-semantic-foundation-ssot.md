@@ -50,6 +50,9 @@ Live today:
   whose value range does not cover every possible dynamic `Integer(i64)` value;
 - function metadata owns `ExactNumericRuntimeCheckContract::DynamicIntegerRange`
   as the verifier/lowering contract for those dynamic exact numeric writes;
+- the VM interpreter executes matching `DynamicIntegerRange` contracts at
+  `FieldSet` sites and rejects non-integer, negative-unsigned, and out-of-range
+  dynamic values before field mutation;
 - typed-object planning can use numeric annotations as inline i64 storage
   hints;
 - VM runtime values use `Integer(i64)`;
@@ -57,8 +60,9 @@ Live today:
 
 Not live today:
 
-- param/local verifier checks, dynamic runtime-check execution/lowering, and
-  runtime unsigned range checks;
+- param/local verifier checks, runtime-check insertion/lowering beyond existing
+  metadata, non-VM backend execution/fail-fast, and exact runtime unsigned
+  range-check construction;
 - numeric literal suffixes such as `0usize`;
 - unsigned comparisons distinct from signed i64 comparisons;
 - wrapping / checked arithmetic vocabulary;

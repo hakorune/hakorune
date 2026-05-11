@@ -24,7 +24,16 @@ impl MirInterpreter {
             {
                 start += 1;
             }
-            for inst in &block.instructions[start..] {
+            for (offset, inst) in block.instructions[start..].iter().enumerate() {
+                let instruction_index = start + offset;
+                if let MirInstruction::FieldSet { field, value, .. } = inst {
+                    self.check_exact_numeric_runtime_check_contract(
+                        block.id,
+                        instruction_index,
+                        field,
+                        *value,
+                    )?;
+                }
                 match inst {
                     MirInstruction::Const { dst, value } => self.handle_const(*dst, value)?,
                     MirInstruction::BinOp { dst, op, lhs, rhs } => {
@@ -116,6 +125,9 @@ impl MirInterpreter {
                 if let MirInstruction::Compare { .. } = inst {
                     self.compare_count = self.compare_count.wrapping_add(1);
                 }
+            }
+            if let MirInstruction::FieldSet { field, value, .. } = inst {
+                self.check_exact_numeric_runtime_check_contract(block.id, idx, field, *value)?;
             }
             self.execute_instruction(inst)?;
         }
