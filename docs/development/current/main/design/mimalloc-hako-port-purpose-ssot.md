@@ -4,6 +4,7 @@ Decision: accepted
 Date: 2026-05-11
 Scope: current mimalloc port purpose, ownership, and allocator-provider stop line.
 Related:
+  - docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md
   - docs/reference/language/low-level-capabilities.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
   - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
@@ -59,6 +60,12 @@ preconditions, but it does not gate `.hako` mimalloc implementation progress.
    facade ownership.
 5. Reopen allocator-provider M104+ only when host allocator replacement support
    is explicitly requested.
+
+The post-analysis implementation ladder is fixed in
+`docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md`.
+The first concrete code row is the pure `.hako` size-class policy owner; page
+mutation, page queues, OSVM page sourcing, local free, and remote free follow as
+separate rows.
 
 ## Stop Line
 

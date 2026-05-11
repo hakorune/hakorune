@@ -379,6 +379,10 @@ inference for the allocator release path.
 - `293x-161`: low-level capability language reference sync landed, reflecting
   static tables, Rune contracts/profiles, capability modules, RawBuf/RawArray,
   `hako_alloc`, and the no-host-replacement stop line in `docs/reference`.
+- `293x-162`: mimalloc upstream analysis and `.hako` port plan landed, fixing
+  `microsoft/mimalloc` `v3.3.2` as the primary reference and `M163` as the next
+  pure size-class policy row under `hako_alloc`.
 - Next: resume `.hako` mimalloc / `hako_alloc` implementation slices on top of
-  the capability substrate. M104 is next only if the optional
-  allocator-provider host-replacement ladder is explicitly reopened.
+  the capability substrate, starting with `M163 mimalloc size-class policy
+  owner`. M104 is next only if the optional allocator-provider
+  host-replacement ladder is explicitly reopened.

@@ -124,6 +124,7 @@
 - [x] `293x-159` M103 allocator provider selected-provider proof validation
 - [x] `293x-160` mimalloc `.hako` port purpose realignment
 - [x] `293x-161` low-level capability language reference sync
+- [x] `293x-162` mimalloc upstream analysis and `.hako` port plan
 
 ## Gates
 
