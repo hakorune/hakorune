@@ -39,6 +39,7 @@ hako_alloc or mimalloc migration.
 | `294x-08` | Complete | unsigned compare and logical shift | exact numeric compare and logical right-shift policy no longer borrow signed i64 semantics |
 | `294x-09` | Complete | PHI/Select numeric unification policy | exact numeric facts merge conservatively and fail fast on exact/dynamic or exact/exact mismatches |
 | `294x-09a` | Complete | VM reference-executor boundary | VM is a semantic reference executor, not the product/mainline backend owner |
+| `294x-09b` | Complete | exact numeric value facts v0 | field reads, copies, and conservative control merges publish MIR-owned exact numeric value facts before VM reference execution |
 | `294x-10` | Pending | VM reference exact `usize` ops v0 | VM reference execution consumes MIR-owned exact numeric facts without making VM-only behavior a completion criterion |
 | `294x-11` | Pending | literal suffix and const-eval row | `0usize` / exact numeric consts are accepted only with range checks |
 | `294x-12` | Pending | typed-object exact numeric storage | typed-object plans and EXE runtime storage distinguish `usize` from i64 |
@@ -80,6 +81,7 @@ hako_alloc or mimalloc migration.
 - [x] Add exact numeric constants or constant metadata.
 - [x] Add conversion/cast vocabulary.
 - [x] Add PHI/Select unification rules.
+- [x] Publish exact numeric value facts for field reads, copies, and control merges.
 - [ ] Publish route facts for numeric params and returns.
 - [x] Add checked exact numeric add/sub/mul policy helpers.
 - [x] Add exact numeric compare and logical right-shift policy helpers.

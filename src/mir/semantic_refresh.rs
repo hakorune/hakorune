@@ -21,6 +21,7 @@ use super::{
     array_text_state_residence_plan::refresh_function_array_text_state_residence_route,
     concat_const_suffix_micro_seed_plan::refresh_function_concat_const_suffix_micro_seed_route,
     exact_numeric_field_contracts::refresh_module_exact_numeric_runtime_check_contracts,
+    exact_numeric_value_facts::refresh_module_exact_numeric_value_facts,
     exact_seed_backend_route::{
         refresh_function_exact_seed_backend_route, refresh_module_exact_seed_backend_routes,
     },
@@ -134,6 +135,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
     refresh_module_user_box_method_routes(module);
     refresh_module_userbox_known_receiver_method_seed_routes(module);
     refresh_module_exact_seed_backend_routes(module);
+    refresh_module_exact_numeric_value_facts(module);
     refresh_module_exact_numeric_runtime_check_contracts(module);
 }
 

@@ -38,6 +38,7 @@ pub mod effect_capability_plan; // MIR-owned EffectPlan/CapabilityPlan metadata 
 pub mod escape_barrier; // escape operand-role vocabulary (SSOT)
 pub(crate) mod exact_numeric_field_contracts; // exact numeric field-write facts/contracts owner
 pub(crate) mod exact_numeric_unification; // exact numeric PHI/Select merge policy owner
+pub mod exact_numeric_value_facts; // exact numeric per-value facts derived from MIR metadata
 pub mod exact_seed_backend_route; // function-level backend route tags for exact seed bridges
 pub mod extern_call_route_plan; // MIR-owned extern call route policy plans
 pub mod function;
@@ -181,8 +182,8 @@ pub use exact_seed_backend_route::{
     refresh_function_exact_seed_backend_route, refresh_module_exact_seed_backend_routes,
 };
 pub use function::{
-    ClosureBodyId, ExactNumericRuntimeCheckContract, ExactNumericRuntimeCheckContractKind,
-    FunctionSignature, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule, UserBoxFieldDecl,
+    ClosureBodyId, FunctionSignature, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
+    UserBoxFieldDecl,
 };
 pub use generic_method_route_plan::{
     refresh_function_generic_method_routes, refresh_module_generic_method_routes,

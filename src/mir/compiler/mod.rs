@@ -141,11 +141,10 @@ impl Default for MirCompiler {
 #[cfg(test)]
 mod tests {
     use crate::ast::{ASTNode, LiteralValue};
+    use crate::mir::function::ExactNumericRuntimeCheckContractKind;
     use crate::mir::string_corridor::StringCorridorOp;
     use crate::mir::string_corridor_placement::StringCorridorCandidateKind;
-    use crate::mir::{
-        ExactNumericRuntimeCheckContractKind, MirCompiler, MirInstruction, MirPrinter,
-    };
+    use crate::mir::{MirCompiler, MirInstruction, MirPrinter};
     use crate::parser::NyashParser;
 
     #[test]

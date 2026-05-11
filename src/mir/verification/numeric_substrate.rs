@@ -56,10 +56,12 @@ fn verification_error_from_finding(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::function::{
+        ExactNumericRuntimeCheckContract, ExactNumericRuntimeCheckContractKind,
+    };
     use crate::mir::{
-        BasicBlockId, BinaryOp, ConstValue, EffectMask, ExactNumericRuntimeCheckContract,
-        ExactNumericRuntimeCheckContractKind, FunctionSignature, MirFunction, MirInstruction,
-        MirModule, MirType, UserBoxFieldDecl, ValueId,
+        BasicBlockId, BinaryOp, ConstValue, EffectMask, FunctionSignature, MirFunction,
+        MirInstruction, MirModule, MirType, UserBoxFieldDecl, ValueId,
     };
 
     fn module_with_numeric_field(declared_type_name: &str, function: MirFunction) -> MirModule {

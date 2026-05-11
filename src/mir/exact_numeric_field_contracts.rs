@@ -1,11 +1,13 @@
+use crate::mir::function::{
+    ExactNumericRuntimeCheckContract, ExactNumericRuntimeCheckContractKind,
+};
 use crate::mir::numeric_substrate::{
     exact_numeric_mir_type_from_declared_name,
     exact_numeric_type_requires_dynamic_integer_range_check,
     exact_numeric_value_from_dynamic_integer, ExactNumericMirType, NumericTarget,
 };
 use crate::mir::{
-    BasicBlockId, ConstValue, ExactNumericRuntimeCheckContract,
-    ExactNumericRuntimeCheckContractKind, MirFunction, MirInstruction, MirModule, MirType, ValueId,
+    BasicBlockId, ConstValue, MirFunction, MirInstruction, MirModule, MirType, ValueId,
 };
 use std::collections::{BTreeMap, HashMap};
 

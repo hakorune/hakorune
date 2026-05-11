@@ -1,14 +1,12 @@
 use crate::mir::numeric_substrate::ExactNumericMirType;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[allow(dead_code)] // 294x-09 policy; consumed by later PHI/Select fact rows.
 pub(crate) enum ExactNumericMergeSite {
     Phi,
     Select,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[allow(dead_code)] // 294x-09 policy; consumed by later PHI/Select fact rows.
 pub(crate) enum ExactNumericUnificationError {
     MixedExactAndDynamic {
         site: ExactNumericMergeSite,
@@ -21,17 +19,25 @@ pub(crate) enum ExactNumericUnificationError {
     },
 }
 
-#[allow(dead_code)] // 294x-09 policy; consumed by later PHI/Select fact rows.
 pub(crate) fn unify_exact_numeric_control_merge(
     site: ExactNumericMergeSite,
     incoming: &[Option<ExactNumericMirType>],
 ) -> Result<Option<ExactNumericMirType>, ExactNumericUnificationError> {
     let mut unified: Option<ExactNumericMirType> = None;
+    let mut saw_dynamic = false;
 
     for ty in incoming {
         match (unified.as_ref(), ty) {
-            (None, None) => {}
+            (None, None) => {
+                saw_dynamic = true;
+            }
             (None, Some(next)) => {
+                if saw_dynamic {
+                    return Err(ExactNumericUnificationError::MixedExactAndDynamic {
+                        site,
+                        exact_source_name: next.source_name.clone(),
+                    });
+                }
                 unified = Some(next.clone());
             }
             (Some(existing), None) => {
@@ -92,6 +98,22 @@ mod tests {
             unify_exact_numeric_control_merge(
                 ExactNumericMergeSite::Select,
                 &[Some(usize_ty), None],
+            ),
+            Err(ExactNumericUnificationError::MixedExactAndDynamic {
+                site: ExactNumericMergeSite::Select,
+                exact_source_name: "usize".to_string(),
+            })
+        );
+    }
+
+    #[test]
+    fn rejects_dynamic_and_exact_mix_for_select() {
+        let usize_ty = exact_numeric_mir_type_from_declared_name(Some("usize"), target()).unwrap();
+
+        assert_eq!(
+            unify_exact_numeric_control_merge(
+                ExactNumericMergeSite::Select,
+                &[None, Some(usize_ty)],
             ),
             Err(ExactNumericUnificationError::MixedExactAndDynamic {
                 site: ExactNumericMergeSite::Select,

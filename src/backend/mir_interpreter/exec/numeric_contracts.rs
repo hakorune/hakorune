@@ -1,9 +1,10 @@
 use super::super::{MirInterpreter, VMError};
+use crate::mir::function::ExactNumericRuntimeCheckContractKind;
 use crate::mir::numeric_substrate::{
     exact_numeric_mir_type_from_declared_name, exact_numeric_value_from_dynamic_integer,
     ExactNumericConversionError, NumericTarget,
 };
-use crate::mir::{BasicBlockId, ExactNumericRuntimeCheckContractKind, ValueId};
+use crate::mir::{BasicBlockId, ValueId};
 
 impl MirInterpreter {
     pub(super) fn check_exact_numeric_runtime_check_contract(
@@ -89,9 +90,10 @@ mod tests {
     use super::*;
     use crate::backend::mir_interpreter::MirInterpreter;
     use crate::backend::vm_types::VMValue;
+    use crate::mir::function::ExactNumericRuntimeCheckContract;
     use crate::mir::{
-        BasicBlockId, EffectMask, ExactNumericRuntimeCheckContract, FunctionSignature, MirFunction,
-        MirInstruction, MirModule, MirType, UserBoxFieldDecl,
+        BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirModule,
+        MirType, UserBoxFieldDecl,
     };
 
     fn module_with_runtime_check_contract(declared_type_name: &str) -> MirModule {

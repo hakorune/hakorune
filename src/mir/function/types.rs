@@ -13,6 +13,7 @@ use crate::mir::{
     array_text_state_residence_plan::ArrayTextStateResidenceRoute,
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
     effect_capability_plan::{CapabilityPlan, EffectPlan},
+    exact_numeric_value_facts::{ExactNumericValueFact, ExactNumericValueFactRejection},
     exact_seed_backend_route::ExactSeedBackendRoute,
     extern_call_route_plan::ExternCallRoute,
     generic_method_route_plan::GenericMethodRoute,
@@ -332,6 +333,17 @@ pub struct FunctionMetadata {
     /// this only lets the C boundary choose the first helper without walking
     /// the helper-specific ladder.
     pub exact_seed_backend_route: Option<ExactSeedBackendRoute>,
+
+    /// MIR-owned exact numeric facts attached to values after field reads and
+    /// conservative copy/control-merge propagation.
+    ///
+    /// These facts are reference-execution/lowering input metadata only. They
+    /// do not change the legacy dynamic `Integer(i64)` lane by themselves.
+    pub exact_numeric_value_facts: BTreeMap<ValueId, ExactNumericValueFact>,
+
+    /// Control-merge sites where exact numeric facts could not be propagated
+    /// without mixing exact/dynamic values or mismatched exact source names.
+    pub exact_numeric_value_fact_rejections: Vec<ExactNumericValueFactRejection>,
 
     /// MIR-owned contracts proving that a dynamic value is range-checked before
     /// it is written into an exact numeric field. This is metadata only until

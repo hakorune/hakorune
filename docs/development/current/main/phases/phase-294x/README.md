@@ -88,13 +88,17 @@
 - `294x-09a`: VM reference-executor boundary is fixed: VM is not a product
   owner, and future VM exact numeric rows are semantic reference execution
   only.
+- `294x-09b`: MIR semantic refresh now publishes exact numeric value facts for
+  exact numeric field reads, `Copy`, and conservative `Phi`/`Select` merges;
+  rejected exact/dynamic or exact/exact mismatches stay visible as metadata.
 
 ## First Implementation Direction
 
 Start with metadata preservation before runtime behavior:
 
 1. attach exact numeric metadata to MIR facts/signature consumers;
-2. attach exact numeric route facts for params/locals/control merges;
+2. attach exact numeric route facts for params/returns and remaining local
+   producers;
 3. add VM reference exact `usize` behavior, with backend fail-fast/lowering
    kept visible;
 4. migrate hako_alloc non-negative fields.
