@@ -148,6 +148,11 @@ fn main() {
         std::process::exit(exit_code);
     }
     if let Some(exit_code) =
+        nyash_rust::cli::maybe_run_allocator_provider_selection_decision_diagnostic(&config)
+    {
+        std::process::exit(exit_code);
+    }
+    if let Some(exit_code) =
         nyash_rust::cli::maybe_run_allocator_provider_manifest_diagnostic(&config)
     {
         std::process::exit(exit_code);

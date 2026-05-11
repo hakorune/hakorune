@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: accepted
 Date: 2026-05-11
-Scope: current allocator provider / replacement hook task breakdown after M96.
+Scope: current allocator provider / replacement hook task breakdown after M97.
 Related:
   - docs/development/current/main/design/allocator-provider-boundary-v0-ssot.md
   - docs/development/current/main/design/allocator-provider-manifest-v0-ssot.md
@@ -33,6 +33,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-registry-snapshot-cli-surface-ssot.md
   - docs/development/current/main/design/allocator-provider-activation-diagnostic-closeout-inventory-ssot.md
   - docs/development/current/main/design/allocator-provider-selection-decision-diagnostic-report-ssot.md
+  - docs/development/current/main/design/allocator-provider-selection-decision-cli-surface-ssot.md
   - docs/development/current/main/design/allocator-provider-lightweight-doc-sync-policy-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
 ---
@@ -82,6 +83,7 @@ then and only then consider process allocator replacement
 | M94 | registry snapshot CLI surface fixing explicit TOML-path output while active registry construction stays inactive | complete |
 | M95 | activation diagnostic closeout inventory fixing coverage across M92-M94/M93B without activation | complete |
 | M96 | selection decision diagnostic report fixing runtime parsing/reporting while provider selection stays inactive | complete |
+| M97 | selection decision CLI surface fixing explicit TOML-path output while provider selection stays inactive | complete |
 
 ## Layer Model
 
@@ -264,8 +266,9 @@ ladder was being named.
 
 Historical M75 sentence kept for past guards: Provider proof boundary ladder is now closed through M75.
 
-M87 and later follow the lightweight docs sync policy. M87-M96 are landed.
-M95 is the latest closeout checkpoint and M96 is the latest runtime diagnostic checkpoint:
+M87 and later follow the lightweight docs sync policy. M87-M97 are landed.
+M95 is the latest closeout checkpoint, M96 is the latest runtime diagnostic
+checkpoint, and M97 is the latest CLI diagnostic checkpoint:
 
 1. SSOT or implementation doc first.
 2. Small runtime/CLI code only when the row explicitly allows it.
@@ -293,4 +296,7 @@ replacement, and hidden environment discovery split into later guarded rows.
 M95 closes out the M92-M94/M93B activation diagnostic inventory without changing
 runtime behavior. M96 adds diagnostic-only parsing/reporting over
 caller-provided selection decision TOML text while keeping provider selection
-and activation inactive. The next safe row is M97 selection decision CLI surface.
+and activation inactive. M97 exposes that report through an explicit
+caller-provided TOML path while keeping provider selection and activation
+inactive. After M97, reserve the next guarded proof-bundle diagnostic report row
+before adding any proof consumption behavior.
