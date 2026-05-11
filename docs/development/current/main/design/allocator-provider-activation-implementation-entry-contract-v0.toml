@@ -1,0 +1,63 @@
+# Reserved schema fixture only. Runtime/backend code must not implicitly
+# discover or consume this file.
+schema_version = "allocator_provider_activation_implementation_entry_contract_v0"
+status = "reserved"
+active = false
+activation_implementation_status = "owner_entry_reserved"
+
+activation_owner = "src/runtime/allocator_provider_activation.rs"
+activation_entry = "allocator_provider_activation_attempt"
+activation_decision_owner = "src/runtime/allocator_provider_activation_decision.rs"
+registry_diagnostic_owner = "src/runtime/allocator_provider_registry.rs"
+
+activation_decision_report_path = "activation-decision-v0.toml"
+registry_snapshot_report_path = "registry-snapshot-v0.toml"
+selection_decision_report_path = "selection-decision-v0.toml"
+proof_bundle_report_path = "proof-bundle-consumption-v0.toml"
+rollback_preflight_report_path = "rollback-preflight-v0.toml"
+activation_safety_gate_report_path = "activation-safety-gate-v0.toml"
+
+provider_selection = "inactive"
+proof_bundle_consumption = "future_row_required"
+rollback_preparation = "future_row_required"
+activation_gate = "closed_reserved"
+hook_activation = "future_row_required"
+process_allocator_replacement = "future_row_required"
+would_build_registry = false
+would_select_provider = false
+would_consume_proof = false
+would_prepare_rollback = false
+would_open_activation_gate = false
+would_install_hook = false
+would_replace_process_allocator = false
+would_activate = false
+activation = "future_row_required"
+diagnostic = "[allocator-provider/activation-implementation-entry-missing]"
+
+required_activation_implementation_entry_facts = [
+  "activation_implementation_owner_named",
+  "activation_attempt_entry_named",
+  "activation_decision_report_explicit",
+  "registry_snapshot_report_explicit",
+  "selection_decision_report_explicit",
+  "proof_bundle_report_explicit",
+  "rollback_preflight_report_explicit",
+  "activation_safety_gate_report_explicit",
+  "fail_fast_activation_attempt_diagnostic_named",
+  "no_hidden_environment_toggle",
+  "no_implicit_manifest_discovery",
+  "no_implicit_report_discovery",
+  "no_provider_selection_implementation",
+  "no_proof_consumption_implementation",
+  "no_rollback_preparation_implementation",
+  "no_activation_gate_opening",
+  "no_hook_activation_implementation",
+  "no_process_allocator_replacement",
+]
+
+future_rows = [
+  "M93 registry snapshot diagnostic report",
+  "M94 registry snapshot CLI surface",
+  "M95 selection decision diagnostic report",
+  "M96 selection decision CLI surface",
+]
