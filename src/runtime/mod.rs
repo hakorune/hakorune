@@ -9,6 +9,7 @@ pub(crate) mod allocator_provider_activation_safety;
 pub(crate) mod allocator_provider_diagnostic_inactive;
 pub mod allocator_provider_manifest;
 pub(crate) mod allocator_provider_proof_bundle_consumption;
+pub(crate) mod allocator_provider_proof_validation;
 pub mod allocator_provider_registry;
 pub(crate) mod allocator_provider_registry_common;
 #[cfg(test)]

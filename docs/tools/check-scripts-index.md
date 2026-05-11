@@ -154,6 +154,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_entry_contract_guard.sh` | M100 の allocator provider proof bundle consumption entry contract を固定し、単一 future behavior owner/entry と active registry/selection/proof/rollback/gate/hook/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_proof_consumption_failfast_entry_guard.sh` | M101 の allocator provider proof consumption fail-fast entry を固定し、runtime attempt report と active registry/selection/proof/rollback/gate/hook/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_selected_provider_precondition_guard.sh` | M102 の allocator provider selected-provider precondition を固定し、caller-provided selected provider 検査と active registry/selection/proof/rollback/gate/hook/replacement 不在を検証する。 |
+| `tools/checks/k2_wide_allocator_provider_proof_validation_guard.sh` | M103 の allocator provider selected-provider proof validation を固定し、proof validation guard が wide allocator gate に個別登録されていないことも検証する。 |
 
 ## Env Hygiene
 

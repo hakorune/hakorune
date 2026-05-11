@@ -119,6 +119,7 @@
 - [x] `293x-156` M100 allocator provider proof bundle consumption entry contract
 - [x] `293x-157` M101 allocator provider proof consumption fail-fast entry
 - [x] `293x-158` M102 allocator provider selected-provider precondition
+- [x] `293x-159` M103 allocator provider selected-provider proof validation
 
 ## Gates
 

@@ -118,6 +118,12 @@ The validation module API must stay `pub(crate)` and must not select providers,
 consume proofs, prepare rollback, open gates, install hooks, or replace the
 process allocator.
 
+M103 is landed when
+`allocator_provider_selected_provider_proof_validation_attempt` returns
+`ReadySelectedProviderProofValidated` only after the selected provider
+precondition and proof operation coverage facts pass. It still returns
+`proof_bundle_consumed=false`.
+
 M104 is the first row allowed to produce an in-memory proof bundle consumption
 token. Even then, rollback, gate opening, hook install, native activation, and
 replacement remain inactive.
@@ -127,8 +133,8 @@ execute rollback and does not open the gate.
 
 ## Next Row
 
-The next concrete row after M102 is:
+The next concrete row after M103 is:
 
 ```text
-M103 ALLOCATOR-PROVIDER-SELECTED-PROVIDER-PROOF-VALIDATION
+M104 ALLOCATOR-PROVIDER-PROOF-BUNDLE-CONSUMPTION-TOKEN
 ```

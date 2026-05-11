@@ -99,6 +99,7 @@ then and only then consider process allocator replacement
 | M100 | proof bundle consumption entry contract fixing the single future behavior owner/entry while proof consumption stays inactive | complete |
 | M101 | proof consumption fail-fast entry fixing the reserved runtime entry while proof consumption stays inactive | complete |
 | M102 | selected-provider precondition fixing caller-provided selected provider validation while proof consumption stays inactive | complete |
+| M103 | selected-provider proof validation fixing operation coverage facts while proof consumption stays inactive | complete |
 
 ## Layer Model
 
@@ -309,12 +310,13 @@ ladder was being named.
 
 Historical M75 sentence kept for past guards: Provider proof boundary ladder is now closed through M75.
 
-M87 and later follow the lightweight docs sync policy. M87-M102 are landed.
+M87 and later follow the lightweight docs sync policy. M87-M103 are landed.
 M95 is the latest closeout checkpoint, M98 is the latest runtime diagnostic
 checkpoint, M99 is the latest CLI diagnostic checkpoint, M98B is the latest
 BoxShape cleanup checkpoint, M100 is the latest behavior owner/entry
-checkpoint, M101 is the first small runtime fail-fast implementation row, and
-M102 is the first caller-provided selected-provider precondition row:
+checkpoint, M101 is the first small runtime fail-fast implementation row, M102
+is the first caller-provided selected-provider precondition row, and M103 is
+the selected-provider proof validation row:
 
 1. SSOT or implementation doc first.
 2. Small runtime/CLI code only when the row explicitly allows it.
@@ -357,9 +359,11 @@ the activation owner while keeping proof consumption inactive. M101 creates the
 reserved runtime entry as a fail-fast attempt report that blocks when a real
 selected provider is absent. M102 validates only a caller-provided selected
 provider precondition; it does not select a provider and does not consume
-proofs. The next safe row is M103 proof validation for the selected provider,
-still without creating a proof consumption token. Any later activation behavior
-row must keep using explicit owner/entry contracts and must not piggyback on
+proofs. M103 validates selected-provider proof facts while still keeping
+`proof_bundle_consumed=false`. The next safe row is M104 proof bundle
+consumption token, still without rollback preparation, gate opening, hook
+activation, native activation, or replacement. Any later activation behavior row
+must keep using explicit owner/entry contracts and must not piggyback on
 diagnostic CLI surfaces.
 
 Post-M101 growth stop-line: if `allocator_provider_activation.rs` starts owning

@@ -366,5 +366,9 @@ inference for the allocator release path.
 - `293x-158`: M102 allocator provider selected-provider precondition landed,
   validating only a caller-provided selected provider while keeping provider
   selection and proof consumption inactive.
-- Next: M103 may validate selected-provider proof facts, still without creating
-  a proof consumption token or piggybacking on diagnostic CLI surfaces.
+- `293x-159`: M103 allocator provider selected-provider proof validation
+  landed, validating proof operation coverage while keeping proof consumption
+  token creation inactive.
+- Next: M104 may create an in-memory proof bundle consumption token, still
+  without rollback preparation, gate opening, hook activation, native
+  activation, or replacement.

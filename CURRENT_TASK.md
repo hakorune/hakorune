@@ -79,10 +79,10 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
 - current allocator/provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
-  (closed through M102; the proof-bundle consumption fail-fast runtime entry
-  and caller-provided selected-provider precondition are present under the
-  activation owner, while provider selection and actual proof consumption
-  remain inactive until later proof-validation/token rows)
+  (closed through M103; the proof-bundle consumption fail-fast runtime entry,
+  caller-provided selected-provider precondition, and selected-provider proof
+  validation are present under the activation owner, while provider selection
+  and actual proof consumption remain inactive until later token rows)
 - post-M101 implementation ladder:
   `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`
 - detailed landed history: phase-291x card files and
@@ -98,11 +98,12 @@ Scope: current lane / next lane / restart order only.
   focused modules behind the historical registry facade, M99 exposes the
   inactive proof-bundle report through an explicit TOML-path CLI, M100 reserves
   the future proof-bundle consumption behavior owner/entry, M101 creates the
-  fail-fast runtime entry, and M102 validates a caller-provided selected
-  provider precondition without selecting a provider or consuming proofs. Active
-  registry construction, provider selection, proof consumption, rollback
-  preparation, gate opening, hook activation, native activation, and process
-  allocator replacement remain inactive
+  fail-fast runtime entry, M102 validates a caller-provided selected provider
+  precondition, and M103 validates selected-provider proof operation coverage
+  without selecting a provider or consuming proofs. Active registry
+  construction, provider selection, proof token creation, rollback preparation,
+  gate opening, hook activation, native activation, and process allocator
+  replacement remain inactive
 - VM retreat reading: new substrate / allocator features should target
   `llvm/exe` / pure-first acceptance first; `vm-hako` is reference/monitor only
   and `rust-vm` is bootstrap/recovery/compat keep, so broad VM parity is not a

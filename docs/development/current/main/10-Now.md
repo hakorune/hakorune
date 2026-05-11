@@ -56,10 +56,11 @@ Related:
   card/taskboard first
 - current allocator/provider task ladder is:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`;
-  the ladder is closed through M102, and proof-bundle consumption now has a
-  fail-fast runtime entry plus a caller-provided selected-provider precondition
-  under the activation owner while provider selection and actual consumption
-  remain inactive until later proof-validation/token rows
+  the ladder is closed through M103, and proof-bundle consumption now has a
+  fail-fast runtime entry, a caller-provided selected-provider precondition,
+  and selected-provider proof validation under the activation owner while
+  provider selection and actual consumption remain inactive until later token
+  rows
 - post-M101 implementation order:
   `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`
 - latest docs/inventory baseline: `291x-691` remains the historical backlog
