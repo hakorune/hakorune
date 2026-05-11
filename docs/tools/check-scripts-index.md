@@ -143,6 +143,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_allocator_provider_activation_implementation_entry_contract_guard.sh` | M92 の allocator provider activation implementation entry contract を固定し、単一 future owner/entry と selection/proof/rollback/gate/hook/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_registry_snapshot_diagnostic_report_guard.sh` | M93 の allocator provider registry snapshot diagnostic report を固定し、caller-provided TOML report と active registry/selection/proof/rollback/gate/hook/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_diagnostic_inactive_actions_guard.sh` | M93B の allocator provider diagnostic inactive actions cleanup を固定し、M83/M89/M93 の false output SSOT と past guard latest-card pin 不在を検証する。 |
+| `tools/checks/k2_wide_allocator_provider_registry_snapshot_cli_surface_guard.sh` | M94 の allocator provider registry snapshot CLI surface を固定し、明示 TOML path 診断と active registry/selection/proof/rollback/gate/hook/replacement 不在を検証する。 |
 
 ## Env Hygiene
 

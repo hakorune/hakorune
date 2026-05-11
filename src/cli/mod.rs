@@ -6,6 +6,7 @@ mod allocator_hook_dry_run;
 mod allocator_provider_activation_decision;
 mod allocator_provider_activation_safety;
 mod allocator_provider_manifest;
+mod allocator_provider_registry_snapshot;
 mod args;
 mod diagnostic_output;
 mod groups;
@@ -17,6 +18,7 @@ pub use allocator_provider_activation_safety::maybe_run_allocator_provider_activ
 pub use allocator_provider_manifest::{
     maybe_run_allocator_provider_combined_dry_run, maybe_run_allocator_provider_manifest_diagnostic,
 };
+pub use allocator_provider_registry_snapshot::maybe_run_allocator_provider_registry_snapshot_diagnostic;
 
 /// Command-line configuration structure
 #[derive(Debug, Clone)]
@@ -88,6 +90,7 @@ pub struct CliConfig {
     pub allocator_provider_manifest: Option<String>,
     pub allocator_provider_activation_safety_gate: Option<String>,
     pub allocator_provider_activation_decision: Option<String>,
+    pub allocator_provider_registry_snapshot: Option<String>,
     // Phase 288 P1: REPL mode
     pub repl: bool,
 }
@@ -247,6 +250,7 @@ impl Default for CliConfig {
             allocator_provider_manifest: None,
             allocator_provider_activation_safety_gate: None,
             allocator_provider_activation_decision: None,
+            allocator_provider_registry_snapshot: None,
             // Phase 288 P1: REPL mode
             repl: false,
         }
@@ -291,6 +295,9 @@ fn allocator_diagnostic_modes(config: &CliConfig) -> Vec<&'static str> {
     }
     if config.allocator_provider_activation_decision.is_some() {
         modes.push("allocator_provider_activation_decision");
+    }
+    if config.allocator_provider_registry_snapshot.is_some() {
+        modes.push("allocator_provider_registry_snapshot");
     }
     modes
 }
@@ -341,6 +348,27 @@ mod tests {
             vec![
                 "allocator_provider_manifest",
                 "allocator_provider_activation_decision"
+            ]
+        );
+        assert_eq!(
+            maybe_reject_allocator_diagnostic_conflicts(&config),
+            Some(2)
+        );
+    }
+
+    #[test]
+    fn allocator_registry_snapshot_conflicts_with_other_diagnostics() {
+        let config = CliConfig {
+            allocator_provider_registry_snapshot: Some("registry.toml".to_string()),
+            allocator_provider_activation_decision: Some("decision.toml".to_string()),
+            ..CliConfig::default()
+        };
+
+        assert_eq!(
+            allocator_diagnostic_modes(&config),
+            vec![
+                "allocator_provider_activation_decision",
+                "allocator_provider_registry_snapshot"
             ]
         );
         assert_eq!(

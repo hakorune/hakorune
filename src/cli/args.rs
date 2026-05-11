@@ -149,6 +149,12 @@ pub fn build_command() -> Command {
                 .value_name("FILE")
                 .help("[Diagnostic] Validate explicit allocator provider activation decision TOML without selecting or activating a provider")
         )
+        .arg(
+            Arg::new("allocator-provider-registry-snapshot")
+                .long("allocator-provider-registry-snapshot")
+                .value_name("FILE")
+                .help("[Diagnostic] Validate explicit allocator provider registry snapshot TOML without building a registry or selecting a provider")
+        )
         .arg(Arg::new("stage3").long("stage3").help("Enable Stage-3 syntax acceptance for selfhost parser").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("ny-compiler-args").long("ny-compiler-args").value_name("ARGS").help("Pass additional args to selfhost child compiler"))
         .arg(Arg::new("using").long("using").value_name("NAME").help("Add a using directive to current session; repeat").action(clap::ArgAction::Append))
@@ -323,6 +329,9 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
             .cloned(),
         allocator_provider_activation_decision: matches
             .get_one::<String>("allocator-provider-activation-decision")
+            .cloned(),
+        allocator_provider_registry_snapshot: matches
+            .get_one::<String>("allocator-provider-registry-snapshot")
             .cloned(),
         // Phase 288 P1: REPL mode
         repl: matches.get_flag("repl"),
@@ -637,6 +646,23 @@ mod tests {
         assert_eq!(
             cfg.allocator_provider_activation_decision.as_deref(),
             Some("/tmp/decision.toml")
+        );
+    }
+
+    #[test]
+    fn allocator_provider_registry_snapshot_cli_route_parses() {
+        let matches = build_command()
+            .try_get_matches_from([
+                "hakorune",
+                "--allocator-provider-registry-snapshot",
+                "/tmp/registry.toml",
+            ])
+            .expect("allocator provider registry snapshot args should parse");
+
+        let cfg = from_matches(&matches);
+        assert_eq!(
+            cfg.allocator_provider_registry_snapshot.as_deref(),
+            Some("/tmp/registry.toml")
         );
     }
 

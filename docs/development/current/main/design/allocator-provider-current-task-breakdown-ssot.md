@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: accepted
 Date: 2026-05-11
-Scope: current allocator provider / replacement hook task breakdown after M93B.
+Scope: current allocator provider / replacement hook task breakdown after M94.
 Related:
   - docs/development/current/main/design/allocator-provider-boundary-v0-ssot.md
   - docs/development/current/main/design/allocator-provider-manifest-v0-ssot.md
@@ -30,6 +30,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-activation-implementation-entry-contract-v0.toml
   - docs/development/current/main/design/allocator-provider-registry-snapshot-diagnostic-report-ssot.md
   - docs/development/current/main/design/allocator-provider-diagnostic-inactive-actions-ssot.md
+  - docs/development/current/main/design/allocator-provider-registry-snapshot-cli-surface-ssot.md
   - docs/development/current/main/design/allocator-provider-lightweight-doc-sync-policy-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
 ---
@@ -76,6 +77,7 @@ then and only then consider process allocator replacement
 | M92 | activation implementation entry contract fixing the single future owner/entry while keeping activation inactive | complete |
 | M93 | registry snapshot diagnostic report fixing runtime parsing/reporting while active registry construction stays inactive | complete |
 | M93B | diagnostic inactive actions cleanup fixing one code-side source for false provider diagnostic outputs | complete |
+| M94 | registry snapshot CLI surface fixing explicit TOML-path output while active registry construction stays inactive | complete |
 
 ## Layer Model
 
@@ -130,6 +132,7 @@ activation entry:
 | M93 | registry snapshot diagnostic report | diagnostic-only report over caller-provided registry snapshot TOML | active registry construction |
 | M93B | diagnostic inactive actions cleanup | shared code-side false output source for M83/M89/M93 reports | behavior change |
 | M94 | registry snapshot CLI surface | explicit CLI output for the inactive registry snapshot report | environment discovery |
+| M95 | activation diagnostic closeout inventory | coverage guard for M92-M94/M93B artifacts | runtime activation |
 
 ## Post-M75 Activation Entry Ladder
 
@@ -155,6 +158,7 @@ activation entry:
 | M93 | registry snapshot diagnostic report | runtime report for complete/missing/malformed registry snapshot input | active registry construction |
 | M93B | diagnostic inactive actions cleanup | shared code-side false output source for M83/M89/M93 reports | behavior change |
 | M94 | registry snapshot CLI surface | explicit CLI output for the inactive registry snapshot report | implicit discovery |
+| M95 | activation diagnostic closeout inventory | coverage guard for M92-M94/M93B artifacts | runtime activation |
 
 ## Dependency Order
 
@@ -188,6 +192,7 @@ M66 task breakdown
   -> M93 registry snapshot diagnostic report
   -> M93B diagnostic inactive actions cleanup
   -> M94 registry snapshot CLI surface
+  -> M95 activation diagnostic closeout inventory
   -> later activation behavior rows only after each owner/entry SSOT
 ```
 
@@ -249,7 +254,7 @@ ladder was being named.
 
 Historical M75 sentence kept for past guards: Provider proof boundary ladder is now closed through M75.
 
-M87 and later follow the lightweight docs sync policy. M87-M93B are landed and
+M87 and later follow the lightweight docs sync policy. M87-M94 are landed and
 M91 remains the latest closeout checkpoint:
 
 1. SSOT or implementation doc first.
@@ -271,8 +276,8 @@ the single future activation implementation owner/entry without creating
 runtime activation behavior. M93 adds diagnostic-only parsing/reporting over
 caller-provided registry snapshot TOML text while keeping active registry
 construction inactive. M93B centralizes the diagnostic false outputs before the
-CLI row. The next safe row is M94 registry snapshot CLI surface.
-It may expose only an explicit caller-provided TOML path and must keep active
+CLI row. M94 exposes only an explicit caller-provided TOML path and keeps active
 registry construction, provider selection, proof consumption, rollback
 preparation, activation gate opening, hook activation, process allocator
-replacement, and hidden environment discovery split into later guarded rows.
+replacement, and hidden environment discovery split into later guarded rows. The
+next safe row is M95 activation diagnostic closeout inventory.
