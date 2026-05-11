@@ -168,6 +168,32 @@ pub(crate) enum ExactNumericConversionError {
     },
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[allow(dead_code)] // 294x-07 policy; consumed by later VM/backend exact-op rows.
+pub(crate) enum ExactNumericArithmeticOp {
+    Add,
+    Sub,
+    Mul,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[allow(dead_code)] // 294x-07 policy; consumed by later VM/backend exact-op rows.
+pub(crate) enum ExactNumericArithmeticError {
+    TypeMismatch {
+        left_source_name: String,
+        right_source_name: String,
+    },
+    ResultOutOfRange {
+        source_name: String,
+        op: ExactNumericArithmeticOp,
+        lhs: i128,
+        rhs: i128,
+        result: Option<i128>,
+        min: i128,
+        max: i128,
+    },
+}
+
 pub(crate) fn classify_numeric_type_name(name: &str) -> Option<NumericTypeName> {
     let (signedness, width) = match name {
         "i8" => (NumericSignedness::Signed, NumericWidth::Bits8),
@@ -249,6 +275,54 @@ pub(crate) fn exact_numeric_value_from_dynamic_integer(
     ty: &ExactNumericMirType,
 ) -> Result<ExactNumericConstValue, ExactNumericConversionError> {
     exact_numeric_const_from_i128(i128::from(value), ty)
+}
+
+#[allow(dead_code)] // 294x-07 policy; consumed by later VM/backend exact-op rows.
+pub(crate) fn exact_numeric_checked_arithmetic(
+    lhs: &ExactNumericConstValue,
+    rhs: &ExactNumericConstValue,
+    op: ExactNumericArithmeticOp,
+) -> Result<ExactNumericConstValue, ExactNumericArithmeticError> {
+    if lhs.ty != rhs.ty {
+        return Err(ExactNumericArithmeticError::TypeMismatch {
+            left_source_name: lhs.ty.source_name.clone(),
+            right_source_name: rhs.ty.source_name.clone(),
+        });
+    }
+
+    let result = match op {
+        ExactNumericArithmeticOp::Add => lhs.value.checked_add(rhs.value),
+        ExactNumericArithmeticOp::Sub => lhs.value.checked_sub(rhs.value),
+        ExactNumericArithmeticOp::Mul => lhs.value.checked_mul(rhs.value),
+    };
+    let range = lhs.ty.kind.value_range();
+    let Some(value) = result else {
+        return Err(ExactNumericArithmeticError::ResultOutOfRange {
+            source_name: lhs.ty.source_name.clone(),
+            op,
+            lhs: lhs.value,
+            rhs: rhs.value,
+            result: None,
+            min: range.min,
+            max: range.max,
+        });
+    };
+    if value < range.min || value > range.max {
+        return Err(ExactNumericArithmeticError::ResultOutOfRange {
+            source_name: lhs.ty.source_name.clone(),
+            op,
+            lhs: lhs.value,
+            rhs: rhs.value,
+            result: Some(value),
+            min: range.min,
+            max: range.max,
+        });
+    }
+
+    Ok(ExactNumericConstValue {
+        ty: lhs.ty.clone(),
+        value,
+    })
 }
 
 pub(crate) fn exact_numeric_type_requires_dynamic_integer_range_check(
@@ -547,6 +621,136 @@ mod tests {
                 },
                 value: 7,
             }
+        );
+    }
+
+    #[test]
+    fn exact_numeric_checked_arithmetic_accepts_in_range_usize_add() {
+        let pointer64 = NumericTarget {
+            pointer_width: NumericResolvedWidth::Bits64,
+        };
+        let usize_ty = exact_numeric_mir_type_from_declared_name(Some("usize"), pointer64).unwrap();
+        let lhs = exact_numeric_const_from_i128(40, &usize_ty).unwrap();
+        let rhs = exact_numeric_const_from_i128(2, &usize_ty).unwrap();
+
+        assert_eq!(
+            exact_numeric_checked_arithmetic(&lhs, &rhs, ExactNumericArithmeticOp::Add).unwrap(),
+            ExactNumericConstValue {
+                ty: usize_ty,
+                value: 42,
+            }
+        );
+    }
+
+    #[test]
+    fn exact_numeric_checked_arithmetic_rejects_usize_sub_underflow() {
+        let pointer64 = NumericTarget {
+            pointer_width: NumericResolvedWidth::Bits64,
+        };
+        let usize_ty = exact_numeric_mir_type_from_declared_name(Some("usize"), pointer64).unwrap();
+        let lhs = exact_numeric_const_from_i128(0, &usize_ty).unwrap();
+        let rhs = exact_numeric_const_from_i128(1, &usize_ty).unwrap();
+
+        assert_eq!(
+            exact_numeric_checked_arithmetic(&lhs, &rhs, ExactNumericArithmeticOp::Sub),
+            Err(ExactNumericArithmeticError::ResultOutOfRange {
+                source_name: "usize".to_string(),
+                op: ExactNumericArithmeticOp::Sub,
+                lhs: 0,
+                rhs: 1,
+                result: Some(-1),
+                min: 0,
+                max: 18_446_744_073_709_551_615_i128,
+            })
+        );
+    }
+
+    #[test]
+    fn exact_numeric_checked_arithmetic_rejects_narrow_unsigned_add_overflow() {
+        let pointer64 = NumericTarget {
+            pointer_width: NumericResolvedWidth::Bits64,
+        };
+        let u8_ty = exact_numeric_mir_type_from_declared_name(Some("u8"), pointer64).unwrap();
+        let lhs = exact_numeric_const_from_i128(255, &u8_ty).unwrap();
+        let rhs = exact_numeric_const_from_i128(1, &u8_ty).unwrap();
+
+        assert_eq!(
+            exact_numeric_checked_arithmetic(&lhs, &rhs, ExactNumericArithmeticOp::Add),
+            Err(ExactNumericArithmeticError::ResultOutOfRange {
+                source_name: "u8".to_string(),
+                op: ExactNumericArithmeticOp::Add,
+                lhs: 255,
+                rhs: 1,
+                result: Some(256),
+                min: 0,
+                max: 255,
+            })
+        );
+    }
+
+    #[test]
+    fn exact_numeric_checked_arithmetic_rejects_signed_mul_overflow() {
+        let pointer64 = NumericTarget {
+            pointer_width: NumericResolvedWidth::Bits64,
+        };
+        let i8_ty = exact_numeric_mir_type_from_declared_name(Some("i8"), pointer64).unwrap();
+        let lhs = exact_numeric_const_from_i128(64, &i8_ty).unwrap();
+        let rhs = exact_numeric_const_from_i128(2, &i8_ty).unwrap();
+
+        assert_eq!(
+            exact_numeric_checked_arithmetic(&lhs, &rhs, ExactNumericArithmeticOp::Mul),
+            Err(ExactNumericArithmeticError::ResultOutOfRange {
+                source_name: "i8".to_string(),
+                op: ExactNumericArithmeticOp::Mul,
+                lhs: 64,
+                rhs: 2,
+                result: Some(128),
+                min: -128,
+                max: 127,
+            })
+        );
+    }
+
+    #[test]
+    fn exact_numeric_checked_arithmetic_rejects_i128_internal_overflow() {
+        let pointer64 = NumericTarget {
+            pointer_width: NumericResolvedWidth::Bits64,
+        };
+        let u64_ty = exact_numeric_mir_type_from_declared_name(Some("u64"), pointer64).unwrap();
+        let max = 18_446_744_073_709_551_615_i128;
+        let lhs = exact_numeric_const_from_i128(max, &u64_ty).unwrap();
+        let rhs = exact_numeric_const_from_i128(max, &u64_ty).unwrap();
+
+        assert_eq!(
+            exact_numeric_checked_arithmetic(&lhs, &rhs, ExactNumericArithmeticOp::Mul),
+            Err(ExactNumericArithmeticError::ResultOutOfRange {
+                source_name: "u64".to_string(),
+                op: ExactNumericArithmeticOp::Mul,
+                lhs: max,
+                rhs: max,
+                result: None,
+                min: 0,
+                max,
+            })
+        );
+    }
+
+    #[test]
+    fn exact_numeric_checked_arithmetic_rejects_mismatched_exact_types() {
+        let pointer64 = NumericTarget {
+            pointer_width: NumericResolvedWidth::Bits64,
+        };
+        let u8_ty = exact_numeric_mir_type_from_declared_name(Some("u8"), pointer64).unwrap();
+        let u16_ty = exact_numeric_mir_type_from_declared_name(Some("u16"), pointer64).unwrap();
+        let lhs = exact_numeric_const_from_i128(1, &u8_ty).unwrap();
+        let rhs = exact_numeric_const_from_i128(1, &u16_ty).unwrap();
+
+        assert_eq!(
+            exact_numeric_checked_arithmetic(&lhs, &rhs, ExactNumericArithmeticOp::Add),
+            Err(ExactNumericArithmeticError::TypeMismatch {
+                left_source_name: "u8".to_string(),
+                right_source_name: "u16".to_string(),
+            })
         );
     }
 }

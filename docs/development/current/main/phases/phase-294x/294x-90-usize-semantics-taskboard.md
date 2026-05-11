@@ -31,7 +31,7 @@ one commit unless a row explicitly says it is docs-only.
 | `294x-06d` | Complete | VM dynamic range-check execution | the VM interpreter executes existing `DynamicIntegerRange` contracts at `FieldSet` sites and rejects bad dynamic values before mutation |
 | `294x-06e` | Complete | dynamic range-check contract refresh | real MIR `FieldSet` producers receive `DynamicIntegerRange` contracts after optimization and before verification |
 | `294x-06f` | Complete | backend runtime-check contract fail-fast | unsupported non-VM backend routes reject modules that still carry exact numeric runtime-check contracts |
-| `294x-07` | Pending | overflow and checked arithmetic policy | plain typed `usize` arithmetic has checked/fail-fast behavior; wrapping stays explicit |
+| `294x-07` | Complete | overflow and checked arithmetic policy | exact numeric add/sub/mul policy is checked/fail-fast; wrapping stays explicit future vocabulary |
 | `294x-08` | Pending | unsigned compare and logical shift | comparisons and right shift stop using signed i64 semantics for `usize` |
 | `294x-09` | Pending | PHI/Select numeric unification | exact numeric kinds merge conservatively and fail fast on unsupported mixes |
 | `294x-10` | Pending | VM exact `usize` value/ops v0 | VM executes basic `usize` ops without silently aliasing to dynamic `Integer(i64)` |
@@ -51,7 +51,7 @@ one commit unless a row explicitly says it is docs-only.
 ### Spec
 
 - [x] Define exact `usize` range owner by target pointer width.
-- [ ] Define overflow behavior.
+- [x] Define overflow behavior.
 - [ ] Define logical shift behavior.
 - [ ] Define unsigned comparison behavior.
 - [x] Define conversion from dynamic `Integer(i64)`.
@@ -76,6 +76,7 @@ one commit unless a row explicitly says it is docs-only.
 - [x] Add conversion/cast vocabulary.
 - [ ] Add PHI/Select unification rules.
 - [ ] Publish route facts for numeric params and returns.
+- [x] Add checked exact numeric add/sub/mul policy helpers.
 
 ### Runtime / VM
 
@@ -84,7 +85,7 @@ one commit unless a row explicitly says it is docs-only.
 - [x] Attach `DynamicIntegerRange` contracts for real exact numeric field-write
   producers after MIR shape is stable.
 - [ ] Range-check construction beyond exact numeric field-write contracts.
-- [ ] Implement checked add/sub/mul.
+- [ ] Implement checked add/sub/mul in live VM exact numeric op routes.
 - [ ] Implement div/mod with zero checks.
 - [ ] Implement bitwise ops.
 - [ ] Implement logical right shift.

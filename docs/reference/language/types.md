@@ -69,15 +69,20 @@ Current live semantics are intentionally narrow:
   lowering/execution of those contracts, and exact VM runtime values remain
   deferred. Unsupported non-VM backend routes fail fast instead of silently
   dropping exact numeric runtime-check contracts.
+- MIR numeric substrate policy now defines checked exact numeric add/sub/mul:
+  operands must have the same exact numeric type and results must fit the
+  target-resolved range. VM/backend exact arithmetic lowering is still future.
 
 Deferred and not accepted by this row:
 
 - literal suffixes such as `1u64` or `64usize`
 - param/local verifier checks, runtime-check insertion/lowering beyond exact
   numeric field-write contracts, non-VM backend runtime-check lowering,
-  exact runtime unsigned range construction, and unsigned overflow behavior
+  exact runtime unsigned range construction, and live unsigned arithmetic
+  execution
 - `u64` values outside signed i64
-- wrapping / checked arithmetic syntax
+- live VM/backend exact numeric arithmetic routes and wrapping / checked
+  helper-call syntax
 - logical right-shift syntax or intrinsic distinct from current `>>`
 - MIR JSON exact-width numeric const tags
 

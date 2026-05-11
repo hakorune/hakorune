@@ -59,6 +59,8 @@ Live today:
 - unsupported non-VM backend routes fail fast with
   `[freeze:contract][exact-numeric/runtime-check-unsupported-backend]` when a
   module still carries exact numeric runtime-check contracts;
+- `src/mir/numeric_substrate.rs` owns checked exact numeric add/sub/mul policy
+  for same-type operands, rejecting type mismatch and out-of-range results;
 - typed-object planning can use numeric annotations as inline i64 storage
   hints;
 - VM runtime values use `Integer(i64)`;
@@ -71,7 +73,8 @@ Not live today:
   contracts, and exact runtime unsigned range-check construction;
 - numeric literal suffixes such as `0usize`;
 - unsigned comparisons distinct from signed i64 comparisons;
-- wrapping / checked arithmetic vocabulary;
+- live VM/backend exact numeric arithmetic routes and explicit wrapping
+  vocabulary;
 - logical right shift distinct from current `>>`;
 - MIR / Program(JSON) exact numeric constants;
 - typed-object `usize` storage distinct from i64 storage;
@@ -101,6 +104,9 @@ target.
 ## Overflow Policy
 
 The safe default is checked/fail-fast arithmetic for typed `usize` operations.
+The MIR numeric substrate already owns the first exact add/sub/mul policy:
+operands must share the same exact numeric type, and the result must fit the
+target-resolved range for that type.
 
 Wrapping behavior is allowed only through explicit vocabulary added by a later
 row, for example `wrapping_add_usize` / `checked_add_usize` helpers or
