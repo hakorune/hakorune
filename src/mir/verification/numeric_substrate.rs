@@ -5,6 +5,7 @@ use crate::mir::numeric_substrate::{
     NumericTarget,
 };
 use crate::mir::verification_types::VerificationError;
+use crate::mir::ExactNumericRuntimeCheckContractKind;
 use crate::mir::{ConstValue, MirFunction, MirInstruction, MirModule, MirType, ValueId};
 use std::collections::{BTreeMap, HashMap};
 
@@ -110,7 +111,16 @@ fn check_function(
                     }
                 }
                 None => {
-                    if exact_numeric_type_requires_dynamic_integer_range_check(ty) {
+                    if exact_numeric_type_requires_dynamic_integer_range_check(ty)
+                        && !has_runtime_check_contract(
+                            function,
+                            *block,
+                            instruction_index,
+                            field,
+                            *value,
+                            ty,
+                        )
+                    {
                         errors.push(exact_numeric_dynamic_check_required(
                             function,
                             *block,
@@ -126,6 +136,28 @@ fn check_function(
             }
         }
     }
+}
+
+fn has_runtime_check_contract(
+    function: &MirFunction,
+    block: crate::mir::BasicBlockId,
+    instruction_index: usize,
+    field: &str,
+    value: ValueId,
+    ty: &ExactNumericMirType,
+) -> bool {
+    function
+        .metadata
+        .exact_numeric_runtime_check_contracts
+        .iter()
+        .any(|contract| {
+            contract.kind == ExactNumericRuntimeCheckContractKind::DynamicIntegerRange
+                && contract.block == block
+                && contract.instruction_index == instruction_index
+                && contract.field == field
+                && contract.value == value
+                && contract.declared_type_name == ty.source_name
+        })
 }
 
 fn collect_object_defs(function: &MirFunction) -> HashMap<ValueId, ObjectDef> {
@@ -366,7 +398,8 @@ fn exact_numeric_dynamic_check_required(
 mod tests {
     use super::*;
     use crate::mir::{
-        BasicBlockId, BinaryOp, EffectMask, FunctionSignature, MirFunction, MirModule,
+        BasicBlockId, BinaryOp, EffectMask, ExactNumericRuntimeCheckContract,
+        ExactNumericRuntimeCheckContractKind, FunctionSignature, MirFunction, MirModule,
         UserBoxFieldDecl,
     };
 
@@ -514,6 +547,38 @@ mod tests {
         });
         block.add_instruction(MirInstruction::Return { value: None });
 
+        function
+    }
+
+    fn field_set_param_value_function_with_runtime_check_contract() -> MirFunction {
+        let mut function = field_set_param_value_function();
+        function
+            .metadata
+            .exact_numeric_runtime_check_contracts
+            .push(ExactNumericRuntimeCheckContract {
+                block: BasicBlockId::new(0),
+                instruction_index: 1,
+                field: "capacity".to_string(),
+                value: ValueId::new(0),
+                declared_type_name: "usize".to_string(),
+                kind: ExactNumericRuntimeCheckContractKind::DynamicIntegerRange,
+            });
+        function
+    }
+
+    fn field_set_param_value_function_with_mismatched_runtime_check_contract() -> MirFunction {
+        let mut function = field_set_param_value_function();
+        function
+            .metadata
+            .exact_numeric_runtime_check_contracts
+            .push(ExactNumericRuntimeCheckContract {
+                block: BasicBlockId::new(0),
+                instruction_index: 1,
+                field: "capacity".to_string(),
+                value: ValueId::new(0),
+                declared_type_name: "u8".to_string(),
+                kind: ExactNumericRuntimeCheckContractKind::DynamicIntegerRange,
+            });
         function
     }
 
@@ -725,6 +790,34 @@ mod tests {
             } if declared_type_name == "usize"
                 && producer == "call"
                 && reason == "dynamic-integer-range-check-required"
+        ));
+    }
+
+    #[test]
+    fn accepts_dynamic_param_assignment_to_usize_field_with_runtime_check_contract() {
+        let module = module_with_numeric_field(
+            "usize",
+            field_set_param_value_function_with_runtime_check_contract(),
+        );
+
+        assert!(check_exact_numeric_field_assignments(&module).is_ok());
+    }
+
+    #[test]
+    fn rejects_dynamic_param_assignment_when_runtime_check_contract_decl_type_mismatches() {
+        let module = module_with_numeric_field(
+            "usize",
+            field_set_param_value_function_with_mismatched_runtime_check_contract(),
+        );
+        let errors = check_exact_numeric_field_assignments(&module).unwrap_err();
+
+        assert!(matches!(
+            &errors[0],
+            VerificationError::ExactNumericDynamicCheckRequired {
+                declared_type_name,
+                producer,
+                ..
+            } if declared_type_name == "usize" && producer == "param"
         ));
     }
 

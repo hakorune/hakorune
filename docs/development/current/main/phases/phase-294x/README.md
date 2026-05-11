@@ -58,13 +58,17 @@
   numeric fields whose range does not cover the full dynamic `Integer(i64)`
   lane, keeping `i64` compatible while blocking `usize` until runtime-check
   lowering exists.
+- `294x-06c`: function metadata now owns
+  `ExactNumericRuntimeCheckContract::DynamicIntegerRange`; the verifier accepts
+  dynamic exact numeric field writes only when a matching contract is present.
 
 ## First Implementation Direction
 
 Start with metadata preservation before runtime behavior:
 
 1. attach exact numeric metadata to MIR facts/signature consumers;
-2. add runtime-check contract metadata for dynamic exact numeric writes;
+2. execute `DynamicIntegerRange` checks in VM/runtime and make unsupported
+   backend routes fail fast;
 3. add VM/backend exact `usize` behavior;
 4. add checked arithmetic / unsigned compare / logical shift;
 5. migrate hako_alloc non-negative fields.

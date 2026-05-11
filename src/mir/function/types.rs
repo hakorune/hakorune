@@ -332,6 +332,11 @@ pub struct FunctionMetadata {
     /// this only lets the C boundary choose the first helper without walking
     /// the helper-specific ladder.
     pub exact_seed_backend_route: Option<ExactSeedBackendRoute>,
+
+    /// MIR-owned contracts proving that a dynamic value is range-checked before
+    /// it is written into an exact numeric field. This is metadata only until
+    /// runtime-check lowering consumes it.
+    pub exact_numeric_runtime_check_contracts: Vec<ExactNumericRuntimeCheckContract>,
 }
 
 /// Function statistics for profiling and optimization
@@ -350,6 +355,27 @@ pub struct UserBoxFieldDecl {
     pub name: String,
     pub declared_type_name: Option<String>,
     pub is_weak: bool,
+}
+
+/// First exact numeric runtime-check contract vocabulary.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ExactNumericRuntimeCheckContractKind {
+    DynamicIntegerRange,
+}
+
+/// Function-local exact numeric runtime-check contract.
+///
+/// The contract is anchored to a `FieldSet` site. It does not add VM behavior
+/// by itself; it only lets verifier/lowering agree on where a range check must
+/// exist before a runtime-range-sensitive exact numeric write can be accepted.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ExactNumericRuntimeCheckContract {
+    pub block: BasicBlockId,
+    pub instruction_index: usize,
+    pub field: String,
+    pub value: ValueId,
+    pub declared_type_name: String,
+    pub kind: ExactNumericRuntimeCheckContractKind,
 }
 
 /// Runtime storage class accepted by the first typed-object EXE route.

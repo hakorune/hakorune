@@ -59,14 +59,16 @@ Current live semantics are intentionally narrow:
   these checks for statically known writes to exact numeric declared fields.
   The verifier also rejects unchecked dynamic writes to exact numeric fields
   whose range does not cover every possible dynamic `Integer(i64)` value.
-  Param/local verifier checks, runtime-check lowering, and VM runtime values
-  remain deferred.
+  Function metadata can carry a `DynamicIntegerRange` runtime-check contract
+  for those dynamic field writes, but VM execution of that check remains
+  deferred. Param/local verifier checks and VM runtime values also remain
+  deferred.
 
 Deferred and not accepted by this row:
 
 - literal suffixes such as `1u64` or `64usize`
-- param/local verifier checks, runtime-check lowering, runtime range checks,
-  and unsigned overflow behavior
+- param/local verifier checks, runtime-check execution/lowering, runtime range
+  checks, and unsigned overflow behavior
 - `u64` values outside signed i64
 - wrapping / checked arithmetic syntax
 - logical right-shift syntax or intrinsic distinct from current `>>`
