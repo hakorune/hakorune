@@ -152,6 +152,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_allocator_provider_runtime_diagnostic_module_boundaries_guard.sh` | M98B の allocator provider runtime diagnostic module boundaries を固定し、registry facade の sub-1000 行化、report-owner module 分割、active registry/selection/proof/rollback/gate/hook/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_cli_surface_guard.sh` | M99 の allocator provider proof bundle consumption CLI surface を固定し、明示 TOML path 診断と active registry/selection/proof/rollback/gate/hook/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_entry_contract_guard.sh` | M100 の allocator provider proof bundle consumption entry contract を固定し、単一 future behavior owner/entry と active registry/selection/proof/rollback/gate/hook/replacement 不在を検証する。 |
+| `tools/checks/k2_wide_allocator_provider_proof_consumption_failfast_entry_guard.sh` | M101 の allocator provider proof consumption fail-fast entry を固定し、runtime attempt report と active registry/selection/proof/rollback/gate/hook/replacement 不在を検証する。 |
 
 ## Env Hygiene
 

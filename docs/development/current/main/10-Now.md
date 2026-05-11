@@ -56,9 +56,9 @@ Related:
   card/taskboard first
 - current allocator/provider task ladder is:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`;
-  the ladder is closed through M100, and proof-bundle consumption behavior is
-  reserved under the activation owner but remains inactive until a later
-  implementation row
+  the ladder is closed through M101, and proof-bundle consumption now has a
+  fail-fast runtime entry under the activation owner while actual consumption
+  remains inactive until a later selected-provider/proof-validation row
 - latest docs/inventory baseline: `291x-691` remains the historical backlog
   inventory; current status is in `CURRENT_STATE.toml`
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work

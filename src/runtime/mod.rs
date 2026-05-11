@@ -3,6 +3,7 @@
 //! プラグインシステムとBox管理の中核
 
 pub mod allocator_hook_dry_run;
+pub mod allocator_provider_activation;
 pub mod allocator_provider_activation_decision;
 pub(crate) mod allocator_provider_activation_safety;
 pub(crate) mod allocator_provider_diagnostic_inactive;

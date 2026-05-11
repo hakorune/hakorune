@@ -107,6 +107,7 @@ if [[ "${1:-}" == "--list" ]]; then
   - tools/checks/k2_wide_allocator_provider_runtime_diagnostic_module_boundaries_guard.sh
   - tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_cli_surface_guard.sh
   - tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_entry_contract_guard.sh
+  - tools/checks/k2_wide_allocator_provider_proof_consumption_failfast_entry_guard.sh
 LIST
   exit 0
 fi
@@ -389,3 +390,6 @@ run_step "allocator provider proof bundle consumption CLI surface guard" \
 
 run_step "allocator provider proof bundle consumption entry contract guard" \
   bash tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_entry_contract_guard.sh
+
+run_step "allocator provider proof consumption fail-fast entry guard" \
+  bash tools/checks/k2_wide_allocator_provider_proof_consumption_failfast_entry_guard.sh
