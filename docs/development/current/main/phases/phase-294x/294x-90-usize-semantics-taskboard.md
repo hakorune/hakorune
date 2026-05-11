@@ -32,7 +32,7 @@ one commit unless a row explicitly says it is docs-only.
 | `294x-06e` | Complete | dynamic range-check contract refresh | real MIR `FieldSet` producers receive `DynamicIntegerRange` contracts after optimization and before verification |
 | `294x-06f` | Complete | backend runtime-check contract fail-fast | unsupported non-VM backend routes reject modules that still carry exact numeric runtime-check contracts |
 | `294x-07` | Complete | overflow and checked arithmetic policy | exact numeric add/sub/mul policy is checked/fail-fast; wrapping stays explicit future vocabulary |
-| `294x-08` | Pending | unsigned compare and logical shift | comparisons and right shift stop using signed i64 semantics for `usize` |
+| `294x-08` | Complete | unsigned compare and logical shift | exact numeric compare and logical right-shift policy no longer borrow signed i64 semantics |
 | `294x-09` | Pending | PHI/Select numeric unification | exact numeric kinds merge conservatively and fail fast on unsupported mixes |
 | `294x-10` | Pending | VM exact `usize` value/ops v0 | VM executes basic `usize` ops without silently aliasing to dynamic `Integer(i64)` |
 | `294x-11` | Pending | literal suffix and const-eval row | `0usize` / exact numeric consts are accepted only with range checks |
@@ -52,8 +52,8 @@ one commit unless a row explicitly says it is docs-only.
 
 - [x] Define exact `usize` range owner by target pointer width.
 - [x] Define overflow behavior.
-- [ ] Define logical shift behavior.
-- [ ] Define unsigned comparison behavior.
+- [x] Define logical shift behavior.
+- [x] Define unsigned comparison behavior.
 - [x] Define conversion from dynamic `Integer(i64)`.
 - [x] Define unsupported backend fail-fast tags.
 - [ ] Define when `i64` remains preferred.
@@ -77,6 +77,7 @@ one commit unless a row explicitly says it is docs-only.
 - [ ] Add PHI/Select unification rules.
 - [ ] Publish route facts for numeric params and returns.
 - [x] Add checked exact numeric add/sub/mul policy helpers.
+- [x] Add exact numeric compare and logical right-shift policy helpers.
 
 ### Runtime / VM
 
@@ -88,8 +89,8 @@ one commit unless a row explicitly says it is docs-only.
 - [ ] Implement checked add/sub/mul in live VM exact numeric op routes.
 - [ ] Implement div/mod with zero checks.
 - [ ] Implement bitwise ops.
-- [ ] Implement logical right shift.
-- [ ] Implement unsigned compare.
+- [ ] Implement logical right shift in live VM exact numeric op routes.
+- [ ] Implement unsigned compare in live VM exact numeric op routes.
 - [ ] Define display/debug formatting.
 - [ ] Emit stable diagnostics for overflow/range/shift failures.
 

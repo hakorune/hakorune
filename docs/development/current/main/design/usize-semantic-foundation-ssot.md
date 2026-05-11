@@ -61,6 +61,9 @@ Live today:
   module still carries exact numeric runtime-check contracts;
 - `src/mir/numeric_substrate.rs` owns checked exact numeric add/sub/mul policy
   for same-type operands, rejecting type mismatch and out-of-range results;
+- `src/mir/numeric_substrate.rs` owns exact numeric compare and unsigned
+  logical right-shift policy, rejecting type mismatch, signed logical shift,
+  and shift counts at or above the exact type width;
 - typed-object planning can use numeric annotations as inline i64 storage
   hints;
 - VM runtime values use `Integer(i64)`;
@@ -72,10 +75,8 @@ Not live today:
   numeric field-write contracts, non-VM backend lowering/execution of those
   contracts, and exact runtime unsigned range-check construction;
 - numeric literal suffixes such as `0usize`;
-- unsigned comparisons distinct from signed i64 comparisons;
-- live VM/backend exact numeric arithmetic routes and explicit wrapping
-  vocabulary;
-- logical right shift distinct from current `>>`;
+- live VM/backend exact numeric arithmetic/compare/shift routes and explicit
+  wrapping vocabulary;
 - MIR / Program(JSON) exact numeric constants;
 - typed-object `usize` storage distinct from i64 storage;
 - backend lowering to native pointer-sized integer classes.

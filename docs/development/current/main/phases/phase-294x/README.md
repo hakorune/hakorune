@@ -74,13 +74,16 @@
 - `294x-07`: the MIR numeric substrate now owns checked exact numeric
   add/sub/mul policy, rejecting type mismatch and out-of-range results before
   any VM/backend lowering claims support.
+- `294x-08`: the MIR numeric substrate now owns exact numeric compare and
+  unsigned logical right-shift policy, including type-mismatch and invalid
+  shift-count fail-fast paths.
 
 ## First Implementation Direction
 
 Start with metadata preservation before runtime behavior:
 
 1. attach exact numeric metadata to MIR facts/signature consumers;
-2. add unsigned compare / logical shift policy;
+2. add PHI/Select exact numeric unification;
 3. add VM/backend exact `usize` behavior;
 4. migrate hako_alloc non-negative fields.
 

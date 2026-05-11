@@ -194,6 +194,39 @@ pub(crate) enum ExactNumericArithmeticError {
     },
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[allow(dead_code)] // 294x-08 policy; consumed by later VM/backend exact-op rows.
+pub(crate) enum ExactNumericCompareOp {
+    Eq,
+    Ne,
+    Lt,
+    Le,
+    Gt,
+    Ge,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[allow(dead_code)] // 294x-08 policy; consumed by later VM/backend exact-op rows.
+pub(crate) enum ExactNumericCompareError {
+    TypeMismatch {
+        left_source_name: String,
+        right_source_name: String,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[allow(dead_code)] // 294x-08 policy; consumed by later VM/backend exact-op rows.
+pub(crate) enum ExactNumericShiftError {
+    SignedLogicalShift {
+        source_name: String,
+    },
+    ShiftCountOutOfRange {
+        source_name: String,
+        shift: u32,
+        width_bits: u32,
+    },
+}
+
 pub(crate) fn classify_numeric_type_name(name: &str) -> Option<NumericTypeName> {
     let (signedness, width) = match name {
         "i8" => (NumericSignedness::Signed, NumericWidth::Bits8),
@@ -322,6 +355,55 @@ pub(crate) fn exact_numeric_checked_arithmetic(
     Ok(ExactNumericConstValue {
         ty: lhs.ty.clone(),
         value,
+    })
+}
+
+#[allow(dead_code)] // 294x-08 policy; consumed by later VM/backend exact-op rows.
+pub(crate) fn exact_numeric_compare(
+    lhs: &ExactNumericConstValue,
+    rhs: &ExactNumericConstValue,
+    op: ExactNumericCompareOp,
+) -> Result<bool, ExactNumericCompareError> {
+    if lhs.ty != rhs.ty {
+        return Err(ExactNumericCompareError::TypeMismatch {
+            left_source_name: lhs.ty.source_name.clone(),
+            right_source_name: rhs.ty.source_name.clone(),
+        });
+    }
+
+    Ok(match op {
+        ExactNumericCompareOp::Eq => lhs.value == rhs.value,
+        ExactNumericCompareOp::Ne => lhs.value != rhs.value,
+        ExactNumericCompareOp::Lt => lhs.value < rhs.value,
+        ExactNumericCompareOp::Le => lhs.value <= rhs.value,
+        ExactNumericCompareOp::Gt => lhs.value > rhs.value,
+        ExactNumericCompareOp::Ge => lhs.value >= rhs.value,
+    })
+}
+
+#[allow(dead_code)] // 294x-08 policy; consumed by later VM/backend exact-op rows.
+pub(crate) fn exact_numeric_logical_shr(
+    value: &ExactNumericConstValue,
+    shift: u32,
+) -> Result<ExactNumericConstValue, ExactNumericShiftError> {
+    if value.ty.kind.signedness != NumericSignedness::Unsigned {
+        return Err(ExactNumericShiftError::SignedLogicalShift {
+            source_name: value.ty.source_name.clone(),
+        });
+    }
+
+    let width_bits = value.ty.kind.width.bits();
+    if shift >= width_bits {
+        return Err(ExactNumericShiftError::ShiftCountOutOfRange {
+            source_name: value.ty.source_name.clone(),
+            shift,
+            width_bits,
+        });
+    }
+
+    Ok(ExactNumericConstValue {
+        ty: value.ty.clone(),
+        value: value.value >> shift,
     })
 }
 
@@ -750,6 +832,95 @@ mod tests {
             Err(ExactNumericArithmeticError::TypeMismatch {
                 left_source_name: "u8".to_string(),
                 right_source_name: "u16".to_string(),
+            })
+        );
+    }
+
+    #[test]
+    fn exact_numeric_compare_uses_unsigned_value_order_for_usize() {
+        let pointer64 = NumericTarget {
+            pointer_width: NumericResolvedWidth::Bits64,
+        };
+        let usize_ty = exact_numeric_mir_type_from_declared_name(Some("usize"), pointer64).unwrap();
+        let high = exact_numeric_const_from_i128(i128::from(i64::MAX) + 1, &usize_ty).unwrap();
+        let low = exact_numeric_const_from_i128(1, &usize_ty).unwrap();
+
+        assert_eq!(
+            exact_numeric_compare(&high, &low, ExactNumericCompareOp::Gt),
+            Ok(true)
+        );
+        assert_eq!(
+            exact_numeric_compare(&low, &high, ExactNumericCompareOp::Lt),
+            Ok(true)
+        );
+    }
+
+    #[test]
+    fn exact_numeric_compare_rejects_mismatched_exact_types() {
+        let pointer64 = NumericTarget {
+            pointer_width: NumericResolvedWidth::Bits64,
+        };
+        let u8_ty = exact_numeric_mir_type_from_declared_name(Some("u8"), pointer64).unwrap();
+        let i8_ty = exact_numeric_mir_type_from_declared_name(Some("i8"), pointer64).unwrap();
+        let lhs = exact_numeric_const_from_i128(1, &u8_ty).unwrap();
+        let rhs = exact_numeric_const_from_i128(1, &i8_ty).unwrap();
+
+        assert_eq!(
+            exact_numeric_compare(&lhs, &rhs, ExactNumericCompareOp::Eq),
+            Err(ExactNumericCompareError::TypeMismatch {
+                left_source_name: "u8".to_string(),
+                right_source_name: "i8".to_string(),
+            })
+        );
+    }
+
+    #[test]
+    fn exact_numeric_logical_shr_handles_high_unsigned_usize_bit() {
+        let pointer64 = NumericTarget {
+            pointer_width: NumericResolvedWidth::Bits64,
+        };
+        let usize_ty = exact_numeric_mir_type_from_declared_name(Some("usize"), pointer64).unwrap();
+        let high_bit = exact_numeric_const_from_i128(1_i128 << 63, &usize_ty).unwrap();
+
+        assert_eq!(
+            exact_numeric_logical_shr(&high_bit, 63).unwrap(),
+            ExactNumericConstValue {
+                ty: usize_ty,
+                value: 1,
+            }
+        );
+    }
+
+    #[test]
+    fn exact_numeric_logical_shr_rejects_signed_values() {
+        let pointer64 = NumericTarget {
+            pointer_width: NumericResolvedWidth::Bits64,
+        };
+        let i64_ty = exact_numeric_mir_type_from_declared_name(Some("i64"), pointer64).unwrap();
+        let value = exact_numeric_const_from_i128(-8, &i64_ty).unwrap();
+
+        assert_eq!(
+            exact_numeric_logical_shr(&value, 1),
+            Err(ExactNumericShiftError::SignedLogicalShift {
+                source_name: "i64".to_string(),
+            })
+        );
+    }
+
+    #[test]
+    fn exact_numeric_logical_shr_rejects_shift_count_at_width() {
+        let pointer64 = NumericTarget {
+            pointer_width: NumericResolvedWidth::Bits64,
+        };
+        let u8_ty = exact_numeric_mir_type_from_declared_name(Some("u8"), pointer64).unwrap();
+        let value = exact_numeric_const_from_i128(1, &u8_ty).unwrap();
+
+        assert_eq!(
+            exact_numeric_logical_shr(&value, 8),
+            Err(ExactNumericShiftError::ShiftCountOutOfRange {
+                source_name: "u8".to_string(),
+                shift: 8,
+                width_bits: 8,
             })
         );
     }

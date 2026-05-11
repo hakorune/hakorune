@@ -72,6 +72,10 @@ Current live semantics are intentionally narrow:
 - MIR numeric substrate policy now defines checked exact numeric add/sub/mul:
   operands must have the same exact numeric type and results must fit the
   target-resolved range. VM/backend exact arithmetic lowering is still future.
+- MIR numeric substrate policy also defines exact numeric comparison and
+  unsigned logical right shift. Type mismatch, signed logical shift, and shift
+  counts at or above the exact width fail fast. VM/backend lowering remains
+  future.
 
 Deferred and not accepted by this row:
 
@@ -81,9 +85,8 @@ Deferred and not accepted by this row:
   exact runtime unsigned range construction, and live unsigned arithmetic
   execution
 - `u64` values outside signed i64
-- live VM/backend exact numeric arithmetic routes and wrapping / checked
-  helper-call syntax
-- logical right-shift syntax or intrinsic distinct from current `>>`
+- live VM/backend exact numeric arithmetic/compare/shift routes and wrapping /
+  checked helper-call syntax
 - MIR JSON exact-width numeric const tags
 
 Backends must not infer exact unsigned or fixed-width behavior from these names
