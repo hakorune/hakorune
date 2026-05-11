@@ -7,6 +7,7 @@ pub mod allocator_provider_activation_decision;
 pub(crate) mod allocator_provider_diagnostic_inactive;
 pub mod allocator_provider_manifest;
 pub mod allocator_provider_registry;
+pub(crate) mod allocator_provider_toml_helpers;
 pub mod box_registry;
 pub mod core_box_ids; // Phase 87: CoreBoxId/CoreMethodId 型安全enum
 pub mod core_method_aliases; // Phase 29ab: Core method alias SSOT

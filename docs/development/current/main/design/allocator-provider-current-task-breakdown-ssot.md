@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: accepted
 Date: 2026-05-11
-Scope: current allocator provider / replacement hook task breakdown after M97.
+Scope: current allocator provider / replacement hook task breakdown after M97B.
 Related:
   - docs/development/current/main/design/allocator-provider-boundary-v0-ssot.md
   - docs/development/current/main/design/allocator-provider-manifest-v0-ssot.md
@@ -34,6 +34,7 @@ Related:
   - docs/development/current/main/design/allocator-provider-activation-diagnostic-closeout-inventory-ssot.md
   - docs/development/current/main/design/allocator-provider-selection-decision-diagnostic-report-ssot.md
   - docs/development/current/main/design/allocator-provider-selection-decision-cli-surface-ssot.md
+  - docs/development/current/main/design/allocator-provider-diagnostic-helper-cleanup-ssot.md
   - docs/development/current/main/design/allocator-provider-lightweight-doc-sync-policy-ssot.md
   - docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md
 ---
@@ -84,6 +85,7 @@ then and only then consider process allocator replacement
 | M95 | activation diagnostic closeout inventory fixing coverage across M92-M94/M93B without activation | complete |
 | M96 | selection decision diagnostic report fixing runtime parsing/reporting while provider selection stays inactive | complete |
 | M97 | selection decision CLI surface fixing explicit TOML-path output while provider selection stays inactive | complete |
+| M97B | diagnostic helper cleanup fixing shared TOML helper and fact-check ownership without behavior change | complete |
 
 ## Layer Model
 
@@ -266,9 +268,10 @@ ladder was being named.
 
 Historical M75 sentence kept for past guards: Provider proof boundary ladder is now closed through M75.
 
-M87 and later follow the lightweight docs sync policy. M87-M97 are landed.
+M87 and later follow the lightweight docs sync policy. M87-M97B are landed.
 M95 is the latest closeout checkpoint, M96 is the latest runtime diagnostic
-checkpoint, and M97 is the latest CLI diagnostic checkpoint:
+checkpoint, M97 is the latest CLI diagnostic checkpoint, and M97B is the latest
+BoxShape cleanup checkpoint:
 
 1. SSOT or implementation doc first.
 2. Small runtime/CLI code only when the row explicitly allows it.
@@ -298,5 +301,6 @@ runtime behavior. M96 adds diagnostic-only parsing/reporting over
 caller-provided selection decision TOML text while keeping provider selection
 and activation inactive. M97 exposes that report through an explicit
 caller-provided TOML path while keeping provider selection and activation
-inactive. After M97, reserve the next guarded proof-bundle diagnostic report row
-before adding any proof consumption behavior.
+inactive. M97B centralizes allocator provider diagnostic TOML helpers and
+fact-check shape without behavior changes. After M97B, reserve the next guarded
+proof-bundle diagnostic report row before adding any proof consumption behavior.

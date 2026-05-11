@@ -163,6 +163,7 @@ list_profiles() {
     - tools/checks/k2_wide_allocator_provider_activation_diagnostic_closeout_guard.sh
     - tools/checks/k2_wide_allocator_provider_selection_decision_diagnostic_report_guard.sh
     - tools/checks/k2_wide_allocator_provider_selection_decision_cli_surface_guard.sh
+    - tools/checks/k2_wide_allocator_provider_diagnostic_helper_cleanup_guard.sh
     - tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
     - tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
     - tools/checks/k2_wide_metal_keep_inventory_guard.sh

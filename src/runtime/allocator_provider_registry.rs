@@ -7,6 +7,10 @@
 use super::allocator_provider_diagnostic_inactive::{
     REGISTRY_SNAPSHOT_INACTIVE_ACTIONS, SAFETY_GATE_INACTIVE_ACTIONS,
 };
+use super::allocator_provider_toml_helpers::{
+    bool_field_false, nonempty_text_field, string_list_contains_all, text_field_matches,
+    DiagnosticFactCheck,
+};
 
 pub const DIAG_PROVIDER_ACTIVATION_SAFETY_GATE_MISSING: &str =
     "[allocator-provider/activation-safety-gate-missing]";
@@ -302,11 +306,6 @@ pub fn validate_allocator_provider_registry_snapshot_from_text(
     validate_allocator_provider_registry_snapshot(&facts)
 }
 
-struct RegistrySnapshotFactCheck {
-    present: bool,
-    name: &'static str,
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AllocatorProviderSelectionDecisionStatus {
     MissingFacts,
@@ -456,11 +455,6 @@ pub fn validate_allocator_provider_selection_decision_from_text(
     validate_allocator_provider_selection_decision(&facts)
 }
 
-struct SelectionDecisionFactCheck {
-    present: bool,
-    name: &'static str,
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AllocatorProviderActivationSafetyStatus {
     MissingFacts,
@@ -573,11 +567,6 @@ pub fn validate_allocator_provider_activation_safety_gate_from_text(
     validate_allocator_provider_activation_safety_gate(&facts)
 }
 
-struct ActivationSafetyFactCheck {
-    present: bool,
-    name: &'static str,
-}
-
 struct ActivationSafetyDiagnosticCheck {
     present: bool,
     diagnostic: &'static str,
@@ -585,101 +574,101 @@ struct ActivationSafetyDiagnosticCheck {
 
 fn activation_safety_fact_checks(
     facts: &AllocatorProviderActivationSafetyFacts<'_>,
-) -> [ActivationSafetyFactCheck; 24] {
+) -> [DiagnosticFactCheck; 24] {
     [
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.schema_ready,
             name: "schema_version",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.status_reserved,
             name: "status_reserved",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.active_false,
             name: "active_false",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.owner_named,
             name: "safety_gate_owner_named",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.activation_entry_contract_ready,
             name: "activation_entry_contract_ready",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.provider_readiness_preflight_ready,
             name: "provider_readiness_preflight_ready",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.combined_dry_run_ready,
             name: "combined_dry_run_ready",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.registry_snapshot_ready,
             name: "registry_snapshot_ready",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.selection_decision_ready,
             name: "selection_decision_ready",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.selected_provider_id_absent,
             name: "selected_provider_id_absent",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.proof_bundle_ready,
             name: "proof_bundle_ready",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.rollback_preflight_ready,
             name: "rollback_preflight_ready",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.hook_plan_ready,
             name: "hook_plan_ready",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.hook_activation_preflight_ready,
             name: "hook_activation_preflight_ready",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.activation_proof_ready,
             name: "activation_proof_ready",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.rollback_target_provider_id.is_some(),
             name: "rollback_target_explicit",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.activation_target_provider_id.is_some(),
             name: "activation_target_provider_id_explicit",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.safety_gate_policy_named,
             name: "safety_gate_policy_named",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.activation_gate_closed,
             name: "activation_gate_closed",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.activation_blocked_diagnostic_named,
             name: "fail_fast_activation_safety_diagnostic_named",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.required_operations_named,
             name: "required_operations_named",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.candidate_provider_ids_reserved_set,
             name: "candidate_provider_ids_reserved_set",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.required_fact_list_complete,
             name: "reserved_activation_safety_facts_complete",
         },
-        ActivationSafetyFactCheck {
+        DiagnosticFactCheck {
             present: facts.safety_inputs_complete,
             name: "safety_inputs_complete",
         },
@@ -1010,77 +999,77 @@ fn collect_activation_safety_missing_diagnostics(
 
 fn registry_snapshot_fact_checks(
     facts: &AllocatorProviderRegistrySnapshotFacts<'_>,
-) -> Vec<RegistrySnapshotFactCheck> {
+) -> Vec<DiagnosticFactCheck> {
     vec![
-        RegistrySnapshotFactCheck {
+        DiagnosticFactCheck {
             present: facts.schema_ready,
             name: "schema_version",
         },
-        RegistrySnapshotFactCheck {
+        DiagnosticFactCheck {
             present: facts.status_reserved,
             name: "status_reserved",
         },
-        RegistrySnapshotFactCheck {
+        DiagnosticFactCheck {
             present: facts.active_false,
             name: "active_false",
         },
-        RegistrySnapshotFactCheck {
+        DiagnosticFactCheck {
             present: facts.owner_named,
             name: "registry_owner_named",
         },
-        RegistrySnapshotFactCheck {
+        DiagnosticFactCheck {
             present: facts.provider_manifest_ready,
             name: "provider_manifest_ready",
         },
-        RegistrySnapshotFactCheck {
+        DiagnosticFactCheck {
             present: facts.provider_readiness_preflight_ready,
             name: "provider_readiness_preflight_ready",
         },
-        RegistrySnapshotFactCheck {
+        DiagnosticFactCheck {
             present: facts.provider_entries_nonempty,
             name: "provider_entries_nonempty",
         },
-        RegistrySnapshotFactCheck {
+        DiagnosticFactCheck {
             present: facts.provider_ids_reserved_set,
             name: "provider_ids_reserved_set",
         },
-        RegistrySnapshotFactCheck {
+        DiagnosticFactCheck {
             present: facts.provider_operations_nonempty,
             name: "provider_operations_nonempty",
         },
-        RegistrySnapshotFactCheck {
+        DiagnosticFactCheck {
             present: facts.provider_selection_inactive,
             name: "provider_selection_inactive",
         },
-        RegistrySnapshotFactCheck {
+        DiagnosticFactCheck {
             present: facts.would_build_registry_false,
             name: "would_build_registry_false",
         },
-        RegistrySnapshotFactCheck {
+        DiagnosticFactCheck {
             present: facts.would_select_provider_false,
             name: "would_select_provider_false",
         },
-        RegistrySnapshotFactCheck {
+        DiagnosticFactCheck {
             present: facts.would_activate_false,
             name: "would_activate_false",
         },
-        RegistrySnapshotFactCheck {
+        DiagnosticFactCheck {
             present: facts.activation_future_row_required,
             name: "activation_future_row_required",
         },
-        RegistrySnapshotFactCheck {
+        DiagnosticFactCheck {
             present: facts.diagnostic_named,
             name: "registry_snapshot_diagnostic_named",
         },
-        RegistrySnapshotFactCheck {
+        DiagnosticFactCheck {
             present: facts.missing_provider_diagnostic_named,
             name: "missing_provider_diagnostic_named",
         },
-        RegistrySnapshotFactCheck {
+        DiagnosticFactCheck {
             present: facts.missing_capability_diagnostic_named,
             name: "missing_capability_diagnostic_named",
         },
-        RegistrySnapshotFactCheck {
+        DiagnosticFactCheck {
             present: facts.required_fact_list_complete,
             name: "required_registry_snapshot_facts_complete",
         },
@@ -1120,113 +1109,113 @@ fn collect_registry_snapshot_missing_diagnostics(
 
 fn selection_decision_fact_checks(
     facts: &AllocatorProviderSelectionDecisionFacts<'_>,
-) -> Vec<SelectionDecisionFactCheck> {
+) -> Vec<DiagnosticFactCheck> {
     vec![
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.schema_ready,
             name: "schema_version",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.status_reserved,
             name: "status_reserved",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.active_false,
             name: "active_false",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.owner_named,
             name: "selection_owner_named",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.registry_snapshot_ready,
             name: "registry_snapshot_ready",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.selection_request_caller_provided,
             name: "selection_request_caller_provided",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.requested_provider_id.is_some(),
             name: "requested_provider_id_explicit",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.requested_provider_supported,
             name: "requested_provider_supported",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.required_operations_nonempty,
             name: "required_operations_nonempty",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.candidate_provider_ids_reserved_set,
             name: "candidate_provider_ids_reserved_set",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.deterministic_provider_order_named,
             name: "deterministic_provider_order_named",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.selection_policy_named,
             name: "selection_policy_named",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.selection_status_reserved,
             name: "selection_status_reserved",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.provider_selection_inactive,
             name: "provider_selection_inactive",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.decision_status_reserved,
             name: "decision_status_reserved",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.selected_provider_id_absent,
             name: "no_selected_provider_id",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.would_build_registry_false,
             name: "would_build_registry_false",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.would_select_provider_false,
             name: "would_select_provider_false",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.would_activate_false,
             name: "would_activate_false",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.activation_future_row_required,
             name: "activation_future_row_required",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.diagnostic_named,
             name: "selection_decision_diagnostic_named",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.missing_registry_diagnostic_named,
             name: "missing_registry_diagnostic_named",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.missing_request_diagnostic_named,
             name: "missing_request_diagnostic_named",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.unsupported_provider_diagnostic_named,
             name: "unsupported_provider_diagnostic_named",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.missing_capability_diagnostic_named,
             name: "missing_capability_diagnostic_named",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.ambiguous_provider_diagnostic_named,
             name: "ambiguous_provider_diagnostic_named",
         },
-        SelectionDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.required_fact_list_complete,
             name: "required_selection_decision_facts_complete",
         },
@@ -1315,23 +1304,6 @@ fn safety_inputs_complete(value: &toml::Value) -> bool {
     })
 }
 
-fn text_field_matches(value: &toml::Value, key: &str, expected: &str) -> bool {
-    value.get(key).and_then(toml::Value::as_str) == Some(expected)
-}
-
-fn bool_field_false(value: &toml::Value, key: &str) -> bool {
-    value.get(key).and_then(toml::Value::as_bool) == Some(false)
-}
-
-fn nonempty_text_field<'a>(value: &'a toml::Value, key: &str) -> Option<&'a str> {
-    let text = value.get(key)?.as_str()?;
-    if text.is_empty() {
-        None
-    } else {
-        Some(text)
-    }
-}
-
 fn string_list_matches(value: Option<&toml::Value>, expected: &[&str]) -> bool {
     let Some(items) = value.and_then(toml::Value::as_array) else {
         return false;
@@ -1390,18 +1362,6 @@ fn registry_snapshot_provider_operations_nonempty(value: &toml::Value) -> bool {
             .get("operations")
             .and_then(toml::Value::as_array)
             .map_or(false, |operations| !operations.is_empty())
-    })
-}
-
-fn string_list_contains_all(value: Option<&toml::Value>, required: &[&str]) -> bool {
-    let Some(items) = value.and_then(toml::Value::as_array) else {
-        return false;
-    };
-    required.iter().all(|required| {
-        items
-            .iter()
-            .filter_map(toml::Value::as_str)
-            .any(|item| item == *required)
     })
 }
 

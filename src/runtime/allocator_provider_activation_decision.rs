@@ -6,6 +6,10 @@
 //! process allocator.
 
 use super::allocator_provider_diagnostic_inactive::DIAGNOSTIC_INACTIVE_ACTIONS;
+use super::allocator_provider_toml_helpers::{
+    bool_field_false, nonempty_text_field, string_list_contains_all, text_field_matches,
+    DiagnosticFactCheck,
+};
 
 pub const DIAG_PROVIDER_ACTIVATION_DECISION_RESERVED: &str =
     "[allocator-provider/activation-decision-reserved]";
@@ -236,11 +240,6 @@ pub fn validate_allocator_provider_activation_decision_from_text(
     validate_allocator_provider_activation_decision(&facts)
 }
 
-struct ActivationDecisionFactCheck {
-    present: bool,
-    name: &'static str,
-}
-
 fn read_activation_decision_facts(
     value: &toml::Value,
 ) -> AllocatorProviderActivationDecisionFacts<'_> {
@@ -327,133 +326,133 @@ fn read_activation_decision_facts(
 
 fn activation_decision_fact_checks(
     facts: &AllocatorProviderActivationDecisionFacts<'_>,
-) -> Vec<ActivationDecisionFactCheck> {
+) -> Vec<DiagnosticFactCheck> {
     vec![
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.surface_version_ready,
             name: "surface_version",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.status_reserved,
             name: "status_reserved",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.active_false,
             name: "active_false",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.owner_named,
             name: "decision_surface_owner_named",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.input_source_caller_provided,
             name: "input_source_caller_provided",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.operator_intent_diagnose,
             name: "operator_intent_diagnose",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.requested_provider_id.is_some(),
             name: "requested_provider_id_explicit",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.activation_safety_gate_report_path.is_some(),
             name: "activation_safety_gate_report_path_explicit",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.registry_snapshot_path.is_some(),
             name: "registry_snapshot_path_explicit",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.selection_decision_path.is_some(),
             name: "selection_decision_path_explicit",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.proof_bundle_report_path.is_some(),
             name: "proof_bundle_report_path_explicit",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.rollback_preflight_report_path.is_some(),
             name: "rollback_preflight_report_path_explicit",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.decision_surface_status_reserved,
             name: "activation_decision_surface_status_reserved",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.activation_decision_allowed_false,
             name: "activation_decision_allowed_false",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.provider_selection_inactive,
             name: "provider_selection_inactive",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.proof_bundle_consumption_inactive,
             name: "proof_bundle_consumption_inactive",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.rollback_preparation_inactive,
             name: "rollback_preparation_inactive",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.activation_gate_closed,
             name: "activation_gate_closed",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.hook_activation_inactive,
             name: "hook_activation_inactive",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.process_allocator_replacement_inactive,
             name: "process_allocator_replacement_inactive",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.would_select_provider_false,
             name: "would_select_provider_false",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.would_consume_proof_false,
             name: "would_consume_proof_false",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.would_prepare_rollback_false,
             name: "would_prepare_rollback_false",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.would_open_activation_gate_false,
             name: "would_open_activation_gate_false",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.would_install_hook_false,
             name: "would_install_hook_false",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.would_replace_process_allocator_false,
             name: "would_replace_process_allocator_false",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.would_activate_false,
             name: "would_activate_false",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.activation_future_row_required,
             name: "activation_future_row_required",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.diagnostic_reserved_named,
             name: "diagnostic_reserved_named",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.activation_blocked_diagnostic_named,
             name: "fail_fast_activation_decision_diagnostic_named",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.required_fact_list_complete,
             name: "reserved_activation_decision_facts_complete",
         },
-        ActivationDecisionFactCheck {
+        DiagnosticFactCheck {
             present: facts.activation_decision_inputs_complete,
             name: "activation_decision_inputs_complete",
         },
@@ -521,35 +520,6 @@ fn activation_decision_inputs_complete(value: &toml::Value) -> bool {
                         == Some(*diagnostic)
             })
         })
-}
-
-fn text_field_matches(value: &toml::Value, key: &str, expected: &str) -> bool {
-    value.get(key).and_then(toml::Value::as_str) == Some(expected)
-}
-
-fn bool_field_false(value: &toml::Value, key: &str) -> bool {
-    value.get(key).and_then(toml::Value::as_bool) == Some(false)
-}
-
-fn nonempty_text_field<'a>(value: &'a toml::Value, key: &str) -> Option<&'a str> {
-    let text = value.get(key)?.as_str()?;
-    if text.is_empty() {
-        None
-    } else {
-        Some(text)
-    }
-}
-
-fn string_list_contains_all(value: Option<&toml::Value>, required: &[&str]) -> bool {
-    let Some(items) = value.and_then(toml::Value::as_array) else {
-        return false;
-    };
-    required.iter().all(|required| {
-        items
-            .iter()
-            .filter_map(toml::Value::as_str)
-            .any(|item| item == *required)
-    })
 }
 
 #[cfg(test)]
