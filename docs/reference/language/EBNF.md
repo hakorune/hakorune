@@ -152,14 +152,14 @@ visibility_weak_sugar := ('public'|'private') 'weak' IDENT ( ':' TYPE )?
                   ; sugar syntax (Phase 285A1.4). Equivalent to visibility block form.
                   ; e.g., `public weak parent` ≡ `public { weak parent }`
 
-stored         := IDENT
+stored         := IDENT ( '=' expr )?
                 | IDENT ':' TYPE ( '=' expr )?
                   ; stored property (read/write). `IDENT` alone is the simple
                   ; untyped stored field form. `IDENT ':' TYPE` carries
                   ; declared-type metadata for tooling / typed-object planning;
                   ; it is not a general runtime type check.
-                  ; Bare `IDENT '=' expr` is not live; use `birth(...)` for
-                  ; portable initialization when no declared type is needed.
+                  ; `= expr` emits a construction prologue assignment before
+                  ; the user `birth` body.
 
 computed       := get_computed | legacy_computed
 
@@ -202,7 +202,7 @@ postfix_cleanup    := primary_expr 'cleanup' block
 
 Semantics (summary)
 - stored: O(1) slot read; write via assignment. Bare stored fields are dynamic/untyped. Typed stored fields keep declared-type metadata for optimizers/verifiers and typed-object planning, but ordinary field writes are not type-enforced by this syntax.
-- stored initializers: `name: Type = expr` is accepted syntax in the unified-member surface, but portable initialization should still be expressed in `birth(...) { me.name = expr }` unless a row explicitly proves initializer lowering for the target path.
+- stored initializers: `name = expr` and `name: Type = expr` are accepted and lower to constructor prologue assignments equivalent to `me.name = expr`. The prologue runs before the user `birth` body, in field declaration order.
 - computed/get: read‑only; each read evaluates the block; assignment is an error unless a setter is explicitly defined.
 - once: first read evaluates the block and caches the value; subsequent reads return the cached value. On exception without a `catch`, the property becomes poisoned and rethrows on later reads (no retries).
 - birth_once: evaluated before the user `birth` body, in declaration order; exceptions without a `catch` abort construction; cycles between `birth_once` members are an error.

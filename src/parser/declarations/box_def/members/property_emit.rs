@@ -54,6 +54,14 @@ fn me_call(method: String, arguments: Vec<ASTNode>) -> ASTNode {
     }
 }
 
+fn me_field(name: String) -> ASTNode {
+    ASTNode::FieldAccess {
+        object: Box::new(me()),
+        field: name,
+        span: Span::unknown(),
+    }
+}
+
 fn birth_once_compute_method_name(name: &str) -> String {
     format!("__compute_birth_{}", name)
 }
@@ -77,6 +85,14 @@ fn local_with_init(name: &str, init: ASTNode) -> ASTNode {
 fn return_expr(expr: ASTNode) -> ASTNode {
     ASTNode::Return {
         value: Some(Box::new(expr)),
+        span: Span::unknown(),
+    }
+}
+
+fn assign_me_field(name: String, expr: ASTNode) -> ASTNode {
+    ASTNode::Assignment {
+        target: Box::new(me_field(name)),
+        value: Box::new(expr),
         span: Span::unknown(),
     }
 }
@@ -235,6 +251,22 @@ pub(crate) fn prepend_birth_once_initializers(
     body
 }
 
+pub(crate) fn prepend_stored_field_initializers(
+    field_initializers: &[(String, ASTNode)],
+    mut user_body: Vec<ASTNode>,
+) -> Vec<ASTNode> {
+    if field_initializers.is_empty() {
+        return user_body;
+    }
+
+    let mut body = Vec::with_capacity(field_initializers.len() + user_body.len());
+    for (field, expr) in field_initializers {
+        body.push(assign_me_field(field.clone(), expr.clone()));
+    }
+    body.append(&mut user_body);
+    body
+}
+
 fn empty_birth_constructor(body: Vec<ASTNode>) -> ASTNode {
     ASTNode::FunctionDeclaration {
         name: "birth".to_string(),
@@ -271,6 +303,34 @@ pub(crate) fn apply_birth_once_constructor_prologues(
         if let Some(ASTNode::FunctionDeclaration { body, .. }) = constructors.get_mut(&key) {
             let user_body = std::mem::take(body);
             *body = prepend_birth_once_initializers(birth_once_props, user_body);
+        }
+    }
+}
+
+pub(crate) fn apply_stored_field_initializer_constructor_prologues(
+    constructors: &mut HashMap<String, ASTNode>,
+    field_initializers: &[(String, ASTNode)],
+) {
+    if field_initializers.is_empty() {
+        return;
+    }
+
+    let birth_keys: Vec<String> = constructors
+        .keys()
+        .filter(|key| key.starts_with("birth/"))
+        .cloned()
+        .collect();
+
+    if birth_keys.is_empty() {
+        let body = prepend_stored_field_initializers(field_initializers, vec![]);
+        constructors.insert("birth/0".to_string(), empty_birth_constructor(body));
+        return;
+    }
+
+    for key in birth_keys {
+        if let Some(ASTNode::FunctionDeclaration { body, .. }) = constructors.get_mut(&key) {
+            let user_body = std::mem::take(body);
+            *body = prepend_stored_field_initializers(field_initializers, user_body);
         }
     }
 }

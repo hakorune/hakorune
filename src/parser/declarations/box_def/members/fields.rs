@@ -67,7 +67,8 @@ pub(crate) fn try_parse_get_computed_property(
 /// Handles:
 /// - `name: Type`                      → field
 /// - `get name: Type => expr`          → canonical computed property (handled before this function)
-/// - `name: Type = expr`               → field with initializer (initializer is parsed then discarded at P0)
+/// - `name = expr`                     → field with constructor initializer
+/// - `name: Type = expr`               → field with constructor initializer
 /// - `name: Type => expr`              → computed property (getter function generated)
 /// - `name: Type { ... } [catch|cleanup]` → computed property block with optional postfix handlers
 /// Note: weak field parsing is handled at the top level in parse_box_declaration (Phase 285A1.2)
@@ -78,38 +79,51 @@ pub(crate) fn try_parse_header_first_field_or_property(
     methods: &mut HashMap<String, ASTNode>,
     fields: &mut Vec<String>,
     field_decls: &mut Vec<FieldDecl>,
+    field_initializers: &mut Vec<(String, ASTNode)>,
     _weak_fields: &mut Vec<String>,
     is_weak: bool,
 ) -> Result<bool, ParseError> {
     // Expect ':' Type after name
     if !p.match_token(&TokenType::COLON) {
-        // No type annotation: treat as bare stored field
+        // No type annotation: treat as bare stored field, optionally with a
+        // constructor initializer.
+        let init_expr = if p.match_token(&TokenType::ASSIGN) {
+            p.advance();
+            Some(p.parse_expression()?)
+        } else {
+            None
+        };
         fields.push(fname.clone());
         field_decls.push(FieldDecl {
-            name: fname,
+            name: fname.clone(),
             declared_type_name: None,
             is_weak,
         });
+        if let Some(expr) = init_expr {
+            field_initializers.push((fname, expr));
+        }
         return Ok(true);
     }
     p.advance(); // consume ':'
                  // Optional type name (identifier). Keep it as declared field metadata.
     let declared_type_name = syntax::parse_optional_declared_type_name(p);
 
+    // name: Type = expr  → field with constructor initializer.
+    if p.match_token(&TokenType::ASSIGN) {
+        p.advance();
+        let init_expr = p.parse_expression()?;
+        fields.push(fname.clone());
+        field_decls.push(FieldDecl {
+            name: fname.clone(),
+            declared_type_name,
+            is_weak,
+        });
+        field_initializers.push((fname, init_expr));
+        return Ok(true);
+    }
+
     // Unified members gate behavior
     if crate::config::env::unified_members() {
-        // name: Type = expr  → field with initializer (store as field, initializer discarded at P0)
-        if p.match_token(&TokenType::ASSIGN) {
-            p.advance();
-            let _init_expr = p.parse_expression()?; // P0: parse and discard
-            fields.push(fname.clone());
-            field_decls.push(FieldDecl {
-                name: fname,
-                declared_type_name,
-                is_weak,
-            });
-            return Ok(true);
-        }
         if try_parse_computed_body(p, fname.clone(), methods)? {
             return Ok(true);
         }
@@ -150,6 +164,7 @@ pub(crate) fn try_parse_visibility_block_or_single(
     methods: &mut HashMap<String, ASTNode>,
     fields: &mut Vec<String>,
     field_decls: &mut Vec<FieldDecl>,
+    field_initializers: &mut Vec<(String, ASTNode)>,
     public_fields: &mut Vec<String>,
     private_fields: &mut Vec<String>,
     last_method_name: &mut Option<String>,
@@ -243,6 +258,7 @@ pub(crate) fn try_parse_visibility_block_or_single(
                 methods,
                 fields,
                 field_decls,
+                field_initializers,
                 weak_fields,
                 false,
             )? {
@@ -260,6 +276,7 @@ pub(crate) fn try_parse_visibility_block_or_single(
             methods,
             fields,
             field_decls,
+            field_initializers,
             weak_fields,
             false,
         )? {

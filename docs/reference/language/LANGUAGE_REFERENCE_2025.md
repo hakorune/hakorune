@@ -86,6 +86,8 @@ box ClassName {
     field1                       # 簡単な型なし stored field
     field2: TypeBox              # 明示metadataつき stored field（現状は一般代入の型検査ではない）
     field3: TypeBox              # typed-object plan / optimizer / verifier の材料
+    field4 = defaultValue()      # constructor prologue initializer
+    field5: TypeBox = makeValue()
     
     # コンストラクタ
     birth(param1, param2) {      # birth構文に統一
@@ -112,7 +114,7 @@ box ClassName {
 フィールド宣言の設計:
 - `field` は一番簡単な untyped stored field です。試作・一般アプリ・動的なBoxではこれを使えます。
 - `field: Type` は stored field に declared-type metadata を付ける形です。現時点では一般代入の型強制ではなく、TypedObjectPlan / optimizer / verifier / AI読み取りの材料です。
-- 初期値は、互換性を重視する場合は `birth(...) { me.field = value }` に書くのが現在の安定した形です。
+- `field = expr` / `field: Type = expr` は stored field initializer です。constructor prologue として `me.field = expr` に下ろされ、ユーザー定義 `birth(...)` body より前に宣言順で実行されます。
 - `init { field }` は下記の legacy compatibility です。新規コードの第一推奨ではありません。
 
 注（`init { ... }` について）:

@@ -73,6 +73,7 @@ fn box_try_visibility(
     methods: &mut HashMap<String, ASTNode>,
     fields: &mut Vec<String>,
     field_decls: &mut Vec<FieldDecl>,
+    field_initializers: &mut Vec<(String, ASTNode)>,
     public_fields: &mut Vec<String>,
     private_fields: &mut Vec<String>,
     last_method_name: &mut Option<String>,
@@ -88,6 +89,7 @@ fn box_try_visibility(
         methods,
         fields,
         field_decls,
+        field_initializers,
         public_fields,
         private_fields,
         last_method_name,
@@ -104,6 +106,7 @@ fn box_try_method_or_field(
     methods: &mut HashMap<String, ASTNode>,
     fields: &mut Vec<String>,
     field_decls: &mut Vec<FieldDecl>,
+    field_initializers: &mut Vec<(String, ASTNode)>,
     last_method_name: &mut Option<String>,
     weak_fields: &mut Vec<String>,
 ) -> Result<bool, ParseError> {
@@ -121,6 +124,7 @@ fn box_try_method_or_field(
         methods,
         fields,
         field_decls,
+        field_initializers,
         weak_fields,
         false,
     )?;
@@ -148,6 +152,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
 
     let mut fields = Vec::new();
     let mut field_decls = Vec::new();
+    let mut field_initializers: Vec<(String, ASTNode)> = Vec::new();
     let mut methods = HashMap::new();
     let mut public_fields: Vec<String> = Vec::new();
     let mut private_fields: Vec<String> = Vec::new();
@@ -240,6 +245,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
                 &mut methods,
                 &mut fields,
                 &mut field_decls,
+                &mut field_initializers,
                 &mut public_fields,
                 &mut private_fields,
                 &mut last_method_name,
@@ -287,6 +293,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
                 &mut methods,
                 &mut fields,
                 &mut field_decls,
+                &mut field_initializers,
                 &mut last_method_name,
                 &mut weak_fields,
             )? {
@@ -305,6 +312,10 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
     members::property_emit::apply_birth_once_constructor_prologues(
         &mut constructors,
         &birth_once_props,
+    );
+    members::property_emit::apply_stored_field_initializer_constructor_prologues(
+        &mut constructors,
+        &field_initializers,
     );
     // 🚫 Disallow method named same as the box (constructor-like confusion)
     validators::validate_no_ctor_like_name(p, &name, &methods)?;

@@ -1,0 +1,20 @@
+box FieldInitializerDemo {
+  count = 41
+  name: StringBox = "Nya"
+
+  birth() {
+    me.count = me.count + 1
+  }
+
+  get label: StringBox => me.name
+}
+
+static box Main {
+  main(args) {
+    local demo = new FieldInitializerDemo()
+    print("field-initializer")
+    print(demo.count)
+    print(demo.label)
+    return 0
+  }
+}

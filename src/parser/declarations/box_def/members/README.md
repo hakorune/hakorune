@@ -8,8 +8,8 @@ synthetic method body construction.
 - `properties.rs`: once/birth_once and block-first unified member parsing.
 - `property_emit.rs`: the only owner for synthetic property method AST bodies,
   naming (`__get_*`, `__get_once_*`, `__get_birth_*`,
-  `__compute_once_*`, `__compute_birth_*`), and `birth_once` constructor
-  prologue statements.
+  `__compute_once_*`, `__compute_birth_*`), stored field initializer
+  prologues, and `birth_once` constructor prologue statements.
 - `postfix.rs`: the only owner for Box member postfix `catch/cleanup` parsing
   and `TryCatch` wrapping, including the member postfix syntax gate.
 
@@ -18,8 +18,8 @@ Rules:
 - Do not reserve `get` in the tokenizer. It is contextual at Box member head.
 - Do not add generic runtime property lookup here.
 - Do not duplicate synthetic property method bodies in parser entry modules.
-- Do not duplicate `birth_once` eager initializer AST construction outside
-  `property_emit.rs`.
+- Do not duplicate stored field initializer or `birth_once` eager initializer
+  AST construction outside `property_emit.rs`.
 - Do not duplicate Box member postfix `catch/cleanup` parsing outside
   `postfix.rs`.
 - Do not bypass the member postfix gate for method or constructor postfix

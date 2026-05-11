@@ -186,3 +186,60 @@ box VisibleGetField {
     assert!(fields.contains(&"get".to_string()));
     assert!(!methods.contains_key("__get_get"));
 }
+
+#[test]
+fn stored_field_initializers_generate_birth_prologue() {
+    let ast = parse(
+        r#"
+box FieldDefaults {
+  count = 41
+  name: StringBox = "Nya"
+}
+"#,
+    );
+
+    let ASTNode::BoxDeclaration {
+        fields,
+        field_decls,
+        constructors,
+        ..
+    } = find_box(&ast, "FieldDefaults")
+    else {
+        panic!("expected BoxDeclaration");
+    };
+
+    assert!(fields.contains(&"count".to_string()));
+    assert!(fields.contains(&"name".to_string()));
+    assert!(field_decls
+        .iter()
+        .any(|decl| decl.name == "count" && decl.declared_type_name.is_none()));
+    assert!(
+        field_decls
+            .iter()
+            .any(|decl| decl.name == "name"
+                && decl.declared_type_name.as_deref() == Some("StringBox"))
+    );
+
+    let Some(ASTNode::FunctionDeclaration { body, .. }) = constructors.get("birth/0") else {
+        panic!("expected synthetic birth/0 constructor");
+    };
+    assert_eq!(body.len(), 2);
+    assert!(matches!(
+        &body[0],
+        ASTNode::Assignment { target, .. }
+            if matches!(
+                target.as_ref(),
+                ASTNode::FieldAccess { object, field, .. }
+                    if field == "count" && matches!(object.as_ref(), ASTNode::Me { .. })
+            )
+    ));
+    assert!(matches!(
+        &body[1],
+        ASTNode::Assignment { target, .. }
+            if matches!(
+                target.as_ref(),
+                ASTNode::FieldAccess { object, field, .. }
+                    if field == "name" && matches!(object.as_ref(), ASTNode::Me { .. })
+            )
+    ));
+}
