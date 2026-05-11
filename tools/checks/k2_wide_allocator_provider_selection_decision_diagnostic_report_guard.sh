@@ -91,7 +91,7 @@ require_text "$FIXTURE" 'schema_version = "allocator_provider_selection_decision
 require_text "$FIXTURE" 'selection_owner = "src/runtime/allocator_provider_registry.rs"'
 require_text "$FIXTURE" 'selected_provider_id = "none_reserved"'
 require_text "$FIXTURE" 'would_select_provider = false'
-require_text "$SOURCE" "Diagnostic-only allocator provider registry, selection, and activation safety reports"
+require_text "$SOURCE" "Diagnostic-only allocator provider registry"
 require_text "$SOURCE" "AllocatorProviderSelectionDecisionFacts"
 require_text "$SOURCE" "AllocatorProviderSelectionDecisionReport"
 require_text "$SOURCE" "AllocatorProviderSelectionDecisionStatus"

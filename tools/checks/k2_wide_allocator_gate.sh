@@ -103,6 +103,7 @@ if [[ "${1:-}" == "--list" ]]; then
   - tools/checks/k2_wide_allocator_provider_selection_decision_diagnostic_report_guard.sh
   - tools/checks/k2_wide_allocator_provider_selection_decision_cli_surface_guard.sh
   - tools/checks/k2_wide_allocator_provider_diagnostic_helper_cleanup_guard.sh
+  - tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_diagnostic_report_guard.sh
 LIST
   exit 0
 fi
@@ -373,3 +374,6 @@ run_step "allocator provider selection decision CLI surface guard" \
 
 run_step "allocator provider diagnostic helper cleanup guard" \
   bash tools/checks/k2_wide_allocator_provider_diagnostic_helper_cleanup_guard.sh
+
+run_step "allocator provider proof bundle consumption diagnostic report guard" \
+  bash tools/checks/k2_wide_allocator_provider_proof_bundle_consumption_diagnostic_report_guard.sh
