@@ -13,6 +13,9 @@ The result shape is `ok/reason/handle`. Successful results carry a
 handle. Existing `allocate/realloc` object-return APIs remain unchanged for
 M189 compatibility.
 
+The compatibility `realloc` path rejects stale handles before allocating a
+replacement and rolls replacement state back if the old-handle release fails.
+
 Reason codes in this row:
 
 - `0`: ok

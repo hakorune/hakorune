@@ -31,6 +31,8 @@ guard_expect_in_file "$TAG" 'box HakoAllocHandleResult' "$PAGE_HEAP" "M190 must 
 guard_expect_in_file "$TAG" 'allocateResult\(size\)' "$PAGE_HEAP" "M190 must add allocation result entry"
 guard_expect_in_file "$TAG" 'reallocResult\(handle, requested_size\)' "$PAGE_HEAP" "M190 must add realloc result entry"
 guard_expect_in_file "$TAG" 'isLiveHandle\(handle\)' "$PAGE_HEAP" "M190 must reject stale handles before replacement allocation"
+guard_expect_in_file "$TAG" 'if me\.isLiveHandle\(handle\) == 0' "$PAGE_HEAP" "M190 realloc must reject stale handles before replacement allocation"
+guard_expect_in_file "$TAG" 'me\.release\(replacement\)' "$PAGE_HEAP" "M190 realloc must rollback replacement on old-release failure"
 guard_expect_in_file "$TAG" 'new HakoAllocHandleResult\(0, 1, null\)' "$PAGE_HEAP" "M190 must name null-handle failures"
 guard_expect_in_file "$TAG" 'new HakoAllocHandleResult\(0, 2, null\)' "$PAGE_HEAP" "M190 must name invalid-size failures"
 guard_expect_in_file "$TAG" 'new HakoAllocHandleResult\(0, 3, null\)' "$PAGE_HEAP" "M190 must name stale-handle failures"

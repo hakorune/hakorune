@@ -50,6 +50,11 @@ Existing `allocate(...)` / `realloc(...)` remain compatibility APIs. New callers
 that need explicit failure causes use `allocateResult(...)` /
 `reallocResult(...)`.
 
+The compatibility `realloc(...)` path must reject stale handles before
+replacement allocation. If old-handle release unexpectedly fails after a
+replacement was allocated, it rolls back that replacement before returning
+`null`.
+
 ## Proof
 
 ```bash
