@@ -50,7 +50,7 @@ hako_alloc or mimalloc migration.
 | `294x-10d` | Complete | VM exact ops module split | exact numeric VM reference execution is split by operation family before more rows land |
 | `294x-10e` | Complete | VM reference exact logical shr routes | VM reference execution consumes MIR-owned exact unsigned logical right-shift route facts |
 | `294x-11` | Complete | literal suffix and const-eval row | `0usize` / exact numeric consts are accepted only with range checks and preserved as MIR exact const facts |
-| `294x-12` | Pending | typed-object exact numeric storage | typed-object plans and EXE runtime storage distinguish `usize` from i64 |
+| `294x-12` | Complete | typed-object exact numeric storage | typed-object plans distinguish exact numeric storage names such as `usize` from legacy `i64` while runtime values stay on the integer lane |
 | `294x-13` | Pending | backend capability and fail-fast | unsupported backends reject exact `usize`; supported backends lower unsigned ops correctly |
 | `294x-14` | Pending | low-level capability usize variants | RawBuf/RawArray/OSVM/bounds helpers get exact `usize` variants only where backed by semantics |
 | `294x-15` | Pending | raw-layout pointer-sized field row | `usize`/`isize` raw fields are accepted with target layout rules or fail fast |
@@ -131,7 +131,8 @@ hako_alloc or mimalloc migration.
 
 ### Storage / Backend
 
-- [ ] Add typed-object `usize` storage.
+- [x] Add typed-object exact numeric storage names to layout plans.
+- [ ] Add backend/runtime native `usize` slots.
 - [ ] Add field get/set ABI for exact numeric slots.
 - [ ] Lower LLVM/native unsigned compare and shift.
 - [ ] Decide WASM target behavior.

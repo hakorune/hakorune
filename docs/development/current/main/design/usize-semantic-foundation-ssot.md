@@ -88,6 +88,9 @@ Live today:
   parser front, range-check through the exact numeric substrate, and publish
   MIR exact const facts while still emitting current-lane `Integer(i64)`
   constants;
+- typed-object layout plans preserve exact numeric storage names such as
+  `usize` distinctly from legacy `i64`, while current execution still uses the
+  dynamic integer lane;
 - `FunctionMetadata` preserves MIR-side declared parameter/return annotation
   text, and exact numeric return annotations publish function-level advisory
   return facts without changing runtime lowering;
@@ -97,8 +100,8 @@ Live today:
 - VM exact numeric work in this phase is reference execution only. VM rows may
   consume MIR-owned facts/contracts but do not make VM-only behavior complete
   product support;
-- typed-object planning can use numeric annotations as inline i64 storage
-  hints;
+- typed-object planning preserves numeric annotations as exact numeric storage
+  names in layout metadata;
 - VM runtime values use `Integer(i64)`;
 - current `>>` is signed i64 arithmetic right shift.
 
@@ -108,11 +111,11 @@ Not live today:
   numeric field-write contracts, non-VM backend lowering/execution of those
   contracts, and exact runtime unsigned range-check construction;
 - `.hako` parser-front parity for numeric literal suffixes;
-- live
-  VM/backend exact numeric arithmetic/compare/shift routes, and explicit
+- backend exact numeric arithmetic/compare/shift lowering and explicit
   wrapping vocabulary;
-- MIR / Program(JSON) exact numeric constants;
-- typed-object `usize` storage distinct from i64 storage;
+- MIR JSON exact-width numeric const tags;
+- native typed-object exact numeric slots distinct from the current integer
+  lane;
 - backend lowering to native pointer-sized integer classes.
 
 ## Target Meaning

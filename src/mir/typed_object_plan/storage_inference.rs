@@ -128,7 +128,9 @@ fn build_field_plans(
             None => None,
         };
         let storage = match (declared, observed) {
-            (Some(left), Some(right)) if left != right => return None,
+            (Some(left), Some(right)) if !typed_object_storage_compatible(left, right) => {
+                return None;
+            }
             (Some(storage), _) | (None, Some(storage)) => storage,
             (None, None) => return None,
         };
@@ -141,6 +143,13 @@ fn build_field_plans(
         });
     }
     Some(fields)
+}
+
+fn typed_object_storage_compatible(
+    declared: TypedObjectFieldStorage,
+    observed: TypedObjectFieldStorage,
+) -> bool {
+    declared == observed || (declared.uses_integer_lane() && observed.uses_integer_lane())
 }
 
 fn infer_untyped_field_storages(module: &MirModule) -> BTreeMap<FieldKey, FieldStorageInference> {

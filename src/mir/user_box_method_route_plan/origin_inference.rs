@@ -7,7 +7,6 @@ use super::{
     UserBoxMethodTargetFacts,
 };
 use crate::mir::definitions::call_unified::TypeCertainty;
-use crate::mir::function::TypedObjectFieldStorage;
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use crate::mir::{
     BasicBlockId, Callee, ConstValue, MirFunction, MirInstruction, MirModule, MirType, ValueId,
@@ -403,9 +402,10 @@ pub(super) fn build_user_box_field_return_hints(
     let mut hints = UserBoxFieldReturnHints::new();
     for plan in &module.metadata.typed_object_plans {
         for field in &plan.fields {
-            let hint = match field.storage {
-                TypedObjectFieldStorage::I64 => UserBoxMethodInferredReturn::ScalarI64,
-                TypedObjectFieldStorage::Handle => UserBoxMethodInferredReturn::ObjectHandle,
+            let hint = if field.storage.uses_integer_lane() {
+                UserBoxMethodInferredReturn::ScalarI64
+            } else {
+                UserBoxMethodInferredReturn::ObjectHandle
             };
             hints.insert((plan.box_name.clone(), field.name.clone()), hint);
         }

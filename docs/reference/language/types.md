@@ -45,8 +45,9 @@ Current live semantics are intentionally narrow:
   metadata, but the emitted runtime value still uses `Integer(i64)`.
 - Runtime values still execute on the current dynamic `Integer(i64)` lane.
 - The current `>>` operator in that lane is signed i64 arithmetic right shift.
-- Typed-object EXE storage planning may use these names as inline i64 slot
-  storage hints.
+- Typed-object EXE storage planning preserves these names as exact numeric
+  storage names in layout plans, while current execution still uses the
+  dynamic `Integer(i64)` lane.
 - Field, parameter, and accepted return annotations preserve the original
   declared type text in AST metadata so later exact-width rows can refine
   semantics without rediscovering source text. AST JSON and Stage1
@@ -96,6 +97,7 @@ Deferred and not accepted by this row:
 - live VM/backend exact numeric arithmetic/compare/shift routes and wrapping /
   checked helper-call syntax
 - MIR JSON exact-width numeric const tags
+- backend/native typed-object slots for exact numeric widths
 
 Backends must not infer exact unsigned or fixed-width behavior from these names
 until the corresponding verifier/lowering rows are live.

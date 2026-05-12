@@ -109,6 +109,9 @@
 - `294x-11`: decimal integer suffixes such as `0usize` now parse as typed
   integer literals, range-check through exact numeric metadata, and publish MIR
   exact const facts while still emitting current-lane `Integer(i64)` constants.
+- `294x-12`: typed-object layout plans now preserve exact numeric storage names
+  such as `usize` instead of collapsing them to `i64`, while current execution
+  remains on the dynamic integer lane.
 
 ## First Implementation Direction
 

@@ -58,7 +58,10 @@ fn refresh_function_typed_object_field_value_types(
             let Some(base_box) = typed_object_value_box_name(function, &def_map, *base) else {
                 continue;
             };
-            if fields.get(&(base_box, field.clone())) == Some(&TypedObjectFieldStorage::I64) {
+            if fields
+                .get(&(base_box, field.clone()))
+                .is_some_and(|storage| storage.uses_integer_lane())
+            {
                 facts.push(*dst);
             }
         }
