@@ -79,9 +79,11 @@ Principles
   - `HakoAllocAlignmentPolicy` is the M177 alignment owner. It normalizes and
     validates alignment plus computes padded-size policy, but aligned execution
     still stays outside the current realloc/release owners.
-  - `M178` stays reserved for the aligned small-allocation path. It may attach
-    alignment metadata to normal page-map-backed allocations, but it must not
-    reopen huge-page routing.
+  - `HakoAllocPageMapAlignedSmallPath` is the M178 aligned small-path owner. It
+    attaches alignment metadata to normal page-map-backed small allocations
+    while huge-page routing still stays outside this owner.
+  - `M179` stays reserved for huge threshold/routing. It must not be folded into
+    the aligned small-path owner.
 
 Design owners
 - Policy/state stop-line:
@@ -138,6 +140,7 @@ Current modules
 - `memory.page_box`
 - `memory.page_heap_box`
 - `memory.page_map_box`
+- `memory.page_map_aligned_small_path_box`
 - `memory.page_map_release_box`
 - `memory.page_map_release_invariant_box`
 - `memory.page_map_realloc_alloc_copy_release_box`

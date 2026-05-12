@@ -78,10 +78,11 @@ The active allocator algorithm lane is complete through `M176`:
 - alloc-copy-release grow fallback (`M175`)
 - realloc negative matrix / failure contract (`M176`)
 - standalone alignment policy (`M177`)
+- aligned small-path execution (`M178`)
 
-The next row is `M178 aligned allocation small path`. The policy-only alignment
-slice now exists, but aligned allocation execution still must stay on the small
-path and must not reopen huge-page routing or allocator-provider activation.
+The next row is `M179 huge threshold and routing`. Normal aligned small-path
+execution now exists, but huge routing still must fail fast instead of silently
+widening the small path or reopening allocator-provider activation.
 
 ## Stop Line
 

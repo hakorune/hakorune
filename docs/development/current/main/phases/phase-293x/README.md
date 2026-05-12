@@ -448,7 +448,10 @@ inference for the allocator release path.
   `HakoAllocAlignmentPolicy` so alignment normalization, power-of-two
   validation, and padded-size policy are fixed before aligned allocation
   execution begins.
-- Next: continue with `M178 aligned allocation small path` before
+- `293x-188`: M178 aligned allocation small path landed, adding
+  `HakoAllocPageMapAlignedSmallPath` so normal page-map-backed small
+  allocations carry live alignment metadata without reopening huge routing.
+- Next: continue with `M179 huge threshold and routing` before
   scheduling aligned allocation, huge-page, or secure-list rows.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.
@@ -460,8 +463,7 @@ SSOT:
 
 Current execution order:
 
-1. `M178-M184`: add aligned allocation, huge-page, and secure-list rows
-   separately.
+1. `M179-M184`: add huge-page and secure-list rows separately.
 2. `M185-M190`: finish remaining `usize` field-group migration and allocator
    API parity. Facade stats are already exact `usize` via `294x-19e`, so that
    row must not be repeated.

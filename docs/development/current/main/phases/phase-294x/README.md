@@ -31,8 +31,9 @@
 | 0 | `293x-185` | Allocate a replacement ptr, model copy count, and release the old ptr only after success. |
 | 1 | `293x-186` | Freeze the realloc negative/failure matrix without widening into aligned/huge work. |
 | 2 | `293x-187` | Fix alignment normalization, power-of-two validation, and padded-size policy before aligned execution. |
-| 3 | `M178-M184` | Add aligned allocation, huge-page, and secure-list slices without mixing them. |
-| 4 | `M185-M190` | Reconcile remaining `usize` migration and object-return allocator API parity. |
+| 3 | `293x-188` | Attach alignment metadata to normal page-map-backed small allocations. |
+| 4 | `M179-M184` | Add huge-page and secure-list slices without mixing them. |
+| 5 | `M185-M190` | Reconcile remaining `usize` migration and object-return allocator API parity. |
 
 Stop line: VM green is useful reference evidence, but production allocator
 migration still changes only by explicit `hako_alloc` field-group rows.
@@ -207,6 +208,9 @@ groups, request-path sizes, object-return parity, and failure-handle shape.
 - `M177`: parent mimalloc lane landed a pure alignment policy owner that
   normalizes alignment, rejects unsupported inputs, and computes padded-size
   policy without starting aligned allocation execution.
+- `M178`: parent mimalloc lane landed the aligned small-path owner that
+  registers small aligned allocations through `HakoAllocPageMap` and keeps
+  alignment metadata observable only while the ptr stays live.
 
 ## Implementation Direction
 
@@ -220,8 +224,8 @@ explicit consumer:
 5. lower the exact arithmetic/compare subset needed by migrated fields;
 6. migrate `hako_alloc` non-negative fields only by field group when an
    algorithm row actually benefits from the migration;
-7. continue M178 aligned small-path work before scheduling huge-page or
-   secure-list rows.
+7. continue M179 huge-threshold routing work before scheduling huge-page model
+   or secure-list rows.
 
 This keeps the source truth available before any lowerer claims exact
 semantics.

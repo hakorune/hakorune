@@ -103,6 +103,8 @@ contract:
    oversized, unknown, stale, released, and alloc-fail classification.
 7. `M177` `HakoAllocAlignmentPolicy` owns alignment normalization, power-of-two
    validation, and padded-size policy.
+8. `M178` `HakoAllocPageMapAlignedSmallPath` owns aligned small-path execution
+   and live alignment metadata over normal page-map-backed allocations.
 
 The owner split above is the current stop line. `M176` does not move aligned
 allocation, huge-page routing, secure free-list policy, or provider/hook work
@@ -110,13 +112,11 @@ into the existing realloc owners.
 
 ## Immediate Next Boundary
 
-The next allocator row is `M178 aligned allocation small path`.
+The next allocator row is `M179 huge threshold and routing`.
 
-- It may attach alignment metadata to the existing small page-map-backed
-  allocation flow.
-- It must not route huge requests, widen huge-page ownership, or claim
-  native/ABI alignment semantics.
-- Huge-page routing, huge-page release, and secure-list work remain later rows.
+- It may classify requests that leave the normal aligned small path.
+- It must not build the huge-page model yet or widen secure-list work.
+- Huge-page model/release and secure-list work remain later rows.
 
 ## First Concrete Policy Rows
 

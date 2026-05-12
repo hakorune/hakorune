@@ -15,6 +15,7 @@ Current modules
 - `page_box.hako`
 - `page_heap_box.hako`
 - `page_map_box.hako`
+- `page_map_aligned_small_path_box.hako`
 - `page_map_release_box.hako`
 - `page_map_release_invariant_box.hako`
 - `page_map_realloc_alloc_copy_release_box.hako`
@@ -90,6 +91,9 @@ Syntax/style contract
 - `alignment_policy_box.hako` owns M177 alignment policy. It may normalize
   alignment, check power-of-two validity, and compute padded-size policy, but
   it must not start aligned allocation execution or huge-page routing.
-- `M178` is the next reserved owner row for aligned small-path execution only.
+- `page_map_aligned_small_path_box.hako` owns M178 aligned small-path execution.
+  It may attach alignment metadata to normal page-map-backed small allocations,
+  but it must not start huge-page routing or native alignment claims.
+- `M179` is the next reserved owner row for huge threshold/routing only.
 - Keep `birth(...)` for parameter-dependent initialization and ordering that
   cannot be expressed as a declaration-site default.

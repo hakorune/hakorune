@@ -1,0 +1,104 @@
+// mimalloc-aligned-small-path-proof
+// Purpose: prove the M178 aligned small-path owner over page-map-backed small allocations.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
+using selfhost.hako_alloc.memory.page_map_release_box as HakoAllocPageMapReleaseBox
+using selfhost.hako_alloc.memory.page_map_aligned_small_path_box as HakoAllocPageMapAlignedSmallPathBox
+
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expect(label, condition) {
+        me.count = me.count + 1
+        if condition == 0 {
+            me.passed = 0
+            me.fail_count = me.fail_count + 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
+static box Main {
+    main(args) {
+        local page_map = new HakoAllocPageMap()
+        local seam = new HakoAllocPageMapReleaseSeam(page_map)
+        local path = new HakoAllocPageMapAlignedSmallPath(seam)
+        local page0 = new HakoAllocPageModel(0, 32, 1, 1)
+        local page1 = new HakoAllocPageModel(1, 128, 1, 1)
+
+        local add0 = seam.addPage(page0)
+        local add1 = seam.addPage(page1)
+
+        local small_ok = path.allocateAlignedSmall(24, 1)
+        local small_ptr = path.last_result_ptr
+        local small_align = path.alignmentFor(small_ptr)
+        local small_padded = path.paddedSizeFor(small_ptr)
+
+        local medium_ok = path.allocateAlignedSmall(48, 64)
+        local medium_ptr = path.last_result_ptr
+        local medium_align = path.alignmentFor(medium_ptr)
+        local medium_padded = path.paddedSizeFor(medium_ptr)
+
+        local reject_bad = path.allocateAlignedSmall(24, 3)
+        local reject_zero = path.allocateAlignedSmall(24, 0)
+        local reject_oversized = path.allocateAlignedSmall(4194300, 64)
+        local reject_alloc_fail = path.allocateAlignedSmall(48, 64)
+
+        local released = seam.releasePtr(small_ptr)
+        local released_align = path.alignmentFor(small_ptr)
+        local released_padded = path.paddedSizeFor(small_ptr)
+
+        print("mimalloc-aligned-small-path-proof")
+        print("setup=" + add0 + "," + add1)
+        print("alloc=" + small_ok + "," + small_ptr + "," + small_align + "," + small_padded + "," + medium_ok + "," + medium_ptr + "," + medium_align + "," + medium_padded)
+        print("reject=" + reject_bad + "," + reject_zero + "," + reject_oversized + "," + reject_alloc_fail)
+        print("release=" + released + "," + released_align + "," + released_padded)
+        print("path=" + path.alloc_count + "," + path.invalid_alignment_count + "," + path.oversized_count + "," + path.alloc_fail_count + "," + path.register_fail_count + "," + path.reject_count + "," + path.meta_count)
+        print("seam=" + seam.release_count + "," + seam.unregister_count + "," + seam.lookup_miss_count + "," + seam.stale_page_count + "," + seam.page_release_reject_count + "," + seam.reject_count)
+        print("page=" + page0.used + "," + page0.localFreeCount() + "," + page0.retired + "," + page1.used + "," + page1.localFreeCount() + "," + page1.retired + "," + page_map.register_count + "," + page_map.live_count)
+
+        local proof = new ProofCheck("m178 aligned small path")
+        proof.expect("add page0", add0 == 1)
+        proof.expect("add page1", add1 == 1)
+        proof.expect("small aligned alloc succeeds", small_ok == 1)
+        proof.expect("small ptr generated", small_ptr == 12000)
+        proof.expect("small alignment normalized", small_align == 8)
+        proof.expect("small padded size", small_padded == 31)
+        proof.expect("medium aligned alloc succeeds", medium_ok == 1)
+        proof.expect("medium ptr generated", medium_ptr == 12001)
+        proof.expect("medium alignment kept", medium_align == 64)
+        proof.expect("medium padded size", medium_padded == 111)
+        proof.expect("bad alignment rejects", reject_bad == 0)
+        proof.expect("zero alignment rejects", reject_zero == 0)
+        proof.expect("oversized rejects", reject_oversized == 0)
+        proof.expect("alloc fail rejects", reject_alloc_fail == 0)
+        proof.expect("release uses M172 seam", released == 1)
+        proof.expect("released alignment hidden", released_align == 0)
+        proof.expect("released padded size hidden", released_padded == 0)
+        proof.expect("path counters", path.alloc_count == 2 && path.invalid_alignment_count == 2 && path.oversized_count == 1 && path.alloc_fail_count == 1 && path.register_fail_count == 0 && path.reject_count == 4 && path.meta_count == 2)
+        proof.expect("seam counters", seam.release_count == 1 && seam.unregister_count == 1 && seam.lookup_miss_count == 0 && seam.stale_page_count == 0 && seam.page_release_reject_count == 0 && seam.reject_count == 0)
+        proof.expect("page state", page0.used == 0 && page0.localFreeCount() == 1 && page0.retired == 1 && page1.used == 1 && page1.localFreeCount() == 0 && page1.retired == 0 && page_map.register_count == 2 && page_map.live_count == 1)
+
+        if proof.ok() {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

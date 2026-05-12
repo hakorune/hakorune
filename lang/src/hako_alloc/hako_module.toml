@@ -13,6 +13,7 @@ memory.osvm_backed_fast_path_heap_box = "memory/osvm_backed_fast_path_heap_box.h
 memory.page_box = "memory/page_box.hako"
 memory.page_heap_box = "memory/page_heap_box.hako"
 memory.page_map_box = "memory/page_map_box.hako"
+memory.page_map_aligned_small_path_box = "memory/page_map_aligned_small_path_box.hako"
 memory.page_map_release_box = "memory/page_map_release_box.hako"
 memory.page_map_release_invariant_box = "memory/page_map_release_invariant_box.hako"
 memory.page_map_realloc_alloc_copy_release_box = "memory/page_map_realloc_alloc_copy_release_box.hako"
