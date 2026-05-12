@@ -82,7 +82,7 @@ pub enum ExactNumericValueFactMergeSite {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ExactNumericValueFactRejectionKind {
+pub enum ExactNumericRejectionKind {
     MixedExactAndDynamic {
         exact_source_name: String,
     },
@@ -91,6 +91,8 @@ pub enum ExactNumericValueFactRejectionKind {
         right_source_name: String,
     },
 }
+
+pub type ExactNumericValueFactRejectionKind = ExactNumericRejectionKind;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExactNumericValueFactRejection {
@@ -498,12 +500,12 @@ fn rejection_kind(error: ExactNumericUnificationError) -> ExactNumericValueFactR
     match error {
         ExactNumericUnificationError::MixedExactAndDynamic {
             exact_source_name, ..
-        } => ExactNumericValueFactRejectionKind::MixedExactAndDynamic { exact_source_name },
+        } => ExactNumericRejectionKind::MixedExactAndDynamic { exact_source_name },
         ExactNumericUnificationError::TypeMismatch {
             left_source_name,
             right_source_name,
             ..
-        } => ExactNumericValueFactRejectionKind::TypeMismatch {
+        } => ExactNumericRejectionKind::TypeMismatch {
             left_source_name,
             right_source_name,
         },

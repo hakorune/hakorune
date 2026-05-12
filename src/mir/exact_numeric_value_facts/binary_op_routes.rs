@@ -7,6 +7,8 @@ use crate::mir::exact_numeric_unification::{
 use crate::mir::{BasicBlockId, BinaryOp, MirFunction, MirInstruction, ValueId};
 use std::collections::BTreeMap;
 
+pub type ExactNumericBinaryOpRouteRejectionKind = super::ExactNumericRejectionKind;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExactNumericBinaryOpRouteFact {
     pub block: BasicBlockId,
@@ -16,17 +18,6 @@ pub struct ExactNumericBinaryOpRouteFact {
     pub lhs: ValueId,
     pub rhs: ValueId,
     pub declared_type_name: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ExactNumericBinaryOpRouteRejectionKind {
-    MixedExactAndDynamic {
-        exact_source_name: String,
-    },
-    TypeMismatch {
-        left_source_name: String,
-        right_source_name: String,
-    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

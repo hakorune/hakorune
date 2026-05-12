@@ -27,6 +27,41 @@ fn ensure_u64_fields(inst: &Value, fields: &[(&str, &'static str)]) -> Result<()
     Ok(())
 }
 
+const OSVM_CORE_METHODS: &[&str] = &[
+    "page_size_i64",
+    "page_size_usize",
+    "reserve_bytes_i64",
+    "reserve_bytes_usize",
+    "commit_bytes_i64",
+    "commit_bytes_usize",
+    "decommit_bytes_i64",
+    "decommit_bytes_usize",
+];
+
+const RAWBUF_CORE_METHODS: &[&str] = &[
+    "alloc_bytes_i64",
+    "alloc_bytes_usize",
+    "realloc_bytes_i64",
+    "realloc_bytes_usize",
+    "free_bytes_i64",
+];
+
+const INTRIN_CORE_METHODS: &[&str] = &["clz_i64", "ctz_i64", "popcnt_i64"];
+
+fn reject_restricted_boxcall_method(box_type: &str, method: &str) -> Option<String> {
+    let (tag, methods) = match box_type {
+        "OsVmCoreBox" => ("osvm", OSVM_CORE_METHODS),
+        "RawBufCoreBox" => ("rawbuf", RAWBUF_CORE_METHODS),
+        "IntrinCoreBox" => ("intrin", INTRIN_CORE_METHODS),
+        _ => return None,
+    };
+    if methods.contains(&method) {
+        None
+    } else {
+        Some(format!("boxcall({tag}:{method})"))
+    }
+}
+
 pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, u32, String)> {
     let mut root: Value = serde_json::from_str(json_text)
         .map_err(|_| ("<json>".to_string(), 0, "InvalidJson".to_string()))?;
@@ -247,45 +282,9 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                     let method = inst.get("method").and_then(|v| v.as_str()).unwrap_or("");
                     if let Some(box_reg) = inst.get("box").and_then(|v| v.as_u64()) {
                         if let Some(box_type) = box_type_by_reg.get(&box_reg) {
-                            if box_type == "OsVmCoreBox"
-                                && method != "page_size_i64"
-                                && method != "page_size_usize"
-                                && method != "reserve_bytes_i64"
-                                && method != "reserve_bytes_usize"
-                                && method != "commit_bytes_i64"
-                                && method != "commit_bytes_usize"
-                                && method != "decommit_bytes_i64"
-                                && method != "decommit_bytes_usize"
+                            if let Some(reason) = reject_restricted_boxcall_method(box_type, method)
                             {
-                                return Err((
-                                    func_name.clone(),
-                                    bb,
-                                    format!("boxcall(osvm:{})", method),
-                                ));
-                            }
-                            if box_type == "RawBufCoreBox"
-                                && method != "alloc_bytes_i64"
-                                && method != "alloc_bytes_usize"
-                                && method != "realloc_bytes_i64"
-                                && method != "realloc_bytes_usize"
-                                && method != "free_bytes_i64"
-                            {
-                                return Err((
-                                    func_name.clone(),
-                                    bb,
-                                    format!("boxcall(rawbuf:{})", method),
-                                ));
-                            }
-                            if box_type == "IntrinCoreBox"
-                                && method != "clz_i64"
-                                && method != "ctz_i64"
-                                && method != "popcnt_i64"
-                            {
-                                return Err((
-                                    func_name.clone(),
-                                    bb,
-                                    format!("boxcall(intrin:{})", method),
-                                ));
+                                return Err((func_name.clone(), bb, reason));
                             }
                         }
                     }

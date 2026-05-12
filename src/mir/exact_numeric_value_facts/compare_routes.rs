@@ -5,6 +5,8 @@ use crate::mir::exact_numeric_unification::{
 use crate::mir::{BasicBlockId, CompareOp, MirFunction, MirInstruction, ValueId};
 use std::collections::BTreeMap;
 
+pub type ExactNumericCompareRouteRejectionKind = super::ExactNumericRejectionKind;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExactNumericCompareRouteFact {
     pub block: BasicBlockId,
@@ -14,17 +16,6 @@ pub struct ExactNumericCompareRouteFact {
     pub lhs: ValueId,
     pub rhs: ValueId,
     pub declared_type_name: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ExactNumericCompareRouteRejectionKind {
-    MixedExactAndDynamic {
-        exact_source_name: String,
-    },
-    TypeMismatch {
-        left_source_name: String,
-        right_source_name: String,
-    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
