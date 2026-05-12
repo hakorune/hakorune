@@ -7,6 +7,7 @@ cd "$ROOT_DIR"
 source tools/checks/lib/guard_common.sh
 
 HUGE_MODEL="lang/src/hako_alloc/memory/huge_page_model_box.hako"
+HUGE_STORE="lang/src/hako_alloc/memory/huge_page_meta_store_box.hako"
 PAGE_MAP="lang/src/hako_alloc/memory/page_map_box.hako"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 ROOT_README="lang/src/hako_alloc/README.md"
@@ -24,6 +25,7 @@ echo "[$TAG] checking M180 huge page model"
 guard_require_files \
   "$TAG" \
   "$HUGE_MODEL" \
+  "$HUGE_STORE" \
   "$PAGE_MAP" \
   "$MODULE" \
   "$ROOT_README" \
@@ -36,18 +38,23 @@ guard_require_files \
   "$INDEX"
 
 guard_expect_in_file "$TAG" 'memory.huge_page_model_box = "memory/huge_page_model_box.hako"' "$MODULE" "hako module must export the M180 huge page model"
+guard_expect_in_file "$TAG" 'memory.huge_page_meta_store_box = "memory/huge_page_meta_store_box.hako"' "$MODULE" "hako module must export the C205d huge metadata store"
 guard_expect_in_file "$TAG" 'box HakoAllocHugePageModel' "$HUGE_MODEL" "missing M180 huge page model owner"
+guard_expect_in_file "$TAG" 'box HakoAllocHugePageMetaStore' "$HUGE_STORE" "missing C205d huge metadata store owner"
 guard_expect_in_file "$TAG" 'allocateHuge\(requested_size, committed_size\)' "$HUGE_MODEL" "M180 must expose a huge allocation model entry"
 guard_expect_in_file "$TAG" 'me\.page_map\.register\(ptr, page_id, 0\)' "$HUGE_MODEL" "M180 must publish huge handles through HakoAllocPageMap"
-guard_expect_in_file "$TAG" 'requested_sizes: ArrayBox = new ArrayBox\(\)' "$HUGE_MODEL" "M180 must store requested-size metadata"
-guard_expect_in_file "$TAG" 'committed_sizes: ArrayBox = new ArrayBox\(\)' "$HUGE_MODEL" "M180 must store committed-size metadata"
-guard_expect_in_file "$TAG" 'live_flags: ArrayBox = new ArrayBox\(\)' "$HUGE_MODEL" "M180 must keep live metadata separate from page-local free lists"
+guard_expect_in_file "$TAG" 'meta_store: HakoAllocHugePageMetaStore' "$HUGE_MODEL" "M180 must delegate metadata storage after C205d"
+guard_expect_in_file "$TAG" 'me\.meta_store\.append\(page_id, ptr, requested_size, committed_size\)' "$HUGE_MODEL" "M180 must append huge metadata through C205d store"
+guard_expect_in_file "$TAG" 'requested_sizes: ArrayBox = new ArrayBox\(\)' "$HUGE_STORE" "C205d store must own requested-size metadata"
+guard_expect_in_file "$TAG" 'committed_sizes: ArrayBox = new ArrayBox\(\)' "$HUGE_STORE" "C205d store must own committed-size metadata"
+guard_expect_in_file "$TAG" 'live_flags: ArrayBox = new ArrayBox\(\)' "$HUGE_STORE" "C205d store must keep live metadata separate from page-local free lists"
 guard_expect_in_file "$TAG" 'isLiveHugePtr\(ptr\)' "$HUGE_MODEL" "M180 must expose live-huge observer"
 guard_expect_in_file "$TAG" 'requestedSizeFor\(ptr\)' "$HUGE_MODEL" "M180 must expose requested-size observer"
 guard_expect_in_file "$TAG" 'committedSizeFor\(ptr\)' "$HUGE_MODEL" "M180 must expose committed-size observer"
 guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.huge_page_model_box as HakoAllocHugePageModelBox' "$APP" "proof app must import the M180 owner"
 guard_expect_in_file "$TAG" 'HakoAllocHugePageModel' "$ROOT_README" "root README must document the M180 owner"
 guard_expect_in_file "$TAG" 'huge_page_model_box.hako' "$MEMORY_README" "memory README must document the M180 module"
+guard_expect_in_file "$TAG" 'huge_page_meta_store_box.hako' "$MEMORY_README" "memory README must document the C205d store module"
 guard_expect_in_file "$TAG" 'M180 huge page model' "$PLAN" "plan must retain the M180 row"
 guard_expect_in_file "$TAG" '293x-191 M180 Huge Page Model' "$CARD" "missing M180 card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M180 guard"

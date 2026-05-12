@@ -199,7 +199,12 @@ Status:
 - `C205c` is complete as `293x-216`: M178 aligned-small metadata now lives
   behind `HakoAllocAlignedSmallMetaStore`, which uses record construction/read
   at the append boundary while keeping scalar columns as its internal storage.
-- `C205d` remains future work.
+- `C205d` is complete as `293x-217`: M180 huge-page metadata now lives behind
+  `HakoAllocHugePageMetaStore`, which uses record construction/read at the
+  append boundary while keeping scalar columns as its internal storage.
+- `C201-C205` is therefore closed for the current allocator metadata migration.
+  Any `C206+` row must be a small cleanup/probe row; packed `ArrayBox` compiler
+  auto-use is still not implied by the C205 store migrations.
 
 ## Target Runtime Shape
 

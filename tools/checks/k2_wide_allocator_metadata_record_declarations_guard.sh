@@ -13,6 +13,7 @@ MEMORY_README="lang/src/hako_alloc/memory/README.md"
 ALIGNED="lang/src/hako_alloc/memory/page_map_aligned_small_path_box.hako"
 ALIGNED_STORE="lang/src/hako_alloc/memory/aligned_small_meta_store_box.hako"
 HUGE="lang/src/hako_alloc/memory/huge_page_model_box.hako"
+HUGE_STORE="lang/src/hako_alloc/memory/huge_page_meta_store_box.hako"
 CARD="docs/development/current/main/phases/phase-293x/293x-214-C205A-ALLOCATOR-METADATA-RECORD-DECLARATIONS.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 RECORD_SSOT="docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
@@ -31,6 +32,7 @@ guard_require_files \
   "$ALIGNED" \
   "$ALIGNED_STORE" \
   "$HUGE" \
+  "$HUGE_STORE" \
   "$CARD" \
   "$PLAN" \
   "$RECORD_SSOT" \
@@ -55,20 +57,31 @@ guard_expect_in_file "$TAG" 'meta_store: HakoAllocAlignedSmallMetaStore' "$ALIGN
 guard_expect_in_file "$TAG" 'ptrs: ArrayBox = new ArrayBox\(\)' "$ALIGNED_STORE" "aligned-small ptr metadata scalar column must remain runtime truth inside store"
 guard_expect_in_file "$TAG" 'alignments: ArrayBox = new ArrayBox\(\)' "$ALIGNED_STORE" "aligned-small alignment metadata scalar column must remain runtime truth inside store"
 guard_expect_in_file "$TAG" 'padded_sizes: ArrayBox = new ArrayBox\(\)' "$ALIGNED_STORE" "aligned-small padded-size metadata scalar column must remain runtime truth inside store"
-guard_expect_in_file "$TAG" 'page_ids: ArrayBox = new ArrayBox\(\)' "$HUGE" "M180 page id scalar column must remain runtime truth"
-guard_expect_in_file "$TAG" 'ptrs: ArrayBox = new ArrayBox\(\)' "$HUGE" "M180 ptr scalar column must remain runtime truth"
-guard_expect_in_file "$TAG" 'requested_sizes: ArrayBox = new ArrayBox\(\)' "$HUGE" "M180 requested-size scalar column must remain runtime truth"
-guard_expect_in_file "$TAG" 'committed_sizes: ArrayBox = new ArrayBox\(\)' "$HUGE" "M180 committed-size scalar column must remain runtime truth"
-guard_expect_in_file "$TAG" 'live_flags: ArrayBox = new ArrayBox\(\)' "$HUGE" "M180 live flag scalar column must remain runtime truth"
+guard_expect_in_file "$TAG" 'meta_store: HakoAllocHugePageMetaStore' "$HUGE" "M180 owner must delegate metadata storage after C205d"
+guard_expect_in_file "$TAG" 'page_ids: ArrayBox = new ArrayBox\(\)' "$HUGE_STORE" "huge page id metadata scalar column must remain runtime truth inside store"
+guard_expect_in_file "$TAG" 'ptrs: ArrayBox = new ArrayBox\(\)' "$HUGE_STORE" "huge ptr metadata scalar column must remain runtime truth inside store"
+guard_expect_in_file "$TAG" 'requested_sizes: ArrayBox = new ArrayBox\(\)' "$HUGE_STORE" "huge requested-size metadata scalar column must remain runtime truth inside store"
+guard_expect_in_file "$TAG" 'committed_sizes: ArrayBox = new ArrayBox\(\)' "$HUGE_STORE" "huge committed-size metadata scalar column must remain runtime truth inside store"
+guard_expect_in_file "$TAG" 'live_flags: ArrayBox = new ArrayBox\(\)' "$HUGE_STORE" "huge live flag metadata scalar column must remain runtime truth inside store"
 
-if rg -n 'new HakoAllocHugePageMeta|ArrayStorage::InlineRecord|inline-record|InlineRecord' \
+if rg -n 'ArrayStorage::InlineRecord|inline-record|InlineRecord' \
   lang/src/hako_alloc -g'*.hako' >/tmp/"$TAG".runtime 2>&1; then
-  echo "[$TAG] ERROR: C205a/C205c must not construct huge records or enable inline-record storage from hako_alloc" >&2
+  echo "[$TAG] ERROR: allocator metadata records must not enable inline-record storage from hako_alloc" >&2
   cat /tmp/"$TAG".runtime >&2
   rm -f /tmp/"$TAG".runtime
   exit 1
 fi
 rm -f /tmp/"$TAG".runtime
+
+if rg -n 'new HakoAllocHugePageMeta\(' lang/src/hako_alloc -g'*.hako' \
+  | rg -v '^lang/src/hako_alloc/memory/huge_page_meta_store_box\.hako:' \
+  >/tmp/"$TAG".huge_runtime 2>&1; then
+  echo "[$TAG] ERROR: huge-page metadata record construction must stay in C205d store owner" >&2
+  cat /tmp/"$TAG".huge_runtime >&2
+  rm -f /tmp/"$TAG".huge_runtime
+  exit 1
+fi
+rm -f /tmp/"$TAG".huge_runtime
 
 if rg -n 'new HakoAllocAlignedSmallMeta\(' lang/src/hako_alloc -g'*.hako' \
   | rg -v '^lang/src/hako_alloc/memory/aligned_small_meta_store_box\.hako:' \

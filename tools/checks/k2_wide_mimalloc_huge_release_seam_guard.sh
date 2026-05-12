@@ -8,6 +8,7 @@ source tools/checks/lib/guard_common.sh
 
 RELEASE_SEAM="lang/src/hako_alloc/memory/huge_release_seam_box.hako"
 HUGE_MODEL="lang/src/hako_alloc/memory/huge_page_model_box.hako"
+HUGE_STORE="lang/src/hako_alloc/memory/huge_page_meta_store_box.hako"
 PAGE_MAP="lang/src/hako_alloc/memory/page_map_box.hako"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 ROOT_README="lang/src/hako_alloc/README.md"
@@ -26,6 +27,7 @@ guard_require_files \
   "$TAG" \
   "$RELEASE_SEAM" \
   "$HUGE_MODEL" \
+  "$HUGE_STORE" \
   "$PAGE_MAP" \
   "$MODULE" \
   "$ROOT_README" \
@@ -46,7 +48,8 @@ guard_expect_in_file "$TAG" 'me\.huge_model\.isLiveHugePtr\(ptr\)' "$RELEASE_SEA
 guard_expect_in_file "$TAG" 'me\.huge_model\.markReleased\(ptr\)' "$RELEASE_SEAM" "M181 must retire the huge model state before unregister"
 guard_expect_in_file "$TAG" 'me\.page_map\.unregister\(ptr\)' "$RELEASE_SEAM" "M181 must unregister page-map ownership after model release"
 guard_expect_in_file "$TAG" 'markReleased\(ptr\)' "$HUGE_MODEL" "M181 must add huge model release support"
-guard_expect_in_file "$TAG" 'live_flags\.set\(index, 0\)' "$HUGE_MODEL" "M181 must clear huge live state explicitly"
+guard_expect_in_file "$TAG" 'me\.meta_store\.markReleased\(ptr\)' "$HUGE_MODEL" "M181 model must delegate huge live-state clearing through C205d store"
+guard_expect_in_file "$TAG" 'live_flags\.set\(index, 0\)' "$HUGE_STORE" "C205d store must clear huge live state explicitly"
 guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.huge_release_seam_box as HakoAllocHugeReleaseSeamBox' "$APP" "proof app must import the M181 owner"
 guard_expect_in_file "$TAG" 'HakoAllocHugeReleaseSeam' "$ROOT_README" "root README must document the M181 owner"
 guard_expect_in_file "$TAG" 'huge_release_seam_box.hako' "$MEMORY_README" "memory README must document the M181 module"

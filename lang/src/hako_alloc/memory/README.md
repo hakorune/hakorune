@@ -107,6 +107,11 @@ Syntax/style contract
 - `huge_page_model_box.hako` owns M180 huge page modeling. It may register huge
   handles and track requested/committed/live metadata, but it must not implement
   huge release, unregister, or OS release.
+- `huge_page_meta_store_box.hako` owns C205d huge-page metadata storage behind a
+  record-shaped append/read seam. It may construct `HakoAllocHugePageMeta` and
+  read its fields locally, but it must not enable `ArrayStorage::InlineRecord`,
+  backend lowering, small-page state migration, provider hooks, or native
+  allocator behavior.
 - `huge_release_seam_box.hako` owns M181 huge release composition. It may mark
   huge model state released and unregister page-map ownership, but it must not
   call small page `releaseLocal(...)` or OS release.
@@ -118,9 +123,9 @@ Syntax/style contract
   not source entropy, mutate page state, or claim hardening policy.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
-  huge-page metadata. C205c is the first consumer for aligned-small metadata;
-  huge-page metadata and `ArrayStorage::InlineRecord` compiler auto-use remain
-  future rows.
+  huge-page metadata. C205c consumes aligned-small metadata through a
+  record-shaped store, and C205d consumes huge-page metadata the same way.
+  `ArrayStorage::InlineRecord` compiler auto-use remains future work.
 - D195 checkpoint: after M184, secure-list state remains split between
   observation (`secure_free_list_diagnostics_box.hako`) and encoded-next policy
   (`secure_free_list_policy_box.hako`). Page mutation stays with

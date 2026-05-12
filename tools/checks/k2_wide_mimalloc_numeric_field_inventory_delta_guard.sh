@@ -26,14 +26,17 @@ guard_require_files \
   "$INDEX"
 
 expected="$(sed -n 's/^Current stored numeric field count: \([0-9][0-9]*\).$/\1/p' "$NUMERIC" | head -n 1)"
-actual="$(rg -n '^[[:space:]]+[A-Za-z_][A-Za-z0-9_]*:[[:space:]]+(i64|usize)' lang/src/hako_alloc/memory -g '*.hako' | rg -v 'usize_field_probe_box.hako' | wc -l | tr -d '[:space:]')"
+actual="$(rg -n '^[[:space:]]+[A-Za-z_][A-Za-z0-9_]*:[[:space:]]+(i64|usize)' lang/src/hako_alloc/memory -g '*.hako' | rg -v 'usize_field_probe_box.hako|allocator_metadata_records.hako' | wc -l | tr -d '[:space:]')"
 
 if [[ "$expected" != "$actual" ]]; then
   echo "[$TAG] ERROR: NUMERIC_FIELDS.md count is $expected but source count is $actual" >&2
   exit 1
 fi
 
-guard_expect_in_file "$TAG" 'Current stored numeric field count: 215\.' "$NUMERIC" "M185 must update the current numeric field count"
+guard_expect_in_file "$TAG" 'Current stored numeric field count: 220\.' "$NUMERIC" "M185/C205d must update the current numeric field count"
+guard_expect_in_file "$TAG" 'allocator metadata `record` declarations are also excluded' "$NUMERIC" "record declaration fields must be excluded from live stored-field count"
+guard_expect_in_file "$TAG" 'aligned_small_meta_store_box.hako' "$NUMERIC" "C205c metadata store counter must be inventoried"
+guard_expect_in_file "$TAG" 'huge_page_meta_store_box.hako' "$NUMERIC" "C205d metadata store counters must be inventoried"
 guard_expect_in_file "$TAG" 'M185 Grouped Current Inventory' "$NUMERIC" "M185 must add a grouped current inventory"
 guard_expect_in_file "$TAG" 'secure_free_list_policy_box.hako` \| `HakoAllocSecureFreeListPolicy` \| none' "$NUMERIC" "M184 policy must be recorded as storing no numeric fields"
 guard_expect_in_file "$TAG" 'page_map_release_invariant_box.hako' "$NUMERIC" "M173 observer fields must be inventoried"

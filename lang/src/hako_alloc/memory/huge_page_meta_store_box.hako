@@ -1,0 +1,80 @@
+// huge_page_meta_store_box.hako -- C205d huge-page metadata store
+// Responsibility: own huge-page allocation metadata behind a record-shaped
+// append/read seam. Storage remains scalar columns until ArrayBox packed-record
+// compiler auto-use is explicitly enabled by a later row.
+
+using selfhost.hako_alloc.memory.allocator_metadata_records as HakoAllocMetadataRecords
+
+box HakoAllocHugePageMetaStore {
+    page_ids: ArrayBox = new ArrayBox()
+    ptrs: ArrayBox = new ArrayBox()
+    requested_sizes: ArrayBox = new ArrayBox()
+    committed_sizes: ArrayBox = new ArrayBox()
+    live_flags: ArrayBox = new ArrayBox()
+    count: i64 = 0
+    live_count: i64 = 0
+
+    append(page_id, ptr, requested_size, committed_size) {
+        local meta = new HakoAllocHugePageMeta(page_id, ptr, requested_size, committed_size, 1)
+        me.page_ids.push(meta.page_id)
+        me.ptrs.push(meta.ptr)
+        me.requested_sizes.push(meta.requested_size)
+        me.committed_sizes.push(meta.committed_size)
+        me.live_flags.push(meta.live)
+        me.count = me.count + 1
+        me.live_count = me.live_count + 1
+        return 1
+    }
+
+    findIndex(ptr) {
+        local i = 0
+        loop(i < me.count) {
+            if me.ptrs.get(i) == ptr {
+                if me.live_flags.get(i) == 1 {
+                    return i
+                }
+            }
+            i = i + 1
+        }
+
+        return -1
+    }
+
+    pageIdFor(ptr) {
+        local index = me.findIndex(ptr)
+        if index < 0 {
+            return -1
+        }
+
+        return me.page_ids.get(index)
+    }
+
+    requestedSizeFor(ptr) {
+        local index = me.findIndex(ptr)
+        if index < 0 {
+            return 0
+        }
+
+        return me.requested_sizes.get(index)
+    }
+
+    committedSizeFor(ptr) {
+        local index = me.findIndex(ptr)
+        if index < 0 {
+            return 0
+        }
+
+        return me.committed_sizes.get(index)
+    }
+
+    markReleased(ptr) {
+        local index = me.findIndex(ptr)
+        if index < 0 {
+            return 0
+        }
+
+        me.live_flags.set(index, 0)
+        me.live_count = me.live_count - 1
+        return 1
+    }
+}

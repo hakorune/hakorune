@@ -116,6 +116,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_allocator_metadata_record_declarations_guard.sh` | C205a の hako_alloc allocator metadata record 宣言を固定し、M178/M180 scalar columns が runtime truth のまま残ることを検証する。 |
 | `tools/checks/k2_wide_allocator_record_construction_read_guard.sh` | C205b の builder-local record construction/read scalarization を固定し、record が `NewBox` / typed-object / backend / hako_alloc live migration に漏れないことを検証する。 |
 | `tools/checks/k2_wide_aligned_small_metadata_record_store_guard.sh` | C205c の aligned-small metadata record store を固定し、M178 owner が record-shaped store に委譲しつつ packed ArrayBox / backend / huge migration に広がらないことを検証する。 |
+| `tools/checks/k2_wide_huge_page_metadata_record_store_guard.sh` | C205d の huge-page metadata record store を固定し、M180 owner が record-shaped store に委譲しつつ packed ArrayBox / backend / small-page state migration に広がらないことを検証する。 |
 | `tools/checks/k2_wide_mimalloc_osvm_page_exe_guard.sh` | M25 の `OsVmCoreBox.reserve_bytes_i64/commit_bytes_i64/decommit_bytes_i64` + pure-first EXE proof を固定し、OSVM route が MIR-owned extern route facts から emit されることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_tls_cache_slot_exe_guard.sh` | M26 の `TlsCoreBox.cache_slot_get_i64/cache_slot_set_i64` + pure-first EXE proof を固定し、TLS cache-slot route が MIR-owned extern route facts から emit されることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_atomic_cas_exe_guard.sh` | M27 の `AtomicCoreBox.cas_i64` + pure-first EXE proof を固定し、atomic CAS route が MIR-owned extern route facts から emit されることを検証する。 |

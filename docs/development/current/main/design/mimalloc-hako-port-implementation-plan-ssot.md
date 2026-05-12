@@ -194,6 +194,16 @@ the active `.hako` algorithm row.
 | `C205c aligned-small metadata record migration` | move M178 `meta_ptrs/meta_alignments/meta_padded_sizes` behind a record-shaped metadata store | huge-page metadata migration |
 | `C205d huge-page metadata record migration` | replace M180 `page_ids/ptrs/requested_sizes/committed_sizes/live_flags` with record-backed storage | broader allocator/table cleanup |
 
+Post-C205 phase split:
+
+- `C201-C205` is the aggregate metadata lane. After C205d it is closed for the
+  current allocator metadata migration goal.
+- `C206+` is reserved for cleanup/probe work only. Candidate rows should stay
+  small: metadata-store common API cleanup, stale scalar-column guard cleanup,
+  or an explicit packed `ArrayBox` compiler auto-use probe.
+- Allocator algorithm rows resume separately; do not use a C206 cleanup row to
+  add realloc/aligned/huge/secure-list behavior.
+
 C201 status:
 complete as `293x-207`. The MIR JSON user-box declaration surface now carries
 `field_index_fast_path`, `layout_id`, `field_index`, and `storage` for fields
@@ -257,7 +267,12 @@ complete as `293x-216`. M178 aligned-small metadata now lives behind
 `HakoAllocAlignedSmallMetaStore`. The store constructs
 `HakoAllocAlignedSmallMeta` at the append boundary and reads fields locally, but
 storage remains scalar columns until packed `ArrayBox` compiler auto-use lands.
-Huge-page metadata remains future `C205d`.
+
+C205d status:
+complete as `293x-217`. M180 huge-page metadata now lives behind
+`HakoAllocHugePageMetaStore`. The store constructs `HakoAllocHugePageMeta` at
+the append boundary and reads fields locally, but storage remains scalar
+columns until packed `ArrayBox` compiler auto-use lands.
 
 ### Docs / Guard Checkpoints
 

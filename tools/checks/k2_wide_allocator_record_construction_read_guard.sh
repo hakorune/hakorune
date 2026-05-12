@@ -30,6 +30,7 @@ guard_require_files \
   "src/mir/builder/compilation_context.rs" \
   "lang/src/hako_alloc/memory/aligned_small_meta_store_box.hako" \
   "lang/src/hako_alloc/memory/page_map_aligned_small_path_box.hako" \
+  "lang/src/hako_alloc/memory/huge_page_meta_store_box.hako" \
   "lang/src/hako_alloc/memory/huge_page_model_box.hako"
 
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
@@ -50,16 +51,28 @@ guard_expect_in_file "$TAG" 'record_local_values' "src/mir/builder/compilation_c
 
 guard_expect_in_file "$TAG" 'new HakoAllocAlignedSmallMeta' "lang/src/hako_alloc/memory/aligned_small_meta_store_box.hako" "C205c store must exercise C205b aligned-small record construction"
 guard_expect_in_file "$TAG" 'ptrs: ArrayBox = new ArrayBox\(\)' "lang/src/hako_alloc/memory/aligned_small_meta_store_box.hako" "aligned-small metadata storage must remain scalar inside store"
-guard_expect_in_file "$TAG" 'page_ids: ArrayBox = new ArrayBox\(\)' "lang/src/hako_alloc/memory/huge_page_model_box.hako" "M180 scalar huge-page metadata must remain runtime truth"
+guard_expect_in_file "$TAG" 'new HakoAllocHugePageMeta' "lang/src/hako_alloc/memory/huge_page_meta_store_box.hako" "C205d store must exercise C205b huge-page record construction"
+guard_expect_in_file "$TAG" 'page_ids: ArrayBox = new ArrayBox\(\)' "lang/src/hako_alloc/memory/huge_page_meta_store_box.hako" "huge-page metadata storage must remain scalar inside store"
+guard_expect_in_file "$TAG" 'meta_store: HakoAllocHugePageMetaStore' "lang/src/hako_alloc/memory/huge_page_model_box.hako" "M180 owner must delegate huge-page metadata after C205d"
 
-if rg -n 'new HakoAllocHugePageMeta|ArrayStorage::InlineRecord|InlineRecord' \
+if rg -n 'ArrayStorage::InlineRecord|InlineRecord' \
   lang/src/hako_alloc -g'*.hako' >/tmp/"$TAG".hako_alloc 2>&1; then
-  echo "[$TAG] ERROR: C205b/C205c must not migrate huge metadata or enable inline-record storage yet" >&2
+  echo "[$TAG] ERROR: C205b/C205d must not enable inline-record storage yet" >&2
   cat /tmp/"$TAG".hako_alloc >&2
   rm -f /tmp/"$TAG".hako_alloc
   exit 1
 fi
 rm -f /tmp/"$TAG".hako_alloc
+
+if rg -n 'new HakoAllocHugePageMeta\(' lang/src/hako_alloc -g'*.hako' \
+  | rg -v '^lang/src/hako_alloc/memory/huge_page_meta_store_box\.hako:' \
+  >/tmp/"$TAG".huge_hako_alloc 2>&1; then
+  echo "[$TAG] ERROR: huge-page record construction must stay in the C205d store owner" >&2
+  cat /tmp/"$TAG".huge_hako_alloc >&2
+  rm -f /tmp/"$TAG".huge_hako_alloc
+  exit 1
+fi
+rm -f /tmp/"$TAG".huge_hako_alloc
 
 if rg -n 'new HakoAllocAlignedSmallMeta\(' lang/src/hako_alloc -g'*.hako' \
   | rg -v '^lang/src/hako_alloc/memory/aligned_small_meta_store_box\.hako:' \

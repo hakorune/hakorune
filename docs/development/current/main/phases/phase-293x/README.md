@@ -479,7 +479,9 @@ inference for the allocator release path.
 - `293x-196`: D195 hako_alloc SSOT refresh landed, confirming the post-M184
   ownership split before numeric field inventory resumes.
 - `293x-197`: M185 hako_alloc field inventory delta landed, reconciling
-  `NUMERIC_FIELDS.md` with 215 production stored numeric fields after M184.
+  `NUMERIC_FIELDS.md`. The current live stored numeric field count is 220 after
+  the C205c/C205d metadata-store counters; C205a record declaration fields are
+  excluded because they are metadata shapes, not runtime state.
 - `293x-198`: M187 exact `usize` size-class policy landed, adding `usize`
   input facades to `SizeClassBox` while keeping invalid/oversized sentinels in
   the signed result lane.
@@ -539,10 +541,15 @@ inference for the allocator release path.
   aligned metadata columns behind `HakoAllocAlignedSmallMetaStore` and using
   record construction/read at the append boundary without enabling packed
   ArrayBox compiler auto-use.
-- Next: continue with the record/packed-array compiler lane (`C201-C205`) or
-  allocator algorithm rows when needed. No M191
-  allocator API row is scheduled yet; M186 facade stats already landed as
-  `294x-19e`.
+- `293x-217`: C205d huge-page metadata record store landed, moving M180 huge
+  metadata columns behind `HakoAllocHugePageMetaStore` and using record
+  construction/read at the append boundary without enabling packed ArrayBox
+  compiler auto-use.
+- Next: treat `C201-C205` as closed for the current allocator metadata
+  migration. Use `C206+` only for small cleanup/probe rows such as
+  metadata-store API cleanup or explicit packed ArrayBox auto-use probes.
+  Allocator algorithm rows resume separately when needed. No M191 allocator API
+  row is scheduled yet; M186 facade stats already landed as `294x-19e`.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.
 
@@ -562,8 +569,9 @@ Current execution order:
    `C197`, `C198`, `C199`, and `C200` are complete.
 3. `C201-C205`: add record/packed-array compiler-runtime support before moving
    allocator metadata off the current M178 scalar columns. `C201`, `C202`,
-   `C203a`, `C203b`, `C203c`, `C204a`, `C204b`, `C205a`, `C205b`, and
-   `C205c` are complete. `C205d` huge-page metadata record migration is next.
+   `C203a`, `C203b`, `C203c`, `C204a`, `C204b`, `C205a`, `C205b`, `C205c`, and
+   `C205d` are complete. Packed ArrayBox compiler auto-use remains future work
+   and should not be implied by the C205 store migrations.
 4. `C191-C194`: run compiler/backend hardening only when it does not collide
    with the active `.hako` row.
 5. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.

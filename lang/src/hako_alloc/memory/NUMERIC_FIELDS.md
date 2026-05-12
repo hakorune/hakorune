@@ -42,7 +42,7 @@ that non-stored facade pattern to allocation request sizes and alignments.
 
 ## Stored Field Inventory
 
-Current stored numeric field count: 215.
+Current stored numeric field count: 220.
 
 Stored `signed-delta` fields are live only in observer delta fields and remain
 `i64`.
@@ -51,6 +51,10 @@ remain `i64`.
 
 Probe-only exact `usize` stored fields live in `usize_field_probe_box.hako`.
 They are intentionally excluded from the production migration inventory below.
+C205a allocator metadata `record` declarations are also excluded from the live
+stored-field count: they describe identity-free metadata shapes, not runtime
+state. C205c/C205d store-owner counters are counted because those boxes own
+live scalar storage.
 
 The original 294x-16 detailed baseline is retained below. M185 adds the grouped
 post-M184 inventory after the baseline so the current owner map remains
@@ -106,6 +110,8 @@ excludes `usize_field_probe_box.hako`.
 | `alloc_fast_path_heap_box.hako` | `HakoAllocFastPathHandle` | `page_id`, `block_id`, `requested_size` | id/index + size fields; keep `i64` until object-return API parity and sentinel-return seams are split. |
 | `alloc_fast_path_heap_box.hako` | `HakoAllocFastPathHeap` | `bin`, `block_size`, `page_capacity`, `next_page_id`, `alloc_count`, `release_count`, `fallback_count`, `page_create_count`, `reject_count` | mixed index/size/capacity/count group; migrate only after owner-local exact numeric gate. |
 | `allocator_facade_box.hako` | `HakoAllocProductionFacade` | `alloc_count`, `free_count`, `reject_count` | already exact `usize` via 294x-19e. |
+| `aligned_small_meta_store_box.hako` | `HakoAllocAlignedSmallMetaStore` | `count` | C205c metadata-store counter; migrate with the aligned-small metadata owner, not with record declarations. |
+| `huge_page_meta_store_box.hako` | `HakoAllocHugePageMetaStore` | `count`, `live_count` | C205d metadata-store counters; migrate with the huge-page metadata owner, not with record declarations. |
 | `huge_page_model_box.hako` | `HakoAllocHugePageModel` | `huge_count`, `live_count`, `allocate_count`, `release_count`, `release_reject_count`, `zero_reject_count`, `commit_reject_count`, `register_fail_count`, `reject_count`, `next_page_id`, `next_ptr`, `last_result_ptr`, `last_page_id`, `last_requested_size`, `last_committed_size`, `last_failure_kind` | huge counters are candidates; ptr/id/status/size observers stay `i64` until huge handle contract is exact. |
 | `huge_release_seam_box.hako` | `HakoAllocHugeReleaseSeam` | `release_count`, `unregister_count`, `lookup_miss_count`, `not_huge_count`, `model_reject_count`, `reject_count`, `last_page_id`, `last_requested_size`, `last_committed_size`, `last_failure_kind` | counters are candidates; `last_page_id = -1` is signed-sentinel and stays `i64`. |
 | `huge_threshold_router_box.hako` | `HakoAllocHugeThresholdRouter` | `small_route_count`, `small_success_count`, `small_reject_count`, `huge_route_count`, `huge_reject_count`, `invalid_alignment_count`, `invalid_size_count`, `reject_count`, `last_route_kind`, `last_result_ptr`, `last_padded_size`, `last_good_size`, `last_huge_threshold` | count + enum/ptr/size observers; exact migration waits for M187-M188 request-path rows. |

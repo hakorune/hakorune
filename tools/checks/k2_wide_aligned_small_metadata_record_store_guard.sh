@@ -67,9 +67,9 @@ if rg -n 'meta_ptrs|meta_alignments|meta_padded_sizes' "$PATH_BOX" >/tmp/"$TAG".
 fi
 rm -f /tmp/"$TAG".path_columns
 
-if rg -n 'ArrayStorage::InlineRecord|InlineRecord|new HakoAllocHugePageMeta' \
+if rg -n 'ArrayStorage::InlineRecord|InlineRecord' \
   lang/src/hako_alloc -g'*.hako' >/tmp/"$TAG".future 2>&1; then
-  echo "[$TAG] ERROR: C205c leaked into packed ArrayBox or huge metadata migration" >&2
+  echo "[$TAG] ERROR: C205c leaked into packed ArrayBox storage" >&2
   cat /tmp/"$TAG".future >&2
   rm -f /tmp/"$TAG".future
   exit 1

@@ -96,7 +96,10 @@ Principles
     M188 adds `usize` request facades while keeping route/result kinds signed.
   - `HakoAllocHugePageModel` is the M180 huge page model owner. It registers
     one-allocation huge handles in the page map while keeping requested,
-    committed, and live metadata separate from small page free lists.
+    committed, and live metadata separate from small page free lists. C205d
+    moves those metadata columns behind `huge_page_meta_store_box.hako` /
+    `HakoAllocHugePageMetaStore`, where record construction/read is used as the
+    source-facing seam while storage remains scalar columns.
   - `HakoAllocHugeReleaseSeam` is the M181 huge release seam owner. It retires
     huge handles through `HakoAllocHugePageModel` and unregisters page-map
     ownership without touching small page `releaseLocal(...)`.
@@ -109,8 +112,8 @@ Principles
   - `allocator_metadata_records.hako` is the C205a declaration-only owner for
     future allocator metadata records. It names aligned-small and huge-page
     metadata shapes. C205c consumes the aligned-small record shape through a
-    record-facing metadata store; huge-page migration and packed `ArrayBox`
-    compiler auto-use remain later rows.
+    record-facing metadata store, and C205d does the same for huge-page
+    metadata. Packed `ArrayBox` compiler auto-use remains a later row.
 
 Design owners
 - Policy/state stop-line:

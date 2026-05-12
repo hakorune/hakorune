@@ -3,14 +3,11 @@
 // through the page map. Release/unregister and OS release stay in later rows.
 
 using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
+using selfhost.hako_alloc.memory.huge_page_meta_store_box as HakoAllocHugePageMetaStoreBox
 
 box HakoAllocHugePageModel {
     page_map: HakoAllocPageMap
-    page_ids: ArrayBox = new ArrayBox()
-    ptrs: ArrayBox = new ArrayBox()
-    requested_sizes: ArrayBox = new ArrayBox()
-    committed_sizes: ArrayBox = new ArrayBox()
-    live_flags: ArrayBox = new ArrayBox()
+    meta_store: HakoAllocHugePageMetaStore = new HakoAllocHugePageMetaStore()
     huge_count: i64 = 0
     live_count: i64 = 0
     allocate_count: i64 = 0
@@ -64,13 +61,9 @@ box HakoAllocHugePageModel {
 
         me.next_page_id = me.next_page_id + 1
         me.next_ptr = me.next_ptr + 1
-        me.page_ids.push(page_id)
-        me.ptrs.push(ptr)
-        me.requested_sizes.push(requested_size)
-        me.committed_sizes.push(committed_size)
-        me.live_flags.push(1)
-        me.huge_count = me.huge_count + 1
-        me.live_count = me.live_count + 1
+        me.meta_store.append(page_id, ptr, requested_size, committed_size)
+        me.huge_count = me.meta_store.count
+        me.live_count = me.meta_store.live_count
         me.allocate_count = me.allocate_count + 1
         me.last_result_ptr = ptr
         me.last_page_id = page_id
@@ -80,18 +73,7 @@ box HakoAllocHugePageModel {
     }
 
     findIndex(ptr) {
-        local count = me.huge_count
-        local i = 0
-        loop(i < count) {
-            if me.ptrs.get(i) == ptr {
-                if me.live_flags.get(i) == 1 {
-                    return i
-                }
-            }
-            i = i + 1
-        }
-
-        return -1
+        return me.meta_store.findIndex(ptr)
     }
 
     isLiveHugePtr(ptr) {
@@ -108,7 +90,7 @@ box HakoAllocHugePageModel {
             return -1
         }
 
-        return me.page_ids.get(index)
+        return me.meta_store.pageIdFor(ptr)
     }
 
     requestedSizeFor(ptr) {
@@ -117,7 +99,7 @@ box HakoAllocHugePageModel {
             return 0
         }
 
-        return me.requested_sizes.get(index)
+        return me.meta_store.requestedSizeFor(ptr)
     }
 
     committedSizeFor(ptr) {
@@ -126,7 +108,7 @@ box HakoAllocHugePageModel {
             return 0
         }
 
-        return me.committed_sizes.get(index)
+        return me.meta_store.committedSizeFor(ptr)
     }
 
     markReleased(ptr) {
@@ -137,8 +119,8 @@ box HakoAllocHugePageModel {
             return 0
         }
 
-        me.live_flags.set(index, 0)
-        me.live_count = me.live_count - 1
+        me.meta_store.markReleased(ptr)
+        me.live_count = me.meta_store.live_count
         me.release_count = me.release_count + 1
         return 1
     }
