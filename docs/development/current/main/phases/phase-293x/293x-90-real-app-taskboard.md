@@ -143,6 +143,7 @@
 - [x] `293x-178` M170 mimalloc remote-free integration
 - [x] `293x-179` M171 mimalloc page-map model
 - [x] `293x-180` M172 mimalloc page-map-backed release seam
+- [x] `293x-181` M173-M190 mimalloc roadmap refresh
 
 ## Gates
 

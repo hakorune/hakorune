@@ -130,25 +130,65 @@ M171 starts the post-M170 ladder with the pointer-to-page map model. Realloc,
 aligned allocation, huge/large pages, secure encoded free lists, purge, stats,
 and options stay separate rows after the page-map-backed free seam is proven.
 
-## Post-M170 Ladder
+## Post-M170 Active Roadmap
 
-| Row | Goal | Stop line |
+This is the execution order for the `.hako` mimalloc port. Rows `M172-M184`
+match the recommended algorithm ladder. Rows `M185-M190` are adjusted to the
+current repo truth: broad numeric field inventory and facade-local exact
+`usize` stats already landed in phase 294x, so future rows must not redo them.
+
+### Main Algorithm Lane
+
+| Row | Status | Goal | Stop line |
+| --- | --- | --- | --- |
+| `M171 page-map model` | Complete | record and resolve caller-visible pointer ownership to `page_id` / `block_id` | no arbitrary free/realloc, no pointer arithmetic, no OSVM release |
+| `M172 page-map-backed release seam` | Complete | compose page-map lookup/unregister with page-local release | no realloc, no byte copy, no host replacement |
+| `M173 pre-realloc release invariant freeze` | Next | freeze handle lifetime, page-map registration/unregistration timing, and release observers before realloc | no realloc body, no byte copy |
+| `M174 realloc same-class/no-move path` | Planned | keep the same handle when the new request fits the current usable block/class | no alloc-copy-release fallback |
+| `M175 realloc alloc-copy-release fallback` | Planned | allocate a replacement handle, model copy count, and release the old handle only after success | no aligned/huge allocation |
+| `M176 realloc negative matrix / failure contract` | Planned | fix stale/unknown/released/zero/oversized failure behavior | no new allocator API surface beyond realloc diagnostics |
+| `M177 alignment policy object` | Planned | add alignment normalization, power-of-two validation, padded-size policy | no native aligned allocation route or ABI alignment claim |
+| `M178 aligned allocation small path` | Planned | attach alignment metadata to normal page-map-backed small allocations | no huge path |
+| `M179 huge threshold and routing` | Planned | classify huge requests and fail-fast unsupported huge behavior | no huge page model yet |
+| `M180 huge page model` | Planned | model one-allocation huge pages separately from small page free lists | no OS unreserve/release widening |
+| `M181 huge release seam` | Planned | unregister and release huge handles through the page-map owner | no small-page free-list mixing |
+| `M182 secure free-list policy inventory` | Planned | decide encoded/randomized free-list responsibilities | no implementation |
+| `M183 secure-list diagnostics-only` | Planned | detect duplicate/out-of-range/free-list shape errors | no encode/decode |
+| `M184 secure-list encode/decode small path` | Planned | add the smallest encoded-next policy once diagnostics are stable | no cryptographic randomness claim without compiler support |
+
+### Numeric / API Completion Lane
+
+| Row | Status | Goal | Stop line |
+| --- | --- | --- | --- |
+| `M185 hako_alloc field inventory delta` | Planned | inventory numeric fields introduced by `M173-M184` and reconcile them with `NUMERIC_FIELDS.md` / `294x-16` | no migration in this row |
+| `M186 exact usize facade stats` | Already complete as `294x-19e` | facade-local event counters are exact `usize` | do not schedule duplicate facade migration |
+| `M187 exact usize for size-class policy` | Planned | migrate size-class policy inputs/outputs that are truly non-negative and backend-supported | lookup failure sentinels stay signed |
+| `M188 exact usize for request path` | Planned | migrate allocation request sizes and alignments where verifier/lowering support is live | page ids, block ids, and failure sentinels stay signed |
+| `M189 object-return allocate/realloc EXE parity` | Planned | prove semantic object-return allocator APIs in EXE instead of relying on scalar observers | no scalar-only proof substitution for API parity |
+| `M190 nullable / failure handle contract` | Planned | define explicit success/failure handle shape for allocation APIs | no silent null fallback or unchecked invalid handle |
+
+Stats/options surface remains post-`M190` unless a concrete algorithm row needs
+it earlier. Environment toggles require the environment-variable SSOT and a
+removal/rollback note.
+
+### Cross-Cutting Compiler / Backend Lane
+
+These rows may run in parallel only when their write sets do not collide with
+the active `.hako` algorithm row.
+
+| Row | Goal | Required before |
 | --- | --- | --- |
-| `M171 page-map model` | record and resolve caller-visible pointer ownership to `page_id` / `block_id` | no arbitrary free/realloc, no pointer arithmetic, no OSVM release |
-| `M172 page-map-backed release seam` | compose page-map lookup/unregister with page-local release | no realloc, no byte copy, no host replacement |
-| `M173 pre-realloc release invariant freeze` | freeze handle lifetime, page-map registration/unregistration timing, and release observers before realloc | no realloc body, no byte copy |
-| `M174 realloc same-class/no-move path` | keep the same handle when the new request fits the current usable block/class | no alloc-copy-release fallback |
-| `M175 realloc alloc-copy-release fallback` | allocate a replacement handle, model copy count, and release the old handle only after success | no aligned/huge allocation |
-| `M176 realloc negative matrix` | fix stale/unknown/released/zero/oversized failure behavior | no new allocator API surface beyond realloc diagnostics |
-| `M177 alignment policy object` | add alignment normalization, power-of-two validation, padded-size policy | no native aligned allocation route or ABI alignment claim |
-| `M178 aligned allocation small path` | attach alignment metadata to normal page-map-backed small allocations | no huge path |
-| `M179 huge threshold/routing` | classify huge requests and fail-fast unsupported huge behavior | no huge page model yet |
-| `M180 huge page model` | model one-allocation huge pages separately from small page free lists | no OS unreserve/release widening |
-| `M181 huge release seam` | unregister and release huge handles through the page-map owner | no small-page free-list mixing |
-| `M182 secure free-list inventory` | decide encoded/randomized free-list responsibilities | no implementation |
-| `M183 secure-list diagnostics-only` | detect duplicate/out-of-range/free-list shape errors | no encode/decode |
-| `M184 secure-list encode/decode small path` | add the smallest encoded-next policy once diagnostics are stable | no cryptographic randomness claim without compiler support |
-| `M185 stats/options surface` | expose allocator observability/configuration only after algorithm rows are stable | no environment toggles without docs/env SSOT |
+| `C191 typed object field initializer hardening` | prove declaration-site object defaults are per-construction across VM/backend paths | wider state-box migration |
+| `C192 method return object lowering` | make object-return methods reliable enough for allocator API EXE parity | `M189` and full object-return `realloc` parity |
+| `C193 exact numeric backend fail-fast coverage` | keep unsupported exact numeric routes fail-fast instead of silently using legacy lanes | any broader `usize` production migration |
+| `C194 verifier-owned allocation invariants` | move release/page-map/size invariants from observer proofs toward verifier-owned contracts | broad allocator API hardening |
+
+### Docs / Guard Checkpoints
+
+| Row | Goal | Trigger |
+| --- | --- | --- |
+| `D195 hako_alloc SSOT refresh` | refresh ownership, handle lifetime, release, realloc, alignment, huge, secure-list, and non-goal docs | after `M176`, then again after `M184` if secure-list lands |
+| `D196 stop-the-line guard refresh` | keep guards focused on real stop lines instead of growing every row-specific shell check | after `M184`, or earlier if guard runtime starts blocking normal development |
 
 ## Granular Row Contracts
 

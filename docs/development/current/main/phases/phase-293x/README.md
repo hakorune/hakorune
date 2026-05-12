@@ -427,3 +427,20 @@ inference for the allocator release path.
   scheduling realloc body, aligned allocation, huge-page, or secure-list rows.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.
+
+## Mimalloc Port Roadmap Snapshot
+
+SSOT:
+`docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md`
+
+Current execution order:
+
+1. `M173`: freeze release invariants before realloc.
+2. `M174-M176`: add realloc as no-move, fallback, then negative/failure rows.
+3. `M177-M184`: add alignment, huge-page, and secure-list rows separately.
+4. `M185-M190`: finish remaining `usize` field-group migration and allocator
+   API parity. Facade stats are already exact `usize` via `294x-19e`, so that
+   row must not be repeated.
+5. `C191-C194`: run compiler/backend hardening only when it does not collide
+   with the active `.hako` row.
+6. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.

@@ -40,6 +40,15 @@ hako_alloc or mimalloc migration.
 | Order | Row | Status | Implementation Boundary |
 | --- | --- | --- | --- |
 | 1 | `M173` | Next | Pre-realloc release invariant freeze, no realloc body or byte copy. |
+| 2 | `M174` | Planned | Realloc same-class/no-move path, no alloc-copy-release fallback. |
+| 3 | `M175` | Planned | Realloc alloc-copy-release fallback, no aligned/huge allocation. |
+| 4 | `M176` | Planned | Realloc negative matrix and failure contract, no extra API expansion. |
+| 5 | `M177-M184` | Planned | Alignment, huge-page, and secure-list rows, one responsibility per row. |
+| 6 | `M185-M190` | Planned | Remaining `usize` migration and object-return/failure-handle API parity. |
+
+Roadmap correction: `M186 exact usize facade stats` is already complete as
+`294x-19e`. Do not schedule duplicate facade migration; use `M185+` for
+remaining field groups and allocator API parity only.
 
 ## Ladder
 

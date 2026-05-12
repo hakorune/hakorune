@@ -29,9 +29,17 @@
 | Next | Card | Goal |
 | --- | --- | --- |
 | 1 | `M173` | Freeze release invariants and handle lifetime before realloc. |
+| 2 | `M174-M176` | Add realloc in no-move, fallback, and negative/failure slices. |
+| 3 | `M177-M184` | Add alignment, huge-page, and secure-list slices without mixing them. |
+| 4 | `M185-M190` | Reconcile remaining `usize` migration and object-return allocator API parity. |
 
 Stop line: VM green is useful reference evidence, but production allocator
 migration still changes only by explicit `hako_alloc` field-group rows.
+
+Roadmap SSOT: `docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md`.
+The important correction is that facade-local exact `usize` stats already
+landed as `294x-19e`; future `M185-M190` rows must focus on remaining field
+groups, request-path sizes, object-return parity, and failure-handle shape.
 
 ## Policy
 
@@ -184,8 +192,9 @@ migration still changes only by explicit `hako_alloc` field-group rows.
   existing pointer load/store/CAS route facts, with caller-provided block
   identity as the proof seam and no page-map migration.
 - `M171`: parent mimalloc lane landed the page-map model owner for
-  caller-visible pointer id to page/block lookup. Page-map-backed release is
-  still the next composition row.
+  caller-visible pointer id to page/block lookup.
+- `M172`: parent mimalloc lane landed page-map-backed release composition;
+  `M173` pre-realloc release invariant freeze is now the next row.
 
 ## Implementation Direction
 
