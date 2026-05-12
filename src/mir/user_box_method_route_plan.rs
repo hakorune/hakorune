@@ -339,6 +339,9 @@ impl UserBoxMethodRoute {
     }
 
     fn target_returns_void(&self) -> bool {
+        if self.target_result_box_name.is_some() {
+            return false;
+        }
         if matches!(
             self.target_inferred_return,
             Some(
@@ -359,6 +362,7 @@ impl UserBoxMethodRoute {
     fn target_returns_string_handle(&self) -> bool {
         matches!(self.target_return_type, Some(MirType::String))
             || matches!(self.target_return_type, Some(MirType::Box(ref name)) if name == "StringBox")
+            || matches!(self.target_result_box_name.as_deref(), Some("StringBox"))
             || matches!(
                 self.target_inferred_return,
                 Some(UserBoxMethodInferredReturn::StringHandle)
@@ -367,6 +371,7 @@ impl UserBoxMethodRoute {
 
     fn target_returns_handle(&self) -> bool {
         self.target_returns_string_handle()
+            || self.target_result_box_name.is_some()
             || matches!(self.target_return_type, Some(MirType::Box(_)))
             || matches!(
                 self.target_inferred_return,

@@ -164,8 +164,8 @@ current repo truth: broad numeric field inventory and facade-local exact
 | `M186 exact usize facade stats` | Already complete as `294x-19e` | facade-local event counters are exact `usize` | do not schedule duplicate facade migration |
 | `M187 exact usize for size-class policy` | Complete | migrate size-class policy inputs/outputs that are truly non-negative and backend-supported | lookup failure sentinels stay signed |
 | `M188 exact usize for request path` | Complete | migrate allocation request sizes and alignments where verifier/lowering support is live | page ids, block ids, and failure sentinels stay signed |
-| `M189 object-return allocate/realloc EXE parity` | Next | prove semantic object-return allocator APIs in EXE instead of relying on scalar observers | no scalar-only proof substitution for API parity |
-| `M190 nullable / failure handle contract` | Planned | define explicit success/failure handle shape for allocation APIs | no silent null fallback or unchecked invalid handle |
+| `M189 object-return allocate/realloc EXE parity` | Complete | prove semantic object-return allocator APIs in EXE instead of relying on scalar observers | no scalar-only proof substitution for API parity |
+| `M190 nullable / failure handle contract` | Next | define explicit success/failure handle shape for allocation APIs | no silent null fallback or unchecked invalid handle |
 
 Stats/options surface remains post-`M190` unless a concrete algorithm row needs
 it earlier. Environment toggles require the environment-variable SSOT and a
@@ -203,7 +203,9 @@ M187 size-class `usize` facades are complete in
 `docs/development/current/main/phases/phase-293x/293x-198-M187-SIZE-CLASS-USIZE-POLICY.md`.
 M188 request-path `usize` facades are complete in
 `docs/development/current/main/phases/phase-293x/293x-199-M188-REQUEST-PATH-USIZE.md`.
-M189 is the next allocator API parity row.
+M189 object-return allocator API parity is complete in
+`docs/development/current/main/phases/phase-293x/293x-200-M189-OBJECT-RETURN-ALLOCATOR-API.md`.
+M190 is the next allocator API contract row.
 
 ### Proof App Ergonomics Queue
 

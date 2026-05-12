@@ -118,6 +118,9 @@ Allocator fast-path rule
 - mimalloc-grade native fast paths require the substrate ladder first.
 - post-M176 realloc behavior is fixed by the M171-M176 owners above; do not fold
   alignment, huge-page, or secure-list execution into those boxes.
+- M189 object-return API parity is intentionally limited to the legacy
+  `HakoAllocHeap` semantic API. Page-map-backed result wrappers and failure
+  reason objects remain M190+ work.
 - post-M184 secure-list behavior is intentionally split: diagnostics observe
   page-local list shape, while encoded-next policy only transforms next indices.
   Neither owner mutates page state or claims hardening.

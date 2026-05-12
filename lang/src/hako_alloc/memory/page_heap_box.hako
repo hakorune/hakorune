@@ -105,6 +105,40 @@ box HakoAllocPage {
         return true
     }
 
+    resizeInPlace(handle, requested_size) {
+        if handle == null {
+            return null
+        }
+
+        if requested_size <= 0 {
+            return null
+        }
+
+        if requested_size > me.block_size {
+            return null
+        }
+
+        if handle.page_id != me.page_id {
+            return null
+        }
+
+        if handle.block_id < 0 {
+            return null
+        }
+
+        if handle.block_id >= me.capacity {
+            return null
+        }
+
+        if me.block_used.get(handle.block_id) == 0 {
+            return null
+        }
+
+        me.requested_sizes.set(handle.block_id, requested_size)
+        handle.requested_size = requested_size
+        return handle
+    }
+
     freeCount() {
         return me.free_top
     }
@@ -154,6 +188,41 @@ box HakoAllocHeap {
         }
 
         return false
+    }
+
+    realloc(handle, requested_size) {
+        if handle == null {
+            return null
+        }
+
+        if requested_size <= 0 {
+            return null
+        }
+
+        if handle.page_id == 0 {
+            local same = me.small_page.resizeInPlace(handle, requested_size)
+            if same != null {
+                return same
+            }
+        }
+
+        if handle.page_id == 1 {
+            local same = me.medium_page.resizeInPlace(handle, requested_size)
+            if same != null {
+                return same
+            }
+        }
+
+        local replacement = me.allocate(requested_size)
+        if replacement == null {
+            return null
+        }
+
+        if me.release(handle) {
+            return replacement
+        }
+
+        return null
     }
 
     requestedBytes() {

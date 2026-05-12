@@ -60,6 +60,35 @@
         mark_global_call_result_origin_from_view(&view, dst);
       }
 
+      auto void mark_user_box_method_result_from_lowering_plan(
+          long long bid,
+          size_t ii,
+          long long dst) {
+        yyjson_val* entry = NULL;
+        const char* source = NULL;
+        struct LoweringPlanUserBoxMethodView view;
+        int typed_plan_index = -1;
+        int origin_kind = ORG_NONE;
+        if (!dst) return;
+        entry = find_lowering_plan_entry_for_site(bid, ii);
+        source = entry ? read_str(entry, "source") : NULL;
+        if (!(source && !strcmp(source, "user_box_method_routes"))) return;
+        if (!read_lowering_plan_user_box_method_view(entry, &view)) return;
+        if (!lowering_plan_user_box_method_view_is_direct_runtime_i64_or_handle(&view)) return;
+        if (view.target_result_box_name &&
+            find_typed_object_plan_index(view.target_result_box_name, &typed_plan_index)) {
+          set_origin(dst, ORG_TYPED_OBJECT);
+          set_scan_origin(dst, ORG_TYPED_OBJECT);
+          set_typed_object_binding(dst, typed_plan_index);
+          return;
+        }
+        origin_kind = lowering_plan_user_box_method_view_result_origin_kind(&view);
+        if (origin_kind != ORG_NONE) {
+          set_origin(dst, origin_kind);
+          set_scan_origin(dst, origin_kind);
+        }
+      }
+
       auto void scan_mir_call_need_flags(
           yyjson_val* blocks,
           long long bid,
@@ -113,6 +142,7 @@
             if (yyjson_arr_size(args) >= 1) a0 = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
             if (yyjson_arr_size(args) >= 2) a1 = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));
           }
+          mark_user_box_method_result_from_lowering_plan(bid, ii, read_int(ins, "dst"));
           if (match_array_text_observer_route_metadata(bid, ii, NULL)) {
             mark_array_string_indexof_need_flags(
                 blocks, bid, ii, ilen, insts, bname, mname, recv, a0,

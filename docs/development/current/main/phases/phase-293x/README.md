@@ -487,8 +487,11 @@ inference for the allocator release path.
   and alignment facades across alignment policy, page acquire, aligned
   small-path, and huge-router entries without migrating stored ids or result
   sentinels.
-- Next: continue with `M189 object-return allocate/realloc EXE parity`; M186
-  facade stats already landed as `294x-19e`.
+- `293x-200`: M189 object-return allocator API parity landed, adding
+  `HakoAllocHeap.realloc(...) -> HakoAllocHandle` and proving allocate/realloc
+  object handles under VM and pure-first EXE proof-line parity.
+- Next: continue with `M190 nullable / failure handle contract`; M186 facade
+  stats already landed as `294x-19e`.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.
 
@@ -499,9 +502,10 @@ SSOT:
 
 Current execution order:
 
-1. `M189-M190`: finish allocator API parity. M185 inventory, M187 size-class
-   facades, and M188 request-path facades are complete, and facade stats are
-   already exact `usize` via `294x-19e`, so those rows must not be repeated.
+1. `M190`: finish explicit nullable/failure handle contract. M185 inventory,
+   M187 size-class facades, M188 request-path facades, and M189 object-return
+   API parity are complete, and facade stats are already exact `usize` via
+   `294x-19e`, so those rows must not be repeated.
 2. `C197-C200`: improve proof/application syntax only as separate language rows
    after docs/reference decisions. Do not fold them into allocator rows.
 3. `C201-C205`: add record/packed-array compiler-runtime support before moving

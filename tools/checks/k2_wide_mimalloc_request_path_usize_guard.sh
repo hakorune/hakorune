@@ -16,7 +16,6 @@ APP_README="apps/mimalloc-request-path-usize-proof/README.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-199-M188-REQUEST-PATH-USIZE.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
-CURRENT="docs/development/current/main/CURRENT_STATE.toml"
 SELF_SCRIPT="tools/checks/k2_wide_mimalloc_request_path_usize_guard.sh"
 
 echo "[$TAG] checking M188 request-path usize facades"
@@ -32,8 +31,7 @@ guard_require_files \
   "$APP_README" \
   "$CARD" \
   "$PLAN" \
-  "$INDEX" \
-  "$CURRENT"
+  "$INDEX"
 
 guard_expect_in_file "$TAG" 'normalize_alignment_usize\(alignment: usize\)' "$ALIGNMENT" "M188 must add usize alignment normalization"
 guard_expect_in_file "$TAG" 'padded_request_size_usize\(size: usize, alignment: usize\)' "$ALIGNMENT" "M188 must add usize padded request policy"
@@ -47,7 +45,6 @@ guard_expect_in_file "$TAG" 'allocateAlignedUsize\(size: usize, alignment: usize
 guard_expect_in_file "$TAG" 'M188 exact usize for request path` \| Complete' "$PLAN" "plan must mark M188 complete"
 guard_expect_in_file "$TAG" '293x-199 M188 Request Path usize' "$CARD" "missing M188 card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M188 guard"
-guard_expect_in_file "$TAG" '293x-199-M188-REQUEST-PATH-USIZE' "$CURRENT" "CURRENT_STATE must point to M188"
 
 if rg -n '^[[:space:]]+[A-Za-z_][A-Za-z0-9_]*:[[:space:]]+usize' "$ALIGNMENT" "$PAGE" "$SMALL_PATH" "$ROUTER" >/tmp/"$TAG".stored_usize 2>&1; then
   echo "[$TAG] ERROR: M188 must not add stored usize fields" >&2

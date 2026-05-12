@@ -440,31 +440,51 @@
             long long same_len = -1;
             int all_known = 1;
             int is_string_phi = 0;
+            int all_typed_object = pr->in_n > 0;
+            int typed_plan_index = -1;
             if (!pr->dst) continue;
-            if (!(get_scan_origin(pr->dst) == ORG_STRING || get_origin(pr->dst) == ORG_STRING)) {
-              continue;
-            }
             for (int ii = 0; ii < pr->in_n; ii++) {
+              int in_typed_plan_index = -1;
               long long in_len = 0;
               long long in_reg = pr->in[ii].val_reg;
               if (!in_reg) {
+                all_typed_object = 0;
                 all_known = 0;
-                break;
+                continue;
+              }
+              if (!get_typed_object_binding(in_reg, &in_typed_plan_index)) {
+                all_typed_object = 0;
+              } else if (typed_plan_index < 0) {
+                typed_plan_index = in_typed_plan_index;
+              } else if (typed_plan_index != in_typed_plan_index) {
+                all_typed_object = 0;
               }
               if (!(get_scan_origin(in_reg) == ORG_STRING || get_origin(in_reg) == ORG_STRING)) {
                 all_known = 0;
-                break;
+                continue;
               }
               is_string_phi = 1;
               if (!get_known_string_len(in_reg, &in_len)) {
                 all_known = 0;
-                break;
+                continue;
               }
               if (same_len < 0) same_len = in_len;
               else if (same_len != in_len) {
                 all_known = 0;
-                break;
+                continue;
               }
+            }
+            if (all_typed_object && typed_plan_index >= 0) {
+              int current_plan_index = -1;
+              if (!get_typed_object_binding(pr->dst, &current_plan_index) ||
+                  current_plan_index != typed_plan_index) {
+                generic_pure_publish_i64_origin(pr->dst, ORG_TYPED_OBJECT);
+                set_typed_object_binding(pr->dst, typed_plan_index);
+                changed = 1;
+              }
+            }
+            if (!(get_scan_origin(pr->dst) == ORG_STRING || get_origin(pr->dst) == ORG_STRING)) {
+              continue;
             }
             if (is_string_phi && all_known && same_len >= 0) {
               long long cur_len = 0;

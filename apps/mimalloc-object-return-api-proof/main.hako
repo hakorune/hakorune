@@ -1,0 +1,32 @@
+// mimalloc-object-return-api-proof
+// Purpose: prove M189 object-return allocate/realloc API parity.
+
+using selfhost.hako_alloc.memory.page_heap_box as HakoAllocPageHeapBox
+
+static box Main {
+    main(args) {
+        local heap = new HakoAllocHeap()
+
+        local h0 = heap.allocate(8)
+        local same = heap.realloc(h0, 16)
+        local moved = heap.realloc(same, 48)
+        local fail = heap.realloc(moved, 80)
+        heap.release(moved)
+        heap.release(moved)
+
+        print("mimalloc-object-return-api-proof")
+        print("alloc=" + h0.page_id + "," + h0.block_id + "," + h0.requested_size)
+        print("same=" + same.page_id + "," + same.block_id + "," + same.requested_size)
+        print("moved=" + moved.page_id + "," + moved.block_id + "," + moved.requested_size)
+        if fail == null {
+            print("fail=true")
+        } else {
+            print("fail=false")
+        }
+
+        print("release_count=" + heap.medium_page.free_count)
+        print("heap=" + heap.small_page.current_used + "," + heap.medium_page.current_used + "," + heap.small_page.freeCount() + "," + heap.medium_page.freeCount() + "," + heap.outstandingBlocks() + "," + heap.requestedBytes())
+        print("summary=ok")
+        return 0
+    }
+}
