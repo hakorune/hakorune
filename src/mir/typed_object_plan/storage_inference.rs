@@ -3,14 +3,15 @@ use std::collections::{BTreeMap, BTreeSet};
 mod value_analysis;
 
 use super::TYPED_OBJECT_LAYOUT_KIND_RUNTIME_SLOT_OBJECT_V0;
+use crate::mir::declared_type_storage::storage_for_declared_type;
 use crate::mir::function::{
     ModuleMetadata, TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan,
 };
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use crate::mir::{Callee, MirFunction, MirInstruction, MirModule, UserBoxFieldDecl, ValueId};
 use value_analysis::{
-    box_name_for_value, box_origin_for_value, same_module_method_target, storage_for_declared_type,
-    storage_for_mir_type, storage_for_value,
+    box_name_for_value, box_origin_for_value, same_module_method_target, storage_for_mir_type,
+    storage_for_value,
 };
 
 type FieldKey = (String, String);

@@ -1,10 +1,11 @@
 use super::super::{
-    collect_sorted_enum_decl_values, collect_sorted_record_decl_values,
-    collect_sorted_user_box_decl_values, collect_static_data_plan_values,
-    collect_typed_object_plan_values,
+    collect_record_layout_plan_values, collect_sorted_enum_decl_values,
+    collect_sorted_record_decl_values, collect_sorted_user_box_decl_values,
+    collect_static_data_plan_values, collect_typed_object_plan_values,
 };
 use crate::mir::function::{
-    StaticDataPlan, TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan,
+    RecordLayoutFieldPlan, RecordLayoutPlan, StaticDataPlan, TypedObjectFieldPlan,
+    TypedObjectFieldStorage, TypedObjectPlan,
 };
 use crate::mir::MirModule;
 use serde_json::json;
@@ -247,6 +248,43 @@ fn collect_typed_object_plan_values_preserves_backend_layout_truth() {
     assert_eq!(plans[0]["fields"][0]["storage"], "usize");
     assert_eq!(plans[0]["fields"][0]["weak"], false);
     assert_eq!(plans[0]["fields"][1]["storage"], "handle");
+}
+
+#[test]
+fn collect_record_layout_plan_values_preserves_record_layout_truth() {
+    let mut module = MirModule::new("test".to_string());
+    module.metadata.record_layout_plans.push(RecordLayoutPlan {
+        record_name: "Meta".to_string(),
+        layout_id: 1,
+        layout_kind: "record_value_aggregate_v0".to_string(),
+        field_count: 2,
+        fields: vec![
+            RecordLayoutFieldPlan {
+                name: "ptr".to_string(),
+                slot: 0,
+                declared_type_name: Some("i64".to_string()),
+                storage: TypedObjectFieldStorage::I64,
+            },
+            RecordLayoutFieldPlan {
+                name: "size".to_string(),
+                slot: 1,
+                declared_type_name: Some("usize".to_string()),
+                storage: TypedObjectFieldStorage::USize,
+            },
+        ],
+    });
+
+    let plans = collect_record_layout_plan_values(&module);
+
+    assert_eq!(plans.len(), 1);
+    assert_eq!(plans[0]["record_name"], "Meta");
+    assert_eq!(plans[0]["layout_id"], 1);
+    assert_eq!(plans[0]["layout_kind"], "record_value_aggregate_v0");
+    assert_eq!(plans[0]["field_count"], 2);
+    assert_eq!(plans[0]["fields"][0]["name"], "ptr");
+    assert_eq!(plans[0]["fields"][0]["slot"], 0);
+    assert_eq!(plans[0]["fields"][0]["storage"], "i64");
+    assert_eq!(plans[0]["fields"][1]["storage"], "usize");
 }
 
 #[test]

@@ -35,6 +35,7 @@ use super::{
     },
     map_lookup_fusion_plan::refresh_function_map_lookup_fusion_routes,
     placement_effect::refresh_function_placement_effect_routes,
+    record_layout_plan::refresh_module_record_layout_plans,
     refresh_function_storage_class_facts, refresh_function_string_corridor_candidates,
     refresh_function_string_corridor_facts, refresh_function_string_corridor_relations,
     refresh_function_string_direct_set_window_routes, refresh_function_string_kernel_plans,
@@ -115,6 +116,7 @@ pub fn refresh_function_semantic_metadata(
 
 /// Refresh MIR semantic metadata for the whole module.
 pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
+    refresh_module_record_layout_plans(module);
     refresh_module_typed_object_plans(module);
     refresh_module_typed_object_field_value_types(module);
     let module_metadata = module.metadata.clone();

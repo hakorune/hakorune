@@ -516,6 +516,9 @@ inference for the allocator release path.
 - `293x-209`: C203a record declaration metadata transport landed, carrying
   `record_decls` through Program JSON v0, JSON bridge, MIR metadata, and MIR
   JSON without treating records as ordinary user boxes.
+- `293x-210`: C203b record layout plans landed, deriving metadata-only
+  `record_layout_plans` for concrete records while keeping the lane separate
+  from typed-object/user-box layout plans.
 - Next: continue with the record/packed-array compiler lane (`C201-C205`) or
   allocator algorithm rows when needed. No M191
   allocator API row is scheduled yet; M186 facade stats already landed as
@@ -538,8 +541,9 @@ Current execution order:
    after docs/reference decisions. Do not fold them into allocator rows.
    `C197`, `C198`, `C199`, and `C200` are complete.
 3. `C201-C205`: add record/packed-array compiler-runtime support before moving
-   allocator metadata off the current M178 scalar columns. `C201`, `C202`, and
-   `C203a` are complete; `C203b` record layout plans are the next row.
+   allocator metadata off the current M178 scalar columns. `C201`, `C202`,
+   `C203a`, and `C203b` are complete; `C203c` record local scalar replacement
+   is the next row.
 4. `C191-C194`: run compiler/backend hardening only when it does not collide
    with the active `.hako` row.
 5. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.

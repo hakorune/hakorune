@@ -170,7 +170,11 @@ Status:
   dedicated `record_decls` lane through Program JSON v0, JSON bridge, MIR
   metadata, and MIR JSON. The lane is metadata-only and still has no lowering
   consumer.
-- `C203b-C205` remain future work.
+- `C203b` is complete as `293x-210`: concrete record declarations now derive
+  dedicated `record_layout_plans` with field slots and storage classes. These
+  plans remain separate from typed-object/user-box layout plans and still have
+  no local scalarization consumer.
+- `C203c-C205` remain future work.
 
 ## Target Runtime Shape
 

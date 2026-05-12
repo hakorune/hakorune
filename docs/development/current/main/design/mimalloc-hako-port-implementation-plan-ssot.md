@@ -208,6 +208,12 @@ lane through Program JSON v0, JSON bridge, MIR metadata, and MIR JSON. Records
 remain separate from ordinary `user_box_decls`, and no record layout/lowering
 consumer is installed yet.
 
+C203b status:
+complete as `293x-210`. Concrete `record_decls` now derive dedicated
+`record_layout_plans` with field slots and storage classes. The layout lane is
+metadata-only, separate from typed-object/user-box plans, and does not yet drive
+local scalar replacement or packed `ArrayBox` residence.
+
 ### Docs / Guard Checkpoints
 
 | Row | Goal | Trigger |

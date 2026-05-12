@@ -523,6 +523,29 @@ pub struct TypedObjectPlan {
     pub fields: Vec<TypedObjectFieldPlan>,
 }
 
+/// Backend-readable slot layout for one field in an identity-free record.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RecordLayoutFieldPlan {
+    pub name: String,
+    pub slot: u32,
+    pub declared_type_name: Option<String>,
+    pub storage: TypedObjectFieldStorage,
+}
+
+/// MIR-owned record layout truth derived from `record_decls`.
+///
+/// This is intentionally separate from `TypedObjectPlan`: records have value
+/// aggregate semantics and must not acquire ordinary user-box identity by
+/// sharing the user-box layout lane.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RecordLayoutPlan {
+    pub record_name: String,
+    pub layout_id: u32,
+    pub layout_kind: String,
+    pub field_count: u32,
+    pub fields: Vec<RecordLayoutFieldPlan>,
+}
+
 /// Declared variant inventory for first-class enum/sum metadata.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MirEnumVariantDecl {
@@ -586,6 +609,9 @@ pub struct ModuleMetadata {
 
     /// Backend-readable typed object layouts derived from user box field metadata.
     pub typed_object_plans: Vec<TypedObjectPlan>,
+
+    /// Backend-readable record layouts derived from record declaration metadata.
+    pub record_layout_plans: Vec<RecordLayoutPlan>,
 
     /// Backend-readable static readonly table rows.
     /// MIR owns this row shape; backend emitters only serialize rows.

@@ -174,6 +174,7 @@ fn parse_json_v0_to_module_preserves_record_decls_metadata_only() {
     let module = parse_json_v0_to_module(&json).expect("record metadata module");
     assert!(!module.metadata.user_box_decls.contains_key("Meta"));
     assert!(module.metadata.typed_object_plans.is_empty());
+    assert!(module.metadata.record_layout_plans.is_empty());
     let decl = module
         .metadata
         .record_decls
@@ -183,6 +184,37 @@ fn parse_json_v0_to_module_preserves_record_decls_metadata_only() {
     assert_eq!(decl.fields.len(), 2);
     assert_eq!(decl.fields[0].name, "ptr");
     assert_eq!(decl.fields[0].declared_type_name.as_deref(), Some("i64"));
+}
+
+#[test]
+fn parse_json_v0_to_module_derives_concrete_record_layout_plans() {
+    let json = json!({
+        "version": 0,
+        "kind": "Program",
+        "record_decls": [
+            {
+                "name": "Meta",
+                "fields": ["ptr", "size"],
+                "field_decls": [
+                    { "name": "ptr", "declared_type": "i64", "is_weak": false },
+                    { "name": "size", "declared_type": "usize", "is_weak": false }
+                ]
+            }
+        ],
+        "body": [
+            { "type": "Return", "expr": { "type": "Int", "value": 0 } }
+        ]
+    })
+    .to_string();
+
+    let module = parse_json_v0_to_module(&json).expect("record layout module");
+    assert!(module.metadata.typed_object_plans.is_empty());
+    let plans = &module.metadata.record_layout_plans;
+    assert_eq!(plans.len(), 1);
+    assert_eq!(plans[0].record_name, "Meta");
+    assert_eq!(plans[0].layout_kind, "record_value_aggregate_v0");
+    assert_eq!(plans[0].fields[0].storage.as_str(), "i64");
+    assert_eq!(plans[0].fields[1].storage.as_str(), "usize");
 }
 
 #[test]

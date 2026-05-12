@@ -31,6 +31,7 @@ mod compiler;
 pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for temporary concat const-suffix micro seed bridge
 pub mod contracts; // backend-core instruction contracts (SSOT)
 pub mod core_method_op; // MIR-side CoreMethodOp carrier vocabulary
+pub(crate) mod declared_type_storage; // shared declared type-name -> storage classification
 pub mod definitions; // Unified MIR definitions (MirCall, Callee, etc.)
 pub mod diagnostics; // freeze diagnostics helpers (SSOT)
 pub mod effect;
@@ -85,6 +86,7 @@ pub mod printer;
 mod printer_helpers; // internal helpers extracted from printer.rs
 pub mod query; // Phase 26-G: MIR read/write/CFGビュー (MirQuery)
 pub(crate) mod raw_layout; // fixed raw-layout vocabulary for substrate metadata
+pub mod record_layout_plan; // MIR-owned record layout plan metadata
 pub mod region; // Phase 25.1l: Region/GC観測レイヤ（LoopForm v2 × RefKind）
 pub mod rune_plan_refresh; // SSOT refresh entry for rune-derived MIR plans
 pub(crate) mod same_module_body_shape; // shared body-shape facts for same-module route planners
@@ -184,7 +186,7 @@ pub use exact_seed_backend_route::{
 };
 pub use function::{
     ClosureBodyId, FunctionSignature, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
-    RecordDecl, UserBoxFieldDecl,
+    RecordDecl, RecordLayoutFieldPlan, RecordLayoutPlan, UserBoxFieldDecl,
 };
 pub use generic_method_route_plan::{
     refresh_function_generic_method_routes, refresh_module_generic_method_routes,
