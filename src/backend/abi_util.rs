@@ -20,6 +20,7 @@ pub fn to_bool_vm(v: &VMValue) -> Result<bool, String> {
     match v {
         VMValue::Bool(b) => Ok(*b),
         VMValue::Integer(i) => Ok(*i != 0),
+        VMValue::ExactNumeric(v) => Ok(v.value != 0),
         VMValue::Void => Err("Void in boolean context".to_string()),
         VMValue::String(s) => Ok(!s.is_empty()),
         VMValue::Float(f) => Ok(*f != 0.0),
@@ -51,6 +52,7 @@ pub fn eq_vm(a: &VMValue, b: &VMValue) -> bool {
     use VMValue::*;
     match (a, b) {
         (Integer(x), Integer(y)) => x == y,
+        (ExactNumeric(x), ExactNumeric(y)) => x == y,
         (Float(x), Float(y)) => x == y,
         (Bool(x), Bool(y)) => x == y,
         (String(x), String(y)) => x == y,

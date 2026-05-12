@@ -258,6 +258,9 @@ Do not store sentinel values in `usize`.
 
 - Add a runtime representation for exact `usize` or an equivalent typed
   numeric value.
+  - Landed v0: VM reference execution carries exact numeric arithmetic/shift
+    results as tagged exact numeric values instead of forcing them through
+    `Integer(i64)`.
 - Implement construction/conversion from literals and dynamic integers with
   range checks.
 - Implement equality and unsigned comparison.

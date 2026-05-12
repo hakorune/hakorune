@@ -114,10 +114,37 @@ impl std::fmt::Display for VMError {
 
 impl std::error::Error for VMError {}
 
+/// VM reference representation for exact numeric values.
+///
+/// This keeps exact numeric routes from silently collapsing successful
+/// pointer-sized or unsigned results back into the legacy dynamic
+/// `Integer(i64)` lane.
+#[derive(Clone, PartialEq, Eq)]
+pub struct ExactNumericRuntimeValue {
+    pub source_name: String,
+    pub value: i128,
+}
+
+impl ExactNumericRuntimeValue {
+    pub fn new(source_name: impl Into<String>, value: i128) -> Self {
+        Self {
+            source_name: source_name.into(),
+            value,
+        }
+    }
+}
+
+impl std::fmt::Debug for ExactNumericRuntimeValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}({})", self.source_name, self.value)
+    }
+}
+
 /// VM value representation
 #[derive(Clone)]
 pub enum VMValue {
     Integer(i64),
+    ExactNumeric(ExactNumericRuntimeValue),
     Float(f64),
     Bool(bool),
     String(String),
@@ -133,6 +160,7 @@ impl std::fmt::Debug for VMValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             VMValue::Integer(i) => write!(f, "Integer({})", i),
+            VMValue::ExactNumeric(value) => write!(f, "ExactNumeric({:?})", value),
             VMValue::Float(v) => write!(f, "Float({})", v),
             VMValue::Bool(b) => write!(f, "Bool({})", b),
             VMValue::String(s) => write!(f, "String({:?})", s),
@@ -155,6 +183,7 @@ impl PartialEq for VMValue {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (VMValue::Integer(a), VMValue::Integer(b)) => a == b,
+            (VMValue::ExactNumeric(a), VMValue::ExactNumeric(b)) => a == b,
             (VMValue::Float(a), VMValue::Float(b)) => a == b,
             (VMValue::Bool(a), VMValue::Bool(b)) => a == b,
             (VMValue::String(a), VMValue::String(b)) => a == b,
@@ -179,6 +208,10 @@ impl VMValue {
     pub fn to_nyash_box(&self) -> Box<dyn NyashBox> {
         match self {
             VMValue::Integer(i) => Box::new(IntegerBox::new(*i)),
+            VMValue::ExactNumeric(value) => match i64::try_from(value.value) {
+                Ok(i) => Box::new(IntegerBox::new(i)),
+                Err(_) => Box::new(StringBox::new(&value.value.to_string())),
+            },
             VMValue::Float(f) => Box::new(crate::boxes::FloatBox::new(*f)),
             VMValue::Bool(b) => Box::new(BoolBox::new(*b)),
             VMValue::String(s) => Box::new(StringBox::new(s)),
@@ -200,6 +233,7 @@ impl VMValue {
     pub fn to_string(&self) -> String {
         match self {
             VMValue::Integer(i) => i.to_string(),
+            VMValue::ExactNumeric(value) => value.value.to_string(),
             VMValue::Float(f) => f.to_string(),
             VMValue::Bool(b) => b.to_string(),
             VMValue::String(s) => s.clone(),
@@ -239,6 +273,10 @@ impl VMValue {
     pub fn as_integer(&self) -> Result<i64, VMError> {
         match self {
             VMValue::Integer(i) => Ok(*i),
+            VMValue::ExactNumeric(value) => Err(VMError::TypeError(format!(
+                "Expected dynamic integer, got exact numeric {}({})",
+                value.source_name, value.value
+            ))),
             _ => Err(VMError::TypeError(format!(
                 "Expected integer, got {:?}",
                 self
@@ -251,6 +289,7 @@ impl VMValue {
         match self {
             VMValue::Bool(b) => Ok(*b),
             VMValue::Integer(i) => Ok(*i != 0),
+            VMValue::ExactNumeric(value) => Ok(value.value != 0),
             // Pragmatic coercions for dynamic boxes (preserve legacy semantics)
             VMValue::BoxRef(b) => {
                 if let Some(bb) = b.as_any().downcast_ref::<BoolBox>() {

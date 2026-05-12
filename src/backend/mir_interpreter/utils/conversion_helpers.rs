@@ -49,6 +49,7 @@ impl MirInterpreter {
             other => {
                 let type_name = match other {
                     VMValue::Integer(_) => "Integer",
+                    VMValue::ExactNumeric(_) => "ExactNumeric",
                     VMValue::Float(_) => "Float",
                     VMValue::Bool(_) => "Bool",
                     VMValue::String(_) => "String",
@@ -86,6 +87,7 @@ impl MirInterpreter {
             other => {
                 let type_name = match other {
                     VMValue::Integer(_) => "Integer",
+                    VMValue::ExactNumeric(_) => "ExactNumeric",
                     VMValue::Float(_) => "Float",
                     VMValue::Bool(_) => "Bool",
                     VMValue::String(_) => "String",

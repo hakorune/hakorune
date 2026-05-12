@@ -334,6 +334,9 @@ impl JoinValue {
             crate::backend::VMValue::String(s) => Ok(JoinValue::Str(s.clone())),
             crate::backend::VMValue::Void => Ok(JoinValue::Unit),
             crate::backend::VMValue::BoxRef(b) => Ok(JoinValue::BoxRef(b.clone())),
+            crate::backend::VMValue::ExactNumeric(_) => Err(JoinIrOpError::new(
+                "ExactNumeric not supported in JoinValue",
+            )),
             crate::backend::VMValue::Float(_) => {
                 Err(JoinIrOpError::new("Float not supported in JoinValue"))
             }

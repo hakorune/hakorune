@@ -13,6 +13,7 @@ pub(super) fn try_handle_object_fields(
         use crate::value::NyashValue as NV;
         match v {
             VV::Integer(i) => NV::Integer(*i),
+            VV::ExactNumeric(v) => i64::try_from(v.value).map(NV::Integer).unwrap_or(NV::Void),
             VV::Float(f) => NV::Float(*f),
             VV::Bool(b) => NV::Bool(*b),
             VV::String(s) => NV::String(s.clone()),
@@ -90,6 +91,9 @@ pub(super) fn try_handle_object_fields(
                 let rk = match this.reg_load(actual_box_val) {
                     Ok(VMValue::BoxRef(ref b)) => format!("BoxRef({})", b.type_name()),
                     Ok(VMValue::Integer(_)) => "Integer".to_string(),
+                    Ok(VMValue::ExactNumeric(ref v)) => {
+                        format!("ExactNumeric({})", v.source_name)
+                    }
                     Ok(VMValue::Float(_)) => "Float".to_string(),
                     Ok(VMValue::Bool(_)) => "Bool".to_string(),
                     Ok(VMValue::String(_)) => "String".to_string(),
@@ -234,6 +238,7 @@ pub(super) fn try_handle_object_fields(
                                 if MirInterpreter::box_trace_enabled() {
                                     let kind = match &v {
                                         VMValue::Integer(_) => "Integer",
+                                        VMValue::ExactNumeric(_) => "ExactNumeric",
                                         VMValue::Float(_) => "Float",
                                         VMValue::Bool(_) => "Bool",
                                         VMValue::String(_) => "String",
@@ -343,6 +348,7 @@ pub(super) fn try_handle_object_fields(
             if MirInterpreter::box_trace_enabled() {
                 let kind = match &v {
                     VMValue::Integer(_) => "Integer",
+                    VMValue::ExactNumeric(_) => "ExactNumeric",
                     VMValue::Float(_) => "Float",
                     VMValue::Bool(_) => "Bool",
                     VMValue::String(_) => "String",
@@ -443,6 +449,7 @@ pub(super) fn try_handle_object_fields(
             if MirInterpreter::box_trace_enabled() {
                 let vkind = match &valv {
                     VMValue::Integer(_) => "Integer",
+                    VMValue::ExactNumeric(_) => "ExactNumeric",
                     VMValue::Float(_) => "Float",
                     VMValue::Bool(_) => "Bool",
                     VMValue::String(_) => "String",

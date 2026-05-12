@@ -53,6 +53,71 @@ fn module_with_exact_numeric_arithmetic_route(declared_type_name: &str, op: Bina
     module
 }
 
+fn module_with_chained_exact_numeric_add_route(declared_type_name: &str) -> MirModule {
+    let entry = BasicBlockId::new(0);
+    let signature = FunctionSignature {
+        name: "Main.chained_add/2".to_string(),
+        params: vec![MirType::Integer, MirType::Integer],
+        return_type: MirType::Integer,
+        effects: EffectMask::PURE,
+    };
+    let mut function = MirFunction::new(signature, entry);
+    let lhs = function.params[0];
+    let rhs = function.params[1];
+    let first = function.next_value_id();
+    let second = function.next_value_id();
+    function.metadata.declared_param_decls = vec![
+        MirParamDecl {
+            name: "lhs".to_string(),
+            declared_type_name: Some(declared_type_name.to_string()),
+        },
+        MirParamDecl {
+            name: "rhs".to_string(),
+            declared_type_name: Some(declared_type_name.to_string()),
+        },
+    ];
+
+    let block = function.get_block_mut(entry).unwrap();
+    block.add_instruction(MirInstruction::BinOp {
+        dst: first,
+        op: BinaryOp::Add,
+        lhs,
+        rhs,
+    });
+    block.add_instruction(MirInstruction::BinOp {
+        dst: second,
+        op: BinaryOp::Add,
+        lhs: first,
+        rhs,
+    });
+    block.add_instruction(MirInstruction::Return {
+        value: Some(second),
+    });
+
+    let mut module = MirModule::new("vm_exact_numeric_chained_add_test".to_string());
+    module.add_function(function);
+    refresh_module_exact_numeric_value_facts(&mut module);
+    let route_count = module
+        .functions
+        .get("Main.chained_add/2")
+        .expect("test function must exist")
+        .metadata
+        .exact_numeric_binary_op_route_facts
+        .len();
+    assert_eq!(route_count, 2);
+    module
+}
+
+fn assert_exact_numeric(value: VMValue, source_name: &str, expected: i128) {
+    match value {
+        VMValue::ExactNumeric(exact) => {
+            assert_eq!(exact.source_name, source_name);
+            assert_eq!(exact.value, expected);
+        }
+        other => panic!("expected exact numeric value, got {:?}", other),
+    }
+}
+
 fn module_with_exact_numeric_compare_route(declared_type_name: &str, op: CompareOp) -> MirModule {
     let entry = BasicBlockId::new(0);
     let signature = FunctionSignature {
@@ -168,7 +233,7 @@ fn vm_reference_executes_exact_usize_add_route() {
         )
         .expect("exact usize add route should execute");
 
-    assert_eq!(result, VMValue::Integer(42));
+    assert_exact_numeric(result, "usize", 42);
 }
 
 #[test]
@@ -184,7 +249,7 @@ fn vm_reference_executes_exact_usize_sub_route() {
         )
         .expect("exact usize sub route should execute");
 
-    assert_eq!(result, VMValue::Integer(38));
+    assert_exact_numeric(result, "usize", 38);
 }
 
 #[test]
@@ -237,21 +302,35 @@ fn vm_reference_rejects_exact_u8_mul_overflow() {
 }
 
 #[test]
-fn vm_reference_rejects_exact_usize_result_outside_current_i64_lane() {
+fn vm_reference_keeps_exact_usize_result_outside_current_i64_lane() {
     let module = module_with_exact_numeric_arithmetic_route("usize", BinaryOp::Add);
     let mut vm = MirInterpreter::new();
 
-    let error = vm
+    let result = vm
         .execute_function_with_args(
             &module,
             "Main.arithmetic/2",
             &[VMValue::Integer(i64::MAX), VMValue::Integer(1)],
         )
-        .expect_err("usize result above i64 must fail until exact VMValue storage exists");
+        .expect("usize result above i64 should stay in exact numeric runtime value");
 
-    assert!(error
-        .to_string()
-        .contains("[vm/exact_numeric_op_result_unrepresentable]"));
+    assert_exact_numeric(result, "usize", i128::from(i64::MAX) + 1);
+}
+
+#[test]
+fn vm_reference_consumes_chained_exact_usize_result() {
+    let module = module_with_chained_exact_numeric_add_route("usize");
+    let mut vm = MirInterpreter::new();
+
+    let result = vm
+        .execute_function_with_args(
+            &module,
+            "Main.chained_add/2",
+            &[VMValue::Integer(i64::MAX), VMValue::Integer(1)],
+        )
+        .expect("second exact usize add should consume the first tagged exact result");
+
+    assert_exact_numeric(result, "usize", i128::from(i64::MAX) + 2);
 }
 
 #[test]
@@ -299,7 +378,7 @@ fn vm_reference_executes_exact_usize_logical_shift_route() {
         )
         .expect("exact usize logical shift route should execute");
 
-    assert_eq!(result, VMValue::Integer(5));
+    assert_exact_numeric(result, "usize", 5);
 }
 
 #[test]

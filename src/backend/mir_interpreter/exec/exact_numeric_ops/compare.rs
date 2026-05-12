@@ -1,8 +1,7 @@
 use crate::backend::mir_interpreter::{MirInterpreter, VMError, VMValue};
 use crate::mir::numeric_substrate::{
-    exact_numeric_compare, exact_numeric_mir_type_from_declared_name,
-    exact_numeric_value_from_dynamic_integer, ExactNumericCompareError, ExactNumericCompareOp,
-    NumericTarget,
+    exact_numeric_compare, exact_numeric_mir_type_from_declared_name, ExactNumericCompareError,
+    ExactNumericCompareOp, NumericTarget,
 };
 use crate::mir::{BasicBlockId, CompareOp, ValueId};
 
@@ -37,26 +36,8 @@ impl MirInterpreter {
             )));
         };
 
-        let lhs_integer = self.exact_numeric_integer_operand("lhs", &declared_type_name, lhs)?;
-        let rhs_integer = self.exact_numeric_integer_operand("rhs", &declared_type_name, rhs)?;
-        let lhs_exact =
-            exact_numeric_value_from_dynamic_integer(lhs_integer, &ty).map_err(|error| {
-                self.exact_numeric_operand_range_error(
-                    "lhs",
-                    &declared_type_name,
-                    lhs_integer,
-                    error,
-                )
-            })?;
-        let rhs_exact =
-            exact_numeric_value_from_dynamic_integer(rhs_integer, &ty).map_err(|error| {
-                self.exact_numeric_operand_range_error(
-                    "rhs",
-                    &declared_type_name,
-                    rhs_integer,
-                    error,
-                )
-            })?;
+        let lhs_exact = self.exact_numeric_operand("lhs", &declared_type_name, &ty, lhs)?;
+        let rhs_exact = self.exact_numeric_operand("rhs", &declared_type_name, &ty, rhs)?;
 
         let compare_op = exact_numeric_compare_op(op);
         let result = exact_numeric_compare(&lhs_exact, &rhs_exact, compare_op)

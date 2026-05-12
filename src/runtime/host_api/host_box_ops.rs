@@ -8,6 +8,10 @@ use super::common::{encode_out, tlv_encode_one};
 fn vmvalue_to_box(value: VMValue) -> Box<dyn NyashBox> {
     match value {
         VMValue::Integer(i) => Box::new(crate::box_trait::IntegerBox::new(i)),
+        VMValue::ExactNumeric(value) => match i64::try_from(value.value) {
+            Ok(i) => Box::new(crate::box_trait::IntegerBox::new(i)),
+            Err(_) => Box::new(crate::box_trait::StringBox::new(&value.value.to_string())),
+        },
         VMValue::Float(f) => Box::new(crate::boxes::math_box::FloatBox::new(f)),
         VMValue::Bool(b) => Box::new(crate::box_trait::BoolBox::new(b)),
         VMValue::String(s) => Box::new(crate::box_trait::StringBox::new(s)),
@@ -24,6 +28,7 @@ fn vmvalue_to_box(value: VMValue) -> Box<dyn NyashBox> {
 fn vmvalue_to_setfield_value(value: VMValue) -> Option<NyashValue> {
     match value {
         VMValue::Integer(i) => Some(NyashValue::Integer(i)),
+        VMValue::ExactNumeric(value) => i64::try_from(value.value).ok().map(NyashValue::Integer),
         VMValue::Float(f) => Some(NyashValue::Float(f)),
         VMValue::Bool(b) => Some(NyashValue::Bool(b)),
         VMValue::String(s) => Some(NyashValue::String(s)),

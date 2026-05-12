@@ -598,6 +598,7 @@ impl MirInterpreter {
         }
         let (kind, class, nullish) = match val {
             VMValue::Integer(_) => ("Integer", "".to_string(), None),
+            VMValue::ExactNumeric(value) => ("ExactNumeric", value.source_name.clone(), None),
             VMValue::Float(_) => ("Float", "".to_string(), None),
             VMValue::Bool(_) => ("Bool", "".to_string(), None),
             VMValue::String(_) => ("String", "".to_string(), None),

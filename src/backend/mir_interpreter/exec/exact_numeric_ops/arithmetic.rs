@@ -1,11 +1,9 @@
-use crate::backend::mir_interpreter::{MirInterpreter, VMError, VMValue};
+use crate::backend::mir_interpreter::{MirInterpreter, VMError};
 use crate::mir::numeric_substrate::{
     exact_numeric_checked_arithmetic, exact_numeric_mir_type_from_declared_name,
-    exact_numeric_value_from_dynamic_integer, ExactNumericArithmeticError,
-    ExactNumericArithmeticOp, NumericTarget,
+    ExactNumericArithmeticError, ExactNumericArithmeticOp, NumericTarget,
 };
 use crate::mir::{BasicBlockId, BinaryOp, ValueId};
-use std::convert::TryFrom;
 
 impl MirInterpreter {
     pub(in crate::backend::mir_interpreter::exec) fn try_handle_exact_numeric_binop_reference(
@@ -38,26 +36,8 @@ impl MirInterpreter {
             )));
         };
 
-        let lhs_integer = self.exact_numeric_integer_operand("lhs", &declared_type_name, lhs)?;
-        let rhs_integer = self.exact_numeric_integer_operand("rhs", &declared_type_name, rhs)?;
-        let lhs_exact =
-            exact_numeric_value_from_dynamic_integer(lhs_integer, &ty).map_err(|error| {
-                self.exact_numeric_operand_range_error(
-                    "lhs",
-                    &declared_type_name,
-                    lhs_integer,
-                    error,
-                )
-            })?;
-        let rhs_exact =
-            exact_numeric_value_from_dynamic_integer(rhs_integer, &ty).map_err(|error| {
-                self.exact_numeric_operand_range_error(
-                    "rhs",
-                    &declared_type_name,
-                    rhs_integer,
-                    error,
-                )
-            })?;
+        let lhs_exact = self.exact_numeric_operand("lhs", &declared_type_name, &ty, lhs)?;
+        let rhs_exact = self.exact_numeric_operand("rhs", &declared_type_name, &ty, rhs)?;
 
         let arithmetic_op = exact_numeric_arithmetic_op(op).ok_or_else(|| {
             self.err_invalid(format!(
@@ -67,15 +47,7 @@ impl MirInterpreter {
         })?;
         let result = exact_numeric_checked_arithmetic(&lhs_exact, &rhs_exact, arithmetic_op)
             .map_err(|error| self.exact_numeric_arithmetic_error(&declared_type_name, error))?;
-        let integer = i64::try_from(result.value).map_err(|_| {
-            self.err_invalid(format!(
-                "[vm/exact_numeric_op_result_unrepresentable] declared_type={} value={} vm_lane=Integer(i64)",
-                declared_type_name, result.value
-            ))
-        })?;
-
-        self.vm_fast_cache_set_i64(dst, integer);
-        self.write_reg(dst, VMValue::Integer(integer));
+        self.write_exact_numeric_result(dst, result);
         Ok(true)
     }
 

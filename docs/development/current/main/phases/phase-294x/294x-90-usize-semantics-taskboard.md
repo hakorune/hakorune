@@ -49,6 +49,7 @@ hako_alloc or mimalloc migration.
 | `294x-10c` | Complete | VM reference exact compare routes | VM reference execution consumes MIR-owned exact numeric compare route facts without VM-owned inference |
 | `294x-10d` | Complete | VM exact ops module split | exact numeric VM reference execution is split by operation family before more rows land |
 | `294x-10e` | Complete | VM reference exact logical shr routes | VM reference execution consumes MIR-owned exact unsigned logical right-shift route facts |
+| `294x-10f` | Complete | VM exact numeric runtime value | VM reference exact numeric arithmetic/shift results stay tagged instead of collapsing back to `Integer(i64)` |
 | `294x-11` | Complete | literal suffix and const-eval row | `0usize` / exact numeric consts are accepted only with range checks and preserved as MIR exact const facts |
 | `294x-12` | Complete | typed-object exact numeric storage | typed-object plans distinguish exact numeric storage names such as `usize` from legacy `i64` while runtime values stay on the integer lane |
 | `294x-13` | Complete | backend capability and fail-fast | unsupported non-VM backends reject exact numeric storage/op routes before emission; native lowering remains a later row |
@@ -100,7 +101,7 @@ hako_alloc or mimalloc migration.
 
 ### Runtime / VM
 
-- [ ] Add exact `usize` runtime representation or equivalent tagged numeric value.
+- [x] Add exact `usize` runtime representation or equivalent tagged numeric value.
 - [x] Define VM as semantic reference executor, not product/mainline owner.
 - [x] Execute existing `DynamicIntegerRange` contracts in the VM interpreter.
 - [x] Attach `DynamicIntegerRange` contracts for real exact numeric field-write
@@ -112,8 +113,8 @@ hako_alloc or mimalloc migration.
 - [ ] Implement bitwise ops.
 - [x] Implement logical right shift in live VM exact numeric op routes.
 - [x] Implement unsigned compare in live VM exact numeric op routes.
-- [ ] Define display/debug formatting.
-- [ ] Emit stable diagnostics for overflow/range/shift failures.
+- [x] Define display/debug formatting.
+- [x] Emit stable diagnostics for overflow/range/shift failures in VM reference routes.
 
 ### Verifier / Guards
 
@@ -173,8 +174,8 @@ hako_alloc or mimalloc migration.
 
 ## Open Design Questions
 
-- Should VM exact `usize` use a dedicated `VMValue` variant or a tagged numeric
-  payload shared by all exact integer widths?
+- Decision: VM exact `usize` uses a tagged exact numeric payload shared by all
+  exact integer widths.
 - Should plain typed arithmetic always checked-fail-fast, or should release
   rows later opt into wrapping with explicit intrinsics?
 - Does Program(JSON v0) carry param/return metadata directly, or does phase

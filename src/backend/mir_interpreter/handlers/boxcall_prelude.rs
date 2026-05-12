@@ -63,6 +63,7 @@ pub(super) fn run_boxcall_prelude(
             }
             VMValue::String(_) => "StringBox".to_string(),
             VMValue::Integer(_) => "IntegerBox".to_string(),
+            VMValue::ExactNumeric(v) => format!("ExactNumeric({})", v.source_name),
             VMValue::Float(_) => "FloatBox".to_string(),
             VMValue::Bool(_) => "BoolBox".to_string(),
             VMValue::Void => "<Void>".to_string(),
@@ -83,6 +84,7 @@ pub(super) fn run_boxcall_prelude(
         let type_name = match recv {
             VMValue::BoxRef(b) => b.type_name().to_string(),
             VMValue::Integer(_) => "Integer".to_string(),
+            VMValue::ExactNumeric(v) => format!("ExactNumeric({})", v.source_name),
             VMValue::Float(_) => "Float".to_string(),
             VMValue::Bool(_) => "Bool".to_string(),
             VMValue::String(_) => "String".to_string(),

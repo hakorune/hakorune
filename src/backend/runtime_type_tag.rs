@@ -8,6 +8,7 @@ use crate::backend::vm_types::VMValue;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RuntimeTypeTag {
     Integer,
+    ExactNumeric,
     Float,
     Bool,
     String,
@@ -20,6 +21,7 @@ pub enum RuntimeTypeTag {
 pub fn tag_from_vmvalue(v: &VMValue) -> RuntimeTypeTag {
     match v {
         VMValue::Integer(_) => RuntimeTypeTag::Integer,
+        VMValue::ExactNumeric(_) => RuntimeTypeTag::ExactNumeric,
         VMValue::Float(_) => RuntimeTypeTag::Float,
         VMValue::Bool(_) => RuntimeTypeTag::Bool,
         VMValue::String(_) => RuntimeTypeTag::String,
@@ -34,6 +36,7 @@ pub fn tag_from_vmvalue(v: &VMValue) -> RuntimeTypeTag {
 pub fn tag_to_str(tag: RuntimeTypeTag) -> &'static str {
     match tag {
         RuntimeTypeTag::Integer => "Integer",
+        RuntimeTypeTag::ExactNumeric => "ExactNumeric",
         RuntimeTypeTag::Float => "Float",
         RuntimeTypeTag::Bool => "Bool",
         RuntimeTypeTag::String => "String",

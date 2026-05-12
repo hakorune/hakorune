@@ -125,6 +125,7 @@ pub(super) fn dispatch_box_call_handlers(
                     }
                 }
                 VMValue::Integer(i) => format!("Integer({})", i),
+                VMValue::ExactNumeric(v) => format!("ExactNumeric({:?})", v),
                 VMValue::Float(f) => format!("Float({})", f),
                 VMValue::Bool(b) => format!("Bool({})", b),
                 VMValue::Void => "Void".to_string(),

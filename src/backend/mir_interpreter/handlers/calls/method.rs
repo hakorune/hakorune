@@ -544,6 +544,7 @@ impl MirInterpreter {
         let type_name = match receiver {
             VMValue::String(_) => "String",
             VMValue::Integer(_) => "Integer",
+            VMValue::ExactNumeric(value) => value.source_name.as_str(),
             VMValue::Bool(_) => "Bool",
             VMValue::Float(_) => "Float",
             VMValue::Void => "Void",
