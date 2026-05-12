@@ -39,6 +39,7 @@ hako_alloc or mimalloc migration.
 
 | Order | Row | Status | Implementation Boundary |
 | --- | --- | --- | --- |
+| 0 | `293x-182` | Complete | M172 proof cleanup only; no language syntax or allocator algorithm change. |
 | 1 | `M173` | Next | Pre-realloc release invariant freeze, no realloc body or byte copy. |
 | 2 | `M174` | Planned | Realloc same-class/no-move path, no alloc-copy-release fallback. |
 | 3 | `M175` | Planned | Realloc alloc-copy-release fallback, no aligned/huge allocation. |

@@ -14,6 +14,7 @@ APP="apps/mimalloc-page-map-release-proof/main.hako"
 APP_TEST="apps/mimalloc-page-map-release-proof/test.sh"
 APP_README="apps/mimalloc-page-map-release-proof/README.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-180-M172-MIMALLOC-PAGE-MAP-BACKED-RELEASE-SEAM.md"
+CLEANUP_CARD="docs/development/current/main/phases/phase-293x/293x-182-M172-PROOF-CHECK-CLEANUP.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/k2_wide_mimalloc_page_map_release_guard.sh"
@@ -33,6 +34,7 @@ guard_require_files \
   "$APP_TEST" \
   "$APP_README" \
   "$CARD" \
+  "$CLEANUP_CARD" \
   "$PLAN" \
   "$INDEX"
 
@@ -44,9 +46,14 @@ guard_expect_in_file "$TAG" 'page_map\.lookup\(ptr\)' "$PAGE_RELEASE" "M172 must
 guard_expect_in_file "$TAG" 'page\.releaseLocal\(entry\.block_id\)' "$PAGE_RELEASE" "M172 must delegate block release to HakoAllocPageModel.releaseLocal"
 guard_expect_in_file "$TAG" 'page_map\.unregister\(ptr\)' "$PAGE_RELEASE" "M172 must unregister ownership after page-local release succeeds"
 guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.page_map_release_box as HakoAllocPageMapReleaseBox' "$APP" "proof app must import M172 release seam"
+guard_expect_in_file "$TAG" 'box ProofCheck' "$APP" "M172 proof app must keep labelled proof checks readable"
+guard_expect_in_file "$TAG" 'proof\.expect' "$APP" "M172 proof app must use labelled proof expectations"
+guard_expect_in_file "$TAG" 'proof\.ok\(\)' "$APP" "M172 proof app must use the proof helper summary result"
 guard_expect_in_file "$TAG" '293x-180 M172 Mimalloc Page-Map-Backed Release Seam' "$CARD" "missing M172 card"
+guard_expect_in_file "$TAG" '293x-182 M172 Proof Check Cleanup' "$CLEANUP_CARD" "missing M172 proof cleanup card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M172 guard"
 guard_expect_in_file "$TAG" 'M172 page-map-backed release seam' "$PLAN" "plan must retain M172 row"
+guard_expect_in_file "$TAG" '293x-182 M172 proof check cleanup' "$PLAN" "plan must retain the proof cleanup row"
 
 if rg -n 'init[[:space:]]*\{' "$PAGE_RELEASE" >/tmp/"$TAG".legacy_init 2>&1; then
   echo "[$TAG] ERROR: M172 release seam must use Unified Members stored fields, not legacy init slots" >&2
@@ -63,6 +70,14 @@ if rg -n 'registerPtr|\.register\(' "$PAGE_RELEASE" >/tmp/"$TAG".registration_ow
   exit 1
 fi
 rm -f /tmp/"$TAG".registration_owner
+
+if rg -n '&&' "$APP" >/tmp/"$TAG".proof_conjunction 2>&1; then
+  echo "[$TAG] ERROR: M172 proof app must not regress to a giant && summary condition" >&2
+  cat /tmp/"$TAG".proof_conjunction >&2
+  rm -f /tmp/"$TAG".proof_conjunction
+  exit 1
+fi
+rm -f /tmp/"$TAG".proof_conjunction
 
 if rg -n 'realloc|aligned|huge|secure|remote_free|RemoteFree|fetch_add|cas_|load_ordered|store_ordered|OSVM|OsVm|provider|hook|replacement|hako_mem_|externcall|unreserve|release_bytes|hako_osvm_(unreserve|release)' \
   "$PAGE_RELEASE" "$APP" >/tmp/"$TAG".forbidden 2>&1; then
@@ -118,6 +133,8 @@ required = {
     "HakoAllocPageMapReleaseSeam.addPage/1",
     "HakoAllocPageMapReleaseSeam.releasePtr/1",
     "HakoAllocPageModel.releaseLocal/1",
+    "ProofCheck.expect/2",
+    "ProofCheck.ok/0",
 }
 missing = sorted(name for name in required if functions.get(name) is None)
 if missing:
@@ -152,6 +169,8 @@ for method in ("register",):
     require_main_method("HakoAllocPageMap", method)
 for method in ("addPage", "releasePtr"):
     require_main_method("HakoAllocPageMapReleaseSeam", method)
+for method in ("expect", "ok"):
+    require_main_method("ProofCheck", method)
 
 def require_method_route(owner_name, box_name, method, ret_shape):
     routes = functions[owner_name].get("metadata", {}).get("lowering_plan", [])

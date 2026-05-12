@@ -5,6 +5,32 @@ using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
 using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
 using selfhost.hako_alloc.memory.page_map_release_box as HakoAllocPageMapReleaseBox
 
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expect(label, condition) {
+        me.count = me.count + 1
+        if condition == 0 {
+            me.passed = 0
+            me.fail_count = me.fail_count + 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
 static box Main {
     main(args) {
         local page_map = new HakoAllocPageMap()
@@ -46,7 +72,36 @@ static box Main {
         print("seam=" + seam.page_count + "," + seam.page_register_count + "," + seam.release_count + "," + seam.unregister_count + "," + seam.lookup_miss_count + "," + seam.stale_page_count + "," + seam.page_release_reject_count + "," + seam.reject_count)
         print("map=" + page_map.entry_count + "," + page_map.live_count + "," + page_map.register_count + "," + page_map.lookup_count + "," + page_map.lookup_miss_count + "," + page_map.unregister_count + "," + page_map.reject_count)
 
-        if add0 == 1 && add1 == 1 && reg0 == 1 && reg1 == 1 && reg2 == 1 && reg_stale_page == 1 && reg_released_block == 1 && rel0 == 1 && rel_released_block == 0 && rel_double == 0 && rel_unknown == 0 && rel_stale_page == 0 && rel1 == 1 && rel2 == 1 && page0.used == 0 && page0_local_free == 2 && page0.retired == 1 && page1.used == 0 && page1_local_free == 1 && page1.retired == 1 && seam.release_count == 3 && seam.unregister_count == 3 && seam.lookup_miss_count == 2 && seam.stale_page_count == 1 && seam.page_release_reject_count == 1 && seam.reject_count == 4 && page_map.live_count == 2 {
+        local proof = new ProofCheck("m172 page-map release")
+        proof.expect("add page0", add0 == 1)
+        proof.expect("add page1", add1 == 1)
+        proof.expect("register ptr 1001", reg0 == 1)
+        proof.expect("register ptr 1002", reg1 == 1)
+        proof.expect("register ptr 2001", reg2 == 1)
+        proof.expect("register stale page", reg_stale_page == 1)
+        proof.expect("register released block", reg_released_block == 1)
+        proof.expect("release ptr 1001", rel0 == 1)
+        proof.expect("reject released block", rel_released_block == 0)
+        proof.expect("reject double release", rel_double == 0)
+        proof.expect("reject unknown ptr", rel_unknown == 0)
+        proof.expect("reject stale page", rel_stale_page == 0)
+        proof.expect("release ptr 1002", rel1 == 1)
+        proof.expect("release ptr 2001", rel2 == 1)
+        proof.expect("page0 empty", page0.used == 0)
+        proof.expect("page0 local free count", page0_local_free == 2)
+        proof.expect("page0 retired", page0.retired == 1)
+        proof.expect("page1 empty", page1.used == 0)
+        proof.expect("page1 local free count", page1_local_free == 1)
+        proof.expect("page1 retired", page1.retired == 1)
+        proof.expect("seam release count", seam.release_count == 3)
+        proof.expect("seam unregister count", seam.unregister_count == 3)
+        proof.expect("seam lookup miss count", seam.lookup_miss_count == 2)
+        proof.expect("seam stale page count", seam.stale_page_count == 1)
+        proof.expect("seam page release reject count", seam.page_release_reject_count == 1)
+        proof.expect("seam reject count", seam.reject_count == 4)
+        proof.expect("page map live count", page_map.live_count == 2)
+
+        if proof.ok() {
             print("summary=ok")
             return 0
         }

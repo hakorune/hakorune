@@ -28,6 +28,7 @@
 
 | Next | Card | Goal |
 | --- | --- | --- |
+| 0 | `293x-182` | Clean the M172 proof app before resuming allocator algorithm work. |
 | 1 | `M173` | Freeze release invariants and handle lifetime before realloc. |
 | 2 | `M174-M176` | Add realloc in no-move, fallback, and negative/failure slices. |
 | 3 | `M177-M184` | Add alignment, huge-page, and secure-list slices without mixing them. |

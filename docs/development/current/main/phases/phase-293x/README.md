@@ -423,6 +423,12 @@ inference for the allocator release path.
   `HakoAllocPageMapReleaseSeam` as the narrow owner that composes
   `lookup(...)`, `releaseLocal(...)`, and `unregister(...)` without taking over
   pointer registration.
+- `293x-181`: the M173-M190 mimalloc roadmap was refreshed and corrected so
+  completed `usize` facade-stat work is not scheduled again.
+- `293x-182`: the M172 proof app cleanup replaced the giant summary
+  conjunction with an app-local `ProofCheck` helper. Future `check` block,
+  `+=`, multiline condition, and `guard else` surfaces remain separate
+  compiler rows.
 - Next: continue with `M173 pre-realloc release invariant freeze` before
   scheduling realloc body, aligned allocation, huge-page, or secure-list rows.
   M104 is next only if the optional allocator-provider
@@ -441,6 +447,8 @@ Current execution order:
 4. `M185-M190`: finish remaining `usize` field-group migration and allocator
    API parity. Facade stats are already exact `usize` via `294x-19e`, so that
    row must not be repeated.
-5. `C191-C194`: run compiler/backend hardening only when it does not collide
+5. `C197-C200`: improve proof/application syntax only as separate language rows
+   after docs/reference decisions. Do not fold them into allocator rows.
+6. `C191-C194`: run compiler/backend hardening only when it does not collide
    with the active `.hako` row.
-6. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.
+7. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.

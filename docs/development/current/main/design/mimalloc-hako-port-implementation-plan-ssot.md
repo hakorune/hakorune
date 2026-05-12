@@ -190,6 +190,20 @@ the active `.hako` algorithm row.
 | `D195 hako_alloc SSOT refresh` | refresh ownership, handle lifetime, release, realloc, alignment, huge, secure-list, and non-goal docs | after `M176`, then again after `M184` if secure-list lands |
 | `D196 stop-the-line guard refresh` | keep guards focused on real stop lines instead of growing every row-specific shell check | after `M184`, or earlier if guard runtime starts blocking normal development |
 
+### Proof App Ergonomics Queue
+
+These rows improve proof readability without changing allocator semantics.
+They run before the next algorithm row when a proof app becomes harder to read
+than the allocator state it is proving.
+
+| Row | Status | Goal | Stop line |
+| --- | --- | --- | --- |
+| `293x-182 M172 proof check cleanup` | Complete | replace the M172 proof app's giant conjunction with an app-local `ProofCheck` helper | no parser, language syntax, allocator algorithm, or guard-scope widening |
+| `C197 check block surface` | Future | add a general proof-oriented `check "name" { "label": expr }` expression with eager item evaluation | no short-circuit macro, variadic `all(...)`, allocator DSL, or backend route selector |
+| `C198 compound assignment surface` | Future | promote `+=` style sugar where it lowers to the existing assignment form | no hidden overflow policy or allocator-specific meaning |
+| `C199 parenthesized multiline condition` | Future | accept readable multiline grouped conditions | does not replace proof lists; long proof conjunctions should still use `check`/helper surfaces |
+| `C200 guard else surface` | Future | add early-return guard syntax that lowers to `if !(cond) { ... }` | no exception/fallback semantics |
+
 ## Granular Row Contracts
 
 Each row below is allowed to split into `A/B` cards if the listed write set
