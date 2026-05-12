@@ -8,6 +8,7 @@
 // - unrestricted buffer mutation API
 
 using selfhost.runtime.substrate.ptr.ptr_core_box as PtrCoreBox
+using selfhost.runtime.substrate.value_repr.current_lane_box as CurrentLaneBox
 
 static box BufCoreBox {
   _trace(tag) {
@@ -20,9 +21,27 @@ static box BufCoreBox {
     return out
   }
 
+  len_usize(handle) {
+    local out = me.len_i64(handle)
+    if CurrentLaneBox.is_usize_i64(out) != 1 {
+      return 0
+    }
+    me._trace("[vm/adapter/buf:len_usize]")
+    return out
+  }
+
   cap_i64(handle) {
     local out = PtrCoreBox.slot_cap_i64(handle)
     me._trace("[vm/adapter/buf:cap_i64]")
+    return out
+  }
+
+  cap_usize(handle) {
+    local out = me.cap_i64(handle)
+    if CurrentLaneBox.is_usize_i64(out) != 1 {
+      return 0
+    }
+    me._trace("[vm/adapter/buf:cap_usize]")
     return out
   }
 
@@ -32,9 +51,27 @@ static box BufCoreBox {
     return out
   }
 
+  reserve_usize(handle, additional: usize) {
+    if CurrentLaneBox.is_usize_i64(additional) != 1 {
+      return 0
+    }
+    local out = me.reserve_i64(handle, additional)
+    me._trace("[vm/adapter/buf:reserve_usize]")
+    return out
+  }
+
   grow_i64(handle, target_capacity) {
     local out = PtrCoreBox.slot_grow_i64(handle, target_capacity)
     me._trace("[vm/adapter/buf:grow_i64]")
+    return out
+  }
+
+  grow_usize(handle, target_capacity: usize) {
+    if CurrentLaneBox.is_usize_i64(target_capacity) != 1 {
+      return 0
+    }
+    local out = me.grow_i64(handle, target_capacity)
+    me._trace("[vm/adapter/buf:grow_usize]")
     return out
   }
 }

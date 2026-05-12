@@ -9,9 +9,14 @@ Responsibilities:
 
 Current live surface:
 - `len_i64`
+- `len_usize` as a non-negative current-lane i64 subset alias over `len_i64`
 - `cap_i64`
+- `cap_usize` as a non-negative current-lane i64 subset alias over `cap_i64`
 - `reserve_i64`
+- `reserve_usize` as a non-negative current-lane i64 subset alias over
+  `reserve_i64`
 - `grow_i64`
+- `grow_usize` as a non-negative current-lane i64 subset alias over `grow_i64`
 
 Rules:
 - Treat `hako.buf` as shape/control vocabulary, not allocator policy.

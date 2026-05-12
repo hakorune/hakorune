@@ -8,6 +8,7 @@
 // - allocator policy
 
 using selfhost.runtime.substrate.buf.buf_core_box as BufCoreBox
+using selfhost.runtime.substrate.value_repr.current_lane_box as CurrentLaneBox
 
 static box BoundsCoreBox {
   _trace(tag) {
@@ -23,12 +24,34 @@ static box BoundsCoreBox {
     return ok
   }
 
+  ensure_index_usize(handle, idx: usize) {
+    if CurrentLaneBox.is_usize_i64(idx) != 1 {
+      return 0
+    }
+    local len = BufCoreBox.len_usize(handle)
+    local ok = 1
+    if idx >= len { ok = 0 }
+    me._trace("[vm/adapter/verifier:bounds_usize]")
+    return ok
+  }
+
   ensure_insert_index_i64(handle, idx) {
     local len = BufCoreBox.len_i64(handle)
     local ok = 1
     if idx < 0 { ok = 0 }
     if idx > len { ok = 0 }
     me._trace("[vm/adapter/verifier:bounds_insert_i64]")
+    return ok
+  }
+
+  ensure_insert_index_usize(handle, idx: usize) {
+    if CurrentLaneBox.is_usize_i64(idx) != 1 {
+      return 0
+    }
+    local len = BufCoreBox.len_usize(handle)
+    local ok = 1
+    if idx > len { ok = 0 }
+    me._trace("[vm/adapter/verifier:bounds_insert_usize]")
     return ok
   }
 }

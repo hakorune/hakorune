@@ -10,8 +10,12 @@ Rules:
 
 Current live surface:
 - `ensure_index_i64(handle, idx)` gate for RawArray slot read/write paths.
+- `ensure_index_usize(handle, idx: usize)` gate for provisional `usize`
+  RawArray slot read/write paths over the non-negative current-lane i64 subset.
 - `ensure_insert_index_i64(handle, idx)` gate for RawArray insert paths where
   `idx == len` is valid.
+- `ensure_insert_index_usize(handle, idx: usize)` gate for provisional `usize`
+  RawArray insert/slice endpoints where `idx == len` is valid.
 
 Non-goals:
 - No initialized-range verifier here.

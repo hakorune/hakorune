@@ -54,10 +54,10 @@ The current live surface is intentionally narrow.
 | raw layout | MIR-owned `repr_c_v0` vocabulary can plan fixed-width numeric field offsets/size; no source syntax or backend-active native allocation yet |
 | `hako.mem` | allocation facade rows exist under `MemCoreBox`; exact public surface is still substrate-internal |
 | `hako.value_repr` | `CurrentLaneBox.is_usize_i64` owns the shared non-negative current-lane i64 predicate used by provisional `usize` facades; exact pointer-sized unsigned storage remains future |
-| `hako.buf` | `len/cap/reserve/grow` facade rows exist under `BufCoreBox`; capacity routes through `PtrCoreBox.slot_cap_i64` |
+| `hako.buf` | `len/cap/reserve/grow` facade rows exist under `BufCoreBox`; capacity routes through `PtrCoreBox.slot_cap_i64`; provisional `usize` aliases use the non-negative current-lane i64 subset |
 | `hako.ptr` | typed pointer/span facade is staged for current raw collection routes and owns direct array-slot backend route names for the live row |
-| verifier | bounds, initialized-range, ownership, and rune contract gates exist for current rows; RawArray remove/insert are verifier-gated before pointer-substrate calls; `Contract(no_alloc/no_safepoint)` is MIR-verifier checked |
-| `RawArray` | first raw-array path exists for slot load/store/len/cap/append/reserve/grow |
+| verifier | bounds, initialized-range, ownership, and rune contract gates exist for current rows; RawArray remove/insert are verifier-gated before pointer-substrate calls; bounds and initialized-range have provisional `usize` gates over the non-negative current-lane i64 subset; `Contract(no_alloc/no_safepoint)` is MIR-verifier checked |
+| `RawArray` | first raw-array path exists for slot load/store/len/cap/append/reserve/grow; provisional `usize` aliases exist for len/cap/index/capacity inputs without adding new native leaves |
 | `RawBuf` | first allocation facade exists over `MemCoreBox` |
 | `hako_alloc` facade | `HakoAllocProductionFacade` is the production-facing policy seam over the existing `HakoAllocHeap` page/free-list state, `HakoAllocRemoteFreePolicy`, and `HakoAllocPageSourcePolicy`; current proof rows cover local small/medium allocate/free/reject/reuse accounting, bounded CAS retry-loop remote-free policy, and OSVM reserve/commit/decommit page-source policy |
 | `hako.atomic` | helper-shaped `fence_i64`, memory-order vocabulary, `fence_order_i64(order)`, narrow fixed-slot `cas_i64` / `load_i64` / `store_i64` / `fetch_add_i64` rows, and direct native-pointer store/load/CAS routes exist; generic memory-order arguments are not live |
@@ -79,7 +79,7 @@ apps. The current route chain is:
 | --- | --- |
 | `hako.mem` extern leaves | `hako_mem_alloc` and `hako_mem_free` are route-owned native leaves; `hako_mem_realloc` is a runtime-decl native leaf but not part of the current `extern_call_routes` list |
 | `RawBufCoreBox` | `alloc_bytes_i64`, `realloc_bytes_i64`, and `free_bytes_i64` stay thin substrate facades over `MemCoreBox`; `alloc_bytes_usize` and `realloc_bytes_usize` are thin non-negative current-lane i64 subset aliases checked through `CurrentLaneBox.is_usize_i64` |
-| `RawArrayCoreBox` | slot append/len/load/store plus reserve/grow route through ownership, bounds, initialized-range, `BufCoreBox`, and `PtrCoreBox` gates |
+| `RawArrayCoreBox` | slot append/len/load/store plus reserve/grow route through ownership, bounds, initialized-range, `BufCoreBox`, and `PtrCoreBox` gates; provisional `usize` aliases reuse the same gates with `CurrentLaneBox.is_usize_i64` |
 | static tables | `u16[]` static const declarations emit readonly static data and `StaticDataLoad` reads |
 | OSVM | reserve/commit/decommit are route-owned page-source leaves; page-size is a native leaf for capability code |
 | TLS | cache-slot get/set rows are narrow allocator substrate leaves, not general language TLS cells |

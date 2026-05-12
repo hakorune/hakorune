@@ -118,6 +118,9 @@
 - `294x-14a`: RawBuf and OSVM now expose first byte-length `usize` facades over
   the non-negative current-lane i64 subset, without adding new native leaves or
   migrating hako_alloc state.
+- `294x-14`: Buf, RawArray, bounds, and initialized-range now expose
+  provisional `usize` aliases over the non-negative current-lane i64 subset,
+  without adding new native leaves or migrating hako_alloc state.
 
 ## First Implementation Direction
 

@@ -8,6 +8,7 @@
 // - allocator policy
 
 using selfhost.runtime.substrate.buf.buf_core_box as BufCoreBox
+using selfhost.runtime.substrate.value_repr.current_lane_box as CurrentLaneBox
 
 static box InitializedRangeCoreBox {
   _trace(tag) {
@@ -21,6 +22,17 @@ static box InitializedRangeCoreBox {
     if idx < 0 { ok = 0 }
     if idx >= readable_len { ok = 0 }
     me._trace("[vm/adapter/initialized_range:ensure_initialized_index_i64]")
+    return ok
+  }
+
+  ensure_initialized_index_usize(handle, idx: usize) {
+    if CurrentLaneBox.is_usize_i64(idx) != 1 {
+      return 0
+    }
+    local readable_len = BufCoreBox.len_usize(handle)
+    local ok = 1
+    if idx >= readable_len { ok = 0 }
+    me._trace("[vm/adapter/initialized_range:ensure_initialized_index_usize]")
     return ok
   }
 }

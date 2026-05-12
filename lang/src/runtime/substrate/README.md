@@ -55,12 +55,16 @@ Current live capability subset:
 - `mem` now has a live `alloc/realloc/free` facade.
 - `value_repr` now has a live `CurrentLaneBox.is_usize_i64` predicate for
   provisional `usize` facades over the non-negative current-lane i64 subset.
-- `buf` now has a live `len/cap/reserve/grow` facade over ptr slot routes.
+- `buf` now has live `len/cap/reserve/grow` facades over ptr slot routes,
+  plus provisional `usize` aliases over the non-negative current-lane i64
+  subset.
 - `ptr` remains the typed pointer/span facade used by the current array slot
   and capacity paths.
 - `verifier` now has live `bounds`, `initialized-range`, and `ownership` gates for the current raw collection routes.
 - `raw_array` now has live slot load/store/len/cap/append/remove/insert/slice
-  and reserve/grow facades under `ArrayCoreBox`.
+  and reserve/grow facades under `ArrayCoreBox`, plus provisional `usize`
+  aliases for len/cap/index/capacity inputs over the non-negative current-lane
+  i64 subset.
 - `raw_buf` now has live `alloc_bytes_i64`, `realloc_bytes_i64`, and `free_bytes_i64` facades over `MemCoreBox`, plus first byte-length `usize` aliases over the non-negative current-lane i64 subset.
 - `raw_map` now has live `entry_count_i64`, `cap_i64`, `probe_*`, and `slot_load/store_*` facades under `MapCoreBox`.
 - `atomic` now has live `fence_i64`, memory-order vocabulary, and

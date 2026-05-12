@@ -27,6 +27,7 @@ BOUNDS_CORE_FILE="lang/src/runtime/substrate/verifier/bounds/bounds_core_box.hak
 OWNERSHIP_CORE_FILE="lang/src/runtime/substrate/verifier/ownership/ownership_core_box.hako"
 BUF_CORE_FILE="lang/src/runtime/substrate/buf/buf_core_box.hako"
 PTR_CORE_FILE="lang/src/runtime/substrate/ptr/ptr_core_box.hako"
+VALUE_REPR_CORE_FILE="lang/src/runtime/substrate/value_repr/current_lane_box.hako"
 STRING_CORE_FILE="lang/src/runtime/collections/string_core_box.hako"
 MAP_CORE_FILE="lang/src/runtime/collections/map_core_box.hako"
 COLLECTIONS_HOT_FILE="lang/src/llvm_ir/boxes/aot_prep/passes/collections_hot.hako"
@@ -55,6 +56,7 @@ for file in \
   "$OWNERSHIP_CORE_FILE" \
   "$BUF_CORE_FILE" \
   "$PTR_CORE_FILE" \
+  "$VALUE_REPR_CORE_FILE" \
   "$STRING_CORE_FILE" \
   "$MAP_CORE_FILE" \
   "$COLLECTIONS_HOT_FILE"; do
@@ -188,8 +190,44 @@ if ! rg -F -q 'PtrCoreBox.slot_load_i64(handle, idx)' "$RAW_ARRAY_CORE_FILE"; th
   echo "[runtime-v0-abi-slice-guard] raw array missing ptr load route" >&2
   exit 1
 fi
+if ! rg -F -q 'slot_load_usize(handle, idx: usize)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing usize load alias" >&2
+  exit 1
+fi
+if ! rg -F -q 'slot_store_usize(handle, idx: usize, value)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing usize store alias" >&2
+  exit 1
+fi
+if ! rg -F -q 'slot_len_usize(handle)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing usize len alias" >&2
+  exit 1
+fi
+if ! rg -F -q 'slot_cap_usize(handle)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing usize cap alias" >&2
+  exit 1
+fi
+if ! rg -F -q 'slot_slice_any_usize(handle, start: usize, end: usize)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing usize slice alias" >&2
+  exit 1
+fi
+if ! rg -F -q 'slot_reserve_usize(handle, additional: usize)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing usize reserve alias" >&2
+  exit 1
+fi
+if ! rg -F -q 'slot_grow_usize(handle, target_capacity: usize)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing usize grow alias" >&2
+  exit 1
+fi
 if ! rg -F -q 'PtrCoreBox.slot_store_string_handle(handle, idx, value_h)' "$RAW_ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] raw array missing ptr string-store route" >&2
+  exit 1
+fi
+if ! rg -F -q 'BoundsCoreBox.ensure_index_usize(handle, idx)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing usize index bounds gate" >&2
+  exit 1
+fi
+if ! rg -F -q 'InitializedRangeCoreBox.ensure_initialized_index_usize(handle, idx)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing usize initialized-range gate" >&2
   exit 1
 fi
 if ! rg -F -q 'InitializedRangeCoreBox.ensure_initialized_index_i64(handle, idx)' "$RAW_ARRAY_CORE_FILE"; then
@@ -266,8 +304,28 @@ if ! rg -F -q 'BufCoreBox.cap_i64(handle)' "$RAW_ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] raw array cap must route through buf substrate" >&2
   exit 1
 fi
+if ! rg -F -q 'BufCoreBox.len_usize(handle)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing buf usize len route" >&2
+  exit 1
+fi
+if ! rg -F -q 'BufCoreBox.cap_usize(handle)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing buf usize cap route" >&2
+  exit 1
+fi
+if ! rg -F -q 'BufCoreBox.reserve_usize(handle, additional)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing buf usize reserve route" >&2
+  exit 1
+fi
+if ! rg -F -q 'BufCoreBox.grow_usize(handle, target_capacity)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing buf usize grow route" >&2
+  exit 1
+fi
 if ! rg -F -q '[vm/adapter/raw_array:slot_cap_i64]' "$RAW_ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] raw array missing cap trace tag" >&2
+  exit 1
+fi
+if ! rg -F -q '[vm/adapter/raw_array:slot_cap_usize]' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing usize cap trace tag" >&2
   exit 1
 fi
 if ! rg -F -q 'PtrCoreBox.slot_append_any(handle, value_any)' "$RAW_ARRAY_CORE_FILE"; then
@@ -282,12 +340,48 @@ if ! rg -F -q 'cap_i64(handle)' "$BUF_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] buf core missing cap route" >&2
   exit 1
 fi
+if ! rg -F -q 'using selfhost.runtime.substrate.value_repr.current_lane_box as CurrentLaneBox' "$BUF_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] buf core missing current-lane helper import" >&2
+  exit 1
+fi
+if ! rg -F -q 'len_usize(handle)' "$BUF_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] buf core missing usize len facade" >&2
+  exit 1
+fi
+if ! rg -F -q 'cap_usize(handle)' "$BUF_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] buf core missing usize cap facade" >&2
+  exit 1
+fi
+if ! rg -F -q 'reserve_usize(handle, additional: usize)' "$BUF_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] buf core missing usize reserve facade" >&2
+  exit 1
+fi
+if ! rg -F -q 'grow_usize(handle, target_capacity: usize)' "$BUF_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] buf core missing usize grow facade" >&2
+  exit 1
+fi
 if ! rg -F -q 'PtrCoreBox.slot_cap_i64(handle)' "$BUF_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] buf core cap route must go through ptr substrate" >&2
   exit 1
 fi
 if rg -F -q 'externcall "nyash.array.slot_cap_h"' "$BUF_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] buf core must not own direct slot_cap extern route" >&2
+  exit 1
+fi
+if ! rg -F -q 'ensure_index_usize(handle, idx: usize)' "$BOUNDS_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] bounds core missing usize index gate" >&2
+  exit 1
+fi
+if ! rg -F -q 'ensure_insert_index_usize(handle, idx: usize)' "$BOUNDS_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] bounds core missing usize insert gate" >&2
+  exit 1
+fi
+if ! rg -F -q 'ensure_initialized_index_usize(handle, idx: usize)' "$INITIALIZED_RANGE_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] initialized-range core missing usize index gate" >&2
+  exit 1
+fi
+if ! rg -F -q 'is_usize_i64(value)' "$VALUE_REPR_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] value repr core missing current-lane usize predicate" >&2
   exit 1
 fi
 if ! rg -F -q 'BufCoreBox.grow_i64(handle, target_capacity)' "$RAW_ARRAY_CORE_FILE"; then
