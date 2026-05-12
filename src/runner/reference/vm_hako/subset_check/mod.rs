@@ -249,9 +249,13 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                         if let Some(box_type) = box_type_by_reg.get(&box_reg) {
                             if box_type == "OsVmCoreBox"
                                 && method != "page_size_i64"
+                                && method != "page_size_usize"
                                 && method != "reserve_bytes_i64"
+                                && method != "reserve_bytes_usize"
                                 && method != "commit_bytes_i64"
+                                && method != "commit_bytes_usize"
                                 && method != "decommit_bytes_i64"
+                                && method != "decommit_bytes_usize"
                             {
                                 return Err((
                                     func_name.clone(),
@@ -261,7 +265,9 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                             }
                             if box_type == "RawBufCoreBox"
                                 && method != "alloc_bytes_i64"
+                                && method != "alloc_bytes_usize"
                                 && method != "realloc_bytes_i64"
+                                && method != "realloc_bytes_usize"
                                 && method != "free_bytes_i64"
                             {
                                 return Err((

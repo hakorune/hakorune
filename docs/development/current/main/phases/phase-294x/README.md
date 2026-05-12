@@ -115,6 +115,9 @@
 - `294x-13`: non-VM backend routes now use one MIR-owned capability gate and
   fail fast before exact numeric typed-object storage or exact numeric op route
   facts silently fall back to legacy `Integer(i64)` lowering.
+- `294x-14a`: RawBuf and OSVM now expose first byte-length `usize` facades over
+  the non-negative current-lane i64 subset, without adding new native leaves or
+  migrating hako_alloc state.
 
 ## First Implementation Direction
 

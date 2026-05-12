@@ -8,7 +8,11 @@ Responsibilities:
 
 Current live surface:
 - `alloc_bytes_i64(size)`
+- `alloc_bytes_usize(size: usize)` as a non-negative current-lane i64 subset
+  facade over `alloc_bytes_i64`
 - `realloc_bytes_i64(ptr, new_size)`
+- `realloc_bytes_usize(ptr: i64, new_size: usize)` as a non-negative
+  current-lane i64 subset facade over `realloc_bytes_i64`
 - `free_bytes_i64(ptr)`
 
 Rules:

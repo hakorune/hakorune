@@ -62,7 +62,7 @@ The current live surface is intentionally narrow.
 | `hako.atomic` | helper-shaped `fence_i64`, memory-order vocabulary, `fence_order_i64(order)`, narrow fixed-slot `cas_i64` / `load_i64` / `store_i64` / `fetch_add_i64` rows, and direct native-pointer store/load/CAS routes exist; generic memory-order arguments are not live |
 | `hako.tls` | helper-shaped diagnostics TLS rows exist; narrow allocator cache-slot `i64` get/set rows exist for pure-first EXE; generic thread/task-local cells are not live |
 | `hako.gc` | helper-shaped `write_barrier_i64` row exists |
-| `hako.osvm` | page-size plus reserve/commit/decommit rows exist |
+| `hako.osvm` | page-size plus reserve/commit/decommit rows exist; first `usize` facades cover page size and byte lengths over the non-negative current-lane i64 subset |
 | `hako.intrin` | current-lane non-negative i64 bit-count rows exist: `clz_i64`, `ctz_i64`, `popcnt_i64`; backend optimization use is not live |
 | backend export attrs | consistency guard is live; only current weak attrs are allowed, runtime-decl `readonly` rows must carry `memory = "read"`, while `noalias`/`nonnull`/`dereferenceable`/alignment export remain blocked |
 | static readonly data | backend-private static-data manifest can emit a u16 size-class fixture; source `static const NAME: u16[] = [...]` declarations lower to MIR `static_data_plans`; `NAME[index]` reads lower to MIR `StaticDataLoad` and current-lane `i64` values; narrow integer const expressions in u16 table initializers are live |
@@ -77,7 +77,7 @@ apps. The current route chain is:
 | Slice | Current proof reading |
 | --- | --- |
 | `hako.mem` extern leaves | `hako_mem_alloc` and `hako_mem_free` are route-owned native leaves; `hako_mem_realloc` is a runtime-decl native leaf but not part of the current `extern_call_routes` list |
-| `RawBufCoreBox` | `alloc_bytes_i64`, `realloc_bytes_i64`, and `free_bytes_i64` stay thin substrate facades over `MemCoreBox` |
+| `RawBufCoreBox` | `alloc_bytes_i64`, `realloc_bytes_i64`, and `free_bytes_i64` stay thin substrate facades over `MemCoreBox`; `alloc_bytes_usize` and `realloc_bytes_usize` are thin non-negative current-lane i64 subset aliases |
 | `RawArrayCoreBox` | slot append/len/load/store plus reserve/grow route through ownership, bounds, initialized-range, `BufCoreBox`, and `PtrCoreBox` gates |
 | static tables | `u16[]` static const declarations emit readonly static data and `StaticDataLoad` reads |
 | OSVM | reserve/commit/decommit are route-owned page-source leaves; page-size is a native leaf for capability code |
@@ -339,9 +339,17 @@ Live operations:
 
 - `page_size_i64()` returns the current platform page size through
   `hako_osvm_page_size_i64`.
+- `page_size_usize()` returns the same current-lane value and keeps the
+  `usize` spelling at the facade boundary.
 - `reserve_bytes_i64(len_bytes)` reserves address space.
+- `reserve_bytes_usize(len_bytes)` rejects negative current-lane values before
+  delegating to `reserve_bytes_i64`.
 - `commit_bytes_i64(base, len_bytes)` commits a reserved range.
+- `commit_bytes_usize(base, len_bytes)` rejects negative byte lengths before
+  delegating to `commit_bytes_i64`.
 - `decommit_bytes_i64(base, len_bytes)` decommits a committed range.
+- `decommit_bytes_usize(base, len_bytes)` rejects negative byte lengths before
+  delegating to `decommit_bytes_i64`.
 
 VM-hako subset behavior:
 

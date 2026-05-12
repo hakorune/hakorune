@@ -32,6 +32,36 @@ fn subset_accepts_boxcall_osvmcore_page_size_i64() {
 }
 
 #[test]
+fn subset_accepts_boxcall_osvmcore_page_size_usize() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "newbox",
+                        "dst": 1,
+                        "type": "OsVmCoreBox"
+                    },
+                    {
+                        "op": "boxcall",
+                        "method": "page_size_usize",
+                        "box": 1,
+                        "dst": 2,
+                        "args": []
+                    }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
 fn subset_accepts_externcall_hako_osvm_page_size_i64() {
     let mir_json = json!({
         "functions": [{

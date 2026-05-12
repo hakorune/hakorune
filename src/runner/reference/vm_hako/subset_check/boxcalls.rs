@@ -253,11 +253,14 @@ pub(super) fn validate_boxcall_shape(inst: &Value) -> Result<(), String> {
         "push" => validate_boxcall_push_shape(inst, args),
         "open" => validate_boxcall_open_shape(inst, args),
         "link_exe" => validate_boxcall_link_exe_shape(inst, args),
-        "commit_bytes_i64" | "decommit_bytes_i64" => {
+        "commit_bytes_i64"
+        | "decommit_bytes_i64"
+        | "commit_bytes_usize"
+        | "decommit_bytes_usize" => validate_boxcall_two_reg_shape(inst, args, method),
+        "page_size_i64" | "page_size_usize" => validate_boxcall_noarg_shape(inst, args, method),
+        "realloc_bytes_i64" | "realloc_bytes_usize" => {
             validate_boxcall_two_reg_shape(inst, args, method)
         }
-        "page_size_i64" => validate_boxcall_noarg_shape(inst, args, method),
-        "realloc_bytes_i64" => validate_boxcall_two_reg_shape(inst, args, method),
         "set" | "setField" => validate_boxcall_set_shape(inst, args, method),
         "read" | "close" => validate_boxcall_zero_or_one_reg_shape(inst, args, method),
         "order_relaxed_i64" | "order_acquire_i64" | "order_release_i64" | "order_acq_rel_i64"

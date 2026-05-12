@@ -14,15 +14,40 @@ static box RawBufCoreBox {
     if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
   }
 
+  _is_current_lane_usize(value) {
+    if value < 0 {
+      return 0
+    }
+    return 1
+  }
+
   alloc_bytes_i64(size) {
     local out = MemCoreBox.alloc_i64(size)
     me._trace("[vm/adapter/raw_buf:alloc_bytes_i64]")
     return out
   }
 
+  alloc_bytes_usize(size: usize) {
+    if me._is_current_lane_usize(size) != 1 {
+      return 0
+    }
+    local out = me.alloc_bytes_i64(size)
+    me._trace("[vm/adapter/raw_buf:alloc_bytes_usize]")
+    return out
+  }
+
   realloc_bytes_i64(ptr, new_size) {
     local out = MemCoreBox.realloc_i64(ptr, new_size)
     me._trace("[vm/adapter/raw_buf:realloc_bytes_i64]")
+    return out
+  }
+
+  realloc_bytes_usize(ptr: i64, new_size: usize) {
+    if me._is_current_lane_usize(new_size) != 1 {
+      return 0
+    }
+    local out = me.realloc_bytes_i64(ptr, new_size)
+    me._trace("[vm/adapter/raw_buf:realloc_bytes_usize]")
     return out
   }
 

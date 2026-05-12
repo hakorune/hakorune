@@ -52,6 +52,7 @@ hako_alloc or mimalloc migration.
 | `294x-11` | Complete | literal suffix and const-eval row | `0usize` / exact numeric consts are accepted only with range checks and preserved as MIR exact const facts |
 | `294x-12` | Complete | typed-object exact numeric storage | typed-object plans distinguish exact numeric storage names such as `usize` from legacy `i64` while runtime values stay on the integer lane |
 | `294x-13` | Complete | backend capability and fail-fast | unsupported non-VM backends reject exact numeric storage/op routes before emission; native lowering remains a later row |
+| `294x-14a` | Complete | byte-length usize facade aliases | RawBuf and OSVM byte-length facades expose `usize` names over the non-negative current-lane i64 subset |
 | `294x-14` | Pending | low-level capability usize variants | RawBuf/RawArray/OSVM/bounds helpers get exact `usize` variants only where backed by semantics |
 | `294x-15` | Pending | raw-layout pointer-sized field row | `usize`/`isize` raw fields are accepted with target layout rules or fail fast |
 | `294x-16` | Pending | hako_alloc numeric field inventory | every numeric field is classified as signed sentinel, signed delta, count, size, capacity, index, or byte length |
@@ -143,9 +144,12 @@ hako_alloc or mimalloc migration.
 
 ### Low-Level Capability Surface
 
+- [x] RawBuf byte-length `usize` allocation/reallocation facades over the
+  non-negative current-lane i64 subset.
 - [ ] RawBuf length/capacity `usize` variants.
 - [ ] RawArray length/capacity/index `usize` variants.
-- [ ] OSVM page size and byte length `usize` variants.
+- [x] OSVM page size and byte-length `usize` facades over the non-negative
+  current-lane i64 subset.
 - [ ] Bounds checks over `usize`.
 - [ ] Atomic or TLS `usize` rows only if needed by allocator proofs.
 - [ ] Existing `*_i64` helpers remain until call sites migrate.

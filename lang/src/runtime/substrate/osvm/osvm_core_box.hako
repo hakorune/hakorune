@@ -11,9 +11,22 @@ static box OsVmCoreBox {
     if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
   }
 
+  _is_current_lane_usize(value) {
+    if value < 0 {
+      return 0
+    }
+    return 1
+  }
+
   page_size_i64() {
     local out = externcall "hako_osvm_page_size_i64"()
     me._trace("[vm/adapter/osvm:page_size_i64]")
+    return out
+  }
+
+  page_size_usize() {
+    local out = me.page_size_i64()
+    me._trace("[vm/adapter/osvm:page_size_usize]")
     return out
   }
 
@@ -23,15 +36,42 @@ static box OsVmCoreBox {
     return out
   }
 
+  reserve_bytes_usize(len_bytes: usize) {
+    if me._is_current_lane_usize(len_bytes) != 1 {
+      return 0
+    }
+    local out = me.reserve_bytes_i64(len_bytes)
+    me._trace("[vm/adapter/osvm:reserve_bytes_usize]")
+    return out
+  }
+
   commit_bytes_i64(base, len_bytes) {
     local out = externcall "hako_osvm_commit_bytes_i64"(base, len_bytes)
     me._trace("[vm/adapter/osvm:commit_bytes_i64]")
     return out
   }
 
+  commit_bytes_usize(base: i64, len_bytes: usize) {
+    if me._is_current_lane_usize(len_bytes) != 1 {
+      return 0
+    }
+    local out = me.commit_bytes_i64(base, len_bytes)
+    me._trace("[vm/adapter/osvm:commit_bytes_usize]")
+    return out
+  }
+
   decommit_bytes_i64(base, len_bytes) {
     local out = externcall "hako_osvm_decommit_bytes_i64"(base, len_bytes)
     me._trace("[vm/adapter/osvm:decommit_bytes_i64]")
+    return out
+  }
+
+  decommit_bytes_usize(base: i64, len_bytes: usize) {
+    if me._is_current_lane_usize(len_bytes) != 1 {
+      return 0
+    }
+    local out = me.decommit_bytes_i64(base, len_bytes)
+    me._trace("[vm/adapter/osvm:decommit_bytes_usize]")
     return out
   }
 }

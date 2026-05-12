@@ -94,6 +94,8 @@ Live today:
 - non-VM backend routes use a MIR-owned exact numeric backend capability gate
   and fail fast before exact numeric typed-object storage or exact numeric op
   route facts silently lower through legacy `Integer(i64)`;
+- RawBuf and OSVM expose first byte-length `usize` facades whose live v0
+  meaning is the non-negative current-lane i64 subset;
 - `FunctionMetadata` preserves MIR-side declared parameter/return annotation
   text, and exact numeric return annotations publish function-level advisory
   return facts without changing runtime lowering;
@@ -116,6 +118,8 @@ Not live today:
 - `.hako` parser-front parity for numeric literal suffixes;
 - backend exact numeric arithmetic/compare/shift lowering, native exact numeric
   typed-object slots, and explicit wrapping vocabulary;
+- RawArray index/length/capacity `usize` variants and bounds verifier `usize`
+  variants;
 - MIR JSON exact-width numeric const tags;
 - native typed-object exact numeric slots distinct from the current integer
   lane;

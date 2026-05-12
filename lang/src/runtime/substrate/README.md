@@ -56,7 +56,7 @@ Current live capability subset:
 - `verifier` now has live `bounds`, `initialized-range`, and `ownership` gates for the current raw collection routes.
 - `raw_array` now has live slot load/store/len/cap/append/remove/insert/slice
   and reserve/grow facades under `ArrayCoreBox`.
-- `raw_buf` now has live `alloc_bytes_i64`, `realloc_bytes_i64`, and `free_bytes_i64` facades over `MemCoreBox`.
+- `raw_buf` now has live `alloc_bytes_i64`, `realloc_bytes_i64`, and `free_bytes_i64` facades over `MemCoreBox`, plus first byte-length `usize` aliases over the non-negative current-lane i64 subset.
 - `raw_map` now has live `entry_count_i64`, `cap_i64`, `probe_*`, and `slot_load/store_*` facades under `MapCoreBox`.
 - `atomic` now has live `fence_i64`, memory-order vocabulary, and
   `fence_order_i64(order)` helper-shaped facades.
@@ -64,7 +64,9 @@ Current live capability subset:
   `last_error_is_ok_i64`, and `last_error_code_i64`.
 - `gc` now has a live `write_barrier_i64` facade.
 - `osvm` now has live `page_size_i64` / `reserve_bytes_i64` /
-  `commit_bytes_i64` / `decommit_bytes_i64` facades.
+  `commit_bytes_i64` / `decommit_bytes_i64` facades, plus first
+  page-size/byte-length `usize` aliases over the non-negative current-lane i64
+  subset.
 - `intrin` now has live `clz_i64` / `ctz_i64` / `popcnt_i64` facades for
   current-lane non-negative i64 values.
 

@@ -418,7 +418,7 @@ static box MirVmS0BoxcallBuiltinBox {
       return "__NEXT__"
     }
 
-    if method == "page_size_i64" {
+    if method == "page_size_i64" || method == "page_size_usize" {
       if me._args_count(seg) != 0 { return "[vm-hako/unimplemented op=boxcall(osvm-page-size) args!=0]" }
       local dst_page = me._find_int(seg, "dst")
       if dst_page == null { return "[vm-hako/contract][boxcall-missing-dst]" }
@@ -427,10 +427,14 @@ static box MirVmS0BoxcallBuiltinBox {
       return "__NEXT__"
     }
 
-    if method == "reserve_bytes_i64" {
+    if method == "reserve_bytes_i64" || method == "reserve_bytes_usize" {
       if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
       local reserve_arg = me._args_first(seg)
       if reserve_arg == null { return "[vm-hako/contract][boxcall-reserve_bytes_i64-arg0-missing]" }
+      if method == "reserve_bytes_usize" {
+        local reserve_value = MirVmS0StateOpsBox.reg_i64_get(regs, reserve_arg)
+        if reserve_value < 0 { return "[vm-hako/contract][boxcall-reserve_bytes_usize-negative]" }
+      }
       local dst_osvm = me._find_int(seg, "dst")
       if dst_osvm == null { return "[vm-hako/contract][boxcall-missing-dst]" }
       regs.set("" + dst_osvm, "0")
@@ -438,11 +442,15 @@ static box MirVmS0BoxcallBuiltinBox {
       return "__NEXT__"
     }
 
-    if method == "commit_bytes_i64" {
+    if method == "commit_bytes_i64" || method == "commit_bytes_usize" {
       if me._args_has_third(seg) { return "[vm-hako/unimplemented op=boxcall args>2]" }
       local base_arg = me._args_first(seg)
       local len_arg = me._args_second(seg)
       if base_arg == null || len_arg == null { return "[vm-hako/contract][boxcall-commit_bytes_i64-arg-missing]" }
+      if method == "commit_bytes_usize" {
+        local commit_len_value = MirVmS0StateOpsBox.reg_i64_get(regs, len_arg)
+        if commit_len_value < 0 { return "[vm-hako/contract][boxcall-commit_bytes_usize-negative]" }
+      }
       local dst_osvm = me._find_int(seg, "dst")
       if dst_osvm == null { return "[vm-hako/contract][boxcall-missing-dst]" }
       regs.set("" + dst_osvm, "0")
@@ -450,11 +458,15 @@ static box MirVmS0BoxcallBuiltinBox {
       return "__NEXT__"
     }
 
-    if method == "decommit_bytes_i64" {
+    if method == "decommit_bytes_i64" || method == "decommit_bytes_usize" {
       if me._args_has_third(seg) { return "[vm-hako/unimplemented op=boxcall args>2]" }
       local base_arg = me._args_first(seg)
       local len_arg = me._args_second(seg)
       if base_arg == null || len_arg == null { return "[vm-hako/contract][boxcall-decommit_bytes_i64-arg-missing]" }
+      if method == "decommit_bytes_usize" {
+        local decommit_len_value = MirVmS0StateOpsBox.reg_i64_get(regs, len_arg)
+        if decommit_len_value < 0 { return "[vm-hako/contract][boxcall-decommit_bytes_usize-negative]" }
+      }
       local dst_osvm = me._find_int(seg, "dst")
       if dst_osvm == null { return "[vm-hako/contract][boxcall-missing-dst]" }
       regs.set("" + dst_osvm, "0")
@@ -473,19 +485,22 @@ static box MirVmS0BoxcallBuiltinBox {
       return "__NEXT__"
     }
 
-    if method == "alloc_bytes_i64" {
+    if method == "alloc_bytes_i64" || method == "alloc_bytes_usize" {
       if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
       local size_arg = me._args_first(seg)
       if size_arg == null { return "[vm-hako/contract][boxcall-alloc_bytes_i64-arg0-missing]" }
       local dst_alloc = me._find_int(seg, "dst")
       if dst_alloc == null { return "[vm-hako/contract][boxcall-missing-dst]" }
       local size_val = MirVmS0StateOpsBox.reg_i64_get(regs, size_arg)
+      if method == "alloc_bytes_usize" {
+        if size_val < 0 { return "[vm-hako/contract][boxcall-alloc_bytes_usize-negative]" }
+      }
       regs.set("" + dst_alloc, "" + me._rawbuf_issue_ptr(regs, size_val))
       kinds.set("" + dst_alloc, "scalar")
       return "__NEXT__"
     }
 
-    if method == "realloc_bytes_i64" {
+    if method == "realloc_bytes_i64" || method == "realloc_bytes_usize" {
       if me._args_has_third(seg) { return "[vm-hako/unimplemented op=boxcall args>2]" }
       local ptr_arg = me._args_first(seg)
       local size_arg2 = me._args_second(seg)
@@ -494,6 +509,9 @@ static box MirVmS0BoxcallBuiltinBox {
       if dst_realloc == null { return "[vm-hako/contract][boxcall-missing-dst]" }
       local ptr_val = MirVmS0StateOpsBox.reg_i64_get(regs, ptr_arg)
       local size_val2 = MirVmS0StateOpsBox.reg_i64_get(regs, size_arg2)
+      if method == "realloc_bytes_usize" {
+        if size_val2 < 0 { return "[vm-hako/contract][boxcall-realloc_bytes_usize-negative]" }
+      }
       local out_realloc = ptr_val
       if out_realloc <= 0 {
         out_realloc = me._rawbuf_issue_ptr(regs, size_val2)
