@@ -7,6 +7,11 @@ This app composes the M167 page queue + page-local page model with the existing
 are backed by OSVM page-source rows, then decommitted through the same policy
 surface.
 
+The executable proof intentionally calls the scalar-return `addFreshPage()`
+method. That is a proof seam for fresh page-source composition only. The
+semantic allocator API remains `allocate(size)`, which is still object-return
+and is not redefined by this M168 fixture.
+
 Scope:
 
 - OSVM reserve/commit for fresh modeled page creation.
@@ -20,6 +25,7 @@ Non-goals:
 - No local-free collection / retire policy.
 - No TLS, atomic, remote-free, page-map, provider, hook, or process allocator
   replacement.
+- No object-return allocator API parity row.
 - No production `usize` field migration.
 
 Run:

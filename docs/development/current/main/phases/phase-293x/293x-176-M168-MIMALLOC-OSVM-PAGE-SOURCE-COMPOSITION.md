@@ -33,6 +33,18 @@ The M167 heap remains OSVM-free. M168 is a separate adapter so the M167 guard
 continues proving the pure page/queue/free-list allocation path, while this row
 proves the page-source composition boundary.
 
+## Proof Boundary
+
+The focused proof uses `HakoAllocOsVmBackedFastPathHeap.addFreshPage()` as a
+scalar-return proof seam. That method exists to prove fresh modeled pages are
+reserved, committed, registered in the page queue, and later decommitted through
+the OSVM page-source policy.
+
+This does not replace the semantic allocator API. `allocate(size)` remains the
+object-return allocation surface and still returns an owned
+`HakoAllocOsVmBackedHandle` on success. Object-return EXE parity for allocator
+APIs is a future row; M168 only proves the fresh page-source composition row.
+
 ## Proof
 
 ```bash

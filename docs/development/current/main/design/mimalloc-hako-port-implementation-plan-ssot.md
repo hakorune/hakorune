@@ -194,7 +194,10 @@ work. Splitting is mandatory if a row starts adding algorithm bodies back into
 - `M168` landed as `HakoAllocOsVmBackedFastPathHeap` in
   `osvm_backed_fast_path_heap_box.hako`: fresh modeled pages are backed by
   `HakoAllocPageSourcePolicy` reserve/commit rows, decommit remains cleanup
-  evidence, and the original M167 heap remains OSVM-free.
+  evidence, and the original M167 heap remains OSVM-free. Its executable proof
+  uses scalar-return `addFreshPage()` only as a fresh-page composition proof
+  seam; semantic allocation remains the object-return `allocate(size)` API and
+  allocator API object-return parity is a future row.
 - `M169` owns same-thread local free collection only. Remote-free and abandoned
   reclaim remain out of scope until `M170+`.
 - `M170` composes existing pointer atomics only. It does not add pointer

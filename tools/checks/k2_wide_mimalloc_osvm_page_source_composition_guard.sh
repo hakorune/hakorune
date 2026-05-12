@@ -42,6 +42,9 @@ guard_expect_in_file "$TAG" 'me\.queue\.addPage\(page\)' "$HEAP" "M168 adapter m
 guard_expect_in_file "$TAG" 'new HakoAllocPageModel' "$HEAP" "M168 adapter must still create page-local models"
 guard_expect_in_file "$TAG" 'M168 OSVM page source composition' "$PLAN" "plan must retain M168 row"
 guard_expect_in_file "$TAG" '293x-176 M168 Mimalloc OSVM Page-Source Composition' "$CARD" "missing M168 card"
+guard_expect_in_file "$TAG" 'scalar-return proof seam' "$CARD" "M168 card must document addFreshPage as a proof-only scalar seam"
+guard_expect_in_file "$TAG" 'semantic allocator API' "$CARD" "M168 card must preserve allocate(size) as the semantic API"
+guard_expect_in_file "$TAG" 'object-return allocation surface' "$CARD" "M168 card must preserve object-return allocation semantics"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M168 guard"
 
 if rg -n 'init[[:space:]]*\\{' "$HEAP" >/tmp/"$TAG".legacy_init 2>&1; then
