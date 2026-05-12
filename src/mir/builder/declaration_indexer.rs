@@ -67,9 +67,15 @@ pub(super) fn index_declarations(builder: &mut MirBuilder, node: &ASTNode) {
             is_record,
             init_fields,
             weak_fields,
+            type_parameters,
             ..
         } => {
             if *is_record {
+                builder.comp_ctx.register_record_decl(
+                    name.clone(),
+                    type_parameters.clone(),
+                    field_decls,
+                );
                 return;
             }
             if !*is_static {

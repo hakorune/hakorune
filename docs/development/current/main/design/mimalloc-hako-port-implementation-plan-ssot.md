@@ -184,7 +184,9 @@ the active `.hako` algorithm row.
 | `C194 verifier-owned allocation invariants` | move release/page-map/size invariants from observer proofs toward verifier-owned contracts | broad allocator API hardening |
 | `C201 ordinary user-box field-index fast path` | keep ordinary `box` semantics while lowering typed fields as field-index/typed-slot fast paths | `C202-C205` aggregate/value lane |
 | `C202 record surface and semantics` | lock `record` as the explicit identity-free aggregate surface | `C203-C205` and any pretty allocator metadata surface |
-| `C203 record local scalar replacement` | keep non-escaping `record` values in local aggregate carriers before objectization | `C204-C205` |
+| `C203a record declaration metadata transport` | carry `record_decls` through JSON/MIR surfaces without mixing records into ordinary user-box declarations | `C203b-C205` |
+| `C203b record layout plans` | derive layout facts for `record` declarations before any local scalar rewrite consumes them | `C203c-C205` |
+| `C203c record local scalar replacement` | keep non-escaping `record` values in local aggregate carriers before objectization | `C204-C205` |
 | `C204 ArrayBox inline-record storage` | add packed record columns for `record` payloads while keeping `ArrayBox` as authority | `C205` |
 | `C205 allocator metadata record migration` | replace hand-written scalar metadata arrays with `record` surface on top of packed storage | revisiting `M178` metadata surface |
 
@@ -199,6 +201,12 @@ complete as `293x-208`. The parser now accepts `record` declarations as the
 explicit identity-free aggregate surface with typed non-weak fields only. Local
 scalar replacement, packed `ArrayBox` storage, and allocator metadata migration
 remain in `C203-C205`.
+
+C203a status:
+complete as `293x-209`. `record_decls` now has its own metadata-only transport
+lane through Program JSON v0, JSON bridge, MIR metadata, and MIR JSON. Records
+remain separate from ordinary `user_box_decls`, and no record layout/lowering
+consumer is installed yet.
 
 ### Docs / Guard Checkpoints
 

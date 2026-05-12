@@ -184,7 +184,7 @@ pub use exact_seed_backend_route::{
 };
 pub use function::{
     ClosureBodyId, FunctionSignature, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
-    UserBoxFieldDecl,
+    RecordDecl, UserBoxFieldDecl,
 };
 pub use generic_method_route_plan::{
     refresh_function_generic_method_routes, refresh_module_generic_method_routes,

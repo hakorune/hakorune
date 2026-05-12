@@ -51,6 +51,29 @@ pub(super) fn collect_sorted_user_box_decl_values(
         .collect()
 }
 
+pub(super) fn collect_sorted_record_decl_values(
+    module: &crate::mir::MirModule,
+) -> Vec<serde_json::Value> {
+    module
+        .metadata
+        .record_decls
+        .iter()
+        .map(|(_, decl)| {
+            json!({
+                "name": decl.name,
+                "type_parameters": decl.type_parameters,
+                "fields": decl.fields.iter().map(|field| field.name.clone()).collect::<Vec<_>>(),
+                "field_decls": decl.fields.iter().enumerate().map(|(index, field)| json!({
+                    "name": field.name,
+                    "declared_type": field.declared_type_name,
+                    "is_weak": field.is_weak,
+                    "field_index": index,
+                })).collect::<Vec<_>>(),
+            })
+        })
+        .collect()
+}
+
 fn field_index_fast_path(
     module: &crate::mir::MirModule,
     box_name: &str,

@@ -503,6 +503,7 @@ impl super::MirBuilder {
                 )
             })
             .collect();
+        module.metadata.record_decls = self.comp_ctx.record_decls.clone().into_iter().collect();
         crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module);
 
         Ok(module)

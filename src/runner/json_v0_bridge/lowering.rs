@@ -1,4 +1,4 @@
-use super::ast::{EnumDeclV0, ProgramV0, StaticDataPlanV0, StmtV0, UserBoxDeclV0};
+use super::ast::{EnumDeclV0, ProgramV0, RecordDeclV0, StaticDataPlanV0, StmtV0, UserBoxDeclV0};
 use crate::mir::{
     BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType, ValueId,
 };
@@ -59,6 +59,8 @@ pub(super) struct BridgeEnv {
     pub(super) enum_decls: BTreeMap<String, EnumDeclV0>,
     /// User-defined box declarations needed for source-route NewBox/FieldGet lowering.
     pub(super) user_box_decls: BTreeMap<String, UserBoxDeclV0>,
+    /// Record declarations stay metadata-only until record lowering consumes them.
+    pub(super) record_decls: BTreeMap<String, RecordDeclV0>,
 }
 
 impl BridgeEnv {
@@ -86,6 +88,7 @@ impl BridgeEnv {
             static_methods: BTreeMap::new(),
             enum_decls: BTreeMap::new(),
             user_box_decls: BTreeMap::new(),
+            record_decls: BTreeMap::new(),
         }
     }
 }
@@ -181,6 +184,11 @@ pub(super) fn lower_program(
         .iter()
         .map(|decl| (decl.name.clone(), decl.clone()))
         .collect();
+    env.record_decls = prog
+        .record_decls
+        .iter()
+        .map(|decl| (decl.name.clone(), decl.clone()))
+        .collect();
     env.enum_decls = prog
         .enum_decls
         .iter()
@@ -217,6 +225,28 @@ pub(super) fn lower_program(
                         is_weak: field.is_weak,
                     })
                     .collect(),
+            )
+        })
+        .collect();
+    module.metadata.record_decls = env
+        .record_decls
+        .iter()
+        .map(|(name, decl)| {
+            (
+                name.clone(),
+                crate::mir::RecordDecl {
+                    name: name.clone(),
+                    type_parameters: decl.type_parameters.clone(),
+                    fields: decl
+                        .field_decls
+                        .iter()
+                        .map(|field| crate::mir::UserBoxFieldDecl {
+                            name: field.name.clone(),
+                            declared_type_name: field.declared_type.clone(),
+                            is_weak: field.is_weak,
+                        })
+                        .collect(),
+                },
             )
         })
         .collect();

@@ -429,6 +429,18 @@ pub struct UserBoxFieldDecl {
     pub is_weak: bool,
 }
 
+/// Declared record inventory carried separately from ordinary user boxes.
+///
+/// Records are identity-free aggregate contracts. Keeping them out of
+/// `user_box_decls` prevents ordinary box identity semantics from becoming the
+/// accidental transport for record lowering.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RecordDecl {
+    pub name: String,
+    pub type_parameters: Vec<String>,
+    pub fields: Vec<UserBoxFieldDecl>,
+}
+
 /// First exact numeric runtime-check contract vocabulary.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ExactNumericRuntimeCheckContractKind {
@@ -567,6 +579,10 @@ pub struct ModuleMetadata {
     /// Typed field declarations for user-defined boxes.
     /// This stays parallel to `user_box_decls` so names-only compatibility remains intact.
     pub user_box_field_decls: HashMap<String, Vec<UserBoxFieldDecl>>,
+
+    /// Record declarations stay in their own lane until record lowering rows
+    /// explicitly consume them.
+    pub record_decls: BTreeMap<String, RecordDecl>,
 
     /// Backend-readable typed object layouts derived from user box field metadata.
     pub typed_object_plans: Vec<TypedObjectPlan>,

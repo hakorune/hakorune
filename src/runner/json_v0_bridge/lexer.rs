@@ -189,6 +189,7 @@ pub(super) fn parse_source_v0_to_json(input: &str) -> Result<String, String> {
         defs: vec![],
         imports: std::collections::BTreeMap::new(),
         user_box_decls: vec![],
+        record_decls: vec![],
         enum_decls: vec![],
         static_data_plans: vec![],
     };

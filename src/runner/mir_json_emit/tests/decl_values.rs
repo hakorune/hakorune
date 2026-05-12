@@ -1,6 +1,7 @@
 use super::super::{
-    collect_sorted_enum_decl_values, collect_sorted_user_box_decl_values,
-    collect_static_data_plan_values, collect_typed_object_plan_values,
+    collect_sorted_enum_decl_values, collect_sorted_record_decl_values,
+    collect_sorted_user_box_decl_values, collect_static_data_plan_values,
+    collect_typed_object_plan_values,
 };
 use crate::mir::function::{
     StaticDataPlan, TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan,
@@ -140,6 +141,44 @@ fn collect_sorted_user_box_decl_values_includes_typed_field_decls() {
             .and_then(serde_json::Value::as_bool),
         Some(false)
     );
+}
+
+#[test]
+fn collect_sorted_record_decl_values_preserves_record_lane() {
+    let mut module = MirModule::new("test".to_string());
+    module.metadata.record_decls.insert(
+        "Meta".to_string(),
+        crate::mir::RecordDecl {
+            name: "Meta".to_string(),
+            type_parameters: vec!["T".to_string()],
+            fields: vec![
+                crate::mir::UserBoxFieldDecl {
+                    name: "ptr".to_string(),
+                    declared_type_name: Some("i64".to_string()),
+                    is_weak: false,
+                },
+                crate::mir::UserBoxFieldDecl {
+                    name: "payload".to_string(),
+                    declared_type_name: Some("T".to_string()),
+                    is_weak: false,
+                },
+            ],
+        },
+    );
+    module
+        .metadata
+        .user_box_decls
+        .insert("Ordinary".to_string(), vec!["x".to_string()]);
+
+    let record_decls = collect_sorted_record_decl_values(&module);
+    assert_eq!(record_decls.len(), 1);
+    assert_eq!(record_decls[0]["name"], "Meta");
+    assert_eq!(record_decls[0]["type_parameters"], json!(["T"]));
+    assert_eq!(record_decls[0]["fields"], json!(["ptr", "payload"]));
+    assert_eq!(record_decls[0]["field_decls"][0]["name"], "ptr");
+    assert_eq!(record_decls[0]["field_decls"][0]["declared_type"], "i64");
+    assert_eq!(record_decls[0]["field_decls"][0]["field_index"], 0);
+    assert_eq!(record_decls[0]["field_decls"][1]["field_index"], 1);
 }
 
 #[test]

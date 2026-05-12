@@ -16,6 +16,8 @@ pub(super) struct ProgramV0 {
     #[serde(default)]
     pub(super) user_box_decls: Vec<UserBoxDeclV0>,
     #[serde(default)]
+    pub(super) record_decls: Vec<RecordDeclV0>,
+    #[serde(default)]
     pub(super) enum_decls: Vec<EnumDeclV0>,
     #[serde(default)]
     pub(super) static_data_plans: Vec<StaticDataPlanV0>,
@@ -141,6 +143,17 @@ pub(super) struct UserBoxFieldDeclV0 {
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub(super) struct UserBoxDeclV0 {
     pub(super) name: String,
+    #[serde(default)]
+    pub(super) fields: Vec<String>,
+    #[serde(default)]
+    pub(super) field_decls: Vec<UserBoxFieldDeclV0>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub(super) struct RecordDeclV0 {
+    pub(super) name: String,
+    #[serde(default)]
+    pub(super) type_parameters: Vec<String>,
     #[serde(default)]
     pub(super) fields: Vec<String>,
     #[serde(default)]

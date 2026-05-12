@@ -150,6 +150,42 @@ fn parse_json_v0_to_module_preserves_static_data_plans() {
 }
 
 #[test]
+fn parse_json_v0_to_module_preserves_record_decls_metadata_only() {
+    let json = json!({
+        "version": 0,
+        "kind": "Program",
+        "record_decls": [
+            {
+                "name": "Meta",
+                "type_parameters": ["T"],
+                "fields": ["ptr", "payload"],
+                "field_decls": [
+                    { "name": "ptr", "declared_type": "i64", "is_weak": false },
+                    { "name": "payload", "declared_type": "T", "is_weak": false }
+                ]
+            }
+        ],
+        "body": [
+            { "type": "Return", "expr": { "type": "Int", "value": 0 } }
+        ]
+    })
+    .to_string();
+
+    let module = parse_json_v0_to_module(&json).expect("record metadata module");
+    assert!(!module.metadata.user_box_decls.contains_key("Meta"));
+    assert!(module.metadata.typed_object_plans.is_empty());
+    let decl = module
+        .metadata
+        .record_decls
+        .get("Meta")
+        .expect("record decl");
+    assert_eq!(decl.type_parameters, vec!["T".to_string()]);
+    assert_eq!(decl.fields.len(), 2);
+    assert_eq!(decl.fields[0].name, "ptr");
+    assert_eq!(decl.fields[0].declared_type_name.as_deref(), Some("i64"));
+}
+
+#[test]
 fn parse_json_v0_to_module_rejects_option_some_null_payload() {
     let json = json!({
         "version": 0,

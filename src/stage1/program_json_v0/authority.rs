@@ -83,6 +83,16 @@ fn ast_to_program_json_v0_with_imports(
             serde_json::Value::Array(user_box_decls),
         );
     }
+    let record_decls = collect_record_decls(ast);
+    if !record_decls.is_empty() {
+        let object = program
+            .as_object_mut()
+            .ok_or_else(|| "program json root must be object".to_string())?;
+        object.insert(
+            "record_decls".to_string(),
+            serde_json::Value::Array(record_decls),
+        );
+    }
     let enum_decls = collect_enum_decls(ast);
     if !enum_decls.is_empty() {
         let object = program
@@ -152,6 +162,43 @@ fn collect_user_box_decls(ast: &ASTNode) -> Vec<serde_json::Value> {
         .collect::<Vec<_>>();
     decls.extend(collect_enum_record_payload_box_decls(statements));
     decls
+}
+
+fn collect_record_decls(ast: &ASTNode) -> Vec<serde_json::Value> {
+    let ASTNode::Program { statements, .. } = ast else {
+        return Vec::new();
+    };
+
+    statements
+        .iter()
+        .filter_map(|statement| {
+            let ASTNode::BoxDeclaration {
+                name,
+                fields,
+                field_decls,
+                is_record,
+                type_parameters,
+                ..
+            } = statement
+            else {
+                return None;
+            };
+            if !*is_record {
+                return None;
+            }
+            Some(serde_json::json!({
+                "name": name,
+                "fields": fields,
+                "type_parameters": type_parameters,
+                "field_decls": field_decls.iter().enumerate().map(|(index, decl)| serde_json::json!({
+                    "name": decl.name,
+                    "declared_type": decl.declared_type_name,
+                    "is_weak": decl.is_weak,
+                    "field_index": index,
+                })).collect::<Vec<_>>(),
+            }))
+        })
+        .collect()
 }
 
 fn collect_enum_decl_index(ast: &ASTNode) -> BTreeMap<String, Vec<EnumVariantDecl>> {

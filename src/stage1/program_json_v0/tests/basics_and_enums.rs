@@ -159,6 +159,44 @@ return 0
 }
 
 #[test]
+fn source_to_program_json_v0_emits_record_decls_separate_from_user_boxes() {
+    let source = r#"
+record Meta<T> {
+  ptr: i64
+  payload: T
+}
+
+box Ordinary {
+  x: i64
+}
+
+static box Main {
+  main() {
+return 0
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let record_decls = value["record_decls"].as_array().expect("record decls");
+    assert_eq!(record_decls.len(), 1);
+    assert_eq!(record_decls[0]["name"], "Meta");
+    assert_eq!(record_decls[0]["type_parameters"], serde_json::json!(["T"]));
+    assert_eq!(record_decls[0]["field_decls"][0]["name"], "ptr");
+    assert_eq!(record_decls[0]["field_decls"][0]["declared_type"], "i64");
+    assert_eq!(record_decls[0]["field_decls"][0]["field_index"], 0);
+
+    let user_box_decls = value["user_box_decls"].as_array().expect("user box decls");
+    assert!(user_box_decls
+        .iter()
+        .all(|decl| decl.get("name").and_then(serde_json::Value::as_str) != Some("Meta")));
+    assert!(user_box_decls
+        .iter()
+        .any(|decl| decl.get("name").and_then(serde_json::Value::as_str) == Some("Ordinary")));
+}
+
+#[test]
 fn source_to_program_json_v0_rewrites_if_some_sugar_to_local_plus_if() {
     let source = r#"
 enum Option<T> {

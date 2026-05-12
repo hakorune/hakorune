@@ -152,7 +152,9 @@ This lane therefore starts at `C201`.
 | --- | --- | --- | --- |
 | `C201 ordinary user-box field-index fast path` | keep ordinary `box` semantics but lower typed fields as `layout_id + field_index` and typed slots where legal | `record` surface work | no identity erasure, no packed container rewrite, no new syntax |
 | `C202 record surface and semantics` | add docs/parser/semantic lock for `record` as the explicit source-level aggregate lane | local scalar replacement and packed storage | no blanket rewrite of ordinary `box`, no reflection/weak/fini support |
-| `C203 record local scalar replacement` | keep non-escaping local `record` values as scalar tuple / aggregate carriers | packed `ArrayBox` storage | no host-boundary publication rewrite, no alias-sensitive mutation |
+| `C203a record declaration metadata transport` | carry `record_decls` through Program JSON v0, JSON bridge, MIR metadata, and MIR JSON without making records ordinary boxes | record layout plans | no lowering consumer, no objectization, no packed storage |
+| `C203b record layout plans` | derive backend-readable record layout facts from transported record declarations | local scalar replacement | no user-box typed-object-plan reuse, no storage rewrite |
+| `C203c record local scalar replacement` | keep non-escaping local `record` values as scalar tuple / aggregate carriers | packed `ArrayBox` storage | no host-boundary publication rewrite, no alias-sensitive mutation |
 | `C204 ArrayBox inline-record storage` | add `ArrayBox` residence for packed `record` payloads (record columns) | allocator metadata migration | no change to ordinary boxed/mixed/string authority; `ArrayBox` stays the runtime owner |
 | `C205 allocator metadata record migration` | replace hand-written scalar metadata arrays with `record` surface over packed storage | broader allocator/table cleanup | no allocator-specific DSL, no huge/native/provider coupling |
 
@@ -164,7 +166,11 @@ Status:
 - `C202` is complete as `293x-208`: `record Name { field: Type }` is accepted
   as the explicit identity-free aggregate declaration surface, with typed
   fields only and no object-behavior features.
-- `C203-C205` remain future work.
+- `C203a` is complete as `293x-209`: record declarations are transported on a
+  dedicated `record_decls` lane through Program JSON v0, JSON bridge, MIR
+  metadata, and MIR JSON. The lane is metadata-only and still has no lowering
+  consumer.
+- `C203b-C205` remain future work.
 
 ## Target Runtime Shape
 

@@ -25,7 +25,7 @@
 use crate::ast::ASTNode;
 use crate::ast::FieldDecl;
 use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
-use crate::mir::{MirType, ValueId};
+use crate::mir::{MirType, RecordDecl, UserBoxFieldDecl, ValueId};
 use std::collections::{HashMap, HashSet};
 
 use super::properties::PropertyRegistry;
@@ -53,6 +53,10 @@ pub(crate) struct CompilationContext {
 
     /// Typed field declarations keyed by user box name.
     pub user_box_field_decls: HashMap<String, Vec<FieldDecl>>,
+
+    /// Record declarations keyed by record name. Records are not ordinary
+    /// user boxes and must not enter `user_defined_boxes`.
+    pub record_decls: HashMap<String, RecordDecl>,
 
     /// Phase 201-A: Reserved ValueIds that must not be allocated
     /// These are PHI dst ValueIds created by LoopHeaderPhiBuilder.
@@ -121,6 +125,7 @@ impl CompilationContext {
             current_static_box: None,
             user_defined_boxes: HashMap::new(), // Phase 285LLVM-1.1: HashMap for fields
             user_box_field_decls: HashMap::new(),
+            record_decls: HashMap::new(),
             reserved_value_ids: HashSet::new(),
             fn_body_ast: None,
             weak_fields_by_box: HashMap::new(),
@@ -204,6 +209,30 @@ impl CompilationContext {
         let fields = field_decls.iter().map(|decl| decl.name.clone()).collect();
         self.user_defined_boxes.insert(name.clone(), fields);
         self.user_box_field_decls.insert(name, field_decls);
+    }
+
+    pub fn register_record_decl(
+        &mut self,
+        name: String,
+        type_parameters: Vec<String>,
+        field_decls: &[FieldDecl],
+    ) {
+        let fields = field_decls
+            .iter()
+            .map(|decl| UserBoxFieldDecl {
+                name: decl.name.clone(),
+                declared_type_name: decl.declared_type_name.clone(),
+                is_weak: decl.is_weak,
+            })
+            .collect();
+        self.record_decls.insert(
+            name.clone(),
+            RecordDecl {
+                name,
+                type_parameters,
+                fields,
+            },
+        );
     }
 
     pub fn declared_field_type_name(&self, box_name: &str, field_name: &str) -> Option<&str> {

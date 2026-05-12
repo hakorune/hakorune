@@ -18,8 +18,9 @@ mod tests;
 
 #[cfg(test)]
 use decls::{
-    collect_sorted_enum_decl_values, collect_sorted_user_box_decl_values,
-    collect_static_data_plan_values, collect_typed_object_plan_values,
+    collect_sorted_enum_decl_values, collect_sorted_record_decl_values,
+    collect_sorted_user_box_decl_values, collect_static_data_plan_values,
+    collect_typed_object_plan_values,
 };
 pub use io::{
     emit_mir_json_for_harness, emit_mir_json_for_harness_bin, emit_mir_json_string_for_harness_bin,

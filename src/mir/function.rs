@@ -17,6 +17,6 @@ mod tests;
 pub use types::{
     ClosureBodyId, ExactNumericRuntimeCheckContract, ExactNumericRuntimeCheckContractKind,
     FunctionMetadata, FunctionSignature, FunctionStats, MirEnumDecl, MirEnumVariantDecl,
-    MirFunction, MirModule, MirParamDecl, ModuleMetadata, ModuleStats, StaticDataPlan,
+    MirFunction, MirModule, MirParamDecl, ModuleMetadata, ModuleStats, RecordDecl, StaticDataPlan,
     TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan, UserBoxFieldDecl,
 };
