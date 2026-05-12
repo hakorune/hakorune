@@ -17,7 +17,7 @@ pub fn compile_and_execute_v2(
     module: &crate::mir::MirModule,
     _temp_name: &str,
 ) -> Result<Box<dyn crate::box_trait::NyashBox>, String> {
-    crate::mir::exact_numeric_field_contracts::enforce_exact_numeric_runtime_checks_supported(
+    crate::mir::exact_numeric_backend_capability::enforce_exact_numeric_backend_supported(
         module, "wasm-v2",
     )?;
 

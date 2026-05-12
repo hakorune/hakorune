@@ -27,7 +27,7 @@ impl PyVmExecutorBox {
             return Err(LlvmRunError::new(0, "PyVM not requested"));
         }
 
-        crate::mir::exact_numeric_field_contracts::enforce_exact_numeric_runtime_checks_supported(
+        crate::mir::exact_numeric_backend_capability::enforce_exact_numeric_backend_supported(
             module,
             "pyvm-harness",
         )

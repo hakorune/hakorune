@@ -283,7 +283,7 @@ pub fn ny_llvmc_emit_exe_lib(
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
 ) -> Result<(), String> {
-    crate::mir::exact_numeric_field_contracts::enforce_exact_numeric_runtime_checks_supported(
+    crate::mir::exact_numeric_backend_capability::enforce_exact_numeric_backend_supported(
         module,
         "ny-llvmc-exe",
     )?;
@@ -303,7 +303,7 @@ pub fn llvmlite_emit_obj_lib(
     module: &nyash_rust::mir::MirModule,
     obj_out: &str,
 ) -> Result<(), String> {
-    crate::mir::exact_numeric_field_contracts::enforce_exact_numeric_runtime_checks_supported(
+    crate::mir::exact_numeric_backend_capability::enforce_exact_numeric_backend_supported(
         module,
         "llvmlite-obj",
     )?;
@@ -339,7 +339,7 @@ pub fn ny_llvmc_emit_obj_lib(
     module: &nyash_rust::mir::MirModule,
     obj_out: &str,
 ) -> Result<(), String> {
-    crate::mir::exact_numeric_field_contracts::enforce_exact_numeric_runtime_checks_supported(
+    crate::mir::exact_numeric_backend_capability::enforce_exact_numeric_backend_supported(
         module,
         "ny-llvmc-obj",
     )?;
@@ -359,7 +359,7 @@ pub fn ny_llvmc_emit_exe_bin(
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
 ) -> Result<(), String> {
-    crate::mir::exact_numeric_field_contracts::enforce_exact_numeric_runtime_checks_supported(
+    crate::mir::exact_numeric_backend_capability::enforce_exact_numeric_backend_supported(
         module,
         "ny-llvmc-exe",
     )?;

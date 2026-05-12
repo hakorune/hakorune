@@ -197,7 +197,7 @@ fn emit_requested_object_or_exit(_module: &nyash_rust::mir::MirModule, _out_path
 fn emit_requested_legacy_object_or_exit(module: &nyash_rust::mir::MirModule, out_path: &str) {
     use nyash_rust::backend::llvm_compile_to_object;
     if let Err(e) =
-        crate::mir::exact_numeric_field_contracts::enforce_exact_numeric_runtime_checks_supported(
+        crate::mir::exact_numeric_backend_capability::enforce_exact_numeric_backend_supported(
             module,
             "llvm-legacy-obj",
         )

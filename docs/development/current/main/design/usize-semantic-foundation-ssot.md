@@ -91,6 +91,9 @@ Live today:
 - typed-object layout plans preserve exact numeric storage names such as
   `usize` distinctly from legacy `i64`, while current execution still uses the
   dynamic integer lane;
+- non-VM backend routes use a MIR-owned exact numeric backend capability gate
+  and fail fast before exact numeric typed-object storage or exact numeric op
+  route facts silently lower through legacy `Integer(i64)`;
 - `FunctionMetadata` preserves MIR-side declared parameter/return annotation
   text, and exact numeric return annotations publish function-level advisory
   return facts without changing runtime lowering;
@@ -111,8 +114,8 @@ Not live today:
   numeric field-write contracts, non-VM backend lowering/execution of those
   contracts, and exact runtime unsigned range-check construction;
 - `.hako` parser-front parity for numeric literal suffixes;
-- backend exact numeric arithmetic/compare/shift lowering and explicit
-  wrapping vocabulary;
+- backend exact numeric arithmetic/compare/shift lowering, native exact numeric
+  typed-object slots, and explicit wrapping vocabulary;
 - MIR JSON exact-width numeric const tags;
 - native typed-object exact numeric slots distinct from the current integer
   lane;

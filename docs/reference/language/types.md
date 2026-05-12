@@ -71,10 +71,11 @@ Current live semantics are intentionally narrow:
   verification. The VM interpreter executes existing contracts at `FieldSet`
   sites and rejects non-integer, negative-unsigned, and out-of-range dynamic
   values before mutation. Param/local verifier checks, contract
-  insertion/lowering beyond exact numeric field-write contracts, non-VM backend
+  insertion/lowering beyond exact numeric field-write contracts, backend
   lowering/execution of those contracts, and exact VM runtime values remain
   deferred. Unsupported non-VM backend routes fail fast instead of silently
-  dropping exact numeric runtime-check contracts.
+  dropping exact numeric runtime-check contracts, exact numeric typed-object
+  storage, or exact numeric operation route facts.
 - MIR numeric substrate policy now defines checked exact numeric add/sub/mul:
   operands must have the same exact numeric type and results must fit the
   target-resolved range. VM/backend exact arithmetic lowering is still future.
@@ -89,12 +90,12 @@ Current live semantics are intentionally narrow:
 Deferred and not accepted by this row:
 
 - param/local verifier checks, runtime-check insertion/lowering beyond exact
-  numeric field-write contracts, non-VM backend runtime-check lowering,
-  exact runtime unsigned range construction, and live unsigned arithmetic
-  execution
+  numeric field-write contracts, backend exact numeric lowering/execution,
+  exact runtime unsigned range construction, and product-backend unsigned
+  arithmetic execution
 - route-fact wiring for exact numeric params/locals/control merges
 - `u64` values outside signed i64
-- live VM/backend exact numeric arithmetic/compare/shift routes and wrapping /
+- product-backend exact numeric arithmetic/compare/shift routes and wrapping /
   checked helper-call syntax
 - MIR JSON exact-width numeric const tags
 - backend/native typed-object slots for exact numeric widths

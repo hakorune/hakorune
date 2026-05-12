@@ -112,6 +112,9 @@
 - `294x-12`: typed-object layout plans now preserve exact numeric storage names
   such as `usize` instead of collapsing them to `i64`, while current execution
   remains on the dynamic integer lane.
+- `294x-13`: non-VM backend routes now use one MIR-owned capability gate and
+  fail fast before exact numeric typed-object storage or exact numeric op route
+  facts silently fall back to legacy `Integer(i64)` lowering.
 
 ## First Implementation Direction
 

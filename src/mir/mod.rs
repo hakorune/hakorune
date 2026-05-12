@@ -36,6 +36,7 @@ pub mod diagnostics; // freeze diagnostics helpers (SSOT)
 pub mod effect;
 pub mod effect_capability_plan; // MIR-owned EffectPlan/CapabilityPlan metadata boundary
 pub mod escape_barrier; // escape operand-role vocabulary (SSOT)
+pub(crate) mod exact_numeric_backend_capability; // backend fail-fast for exact numeric facts/storage
 pub(crate) mod exact_numeric_field_contracts; // exact numeric field-write facts/contracts owner
 pub(crate) mod exact_numeric_unification; // exact numeric PHI/Select merge policy owner
 pub mod exact_numeric_value_facts; // exact numeric per-value facts derived from MIR metadata
