@@ -7,6 +7,236 @@ mod classify;
 mod node_type;
 
 impl ASTNode {
+    /// Visit direct AST children in source order.
+    ///
+    /// This is the local traversal SSOT for generic recursive predicates. Callers
+    /// that need scope boundaries or loop-depth changes should handle those
+    /// variants before delegating here.
+    pub fn for_each_child<'a>(&'a self, visitor: &mut impl FnMut(&'a ASTNode)) {
+        match self {
+            ASTNode::Program { statements, .. }
+            | ASTNode::ScopeBox {
+                body: statements, ..
+            } => {
+                for statement in statements {
+                    visitor(statement);
+                }
+            }
+            ASTNode::Assignment { target, value, .. } => {
+                visitor(target);
+                visitor(value);
+            }
+            ASTNode::Print { expression, .. }
+            | ASTNode::Nowait { expression, .. }
+            | ASTNode::AwaitExpression { expression, .. }
+            | ASTNode::QMarkPropagate { expression, .. }
+            | ASTNode::Throw { expression, .. } => visitor(expression),
+            ASTNode::If {
+                condition,
+                then_body,
+                else_body,
+                ..
+            } => {
+                visitor(condition);
+                for statement in then_body {
+                    visitor(statement);
+                }
+                if let Some(else_body) = else_body {
+                    for statement in else_body {
+                        visitor(statement);
+                    }
+                }
+            }
+            ASTNode::Loop {
+                condition, body, ..
+            }
+            | ASTNode::While {
+                condition, body, ..
+            } => {
+                visitor(condition);
+                for statement in body {
+                    visitor(statement);
+                }
+            }
+            ASTNode::ForRange {
+                start, end, body, ..
+            } => {
+                visitor(start);
+                visitor(end);
+                for statement in body {
+                    visitor(statement);
+                }
+            }
+            ASTNode::Return { value, .. } => {
+                if let Some(value) = value {
+                    visitor(value);
+                }
+            }
+            ASTNode::BoxDeclaration {
+                methods,
+                constructors,
+                static_init,
+                ..
+            } => {
+                if let Some(static_init) = static_init {
+                    for statement in static_init {
+                        visitor(statement);
+                    }
+                }
+                for method in methods.values() {
+                    visitor(method);
+                }
+                for constructor in constructors.values() {
+                    visitor(constructor);
+                }
+            }
+            ASTNode::FunctionDeclaration { body, .. } | ASTNode::Lambda { body, .. } => {
+                for statement in body {
+                    visitor(statement);
+                }
+            }
+            ASTNode::GlobalVar { value, .. } => visitor(value),
+            ASTNode::UnaryOp { operand, .. } => visitor(operand),
+            ASTNode::BinaryOp { left, right, .. } => {
+                visitor(left);
+                visitor(right);
+            }
+            ASTNode::CheckExpr { items, .. } => {
+                for item in items {
+                    visitor(&item.expression);
+                }
+            }
+            ASTNode::GroupedAssignmentExpr { rhs, .. } => visitor(rhs),
+            ASTNode::MethodCall {
+                object, arguments, ..
+            } => {
+                visitor(object);
+                for argument in arguments {
+                    visitor(argument);
+                }
+            }
+            ASTNode::FieldAccess { object, .. } => visitor(object),
+            ASTNode::Index { target, index, .. } => {
+                visitor(target);
+                visitor(index);
+            }
+            ASTNode::New { arguments, .. }
+            | ASTNode::FromCall { arguments, .. }
+            | ASTNode::FunctionCall { arguments, .. } => {
+                for argument in arguments {
+                    visitor(argument);
+                }
+            }
+            ASTNode::Call {
+                callee, arguments, ..
+            } => {
+                visitor(callee);
+                for argument in arguments {
+                    visitor(argument);
+                }
+            }
+            ASTNode::MatchExpr {
+                scrutinee,
+                arms,
+                else_expr,
+                ..
+            } => {
+                visitor(scrutinee);
+                for (_, arm_expr) in arms {
+                    visitor(arm_expr);
+                }
+                visitor(else_expr);
+            }
+            ASTNode::EnumMatchExpr {
+                scrutinee,
+                arms,
+                else_expr,
+                ..
+            } => {
+                visitor(scrutinee);
+                for arm in arms {
+                    visitor(&arm.body);
+                }
+                if let Some(else_expr) = else_expr {
+                    visitor(else_expr);
+                }
+            }
+            ASTNode::ArrayLiteral { elements, .. } => {
+                for element in elements {
+                    visitor(element);
+                }
+            }
+            ASTNode::MapLiteral { entries, .. } => {
+                for (_, value) in entries {
+                    visitor(value);
+                }
+            }
+            ASTNode::BlockExpr {
+                prelude_stmts,
+                tail_expr,
+                ..
+            } => {
+                for statement in prelude_stmts {
+                    visitor(statement);
+                }
+                visitor(tail_expr);
+            }
+            ASTNode::Arrow {
+                sender, receiver, ..
+            } => {
+                visitor(sender);
+                visitor(receiver);
+            }
+            ASTNode::TryCatch {
+                try_body,
+                catch_clauses,
+                finally_body,
+                ..
+            } => {
+                for statement in try_body {
+                    visitor(statement);
+                }
+                for clause in catch_clauses {
+                    for statement in &clause.body {
+                        visitor(statement);
+                    }
+                }
+                if let Some(finally_body) = finally_body {
+                    for statement in finally_body {
+                        visitor(statement);
+                    }
+                }
+            }
+            ASTNode::Local { initial_values, .. } | ASTNode::Outbox { initial_values, .. } => {
+                for value in initial_values.iter().filter_map(|value| value.as_deref()) {
+                    visitor(value);
+                }
+            }
+            ASTNode::Literal { .. }
+            | ASTNode::Variable { .. }
+            | ASTNode::Break { .. }
+            | ASTNode::Continue { .. }
+            | ASTNode::UsingStatement { .. }
+            | ASTNode::ImportStatement { .. }
+            | ASTNode::EnumDeclaration { .. }
+            | ASTNode::StaticConstTable { .. }
+            | ASTNode::This { .. }
+            | ASTNode::Me { .. }
+            | ASTNode::ThisField { .. }
+            | ASTNode::MeField { .. } => {}
+        }
+    }
+
+    pub fn any_child(&self, mut predicate: impl FnMut(&ASTNode) -> bool) -> bool {
+        let mut found = false;
+        self.for_each_child(&mut |child| {
+            if !found && predicate(child) {
+                found = true;
+            }
+        });
+        found
+    }
+
     /// AST nodeの詳細情報を取得 (デバッグ用)
     pub fn info(&self) -> String {
         match self {
@@ -355,107 +585,7 @@ impl ASTNode {
                 | ASTNode::BoxDeclaration { .. }
                 | ASTNode::StaticConstTable { .. } => false,
 
-                ASTNode::Program { statements, .. } => statements.iter().any(contains),
-                ASTNode::ScopeBox { body, .. } => body.iter().any(contains),
-
-                ASTNode::Assignment { target, value, .. } => contains(target) || contains(value),
-                ASTNode::Print { expression, .. } => contains(expression),
-                ASTNode::If {
-                    condition,
-                    then_body,
-                    else_body,
-                    ..
-                } => {
-                    contains(condition)
-                        || then_body.iter().any(contains)
-                        || else_body.as_ref().is_some_and(|b| b.iter().any(contains))
-                }
-                ASTNode::Loop {
-                    condition, body, ..
-                }
-                | ASTNode::While {
-                    condition, body, ..
-                } => contains(condition) || body.iter().any(contains),
-                ASTNode::ForRange {
-                    start, end, body, ..
-                } => contains(start) || contains(end) || body.iter().any(contains),
-                ASTNode::Nowait { expression, .. } => contains(expression),
-                ASTNode::AwaitExpression { expression, .. } => contains(expression),
-                ASTNode::QMarkPropagate { expression, .. } => contains(expression),
-                ASTNode::Throw { expression, .. } => contains(expression),
-                ASTNode::GlobalVar { value, .. } => contains(value),
-                ASTNode::UsingStatement { .. } | ASTNode::ImportStatement { .. } => false,
-
-                ASTNode::MatchExpr {
-                    scrutinee,
-                    arms,
-                    else_expr,
-                    ..
-                } => {
-                    contains(scrutinee)
-                        || arms.iter().any(|(_, arm_expr)| contains(arm_expr))
-                        || contains(else_expr)
-                }
-                ASTNode::EnumMatchExpr {
-                    scrutinee,
-                    arms,
-                    else_expr,
-                    ..
-                } => {
-                    contains(scrutinee)
-                        || arms.iter().any(|arm| contains(&arm.body))
-                        || else_expr.as_ref().is_some_and(|expr| contains(expr))
-                }
-                ASTNode::ArrayLiteral { elements, .. } => elements.iter().any(contains),
-                ASTNode::MapLiteral { entries, .. } => {
-                    entries.iter().any(|(_, expr)| contains(expr))
-                }
-                ASTNode::BlockExpr {
-                    prelude_stmts,
-                    tail_expr,
-                    ..
-                } => prelude_stmts.iter().any(contains) || contains(tail_expr),
-                ASTNode::Arrow {
-                    sender, receiver, ..
-                } => contains(sender) || contains(receiver),
-                ASTNode::TryCatch {
-                    try_body,
-                    catch_clauses,
-                    finally_body,
-                    ..
-                } => {
-                    try_body.iter().any(contains)
-                        || catch_clauses.iter().any(|c| c.body.iter().any(contains))
-                        || finally_body
-                            .as_ref()
-                            .is_some_and(|b| b.iter().any(contains))
-                }
-
-                ASTNode::UnaryOp { operand, .. } => contains(operand),
-                ASTNode::BinaryOp { left, right, .. } => contains(left) || contains(right),
-                ASTNode::CheckExpr { items, .. } => {
-                    items.iter().any(|item| contains(&item.expression))
-                }
-                ASTNode::GroupedAssignmentExpr { rhs, .. } => contains(rhs),
-                ASTNode::MethodCall {
-                    object, arguments, ..
-                } => contains(object) || arguments.iter().any(contains),
-                ASTNode::FieldAccess { object, .. } => contains(object),
-                ASTNode::Index { target, index, .. } => contains(target) || contains(index),
-                ASTNode::New { arguments, .. }
-                | ASTNode::FromCall { arguments, .. }
-                | ASTNode::FunctionCall { arguments, .. } => arguments.iter().any(contains),
-                ASTNode::Call {
-                    callee, arguments, ..
-                } => contains(callee) || arguments.iter().any(contains),
-                ASTNode::Local { initial_values, .. } | ASTNode::Outbox { initial_values, .. } => {
-                    initial_values
-                        .iter()
-                        .filter_map(|v| v.as_deref())
-                        .any(contains)
-                }
-
-                _ => false,
+                _ => node.any_child(contains),
             }
         }
 
@@ -476,107 +606,7 @@ impl ASTNode {
                 | ASTNode::BoxDeclaration { .. }
                 | ASTNode::StaticConstTable { .. } => false,
 
-                ASTNode::Program { statements, .. } => statements.iter().any(contains),
-                ASTNode::ScopeBox { body, .. } => body.iter().any(contains),
-
-                ASTNode::Assignment { target, value, .. } => contains(target) || contains(value),
-                ASTNode::Print { expression, .. } => contains(expression),
-                ASTNode::If {
-                    condition,
-                    then_body,
-                    else_body,
-                    ..
-                } => {
-                    contains(condition)
-                        || then_body.iter().any(contains)
-                        || else_body.as_ref().is_some_and(|b| b.iter().any(contains))
-                }
-                ASTNode::Loop {
-                    condition, body, ..
-                }
-                | ASTNode::While {
-                    condition, body, ..
-                } => contains(condition) || body.iter().any(contains),
-                ASTNode::ForRange {
-                    start, end, body, ..
-                } => contains(start) || contains(end) || body.iter().any(contains),
-                ASTNode::Nowait { expression, .. } => contains(expression),
-                ASTNode::AwaitExpression { expression, .. } => contains(expression),
-                ASTNode::QMarkPropagate { expression, .. } => contains(expression),
-                ASTNode::Throw { expression, .. } => contains(expression),
-                ASTNode::GlobalVar { value, .. } => contains(value),
-                ASTNode::UsingStatement { .. } | ASTNode::ImportStatement { .. } => false,
-
-                ASTNode::MatchExpr {
-                    scrutinee,
-                    arms,
-                    else_expr,
-                    ..
-                } => {
-                    contains(scrutinee)
-                        || arms.iter().any(|(_, arm_expr)| contains(arm_expr))
-                        || contains(else_expr)
-                }
-                ASTNode::EnumMatchExpr {
-                    scrutinee,
-                    arms,
-                    else_expr,
-                    ..
-                } => {
-                    contains(scrutinee)
-                        || arms.iter().any(|arm| contains(&arm.body))
-                        || else_expr.as_ref().is_some_and(|expr| contains(expr))
-                }
-                ASTNode::ArrayLiteral { elements, .. } => elements.iter().any(contains),
-                ASTNode::MapLiteral { entries, .. } => {
-                    entries.iter().any(|(_, expr)| contains(expr))
-                }
-                ASTNode::BlockExpr {
-                    prelude_stmts,
-                    tail_expr,
-                    ..
-                } => prelude_stmts.iter().any(contains) || contains(tail_expr),
-                ASTNode::Arrow {
-                    sender, receiver, ..
-                } => contains(sender) || contains(receiver),
-                ASTNode::TryCatch {
-                    try_body,
-                    catch_clauses,
-                    finally_body,
-                    ..
-                } => {
-                    try_body.iter().any(contains)
-                        || catch_clauses.iter().any(|c| c.body.iter().any(contains))
-                        || finally_body
-                            .as_ref()
-                            .is_some_and(|b| b.iter().any(contains))
-                }
-
-                ASTNode::UnaryOp { operand, .. } => contains(operand),
-                ASTNode::BinaryOp { left, right, .. } => contains(left) || contains(right),
-                ASTNode::CheckExpr { items, .. } => {
-                    items.iter().any(|item| contains(&item.expression))
-                }
-                ASTNode::GroupedAssignmentExpr { rhs, .. } => contains(rhs),
-                ASTNode::MethodCall {
-                    object, arguments, ..
-                } => contains(object) || arguments.iter().any(contains),
-                ASTNode::FieldAccess { object, .. } => contains(object),
-                ASTNode::Index { target, index, .. } => contains(target) || contains(index),
-                ASTNode::New { arguments, .. }
-                | ASTNode::FromCall { arguments, .. }
-                | ASTNode::FunctionCall { arguments, .. } => arguments.iter().any(contains),
-                ASTNode::Call {
-                    callee, arguments, ..
-                } => contains(callee) || arguments.iter().any(contains),
-                ASTNode::Local { initial_values, .. } | ASTNode::Outbox { initial_values, .. } => {
-                    initial_values
-                        .iter()
-                        .filter_map(|v| v.as_deref())
-                        .any(contains)
-                }
-
-                _ => false,
+                _ => node.any_child(contains),
             }
         }
 
@@ -597,144 +627,7 @@ impl ASTNode {
             | ASTNode::BoxDeclaration { .. }
             | ASTNode::StaticConstTable { .. } => false,
 
-            ASTNode::Program { statements, .. } => {
-                statements.iter().any(ASTNode::contains_non_local_exit)
-            }
-            ASTNode::Assignment { target, value, .. } => {
-                target.contains_non_local_exit() || value.contains_non_local_exit()
-            }
-            ASTNode::Print { expression, .. } => expression.contains_non_local_exit(),
-            ASTNode::If {
-                condition,
-                then_body,
-                else_body,
-                ..
-            } => {
-                condition.contains_non_local_exit()
-                    || then_body.iter().any(ASTNode::contains_non_local_exit)
-                    || else_body
-                        .as_ref()
-                        .is_some_and(|b| b.iter().any(ASTNode::contains_non_local_exit))
-            }
-            ASTNode::Loop {
-                condition, body, ..
-            }
-            | ASTNode::While {
-                condition, body, ..
-            } => {
-                condition.contains_non_local_exit()
-                    || body.iter().any(ASTNode::contains_non_local_exit)
-            }
-            ASTNode::ForRange {
-                start, end, body, ..
-            } => {
-                start.contains_non_local_exit()
-                    || end.contains_non_local_exit()
-                    || body.iter().any(ASTNode::contains_non_local_exit)
-            }
-            ASTNode::UsingStatement { .. } | ASTNode::ImportStatement { .. } => false,
-            ASTNode::Nowait { expression, .. } => expression.contains_non_local_exit(),
-            ASTNode::AwaitExpression { expression, .. } => expression.contains_non_local_exit(),
-            ASTNode::QMarkPropagate { expression, .. } => expression.contains_non_local_exit(),
-            ASTNode::MatchExpr {
-                scrutinee,
-                arms,
-                else_expr,
-                ..
-            } => {
-                scrutinee.contains_non_local_exit()
-                    || arms
-                        .iter()
-                        .any(|(_, arm_expr)| arm_expr.contains_non_local_exit())
-                    || else_expr.contains_non_local_exit()
-            }
-            ASTNode::EnumMatchExpr {
-                scrutinee,
-                arms,
-                else_expr,
-                ..
-            } => {
-                scrutinee.contains_non_local_exit()
-                    || arms.iter().any(|arm| arm.body.contains_non_local_exit())
-                    || else_expr
-                        .as_ref()
-                        .is_some_and(|expr| expr.contains_non_local_exit())
-            }
-            ASTNode::ArrayLiteral { elements, .. } => {
-                elements.iter().any(ASTNode::contains_non_local_exit)
-            }
-            ASTNode::MapLiteral { entries, .. } => entries
-                .iter()
-                .any(|(_, expr)| expr.contains_non_local_exit()),
-            ASTNode::BlockExpr {
-                prelude_stmts,
-                tail_expr,
-                ..
-            } => {
-                prelude_stmts.iter().any(ASTNode::contains_non_local_exit)
-                    || tail_expr.contains_non_local_exit()
-            }
-            ASTNode::Arrow {
-                sender, receiver, ..
-            } => sender.contains_non_local_exit() || receiver.contains_non_local_exit(),
-            ASTNode::TryCatch {
-                try_body,
-                catch_clauses,
-                finally_body,
-                ..
-            } => {
-                try_body.iter().any(ASTNode::contains_non_local_exit)
-                    || catch_clauses
-                        .iter()
-                        .any(|c| c.body.iter().any(ASTNode::contains_non_local_exit))
-                    || finally_body
-                        .as_ref()
-                        .is_some_and(|b| b.iter().any(ASTNode::contains_non_local_exit))
-            }
-            ASTNode::GlobalVar { value, .. } => value.contains_non_local_exit(),
-            ASTNode::Literal { .. }
-            | ASTNode::Variable { .. }
-            | ASTNode::This { .. }
-            | ASTNode::Me { .. }
-            | ASTNode::ThisField { .. }
-            | ASTNode::MeField { .. } => false,
-            ASTNode::UnaryOp { operand, .. } => operand.contains_non_local_exit(),
-            ASTNode::BinaryOp { left, right, .. } => {
-                left.contains_non_local_exit() || right.contains_non_local_exit()
-            }
-            ASTNode::CheckExpr { items, .. } => items
-                .iter()
-                .any(|item| item.expression.contains_non_local_exit()),
-            ASTNode::GroupedAssignmentExpr { rhs, .. } => rhs.contains_non_local_exit(),
-            ASTNode::MethodCall {
-                object, arguments, ..
-            } => {
-                object.contains_non_local_exit()
-                    || arguments.iter().any(ASTNode::contains_non_local_exit)
-            }
-            ASTNode::FieldAccess { object, .. } => object.contains_non_local_exit(),
-            ASTNode::Index { target, index, .. } => {
-                target.contains_non_local_exit() || index.contains_non_local_exit()
-            }
-            ASTNode::New { arguments, .. } | ASTNode::FromCall { arguments, .. } => {
-                arguments.iter().any(ASTNode::contains_non_local_exit)
-            }
-            ASTNode::Local { initial_values, .. } | ASTNode::Outbox { initial_values, .. } => {
-                initial_values
-                    .iter()
-                    .filter_map(|v| v.as_deref())
-                    .any(ASTNode::contains_non_local_exit)
-            }
-            ASTNode::ScopeBox { body, .. } => body.iter().any(ASTNode::contains_non_local_exit),
-            ASTNode::FunctionCall { arguments, .. } => {
-                arguments.iter().any(ASTNode::contains_non_local_exit)
-            }
-            ASTNode::Call {
-                callee, arguments, ..
-            } => {
-                callee.contains_non_local_exit()
-                    || arguments.iter().any(ASTNode::contains_non_local_exit)
-            }
+            _ => self.any_child(ASTNode::contains_non_local_exit),
         }
     }
 
@@ -800,110 +693,8 @@ impl ASTNode {
                             .any(|s| contains(s, loop_depth.saturating_add(1)))
                 }
                 ASTNode::UsingStatement { .. } | ASTNode::ImportStatement { .. } => false,
-                ASTNode::Nowait { expression, .. } => contains(expression, loop_depth),
-                ASTNode::AwaitExpression { expression, .. } => contains(expression, loop_depth),
-                ASTNode::QMarkPropagate { expression, .. } => contains(expression, loop_depth),
-                ASTNode::MatchExpr {
-                    scrutinee,
-                    arms,
-                    else_expr,
-                    ..
-                } => {
-                    contains(scrutinee, loop_depth)
-                        || arms
-                            .iter()
-                            .any(|(_, arm_expr)| contains(arm_expr, loop_depth))
-                        || contains(else_expr, loop_depth)
-                }
-                ASTNode::EnumMatchExpr {
-                    scrutinee,
-                    arms,
-                    else_expr,
-                    ..
-                } => {
-                    contains(scrutinee, loop_depth)
-                        || arms.iter().any(|arm| contains(&arm.body, loop_depth))
-                        || else_expr
-                            .as_ref()
-                            .is_some_and(|expr| contains(expr, loop_depth))
-                }
-                ASTNode::ArrayLiteral { elements, .. } => {
-                    elements.iter().any(|e| contains(e, loop_depth))
-                }
-                ASTNode::MapLiteral { entries, .. } => {
-                    entries.iter().any(|(_, expr)| contains(expr, loop_depth))
-                }
-                ASTNode::BlockExpr {
-                    prelude_stmts,
-                    tail_expr,
-                    ..
-                } => {
-                    prelude_stmts.iter().any(|s| contains(s, loop_depth))
-                        || contains(tail_expr, loop_depth)
-                }
-                ASTNode::Arrow {
-                    sender, receiver, ..
-                } => contains(sender, loop_depth) || contains(receiver, loop_depth),
-                ASTNode::TryCatch {
-                    try_body,
-                    catch_clauses,
-                    finally_body,
-                    ..
-                } => {
-                    try_body.iter().any(|s| contains(s, loop_depth))
-                        || catch_clauses
-                            .iter()
-                            .any(|c| c.body.iter().any(|s| contains(s, loop_depth)))
-                        || finally_body
-                            .as_ref()
-                            .is_some_and(|b| b.iter().any(|s| contains(s, loop_depth)))
-                }
-                ASTNode::GlobalVar { value, .. } => contains(value, loop_depth),
-
-                ASTNode::Literal { .. }
-                | ASTNode::Variable { .. }
-                | ASTNode::This { .. }
-                | ASTNode::Me { .. }
-                | ASTNode::ThisField { .. }
-                | ASTNode::MeField { .. } => false,
-
-                ASTNode::UnaryOp { operand, .. } => contains(operand, loop_depth),
-                ASTNode::BinaryOp { left, right, .. } => {
-                    contains(left, loop_depth) || contains(right, loop_depth)
-                }
-                ASTNode::CheckExpr { items, .. } => items
-                    .iter()
-                    .any(|item| contains(&item.expression, loop_depth)),
-                ASTNode::GroupedAssignmentExpr { rhs, .. } => contains(rhs, loop_depth),
-
-                ASTNode::MethodCall {
-                    object, arguments, ..
-                } => {
-                    contains(object, loop_depth)
-                        || arguments.iter().any(|a| contains(a, loop_depth))
-                }
-                ASTNode::FieldAccess { object, .. } => contains(object, loop_depth),
-                ASTNode::Index { target, index, .. } => {
-                    contains(target, loop_depth) || contains(index, loop_depth)
-                }
-                ASTNode::New { arguments, .. } => arguments.iter().any(|a| contains(a, loop_depth)),
-                ASTNode::FunctionCall { arguments, .. } => {
-                    arguments.iter().any(|a| contains(a, loop_depth))
-                }
-                ASTNode::Call {
-                    callee, arguments, ..
-                } => {
-                    contains(callee, loop_depth)
-                        || arguments.iter().any(|a| contains(a, loop_depth))
-                }
                 ASTNode::FromCall { .. } => false,
-                ASTNode::ScopeBox { body, .. } => body.iter().any(|s| contains(s, loop_depth)),
-                ASTNode::Local { initial_values, .. } | ASTNode::Outbox { initial_values, .. } => {
-                    initial_values
-                        .iter()
-                        .filter_map(|v| v.as_deref())
-                        .any(|v| contains(v, loop_depth))
-                }
+                _ => node.any_child(|child| contains(child, loop_depth)),
             }
         }
 
