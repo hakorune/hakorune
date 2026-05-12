@@ -10,6 +10,7 @@
 //! - variable_map, type_ctx, static_box context の保存・復元
 //! - FunctionSlotRegistry の関数境界管理
 
+use crate::mir::builder::compilation_context::RecordLocalValue;
 use crate::mir::builder::type_context::TypeContextSnapshot;
 use crate::mir::builder::MirBuilder;
 use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
@@ -44,6 +45,7 @@ pub(super) struct LoweringContext {
     pub(super) saved_local_ssa_map: HashMap<(BasicBlockId, ValueId, u8), ValueId>,
     pub(super) saved_schedule_mat_map: HashMap<(BasicBlockId, ValueId), ValueId>,
     pub(super) saved_pin_slot_names: HashMap<ValueId, String>,
+    pub(super) saved_record_local_values: HashMap<ValueId, RecordLocalValue>,
     pub(super) saved_return_defer_active: bool,
     pub(super) saved_return_defer_slot: Option<ValueId>,
     pub(super) saved_return_defer_target: Option<BasicBlockId>,
@@ -101,6 +103,7 @@ impl MirBuilder {
         let saved_local_ssa_map = std::mem::take(&mut self.local_ssa_map);
         let saved_schedule_mat_map = std::mem::take(&mut self.schedule_mat_map);
         let saved_pin_slot_names = std::mem::take(&mut self.pin_slot_names);
+        let saved_record_local_values = std::mem::take(&mut self.comp_ctx.record_local_values);
         let saved_return_defer_active = self.return_defer_active;
         let saved_return_defer_slot = self.return_defer_slot;
         let saved_return_defer_target = self.return_defer_target;
@@ -131,6 +134,7 @@ impl MirBuilder {
         if context_active {
             self.variable_ctx.variable_map.clear();
             self.type_ctx.value_origin_newbox.clear();
+            self.comp_ctx.clear_record_local_values();
             // value_types も static box 単位で独立させる。
             // これにより、前の static box で使用された ValueId に紐づく型情報が
             // 次の box にリークして誤った box_name 推論（例: Stage1UsingResolverBox）
@@ -153,6 +157,7 @@ impl MirBuilder {
             saved_local_ssa_map,
             saved_schedule_mat_map,
             saved_pin_slot_names,
+            saved_record_local_values,
             saved_return_defer_active,
             saved_return_defer_slot,
             saved_return_defer_target,
@@ -175,6 +180,7 @@ impl MirBuilder {
             // BoxCompilationContext mode: clear のみ（次回も完全独立）
             self.variable_ctx.variable_map.clear();
             self.type_ctx.value_origin_newbox.clear();
+            self.comp_ctx.clear_record_local_values();
             // static box ごとに型情報も独立させる（前 box の型メタデータを引きずらない）
             self.type_ctx.value_types.clear();
             self.type_ctx.value_kinds.clear();
@@ -203,6 +209,7 @@ impl MirBuilder {
         self.local_ssa_map = ctx.saved_local_ssa_map;
         self.schedule_mat_map = ctx.saved_schedule_mat_map;
         self.pin_slot_names = ctx.saved_pin_slot_names;
+        self.comp_ctx.record_local_values = ctx.saved_record_local_values;
         self.return_defer_active = ctx.saved_return_defer_active;
         self.return_defer_slot = ctx.saved_return_defer_slot;
         self.return_defer_target = ctx.saved_return_defer_target;

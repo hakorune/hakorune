@@ -49,7 +49,10 @@ guard_expect_in_file "$TAG" 'uses_inline_record_slots' "$ARRAY_TRAITS" "tests mu
 guard_expect_in_file "$TAG" 'inline_record_storage_keeps_visible_materialization_boundary' "$ARRAY_TESTS" "unit tests must cover materialization stop line"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list C204b guard"
 
-if rg -n 'InlineRecord|inline-record|inline_record' lang/src/hako_alloc lang/c-abi/shims src/llvm_py/instructions >/tmp/"$TAG".leak 2>&1; then
+if {
+  rg -n 'InlineRecord|inline-record|inline_record' lang/src/hako_alloc -g'*.hako'
+  rg -n 'InlineRecord|inline-record|inline_record' lang/c-abi/shims src/llvm_py/instructions
+} >/tmp/"$TAG".leak 2>&1; then
   echo "[$TAG] ERROR: C204b inline-record storage leaked into hako_alloc/backend lowering surfaces" >&2
   cat /tmp/"$TAG".leak >&2
   rm -f /tmp/"$TAG".leak

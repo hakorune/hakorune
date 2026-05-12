@@ -510,6 +510,7 @@ fn ensure_inner(
                 .map_literal_value_types
                 .insert((loc, key), ty);
         }
+        builder.comp_ctx.propagate_record_local_value(v, loc);
         builder.local_ssa_map.insert(key, loc);
         // Debug trace for newly created loc
         if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {

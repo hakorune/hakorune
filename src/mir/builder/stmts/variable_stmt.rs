@@ -77,7 +77,14 @@ pub(in crate::mir::builder) fn build_local_statement(
         let var_id = if i < initial_values.len() && initial_values[i].is_some() {
             // Evaluate the initializer expression
             let init_expr = initial_values[i].as_ref().unwrap();
-            let init_val = builder.build_expression(*init_expr.clone())?;
+            let init_val = match init_expr.as_ref() {
+                ASTNode::New {
+                    class, arguments, ..
+                } if builder.is_record_constructor_class(class) => {
+                    builder.build_record_constructor_value(class.clone(), arguments.clone())?
+                }
+                _ => builder.build_expression(*init_expr.clone())?,
+            };
 
             // FIX: Allocate a new ValueId for this local variable
             // Use next_value_id() which respects function context
@@ -102,6 +109,9 @@ pub(in crate::mir::builder) fn build_local_statement(
 
             // Propagate metadata (type/origin) from initializer to variable
             crate::mir::builder::metadata::propagate::propagate(builder, init_val, var_id);
+            builder
+                .comp_ctx
+                .propagate_record_local_value(init_val, var_id);
 
             var_id
         } else {

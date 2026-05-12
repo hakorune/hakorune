@@ -28,6 +28,19 @@ use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
 use crate::mir::{MirType, RecordDecl, UserBoxFieldDecl, ValueId};
 use std::collections::{HashMap, HashSet};
 
+#[derive(Debug, Clone)]
+pub(crate) struct RecordLocalFieldValue {
+    pub name: String,
+    pub declared_type_name: Option<String>,
+    pub value: ValueId,
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct RecordLocalValue {
+    pub record_name: String,
+    pub fields: Vec<RecordLocalFieldValue>,
+}
+
 use super::properties::PropertyRegistry;
 use super::type_registry::TypeRegistry;
 use hakorune_mir_builder::BoxCompilationContext;
@@ -57,6 +70,14 @@ pub(crate) struct CompilationContext {
     /// Record declarations keyed by record name. Records are not ordinary
     /// user boxes and must not enter `user_defined_boxes`.
     pub record_decls: HashMap<String, RecordDecl>,
+
+    /// Builder-local record values created by the C205b scalarization seam.
+    ///
+    /// These values are not runtime objects and must not lower through NewBox,
+    /// typed-object plans, or provider/backend routes. They are legal only as
+    /// field-read bases while the builder can replace `.field` with the
+    /// constructor operand.
+    pub record_local_values: HashMap<ValueId, RecordLocalValue>,
 
     /// Phase 201-A: Reserved ValueIds that must not be allocated
     /// These are PHI dst ValueIds created by LoopHeaderPhiBuilder.
@@ -126,6 +147,7 @@ impl CompilationContext {
             user_defined_boxes: HashMap::new(), // Phase 285LLVM-1.1: HashMap for fields
             user_box_field_decls: HashMap::new(),
             record_decls: HashMap::new(),
+            record_local_values: HashMap::new(),
             reserved_value_ids: HashSet::new(),
             fn_body_ast: None,
             weak_fields_by_box: HashMap::new(),
@@ -233,6 +255,39 @@ impl CompilationContext {
                 fields,
             },
         );
+    }
+
+    pub fn is_record_decl(&self, name: &str) -> bool {
+        self.record_decls.contains_key(name)
+    }
+
+    pub fn register_record_local_value(
+        &mut self,
+        value: ValueId,
+        record_name: String,
+        fields: Vec<RecordLocalFieldValue>,
+    ) {
+        self.record_local_values.insert(
+            value,
+            RecordLocalValue {
+                record_name,
+                fields,
+            },
+        );
+    }
+
+    pub fn record_local_value(&self, value: ValueId) -> Option<&RecordLocalValue> {
+        self.record_local_values.get(&value)
+    }
+
+    pub fn propagate_record_local_value(&mut self, src: ValueId, dst: ValueId) {
+        if let Some(record) = self.record_local_values.get(&src).cloned() {
+            self.record_local_values.insert(dst, record);
+        }
+    }
+
+    pub fn clear_record_local_values(&mut self) {
+        self.record_local_values.clear();
     }
 
     pub fn declared_field_type_name(&self, box_name: &str, field_name: &str) -> Option<&str> {

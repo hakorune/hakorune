@@ -158,7 +158,7 @@ This lane therefore starts at `C201`.
 | `C204a ArrayBox inline-record storage descriptors` | derive metadata-only packed column descriptors from `record_layout_plans` | runtime storage vocabulary | no `ArrayStorage` variant, no public ArrayBox behavior change |
 | `C204b ArrayBox inline-record storage vocabulary` | add private runtime storage vocabulary and materialization boundaries | allocator metadata migration | no compiler auto-use, no hako_alloc migration |
 | `C205a allocator metadata record declarations` | declare allocator metadata records for aligned-small and huge-page metadata while keeping scalar columns authoritative | record construction/read lowering | no runtime metadata replacement, no compiler auto-use |
-| `C205b allocator record construction/read lowering` | make record construction and field reads usable for allocator metadata probes | packed storage migration | no hako_alloc live migration |
+| `C205b allocator record construction/read lowering` | make record construction and field reads usable for allocator metadata probes through builder-local scalarization | packed storage migration | no hako_alloc live migration, no record object materialization |
 | `C205c aligned-small metadata record migration` | replace M178 aligned-small metadata scalar columns with record-backed storage | huge-page metadata migration | no huge/native/provider coupling |
 | `C205d huge-page metadata record migration` | replace M180 huge-page metadata scalar columns with record-backed storage | broader allocator/table cleanup | no small-page state vector migration |
 
@@ -192,7 +192,11 @@ Status:
 - `C205a` is complete as `293x-214`: `hako_alloc` now owns declaration-only
   allocator metadata records for aligned-small and huge-page metadata. Existing
   scalar metadata arrays remain the runtime truth.
-- `C205b-C205d` remain future work.
+- `C205b` is complete as `293x-215`: record construction plus direct field
+  reads now lower through a builder-local scalarization seam. Records still do
+  not lower through ordinary `NewBox`, typed-object plans, backend matchers, or
+  `ArrayStorage::InlineRecord`.
+- `C205c-C205d` remain future work.
 
 ## Target Runtime Shape
 

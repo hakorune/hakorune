@@ -9,6 +9,12 @@ impl super::MirBuilder {
         object: ASTNode,
         field: String,
     ) -> Result<ValueId, String> {
+        if let Some(record_field_value) =
+            self.try_lower_record_field_read_from_ast(&object, &field)?
+        {
+            return Ok(record_field_value);
+        }
+
         let object_clone = object.clone();
         let object_value = self.build_expression(object)?;
         let object_value = self.local_field_base(object_value);
@@ -128,6 +134,7 @@ impl super::MirBuilder {
         field: String,
         value: ASTNode,
     ) -> Result<ValueId, String> {
+        self.fail_if_record_field_assignment_target(&object, &field)?;
         let object_value = self.build_expression(object)?;
         let object_value = self.local_field_base(object_value);
         let mut value_result = self.build_expression(value)?;

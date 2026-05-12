@@ -531,6 +531,10 @@ inference for the allocator release path.
 - `293x-214`: C205a allocator metadata record declarations landed, adding
   declaration-only `HakoAllocAlignedSmallMeta` and `HakoAllocHugePageMeta`
   records while keeping current M178/M180 scalar metadata columns authoritative.
+- `293x-215`: C205b allocator record construction/read lowering landed,
+  scalarizing direct record field reads in the MIR builder while keeping record
+  values out of ordinary `NewBox`, typed-object, backend, and ArrayBox packed
+  storage lanes.
 - Next: continue with the record/packed-array compiler lane (`C201-C205`) or
   allocator algorithm rows when needed. No M191
   allocator API row is scheduled yet; M186 facade stats already landed as
@@ -554,9 +558,9 @@ Current execution order:
    `C197`, `C198`, `C199`, and `C200` are complete.
 3. `C201-C205`: add record/packed-array compiler-runtime support before moving
    allocator metadata off the current M178 scalar columns. `C201`, `C202`,
-   `C203a`, `C203b`, `C203c`, `C204a`, `C204b`, and `C205a` are complete.
-   `C205b` record construction/read lowering is next before any live allocator
-   metadata replacement.
+   `C203a`, `C203b`, `C203c`, `C204a`, `C204b`, `C205a`, and `C205b` are
+   complete. `C205c` aligned-small metadata record migration is next before
+   huge-page metadata migration.
 4. `C191-C194`: run compiler/backend hardening only when it does not collide
    with the active `.hako` row.
 5. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.

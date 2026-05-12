@@ -98,6 +98,7 @@ mod plugin_sigs; // plugin signature loader
 mod properties;
 mod property_reads;
 mod receiver; // ReceiverMaterializationBox（Method recv の pin+LocalSSA 集約）
+mod record_values; // C205b: builder-local record value scalarization
 mod rewrite; // P1: Known rewrite & special consolidation
 mod router; // RouterPolicyBox（Unified vs BoxCall）
 mod schedule; // BlockScheduleBox（物理順序: PHI→materialize→body）

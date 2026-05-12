@@ -133,6 +133,7 @@ impl MirBuilder {
         }
 
         if let Some(&value_id) = self.variable_ctx.variable_map.get(&name) {
+            self.fail_if_record_value_escape_by_name(&name, value_id)?;
             // Removed: [build_variable_access:GHOST_v36] observation (PHI issue resolved)
             // Removed: [build_variable_access:index_of_trace] observation (PHI issue resolved)
             // Removed: [build_variable_access:VAR_j] observation (PHI issue resolved)
@@ -249,6 +250,12 @@ impl MirBuilder {
         class: String,
         arguments: Vec<ASTNode>,
     ) -> Result<ValueId, String> {
+        if self.is_record_constructor_class(&class) {
+            return Err(format!(
+                "[record-construction/escape] record={} supported_use=local-field-read",
+                class
+            ));
+        }
         // Phase 9.78a: Unified Box creation using NewBox instruction
         // Core-13 pure mode: emit ExternCall(env.box.new) with type name const only
         if crate::config::env::mir_core13_pure() {

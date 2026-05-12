@@ -190,7 +190,7 @@ the active `.hako` algorithm row.
 | `C204a ArrayBox inline-record storage descriptors` | derive metadata-only packed column descriptors from record layout plans | `C204b-C205` |
 | `C204b ArrayBox inline-record storage vocabulary` | add private runtime storage vocabulary and materialization boundaries while keeping public ArrayBox behavior unchanged | `C205` |
 | `C205a allocator metadata record declarations` | add declaration-only record shapes for aligned-small and huge-page metadata while preserving current scalar columns | record construction/read lowering |
-| `C205b allocator record construction/read lowering` | make record values usable enough for metadata probes | live hako_alloc metadata migration |
+| `C205b allocator record construction/read lowering` | make record values usable enough for metadata probes through builder-local scalarization | live hako_alloc metadata migration |
 | `C205c aligned-small metadata record migration` | replace M178 `meta_ptrs/meta_alignments/meta_padded_sizes` with record-backed storage | huge-page metadata migration |
 | `C205d huge-page metadata record migration` | replace M180 `page_ids/ptrs/requested_sizes/committed_sizes/live_flags` with record-backed storage | broader allocator/table cleanup |
 
@@ -244,6 +244,13 @@ complete as `293x-214`. `allocator_metadata_records.hako` declares
 shapes for future metadata migration. The M178 and M180 scalar `ArrayBox`
 columns remain authoritative runtime state, and no hako_alloc owner constructs
 or reads these records yet.
+
+C205b status:
+complete as `293x-215`. Record construction/read lowering is now usable for
+small metadata probes through a builder-local scalarization seam. Record values
+do not emit `NewBox`, do not materialize objects, and fail fast if they escape
+the direct field-read route. `hako_alloc` scalar metadata columns remain the
+runtime truth until `C205c-C205d`.
 
 ### Docs / Guard Checkpoints
 

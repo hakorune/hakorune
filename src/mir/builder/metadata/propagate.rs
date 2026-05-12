@@ -45,6 +45,7 @@ pub fn propagate(builder: &mut MirBuilder, src: ValueId, dst: ValueId) {
             .map_literal_value_types
             .insert((dst, key), ty);
     }
+    builder.comp_ctx.propagate_record_local_value(src, dst);
     type_trace::propagate("meta", src, dst);
 }
 
