@@ -117,7 +117,7 @@ bash tools/checks/k2_wide_hako_alloc_local_page_policy_exe_guard.sh
 
 #### hako-alloc-usize-field-probe
 **場所**: `hako-alloc-usize-field-probe/main.hako`
-294x-18 probe。production allocator state を移行せず、`hako_alloc` 配下の
+294x-18 probe。production migration とは別に、`hako_alloc` 配下の
 probe-only box で capacity / used / alloc_count / requested_bytes の
 `usize` stored field 形を VM reference で固定する。
 

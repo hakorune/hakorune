@@ -9,10 +9,16 @@ Related:
 
 ## Decision
 
-All live `hako_alloc` numeric stored fields remain `i64` for now.
+Production `hako_alloc` numeric stored fields migrate to exact `usize` only by
+documented non-negative field group.
 
-This inventory classifies migration candidates before any field is changed to
-`usize`. It is not a migration row and it does not change runtime behavior.
+Current production `usize` field group:
+
+- `allocator_facade_box.hako` / `HakoAllocProductionFacade` event counters:
+  `alloc_count`, `free_count`, `reject_count`.
+
+All other live production numeric stored fields remain `i64` until their own
+field-group row records the invariant, stop line, and acceptance gate.
 
 ## Categories
 
@@ -39,7 +45,7 @@ They are intentionally excluded from the production migration inventory below.
 | --- | --- | --- | --- | --- | --- |
 | `page_box.hako` | `HakoAllocPageModel` | `page_id` | `i64` | `index` | Candidate after id/index call sites use exact non-negative semantics. |
 | `page_box.hako` | `HakoAllocPageModel` | `block_size` | `i64` | `size` | Candidate after exact `usize` backend/storage lowering exists. |
-| `page_box.hako` | `HakoAllocPageModel` | `capacity` | `i64` | `capacity` | First migration candidate group. |
+| `page_box.hako` | `HakoAllocPageModel` | `capacity` | `i64` | `capacity` | Structural candidate after stats groups and capacity invariant guard. |
 | `page_box.hako` | `HakoAllocPageModel` | `reserved` | `i64` | `capacity` | Candidate with `capacity`; keep invariant `reserved <= capacity`. |
 | `page_box.hako` | `HakoAllocPageModel` | `used` | `i64` | `count` | Candidate after dynamic range checks cover decrement paths. |
 | `page_box.hako` | `HakoAllocPageModel` | `free_top` | `i64` | `count` | Candidate, but preserve stack-top underflow checks first. |
@@ -71,9 +77,9 @@ They are intentionally excluded from the production migration inventory below.
 | `page_heap_box.hako` | `HakoAllocPage` | `current_used` | `i64` | `count` | Candidate after decrement paths are guarded. |
 | `page_heap_box.hako` | `HakoAllocPage` | `peak_used` | `i64` | `count` | Candidate with `current_used`. |
 | `page_heap_box.hako` | `HakoAllocPage` | `requested_bytes` | `i64` | `byte-length` | Candidate after checked add/overflow diagnostics are live for byte sums. |
-| `allocator_facade_box.hako` | `HakoAllocProductionFacade` | `alloc_count` | `i64` | `count` | Low-risk stats candidate. |
-| `allocator_facade_box.hako` | `HakoAllocProductionFacade` | `free_count` | `i64` | `count` | Low-risk stats candidate. |
-| `allocator_facade_box.hako` | `HakoAllocProductionFacade` | `reject_count` | `i64` | `count` | Low-risk stats candidate. |
+| `allocator_facade_box.hako` | `HakoAllocProductionFacade` | `alloc_count` | `usize` | `count` | Migrated in 294x-19e as facade-local monotonic stats. |
+| `allocator_facade_box.hako` | `HakoAllocProductionFacade` | `free_count` | `usize` | `count` | Migrated in 294x-19e as facade-local monotonic stats. |
+| `allocator_facade_box.hako` | `HakoAllocProductionFacade` | `reject_count` | `usize` | `count` | Migrated in 294x-19e as facade-local monotonic stats. |
 
 ## Sentinel Notes
 
@@ -90,7 +96,7 @@ Non-stored sentinel seams that must be considered in the next row:
 ## Migration Order
 
 1. Keep `signed-sentinel` fields as `i64` or split them first.
-2. Probe low-risk stats `count` fields.
+2. Migrate low-risk stats `count` fields by owner-local group.
 3. Probe `capacity` / stack-top fields with underflow checks.
 4. Probe `size` and `byte-length` fields only after checked arithmetic
    diagnostics are stable enough for allocator byte sums.

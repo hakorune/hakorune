@@ -15,9 +15,9 @@ using selfhost.hako_alloc.memory.remote_free_policy_box as HakoAllocRemoteFreePo
 
 box HakoAllocProductionFacade {
     heap: HakoAllocHeap = new HakoAllocHeap()
-    alloc_count: i64 = 0
-    free_count: i64 = 0
-    reject_count: i64 = 0
+    alloc_count: usize = 0
+    free_count: usize = 0
+    reject_count: usize = 0
 
     allocate(size) {
         local handle = me.heap.allocate(size)

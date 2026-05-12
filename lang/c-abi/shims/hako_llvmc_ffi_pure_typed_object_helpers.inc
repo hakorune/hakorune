@@ -26,6 +26,7 @@
       struct GenericPureTypedObjectFieldSlotView {
         int typed_plan_index;
         long long slot;
+        const char* storage;
       };
 
       enum GenericPureTypedObjectNewPlanStatus {
@@ -71,15 +72,18 @@
           struct GenericPureTypedObjectFieldSlotView* out) {
         int typed_plan_index = -1;
         long long slot = -1;
+        const char* storage = NULL;
         if (!(box_reg && field && out)) return 0;
         if (!get_typed_object_binding(box_reg, &typed_plan_index)) return 0;
-        if (!typed_object_plan_field_runtime_slot(
+        if (!typed_object_plan_field_runtime_slot_with_storage(
                 typed_plan_index,
                 field,
-                &slot)) {
+                &slot,
+                &storage)) {
           return 0;
         }
         out->typed_plan_index = typed_plan_index;
         out->slot = slot;
+        out->storage = storage;
         return 1;
       }

@@ -3,7 +3,8 @@
 Purpose
 - Proves that non-negative hako_alloc field shapes can be represented as
   exact `usize` stored fields in an isolated probe.
-- Keeps production allocator state on `i64`.
+- Does not migrate production allocator state by itself; production migration
+  is tracked by explicit 294x field-group rows.
 
 Stop line
 - No production facade migration.

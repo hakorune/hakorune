@@ -22,23 +22,24 @@ hako_alloc or mimalloc migration.
 ## Quick Current Truth
 
 - `294x-10f` landed the VM reference exact numeric value representation.
-- Production `hako_alloc` fields remain `i64`.
+- Production `hako_alloc` facade-local stats are exact `usize`; remaining
+  page/heap/queue/handle fields stay `i64`.
 - Mimalloc `.hako` algorithm rows may continue, but they must not claim
   production `usize` field migration yet.
 - Native exact numeric typed-object slot representation exists in
   `nyash_kernel`.
 - Exact numeric signed/unsigned field helper lanes exist in `nyash_kernel`.
-- Python LLVM consumes exact typed-object field ABI for exact-storage plans.
+- Python LLVM and the pure-first C shim consume exact typed-object field ABI for
+  exact-storage plans.
 - Python LLVM consumes exact add/sub/mul, compare, and logical-shift route
   facts; div/mod/bitwise/wrapping stay later vocabulary.
-- Production `hako_alloc` migration remains a separate later row.
+- Further production `hako_alloc` migration remains field-group gated.
 
 ## Next Implementation Queue
 
 | Order | Row | Status | Implementation Boundary |
 | --- | --- | --- | --- |
-| 1 | `294x-19e` | Future | Production `hako_alloc` non-negative field migration reopens one field group at a time. |
-| 2 | `M168+` | Future | Mimalloc `.hako` OSVM page source, local-free retire, and remote-free rows consume the completed substrate. |
+| 1 | `M168+` | Future | Mimalloc `.hako` OSVM page source, local-free retire, and remote-free rows consume the completed substrate. |
 
 ## Ladder
 
@@ -85,8 +86,8 @@ hako_alloc or mimalloc migration.
 | `294x-19b` | Complete | exact numeric field get/set ABI | runtime helpers read/write exact signed/unsigned slots with range/overflow contracts |
 | `294x-19c` | Complete | exact field ABI backend consumption | Python LLVM carries typed-object plans, registers exact layouts, creates exact typed-object handles, and lowers exact field get/set helpers |
 | `294x-19d` | Complete | exact op backend subset | Python LLVM lowers exact add/sub/mul, compare, and logical-shift route facts with checked traps |
-| `294x-19e` | Future | hako_alloc production field migration | production non-negative field groups migrate only after backend field ABI and exact op subset consumption are green |
-| `294x-20` | Complete | mimalloc row resume gate | M167+ mimalloc implementation resumes with clear `usize` support boundaries and production fields still on `i64` |
+| `294x-19e` | Complete | hako_alloc production facade stats migration | facade-local event counters migrate to exact `usize`; page/heap/queue/handle fields remain `i64` |
+| `294x-20` | Complete | mimalloc row resume gate | M167+ mimalloc implementation resumes with clear `usize` support boundaries while page/heap/queue state remains `i64` |
 
 ## Required Feature Checklist
 
@@ -196,9 +197,11 @@ hako_alloc or mimalloc migration.
   proof app before production migration.
 - [x] Mark production `usize` field migration blocked on non-VM exact numeric
   storage, exact field ABI, and backend ABI consumption.
-- [ ] Update proof apps per field group.
-- [ ] Migrate production non-negative fields only after exact field ABI backend
-  consumption and needed exact op backend subset are green.
+- [x] Update first production proof apps for the facade stats field group.
+- [x] Migrate the first production non-negative field group after exact field
+  ABI backend consumption and needed exact op backend subset are green.
+- [ ] Migrate remaining production non-negative fields only by explicit
+  field-group rows.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 

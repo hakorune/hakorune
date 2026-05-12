@@ -39,7 +39,9 @@ rg -F -q 'memory.allocator_facade_box = "memory/allocator_facade_box.hako"' "$MO
 rg -F -q 'using selfhost.hako_alloc.memory.page_heap_box as HakoAllocPageHeap' "$FACADE"
 rg -F -q 'box HakoAllocProductionFacade' "$FACADE"
 rg -F -q 'heap: HakoAllocHeap = new HakoAllocHeap()' "$FACADE"
-rg -F -q 'alloc_count: i64 = 0' "$FACADE"
+rg -F -q 'alloc_count: usize = 0' "$FACADE"
+rg -F -q 'free_count: usize = 0' "$FACADE"
+rg -F -q 'reject_count: usize = 0' "$FACADE"
 
 if rg -n 'init[[:space:]]*\\{' "$FACADE" >/tmp/"$TAG".legacy_init 2>&1; then
   echo "[$TAG] ERROR: production facade should use stored fields/initializers, not legacy init slots" >&2
@@ -100,6 +102,10 @@ fields = {
 heap = fields.get("heap")
 if heap is None or heap.get("declared_type") != "HakoAllocHeap" or heap.get("storage") != "handle":
     raise SystemExit(f"facade heap field must be declared HakoAllocHeap handle: {facade}")
+for name in ("alloc_count", "free_count", "reject_count"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"facade {name} field must be exact usize storage: {field}")
 
 def iter_calls(fn):
     for block in fn.get("blocks", []):

@@ -18,18 +18,17 @@
 | Lane | Current truth |
 | --- | --- |
 | `usize` semantics | VM reference execution can keep exact numeric results tagged instead of collapsing them back to `Integer(i64)`. |
-| production `hako_alloc` fields | Still `i64`; do not migrate live allocator state yet. |
-| mimalloc `.hako` rows | May continue under the current-lane `i64` production boundary. |
+| production `hako_alloc` fields | Facade-local stats are exact `usize`; page/heap/queue/handle state remains `i64` until its own field-group row. |
+| mimalloc `.hako` rows | May continue under the still-`i64` page/heap/queue production boundary. |
 | native exact slots | Runtime typed-object slot representation exists in `nyash_kernel`. |
-| field get/set ABI | Python LLVM consumes exact typed-object field ABI for exact-storage plans. |
+| field get/set ABI | Python LLVM and the pure-first C shim consume exact typed-object field ABI for exact-storage plans. |
 | exact op backend lowering | Python LLVM consumes exact add/sub/mul, compare, and logical-shift route facts; div/mod/bitwise/wrapping remain closed. |
 
 ## Next Queue
 
 | Next | Card | Goal |
 | --- | --- | --- |
-| 1 | `294x-19e` | Reopen production `hako_alloc` field migration by non-negative field group. |
-| 2 | `M168+` | Continue mimalloc `.hako` OSVM/page/free-list rows with the completed numeric substrate. |
+| 1 | `M168+` | Continue mimalloc `.hako` OSVM/page/free-list rows with the completed numeric substrate. |
 
 Stop line: VM green is useful reference evidence, but production allocator
 migration still changes only by explicit `hako_alloc` field-group rows.
@@ -38,7 +37,7 @@ migration still changes only by explicit `hako_alloc` field-group rows.
 
 - Treat `usize` as a language/runtime completeness feature, not as a
   mimalloc-only shortcut.
-- Do not migrate hako_alloc live state to `usize` until exact semantics and the
+- Migrate hako_alloc live state to `usize` only by named field group after the
   relevant verifier/lowering rows are green.
 - Keep sentinel-bearing indexes signed.
 - Keep BoxShape and BoxCount separate: metadata/schema work, runtime semantics,
@@ -172,8 +171,10 @@ migration still changes only by explicit `hako_alloc` field-group rows.
 - `294x-19d`: Python LLVM now consumes MIR-owned exact add/sub/mul, compare,
   and logical-shift route facts with checked traps; unsupported backends remain
   fail-fast.
-- `294x-20`: mimalloc algorithm rows resume under the current-lane `i64`
-  production boundary; M167 landed as the first resumed row.
+- `294x-19e`: `HakoAllocProductionFacade` facade-local stats now use exact
+  `usize` stored fields while page/heap/queue/handle state stays `i64`.
+- `294x-20`: mimalloc algorithm rows resume under the still-`i64`
+  page/heap/queue production boundary; M167 landed as the first resumed row.
 
 ## Implementation Direction
 

@@ -604,10 +604,19 @@
       if (needs.arr_string_indexof_const_utf8) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hisi\"(i64, i64, ptr, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_slot_load || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
-      if (needs.typed_object || module_has_planned_same_module_function_definition()) {
+      if (needs.typed_object ||
+          module_has_planned_same_module_function_definition() ||
+          typed_object_plan_count() > 0) {
+        fprintf(f, "declare i64 @\"nyash.object.register_typed_layout_hi\"(i64, i64)\n");
+        fprintf(f, "declare i64 @\"nyash.object.register_typed_layout_slot_iii\"(i64, i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.new_typed_hi\"(i64, i64)\n");
         fprintf(f, "declare void @\"nyash.object.field_set_hii\"(i64, i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.field_get_hii\"(i64, i64)\n");
+        fprintf(f, "declare i64 @\"nyash.object.field_set_u64_hiu\"(i64, i64, i64)\n");
+        fprintf(f, "declare i64 @\"nyash.object.field_get_u64_hii\"(i64, i64)\n");
+        fprintf(f, "declare i64 @\"nyash.object.field_set_i64_hii\"(i64, i64, i64)\n");
+        fprintf(f, "declare i64 @\"nyash.object.field_get_i64_hii\"(i64, i64)\n");
+        fprintf(f, "declare void @llvm.trap()\n");
       }
       if (needs.string_const_box || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.box.from_i8_string_const\"(ptr)\n");

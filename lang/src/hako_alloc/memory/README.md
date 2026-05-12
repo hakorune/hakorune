@@ -25,15 +25,15 @@ Syntax/style contract
 - Use stored field initializers for fixed defaults and owner construction.
   Initializers are evaluated per construction, so `new ArrayBox()` defaults are
   not shared between instances.
-- Keep numeric allocator state on `i64` annotations for now. `usize` is
-  accepted as annotation metadata by the language surface, but exact
-  pointer-sized unsigned semantics are not live yet.
+- Keep numeric allocator state on `i64` by default. Exact `usize` production
+  fields are allowed only for field groups listed in `NUMERIC_FIELDS.md`.
+  Current production `usize` scope is limited to facade-local monotonic stats.
 - Numeric stored field migration is gated by
   [`NUMERIC_FIELDS.md`](./NUMERIC_FIELDS.md). Do not migrate a field to
   `usize` unless its category and sentinel behavior are recorded there first.
 - `usize_field_probe_box.hako` is a probe-only owner for exact `usize` stored
-  field behavior. Production allocator state must not migrate just because the
-  probe is green.
+  field behavior. New production migrations still require a named field-group
+  row and must not expand just because the probe is green.
 - `alloc_fast_path_heap_box.hako` is the M167 orchestration owner. It may call
   `HakoAllocPageQueue.selectPage()` and `HakoAllocPageModel.acquire()`, but it
   must not source OS pages, collect local-free blocks, or implement remote-free

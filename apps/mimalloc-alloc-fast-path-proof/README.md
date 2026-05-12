@@ -11,8 +11,8 @@ Stop line
 - No local-free collection / retire.
 - No TLS, atomic, remote-free, page-map, provider, hook, or process allocator
   replacement behavior.
-- Production hako_alloc fields stay on `i64`; this proof does not consume the
-  294x `usize` field probe.
+- Fast-path page/queue fields stay on `i64`; this proof does not consume the
+  facade stats `usize` migration or the 294x probe owner.
 
 Run
 

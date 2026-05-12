@@ -108,9 +108,10 @@ Live today:
 - `HakoAllocUsizeFieldProbe` owns an isolated proof-only migration probe for
   capacity/count/byte-length `usize` stored fields without changing production
   allocator state;
-- production `hako_alloc` `usize` field migration is blocked until the Python
-  LLVM path consumes the needed exact operation subset for migrated fields;
-  mimalloc algorithm rows may continue with production fields on `i64`;
+- production `hako_alloc` `usize` field migration has reopened by explicit
+  field group: `HakoAllocProductionFacade` event counters are exact `usize`,
+  while page/heap/queue/handle fields remain `i64`; mimalloc algorithm rows may
+  continue with non-migrated production fields on `i64`;
 - `nyash_kernel` typed-object storage records exact numeric slot kinds,
   including `usize`, separately from legacy `i64`; legacy `field_get_hii` /
   `field_set_hii` helpers keep default `i64` behavior but do not mutate exact
@@ -118,10 +119,11 @@ Live today:
 - `nyash_kernel` exports exact signed/unsigned typed-object field helper lanes
   whose writes range-check by slot storage kind and fail without mutating on
   wrong-kind or out-of-range values;
-- Python LLVM carries MIR JSON `typed_object_plans`, registers exact
-  typed-object layouts before user code, creates exact typed-object handles for
-  exact-storage plans, and lowers exact field get/set to slot-based
-  `nyash.object.*` helpers with fail-fast status checks on set;
+- Python LLVM carries MIR JSON `typed_object_plans`; Python LLVM and the
+  pure-first C shim register exact typed-object layouts before user code,
+  create exact typed-object handles for exact-storage plans, and lower exact
+  field get/set to slot-based `nyash.object.*` helpers with fail-fast status
+  checks on set;
 - Python LLVM consumes MIR-owned exact add/sub/mul, compare, and logical
   right-shift route facts; arithmetic routes use checked overflow/range traps,
   compare routes use signed or unsigned predicates from the declared exact

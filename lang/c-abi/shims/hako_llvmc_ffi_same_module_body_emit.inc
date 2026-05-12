@@ -433,7 +433,7 @@
           return same_module_function_emit_newbox(ins);
         }
         if (!strcmp(op, "field_set")) {
-          return same_module_function_emit_typed_object_field_set(ins);
+          return same_module_function_emit_typed_object_field_set(ins, bid, ii);
         }
         if (!strcmp(op, "field_get")) {
           return same_module_function_emit_typed_object_field_get(ins);

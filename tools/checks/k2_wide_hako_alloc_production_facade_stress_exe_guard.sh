@@ -89,6 +89,14 @@ if plans.get("HakoAllocProductionFacade") is None:
     raise SystemExit("missing facade typed object plan")
 if plans.get("HakoAllocProductionFacadeStress") is None:
     raise SystemExit("missing stress typed object plan")
+facade_fields = {
+    field.get("name"): field
+    for field in plans["HakoAllocProductionFacade"].get("fields", [])
+}
+for name in ("alloc_count", "free_count", "reject_count"):
+    field = facade_fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"facade {name} field must be exact usize storage: {field}")
 
 def iter_calls(fn):
     for block in fn.get("blocks", []):

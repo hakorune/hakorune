@@ -282,6 +282,17 @@
         // phi first
         for (int pi=0; pi<phi_n; pi++) if (phis[pi].bid==bid){ for (int r=0;r<phis[pi].rec_n;r++){ emit_phi(phis[pi].recs[r].dst, phis[pi].recs[r].in, phis[pi].recs[r].in_n); } }
         if (bi == 0) {
+          if (!emit_typed_object_layout_registrations(f)) {
+            note_pure_unsupported_shape(
+                -1,
+                0,
+                "typed_object_layout",
+                "typed_object_layout_registration_failed",
+                NULL);
+            fclose(f);
+            yyjson_doc_free(d);
+            goto GEN_ABORT;
+          }
           emit_hoisted_string_const_defs(f);
         }
         yyjson_val* insts = block.instructions;
@@ -417,16 +428,93 @@
                     field,
                     &field_slot)) {
               long long box_base = resolve_copy_source_reg(box_reg);
+              int exact_unsigned = typed_object_storage_is_unsigned_exact(field_slot.storage);
+              int exact_signed = typed_object_storage_is_signed_exact(field_slot.storage);
+              const char* set_symbol = exact_unsigned
+                  ? "nyash.object.field_set_u64_hiu"
+                  : (exact_signed
+                         ? "nyash.object.field_set_i64_hii"
+                         : "nyash.object.field_set_hii");
+              char status_name[96];
+              if (exact_unsigned) {
+                if (has_const(value_base, &value_const)) {
+                  if (value_const < 0) {
+                    note_pure_unsupported_shape(
+                        bid,
+                        ii,
+                        op,
+                        "typed_object_unsigned_negative_const",
+                        NULL);
+                    yyjson_doc_free(d);
+                    goto GEN_ABORT;
+                  }
+                } else {
+                  EMIT("  %%exact_unsigned_nonnegative_%lld_%zu = icmp sge i64 %%r%lld, 0\n",
+                       bid,
+                       ii,
+                       value_base);
+                  EMIT("  br i1 %%exact_unsigned_nonnegative_%lld_%zu, label %%exact_unsigned_continue_%lld_%zu, label %%exact_unsigned_trap_%lld_%zu\n",
+                       bid,
+                       ii,
+                       bid,
+                       ii,
+                       bid,
+                       ii);
+                  EMIT("exact_unsigned_trap_%lld_%zu:\n", bid, ii);
+                  EMIT("  call void @llvm.trap()\n");
+                  EMIT("  unreachable\n");
+                  EMIT("exact_unsigned_continue_%lld_%zu:\n", bid, ii);
+                }
+              }
               if (has_const(value_base, &value_const)) {
-                EMIT("  call void @\"nyash.object.field_set_hii\"(i64 %%r%lld, i64 %lld, i64 %lld)\n",
-                     box_base,
-                     field_slot.slot,
-                     value_const);
+                if (exact_unsigned || exact_signed) {
+                  snprintf(status_name, sizeof(status_name), "exact_field_set_%lld_%zu", bid, ii);
+                  EMIT("  %%%s = call i64 @\"%s\"(i64 %%r%lld, i64 %lld, i64 %lld)\n",
+                       status_name,
+                       set_symbol,
+                       box_base,
+                       field_slot.slot,
+                       value_const);
+                } else {
+                  EMIT("  call void @\"%s\"(i64 %%r%lld, i64 %lld, i64 %lld)\n",
+                       set_symbol,
+                       box_base,
+                       field_slot.slot,
+                       value_const);
+                }
               } else {
-                EMIT("  call void @\"nyash.object.field_set_hii\"(i64 %%r%lld, i64 %lld, i64 %%r%lld)\n",
-                     box_base,
-                     field_slot.slot,
-                     value_base);
+                if (exact_unsigned || exact_signed) {
+                  snprintf(status_name, sizeof(status_name), "exact_field_set_%lld_%zu", bid, ii);
+                  EMIT("  %%%s = call i64 @\"%s\"(i64 %%r%lld, i64 %lld, i64 %%r%lld)\n",
+                       status_name,
+                       set_symbol,
+                       box_base,
+                       field_slot.slot,
+                       value_base);
+                } else {
+                  EMIT("  call void @\"%s\"(i64 %%r%lld, i64 %lld, i64 %%r%lld)\n",
+                       set_symbol,
+                       box_base,
+                       field_slot.slot,
+                       value_base);
+                }
+              }
+              if (exact_unsigned || exact_signed) {
+                EMIT("  %%exact_status_ok_%lld_%zu = icmp ne i64 %%%s, 0\n",
+                     bid,
+                     ii,
+                     status_name);
+                EMIT("  br i1 %%exact_status_ok_%lld_%zu, label %%exact_status_continue_%lld_%zu, label %%exact_status_trap_%lld_%zu\n",
+                     bid,
+                     ii,
+                     bid,
+                     ii,
+                     bid,
+                     ii);
+                EMIT("exact_status_trap_%lld_%zu:\n", bid, ii);
+                EMIT("  call void @llvm.trap()\n");
+                EMIT("  unreachable\n");
+                EMIT("exact_status_continue_%lld_%zu:\n", bid, ii);
               }
               continue;
             }
@@ -450,8 +538,14 @@
                     field,
                     &field_slot)) {
               long long box_base = resolve_copy_source_reg(box_reg);
-              EMIT("  %%r%lld = call i64 @\"nyash.object.field_get_hii\"(i64 %%r%lld, i64 %lld)\n",
+              const char* get_symbol = typed_object_storage_is_unsigned_exact(field_slot.storage)
+                  ? "nyash.object.field_get_u64_hii"
+                  : (typed_object_storage_is_signed_exact(field_slot.storage)
+                         ? "nyash.object.field_get_i64_hii"
+                         : "nyash.object.field_get_hii");
+              EMIT("  %%r%lld = call i64 @\"%s\"(i64 %%r%lld, i64 %lld)\n",
                    dst,
+                   get_symbol,
                    box_base,
                    field_slot.slot);
               if (!generic_pure_publish_reg_metadata(dst)) {
