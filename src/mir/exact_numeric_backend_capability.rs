@@ -30,7 +30,9 @@ pub(crate) fn enforce_exact_numeric_backend_supported(
 
     let report = inspect_exact_numeric_backend_capability(module);
     let mut errors = Vec::new();
-    if report.typed_object_exact_storage_fields > 0 {
+    if report.typed_object_exact_storage_fields > 0
+        && !backend_supports_exact_typed_object_field_abi(backend)
+    {
         errors.push(format!(
             "{} backend={} storage_fields={} require=exact-numeric-typed-object-storage-lowering",
             EXACT_NUMERIC_BACKEND_STORAGE_UNSUPPORTED_TAG,
@@ -69,6 +71,10 @@ fn exact_numeric_storage_requires_native_backend_slot(storage: TypedObjectFieldS
         storage,
         TypedObjectFieldStorage::I64 | TypedObjectFieldStorage::Handle
     )
+}
+
+fn backend_supports_exact_typed_object_field_abi(backend: &str) -> bool {
+    matches!(backend, "ny-llvmc-exe" | "ny-llvmc-obj" | "llvmlite-obj")
 }
 
 fn exact_numeric_operation_route_fact_count(module: &MirModule) -> usize {
@@ -155,9 +161,16 @@ mod tests {
     #[test]
     fn backend_capability_rejects_exact_typed_object_storage() {
         let module = module_with_storage(TypedObjectFieldStorage::USize);
-        let err = enforce_exact_numeric_backend_supported(&module, "ny-llvmc").unwrap_err();
+        let err = enforce_exact_numeric_backend_supported(&module, "wasm").unwrap_err();
         assert!(err.contains(EXACT_NUMERIC_BACKEND_STORAGE_UNSUPPORTED_TAG));
         assert!(err.contains("storage_fields=1"));
+    }
+
+    #[test]
+    fn backend_capability_accepts_exact_typed_object_storage_for_python_llvm_field_abi() {
+        let module = module_with_storage(TypedObjectFieldStorage::USize);
+        assert!(enforce_exact_numeric_backend_supported(&module, "ny-llvmc-exe").is_ok());
+        assert!(enforce_exact_numeric_backend_supported(&module, "llvmlite-obj").is_ok());
     }
 
     #[test]

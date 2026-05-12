@@ -7,6 +7,7 @@ import llvmlite.ir as ir
 import os
 from typing import Dict, List, Optional, Any
 from instructions.string_fast import can_reuse_literal_string_handle
+from instructions.typed_object_exact import exact_object_plan_for_box
 from instructions.user_box_local import build_local_user_box_aggregate_for_newbox
 from utils.resolver_helpers import mark_as_handle
 
@@ -87,6 +88,26 @@ def lower_newbox(
                         resolver.mark_string(dst_vid)
             except (AttributeError, TypeError, KeyError):
                 pass
+
+    exact_plan = exact_object_plan_for_box(
+        getattr(resolver, "typed_object_plans", []),
+        box_type,
+    )
+    if exact_plan is not None:
+        try:
+            type_id = int(exact_plan.get("type_id"))
+            field_count = int(exact_plan.get("field_count"))
+        except (TypeError, ValueError):
+            raise RuntimeError("[typed-object/exact] malformed type_id or field_count")
+        callee = _declare("nyash.object.new_typed_hi", i64, [i64, i64])
+        handle = builder.call(
+            callee,
+            [ir.Constant(i64, type_id), ir.Constant(i64, field_count)],
+            name=f"new_typed_{box_type}",
+        )
+        vmap[dst_vid] = handle
+        _mark_box_handle()
+        return
 
     local_user_box = build_local_user_box_aggregate_for_newbox(resolver, dst_vid, box_type)
     if local_user_box is not None:

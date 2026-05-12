@@ -28,15 +28,16 @@ hako_alloc or mimalloc migration.
 - Native exact numeric typed-object slot representation exists in
   `nyash_kernel`.
 - Exact numeric signed/unsigned field helper lanes exist in `nyash_kernel`.
-- Backend lowering and production `hako_alloc` migration remain separate later
-  rows.
+- Python LLVM consumes exact typed-object field ABI for exact-storage plans.
+- Exact arithmetic/compare/shift backend lowering and production `hako_alloc`
+  migration remain separate later rows.
 
 ## Next Implementation Queue
 
 | Order | Row | Status | Implementation Boundary |
 | --- | --- | --- | --- |
-| 1 | `294x-19c` | Future | Backend lowering/capability gates consume the exact field ABI or fail fast. |
-| 2 | `294x-19d` | Future | Production `hako_alloc` non-negative field migration reopens one field group at a time. |
+| 1 | `294x-19d` | Future | Backend lowering consumes the exact arithmetic/compare subset needed by migrated fields. |
+| 2 | `294x-19e` | Future | Production `hako_alloc` non-negative field migration reopens one field group at a time. |
 | 3 | `M168+` | Future | Mimalloc `.hako` OSVM page source, local-free retire, and remote-free rows consume the completed substrate. |
 
 ## Ladder
@@ -82,8 +83,9 @@ hako_alloc or mimalloc migration.
 | `294x-19` | Blocked | hako_alloc production facade migration | waits for exact typed-object storage plus backend consumption of the exact field ABI |
 | `294x-19a` | Complete | native exact numeric typed-object slots | kernel typed-object storage records exact slot kinds and legacy i64 helpers do not mutate exact numeric slots |
 | `294x-19b` | Complete | exact numeric field get/set ABI | runtime helpers read/write exact signed/unsigned slots with range/overflow contracts |
-| `294x-19c` | Future | exact field ABI backend consumption | non-VM backends either lower exact field get/set helpers or keep capability-gate fail-fast closed |
-| `294x-19d` | Future | hako_alloc production field migration | production non-negative field groups migrate only after backend field ABI consumption is green |
+| `294x-19c` | Complete | exact field ABI backend consumption | Python LLVM carries typed-object plans, registers exact layouts, creates exact typed-object handles, and lowers exact field get/set helpers |
+| `294x-19d` | Future | exact op backend subset | Python LLVM lowers the exact add/sub/compare subset needed by migrated fields or keeps route facts fail-fast |
+| `294x-19e` | Future | hako_alloc production field migration | production non-negative field groups migrate only after backend field ABI and exact op subset consumption are green |
 | `294x-20` | Complete | mimalloc row resume gate | M167+ mimalloc implementation resumes with clear `usize` support boundaries and production fields still on `i64` |
 
 ## Required Feature Checklist
@@ -162,7 +164,7 @@ hako_alloc or mimalloc migration.
   storage or op-route facts silently use legacy `Integer(i64)` lowering.
 - [x] Add backend/runtime native `usize` slots.
 - [x] Add field get/set ABI for exact numeric slots.
-- [ ] Add backend lowering/capability-gate consumption for exact numeric field
+- [x] Add backend lowering/capability-gate consumption for exact numeric field
   get/set ABI.
 - [ ] Lower LLVM/native unsigned compare and shift.
 - [ ] Decide WASM target behavior.
@@ -194,7 +196,7 @@ hako_alloc or mimalloc migration.
   storage, exact field ABI, and backend ABI consumption.
 - [ ] Update proof apps per field group.
 - [ ] Migrate production non-negative fields only after exact field ABI backend
-  consumption is green.
+  consumption and needed exact op backend subset are green.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 

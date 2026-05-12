@@ -21,6 +21,7 @@ class TestMirReaderBuilderInput(unittest.TestCase):
         mir_json = {
             "user_box_decls": [{"name": "Main"}],
             "enum_decls": [{"name": "Option", "variants": [{"name": "None"}]}],
+            "typed_object_plans": [{"box_name": "Page", "fields": []}],
             "functions": [
                 {
                     "name": "main",
@@ -37,6 +38,7 @@ class TestMirReaderBuilderInput(unittest.TestCase):
         builder_input = build_builder_input(mir_json, fake_scan)
         self.assertEqual(builder_input.user_box_decls, [{"name": "Main"}])
         self.assertEqual(builder_input.enum_decls, [{"name": "Option", "variants": [{"name": "None"}]}])
+        self.assertEqual(builder_input.typed_object_plans, [{"box_name": "Page", "fields": []}])
         self.assertEqual(builder_input.functions[0]["name"], "main")
         self.assertEqual(builder_input.call_arities, {"main": 0})
 

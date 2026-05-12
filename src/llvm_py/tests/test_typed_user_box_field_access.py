@@ -10,6 +10,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from instructions.field_access import lower_field_get, lower_field_set
+from instructions.newbox import lower_newbox
+from builders.entry import ensure_ny_main
 from type_facts import make_box_handle_fact
 
 
@@ -33,6 +35,187 @@ class TestTypedUserBoxFieldAccess(unittest.TestCase):
         fn = ir.Function(mod, ir.FunctionType(i64, []), name="main")
         bb = fn.append_basic_block("bb1")
         return mod, ir.IRBuilder(bb), bb, i64
+
+    def _exact_page_plan(self):
+        return [
+            {
+                "box_name": "Page",
+                "type_id": 294019300,
+                "layout_kind": "typed_object_v0",
+                "field_count": 2,
+                "fields": [
+                    {
+                        "name": "capacity",
+                        "slot": 0,
+                        "declared_type": "usize",
+                        "storage": "usize",
+                        "weak": False,
+                    },
+                    {
+                        "name": "used",
+                        "slot": 1,
+                        "declared_type": "i64",
+                        "storage": "i64",
+                        "weak": False,
+                    },
+                ],
+            }
+        ]
+
+    def test_newbox_uses_exact_typed_object_helper_for_exact_storage_plan(self):
+        mod, builder, _bb, i64 = self._make_builder()
+        resolver = _ResolverStub()
+        resolver.typed_object_plans = self._exact_page_plan()
+        vmap = {}
+
+        lower_newbox(builder, mod, "Page", [], 1, vmap, resolver)
+
+        ir_txt = str(mod)
+        self.assertIn('call i64 @"nyash.object.new_typed_hi"', ir_txt, msg=ir_txt)
+        self.assertNotIn('@"nyash.env.box.new_i64x"', ir_txt, msg=ir_txt)
+        self.assertEqual(resolver.value_types[1], make_box_handle_fact("Page"))
+        self.assertIn(1, vmap)
+
+    def test_field_get_uses_exact_unsigned_slot_helper_for_usize_plan(self):
+        mod, builder, bb, i64 = self._make_builder()
+        resolver = _ResolverStub()
+        resolver.value_types[1] = make_box_handle_fact("Page")
+        resolver.typed_object_plans = self._exact_page_plan()
+        vmap = {1: ir.Constant(i64, 101)}
+
+        lower_field_get(
+            builder,
+            mod,
+            1,
+            "capacity",
+            2,
+            "usize",
+            [],
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+
+        ir_txt = str(mod)
+        self.assertIn('call i64 @"nyash.object.field_get_u64_hii"', ir_txt, msg=ir_txt)
+        self.assertIn("i64 0", ir_txt, msg=ir_txt)
+        self.assertNotIn("nyash.instance.get_i64_field_h", ir_txt, msg=ir_txt)
+        self.assertEqual(resolver.value_types[2], "i64")
+
+    def test_field_get_uses_exact_signed_slot_helper_for_i64_field_in_exact_plan(self):
+        mod, builder, bb, i64 = self._make_builder()
+        resolver = _ResolverStub()
+        resolver.value_types[1] = make_box_handle_fact("Page")
+        resolver.typed_object_plans = self._exact_page_plan()
+        vmap = {1: ir.Constant(i64, 101)}
+
+        lower_field_get(
+            builder,
+            mod,
+            1,
+            "used",
+            2,
+            "i64",
+            [],
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+
+        ir_txt = str(mod)
+        self.assertIn('call i64 @"nyash.object.field_get_i64_hii"', ir_txt, msg=ir_txt)
+        self.assertNotIn("nyash.instance.get_i64_field_h", ir_txt, msg=ir_txt)
+        self.assertEqual(resolver.value_types[2], "i64")
+
+    def test_field_set_uses_exact_unsigned_slot_helper_and_traps_on_failed_status(self):
+        mod, builder, bb, i64 = self._make_builder()
+        resolver = _ResolverStub()
+        resolver.value_types[1] = make_box_handle_fact("Page")
+        resolver.value_types[2] = "i64"
+        resolver.typed_object_plans = self._exact_page_plan()
+        vmap = {
+            1: ir.Constant(i64, 101),
+            2: ir.Constant(i64, 64),
+        }
+
+        lower_field_set(
+            builder,
+            mod,
+            1,
+            "capacity",
+            2,
+            "usize",
+            [],
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+
+        ir_txt = str(mod)
+        self.assertIn('call i64 @"nyash.object.field_set_u64_hiu"', ir_txt, msg=ir_txt)
+        self.assertIn("unreachable", ir_txt, msg=ir_txt)
+        self.assertNotIn("nyash.instance.set_i64_field_h", ir_txt, msg=ir_txt)
+
+    def test_field_set_uses_exact_signed_slot_helper_for_i64_field_in_exact_plan(self):
+        mod, builder, bb, i64 = self._make_builder()
+        resolver = _ResolverStub()
+        resolver.value_types[1] = make_box_handle_fact("Page")
+        resolver.value_types[2] = "i64"
+        resolver.typed_object_plans = self._exact_page_plan()
+        vmap = {
+            1: ir.Constant(i64, 101),
+            2: ir.Constant(i64, 7),
+        }
+
+        lower_field_set(
+            builder,
+            mod,
+            1,
+            "used",
+            2,
+            "i64",
+            [],
+            vmap,
+            resolver,
+            preds={},
+            block_end_values={},
+            bb_map={1: bb},
+        )
+
+        ir_txt = str(mod)
+        self.assertIn('call i64 @"nyash.object.field_set_i64_hii"', ir_txt, msg=ir_txt)
+        self.assertIn("unreachable", ir_txt, msg=ir_txt)
+        self.assertNotIn("nyash.instance.set_i64_field_h", ir_txt, msg=ir_txt)
+
+    def test_ny_main_registers_exact_typed_object_layout_before_main_call(self):
+        mod = ir.Module(name="typed_object_exact_entry")
+        i64 = ir.IntType(64)
+        ir.Function(mod, ir.FunctionType(i64, []), name="main")
+
+        class Builder:
+            pass
+
+        builder = Builder()
+        builder.module = mod
+        builder.i64 = i64
+        builder.i32 = ir.IntType(32)
+        builder.i8 = ir.IntType(8)
+        builder.i8p = builder.i8.as_pointer()
+        builder.user_box_decls = []
+        builder.typed_object_plans = self._exact_page_plan()
+
+        ensure_ny_main(builder)
+
+        ir_txt = str(mod)
+        self.assertIn('call i64 @"nyash.object.register_typed_layout_hi"', ir_txt, msg=ir_txt)
+        self.assertIn('call i64 @"nyash.object.register_typed_layout_slot_iii"', ir_txt, msg=ir_txt)
+        self.assertIn("i64 4", ir_txt, msg=ir_txt)
 
     def test_field_get_uses_typed_integer_helper_for_typed_user_box_field(self):
         mod, builder, bb, i64 = self._make_builder()

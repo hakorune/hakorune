@@ -108,9 +108,9 @@ Live today:
 - `HakoAllocUsizeFieldProbe` owns an isolated proof-only migration probe for
   capacity/count/byte-length `usize` stored fields without changing production
   allocator state;
-- production `hako_alloc` `usize` field migration is blocked until backend
-  lowering/capability gates consume the exact field ABI; mimalloc algorithm
-  rows may continue with production fields on `i64`;
+- production `hako_alloc` `usize` field migration is blocked until the Python
+  LLVM path consumes the needed exact operation subset for migrated fields;
+  mimalloc algorithm rows may continue with production fields on `i64`;
 - `nyash_kernel` typed-object storage records exact numeric slot kinds,
   including `usize`, separately from legacy `i64`; legacy `field_get_hii` /
   `field_set_hii` helpers keep default `i64` behavior but do not mutate exact
@@ -118,6 +118,10 @@ Live today:
 - `nyash_kernel` exports exact signed/unsigned typed-object field helper lanes
   whose writes range-check by slot storage kind and fail without mutating on
   wrong-kind or out-of-range values;
+- Python LLVM carries MIR JSON `typed_object_plans`, registers exact
+  typed-object layouts before user code, creates exact typed-object handles for
+  exact-storage plans, and lowers exact field get/set to slot-based
+  `nyash.object.*` helpers with fail-fast status checks on set;
 - `FunctionMetadata` preserves MIR-side declared parameter/return annotation
   text, and exact numeric return annotations publish function-level advisory
   return facts without changing runtime lowering;
@@ -142,8 +146,7 @@ Not live today:
 - backend exact numeric arithmetic/compare/shift lowering and explicit wrapping
   vocabulary;
 - MIR JSON exact-width numeric const tags;
-- backend lowering/capability-gate consumption of the exact typed-object field
-  ABI;
+- WASM exact typed-object field ABI consumption;
 - backend lowering to native pointer-sized integer classes.
 
 ## Target Meaning

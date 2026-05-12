@@ -6,10 +6,17 @@ import llvmlite.ir as ir
 from instructions.mir_call.runtime_data_dispatch import lower_runtime_data_field_call
 from instructions.primitive_handles import resolver_value_type, unbox_primitive_handle_if_needed
 from instructions.thin_entry_selection import thin_entry_prefers_inline_scalar_field
+from instructions.typed_object_exact import (
+    exact_field_plan_for_box,
+    is_handle_storage,
+    is_signed_storage,
+    is_unsigned_storage,
+)
 from instructions.user_box_local import (
     lower_local_user_box_field_get,
     lower_local_user_box_field_set,
 )
+from instructions.typeop import _emit_trap
 from type_facts import is_box_handle_fact
 from utils.resolver_helpers import mark_as_handle
 from utils.values import resolve_i64_strict
@@ -133,6 +140,19 @@ def _receiver_box_type(resolver, box_vid: Optional[int]) -> Optional[str]:
     if not isinstance(box_vid, int):
         return None
     return _handle_box_type(resolver_value_type(resolver, int(box_vid)))
+
+
+def _exact_field_plan_for_receiver(
+    resolver,
+    box_vid: Optional[int],
+    field_name: str,
+) -> Optional[Dict[str, Any]]:
+    receiver_box_type = _receiver_box_type(resolver, box_vid)
+    return exact_field_plan_for_box(
+        getattr(resolver, "typed_object_plans", []),
+        receiver_box_type,
+        field_name,
+    )
 
 
 def _declared_type_matches_box_type(declared_type: Any, expected_box_type: str) -> bool:
@@ -459,6 +479,121 @@ def _lower_typed_integer_field_set(
     )
 
 
+def _trap_if_status_zero(builder: ir.IRBuilder, status: ir.Value, *, name_hint: str) -> None:
+    i64 = ir.IntType(64)
+    fn = builder.block.function
+    suffix = len(list(fn.blocks))
+    ok_bb = fn.append_basic_block(name=f"{name_hint}_{suffix}_ok")
+    trap_bb = fn.append_basic_block(name=f"{name_hint}_{suffix}_fail")
+    is_ok = builder.icmp_unsigned("!=", status, ir.Constant(i64, 0), name=f"{name_hint}_is_ok")
+    builder.cbranch(is_ok, ok_bb, trap_bb)
+    builder.position_at_end(trap_bb)
+    _emit_trap(builder)
+    builder.position_at_end(ok_bb)
+
+
+def _lower_exact_object_field_get(
+    builder: ir.IRBuilder,
+    module: ir.Module,
+    box_vid: Optional[int],
+    field_plan: Dict[str, Any],
+    dst_vid: Optional[int],
+    vmap: Dict[int, Any],
+    resolver,
+    preds,
+    block_end_values,
+    bb_map,
+) -> Optional[ir.Value]:
+    i64 = ir.IntType(64)
+    storage = field_plan.get("storage")
+    try:
+        slot = int(field_plan.get("slot"))
+    except (TypeError, ValueError):
+        raise RuntimeError("[typed-object/exact] malformed field slot")
+    recv_val = _resolve_receiver(
+        builder, box_vid, vmap, resolver, preds, block_end_values, bb_map
+    )
+    recv_h = _ensure_handle(builder, module, recv_val)
+    slot_val = ir.Constant(i64, slot)
+    if is_unsigned_storage(storage):
+        callee = _declare(module, "nyash.object.field_get_u64_hii", i64, [i64, i64])
+        result = builder.call(callee, [recv_h, slot_val], name="exact_field_get_u64")
+        if dst_vid is not None:
+            vmap[int(dst_vid)] = result
+            _mark_integer_immediate(resolver, int(dst_vid))
+        return result
+    if is_signed_storage(storage):
+        callee = _declare(module, "nyash.object.field_get_i64_hii", i64, [i64, i64])
+        result = builder.call(callee, [recv_h, slot_val], name="exact_field_get_i64")
+        if dst_vid is not None:
+            vmap[int(dst_vid)] = result
+            _mark_integer_immediate(resolver, int(dst_vid))
+        return result
+    if is_handle_storage(storage):
+        callee = _declare(module, "nyash.object.field_get_hii", i64, [i64, i64])
+        result = builder.call(callee, [recv_h, slot_val], name="exact_field_get_h")
+        if dst_vid is not None:
+            vmap[int(dst_vid)] = result
+            mark_as_handle(resolver, int(dst_vid))
+        return result
+    return None
+
+
+def _lower_exact_object_field_set(
+    builder: ir.IRBuilder,
+    module: ir.Module,
+    box_vid: Optional[int],
+    value_vid: Optional[int],
+    field_plan: Dict[str, Any],
+    vmap: Dict[int, Any],
+    resolver,
+    preds,
+    block_end_values,
+    bb_map,
+) -> Optional[ir.Value]:
+    i64 = ir.IntType(64)
+    void = ir.VoidType()
+    storage = field_plan.get("storage")
+    try:
+        slot = int(field_plan.get("slot"))
+    except (TypeError, ValueError):
+        raise RuntimeError("[typed-object/exact] malformed field slot")
+    recv_val = _resolve_receiver(
+        builder, box_vid, vmap, resolver, preds, block_end_values, bb_map
+    )
+    recv_h = _ensure_handle(builder, module, recv_val)
+    value_val = _resolve_receiver(
+        builder, value_vid, vmap, resolver, preds, block_end_values, bb_map
+    )
+    value_meta = (
+        resolver_value_type(resolver, int(value_vid)) if isinstance(value_vid, int) else None
+    )
+    value_val = unbox_primitive_handle_if_needed(
+        builder,
+        _canonical_i64(builder, value_val, name_hint="exact_field_set_value"),
+        value_meta,
+        name_hint=f"exact_field_set_{value_vid}",
+    )
+    value_val = _canonical_i64(builder, value_val, name_hint="exact_field_set_final")
+    slot_val = ir.Constant(i64, slot)
+
+    if is_unsigned_storage(storage):
+        callee = _declare(module, "nyash.object.field_set_u64_hiu", i64, [i64, i64, i64])
+        status = builder.call(callee, [recv_h, slot_val, value_val], name="exact_field_set_u64")
+        _trap_if_status_zero(builder, status, name_hint="exact_field_set_u64")
+        return status
+    if is_signed_storage(storage):
+        callee = _declare(module, "nyash.object.field_set_i64_hii", i64, [i64, i64, i64])
+        status = builder.call(callee, [recv_h, slot_val, value_val], name="exact_field_set_i64")
+        _trap_if_status_zero(builder, status, name_hint="exact_field_set_i64")
+        return status
+    if is_handle_storage(storage):
+        callee = _declare(module, "nyash.object.field_set_hii", void, [i64, i64, i64])
+        builder.call(callee, [recv_h, slot_val, value_val])
+        return ir.Constant(i64, 0)
+    return None
+
+
 def _canonical_bool_i64(builder: ir.IRBuilder, value, *, name_hint: str):
     i64 = ir.IntType(64)
     if value is None:
@@ -686,6 +821,22 @@ def lower_field_get(
     )
     if local_result is not None:
         return local_result
+    exact_field_plan = _exact_field_plan_for_receiver(resolver, box_vid, field_name)
+    if exact_field_plan is not None:
+        exact_result = _lower_exact_object_field_get(
+            builder,
+            module,
+            box_vid,
+            exact_field_plan,
+            dst_vid,
+            vmap,
+            resolver,
+            preds,
+            block_end_values,
+            bb_map,
+        )
+        if exact_result is not None:
+            return exact_result
     if _typed_float_field_enabled(
         box_vid=box_vid,
         field_name=field_name,
@@ -800,6 +951,22 @@ def lower_field_set(
         bb_map,
     ):
         return ir.Constant(ir.IntType(64), 0)
+    exact_field_plan = _exact_field_plan_for_receiver(resolver, box_vid, field_name)
+    if exact_field_plan is not None:
+        exact_result = _lower_exact_object_field_set(
+            builder,
+            module,
+            box_vid,
+            value_vid,
+            exact_field_plan,
+            vmap,
+            resolver,
+            preds,
+            block_end_values,
+            bb_map,
+        )
+        if exact_result is not None:
+            return exact_result
     if _typed_float_field_set_enabled(
         box_vid=box_vid,
         field_name=field_name,

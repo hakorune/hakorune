@@ -5,6 +5,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from naming_helper import encode_static_method
 from instructions.sum_runtime import merge_user_box_decls
+from instructions.typed_object_exact import exact_object_plans, storage_tag
 
 def ensure_ny_main(builder) -> None:
     """Ensure ny_main wrapper exists by delegating to Main.main/1 or main().
@@ -38,6 +39,9 @@ def ensure_ny_main(builder) -> None:
     b = ir.IRBuilder(entry)
 
     # Phase 285LLVM-1.1: Register user box declarations before calling main
+    exact_plans = exact_object_plans(getattr(builder, 'typed_object_plans', []))
+    if exact_plans:
+        _emit_typed_object_layout_registration(b, builder.module, exact_plans)
     registered_box_decls = merge_user_box_decls(getattr(builder, 'user_box_decls', []))
     if registered_box_decls:
         _emit_user_box_registration(b, builder.module, registered_box_decls)
@@ -185,3 +189,58 @@ def _emit_user_box_registration(b, module, user_box_decls):
 
         # Call nyrt_register_user_box_decl(name, fields_json)
         b.call(reg_func, [name_ptr, fields_ptr])
+
+
+def _emit_typed_object_layout_registration(b, module, typed_object_plans):
+    from llvmlite import ir
+
+    i64 = ir.IntType(64)
+
+    def _declare(name, ret_ty, arg_tys):
+        for func in module.functions:
+            if func.name == name:
+                return func
+        return ir.Function(module, ir.FunctionType(ret_ty, arg_tys), name=name)
+
+    register_layout = _declare(
+        "nyash.object.register_typed_layout_hi",
+        i64,
+        [i64, i64],
+    )
+    register_slot = _declare(
+        "nyash.object.register_typed_layout_slot_iii",
+        i64,
+        [i64, i64, i64],
+    )
+
+    for plan in typed_object_plans:
+        try:
+            type_id = int(plan.get("type_id"))
+            field_count = int(plan.get("field_count"))
+        except (TypeError, ValueError):
+            raise RuntimeError("[typed-object/exact] malformed type_id or field_count")
+
+        b.call(
+            register_layout,
+            [ir.Constant(i64, type_id), ir.Constant(i64, field_count)],
+            name=f"typed_layout_{type_id}",
+        )
+        for field in plan.get("fields", []) or []:
+            if not isinstance(field, dict):
+                raise RuntimeError("[typed-object/exact] malformed field row")
+            try:
+                slot = int(field.get("slot"))
+            except (TypeError, ValueError):
+                raise RuntimeError("[typed-object/exact] malformed field slot")
+            tag = storage_tag(field.get("storage"))
+            if tag is None:
+                raise RuntimeError("[typed-object/exact] unsupported field storage")
+            b.call(
+                register_slot,
+                [
+                    ir.Constant(i64, type_id),
+                    ir.Constant(i64, slot),
+                    ir.Constant(i64, tag),
+                ],
+                name=f"typed_layout_slot_{type_id}_{slot}",
+            )

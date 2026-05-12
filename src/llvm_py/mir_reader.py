@@ -62,6 +62,7 @@ class BuilderInput:
     """Normalized MIR payload for llvm_builder orchestration."""
     user_box_decls: List[Dict[str, Any]]
     enum_decls: List[Dict[str, Any]]
+    typed_object_plans: List[Dict[str, Any]]
     functions: List[Dict[str, Any]]
     call_arities: Dict[str, int]
     
@@ -157,10 +158,14 @@ def build_builder_input(
     enum_decls = mir_json.get("enum_decls", [])
     if not isinstance(enum_decls, list):
         enum_decls = []
+    typed_object_plans = mir_json.get("typed_object_plans", [])
+    if not isinstance(typed_object_plans, list):
+        typed_object_plans = []
 
     return BuilderInput(
         user_box_decls=user_box_decls,
         enum_decls=enum_decls,
+        typed_object_plans=typed_object_plans,
         functions=functions,
         call_arities=call_arities,
     )

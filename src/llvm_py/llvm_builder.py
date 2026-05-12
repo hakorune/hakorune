@@ -179,6 +179,7 @@ class NyashLLVMBuilder:
         self.resolver.block_end_values = self.block_end_values
         self.user_box_decls: List[Dict[str, Any]] = []
         self.enum_decls: List[Dict[str, Any]] = []
+        self.typed_object_plans: List[Dict[str, Any]] = []
         self.call_arities: Dict[str, int] = {}
         self.ipo_callable_contracts_by_function: Dict[str, Dict[int, Dict[str, Any]]] = {}
         self.ipo_call_edge_contracts_by_function: Dict[str, Dict[int, Dict[str, Any]]] = {}
@@ -209,6 +210,8 @@ class NyashLLVMBuilder:
         builder_input = build_builder_input(mir_json, scan_call_arities)
         self.user_box_decls = builder_input.user_box_decls
         self.enum_decls = builder_input.enum_decls
+        self.typed_object_plans = builder_input.typed_object_plans
+        self.resolver.typed_object_plans = self.typed_object_plans
         functions = builder_input.functions
         self.call_arities = builder_input.call_arities
         
