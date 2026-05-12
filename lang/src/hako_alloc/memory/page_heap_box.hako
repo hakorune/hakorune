@@ -16,6 +16,18 @@ box HakoAllocHandle {
     }
 }
 
+box HakoAllocHandleResult {
+    ok: i64 = 0
+    reason: i64 = 0
+    handle: HakoAllocHandle
+
+    birth(ok, reason, handle) {
+        me.ok = ok
+        me.reason = reason
+        me.handle = handle
+    }
+}
+
 box HakoAllocPage {
     page_id: i64
     block_size: i64
@@ -105,6 +117,26 @@ box HakoAllocPage {
         return true
     }
 
+    isLiveHandle(handle) {
+        if handle == null {
+            return 0
+        }
+
+        if handle.page_id != me.page_id {
+            return 0
+        }
+
+        if handle.block_id < 0 {
+            return 0
+        }
+
+        if handle.block_id >= me.capacity {
+            return 0
+        }
+
+        return me.block_used.get(handle.block_id)
+    }
+
     resizeInPlace(handle, requested_size) {
         if handle == null {
             return null
@@ -174,6 +206,19 @@ box HakoAllocHeap {
         return null
     }
 
+    allocateResult(size) {
+        if size <= 0 {
+            return new HakoAllocHandleResult(0, 2, null)
+        }
+
+        local handle = me.allocate(size)
+        if handle == null {
+            return new HakoAllocHandleResult(0, 4, null)
+        }
+
+        return new HakoAllocHandleResult(1, 0, handle)
+    }
+
     release(handle) {
         if handle == null {
             return false
@@ -188,6 +233,22 @@ box HakoAllocHeap {
         }
 
         return false
+    }
+
+    isLiveHandle(handle) {
+        if handle == null {
+            return 0
+        }
+
+        if handle.page_id == 0 {
+            return me.small_page.isLiveHandle(handle)
+        }
+
+        if handle.page_id == 1 {
+            return me.medium_page.isLiveHandle(handle)
+        }
+
+        return 0
     }
 
     realloc(handle, requested_size) {
@@ -223,6 +284,27 @@ box HakoAllocHeap {
         }
 
         return null
+    }
+
+    reallocResult(handle, requested_size) {
+        if handle == null {
+            return new HakoAllocHandleResult(0, 1, null)
+        }
+
+        if requested_size <= 0 {
+            return new HakoAllocHandleResult(0, 2, null)
+        }
+
+        if me.isLiveHandle(handle) == 0 {
+            return new HakoAllocHandleResult(0, 3, null)
+        }
+
+        local replacement = me.realloc(handle, requested_size)
+        if replacement == null {
+            return new HakoAllocHandleResult(0, 4, null)
+        }
+
+        return new HakoAllocHandleResult(1, 0, replacement)
     }
 
     requestedBytes() {

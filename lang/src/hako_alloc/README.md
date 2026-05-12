@@ -121,6 +121,9 @@ Allocator fast-path rule
 - M189 object-return API parity is intentionally limited to the legacy
   `HakoAllocHeap` semantic API. Page-map-backed result wrappers and failure
   reason objects remain M190+ work.
+- M190 adds `HakoAllocHandleResult` for explicit `ok/reason/handle` allocation
+  failures while keeping the M189 `allocate/realloc` compatibility APIs intact.
+  Reason codes are scalar and local to the `.hako` policy row.
 - post-M184 secure-list behavior is intentionally split: diagnostics observe
   page-local list shape, while encoded-next policy only transforms next indices.
   Neither owner mutates page state or claims hardening.

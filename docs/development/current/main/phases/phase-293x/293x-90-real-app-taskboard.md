@@ -163,6 +163,7 @@
 - [x] `293x-198` M187 exact usize size-class policy
 - [x] `293x-199` M188 exact usize request path
 - [x] `293x-200` M189 object-return allocator API parity
+- [x] `293x-201` M190 nullable / failure handle contract
 
 ## Gates
 

@@ -1,0 +1,32 @@
+// mimalloc-result-contract-proof
+// Purpose: prove M190 explicit allocator handle result contract.
+
+using selfhost.hako_alloc.memory.page_heap_box as HakoAllocPageHeapBox
+
+static box Main {
+    main(args) {
+        local heap = new HakoAllocHeap()
+
+        local alloc = heap.allocateResult(8)
+        local same = heap.reallocResult(alloc.handle, 16)
+        local moved = heap.reallocResult(same.handle, 48)
+        local invalid_size = heap.allocateResult(0)
+        local oversized = heap.allocateResult(80)
+        local null_realloc = heap.reallocResult(null, 8)
+
+        heap.release(moved.handle)
+        local stale = heap.reallocResult(moved.handle, 8)
+
+        print("mimalloc-result-contract-proof")
+        print("alloc=" + alloc.ok + "," + alloc.reason + "," + alloc.handle.page_id + "," + alloc.handle.block_id + "," + alloc.handle.requested_size)
+        print("same=" + same.ok + "," + same.reason + "," + same.handle.page_id + "," + same.handle.block_id + "," + same.handle.requested_size)
+        print("moved=" + moved.ok + "," + moved.reason + "," + moved.handle.page_id + "," + moved.handle.block_id + "," + moved.handle.requested_size)
+        print("invalid_size=" + invalid_size.ok + "," + invalid_size.reason)
+        print("oversized=" + oversized.ok + "," + oversized.reason)
+        print("null_realloc=" + null_realloc.ok + "," + null_realloc.reason)
+        print("stale=" + stale.ok + "," + stale.reason)
+        print("heap=" + heap.small_page.current_used + "," + heap.medium_page.current_used + "," + heap.small_page.freeCount() + "," + heap.medium_page.freeCount() + "," + heap.outstandingBlocks() + "," + heap.requestedBytes())
+        print("summary=ok")
+        return 0
+    }
+}
