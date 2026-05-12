@@ -32,6 +32,9 @@ Current phase reading:
   - `verifier/bounds/README.md`
   - `verifier/initialized_range/README.md`
   - `verifier/ownership/README.md`
+- `value_repr` now has a live current-lane helper at:
+  - `value_repr/README.md`
+  - `value_repr/current_lane_box.hako`
 - The first algorithm-substrate consumer has a live RawArray path at
   `raw_array/README.md`.
 - The following algorithm-substrate consumer now has a live observer slice at:
@@ -50,6 +53,8 @@ Current phase reading:
 
 Current live capability subset:
 - `mem` now has a live `alloc/realloc/free` facade.
+- `value_repr` now has a live `CurrentLaneBox.is_usize_i64` predicate for
+  provisional `usize` facades over the non-negative current-lane i64 subset.
 - `buf` now has a live `len/cap/reserve/grow` facade over ptr slot routes.
 - `ptr` remains the typed pointer/span facade used by the current array slot
   and capacity paths.

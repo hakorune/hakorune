@@ -1,0 +1,19 @@
+// CurrentLaneBox - shared current-lane value representation predicates.
+// Responsibility:
+// - centralize narrow value-lane checks used by low-level substrate facades
+// - keep provisional usize facade checks consistent while live runtime values
+//   still use the current Integer(i64) lane
+// Non-responsibility:
+// - exact pointer-sized unsigned storage
+// - wrapping/checked arithmetic
+// - allocator or OSVM policy
+
+static box CurrentLaneBox {
+  is_usize_i64(value) {
+    if value < 0 {
+      return 0
+    }
+    return 1
+  }
+}
+

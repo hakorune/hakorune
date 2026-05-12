@@ -53,6 +53,7 @@ The current live surface is intentionally narrow.
 | numeric substrate | fixed-width and pointer-sized type names are classified by MIR metadata for storage planning; exact numeric constant/conversion metadata range-checks values; checked exact numeric add/sub/mul policy rejects type mismatch and out-of-range results; exact numeric compare and unsigned logical right-shift policy reject type mismatch, signed logical shift, and invalid shift counts; PHI/Select exact numeric merge policy preserves exact facts only for identical incoming exact types; typed-object plans preserve exact numeric storage names; the MIR verifier rejects statically known out-of-range writes and unchecked dynamic writes to runtime-range-sensitive exact numeric declared fields; MIR semantic refresh attaches `DynamicIntegerRange` contracts for real exact numeric `FieldSet` producers, the VM interpreter executes existing contracts at `FieldSet` sites, and unsupported non-VM backend routes fail fast while exact numeric contracts, typed-object exact storage, or op-route facts remain unlowered; runtime values still use the current `Integer(i64)` lane; current `>>` is signed i64 arithmetic shift |
 | raw layout | MIR-owned `repr_c_v0` vocabulary can plan fixed-width numeric field offsets/size; no source syntax or backend-active native allocation yet |
 | `hako.mem` | allocation facade rows exist under `MemCoreBox`; exact public surface is still substrate-internal |
+| `hako.value_repr` | `CurrentLaneBox.is_usize_i64` owns the shared non-negative current-lane i64 predicate used by provisional `usize` facades; exact pointer-sized unsigned storage remains future |
 | `hako.buf` | `len/cap/reserve/grow` facade rows exist under `BufCoreBox`; capacity routes through `PtrCoreBox.slot_cap_i64` |
 | `hako.ptr` | typed pointer/span facade is staged for current raw collection routes and owns direct array-slot backend route names for the live row |
 | verifier | bounds, initialized-range, ownership, and rune contract gates exist for current rows; RawArray remove/insert are verifier-gated before pointer-substrate calls; `Contract(no_alloc/no_safepoint)` is MIR-verifier checked |
@@ -77,7 +78,7 @@ apps. The current route chain is:
 | Slice | Current proof reading |
 | --- | --- |
 | `hako.mem` extern leaves | `hako_mem_alloc` and `hako_mem_free` are route-owned native leaves; `hako_mem_realloc` is a runtime-decl native leaf but not part of the current `extern_call_routes` list |
-| `RawBufCoreBox` | `alloc_bytes_i64`, `realloc_bytes_i64`, and `free_bytes_i64` stay thin substrate facades over `MemCoreBox`; `alloc_bytes_usize` and `realloc_bytes_usize` are thin non-negative current-lane i64 subset aliases |
+| `RawBufCoreBox` | `alloc_bytes_i64`, `realloc_bytes_i64`, and `free_bytes_i64` stay thin substrate facades over `MemCoreBox`; `alloc_bytes_usize` and `realloc_bytes_usize` are thin non-negative current-lane i64 subset aliases checked through `CurrentLaneBox.is_usize_i64` |
 | `RawArrayCoreBox` | slot append/len/load/store plus reserve/grow route through ownership, bounds, initialized-range, `BufCoreBox`, and `PtrCoreBox` gates |
 | static tables | `u16[]` static const declarations emit readonly static data and `StaticDataLoad` reads |
 | OSVM | reserve/commit/decommit are route-owned page-source leaves; page-size is a native leaf for capability code |
@@ -334,6 +335,12 @@ EXE behavior:
 Owner module:
 
 - `lang/src/runtime/substrate/osvm/osvm_core_box.hako`
+
+Shared value-lane helper:
+
+- `lang/src/runtime/substrate/value_repr/current_lane_box.hako`
+- `CurrentLaneBox.is_usize_i64(value)` is the single predicate for the
+  provisional non-negative current-lane i64 `usize` subset.
 
 Live operations:
 

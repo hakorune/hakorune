@@ -6,6 +6,7 @@ cd "$ROOT_DIR"
 source tools/checks/lib/cargo_test_filter_group.sh
 
 OSVM_CORE_FILE="lang/src/runtime/substrate/osvm/osvm_core_box.hako"
+VALUE_REPR_CORE_FILE="lang/src/runtime/substrate/value_repr/current_lane_box.hako"
 VM_SUBSET_FILE="src/runner/reference/vm_hako/subset_check/mod.rs"
 VM_BOXCALL_FILE="lang/src/vm/boxes/mir_vm_s0_boxcall_builtin.hako"
 VM_EXTERNCALL_FILE="lang/src/vm/boxes/mir_vm_s0_call_exec.hako"
@@ -21,10 +22,14 @@ run_cargo_test_filter_group "k2-wide-osvm-first-row" "vm-hako subset acceptance"
   compile_v0_emits_mir_call_extern_hako_osvm
 
 echo "[k2-wide-osvm-first-row] --- substrate/vm/abi route lock ---"
+rg -F -q 'using selfhost.runtime.substrate.value_repr.current_lane_box as CurrentLaneBox' "$OSVM_CORE_FILE"
+rg -F -q 'static box CurrentLaneBox' "$VALUE_REPR_CORE_FILE"
+rg -F -q 'is_usize_i64(value)' "$VALUE_REPR_CORE_FILE"
 rg -F -q 'page_size_i64()' "$OSVM_CORE_FILE"
 rg -F -q 'reserve_bytes_i64(len_bytes)' "$OSVM_CORE_FILE"
 rg -F -q 'commit_bytes_i64(base, len_bytes)' "$OSVM_CORE_FILE"
 rg -F -q 'decommit_bytes_i64(base, len_bytes)' "$OSVM_CORE_FILE"
+rg -F -q 'CurrentLaneBox.is_usize_i64(len_bytes)' "$OSVM_CORE_FILE"
 rg -F -q 'externcall "hako_osvm_page_size_i64"()' "$OSVM_CORE_FILE"
 rg -F -q 'externcall "hako_osvm_reserve_bytes_i64"(len_bytes)' "$OSVM_CORE_FILE"
 rg -F -q 'externcall "hako_osvm_commit_bytes_i64"(base, len_bytes)' "$OSVM_CORE_FILE"

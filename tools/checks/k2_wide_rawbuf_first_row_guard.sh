@@ -7,6 +7,7 @@ source tools/checks/lib/cargo_test_filter_group.sh
 
 RAW_BUF_README="lang/src/runtime/substrate/raw_buf/README.md"
 RAW_BUF_CORE_FILE="lang/src/runtime/substrate/raw_buf/raw_buf_core_box.hako"
+VALUE_REPR_CORE_FILE="lang/src/runtime/substrate/value_repr/current_lane_box.hako"
 VM_SUBSET_FILE="src/runner/reference/vm_hako/subset_check/mod.rs"
 VM_BOXCALL_FILE="lang/src/vm/boxes/mir_vm_s0_boxcall_builtin.hako"
 SUBSTRATE_README="lang/src/runtime/substrate/README.md"
@@ -24,6 +25,7 @@ echo "[k2-wide-rawbuf-first-row] --- file/owner lock ---"
 for file in \
   "$RAW_BUF_README" \
   "$RAW_BUF_CORE_FILE" \
+  "$VALUE_REPR_CORE_FILE" \
   "$SUBSTRATE_README" \
   "$SUBSTRATE_LADDER_DOC" \
   "$HAKO_ALLOC_DOC" \
@@ -36,9 +38,14 @@ done
 
 echo "[k2-wide-rawbuf-first-row] --- substrate route lock ---"
 rg -F -q 'using selfhost.runtime.substrate.mem.mem_core_box as MemCoreBox' "$RAW_BUF_CORE_FILE"
+rg -F -q 'using selfhost.runtime.substrate.value_repr.current_lane_box as CurrentLaneBox' "$RAW_BUF_CORE_FILE"
+rg -F -q 'static box CurrentLaneBox' "$VALUE_REPR_CORE_FILE"
+rg -F -q 'is_usize_i64(value)' "$VALUE_REPR_CORE_FILE"
 rg -F -q 'alloc_bytes_i64(size)' "$RAW_BUF_CORE_FILE"
 rg -F -q 'realloc_bytes_i64(ptr, new_size)' "$RAW_BUF_CORE_FILE"
 rg -F -q 'free_bytes_i64(ptr)' "$RAW_BUF_CORE_FILE"
+rg -F -q 'CurrentLaneBox.is_usize_i64(size)' "$RAW_BUF_CORE_FILE"
+rg -F -q 'CurrentLaneBox.is_usize_i64(new_size)' "$RAW_BUF_CORE_FILE"
 rg -F -q 'MemCoreBox.alloc_i64(size)' "$RAW_BUF_CORE_FILE"
 rg -F -q 'MemCoreBox.realloc_i64(ptr, new_size)' "$RAW_BUF_CORE_FILE"
 rg -F -q 'MemCoreBox.free_i64(ptr)' "$RAW_BUF_CORE_FILE"

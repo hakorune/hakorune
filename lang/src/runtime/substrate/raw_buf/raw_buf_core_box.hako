@@ -8,17 +8,11 @@
 // - TLS/atomic/GC/OS VM policy
 
 using selfhost.runtime.substrate.mem.mem_core_box as MemCoreBox
+using selfhost.runtime.substrate.value_repr.current_lane_box as CurrentLaneBox
 
 static box RawBufCoreBox {
   _trace(tag) {
     if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
-  }
-
-  _is_current_lane_usize(value) {
-    if value < 0 {
-      return 0
-    }
-    return 1
   }
 
   alloc_bytes_i64(size) {
@@ -28,7 +22,7 @@ static box RawBufCoreBox {
   }
 
   alloc_bytes_usize(size: usize) {
-    if me._is_current_lane_usize(size) != 1 {
+    if CurrentLaneBox.is_usize_i64(size) != 1 {
       return 0
     }
     local out = me.alloc_bytes_i64(size)
@@ -43,7 +37,7 @@ static box RawBufCoreBox {
   }
 
   realloc_bytes_usize(ptr: i64, new_size: usize) {
-    if me._is_current_lane_usize(new_size) != 1 {
+    if CurrentLaneBox.is_usize_i64(new_size) != 1 {
       return 0
     }
     local out = me.realloc_bytes_i64(ptr, new_size)

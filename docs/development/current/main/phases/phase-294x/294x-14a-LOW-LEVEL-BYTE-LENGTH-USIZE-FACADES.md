@@ -45,7 +45,7 @@ OsVmCoreBox.decommit_bytes_usize(base: i64, len_bytes: usize)
 ```
 
 The wrappers delegate to the existing `*_i64` facades after rejecting negative
-byte lengths. No new native leaf is added.
+byte lengths through `CurrentLaneBox.is_usize_i64`. No new native leaf is added.
 
 ## Out Of Scope
 
