@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: provisional
-Date: 2026-05-08
+Date: 2026-05-12
 Scope: `stage2` allocator/handle wave and `phase-293x` real-app allocator port stop-lineとして、`hako_alloc` policy/state owner と native metal keep の concrete rows を固定する。
 Related:
   - docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
@@ -85,6 +85,36 @@ The split is:
 Allocator-shaped user boxes do not get special broad lowering here. General
 user-box EXE parity follows typed-object planning and shared recipe/scope/effect
 boundaries, not allocator-specific C shim branches.
+
+## Current Mimalloc Owner Ladder
+
+The active `.hako` allocator ladder is now explicit through the realloc failure
+contract:
+
+1. `M171` `HakoAllocPageMap` owns caller-visible `ptr -> page_id/block_id`
+   identity.
+2. `M172` `HakoAllocPageMapReleaseSeam` owns page-map-backed release ordering.
+3. `M173` `HakoAllocPageMapReleaseObserver` freezes handle lifetime plus
+   release/unregister observation around the M172 seam.
+4. `M174` `HakoAllocPageMapReallocSameClassPath` owns same-class/no-move realloc.
+5. `M175` `HakoAllocPageMapReallocAllocCopyReleasePath` owns grow fallback:
+   replacement allocation, modeled copy, then old-ptr release.
+6. `M176` `HakoAllocPageMapReallocFailureContract` owns only diagnostics: zero,
+   oversized, unknown, stale, released, and alloc-fail classification.
+
+The owner split above is the current stop line. `M176` does not move aligned
+allocation, huge-page routing, secure free-list policy, or provider/hook work
+into the existing realloc owners.
+
+## Immediate Next Boundary
+
+The next allocator row is `M177 alignment policy object`.
+
+- It may normalize requested alignment, reject non-power-of-two inputs, and
+  compute padded-size policy.
+- It must not allocate aligned blocks, widen page-map release/realloc owners, or
+  claim native/ABI alignment semantics.
+- Huge-page routing, huge-page release, and secure-list work remain later rows.
 
 ## First Concrete Policy Rows
 

@@ -67,6 +67,22 @@ The first concrete code row is the pure `.hako` size-class policy owner; page
 mutation, page queues, OSVM page sourcing, local free, and remote free follow as
 separate rows.
 
+## Current Post-M176 Boundary
+
+The active allocator algorithm lane is complete through `M176`:
+
+- page-map identity (`M171`)
+- page-map-backed release ordering (`M172`)
+- pre-realloc release observation (`M173`)
+- same-class/no-move realloc (`M174`)
+- alloc-copy-release grow fallback (`M175`)
+- realloc negative matrix / failure contract (`M176`)
+
+The next row is `M177 alignment policy object`. That row is still policy-only:
+alignment normalization, power-of-two validation, and padded-size calculation.
+It does not yet reopen aligned allocation execution, huge-page routing, or any
+allocator-provider activation work.
+
 ## Stop Line
 
 Until a later explicit host-replacement row reopens this lane, the mimalloc

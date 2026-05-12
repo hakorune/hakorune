@@ -71,6 +71,9 @@ Principles
   - `HakoAllocPageMapReallocFailureContract` is the M176 diagnostics owner. It
     classifies zero, oversized, unknown, stale, released, and alloc-fail
     outcomes while delegating same-class and grow execution back to M174/M175.
+  - `M177` is reserved for an alignment policy owner only. It may normalize and
+    validate alignment plus compute padded-size policy, but aligned execution
+    still stays outside the current realloc/release owners.
 
 Design owners
 - Policy/state stop-line:
@@ -85,6 +88,8 @@ Design owners
 Allocator fast-path rule
 - `mimalloc-lite` and allocator policy models can live here as policy/state rows.
 - mimalloc-grade native fast paths require the substrate ladder first.
+- post-M176 realloc behavior is fixed by the M171-M176 owners above; do not fold
+  alignment, huge-page, or secure-list execution into those boxes.
 - `RawBuf` policy/state, `MaybeInit`, native `Layout`, `repr`-like layout,
   `sizeof`, `alignof`, `no_alloc`, `no_safepoint`, TLS, atomics, and OS VM rows
   stay reserved until their docs/gates are named.

@@ -86,5 +86,8 @@ Syntax/style contract
   It may call `HakoAllocPageMap.lookup(...)` and inspect the current page block
   to decide whether the same live ptr can be reused, but it must not own
   release, unregister, alloc-copy-release fallback, or byte copy.
+- `M177` is the next reserved owner row: an alignment policy object that only
+  normalizes alignment, checks power-of-two validity, and computes padded-size
+  policy. It must not start aligned allocation execution or huge-page routing.
 - Keep `birth(...)` for parameter-dependent initialization and ordering that
   cannot be expressed as a declaration-site default.
