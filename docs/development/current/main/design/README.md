@@ -155,6 +155,7 @@
 - Optimization hub（history entry）: `docs/development/current/main/design/optimization/README.md`
 - String canonical MIR corridor + placement/effect pass SSOT（string hot lane を `.hako policy -> canonical MIR facts -> placement/effect pass -> Rust microkernel` へ寄せる設計正本）: `docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md`
 - Primitive family + user box fast path SSOT（primitive semantic builtin family と user box field access を compiler/MIR 主導で薄くする follow-on 設計正本）: `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
+- Record + packed array lowering SSOT（`record` を identity-free aggregate の表面語彙として固定し、packed/container lowering 順序を決める設計正本）: `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - Lifecycle-typed value language SSOT（`inside = value / boundary = box` の親設計正本）: `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
 - VM fallback lane separation SSOT（runner compat fallback / kernel Rust fallback / `vm-hako` reference lane の owner split を optimization 前に固定する）: `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
 - Helper boundary policy SSOT（host handle / string span cache tuning 集約）: `docs/development/current/main/design/helper-boundary-policy-ssot.md`

@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/design/birth-placement-ssot.md
   - docs/development/current/main/design/type-system-policy-ssot.md
   - docs/development/current/main/design/auto-specialize-box-ssot.md
+  - docs/development/current/main/design/record-and-packed-array-lowering-ssot.md
   - crates/nyash_kernel/src/exports/primitive.rs
   - crates/nyash_kernel/src/exports/user_box.rs
   - crates/nyash_kernel/src/user_box_registry.rs
@@ -105,6 +106,8 @@ Current user-box / primitive cost reading:
     - remaining generic semantics, `where`, enum methods, full monomorphization, and broader product-consumer parity stay backlog
     - design owner: `docs/development/current/main/design/enum-sum-and-generic-surface-ssot.md`
   - no user-box flattening
+  - explicit `record` / packed-array lowering is deferred to
+    `record-and-packed-array-lowering-ssot.md`
   - no tagged pointer / NaN-boxing
   - no new `.hako` syntax or widened `@rune`
 
@@ -130,6 +133,8 @@ Stop-line:
 
 - do not use ArrayBox typed-slot residence as proof for generic primitive flattening
 - do not use enum/sum local aggregate evidence as proof for container residence rewrites
+- do not use ordinary user-box typed field fast paths as permission to erase box identity
+- only the explicit `record` lane may open packed aggregate residence
 - do not reopen `.hako` syntax, public ABI, or full monomorphization from the 137x return gate
 
 ### 1. `.hako` surface stays simple

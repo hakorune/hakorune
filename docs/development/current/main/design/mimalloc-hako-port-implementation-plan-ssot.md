@@ -182,6 +182,11 @@ the active `.hako` algorithm row.
 | `C192 method return object lowering` | make object-return methods reliable enough for allocator API EXE parity | `M189` and full object-return `realloc` parity |
 | `C193 exact numeric backend fail-fast coverage` | keep unsupported exact numeric routes fail-fast instead of silently using legacy lanes | any broader `usize` production migration |
 | `C194 verifier-owned allocation invariants` | move release/page-map/size invariants from observer proofs toward verifier-owned contracts | broad allocator API hardening |
+| `C201 ordinary user-box field-index fast path` | keep ordinary `box` semantics while lowering typed fields as field-index/typed-slot fast paths | `C202-C205` aggregate/value lane |
+| `C202 record surface and semantics` | lock `record` as the explicit identity-free aggregate surface | `C203-C205` and any pretty allocator metadata surface |
+| `C203 record local scalar replacement` | keep non-escaping `record` values in local aggregate carriers before objectization | `C204-C205` |
+| `C204 ArrayBox inline-record storage` | add packed record columns for `record` payloads while keeping `ArrayBox` as authority | `C205` |
+| `C205 allocator metadata record migration` | replace hand-written scalar metadata arrays with `record` surface on top of packed storage | revisiting `M178` metadata surface |
 
 ### Docs / Guard Checkpoints
 

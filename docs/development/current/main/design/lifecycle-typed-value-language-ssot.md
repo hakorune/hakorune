@@ -13,6 +13,7 @@ Related:
   - docs/development/current/main/design/string-transient-lifecycle-ssot.md
   - docs/development/current/main/design/string-canonical-mir-corridor-and-placement-pass-ssot.md
   - docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md
+  - docs/development/current/main/design/record-and-packed-array-lowering-ssot.md
   - docs/development/current/main/design/enum-sum-and-generic-surface-ssot.md
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
   - docs/development/current/main/phases/phase-289x/README.md
@@ -182,6 +183,12 @@ Rule:
 
 - optimize toward `imm`, `borrow`, and `agg_local`
 - treat `handle` as boundary-class, not default transport
+
+Current explicit child reading:
+
+- `record` is the first intended language-level `agg_local` lane
+- semantics + lowering order are fixed in
+  `record-and-packed-array-lowering-ssot.md`
 
 ### 2.5. Runtime-private carrier vocabulary
 

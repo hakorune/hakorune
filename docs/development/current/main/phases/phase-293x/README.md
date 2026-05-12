@@ -451,6 +451,11 @@ inference for the allocator release path.
 - `293x-188`: M178 aligned allocation small path landed, adding
   `HakoAllocPageMapAlignedSmallPath` so normal page-map-backed small
   allocations carry live alignment metadata without reopening huge routing.
+- `293x-189`: Record + packed-array lowering SSOT landed, fixing `record` as
+  the user-facing identity-free aggregate surface while ordinary `box` keeps
+  identity-capable semantics. C201-C205 are now the compiler/runtime follow-on
+  lane for field-index fast paths, record scalar replacement, packed
+  `ArrayBox` residence, and allocator metadata migration.
 - Next: continue with `M179 huge threshold and routing` before
   scheduling aligned allocation, huge-page, or secure-list rows.
   M104 is next only if the optional allocator-provider
@@ -469,6 +474,8 @@ Current execution order:
    row must not be repeated.
 3. `C197-C200`: improve proof/application syntax only as separate language rows
    after docs/reference decisions. Do not fold them into allocator rows.
-4. `C191-C194`: run compiler/backend hardening only when it does not collide
+4. `C201-C205`: add record/packed-array compiler-runtime support before moving
+   allocator metadata off the current M178 scalar columns.
+5. `C191-C194`: run compiler/backend hardening only when it does not collide
    with the active `.hako` row.
-7. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.
+6. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.
