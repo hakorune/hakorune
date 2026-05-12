@@ -1,0 +1,47 @@
+// mimalloc-size-class-usize-policy-proof
+// Purpose: prove M187 usize input facades for size-class policy.
+
+using selfhost.hako_alloc.memory.size_class_box as SizeClassBox
+
+static box Main {
+    main(args) {
+        local b0 = SizeClassBox.size_to_bin_usize(0)
+        local b33 = SizeClassBox.size_to_bin_usize(33)
+        local b65 = SizeClassBox.size_to_bin_usize(65)
+        local b4194304 = SizeClassBox.size_to_bin_usize(4194304)
+        local b4194305 = SizeClassBox.size_to_bin_usize(4194305)
+
+        local s1 = SizeClassBox.bin_size_usize(1)
+        local s8 = SizeClassBox.bin_size_usize(8)
+        local s72 = SizeClassBox.bin_size_usize(72)
+        local s73 = SizeClassBox.bin_size_usize(73)
+
+        local g0 = SizeClassBox.good_size_usize(0)
+        local g33 = SizeClassBox.good_size_usize(33)
+        local g524289 = SizeClassBox.good_size_usize(524289)
+        local g4194305 = SizeClassBox.good_size_usize(4194305)
+
+        local a64 = 0
+        if SizeClassBox.accepts_usize(64) {
+            a64 = 1
+        }
+        local a4194305 = 0
+        if SizeClassBox.accepts_usize(4194305) {
+            a4194305 = 1
+        }
+
+        print("mimalloc-size-class-usize-policy-proof")
+        print("bins=" + b0 + "," + b33 + "," + b65 + "," + b4194304 + "," + b4194305)
+        print("sizes=" + s1 + "," + s8 + "," + s72 + "," + s73)
+        print("good=" + g0 + "," + g33 + "," + g524289 + "," + g4194305)
+        print("accepts=" + a64 + "," + a4194305)
+
+        if b0 == 1 && b33 == 5 && b65 == 9 && b4194304 == 72 && b4194305 == 73 && s1 == 8 && s8 == 64 && s72 == 4194304 && s73 == -1 && g0 == 8 && g33 == 40 && g524289 == 655360 && g4194305 == -1 && a64 == 1 && a4194305 == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

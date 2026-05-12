@@ -160,6 +160,7 @@
 - [x] `293x-195` M184 secure-list encode/decode small path
 - [x] `293x-196` D195 hako_alloc SSOT refresh
 - [x] `293x-197` M185 hako_alloc field inventory delta
+- [x] `293x-198` M187 exact usize size-class policy
 
 ## Gates
 

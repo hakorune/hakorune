@@ -20,6 +20,10 @@ Current production `usize` field group:
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
 
+Non-stored exact `usize` facades are tracked separately from stored-field
+migration. M187 adds `SizeClassBox` `usize` input facades; those do not change
+the stored field count and keep sentinel-returning results signed.
+
 ## Categories
 
 - `signed-sentinel`: uses a negative value such as `-1`; do not migrate until

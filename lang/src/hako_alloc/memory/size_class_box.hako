@@ -52,6 +52,10 @@ static box SizeClassBox {
     return me.huge_bin()
   }
 
+  size_to_bin_usize(size: usize) {
+    return me.size_to_bin(size)
+  }
+
   good_size(size) {
     local bin = me.size_to_bin(size)
     if bin == me.huge_bin() {
@@ -60,10 +64,22 @@ static box SizeClassBox {
     return me.bin_size(bin)
   }
 
+  good_size_usize(size: usize) {
+    return me.good_size(size)
+  }
+
+  bin_size_usize(bin: usize) {
+    return me.bin_size(bin)
+  }
+
   accepts(size) {
     if me.size_to_bin(size) == me.huge_bin() {
       return false
     }
     return true
+  }
+
+  accepts_usize(size: usize) {
+    return me.accepts(size)
   }
 }

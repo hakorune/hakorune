@@ -33,8 +33,10 @@ Principles
     pointer atomics remain substrate route facts.
   - `HakoAllocPageSourcePolicy` owns the `.hako` page-source policy seam only;
     OSVM reserve/commit/decommit metal remains substrate/native keep.
-  - `SizeClassBox` owns mimalloc-shaped pure size-class policy. `LayoutBox`
-    remains the small/medium compatibility facade until the page heap migrates.
+  - `SizeClassBox` owns mimalloc-shaped pure size-class policy. M187 adds
+    `usize` input facades while keeping invalid/oversized sentinel results
+    signed. `LayoutBox` remains the small/medium compatibility facade until
+    the page heap migrates.
   - `HakoAllocPageModel` owns page-local `free` / `local_free` / `used` /
     `capacity` / `reserved` invariants, including same-thread local-free
     collection and empty-page retire observation. Page queues, OSVM sourcing,

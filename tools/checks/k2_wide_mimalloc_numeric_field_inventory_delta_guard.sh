@@ -9,7 +9,6 @@ source tools/checks/lib/guard_common.sh
 NUMERIC="lang/src/hako_alloc/memory/NUMERIC_FIELDS.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-197-M185-HAKO-ALLOC-FIELD-INVENTORY-DELTA.md"
-CURRENT="docs/development/current/main/CURRENT_STATE.toml"
 TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 INDEX="docs/tools/check-scripts-index.md"
@@ -22,7 +21,6 @@ guard_require_files \
   "$NUMERIC" \
   "$PLAN" \
   "$CARD" \
-  "$CURRENT" \
   "$TASKBOARD" \
   "$PHASE_README" \
   "$INDEX"
@@ -51,8 +49,7 @@ guard_expect_in_file "$TAG" 'HakoAllocSecureFreeListPolicy.invalid_next\(\)' "$N
 guard_expect_in_file "$TAG" 'M185 hako_alloc field inventory delta` \| Complete' "$PLAN" "plan must mark M185 complete"
 guard_expect_in_file "$TAG" '293x-197 M185 hako_alloc Field Inventory Delta' "$CARD" "missing M185 card"
 guard_expect_in_file "$TAG" '293x-197' "$TASKBOARD" "taskboard must list M185"
-guard_expect_in_file "$TAG" 'M187 exact usize for size-class policy' "$PHASE_README" "phase README must point to the next migration row"
-guard_expect_in_file "$TAG" '293x-197-M185-HAKO-ALLOC-FIELD-INVENTORY-DELTA' "$CURRENT" "CURRENT_STATE must point to M185"
+guard_expect_in_file "$TAG" 'M185 hako_alloc field inventory delta landed' "$PHASE_README" "phase README must retain the M185 summary"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M185 guard"
 
 echo "[$TAG] ok: $actual stored production numeric fields inventoried"
