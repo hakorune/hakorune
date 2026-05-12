@@ -1,5 +1,61 @@
 use super::*;
 
+fn inline_record_test_array() -> ArrayBox {
+    let storage = ArrayInlineRecordStorage::new(
+        7,
+        vec![
+            ArrayInlineRecordColumn::i64(vec![10, 20]),
+            ArrayInlineRecordColumn::bool_values(vec![true, false]),
+            ArrayInlineRecordColumn::f64(vec![1.5, 2.5]),
+        ],
+    )
+    .expect("record columns must have equal row counts");
+    ArrayBox::new_with_inline_record_storage(storage)
+}
+
+#[test]
+fn inline_record_storage_reports_len_capacity_and_debug_kind() {
+    let array = inline_record_test_array();
+
+    assert!(array.uses_inline_record_slots());
+    assert_eq!(array.inline_record_layout_id(), Some(7));
+    assert_eq!(array.len(), 2);
+    assert_eq!(array.slot_load_i64_raw(0), None);
+    assert!(array.capacity() >= 2);
+    assert!(format!("{array:?}").contains("inline_record"));
+}
+
+#[test]
+fn inline_record_storage_keeps_visible_materialization_boundary() {
+    let array = inline_record_test_array();
+
+    assert_eq!(
+        array.get_index_i64(0).to_string_box().value,
+        "[array/inline-record/unmaterialized] record value materialization is not enabled"
+    );
+    assert_eq!(array.slot_append_box_raw(Box::new(IntegerBox::new(30))), -1);
+    assert!(!array.slot_store_i64_raw(0, 99));
+    assert_eq!(array.len(), 2);
+    assert!(array.uses_inline_record_slots());
+}
+
+#[test]
+fn inline_record_storage_clone_clear_and_slice_preserve_internal_shape() {
+    let array = inline_record_test_array();
+    let cloned = array.clone();
+
+    assert!(cloned.equals(&array).value);
+    let sliced = array.slice(Box::new(IntegerBox::new(1)), Box::new(IntegerBox::new(2)));
+    let sliced = sliced.as_any().downcast_ref::<ArrayBox>().unwrap();
+    assert!(sliced.uses_inline_record_slots());
+    assert_eq!(sliced.inline_record_layout_id(), Some(7));
+    assert_eq!(sliced.len(), 1);
+
+    array.clear();
+    assert!(array.uses_inline_record_slots());
+    assert_eq!(array.len(), 0);
+}
+
 #[test]
 fn slot_store_i64_births_inline_lane() {
     let array = ArrayBox::new();

@@ -28,6 +28,11 @@ impl ArrayBox {
                 ArrayStorage::InlineF64(values) => {
                     values.iter().map(|value| value.to_string()).collect()
                 }
+                ArrayStorage::InlineRecord(_) => {
+                    return Box::new(StringBox::new(
+                        "[array/inline-record/unmaterialized] record join is not enabled",
+                    ));
+                }
             };
             Box::new(StringBox::new(&parts.join(&sep_box.value)))
         } else {
@@ -43,6 +48,11 @@ impl ArrayBox {
             ArrayStorage::InlineI64(values) => values.sort_unstable(),
             ArrayStorage::InlineBool(values) => values.sort_unstable(),
             ArrayStorage::InlineF64(values) => values.sort_by(|lhs, rhs| lhs.total_cmp(rhs)),
+            ArrayStorage::InlineRecord(_) => {
+                return Box::new(StringBox::new(
+                    "[array/inline-record/unmaterialized] record ordering is not enabled",
+                ));
+            }
             ArrayStorage::Boxed(items) => {
                 // Numeric values first, then string values
                 items.sort_by(|a, b| {
@@ -107,6 +117,11 @@ impl ArrayBox {
             ArrayStorage::InlineI64(values) => values.reverse(),
             ArrayStorage::InlineBool(values) => values.reverse(),
             ArrayStorage::InlineF64(values) => values.reverse(),
+            ArrayStorage::InlineRecord(_) => {
+                return Box::new(StringBox::new(
+                    "[array/inline-record/unmaterialized] record row reversal is not enabled",
+                ));
+            }
         }
         Box::new(StringBox::new("ok"))
     }

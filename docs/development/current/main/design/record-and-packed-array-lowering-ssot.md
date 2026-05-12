@@ -182,7 +182,11 @@ Status:
 - `C204a` is complete as `293x-212`: `array_record_storage_plans` now derive
   metadata-only column descriptors from `record_layout_plans`. Runtime
   `ArrayStorage` vocabulary and public ArrayBox behavior remain unchanged.
-- `C204b-C205` remain future work.
+- `C204b` is complete as `293x-213`: `ArrayStorage::InlineRecord` is now a
+  private runtime vocabulary with columnar scalar storage, stable summaries,
+  len/capacity/clone/equality/debug support, and explicit unmaterialized
+  boundaries for public element materialization.
+- `C205` remains future work.
 
 ## Target Runtime Shape
 
@@ -226,6 +230,8 @@ Important:
 - this is a runtime/private lowering shape
 - it does not change the public ABI by itself
 - `ArrayBox` remains the authority for choosing when a lane must promote back to boxed storage
+- as of `293x-213`, `InlineRecord` does not silently promote to boxed records;
+  visible record element materialization remains a future row
 
 ## Allocator Migration Reading
 

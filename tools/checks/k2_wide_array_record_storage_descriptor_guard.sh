@@ -65,8 +65,16 @@ guard_expect_in_file "$TAG" 'array_record_storage_plans' "$BRIDGE_TESTS" "JSON b
 guard_expect_in_file "$TAG" 'collect_array_record_storage_plan_values_preserves_column_truth' "$MIR_JSON_TESTS" "MIR JSON tests must cover descriptor lane"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list C204a guard"
 
-if rg -n 'InlineRecord|array_record_storage_plans|inline_record_columns_v0' src/boxes/array lang/c-abi/shims src/llvm_py/instructions lang/src/hako_alloc >/tmp/"$TAG".leak 2>&1; then
-  echo "[$TAG] ERROR: C204a descriptor leaked into runtime/backend/hako_alloc surfaces" >&2
+if rg -n 'array_record_storage_plans|inline_record_columns_v0' src/boxes/array lang/c-abi/shims src/llvm_py/instructions lang/src/hako_alloc >/tmp/"$TAG".leak 2>&1; then
+  echo "[$TAG] ERROR: C204a descriptor matcher leaked into runtime/backend/hako_alloc surfaces" >&2
+  cat /tmp/"$TAG".leak >&2
+  rm -f /tmp/"$TAG".leak
+  exit 1
+fi
+rm -f /tmp/"$TAG".leak
+
+if rg -n 'InlineRecord' lang/c-abi/shims src/llvm_py/instructions lang/src/hako_alloc >/tmp/"$TAG".leak 2>&1; then
+  echo "[$TAG] ERROR: inline-record runtime vocabulary leaked into backend/hako_alloc surfaces" >&2
   cat /tmp/"$TAG".leak >&2
   rm -f /tmp/"$TAG".leak
   exit 1

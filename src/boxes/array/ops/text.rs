@@ -37,7 +37,8 @@ impl<'a> ArrayTextSlotSession<'a> {
                 ArrayStorage::Text(_)
                 | ArrayStorage::InlineI64(_)
                 | ArrayStorage::InlineBool(_)
-                | ArrayStorage::InlineF64(_) => None,
+                | ArrayStorage::InlineF64(_)
+                | ArrayStorage::InlineRecord(_) => None,
             };
             if let Some(values) = promoted {
                 *self.storage = ArrayStorage::Text(values);
@@ -76,7 +77,8 @@ impl<'a> ArrayTextSlotSession<'a> {
             }
             ArrayStorage::InlineI64(_)
             | ArrayStorage::InlineBool(_)
-            | ArrayStorage::InlineF64(_) => None,
+            | ArrayStorage::InlineF64(_)
+            | ArrayStorage::InlineRecord(_) => None,
         }
     }
 }
@@ -138,7 +140,8 @@ impl ArrayBox {
             ArrayStorage::Boxed(items) => items.get(idx).and_then(|item| item.as_str_fast().map(f)),
             ArrayStorage::InlineI64(_)
             | ArrayStorage::InlineBool(_)
-            | ArrayStorage::InlineF64(_) => None,
+            | ArrayStorage::InlineF64(_)
+            | ArrayStorage::InlineRecord(_) => None,
         }
     }
 
@@ -157,7 +160,8 @@ impl ArrayBox {
                 .and_then(|item| item.as_str_fast().map(|value| value.len() as i64)),
             ArrayStorage::InlineI64(_)
             | ArrayStorage::InlineBool(_)
-            | ArrayStorage::InlineF64(_) => None,
+            | ArrayStorage::InlineF64(_)
+            | ArrayStorage::InlineRecord(_) => None,
         }
     }
 
@@ -344,7 +348,8 @@ impl ArrayBox {
             ArrayStorage::Boxed(boxed) => boxed.len(),
             ArrayStorage::InlineI64(_)
             | ArrayStorage::InlineBool(_)
-            | ArrayStorage::InlineF64(_) => return None,
+            | ArrayStorage::InlineF64(_)
+            | ArrayStorage::InlineRecord(_) => return None,
             ArrayStorage::Text(_) => unreachable!("text storage returned above"),
         };
         if loop_bound > boxed_len {
@@ -498,7 +503,8 @@ impl ArrayBox {
             ArrayStorage::Boxed(boxed) => boxed.len(),
             ArrayStorage::InlineI64(_)
             | ArrayStorage::InlineBool(_)
-            | ArrayStorage::InlineF64(_) => return None,
+            | ArrayStorage::InlineF64(_)
+            | ArrayStorage::InlineRecord(_) => return None,
             ArrayStorage::Text(_) => unreachable!("text storage returned above"),
         };
         if row_modulus > boxed_len || observer_bound > boxed_len {

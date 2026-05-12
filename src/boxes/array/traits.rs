@@ -14,6 +14,7 @@ impl Clone for ArrayBox {
             ArrayStorage::InlineI64(values) => ArrayStorage::InlineI64(values.clone()),
             ArrayStorage::InlineBool(values) => ArrayStorage::InlineBool(values.clone()),
             ArrayStorage::InlineF64(values) => ArrayStorage::InlineF64(values.clone()),
+            ArrayStorage::InlineRecord(values) => ArrayStorage::InlineRecord(values.clone()),
         };
 
         ArrayBox {
@@ -53,6 +54,9 @@ impl BoxCore for ArrayBox {
             }
             ArrayStorage::InlineF64(values) => {
                 write!(f, "[{}]", Self::format_inline_f64_values(values))
+            }
+            ArrayStorage::InlineRecord(values) => {
+                write!(f, "{}", values.summary())
             }
         }
     }
@@ -111,6 +115,7 @@ impl NyashBox for ArrayBox {
             ArrayStorage::InlineF64(values) => {
                 StringBox::new(format!("[{}]", Self::format_inline_f64_values(values)))
             }
+            ArrayStorage::InlineRecord(values) => StringBox::new(values.summary()),
         }
     }
 
@@ -182,6 +187,9 @@ impl NyashBox for ArrayBox {
                         }
                     }
                 }
+                (ArrayStorage::InlineRecord(lhs), ArrayStorage::InlineRecord(rhs)) => {
+                    return BoolBox::new(lhs == rhs);
+                }
                 (ArrayStorage::InlineF64(lhs), ArrayStorage::Boxed(rhs)) => {
                     for (a, b) in lhs.iter().zip(rhs.iter()) {
                         let Some(value) = b.as_f64_fast() else {
@@ -234,7 +242,17 @@ impl NyashBox for ArrayBox {
                 | (ArrayStorage::Text(_), ArrayStorage::InlineF64(_))
                 | (ArrayStorage::InlineI64(_), ArrayStorage::Text(_))
                 | (ArrayStorage::InlineBool(_), ArrayStorage::Text(_))
-                | (ArrayStorage::InlineF64(_), ArrayStorage::Text(_)) => {
+                | (ArrayStorage::InlineF64(_), ArrayStorage::Text(_))
+                | (ArrayStorage::InlineRecord(_), ArrayStorage::Boxed(_))
+                | (ArrayStorage::Boxed(_), ArrayStorage::InlineRecord(_))
+                | (ArrayStorage::InlineRecord(_), ArrayStorage::Text(_))
+                | (ArrayStorage::Text(_), ArrayStorage::InlineRecord(_))
+                | (ArrayStorage::InlineRecord(_), ArrayStorage::InlineI64(_))
+                | (ArrayStorage::InlineI64(_), ArrayStorage::InlineRecord(_))
+                | (ArrayStorage::InlineRecord(_), ArrayStorage::InlineBool(_))
+                | (ArrayStorage::InlineBool(_), ArrayStorage::InlineRecord(_))
+                | (ArrayStorage::InlineRecord(_), ArrayStorage::InlineF64(_))
+                | (ArrayStorage::InlineF64(_), ArrayStorage::InlineRecord(_)) => {
                     return BoolBox::new(false);
                 }
             }
@@ -256,6 +274,7 @@ impl std::fmt::Debug for ArrayBox {
             ArrayStorage::InlineI64(_) => "inline_i64",
             ArrayStorage::InlineBool(_) => "inline_bool",
             ArrayStorage::InlineF64(_) => "inline_f64",
+            ArrayStorage::InlineRecord(_) => "inline_record",
         };
         f.debug_struct("ArrayBox")
             .field("id", &self.base.id)
@@ -281,5 +300,16 @@ impl ArrayBox {
 
     pub fn uses_text_slots(&self) -> bool {
         matches!(&*self.items.read(), ArrayStorage::Text(_))
+    }
+
+    pub fn uses_inline_record_slots(&self) -> bool {
+        matches!(&*self.items.read(), ArrayStorage::InlineRecord(_))
+    }
+
+    pub fn inline_record_layout_id(&self) -> Option<u32> {
+        match &*self.items.read() {
+            ArrayStorage::InlineRecord(values) => Some(values.layout_id()),
+            _ => None,
+        }
     }
 }

@@ -22,6 +22,12 @@ impl ArrayBox {
         Self::new_with_storage(ArrayStorage::InlineF64(values))
     }
 
+    pub(in crate::boxes::array) fn new_with_inline_record_storage(
+        storage: ArrayInlineRecordStorage,
+    ) -> Self {
+        Self::new_with_storage(ArrayStorage::InlineRecord(storage))
+    }
+
     pub(super) fn new_with_text_elements(values: Vec<String>) -> Self {
         Self::new_with_storage(ArrayStorage::Text(Self::text_cells_from_strings(values)))
     }
@@ -46,6 +52,9 @@ impl ArrayBox {
             ArrayStorage::InlineF64(values) => {
                 let materialized = Self::boxed_from_inline_f64(values);
                 f(&materialized)
+            }
+            ArrayStorage::InlineRecord(_) => {
+                panic!("[array/inline-record/unmaterialized] boxed read view is not enabled")
             }
         }
     }

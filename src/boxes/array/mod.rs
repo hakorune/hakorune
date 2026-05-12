@@ -18,7 +18,9 @@ mod tests;
 mod text_cell;
 mod traits;
 
-use storage::ArrayStorage;
+#[cfg(test)]
+use storage::ArrayInlineRecordColumn;
+use storage::{ArrayInlineRecordStorage, ArrayStorage};
 pub use surface_catalog::{
     ArrayExposureState, ArrayMethodId, ArrayMethodSpec, ArraySurfaceEffect,
     ArraySurfaceInvokeError, ArraySurfaceInvokeResult, ArraySurfaceReturn, ARRAY_SURFACE_METHODS,

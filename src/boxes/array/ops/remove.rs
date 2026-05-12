@@ -44,6 +44,15 @@ impl ArrayBox {
                         Box::new(crate::boxes::null_box::NullBox::new())
                     }
                 }
+                ArrayStorage::InlineRecord(values) => {
+                    if idx < values.len() {
+                        Box::new(StringBox::new(
+                            "[array/inline-record/unmaterialized] record value materialization is not enabled",
+                        ))
+                    } else {
+                        Box::new(crate::boxes::null_box::NullBox::new())
+                    }
+                }
             }
         } else {
             Box::new(StringBox::new("Error: remove() requires integer index"))

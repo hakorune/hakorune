@@ -54,6 +54,9 @@ impl ArrayBox {
             ArrayStorage::InlineF64(values) => Box::new(ArrayBox::new_with_inline_f64_elements(
                 values[start_idx..end_idx].to_vec(),
             )),
+            ArrayStorage::InlineRecord(values) => Box::new(
+                ArrayBox::new_with_inline_record_storage(values.slice_rows(start_idx, end_idx)),
+            ),
         }
     }
 }

@@ -525,6 +525,9 @@ inference for the allocator release path.
 - `293x-212`: C204a ArrayBox inline-record storage descriptors landed, deriving
   metadata-only `array_record_storage_plans` from record layout plans without
   changing runtime ArrayBox storage.
+- `293x-213`: C204b ArrayBox inline-record storage vocabulary landed, adding
+  private `ArrayStorage::InlineRecord` columnar storage with stable
+  unmaterialized boundaries and no compiler auto-use or hako_alloc migration.
 - Next: continue with the record/packed-array compiler lane (`C201-C205`) or
   allocator algorithm rows when needed. No M191
   allocator API row is scheduled yet; M186 facade stats already landed as
@@ -548,10 +551,9 @@ Current execution order:
    `C197`, `C198`, `C199`, and `C200` are complete.
 3. `C201-C205`: add record/packed-array compiler-runtime support before moving
    allocator metadata off the current M178 scalar columns. `C201`, `C202`,
-   `C203a`, `C203b`, and `C203c` are complete; `C204` ArrayBox inline-record
-   storage is split. `C204a` descriptors are complete; `C204b` runtime storage
-   vocabulary is next unless record construction/read lowering is split out
-   first.
+   `C203a`, `C203b`, `C203c`, `C204a`, and `C204b` are complete. `C205`
+   allocator metadata record migration is next, with a separate
+   materialization/construction row only if C205 exposes that blocker.
 4. `C191-C194`: run compiler/backend hardening only when it does not collide
    with the active `.hako` row.
 5. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.

@@ -227,6 +227,14 @@ column descriptors from `record_layout_plans`. Runtime `ArrayStorage` variants,
 public ArrayBox behavior, compiler auto-use, and hako_alloc migration remain
 future work.
 
+C204b status:
+complete as `293x-213`. `ArrayStorage::InlineRecord` now exists as private
+runtime storage vocabulary with columnar scalar storage, len/capacity/clone/
+equality/debug support, and explicit unmaterialized boundaries for visible
+record values. Compiler auto-use, boxed record materialization, hako_alloc
+metadata migration, backend lowering, and provider/native allocator coupling
+remain out of scope.
+
 ### Docs / Guard Checkpoints
 
 | Row | Goal | Trigger |

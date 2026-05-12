@@ -8,14 +8,22 @@ impl ArrayBox {
 
     /// 要素を追加
     pub fn push(&self, item: Box<dyn NyashBox>) -> Box<dyn NyashBox> {
-        let _ = self.slot_append_box_raw(item);
-        Box::new(StringBox::new("ok"))
+        if self.slot_append_box_raw(item) >= 0 {
+            Box::new(StringBox::new("ok"))
+        } else {
+            Box::new(StringBox::new(
+                "[array/inline-record/unmaterialized] boxed append is not enabled",
+            ))
+        }
     }
 
     /// Raw append helper for substrate/plugin routes.
     /// Visible `push()` semantics stay above this seam.
     pub fn slot_append_box_raw(&self, item: Box<dyn NyashBox>) -> i64 {
         let mut items = self.items.write();
+        if matches!(&*items, ArrayStorage::InlineRecord(_)) {
+            return -1;
+        }
         let boxed = Self::ensure_boxed(&mut items);
         boxed.push(item);
         boxed.len() as i64
@@ -31,6 +39,7 @@ impl ArrayBox {
             ArrayStorage::InlineI64(values) => values.reserve(additional),
             ArrayStorage::InlineBool(values) => values.reserve(additional),
             ArrayStorage::InlineF64(values) => values.reserve(additional),
+            ArrayStorage::InlineRecord(values) => values.reserve(additional),
         }
         true
     }
@@ -49,6 +58,7 @@ impl ArrayBox {
                     ArrayStorage::InlineI64(values) => values.reserve(needed),
                     ArrayStorage::InlineBool(values) => values.reserve(needed),
                     ArrayStorage::InlineF64(values) => values.reserve(needed),
+                    ArrayStorage::InlineRecord(values) => values.reserve(needed),
                 }
             }
         }
@@ -109,6 +119,19 @@ impl ArrayBox {
                     }
                 }
             },
+            ArrayStorage::InlineRecord(values) => {
+                if values.len() == 0 {
+                    if Self::oob_strict_enabled() {
+                        Box::new(StringBox::new("[array/empty/pop] empty array"))
+                    } else {
+                        Box::new(crate::boxes::null_box::NullBox::new())
+                    }
+                } else {
+                    Box::new(StringBox::new(
+                        "[array/inline-record/unmaterialized] record value materialization is not enabled",
+                    ))
+                }
+            }
         }
     }
 

@@ -39,6 +39,9 @@ impl ArrayBox {
             }
             return false;
         }
+        if matches!(&*items, ArrayStorage::InlineRecord(_)) {
+            return false;
+        }
 
         if let Some(text_value) = value.as_str_fast() {
             if let ArrayStorage::Text(values) = &mut *items {

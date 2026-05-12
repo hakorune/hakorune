@@ -25,6 +25,9 @@ impl ArrayBox {
         }
         let idx = idx as usize;
         let mut items = self.items.write();
+        if matches!(&*items, ArrayStorage::InlineRecord(_)) {
+            return false;
+        }
         if let Some(text_value) = value.as_str_fast() {
             if let ArrayStorage::Text(values) = &mut *items {
                 let text_value = text_value.to_owned();
@@ -102,6 +105,9 @@ impl ArrayBox {
         }
         let idx = idx as usize;
         let mut items = self.items.write();
+        if matches!(&*items, ArrayStorage::InlineRecord(_)) {
+            return false;
+        }
         if let Some(values) = Self::ensure_inline_i64(&mut items) {
             if idx < values.len() {
                 values[idx] = value;
@@ -147,6 +153,9 @@ impl ArrayBox {
         }
         let idx = idx as usize;
         let mut items = self.items.write();
+        if matches!(&*items, ArrayStorage::InlineRecord(_)) {
+            return false;
+        }
         if let Some(values) = Self::ensure_inline_bool(&mut items) {
             if idx < values.len() {
                 values[idx] = value;
@@ -188,6 +197,9 @@ impl ArrayBox {
         }
         let idx = idx as usize;
         let mut items = self.items.write();
+        if matches!(&*items, ArrayStorage::InlineRecord(_)) {
+            return false;
+        }
         if let Some(values) = Self::ensure_inline_f64(&mut items) {
             if idx < values.len() {
                 values[idx] = value;
@@ -230,6 +242,9 @@ impl ArrayBox {
         }
         let idx = idx as usize;
         let mut items = self.items.write();
+        if matches!(&*items, ArrayStorage::InlineRecord(_)) {
+            return None;
+        }
         if let Some(values) = Self::ensure_inline_i64(&mut items) {
             let slot = values.get_mut(idx)?;
             *slot = slot.checked_add(1)?;

@@ -44,6 +44,7 @@ impl ArrayBox {
                     }
                 }
             }
+            ArrayStorage::InlineRecord(_) => {}
         }
         Box::new(IntegerBox::new(-1))
     }
@@ -85,6 +86,7 @@ impl ArrayBox {
                     ));
                 }
             }
+            ArrayStorage::InlineRecord(_) => {}
         }
         Box::new(BoolBox::new(false))
     }

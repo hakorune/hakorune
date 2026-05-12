@@ -16,6 +16,7 @@ impl ArrayBox {
                 values.get(idx).map(|value| if *value { 1 } else { 0 })
             }
             ArrayStorage::InlineF64(_) => None,
+            ArrayStorage::InlineRecord(_) => None,
         }
     }
 
@@ -86,6 +87,18 @@ impl ArrayBox {
                     }
                 }
             },
+            ArrayStorage::InlineRecord(values) => {
+                if idx < values.len() {
+                    Box::new(StringBox::new(
+                        "[array/inline-record/unmaterialized] record value materialization is not enabled",
+                    ))
+                } else if Self::oob_strict_enabled() {
+                    crate::runtime::observe::mark_oob();
+                    Box::new(StringBox::new("[oob/array/get] index out of bounds"))
+                } else {
+                    Box::new(crate::boxes::null_box::NullBox::new())
+                }
+            }
         }
     }
 

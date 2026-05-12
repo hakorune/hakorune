@@ -11,6 +11,7 @@ impl ArrayBox {
             ArrayStorage::InlineI64(values) => values.clear(),
             ArrayStorage::InlineBool(values) => values.clear(),
             ArrayStorage::InlineF64(values) => values.clear(),
+            ArrayStorage::InlineRecord(values) => values.clear(),
         }
         Box::new(StringBox::new("ok"))
     }
