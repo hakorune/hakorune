@@ -531,7 +531,8 @@ fn agg_local_route(route: &AggLocalScalarizationRoute) -> Option<PlacementEffect
     let detail = route.kind.to_string();
     match route.kind {
         AggLocalScalarizationKind::SumLocalLayout(_)
-        | AggLocalScalarizationKind::UserBoxLocalBody(_) => Some(PlacementEffectRoute {
+        | AggLocalScalarizationKind::UserBoxLocalBody(_)
+        | AggLocalScalarizationKind::RecordLocalLayout(_) => Some(PlacementEffectRoute {
             block: route.block,
             instruction_index: route.instruction_index,
             value: route.value,
@@ -692,6 +693,17 @@ mod tests {
             .metadata
             .agg_local_scalarization_routes
             .push(AggLocalScalarizationRoute {
+                block: None,
+                instruction_index: None,
+                value: None,
+                subject: "Meta".to_string(),
+                kind: AggLocalScalarizationKind::RecordLocalLayout(7),
+                reason: "record layout stays aggregate-local".to_string(),
+            });
+        function
+            .metadata
+            .agg_local_scalarization_routes
+            .push(AggLocalScalarizationRoute {
             block: None,
             instruction_index: None,
             value: Some(ValueId::new(6)),
@@ -704,7 +716,7 @@ mod tests {
 
         refresh_function_placement_effect_routes(&mut function);
 
-        assert_eq!(function.metadata.placement_effect_routes.len(), 5);
+        assert_eq!(function.metadata.placement_effect_routes.len(), 6);
         assert!(matches!(
             function.metadata.placement_effect_routes[0].decision,
             PlacementEffectDecision::PublishHandle
@@ -742,11 +754,21 @@ mod tests {
             PlacementEffectSource::AggLocalScalarization
         ));
         assert!(matches!(
-            function.metadata.placement_effect_routes[4].decision,
+            function.metadata.placement_effect_routes[4].source,
+            PlacementEffectSource::AggLocalScalarization
+        ));
+        assert_eq!(
+            function.metadata.placement_effect_routes[4]
+                .detail
+                .as_deref(),
+            Some("record_local_layout(7)")
+        );
+        assert!(matches!(
+            function.metadata.placement_effect_routes[5].decision,
             PlacementEffectDecision::ThinInternalEntry
         ));
         assert_eq!(
-            function.metadata.placement_effect_routes[4].demand,
+            function.metadata.placement_effect_routes[5].demand,
             PlacementEffectDemand::Immediate
         );
     }

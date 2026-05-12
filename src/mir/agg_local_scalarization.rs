@@ -14,11 +14,13 @@ use super::{
     thin_entry_selection::ThinEntrySelection,
     BasicBlockId, MirFunction, MirModule, ValueId,
 };
+use crate::mir::function::ModuleMetadata;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AggLocalScalarizationKind {
     SumLocalLayout(SumLocalAggregateLayout),
     UserBoxLocalBody(ThinEntryValueClass),
+    RecordLocalLayout(u32),
     TypedSlotStorage(StorageClass),
 }
 
@@ -28,6 +30,9 @@ impl std::fmt::Display for AggLocalScalarizationKind {
             Self::SumLocalLayout(layout) => write!(f, "sum_local_layout({layout})"),
             Self::UserBoxLocalBody(value_class) => {
                 write!(f, "user_box_local_body({value_class})")
+            }
+            Self::RecordLocalLayout(layout_id) => {
+                write!(f, "record_local_layout({layout_id})")
             }
             Self::TypedSlotStorage(storage_class) => {
                 write!(f, "typed_slot_storage({storage_class})")
@@ -68,14 +73,19 @@ impl AggLocalScalarizationRoute {
 }
 
 pub fn refresh_module_agg_local_scalarization_routes(module: &mut MirModule) {
+    let metadata = module.metadata.clone();
     for function in module.functions.values_mut() {
-        refresh_function_agg_local_scalarization_routes(function);
+        refresh_function_agg_local_scalarization_routes(function, &metadata);
     }
 }
 
-pub fn refresh_function_agg_local_scalarization_routes(function: &mut MirFunction) {
+pub fn refresh_function_agg_local_scalarization_routes(
+    function: &mut MirFunction,
+    module_metadata: &ModuleMetadata,
+) {
     let mut routes = Vec::new();
 
+    collect_record_layout_routes(module_metadata, &mut routes);
     collect_sum_layout_routes(function, &mut routes);
     collect_user_box_local_body_routes(function, &mut routes);
     collect_typed_slot_routes(function, &mut routes);
@@ -122,6 +132,25 @@ fn collect_user_box_local_body_routes(
     );
 }
 
+fn collect_record_layout_routes(
+    module_metadata: &ModuleMetadata,
+    routes: &mut Vec<AggLocalScalarizationRoute>,
+) {
+    routes.extend(module_metadata.record_layout_plans.iter().map(|plan| {
+        AggLocalScalarizationRoute {
+            block: None,
+            instruction_index: None,
+            value: None,
+            subject: plan.record_name.clone(),
+            kind: AggLocalScalarizationKind::RecordLocalLayout(plan.layout_id),
+            reason: format!(
+                "record {} has concrete layout {} and is eligible for future local scalar replacement",
+                plan.record_name, plan.layout_id
+            ),
+        }
+    }));
+}
+
 fn collect_typed_slot_routes(function: &MirFunction, routes: &mut Vec<AggLocalScalarizationRoute>) {
     routes.extend(function.metadata.value_storage_classes.iter().map(|(value, storage_class)| {
         AggLocalScalarizationRoute {
@@ -156,7 +185,8 @@ fn route_sort_key(route: &AggLocalScalarizationRoute) -> (u8, u32, u32, u32, Str
     let kind_rank = match route.kind {
         AggLocalScalarizationKind::SumLocalLayout(_) => 0,
         AggLocalScalarizationKind::UserBoxLocalBody(_) => 1,
-        AggLocalScalarizationKind::TypedSlotStorage(_) => 2,
+        AggLocalScalarizationKind::RecordLocalLayout(_) => 2,
+        AggLocalScalarizationKind::TypedSlotStorage(_) => 3,
     };
     let block_rank = route.block.map(|block| block.as_u32()).unwrap_or(u32::MAX);
     let instruction_rank = route
@@ -182,7 +212,9 @@ mod tests {
         ThinEntryValueClass,
     };
     use crate::mir::thin_entry_selection::{ThinEntrySelection, ThinEntrySelectionState};
-    use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirType, ValueId};
+    use crate::mir::{
+        BasicBlockId, EffectMask, FunctionSignature, MirType, RecordLayoutPlan, ValueId,
+    };
 
     #[test]
     fn refresh_function_collects_folded_agg_local_routes() {
@@ -224,10 +256,18 @@ mod tests {
             .metadata
             .value_storage_classes
             .insert(ValueId::new(3), StorageClass::InlineBool);
+        let mut module_metadata = crate::mir::function::ModuleMetadata::default();
+        module_metadata.record_layout_plans.push(RecordLayoutPlan {
+            record_name: "Meta".to_string(),
+            layout_id: 1,
+            layout_kind: "record_value_aggregate_v0".to_string(),
+            field_count: 0,
+            fields: Vec::new(),
+        });
 
-        refresh_function_agg_local_scalarization_routes(&mut function);
+        refresh_function_agg_local_scalarization_routes(&mut function, &module_metadata);
 
-        assert_eq!(function.metadata.agg_local_scalarization_routes.len(), 3);
+        assert_eq!(function.metadata.agg_local_scalarization_routes.len(), 4);
         assert!(matches!(
             function.metadata.agg_local_scalarization_routes[0].kind,
             AggLocalScalarizationKind::SumLocalLayout(SumLocalAggregateLayout::TagI64Payload)
@@ -238,6 +278,14 @@ mod tests {
         ));
         assert!(matches!(
             function.metadata.agg_local_scalarization_routes[2].kind,
+            AggLocalScalarizationKind::RecordLocalLayout(1)
+        ));
+        assert_eq!(
+            function.metadata.agg_local_scalarization_routes[2].subject,
+            "Meta"
+        );
+        assert!(matches!(
+            function.metadata.agg_local_scalarization_routes[3].kind,
             AggLocalScalarizationKind::TypedSlotStorage(StorageClass::InlineBool)
         ));
     }

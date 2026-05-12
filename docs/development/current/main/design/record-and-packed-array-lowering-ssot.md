@@ -154,7 +154,7 @@ This lane therefore starts at `C201`.
 | `C202 record surface and semantics` | add docs/parser/semantic lock for `record` as the explicit source-level aggregate lane | local scalar replacement and packed storage | no blanket rewrite of ordinary `box`, no reflection/weak/fini support |
 | `C203a record declaration metadata transport` | carry `record_decls` through Program JSON v0, JSON bridge, MIR metadata, and MIR JSON without making records ordinary boxes | record layout plans | no lowering consumer, no objectization, no packed storage |
 | `C203b record layout plans` | derive backend-readable record layout facts from transported record declarations | local scalar replacement | no user-box typed-object-plan reuse, no storage rewrite |
-| `C203c record local scalar replacement` | keep non-escaping local `record` values as scalar tuple / aggregate carriers | packed `ArrayBox` storage | no host-boundary publication rewrite, no alias-sensitive mutation |
+| `C203c record local scalar replacement metadata` | expose concrete record layouts in the folded `agg_local` / placement metadata inventory | record construction/read lowering | no MIR rewrite, no user-box seed route, no host-boundary publication rewrite |
 | `C204 ArrayBox inline-record storage` | add `ArrayBox` residence for packed `record` payloads (record columns) | allocator metadata migration | no change to ordinary boxed/mixed/string authority; `ArrayBox` stays the runtime owner |
 | `C205 allocator metadata record migration` | replace hand-written scalar metadata arrays with `record` surface over packed storage | broader allocator/table cleanup | no allocator-specific DSL, no huge/native/provider coupling |
 
@@ -174,7 +174,11 @@ Status:
   dedicated `record_layout_plans` with field slots and storage classes. These
   plans remain separate from typed-object/user-box layout plans and still have
   no local scalarization consumer.
-- `C203c-C205` remain future work.
+- `C203c` is complete as `293x-211`: concrete record layout plans now appear
+  as `record_local_layout` entries in folded `agg_local` and placement/effect
+  metadata. This is still metadata-only; record constructor/read lowering and
+  scalar MIR rewrites remain future work.
+- `C204-C205` remain future work.
 
 ## Target Runtime Shape
 

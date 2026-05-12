@@ -186,7 +186,7 @@ the active `.hako` algorithm row.
 | `C202 record surface and semantics` | lock `record` as the explicit identity-free aggregate surface | `C203-C205` and any pretty allocator metadata surface |
 | `C203a record declaration metadata transport` | carry `record_decls` through JSON/MIR surfaces without mixing records into ordinary user-box declarations | `C203b-C205` |
 | `C203b record layout plans` | derive layout facts for `record` declarations before any local scalar rewrite consumes them | `C203c-C205` |
-| `C203c record local scalar replacement` | keep non-escaping `record` values in local aggregate carriers before objectization | `C204-C205` |
+| `C203c record local scalar replacement metadata` | expose concrete record layouts in folded `agg_local` / placement metadata before any scalar rewrite consumes them | record construction/read lowering and `C204-C205` |
 | `C204 ArrayBox inline-record storage` | add packed record columns for `record` payloads while keeping `ArrayBox` as authority | `C205` |
 | `C205 allocator metadata record migration` | replace hand-written scalar metadata arrays with `record` surface on top of packed storage | revisiting `M178` metadata surface |
 
@@ -213,6 +213,12 @@ complete as `293x-210`. Concrete `record_decls` now derive dedicated
 `record_layout_plans` with field slots and storage classes. The layout lane is
 metadata-only, separate from typed-object/user-box plans, and does not yet drive
 local scalar replacement or packed `ArrayBox` residence.
+
+C203c status:
+complete as `293x-211`. Concrete record layout plans now publish
+`record_local_layout` rows through folded `agg_local` and placement/effect
+metadata. This is still metadata-only: no record construction/read lowering,
+no user-box scalar seed route, and no MIR scalar rewrite.
 
 ### Docs / Guard Checkpoints
 

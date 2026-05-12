@@ -144,6 +144,17 @@ fn build_mir_json_root_emits_agg_local_scalarization_routes() {
         .metadata
         .agg_local_scalarization_routes
         .push(AggLocalScalarizationRoute {
+            block: None,
+            instruction_index: None,
+            value: None,
+            subject: "Meta".to_string(),
+            kind: AggLocalScalarizationKind::RecordLocalLayout(7),
+            reason: "record layout stays on aggregate local lane".to_string(),
+        });
+    function
+        .metadata
+        .agg_local_scalarization_routes
+        .push(AggLocalScalarizationRoute {
             block: Some(BasicBlockId::new(0)),
             instruction_index: Some(4),
             value: Some(crate::mir::ValueId::new(13)),
@@ -158,13 +169,15 @@ fn build_mir_json_root_emits_agg_local_scalarization_routes() {
         .as_array()
         .expect("agg_local_scalarization_routes array");
 
-    assert_eq!(routes.len(), 3);
+    assert_eq!(routes.len(), 4);
     assert_eq!(routes[0]["kind"], "sum_local_layout");
     assert_eq!(routes[0]["layout"], "tag_i64_payload");
     assert_eq!(routes[1]["kind"], "user_box_local_body");
     assert_eq!(routes[1]["value_class"], "inline_i64");
-    assert_eq!(routes[2]["kind"], "typed_slot_storage");
-    assert_eq!(routes[2]["storage_class"], "inline_bool");
+    assert_eq!(routes[2]["kind"], "record_local_layout");
+    assert_eq!(routes[2]["layout_id"], 7);
+    assert_eq!(routes[3]["kind"], "typed_slot_storage");
+    assert_eq!(routes[3]["storage_class"], "inline_bool");
 }
 
 #[test]

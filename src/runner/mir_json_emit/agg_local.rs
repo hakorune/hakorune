@@ -26,6 +26,17 @@ pub(super) fn build_agg_local_scalarization_routes_json(
                     "reason": route.reason,
                 })
             }
+            AggLocalScalarizationKind::RecordLocalLayout(layout_id) => {
+                serde_json::json!({
+                    "kind": "record_local_layout",
+                    "block": route.block.map(|block| block.as_u32()),
+                    "instruction_index": route.instruction_index,
+                    "value": route.value.map(|value| value.as_u32()),
+                    "subject": route.subject,
+                    "layout_id": layout_id,
+                    "reason": route.reason,
+                })
+            }
             AggLocalScalarizationKind::TypedSlotStorage(storage_class) => {
                 serde_json::json!({
                     "kind": "typed_slot_storage",

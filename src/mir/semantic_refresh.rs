@@ -84,7 +84,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_sum_placement_facts(function);
     refresh_function_sum_placement_selections(function);
     refresh_function_sum_placement_layouts(function);
-    refresh_function_agg_local_scalarization_routes(function);
+    refresh_function_agg_local_scalarization_routes(function, module_metadata);
     refresh_function_placement_effect_routes(function);
     refresh_function_value_consumer_facts(function);
     refresh_function_string_kernel_plans(function);
