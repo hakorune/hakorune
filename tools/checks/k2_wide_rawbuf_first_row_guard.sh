@@ -41,6 +41,10 @@ rg -F -q 'using selfhost.runtime.substrate.mem.mem_core_box as MemCoreBox' "$RAW
 rg -F -q 'using selfhost.runtime.substrate.value_repr.current_lane_box as CurrentLaneBox' "$RAW_BUF_CORE_FILE"
 rg -F -q 'static box CurrentLaneBox' "$VALUE_REPR_CORE_FILE"
 rg -F -q 'is_usize_i64(value)' "$VALUE_REPR_CORE_FILE"
+if rg -F -q '_is_current_lane_usize' "$RAW_BUF_CORE_FILE"; then
+  echo "[k2-wide-rawbuf-first-row] stale local current-lane usize helper returned" >&2
+  exit 1
+fi
 rg -F -q 'alloc_bytes_i64(size)' "$RAW_BUF_CORE_FILE"
 rg -F -q 'realloc_bytes_i64(ptr, new_size)' "$RAW_BUF_CORE_FILE"
 rg -F -q 'free_bytes_i64(ptr)' "$RAW_BUF_CORE_FILE"
