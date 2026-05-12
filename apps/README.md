@@ -185,6 +185,20 @@ bash tools/checks/k2_wide_mimalloc_remote_free_page_integration_guard.sh
 - caller-provided block id proof seam なので page-map / arbitrary pointer
   free / provider / hook / replacement はまだ扱わない
 
+#### mimalloc-page-map-proof
+**場所**: `mimalloc-page-map-proof/main.hako`
+M171 proof。caller-visible pointer id を `page_id` / `block_id` に解決する
+`HakoAllocPageMap` model を固定する。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_page_map_guard.sh
+```
+
+**特徴**:
+- register / lookup / unregister の ownership map だけを扱う
+- page release / realloc / pointer arithmetic / native metal はまだ扱わない
+- M172 の page-map-backed release seam の前提になる
+
 #### hako-alloc-remote-free-policy-proof
 **場所**: `hako-alloc-remote-free-policy-proof/main.hako`
 M48 proof。`HakoAllocProductionFacade` 経由で M43 の bounded CAS retry-loop
@@ -733,6 +747,7 @@ box TreeNode {
 - [x] mimalloc-osvm-page-source-composition-proof（M168 OSVM page-source composition proof）
 - [x] mimalloc-local-free-retire-proof（M169 local-free retire proof）
 - [x] mimalloc-remote-free-page-integration-proof（M170 remote-free page integration proof）
+- [x] mimalloc-page-map-proof（M171 pointer-to-page ownership map proof）
 - [x] mimalloc-osvm-page-proof（M25 OSVM page proof）
 - [x] mimalloc-ptr-atomic-store-proof（M35 native pointer atomic store proof）
 - [x] mimalloc-ptr-atomic-load-proof（M39 native pointer atomic load proof）

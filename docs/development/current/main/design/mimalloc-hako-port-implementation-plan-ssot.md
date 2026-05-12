@@ -126,10 +126,21 @@ before adding behavior.
 | `M169 local free collection and retire` | add local free collection and empty-page retirement policy | local free does not touch remote-free atomics |
 | `M170 remote-free integration` | compose bounded remote-free retry policy with the page model | remote-free proof stays behind existing pointer atomics |
 
-Rows after `M170` are deliberately not scheduled here. Realloc/aligned
-allocation, pointer-to-page map, huge/large pages, secure encoded free lists,
-purge, stats, and options each need fresh cards after the basic allocator
-model is running.
+M171 starts the post-M170 ladder with the pointer-to-page map model. Realloc,
+aligned allocation, huge/large pages, secure encoded free lists, purge, stats,
+and options stay separate rows after the page-map-backed free seam is proven.
+
+## Post-M170 Ladder
+
+| Row | Goal | Stop line |
+| --- | --- | --- |
+| `M171 page-map model` | record and resolve caller-visible pointer ownership to `page_id` / `block_id` | no arbitrary free/realloc, no pointer arithmetic, no OSVM release |
+| `M172 page-map-backed release seam` | compose page-map lookup/unregister with page-local release | no realloc, no byte copy, no host replacement |
+| `M173 handle realloc policy` | allocate a replacement handle and retire the old handle in policy space | no raw byte copy until RawBuf/RawArray copy contract is named |
+| `M174 aligned allocation policy` | add alignment request/good-size policy vocabulary | no native aligned allocation route or ABI alignment claim |
+| `M175 large/huge page model` | route huge-bin requests to explicit page-source-backed pages | no arena scheduler or OS release widening |
+| `M176 secure free-list vocabulary` | decide encoded/randomized free-list requirements | no cryptographic randomness or bitwise lowering claim without compiler support |
+| `M177 stats/options surface` | expose allocator observability/configuration only after algorithm rows are stable | no environment toggles without docs/env SSOT |
 
 ## Granular Row Contracts
 
@@ -212,6 +223,10 @@ work. Splitting is mandatory if a row starts adding algorithm bodies back into
   `HakoAllocRemoteFreePolicy`, page state mutation stays in
   `HakoAllocPageModel.releaseLocal(...)`, and caller-provided block identity is
   the proof seam until a future page-map row exists.
+- `M171` landed as `HakoAllocPageMap` in `page_map_box.hako`: it records
+  caller-visible pointer ownership and resolves it to page/block identity.
+  It does not call page release yet; `M172` owns the page-map-backed release
+  seam.
 
 ## First Concrete Row
 

@@ -13,6 +13,7 @@ Current modules
 - `osvm_backed_fast_path_heap_box.hako`
 - `page_box.hako`
 - `page_heap_box.hako`
+- `page_map_box.hako`
 - `page_queue_box.hako`
 - `page_source_policy_box.hako`
 - `remote_free_page_integration_box.hako`
@@ -52,5 +53,8 @@ Syntax/style contract
   inbox composition. It may call `HakoAllocRemoteFreePolicy.pushRetry(...)` and
   `HakoAllocPageModel.releaseLocal(...)`, but it must not resolve arbitrary
   pointers to pages or add new pointer atomic vocabulary.
+- `page_map_box.hako` owns M171 pointer-to-page ownership lookup. It may record
+  and resolve caller-visible pointer identity to page/block ids, but it must not
+  perform page release, realloc, pointer arithmetic, or native metal work.
 - Keep `birth(...)` for parameter-dependent initialization and ordering that
   cannot be expressed as a declaration-site default.

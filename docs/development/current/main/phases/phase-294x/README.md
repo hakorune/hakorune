@@ -28,7 +28,7 @@
 
 | Next | Card | Goal |
 | --- | --- | --- |
-| 1 | post-`M170` inventory | Recheck whether realloc/aligned/page-map/huge-page rows need new Hakorune features. |
+| 1 | `M172` | Compose page-map lookup/unregister with page-local release. |
 
 Stop line: VM green is useful reference evidence, but production allocator
 migration still changes only by explicit `hako_alloc` field-group rows.
@@ -183,6 +183,9 @@ migration still changes only by explicit `hako_alloc` field-group rows.
 - `M170`: parent mimalloc lane landed remote-free page integration through
   existing pointer load/store/CAS route facts, with caller-provided block
   identity as the proof seam and no page-map migration.
+- `M171`: parent mimalloc lane landed the page-map model owner for
+  caller-visible pointer id to page/block lookup. Page-map-backed release is
+  still the next composition row.
 
 ## Implementation Direction
 
@@ -196,8 +199,8 @@ explicit consumer:
 5. lower the exact arithmetic/compare subset needed by migrated fields;
 6. migrate `hako_alloc` non-negative fields only by field group when an
    algorithm row actually benefits from the migration;
-7. inventory post-M170 mimalloc feature needs before scheduling realloc,
-   aligned allocation, page-map, huge-page, or secure-list rows.
+7. continue M172 page-map-backed release before scheduling realloc, aligned
+   allocation, huge-page, or secure-list rows.
 
 This keeps the source truth available before any lowerer claims exact
 semantics.

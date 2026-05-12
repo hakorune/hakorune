@@ -50,6 +50,9 @@ Principles
     the existing bounded pointer remote-free policy with caller-provided
     page/block identity, then delegates page state mutation to
     `HakoAllocPageModel.releaseLocal(...)`.
+  - `HakoAllocPageMap` is the M171 pointer ownership model. It resolves
+    caller-visible pointer ids to page/block ids, but arbitrary free/realloc
+    composition remains a later row.
 
 Design owners
 - Policy/state stop-line:
@@ -102,6 +105,7 @@ Current modules
 - `memory.osvm_backed_fast_path_heap_box`
 - `memory.page_box`
 - `memory.page_heap_box`
+- `memory.page_map_box`
 - `memory.page_queue_box`
 - `memory.page_source_policy_box`
 - `memory.remote_free_page_integration_box`

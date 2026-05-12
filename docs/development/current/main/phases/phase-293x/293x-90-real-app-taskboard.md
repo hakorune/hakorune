@@ -141,6 +141,7 @@
 - [x] `293x-176` M168 mimalloc OSVM page-source composition
 - [x] `293x-177` M169 mimalloc local-free retire
 - [x] `293x-178` M170 mimalloc remote-free integration
+- [x] `293x-179` M171 mimalloc page-map model
 
 ## Gates
 

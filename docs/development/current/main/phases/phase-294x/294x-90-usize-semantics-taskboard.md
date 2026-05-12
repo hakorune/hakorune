@@ -39,7 +39,7 @@ hako_alloc or mimalloc migration.
 
 | Order | Row | Status | Implementation Boundary |
 | --- | --- | --- | --- |
-| 1 | post-`M170` feature inventory | Next | Decide realloc/aligned alloc/page-map/huge-page/secure-list rows from actual mimalloc pressure. |
+| 1 | `M172` | Next | Page-map-backed release seam, no realloc or byte copy. |
 
 ## Ladder
 
@@ -207,7 +207,8 @@ hako_alloc or mimalloc migration.
 - [x] Land M168 OSVM page-source composition without new native leaves.
 - [x] Land M169 local-free collection and retire observation.
 - [x] Land M170 remote-free integration through existing pointer atomics only.
-- [ ] Inventory post-M170 feature pressure before scheduling realloc/aligned/page-map/huge-page rows.
+- [x] Land M171 page-map model owner.
+- [ ] Land M172 page-map-backed release seam before scheduling realloc/aligned/page-map/huge-page rows.
 
 ## Open Design Questions
 

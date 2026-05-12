@@ -1,0 +1,72 @@
+// mimalloc-page-map-proof
+// Purpose: prove M171 pointer-to-page ownership lookup model.
+
+using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
+
+static box Main {
+    main(args) {
+        local page_map = new HakoAllocPageMap()
+
+        local r0 = page_map.register(1001, 7, 1)
+        local r1 = page_map.register(1002, 7, 0)
+        local duplicate = page_map.register(1001, 8, 2)
+
+        local e0 = page_map.lookup(1001)
+        local e1 = page_map.lookup(1002)
+        local missing = page_map.lookup(9999)
+
+        local u0 = page_map.unregister(1001)
+        local gone = page_map.lookup(1001)
+        local r2 = page_map.register(1001, 8, 3)
+        local e2 = page_map.lookup(1001)
+        local bad_register = page_map.register(0, 1, 1)
+        local bad_unregister = page_map.unregister(4040)
+
+        local e0_shape = 0
+        if e0 != null {
+            if e0.page_id == 7 && e0.block_id == 1 {
+                e0_shape = 1
+            }
+        }
+
+        local e1_shape = 0
+        if e1 != null {
+            if e1.page_id == 7 && e1.block_id == 0 {
+                e1_shape = 1
+            }
+        }
+
+        local missing_shape = 0
+        if missing == null {
+            missing_shape = 1
+        }
+
+        local gone_shape = 0
+        if gone == null {
+            gone_shape = 1
+        }
+
+        local e2_shape = 0
+        if e2 != null {
+            if e2.page_id == 8 && e2.block_id == 3 {
+                e2_shape = 1
+            }
+        }
+
+        local shape = e0_shape + e1_shape + missing_shape + gone_shape + e2_shape
+
+        print("mimalloc-page-map-proof")
+        print("register=" + r0 + "," + r1 + "," + duplicate + "," + r2 + "," + bad_register)
+        print("unregister=" + u0 + "," + bad_unregister)
+        print("shape=" + shape)
+        print("counts=" + page_map.entry_count + "," + page_map.live_count + "," + page_map.register_count + "," + page_map.lookup_count + "," + page_map.lookup_miss_count + "," + page_map.unregister_count + "," + page_map.reject_count)
+
+        if r0 == 1 && r1 == 1 && duplicate == 0 && r2 == 1 && bad_register == 0 && u0 == 1 && bad_unregister == 0 && shape == 5 && page_map.entry_count == 3 && page_map.live_count == 2 && page_map.register_count == 3 && page_map.lookup_count == 5 && page_map.lookup_miss_count == 2 && page_map.unregister_count == 1 && page_map.reject_count == 3 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

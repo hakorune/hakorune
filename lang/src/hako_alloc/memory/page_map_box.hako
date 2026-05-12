@@ -1,0 +1,110 @@
+// page_map_box.hako — M171 pointer-to-page ownership model
+// Responsibility: record and resolve caller-visible block pointer ownership.
+// Later allocator API work and native metal stay outside this owner.
+
+box HakoAllocPageMapEntry {
+    ptr: i64
+    page_id: i64
+    block_id: i64
+    live: i64 = 1
+
+    birth(ptr, page_id, block_id) {
+        me.ptr = ptr
+        me.page_id = page_id
+        me.block_id = block_id
+    }
+
+    matches(ptr) {
+        if me.live == 1 && me.ptr == ptr {
+            return 1
+        }
+
+        return 0
+    }
+}
+
+box HakoAllocPageMap {
+    entries: ArrayBox = new ArrayBox()
+    entry_count: i64 = 0
+    live_count: i64 = 0
+    register_count: i64 = 0
+    lookup_count: i64 = 0
+    lookup_miss_count: i64 = 0
+    unregister_count: i64 = 0
+    reject_count: i64 = 0
+
+    findIndex(ptr) {
+        local entry_count = me.entry_count
+        local i = 0
+        loop(i < entry_count) {
+            local entry = me.entries.get(i)
+            if entry != null {
+                if entry.matches(ptr) {
+                    return i
+                }
+            }
+            i = i + 1
+        }
+
+        return -1
+    }
+
+    register(ptr, page_id, block_id) {
+        if ptr == 0 {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        if page_id < 0 {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        if block_id < 0 {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        if me.findIndex(ptr) >= 0 {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        local entry = new HakoAllocPageMapEntry(ptr, page_id, block_id)
+        me.entries.push(entry)
+        me.entry_count = me.entry_count + 1
+        me.live_count = me.live_count + 1
+        me.register_count = me.register_count + 1
+        return 1
+    }
+
+    lookup(ptr) {
+        me.lookup_count = me.lookup_count + 1
+        local index = me.findIndex(ptr)
+        if index < 0 {
+            me.lookup_miss_count = me.lookup_miss_count + 1
+            return null
+        }
+
+        return me.entries.get(index)
+    }
+
+    unregister(ptr) {
+        local index = me.findIndex(ptr)
+        if index < 0 {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        local entry = me.entries.get(index)
+        if entry == null {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        entry.live = 0
+        me.live_count = me.live_count - 1
+        me.unregister_count = me.unregister_count + 1
+        return 1
+    }
+}
