@@ -28,9 +28,8 @@
 
 | Next | Card | Goal |
 | --- | --- | --- |
-| 1 | `M169` | Add local-free collection and empty-page retire observation without remote-free atomics. |
-| 2 | `M170` | Compose bounded remote-free policy through existing pointer atomics only. |
-| 3 | post-`M170` inventory | Recheck whether realloc/aligned/page-map/huge-page rows need new Hakorune features. |
+| 1 | `M170` | Compose bounded remote-free policy through existing pointer atomics only. |
+| 2 | post-`M170` inventory | Recheck whether realloc/aligned/page-map/huge-page rows need new Hakorune features. |
 
 Stop line: VM green is useful reference evidence, but production allocator
 migration still changes only by explicit `hako_alloc` field-group rows.
@@ -180,6 +179,8 @@ migration still changes only by explicit `hako_alloc` field-group rows.
 - `M168`: parent mimalloc lane landed OSVM page-source composition as a
   separate adapter, keeping the M167 heap OSVM-free while backing fresh modeled
   pages through existing reserve/commit/decommit rows.
+- `M169`: parent mimalloc lane landed page-local local-free collection and
+  empty-page retire observation without remote-free atomics.
 
 ## Implementation Direction
 
@@ -193,7 +194,7 @@ explicit consumer:
 5. lower the exact arithmetic/compare subset needed by migrated fields;
 6. migrate `hako_alloc` non-negative fields only by field group when an
    algorithm row actually benefits from the migration;
-7. continue M169/M170 mimalloc rows and inventory post-M170 feature needs.
+7. continue M170 mimalloc remote-free integration and inventory post-M170 feature needs.
 
 This keeps the source truth available before any lowerer claims exact
 semantics.

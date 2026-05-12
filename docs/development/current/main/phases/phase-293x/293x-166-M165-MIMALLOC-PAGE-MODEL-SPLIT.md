@@ -31,10 +31,13 @@ rewired in this row.
   - allocation consumes only `free`;
   - same-page local release records into `local_free`;
   - page-local `block_used` rejects double release;
-  - `local_free` is not reusable until a later collection row;
   - `used`, `capacity`, and `reserved` stay separately observable.
 - Added a focused M165 guard and kept it out of the wide allocator gate step
   list.
+
+Post-M169 note: `local_free` is now reusable through the page-local collection
+behavior added by M169. The M165 guard follows the current page model so it does
+not pin the old pre-collection behavior.
 
 ## Stop Line
 

@@ -1,0 +1,40 @@
+// mimalloc-local-free-retire-proof
+// Purpose: prove M169 page-local local_free collection and empty-page retire state.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+
+static box Main {
+    main(args) {
+        local page = new HakoAllocPageModel(9, 32, 2, 2)
+
+        local b0 = page.acquire(8)
+        local b1 = page.acquire(16)
+        local full = page.acquire(8)
+        local r0 = page.releaseLocal(b0)
+        local reuse = page.acquire(8)
+        local local_after_collect = page.localFreeCount()
+        local free_after_collect = page.freeCount()
+        local r1 = page.releaseLocal(b1)
+        local r2 = page.releaseLocal(reuse)
+        local after_retire = page.acquire(8)
+        local final_used = page.used
+        local final_free = page.freeCount()
+        local final_local_free = page.localFreeCount()
+        local final_retired = page.retired
+
+        print("mimalloc-local-free-retire-proof")
+        print("blocks=" + b0 + "," + b1 + "," + full + "," + reuse + "," + after_retire)
+        print("release=" + r0 + "," + r1 + "," + r2)
+        print("collect=" + page.local_free_collect_count + "," + page.local_free_collected_blocks + "," + local_after_collect + "," + free_after_collect)
+        print("state=" + final_used + "," + final_free + "," + final_local_free + "," + final_retired)
+        print("counts=" + page.alloc_count + "," + page.local_free_count + "," + page.reject_count + "," + page.peak_used + "," + page.requested_bytes + "," + page.local_free_collect_count + "," + page.local_free_collected_blocks + "," + page.retire_count)
+
+        if final_retired == 1 && page.local_free_collect_count == 1 && page.local_free_collected_blocks == 1 && page.retire_count == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

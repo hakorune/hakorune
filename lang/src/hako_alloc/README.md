@@ -31,8 +31,9 @@ Principles
   - `SizeClassBox` owns mimalloc-shaped pure size-class policy. `LayoutBox`
     remains the small/medium compatibility facade until the page heap migrates.
   - `HakoAllocPageModel` owns page-local `free` / `local_free` / `used` /
-    `capacity` / `reserved` invariants. Page queues, OSVM sourcing, TLS,
-    atomics, and remote-free integration stay in later rows.
+    `capacity` / `reserved` invariants, including same-thread local-free
+    collection and empty-page retire observation. Page queues, OSVM sourcing,
+    TLS, atomics, and remote-free integration stay in later rows.
   - `HakoAllocPageQueue` owns page ordering/direct-page cache state. It chooses
     pages by observing `freeCount()` and must not pop allocation blocks.
   - `HakoAllocFastPathHeap` composes page queue selection with page-local
@@ -42,6 +43,9 @@ Principles
     modeled pages through `HakoAllocPageSourcePolicy` reserve/commit/decommit.
     It must not add native OSVM leaves, local-free retire, remote-free
     integration, provider activation, hooks, or allocator replacement.
+  - M169 local-free retire stays page-local in `HakoAllocPageModel`; M170 owns
+    remote-free integration and any broader heap/queue consumption of retire
+    state.
 
 Design owners
 - Policy/state stop-line:

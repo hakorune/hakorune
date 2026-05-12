@@ -44,5 +44,8 @@ Syntax/style contract
   same page queue and page-local free-list owners. It must not add OSVM metal,
   local-free retire, remote-free, page-map, provider, hook, or replacement
   behavior.
+- `page_box.hako` owns M169 local-free collection and empty-page retire state.
+  The row is page-local: remote-free atomics, abandoned reclaim, page-map lookup,
+  OSVM release, provider hooks, and allocator replacement remain out of scope.
 - Keep `birth(...)` for parameter-dependent initialization and ordering that
   cannot be expressed as a declaration-site default.

@@ -411,7 +411,10 @@ inference for the allocator release path.
 - `293x-176`: M168 mimalloc OSVM page-source composition landed, backing fresh
   modeled pages with existing reserve/commit/decommit rows through a separate
   adapter while keeping the M167 heap OSVM-free.
+- `293x-177`: M169 mimalloc local-free retire landed, moving same-thread
+  `local_free` entries back to reusable page-local free blocks and exposing
+  empty-page retire state without remote-free atomics or abandoned reclaim.
 - Next: continue `.hako` mimalloc / `hako_alloc` implementation slices with
-  `M169 local free collection and retire`.
+  `M170 remote-free integration`.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.

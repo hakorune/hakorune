@@ -15,7 +15,11 @@ box HakoAllocPageModel {
     local_free_top: i64 = 0
     alloc_count: i64 = 0
     local_free_count: i64 = 0
+    local_free_collect_count: i64 = 0
+    local_free_collected_blocks: i64 = 0
     reject_count: i64 = 0
+    retired: i64 = 0
+    retire_count: i64 = 0
     peak_used: i64 = 0
     requested_bytes: i64 = 0
 
@@ -29,11 +33,13 @@ box HakoAllocPageModel {
 
     seedFreeBlocks() {
         local free = me.free
+        local local_free = me.local_free
         local block_used = me.block_used
         local free_top = me.free_top
         local i = 0
         loop(i < me.capacity) {
             free.push(i)
+            local_free.push(0)
             block_used.push(0)
             free_top = free_top + 1
             i = i + 1
@@ -42,9 +48,27 @@ box HakoAllocPageModel {
     }
 
     acquire(requested_size) {
+        if me.retired != 0 {
+            me.reject_count = me.reject_count + 1
+            return -1
+        }
+
         if requested_size > me.block_size {
             me.reject_count = me.reject_count + 1
             return -1
+        }
+
+        if me.free_top == 0 {
+            local local_free_top = me.local_free_top
+            if 0 < local_free_top {
+                local_free_top = local_free_top - 1
+                local block_id = me.local_free.get(local_free_top)
+                me.free.set(me.free_top, block_id)
+                me.free_top = me.free_top + 1
+                me.local_free_top = local_free_top
+                me.local_free_collect_count = me.local_free_collect_count + 1
+                me.local_free_collected_blocks = me.local_free_collected_blocks + 1
+            }
         }
 
         if me.free_top == 0 {
@@ -83,10 +107,17 @@ box HakoAllocPageModel {
         }
 
         me.block_used.set(block_id, 0)
-        me.local_free.push(block_id)
+        local local_free_top = me.local_free_top
+        me.local_free.set(local_free_top, block_id)
         me.local_free_top = me.local_free_top + 1
         me.local_free_count = me.local_free_count + 1
         me.used = me.used - 1
+        if me.used == 0 {
+            if me.retired == 0 {
+                me.retired = 1
+                me.retire_count = me.retire_count + 1
+            }
+        }
         return 1
     }
 

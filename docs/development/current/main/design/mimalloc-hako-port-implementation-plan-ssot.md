@@ -200,6 +200,11 @@ work. Splitting is mandatory if a row starts adding algorithm bodies back into
   allocator API object-return parity is a future row.
 - `M169` owns same-thread local free collection only. Remote-free and abandoned
   reclaim remain out of scope until `M170+`.
+  M169 landed this page-local behavior in `HakoAllocPageModel`:
+  `acquire(...)` collects one same-thread `local_free` entry back to a reusable
+  free stack slot when the normal free stack is empty, and the final
+  `releaseLocal(...)` records empty-page retire state without remote-free
+  atomics, abandoned reclaim, OSVM release, or page-map lookup.
 - `M170` composes existing pointer atomics only. It does not add pointer
   `fetch_add`, page-map lookup, allocator hooks, or host replacement.
 

@@ -82,10 +82,10 @@ NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
   cargo run -q --bin hakorune -- --backend vm "$ROOT_DIR/$APP" >"$OUT" 2>"$ERR"
 
 grep -q '^mimalloc-page-model-proof$' "$OUT"
-grep -q '^blocks=2,1,0,-1,-1$' "$OUT"
-grep -q '^state=2,3,5,0,1$' "$OUT"
-grep -q '^counts=3,1,4,3,48$' "$OUT"
-grep -q '^shape=14$' "$OUT"
+grep -q '^blocks=2,1,0,-1,1$' "$OUT"
+grep -q '^state=3,3,5,0,0$' "$OUT"
+grep -q '^counts=4,1,3,3,56$' "$OUT"
+grep -q '^shape=13$' "$OUT"
 grep -q '^summary=ok$' "$OUT"
 
 cat "$OUT"

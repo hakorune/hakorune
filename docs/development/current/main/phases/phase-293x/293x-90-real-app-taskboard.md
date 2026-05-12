@@ -139,6 +139,7 @@
 - [x] `293x-174` usize mimalloc syntax decision
 - [x] `293x-175` M167 mimalloc alloc fast path
 - [x] `293x-176` M168 mimalloc OSVM page-source composition
+- [x] `293x-177` M169 mimalloc local-free retire
 
 ## Gates
 

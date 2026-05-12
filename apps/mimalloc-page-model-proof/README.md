@@ -4,6 +4,9 @@ Purpose
 - Proves the M165 page-local state owner without heap queues or OS memory.
 - Exercises `free`, `local_free`, `used`, `capacity`, and `reserved`
   invariants through `HakoAllocPageModel`.
+- After M169, this proof also accepts the current page-local behavior where
+  `acquire(...)` can reuse one same-thread `local_free` block when the normal
+  free stack is empty.
 
 Stop line
 - No page queues.
