@@ -429,8 +429,12 @@ inference for the allocator release path.
   conjunction with an app-local `ProofCheck` helper. Future `check` block,
   `+=`, multiline condition, and `guard else` surfaces remain separate
   compiler rows.
-- Next: continue with `M173 pre-realloc release invariant freeze` before
-  scheduling realloc body, aligned allocation, huge-page, or secure-list rows.
+- `293x-183`: M173 pre-realloc release invariant freeze landed, adding
+  `HakoAllocPageMapReleaseObserver` so successful releases expire handles with a
+  frozen release/unregister delta while reject paths keep live ownership.
+- Next: continue with `M174 realloc same-class/no-move path` before scheduling
+  alloc-copy-release fallback, aligned allocation, huge-page, or secure-list
+  rows.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.
 
@@ -441,14 +445,13 @@ SSOT:
 
 Current execution order:
 
-1. `M173`: freeze release invariants before realloc.
-2. `M174-M176`: add realloc as no-move, fallback, then negative/failure rows.
-3. `M177-M184`: add alignment, huge-page, and secure-list rows separately.
-4. `M185-M190`: finish remaining `usize` field-group migration and allocator
+1. `M174-M176`: add realloc as no-move, fallback, then negative/failure rows.
+2. `M177-M184`: add alignment, huge-page, and secure-list rows separately.
+3. `M185-M190`: finish remaining `usize` field-group migration and allocator
    API parity. Facade stats are already exact `usize` via `294x-19e`, so that
    row must not be repeated.
-5. `C197-C200`: improve proof/application syntax only as separate language rows
+4. `C197-C200`: improve proof/application syntax only as separate language rows
    after docs/reference decisions. Do not fold them into allocator rows.
-6. `C191-C194`: run compiler/backend hardening only when it does not collide
+5. `C191-C194`: run compiler/backend hardening only when it does not collide
    with the active `.hako` row.
 7. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.

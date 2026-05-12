@@ -1,0 +1,109 @@
+// page_map_release_invariant_box.hako — M173 pre-realloc release observer
+// Responsibility: freeze handle lifetime and release/unregister timing around
+// the existing M172 release seam before realloc rows begin.
+
+using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
+using selfhost.hako_alloc.memory.page_map_release_box as HakoAllocPageMapReleaseBox
+
+box HakoAllocPageMapReleaseObserver {
+    seam: HakoAllocPageMapReleaseSeam
+    page_map: HakoAllocPageMap
+    observe_count: i64 = 0
+    success_count: i64 = 0
+    reject_count: i64 = 0
+    live_count_before: i64 = 0
+    release_count_before: i64 = 0
+    unregister_count_before: i64 = 0
+    page_used_before: i64 = 0
+    local_free_before: i64 = 0
+    last_ptr: i64 = 0
+    last_page_id: i64 = -1
+    last_block_id: i64 = -1
+    last_result: i64 = 0
+    last_entry_live_before: i64 = 0
+    last_lookup_after: i64 = 0
+    last_live_count_delta: i64 = 0
+    last_release_count_delta: i64 = 0
+    last_unregister_count_delta: i64 = 0
+    last_page_used_delta: i64 = 0
+    last_local_free_delta: i64 = 0
+
+    birth(seam) {
+        me.seam = seam
+        me.page_map = seam.page_map
+    }
+
+    handleIsLive(ptr) {
+        local entry = me.page_map.lookup(ptr)
+        if entry == null {
+            return 0
+        }
+        return 1
+    }
+
+    beginRelease(ptr) {
+        me.observe_count = me.observe_count + 1
+        me.last_ptr = ptr
+        me.last_page_id = -1
+        me.last_block_id = -1
+        me.last_entry_live_before = 0
+        me.last_lookup_after = 0
+        me.last_live_count_delta = 0
+        me.last_release_count_delta = 0
+        me.last_unregister_count_delta = 0
+        me.last_page_used_delta = 0
+        me.last_local_free_delta = 0
+        me.page_used_before = 0
+        me.local_free_before = 0
+
+        local entry = me.page_map.lookup(ptr)
+
+        if entry != null {
+            me.last_entry_live_before = 1
+            me.last_page_id = entry.page_id
+            me.last_block_id = entry.block_id
+            if entry.page_id >= 0 {
+                if entry.page_id < me.seam.page_count {
+                    local page = me.seam.pages.get(entry.page_id)
+                    if page != null {
+                        me.page_used_before = page.used
+                        me.local_free_before = page.localFreeCount()
+                    }
+                }
+            }
+        }
+
+        me.live_count_before = me.page_map.live_count
+        me.release_count_before = me.seam.release_count
+        me.unregister_count_before = me.seam.unregister_count
+    }
+
+    finishRelease(ptr, result) {
+        me.last_result = result
+        me.last_live_count_delta = me.live_count_before - me.page_map.live_count
+        me.last_release_count_delta = me.seam.release_count - me.release_count_before
+        me.last_unregister_count_delta = me.seam.unregister_count - me.unregister_count_before
+
+        local entry_after = me.page_map.lookup(ptr)
+        if entry_after != null {
+            me.last_lookup_after = 1
+        }
+
+        if me.last_page_id >= 0 {
+            if me.last_page_id < me.seam.page_count {
+                local page = me.seam.pages.get(me.last_page_id)
+                if page != null {
+                    me.last_page_used_delta = me.page_used_before - page.used
+                    me.last_local_free_delta = page.localFreeCount() - me.local_free_before
+                }
+            }
+        }
+
+        if result == 1 {
+            me.success_count = me.success_count + 1
+            return
+        }
+
+        me.reject_count = me.reject_count + 1
+    }
+}

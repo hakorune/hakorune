@@ -1,0 +1,179 @@
+// mimalloc-pre-realloc-release-invariant-proof
+// Purpose: freeze M173 handle lifetime and release observer invariants.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
+using selfhost.hako_alloc.memory.page_map_release_box as HakoAllocPageMapReleaseBox
+using selfhost.hako_alloc.memory.page_map_release_invariant_box as HakoAllocPageMapReleaseInvariantBox
+
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expect(label, condition) {
+        me.count = me.count + 1
+        if condition == 0 {
+            me.passed = 0
+            me.fail_count = me.fail_count + 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
+static box Main {
+    main(args) {
+        local page_map = new HakoAllocPageMap()
+        local seam = new HakoAllocPageMapReleaseSeam(page_map)
+        local observer = new HakoAllocPageMapReleaseObserver(seam)
+        local page0 = new HakoAllocPageModel(0, 32, 2, 2)
+        local page1 = new HakoAllocPageModel(1, 64, 1, 1)
+
+        local add0 = seam.addPage(page0)
+        local add1 = seam.addPage(page1)
+
+        local b0 = page0.acquire(8)
+        local b1 = page0.acquire(16)
+        local b2 = page1.acquire(40)
+
+        local reg0 = page_map.register(1001, 0, b0)
+        local reg1 = page_map.register(1002, 0, b1)
+        local reg2 = page_map.register(2001, 1, b2)
+        local reg_stale_page = page_map.register(3001, 9, 0)
+
+        local live_before_1001 = observer.handleIsLive(1001)
+        observer.beginRelease(1001)
+        local rel0_rc = seam.releasePtr(1001)
+        observer.finishRelease(1001, rel0_rc)
+        local rel0 = observer.last_result
+        local live_after_1001 = observer.handleIsLive(1001)
+        local success_live_delta = observer.last_live_count_delta
+        local success_release_delta = observer.last_release_count_delta
+        local success_unregister_delta = observer.last_unregister_count_delta
+        local success_page_used_delta = observer.last_page_used_delta
+        local success_local_free_delta = observer.last_local_free_delta
+        local success_lookup_after = observer.last_lookup_after
+
+        local live_other_after_first = observer.handleIsLive(1002)
+        local reg_released_block = page_map.register(4001, 0, b0)
+        observer.beginRelease(4001)
+        local rel_released_block_rc = seam.releasePtr(4001)
+        observer.finishRelease(4001, rel_released_block_rc)
+        local rel_released_block = observer.last_result
+        local reject_released_lookup_after = observer.last_lookup_after
+        local reject_released_live_delta = observer.last_live_count_delta
+        local reject_released_release_delta = observer.last_release_count_delta
+        local reject_released_unregister_delta = observer.last_unregister_count_delta
+        local reject_released_page_used_delta = observer.last_page_used_delta
+        local reject_released_local_free_delta = observer.last_local_free_delta
+        local live_rejected_block_after = observer.handleIsLive(4001)
+
+        observer.beginRelease(9999)
+        local rel_unknown_rc = seam.releasePtr(9999)
+        observer.finishRelease(9999, rel_unknown_rc)
+        local rel_unknown = observer.last_result
+        local unknown_entry_before = observer.last_entry_live_before
+        local unknown_lookup_after = observer.last_lookup_after
+        local unknown_live_delta = observer.last_live_count_delta
+        local unknown_release_delta = observer.last_release_count_delta
+        local unknown_unregister_delta = observer.last_unregister_count_delta
+
+        observer.beginRelease(3001)
+        local rel_stale_page_rc = seam.releasePtr(3001)
+        observer.finishRelease(3001, rel_stale_page_rc)
+        local rel_stale_page = observer.last_result
+        local stale_entry_before = observer.last_entry_live_before
+        local stale_lookup_after = observer.last_lookup_after
+        local stale_live_delta = observer.last_live_count_delta
+        local stale_release_delta = observer.last_release_count_delta
+        local stale_unregister_delta = observer.last_unregister_count_delta
+        local live_stale_after = observer.handleIsLive(3001)
+
+        observer.beginRelease(1002)
+        local rel1_rc = seam.releasePtr(1002)
+        observer.finishRelease(1002, rel1_rc)
+        local rel1 = observer.last_result
+        observer.beginRelease(2001)
+        local rel2_rc = seam.releasePtr(2001)
+        observer.finishRelease(2001, rel2_rc)
+        local rel2 = observer.last_result
+
+        print("mimalloc-pre-realloc-release-invariant-proof")
+        print("pages=" + add0 + "," + add1)
+        print("blocks=" + b0 + "," + b1 + "," + b2)
+        print("register=" + reg0 + "," + reg1 + "," + reg2 + "," + reg_stale_page + "," + reg_released_block)
+        print("observer=" + observer.observe_count + "," + observer.success_count + "," + observer.reject_count)
+        print("success=" + live_before_1001 + "," + rel0 + "," + live_after_1001 + "," + success_live_delta + "," + success_release_delta + "," + success_unregister_delta + "," + success_page_used_delta + "," + success_local_free_delta + "," + success_lookup_after)
+        print("reject_released=" + rel_released_block + "," + reject_released_lookup_after + "," + reject_released_live_delta + "," + reject_released_release_delta + "," + reject_released_unregister_delta + "," + reject_released_page_used_delta + "," + reject_released_local_free_delta)
+        print("reject_unknown=" + rel_unknown + "," + unknown_entry_before + "," + unknown_lookup_after + "," + unknown_live_delta + "," + unknown_release_delta + "," + unknown_unregister_delta)
+        print("reject_stale=" + rel_stale_page + "," + stale_entry_before + "," + stale_lookup_after + "," + stale_live_delta + "," + stale_release_delta + "," + stale_unregister_delta)
+        print("live=" + live_other_after_first + "," + live_rejected_block_after + "," + live_stale_after + "," + page_map.live_count)
+        print("seam=" + seam.release_count + "," + seam.unregister_count + "," + seam.lookup_miss_count + "," + seam.stale_page_count + "," + seam.page_release_reject_count + "," + seam.reject_count)
+        print("page_state=" + page0.used + "," + page0.localFreeCount() + "," + page0.retired + "," + page1.used + "," + page1.localFreeCount() + "," + page1.retired)
+
+        local proof = new ProofCheck("m173 pre-realloc release invariants")
+        proof.expect("add page0", add0 == 1)
+        proof.expect("add page1", add1 == 1)
+        proof.expect("register ptr 1001", reg0 == 1)
+        proof.expect("register ptr 1002", reg1 == 1)
+        proof.expect("register ptr 2001", reg2 == 1)
+        proof.expect("register stale page", reg_stale_page == 1)
+        proof.expect("success release", rel0 == 1)
+        proof.expect("success handle live before", live_before_1001 == 1)
+        proof.expect("success handle expires", live_after_1001 == 0)
+        proof.expect("success live delta", success_live_delta == 1)
+        proof.expect("success release delta", success_release_delta == 1)
+        proof.expect("success unregister delta", success_unregister_delta == 1)
+        proof.expect("success page used delta", success_page_used_delta == 1)
+        proof.expect("success local free delta", success_local_free_delta == 1)
+        proof.expect("success lookup cleared", success_lookup_after == 0)
+        proof.expect("other live handle stays visible", live_other_after_first == 1)
+        proof.expect("register recycled block after success", reg_released_block == 1)
+        proof.expect("reject released block", rel_released_block == 0)
+        proof.expect("released-block handle stays live on reject", reject_released_lookup_after == 1)
+        proof.expect("released-block reject live delta", reject_released_live_delta == 0)
+        proof.expect("released-block reject release delta", reject_released_release_delta == 0)
+        proof.expect("released-block reject unregister delta", reject_released_unregister_delta == 0)
+        proof.expect("released-block reject page used delta", reject_released_page_used_delta == 0)
+        proof.expect("released-block reject local free delta", reject_released_local_free_delta == 0)
+        proof.expect("released-block handle still live", live_rejected_block_after == 1)
+        proof.expect("reject unknown", rel_unknown == 0)
+        proof.expect("unknown not live before", unknown_entry_before == 0)
+        proof.expect("unknown not live after", unknown_lookup_after == 0)
+        proof.expect("unknown live delta", unknown_live_delta == 0)
+        proof.expect("unknown release delta", unknown_release_delta == 0)
+        proof.expect("unknown unregister delta", unknown_unregister_delta == 0)
+        proof.expect("reject stale page", rel_stale_page == 0)
+        proof.expect("stale page was live before", stale_entry_before == 1)
+        proof.expect("stale handle stays live after reject", stale_lookup_after == 1)
+        proof.expect("stale live delta", stale_live_delta == 0)
+        proof.expect("stale release delta", stale_release_delta == 0)
+        proof.expect("stale unregister delta", stale_unregister_delta == 0)
+        proof.expect("stale handle still live", live_stale_after == 1)
+        proof.expect("release ptr 1002", rel1 == 1)
+        proof.expect("release ptr 2001", rel2 == 1)
+        proof.expect("observer counts", observer.observe_count == 6 && observer.success_count == 3 && observer.reject_count == 3)
+        proof.expect("seam counters", seam.release_count == 3 && seam.unregister_count == 3 && seam.lookup_miss_count == 1 && seam.stale_page_count == 1 && seam.page_release_reject_count == 1 && seam.reject_count == 3)
+        proof.expect("page map live count", page_map.live_count == 2)
+        proof.expect("page state", page0.used == 0 && page0.localFreeCount() == 2 && page0.retired == 1 && page1.used == 0 && page1.localFreeCount() == 1 && page1.retired == 1)
+
+        if proof.ok() {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

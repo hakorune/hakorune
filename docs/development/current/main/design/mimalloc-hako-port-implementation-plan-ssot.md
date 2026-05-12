@@ -143,8 +143,8 @@ current repo truth: broad numeric field inventory and facade-local exact
 | --- | --- | --- | --- |
 | `M171 page-map model` | Complete | record and resolve caller-visible pointer ownership to `page_id` / `block_id` | no arbitrary free/realloc, no pointer arithmetic, no OSVM release |
 | `M172 page-map-backed release seam` | Complete | compose page-map lookup/unregister with page-local release | no realloc, no byte copy, no host replacement |
-| `M173 pre-realloc release invariant freeze` | Next | freeze handle lifetime, page-map registration/unregistration timing, and release observers before realloc | no realloc body, no byte copy |
-| `M174 realloc same-class/no-move path` | Planned | keep the same handle when the new request fits the current usable block/class | no alloc-copy-release fallback |
+| `M173 pre-realloc release invariant freeze` | Complete | freeze handle lifetime, page-map registration/unregistration timing, and release observers before realloc | no realloc body, no byte copy |
+| `M174 realloc same-class/no-move path` | Next | keep the same handle when the new request fits the current usable block/class | no alloc-copy-release fallback |
 | `M175 realloc alloc-copy-release fallback` | Planned | allocate a replacement handle, model copy count, and release the old handle only after success | no aligned/huge allocation |
 | `M176 realloc negative matrix / failure contract` | Planned | fix stale/unknown/released/zero/oversized failure behavior | no new allocator API surface beyond realloc diagnostics |
 | `M177 alignment policy object` | Planned | add alignment normalization, power-of-two validation, padded-size policy | no native aligned allocation route or ABI alignment claim |
@@ -246,16 +246,21 @@ work. Splitting is mandatory if a row starts adding algorithm bodies back into
   field initializers after the parser row accepted `field = expr` and
   `field: Type = expr`. Fixed defaults and owner construction now live at
   declaration site; constructor parameters remain in `birth(...)`.
-- `M173` converged allocator numeric stored fields from `IntegerBox` spelling to
+- `293x-173` converged allocator numeric stored fields from `IntegerBox` spelling to
   `i64` scalar substrate annotations. The current runtime lane remains
   `Integer(i64)`; `usize`/exact-width behavior stays reserved.
-- `M174` fixed the pre-port syntax/spec decision: `usize` remains accepted as
+- `293x-174` fixed the pre-port syntax/spec decision: `usize` remains accepted as
   annotation text and MIR numeric substrate metadata, but hako_alloc/mimalloc
   production state stays on `i64` until native exact numeric storage exists.
   State fields continue to use `i64` until exact pointer-sized unsigned
   semantics, range checks, and overflow behavior are live. Parameter and
   accepted return type annotations are now preserved through AST metadata and
   JSON transport, and stored field initializers are per-construction values.
+- `M173` landed as `HakoAllocPageMapReleaseObserver` in
+  `page_map_release_invariant_box.hako`: it observes the existing
+  `HakoAllocPageMapReleaseSeam.releasePtr(...)` contract so successful releases
+  expire the handle with one release/unregister/live-count delta while reject
+  paths keep live ownership and zero release/unregister/page-local delta.
 - `M167` resumed after the 294x `usize` preflight as
   `HakoAllocFastPathHeap` in `alloc_fast_path_heap_box.hako`: page selection is
   delegated to `HakoAllocPageQueue`, block pops are delegated to

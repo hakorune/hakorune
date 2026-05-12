@@ -28,11 +28,10 @@
 
 | Next | Card | Goal |
 | --- | --- | --- |
-| 0 | `293x-182` | Clean the M172 proof app before resuming allocator algorithm work. |
-| 1 | `M173` | Freeze release invariants and handle lifetime before realloc. |
-| 2 | `M174-M176` | Add realloc in no-move, fallback, and negative/failure slices. |
-| 3 | `M177-M184` | Add alignment, huge-page, and secure-list slices without mixing them. |
-| 4 | `M185-M190` | Reconcile remaining `usize` migration and object-return allocator API parity. |
+| 0 | `293x-183` | Freeze release invariants and handle lifetime through a narrow observer before realloc. |
+| 1 | `M174-M176` | Add realloc in no-move, fallback, and negative/failure slices. |
+| 2 | `M177-M184` | Add alignment, huge-page, and secure-list slices without mixing them. |
+| 3 | `M185-M190` | Reconcile remaining `usize` migration and object-return allocator API parity. |
 
 Stop line: VM green is useful reference evidence, but production allocator
 migration still changes only by explicit `hako_alloc` field-group rows.
@@ -194,8 +193,9 @@ groups, request-path sizes, object-return parity, and failure-handle shape.
   identity as the proof seam and no page-map migration.
 - `M171`: parent mimalloc lane landed the page-map model owner for
   caller-visible pointer id to page/block lookup.
-- `M172`: parent mimalloc lane landed page-map-backed release composition;
-  `M173` pre-realloc release invariant freeze is now the next row.
+- `M172`: parent mimalloc lane landed page-map-backed release composition.
+- `M173`: parent mimalloc lane landed a narrow release observer that freezes
+  handle lifetime and release/unregister timing before realloc.
 
 ## Implementation Direction
 
@@ -209,8 +209,9 @@ explicit consumer:
 5. lower the exact arithmetic/compare subset needed by migrated fields;
 6. migrate `hako_alloc` non-negative fields only by field group when an
    algorithm row actually benefits from the migration;
-7. continue M173 pre-realloc release invariant freeze before scheduling realloc
-   body, aligned allocation, huge-page, or secure-list rows.
+7. continue M174 same-class/no-move realloc work before scheduling the
+   alloc-copy-release fallback, aligned allocation, huge-page, or secure-list
+   rows.
 
 This keeps the source truth available before any lowerer claims exact
 semantics.

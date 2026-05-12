@@ -39,13 +39,12 @@ hako_alloc or mimalloc migration.
 
 | Order | Row | Status | Implementation Boundary |
 | --- | --- | --- | --- |
-| 0 | `293x-182` | Complete | M172 proof cleanup only; no language syntax or allocator algorithm change. |
-| 1 | `M173` | Next | Pre-realloc release invariant freeze, no realloc body or byte copy. |
-| 2 | `M174` | Planned | Realloc same-class/no-move path, no alloc-copy-release fallback. |
-| 3 | `M175` | Planned | Realloc alloc-copy-release fallback, no aligned/huge allocation. |
-| 4 | `M176` | Planned | Realloc negative matrix and failure contract, no extra API expansion. |
-| 5 | `M177-M184` | Planned | Alignment, huge-page, and secure-list rows, one responsibility per row. |
-| 6 | `M185-M190` | Planned | Remaining `usize` migration and object-return/failure-handle API parity. |
+| 0 | `293x-183` | Complete | Freeze the pre-realloc release contract through a narrow observer, with no realloc body or byte copy. |
+| 1 | `M174` | Next | Realloc same-class/no-move path, no alloc-copy-release fallback. |
+| 2 | `M175` | Planned | Realloc alloc-copy-release fallback, no aligned/huge allocation. |
+| 3 | `M176` | Planned | Realloc negative matrix and failure contract, no extra API expansion. |
+| 4 | `M177-M184` | Planned | Alignment, huge-page, and secure-list rows, one responsibility per row. |
+| 5 | `M185-M190` | Planned | Remaining `usize` migration and object-return/failure-handle API parity. |
 
 Roadmap correction: `M186 exact usize facade stats` is already complete as
 `294x-19e`. Do not schedule duplicate facade migration; use `M185+` for
@@ -219,7 +218,7 @@ remaining field groups and allocator API parity only.
 - [x] Land M170 remote-free integration through existing pointer atomics only.
 - [x] Land M171 page-map model owner.
 - [x] Land M172 page-map-backed release seam before scheduling realloc/aligned/page-map/huge-page rows.
-- [ ] Land M173 pre-realloc release invariant freeze before the realloc body.
+- [x] Land M173 pre-realloc release invariant freeze before the realloc body.
 
 ## Open Design Questions
 

@@ -15,6 +15,7 @@ Current modules
 - `page_heap_box.hako`
 - `page_map_box.hako`
 - `page_map_release_box.hako`
+- `page_map_release_invariant_box.hako`
 - `page_queue_box.hako`
 - `page_source_policy_box.hako`
 - `remote_free_page_integration_box.hako`
@@ -63,5 +64,10 @@ Syntax/style contract
   `HakoAllocPageMap.unregister(...)`, but it must not own registration, realloc,
   aligned/huge allocation, OSVM release, provider hooks, or allocator
   replacement.
+- `page_map_release_invariant_box.hako` owns M173 pre-realloc release
+  observation. It may call `HakoAllocPageMap.lookup(...)` and
+  `HakoAllocPageMapReleaseSeam.releasePtr(...)` to freeze handle lifetime and
+  release/unregister timing, but it must not own registration, page-local
+  mutation, unregister execution, realloc, or byte copy.
 - Keep `birth(...)` for parameter-dependent initialization and ordering that
   cannot be expressed as a declaration-site default.

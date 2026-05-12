@@ -145,6 +145,7 @@
 - [x] `293x-180` M172 mimalloc page-map-backed release seam
 - [x] `293x-181` M173-M190 mimalloc roadmap refresh
 - [x] `293x-182` M172 proof check cleanup
+- [x] `293x-183` M173 pre-realloc release invariant freeze
 
 ## Gates
 
