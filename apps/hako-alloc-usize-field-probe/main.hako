@@ -1,0 +1,36 @@
+// hako-alloc-usize-field-probe
+// Purpose: probe exact usize stored fields before production hako_alloc migration.
+
+using selfhost.hako_alloc.memory.usize_field_probe_box as HakoAllocUsizeFieldProbeBox
+
+static box Main {
+    main(args) {
+        local probe = new HakoAllocUsizeFieldProbe(2)
+
+        local a0 = probe.record(24)
+        local a1 = probe.record(32)
+        local a2 = probe.record(8)
+
+        local shape = 0
+        if a0 == 1 { shape = shape + 1 }
+        if a1 == 1 { shape = shape + 1 }
+        if a2 == 0 { shape = shape + 1 }
+        if probe.capacity == 2 { shape = shape + 1 }
+        if probe.used == 2 { shape = shape + 1 }
+        if probe.alloc_count == 2 { shape = shape + 1 }
+        if probe.requested_bytes == 56 { shape = shape + 1 }
+
+        print("hako-alloc-usize-field-probe")
+        print("accept=" + a0 + "," + a1 + "," + a2)
+        print("state=" + probe.capacity + "," + probe.used + "," + probe.alloc_count + "," + probe.requested_bytes)
+        print("shape=" + shape)
+
+        if shape == 7 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

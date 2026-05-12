@@ -16,6 +16,7 @@ Current modules
 - `refcell_box.hako`
 - `remote_free_policy_box.hako`
 - `size_class_box.hako`
+- `usize_field_probe_box.hako`
 
 Syntax/style contract
 - New allocator state boxes should use Unified Members stored fields:
@@ -29,5 +30,8 @@ Syntax/style contract
 - Numeric stored field migration is gated by
   [`NUMERIC_FIELDS.md`](./NUMERIC_FIELDS.md). Do not migrate a field to
   `usize` unless its category and sentinel behavior are recorded there first.
+- `usize_field_probe_box.hako` is a probe-only owner for exact `usize` stored
+  field behavior. Production allocator state must not migrate just because the
+  probe is green.
 - Keep `birth(...)` for parameter-dependent initialization and ordering that
   cannot be expressed as a declaration-site default.

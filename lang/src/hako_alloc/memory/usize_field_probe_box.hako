@@ -1,0 +1,25 @@
+// usize_field_probe_box.hako — hako_alloc exact-usize stored field probe
+// Responsibility: prove non-negative allocator field shapes before production migration.
+// This module is not production allocator policy and does not source native memory.
+
+box HakoAllocUsizeFieldProbe {
+    capacity: usize = 0
+    used: usize = 0
+    alloc_count: usize = 0
+    requested_bytes: usize = 0
+
+    birth(capacity: usize) {
+        me.capacity = capacity
+    }
+
+    record(requested_bytes: usize) {
+        if me.used >= me.capacity {
+            return 0
+        }
+
+        me.used = me.used + 1
+        me.alloc_count = me.alloc_count + 1
+        me.requested_bytes = me.requested_bytes + requested_bytes
+        return 1
+    }
+}

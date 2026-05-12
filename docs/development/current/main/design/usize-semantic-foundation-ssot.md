@@ -105,6 +105,9 @@ Live today:
 - `HakoAllocPageQueue.direct_page_index` no longer stores `-1`; direct-page
   presence is split into an explicit `has_direct_page` field while not-found
   return sentinels remain signed for later API-shape rows;
+- `HakoAllocUsizeFieldProbe` owns an isolated proof-only migration probe for
+  capacity/count/byte-length `usize` stored fields without changing production
+  allocator state;
 - `FunctionMetadata` preserves MIR-side declared parameter/return annotation
   text, and exact numeric return annotations publish function-level advisory
   return facts without changing runtime lowering;

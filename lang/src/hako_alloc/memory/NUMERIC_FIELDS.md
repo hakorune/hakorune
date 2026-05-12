@@ -32,6 +32,9 @@ Current stored numeric field count: 37.
 No stored `signed-delta` field is live today.
 No stored `signed-sentinel` field is live after 294x-17.
 
+Probe-only exact `usize` stored fields live in `usize_field_probe_box.hako`.
+They are intentionally excluded from the production migration inventory below.
+
 | File | Box | Field | Current Type | Category | Migration Note |
 | --- | --- | --- | --- | --- | --- |
 | `page_box.hako` | `HakoAllocPageModel` | `page_id` | `i64` | `index` | Candidate after id/index call sites use exact non-negative semantics. |

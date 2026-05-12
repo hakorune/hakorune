@@ -130,6 +130,9 @@
 - `294x-17`: `HakoAllocPageQueue.direct_page_index` no longer stores `-1`;
   direct-page cache presence is split into `has_direct_page`, leaving the index
   non-negative for a later migration probe.
+- `294x-18`: `HakoAllocUsizeFieldProbe` and
+  `apps/hako-alloc-usize-field-probe/` prove isolated capacity/count/byte-length
+  `usize` stored fields while production hako_alloc state remains `i64`.
 
 ## First Implementation Direction
 
