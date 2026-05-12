@@ -21,6 +21,7 @@ from .primitive_handles import (
     resolver_value_type,
     unbox_primitive_handle_if_needed,
 )
+from .exact_numeric_ops import lower_exact_numeric_binop_route
 from trace import hot_count as trace_hot_count
 
 _BINOP_COMMUTATIVE_OPS = {"+", "*", "&", "|", "^"}
@@ -522,6 +523,21 @@ def lower_binop(
             bb_map=bb_map,
             ctx=getattr(resolver, 'ctx', None),
         )
+        return
+
+    if lower_exact_numeric_binop_route(
+        builder,
+        resolver,
+        op,
+        lhs,
+        rhs,
+        dst,
+        vmap,
+        current_block,
+        preds,
+        block_end_values,
+        bb_map,
+    ):
         return
 
     # String-aware concatenation unified to handles (i64).

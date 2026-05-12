@@ -40,7 +40,9 @@ pub(crate) fn enforce_exact_numeric_backend_supported(
             report.typed_object_exact_storage_fields
         ));
     }
-    if report.exact_numeric_operation_route_facts > 0 {
+    if report.exact_numeric_operation_route_facts > 0
+        && !backend_supports_exact_numeric_operation_routes(backend)
+    {
         errors.push(format!(
             "{} backend={} route_facts={} require=exact-numeric-op-route-lowering",
             EXACT_NUMERIC_BACKEND_ROUTE_UNSUPPORTED_TAG,
@@ -75,6 +77,13 @@ fn exact_numeric_storage_requires_native_backend_slot(storage: TypedObjectFieldS
 
 fn backend_supports_exact_typed_object_field_abi(backend: &str) -> bool {
     matches!(backend, "ny-llvmc-exe" | "ny-llvmc-obj" | "llvmlite-obj")
+}
+
+fn backend_supports_exact_numeric_operation_routes(backend: &str) -> bool {
+    matches!(
+        backend,
+        "ny-llvmc-exe" | "ny-llvmc-obj" | "llvmlite-obj" | "pyvm-harness"
+    )
 }
 
 fn exact_numeric_operation_route_fact_count(module: &MirModule) -> usize {
@@ -174,7 +183,15 @@ mod tests {
     }
 
     #[test]
-    fn backend_capability_rejects_exact_operation_route_facts() {
+    fn backend_capability_accepts_exact_operation_route_facts_for_python_llvm_and_pyvm() {
+        let module = module_with_route_fact();
+        assert!(enforce_exact_numeric_backend_supported(&module, "ny-llvmc-exe").is_ok());
+        assert!(enforce_exact_numeric_backend_supported(&module, "llvmlite-obj").is_ok());
+        assert!(enforce_exact_numeric_backend_supported(&module, "pyvm-harness").is_ok());
+    }
+
+    #[test]
+    fn backend_capability_rejects_exact_operation_route_facts_for_unsupported_backend() {
         let module = module_with_route_fact();
         let err = enforce_exact_numeric_backend_supported(&module, "ny-llvmc").unwrap_err();
         assert!(err.contains(EXACT_NUMERIC_BACKEND_ROUTE_UNSUPPORTED_TAG));

@@ -11,11 +11,56 @@ use super::route_json::{
 use crate::mir::userbox_local_scalar_seed_plan::{
     UserBoxLocalScalarSeedKind, UserBoxLocalScalarSeedPayload, UserBoxLocalScalarSeedSinglePayload,
 };
-use crate::mir::{MirFunction, MirType};
+use crate::mir::{BinaryOp, CompareOp, MirFunction, MirType};
 use serde_json::json;
 
 pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value {
     let metadata = &f.metadata;
+    let exact_numeric_binary_op_routes: Vec<_> = metadata
+        .exact_numeric_binary_op_route_facts
+        .iter()
+        .map(|route| {
+            json!({
+                "block": route.block.as_u32(),
+                "instruction_index": route.instruction_index,
+                "dst": route.dst.as_u32(),
+                "operation": binary_op_route_symbol(route.op),
+                "lhs": route.lhs.as_u32(),
+                "rhs": route.rhs.as_u32(),
+                "declared_type": route.declared_type_name,
+            })
+        })
+        .collect();
+    let exact_numeric_compare_routes: Vec<_> = metadata
+        .exact_numeric_compare_route_facts
+        .iter()
+        .map(|route| {
+            json!({
+                "block": route.block.as_u32(),
+                "instruction_index": route.instruction_index,
+                "dst": route.dst.as_u32(),
+                "operation": compare_route_symbol(route.op),
+                "lhs": route.lhs.as_u32(),
+                "rhs": route.rhs.as_u32(),
+                "declared_type": route.declared_type_name,
+            })
+        })
+        .collect();
+    let exact_numeric_shift_routes: Vec<_> = metadata
+        .exact_numeric_shift_route_facts
+        .iter()
+        .map(|route| {
+            json!({
+                "block": route.block.as_u32(),
+                "instruction_index": route.instruction_index,
+                "dst": route.dst.as_u32(),
+                "operation": binary_op_route_symbol(route.op),
+                "lhs": route.lhs.as_u32(),
+                "rhs": route.rhs.as_u32(),
+                "declared_type": route.declared_type_name,
+            })
+        })
+        .collect();
     let mut metadata_json = json!({
         "value_types": metadata.value_types.iter().map(|(k, v)| {
             let type_str = match v {
@@ -709,6 +754,18 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
     });
     if let serde_json::Value::Object(obj) = &mut metadata_json {
         obj.insert(
+            "exact_numeric_binary_op_routes".to_string(),
+            serde_json::Value::Array(exact_numeric_binary_op_routes),
+        );
+        obj.insert(
+            "exact_numeric_compare_routes".to_string(),
+            serde_json::Value::Array(exact_numeric_compare_routes),
+        );
+        obj.insert(
+            "exact_numeric_shift_routes".to_string(),
+            serde_json::Value::Array(exact_numeric_shift_routes),
+        );
+        obj.insert(
             "lowering_plan".to_string(),
             json!(build_lowering_plan_json(f)),
         );
@@ -781,4 +838,30 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
         insert_plan_metadata_json(obj, metadata);
     }
     metadata_json
+}
+
+fn binary_op_route_symbol(op: BinaryOp) -> &'static str {
+    match op {
+        BinaryOp::Add => "+",
+        BinaryOp::Sub => "-",
+        BinaryOp::Mul => "*",
+        BinaryOp::Div => "/",
+        BinaryOp::Mod => "%",
+        BinaryOp::BitAnd | BinaryOp::And => "&",
+        BinaryOp::BitOr | BinaryOp::Or => "|",
+        BinaryOp::BitXor => "^",
+        BinaryOp::Shl => "<<",
+        BinaryOp::Shr => ">>",
+    }
+}
+
+fn compare_route_symbol(op: CompareOp) -> &'static str {
+    match op {
+        CompareOp::Ge => ">=",
+        CompareOp::Le => "<=",
+        CompareOp::Gt => ">",
+        CompareOp::Lt => "<",
+        CompareOp::Eq => "==",
+        CompareOp::Ne => "!=",
+    }
 }

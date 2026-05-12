@@ -22,19 +22,17 @@
 | mimalloc `.hako` rows | May continue under the current-lane `i64` production boundary. |
 | native exact slots | Runtime typed-object slot representation exists in `nyash_kernel`. |
 | field get/set ABI | Python LLVM consumes exact typed-object field ABI for exact-storage plans. |
-| exact op backend lowering | Still closed; hako_alloc migration must wait for the needed arithmetic/compare subset. |
+| exact op backend lowering | Python LLVM consumes exact add/sub/mul, compare, and logical-shift route facts; div/mod/bitwise/wrapping remain closed. |
 
 ## Next Queue
 
 | Next | Card | Goal |
 | --- | --- | --- |
-| 1 | `294x-19d` | Add exact numeric op backend lowering subset needed by field migration. |
-| 2 | `294x-19e` | Reopen production `hako_alloc` field migration by non-negative field group. |
-| 3 | `M168+` | Continue mimalloc `.hako` OSVM/page/free-list rows with the completed numeric substrate. |
+| 1 | `294x-19e` | Reopen production `hako_alloc` field migration by non-negative field group. |
+| 2 | `M168+` | Continue mimalloc `.hako` OSVM/page/free-list rows with the completed numeric substrate. |
 
 Stop line: VM green is useful reference evidence, but production allocator
-migration waits for non-VM slots, exact field ABI backend consumption, and the
-needed exact op backend subset.
+migration still changes only by explicit `hako_alloc` field-group rows.
 
 ## Policy
 
@@ -171,13 +169,16 @@ needed exact op backend subset.
 - `294x-19c`: Python LLVM now carries typed-object plans, registers exact
   layouts, creates exact typed-object handles, and lowers exact field get/set
   to slot ABI helpers while exact operation route facts remain fail-fast.
+- `294x-19d`: Python LLVM now consumes MIR-owned exact add/sub/mul, compare,
+  and logical-shift route facts with checked traps; unsupported backends remain
+  fail-fast.
 - `294x-20`: mimalloc algorithm rows resume under the current-lane `i64`
   production boundary; M167 landed as the first resumed row.
 
 ## Implementation Direction
 
-The remaining order is now runtime/storage first, then lowering, then
-allocator migration:
+The completed foundation now leaves production allocator migration as the next
+explicit row:
 
 1. keep exact numeric metadata and VM reference behavior as the semantic oracle;
 2. add native exact numeric typed-object storage without silent `i64` fallback;

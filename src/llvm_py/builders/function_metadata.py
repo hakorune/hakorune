@@ -217,6 +217,42 @@ def _load_user_box_local_aggregate_metadata(builder, func_data: Dict[str, Any]) 
         builder.resolver.user_box_local_aggregate_layouts = {}
 
 
+def _load_exact_numeric_route_metadata(builder, func_data: Dict[str, Any]) -> None:
+    metadata = func_data.get("metadata", {}) if isinstance(func_data, dict) else {}
+
+    def routes_by_dst(key: str) -> Dict[int, Dict[str, Any]]:
+        rows = metadata.get(key, []) if isinstance(metadata, dict) else []
+        result: Dict[int, Dict[str, Any]] = {}
+        if not isinstance(rows, list):
+            return result
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            try:
+                dst = int(row.get("dst"))
+            except (TypeError, ValueError):
+                continue
+            normalized = dict(row)
+            normalized["dst"] = dst
+            for value_key in ("lhs", "rhs", "block", "instruction_index"):
+                try:
+                    normalized[value_key] = int(normalized[value_key])
+                except (KeyError, TypeError, ValueError):
+                    pass
+            result[dst] = normalized
+        return result
+
+    builder.resolver.exact_numeric_binary_op_routes_by_dst = routes_by_dst(
+        "exact_numeric_binary_op_routes"
+    )
+    builder.resolver.exact_numeric_compare_routes_by_dst = routes_by_dst(
+        "exact_numeric_compare_routes"
+    )
+    builder.resolver.exact_numeric_shift_routes_by_dst = routes_by_dst(
+        "exact_numeric_shift_routes"
+    )
+
+
 def _seed_resolver_fact_sets(
     builder,
     context: FunctionLowerContext,

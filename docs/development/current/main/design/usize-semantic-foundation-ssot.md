@@ -122,6 +122,10 @@ Live today:
   typed-object layouts before user code, creates exact typed-object handles for
   exact-storage plans, and lowers exact field get/set to slot-based
   `nyash.object.*` helpers with fail-fast status checks on set;
+- Python LLVM consumes MIR-owned exact add/sub/mul, compare, and logical
+  right-shift route facts; arithmetic routes use checked overflow/range traps,
+  compare routes use signed or unsigned predicates from the declared exact
+  type, and logical shifts use `lshr` with shift-count traps;
 - `FunctionMetadata` preserves MIR-side declared parameter/return annotation
   text, and exact numeric return annotations publish function-level advisory
   return facts without changing runtime lowering;
@@ -143,10 +147,10 @@ Not live today:
   numeric field-write contracts, non-VM backend lowering/execution of those
   contracts, and exact runtime unsigned range-check construction;
 - `.hako` parser-front parity for numeric literal suffixes;
-- backend exact numeric arithmetic/compare/shift lowering and explicit wrapping
+- exact numeric div/mod/bitwise backend lowering and explicit wrapping
   vocabulary;
 - MIR JSON exact-width numeric const tags;
-- WASM exact typed-object field ABI consumption;
+- WASM exact typed-object field ABI and exact numeric op consumption;
 - backend lowering to native pointer-sized integer classes.
 
 ## Target Meaning

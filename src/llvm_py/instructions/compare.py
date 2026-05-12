@@ -13,6 +13,7 @@ from .primitive_handles import (
     resolver_value_type,
     unbox_primitive_handle_if_needed,
 )
+from .exact_numeric_ops import lower_exact_numeric_compare_route
 from .string_fast import llvm_fast_enabled
 from trace import values as trace_values
 from trace import hot_count as trace_hot_count
@@ -95,6 +96,21 @@ def lower_compare(
     trace_hot_count(resolver, "compare_total")
     i64 = ir.IntType(64)
     i8p = ir.IntType(8).as_pointer()
+
+    if lower_exact_numeric_compare_route(
+        builder,
+        resolver,
+        op,
+        lhs,
+        rhs,
+        dst,
+        vmap,
+        current_block,
+        preds,
+        block_end_values,
+        bb_map,
+    ):
+        return
 
     # Phase 275 B2: Type discrimination BEFORE resolve (to avoid premature i64 conversion)
     # Check for Int↔Float equality first

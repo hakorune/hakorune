@@ -6,6 +6,7 @@ use crate::mir::{
 mod array_routes;
 mod debug;
 mod decl_values;
+mod exact_numeric_routes;
 mod exact_seed_backend_route;
 mod extern_call_routes;
 mod function_attrs;

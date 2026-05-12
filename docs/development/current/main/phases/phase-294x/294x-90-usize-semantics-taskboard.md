@@ -29,16 +29,16 @@ hako_alloc or mimalloc migration.
   `nyash_kernel`.
 - Exact numeric signed/unsigned field helper lanes exist in `nyash_kernel`.
 - Python LLVM consumes exact typed-object field ABI for exact-storage plans.
-- Exact arithmetic/compare/shift backend lowering and production `hako_alloc`
-  migration remain separate later rows.
+- Python LLVM consumes exact add/sub/mul, compare, and logical-shift route
+  facts; div/mod/bitwise/wrapping stay later vocabulary.
+- Production `hako_alloc` migration remains a separate later row.
 
 ## Next Implementation Queue
 
 | Order | Row | Status | Implementation Boundary |
 | --- | --- | --- | --- |
-| 1 | `294x-19d` | Future | Backend lowering consumes the exact arithmetic/compare subset needed by migrated fields. |
-| 2 | `294x-19e` | Future | Production `hako_alloc` non-negative field migration reopens one field group at a time. |
-| 3 | `M168+` | Future | Mimalloc `.hako` OSVM page source, local-free retire, and remote-free rows consume the completed substrate. |
+| 1 | `294x-19e` | Future | Production `hako_alloc` non-negative field migration reopens one field group at a time. |
+| 2 | `M168+` | Future | Mimalloc `.hako` OSVM page source, local-free retire, and remote-free rows consume the completed substrate. |
 
 ## Ladder
 
@@ -84,7 +84,7 @@ hako_alloc or mimalloc migration.
 | `294x-19a` | Complete | native exact numeric typed-object slots | kernel typed-object storage records exact slot kinds and legacy i64 helpers do not mutate exact numeric slots |
 | `294x-19b` | Complete | exact numeric field get/set ABI | runtime helpers read/write exact signed/unsigned slots with range/overflow contracts |
 | `294x-19c` | Complete | exact field ABI backend consumption | Python LLVM carries typed-object plans, registers exact layouts, creates exact typed-object handles, and lowers exact field get/set helpers |
-| `294x-19d` | Future | exact op backend subset | Python LLVM lowers the exact add/sub/compare subset needed by migrated fields or keeps route facts fail-fast |
+| `294x-19d` | Complete | exact op backend subset | Python LLVM lowers exact add/sub/mul, compare, and logical-shift route facts with checked traps |
 | `294x-19e` | Future | hako_alloc production field migration | production non-negative field groups migrate only after backend field ABI and exact op subset consumption are green |
 | `294x-20` | Complete | mimalloc row resume gate | M167+ mimalloc implementation resumes with clear `usize` support boundaries and production fields still on `i64` |
 
@@ -166,7 +166,9 @@ hako_alloc or mimalloc migration.
 - [x] Add field get/set ABI for exact numeric slots.
 - [x] Add backend lowering/capability-gate consumption for exact numeric field
   get/set ABI.
-- [ ] Lower LLVM/native unsigned compare and shift.
+- [x] Lower Python LLVM exact add/sub/mul, unsigned compare, and logical-shift
+  route facts.
+- [ ] Add exact numeric div/mod/bitwise/wrapping backend vocabulary if needed.
 - [ ] Decide WASM target behavior.
 - [ ] Keep C ABI size_t mapping explicit.
 - [x] Accept raw layout pointer-sized fields only through target-resolved
