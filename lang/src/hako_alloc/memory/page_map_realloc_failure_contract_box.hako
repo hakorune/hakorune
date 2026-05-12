@@ -1,0 +1,159 @@
+// page_map_realloc_failure_contract_box.hako -- M176 realloc failure contract
+// Responsibility: freeze the public realloc failure matrix by composing the
+// existing M174 same-class path and M175 grow fallback without widening either.
+
+using selfhost.hako_alloc.memory.page_map_release_box as HakoAllocPageMapReleaseBox
+using selfhost.hako_alloc.memory.page_map_realloc_same_class_box as HakoAllocPageMapReallocSameClassBox
+using selfhost.hako_alloc.memory.page_map_realloc_alloc_copy_release_box as HakoAllocPageMapReallocAllocCopyReleaseBox
+
+box HakoAllocPageMapReallocFailureContract {
+    seam: HakoAllocPageMapReleaseSeam
+    same_class_path: HakoAllocPageMapReallocSameClassPath
+    fallback_path: HakoAllocPageMapReallocAllocCopyReleasePath
+    success_count: i64 = 0
+    same_class_success_count: i64 = 0
+    move_success_count: i64 = 0
+    zero_reject_count: i64 = 0
+    oversized_reject_count: i64 = 0
+    alloc_fail_count: i64 = 0
+    lookup_miss_count: i64 = 0
+    stale_page_count: i64 = 0
+    released_block_count: i64 = 0
+    unexpected_reject_count: i64 = 0
+    reject_count: i64 = 0
+    last_result_ptr: i64 = 0
+    last_failure_kind: i64 = 0
+    last_max_block_size: i64 = 0
+
+    birth(same_class_path, fallback_path, seam) {
+        me.same_class_path = same_class_path
+        me.fallback_path = fallback_path
+        me.seam = seam
+    }
+
+    tryReallocWithFailureContract(ptr, requested_size) {
+        me.last_result_ptr = 0
+        me.last_failure_kind = 0
+        me.last_max_block_size = 0
+
+        if requested_size <= 0 {
+            me.zero_reject_count = me.zero_reject_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_failure_kind = 1
+            return 0
+        }
+
+        local i = 0
+        loop(i < me.seam.page_count) {
+            local page = me.seam.pages.get(i)
+            if page != null {
+                if page.block_size > me.last_max_block_size {
+                    me.last_max_block_size = page.block_size
+                }
+            }
+            i = i + 1
+        }
+
+        if requested_size > me.last_max_block_size {
+            me.oversized_reject_count = me.oversized_reject_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_failure_kind = 2
+            return 0
+        }
+
+        local same_lookup_before = me.same_class_path.lookup_miss_count
+        local same_stale_before = me.same_class_path.stale_page_count
+        local same_released_before = me.same_class_path.released_block_count
+        local same_grow_before = me.same_class_path.grow_reject_count
+
+        local same_ok = me.same_class_path.tryReallocSameClass(ptr, requested_size)
+        if same_ok == 1 {
+            me.success_count = me.success_count + 1
+            me.same_class_success_count = me.same_class_success_count + 1
+            me.last_result_ptr = me.same_class_path.last_result_ptr
+            return 1
+        }
+
+        if me.same_class_path.lookup_miss_count > same_lookup_before {
+            me.lookup_miss_count = me.lookup_miss_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_failure_kind = 3
+            return 0
+        }
+
+        if me.same_class_path.stale_page_count > same_stale_before {
+            me.stale_page_count = me.stale_page_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_failure_kind = 4
+            return 0
+        }
+
+        if me.same_class_path.released_block_count > same_released_before {
+            me.released_block_count = me.released_block_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_failure_kind = 5
+            return 0
+        }
+
+        if me.same_class_path.grow_reject_count == same_grow_before {
+            me.unexpected_reject_count = me.unexpected_reject_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_failure_kind = 7
+            return 0
+        }
+
+        local fallback_lookup_before = me.fallback_path.lookup_miss_count
+        local fallback_stale_before = me.fallback_path.stale_page_count
+        local fallback_released_before = me.fallback_path.released_block_count
+        local fallback_alloc_before = me.fallback_path.alloc_fail_count
+        local fallback_same_before = me.fallback_path.same_class_reject_count
+
+        local move_ok = me.fallback_path.tryReallocAllocCopyRelease(ptr, requested_size)
+        if move_ok == 1 {
+            me.success_count = me.success_count + 1
+            me.move_success_count = me.move_success_count + 1
+            me.last_result_ptr = me.fallback_path.last_result_ptr
+            return 1
+        }
+
+        if me.fallback_path.alloc_fail_count > fallback_alloc_before {
+            me.alloc_fail_count = me.alloc_fail_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_failure_kind = 6
+            return 0
+        }
+
+        if me.fallback_path.lookup_miss_count > fallback_lookup_before {
+            me.lookup_miss_count = me.lookup_miss_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_failure_kind = 3
+            return 0
+        }
+
+        if me.fallback_path.stale_page_count > fallback_stale_before {
+            me.stale_page_count = me.stale_page_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_failure_kind = 4
+            return 0
+        }
+
+        if me.fallback_path.released_block_count > fallback_released_before {
+            me.released_block_count = me.released_block_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_failure_kind = 5
+            return 0
+        }
+
+        if me.fallback_path.same_class_reject_count > fallback_same_before {
+            me.unexpected_reject_count = me.unexpected_reject_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_failure_kind = 7
+            return 0
+        }
+
+        me.unexpected_reject_count = me.unexpected_reject_count + 1
+        me.reject_count = me.reject_count + 1
+        me.last_failure_kind = 7
+        return 0
+    }
+}

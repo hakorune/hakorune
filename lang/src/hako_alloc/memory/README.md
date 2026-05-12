@@ -17,6 +17,7 @@ Current modules
 - `page_map_release_box.hako`
 - `page_map_release_invariant_box.hako`
 - `page_map_realloc_alloc_copy_release_box.hako`
+- `page_map_realloc_failure_contract_box.hako`
 - `page_map_realloc_same_class_box.hako`
 - `page_queue_box.hako`
 - `page_source_policy_box.hako`
@@ -77,6 +78,10 @@ Syntax/style contract
   `HakoAllocPageMapReleaseSeam.releasePtr(...)` only after allocation succeeds,
   but it must not own byte copy, raw `unregister(...)`, same-class/no-move
   routing, or aligned/huge behavior.
+- `page_map_realloc_failure_contract_box.hako` owns M176 realloc diagnostics. It
+  may classify zero/oversized rejects and delegate to the existing M174/M175
+  owners, but it must not own raw registration, release, unregister,
+  page-local mutation, byte copy, or aligned/huge behavior.
 - `page_map_realloc_same_class_box.hako` owns M174 same-class/no-move realloc.
   It may call `HakoAllocPageMap.lookup(...)` and inspect the current page block
   to decide whether the same live ptr can be reused, but it must not own

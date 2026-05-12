@@ -440,7 +440,11 @@ inference for the allocator release path.
   `HakoAllocPageMapReallocAllocCopyReleasePath` so grow requests allocate a
   replacement ptr, model copy count, and release the old ptr only after
   replacement allocation succeeds.
-- Next: continue with `M176 realloc negative matrix / failure contract` before
+- `293x-186`: M176 realloc negative matrix / failure contract landed, adding
+  `HakoAllocPageMapReallocFailureContract` so zero, oversized, unknown, stale,
+  released, and alloc-fail outcomes stay explicit while same-class and grow
+  execution remain owned by M174/M175.
+- Next: continue with `M177 alignment policy object` before
   scheduling aligned allocation, huge-page, or secure-list rows.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.
@@ -452,13 +456,12 @@ SSOT:
 
 Current execution order:
 
-1. `M176`: add realloc negative/failure rows.
-2. `M177-M184`: add alignment, huge-page, and secure-list rows separately.
-3. `M185-M190`: finish remaining `usize` field-group migration and allocator
+1. `M177-M184`: add alignment, huge-page, and secure-list rows separately.
+2. `M185-M190`: finish remaining `usize` field-group migration and allocator
    API parity. Facade stats are already exact `usize` via `294x-19e`, so that
    row must not be repeated.
-4. `C197-C200`: improve proof/application syntax only as separate language rows
+3. `C197-C200`: improve proof/application syntax only as separate language rows
    after docs/reference decisions. Do not fold them into allocator rows.
-5. `C191-C194`: run compiler/backend hardening only when it does not collide
+4. `C191-C194`: run compiler/backend hardening only when it does not collide
    with the active `.hako` row.
 7. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.

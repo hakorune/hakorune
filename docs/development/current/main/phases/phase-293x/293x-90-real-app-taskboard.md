@@ -148,6 +148,7 @@
 - [x] `293x-183` M173 pre-realloc release invariant freeze
 - [x] `293x-184` M174 realloc same-class/no-move path
 - [x] `293x-185` M175 realloc alloc-copy-release fallback
+- [x] `293x-186` M176 realloc negative matrix / failure contract
 
 ## Gates
 

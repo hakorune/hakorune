@@ -68,6 +68,9 @@ Principles
   - `HakoAllocPageMapReallocAllocCopyReleasePath` is the M175 grow fallback
     owner. It allocates a replacement ptr, models copy count, and calls the
     M172 release seam only after replacement allocation succeeds.
+  - `HakoAllocPageMapReallocFailureContract` is the M176 diagnostics owner. It
+    classifies zero, oversized, unknown, stale, released, and alloc-fail
+    outcomes while delegating same-class and grow execution back to M174/M175.
 
 Design owners
 - Policy/state stop-line:
@@ -124,6 +127,7 @@ Current modules
 - `memory.page_map_release_box`
 - `memory.page_map_release_invariant_box`
 - `memory.page_map_realloc_alloc_copy_release_box`
+- `memory.page_map_realloc_failure_contract_box`
 - `memory.page_map_realloc_same_class_box`
 - `memory.page_queue_box`
 - `memory.page_source_policy_box`
