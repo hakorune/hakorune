@@ -128,6 +128,9 @@ Notes
 - Semicolon (optional): When `NYASH_PARSER_ALLOW_SEMICOLON=1` is set, `;` is accepted as an additional statement separator (equivalent to newline). It is not allowed between `}` and a following `else`.
 - Do‑while: not supported by design. Prefer a single‑entry, pre‑condition loop normalized via sugar (e.g., `repeat N {}` / `until cond {}`) to a `loop` with clear break conditions.
 - Short-circuit: '&&' and '||' must not evaluate the RHS when not needed.
+- Proof checks: `check "name" { "label": expr }` is reserved for a future
+  eager proof-list expression and is not part of this grammar yet. It must not
+  be treated as an alias for short-circuit '&&' / '||'.
 - Unary minus has higher precedence than '*' and '/'.
 - IDENT names consist of [A-Za-z_][A-Za-z0-9_]*
 - Array literal is enabled when syntax sugar is on (NYASH_SYNTAX_SUGAR_LEVEL=basic|full) or when NYASH_ENABLE_ARRAY_LITERAL=1 is set.
@@ -138,6 +141,29 @@ Notes
 - Known-enum exhaustiveness: shorthand enum matches must name every variant explicitly; `_` does not satisfy exhaustiveness for that lane.
 - `Option<T>` does not add new grammar in the first cut. It uses the existing enum declaration, qualified constructor, and known-enum match surface. Future `some` / `none` / `if some` sugar is reserved and must be implemented in both Rust and `.hako` parsers together.
 - Static const tables: `static const NAME: u16[] = [...]` and `NAME[index]` reads are accepted for the narrow M11b row. Initializer elements may use side-effect-free integer const expressions; const fn is still reserved.
+
+### C197 Logical Condition Surface
+
+Decision: accepted.
+
+Ordinary `&&` / `||` chains are the source-level surface for short-circuit
+boolean control flow. Parenthesized multiline conditions are accepted for normal
+`if` / `loop` / expression use, including leading logical operators on
+continuation lines:
+
+```hako
+if (
+    ready == 1
+    && count < limit
+    || force == 1
+) {
+    return 0
+}
+```
+
+The RHS of `&&` / `||` keeps the short-circuit contract. This row does not add
+proof-list behavior, variadic `all(...)`, or allocator-specific condition
+syntax.
 
 ## Box Members (Phase‑15, env gate: NYASH_ENABLE_UNIFIED_MEMBERS; default ON)
 

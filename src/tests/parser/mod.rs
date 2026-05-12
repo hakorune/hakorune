@@ -21,6 +21,8 @@ pub mod parser_header_param_extensions;
 pub mod parser_lambda;
 #[path = "../parser_lambda_call.rs"]
 pub mod parser_lambda_call;
+#[path = "../parser_logical_condition_surface.rs"]
+pub mod parser_logical_condition_surface;
 #[path = "../parser_loop_scan_range_shape.rs"]
 pub mod parser_loop_scan_range_shape;
 #[path = "../parser_method_postfix.rs"]

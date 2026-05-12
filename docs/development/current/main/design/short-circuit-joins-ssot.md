@@ -39,6 +39,23 @@ This keeps `joins` as a 2-state payload while making the 3-path short-circuit ex
 
 - Removing `CoreEffectPlan::Copy` today.
 - Introducing new plan primitives or a new canonical CFG form.
+- Providing proof-list semantics. A future `check "name" { "label": expr }`
+  surface must not lower as a giant `&&`/`||` chain; it has an eager
+  all-items-evaluated contract for proof diagnostics.
+
+## Relationship To Proof Check Blocks
+
+`&&` / `||` and `check` solve different problems:
+
+- `&&` / `||` are ordinary boolean expressions. They preserve short-circuit
+  behavior and are correct for production control flow.
+- `check` is reserved for proof apps that need labeled assertions and full
+  failure visibility. It should evaluate every item left-to-right and then
+  produce one scalar pass/fail result.
+
+Do not use `check` to replace normal control-flow conditions, and do not use a
+long `&&` chain as the preferred representation for proof summaries once the
+`check` surface exists.
 
 ## Future directions (optional)
 
@@ -128,4 +145,3 @@ rg "merge_modified_vars_multi\(" src/mir/builder  # ops.rs + phi.rs(定義) の�
 - 構造固定テスト: `src/tests/mir_controlflow_extras.rs::shortcircuit_no_inner_join_phi`
 - PHI 挿入 SSOT: `src/mir/utils/phi_helpers.rs`（insert_phi*）, `src/mir/ssot/cf_common.rs`（insert_phi_at_head_spanned）
 - Merge 運用ヘルパ: `src/mir/builder/phi_merge.rs`（2-pred）, `src/mir/builder/phi.rs`（N-pred）
-

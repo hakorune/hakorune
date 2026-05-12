@@ -493,6 +493,11 @@ inference for the allocator release path.
 - `293x-201`: M190 nullable/failure handle contract landed, adding
   `HakoAllocHandleResult` plus `allocateResult(...)` / `reallocResult(...)`
   proof-line parity without changing the M189 compatibility APIs.
+- `293x-202`: C197-C200 proof/application surface order locked, separating
+  ordinary short-circuit boolean chains from future eager proof `check` blocks.
+- `293x-203`: C197 logical condition surface hardening landed, adding a
+  proof app and parser regression for parenthesized multiline `&&` / `||`
+  conditions while keeping `check` as the future eager proof-list row.
 - Next: continue with proof/application syntax rows (`C197-C200`) or the
   record/packed-array compiler lane (`C201-C205`) when needed. No M191
   allocator API row is scheduled yet; M186 facade stats already landed as
@@ -511,10 +516,12 @@ Current execution order:
    size-class facades, M188 request-path facades, M189 object-return API parity,
    and M190 explicit result contract are complete, and facade stats are already
    exact `usize` via `294x-19e`, so those rows must not be repeated.
-2. `C197-C200`: improve proof/application syntax only as separate language rows
+2. `C198-C200`: improve proof/application syntax only as separate language rows
    after docs/reference decisions. Do not fold them into allocator rows.
+   `C197` is complete. `C198` adds eager labeled `check` blocks for proof apps.
+   `C199` is compound assignment sugar, and `C200` is `guard ... else`.
 3. `C201-C205`: add record/packed-array compiler-runtime support before moving
    allocator metadata off the current M178 scalar columns.
-5. `C191-C194`: run compiler/backend hardening only when it does not collide
+4. `C191-C194`: run compiler/backend hardening only when it does not collide
    with the active `.hako` row.
-6. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.
+5. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.

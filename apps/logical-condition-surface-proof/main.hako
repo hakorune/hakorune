@@ -1,0 +1,54 @@
+// logical-condition-surface-proof
+// Purpose: prove C197 ordinary short-circuit conditions stay readable across
+// parenthesized multiline source without becoming proof-list syntax.
+
+static box Main {
+    main(args) {
+        local a = 1
+        local b = 2
+        local c = 0
+        local x = 0
+
+        local and_result = (
+            x == 1
+            && ((x = x + 1) == 1)
+        )
+
+        local or_result = (
+            x == 0
+            || ((x = x + 10) == 10)
+        )
+
+        local mixed_result = (
+            a == 1
+            && b == 2
+            || ((x = x + 100) == 100)
+        )
+
+        loop (
+            c < 3
+            && x == 0
+        ) {
+            c = c + 1
+        }
+
+        print("logical-condition-surface-proof")
+        print("x=" + x)
+        print("loop_count=" + c)
+        print("flags=" + and_result + "," + or_result + "," + mixed_result)
+
+        if (
+            x == 0
+            && c == 3
+            && and_result == false
+            && or_result == true
+            && mixed_result == true
+        ) {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

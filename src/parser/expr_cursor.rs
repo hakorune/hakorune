@@ -11,7 +11,10 @@ impl ExprParserWithCursor {
     /// 式をパース（TokenCursor版）
     pub fn parse_expression(cursor: &mut TokenCursor) -> Result<ASTNode, ParseError> {
         // 式モードで実行（改行を自動的にスキップ）
-        cursor.with_expr_mode(|c| Self::parse_or_expr(c))
+        cursor.with_expr_mode(|c| {
+            c.skip_newlines();
+            Self::parse_or_expr(c)
+        })
     }
 
     /// OR式をパース

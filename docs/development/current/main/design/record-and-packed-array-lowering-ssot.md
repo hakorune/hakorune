@@ -145,7 +145,7 @@ Open policy choice later:
 
 ## Implementation Order
 
-`C198-C200` are already reserved by the proof-surface lane.
+`C197-C200` are already reserved by the proof/application surface lane.
 This lane therefore starts at `C201`.
 
 | Row | Goal | Required before | Stop line |

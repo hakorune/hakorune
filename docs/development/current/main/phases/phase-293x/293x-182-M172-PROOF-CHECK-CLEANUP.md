@@ -22,7 +22,8 @@ observer call.
 ## Accepted Order
 
 1. Clean the M172 proof app with an app-local helper.
-2. Keep `C197 check block surface` as a future language row.
+2. Keep `C198 check block surface` as a future language row after `C197`
+   hardens ordinary `&&` / `||` condition usage.
 3. Resume `M173 pre-realloc release invariant freeze`.
 4. Continue `M174-M190` in the existing mimalloc roadmap order.
 
