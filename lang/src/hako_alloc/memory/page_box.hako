@@ -121,6 +121,22 @@ box HakoAllocPageModel {
         return 1
     }
 
+    blockIsLive(block_id) {
+        if block_id < 0 {
+            return 0
+        }
+
+        if block_id >= me.reserved {
+            return 0
+        }
+
+        if me.block_used.get(block_id) == 0 {
+            return 0
+        }
+
+        return 1
+    }
+
     freeCount() {
         return me.free_top
     }

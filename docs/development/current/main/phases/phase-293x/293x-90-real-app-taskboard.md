@@ -146,6 +146,7 @@
 - [x] `293x-181` M173-M190 mimalloc roadmap refresh
 - [x] `293x-182` M172 proof check cleanup
 - [x] `293x-183` M173 pre-realloc release invariant freeze
+- [x] `293x-184` M174 realloc same-class/no-move path
 
 ## Gates
 

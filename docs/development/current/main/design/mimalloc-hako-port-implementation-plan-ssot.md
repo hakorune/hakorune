@@ -144,8 +144,8 @@ current repo truth: broad numeric field inventory and facade-local exact
 | `M171 page-map model` | Complete | record and resolve caller-visible pointer ownership to `page_id` / `block_id` | no arbitrary free/realloc, no pointer arithmetic, no OSVM release |
 | `M172 page-map-backed release seam` | Complete | compose page-map lookup/unregister with page-local release | no realloc, no byte copy, no host replacement |
 | `M173 pre-realloc release invariant freeze` | Complete | freeze handle lifetime, page-map registration/unregistration timing, and release observers before realloc | no realloc body, no byte copy |
-| `M174 realloc same-class/no-move path` | Next | keep the same handle when the new request fits the current usable block/class | no alloc-copy-release fallback |
-| `M175 realloc alloc-copy-release fallback` | Planned | allocate a replacement handle, model copy count, and release the old handle only after success | no aligned/huge allocation |
+| `M174 realloc same-class/no-move path` | Complete | keep the same handle when the new request fits the current usable block/class | no alloc-copy-release fallback |
+| `M175 realloc alloc-copy-release fallback` | Next | allocate a replacement handle, model copy count, and release the old handle only after success | no aligned/huge allocation |
 | `M176 realloc negative matrix / failure contract` | Planned | fix stale/unknown/released/zero/oversized failure behavior | no new allocator API surface beyond realloc diagnostics |
 | `M177 alignment policy object` | Planned | add alignment normalization, power-of-two validation, padded-size policy | no native aligned allocation route or ABI alignment claim |
 | `M178 aligned allocation small path` | Planned | attach alignment metadata to normal page-map-backed small allocations | no huge path |
@@ -261,6 +261,10 @@ work. Splitting is mandatory if a row starts adding algorithm bodies back into
   `HakoAllocPageMapReleaseSeam.releasePtr(...)` contract so successful releases
   expire the handle with one release/unregister/live-count delta while reject
   paths keep live ownership and zero release/unregister/page-local delta.
+- `M174` landed as `HakoAllocPageMapReallocSameClassPath` in
+  `page_map_realloc_same_class_box.hako`: it returns the same live pointer when
+  the new request still fits the current page block and rejects grow, stale,
+  released-block, and unknown cases without release or unregister side effects.
 - `M167` resumed after the 294x `usize` preflight as
   `HakoAllocFastPathHeap` in `alloc_fast_path_heap_box.hako`: page selection is
   delegated to `HakoAllocPageQueue`, block pops are delegated to

@@ -61,6 +61,10 @@ Principles
     observes live-handle state around `HakoAllocPageMapReleaseSeam.releasePtr(...)`
     so realloc rows can reuse a frozen success-vs-reject contract without taking
     over register/release/unregister execution.
+  - `HakoAllocPageMapReallocSameClassPath` is the M174 no-move owner. It reads
+    live page-map identity and current page block size, then returns the same
+    pointer only when the request still fits that block without releasing or
+    unregistering.
 
 Design owners
 - Policy/state stop-line:
@@ -116,6 +120,7 @@ Current modules
 - `memory.page_map_box`
 - `memory.page_map_release_box`
 - `memory.page_map_release_invariant_box`
+- `memory.page_map_realloc_same_class_box`
 - `memory.page_queue_box`
 - `memory.page_source_policy_box`
 - `memory.remote_free_page_integration_box`

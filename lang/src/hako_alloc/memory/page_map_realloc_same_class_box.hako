@@ -1,0 +1,88 @@
+// page_map_realloc_same_class_box.hako — M174 same-class/no-move realloc seam
+// Responsibility: reuse the current live handle when the new request still fits
+// the current page block. Release and fallback stay outside this owner.
+
+using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
+using selfhost.hako_alloc.memory.page_map_release_box as HakoAllocPageMapReleaseBox
+
+box HakoAllocPageMapReallocSameClassPath {
+    seam: HakoAllocPageMapReleaseSeam
+    page_map: HakoAllocPageMap
+    same_class_count: i64 = 0
+    grow_reject_count: i64 = 0
+    lookup_miss_count: i64 = 0
+    stale_page_count: i64 = 0
+    released_block_count: i64 = 0
+    reject_count: i64 = 0
+    last_result_ptr: i64 = 0
+
+    birth(seam) {
+        me.seam = seam
+        me.page_map = seam.page_map
+    }
+
+    tryReallocSameClass(ptr, requested_size) {
+        me.last_result_ptr = 0
+
+        if requested_size <= 0 {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        local entry = me.page_map.lookup(ptr)
+        if entry == null {
+            me.lookup_miss_count = me.lookup_miss_count + 1
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        local page_id = entry.page_id
+        if page_id < 0 {
+            me.stale_page_count = me.stale_page_count + 1
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        if page_id >= me.seam.page_count {
+            me.stale_page_count = me.stale_page_count + 1
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        local page = me.seam.pages.get(page_id)
+        if page == null {
+            me.stale_page_count = me.stale_page_count + 1
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        local block_id = entry.block_id
+        if block_id < 0 {
+            me.stale_page_count = me.stale_page_count + 1
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        if block_id >= page.reserved {
+            me.stale_page_count = me.stale_page_count + 1
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        if page.blockIsLive(block_id) == 0 {
+            me.released_block_count = me.released_block_count + 1
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        if requested_size > page.block_size {
+            me.grow_reject_count = me.grow_reject_count + 1
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        me.same_class_count = me.same_class_count + 1
+        me.last_result_ptr = ptr
+        return 1
+    }
+}

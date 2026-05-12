@@ -432,8 +432,12 @@ inference for the allocator release path.
 - `293x-183`: M173 pre-realloc release invariant freeze landed, adding
   `HakoAllocPageMapReleaseObserver` so successful releases expire handles with a
   frozen release/unregister delta while reject paths keep live ownership.
-- Next: continue with `M174 realloc same-class/no-move path` before scheduling
-  alloc-copy-release fallback, aligned allocation, huge-page, or secure-list
+- `293x-184`: M174 realloc same-class/no-move path landed, adding
+  `HakoAllocPageMapReallocSameClassPath` so live pointers can be reused when the
+  request still fits the current page block without release or unregister side
+  effects.
+- Next: continue with `M175 realloc alloc-copy-release fallback` before
+  scheduling the negative matrix, aligned allocation, huge-page, or secure-list
   rows.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.
@@ -445,7 +449,7 @@ SSOT:
 
 Current execution order:
 
-1. `M174-M176`: add realloc as no-move, fallback, then negative/failure rows.
+1. `M175-M176`: add realloc fallback, then negative/failure rows.
 2. `M177-M184`: add alignment, huge-page, and secure-list rows separately.
 3. `M185-M190`: finish remaining `usize` field-group migration and allocator
    API parity. Facade stats are already exact `usize` via `294x-19e`, so that
