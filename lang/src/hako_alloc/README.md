@@ -88,6 +88,9 @@ Principles
   - `HakoAllocHugePageModel` is the M180 huge page model owner. It registers
     one-allocation huge handles in the page map while keeping requested,
     committed, and live metadata separate from small page free lists.
+  - `HakoAllocHugeReleaseSeam` is the M181 huge release seam owner. It retires
+    huge handles through `HakoAllocHugePageModel` and unregisters page-map
+    ownership without touching small page `releaseLocal(...)`.
 
 Design owners
 - Policy/state stop-line:

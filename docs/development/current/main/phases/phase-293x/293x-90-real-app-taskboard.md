@@ -154,6 +154,7 @@
 - [x] `293x-189` Record packed-array lowering SSOT
 - [x] `293x-190` M179 huge threshold routing
 - [x] `293x-191` M180 huge page model
+- [x] `293x-192` M181 huge release seam
 
 ## Gates
 

@@ -100,5 +100,8 @@ Syntax/style contract
 - `huge_page_model_box.hako` owns M180 huge page modeling. It may register huge
   handles and track requested/committed/live metadata, but it must not implement
   huge release, unregister, or OS release.
+- `huge_release_seam_box.hako` owns M181 huge release composition. It may mark
+  huge model state released and unregister page-map ownership, but it must not
+  call small page `releaseLocal(...)` or OS release.
 - Keep `birth(...)` for parameter-dependent initialization and ordering that
   cannot be expressed as a declaration-site default.

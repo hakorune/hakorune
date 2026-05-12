@@ -1,0 +1,97 @@
+// mimalloc-huge-release-seam-proof
+// Purpose: prove M181 huge release seam.
+
+using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
+using selfhost.hako_alloc.memory.huge_page_model_box as HakoAllocHugePageModelBox
+using selfhost.hako_alloc.memory.huge_release_seam_box as HakoAllocHugeReleaseSeamBox
+
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expect(label, condition) {
+        me.count = me.count + 1
+        if condition == 0 {
+            me.passed = 0
+            me.fail_count = me.fail_count + 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
+static box Main {
+    main(args) {
+        local page_map = new HakoAllocPageMap()
+        local huge = new HakoAllocHugePageModel(page_map)
+        local release = new HakoAllocHugeReleaseSeam(huge)
+
+        local small_reg = page_map.register(1234, 0, 0)
+        local h0 = huge.allocateHuge(4194305, 4194305)
+        local h0_ptr = huge.last_result_ptr
+        local h1 = huge.allocateHuge(8388608, 8388608)
+        local h1_ptr = huge.last_result_ptr
+
+        local rel0 = release.releaseHugePtr(h0_ptr)
+        local rel0_page = release.last_page_id
+        local rel0_req = release.last_requested_size
+        local rel0_committed = release.last_committed_size
+        local h0_live_after = huge.isLiveHugePtr(h0_ptr)
+
+        local rel_double = release.releaseHugePtr(h0_ptr)
+        local rel_double_kind = release.last_failure_kind
+        local rel_unknown = release.releaseHugePtr(99999)
+        local rel_unknown_kind = release.last_failure_kind
+        local rel_small = release.releaseHugePtr(1234)
+        local rel_small_kind = release.last_failure_kind
+
+        local h1_live = huge.isLiveHugePtr(h1_ptr)
+
+        print("mimalloc-huge-release-seam-proof")
+        print("setup=" + small_reg + "," + h0 + "," + h1 + "," + h0_ptr + "," + h1_ptr)
+        print("release=" + rel0 + "," + rel0_page + "," + rel0_req + "," + rel0_committed + "," + h0_live_after)
+        print("reject=" + rel_double + "," + rel_double_kind + "," + rel_unknown + "," + rel_unknown_kind + "," + rel_small + "," + rel_small_kind)
+        print("huge=" + huge.huge_count + "," + huge.live_count + "," + huge.allocate_count + "," + huge.release_count + "," + huge.release_reject_count + "," + huge.reject_count + "," + h1_live)
+        print("seam=" + release.release_count + "," + release.unregister_count + "," + release.lookup_miss_count + "," + release.not_huge_count + "," + release.model_reject_count + "," + release.reject_count)
+        print("map=" + page_map.entry_count + "," + page_map.live_count + "," + page_map.register_count + "," + page_map.lookup_count + "," + page_map.lookup_miss_count + "," + page_map.unregister_count + "," + page_map.reject_count)
+
+        local proof = new ProofCheck("m181 huge release seam")
+        proof.expect("small registration", small_reg == 1)
+        proof.expect("first huge allocation", h0 == 1)
+        proof.expect("second huge allocation", h1 == 1)
+        proof.expect("first huge release succeeds", rel0 == 1)
+        proof.expect("released page id", rel0_page == 1000)
+        proof.expect("released requested size", rel0_req == 4194305)
+        proof.expect("released committed size", rel0_committed == 4194305)
+        proof.expect("released huge no longer live", h0_live_after == 0)
+        proof.expect("double release rejects", rel_double == 0)
+        proof.expect("double release kind", rel_double_kind == 1)
+        proof.expect("unknown release rejects", rel_unknown == 0)
+        proof.expect("unknown release kind", rel_unknown_kind == 1)
+        proof.expect("small handle rejects", rel_small == 0)
+        proof.expect("small handle kind", rel_small_kind == 2)
+        proof.expect("second huge still live", h1_live == 1)
+        proof.expect("huge counters", huge.huge_count == 2 && huge.live_count == 1 && huge.allocate_count == 2 && huge.release_count == 1 && huge.release_reject_count == 0 && huge.reject_count == 0)
+        proof.expect("release seam counters", release.release_count == 1 && release.unregister_count == 1 && release.lookup_miss_count == 2 && release.not_huge_count == 1 && release.model_reject_count == 0 && release.reject_count == 3)
+        proof.expect("page-map counters", page_map.entry_count == 3 && page_map.live_count == 2 && page_map.register_count == 3 && page_map.lookup_count == 4 && page_map.lookup_miss_count == 2 && page_map.unregister_count == 1 && page_map.reject_count == 0)
+
+        if proof.ok() {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -464,8 +464,11 @@ inference for the allocator release path.
   `HakoAllocHugePageModel` so huge handles can be registered in the page map
   while requested/committed/live state stays separate from small page free
   lists.
-- Next: continue with `M181 huge release seam` before scheduling secure-list
-  rows.
+- `293x-192`: M181 huge release seam landed, adding
+  `HakoAllocHugeReleaseSeam` so huge handles are retired through the huge model
+  and page map without entering small page `releaseLocal(...)`.
+- Next: continue with `M182 secure free-list policy inventory` before adding
+  diagnostics or encode/decode rows.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.
 
@@ -476,7 +479,7 @@ SSOT:
 
 Current execution order:
 
-1. `M181-M184`: add huge release and secure-list rows separately.
+1. `M182-M184`: add secure-list rows separately.
 2. `M185-M190`: finish remaining `usize` field-group migration and allocator
    API parity. Facade stats are already exact `usize` via `294x-19e`, so that
    row must not be repeated.

@@ -14,6 +14,8 @@ box HakoAllocHugePageModel {
     huge_count: i64 = 0
     live_count: i64 = 0
     allocate_count: i64 = 0
+    release_count: i64 = 0
+    release_reject_count: i64 = 0
     zero_reject_count: i64 = 0
     commit_reject_count: i64 = 0
     register_fail_count: i64 = 0
@@ -125,5 +127,19 @@ box HakoAllocHugePageModel {
         }
 
         return me.committed_sizes.get(index)
+    }
+
+    markReleased(ptr) {
+        local index = me.findIndex(ptr)
+        if index < 0 {
+            me.release_reject_count = me.release_reject_count + 1
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        me.live_flags.set(index, 0)
+        me.live_count = me.live_count - 1
+        me.release_count = me.release_count + 1
+        return 1
     }
 }

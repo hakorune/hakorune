@@ -1,0 +1,69 @@
+// huge_release_seam_box.hako -- M181 huge release seam owner
+// Responsibility: release huge handles through the huge page model and page
+// map. Small page free lists and OS release stay outside this owner.
+
+using selfhost.hako_alloc.memory.huge_page_model_box as HakoAllocHugePageModelBox
+
+box HakoAllocHugeReleaseSeam {
+    huge_model: HakoAllocHugePageModel
+    page_map: HakoAllocPageMap
+    release_count: i64 = 0
+    unregister_count: i64 = 0
+    lookup_miss_count: i64 = 0
+    not_huge_count: i64 = 0
+    model_reject_count: i64 = 0
+    reject_count: i64 = 0
+    last_page_id: i64 = -1
+    last_requested_size: i64 = 0
+    last_committed_size: i64 = 0
+    last_failure_kind: i64 = 0
+
+    birth(huge_model) {
+        me.huge_model = huge_model
+        me.page_map = huge_model.page_map
+    }
+
+    releaseHugePtr(ptr) {
+        me.last_page_id = -1
+        me.last_requested_size = 0
+        me.last_committed_size = 0
+        me.last_failure_kind = 0
+
+        local entry = me.page_map.lookup(ptr)
+        if entry == null {
+            me.lookup_miss_count = me.lookup_miss_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_failure_kind = 1
+            return 0
+        }
+
+        if me.huge_model.isLiveHugePtr(ptr) == 0 {
+            me.not_huge_count = me.not_huge_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_failure_kind = 2
+            return 0
+        }
+
+        me.last_page_id = entry.page_id
+        me.last_requested_size = me.huge_model.requestedSizeFor(ptr)
+        me.last_committed_size = me.huge_model.committedSizeFor(ptr)
+
+        if me.huge_model.markReleased(ptr) == 0 {
+            me.model_reject_count = me.model_reject_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_failure_kind = 3
+            return 0
+        }
+
+        if me.page_map.unregister(ptr) == 0 {
+            me.model_reject_count = me.model_reject_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_failure_kind = 4
+            return 0
+        }
+
+        me.unregister_count = me.unregister_count + 1
+        me.release_count = me.release_count + 1
+        return 1
+    }
+}

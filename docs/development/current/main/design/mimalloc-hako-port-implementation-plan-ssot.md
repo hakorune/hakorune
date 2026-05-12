@@ -151,8 +151,8 @@ current repo truth: broad numeric field inventory and facade-local exact
 | `M178 aligned allocation small path` | Complete | attach alignment metadata to normal page-map-backed small allocations | no huge path |
 | `M179 huge threshold and routing` | Complete | classify huge requests and fail-fast unsupported huge behavior | no huge page model yet |
 | `M180 huge page model` | Complete | model one-allocation huge pages separately from small page free lists | no OS unreserve/release widening |
-| `M181 huge release seam` | Next | unregister and release huge handles through the page-map owner | no small-page free-list mixing |
-| `M182 secure free-list policy inventory` | Planned | decide encoded/randomized free-list responsibilities | no implementation |
+| `M181 huge release seam` | Complete | unregister and release huge handles through the page-map owner | no small-page free-list mixing |
+| `M182 secure free-list policy inventory` | Next | decide encoded/randomized free-list responsibilities | no implementation |
 | `M183 secure-list diagnostics-only` | Planned | detect duplicate/out-of-range/free-list shape errors | no encode/decode |
 | `M184 secure-list encode/decode small path` | Planned | add the smallest encoded-next policy once diagnostics are stable | no cryptographic randomness claim without compiler support |
 
