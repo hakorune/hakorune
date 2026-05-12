@@ -187,7 +187,8 @@ the active `.hako` algorithm row.
 | `C203a record declaration metadata transport` | carry `record_decls` through JSON/MIR surfaces without mixing records into ordinary user-box declarations | `C203b-C205` |
 | `C203b record layout plans` | derive layout facts for `record` declarations before any local scalar rewrite consumes them | `C203c-C205` |
 | `C203c record local scalar replacement metadata` | expose concrete record layouts in folded `agg_local` / placement metadata before any scalar rewrite consumes them | record construction/read lowering and `C204-C205` |
-| `C204 ArrayBox inline-record storage` | add packed record columns for `record` payloads while keeping `ArrayBox` as authority | `C205` |
+| `C204a ArrayBox inline-record storage descriptors` | derive metadata-only packed column descriptors from record layout plans | `C204b-C205` |
+| `C204b ArrayBox inline-record storage vocabulary` | add private runtime storage vocabulary and materialization boundaries while keeping public ArrayBox behavior unchanged | `C205` |
 | `C205 allocator metadata record migration` | replace hand-written scalar metadata arrays with `record` surface on top of packed storage | revisiting `M178` metadata surface |
 
 C201 status:
@@ -219,6 +220,12 @@ complete as `293x-211`. Concrete record layout plans now publish
 `record_local_layout` rows through folded `agg_local` and placement/effect
 metadata. This is still metadata-only: no record construction/read lowering,
 no user-box scalar seed route, and no MIR scalar rewrite.
+
+C204a status:
+complete as `293x-212`. `array_record_storage_plans` now derives metadata-only
+column descriptors from `record_layout_plans`. Runtime `ArrayStorage` variants,
+public ArrayBox behavior, compiler auto-use, and hako_alloc migration remain
+future work.
 
 ### Docs / Guard Checkpoints
 

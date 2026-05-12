@@ -155,7 +155,8 @@ This lane therefore starts at `C201`.
 | `C203a record declaration metadata transport` | carry `record_decls` through Program JSON v0, JSON bridge, MIR metadata, and MIR JSON without making records ordinary boxes | record layout plans | no lowering consumer, no objectization, no packed storage |
 | `C203b record layout plans` | derive backend-readable record layout facts from transported record declarations | local scalar replacement | no user-box typed-object-plan reuse, no storage rewrite |
 | `C203c record local scalar replacement metadata` | expose concrete record layouts in the folded `agg_local` / placement metadata inventory | record construction/read lowering | no MIR rewrite, no user-box seed route, no host-boundary publication rewrite |
-| `C204 ArrayBox inline-record storage` | add `ArrayBox` residence for packed `record` payloads (record columns) | allocator metadata migration | no change to ordinary boxed/mixed/string authority; `ArrayBox` stays the runtime owner |
+| `C204a ArrayBox inline-record storage descriptors` | derive metadata-only packed column descriptors from `record_layout_plans` | runtime storage vocabulary | no `ArrayStorage` variant, no public ArrayBox behavior change |
+| `C204b ArrayBox inline-record storage vocabulary` | add private runtime storage vocabulary and materialization boundaries | allocator metadata migration | no compiler auto-use, no hako_alloc migration |
 | `C205 allocator metadata record migration` | replace hand-written scalar metadata arrays with `record` surface over packed storage | broader allocator/table cleanup | no allocator-specific DSL, no huge/native/provider coupling |
 
 Status:
@@ -178,7 +179,10 @@ Status:
   as `record_local_layout` entries in folded `agg_local` and placement/effect
   metadata. This is still metadata-only; record constructor/read lowering and
   scalar MIR rewrites remain future work.
-- `C204-C205` remain future work.
+- `C204a` is complete as `293x-212`: `array_record_storage_plans` now derive
+  metadata-only column descriptors from `record_layout_plans`. Runtime
+  `ArrayStorage` vocabulary and public ArrayBox behavior remain unchanged.
+- `C204b-C205` remain future work.
 
 ## Target Runtime Shape
 

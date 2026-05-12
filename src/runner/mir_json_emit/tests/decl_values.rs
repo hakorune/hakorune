@@ -1,11 +1,12 @@
 use super::super::{
-    collect_record_layout_plan_values, collect_sorted_enum_decl_values,
-    collect_sorted_record_decl_values, collect_sorted_user_box_decl_values,
-    collect_static_data_plan_values, collect_typed_object_plan_values,
+    collect_array_record_storage_plan_values, collect_record_layout_plan_values,
+    collect_sorted_enum_decl_values, collect_sorted_record_decl_values,
+    collect_sorted_user_box_decl_values, collect_static_data_plan_values,
+    collect_typed_object_plan_values,
 };
 use crate::mir::function::{
-    RecordLayoutFieldPlan, RecordLayoutPlan, StaticDataPlan, TypedObjectFieldPlan,
-    TypedObjectFieldStorage, TypedObjectPlan,
+    ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan, RecordLayoutFieldPlan, RecordLayoutPlan,
+    StaticDataPlan, TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan,
 };
 use crate::mir::MirModule;
 use serde_json::json;
@@ -285,6 +286,44 @@ fn collect_record_layout_plan_values_preserves_record_layout_truth() {
     assert_eq!(plans[0]["fields"][0]["slot"], 0);
     assert_eq!(plans[0]["fields"][0]["storage"], "i64");
     assert_eq!(plans[0]["fields"][1]["storage"], "usize");
+}
+
+#[test]
+fn collect_array_record_storage_plan_values_preserves_column_truth() {
+    let mut module = MirModule::new("test".to_string());
+    module
+        .metadata
+        .array_record_storage_plans
+        .push(ArrayRecordStoragePlan {
+            record_name: "Meta".to_string(),
+            layout_id: 1,
+            storage_kind: "inline_record_columns_v0".to_string(),
+            field_count: 2,
+            columns: vec![
+                ArrayRecordStorageColumnPlan {
+                    name: "ptr".to_string(),
+                    column: 0,
+                    storage: TypedObjectFieldStorage::I64,
+                },
+                ArrayRecordStorageColumnPlan {
+                    name: "size".to_string(),
+                    column: 1,
+                    storage: TypedObjectFieldStorage::USize,
+                },
+            ],
+        });
+
+    let plans = collect_array_record_storage_plan_values(&module);
+
+    assert_eq!(plans.len(), 1);
+    assert_eq!(plans[0]["record_name"], "Meta");
+    assert_eq!(plans[0]["layout_id"], 1);
+    assert_eq!(plans[0]["storage_kind"], "inline_record_columns_v0");
+    assert_eq!(plans[0]["field_count"], 2);
+    assert_eq!(plans[0]["columns"][0]["name"], "ptr");
+    assert_eq!(plans[0]["columns"][0]["column"], 0);
+    assert_eq!(plans[0]["columns"][0]["storage"], "i64");
+    assert_eq!(plans[0]["columns"][1]["storage"], "usize");
 }
 
 #[test]

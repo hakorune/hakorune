@@ -546,6 +546,28 @@ pub struct RecordLayoutPlan {
     pub fields: Vec<RecordLayoutFieldPlan>,
 }
 
+/// Planned column for future ArrayBox inline-record residence.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ArrayRecordStorageColumnPlan {
+    pub name: String,
+    pub column: u32,
+    pub storage: TypedObjectFieldStorage,
+}
+
+/// Metadata-only packed record storage plan for ArrayBox residence.
+///
+/// This is a descriptor, not a runtime storage mutation. ArrayBox public
+/// behavior remains unchanged until a later row installs an explicit storage
+/// owner and promotion contract.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ArrayRecordStoragePlan {
+    pub record_name: String,
+    pub layout_id: u32,
+    pub storage_kind: String,
+    pub field_count: u32,
+    pub columns: Vec<ArrayRecordStorageColumnPlan>,
+}
+
 /// Declared variant inventory for first-class enum/sum metadata.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MirEnumVariantDecl {
@@ -612,6 +634,9 @@ pub struct ModuleMetadata {
 
     /// Backend-readable record layouts derived from record declaration metadata.
     pub record_layout_plans: Vec<RecordLayoutPlan>,
+
+    /// Metadata-only ArrayBox packed record storage descriptors.
+    pub array_record_storage_plans: Vec<ArrayRecordStoragePlan>,
 
     /// Backend-readable static readonly table rows.
     /// MIR owns this row shape; backend emitters only serialize rows.

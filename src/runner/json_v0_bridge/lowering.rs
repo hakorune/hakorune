@@ -276,6 +276,7 @@ pub(super) fn lower_program(
         .map(static_data_plan_from_json_v0)
         .collect();
     crate::mir::record_layout_plan::refresh_module_record_layout_plans(&mut module);
+    crate::mir::array_record_storage_plan::refresh_module_array_record_storage_plans(&mut module);
     program::lower_main_body(&mut module, &prog.body, &env)?;
     if let Some(entry_def) = prog
         .defs

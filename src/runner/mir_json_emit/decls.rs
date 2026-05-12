@@ -160,6 +160,29 @@ pub(super) fn collect_record_layout_plan_values(
         .collect()
 }
 
+pub(super) fn collect_array_record_storage_plan_values(
+    module: &crate::mir::MirModule,
+) -> Vec<serde_json::Value> {
+    module
+        .metadata
+        .array_record_storage_plans
+        .iter()
+        .map(|plan| {
+            json!({
+                "record_name": plan.record_name,
+                "layout_id": plan.layout_id,
+                "storage_kind": plan.storage_kind,
+                "field_count": plan.field_count,
+                "columns": plan.columns.iter().map(|column| json!({
+                    "name": column.name,
+                    "column": column.column,
+                    "storage": column.storage.as_str(),
+                })).collect::<Vec<_>>(),
+            })
+        })
+        .collect()
+}
+
 pub(super) fn collect_static_data_plan_values(
     module: &crate::mir::MirModule,
 ) -> Vec<serde_json::Value> {

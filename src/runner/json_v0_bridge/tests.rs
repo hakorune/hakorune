@@ -215,6 +215,12 @@ fn parse_json_v0_to_module_derives_concrete_record_layout_plans() {
     assert_eq!(plans[0].layout_kind, "record_value_aggregate_v0");
     assert_eq!(plans[0].fields[0].storage.as_str(), "i64");
     assert_eq!(plans[0].fields[1].storage.as_str(), "usize");
+    let storage_plans = &module.metadata.array_record_storage_plans;
+    assert_eq!(storage_plans.len(), 1);
+    assert_eq!(storage_plans[0].record_name, "Meta");
+    assert_eq!(storage_plans[0].storage_kind, "inline_record_columns_v0");
+    assert_eq!(storage_plans[0].columns[0].name, "ptr");
+    assert_eq!(storage_plans[0].columns[1].storage.as_str(), "usize");
 }
 
 #[test]

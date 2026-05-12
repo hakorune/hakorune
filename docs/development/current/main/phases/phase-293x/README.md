@@ -522,6 +522,9 @@ inference for the allocator release path.
 - `293x-211`: C203c record local scalar replacement metadata landed, exposing
   concrete record layouts as `record_local_layout` rows in folded `agg_local`
   and placement/effect metadata without rewriting MIR.
+- `293x-212`: C204a ArrayBox inline-record storage descriptors landed, deriving
+  metadata-only `array_record_storage_plans` from record layout plans without
+  changing runtime ArrayBox storage.
 - Next: continue with the record/packed-array compiler lane (`C201-C205`) or
   allocator algorithm rows when needed. No M191
   allocator API row is scheduled yet; M186 facade stats already landed as
@@ -546,8 +549,9 @@ Current execution order:
 3. `C201-C205`: add record/packed-array compiler-runtime support before moving
    allocator metadata off the current M178 scalar columns. `C201`, `C202`,
    `C203a`, `C203b`, and `C203c` are complete; `C204` ArrayBox inline-record
-   storage is the next row unless record construction/read lowering is split
-   out first.
+   storage is split. `C204a` descriptors are complete; `C204b` runtime storage
+   vocabulary is next unless record construction/read lowering is split out
+   first.
 4. `C191-C194`: run compiler/backend hardening only when it does not collide
    with the active `.hako` row.
 5. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.
