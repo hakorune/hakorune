@@ -840,7 +840,8 @@ Fixture/gate:
 
 ## Raw Layout Substrate Row
 
-Decision: accepted for the M1 MIR vocabulary lock only.
+Decision: accepted for the M1 MIR vocabulary lock and the 294x-15
+target-resolved pointer-sized field row.
 
 New surface:
 
@@ -848,6 +849,11 @@ New surface:
 - fixed-width numeric field storage:
   - `i8`, `i16`, `i32`, `i64`
   - `u8`, `u16`, `u32`, `u64`
+- pointer-sized numeric field storage:
+  - `usize`, resolved through the active `NumericTarget` to target-sized
+    unsigned scalar storage
+  - `isize`, resolved through the active `NumericTarget` to target-sized
+    signed scalar storage
 
 Owner module:
 
@@ -862,8 +868,8 @@ Unsupported backend behavior:
 
 - Source syntax such as `struct`, `@rune Repr(C)`, `@rune Align(N)`, `sizeof`,
   and `offsetof` is not live.
-- Pointer-sized fields (`usize` / `isize`), pointer fields, handle fields, and
-  semantic Box fields must fail fast or stay reserved.
+- Pointer fields, handle fields, and semantic Box fields must fail fast or stay
+  reserved.
 - Backends must not compute raw layout from semantic `box` declarations or
   application-specific field names.
 

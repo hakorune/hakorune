@@ -279,8 +279,12 @@ Do not introduce parser syntax first and leave backend meaning implicit.
   - fixed-width numeric fields are accepted:
     - `i8` / `i16` / `i32` / `i64`
     - `u8` / `u16` / `u32` / `u64`
+  - pointer-sized numeric fields are accepted only through target-resolved
+    layout rules:
+    - `usize` resolves to target-sized unsigned scalar storage
+    - `isize` resolves to target-sized signed scalar storage
   - natural alignment, field offsets, and final size are planned by MIR
-  - pointer-sized fields, Box fields, and source syntax are still reserved
+  - Box fields, pointer/handle fields, and source syntax are still reserved
 - live acceptance requires:
   - docs/reference Decision
   - MIR-owned vocabulary row

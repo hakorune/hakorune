@@ -50,6 +50,16 @@ impl NumericTarget {
         Self::HOST
     }
 
+    #[allow(dead_code)] // 294x-15 explicit target layout entry; cross-target producers land later.
+    pub(crate) const fn from_pointer_width(pointer_width: NumericResolvedWidth) -> Option<Self> {
+        match pointer_width {
+            NumericResolvedWidth::Bits32 | NumericResolvedWidth::Bits64 => {
+                Some(Self { pointer_width })
+            }
+            NumericResolvedWidth::Bits8 | NumericResolvedWidth::Bits16 => None,
+        }
+    }
+
     pub(crate) const fn pointer_width(self) -> NumericResolvedWidth {
         self.pointer_width
     }

@@ -9,7 +9,7 @@
 #![allow(dead_code)] // M1 is staged vocabulary until parser/backend consumers land.
 
 use crate::mir::numeric_substrate::{
-    classify_numeric_type_name, NumericSignedness, NumericTypeName, NumericWidth,
+    classify_numeric_type_name, NumericKind, NumericResolvedWidth, NumericSignedness, NumericTarget,
 };
 
 pub const RAW_LAYOUT_REPR_C_V0: &str = "repr_c_v0";
@@ -40,6 +40,19 @@ pub enum RawLayoutScalarStorage {
 }
 
 impl RawLayoutScalarStorage {
+    fn from_numeric_kind(kind: NumericKind) -> Self {
+        match (kind.signedness, kind.width) {
+            (NumericSignedness::Signed, NumericResolvedWidth::Bits8) => Self::I8,
+            (NumericSignedness::Signed, NumericResolvedWidth::Bits16) => Self::I16,
+            (NumericSignedness::Signed, NumericResolvedWidth::Bits32) => Self::I32,
+            (NumericSignedness::Signed, NumericResolvedWidth::Bits64) => Self::I64,
+            (NumericSignedness::Unsigned, NumericResolvedWidth::Bits8) => Self::U8,
+            (NumericSignedness::Unsigned, NumericResolvedWidth::Bits16) => Self::U16,
+            (NumericSignedness::Unsigned, NumericResolvedWidth::Bits32) => Self::U32,
+            (NumericSignedness::Unsigned, NumericResolvedWidth::Bits64) => Self::U64,
+        }
+    }
+
     pub fn size_bytes(self) -> u32 {
         match self {
             RawLayoutScalarStorage::I8 | RawLayoutScalarStorage::U8 => 1,
@@ -138,50 +151,31 @@ impl std::error::Error for RawLayoutError {}
 pub(crate) fn scalar_storage_for_raw_layout_type(
     type_name: &str,
 ) -> Result<RawLayoutScalarStorage, &'static str> {
-    match classify_numeric_type_name(type_name) {
-        Some(NumericTypeName {
-            signedness: NumericSignedness::Signed,
-            width: NumericWidth::Bits8,
-        }) => Ok(RawLayoutScalarStorage::I8),
-        Some(NumericTypeName {
-            signedness: NumericSignedness::Signed,
-            width: NumericWidth::Bits16,
-        }) => Ok(RawLayoutScalarStorage::I16),
-        Some(NumericTypeName {
-            signedness: NumericSignedness::Signed,
-            width: NumericWidth::Bits32,
-        }) => Ok(RawLayoutScalarStorage::I32),
-        Some(NumericTypeName {
-            signedness: NumericSignedness::Signed,
-            width: NumericWidth::Bits64,
-        }) => Ok(RawLayoutScalarStorage::I64),
-        Some(NumericTypeName {
-            signedness: NumericSignedness::Unsigned,
-            width: NumericWidth::Bits8,
-        }) => Ok(RawLayoutScalarStorage::U8),
-        Some(NumericTypeName {
-            signedness: NumericSignedness::Unsigned,
-            width: NumericWidth::Bits16,
-        }) => Ok(RawLayoutScalarStorage::U16),
-        Some(NumericTypeName {
-            signedness: NumericSignedness::Unsigned,
-            width: NumericWidth::Bits32,
-        }) => Ok(RawLayoutScalarStorage::U32),
-        Some(NumericTypeName {
-            signedness: NumericSignedness::Unsigned,
-            width: NumericWidth::Bits64,
-        }) => Ok(RawLayoutScalarStorage::U64),
-        Some(NumericTypeName {
-            width: NumericWidth::Pointer,
-            ..
-        }) => Err("pointer-sized fields require a target ABI row"),
-        None => Err("only fixed-width numeric fields are live"),
-    }
+    scalar_storage_for_raw_layout_type_for_target(type_name, NumericTarget::host())
+}
+
+pub(crate) fn scalar_storage_for_raw_layout_type_for_target(
+    type_name: &str,
+    target: NumericTarget,
+) -> Result<RawLayoutScalarStorage, &'static str> {
+    let type_name =
+        classify_numeric_type_name(type_name).ok_or("only numeric raw-layout fields are live")?;
+    Ok(RawLayoutScalarStorage::from_numeric_kind(
+        type_name.kind_for_target(target),
+    ))
 }
 
 pub(crate) fn build_repr_c_v0_raw_layout(
     layout_name: &str,
     fields: &[RawLayoutFieldDecl<'_>],
+) -> Result<RawLayoutPlan, RawLayoutError> {
+    build_repr_c_v0_raw_layout_for_target(layout_name, fields, NumericTarget::host())
+}
+
+pub(crate) fn build_repr_c_v0_raw_layout_for_target(
+    layout_name: &str,
+    fields: &[RawLayoutFieldDecl<'_>],
+    target: NumericTarget,
 ) -> Result<RawLayoutPlan, RawLayoutError> {
     if layout_name.trim().is_empty() {
         return Err(RawLayoutError::EmptyLayoutName);
@@ -210,14 +204,13 @@ pub(crate) fn build_repr_c_v0_raw_layout(
             });
         }
 
-        let storage = scalar_storage_for_raw_layout_type(field.type_name).map_err(|reason| {
-            RawLayoutError::UnsupportedFieldType {
+        let storage = scalar_storage_for_raw_layout_type_for_target(field.type_name, target)
+            .map_err(|reason| RawLayoutError::UnsupportedFieldType {
                 layout_name: layout_name.to_string(),
                 field: field.name.to_string(),
                 type_name: field.type_name.to_string(),
                 reason,
-            }
-        })?;
+            })?;
         let align = storage.align_bytes();
         let size = storage.size_bytes();
         offset = align_up_u32(offset, align).ok_or_else(|| RawLayoutError::SizeOverflow {
@@ -298,21 +291,86 @@ mod tests {
     }
 
     #[test]
-    fn rejects_pointer_sized_fields_until_target_abi_row_lands() {
-        let err = build_repr_c_v0_raw_layout(
-            "NeedsTarget",
-            &[RawLayoutFieldDecl {
-                name: "size",
-                type_name: "usize",
-            }],
+    fn builds_repr_c_v0_offsets_for_pointer_sized_fields_on_host_target() {
+        let plan = build_repr_c_v0_raw_layout(
+            "MiPointer",
+            &[
+                RawLayoutFieldDecl {
+                    name: "size",
+                    type_name: "usize",
+                },
+                RawLayoutFieldDecl {
+                    name: "delta",
+                    type_name: "isize",
+                },
+                RawLayoutFieldDecl {
+                    name: "flags",
+                    type_name: "u8",
+                },
+            ],
         )
-        .expect_err("usize is not live for raw layout");
+        .expect("pointer-sized fields use host target layout");
 
-        assert!(matches!(
-            err,
-            RawLayoutError::UnsupportedFieldType { reason, .. }
-                if reason == "pointer-sized fields require a target ABI row"
-        ));
+        let (pointer_bytes, unsigned_storage, signed_storage) =
+            match NumericTarget::host().pointer_width() {
+                NumericResolvedWidth::Bits32 => {
+                    (4, RawLayoutScalarStorage::U32, RawLayoutScalarStorage::I32)
+                }
+                NumericResolvedWidth::Bits64 => {
+                    (8, RawLayoutScalarStorage::U64, RawLayoutScalarStorage::I64)
+                }
+                NumericResolvedWidth::Bits8 | NumericResolvedWidth::Bits16 => {
+                    unreachable!("NumericTarget::host only exposes 32-bit or 64-bit pointers")
+                }
+            };
+
+        assert_eq!(plan.align_bytes, pointer_bytes);
+        assert_eq!(plan.size_bytes, pointer_bytes * 3);
+        assert_eq!(plan.fields[0].declared_type_name, "usize");
+        assert_eq!(plan.fields[0].storage, unsigned_storage);
+        assert_eq!(plan.fields[0].offset_bytes, 0);
+        assert_eq!(plan.fields[1].declared_type_name, "isize");
+        assert_eq!(plan.fields[1].storage, signed_storage);
+        assert_eq!(plan.fields[1].offset_bytes, pointer_bytes);
+        assert_eq!(plan.fields[2].offset_bytes, pointer_bytes * 2);
+    }
+
+    #[test]
+    fn resolves_pointer_sized_fields_with_explicit_target_layout() {
+        let pointer32 =
+            NumericTarget::from_pointer_width(NumericResolvedWidth::Bits32).expect("pointer32");
+        let pointer64 =
+            NumericTarget::from_pointer_width(NumericResolvedWidth::Bits64).expect("pointer64");
+
+        assert_eq!(
+            scalar_storage_for_raw_layout_type_for_target("usize", pointer32).unwrap(),
+            RawLayoutScalarStorage::U32
+        );
+        assert_eq!(
+            scalar_storage_for_raw_layout_type_for_target("isize", pointer64).unwrap(),
+            RawLayoutScalarStorage::I64
+        );
+
+        let plan = build_repr_c_v0_raw_layout_for_target(
+            "Pointer32",
+            &[
+                RawLayoutFieldDecl {
+                    name: "len",
+                    type_name: "usize",
+                },
+                RawLayoutFieldDecl {
+                    name: "tag",
+                    type_name: "u16",
+                },
+            ],
+            pointer32,
+        )
+        .expect("explicit 32-bit target layout");
+
+        assert_eq!(plan.align_bytes, 4);
+        assert_eq!(plan.size_bytes, 8);
+        assert_eq!(plan.fields[0].storage, RawLayoutScalarStorage::U32);
+        assert_eq!(plan.fields[1].offset_bytes, 4);
     }
 
     #[test]
@@ -329,7 +387,7 @@ mod tests {
         assert!(matches!(
             err,
             RawLayoutError::UnsupportedFieldType { reason, .. }
-                if reason == "only fixed-width numeric fields are live"
+                if reason == "only numeric raw-layout fields are live"
         ));
     }
 

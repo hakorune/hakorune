@@ -54,7 +54,7 @@ hako_alloc or mimalloc migration.
 | `294x-13` | Complete | backend capability and fail-fast | unsupported non-VM backends reject exact numeric storage/op routes before emission; native lowering remains a later row |
 | `294x-14a` | Complete | byte-length usize facade aliases | RawBuf and OSVM byte-length facades expose `usize` names over the non-negative current-lane i64 subset |
 | `294x-14` | Complete | low-level capability usize variants | Buf/RawArray/bounds/initialized-range helpers expose provisional `usize` aliases over the non-negative current-lane i64 subset; RawBuf stays byte-buffer only and OSVM byte-length aliases remain from 294x-14a |
-| `294x-15` | Pending | raw-layout pointer-sized field row | `usize`/`isize` raw fields are accepted with target layout rules or fail fast |
+| `294x-15` | Complete | raw-layout pointer-sized field row | `usize`/`isize` raw fields are accepted with target layout rules while source syntax/backend execution remain out of scope |
 | `294x-16` | Pending | hako_alloc numeric field inventory | every numeric field is classified as signed sentinel, signed delta, count, size, capacity, index, or byte length |
 | `294x-17` | Pending | sentinel split plan | fields using `-1` are kept signed or split into explicit presence state before any `usize` migration |
 | `294x-18` | Pending | hako_alloc non-negative field migration probe | capacity/size/count candidates migrate in a proof app while sentinel fields stay signed |
@@ -140,7 +140,8 @@ hako_alloc or mimalloc migration.
 - [ ] Lower LLVM/native unsigned compare and shift.
 - [ ] Decide WASM target behavior.
 - [ ] Keep C ABI size_t mapping explicit.
-- [ ] Keep raw layout pointer-sized fields gated until target layout is real.
+- [x] Accept raw layout pointer-sized fields only through target-resolved
+  layout rules.
 
 ### Low-Level Capability Surface
 

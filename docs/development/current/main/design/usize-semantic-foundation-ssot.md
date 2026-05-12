@@ -96,6 +96,10 @@ Live today:
   route facts silently lower through legacy `Integer(i64)`;
 - RawBuf and OSVM expose first byte-length `usize` facades whose live v0
   meaning is the non-negative current-lane i64 subset;
+- MIR raw-layout plans accept `usize` / `isize` fields by resolving them
+  through `NumericTarget` pointer-width layout rules to target-sized scalar
+  storage. This remains metadata-only and adds no source syntax or
+  backend-native field execution;
 - `FunctionMetadata` preserves MIR-side declared parameter/return annotation
   text, and exact numeric return annotations publish function-level advisory
   return facts without changing runtime lowering;

@@ -121,6 +121,10 @@
 - `294x-14`: Buf, RawArray, bounds, and initialized-range now expose
   provisional `usize` aliases over the non-negative current-lane i64 subset,
   without adding new native leaves or migrating hako_alloc state.
+- `294x-15`: MIR raw-layout plans now accept `usize` / `isize` fields by
+  resolving them through `NumericTarget` pointer-width layout rules, while
+  source syntax, backend-native layout execution, and hako_alloc migration stay
+  deferred.
 
 ## First Implementation Direction
 
