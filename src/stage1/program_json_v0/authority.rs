@@ -128,12 +128,16 @@ fn collect_user_box_decls(ast: &ASTNode) -> Vec<serde_json::Value> {
                 name,
                 fields,
                 field_decls,
+                is_record,
                 type_parameters,
                 ..
             } = statement
             else {
                 return None;
             };
+            if *is_record {
+                return None;
+            }
             Some(serde_json::json!({
                 "name": name,
                 "fields": fields,

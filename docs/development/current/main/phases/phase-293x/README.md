@@ -510,6 +510,9 @@ inference for the allocator release path.
 - `293x-207`: C201 ordinary user-box field-index fast path landed, exposing
   `layout_id + field_index + storage` metadata for legal typed fields in MIR
   JSON while keeping ordinary `box` identity semantics unchanged.
+- `293x-208`: C202 record surface landed, accepting `record Name { field:
+  Type }` declarations as the explicit identity-free aggregate surface while
+  rejecting weak/untyped/method-bearing record bodies.
 - Next: continue with the record/packed-array compiler lane (`C201-C205`) or
   allocator algorithm rows when needed. No M191
   allocator API row is scheduled yet; M186 facade stats already landed as
@@ -532,8 +535,8 @@ Current execution order:
    after docs/reference decisions. Do not fold them into allocator rows.
    `C197`, `C198`, `C199`, and `C200` are complete.
 3. `C201-C205`: add record/packed-array compiler-runtime support before moving
-   allocator metadata off the current M178 scalar columns. `C201` is complete;
-   `C202` is the next record-surface row.
+   allocator metadata off the current M178 scalar columns. `C201` and `C202`
+   are complete; `C203` is the next scalar-replacement row.
 4. `C191-C194`: run compiler/backend hardening only when it does not collide
    with the active `.hako` row.
 5. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.

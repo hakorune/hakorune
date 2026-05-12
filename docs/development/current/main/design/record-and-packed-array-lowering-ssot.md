@@ -39,8 +39,8 @@ Desired end state:
 ## Planning Decisions
 
 Decision status note: the source word `record`, the ordinary `box` stop-line,
-and the C201-C205 order are fixed for planning. Parser/runtime semantics stay
-provisional until the individual C202-C204 rows land.
+and the C201-C205 order are fixed. C202 locks parser semantics for the record
+surface; C203-C204 remain provisional until those rows land.
 
 ### 1. `record` is the source-level name for an aggregate value contract
 
@@ -161,7 +161,10 @@ Status:
 - `C201` is complete as `293x-207`: ordinary `box` declarations now expose
   legal typed-field fast path metadata as `layout_id + field_index` while
   preserving ordinary identity-capable box semantics.
-- `C202-C205` remain future work.
+- `C202` is complete as `293x-208`: `record Name { field: Type }` is accepted
+  as the explicit identity-free aggregate declaration surface, with typed
+  fields only and no object-behavior features.
+- `C203-C205` remain future work.
 
 ## Target Runtime Shape
 

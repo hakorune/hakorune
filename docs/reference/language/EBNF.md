@@ -11,7 +11,7 @@ Design SSOT note (Scope Exit Semantics):
   - `docs/development/current/main/design/rune-v0-contract-rollout-ssot.md`
   - `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`
 
-program   := (static_const_table_decl | stmt)* EOF
+program   := (static_const_table_decl | record_decl | stmt)* EOF
 
 ; M11b static const table syntax.
 ; Reads use the existing postfix index expression.
@@ -59,6 +59,11 @@ compound_assign_op := '+=' | '-=' | '*=' | '/='
 ; - `local ... fini` applies only to single-binding form (grammar-level).
 
 block     := '{' stmt* '}'
+
+record_decl := 'record' IDENT type_params? '{' record_field+ '}'
+record_field:= IDENT ':' TYPE_REF ','?
+           ; C202: record is the explicit identity-free aggregate surface.
+           ; MVP fields must be typed and non-weak.
 
 expr      := logic
 logic     := compare (('&&' | '||') compare)*
@@ -253,6 +258,30 @@ if !(handle.isValid()) {
 C200 does not add a new AST control-flow node, exception behavior, fallback
 semantics, or backend route. The canonical AST shape remains an `If` whose
 condition is `UnaryOp::Not` over the guard condition.
+
+### C202 Record Surface And Semantics
+
+Decision: accepted.
+
+`record` is the source-level surface for identity-free aggregate values:
+
+```hako
+record HakoAllocAlignedSmallMeta {
+    ptr: i64
+    alignment: i64
+    requested_size: i64
+    usable_size: i64
+}
+```
+
+The C202 MVP accepts only fixed typed fields. It rejects weak fields,
+initializers, methods, `fini`, inheritance, and interface implementation in
+record declarations.
+
+Stop line:
+C202 does not add local scalar replacement, packed `ArrayBox` storage, blanket
+ordinary-box flattening, reflection semantics, or allocator-specific syntax.
+Ordinary `box` declarations keep identity-capable object semantics.
 
 ## Box Members (Phase‑15, env gate: NYASH_ENABLE_UNIFIED_MEMBERS; default ON)
 

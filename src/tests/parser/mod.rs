@@ -44,6 +44,8 @@ pub mod parser_parent_colon;
 #[cfg(feature = "legacy-tests")]
 #[path = "../parser_peek_block.rs"]
 pub mod parser_peek_block;
+#[path = "../parser_record_surface.rs"]
+pub mod parser_record_surface;
 #[path = "../parser_scope_exit_fini.rs"]
 pub mod parser_scope_exit_fini;
 #[cfg(feature = "legacy-tests")]

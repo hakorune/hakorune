@@ -64,10 +64,14 @@ pub(super) fn index_declarations(builder: &mut MirBuilder, node: &ASTNode) {
             field_decls,
             methods,
             is_static,
+            is_record,
             init_fields,
             weak_fields,
             ..
         } => {
+            if *is_record {
+                return;
+            }
             if !*is_static {
                 // Phase 285LLVM-1.1: Register instance box with field information
                 builder.comp_ctx.register_user_box_surface_fields(

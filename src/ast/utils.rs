@@ -292,11 +292,14 @@ impl ASTNode {
                 methods,
                 constructors,
                 is_interface,
+                is_record,
                 extends,
                 implements,
                 ..
             } => {
-                let mut desc = if *is_interface {
+                let mut desc = if *is_record {
+                    format!("RecordDeclaration({}, {} fields", name, fields.len())
+                } else if *is_interface {
                     format!("InterfaceBox({}, {} methods", name, methods.len())
                 } else {
                     format!(

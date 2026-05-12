@@ -17,6 +17,7 @@ pub enum TokenType {
 
     // キーワード
     BOX,
+    RECORD,
     ENUM,
     GLOBAL,
     SINGLETON,

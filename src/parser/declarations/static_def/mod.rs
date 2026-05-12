@@ -205,6 +205,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         init_fields,
         weak_fields, // 🔗 Add weak fields to static box construction
         is_interface: false,
+        is_record: false,
         extends,
         implements,
         type_parameters,

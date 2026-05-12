@@ -194,6 +194,12 @@ complete as `293x-207`. The MIR JSON user-box declaration surface now carries
 that already have a legal typed-object plan. Ordinary `box` identity semantics
 remain unchanged, and unsupported fields stay on the names/dynamic route.
 
+C202 status:
+complete as `293x-208`. The parser now accepts `record` declarations as the
+explicit identity-free aggregate surface with typed non-weak fields only. Local
+scalar replacement, packed `ArrayBox` storage, and allocator metadata migration
+remain in `C203-C205`.
+
 ### Docs / Guard Checkpoints
 
 | Row | Goal | Trigger |

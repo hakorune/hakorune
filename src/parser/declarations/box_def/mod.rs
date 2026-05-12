@@ -339,11 +339,116 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
         init_fields,
         weak_fields, // 🔗 Add weak fields to AST
         is_interface: false,
+        is_record: false,
         extends,
         implements,
         type_parameters,
         is_static: false,  // 通常のboxはnon-static
         static_init: None, // 通常のboxはstatic初期化ブロックなし
+        attrs,
+        span: Span::unknown(),
+    })
+}
+
+/// Parse C202 record declaration: `record Name { field: Type ... }`.
+///
+/// This row only locks the source contract. It does not add local scalar
+/// replacement or packed `ArrayBox` residence.
+pub fn parse_record_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
+    if !p.match_token(&TokenType::RECORD) {
+        return Err(ParseError::UnexpectedToken {
+            found: p.current_token().token_type.clone(),
+            expected: "'record'".to_string(),
+            line: p.current_token().line,
+        });
+    }
+    p.advance(); // consume RECORD
+    let attrs = p.take_pending_runes_for_box()?;
+    let (name, type_parameters, extends, implements) = header::parse_header(p)?;
+    if !extends.is_empty() || !implements.is_empty() {
+        return Err(ParseError::UnexpectedToken {
+            found: p.current_token().token_type.clone(),
+            expected: "record declaration without from/implements clauses".to_string(),
+            line: p.current_token().line,
+        });
+    }
+
+    p.consume(TokenType::LBRACE)?;
+
+    let mut fields = Vec::new();
+    let mut field_decls = Vec::new();
+    while !p.match_token(&TokenType::RBRACE) && !p.is_at_end() {
+        while p.match_token(&TokenType::NEWLINE) {
+            p.advance();
+        }
+        if p.match_token(&TokenType::RBRACE) {
+            break;
+        }
+        if p.match_token(&TokenType::WEAK) {
+            return Err(ParseError::UnexpectedToken {
+                found: p.current_token().token_type.clone(),
+                expected: "record field name; weak fields are not part of C202".to_string(),
+                line: p.current_token().line,
+            });
+        }
+        let TokenType::IDENTIFIER(field_name) = &p.current_token().token_type else {
+            return Err(ParseError::UnexpectedToken {
+                found: p.current_token().token_type.clone(),
+                expected: "record field name".to_string(),
+                line: p.current_token().line,
+            });
+        };
+        let field_name = field_name.clone();
+        p.advance();
+        p.consume(TokenType::COLON)?;
+        let declared_type_name =
+            crate::parser::common::type_refs::parse_type_ref_text(p, "record field type")?;
+
+        if p.match_token(&TokenType::ASSIGN) {
+            return Err(ParseError::UnexpectedToken {
+                found: p.current_token().token_type.clone(),
+                expected: "record field declaration without initializer".to_string(),
+                line: p.current_token().line,
+            });
+        }
+
+        fields.push(field_name.clone());
+        field_decls.push(FieldDecl {
+            name: field_name,
+            declared_type_name: Some(declared_type_name),
+            is_weak: false,
+        });
+
+        if p.match_token(&TokenType::COMMA) {
+            p.advance();
+        }
+    }
+
+    if field_decls.is_empty() {
+        return Err(ParseError::InvalidStatement {
+            line: p.current_token().line,
+        });
+    }
+
+    p.consume(TokenType::RBRACE)?;
+
+    Ok(ASTNode::BoxDeclaration {
+        name,
+        fields,
+        field_decls,
+        public_fields: vec![],
+        private_fields: vec![],
+        methods: HashMap::new(),
+        constructors: HashMap::new(),
+        init_fields: vec![],
+        weak_fields: vec![],
+        is_interface: false,
+        is_record: true,
+        extends: vec![],
+        implements: vec![],
+        type_parameters,
+        is_static: false,
+        static_init: None,
         attrs,
         span: Span::unknown(),
     })

@@ -164,6 +164,10 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                     .get("is_interface")
                     .and_then(|b| b.as_bool())
                     .unwrap_or(false),
+                is_record: v
+                    .get("is_record")
+                    .and_then(|b| b.as_bool())
+                    .unwrap_or(false),
                 extends: v
                     .get("extends")
                     .and_then(|a| a.as_array())

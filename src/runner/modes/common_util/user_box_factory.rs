@@ -30,6 +30,7 @@ pub(crate) fn install_inline_user_box_factory(
                 init_fields,
                 weak_fields,
                 is_interface,
+                is_record,
                 extends,
                 implements,
                 type_parameters,
@@ -37,6 +38,9 @@ pub(crate) fn install_inline_user_box_factory(
                 ..
             } = st
             {
+                if *is_record {
+                    continue;
+                }
                 let decl = CoreBoxDecl {
                     name: name.clone(),
                     fields: fields.clone(),

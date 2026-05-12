@@ -18,6 +18,7 @@ impl NyashTokenizer {
         // キーワードチェック
         let mut tok = match identifier.as_str() {
             "box" => TokenType::BOX,
+            "record" => TokenType::RECORD,
             "enum" => TokenType::ENUM,
             "global" => TokenType::GLOBAL,
             "singleton" => TokenType::SINGLETON,

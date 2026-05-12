@@ -639,6 +639,7 @@ pub enum ASTNode {
         init_fields: Vec<String>,          // initブロック内のフィールド定義
         weak_fields: Vec<String>,          // 🔗 weak修飾子が付いたフィールドのリスト
         is_interface: bool,                // interface box かどうか
+        is_record: bool, // record surface かどうか（identity-free aggregate contract）
         extends: Vec<String>, // 🚀 Multi-delegation: Changed from Option<String> to Vec<String>
         implements: Vec<String>, // 実装するinterface名のリスト
         type_parameters: Vec<String>, // 🔥 ジェネリクス型パラメータ (例: ["T", "U"])

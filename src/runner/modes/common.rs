@@ -144,9 +144,14 @@ impl NyashRunner {
                 for (i, st) in statements.iter().enumerate().take(50) {
                     let kind = match st {
                         ASTNode::BoxDeclaration {
-                            is_static, name, ..
+                            is_record,
+                            is_static,
+                            name,
+                            ..
                         } => {
-                            if *is_static {
+                            if *is_record {
+                                format!("Record({})", name)
+                            } else if *is_static {
                                 format!("StaticBox({})", name)
                             } else {
                                 format!("Box({})", name)

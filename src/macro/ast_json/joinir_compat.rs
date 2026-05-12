@@ -34,6 +34,7 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             init_fields,
             weak_fields,
             is_interface,
+            is_record,
             extends,
             implements,
             type_parameters,
@@ -63,6 +64,7 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             "init_fields": init_fields,
             "weak_fields": weak_fields,
             "is_interface": is_interface,
+            "is_record": is_record,
             "extends": extends,
             "implements": implements,
             "type_parameters": type_parameters,
@@ -502,6 +504,10 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                 weak_fields,
                 is_interface: v
                     .get("is_interface")
+                    .and_then(|b| b.as_bool())
+                    .unwrap_or(false),
+                is_record: v
+                    .get("is_record")
                     .and_then(|b| b.as_bool())
                     .unwrap_or(false),
                 extends: v

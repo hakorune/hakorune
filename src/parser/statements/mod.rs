@@ -306,6 +306,7 @@ impl NyashParser {
 
             // Declarations
             TokenType::BOX
+            | TokenType::RECORD
             | TokenType::ENUM
             | TokenType::FLOW
             | TokenType::IMPORT
