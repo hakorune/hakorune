@@ -101,6 +101,8 @@ contract:
    replacement allocation, modeled copy, then old-ptr release.
 6. `M176` `HakoAllocPageMapReallocFailureContract` owns only diagnostics: zero,
    oversized, unknown, stale, released, and alloc-fail classification.
+7. `M177` `HakoAllocAlignmentPolicy` owns alignment normalization, power-of-two
+   validation, and padded-size policy.
 
 The owner split above is the current stop line. `M176` does not move aligned
 allocation, huge-page routing, secure free-list policy, or provider/hook work
@@ -108,12 +110,12 @@ into the existing realloc owners.
 
 ## Immediate Next Boundary
 
-The next allocator row is `M177 alignment policy object`.
+The next allocator row is `M178 aligned allocation small path`.
 
-- It may normalize requested alignment, reject non-power-of-two inputs, and
-  compute padded-size policy.
-- It must not allocate aligned blocks, widen page-map release/realloc owners, or
-  claim native/ABI alignment semantics.
+- It may attach alignment metadata to the existing small page-map-backed
+  allocation flow.
+- It must not route huge requests, widen huge-page ownership, or claim
+  native/ABI alignment semantics.
 - Huge-page routing, huge-page release, and secure-list work remain later rows.
 
 ## First Concrete Policy Rows

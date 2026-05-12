@@ -149,6 +149,7 @@
 - [x] `293x-184` M174 realloc same-class/no-move path
 - [x] `293x-185` M175 realloc alloc-copy-release fallback
 - [x] `293x-186` M176 realloc negative matrix / failure contract
+- [x] `293x-187` M177 alignment policy object
 
 ## Gates
 

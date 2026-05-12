@@ -1,0 +1,76 @@
+// alignment_policy_box.hako -- M177 alignment policy owner
+// Responsibility: normalize alignment, reject unsupported alignment requests,
+// and compute padded-size policy only. This module does not allocate aligned
+// blocks or claim native/ABI alignment semantics.
+
+using selfhost.hako_alloc.memory.size_class_box as SizeClassBox
+
+static box HakoAllocAlignmentPolicy {
+    min_alignment() {
+        return SizeClassBox.word_size()
+    }
+
+    is_power_of_two(value) {
+        if value <= 0 {
+            return 0
+        }
+
+        local n = value
+        loop(n > 1) {
+            local half = n / 2
+            if half * 2 != n {
+                return 0
+            }
+            n = half
+        }
+
+        return 1
+    }
+
+    normalize_alignment(alignment) {
+        if alignment <= 0 {
+            return -1
+        }
+
+        if me.is_power_of_two(alignment) == 0 {
+            return -1
+        }
+
+        local normalized = alignment
+        if normalized < me.min_alignment() {
+            normalized = me.min_alignment()
+        }
+
+        return normalized
+    }
+
+    padded_request_size(size, alignment) {
+        if size <= 0 {
+            return -1
+        }
+
+        local normalized = me.normalize_alignment(alignment)
+        if normalized < 0 {
+            return -1
+        }
+
+        return size + normalized - 1
+    }
+
+    aligned_good_size(size, alignment) {
+        local padded = me.padded_request_size(size, alignment)
+        if padded < 0 {
+            return -1
+        }
+
+        return SizeClassBox.good_size(padded)
+    }
+
+    accepts(size, alignment) {
+        if me.aligned_good_size(size, alignment) < 0 {
+            return false
+        }
+
+        return true
+    }
+}

@@ -41,8 +41,9 @@ hako_alloc or mimalloc migration.
 | --- | --- | --- | --- |
 | 0 | `293x-185` | Complete | Allocate a replacement ptr, model copy count, and release the old ptr only after success. |
 | 1 | `293x-186` | Complete | Realloc negative matrix and failure contract, no extra API expansion. |
-| 2 | `M177-M184` | Next | Alignment, huge-page, and secure-list rows, one responsibility per row. |
-| 3 | `M185-M190` | Planned | Remaining `usize` migration and object-return/failure-handle API parity. |
+| 2 | `293x-187` | Complete | Alignment normalization, power-of-two validation, and padded-size policy only. |
+| 3 | `M178-M184` | Next | Alignment execution, huge-page, and secure-list rows, one responsibility per row. |
+| 4 | `M185-M190` | Planned | Remaining `usize` migration and object-return/failure-handle API parity. |
 
 Roadmap correction: `M186 exact usize facade stats` is already complete as
 `294x-19e`. Do not schedule duplicate facade migration; use `M185+` for
@@ -220,6 +221,7 @@ remaining field groups and allocator API parity only.
 - [x] Land M174 realloc same-class/no-move path before alloc-copy-release fallback.
 - [x] Land M175 realloc alloc-copy-release fallback before the negative matrix.
 - [x] Land M176 realloc negative matrix / failure contract before aligned allocation work.
+- [x] Land M177 alignment policy object before aligned execution.
 
 ## Open Design Questions
 

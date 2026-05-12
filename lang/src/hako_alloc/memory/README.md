@@ -6,6 +6,7 @@ Scope
 - Future allocator policy helpers should follow the same root.
 
 Current modules
+- `alignment_policy_box.hako`
 - `allocator_facade_box.hako`
 - `alloc_fast_path_heap_box.hako`
 - `arc_box.hako`
@@ -86,8 +87,9 @@ Syntax/style contract
   It may call `HakoAllocPageMap.lookup(...)` and inspect the current page block
   to decide whether the same live ptr can be reused, but it must not own
   release, unregister, alloc-copy-release fallback, or byte copy.
-- `M177` is the next reserved owner row: an alignment policy object that only
-  normalizes alignment, checks power-of-two validity, and computes padded-size
-  policy. It must not start aligned allocation execution or huge-page routing.
+- `alignment_policy_box.hako` owns M177 alignment policy. It may normalize
+  alignment, check power-of-two validity, and compute padded-size policy, but
+  it must not start aligned allocation execution or huge-page routing.
+- `M178` is the next reserved owner row for aligned small-path execution only.
 - Keep `birth(...)` for parameter-dependent initialization and ordering that
   cannot be expressed as a declaration-site default.

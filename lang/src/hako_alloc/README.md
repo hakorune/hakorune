@@ -7,6 +7,11 @@ Scope
 - Current policy/state contract owner is fixed by `hako-alloc-policy-state-contract-ssot.md`.
 - Substrate capability order is fixed by `substrate-capability-ladder-ssot.md`.
 
+Current mimalloc policy queue
+- `HakoAllocAlignmentPolicy` is the M177 alignment owner. It normalizes
+  requested alignment, rejects unsupported inputs, and computes padded-size
+  policy only.
+
 Principles
 - Keep this root as the alloc/policy anchor.
 - Do not move OS VM, LLVM, or other thin native keep concerns here.
@@ -71,9 +76,12 @@ Principles
   - `HakoAllocPageMapReallocFailureContract` is the M176 diagnostics owner. It
     classifies zero, oversized, unknown, stale, released, and alloc-fail
     outcomes while delegating same-class and grow execution back to M174/M175.
-  - `M177` is reserved for an alignment policy owner only. It may normalize and
-    validate alignment plus compute padded-size policy, but aligned execution
+  - `HakoAllocAlignmentPolicy` is the M177 alignment owner. It normalizes and
+    validates alignment plus computes padded-size policy, but aligned execution
     still stays outside the current realloc/release owners.
+  - `M178` stays reserved for the aligned small-allocation path. It may attach
+    alignment metadata to normal page-map-backed allocations, but it must not
+    reopen huge-page routing.
 
 Design owners
 - Policy/state stop-line:
@@ -122,6 +130,7 @@ Allocator replacement hook boundary
 
 Current modules
 - `memory.arc_box`
+- `memory.alignment_policy_box`
 - `memory.alloc_fast_path_heap_box`
 - `memory.allocator_facade_box`
 - `memory.layout_box`

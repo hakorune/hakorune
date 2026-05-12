@@ -1,0 +1,78 @@
+// mimalloc-alignment-policy-proof
+// Purpose: prove the M177 alignment policy owner without allocation execution.
+
+using selfhost.hako_alloc.memory.alignment_policy_box as HakoAllocAlignmentPolicy
+
+static box Main {
+    main(args) {
+        local n0 = HakoAllocAlignmentPolicy.normalize_alignment(0)
+        local n1 = HakoAllocAlignmentPolicy.normalize_alignment(1)
+        local n2 = HakoAllocAlignmentPolicy.normalize_alignment(2)
+        local n8 = HakoAllocAlignmentPolicy.normalize_alignment(8)
+        local n16 = HakoAllocAlignmentPolicy.normalize_alignment(16)
+        local n64 = HakoAllocAlignmentPolicy.normalize_alignment(64)
+        local n3 = HakoAllocAlignmentPolicy.normalize_alignment(3)
+        local n6 = HakoAllocAlignmentPolicy.normalize_alignment(6)
+
+        local p0 = HakoAllocAlignmentPolicy.padded_request_size(0, 8)
+        local p_bad = HakoAllocAlignmentPolicy.padded_request_size(24, 0)
+        local p_small = HakoAllocAlignmentPolicy.padded_request_size(24, 1)
+        local p_word = HakoAllocAlignmentPolicy.padded_request_size(24, 8)
+        local p16 = HakoAllocAlignmentPolicy.padded_request_size(24, 16)
+        local p64 = HakoAllocAlignmentPolicy.padded_request_size(48, 64)
+
+        local g_small = HakoAllocAlignmentPolicy.aligned_good_size(24, 1)
+        local g16 = HakoAllocAlignmentPolicy.aligned_good_size(24, 16)
+        local g64 = HakoAllocAlignmentPolicy.aligned_good_size(48, 64)
+        local g_oversized = HakoAllocAlignmentPolicy.aligned_good_size(4194300, 64)
+
+        local a_small = 0
+        if HakoAllocAlignmentPolicy.accepts(24, 1) {
+            a_small = 1
+        }
+
+        local a_64 = 0
+        if HakoAllocAlignmentPolicy.accepts(48, 64) {
+            a_64 = 1
+        }
+
+        local a_bad = 0
+        if HakoAllocAlignmentPolicy.accepts(24, 3) {
+            a_bad = 1
+        }
+
+        local a_oversized = 0
+        if HakoAllocAlignmentPolicy.accepts(4194300, 64) {
+            a_oversized = 1
+        }
+
+        local stable = 0
+        if HakoAllocAlignmentPolicy.normalize_alignment(8) == 8 {
+            stable = stable + 1
+        }
+        if HakoAllocAlignmentPolicy.normalize_alignment(16) == 16 {
+            stable = stable + 1
+        }
+        if HakoAllocAlignmentPolicy.aligned_good_size(24, 16) >= 24 {
+            stable = stable + 1
+        }
+        if HakoAllocAlignmentPolicy.aligned_good_size(48, 64) >= 48 {
+            stable = stable + 1
+        }
+
+        print("mimalloc-alignment-policy-proof")
+        print("norm=" + n0 + "," + n1 + "," + n2 + "," + n8 + "," + n16 + "," + n64 + "," + n3 + "," + n6)
+        print("padded=" + p0 + "," + p_bad + "," + p_small + "," + p_word + "," + p16 + "," + p64)
+        print("good=" + g_small + "," + g16 + "," + g64 + "," + g_oversized)
+        print("accepts=" + a_small + "," + a_64 + "," + a_bad + "," + a_oversized)
+        print("checks=" + stable)
+
+        if n0 == -1 && n1 == 8 && n2 == 8 && n8 == 8 && n16 == 16 && n64 == 64 && n3 == -1 && n6 == -1 && p0 == -1 && p_bad == -1 && p_small == 31 && p_word == 31 && p16 == 39 && p64 == 111 && g_small == 32 && g16 == 40 && g64 == 112 && g_oversized == -1 && a_small == 1 && a_64 == 1 && a_bad == 0 && a_oversized == 0 && stable == 4 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
