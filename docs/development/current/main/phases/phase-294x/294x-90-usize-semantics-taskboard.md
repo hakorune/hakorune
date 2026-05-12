@@ -56,7 +56,7 @@ hako_alloc or mimalloc migration.
 | `294x-14` | Complete | low-level capability usize variants | Buf/RawArray/bounds/initialized-range helpers expose provisional `usize` aliases over the non-negative current-lane i64 subset; RawBuf stays byte-buffer only and OSVM byte-length aliases remain from 294x-14a |
 | `294x-15` | Complete | raw-layout pointer-sized field row | `usize`/`isize` raw fields are accepted with target layout rules while source syntax/backend execution remain out of scope |
 | `294x-16` | Complete | hako_alloc numeric field inventory | every numeric stored field is classified as signed sentinel, signed delta, count, size, capacity, index, or byte length |
-| `294x-17` | Pending | sentinel split plan | fields using `-1` are kept signed or split into explicit presence state before any `usize` migration |
+| `294x-17` | Complete | sentinel split plan | direct-page stored `-1` sentinel is split into explicit presence state before any `usize` migration |
 | `294x-18` | Pending | hako_alloc non-negative field migration probe | capacity/size/count candidates migrate in a proof app while sentinel fields stay signed |
 | `294x-19` | Pending | hako_alloc production facade migration | production facade proofs stay green with migrated non-negative fields |
 | `294x-20` | Pending | mimalloc row resume gate | M167+ mimalloc implementation resumes with clear `usize` support boundaries |
@@ -159,7 +159,8 @@ hako_alloc or mimalloc migration.
 ### Hako Alloc / Mimalloc
 
 - [x] Inventory every numeric hako_alloc stored field.
-- [ ] Keep direct-page/not-found sentinels signed.
+- [x] Split the direct-page stored sentinel and keep not-found return sentinels
+  signed until their API shape changes.
 - [ ] Migrate capacity/size/count fields only after verifier/backend support.
 - [ ] Update proof apps per field group.
 - [ ] Keep allocator-provider activation out of scope.

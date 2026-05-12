@@ -102,6 +102,9 @@ Live today:
   backend-native field execution;
 - `lang/src/hako_alloc/memory/NUMERIC_FIELDS.md` classifies all current
   `hako_alloc` numeric stored fields before any live field migration;
+- `HakoAllocPageQueue.direct_page_index` no longer stores `-1`; direct-page
+  presence is split into an explicit `has_direct_page` field while not-found
+  return sentinels remain signed for later API-shape rows;
 - `FunctionMetadata` preserves MIR-side declared parameter/return annotation
   text, and exact numeric return annotations publish function-level advisory
   return facts without changing runtime lowering;

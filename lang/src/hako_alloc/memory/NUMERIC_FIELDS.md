@@ -27,9 +27,10 @@ This inventory classifies migration candidates before any field is changed to
 
 ## Stored Field Inventory
 
-Current stored numeric field count: 36.
+Current stored numeric field count: 37.
 
 No stored `signed-delta` field is live today.
+No stored `signed-sentinel` field is live after 294x-17.
 
 | File | Box | Field | Current Type | Category | Migration Note |
 | --- | --- | --- | --- | --- | --- |
@@ -47,7 +48,8 @@ No stored `signed-delta` field is live today.
 | `page_box.hako` | `HakoAllocPageModel` | `requested_bytes` | `i64` | `byte-length` | Candidate after checked add/overflow diagnostics are live for byte sums. |
 | `page_queue_box.hako` | `HakoAllocPageQueue` | `bin` | `i64` | `index` | Candidate after bin vocabulary is exact non-negative. |
 | `page_queue_box.hako` | `HakoAllocPageQueue` | `page_count` | `i64` | `count` | Candidate with queue length/capacity rows. |
-| `page_queue_box.hako` | `HakoAllocPageQueue` | `direct_page_index` | `i64` | `signed-sentinel` | Keep signed or split into presence + non-negative index before migration. |
+| `page_queue_box.hako` | `HakoAllocPageQueue` | `has_direct_page` | `i64` | `count` | Binary presence state split from the old `-1` direct-page sentinel. |
+| `page_queue_box.hako` | `HakoAllocPageQueue` | `direct_page_index` | `i64` | `index` | Non-negative after 294x-17; migration candidate after queue index contracts. |
 | `page_queue_box.hako` | `HakoAllocPageQueue` | `add_count` | `i64` | `count` | Low-risk stats candidate. |
 | `page_queue_box.hako` | `HakoAllocPageQueue` | `select_count` | `i64` | `count` | Low-risk stats candidate. |
 | `page_queue_box.hako` | `HakoAllocPageQueue` | `direct_hit_count` | `i64` | `count` | Low-risk stats candidate. |
@@ -74,13 +76,12 @@ No stored `signed-delta` field is live today.
 
 Stored negative sentinel:
 
-- `HakoAllocPageQueue.direct_page_index = -1`
+- none.
 
 Non-stored sentinel seams that must be considered in the next row:
 
 - `HakoAllocPageModel.acquire(...)` returns `-1` on reject.
 - `HakoAllocPageQueue.addPage(...)` returns `-1` on reject.
-- `HakoAllocPageQueue.refreshDirectPage()` uses local `found_index = -1`.
 - `HakoAllocPageQueue.directPageId()` returns `-1` when no direct page exists.
 
 ## Migration Order

@@ -127,6 +127,9 @@
   deferred.
 - `294x-16`: `lang/src/hako_alloc/memory/NUMERIC_FIELDS.md` now classifies all
   current numeric stored fields before any live `usize` migration.
+- `294x-17`: `HakoAllocPageQueue.direct_page_index` no longer stores `-1`;
+  direct-page cache presence is split into `has_direct_page`, leaving the index
+  non-negative for a later migration probe.
 
 ## First Implementation Direction
 

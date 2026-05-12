@@ -37,7 +37,8 @@ guard_require_files \
 
 guard_expect_in_file "$TAG" 'box HakoAllocPageQueue' "$QUEUE_BOX" "HakoAllocPageQueue must own page selection"
 guard_expect_in_file "$TAG" 'pages: ArrayBox = new ArrayBox\(\)' "$QUEUE_BOX" "page queue must initialize pages as a stored member"
-guard_expect_in_file "$TAG" 'direct_page_index: i64 = -1' "$QUEUE_BOX" "page queue must initialize direct-page cache state"
+guard_expect_in_file "$TAG" 'has_direct_page: i64 = 0' "$QUEUE_BOX" "page queue must initialize direct-page presence state"
+guard_expect_in_file "$TAG" 'direct_page_index: i64 = 0' "$QUEUE_BOX" "page queue must keep direct-page index non-negative"
 guard_expect_in_file "$TAG" 'selectPage' "$QUEUE_BOX" "page queue must expose selectPage"
 guard_expect_in_file "$TAG" 'refreshDirectPage' "$QUEUE_BOX" "page queue must expose refreshDirectPage"
 guard_expect_in_file "$TAG" 'freeCount' "$QUEUE_BOX" "page queue must observe page availability only"
@@ -62,6 +63,14 @@ if rg -n '\.acquire\(' "$QUEUE_BOX" >/tmp/"$TAG".acquire 2>&1; then
   exit 1
 fi
 rm -f /tmp/"$TAG".acquire
+
+if rg -n 'direct_page_index: i64 = -1|direct_page_index[[:space:]]*<[[:space:]]*0|direct_page_index[[:space:]]*=[[:space:]]*-1|found_index[[:space:]]*=[[:space:]]*-1' "$QUEUE_BOX" >/tmp/"$TAG".sentinel 2>&1; then
+  echo "[$TAG] ERROR: direct-page cache must use explicit presence state, not -1 sentinel storage" >&2
+  cat /tmp/"$TAG".sentinel >&2
+  rm -f /tmp/"$TAG".sentinel
+  exit 1
+fi
+rm -f /tmp/"$TAG".sentinel
 
 if rg -n 'OSVM|OsVm|Tls|Atomic|remote_free|RemoteFree|fetch_add|cas_|load_ordered|store_ordered|page_map|replacement|hook' "$QUEUE_BOX" "$APP" >/tmp/"$TAG".forbidden 2>&1; then
   echo "[$TAG] ERROR: M166+ or substrate ownership leaked into page queue" >&2
@@ -89,9 +98,9 @@ NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
 grep -q '^mimalloc-page-queue-proof$' "$OUT"
 grep -q '^entries=0,1,2$' "$OUT"
 grep -q '^ids=10,11,-1,12$' "$OUT"
-grep -q '^direct=2,12$' "$OUT"
+grep -q '^direct=1,2,12$' "$OUT"
 grep -q '^counts=3,4,2,2,1$' "$OUT"
-grep -q '^shape=9$' "$OUT"
+grep -q '^shape=10$' "$OUT"
 grep -q '^summary=ok$' "$OUT"
 
 cat "$OUT"

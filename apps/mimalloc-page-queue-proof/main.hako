@@ -46,15 +46,16 @@ static box Main {
         if id3 == 12 { shape = shape + 1 }
         if queue.directPageId() == 12 { shape = shape + 1 }
         if queue.page_count == 3 { shape = shape + 1 }
+        if queue.has_direct_page == 1 { shape = shape + 1 }
 
         print("mimalloc-page-queue-proof")
         print("entries=" + e0 + "," + e1 + "," + e2)
         print("ids=" + id0 + "," + id1 + "," + id2 + "," + id3)
-        print("direct=" + queue.direct_page_index + "," + queue.directPageId())
+        print("direct=" + queue.has_direct_page + "," + queue.direct_page_index + "," + queue.directPageId())
         print("counts=" + queue.add_count + "," + queue.select_count + "," + queue.direct_hit_count + "," + queue.refresh_count + "," + queue.reject_count)
         print("shape=" + shape)
 
-        if shape == 9 && queue.add_count == 3 && queue.select_count == 4 && queue.direct_hit_count == 2 && queue.refresh_count == 2 && queue.reject_count == 1 {
+        if shape == 10 && queue.add_count == 3 && queue.select_count == 4 && queue.direct_hit_count == 2 && queue.refresh_count == 2 && queue.reject_count == 1 {
             print("summary=ok")
             return 0
         }

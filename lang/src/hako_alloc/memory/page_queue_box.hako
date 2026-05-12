@@ -8,7 +8,8 @@ box HakoAllocPageQueue {
     bin: i64
     pages: ArrayBox = new ArrayBox()
     page_count: i64 = 0
-    direct_page_index: i64 = -1
+    has_direct_page: i64 = 0
+    direct_page_index: i64 = 0
     add_count: i64 = 0
     select_count: i64 = 0
     direct_hit_count: i64 = 0
@@ -30,8 +31,9 @@ box HakoAllocPageQueue {
         me.page_count = me.page_count + 1
         me.add_count = me.add_count + 1
 
-        if me.direct_page_index < 0 {
+        if me.has_direct_page == 0 {
             if page.freeCount() > 0 {
+                me.has_direct_page = 1
                 me.direct_page_index = index
             }
         }
@@ -40,7 +42,7 @@ box HakoAllocPageQueue {
     }
 
     directPage() {
-        if me.direct_page_index < 0 {
+        if me.has_direct_page == 0 {
             return null
         }
 
@@ -73,14 +75,16 @@ box HakoAllocPageQueue {
 
         local pages = me.pages
         local page_count = me.page_count
-        local found_index = -1
+        local found = 0
+        local found_index = 0
         local found_page = null
         local i = 0
         loop(i < page_count) {
-            if found_index < 0 {
+            if found == 0 {
                 local page = pages.get(i)
                 if page != null {
                     if page.freeCount() > 0 {
+                        found = 1
                         found_index = i
                         found_page = page
                     }
@@ -89,6 +93,7 @@ box HakoAllocPageQueue {
             i = i + 1
         }
 
+        me.has_direct_page = found
         me.direct_page_index = found_index
         if found_page == null {
             me.reject_count = me.reject_count + 1
