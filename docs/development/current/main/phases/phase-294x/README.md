@@ -20,19 +20,19 @@
 | `usize` semantics | VM reference execution can keep exact numeric results tagged instead of collapsing them back to `Integer(i64)`. |
 | production `hako_alloc` fields | Still `i64`; do not migrate live allocator state yet. |
 | mimalloc `.hako` rows | May continue under the current-lane `i64` production boundary. |
-| native exact slots | Runtime typed-object slot representation exists in `nyash_kernel`; backend field access remains closed. |
-| field get/set ABI | Next implementation slice; backend lowering stays closed until this lands. |
+| native exact slots | Runtime typed-object slot representation exists in `nyash_kernel`. |
+| field get/set ABI | Exact signed/unsigned helper lanes exist in `nyash_kernel`; backend lowering remains closed. |
 
 ## Next Queue
 
 | Next | Card | Goal |
 | --- | --- | --- |
-| 1 | `294x-19b` | Add exact numeric field get/set ABI and range/overflow contract surface. |
-| 2 | `294x-19c` | Reopen production `hako_alloc` field migration by non-negative field group. |
+| 1 | `294x-19c` | Add backend lowering/capability-gate consumption for the exact field ABI. |
+| 2 | `294x-19d` | Reopen production `hako_alloc` field migration by non-negative field group. |
 | 3 | `M168+` | Continue mimalloc `.hako` OSVM/page/free-list rows with the completed numeric substrate. |
 
 Stop line: VM green is useful reference evidence, but production allocator
-migration waits for non-VM slots plus field get/set ABI.
+migration waits for non-VM slots, exact field ABI, and backend consumption.
 
 ## Policy
 
@@ -163,6 +163,9 @@ migration waits for non-VM slots plus field get/set ABI.
 - `294x-19a`: kernel typed-object storage now records exact numeric slot kinds,
   including `usize`, separately from legacy `i64`; legacy `i64` helpers do not
   mutate exact numeric slots.
+- `294x-19b`: kernel typed-object exact signed/unsigned field helper lanes now
+  range-check by slot storage kind while backend lowering and production
+  `hako_alloc` migration remain closed.
 - `294x-20`: mimalloc algorithm rows resume under the current-lane `i64`
   production boundary; M167 landed as the first resumed row.
 
@@ -173,9 +176,10 @@ allocator migration:
 
 1. keep exact numeric metadata and VM reference behavior as the semantic oracle;
 2. add native exact numeric typed-object storage without silent `i64` fallback;
-3. add exact field get/set ABI and backend lowering/fail-fast contracts;
-4. migrate `hako_alloc` non-negative fields by field group;
-5. resume mimalloc rows that benefit from those fields.
+3. add exact field get/set ABI;
+4. teach backend lowering/capability gates to consume that ABI;
+5. migrate `hako_alloc` non-negative fields by field group;
+6. resume mimalloc rows that benefit from those fields.
 
 This keeps the source truth available before any lowerer claims exact
 semantics.

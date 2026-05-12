@@ -27,14 +27,16 @@ hako_alloc or mimalloc migration.
   production `usize` field migration yet.
 - Native exact numeric typed-object slot representation exists in
   `nyash_kernel`.
-- The next `usize` completion work is exact field get/set ABI.
+- Exact numeric signed/unsigned field helper lanes exist in `nyash_kernel`.
+- Backend lowering and production `hako_alloc` migration remain separate later
+  rows.
 
 ## Next Implementation Queue
 
 | Order | Row | Status | Implementation Boundary |
 | --- | --- | --- | --- |
-| 1 | `294x-19b` | Pending | Exact numeric field get/set ABI exists, including range/overflow failure contracts. |
-| 2 | `294x-19c` | Future | Production `hako_alloc` non-negative field migration reopens one field group at a time. |
+| 1 | `294x-19c` | Future | Backend lowering/capability gates consume the exact field ABI or fail fast. |
+| 2 | `294x-19d` | Future | Production `hako_alloc` non-negative field migration reopens one field group at a time. |
 | 3 | `M168+` | Future | Mimalloc `.hako` OSVM page source, local-free retire, and remote-free rows consume the completed substrate. |
 
 ## Ladder
@@ -77,9 +79,11 @@ hako_alloc or mimalloc migration.
 | `294x-16` | Complete | hako_alloc numeric field inventory | every numeric stored field is classified as signed sentinel, signed delta, count, size, capacity, index, or byte length |
 | `294x-17` | Complete | sentinel split plan | direct-page stored `-1` sentinel is split into explicit presence state before any `usize` migration |
 | `294x-18` | Complete | hako_alloc non-negative field migration probe | capacity/count/byte-length candidates migrate in a proof app while production fields stay signed/current-lane |
-| `294x-19` | Blocked | hako_alloc production facade migration | waits for native exact numeric typed-object slots and exact field get/set ABI |
+| `294x-19` | Blocked | hako_alloc production facade migration | waits for exact typed-object storage plus backend consumption of the exact field ABI |
 | `294x-19a` | Complete | native exact numeric typed-object slots | kernel typed-object storage records exact slot kinds and legacy i64 helpers do not mutate exact numeric slots |
-| `294x-19b` | Pending | exact numeric field get/set ABI | non-VM backends can read/write exact numeric slots with range/overflow contracts |
+| `294x-19b` | Complete | exact numeric field get/set ABI | runtime helpers read/write exact signed/unsigned slots with range/overflow contracts |
+| `294x-19c` | Future | exact field ABI backend consumption | non-VM backends either lower exact field get/set helpers or keep capability-gate fail-fast closed |
+| `294x-19d` | Future | hako_alloc production field migration | production non-negative field groups migrate only after backend field ABI consumption is green |
 | `294x-20` | Complete | mimalloc row resume gate | M167+ mimalloc implementation resumes with clear `usize` support boundaries and production fields still on `i64` |
 
 ## Required Feature Checklist
@@ -157,7 +161,9 @@ hako_alloc or mimalloc migration.
 - [x] Fail fast on unsupported backend routes before exact numeric typed-object
   storage or op-route facts silently use legacy `Integer(i64)` lowering.
 - [x] Add backend/runtime native `usize` slots.
-- [ ] Add field get/set ABI for exact numeric slots.
+- [x] Add field get/set ABI for exact numeric slots.
+- [ ] Add backend lowering/capability-gate consumption for exact numeric field
+  get/set ABI.
 - [ ] Lower LLVM/native unsigned compare and shift.
 - [ ] Decide WASM target behavior.
 - [ ] Keep C ABI size_t mapping explicit.
@@ -185,8 +191,10 @@ hako_alloc or mimalloc migration.
 - [x] Probe capacity/count/byte-length `usize` fields in an isolated hako_alloc
   proof app before production migration.
 - [x] Mark production `usize` field migration blocked on non-VM exact numeric
-  storage and field get/set ABI.
+  storage, exact field ABI, and backend ABI consumption.
 - [ ] Update proof apps per field group.
+- [ ] Migrate production non-negative fields only after exact field ABI backend
+  consumption is green.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 

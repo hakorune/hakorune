@@ -79,6 +79,28 @@ impl TypedSlotStorage {
             Self::USize | Self::U8 | Self::U16 | Self::U32 | Self::U64
         )
     }
+
+    fn unsigned_max(self) -> Option<u128> {
+        match self {
+            Self::USize => Some(usize::MAX as u128),
+            Self::U8 => Some(u8::MAX as u128),
+            Self::U16 => Some(u16::MAX as u128),
+            Self::U32 => Some(u32::MAX as u128),
+            Self::U64 => Some(u64::MAX as u128),
+            _ => None,
+        }
+    }
+
+    fn signed_range(self) -> Option<(i128, i128)> {
+        match self {
+            Self::I64 => Some((i64::MIN as i128, i64::MAX as i128)),
+            Self::ISize => Some((isize::MIN as i128, isize::MAX as i128)),
+            Self::I8 => Some((i8::MIN as i128, i8::MAX as i128)),
+            Self::I16 => Some((i16::MIN as i128, i16::MAX as i128)),
+            Self::I32 => Some((i32::MIN as i128, i32::MAX as i128)),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -129,6 +151,50 @@ impl TypedSlot {
         self.value = match self.storage {
             TypedSlotStorage::Handle => TypedSlotValue::Handle(value),
             _ => TypedSlotValue::I64(value),
+        };
+        true
+    }
+
+    fn as_exact_unsigned_u64(&self) -> Option<u64> {
+        self.storage.unsigned_max()?;
+        let TypedSlotValue::Unsigned(value) = self.value else {
+            return None;
+        };
+        u64::try_from(value).ok()
+    }
+
+    fn set_exact_unsigned_u64(&mut self, value: u64) -> bool {
+        let Some(max) = self.storage.unsigned_max() else {
+            return false;
+        };
+        let value = value as u128;
+        if value > max {
+            return false;
+        }
+        self.value = TypedSlotValue::Unsigned(value);
+        true
+    }
+
+    fn as_exact_signed_i64(&self) -> Option<i64> {
+        self.storage.signed_range()?;
+        match self.value {
+            TypedSlotValue::I64(value) | TypedSlotValue::Handle(value) => Some(value),
+            TypedSlotValue::Signed(value) => i64::try_from(value).ok(),
+            TypedSlotValue::Unsigned(_) => None,
+        }
+    }
+
+    fn set_exact_signed_i64(&mut self, value: i64) -> bool {
+        let Some((min, max)) = self.storage.signed_range() else {
+            return false;
+        };
+        let exact_value = value as i128;
+        if exact_value < min || exact_value > max {
+            return false;
+        }
+        self.value = match self.storage {
+            TypedSlotStorage::I64 => TypedSlotValue::I64(value),
+            _ => TypedSlotValue::Signed(exact_value),
         };
         true
     }
@@ -336,6 +402,86 @@ pub extern "C" fn nyash_object_field_storage_hii(handle: i64, slot: i64) -> i64 
         .unwrap_or(0)
 }
 
+#[export_name = "nyash.object.field_get_u64_hii"]
+pub extern "C" fn nyash_object_field_get_u64_hii(handle: i64, slot: i64) -> u64 {
+    let Some(idx) = handle_to_index(handle) else {
+        return 0;
+    };
+    let Some(slot) = normalize_slot(slot) else {
+        return 0;
+    };
+    let objects = match typed_objects().lock() {
+        Ok(objects) => objects,
+        Err(_) => return 0,
+    };
+    objects
+        .get(idx)
+        .and_then(|object| object.fields.get(slot))
+        .and_then(TypedSlot::as_exact_unsigned_u64)
+        .unwrap_or(0)
+}
+
+#[export_name = "nyash.object.field_set_u64_hiu"]
+pub extern "C" fn nyash_object_field_set_u64_hiu(handle: i64, slot: i64, value: u64) -> i64 {
+    let Some(idx) = handle_to_index(handle) else {
+        return 0;
+    };
+    let Some(slot) = normalize_slot(slot) else {
+        return 0;
+    };
+    let mut objects = match typed_objects().lock() {
+        Ok(objects) => objects,
+        Err(_) => return 0,
+    };
+    let Some(field) = objects
+        .get_mut(idx)
+        .and_then(|object| object.fields.get_mut(slot))
+    else {
+        return 0;
+    };
+    i64::from(field.set_exact_unsigned_u64(value))
+}
+
+#[export_name = "nyash.object.field_get_i64_hii"]
+pub extern "C" fn nyash_object_field_get_i64_hii(handle: i64, slot: i64) -> i64 {
+    let Some(idx) = handle_to_index(handle) else {
+        return 0;
+    };
+    let Some(slot) = normalize_slot(slot) else {
+        return 0;
+    };
+    let objects = match typed_objects().lock() {
+        Ok(objects) => objects,
+        Err(_) => return 0,
+    };
+    objects
+        .get(idx)
+        .and_then(|object| object.fields.get(slot))
+        .and_then(TypedSlot::as_exact_signed_i64)
+        .unwrap_or(0)
+}
+
+#[export_name = "nyash.object.field_set_i64_hii"]
+pub extern "C" fn nyash_object_field_set_i64_hii(handle: i64, slot: i64, value: i64) -> i64 {
+    let Some(idx) = handle_to_index(handle) else {
+        return 0;
+    };
+    let Some(slot) = normalize_slot(slot) else {
+        return 0;
+    };
+    let mut objects = match typed_objects().lock() {
+        Ok(objects) => objects,
+        Err(_) => return 0,
+    };
+    let Some(field) = objects
+        .get_mut(idx)
+        .and_then(|object| object.fields.get_mut(slot))
+    else {
+        return 0;
+    };
+    i64::from(field.set_exact_signed_i64(value))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -403,5 +549,90 @@ mod tests {
             0
         );
         assert_eq!(nyash_object_layout_field_storage_ii(type_id, 0), 0);
+    }
+
+    #[test]
+    fn exact_unsigned_abi_reads_and_writes_usize_slots() {
+        let type_id = 294_019_101;
+        assert_eq!(nyash_object_register_typed_layout_hi(type_id, 1), 1);
+        assert_eq!(
+            nyash_object_register_typed_layout_slot_iii(type_id, 0, STORAGE_USIZE),
+            1
+        );
+        let object = nyash_object_new_typed_hi(type_id, 1);
+        assert!(object < 0);
+
+        assert_eq!(nyash_object_field_set_u64_hiu(object, 0, 123), 1);
+        assert_eq!(nyash_object_field_get_u64_hii(object, 0), 123);
+        assert_eq!(nyash_object_field_get_hii(object, 0), 0);
+    }
+
+    #[test]
+    fn exact_unsigned_abi_rejects_legacy_i64_slots() {
+        let object = nyash_object_new_typed_hi(294_019_102, 1);
+        assert!(object < 0);
+
+        assert_eq!(nyash_object_field_set_u64_hiu(object, 0, 44), 0);
+        assert_eq!(nyash_object_field_get_u64_hii(object, 0), 0);
+
+        nyash_object_field_set_hii(object, 0, 55);
+        assert_eq!(nyash_object_field_get_hii(object, 0), 55);
+    }
+
+    #[test]
+    fn exact_unsigned_abi_range_checks_narrow_slots() {
+        let type_id = 294_019_103;
+        assert_eq!(nyash_object_register_typed_layout_hi(type_id, 1), 1);
+        assert_eq!(
+            nyash_object_register_typed_layout_slot_iii(type_id, 0, STORAGE_U8),
+            1
+        );
+        let object = nyash_object_new_typed_hi(type_id, 1);
+        assert!(object < 0);
+
+        assert_eq!(nyash_object_field_set_u64_hiu(object, 0, u8::MAX as u64), 1);
+        assert_eq!(nyash_object_field_get_u64_hii(object, 0), u8::MAX as u64);
+        assert_eq!(
+            nyash_object_field_set_u64_hiu(object, 0, u8::MAX as u64 + 1),
+            0
+        );
+        assert_eq!(nyash_object_field_get_u64_hii(object, 0), u8::MAX as u64);
+    }
+
+    #[test]
+    fn exact_signed_abi_reads_and_writes_i32_slots() {
+        let type_id = 294_019_104;
+        assert_eq!(nyash_object_register_typed_layout_hi(type_id, 1), 1);
+        assert_eq!(
+            nyash_object_register_typed_layout_slot_iii(type_id, 0, STORAGE_I32),
+            1
+        );
+        let object = nyash_object_new_typed_hi(type_id, 1);
+        assert!(object < 0);
+
+        assert_eq!(
+            nyash_object_field_set_i64_hii(object, 0, i32::MIN as i64),
+            1
+        );
+        assert_eq!(nyash_object_field_get_i64_hii(object, 0), i32::MIN as i64);
+        assert_eq!(nyash_object_field_set_i64_hii(object, 0, i64::MAX), 0);
+        assert_eq!(nyash_object_field_get_i64_hii(object, 0), i32::MIN as i64);
+    }
+
+    #[test]
+    fn exact_signed_abi_rejects_unsigned_slots() {
+        let type_id = 294_019_105;
+        assert_eq!(nyash_object_register_typed_layout_hi(type_id, 1), 1);
+        assert_eq!(
+            nyash_object_register_typed_layout_slot_iii(type_id, 0, STORAGE_U64),
+            1
+        );
+        let object = nyash_object_new_typed_hi(type_id, 1);
+        assert!(object < 0);
+
+        assert_eq!(nyash_object_field_set_i64_hii(object, 0, 1), 0);
+        assert_eq!(nyash_object_field_get_i64_hii(object, 0), 0);
+        assert_eq!(nyash_object_field_set_u64_hiu(object, 0, u64::MAX), 1);
+        assert_eq!(nyash_object_field_get_u64_hii(object, 0), u64::MAX);
     }
 }
