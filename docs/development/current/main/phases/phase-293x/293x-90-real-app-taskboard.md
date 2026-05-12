@@ -132,6 +132,13 @@
 - [x] `293x-167` M166 mimalloc page queue/direct-page cache
 - [x] `293x-168` M166B mimalloc unified-member style cleanup
 - [x] `293x-169` Box field syntax reference sync
+- [x] `293x-170` JoinIR loop field-bound expression acceptance
+- [x] `293x-171` box stored field initializer support
+- [x] `293x-172` mimalloc field initializer convergence
+- [x] `293x-173` hako_alloc scalar numeric fields
+- [x] `293x-174` usize mimalloc syntax decision
+- [x] `293x-175` M167 mimalloc alloc fast path
+- [x] `293x-176` M168 mimalloc OSVM page-source composition
 
 ## Gates
 

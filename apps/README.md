@@ -141,6 +141,20 @@ bash tools/checks/k2_wide_mimalloc_alloc_fast_path_guard.sh
 - oversize reject と double-free reject を public seam 経由で検証
 - remote-free / OSVM page-source / allocator replacement hook はまだ扱わない
 
+#### mimalloc-osvm-page-source-composition-proof
+**場所**: `mimalloc-osvm-page-source-composition-proof/main.hako`
+M168 proof。M167 の page queue + page-local free-list model を、
+既存 `HakoAllocPageSourcePolicy` reserve/commit/decommit seam と合成する。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_osvm_page_source_composition_guard.sh
+```
+
+**特徴**:
+- fresh modeled page creation が OSVM page-source policy を通る
+- M167 の `HakoAllocFastPathHeap` は OSVM-free のまま維持する
+- local-free retire / remote-free / page-map / provider / hook はまだ扱わない
+
 #### hako-alloc-remote-free-policy-proof
 **場所**: `hako-alloc-remote-free-policy-proof/main.hako`
 M48 proof。`HakoAllocProductionFacade` 経由で M43 の bounded CAS retry-loop
@@ -685,6 +699,8 @@ box TreeNode {
 - [x] mimalloc-dynamic-bin-proof（M23 dynamic bin proof）
 - [x] mimalloc-size-to-bin-inline-proof（M24 size_to_bin inline proof）
 - [x] mimalloc-size-class-policy-proof（M163 size-class policy owner proof）
+- [x] mimalloc-alloc-fast-path-proof（M167 alloc fast path proof）
+- [x] mimalloc-osvm-page-source-composition-proof（M168 OSVM page-source composition proof）
 - [x] mimalloc-osvm-page-proof（M25 OSVM page proof）
 - [x] mimalloc-ptr-atomic-store-proof（M35 native pointer atomic store proof）
 - [x] mimalloc-ptr-atomic-load-proof（M39 native pointer atomic load proof）

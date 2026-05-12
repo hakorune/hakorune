@@ -1,0 +1,243 @@
+// osvm_backed_fast_path_heap_box.hako — M168 OSVM-backed fast-path composition
+// Responsibility: compose page-source reserve/commit/decommit with the M167
+// page queue + page-local free-list owners.
+// This module does not add OSVM metal, local-free retire, remote free, page-map,
+// or host allocator integration behavior.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.page_queue_box as HakoAllocPageQueueBox
+using selfhost.hako_alloc.memory.page_source_policy_box as HakoAllocPageSourcePolicy
+
+box HakoAllocOsVmPageBacking {
+    page_id: i64
+    base: i64
+    bytes: i64
+
+    birth(page_id, base, bytes) {
+        me.page_id = page_id
+        me.base = base
+        me.bytes = bytes
+    }
+}
+
+box HakoAllocOsVmBackedHandle {
+    page_id: i64
+    block_id: i64
+    requested_size: i64
+
+    birth(page_id, block_id, requested_size) {
+        me.page_id = page_id
+        me.block_id = block_id
+        me.requested_size = requested_size
+    }
+}
+
+box HakoAllocOsVmBackedFastPathHeap {
+    bin: i64
+    block_size: i64
+    page_capacity: i64
+    queue: HakoAllocPageQueue
+    pages: ArrayBox = new ArrayBox()
+    backings: ArrayBox = new ArrayBox()
+    next_page_id: i64 = 0
+    backing_count: i64 = 0
+    alloc_count: i64 = 0
+    release_count: i64 = 0
+    fallback_count: i64 = 0
+    page_create_count: i64 = 0
+    reject_count: i64 = 0
+    reserve_count: i64 = 0
+    commit_count: i64 = 0
+    decommit_count: i64 = 0
+    source_reject_count: i64 = 0
+
+    birth(bin, block_size, page_capacity) {
+        me.bin = bin
+        me.block_size = block_size
+        me.page_capacity = page_capacity
+        me.queue = new HakoAllocPageQueue(bin)
+        me.addBackedPage()
+    }
+
+    pageBytes() {
+        return me.block_size * me.page_capacity
+    }
+
+    addBackedPage() {
+        local bytes = me.pageBytes()
+        local base = HakoAllocPageSourcePolicy.reservePage(bytes)
+        if base == 0 {
+            me.reject_count = me.reject_count + 1
+            me.source_reject_count = me.source_reject_count + 1
+            return null
+        }
+        me.reserve_count = me.reserve_count + 1
+
+        local commit_rc = HakoAllocPageSourcePolicy.commitPage(base, bytes)
+        if commit_rc != 0 {
+            me.reject_count = me.reject_count + 1
+            me.source_reject_count = me.source_reject_count + 1
+            return null
+        }
+        me.commit_count = me.commit_count + 1
+
+        local page_id = me.next_page_id
+        local page = new HakoAllocPageModel(page_id, me.block_size, me.page_capacity, me.page_capacity)
+        local backing = new HakoAllocOsVmPageBacking(page_id, base, bytes)
+
+        me.pages.push(page)
+        me.backings.push(backing)
+        me.backing_count = me.backing_count + 1
+        me.queue.addPage(page)
+        me.next_page_id = me.next_page_id + 1
+        me.page_create_count = me.page_create_count + 1
+        return page
+    }
+
+    addFreshPage() {
+        me.addBackedPage()
+        return me.next_page_id - 1
+    }
+
+    allocate(size) {
+        if size > me.block_size {
+            me.reject_count = me.reject_count + 1
+            return null
+        }
+
+        local page = me.queue.selectPage()
+        if page == null {
+            me.fallback_count = me.fallback_count + 1
+            page = me.addBackedPage()
+            if page == null {
+                return null
+            }
+        }
+
+        local block_id = page.acquire(size)
+        if block_id < 0 {
+            me.reject_count = me.reject_count + 1
+            return null
+        }
+
+        me.alloc_count = me.alloc_count + 1
+        return new HakoAllocOsVmBackedHandle(page.page_id, block_id, size)
+    }
+
+    release(handle) {
+        if handle == null {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        if handle.page_id < 0 {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        if handle.page_id >= me.next_page_id {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        local page = me.pages.get(handle.page_id)
+        if page == null {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        if page.releaseLocal(handle.block_id) {
+            me.release_count = me.release_count + 1
+            return 1
+        }
+
+        me.reject_count = me.reject_count + 1
+        return 0
+    }
+
+    backingFor(page_id) {
+        if page_id < 0 {
+            return null
+        }
+        if page_id >= me.backing_count {
+            return null
+        }
+        return me.backings.get(page_id)
+    }
+
+    pageBase(page_id) {
+        local backing = me.backingFor(page_id)
+        if backing == null {
+            return 0
+        }
+        return backing.base
+    }
+
+    pageBackingBytes(page_id) {
+        local backing = me.backingFor(page_id)
+        if backing == null {
+            return 0
+        }
+        return backing.bytes
+    }
+
+    decommitPage(page_id) {
+        local backing = me.backingFor(page_id)
+        if backing == null {
+            me.reject_count = me.reject_count + 1
+            return 1
+        }
+
+        local rc = HakoAllocPageSourcePolicy.decommitPage(backing.base, backing.bytes)
+        if rc == 0 {
+            me.decommit_count = me.decommit_count + 1
+            return 0
+        }
+
+        me.reject_count = me.reject_count + 1
+        me.source_reject_count = me.source_reject_count + 1
+        return rc
+    }
+
+    decommitAll() {
+        local ok = 1
+        local backing_count = me.backing_count
+        local i = 0
+        loop(i < backing_count) {
+            local rc = me.decommitPage(i)
+            if rc != 0 {
+                ok = 0
+            }
+            i = i + 1
+        }
+        return ok
+    }
+
+    outstandingBlocks() {
+        local total = 0
+        local next_page_id = me.next_page_id
+        local i = 0
+        loop(i < next_page_id) {
+            local page = me.pages.get(i)
+            if page != null {
+                total = total + page.used
+            }
+            i = i + 1
+        }
+        return total
+    }
+
+    requestedBytes() {
+        local total = 0
+        local next_page_id = me.next_page_id
+        local i = 0
+        loop(i < next_page_id) {
+            local page = me.pages.get(i)
+            if page != null {
+                total = total + page.requested_bytes
+            }
+            i = i + 1
+        }
+        return total
+    }
+}

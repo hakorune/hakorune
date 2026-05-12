@@ -38,6 +38,10 @@ Principles
   - `HakoAllocFastPathHeap` composes page queue selection with page-local
     free-list pop. It does not source OS pages, collect local-free blocks, or
     own remote-free integration.
+  - `HakoAllocOsVmBackedFastPathHeap` is the M168 adapter that backs fresh
+    modeled pages through `HakoAllocPageSourcePolicy` reserve/commit/decommit.
+    It must not add native OSVM leaves, local-free retire, remote-free
+    integration, provider activation, hooks, or allocator replacement.
 
 Design owners
 - Policy/state stop-line:
@@ -87,6 +91,7 @@ Current modules
 - `memory.alloc_fast_path_heap_box`
 - `memory.allocator_facade_box`
 - `memory.layout_box`
+- `memory.osvm_backed_fast_path_heap_box`
 - `memory.page_box`
 - `memory.page_heap_box`
 - `memory.page_queue_box`

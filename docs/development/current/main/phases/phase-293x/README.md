@@ -406,8 +406,12 @@ inference for the allocator release path.
 - `293x-169`: Box field syntax reference sync landed, documenting the
   simple/explicit/legacy split as `field`, `field: Type`, and
   `init { field }`.
-- Next: resume `.hako` mimalloc / `hako_alloc` implementation slices on top of
-  the capability substrate, continuing with `M167 alloc fast path plus generic
-  fallback`.
+- `293x-175`: M167 mimalloc alloc fast path landed, composing page queue
+  selection with page-local free-list pop and deterministic modeled fallback.
+- `293x-176`: M168 mimalloc OSVM page-source composition landed, backing fresh
+  modeled pages with existing reserve/commit/decommit rows through a separate
+  adapter while keeping the M167 heap OSVM-free.
+- Next: continue `.hako` mimalloc / `hako_alloc` implementation slices with
+  `M169 local free collection and retire`.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.

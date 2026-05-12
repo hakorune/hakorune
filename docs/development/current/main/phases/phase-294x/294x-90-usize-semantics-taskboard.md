@@ -39,7 +39,9 @@ hako_alloc or mimalloc migration.
 
 | Order | Row | Status | Implementation Boundary |
 | --- | --- | --- | --- |
-| 1 | `M168+` | Future | Mimalloc `.hako` OSVM page source, local-free retire, and remote-free rows consume the completed substrate. |
+| 1 | `M169` | Next | Local-free collection and retire observation; no remote-free atomics. |
+| 2 | `M170` | Future | Remote-free integration through existing pointer atomics only. |
+| 3 | post-`M170` feature inventory | Future | Decide realloc/aligned alloc/page-map/huge-page/secure-list rows from actual mimalloc pressure. |
 
 ## Ladder
 
@@ -204,6 +206,9 @@ hako_alloc or mimalloc migration.
   field-group rows.
 - [ ] Keep allocator-provider activation out of scope.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
+- [x] Land M168 OSVM page-source composition without new native leaves.
+- [ ] Land M169 local-free collection and retire observation.
+- [ ] Land M170 remote-free integration through existing pointer atomics only.
 
 ## Open Design Questions
 

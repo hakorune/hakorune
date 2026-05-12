@@ -1,0 +1,46 @@
+// mimalloc-osvm-page-source-composition-proof
+// Purpose: prove M168 OSVM-backed fresh page creation over the fast-path model.
+
+using selfhost.hako_alloc.memory.osvm_backed_fast_path_heap_box as HakoAllocOsVmBackedFastPathHeapBox
+
+static box Main {
+    main(args) {
+        local heap = new HakoAllocOsVmBackedFastPathHeap(4, 32, 2)
+
+        local page1 = heap.addFreshPage()
+        local b0 = heap.pageBase(0)
+        local b1 = heap.pageBase(1)
+        local bytes0 = heap.pageBackingBytes(0)
+        local bytes1 = heap.pageBackingBytes(1)
+        local cleanup_status = heap.decommitAll()
+
+        local shape = 0
+        if page1 == 1 { shape = shape + 1 }
+        if heap.next_page_id == 2 { shape = shape + 1 }
+        if heap.page_create_count == 2 { shape = shape + 1 }
+        if heap.queue.page_count == 2 { shape = shape + 1 }
+        if heap.queue.add_count == 2 { shape = shape + 1 }
+        if b0 != 0 { shape = shape + 1 }
+        if b1 != 0 { shape = shape + 1 }
+        if bytes0 == 64 { shape = shape + 1 }
+        if bytes1 == 64 { shape = shape + 1 }
+        if cleanup_status == 1 { shape = shape + 1 }
+
+        print("mimalloc-osvm-page-source-composition-proof")
+        print("page_ids=0," + page1)
+        print("heap_counts=" + heap.alloc_count + "," + heap.release_count + "," + heap.fallback_count + "," + heap.page_create_count + "," + heap.reject_count)
+        print("queue_counts=" + heap.queue.page_count + "," + heap.queue.add_count)
+        print("source_counts=" + heap.reserve_count + "," + heap.commit_count + "," + heap.decommit_count + "," + heap.source_reject_count)
+        print("backing=" + b0 + "," + bytes0 + "," + b1 + "," + bytes1)
+        print("cleanup=" + cleanup_status)
+        print("shape=" + shape)
+
+        if shape == 10 && heap.page_create_count == 2 && heap.reject_count == 0 && heap.reserve_count == 2 && heap.commit_count == 2 && heap.decommit_count == 2 && heap.source_reject_count == 0 && heap.queue.page_count == 2 && heap.queue.add_count == 2 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

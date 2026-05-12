@@ -10,6 +10,7 @@ Current modules
 - `alloc_fast_path_heap_box.hako`
 - `arc_box.hako`
 - `layout_box.hako`
+- `osvm_backed_fast_path_heap_box.hako`
 - `page_box.hako`
 - `page_heap_box.hako`
 - `page_queue_box.hako`
@@ -38,5 +39,10 @@ Syntax/style contract
   `HakoAllocPageQueue.selectPage()` and `HakoAllocPageModel.acquire()`, but it
   must not source OS pages, collect local-free blocks, or implement remote-free
   policy.
+- `osvm_backed_fast_path_heap_box.hako` is the M168 composition owner. It may
+  reserve/commit/decommit through `HakoAllocPageSourcePolicy`, then reuse the
+  same page queue and page-local free-list owners. It must not add OSVM metal,
+  local-free retire, remote-free, page-map, provider, hook, or replacement
+  behavior.
 - Keep `birth(...)` for parameter-dependent initialization and ordering that
   cannot be expressed as a declaration-site default.

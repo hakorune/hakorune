@@ -28,7 +28,9 @@
 
 | Next | Card | Goal |
 | --- | --- | --- |
-| 1 | `M168+` | Continue mimalloc `.hako` OSVM/page/free-list rows with the completed numeric substrate. |
+| 1 | `M169` | Add local-free collection and empty-page retire observation without remote-free atomics. |
+| 2 | `M170` | Compose bounded remote-free policy through existing pointer atomics only. |
+| 3 | post-`M170` inventory | Recheck whether realloc/aligned/page-map/huge-page rows need new Hakorune features. |
 
 Stop line: VM green is useful reference evidence, but production allocator
 migration still changes only by explicit `hako_alloc` field-group rows.
@@ -175,19 +177,23 @@ migration still changes only by explicit `hako_alloc` field-group rows.
   `usize` stored fields while page/heap/queue/handle state stays `i64`.
 - `294x-20`: mimalloc algorithm rows resume under the still-`i64`
   page/heap/queue production boundary; M167 landed as the first resumed row.
+- `M168`: parent mimalloc lane landed OSVM page-source composition as a
+  separate adapter, keeping the M167 heap OSVM-free while backing fresh modeled
+  pages through existing reserve/commit/decommit rows.
 
 ## Implementation Direction
 
-The completed foundation now leaves production allocator migration as the next
-explicit row:
+The completed foundation now leaves mimalloc algorithm rows as the next
+explicit consumer:
 
 1. keep exact numeric metadata and VM reference behavior as the semantic oracle;
 2. add native exact numeric typed-object storage without silent `i64` fallback;
 3. add exact field get/set ABI;
 4. teach backend lowering/capability gates to consume that ABI;
 5. lower the exact arithmetic/compare subset needed by migrated fields;
-6. migrate `hako_alloc` non-negative fields by field group;
-7. resume mimalloc rows that benefit from those fields.
+6. migrate `hako_alloc` non-negative fields only by field group when an
+   algorithm row actually benefits from the migration;
+7. continue M169/M170 mimalloc rows and inventory post-M170 feature needs.
 
 This keeps the source truth available before any lowerer claims exact
 semantics.
