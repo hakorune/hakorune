@@ -152,6 +152,7 @@
 - [x] `293x-187` M177 alignment policy object
 - [x] `293x-188` M178 aligned allocation small path
 - [x] `293x-189` Record packed-array lowering SSOT
+- [x] `293x-190` M179 huge threshold routing
 
 ## Gates
 

@@ -1,0 +1,108 @@
+// mimalloc-huge-threshold-routing-proof
+// Purpose: prove M179 huge threshold/routing without a huge page model.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
+using selfhost.hako_alloc.memory.page_map_release_box as HakoAllocPageMapReleaseBox
+using selfhost.hako_alloc.memory.page_map_aligned_small_path_box as HakoAllocPageMapAlignedSmallPathBox
+using selfhost.hako_alloc.memory.huge_threshold_router_box as HakoAllocHugeThresholdRouterBox
+
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expect(label, condition) {
+        me.count = me.count + 1
+        if condition == 0 {
+            me.passed = 0
+            me.fail_count = me.fail_count + 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
+static box Main {
+    main(args) {
+        local page_map = new HakoAllocPageMap()
+        local seam = new HakoAllocPageMapReleaseSeam(page_map)
+        local small_path = new HakoAllocPageMapAlignedSmallPath(seam)
+        local router = new HakoAllocHugeThresholdRouter(small_path)
+        local page0 = new HakoAllocPageModel(0, 32, 1, 1)
+        local page1 = new HakoAllocPageModel(1, 128, 1, 1)
+
+        local add0 = seam.addPage(page0)
+        local add1 = seam.addPage(page1)
+
+        local threshold = router.hugeThreshold()
+        local threshold_class = router.classifyPaddedSize(threshold)
+        local huge_class = router.classifyPaddedSize(threshold + 1)
+
+        local small_ok = router.allocate(24)
+        local small_ptr = router.last_result_ptr
+        local small_padded = router.last_padded_size
+
+        local aligned_ok = router.allocateAligned(48, 64)
+        local aligned_ptr = router.last_result_ptr
+        local aligned_padded = router.last_padded_size
+
+        local huge_reject = router.allocateAligned(4194300, 64)
+        local huge_kind = router.last_route_kind
+
+        local bad_alignment = router.allocateAligned(24, 3)
+        local bad_alignment_kind = router.last_route_kind
+
+        local bad_size = router.allocateAligned(0, 8)
+        local bad_size_kind = router.last_route_kind
+
+        print("mimalloc-huge-threshold-routing-proof")
+        print("setup=" + add0 + "," + add1)
+        print("threshold=" + threshold + "," + threshold_class + "," + huge_class)
+        print("alloc=" + small_ok + "," + small_ptr + "," + small_padded + "," + aligned_ok + "," + aligned_ptr + "," + aligned_padded)
+        print("reject=" + huge_reject + "," + huge_kind + "," + bad_alignment + "," + bad_alignment_kind + "," + bad_size + "," + bad_size_kind)
+        print("router=" + router.small_route_count + "," + router.small_success_count + "," + router.small_reject_count + "," + router.huge_route_count + "," + router.huge_reject_count + "," + router.invalid_alignment_count + "," + router.invalid_size_count + "," + router.reject_count)
+        print("small_path=" + small_path.alloc_count + "," + small_path.invalid_alignment_count + "," + small_path.oversized_count + "," + small_path.alloc_fail_count + "," + small_path.register_fail_count + "," + small_path.reject_count + "," + small_path.meta_count)
+        print("page=" + page0.used + "," + page0.localFreeCount() + "," + page0.retired + "," + page1.used + "," + page1.localFreeCount() + "," + page1.retired + "," + page_map.register_count + "," + page_map.live_count)
+
+        local proof = new ProofCheck("m179 huge threshold routing")
+        proof.expect("add page0", add0 == 1)
+        proof.expect("add page1", add1 == 1)
+        proof.expect("threshold is last regular bin", threshold == 4194304)
+        proof.expect("threshold class is small", threshold_class == 1)
+        proof.expect("threshold plus one is huge", huge_class == 2)
+        proof.expect("plain small routes to small path", small_ok == 1)
+        proof.expect("plain small ptr", small_ptr == 12000)
+        proof.expect("plain padded size", small_padded == 31)
+        proof.expect("aligned small routes to small path", aligned_ok == 1)
+        proof.expect("aligned ptr", aligned_ptr == 12001)
+        proof.expect("aligned padded size", aligned_padded == 111)
+        proof.expect("huge request fail-fast", huge_reject == 0)
+        proof.expect("huge route kind", huge_kind == 2)
+        proof.expect("bad alignment reject", bad_alignment == 0)
+        proof.expect("bad alignment kind", bad_alignment_kind == -1)
+        proof.expect("bad size reject", bad_size == 0)
+        proof.expect("bad size kind", bad_size_kind == -2)
+        proof.expect("router counters", router.small_route_count == 2 && router.small_success_count == 2 && router.small_reject_count == 0 && router.huge_route_count == 1 && router.huge_reject_count == 1 && router.invalid_alignment_count == 1 && router.invalid_size_count == 1 && router.reject_count == 3)
+        proof.expect("small path not used for rejects", small_path.alloc_count == 2 && small_path.invalid_alignment_count == 0 && small_path.oversized_count == 0 && small_path.alloc_fail_count == 0 && small_path.register_fail_count == 0 && small_path.reject_count == 0 && small_path.meta_count == 2)
+        proof.expect("page-map state", page0.used == 1 && page0.localFreeCount() == 0 && page0.retired == 0 && page1.used == 1 && page1.localFreeCount() == 0 && page1.retired == 0 && page_map.register_count == 2 && page_map.live_count == 2)
+
+        if proof.ok() {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

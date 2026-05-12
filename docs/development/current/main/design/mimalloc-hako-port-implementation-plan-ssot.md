@@ -149,8 +149,8 @@ current repo truth: broad numeric field inventory and facade-local exact
 | `M176 realloc negative matrix / failure contract` | Complete | fix stale/unknown/released/zero/oversized failure behavior | no new allocator API surface beyond realloc diagnostics |
 | `M177 alignment policy object` | Complete | add alignment normalization, power-of-two validation, padded-size policy | no native aligned allocation route or ABI alignment claim |
 | `M178 aligned allocation small path` | Complete | attach alignment metadata to normal page-map-backed small allocations | no huge path |
-| `M179 huge threshold and routing` | Next | classify huge requests and fail-fast unsupported huge behavior | no huge page model yet |
-| `M180 huge page model` | Planned | model one-allocation huge pages separately from small page free lists | no OS unreserve/release widening |
+| `M179 huge threshold and routing` | Complete | classify huge requests and fail-fast unsupported huge behavior | no huge page model yet |
+| `M180 huge page model` | Next | model one-allocation huge pages separately from small page free lists | no OS unreserve/release widening |
 | `M181 huge release seam` | Planned | unregister and release huge handles through the page-map owner | no small-page free-list mixing |
 | `M182 secure free-list policy inventory` | Planned | decide encoded/randomized free-list responsibilities | no implementation |
 | `M183 secure-list diagnostics-only` | Planned | detect duplicate/out-of-range/free-list shape errors | no encode/decode |

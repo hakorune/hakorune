@@ -456,8 +456,12 @@ inference for the allocator release path.
   identity-capable semantics. C201-C205 are now the compiler/runtime follow-on
   lane for field-index fast paths, record scalar replacement, packed
   `ArrayBox` residence, and allocator metadata migration.
-- Next: continue with `M179 huge threshold and routing` before
-  scheduling aligned allocation, huge-page, or secure-list rows.
+- `293x-190`: M179 huge threshold/routing landed, adding
+  `HakoAllocHugeThresholdRouter` so padded requests above the last regular
+  size-class route to an explicit huge-unsupported fail-fast result instead of
+  entering the M178 small path.
+- Next: continue with `M180 huge page model` before scheduling huge release or
+  secure-list rows.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.
 
@@ -468,7 +472,7 @@ SSOT:
 
 Current execution order:
 
-1. `M179-M184`: add huge-page and secure-list rows separately.
+1. `M180-M184`: add huge-page and secure-list rows separately.
 2. `M185-M190`: finish remaining `usize` field-group migration and allocator
    API parity. Facade stats are already exact `usize` via `294x-19e`, so that
    row must not be repeated.

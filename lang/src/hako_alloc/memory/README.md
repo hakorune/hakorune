@@ -94,6 +94,8 @@ Syntax/style contract
 - `page_map_aligned_small_path_box.hako` owns M178 aligned small-path execution.
   It may attach alignment metadata to normal page-map-backed small allocations,
   but it must not start huge-page routing or native alignment claims.
-- `M179` is the next reserved owner row for huge threshold/routing only.
+- `huge_threshold_router_box.hako` owns M179 huge threshold/routing. It may
+  classify padded requests and fail fast for huge-unsupported requests, but it
+  must not implement a huge page model or OS release.
 - Keep `birth(...)` for parameter-dependent initialization and ordering that
   cannot be expressed as a declaration-site default.

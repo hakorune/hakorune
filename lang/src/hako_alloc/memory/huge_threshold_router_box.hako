@@ -1,0 +1,108 @@
+// huge_threshold_router_box.hako -- M179 huge threshold/routing owner
+// Responsibility: classify huge requests and fail fast until M180 owns a huge
+// page model. Small aligned requests still execute through the M178 owner.
+
+using selfhost.hako_alloc.memory.alignment_policy_box as HakoAllocAlignmentPolicy
+using selfhost.hako_alloc.memory.page_map_aligned_small_path_box as HakoAllocPageMapAlignedSmallPathBox
+using selfhost.hako_alloc.memory.size_class_box as SizeClassBox
+
+box HakoAllocHugeThresholdRouter {
+    small_path: HakoAllocPageMapAlignedSmallPath
+    small_route_count: i64 = 0
+    small_success_count: i64 = 0
+    small_reject_count: i64 = 0
+    huge_route_count: i64 = 0
+    huge_reject_count: i64 = 0
+    invalid_alignment_count: i64 = 0
+    invalid_size_count: i64 = 0
+    reject_count: i64 = 0
+    last_route_kind: i64 = 0
+    last_result_ptr: i64 = 0
+    last_padded_size: i64 = 0
+    last_good_size: i64 = 0
+    last_huge_threshold: i64 = 0
+
+    birth(small_path) {
+        me.small_path = small_path
+    }
+
+    hugeThreshold() {
+        return SizeClassBox.bin_size(SizeClassBox.max_regular_bin())
+    }
+
+    classifyPaddedSize(padded_size) {
+        if padded_size <= 0 {
+            return -2
+        }
+
+        if SizeClassBox.size_to_bin(padded_size) == SizeClassBox.huge_bin() {
+            return 2
+        }
+
+        return 1
+    }
+
+    classifyAlignedRequest(size, alignment) {
+        local normalized = HakoAllocAlignmentPolicy.normalize_alignment(alignment)
+        if normalized < 0 {
+            return -1
+        }
+
+        local padded_size = HakoAllocAlignmentPolicy.padded_request_size(size, alignment)
+        return me.classifyPaddedSize(padded_size)
+    }
+
+    allocate(size) {
+        return me.allocateAligned(size, SizeClassBox.word_size())
+    }
+
+    allocateAligned(size, alignment) {
+        me.last_route_kind = 0
+        me.last_result_ptr = 0
+        me.last_padded_size = 0
+        me.last_good_size = 0
+        me.last_huge_threshold = me.hugeThreshold()
+
+        local normalized = HakoAllocAlignmentPolicy.normalize_alignment(alignment)
+        if normalized < 0 {
+            me.invalid_alignment_count = me.invalid_alignment_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_route_kind = -1
+            return 0
+        }
+
+        local padded_size = HakoAllocAlignmentPolicy.padded_request_size(size, alignment)
+        if padded_size < 0 {
+            me.invalid_size_count = me.invalid_size_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_route_kind = -2
+            return 0
+        }
+
+        me.last_padded_size = padded_size
+        me.last_good_size = SizeClassBox.good_size(padded_size)
+
+        if me.classifyPaddedSize(padded_size) == 2 {
+            me.huge_route_count = me.huge_route_count + 1
+            me.huge_reject_count = me.huge_reject_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_route_kind = 2
+            return 0
+        }
+
+        me.small_route_count = me.small_route_count + 1
+        me.last_route_kind = 1
+
+        local ok = me.small_path.allocateAlignedSmall(size, alignment)
+        me.last_result_ptr = me.small_path.last_result_ptr
+        me.last_padded_size = me.small_path.last_padded_size
+        if ok == 1 {
+            me.small_success_count = me.small_success_count + 1
+            return 1
+        }
+
+        me.small_reject_count = me.small_reject_count + 1
+        me.reject_count = me.reject_count + 1
+        return 0
+    }
+}

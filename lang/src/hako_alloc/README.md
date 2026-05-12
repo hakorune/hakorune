@@ -82,8 +82,9 @@ Principles
   - `HakoAllocPageMapAlignedSmallPath` is the M178 aligned small-path owner. It
     attaches alignment metadata to normal page-map-backed small allocations
     while huge-page routing still stays outside this owner.
-  - `M179` stays reserved for huge threshold/routing. It must not be folded into
-    the aligned small-path owner.
+  - `HakoAllocHugeThresholdRouter` is the M179 huge threshold/routing owner. It
+    routes padded requests above the last regular size-class to an explicit
+    huge-unsupported fail-fast result while delegating small requests to M178.
 
 Design owners
 - Policy/state stop-line:
