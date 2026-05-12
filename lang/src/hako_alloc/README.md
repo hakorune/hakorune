@@ -85,7 +85,11 @@ Principles
   - `HakoAllocPageMapAlignedSmallPath` is the M178 aligned small-path owner. It
     attaches alignment metadata to normal page-map-backed small allocations
     while huge-page routing still stays outside this owner. M188 adds a typed
-    `usize` input facade that delegates to the same execution path.
+    `usize` input facade that delegates to the same execution path. C205c
+    moves the aligned-small metadata columns behind
+    `aligned_small_meta_store_box.hako` / `HakoAllocAlignedSmallMetaStore`,
+    where record construction/read is used as the source-facing seam while
+    storage remains scalar columns.
   - `HakoAllocHugeThresholdRouter` is the M179 huge threshold/routing owner. It
     routes padded requests above the last regular size-class to an explicit
     huge-unsupported fail-fast result while delegating small requests to M178.
@@ -104,8 +108,9 @@ Principles
     caller-provided cookies and no entropy-source claim.
   - `allocator_metadata_records.hako` is the C205a declaration-only owner for
     future allocator metadata records. It names aligned-small and huge-page
-    metadata shapes, but current scalar `ArrayBox` columns remain the runtime
-    truth until later construction/read and packed-storage migration rows land.
+    metadata shapes. C205c consumes the aligned-small record shape through a
+    record-facing metadata store; huge-page migration and packed `ArrayBox`
+    compiler auto-use remain later rows.
 
 Design owners
 - Policy/state stop-line:

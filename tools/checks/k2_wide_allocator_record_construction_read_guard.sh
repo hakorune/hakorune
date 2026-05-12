@@ -28,6 +28,7 @@ guard_require_files \
   "src/mir/builder/fields.rs" \
   "src/mir/builder/stmts/variable_stmt.rs" \
   "src/mir/builder/compilation_context.rs" \
+  "lang/src/hako_alloc/memory/aligned_small_meta_store_box.hako" \
   "lang/src/hako_alloc/memory/page_map_aligned_small_path_box.hako" \
   "lang/src/hako_alloc/memory/huge_page_model_box.hako"
 
@@ -47,17 +48,28 @@ guard_expect_in_file "$TAG" '\[record-value/escape\]' "src/mir/builder/record_va
 guard_expect_in_file "$TAG" '\[record-field-read/unknown-field\]' "src/mir/builder/record_values.rs" "unknown record field must fail fast"
 guard_expect_in_file "$TAG" 'record_local_values' "src/mir/builder/compilation_context.rs" "builder-local record values must be tracked separately"
 
-guard_expect_in_file "$TAG" 'meta_ptrs: ArrayBox = new ArrayBox\(\)' "lang/src/hako_alloc/memory/page_map_aligned_small_path_box.hako" "M178 scalar ptr metadata must remain runtime truth"
+guard_expect_in_file "$TAG" 'new HakoAllocAlignedSmallMeta' "lang/src/hako_alloc/memory/aligned_small_meta_store_box.hako" "C205c store must exercise C205b aligned-small record construction"
+guard_expect_in_file "$TAG" 'ptrs: ArrayBox = new ArrayBox\(\)' "lang/src/hako_alloc/memory/aligned_small_meta_store_box.hako" "aligned-small metadata storage must remain scalar inside store"
 guard_expect_in_file "$TAG" 'page_ids: ArrayBox = new ArrayBox\(\)' "lang/src/hako_alloc/memory/huge_page_model_box.hako" "M180 scalar huge-page metadata must remain runtime truth"
 
-if rg -n 'new HakoAllocAlignedSmallMeta|new HakoAllocHugePageMeta|ArrayStorage::InlineRecord|InlineRecord' \
+if rg -n 'new HakoAllocHugePageMeta|ArrayStorage::InlineRecord|InlineRecord' \
   lang/src/hako_alloc -g'*.hako' >/tmp/"$TAG".hako_alloc 2>&1; then
-  echo "[$TAG] ERROR: C205b must not migrate live hako_alloc metadata storage yet" >&2
+  echo "[$TAG] ERROR: C205b/C205c must not migrate huge metadata or enable inline-record storage yet" >&2
   cat /tmp/"$TAG".hako_alloc >&2
   rm -f /tmp/"$TAG".hako_alloc
   exit 1
 fi
 rm -f /tmp/"$TAG".hako_alloc
+
+if rg -n 'new HakoAllocAlignedSmallMeta\(' lang/src/hako_alloc -g'*.hako' \
+  | rg -v '^lang/src/hako_alloc/memory/aligned_small_meta_store_box\.hako:' \
+  >/tmp/"$TAG".aligned_hako_alloc 2>&1; then
+  echo "[$TAG] ERROR: aligned-small record construction must stay in the C205c store owner" >&2
+  cat /tmp/"$TAG".aligned_hako_alloc >&2
+  rm -f /tmp/"$TAG".aligned_hako_alloc
+  exit 1
+fi
+rm -f /tmp/"$TAG".aligned_hako_alloc
 
 if rg -n 'RecordValueScalarizationBox|record-construction|record-field-read|HakoAllocAlignedSmallMeta|HakoAllocHugePageMeta' \
   lang/c-abi/shims src/llvm_py/instructions >/tmp/"$TAG".backend 2>&1; then

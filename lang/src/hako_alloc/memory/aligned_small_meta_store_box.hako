@@ -1,0 +1,46 @@
+// aligned_small_meta_store_box.hako -- C205c aligned-small metadata store
+// Responsibility: own aligned-small allocation metadata behind a record-shaped
+// append/read seam. Storage remains scalar columns until ArrayBox packed-record
+// compiler auto-use is explicitly enabled by a later row.
+
+using selfhost.hako_alloc.memory.allocator_metadata_records as HakoAllocMetadataRecords
+
+box HakoAllocAlignedSmallMetaStore {
+    ptrs: ArrayBox = new ArrayBox()
+    alignments: ArrayBox = new ArrayBox()
+    padded_sizes: ArrayBox = new ArrayBox()
+    count: i64 = 0
+
+    append(ptr, alignment, padded_size) {
+        local meta = new HakoAllocAlignedSmallMeta(ptr, alignment, padded_size)
+        me.ptrs.push(meta.ptr)
+        me.alignments.push(meta.alignment)
+        me.padded_sizes.push(meta.padded_size)
+        me.count = me.count + 1
+        return 1
+    }
+
+    alignmentFor(ptr) {
+        local i = 0
+        loop(i < me.count) {
+            local meta_ptr = me.ptrs.get(i)
+            if meta_ptr == ptr {
+                return me.alignments.get(i)
+            }
+            i = i + 1
+        }
+        return 0
+    }
+
+    paddedSizeFor(ptr) {
+        local i = 0
+        loop(i < me.count) {
+            local meta_ptr = me.ptrs.get(i)
+            if meta_ptr == ptr {
+                return me.padded_sizes.get(i)
+            }
+            i = i + 1
+        }
+        return 0
+    }
+}

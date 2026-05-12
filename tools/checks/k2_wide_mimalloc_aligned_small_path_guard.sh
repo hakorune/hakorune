@@ -7,6 +7,7 @@ cd "$ROOT_DIR"
 source tools/checks/lib/guard_common.sh
 
 PATH_BOX="lang/src/hako_alloc/memory/page_map_aligned_small_path_box.hako"
+META_STORE="lang/src/hako_alloc/memory/aligned_small_meta_store_box.hako"
 ALIGNMENT="lang/src/hako_alloc/memory/alignment_policy_box.hako"
 PAGE_MAP="lang/src/hako_alloc/memory/page_map_box.hako"
 PAGE_RELEASE="lang/src/hako_alloc/memory/page_map_release_box.hako"
@@ -27,6 +28,7 @@ echo "[$TAG] checking M178 aligned allocation small path"
 guard_require_files \
   "$TAG" \
   "$PATH_BOX" \
+  "$META_STORE" \
   "$ALIGNMENT" \
   "$PAGE_MAP" \
   "$PAGE_RELEASE" \
@@ -45,7 +47,10 @@ guard_expect_in_file "$TAG" 'box HakoAllocPageMapAlignedSmallPath' "$PATH_BOX" "
 guard_expect_in_file "$TAG" 'allocateAlignedSmall\(size, alignment\)' "$PATH_BOX" "missing aligned small allocation entry"
 guard_expect_in_file "$TAG" 'HakoAllocAlignmentPolicy\.normalize_alignment' "$PATH_BOX" "M178 must use the M177 alignment policy"
 guard_expect_in_file "$TAG" 'me\.page_map\.register\(ptr, page\.page_id, block_id\)' "$PATH_BOX" "M178 must publish aligned small handles through page_map.register"
-guard_expect_in_file "$TAG" 'meta_alignments: ArrayBox = new ArrayBox\(\)' "$PATH_BOX" "M178 must store live alignment metadata"
+guard_expect_in_file "$TAG" 'meta_store: HakoAllocAlignedSmallMetaStore' "$PATH_BOX" "M178 must delegate live alignment metadata to the C205c store"
+guard_expect_in_file "$TAG" 'box HakoAllocAlignedSmallMetaStore' "$META_STORE" "C205c aligned-small metadata store must exist"
+guard_expect_in_file "$TAG" 'new HakoAllocAlignedSmallMeta' "$META_STORE" "C205c store must use the aligned-small metadata record seam"
+guard_expect_in_file "$TAG" 'alignments: ArrayBox = new ArrayBox\(\)' "$META_STORE" "C205c store must keep live alignment scalar storage"
 guard_expect_in_file "$TAG" 'alignmentFor\(ptr\)' "$PATH_BOX" "M178 must expose alignment metadata for live ptrs"
 guard_expect_in_file "$TAG" 'paddedSizeFor\(ptr\)' "$PATH_BOX" "M178 must expose padded-size metadata for live ptrs"
 guard_expect_in_file "$TAG" 'memory.page_map_aligned_small_path_box = "memory/page_map_aligned_small_path_box.hako"' "$MODULE" "hako module must export the M178 aligned small-path owner"

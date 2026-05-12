@@ -5,13 +5,12 @@
 
 using selfhost.hako_alloc.memory.page_map_release_box as HakoAllocPageMapReleaseBox
 using selfhost.hako_alloc.memory.alignment_policy_box as HakoAllocAlignmentPolicy
+using selfhost.hako_alloc.memory.aligned_small_meta_store_box as HakoAllocAlignedSmallMetaStoreBox
 
 box HakoAllocPageMapAlignedSmallPath {
     seam: HakoAllocPageMapReleaseSeam
     page_map: HakoAllocPageMap
-    meta_ptrs: ArrayBox = new ArrayBox()
-    meta_alignments: ArrayBox = new ArrayBox()
-    meta_padded_sizes: ArrayBox = new ArrayBox()
+    meta_store: HakoAllocAlignedSmallMetaStore = new HakoAllocAlignedSmallMetaStore()
     meta_count: i64 = 0
     next_ptr: i64 = 12000
     alloc_count: i64 = 0
@@ -69,10 +68,8 @@ box HakoAllocPageMapAlignedSmallPath {
                             return 0
                         }
 
-                        me.meta_ptrs.push(ptr)
-                        me.meta_alignments.push(normalized)
-                        me.meta_padded_sizes.push(padded_size)
-                        me.meta_count = me.meta_count + 1
+                        me.meta_store.append(ptr, normalized, padded_size)
+                        me.meta_count = me.meta_store.count
                         me.alloc_count = me.alloc_count + 1
                         me.last_result_ptr = ptr
                         me.last_alignment = normalized
@@ -99,16 +96,7 @@ box HakoAllocPageMapAlignedSmallPath {
             return 0
         }
 
-        local i = 0
-        loop(i < me.meta_count) {
-            local meta_ptr = me.meta_ptrs.get(i)
-            if meta_ptr == ptr {
-                return me.meta_alignments.get(i)
-            }
-            i = i + 1
-        }
-
-        return 0
+        return me.meta_store.alignmentFor(ptr)
     }
 
     paddedSizeFor(ptr) {
@@ -117,15 +105,6 @@ box HakoAllocPageMapAlignedSmallPath {
             return 0
         }
 
-        local i = 0
-        loop(i < me.meta_count) {
-            local meta_ptr = me.meta_ptrs.get(i)
-            if meta_ptr == ptr {
-                return me.meta_padded_sizes.get(i)
-            }
-            i = i + 1
-        }
-
-        return 0
+        return me.meta_store.paddedSizeFor(ptr)
     }
 }

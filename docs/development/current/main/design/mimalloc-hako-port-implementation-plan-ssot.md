@@ -191,7 +191,7 @@ the active `.hako` algorithm row.
 | `C204b ArrayBox inline-record storage vocabulary` | add private runtime storage vocabulary and materialization boundaries while keeping public ArrayBox behavior unchanged | `C205` |
 | `C205a allocator metadata record declarations` | add declaration-only record shapes for aligned-small and huge-page metadata while preserving current scalar columns | record construction/read lowering |
 | `C205b allocator record construction/read lowering` | make record values usable enough for metadata probes through builder-local scalarization | live hako_alloc metadata migration |
-| `C205c aligned-small metadata record migration` | replace M178 `meta_ptrs/meta_alignments/meta_padded_sizes` with record-backed storage | huge-page metadata migration |
+| `C205c aligned-small metadata record migration` | move M178 `meta_ptrs/meta_alignments/meta_padded_sizes` behind a record-shaped metadata store | huge-page metadata migration |
 | `C205d huge-page metadata record migration` | replace M180 `page_ids/ptrs/requested_sizes/committed_sizes/live_flags` with record-backed storage | broader allocator/table cleanup |
 
 C201 status:
@@ -251,6 +251,13 @@ small metadata probes through a builder-local scalarization seam. Record values
 do not emit `NewBox`, do not materialize objects, and fail fast if they escape
 the direct field-read route. `hako_alloc` scalar metadata columns remain the
 runtime truth until `C205c-C205d`.
+
+C205c status:
+complete as `293x-216`. M178 aligned-small metadata now lives behind
+`HakoAllocAlignedSmallMetaStore`. The store constructs
+`HakoAllocAlignedSmallMeta` at the append boundary and reads fields locally, but
+storage remains scalar columns until packed `ArrayBox` compiler auto-use lands.
+Huge-page metadata remains future `C205d`.
 
 ### Docs / Guard Checkpoints
 

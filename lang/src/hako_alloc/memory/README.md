@@ -7,6 +7,7 @@ Scope
 
 Current modules
 - `alignment_policy_box.hako`
+- `aligned_small_meta_store_box.hako`
 - `allocator_metadata_records.hako`
 - `allocator_facade_box.hako`
 - `alloc_fast_path_heap_box.hako`
@@ -95,6 +96,11 @@ Syntax/style contract
 - `page_map_aligned_small_path_box.hako` owns M178 aligned small-path execution.
   It may attach alignment metadata to normal page-map-backed small allocations,
   but it must not start huge-page routing or native alignment claims.
+- `aligned_small_meta_store_box.hako` owns C205c aligned-small metadata storage
+  behind a record-shaped append/read seam. It may construct
+  `HakoAllocAlignedSmallMeta` and read its fields locally, but it must not
+  enable `ArrayStorage::InlineRecord`, backend lowering, huge metadata
+  migration, provider hooks, or native allocator behavior.
 - `huge_threshold_router_box.hako` owns M179 huge threshold/routing. It may
   classify padded requests and fail fast for huge-unsupported requests, but it
   must not implement a huge page model or OS release.
@@ -111,9 +117,10 @@ Syntax/style contract
   It may encode/decode next indices and validate decoded capacity, but it must
   not source entropy, mutate page state, or claim hardening policy.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
-  declarations only. It may declare identity-free shapes for aligned-small and
-  huge-page metadata, but it must not construct records, replace scalar
-  metadata arrays, or enable `ArrayStorage::InlineRecord` from hako_alloc code.
+  declarations. It may declare identity-free shapes for aligned-small and
+  huge-page metadata. C205c is the first consumer for aligned-small metadata;
+  huge-page metadata and `ArrayStorage::InlineRecord` compiler auto-use remain
+  future rows.
 - D195 checkpoint: after M184, secure-list state remains split between
   observation (`secure_free_list_diagnostics_box.hako`) and encoded-next policy
   (`secure_free_list_policy_box.hako`). Page mutation stays with

@@ -11,6 +11,7 @@ MODULE="lang/src/hako_alloc/hako_module.toml"
 ROOT_README="lang/src/hako_alloc/README.md"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
 ALIGNED="lang/src/hako_alloc/memory/page_map_aligned_small_path_box.hako"
+ALIGNED_STORE="lang/src/hako_alloc/memory/aligned_small_meta_store_box.hako"
 HUGE="lang/src/hako_alloc/memory/huge_page_model_box.hako"
 CARD="docs/development/current/main/phases/phase-293x/293x-214-C205A-ALLOCATOR-METADATA-RECORD-DECLARATIONS.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
@@ -28,6 +29,7 @@ guard_require_files \
   "$ROOT_README" \
   "$MEMORY_README" \
   "$ALIGNED" \
+  "$ALIGNED_STORE" \
   "$HUGE" \
   "$CARD" \
   "$PLAN" \
@@ -49,23 +51,34 @@ guard_expect_in_file "$TAG" '`C205a` is complete as `293x-214`' "$RECORD_SSOT" "
 guard_expect_in_file "$TAG" '`293x-214`' "$PHASE_README" "phase README must list C205a row"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list C205a guard"
 
-guard_expect_in_file "$TAG" 'meta_ptrs: ArrayBox = new ArrayBox\(\)' "$ALIGNED" "M178 ptr metadata scalar column must remain runtime truth"
-guard_expect_in_file "$TAG" 'meta_alignments: ArrayBox = new ArrayBox\(\)' "$ALIGNED" "M178 alignment metadata scalar column must remain runtime truth"
-guard_expect_in_file "$TAG" 'meta_padded_sizes: ArrayBox = new ArrayBox\(\)' "$ALIGNED" "M178 padded-size metadata scalar column must remain runtime truth"
+guard_expect_in_file "$TAG" 'meta_store: HakoAllocAlignedSmallMetaStore' "$ALIGNED" "M178 owner must delegate metadata storage after C205c"
+guard_expect_in_file "$TAG" 'ptrs: ArrayBox = new ArrayBox\(\)' "$ALIGNED_STORE" "aligned-small ptr metadata scalar column must remain runtime truth inside store"
+guard_expect_in_file "$TAG" 'alignments: ArrayBox = new ArrayBox\(\)' "$ALIGNED_STORE" "aligned-small alignment metadata scalar column must remain runtime truth inside store"
+guard_expect_in_file "$TAG" 'padded_sizes: ArrayBox = new ArrayBox\(\)' "$ALIGNED_STORE" "aligned-small padded-size metadata scalar column must remain runtime truth inside store"
 guard_expect_in_file "$TAG" 'page_ids: ArrayBox = new ArrayBox\(\)' "$HUGE" "M180 page id scalar column must remain runtime truth"
 guard_expect_in_file "$TAG" 'ptrs: ArrayBox = new ArrayBox\(\)' "$HUGE" "M180 ptr scalar column must remain runtime truth"
 guard_expect_in_file "$TAG" 'requested_sizes: ArrayBox = new ArrayBox\(\)' "$HUGE" "M180 requested-size scalar column must remain runtime truth"
 guard_expect_in_file "$TAG" 'committed_sizes: ArrayBox = new ArrayBox\(\)' "$HUGE" "M180 committed-size scalar column must remain runtime truth"
 guard_expect_in_file "$TAG" 'live_flags: ArrayBox = new ArrayBox\(\)' "$HUGE" "M180 live flag scalar column must remain runtime truth"
 
-if rg -n 'new HakoAllocAlignedSmallMeta|new HakoAllocHugePageMeta|ArrayStorage::InlineRecord|inline-record|InlineRecord' \
+if rg -n 'new HakoAllocHugePageMeta|ArrayStorage::InlineRecord|inline-record|InlineRecord' \
   lang/src/hako_alloc -g'*.hako' >/tmp/"$TAG".runtime 2>&1; then
-  echo "[$TAG] ERROR: C205a must not construct records or enable inline-record storage from hako_alloc" >&2
+  echo "[$TAG] ERROR: C205a/C205c must not construct huge records or enable inline-record storage from hako_alloc" >&2
   cat /tmp/"$TAG".runtime >&2
   rm -f /tmp/"$TAG".runtime
   exit 1
 fi
 rm -f /tmp/"$TAG".runtime
+
+if rg -n 'new HakoAllocAlignedSmallMeta\(' lang/src/hako_alloc -g'*.hako' \
+  | rg -v '^lang/src/hako_alloc/memory/aligned_small_meta_store_box\.hako:' \
+  >/tmp/"$TAG".aligned_runtime 2>&1; then
+  echo "[$TAG] ERROR: aligned-small metadata record construction must stay in C205c store owner" >&2
+  cat /tmp/"$TAG".aligned_runtime >&2
+  rm -f /tmp/"$TAG".aligned_runtime
+  exit 1
+fi
+rm -f /tmp/"$TAG".aligned_runtime
 
 if rg -n 'HakoAllocAlignedSmallMeta|HakoAllocHugePageMeta|allocator_metadata_records' \
   lang/c-abi/shims src/llvm_py/instructions >/tmp/"$TAG".backend 2>&1; then
