@@ -159,6 +159,7 @@
 - [x] `293x-194` M183 secure-list diagnostics
 - [x] `293x-195` M184 secure-list encode/decode small path
 - [x] `293x-196` D195 hako_alloc SSOT refresh
+- [x] `293x-197` M185 hako_alloc field inventory delta
 
 ## Gates
 

@@ -478,7 +478,10 @@ inference for the allocator release path.
   capacity validation with caller-provided cookies only.
 - `293x-196`: D195 hako_alloc SSOT refresh landed, confirming the post-M184
   ownership split before numeric field inventory resumes.
-- Next: continue with `M185 hako_alloc field inventory delta`.
+- `293x-197`: M185 hako_alloc field inventory delta landed, reconciling
+  `NUMERIC_FIELDS.md` with 215 production stored numeric fields after M184.
+- Next: continue with `M187 exact usize for size-class policy`; M186 facade
+  stats already landed as `294x-19e`.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.
 
@@ -489,9 +492,9 @@ SSOT:
 
 Current execution order:
 
-1. `M185-M190`: finish remaining `usize` field-group migration and allocator
-   API parity. Facade stats are already exact `usize` via `294x-19e`, so that
-   row must not be repeated.
+1. `M187-M190`: finish remaining `usize` field-group migration and allocator
+   API parity. M185 inventory is complete, and facade stats are already exact
+   `usize` via `294x-19e`, so those rows must not be repeated.
 2. `C197-C200`: improve proof/application syntax only as separate language rows
    after docs/reference decisions. Do not fold them into allocator rows.
 3. `C201-C205`: add record/packed-array compiler-runtime support before moving

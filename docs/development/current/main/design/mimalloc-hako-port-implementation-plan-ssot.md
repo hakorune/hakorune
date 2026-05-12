@@ -160,9 +160,9 @@ current repo truth: broad numeric field inventory and facade-local exact
 
 | Row | Status | Goal | Stop line |
 | --- | --- | --- | --- |
-| `M185 hako_alloc field inventory delta` | Planned | inventory numeric fields introduced by `M173-M184` and reconcile them with `NUMERIC_FIELDS.md` / `294x-16` | no migration in this row |
+| `M185 hako_alloc field inventory delta` | Complete | inventory numeric fields introduced by `M173-M184` and reconcile them with `NUMERIC_FIELDS.md` / `294x-16` | no migration in this row |
 | `M186 exact usize facade stats` | Already complete as `294x-19e` | facade-local event counters are exact `usize` | do not schedule duplicate facade migration |
-| `M187 exact usize for size-class policy` | Planned | migrate size-class policy inputs/outputs that are truly non-negative and backend-supported | lookup failure sentinels stay signed |
+| `M187 exact usize for size-class policy` | Next | migrate size-class policy inputs/outputs that are truly non-negative and backend-supported | lookup failure sentinels stay signed |
 | `M188 exact usize for request path` | Planned | migrate allocation request sizes and alignments where verifier/lowering support is live | page ids, block ids, and failure sentinels stay signed |
 | `M189 object-return allocate/realloc EXE parity` | Planned | prove semantic object-return allocator APIs in EXE instead of relying on scalar observers | no scalar-only proof substitution for API parity |
 | `M190 nullable / failure handle contract` | Planned | define explicit success/failure handle shape for allocation APIs | no silent null fallback or unchecked invalid handle |
@@ -197,7 +197,10 @@ the active `.hako` algorithm row.
 
 Post-M184 D195 refresh is complete in
 `docs/development/current/main/phases/phase-293x/293x-196-D195-HAKO-ALLOC-SSOT-REFRESH.md`.
-M185 is the next algorithm-support row.
+M185 field inventory delta is complete in
+`docs/development/current/main/phases/phase-293x/293x-197-M185-HAKO-ALLOC-FIELD-INVENTORY-DELTA.md`.
+M187 is the next exact numeric migration row because M186 facade stats already
+landed as `294x-19e`.
 
 ### Proof App Ergonomics Queue
 

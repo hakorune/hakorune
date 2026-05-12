@@ -25,6 +25,10 @@ field-group row records the invariant, stop line, and acceptance gate.
 - `signed-sentinel`: uses a negative value such as `-1`; do not migrate until
   the state shape is split.
 - `signed-delta`: may intentionally move above and below zero.
+- `ptr-id`: modeled pointer/handle integer. Keep as `i64` until pointer-shaped
+  API parity and failure-handle contracts are explicit.
+- `enum`: small result/status vocabulary. Keep as `i64` until the owning row
+  defines a narrower representation.
 - `index`: non-negative id / slot / bin index.
 - `size`: object or block size.
 - `capacity`: count of available storage slots or reserved blocks.
@@ -33,13 +37,19 @@ field-group row records the invariant, stop line, and acceptance gate.
 
 ## Stored Field Inventory
 
-Current stored numeric field count: 37.
+Current stored numeric field count: 215.
 
-No stored `signed-delta` field is live today.
-No stored `signed-sentinel` field is live after 294x-17.
+Stored `signed-delta` fields are live only in observer delta fields and remain
+`i64`.
+Stored `signed-sentinel` fields are live only in observer/result fields and
+remain `i64`.
 
 Probe-only exact `usize` stored fields live in `usize_field_probe_box.hako`.
 They are intentionally excluded from the production migration inventory below.
+
+The original 294x-16 detailed baseline is retained below. M185 adds the grouped
+post-M184 inventory after the baseline so the current owner map remains
+readable without losing field names.
 
 | File | Box | Field | Current Type | Category | Migration Note |
 | --- | --- | --- | --- | --- | --- |
@@ -81,17 +91,55 @@ They are intentionally excluded from the production migration inventory below.
 | `allocator_facade_box.hako` | `HakoAllocProductionFacade` | `free_count` | `usize` | `count` | Migrated in 294x-19e as facade-local monotonic stats. |
 | `allocator_facade_box.hako` | `HakoAllocProductionFacade` | `reject_count` | `usize` | `count` | Migrated in 294x-19e as facade-local monotonic stats. |
 
+## M185 Grouped Current Inventory
+
+This table is the post-M184 current production inventory grouped by owner. It
+excludes `usize_field_probe_box.hako`.
+
+| File | Box | Stored Numeric Fields | Migration Note |
+| --- | --- | --- | --- |
+| `alloc_fast_path_heap_box.hako` | `HakoAllocFastPathHandle` | `page_id`, `block_id`, `requested_size` | id/index + size fields; keep `i64` until object-return API parity and sentinel-return seams are split. |
+| `alloc_fast_path_heap_box.hako` | `HakoAllocFastPathHeap` | `bin`, `block_size`, `page_capacity`, `next_page_id`, `alloc_count`, `release_count`, `fallback_count`, `page_create_count`, `reject_count` | mixed index/size/capacity/count group; migrate only after owner-local exact numeric gate. |
+| `allocator_facade_box.hako` | `HakoAllocProductionFacade` | `alloc_count`, `free_count`, `reject_count` | already exact `usize` via 294x-19e. |
+| `huge_page_model_box.hako` | `HakoAllocHugePageModel` | `huge_count`, `live_count`, `allocate_count`, `release_count`, `release_reject_count`, `zero_reject_count`, `commit_reject_count`, `register_fail_count`, `reject_count`, `next_page_id`, `next_ptr`, `last_result_ptr`, `last_page_id`, `last_requested_size`, `last_committed_size`, `last_failure_kind` | huge counters are candidates; ptr/id/status/size observers stay `i64` until huge handle contract is exact. |
+| `huge_release_seam_box.hako` | `HakoAllocHugeReleaseSeam` | `release_count`, `unregister_count`, `lookup_miss_count`, `not_huge_count`, `model_reject_count`, `reject_count`, `last_page_id`, `last_requested_size`, `last_committed_size`, `last_failure_kind` | counters are candidates; `last_page_id = -1` is signed-sentinel and stays `i64`. |
+| `huge_threshold_router_box.hako` | `HakoAllocHugeThresholdRouter` | `small_route_count`, `small_success_count`, `small_reject_count`, `huge_route_count`, `huge_reject_count`, `invalid_alignment_count`, `invalid_size_count`, `reject_count`, `last_route_kind`, `last_result_ptr`, `last_padded_size`, `last_good_size`, `last_huge_threshold` | count + enum/ptr/size observers; exact migration waits for M187-M188 request-path rows. |
+| `osvm_backed_fast_path_heap_box.hako` | `HakoAllocOsVmPageBacking` | `page_id`, `base`, `bytes` | id/ptr-like base/byte-length group; keep `i64` until OSVM pointer-size contract. |
+| `osvm_backed_fast_path_heap_box.hako` | `HakoAllocOsVmBackedHandle` | `page_id`, `block_id`, `requested_size` | id/index + size fields; keep `i64` until object-return API parity. |
+| `osvm_backed_fast_path_heap_box.hako` | `HakoAllocOsVmBackedFastPathHeap` | `bin`, `block_size`, `page_capacity`, `next_page_id`, `backing_count`, `alloc_count`, `release_count`, `fallback_count`, `page_create_count`, `reject_count`, `reserve_count`, `commit_count`, `decommit_count`, `source_reject_count` | mixed index/size/capacity/count group; migrate after OSVM request-path exactness. |
+| `page_box.hako` | `HakoAllocPageModel` | `page_id`, `block_size`, `capacity`, `reserved`, `used`, `free_top`, `local_free_top`, `alloc_count`, `local_free_count`, `local_free_collect_count`, `local_free_collected_blocks`, `reject_count`, `retired`, `retire_count`, `peak_used`, `requested_bytes` | page-local core group; migrate in smaller owner-local rows because decrement/stack-top invariants matter. |
+| `page_heap_box.hako` | `HakoAllocHandle` | `page_id`, `block_id`, `requested_size` | legacy prototype handle; keep `i64` until superseded by current page-map owners or object-return parity. |
+| `page_heap_box.hako` | `HakoAllocPage` | `page_id`, `block_size`, `capacity`, `free_top`, `alloc_count`, `free_count`, `reuse_count`, `current_used`, `peak_used`, `requested_bytes` | legacy prototype page; migrate only if this owner remains live after page-model migration. |
+| `page_map_aligned_small_path_box.hako` | `HakoAllocPageMapAlignedSmallPath` | `meta_count`, `next_ptr`, `alloc_count`, `invalid_alignment_count`, `oversized_count`, `alloc_fail_count`, `register_fail_count`, `reject_count`, `last_result_ptr`, `last_alignment`, `last_padded_size` | counters are candidates; ptr/result/alignment/size observers wait for M188. |
+| `page_map_box.hako` | `HakoAllocPageMapEntry` | `ptr`, `page_id`, `block_id`, `live` | ptr/id/index + binary live flag; keep `i64` until pointer/result API shape is exact. |
+| `page_map_box.hako` | `HakoAllocPageMap` | `entry_count`, `live_count`, `register_count`, `lookup_count`, `lookup_miss_count`, `unregister_count`, `reject_count` | page-map counters are low-risk candidates after page-map owner gate. |
+| `page_map_realloc_alloc_copy_release_box.hako` | `HakoAllocPageMapReallocAllocCopyReleasePath` | `next_ptr`, `success_count`, `copy_count`, `same_class_reject_count`, `alloc_fail_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `reject_count`, `last_result_ptr`, `last_alloc_page_id`, `last_alloc_block_id` | copy/counters are candidates; `last_alloc_* = -1` sentinels and ptr fields stay `i64`. |
+| `page_map_realloc_failure_contract_box.hako` | `HakoAllocPageMapReallocFailureContract` | `success_count`, `same_class_success_count`, `move_success_count`, `zero_reject_count`, `oversized_reject_count`, `alloc_fail_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `unexpected_reject_count`, `reject_count`, `last_result_ptr`, `last_failure_kind`, `last_max_block_size` | failure-matrix counters are candidates; ptr/status/size observers wait for API parity. |
+| `page_map_realloc_same_class_box.hako` | `HakoAllocPageMapReallocSameClassPath` | `same_class_count`, `grow_reject_count`, `lookup_miss_count`, `stale_page_count`, `released_block_count`, `reject_count`, `last_result_ptr` | counters are candidates; result pointer stays `i64`. |
+| `page_map_release_box.hako` | `HakoAllocPageMapReleaseSeam` | `page_count`, `page_register_count`, `release_count`, `unregister_count`, `lookup_miss_count`, `stale_page_count`, `page_release_reject_count`, `reject_count` | counters are candidates after release invariant rows remain green. |
+| `page_map_release_invariant_box.hako` | `HakoAllocPageMapReleaseObserver` | `observe_count`, `success_count`, `reject_count`, `live_count_before`, `release_count_before`, `unregister_count_before`, `page_used_before`, `local_free_before`, `last_ptr`, `last_page_id`, `last_block_id`, `last_result`, `last_entry_live_before`, `last_lookup_after`, `last_live_count_delta`, `last_release_count_delta`, `last_unregister_count_delta`, `last_page_used_delta`, `last_local_free_delta` | observer-only; signed sentinel and signed delta fields stay `i64`. |
+| `page_queue_box.hako` | `HakoAllocPageQueue` | `bin`, `page_count`, `has_direct_page`, `direct_page_index`, `add_count`, `select_count`, `direct_hit_count`, `refresh_count`, `reject_count` | queue counters are candidates; index/flag migration waits for queue contracts. |
+| `remote_free_page_integration_box.hako` | `HakoAllocRemoteFreePageInbox` | `head_cell`, `init_status`, `pending_top`, `remote_push_count`, `remote_collect_count`, `retry_count`, `reject_count` | mailbox status/count fields remain `i64` until pointer-atomic lane is exact. |
+| `secure_free_list_diagnostics_box.hako` | `HakoAllocSecureFreeListDiagnostics` | `scan_count`, `ok_count`, `fail_count`, `out_of_range_free_block_count`, `duplicate_free_block_count`, `live_block_in_free_list_count`, `free_count_mismatch_count`, `local_free_count_mismatch_count`, `last_ok`, `last_out_of_range_free_block`, `last_duplicate_free_block`, `last_live_block_in_free_list`, `last_free_count_mismatch`, `last_local_free_count_mismatch` | diagnostics counters/flags are candidates, but keep `i64` until secure-list hardening semantics settle. |
+| `secure_free_list_policy_box.hako` | `HakoAllocSecureFreeListPolicy` | none | M184 has no stored numeric fields; `-1` and `-2` are non-stored return sentinels. |
+
 ## Sentinel Notes
 
 Stored negative sentinel:
 
-- none.
+- `page_map_release_invariant_box.hako`:
+  `last_page_id`, `last_block_id`.
+- `page_map_realloc_alloc_copy_release_box.hako`:
+  `last_alloc_page_id`, `last_alloc_block_id`.
+- `huge_release_seam_box.hako`: `last_page_id`.
 
 Non-stored sentinel seams that must be considered in the next row:
 
 - `HakoAllocPageModel.acquire(...)` returns `-1` on reject.
 - `HakoAllocPageQueue.addPage(...)` returns `-1` on reject.
 - `HakoAllocPageQueue.directPageId()` returns `-1` when no direct page exists.
+- `HakoAllocSecureFreeListPolicy.end_next()` returns `-1`.
+- `HakoAllocSecureFreeListPolicy.invalid_next()` returns `-2`.
 
 ## Migration Order
 
