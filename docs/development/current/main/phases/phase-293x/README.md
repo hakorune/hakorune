@@ -476,6 +476,8 @@ inference for the allocator release path.
 - `293x-195`: M184 secure-list encode/decode small path landed, adding
   `HakoAllocSecureFreeListPolicy` for reversible encoded-next policy and
   capacity validation with caller-provided cookies only.
+- `293x-196`: D195 hako_alloc SSOT refresh landed, confirming the post-M184
+  ownership split before numeric field inventory resumes.
 - Next: continue with `M185 hako_alloc field inventory delta`.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.

@@ -113,6 +113,9 @@ Allocator fast-path rule
 - mimalloc-grade native fast paths require the substrate ladder first.
 - post-M176 realloc behavior is fixed by the M171-M176 owners above; do not fold
   alignment, huge-page, or secure-list execution into those boxes.
+- post-M184 secure-list behavior is intentionally split: diagnostics observe
+  page-local list shape, while encoded-next policy only transforms next indices.
+  Neither owner mutates page state or claims hardening.
 - `RawBuf` policy/state, `MaybeInit`, native `Layout`, `repr`-like layout,
   `sizeof`, `alignof`, `no_alloc`, `no_safepoint`, TLS, atomics, and OS VM rows
   stay reserved until their docs/gates are named.

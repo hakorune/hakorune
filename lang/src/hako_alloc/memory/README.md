@@ -109,5 +109,9 @@ Syntax/style contract
 - `secure_free_list_policy_box.hako` owns M184 secure-list encoded-next policy.
   It may encode/decode next indices and validate decoded capacity, but it must
   not source entropy, mutate page state, or claim hardening policy.
+- D195 checkpoint: after M184, secure-list state remains split between
+  observation (`secure_free_list_diagnostics_box.hako`) and encoded-next policy
+  (`secure_free_list_policy_box.hako`). Page mutation stays with
+  `page_box.hako` and release/realloc owners.
 - Keep `birth(...)` for parameter-dependent initialization and ordering that
   cannot be expressed as a declaration-site default.

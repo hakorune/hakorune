@@ -195,6 +195,10 @@ the active `.hako` algorithm row.
 | `D195 hako_alloc SSOT refresh` | refresh ownership, handle lifetime, release, realloc, alignment, huge, secure-list, and non-goal docs | after `M176`, then again after `M184` if secure-list lands |
 | `D196 stop-the-line guard refresh` | keep guards focused on real stop lines instead of growing every row-specific shell check | after `M184`, or earlier if guard runtime starts blocking normal development |
 
+Post-M184 D195 refresh is complete in
+`docs/development/current/main/phases/phase-293x/293x-196-D195-HAKO-ALLOC-SSOT-REFRESH.md`.
+M185 is the next algorithm-support row.
+
 ### Proof App Ergonomics Queue
 
 These rows improve proof readability without changing allocator semantics.
