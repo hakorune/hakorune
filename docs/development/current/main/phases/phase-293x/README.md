@@ -504,8 +504,11 @@ inference for the allocator release path.
 - `293x-205`: C199 compound assignment surface landed, accepting `+=`, `-=`,
   `*=`, and `/=` for local, field, and index targets as canonical assignment
   sugar.
-- Next: continue with proof/application syntax rows (`C197-C200`) or the
-  record/packed-array compiler lane (`C201-C205`) when needed. No M191
+- `293x-206`: C200 guard else surface landed, accepting
+  `guard expr else { ... }` as canonical `if !(expr) { ... }` early-exit sugar
+  without adding a new control-flow AST node.
+- Next: continue with the record/packed-array compiler lane (`C201-C205`) or
+  allocator algorithm rows when needed. No M191
   allocator API row is scheduled yet; M186 facade stats already landed as
   `294x-19e`.
   M104 is next only if the optional allocator-provider
@@ -524,7 +527,7 @@ Current execution order:
    exact `usize` via `294x-19e`, so those rows must not be repeated.
 2. `C198-C200`: improve proof/application syntax only as separate language rows
    after docs/reference decisions. Do not fold them into allocator rows.
-   `C197`, `C198`, and `C199` are complete. `C200` is `guard ... else`.
+   `C197`, `C198`, `C199`, and `C200` are complete.
 3. `C201-C205`: add record/packed-array compiler-runtime support before moving
    allocator metadata off the current M178 scalar columns.
 4. `C191-C194`: run compiler/backend hardening only when it does not collide

@@ -24,6 +24,7 @@ pub enum TokenType {
     MATCH,
     IF,
     ELSE,
+    GUARD,
     LOOP,
     BREAK,
     CONTINUE,

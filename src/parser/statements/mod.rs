@@ -316,6 +316,7 @@ impl NyashParser {
 
             // Control flow
             TokenType::IF
+            | TokenType::GUARD
             | TokenType::WHILE
             | TokenType::FOR
             | TokenType::LOOP

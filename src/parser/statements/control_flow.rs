@@ -8,7 +8,7 @@
  * - return statements
  */
 
-use crate::ast::{ASTNode, EnumMatchArm, LiteralValue, Span};
+use crate::ast::{ASTNode, EnumMatchArm, LiteralValue, Span, UnaryOperator};
 use crate::parser::common::ParserUtils;
 use crate::parser::cursor::TokenCursor;
 use crate::parser::{NyashParser, ParseError};
@@ -21,6 +21,7 @@ impl NyashParser {
 
         match &self.current_token().token_type {
             TokenType::IF => self.parse_if(),
+            TokenType::GUARD => self.parse_guard_else(),
             // Stage-3: while
             TokenType::WHILE if stage3 => self.parse_while_stage3(),
             // Stage-3: for-range (stubbed to clear error path; implement next)
@@ -79,6 +80,44 @@ impl NyashParser {
             condition,
             then_body,
             else_body,
+            span: Span::unknown(),
+        })
+    }
+
+    /// Parse guard statement: guard condition else { early-exit body }
+    ///
+    /// C200 keeps `guard` as source sugar only. It lowers to:
+    /// `if !(condition) { early-exit body }`
+    pub(super) fn parse_guard_else(&mut self) -> Result<ASTNode, ParseError> {
+        if super::helpers::cursor_enabled() {
+            let mut cursor = TokenCursor::new(&self.tokens);
+            cursor.set_position(self.current);
+            cursor.with_stmt_mode(|c| c.skip_newlines());
+            self.current = cursor.position();
+        }
+        self.advance(); // consume 'guard'
+
+        let condition = self.parse_expression()?;
+
+        if !self.match_token(&TokenType::ELSE) {
+            return Err(ParseError::UnexpectedToken {
+                found: self.current_token().token_type.clone(),
+                expected: "else after guard condition".to_string(),
+                line: self.current_token().line,
+            });
+        }
+        self.advance(); // consume 'else'
+
+        let then_body = self.parse_block_statements()?;
+
+        Ok(ASTNode::If {
+            condition: Box::new(ASTNode::UnaryOp {
+                operator: UnaryOperator::Not,
+                operand: Box::new(condition),
+                span: Span::unknown(),
+            }),
+            then_body,
+            else_body: None,
             span: Span::unknown(),
         })
     }

@@ -235,7 +235,7 @@ not treat them as aliases.
 | `C197 logical condition surface hardening` | Complete | make ordinary `&&` / `||` chains and parenthesized multiline conditions pleasant and reliable as normal control-flow expressions | no eager proof-list semantics, no `all(...)` macro, no allocator-specific condition DSL |
 | `C198 check block surface` | Complete | add a general proof-oriented `check "name" { "label": expr }` expression with eager item evaluation | no short-circuit macro, variadic `all(...)`, allocator DSL, or backend route selector |
 | `C199 compound assignment surface` | Complete | promote `+=` style sugar where it lowers to the existing assignment form | no hidden overflow policy or allocator-specific meaning |
-| `C200 guard else surface` | Future | add early-return guard syntax that lowers to `if !(cond) { ... }` | no exception/fallback semantics |
+| `C200 guard else surface` | Complete | add early-return guard syntax that lowers to `if !(cond) { ... }` | no exception/fallback semantics |
 
 ## Granular Row Contracts
 

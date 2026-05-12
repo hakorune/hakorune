@@ -1,0 +1,29 @@
+// guard-else-surface-proof
+// Purpose: prove C200 `guard expr else { ... }` remains canonical negative-if
+// early-exit sugar.
+
+static box Main {
+    main(args) {
+        print("guard-else-surface-proof")
+
+        local ready = 1
+        guard ready == 1 else {
+            print("first-guard=unexpected")
+            print("summary=fail")
+            return 1
+        }
+
+        print("first-guard=passed")
+
+        local allowed = 0
+        guard allowed == 1 else {
+            print("second-guard=blocked")
+            print("summary=ok")
+            return 0
+        }
+
+        print("second-guard=unexpected")
+        print("summary=fail")
+        return 1
+    }
+}

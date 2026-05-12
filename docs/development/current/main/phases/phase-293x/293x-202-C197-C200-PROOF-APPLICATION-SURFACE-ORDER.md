@@ -1,6 +1,6 @@
 # 293x-202: C197-C200 Proof/Application Surface Order
 
-Status: Active order SSOT / C197-C199 complete
+Status: Complete
 
 This card locks the readable task order for the proof/application syntax rows
 that follow the allocator API rows. It does not add syntax or change allocator
@@ -63,6 +63,8 @@ no hidden overflow policy, no allocator-specific meaning.
 
 ### C200 guard else surface
 
+Status: Complete.
+
 Purpose:
 add early-return guard syntax that lowers to `if !(cond) { ... }`.
 
@@ -97,7 +99,6 @@ boolean language and avoids using boolean chains as a poor proof-reporting DSL.
 
 ## Next
 
-`C197 logical condition surface hardening`, `C198 check block surface`, and
-`C199 compound assignment surface` are complete. Continue with `C200 guard else
-surface` only when current proof or allocator apps need the sugar; keep it
-separate from allocator algorithm rows.
+`C197 logical condition surface hardening`, `C198 check block surface`, `C199
+compound assignment surface`, and `C200 guard else surface` are complete. Keep
+future proof/application syntax rows separate from allocator algorithm rows.

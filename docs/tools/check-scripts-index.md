@@ -105,6 +105,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_logical_condition_surface_guard.sh` | C197 の parenthesized multiline `&&` / `||` condition surface を固定し、通常 short-circuit semantics と future `check` proof-list surface の分離を検証する。 |
 | `tools/checks/k2_wide_check_block_surface_guard.sh` | C198 の `check "name" { "label": expr }` proof-list surface を固定し、全 item eager 評価と scalar pass/fail result を VM proof で検証する。 |
 | `tools/checks/k2_wide_compound_assignment_surface_guard.sh` | C199 の `+=` / `-=` / `*=` / `/=` surface を固定し、local / field / index targets が canonical assignment sugar として VM proof で動くことを検証する。 |
+| `tools/checks/k2_wide_guard_else_surface_guard.sh` | C200 の `guard expr else { ... }` surface を固定し、既存 `If(UnaryOp::Not(...))` sugar として VM proof で動くことを検証する。 |
 | `tools/checks/k2_wide_mimalloc_osvm_page_exe_guard.sh` | M25 の `OsVmCoreBox.reserve_bytes_i64/commit_bytes_i64/decommit_bytes_i64` + pure-first EXE proof を固定し、OSVM route が MIR-owned extern route facts から emit されることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_tls_cache_slot_exe_guard.sh` | M26 の `TlsCoreBox.cache_slot_get_i64/cache_slot_set_i64` + pure-first EXE proof を固定し、TLS cache-slot route が MIR-owned extern route facts から emit されることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_atomic_cas_exe_guard.sh` | M27 の `AtomicCoreBox.cas_i64` + pure-first EXE proof を固定し、atomic CAS route が MIR-owned extern route facts から emit されることを検証する。 |

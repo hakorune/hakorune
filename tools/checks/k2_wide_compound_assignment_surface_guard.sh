@@ -40,7 +40,7 @@ guard_expect_in_file "$TAG" '### C199 Compound Assignment Surface' "$EBNF" "EBNF
 guard_expect_in_file "$TAG" 'Decision: accepted' "$EBNF" "EBNF must mark C199 accepted"
 guard_expect_in_file "$TAG" "compound_assign_op := '\\+=' \\| '-=' \\| '\\*=' \\| '/='" "$EBNF" "EBNF must define compound assignment operators"
 guard_expect_in_file "$TAG" 'C199 compound assignment surface` \| Complete' "$PLAN" "plan must mark C199 complete"
-guard_expect_in_file "$TAG" 'C200 guard else surface` \| Future' "$PLAN" "C200 must remain the later row"
+guard_expect_in_file "$TAG" 'C200 guard else surface` \| Complete' "$PLAN" "C200 must now be the completed later row"
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "C199 card must be complete"
 guard_expect_in_file "$TAG" 'ASTNode::Index' "$PARSER" "parser must accept index compound assignment targets"
 guard_expect_in_file "$TAG" 'NYASH_SYNTAX_SUGAR_LEVEL' "$PARSER_TEST" "parser test must cover sugar gate behavior"

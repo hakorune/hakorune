@@ -27,6 +27,7 @@ stmt      := 'return' expr
            | local_stmt
            | fini_stmt
            | assign_stmt
+           | guard_stmt
            | 'if' expr block ('else' block)?
            | 'loop' '('? expr ')' ? block
            | expr                         ; expression statement
@@ -37,6 +38,10 @@ local_tail := '=' expr local_fini_opt
            | local_fini_opt
 local_fini_opt := ('fini' block)?
 fini_stmt  := 'fini' block
+
+guard_stmt := 'guard' expr 'else' block
+           ; C200: guard else is default early-exit sugar.
+           ; It lowers to `if !(expr) block`.
 
 assign_stmt := assign_target '=' expr
              | assign_target compound_assign_op expr
@@ -224,6 +229,30 @@ Stop line:
 C199 does not add a new overflow policy, allocator-specific meaning, hidden
 atomic read-modify-write behavior, or special backend route. The canonical AST
 shape remains `Assignment { value: BinaryOp { ... } }`.
+
+### C200 Guard Else Surface
+
+Decision: accepted.
+
+`guard expr else { ... }` is accepted as early-exit source sugar:
+
+```hako
+guard handle.isValid() else {
+    return 0
+}
+```
+
+It lowers as if the source had been written:
+
+```hako
+if !(handle.isValid()) {
+    return 0
+}
+```
+
+C200 does not add a new AST control-flow node, exception behavior, fallback
+semantics, or backend route. The canonical AST shape remains an `If` whose
+condition is `UnaryOp::Not` over the guard condition.
 
 ## Box Members (Phase‑15, env gate: NYASH_ENABLE_UNIFIED_MEMBERS; default ON)
 

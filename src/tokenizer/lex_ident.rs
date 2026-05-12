@@ -25,6 +25,7 @@ impl NyashTokenizer {
             "match" => TokenType::MATCH,
             "if" => TokenType::IF,
             "else" => TokenType::ELSE,
+            "guard" => TokenType::GUARD,
             "loop" => TokenType::LOOP,
             "break" => TokenType::BREAK,
             "continue" => TokenType::CONTINUE,
