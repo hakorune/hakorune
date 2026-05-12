@@ -26,5 +26,8 @@ Syntax/style contract
 - Keep numeric allocator state on `i64` annotations for now. `usize` is
   accepted as annotation metadata by the language surface, but exact
   pointer-sized unsigned semantics are not live yet.
+- Numeric stored field migration is gated by
+  [`NUMERIC_FIELDS.md`](./NUMERIC_FIELDS.md). Do not migrate a field to
+  `usize` unless its category and sentinel behavior are recorded there first.
 - Keep `birth(...)` for parameter-dependent initialization and ordering that
   cannot be expressed as a declaration-site default.

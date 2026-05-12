@@ -125,6 +125,8 @@
   resolving them through `NumericTarget` pointer-width layout rules, while
   source syntax, backend-native layout execution, and hako_alloc migration stay
   deferred.
+- `294x-16`: `lang/src/hako_alloc/memory/NUMERIC_FIELDS.md` now classifies all
+  current numeric stored fields before any live `usize` migration.
 
 ## First Implementation Direction
 

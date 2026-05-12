@@ -100,6 +100,8 @@ Live today:
   through `NumericTarget` pointer-width layout rules to target-sized scalar
   storage. This remains metadata-only and adds no source syntax or
   backend-native field execution;
+- `lang/src/hako_alloc/memory/NUMERIC_FIELDS.md` classifies all current
+  `hako_alloc` numeric stored fields before any live field migration;
 - `FunctionMetadata` preserves MIR-side declared parameter/return annotation
   text, and exact numeric return annotations publish function-level advisory
   return facts without changing runtime lowering;
