@@ -28,5 +28,6 @@ memory.remote_free_page_integration_box = "memory/remote_free_page_integration_b
 memory.remote_free_policy_box = "memory/remote_free_policy_box.hako"
 memory.refcell_box = "memory/refcell_box.hako"
 memory.secure_free_list_diagnostics_box = "memory/secure_free_list_diagnostics_box.hako"
+memory.secure_free_list_policy_box = "memory/secure_free_list_policy_box.hako"
 memory.size_class_box = "memory/size_class_box.hako"
 memory.usize_field_probe_box = "memory/usize_field_probe_box.hako"

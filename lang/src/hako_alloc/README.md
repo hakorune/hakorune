@@ -94,6 +94,9 @@ Principles
   - `HakoAllocSecureFreeListDiagnostics` is the M183 diagnostics owner. It
     observes page-local free-list shape before secure-list encode/decode policy
     lands.
+  - `HakoAllocSecureFreeListPolicy` is the M184 encoded-next policy owner. It
+    provides reversible next-index encode/decode plus capacity validation with
+    caller-provided cookies and no entropy-source claim.
 
 Design owners
 - Policy/state stop-line:

@@ -157,6 +157,7 @@
 - [x] `293x-192` M181 huge release seam
 - [x] `293x-193` M182 secure free-list policy inventory
 - [x] `293x-194` M183 secure-list diagnostics
+- [x] `293x-195` M184 secure-list encode/decode small path
 
 ## Gates
 

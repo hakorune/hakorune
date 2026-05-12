@@ -473,7 +473,10 @@ inference for the allocator release path.
 - `293x-194`: M183 secure-list diagnostics landed, adding
   `HakoAllocSecureFreeListDiagnostics` to observe out-of-range, duplicate,
   live-block, and count-mismatch free-list states without encode/decode policy.
-- Next: continue with `M184 secure-list encode/decode small path`.
+- `293x-195`: M184 secure-list encode/decode small path landed, adding
+  `HakoAllocSecureFreeListPolicy` for reversible encoded-next policy and
+  capacity validation with caller-provided cookies only.
+- Next: continue with `M185 hako_alloc field inventory delta`.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.
 
@@ -484,13 +487,12 @@ SSOT:
 
 Current execution order:
 
-1. `M184`: add secure-list encode/decode small path.
-2. `M185-M190`: finish remaining `usize` field-group migration and allocator
+1. `M185-M190`: finish remaining `usize` field-group migration and allocator
    API parity. Facade stats are already exact `usize` via `294x-19e`, so that
    row must not be repeated.
-3. `C197-C200`: improve proof/application syntax only as separate language rows
+2. `C197-C200`: improve proof/application syntax only as separate language rows
    after docs/reference decisions. Do not fold them into allocator rows.
-4. `C201-C205`: add record/packed-array compiler-runtime support before moving
+3. `C201-C205`: add record/packed-array compiler-runtime support before moving
    allocator metadata off the current M178 scalar columns.
 5. `C191-C194`: run compiler/backend hardening only when it does not collide
    with the active `.hako` row.

@@ -1,0 +1,82 @@
+// mimalloc-secure-list-encode-decode-proof
+// Purpose: prove M184 reversible encoded-next policy.
+
+using selfhost.hako_alloc.memory.secure_free_list_policy_box as HakoAllocSecureFreeListPolicy
+
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expect(label, condition) {
+        me.count = me.count + 1
+        if condition == 0 {
+            me.passed = 0
+            me.fail_count = me.fail_count + 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
+static box Main {
+    main(args) {
+        local cookie = 37
+        local encoded_end = HakoAllocSecureFreeListPolicy.encodeNext(-1, cookie)
+        local encoded0 = HakoAllocSecureFreeListPolicy.encodeNext(0, cookie)
+        local encoded3 = HakoAllocSecureFreeListPolicy.encodeNext(3, cookie)
+        local decoded_end = HakoAllocSecureFreeListPolicy.decodeNext(encoded_end, cookie)
+        local decoded0 = HakoAllocSecureFreeListPolicy.decodeNext(encoded0, cookie)
+        local decoded3 = HakoAllocSecureFreeListPolicy.decodeNext(encoded3, cookie)
+
+        local wrong_cookie = HakoAllocSecureFreeListPolicy.decodeNext(encoded3, cookie + 1)
+        local bad_cookie = HakoAllocSecureFreeListPolicy.encodeNext(1, 0)
+        local bad_next = HakoAllocSecureFreeListPolicy.encodeNext(-2, cookie)
+        local malformed = HakoAllocSecureFreeListPolicy.decodeNext(12345, cookie)
+
+        local cap_end = HakoAllocSecureFreeListPolicy.decodeNextForCapacity(encoded_end, cookie, 4)
+        local cap3 = HakoAllocSecureFreeListPolicy.decodeNextForCapacity(encoded3, cookie, 4)
+        local cap4_encoded = HakoAllocSecureFreeListPolicy.encodeNext(4, cookie)
+        local cap4 = HakoAllocSecureFreeListPolicy.decodeNextForCapacity(cap4_encoded, cookie, 4)
+        local enc_cap_bad = HakoAllocSecureFreeListPolicy.encodeNextForCapacity(4, cookie, 4)
+
+        local valid_end = HakoAllocSecureFreeListPolicy.validateDecodedIndex(-1, 4)
+        local valid3 = HakoAllocSecureFreeListPolicy.validateDecodedIndex(3, 4)
+        local valid4 = HakoAllocSecureFreeListPolicy.validateDecodedIndex(4, 4)
+        local valid_neg = HakoAllocSecureFreeListPolicy.validateDecodedIndex(-2, 4)
+
+        print("mimalloc-secure-list-encode-decode-proof")
+        print("encoded=" + encoded_end + "," + encoded0 + "," + encoded3)
+        print("decoded=" + decoded_end + "," + decoded0 + "," + decoded3)
+        print("reject=" + wrong_cookie + "," + bad_cookie + "," + bad_next + "," + malformed)
+        print("capacity=" + cap_end + "," + cap3 + "," + cap4 + "," + enc_cap_bad)
+        print("valid=" + valid_end + "," + valid3 + "," + valid4 + "," + valid_neg)
+
+        local proof = new ProofCheck("m184 secure list policy")
+        proof.expect("encoded end", encoded_end == 37)
+        proof.expect("encoded 0", encoded0 == 65573)
+        proof.expect("encoded 3", encoded3 == 262181)
+        proof.expect("decoded", decoded_end == -1 && decoded0 == 0 && decoded3 == 3)
+        proof.expect("rejects", wrong_cookie == -2 && bad_cookie == -2 && bad_next == -2 && malformed == -2)
+        proof.expect("capacity decode", cap_end == -1 && cap3 == 3 && cap4 == -2 && enc_cap_bad == -2)
+        proof.expect("validation", valid_end == 1 && valid3 == 1 && valid4 == 0 && valid_neg == 0)
+
+        if proof.ok() {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

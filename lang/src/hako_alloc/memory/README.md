@@ -106,5 +106,8 @@ Syntax/style contract
 - `secure_free_list_diagnostics_box.hako` owns M183 secure-list diagnostics. It
   may observe page-local free/local_free shape, but it must not implement
   encode/decode, cookies, or hardening policy.
+- `secure_free_list_policy_box.hako` owns M184 secure-list encoded-next policy.
+  It may encode/decode next indices and validate decoded capacity, but it must
+  not source entropy, mutate page state, or claim hardening policy.
 - Keep `birth(...)` for parameter-dependent initialization and ordering that
   cannot be expressed as a declaration-site default.

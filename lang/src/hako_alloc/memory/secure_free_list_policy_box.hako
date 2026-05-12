@@ -1,0 +1,93 @@
+// secure_free_list_policy_box.hako -- M184 encoded-next policy owner
+// Responsibility: reversible next-index encoding with a caller-provided cookie.
+// This module does not source entropy, mutate page state, or harden lists.
+
+static box HakoAllocSecureFreeListPolicy {
+    invalid_next() {
+        return -2
+    }
+
+    end_next() {
+        return -1
+    }
+
+    tag_base() {
+        return 65536
+    }
+
+    normalizeCookie(cookie) {
+        if cookie <= 0 {
+            return -1
+        }
+
+        if cookie >= me.tag_base() {
+            return -1
+        }
+
+        return cookie
+    }
+
+    validateDecodedIndex(decoded_next, capacity) {
+        if decoded_next == me.end_next() {
+            return 1
+        }
+
+        if decoded_next < 0 {
+            return 0
+        }
+
+        if decoded_next >= capacity {
+            return 0
+        }
+
+        return 1
+    }
+
+    encodeNext(next_block, cookie) {
+        local normalized_cookie = me.normalizeCookie(cookie)
+        if normalized_cookie < 0 {
+            return me.invalid_next()
+        }
+
+        if next_block < me.end_next() {
+            return me.invalid_next()
+        }
+
+        return (next_block + 1) * me.tag_base() + normalized_cookie
+    }
+
+    decodeNext(encoded_next, cookie) {
+        local normalized_cookie = me.normalizeCookie(cookie)
+        if normalized_cookie < 0 {
+            return me.invalid_next()
+        }
+
+        if encoded_next < 0 {
+            return me.invalid_next()
+        }
+
+        local base = me.tag_base()
+        if encoded_next % base != normalized_cookie {
+            return me.invalid_next()
+        }
+
+        return (encoded_next - normalized_cookie) / base - 1
+    }
+
+    encodeNextForCapacity(next_block, cookie, capacity) {
+        if me.validateDecodedIndex(next_block, capacity) == 0 {
+            return me.invalid_next()
+        }
+
+        return me.encodeNext(next_block, cookie)
+    }
+
+    decodeNextForCapacity(encoded_next, cookie, capacity) {
+        local decoded = me.decodeNext(encoded_next, cookie)
+        if me.validateDecodedIndex(decoded, capacity) == 0 {
+            return me.invalid_next()
+        }
+
+        return decoded
+    }
+}
