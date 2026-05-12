@@ -50,6 +50,8 @@ box HakoAllocPageMap {
     }
 
     register(ptr, page_id, block_id) {
+        local existing_index = me.findIndex(ptr)
+
         if ptr == 0 {
             me.reject_count = me.reject_count + 1
             return 0
@@ -65,7 +67,7 @@ box HakoAllocPageMap {
             return 0
         }
 
-        if me.findIndex(ptr) >= 0 {
+        if existing_index >= 0 {
             me.reject_count = me.reject_count + 1
             return 0
         }

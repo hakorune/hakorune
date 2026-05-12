@@ -39,7 +39,7 @@ hako_alloc or mimalloc migration.
 
 | Order | Row | Status | Implementation Boundary |
 | --- | --- | --- | --- |
-| 1 | `M172` | Next | Page-map-backed release seam, no realloc or byte copy. |
+| 1 | `M173` | Next | Pre-realloc release invariant freeze, no realloc body or byte copy. |
 
 ## Ladder
 
@@ -208,7 +208,8 @@ hako_alloc or mimalloc migration.
 - [x] Land M169 local-free collection and retire observation.
 - [x] Land M170 remote-free integration through existing pointer atomics only.
 - [x] Land M171 page-map model owner.
-- [ ] Land M172 page-map-backed release seam before scheduling realloc/aligned/page-map/huge-page rows.
+- [x] Land M172 page-map-backed release seam before scheduling realloc/aligned/page-map/huge-page rows.
+- [ ] Land M173 pre-realloc release invariant freeze before the realloc body.
 
 ## Open Design Questions
 

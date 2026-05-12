@@ -419,7 +419,11 @@ inference for the allocator release path.
   state through a caller-provided block-id proof seam.
 - `293x-179`: M171 mimalloc page-map model landed, adding
   `HakoAllocPageMap` as the pointer-to-page/block ownership lookup owner.
-- Next: continue with `M172 page-map-backed release seam` before scheduling
-  realloc, aligned allocation, huge-page, or secure-list rows.
+- `293x-180`: M172 mimalloc page-map-backed release seam landed, adding
+  `HakoAllocPageMapReleaseSeam` as the narrow owner that composes
+  `lookup(...)`, `releaseLocal(...)`, and `unregister(...)` without taking over
+  pointer registration.
+- Next: continue with `M173 pre-realloc release invariant freeze` before
+  scheduling realloc body, aligned allocation, huge-page, or secure-list rows.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.

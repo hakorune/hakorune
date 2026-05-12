@@ -1,0 +1,89 @@
+// page_map_release_box.hako — M172 page-map-backed release seam
+// Responsibility: compose pointer ownership lookup with page-local release.
+// Future allocator APIs and native metal stay outside this owner.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
+
+box HakoAllocPageMapReleaseSeam {
+    pages: ArrayBox = new ArrayBox()
+    page_map: HakoAllocPageMap
+    page_count: i64 = 0
+    page_register_count: i64 = 0
+    release_count: i64 = 0
+    unregister_count: i64 = 0
+    lookup_miss_count: i64 = 0
+    stale_page_count: i64 = 0
+    page_release_reject_count: i64 = 0
+    reject_count: i64 = 0
+
+    birth(page_map) {
+        me.page_map = page_map
+    }
+
+    addPage(page) {
+        if page == null {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        if page.page_id != me.page_count {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        me.pages.push(page)
+        me.page_count = me.page_count + 1
+        me.page_register_count = me.page_register_count + 1
+        return 1
+    }
+
+    releasePtr(ptr) {
+        local page_map = me.page_map
+        local entry = page_map.lookup(ptr)
+        if entry == null {
+            me.lookup_miss_count = me.lookup_miss_count + 1
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        local page_id = entry.page_id
+        if page_id < 0 {
+            me.stale_page_count = me.stale_page_count + 1
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        if page_id >= me.page_count {
+            me.stale_page_count = me.stale_page_count + 1
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        local page = me.pages.get(page_id)
+        if page == null {
+            me.stale_page_count = me.stale_page_count + 1
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        if page.releaseLocal(entry.block_id) == 0 {
+            me.page_release_reject_count = me.page_release_reject_count + 1
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        if page_map.unregister(ptr) {
+            me.unregister_count = me.unregister_count + 1
+            me.release_count = me.release_count + 1
+            return 1
+        }
+
+        me.reject_count = me.reject_count + 1
+        return 0
+    }
+
+    liveCount() {
+        return me.page_map.live_count
+    }
+}

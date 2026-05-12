@@ -28,7 +28,7 @@
 
 | Next | Card | Goal |
 | --- | --- | --- |
-| 1 | `M172` | Compose page-map lookup/unregister with page-local release. |
+| 1 | `M173` | Freeze release invariants and handle lifetime before realloc. |
 
 Stop line: VM green is useful reference evidence, but production allocator
 migration still changes only by explicit `hako_alloc` field-group rows.
@@ -199,8 +199,8 @@ explicit consumer:
 5. lower the exact arithmetic/compare subset needed by migrated fields;
 6. migrate `hako_alloc` non-negative fields only by field group when an
    algorithm row actually benefits from the migration;
-7. continue M172 page-map-backed release before scheduling realloc, aligned
-   allocation, huge-page, or secure-list rows.
+7. continue M173 pre-realloc release invariant freeze before scheduling realloc
+   body, aligned allocation, huge-page, or secure-list rows.
 
 This keeps the source truth available before any lowerer claims exact
 semantics.

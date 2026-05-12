@@ -136,11 +136,19 @@ and options stay separate rows after the page-map-backed free seam is proven.
 | --- | --- | --- |
 | `M171 page-map model` | record and resolve caller-visible pointer ownership to `page_id` / `block_id` | no arbitrary free/realloc, no pointer arithmetic, no OSVM release |
 | `M172 page-map-backed release seam` | compose page-map lookup/unregister with page-local release | no realloc, no byte copy, no host replacement |
-| `M173 handle realloc policy` | allocate a replacement handle and retire the old handle in policy space | no raw byte copy until RawBuf/RawArray copy contract is named |
-| `M174 aligned allocation policy` | add alignment request/good-size policy vocabulary | no native aligned allocation route or ABI alignment claim |
-| `M175 large/huge page model` | route huge-bin requests to explicit page-source-backed pages | no arena scheduler or OS release widening |
-| `M176 secure free-list vocabulary` | decide encoded/randomized free-list requirements | no cryptographic randomness or bitwise lowering claim without compiler support |
-| `M177 stats/options surface` | expose allocator observability/configuration only after algorithm rows are stable | no environment toggles without docs/env SSOT |
+| `M173 pre-realloc release invariant freeze` | freeze handle lifetime, page-map registration/unregistration timing, and release observers before realloc | no realloc body, no byte copy |
+| `M174 realloc same-class/no-move path` | keep the same handle when the new request fits the current usable block/class | no alloc-copy-release fallback |
+| `M175 realloc alloc-copy-release fallback` | allocate a replacement handle, model copy count, and release the old handle only after success | no aligned/huge allocation |
+| `M176 realloc negative matrix` | fix stale/unknown/released/zero/oversized failure behavior | no new allocator API surface beyond realloc diagnostics |
+| `M177 alignment policy object` | add alignment normalization, power-of-two validation, padded-size policy | no native aligned allocation route or ABI alignment claim |
+| `M178 aligned allocation small path` | attach alignment metadata to normal page-map-backed small allocations | no huge path |
+| `M179 huge threshold/routing` | classify huge requests and fail-fast unsupported huge behavior | no huge page model yet |
+| `M180 huge page model` | model one-allocation huge pages separately from small page free lists | no OS unreserve/release widening |
+| `M181 huge release seam` | unregister and release huge handles through the page-map owner | no small-page free-list mixing |
+| `M182 secure free-list inventory` | decide encoded/randomized free-list responsibilities | no implementation |
+| `M183 secure-list diagnostics-only` | detect duplicate/out-of-range/free-list shape errors | no encode/decode |
+| `M184 secure-list encode/decode small path` | add the smallest encoded-next policy once diagnostics are stable | no cryptographic randomness claim without compiler support |
+| `M185 stats/options surface` | expose allocator observability/configuration only after algorithm rows are stable | no environment toggles without docs/env SSOT |
 
 ## Granular Row Contracts
 
@@ -227,6 +235,18 @@ work. Splitting is mandatory if a row starts adding algorithm bodies back into
   caller-visible pointer ownership and resolves it to page/block identity.
   It does not call page release yet; `M172` owns the page-map-backed release
   seam.
+- `M172` owns only the composition of page-map lookup/unregister with
+  `HakoAllocPageModel.releaseLocal(...)`. It should use a separate orchestration
+  box so `page_map_box.hako` stays a pure ownership map and `page_box.hako`
+  stays page-local.
+  M172 landed as `HakoAllocPageMapReleaseSeam` in
+  `page_map_release_box.hako`: pointer registration remains owned by
+  `HakoAllocPageMap`, while the release seam takes an explicit page-map owner,
+  resolves pointer ownership, delegates page-local mutation to
+  `HakoAllocPageModel.releaseLocal(...)`, and unregisters only after release
+  succeeds. VM execution and MIR route contracts are the current proof; full
+  pure-first EXE parity remains blocked by later object-return/lowering work,
+  not by M172 ownership.
 
 ## First Concrete Row
 

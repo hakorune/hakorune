@@ -14,6 +14,7 @@ Current modules
 - `page_box.hako`
 - `page_heap_box.hako`
 - `page_map_box.hako`
+- `page_map_release_box.hako`
 - `page_queue_box.hako`
 - `page_source_policy_box.hako`
 - `remote_free_page_integration_box.hako`
@@ -56,5 +57,11 @@ Syntax/style contract
 - `page_map_box.hako` owns M171 pointer-to-page ownership lookup. It may record
   and resolve caller-visible pointer identity to page/block ids, but it must not
   perform page release, realloc, pointer arithmetic, or native metal work.
+- `page_map_release_box.hako` owns M172 page-map-backed release orchestration.
+  It may call `HakoAllocPageMap.lookup(...)`,
+  `HakoAllocPageModel.releaseLocal(...)`, and
+  `HakoAllocPageMap.unregister(...)`, but it must not own registration, realloc,
+  aligned/huge allocation, OSVM release, provider hooks, or allocator
+  replacement.
 - Keep `birth(...)` for parameter-dependent initialization and ordering that
   cannot be expressed as a declaration-site default.

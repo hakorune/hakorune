@@ -1,0 +1,57 @@
+// mimalloc-page-map-release-proof
+// Purpose: prove M172 page-map-backed release seam.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
+using selfhost.hako_alloc.memory.page_map_release_box as HakoAllocPageMapReleaseBox
+
+static box Main {
+    main(args) {
+        local page_map = new HakoAllocPageMap()
+        local seam = new HakoAllocPageMapReleaseSeam(page_map)
+        local page0 = new HakoAllocPageModel(0, 32, 2, 2)
+        local page1 = new HakoAllocPageModel(1, 64, 1, 1)
+
+        local add0 = seam.addPage(page0)
+        local add1 = seam.addPage(page1)
+
+        local b0 = page0.acquire(8)
+        local b1 = page0.acquire(16)
+        local b2 = page1.acquire(40)
+
+        local reg0 = page_map.register(1001, 0, b0)
+        local reg1 = page_map.register(1002, 0, b1)
+        local reg2 = page_map.register(2001, 1, b2)
+        local reg_stale_page = page_map.register(3001, 9, 0)
+
+        local rel0 = seam.releasePtr(1001)
+        local reg_released_block = page_map.register(4001, 0, b0)
+        local rel_released_block = seam.releasePtr(4001)
+        local rel_double = seam.releasePtr(1001)
+        local rel_unknown = seam.releasePtr(9999)
+        local rel_stale_page = seam.releasePtr(3001)
+        local rel1 = seam.releasePtr(1002)
+        local rel2 = seam.releasePtr(2001)
+
+        local page0_local_free = page0.localFreeCount()
+        local page1_local_free = page1.localFreeCount()
+
+        print("mimalloc-page-map-release-proof")
+        print("pages=" + add0 + "," + add1)
+        print("blocks=" + b0 + "," + b1 + "," + b2)
+        print("register=" + reg0 + "," + reg1 + "," + reg2 + "," + reg_stale_page + "," + reg_released_block)
+        print("release=" + rel0 + "," + rel_released_block + "," + rel_double + "," + rel_unknown + "," + rel_stale_page + "," + rel1 + "," + rel2)
+        print("page0=" + page0.used + "," + page0_local_free + "," + page0.retired + "," + page0.local_free_count)
+        print("page1=" + page1.used + "," + page1_local_free + "," + page1.retired + "," + page1.local_free_count)
+        print("seam=" + seam.page_count + "," + seam.page_register_count + "," + seam.release_count + "," + seam.unregister_count + "," + seam.lookup_miss_count + "," + seam.stale_page_count + "," + seam.page_release_reject_count + "," + seam.reject_count)
+        print("map=" + page_map.entry_count + "," + page_map.live_count + "," + page_map.register_count + "," + page_map.lookup_count + "," + page_map.lookup_miss_count + "," + page_map.unregister_count + "," + page_map.reject_count)
+
+        if add0 == 1 && add1 == 1 && reg0 == 1 && reg1 == 1 && reg2 == 1 && reg_stale_page == 1 && reg_released_block == 1 && rel0 == 1 && rel_released_block == 0 && rel_double == 0 && rel_unknown == 0 && rel_stale_page == 0 && rel1 == 1 && rel2 == 1 && page0.used == 0 && page0_local_free == 2 && page0.retired == 1 && page1.used == 0 && page1_local_free == 1 && page1.retired == 1 && seam.release_count == 3 && seam.unregister_count == 3 && seam.lookup_miss_count == 2 && seam.stale_page_count == 1 && seam.page_release_reject_count == 1 && seam.reject_count == 4 && page_map.live_count == 2 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

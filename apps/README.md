@@ -199,6 +199,22 @@ bash tools/checks/k2_wide_mimalloc_page_map_guard.sh
 - page release / realloc / pointer arithmetic / native metal はまだ扱わない
 - M172 の page-map-backed release seam の前提になる
 
+#### mimalloc-page-map-release-proof
+**場所**: `mimalloc-page-map-release-proof/main.hako`
+M172 proof。`HakoAllocPageMap.lookup(...)` で caller-visible pointer を
+page/block identity に解決し、`HakoAllocPageModel.releaseLocal(...)` に
+委譲してから `HakoAllocPageMap.unregister(...)` する release seam を固定する。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_page_map_release_guard.sh
+```
+
+**特徴**:
+- pointer registration は M171 `HakoAllocPageMap.register(...)` の責務として残す
+- M172 seam は lookup / page-local release / unregister の合成だけを扱う
+- realloc / aligned allocation / huge allocation / secure-list / OSVM release /
+  provider / hook / replacement はまだ扱わない
+
 #### hako-alloc-remote-free-policy-proof
 **場所**: `hako-alloc-remote-free-policy-proof/main.hako`
 M48 proof。`HakoAllocProductionFacade` 経由で M43 の bounded CAS retry-loop

@@ -53,6 +53,10 @@ Principles
   - `HakoAllocPageMap` is the M171 pointer ownership model. It resolves
     caller-visible pointer ids to page/block ids, but arbitrary free/realloc
     composition remains a later row.
+  - `HakoAllocPageMapReleaseSeam` is the M172 release orchestration owner. It
+    takes an explicit `HakoAllocPageMap`, performs lookup, delegates block
+    mutation to `HakoAllocPageModel.releaseLocal(...)`, and unregisters only
+    after page-local release succeeds.
 
 Design owners
 - Policy/state stop-line:
@@ -106,6 +110,7 @@ Current modules
 - `memory.page_box`
 - `memory.page_heap_box`
 - `memory.page_map_box`
+- `memory.page_map_release_box`
 - `memory.page_queue_box`
 - `memory.page_source_policy_box`
 - `memory.remote_free_page_integration_box`
