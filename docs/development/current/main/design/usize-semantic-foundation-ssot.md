@@ -84,6 +84,10 @@ Live today:
   facts for exact numeric declared params, field reads, `Copy`, and
   conservative `Phi`/`Select` merges, including metadata rejections for
   exact/dynamic or exact/exact mismatches;
+- decimal integer literal suffixes such as `0usize` are accepted on the Rust
+  parser front, range-check through the exact numeric substrate, and publish
+  MIR exact const facts while still emitting current-lane `Integer(i64)`
+  constants;
 - `FunctionMetadata` preserves MIR-side declared parameter/return annotation
   text, and exact numeric return annotations publish function-level advisory
   return facts without changing runtime lowering;
@@ -103,7 +107,7 @@ Not live today:
 - param/local verifier checks, runtime-check insertion/lowering beyond exact
   numeric field-write contracts, non-VM backend lowering/execution of those
   contracts, and exact runtime unsigned range-check construction;
-- numeric literal suffixes such as `0usize`;
+- `.hako` parser-front parity for numeric literal suffixes;
 - live
   VM/backend exact numeric arithmetic/compare/shift routes, and explicit
   wrapping vocabulary;

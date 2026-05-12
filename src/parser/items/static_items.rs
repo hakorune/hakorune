@@ -182,6 +182,10 @@ fn eval_static_const_i128_expr(expr: &ASTNode, line: usize) -> Result<i128, Pars
             value: LiteralValue::Integer(value),
             ..
         } => Ok(*value as i128),
+        ASTNode::Literal {
+            value: LiteralValue::TypedInteger { value, .. },
+            ..
+        } => Ok(*value as i128),
         ASTNode::UnaryOp {
             operator: UnaryOperator::Minus,
             operand,

@@ -49,7 +49,7 @@ hako_alloc or mimalloc migration.
 | `294x-10c` | Complete | VM reference exact compare routes | VM reference execution consumes MIR-owned exact numeric compare route facts without VM-owned inference |
 | `294x-10d` | Complete | VM exact ops module split | exact numeric VM reference execution is split by operation family before more rows land |
 | `294x-10e` | Complete | VM reference exact logical shr routes | VM reference execution consumes MIR-owned exact unsigned logical right-shift route facts |
-| `294x-11` | Pending | literal suffix and const-eval row | `0usize` / exact numeric consts are accepted only with range checks |
+| `294x-11` | Complete | literal suffix and const-eval row | `0usize` / exact numeric consts are accepted only with range checks and preserved as MIR exact const facts |
 | `294x-12` | Pending | typed-object exact numeric storage | typed-object plans and EXE runtime storage distinguish `usize` from i64 |
 | `294x-13` | Pending | backend capability and fail-fast | unsupported backends reject exact `usize`; supported backends lower unsigned ops correctly |
 | `294x-14` | Pending | low-level capability usize variants | RawBuf/RawArray/OSVM/bounds helpers get exact `usize` variants only where backed by semantics |
@@ -70,7 +70,7 @@ hako_alloc or mimalloc migration.
 - [x] Define unsigned comparison behavior.
 - [x] Define conversion from dynamic `Integer(i64)`.
 - [x] Define unsupported backend fail-fast tags.
-- [ ] Define when `i64` remains preferred.
+- [x] Define when `i64` remains preferred.
 
 ### Parser / AST / JSON
 
@@ -102,7 +102,8 @@ hako_alloc or mimalloc migration.
 - [x] Execute existing `DynamicIntegerRange` contracts in the VM interpreter.
 - [x] Attach `DynamicIntegerRange` contracts for real exact numeric field-write
   producers after MIR shape is stable.
-- [ ] Range-check construction beyond exact numeric field-write contracts.
+- [x] Range-check literal construction before exact numeric const facts are published.
+- [ ] Range-check construction beyond exact numeric field-write contracts and typed literals.
 - [x] Implement checked add/sub/mul in live VM exact numeric op routes.
 - [ ] Implement div/mod with zero checks.
 - [ ] Implement bitwise ops.

@@ -311,6 +311,18 @@ impl ExprParserWithCursor {
                     span: Span::unknown(),
                 })
             }
+            TokenType::TypedNumber(n, declared_type_name) => {
+                let value = *n;
+                let declared_type_name = declared_type_name.clone();
+                cursor.advance();
+                Ok(ASTNode::Literal {
+                    value: LiteralValue::TypedInteger {
+                        value,
+                        declared_type_name,
+                    },
+                    span: Span::unknown(),
+                })
+            }
             TokenType::STRING(s) => {
                 let value = s.clone();
                 cursor.advance();

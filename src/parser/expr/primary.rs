@@ -121,6 +121,20 @@ impl NyashParser {
                     span: Span::new(0, 0, line, column),
                 })
             }
+            TokenType::TypedNumber(n, declared_type_name) => {
+                let line = self.current_token().line;
+                let column = self.current_token().column;
+                let value = *n;
+                let declared_type_name = declared_type_name.clone();
+                self.advance();
+                Ok(ASTNode::Literal {
+                    value: LiteralValue::TypedInteger {
+                        value,
+                        declared_type_name,
+                    },
+                    span: Span::new(0, 0, line, column),
+                })
+            }
             TokenType::FLOAT(f) => {
                 let line = self.current_token().line;
                 let column = self.current_token().column;

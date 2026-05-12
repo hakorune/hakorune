@@ -279,6 +279,70 @@ static box Main {
     }
 
     #[test]
+    fn compile_publishes_exact_numeric_const_fact_from_literal_suffix() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let ast = NyashParser::parse_from_string(
+            r#"
+static box Main {
+  main() {
+    return 7usize
+  }
+}
+"#,
+        )
+        .expect("parse");
+        let mut compiler = MirCompiler::with_options(false);
+        let result = compiler.compile(ast).expect("compile");
+        let function = result
+            .module
+            .functions
+            .values()
+            .find(|function| !function.metadata.exact_numeric_const_facts.is_empty())
+            .expect("function with exact numeric const fact");
+        let (value_id, const_fact) = function
+            .metadata
+            .exact_numeric_const_facts
+            .iter()
+            .next()
+            .expect("exact numeric const fact");
+
+        assert_eq!(const_fact.declared_type_name, "usize");
+        assert_eq!(const_fact.value, 7);
+        assert_eq!(
+            function.metadata.exact_numeric_value_facts.get(value_id),
+            Some(
+                &crate::mir::exact_numeric_value_facts::ExactNumericValueFact {
+                    declared_type_name: "usize".to_string(),
+                    source: ExactNumericValueFactSource::Const { value: 7 },
+                }
+            )
+        );
+    }
+
+    #[test]
+    fn compile_rejects_out_of_range_literal_suffix() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let ast = NyashParser::parse_from_string(
+            r#"
+static box Main {
+  main() {
+    return 256u8
+  }
+}
+"#,
+        )
+        .expect("parse");
+        let mut compiler = MirCompiler::with_options(false);
+        let err = compiler.compile(ast).expect_err("compile should reject");
+
+        assert!(
+            err.contains("[exact-numeric-literal/out-of-range]"),
+            "unexpected error: {}",
+            err
+        );
+    }
+
+    #[test]
     fn test_mir_dump() {
         let mut compiler = MirCompiler::new();
 

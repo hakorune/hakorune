@@ -717,7 +717,23 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
             } else if let Some(t) = v.get("type").and_then(|t| t.as_str()) {
                 // JoinIR-compatible format: { kind:"Literal", type:"Int", value:42 }
                 match t {
-                    "Int" => LiteralValue::Integer(v.get("value")?.as_i64()?),
+                    "Int" => {
+                        let value = v.get("value")?.as_i64()?;
+                        if let Some(declared_type_name) =
+                            v.get("declared_type").and_then(|value| value.as_str())
+                        {
+                            LiteralValue::TypedInteger {
+                                value,
+                                declared_type_name: declared_type_name.to_string(),
+                            }
+                        } else {
+                            LiteralValue::Integer(value)
+                        }
+                    }
+                    "TypedInt" => LiteralValue::TypedInteger {
+                        value: v.get("value")?.as_i64()?,
+                        declared_type_name: v.get("declared_type")?.as_str()?.to_string(),
+                    },
                     "Float" => LiteralValue::Float(v.get("value")?.as_f64()?),
                     "Bool" => LiteralValue::Bool(v.get("value")?.as_bool()?),
                     "String" => LiteralValue::String(v.get("value")?.as_str()?.to_string()),

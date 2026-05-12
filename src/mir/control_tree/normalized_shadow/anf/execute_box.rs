@@ -283,6 +283,7 @@ impl AnfExecuteBox {
 
         Ok(match lit {
             AstLit::Integer(i) => ConstValue::Integer(*i),
+            AstLit::TypedInteger { value, .. } => ConstValue::Integer(*value),
             AstLit::String(s) => ConstValue::String(s.clone()),
             AstLit::Bool(b) => ConstValue::Bool(*b),
             AstLit::Void => ConstValue::Null, // JoinIR uses Null instead of Void

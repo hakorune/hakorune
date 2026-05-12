@@ -40,7 +40,16 @@ pub struct ExactNumericValueFact {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ExactNumericConstFact {
+    pub declared_type_name: String,
+    pub value: i128,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ExactNumericValueFactSource {
+    Const {
+        value: i128,
+    },
     Param {
         index: usize,
         name: String,
@@ -122,6 +131,7 @@ pub(crate) fn refresh_function_exact_numeric_value_facts(
     let object_defs = collect_object_defs(function);
     let mut facts = BTreeMap::new();
 
+    seed_const_facts(function, &mut facts);
     seed_param_facts(function, &mut facts);
     seed_field_get_facts(function, field_decls, &object_defs, &mut facts);
     propagate_exact_numeric_value_facts(function, &mut facts);
@@ -174,6 +184,32 @@ fn exact_numeric_field_decls(module: &MirModule) -> BTreeMap<(String, String), S
     }
 
     fields
+}
+
+fn seed_const_facts(function: &MirFunction, facts: &mut BTreeMap<ValueId, ExactNumericValueFact>) {
+    let target = NumericTarget::host();
+    for (value_id, const_fact) in &function.metadata.exact_numeric_const_facts {
+        let Some(ty) = exact_numeric_mir_type_from_declared_name(
+            Some(const_fact.declared_type_name.as_str()),
+            target,
+        ) else {
+            continue;
+        };
+        if crate::mir::numeric_substrate::exact_numeric_const_from_i128(const_fact.value, &ty)
+            .is_err()
+        {
+            continue;
+        }
+        facts.insert(
+            *value_id,
+            ExactNumericValueFact {
+                declared_type_name: const_fact.declared_type_name.clone(),
+                source: ExactNumericValueFactSource::Const {
+                    value: const_fact.value,
+                },
+            },
+        );
+    }
 }
 
 fn seed_param_facts(function: &MirFunction, facts: &mut BTreeMap<ValueId, ExactNumericValueFact>) {

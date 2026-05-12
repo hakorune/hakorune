@@ -115,6 +115,9 @@ impl super::PlanNormalizer {
                 }
                 let (const_value, value_type) = match value {
                     LiteralValue::Integer(n) => (ConstValue::Integer(*n), MirType::Integer),
+                    LiteralValue::TypedInteger { value, .. } => {
+                        (ConstValue::Integer(*value), MirType::Integer)
+                    }
                     LiteralValue::Float(n) => (ConstValue::Float(*n), MirType::Float),
                     LiteralValue::String(s) => (ConstValue::String(s.clone()), MirType::String),
                     LiteralValue::Bool(b) => (ConstValue::Bool(*b), MirType::Bool),

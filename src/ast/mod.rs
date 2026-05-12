@@ -321,6 +321,10 @@ pub struct EnumMatchArm {
 pub enum LiteralValue {
     String(String),
     Integer(i64),
+    TypedInteger {
+        value: i64,
+        declared_type_name: String,
+    },
     Float(f64), // 浮動小数点数サポート追加
     Bool(bool),
     Null, // null値
@@ -336,6 +340,7 @@ impl LiteralValue {
         match self {
             LiteralValue::String(s) => Box::new(StringBox::new(s)),
             LiteralValue::Integer(i) => Box::new(IntegerBox::new(*i)),
+            LiteralValue::TypedInteger { value, .. } => Box::new(IntegerBox::new(*value)),
             LiteralValue::Float(f) => Box::new(FloatBox::new(*f)),
             LiteralValue::Bool(b) => Box::new(BoolBox::new(*b)),
             LiteralValue::Null => Box::new(crate::boxes::null_box::NullBox::new()),
@@ -377,6 +382,10 @@ impl fmt::Display for LiteralValue {
         match self {
             LiteralValue::String(s) => write!(f, "\"{}\"", s),
             LiteralValue::Integer(i) => write!(f, "{}", i),
+            LiteralValue::TypedInteger {
+                value,
+                declared_type_name,
+            } => write!(f, "{}{}", value, declared_type_name),
             LiteralValue::Float(fl) => write!(f, "{}", fl),
             LiteralValue::Bool(b) => write!(f, "{}", b),
             LiteralValue::Null => write!(f, "null"),

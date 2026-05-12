@@ -91,6 +91,10 @@ fn lit_to_sig_string(lit: &LiteralValue) -> String {
     match lit {
         LiteralValue::String(s) => format!("str:{}", escape_sig_atom(s)),
         LiteralValue::Integer(i) => format!("int:{i}"),
+        LiteralValue::TypedInteger {
+            value,
+            declared_type_name,
+        } => format!("int:{value}:{declared_type_name}"),
         LiteralValue::Float(f) => format!("float:{:016x}", f.to_bits()),
         LiteralValue::Bool(b) => format!("bool:{}", if *b { 1 } else { 0 }),
         LiteralValue::Null => "null".to_string(),

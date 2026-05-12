@@ -32,11 +32,50 @@ impl NyashTokenizer {
                 .map(TokenType::FLOAT)
                 .map_err(|_| TokenizeError::InvalidNumber { line: start_line })
         } else {
+            let mut suffix = String::new();
+            while let Some(c) = self.current_char() {
+                if c.is_ascii_alphanumeric() || c == '_' {
+                    suffix.push(c);
+                    self.advance();
+                } else {
+                    break;
+                }
+            }
+
             // 整数として解析
-            number_str
+            let value = number_str
                 .parse::<i64>()
-                .map(TokenType::NUMBER)
-                .map_err(|_| TokenizeError::InvalidNumber { line: start_line })
+                .map_err(|_| TokenizeError::InvalidNumber { line: start_line })?;
+            if suffix.is_empty() {
+                Ok(TokenType::NUMBER(value))
+            } else {
+                Ok(TokenType::TypedNumber(value, suffix))
+            }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn tokenizes_integer_literal_suffix() {
+        let mut tokenizer = NyashTokenizer::new("0usize");
+
+        assert_eq!(
+            tokenizer.read_numeric_literal().unwrap(),
+            TokenType::TypedNumber(0, "usize".to_string())
+        );
+    }
+
+    #[test]
+    fn leaves_float_suffix_out_of_numeric_literal() {
+        let mut tokenizer = NyashTokenizer::new("1.0usize");
+
+        assert_eq!(
+            tokenizer.read_numeric_literal().unwrap(),
+            TokenType::FLOAT(1.0)
+        );
     }
 }

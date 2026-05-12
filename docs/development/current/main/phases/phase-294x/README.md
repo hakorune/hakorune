@@ -103,6 +103,12 @@
 - `294x-09f`: quick first-row guards now share a cargo filter grouping helper
   and use contract-family filters to reduce repeated cargo startup without
   changing route/file locks.
+- `294x-10`..`294x-10e`: VM reference execution consumes MIR-owned exact
+  arithmetic, compare, and logical right-shift route facts without making the
+  VM a product owner.
+- `294x-11`: decimal integer suffixes such as `0usize` now parse as typed
+  integer literals, range-check through exact numeric metadata, and publish MIR
+  exact const facts while still emitting current-lane `Integer(i64)` constants.
 
 ## First Implementation Direction
 

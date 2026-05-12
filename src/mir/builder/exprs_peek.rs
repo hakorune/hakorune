@@ -75,6 +75,10 @@ impl super::MirBuilder {
                 LiteralValue::Integer(i) => {
                     crate::mir::builder::emission::constant::emit_integer(self, i)?
                 }
+                LiteralValue::TypedInteger {
+                    value,
+                    declared_type_name,
+                } => self.emit_typed_integer_literal(value, declared_type_name)?,
                 LiteralValue::Bool(b) => {
                     crate::mir::builder::emission::constant::emit_bool(self, b)?
                 }

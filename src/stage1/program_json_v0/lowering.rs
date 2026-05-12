@@ -535,6 +535,14 @@ fn literal_to_json_v0(literal: &LiteralValue) -> Result<serde_json::Value, Strin
             "type": "Int",
             "value": integer_value,
         })),
+        LiteralValue::TypedInteger {
+            value,
+            declared_type_name,
+        } => Ok(serde_json::json!({
+            "type": "Int",
+            "value": value,
+            "declared_type": declared_type_name,
+        })),
         LiteralValue::String(string_value) => Ok(serde_json::json!({
             "type": "Str",
             "value": string_value,
@@ -642,6 +650,10 @@ fn match_label_from_literal(literal: &LiteralValue) -> String {
     match literal {
         LiteralValue::String(value) => value.clone(),
         LiteralValue::Integer(value) => value.to_string(),
+        LiteralValue::TypedInteger {
+            value,
+            declared_type_name,
+        } => format!("{}{}", value, declared_type_name),
         LiteralValue::Float(value) => value.to_string(),
         LiteralValue::Bool(value) => value.to_string(),
         LiteralValue::Null => "null".to_string(),

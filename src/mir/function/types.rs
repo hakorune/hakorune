@@ -15,9 +15,9 @@ use crate::mir::{
     effect_capability_plan::{CapabilityPlan, EffectPlan},
     exact_numeric_value_facts::{
         ExactNumericBinaryOpRouteFact, ExactNumericBinaryOpRouteRejection,
-        ExactNumericCompareRouteFact, ExactNumericCompareRouteRejection, ExactNumericReturnFact,
-        ExactNumericShiftRouteFact, ExactNumericShiftRouteRejection, ExactNumericValueFact,
-        ExactNumericValueFactRejection,
+        ExactNumericCompareRouteFact, ExactNumericCompareRouteRejection, ExactNumericConstFact,
+        ExactNumericReturnFact, ExactNumericShiftRouteFact, ExactNumericShiftRouteRejection,
+        ExactNumericValueFact, ExactNumericValueFactRejection,
     },
     exact_seed_backend_route::ExactSeedBackendRoute,
     extern_call_route_plan::ExternCallRoute,
@@ -363,6 +363,11 @@ pub struct FunctionMetadata {
     /// These facts are reference-execution/lowering input metadata only. They
     /// do not change the legacy dynamic `Integer(i64)` lane by themselves.
     pub exact_numeric_value_facts: BTreeMap<ValueId, ExactNumericValueFact>,
+
+    /// Builder-owned typed integer literal facts. Semantic refresh validates
+    /// and copies these into `exact_numeric_value_facts` so downstream VM and
+    /// backend rows can consume one per-value fact surface.
+    pub exact_numeric_const_facts: BTreeMap<ValueId, ExactNumericConstFact>,
 
     /// Control-merge sites where exact numeric facts could not be propagated
     /// without mixing exact/dynamic values or mismatched exact source names.

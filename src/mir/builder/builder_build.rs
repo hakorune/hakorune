@@ -2,6 +2,11 @@ use super::vars;
 use super::CallTarget;
 use super::{ConstValue, Effect, EffectMask, MirBuilder, MirInstruction, MirModule, ValueId};
 use crate::ast::{ASTNode, LiteralValue};
+use crate::mir::exact_numeric_value_facts::ExactNumericConstFact;
+use crate::mir::numeric_substrate::{
+    exact_numeric_const_from_i128, exact_numeric_mir_type_from_declared_name,
+    ExactNumericConversionError, NumericTarget,
+};
 use crate::mir::slot_registry::resolve_slot_by_type_name;
 
 impl MirBuilder {
@@ -53,6 +58,7 @@ impl MirBuilder {
         // Determine type without moving literal
         let ty_for_dst = match &literal {
             LiteralValue::Integer(_) => Some(super::MirType::Integer),
+            LiteralValue::TypedInteger { .. } => Some(super::MirType::Integer),
             LiteralValue::Float(_) => Some(super::MirType::Float),
             LiteralValue::Bool(_) => Some(super::MirType::Bool),
             LiteralValue::String(_) => Some(super::MirType::String),
@@ -64,6 +70,10 @@ impl MirBuilder {
             LiteralValue::Integer(n) => {
                 crate::mir::builder::emission::constant::emit_integer(self, n)?
             }
+            LiteralValue::TypedInteger {
+                value,
+                declared_type_name,
+            } => self.emit_typed_integer_literal(value, declared_type_name)?,
             LiteralValue::Float(f) => crate::mir::builder::emission::constant::emit_float(self, f)?,
             LiteralValue::String(s) => {
                 crate::mir::builder::emission::constant::emit_string(self, s)?
@@ -77,6 +87,35 @@ impl MirBuilder {
             self.type_ctx.value_types.insert(dst, ty);
         }
 
+        Ok(dst)
+    }
+
+    pub(in crate::mir::builder) fn emit_typed_integer_literal(
+        &mut self,
+        value: i64,
+        declared_type_name: String,
+    ) -> Result<ValueId, String> {
+        let Some(ty) = exact_numeric_mir_type_from_declared_name(
+            Some(declared_type_name.as_str()),
+            NumericTarget::host(),
+        ) else {
+            return Err(format!(
+                "[exact-numeric-literal/unknown-type] declared_type={}",
+                declared_type_name
+            ));
+        };
+        let checked = exact_numeric_const_from_i128(i128::from(value), &ty)
+            .map_err(exact_numeric_literal_error)?;
+        let dst = crate::mir::builder::emission::constant::emit_integer(self, value)?;
+        if let Some(function) = self.scope_ctx.current_function.as_mut() {
+            function.metadata.exact_numeric_const_facts.insert(
+                dst,
+                ExactNumericConstFact {
+                    declared_type_name: checked.ty.source_name,
+                    value: checked.value,
+                },
+            );
+        }
         Ok(dst)
     }
 
@@ -344,5 +383,23 @@ impl MirBuilder {
             }
         }
         false
+    }
+}
+
+fn exact_numeric_literal_error(error: ExactNumericConversionError) -> String {
+    match error {
+        ExactNumericConversionError::NegativeToUnsigned { source_name, value } => format!(
+            "[exact-numeric-literal/negative-unsigned] declared_type={} value={}",
+            source_name, value
+        ),
+        ExactNumericConversionError::OutOfRange {
+            source_name,
+            value,
+            min,
+            max,
+        } => format!(
+            "[exact-numeric-literal/out-of-range] declared_type={} value={} range={}..{}",
+            source_name, value, min, max
+        ),
     }
 }

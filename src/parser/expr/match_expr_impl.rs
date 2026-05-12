@@ -487,6 +487,14 @@ impl NyashParser {
                 self.advance();
                 Ok(v)
             }
+            TokenType::TypedNumber(n, declared_type_name) => {
+                let v = crate::ast::LiteralValue::TypedInteger {
+                    value: *n,
+                    declared_type_name: declared_type_name.clone(),
+                };
+                self.advance();
+                Ok(v)
+            }
             TokenType::FLOAT(f) => {
                 let v = crate::ast::LiteralValue::Float(*f);
                 self.advance();

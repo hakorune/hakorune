@@ -95,6 +95,7 @@ fn alloc_const_effect(
 fn literal_to_const(literal: &LiteralValue) -> Result<ConstValue, String> {
     match literal {
         LiteralValue::Integer(n) => Ok(ConstValue::Integer(*n)),
+        LiteralValue::TypedInteger { value, .. } => Ok(ConstValue::Integer(*value)),
         LiteralValue::Bool(b) => Ok(ConstValue::Bool(*b)),
         LiteralValue::String(s) => Ok(ConstValue::String(s.clone())),
         LiteralValue::Float(f) => Ok(ConstValue::Float(*f)),
@@ -105,7 +106,7 @@ fn literal_to_const(literal: &LiteralValue) -> Result<ConstValue, String> {
 
 fn register_literal_type(builder: &mut MirBuilder, dst: ValueId, literal: &LiteralValue) {
     match literal {
-        LiteralValue::Integer(_) => {
+        LiteralValue::Integer(_) | LiteralValue::TypedInteger { .. } => {
             builder.type_ctx.set_type(dst, MirType::Integer);
         }
         LiteralValue::Bool(_) => {

@@ -37,8 +37,12 @@ u8 u16 u32 u64 usize
 
 Current live semantics are intentionally narrow:
 
-- The parser treats these as ordinary `TYPE_REF` identifiers; no new tokenizer
-  tokens are required in Rust or `.hako` parser fronts.
+- The parser treats these as ordinary `TYPE_REF` identifiers when they appear
+  in annotations.
+- Decimal integer literal suffixes for these names are accepted on the Rust
+  parser front, for example `0usize`, `1u8`, and `42i64`. They are range-checked
+  against exact numeric metadata and preserved as typed integer literal
+  metadata, but the emitted runtime value still uses `Integer(i64)`.
 - Runtime values still execute on the current dynamic `Integer(i64)` lane.
 - The current `>>` operator in that lane is signed i64 arithmetic right shift.
 - Typed-object EXE storage planning may use these names as inline i64 slot
@@ -55,8 +59,9 @@ Current live semantics are intentionally narrow:
   signedness/width distinctly from `MirType::Integer`. It is not attached to
   runtime values yet.
 - Exact numeric constant metadata and dynamic `Integer(i64)` conversion helpers
-  range-check against signedness and resolved width. The MIR verifier uses
-  these checks for statically known writes to exact numeric declared fields.
+  range-check against signedness and resolved width. Typed integer literal
+  suffixes publish MIR exact const facts after the same range checks. The MIR
+  verifier uses these checks for statically known writes to exact numeric declared fields.
   The verifier also rejects unchecked dynamic writes to exact numeric fields
   whose range does not cover every possible dynamic `Integer(i64)` value.
   Function metadata can carry a `DynamicIntegerRange` runtime-check contract
@@ -82,7 +87,6 @@ Current live semantics are intentionally narrow:
 
 Deferred and not accepted by this row:
 
-- literal suffixes such as `1u64` or `64usize`
 - param/local verifier checks, runtime-check insertion/lowering beyond exact
   numeric field-write contracts, non-VM backend runtime-check lowering,
   exact runtime unsigned range construction, and live unsigned arithmetic

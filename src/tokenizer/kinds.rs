@@ -6,6 +6,7 @@ pub enum TokenType {
     // リテラル
     STRING(String),
     NUMBER(i64),
+    TypedNumber(i64, String),
     FLOAT(f64),
     TRUE,
     FALSE,
