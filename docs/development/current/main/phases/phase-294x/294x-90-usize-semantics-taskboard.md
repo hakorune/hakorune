@@ -19,6 +19,24 @@ VM rows are semantic reference execution rows, not product-owner rows. They may
 consume MIR-owned facts/contracts, but VM-only behavior is not completion for
 hako_alloc or mimalloc migration.
 
+## Quick Current Truth
+
+- `294x-10f` landed the VM reference exact numeric value representation.
+- Production `hako_alloc` fields remain `i64`.
+- Mimalloc `.hako` algorithm rows may continue, but they must not claim
+  production `usize` field migration yet.
+- Native exact numeric typed-object slot representation exists in
+  `nyash_kernel`.
+- The next `usize` completion work is exact field get/set ABI.
+
+## Next Implementation Queue
+
+| Order | Row | Status | Implementation Boundary |
+| --- | --- | --- | --- |
+| 1 | `294x-19b` | Pending | Exact numeric field get/set ABI exists, including range/overflow failure contracts. |
+| 2 | `294x-19c` | Future | Production `hako_alloc` non-negative field migration reopens one field group at a time. |
+| 3 | `M168+` | Future | Mimalloc `.hako` OSVM page source, local-free retire, and remote-free rows consume the completed substrate. |
+
 ## Ladder
 
 | Row | Status | Scope | Done When |
@@ -60,7 +78,7 @@ hako_alloc or mimalloc migration.
 | `294x-17` | Complete | sentinel split plan | direct-page stored `-1` sentinel is split into explicit presence state before any `usize` migration |
 | `294x-18` | Complete | hako_alloc non-negative field migration probe | capacity/count/byte-length candidates migrate in a proof app while production fields stay signed/current-lane |
 | `294x-19` | Blocked | hako_alloc production facade migration | waits for native exact numeric typed-object slots and exact field get/set ABI |
-| `294x-19a` | Pending | native exact numeric typed-object slots | non-VM backends can represent exact numeric fields without silent i64 fallback |
+| `294x-19a` | Complete | native exact numeric typed-object slots | kernel typed-object storage records exact slot kinds and legacy i64 helpers do not mutate exact numeric slots |
 | `294x-19b` | Pending | exact numeric field get/set ABI | non-VM backends can read/write exact numeric slots with range/overflow contracts |
 | `294x-20` | Complete | mimalloc row resume gate | M167+ mimalloc implementation resumes with clear `usize` support boundaries and production fields still on `i64` |
 
@@ -138,7 +156,7 @@ hako_alloc or mimalloc migration.
 - [x] Add typed-object exact numeric storage names to layout plans.
 - [x] Fail fast on unsupported backend routes before exact numeric typed-object
   storage or op-route facts silently use legacy `Integer(i64)` lowering.
-- [ ] Add backend/runtime native `usize` slots.
+- [x] Add backend/runtime native `usize` slots.
 - [ ] Add field get/set ABI for exact numeric slots.
 - [ ] Lower LLVM/native unsigned compare and shift.
 - [ ] Decide WASM target behavior.

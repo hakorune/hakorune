@@ -13,6 +13,27 @@
 - Parent app lane:
   `docs/development/current/main/phases/phase-293x/README.md`
 
+## Quick Status
+
+| Lane | Current truth |
+| --- | --- |
+| `usize` semantics | VM reference execution can keep exact numeric results tagged instead of collapsing them back to `Integer(i64)`. |
+| production `hako_alloc` fields | Still `i64`; do not migrate live allocator state yet. |
+| mimalloc `.hako` rows | May continue under the current-lane `i64` production boundary. |
+| native exact slots | Runtime typed-object slot representation exists in `nyash_kernel`; backend field access remains closed. |
+| field get/set ABI | Next implementation slice; backend lowering stays closed until this lands. |
+
+## Next Queue
+
+| Next | Card | Goal |
+| --- | --- | --- |
+| 1 | `294x-19b` | Add exact numeric field get/set ABI and range/overflow contract surface. |
+| 2 | `294x-19c` | Reopen production `hako_alloc` field migration by non-negative field group. |
+| 3 | `M168+` | Continue mimalloc `.hako` OSVM/page/free-list rows with the completed numeric substrate. |
+
+Stop line: VM green is useful reference evidence, but production allocator
+migration waits for non-VM slots plus field get/set ABI.
+
 ## Policy
 
 - Treat `usize` as a language/runtime completeness feature, not as a
@@ -40,7 +61,7 @@
 4. `docs/reference/runtime/substrate-capabilities.md`
 5. `docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md`
 
-## Current Status
+## Completed Ledger
 
 - `294x-00`: phase lock and full visible task inventory landed.
 - `294x-01`: code-side target pointer-width and target-resolved numeric kind
@@ -139,17 +160,22 @@
 - `294x-19`: production hako_alloc `usize` field migration is explicitly
   blocked until native exact numeric typed-object slots and exact field get/set
   ABI exist.
+- `294x-19a`: kernel typed-object storage now records exact numeric slot kinds,
+  including `usize`, separately from legacy `i64`; legacy `i64` helpers do not
+  mutate exact numeric slots.
 - `294x-20`: mimalloc algorithm rows resume under the current-lane `i64`
   production boundary; M167 landed as the first resumed row.
 
-## First Implementation Direction
+## Implementation Direction
 
-Start with metadata preservation before runtime behavior:
+The remaining order is now runtime/storage first, then lowering, then
+allocator migration:
 
-1. attach exact numeric metadata to MIR facts/signature consumers;
-2. add VM reference exact `usize` behavior, with backend fail-fast/lowering
-   kept visible;
-3. migrate hako_alloc non-negative fields.
+1. keep exact numeric metadata and VM reference behavior as the semantic oracle;
+2. add native exact numeric typed-object storage without silent `i64` fallback;
+3. add exact field get/set ABI and backend lowering/fail-fast contracts;
+4. migrate `hako_alloc` non-negative fields by field group;
+5. resume mimalloc rows that benefit from those fields.
 
 This keeps the source truth available before any lowerer claims exact
 semantics.

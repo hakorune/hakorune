@@ -108,9 +108,13 @@ Live today:
 - `HakoAllocUsizeFieldProbe` owns an isolated proof-only migration probe for
   capacity/count/byte-length `usize` stored fields without changing production
   allocator state;
-- production `hako_alloc` `usize` field migration is blocked until native exact
-  numeric typed-object slots and exact field get/set ABI exist; mimalloc
+- production `hako_alloc` `usize` field migration is blocked until exact
+  numeric field get/set ABI and backend lowering contracts exist; mimalloc
   algorithm rows may continue with production fields on `i64`;
+- `nyash_kernel` typed-object storage records exact numeric slot kinds,
+  including `usize`, separately from legacy `i64`; legacy `field_get_hii` /
+  `field_set_hii` helpers keep default `i64` behavior but do not mutate exact
+  numeric slots through the legacy ABI;
 - `FunctionMetadata` preserves MIR-side declared parameter/return annotation
   text, and exact numeric return annotations publish function-level advisory
   return facts without changing runtime lowering;
@@ -122,7 +126,8 @@ Live today:
   product support;
 - typed-object planning preserves numeric annotations as exact numeric storage
   names in layout metadata;
-- VM runtime values use `Integer(i64)`;
+- legacy dynamic integer values still use `Integer(i64)`, while VM reference
+  exact numeric route results may use tagged exact numeric runtime values;
 - current `>>` is signed i64 arithmetic right shift.
 
 Not live today:
@@ -131,13 +136,10 @@ Not live today:
   numeric field-write contracts, non-VM backend lowering/execution of those
   contracts, and exact runtime unsigned range-check construction;
 - `.hako` parser-front parity for numeric literal suffixes;
-- backend exact numeric arithmetic/compare/shift lowering, native exact numeric
-  typed-object slots, and explicit wrapping vocabulary;
-- RawArray index/length/capacity `usize` variants and bounds verifier `usize`
-  variants;
+- backend exact numeric arithmetic/compare/shift lowering and explicit wrapping
+  vocabulary;
 - MIR JSON exact-width numeric const tags;
-- native typed-object exact numeric slots distinct from the current integer
-  lane;
+- exact numeric field get/set ABI for native typed-object slots;
 - backend lowering to native pointer-sized integer classes.
 
 ## Target Meaning
