@@ -7,6 +7,7 @@ Scope
 
 Current modules
 - `alignment_policy_box.hako`
+- `allocator_metadata_records.hako`
 - `allocator_facade_box.hako`
 - `alloc_fast_path_heap_box.hako`
 - `arc_box.hako`
@@ -109,6 +110,10 @@ Syntax/style contract
 - `secure_free_list_policy_box.hako` owns M184 secure-list encoded-next policy.
   It may encode/decode next indices and validate decoded capacity, but it must
   not source entropy, mutate page state, or claim hardening policy.
+- `allocator_metadata_records.hako` owns C205a allocator metadata record
+  declarations only. It may declare identity-free shapes for aligned-small and
+  huge-page metadata, but it must not construct records, replace scalar
+  metadata arrays, or enable `ArrayStorage::InlineRecord` from hako_alloc code.
 - D195 checkpoint: after M184, secure-list state remains split between
   observation (`secure_free_list_diagnostics_box.hako`) and encoded-next policy
   (`secure_free_list_policy_box.hako`). Page mutation stays with

@@ -189,7 +189,10 @@ the active `.hako` algorithm row.
 | `C203c record local scalar replacement metadata` | expose concrete record layouts in folded `agg_local` / placement metadata before any scalar rewrite consumes them | record construction/read lowering and `C204-C205` |
 | `C204a ArrayBox inline-record storage descriptors` | derive metadata-only packed column descriptors from record layout plans | `C204b-C205` |
 | `C204b ArrayBox inline-record storage vocabulary` | add private runtime storage vocabulary and materialization boundaries while keeping public ArrayBox behavior unchanged | `C205` |
-| `C205 allocator metadata record migration` | replace hand-written scalar metadata arrays with `record` surface on top of packed storage | revisiting `M178` metadata surface |
+| `C205a allocator metadata record declarations` | add declaration-only record shapes for aligned-small and huge-page metadata while preserving current scalar columns | record construction/read lowering |
+| `C205b allocator record construction/read lowering` | make record values usable enough for metadata probes | live hako_alloc metadata migration |
+| `C205c aligned-small metadata record migration` | replace M178 `meta_ptrs/meta_alignments/meta_padded_sizes` with record-backed storage | huge-page metadata migration |
+| `C205d huge-page metadata record migration` | replace M180 `page_ids/ptrs/requested_sizes/committed_sizes/live_flags` with record-backed storage | broader allocator/table cleanup |
 
 C201 status:
 complete as `293x-207`. The MIR JSON user-box declaration surface now carries
@@ -234,6 +237,13 @@ equality/debug support, and explicit unmaterialized boundaries for visible
 record values. Compiler auto-use, boxed record materialization, hako_alloc
 metadata migration, backend lowering, and provider/native allocator coupling
 remain out of scope.
+
+C205a status:
+complete as `293x-214`. `allocator_metadata_records.hako` declares
+`HakoAllocAlignedSmallMeta` and `HakoAllocHugePageMeta` as identity-free record
+shapes for future metadata migration. The M178 and M180 scalar `ArrayBox`
+columns remain authoritative runtime state, and no hako_alloc owner constructs
+or reads these records yet.
 
 ### Docs / Guard Checkpoints
 

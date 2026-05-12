@@ -1,0 +1,18 @@
+// allocator_metadata_records.hako -- C205a allocator metadata record surface
+// Responsibility: declare identity-free metadata records for later packed
+// ArrayBox migration. This module does not construct records or replace the
+// current scalar metadata columns.
+
+record HakoAllocAlignedSmallMeta {
+    ptr: i64
+    alignment: i64
+    padded_size: i64
+}
+
+record HakoAllocHugePageMeta {
+    page_id: i64
+    ptr: i64
+    requested_size: i64
+    committed_size: i64
+    live: i64
+}

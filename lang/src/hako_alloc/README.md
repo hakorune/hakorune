@@ -102,6 +102,10 @@ Principles
   - `HakoAllocSecureFreeListPolicy` is the M184 encoded-next policy owner. It
     provides reversible next-index encode/decode plus capacity validation with
     caller-provided cookies and no entropy-source claim.
+  - `allocator_metadata_records.hako` is the C205a declaration-only owner for
+    future allocator metadata records. It names aligned-small and huge-page
+    metadata shapes, but current scalar `ArrayBox` columns remain the runtime
+    truth until later construction/read and packed-storage migration rows land.
 
 Design owners
 - Policy/state stop-line:

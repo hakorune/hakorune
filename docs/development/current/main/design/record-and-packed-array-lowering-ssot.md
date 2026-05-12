@@ -157,7 +157,10 @@ This lane therefore starts at `C201`.
 | `C203c record local scalar replacement metadata` | expose concrete record layouts in the folded `agg_local` / placement metadata inventory | record construction/read lowering | no MIR rewrite, no user-box seed route, no host-boundary publication rewrite |
 | `C204a ArrayBox inline-record storage descriptors` | derive metadata-only packed column descriptors from `record_layout_plans` | runtime storage vocabulary | no `ArrayStorage` variant, no public ArrayBox behavior change |
 | `C204b ArrayBox inline-record storage vocabulary` | add private runtime storage vocabulary and materialization boundaries | allocator metadata migration | no compiler auto-use, no hako_alloc migration |
-| `C205 allocator metadata record migration` | replace hand-written scalar metadata arrays with `record` surface over packed storage | broader allocator/table cleanup | no allocator-specific DSL, no huge/native/provider coupling |
+| `C205a allocator metadata record declarations` | declare allocator metadata records for aligned-small and huge-page metadata while keeping scalar columns authoritative | record construction/read lowering | no runtime metadata replacement, no compiler auto-use |
+| `C205b allocator record construction/read lowering` | make record construction and field reads usable for allocator metadata probes | packed storage migration | no hako_alloc live migration |
+| `C205c aligned-small metadata record migration` | replace M178 aligned-small metadata scalar columns with record-backed storage | huge-page metadata migration | no huge/native/provider coupling |
+| `C205d huge-page metadata record migration` | replace M180 huge-page metadata scalar columns with record-backed storage | broader allocator/table cleanup | no small-page state vector migration |
 
 Status:
 
@@ -186,7 +189,10 @@ Status:
   private runtime vocabulary with columnar scalar storage, stable summaries,
   len/capacity/clone/equality/debug support, and explicit unmaterialized
   boundaries for public element materialization.
-- `C205` remains future work.
+- `C205a` is complete as `293x-214`: `hako_alloc` now owns declaration-only
+  allocator metadata records for aligned-small and huge-page metadata. Existing
+  scalar metadata arrays remain the runtime truth.
+- `C205b-C205d` remain future work.
 
 ## Target Runtime Shape
 
@@ -239,7 +245,9 @@ For allocator metadata, the preferred reading is:
 
 1. keep `M178` scalar columns as the current truthful implementation
 2. land `C201-C204` as compiler/runtime prerequisites
-3. move allocator metadata surface to `record` only at `C205`
+3. declare allocator metadata records at `C205a` without changing runtime truth
+4. move allocator metadata surface to live record storage only after record
+   construction/read lowering is available
 
 That preserves today's working implementation while making the long-term `.hako` surface cleaner again.
 
