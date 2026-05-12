@@ -52,8 +52,16 @@ box HakoAllocHugeThresholdRouter {
         return me.classifyPaddedSize(padded_size)
     }
 
+    classifyAlignedRequestUsize(size: usize, alignment: usize) {
+        return me.classifyAlignedRequest(size, alignment)
+    }
+
     allocate(size) {
         return me.allocateAligned(size, SizeClassBox.word_size())
+    }
+
+    allocateUsize(size: usize) {
+        return me.allocate(size)
     }
 
     allocateAligned(size, alignment) {
@@ -104,5 +112,9 @@ box HakoAllocHugeThresholdRouter {
         me.small_reject_count = me.small_reject_count + 1
         me.reject_count = me.reject_count + 1
         return 0
+    }
+
+    allocateAlignedUsize(size: usize, alignment: usize) {
+        return me.allocateAligned(size, alignment)
     }
 }

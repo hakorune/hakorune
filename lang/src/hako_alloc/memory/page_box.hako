@@ -90,6 +90,10 @@ box HakoAllocPageModel {
         return block_id
     }
 
+    acquire_usize(requested_size: usize) {
+        return me.acquire(requested_size)
+    }
+
     releaseLocal(block_id) {
         if block_id < 0 {
             me.reject_count = me.reject_count + 1

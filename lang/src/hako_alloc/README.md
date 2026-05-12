@@ -80,13 +80,16 @@ Principles
     outcomes while delegating same-class and grow execution back to M174/M175.
   - `HakoAllocAlignmentPolicy` is the M177 alignment owner. It normalizes and
     validates alignment plus computes padded-size policy, but aligned execution
-    still stays outside the current realloc/release owners.
+    still stays outside the current realloc/release owners. M188 adds `usize`
+    request-size/alignment facades without changing signed reject lanes.
   - `HakoAllocPageMapAlignedSmallPath` is the M178 aligned small-path owner. It
     attaches alignment metadata to normal page-map-backed small allocations
-    while huge-page routing still stays outside this owner.
+    while huge-page routing still stays outside this owner. M188 adds a typed
+    `usize` input facade that delegates to the same execution path.
   - `HakoAllocHugeThresholdRouter` is the M179 huge threshold/routing owner. It
     routes padded requests above the last regular size-class to an explicit
     huge-unsupported fail-fast result while delegating small requests to M178.
+    M188 adds `usize` request facades while keeping route/result kinds signed.
   - `HakoAllocHugePageModel` is the M180 huge page model owner. It registers
     one-allocation huge handles in the page map while keeping requested,
     committed, and live metadata separate from small page free lists.

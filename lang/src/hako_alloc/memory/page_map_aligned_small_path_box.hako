@@ -89,6 +89,10 @@ box HakoAllocPageMapAlignedSmallPath {
         return 0
     }
 
+    allocateAlignedSmallUsize(size: usize, alignment: usize) {
+        return me.allocateAlignedSmall(size, alignment)
+    }
+
     alignmentFor(ptr) {
         local entry = me.page_map.lookup(ptr)
         if entry == null {

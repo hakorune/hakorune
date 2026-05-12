@@ -161,6 +161,7 @@
 - [x] `293x-196` D195 hako_alloc SSOT refresh
 - [x] `293x-197` M185 hako_alloc field inventory delta
 - [x] `293x-198` M187 exact usize size-class policy
+- [x] `293x-199` M188 exact usize request path
 
 ## Gates
 

@@ -22,7 +22,8 @@ field-group row records the invariant, stop line, and acceptance gate.
 
 Non-stored exact `usize` facades are tracked separately from stored-field
 migration. M187 adds `SizeClassBox` `usize` input facades; those do not change
-the stored field count and keep sentinel-returning results signed.
+the stored field count and keep sentinel-returning results signed. M188 extends
+that non-stored facade pattern to allocation request sizes and alignments.
 
 ## Categories
 

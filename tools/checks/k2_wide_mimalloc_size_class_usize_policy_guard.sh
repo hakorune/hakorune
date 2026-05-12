@@ -13,7 +13,6 @@ APP_README="apps/mimalloc-size-class-usize-policy-proof/README.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-198-M187-SIZE-CLASS-USIZE-POLICY.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
-CURRENT="docs/development/current/main/CURRENT_STATE.toml"
 SELF_SCRIPT="tools/checks/k2_wide_mimalloc_size_class_usize_policy_guard.sh"
 
 echo "[$TAG] checking M187 size-class usize policy facade"
@@ -26,8 +25,7 @@ guard_require_files \
   "$APP_README" \
   "$CARD" \
   "$PLAN" \
-  "$INDEX" \
-  "$CURRENT"
+  "$INDEX"
 
 guard_expect_in_file "$TAG" 'size_to_bin_usize\(size: usize\)' "$SIZE_CLASS" "M187 must add usize size-to-bin facade"
 guard_expect_in_file "$TAG" 'good_size_usize\(size: usize\)' "$SIZE_CLASS" "M187 must add usize good-size facade"
@@ -39,7 +37,6 @@ guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.size_class_box as 
 guard_expect_in_file "$TAG" 'M187 exact usize for size-class policy` \| Complete' "$PLAN" "plan must mark M187 complete"
 guard_expect_in_file "$TAG" '293x-198 M187 Size-Class usize Policy' "$CARD" "missing M187 card"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M187 guard"
-guard_expect_in_file "$TAG" '293x-198-M187-SIZE-CLASS-USIZE-POLICY' "$CURRENT" "CURRENT_STATE must point to M187"
 
 if rg -n '^[[:space:]]+[A-Za-z_][A-Za-z0-9_]*:[[:space:]]+usize' "$SIZE_CLASS" >/tmp/"$TAG".stored_usize 2>&1; then
   echo "[$TAG] ERROR: M187 must not add stored usize fields to SizeClassBox" >&2

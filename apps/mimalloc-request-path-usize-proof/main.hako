@@ -1,0 +1,97 @@
+// mimalloc-request-path-usize-proof
+// Purpose: prove M188 usize input facades across allocation request path.
+
+using selfhost.hako_alloc.memory.alignment_policy_box as HakoAllocAlignmentPolicy
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
+using selfhost.hako_alloc.memory.page_map_release_box as HakoAllocPageMapReleaseBox
+using selfhost.hako_alloc.memory.page_map_aligned_small_path_box as HakoAllocPageMapAlignedSmallPathBox
+using selfhost.hako_alloc.memory.huge_threshold_router_box as HakoAllocHugeThresholdRouterBox
+
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expect(label, condition) {
+        me.count = me.count + 1
+        if condition == 0 {
+            me.passed = 0
+            me.fail_count = me.fail_count + 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
+static box Main {
+    main(args) {
+        local norm = HakoAllocAlignmentPolicy.normalize_alignment_usize(1)
+        local padded = HakoAllocAlignmentPolicy.padded_request_size_usize(24, 1)
+        local good = HakoAllocAlignmentPolicy.aligned_good_size_usize(48, 64)
+        local accept = 0
+        if HakoAllocAlignmentPolicy.accepts_usize(48, 64) {
+            accept = 1
+        }
+
+        local page_map = new HakoAllocPageMap()
+        local seam = new HakoAllocPageMapReleaseSeam(page_map)
+        local small_path = new HakoAllocPageMapAlignedSmallPath(seam)
+        local router = new HakoAllocHugeThresholdRouter(small_path)
+        local page0 = new HakoAllocPageModel(0, 32, 1, 1)
+        local page1 = new HakoAllocPageModel(1, 128, 1, 1)
+
+        local direct_page = new HakoAllocPageModel(2, 32, 1, 1)
+        local direct_block = direct_page.acquire_usize(24)
+
+        local add0 = seam.addPage(page0)
+        local add1 = seam.addPage(page1)
+
+        local small_ok = small_path.allocateAlignedSmallUsize(24, 1)
+        local small_ptr = small_path.last_result_ptr
+        local small_align = small_path.alignmentFor(small_ptr)
+
+        local class_small = router.classifyAlignedRequestUsize(48, 64)
+        local class_huge = router.classifyAlignedRequestUsize(4194300, 64)
+        local route_ok = router.allocateAlignedUsize(48, 64)
+        local route_ptr = router.last_result_ptr
+        local route_padded = router.last_padded_size
+        local huge_reject = router.allocateAlignedUsize(4194300, 64)
+        local huge_kind = router.last_route_kind
+
+        print("mimalloc-request-path-usize-proof")
+        print("policy=" + norm + "," + padded + "," + good + "," + accept)
+        print("direct=" + direct_block + "," + direct_page.used + "," + direct_page.reject_count)
+        print("setup=" + add0 + "," + add1)
+        print("small=" + small_ok + "," + small_ptr + "," + small_align)
+        print("route=" + class_small + "," + class_huge + "," + route_ok + "," + route_ptr + "," + route_padded + "," + huge_reject + "," + huge_kind)
+        print("counters=" + small_path.alloc_count + "," + router.small_route_count + "," + router.small_success_count + "," + router.huge_route_count + "," + router.huge_reject_count + "," + router.reject_count)
+
+        local proof = new ProofCheck("m188 request path usize")
+        proof.expect("policy facades", norm == 8 && padded == 31 && good == 112 && accept == 1)
+        proof.expect("direct page acquire", direct_block == 0 && direct_page.used == 1 && direct_page.reject_count == 0)
+        proof.expect("setup", add0 == 1 && add1 == 1)
+        proof.expect("small path facade", small_ok == 1 && small_ptr == 12000 && small_align == 8)
+        proof.expect("router classes", class_small == 1 && class_huge == 2)
+        proof.expect("router execution", route_ok == 1 && route_ptr == 12001 && route_padded == 111 && huge_reject == 0 && huge_kind == 2)
+        proof.expect("counters", small_path.alloc_count == 2 && router.small_route_count == 1 && router.small_success_count == 1 && router.huge_route_count == 1 && router.huge_reject_count == 1 && router.reject_count == 1)
+
+        if proof.ok() {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
