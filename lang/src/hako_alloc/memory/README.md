@@ -15,6 +15,7 @@ Current modules
 - `page_heap_box.hako`
 - `page_queue_box.hako`
 - `page_source_policy_box.hako`
+- `remote_free_page_integration_box.hako`
 - `refcell_box.hako`
 - `remote_free_policy_box.hako`
 - `size_class_box.hako`
@@ -47,5 +48,9 @@ Syntax/style contract
 - `page_box.hako` owns M169 local-free collection and empty-page retire state.
   The row is page-local: remote-free atomics, abandoned reclaim, page-map lookup,
   OSVM release, provider hooks, and allocator replacement remain out of scope.
+- `remote_free_page_integration_box.hako` owns M170 page-owned remote-free
+  inbox composition. It may call `HakoAllocRemoteFreePolicy.pushRetry(...)` and
+  `HakoAllocPageModel.releaseLocal(...)`, but it must not resolve arbitrary
+  pointers to pages or add new pointer atomic vocabulary.
 - Keep `birth(...)` for parameter-dependent initialization and ordering that
   cannot be expressed as a declaration-site default.

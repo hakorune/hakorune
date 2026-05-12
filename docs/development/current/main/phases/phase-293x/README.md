@@ -414,7 +414,10 @@ inference for the allocator release path.
 - `293x-177`: M169 mimalloc local-free retire landed, moving same-thread
   `local_free` entries back to reusable page-local free blocks and exposing
   empty-page retire state without remote-free atomics or abandoned reclaim.
-- Next: continue `.hako` mimalloc / `hako_alloc` implementation slices with
-  `M170 remote-free integration`.
+- `293x-178`: M170 mimalloc remote-free integration landed, composing existing
+  pointer load/store/CAS remote-free policy with page-owned `releaseLocal(...)`
+  state through a caller-provided block-id proof seam.
+- Next: inventory post-M170 feature pressure before scheduling realloc,
+  aligned allocation, page-map, huge-page, or secure-list rows.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.

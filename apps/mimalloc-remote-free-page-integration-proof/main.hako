@@ -1,0 +1,75 @@
+// mimalloc-remote-free-page-integration-proof
+// Purpose: prove M170 remote-free policy composition into page-owned state.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.remote_free_page_integration_box as HakoAllocRemoteFreePageIntegration
+
+static box Main {
+    main(args) {
+        local head_cell = externcall "hako_mem_alloc"(8)
+        local block_a = externcall "hako_mem_alloc"(24)
+        local block_b = externcall "hako_mem_alloc"(24)
+
+        if head_cell == 0 || block_a == 0 || block_b == 0 {
+            print("mimalloc-remote-free-page-integration-proof")
+            print("summary=alloc_failed")
+            if block_b != 0 { externcall "hako_mem_free"(block_b) }
+            if block_a != 0 { externcall "hako_mem_free"(block_a) }
+            if head_cell != 0 { externcall "hako_mem_free"(head_cell) }
+            return 1
+        }
+
+        local page = new HakoAllocPageModel(17, 32, 2, 2)
+        local b0 = page.acquire(8)
+        local b1 = page.acquire(16)
+        local full = page.acquire(8)
+
+        local inbox = new HakoAllocRemoteFreePageInbox(page, head_cell)
+        local p0 = inbox.publish(block_a, b0, 0)
+        local p1 = inbox.publish(block_b, b1, 0)
+
+        local head = inbox.peekHead()
+        local next_b = inbox.peekNext(block_b)
+        local next_a = inbox.peekNext(block_a)
+
+        local c0 = inbox.collectOne()
+        local c1 = inbox.collectOne()
+        local c2 = inbox.collectOne()
+
+        local head_is_b = 0
+        if head == block_b {
+            head_is_b = 1
+        }
+
+        local next_b_is_a = 0
+        if next_b == block_a {
+            next_b_is_a = 1
+        }
+
+        local next_a_empty = 0
+        if next_a == 0 {
+            next_a_empty = 1
+        }
+
+        externcall "hako_mem_free"(block_b)
+        externcall "hako_mem_free"(block_a)
+        externcall "hako_mem_free"(head_cell)
+
+        print("mimalloc-remote-free-page-integration-proof")
+        print("blocks=" + b0 + "," + b1 + "," + full)
+        print("publish=" + p0 + "," + p1)
+        print("list=" + head_is_b + "," + next_b_is_a + "," + next_a_empty)
+        print("collect=" + c0 + "," + c1 + "," + c2)
+        print("page=" + page.used + "," + page.localFreeCount() + "," + page.retired + "," + page.local_free_count)
+        print("inbox=" + inbox.init_status + "," + inbox.remote_push_count + "," + inbox.remote_collect_count + "," + inbox.retry_count + "," + inbox.reject_count + "," + inbox.pending_top)
+
+        local list_shape = head_is_b + next_b_is_a + next_a_empty
+        if p0 == 1 && p1 == 1 && c0 == 1 && c1 == 1 && c2 == 0 && list_shape == 3 && page.used == 0 && page.localFreeCount() == 2 && page.retired == 1 && inbox.remote_push_count == 2 && inbox.remote_collect_count == 2 && inbox.retry_count == 0 && inbox.reject_count == 1 && inbox.pending_top == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -28,8 +28,7 @@
 
 | Next | Card | Goal |
 | --- | --- | --- |
-| 1 | `M170` | Compose bounded remote-free policy through existing pointer atomics only. |
-| 2 | post-`M170` inventory | Recheck whether realloc/aligned/page-map/huge-page rows need new Hakorune features. |
+| 1 | post-`M170` inventory | Recheck whether realloc/aligned/page-map/huge-page rows need new Hakorune features. |
 
 Stop line: VM green is useful reference evidence, but production allocator
 migration still changes only by explicit `hako_alloc` field-group rows.
@@ -181,6 +180,9 @@ migration still changes only by explicit `hako_alloc` field-group rows.
   pages through existing reserve/commit/decommit rows.
 - `M169`: parent mimalloc lane landed page-local local-free collection and
   empty-page retire observation without remote-free atomics.
+- `M170`: parent mimalloc lane landed remote-free page integration through
+  existing pointer load/store/CAS route facts, with caller-provided block
+  identity as the proof seam and no page-map migration.
 
 ## Implementation Direction
 
@@ -194,7 +196,8 @@ explicit consumer:
 5. lower the exact arithmetic/compare subset needed by migrated fields;
 6. migrate `hako_alloc` non-negative fields only by field group when an
    algorithm row actually benefits from the migration;
-7. continue M170 mimalloc remote-free integration and inventory post-M170 feature needs.
+7. inventory post-M170 mimalloc feature needs before scheduling realloc,
+   aligned allocation, page-map, huge-page, or secure-list rows.
 
 This keeps the source truth available before any lowerer claims exact
 semantics.

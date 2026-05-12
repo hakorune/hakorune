@@ -207,6 +207,11 @@ work. Splitting is mandatory if a row starts adding algorithm bodies back into
   atomics, abandoned reclaim, OSVM release, or page-map lookup.
 - `M170` composes existing pointer atomics only. It does not add pointer
   `fetch_add`, page-map lookup, allocator hooks, or host replacement.
+  M170 landed as `HakoAllocRemoteFreePageInbox` in
+  `remote_free_page_integration_box.hako`: bounded pointer publish stays in
+  `HakoAllocRemoteFreePolicy`, page state mutation stays in
+  `HakoAllocPageModel.releaseLocal(...)`, and caller-provided block identity is
+  the proof seam until a future page-map row exists.
 
 ## First Concrete Row
 

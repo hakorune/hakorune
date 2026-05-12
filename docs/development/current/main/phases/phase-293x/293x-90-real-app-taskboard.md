@@ -140,6 +140,7 @@
 - [x] `293x-175` M167 mimalloc alloc fast path
 - [x] `293x-176` M168 mimalloc OSVM page-source composition
 - [x] `293x-177` M169 mimalloc local-free retire
+- [x] `293x-178` M170 mimalloc remote-free integration
 
 ## Gates
 

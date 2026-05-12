@@ -1,0 +1,74 @@
+// remote_free_page_integration_box.hako — M170 page-owned remote-free inbox
+// Responsibility: compose bounded remote-free pointer publish with page-local
+// caller block-id collection. Metal and host allocator changes stay outside
+// this owner.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.remote_free_policy_box as HakoAllocRemoteFreePolicy
+
+box HakoAllocRemoteFreePageInbox {
+    page: HakoAllocPageModel
+    head_cell: i64
+    pending_block_ids: ArrayBox = new ArrayBox()
+    init_status: i64 = 0
+    pending_top: i64 = 0
+    remote_push_count: i64 = 0
+    remote_collect_count: i64 = 0
+    retry_count: i64 = 0
+    reject_count: i64 = 0
+
+    birth(page, head_cell) {
+        me.page = page
+        me.head_cell = head_cell
+        me.init_status = HakoAllocRemoteFreePolicy.initHead(head_cell)
+    }
+
+    publish(block_ptr, block_id, interferer_ptr) {
+        if me.page == null {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        if block_id < 0 {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        local retries = HakoAllocRemoteFreePolicy.pushRetry(me.head_cell, block_ptr, interferer_ptr)
+        if retries < 0 {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        me.pending_block_ids.push(block_id)
+        me.pending_top = me.pending_top + 1
+        me.remote_push_count = me.remote_push_count + 1
+        me.retry_count = me.retry_count + retries
+        return 1
+    }
+
+    collectOne() {
+        if me.pending_top == 0 {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        me.pending_top = me.pending_top - 1
+        local block_id = me.pending_block_ids.get(me.pending_top)
+        if me.page.releaseLocal(block_id) {
+            me.remote_collect_count = me.remote_collect_count + 1
+            return 1
+        }
+
+        me.reject_count = me.reject_count + 1
+        return 0
+    }
+
+    peekHead() {
+        return HakoAllocRemoteFreePolicy.peekHead(me.head_cell)
+    }
+
+    peekNext(block_ptr) {
+        return HakoAllocRemoteFreePolicy.peekNext(block_ptr)
+    }
+}

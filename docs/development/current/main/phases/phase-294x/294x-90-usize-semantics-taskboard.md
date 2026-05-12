@@ -39,8 +39,7 @@ hako_alloc or mimalloc migration.
 
 | Order | Row | Status | Implementation Boundary |
 | --- | --- | --- | --- |
-| 1 | `M170` | Next | Remote-free integration through existing pointer atomics only. |
-| 2 | post-`M170` feature inventory | Future | Decide realloc/aligned alloc/page-map/huge-page/secure-list rows from actual mimalloc pressure. |
+| 1 | post-`M170` feature inventory | Next | Decide realloc/aligned alloc/page-map/huge-page/secure-list rows from actual mimalloc pressure. |
 
 ## Ladder
 
@@ -207,7 +206,8 @@ hako_alloc or mimalloc migration.
 - [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 - [x] Land M168 OSVM page-source composition without new native leaves.
 - [x] Land M169 local-free collection and retire observation.
-- [ ] Land M170 remote-free integration through existing pointer atomics only.
+- [x] Land M170 remote-free integration through existing pointer atomics only.
+- [ ] Inventory post-M170 feature pressure before scheduling realloc/aligned/page-map/huge-page rows.
 
 ## Open Design Questions
 

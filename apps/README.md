@@ -169,6 +169,22 @@ bash tools/checks/k2_wide_mimalloc_local_free_retire_guard.sh
 - final `releaseLocal()` が empty-page retire state を idempotent に記録する
 - remote-free / abandoned reclaim / page-map / OSVM release はまだ扱わない
 
+#### mimalloc-remote-free-page-integration-proof
+**場所**: `mimalloc-remote-free-page-integration-proof/main.hako`
+M170 proof。既存 `HakoAllocRemoteFreePolicy` の bounded pointer CAS retry
+publish を `HakoAllocRemoteFreePageInbox` で page-owned `releaseLocal(...)`
+state へ合成する。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_remote_free_page_integration_guard.sh
+```
+
+**特徴**:
+- pointer load/store/CAS route facts は既存 remote-free policy 所有のまま
+- page state mutation は `HakoAllocPageModel.releaseLocal(...)` に委譲する
+- caller-provided block id proof seam なので page-map / arbitrary pointer
+  free / provider / hook / replacement はまだ扱わない
+
 #### hako-alloc-remote-free-policy-proof
 **場所**: `hako-alloc-remote-free-policy-proof/main.hako`
 M48 proof。`HakoAllocProductionFacade` 経由で M43 の bounded CAS retry-loop
@@ -716,6 +732,7 @@ box TreeNode {
 - [x] mimalloc-alloc-fast-path-proof（M167 alloc fast path proof）
 - [x] mimalloc-osvm-page-source-composition-proof（M168 OSVM page-source composition proof）
 - [x] mimalloc-local-free-retire-proof（M169 local-free retire proof）
+- [x] mimalloc-remote-free-page-integration-proof（M170 remote-free page integration proof）
 - [x] mimalloc-osvm-page-proof（M25 OSVM page proof）
 - [x] mimalloc-ptr-atomic-store-proof（M35 native pointer atomic store proof）
 - [x] mimalloc-ptr-atomic-load-proof（M39 native pointer atomic load proof）

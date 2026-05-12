@@ -46,6 +46,10 @@ Principles
   - M169 local-free retire stays page-local in `HakoAllocPageModel`; M170 owns
     remote-free integration and any broader heap/queue consumption of retire
     state.
+  - `HakoAllocRemoteFreePageInbox` is the M170 integration owner: it composes
+    the existing bounded pointer remote-free policy with caller-provided
+    page/block identity, then delegates page state mutation to
+    `HakoAllocPageModel.releaseLocal(...)`.
 
 Design owners
 - Policy/state stop-line:
@@ -100,6 +104,8 @@ Current modules
 - `memory.page_heap_box`
 - `memory.page_queue_box`
 - `memory.page_source_policy_box`
+- `memory.remote_free_page_integration_box`
 - `memory.remote_free_policy_box`
 - `memory.refcell_box`
 - `memory.size_class_box`
+- `memory.usize_field_probe_box`
