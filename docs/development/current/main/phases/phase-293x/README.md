@@ -470,8 +470,10 @@ inference for the allocator release path.
 - `293x-193`: M182 secure free-list policy inventory landed, fixing the split
   between page-local block identity, diagnostics-only observers, and future
   encode/decode policy before secure-list code is introduced.
-- Next: continue with `M183 secure-list diagnostics-only` before adding
-  encode/decode rows.
+- `293x-194`: M183 secure-list diagnostics landed, adding
+  `HakoAllocSecureFreeListDiagnostics` to observe out-of-range, duplicate,
+  live-block, and count-mismatch free-list states without encode/decode policy.
+- Next: continue with `M184 secure-list encode/decode small path`.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.
 
@@ -482,7 +484,7 @@ SSOT:
 
 Current execution order:
 
-1. `M183-M184`: add secure-list diagnostics and encode/decode separately.
+1. `M184`: add secure-list encode/decode small path.
 2. `M185-M190`: finish remaining `usize` field-group migration and allocator
    API parity. Facade stats are already exact `usize` via `294x-19e`, so that
    row must not be repeated.

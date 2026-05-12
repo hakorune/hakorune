@@ -156,6 +156,7 @@
 - [x] `293x-191` M180 huge page model
 - [x] `293x-192` M181 huge release seam
 - [x] `293x-193` M182 secure free-list policy inventory
+- [x] `293x-194` M183 secure-list diagnostics
 
 ## Gates
 

@@ -1,0 +1,81 @@
+// mimalloc-secure-list-diagnostics-proof
+// Purpose: prove M183 secure-list diagnostics-only owner.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.secure_free_list_diagnostics_box as HakoAllocSecureFreeListDiagnosticsBox
+
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expect(label, condition) {
+        me.count = me.count + 1
+        if condition == 0 {
+            me.passed = 0
+            me.fail_count = me.fail_count + 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
+static box Main {
+    main(args) {
+        local diag = new HakoAllocSecureFreeListDiagnostics()
+        local good = new HakoAllocPageModel(0, 32, 3, 3)
+        local good_ok = diag.scanPage(good)
+        local good_shape = diag.last_ok + diag.last_out_of_range_free_block + diag.last_duplicate_free_block + diag.last_live_block_in_free_list + diag.last_free_count_mismatch + diag.last_local_free_count_mismatch
+
+        local bad = new HakoAllocPageModel(1, 32, 4, 4)
+        local live_block = bad.acquire(8)
+        bad.free.set(0, 99)
+        bad.free.set(1, live_block)
+        bad.free.set(2, 2)
+        bad.local_free.set(0, 2)
+        bad.local_free_top = 1
+        local bad_ok = diag.scanPage(bad)
+        local bad_shape = diag.last_ok + "," + diag.last_out_of_range_free_block + "," + diag.last_duplicate_free_block + "," + diag.last_live_block_in_free_list + "," + diag.last_free_count_mismatch + "," + diag.last_local_free_count_mismatch
+
+        local local_bad = new HakoAllocPageModel(2, 32, 2, 2)
+        local_bad.local_free_top = 3
+        local local_bad_ok = diag.scanPage(local_bad)
+        local local_bad_shape = diag.last_ok + "," + diag.last_out_of_range_free_block + "," + diag.last_duplicate_free_block + "," + diag.last_live_block_in_free_list + "," + diag.last_free_count_mismatch + "," + diag.last_local_free_count_mismatch
+
+        print("mimalloc-secure-list-diagnostics-proof")
+        print("good=" + good_ok + "," + good_shape)
+        print("bad=" + bad_ok + "," + bad_shape)
+        print("local_bad=" + local_bad_ok + "," + local_bad_shape)
+        print("totals=" + diag.scan_count + "," + diag.ok_count + "," + diag.fail_count + "," + diag.out_of_range_free_block_count + "," + diag.duplicate_free_block_count + "," + diag.live_block_in_free_list_count + "," + diag.free_count_mismatch_count + "," + diag.local_free_count_mismatch_count)
+
+        local proof = new ProofCheck("m183 secure list diagnostics")
+        proof.expect("good page passes", good_ok == 1)
+        proof.expect("good shape", good_shape == 1)
+        proof.expect("bad page rejects", bad_ok == 0)
+        proof.expect("bad out of range", diag.out_of_range_free_block_count >= 1)
+        proof.expect("bad duplicate", diag.duplicate_free_block_count >= 1)
+        proof.expect("bad live block", diag.live_block_in_free_list_count >= 1)
+        proof.expect("bad free mismatch", diag.free_count_mismatch_count >= 1)
+        proof.expect("local bad rejects", local_bad_ok == 0)
+        proof.expect("local mismatch observed", diag.local_free_count_mismatch_count == 1)
+        proof.expect("scan totals", diag.scan_count == 3 && diag.ok_count == 1 && diag.fail_count == 2)
+
+        if proof.ok() {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

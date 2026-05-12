@@ -91,6 +91,9 @@ Principles
   - `HakoAllocHugeReleaseSeam` is the M181 huge release seam owner. It retires
     huge handles through `HakoAllocHugePageModel` and unregisters page-map
     ownership without touching small page `releaseLocal(...)`.
+  - `HakoAllocSecureFreeListDiagnostics` is the M183 diagnostics owner. It
+    observes page-local free-list shape before secure-list encode/decode policy
+    lands.
 
 Design owners
 - Policy/state stop-line:

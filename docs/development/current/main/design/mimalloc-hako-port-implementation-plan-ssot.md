@@ -153,8 +153,8 @@ current repo truth: broad numeric field inventory and facade-local exact
 | `M180 huge page model` | Complete | model one-allocation huge pages separately from small page free lists | no OS unreserve/release widening |
 | `M181 huge release seam` | Complete | unregister and release huge handles through the page-map owner | no small-page free-list mixing |
 | `M182 secure free-list policy inventory` | Complete | decide encoded/randomized free-list responsibilities | no implementation |
-| `M183 secure-list diagnostics-only` | Next | detect duplicate/out-of-range/free-list shape errors | no encode/decode |
-| `M184 secure-list encode/decode small path` | Planned | add the smallest encoded-next policy once diagnostics are stable | no cryptographic randomness claim without compiler support |
+| `M183 secure-list diagnostics-only` | Complete | detect duplicate/out-of-range/free-list shape errors | no encode/decode |
+| `M184 secure-list encode/decode small path` | Next | add the smallest encoded-next policy once diagnostics are stable | no cryptographic randomness claim without compiler support |
 
 ### Numeric / API Completion Lane
 

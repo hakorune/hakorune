@@ -1,0 +1,178 @@
+// secure_free_list_diagnostics_box.hako -- M183 secure-list diagnostics owner
+// Responsibility: observe page-local free-list shape only. Encoding policy,
+// cookies, randomness, and hardening stay outside this owner.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+
+box HakoAllocSecureFreeListDiagnostics {
+    scan_count: i64 = 0
+    ok_count: i64 = 0
+    fail_count: i64 = 0
+    out_of_range_free_block_count: i64 = 0
+    duplicate_free_block_count: i64 = 0
+    live_block_in_free_list_count: i64 = 0
+    free_count_mismatch_count: i64 = 0
+    local_free_count_mismatch_count: i64 = 0
+    last_ok: i64 = 0
+    last_out_of_range_free_block: i64 = 0
+    last_duplicate_free_block: i64 = 0
+    last_live_block_in_free_list: i64 = 0
+    last_free_count_mismatch: i64 = 0
+    last_local_free_count_mismatch: i64 = 0
+
+    resetLast() {
+        me.last_ok = 0
+        me.last_out_of_range_free_block = 0
+        me.last_duplicate_free_block = 0
+        me.last_live_block_in_free_list = 0
+        me.last_free_count_mismatch = 0
+        me.last_local_free_count_mismatch = 0
+    }
+
+    freeContainsFrom(page, block_id, start_index, limit) {
+        local i = start_index
+        loop(i < limit) {
+            if page.free.get(i) == block_id {
+                return 1
+            }
+            i = i + 1
+        }
+
+        return 0
+    }
+
+    localFreeContains(page, block_id, limit) {
+        local i = 0
+        loop(i < limit) {
+            if page.local_free.get(i) == block_id {
+                return 1
+            }
+            i = i + 1
+        }
+
+        return 0
+    }
+
+    localFreeContainsFrom(page, block_id, start_index, limit) {
+        local i = start_index
+        loop(i < limit) {
+            if page.local_free.get(i) == block_id {
+                return 1
+            }
+            i = i + 1
+        }
+
+        return 0
+    }
+
+    observeBlock(page, block_id) {
+        if block_id < 0 {
+            me.last_out_of_range_free_block = 1
+            return 0
+        }
+
+        if block_id >= page.reserved {
+            me.last_out_of_range_free_block = 1
+            return 0
+        }
+
+        if page.blockIsLive(block_id) == 1 {
+            me.last_live_block_in_free_list = 1
+        }
+
+        return 1
+    }
+
+    scanPage(page) {
+        me.resetLast()
+        me.scan_count = me.scan_count + 1
+
+        if page == null {
+            me.last_free_count_mismatch = 1
+        } else {
+            local free_top = page.free_top
+            local local_top = page.local_free_top
+
+            if free_top < 0 {
+                me.last_free_count_mismatch = 1
+                free_top = 0
+            }
+            if free_top > page.reserved {
+                me.last_free_count_mismatch = 1
+                free_top = page.reserved
+            }
+
+            if local_top < 0 {
+                me.last_local_free_count_mismatch = 1
+                local_top = 0
+            }
+            if local_top > page.reserved {
+                me.last_local_free_count_mismatch = 1
+                local_top = page.reserved
+            }
+
+            if free_top + local_top + page.used != page.reserved {
+                me.last_free_count_mismatch = 1
+            }
+
+            local i = 0
+            loop(i < free_top) {
+                local block_id = page.free.get(i)
+                me.observeBlock(page, block_id)
+                if me.freeContainsFrom(page, block_id, i + 1, free_top) == 1 {
+                    me.last_duplicate_free_block = 1
+                }
+                if me.localFreeContains(page, block_id, local_top) == 1 {
+                    me.last_duplicate_free_block = 1
+                }
+                i = i + 1
+            }
+
+            local j = 0
+            loop(j < local_top) {
+                local local_block_id = page.local_free.get(j)
+                me.observeBlock(page, local_block_id)
+                if me.localFreeContainsFrom(page, local_block_id, j + 1, local_top) == 1 {
+                    me.last_duplicate_free_block = 1
+                }
+                j = j + 1
+            }
+        }
+
+        if me.last_out_of_range_free_block == 0 {
+            if me.last_duplicate_free_block == 0 {
+                if me.last_live_block_in_free_list == 0 {
+                    if me.last_free_count_mismatch == 0 {
+                        if me.last_local_free_count_mismatch == 0 {
+                            me.last_ok = 1
+                        }
+                    }
+                }
+            }
+        }
+
+        if me.last_out_of_range_free_block == 1 {
+            me.out_of_range_free_block_count = me.out_of_range_free_block_count + 1
+        }
+        if me.last_duplicate_free_block == 1 {
+            me.duplicate_free_block_count = me.duplicate_free_block_count + 1
+        }
+        if me.last_live_block_in_free_list == 1 {
+            me.live_block_in_free_list_count = me.live_block_in_free_list_count + 1
+        }
+        if me.last_free_count_mismatch == 1 {
+            me.free_count_mismatch_count = me.free_count_mismatch_count + 1
+        }
+        if me.last_local_free_count_mismatch == 1 {
+            me.local_free_count_mismatch_count = me.local_free_count_mismatch_count + 1
+        }
+
+        if me.last_ok == 1 {
+            me.ok_count = me.ok_count + 1
+            return 1
+        }
+
+        me.fail_count = me.fail_count + 1
+        return 0
+    }
+}
