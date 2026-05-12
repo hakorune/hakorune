@@ -39,11 +39,10 @@ hako_alloc or mimalloc migration.
 
 | Order | Row | Status | Implementation Boundary |
 | --- | --- | --- | --- |
-| 0 | `293x-184` | Complete | Reuse the same live ptr when the request still fits the current page block, with no alloc-copy-release fallback. |
-| 1 | `M175` | Next | Realloc alloc-copy-release fallback, no aligned/huge allocation. |
-| 2 | `M176` | Planned | Realloc negative matrix and failure contract, no extra API expansion. |
-| 3 | `M177-M184` | Planned | Alignment, huge-page, and secure-list rows, one responsibility per row. |
-| 4 | `M185-M190` | Planned | Remaining `usize` migration and object-return/failure-handle API parity. |
+| 0 | `293x-185` | Complete | Allocate a replacement ptr, model copy count, and release the old ptr only after success. |
+| 1 | `M176` | Next | Realloc negative matrix and failure contract, no extra API expansion. |
+| 2 | `M177-M184` | Planned | Alignment, huge-page, and secure-list rows, one responsibility per row. |
+| 3 | `M185-M190` | Planned | Remaining `usize` migration and object-return/failure-handle API parity. |
 
 Roadmap correction: `M186 exact usize facade stats` is already complete as
 `294x-19e`. Do not schedule duplicate facade migration; use `M185+` for
@@ -219,6 +218,7 @@ remaining field groups and allocator API parity only.
 - [x] Land M172 page-map-backed release seam before scheduling realloc/aligned/page-map/huge-page rows.
 - [x] Land M173 pre-realloc release invariant freeze before the realloc body.
 - [x] Land M174 realloc same-class/no-move path before alloc-copy-release fallback.
+- [x] Land M175 realloc alloc-copy-release fallback before the negative matrix.
 
 ## Open Design Questions
 

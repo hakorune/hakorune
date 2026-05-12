@@ -16,6 +16,7 @@ Current modules
 - `page_map_box.hako`
 - `page_map_release_box.hako`
 - `page_map_release_invariant_box.hako`
+- `page_map_realloc_alloc_copy_release_box.hako`
 - `page_map_realloc_same_class_box.hako`
 - `page_queue_box.hako`
 - `page_source_policy_box.hako`
@@ -70,6 +71,12 @@ Syntax/style contract
   `HakoAllocPageMapReleaseSeam.releasePtr(...)` to freeze handle lifetime and
   release/unregister timing, but it must not own registration, page-local
   mutation, unregister execution, realloc, or byte copy.
+- `page_map_realloc_alloc_copy_release_box.hako` owns M175 grow fallback. It
+  may allocate a replacement block from current pages, call
+  `HakoAllocPageMap.register(...)`, and release the old ptr through
+  `HakoAllocPageMapReleaseSeam.releasePtr(...)` only after allocation succeeds,
+  but it must not own byte copy, raw `unregister(...)`, same-class/no-move
+  routing, or aligned/huge behavior.
 - `page_map_realloc_same_class_box.hako` owns M174 same-class/no-move realloc.
   It may call `HakoAllocPageMap.lookup(...)` and inspect the current page block
   to decide whether the same live ptr can be reused, but it must not own

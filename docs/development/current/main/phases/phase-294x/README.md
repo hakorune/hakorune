@@ -28,8 +28,8 @@
 
 | Next | Card | Goal |
 | --- | --- | --- |
-| 0 | `293x-184` | Reuse the same live ptr when the request still fits the current page block. |
-| 1 | `M175-M176` | Add alloc-copy-release fallback, then the negative/failure matrix. |
+| 0 | `293x-185` | Allocate a replacement ptr, model copy count, and release the old ptr only after success. |
+| 1 | `M176` | Add the negative/failure matrix without widening into aligned/huge work. |
 | 2 | `M177-M184` | Add alignment, huge-page, and secure-list slices without mixing them. |
 | 3 | `M185-M190` | Reconcile remaining `usize` migration and object-return allocator API parity. |
 
@@ -198,6 +198,8 @@ groups, request-path sizes, object-return parity, and failure-handle shape.
   handle lifetime and release/unregister timing before realloc.
 - `M174`: parent mimalloc lane landed a narrow same-class/no-move path that
   keeps live ptr identity when the request still fits the current page block.
+- `M175`: parent mimalloc lane landed the grow fallback path that allocates a
+  replacement ptr and models copy count before releasing the old ptr.
 
 ## Implementation Direction
 
@@ -211,8 +213,8 @@ explicit consumer:
 5. lower the exact arithmetic/compare subset needed by migrated fields;
 6. migrate `hako_alloc` non-negative fields only by field group when an
    algorithm row actually benefits from the migration;
-7. continue M175 alloc-copy-release fallback work before scheduling the
-   negative matrix, aligned allocation, huge-page, or secure-list rows.
+7. continue M176 negative/failure matrix work before scheduling aligned
+   allocation, huge-page, or secure-list rows.
 
 This keeps the source truth available before any lowerer claims exact
 semantics.

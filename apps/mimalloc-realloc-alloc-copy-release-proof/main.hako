@@ -1,0 +1,146 @@
+// mimalloc-realloc-alloc-copy-release-proof
+// Purpose: prove M175 realloc alloc-copy-release fallback.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
+using selfhost.hako_alloc.memory.page_map_release_box as HakoAllocPageMapReleaseBox
+using selfhost.hako_alloc.memory.page_map_release_invariant_box as HakoAllocPageMapReleaseInvariantBox
+using selfhost.hako_alloc.memory.page_map_realloc_alloc_copy_release_box as HakoAllocPageMapReallocAllocCopyReleaseBox
+
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expect(label, condition) {
+        me.count = me.count + 1
+        if condition == 0 {
+            me.passed = 0
+            me.fail_count = me.fail_count + 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
+static box Main {
+    main(args) {
+        local page_map = new HakoAllocPageMap()
+        local seam = new HakoAllocPageMapReleaseSeam(page_map)
+        local observer = new HakoAllocPageMapReleaseObserver(seam)
+        local path = new HakoAllocPageMapReallocAllocCopyReleasePath(seam)
+        local page0 = new HakoAllocPageModel(0, 32, 2, 2)
+        local page1 = new HakoAllocPageModel(1, 64, 2, 2)
+
+        local add0 = seam.addPage(page0)
+        local add1 = seam.addPage(page1)
+
+        local b0 = page0.acquire(8)
+        local b1 = page0.acquire(16)
+        local m0 = page1.acquire(40)
+
+        local reg0 = page_map.register(1001, 0, b0)
+        local reg1 = page_map.register(1002, 0, b1)
+        local reg2 = page_map.register(2001, 1, m0)
+        local reg_stale = page_map.register(3001, 9, 0)
+
+        local register_before = page_map.register_count
+        local release_before = seam.release_count
+        local unregister_before = seam.unregister_count
+        local live_before = page_map.live_count
+        local page0_used_before = page0.used
+        local page0_local_free_before = page0.localFreeCount()
+        local page1_used_before = page1.used
+
+        local success_ok = path.tryReallocAllocCopyRelease(1001, 48)
+        local success_ptr = path.last_result_ptr
+        local old_live_after_success = observer.handleIsLive(1001)
+        local new_live_after_success = observer.handleIsLive(success_ptr)
+
+        local register_delta = page_map.register_count - register_before
+        local release_delta = seam.release_count - release_before
+        local unregister_delta = seam.unregister_count - unregister_before
+        local live_delta = page_map.live_count - live_before
+        local page0_used_delta = page0.used - page0_used_before
+        local page0_local_free_delta = page0.localFreeCount() - page0_local_free_before
+        local page1_used_delta = page1.used - page1_used_before
+
+        local reject_same_class = path.tryReallocAllocCopyRelease(1002, 24)
+        local live_after_same_class = observer.handleIsLive(1002)
+
+        local reject_alloc_fail = path.tryReallocAllocCopyRelease(1002, 48)
+        local live_after_alloc_fail = observer.handleIsLive(1002)
+
+        local reg_released = page_map.register(4001, 0, b0)
+        local reject_released = path.tryReallocAllocCopyRelease(4001, 48)
+        local live_after_released = observer.handleIsLive(4001)
+
+        local reject_stale = path.tryReallocAllocCopyRelease(3001, 48)
+        local live_after_stale = observer.handleIsLive(3001)
+
+        local reject_unknown = path.tryReallocAllocCopyRelease(9999, 48)
+
+        print("mimalloc-realloc-alloc-copy-release-proof")
+        print("setup=" + add0 + "," + add1 + "," + reg0 + "," + reg1 + "," + reg2 + "," + reg_stale)
+        print("success=" + success_ok + "," + success_ptr + "," + old_live_after_success + "," + new_live_after_success)
+        print("same_class=" + reject_same_class + "," + live_after_same_class)
+        print("alloc_fail=" + reject_alloc_fail + "," + live_after_alloc_fail)
+        print("released=" + reg_released + "," + reject_released + "," + live_after_released)
+        print("stale=" + reject_stale + "," + live_after_stale)
+        print("unknown=" + reject_unknown)
+        print("deltas=" + register_delta + "," + release_delta + "," + unregister_delta + "," + live_delta + "," + page0_used_delta + "," + page0_local_free_delta + "," + page1_used_delta)
+        print("path=" + path.success_count + "," + path.copy_count + "," + path.same_class_reject_count + "," + path.alloc_fail_count + "," + path.lookup_miss_count + "," + path.stale_page_count + "," + path.released_block_count + "," + path.reject_count)
+        print("seam=" + seam.release_count + "," + seam.unregister_count + "," + seam.lookup_miss_count + "," + seam.stale_page_count + "," + seam.page_release_reject_count + "," + seam.reject_count)
+        print("page=" + page0.used + "," + page0.localFreeCount() + "," + page0.retired + "," + page1.used + "," + page1.localFreeCount() + "," + page1.retired + "," + page_map.register_count + "," + page_map.live_count)
+
+        local proof = new ProofCheck("m175 realloc alloc-copy-release")
+        proof.expect("add page0", add0 == 1)
+        proof.expect("add page1", add1 == 1)
+        proof.expect("register ptr 1001", reg0 == 1)
+        proof.expect("register ptr 1002", reg1 == 1)
+        proof.expect("register ptr 2001", reg2 == 1)
+        proof.expect("register stale ptr", reg_stale == 1)
+        proof.expect("grow fallback succeeds", success_ok == 1)
+        proof.expect("success ptr allocated", success_ptr == 9000)
+        proof.expect("old ptr released after success", old_live_after_success == 0)
+        proof.expect("new ptr live after success", new_live_after_success == 1)
+        proof.expect("same-class reject", reject_same_class == 0)
+        proof.expect("same-class reject keeps ptr live", live_after_same_class == 1)
+        proof.expect("alloc-fail reject", reject_alloc_fail == 0)
+        proof.expect("alloc-fail keeps old ptr live", live_after_alloc_fail == 1)
+        proof.expect("register released old block ptr", reg_released == 1)
+        proof.expect("released-block reject", reject_released == 0)
+        proof.expect("released-block reject keeps ptr live", live_after_released == 1)
+        proof.expect("stale reject", reject_stale == 0)
+        proof.expect("stale reject keeps ptr live", live_after_stale == 1)
+        proof.expect("unknown reject", reject_unknown == 0)
+        proof.expect("register delta", register_delta == 1)
+        proof.expect("release delta", release_delta == 1)
+        proof.expect("unregister delta", unregister_delta == 1)
+        proof.expect("live delta stays zero", live_delta == 0)
+        proof.expect("page0 used delta", page0_used_delta == -1)
+        proof.expect("page0 local_free delta", page0_local_free_delta == 1)
+        proof.expect("page1 used delta", page1_used_delta == 1)
+        proof.expect("path counters", path.success_count == 1 && path.copy_count == 1 && path.same_class_reject_count == 1 && path.alloc_fail_count == 1 && path.lookup_miss_count == 1 && path.stale_page_count == 1 && path.released_block_count == 1 && path.reject_count == 5)
+        proof.expect("seam counters", seam.release_count == 1 && seam.unregister_count == 1 && seam.lookup_miss_count == 0 && seam.stale_page_count == 0 && seam.page_release_reject_count == 0 && seam.reject_count == 0)
+        proof.expect("page state", page0.used == 1 && page0.localFreeCount() == 1 && page0.retired == 0 && page1.used == 2 && page1.localFreeCount() == 0 && page1.retired == 0 && page_map.register_count == 6 && page_map.live_count == 4)
+
+        if proof.ok() {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

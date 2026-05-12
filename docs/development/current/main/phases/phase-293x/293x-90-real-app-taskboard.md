@@ -147,6 +147,7 @@
 - [x] `293x-182` M172 proof check cleanup
 - [x] `293x-183` M173 pre-realloc release invariant freeze
 - [x] `293x-184` M174 realloc same-class/no-move path
+- [x] `293x-185` M175 realloc alloc-copy-release fallback
 
 ## Gates
 

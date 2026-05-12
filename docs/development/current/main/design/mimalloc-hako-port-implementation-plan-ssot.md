@@ -145,8 +145,8 @@ current repo truth: broad numeric field inventory and facade-local exact
 | `M172 page-map-backed release seam` | Complete | compose page-map lookup/unregister with page-local release | no realloc, no byte copy, no host replacement |
 | `M173 pre-realloc release invariant freeze` | Complete | freeze handle lifetime, page-map registration/unregistration timing, and release observers before realloc | no realloc body, no byte copy |
 | `M174 realloc same-class/no-move path` | Complete | keep the same handle when the new request fits the current usable block/class | no alloc-copy-release fallback |
-| `M175 realloc alloc-copy-release fallback` | Next | allocate a replacement handle, model copy count, and release the old handle only after success | no aligned/huge allocation |
-| `M176 realloc negative matrix / failure contract` | Planned | fix stale/unknown/released/zero/oversized failure behavior | no new allocator API surface beyond realloc diagnostics |
+| `M175 realloc alloc-copy-release fallback` | Complete | allocate a replacement handle, model copy count, and release the old handle only after success | no aligned/huge allocation |
+| `M176 realloc negative matrix / failure contract` | Next | fix stale/unknown/released/zero/oversized failure behavior | no new allocator API surface beyond realloc diagnostics |
 | `M177 alignment policy object` | Planned | add alignment normalization, power-of-two validation, padded-size policy | no native aligned allocation route or ABI alignment claim |
 | `M178 aligned allocation small path` | Planned | attach alignment metadata to normal page-map-backed small allocations | no huge path |
 | `M179 huge threshold and routing` | Planned | classify huge requests and fail-fast unsupported huge behavior | no huge page model yet |
@@ -265,6 +265,11 @@ work. Splitting is mandatory if a row starts adding algorithm bodies back into
   `page_map_realloc_same_class_box.hako`: it returns the same live pointer when
   the new request still fits the current page block and rejects grow, stale,
   released-block, and unknown cases without release or unregister side effects.
+- `M175` landed as `HakoAllocPageMapReallocAllocCopyReleasePath` in
+  `page_map_realloc_alloc_copy_release_box.hako`: it allocates a replacement
+  ptr, models one copy, and releases the old ptr only after replacement
+  registration succeeds, while same-class and no-capacity cases reject without
+  extra release side effects.
 - `M167` resumed after the 294x `usize` preflight as
   `HakoAllocFastPathHeap` in `alloc_fast_path_heap_box.hako`: page selection is
   delegated to `HakoAllocPageQueue`, block pops are delegated to
