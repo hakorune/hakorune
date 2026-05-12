@@ -1,6 +1,6 @@
 # 293x-202: C197-C200 Proof/Application Surface Order
 
-Status: Planning complete / implementation pending
+Status: Active order SSOT / C197-C198 complete
 
 This card locks the readable task order for the proof/application syntax rows
 that follow the allocator API rows. It does not add syntax or change allocator
@@ -12,8 +12,8 @@ Support both ordinary boolean chains and proof check blocks.
 
 - Ordinary `&&` / `||` remain normal expression/control-flow operators with
   short-circuit semantics.
-- Future `check "name" { "label": expr }` blocks are proof-list expressions with
-  eager item evaluation.
+- `check "name" { "label": expr }` blocks are proof-list expressions with eager
+  item evaluation.
 - They are not aliases. Use boolean chains for production control flow; use
   `check` blocks when a proof app needs named assertions and all failures should
   remain observable.
@@ -34,6 +34,8 @@ Stop line:
 no eager proof-list semantics, no allocator DSL, no route selector.
 
 ### C198 check block surface
+
+Status: Complete.
 
 Purpose:
 add `check "name" { "label": expr }` as a proof-list expression.
@@ -93,6 +95,7 @@ boolean language and avoids using boolean chains as a poor proof-reporting DSL.
 
 ## Next
 
-Implement `C197 logical condition surface hardening` first. `C198 check block`
-comes after the existing short-circuit surface is comfortable enough for normal
-code.
+`C197 logical condition surface hardening` and `C198 check block surface` are
+complete. Continue with `C199 compound assignment surface` only when current
+proof or allocator apps need the sugar; keep it separate from allocator
+algorithm rows.

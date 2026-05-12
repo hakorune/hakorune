@@ -151,6 +151,10 @@ impl ASTNode {
             ASTNode::BinaryOp { operator, .. } => {
                 format!("BinaryOp({})", operator)
             }
+            ASTNode::CheckExpr { name, items, .. } => {
+                let name = name.as_deref().unwrap_or("<anonymous>");
+                format!("CheckExpr({}, {} items)", name, items.len())
+            }
             ASTNode::MethodCall {
                 method, arguments, ..
             } => {
@@ -292,6 +296,7 @@ impl ASTNode {
             ASTNode::Variable { span, .. } => *span,
             ASTNode::UnaryOp { span, .. } => *span,
             ASTNode::BinaryOp { span, .. } => *span,
+            ASTNode::CheckExpr { span, .. } => *span,
             ASTNode::MethodCall { span, .. } => *span,
             ASTNode::FieldAccess { span, .. } => *span,
             ASTNode::Index { span, .. } => *span,
@@ -428,6 +433,9 @@ impl ASTNode {
 
                 ASTNode::UnaryOp { operand, .. } => contains(operand),
                 ASTNode::BinaryOp { left, right, .. } => contains(left) || contains(right),
+                ASTNode::CheckExpr { items, .. } => {
+                    items.iter().any(|item| contains(&item.expression))
+                }
                 ASTNode::GroupedAssignmentExpr { rhs, .. } => contains(rhs),
                 ASTNode::MethodCall {
                     object, arguments, ..
@@ -546,6 +554,9 @@ impl ASTNode {
 
                 ASTNode::UnaryOp { operand, .. } => contains(operand),
                 ASTNode::BinaryOp { left, right, .. } => contains(left) || contains(right),
+                ASTNode::CheckExpr { items, .. } => {
+                    items.iter().any(|item| contains(&item.expression))
+                }
                 ASTNode::GroupedAssignmentExpr { rhs, .. } => contains(rhs),
                 ASTNode::MethodCall {
                     object, arguments, ..
@@ -691,6 +702,9 @@ impl ASTNode {
             ASTNode::BinaryOp { left, right, .. } => {
                 left.contains_non_local_exit() || right.contains_non_local_exit()
             }
+            ASTNode::CheckExpr { items, .. } => items
+                .iter()
+                .any(|item| item.expression.contains_non_local_exit()),
             ASTNode::GroupedAssignmentExpr { rhs, .. } => rhs.contains_non_local_exit(),
             ASTNode::MethodCall {
                 object, arguments, ..
@@ -857,6 +871,9 @@ impl ASTNode {
                 ASTNode::BinaryOp { left, right, .. } => {
                     contains(left, loop_depth) || contains(right, loop_depth)
                 }
+                ASTNode::CheckExpr { items, .. } => items
+                    .iter()
+                    .any(|item| contains(&item.expression, loop_depth)),
                 ASTNode::GroupedAssignmentExpr { rhs, .. } => contains(rhs, loop_depth),
 
                 ASTNode::MethodCall {

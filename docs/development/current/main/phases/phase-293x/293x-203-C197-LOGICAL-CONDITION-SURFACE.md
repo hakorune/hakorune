@@ -14,8 +14,8 @@ Parenthesized multiline conditions are accepted in normal `if`, `loop`, and
 expression contexts. Leading logical operators on continuation lines are part of
 the accepted readability style.
 
-`check "name" { "label": expr }` remains a later C198 proof-list surface and is
-not an alias for this row.
+`check "name" { "label": expr }` belongs to the separate C198 proof-list
+surface and is not an alias for this row.
 
 ## Implementation
 
@@ -43,6 +43,5 @@ The proof app validates:
 
 ## Next
 
-`C198 check block surface` may add eager labeled proof-list syntax. It must
-lower independently from the ordinary `&&` / `||` short-circuit route fixed by
-this row.
+`C198 check block surface` adds eager labeled proof-list syntax separately from
+the ordinary `&&` / `||` short-circuit route fixed by this row.

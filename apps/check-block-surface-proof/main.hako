@@ -1,0 +1,33 @@
+// check-block-surface-proof
+// Purpose: prove C198 check blocks are eager proof-list expressions, not
+// short-circuit boolean chains.
+
+static box Main {
+    main(args) {
+        local observed = 0
+
+        local failed = check "c198 eager proof" {
+            "first item": ((observed = observed + 1) == 1)
+            "forced failure": observed == 99
+            "still eager after failure": ((observed = observed + 1) == 2)
+        }
+
+        local passed = check "c198 pass proof" {
+            "observed count": observed == 2
+            "ordinary fact": 1 == 1
+        }
+
+        print("check-block-surface-proof")
+        print("observed=" + observed)
+        print("failed=" + failed)
+        print("passed=" + passed)
+
+        if observed == 2 && failed == 0 && passed == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

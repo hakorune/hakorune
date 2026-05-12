@@ -10,7 +10,7 @@ This proof app fixes the ordinary boolean-condition surface:
 - `if` and `loop` condition usage
 - RHS short-circuit preservation for assignment-expression side effects
 
-It intentionally does not use proof `check` blocks. `check` is a later eager
+It intentionally does not use proof `check` blocks. `check` is a separate eager
 proof-list surface and must not be treated as an alias for ordinary
 short-circuit conditions.
 

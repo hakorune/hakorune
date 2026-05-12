@@ -2,7 +2,8 @@
 use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
 use super::{MirInstruction, ValueId};
 use crate::ast::{
-    ASTNode, AssignStmt, BinaryExpr, CallExpr, FieldAccessExpr, MethodCallExpr, ReturnStmt,
+    ASTNode, AssignStmt, BinaryExpr, CallExpr, CheckItem, FieldAccessExpr, MethodCallExpr,
+    ReturnStmt,
 };
 use crate::mir::builder::observe::types as type_trace;
 use hakorune_mir_builder::BoxCompilationContext;
@@ -78,6 +79,8 @@ impl super::MirBuilder {
                 let e = BinaryExpr::try_from(node).expect("ASTNode::BinaryOp must convert");
                 self.build_binary_op(*e.left, e.operator, *e.right)
             }
+
+            ASTNode::CheckExpr { items, .. } => self.build_check_expression(items),
 
             ASTNode::UnaryOp {
                 operator, operand, ..
@@ -516,6 +519,29 @@ impl super::MirBuilder {
 
             _ => Err(format!("Unsupported AST node type: {:?}", ast)),
         }
+    }
+
+    fn build_check_expression(&mut self, items: Vec<CheckItem>) -> Result<ValueId, String> {
+        let one = crate::mir::builder::emission::constant::emit_integer(self, 1)?;
+        let zero = crate::mir::builder::emission::constant::emit_integer(self, 0)?;
+        let mut ok = one;
+
+        for item in items {
+            let condition = self.build_expression_impl(item.expression)?;
+            let dst = self.next_value_id();
+            self.emit_instruction(MirInstruction::Select {
+                dst,
+                cond: condition,
+                then_val: ok,
+                else_val: zero,
+            })?;
+            self.type_ctx
+                .value_types
+                .insert(dst, super::MirType::Integer);
+            ok = dst;
+        }
+
+        Ok(ok)
     }
 
     fn infer_index_target_class(&self, target_val: ValueId) -> Option<String> {

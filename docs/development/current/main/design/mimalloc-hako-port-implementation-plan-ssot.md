@@ -222,7 +222,7 @@ not treat them as aliases.
 - `&&` / `||` are ordinary expression/control-flow operators. They keep
   short-circuit semantics and belong in production logic, `if`, `loop`, and
   guard-like code.
-- `check "name" { "label": expr }` is a future proof-list surface. It evaluates
+- `check "name" { "label": expr }` is a proof-list surface. It evaluates
   every item eagerly, gives each assertion a stable label, and returns one
   scalar pass/fail value for proof apps.
 - Long proof summaries should not be represented as a giant `&&` chain once the
@@ -233,7 +233,7 @@ not treat them as aliases.
 | --- | --- | --- | --- |
 | `293x-182 M172 proof check cleanup` | Complete | replace the M172 proof app's giant conjunction with an app-local `ProofCheck` helper | no parser, language syntax, allocator algorithm, or guard-scope widening |
 | `C197 logical condition surface hardening` | Complete | make ordinary `&&` / `||` chains and parenthesized multiline conditions pleasant and reliable as normal control-flow expressions | no eager proof-list semantics, no `all(...)` macro, no allocator-specific condition DSL |
-| `C198 check block surface` | Future | add a general proof-oriented `check "name" { "label": expr }` expression with eager item evaluation | no short-circuit macro, variadic `all(...)`, allocator DSL, or backend route selector |
+| `C198 check block surface` | Complete | add a general proof-oriented `check "name" { "label": expr }` expression with eager item evaluation | no short-circuit macro, variadic `all(...)`, allocator DSL, or backend route selector |
 | `C199 compound assignment surface` | Future | promote `+=` style sugar where it lowers to the existing assignment form | no hidden overflow policy or allocator-specific meaning |
 | `C200 guard else surface` | Future | add early-return guard syntax that lowers to `if !(cond) { ... }` | no exception/fallback semantics |
 

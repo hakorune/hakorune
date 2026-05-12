@@ -426,7 +426,7 @@ inference for the allocator release path.
 - `293x-181`: the M173-M190 mimalloc roadmap was refreshed and corrected so
   completed `usize` facade-stat work is not scheduled again.
 - `293x-182`: the M172 proof app cleanup replaced the giant summary
-  conjunction with an app-local `ProofCheck` helper. Future `check` block,
+  conjunction with an app-local `ProofCheck` helper. Proof `check` block,
   `+=`, multiline condition, and `guard else` surfaces remain separate
   compiler rows.
 - `293x-183`: M173 pre-realloc release invariant freeze landed, adding
@@ -494,10 +494,13 @@ inference for the allocator release path.
   `HakoAllocHandleResult` plus `allocateResult(...)` / `reallocResult(...)`
   proof-line parity without changing the M189 compatibility APIs.
 - `293x-202`: C197-C200 proof/application surface order locked, separating
-  ordinary short-circuit boolean chains from future eager proof `check` blocks.
+  ordinary short-circuit boolean chains from eager proof `check` blocks.
 - `293x-203`: C197 logical condition surface hardening landed, adding a
   proof app and parser regression for parenthesized multiline `&&` / `||`
-  conditions while keeping `check` as the future eager proof-list row.
+  conditions while keeping `check` as a separate eager proof-list row.
+- `293x-204`: C198 check block surface landed, adding
+  `check "name" { "label": expr }` as an eager proof-list expression with
+  scalar pass/fail result.
 - Next: continue with proof/application syntax rows (`C197-C200`) or the
   record/packed-array compiler lane (`C201-C205`) when needed. No M191
   allocator API row is scheduled yet; M186 facade stats already landed as
@@ -518,8 +521,8 @@ Current execution order:
    exact `usize` via `294x-19e`, so those rows must not be repeated.
 2. `C198-C200`: improve proof/application syntax only as separate language rows
    after docs/reference decisions. Do not fold them into allocator rows.
-   `C197` is complete. `C198` adds eager labeled `check` blocks for proof apps.
-   `C199` is compound assignment sugar, and `C200` is `guard ... else`.
+   `C197` and `C198` are complete. `C199` is compound assignment sugar, and
+   `C200` is `guard ... else`.
 3. `C201-C205`: add record/packed-array compiler-runtime support before moving
    allocator metadata off the current M178 scalar columns.
 4. `C191-C194`: run compiler/backend hardening only when it does not collide

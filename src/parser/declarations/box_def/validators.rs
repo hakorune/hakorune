@@ -199,6 +199,11 @@ fn ast_collect_me_fields(nodes: &[ASTNode]) -> std::collections::HashSet<String>
                 scan_node(left, out);
                 scan_node(right, out);
             }
+            ASTNode::CheckExpr { items, .. } => {
+                for item in items {
+                    scan_node(&item.expression, out);
+                }
+            }
             ASTNode::GroupedAssignmentExpr { rhs, .. } => scan_node(rhs, out),
             ASTNode::MethodCall {
                 object, arguments, ..

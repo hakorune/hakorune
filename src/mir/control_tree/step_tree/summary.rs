@@ -61,6 +61,7 @@ pub(super) fn ast_kind_name(ast: &ASTNode) -> &'static str {
         ASTNode::Variable { .. } => "Variable",
         ASTNode::UnaryOp { .. } => "UnaryOp",
         ASTNode::BinaryOp { .. } => "BinaryOp",
+        ASTNode::CheckExpr { .. } => "CheckExpr",
         ASTNode::GroupedAssignmentExpr { .. } => "GroupedAssignmentExpr",
         ASTNode::MethodCall { .. } => "MethodCall",
         ASTNode::Call { .. } => "Call",

@@ -285,6 +285,12 @@ impl AstOwnershipAnalyzer {
                 self.analyze_node(right, current_scope, is_condition)?;
             }
 
+            ASTNode::CheckExpr { items, .. } => {
+                for item in items {
+                    self.analyze_node(&item.expression, current_scope, is_condition)?;
+                }
+            }
+
             ASTNode::MethodCall {
                 object, arguments, ..
             } => {

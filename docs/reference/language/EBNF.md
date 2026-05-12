@@ -90,12 +90,17 @@ factor    := INT
            | 'null'
            | 'void'
            | IDENT call_tail*
+           | check_expr
            | '(' expr ')'
            | '(' assignment_expr ')'  ; Stage‑3: grouped assignment as expression
            | 'new' IDENT '(' args? ')'
            | '[' args? ']'           ; Array literal (Stage‑1 sugar, gated)
            | '%{' map_entries? '}'   ; Map literal (Stage‑2 sugar, gated)
            | match_expr              ; Pattern matching (replaces legacy peek)
+
+check_expr := 'check' STRING? '{' check_item* '}'
+check_item := STRING ':' expr
+            | expr
 
 match_expr := 'match' expr '{' match_arm+ default_arm? '}'
 match_arm  := pattern guard? '=>' (expr | block) ','?
@@ -128,9 +133,8 @@ Notes
 - Semicolon (optional): When `NYASH_PARSER_ALLOW_SEMICOLON=1` is set, `;` is accepted as an additional statement separator (equivalent to newline). It is not allowed between `}` and a following `else`.
 - Do‑while: not supported by design. Prefer a single‑entry, pre‑condition loop normalized via sugar (e.g., `repeat N {}` / `until cond {}`) to a `loop` with clear break conditions.
 - Short-circuit: '&&' and '||' must not evaluate the RHS when not needed.
-- Proof checks: `check "name" { "label": expr }` is reserved for a future
-  eager proof-list expression and is not part of this grammar yet. It must not
-  be treated as an alias for short-circuit '&&' / '||'.
+- Proof checks: `check "name" { "label": expr }` is an eager proof-list
+  expression. It must not be treated as an alias for short-circuit '&&' / '||'.
 - Unary minus has higher precedence than '*' and '/'.
 - IDENT names consist of [A-Za-z_][A-Za-z0-9_]*
 - Array literal is enabled when syntax sugar is on (NYASH_SYNTAX_SUGAR_LEVEL=basic|full) or when NYASH_ENABLE_ARRAY_LITERAL=1 is set.
@@ -164,6 +168,32 @@ if (
 The RHS of `&&` / `||` keeps the short-circuit contract. This row does not add
 proof-list behavior, variadic `all(...)`, or allocator-specific condition
 syntax.
+
+### C198 Check Block Surface
+
+Decision: accepted.
+
+`check "name" { "label": expr }` is the source-level surface for labeled proof
+lists. It evaluates every item left-to-right, even after an earlier item fails,
+and returns a scalar pass/fail value:
+
+```hako
+local ok = check "release seam" {
+    "first fact": released == 1
+    "second fact": ((observed = observed + 1) == 1)
+}
+```
+
+The v0 result is an integer lane value: `1` when all items are truthy, `0`
+otherwise. Labels are source-level proof metadata in this row; they are kept
+for readable source and future diagnostics, but C198 does not add automatic
+printing or a proof-report object.
+
+Stop line:
+`check` is not a macro, not variadic `all(...)`, not a short-circuit operator,
+not an allocator-specific DSL, and not a backend route selector. Unsupported
+backend behavior must fail explicitly rather than silently treating a VM-only
+route as complete.
 
 ## Box Members (Phase‑15, env gate: NYASH_ENABLE_UNIFIED_MEMBERS; default ON)
 

@@ -18,6 +18,7 @@ impl ASTNode {
             ASTNode::Literal { .. } => E,
             ASTNode::Variable { .. } => E,
             ASTNode::BinaryOp { .. } => E,
+            ASTNode::CheckExpr { .. } => E,
             ASTNode::UnaryOp { .. } => E,
             ASTNode::FunctionCall { .. } => E,
             ASTNode::Call { .. } => E,

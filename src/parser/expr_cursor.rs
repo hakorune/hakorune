@@ -1,4 +1,4 @@
-use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
+use crate::ast::{ASTNode, BinaryOperator, CheckItem, LiteralValue, Span};
 use crate::parser::cursor::TokenCursor;
 use crate::parser::sugar_gate;
 use crate::parser::ParseError;
@@ -383,6 +383,9 @@ impl ExprParserWithCursor {
             }
             TokenType::IDENTIFIER(name) => {
                 let name = name.clone();
+                if name == "check" {
+                    return Self::parse_check_or_variable(cursor);
+                }
                 cursor.advance();
                 Ok(ASTNode::Variable {
                     name,
@@ -468,6 +471,64 @@ impl ExprParserWithCursor {
                 Err(ParseError::InvalidExpression { line })
             }
         }
+    }
+
+    fn parse_check_or_variable(cursor: &mut TokenCursor) -> Result<ASTNode, ParseError> {
+        cursor.advance(); // consume `check`
+
+        let name = match &cursor.current().token_type {
+            TokenType::STRING(label) => {
+                let label = label.clone();
+                cursor.advance();
+                Some(label)
+            }
+            TokenType::LBRACE => None,
+            _ => {
+                return Ok(ASTNode::Variable {
+                    name: "check".to_string(),
+                    span: Span::unknown(),
+                })
+            }
+        };
+
+        cursor.consume(TokenType::LBRACE)?;
+        let mut items = Vec::new();
+
+        while !cursor.match_token(&TokenType::RBRACE) && !cursor.is_at_end() {
+            if cursor.match_token(&TokenType::COMMA) {
+                cursor.advance();
+                continue;
+            }
+
+            let label = if let TokenType::STRING(label) = &cursor.current().token_type {
+                let candidate = label.clone();
+                let pos = cursor.position();
+                cursor.advance();
+                if cursor.match_token(&TokenType::COLON) {
+                    cursor.advance();
+                    Some(candidate)
+                } else {
+                    cursor.set_position(pos);
+                    None
+                }
+            } else {
+                None
+            };
+
+            let expression = Self::parse_expression(cursor)?;
+            items.push(CheckItem { label, expression });
+
+            if cursor.match_token(&TokenType::COMMA) {
+                cursor.advance();
+            }
+        }
+
+        cursor.consume(TokenType::RBRACE)?;
+        Ok(ASTNode::CheckExpr {
+            name,
+            items,
+            span: Span::unknown(),
+        })
     }
 
     /// オブジェクトリテラルをパース（TokenCursor版）

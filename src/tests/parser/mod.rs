@@ -7,6 +7,8 @@ pub mod parser_bitops_test;
 pub mod parser_block_postfix_catch;
 #[path = "../parser_block_postfix_errors.rs"]
 pub mod parser_block_postfix_errors;
+#[path = "../parser_check_block_surface.rs"]
+pub mod parser_check_block_surface;
 #[path = "../parser_enum_match.rs"]
 pub mod parser_enum_match;
 #[path = "../parser_enum_surface.rs"]

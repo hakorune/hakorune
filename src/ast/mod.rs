@@ -316,6 +316,13 @@ pub struct EnumMatchArm {
     pub body: ASTNode,
 }
 
+/// C198 proof-list item carried by `check "name" { "label": expr }`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct CheckItem {
+    pub label: Option<String>,
+    pub expression: ASTNode,
+}
+
 /// リテラル値の型 (Clone可能)
 #[derive(Debug, Clone, PartialEq)]
 pub enum LiteralValue {
@@ -700,6 +707,13 @@ pub enum ASTNode {
         operator: BinaryOperator,
         left: Box<ASTNode>,
         right: Box<ASTNode>,
+        span: Span,
+    },
+
+    /// C198: eager labeled proof-list expression.
+    CheckExpr {
+        name: Option<String>,
+        items: Vec<CheckItem>,
         span: Span,
     },
 

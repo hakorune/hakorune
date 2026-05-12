@@ -98,6 +98,11 @@ impl<'a> FreeVarCollector<'a> {
             ASTNode::GroupedAssignmentExpr { rhs, .. } => {
                 self.walk(rhs, false);
             }
+            ASTNode::CheckExpr { items, .. } => {
+                for item in items {
+                    self.walk(&item.expression, false);
+                }
+            }
             ASTNode::BinaryOp { left, right, .. } => {
                 self.walk(left, false);
                 self.walk(right, false);

@@ -25,6 +25,7 @@ impl ASTNode {
             ASTNode::Variable { .. } => "Variable",
             ASTNode::UnaryOp { .. } => "UnaryOp",
             ASTNode::BinaryOp { .. } => "BinaryOp",
+            ASTNode::CheckExpr { .. } => "CheckExpr",
             ASTNode::MethodCall { .. } => "MethodCall",
             ASTNode::FieldAccess { .. } => "FieldAccess",
             ASTNode::Index { .. } => "Index",

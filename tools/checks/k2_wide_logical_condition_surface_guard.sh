@@ -38,7 +38,7 @@ guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" 'Decision: accepted' "$EBNF" "EBNF must record the C197 accepted decision"
 guard_expect_in_file "$TAG" 'C197 logical condition surface hardening` \| Complete' "$PLAN" "plan must mark C197 complete"
-guard_expect_in_file "$TAG" 'C198 check block surface` \| Future' "$PLAN" "check block must remain the later row"
+guard_expect_in_file "$TAG" 'C198 check block surface` \| Complete' "$PLAN" "check block must remain a separate completed row"
 guard_expect_in_file "$TAG" 'proof-list semantics' "$SHORT_CIRCUIT_SSOT" "short-circuit SSOT must keep proof-list semantics separate"
 guard_expect_in_file "$TAG" 'all-items-evaluated contract' "$SHORT_CIRCUIT_SSOT" "short-circuit SSOT must document eager check behavior separately"
 guard_expect_in_file "$TAG" 'NYASH_PARSER_TOKEN_CURSOR' "$PARSER_TEST" "parser test must cover TokenCursor route"
@@ -48,7 +48,7 @@ guard_expect_in_file "$TAG" 'summary=ok' "$APP" "proof app must expose stable su
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list C197 guard"
 
 if rg -n 'check[[:space:]]+"' "$APP" "$PARSER_TEST" >/tmp/"$TAG".check-block 2>&1; then
-  echo "[$TAG] ERROR: C197 must not depend on future check-block syntax" >&2
+  echo "[$TAG] ERROR: C197 must not depend on separate check-block syntax" >&2
   cat /tmp/"$TAG".check-block >&2
   rm -f /tmp/"$TAG".check-block
   exit 1
