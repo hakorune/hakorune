@@ -188,6 +188,12 @@ the active `.hako` algorithm row.
 | `C204 ArrayBox inline-record storage` | add packed record columns for `record` payloads while keeping `ArrayBox` as authority | `C205` |
 | `C205 allocator metadata record migration` | replace hand-written scalar metadata arrays with `record` surface on top of packed storage | revisiting `M178` metadata surface |
 
+C201 status:
+complete as `293x-207`. The MIR JSON user-box declaration surface now carries
+`field_index_fast_path`, `layout_id`, `field_index`, and `storage` for fields
+that already have a legal typed-object plan. Ordinary `box` identity semantics
+remain unchanged, and unsupported fields stay on the names/dynamic route.
+
 ### Docs / Guard Checkpoints
 
 | Row | Goal | Trigger |

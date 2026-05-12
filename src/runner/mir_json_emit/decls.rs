@@ -26,14 +26,46 @@ pub(super) fn collect_sorted_user_box_decl_values(
             json!({
                 "name": name,
                 "fields": fields,
-                "field_decls": field_decls.into_iter().map(|decl| json!({
-                    "name": decl.name,
-                    "declared_type": decl.declared_type_name,
-                    "is_weak": decl.is_weak,
-                })).collect::<Vec<_>>(),
+                "field_decls": field_decls.into_iter().map(|decl| {
+                    let field_name = decl.name;
+                    let mut obj = serde_json::Map::new();
+                    obj.insert("name".to_string(), json!(field_name.as_str()));
+                    obj.insert("declared_type".to_string(), json!(decl.declared_type_name));
+                    obj.insert("is_weak".to_string(), json!(decl.is_weak));
+
+                    if let Some((layout_id, field_index, storage)) =
+                        field_index_fast_path(module, &name, &field_name)
+                    {
+                        obj.insert("field_index_fast_path".to_string(), json!(true));
+                        obj.insert("layout_id".to_string(), json!(layout_id));
+                        obj.insert("field_index".to_string(), json!(field_index));
+                        obj.insert("storage".to_string(), json!(storage));
+                    } else {
+                        obj.insert("field_index_fast_path".to_string(), json!(false));
+                    }
+
+                    serde_json::Value::Object(obj)
+                }).collect::<Vec<_>>(),
             })
         })
         .collect()
+}
+
+fn field_index_fast_path(
+    module: &crate::mir::MirModule,
+    box_name: &str,
+    field_name: &str,
+) -> Option<(u32, u32, &'static str)> {
+    let plan = module
+        .metadata
+        .typed_object_plans
+        .iter()
+        .find(|plan| plan.box_name == box_name)?;
+    let field = plan.fields.iter().find(|field| field.name == field_name)?;
+    if field.is_weak {
+        return None;
+    }
+    Some((plan.type_id, field.slot, field.storage.as_str()))
 }
 
 pub(super) fn collect_sorted_enum_decl_values(

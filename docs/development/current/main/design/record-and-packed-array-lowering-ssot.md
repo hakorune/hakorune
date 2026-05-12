@@ -156,6 +156,13 @@ This lane therefore starts at `C201`.
 | `C204 ArrayBox inline-record storage` | add `ArrayBox` residence for packed `record` payloads (record columns) | allocator metadata migration | no change to ordinary boxed/mixed/string authority; `ArrayBox` stays the runtime owner |
 | `C205 allocator metadata record migration` | replace hand-written scalar metadata arrays with `record` surface over packed storage | broader allocator/table cleanup | no allocator-specific DSL, no huge/native/provider coupling |
 
+Status:
+
+- `C201` is complete as `293x-207`: ordinary `box` declarations now expose
+  legal typed-field fast path metadata as `layout_id + field_index` while
+  preserving ordinary identity-capable box semantics.
+- `C202-C205` remain future work.
+
 ## Target Runtime Shape
 
 The intended packed shape is columnar, for example:

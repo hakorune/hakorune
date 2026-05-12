@@ -67,6 +67,19 @@ fn collect_sorted_user_box_decl_values_includes_typed_field_decls() {
             },
         ],
     );
+    module.metadata.typed_object_plans.push(TypedObjectPlan {
+        box_name: "Point".to_string(),
+        type_id: 7,
+        layout_kind: "runtime_slot_object_v0".to_string(),
+        field_count: 1,
+        fields: vec![TypedObjectFieldPlan {
+            name: "x".to_string(),
+            slot: 0,
+            declared_type_name: Some("IntegerBox".to_string()),
+            storage: TypedObjectFieldStorage::I64,
+            is_weak: false,
+        }],
+    });
 
     let decls = collect_sorted_user_box_decl_values(&module);
     let point = decls
@@ -96,6 +109,36 @@ fn collect_sorted_user_box_decl_values_includes_typed_field_decls() {
             .get("is_weak")
             .and_then(serde_json::Value::as_bool),
         Some(true)
+    );
+    assert_eq!(
+        field_decls[0]
+            .get("field_index_fast_path")
+            .and_then(serde_json::Value::as_bool),
+        Some(true)
+    );
+    assert_eq!(
+        field_decls[0]
+            .get("layout_id")
+            .and_then(serde_json::Value::as_u64),
+        Some(7)
+    );
+    assert_eq!(
+        field_decls[0]
+            .get("field_index")
+            .and_then(serde_json::Value::as_u64),
+        Some(0)
+    );
+    assert_eq!(
+        field_decls[0]
+            .get("storage")
+            .and_then(serde_json::Value::as_str),
+        Some("i64")
+    );
+    assert_eq!(
+        field_decls[1]
+            .get("field_index_fast_path")
+            .and_then(serde_json::Value::as_bool),
+        Some(false)
     );
 }
 
