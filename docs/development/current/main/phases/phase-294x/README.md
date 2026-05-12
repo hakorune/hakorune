@@ -133,6 +133,11 @@
 - `294x-18`: `HakoAllocUsizeFieldProbe` and
   `apps/hako-alloc-usize-field-probe/` prove isolated capacity/count/byte-length
   `usize` stored fields while production hako_alloc state remains `i64`.
+- `294x-19`: production hako_alloc `usize` field migration is explicitly
+  blocked until native exact numeric typed-object slots and exact field get/set
+  ABI exist.
+- `294x-20`: mimalloc algorithm rows resume under the current-lane `i64`
+  production boundary; M167 landed as the first resumed row.
 
 ## First Implementation Direction
 

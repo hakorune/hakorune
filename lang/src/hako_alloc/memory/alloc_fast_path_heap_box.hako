@@ -1,0 +1,129 @@
+// alloc_fast_path_heap_box.hako — mimalloc-shaped fast allocation orchestration
+// Responsibility: compose page queue selection with page-local free-list pop.
+// This module does not source OS pages, collect local_free, or own remote free.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.page_queue_box as HakoAllocPageQueueBox
+
+box HakoAllocFastPathHandle {
+    page_id: i64
+    block_id: i64
+    requested_size: i64
+
+    birth(page_id, block_id, requested_size) {
+        me.page_id = page_id
+        me.block_id = block_id
+        me.requested_size = requested_size
+    }
+}
+
+box HakoAllocFastPathHeap {
+    bin: i64
+    block_size: i64
+    page_capacity: i64
+    queue: HakoAllocPageQueue
+    pages: ArrayBox = new ArrayBox()
+    next_page_id: i64 = 0
+    alloc_count: i64 = 0
+    release_count: i64 = 0
+    fallback_count: i64 = 0
+    page_create_count: i64 = 0
+    reject_count: i64 = 0
+
+    birth(bin, block_size, page_capacity) {
+        me.bin = bin
+        me.block_size = block_size
+        me.page_capacity = page_capacity
+        me.queue = new HakoAllocPageQueue(bin)
+        me.addPage()
+    }
+
+    addPage() {
+        local page_id = me.next_page_id
+        local page = new HakoAllocPageModel(page_id, me.block_size, me.page_capacity, me.page_capacity)
+        me.pages.push(page)
+        me.queue.addPage(page)
+        me.next_page_id = me.next_page_id + 1
+        me.page_create_count = me.page_create_count + 1
+        return page
+    }
+
+    allocate(size) {
+        if size > me.block_size {
+            me.reject_count = me.reject_count + 1
+            return null
+        }
+
+        local page = me.queue.selectPage()
+        if page == null {
+            me.fallback_count = me.fallback_count + 1
+            page = me.addPage()
+        }
+
+        local block_id = page.acquire(size)
+        if block_id < 0 {
+            me.reject_count = me.reject_count + 1
+            return null
+        }
+
+        me.alloc_count = me.alloc_count + 1
+        return new HakoAllocFastPathHandle(page.page_id, block_id, size)
+    }
+
+    release(handle) {
+        if handle == null {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        if handle.page_id < 0 {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        if handle.page_id >= me.next_page_id {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        local page = me.pages.get(handle.page_id)
+        if page == null {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        if page.releaseLocal(handle.block_id) {
+            me.release_count = me.release_count + 1
+            return 1
+        }
+
+        me.reject_count = me.reject_count + 1
+        return 0
+    }
+
+    outstandingBlocks() {
+        local total = 0
+        local i = 0
+        loop(i < me.next_page_id) {
+            local page = me.pages.get(i)
+            if page != null {
+                total = total + page.used
+            }
+            i = i + 1
+        }
+        return total
+    }
+
+    requestedBytes() {
+        local total = 0
+        local i = 0
+        loop(i < me.next_page_id) {
+            local page = me.pages.get(i)
+            if page != null {
+                total = total + page.requested_bytes
+            }
+            i = i + 1
+        }
+        return total
+    }
+}

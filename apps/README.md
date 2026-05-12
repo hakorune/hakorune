@@ -125,6 +125,17 @@ probe-only box で capacity / used / alloc_count / requested_bytes の
 bash apps/hako-alloc-usize-field-probe/test.sh
 ```
 
+#### mimalloc-alloc-fast-path-proof
+**場所**: `mimalloc-alloc-fast-path-proof/main.hako`
+M167 proof。`HakoAllocPageQueue` の page selection と
+`HakoAllocPageModel.acquire(...)` の free-list pop を
+`HakoAllocFastPathHeap` で合成し、full queue 時の deterministic fallback
+page creation を固定する。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_alloc_fast_path_guard.sh
+```
+
 **特徴**:
 - production facade から既存 `HakoAllocHeap` page/free-list state へ委譲
 - oversize reject と double-free reject を public seam 経由で検証

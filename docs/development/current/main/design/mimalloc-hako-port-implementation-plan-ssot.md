@@ -178,10 +178,17 @@ work. Splitting is mandatory if a row starts adding algorithm bodies back into
   `Integer(i64)`; `usize`/exact-width behavior stays reserved.
 - `M174` fixed the pre-port syntax/spec decision: `usize` remains accepted as
   annotation text and MIR numeric substrate metadata, but hako_alloc/mimalloc
-  state fields continue to use `i64` until exact pointer-sized unsigned
+  production state stays on `i64` until native exact numeric storage exists.
+  State fields continue to use `i64` until exact pointer-sized unsigned
   semantics, range checks, and overflow behavior are live. Parameter and
   accepted return type annotations are now preserved through AST metadata and
   JSON transport, and stored field initializers are per-construction values.
+- `M167` resumed after the 294x `usize` preflight as
+  `HakoAllocFastPathHeap` in `alloc_fast_path_heap_box.hako`: page selection is
+  delegated to `HakoAllocPageQueue`, block pops are delegated to
+  `HakoAllocPageModel.acquire(...)`, and deterministic fallback creates modeled
+  pages without OSVM sourcing, local-free retire, remote-free, or page-map
+  behavior.
 - `M167` may create deterministic model pages in memory; it must not reserve
   OS memory. OSVM enters only in `M168`.
 - `M169` owns same-thread local free collection only. Remote-free and abandoned

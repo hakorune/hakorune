@@ -108,6 +108,9 @@ Live today:
 - `HakoAllocUsizeFieldProbe` owns an isolated proof-only migration probe for
   capacity/count/byte-length `usize` stored fields without changing production
   allocator state;
+- production `hako_alloc` `usize` field migration is blocked until native exact
+  numeric typed-object slots and exact field get/set ABI exist; mimalloc
+  algorithm rows may continue with production fields on `i64`;
 - `FunctionMetadata` preserves MIR-side declared parameter/return annotation
   text, and exact numeric return annotations publish function-level advisory
   return facts without changing runtime lowering;

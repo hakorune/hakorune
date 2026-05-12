@@ -58,8 +58,10 @@ hako_alloc or mimalloc migration.
 | `294x-16` | Complete | hako_alloc numeric field inventory | every numeric stored field is classified as signed sentinel, signed delta, count, size, capacity, index, or byte length |
 | `294x-17` | Complete | sentinel split plan | direct-page stored `-1` sentinel is split into explicit presence state before any `usize` migration |
 | `294x-18` | Complete | hako_alloc non-negative field migration probe | capacity/count/byte-length candidates migrate in a proof app while production fields stay signed/current-lane |
-| `294x-19` | Pending | hako_alloc production facade migration | production facade proofs stay green with migrated non-negative fields |
-| `294x-20` | Pending | mimalloc row resume gate | M167+ mimalloc implementation resumes with clear `usize` support boundaries |
+| `294x-19` | Blocked | hako_alloc production facade migration | waits for native exact numeric typed-object slots and exact field get/set ABI |
+| `294x-19a` | Pending | native exact numeric typed-object slots | non-VM backends can represent exact numeric fields without silent i64 fallback |
+| `294x-19b` | Pending | exact numeric field get/set ABI | non-VM backends can read/write exact numeric slots with range/overflow contracts |
+| `294x-20` | Complete | mimalloc row resume gate | M167+ mimalloc implementation resumes with clear `usize` support boundaries and production fields still on `i64` |
 
 ## Required Feature Checklist
 
@@ -163,9 +165,11 @@ hako_alloc or mimalloc migration.
   signed until their API shape changes.
 - [x] Probe capacity/count/byte-length `usize` fields in an isolated hako_alloc
   proof app before production migration.
+- [x] Mark production `usize` field migration blocked on non-VM exact numeric
+  storage and field get/set ABI.
 - [ ] Update proof apps per field group.
 - [ ] Keep allocator-provider activation out of scope.
-- [ ] Resume M167+ mimalloc algorithm rows only after the resume gate.
+- [x] Resume M167+ mimalloc algorithm rows only after the resume gate.
 
 ## Open Design Questions
 

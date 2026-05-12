@@ -35,6 +35,9 @@ Principles
     atomics, and remote-free integration stay in later rows.
   - `HakoAllocPageQueue` owns page ordering/direct-page cache state. It chooses
     pages by observing `freeCount()` and must not pop allocation blocks.
+  - `HakoAllocFastPathHeap` composes page queue selection with page-local
+    free-list pop. It does not source OS pages, collect local-free blocks, or
+    own remote-free integration.
 
 Design owners
 - Policy/state stop-line:
@@ -81,6 +84,7 @@ Allocator replacement hook boundary
 
 Current modules
 - `memory.arc_box`
+- `memory.alloc_fast_path_heap_box`
 - `memory.allocator_facade_box`
 - `memory.layout_box`
 - `memory.page_box`

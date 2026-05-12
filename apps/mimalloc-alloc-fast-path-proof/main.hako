@@ -1,0 +1,48 @@
+// mimalloc-alloc-fast-path-proof
+// Purpose: prove page-queue selection plus page-local free-list pop.
+
+using selfhost.hako_alloc.memory.alloc_fast_path_heap_box as HakoAllocFastPathHeapBox
+
+static box Main {
+    main(args) {
+        local heap = new HakoAllocFastPathHeap(4, 32, 2)
+
+        local h0 = heap.allocate(8)
+        local h1 = heap.allocate(16)
+        local h2 = heap.allocate(24)
+        local over = heap.allocate(64)
+
+        local r0 = heap.release(h0)
+        local r1 = heap.release(h0)
+
+        local shape = 0
+        if h0.page_id == 0 { shape = shape + 1 }
+        if h0.block_id == 1 { shape = shape + 1 }
+        if h1.page_id == 0 { shape = shape + 1 }
+        if h1.block_id == 0 { shape = shape + 1 }
+        if h2.page_id == 1 { shape = shape + 1 }
+        if h2.block_id == 1 { shape = shape + 1 }
+        if over == null { shape = shape + 1 }
+        if r0 == 1 { shape = shape + 1 }
+        if r1 == 0 { shape = shape + 1 }
+        if heap.outstandingBlocks() == 2 { shape = shape + 1 }
+        if heap.requestedBytes() == 48 { shape = shape + 1 }
+        if heap.queue.page_count == 2 { shape = shape + 1 }
+
+        print("mimalloc-alloc-fast-path-proof")
+        print("handles=" + h0.page_id + ":" + h0.block_id + "," + h1.page_id + ":" + h1.block_id + "," + h2.page_id + ":" + h2.block_id)
+        print("release=" + r0 + "," + r1)
+        print("heap_counts=" + heap.alloc_count + "," + heap.release_count + "," + heap.fallback_count + "," + heap.page_create_count + "," + heap.reject_count)
+        print("queue_counts=" + heap.queue.page_count + "," + heap.queue.select_count + "," + heap.queue.direct_hit_count + "," + heap.queue.refresh_count + "," + heap.queue.reject_count)
+        print("totals=" + heap.outstandingBlocks() + "," + heap.requestedBytes())
+        print("shape=" + shape)
+
+        if shape == 12 && heap.alloc_count == 3 && heap.release_count == 1 && heap.fallback_count == 1 && heap.page_create_count == 2 && heap.reject_count == 2 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

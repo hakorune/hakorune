@@ -7,6 +7,7 @@ Scope
 
 Current modules
 - `allocator_facade_box.hako`
+- `alloc_fast_path_heap_box.hako`
 - `arc_box.hako`
 - `layout_box.hako`
 - `page_box.hako`
@@ -33,5 +34,9 @@ Syntax/style contract
 - `usize_field_probe_box.hako` is a probe-only owner for exact `usize` stored
   field behavior. Production allocator state must not migrate just because the
   probe is green.
+- `alloc_fast_path_heap_box.hako` is the M167 orchestration owner. It may call
+  `HakoAllocPageQueue.selectPage()` and `HakoAllocPageModel.acquire()`, but it
+  must not source OS pages, collect local-free blocks, or implement remote-free
+  policy.
 - Keep `birth(...)` for parameter-dependent initialization and ordering that
   cannot be expressed as a declaration-site default.
