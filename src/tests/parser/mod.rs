@@ -9,6 +9,8 @@ pub mod parser_block_postfix_catch;
 pub mod parser_block_postfix_errors;
 #[path = "../parser_check_block_surface.rs"]
 pub mod parser_check_block_surface;
+#[path = "../parser_compound_assignment_surface.rs"]
+pub mod parser_compound_assignment_surface;
 #[path = "../parser_enum_match.rs"]
 pub mod parser_enum_match;
 #[path = "../parser_enum_surface.rs"]

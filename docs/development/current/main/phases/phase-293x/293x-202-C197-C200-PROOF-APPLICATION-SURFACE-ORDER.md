@@ -1,6 +1,6 @@
 # 293x-202: C197-C200 Proof/Application Surface Order
 
-Status: Active order SSOT / C197-C198 complete
+Status: Active order SSOT / C197-C199 complete
 
 This card locks the readable task order for the proof/application syntax rows
 that follow the allocator API rows. It does not add syntax or change allocator
@@ -49,6 +49,8 @@ no variadic `all(...)`, no macro expansion, no short-circuit behavior.
 
 ### C199 compound assignment surface
 
+Status: Complete.
+
 Purpose:
 promote `+=`-style sugar where it lowers to the existing assignment form.
 
@@ -95,7 +97,7 @@ boolean language and avoids using boolean chains as a poor proof-reporting DSL.
 
 ## Next
 
-`C197 logical condition surface hardening` and `C198 check block surface` are
-complete. Continue with `C199 compound assignment surface` only when current
-proof or allocator apps need the sugar; keep it separate from allocator
-algorithm rows.
+`C197 logical condition surface hardening`, `C198 check block surface`, and
+`C199 compound assignment surface` are complete. Continue with `C200 guard else
+surface` only when current proof or allocator apps need the sugar; keep it
+separate from allocator algorithm rows.

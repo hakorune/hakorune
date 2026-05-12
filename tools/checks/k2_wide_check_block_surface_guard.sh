@@ -46,7 +46,7 @@ guard_expect_in_file "$TAG" '### C198 Check Block Surface' "$EBNF" "EBNF must re
 guard_expect_in_file "$TAG" 'Decision: accepted' "$EBNF" "EBNF must mark C198 accepted"
 guard_expect_in_file "$TAG" 'check_expr := ' "$EBNF" "EBNF must define check_expr"
 guard_expect_in_file "$TAG" 'C198 check block surface` \| Complete' "$PLAN" "plan must mark C198 complete"
-guard_expect_in_file "$TAG" 'C199 compound assignment surface` \| Future' "$PLAN" "C199 must remain the later row"
+guard_expect_in_file "$TAG" 'C199 compound assignment surface` \| Complete' "$PLAN" "C199 must remain a separate completed row"
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "C198 card must be complete"
 guard_expect_in_file "$TAG" 'CheckExpr' "$AST" "AST must carry CheckExpr"
 guard_expect_in_file "$TAG" 'parse_check_expr' "$PARSER_PRIMARY" "default parser must parse check blocks"

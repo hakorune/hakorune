@@ -45,10 +45,9 @@ assign_primary:= IDENT | 'me'
 assign_tail   := '.' IDENT
                | '[' expr ']'
 compound_assign_op := '+=' | '-=' | '*=' | '/='
-                  ; compound assignment is syntax sugar and is gated by
-                  ; NYASH_SYNTAX_SUGAR_LEVEL=basic|full. Plain assignment is
-                  ; the canonical form for local variables, fields, and index
-                  ; targets.
+                  ; C199: compound assignment is default surface sugar.
+                  ; It lowers to ordinary assignment with the corresponding
+                  ; binary operation. Plain assignment remains canonical.
 
 ; Semantic constraints:
 ; - local declarations with '=' are single-binding only (`local x = expr`).
@@ -194,6 +193,37 @@ Stop line:
 not an allocator-specific DSL, and not a backend route selector. Unsupported
 backend behavior must fail explicitly rather than silently treating a VM-only
 route as complete.
+
+### C199 Compound Assignment Surface
+
+Decision: accepted.
+
+`+=`, `-=`, `*=`, and `/=` are accepted for ordinary assign targets:
+
+```hako
+x += 1
+me.count += delta
+array[0] += 2
+```
+
+They are pure surface sugar for the existing assignment form:
+
+```hako
+target += rhs
+```
+
+lowers as if the source had been written:
+
+```hako
+target = target + rhs
+```
+
+with the corresponding binary operator for `-=`, `*=`, and `/=`.
+
+Stop line:
+C199 does not add a new overflow policy, allocator-specific meaning, hidden
+atomic read-modify-write behavior, or special backend route. The canonical AST
+shape remains `Assignment { value: BinaryOp { ... } }`.
 
 ## Box Members (Phase‑15, env gate: NYASH_ENABLE_UNIFIED_MEMBERS; default ON)
 

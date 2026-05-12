@@ -1,0 +1,42 @@
+// compound-assignment-surface-proof
+// Purpose: prove C199 compound assignment stays canonical assignment sugar for
+// local, field, and index targets.
+
+box Counter {
+    value: i64 = 4
+}
+
+static box Main {
+    main(args) {
+        local x = 1
+        x += 5
+        x -= 2
+        x *= 3
+        x /= 4
+
+        local counter = new Counter()
+        counter.value += x
+        counter.value *= 2
+        counter.value -= 1
+
+        local array = new ArrayBox()
+        array.push(10)
+        array[0] += counter.value
+        array[0] /= 3
+
+        local array_value = array[0]
+
+        print("compound-assignment-surface-proof")
+        print("x=" + x)
+        print("counter=" + counter.value)
+        print("array0=" + array_value)
+
+        if x == 3 && counter.value == 13 && array_value == 7 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -501,6 +501,9 @@ inference for the allocator release path.
 - `293x-204`: C198 check block surface landed, adding
   `check "name" { "label": expr }` as an eager proof-list expression with
   scalar pass/fail result.
+- `293x-205`: C199 compound assignment surface landed, accepting `+=`, `-=`,
+  `*=`, and `/=` for local, field, and index targets as canonical assignment
+  sugar.
 - Next: continue with proof/application syntax rows (`C197-C200`) or the
   record/packed-array compiler lane (`C201-C205`) when needed. No M191
   allocator API row is scheduled yet; M186 facade stats already landed as
@@ -521,8 +524,7 @@ Current execution order:
    exact `usize` via `294x-19e`, so those rows must not be repeated.
 2. `C198-C200`: improve proof/application syntax only as separate language rows
    after docs/reference decisions. Do not fold them into allocator rows.
-   `C197` and `C198` are complete. `C199` is compound assignment sugar, and
-   `C200` is `guard ... else`.
+   `C197`, `C198`, and `C199` are complete. `C200` is `guard ... else`.
 3. `C201-C205`: add record/packed-array compiler-runtime support before moving
    allocator metadata off the current M178 scalar columns.
 4. `C191-C194`: run compiler/backend hardening only when it does not collide

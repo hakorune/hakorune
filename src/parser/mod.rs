@@ -533,7 +533,7 @@ impl NyashParser {
             let rhs = self.parse_expression()?;
             // 左辺が代入可能な形式かチェック
             match &expr {
-                ASTNode::Variable { .. } | ASTNode::FieldAccess { .. } => {
+                ASTNode::Variable { .. } | ASTNode::FieldAccess { .. } | ASTNode::Index { .. } => {
                     let left_clone = expr.clone();
                     let value = ASTNode::BinaryOp {
                         operator: op,
