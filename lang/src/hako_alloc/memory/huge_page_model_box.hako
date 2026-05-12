@@ -1,0 +1,129 @@
+// huge_page_model_box.hako -- M180 huge page model owner
+// Responsibility: model one-allocation huge pages and publish huge handles
+// through the page map. Release/unregister and OS release stay in later rows.
+
+using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
+
+box HakoAllocHugePageModel {
+    page_map: HakoAllocPageMap
+    page_ids: ArrayBox = new ArrayBox()
+    ptrs: ArrayBox = new ArrayBox()
+    requested_sizes: ArrayBox = new ArrayBox()
+    committed_sizes: ArrayBox = new ArrayBox()
+    live_flags: ArrayBox = new ArrayBox()
+    huge_count: i64 = 0
+    live_count: i64 = 0
+    allocate_count: i64 = 0
+    zero_reject_count: i64 = 0
+    commit_reject_count: i64 = 0
+    register_fail_count: i64 = 0
+    reject_count: i64 = 0
+    next_page_id: i64 = 1000
+    next_ptr: i64 = 70000
+    last_result_ptr: i64 = 0
+    last_page_id: i64 = 0
+    last_requested_size: i64 = 0
+    last_committed_size: i64 = 0
+    last_failure_kind: i64 = 0
+
+    birth(page_map) {
+        me.page_map = page_map
+    }
+
+    allocateHuge(requested_size, committed_size) {
+        me.last_result_ptr = 0
+        me.last_page_id = 0
+        me.last_requested_size = 0
+        me.last_committed_size = 0
+        me.last_failure_kind = 0
+
+        if requested_size <= 0 {
+            me.zero_reject_count = me.zero_reject_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_failure_kind = 1
+            return 0
+        }
+
+        if committed_size < requested_size {
+            me.commit_reject_count = me.commit_reject_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_failure_kind = 2
+            return 0
+        }
+
+        local page_id = me.next_page_id
+        local ptr = me.next_ptr
+        if me.page_map.register(ptr, page_id, 0) == 0 {
+            me.register_fail_count = me.register_fail_count + 1
+            me.reject_count = me.reject_count + 1
+            me.last_failure_kind = 3
+            return 0
+        }
+
+        me.next_page_id = me.next_page_id + 1
+        me.next_ptr = me.next_ptr + 1
+        me.page_ids.push(page_id)
+        me.ptrs.push(ptr)
+        me.requested_sizes.push(requested_size)
+        me.committed_sizes.push(committed_size)
+        me.live_flags.push(1)
+        me.huge_count = me.huge_count + 1
+        me.live_count = me.live_count + 1
+        me.allocate_count = me.allocate_count + 1
+        me.last_result_ptr = ptr
+        me.last_page_id = page_id
+        me.last_requested_size = requested_size
+        me.last_committed_size = committed_size
+        return 1
+    }
+
+    findIndex(ptr) {
+        local count = me.huge_count
+        local i = 0
+        loop(i < count) {
+            if me.ptrs.get(i) == ptr {
+                if me.live_flags.get(i) == 1 {
+                    return i
+                }
+            }
+            i = i + 1
+        }
+
+        return -1
+    }
+
+    isLiveHugePtr(ptr) {
+        if me.findIndex(ptr) >= 0 {
+            return 1
+        }
+
+        return 0
+    }
+
+    pageIdFor(ptr) {
+        local index = me.findIndex(ptr)
+        if index < 0 {
+            return -1
+        }
+
+        return me.page_ids.get(index)
+    }
+
+    requestedSizeFor(ptr) {
+        local index = me.findIndex(ptr)
+        if index < 0 {
+            return 0
+        }
+
+        return me.requested_sizes.get(index)
+    }
+
+    committedSizeFor(ptr) {
+        local index = me.findIndex(ptr)
+        if index < 0 {
+            return 0
+        }
+
+        return me.committed_sizes.get(index)
+    }
+}

@@ -460,8 +460,12 @@ inference for the allocator release path.
   `HakoAllocHugeThresholdRouter` so padded requests above the last regular
   size-class route to an explicit huge-unsupported fail-fast result instead of
   entering the M178 small path.
-- Next: continue with `M180 huge page model` before scheduling huge release or
-  secure-list rows.
+- `293x-191`: M180 huge page model landed, adding
+  `HakoAllocHugePageModel` so huge handles can be registered in the page map
+  while requested/committed/live state stays separate from small page free
+  lists.
+- Next: continue with `M181 huge release seam` before scheduling secure-list
+  rows.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.
 
@@ -472,7 +476,7 @@ SSOT:
 
 Current execution order:
 
-1. `M180-M184`: add huge-page and secure-list rows separately.
+1. `M181-M184`: add huge release and secure-list rows separately.
 2. `M185-M190`: finish remaining `usize` field-group migration and allocator
    API parity. Facade stats are already exact `usize` via `294x-19e`, so that
    row must not be repeated.

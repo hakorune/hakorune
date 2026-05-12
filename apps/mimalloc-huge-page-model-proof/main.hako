@@ -1,0 +1,107 @@
+// mimalloc-huge-page-model-proof
+// Purpose: prove M180 one-allocation huge page model.
+
+using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
+using selfhost.hako_alloc.memory.huge_page_model_box as HakoAllocHugePageModelBox
+
+box ProofCheck {
+    name: StringBox = ""
+    passed: i64 = 1
+    count: i64 = 0
+    fail_count: i64 = 0
+
+    birth(name) {
+        me.name = name
+    }
+
+    expect(label, condition) {
+        me.count = me.count + 1
+        if condition == 0 {
+            me.passed = 0
+            me.fail_count = me.fail_count + 1
+            print("check.fail=" + me.name + ":" + label)
+            return 0
+        }
+        return 1
+    }
+
+    ok() {
+        return me.passed
+    }
+}
+
+static box Main {
+    main(args) {
+        local page_map = new HakoAllocPageMap()
+        local huge = new HakoAllocHugePageModel(page_map)
+
+        local h0 = huge.allocateHuge(4194305, 4194305)
+        local h0_ptr = huge.last_result_ptr
+        local h0_page = huge.last_page_id
+        local h0_req = huge.requestedSizeFor(h0_ptr)
+        local h0_committed = huge.committedSizeFor(h0_ptr)
+        local h0_live = huge.isLiveHugePtr(h0_ptr)
+        local h0_entry = page_map.lookup(h0_ptr)
+
+        local h1 = huge.allocateHuge(8388608, 8388608)
+        local h1_ptr = huge.last_result_ptr
+        local h1_page = huge.last_page_id
+        local h1_req = huge.requestedSizeFor(h1_ptr)
+        local h1_committed = huge.committedSizeFor(h1_ptr)
+
+        local zero = huge.allocateHuge(0, 4096)
+        local zero_kind = huge.last_failure_kind
+        local under = huge.allocateHuge(4096, 1024)
+        local under_kind = huge.last_failure_kind
+
+        local missing_live = huge.isLiveHugePtr(99999)
+        local missing_page = huge.pageIdFor(99999)
+        local missing_req = huge.requestedSizeFor(99999)
+
+        local h0_entry_shape = 0
+        if h0_entry != null {
+            if h0_entry.page_id == h0_page && h0_entry.block_id == 0 {
+                h0_entry_shape = 1
+            }
+        }
+
+        print("mimalloc-huge-page-model-proof")
+        print("alloc0=" + h0 + "," + h0_ptr + "," + h0_page + "," + h0_req + "," + h0_committed + "," + h0_live + "," + h0_entry_shape)
+        print("alloc1=" + h1 + "," + h1_ptr + "," + h1_page + "," + h1_req + "," + h1_committed)
+        print("reject=" + zero + "," + zero_kind + "," + under + "," + under_kind)
+        print("missing=" + missing_live + "," + missing_page + "," + missing_req)
+        print("huge=" + huge.huge_count + "," + huge.live_count + "," + huge.allocate_count + "," + huge.zero_reject_count + "," + huge.commit_reject_count + "," + huge.register_fail_count + "," + huge.reject_count)
+        print("map=" + page_map.entry_count + "," + page_map.live_count + "," + page_map.register_count + "," + page_map.lookup_count + "," + page_map.lookup_miss_count + "," + page_map.unregister_count + "," + page_map.reject_count)
+
+        local proof = new ProofCheck("m180 huge page model")
+        proof.expect("first huge alloc succeeds", h0 == 1)
+        proof.expect("first huge ptr", h0_ptr == 70000)
+        proof.expect("first huge page id", h0_page == 1000)
+        proof.expect("first requested size", h0_req == 4194305)
+        proof.expect("first committed size", h0_committed == 4194305)
+        proof.expect("first live", h0_live == 1)
+        proof.expect("first page-map shape", h0_entry_shape == 1)
+        proof.expect("second huge alloc succeeds", h1 == 1)
+        proof.expect("second huge ptr", h1_ptr == 70001)
+        proof.expect("second huge page id", h1_page == 1001)
+        proof.expect("second requested size", h1_req == 8388608)
+        proof.expect("second committed size", h1_committed == 8388608)
+        proof.expect("zero rejected", zero == 0)
+        proof.expect("zero failure kind", zero_kind == 1)
+        proof.expect("under committed rejected", under == 0)
+        proof.expect("under committed failure kind", under_kind == 2)
+        proof.expect("missing live false", missing_live == 0)
+        proof.expect("missing page sentinel", missing_page == -1)
+        proof.expect("missing requested size", missing_req == 0)
+        proof.expect("huge counters", huge.huge_count == 2 && huge.live_count == 2 && huge.allocate_count == 2 && huge.zero_reject_count == 1 && huge.commit_reject_count == 1 && huge.register_fail_count == 0 && huge.reject_count == 2)
+        proof.expect("page-map counters", page_map.entry_count == 2 && page_map.live_count == 2 && page_map.register_count == 2 && page_map.lookup_count == 1 && page_map.lookup_miss_count == 0 && page_map.unregister_count == 0 && page_map.reject_count == 0)
+
+        if proof.ok() {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
