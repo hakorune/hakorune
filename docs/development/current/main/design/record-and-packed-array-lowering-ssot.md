@@ -205,6 +205,9 @@ Status:
 - `C201-C205` is therefore closed for the current allocator metadata migration.
   Any `C206+` row must be a small cleanup/probe row; packed `ArrayBox` compiler
   auto-use is still not implied by the C205 store migrations.
+- `C206a` is complete as `293x-218`: aligned-small metadata reads now share a
+  single `HakoAllocAlignedSmallMetaStore.findIndex(ptr)` seam. This is
+  behavior-preserving cleanup, not a packed-storage auto-use row.
 
 ## Target Runtime Shape
 

@@ -545,6 +545,10 @@ inference for the allocator release path.
   metadata columns behind `HakoAllocHugePageMetaStore` and using record
   construction/read at the append boundary without enabling packed ArrayBox
   compiler auto-use.
+- `293x-218`: C206a aligned metadata store lookup cleanup landed, adding a
+  single `HakoAllocAlignedSmallMetaStore.findIndex(ptr)` seam for aligned
+  metadata reads without changing allocation behavior or enabling packed
+  ArrayBox compiler auto-use.
 - Next: treat `C201-C205` as closed for the current allocator metadata
   migration. Use `C206+` only for small cleanup/probe rows such as
   metadata-store API cleanup or explicit packed ArrayBox auto-use probes.

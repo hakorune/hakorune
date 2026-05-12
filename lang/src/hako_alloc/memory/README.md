@@ -100,7 +100,8 @@ Syntax/style contract
   behind a record-shaped append/read seam. It may construct
   `HakoAllocAlignedSmallMeta` and read its fields locally, but it must not
   enable `ArrayStorage::InlineRecord`, backend lowering, huge metadata
-  migration, provider hooks, or native allocator behavior.
+  migration, provider hooks, or native allocator behavior. C206a adds a single
+  `findIndex(ptr)` lookup seam for its read APIs; this is cleanup only.
 - `huge_threshold_router_box.hako` owns M179 huge threshold/routing. It may
   classify padded requests and fail fast for huge-unsupported requests, but it
   must not implement a huge page model or OS release.

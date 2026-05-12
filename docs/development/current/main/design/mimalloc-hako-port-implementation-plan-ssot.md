@@ -274,6 +274,12 @@ complete as `293x-217`. M180 huge-page metadata now lives behind
 the append boundary and reads fields locally, but storage remains scalar
 columns until packed `ArrayBox` compiler auto-use lands.
 
+C206a status:
+complete as `293x-218`. `HakoAllocAlignedSmallMetaStore` now owns a single
+`findIndex(ptr)` lookup seam, and both aligned metadata read APIs delegate to
+that seam. This is behavior-preserving cleanup only; it does not enable packed
+`ArrayBox` auto-use or a generic store abstraction.
+
 ### Docs / Guard Checkpoints
 
 | Row | Goal | Trigger |
