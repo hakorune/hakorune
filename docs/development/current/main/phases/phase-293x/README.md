@@ -467,8 +467,11 @@ inference for the allocator release path.
 - `293x-192`: M181 huge release seam landed, adding
   `HakoAllocHugeReleaseSeam` so huge handles are retired through the huge model
   and page map without entering small page `releaseLocal(...)`.
-- Next: continue with `M182 secure free-list policy inventory` before adding
-  diagnostics or encode/decode rows.
+- `293x-193`: M182 secure free-list policy inventory landed, fixing the split
+  between page-local block identity, diagnostics-only observers, and future
+  encode/decode policy before secure-list code is introduced.
+- Next: continue with `M183 secure-list diagnostics-only` before adding
+  encode/decode rows.
   M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.
 
@@ -479,7 +482,7 @@ SSOT:
 
 Current execution order:
 
-1. `M182-M184`: add secure-list rows separately.
+1. `M183-M184`: add secure-list diagnostics and encode/decode separately.
 2. `M185-M190`: finish remaining `usize` field-group migration and allocator
    API parity. Facade stats are already exact `usize` via `294x-19e`, so that
    row must not be repeated.
