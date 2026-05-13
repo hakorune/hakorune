@@ -42,7 +42,19 @@ box HakoAllocHugePageMetaStore {
 
     pageIdFor(ptr) {
         local index = me.findIndex(ptr)
+        return me.pageIdAt(index)
+    }
+
+    pageIdAt(index) {
         if index < 0 {
+            return -1
+        }
+
+        if index >= me.count {
+            return -1
+        }
+
+        if me.live_flags.get(index) == 0 {
             return -1
         }
 
@@ -51,7 +63,19 @@ box HakoAllocHugePageMetaStore {
 
     requestedSizeFor(ptr) {
         local index = me.findIndex(ptr)
+        return me.requestedSizeAt(index)
+    }
+
+    requestedSizeAt(index) {
         if index < 0 {
+            return 0
+        }
+
+        if index >= me.count {
+            return 0
+        }
+
+        if me.live_flags.get(index) == 0 {
             return 0
         }
 
@@ -60,7 +84,19 @@ box HakoAllocHugePageMetaStore {
 
     committedSizeFor(ptr) {
         local index = me.findIndex(ptr)
+        return me.committedSizeAt(index)
+    }
+
+    committedSizeAt(index) {
         if index < 0 {
+            return 0
+        }
+
+        if index >= me.count {
+            return 0
+        }
+
+        if me.live_flags.get(index) == 0 {
             return 0
         }
 
@@ -69,7 +105,19 @@ box HakoAllocHugePageMetaStore {
 
     markReleased(ptr) {
         local index = me.findIndex(ptr)
+        return me.markReleasedAt(index)
+    }
+
+    markReleasedAt(index) {
         if index < 0 {
+            return 0
+        }
+
+        if index >= me.count {
+            return 0
+        }
+
+        if me.live_flags.get(index) == 0 {
             return 0
         }
 

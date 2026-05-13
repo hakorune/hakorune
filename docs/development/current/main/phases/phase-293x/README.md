@@ -560,6 +560,9 @@ inference for the allocator release path.
 - `293x-222`: D196 stop-the-line guard refresh landed, fixing `C206+`
   cleanup/probe guards as local-run and index-listed by default unless a later
   card names the production stop line that needs gate promotion.
+- `293x-223`: C206e metadata-store indexed read cleanup landed, adding
+  `alignmentAt` / `paddedSizeAt` and huge-page `*At` read seams so callers with
+  a resolved metadata index do not repeat pointer lookup.
 - Next: treat `C201-C205` as closed for the current allocator metadata
   migration. Use `C206+` only for small cleanup/probe rows such as
   metadata-store API cleanup or explicit packed ArrayBox auto-use probes.

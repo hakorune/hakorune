@@ -297,6 +297,13 @@ complete as `293x-221`. `ArrayInlineRecordPlanProbe` now connects MIR
 integer-lane columns. Unsupported storage, such as handle columns, is rejected
 before any `ArrayBox` is built. This is still not compiler auto-use.
 
+C206e status:
+complete as `293x-223`. The aligned-small and huge-page metadata stores now
+expose index-based read seams, and pointer-based APIs delegate through those
+seams. This removes repeated pointer lookup in callers that already resolved an
+index, without changing allocator behavior or enabling packed ArrayBox
+compiler auto-use.
+
 ### Docs / Guard Checkpoints
 
 | Row | Goal | Trigger |

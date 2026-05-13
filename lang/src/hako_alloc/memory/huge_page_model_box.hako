@@ -86,29 +86,17 @@ box HakoAllocHugePageModel {
 
     pageIdFor(ptr) {
         local index = me.findIndex(ptr)
-        if index < 0 {
-            return -1
-        }
-
-        return me.meta_store.pageIdFor(ptr)
+        return me.meta_store.pageIdAt(index)
     }
 
     requestedSizeFor(ptr) {
         local index = me.findIndex(ptr)
-        if index < 0 {
-            return 0
-        }
-
-        return me.meta_store.requestedSizeFor(ptr)
+        return me.meta_store.requestedSizeAt(index)
     }
 
     committedSizeFor(ptr) {
         local index = me.findIndex(ptr)
-        if index < 0 {
-            return 0
-        }
-
-        return me.meta_store.committedSizeFor(ptr)
+        return me.meta_store.committedSizeAt(index)
     }
 
     markReleased(ptr) {
@@ -119,7 +107,7 @@ box HakoAllocHugePageModel {
             return 0
         }
 
-        me.meta_store.markReleased(ptr)
+        me.meta_store.markReleasedAt(index)
         me.live_count = me.meta_store.live_count
         me.release_count = me.release_count + 1
         return 1

@@ -34,7 +34,15 @@ box HakoAllocAlignedSmallMetaStore {
 
     alignmentFor(ptr) {
         local index = me.findIndex(ptr)
+        return me.alignmentAt(index)
+    }
+
+    alignmentAt(index) {
         if index < 0 {
+            return 0
+        }
+
+        if index >= me.count {
             return 0
         }
 
@@ -43,7 +51,15 @@ box HakoAllocAlignedSmallMetaStore {
 
     paddedSizeFor(ptr) {
         local index = me.findIndex(ptr)
+        return me.paddedSizeAt(index)
+    }
+
+    paddedSizeAt(index) {
         if index < 0 {
+            return 0
+        }
+
+        if index >= me.count {
             return 0
         }
 

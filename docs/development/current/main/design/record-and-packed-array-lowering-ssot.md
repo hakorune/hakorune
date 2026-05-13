@@ -218,6 +218,10 @@ Status:
   metadata-only `ArrayRecordStoragePlan` rows into explicit test-only runtime
   probe arrays for integer-lane columns. Unsupported columns are rejected, and
   compiler auto-use remains unopened.
+- `C206e` is complete as `293x-223`: aligned-small and huge-page metadata
+  stores expose index-based read seams so pointer-based APIs and resolved-index
+  callers share one read path. Packed ArrayBox compiler auto-use remains
+  unopened.
 
 ## Target Runtime Shape
 
