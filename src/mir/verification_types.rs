@@ -133,6 +133,12 @@ pub enum VerificationError {
         layout_id: u32,
         reason: String,
     },
+    /// hako_alloc page lifecycle surface violation before lifecycle consumers may
+    /// rely on the frozen M207 vocabulary.
+    HakoAllocPageLifecycleInvariantViolation {
+        owner: String,
+        reason: String,
+    },
 }
 
 impl std::fmt::Display for VerificationError {
@@ -389,6 +395,13 @@ impl std::fmt::Display for VerificationError {
                     f,
                     "[mir/verify:hako_alloc_metadata] record={} layout_id={} reason={}",
                     record_name, layout_id, reason
+                )
+            }
+            VerificationError::HakoAllocPageLifecycleInvariantViolation { owner, reason } => {
+                write!(
+                    f,
+                    "[mir/verify:hako_alloc_page_lifecycle] owner={} reason={}",
+                    owner, reason
                 )
             }
         }

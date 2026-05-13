@@ -541,6 +541,13 @@ observer over heap page/backing state and marker generations. It adds no
 allocation, release, decommit, recommit, reactivation, scheduler, OS release,
 provider, hook, or replacement behavior.
 
+C194b status:
+complete as `293x-252`. C194b adds the MIR verifier-owned page lifecycle
+surface checker for the frozen M207 owner. It verifies required lifecycle
+functions plus the selected strong `i64` report fields that carry the
+active/retired/decommitted/recommitted-active vocabulary and generation facts,
+without changing allocator behavior or enabling backend lowering.
+
 ### Proof App Ergonomics Queue
 
 These rows improve proof readability without changing allocator semantics.

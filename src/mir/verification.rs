@@ -12,6 +12,7 @@ mod barrier;
 mod cfg;
 mod dom;
 mod hako_alloc_metadata;
+mod hako_alloc_page_lifecycle;
 mod inline_required;
 mod legacy;
 mod numeric_substrate;
@@ -50,6 +51,11 @@ impl MirVerifier {
             hako_alloc_metadata::check_hako_alloc_metadata_invariants(module)
         {
             self.errors.append(&mut hako_alloc_metadata_errors);
+        }
+        if let Err(mut hako_alloc_page_lifecycle_errors) =
+            hako_alloc_page_lifecycle::check_hako_alloc_page_lifecycle_invariants(module)
+        {
+            self.errors.append(&mut hako_alloc_page_lifecycle_errors);
         }
 
         for (_name, function) in &module.functions {
