@@ -175,6 +175,62 @@ fn aligned_small_metadata_packed_store_pilot_reads_metadata_columns() {
 }
 
 #[test]
+fn huge_page_metadata_packed_store_pilot_reads_metadata_columns() {
+    let layout_id = 42;
+    let page_id_column = 0;
+    let ptr_column = 1;
+    let requested_size_column = 2;
+    let committed_size_column = 3;
+    let live_column = 4;
+    let array = ArrayBox::new_with_inline_record_i64_columns_for_compiler_autouse(
+        layout_id,
+        vec![
+            vec![70, 71],
+            vec![8001, 8002],
+            vec![4096, 8192],
+            vec![4096, 8192],
+            vec![1, 0],
+        ],
+    )
+    .expect("huge-page metadata columns must build packed pilot storage");
+
+    assert!(array.uses_inline_record_slots());
+    assert_eq!(array.inline_record_layout_id(), Some(layout_id));
+    assert_eq!(
+        array.inline_record_load_i64_column_raw(layout_id, 0, page_id_column),
+        Some(70)
+    );
+    assert_eq!(
+        array.inline_record_load_i64_column_raw(layout_id, 1, page_id_column),
+        Some(71)
+    );
+    assert_eq!(
+        array.inline_record_load_i64_column_raw(layout_id, 0, ptr_column),
+        Some(8001)
+    );
+    assert_eq!(
+        array.inline_record_load_i64_column_raw(layout_id, 0, requested_size_column),
+        Some(4096)
+    );
+    assert_eq!(
+        array.inline_record_load_i64_column_raw(layout_id, 1, requested_size_column),
+        Some(8192)
+    );
+    assert_eq!(
+        array.inline_record_load_i64_column_raw(layout_id, 0, committed_size_column),
+        Some(4096)
+    );
+    assert_eq!(
+        array.inline_record_load_i64_column_raw(layout_id, 1, live_column),
+        Some(0)
+    );
+    assert_eq!(
+        array.get_index_i64(0).to_string_box().value,
+        "[array/inline-record/unmaterialized] record value materialization is not enabled"
+    );
+}
+
+#[test]
 fn inline_record_storage_reports_len_capacity_and_debug_kind() {
     let array = inline_record_test_array();
 

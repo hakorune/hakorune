@@ -579,10 +579,14 @@ inference for the allocator release path.
   through the private C209 i64-column seam. The `.hako` source keeps its
   record-shaped scalar-column compatibility and does not mention compiler
   internals.
-- Next: C211 huge-page metadata packed-store pilot. Backend lowering remains a
-  later row. No M191 allocator API row is scheduled yet; M186 facade stats
-  already landed as `294x-19e`. M104 is next only if the optional
-  allocator-provider host-replacement ladder is explicitly reopened.
+- `293x-228`: C211 huge-page metadata packed-store pilot landed, adding
+  `hako_alloc_huge_page_packed_store_pilot_plans` for `HakoAllocHugePageMeta`
+  and a runtime proof that reads huge metadata through the private C209
+  i64-column seam while preserving live-flag and released-sentinel contracts.
+- Next: C212 packed record backend fail-fast hardening. No M191 allocator API
+  row is scheduled yet; M186 facade stats already landed as `294x-19e`. M104 is
+  next only if the optional allocator-provider host-replacement ladder is
+  explicitly reopened.
 
 ## Mimalloc Port Roadmap Snapshot
 
@@ -606,8 +610,8 @@ Current execution order:
 4. `C207-C212`: open packed ArrayBox compiler auto-use in stages:
    eligibility gate, materialization/escape boundary, non-escaping auto-use
    pilot, aligned-small metadata packed-store pilot, huge-page packed-store
-   pilot, and backend fail-fast hardening. `C207-C210` are complete; C211 is the
-   first row allowed to touch huge-page hako_alloc metadata storage.
+   pilot, and backend fail-fast hardening. `C207-C211` are complete; C212 is the
+   next row for backend fail-fast hardening.
 5. `C191-C194`: run compiler/backend hardening only when it does not collide
    with the active `.hako` row.
 6. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.

@@ -344,6 +344,14 @@ aligned-small metadata shape can use the private C209 i64-column seam. The live
 `InlineRecord` / compiler feature names in hako_alloc source. Huge-page metadata
 and backend lowering remain C211/C212 work.
 
+C211 status:
+complete as `293x-228`. C211 adds
+`hako_alloc_huge_page_packed_store_pilot_plans` for `HakoAllocHugePageMeta` /
+`HakoAllocHugePageMetaStore` and proves the huge-page metadata shape can use the
+private C209 i64-column seam. The row preserves live-flag and released-sentinel
+contracts, keeps `.hako` scalar-column compatibility, and leaves backend
+lowering to C212.
+
 ### Docs / Guard Checkpoints
 
 | Row | Goal | Trigger |

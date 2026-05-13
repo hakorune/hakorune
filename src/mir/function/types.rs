@@ -647,6 +647,32 @@ pub struct HakoAllocAlignedSmallPackedStorePilotPlan {
     pub backend_lowering_enabled: bool,
 }
 
+/// Metadata-only pilot plan for huge-page hako_alloc metadata packed store.
+///
+/// This consumes the C209 private packed ArrayBox pilot for the
+/// `HakoAllocHugePageMeta` record shape. It preserves the live flag and
+/// released-sentinel contract without rewriting `.hako` storage or adding
+/// backend lowering.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct HakoAllocHugePagePackedStorePilotPlan {
+    pub record_name: String,
+    pub store_owner: String,
+    pub layout_id: u32,
+    pub pilot_kind: String,
+    pub page_id_column: u32,
+    pub ptr_column: u32,
+    pub requested_size_column: u32,
+    pub committed_size_column: u32,
+    pub live_column: u32,
+    pub released_page_id_sentinel: i64,
+    pub released_size_sentinel: i64,
+    pub private_runtime_storage_enabled: bool,
+    pub hako_alloc_source_mentions_compiler: bool,
+    pub live_scalar_columns_retained: bool,
+    pub public_array_get_materialization_enabled: bool,
+    pub backend_lowering_enabled: bool,
+}
+
 /// Declared variant inventory for first-class enum/sum metadata.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MirEnumVariantDecl {
@@ -729,6 +755,9 @@ pub struct ModuleMetadata {
     /// Metadata-only aligned-small hako_alloc packed-store pilot rows.
     pub hako_alloc_aligned_small_packed_store_pilot_plans:
         Vec<HakoAllocAlignedSmallPackedStorePilotPlan>,
+
+    /// Metadata-only huge-page hako_alloc packed-store pilot rows.
+    pub hako_alloc_huge_page_packed_store_pilot_plans: Vec<HakoAllocHugePagePackedStorePilotPlan>,
 
     /// Backend-readable static readonly table rows.
     /// MIR owns this row shape; backend emitters only serialize rows.

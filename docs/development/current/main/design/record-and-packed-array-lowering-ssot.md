@@ -245,6 +245,11 @@ Status:
   `HakoAllocAlignedSmallMeta` and proves the aligned-small metadata shape can be
   read through the private packed i64-column seam. The `.hako` source retains
   scalar-column compatibility and must not mention compiler internals.
+- `C211` is complete as `293x-228`: it emits
+  `hako_alloc_huge_page_packed_store_pilot_plans` for
+  `HakoAllocHugePageMeta` and proves the huge-page metadata shape can be read
+  through the private packed i64-column seam while preserving live-flag and
+  released-sentinel contracts.
 
 ## C207 Eligibility Gate
 

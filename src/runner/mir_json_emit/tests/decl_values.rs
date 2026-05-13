@@ -4,15 +4,17 @@ use super::super::{
     collect_array_record_packed_autouse_pilot_plan_values,
     collect_array_record_storage_plan_values,
     collect_hako_alloc_aligned_small_packed_store_pilot_plan_values,
-    collect_record_layout_plan_values, collect_sorted_enum_decl_values,
-    collect_sorted_record_decl_values, collect_sorted_user_box_decl_values,
-    collect_static_data_plan_values, collect_typed_object_plan_values,
+    collect_hako_alloc_huge_page_packed_store_pilot_plan_values, collect_record_layout_plan_values,
+    collect_sorted_enum_decl_values, collect_sorted_record_decl_values,
+    collect_sorted_user_box_decl_values, collect_static_data_plan_values,
+    collect_typed_object_plan_values,
 };
 use crate::mir::function::{
     ArrayRecordAutoUseEligibilityPlan, ArrayRecordMaterializationBoundaryPlan,
     ArrayRecordPackedAutoUsePilotPlan, ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan,
-    HakoAllocAlignedSmallPackedStorePilotPlan, RecordLayoutFieldPlan, RecordLayoutPlan,
-    StaticDataPlan, TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan,
+    HakoAllocAlignedSmallPackedStorePilotPlan, HakoAllocHugePagePackedStorePilotPlan,
+    RecordLayoutFieldPlan, RecordLayoutPlan, StaticDataPlan, TypedObjectFieldPlan,
+    TypedObjectFieldStorage, TypedObjectPlan,
 };
 use crate::mir::MirModule;
 use serde_json::json;
@@ -490,6 +492,52 @@ fn collect_hako_alloc_aligned_small_packed_store_pilot_plan_values_preserves_pil
     assert_eq!(plans[0]["ptr_column"], 0);
     assert_eq!(plans[0]["alignment_column"], 1);
     assert_eq!(plans[0]["padded_size_column"], 2);
+    assert_eq!(plans[0]["private_runtime_storage_enabled"], true);
+    assert_eq!(plans[0]["hako_alloc_source_mentions_compiler"], false);
+    assert_eq!(plans[0]["live_scalar_columns_retained"], true);
+    assert_eq!(plans[0]["public_array_get_materialization_enabled"], false);
+    assert_eq!(plans[0]["backend_lowering_enabled"], false);
+}
+
+#[test]
+fn collect_hako_alloc_huge_page_packed_store_pilot_plan_values_preserves_pilot_limits() {
+    let mut module = MirModule::new("test".to_string());
+    module
+        .metadata
+        .hako_alloc_huge_page_packed_store_pilot_plans
+        .push(HakoAllocHugePagePackedStorePilotPlan {
+            record_name: "HakoAllocHugePageMeta".to_string(),
+            store_owner: "HakoAllocHugePageMetaStore".to_string(),
+            layout_id: 9,
+            pilot_kind: "huge_page_metadata_i64_columns_v0".to_string(),
+            page_id_column: 0,
+            ptr_column: 1,
+            requested_size_column: 2,
+            committed_size_column: 3,
+            live_column: 4,
+            released_page_id_sentinel: -1,
+            released_size_sentinel: 0,
+            private_runtime_storage_enabled: true,
+            hako_alloc_source_mentions_compiler: false,
+            live_scalar_columns_retained: true,
+            public_array_get_materialization_enabled: false,
+            backend_lowering_enabled: false,
+        });
+
+    let plans = collect_hako_alloc_huge_page_packed_store_pilot_plan_values(&module);
+
+    assert_eq!(plans.len(), 1);
+    assert_eq!(plans[0]["record_name"], "HakoAllocHugePageMeta");
+    assert_eq!(plans[0]["store_owner"], "HakoAllocHugePageMetaStore");
+    assert_eq!(plans[0]["layout_id"], 9);
+    assert_eq!(plans[0]["pilot_kind"], "huge_page_metadata_i64_columns_v0");
+    assert_eq!(plans[0]["page_id_column"], 0);
+    assert_eq!(plans[0]["ptr_column"], 1);
+    assert_eq!(plans[0]["requested_size_column"], 2);
+    assert_eq!(plans[0]["committed_size_column"], 3);
+    assert_eq!(plans[0]["live_column"], 4);
+    assert_eq!(plans[0]["released_page_id_sentinel"], -1);
+    assert_eq!(plans[0]["released_size_sentinel"], 0);
     assert_eq!(plans[0]["private_runtime_storage_enabled"], true);
     assert_eq!(plans[0]["hako_alloc_source_mentions_compiler"], false);
     assert_eq!(plans[0]["live_scalar_columns_retained"], true);

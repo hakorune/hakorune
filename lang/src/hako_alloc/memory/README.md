@@ -114,7 +114,8 @@ Syntax/style contract
   record-shaped append/read seam. It may construct `HakoAllocHugePageMeta` and
   read its fields locally, but it must not enable `ArrayStorage::InlineRecord`,
   backend lowering, small-page state migration, provider hooks, or native
-  allocator behavior.
+  allocator behavior. C211 adds compiler-side packed-store pilot metadata for
+  this shape, but this source file must still not name compiler internals.
 - `huge_release_seam_box.hako` owns M181 huge release composition. It may mark
   huge model state released and unregister page-map ownership, but it must not
   call small page `releaseLocal(...)` or OS release.
