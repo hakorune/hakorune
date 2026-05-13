@@ -648,6 +648,9 @@ inference for the allocator release path.
   guard and M205 recommit heap integration compose into a two-generation
   decommit/recommit/queue-select/page-acquire reuse loop through pure-first
   EXE without adding a new allocator owner.
+- `293x-251`: M207 page lifecycle invariant freeze landed, adding a read-only
+  lifecycle observer and proof for active / retired / decommitted /
+  recommitted-active states without adding allocator behavior.
 - `293x-241`: D197 row guard manifest pilot landed, adding
   `tools/checks/guard_rows.toml` and `tools/checks/run_row_guard.sh` as a
   non-breaking wrapper over existing static guards. Existing guard scripts
@@ -665,7 +668,7 @@ inference for the allocator release path.
   `docs/development/current/main/design/agent-current-entry-contract-ssot.md`
   so local `AGENTS.md` stays a current-first instruction entry while
   `CURRENT_STATE.toml` remains the current lane/blocker truth.
-- Next: post-M206 allocator task selection must be explicit. M186 facade stats
+- Next: C194b verifier-owned page lifecycle invariants. M186 facade stats
   already landed as `294x-19e`, so future rows must not repeat exact usize
   facade work. M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.
@@ -703,7 +706,9 @@ Current execution order:
   state-aware duplicate guard, M200 decommitted page reuse precondition, M201
   recommit fail-fast entry, M202 bounded recommit policy, M203 page-source
   recommit adapter, M204 recommit marker transition, M205 recommit heap
-  integration, and M206 reuse proof closeout are complete.
+  integration, M206 reuse proof closeout, and M207 page lifecycle invariant
+  freeze are complete. Next row is C194b verifier-owned page lifecycle
+  invariants.
 7. `D195-D200`: refresh SSOT/guards at milestones, not after every tiny row.
    `D195`, `D196`, the D197 row guard manifest pilot, the D198 proof app
    runner pilot, the D199 manifest runner library cleanup, and the D200 agent

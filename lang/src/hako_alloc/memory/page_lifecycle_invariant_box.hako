@@ -1,0 +1,162 @@
+// page_lifecycle_invariant_box.hako -- M207 page lifecycle invariant freeze
+// Responsibility:
+// - observe the page-local lifecycle state after M205/M206 without mutating
+//   heap, page, marker, or page-source state
+// Non-responsibility:
+// - allocation, release, decommit, recommit, reactivation, scheduling,
+//   verifier enforcement, OS release, provider hooks, or allocator replacement
+// State codes:
+// - 0 missing page/backing
+// - 1 active
+// - 2 retired
+// - 3 decommitted
+// - 4 recommitted-active
+
+box HakoAllocPageLifecycleInvariantReport {
+    status: i64 = 0
+    page_id: i64 = -1
+    state: i64 = 0
+    active: i64 = 0
+    retired: i64 = 0
+    decommitted: i64 = 0
+    recommitted: i64 = 0
+    acquire_allowed: i64 = 0
+    decommit_candidate: i64 = 0
+    recommit_required: i64 = 0
+    duplicate_decommit_blocked: i64 = 0
+    used: i64 = 0
+    free_count: i64 = 0
+    local_free_count: i64 = 0
+    marked_generations: i64 = 0
+    recommitted_generations: i64 = 0
+    backing_bytes: i64 = 0
+}
+
+box HakoAllocPageLifecycleInvariantObserver {
+    observe_count: i64 = 0
+    missing_count: i64 = 0
+    active_count: i64 = 0
+    retired_count: i64 = 0
+    decommitted_count: i64 = 0
+    recommitted_count: i64 = 0
+    last_page_id: i64 = -1
+    last_state: i64 = 0
+
+    report(status, page_id, state, active, retired, decommitted, recommitted, acquire_allowed, decommit_candidate, recommit_required, duplicate_decommit_blocked, used, free_count, local_free_count, marked_generations, recommitted_generations, backing_bytes) {
+        local result = new HakoAllocPageLifecycleInvariantReport()
+        result.status = status
+        result.page_id = page_id
+        result.state = state
+        result.active = active
+        result.retired = retired
+        result.decommitted = decommitted
+        result.recommitted = recommitted
+        result.acquire_allowed = acquire_allowed
+        result.decommit_candidate = decommit_candidate
+        result.recommit_required = recommit_required
+        result.duplicate_decommit_blocked = duplicate_decommit_blocked
+        result.used = used
+        result.free_count = free_count
+        result.local_free_count = local_free_count
+        result.marked_generations = marked_generations
+        result.recommitted_generations = recommitted_generations
+        result.backing_bytes = backing_bytes
+        return result
+    }
+
+    observeHeapPage(heap, page_id, marker) {
+        me.observe_count = me.observe_count + 1
+        me.last_page_id = page_id
+        me.last_state = 0
+
+        local backing = heap.backingFor(page_id)
+        if backing == null {
+            me.missing_count = me.missing_count + 1
+            return me.report(1, page_id, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        }
+
+        local page = heap.pages.get(page_id)
+        if page == null {
+            me.missing_count = me.missing_count + 1
+            return me.report(1, page_id, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, backing.bytes)
+        }
+
+        local marked = 0
+        local recommitted = 0
+        if marker != null {
+            marked = marker.countMarkedPage(page_id)
+            recommitted = marker.countRecommittedPage(page_id)
+        }
+
+        local decommitted = 0
+        if marked > recommitted {
+            decommitted = 1
+        }
+
+        local acquire_allowed = 0
+        if page.retired == 0 {
+            if decommitted == 0 {
+                if page.availableBlockCount() > 0 {
+                    acquire_allowed = 1
+                }
+            }
+        }
+
+        local decommit_candidate = 0
+        if page.used == 0 {
+            if page.retired != 0 {
+                if decommitted == 0 {
+                    decommit_candidate = 1
+                }
+            }
+        }
+
+        local state = 1
+        local active = 1
+        local retired = 0
+        local recommitted_active = 0
+        local recommit_required = 0
+        local duplicate_decommit_blocked = 0
+
+        if page.retired != 0 {
+            state = 2
+            active = 0
+            retired = 1
+        }
+
+        if decommitted != 0 {
+            state = 3
+            active = 0
+            retired = 0
+            recommit_required = 1
+            duplicate_decommit_blocked = 1
+        } else {
+            if marked > 0 {
+                if marked == recommitted {
+                    if page.retired == 0 {
+                        state = 4
+                        active = 1
+                        retired = 0
+                        recommitted_active = 1
+                    }
+                }
+            }
+        }
+
+        me.last_state = state
+        if state == 1 {
+            me.active_count = me.active_count + 1
+        }
+        if state == 2 {
+            me.retired_count = me.retired_count + 1
+        }
+        if state == 3 {
+            me.decommitted_count = me.decommitted_count + 1
+        }
+        if state == 4 {
+            me.recommitted_count = me.recommitted_count + 1
+        }
+
+        return me.report(0, page_id, state, active, retired, decommitted, recommitted_active, acquire_allowed, decommit_candidate, recommit_required, duplicate_decommit_blocked, page.used, page.freeCount(), page.localFreeCount(), marked, recommitted, backing.bytes)
+    }
+}

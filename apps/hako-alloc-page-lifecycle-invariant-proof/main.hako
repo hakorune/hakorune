@@ -1,0 +1,85 @@
+// hako-alloc-page-lifecycle-invariant-proof
+// Purpose: prove M207 page lifecycle invariant freeze.
+
+using selfhost.hako_alloc.memory.osvm_backed_fast_path_heap_box as HakoAllocOsVmBackedFastPathHeap
+using selfhost.hako_alloc.memory.page_lifecycle_invariant_box as HakoAllocPageLifecycleInvariant
+using selfhost.hako_alloc.memory.purge_recommit_heap_integration_box as HakoAllocRecommitHeapIntegration
+using selfhost.hako_alloc.memory.purge_state_aware_decommit_box as HakoAllocPurgeStateAwareDecommit
+
+static box Main {
+    main(args) {
+        local heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local decommit_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local recommit = new HakoAllocRecommitHeapIntegration(64)
+        local observer = new HakoAllocPageLifecycleInvariantObserver()
+
+        local page = heap.pages.get(0)
+        local s0 = observer.observeHeapPage(heap, page.page_id, decommit_guard.marker)
+        local active_decommit = decommit_guard.attemptHeapPage(heap, page.page_id)
+        local active_recommit = recommit.attemptHeapPage(heap, page.page_id, decommit_guard.marker)
+
+        local block0 = page.acquire(8)
+        local release0 = page.releaseLocal(block0)
+        local s1 = observer.observeHeapPage(heap, page.page_id, decommit_guard.marker)
+
+        local decommit0 = decommit_guard.attemptHeapPage(heap, page.page_id)
+        local duplicate0 = decommit_guard.attemptHeapPage(heap, page.page_id)
+        local blocked_acquire = page.acquire(8)
+        local s2 = observer.observeHeapPage(heap, page.page_id, decommit_guard.marker)
+
+        local recommit0 = recommit.attemptHeapPage(heap, page.page_id, decommit_guard.marker)
+        local s3 = observer.observeHeapPage(heap, page.page_id, decommit_guard.marker)
+
+        local block1 = page.acquire(8)
+        local release1 = page.releaseLocal(block1)
+        local decommit1 = decommit_guard.attemptHeapPage(heap, page.page_id)
+        local recommit1 = recommit.attemptHeapPage(heap, page.page_id, decommit_guard.marker)
+        local s4 = observer.observeHeapPage(heap, page.page_id, decommit_guard.marker)
+
+        local ok = check "m207 page lifecycle" {
+            "initial active": s0.state == 1
+            "initial acquire allowed": s0.acquire_allowed == 1
+            "active decommit rejected": active_decommit.status == 2
+            "active decommit no source": active_decommit.source_executed == 0
+            "active recommit rejected": active_recommit.status == 2
+            "active recommit no source": active_recommit.recommit_executed == 0
+            "release retired": release0 == 1
+            "retired state": s1.state == 2
+            "retired decommit candidate": s1.decommit_candidate == 1
+            "decommit success": decommit0.status == 0
+            "duplicate decommit rejected": duplicate0.status == 1
+            "duplicate no source": duplicate0.source_executed == 0
+            "decommitted acquire rejected": blocked_acquire == -1
+            "decommitted state": s2.state == 3
+            "decommitted requires recommit": s2.recommit_required == 1
+            "recommit success": recommit0.status == 0
+            "recommitted active state": s3.state == 4
+            "recommitted acquire allowed": s3.acquire_allowed == 1
+            "second generation recommit": recommit1.status == 0
+            "second generation state": s4.state == 4
+            "generation counts": s4.marked_generations == 2
+            "generation counts balanced": s4.recommitted_generations == 2
+            "page currently reusable": page.retired == 0
+            "no heap direct decommit": heap.decommit_count == 0
+        }
+
+        print("hako-alloc-page-lifecycle-invariant-proof")
+        print("states=" + s0.state + "," + s1.state + "," + s2.state + "," + s3.state + "," + s4.state)
+        print("active_rejects=" + active_decommit.status + "," + active_decommit.source_executed + "," + active_recommit.status + "," + active_recommit.recommit_executed)
+        print("decommit=" + decommit0.status + "," + duplicate0.status + "," + duplicate0.already_marked + "," + duplicate0.source_executed + "," + blocked_acquire)
+        print("recommit=" + recommit0.status + "," + recommit0.recommit_executed + "," + recommit0.page_reactivated + "," + recommit1.status + "," + recommit1.recommit_executed + "," + recommit1.page_reactivated)
+        print("generations=" + s4.marked_generations + "," + s4.recommitted_generations + "," + s4.decommitted + "," + s4.recommitted)
+        print("observer=" + observer.observe_count + "," + observer.active_count + "," + observer.retired_count + "," + observer.decommitted_count + "," + observer.recommitted_count + "," + observer.last_state)
+        print("page=" + page.used + "," + page.freeCount() + "," + page.localFreeCount() + "," + page.retired + "," + page.retire_count + "," + page.reactivate_count + "," + page.reject_count)
+        print("guards=" + decommit_guard.attempt_count + "," + decommit_guard.success_count + "," + decommit_guard.blocked_count + "," + decommit_guard.duplicate_block_count + "," + decommit_guard.source_execution_count + "," + recommit.attempt_count + "," + recommit.success_count + "," + recommit.blocked_count)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

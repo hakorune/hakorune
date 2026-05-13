@@ -26,6 +26,7 @@ memory.page_map_realloc_alloc_copy_release_box = "memory/page_map_realloc_alloc_
 memory.page_map_realloc_failure_contract_box = "memory/page_map_realloc_failure_contract_box.hako"
 memory.page_map_realloc_same_class_box = "memory/page_map_realloc_same_class_box.hako"
 memory.page_queue_box = "memory/page_queue_box.hako"
+memory.page_lifecycle_invariant_box = "memory/page_lifecycle_invariant_box.hako"
 memory.page_source_policy_box = "memory/page_source_policy_box.hako"
 memory.purge_bounded_decommit_box = "memory/purge_bounded_decommit_box.hako"
 memory.purge_decommit_state_marker_box = "memory/purge_decommit_state_marker_box.hako"

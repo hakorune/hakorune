@@ -216,6 +216,14 @@ the active `.hako` algorithm row.
 | `M204 recommit marker transition` | transition decommit marker state after successful recommit using generation counts | future recommit heap integration |
 | `M205 recommit heap integration` | compose recommit precondition/policy/adapter/marker transition and reactivate page-local state | reuse proof closeout |
 | `M206 reuse proof closeout` | prove the M199+M205 purge/recommit reuse loop for two marker generations without new allocator owners | post-closeout task selection |
+| `M207 page lifecycle invariant freeze` | name and prove the active/retired/decommitted/recommitted-active lifecycle table without new allocator behavior | C194b verifier-owned lifecycle invariants |
+| `C194b verifier-owned page lifecycle invariants` | move selected M207 lifecycle invariants into verifier-owned contracts | M208 heap reuse priority policy |
+| `M208 heap reuse priority policy` | define active/retired/recommitted/fresh selection priority without scheduler or OS release widening | lifecycle observability |
+| `M209 lifecycle stats observer surface` | expose read-only lifecycle event stats without behavior/options changes | EXE/backend hardening |
+| `M210 decommit/recommit/reuse EXE hardening` | keep lifecycle proof completion out of VM-only or silent fallback routes | purge candidate policy inventory |
+| `M211 purge candidate policy inventory` | classify future purge candidates after lifecycle invariants are frozen | bounded purge scheduler |
+| `M212 bounded purge/decommit scheduler small path` | scan a bounded page set and call existing decommit seams for one candidate | abandoned/reclaim inventory |
+| `M213 abandoned/reclaim inventory` | inventory thread/abandoned/reclaim vocabulary without threads, atomics expansion, or replacement | future row |
 
 Post-C205 phase split:
 
@@ -514,6 +522,24 @@ replacement closed.
 
 Post-M206 allocator task selection must be explicit; do not keep extending the
 purge/recommit closeout ladder without a new blocker.
+
+Post-M206 selected ladder:
+
+1. `M207 page lifecycle invariant freeze`
+2. `C194b verifier-owned page lifecycle invariants`
+3. `M208 heap reuse priority policy`
+4. `M209 lifecycle stats observer surface`
+5. `M210 decommit/recommit/reuse EXE hardening`
+6. `M211 purge candidate policy inventory`
+7. `M212 bounded purge/decommit scheduler small path`
+8. `M213 abandoned/reclaim inventory`
+
+M207 status:
+complete as `293x-251`. `HakoAllocPageLifecycleInvariantObserver` freezes the
+active/retired/decommitted/recommitted-active state vocabulary as a read-only
+observer over heap page/backing state and marker generations. It adds no
+allocation, release, decommit, recommit, reactivation, scheduler, OS release,
+provider, hook, or replacement behavior.
 
 ### Proof App Ergonomics Queue
 

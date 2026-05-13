@@ -24,6 +24,7 @@ Current modules
 - `page_map_realloc_failure_contract_box.hako`
 - `page_map_realloc_same_class_box.hako`
 - `page_queue_box.hako`
+- `page_lifecycle_invariant_box.hako`
 - `page_source_policy_box.hako`
 - `purge_bounded_decommit_box.hako`
 - `purge_dry_run_box.hako`
@@ -197,6 +198,11 @@ Syntax/style contract
   `HakoAllocPageModel.reactivate()` after successful recommit, but must not
   source pages, mutate heap/backing arrays, unreserve, release OSVM pages, or
   replace allocators.
+- `page_lifecycle_invariant_box.hako` owns M207 page lifecycle invariant
+  freeze. It may read heap page/backing state and marker generation counts to
+  classify active/retired/decommitted/recommitted-active states, but it must not
+  allocate, release, decommit, recommit, reactivate, source pages, unreserve,
+  release OSVM pages, or replace allocators.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
   huge-page metadata. C205c consumes aligned-small metadata through a

@@ -69,3 +69,10 @@ app = "apps/hako-alloc-reuse-proof-closeout-proof"
 label = "reuse proof closeout proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_reuse_proof_closeout_guard.sh"]
+
+[[proof_apps]]
+id = "M207"
+app = "apps/hako-alloc-page-lifecycle-invariant-proof"
+label = "page lifecycle invariant proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_page_lifecycle_invariant_guard.sh"]
