@@ -680,7 +680,7 @@ inference for the allocator release path.
   `docs/development/current/main/design/agent-current-entry-contract-ssot.md`
   so local `AGENTS.md` stays a current-first instruction entry while
   `CURRENT_STATE.toml` remains the current lane/blocker truth.
-- Next: M211 purge candidate policy inventory. M186 facade stats
+- Next: M212 bounded purge/decommit scheduler small path. M186 facade stats
   already landed as `294x-19e`, so future rows must not repeat exact usize
   facade work. M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.
@@ -720,9 +720,10 @@ Current execution order:
   recommit adapter, M204 recommit marker transition, M205 recommit heap
   integration, M206 reuse proof closeout, M207 page lifecycle invariant freeze,
   C194b verifier-owned page lifecycle invariants, M208 heap reuse priority
-  policy, M209 lifecycle stats observer surface, and M210
-  decommit/recommit/reuse EXE hardening are complete. Next row is M211 purge
-  candidate policy inventory.
+  policy, M209 lifecycle stats observer surface, M210
+  decommit/recommit/reuse EXE hardening, and M211 purge candidate policy
+  inventory are complete. Next row is M212 bounded purge/decommit scheduler
+  small path.
 7. `D195-D200`: refresh SSOT/guards at milestones, not after every tiny row.
    `D195`, `D196`, the D197 row guard manifest pilot, the D198 proof app
    runner pilot, the D199 manifest runner library cleanup, and the D200 agent

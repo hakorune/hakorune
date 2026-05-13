@@ -1,0 +1,121 @@
+// hako-alloc-purge-candidate-policy-inventory-proof
+// Purpose: prove the M211 purge candidate policy inventory surface.
+
+using selfhost.hako_alloc.memory.purge_candidate_policy_box as HakoAllocPurgeCandidatePolicy
+
+box M211LifecycleReportFixture {
+    status: i64 = 0
+    page_id: i64 = -1
+    state: i64 = 0
+    active: i64 = 0
+    retired: i64 = 0
+    decommitted: i64 = 0
+    recommitted: i64 = 0
+    acquire_allowed: i64 = 0
+    decommit_candidate: i64 = 0
+    recommit_required: i64 = 0
+    duplicate_decommit_blocked: i64 = 0
+    used: i64 = 0
+    free_count: i64 = 0
+    local_free_count: i64 = 0
+    marked_generations: i64 = 0
+    recommitted_generations: i64 = 0
+    backing_bytes: i64 = 0
+}
+
+box M211LifecycleReportFactory {
+    report(status, page_id, state, active, retired, decommitted, recommitted, acquire_allowed, decommit_candidate, recommit_required, duplicate_decommit_blocked, used, free_count, local_free_count, marked_generations, recommitted_generations, backing_bytes) {
+        local result = new M211LifecycleReportFixture()
+        result.status = status
+        result.page_id = page_id
+        result.state = state
+        result.active = active
+        result.retired = retired
+        result.decommitted = decommitted
+        result.recommitted = recommitted
+        result.acquire_allowed = acquire_allowed
+        result.decommit_candidate = decommit_candidate
+        result.recommit_required = recommit_required
+        result.duplicate_decommit_blocked = duplicate_decommit_blocked
+        result.used = used
+        result.free_count = free_count
+        result.local_free_count = local_free_count
+        result.marked_generations = marked_generations
+        result.recommitted_generations = recommitted_generations
+        result.backing_bytes = backing_bytes
+        return result
+    }
+}
+
+static box Main {
+    main(args) {
+        local factory = new M211LifecycleReportFactory()
+        local policy = new HakoAllocPurgeCandidatePolicyInventory()
+
+        local null_decision = policy.classifyLifecycleReport(null)
+        local missing_report = factory.report(1, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local missing = policy.classifyLifecycleReport(missing_report)
+        local active_report = factory.report(0, 10, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 4096)
+        local active = policy.classifyLifecycleReport(active_report)
+        local retired_busy_report = factory.report(0, 20, 2, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 4096)
+        local retired_busy = policy.classifyLifecycleReport(retired_busy_report)
+        local ready_report = factory.report(0, 30, 2, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 4096)
+        local ready = policy.classifyLifecycleReport(ready_report)
+        local decommitted_report = factory.report(0, 40, 3, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 4096)
+        local decommitted = policy.classifyLifecycleReport(decommitted_report)
+        local recommitted_report = factory.report(0, 50, 4, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 4096)
+        local recommitted = policy.classifyLifecycleReport(recommitted_report)
+
+        local ok = check "m211 purge candidate policy inventory" {
+            "null reject": null_decision.eligible == 0
+            "null reason": null_decision.reason == 1
+            "missing reject": missing.reason == 2
+            "active reject": active.reason == 3
+            "retired busy reject": retired_busy.reason == 6
+            "ready eligible": ready.eligible == 1
+            "ready reason": ready.reason == 0
+            "ready state": ready.lifecycle_state == 2
+            "ready backing": ready.has_backing == 1
+            "decommitted reject": decommitted.reason == 4
+            "decommitted requires recommit": decommitted.recommit_required == 1
+            "decommitted duplicate blocked": decommitted.duplicate_decommit_blocked == 1
+            "recommitted reject": recommitted.reason == 5
+            "schedule inactive": ready.would_schedule_decommit == 0
+            "decommit inactive": ready.would_decommit == 0
+            "recommit inactive": decommitted.would_recommit == 0
+            "unreserve inactive": ready.would_unreserve == 0
+            "os release inactive": ready.would_release_osvm == 0
+            "classify count": policy.classify_count == 7
+            "candidate count": policy.candidate_count == 1
+            "reject count": policy.reject_count == 6
+            "null count": policy.null_reject_count == 1
+            "missing count": policy.missing_reject_count == 1
+            "active count": policy.active_reject_count == 1
+            "decommitted count": policy.decommitted_reject_count == 1
+            "recommitted count": policy.recommitted_reject_count == 1
+            "not candidate count": policy.not_candidate_reject_count == 1
+            "last page": policy.last_page_id == 50
+            "last reason": policy.last_reason == 5
+        }
+
+        print("hako-alloc-purge-candidate-policy-inventory-proof")
+        print("null=" + null_decision.eligible + "," + null_decision.reason + "," + null_decision.page_id + "," + null_decision.lifecycle_state)
+        print("missing=" + missing.eligible + "," + missing.reason + "," + missing.page_id + "," + missing.has_backing)
+        print("active=" + active.eligible + "," + active.reason + "," + active.page_id + "," + active.lifecycle_state + "," + active.active)
+        print("retired_busy=" + retired_busy.eligible + "," + retired_busy.reason + "," + retired_busy.page_id + "," + retired_busy.decommit_candidate)
+        print("ready=" + ready.eligible + "," + ready.reason + "," + ready.page_id + "," + ready.lifecycle_state + "," + ready.decommit_candidate + "," + ready.backing_bytes)
+        print("decommitted=" + decommitted.eligible + "," + decommitted.reason + "," + decommitted.page_id + "," + decommitted.lifecycle_state + "," + decommitted.recommit_required + "," + decommitted.duplicate_decommit_blocked)
+        print("recommitted=" + recommitted.eligible + "," + recommitted.reason + "," + recommitted.page_id + "," + recommitted.lifecycle_state + "," + recommitted.recommitted)
+        print("would=" + ready.would_schedule_decommit + "," + ready.would_decommit + "," + decommitted.would_recommit + "," + ready.would_unreserve + "," + ready.would_release_osvm)
+        print("counts=" + policy.classify_count + "," + policy.candidate_count + "," + policy.reject_count + "," + policy.null_reject_count + "," + policy.missing_reject_count + "," + policy.active_reject_count + "," + policy.decommitted_reject_count + "," + policy.recommitted_reject_count + "," + policy.not_candidate_reject_count + "," + policy.last_page_id + "," + policy.last_reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

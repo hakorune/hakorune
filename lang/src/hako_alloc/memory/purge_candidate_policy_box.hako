@@ -1,0 +1,141 @@
+// purge_candidate_policy_box.hako -- M211 purge candidate policy inventory
+// Responsibility:
+// - classify future purge candidates from already-frozen M207 lifecycle reports
+// - keep scheduler, decommit, recommit, page-source calls, and OS release out
+// Non-responsibility:
+// - observing heap pages, scanning queues, mutating marker/page/heap state, or
+//   executing decommit/recommit
+
+box HakoAllocPurgeCandidateDecision {
+    eligible: i64 = 0
+    reason: i64 = 0
+    page_id: i64 = -1
+    lifecycle_state: i64 = 0
+    active: i64 = 0
+    retired: i64 = 0
+    decommitted: i64 = 0
+    recommitted: i64 = 0
+    decommit_candidate: i64 = 0
+    recommit_required: i64 = 0
+    duplicate_decommit_blocked: i64 = 0
+    has_backing: i64 = 0
+    backing_bytes: i64 = 0
+    marked_generations: i64 = 0
+    recommitted_generations: i64 = 0
+    would_schedule_decommit: i64 = 0
+    would_decommit: i64 = 0
+    would_recommit: i64 = 0
+    would_unreserve: i64 = 0
+    would_release_osvm: i64 = 0
+}
+
+box HakoAllocPurgeCandidatePolicyInventory {
+    classify_count: i64 = 0
+    candidate_count: i64 = 0
+    reject_count: i64 = 0
+    null_reject_count: i64 = 0
+    missing_reject_count: i64 = 0
+    active_reject_count: i64 = 0
+    decommitted_reject_count: i64 = 0
+    recommitted_reject_count: i64 = 0
+    not_candidate_reject_count: i64 = 0
+    last_page_id: i64 = -1
+    last_reason: i64 = 0
+
+    decision(eligible, reason, page_id, lifecycle_state, active, retired, decommitted, recommitted, decommit_candidate, recommit_required, duplicate_decommit_blocked, has_backing, backing_bytes, marked_generations, recommitted_generations) {
+        local result = new HakoAllocPurgeCandidateDecision()
+        result.eligible = eligible
+        result.reason = reason
+        result.page_id = page_id
+        result.lifecycle_state = lifecycle_state
+        result.active = active
+        result.retired = retired
+        result.decommitted = decommitted
+        result.recommitted = recommitted
+        result.decommit_candidate = decommit_candidate
+        result.recommit_required = recommit_required
+        result.duplicate_decommit_blocked = duplicate_decommit_blocked
+        result.has_backing = has_backing
+        result.backing_bytes = backing_bytes
+        result.marked_generations = marked_generations
+        result.recommitted_generations = recommitted_generations
+        return result
+    }
+
+    reject(reason, report, has_backing) {
+        me.reject_count = me.reject_count + 1
+        me.last_reason = reason
+
+        if reason == 1 {
+            me.null_reject_count = me.null_reject_count + 1
+            me.last_page_id = -1
+            return me.decision(0, reason, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        }
+
+        me.last_page_id = report.page_id
+        if reason == 2 {
+            me.missing_reject_count = me.missing_reject_count + 1
+        }
+        if reason == 3 {
+            me.active_reject_count = me.active_reject_count + 1
+        }
+        if reason == 4 {
+            me.decommitted_reject_count = me.decommitted_reject_count + 1
+        }
+        if reason == 5 {
+            me.recommitted_reject_count = me.recommitted_reject_count + 1
+        }
+        if reason == 6 {
+            me.not_candidate_reject_count = me.not_candidate_reject_count + 1
+        }
+
+        return me.decision(0, reason, report.page_id, report.state, report.active, report.retired, report.decommitted, report.recommitted, report.decommit_candidate, report.recommit_required, report.duplicate_decommit_blocked, has_backing, report.backing_bytes, report.marked_generations, report.recommitted_generations)
+    }
+
+    classifyLifecycleReport(report) {
+        me.classify_count = me.classify_count + 1
+
+        if report == null {
+            return me.reject(1, report, 0)
+        }
+
+        local has_backing = 0
+        if report.backing_bytes > 0 {
+            has_backing = 1
+        }
+
+        if report.status != 0 {
+            return me.reject(2, report, has_backing)
+        }
+
+        if has_backing == 0 {
+            return me.reject(2, report, has_backing)
+        }
+
+        if report.decommitted != 0 {
+            return me.reject(4, report, has_backing)
+        }
+
+        if report.recommitted != 0 {
+            return me.reject(5, report, has_backing)
+        }
+
+        if report.active != 0 {
+            return me.reject(3, report, has_backing)
+        }
+
+        if report.retired == 0 {
+            return me.reject(6, report, has_backing)
+        }
+
+        if report.decommit_candidate == 0 {
+            return me.reject(6, report, has_backing)
+        }
+
+        me.candidate_count = me.candidate_count + 1
+        me.last_page_id = report.page_id
+        me.last_reason = 0
+        return me.decision(1, 0, report.page_id, report.state, report.active, report.retired, report.decommitted, report.recommitted, report.decommit_candidate, report.recommit_required, report.duplicate_decommit_blocked, has_backing, report.backing_bytes, report.marked_generations, report.recommitted_generations)
+    }
+}
+

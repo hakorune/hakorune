@@ -568,6 +568,15 @@ two marker generations plus lifecycle/reuse/stats observation without adding a
 new allocator owner, VM-only completion, provider/hook behavior, unreserve, or
 OS release.
 
+M211 status:
+complete as `293x-257`. M211 adds
+`HakoAllocPurgeCandidatePolicyInventory`, a read-only classifier over already
+built M207 lifecycle reports. It inventories future purge candidates after the
+lifecycle vocabulary is frozen without observing heap pages, scanning queues,
+scheduling purge work, decommitting, recommitting, calling page-source APIs,
+mutating allocator state, unreserving, releasing OSVM pages, or widening
+provider/backend behavior.
+
 ### Proof App Ergonomics Queue
 
 These rows improve proof readability without changing allocator semantics.

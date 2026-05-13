@@ -33,6 +33,7 @@ Current modules
 - `purge_execution_box.hako`
 - `purge_heap_decommit_box.hako`
 - `purge_page_source_decommit_adapter_box.hako`
+- `purge_candidate_policy_box.hako`
 - `purge_policy_box.hako`
 - `remote_free_page_integration_box.hako`
 - `refcell_box.hako`
@@ -215,6 +216,11 @@ Syntax/style contract
   priority policy counters, but it must not trigger observation/selection,
   mutate heap/page/marker/page-source state, add mutable options, or replace
   allocators.
+- `purge_candidate_policy_box.hako` owns M211 purge candidate policy inventory.
+  It may classify already-built M207 lifecycle reports as future purge
+  candidates, but it must not observe heap pages, scan queues, schedule purge,
+  decommit, recommit, call page-source APIs, mutate heap/page/marker state,
+  unreserve, release OSVM pages, or replace allocators.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
   huge-page metadata. C205c consumes aligned-small metadata through a
