@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-05-12
+Date: 2026-05-13
 Scope: 再起動直後に 2-5 分で current lane に戻るための最短手順。
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x packed ArrayBox auto-use pilot`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `M191 hako_alloc stats/options surface`
+- current blocker token: `M192 purge/decommit policy inventory`
 - record / packed ArrayBox SSOT:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
@@ -44,7 +44,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `M191 hako_alloc stats/options surface`
+- current blocker token: `M192 purge/decommit policy inventory`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -55,7 +55,7 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` from M191 hako_alloc stats/options surface.
+- continue `phase-293x` from M192 purge/decommit policy inventory.
   C207 emits `array_record_autouse_eligibility_plans`, C208 emits
   `array_record_materialization_boundary_plans`, and C209 emits
   `array_record_packed_autouse_pilot_plans` plus crate-private i64 column seams.
@@ -64,8 +64,9 @@ cargo check -q
   `hako_alloc_huge_page_packed_store_pilot_plans` while preserving
   live/sentinel contracts. C212 adds the shared MIR backend capability gate and
   packed record fail-fast checker. C194 moves C210/C211 hako_alloc metadata
-  invariants into MIR verification. Visible record materialization and packed
-  record backend lowering remain closed.
+  invariants into MIR verification. M191 adds allocator-owned stats snapshots
+  without mutable options or behavior changes. Visible record materialization
+  and packed record backend lowering remain closed.
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed with `real-apps` smoke coverage

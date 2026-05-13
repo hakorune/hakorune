@@ -12,9 +12,11 @@
 using selfhost.hako_alloc.memory.page_source_policy_box as HakoAllocPageSourcePolicy
 using selfhost.hako_alloc.memory.page_heap_box as HakoAllocPageHeap
 using selfhost.hako_alloc.memory.remote_free_policy_box as HakoAllocRemoteFreePolicy
+using selfhost.hako_alloc.memory.stats_box as HakoAllocStats
 
 box HakoAllocProductionFacade {
     heap: HakoAllocHeap = new HakoAllocHeap()
+    stats_surface: HakoAllocStatsSurface = new HakoAllocStatsSurface()
     alloc_count: usize = 0
     free_count: usize = 0
     reject_count: usize = 0
@@ -86,6 +88,26 @@ box HakoAllocProductionFacade {
 
     mediumPeakUsed() {
         return me.heap.medium_page.peak_used
+    }
+
+    statsSnapshot() {
+        return me.stats_surface.snapshot(
+            me.alloc_count,
+            me.free_count,
+            me.reject_count,
+            me.requestedBytes(),
+            me.outstandingBlocks(),
+            me.smallAllocCount(),
+            me.smallReleaseCount(),
+            me.smallReuseCount(),
+            me.smallPeakUsed(),
+            me.smallFreeCount(),
+            me.mediumAllocCount(),
+            me.mediumReleaseCount(),
+            me.mediumReuseCount(),
+            me.mediumPeakUsed(),
+            me.mediumFreeCount()
+        )
     }
 
     remoteInitHead(head_cell) {

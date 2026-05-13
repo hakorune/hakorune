@@ -6,20 +6,20 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-05-12"
+date = "2026-05-13"
 
 active_lane = "phase-293x packed ArrayBox auto-use pilot"
-active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, and C194 verifier-owned allocation invariants are complete. Visible record materialization and packed record backend lowering remain closed. Next row is M191 hako_alloc stats/options surface. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants are complete, and M191 hako_alloc stats surface is complete. Visible record materialization and packed record backend lowering remain closed. Next row is M192 purge/decommit policy inventory. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-230-C194-VERIFIER-OWNED-ALLOCATION-INVARIANTS.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-231-M191-HAKO-ALLOC-STATS-SURFACE.md"
 method_anchor = "docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-230-C194-VERIFIER-OWNED-ALLOCATION-INVARIANTS"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-230-C194-VERIFIER-OWNED-ALLOCATION-INVARIANTS.md"
-latest_card_summary = "293x-230 completes C194 verifier-owned allocation invariants: MIR verification now checks C210/C211 hako_alloc metadata rows for source pilot presence, integer-lane layouts, fixed columns, materialization closure, and huge-page released sentinels."
+latest_card = "293x-231-M191-HAKO-ALLOC-STATS-SURFACE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-231-M191-HAKO-ALLOC-STATS-SURFACE.md"
+latest_card_summary = "293x-231 completes M191 hako_alloc stats surface: HakoAllocProductionFacade now exposes statsSnapshot() through a separate HakoAllocStatsSurface owner without mutable options or allocator behavior changes."
 
-current_blocker_token = "M191 hako_alloc stats/options surface"
+current_blocker_token = "M192 purge/decommit policy inventory"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

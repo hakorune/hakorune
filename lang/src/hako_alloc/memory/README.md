@@ -29,6 +29,7 @@ Current modules
 - `refcell_box.hako`
 - `remote_free_policy_box.hako`
 - `size_class_box.hako`
+- `stats_box.hako`
 - `usize_field_probe_box.hako`
 
 Syntax/style contract
@@ -125,6 +126,10 @@ Syntax/style contract
 - `secure_free_list_policy_box.hako` owns M184 secure-list encoded-next policy.
   It may encode/decode next indices and validate decoded capacity, but it must
   not source entropy, mutate page state, or claim hardening policy.
+- `stats_box.hako` owns M191 allocator stats snapshots. It may construct a
+  read-only `HakoAllocStatsSnapshot` from existing facade/page observers, but
+  it must not mutate allocator options, add environment toggles, source
+  purge/decommit, or change allocation behavior.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
   huge-page metadata. C205c consumes aligned-small metadata through a

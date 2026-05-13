@@ -1,0 +1,38 @@
+// hako-alloc-stats-surface-proof
+// Purpose: prove the M191 allocator stats surface snapshot.
+
+using selfhost.hako_alloc.memory.allocator_facade_box as HakoAllocFacade
+
+static box Main {
+    main(args) {
+        local alloc = new HakoAllocProductionFacade()
+
+        local h1 = alloc.allocate(8)
+        local h2 = alloc.allocate(48)
+        local h3 = alloc.allocate(80)
+
+        local release_h1 = alloc.release(h1)
+        local h4 = alloc.allocate(16)
+        local release_h3 = alloc.release(h3)
+
+        local shape = 0
+        if h1 != null { shape = shape + 1 }
+        if h2 != null { shape = shape + 1 }
+        if h3 == null { shape = shape + 1 }
+        if release_h1 == 1 { shape = shape + 1 }
+        if h4 != null { shape = shape + 1 }
+        if release_h3 == 0 { shape = shape + 1 }
+
+        local stats = alloc.statsSnapshot()
+
+        print("hako-alloc-stats-surface-proof")
+        print("shape=" + shape)
+        print("facade=" + alloc.alloc_count + "," + alloc.free_count + "," + alloc.reject_count)
+        print("snapshot=" + stats.allocation_count + "," + stats.release_count + "," + stats.reject_count + "," + stats.requested_bytes + "," + stats.outstanding_blocks)
+        print("page=" + stats.small_alloc_count + "," + stats.medium_alloc_count + "," + stats.small_free_count + "," + stats.medium_free_count)
+        print("totals=" + stats.totalPageAllocCount() + "," + stats.totalPageReleaseCount() + "," + stats.totalFreeCount())
+
+        print("summary=ok")
+        return 0
+    }
+}

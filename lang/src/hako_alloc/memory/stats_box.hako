@@ -1,0 +1,75 @@
+// stats_box.hako -- M191 hako_alloc stats surface owner
+// Responsibility:
+// - construct allocator-owned stats snapshots from existing facade/page observers
+// - keep stats read-only and allocation-behavior neutral
+// Non-responsibility:
+// - allocator options, environment toggles, purge/decommit, provider hooks, or
+//   process allocator replacement
+
+box HakoAllocStatsSnapshot {
+    allocation_count: i64 = 0
+    release_count: i64 = 0
+    reject_count: i64 = 0
+    requested_bytes: i64 = 0
+    outstanding_blocks: i64 = 0
+    small_alloc_count: i64 = 0
+    small_release_count: i64 = 0
+    small_reuse_count: i64 = 0
+    small_peak_used: i64 = 0
+    small_free_count: i64 = 0
+    medium_alloc_count: i64 = 0
+    medium_release_count: i64 = 0
+    medium_reuse_count: i64 = 0
+    medium_peak_used: i64 = 0
+    medium_free_count: i64 = 0
+
+    totalPageAllocCount() {
+        return me.small_alloc_count + me.medium_alloc_count
+    }
+
+    totalPageReleaseCount() {
+        return me.small_release_count + me.medium_release_count
+    }
+
+    totalFreeCount() {
+        return me.small_free_count + me.medium_free_count
+    }
+}
+
+box HakoAllocStatsSurface {
+    snapshot(
+        allocation_count,
+        release_count,
+        reject_count,
+        requested_bytes,
+        outstanding_blocks,
+        small_alloc_count,
+        small_release_count,
+        small_reuse_count,
+        small_peak_used,
+        small_free_count,
+        medium_alloc_count,
+        medium_release_count,
+        medium_reuse_count,
+        medium_peak_used,
+        medium_free_count
+    ) {
+        local stats = new HakoAllocStatsSnapshot()
+        stats.allocation_count = allocation_count
+        stats.release_count = release_count
+        stats.reject_count = reject_count
+        stats.requested_bytes = requested_bytes
+        stats.outstanding_blocks = outstanding_blocks
+        stats.small_alloc_count = small_alloc_count
+        stats.small_release_count = small_release_count
+        stats.small_reuse_count = small_reuse_count
+        stats.small_peak_used = small_peak_used
+        stats.small_free_count = small_free_count
+        stats.medium_alloc_count = medium_alloc_count
+        stats.medium_release_count = medium_release_count
+        stats.medium_reuse_count = medium_reuse_count
+        stats.medium_peak_used = medium_peak_used
+        stats.medium_free_count = medium_free_count
+        return stats
+    }
+}

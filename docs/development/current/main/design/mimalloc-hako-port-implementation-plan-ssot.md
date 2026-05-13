@@ -200,6 +200,7 @@ the active `.hako` algorithm row.
 | `C211 huge-page metadata packed-store pilot` | extend the packed-store pilot to huge-page metadata while preserving live/sentinel semantics | verifier/backend hardening |
 | `C212 packed record backend fail-fast hardening` | keep unsupported packed record routes fail-fast rather than silently falling back | allocator algorithm rows after packed storage |
 | `C194 verifier-owned allocation invariants` | move C210/C211 metadata row invariants into MIR verifier-owned contracts | M191 allocator-owned stats/options surface |
+| `M191 hako_alloc stats surface` | add allocator-owned stats snapshot observability without mutable options or behavior changes | purge/decommit policy inventory |
 
 Post-C205 phase split:
 
@@ -367,6 +368,12 @@ integer-lane backing layouts, fixed metadata column order, materialization
 closure, and huge-page released sentinels without changing hako_alloc runtime
 behavior or enabling backend lowering.
 
+M191 status:
+complete as `293x-231`. M191 adds `HakoAllocStatsSurface`,
+`HakoAllocStatsSnapshot`, and `HakoAllocProductionFacade.statsSnapshot()`.
+The row is stats-first: mutable options, env toggles, purge/decommit, provider
+activation, hooks, and process allocator replacement remain out of scope.
+
 ### Docs / Guard Checkpoints
 
 | Row | Goal | Trigger |
@@ -397,8 +404,8 @@ M189 object-return allocator API parity is complete in
 `docs/development/current/main/phases/phase-293x/293x-200-M189-OBJECT-RETURN-ALLOCATOR-API.md`.
 M190 nullable/failure handle contract is complete in
 `docs/development/current/main/phases/phase-293x/293x-201-M190-NULLABLE-FAILURE-HANDLE-CONTRACT.md`.
-No M191 allocator API row is scheduled until a concrete stats/options or
-algorithm row needs it.
+Next allocator algorithm row is M192 purge/decommit policy inventory. Keep it
+policy/inventory-only until a later row explicitly opens OSVM release behavior.
 
 ### Proof App Ergonomics Queue
 

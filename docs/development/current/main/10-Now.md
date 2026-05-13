@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-05-12
+Date: 2026-05-13
 Scope: current lane / blocker / next pointer only.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -26,13 +26,13 @@ Related:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `M191 hako_alloc stats/options surface`
+- current blocker token: `M192 purge/decommit policy inventory`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x from M191 hako_alloc stats/options surface
+- continue phase-293x from M192 purge/decommit policy inventory
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed
@@ -46,8 +46,9 @@ Related:
   `hako_alloc_huge_page_packed_store_pilot_plans` while preserving
   live/sentinel contracts. C212 adds the shared MIR backend capability gate and
   packed record fail-fast checker. C194 moves C210/C211 hako_alloc metadata
-  invariants into MIR verification. Visible record materialization and packed
-  record backend lowering remain closed.
+  invariants into MIR verification. M191 adds allocator-owned stats snapshots
+  without mutable options or behavior changes. Visible record materialization
+  and packed record backend lowering remain closed.
 - typed-object EXE allocation plus slot `field_set` / `field_get` now covers
   declared i64 fields, init-only untyped fields, handle storage, and observed
   empty user boxes, nullable handle storage through same-module RuntimeDataBox

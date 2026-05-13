@@ -1,7 +1,7 @@
 ---
 Status: Provisional SSOT
 Decision: provisional
-Date: 2026-05-12
+Date: 2026-05-13
 Scope: `record` surface semantics, ordinary `box` boundary, and the implementation order for packed/local aggregate lowering.
 Related:
   - CURRENT_TASK.md
@@ -260,6 +260,9 @@ Status:
   hako_alloc metadata invariants, covering source pilot presence, integer-lane
   backing layouts, column order, materialization closure, and huge-page released
   sentinels.
+- `M191` is complete as `293x-231`: it returns to hako_alloc observability with
+  a separate stats owner and facade snapshot method. It does not change record
+  materialization or packed record backend lowering.
 
 ## C207 Eligibility Gate
 

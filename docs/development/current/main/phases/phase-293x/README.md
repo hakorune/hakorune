@@ -591,11 +591,14 @@ inference for the allocator release path.
   verifier owner for C210/C211 hako_alloc metadata rows so malformed source
   pilots, column order, materialization flags, and huge-page released sentinels
   fail before later allocator rows can consume them.
-- Next: M191 hako_alloc stats/options surface. M186 facade stats already landed
-  as `294x-19e`, so M191 should focus on allocator-owned stats/options
-  observability rather than repeating exact usize facade work. M104 is next only
-  if the optional allocator-provider host-replacement ladder is explicitly
-  reopened.
+- `293x-231`: M191 hako_alloc stats surface landed, adding
+  `HakoAllocStatsSurface` / `HakoAllocStatsSnapshot` and
+  `HakoAllocProductionFacade.statsSnapshot()` without changing allocator
+  behavior or adding mutable options.
+- Next: M192 purge/decommit policy inventory. M186 facade stats already landed
+  as `294x-19e`, so future rows must not repeat exact usize facade work. M104
+  is next only if the optional allocator-provider host-replacement ladder is
+  explicitly reopened.
 
 ## Mimalloc Port Roadmap Snapshot
 
@@ -622,7 +625,10 @@ Current execution order:
    pilot, and backend fail-fast hardening. `C207-C212` are complete.
 5. `C191-C194`: run compiler/backend hardening only when it does not collide
    with the active `.hako` row. `C194` is complete.
-6. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.
+6. `M191+`: return to allocator-owned observability/policy rows. M191 stats
+   surface is complete; purge/decommit policy inventory is the next safe
+   allocator row.
+7. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.
    `D195` and `D196` are complete; `C206+` cleanup/probe guards stay
    local-run/index-listed unless a card names a production stop line for
    promotion.
