@@ -5,6 +5,7 @@ Date: 2026-05-14
 Scope: Minimal canonical Hakorune language surface for low-level and selfhost work.
 Related:
   - docs/development/current/main/design/delegation-no-inheritance-ssot.md
+  - docs/development/current/main/design/language-minimal-surface-task-breakdown-ssot.md
   - docs/development/current/main/design/stage0-stage1-feature-responsibility-split-ssot.md
   - docs/development/current/main/design/language-feature-implementation-order-ssot.md
   - docs/reference/boxes-system/delegation-system.md

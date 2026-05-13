@@ -11,13 +11,13 @@ date = "2026-05-14"
 active_lane = "phase-293x packed ArrayBox auto-use pilot"
 active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants is complete, M191-M211 hako_alloc stats/purge/recommit/reuse/lifecycle priority rows are complete, C194b verifier-owned page lifecycle invariants is complete, D197-D199 guard/proof manifest runner pilots are complete, D200 agent current-entry docs are refreshed, and D201 language minimal surface / feature task order SSOT is complete. Visible record materialization and packed record backend lowering remain closed. Next selected row is M212 bounded purge/decommit scheduler small path. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-257-M211-PURGE-CANDIDATE-POLICY-INVENTORY.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-258-D202-LANGUAGE-TASK-BREAKDOWN.md"
 method_anchor = "docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-257-M211-PURGE-CANDIDATE-POLICY-INVENTORY"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-257-M211-PURGE-CANDIDATE-POLICY-INVENTORY.md"
-latest_card_summary = "293x-257 completes M211 purge candidate policy inventory: lifecycle reports are classified read-only after M207/M210 without scheduler, decommit, recommit, page-source, OS release, provider, or backend widening."
+latest_card = "293x-258-D202-LANGUAGE-TASK-BREAKDOWN"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-258-D202-LANGUAGE-TASK-BREAKDOWN.md"
+latest_card_summary = "293x-258 completes D202 language task breakdown: the loop-only, no-inheritance delegation, brand/type, record, contract, transition, generic, capability, and module discussions are preserved as parked task-sized backlog rows while M212 remains current."
 
 current_blocker_token = "M212 bounded purge/decommit scheduler small path"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -243,4 +243,5 @@ landed_tail = [
   "293x-255 M210 decommit/recommit/reuse EXE hardening landed",
   "293x-256 D201 language minimal surface, no-inheritance delegation, and feature task order SSOT landed",
   "293x-257 M211 purge candidate policy inventory landed",
+  "293x-258 D202 language task breakdown landed",
 ]

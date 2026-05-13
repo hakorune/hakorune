@@ -5,6 +5,7 @@ Date: 2026-05-14
 Scope: Durable implementation order for low-level Hakorune language features.
 Related:
   - docs/development/current/main/design/language-minimal-surface-ssot.md
+  - docs/development/current/main/design/language-minimal-surface-task-breakdown-ssot.md
   - docs/development/current/main/design/delegation-no-inheritance-ssot.md
   - docs/development/current/main/design/stage0-stage1-feature-responsibility-split-ssot.md
   - docs/reference/language/low-level-capabilities.md
@@ -24,6 +25,12 @@ The minimal canonical surface is:
 
 ```text
 docs/development/current/main/design/language-minimal-surface-ssot.md
+```
+
+The task-sized backlog is:
+
+```text
+docs/development/current/main/design/language-minimal-surface-task-breakdown-ssot.md
 ```
 
 The companion ownership map is:
