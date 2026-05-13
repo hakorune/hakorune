@@ -177,6 +177,7 @@ work.
 Continue:
 
 - mimalloc `.hako` algorithm slices;
+- internal read-only `hako_alloc` inventory surfaces for options/defaults and owner-token facts;
 - `hako_alloc` policy/state/facade ownership;
 - `RawBuf` / `RawArray` proof-backed substrate use;
 - size-class static tables;
@@ -184,6 +185,8 @@ Continue:
 - TLS cache-slot and atomic remote-free proofs;
 - OSVM page-source proofs;
 - EXE / pure-first proof apps.
+
+M214/M215 note: options/defaults inventory and thread heap owner-token inventory are internal read-only `hako_alloc` surfaces. They do not add user syntax, environment variables, mutable runtime options, allocation policy changes, provider activation, hooks, process allocator replacement, scheduling, atomics, or reclaim execution.
 
 Stop by default:
 

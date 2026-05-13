@@ -1,3 +1,5 @@
+Legacy status: This page is historical. It describes the old `from` / `override` delegation proposal and is not the canonical language surface. Current accepted direction is no inheritance plus explicit `delegate field exposes { ... }`; the Stage0 parser/metadata capsule is accepted, while forwarding semantics remain a Stage1 row.
+
 # 🔄 Nyash デリゲーションシステム
 
 ## 📋 概要

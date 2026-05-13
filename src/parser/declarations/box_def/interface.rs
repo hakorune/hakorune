@@ -126,6 +126,7 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
         constructors: HashMap::new(), // インターフェースにコンストラクタなし
         init_fields: vec![],          // インターフェースにinitブロックなし
         weak_fields: vec![],          // インターフェースにweak fieldsなし
+        delegates: vec![],
         is_interface: true,           // インターフェースフラグ
         is_record: false,
         extends: vec![], // Multi-delegation: None → vec![] として表現

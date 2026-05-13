@@ -121,6 +121,7 @@ fn test_mir_phase6_lowering_ref_ops() {
         constructors: HashMap::new(),
         init_fields: vec![],
         weak_fields: vec![],
+        delegates: vec![],
         is_interface: false,
         is_record: false,
         extends: vec![],

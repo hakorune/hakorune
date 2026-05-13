@@ -186,7 +186,14 @@ impl NyashParser {
         })
     }
 
-    /// Parse loop statement (legacy `loop`).
+    /// Parse loop statement.
+    ///
+    /// Supported header shapes:
+    /// - `loop { ... }`
+    /// - `loop(cond) { ... }`
+    /// - `loop cond { ... }`
+    /// - `loop i in start..end { ... }`
+    /// - `loop(i in start..end) { ... }`
     pub(super) fn parse_loop(&mut self) -> Result<ASTNode, ParseError> {
         if super::helpers::cursor_enabled() {
             let mut cursor = TokenCursor::new(&self.tokens);
@@ -196,21 +203,55 @@ impl NyashParser {
         }
         self.advance(); // consume 'loop'
 
-        // Parse optional condition: loop(condition) or loop { ... }
-        let condition = if self.match_token(&TokenType::LPAREN) {
-            self.advance(); // consume '('
-            let cond = Box::new(self.parse_expression()?);
-            self.consume(TokenType::RPAREN)?;
-            cond
-        } else {
-            // default: true for infinite loop
-            Box::new(ASTNode::Literal {
-                value: crate::ast::LiteralValue::Bool(true),
+        if self.match_token(&TokenType::LBRACE) {
+            let body = self.parse_block_statements()?;
+            return Ok(ASTNode::Loop {
+                condition: Box::new(ASTNode::Literal {
+                    value: crate::ast::LiteralValue::Bool(true),
+                    span: Span::unknown(),
+                }),
+                body,
                 span: Span::unknown(),
-            })
-        };
+            });
+        }
 
-        // Parse body
+        if self.match_token(&TokenType::LPAREN) {
+            self.advance(); // consume '('
+            if self.current_loop_range_header_starts() {
+                let (var_name, start, end) = self.parse_loop_range_header()?;
+                self.consume(TokenType::RPAREN)?;
+                let body = self.parse_block_statements()?;
+                return Ok(ASTNode::ForRange {
+                    var_name,
+                    start,
+                    end,
+                    body,
+                    span: Span::unknown(),
+                });
+            }
+            let condition = Box::new(self.parse_expression()?);
+            self.consume(TokenType::RPAREN)?;
+            let body = self.parse_block_statements()?;
+            return Ok(ASTNode::Loop {
+                condition,
+                body,
+                span: Span::unknown(),
+            });
+        }
+
+        if self.current_loop_range_header_starts() {
+            let (var_name, start, end) = self.parse_loop_range_header()?;
+            let body = self.parse_block_statements()?;
+            return Ok(ASTNode::ForRange {
+                var_name,
+                start,
+                end,
+                body,
+                span: Span::unknown(),
+            });
+        }
+
+        let condition = Box::new(self.parse_expression()?);
         let body = self.parse_block_statements()?;
 
         Ok(ASTNode::Loop {
@@ -218,6 +259,36 @@ impl NyashParser {
             body,
             span: Span::unknown(),
         })
+    }
+
+    fn current_loop_range_header_starts(&self) -> bool {
+        matches!(self.current_token().token_type, TokenType::IDENTIFIER(_))
+            && matches!(self.peek_token(), TokenType::IN)
+    }
+
+    fn parse_loop_range_header(
+        &mut self,
+    ) -> Result<(String, Box<ASTNode>, Box<ASTNode>), ParseError> {
+        let var_name = match &self.current_token().token_type {
+            TokenType::IDENTIFIER(name) => {
+                let value = name.clone();
+                self.advance();
+                value
+            }
+            other => {
+                return Err(ParseError::UnexpectedToken {
+                    found: other.clone(),
+                    expected: "loop range index identifier".to_string(),
+                    line: self.current_token().line,
+                });
+            }
+        };
+
+        self.consume(TokenType::IN)?;
+        let start = Box::new(self.expr_parse_term()?);
+        self.consume(TokenType::RANGE)?;
+        let end = Box::new(self.expr_parse_term()?);
+        Ok((var_name, start, end))
     }
 
     /// Stage-3: while <cond> { body }
@@ -281,11 +352,11 @@ impl NyashParser {
         }
         self.advance();
         // start expr
-        let start = Box::new(self.parse_expression()?);
+        let start = Box::new(self.expr_parse_term()?);
         // expect RANGE ('..')
         self.consume(TokenType::RANGE)?;
         // end expr
-        let end = Box::new(self.parse_expression()?);
+        let end = Box::new(self.expr_parse_term()?);
         // body
         let body = self.parse_block_statements()?;
         Ok(ASTNode::ForRange {

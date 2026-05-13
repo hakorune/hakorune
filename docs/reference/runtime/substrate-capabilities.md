@@ -88,6 +88,17 @@ apps. The current route chain is:
 
 These proof rows do not activate a host allocator replacement path.
 
+## Internal hako_alloc Inventory Surfaces
+
+`hako_alloc` also contains internal read-only inventory surfaces used by the
+mimalloc port. These are not user-facing language syntax and do not activate
+runtime options or allocator replacement.
+
+| Surface | Current reading |
+| --- | --- |
+| allocator options/defaults inventory | `HakoAllocOptionsInventory` classifies static option/default facts; mutable options, environment toggles, allocation policy changes, provider selection, hooks, process allocator replacement, and reclaim execution stay inactive |
+| thread heap owner-token inventory | `HakoAllocThreadHeapOwnerInventory` classifies scalar owner-token facts for future abandoned/reclaim rows; thread scheduling, atomic ownership claim, remote-free drain, owner mutation, page-source calls, unreserve, OS release, provider hooks, replacement, and reclaim execution stay inactive |
+
 ## Reserved Surface
 
 These names are reserved but not fully live as user-facing allocator substrate:

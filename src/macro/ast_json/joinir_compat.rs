@@ -1,4 +1,6 @@
-use nyash_rust::ast::{ASTNode, EnumVariantDecl, FieldDecl, LiteralValue, Span};
+use nyash_rust::ast::{
+    ASTNode, DelegateDecl, DelegateExposeDecl, EnumVariantDecl, FieldDecl, LiteralValue, Span,
+};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 
@@ -33,6 +35,7 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             constructors,
             init_fields,
             weak_fields,
+            delegates,
             is_interface,
             is_record,
             extends,
@@ -63,6 +66,13 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
                 .collect::<Vec<_>>(),
             "init_fields": init_fields,
             "weak_fields": weak_fields,
+            "delegates": delegates.into_iter().map(|decl| json!({
+                "field_name": decl.field_name,
+                "exposes": decl.exposes.into_iter().map(|expose| json!({
+                    "source_name": expose.source_name,
+                    "exposed_name": expose.exposed_name,
+                })).collect::<Vec<_>>(),
+            })).collect::<Vec<_>>(),
             "is_interface": is_interface,
             "is_record": is_record,
             "extends": extends,
@@ -102,6 +112,20 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             "type": "Loop",  // JoinIR Frontend expects "type"
             "condition": ast_to_json(&condition),
             "cond": ast_to_json(&condition),  // JoinIR expects "cond"
+            "body": body.into_iter().map(|s| ast_to_json(&s)).collect::<Vec<_>>()
+        }),
+        ASTNode::ForRange {
+            var_name,
+            start,
+            end,
+            body,
+            ..
+        } => json!({
+            "kind": "LoopRange",
+            "type": "LoopRange",
+            "var_name": var_name,
+            "start": ast_to_json(&start),
+            "end": ast_to_json(&end),
             "body": body.into_iter().map(|s| ast_to_json(&s)).collect::<Vec<_>>()
         }),
         // Phase 54: Print with JoinIR-compatible fields
@@ -502,6 +526,40 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                     })
                     .unwrap_or_default(),
                 weak_fields,
+                delegates: v
+                    .get("delegates")
+                    .and_then(|a| a.as_array())
+                    .map(|arr| {
+                        arr.iter()
+                            .filter_map(|item| {
+                                Some(DelegateDecl {
+                                    field_name: item.get("field_name")?.as_str()?.to_string(),
+                                    exposes: item
+                                        .get("exposes")
+                                        .and_then(|value| value.as_array())
+                                        .map(|exposes| {
+                                            exposes
+                                                .iter()
+                                                .filter_map(|expose| {
+                                                    Some(DelegateExposeDecl {
+                                                        source_name: expose
+                                                            .get("source_name")?
+                                                            .as_str()?
+                                                            .to_string(),
+                                                        exposed_name: expose
+                                                            .get("exposed_name")?
+                                                            .as_str()?
+                                                            .to_string(),
+                                                    })
+                                                })
+                                                .collect::<Vec<_>>()
+                                        })
+                                        .unwrap_or_default(),
+                                })
+                            })
+                            .collect::<Vec<_>>()
+                    })
+                    .unwrap_or_default(),
                 is_interface: v
                     .get("is_interface")
                     .and_then(|b| b.as_bool())
@@ -548,6 +606,18 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
         }
         "Loop" => ASTNode::Loop {
             condition: Box::new(json_to_ast(v.get("condition")?)?),
+            body: v
+                .get("body")?
+                .as_array()?
+                .iter()
+                .filter_map(json_to_ast)
+                .collect::<Vec<_>>(),
+            span: Span::unknown(),
+        },
+        "LoopRange" | "ForRange" => ASTNode::ForRange {
+            var_name: v.get("var_name")?.as_str()?.to_string(),
+            start: Box::new(json_to_ast(v.get("start")?)?),
+            end: Box::new(json_to_ast(v.get("end")?)?),
             body: v
                 .get("body")?
                 .as_array()?

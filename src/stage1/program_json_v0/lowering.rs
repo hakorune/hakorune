@@ -198,6 +198,19 @@ fn statement_to_json_v0(
             "cond": expression_to_json_v0(condition, context)?,
             "body": statements_to_json_v0(body, context)?,
         })),
+        ASTNode::ForRange {
+            var_name,
+            start,
+            end,
+            body,
+            ..
+        } => Ok(serde_json::json!({
+            "type": "LoopRange",
+            "var_name": var_name,
+            "start": expression_to_json_v0(start, context)?,
+            "end": expression_to_json_v0(end, context)?,
+            "body": statements_to_json_v0(body, context)?,
+        })),
         ASTNode::Break { .. } => Ok(serde_json::json!({ "type": "Break" })),
         ASTNode::Continue { .. } => Ok(serde_json::json!({ "type": "Continue" })),
         ASTNode::Throw { expression, .. } => Ok(serde_json::json!({

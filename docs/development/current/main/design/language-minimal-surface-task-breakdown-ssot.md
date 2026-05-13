@@ -60,8 +60,8 @@ Retire condition:
 | Area | Status | Next actionable row |
 | --- | --- | --- |
 | Minimal keyword surface | docs accepted | no immediate code row |
-| Loop-only repetition | docs accepted | `LOOP-002 Stage0 LoopRange parser capsule` |
-| No-inheritance delegation | docs accepted | `DEL-001 legacy delegation status reconcile` |
+| Loop-only repetition | parser capsule complete | `LOOP-003 Stage1 LoopRange lowering` |
+| No-inheritance delegation | parser capsule complete | `DEL-003 Stage1 delegate exposes lowering` |
 | Brand/type | planned | `BRAND-001 Stage0 brand declaration metadata capsule` |
 | Record literal | planned | `REC-001 Stage0 explicit record literal shape capsule` |
 | Contracts | planned | `CONTRACT-001 assert runtime-check sugar decision` |
@@ -96,6 +96,8 @@ loop {
 | --- | --- | --- |
 | `LOOP-001 loop-only control surface docs` | Decide no `while`, no `for`, no `repeat`, no `until`; docs and examples use `loop` only. | docs, complete via D201 |
 | `LOOP-002 Stage0 LoopRange parser capsule` | Parse `loop i in start..end` and transport `LoopRange` metadata. | Stage0 capsule |
+| `LOOP-002 status` | Complete as `293x-272`; parser accepts paren-less and parenthesized LoopRange headers and transports LoopRange metadata only. | Stage0 complete |
+| `LOOP-002 status` | Complete as `293x-272`; parser accepts paren-less and parenthesized LoopRange headers and transports LoopRange metadata only. | Stage0 complete |
 | `LOOP-003 Stage1 LoopRange lowering` | Entry-bound capture, block-local read-only index, end-exclusive range, step=1, continue-safe step. | Stage1 semantics |
 | `LOOP-004 LoopRange verifier facts` | Expose index/bounds facts such as `i < end`; add conservative facts only. | Stage1 verifier |
 | `LOOP-005 canonical loop formatter/docs` | Make paren-less `loop i in a..b` the canonical spelling; optional paren compatibility requires a separate decision. | docs/tooling |
@@ -128,7 +130,8 @@ box Child {
 | Task | Scope | Stage |
 | --- | --- | --- |
 | `DEL-001 legacy delegation status reconcile` | Reconcile `box Child from Parent`, `override`, `from Parent.method`, multiple delegation, and field-visibility proposal status. | docs |
-| `DEL-002 Stage0 delegate syntax metadata capsule` | Parse `delegate field exposes { method, method as alias }` and transport metadata. | Stage0 capsule |
+| `DEL-001 status` | Complete as `293x-271`; legacy `from`/`override` docs are historical, not canonical. | docs complete |
+| `DEL-002 Stage0 delegate syntax metadata capsule` | Complete as `293x-273`; parses `delegate field exposes { method, method as alias }` and transports metadata. | Stage0 capsule complete |
 | `DEL-003 Stage1 delegate exposes lowering` | Resolve typed delegate target fields, check method existence, reject collisions, generate forwarding. | Stage1 semantics |
 | `DEL-004 legacy quarantine migration` | Map internal `extends` naming to delegation metadata without behavior changes; define retire path. | docs/code-shape |
 | `DEL-005 interface MVP` | Define method-set contract and static conformance metadata only after delegation works. | Stage1 later |
@@ -271,14 +274,15 @@ language work, start here:
 
 1. `DEL-001 legacy delegation status reconcile`
 2. `LOOP-002 Stage0 LoopRange parser capsule`
-3. `LOOP-003 Stage1 LoopRange lowering`
-4. `BRAND-001 Stage0 brand declaration metadata capsule`
-5. `BRAND-002 Stage1 brand constructor unwrap policy`
-6. `REC-001 Stage0 explicit record literal shape capsule`
-7. `REC-002 Stage1 record construction/read lowering`
-8. `CONTRACT-002 contract syntax metadata capsule`
-9. `TRANS-001 transition metadata capsule`
-10. `USES-001 method-level uses metadata capsule`
+3. `DEL-002 Stage0 delegate syntax metadata capsule`
+4. `DEL-003 Stage1 delegate exposes lowering`
+5. `LOOP-003 Stage1 LoopRange lowering`
+6. `BRAND-001 Stage0 brand declaration metadata capsule`
+7. `BRAND-002 Stage1 brand constructor unwrap policy`
+8. `REC-001 Stage0 explicit record literal shape capsule`
+9. `REC-002 Stage1 record construction/read lowering`
+10. `CONTRACT-002 contract syntax metadata capsule`
+11. `TRANS-001 transition metadata capsule`
+12. `USES-001 method-level uses metadata capsule`
 
 This order keeps early wins concrete while avoiding Stage0 semantic growth.
-

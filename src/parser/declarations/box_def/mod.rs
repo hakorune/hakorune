@@ -3,7 +3,7 @@
 //! Box宣言（box, interface box, static box）の解析を担当
 //! Nyashの中核概念「Everything is Box」を実現する重要モジュール
 
-use crate::ast::{ASTNode, FieldDecl, Span};
+use crate::ast::{ASTNode, DelegateDecl, FieldDecl, Span};
 use crate::parser::common::ParserUtils;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
@@ -51,6 +51,18 @@ fn box_try_init_block(
     }
     p.ensure_no_pending_runes("init block")?;
     members::fields::parse_init_block_if_any(p, init_fields, weak_fields)
+}
+
+fn box_try_delegate(
+    p: &mut NyashParser,
+    delegates: &mut Vec<DelegateDecl>,
+) -> Result<bool, ParseError> {
+    if !p.match_token(&TokenType::DELEGATE) {
+        return Ok(false);
+    }
+    p.ensure_no_pending_runes("delegate declaration")?;
+    delegates.push(members::delegates::parse_delegate_decl(p)?);
+    Ok(true)
 }
 
 fn box_try_constructor(
@@ -159,6 +171,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
     let mut constructors = HashMap::new();
     let mut init_fields = Vec::new();
     let mut weak_fields = Vec::new(); // 🔗 Track weak fields
+    let mut delegates = Vec::new();
                                       // Track birth_once properties for constructor prologue emission.
     let mut birth_once_props: Vec<String> = Vec::new();
 
@@ -187,6 +200,11 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
 
         // initブロックの処理（initメソッドではない場合のみ）
         if box_try_init_block(p, &mut init_fields, &mut weak_fields)? {
+            continue;
+        }
+
+        if box_try_delegate(p, &mut delegates)? {
+            last_method_name = None;
             continue;
         }
 
@@ -338,6 +356,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
         constructors,
         init_fields,
         weak_fields, // 🔗 Add weak fields to AST
+        delegates,
         is_interface: false,
         is_record: false,
         extends,
@@ -442,6 +461,7 @@ pub fn parse_record_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseErr
         constructors: HashMap::new(),
         init_fields: vec![],
         weak_fields: vec![],
+        delegates: vec![],
         is_interface: false,
         is_record: true,
         extends: vec![],

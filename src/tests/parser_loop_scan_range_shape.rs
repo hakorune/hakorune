@@ -106,3 +106,121 @@ box Scan {
         ));
     });
 }
+
+#[test]
+fn parser_loop_range_surface_parses_parenless_loop_header() {
+    with_stage3_features(|| {
+        let src = r#"
+box Scan {
+  run(count) {
+    loop i in 0..count {
+      print(i)
+    }
+    return 0
+  }
+}
+"#;
+
+        let ast = NyashParser::parse_from_string(src).expect("parse ok");
+        let body = find_method_body(&ast, "Scan", "run");
+        let range_stmt = body
+            .iter()
+            .find(|stmt| matches!(stmt, ASTNode::ForRange { .. }))
+            .expect("loop range statement must exist");
+
+        let ASTNode::ForRange {
+            var_name,
+            start,
+            end,
+            body,
+            ..
+        } = range_stmt
+        else {
+            panic!("expected ForRange metadata node");
+        };
+
+        assert_eq!(var_name, "i");
+        assert!(matches!(
+            start.as_ref(),
+            ASTNode::Literal {
+                value: LiteralValue::Integer(0),
+                ..
+            }
+        ));
+        assert!(matches!(
+            end.as_ref(),
+            ASTNode::Variable { name, .. } if name == "count"
+        ));
+        assert_eq!(body.len(), 1);
+    });
+}
+
+#[test]
+fn parser_loop_range_surface_parses_parenthesized_loop_header() {
+    with_stage3_features(|| {
+        let src = r#"
+box Scan {
+  run(count) {
+    loop(i in 1..count) {
+      print(i)
+    }
+    return 0
+  }
+}
+"#;
+
+        let ast = NyashParser::parse_from_string(src).expect("parse ok");
+        let body = find_method_body(&ast, "Scan", "run");
+        let range_stmt = body
+            .iter()
+            .find(|stmt| matches!(stmt, ASTNode::ForRange { .. }))
+            .expect("loop range statement must exist");
+
+        let ASTNode::ForRange { var_name, start, .. } = range_stmt else {
+            panic!("expected ForRange metadata node");
+        };
+        assert_eq!(var_name, "i");
+        assert!(matches!(
+            start.as_ref(),
+            ASTNode::Literal {
+                value: LiteralValue::Integer(1),
+                ..
+            }
+        ));
+    });
+}
+
+#[test]
+fn parser_loop_condition_surface_accepts_parenless_loop_condition() {
+    with_stage3_features(|| {
+        let src = r#"
+box Scan {
+  run(count) {
+    local i = 0
+    loop i < count {
+      i = i + 1
+    }
+    return i
+  }
+}
+"#;
+
+        let ast = NyashParser::parse_from_string(src).expect("parse ok");
+        let body = find_method_body(&ast, "Scan", "run");
+        let loop_stmt = body
+            .iter()
+            .find(|stmt| matches!(stmt, ASTNode::Loop { .. }))
+            .expect("loop condition statement must exist");
+
+        let ASTNode::Loop { condition, .. } = loop_stmt else {
+            panic!("expected Loop node");
+        };
+        assert!(matches!(
+            condition.as_ref(),
+            ASTNode::BinaryOp {
+                operator: BinaryOperator::Less,
+                ..
+            }
+        ));
+    });
+}

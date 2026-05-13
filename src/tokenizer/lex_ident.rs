@@ -56,6 +56,7 @@ impl NyashTokenizer {
             "not" => TokenType::NOT,
             "override" => TokenType::OVERRIDE,
             "from" => TokenType::FROM,
+            "delegate" => TokenType::DELEGATE,
             "weak" => TokenType::WEAK,
             "using" => TokenType::USING,
             "and" => TokenType::AND,
@@ -129,6 +130,7 @@ impl NyashTokenizer {
                     | TokenType::OUTBOX
                     | TokenType::NOWAIT
                     | TokenType::OVERRIDE
+                    | TokenType::DELEGATE
                     | TokenType::WEAK
                     | TokenType::PACK
             );

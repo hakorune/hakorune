@@ -1,3 +1,5 @@
+Legacy status: This page is historical. `override` and `from Parent.method()` are not new canonical spelling. Current accepted direction is explicit field delegation, with parser work parked behind DEL-002.
+
 # 🌟 Nyash Override + Delegation 統一構文仕様
 
 バージョン: 2.0  

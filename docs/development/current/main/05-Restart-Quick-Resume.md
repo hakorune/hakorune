@@ -30,10 +30,10 @@ cargo check -q
 ## Current Lane
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- active lane: `phase-293x packed ArrayBox auto-use pilot`
+- active lane: `phase-293x language minimal surface lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `D209 mimalloc post-M215 closeout check`
+- current blocker token: `DEL-003 Stage1 delegate exposes lowering`
 - record / packed ArrayBox SSOT:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
@@ -44,7 +44,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `D209 mimalloc post-M215 closeout check`
+- current blocker token: `DEL-003 Stage1 delegate exposes lowering`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -55,7 +55,7 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after M215; next blocker is D209 mimalloc post-M215 closeout check
+- continue `phase-293x` after LOOP-002; next blocker is DEL-003 Stage1 delegate exposes lowering
   policy inventory.
   C207 emits `array_record_autouse_eligibility_plans`, C208 emits
   `array_record_materialization_boundary_plans`, and C209 emits
@@ -107,8 +107,7 @@ cargo check -q
 - parent EXE boundary gate, only when checking the parked real-app lane:
   `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
 - phase-294x exact `usize` substrate work needed by the mimalloc port is no
-  longer the active default lane. The active lane is packed record / ArrayBox
-  compiler expressivity for mimalloc metadata completeness.
+  longer the active default lane. The active lane is language minimal surface work after the post-M215 mimalloc inventory closeout.
 - do not hide compiler blockers in app code; if a real app exposes a Stage0 or
   VM/compiler seam, fix the compiler structurally first
 - parent real-app gate, only when checking the parked real-app lane:

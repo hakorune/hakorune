@@ -54,6 +54,7 @@ pub enum TokenType {
     NOT,
     OVERRIDE,
     FROM,
+    DELEGATE,
     WEAK,
     USING,
     IMPORT,

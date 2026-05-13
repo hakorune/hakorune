@@ -29,8 +29,13 @@ stmt      := 'return' expr
            | assign_stmt
            | guard_stmt
            | 'if' expr block ('else' block)?
-           | 'loop' '('? expr ')' ? block
+           | loop_stmt
            | expr                         ; expression statement
+
+loop_stmt := 'loop' loop_head? block
+loop_head := loop_range_head | loop_condition_head
+loop_condition_head := '('? expr ')'?
+loop_range_head := IDENT 'in' expr '..' expr
 
 local_stmt := 'local' IDENT local_tail
 local_tail := '=' expr local_fini_opt
@@ -296,6 +301,7 @@ member         := visibility_block
                 | computed
                 | once_decl
                 | birth_once_decl
+                | delegate_decl
                 | method_decl
                 | block_as_role      ; nyash-mode (block-first) equivalent
 
@@ -317,6 +323,11 @@ stored         := IDENT ( '=' expr )?
                   ; it is not a general runtime type check.
                   ; `= expr` emits a construction prologue assignment before
                   ; the user `birth` body.
+
+delegate_decl  := 'delegate' IDENT 'exposes' '{' delegate_expose+ '}'
+delegate_expose:= IDENT ( 'as' IDENT )? ','?
+                  ; DEL-002 Stage0 capsule. Carries explicit method exposure
+                  ; metadata only. No forwarding/collision/interface semantics.
 
 computed       := get_computed | legacy_computed
 

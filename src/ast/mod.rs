@@ -40,6 +40,7 @@ pub enum StructureNode {
         constructors: Vec<ASTNode>,
         init_fields: Vec<String>,
         weak_fields: Vec<String>, // 🔗 weak修飾子が付いたフィールドのリスト
+        delegates: Vec<DelegateDecl>,
         is_interface: bool,
         extends: Vec<String>, // 🚀 Multi-delegation: Changed from Option<String> to Vec<String>
         implements: Vec<String>,
@@ -213,6 +214,23 @@ pub struct FieldDecl {
     pub name: String,
     pub declared_type_name: Option<String>,
     pub is_weak: bool,
+}
+
+/// Explicit method exposure carried by `delegate <field> exposes { ... }`.
+///
+/// Stage0 owns only parser/transport. Collision checks and forwarding method
+/// generation are Stage1 responsibilities.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DelegateExposeDecl {
+    pub source_name: String,
+    pub exposed_name: String,
+}
+
+/// Box-level delegation metadata.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DelegateDecl {
+    pub field_name: String,
+    pub exposes: Vec<DelegateExposeDecl>,
 }
 
 /// Function or constructor parameter declaration metadata.
@@ -638,6 +656,7 @@ pub enum ASTNode {
         constructors: HashMap<String, ASTNode>, // constructor_key -> FunctionDeclaration
         init_fields: Vec<String>,          // initブロック内のフィールド定義
         weak_fields: Vec<String>,          // 🔗 weak修飾子が付いたフィールドのリスト
+        delegates: Vec<DelegateDecl>,      // explicit field delegation metadata
         is_interface: bool,                // interface box かどうか
         is_record: bool, // record surface かどうか（identity-free aggregate contract）
         extends: Vec<String>, // 🚀 Multi-delegation: Changed from Option<String> to Vec<String>

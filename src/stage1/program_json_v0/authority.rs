@@ -138,6 +138,7 @@ fn collect_user_box_decls(ast: &ASTNode) -> Vec<serde_json::Value> {
                 name,
                 fields,
                 field_decls,
+                delegates,
                 is_record,
                 type_parameters,
                 ..
@@ -156,6 +157,13 @@ fn collect_user_box_decls(ast: &ASTNode) -> Vec<serde_json::Value> {
                     "name": decl.name,
                     "declared_type": decl.declared_type_name,
                     "is_weak": decl.is_weak,
+                })).collect::<Vec<_>>(),
+                "delegates": delegates.iter().map(|decl| serde_json::json!({
+                    "field_name": decl.field_name,
+                    "exposes": decl.exposes.iter().map(|expose| serde_json::json!({
+                        "source_name": expose.source_name,
+                        "exposed_name": expose.exposed_name,
+                    })).collect::<Vec<_>>(),
                 })).collect::<Vec<_>>(),
             }))
         })
