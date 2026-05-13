@@ -1,8 +1,10 @@
 ---
 Status: SSOT
-Date: 2026-04-24
+Date: 2026-05-13
 Scope: current docs update policy for restart/current-lane pointers.
 Related:
+  - AGENTS.md
+  - docs/development/current/main/design/agent-current-entry-contract-ssot.md
   - docs/development/current/main/CURRENT_STATE.toml
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
@@ -19,6 +21,7 @@ Small implementation cards were forcing updates to too many human-written
 mirrors:
 
 - `CURRENT_TASK.md`
+- `AGENTS.md`
 - `docs/development/current/main/05-Restart-Quick-Resume.md`
 - `docs/development/current/main/10-Now.md`
 - phase README
@@ -43,7 +46,7 @@ Per-card mandatory docs updates are limited to:
 3. code/test docs only when the card changes their contract
 
 Do not update `CURRENT_TASK.md`, `05-Restart-Quick-Resume.md`, `10-Now.md`,
-phase README, taskboards, or ledgers for every landed card.
+`AGENTS.md`, phase README, taskboards, or ledgers for every landed card.
 
 Update those mirrors only when one of these changes:
 
@@ -53,6 +56,7 @@ Update those mirrors only when one of these changes:
 - phase status path
 - durable design/update policy
 - a taskboard or ledger's own stable contract
+- root AI/developer instruction contract in `AGENTS.md`
 
 ## Current State Shape
 

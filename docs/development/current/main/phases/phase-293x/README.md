@@ -638,6 +638,10 @@ inference for the allocator release path.
   subprocess dispatch into `tools/checks/lib/manifest_runner.py`. The
   human-facing row/proof shell entrypoints stay stable and remain local-run
   pilots outside `dev_gate.sh` / allocator-wide.
+- `293x-244`: D200 agent current-entry doc refresh landed, adding
+  `docs/development/current/main/design/agent-current-entry-contract-ssot.md`
+  so local `AGENTS.md` stays a current-first instruction entry while
+  `CURRENT_STATE.toml` remains the current lane/blocker truth.
 - Next: M201 recommit fail-fast entry. M186 facade stats already landed
   as `294x-19e`, so future rows must not repeat exact usize facade work. M104
   is next only if the optional allocator-provider host-replacement ladder is
@@ -675,9 +679,9 @@ Current execution order:
    decommit heap integration, M198 purge decommit state marker, M199 purge
    state-aware duplicate guard, and M200 decommitted page reuse precondition
    are complete; M201 recommit fail-fast entry is the next safe allocator row.
-7. `D195-D199`: refresh SSOT/guards at milestones, not after every tiny row.
+7. `D195-D200`: refresh SSOT/guards at milestones, not after every tiny row.
    `D195`, `D196`, the D197 row guard manifest pilot, the D198 proof app
-   runner pilot, and the D199 manifest runner library cleanup are complete.
-   `C206+` cleanup/probe guards stay
+   runner pilot, the D199 manifest runner library cleanup, and the D200 agent
+   current-entry doc refresh are complete. `C206+` cleanup/probe guards stay
    local-run/index-listed unless a card names a production stop line for
    promotion.

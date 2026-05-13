@@ -7,7 +7,9 @@
 
 ## Read First Now
 
-- current restart anchor: `CURRENT_TASK.md`
+- current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
+- root restart anchor: `CURRENT_TASK.md`
+- agent current-entry contract: `docs/development/current/main/design/agent-current-entry-contract-ssot.md`
 - one-screen work order: `docs/development/current/main/15-Workstream-Map.md`
 - canonical rough task order: `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
 - current axis / artifact / task placement: `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
@@ -64,6 +66,7 @@
 - Condition observation（no rewrite SSOT）: `docs/development/current/main/design/condition-observation-ssot.md`
 - generic_loop_v1 acceptance by Recipe（ShapeId hint-only SSOT）: `docs/development/current/main/design/generic-loop-v1-acceptance-by-recipe-ssot.md`
 - Policy: compiler expressivity first（selfhost workaround を止める）: `docs/development/current/main/design/compiler-expressivity-first-policy.md`
+- Agent current-entry contract（`AGENTS.md` は local instruction entry、current-state は `CURRENT_STATE.toml` 優先）: `docs/development/current/main/design/agent-current-entry-contract-ssot.md`
 - Policy: lego composability first（完成品キット増殖を止める）: `docs/development/current/main/design/lego-composability-policy.md`
 - Selfhost parser/mirbuilder migration order（single-developer 進行順SSOT）: `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
 - De-Rust compiler thin-rust roadmap（selfhost closeout 後の境界縮退SSOT）: `docs/development/current/main/design/de-rust-compiler-thin-rust-roadmap-ssot.md`

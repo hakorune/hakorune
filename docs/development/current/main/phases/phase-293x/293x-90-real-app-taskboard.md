@@ -206,6 +206,7 @@
 - [x] `293x-241` D197 row guard manifest pilot
 - [x] `293x-242` D198 proof app runner pilot
 - [x] `293x-243` D199 manifest runner library cleanup
+- [x] `293x-244` D200 agent current-entry doc refresh
 
 ## Gates
 

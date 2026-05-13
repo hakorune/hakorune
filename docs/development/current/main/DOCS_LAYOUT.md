@@ -11,6 +11,12 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 
 ## Current Ownership Contract
 
+- `AGENTS.md`
+  - root AI/developer instruction entry
+  - current-first pointer only; not a current lane ledger
+  - historical sections inside it are subordinate to `CURRENT_STATE.toml`
+  - tracked contract:
+    `docs/development/current/main/design/agent-current-entry-contract-ssot.md`
 - `CURRENT_TASK.md`
   - root restart anchor
   - thin entry that points to `CURRENT_STATE.toml`
@@ -56,9 +62,9 @@ Rule:
   - the active card
   - `CURRENT_STATE.toml` latest-card fields
   - code/test docs only when their contract changes
-- update `CURRENT_TASK.md`, `10-Now.md`, `05-Restart-Quick-Resume.md`, phase
-  README, taskboards, or ledgers only when lane / blocker / restart order /
-  phase status / durable policy changes.
+- update `AGENTS.md`, `CURRENT_TASK.md`, `10-Now.md`,
+  `05-Restart-Quick-Resume.md`, phase README, taskboards, or ledgers only when
+  lane / blocker / restart order / phase status / durable policy changes.
 - `phases/README.md` is an index, not a full chronology.
 - archive historical docs per area:
   - `docs/development/current/main/design/archive/`
