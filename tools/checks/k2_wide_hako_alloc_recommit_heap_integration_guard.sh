@@ -58,6 +58,9 @@ guard_expect_in_file "$TAG" 'box HakoAllocRecommitHeapIntegration' "$OWNER" "rec
 guard_expect_in_file "$TAG" 'page\.reactivate' "$OWNER" "M205 must reactivate page-local state only after recommit"
 guard_expect_in_file "$TAG" 'reactivate' "$PAGE" "page model must expose reactivation seam"
 guard_expect_in_file "$TAG" 'M205 recommit heap' "$MEMORY_README" "memory README must define M205 owner"
+guard_expect_in_file "$TAG" 'Status codes:' "$OWNER" "M205 owner must document report status codes"
+guard_expect_in_file "$TAG" '3 marker transition failed after recommit source execution' "$OWNER" "M205 owner must document partial source-success blocked status"
+guard_expect_in_file "$TAG" 'success_count only means marker transition' "$OWNER" "M205 owner must document blocked_count/success_count semantics"
 
 if rg -n 'reservePage[[:space:]]*\(|decommitPage[[:space:]]*\(|unreserve[[:space:]]*\(|releasePage[[:space:]]*\(|addBackedPage[[:space:]]*\(|addFreshPage[[:space:]]*\(' \
   "$OWNER" >/tmp/"$TAG".direct_leak 2>&1; then

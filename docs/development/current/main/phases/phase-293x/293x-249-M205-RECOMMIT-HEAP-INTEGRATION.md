@@ -37,6 +37,12 @@ lang/src/hako_alloc/memory/page_box.hako
 `HakoAllocPageModel.reactivate()` moves local-free blocks back to the free-list
 and clears `retired` only when the page is empty and has available blocks.
 
+The integration report status contract is code-local in
+`purge_recommit_heap_integration_box.hako`. Nonzero status is always a blocked
+final reuse attempt; status `3` is the defensive partial-success case where
+recommit source execution succeeded but marker transition failed, so
+`success_count` is intentionally not incremented.
+
 ## Stop Lines
 
 - Do not allocate or source new pages in the recommit integration owner.
@@ -52,6 +58,7 @@ and clears `retired` only when the page is empty and has available blocks.
 - Successful recommit transitions marker state and reactivates page-local state.
 - Queue selection can see the reactivated page.
 - A block can be acquired from the recommitted page.
+- The owner documents its status code table and blocked-count semantics.
 - Heap direct `decommit_count` remains `0`; setup decommit still flows through
   M199/M197.
 - Pure-first EXE proof output matches the heap integration matrix.

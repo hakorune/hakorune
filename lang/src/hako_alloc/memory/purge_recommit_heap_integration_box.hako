@@ -5,6 +5,17 @@
 // Non-responsibility:
 // - reserve, decommit, unreserve, OS release, allocator replacement, or page
 //   sourcing
+// Status codes:
+// - 0 success
+// - 1 null marker
+// - 2 recommit blocked before source execution
+// - 3 marker transition failed after recommit source execution
+// - 4 page not found after marker transition
+// - 5 page-local reactivation failed
+// - 6 post-recommit reuse precondition denied
+// A nonzero status always increments blocked_count, even when recommit source
+// execution already succeeded. success_count only means marker transition,
+// page reactivation, and post-check reuse eligibility all completed.
 
 using selfhost.hako_alloc.memory.purge_bounded_recommit_box as HakoAllocBoundedRecommit
 using selfhost.hako_alloc.memory.purge_decommitted_page_reuse_precondition_box as HakoAllocDecommittedPageReusePrecondition
