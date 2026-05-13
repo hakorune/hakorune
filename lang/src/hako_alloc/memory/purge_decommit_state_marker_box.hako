@@ -13,8 +13,17 @@ box HakoAllocPurgeDecommitStateMarkReport {
     rejected: i64 = 0
 }
 
+box HakoAllocPurgeRecommitStateMarkReport {
+    status: i64 = 0
+    page_id: i64 = -1
+    recommitted: i64 = 0
+    already_recommitted: i64 = 0
+    rejected: i64 = 0
+}
+
 box HakoAllocPurgeDecommitStateMarker {
     marked_page_ids: ArrayBox = new ArrayBox()
+    recommitted_page_ids: ArrayBox = new ArrayBox()
     attempt_count: i64 = 0
     marked_count: i64 = 0
     reject_count: i64 = 0
@@ -22,6 +31,14 @@ box HakoAllocPurgeDecommitStateMarker {
     missing_report_count: i64 = 0
     not_decommitted_count: i64 = 0
     release_field_reject_count: i64 = 0
+    recommit_attempt_count: i64 = 0
+    recommitted_count: i64 = 0
+    recommit_reject_count: i64 = 0
+    duplicate_recommit_count: i64 = 0
+    missing_recommit_report_count: i64 = 0
+    not_recommitted_count: i64 = 0
+    recommit_widened_reject_count: i64 = 0
+    unmarked_recommit_reject_count: i64 = 0
     last_page_id: i64 = -1
 
     report(status, page_id, marked, already_marked, rejected) {
@@ -30,6 +47,16 @@ box HakoAllocPurgeDecommitStateMarker {
         result.page_id = page_id
         result.marked = marked
         result.already_marked = already_marked
+        result.rejected = rejected
+        return result
+    }
+
+    reportRecommit(status, page_id, recommitted, already_recommitted, rejected) {
+        local result = new HakoAllocPurgeRecommitStateMarkReport()
+        result.status = status
+        result.page_id = page_id
+        result.recommitted = recommitted
+        result.already_recommitted = already_recommitted
         result.rejected = rejected
         return result
     }
@@ -46,8 +73,34 @@ box HakoAllocPurgeDecommitStateMarker {
         return -1
     }
 
+    countMarkedPage(page_id) {
+        local count = me.marked_page_ids.length()
+        local matches = 0
+        local i = 0
+        loop(i < count) {
+            if me.marked_page_ids.get(i) == page_id {
+                matches = matches + 1
+            }
+            i = i + 1
+        }
+        return matches
+    }
+
+    countRecommittedPage(page_id) {
+        local count = me.recommitted_page_ids.length()
+        local matches = 0
+        local i = 0
+        loop(i < count) {
+            if me.recommitted_page_ids.get(i) == page_id {
+                matches = matches + 1
+            }
+            i = i + 1
+        }
+        return matches
+    }
+
     isMarked(page_id) {
-        if me.findMarkedPage(page_id) >= 0 {
+        if me.countMarkedPage(page_id) > me.countRecommittedPage(page_id) {
             return 1
         }
         return 0
@@ -89,5 +142,52 @@ box HakoAllocPurgeDecommitStateMarker {
         me.marked_page_ids.push(page_id)
         me.marked_count = me.marked_count + 1
         return me.report(0, page_id, 1, 0, 0)
+    }
+
+    markIfRecommitted(page_id, report) {
+        me.recommit_attempt_count = me.recommit_attempt_count + 1
+        me.last_page_id = page_id
+
+        if page_id < 0 {
+            me.recommit_reject_count = me.recommit_reject_count + 1
+            return me.reportRecommit(1, page_id, 0, 0, 1)
+        }
+
+        if report == null {
+            me.missing_recommit_report_count = me.missing_recommit_report_count + 1
+            me.recommit_reject_count = me.recommit_reject_count + 1
+            return me.reportRecommit(2, page_id, 0, 0, 1)
+        }
+
+        if report.recommit_executed == 0 {
+            me.not_recommitted_count = me.not_recommitted_count + 1
+            me.recommit_reject_count = me.recommit_reject_count + 1
+            return me.reportRecommit(3, page_id, 0, 0, 1)
+        }
+
+        if report.marker_cleared != 0 || report.unreserve_executed != 0 || report.os_release_executed != 0 {
+            me.recommit_widened_reject_count = me.recommit_widened_reject_count + 1
+            me.recommit_reject_count = me.recommit_reject_count + 1
+            return me.reportRecommit(4, page_id, 0, 0, 1)
+        }
+
+        local marked = me.countMarkedPage(page_id)
+        local recommitted = me.countRecommittedPage(page_id)
+
+        if marked == 0 {
+            me.unmarked_recommit_reject_count = me.unmarked_recommit_reject_count + 1
+            me.recommit_reject_count = me.recommit_reject_count + 1
+            return me.reportRecommit(5, page_id, 0, 0, 1)
+        }
+
+        if recommitted >= marked {
+            me.duplicate_recommit_count = me.duplicate_recommit_count + 1
+            me.recommit_reject_count = me.recommit_reject_count + 1
+            return me.reportRecommit(6, page_id, 0, 1, 1)
+        }
+
+        me.recommitted_page_ids.push(page_id)
+        me.recommitted_count = me.recommitted_count + 1
+        return me.reportRecommit(0, page_id, 1, 0, 0)
     }
 }

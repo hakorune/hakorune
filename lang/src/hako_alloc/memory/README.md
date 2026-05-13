@@ -165,6 +165,11 @@ Syntax/style contract
   It may record page ids from successful decommit reports and reject duplicate
   or widened release reports, but it must not call page-source APIs, mutate
   heap/page state, unreserve, release OSVM pages, or replace allocators.
+- `purge_decommit_state_marker_box.hako` also owns M204 recommit marker
+  transition. It records recommitted page ids as a separate generation lane and
+  treats a page as marked only while marked generations outnumber recommitted
+  generations. It must not physically remove marker entries or mutate heap/page
+  state.
 - `purge_state_aware_decommit_box.hako` owns M199 purge state-aware duplicate
   guard. It may consult the M198 marker before delegating to M197 heap decommit
   integration, but it must not call page-source APIs directly, mutate heap/page

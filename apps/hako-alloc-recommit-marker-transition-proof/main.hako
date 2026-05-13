@@ -1,0 +1,56 @@
+// hako-alloc-recommit-marker-transition-proof
+// Purpose: prove M204 recommit marker transition.
+
+using selfhost.hako_alloc.memory.osvm_backed_fast_path_heap_box as HakoAllocOsVmBackedFastPathHeap
+using selfhost.hako_alloc.memory.purge_bounded_recommit_box as HakoAllocBoundedRecommit
+using selfhost.hako_alloc.memory.purge_decommitted_page_reuse_precondition_box as HakoAllocDecommittedPageReusePrecondition
+using selfhost.hako_alloc.memory.purge_page_source_recommit_adapter_box as HakoAllocPageSourceRecommitAdapterBox
+using selfhost.hako_alloc.memory.purge_state_aware_decommit_box as HakoAllocPurgeStateAwareDecommit
+
+static box Main {
+    main(args) {
+        local heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local decommit_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local precondition = new HakoAllocDecommittedPageReusePrecondition()
+        local policy = new HakoAllocBoundedRecommitPolicy(64)
+        local adapter = new HakoAllocPageSourceRecommitAdapter()
+
+        local page = heap.pages.get(0)
+        local block_id = page.acquire(8)
+        local release_rc = page.releaseLocal(block_id)
+        local decommit = decommit_guard.attemptHeapPage(heap, page.page_id)
+
+        local before = precondition.classifyHeapPage(heap, page.page_id, decommit_guard.marker)
+        local recommit = policy.attemptRecommit(before, adapter, heap.pageBase(page.page_id), heap.pageBackingBytes(page.page_id))
+        local transition = decommit_guard.marker.markIfRecommitted(page.page_id, recommit)
+        local after = precondition.classifyHeapPage(heap, page.page_id, decommit_guard.marker)
+        local duplicate = decommit_guard.marker.markIfRecommitted(page.page_id, recommit)
+
+        local remark = decommit_guard.marker.markIfDecommitted(page.page_id, decommit)
+        local after_remark = precondition.classifyHeapPage(heap, page.page_id, decommit_guard.marker)
+
+        print("hako-alloc-recommit-marker-transition-proof")
+        print("release=" + release_rc)
+        print("decommit=" + decommit.status + "," + decommit.source_executed + "," + decommit.marker_marked)
+        print("before=" + before.status + "," + before.decommitted + "," + before.requires_recommit + "," + before.reuse_allowed)
+        print("recommit=" + recommit.status + "," + recommit.recommit_attempted + "," + recommit.recommit_executed + "," + recommit.marker_cleared + "," + recommit.unreserve_executed + "," + recommit.os_release_executed)
+        print("transition=" + transition.status + "," + transition.recommitted + "," + transition.already_recommitted + "," + transition.rejected)
+        print("after=" + after.status + "," + after.decommitted + "," + after.requires_recommit + "," + after.reuse_allowed)
+        print("duplicate=" + duplicate.status + "," + duplicate.recommitted + "," + duplicate.already_recommitted + "," + duplicate.rejected)
+        print("remark=" + remark.status + "," + remark.marked + "," + remark.already_marked + "," + remark.rejected)
+        print("after_remark=" + after_remark.status + "," + after_remark.decommitted + "," + after_remark.requires_recommit + "," + after_remark.reuse_allowed)
+        print("marker=" + decommit_guard.marker.marked_count + "," + decommit_guard.marker.recommitted_count + "," + decommit_guard.marker.reject_count + "," + decommit_guard.marker.recommit_reject_count + "," + decommit_guard.marker.duplicate_recommit_count)
+        print("counts=" + decommit_guard.marker.countMarkedPage(page.page_id) + "," + decommit_guard.marker.countRecommittedPage(page.page_id) + "," + decommit_guard.marker.isMarked(page.page_id))
+        print("policy=" + policy.attempt_count + "," + policy.recommit_attempt_count + "," + policy.recommit_success_count + "," + policy.source_reject_count)
+        print("adapter=" + adapter.call_count + "," + adapter.success_count + "," + adapter.reject_count + "," + adapter.last_bytes)
+        print("heap=" + heap.decommit_count + "," + heap.release_count + "," + heap.reject_count)
+
+        if release_rc == 1 && decommit.status == 0 && before.requires_recommit == 1 && recommit.recommit_executed == 1 && transition.status == 0 && after.reuse_allowed == 1 && duplicate.status == 6 && remark.status == 0 && after_remark.requires_recommit == 1 && decommit_guard.marker.marked_count == 2 && decommit_guard.marker.recommitted_count == 1 && decommit_guard.marker.isMarked(page.page_id) == 1 && heap.decommit_count == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

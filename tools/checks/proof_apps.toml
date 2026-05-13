@@ -48,3 +48,10 @@ app = "apps/hako-alloc-page-source-recommit-adapter-proof"
 label = "page-source recommit adapter proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_page_source_recommit_adapter_guard.sh"]
+
+[[proof_apps]]
+id = "M204"
+app = "apps/hako-alloc-recommit-marker-transition-proof"
+label = "recommit marker transition proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_recommit_marker_transition_guard.sh"]
