@@ -1,0 +1,71 @@
+// hako-alloc-thread-heap-owner-inventory-proof
+// Purpose: prove M215 read-only thread heap owner-token inventory surface.
+
+using selfhost.hako_alloc.memory.thread_heap_owner_inventory_box as HakoAllocThreadHeapOwnerInventory
+
+static box Main {
+    main(args) {
+        local inventory = new HakoAllocThreadHeapOwnerInventory()
+
+        local unknown = inventory.classifyOwner(20, -1, 2, 0, 0, 0)
+        local same = inventory.classifyOwner(21, 2, 2, 0, 0, 0)
+        local active = inventory.classifyOwner(22, 1, 2, 1, 0, 0)
+        local remote = inventory.classifyOwner(23, 1, 2, 0, 4, 0)
+        local decommitted = inventory.classifyOwner(24, 1, 2, 0, 0, 1)
+        local candidate = inventory.classifyOwner(25, 1, 2, 0, 0, 0)
+
+        local ok = check "m215 thread heap owner inventory" {
+            "unknown reject": unknown.reason == 1
+            "unknown inactive": unknown.eligible == 0
+            "same reject": same.reason == 2
+            "same thread fact": same.same_thread == 1
+            "active reject": active.reason == 3
+            "active fact": active.owner_active == 1
+            "remote reject": remote.reason == 4
+            "remote fact": remote.remote_free_pending == 4
+            "decommitted reject": decommitted.reason == 5
+            "decommitted fact": decommitted.decommitted == 1
+            "candidate eligible": candidate.eligible == 1
+            "candidate abandoned": candidate.abandoned == 1
+            "candidate adoption": candidate.adoption_candidate == 1
+            "schedule inactive": candidate.would_schedule_thread == 0
+            "atomic inactive": candidate.would_atomic_claim == 0
+            "drain inactive": candidate.would_drain_remote_free == 0
+            "owner change inactive": candidate.would_change_page_owner == 0
+            "reclaim inactive": candidate.would_execute_reclaim == 0
+            "page source inactive": candidate.would_call_page_source == 0
+            "unreserve inactive": candidate.would_unreserve == 0
+            "os release inactive": candidate.would_release_osvm == 0
+            "classify count": inventory.classify_count == 6
+            "candidate count": inventory.candidate_count == 1
+            "reject count": inventory.reject_count == 5
+            "unknown count": inventory.unknown_owner_reject_count == 1
+            "same count": inventory.same_thread_reject_count == 1
+            "active count": inventory.active_owner_reject_count == 1
+            "remote count": inventory.remote_pending_reject_count == 1
+            "decommitted count": inventory.decommitted_reject_count == 1
+            "abandoned candidate count": inventory.abandoned_candidate_count == 1
+            "last page": inventory.last_page_id == 25
+            "last reason": inventory.last_reason == 0
+        }
+
+        print("hako-alloc-thread-heap-owner-inventory-proof")
+        print("unknown=" + unknown.eligible + "," + unknown.reason + "," + unknown.owner_known)
+        print("same=" + same.eligible + "," + same.reason + "," + same.same_thread)
+        print("active=" + active.eligible + "," + active.reason + "," + active.owner_active)
+        print("remote=" + remote.eligible + "," + remote.reason + "," + remote.remote_free_pending)
+        print("decommitted=" + decommitted.eligible + "," + decommitted.reason + "," + decommitted.decommitted)
+        print("candidate=" + candidate.eligible + "," + candidate.reason + "," + candidate.abandoned + "," + candidate.adoption_candidate)
+        print("inactive=" + candidate.would_schedule_thread + "," + candidate.would_atomic_claim + "," + candidate.would_drain_remote_free + "," + candidate.would_change_page_owner + "," + candidate.would_execute_reclaim + "," + candidate.would_call_page_source + "," + candidate.would_unreserve + "," + candidate.would_release_osvm)
+        print("counts=" + inventory.classify_count + "," + inventory.candidate_count + "," + inventory.reject_count + "," + inventory.unknown_owner_reject_count + "," + inventory.same_thread_reject_count + "," + inventory.active_owner_reject_count + "," + inventory.remote_pending_reject_count + "," + inventory.decommitted_reject_count + "," + inventory.abandoned_candidate_count + "," + inventory.last_page_id + "," + inventory.last_reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

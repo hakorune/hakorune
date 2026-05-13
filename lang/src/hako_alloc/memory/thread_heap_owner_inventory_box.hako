@@ -1,0 +1,135 @@
+// thread_heap_owner_inventory_box.hako -- M215 thread heap owner-token inventory
+// Responsibility:
+// - classify owner-token facts for future abandoned/reclaim work
+// - keep ownership mutation, scheduling, atomics, page-source calls, reclaim
+//   execution, unreserve, and OS release out of this row
+// Non-responsibility:
+// - claiming pages, moving ownership, draining remote frees, or replacing
+//   allocators
+
+box HakoAllocThreadHeapOwnerDecision {
+    eligible: i64 = 0
+    reason: i64 = 0
+    page_id: i64 = -1
+    owner_thread_id: i64 = -1
+    observer_thread_id: i64 = -1
+    owner_known: i64 = 0
+    owner_active: i64 = 0
+    same_thread: i64 = 0
+    abandoned: i64 = 0
+    remote_free_pending: i64 = 0
+    decommitted: i64 = 0
+    adoption_candidate: i64 = 0
+    would_schedule_thread: i64 = 0
+    would_atomic_claim: i64 = 0
+    would_drain_remote_free: i64 = 0
+    would_change_page_owner: i64 = 0
+    would_execute_reclaim: i64 = 0
+    would_call_page_source: i64 = 0
+    would_unreserve: i64 = 0
+    would_release_osvm: i64 = 0
+}
+
+box HakoAllocThreadHeapOwnerInventory {
+    classify_count: i64 = 0
+    candidate_count: i64 = 0
+    reject_count: i64 = 0
+    unknown_owner_reject_count: i64 = 0
+    same_thread_reject_count: i64 = 0
+    active_owner_reject_count: i64 = 0
+    remote_pending_reject_count: i64 = 0
+    decommitted_reject_count: i64 = 0
+    abandoned_candidate_count: i64 = 0
+    last_page_id: i64 = -1
+    last_reason: i64 = 0
+
+    decision(eligible, reason, page_id, owner_thread_id, observer_thread_id, owner_known, owner_active, same_thread, abandoned, remote_free_pending, decommitted, adoption_candidate) {
+        local result = new HakoAllocThreadHeapOwnerDecision()
+        result.eligible = eligible
+        result.reason = reason
+        result.page_id = page_id
+        result.owner_thread_id = owner_thread_id
+        result.observer_thread_id = observer_thread_id
+        result.owner_known = owner_known
+        result.owner_active = owner_active
+        result.same_thread = same_thread
+        result.abandoned = abandoned
+        result.remote_free_pending = remote_free_pending
+        result.decommitted = decommitted
+        result.adoption_candidate = adoption_candidate
+        return result
+    }
+
+    reject(reason, page_id, owner_thread_id, observer_thread_id, owner_known, owner_active, same_thread, abandoned, remote_free_pending, decommitted) {
+        me.reject_count = me.reject_count + 1
+        me.last_page_id = page_id
+        me.last_reason = reason
+
+        if reason == 1 {
+            me.unknown_owner_reject_count = me.unknown_owner_reject_count + 1
+        }
+        if reason == 2 {
+            me.same_thread_reject_count = me.same_thread_reject_count + 1
+        }
+        if reason == 3 {
+            me.active_owner_reject_count = me.active_owner_reject_count + 1
+        }
+        if reason == 4 {
+            me.remote_pending_reject_count = me.remote_pending_reject_count + 1
+        }
+        if reason == 5 {
+            me.decommitted_reject_count = me.decommitted_reject_count + 1
+        }
+
+        return me.decision(0, reason, page_id, owner_thread_id, observer_thread_id, owner_known, owner_active, same_thread, abandoned, remote_free_pending, decommitted, 0)
+    }
+
+    classifyOwner(page_id, owner_thread_id, observer_thread_id, owner_active, remote_free_pending, decommitted) {
+        me.classify_count = me.classify_count + 1
+
+        local owner_known = 1
+        if owner_thread_id < 0 {
+            owner_known = 0
+        }
+
+        local same_thread = 0
+        if owner_thread_id == observer_thread_id {
+            same_thread = 1
+        }
+
+        local abandoned = 0
+        if owner_known != 0 {
+            if same_thread == 0 {
+                if owner_active == 0 {
+                    abandoned = 1
+                }
+            }
+        }
+
+        if owner_known == 0 {
+            return me.reject(1, page_id, owner_thread_id, observer_thread_id, owner_known, owner_active, same_thread, abandoned, remote_free_pending, decommitted)
+        }
+
+        if same_thread != 0 {
+            return me.reject(2, page_id, owner_thread_id, observer_thread_id, owner_known, owner_active, same_thread, abandoned, remote_free_pending, decommitted)
+        }
+
+        if owner_active != 0 {
+            return me.reject(3, page_id, owner_thread_id, observer_thread_id, owner_known, owner_active, same_thread, abandoned, remote_free_pending, decommitted)
+        }
+
+        if remote_free_pending != 0 {
+            return me.reject(4, page_id, owner_thread_id, observer_thread_id, owner_known, owner_active, same_thread, abandoned, remote_free_pending, decommitted)
+        }
+
+        if decommitted != 0 {
+            return me.reject(5, page_id, owner_thread_id, observer_thread_id, owner_known, owner_active, same_thread, abandoned, remote_free_pending, decommitted)
+        }
+
+        me.candidate_count = me.candidate_count + 1
+        me.abandoned_candidate_count = me.abandoned_candidate_count + 1
+        me.last_page_id = page_id
+        me.last_reason = 0
+        return me.decision(1, 0, page_id, owner_thread_id, observer_thread_id, owner_known, owner_active, same_thread, abandoned, remote_free_pending, decommitted, 1)
+    }
+}

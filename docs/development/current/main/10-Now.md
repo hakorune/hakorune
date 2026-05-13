@@ -26,13 +26,13 @@ Related:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `D208 mimalloc migration closeout check`
+- current blocker token: `D209 mimalloc post-M215 closeout check`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after M214; next blocker is D208 mimalloc migration closeout check
+- continue phase-293x after M215; next blocker is D209 mimalloc post-M215 closeout check
   policy inventory
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and

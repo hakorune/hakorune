@@ -124,3 +124,9 @@ id = "M214"
 app = "apps/hako-alloc-options-inventory-proof"
 description = "M214 hako_alloc allocator options/defaults inventory"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_options_inventory_guard.sh"]
+
+[[proof_app]]
+id = "M215"
+app = "apps/hako-alloc-thread-heap-owner-inventory-proof"
+description = "M215 hako_alloc thread heap owner-token inventory"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_thread_heap_owner_inventory_guard.sh"]

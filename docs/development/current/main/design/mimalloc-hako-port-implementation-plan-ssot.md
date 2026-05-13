@@ -784,3 +784,12 @@ allocator options/defaults inventory owner. It proves static option/default
 facts and keeps mutable runtime options, environment toggles, allocation policy
 changes, provider activation, hooks, process allocator replacement, reclaim
 execution, unreserve, and OS release inactive.
+
+M215 status:
+complete as `293x-268`. M215 adds `HakoAllocThreadHeapOwnerInventory` as a
+read-only owner-token inventory surface for future abandoned/reclaim work. It
+classifies unknown owner, same-thread owner, active foreign owner, remote-free
+pending, decommitted, and abandoned inactive owner-token facts while keeping
+thread scheduling, atomic claim, remote-free drain, owner mutation, reclaim
+execution, page-source calls, unreserve, OS release, provider activation, hooks,
+and process allocator replacement inactive.

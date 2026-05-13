@@ -270,3 +270,4 @@ tools/checks/env_dead_accessors_report.sh
 - script の役割変更時は `Purpose` を先に更新し、実装差分はその後に載せる。
 - 日常導線は `dev_gate.sh` を最優先にし、単発スクリプトは理由があるときだけ直接実行する。
 | `tools/checks/k2_wide_hako_alloc_options_inventory_guard.sh` | M214 の hako_alloc allocator options/defaults inventory を固定し、read-only option/default facts を観測しつつ mutable options / env toggles / allocation policy changes / provider hooks / replacement / reclaim execution へ広がらないことを検証する。 |
+| `tools/checks/k2_wide_hako_alloc_thread_heap_owner_inventory_guard.sh` | M215 の hako_alloc thread heap owner-token inventory を固定し、owner-token facts を read-only に分類しつつ thread scheduling / atomic claim / remote-free drain / owner mutation / reclaim execution / page-source / OS release へ広がらないことを検証する。 |
