@@ -26,13 +26,13 @@ Related:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `BRAND-003 Stage1 brand mismatch checker`
+- current blocker token: `TYPE-001 Stage0 type alias metadata capsule`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after BRAND-002; next blocker is BRAND-003 Stage1 brand mismatch checker
+- continue phase-293x after BRAND-003; next blocker is TYPE-001 Stage0 type alias metadata capsule
 - keep `LOOP-003` open until a JoinIR/CorePlan route is selected; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

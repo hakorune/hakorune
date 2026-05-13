@@ -2,6 +2,7 @@ use crate::ast::{ASTNode, EnumVariantDecl};
 use crate::parser::NyashParser;
 use std::collections::BTreeMap;
 
+use super::brand_checker;
 use super::extract::{collect_using_imports, find_static_main_box, preexpand_dev_local_aliases};
 use super::lowering::{
     defs_json_v0_from_methods, program_json_v0_from_body_with_context, ProgramJsonV0LoweringContext,
@@ -60,9 +61,11 @@ fn ast_to_program_json_v0_with_imports(
             imports.len()
         );
     }
+    let brand_decl_index = collect_brand_decl_index(ast);
+    brand_checker::check_brand_mismatches(ast, &brand_decl_index)?;
     let lowering_context = ProgramJsonV0LoweringContext::with_known_enums_and_brands(
         collect_enum_decl_index(ast),
-        collect_brand_decl_index(ast),
+        brand_decl_index,
     );
     let mut program = program_json_v0_from_body_with_context(main_box.body, &lowering_context)?;
     let defs = defs_json_v0_from_methods(&main_box.helper_methods, &lowering_context)?;

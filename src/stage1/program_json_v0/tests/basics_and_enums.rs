@@ -141,6 +141,73 @@ return PageId.cast(7)
 }
 
 #[test]
+fn source_to_program_json_v0_accepts_matching_brand_method_arg() {
+    let source = r#"
+brand BlockId: i64
+
+static box Main {
+  main() {
+local block = BlockId(7)
+return me.releaseLocal(block)
+  }
+
+  method releaseLocal(block: BlockId): i64 {
+return 1
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("matching brand arg");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    assert_eq!(value["kind"], "Program");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_mismatched_brand_method_arg() {
+    let source = r#"
+brand PageId: i64
+brand BlockId: i64
+
+static box Main {
+  main() {
+local page = PageId(7)
+return me.releaseLocal(page)
+  }
+
+  method releaseLocal(block: BlockId): i64 {
+return 1
+  }
+}
+"#;
+
+    let error =
+        source_to_program_json_v0_strict(source).expect_err("mismatched brand arg must fail-fast");
+    assert!(error.contains("[brand/mismatch]"), "{error}");
+    assert!(error.contains("expected BlockId, got PageId"), "{error}");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_unbranded_value_for_brand_arg() {
+    let source = r#"
+brand BlockId: i64
+
+static box Main {
+  main() {
+return me.releaseLocal(7)
+  }
+
+  method releaseLocal(block: BlockId): i64 {
+return 1
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source).expect_err("unbranded arg must fail-fast");
+    assert!(error.contains("[brand/mismatch]"), "{error}");
+    assert!(error.contains("expected BlockId, got unbranded"), "{error}");
+}
+
+#[test]
 fn source_to_program_json_v0_emits_known_enum_match() {
     let source = r#"
 enum Option<T> {

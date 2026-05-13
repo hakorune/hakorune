@@ -14,6 +14,8 @@
 
 #[path = "program_json_v0/authority.rs"]
 mod authority;
+#[path = "program_json_v0/brand_checker.rs"]
+mod brand_checker;
 #[path = "program_json_v0/extract.rs"]
 mod extract;
 #[path = "program_json_v0/lowering.rs"]
