@@ -275,3 +275,4 @@ tools/checks/env_dead_accessors_report.sh
 - `tools/checks/k2_wide_delegate_parser_capsule_guard.sh` - DEL-002 Stage0 delegate parser/metadata capsule guard.
 - `tools/checks/k2_wide_delegate_exposes_lowering_guard.sh` - DEL-003 delegate exposes Stage1 forwarding lowering guard.
 - `tools/checks/k2_wide_brand_parser_capsule_guard.sh` - BRAND-001 Stage0 brand declaration parser/metadata capsule guard.
+- `tools/checks/k2_wide_brand_constructor_unwrap_guard.sh` - BRAND-002 Stage1 brand constructor/unwrap Program JSON v0 policy guard.

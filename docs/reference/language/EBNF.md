@@ -27,6 +27,9 @@ const_int_expr := INT
 ; `brand` is metadata transport only here. Distinct type checking,
 ; constructor/unwrap policy, and verifier facts are Stage1-owned.
 brand_decl := 'brand' IDENT ':' TYPE_REF
+           ; BRAND-002 Stage1 semantics use existing call syntax:
+           ;   IDENT '(' expr ')'          ; explicit brand constructor when IDENT is a declared brand
+           ;   IDENT '.unwrap' '(' expr ')' ; explicit brand unwrap when IDENT is a declared brand
 
 stmt      := 'return' expr
            | local_stmt

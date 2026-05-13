@@ -60,8 +60,10 @@ fn ast_to_program_json_v0_with_imports(
             imports.len()
         );
     }
-    let lowering_context =
-        ProgramJsonV0LoweringContext::with_known_enums(collect_enum_decl_index(ast));
+    let lowering_context = ProgramJsonV0LoweringContext::with_known_enums_and_brands(
+        collect_enum_decl_index(ast),
+        collect_brand_decl_index(ast),
+    );
     let mut program = program_json_v0_from_body_with_context(main_box.body, &lowering_context)?;
     let defs = defs_json_v0_from_methods(&main_box.helper_methods, &lowering_context)?;
     if super::trace_enabled() {
@@ -231,6 +233,27 @@ fn collect_enum_decl_index(ast: &ASTNode) -> BTreeMap<String, Vec<EnumVariantDec
                 return None;
             };
             Some((name.clone(), variants.clone()))
+        })
+        .collect()
+}
+
+fn collect_brand_decl_index(ast: &ASTNode) -> BTreeMap<String, String> {
+    let ASTNode::Program { statements, .. } = ast else {
+        return BTreeMap::new();
+    };
+
+    statements
+        .iter()
+        .filter_map(|statement| {
+            let ASTNode::BrandDeclaration {
+                name,
+                underlying_type_name,
+                ..
+            } = statement
+            else {
+                return None;
+            };
+            Some((name.clone(), underlying_type_name.clone()))
         })
         .collect()
 }

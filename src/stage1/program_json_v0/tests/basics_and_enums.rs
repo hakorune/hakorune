@@ -69,6 +69,78 @@ return 0
 }
 
 #[test]
+fn source_to_program_json_v0_emits_brand_inventory_constructor_and_unwrap() {
+    let source = r#"
+brand PageId: i64
+
+static box Main {
+  main() {
+local page = PageId(7)
+return PageId.unwrap(page)
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let brand_decls = value["brand_decls"].as_array().expect("brand decls");
+    assert_eq!(brand_decls.len(), 1);
+    assert_eq!(brand_decls[0]["name"], "PageId");
+    assert_eq!(brand_decls[0]["underlying_type"], "i64");
+
+    let body = value["body"].as_array().expect("body");
+    assert_eq!(body[0]["type"], "Local");
+    assert_eq!(body[0]["expr"]["type"], "BrandConstruct");
+    assert_eq!(body[0]["expr"]["brand"], "PageId");
+    assert_eq!(body[0]["expr"]["underlying_type"], "i64");
+    assert_eq!(body[0]["expr"]["value"]["value"], 7);
+
+    assert_eq!(body[1]["type"], "Return");
+    assert_eq!(body[1]["expr"]["type"], "BrandUnwrap");
+    assert_eq!(body[1]["expr"]["brand"], "PageId");
+    assert_eq!(body[1]["expr"]["underlying_type"], "i64");
+    assert_eq!(body[1]["expr"]["value"]["name"], "page");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_brand_constructor_arity() {
+    let source = r#"
+brand PageId: i64
+
+static box Main {
+  main() {
+local page = PageId()
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("brand constructor arity must fail-fast");
+    assert!(error.contains("[brand/constructor-arity]"), "{error}");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_brand_unsupported_static_method() {
+    let source = r#"
+brand PageId: i64
+
+static box Main {
+  main() {
+return PageId.cast(7)
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("unsupported brand static method must fail-fast");
+    assert!(
+        error.contains("[brand/unsupported-static-method]"),
+        "{error}"
+    );
+}
+
+#[test]
 fn source_to_program_json_v0_emits_known_enum_match() {
     let source = r#"
 enum Option<T> {

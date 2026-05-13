@@ -14,17 +14,28 @@ pub(super) fn program_json_v0_from_body(body: &[ASTNode]) -> Result<serde_json::
 #[derive(Debug, Default, Clone)]
 pub(super) struct ProgramJsonV0LoweringContext {
     known_enums: BTreeMap<String, Vec<EnumVariantDecl>>,
+    known_brands: BTreeMap<String, String>,
 }
 
 impl ProgramJsonV0LoweringContext {
-    pub(super) fn with_known_enums(known_enums: BTreeMap<String, Vec<EnumVariantDecl>>) -> Self {
-        Self { known_enums }
+    pub(super) fn with_known_enums_and_brands(
+        known_enums: BTreeMap<String, Vec<EnumVariantDecl>>,
+        known_brands: BTreeMap<String, String>,
+    ) -> Self {
+        Self {
+            known_enums,
+            known_brands,
+        }
     }
 
     fn find_enum_variant(&self, enum_name: &str, variant_name: &str) -> Option<&EnumVariantDecl> {
         self.known_enums
             .get(enum_name)
             .and_then(|variants| variants.iter().find(|variant| variant.name == variant_name))
+    }
+
+    fn brand_underlying_type(&self, brand_name: &str) -> Option<&str> {
+        self.known_brands.get(brand_name).map(String::as_str)
     }
 }
 
@@ -275,11 +286,16 @@ fn expression_to_json_v0(
         } => unary_expr_to_json_v0(operator, operand),
         ASTNode::FunctionCall {
             name, arguments, ..
-        } => Ok(serde_json::json!({
-            "type": "Call",
-            "name": name,
-            "args": expressions_to_json_v0(arguments, context)?,
-        })),
+        } => {
+            if let Some(underlying_type) = context.brand_underlying_type(name) {
+                return brand_construct_to_json_v0(name, underlying_type, arguments, context);
+            }
+            Ok(serde_json::json!({
+                "type": "Call",
+                "name": name,
+                "args": expressions_to_json_v0(arguments, context)?,
+            }))
+        }
         ASTNode::Call {
             callee, arguments, ..
         } => {
@@ -298,6 +314,15 @@ fn expression_to_json_v0(
             ..
         } => {
             if let Some(static_receiver) = static_path_from_expr(object) {
+                if let Some(underlying_type) = context.brand_underlying_type(&static_receiver) {
+                    return brand_static_method_to_json_v0(
+                        &static_receiver,
+                        underlying_type,
+                        method,
+                        arguments,
+                        context,
+                    );
+                }
                 return Ok(serde_json::json!({
                     "type": "Call",
                     "name": format!("{}.{}", static_receiver, method),
@@ -389,6 +414,55 @@ fn expression_to_json_v0(
             other.node_type()
         )),
     }
+}
+
+fn brand_construct_to_json_v0(
+    brand_name: &str,
+    underlying_type: &str,
+    arguments: &[ASTNode],
+    context: &ProgramJsonV0LoweringContext,
+) -> Result<serde_json::Value, String> {
+    if arguments.len() != 1 {
+        return Err(format!(
+            "[brand/constructor-arity] {} expects 1 arg, got {}",
+            brand_name,
+            arguments.len()
+        ));
+    }
+    Ok(serde_json::json!({
+        "type": "BrandConstruct",
+        "brand": brand_name,
+        "underlying_type": underlying_type,
+        "value": expression_to_json_v0(&arguments[0], context)?,
+    }))
+}
+
+fn brand_static_method_to_json_v0(
+    brand_name: &str,
+    underlying_type: &str,
+    method: &str,
+    arguments: &[ASTNode],
+    context: &ProgramJsonV0LoweringContext,
+) -> Result<serde_json::Value, String> {
+    if method != "unwrap" {
+        return Err(format!(
+            "[brand/unsupported-static-method] {}.{}",
+            brand_name, method
+        ));
+    }
+    if arguments.len() != 1 {
+        return Err(format!(
+            "[brand/unwrap-arity] {}.unwrap expects 1 arg, got {}",
+            brand_name,
+            arguments.len()
+        ));
+    }
+    Ok(serde_json::json!({
+        "type": "BrandUnwrap",
+        "brand": brand_name,
+        "underlying_type": underlying_type,
+        "value": expression_to_json_v0(&arguments[0], context)?,
+    }))
 }
 
 fn enum_ctor_to_json_v0(
