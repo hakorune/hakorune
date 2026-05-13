@@ -131,6 +131,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_hako_alloc_bounded_decommit_policy_guard.sh` | M195 の bounded decommit execution policy を固定し、eligible/in-bound decision だけが caller-provided `decommitPage` executor を1回呼び、unreserve/OS release や `.inc` matcher に広がらないことを検証する。 |
 | `tools/checks/k2_wide_hako_alloc_page_source_decommit_adapter_guard.sh` | M196 の page-source decommit adapter を固定し、M195 bounded policy が `HakoAllocPageSourcePolicy.decommitPage` にだけ接続され、reserve/commit/unreserve/OS release や `.inc` matcher に広がらないことを検証する。 |
 | `tools/checks/k2_wide_hako_alloc_purge_heap_decommit_guard.sh` | M197 の purge decommit heap integration を固定し、dry-run observation + bounded policy + page-source adapter の合成だけを開き、heap mutation/unreserve/OS release や `.inc` matcher に広がらないことを検証する。 |
+| `tools/checks/k2_wide_hako_alloc_purge_decommit_state_marker_guard.sh` | M198 の hako_alloc purge decommit state marker を固定し、成功decommit reportのpage id記録と重複mark拒否、unreserve/OS release 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_metadata_record_declarations_guard.sh` | C205a の hako_alloc allocator metadata record 宣言を固定し、M178/M180 scalar columns が runtime truth のまま残ることを検証する。 |
 | `tools/checks/k2_wide_allocator_record_construction_read_guard.sh` | C205b の builder-local record construction/read scalarization を固定し、record が `NewBox` / typed-object / backend / hako_alloc live migration に漏れないことを検証する。 |
 | `tools/checks/k2_wide_aligned_small_metadata_record_store_guard.sh` | C205c/C206a の aligned-small metadata record store を固定し、M178 owner が record-shaped store と単一 `findIndex` lookup seam に委譲しつつ packed ArrayBox / backend / huge migration に広がらないことを検証する。 |
@@ -216,7 +217,6 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_allocator_provider_proof_consumption_failfast_entry_guard.sh` | M101 の allocator provider proof consumption fail-fast entry を固定し、runtime attempt report と active registry/selection/proof/rollback/gate/hook/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_selected_provider_precondition_guard.sh` | M102 の allocator provider selected-provider precondition を固定し、caller-provided selected provider 検査と active registry/selection/proof/rollback/gate/hook/replacement 不在を検証する。 |
 | `tools/checks/k2_wide_allocator_provider_proof_validation_guard.sh` | M103 の allocator provider selected-provider proof validation を固定し、proof validation guard が wide allocator gate に個別登録されていないことも検証する。 |
-
 ## Env Hygiene
 
 | Script | Purpose |

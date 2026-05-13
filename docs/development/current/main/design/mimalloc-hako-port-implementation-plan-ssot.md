@@ -207,6 +207,7 @@ the active `.hako` algorithm row.
 | `M195 bounded decommit execution policy` | call a caller-provided decommit executor exactly once for eligible in-bound decisions | page-source decommit adapter |
 | `M196 page-source decommit adapter` | connect M195 bounded policy to `HakoAllocPageSourcePolicy.decommitPage` through a decommit-only adapter | purge decommit heap integration |
 | `M197 purge decommit heap integration` | compose dry-run observation, bounded policy, and page-source adapter for heap page/backing state | purge decommit state marker |
+| `M198 purge decommit state marker` | record successful decommit report page ids in a separate state owner without heap/page mutation | purge state-aware duplicate guard |
 
 Post-C205 phase split:
 
@@ -448,8 +449,15 @@ M189 object-return allocator API parity is complete in
 `docs/development/current/main/phases/phase-293x/293x-200-M189-OBJECT-RETURN-ALLOCATOR-API.md`.
 M190 nullable/failure handle contract is complete in
 `docs/development/current/main/phases/phase-293x/293x-201-M190-NULLABLE-FAILURE-HANDLE-CONTRACT.md`.
-Next allocator algorithm row is M198 purge decommit state marker. Keep it
-metadata/state-only; do not add unreserve or OS release.
+M198 status:
+complete as `293x-238`. `HakoAllocPurgeDecommitStateMarker` records page ids
+from successful decommit reports and rejects non-decommitted, duplicate, or
+widened release reports without calling page-source APIs or mutating heap/page
+state.
+
+Next allocator algorithm row is M199 purge state-aware duplicate guard. Use the
+M198 marker to block repeated decommit attempts before source execution, but do
+not add unreserve or OS release.
 
 ### Proof App Ergonomics Queue
 

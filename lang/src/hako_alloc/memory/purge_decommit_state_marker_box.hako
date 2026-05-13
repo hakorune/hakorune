@@ -1,0 +1,93 @@
+// purge_decommit_state_marker_box.hako -- M198 purge decommit state marker
+// Responsibility:
+// - record page ids that have a successful decommit report
+// - reject non-decommitted, duplicate, or widened release reports
+// Non-responsibility:
+// - page-source calls, heap/page mutation, unreserve, OS release, or allocator replacement
+
+box HakoAllocPurgeDecommitStateMarkReport {
+    status: i64 = 0
+    page_id: i64 = -1
+    marked: i64 = 0
+    already_marked: i64 = 0
+    rejected: i64 = 0
+}
+
+box HakoAllocPurgeDecommitStateMarker {
+    marked_page_ids: ArrayBox = new ArrayBox()
+    attempt_count: i64 = 0
+    marked_count: i64 = 0
+    reject_count: i64 = 0
+    duplicate_count: i64 = 0
+    missing_report_count: i64 = 0
+    not_decommitted_count: i64 = 0
+    release_field_reject_count: i64 = 0
+    last_page_id: i64 = -1
+
+    report(status, page_id, marked, already_marked, rejected) {
+        local result = new HakoAllocPurgeDecommitStateMarkReport()
+        result.status = status
+        result.page_id = page_id
+        result.marked = marked
+        result.already_marked = already_marked
+        result.rejected = rejected
+        return result
+    }
+
+    findMarkedPage(page_id) {
+        local count = me.marked_page_ids.length()
+        local i = 0
+        loop(i < count) {
+            if me.marked_page_ids.get(i) == page_id {
+                return i
+            }
+            i = i + 1
+        }
+        return -1
+    }
+
+    isMarked(page_id) {
+        if me.findMarkedPage(page_id) >= 0 {
+            return 1
+        }
+        return 0
+    }
+
+    markIfDecommitted(page_id, report) {
+        me.attempt_count = me.attempt_count + 1
+        me.last_page_id = page_id
+
+        if page_id < 0 {
+            me.reject_count = me.reject_count + 1
+            return me.report(1, page_id, 0, 0, 1)
+        }
+
+        if report == null {
+            me.missing_report_count = me.missing_report_count + 1
+            me.reject_count = me.reject_count + 1
+            return me.report(2, page_id, 0, 0, 1)
+        }
+
+        if report.decommit_executed == 0 {
+            me.not_decommitted_count = me.not_decommitted_count + 1
+            me.reject_count = me.reject_count + 1
+            return me.report(3, page_id, 0, 0, 1)
+        }
+
+        if report.unreserve_executed != 0 || report.os_release_executed != 0 {
+            me.release_field_reject_count = me.release_field_reject_count + 1
+            me.reject_count = me.reject_count + 1
+            return me.report(4, page_id, 0, 0, 1)
+        }
+
+        if me.isMarked(page_id) != 0 {
+            me.duplicate_count = me.duplicate_count + 1
+            me.reject_count = me.reject_count + 1
+            return me.report(5, page_id, 0, 1, 1)
+        }
+
+        me.marked_page_ids.push(page_id)
+        me.marked_count = me.marked_count + 1
+        return me.report(0, page_id, 1, 0, 0)
+    }
+}

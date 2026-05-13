@@ -282,6 +282,9 @@ Status:
 - `M197` is complete as `293x-237`: it composes dry-run observation, bounded
   decommit policy, and page-source adapter for existing heap page/backing state.
   It does not change record materialization or packed record backend lowering.
+- `M198` is complete as `293x-238`: it records successful decommit report page
+  ids in a separate state marker. It does not change record materialization or
+  packed record backend lowering.
 
 ## C207 Eligibility Gate
 

@@ -161,6 +161,10 @@ Syntax/style contract
   may compose dry-run observation, bounded decommit policy, and the page-source
   decommit adapter for an existing heap page/backing, but it must not mutate
   heap/page state, unreserve, release OSVM pages, or replace allocators.
+- `purge_decommit_state_marker_box.hako` owns M198 purge decommit state marker.
+  It may record page ids from successful decommit reports and reject duplicate
+  or widened release reports, but it must not call page-source APIs, mutate
+  heap/page state, unreserve, release OSVM pages, or replace allocators.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
   huge-page metadata. C205c consumes aligned-small metadata through a

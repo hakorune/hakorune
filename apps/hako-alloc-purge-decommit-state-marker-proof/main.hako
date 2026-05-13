@@ -1,0 +1,46 @@
+// hako-alloc-purge-decommit-state-marker-proof
+// Purpose: prove M198 purge decommit state marker.
+
+using selfhost.hako_alloc.memory.osvm_backed_fast_path_heap_box as HakoAllocOsVmBackedFastPathHeap
+using selfhost.hako_alloc.memory.purge_decommit_state_marker_box as HakoAllocPurgeDecommitStateMarker
+using selfhost.hako_alloc.memory.purge_heap_decommit_box as HakoAllocPurgeHeapDecommit
+
+static box Main {
+    main(args) {
+        local heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local integration = new HakoAllocPurgeHeapDecommitIntegration(64)
+        local marker = new HakoAllocPurgeDecommitStateMarker()
+
+        local page = heap.pages.get(0)
+        local block_id = page.acquire(8)
+        local live = integration.attemptHeapPage(heap, page.page_id)
+        local live_mark = marker.markIfDecommitted(page.page_id, live)
+
+        local release_rc = page.releaseLocal(block_id)
+        local decommit = integration.attemptHeapPage(heap, page.page_id)
+        local mark = marker.markIfDecommitted(page.page_id, decommit)
+        local duplicate = marker.markIfDecommitted(page.page_id, decommit)
+
+        print("hako-alloc-purge-decommit-state-marker-proof")
+        print("live=" + live.status + "," + live.blocked + "," + live.decommit_executed)
+        print("live_mark=" + live_mark.status + "," + live_mark.marked + "," + live_mark.rejected)
+        print("release=" + release_rc)
+        print("decommit=" + decommit.status + "," + decommit.decommit_attempted + "," + decommit.decommit_executed + "," + decommit.decommit_rc)
+        print("mark=" + mark.status + "," + mark.marked + "," + mark.already_marked + "," + mark.rejected)
+        print("duplicate=" + duplicate.status + "," + duplicate.marked + "," + duplicate.already_marked + "," + duplicate.rejected)
+        print("marker=" + marker.attempt_count + "," + marker.marked_count + "," + marker.reject_count + "," + marker.duplicate_count + "," + marker.not_decommitted_count + "," + marker.release_field_reject_count + "," + marker.last_page_id)
+        print("marked=" + marker.isMarked(page.page_id) + "," + marker.marked_page_ids.length())
+        print("integration=" + integration.attempt_count + "," + integration.success_count + "," + integration.blocked_count)
+        print("adapter=" + integration.adapter.call_count + "," + integration.adapter.success_count + "," + integration.adapter.last_bytes + "," + integration.adapter.last_rc)
+        print("release_fields=" + decommit.unreserve_executed + "," + decommit.os_release_executed)
+        print("heap=" + heap.decommit_count + "," + heap.release_count + "," + heap.reject_count)
+
+        if live_mark.status == 3 && release_rc == 1 && mark.status == 0 && duplicate.status == 5 && marker.marked_count == 1 && marker.reject_count == 2 && marker.duplicate_count == 1 && marker.isMarked(page.page_id) == 1 && integration.adapter.call_count == 1 && decommit.unreserve_executed == 0 && decommit.os_release_executed == 0 && heap.decommit_count == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -200,6 +200,7 @@
 - [x] `293x-235` M195 bounded decommit execution policy
 - [x] `293x-236` M196 page-source decommit adapter
 - [x] `293x-237` M197 purge decommit heap integration
+- [x] `293x-238` M198 purge decommit state marker
 
 ## Gates
 

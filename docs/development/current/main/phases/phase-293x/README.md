@@ -616,7 +616,11 @@ inference for the allocator release path.
   observation, bounded decommit policy, and page-source decommit adapter for an
   OSVM-backed heap page/backing while keeping heap mutation, unreserve, and OS
   release closed.
-- Next: M198 purge decommit state marker. M186 facade stats already landed
+- `293x-238`: M198 purge decommit state marker landed, recording successful
+  decommit report page ids in a separate marker owner while rejecting
+  non-decommitted reports, duplicates, and widened release reports without
+  heap/page mutation.
+- Next: M199 purge state-aware duplicate guard. M186 facade stats already landed
   as `294x-19e`, so future rows must not repeat exact usize facade work. M104
   is next only if the optional allocator-provider host-replacement ladder is
   explicitly reopened.
@@ -650,8 +654,9 @@ Current execution order:
    surface, M192 purge/decommit policy inventory, M193 purge/decommit dry-run
    observer, M194 purge/decommit execution fail-fast, M195 bounded decommit
    execution policy, M196 page-source decommit adapter, and M197 purge
-   decommit heap integration are complete; M198 purge decommit state marker is
-   the next safe allocator row.
+   decommit heap integration, and M198 purge decommit state marker are
+   complete; M199 purge state-aware duplicate guard is the next safe allocator
+   row.
 7. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.
    `D195` and `D196` are complete; `C206+` cleanup/probe guards stay
    local-run/index-listed unless a card names a production stop line for

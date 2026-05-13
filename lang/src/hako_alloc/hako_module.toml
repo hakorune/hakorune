@@ -28,6 +28,7 @@ memory.page_map_realloc_same_class_box = "memory/page_map_realloc_same_class_box
 memory.page_queue_box = "memory/page_queue_box.hako"
 memory.page_source_policy_box = "memory/page_source_policy_box.hako"
 memory.purge_bounded_decommit_box = "memory/purge_bounded_decommit_box.hako"
+memory.purge_decommit_state_marker_box = "memory/purge_decommit_state_marker_box.hako"
 memory.purge_dry_run_box = "memory/purge_dry_run_box.hako"
 memory.purge_execution_box = "memory/purge_execution_box.hako"
 memory.purge_heap_decommit_box = "memory/purge_heap_decommit_box.hako"

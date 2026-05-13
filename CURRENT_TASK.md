@@ -45,7 +45,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - current blocker token:
-  `M198 purge decommit state marker`
+  `M199 purge state-aware duplicate guard`
 - primary mode: compiler/runtime packed record array lane for mimalloc metadata completeness
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -58,7 +58,7 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x from M198. C207 emits
+- resume point: continue Phase 293x from M199. C207 emits
   `array_record_autouse_eligibility_plans`, C208 emits
   `array_record_materialization_boundary_plans`, and C209 emits
   `array_record_packed_autouse_pilot_plans` plus crate-private i64 column
@@ -73,10 +73,11 @@ Scope: current lane / next lane / restart order only.
   inactive, M193 connects that policy to OSVM-backed heap page/backing
   observation as a dry-run only, M194 adds an execution entry that still
   returns blocked reports, and M195 adds bounded caller-provided decommit
-  execution while keeping unreserve and OS release inactive, and M196 connects
-  that bounded policy to the page-source decommit adapter only, and M197
-  composes dry-run observation, bounded policy, and page-source adapter for heap
-  page/backing state.
+  execution while keeping unreserve and OS release inactive, M196 connects
+  that bounded policy to the page-source decommit adapter only, M197 composes
+  dry-run observation, bounded policy, and page-source adapter for heap
+  page/backing state, and M198 records successful decommit report page ids in a
+  separate state marker.
   Visible record materialization and packed record backend lowering remain
   closed.
 - restart checks: `git status -sb` ->
@@ -94,7 +95,8 @@ Scope: current lane / next lane / restart order only.
   `bash tools/checks/k2_wide_hako_alloc_purge_execution_failfast_guard.sh` ->
   `bash tools/checks/k2_wide_hako_alloc_bounded_decommit_policy_guard.sh` ->
   `bash tools/checks/k2_wide_hako_alloc_page_source_decommit_adapter_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_purge_heap_decommit_guard.sh`
+  `bash tools/checks/k2_wide_hako_alloc_purge_heap_decommit_guard.sh` ->
+  `bash tools/checks/k2_wide_hako_alloc_purge_decommit_state_marker_guard.sh`
   for the current packed-record metadata lane. Run
   `bash tools/checks/dev_gate.sh allocator-wide` only for allocator/mimalloc/
   provider closeout or explicit wide-gate review.
@@ -103,7 +105,7 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  M198 purge decommit state marker
+  M199 purge state-aware duplicate guard
 - optional future allocator-provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`
