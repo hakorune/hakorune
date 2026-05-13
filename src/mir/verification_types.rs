@@ -126,6 +126,13 @@ pub enum VerificationError {
         producer: String,
         reason: String,
     },
+    /// hako_alloc metadata row invariant violation before allocator rows may
+    /// consume packed metadata facts.
+    HakoAllocMetadataInvariantViolation {
+        record_name: String,
+        layout_id: u32,
+        reason: String,
+    },
 }
 
 impl std::fmt::Display for VerificationError {
@@ -371,6 +378,17 @@ impl std::fmt::Display for VerificationError {
                     value,
                     producer,
                     reason
+                )
+            }
+            VerificationError::HakoAllocMetadataInvariantViolation {
+                record_name,
+                layout_id,
+                reason,
+            } => {
+                write!(
+                    f,
+                    "[mir/verify:hako_alloc_metadata] record={} layout_id={} reason={}",
+                    record_name, layout_id, reason
                 )
             }
         }

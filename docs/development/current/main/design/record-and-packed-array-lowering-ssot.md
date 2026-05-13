@@ -167,6 +167,7 @@ This lane therefore starts at `C201`.
 | `C210 aligned-small metadata packed-store pilot` | let `HakoAllocAlignedSmallMetaStore` benefit from compiler-selected packed storage without naming compiler internals in `.hako` | C211 | no huge migration, no allocator behavior change |
 | `C211 huge-page metadata packed-store pilot` | apply the packed-store pilot to huge-page metadata while preserving live-flag/sentinel behavior | C194a/C212 | no OSVM release widening, no small-page free-list mixing |
 | `C212 packed record backend fail-fast hardening` | ensure unsupported packed record routes fail fast instead of silently falling back | M191 or later algorithm rows | no VM-only completion claim, no broad backend rewrite |
+| `C194 verifier-owned allocation invariants` | verify C210/C211 hako_alloc metadata row invariants before allocator rows consume them | M191 | no runtime metadata rewrite, no backend lowering |
 
 Status:
 
@@ -255,6 +256,10 @@ Status:
   metadata-only with `backend_lowering_enabled = false`; future rows that make
   packed record backend lowering required must fail fast on unsupported
   backends instead of falling back silently.
+- `C194` is complete as `293x-230`: it adds a MIR verifier owner for C210/C211
+  hako_alloc metadata invariants, covering source pilot presence, integer-lane
+  backing layouts, column order, materialization closure, and huge-page released
+  sentinels.
 
 ## C207 Eligibility Gate
 

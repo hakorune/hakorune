@@ -192,6 +192,7 @@
 - [x] `293x-227` C210 aligned-small metadata packed-store pilot
 - [x] `293x-228` C211 huge-page metadata packed-store pilot
 - [x] `293x-229` C212 packed record backend fail-fast hardening
+- [x] `293x-230` C194 verifier-owned allocation invariants
 
 ## Gates
 

@@ -199,6 +199,7 @@ the active `.hako` algorithm row.
 | `C210 aligned-small metadata packed-store pilot` | let aligned-small metadata stores use compiler-selected packed storage without `.hako` knowing compiler internals | `C211` |
 | `C211 huge-page metadata packed-store pilot` | extend the packed-store pilot to huge-page metadata while preserving live/sentinel semantics | verifier/backend hardening |
 | `C212 packed record backend fail-fast hardening` | keep unsupported packed record routes fail-fast rather than silently falling back | allocator algorithm rows after packed storage |
+| `C194 verifier-owned allocation invariants` | move C210/C211 metadata row invariants into MIR verifier-owned contracts | M191 allocator-owned stats/options surface |
 
 Post-C205 phase split:
 
@@ -358,6 +359,13 @@ complete as `293x-229`. C212 adds the shared
 fail-fast checker. It does not enable packed record backend lowering; it only
 ensures future required packed record routes fail fast on unsupported backends
 instead of silently falling back.
+
+C194 status:
+complete as `293x-230`. C194 adds the MIR verifier-owned hako_alloc metadata
+invariant checker for C210/C211 rows. It verifies source pilot presence,
+integer-lane backing layouts, fixed metadata column order, materialization
+closure, and huge-page released sentinels without changing hako_alloc runtime
+behavior or enabling backend lowering.
 
 ### Docs / Guard Checkpoints
 
