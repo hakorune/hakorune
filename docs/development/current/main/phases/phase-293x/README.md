@@ -557,6 +557,9 @@ inference for the allocator release path.
 - `293x-221`: C206d ArrayBox inline-record plan probe landed, connecting
   `ArrayRecordStoragePlan` metadata to the explicit test-only runtime probe for
   integer-lane columns while rejecting handle columns.
+- `293x-222`: D196 stop-the-line guard refresh landed, fixing `C206+`
+  cleanup/probe guards as local-run and index-listed by default unless a later
+  card names the production stop line that needs gate promotion.
 - Next: treat `C201-C205` as closed for the current allocator metadata
   migration. Use `C206+` only for small cleanup/probe rows such as
   metadata-store API cleanup or explicit packed ArrayBox auto-use probes.
@@ -587,3 +590,6 @@ Current execution order:
 4. `C191-C194`: run compiler/backend hardening only when it does not collide
    with the active `.hako` row.
 5. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.
+   `D195` and `D196` are complete; `C206+` cleanup/probe guards stay
+   local-run/index-listed unless a card names a production stop line for
+   promotion.

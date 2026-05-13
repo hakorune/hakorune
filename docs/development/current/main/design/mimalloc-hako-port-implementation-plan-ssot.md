@@ -304,8 +304,19 @@ before any `ArrayBox` is built. This is still not compiler auto-use.
 | `D195 hako_alloc SSOT refresh` | refresh ownership, handle lifetime, release, realloc, alignment, huge, secure-list, and non-goal docs | after `M176`, then again after `M184` if secure-list lands |
 | `D196 stop-the-line guard refresh` | keep guards focused on real stop lines instead of growing every row-specific shell check | after `M184`, or earlier if guard runtime starts blocking normal development |
 
+D196 status:
+complete as `293x-222`. `C206+` cleanup/probe guards are local-run and
+index-listed by default. They must not be promoted into quick/dev or
+allocator-wide gates unless a later card explicitly names the production stop
+line that requires promotion.
+
 Post-M184 D195 refresh is complete in
 `docs/development/current/main/phases/phase-293x/293x-196-D195-HAKO-ALLOC-SSOT-REFRESH.md`.
+D196 guard refresh is complete in
+`docs/development/current/main/phases/phase-293x/293x-222-D196-STOP-THE-LINE-GUARD-REFRESH.md`.
+`C206+` cleanup/probe guards are local-run and index-listed by default; they
+must not be promoted into `dev_gate.sh` or `k2_wide_allocator_gate.sh` unless a
+card names the production stop line that requires promotion.
 M185 field inventory delta is complete in
 `docs/development/current/main/phases/phase-293x/293x-197-M185-HAKO-ALLOC-FIELD-INVENTORY-DELTA.md`.
 M187 size-class `usize` facades are complete in
