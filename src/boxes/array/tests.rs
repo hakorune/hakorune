@@ -1,4 +1,29 @@
 use super::*;
+use crate::mir::array_record_storage_plan::ARRAY_RECORD_STORAGE_KIND_INLINE_RECORD_COLUMNS_V0;
+use crate::mir::function::{
+    ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan, TypedObjectFieldStorage,
+};
+
+fn inline_record_probe_plan(
+    layout_id: u32,
+    storage: Vec<TypedObjectFieldStorage>,
+) -> ArrayRecordStoragePlan {
+    ArrayRecordStoragePlan {
+        record_name: "ProbeMeta".to_string(),
+        layout_id,
+        storage_kind: ARRAY_RECORD_STORAGE_KIND_INLINE_RECORD_COLUMNS_V0.to_string(),
+        field_count: storage.len() as u32,
+        columns: storage
+            .into_iter()
+            .enumerate()
+            .map(|(column, storage)| ArrayRecordStorageColumnPlan {
+                name: format!("field_{column}"),
+                column: column as u32,
+                storage,
+            })
+            .collect(),
+    }
+}
 
 fn inline_record_test_array() -> ArrayBox {
     ArrayInlineRecordProbe::build(
@@ -41,6 +66,33 @@ fn inline_record_probe_rejects_ragged_columns() {
             ArrayInlineRecordColumn::bool_values(vec![true]),
         ],
     );
+
+    assert!(array.is_none());
+}
+
+#[test]
+fn inline_record_plan_probe_builds_integer_lane_array() {
+    let plan = inline_record_probe_plan(
+        23,
+        vec![TypedObjectFieldStorage::I64, TypedObjectFieldStorage::USize],
+    );
+    let array =
+        ArrayInlineRecordPlanProbe::build_integer_lane_array(&plan, vec![vec![10, 20], vec![3, 4]])
+            .expect("integer-lane storage plan must build a probe array");
+
+    assert!(array.uses_inline_record_slots());
+    assert_eq!(array.inline_record_layout_id(), Some(23));
+    assert_eq!(array.len(), 2);
+    assert_eq!(
+        array.get_index_i64(0).to_string_box().value,
+        "[array/inline-record/unmaterialized] record value materialization is not enabled"
+    );
+}
+
+#[test]
+fn inline_record_plan_probe_rejects_handle_columns() {
+    let plan = inline_record_probe_plan(24, vec![TypedObjectFieldStorage::Handle]);
+    let array = ArrayInlineRecordPlanProbe::build_integer_lane_array(&plan, vec![vec![1, 2]]);
 
     assert!(array.is_none());
 }

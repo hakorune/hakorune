@@ -11,6 +11,8 @@ use std::fmt::Display;
 use std::sync::Arc;
 
 #[cfg(test)]
+mod inline_record_plan_probe;
+#[cfg(test)]
 mod inline_record_probe;
 mod ops;
 mod storage;
@@ -20,6 +22,8 @@ mod tests;
 mod text_cell;
 mod traits;
 
+#[cfg(test)]
+use inline_record_plan_probe::ArrayInlineRecordPlanProbe;
 #[cfg(test)]
 use inline_record_probe::ArrayInlineRecordProbe;
 #[cfg(test)]

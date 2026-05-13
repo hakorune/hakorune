@@ -214,6 +214,10 @@ Status:
 - `C206c` is complete as `293x-220`: the probe rejects ragged columns before an
   `ArrayBox` is built, keeping equal-height column invariants local to the
   explicit test-only owner.
+- `C206d` is complete as `293x-221`: `ArrayInlineRecordPlanProbe` maps
+  metadata-only `ArrayRecordStoragePlan` rows into explicit test-only runtime
+  probe arrays for integer-lane columns. Unsupported columns are rejected, and
+  compiler auto-use remains unopened.
 
 ## Target Runtime Shape
 

@@ -291,6 +291,12 @@ complete as `293x-220`. The explicit inline-record probe now fixes its first
 negative contract: ragged columns are rejected before an `ArrayBox` is built.
 This keeps the packed residence invariant local to the probe owner.
 
+C206d status:
+complete as `293x-221`. `ArrayInlineRecordPlanProbe` now connects MIR
+`ArrayRecordStoragePlan` metadata to the explicit test-only runtime probe for
+integer-lane columns. Unsupported storage, such as handle columns, is rejected
+before any `ArrayBox` is built. This is still not compiler auto-use.
+
 ### Docs / Guard Checkpoints
 
 | Row | Goal | Trigger |

@@ -554,6 +554,9 @@ inference for the allocator release path.
   compiler auto-use, public ArrayBox API exposure, or hako_alloc migration.
 - `293x-220`: C206c ArrayBox inline-record probe negative landed, fixing ragged
   column rejection before an `ArrayBox` is built.
+- `293x-221`: C206d ArrayBox inline-record plan probe landed, connecting
+  `ArrayRecordStoragePlan` metadata to the explicit test-only runtime probe for
+  integer-lane columns while rejecting handle columns.
 - Next: treat `C201-C205` as closed for the current allocator metadata
   migration. Use `C206+` only for small cleanup/probe rows such as
   metadata-store API cleanup or explicit packed ArrayBox auto-use probes.
