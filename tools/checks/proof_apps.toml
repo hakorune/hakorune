@@ -41,3 +41,10 @@ app = "apps/hako-alloc-bounded-recommit-policy-proof"
 label = "bounded recommit policy proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_bounded_recommit_policy_guard.sh"]
+
+[[proof_apps]]
+id = "M203"
+app = "apps/hako-alloc-page-source-recommit-adapter-proof"
+label = "page-source recommit adapter proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_page_source_recommit_adapter_guard.sh"]

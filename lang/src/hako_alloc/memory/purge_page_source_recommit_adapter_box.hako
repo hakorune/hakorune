@@ -1,0 +1,33 @@
+// purge_page_source_recommit_adapter_box.hako -- M203 page-source recommit adapter
+// Responsibility:
+// - expose a commitPage(base, bytes) executor for M202 bounded recommit policy
+// - delegate only to HakoAllocPageSourcePolicy.commitPage
+// Non-responsibility:
+// - reserve, decommit, unreserve, OS release, heap/page mutation, marker
+//   transition, or allocator replacement
+
+using selfhost.hako_alloc.memory.page_source_policy_box as HakoAllocPageSourcePolicy
+
+box HakoAllocPageSourceRecommitAdapter {
+    call_count: i64 = 0
+    success_count: i64 = 0
+    reject_count: i64 = 0
+    last_base: i64 = 0
+    last_bytes: i64 = 0
+    last_rc: i64 = 0
+
+    commitPage(base, bytes) {
+        me.call_count = me.call_count + 1
+        me.last_base = base
+        me.last_bytes = bytes
+
+        local rc = HakoAllocPageSourcePolicy.commitPage(base, bytes)
+        me.last_rc = rc
+        if rc == 0 {
+            me.success_count = me.success_count + 1
+        } else {
+            me.reject_count = me.reject_count + 1
+        }
+        return rc
+    }
+}

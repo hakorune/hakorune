@@ -1,0 +1,51 @@
+// hako-alloc-page-source-recommit-adapter-proof
+// Purpose: prove M203 recommit-only page-source adapter.
+
+using selfhost.hako_alloc.memory.osvm_backed_fast_path_heap_box as HakoAllocOsVmBackedFastPathHeap
+using selfhost.hako_alloc.memory.purge_bounded_recommit_box as HakoAllocBoundedRecommit
+using selfhost.hako_alloc.memory.purge_decommitted_page_reuse_precondition_box as HakoAllocDecommittedPageReusePrecondition
+using selfhost.hako_alloc.memory.purge_page_source_recommit_adapter_box as HakoAllocPageSourceRecommitAdapterBox
+using selfhost.hako_alloc.memory.purge_state_aware_decommit_box as HakoAllocPurgeStateAwareDecommit
+
+static box Main {
+    main(args) {
+        local heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local decommit_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local precondition = new HakoAllocDecommittedPageReusePrecondition()
+        local policy = new HakoAllocBoundedRecommitPolicy(64)
+        local adapter = new HakoAllocPageSourceRecommitAdapter()
+
+        local page = heap.pages.get(0)
+        local before = precondition.classifyHeapPage(heap, page.page_id, decommit_guard.marker)
+
+        local block_id = page.acquire(8)
+        local release_rc = page.releaseLocal(block_id)
+        local decommit = decommit_guard.attemptHeapPage(heap, page.page_id)
+        local decision = precondition.classifyHeapPage(heap, page.page_id, decommit_guard.marker)
+
+        local recommit = policy.attemptRecommit(decision, adapter, heap.pageBase(page.page_id), heap.pageBackingBytes(page.page_id))
+        local still_marked = decommit_guard.marker.isMarked(page.page_id)
+        local after = precondition.classifyHeapPage(heap, page.page_id, decommit_guard.marker)
+
+        print("hako-alloc-page-source-recommit-adapter-proof")
+        print("before=" + before.status + "," + before.reuse_allowed + "," + before.requires_recommit + "," + before.backing_bytes)
+        print("release=" + release_rc)
+        print("decommit=" + decommit.status + "," + decommit.source_executed + "," + decommit.marker_marked)
+        print("decision=" + decision.status + "," + decision.decommitted + "," + decision.requires_recommit + "," + decision.backing_bytes)
+        print("recommit=" + recommit.status + "," + recommit.blocked + "," + recommit.recommit_attempted + "," + recommit.recommit_executed + "," + recommit.recommit_rc + "," + recommit.marker_cleared + "," + recommit.unreserve_executed + "," + recommit.os_release_executed)
+        print("adapter=" + adapter.call_count + "," + adapter.success_count + "," + adapter.reject_count + "," + adapter.last_rc + "," + adapter.last_bytes)
+        print("policy=" + policy.attempt_count + "," + policy.blocked_count + "," + policy.recommit_attempt_count + "," + policy.recommit_success_count + "," + policy.source_reject_count)
+        print("marker=" + still_marked + "," + decommit_guard.marker.marked_count + "," + decommit_guard.marker.duplicate_count)
+        print("after=" + after.status + "," + after.decommitted + "," + after.requires_recommit)
+        print("guard=" + decommit_guard.attempt_count + "," + decommit_guard.success_count + "," + decommit_guard.source_execution_count)
+        print("heap=" + heap.decommit_count + "," + heap.release_count + "," + heap.reject_count)
+
+        if before.status == 0 && release_rc == 1 && decommit.status == 0 && decision.requires_recommit == 1 && recommit.recommit_executed == 1 && recommit.marker_cleared == 0 && recommit.unreserve_executed == 0 && recommit.os_release_executed == 0 && adapter.call_count == 1 && adapter.success_count == 1 && still_marked == 1 && after.requires_recommit == 1 && heap.decommit_count == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

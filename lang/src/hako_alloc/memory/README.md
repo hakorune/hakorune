@@ -182,6 +182,11 @@ Syntax/style contract
   execute at most one caller-provided `commitPage(base, bytes)` source call
   after M200 reports `requires_recommit`, but must not call page-source APIs
   directly, clear markers, or mutate heap/page state.
+- `purge_page_source_recommit_adapter_box.hako` owns M203 page-source recommit
+  adapter. It may delegate `commitPage(base, bytes)` to
+  `HakoAllocPageSourcePolicy.commitPage` only, but must not expose reserve,
+  decommit, unreserve, OS release, marker transition, heap/page mutation, or
+  allocator replacement behavior.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
   huge-page metadata. C205c consumes aligned-small metadata through a
