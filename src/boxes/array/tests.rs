@@ -33,6 +33,19 @@ fn inline_record_probe_builds_explicit_probe_array() {
 }
 
 #[test]
+fn inline_record_probe_rejects_ragged_columns() {
+    let array = ArrayInlineRecordProbe::build(
+        12,
+        vec![
+            ArrayInlineRecordColumn::i64(vec![1, 2]),
+            ArrayInlineRecordColumn::bool_values(vec![true]),
+        ],
+    );
+
+    assert!(array.is_none());
+}
+
+#[test]
 fn inline_record_storage_reports_len_capacity_and_debug_kind() {
     let array = inline_record_test_array();
 

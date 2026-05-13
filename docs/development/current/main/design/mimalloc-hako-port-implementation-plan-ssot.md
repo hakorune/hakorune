@@ -286,6 +286,11 @@ test-only owner for constructing `ArrayStorage::InlineRecord` arrays. The probe
 is `#[cfg(test)]`, keeps visible record materialization disabled, and does not
 enable compiler auto-use or `hako_alloc` packed storage migration.
 
+C206c status:
+complete as `293x-220`. The explicit inline-record probe now fixes its first
+negative contract: ragged columns are rejected before an `ArrayBox` is built.
+This keeps the packed residence invariant local to the probe owner.
+
 ### Docs / Guard Checkpoints
 
 | Row | Goal | Trigger |

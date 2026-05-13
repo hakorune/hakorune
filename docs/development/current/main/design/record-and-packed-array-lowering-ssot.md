@@ -211,6 +211,9 @@ Status:
 - `C206b` is complete as `293x-219`: `ArrayInlineRecordProbe` is the explicit
   test-only owner for constructing inline-record arrays. It is not compiler
   auto-use, not a public ArrayBox API, and not a `hako_alloc` migration row.
+- `C206c` is complete as `293x-220`: the probe rejects ragged columns before an
+  `ArrayBox` is built, keeping equal-height column invariants local to the
+  explicit test-only owner.
 
 ## Target Runtime Shape
 

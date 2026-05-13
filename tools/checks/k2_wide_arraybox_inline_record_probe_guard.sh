@@ -44,6 +44,7 @@ guard_expect_in_file "$TAG" 'struct ArrayInlineRecordProbe' "$PROBE" "probe owne
 guard_expect_in_file "$TAG" 'ArrayInlineRecordStorage::new' "$PROBE" "probe must construct storage through the private runtime vocabulary"
 guard_expect_in_file "$TAG" 'new_with_inline_record_storage' "$PROBE" "probe must be the explicit inline-record ArrayBox constructor seam"
 guard_expect_in_file "$TAG" 'inline_record_probe_builds_explicit_probe_array' "$ARRAY_TESTS" "array tests must cover explicit probe construction"
+guard_expect_in_file "$TAG" 'inline_record_probe_rejects_ragged_columns' "$ARRAY_TESTS" "array tests must cover ragged-column rejection"
 guard_expect_in_file "$TAG" 'ArrayInlineRecordProbe::build' "$ARRAY_TESTS" "tests must use the probe owner"
 
 if rg -n 'ArrayInlineRecordProbe|inline_record_probe' src -g'*.rs' \
@@ -68,6 +69,7 @@ fi
 rm -f /tmp/"$TAG".runtime_leak
 
 cargo test -q boxes::array::tests::inline_record_probe_builds_explicit_probe_array
+cargo test -q boxes::array::tests::inline_record_probe_rejects_ragged_columns
 cargo test -q boxes::array::tests::inline_record_storage
 
 echo "[$TAG] ok"
