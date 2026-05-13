@@ -76,3 +76,10 @@ app = "apps/hako-alloc-page-lifecycle-invariant-proof"
 label = "page lifecycle invariant proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_page_lifecycle_invariant_guard.sh"]
+
+[[proof_apps]]
+id = "M208"
+app = "apps/hako-alloc-heap-reuse-priority-policy-proof"
+label = "heap reuse priority policy proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_heap_reuse_priority_policy_guard.sh"]

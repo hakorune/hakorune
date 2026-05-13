@@ -23,6 +23,7 @@ Current modules
 - `page_map_realloc_alloc_copy_release_box.hako`
 - `page_map_realloc_failure_contract_box.hako`
 - `page_map_realloc_same_class_box.hako`
+- `heap_reuse_priority_box.hako`
 - `page_queue_box.hako`
 - `page_lifecycle_invariant_box.hako`
 - `page_source_policy_box.hako`
@@ -203,6 +204,11 @@ Syntax/style contract
   classify active/retired/decommitted/recommitted-active states, but it must not
   allocate, release, decommit, recommit, reactivate, source pages, unreserve,
   release OSVM pages, or replace allocators.
+- `heap_reuse_priority_box.hako` owns M208 heap reuse priority policy. It may
+  read `HakoAllocPageQueue` page order and M207 lifecycle observer facts to rank
+  active, recommitted-active, retired-reactivate, and fresh fallback routes, but
+  it must not acquire/release/reactivate pages, decommit/recommit, source pages,
+  unreserve, release OSVM pages, or replace allocators.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
   huge-page metadata. C205c consumes aligned-small metadata through a

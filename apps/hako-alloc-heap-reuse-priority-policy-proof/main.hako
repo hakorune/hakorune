@@ -1,0 +1,119 @@
+// hako-alloc-heap-reuse-priority-policy-proof
+// Purpose: prove the M208 heap reuse priority policy surface.
+
+using selfhost.hako_alloc.memory.heap_reuse_priority_box as HakoAllocHeapReusePriority
+using selfhost.hako_alloc.memory.osvm_backed_fast_path_heap_box as HakoAllocOsVmBackedFastPathHeap
+using selfhost.hako_alloc.memory.purge_recommit_heap_integration_box as HakoAllocRecommitHeapIntegration
+using selfhost.hako_alloc.memory.purge_state_aware_decommit_box as HakoAllocPurgeStateAwareDecommit
+
+static box Main {
+    main(args) {
+        local policy = new HakoAllocHeapReusePriorityPolicy()
+
+        local active_heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local active_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local active_recommit = new HakoAllocRecommitHeapIntegration(64)
+        local active_recommitted_page = active_heap.pages.get(0)
+        local active_page = active_heap.addBackedPage()
+        local active_block0 = active_recommitted_page.acquire(8)
+        local active_release0 = active_recommitted_page.releaseLocal(active_block0)
+        local active_decommit0 = active_guard.attemptHeapPage(active_heap, active_recommitted_page.page_id)
+        local active_recommit0 = active_recommit.attemptHeapPage(active_heap, active_recommitted_page.page_id, active_guard.marker)
+        local active_choice = policy.selectHeapPage(active_heap, active_guard.marker)
+
+        local recommitted_heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local recommitted_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local recommitted_recommit = new HakoAllocRecommitHeapIntegration(64)
+        local retired_page = recommitted_heap.pages.get(0)
+        local recommitted_page = recommitted_heap.addBackedPage()
+        local retired_block0 = retired_page.acquire(8)
+        local retired_release0 = retired_page.releaseLocal(retired_block0)
+        local recommitted_block0 = recommitted_page.acquire(8)
+        local recommitted_release0 = recommitted_page.releaseLocal(recommitted_block0)
+        local recommitted_decommit0 = recommitted_guard.attemptHeapPage(recommitted_heap, recommitted_page.page_id)
+        local recommitted_recommit0 = recommitted_recommit.attemptHeapPage(recommitted_heap, recommitted_page.page_id, recommitted_guard.marker)
+        local recommitted_choice = policy.selectHeapPage(recommitted_heap, recommitted_guard.marker)
+
+        local retired_heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local retired_page0 = retired_heap.pages.get(0)
+        local retired_block1 = retired_page0.acquire(8)
+        local retired_release1 = retired_page0.releaseLocal(retired_block1)
+        local retired_choice = policy.selectHeapPage(retired_heap, null)
+
+        local fresh_heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local fresh_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local fresh_page0 = fresh_heap.pages.get(0)
+        local fresh_block0 = fresh_page0.acquire(8)
+        local fresh_release0 = fresh_page0.releaseLocal(fresh_block0)
+        local fresh_decommit0 = fresh_guard.attemptHeapPage(fresh_heap, fresh_page0.page_id)
+        local fresh_choice = policy.selectHeapPage(fresh_heap, fresh_guard.marker)
+
+        local ok = check "m208 heap reuse priority" {
+            "active setup release": active_release0 == 1
+            "active decommit rejected": active_decommit0.status == 0
+            "active recommit rejected": active_recommit0.status == 0
+            "active route": active_choice.route == 1
+            "active page selected": active_choice.page_id == active_page.page_id
+            "active state": active_choice.selected_state == 1
+            "active candidates": active_choice.active_candidates == 1
+            "active recommitted candidates": active_choice.recommitted_candidates == 1
+            "active retired candidates": active_choice.retired_candidates == 0
+            "active decommitted blocked": active_choice.decommitted_blocked == 0
+            "recommitted retired release": retired_release0 == 1
+            "recommitted release": recommitted_release0 == 1
+            "recommitted decommit": recommitted_decommit0.status == 0
+            "recommitted recommit": recommitted_recommit0.status == 0
+            "recommitted route": recommitted_choice.route == 2
+            "recommitted page selected": recommitted_choice.page_id == recommitted_page.page_id
+            "recommitted state": recommitted_choice.selected_state == 4
+            "recommitted active candidates": recommitted_choice.active_candidates == 0
+            "recommitted candidates": recommitted_choice.recommitted_candidates == 1
+            "recommitted retired candidates": recommitted_choice.retired_candidates == 1
+            "recommitted blocked": recommitted_choice.decommitted_blocked == 0
+            "retired release": retired_release1 == 1
+            "retired route": retired_choice.route == 3
+            "retired page selected": retired_choice.page_id == retired_page0.page_id
+            "retired state": retired_choice.selected_state == 2
+            "retired reactivate": retired_choice.requires_reactivate == 1
+            "retired not fresh": retired_choice.requires_fresh_page == 0
+            "retired candidates": retired_choice.retired_candidates == 1
+            "fresh release": fresh_release0 == 1
+            "fresh decommit": fresh_decommit0.status == 0
+            "fresh route": fresh_choice.route == 4
+            "fresh page selected": fresh_choice.page_id == -1
+            "fresh state": fresh_choice.selected_state == 0
+            "fresh not reactivate": fresh_choice.requires_reactivate == 0
+            "fresh requires page": fresh_choice.requires_fresh_page == 1
+            "fresh blocked count": fresh_choice.decommitted_blocked == 1
+            "policy select count": policy.select_count == 4
+            "policy active picks": policy.active_pick_count == 1
+            "policy recommitted picks": policy.recommitted_pick_count == 1
+            "policy retired picks": policy.retired_pick_count == 1
+            "policy fresh picks": policy.fresh_pick_count == 1
+            "policy decommitted skips": policy.decommitted_skip_count == 1
+            "policy missing skips": policy.missing_skip_count == 0
+            "policy last route": policy.last_route == 4
+            "policy last page": policy.last_page_id == -1
+        }
+
+        print("hako-alloc-heap-reuse-priority-policy-proof")
+        print("setup_active=" + active_release0 + "," + active_decommit0.status + "," + active_recommit0.status)
+        print("active=" + active_choice.route + "," + active_choice.page_id + "," + active_choice.selected_state + "," + active_choice.requires_reactivate + "," + active_choice.requires_fresh_page + "," + active_choice.active_candidates + "," + active_choice.recommitted_candidates + "," + active_choice.retired_candidates + "," + active_choice.decommitted_blocked)
+        print("setup_recommitted=" + retired_release0 + "," + recommitted_release0 + "," + recommitted_decommit0.status + "," + recommitted_recommit0.status)
+        print("recommitted=" + recommitted_choice.route + "," + recommitted_choice.page_id + "," + recommitted_choice.selected_state + "," + recommitted_choice.requires_reactivate + "," + recommitted_choice.requires_fresh_page + "," + recommitted_choice.active_candidates + "," + recommitted_choice.recommitted_candidates + "," + recommitted_choice.retired_candidates + "," + recommitted_choice.decommitted_blocked)
+        print("setup_retired=" + retired_release1)
+        print("retired=" + retired_choice.route + "," + retired_choice.page_id + "," + retired_choice.selected_state + "," + retired_choice.requires_reactivate + "," + retired_choice.requires_fresh_page + "," + retired_choice.active_candidates + "," + retired_choice.recommitted_candidates + "," + retired_choice.retired_candidates + "," + retired_choice.decommitted_blocked)
+        print("setup_fresh=" + fresh_release0 + "," + fresh_decommit0.status)
+        print("fresh=" + fresh_choice.route + "," + fresh_choice.page_id + "," + fresh_choice.selected_state + "," + fresh_choice.requires_reactivate + "," + fresh_choice.requires_fresh_page + "," + fresh_choice.active_candidates + "," + fresh_choice.recommitted_candidates + "," + fresh_choice.retired_candidates + "," + fresh_choice.decommitted_blocked)
+        print("policy=" + policy.select_count + "," + policy.active_pick_count + "," + policy.recommitted_pick_count + "," + policy.retired_pick_count + "," + policy.fresh_pick_count + "," + policy.decommitted_skip_count + "," + policy.missing_skip_count + "," + policy.last_route + "," + policy.last_page_id)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

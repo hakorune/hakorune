@@ -548,6 +548,12 @@ functions plus the selected strong `i64` report fields that carry the
 active/retired/decommitted/recommitted-active vocabulary and generation facts,
 without changing allocator behavior or enabling backend lowering.
 
+M208 status:
+complete as `293x-253`. M208 adds the read-only
+`HakoAllocHeapReusePriorityPolicy`, which ranks active, recommitted-active,
+retired-reactivate, and fresh fallback routes from the frozen M207 lifecycle
+facts without mutating heap/page state or widening page-source behavior.
+
 ### Proof App Ergonomics Queue
 
 These rows improve proof readability without changing allocator semantics.

@@ -1,0 +1,139 @@
+// heap_reuse_priority_box.hako -- M208 heap reuse priority policy
+// Responsibility:
+// - read queue/heap lifecycle facts and rank existing reuse before fresh pages
+// - keep page mutation, recommit, and page sourcing out of this row
+// Route codes:
+// - 1 active reuse
+// - 2 recommitted-active reuse
+// - 3 retired page reactivation
+// - 4 fresh page required
+
+using selfhost.hako_alloc.memory.page_lifecycle_invariant_box as HakoAllocPageLifecycleInvariant
+
+box HakoAllocHeapReusePriorityDecision {
+    route: i64 = 0
+    page_id: i64 = -1
+    selected_state: i64 = 0
+    requires_reactivate: i64 = 0
+    requires_fresh_page: i64 = 0
+    active_candidates: i64 = 0
+    recommitted_candidates: i64 = 0
+    retired_candidates: i64 = 0
+    decommitted_blocked: i64 = 0
+    missing_candidates: i64 = 0
+}
+
+box HakoAllocHeapReusePriorityPolicy {
+    observer: HakoAllocPageLifecycleInvariantObserver = new HakoAllocPageLifecycleInvariantObserver()
+    select_count: i64 = 0
+    active_pick_count: i64 = 0
+    recommitted_pick_count: i64 = 0
+    retired_pick_count: i64 = 0
+    fresh_pick_count: i64 = 0
+    decommitted_skip_count: i64 = 0
+    missing_skip_count: i64 = 0
+    last_route: i64 = 0
+    last_page_id: i64 = -1
+
+    decision(route, page_id, selected_state, requires_reactivate, requires_fresh_page, active_candidates, recommitted_candidates, retired_candidates, decommitted_blocked, missing_candidates) {
+        local result = new HakoAllocHeapReusePriorityDecision()
+        result.route = route
+        result.page_id = page_id
+        result.selected_state = selected_state
+        result.requires_reactivate = requires_reactivate
+        result.requires_fresh_page = requires_fresh_page
+        result.active_candidates = active_candidates
+        result.recommitted_candidates = recommitted_candidates
+        result.retired_candidates = retired_candidates
+        result.decommitted_blocked = decommitted_blocked
+        result.missing_candidates = missing_candidates
+        return result
+    }
+
+    selectHeapPage(heap, marker) {
+        me.select_count = me.select_count + 1
+
+        local pages = heap.queue.pages
+        local page_count = heap.queue.page_count
+        local active_page_id = -1
+        local recommitted_page_id = -1
+        local retired_page_id = -1
+        local active_candidates = 0
+        local recommitted_candidates = 0
+        local retired_candidates = 0
+        local decommitted_blocked = 0
+        local missing_candidates = 0
+        local i = 0
+        loop(i < page_count) {
+            local page = pages.get(i)
+            if page == null {
+                missing_candidates = missing_candidates + 1
+                me.missing_skip_count = me.missing_skip_count + 1
+            } else {
+                local report = me.observer.observeHeapPage(heap, page.page_id, marker)
+                if report.status != 0 {
+                    missing_candidates = missing_candidates + 1
+                    me.missing_skip_count = me.missing_skip_count + 1
+                } else {
+                    if report.state == 1 {
+                        if report.acquire_allowed != 0 {
+                            active_candidates = active_candidates + 1
+                            if active_page_id < 0 {
+                                active_page_id = page.page_id
+                            }
+                        }
+                    }
+                    if report.state == 4 {
+                        if report.acquire_allowed != 0 {
+                            recommitted_candidates = recommitted_candidates + 1
+                            if recommitted_page_id < 0 {
+                                recommitted_page_id = page.page_id
+                            }
+                        }
+                    }
+                    if report.state == 2 {
+                        if report.decommit_candidate != 0 {
+                            if report.free_count + report.local_free_count > 0 {
+                                retired_candidates = retired_candidates + 1
+                                if retired_page_id < 0 {
+                                    retired_page_id = page.page_id
+                                }
+                            }
+                        }
+                    }
+                    if report.state == 3 {
+                        decommitted_blocked = decommitted_blocked + 1
+                        me.decommitted_skip_count = me.decommitted_skip_count + 1
+                    }
+                }
+            }
+            i = i + 1
+        }
+
+        if 0 <= active_page_id {
+            me.active_pick_count = me.active_pick_count + 1
+            me.last_route = 1
+            me.last_page_id = active_page_id
+            return me.decision(1, active_page_id, 1, 0, 0, active_candidates, recommitted_candidates, retired_candidates, decommitted_blocked, missing_candidates)
+        }
+
+        if 0 <= recommitted_page_id {
+            me.recommitted_pick_count = me.recommitted_pick_count + 1
+            me.last_route = 2
+            me.last_page_id = recommitted_page_id
+            return me.decision(2, recommitted_page_id, 4, 0, 0, active_candidates, recommitted_candidates, retired_candidates, decommitted_blocked, missing_candidates)
+        }
+
+        if 0 <= retired_page_id {
+            me.retired_pick_count = me.retired_pick_count + 1
+            me.last_route = 3
+            me.last_page_id = retired_page_id
+            return me.decision(3, retired_page_id, 2, 1, 0, active_candidates, recommitted_candidates, retired_candidates, decommitted_blocked, missing_candidates)
+        }
+
+        me.fresh_pick_count = me.fresh_pick_count + 1
+        me.last_route = 4
+        me.last_page_id = -1
+        return me.decision(4, -1, 0, 0, 1, active_candidates, recommitted_candidates, retired_candidates, decommitted_blocked, missing_candidates)
+    }
+}
