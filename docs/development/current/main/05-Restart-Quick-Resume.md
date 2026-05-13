@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x packed ArrayBox auto-use pilot`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `C210 aligned-small metadata packed-store pilot`
+- current blocker token: `C211 huge-page metadata packed-store pilot`
 - record / packed ArrayBox SSOT:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
@@ -44,7 +44,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `C210 aligned-small metadata packed-store pilot`
+- current blocker token: `C211 huge-page metadata packed-store pilot`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -55,12 +55,13 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` from C210 aligned-small metadata packed-store pilot.
+- continue `phase-293x` from C211 huge-page metadata packed-store pilot.
   C207 emits `array_record_autouse_eligibility_plans`, C208 emits
   `array_record_materialization_boundary_plans`, and C209 emits
   `array_record_packed_autouse_pilot_plans` plus crate-private i64 column seams.
-  hako_alloc live metadata migration remains closed until C210 explicitly opens
-  the aligned-small pilot.
+  C210 emits `hako_alloc_aligned_small_packed_store_pilot_plans` while keeping
+  hako_alloc source compiler-internal-free. Huge-page metadata migration remains
+  closed until C211 explicitly opens that pilot.
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed with `real-apps` smoke coverage

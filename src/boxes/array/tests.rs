@@ -131,6 +131,50 @@ fn inline_record_autouse_pilot_rejects_ragged_i64_columns() {
 }
 
 #[test]
+fn aligned_small_metadata_packed_store_pilot_reads_metadata_columns() {
+    let layout_id = 41;
+    let ptr_column = 0;
+    let alignment_column = 1;
+    let padded_size_column = 2;
+    let array = ArrayBox::new_with_inline_record_i64_columns_for_compiler_autouse(
+        layout_id,
+        vec![vec![1001, 1002], vec![8, 16], vec![64, 128]],
+    )
+    .expect("aligned-small metadata columns must build packed pilot storage");
+
+    assert!(array.uses_inline_record_slots());
+    assert_eq!(array.inline_record_layout_id(), Some(layout_id));
+    assert_eq!(
+        array.inline_record_load_i64_column_raw(layout_id, 0, ptr_column),
+        Some(1001)
+    );
+    assert_eq!(
+        array.inline_record_load_i64_column_raw(layout_id, 1, ptr_column),
+        Some(1002)
+    );
+    assert_eq!(
+        array.inline_record_load_i64_column_raw(layout_id, 0, alignment_column),
+        Some(8)
+    );
+    assert_eq!(
+        array.inline_record_load_i64_column_raw(layout_id, 1, alignment_column),
+        Some(16)
+    );
+    assert_eq!(
+        array.inline_record_load_i64_column_raw(layout_id, 0, padded_size_column),
+        Some(64)
+    );
+    assert_eq!(
+        array.inline_record_load_i64_column_raw(layout_id, 1, padded_size_column),
+        Some(128)
+    );
+    assert_eq!(
+        array.get_index_i64(0).to_string_box().value,
+        "[array/inline-record/unmaterialized] record value materialization is not enabled"
+    );
+}
+
+#[test]
 fn inline_record_storage_reports_len_capacity_and_debug_kind() {
     let array = inline_record_test_array();
 

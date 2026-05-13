@@ -37,6 +37,7 @@ use super::{
     global_call_route_plan::{
         refresh_function_global_call_routes, refresh_module_global_call_routes,
     },
+    hako_alloc_aligned_small_packed_store_pilot::refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans,
     map_lookup_fusion_plan::refresh_function_map_lookup_fusion_routes,
     placement_effect::refresh_function_placement_effect_routes,
     record_layout_plan::refresh_module_record_layout_plans,
@@ -125,6 +126,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
     refresh_module_array_record_autouse_eligibility_plans(module);
     refresh_module_array_record_materialization_boundary_plans(module);
     refresh_module_array_record_packed_autouse_pilot_plans(module);
+    refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans(module);
     refresh_module_typed_object_plans(module);
     refresh_module_typed_object_field_value_types(module);
     let module_metadata = module.metadata.clone();

@@ -189,7 +189,7 @@
 - [x] `293x-224` C207 packed ArrayBox compiler auto-use eligibility
 - [x] `293x-225` C208 inline-record materialization / escape boundary
 - [x] `293x-226` C209 non-escaping packed ArrayBox compiler auto-use pilot
-- [ ] `293x-227` C210 aligned-small metadata packed-store pilot
+- [x] `293x-227` C210 aligned-small metadata packed-store pilot
 - [ ] `293x-228` C211 huge-page metadata packed-store pilot
 - [ ] `293x-229` C212 packed record backend fail-fast hardening
 

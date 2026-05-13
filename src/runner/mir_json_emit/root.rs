@@ -2,10 +2,11 @@ use super::decls::{
     collect_array_record_autouse_eligibility_plan_values,
     collect_array_record_materialization_boundary_plan_values,
     collect_array_record_packed_autouse_pilot_plan_values,
-    collect_array_record_storage_plan_values, collect_record_layout_plan_values,
-    collect_sorted_enum_decl_values, collect_sorted_record_decl_values,
-    collect_sorted_user_box_decl_values, collect_static_data_plan_values,
-    collect_typed_object_plan_values,
+    collect_array_record_storage_plan_values,
+    collect_hako_alloc_aligned_small_packed_store_pilot_plan_values,
+    collect_record_layout_plan_values, collect_sorted_enum_decl_values,
+    collect_sorted_record_decl_values, collect_sorted_user_box_decl_values,
+    collect_static_data_plan_values, collect_typed_object_plan_values,
 };
 use super::emitters;
 use super::helpers;
@@ -88,6 +89,8 @@ pub(super) fn build_mir_json_root(
         collect_array_record_materialization_boundary_plan_values(module);
     let array_record_packed_autouse_pilot_plans =
         collect_array_record_packed_autouse_pilot_plan_values(module);
+    let hako_alloc_aligned_small_packed_store_pilot_plans =
+        collect_hako_alloc_aligned_small_packed_store_pilot_plan_values(module);
     let static_data_plans = collect_static_data_plan_values(module);
     let enum_decls = collect_sorted_enum_decl_values(module);
 
@@ -119,6 +122,10 @@ pub(super) fn build_mir_json_root(
                 "array_record_packed_autouse_pilot_plans".to_string(),
                 json!(array_record_packed_autouse_pilot_plans),
             );
+            obj.insert(
+                "hako_alloc_aligned_small_packed_store_pilot_plans".to_string(),
+                json!(hako_alloc_aligned_small_packed_store_pilot_plans),
+            );
             obj.insert("static_data_plans".to_string(), json!(static_data_plans));
             obj.insert("enum_decls".to_string(), json!(enum_decls));
         }
@@ -136,6 +143,7 @@ pub(super) fn build_mir_json_root(
             "array_record_autouse_eligibility_plans": array_record_autouse_eligibility_plans,
             "array_record_materialization_boundary_plans": array_record_materialization_boundary_plans,
             "array_record_packed_autouse_pilot_plans": array_record_packed_autouse_pilot_plans,
+            "hako_alloc_aligned_small_packed_store_pilot_plans": hako_alloc_aligned_small_packed_store_pilot_plans,
             "static_data_plans": static_data_plans,
             "enum_decls": enum_decls
         })

@@ -255,6 +255,32 @@ pub(super) fn collect_array_record_packed_autouse_pilot_plan_values(
         .collect()
 }
 
+pub(super) fn collect_hako_alloc_aligned_small_packed_store_pilot_plan_values(
+    module: &crate::mir::MirModule,
+) -> Vec<serde_json::Value> {
+    module
+        .metadata
+        .hako_alloc_aligned_small_packed_store_pilot_plans
+        .iter()
+        .map(|plan| {
+            json!({
+                "record_name": plan.record_name,
+                "store_owner": plan.store_owner,
+                "layout_id": plan.layout_id,
+                "pilot_kind": plan.pilot_kind,
+                "ptr_column": plan.ptr_column,
+                "alignment_column": plan.alignment_column,
+                "padded_size_column": plan.padded_size_column,
+                "private_runtime_storage_enabled": plan.private_runtime_storage_enabled,
+                "hako_alloc_source_mentions_compiler": plan.hako_alloc_source_mentions_compiler,
+                "live_scalar_columns_retained": plan.live_scalar_columns_retained,
+                "public_array_get_materialization_enabled": plan.public_array_get_materialization_enabled,
+                "backend_lowering_enabled": plan.backend_lowering_enabled,
+            })
+        })
+        .collect()
+}
+
 pub(super) fn collect_static_data_plan_values(
     module: &crate::mir::MirModule,
 ) -> Vec<serde_json::Value> {

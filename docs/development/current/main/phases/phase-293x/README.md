@@ -573,11 +573,16 @@ inference for the allocator release path.
   `array_record_packed_autouse_pilot_plans` and a crate-private i64 column
   construction/read seam while keeping public materialization, hako_alloc
   migration, and backend lowering disabled.
-- Next: C210 aligned-small metadata packed-store pilot. hako_alloc live
-  migration to compiler-selected packed storage and backend lowering remain later
-  rows. No M191 allocator API row is scheduled yet; M186 facade stats already
-  landed as `294x-19e`. M104 is next only if the optional allocator-provider
-  host-replacement ladder is explicitly reopened.
+- `293x-227`: C210 aligned-small metadata packed-store pilot landed, adding
+  `hako_alloc_aligned_small_packed_store_pilot_plans` for
+  `HakoAllocAlignedSmallMeta` and a runtime proof that reads aligned metadata
+  through the private C209 i64-column seam. The `.hako` source keeps its
+  record-shaped scalar-column compatibility and does not mention compiler
+  internals.
+- Next: C211 huge-page metadata packed-store pilot. Backend lowering remains a
+  later row. No M191 allocator API row is scheduled yet; M186 facade stats
+  already landed as `294x-19e`. M104 is next only if the optional
+  allocator-provider host-replacement ladder is explicitly reopened.
 
 ## Mimalloc Port Roadmap Snapshot
 
@@ -601,8 +606,8 @@ Current execution order:
 4. `C207-C212`: open packed ArrayBox compiler auto-use in stages:
    eligibility gate, materialization/escape boundary, non-escaping auto-use
    pilot, aligned-small metadata packed-store pilot, huge-page packed-store
-   pilot, and backend fail-fast hardening. `C207-C209` are complete; C210 is the
-   first row allowed to touch aligned-small hako_alloc metadata storage.
+   pilot, and backend fail-fast hardening. `C207-C210` are complete; C211 is the
+   first row allowed to touch huge-page hako_alloc metadata storage.
 5. `C191-C194`: run compiler/backend hardening only when it does not collide
    with the active `.hako` row.
 6. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.

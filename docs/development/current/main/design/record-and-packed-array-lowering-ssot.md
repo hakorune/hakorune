@@ -240,6 +240,11 @@ Status:
   runtime i64-column construction/read seam for non-escaping direct field reads.
   Public materialization, hako_alloc migration, and backend lowering remain
   disabled.
+- `C210` is complete as `293x-227`: it emits
+  `hako_alloc_aligned_small_packed_store_pilot_plans` for
+  `HakoAllocAlignedSmallMeta` and proves the aligned-small metadata shape can be
+  read through the private packed i64-column seam. The `.hako` source retains
+  scalar-column compatibility and must not mention compiler internals.
 
 ## C207 Eligibility Gate
 

@@ -51,6 +51,7 @@ pub mod function;
 pub(crate) mod generic_method_route_facts; // reusable facts for generic-method route planners
 pub mod generic_method_route_plan; // MIR-owned generic method route policy plans
 pub mod global_call_route_plan; // MIR-owned unsupported global user-call route inventory
+pub mod hako_alloc_aligned_small_packed_store_pilot; // MIR-owned C210 aligned-small metadata packed-store pilot
 pub mod if_in_loop_phi; // Phase 187-2: Minimal if-in-loop PHI emitter (extracted from loop_builder)
 pub mod indexof_search_micro_seed_plan; // MIR-owned route plan for temporary indexOf search micro seed bridge
 pub(crate) mod inline_leaf; // shared narrow leaf inline shape contract for optimizer/verifier
@@ -191,8 +192,9 @@ pub use exact_seed_backend_route::{
 pub use function::{
     ArrayRecordAutoUseEligibilityPlan, ArrayRecordMaterializationBoundaryPlan,
     ArrayRecordPackedAutoUsePilotPlan, ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan,
-    ClosureBodyId, FunctionSignature, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
-    RecordDecl, RecordLayoutFieldPlan, RecordLayoutPlan, TypedObjectFieldStorage, UserBoxFieldDecl,
+    ClosureBodyId, FunctionSignature, HakoAllocAlignedSmallPackedStorePilotPlan, MirEnumDecl,
+    MirEnumVariantDecl, MirFunction, MirModule, RecordDecl, RecordLayoutFieldPlan,
+    RecordLayoutPlan, TypedObjectFieldStorage, UserBoxFieldDecl,
 };
 pub use generic_method_route_plan::{
     refresh_function_generic_method_routes, refresh_module_generic_method_routes,

@@ -626,6 +626,27 @@ pub struct ArrayRecordPackedAutoUsePilotPlan {
     pub backend_lowering_enabled: bool,
 }
 
+/// Metadata-only pilot plan for aligned-small hako_alloc metadata packed store.
+///
+/// This consumes the C209 private packed ArrayBox pilot for the
+/// `HakoAllocAlignedSmallMeta` record shape. It does not rewrite `.hako`
+/// storage, materialize records, or add backend lowering.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct HakoAllocAlignedSmallPackedStorePilotPlan {
+    pub record_name: String,
+    pub store_owner: String,
+    pub layout_id: u32,
+    pub pilot_kind: String,
+    pub ptr_column: u32,
+    pub alignment_column: u32,
+    pub padded_size_column: u32,
+    pub private_runtime_storage_enabled: bool,
+    pub hako_alloc_source_mentions_compiler: bool,
+    pub live_scalar_columns_retained: bool,
+    pub public_array_get_materialization_enabled: bool,
+    pub backend_lowering_enabled: bool,
+}
+
 /// Declared variant inventory for first-class enum/sum metadata.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MirEnumVariantDecl {
@@ -704,6 +725,10 @@ pub struct ModuleMetadata {
 
     /// Metadata-only non-escaping packed ArrayBox auto-use pilot rows.
     pub array_record_packed_autouse_pilot_plans: Vec<ArrayRecordPackedAutoUsePilotPlan>,
+
+    /// Metadata-only aligned-small hako_alloc packed-store pilot rows.
+    pub hako_alloc_aligned_small_packed_store_pilot_plans:
+        Vec<HakoAllocAlignedSmallPackedStorePilotPlan>,
 
     /// Backend-readable static readonly table rows.
     /// MIR owns this row shape; backend emitters only serialize rows.

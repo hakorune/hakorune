@@ -335,6 +335,15 @@ inline-record i64 column construction/read seam for non-escaping direct field
 reads. Public record materialization, hako_alloc live migration, backend
 lowering, and visible `ArrayBox.get(i)` record values remain closed.
 
+C210 status:
+complete as `293x-227`. C210 adds
+`hako_alloc_aligned_small_packed_store_pilot_plans` for
+`HakoAllocAlignedSmallMeta` / `HakoAllocAlignedSmallMetaStore` and proves the
+aligned-small metadata shape can use the private C209 i64-column seam. The live
+`.hako` store remains record-shaped and scalar-column compatible, with no
+`InlineRecord` / compiler feature names in hako_alloc source. Huge-page metadata
+and backend lowering remain C211/C212 work.
+
 ### Docs / Guard Checkpoints
 
 | Row | Goal | Trigger |
