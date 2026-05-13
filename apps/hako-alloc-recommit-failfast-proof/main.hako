@@ -1,0 +1,46 @@
+// hako-alloc-recommit-failfast-proof
+// Purpose: prove M201 recommit fail-fast entry remains blocked/report-only.
+
+using selfhost.hako_alloc.memory.osvm_backed_fast_path_heap_box as HakoAllocOsVmBackedFastPathHeap
+using selfhost.hako_alloc.memory.purge_recommit_failfast_box as HakoAllocRecommitFailFast
+using selfhost.hako_alloc.memory.purge_state_aware_decommit_box as HakoAllocPurgeStateAwareDecommit
+
+static box Main {
+    main(args) {
+        local heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local decommit_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local recommit = new HakoAllocRecommitFailFastEntry()
+
+        local page = heap.pages.get(0)
+        local before = recommit.attemptHeapPage(heap, page.page_id, decommit_guard.marker)
+
+        local block_id = page.acquire(8)
+        local live = decommit_guard.attemptHeapPage(heap, page.page_id)
+        local release_rc = page.releaseLocal(block_id)
+        local first = decommit_guard.attemptHeapPage(heap, page.page_id)
+
+        local blocked = recommit.attemptHeapPage(heap, page.page_id, decommit_guard.marker)
+        local missing = recommit.attemptHeapPage(heap, 99, decommit_guard.marker)
+
+        print("hako-alloc-recommit-failfast-proof")
+        print("before=" + before.status + "," + before.blocked + "," + before.reuse_allowed + "," + before.requires_recommit + "," + before.recommit_executed + "," + before.source_executed)
+        print("live=" + live.status + "," + live.source_executed)
+        print("release=" + release_rc)
+        print("first=" + first.status + "," + first.source_executed + "," + first.marker_marked)
+        print("blocked=" + blocked.status + "," + blocked.blocked + "," + blocked.decommitted + "," + blocked.requires_recommit + "," + blocked.recommit_executed + "," + blocked.source_executed + "," + blocked.page_retired + "," + blocked.backing_bytes)
+        print("missing=" + missing.status + "," + missing.blocked + "," + missing.missing_page + "," + missing.recommit_executed + "," + missing.source_executed)
+        print("recommit=" + recommit.attempt_count + "," + recommit.no_recommit_count + "," + recommit.blocked_count + "," + recommit.missing_count + "," + recommit.recommit_execution_count + "," + recommit.source_execution_count + "," + recommit.last_page_id)
+        print("precondition=" + recommit.precondition.check_count + "," + recommit.precondition.allow_count + "," + recommit.precondition.blocked_count + "," + recommit.precondition.missing_count)
+        print("guard=" + decommit_guard.attempt_count + "," + decommit_guard.success_count + "," + decommit_guard.blocked_count + "," + decommit_guard.source_execution_count)
+        print("adapter=" + decommit_guard.integration.adapter.call_count + "," + decommit_guard.integration.adapter.success_count + "," + decommit_guard.integration.adapter.last_bytes)
+        print("heap=" + heap.decommit_count + "," + heap.release_count + "," + heap.reject_count)
+
+        if before.status == 0 && before.reuse_allowed == 1 && live.source_executed == 0 && release_rc == 1 && first.status == 0 && blocked.status == 1 && blocked.requires_recommit == 1 && blocked.recommit_executed == 0 && blocked.source_executed == 0 && missing.status == 2 && recommit.attempt_count == 3 && recommit.blocked_count == 2 && recommit.recommit_execution_count == 0 && recommit.source_execution_count == 0 && decommit_guard.integration.adapter.call_count == 1 && heap.decommit_count == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

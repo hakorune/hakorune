@@ -27,3 +27,10 @@ app = "apps/hako-alloc-decommitted-page-reuse-precondition-proof"
 label = "decommitted page reuse precondition proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_decommitted_page_reuse_precondition_guard.sh"]
+
+[[proof_apps]]
+id = "M201"
+app = "apps/hako-alloc-recommit-failfast-proof"
+label = "recommit fail-fast proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_recommit_failfast_guard.sh"]

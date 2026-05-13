@@ -26,13 +26,13 @@ Related:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `M201 recommit fail-fast entry`
+- current blocker token: `future recommit execution policy`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x from M201 recommit fail-fast entry
+- continue phase-293x after M201; next blocker is future recommit execution policy
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed
@@ -57,8 +57,10 @@ Related:
   page-source adapter for heap page/backing state, M198 records successful
   decommit report page ids in a separate state marker, M199 blocks repeated
   decommit attempts before page-source execution, and M200 classifies
-  decommitted pages as unavailable until a future recommit path exists. Visible
-  record materialization and packed record backend lowering remain closed.
+  decommitted pages as unavailable until a future recommit path exists, and
+  M201 adds a blocked/report-only recommit attempt entry with no source
+  execution. Visible record materialization and packed record backend lowering
+  remain closed.
 - typed-object EXE allocation plus slot `field_set` / `field_get` now covers
   declared i64 fields, init-only untyped fields, handle storage, and observed
   empty user boxes, nullable handle storage through same-module RuntimeDataBox

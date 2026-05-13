@@ -137,6 +137,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_hako_alloc_purge_decommit_state_marker_guard.sh` | M198 の hako_alloc purge decommit state marker を固定し、成功decommit reportのpage id記録と重複mark拒否、unreserve/OS release 不在を検証する。 |
 | `tools/checks/k2_wide_hako_alloc_purge_state_aware_duplicate_guard.sh` | M199 の hako_alloc purge state-aware duplicate guard を固定し、M198 marker による source 実行前の重複decommit防止と unreserve/OS release 不在を検証する。 |
 | `tools/checks/k2_wide_hako_alloc_decommitted_page_reuse_precondition_guard.sh` | M200 の hako_alloc decommitted page reuse precondition を固定し、decommit済みpageがrecommit前に再利用不可であることと page-source 実行不在を検証する。 |
+| `tools/checks/k2_wide_hako_alloc_recommit_failfast_guard.sh` | M201 の hako_alloc recommit fail-fast entry を固定し、recommit attempt が blocked/report-only に留まり actual recommit / page-source 実行へ広がらないことを検証する。 |
 | `tools/checks/k2_wide_allocator_metadata_record_declarations_guard.sh` | C205a の hako_alloc allocator metadata record 宣言を固定し、M178/M180 scalar columns が runtime truth のまま残ることを検証する。 |
 | `tools/checks/k2_wide_allocator_record_construction_read_guard.sh` | C205b の builder-local record construction/read scalarization を固定し、record が `NewBox` / typed-object / backend / hako_alloc live migration に漏れないことを検証する。 |
 | `tools/checks/k2_wide_aligned_small_metadata_record_store_guard.sh` | C205c/C206a の aligned-small metadata record store を固定し、M178 owner が record-shaped store と単一 `findIndex` lookup seam に委譲しつつ packed ArrayBox / backend / huge migration に広がらないことを検証する。 |

@@ -174,6 +174,10 @@ Syntax/style contract
   and decommitted pages as requiring future recommit, but it must not call
   page-source APIs, mutate heap/page state, recommit, unreserve, release OSVM
   pages, or replace allocators.
+- `purge_recommit_failfast_box.hako` owns M201 recommit fail-fast entry. It may
+  read the M200 precondition and return a structured blocked/no-op report, but
+  it must not call page-source APIs, mutate heap/page state, clear the decommit
+  marker, recommit, unreserve, release OSVM pages, or replace allocators.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
   huge-page metadata. C205c consumes aligned-small metadata through a

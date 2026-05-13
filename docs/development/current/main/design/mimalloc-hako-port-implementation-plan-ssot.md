@@ -210,6 +210,7 @@ the active `.hako` algorithm row.
 | `M198 purge decommit state marker` | record successful decommit report page ids in a separate state owner without heap/page mutation | purge state-aware duplicate guard |
 | `M199 purge state-aware duplicate guard` | block already-marked pages before M197/M196 source execution can run again | decommitted page reuse precondition |
 | `M200 decommitted page reuse precondition` | classify decommitted pages as unavailable until a future recommit path exists | recommit fail-fast entry |
+| `M201 recommit fail-fast entry` | expose explicit recommit attempt reports while keeping actual recommit/source execution blocked | future recommit execution policy |
 
 Post-C205 phase split:
 
@@ -467,8 +468,15 @@ complete as `293x-240`. `HakoAllocDecommittedPageReusePrecondition` classifies
 committed/unmarked pages as reusable and decommitted pages as requiring future
 recommit, without page-source calls or heap/page mutation.
 
-Next allocator algorithm row is M201 recommit fail-fast entry. Keep it blocked
-and report-only; do not add actual recommit, unreserve, or OS release.
+M201 status:
+complete as `293x-245`. `HakoAllocRecommitFailFastEntry` exposes an explicit
+recommit attempt report by reading the M200 precondition. It remains
+blocked/report-only and does not call page-source APIs, recommit, unreserve,
+release OSVM pages, clear markers, or mutate heap/page state.
+
+Next allocator algorithm row is future recommit execution policy. Keep it
+separate from M201 and require a new explicit card before adding actual
+page-source execution.
 
 ### Proof App Ergonomics Queue
 
