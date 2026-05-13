@@ -26,14 +26,14 @@ Related:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `M208 heap reuse priority policy`
+- current blocker token: `M209 lifecycle stats observer surface`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after C194b; next blocker is M208 heap reuse priority
-  policy
+- continue phase-293x after M208; next blocker is M209 lifecycle stats observer
+  surface
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed
@@ -67,9 +67,11 @@ Related:
   remain closed, M206 proves the two-generation decommit/recommit/reuse loop
   without a new allocator owner, M207 freezes the active/retired/
   decommitted/recommitted-active lifecycle vocabulary as a read-only
-  observer/proof, and C194b moves the selected M207 lifecycle report/function
-  invariants into MIR verification. Visible record materialization and packed
-  record backend lowering remain closed.
+  observer/proof, C194b moves the selected M207 lifecycle report/function
+  invariants into MIR verification, and M208 freezes heap reuse priority as
+  active → recommitted-active → retired-reactivate → fresh fallback while
+  decommitted pages remain blocked until recommit. Visible record
+  materialization and packed record backend lowering remain closed.
 - typed-object EXE allocation plus slot `field_set` / `field_get` now covers
   declared i64 fields, init-only untyped fields, handle storage, and observed
   empty user boxes, nullable handle storage through same-module RuntimeDataBox
