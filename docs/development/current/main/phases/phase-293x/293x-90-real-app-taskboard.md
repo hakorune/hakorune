@@ -196,6 +196,7 @@
 - [x] `293x-231` M191 hako_alloc stats surface
 - [x] `293x-232` M192 purge/decommit policy inventory
 - [x] `293x-233` M193 purge/decommit dry-run observer
+- [x] `293x-234` M194 purge/decommit execution fail-fast
 
 ## Gates
 

@@ -1,0 +1,50 @@
+// purge_execution_box.hako -- M194 purge/decommit execution fail-fast entry
+// Responsibility:
+// - accept a purge decision and return a structured blocked execution report
+// - keep actual decommit/unreserve/OS release closed
+// Non-responsibility:
+// - calling page-source APIs or mutating heap/page state
+
+box HakoAllocPurgeExecutionReport {
+    status: i64 = 0
+    input_eligible: i64 = 0
+    input_reason: i64 = 0
+    blocked: i64 = 1
+    decommit_executed: i64 = 0
+    unreserve_executed: i64 = 0
+    os_release_executed: i64 = 0
+}
+
+box HakoAllocPurgeExecutionFailFastEntry {
+    attempt_count: i64 = 0
+    blocked_count: i64 = 0
+    missing_decision_count: i64 = 0
+    ineligible_count: i64 = 0
+    execution_inactive_count: i64 = 0
+
+    report(status, input_eligible, input_reason) {
+        local result = new HakoAllocPurgeExecutionReport()
+        result.status = status
+        result.input_eligible = input_eligible
+        result.input_reason = input_reason
+        return result
+    }
+
+    attempt(decision) {
+        me.attempt_count = me.attempt_count + 1
+        me.blocked_count = me.blocked_count + 1
+
+        if decision == null {
+            me.missing_decision_count = me.missing_decision_count + 1
+            return me.report(1, 0, -1)
+        }
+
+        if decision.eligible == 0 {
+            me.ineligible_count = me.ineligible_count + 1
+            return me.report(2, decision.eligible, decision.reason)
+        }
+
+        me.execution_inactive_count = me.execution_inactive_count + 1
+        return me.report(3, decision.eligible, decision.reason)
+    }
+}

@@ -203,6 +203,7 @@ the active `.hako` algorithm row.
 | `M191 hako_alloc stats surface` | add allocator-owned stats snapshot observability without mutable options or behavior changes | purge/decommit policy inventory |
 | `M192 purge/decommit policy inventory` | classify empty-retired page purge candidates without page-source execution | purge/decommit dry-run observer |
 | `M193 purge/decommit dry-run observer` | observe existing OSVM-backed heap page/backing state through the M192 policy without execution | purge/decommit execution fail-fast entry |
+| `M194 purge/decommit execution fail-fast` | add an explicit execution attempt owner that always returns blocked reports | bounded decommit execution policy |
 
 Post-C205 phase split:
 
@@ -389,6 +390,12 @@ existing OSVM-backed heap page/backing state and delegates to the M192 policy.
 It proves live, eligible empty-retired, and missing-backing dry-run cases while
 keeping page-source / OSVM release execution closed.
 
+M194 status:
+complete as `293x-234`. M194 adds `HakoAllocPurgeExecutionFailFastEntry` and
+`HakoAllocPurgeExecutionReport`. Missing, ineligible, and eligible decisions
+all return blocked reports; all execution fields remain false and no
+page-source / OSVM release behavior is opened.
+
 ### Docs / Guard Checkpoints
 
 | Row | Goal | Trigger |
@@ -419,9 +426,9 @@ M189 object-return allocator API parity is complete in
 `docs/development/current/main/phases/phase-293x/293x-200-M189-OBJECT-RETURN-ALLOCATOR-API.md`.
 M190 nullable/failure handle contract is complete in
 `docs/development/current/main/phases/phase-293x/293x-201-M190-NULLABLE-FAILURE-HANDLE-CONTRACT.md`.
-Next allocator algorithm row is M194 purge/decommit execution fail-fast entry.
-Keep execution fail-fast and explicitly blocked until a later row opens a
-bounded decommit path.
+Next allocator algorithm row is M195 bounded decommit execution policy. Keep
+the first execution row narrowly bounded and do not open unreserve or OSVM
+release in the same row.
 
 ### Proof App Ergonomics Queue
 

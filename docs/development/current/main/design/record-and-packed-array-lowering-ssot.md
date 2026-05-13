@@ -269,6 +269,9 @@ Status:
 - `M193` is complete as `293x-233`: it observes existing OSVM-backed heap
   page/backing state through the M192 policy as a dry-run only. It does not
   change record materialization or packed record backend lowering.
+- `M194` is complete as `293x-234`: it adds a purge/decommit execution entry
+  that returns blocked reports for all decision shapes. It does not change
+  record materialization or packed record backend lowering.
 
 ## C207 Eligibility Gate
 

@@ -26,6 +26,7 @@ Current modules
 - `page_queue_box.hako`
 - `page_source_policy_box.hako`
 - `purge_dry_run_box.hako`
+- `purge_execution_box.hako`
 - `purge_policy_box.hako`
 - `remote_free_page_integration_box.hako`
 - `refcell_box.hako`
@@ -140,6 +141,10 @@ Syntax/style contract
   read existing OSVM-backed heap page/backing state and delegate to
   `HakoAllocPurgePolicyInventory`, but it must not call page-source APIs,
   mutate heap/page state, decommit, unreserve, or release OSVM pages.
+- `purge_execution_box.hako` owns M194 purge/decommit execution fail-fast
+  entry. It may accept a purge decision and return a structured blocked report,
+  but it must not call page-source APIs, mutate heap/page state, decommit,
+  unreserve, or release OSVM pages.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
   huge-page metadata. C205c consumes aligned-small metadata through a

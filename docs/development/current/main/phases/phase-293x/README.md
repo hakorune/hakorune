@@ -602,7 +602,10 @@ inference for the allocator release path.
 - `293x-233`: M193 purge/decommit dry-run observer landed, connecting existing
   OSVM-backed heap page/backing observers to the M192 policy without calling
   page-source APIs or mutating heap/page state.
-- Next: M194 purge/decommit execution fail-fast entry. M186 facade stats already landed
+- `293x-234`: M194 purge/decommit execution fail-fast landed, adding an
+  explicit execution attempt owner that returns blocked reports for missing,
+  ineligible, and eligible decisions while all execution fields remain false.
+- Next: M195 bounded decommit execution policy. M186 facade stats already landed
   as `294x-19e`, so future rows must not repeat exact usize facade work. M104
   is next only if the optional allocator-provider host-replacement ladder is
   explicitly reopened.
@@ -633,9 +636,9 @@ Current execution order:
 5. `C191-C194`: run compiler/backend hardening only when it does not collide
    with the active `.hako` row. `C194` is complete.
 6. `M191+`: return to allocator-owned observability/policy rows. M191 stats
-   surface, M192 purge/decommit policy inventory, and M193 purge/decommit
-   dry-run observer are complete; M194 purge/decommit execution fail-fast entry
-   is the next safe allocator row.
+   surface, M192 purge/decommit policy inventory, M193 purge/decommit dry-run
+   observer, and M194 purge/decommit execution fail-fast are complete; M195
+   bounded decommit execution policy is the next safe allocator row.
 7. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.
    `D195` and `D196` are complete; `C206+` cleanup/probe guards stay
    local-run/index-listed unless a card names a production stop line for

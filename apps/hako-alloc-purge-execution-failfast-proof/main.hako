@@ -1,0 +1,29 @@
+// hako-alloc-purge-execution-failfast-proof
+// Purpose: prove the M194 purge/decommit execution fail-fast entry.
+
+using selfhost.hako_alloc.memory.purge_execution_box as HakoAllocPurgeExecution
+using selfhost.hako_alloc.memory.purge_policy_box as HakoAllocPurgePolicy
+
+static box Main {
+    main(args) {
+        local policy = new HakoAllocPurgePolicyInventory()
+        local entry = new HakoAllocPurgeExecutionFailFastEntry()
+
+        local live_decision = policy.classifyLocalPage(1, 1, 4096)
+        local ready_decision = policy.classifyLocalPage(0, 1, 4096)
+
+        local missing = entry.attempt(null)
+        local ineligible = entry.attempt(live_decision)
+        local blocked = entry.attempt(ready_decision)
+
+        print("hako-alloc-purge-execution-failfast-proof")
+        print("missing=" + missing.status + "," + missing.input_eligible + "," + missing.input_reason + "," + missing.blocked)
+        print("ineligible=" + ineligible.status + "," + ineligible.input_eligible + "," + ineligible.input_reason + "," + ineligible.blocked)
+        print("blocked=" + blocked.status + "," + blocked.input_eligible + "," + blocked.input_reason + "," + blocked.blocked)
+        print("executed=" + blocked.decommit_executed + "," + blocked.unreserve_executed + "," + blocked.os_release_executed)
+        print("entry=" + entry.attempt_count + "," + entry.blocked_count + "," + entry.missing_decision_count + "," + entry.ineligible_count + "," + entry.execution_inactive_count)
+        print("policy=" + policy.candidate_count + "," + policy.reject_count)
+        print("summary=ok")
+        return 0
+    }
+}
