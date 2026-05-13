@@ -25,6 +25,7 @@ Current modules
 - `page_map_realloc_same_class_box.hako`
 - `page_queue_box.hako`
 - `page_source_policy_box.hako`
+- `purge_dry_run_box.hako`
 - `purge_policy_box.hako`
 - `remote_free_page_integration_box.hako`
 - `refcell_box.hako`
@@ -135,6 +136,10 @@ Syntax/style contract
   classify empty retired pages as future decommit candidates and return a
   read-only decision object, but it must not call `HakoAllocPageSourcePolicy`,
   mutate heap/page state, unreserve pages, or perform OS release behavior.
+- `purge_dry_run_box.hako` owns M193 purge/decommit dry-run observation. It may
+  read existing OSVM-backed heap page/backing state and delegate to
+  `HakoAllocPurgePolicyInventory`, but it must not call page-source APIs,
+  mutate heap/page state, decommit, unreserve, or release OSVM pages.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
   huge-page metadata. C205c consumes aligned-small metadata through a

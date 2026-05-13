@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-13"
 
 active_lane = "phase-293x packed ArrayBox auto-use pilot"
-active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants are complete, M191 hako_alloc stats surface is complete, and M192 purge/decommit policy inventory is complete. Visible record materialization and packed record backend lowering remain closed. Next row is M193 purge/decommit dry-run observer. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants are complete, M191 hako_alloc stats surface is complete, M192 purge/decommit policy inventory is complete, and M193 purge/decommit dry-run observer is complete. Visible record materialization and packed record backend lowering remain closed. Next row is M194 purge/decommit execution fail-fast entry. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-232-M192-PURGE-DECOMMIT-POLICY-INVENTORY.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-233-M193-PURGE-DECOMMIT-DRY-RUN-OBSERVER.md"
 method_anchor = "docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-232-M192-PURGE-DECOMMIT-POLICY-INVENTORY"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-232-M192-PURGE-DECOMMIT-POLICY-INVENTORY.md"
-latest_card_summary = "293x-232 completes M192 purge/decommit policy inventory: HakoAllocPurgePolicyInventory now classifies local page purge candidates with all OSVM/page-source execution booleans inactive."
+latest_card = "293x-233-M193-PURGE-DECOMMIT-DRY-RUN-OBSERVER"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-233-M193-PURGE-DECOMMIT-DRY-RUN-OBSERVER.md"
+latest_card_summary = "293x-233 completes M193 purge/decommit dry-run observer: HakoAllocPurgeDryRunObserver now observes OSVM-backed heap page/backing state through the M192 policy while page-source/OSVM release execution stays inactive."
 
-current_blocker_token = "M193 purge/decommit dry-run observer"
+current_blocker_token = "M194 purge/decommit execution fail-fast entry"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

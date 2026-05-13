@@ -266,6 +266,9 @@ Status:
 - `M192` is complete as `293x-232`: it adds read-only purge/decommit candidate
   classification in `.hako` and keeps OSVM/page-source execution inactive. It
   does not change record materialization or packed record backend lowering.
+- `M193` is complete as `293x-233`: it observes existing OSVM-backed heap
+  page/backing state through the M192 policy as a dry-run only. It does not
+  change record materialization or packed record backend lowering.
 
 ## C207 Eligibility Gate
 

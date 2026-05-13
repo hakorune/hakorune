@@ -1,0 +1,54 @@
+// purge_dry_run_box.hako -- M193 purge/decommit dry-run observer
+// Responsibility:
+// - observe existing OSVM-backed heap page/backing state
+// - delegate candidate classification to M192 purge policy
+// Non-responsibility:
+// - decommit, unreserve, page-source execution, or heap/page mutation
+
+using selfhost.hako_alloc.memory.purge_policy_box as HakoAllocPurgePolicy
+
+box HakoAllocPurgeDryRunObserver {
+    policy: HakoAllocPurgePolicyInventory = new HakoAllocPurgePolicyInventory()
+    observe_count: i64 = 0
+    candidate_count: i64 = 0
+    reject_count: i64 = 0
+    missing_page_count: i64 = 0
+    last_page_id: i64 = -1
+    last_used: i64 = 0
+    last_retired: i64 = 0
+    last_backing_bytes: i64 = 0
+
+    observeHeapPage(heap, page_id) {
+        me.last_page_id = page_id
+        me.last_used = 0
+        me.last_retired = 0
+        me.last_backing_bytes = 0
+
+        local backing = heap.backingFor(page_id)
+        if backing == null {
+            me.missing_page_count = me.missing_page_count + 1
+            me.reject_count = me.reject_count + 1
+            return me.policy.classifyLocalPage(0, 1, 0)
+        }
+
+        local page = heap.pages.get(page_id)
+        if page == null {
+            me.missing_page_count = me.missing_page_count + 1
+            me.reject_count = me.reject_count + 1
+            return me.policy.classifyLocalPage(0, 1, 0)
+        }
+
+        me.last_used = page.used
+        me.last_retired = page.retired
+        me.last_backing_bytes = backing.bytes
+
+        local decision = me.policy.classifyLocalPage(page.used, page.retired, backing.bytes)
+        me.observe_count = me.observe_count + 1
+        if decision.eligible != 0 {
+            me.candidate_count = me.candidate_count + 1
+        } else {
+            me.reject_count = me.reject_count + 1
+        }
+        return decision
+    }
+}

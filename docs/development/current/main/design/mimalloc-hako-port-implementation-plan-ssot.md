@@ -202,6 +202,7 @@ the active `.hako` algorithm row.
 | `C194 verifier-owned allocation invariants` | move C210/C211 metadata row invariants into MIR verifier-owned contracts | M191 allocator-owned stats/options surface |
 | `M191 hako_alloc stats surface` | add allocator-owned stats snapshot observability without mutable options or behavior changes | purge/decommit policy inventory |
 | `M192 purge/decommit policy inventory` | classify empty-retired page purge candidates without page-source execution | purge/decommit dry-run observer |
+| `M193 purge/decommit dry-run observer` | observe existing OSVM-backed heap page/backing state through the M192 policy without execution | purge/decommit execution fail-fast entry |
 
 Post-C205 phase split:
 
@@ -382,6 +383,12 @@ classifies missing-backing, live, not-retired, and empty-retired cases, but all
 execution booleans remain false and no page-source / OSVM release behavior is
 opened.
 
+M193 status:
+complete as `293x-233`. M193 adds `HakoAllocPurgeDryRunObserver`, which reads
+existing OSVM-backed heap page/backing state and delegates to the M192 policy.
+It proves live, eligible empty-retired, and missing-backing dry-run cases while
+keeping page-source / OSVM release execution closed.
+
 ### Docs / Guard Checkpoints
 
 | Row | Goal | Trigger |
@@ -412,8 +419,9 @@ M189 object-return allocator API parity is complete in
 `docs/development/current/main/phases/phase-293x/293x-200-M189-OBJECT-RETURN-ALLOCATOR-API.md`.
 M190 nullable/failure handle contract is complete in
 `docs/development/current/main/phases/phase-293x/293x-201-M190-NULLABLE-FAILURE-HANDLE-CONTRACT.md`.
-Next allocator algorithm row is M193 purge/decommit dry-run observer. Keep it
-dry-run/observer-only until a later row explicitly opens OSVM release behavior.
+Next allocator algorithm row is M194 purge/decommit execution fail-fast entry.
+Keep execution fail-fast and explicitly blocked until a later row opens a
+bounded decommit path.
 
 ### Proof App Ergonomics Queue
 

@@ -1,0 +1,58 @@
+// hako-alloc-purge-dry-run-proof
+// Purpose: prove the M193 purge/decommit dry-run observer surface.
+
+using selfhost.hako_alloc.memory.osvm_backed_fast_path_heap_box as HakoAllocOsVmBackedFastPathHeap
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.purge_dry_run_box as HakoAllocPurgeDryRun
+
+box HakoAllocPurgeDryRunFakeHeap {
+    pages: ArrayBox = new ArrayBox()
+    backings: ArrayBox = new ArrayBox()
+
+    addPage(page, backing) {
+        me.pages.push(page)
+        me.backings.push(backing)
+        return 1
+    }
+
+    backingFor(page_id) {
+        if page_id < 0 {
+            return null
+        }
+
+        if page_id >= me.backings.length() {
+            return null
+        }
+
+        return me.backings.get(page_id)
+    }
+}
+
+static box Main {
+    main(args) {
+        local heap = new HakoAllocPurgeDryRunFakeHeap()
+        local observer = new HakoAllocPurgeDryRunObserver()
+        local page = new HakoAllocPageModel(0, 16, 1, 1)
+        local backing = new HakoAllocOsVmPageBacking(0, 1234, 16)
+        heap.addPage(page, backing)
+
+        local block_id = page.acquire(8)
+        local live = observer.observeHeapPage(heap, page.page_id)
+
+        local release_rc = page.releaseLocal(block_id)
+        local ready = observer.observeHeapPage(heap, page.page_id)
+        local missing = observer.observeHeapPage(heap, 99)
+
+        print("hako-alloc-purge-dry-run-proof")
+        print("live=" + live.eligible + "," + live.reason + "," + live.page_empty + "," + live.retired)
+        print("release=" + release_rc)
+        print("ready=" + ready.eligible + "," + ready.reason + "," + ready.page_empty + "," + ready.retired + "," + ready.has_backing + "," + ready.committed_bytes)
+        print("missing=" + missing.eligible + "," + missing.reason + "," + missing.has_backing)
+        print("would=" + ready.would_decommit + "," + ready.would_unreserve + "," + ready.would_release_osvm)
+        print("observer=" + observer.observe_count + "," + observer.candidate_count + "," + observer.reject_count + "," + observer.missing_page_count + "," + observer.last_page_id + "," + observer.last_backing_bytes)
+        print("policy=" + observer.policy.candidate_count + "," + observer.policy.reject_count + "," + observer.policy.missing_backing_reject_count + "," + observer.policy.live_reject_count + "," + observer.policy.not_retired_reject_count + "," + observer.policy.empty_retired_count)
+        print("page=" + page.used + "," + page.retired + "," + page.reject_count)
+        print("summary=ok")
+        return 0
+    }
+}
