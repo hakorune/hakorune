@@ -45,7 +45,7 @@ pub struct WasmHakoDefaultLaneTrace {
 pub fn compile_hako_native_shape_emit(
     mir_module: &MirModule,
 ) -> Result<Option<WasmNativeShapeEmit>, WasmError> {
-    enforce_wasm_exact_numeric_backend_supported(mir_module)?;
+    enforce_wasm_mir_backend_supported(mir_module)?;
 
     let Some(found) = shape_table::match_native_shape(mir_module) else {
         if let Some(shape_id) =
@@ -103,11 +103,9 @@ pub fn compile_hako_native_shape_bytes(
     Ok(compile_hako_native_shape_emit(mir_module)?.map(|emitted| emitted.bytes))
 }
 
-fn enforce_wasm_exact_numeric_backend_supported(mir_module: &MirModule) -> Result<(), WasmError> {
-    crate::mir::exact_numeric_backend_capability::enforce_exact_numeric_backend_supported(
-        mir_module, "wasm",
-    )
-    .map_err(WasmError::CodegenError)
+fn enforce_wasm_mir_backend_supported(mir_module: &MirModule) -> Result<(), WasmError> {
+    crate::mir::backend_capability::enforce_mir_backend_supported(mir_module, "wasm")
+        .map_err(WasmError::CodegenError)
 }
 
 /// WASM compilation error
@@ -202,7 +200,7 @@ impl WasmBackend {
 
     /// Compile MIR module to WASM bytes
     pub fn compile_module(&mut self, mir_module: MirModule) -> Result<Vec<u8>, WasmError> {
-        enforce_wasm_exact_numeric_backend_supported(&mir_module)?;
+        enforce_wasm_mir_backend_supported(&mir_module)?;
 
         // WSM-P5-min6 native shape table:
         // For the native subset (main returns integer const family),

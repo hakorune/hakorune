@@ -352,6 +352,13 @@ private C209 i64-column seam. The row preserves live-flag and released-sentinel
 contracts, keeps `.hako` scalar-column compatibility, and leaves backend
 lowering to C212.
 
+C212 status:
+complete as `293x-229`. C212 adds the shared
+`enforce_mir_backend_supported(...)` gate and a packed record backend
+fail-fast checker. It does not enable packed record backend lowering; it only
+ensures future required packed record routes fail fast on unsupported backends
+instead of silently falling back.
+
 ### Docs / Guard Checkpoints
 
 | Row | Goal | Trigger |

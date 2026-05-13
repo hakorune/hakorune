@@ -15,6 +15,7 @@ pub mod aot_plan_import;
 pub mod array_getset_micro_seed_plan; // MIR-owned route plan for temporary array get/set micro seed bridge
 pub(crate) mod array_receiver_proof; // shared RuntimeDataBox -> ArrayBox receiver proof
 pub mod array_record_autouse_eligibility; // MIR-owned eligibility metadata for future packed ArrayBox auto-use
+pub(crate) mod array_record_backend_capability; // backend fail-fast for required packed ArrayBox record routes
 pub mod array_record_materialization_boundary; // MIR-owned materialization / escape boundary metadata for packed ArrayBox auto-use
 pub mod array_record_packed_autouse_pilot; // MIR-owned non-escaping packed ArrayBox auto-use pilot metadata
 pub mod array_record_storage_plan; // MIR-owned ArrayBox packed record storage descriptors
@@ -29,6 +30,7 @@ pub mod array_text_observer_plan; // MIR-owned route plans for generic array/tex
 pub mod array_text_observer_region_contract; // Nested executor contract for observer-store regions
 pub mod array_text_residence_session_plan; // MIR-owned residence session route plans
 pub mod array_text_state_residence_plan; // MIR-owned route plan for generic array/text state residence
+pub(crate) mod backend_capability; // shared MIR backend capability gate
 pub mod basic_block;
 pub mod builder;
 mod compiler;

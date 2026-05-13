@@ -250,6 +250,11 @@ Status:
   `HakoAllocHugePageMeta` and proves the huge-page metadata shape can be read
   through the private packed i64-column seam while preserving live-flag and
   released-sentinel contracts.
+- `C212` is complete as `293x-229`: it adds the shared MIR backend capability
+  gate and a packed record backend fail-fast checker. C209-C211 stay
+  metadata-only with `backend_lowering_enabled = false`; future rows that make
+  packed record backend lowering required must fail fast on unsupported
+  backends instead of falling back silently.
 
 ## C207 Eligibility Gate
 

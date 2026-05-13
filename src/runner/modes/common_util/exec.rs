@@ -283,10 +283,7 @@ pub fn ny_llvmc_emit_exe_lib(
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
 ) -> Result<(), String> {
-    crate::mir::exact_numeric_backend_capability::enforce_exact_numeric_backend_supported(
-        module,
-        "ny-llvmc-exe",
-    )?;
+    crate::mir::backend_capability::enforce_mir_backend_supported(module, "ny-llvmc-exe")?;
     emit_json_and_run_ny_llvmc_emit_exe(
         |json_path| {
             crate::runner::mir_json_emit::emit_mir_json_for_harness(module, json_path)
@@ -303,10 +300,7 @@ pub fn llvmlite_emit_obj_lib(
     module: &nyash_rust::mir::MirModule,
     obj_out: &str,
 ) -> Result<(), String> {
-    crate::mir::exact_numeric_backend_capability::enforce_exact_numeric_backend_supported(
-        module,
-        "llvmlite-obj",
-    )?;
+    crate::mir::backend_capability::enforce_mir_backend_supported(module, "llvmlite-obj")?;
     let json_path = prepare_llvmlite_emit_json_path();
     crate::runner::mir_json_emit::emit_mir_json_for_harness(module, &json_path)
         .map_err(|e| format!("MIR JSON emit error: {}", e))?;
@@ -339,10 +333,7 @@ pub fn ny_llvmc_emit_obj_lib(
     module: &nyash_rust::mir::MirModule,
     obj_out: &str,
 ) -> Result<(), String> {
-    crate::mir::exact_numeric_backend_capability::enforce_exact_numeric_backend_supported(
-        module,
-        "ny-llvmc-obj",
-    )?;
+    crate::mir::backend_capability::enforce_mir_backend_supported(module, "ny-llvmc-obj")?;
     let json_path = prepare_ny_llvmc_emit_json_path();
     crate::runner::mir_json_emit::emit_mir_json_for_harness(module, &json_path)
         .map_err(|e| format!("MIR JSON emit error: {}", e))?;
@@ -359,10 +350,7 @@ pub fn ny_llvmc_emit_exe_bin(
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
 ) -> Result<(), String> {
-    crate::mir::exact_numeric_backend_capability::enforce_exact_numeric_backend_supported(
-        module,
-        "ny-llvmc-exe",
-    )?;
+    crate::mir::backend_capability::enforce_mir_backend_supported(module, "ny-llvmc-exe")?;
     emit_json_and_run_ny_llvmc_emit_exe(
         |json_path| {
             crate::runner::mir_json_emit::emit_mir_json_for_harness_bin(module, json_path)

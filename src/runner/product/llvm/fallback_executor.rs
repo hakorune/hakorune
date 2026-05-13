@@ -22,11 +22,8 @@ impl FallbackExecutorBox {
     /// Otherwise, executes mock execution that inspects the MIR
     /// and returns a deterministic exit code based on Return instructions.
     pub fn execute(module: &MirModule) -> Result<i32, LlvmRunError> {
-        crate::mir::exact_numeric_backend_capability::enforce_exact_numeric_backend_supported(
-            module,
-            "llvm-mock-fallback",
-        )
-        .map_err(LlvmRunError::fatal)?;
+        crate::mir::backend_capability::enforce_mir_backend_supported(module, "llvm-mock-fallback")
+            .map_err(LlvmRunError::fatal)?;
 
         // Fail-fast: if the user explicitly requested the llvmlite harness
         // but this binary was built without the `llvm-harness` feature,

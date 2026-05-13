@@ -45,7 +45,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - current blocker token:
-  `C212 packed record backend fail-fast hardening`
+  `C194 verifier-owned allocation invariants`
 - primary mode: compiler/runtime packed record array lane for mimalloc metadata completeness
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -58,23 +58,25 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x from C212. C207 emits
+- resume point: continue Phase 293x from C194. C207 emits
   `array_record_autouse_eligibility_plans`, C208 emits
   `array_record_materialization_boundary_plans`, and C209 emits
   `array_record_packed_autouse_pilot_plans` plus crate-private i64 column
   construction/read seams. C210 emits
   `hako_alloc_aligned_small_packed_store_pilot_plans`; C211 emits
   `hako_alloc_huge_page_packed_store_pilot_plans` while preserving live/sentinel
-  contracts. Visible record materialization and backend lowering remain closed.
+  contracts. C212 adds the shared MIR backend capability gate and keeps future
+  required packed record routes fail-fast on unsupported backends. Visible
+  record materialization and packed record backend lowering remain closed.
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `bash tools/checks/k2_wide_arraybox_inline_record_autouse_eligibility_guard.sh` ->
   `bash tools/checks/k2_wide_arraybox_inline_record_materialization_boundary_guard.sh` ->
   `bash tools/checks/k2_wide_arraybox_inline_record_autouse_pilot_guard.sh` ->
   `bash tools/checks/k2_wide_aligned_small_metadata_packed_store_pilot_guard.sh` ->
-  `bash tools/checks/k2_wide_huge_page_metadata_packed_store_pilot_guard.sh`
-  for the current packed-record metadata lane; add the next focused hako_alloc /
-  backend guard when C212 lands. Run
+  `bash tools/checks/k2_wide_huge_page_metadata_packed_store_pilot_guard.sh` ->
+  `bash tools/checks/k2_wide_packed_record_backend_failfast_guard.sh`
+  for the current packed-record metadata lane. Run
   `bash tools/checks/dev_gate.sh allocator-wide` only for allocator/mimalloc/
   provider closeout or explicit wide-gate review.
 
@@ -82,7 +84,7 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  C212 packed record backend fail-fast hardening
+  C194 verifier-owned allocation invariants
 - optional future allocator-provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`

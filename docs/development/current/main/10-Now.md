@@ -26,13 +26,13 @@ Related:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `C212 packed record backend fail-fast hardening`
+- current blocker token: `C194 verifier-owned allocation invariants`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x from C212 packed record backend fail-fast hardening
+- continue phase-293x from C194 verifier-owned allocation invariants
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed
@@ -44,7 +44,9 @@ Related:
   C210 emits `hako_alloc_aligned_small_packed_store_pilot_plans` without
   leaking compiler internals into `hako_alloc` source. C211 emits
   `hako_alloc_huge_page_packed_store_pilot_plans` while preserving
-  live/sentinel contracts. C212 owns backend fail-fast hardening.
+  live/sentinel contracts. C212 adds the shared MIR backend capability gate and
+  packed record fail-fast checker. Visible record materialization and packed
+  record backend lowering remain closed.
 - typed-object EXE allocation plus slot `field_set` / `field_get` now covers
   declared i64 fields, init-only untyped fields, handle storage, and observed
   empty user boxes, nullable handle storage through same-module RuntimeDataBox

@@ -17,9 +17,7 @@ pub fn compile_and_execute_v2(
     module: &crate::mir::MirModule,
     _temp_name: &str,
 ) -> Result<Box<dyn crate::box_trait::NyashBox>, String> {
-    crate::mir::exact_numeric_backend_capability::enforce_exact_numeric_backend_supported(
-        module, "wasm-v2",
-    )?;
+    crate::mir::backend_capability::enforce_mir_backend_supported(module, "wasm-v2")?;
 
     // 1) ConsoleBoxを生成（WASM環境ではブラウザコンソールに委譲）
     let console = Box::new(ConsoleBox::new());

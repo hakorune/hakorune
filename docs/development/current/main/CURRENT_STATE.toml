@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-12"
 
 active_lane = "phase-293x packed ArrayBox auto-use pilot"
-active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207 emits metadata-only packed ArrayBox auto-use eligibility rows, C208 emits materialization / escape boundary rows, C209 opens the non-escaping packed ArrayBox auto-use pilot with crate-private i64 column construction/read seams, C210 applies that pilot to aligned-small metadata, and C211 applies it to huge-page metadata while preserving live/sentinel contracts. Visible record materialization and backend lowering remain closed. Next row is C212 packed record backend fail-fast hardening. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, and C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete. Visible record materialization and packed record backend lowering remain closed. Next row is C194 verifier-owned allocation invariants. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-228-C211-HUGE-PAGE-METADATA-PACKED-STORE-PILOT.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-229-C212-PACKED-RECORD-BACKEND-FAILFAST-HARDENING.md"
 method_anchor = "docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-228-C211-HUGE-PAGE-METADATA-PACKED-STORE-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-228-C211-HUGE-PAGE-METADATA-PACKED-STORE-PILOT.md"
-latest_card_summary = "293x-228 completes C211 huge-page metadata packed-store pilot: MIR now emits hako_alloc_huge_page_packed_store_pilot_plans and runtime proof reads huge metadata through the private C209 i64-column seam while hako_alloc source, public materialization, and backend lowering stay closed."
+latest_card = "293x-229-C212-PACKED-RECORD-BACKEND-FAILFAST-HARDENING"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-229-C212-PACKED-RECORD-BACKEND-FAILFAST-HARDENING.md"
+latest_card_summary = "293x-229 completes C212 packed record backend fail-fast hardening: backend call sites now use enforce_mir_backend_supported and future required packed record routes reject unsupported backends instead of silently falling back."
 
-current_blocker_token = "C212 packed record backend fail-fast hardening"
+current_blocker_token = "C194 verifier-owned allocation invariants"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

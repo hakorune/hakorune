@@ -27,11 +27,8 @@ impl PyVmExecutorBox {
             return Err(LlvmRunError::new(0, "PyVM not requested"));
         }
 
-        crate::mir::exact_numeric_backend_capability::enforce_exact_numeric_backend_supported(
-            module,
-            "pyvm-harness",
-        )
-        .map_err(LlvmRunError::fatal)?;
+        crate::mir::backend_capability::enforce_mir_backend_supported(module, "pyvm-harness")
+            .map_err(LlvmRunError::fatal)?;
 
         crate::runner::modes::common_util::legacy::pyvm::run_pyvm_harness_lib(module, "llvm-ast")
             .map_err(|e| LlvmRunError::fatal(format!("PyVM harness error: {}", e)))
