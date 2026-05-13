@@ -28,6 +28,7 @@ Current modules
 - `purge_bounded_decommit_box.hako`
 - `purge_dry_run_box.hako`
 - `purge_execution_box.hako`
+- `purge_heap_decommit_box.hako`
 - `purge_page_source_decommit_adapter_box.hako`
 - `purge_policy_box.hako`
 - `remote_free_page_integration_box.hako`
@@ -156,6 +157,10 @@ Syntax/style contract
   adapter. It may implement `decommitPage(base, bytes)` by delegating to
   `HakoAllocPageSourcePolicy.decommitPage`, but it must not reserve, commit,
   unreserve, release OSVM pages, or mutate heap/page state.
+- `purge_heap_decommit_box.hako` owns M197 purge decommit heap integration. It
+  may compose dry-run observation, bounded decommit policy, and the page-source
+  decommit adapter for an existing heap page/backing, but it must not mutate
+  heap/page state, unreserve, release OSVM pages, or replace allocators.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
   huge-page metadata. C205c consumes aligned-small metadata through a

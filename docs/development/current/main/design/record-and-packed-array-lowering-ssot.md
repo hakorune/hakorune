@@ -279,6 +279,9 @@ Status:
 - `M196` is complete as `293x-236`: it connects M195 bounded decommit execution
   to `HakoAllocPageSourcePolicy.decommitPage` through a decommit-only adapter.
   It does not change record materialization or packed record backend lowering.
+- `M197` is complete as `293x-237`: it composes dry-run observation, bounded
+  decommit policy, and page-source adapter for existing heap page/backing state.
+  It does not change record materialization or packed record backend lowering.
 
 ## C207 Eligibility Gate
 

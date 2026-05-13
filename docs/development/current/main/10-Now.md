@@ -26,13 +26,13 @@ Related:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `M197 purge decommit heap integration`
+- current blocker token: `M198 purge decommit state marker`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x from M197 purge decommit heap integration
+- continue phase-293x from M198 purge decommit state marker
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed
@@ -52,9 +52,10 @@ Related:
   that policy to OSVM-backed heap page/backing observation as a dry-run only,
   M194 adds an execution entry that still returns blocked reports, and M195
   adds bounded caller-provided decommit execution while keeping unreserve and
-  OS release inactive, and M196 connects that bounded policy to the page-source
-  decommit adapter only. Visible record materialization and packed record
-  backend lowering remain closed.
+  OS release inactive, M196 connects that bounded policy to the page-source
+  decommit adapter only, and M197 composes dry-run observation, bounded policy,
+  and page-source adapter for heap page/backing state. Visible record
+  materialization and packed record backend lowering remain closed.
 - typed-object EXE allocation plus slot `field_set` / `field_get` now covers
   declared i64 fields, init-only untyped fields, handle storage, and observed
   empty user boxes, nullable handle storage through same-module RuntimeDataBox

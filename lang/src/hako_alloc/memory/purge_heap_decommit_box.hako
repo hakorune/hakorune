@@ -1,0 +1,47 @@
+// purge_heap_decommit_box.hako -- M197 purge decommit heap integration
+// Responsibility:
+// - compose dry-run page observation, bounded decommit policy, and page-source
+//   decommit adapter for an existing heap page/backing
+// Non-responsibility:
+// - heap/page mutation, unreserve, OS release, or allocator replacement
+
+using selfhost.hako_alloc.memory.purge_bounded_decommit_box as HakoAllocBoundedDecommit
+using selfhost.hako_alloc.memory.purge_dry_run_box as HakoAllocPurgeDryRun
+using selfhost.hako_alloc.memory.purge_page_source_decommit_adapter_box as HakoAllocPageSourceDecommitAdapterBox
+
+box HakoAllocPurgeHeapDecommitIntegration {
+    observer: HakoAllocPurgeDryRunObserver = new HakoAllocPurgeDryRunObserver()
+    adapter: HakoAllocPageSourceDecommitAdapter = new HakoAllocPageSourceDecommitAdapter()
+    policy: HakoAllocBoundedDecommitPolicy
+    attempt_count: i64 = 0
+    success_count: i64 = 0
+    blocked_count: i64 = 0
+    last_page_id: i64 = -1
+    last_base: i64 = 0
+    last_bytes: i64 = 0
+
+    birth(max_decommit_bytes) {
+        me.policy = new HakoAllocBoundedDecommitPolicy(max_decommit_bytes)
+    }
+
+    attemptHeapPage(heap, page_id) {
+        me.attempt_count = me.attempt_count + 1
+        me.last_page_id = page_id
+        me.last_base = 0
+        me.last_bytes = 0
+
+        local decision = me.observer.observeHeapPage(heap, page_id)
+        if decision.eligible != 0 {
+            me.last_base = heap.pageBase(page_id)
+            me.last_bytes = heap.pageBackingBytes(page_id)
+        }
+
+        local report = me.policy.attemptDecommit(decision, me.adapter, me.last_base, me.last_bytes)
+        if report.decommit_executed != 0 {
+            me.success_count = me.success_count + 1
+        } else {
+            me.blocked_count = me.blocked_count + 1
+        }
+        return report
+    }
+}

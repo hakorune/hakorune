@@ -612,7 +612,11 @@ inference for the allocator release path.
   bounded policy to `HakoAllocPageSourcePolicy.decommitPage(...)` through a
   decommit-only adapter while reserve/commit, unreserve, and OS release stay
   separate.
-- Next: M197 purge decommit heap integration. M186 facade stats already landed
+- `293x-237`: M197 purge decommit heap integration landed, composing dry-run
+  observation, bounded decommit policy, and page-source decommit adapter for an
+  OSVM-backed heap page/backing while keeping heap mutation, unreserve, and OS
+  release closed.
+- Next: M198 purge decommit state marker. M186 facade stats already landed
   as `294x-19e`, so future rows must not repeat exact usize facade work. M104
   is next only if the optional allocator-provider host-replacement ladder is
   explicitly reopened.
@@ -645,8 +649,9 @@ Current execution order:
 6. `M191+`: return to allocator-owned observability/policy rows. M191 stats
    surface, M192 purge/decommit policy inventory, M193 purge/decommit dry-run
    observer, M194 purge/decommit execution fail-fast, M195 bounded decommit
-   execution policy, and M196 page-source decommit adapter are complete; M197
-   purge decommit heap integration is the next safe allocator row.
+   execution policy, M196 page-source decommit adapter, and M197 purge
+   decommit heap integration are complete; M198 purge decommit state marker is
+   the next safe allocator row.
 7. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.
    `D195` and `D196` are complete; `C206+` cleanup/probe guards stay
    local-run/index-listed unless a card names a production stop line for
