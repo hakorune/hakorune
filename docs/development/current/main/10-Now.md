@@ -14,34 +14,32 @@ Related:
 ## Current
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- active lane: `phase-294x usize semantic foundation`
+- active lane: `phase-293x packed ArrayBox auto-use eligibility`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - phase status: read `phase_status` in `CURRENT_STATE.toml`
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - task breakdown:
-  `docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md`
-- usize semantic SSOT:
-  `docs/development/current/main/design/usize-semantic-foundation-ssot.md`
+  `docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md`
+- record / packed ArrayBox SSOT:
+  `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `phase-294x exact usize semantics before mimalloc migration`
+- current blocker token: `C208 inline-record materialization / escape boundary before packed runtime auto-use`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue `phase-294x` exact `usize` semantics
+- continue phase-293x from C208 inline-record materialization / escape boundary
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed
-- parent real-app order remains in phase-293x; it is paused while phase-294x
-  raises the integer substrate needed by the mimalloc port
-- start with metadata preservation before runtime behavior:
-  parameter/return declared numeric metadata -> MIR exact numeric type model ->
-  verifier/fail-fast -> VM/backend exact `usize` behavior -> hako_alloc
-  non-negative field migration
+- phase-294x exact `usize` substrate work needed by the mimalloc port is no
+  longer the active default lane. C207 now emits metadata-only
+  `array_record_autouse_eligibility_plans`; C208 must define the
+  materialization / escape boundary before any runtime packed ArrayBox auto-use.
 - typed-object EXE allocation plus slot `field_set` / `field_get` now covers
   declared i64 fields, init-only untyped fields, handle storage, and observed
   empty user boxes, nullable handle storage through same-module RuntimeDataBox
@@ -56,7 +54,7 @@ Related:
   not from host allocator replacement.
 - if a real app exposes a compiler expressivity blocker, fix the compiler seam
   structurally instead of adding app-side workaround code
-- current mirrors are thinned; update `CURRENT_STATE.toml` and the phase-294x
+- current mirrors are thinned; update `CURRENT_STATE.toml` and the phase-293x
   card/taskboard first
 - current allocator/provider task ladder is:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`;

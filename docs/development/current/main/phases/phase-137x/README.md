@@ -25,7 +25,7 @@
 
 ## Quick Scan
 
-- current-state token: `phase-294x usize semantic foundation`
+- current-state token: `phase-293x packed ArrayBox auto-use eligibility`
 - current lane: `phase-137x observe-only guardrail`
 - active current entry: `137x-current.md`
 - active contract map: `137x-array-text-contract-map.md`

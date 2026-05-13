@@ -35,18 +35,18 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Lane
 
-- active lane: `phase-294x usize semantic foundation`
+- active lane: `phase-293x packed ArrayBox auto-use eligibility`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - task breakdown:
-  `docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md`
-- usize semantic SSOT:
-  `docs/development/current/main/design/usize-semantic-foundation-ssot.md`
+  `docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md`
+- record / packed ArrayBox SSOT:
+  `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - current blocker token:
-  `phase-294x exact usize semantics before mimalloc migration`
-- primary mode: language/runtime integer semantics lane for mimalloc completeness
+  `C208 inline-record materialization / escape boundary before packed runtime auto-use`
+- primary mode: compiler/runtime packed record array lane for mimalloc metadata completeness
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
@@ -58,26 +58,25 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 294x from exact `usize` semantics. Phase 293x
-  proved the real-app and mimalloc `.hako` direction; mimalloc now intentionally
-  raises Hakorune's low-level integer completeness before hako_alloc live state
-  migrates from `i64` to `usize`.
+- resume point: continue Phase 293x from C208. C207 emits metadata-only
+  `array_record_autouse_eligibility_plans`; runtime packed ArrayBox auto-use,
+  hako_alloc migration, record materialization, and backend lowering remain
+  later rows.
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
-  `cargo test -q numeric_substrate --lib` for metadata rows; add focused VM,
-  verifier, typed-object, or backend tests as each 294x row lands. Run
+  `bash tools/checks/k2_wide_arraybox_inline_record_autouse_eligibility_guard.sh`
+  for the current packed-record metadata lane; add the next focused
+  materialization / auto-use / backend guard as each C208-C212 row lands. Run
   `bash tools/checks/dev_gate.sh allocator-wide` only for allocator/mimalloc/
   provider closeout or explicit wide-gate review.
 
 ## Task Order
 
-- current task source: `CURRENT_STATE.toml` plus the phase-294x taskboard
-- next 294x order:
-  metadata preservation -> MIR exact numeric model -> verifier/fail-fast ->
-  VM/backend exact `usize` behavior -> typed-object storage -> hako_alloc
-  non-negative field migration -> mimalloc M167+ resume gate
-- parent mimalloc taskboard:
-  `docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md`
+- current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
+- next 293x order:
+  C208 materialization / escape boundary -> C209 non-escaping packed ArrayBox
+  auto-use pilot -> C210 aligned-small metadata packed-store pilot -> C211
+  huge-page metadata packed-store pilot -> C212 backend fail-fast hardening
 - optional future allocator-provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`

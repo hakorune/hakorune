@@ -568,6 +568,24 @@ pub struct ArrayRecordStoragePlan {
     pub columns: Vec<ArrayRecordStorageColumnPlan>,
 }
 
+/// Metadata-only eligibility decision for future ArrayBox inline-record auto-use.
+///
+/// A positive row is still not production runtime auto-use. It only means the
+/// MIR-side storage facts are eligible for a later row to consume once escape
+/// and backend capability gates are also proven.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ArrayRecordAutoUseEligibilityPlan {
+    pub record_name: String,
+    pub layout_id: u32,
+    pub storage_kind: String,
+    pub decision: String,
+    pub reason: String,
+    pub field_count: u32,
+    pub integer_lane_columns: u32,
+    pub required_backend_capability: Option<String>,
+    pub production_auto_use_enabled: bool,
+}
+
 /// Declared variant inventory for first-class enum/sum metadata.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MirEnumVariantDecl {
@@ -637,6 +655,9 @@ pub struct ModuleMetadata {
 
     /// Metadata-only ArrayBox packed record storage descriptors.
     pub array_record_storage_plans: Vec<ArrayRecordStoragePlan>,
+
+    /// Metadata-only eligibility rows for future ArrayBox inline-record auto-use.
+    pub array_record_autouse_eligibility_plans: Vec<ArrayRecordAutoUseEligibilityPlan>,
 
     /// Backend-readable static readonly table rows.
     /// MIR owns this row shape; backend emitters only serialize rows.

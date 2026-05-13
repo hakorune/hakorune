@@ -1,6 +1,6 @@
 # 293x-224: C207 Packed ArrayBox Auto-Use Eligibility
 
-Status: Planned
+Status: Complete
 
 ## Purpose
 

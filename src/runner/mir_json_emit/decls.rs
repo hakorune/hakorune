@@ -183,6 +183,29 @@ pub(super) fn collect_array_record_storage_plan_values(
         .collect()
 }
 
+pub(super) fn collect_array_record_autouse_eligibility_plan_values(
+    module: &crate::mir::MirModule,
+) -> Vec<serde_json::Value> {
+    module
+        .metadata
+        .array_record_autouse_eligibility_plans
+        .iter()
+        .map(|plan| {
+            json!({
+                "record_name": plan.record_name,
+                "layout_id": plan.layout_id,
+                "storage_kind": plan.storage_kind,
+                "decision": plan.decision,
+                "reason": plan.reason,
+                "field_count": plan.field_count,
+                "integer_lane_columns": plan.integer_lane_columns,
+                "required_backend_capability": plan.required_backend_capability,
+                "production_auto_use_enabled": plan.production_auto_use_enabled,
+            })
+        })
+        .collect()
+}
+
 pub(super) fn collect_static_data_plan_values(
     module: &crate::mir::MirModule,
 ) -> Vec<serde_json::Value> {

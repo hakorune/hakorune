@@ -228,9 +228,9 @@ Status:
   stores expose index-based read seams so pointer-based APIs and resolved-index
   callers share one read path. Packed ArrayBox compiler auto-use remains
   unopened.
-- `C206` cleanup/probe work stops here for now. The next active design row is
-  `C207`, planned as `293x-224`, which opens only the compiler eligibility
-  gate for future packed `ArrayBox` auto-use.
+- `C206` cleanup/probe work stops here for now. `C207` is complete as
+  `293x-224`: it opens only the compiler eligibility metadata gate for future
+  packed `ArrayBox` auto-use, with production runtime auto-use still disabled.
 
 ## C207 Eligibility Gate
 

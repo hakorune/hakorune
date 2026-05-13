@@ -30,12 +30,12 @@ cargo check -q
 ## Current Lane
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- active lane: `phase-294x usize semantic foundation`
+- active lane: `phase-293x packed ArrayBox auto-use eligibility`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `phase-294x exact usize semantics before mimalloc migration`
-- usize semantic SSOT:
-  `docs/development/current/main/design/usize-semantic-foundation-ssot.md`
+- current blocker token: `C208 inline-record materialization / escape boundary before packed runtime auto-use`
+- record / packed ArrayBox SSOT:
+  `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - update policy:
@@ -44,7 +44,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `phase-294x exact usize semantics before mimalloc migration`
+- current blocker token: `C208 inline-record materialization / escape boundary before packed runtime auto-use`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -55,7 +55,10 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-294x` exact `usize` semantics
+- continue `phase-293x` from C208 inline-record materialization / escape
+  boundary. C207 emits metadata-only `array_record_autouse_eligibility_plans`;
+  runtime packed ArrayBox auto-use, hako_alloc migration, record
+  materialization, and backend lowering remain later rows.
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed with `real-apps` smoke coverage
@@ -70,15 +73,14 @@ cargo check -q
   direct EXE parity now pass
 - parent EXE boundary gate, only when checking the parked real-app lane:
   `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
-- next: preserve declared numeric metadata, then build exact MIR/runtime/backend
-  `usize` semantics before hako_alloc live state migration
-- current reading: mimalloc remains `.hako` / `hako_alloc` completeness work,
-  but Phase 294x raises Hakorune's integer substrate before M167+ resumes.
+- phase-294x exact `usize` substrate work needed by the mimalloc port is no
+  longer the active default lane. The active lane is packed record / ArrayBox
+  compiler expressivity for mimalloc metadata completeness.
 - do not hide compiler blockers in app code; if a real app exposes a Stage0 or
   VM/compiler seam, fix the compiler structurally first
 - parent real-app gate, only when checking the parked real-app lane:
   `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
-- current mirrors are thinned; update `CURRENT_STATE.toml` and the phase-294x
+- current mirrors are thinned; update `CURRENT_STATE.toml` and the phase-293x
   card/taskboard first
 - do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
   without focused BoxShape lanes and SSOT cards

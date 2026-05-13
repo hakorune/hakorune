@@ -314,11 +314,11 @@ index, without changing allocator behavior or enabling packed ArrayBox
 compiler auto-use.
 
 C207 status:
-planned as `293x-224`. C207 is the next default row: it adds only a compiler
-eligibility gate for packed `ArrayBox` auto-use. It must emit conservative
-eligible/rejected/fail-fast metadata and must not enable production
-`ArrayStorage::InlineRecord` construction, hako_alloc migration,
-materialization, or backend lowering.
+complete as `293x-224`. C207 adds only a compiler eligibility gate for packed
+`ArrayBox` auto-use. It emits conservative eligible/rejected metadata from
+`ArrayRecordStoragePlan` rows, leaves `production_auto_use_enabled=false`, and
+does not enable production `ArrayStorage::InlineRecord` construction,
+hako_alloc migration, materialization, or backend lowering.
 
 ### Docs / Guard Checkpoints
 

@@ -186,7 +186,8 @@
 - [x] `293x-221` C206d ArrayBox inline-record plan probe
 - [x] `293x-222` D196 stop-the-line guard refresh
 - [x] `293x-223` C206e metadata-store indexed read cleanup
-- [ ] `293x-224` C207 packed ArrayBox compiler auto-use eligibility
+- [x] `293x-224` C207 packed ArrayBox compiler auto-use eligibility
+- [ ] `293x-225` C208 inline-record materialization / escape boundary
 
 ## Gates
 

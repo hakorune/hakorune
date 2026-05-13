@@ -1,12 +1,13 @@
 use super::super::{
-    collect_array_record_storage_plan_values, collect_record_layout_plan_values,
-    collect_sorted_enum_decl_values, collect_sorted_record_decl_values,
-    collect_sorted_user_box_decl_values, collect_static_data_plan_values,
-    collect_typed_object_plan_values,
+    collect_array_record_autouse_eligibility_plan_values, collect_array_record_storage_plan_values,
+    collect_record_layout_plan_values, collect_sorted_enum_decl_values,
+    collect_sorted_record_decl_values, collect_sorted_user_box_decl_values,
+    collect_static_data_plan_values, collect_typed_object_plan_values,
 };
 use crate::mir::function::{
-    ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan, RecordLayoutFieldPlan, RecordLayoutPlan,
-    StaticDataPlan, TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan,
+    ArrayRecordAutoUseEligibilityPlan, ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan,
+    RecordLayoutFieldPlan, RecordLayoutPlan, StaticDataPlan, TypedObjectFieldPlan,
+    TypedObjectFieldStorage, TypedObjectPlan,
 };
 use crate::mir::MirModule;
 use serde_json::json;
@@ -324,6 +325,40 @@ fn collect_array_record_storage_plan_values_preserves_column_truth() {
     assert_eq!(plans[0]["columns"][0]["column"], 0);
     assert_eq!(plans[0]["columns"][0]["storage"], "i64");
     assert_eq!(plans[0]["columns"][1]["storage"], "usize");
+}
+
+#[test]
+fn collect_array_record_autouse_eligibility_plan_values_preserves_gate_truth() {
+    let mut module = MirModule::new("test".to_string());
+    module.metadata.array_record_autouse_eligibility_plans.push(
+        ArrayRecordAutoUseEligibilityPlan {
+            record_name: "Meta".to_string(),
+            layout_id: 1,
+            storage_kind: "inline_record_columns_v0".to_string(),
+            decision: "eligible".to_string(),
+            reason: "integer-lane-non-escaping-candidate".to_string(),
+            field_count: 2,
+            integer_lane_columns: 2,
+            required_backend_capability: Some("arraybox.inline_record_columns_v0".to_string()),
+            production_auto_use_enabled: false,
+        },
+    );
+
+    let plans = collect_array_record_autouse_eligibility_plan_values(&module);
+
+    assert_eq!(plans.len(), 1);
+    assert_eq!(plans[0]["record_name"], "Meta");
+    assert_eq!(plans[0]["layout_id"], 1);
+    assert_eq!(plans[0]["storage_kind"], "inline_record_columns_v0");
+    assert_eq!(plans[0]["decision"], "eligible");
+    assert_eq!(plans[0]["reason"], "integer-lane-non-escaping-candidate");
+    assert_eq!(plans[0]["field_count"], 2);
+    assert_eq!(plans[0]["integer_lane_columns"], 2);
+    assert_eq!(
+        plans[0]["required_backend_capability"],
+        "arraybox.inline_record_columns_v0"
+    );
+    assert_eq!(plans[0]["production_auto_use_enabled"], false);
 }
 
 #[test]

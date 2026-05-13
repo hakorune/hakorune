@@ -563,12 +563,13 @@ inference for the allocator release path.
 - `293x-223`: C206e metadata-store indexed read cleanup landed, adding
   `alignmentAt` / `paddedSizeAt` and huge-page `*At` read seams so callers with
   a resolved metadata index do not repeat pointer lookup.
-- Next: `293x-224` / C207 packed ArrayBox compiler auto-use eligibility.
-  C206 cleanup/probe work stops for now; C207 emits conservative
-  eligible/rejected/fail-fast metadata only. Runtime auto-use, hako_alloc
-  migration, materialization, and backend lowering remain later rows. No M191
-  allocator API row is scheduled yet; M186 facade stats already landed as
-  `294x-19e`. M104 is next only if the optional allocator-provider
+- `293x-224`: C207 packed ArrayBox compiler auto-use eligibility landed,
+  emitting conservative `array_record_autouse_eligibility_plans` metadata while
+  leaving production runtime auto-use disabled.
+- Next: C208 inline-record materialization / escape boundary. Runtime auto-use,
+  hako_alloc migration, materialization, and backend lowering remain later
+  rows. No M191 allocator API row is scheduled yet; M186 facade stats already
+  landed as `294x-19e`. M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.
 
 ## Mimalloc Port Roadmap Snapshot
