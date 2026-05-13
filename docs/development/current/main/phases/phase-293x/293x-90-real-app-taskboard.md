@@ -205,6 +205,7 @@
 - [x] `293x-240` M200 decommitted page reuse precondition
 - [x] `293x-241` D197 row guard manifest pilot
 - [x] `293x-242` D198 proof app runner pilot
+- [x] `293x-243` D199 manifest runner library cleanup
 
 ## Gates
 
