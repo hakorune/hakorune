@@ -629,6 +629,10 @@ inference for the allocator release path.
   `tools/checks/guard_rows.toml` and `tools/checks/run_row_guard.sh` as a
   non-breaking wrapper over existing static guards. Existing guard scripts
   remain authoritative and `dev_gate.sh` is unchanged.
+- `293x-242`: D198 proof app runner pilot landed, adding
+  `tools/checks/proof_apps.toml` and `tools/checks/run_proof_app.sh` while
+  keeping app-local `test.sh` files and existing guard scripts authoritative.
+  The pilot converts only the M197-M200 proof wrappers.
 - Next: M201 recommit fail-fast entry. M186 facade stats already landed
   as `294x-19e`, so future rows must not repeat exact usize facade work. M104
   is next only if the optional allocator-provider host-replacement ladder is
@@ -666,7 +670,8 @@ Current execution order:
    decommit heap integration, M198 purge decommit state marker, M199 purge
    state-aware duplicate guard, and M200 decommitted page reuse precondition
    are complete; M201 recommit fail-fast entry is the next safe allocator row.
-7. `D195-D197`: refresh SSOT/guards at milestones, not after every tiny row.
-   `D195`, `D196`, and the D197 row guard manifest pilot are complete.
-   `C206+` cleanup/probe guards stay local-run/index-listed unless a card names
-   a production stop line for promotion.
+7. `D195-D198`: refresh SSOT/guards at milestones, not after every tiny row.
+   `D195`, `D196`, the D197 row guard manifest pilot, and the D198 proof app
+   runner pilot are complete. `C206+` cleanup/probe guards stay
+   local-run/index-listed unless a card names a production stop line for
+   promotion.

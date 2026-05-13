@@ -1,0 +1,29 @@
+schema_version = 0
+
+[[proof_apps]]
+id = "M197"
+app = "apps/hako-alloc-purge-heap-decommit-proof"
+label = "purge heap decommit integration proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_purge_heap_decommit_guard.sh"]
+
+[[proof_apps]]
+id = "M198"
+app = "apps/hako-alloc-purge-decommit-state-marker-proof"
+label = "purge decommit state marker proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_purge_decommit_state_marker_guard.sh"]
+
+[[proof_apps]]
+id = "M199"
+app = "apps/hako-alloc-purge-state-aware-duplicate-guard-proof"
+label = "purge state-aware duplicate guard proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_purge_state_aware_duplicate_guard.sh"]
+
+[[proof_apps]]
+id = "M200"
+app = "apps/hako-alloc-decommitted-page-reuse-precondition-proof"
+label = "decommitted page reuse precondition proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_decommitted_page_reuse_precondition_guard.sh"]

@@ -17,6 +17,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/dev_gate.sh` | 日常ゲートの統合実行（quick/hotpath/allocator-wide/portability/milestone）。quick は daily slim、allocator-wide は full allocator/mimalloc/provider proof。 |
 | `tools/checks/k2_wide_allocator_gate.sh` | dev_gate allocator-wide から呼ぶ allocator/mimalloc/provider proof group。個別 guard の docs/dev_gate 導線は維持しつつ、実行本体を1入口へ集約する。 |
 | `tools/checks/run_row_guard.sh` | `tools/checks/guard_rows.toml` を読む非破壊 row guard pilot runner。既存 guard script を argv 配列で呼ぶだけに留め、`dev_gate.sh` / allocator-wide にはまだ組み込まない。 |
+| `tools/checks/run_proof_app.sh` | `tools/checks/proof_apps.toml` を読む非破壊 proof app runner。app-local `test.sh` 入口を保ったまま、既存 guard script への委譲を manifest 化する。 |
 | `tools/checks/allocator_provider_inactive_sentinel_guard.sh` | quick 用の軽量 provider inactive sentinel。selection/proof consumption/rollback/gate/hook/replacement/`.inc` matcher の危険信号だけを共有 forbidden-pattern guard で固定する。 |
 | `tools/checks/lib/cargo_test_filter_group.sh` | quick first-row guards 用の共有 helper。main crate lib test target に限定して関連 cargo test filter を contract-family 単位に束ね、route/file lock は各 guard 側に残す。 |
 | `tools/checks/current_state_pointer_guard.sh` | `CURRENT_STATE.toml` をSSOTとして current pointer の必須path / latest-card整合 / stale phase 名を fail-fast で検出する。current mirrors に latest-card履歴の再掲は要求しない。 |
