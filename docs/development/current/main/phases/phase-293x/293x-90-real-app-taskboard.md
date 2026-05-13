@@ -207,6 +207,7 @@
 - [x] `293x-246` M202 bounded recommit policy
 - [x] `293x-247` M203 page-source recommit adapter
 - [x] `293x-248` M204 recommit marker transition
+- [x] `293x-249` M205 recommit heap integration
 - [x] `293x-241` D197 row guard manifest pilot
 - [x] `293x-242` D198 proof app runner pilot
 - [x] `293x-243` D199 manifest runner library cleanup

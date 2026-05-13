@@ -1,0 +1,108 @@
+// purge_recommit_heap_integration_box.hako -- M205 recommit heap integration
+// Responsibility:
+// - compose M200 precondition, M202 bounded policy, M203 adapter, M204 marker
+//   transition, and page-local reactivation for an existing heap page/backing
+// Non-responsibility:
+// - reserve, decommit, unreserve, OS release, allocator replacement, or page
+//   sourcing
+
+using selfhost.hako_alloc.memory.purge_bounded_recommit_box as HakoAllocBoundedRecommit
+using selfhost.hako_alloc.memory.purge_decommitted_page_reuse_precondition_box as HakoAllocDecommittedPageReusePrecondition
+using selfhost.hako_alloc.memory.purge_page_source_recommit_adapter_box as HakoAllocPageSourceRecommitAdapterBox
+
+box HakoAllocRecommitHeapIntegrationReport {
+    status: i64 = 0
+    page_id: i64 = -1
+    blocked: i64 = 0
+    recommit_executed: i64 = 0
+    marker_recommitted: i64 = 0
+    page_reactivated: i64 = 0
+    reuse_allowed_after: i64 = 0
+    base: i64 = 0
+    bytes: i64 = 0
+}
+
+box HakoAllocRecommitHeapIntegration {
+    precondition: HakoAllocDecommittedPageReusePrecondition = new HakoAllocDecommittedPageReusePrecondition()
+    adapter: HakoAllocPageSourceRecommitAdapter = new HakoAllocPageSourceRecommitAdapter()
+    policy: HakoAllocBoundedRecommitPolicy
+    attempt_count: i64 = 0
+    success_count: i64 = 0
+    blocked_count: i64 = 0
+    marker_transition_count: i64 = 0
+    page_reactivate_count: i64 = 0
+    last_page_id: i64 = -1
+    last_base: i64 = 0
+    last_bytes: i64 = 0
+
+    birth(max_recommit_bytes) {
+        me.policy = new HakoAllocBoundedRecommitPolicy(max_recommit_bytes)
+    }
+
+    report(status, page_id, blocked, recommit_executed, marker_recommitted, page_reactivated, reuse_allowed_after, base, bytes) {
+        local result = new HakoAllocRecommitHeapIntegrationReport()
+        result.status = status
+        result.page_id = page_id
+        result.blocked = blocked
+        result.recommit_executed = recommit_executed
+        result.marker_recommitted = marker_recommitted
+        result.page_reactivated = page_reactivated
+        result.reuse_allowed_after = reuse_allowed_after
+        result.base = base
+        result.bytes = bytes
+        return result
+    }
+
+    attemptHeapPage(heap, page_id, marker) {
+        me.attempt_count = me.attempt_count + 1
+        me.last_page_id = page_id
+        me.last_base = 0
+        me.last_bytes = 0
+
+        if marker == null {
+            me.blocked_count = me.blocked_count + 1
+            return me.report(1, page_id, 1, 0, 0, 0, 0, 0, 0)
+        }
+
+        local decision = me.precondition.classifyHeapPage(heap, page_id, marker)
+        if decision.requires_recommit != 0 {
+            me.last_base = heap.pageBase(page_id)
+            me.last_bytes = heap.pageBackingBytes(page_id)
+        }
+
+        local recommit = me.policy.attemptRecommit(decision, me.adapter, me.last_base, me.last_bytes)
+        if recommit.recommit_executed == 0 {
+            me.blocked_count = me.blocked_count + 1
+            return me.report(2, page_id, 1, recommit.recommit_executed, 0, 0, 0, me.last_base, me.last_bytes)
+        }
+
+        local transition = marker.markIfRecommitted(page_id, recommit)
+        if transition.recommitted == 0 {
+            me.blocked_count = me.blocked_count + 1
+            return me.report(3, page_id, 1, recommit.recommit_executed, transition.recommitted, 0, 0, me.last_base, me.last_bytes)
+        }
+        me.marker_transition_count = me.marker_transition_count + 1
+
+        local page = heap.pages.get(page_id)
+        if page == null {
+            me.blocked_count = me.blocked_count + 1
+            return me.report(4, page_id, 1, recommit.recommit_executed, transition.recommitted, 0, 0, me.last_base, me.last_bytes)
+        }
+
+        local page_reactivated = page.reactivate()
+        if page_reactivated == 0 {
+            me.blocked_count = me.blocked_count + 1
+            return me.report(5, page_id, 1, recommit.recommit_executed, transition.recommitted, page_reactivated, 0, me.last_base, me.last_bytes)
+        }
+        me.page_reactivate_count = me.page_reactivate_count + 1
+
+        local after = me.precondition.classifyHeapPage(heap, page_id, marker)
+        if after.reuse_allowed == 0 {
+            me.blocked_count = me.blocked_count + 1
+            return me.report(6, page_id, 1, recommit.recommit_executed, transition.recommitted, page_reactivated, after.reuse_allowed, me.last_base, me.last_bytes)
+        }
+
+        me.success_count = me.success_count + 1
+        return me.report(0, page_id, 0, recommit.recommit_executed, transition.recommitted, page_reactivated, after.reuse_allowed, me.last_base, me.last_bytes)
+    }
+}

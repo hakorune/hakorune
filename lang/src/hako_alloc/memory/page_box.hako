@@ -20,6 +20,8 @@ box HakoAllocPageModel {
     reject_count: i64 = 0
     retired: i64 = 0
     retire_count: i64 = 0
+    reactivate_count: i64 = 0
+    reactivate_reject_count: i64 = 0
     peak_used: i64 = 0
     requested_bytes: i64 = 0
 
@@ -121,6 +123,38 @@ box HakoAllocPageModel {
                 me.retired = 1
                 me.retire_count = me.retire_count + 1
             }
+        }
+        return 1
+    }
+
+    reactivate() {
+        if me.used != 0 {
+            me.reject_count = me.reject_count + 1
+            me.reactivate_reject_count = me.reactivate_reject_count + 1
+            return 0
+        }
+
+        if me.availableBlockCount() == 0 {
+            me.reject_count = me.reject_count + 1
+            me.reactivate_reject_count = me.reactivate_reject_count + 1
+            return 0
+        }
+
+        local count = me.local_free_top
+        local i = 0
+        loop(i < count) {
+            me.local_free_top = me.local_free_top - 1
+            local block_id = me.local_free.get(me.local_free_top)
+            me.free.set(me.free_top, block_id)
+            me.free_top = me.free_top + 1
+            me.local_free_collect_count = me.local_free_collect_count + 1
+            me.local_free_collected_blocks = me.local_free_collected_blocks + 1
+            i = i + 1
+        }
+
+        if me.retired != 0 {
+            me.retired = 0
+            me.reactivate_count = me.reactivate_count + 1
         }
         return 1
     }

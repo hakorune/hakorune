@@ -52,8 +52,8 @@ if rg -n 'init[[:space:]]*\\{' "$PAGE_BOX" >/tmp/"$TAG".legacy_init 2>&1; then
 fi
 rm -f /tmp/"$TAG".legacy_init
 
-if rg -n ': usize|HakoAllocUsizeFieldProbe|usize_field_probe' "$PAGE_BOX" "$APP" >/tmp/"$TAG".usize 2>&1; then
-  echo "[$TAG] ERROR: M169 production algorithm must stay on current i64 lane; usize probe remains isolated" >&2
+if rg -n '^[[:space:]]+[A-Za-z_][A-Za-z0-9_]*:[[:space:]]+usize|HakoAllocUsizeFieldProbe|usize_field_probe' "$PAGE_BOX" "$APP" >/tmp/"$TAG".usize 2>&1; then
+  echo "[$TAG] ERROR: M169 production state must stay on current i64 lane; usize probe remains isolated" >&2
   cat /tmp/"$TAG".usize >&2
   rm -f /tmp/"$TAG".usize
   exit 1

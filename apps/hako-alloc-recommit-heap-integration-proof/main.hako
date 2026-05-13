@@ -1,0 +1,45 @@
+// hako-alloc-recommit-heap-integration-proof
+// Purpose: prove M205 heap-level recommit integration.
+
+using selfhost.hako_alloc.memory.osvm_backed_fast_path_heap_box as HakoAllocOsVmBackedFastPathHeap
+using selfhost.hako_alloc.memory.purge_recommit_heap_integration_box as HakoAllocRecommitHeapIntegration
+using selfhost.hako_alloc.memory.purge_state_aware_decommit_box as HakoAllocPurgeStateAwareDecommit
+
+static box Main {
+    main(args) {
+        local heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local decommit_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local integration = new HakoAllocRecommitHeapIntegration(64)
+
+        local page = heap.pages.get(0)
+        local block_id = page.acquire(8)
+        local release_rc = page.releaseLocal(block_id)
+        local decommit = decommit_guard.attemptHeapPage(heap, page.page_id)
+        local before_acquire = page.acquire(8)
+
+        local recommit = integration.attemptHeapPage(heap, page.page_id, decommit_guard.marker)
+        local selected_id = heap.queue.directPageId()
+        local after_acquire = page.acquire(8)
+
+        print("hako-alloc-recommit-heap-integration-proof")
+        print("release=" + release_rc)
+        print("decommit=" + decommit.status + "," + decommit.source_executed + "," + decommit.marker_marked)
+        print("before_acquire=" + before_acquire)
+        print("recommit=" + recommit.status + "," + recommit.blocked + "," + recommit.recommit_executed + "," + recommit.marker_recommitted + "," + recommit.page_reactivated + "," + recommit.reuse_allowed_after + "," + recommit.bytes)
+        print("selected=" + selected_id + "," + after_acquire)
+        print("page=" + page.used + "," + page.freeCount() + "," + page.localFreeCount() + "," + page.retired + "," + page.reactivate_count + "," + page.reactivate_reject_count)
+        print("marker=" + decommit_guard.marker.marked_count + "," + decommit_guard.marker.recommitted_count + "," + decommit_guard.marker.isMarked(page.page_id))
+        print("integration=" + integration.attempt_count + "," + integration.success_count + "," + integration.blocked_count + "," + integration.marker_transition_count + "," + integration.page_reactivate_count)
+        print("policy=" + integration.policy.attempt_count + "," + integration.policy.recommit_success_count + "," + integration.policy.source_reject_count)
+        print("adapter=" + integration.adapter.call_count + "," + integration.adapter.success_count + "," + integration.adapter.reject_count + "," + integration.adapter.last_bytes)
+        print("heap=" + heap.decommit_count + "," + heap.release_count + "," + heap.reject_count + "," + heap.queue.direct_hit_count + "," + heap.queue.refresh_count)
+
+        if release_rc == 1 && decommit.status == 0 && before_acquire == -1 && recommit.status == 0 && recommit.page_reactivated == 1 && selected_id == page.page_id && after_acquire >= 0 && page.used == 1 && page.retired == 0 && page.reactivate_count == 1 && decommit_guard.marker.isMarked(page.page_id) == 0 && integration.success_count == 1 && heap.decommit_count == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

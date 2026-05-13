@@ -55,3 +55,10 @@ app = "apps/hako-alloc-recommit-marker-transition-proof"
 label = "recommit marker transition proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_recommit_marker_transition_guard.sh"]
+
+[[proof_apps]]
+id = "M205"
+app = "apps/hako-alloc-recommit-heap-integration-proof"
+label = "recommit heap integration proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_recommit_heap_integration_guard.sh"]

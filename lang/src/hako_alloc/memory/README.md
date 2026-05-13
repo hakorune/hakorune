@@ -192,6 +192,11 @@ Syntax/style contract
   `HakoAllocPageSourcePolicy.commitPage` only, but must not expose reserve,
   decommit, unreserve, OS release, marker transition, heap/page mutation, or
   allocator replacement behavior.
+- `purge_recommit_heap_integration_box.hako` owns M205 recommit heap
+  integration. It may compose M200/M202/M203/M204 and call
+  `HakoAllocPageModel.reactivate()` after successful recommit, but must not
+  source pages, mutate heap/backing arrays, unreserve, release OSVM pages, or
+  replace allocators.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
   huge-page metadata. C205c consumes aligned-small metadata through a
