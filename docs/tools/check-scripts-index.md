@@ -277,3 +277,4 @@ tools/checks/env_dead_accessors_report.sh
 - `tools/checks/k2_wide_brand_parser_capsule_guard.sh` - BRAND-001 Stage0 brand declaration parser/metadata capsule guard.
 - `tools/checks/k2_wide_brand_constructor_unwrap_guard.sh` - BRAND-002 Stage1 brand constructor/unwrap Program JSON v0 policy guard.
 - `tools/checks/k2_wide_brand_mismatch_checker_guard.sh` - BRAND-003 Stage1 brand mismatch checker guard.
+- `tools/checks/k2_wide_type_alias_parser_capsule_guard.sh` - TYPE-001 Stage0 type alias parser/metadata capsule guard.

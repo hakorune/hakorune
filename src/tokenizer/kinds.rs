@@ -20,6 +20,7 @@ pub enum TokenType {
     RECORD,
     ENUM,
     BRAND,
+    TYPE,
     GLOBAL,
     SINGLETON,
     NEW,

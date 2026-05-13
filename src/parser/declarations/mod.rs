@@ -10,5 +10,6 @@ pub mod brand_def;
 pub mod dependency_helpers;
 pub mod enum_def;
 pub mod static_def;
+pub mod type_alias_def;
 
 // Re-export commonly used items

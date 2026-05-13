@@ -21,6 +21,7 @@ impl NyashTokenizer {
             "record" => TokenType::RECORD,
             "enum" => TokenType::ENUM,
             "brand" => TokenType::BRAND,
+            "type" => TokenType::TYPE,
             "global" => TokenType::GLOBAL,
             "singleton" => TokenType::SINGLETON,
             "new" => TokenType::NEW,

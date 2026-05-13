@@ -113,6 +113,15 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             "name": name,
             "underlying_type": underlying_type_name,
         }),
+        ASTNode::TypeAliasDeclaration {
+            name,
+            target_type_name,
+            ..
+        } => json!({
+            "kind": "TypeAliasDeclaration",
+            "name": name,
+            "target_type": target_type_name,
+        }),
         // Phase 54: Loop with JoinIR-compatible fields
         ASTNode::Loop {
             condition, body, ..
@@ -794,6 +803,11 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
         "BrandDeclaration" => ASTNode::BrandDeclaration {
             name: v.get("name")?.as_str()?.to_string(),
             underlying_type_name: v.get("underlying_type")?.as_str()?.to_string(),
+            span: Span::unknown(),
+        },
+        "TypeAliasDeclaration" => ASTNode::TypeAliasDeclaration {
+            name: v.get("name")?.as_str()?.to_string(),
+            target_type_name: v.get("target_type")?.as_str()?.to_string(),
             span: Span::unknown(),
         },
         "Variable" => ASTNode::Variable {

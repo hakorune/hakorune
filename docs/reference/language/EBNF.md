@@ -11,7 +11,7 @@ Design SSOT note (Scope Exit Semantics):
   - `docs/development/current/main/design/rune-v0-contract-rollout-ssot.md`
   - `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`
 
-program   := (static_const_table_decl | brand_decl | record_decl | stmt)* EOF
+program   := (static_const_table_decl | brand_decl | type_alias_decl | record_decl | stmt)* EOF
 
 ; M11b static const table syntax.
 ; Reads use the existing postfix index expression.
@@ -30,6 +30,10 @@ brand_decl := 'brand' IDENT ':' TYPE_REF
            ; BRAND-002 Stage1 semantics use existing call syntax:
            ;   IDENT '(' expr ')'          ; explicit brand constructor when IDENT is a declared brand
            ;   IDENT '.unwrap' '(' expr ')' ; explicit brand unwrap when IDENT is a declared brand
+
+; TYPE-001 Stage0 capsule.
+; Alias diagnostics and expansion facts are Stage1-owned.
+type_alias_decl := 'type' IDENT '=' TYPE_REF
 
 stmt      := 'return' expr
            | local_stmt

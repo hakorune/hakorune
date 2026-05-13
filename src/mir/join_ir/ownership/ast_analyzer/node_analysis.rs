@@ -47,6 +47,7 @@ impl AstOwnershipAnalyzer {
 
             ASTNode::EnumDeclaration { .. }
             | ASTNode::BrandDeclaration { .. }
+            | ASTNode::TypeAliasDeclaration { .. }
             | ASTNode::StaticConstTable { .. } => {}
 
             ASTNode::BoxDeclaration {

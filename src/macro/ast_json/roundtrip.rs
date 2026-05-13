@@ -304,6 +304,11 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
             underlying_type_name: v.get("underlying_type")?.as_str()?.to_string(),
             span: Span::unknown(),
         },
+        "TypeAliasDeclaration" => ASTNode::TypeAliasDeclaration {
+            name: v.get("name")?.as_str()?.to_string(),
+            target_type_name: v.get("target_type")?.as_str()?.to_string(),
+            span: Span::unknown(),
+        },
         "Loop" => ASTNode::Loop {
             condition: Box::new(json_to_ast(v.get("condition")?)?),
             body: v

@@ -65,6 +65,11 @@ pub enum StructureNode {
         underlying_type_name: String,
         span: Span,
     },
+    TypeAliasDeclaration {
+        name: String,
+        target_type_name: String,
+        span: Span,
+    },
     FunctionDeclaration {
         name: String,
         params: Vec<String>,
@@ -704,6 +709,16 @@ pub enum ASTNode {
     BrandDeclaration {
         name: String,
         underlying_type_name: String,
+        span: Span,
+    },
+
+    /// type alias宣言: `type Bytes = usize`
+    ///
+    /// Stage0 owns syntax and metadata transport only. Alias diagnostics and
+    /// exact semantic facts belong to Stage1.
+    TypeAliasDeclaration {
+        name: String,
+        target_type_name: String,
         span: Span,
     },
 

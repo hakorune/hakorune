@@ -336,6 +336,28 @@ return 0
 }
 
 #[test]
+fn source_to_program_json_v0_emits_type_alias_decls_metadata_only() {
+    let source = r#"
+type Bytes = usize
+
+static box Main {
+  main() {
+return 0
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let aliases = value["type_alias_decls"]
+        .as_array()
+        .expect("type alias decls");
+    assert_eq!(aliases.len(), 1);
+    assert_eq!(aliases[0]["name"], "Bytes");
+    assert_eq!(aliases[0]["target_type"], "usize");
+}
+
+#[test]
 fn source_to_program_json_v0_rewrites_if_some_sugar_to_local_plus_if() {
     let source = r#"
 enum Option<T> {

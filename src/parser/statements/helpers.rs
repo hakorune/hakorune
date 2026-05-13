@@ -487,6 +487,7 @@ impl NyashParser {
         match start {
             TokenType::BOX => Some("box"),
             TokenType::BRAND => Some("brand"),
+            TokenType::TYPE => Some("type"),
             TokenType::GLOBAL => Some("global"),
             TokenType::FUNCTION => Some("function"),
             TokenType::STATIC => Some("static"),

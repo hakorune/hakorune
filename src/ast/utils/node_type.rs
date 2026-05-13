@@ -22,6 +22,7 @@ impl ASTNode {
             ASTNode::BoxDeclaration { .. } => "BoxDeclaration",
             ASTNode::EnumDeclaration { .. } => "EnumDeclaration",
             ASTNode::BrandDeclaration { .. } => "BrandDeclaration",
+            ASTNode::TypeAliasDeclaration { .. } => "TypeAliasDeclaration",
             ASTNode::FunctionDeclaration { .. } => "FunctionDeclaration",
             ASTNode::GlobalVar { .. } => "GlobalVar",
             ASTNode::StaticConstTable { .. } => "StaticConstTable",
