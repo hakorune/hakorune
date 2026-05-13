@@ -554,6 +554,13 @@ complete as `293x-253`. M208 adds the read-only
 retired-reactivate, and fresh fallback routes from the frozen M207 lifecycle
 facts without mutating heap/page state or widening page-source behavior.
 
+M209 status:
+complete as `293x-254`. M209 adds
+`HakoAllocLifecycleStatsObserverSurface`, which snapshots existing M207
+lifecycle observer counters and M208 reuse priority policy counters without
+triggering observation/selection, mutating allocator state, adding options, or
+widening backend/provider behavior.
+
 ### Proof App Ergonomics Queue
 
 These rows improve proof readability without changing allocator semantics.

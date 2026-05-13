@@ -1,0 +1,68 @@
+// lifecycle_stats_observer_box.hako -- M209 lifecycle stats observer surface
+// Responsibility:
+// - construct read-only lifecycle event snapshots from M207/M208 observers
+// - keep lifecycle stats separate from allocator behavior and mutable options
+// Non-responsibility:
+// - allocation, release, decommit, recommit, reactivation, scheduling,
+//   page-source execution, OS release, provider hooks, or allocator replacement
+
+using selfhost.hako_alloc.memory.page_lifecycle_invariant_box as HakoAllocPageLifecycleInvariant
+using selfhost.hako_alloc.memory.heap_reuse_priority_box as HakoAllocHeapReusePriority
+
+box HakoAllocLifecycleStatsSnapshot {
+    observe_count: i64 = 0
+    missing_count: i64 = 0
+    active_count: i64 = 0
+    retired_count: i64 = 0
+    decommitted_count: i64 = 0
+    recommitted_count: i64 = 0
+    last_page_id: i64 = -1
+    last_state: i64 = 0
+
+    select_count: i64 = 0
+    active_pick_count: i64 = 0
+    recommitted_pick_count: i64 = 0
+    retired_pick_count: i64 = 0
+    fresh_pick_count: i64 = 0
+    decommitted_skip_count: i64 = 0
+    missing_skip_count: i64 = 0
+    last_route: i64 = 0
+    last_selected_page_id: i64 = -1
+
+    totalObservedStates() {
+        return me.active_count + me.retired_count + me.decommitted_count + me.recommitted_count
+    }
+
+    totalReusePicks() {
+        return me.active_pick_count + me.recommitted_pick_count + me.retired_pick_count + me.fresh_pick_count
+    }
+
+    totalBlockedOrMissing() {
+        return me.missing_count + me.decommitted_skip_count + me.missing_skip_count
+    }
+}
+
+box HakoAllocLifecycleStatsObserverSurface {
+    snapshot(lifecycle_observer, reuse_policy) {
+        local stats = new HakoAllocLifecycleStatsSnapshot()
+        stats.observe_count = lifecycle_observer.observe_count
+        stats.missing_count = lifecycle_observer.missing_count
+        stats.active_count = lifecycle_observer.active_count
+        stats.retired_count = lifecycle_observer.retired_count
+        stats.decommitted_count = lifecycle_observer.decommitted_count
+        stats.recommitted_count = lifecycle_observer.recommitted_count
+        stats.last_page_id = lifecycle_observer.last_page_id
+        stats.last_state = lifecycle_observer.last_state
+
+        stats.select_count = reuse_policy.select_count
+        stats.active_pick_count = reuse_policy.active_pick_count
+        stats.recommitted_pick_count = reuse_policy.recommitted_pick_count
+        stats.retired_pick_count = reuse_policy.retired_pick_count
+        stats.fresh_pick_count = reuse_policy.fresh_pick_count
+        stats.decommitted_skip_count = reuse_policy.decommitted_skip_count
+        stats.missing_skip_count = reuse_policy.missing_skip_count
+        stats.last_route = reuse_policy.last_route
+        stats.last_selected_page_id = reuse_policy.last_page_id
+        return stats
+    }
+}

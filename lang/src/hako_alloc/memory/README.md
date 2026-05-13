@@ -24,6 +24,7 @@ Current modules
 - `page_map_realloc_failure_contract_box.hako`
 - `page_map_realloc_same_class_box.hako`
 - `heap_reuse_priority_box.hako`
+- `lifecycle_stats_observer_box.hako`
 - `page_queue_box.hako`
 - `page_lifecycle_invariant_box.hako`
 - `page_source_policy_box.hako`
@@ -209,6 +210,11 @@ Syntax/style contract
   active, recommitted-active, retired-reactivate, and fresh fallback routes, but
   it must not acquire/release/reactivate pages, decommit/recommit, source pages,
   unreserve, release OSVM pages, or replace allocators.
+- `lifecycle_stats_observer_box.hako` owns M209 lifecycle stats observer surface.
+  It may snapshot existing M207 lifecycle observer counters and M208 reuse
+  priority policy counters, but it must not trigger observation/selection,
+  mutate heap/page/marker/page-source state, add mutable options, or replace
+  allocators.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
   huge-page metadata. C205c consumes aligned-small metadata through a

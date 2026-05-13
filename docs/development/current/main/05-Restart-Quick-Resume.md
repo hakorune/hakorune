@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x packed ArrayBox auto-use pilot`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `M209 lifecycle stats observer surface`
+- current blocker token: `M210 decommit/recommit/reuse EXE hardening`
 - record / packed ArrayBox SSOT:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
@@ -44,7 +44,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `M209 lifecycle stats observer surface`
+- current blocker token: `M210 decommit/recommit/reuse EXE hardening`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -55,8 +55,8 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after M208; next blocker is M209 lifecycle stats
-  observer surface.
+- continue `phase-293x` after M209; next blocker is M210
+  decommit/recommit/reuse EXE hardening.
   C207 emits `array_record_autouse_eligibility_plans`, C208 emits
   `array_record_materialization_boundary_plans`, and C209 emits
   `array_record_packed_autouse_pilot_plans` plus crate-private i64 column seams.
@@ -86,10 +86,11 @@ cargo check -q
   without a new allocator owner, M207 freezes the active/retired/
   decommitted/recommitted-active lifecycle vocabulary as a read-only
   observer/proof, C194b moves the selected M207 lifecycle report/function
-  invariants into MIR verification, and M208 freezes heap reuse priority as
-  active → recommitted-active → retired-reactivate → fresh fallback while
-  decommitted pages remain blocked until recommit. Visible record
-  materialization and packed record backend lowering remain closed.
+  invariants into MIR verification, M208 freezes heap reuse priority as active
+  → recommitted-active → retired-reactivate → fresh fallback while decommitted
+  pages remain blocked until recommit, and M209 exposes read-only lifecycle
+  event stats over the M207 observer and M208 reuse policy counters. Visible
+  record materialization and packed record backend lowering remain closed.
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed with `real-apps` smoke coverage

@@ -1,0 +1,107 @@
+// hako-alloc-lifecycle-stats-observer-surface-proof
+// Purpose: prove the M209 read-only lifecycle stats observer surface.
+
+using selfhost.hako_alloc.memory.lifecycle_stats_observer_box as HakoAllocLifecycleStats
+using selfhost.hako_alloc.memory.heap_reuse_priority_box as HakoAllocHeapReusePriority
+using selfhost.hako_alloc.memory.osvm_backed_fast_path_heap_box as HakoAllocOsVmBackedFastPathHeap
+using selfhost.hako_alloc.memory.purge_recommit_heap_integration_box as HakoAllocRecommitHeapIntegration
+using selfhost.hako_alloc.memory.purge_state_aware_decommit_box as HakoAllocPurgeStateAwareDecommit
+
+static box Main {
+    main(args) {
+        local policy = new HakoAllocHeapReusePriorityPolicy()
+        local surface = new HakoAllocLifecycleStatsObserverSurface()
+
+        local active_heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local active_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local active_recommit = new HakoAllocRecommitHeapIntegration(64)
+        local active_recommitted_page = active_heap.pages.get(0)
+        local active_page = active_heap.addBackedPage()
+        local active_block0 = active_recommitted_page.acquire(8)
+        local active_release0 = active_recommitted_page.releaseLocal(active_block0)
+        local active_decommit0 = active_guard.attemptHeapPage(active_heap, active_recommitted_page.page_id)
+        local active_recommit0 = active_recommit.attemptHeapPage(active_heap, active_recommitted_page.page_id, active_guard.marker)
+        local active_choice = policy.selectHeapPage(active_heap, active_guard.marker)
+
+        local recommitted_heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local recommitted_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local recommitted_recommit = new HakoAllocRecommitHeapIntegration(64)
+        local retired_page = recommitted_heap.pages.get(0)
+        local recommitted_page = recommitted_heap.addBackedPage()
+        local retired_block0 = retired_page.acquire(8)
+        local retired_release0 = retired_page.releaseLocal(retired_block0)
+        local recommitted_block0 = recommitted_page.acquire(8)
+        local recommitted_release0 = recommitted_page.releaseLocal(recommitted_block0)
+        local recommitted_decommit0 = recommitted_guard.attemptHeapPage(recommitted_heap, recommitted_page.page_id)
+        local recommitted_recommit0 = recommitted_recommit.attemptHeapPage(recommitted_heap, recommitted_page.page_id, recommitted_guard.marker)
+        local recommitted_choice = policy.selectHeapPage(recommitted_heap, recommitted_guard.marker)
+
+        local retired_heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local retired_page0 = retired_heap.pages.get(0)
+        local retired_block1 = retired_page0.acquire(8)
+        local retired_release1 = retired_page0.releaseLocal(retired_block1)
+        local retired_choice = policy.selectHeapPage(retired_heap, null)
+
+        local fresh_heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local fresh_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local fresh_page0 = fresh_heap.pages.get(0)
+        local fresh_block0 = fresh_page0.acquire(8)
+        local fresh_release0 = fresh_page0.releaseLocal(fresh_block0)
+        local fresh_decommit0 = fresh_guard.attemptHeapPage(fresh_heap, fresh_page0.page_id)
+        local fresh_choice = policy.selectHeapPage(fresh_heap, fresh_guard.marker)
+
+        local stats = surface.snapshot(policy.observer, policy)
+
+        local ok = check "m209 lifecycle stats observer" {
+            "active setup": active_release0 == 1
+            "active decommit": active_decommit0.status == 0
+            "active recommit": active_recommit0.status == 0
+            "active route": active_choice.route == 1
+            "recommitted setup retired": retired_release0 == 1
+            "recommitted setup release": recommitted_release0 == 1
+            "recommitted decommit": recommitted_decommit0.status == 0
+            "recommitted recommit": recommitted_recommit0.status == 0
+            "recommitted route": recommitted_choice.route == 2
+            "retired setup": retired_release1 == 1
+            "retired route": retired_choice.route == 3
+            "fresh setup": fresh_release0 == 1
+            "fresh decommit": fresh_decommit0.status == 0
+            "fresh route": fresh_choice.route == 4
+            "observe count": stats.observe_count == 6
+            "missing count": stats.missing_count == 0
+            "active state count": stats.active_count == 1
+            "retired state count": stats.retired_count == 2
+            "decommitted state count": stats.decommitted_count == 1
+            "recommitted state count": stats.recommitted_count == 2
+            "last observed page": stats.last_page_id == fresh_page0.page_id
+            "last observed state": stats.last_state == 3
+            "select count": stats.select_count == 4
+            "active pick count": stats.active_pick_count == 1
+            "recommitted pick count": stats.recommitted_pick_count == 1
+            "retired pick count": stats.retired_pick_count == 1
+            "fresh pick count": stats.fresh_pick_count == 1
+            "decommitted skip count": stats.decommitted_skip_count == 1
+            "missing skip count": stats.missing_skip_count == 0
+            "last route": stats.last_route == 4
+            "last selected page": stats.last_selected_page_id == -1
+            "total observed states": stats.totalObservedStates() == 6
+            "total reuse picks": stats.totalReusePicks() == 4
+            "total blocked or missing": stats.totalBlockedOrMissing() == 1
+        }
+
+        print("hako-alloc-lifecycle-stats-observer-surface-proof")
+        print("lifecycle=" + stats.observe_count + "," + stats.missing_count + "," + stats.active_count + "," + stats.retired_count + "," + stats.decommitted_count + "," + stats.recommitted_count + "," + stats.last_page_id + "," + stats.last_state)
+        print("reuse=" + stats.select_count + "," + stats.active_pick_count + "," + stats.recommitted_pick_count + "," + stats.retired_pick_count + "," + stats.fresh_pick_count + "," + stats.decommitted_skip_count + "," + stats.missing_skip_count + "," + stats.last_route + "," + stats.last_selected_page_id)
+        print("totals=" + stats.totalObservedStates() + "," + stats.totalReusePicks() + "," + stats.totalBlockedOrMissing())
+        print("policy=" + policy.select_count + "," + policy.active_pick_count + "," + policy.recommitted_pick_count + "," + policy.retired_pick_count + "," + policy.fresh_pick_count + "," + policy.decommitted_skip_count + "," + policy.missing_skip_count)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
