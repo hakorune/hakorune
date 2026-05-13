@@ -1,0 +1,32 @@
+// purge_page_source_decommit_adapter_box.hako -- M196 page-source decommit adapter
+// Responsibility:
+// - expose a decommitPage(base, bytes) executor for M195 bounded policy
+// - delegate only to HakoAllocPageSourcePolicy.decommitPage
+// Non-responsibility:
+// - reserve, commit, unreserve, OS release, or heap/page mutation
+
+using selfhost.hako_alloc.memory.page_source_policy_box as HakoAllocPageSourcePolicy
+
+box HakoAllocPageSourceDecommitAdapter {
+    call_count: i64 = 0
+    success_count: i64 = 0
+    reject_count: i64 = 0
+    last_base: i64 = 0
+    last_bytes: i64 = 0
+    last_rc: i64 = 0
+
+    decommitPage(base, bytes) {
+        me.call_count = me.call_count + 1
+        me.last_base = base
+        me.last_bytes = bytes
+
+        local rc = HakoAllocPageSourcePolicy.decommitPage(base, bytes)
+        me.last_rc = rc
+        if rc == 0 {
+            me.success_count = me.success_count + 1
+        } else {
+            me.reject_count = me.reject_count + 1
+        }
+        return rc
+    }
+}

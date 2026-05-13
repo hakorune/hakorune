@@ -28,6 +28,7 @@ Current modules
 - `purge_bounded_decommit_box.hako`
 - `purge_dry_run_box.hako`
 - `purge_execution_box.hako`
+- `purge_page_source_decommit_adapter_box.hako`
 - `purge_policy_box.hako`
 - `remote_free_page_integration_box.hako`
 - `refcell_box.hako`
@@ -151,6 +152,10 @@ Syntax/style contract
   most once after validating an eligible decision and byte bound, but it must
   not directly call OSVM/page-source APIs, mutate heap/page state, unreserve, or
   release OSVM pages.
+- `purge_page_source_decommit_adapter_box.hako` owns M196 page-source decommit
+  adapter. It may implement `decommitPage(base, bytes)` by delegating to
+  `HakoAllocPageSourcePolicy.decommitPage`, but it must not reserve, commit,
+  unreserve, release OSVM pages, or mutate heap/page state.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
   huge-page metadata. C205c consumes aligned-small metadata through a

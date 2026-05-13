@@ -276,6 +276,9 @@ Status:
   execution for eligible in-bound decisions while keeping unreserve and OS
   release inactive. It does not change record materialization or packed record
   backend lowering.
+- `M196` is complete as `293x-236`: it connects M195 bounded decommit execution
+  to `HakoAllocPageSourcePolicy.decommitPage` through a decommit-only adapter.
+  It does not change record materialization or packed record backend lowering.
 
 ## C207 Eligibility Gate
 

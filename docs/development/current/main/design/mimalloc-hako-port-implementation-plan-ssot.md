@@ -205,6 +205,7 @@ the active `.hako` algorithm row.
 | `M193 purge/decommit dry-run observer` | observe existing OSVM-backed heap page/backing state through the M192 policy without execution | purge/decommit execution fail-fast entry |
 | `M194 purge/decommit execution fail-fast` | add an explicit execution attempt owner that always returns blocked reports | bounded decommit execution policy |
 | `M195 bounded decommit execution policy` | call a caller-provided decommit executor exactly once for eligible in-bound decisions | page-source decommit adapter |
+| `M196 page-source decommit adapter` | connect M195 bounded policy to `HakoAllocPageSourcePolicy.decommitPage` through a decommit-only adapter | purge decommit heap integration |
 
 Post-C205 phase split:
 
@@ -404,6 +405,12 @@ base, and byte bounds, then calls a caller-provided `decommitPage(base, bytes)`
 executor at most once for eligible in-bound requests. Unreserve and OS release
 remain closed.
 
+M196 status:
+complete as `293x-236`. M196 adds `HakoAllocPageSourceDecommitAdapter`, a
+decommit-only executor for M195 that delegates to
+`HakoAllocPageSourcePolicy.decommitPage(base, bytes)`. Reserve/commit stay in
+the existing page-source facade, and unreserve / OS release remain closed.
+
 ### Docs / Guard Checkpoints
 
 | Row | Goal | Trigger |
@@ -434,8 +441,9 @@ M189 object-return allocator API parity is complete in
 `docs/development/current/main/phases/phase-293x/293x-200-M189-OBJECT-RETURN-ALLOCATOR-API.md`.
 M190 nullable/failure handle contract is complete in
 `docs/development/current/main/phases/phase-293x/293x-201-M190-NULLABLE-FAILURE-HANDLE-CONTRACT.md`.
-Next allocator algorithm row is M196 page-source decommit adapter. Keep the
-adapter narrow: direct page-source decommit only, no unreserve or OS release.
+Next allocator algorithm row is M197 purge decommit heap integration. Keep the
+integration limited to empty-retired page/backing state and do not add
+unreserve or OS release.
 
 ### Proof App Ergonomics Queue
 

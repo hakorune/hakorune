@@ -198,6 +198,7 @@
 - [x] `293x-233` M193 purge/decommit dry-run observer
 - [x] `293x-234` M194 purge/decommit execution fail-fast
 - [x] `293x-235` M195 bounded decommit execution policy
+- [x] `293x-236` M196 page-source decommit adapter
 
 ## Gates
 

@@ -1,0 +1,41 @@
+// hako-alloc-page-source-decommit-adapter-proof
+// Purpose: prove the M196 page-source decommit adapter through M195 bounded policy.
+
+using selfhost.hako_alloc.memory.allocator_facade_box as HakoAllocFacade
+using selfhost.hako_alloc.memory.purge_bounded_decommit_box as HakoAllocBoundedDecommit
+using selfhost.hako_alloc.memory.purge_page_source_decommit_adapter_box as HakoAllocPageSourceDecommitAdapterBox
+using selfhost.hako_alloc.memory.purge_policy_box as HakoAllocPurgePolicy
+
+static box Main {
+    main(args) {
+        local alloc = new HakoAllocProductionFacade()
+        local inventory = new HakoAllocPurgePolicyInventory()
+        local policy = new HakoAllocBoundedDecommitPolicy(4096)
+        local adapter = new HakoAllocPageSourceDecommitAdapter()
+
+        local page_bytes = 4096
+        local base = alloc.pageSourceReserve(page_bytes)
+        local commit_rc = alloc.pageSourceCommit(base, page_bytes)
+        local decision = inventory.classifyLocalPage(0, 1, page_bytes)
+        local result = policy.attemptDecommit(decision, adapter, base, page_bytes)
+
+        local reserved = 0
+        if base != 0 {
+            reserved = 1
+        }
+
+        print("hako-alloc-page-source-decommit-adapter-proof")
+        print("page=" + page_bytes + " reserved=" + reserved + " commit=" + commit_rc)
+        print("bounded=" + result.status + "," + result.decommit_attempted + "," + result.decommit_executed + "," + result.decommit_rc)
+        print("adapter=" + adapter.call_count + "," + adapter.success_count + "," + adapter.last_bytes + "," + adapter.last_rc)
+        print("release=" + result.unreserve_executed + "," + result.os_release_executed)
+
+        if reserved == 1 && commit_rc == 0 && result.status == 0 && result.decommit_executed == 1 && adapter.call_count == 1 && adapter.success_count == 1 && result.unreserve_executed == 0 && result.os_release_executed == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
