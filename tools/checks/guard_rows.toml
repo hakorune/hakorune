@@ -1,0 +1,37 @@
+schema_version = 0
+
+[[rows]]
+id = "program-json-dev-surface"
+label = "Program(JSON) dev surface guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/program_json_dev_surface_guard.sh"]
+
+[[rows]]
+id = "phase29ci-verify-probe-surface"
+label = "phase29ci verify probe surface guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/phase29ci_verify_probe_surface_guard.sh"]
+
+[[rows]]
+id = "legacy-dev-utility-surface"
+label = "legacy dev utility surface guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/legacy_dev_utility_surface_guard.sh"]
+
+[[rows]]
+id = "stage0-shape-inventory"
+label = "Stage0 shape inventory guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/stage0_shape_inventory_guard.sh"]
+
+[[rows]]
+id = "mir-root-import-hygiene"
+label = "MIR root import hygiene guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/mir_root_import_hygiene_guard.sh"]
+
+[[rows]]
+id = "current-state-pointer"
+label = "current state pointer guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/current_state_pointer_guard.sh"]

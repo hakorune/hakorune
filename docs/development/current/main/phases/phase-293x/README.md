@@ -625,6 +625,10 @@ inference for the allocator release path.
   already-decommitted page stop before page-source execution.
 - `293x-240`: M200 decommitted page reuse precondition landed, classifying
   decommitted pages as unavailable until a future recommit path exists.
+- `293x-241`: D197 row guard manifest pilot landed, adding
+  `tools/checks/guard_rows.toml` and `tools/checks/run_row_guard.sh` as a
+  non-breaking wrapper over existing static guards. Existing guard scripts
+  remain authoritative and `dev_gate.sh` is unchanged.
 - Next: M201 recommit fail-fast entry. M186 facade stats already landed
   as `294x-19e`, so future rows must not repeat exact usize facade work. M104
   is next only if the optional allocator-provider host-replacement ladder is
@@ -662,7 +666,7 @@ Current execution order:
    decommit heap integration, M198 purge decommit state marker, M199 purge
    state-aware duplicate guard, and M200 decommitted page reuse precondition
    are complete; M201 recommit fail-fast entry is the next safe allocator row.
-7. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.
-   `D195` and `D196` are complete; `C206+` cleanup/probe guards stay
-   local-run/index-listed unless a card names a production stop line for
-   promotion.
+7. `D195-D197`: refresh SSOT/guards at milestones, not after every tiny row.
+   `D195`, `D196`, and the D197 row guard manifest pilot are complete.
+   `C206+` cleanup/probe guards stay local-run/index-listed unless a card names
+   a production stop line for promotion.
