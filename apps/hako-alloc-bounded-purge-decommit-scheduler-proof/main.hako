@@ -1,0 +1,129 @@
+// hako-alloc-bounded-purge-decommit-scheduler-proof
+// Purpose: prove M212 bounded purge/decommit scheduler small path.
+
+using selfhost.hako_alloc.memory.osvm_backed_fast_path_heap_box as HakoAllocOsVmBackedFastPathHeap
+using selfhost.hako_alloc.memory.purge_bounded_scheduler_box as HakoAllocBoundedPurgeScheduler
+using selfhost.hako_alloc.memory.purge_recommit_heap_integration_box as HakoAllocRecommitHeapIntegration
+using selfhost.hako_alloc.memory.purge_state_aware_decommit_box as HakoAllocPurgeStateAwareDecommit
+
+static box Main {
+    main(args) {
+        local verifier_heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local verifier_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local verifier_recommit = new HakoAllocRecommitHeapIntegration(64)
+        local verifier_page = verifier_heap.pages.get(0)
+        local verifier_block = verifier_page.acquire(8)
+        local verifier_release = verifier_page.releaseLocal(verifier_block)
+        local verifier_decommit = verifier_guard.attemptHeapPage(verifier_heap, verifier_page.page_id)
+        local verifier_recommit_report = verifier_recommit.attemptHeapPage(verifier_heap, verifier_page.page_id, verifier_guard.marker)
+
+        local zero_heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local zero_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local zero_scheduler = new HakoAllocBoundedPurgeDecommitScheduler()
+        local zero = zero_scheduler.run(zero_heap, zero_guard, 0)
+
+        local active_heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local active_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local active_scheduler = new HakoAllocBoundedPurgeDecommitScheduler()
+        local active = active_scheduler.run(active_heap, active_guard, 1)
+
+        local ready_heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local ready_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local ready_scheduler = new HakoAllocBoundedPurgeDecommitScheduler()
+        local ready_page = ready_heap.pages.get(0)
+        local ready_block = ready_page.acquire(8)
+        local ready_release = ready_page.releaseLocal(ready_block)
+        local ready = ready_scheduler.run(ready_heap, ready_guard, 1)
+        local ready_duplicate = ready_scheduler.run(ready_heap, ready_guard, 1)
+
+        local bound_heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local bound_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local bound_scheduler = new HakoAllocBoundedPurgeDecommitScheduler()
+        local bound_first = bound_heap.pages.get(0)
+        local bound_second = bound_heap.addBackedPage()
+        local bound_block = bound_second.acquire(8)
+        local bound_release = bound_second.releaseLocal(bound_block)
+        local bound = bound_scheduler.run(bound_heap, bound_guard, 1)
+
+        local two_heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local two_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local two_scheduler = new HakoAllocBoundedPurgeDecommitScheduler()
+        local two_first = two_heap.pages.get(0)
+        local two_second = two_heap.addBackedPage()
+        local two_block0 = two_first.acquire(8)
+        local two_release0 = two_first.releaseLocal(two_block0)
+        local two_block1 = two_second.acquire(8)
+        local two_release1 = two_second.releaseLocal(two_block1)
+        local two = two_scheduler.run(two_heap, two_guard, 2)
+
+        local over_heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local over_guard = new HakoAllocPurgeStateAwareDecommitGuard(1)
+        local over_scheduler = new HakoAllocBoundedPurgeDecommitScheduler()
+        local over_page = over_heap.pages.get(0)
+        local over_block = over_page.acquire(8)
+        local over_release = over_page.releaseLocal(over_block)
+        local over = over_scheduler.run(over_heap, over_guard, 1)
+
+        local ok = check "m212 bounded purge decommit scheduler" {
+            "zero scan status": zero.status == 1
+            "zero stop reason": zero.stop_reason == 1
+            "zero scanned": zero.scanned_pages == 0
+            "zero attempted": zero.attempted == 0
+            "active status": active.status == 1
+            "active stop reason": active.stop_reason == 2
+            "active scanned": active.scanned_pages == 1
+            "active attempted": active.attempted == 0
+            "active source count": active_guard.source_execution_count == 0
+            "ready release": ready_release == 1
+            "ready status": ready.status == 0
+            "ready scanned": ready.scanned_pages == 1
+            "ready attempted": ready.attempted == 1
+            "ready source": ready.source_executed == 1
+            "ready marked": ready.marker_marked == 1
+            "ready guard attempts": ready_guard.attempt_count == 1
+            "ready marker": ready_guard.marker.marked_count == 1
+            "duplicate status": ready_duplicate.status == 1
+            "duplicate attempted": ready_duplicate.attempted == 0
+            "duplicate source count": ready_guard.source_execution_count == 1
+            "bound release": bound_release == 1
+            "bound status": bound.status == 1
+            "bound scanned": bound.scanned_pages == 1
+            "bound attempted": bound.attempted == 0
+            "bound guard attempts": bound_guard.attempt_count == 0
+            "two releases": two_release0 + two_release1 == 2
+            "two status": two.status == 0
+            "two scanned": two.scanned_pages == 1
+            "two attempted once": two_guard.attempt_count == 1
+            "two source once": two_guard.source_execution_count == 1
+            "over release": over_release == 1
+            "over status": over.status == 2
+            "over attempted": over.attempted == 1
+            "over source blocked": over.source_executed == 0
+            "over guard attempts": over_guard.attempt_count == 1
+            "over source count": over_guard.source_execution_count == 0
+            "heap decommit untouched": ready_heap.decommit_count + two_heap.decommit_count + over_heap.decommit_count == 0
+            "verifier lifecycle setup": verifier_release == 1
+            "verifier decommit setup": verifier_decommit.status == 0
+            "verifier recommit setup": verifier_recommit_report.status == 0
+        }
+
+        print("hako-alloc-bounded-purge-decommit-scheduler-proof")
+        print("zero=" + zero.status + "," + zero.stop_reason + "," + zero.scan_limit + "," + zero.scanned_pages + "," + zero.attempted + "," + zero.source_executed)
+        print("active=" + active.status + "," + active.stop_reason + "," + active.scanned_pages + "," + active.rejected_pages + "," + active.attempted + "," + active_guard.source_execution_count)
+        print("ready=" + ready.status + "," + ready.stop_reason + "," + ready.scanned_pages + "," + ready.candidate_pages + "," + ready.attempted + "," + ready.source_executed + "," + ready.marker_marked + "," + ready.selected_page_id)
+        print("duplicate=" + ready_duplicate.status + "," + ready_duplicate.stop_reason + "," + ready_duplicate.scanned_pages + "," + ready_duplicate.rejected_pages + "," + ready_duplicate.attempted + "," + ready_guard.attempt_count + "," + ready_guard.source_execution_count)
+        print("bound=" + bound.status + "," + bound.stop_reason + "," + bound.scan_limit + "," + bound.scanned_pages + "," + bound.attempted + "," + bound_guard.attempt_count)
+        print("two=" + two.status + "," + two.stop_reason + "," + two.scan_limit + "," + two.scanned_pages + "," + two.attempted + "," + two_guard.attempt_count + "," + two_guard.source_execution_count)
+        print("over=" + over.status + "," + over.stop_reason + "," + over.scanned_pages + "," + over.attempted + "," + over.source_executed + "," + over.decommit_status + "," + over.mark_status + "," + over_guard.source_execution_count)
+        print("counts=" + ready_scheduler.run_count + "," + ready_scheduler.attempt_count + "," + ready_scheduler.source_execution_count + "," + ready_scheduler.skipped_count + "," + ready_scheduler.last_stop_reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

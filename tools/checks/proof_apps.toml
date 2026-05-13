@@ -104,3 +104,10 @@ app = "apps/hako-alloc-purge-candidate-policy-inventory-proof"
 label = "purge candidate policy inventory proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_purge_candidate_policy_inventory_guard.sh"]
+
+[[proof_apps]]
+id = "M212"
+app = "apps/hako-alloc-bounded-purge-decommit-scheduler-proof"
+label = "bounded purge decommit scheduler proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_bounded_purge_decommit_scheduler_guard.sh"]

@@ -29,6 +29,7 @@ Current modules
 - `page_lifecycle_invariant_box.hako`
 - `page_source_policy_box.hako`
 - `purge_bounded_decommit_box.hako`
+- `purge_bounded_scheduler_box.hako`
 - `purge_dry_run_box.hako`
 - `purge_execution_box.hako`
 - `purge_heap_decommit_box.hako`
@@ -220,6 +221,12 @@ Syntax/style contract
   It may classify already-built M207 lifecycle reports as future purge
   candidates, but it must not observe heap pages, scan queues, schedule purge,
   decommit, recommit, call page-source APIs, mutate heap/page/marker state,
+  unreserve, release OSVM pages, or replace allocators.
+- `purge_bounded_scheduler_box.hako` owns M212 bounded purge/decommit scheduler
+  small path. It may scan at most a caller-provided page count, observe M207
+  lifecycle facts, classify them through M211, and call the M199 state-aware
+  guard for at most one eligible page, but it must not call M197/M195/M196 or
+  page-source APIs directly, mutate heap/page/backing state, recommit,
   unreserve, release OSVM pages, or replace allocators.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and

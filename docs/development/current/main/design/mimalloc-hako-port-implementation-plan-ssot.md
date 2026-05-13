@@ -577,6 +577,14 @@ scheduling purge work, decommitting, recommitting, calling page-source APIs,
 mutating allocator state, unreserving, releasing OSVM pages, or widening
 provider/backend behavior.
 
+M212 status:
+complete as `293x-259`. M212 adds
+`HakoAllocBoundedPurgeDecommitScheduler`, which scans at most a caller-provided
+page count, observes M207 lifecycle facts, classifies them through M211, and
+delegates the first eligible page to the M199 state-aware decommit guard. It
+does not call M197/M195/M196 or page-source APIs directly, does not unreserve
+or release OSVM pages, and does not change allocation/release/reuse behavior.
+
 ### Proof App Ergonomics Queue
 
 These rows improve proof readability without changing allocator semantics.

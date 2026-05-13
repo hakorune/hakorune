@@ -1,0 +1,149 @@
+// purge_bounded_scheduler_box.hako -- M212 bounded purge/decommit scheduler
+// Responsibility:
+// - scan a caller-bounded page set
+// - classify each observed lifecycle report through M211
+// - call the M199 state-aware decommit guard for at most one eligible page
+// Non-responsibility:
+// - direct page-source calls, direct M197/M195 calls, unreserve, OS release,
+//   recommit, fresh page sourcing, allocator behavior changes, or hooks
+
+using selfhost.hako_alloc.memory.page_lifecycle_invariant_box as HakoAllocPageLifecycleInvariant
+using selfhost.hako_alloc.memory.purge_candidate_policy_box as HakoAllocPurgeCandidatePolicy
+using selfhost.hako_alloc.memory.purge_state_aware_decommit_box as HakoAllocPurgeStateAwareDecommit
+
+box HakoAllocBoundedPurgeDecommitSchedulerReport {
+    status: i64 = 0
+    stop_reason: i64 = 0
+    max_scan_pages: i64 = 0
+    scan_limit: i64 = 0
+    scanned_pages: i64 = 0
+    missing_pages: i64 = 0
+    rejected_pages: i64 = 0
+    candidate_pages: i64 = 0
+    attempted: i64 = 0
+    source_executed: i64 = 0
+    marker_marked: i64 = 0
+    selected_page_id: i64 = -1
+    selected_lifecycle_state: i64 = 0
+    selected_reason: i64 = 0
+    decommit_status: i64 = -1
+    mark_status: i64 = -1
+}
+
+box HakoAllocBoundedPurgeDecommitScheduler {
+    observer: HakoAllocPageLifecycleInvariantObserver = new HakoAllocPageLifecycleInvariantObserver()
+    inventory: HakoAllocPurgeCandidatePolicyInventory = new HakoAllocPurgeCandidatePolicyInventory()
+    run_count: i64 = 0
+    attempt_count: i64 = 0
+    source_execution_count: i64 = 0
+    skipped_count: i64 = 0
+    last_page_id: i64 = -1
+    last_stop_reason: i64 = 0
+
+    report(status, stop_reason, max_scan_pages, scan_limit, scanned_pages, missing_pages, rejected_pages, candidate_pages, attempted, source_executed, marker_marked, selected_page_id, selected_lifecycle_state, selected_reason, decommit_status, mark_status) {
+        local result = new HakoAllocBoundedPurgeDecommitSchedulerReport()
+        result.status = status
+        result.stop_reason = stop_reason
+        result.max_scan_pages = max_scan_pages
+        result.scan_limit = scan_limit
+        result.scanned_pages = scanned_pages
+        result.missing_pages = missing_pages
+        result.rejected_pages = rejected_pages
+        result.candidate_pages = candidate_pages
+        result.attempted = attempted
+        result.source_executed = source_executed
+        result.marker_marked = marker_marked
+        result.selected_page_id = selected_page_id
+        result.selected_lifecycle_state = selected_lifecycle_state
+        result.selected_reason = selected_reason
+        result.decommit_status = decommit_status
+        result.mark_status = mark_status
+        return result
+    }
+
+    run(heap, decommit_guard, max_scan_pages) {
+        me.run_count = me.run_count + 1
+        me.last_page_id = -1
+        me.last_stop_reason = 0
+
+        local scan_limit = max_scan_pages
+        if scan_limit < 0 {
+            scan_limit = 0
+        }
+
+        if heap.queue.page_count < scan_limit {
+            scan_limit = heap.queue.page_count
+        }
+
+        local scanned_pages = 0
+        local missing_pages = 0
+        local rejected_pages = 0
+        local candidate_pages = 0
+        local attempted = 0
+        local source_executed = 0
+        local marker_marked = 0
+        local selected_page_id = -1
+        local selected_lifecycle_state = 0
+        local selected_reason = 0
+        local decommit_status = -1
+        local mark_status = -1
+        local done = 0
+        local i = 0
+
+        loop(i < scan_limit) {
+            if done == 0 {
+                scanned_pages = scanned_pages + 1
+                local page = heap.queue.pages.get(i)
+                if page == null {
+                    missing_pages = missing_pages + 1
+                    rejected_pages = rejected_pages + 1
+                    me.skipped_count = me.skipped_count + 1
+                } else {
+                    local lifecycle = me.observer.observeHeapPage(heap, page.page_id, decommit_guard.marker)
+                    local decision = me.inventory.classifyLifecycleReport(lifecycle)
+                    if decision.eligible == 0 {
+                        rejected_pages = rejected_pages + 1
+                        if decision.reason == 2 {
+                            missing_pages = missing_pages + 1
+                        }
+                        me.skipped_count = me.skipped_count + 1
+                    } else {
+                        candidate_pages = candidate_pages + 1
+                        selected_page_id = decision.page_id
+                        selected_lifecycle_state = decision.lifecycle_state
+                        selected_reason = decision.reason
+                        local decommit = decommit_guard.attemptHeapPage(heap, decision.page_id)
+                        attempted = 1
+                        source_executed = decommit.source_executed
+                        marker_marked = decommit.marker_marked
+                        decommit_status = decommit.decommit_status
+                        mark_status = decommit.mark_status
+                        done = 1
+                    }
+                }
+            }
+            i = i + 1
+        }
+
+        if attempted != 0 {
+            me.attempt_count = me.attempt_count + 1
+            me.last_page_id = selected_page_id
+            if source_executed != 0 {
+                me.source_execution_count = me.source_execution_count + 1
+                me.last_stop_reason = 0
+                return me.report(0, 0, max_scan_pages, scan_limit, scanned_pages, missing_pages, rejected_pages, candidate_pages, attempted, source_executed, marker_marked, selected_page_id, selected_lifecycle_state, selected_reason, decommit_status, mark_status)
+            }
+
+            me.last_stop_reason = 3
+            return me.report(2, 3, max_scan_pages, scan_limit, scanned_pages, missing_pages, rejected_pages, candidate_pages, attempted, source_executed, marker_marked, selected_page_id, selected_lifecycle_state, selected_reason, decommit_status, mark_status)
+        }
+
+        if scan_limit == 0 {
+            me.last_stop_reason = 1
+            return me.report(1, 1, max_scan_pages, scan_limit, scanned_pages, missing_pages, rejected_pages, candidate_pages, attempted, source_executed, marker_marked, selected_page_id, selected_lifecycle_state, selected_reason, decommit_status, mark_status)
+        }
+
+        me.last_stop_reason = 2
+        return me.report(1, 2, max_scan_pages, scan_limit, scanned_pages, missing_pages, rejected_pages, candidate_pages, attempted, source_executed, marker_marked, selected_page_id, selected_lifecycle_state, selected_reason, decommit_status, mark_status)
+    }
+}
