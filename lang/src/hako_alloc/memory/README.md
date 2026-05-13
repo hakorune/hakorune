@@ -165,6 +165,10 @@ Syntax/style contract
   It may record page ids from successful decommit reports and reject duplicate
   or widened release reports, but it must not call page-source APIs, mutate
   heap/page state, unreserve, release OSVM pages, or replace allocators.
+- `purge_state_aware_decommit_box.hako` owns M199 purge state-aware duplicate
+  guard. It may consult the M198 marker before delegating to M197 heap decommit
+  integration, but it must not call page-source APIs directly, mutate heap/page
+  state, unreserve, release OSVM pages, or replace allocators.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
   huge-page metadata. C205c consumes aligned-small metadata through a

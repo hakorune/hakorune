@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x packed ArrayBox auto-use pilot`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `M199 purge state-aware duplicate guard`
+- current blocker token: `M200 decommitted page reuse precondition`
 - record / packed ArrayBox SSOT:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
@@ -44,7 +44,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `M199 purge state-aware duplicate guard`
+- current blocker token: `M200 decommitted page reuse precondition`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -55,7 +55,7 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` from M199 purge state-aware duplicate guard.
+- continue `phase-293x` from M200 decommitted page reuse precondition.
   C207 emits `array_record_autouse_eligibility_plans`, C208 emits
   `array_record_materialization_boundary_plans`, and C209 emits
   `array_record_packed_autouse_pilot_plans` plus crate-private i64 column seams.
@@ -72,9 +72,10 @@ cargo check -q
   adds bounded caller-provided decommit execution while keeping unreserve and
   OS release inactive, M196 connects that bounded policy to the page-source
   decommit adapter only, M197 composes dry-run observation, bounded policy, and
-  page-source adapter for heap page/backing state, and M198 records successful
-  decommit report page ids in a separate state marker. Visible record
-  materialization and packed record backend lowering remain closed.
+  page-source adapter for heap page/backing state, M198 records successful
+  decommit report page ids in a separate state marker, and M199 blocks repeated
+  decommit attempts before page-source execution. Visible record materialization
+  and packed record backend lowering remain closed.
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed with `real-apps` smoke coverage

@@ -285,6 +285,9 @@ Status:
 - `M198` is complete as `293x-238`: it records successful decommit report page
   ids in a separate state marker. It does not change record materialization or
   packed record backend lowering.
+- `M199` is complete as `293x-239`: it blocks repeated decommit attempts before
+  page-source execution by consulting the M198 marker. It does not change record
+  materialization or packed record backend lowering.
 
 ## C207 Eligibility Gate
 

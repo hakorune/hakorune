@@ -1,0 +1,40 @@
+// hako-alloc-purge-state-aware-duplicate-guard-proof
+// Purpose: prove M199 purge state-aware duplicate guard.
+
+using selfhost.hako_alloc.memory.osvm_backed_fast_path_heap_box as HakoAllocOsVmBackedFastPathHeap
+using selfhost.hako_alloc.memory.purge_state_aware_decommit_box as HakoAllocPurgeStateAwareDecommit
+
+static box Main {
+    main(args) {
+        local heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local decommit_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+
+        local page = heap.pages.get(0)
+        local block_id = page.acquire(8)
+        local live = decommit_guard.attemptHeapPage(heap, page.page_id)
+
+        local release_rc = page.releaseLocal(block_id)
+        local first = decommit_guard.attemptHeapPage(heap, page.page_id)
+        local duplicate = decommit_guard.attemptHeapPage(heap, page.page_id)
+
+        print("hako-alloc-purge-state-aware-duplicate-guard-proof")
+        print("live=" + live.status + "," + live.blocked + "," + live.source_executed + "," + live.decommit_status + "," + live.mark_status)
+        print("release=" + release_rc)
+        print("first=" + first.status + "," + first.blocked + "," + first.source_executed + "," + first.marker_marked + "," + first.decommit_status + "," + first.mark_status)
+        print("duplicate=" + duplicate.status + "," + duplicate.blocked + "," + duplicate.already_marked + "," + duplicate.source_executed)
+        print("guard=" + decommit_guard.attempt_count + "," + decommit_guard.success_count + "," + decommit_guard.blocked_count + "," + decommit_guard.duplicate_block_count + "," + decommit_guard.source_execution_count)
+        print("integration=" + decommit_guard.integration.attempt_count + "," + decommit_guard.integration.success_count + "," + decommit_guard.integration.blocked_count)
+        print("adapter=" + decommit_guard.integration.adapter.call_count + "," + decommit_guard.integration.adapter.success_count + "," + decommit_guard.integration.adapter.last_bytes + "," + decommit_guard.integration.adapter.last_rc)
+        print("marker=" + decommit_guard.marker.attempt_count + "," + decommit_guard.marker.marked_count + "," + decommit_guard.marker.reject_count + "," + decommit_guard.marker.duplicate_count + "," + decommit_guard.marker.not_decommitted_count)
+        print("marked=" + decommit_guard.marker.isMarked(page.page_id) + "," + decommit_guard.marker.marked_page_ids.length())
+        print("heap=" + heap.decommit_count + "," + heap.release_count + "," + heap.reject_count)
+
+        if live.status == 2 && live.source_executed == 0 && release_rc == 1 && first.status == 0 && first.source_executed == 1 && duplicate.status == 1 && duplicate.source_executed == 0 && decommit_guard.integration.adapter.call_count == 1 && decommit_guard.marker.marked_count == 1 && decommit_guard.duplicate_block_count == 1 && heap.decommit_count == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

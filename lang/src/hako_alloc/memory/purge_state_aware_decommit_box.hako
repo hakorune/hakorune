@@ -1,0 +1,72 @@
+// purge_state_aware_decommit_box.hako -- M199 purge duplicate guard
+// Responsibility:
+// - consult the decommit state marker before M197 heap decommit integration
+// - record successful decommit state after M197 reports execution
+// Non-responsibility:
+// - page-source calls, heap/page mutation, unreserve, OS release, or allocator replacement
+
+using selfhost.hako_alloc.memory.purge_decommit_state_marker_box as HakoAllocPurgeDecommitStateMarker
+using selfhost.hako_alloc.memory.purge_heap_decommit_box as HakoAllocPurgeHeapDecommit
+
+box HakoAllocPurgeStateAwareDecommitReport {
+    status: i64 = 0
+    page_id: i64 = -1
+    blocked: i64 = 0
+    already_marked: i64 = 0
+    source_executed: i64 = 0
+    marker_marked: i64 = 0
+    decommit_status: i64 = -1
+    mark_status: i64 = -1
+}
+
+box HakoAllocPurgeStateAwareDecommitGuard {
+    integration: HakoAllocPurgeHeapDecommitIntegration
+    marker: HakoAllocPurgeDecommitStateMarker = new HakoAllocPurgeDecommitStateMarker()
+    attempt_count: i64 = 0
+    success_count: i64 = 0
+    blocked_count: i64 = 0
+    duplicate_block_count: i64 = 0
+    source_execution_count: i64 = 0
+
+    birth(max_decommit_bytes) {
+        me.integration = new HakoAllocPurgeHeapDecommitIntegration(max_decommit_bytes)
+    }
+
+    report(status, page_id, blocked, already_marked, source_executed, marker_marked, decommit_status, mark_status) {
+        local result = new HakoAllocPurgeStateAwareDecommitReport()
+        result.status = status
+        result.page_id = page_id
+        result.blocked = blocked
+        result.already_marked = already_marked
+        result.source_executed = source_executed
+        result.marker_marked = marker_marked
+        result.decommit_status = decommit_status
+        result.mark_status = mark_status
+        return result
+    }
+
+    attemptHeapPage(heap, page_id) {
+        me.attempt_count = me.attempt_count + 1
+
+        if me.marker.isMarked(page_id) != 0 {
+            me.blocked_count = me.blocked_count + 1
+            me.duplicate_block_count = me.duplicate_block_count + 1
+            return me.report(1, page_id, 1, 1, 0, 0, -1, -1)
+        }
+
+        local decommit = me.integration.attemptHeapPage(heap, page_id)
+        local mark = me.marker.markIfDecommitted(page_id, decommit)
+
+        if decommit.decommit_executed != 0 {
+            me.source_execution_count = me.source_execution_count + 1
+        }
+
+        if decommit.decommit_executed != 0 && mark.marked != 0 {
+            me.success_count = me.success_count + 1
+            return me.report(0, page_id, 0, 0, 1, 1, decommit.status, mark.status)
+        }
+
+        me.blocked_count = me.blocked_count + 1
+        return me.report(2, page_id, 1, 0, decommit.decommit_executed, mark.marked, decommit.status, mark.status)
+    }
+}
