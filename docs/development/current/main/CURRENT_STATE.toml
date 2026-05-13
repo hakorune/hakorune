@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-05-14"
 
 active_lane = "phase-293x packed ArrayBox auto-use pilot"
-active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants is complete, M191-M210 hako_alloc stats/purge/recommit/reuse/lifecycle priority rows are complete, C194b verifier-owned page lifecycle invariants is complete, D197-D199 guard/proof manifest runner pilots are complete, and D200 agent current-entry docs are refreshed. Visible record materialization and packed record backend lowering remain closed. Next selected row is M211 purge candidate policy inventory. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants is complete, M191-M210 hako_alloc stats/purge/recommit/reuse/lifecycle priority rows are complete, C194b verifier-owned page lifecycle invariants is complete, D197-D199 guard/proof manifest runner pilots are complete, D200 agent current-entry docs are refreshed, and D201 language minimal surface / feature task order SSOT is complete. Visible record materialization and packed record backend lowering remain closed. Next selected row is M211 purge candidate policy inventory. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-255-M210-DECOMMIT-RECOMMIT-REUSE-EXE-HARDENING.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-256-D201-LANGUAGE-FEATURE-TASK-ORDER-SSOT.md"
 method_anchor = "docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-255-M210-DECOMMIT-RECOMMIT-REUSE-EXE-HARDENING"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-255-M210-DECOMMIT-RECOMMIT-REUSE-EXE-HARDENING.md"
-latest_card_summary = "293x-255 completes M210 decommit/recommit/reuse EXE hardening: a proof-only pure-first EXE guard fixes the M195-M209 lifecycle/reuse/stats composition without new allocator behavior."
+latest_card = "293x-256-D201-LANGUAGE-FEATURE-TASK-ORDER-SSOT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-256-D201-LANGUAGE-FEATURE-TASK-ORDER-SSOT.md"
+latest_card_summary = "293x-256 completes D201 language minimal surface and feature task order SSOT: loop is the only repetition family, explicit delegate field exposes replaces inheritance-style reuse, Stage0 stays parse/metadata/desugar only, and M211 remains the current allocator blocker."
 
 current_blocker_token = "M211 purge candidate policy inventory"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -241,4 +241,5 @@ landed_tail = [
   "294x-01 target-width numeric-kind SSOT landed",
   "293x-254 M209 lifecycle stats observer surface landed",
   "293x-255 M210 decommit/recommit/reuse EXE hardening landed",
+  "293x-256 D201 language minimal surface, no-inheritance delegation, and feature task order SSOT landed",
 ]

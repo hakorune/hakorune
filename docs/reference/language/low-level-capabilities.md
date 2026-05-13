@@ -30,6 +30,41 @@ source .hako code
 Backends, `.inc` files, and Stage0 matchers must not infer allocator behavior
 from box names, method names, provider names, or profile names.
 
+## Future Feature Map
+
+The durable owner split for future low-level language features is tracked outside
+this reference page to avoid duplicating semantics.
+
+| SSOT | Role |
+| --- | --- |
+| `docs/development/current/main/design/language-minimal-surface-ssot.md` | Canonical minimal keyword/surface rule. |
+| `docs/development/current/main/design/delegation-no-inheritance-ssot.md` | Canonical behavior-reuse rule: no inheritance, explicit field delegation only. |
+| `docs/development/current/main/design/stage0-stage1-feature-responsibility-split-ssot.md` | Canonical rule for what Stage0 may carry as syntax / metadata and what Stage1 must own as meaning. |
+| `docs/development/current/main/design/language-feature-implementation-order-ssot.md` | Canonical Wave A/B/C task order and full feature inventory. |
+| `docs/development/current/main/design/type-system-policy-ssot.md` | Type meaning policy. `MirType` is not language semantics. |
+| `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md` | Record and PackedArray lowering owner. |
+| `docs/development/current/main/design/rune-profile-effect-capability-plan-ssot.md` | Rune effect/capability metadata lane. |
+
+Stage0 may only parse, transport metadata, or perform trivial desugar for these
+features. Stage1 owns semantic checks, verifier facts, CorePlan decisions, and
+unsupported-backend fail-fast behavior.
+
+| Feature family | Status | Stage0 reading | Stage1 reading |
+| --- | --- | --- | --- |
+| `loop` condition / range / infinite forms | planned capsule for range header only | existing loop parse plus LoopRange metadata for `loop i in start..end` | entry-bound capture, read-only index, continue-safe lowering, bounds facts |
+| `type` / `brand` | planned capsule then semantics | declaration metadata only | alias facts, brand constructor/unwrap policy, mixed-brand rejection |
+| `record` / record literal / `with` | planned record lane | declaration and literal-shape metadata only | identity-free layout, construction/read lowering, update lowering |
+| `assert` / `requires` / `ensures` / `invariant` | planned contract lane | syntax and metadata; `assert` may be fail-fast sugar if explicitly carded | runtime checks, verifier discharge, diagnostics |
+| enum state values / `transition` | planned lifecycle lane | transition metadata and enum references only | transition legality and lifecycle verifier facts |
+| `Result` / `Option` / `guard let` | planned enum/prelude lane | enum surface only | prelude, exhaustiveness, pattern sugar |
+| `Array<T>` / `PackedArray<T>` | planned CorePlan lane | generic annotation metadata | typed array semantics and packed eligibility gates |
+| `const fn` / `comptime` / `const assert` | planned const lane | no evaluator beyond existing const-table support | const evaluator and purity rules |
+| `uses` / deferred `cap` | planned capability lane | method capability metadata only | capability checking and backend gates |
+| `Span<T>` / deferred `view` | planned raw-view lane | none | Span APIs first; scoped view syntax only if needed |
+| `delegate field exposes` / deferred `interface` / `impl` | planned delegation lane plus later interface lane | delegate metadata only; legacy `from` / `override` are not new canonical spelling | delegate lowering first, static conformance only after delegation is insufficient |
+| `using` / deferred `module` family | current import plus planned module lane | `using` remains current; minimal module metadata later | visibility and package semantics |
+| `check report` | planned proof lane | none | report object and diagnostics |
+
 ## Current Language Surface
 
 ### Numeric Type Names
