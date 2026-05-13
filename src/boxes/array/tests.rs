@@ -1,7 +1,7 @@
 use super::*;
 
 fn inline_record_test_array() -> ArrayBox {
-    let storage = ArrayInlineRecordStorage::new(
+    ArrayInlineRecordProbe::build(
         7,
         vec![
             ArrayInlineRecordColumn::i64(vec![10, 20]),
@@ -9,8 +9,27 @@ fn inline_record_test_array() -> ArrayBox {
             ArrayInlineRecordColumn::f64(vec![1.5, 2.5]),
         ],
     )
-    .expect("record columns must have equal row counts");
-    ArrayBox::new_with_inline_record_storage(storage)
+    .expect("record columns must have equal row counts")
+}
+
+#[test]
+fn inline_record_probe_builds_explicit_probe_array() {
+    let array = ArrayInlineRecordProbe::build(
+        11,
+        vec![
+            ArrayInlineRecordColumn::i64(vec![1, 2, 3]),
+            ArrayInlineRecordColumn::bool_values(vec![true, false, true]),
+        ],
+    )
+    .expect("probe columns must have equal row counts");
+
+    assert!(array.uses_inline_record_slots());
+    assert_eq!(array.inline_record_layout_id(), Some(11));
+    assert_eq!(array.len(), 3);
+    assert_eq!(
+        array.get_index_i64(0).to_string_box().value,
+        "[array/inline-record/unmaterialized] record value materialization is not enabled"
+    );
 }
 
 #[test]

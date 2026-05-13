@@ -549,6 +549,9 @@ inference for the allocator release path.
   single `HakoAllocAlignedSmallMetaStore.findIndex(ptr)` seam for aligned
   metadata reads without changing allocation behavior or enabling packed
   ArrayBox compiler auto-use.
+- `293x-219`: C206b ArrayBox inline-record probe landed, adding a `#[cfg(test)]`
+  `ArrayInlineRecordProbe` owner for explicit runtime probe arrays without
+  compiler auto-use, public ArrayBox API exposure, or hako_alloc migration.
 - Next: treat `C201-C205` as closed for the current allocator metadata
   migration. Use `C206+` only for small cleanup/probe rows such as
   metadata-store API cleanup or explicit packed ArrayBox auto-use probes.

@@ -208,6 +208,9 @@ Status:
 - `C206a` is complete as `293x-218`: aligned-small metadata reads now share a
   single `HakoAllocAlignedSmallMetaStore.findIndex(ptr)` seam. This is
   behavior-preserving cleanup, not a packed-storage auto-use row.
+- `C206b` is complete as `293x-219`: `ArrayInlineRecordProbe` is the explicit
+  test-only owner for constructing inline-record arrays. It is not compiler
+  auto-use, not a public ArrayBox API, and not a `hako_alloc` migration row.
 
 ## Target Runtime Shape
 

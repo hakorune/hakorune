@@ -113,6 +113,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_record_local_scalar_metadata_guard.sh` | C203c の `record_local_layout` folded agg-local / placement metadata lane を固定し、record route が user-box seed route や backend matcher に漏れないことを検証する。 |
 | `tools/checks/k2_wide_array_record_storage_descriptor_guard.sh` | C204a の `array_record_storage_plans` metadata descriptor lane を固定し、ArrayBox runtime/backend/hako_alloc へまだ漏れないことを検証する。 |
 | `tools/checks/k2_wide_arraybox_inline_record_storage_guard.sh` | C204b の `ArrayStorage::InlineRecord` runtime-private vocabulary を固定し、visible materialization / hako_alloc / backend lowering へまだ漏れないことを検証する。 |
+| `tools/checks/k2_wide_arraybox_inline_record_probe_guard.sh` | C206b の `ArrayInlineRecordProbe` を test-only explicit probe owner として固定し、compiler auto-use / public ArrayBox API / hako_alloc migration に広がらないことを検証する。 |
 | `tools/checks/k2_wide_allocator_metadata_record_declarations_guard.sh` | C205a の hako_alloc allocator metadata record 宣言を固定し、M178/M180 scalar columns が runtime truth のまま残ることを検証する。 |
 | `tools/checks/k2_wide_allocator_record_construction_read_guard.sh` | C205b の builder-local record construction/read scalarization を固定し、record が `NewBox` / typed-object / backend / hako_alloc live migration に漏れないことを検証する。 |
 | `tools/checks/k2_wide_aligned_small_metadata_record_store_guard.sh` | C205c/C206a の aligned-small metadata record store を固定し、M178 owner が record-shaped store と単一 `findIndex` lookup seam に委譲しつつ packed ArrayBox / backend / huge migration に広がらないことを検証する。 |

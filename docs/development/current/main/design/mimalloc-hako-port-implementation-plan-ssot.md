@@ -280,6 +280,12 @@ complete as `293x-218`. `HakoAllocAlignedSmallMetaStore` now owns a single
 that seam. This is behavior-preserving cleanup only; it does not enable packed
 `ArrayBox` auto-use or a generic store abstraction.
 
+C206b status:
+complete as `293x-219`. `ArrayInlineRecordProbe` now provides an explicit
+test-only owner for constructing `ArrayStorage::InlineRecord` arrays. The probe
+is `#[cfg(test)]`, keeps visible record materialization disabled, and does not
+enable compiler auto-use or `hako_alloc` packed storage migration.
+
 ### Docs / Guard Checkpoints
 
 | Row | Goal | Trigger |
