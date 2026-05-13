@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-05-13
+Date: 2026-05-14
 Scope: 再起動直後に 2-5 分で current lane に戻るための最短手順。
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x packed ArrayBox auto-use pilot`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `C194b verifier-owned page lifecycle invariants`
+- current blocker token: `M208 heap reuse priority policy`
 - record / packed ArrayBox SSOT:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
@@ -44,7 +44,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `C194b verifier-owned page lifecycle invariants`
+- current blocker token: `M208 heap reuse priority policy`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -55,8 +55,8 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after M207; next blocker is C194b verifier-owned page
-  lifecycle invariants.
+- continue `phase-293x` after C194b; next blocker is M208 heap reuse priority
+  policy.
   C207 emits `array_record_autouse_eligibility_plans`, C208 emits
   `array_record_materialization_boundary_plans`, and C209 emits
   `array_record_packed_autouse_pilot_plans` plus crate-private i64 column seams.
@@ -83,10 +83,11 @@ cargo check -q
   with decommit/recommit generation counts, M205 composes the recommit path
   into page-local reactivation while page sourcing, unreserve, and OS release
   remain closed, M206 proves the two-generation decommit/recommit/reuse loop
-  without a new allocator owner, and M207 freezes the active/retired/
+  without a new allocator owner, M207 freezes the active/retired/
   decommitted/recommitted-active lifecycle vocabulary as a read-only
-  observer/proof. Visible record materialization and packed record backend
-  lowering remain closed.
+  observer/proof, and C194b moves the selected M207 lifecycle report/function
+  invariants into MIR verification. Visible record materialization and packed
+  record backend lowering remain closed.
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed with `real-apps` smoke coverage

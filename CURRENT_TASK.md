@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-05-13
+Date: 2026-05-14
 Scope: current lane / next lane / restart order only.
 
 ## Purpose
@@ -45,7 +45,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - current blocker token:
-  `C194b verifier-owned page lifecycle invariants`
+  `M208 heap reuse priority policy`
 - primary mode: compiler/runtime packed record array lane for mimalloc metadata completeness
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -58,7 +58,7 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after M207. C207 emits
+- resume point: continue Phase 293x after C194b. C207 emits
   `array_record_autouse_eligibility_plans`, C208 emits
   `array_record_materialization_boundary_plans`, and C209 emits
   `array_record_packed_autouse_pilot_plans` plus crate-private i64 column
@@ -86,10 +86,11 @@ Scope: current lane / next lane / restart order only.
   generation counts, M205 composes the recommit path into page-local
   reactivation while page sourcing, unreserve, and OS release remain closed,
   M206 proves the two-generation decommit/recommit/reuse loop without a new
-  allocator owner, and M207 freezes the active/retired/decommitted/
-  recommitted-active lifecycle vocabulary as a read-only observer/proof.
-  Visible record materialization and packed record backend lowering remain
-  closed.
+  allocator owner, M207 freezes the active/retired/decommitted/
+  recommitted-active lifecycle vocabulary as a read-only observer/proof, and
+  C194b moves the selected M207 lifecycle report/function invariants into MIR
+  verification. Visible record materialization and packed record backend
+  lowering remain closed.
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `bash tools/checks/k2_wide_arraybox_inline_record_autouse_eligibility_guard.sh` ->
@@ -115,7 +116,8 @@ Scope: current lane / next lane / restart order only.
   `bash tools/checks/k2_wide_hako_alloc_recommit_marker_transition_guard.sh` ->
   `bash tools/checks/k2_wide_hako_alloc_recommit_heap_integration_guard.sh` ->
   `bash tools/checks/k2_wide_hako_alloc_reuse_proof_closeout_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_page_lifecycle_invariant_guard.sh`
+  `bash tools/checks/k2_wide_hako_alloc_page_lifecycle_invariant_guard.sh` ->
+  `bash tools/checks/k2_wide_hako_alloc_page_lifecycle_verifier_invariants_guard.sh`
   for the current packed-record metadata lane. Run
   `bash tools/checks/dev_gate.sh allocator-wide` only for allocator/mimalloc/
   provider closeout or explicit wide-gate review.
@@ -124,7 +126,7 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  C194b verifier-owned page lifecycle invariants
+  M208 heap reuse priority policy
 - optional future allocator-provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`
