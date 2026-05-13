@@ -26,13 +26,13 @@ Related:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `D204 purge lifecycle ladder closeout`
+- current blocker token: `D205 post-M213 next-lane selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after M212; next blocker is D204 purge lifecycle ladder closeout
+- continue phase-293x after M212; next blocker is D205 post-M213 next-lane selection
   policy inventory
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
