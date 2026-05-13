@@ -15,10 +15,11 @@ mod types;
 mod tests;
 
 pub use types::{
-    ArrayRecordAutoUseEligibilityPlan, ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan,
-    ClosureBodyId, ExactNumericRuntimeCheckContract, ExactNumericRuntimeCheckContractKind,
-    FunctionMetadata, FunctionSignature, FunctionStats, MirEnumDecl, MirEnumVariantDecl,
-    MirFunction, MirModule, MirParamDecl, ModuleMetadata, ModuleStats, RecordDecl,
-    RecordLayoutFieldPlan, RecordLayoutPlan, StaticDataPlan, TypedObjectFieldPlan,
-    TypedObjectFieldStorage, TypedObjectPlan, UserBoxFieldDecl,
+    ArrayRecordAutoUseEligibilityPlan, ArrayRecordMaterializationBoundaryPlan,
+    ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan, ClosureBodyId,
+    ExactNumericRuntimeCheckContract, ExactNumericRuntimeCheckContractKind, FunctionMetadata,
+    FunctionSignature, FunctionStats, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
+    MirParamDecl, ModuleMetadata, ModuleStats, RecordDecl, RecordLayoutFieldPlan, RecordLayoutPlan,
+    StaticDataPlan, TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan,
+    UserBoxFieldDecl,
 };

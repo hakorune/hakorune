@@ -586,6 +586,26 @@ pub struct ArrayRecordAutoUseEligibilityPlan {
     pub production_auto_use_enabled: bool,
 }
 
+/// Metadata-only escape/materialization boundary for future ArrayBox auto-use.
+///
+/// This row lets later compiler auto-use consume only non-escaping direct field
+/// read candidates. Visible record values still require explicit materializer
+/// support and must fail fast while this row is the latest owner.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ArrayRecordMaterializationBoundaryPlan {
+    pub record_name: String,
+    pub layout_id: u32,
+    pub boundary_kind: String,
+    pub source_decision: String,
+    pub direct_indexed_field_reads_allowed: bool,
+    pub visible_record_materialization_enabled: bool,
+    pub public_array_get_action: String,
+    pub returned_element_action: String,
+    pub host_backend_escape_action: String,
+    pub diagnostic: String,
+    pub runtime_auto_use_enabled: bool,
+}
+
 /// Declared variant inventory for first-class enum/sum metadata.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MirEnumVariantDecl {
@@ -658,6 +678,9 @@ pub struct ModuleMetadata {
 
     /// Metadata-only eligibility rows for future ArrayBox inline-record auto-use.
     pub array_record_autouse_eligibility_plans: Vec<ArrayRecordAutoUseEligibilityPlan>,
+
+    /// Metadata-only materialization/escape boundary for future ArrayBox auto-use.
+    pub array_record_materialization_boundary_plans: Vec<ArrayRecordMaterializationBoundaryPlan>,
 
     /// Backend-readable static readonly table rows.
     /// MIR owns this row shape; backend emitters only serialize rows.

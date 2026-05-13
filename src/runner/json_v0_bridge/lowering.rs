@@ -278,6 +278,7 @@ pub(super) fn lower_program(
     crate::mir::record_layout_plan::refresh_module_record_layout_plans(&mut module);
     crate::mir::array_record_storage_plan::refresh_module_array_record_storage_plans(&mut module);
     crate::mir::array_record_autouse_eligibility::refresh_module_array_record_autouse_eligibility_plans(&mut module);
+    crate::mir::array_record_materialization_boundary::refresh_module_array_record_materialization_boundary_plans(&mut module);
     program::lower_main_body(&mut module, &prog.body, &env)?;
     if let Some(entry_def) = prog
         .defs

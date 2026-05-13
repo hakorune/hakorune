@@ -30,10 +30,10 @@ cargo check -q
 ## Current Lane
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- active lane: `phase-293x packed ArrayBox auto-use eligibility`
+- active lane: `phase-293x packed ArrayBox auto-use boundary`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `C208 inline-record materialization / escape boundary before packed runtime auto-use`
+- current blocker token: `C209 non-escaping packed ArrayBox compiler auto-use pilot`
 - record / packed ArrayBox SSOT:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
@@ -44,7 +44,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `C208 inline-record materialization / escape boundary before packed runtime auto-use`
+- current blocker token: `C209 non-escaping packed ArrayBox compiler auto-use pilot`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -55,10 +55,11 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` from C208 inline-record materialization / escape
-  boundary. C207 emits metadata-only `array_record_autouse_eligibility_plans`;
-  runtime packed ArrayBox auto-use, hako_alloc migration, record
-  materialization, and backend lowering remain later rows.
+- continue `phase-293x` from C209 non-escaping packed ArrayBox compiler
+  auto-use pilot. C207 emits metadata-only
+  `array_record_autouse_eligibility_plans`, and C208 emits metadata-only
+  `array_record_materialization_boundary_plans`; runtime packed ArrayBox
+  auto-use remains closed until C209 explicitly opens the pilot.
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed with `real-apps` smoke coverage

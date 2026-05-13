@@ -231,6 +231,10 @@ Status:
 - `C206` cleanup/probe work stops here for now. `C207` is complete as
   `293x-224`: it opens only the compiler eligibility metadata gate for future
   packed `ArrayBox` auto-use, with production runtime auto-use still disabled.
+- `C208` is complete as `293x-225`: it emits metadata-only
+  `array_record_materialization_boundary_plans` for C207 eligible rows, allowing
+  future non-escaping direct field-read auto-use while keeping visible record
+  materialization and runtime auto-use disabled.
 
 ## C207 Eligibility Gate
 
@@ -250,6 +254,24 @@ C207 must not construct `ArrayStorage::InlineRecord` in production code, migrate
 `hako_alloc`, expose a public `ArrayBox` record API, add materialization, or add
 backend lowering. The existing `ArrayInlineRecordProbe` and
 `ArrayInlineRecordPlanProbe` remain test-only.
+
+## C208 Materialization / Escape Boundary
+
+C208 is also metadata-only. It consumes C207 eligible rows and emits
+`array_record_materialization_boundary_plans`.
+
+| Boundary | C208 contract |
+| --- | --- |
+| non-escaping direct indexed field read | allowed for future C209 consumption |
+| public `ArrayBox.get(i)` visible record value | fail-fast unmaterialized record value |
+| returned record element | fail-fast unmaterialized record value |
+| host/backend boundary escape | fail-fast unmaterialized record value |
+| rejected C207 candidate | no C208 boundary row |
+
+Each C208 row keeps `visible_record_materialization_enabled=false` and
+`runtime_auto_use_enabled=false`. C208 must not add record object
+materialization, boxed fallback, hako_alloc migration, production runtime
+auto-use, or backend lowering.
 
 ## Target Runtime Shape
 

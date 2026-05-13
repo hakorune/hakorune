@@ -15,6 +15,7 @@ pub mod aot_plan_import;
 pub mod array_getset_micro_seed_plan; // MIR-owned route plan for temporary array get/set micro seed bridge
 pub(crate) mod array_receiver_proof; // shared RuntimeDataBox -> ArrayBox receiver proof
 pub mod array_record_autouse_eligibility; // MIR-owned eligibility metadata for future packed ArrayBox auto-use
+pub mod array_record_materialization_boundary; // MIR-owned materialization / escape boundary metadata for packed ArrayBox auto-use
 pub mod array_record_storage_plan; // MIR-owned ArrayBox packed record storage descriptors
 pub mod array_rmw_add1_leaf_seed_plan; // MIR-owned route plan for temporary array RMW add1 leaf seed bridge
 pub mod array_rmw_window_plan; // MIR-owned route plans for array get/+1/set windows
@@ -187,9 +188,10 @@ pub use exact_seed_backend_route::{
     refresh_function_exact_seed_backend_route, refresh_module_exact_seed_backend_routes,
 };
 pub use function::{
-    ArrayRecordAutoUseEligibilityPlan, ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan,
-    ClosureBodyId, FunctionSignature, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
-    RecordDecl, RecordLayoutFieldPlan, RecordLayoutPlan, TypedObjectFieldStorage, UserBoxFieldDecl,
+    ArrayRecordAutoUseEligibilityPlan, ArrayRecordMaterializationBoundaryPlan,
+    ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan, ClosureBodyId, FunctionSignature,
+    MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule, RecordDecl, RecordLayoutFieldPlan,
+    RecordLayoutPlan, TypedObjectFieldStorage, UserBoxFieldDecl,
 };
 pub use generic_method_route_plan::{
     refresh_function_generic_method_routes, refresh_module_generic_method_routes,

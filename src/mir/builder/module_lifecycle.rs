@@ -509,6 +509,7 @@ impl super::MirBuilder {
             &mut module,
         );
         crate::mir::array_record_autouse_eligibility::refresh_module_array_record_autouse_eligibility_plans(&mut module);
+        crate::mir::array_record_materialization_boundary::refresh_module_array_record_materialization_boundary_plans(&mut module);
         crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module);
 
         Ok(module)

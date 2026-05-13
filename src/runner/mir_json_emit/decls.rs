@@ -206,6 +206,31 @@ pub(super) fn collect_array_record_autouse_eligibility_plan_values(
         .collect()
 }
 
+pub(super) fn collect_array_record_materialization_boundary_plan_values(
+    module: &crate::mir::MirModule,
+) -> Vec<serde_json::Value> {
+    module
+        .metadata
+        .array_record_materialization_boundary_plans
+        .iter()
+        .map(|plan| {
+            json!({
+                "record_name": plan.record_name,
+                "layout_id": plan.layout_id,
+                "boundary_kind": plan.boundary_kind,
+                "source_decision": plan.source_decision,
+                "direct_indexed_field_reads_allowed": plan.direct_indexed_field_reads_allowed,
+                "visible_record_materialization_enabled": plan.visible_record_materialization_enabled,
+                "public_array_get_action": plan.public_array_get_action,
+                "returned_element_action": plan.returned_element_action,
+                "host_backend_escape_action": plan.host_backend_escape_action,
+                "diagnostic": plan.diagnostic,
+                "runtime_auto_use_enabled": plan.runtime_auto_use_enabled,
+            })
+        })
+        .collect()
+}
+
 pub(super) fn collect_static_data_plan_values(
     module: &crate::mir::MirModule,
 ) -> Vec<serde_json::Value> {

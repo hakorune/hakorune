@@ -566,7 +566,10 @@ inference for the allocator release path.
 - `293x-224`: C207 packed ArrayBox compiler auto-use eligibility landed,
   emitting conservative `array_record_autouse_eligibility_plans` metadata while
   leaving production runtime auto-use disabled.
-- Next: C208 inline-record materialization / escape boundary. Runtime auto-use,
+- `293x-225`: C208 inline-record materialization / escape boundary landed,
+  emitting `array_record_materialization_boundary_plans` metadata while keeping
+  visible record materialization and runtime auto-use disabled.
+- Next: C209 non-escaping packed ArrayBox compiler auto-use pilot. Runtime auto-use,
   hako_alloc migration, materialization, and backend lowering remain later
   rows. No M191 allocator API row is scheduled yet; M186 facade stats already
   landed as `294x-19e`. M104 is next only if the optional allocator-provider

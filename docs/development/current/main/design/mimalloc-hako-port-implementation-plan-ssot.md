@@ -320,6 +320,14 @@ complete as `293x-224`. C207 adds only a compiler eligibility gate for packed
 does not enable production `ArrayStorage::InlineRecord` construction,
 hako_alloc migration, materialization, or backend lowering.
 
+C208 status:
+complete as `293x-225`. C208 adds metadata-only
+`array_record_materialization_boundary_plans` from C207 eligible rows. It allows
+future non-escaping direct indexed field-read consumption while keeping public
+`ArrayBox.get(i)` record values, returned record elements, host/backend escape,
+visible record materialization, runtime auto-use, hako_alloc migration, and
+backend lowering closed.
+
 ### Docs / Guard Checkpoints
 
 | Row | Goal | Trigger |

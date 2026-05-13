@@ -8,18 +8,18 @@
 status = "Active"
 date = "2026-05-12"
 
-active_lane = "phase-293x packed ArrayBox auto-use eligibility"
-active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, and C207 now emits metadata-only packed ArrayBox auto-use eligibility rows from ArrayRecordStoragePlan. Runtime ArrayStorage::InlineRecord auto-use, hako_alloc packed-store migration, record element materialization, and backend lowering remain closed. Next row is C208 inline-record materialization / escape boundary. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane = "phase-293x packed ArrayBox auto-use boundary"
+active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207 emits metadata-only packed ArrayBox auto-use eligibility rows from ArrayRecordStoragePlan, and C208 now emits materialization / escape boundary rows for C207 eligible candidates. Runtime ArrayStorage::InlineRecord auto-use, hako_alloc packed-store migration, visible record materialization, and backend lowering remain closed. Next row is C209 non-escaping packed ArrayBox compiler auto-use pilot. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-224-C207-PACKED-ARRAYBOX-AUTOUSE-ELIGIBILITY.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-225-C208-INLINE-RECORD-MATERIALIZATION-ESCAPE-BOUNDARY.md"
 method_anchor = "docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-224-C207-PACKED-ARRAYBOX-AUTOUSE-ELIGIBILITY"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-224-C207-PACKED-ARRAYBOX-AUTOUSE-ELIGIBILITY.md"
-latest_card_summary = "293x-224 completes C207 packed ArrayBox auto-use eligibility: MIR now emits metadata-only array_record_autouse_eligibility_plans while keeping production runtime auto-use disabled."
+latest_card = "293x-225-C208-INLINE-RECORD-MATERIALIZATION-ESCAPE-BOUNDARY"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-225-C208-INLINE-RECORD-MATERIALIZATION-ESCAPE-BOUNDARY.md"
+latest_card_summary = "293x-225 completes C208 inline-record materialization / escape boundary: MIR now emits metadata-only array_record_materialization_boundary_plans while visible record materialization and runtime auto-use stay disabled."
 
-current_blocker_token = "C208 inline-record materialization / escape boundary before packed runtime auto-use"
+current_blocker_token = "C209 non-escaping packed ArrayBox compiler auto-use pilot"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

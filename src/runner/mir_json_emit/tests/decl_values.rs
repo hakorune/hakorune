@@ -1,13 +1,15 @@
 use super::super::{
-    collect_array_record_autouse_eligibility_plan_values, collect_array_record_storage_plan_values,
-    collect_record_layout_plan_values, collect_sorted_enum_decl_values,
-    collect_sorted_record_decl_values, collect_sorted_user_box_decl_values,
-    collect_static_data_plan_values, collect_typed_object_plan_values,
+    collect_array_record_autouse_eligibility_plan_values,
+    collect_array_record_materialization_boundary_plan_values,
+    collect_array_record_storage_plan_values, collect_record_layout_plan_values,
+    collect_sorted_enum_decl_values, collect_sorted_record_decl_values,
+    collect_sorted_user_box_decl_values, collect_static_data_plan_values,
+    collect_typed_object_plan_values,
 };
 use crate::mir::function::{
-    ArrayRecordAutoUseEligibilityPlan, ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan,
-    RecordLayoutFieldPlan, RecordLayoutPlan, StaticDataPlan, TypedObjectFieldPlan,
-    TypedObjectFieldStorage, TypedObjectPlan,
+    ArrayRecordAutoUseEligibilityPlan, ArrayRecordMaterializationBoundaryPlan,
+    ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan, RecordLayoutFieldPlan, RecordLayoutPlan,
+    StaticDataPlan, TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan,
 };
 use crate::mir::MirModule;
 use serde_json::json;
@@ -359,6 +361,59 @@ fn collect_array_record_autouse_eligibility_plan_values_preserves_gate_truth() {
         "arraybox.inline_record_columns_v0"
     );
     assert_eq!(plans[0]["production_auto_use_enabled"], false);
+}
+
+#[test]
+fn collect_array_record_materialization_boundary_plan_values_preserves_stop_line() {
+    let mut module = MirModule::new("test".to_string());
+    module
+        .metadata
+        .array_record_materialization_boundary_plans
+        .push(ArrayRecordMaterializationBoundaryPlan {
+            record_name: "Meta".to_string(),
+            layout_id: 1,
+            boundary_kind: "non_escaping_direct_field_reads_v0".to_string(),
+            source_decision: "eligible".to_string(),
+            direct_indexed_field_reads_allowed: true,
+            visible_record_materialization_enabled: false,
+            public_array_get_action: "fail_fast_unmaterialized_record_value".to_string(),
+            returned_element_action: "fail_fast_unmaterialized_record_value".to_string(),
+            host_backend_escape_action: "fail_fast_unmaterialized_record_value".to_string(),
+            diagnostic:
+                "[array/inline-record/unmaterialized] record value materialization is not enabled"
+                    .to_string(),
+            runtime_auto_use_enabled: false,
+        });
+
+    let plans = collect_array_record_materialization_boundary_plan_values(&module);
+
+    assert_eq!(plans.len(), 1);
+    assert_eq!(plans[0]["record_name"], "Meta");
+    assert_eq!(plans[0]["layout_id"], 1);
+    assert_eq!(
+        plans[0]["boundary_kind"],
+        "non_escaping_direct_field_reads_v0"
+    );
+    assert_eq!(plans[0]["source_decision"], "eligible");
+    assert_eq!(plans[0]["direct_indexed_field_reads_allowed"], true);
+    assert_eq!(plans[0]["visible_record_materialization_enabled"], false);
+    assert_eq!(
+        plans[0]["public_array_get_action"],
+        "fail_fast_unmaterialized_record_value"
+    );
+    assert_eq!(
+        plans[0]["returned_element_action"],
+        "fail_fast_unmaterialized_record_value"
+    );
+    assert_eq!(
+        plans[0]["host_backend_escape_action"],
+        "fail_fast_unmaterialized_record_value"
+    );
+    assert_eq!(
+        plans[0]["diagnostic"],
+        "[array/inline-record/unmaterialized] record value materialization is not enabled"
+    );
+    assert_eq!(plans[0]["runtime_auto_use_enabled"], false);
 }
 
 #[test]
