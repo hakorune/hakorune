@@ -161,6 +161,12 @@ This lane therefore starts at `C201`.
 | `C205b allocator record construction/read lowering` | make record construction and field reads usable for allocator metadata probes through builder-local scalarization | packed storage migration | no hako_alloc live migration, no record object materialization |
 | `C205c aligned-small metadata record migration` | move M178 aligned-small metadata scalar columns behind a record-shaped store seam | huge-page metadata migration | no huge/native/provider coupling, no compiler auto-use of packed ArrayBox storage |
 | `C205d huge-page metadata record migration` | replace M180 huge-page metadata scalar columns with record-backed storage | broader allocator/table cleanup | no small-page state vector migration |
+| `C207 packed ArrayBox compiler auto-use eligibility gate` | classify record-array sites as eligible/rejected/fail-fast candidates for future packed inline-record auto-use | C208/C209 | no runtime auto-use, no materialization, no hako_alloc migration |
+| `C208 inline-record materialization / escape boundary` | define how non-escaping direct field reads stay packed and visible element escape fails fast until materialization exists | C209 | no public record materialization, no boxed fallback |
+| `C209 non-escaping packed ArrayBox compiler auto-use pilot` | consume eligible metadata for integer-lane, non-escaping record arrays | C210/C211 | no handle columns, no escaping element values, no hako_alloc migration |
+| `C210 aligned-small metadata packed-store pilot` | let `HakoAllocAlignedSmallMetaStore` benefit from compiler-selected packed storage without naming compiler internals in `.hako` | C211 | no huge migration, no allocator behavior change |
+| `C211 huge-page metadata packed-store pilot` | apply the packed-store pilot to huge-page metadata while preserving live-flag/sentinel behavior | C194a/C212 | no OSVM release widening, no small-page free-list mixing |
+| `C212 packed record backend fail-fast hardening` | ensure unsupported packed record routes fail fast instead of silently falling back | M191 or later algorithm rows | no VM-only completion claim, no broad backend rewrite |
 
 Status:
 
@@ -222,6 +228,28 @@ Status:
   stores expose index-based read seams so pointer-based APIs and resolved-index
   callers share one read path. Packed ArrayBox compiler auto-use remains
   unopened.
+- `C206` cleanup/probe work stops here for now. The next active design row is
+  `C207`, planned as `293x-224`, which opens only the compiler eligibility
+  gate for future packed `ArrayBox` auto-use.
+
+## C207 Eligibility Gate
+
+C207 is metadata-only. It must produce a conservative decision, not runtime
+packed storage:
+
+| Shape | C207 decision | Reason |
+| --- | --- | --- |
+| concrete record layout, integer-lane fields only, matching `ArrayRecordStoragePlan`, one appended layout, indexed direct field reads, no element escape | eligible | future packed storage can remain columnar and non-materializing |
+| handle / weak / reflection / unsupported storage column | rejected: unsupported-column-kind | C207 covers integer-lane columns only |
+| mixed record layouts in one array | rejected: layout-mismatch | packed columns require one concrete layout |
+| public `ArrayBox.get(i)` value, returned element, host/backend boundary escape, or visible object storage | rejected: materialization-required | C208 owns the materialization / escape boundary |
+| element field write-through, dynamic reflection, unknown array operation | rejected: unsupported-operation-shape | no silent boxed fallback |
+| backend lacks future packed inline-record lowering capability | fail-fast-required: backend-unsupported | VM/reference success is not backend completion |
+
+C207 must not construct `ArrayStorage::InlineRecord` in production code, migrate
+`hako_alloc`, expose a public `ArrayBox` record API, add materialization, or add
+backend lowering. The existing `ArrayInlineRecordProbe` and
+`ArrayInlineRecordPlanProbe` remain test-only.
 
 ## Target Runtime Shape
 

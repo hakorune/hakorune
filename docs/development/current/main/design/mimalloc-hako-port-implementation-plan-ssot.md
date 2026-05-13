@@ -193,14 +193,23 @@ the active `.hako` algorithm row.
 | `C205b allocator record construction/read lowering` | make record values usable enough for metadata probes through builder-local scalarization | live hako_alloc metadata migration |
 | `C205c aligned-small metadata record migration` | move M178 `meta_ptrs/meta_alignments/meta_padded_sizes` behind a record-shaped metadata store | huge-page metadata migration |
 | `C205d huge-page metadata record migration` | replace M180 `page_ids/ptrs/requested_sizes/committed_sizes/live_flags` with record-backed storage | broader allocator/table cleanup |
+| `C207 packed ArrayBox compiler auto-use eligibility gate` | classify record-array sites as eligible/rejected/fail-fast candidates without enabling runtime auto-use | `C208-C209` packed auto-use pilot |
+| `C208 inline-record materialization / escape boundary` | reject visible element escape until materialization exists while allowing non-escaping direct field-read shapes | `C209` |
+| `C209 non-escaping packed ArrayBox compiler auto-use pilot` | consume C207 eligibility for integer-lane, non-escaping record arrays | `C210-C211` metadata packed-store pilots |
+| `C210 aligned-small metadata packed-store pilot` | let aligned-small metadata stores use compiler-selected packed storage without `.hako` knowing compiler internals | `C211` |
+| `C211 huge-page metadata packed-store pilot` | extend the packed-store pilot to huge-page metadata while preserving live/sentinel semantics | verifier/backend hardening |
+| `C212 packed record backend fail-fast hardening` | keep unsupported packed record routes fail-fast rather than silently falling back | allocator algorithm rows after packed storage |
 
 Post-C205 phase split:
 
 - `C201-C205` is the aggregate metadata lane. After C205d it is closed for the
   current allocator metadata migration goal.
-- `C206+` is reserved for cleanup/probe work only. Candidate rows should stay
-  small: metadata-store common API cleanup, stale scalar-column guard cleanup,
-  or an explicit packed `ArrayBox` compiler auto-use probe.
+- `C206+` was reserved for cleanup/probe work only and is closed for now
+  through C206e. Further C206 rows require a concrete blocker that directly
+  simplifies C207 acceptance.
+- `C207+` opens the packed `ArrayBox` compiler auto-use lane, starting with an
+  eligibility gate only. Runtime auto-use, hako_alloc migration, materialized
+  record elements, and backend lowering stay later rows.
 - Allocator algorithm rows resume separately; do not use a C206 cleanup row to
   add realloc/aligned/huge/secure-list behavior.
 
@@ -303,6 +312,13 @@ expose index-based read seams, and pointer-based APIs delegate through those
 seams. This removes repeated pointer lookup in callers that already resolved an
 index, without changing allocator behavior or enabling packed ArrayBox
 compiler auto-use.
+
+C207 status:
+planned as `293x-224`. C207 is the next default row: it adds only a compiler
+eligibility gate for packed `ArrayBox` auto-use. It must emit conservative
+eligible/rejected/fail-fast metadata and must not enable production
+`ArrayStorage::InlineRecord` construction, hako_alloc migration,
+materialization, or backend lowering.
 
 ### Docs / Guard Checkpoints
 

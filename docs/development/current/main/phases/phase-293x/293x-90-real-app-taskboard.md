@@ -164,6 +164,29 @@
 - [x] `293x-199` M188 exact usize request path
 - [x] `293x-200` M189 object-return allocator API parity
 - [x] `293x-201` M190 nullable / failure handle contract
+- [x] `293x-202` C197-C200 proof/application surface order lock
+- [x] `293x-203` C197 logical condition surface hardening
+- [x] `293x-204` C198 check block surface
+- [x] `293x-205` C199 compound assignment surface
+- [x] `293x-206` C200 guard else surface
+- [x] `293x-207` C201 ordinary user-box field-index fast path
+- [x] `293x-208` C202 record surface and semantics
+- [x] `293x-209` C203a record declaration metadata transport
+- [x] `293x-210` C203b record layout plans
+- [x] `293x-211` C203c record local scalar replacement metadata
+- [x] `293x-212` C204a ArrayBox inline-record storage descriptors
+- [x] `293x-213` C204b ArrayBox inline-record storage vocabulary
+- [x] `293x-214` C205a allocator metadata record declarations
+- [x] `293x-215` C205b allocator record construction/read lowering
+- [x] `293x-216` C205c aligned-small metadata record store
+- [x] `293x-217` C205d huge-page metadata record store
+- [x] `293x-218` C206a aligned metadata store lookup cleanup
+- [x] `293x-219` C206b ArrayBox inline-record probe
+- [x] `293x-220` C206c ArrayBox inline-record probe negative
+- [x] `293x-221` C206d ArrayBox inline-record plan probe
+- [x] `293x-222` D196 stop-the-line guard refresh
+- [x] `293x-223` C206e metadata-store indexed read cleanup
+- [ ] `293x-224` C207 packed ArrayBox compiler auto-use eligibility
 
 ## Gates
 

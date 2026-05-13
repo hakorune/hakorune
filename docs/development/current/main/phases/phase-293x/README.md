@@ -563,12 +563,12 @@ inference for the allocator release path.
 - `293x-223`: C206e metadata-store indexed read cleanup landed, adding
   `alignmentAt` / `paddedSizeAt` and huge-page `*At` read seams so callers with
   a resolved metadata index do not repeat pointer lookup.
-- Next: treat `C201-C205` as closed for the current allocator metadata
-  migration. Use `C206+` only for small cleanup/probe rows such as
-  metadata-store API cleanup or explicit packed ArrayBox auto-use probes.
-  Allocator algorithm rows resume separately when needed. No M191 allocator API
-  row is scheduled yet; M186 facade stats already landed as `294x-19e`.
-  M104 is next only if the optional allocator-provider
+- Next: `293x-224` / C207 packed ArrayBox compiler auto-use eligibility.
+  C206 cleanup/probe work stops for now; C207 emits conservative
+  eligible/rejected/fail-fast metadata only. Runtime auto-use, hako_alloc
+  migration, materialization, and backend lowering remain later rows. No M191
+  allocator API row is scheduled yet; M186 facade stats already landed as
+  `294x-19e`. M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.
 
 ## Mimalloc Port Roadmap Snapshot
@@ -590,9 +590,14 @@ Current execution order:
    `C203a`, `C203b`, `C203c`, `C204a`, `C204b`, `C205a`, `C205b`, `C205c`, and
    `C205d` are complete. Packed ArrayBox compiler auto-use remains future work
    and should not be implied by the C205 store migrations.
-4. `C191-C194`: run compiler/backend hardening only when it does not collide
+4. `C207-C212`: open packed ArrayBox compiler auto-use in stages:
+   eligibility gate, materialization/escape boundary, non-escaping auto-use
+   pilot, aligned-small metadata packed-store pilot, huge-page packed-store
+   pilot, and backend fail-fast hardening. Start with C207 only; do not fold
+   hako_alloc migration into the eligibility row.
+5. `C191-C194`: run compiler/backend hardening only when it does not collide
    with the active `.hako` row.
-5. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.
+6. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.
    `D195` and `D196` are complete; `C206+` cleanup/probe guards stay
    local-run/index-listed unless a card names a production stop line for
    promotion.
