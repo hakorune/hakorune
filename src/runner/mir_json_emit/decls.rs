@@ -231,6 +231,30 @@ pub(super) fn collect_array_record_materialization_boundary_plan_values(
         .collect()
 }
 
+pub(super) fn collect_array_record_packed_autouse_pilot_plan_values(
+    module: &crate::mir::MirModule,
+) -> Vec<serde_json::Value> {
+    module
+        .metadata
+        .array_record_packed_autouse_pilot_plans
+        .iter()
+        .map(|plan| {
+            json!({
+                "record_name": plan.record_name,
+                "layout_id": plan.layout_id,
+                "pilot_kind": plan.pilot_kind,
+                "source_boundary_kind": plan.source_boundary_kind,
+                "integer_lane_columns": plan.integer_lane_columns,
+                "direct_indexed_field_reads_enabled": plan.direct_indexed_field_reads_enabled,
+                "private_runtime_storage_enabled": plan.private_runtime_storage_enabled,
+                "public_array_get_materialization_enabled": plan.public_array_get_materialization_enabled,
+                "hako_alloc_migration_enabled": plan.hako_alloc_migration_enabled,
+                "backend_lowering_enabled": plan.backend_lowering_enabled,
+            })
+        })
+        .collect()
+}
+
 pub(super) fn collect_static_data_plan_values(
     module: &crate::mir::MirModule,
 ) -> Vec<serde_json::Value> {

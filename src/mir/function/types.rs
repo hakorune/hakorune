@@ -606,6 +606,26 @@ pub struct ArrayRecordMaterializationBoundaryPlan {
     pub runtime_auto_use_enabled: bool,
 }
 
+/// Metadata-only pilot plan for non-escaping packed ArrayBox auto-use.
+///
+/// This consumes C207 eligibility and C208 boundary rows, but only opens the
+/// private pilot shape: integer-lane inline-record storage plus direct indexed
+/// field reads. Public record materialization, hako_alloc migration, and
+/// backend lowering stay closed.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ArrayRecordPackedAutoUsePilotPlan {
+    pub record_name: String,
+    pub layout_id: u32,
+    pub pilot_kind: String,
+    pub source_boundary_kind: String,
+    pub integer_lane_columns: u32,
+    pub direct_indexed_field_reads_enabled: bool,
+    pub private_runtime_storage_enabled: bool,
+    pub public_array_get_materialization_enabled: bool,
+    pub hako_alloc_migration_enabled: bool,
+    pub backend_lowering_enabled: bool,
+}
+
 /// Declared variant inventory for first-class enum/sum metadata.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MirEnumVariantDecl {
@@ -681,6 +701,9 @@ pub struct ModuleMetadata {
 
     /// Metadata-only materialization/escape boundary for future ArrayBox auto-use.
     pub array_record_materialization_boundary_plans: Vec<ArrayRecordMaterializationBoundaryPlan>,
+
+    /// Metadata-only non-escaping packed ArrayBox auto-use pilot rows.
+    pub array_record_packed_autouse_pilot_plans: Vec<ArrayRecordPackedAutoUsePilotPlan>,
 
     /// Backend-readable static readonly table rows.
     /// MIR owns this row shape; backend emitters only serialize rows.

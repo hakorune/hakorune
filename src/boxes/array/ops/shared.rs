@@ -28,6 +28,15 @@ impl ArrayBox {
         Self::new_with_storage(ArrayStorage::InlineRecord(storage))
     }
 
+    #[allow(dead_code)] // C209 private pilot seam; C210 is the first planned consumer.
+    pub(crate) fn new_with_inline_record_i64_columns_for_compiler_autouse(
+        layout_id: u32,
+        values_by_column: Vec<Vec<i64>>,
+    ) -> Option<Self> {
+        let storage = ArrayInlineRecordStorage::from_i64_columns(layout_id, values_by_column)?;
+        Some(Self::new_with_inline_record_storage(storage))
+    }
+
     pub(super) fn new_with_text_elements(values: Vec<String>) -> Self {
         Self::new_with_storage(ArrayStorage::Text(Self::text_cells_from_strings(values)))
     }

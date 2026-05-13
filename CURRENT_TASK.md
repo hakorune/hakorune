@@ -35,7 +35,7 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Lane
 
-- active lane: `phase-293x packed ArrayBox auto-use boundary`
+- active lane: `phase-293x packed ArrayBox auto-use pilot`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - task breakdown:
@@ -45,7 +45,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - current blocker token:
-  `C209 non-escaping packed ArrayBox compiler auto-use pilot`
+  `C210 aligned-small metadata packed-store pilot`
 - primary mode: compiler/runtime packed record array lane for mimalloc metadata completeness
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -58,17 +58,19 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x from C209. C207 emits metadata-only
-  `array_record_autouse_eligibility_plans`, and C208 emits metadata-only
-  `array_record_materialization_boundary_plans`; runtime packed ArrayBox
-  auto-use, hako_alloc migration, visible record materialization, and backend
-  lowering remain later rows.
+- resume point: continue Phase 293x from C210. C207 emits
+  `array_record_autouse_eligibility_plans`, C208 emits
+  `array_record_materialization_boundary_plans`, and C209 emits
+  `array_record_packed_autouse_pilot_plans` plus crate-private i64 column
+  construction/read seams; hako_alloc packed-store migration, visible record
+  materialization, and backend lowering remain later rows.
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
   `bash tools/checks/k2_wide_arraybox_inline_record_autouse_eligibility_guard.sh` ->
-  `bash tools/checks/k2_wide_arraybox_inline_record_materialization_boundary_guard.sh`
-  for the current packed-record metadata lane; add the next focused auto-use /
-  backend guard as each C209-C212 row lands. Run
+  `bash tools/checks/k2_wide_arraybox_inline_record_materialization_boundary_guard.sh` ->
+  `bash tools/checks/k2_wide_arraybox_inline_record_autouse_pilot_guard.sh`
+  for the current packed-record metadata lane; add the next focused hako_alloc /
+  backend guard as each C210-C212 row lands. Run
   `bash tools/checks/dev_gate.sh allocator-wide` only for allocator/mimalloc/
   provider closeout or explicit wide-gate review.
 
@@ -76,9 +78,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  C209 non-escaping packed ArrayBox auto-use pilot -> C210 aligned-small
-  metadata packed-store pilot -> C211 huge-page metadata packed-store pilot ->
-  C212 backend fail-fast hardening
+  C210 aligned-small metadata packed-store pilot -> C211 huge-page metadata
+  packed-store pilot -> C212 backend fail-fast hardening
 - optional future allocator-provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`

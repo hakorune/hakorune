@@ -1,6 +1,7 @@
 use super::super::{
     collect_array_record_autouse_eligibility_plan_values,
     collect_array_record_materialization_boundary_plan_values,
+    collect_array_record_packed_autouse_pilot_plan_values,
     collect_array_record_storage_plan_values, collect_record_layout_plan_values,
     collect_sorted_enum_decl_values, collect_sorted_record_decl_values,
     collect_sorted_user_box_decl_values, collect_static_data_plan_values,
@@ -8,8 +9,9 @@ use super::super::{
 };
 use crate::mir::function::{
     ArrayRecordAutoUseEligibilityPlan, ArrayRecordMaterializationBoundaryPlan,
-    ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan, RecordLayoutFieldPlan, RecordLayoutPlan,
-    StaticDataPlan, TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan,
+    ArrayRecordPackedAutoUsePilotPlan, ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan,
+    RecordLayoutFieldPlan, RecordLayoutPlan, StaticDataPlan, TypedObjectFieldPlan,
+    TypedObjectFieldStorage, TypedObjectPlan,
 };
 use crate::mir::MirModule;
 use serde_json::json;
@@ -414,6 +416,43 @@ fn collect_array_record_materialization_boundary_plan_values_preserves_stop_line
         "[array/inline-record/unmaterialized] record value materialization is not enabled"
     );
     assert_eq!(plans[0]["runtime_auto_use_enabled"], false);
+}
+
+#[test]
+fn collect_array_record_packed_autouse_pilot_plan_values_preserves_pilot_limits() {
+    let mut module = MirModule::new("test".to_string());
+    module
+        .metadata
+        .array_record_packed_autouse_pilot_plans
+        .push(ArrayRecordPackedAutoUsePilotPlan {
+            record_name: "Meta".to_string(),
+            layout_id: 1,
+            pilot_kind: "integer_lane_direct_reads_v0".to_string(),
+            source_boundary_kind: "non_escaping_direct_field_reads_v0".to_string(),
+            integer_lane_columns: 2,
+            direct_indexed_field_reads_enabled: true,
+            private_runtime_storage_enabled: true,
+            public_array_get_materialization_enabled: false,
+            hako_alloc_migration_enabled: false,
+            backend_lowering_enabled: false,
+        });
+
+    let plans = collect_array_record_packed_autouse_pilot_plan_values(&module);
+
+    assert_eq!(plans.len(), 1);
+    assert_eq!(plans[0]["record_name"], "Meta");
+    assert_eq!(plans[0]["layout_id"], 1);
+    assert_eq!(plans[0]["pilot_kind"], "integer_lane_direct_reads_v0");
+    assert_eq!(
+        plans[0]["source_boundary_kind"],
+        "non_escaping_direct_field_reads_v0"
+    );
+    assert_eq!(plans[0]["integer_lane_columns"], 2);
+    assert_eq!(plans[0]["direct_indexed_field_reads_enabled"], true);
+    assert_eq!(plans[0]["private_runtime_storage_enabled"], true);
+    assert_eq!(plans[0]["public_array_get_materialization_enabled"], false);
+    assert_eq!(plans[0]["hako_alloc_migration_enabled"], false);
+    assert_eq!(plans[0]["backend_lowering_enabled"], false);
 }
 
 #[test]

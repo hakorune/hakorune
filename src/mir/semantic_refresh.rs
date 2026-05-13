@@ -11,6 +11,7 @@ use super::{
     array_getset_micro_seed_plan::refresh_function_array_getset_micro_seed_route,
     array_record_autouse_eligibility::refresh_module_array_record_autouse_eligibility_plans,
     array_record_materialization_boundary::refresh_module_array_record_materialization_boundary_plans,
+    array_record_packed_autouse_pilot::refresh_module_array_record_packed_autouse_pilot_plans,
     array_record_storage_plan::refresh_module_array_record_storage_plans,
     array_rmw_add1_leaf_seed_plan::refresh_function_array_rmw_add1_leaf_seed_route,
     array_rmw_window_plan::refresh_function_array_rmw_window_routes,
@@ -123,6 +124,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
     refresh_module_array_record_storage_plans(module);
     refresh_module_array_record_autouse_eligibility_plans(module);
     refresh_module_array_record_materialization_boundary_plans(module);
+    refresh_module_array_record_packed_autouse_pilot_plans(module);
     refresh_module_typed_object_plans(module);
     refresh_module_typed_object_field_value_types(module);
     let module_metadata = module.metadata.clone();

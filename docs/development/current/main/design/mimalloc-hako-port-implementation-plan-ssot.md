@@ -328,6 +328,13 @@ future non-escaping direct indexed field-read consumption while keeping public
 visible record materialization, runtime auto-use, hako_alloc migration, and
 backend lowering closed.
 
+C209 status:
+complete as `293x-226`. C209 adds
+`array_record_packed_autouse_pilot_plans` and a crate-private runtime
+inline-record i64 column construction/read seam for non-escaping direct field
+reads. Public record materialization, hako_alloc live migration, backend
+lowering, and visible `ArrayBox.get(i)` record values remain closed.
+
 ### Docs / Guard Checkpoints
 
 | Row | Goal | Trigger |

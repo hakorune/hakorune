@@ -14,7 +14,7 @@ Related:
 ## Current
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- active lane: `phase-293x packed ArrayBox auto-use boundary`
+- active lane: `phase-293x packed ArrayBox auto-use pilot`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - phase status: read `phase_status` in `CURRENT_STATE.toml`
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
@@ -26,21 +26,22 @@ Related:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `C209 non-escaping packed ArrayBox compiler auto-use pilot`
+- current blocker token: `C210 aligned-small metadata packed-store pilot`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x from C209 non-escaping packed ArrayBox compiler auto-use pilot
+- continue phase-293x from C210 aligned-small metadata packed-store pilot
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed
 - phase-294x exact `usize` substrate work needed by the mimalloc port is no
   longer the active default lane. C207 emits metadata-only
   `array_record_autouse_eligibility_plans`, and C208 emits metadata-only
-  `array_record_materialization_boundary_plans`; C209 is the first row allowed
-  to consume non-escaping candidates for a packed ArrayBox auto-use pilot.
+  `array_record_materialization_boundary_plans`; C209 emits
+  `array_record_packed_autouse_pilot_plans` and crate-private i64 column seams.
+  C210 is the first row allowed to apply the pilot to aligned-small metadata.
 - typed-object EXE allocation plus slot `field_set` / `field_get` now covers
   declared i64 fields, init-only untyped fields, handle storage, and observed
   empty user boxes, nullable handle storage through same-module RuntimeDataBox

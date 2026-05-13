@@ -20,6 +20,7 @@ mod tests;
 use decls::{
     collect_array_record_autouse_eligibility_plan_values,
     collect_array_record_materialization_boundary_plan_values,
+    collect_array_record_packed_autouse_pilot_plan_values,
     collect_array_record_storage_plan_values, collect_record_layout_plan_values,
     collect_sorted_enum_decl_values, collect_sorted_record_decl_values,
     collect_sorted_user_box_decl_values, collect_static_data_plan_values,

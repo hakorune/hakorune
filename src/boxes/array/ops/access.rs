@@ -20,6 +20,25 @@ impl ArrayBox {
         }
     }
 
+    #[allow(dead_code)] // C209 private pilot seam; C210 is the first planned consumer.
+    pub(crate) fn inline_record_load_i64_column_raw(
+        &self,
+        layout_id: u32,
+        row: i64,
+        column: u32,
+    ) -> Option<i64> {
+        if row < 0 {
+            return None;
+        }
+        let items = self.items.read();
+        match &*items {
+            ArrayStorage::InlineRecord(values) if values.layout_id() == layout_id => {
+                values.load_i64_column(row as usize, column as usize)
+            }
+            _ => None,
+        }
+    }
+
     /// インデックス(i64)で要素を取得（FFI/Kernel hot path 用）
     pub fn get_index_i64(&self, idx: i64) -> Box<dyn NyashBox> {
         if idx < 0 {

@@ -23,8 +23,8 @@ pub(super) enum ArrayInlineRecordColumn {
     F64(Vec<f64>),
 }
 
+#[allow(dead_code)] // C209 private pilot seam; C210 consumes it from metadata-store migration.
 impl ArrayInlineRecordStorage {
-    #[cfg(test)]
     pub(super) fn new(layout_id: u32, columns: Vec<ArrayInlineRecordColumn>) -> Option<Self> {
         let len = columns.first().map_or(0, ArrayInlineRecordColumn::len);
         if columns.iter().all(|column| column.len() == len) {
@@ -38,7 +38,17 @@ impl ArrayInlineRecordStorage {
         }
     }
 
-    #[cfg(test)]
+    pub(super) fn from_i64_columns(
+        layout_id: u32,
+        values_by_column: Vec<Vec<i64>>,
+    ) -> Option<Self> {
+        let columns = values_by_column
+            .into_iter()
+            .map(ArrayInlineRecordColumn::i64)
+            .collect();
+        Self::new(layout_id, columns)
+    }
+
     pub(super) fn layout_id(&self) -> u32 {
         self.layout_id
     }
@@ -95,10 +105,17 @@ impl ArrayInlineRecordStorage {
             self.column_count()
         )
     }
+
+    pub(super) fn load_i64_column(&self, row: usize, column: usize) -> Option<i64> {
+        match self.columns.get(column)? {
+            ArrayInlineRecordColumn::I64(values) => values.get(row).copied(),
+            ArrayInlineRecordColumn::Bool(_) | ArrayInlineRecordColumn::F64(_) => None,
+        }
+    }
 }
 
+#[allow(dead_code)] // C209 private pilot seam; C210 consumes it from metadata-store migration.
 impl ArrayInlineRecordColumn {
-    #[cfg(test)]
     pub(super) fn i64(values: Vec<i64>) -> Self {
         Self::I64(values)
     }
@@ -113,7 +130,6 @@ impl ArrayInlineRecordColumn {
         Self::F64(values)
     }
 
-    #[cfg(test)]
     fn len(&self) -> usize {
         match self {
             Self::I64(values) => values.len(),

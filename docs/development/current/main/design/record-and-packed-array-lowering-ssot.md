@@ -235,6 +235,11 @@ Status:
   `array_record_materialization_boundary_plans` for C207 eligible rows, allowing
   future non-escaping direct field-read auto-use while keeping visible record
   materialization and runtime auto-use disabled.
+- `C209` is complete as `293x-226`: it emits
+  `array_record_packed_autouse_pilot_plans` and opens only the crate-private
+  runtime i64-column construction/read seam for non-escaping direct field reads.
+  Public materialization, hako_alloc migration, and backend lowering remain
+  disabled.
 
 ## C207 Eligibility Gate
 
@@ -272,6 +277,24 @@ Each C208 row keeps `visible_record_materialization_enabled=false` and
 `runtime_auto_use_enabled=false`. C208 must not add record object
 materialization, boxed fallback, hako_alloc migration, production runtime
 auto-use, or backend lowering.
+
+## C209 Non-Escaping Auto-Use Pilot
+
+C209 consumes only C207 eligible rows with C208 non-materializing boundaries.
+
+| Pilot field | C209 contract |
+| --- | --- |
+| `pilot_kind` | `integer_lane_direct_reads_v0` |
+| `direct_indexed_field_reads_enabled` | `true` |
+| `private_runtime_storage_enabled` | `true` |
+| `public_array_get_materialization_enabled` | `false` |
+| `hako_alloc_migration_enabled` | `false` |
+| `backend_lowering_enabled` | `false` |
+
+C209 opens only crate-private `ArrayBox` seams for equal-height i64 columns and
+direct row/column reads. It must not make `ArrayInlineRecordProbe` production,
+must not expose a public record `ArrayBox.get(i)` API, and must not let
+backends or hako_alloc rediscover packed-record legality by string matching.
 
 ## Target Runtime Shape
 

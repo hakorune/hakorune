@@ -98,6 +98,39 @@ fn inline_record_plan_probe_rejects_handle_columns() {
 }
 
 #[test]
+fn inline_record_autouse_pilot_reads_i64_columns_without_materializing() {
+    let array = ArrayBox::new_with_inline_record_i64_columns_for_compiler_autouse(
+        31,
+        vec![vec![10, 20], vec![100, 200]],
+    )
+    .expect("equal-height integer columns must build C209 pilot storage");
+
+    assert!(array.uses_inline_record_slots());
+    assert_eq!(array.inline_record_layout_id(), Some(31));
+    assert_eq!(array.inline_record_load_i64_column_raw(31, 0, 0), Some(10));
+    assert_eq!(array.inline_record_load_i64_column_raw(31, 1, 0), Some(20));
+    assert_eq!(array.inline_record_load_i64_column_raw(31, 0, 1), Some(100));
+    assert_eq!(array.inline_record_load_i64_column_raw(30, 0, 0), None);
+    assert_eq!(array.inline_record_load_i64_column_raw(31, 2, 0), None);
+    assert_eq!(array.inline_record_load_i64_column_raw(31, 0, 2), None);
+    assert_eq!(array.slot_load_i64_raw(0), None);
+    assert_eq!(
+        array.get_index_i64(0).to_string_box().value,
+        "[array/inline-record/unmaterialized] record value materialization is not enabled"
+    );
+}
+
+#[test]
+fn inline_record_autouse_pilot_rejects_ragged_i64_columns() {
+    let array = ArrayBox::new_with_inline_record_i64_columns_for_compiler_autouse(
+        32,
+        vec![vec![10, 20], vec![100]],
+    );
+
+    assert!(array.is_none());
+}
+
+#[test]
 fn inline_record_storage_reports_len_capacity_and_debug_kind() {
     let array = inline_record_test_array();
 

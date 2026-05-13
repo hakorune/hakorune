@@ -569,8 +569,12 @@ inference for the allocator release path.
 - `293x-225`: C208 inline-record materialization / escape boundary landed,
   emitting `array_record_materialization_boundary_plans` metadata while keeping
   visible record materialization and runtime auto-use disabled.
-- Next: C209 non-escaping packed ArrayBox compiler auto-use pilot. Runtime auto-use,
-  hako_alloc migration, materialization, and backend lowering remain later
+- `293x-226`: C209 non-escaping packed ArrayBox auto-use pilot landed, adding
+  `array_record_packed_autouse_pilot_plans` and a crate-private i64 column
+  construction/read seam while keeping public materialization, hako_alloc
+  migration, and backend lowering disabled.
+- Next: C210 aligned-small metadata packed-store pilot. hako_alloc live
+  migration to compiler-selected packed storage and backend lowering remain later
   rows. No M191 allocator API row is scheduled yet; M186 facade stats already
   landed as `294x-19e`. M104 is next only if the optional allocator-provider
   host-replacement ladder is explicitly reopened.
@@ -597,8 +601,8 @@ Current execution order:
 4. `C207-C212`: open packed ArrayBox compiler auto-use in stages:
    eligibility gate, materialization/escape boundary, non-escaping auto-use
    pilot, aligned-small metadata packed-store pilot, huge-page packed-store
-   pilot, and backend fail-fast hardening. Start with C207 only; do not fold
-   hako_alloc migration into the eligibility row.
+   pilot, and backend fail-fast hardening. `C207-C209` are complete; C210 is the
+   first row allowed to touch aligned-small hako_alloc metadata storage.
 5. `C191-C194`: run compiler/backend hardening only when it does not collide
    with the active `.hako` row.
 6. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.
