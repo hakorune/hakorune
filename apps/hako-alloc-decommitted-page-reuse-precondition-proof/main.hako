@@ -1,0 +1,46 @@
+// hako-alloc-decommitted-page-reuse-precondition-proof
+// Purpose: prove M200 decommitted page reuse precondition.
+
+using selfhost.hako_alloc.memory.osvm_backed_fast_path_heap_box as HakoAllocOsVmBackedFastPathHeap
+using selfhost.hako_alloc.memory.purge_decommitted_page_reuse_precondition_box as HakoAllocDecommittedPageReusePrecondition
+using selfhost.hako_alloc.memory.purge_state_aware_decommit_box as HakoAllocPurgeStateAwareDecommit
+
+static box Main {
+    main(args) {
+        local heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local decommit_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local precondition = new HakoAllocDecommittedPageReusePrecondition()
+
+        local page = heap.pages.get(0)
+        local before = precondition.classifyHeapPage(heap, page.page_id, decommit_guard.marker)
+
+        local block_id = page.acquire(8)
+        local live = decommit_guard.attemptHeapPage(heap, page.page_id)
+        local release_rc = page.releaseLocal(block_id)
+        local first = decommit_guard.attemptHeapPage(heap, page.page_id)
+
+        local after = precondition.classifyHeapPage(heap, page.page_id, decommit_guard.marker)
+        local missing = precondition.classifyHeapPage(heap, 99, decommit_guard.marker)
+
+        print("hako-alloc-decommitted-page-reuse-precondition-proof")
+        print("before=" + before.status + "," + before.reuse_allowed + "," + before.decommitted + "," + before.requires_recommit + "," + before.page_retired + "," + before.backing_bytes)
+        print("live=" + live.status + "," + live.source_executed)
+        print("release=" + release_rc)
+        print("first=" + first.status + "," + first.source_executed + "," + first.marker_marked)
+        print("after=" + after.status + "," + after.reuse_allowed + "," + after.decommitted + "," + after.requires_recommit + "," + after.page_retired + "," + after.missing_page + "," + after.backing_bytes)
+        print("missing=" + missing.status + "," + missing.reuse_allowed + "," + missing.missing_page)
+        print("precondition=" + precondition.check_count + "," + precondition.allow_count + "," + precondition.blocked_count + "," + precondition.missing_count + "," + precondition.last_page_id)
+        print("guard=" + decommit_guard.attempt_count + "," + decommit_guard.success_count + "," + decommit_guard.blocked_count + "," + decommit_guard.source_execution_count)
+        print("marker=" + decommit_guard.marker.attempt_count + "," + decommit_guard.marker.marked_count + "," + decommit_guard.marker.reject_count)
+        print("adapter=" + decommit_guard.integration.adapter.call_count + "," + decommit_guard.integration.adapter.success_count + "," + decommit_guard.integration.adapter.last_bytes)
+        print("heap=" + heap.decommit_count + "," + heap.release_count + "," + heap.reject_count)
+
+        if before.status == 0 && before.reuse_allowed == 1 && live.source_executed == 0 && release_rc == 1 && first.status == 0 && after.status == 1 && after.requires_recommit == 1 && missing.status == 2 && precondition.check_count == 3 && precondition.blocked_count == 2 && decommit_guard.integration.adapter.call_count == 1 && heap.decommit_count == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

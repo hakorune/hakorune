@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-13"
 
 active_lane = "phase-293x packed ArrayBox auto-use pilot"
-active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants are complete, and M191-M199 hako_alloc stats/purge policy rows are complete. Visible record materialization and packed record backend lowering remain closed. Next row is M200 decommitted page reuse precondition. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants are complete, and M191-M200 hako_alloc stats/purge policy rows are complete. Visible record materialization and packed record backend lowering remain closed. Next row is M201 recommit fail-fast entry. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-239-M199-PURGE-STATE-AWARE-DUPLICATE-GUARD.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-240-M200-DECOMMITTED-PAGE-REUSE-PRECONDITION.md"
 method_anchor = "docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-239-M199-PURGE-STATE-AWARE-DUPLICATE-GUARD"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-239-M199-PURGE-STATE-AWARE-DUPLICATE-GUARD.md"
-latest_card_summary = "293x-239 completes M199 purge state-aware duplicate guard: HakoAllocPurgeStateAwareDecommitGuard consults the M198 marker before M197 integration so repeated decommit attempts stop before page-source execution while heap/page mutation, unreserve, and OS release stay closed."
+latest_card = "293x-240-M200-DECOMMITTED-PAGE-REUSE-PRECONDITION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-240-M200-DECOMMITTED-PAGE-REUSE-PRECONDITION.md"
+latest_card_summary = "293x-240 completes M200 decommitted page reuse precondition: HakoAllocDecommittedPageReusePrecondition classifies decommitted pages as unavailable until a future recommit path exists while page-source execution, heap/page mutation, unreserve, and OS release stay closed."
 
-current_blocker_token = "M200 decommitted page reuse precondition"
+current_blocker_token = "M201 recommit fail-fast entry"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

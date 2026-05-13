@@ -1,0 +1,72 @@
+// purge_decommitted_page_reuse_precondition_box.hako -- M200 reuse precondition
+// Responsibility:
+// - classify reuse eligibility for pages recorded as decommitted
+// - keep recommit/unreserve/OS release as future explicit rows
+// Non-responsibility:
+// - page-source calls, heap/page mutation, recommit, unreserve, OS release, or allocator replacement
+
+box HakoAllocDecommittedPageReusePreconditionReport {
+    status: i64 = 0
+    page_id: i64 = -1
+    reuse_allowed: i64 = 0
+    decommitted: i64 = 0
+    requires_recommit: i64 = 0
+    missing_page: i64 = 0
+    page_used: i64 = 0
+    page_retired: i64 = 0
+    backing_bytes: i64 = 0
+}
+
+box HakoAllocDecommittedPageReusePrecondition {
+    check_count: i64 = 0
+    allow_count: i64 = 0
+    blocked_count: i64 = 0
+    missing_count: i64 = 0
+    last_page_id: i64 = -1
+
+    report(status, page_id, reuse_allowed, decommitted, requires_recommit, missing_page, page_used, page_retired, backing_bytes) {
+        local result = new HakoAllocDecommittedPageReusePreconditionReport()
+        result.status = status
+        result.page_id = page_id
+        result.reuse_allowed = reuse_allowed
+        result.decommitted = decommitted
+        result.requires_recommit = requires_recommit
+        result.missing_page = missing_page
+        result.page_used = page_used
+        result.page_retired = page_retired
+        result.backing_bytes = backing_bytes
+        return result
+    }
+
+    classifyHeapPage(heap, page_id, marker) {
+        me.check_count = me.check_count + 1
+        me.last_page_id = page_id
+
+        local backing = heap.backingFor(page_id)
+        if backing == null {
+            me.blocked_count = me.blocked_count + 1
+            me.missing_count = me.missing_count + 1
+            return me.report(2, page_id, 0, 0, 0, 1, 0, 0, 0)
+        }
+
+        local page = heap.pages.get(page_id)
+        if page == null {
+            me.blocked_count = me.blocked_count + 1
+            me.missing_count = me.missing_count + 1
+            return me.report(2, page_id, 0, 0, 0, 1, 0, 0, backing.bytes)
+        }
+
+        local decommitted = 0
+        if marker != null {
+            decommitted = marker.isMarked(page_id)
+        }
+
+        if decommitted != 0 {
+            me.blocked_count = me.blocked_count + 1
+            return me.report(1, page_id, 0, 1, 1, 0, page.used, page.retired, backing.bytes)
+        }
+
+        me.allow_count = me.allow_count + 1
+        return me.report(0, page_id, 1, 0, 0, 0, page.used, page.retired, backing.bytes)
+    }
+}

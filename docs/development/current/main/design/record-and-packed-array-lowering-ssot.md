@@ -288,6 +288,9 @@ Status:
 - `M199` is complete as `293x-239`: it blocks repeated decommit attempts before
   page-source execution by consulting the M198 marker. It does not change record
   materialization or packed record backend lowering.
+- `M200` is complete as `293x-240`: it classifies decommitted pages as
+  unavailable until a future recommit path exists. It does not change record
+  materialization or packed record backend lowering.
 
 ## C207 Eligibility Gate
 

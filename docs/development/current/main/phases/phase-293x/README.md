@@ -623,7 +623,9 @@ inference for the allocator release path.
 - `293x-239`: M199 purge state-aware duplicate guard landed, consulting the
   M198 marker before M197 heap decommit integration so repeated attempts for an
   already-decommitted page stop before page-source execution.
-- Next: M200 decommitted page reuse precondition. M186 facade stats already landed
+- `293x-240`: M200 decommitted page reuse precondition landed, classifying
+  decommitted pages as unavailable until a future recommit path exists.
+- Next: M201 recommit fail-fast entry. M186 facade stats already landed
   as `294x-19e`, so future rows must not repeat exact usize facade work. M104
   is next only if the optional allocator-provider host-replacement ladder is
   explicitly reopened.
@@ -657,9 +659,9 @@ Current execution order:
    surface, M192 purge/decommit policy inventory, M193 purge/decommit dry-run
    observer, M194 purge/decommit execution fail-fast, M195 bounded decommit
    execution policy, M196 page-source decommit adapter, and M197 purge
-   decommit heap integration, M198 purge decommit state marker, and M199 purge
-   state-aware duplicate guard are complete; M200 decommitted page reuse
-   precondition is the next safe allocator row.
+   decommit heap integration, M198 purge decommit state marker, M199 purge
+   state-aware duplicate guard, and M200 decommitted page reuse precondition
+   are complete; M201 recommit fail-fast entry is the next safe allocator row.
 7. `D195-D196`: refresh SSOT/guards at milestones, not after every tiny row.
    `D195` and `D196` are complete; `C206+` cleanup/probe guards stay
    local-run/index-listed unless a card names a production stop line for

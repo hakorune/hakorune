@@ -169,6 +169,11 @@ Syntax/style contract
   guard. It may consult the M198 marker before delegating to M197 heap decommit
   integration, but it must not call page-source APIs directly, mutate heap/page
   state, unreserve, release OSVM pages, or replace allocators.
+- `purge_decommitted_page_reuse_precondition_box.hako` owns M200 decommitted
+  page reuse precondition. It may classify committed/unmarked pages as reusable
+  and decommitted pages as requiring future recommit, but it must not call
+  page-source APIs, mutate heap/page state, recommit, unreserve, release OSVM
+  pages, or replace allocators.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
   huge-page metadata. C205c consumes aligned-small metadata through a
