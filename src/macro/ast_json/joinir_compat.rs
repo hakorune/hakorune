@@ -104,6 +104,15 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             "type_parameters": type_parameters,
             "attrs": attrs_to_json(&attrs),
         }),
+        ASTNode::BrandDeclaration {
+            name,
+            underlying_type_name,
+            ..
+        } => json!({
+            "kind": "BrandDeclaration",
+            "name": name,
+            "underlying_type": underlying_type_name,
+        }),
         // Phase 54: Loop with JoinIR-compatible fields
         ASTNode::Loop {
             condition, body, ..
@@ -780,6 +789,11 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                 })
                 .unwrap_or_default(),
             attrs: json_to_attrs(v.get("attrs")),
+            span: Span::unknown(),
+        },
+        "BrandDeclaration" => ASTNode::BrandDeclaration {
+            name: v.get("name")?.as_str()?.to_string(),
+            underlying_type_name: v.get("underlying_type")?.as_str()?.to_string(),
             span: Span::unknown(),
         },
         "Variable" => ASTNode::Variable {

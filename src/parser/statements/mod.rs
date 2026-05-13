@@ -308,6 +308,7 @@ impl NyashParser {
             TokenType::BOX
             | TokenType::RECORD
             | TokenType::ENUM
+            | TokenType::BRAND
             | TokenType::FLOW
             | TokenType::IMPORT
             | TokenType::INTERFACE

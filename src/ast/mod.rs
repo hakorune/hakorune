@@ -60,6 +60,11 @@ pub enum StructureNode {
         attrs: DeclarationAttrs,
         span: Span,
     },
+    BrandDeclaration {
+        name: String,
+        underlying_type_name: String,
+        span: Span,
+    },
     FunctionDeclaration {
         name: String,
         params: Vec<String>,
@@ -689,6 +694,16 @@ pub enum ASTNode {
         variants: Vec<EnumVariantDecl>,
         type_parameters: Vec<String>,
         attrs: DeclarationAttrs,
+        span: Span,
+    },
+
+    /// brand宣言: `brand PageId: i64`
+    ///
+    /// Stage0 owns syntax and metadata transport only. Brand distinction,
+    /// constructor/unwrap policy, and verifier facts belong to Stage1.
+    BrandDeclaration {
+        name: String,
+        underlying_type_name: String,
         span: Span,
     },
 

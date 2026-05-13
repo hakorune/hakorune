@@ -7,6 +7,7 @@ impl ASTNode {
         match self {
             ASTNode::BoxDeclaration { .. } => St,
             ASTNode::EnumDeclaration { .. } => St,
+            ASTNode::BrandDeclaration { .. } => St,
             ASTNode::FunctionDeclaration { .. } => St,
             ASTNode::StaticConstTable { .. } => St,
             ASTNode::If { .. } => St,

@@ -19,6 +19,9 @@ impl NyashParser {
                 crate::parser::declarations::box_def::parse_record_declaration(self)
             }
             TokenType::ENUM => crate::parser::declarations::enum_def::parse_enum_declaration(self),
+            TokenType::BRAND => {
+                crate::parser::declarations::brand_def::parse_brand_declaration(self)
+            }
             TokenType::FLOW => crate::parser::declarations::box_def::parse_box_declaration(self), // flow is syntactic sugar for static box
             TokenType::IMPORT => self.parse_import(),
             TokenType::INTERFACE => {

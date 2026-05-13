@@ -103,6 +103,16 @@ fn ast_to_program_json_v0_with_imports(
             serde_json::Value::Array(enum_decls),
         );
     }
+    let brand_decls = collect_brand_decls(ast);
+    if !brand_decls.is_empty() {
+        let object = program
+            .as_object_mut()
+            .ok_or_else(|| "program json root must be object".to_string())?;
+        object.insert(
+            "brand_decls".to_string(),
+            serde_json::Value::Array(brand_decls),
+        );
+    }
     let static_data_plans = collect_static_data_plans(ast);
     if !static_data_plans.is_empty() {
         let object = program
@@ -253,6 +263,30 @@ fn collect_enum_decls(ast: &ASTNode) -> Vec<serde_json::Value> {
                         "declared_type": field.declared_type_name,
                     })).collect::<Vec<_>>(),
                 })).collect::<Vec<_>>(),
+            }))
+        })
+        .collect()
+}
+
+fn collect_brand_decls(ast: &ASTNode) -> Vec<serde_json::Value> {
+    let ASTNode::Program { statements, .. } = ast else {
+        return Vec::new();
+    };
+
+    statements
+        .iter()
+        .filter_map(|statement| {
+            let ASTNode::BrandDeclaration {
+                name,
+                underlying_type_name,
+                ..
+            } = statement
+            else {
+                return None;
+            };
+            Some(serde_json::json!({
+                "name": name,
+                "underlying_type": underlying_type_name,
             }))
         })
         .collect()

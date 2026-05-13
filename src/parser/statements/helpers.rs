@@ -486,6 +486,7 @@ impl NyashParser {
     pub(super) fn grammar_keyword_for(start: &TokenType) -> Option<&'static str> {
         match start {
             TokenType::BOX => Some("box"),
+            TokenType::BRAND => Some("brand"),
             TokenType::GLOBAL => Some("global"),
             TokenType::FUNCTION => Some("function"),
             TokenType::STATIC => Some("static"),

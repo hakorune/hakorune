@@ -45,7 +45,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - current blocker token:
-  `BRAND-001 Stage0 brand declaration metadata capsule`
+  `BRAND-002 Stage1 brand constructor unwrap policy`
 - primary mode: compiler/runtime packed record array lane for mimalloc metadata completeness
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -58,87 +58,15 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after M210. C207 emits
-  `array_record_autouse_eligibility_plans`, C208 emits
-  `array_record_materialization_boundary_plans`, and C209 emits
-  `array_record_packed_autouse_pilot_plans` plus crate-private i64 column
-  construction/read seams. C210 emits
-  `hako_alloc_aligned_small_packed_store_pilot_plans`; C211 emits
-  `hako_alloc_huge_page_packed_store_pilot_plans` while preserving live/sentinel
-  contracts. C212 adds the shared MIR backend capability gate and keeps future
-  required packed record routes fail-fast on unsupported backends. C194 moves
-  C210/C211 hako_alloc metadata invariants into MIR verification. M191 adds
-  allocator-owned stats snapshots without mutable options or behavior changes,
-  M192 adds a read-only purge/decommit policy inventory with OSVM execution
-  inactive, M193 connects that policy to OSVM-backed heap page/backing
-  observation as a dry-run only, M194 adds an execution entry that still
-  returns blocked reports, and M195 adds bounded caller-provided decommit
-  execution while keeping unreserve and OS release inactive, M196 connects
-  that bounded policy to the page-source decommit adapter only, M197 composes
-  dry-run observation, bounded policy, and page-source adapter for heap
-  page/backing state, M198 records successful decommit report page ids in a
-  separate state marker, M199 blocks repeated decommit attempts before
-  page-source execution, M200 classifies decommitted pages as unavailable
-  until a future recommit path exists, M201 adds a blocked/report-only
-  recommit attempt entry with no source execution, M202 adds a bounded
-  caller-provided recommit policy, M203 connects that policy to a recommit-only
-  page-source adapter, M204 transitions marker state with decommit/recommit
-  generation counts, M205 composes the recommit path into page-local
-  reactivation while page sourcing, unreserve, and OS release remain closed,
-  M206 proves the two-generation decommit/recommit/reuse loop without a new
-  allocator owner, M207 freezes the active/retired/decommitted/
-  recommitted-active lifecycle vocabulary as a read-only observer/proof, and
-  C194b moves the selected M207 lifecycle report/function invariants into MIR
-  verification, M208 freezes heap reuse priority as active →
-  recommitted-active → retired-reactivate → fresh fallback with decommitted
-  pages still blocked until recommit, and M209 exposes read-only lifecycle
-  event stats over the M207 observer and M208 reuse policy counters, and M210
-  hardens the decommit/recommit/reuse lifecycle path under pure-first EXE, and
-  M211 classifies already-built lifecycle reports as future purge candidates
-  without scheduler/decommit/recommit/page-source execution. Visible record
-  materialization and packed record backend lowering remain closed.
-- restart checks: `git status -sb` ->
-  `bash tools/checks/current_state_pointer_guard.sh` ->
-  `bash tools/checks/k2_wide_arraybox_inline_record_autouse_eligibility_guard.sh` ->
-  `bash tools/checks/k2_wide_arraybox_inline_record_materialization_boundary_guard.sh` ->
-  `bash tools/checks/k2_wide_arraybox_inline_record_autouse_pilot_guard.sh` ->
-  `bash tools/checks/k2_wide_aligned_small_metadata_packed_store_pilot_guard.sh` ->
-  `bash tools/checks/k2_wide_huge_page_metadata_packed_store_pilot_guard.sh` ->
-  `bash tools/checks/k2_wide_packed_record_backend_failfast_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_metadata_verifier_invariants_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_stats_surface_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_purge_policy_inventory_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_purge_dry_run_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_purge_execution_failfast_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_bounded_decommit_policy_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_page_source_decommit_adapter_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_purge_heap_decommit_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_purge_decommit_state_marker_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_purge_state_aware_duplicate_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_decommitted_page_reuse_precondition_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_recommit_failfast_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_bounded_recommit_policy_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_page_source_recommit_adapter_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_recommit_marker_transition_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_recommit_heap_integration_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_reuse_proof_closeout_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_page_lifecycle_invariant_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_page_lifecycle_verifier_invariants_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_heap_reuse_priority_policy_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_lifecycle_stats_observer_surface_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_decommit_recommit_reuse_exe_hardening_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_purge_candidate_policy_inventory_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_bounded_purge_decommit_scheduler_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_abandoned_reclaim_inventory_guard.sh`
-  for the current packed-record metadata lane. Run
-  `bash tools/checks/dev_gate.sh allocator-wide` only for allocator/mimalloc/
-  provider closeout or explicit wide-gate review.
+- resume point: continue Phase 293x after BRAND-001; next blocker is
+  BRAND-002 Stage1 brand constructor unwrap policy. Keep LOOP-003 open until a
+  JoinIR/CorePlan route is selected; do not source-desugar range loops.
 
 ## Task Order
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  BRAND-001 Stage0 brand declaration metadata capsule
+  BRAND-002 Stage1 brand constructor unwrap policy
 - optional future allocator-provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`

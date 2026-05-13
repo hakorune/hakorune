@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x language minimal surface lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `BRAND-001 Stage0 brand declaration metadata capsule`
+- current blocker token: `BRAND-002 Stage1 brand constructor unwrap policy`
 - record / packed ArrayBox SSOT:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
@@ -44,7 +44,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `BRAND-001 Stage0 brand declaration metadata capsule`
+- current blocker token: `BRAND-002 Stage1 brand constructor unwrap policy`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -55,76 +55,9 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after DEL-003; next blocker is BRAND-001 Stage0 brand declaration metadata capsule
-  policy inventory.
-  C207 emits `array_record_autouse_eligibility_plans`, C208 emits
-  `array_record_materialization_boundary_plans`, and C209 emits
-  `array_record_packed_autouse_pilot_plans` plus crate-private i64 column seams.
-  C210 emits `hako_alloc_aligned_small_packed_store_pilot_plans` while keeping
-  hako_alloc source compiler-internal-free. C211 emits
-  `hako_alloc_huge_page_packed_store_pilot_plans` while preserving
-  live/sentinel contracts. C212 adds the shared MIR backend capability gate and
-  packed record fail-fast checker. C194 moves C210/C211 hako_alloc metadata
-  invariants into MIR verification. M191 adds allocator-owned stats snapshots
-  without mutable options or behavior changes, M192 adds a read-only
-  purge/decommit policy inventory with OSVM execution inactive, M193 connects
-  that policy to OSVM-backed heap page/backing observation as a dry-run only,
-  M194 adds an execution entry that still returns blocked reports, and M195
-  adds bounded caller-provided decommit execution while keeping unreserve and
-  OS release inactive, M196 connects that bounded policy to the page-source
-  decommit adapter only, M197 composes dry-run observation, bounded policy, and
-  page-source adapter for heap page/backing state, M198 records successful
-  decommit report page ids in a separate state marker, M199 blocks repeated
-  decommit attempts before page-source execution, and M200 classifies
-  decommitted pages as unavailable until a future recommit path exists, M201
-  adds a blocked/report-only recommit attempt entry with no source execution,
-  M202 adds a bounded caller-provided recommit policy, M203 connects that
-  policy to a recommit-only page-source adapter, M204 transitions marker state
-  with decommit/recommit generation counts, M205 composes the recommit path
-  into page-local reactivation while page sourcing, unreserve, and OS release
-  remain closed, M206 proves the two-generation decommit/recommit/reuse loop
-  without a new allocator owner, M207 freezes the active/retired/
-  decommitted/recommitted-active lifecycle vocabulary as a read-only
-  observer/proof, C194b moves the selected M207 lifecycle report/function
-  invariants into MIR verification, M208 freezes heap reuse priority as active
-  → recommitted-active → retired-reactivate → fresh fallback while decommitted
-  pages remain blocked until recommit, and M209 exposes read-only lifecycle
-  event stats over the M207 observer and M208 reuse policy counters, and M210
-  hardens the decommit/recommit/reuse lifecycle path under pure-first EXE. Visible
-  record materialization and packed record backend lowering remain closed.
-- BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
-  page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
-  JSON stream aggregator are landed with `real-apps` smoke coverage
-- typed-object EXE allocation plus slot field get/set now covers declared i64
-  fields, init-only untyped fields, handle storage, and observed empty user
-  boxes, nullable handle storage through same-module RuntimeDataBox receiver
-  origins, and the BoxTorrent `firstChunkId` / `refCount` module-generic
-  prepass seam, plus recursive same-module user-box method bodies,
-  typed-object handle global-call returns, allocator handle param-origin
-  inference, and explicit same-module PHI type preservation; BoxTorrent mini,
-  binary-trees, JSON stream aggregator, mimalloc-lite, and allocator-stress
-  direct EXE parity now pass
-- parent EXE boundary gate, only when checking the parked real-app lane:
-  `tools/smokes/v2/run.sh --profile integration --suite real-apps-exe-boundary --skip-preflight`
-- phase-294x exact `usize` substrate work needed by the mimalloc port is no
-  longer the active default lane. The active lane is language minimal surface work after the post-M215 mimalloc inventory closeout.
-- do not hide compiler blockers in app code; if a real app exposes a Stage0 or
-  VM/compiler seam, fix the compiler structurally first
-- parent real-app gate, only when checking the parked real-app lane:
-  `tools/smokes/v2/run.sh --profile integration --suite real-apps --skip-preflight`
-- current mirrors are thinned; update `CURRENT_STATE.toml` and the phase-293x
-  card/taskboard first
-- do not reopen broad `plan/facts` or `lower::planner_compat` ownership work
-  without focused BoxShape lanes and SSOT cards
-- normalized-shadow / normalization cleanup burst is closed; larger findings
-  move to a new lane
-- use `docs/development/current/main/phases/phase-291x/291x-488-current-task-order-baseline-refresh-card.md`
-  for the current task-order baseline
-- use `docs/development/current/main/phases/phase-291x/291x-smoke-index.md`
-  for smoke selection
-- keep docs mirrors thin; update `CURRENT_STATE.toml` and the active card first
-- keep Stage-B adapter thinning separate from CoreMethodContract migration
-- keep phase-137x observe-only unless app work reopens a real blocker
+- continue `phase-293x` after BRAND-001; next blocker is BRAND-002 Stage1 brand constructor unwrap policy
+- keep `LOOP-003` open until a JoinIR/CorePlan route is selected; do not source-desugar range loops
+- keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
 ## Restart Notes
 

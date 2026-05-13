@@ -54,6 +54,7 @@ pub(super) fn ast_kind_name(ast: &ASTNode) -> &'static str {
         ASTNode::Throw { .. } => "Throw",
         ASTNode::BoxDeclaration { .. } => "BoxDeclaration",
         ASTNode::EnumDeclaration { .. } => "EnumDeclaration",
+        ASTNode::BrandDeclaration { .. } => "BrandDeclaration",
         ASTNode::FunctionDeclaration { .. } => "FunctionDeclaration",
         ASTNode::GlobalVar { .. } => "GlobalVar",
         ASTNode::StaticConstTable { .. } => "StaticConstTable",

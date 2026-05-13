@@ -299,6 +299,11 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
             attrs: json_to_attrs(v.get("attrs")),
             span: Span::unknown(),
         },
+        "BrandDeclaration" => ASTNode::BrandDeclaration {
+            name: v.get("name")?.as_str()?.to_string(),
+            underlying_type_name: v.get("underlying_type")?.as_str()?.to_string(),
+            span: Span::unknown(),
+        },
         "Loop" => ASTNode::Loop {
             condition: Box::new(json_to_ast(v.get("condition")?)?),
             body: v

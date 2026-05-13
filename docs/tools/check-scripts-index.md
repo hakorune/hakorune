@@ -274,3 +274,4 @@ tools/checks/env_dead_accessors_report.sh
 | `tools/checks/k2_wide_loop_range_parser_capsule_guard.sh` | LOOP-002 の Stage0 LoopRange parser capsule を固定し、`loop i in start..end` / `loop(i in start..end)` / paren-less `loop cond` を parser + metadata transport に閉じ、Stage1 lowering / readonly index / continue-safe step / bounds facts へ広がらないことを検証する。 |
 - `tools/checks/k2_wide_delegate_parser_capsule_guard.sh` - DEL-002 Stage0 delegate parser/metadata capsule guard.
 - `tools/checks/k2_wide_delegate_exposes_lowering_guard.sh` - DEL-003 delegate exposes Stage1 forwarding lowering guard.
+- `tools/checks/k2_wide_brand_parser_capsule_guard.sh` - BRAND-001 Stage0 brand declaration parser/metadata capsule guard.

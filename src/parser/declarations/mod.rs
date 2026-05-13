@@ -6,6 +6,7 @@
  */
 
 pub mod box_def;
+pub mod brand_def;
 pub mod dependency_helpers;
 pub mod enum_def;
 pub mod static_def;

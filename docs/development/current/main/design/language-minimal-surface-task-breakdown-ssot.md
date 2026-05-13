@@ -18,7 +18,7 @@ This document turns the language-design discussions into task-sized backlog
 rows.
 
 It is not the active allocator lane.
-`BRAND-001 Stage0 brand declaration metadata capsule` is the current selected language blocker
+`BRAND-002 Stage1 brand constructor unwrap policy` is the current selected language blocker
 unless the user explicitly switches to the language lane.
 
 ## Row rules
@@ -62,7 +62,7 @@ Retire condition:
 | Minimal keyword surface | docs accepted | no immediate code row |
 | Loop-only repetition | parser capsule complete | `LOOP-003 Stage1 LoopRange lowering` |
 | No-inheritance delegation | exposes lowering complete | `DEL-004 legacy quarantine migration` |
-| Brand/type | planned | `BRAND-001 Stage0 brand declaration metadata capsule` |
+| Brand/type | parser capsule complete | `BRAND-002 Stage1 brand constructor unwrap policy` |
 | Record literal | planned | `REC-001 Stage0 explicit record literal shape capsule` |
 | Contracts | planned | `CONTRACT-001 assert runtime-check sugar decision` |
 | Enum transition lifecycle | planned | `TRANS-001 transition metadata capsule` |
@@ -157,7 +157,7 @@ no Stage0 conformance checker
 
 | Task | Scope | Stage |
 | --- | --- | --- |
-| `BRAND-001 Stage0 brand declaration metadata capsule` | Parse `brand PageId: i64` and transport underlying storage metadata. | Stage0 capsule |
+| `BRAND-001 Stage0 brand declaration metadata capsule` | Complete as `293x-275`; parses `brand PageId: i64` and transports underlying storage metadata only. | Stage0 capsule complete |
 | `BRAND-002 Stage1 brand constructor unwrap policy` | Define explicit constructor/unwrap surface and reject implicit conversions. | Stage1 semantics |
 | `BRAND-003 Stage1 brand mismatch checker` | Reject `PageId` where `BlockId` is required; expose verifier facts. | Stage1 verifier |
 | `TYPE-001 Stage0 type alias metadata capsule` | Parse `type Bytes = usize` as metadata only. | Stage0 capsule |
@@ -276,8 +276,8 @@ language work, start here:
 2. `LOOP-002 Stage0 LoopRange parser capsule`
 3. `DEL-002 Stage0 delegate syntax metadata capsule`
 4. `DEL-003 Stage1 delegate exposes lowering`
-5. `LOOP-003 Stage1 LoopRange lowering`
-6. `BRAND-001 Stage0 brand declaration metadata capsule`
+5. `LOOP-003 Stage1 LoopRange lowering` (open; requires JoinIR/CorePlan route, not source-level desugar)
+6. `BRAND-001 Stage0 brand declaration metadata capsule` (complete as `293x-275`)
 7. `BRAND-002 Stage1 brand constructor unwrap policy`
 8. `REC-001 Stage0 explicit record literal shape capsule`
 9. `REC-002 Stage1 record construction/read lowering`

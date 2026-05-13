@@ -219,6 +219,7 @@ impl ASTNode {
             | ASTNode::UsingStatement { .. }
             | ASTNode::ImportStatement { .. }
             | ASTNode::EnumDeclaration { .. }
+            | ASTNode::BrandDeclaration { .. }
             | ASTNode::StaticConstTable { .. }
             | ASTNode::This { .. }
             | ASTNode::Me { .. }
@@ -339,6 +340,11 @@ impl ASTNode {
                     )
                 }
             }
+            ASTNode::BrandDeclaration {
+                name,
+                underlying_type_name,
+                ..
+            } => format!("BrandDeclaration({}: {})", name, underlying_type_name),
             ASTNode::FunctionDeclaration {
                 name,
                 params,
@@ -522,6 +528,7 @@ impl ASTNode {
             ASTNode::Throw { span, .. } => *span,
             ASTNode::BoxDeclaration { span, .. } => *span,
             ASTNode::EnumDeclaration { span, .. } => *span,
+            ASTNode::BrandDeclaration { span, .. } => *span,
             ASTNode::FunctionDeclaration { span, .. } => *span,
             ASTNode::GlobalVar { span, .. } => *span,
             ASTNode::StaticConstTable { span, .. } => *span,
@@ -585,6 +592,7 @@ impl ASTNode {
                 ASTNode::Lambda { .. }
                 | ASTNode::FunctionDeclaration { .. }
                 | ASTNode::EnumDeclaration { .. }
+                | ASTNode::BrandDeclaration { .. }
                 | ASTNode::BoxDeclaration { .. }
                 | ASTNode::StaticConstTable { .. } => false,
 
@@ -606,6 +614,7 @@ impl ASTNode {
                 ASTNode::Lambda { .. }
                 | ASTNode::FunctionDeclaration { .. }
                 | ASTNode::EnumDeclaration { .. }
+                | ASTNode::BrandDeclaration { .. }
                 | ASTNode::BoxDeclaration { .. }
                 | ASTNode::StaticConstTable { .. } => false,
 
@@ -627,6 +636,7 @@ impl ASTNode {
             ASTNode::Lambda { .. }
             | ASTNode::FunctionDeclaration { .. }
             | ASTNode::EnumDeclaration { .. }
+            | ASTNode::BrandDeclaration { .. }
             | ASTNode::BoxDeclaration { .. }
             | ASTNode::StaticConstTable { .. } => false,
 
@@ -653,6 +663,7 @@ impl ASTNode {
                 ASTNode::Lambda { .. }
                 | ASTNode::FunctionDeclaration { .. }
                 | ASTNode::EnumDeclaration { .. }
+                | ASTNode::BrandDeclaration { .. }
                 | ASTNode::BoxDeclaration { .. }
                 | ASTNode::StaticConstTable { .. } => false,
 

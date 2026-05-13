@@ -308,6 +308,7 @@ fn ast_collect_me_fields(nodes: &[ASTNode]) -> std::collections::HashSet<String>
             | ASTNode::ImportStatement { .. }
             | ASTNode::FunctionDeclaration { .. }
             | ASTNode::EnumDeclaration { .. }
+            | ASTNode::BrandDeclaration { .. }
             | ASTNode::BoxDeclaration { .. }
             | ASTNode::StaticConstTable { .. }
             | ASTNode::Lambda { .. } => {}
