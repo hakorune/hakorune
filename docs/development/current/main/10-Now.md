@@ -26,13 +26,14 @@ Related:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `reuse proof closeout`
+- current blocker token: `post-M206 allocator task selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after M205; next blocker is reuse proof closeout
+- continue phase-293x after M206; next blocker is explicit allocator task
+  selection
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed
@@ -61,10 +62,11 @@ Related:
   adds a blocked/report-only recommit attempt entry with no source execution,
   M202 adds a bounded caller-provided recommit policy, M203 connects that
   policy to a recommit-only page-source adapter, M204 transitions marker state
-  with decommit/recommit generation counts, and M205 composes the recommit path
+  with decommit/recommit generation counts, M205 composes the recommit path
   into page-local reactivation while page sourcing, unreserve, and OS release
-  remain closed. Visible record materialization and packed record backend
-  lowering remain closed.
+  remain closed, and M206 proves the two-generation decommit/recommit/reuse
+  loop without a new allocator owner. Visible record materialization and packed
+  record backend lowering remain closed.
 - typed-object EXE allocation plus slot `field_set` / `field_get` now covers
   declared i64 fields, init-only untyped fields, handle storage, and observed
   empty user boxes, nullable handle storage through same-module RuntimeDataBox

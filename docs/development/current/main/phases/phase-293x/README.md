@@ -644,6 +644,10 @@ inference for the allocator release path.
 - `293x-249`: M205 recommit heap integration landed, composing M200-M204 and
   reactivating page-local state after successful recommit so the page can be
   selected and allocated again without page sourcing, unreserve, or OS release.
+- `293x-250`: M206 reuse proof closeout landed, proving the M199 duplicate
+  guard and M205 recommit heap integration compose into a two-generation
+  decommit/recommit/queue-select/page-acquire reuse loop through pure-first
+  EXE without adding a new allocator owner.
 - `293x-241`: D197 row guard manifest pilot landed, adding
   `tools/checks/guard_rows.toml` and `tools/checks/run_row_guard.sh` as a
   non-breaking wrapper over existing static guards. Existing guard scripts
@@ -661,11 +665,10 @@ inference for the allocator release path.
   `docs/development/current/main/design/agent-current-entry-contract-ssot.md`
   so local `AGENTS.md` stays a current-first instruction entry while
   `CURRENT_STATE.toml` remains the current lane/blocker truth.
-- Next: reuse proof closeout requires a new explicit card before claiming the
-  purge/recommit loop is complete. M186 facade stats already landed as
-  `294x-19e`, so future rows must not repeat exact usize facade work. M104 is
-  next only if the optional allocator-provider host-replacement ladder is
-  explicitly reopened.
+- Next: post-M206 allocator task selection must be explicit. M186 facade stats
+  already landed as `294x-19e`, so future rows must not repeat exact usize
+  facade work. M104 is next only if the optional allocator-provider
+  host-replacement ladder is explicitly reopened.
 
 ## Mimalloc Port Roadmap Snapshot
 
@@ -699,8 +702,8 @@ Current execution order:
   decommit heap integration, M198 purge decommit state marker, M199 purge
   state-aware duplicate guard, M200 decommitted page reuse precondition, M201
   recommit fail-fast entry, M202 bounded recommit policy, M203 page-source
-  recommit adapter, M204 recommit marker transition, and M205 recommit heap
-  integration are complete; reuse proof closeout requires a new explicit card.
+  recommit adapter, M204 recommit marker transition, M205 recommit heap
+  integration, and M206 reuse proof closeout are complete.
 7. `D195-D200`: refresh SSOT/guards at milestones, not after every tiny row.
    `D195`, `D196`, the D197 row guard manifest pilot, the D198 proof app
    runner pilot, the D199 manifest runner library cleanup, and the D200 agent

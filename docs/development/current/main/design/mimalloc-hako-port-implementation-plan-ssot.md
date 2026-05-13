@@ -215,6 +215,7 @@ the active `.hako` algorithm row.
 | `M203 page-source recommit adapter` | connect M202 bounded policy to `HakoAllocPageSourcePolicy.commitPage` through a recommit-only adapter | future recommit marker transition / heap integration |
 | `M204 recommit marker transition` | transition decommit marker state after successful recommit using generation counts | future recommit heap integration |
 | `M205 recommit heap integration` | compose recommit precondition/policy/adapter/marker transition and reactivate page-local state | reuse proof closeout |
+| `M206 reuse proof closeout` | prove the M199+M205 purge/recommit reuse loop for two marker generations without new allocator owners | post-closeout task selection |
 
 Post-C205 phase split:
 
@@ -503,9 +504,16 @@ M202, M203, and M204, then calls `HakoAllocPageModel.reactivate()` so an empty
 retired page can become selectable and allocatable again after recommit. Page
 sourcing, unreserve, OS release, and allocator replacement remain closed.
 
-Next allocator algorithm row is reuse proof closeout. Keep it separate from
-M205 and require a new explicit card before claiming the purge/recommit loop is
-complete.
+M206 status:
+complete as `293x-250`. The reuse closeout proof composes the M199 duplicate
+guard and M205 recommit heap integration for two decommit/recommit generations,
+then selects and acquires from the same heap page after each recommit. It adds
+no new allocator owner and keeps object-return allocator API expansion,
+unreserve, OS release, provider activation, hooks, and process allocator
+replacement closed.
+
+Post-M206 allocator task selection must be explicit; do not keep extending the
+purge/recommit closeout ladder without a new blocker.
 
 ### Proof App Ergonomics Queue
 

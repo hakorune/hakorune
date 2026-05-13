@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-13"
 
 active_lane = "phase-293x packed ArrayBox auto-use pilot"
-active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants are complete, M191-M205 hako_alloc stats/purge/recommit policy rows are complete, D197-D199 guard/proof manifest runner pilots are complete, and D200 agent current-entry docs are refreshed. Visible record materialization and packed record backend lowering remain closed. Reuse proof closeout requires a new explicit card before claiming the purge/recommit loop is complete. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants are complete, M191-M206 hako_alloc stats/purge/recommit/reuse rows are complete, D197-D199 guard/proof manifest runner pilots are complete, and D200 agent current-entry docs are refreshed. Visible record materialization and packed record backend lowering remain closed. Post-M206 allocator task selection must be explicit. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-249-M205-RECOMMIT-HEAP-INTEGRATION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-250-M206-REUSE-PROOF-CLOSEOUT.md"
 method_anchor = "docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-249-M205-RECOMMIT-HEAP-INTEGRATION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-249-M205-RECOMMIT-HEAP-INTEGRATION.md"
-latest_card_summary = "293x-249 completes M205 recommit heap integration: M200-M204 now compose into page-local reactivation after successful recommit while page sourcing, unreserve, and OS release stay closed."
+latest_card = "293x-250-M206-REUSE-PROOF-CLOSEOUT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-250-M206-REUSE-PROOF-CLOSEOUT.md"
+latest_card_summary = "293x-250 completes M206 reuse proof closeout: the M199 duplicate guard and M205 recommit heap integration compose into a two-generation decommit/recommit/queue-select/page-acquire reuse loop while object-return allocator API expansion, unreserve, OS release, provider activation, and hooks stay closed."
 
-current_blocker_token = "reuse proof closeout"
+current_blocker_token = "post-M206 allocator task selection"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

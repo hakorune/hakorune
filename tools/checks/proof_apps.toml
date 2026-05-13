@@ -62,3 +62,10 @@ app = "apps/hako-alloc-recommit-heap-integration-proof"
 label = "recommit heap integration proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_recommit_heap_integration_guard.sh"]
+
+[[proof_apps]]
+id = "M206"
+app = "apps/hako-alloc-reuse-proof-closeout-proof"
+label = "reuse proof closeout proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_reuse_proof_closeout_guard.sh"]

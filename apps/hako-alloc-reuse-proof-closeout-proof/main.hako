@@ -1,0 +1,53 @@
+// hako-alloc-reuse-proof-closeout-proof
+// Purpose: prove M206 closes the purge/recommit reuse loop without adding a
+// new allocator owner.
+
+using selfhost.hako_alloc.memory.osvm_backed_fast_path_heap_box as HakoAllocOsVmBackedFastPathHeap
+using selfhost.hako_alloc.memory.purge_recommit_heap_integration_box as HakoAllocRecommitHeapIntegration
+using selfhost.hako_alloc.memory.purge_state_aware_decommit_box as HakoAllocPurgeStateAwareDecommit
+
+static box Main {
+    main(args) {
+        local heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local decommit_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local recommit = new HakoAllocRecommitHeapIntegration(64)
+
+        local page = heap.pages.get(0)
+        local block0 = page.acquire(8)
+        local release0 = page.releaseLocal(block0)
+        local decommit0 = decommit_guard.attemptHeapPage(heap, page.page_id)
+        local duplicate0 = decommit_guard.attemptHeapPage(heap, page.page_id)
+        local stale_acquire0 = page.acquire(8)
+        local recommit0 = recommit.attemptHeapPage(heap, page.page_id, decommit_guard.marker)
+
+        local selected1 = heap.queue.directPageId()
+        local block1 = page.acquire(8)
+        local release1 = page.releaseLocal(block1)
+        local decommit1 = decommit_guard.attemptHeapPage(heap, page.page_id)
+        local recommit1 = recommit.attemptHeapPage(heap, page.page_id, decommit_guard.marker)
+
+        local selected2 = heap.queue.directPageId()
+        local block2 = page.acquire(8)
+
+        print("hako-alloc-reuse-proof-closeout-proof")
+        print("first=" + page.page_id + "," + block0 + "," + release0 + "," + decommit0.status + "," + decommit0.source_executed + "," + decommit0.marker_marked)
+        print("blocked=" + duplicate0.status + "," + duplicate0.blocked + "," + duplicate0.already_marked + "," + duplicate0.source_executed + "," + stale_acquire0)
+        print("recommit0=" + recommit0.status + "," + recommit0.recommit_executed + "," + recommit0.marker_recommitted + "," + recommit0.page_reactivated + "," + recommit0.reuse_allowed_after)
+        print("reuse1=" + selected1 + "," + block1 + "," + release1 + "," + decommit1.status + "," + decommit1.source_executed + "," + decommit1.marker_marked)
+        print("recommit1=" + recommit1.status + "," + recommit1.recommit_executed + "," + recommit1.marker_recommitted + "," + recommit1.page_reactivated + "," + recommit1.reuse_allowed_after)
+        print("reuse2=" + selected2 + "," + block2)
+        print("marker=" + decommit_guard.marker.marked_count + "," + decommit_guard.marker.recommitted_count + "," + decommit_guard.marker.isMarked(page.page_id))
+        print("decommit_guard=" + decommit_guard.attempt_count + "," + decommit_guard.success_count + "," + decommit_guard.blocked_count + "," + decommit_guard.duplicate_block_count + "," + decommit_guard.source_execution_count)
+        print("recommit_integration=" + recommit.attempt_count + "," + recommit.success_count + "," + recommit.blocked_count + "," + recommit.marker_transition_count + "," + recommit.page_reactivate_count)
+        print("page=" + page.used + "," + page.freeCount() + "," + page.localFreeCount() + "," + page.retired + "," + page.retire_count + "," + page.reactivate_count + "," + page.reject_count)
+        print("heap=" + heap.alloc_count + "," + heap.release_count + "," + heap.page_create_count + "," + heap.reserve_count + "," + heap.commit_count + "," + heap.decommit_count + "," + heap.reject_count)
+
+        if release0 == 1 && decommit0.status == 0 && duplicate0.status == 1 && duplicate0.source_executed == 0 && stale_acquire0 == -1 && recommit0.status == 0 && selected1 == page.page_id && block1 >= 0 && release1 == 1 && decommit1.status == 0 && recommit1.status == 0 && selected2 == page.page_id && block2 >= 0 && decommit_guard.marker.marked_count == 2 && decommit_guard.marker.recommitted_count == 2 && decommit_guard.marker.isMarked(page.page_id) == 0 && decommit_guard.source_execution_count == 2 && recommit.success_count == 2 && page.used == 1 && page.retired == 0 && page.reactivate_count == 2 && heap.page_create_count == 1 && heap.decommit_count == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
