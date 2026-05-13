@@ -20,6 +20,7 @@
 mod common;
 mod cursor; // TokenCursor: 改行処理を一元管理
 mod declarations;
+mod delegate_lowering;
 // depth_tracking.rs was a legacy depth counter for Smart advance.
 // Phase 15.5: removed in favor of TokenCursor-centric newline handling.
 pub mod entry_sugar; // helper to parse with sugar level
@@ -115,6 +116,9 @@ pub enum ParseError {
 
     #[error("Invalid statement at line {line}")]
     InvalidStatement { line: usize },
+
+    #[error("Delegate lowering error: {message} at line {line}")]
+    DelegateLowering { message: String, line: usize },
 
     #[error("Invalid match pattern: {detail} at line {line}")]
     InvalidMatchPattern { detail: String, line: usize },
@@ -427,7 +431,7 @@ impl NyashParser {
 
     /// パース実行 - Program ASTを返す
     pub fn parse(&mut self) -> Result<ASTNode, ParseError> {
-        self.parse_program()
+        delegate_lowering::lower_delegate_exposes(self.parse_program()?)
     }
 
     // ===== パース関数群 =====

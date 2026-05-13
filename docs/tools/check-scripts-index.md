@@ -273,3 +273,4 @@ tools/checks/env_dead_accessors_report.sh
 | `tools/checks/k2_wide_hako_alloc_thread_heap_owner_inventory_guard.sh` | M215 の hako_alloc thread heap owner-token inventory を固定し、owner-token facts を read-only に分類しつつ thread scheduling / atomic claim / remote-free drain / owner mutation / reclaim execution / page-source / OS release へ広がらないことを検証する。 |
 | `tools/checks/k2_wide_loop_range_parser_capsule_guard.sh` | LOOP-002 の Stage0 LoopRange parser capsule を固定し、`loop i in start..end` / `loop(i in start..end)` / paren-less `loop cond` を parser + metadata transport に閉じ、Stage1 lowering / readonly index / continue-safe step / bounds facts へ広がらないことを検証する。 |
 - `tools/checks/k2_wide_delegate_parser_capsule_guard.sh` - DEL-002 Stage0 delegate parser/metadata capsule guard.
+- `tools/checks/k2_wide_delegate_exposes_lowering_guard.sh` - DEL-003 delegate exposes Stage1 forwarding lowering guard.

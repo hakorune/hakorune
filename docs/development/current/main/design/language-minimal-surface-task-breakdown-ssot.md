@@ -18,7 +18,7 @@ This document turns the language-design discussions into task-sized backlog
 rows.
 
 It is not the active allocator lane.
-`M212 bounded purge/decommit scheduler small path` remains the current blocker
+`BRAND-001 Stage0 brand declaration metadata capsule` is the current selected language blocker
 unless the user explicitly switches to the language lane.
 
 ## Row rules
@@ -61,7 +61,7 @@ Retire condition:
 | --- | --- | --- |
 | Minimal keyword surface | docs accepted | no immediate code row |
 | Loop-only repetition | parser capsule complete | `LOOP-003 Stage1 LoopRange lowering` |
-| No-inheritance delegation | parser capsule complete | `DEL-003 Stage1 delegate exposes lowering` |
+| No-inheritance delegation | exposes lowering complete | `DEL-004 legacy quarantine migration` |
 | Brand/type | planned | `BRAND-001 Stage0 brand declaration metadata capsule` |
 | Record literal | planned | `REC-001 Stage0 explicit record literal shape capsule` |
 | Contracts | planned | `CONTRACT-001 assert runtime-check sugar decision` |
@@ -132,7 +132,7 @@ box Child {
 | `DEL-001 legacy delegation status reconcile` | Reconcile `box Child from Parent`, `override`, `from Parent.method`, multiple delegation, and field-visibility proposal status. | docs |
 | `DEL-001 status` | Complete as `293x-271`; legacy `from`/`override` docs are historical, not canonical. | docs complete |
 | `DEL-002 Stage0 delegate syntax metadata capsule` | Complete as `293x-273`; parses `delegate field exposes { method, method as alias }` and transports metadata. | Stage0 capsule complete |
-| `DEL-003 Stage1 delegate exposes lowering` | Resolve typed delegate target fields, check method existence, reject collisions, generate forwarding. | Stage1 semantics |
+| `DEL-003 Stage1 delegate exposes lowering` | Complete as `293x-274`; resolves typed delegate target fields, checks method existence, rejects collisions, and generates forwarding methods. | Stage1 semantics complete |
 | `DEL-004 legacy quarantine migration` | Map internal `extends` naming to delegation metadata without behavior changes; define retire path. | docs/code-shape |
 | `DEL-005 interface MVP` | Define method-set contract and static conformance metadata only after delegation works. | Stage1 later |
 | `DEL-006 delegate implements Interface` | Use interface method set as the forwarding list and reject missing methods/collisions. | Stage1 later |

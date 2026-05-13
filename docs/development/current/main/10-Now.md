@@ -26,13 +26,13 @@ Related:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `DEL-003 Stage1 delegate exposes lowering`
+- current blocker token: `BRAND-001 Stage0 brand declaration metadata capsule`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after DEL-002; next blocker is DEL-003 Stage1 delegate exposes lowering
+- continue phase-293x after DEL-003; next blocker is BRAND-001 Stage0 brand declaration metadata capsule
   policy inventory
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and

@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x language minimal surface lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `DEL-003 Stage1 delegate exposes lowering`
+- current blocker token: `BRAND-001 Stage0 brand declaration metadata capsule`
 - record / packed ArrayBox SSOT:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
@@ -44,7 +44,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `DEL-003 Stage1 delegate exposes lowering`
+- current blocker token: `BRAND-001 Stage0 brand declaration metadata capsule`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -55,7 +55,7 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after LOOP-002; next blocker is DEL-003 Stage1 delegate exposes lowering
+- continue `phase-293x` after DEL-003; next blocker is BRAND-001 Stage0 brand declaration metadata capsule
   policy inventory.
   C207 emits `array_record_autouse_eligibility_plans`, C208 emits
   `array_record_materialization_boundary_plans`, and C209 emits

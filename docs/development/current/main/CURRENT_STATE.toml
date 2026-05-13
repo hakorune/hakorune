@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-14"
 
 active_lane = "phase-293x language minimal surface lane"
-active_lane_status = "Phase 293x is now on the language minimal surface lane after the post-M215 mimalloc inventory closeout. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants is complete, M191-M213 hako_alloc stats/purge/recommit/reuse/lifecycle/reclaim inventory rows are complete and closed by D204, C194b verifier-owned page lifecycle invariants is complete, D197-D199 guard/proof manifest runner pilots are complete, D200 agent current-entry docs are refreshed, and D201/D202 language minimal surface docs are parked. D205 selects the order: D206 mimalloc remaining inventory, then selected mimalloc migration rows, then language minimal-surface rows, then selfhost migration. D209 closes the post-M215 mimalloc inventory wave, D210 switches to the language minimal surface lane, DEL-001 reconciles legacy delegation docs, LOOP-002 adds the Stage0 LoopRange parser capsule, and DEL-002 adds the Stage0 delegate parser/metadata capsule. Visible record materialization and packed record backend lowering remain closed. Next selected row is DEL-003 Stage1 delegate exposes lowering; LOOP-003 remains open and requires a JoinIR/CorePlan route rather than a source-level desugar. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "Phase 293x is now on the language minimal surface lane after the post-M215 mimalloc inventory closeout. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants is complete, M191-M213 hako_alloc stats/purge/recommit/reuse/lifecycle/reclaim inventory rows are complete and closed by D204, C194b verifier-owned page lifecycle invariants is complete, D197-D199 guard/proof manifest runner pilots are complete, D200 agent current-entry docs are refreshed, and D201/D202 language minimal surface docs are parked. D205 selects the order: D206 mimalloc remaining inventory, then selected mimalloc migration rows, then language minimal-surface rows, then selfhost migration. D209 closes the post-M215 mimalloc inventory wave, D210 switches to the language minimal surface lane, DEL-001 reconciles legacy delegation docs, LOOP-002 adds the Stage0 LoopRange parser capsule, DEL-002 adds the Stage0 delegate parser/metadata capsule, and DEL-003 adds Stage1 delegate exposes forwarding lowering. Visible record materialization and packed record backend lowering remain closed. Next selected row is BRAND-001 Stage0 brand declaration metadata capsule; LOOP-003 remains open and requires a JoinIR/CorePlan route rather than a source-level desugar. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-273-DEL-002-STAGE0-DELEGATE-PARSER-CAPSULE.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-274-DEL-003-STAGE1-DELEGATE-EXPOSES-LOWERING.md"
 method_anchor = "docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-273-DEL-002-STAGE0-DELEGATE-PARSER-CAPSULE"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-273-DEL-002-STAGE0-DELEGATE-PARSER-CAPSULE.md"
-latest_card_summary = "293x-273 completes DEL-002 Stage0 delegate parser capsule: parser accepts delegate field exposes lists, carries DelegateDecl metadata through AST/JSON/Program JSON, and leaves forwarding/collision/interface semantics to Stage1."
+latest_card = "293x-274-DEL-003-STAGE1-DELEGATE-EXPOSES-LOWERING"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-274-DEL-003-STAGE1-DELEGATE-EXPOSES-LOWERING.md"
+latest_card_summary = "293x-274 completes DEL-003 Stage1 delegate exposes lowering: typed delegate fields resolve to sibling boxes, exposed methods generate forwarding methods, and unresolved/colliding exposures fail fast."
 
-current_blocker_token = "DEL-003 Stage1 delegate exposes lowering"
+current_blocker_token = "BRAND-001 Stage0 brand declaration metadata capsule"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -254,4 +254,5 @@ landed_tail = [
   "293x-271 DEL-001 delegation legacy reconcile landed",
   "293x-272 LOOP-002 loop range parser capsule landed",
   "293x-273 DEL-002 delegate parser capsule landed",
+  "293x-274 DEL-003 delegate exposes lowering landed",
 ]
