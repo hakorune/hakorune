@@ -204,6 +204,7 @@
 - [x] `293x-239` M199 purge state-aware duplicate guard
 - [x] `293x-240` M200 decommitted page reuse precondition
 - [x] `293x-245` M201 recommit fail-fast entry
+- [x] `293x-246` M202 bounded recommit policy
 - [x] `293x-241` D197 row guard manifest pilot
 - [x] `293x-242` D198 proof app runner pilot
 - [x] `293x-243` D199 manifest runner library cleanup

@@ -629,6 +629,10 @@ inference for the allocator release path.
   recommit attempt report that reads the M200 precondition while keeping
   actual recommit/source execution, marker clearing, unreserve, and OS release
   closed.
+- `293x-246`: M202 bounded recommit policy landed, allowing a decommitted-page
+  decision to call only a caller-provided `commitPage(base, bytes)` source
+  within byte bounds while keeping page-source adapter wiring, marker clearing,
+  heap/page mutation, unreserve, and OS release closed.
 - `293x-241`: D197 row guard manifest pilot landed, adding
   `tools/checks/guard_rows.toml` and `tools/checks/run_row_guard.sh` as a
   non-breaking wrapper over existing static guards. Existing guard scripts
@@ -646,8 +650,8 @@ inference for the allocator release path.
   `docs/development/current/main/design/agent-current-entry-contract-ssot.md`
   so local `AGENTS.md` stays a current-first instruction entry while
   `CURRENT_STATE.toml` remains the current lane/blocker truth.
-- Next: future recommit execution policy requires a new explicit card before
-  page-source execution can open. M186 facade stats already landed as
+- Next: future recommit page-source adapter requires a new explicit card before
+  recommit can delegate to `HakoAllocPageSourcePolicy.commitPage(...)`. M186 facade stats already landed as
   `294x-19e`, so future rows must not repeat exact usize facade work. M104 is
   next only if the optional allocator-provider host-replacement ladder is
   explicitly reopened.
@@ -682,9 +686,9 @@ Current execution order:
    observer, M194 purge/decommit execution fail-fast, M195 bounded decommit
    execution policy, M196 page-source decommit adapter, and M197 purge
   decommit heap integration, M198 purge decommit state marker, M199 purge
-  state-aware duplicate guard, M200 decommitted page reuse precondition, and
-  M201 recommit fail-fast entry are complete; future recommit execution policy
-  requires a new explicit card.
+  state-aware duplicate guard, M200 decommitted page reuse precondition, M201
+  recommit fail-fast entry, and M202 bounded recommit policy are complete;
+  future recommit page-source adapter requires a new explicit card.
 7. `D195-D200`: refresh SSOT/guards at milestones, not after every tiny row.
    `D195`, `D196`, the D197 row guard manifest pilot, the D198 proof app
    runner pilot, the D199 manifest runner library cleanup, and the D200 agent

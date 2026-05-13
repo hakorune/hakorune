@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-13"
 
 active_lane = "phase-293x packed ArrayBox auto-use pilot"
-active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants are complete, M191-M201 hako_alloc stats/purge/recommit policy rows are complete, D197-D199 guard/proof manifest runner pilots are complete, and D200 agent current-entry docs are refreshed. Visible record materialization and packed record backend lowering remain closed. Future recommit execution policy requires a new explicit card before page-source execution can open. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants are complete, M191-M202 hako_alloc stats/purge/recommit policy rows are complete, D197-D199 guard/proof manifest runner pilots are complete, and D200 agent current-entry docs are refreshed. Visible record materialization and packed record backend lowering remain closed. Future recommit page-source adapter requires a new explicit card before page-source commit delegation can open. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-245-M201-RECOMMIT-FAILFAST-ENTRY.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-246-M202-BOUNDED-RECOMMIT-POLICY.md"
 method_anchor = "docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-245-M201-RECOMMIT-FAILFAST-ENTRY"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-245-M201-RECOMMIT-FAILFAST-ENTRY.md"
-latest_card_summary = "293x-245 completes M201 recommit fail-fast entry: HakoAllocRecommitFailFastEntry reads the M200 precondition and returns blocked/no-op reports while recommit/source execution stays closed."
+latest_card = "293x-246-M202-BOUNDED-RECOMMIT-POLICY"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-246-M202-BOUNDED-RECOMMIT-POLICY.md"
+latest_card_summary = "293x-246 completes M202 bounded recommit policy: HakoAllocBoundedRecommitPolicy calls only a caller-provided commit source after M200 requires recommit while page-source adapter wiring and marker clearing stay closed."
 
-current_blocker_token = "future recommit execution policy"
+current_blocker_token = "future recommit page-source adapter"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

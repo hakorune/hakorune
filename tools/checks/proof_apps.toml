@@ -34,3 +34,10 @@ app = "apps/hako-alloc-recommit-failfast-proof"
 label = "recommit fail-fast proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_recommit_failfast_guard.sh"]
+
+[[proof_apps]]
+id = "M202"
+app = "apps/hako-alloc-bounded-recommit-policy-proof"
+label = "bounded recommit policy proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_bounded_recommit_policy_guard.sh"]

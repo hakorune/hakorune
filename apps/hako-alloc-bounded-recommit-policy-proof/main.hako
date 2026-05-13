@@ -1,0 +1,89 @@
+// hako-alloc-bounded-recommit-policy-proof
+// Purpose: prove M202 bounded recommit policy without page-source adapter wiring.
+
+using selfhost.hako_alloc.memory.osvm_backed_fast_path_heap_box as HakoAllocOsVmBackedFastPathHeap
+using selfhost.hako_alloc.memory.purge_bounded_recommit_box as HakoAllocBoundedRecommit
+using selfhost.hako_alloc.memory.purge_decommitted_page_reuse_precondition_box as HakoAllocDecommittedPageReusePrecondition
+using selfhost.hako_alloc.memory.purge_state_aware_decommit_box as HakoAllocPurgeStateAwareDecommit
+
+box HakoAllocFakeRecommitSource {
+    fail_next: i64 = 0
+    call_count: i64 = 0
+    success_count: i64 = 0
+    reject_count: i64 = 0
+    last_base: i64 = 0
+    last_bytes: i64 = 0
+    last_rc: i64 = 0
+
+    commitPage(base, bytes) {
+        me.call_count = me.call_count + 1
+        me.last_base = base
+        me.last_bytes = bytes
+
+        if me.fail_next != 0 {
+            me.fail_next = 0
+            me.reject_count = me.reject_count + 1
+            me.last_rc = 1
+            return 1
+        }
+
+        me.success_count = me.success_count + 1
+        me.last_rc = 0
+        return 0
+    }
+}
+
+static box Main {
+    main(args) {
+        local heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local decommit_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local precondition = new HakoAllocDecommittedPageReusePrecondition()
+        local policy = new HakoAllocBoundedRecommitPolicy(64)
+        local limit_policy = new HakoAllocBoundedRecommitPolicy(8)
+        local source = new HakoAllocFakeRecommitSource()
+
+        local page = heap.pages.get(0)
+        local before = precondition.classifyHeapPage(heap, page.page_id, decommit_guard.marker)
+        local no_need = policy.attemptRecommit(before, source, heap.pageBase(page.page_id), heap.pageBackingBytes(page.page_id))
+        local source_after_no_need = source.call_count
+
+        local block_id = page.acquire(8)
+        local release_rc = page.releaseLocal(block_id)
+        local decommit = decommit_guard.attemptHeapPage(heap, page.page_id)
+        local decision = precondition.classifyHeapPage(heap, page.page_id, decommit_guard.marker)
+
+        local success = policy.attemptRecommit(decision, source, heap.pageBase(page.page_id), heap.pageBackingBytes(page.page_id))
+        local too_big = limit_policy.attemptRecommit(decision, source, heap.pageBase(page.page_id), heap.pageBackingBytes(page.page_id))
+
+        source.fail_next = 1
+        local fail = policy.attemptRecommit(decision, source, heap.pageBase(page.page_id), heap.pageBackingBytes(page.page_id))
+
+        local missing_decision = precondition.classifyHeapPage(heap, 99, decommit_guard.marker)
+        local missing = policy.attemptRecommit(missing_decision, source, 0, 0)
+
+        print("hako-alloc-bounded-recommit-policy-proof")
+        print("before=" + before.status + "," + before.reuse_allowed + "," + before.requires_recommit + "," + before.backing_bytes)
+        print("no_need=" + no_need.status + "," + no_need.blocked + "," + no_need.recommit_attempted + "," + no_need.recommit_executed + "," + no_need.recommit_rc + "," + source_after_no_need)
+        print("release=" + release_rc)
+        print("decommit=" + decommit.status + "," + decommit.source_executed + "," + decommit.marker_marked)
+        print("decision=" + decision.status + "," + decision.decommitted + "," + decision.requires_recommit + "," + decision.backing_bytes)
+        print("success=" + success.status + "," + success.blocked + "," + success.recommit_attempted + "," + success.recommit_executed + "," + success.marker_cleared + "," + success.unreserve_executed + "," + success.bytes)
+        print("too_big=" + too_big.status + "," + too_big.blocked + "," + too_big.recommit_attempted + "," + too_big.recommit_executed + "," + too_big.max_bytes)
+        print("fail=" + fail.status + "," + fail.blocked + "," + fail.recommit_attempted + "," + fail.recommit_executed + "," + fail.recommit_rc)
+        print("missing=" + missing.status + "," + missing.blocked + "," + missing.input_missing_page + "," + missing.recommit_attempted + "," + missing.recommit_executed)
+        print("policy=" + policy.attempt_count + "," + policy.blocked_count + "," + policy.recommit_attempt_count + "," + policy.recommit_success_count + "," + policy.source_reject_count)
+        print("limit=" + limit_policy.attempt_count + "," + limit_policy.blocked_count + "," + limit_policy.recommit_attempt_count + "," + limit_policy.recommit_success_count)
+        print("source=" + source.call_count + "," + source.success_count + "," + source.reject_count + "," + source.last_rc + "," + source.last_bytes)
+        print("precondition=" + precondition.check_count + "," + precondition.allow_count + "," + precondition.blocked_count + "," + precondition.missing_count)
+        print("guard=" + decommit_guard.attempt_count + "," + decommit_guard.success_count + "," + decommit_guard.source_execution_count)
+        print("heap=" + heap.decommit_count + "," + heap.release_count + "," + heap.reject_count)
+
+        if no_need.status == 3 && no_need.recommit_attempted == 0 && source.call_count == 2 && release_rc == 1 && decommit.status == 0 && decision.requires_recommit == 1 && success.recommit_executed == 1 && success.marker_cleared == 0 && success.unreserve_executed == 0 && too_big.status == 6 && too_big.recommit_attempted == 0 && fail.status == 7 && fail.recommit_rc == 1 && missing.status == 2 && policy.attempt_count == 4 && policy.recommit_success_count == 1 && policy.source_reject_count == 1 && heap.decommit_count == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

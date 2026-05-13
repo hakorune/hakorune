@@ -211,6 +211,7 @@ the active `.hako` algorithm row.
 | `M199 purge state-aware duplicate guard` | block already-marked pages before M197/M196 source execution can run again | decommitted page reuse precondition |
 | `M200 decommitted page reuse precondition` | classify decommitted pages as unavailable until a future recommit path exists | recommit fail-fast entry |
 | `M201 recommit fail-fast entry` | expose explicit recommit attempt reports while keeping actual recommit/source execution blocked | future recommit execution policy |
+| `M202 bounded recommit policy` | execute bounded caller-provided recommit source calls only after M200 requires recommit | future recommit page-source adapter |
 
 Post-C205 phase split:
 
@@ -474,9 +475,15 @@ recommit attempt report by reading the M200 precondition. It remains
 blocked/report-only and does not call page-source APIs, recommit, unreserve,
 release OSVM pages, clear markers, or mutate heap/page state.
 
-Next allocator algorithm row is future recommit execution policy. Keep it
-separate from M201 and require a new explicit card before adding actual
-page-source execution.
+M202 status:
+complete as `293x-246`. `HakoAllocBoundedRecommitPolicy` executes at most one
+caller-provided `commitPage(base, bytes)` source call after M200 reports
+`requires_recommit`, while direct page-source adapter wiring, marker clearing,
+heap/page mutation, unreserve, and OS release remain closed.
+
+Next allocator algorithm row is future recommit page-source adapter. Keep it
+separate from M202 and require a new explicit card before delegating recommit
+to `HakoAllocPageSourcePolicy.commitPage(...)`.
 
 ### Proof App Ergonomics Queue
 

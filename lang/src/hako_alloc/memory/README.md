@@ -178,6 +178,10 @@ Syntax/style contract
   read the M200 precondition and return a structured blocked/no-op report, but
   it must not call page-source APIs, mutate heap/page state, clear the decommit
   marker, recommit, unreserve, release OSVM pages, or replace allocators.
+- `purge_bounded_recommit_box.hako` owns M202 bounded recommit policy. It may
+  execute at most one caller-provided `commitPage(base, bytes)` source call
+  after M200 reports `requires_recommit`, but must not call page-source APIs
+  directly, clear markers, or mutate heap/page state.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
   huge-page metadata. C205c consumes aligned-small metadata through a
