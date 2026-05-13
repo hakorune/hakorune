@@ -7,6 +7,7 @@ Scope
 
 Current modules
 - `abandoned_reclaim_inventory_box.hako`
+- `options_inventory_box.hako`
 - `alignment_policy_box.hako`
 - `aligned_small_meta_store_box.hako`
 - `allocator_metadata_records.hako`
@@ -230,6 +231,7 @@ Syntax/style contract
   page-source APIs directly, mutate heap/page/backing state, recommit,
   unreserve, release OSVM pages, or replace allocators.
 - `abandoned_reclaim_inventory_box.hako` owns M213 abandoned/reclaim inventory.
+- `options_inventory_box.hako` owns M214 allocator options/defaults inventory. It may classify static option/default facts and report inactive mutable options, env toggles, provider/hook/replacement, and reclaim execution, but it must not parse process configuration or change allocation behavior.
   It may classify scalar owner/page facts into read-only abandoned and reclaim
   candidate vocabulary, but it must not schedule threads, add atomics, execute
   reclaim, call page-source APIs, decommit, recommit, unreserve, release OSVM

@@ -1,0 +1,113 @@
+// options_inventory_box.hako -- M214 allocator options/defaults inventory
+// Responsibility:
+// - name allocator option/default/init vocabulary as read-only facts
+// - keep mutable options, process configuration, provider activation, hooks,
+//   allocator replacement, and reclaim execution out of this row
+// Non-responsibility:
+// - parsing environment variables, changing allocation policy, scheduling
+//   reclaim, unreserving pages, or calling page-source APIs
+
+box HakoAllocOptionDefaultFact {
+    known: i64 = 0
+    option_id: i64 = -1
+    default_value: i64 = -1
+    default_is_static: i64 = 1
+    default_source: i64 = 1
+    requires_backend_support: i64 = 0
+    affects_allocation_policy: i64 = 0
+    mutable_options_enabled: i64 = 0
+    env_toggles_added: i64 = 0
+    would_change_allocation_policy: i64 = 0
+    would_select_provider: i64 = 0
+    would_install_hook: i64 = 0
+    would_replace_process_allocator: i64 = 0
+    would_execute_reclaim: i64 = 0
+}
+
+box HakoAllocOptionsInventorySnapshot {
+    options_inventory_present: i64 = 1
+    inspect_count: i64 = 0
+    known_option_count: i64 = 0
+    unknown_option_count: i64 = 0
+    last_option_id: i64 = -1
+    mutable_options_enabled: i64 = 0
+    env_toggles_added: i64 = 0
+    would_change_allocation_policy: i64 = 0
+    would_select_provider: i64 = 0
+    would_install_hook: i64 = 0
+    would_replace_process_allocator: i64 = 0
+    would_execute_reclaim: i64 = 0
+}
+
+box HakoAllocOptionsInventory {
+    inspect_count: i64 = 0
+    known_option_count: i64 = 0
+    unknown_option_count: i64 = 0
+    last_option_id: i64 = -1
+    mutable_options_enabled: i64 = 0
+    env_toggles_added: i64 = 0
+    would_change_allocation_policy: i64 = 0
+    would_select_provider: i64 = 0
+    would_install_hook: i64 = 0
+    would_replace_process_allocator: i64 = 0
+    would_execute_reclaim: i64 = 0
+
+    fact(known, option_id, default_value, requires_backend_support, affects_allocation_policy) {
+        local result = new HakoAllocOptionDefaultFact()
+        result.known = known
+        result.option_id = option_id
+        result.default_value = default_value
+        result.requires_backend_support = requires_backend_support
+        result.affects_allocation_policy = affects_allocation_policy
+        return result
+    }
+
+    describeOption(option_id) {
+        me.inspect_count = me.inspect_count + 1
+        me.last_option_id = option_id
+
+        if option_id == 1 {
+            me.known_option_count = me.known_option_count + 1
+            return me.fact(1, option_id, 0, 0, 0)
+        }
+
+        if option_id == 2 {
+            me.known_option_count = me.known_option_count + 1
+            return me.fact(1, option_id, 1, 0, 0)
+        }
+
+        if option_id == 3 {
+            me.known_option_count = me.known_option_count + 1
+            return me.fact(1, option_id, 4096, 1, 0)
+        }
+
+        if option_id == 4 {
+            me.known_option_count = me.known_option_count + 1
+            return me.fact(1, option_id, 0, 0, 0)
+        }
+
+        if option_id == 5 {
+            me.known_option_count = me.known_option_count + 1
+            return me.fact(1, option_id, 0, 0, 0)
+        }
+
+        me.unknown_option_count = me.unknown_option_count + 1
+        return me.fact(0, option_id, -1, 0, 0)
+    }
+
+    snapshot() {
+        local result = new HakoAllocOptionsInventorySnapshot()
+        result.inspect_count = me.inspect_count
+        result.known_option_count = me.known_option_count
+        result.unknown_option_count = me.unknown_option_count
+        result.last_option_id = me.last_option_id
+        result.mutable_options_enabled = me.mutable_options_enabled
+        result.env_toggles_added = me.env_toggles_added
+        result.would_change_allocation_policy = me.would_change_allocation_policy
+        result.would_select_provider = me.would_select_provider
+        result.would_install_hook = me.would_install_hook
+        result.would_replace_process_allocator = me.would_replace_process_allocator
+        result.would_execute_reclaim = me.would_execute_reclaim
+        return result
+    }
+}

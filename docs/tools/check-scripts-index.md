@@ -269,3 +269,4 @@ tools/checks/env_dead_accessors_report.sh
 - 新しい `tools/checks/*.sh` を追加したら、この文書へ同コミットで追記する。
 - script の役割変更時は `Purpose` を先に更新し、実装差分はその後に載せる。
 - 日常導線は `dev_gate.sh` を最優先にし、単発スクリプトは理由があるときだけ直接実行する。
+| `tools/checks/k2_wide_hako_alloc_options_inventory_guard.sh` | M214 の hako_alloc allocator options/defaults inventory を固定し、read-only option/default facts を観測しつつ mutable options / env toggles / allocation policy changes / provider hooks / replacement / reclaim execution へ広がらないことを検証する。 |

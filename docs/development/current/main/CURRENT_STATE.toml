@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-14"
 
 active_lane = "phase-293x packed ArrayBox auto-use pilot"
-active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants is complete, M191-M213 hako_alloc stats/purge/recommit/reuse/lifecycle/reclaim inventory rows are complete and closed by D204, C194b verifier-owned page lifecycle invariants is complete, D197-D199 guard/proof manifest runner pilots are complete, D200 agent current-entry docs are refreshed, and D201/D202 language minimal surface docs are parked. Visible record materialization and packed record backend lowering remain closed. Next selected row is D205 post-M213 next-lane selection. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants is complete, M191-M213 hako_alloc stats/purge/recommit/reuse/lifecycle/reclaim inventory rows are complete and closed by D204, C194b verifier-owned page lifecycle invariants is complete, D197-D199 guard/proof manifest runner pilots are complete, D200 agent current-entry docs are refreshed, and D201/D202 language minimal surface docs are parked. D205 selects the order: D206 mimalloc remaining inventory, then selected mimalloc migration rows, then language minimal-surface rows, then selfhost migration. D206 freezes the post-M213 remaining mimalloc inventory, D207 selects M214 allocator options/defaults inventory, and M214 adds the read-only options inventory owner without mutable options or behavior changes. Visible record materialization and packed record backend lowering remain closed. Next selected row is D208 mimalloc migration closeout check. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-262-D204-PURGE-LIFECYCLE-LADDER-CLOSEOUT.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-266-M214-ALLOCATOR-OPTIONS-DEFAULTS-INVENTORY.md"
 method_anchor = "docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-262-D204-PURGE-LIFECYCLE-LADDER-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-262-D204-PURGE-LIFECYCLE-LADDER-CLOSEOUT.md"
-latest_card_summary = "293x-262 completes D204 purge lifecycle ladder closeout: M192-M213 owners and stable seams are closed, inactive reclaim/thread/atomic/OS-release/provider/backend surfaces remain explicit, and D205 is selected for next-lane choice."
+latest_card = "293x-266-M214-ALLOCATOR-OPTIONS-DEFAULTS-INVENTORY"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-266-M214-ALLOCATOR-OPTIONS-DEFAULTS-INVENTORY.md"
+latest_card_summary = "293x-266 completes M214 allocator options/defaults inventory: adds a read-only .hako owner, proof app, guard, and docs while keeping mutable options, env toggles, provider hooks, replacement, and reclaim execution inactive."
 
-current_blocker_token = "D205 post-M213 next-lane selection"
+current_blocker_token = "D208 mimalloc migration closeout check"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -248,4 +248,5 @@ landed_tail = [
   "293x-260 D203 purge lifecycle ladder map landed",
   "293x-261 M213 abandoned/reclaim inventory landed",
   "293x-262 D204 purge lifecycle ladder closeout landed",
+  "293x-263 D205 post-M213 next-lane selection landed",
 ]

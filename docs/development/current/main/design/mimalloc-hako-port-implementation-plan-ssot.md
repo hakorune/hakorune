@@ -776,3 +776,11 @@ git diff --check
 
 Full real-app and EXE boundary suites are milestone checks, not required for
 every pure policy row unless the row touches shared compiler/runtime behavior.
+
+M214 status:
+
+Complete as `293x-266`. M214 adds `HakoAllocOptionsInventory` as a read-only
+allocator options/defaults inventory owner. It proves static option/default
+facts and keeps mutable runtime options, environment toggles, allocation policy
+changes, provider activation, hooks, process allocator replacement, reclaim
+execution, unreserve, and OS release inactive.

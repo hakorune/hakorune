@@ -118,3 +118,9 @@ app = "apps/hako-alloc-abandoned-reclaim-inventory-proof"
 label = "abandoned reclaim inventory proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_abandoned_reclaim_inventory_guard.sh"]
+
+[[proof_app]]
+id = "M214"
+app = "apps/hako-alloc-options-inventory-proof"
+description = "M214 hako_alloc allocator options/defaults inventory"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_options_inventory_guard.sh"]

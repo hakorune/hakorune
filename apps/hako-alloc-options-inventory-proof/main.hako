@@ -1,0 +1,70 @@
+// hako-alloc-options-inventory-proof
+// Purpose: prove M214 read-only allocator options/defaults inventory surface.
+
+using selfhost.hako_alloc.memory.options_inventory_box as HakoAllocOptionsInventory
+
+static box Main {
+    main(args) {
+        local inventory = new HakoAllocOptionsInventory()
+
+        local secure = inventory.describeOption(1)
+        local eager = inventory.describeOption(2)
+        local page_bytes = inventory.describeOption(3)
+        local purge = inventory.describeOption(4)
+        local abandon = inventory.describeOption(5)
+        local unknown = inventory.describeOption(99)
+        local snapshot = inventory.snapshot()
+
+        local ok = check "m214 allocator options defaults inventory" {
+            "secure known": secure.known == 1
+            "secure default": secure.default_value == 0
+            "eager known": eager.known == 1
+            "eager default": eager.default_value == 1
+            "page bytes known": page_bytes.known == 1
+            "page bytes default": page_bytes.default_value == 4096
+            "page bytes backend fact": page_bytes.requires_backend_support == 1
+            "purge known": purge.known == 1
+            "purge default": purge.default_value == 0
+            "abandon known": abandon.known == 1
+            "abandon default": abandon.default_value == 0
+            "unknown rejected": unknown.known == 0
+            "unknown default": unknown.default_value == -1
+            "inspect count": snapshot.inspect_count == 6
+            "known count": snapshot.known_option_count == 5
+            "unknown count": snapshot.unknown_option_count == 1
+            "last option": snapshot.last_option_id == 99
+            "inventory present": snapshot.options_inventory_present == 1
+            "mutable inactive": snapshot.mutable_options_enabled == 0
+            "env inactive": snapshot.env_toggles_added == 0
+            "policy inactive": snapshot.would_change_allocation_policy == 0
+            "provider inactive": snapshot.would_select_provider == 0
+            "hook inactive": snapshot.would_install_hook == 0
+            "replacement inactive": snapshot.would_replace_process_allocator == 0
+            "reclaim inactive": snapshot.would_execute_reclaim == 0
+            "fact mutable inactive": secure.mutable_options_enabled == 0
+            "fact env inactive": secure.env_toggles_added == 0
+            "fact policy inactive": secure.would_change_allocation_policy == 0
+            "fact provider inactive": secure.would_select_provider == 0
+            "fact hook inactive": secure.would_install_hook == 0
+            "fact replacement inactive": secure.would_replace_process_allocator == 0
+            "fact reclaim inactive": secure.would_execute_reclaim == 0
+        }
+
+        print("hako-alloc-options-inventory-proof")
+        print("known=" + secure.known + "," + eager.known + "," + page_bytes.known + "," + purge.known + "," + abandon.known)
+        print("defaults=" + secure.default_value + "," + eager.default_value + "," + page_bytes.default_value + "," + purge.default_value + "," + abandon.default_value)
+        print("unknown=" + unknown.known + "," + unknown.option_id + "," + unknown.default_value)
+        print("snapshot=" + snapshot.options_inventory_present + "," + snapshot.inspect_count + "," + snapshot.known_option_count + "," + snapshot.unknown_option_count + "," + snapshot.last_option_id)
+        print("inactive=" + snapshot.mutable_options_enabled + "," + snapshot.env_toggles_added + "," + snapshot.would_change_allocation_policy + "," + snapshot.would_select_provider + "," + snapshot.would_install_hook + "," + snapshot.would_replace_process_allocator + "," + snapshot.would_execute_reclaim)
+        print("fact_inactive=" + secure.mutable_options_enabled + "," + secure.env_toggles_added + "," + secure.would_change_allocation_policy + "," + secure.would_select_provider + "," + secure.would_install_hook + "," + secure.would_replace_process_allocator + "," + secure.would_execute_reclaim)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
