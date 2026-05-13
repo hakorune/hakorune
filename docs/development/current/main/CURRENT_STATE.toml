@@ -11,13 +11,13 @@ date = "2026-05-14"
 active_lane = "phase-293x packed ArrayBox auto-use pilot"
 active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants is complete, M191-M212 hako_alloc stats/purge/recommit/reuse/lifecycle priority rows are complete, C194b verifier-owned page lifecycle invariants is complete, D197-D199 guard/proof manifest runner pilots are complete, D200 agent current-entry docs are refreshed, and D201/D202 language minimal surface docs are parked. Visible record materialization and packed record backend lowering remain closed. Next selected row is M213 abandoned/reclaim inventory. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-259-M212-BOUNDED-PURGE-DECOMMIT-SCHEDULER-SMALL-PATH.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-260-D203-PURGE-LIFECYCLE-LADDER-MAP.md"
 method_anchor = "docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-259-M212-BOUNDED-PURGE-DECOMMIT-SCHEDULER-SMALL-PATH"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-259-M212-BOUNDED-PURGE-DECOMMIT-SCHEDULER-SMALL-PATH.md"
-latest_card_summary = "293x-259 completes M212 bounded purge/decommit scheduler small path: a bounded scan consumes M207/M211 facts and calls the M199 state-aware guard for at most one candidate without direct M197/M195/page-source, unreserve, OS release, provider, or backend widening."
+latest_card = "293x-260-D203-PURGE-LIFECYCLE-LADDER-MAP"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-260-D203-PURGE-LIFECYCLE-LADDER-MAP.md"
+latest_card_summary = "293x-260 completes D203 purge lifecycle ladder map: M192-M213 ownership and stop lines are documented before M213, while M213 remains the current inventory-only blocker."
 
 current_blocker_token = "M213 abandoned/reclaim inventory"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -245,4 +245,5 @@ landed_tail = [
   "293x-257 M211 purge candidate policy inventory landed",
   "293x-258 D202 language task breakdown landed",
   "293x-259 M212 bounded purge/decommit scheduler small path landed",
+  "293x-260 D203 purge lifecycle ladder map landed",
 ]
