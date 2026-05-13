@@ -194,6 +194,7 @@
 - [x] `293x-229` C212 packed record backend fail-fast hardening
 - [x] `293x-230` C194 verifier-owned allocation invariants
 - [x] `293x-231` M191 hako_alloc stats surface
+- [x] `293x-232` M192 purge/decommit policy inventory
 
 ## Gates
 

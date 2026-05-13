@@ -201,6 +201,7 @@ the active `.hako` algorithm row.
 | `C212 packed record backend fail-fast hardening` | keep unsupported packed record routes fail-fast rather than silently falling back | allocator algorithm rows after packed storage |
 | `C194 verifier-owned allocation invariants` | move C210/C211 metadata row invariants into MIR verifier-owned contracts | M191 allocator-owned stats/options surface |
 | `M191 hako_alloc stats surface` | add allocator-owned stats snapshot observability without mutable options or behavior changes | purge/decommit policy inventory |
+| `M192 purge/decommit policy inventory` | classify empty-retired page purge candidates without page-source execution | purge/decommit dry-run observer |
 
 Post-C205 phase split:
 
@@ -374,6 +375,13 @@ complete as `293x-231`. M191 adds `HakoAllocStatsSurface`,
 The row is stats-first: mutable options, env toggles, purge/decommit, provider
 activation, hooks, and process allocator replacement remain out of scope.
 
+M192 status:
+complete as `293x-232`. M192 adds `HakoAllocPurgePolicyInventory` and
+`HakoAllocPurgeDecision` as a read-only purge/decommit candidate inventory. It
+classifies missing-backing, live, not-retired, and empty-retired cases, but all
+execution booleans remain false and no page-source / OSVM release behavior is
+opened.
+
 ### Docs / Guard Checkpoints
 
 | Row | Goal | Trigger |
@@ -404,8 +412,8 @@ M189 object-return allocator API parity is complete in
 `docs/development/current/main/phases/phase-293x/293x-200-M189-OBJECT-RETURN-ALLOCATOR-API.md`.
 M190 nullable/failure handle contract is complete in
 `docs/development/current/main/phases/phase-293x/293x-201-M190-NULLABLE-FAILURE-HANDLE-CONTRACT.md`.
-Next allocator algorithm row is M192 purge/decommit policy inventory. Keep it
-policy/inventory-only until a later row explicitly opens OSVM release behavior.
+Next allocator algorithm row is M193 purge/decommit dry-run observer. Keep it
+dry-run/observer-only until a later row explicitly opens OSVM release behavior.
 
 ### Proof App Ergonomics Queue
 

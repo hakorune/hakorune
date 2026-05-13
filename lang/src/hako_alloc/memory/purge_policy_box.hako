@@ -1,0 +1,72 @@
+// purge_policy_box.hako -- M192 purge/decommit policy inventory owner
+// Responsibility:
+// - classify local page purge/decommit candidates as read-only policy data
+// - keep execution, page-source calls, and OS release out of this row
+// Non-responsibility:
+// - calling HakoAllocPageSourcePolicy, unreserving pages, or changing heap state
+
+box HakoAllocPurgeDecision {
+    eligible: i64 = 0
+    reason: i64 = 0
+    page_empty: i64 = 0
+    retired: i64 = 0
+    has_backing: i64 = 0
+    committed_bytes: i64 = 0
+    would_decommit: i64 = 0
+    would_unreserve: i64 = 0
+    would_release_osvm: i64 = 0
+}
+
+box HakoAllocPurgePolicyInventory {
+    candidate_count: i64 = 0
+    reject_count: i64 = 0
+    missing_backing_reject_count: i64 = 0
+    live_reject_count: i64 = 0
+    not_retired_reject_count: i64 = 0
+    empty_retired_count: i64 = 0
+
+    decision(eligible, reason, page_empty, retired, has_backing, committed_bytes) {
+        local result = new HakoAllocPurgeDecision()
+        result.eligible = eligible
+        result.reason = reason
+        result.page_empty = page_empty
+        result.retired = retired
+        result.has_backing = has_backing
+        result.committed_bytes = committed_bytes
+        return result
+    }
+
+    classifyLocalPage(used, retired, backing_bytes) {
+        local page_empty = 0
+        if used == 0 {
+            page_empty = 1
+        }
+
+        local has_backing = 0
+        if backing_bytes > 0 {
+            has_backing = 1
+        }
+
+        if has_backing == 0 {
+            me.missing_backing_reject_count = me.missing_backing_reject_count + 1
+            me.reject_count = me.reject_count + 1
+            return me.decision(0, 1, page_empty, retired, has_backing, backing_bytes)
+        }
+
+        if page_empty == 0 {
+            me.live_reject_count = me.live_reject_count + 1
+            me.reject_count = me.reject_count + 1
+            return me.decision(0, 2, page_empty, retired, has_backing, backing_bytes)
+        }
+
+        if retired == 0 {
+            me.not_retired_reject_count = me.not_retired_reject_count + 1
+            me.reject_count = me.reject_count + 1
+            return me.decision(0, 3, page_empty, retired, has_backing, backing_bytes)
+        }
+
+        me.empty_retired_count = me.empty_retired_count + 1
+        me.candidate_count = me.candidate_count + 1
+        return me.decision(1, 0, page_empty, retired, has_backing, backing_bytes)
+    }
+}

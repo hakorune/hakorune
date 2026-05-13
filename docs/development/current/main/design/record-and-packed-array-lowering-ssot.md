@@ -263,6 +263,9 @@ Status:
 - `M191` is complete as `293x-231`: it returns to hako_alloc observability with
   a separate stats owner and facade snapshot method. It does not change record
   materialization or packed record backend lowering.
+- `M192` is complete as `293x-232`: it adds read-only purge/decommit candidate
+  classification in `.hako` and keeps OSVM/page-source execution inactive. It
+  does not change record materialization or packed record backend lowering.
 
 ## C207 Eligibility Gate
 

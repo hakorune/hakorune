@@ -25,6 +25,7 @@ Current modules
 - `page_map_realloc_same_class_box.hako`
 - `page_queue_box.hako`
 - `page_source_policy_box.hako`
+- `purge_policy_box.hako`
 - `remote_free_page_integration_box.hako`
 - `refcell_box.hako`
 - `remote_free_policy_box.hako`
@@ -130,6 +131,10 @@ Syntax/style contract
   read-only `HakoAllocStatsSnapshot` from existing facade/page observers, but
   it must not mutate allocator options, add environment toggles, source
   purge/decommit, or change allocation behavior.
+- `purge_policy_box.hako` owns M192 purge/decommit policy inventory. It may
+  classify empty retired pages as future decommit candidates and return a
+  read-only decision object, but it must not call `HakoAllocPageSourcePolicy`,
+  mutate heap/page state, unreserve pages, or perform OS release behavior.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
   huge-page metadata. C205c consumes aligned-small metadata through a

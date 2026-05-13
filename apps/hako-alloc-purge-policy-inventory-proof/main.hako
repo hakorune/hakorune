@@ -1,0 +1,25 @@
+// hako-alloc-purge-policy-inventory-proof
+// Purpose: prove the M192 purge/decommit policy inventory surface.
+
+using selfhost.hako_alloc.memory.purge_policy_box as HakoAllocPurgePolicy
+
+static box Main {
+    main(args) {
+        local policy = new HakoAllocPurgePolicyInventory()
+
+        local missing = policy.classifyLocalPage(0, 1, 0)
+        local live = policy.classifyLocalPage(2, 1, 4096)
+        local not_retired = policy.classifyLocalPage(0, 0, 4096)
+        local ready = policy.classifyLocalPage(0, 1, 4096)
+
+        print("hako-alloc-purge-policy-inventory-proof")
+        print("missing=" + missing.eligible + "," + missing.reason + "," + missing.page_empty + "," + missing.has_backing)
+        print("live=" + live.eligible + "," + live.reason + "," + live.page_empty + "," + live.retired)
+        print("not_retired=" + not_retired.eligible + "," + not_retired.reason + "," + not_retired.page_empty + "," + not_retired.retired)
+        print("ready=" + ready.eligible + "," + ready.reason + "," + ready.page_empty + "," + ready.retired + "," + ready.has_backing + "," + ready.committed_bytes)
+        print("would=" + ready.would_decommit + "," + ready.would_unreserve + "," + ready.would_release_osvm)
+        print("counts=" + policy.candidate_count + "," + policy.reject_count + "," + policy.missing_backing_reject_count + "," + policy.live_reject_count + "," + policy.not_retired_reject_count + "," + policy.empty_retired_count)
+        print("summary=ok")
+        return 0
+    }
+}
