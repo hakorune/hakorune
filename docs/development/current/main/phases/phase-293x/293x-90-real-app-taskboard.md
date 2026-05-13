@@ -197,6 +197,7 @@
 - [x] `293x-232` M192 purge/decommit policy inventory
 - [x] `293x-233` M193 purge/decommit dry-run observer
 - [x] `293x-234` M194 purge/decommit execution fail-fast
+- [x] `293x-235` M195 bounded decommit execution policy
 
 ## Gates
 

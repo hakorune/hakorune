@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x packed ArrayBox auto-use pilot`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `M195 bounded decommit execution policy`
+- current blocker token: `M196 page-source decommit adapter`
 - record / packed ArrayBox SSOT:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
@@ -44,7 +44,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `M195 bounded decommit execution policy`
+- current blocker token: `M196 page-source decommit adapter`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -55,7 +55,7 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` from M195 bounded decommit execution policy.
+- continue `phase-293x` from M196 page-source decommit adapter.
   C207 emits `array_record_autouse_eligibility_plans`, C208 emits
   `array_record_materialization_boundary_plans`, and C209 emits
   `array_record_packed_autouse_pilot_plans` plus crate-private i64 column seams.
@@ -68,8 +68,10 @@ cargo check -q
   without mutable options or behavior changes, M192 adds a read-only
   purge/decommit policy inventory with OSVM execution inactive, M193 connects
   that policy to OSVM-backed heap page/backing observation as a dry-run only,
-  and M194 adds an execution entry that still returns blocked reports. Visible
-  record materialization and packed record backend lowering remain closed.
+  M194 adds an execution entry that still returns blocked reports, and M195
+  adds bounded caller-provided decommit execution while keeping unreserve and
+  OS release inactive. Visible record materialization and packed record
+  backend lowering remain closed.
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed with `real-apps` smoke coverage

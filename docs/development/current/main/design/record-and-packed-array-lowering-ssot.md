@@ -272,6 +272,10 @@ Status:
 - `M194` is complete as `293x-234`: it adds a purge/decommit execution entry
   that returns blocked reports for all decision shapes. It does not change
   record materialization or packed record backend lowering.
+- `M195` is complete as `293x-235`: it adds bounded caller-provided decommit
+  execution for eligible in-bound decisions while keeping unreserve and OS
+  release inactive. It does not change record materialization or packed record
+  backend lowering.
 
 ## C207 Eligibility Gate
 

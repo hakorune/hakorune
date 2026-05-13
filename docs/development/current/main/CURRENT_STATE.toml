@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-13"
 
 active_lane = "phase-293x packed ArrayBox auto-use pilot"
-active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants are complete, and M191-M194 hako_alloc stats/purge policy rows are complete. Visible record materialization and packed record backend lowering remain closed. Next row is M195 bounded decommit execution policy. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants are complete, and M191-M195 hako_alloc stats/purge policy rows are complete. Visible record materialization and packed record backend lowering remain closed. Next row is M196 page-source decommit adapter. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-234-M194-PURGE-DECOMMIT-EXECUTION-FAILFAST.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-235-M195-BOUNDED-DECOMMIT-EXECUTION-POLICY.md"
 method_anchor = "docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-234-M194-PURGE-DECOMMIT-EXECUTION-FAILFAST"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-234-M194-PURGE-DECOMMIT-EXECUTION-FAILFAST.md"
-latest_card_summary = "293x-234 completes M194 purge/decommit execution fail-fast: HakoAllocPurgeExecutionFailFastEntry returns structured blocked reports for missing, ineligible, and eligible decisions while all execution fields stay false."
+latest_card = "293x-235-M195-BOUNDED-DECOMMIT-EXECUTION-POLICY"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-235-M195-BOUNDED-DECOMMIT-EXECUTION-POLICY.md"
+latest_card_summary = "293x-235 completes M195 bounded decommit execution policy: HakoAllocBoundedDecommitPolicy validates purge decisions and byte bounds before calling a caller-provided decommitPage executor exactly once, with unreserve and OS release still inactive."
 
-current_blocker_token = "M195 bounded decommit execution policy"
+current_blocker_token = "M196 page-source decommit adapter"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

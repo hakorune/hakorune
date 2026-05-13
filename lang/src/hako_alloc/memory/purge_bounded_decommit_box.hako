@@ -1,0 +1,93 @@
+// purge_bounded_decommit_box.hako -- M195 bounded decommit execution policy
+// Responsibility:
+// - execute at most one bounded decommit through a caller-provided source
+// - preserve explicit blocked reports for invalid inputs
+// Non-responsibility:
+// - direct OSVM calls, unreserve, OS release, or heap/page mutation
+
+box HakoAllocBoundedDecommitReport {
+    status: i64 = 0
+    input_eligible: i64 = 0
+    input_reason: i64 = 0
+    blocked: i64 = 0
+    decommit_attempted: i64 = 0
+    decommit_executed: i64 = 0
+    decommit_rc: i64 = 0
+    base: i64 = 0
+    bytes: i64 = 0
+    max_bytes: i64 = 0
+    unreserve_executed: i64 = 0
+    os_release_executed: i64 = 0
+}
+
+box HakoAllocBoundedDecommitPolicy {
+    max_decommit_bytes: i64 = 0
+    attempt_count: i64 = 0
+    blocked_count: i64 = 0
+    decommit_attempt_count: i64 = 0
+    decommit_success_count: i64 = 0
+    source_reject_count: i64 = 0
+
+    birth(max_decommit_bytes) {
+        me.max_decommit_bytes = max_decommit_bytes
+    }
+
+    report(status, input_eligible, input_reason, blocked, base, bytes) {
+        local result = new HakoAllocBoundedDecommitReport()
+        result.status = status
+        result.input_eligible = input_eligible
+        result.input_reason = input_reason
+        result.blocked = blocked
+        result.base = base
+        result.bytes = bytes
+        result.max_bytes = me.max_decommit_bytes
+        return result
+    }
+
+    attemptDecommit(decision, source, base, bytes) {
+        me.attempt_count = me.attempt_count + 1
+
+        if decision == null {
+            me.blocked_count = me.blocked_count + 1
+            return me.report(1, 0, -1, 1, base, bytes)
+        }
+
+        if decision.eligible == 0 {
+            me.blocked_count = me.blocked_count + 1
+            return me.report(2, decision.eligible, decision.reason, 1, base, bytes)
+        }
+
+        if base == 0 {
+            me.blocked_count = me.blocked_count + 1
+            return me.report(3, decision.eligible, decision.reason, 1, base, bytes)
+        }
+
+        if bytes <= 0 {
+            me.blocked_count = me.blocked_count + 1
+            return me.report(4, decision.eligible, decision.reason, 1, base, bytes)
+        }
+
+        if bytes > me.max_decommit_bytes {
+            me.blocked_count = me.blocked_count + 1
+            return me.report(5, decision.eligible, decision.reason, 1, base, bytes)
+        }
+
+        local result = me.report(0, decision.eligible, decision.reason, 0, base, bytes)
+        result.decommit_attempted = 1
+        me.decommit_attempt_count = me.decommit_attempt_count + 1
+
+        local rc = source.decommitPage(base, bytes)
+        result.decommit_rc = rc
+        if rc == 0 {
+            result.decommit_executed = 1
+            me.decommit_success_count = me.decommit_success_count + 1
+            return result
+        }
+
+        result.status = 6
+        result.blocked = 1
+        me.blocked_count = me.blocked_count + 1
+        me.source_reject_count = me.source_reject_count + 1
+        return result
+    }
+}

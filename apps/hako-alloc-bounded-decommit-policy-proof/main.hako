@@ -1,0 +1,54 @@
+// hako-alloc-bounded-decommit-policy-proof
+// Purpose: prove the M195 bounded decommit execution policy.
+
+using selfhost.hako_alloc.memory.purge_bounded_decommit_box as HakoAllocBoundedDecommit
+using selfhost.hako_alloc.memory.purge_policy_box as HakoAllocPurgePolicy
+
+box HakoAllocFakeDecommitSource {
+    next_rc: i64 = 0
+    call_count: i64 = 0
+    last_base: i64 = 0
+    last_bytes: i64 = 0
+
+    decommitPage(base, bytes) {
+        me.call_count = me.call_count + 1
+        me.last_base = base
+        me.last_bytes = bytes
+        return me.next_rc
+    }
+}
+
+static box Main {
+    main(args) {
+        local inventory = new HakoAllocPurgePolicyInventory()
+        local policy = new HakoAllocBoundedDecommitPolicy(4096)
+        local source = new HakoAllocFakeDecommitSource()
+
+        local live_decision = inventory.classifyLocalPage(1, 1, 4096)
+        local ready_decision = inventory.classifyLocalPage(0, 1, 4096)
+
+        local missing = policy.attemptDecommit(null, source, 1000, 16)
+        local ineligible = policy.attemptDecommit(live_decision, source, 1000, 16)
+        local bad_base = policy.attemptDecommit(ready_decision, source, 0, 16)
+        local too_large = policy.attemptDecommit(ready_decision, source, 1000, 8192)
+
+        source.next_rc = 7
+        local source_fail = policy.attemptDecommit(ready_decision, source, 1000, 16)
+
+        source.next_rc = 0
+        local success = policy.attemptDecommit(ready_decision, source, 1000, 16)
+
+        print("hako-alloc-bounded-decommit-policy-proof")
+        print("missing=" + missing.status + "," + missing.blocked + "," + missing.decommit_attempted)
+        print("ineligible=" + ineligible.status + "," + ineligible.input_reason + "," + ineligible.blocked)
+        print("bad_base=" + bad_base.status + "," + bad_base.blocked)
+        print("too_large=" + too_large.status + "," + too_large.bytes + "," + too_large.max_bytes)
+        print("source_fail=" + source_fail.status + "," + source_fail.decommit_attempted + "," + source_fail.decommit_executed + "," + source_fail.decommit_rc)
+        print("success=" + success.status + "," + success.blocked + "," + success.decommit_attempted + "," + success.decommit_executed + "," + success.decommit_rc)
+        print("source=" + source.call_count + "," + source.last_base + "," + source.last_bytes)
+        print("policy=" + policy.attempt_count + "," + policy.blocked_count + "," + policy.decommit_attempt_count + "," + policy.decommit_success_count + "," + policy.source_reject_count)
+        print("release=" + success.unreserve_executed + "," + success.os_release_executed)
+        print("summary=ok")
+        return 0
+    }
+}
