@@ -1,0 +1,124 @@
+// hako-alloc-decommit-recommit-reuse-exe-hardening-proof
+// Purpose: prove M210 keeps decommit/recommit/reuse completion on pure-first EXE.
+
+using selfhost.hako_alloc.memory.heap_reuse_priority_box as HakoAllocHeapReusePriority
+using selfhost.hako_alloc.memory.lifecycle_stats_observer_box as HakoAllocLifecycleStats
+using selfhost.hako_alloc.memory.osvm_backed_fast_path_heap_box as HakoAllocOsVmBackedFastPathHeap
+using selfhost.hako_alloc.memory.page_lifecycle_invariant_box as HakoAllocPageLifecycleInvariant
+using selfhost.hako_alloc.memory.purge_recommit_heap_integration_box as HakoAllocRecommitHeapIntegration
+using selfhost.hako_alloc.memory.purge_state_aware_decommit_box as HakoAllocPurgeStateAwareDecommit
+
+static box Main {
+    main(args) {
+        local heap = new HakoAllocOsVmBackedFastPathHeap(0, 16, 1)
+        local decommit_guard = new HakoAllocPurgeStateAwareDecommitGuard(64)
+        local recommit = new HakoAllocRecommitHeapIntegration(64)
+        local observer = new HakoAllocPageLifecycleInvariantObserver()
+        local priority = new HakoAllocHeapReusePriorityPolicy()
+        local stats_surface = new HakoAllocLifecycleStatsObserverSurface()
+
+        local page = heap.pages.get(0)
+        local initial = observer.observeHeapPage(heap, page.page_id, decommit_guard.marker)
+
+        local block0 = page.acquire(8)
+        local release0 = page.releaseLocal(block0)
+        local retired0 = observer.observeHeapPage(heap, page.page_id, decommit_guard.marker)
+        local decommit0 = decommit_guard.attemptHeapPage(heap, page.page_id)
+        local duplicate0 = decommit_guard.attemptHeapPage(heap, page.page_id)
+        local stale_acquire0 = page.acquire(8)
+        local decommitted0 = observer.observeHeapPage(heap, page.page_id, decommit_guard.marker)
+        local blocked_choice0 = priority.selectHeapPage(heap, decommit_guard.marker)
+        local recommit0 = recommit.attemptHeapPage(heap, page.page_id, decommit_guard.marker)
+        local recommitted0 = observer.observeHeapPage(heap, page.page_id, decommit_guard.marker)
+        local reuse_choice0 = priority.selectHeapPage(heap, decommit_guard.marker)
+
+        local block1 = page.acquire(8)
+        local release1 = page.releaseLocal(block1)
+        local decommit1 = decommit_guard.attemptHeapPage(heap, page.page_id)
+        local decommitted1 = observer.observeHeapPage(heap, page.page_id, decommit_guard.marker)
+        local recommit1 = recommit.attemptHeapPage(heap, page.page_id, decommit_guard.marker)
+        local recommitted1 = observer.observeHeapPage(heap, page.page_id, decommit_guard.marker)
+        local reuse_choice1 = priority.selectHeapPage(heap, decommit_guard.marker)
+
+        local selected2 = heap.queue.directPageId()
+        local block2 = page.acquire(8)
+        local active2 = observer.observeHeapPage(heap, page.page_id, decommit_guard.marker)
+        local stats = stats_surface.snapshot(observer, priority)
+
+        local ok = check "m210 decommit recommit reuse exe hardening" {
+            "initial active": initial.state == 1
+            "initial acquire allowed": initial.acquire_allowed == 1
+            "cycle0 block acquired": block0 == 0
+            "cycle0 release": release0 == 1
+            "cycle0 retired state": retired0.state == 2
+            "cycle0 decommit": decommit0.status == 0
+            "cycle0 decommit source": decommit0.source_executed == 1
+            "duplicate blocked": duplicate0.status == 1
+            "duplicate no source": duplicate0.source_executed == 0
+            "decommitted acquire blocked": stale_acquire0 == -1
+            "decommitted state": decommitted0.state == 3
+            "blocked choice fresh": blocked_choice0.route == 4
+            "blocked choice decommitted": blocked_choice0.decommitted_blocked == 1
+            "cycle0 recommit": recommit0.status == 0
+            "cycle0 recommit source": recommit0.recommit_executed == 1
+            "cycle0 marker transition": recommit0.marker_recommitted == 1
+            "cycle0 page reactivated": recommit0.page_reactivated == 1
+            "cycle0 reuse allowed": recommit0.reuse_allowed_after == 1
+            "cycle0 recommitted state": recommitted0.state == 4
+            "cycle0 reuse route": reuse_choice0.route == 2
+            "cycle0 reuse page": reuse_choice0.page_id == page.page_id
+            "cycle1 block acquired": block1 == 0
+            "cycle1 release": release1 == 1
+            "cycle1 decommit": decommit1.status == 0
+            "cycle1 decommitted state": decommitted1.state == 3
+            "cycle1 recommit": recommit1.status == 0
+            "cycle1 recommitted state": recommitted1.state == 4
+            "cycle1 reuse route": reuse_choice1.route == 2
+            "cycle1 reuse page": reuse_choice1.page_id == page.page_id
+            "final selection": selected2 == page.page_id
+            "final acquire": block2 == 0
+            "final recommitted-active state": active2.state == 4
+            "marker balanced": decommit_guard.marker.marked_count == 2
+            "marker recommitted": decommit_guard.marker.recommitted_count == 2
+            "marker clear view": decommit_guard.marker.isMarked(page.page_id) == 0
+            "decommit source count": decommit_guard.source_execution_count == 2
+            "recommit success count": recommit.success_count == 2
+            "page reactivation count": page.reactivate_count == 2
+            "heap no direct decommit": heap.decommit_count == 0
+            "stats observed": stats.observe_count == 7
+            "stats active": stats.active_count == 1
+            "stats retired": stats.retired_count == 1
+            "stats decommitted": stats.decommitted_count == 2
+            "stats recommitted": stats.recommitted_count == 3
+            "stats selected": stats.select_count == 3
+            "stats recommitted picks": stats.recommitted_pick_count == 2
+            "stats fresh picks": stats.fresh_pick_count == 1
+            "stats blocked": stats.decommitted_skip_count == 1
+            "stats totals": stats.totalObservedStates() == 7
+            "stats reuse total": stats.totalReusePicks() == 3
+            "stats blocked total": stats.totalBlockedOrMissing() == 1
+        }
+
+        print("hako-alloc-decommit-recommit-reuse-exe-hardening-proof")
+        print("cycle0=" + release0 + "," + decommit0.status + "," + decommit0.source_executed + "," + duplicate0.status + "," + duplicate0.source_executed + "," + stale_acquire0 + "," + recommit0.status + "," + recommit0.recommit_executed + "," + recommit0.page_reactivated)
+        print("states0=" + initial.state + "," + retired0.state + "," + decommitted0.state + "," + recommitted0.state)
+        print("priority0=" + blocked_choice0.route + "," + blocked_choice0.page_id + "," + blocked_choice0.decommitted_blocked + "," + reuse_choice0.route + "," + reuse_choice0.page_id + "," + reuse_choice0.selected_state)
+        print("cycle1=" + release1 + "," + decommit1.status + "," + decommit1.source_executed + "," + recommit1.status + "," + recommit1.recommit_executed + "," + recommit1.page_reactivated)
+        print("states1=" + decommitted1.state + "," + recommitted1.state + "," + active2.state)
+        print("priority1=" + reuse_choice1.route + "," + reuse_choice1.page_id + "," + reuse_choice1.selected_state + "," + selected2 + "," + block2)
+        print("marker=" + decommit_guard.marker.marked_count + "," + decommit_guard.marker.recommitted_count + "," + decommit_guard.marker.isMarked(page.page_id))
+        print("guards=" + decommit_guard.attempt_count + "," + decommit_guard.success_count + "," + decommit_guard.blocked_count + "," + decommit_guard.duplicate_block_count + "," + decommit_guard.source_execution_count + "," + recommit.attempt_count + "," + recommit.success_count + "," + recommit.blocked_count)
+        print("stats=" + stats.observe_count + "," + stats.active_count + "," + stats.retired_count + "," + stats.decommitted_count + "," + stats.recommitted_count + "," + stats.select_count + "," + stats.recommitted_pick_count + "," + stats.fresh_pick_count + "," + stats.decommitted_skip_count)
+        print("totals=" + stats.totalObservedStates() + "," + stats.totalReusePicks() + "," + stats.totalBlockedOrMissing())
+        print("heap=" + heap.page_create_count + "," + heap.reserve_count + "," + heap.commit_count + "," + heap.decommit_count + "," + heap.reject_count)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

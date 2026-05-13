@@ -90,3 +90,10 @@ app = "apps/hako-alloc-lifecycle-stats-observer-surface-proof"
 label = "lifecycle stats observer surface proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_lifecycle_stats_observer_surface_guard.sh"]
+
+[[proof_apps]]
+id = "M210"
+app = "apps/hako-alloc-decommit-recommit-reuse-exe-hardening-proof"
+label = "decommit recommit reuse EXE hardening proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_decommit_recommit_reuse_exe_hardening_guard.sh"]

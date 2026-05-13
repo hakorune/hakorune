@@ -561,6 +561,13 @@ lifecycle observer counters and M208 reuse priority policy counters without
 triggering observation/selection, mutating allocator state, adding options, or
 widening backend/provider behavior.
 
+M210 status:
+complete as `293x-255`. M210 adds a proof-only pure-first EXE hardening app
+and guard for the M195-M209 decommit/recommit/reuse lifecycle path. It proves
+two marker generations plus lifecycle/reuse/stats observation without adding a
+new allocator owner, VM-only completion, provider/hook behavior, unreserve, or
+OS release.
+
 ### Proof App Ergonomics Queue
 
 These rows improve proof readability without changing allocator semantics.

@@ -26,14 +26,14 @@ Related:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `M210 decommit/recommit/reuse EXE hardening`
+- current blocker token: `M211 purge candidate policy inventory`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after M209; next blocker is M210
-  decommit/recommit/reuse EXE hardening
+- continue phase-293x after M210; next blocker is M211 purge candidate
+  policy inventory
 - BoxTorrent mini, binary-trees, mimalloc-lite, the `hako_alloc` VM-only
   page/free-list port, allocator-stress, BoxTorrent allocator-backed store, and
   JSON stream aggregator are landed
@@ -71,7 +71,8 @@ Related:
   invariants into MIR verification, M208 freezes heap reuse priority as active
   → recommitted-active → retired-reactivate → fresh fallback while decommitted
   pages remain blocked until recommit, and M209 exposes read-only lifecycle
-  event stats over the M207 observer and M208 reuse policy counters. Visible
+  event stats over the M207 observer and M208 reuse policy counters, and M210
+  hardens the decommit/recommit/reuse lifecycle path under pure-first EXE. Visible
   record materialization and packed record backend lowering remain closed.
 - typed-object EXE allocation plus slot `field_set` / `field_get` now covers
   declared i64 fields, init-only untyped fields, handle storage, and observed

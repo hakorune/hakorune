@@ -213,6 +213,7 @@
 - [x] `293x-252` C194b verifier-owned page lifecycle invariants
 - [x] `293x-253` M208 heap reuse priority policy
 - [x] `293x-254` M209 lifecycle stats observer surface
+- [x] `293x-255` M210 decommit/recommit/reuse EXE hardening
 - [x] `293x-241` D197 row guard manifest pilot
 - [x] `293x-242` D198 proof app runner pilot
 - [x] `293x-243` D199 manifest runner library cleanup

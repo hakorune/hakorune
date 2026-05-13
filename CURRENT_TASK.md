@@ -45,7 +45,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - current blocker token:
-  `M210 decommit/recommit/reuse EXE hardening`
+  `M211 purge candidate policy inventory`
 - primary mode: compiler/runtime packed record array lane for mimalloc metadata completeness
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -58,7 +58,7 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after M209. C207 emits
+- resume point: continue Phase 293x after M210. C207 emits
   `array_record_autouse_eligibility_plans`, C208 emits
   `array_record_materialization_boundary_plans`, and C209 emits
   `array_record_packed_autouse_pilot_plans` plus crate-private i64 column
@@ -92,7 +92,8 @@ Scope: current lane / next lane / restart order only.
   verification, M208 freezes heap reuse priority as active →
   recommitted-active → retired-reactivate → fresh fallback with decommitted
   pages still blocked until recommit, and M209 exposes read-only lifecycle
-  event stats over the M207 observer and M208 reuse policy counters. Visible
+  event stats over the M207 observer and M208 reuse policy counters, and M210
+  hardens the decommit/recommit/reuse lifecycle path under pure-first EXE. Visible
   record materialization and packed record backend lowering remain closed.
 - restart checks: `git status -sb` ->
   `bash tools/checks/current_state_pointer_guard.sh` ->
@@ -122,7 +123,8 @@ Scope: current lane / next lane / restart order only.
   `bash tools/checks/k2_wide_hako_alloc_page_lifecycle_invariant_guard.sh` ->
   `bash tools/checks/k2_wide_hako_alloc_page_lifecycle_verifier_invariants_guard.sh` ->
   `bash tools/checks/k2_wide_hako_alloc_heap_reuse_priority_policy_guard.sh` ->
-  `bash tools/checks/k2_wide_hako_alloc_lifecycle_stats_observer_surface_guard.sh`
+  `bash tools/checks/k2_wide_hako_alloc_lifecycle_stats_observer_surface_guard.sh` ->
+  `bash tools/checks/k2_wide_hako_alloc_decommit_recommit_reuse_exe_hardening_guard.sh`
   for the current packed-record metadata lane. Run
   `bash tools/checks/dev_gate.sh allocator-wide` only for allocator/mimalloc/
   provider closeout or explicit wide-gate review.
@@ -131,7 +133,7 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  M210 decommit/recommit/reuse EXE hardening
+  M211 purge candidate policy inventory
 - optional future allocator-provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`
