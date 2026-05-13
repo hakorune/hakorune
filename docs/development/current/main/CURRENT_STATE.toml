@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-14"
 
 active_lane = "phase-293x packed ArrayBox auto-use pilot"
-active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants is complete, M191-M212 hako_alloc stats/purge/recommit/reuse/lifecycle priority rows are complete, C194b verifier-owned page lifecycle invariants is complete, D197-D199 guard/proof manifest runner pilots are complete, D200 agent current-entry docs are refreshed, and D201/D202 language minimal surface docs are parked. Visible record materialization and packed record backend lowering remain closed. Next selected row is M213 abandoned/reclaim inventory. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "Phase 293x is back on the mimalloc .hako completion lane after the phase-294x exact usize substrate work needed for allocator request/facade rows. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants is complete, M191-M213 hako_alloc stats/purge/recommit/reuse/lifecycle/reclaim inventory rows are complete, C194b verifier-owned page lifecycle invariants is complete, D197-D199 guard/proof manifest runner pilots are complete, D200 agent current-entry docs are refreshed, and D201/D202 language minimal surface docs are parked. Visible record materialization and packed record backend lowering remain closed. Next selected row is D204 purge lifecycle ladder closeout. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-260-D203-PURGE-LIFECYCLE-LADDER-MAP.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-261-M213-ABANDONED-RECLAIM-INVENTORY.md"
 method_anchor = "docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-260-D203-PURGE-LIFECYCLE-LADDER-MAP"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-260-D203-PURGE-LIFECYCLE-LADDER-MAP.md"
-latest_card_summary = "293x-260 completes D203 purge lifecycle ladder map: M192-M213 ownership and stop lines are documented before M213, while M213 remains the current inventory-only blocker."
+latest_card = "293x-261-M213-ABANDONED-RECLAIM-INVENTORY"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-261-M213-ABANDONED-RECLAIM-INVENTORY.md"
+latest_card_summary = "293x-261 completes M213 abandoned/reclaim inventory: scalar owner/page facts are classified read-only without thread scheduling, atomics expansion, reclaim execution, page-source calls, OS release, provider, hook, or backend widening."
 
-current_blocker_token = "M213 abandoned/reclaim inventory"
+current_blocker_token = "D204 purge lifecycle ladder closeout"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -246,4 +246,5 @@ landed_tail = [
   "293x-258 D202 language task breakdown landed",
   "293x-259 M212 bounded purge/decommit scheduler small path landed",
   "293x-260 D203 purge lifecycle ladder map landed",
+  "293x-261 M213 abandoned/reclaim inventory landed",
 ]

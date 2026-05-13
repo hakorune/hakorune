@@ -111,3 +111,10 @@ app = "apps/hako-alloc-bounded-purge-decommit-scheduler-proof"
 label = "bounded purge decommit scheduler proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_bounded_purge_decommit_scheduler_guard.sh"]
+
+[[proof_apps]]
+id = "M213"
+app = "apps/hako-alloc-abandoned-reclaim-inventory-proof"
+label = "abandoned reclaim inventory proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_abandoned_reclaim_inventory_guard.sh"]

@@ -6,6 +6,7 @@ Scope
 - Future allocator policy helpers should follow the same root.
 
 Current modules
+- `abandoned_reclaim_inventory_box.hako`
 - `alignment_policy_box.hako`
 - `aligned_small_meta_store_box.hako`
 - `allocator_metadata_records.hako`
@@ -228,6 +229,11 @@ Syntax/style contract
   guard for at most one eligible page, but it must not call M197/M195/M196 or
   page-source APIs directly, mutate heap/page/backing state, recommit,
   unreserve, release OSVM pages, or replace allocators.
+- `abandoned_reclaim_inventory_box.hako` owns M213 abandoned/reclaim inventory.
+  It may classify scalar owner/page facts into read-only abandoned and reclaim
+  candidate vocabulary, but it must not schedule threads, add atomics, execute
+  reclaim, call page-source APIs, decommit, recommit, unreserve, release OSVM
+  pages, or replace allocators.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
   huge-page metadata. C205c consumes aligned-small metadata through a

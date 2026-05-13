@@ -585,6 +585,14 @@ delegates the first eligible page to the M199 state-aware decommit guard. It
 does not call M197/M195/M196 or page-source APIs directly, does not unreserve
 or release OSVM pages, and does not change allocation/release/reuse behavior.
 
+M213 status:
+complete as `293x-261`. M213 adds
+`HakoAllocAbandonedReclaimInventory`, a read-only vocabulary owner for
+abandoned ownership and reclaim candidates over scalar owner/page facts. It
+does not schedule threads, add atomics, execute reclaim, call page-source APIs,
+decommit, recommit, unreserve, release OSVM pages, or change allocator
+behavior.
+
 ### Proof App Ergonomics Queue
 
 These rows improve proof readability without changing allocator semantics.

@@ -1,0 +1,72 @@
+// hako-alloc-abandoned-reclaim-inventory-proof
+// Purpose: prove M213 abandoned/reclaim inventory surface.
+
+using selfhost.hako_alloc.memory.abandoned_reclaim_inventory_box as HakoAllocAbandonedReclaimInventory
+
+static box Main {
+    main(args) {
+        local inventory = new HakoAllocAbandonedReclaimInventory()
+
+        local missing = inventory.classifyPage(10, 1, 2, 0, 0, 1, 0, 0, 0)
+        local active_owner = inventory.classifyPage(11, 1, 2, 1, 0, 1, 4096, 0, 0)
+        local same_owner = inventory.classifyPage(12, 2, 2, 0, 0, 1, 4096, 0, 0)
+        local remote_pending = inventory.classifyPage(13, 1, 2, 0, 0, 1, 4096, 0, 3)
+        local decommitted = inventory.classifyPage(14, 1, 2, 0, 0, 1, 4096, 1, 0)
+        local live_candidate = inventory.classifyPage(15, 1, 2, 0, 2, 0, 4096, 0, 0)
+        local retired_candidate = inventory.classifyPage(16, 1, 2, 0, 0, 1, 4096, 0, 0)
+
+        local ok = check "m213 abandoned reclaim inventory" {
+            "missing reject": missing.reason == 1
+            "missing inactive": missing.eligible == 0
+            "active owner reject": active_owner.reason == 2
+            "same owner reject": same_owner.reason == 2
+            "remote pending reject": remote_pending.reason == 3
+            "decommitted reject": decommitted.reason == 4
+            "live candidate": live_candidate.eligible == 1
+            "live reclaim": live_candidate.reclaim_candidate == 1
+            "live adoption": live_candidate.requires_owner_adoption == 1
+            "live no purge forward": live_candidate.can_forward_to_purge_candidate == 0
+            "retired candidate": retired_candidate.eligible == 1
+            "retired purge forward": retired_candidate.can_forward_to_purge_candidate == 1
+            "schedule inactive": retired_candidate.would_schedule_reclaim == 0
+            "reclaim inactive": retired_candidate.would_reclaim == 0
+            "atomic inactive": retired_candidate.would_atomic_claim == 0
+            "decommit inactive": retired_candidate.would_decommit == 0
+            "unreserve inactive": retired_candidate.would_unreserve == 0
+            "os release inactive": retired_candidate.would_release_osvm == 0
+            "classify count": inventory.classify_count == 7
+            "candidate count": inventory.candidate_count == 2
+            "reject count": inventory.reject_count == 5
+            "missing count": inventory.missing_backing_reject_count == 1
+            "owner count": inventory.owner_active_reject_count == 2
+            "remote count": inventory.remote_pending_reject_count == 1
+            "decommitted count": inventory.decommitted_reject_count == 1
+            "live count": inventory.abandoned_live_count == 1
+            "retired count": inventory.abandoned_retired_count == 1
+            "purge forward count": inventory.purge_forward_candidate_count == 1
+            "last page": inventory.last_page_id == 16
+            "last reason": inventory.last_reason == 0
+        }
+
+        print("hako-alloc-abandoned-reclaim-inventory-proof")
+        print("missing=" + missing.eligible + "," + missing.reason + "," + missing.page_id + "," + missing.has_backing)
+        print("active_owner=" + active_owner.eligible + "," + active_owner.reason + "," + active_owner.abandoned + "," + active_owner.owner_active)
+        print("same_owner=" + same_owner.eligible + "," + same_owner.reason + "," + same_owner.owner_thread_id + "," + same_owner.observer_thread_id)
+        print("remote_pending=" + remote_pending.eligible + "," + remote_pending.reason + "," + remote_pending.remote_free_pending)
+        print("decommitted=" + decommitted.eligible + "," + decommitted.reason + "," + decommitted.decommitted)
+        print("live=" + live_candidate.eligible + "," + live_candidate.reason + "," + live_candidate.abandoned + "," + live_candidate.reclaim_candidate + "," + live_candidate.requires_owner_adoption + "," + live_candidate.can_forward_to_purge_candidate)
+        print("retired=" + retired_candidate.eligible + "," + retired_candidate.reason + "," + retired_candidate.page_empty + "," + retired_candidate.retired + "," + retired_candidate.can_forward_to_purge_candidate)
+        print("would=" + retired_candidate.would_schedule_reclaim + "," + retired_candidate.would_reclaim + "," + retired_candidate.would_atomic_claim + "," + retired_candidate.would_decommit + "," + retired_candidate.would_unreserve + "," + retired_candidate.would_release_osvm)
+        print("counts=" + inventory.classify_count + "," + inventory.candidate_count + "," + inventory.reject_count + "," + inventory.missing_backing_reject_count + "," + inventory.owner_active_reject_count + "," + inventory.remote_pending_reject_count + "," + inventory.decommitted_reject_count + "," + inventory.abandoned_live_count + "," + inventory.abandoned_retired_count + "," + inventory.purge_forward_candidate_count + "," + inventory.last_page_id + "," + inventory.last_reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
+
