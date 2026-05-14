@@ -807,3 +807,38 @@ return 0
     assert_eq!(page["invariants"].as_array().expect("Page invariants").len(), 1);
     assert_eq!(meta["invariants"].as_array().expect("Meta invariants").len(), 1);
 }
+
+#[test]
+fn source_to_program_json_v0_transports_transition_metadata() {
+    let source = r#"
+enum PageState {
+  Active
+  Retired
+}
+
+box Page {
+  state: PageState
+  transition PageState.Active -> PageState.Retired by retire
+}
+
+static box Main {
+  main() {
+return 0
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let user_box_decls = value["user_box_decls"].as_array().expect("user box decls");
+    let page = user_box_decls
+        .iter()
+        .find(|decl| decl["name"] == "Page")
+        .expect("Page decl");
+    let transitions = page["transitions"].as_array().expect("transitions metadata");
+
+    assert_eq!(transitions.len(), 1);
+    assert_eq!(transitions[0]["from"], "PageState.Active");
+    assert_eq!(transitions[0]["to"], "PageState.Retired");
+    assert_eq!(transitions[0]["method"], "retire");
+}

@@ -42,6 +42,7 @@ pub enum StructureNode {
         weak_fields: Vec<String>, // 🔗 weak修飾子が付いたフィールドのリスト
         delegates: Vec<DelegateDecl>,
         invariants: Vec<ASTNode>,
+        transitions: Vec<TransitionDecl>,
         is_interface: bool,
         extends: Vec<String>, // 🚀 Multi-delegation: Changed from Option<String> to Vec<String>
         implements: Vec<String>,
@@ -255,6 +256,17 @@ pub struct DelegateExposeDecl {
 pub struct DelegateDecl {
     pub field_name: String,
     pub exposes: Vec<DelegateExposeDecl>,
+}
+
+/// Box-level lifecycle transition metadata.
+///
+/// Stage0 owns only parser/transport. Transition legality, enum validation,
+/// and lifecycle verifier facts are Stage1 responsibilities.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TransitionDecl {
+    pub from_state: String,
+    pub to_state: String,
+    pub method_name: String,
 }
 
 /// Function or constructor parameter declaration metadata.
@@ -694,6 +706,7 @@ pub enum ASTNode {
         weak_fields: Vec<String>,          // 🔗 weak修飾子が付いたフィールドのリスト
         delegates: Vec<DelegateDecl>,      // explicit field delegation metadata
         invariants: Vec<ASTNode>,          // Stage0 contract metadata capsule
+        transitions: Vec<TransitionDecl>,  // Stage0 lifecycle transition metadata capsule
         is_interface: bool,                // interface box かどうか
         is_record: bool, // record surface かどうか（identity-free aggregate contract）
         extends: Vec<String>, // 🚀 Multi-delegation: Changed from Option<String> to Vec<String>

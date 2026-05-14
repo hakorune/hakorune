@@ -86,6 +86,10 @@ contract_clause := ('requires' | 'ensures') expr
 invariant_member := 'invariant' expr
                  ; CONTRACT-002 Stage0 capsule for box/record declaration metadata.
 
+transition_member := 'transition' TYPE_REF '.' IDENT '-' '>' TYPE_REF '.' IDENT 'by' IDENT
+                 ; TRANS-001 Stage0 capsule for box-local lifecycle relation metadata.
+                 ; Legality checks, enum/method lookup, and verifier facts are Stage1-owned.
+
 record_decl := 'record' IDENT type_params? '{' record_member+ '}'
 record_member:= record_field | invariant_member
 record_field:= IDENT ':' TYPE_REF ','?
@@ -383,6 +387,35 @@ Stop line:
 CONTRACT-002 does not add `assert`, runtime contract insertion, invariant
 boundary policy, verifier facts, or static discharge. Those are Stage1-owned.
 
+### TRANS-001 Transition Metadata Surface
+
+Decision: accepted.
+
+`transition Enum.Value -> Enum.Value by method` is Stage0 metadata-only syntax
+for box-local lifecycle relations:
+
+```hako
+enum PageState {
+    Active
+    Retired
+}
+
+box HakoAllocPageModel {
+    state: PageState
+
+    transition PageState.Active -> PageState.Retired by retire
+}
+```
+
+The parser preserves the source state, target state, and method name as
+metadata. `transition` and `by` are contextual in this box-member syntax slot
+and are not reserved as general identifiers.
+
+Stop line:
+TRANS-001 does not add a `state` keyword, enum/variant lookup, method existence
+checking, transition legality checking, runtime lowering, or lifecycle verifier
+facts. Those are Stage1-owned.
+
 ## Box Members (Phase‑15, env gate: NYASH_ENABLE_UNIFIED_MEMBERS; default ON)
 
 This section adds a minimal grammar for Box members (a unified member model) without changing JSON v0/MIR. Parsing is controlled by env `NYASH_ENABLE_UNIFIED_MEMBERS` (default ON; set `0/false/off` to disable).
@@ -397,6 +430,7 @@ member         := visibility_block
                 | once_decl
                 | birth_once_decl
                 | delegate_decl
+                | transition_member
                 | invariant_member
                 | method_decl
                 | block_as_role      ; nyash-mode (block-first) equivalent

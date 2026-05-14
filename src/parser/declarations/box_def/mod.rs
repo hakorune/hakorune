@@ -3,7 +3,7 @@
 //! Box宣言（box, interface box, static box）の解析を担当
 //! Nyashの中核概念「Everything is Box」を実現する重要モジュール
 
-use crate::ast::{ASTNode, DelegateDecl, FieldDecl, Span};
+use crate::ast::{ASTNode, DelegateDecl, FieldDecl, Span, TransitionDecl};
 use crate::parser::common::ParserUtils;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
@@ -63,6 +63,18 @@ fn box_try_delegate(
     p.ensure_no_pending_runes("delegate declaration")?;
     delegates.push(members::delegates::parse_delegate_decl(p)?);
     Ok(true)
+}
+
+fn box_try_transition(
+    p: &mut NyashParser,
+    transitions: &mut Vec<TransitionDecl>,
+) -> Result<bool, ParseError> {
+    if let Some(transition) = members::transitions::try_parse_transition_decl(p)? {
+        p.ensure_no_pending_runes("transition declaration")?;
+        transitions.push(transition);
+        return Ok(true);
+    }
+    Ok(false)
 }
 
 fn box_try_constructor(
@@ -173,6 +185,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
     let mut weak_fields = Vec::new(); // 🔗 Track weak fields
     let mut delegates = Vec::new();
     let mut invariants = Vec::new();
+    let mut transitions = Vec::new();
                                       // Track birth_once properties for constructor prologue emission.
     let mut birth_once_props: Vec<String> = Vec::new();
 
@@ -205,6 +218,11 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
         }
 
         if box_try_delegate(p, &mut delegates)? {
+            last_method_name = None;
+            continue;
+        }
+
+        if box_try_transition(p, &mut transitions)? {
             last_method_name = None;
             continue;
         }
@@ -365,6 +383,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
         weak_fields, // 🔗 Add weak fields to AST
         delegates,
         invariants,
+        transitions,
         is_interface: false,
         is_record: false,
         extends,
@@ -476,6 +495,7 @@ pub fn parse_record_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseErr
         weak_fields: vec![],
         delegates: vec![],
         invariants,
+        transitions: vec![],
         is_interface: false,
         is_record: true,
         extends: vec![],

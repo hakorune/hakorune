@@ -1,6 +1,6 @@
 use nyash_rust::ast::{
     ASTNode, ContractClause, ContractKind, DeclarationAttrs, DelegateDecl, DelegateExposeDecl,
-    EnumVariantDecl, FieldDecl, LiteralValue, RuneAttr, Span,
+    EnumVariantDecl, FieldDecl, LiteralValue, RuneAttr, Span, TransitionDecl,
 };
 use serde_json::Value;
 use std::collections::HashMap;
@@ -200,6 +200,7 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                     .and_then(|a| a.as_array())
                     .map(|arr| arr.iter().filter_map(json_to_ast).collect::<Vec<_>>())
                     .unwrap_or_default(),
+                transitions: json_to_transition_decls(v.get("transitions")).unwrap_or_default(),
                 is_interface: v
                     .get("is_interface")
                     .and_then(|b| b.as_bool())
@@ -686,6 +687,22 @@ fn json_to_contract_clauses(value: Option<&Value>) -> Option<Vec<ContractClause>
                 Some(ContractClause {
                     kind,
                     condition: json_to_ast(clause.get("condition")?)?,
+                })
+            })
+            .collect(),
+    )
+}
+
+fn json_to_transition_decls(value: Option<&Value>) -> Option<Vec<TransitionDecl>> {
+    Some(
+        value?
+            .as_array()?
+            .iter()
+            .filter_map(|decl| {
+                Some(TransitionDecl {
+                    from_state: decl.get("from")?.as_str()?.to_string(),
+                    to_state: decl.get("to")?.as_str()?.to_string(),
+                    method_name: decl.get("method")?.as_str()?.to_string(),
                 })
             })
             .collect(),

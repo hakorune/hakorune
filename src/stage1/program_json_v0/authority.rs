@@ -166,6 +166,7 @@ fn collect_user_box_decls(ast: &ASTNode) -> Vec<serde_json::Value> {
                 field_decls,
                 delegates,
                 invariants,
+                transitions,
                 is_record,
                 type_parameters,
                 ..
@@ -181,6 +182,11 @@ fn collect_user_box_decls(ast: &ASTNode) -> Vec<serde_json::Value> {
                 "fields": fields,
                 "type_parameters": type_parameters,
                 "invariants": invariants.iter().map(crate::r#macro::ast_json::ast_to_json).collect::<Vec<_>>(),
+                "transitions": transitions.iter().map(|decl| serde_json::json!({
+                    "from": decl.from_state,
+                    "to": decl.to_state,
+                    "method": decl.method_name,
+                })).collect::<Vec<_>>(),
                 "field_decls": field_decls.iter().map(|decl| serde_json::json!({
                     "name": decl.name,
                     "declared_type": decl.declared_type_name,

@@ -1,6 +1,6 @@
 use nyash_rust::ast::{
     ASTNode, ContractClause, ContractKind, DelegateDecl, DelegateExposeDecl, EnumVariantDecl,
-    FieldDecl, LiteralValue, Span,
+    FieldDecl, LiteralValue, Span, TransitionDecl,
 };
 use serde_json::{json, Value};
 use std::collections::HashMap;
@@ -38,6 +38,7 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             weak_fields,
             delegates,
             invariants,
+            transitions,
             is_interface,
             is_record,
             extends,
@@ -76,6 +77,11 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
                 })).collect::<Vec<_>>(),
             })).collect::<Vec<_>>(),
             "invariants": invariants.into_iter().map(|expr| ast_to_json(&expr)).collect::<Vec<_>>(),
+            "transitions": transitions.into_iter().map(|decl| json!({
+                "from": decl.from_state,
+                "to": decl.to_state,
+                "method": decl.method_name,
+            })).collect::<Vec<_>>(),
             "is_interface": is_interface,
             "is_record": is_record,
             "extends": extends,
@@ -608,6 +614,7 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                     .and_then(|a| a.as_array())
                     .map(|arr| arr.iter().filter_map(json_to_ast).collect::<Vec<_>>())
                     .unwrap_or_default(),
+                transitions: json_to_transition_decls(v.get("transitions")).unwrap_or_default(),
                 is_interface: v
                     .get("is_interface")
                     .and_then(|b| b.as_bool())
@@ -1067,6 +1074,22 @@ fn json_to_contract_clauses(value: Option<&Value>) -> Option<Vec<ContractClause>
                 Some(ContractClause {
                     kind,
                     condition: json_to_ast(clause.get("condition")?)?,
+                })
+            })
+            .collect(),
+    )
+}
+
+fn json_to_transition_decls(value: Option<&Value>) -> Option<Vec<TransitionDecl>> {
+    Some(
+        value?
+            .as_array()?
+            .iter()
+            .filter_map(|decl| {
+                Some(TransitionDecl {
+                    from_state: decl.get("from")?.as_str()?.to_string(),
+                    to_state: decl.get("to")?.as_str()?.to_string(),
+                    method_name: decl.get("method")?.as_str()?.to_string(),
                 })
             })
             .collect(),

@@ -18,7 +18,7 @@ This document turns the language-design discussions into task-sized backlog
 rows.
 
 It is not the active allocator lane.
-`TRANS-001 transition metadata capsule` is the current selected language blocker
+`USES-001 method-level uses metadata capsule` is the current selected language blocker
 unless the user explicitly switches to the language lane.
 
 ## Row rules
@@ -65,7 +65,7 @@ Retire condition:
 | Brand/type | brand checker complete; type alias parser capsule complete | `TYPE-002 Stage1 alias diagnostics` |
 | Record literal | with-update lowering complete | no immediate row |
 | Contracts | syntax metadata capsule complete | `CONTRACT-003 contract runtime-check insertion` |
-| Enum transition lifecycle | planned | `TRANS-001 transition metadata capsule` |
+| Enum transition lifecycle | metadata capsule complete | `TRANS-002 transition legality checker` |
 | Result/Option | planned | `RESULT-001 prelude and diagnostics` |
 | Generic containers | planned | `GEN-001 generic type annotation metadata capsule` |
 | PackedArray | planned | `PACKED-001 eligibility gate` |
@@ -197,7 +197,7 @@ record methods/delegate/interface are not MVP
 | `CONTRACT-002 contract syntax metadata capsule` | Complete as `293x-282`; parses `requires`, `ensures`, `invariant` metadata only and transports it through AST/JSON. | Stage0 capsule complete |
 | `CONTRACT-003 contract runtime-check insertion` | Insert runtime pre/post/invariant checks at defined boundaries. | Stage1 semantics |
 | `CONTRACT-004 contract verifier discharge` | Statically discharge proven checks and keep diagnostics stable. | Stage1 verifier |
-| `TRANS-001 transition metadata capsule` | Parse `transition Enum.A -> Enum.B by method`. | Stage0 capsule |
+| `TRANS-001 transition metadata capsule` | Complete as `293x-283`; parses `transition Enum.A -> Enum.B by method` and transports box-local lifecycle relation metadata. | Stage0 capsule complete |
 | `TRANS-002 transition legality checker` | Check legal state transitions from enum values. | Stage1 semantics |
 | `TRANS-003 page lifecycle verifier pilot` | Apply transition/contract facts to allocator page lifecycle. | Stage1 verifier |
 
@@ -285,7 +285,7 @@ language work, start here:
 11. `REC-002 Stage1 record construction/read lowering` (complete as `293x-280`)
 12. `REC-003 record with-update lowering` (complete as `293x-281`)
 13. `CONTRACT-002 contract syntax metadata capsule` (complete as `293x-282`)
-14. `TRANS-001 transition metadata capsule`
+14. `TRANS-001 transition metadata capsule` (complete as `293x-283`)
 15. `USES-001 method-level uses metadata capsule`
 
 This order keeps early wins concrete while avoiding Stage0 semantic growth.

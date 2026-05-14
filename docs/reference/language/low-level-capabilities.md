@@ -55,7 +55,7 @@ unsupported-backend fail-fast behavior.
 | `type` / `brand` | planned capsule then semantics | declaration metadata only | alias facts, brand constructor/unwrap policy, mixed-brand rejection |
 | `record` / record literal / `with` | record declaration + literal parser capsule complete; construction/read lowering complete; with-update lowering complete | declaration and literal/update-shape metadata only | identity-free layout, scalar/packed planning |
 | `assert` / `requires` / `ensures` / `invariant` | `requires` / `ensures` / `invariant` contract syntax metadata capsule complete; `assert` still planned separately | syntax and metadata only for `requires` / `ensures` / `invariant`; `assert` may be fail-fast sugar if explicitly carded | runtime checks, verifier discharge, diagnostics |
-| enum state values / `transition` | planned lifecycle lane | transition metadata and enum references only | transition legality and lifecycle verifier facts |
+| enum state values / `transition` | transition metadata capsule complete | transition metadata and enum references only | transition legality and lifecycle verifier facts |
 | `Result` / `Option` / `guard let` | planned enum/prelude lane | enum surface only | prelude, exhaustiveness, pattern sugar |
 | `Array<T>` / `PackedArray<T>` | planned CorePlan lane | generic annotation metadata | typed array semantics and packed eligibility gates |
 | `const fn` / `comptime` / `const assert` | planned const lane | no evaluator beyond existing const-table support | const evaluator and purity rules |
