@@ -280,3 +280,4 @@ tools/checks/env_dead_accessors_report.sh
 - `tools/checks/k2_wide_type_alias_parser_capsule_guard.sh` - TYPE-001 Stage0 type alias parser/metadata capsule guard.
 - `tools/checks/k2_wide_record_literal_parser_capsule_guard.sh` - REC-001 Stage0 record literal parser/metadata capsule guard.
 - `tools/checks/k2_wide_record_construction_read_lowering_guard.sh` - REC-002 Stage1 record literal shape validation and record field read lowering guard.
+- `tools/checks/k2_wide_record_with_update_lowering_guard.sh` - REC-003 record with-update parser/metadata and Stage1 replacement lowering guard.

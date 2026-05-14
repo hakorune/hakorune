@@ -3,6 +3,7 @@ use crate::must_advance;
 use crate::parser::common::ParserUtils;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
+use std::collections::BTreeSet;
 
 #[inline]
 fn is_sugar_enabled() -> bool {
@@ -53,6 +54,9 @@ impl NyashParser {
                 break;
             }
             if self.try_parse_externcall_source_syntax(&mut expr)? {
+                continue;
+            } else if self.current_is_contextual_with() {
+                expr = self.parse_record_update(expr)?;
                 continue;
             } else if self.match_token(&TokenType::DOT) {
                 self.advance(); // consume '.'
@@ -228,6 +232,60 @@ impl NyashParser {
         }
 
         Ok(expr)
+    }
+
+    fn current_is_contextual_with(&self) -> bool {
+        matches!(&self.current_token().token_type, TokenType::IDENTIFIER(name) if name == "with")
+    }
+
+    fn parse_record_update(&mut self, base: ASTNode) -> Result<ASTNode, ParseError> {
+        self.advance(); // consume contextual `with`
+        self.consume(TokenType::LBRACE)?;
+        let mut updates = Vec::new();
+        let mut seen = BTreeSet::new();
+
+        while !self.match_token(&TokenType::RBRACE) && !self.is_at_end() {
+            if self.match_token(&TokenType::COMMA) || self.match_token(&TokenType::NEWLINE) {
+                self.advance();
+                continue;
+            }
+
+            let field_name = match &self.current_token().token_type {
+                TokenType::IDENTIFIER(name) => {
+                    let name = name.clone();
+                    self.advance();
+                    name
+                }
+                other => {
+                    return Err(ParseError::UnexpectedToken {
+                        found: other.clone(),
+                        expected: "[record-update] field name".to_string(),
+                        line: self.current_token().line,
+                    });
+                }
+            };
+            if !seen.insert(field_name.clone()) {
+                return Err(ParseError::UnexpectedToken {
+                    found: TokenType::IDENTIFIER(field_name),
+                    expected: "[record-update] unique field name".to_string(),
+                    line: self.current_token().line,
+                });
+            }
+            self.consume(TokenType::COLON)?;
+            let value = self.parse_expression()?;
+            updates.push((field_name, value));
+
+            if self.match_token(&TokenType::COMMA) {
+                self.advance();
+            }
+        }
+
+        self.consume(TokenType::RBRACE)?;
+        Ok(ASTNode::RecordUpdate {
+            base: Box::new(base),
+            updates,
+            span: Span::unknown(),
+        })
     }
 
     fn try_parse_externcall_source_syntax(

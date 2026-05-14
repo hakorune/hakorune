@@ -620,6 +620,12 @@ pub enum ASTNode {
         fields: Vec<(String, ASTNode)>,
         span: Span,
     },
+    /// record update expression: `base with { field: expr }`
+    RecordUpdate {
+        base: Box<ASTNode>,
+        updates: Vec<(String, ASTNode)>,
+        span: Span,
+    },
 
     /// 無名関数（最小P1: 値としてのみ。呼び出しは未対応）
     Lambda {

@@ -397,6 +397,13 @@ fn check_expr(
             }
             Ok(None)
         }
+        ASTNode::RecordUpdate { base, updates, .. } => {
+            check_expr(base, current_box, current_fn, env, sigs, brands)?;
+            for (_, value) in updates {
+                check_expr(value, current_box, current_fn, env, sigs, brands)?;
+            }
+            Ok(None)
+        }
         ASTNode::New { arguments, .. } | ASTNode::FromCall { arguments, .. } => {
             for argument in arguments {
                 check_expr(argument, current_box, current_fn, env, sigs, brands)?;

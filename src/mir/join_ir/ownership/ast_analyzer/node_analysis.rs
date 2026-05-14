@@ -356,6 +356,12 @@ impl AstOwnershipAnalyzer {
                     self.analyze_node(v, current_scope, is_condition)?;
                 }
             }
+            ASTNode::RecordUpdate { base, updates, .. } => {
+                self.analyze_node(base, current_scope, is_condition)?;
+                for (_, v) in updates {
+                    self.analyze_node(v, current_scope, is_condition)?;
+                }
+            }
 
             ASTNode::MatchExpr {
                 scrutinee,

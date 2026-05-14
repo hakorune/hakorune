@@ -53,7 +53,7 @@ unsupported-backend fail-fast behavior.
 | --- | --- | --- | --- |
 | `loop` condition / range / infinite forms | planned capsule for range header only | existing loop parse plus LoopRange metadata for `loop i in start..end` | entry-bound capture, read-only index, continue-safe lowering, bounds facts |
 | `type` / `brand` | planned capsule then semantics | declaration metadata only | alias facts, brand constructor/unwrap policy, mixed-brand rejection |
-| `record` / record literal / `with` | record declaration + literal parser capsule complete; construction/read lowering complete | declaration and literal-shape metadata only | identity-free layout, update lowering, scalar/packed planning |
+| `record` / record literal / `with` | record declaration + literal parser capsule complete; construction/read lowering complete; with-update lowering complete | declaration and literal/update-shape metadata only | identity-free layout, scalar/packed planning |
 | `assert` / `requires` / `ensures` / `invariant` | planned contract lane | syntax and metadata; `assert` may be fail-fast sugar if explicitly carded | runtime checks, verifier discharge, diagnostics |
 | enum state values / `transition` | planned lifecycle lane | transition metadata and enum references only | transition legality and lifecycle verifier facts |
 | `Result` / `Option` / `guard let` | planned enum/prelude lane | enum surface only | prelude, exhaustiveness, pattern sugar |

@@ -40,6 +40,7 @@ impl ASTNode {
             ASTNode::ArrayLiteral { .. } => E,
             ASTNode::MapLiteral { .. } => E,
             ASTNode::RecordLiteral { .. } => E,
+            ASTNode::RecordUpdate { .. } => E,
             ASTNode::BlockExpr { .. } => E,
             ASTNode::AwaitExpression { .. } => E,
             ASTNode::GroupedAssignmentExpr { .. } => E,

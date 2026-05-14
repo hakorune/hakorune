@@ -42,6 +42,13 @@ impl<'a> TokenCursor<'a> {
         })
     }
 
+    pub fn peek_nth_token(&self, n: usize) -> &TokenType {
+        self.tokens
+            .get(self.idx + n)
+            .map(|token| &token.token_type)
+            .unwrap_or(&TokenType::EOF)
+    }
+
     /// 次のトークンに進む（改行を考慮）
     pub fn advance(&mut self) {
         if self.idx < self.tokens.len() {

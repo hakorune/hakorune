@@ -121,6 +121,7 @@ factor    := INT
            | '(' assignment_expr ')'  ; Stage‑3: grouped assignment as expression
            | 'new' IDENT '(' args? ')'
            | record_literal
+           | record_update
            | '[' args? ']'           ; Array literal (Stage‑1 sugar, gated)
            | '%{' map_entries? '}'   ; Map literal (Stage‑2 sugar, gated)
            | match_expr              ; Pattern matching (replaces legacy peek)
@@ -128,8 +129,14 @@ factor    := INT
 record_literal := IDENT '{' record_literal_field (',' record_literal_field)* ','? '}'
 record_literal_field := IDENT ':' expr
               ; REC-001: explicit named fields only.
-              ; Missing/extra validation, construction/read lowering, and
-              ; shorthand `RecordName { field }` are Stage1/later rows.
+              ; Missing/extra validation and construction/read lowering are
+              ; Stage1-owned.
+              ; Shorthand `RecordName { field }` is deferred.
+
+record_update := expr 'with' '{' record_update_field (',' record_update_field)* ','? '}'
+record_update_field := IDENT ':' expr
+              ; REC-003: `with` is contextual in expression-postfix position.
+              ; It is identity-free replacement, not mutation.
 
 check_expr := 'check' STRING? '{' check_item* '}'
 check_item := STRING ':' expr
@@ -317,6 +324,19 @@ Record literals must mention exactly the declared field set. Missing fields and
 extra fields are Stage1 errors. Lowered Program JSON v0 carries declared field
 index/type metadata on construction fields, and tracked local record reads lower
 as `RecordField` rather than ordinary box field access.
+
+Record with-update replaces selected fields without mutating the original
+record value:
+
+```hako
+local next = meta with {
+    usable_size: new_usable
+}
+```
+
+The update field names must exist on the tracked record type. Array element
+field write-through such as `metas[i].usable_size = next` is not part of this
+surface; use explicit get/update/set composition in later container rows.
 
 Stop line:
 C202 does not add local scalar replacement, packed `ArrayBox` storage, blanket

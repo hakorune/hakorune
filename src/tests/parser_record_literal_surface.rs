@@ -69,3 +69,50 @@ return 0
     .expect_err("record literal shorthand is deferred");
     assert!(err.to_string().contains("COLON"), "{err}");
 }
+
+#[test]
+fn parser_record_update_surface_parses_explicit_named_updates() {
+    let ast = NyashParser::parse_from_string(
+        r#"
+record Meta {
+  ptr: i64
+  size: usize
+}
+
+static box Main {
+  main() {
+local meta = Meta { ptr: 1, size: 2 }
+local next = meta with { size: 3 }
+return 0
+  }
+}
+"#,
+    )
+    .expect("parse record update");
+
+    let ASTNode::Program { statements, .. } = ast else {
+        panic!("expected Program");
+    };
+    let main_box = statements
+        .iter()
+        .find(|stmt| matches!(stmt, ASTNode::BoxDeclaration { name, .. } if name == "Main"))
+        .expect("Main box");
+    let ASTNode::BoxDeclaration { methods, .. } = main_box else {
+        panic!("expected box");
+    };
+    let ASTNode::FunctionDeclaration { body, .. } = &methods["main"] else {
+        panic!("expected main method");
+    };
+    let ASTNode::Local { initial_values, .. } = &body[1] else {
+        panic!("expected second local statement");
+    };
+    let Some(value) = initial_values[0].as_deref() else {
+        panic!("expected local initializer");
+    };
+    let ASTNode::RecordUpdate { base, updates, .. } = value else {
+        panic!("expected RecordUpdate");
+    };
+    assert!(matches!(base.as_ref(), ASTNode::Variable { name, .. } if name == "meta"));
+    assert_eq!(updates.len(), 1);
+    assert_eq!(updates[0].0, "size");
+}

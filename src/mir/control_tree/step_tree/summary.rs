@@ -48,6 +48,7 @@ pub(super) fn ast_kind_name(ast: &ASTNode) -> &'static str {
         ASTNode::ArrayLiteral { .. } => "ArrayLiteral",
         ASTNode::MapLiteral { .. } => "MapLiteral",
         ASTNode::RecordLiteral { .. } => "RecordLiteral",
+        ASTNode::RecordUpdate { .. } => "RecordUpdate",
         ASTNode::Lambda { .. } => "Lambda",
         ASTNode::BlockExpr { .. } => "BlockExpr",
         ASTNode::Arrow { .. } => "Arrow",

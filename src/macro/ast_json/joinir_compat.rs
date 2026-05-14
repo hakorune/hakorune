@@ -359,6 +359,11 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             "record_type": record_type_name,
             "fields": fields.into_iter().map(|(k,v)| json!({"name":k,"value":ast_to_json(&v)})).collect::<Vec<_>>()
         }),
+        ASTNode::RecordUpdate { base, updates, .. } => json!({
+            "kind": "RecordUpdate",
+            "base": ast_to_json(&base),
+            "updates": updates.into_iter().map(|(k,v)| json!({"name":k,"value":ast_to_json(&v)})).collect::<Vec<_>>()
+        }),
         ASTNode::MatchExpr {
             scrutinee,
             arms,
@@ -918,6 +923,21 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
             record_type_name: v.get("record_type")?.as_str()?.to_string(),
             fields: v
                 .get("fields")?
+                .as_array()?
+                .iter()
+                .filter_map(|field| {
+                    Some((
+                        field.get("name")?.as_str()?.to_string(),
+                        json_to_ast(field.get("value")?)?,
+                    ))
+                })
+                .collect(),
+            span: Span::unknown(),
+        },
+        "RecordUpdate" => ASTNode::RecordUpdate {
+            base: Box::new(json_to_ast(v.get("base")?)?),
+            updates: v
+                .get("updates")?
                 .as_array()?
                 .iter()
                 .filter_map(|field| {

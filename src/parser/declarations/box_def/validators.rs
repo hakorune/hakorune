@@ -271,6 +271,12 @@ fn ast_collect_me_fields(nodes: &[ASTNode]) -> std::collections::HashSet<String>
                     scan_node(value, out);
                 }
             }
+            ASTNode::RecordUpdate { base, updates, .. } => {
+                scan_node(base, out);
+                for (_, value) in updates {
+                    scan_node(value, out);
+                }
+            }
             ASTNode::BlockExpr {
                 prelude_stmts,
                 tail_expr,

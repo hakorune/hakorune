@@ -502,6 +502,28 @@ fn expression_to_json_v0(
                 "fields": lowered_fields,
             }))
         }
+        ASTNode::RecordUpdate { base, updates, .. } => {
+            let record_type_name = record_type_name_for_expr(base, local_types)
+                .ok_or_else(|| "[record/update] base expression is not a tracked record".to_string())?
+                .to_string();
+            validate_record_update_fields(context, &record_type_name, updates)?;
+            let mut lowered_updates = Vec::with_capacity(updates.len());
+            for (name, value) in updates {
+                let (field_index, field_decl) = record_field_decl(context, &record_type_name, name)?;
+                lowered_updates.push(serde_json::json!({
+                    "name": name,
+                    "field_index": field_index,
+                    "declared_type": field_decl.declared_type_name.clone(),
+                    "value": expression_to_json_v0(value, context, local_types)?,
+                }));
+            }
+            Ok(serde_json::json!({
+                "type": "RecordUpdate",
+                "record": record_type_name,
+                "base": expression_to_json_v0(base, context, local_types)?,
+                "updates": lowered_updates,
+            }))
+        }
         ASTNode::MatchExpr {
             scrutinee,
             arms,
@@ -552,6 +574,7 @@ fn record_type_name_for_expr<'a>(
             record_type_name, ..
         } => Some(record_type_name.as_str()),
         ASTNode::Variable { name, .. } => local_types.record_locals.get(name).map(String::as_str),
+        ASTNode::RecordUpdate { base, .. } => record_type_name_for_expr(base, local_types),
         ASTNode::BlockExpr { tail_expr, .. } => record_type_name_for_expr(tail_expr, local_types),
         _ => None,
     }
@@ -593,6 +616,24 @@ fn validate_record_literal_fields(
                 record_type_name, declared_field.name
             ));
         }
+    }
+    Ok(())
+}
+
+fn validate_record_update_fields(
+    context: &ProgramJsonV0LoweringContext,
+    record_type_name: &str,
+    updates: &[(String, ASTNode)],
+) -> Result<(), String> {
+    let mut seen = BTreeSet::new();
+    for (field_name, _) in updates {
+        if !seen.insert(field_name.as_str()) {
+            return Err(format!(
+                "[record/update] {} duplicate field `{}`",
+                record_type_name, field_name
+            ));
+        }
+        record_field_decl(context, record_type_name, field_name)?;
     }
     Ok(())
 }

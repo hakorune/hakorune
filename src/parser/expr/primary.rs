@@ -342,8 +342,20 @@ impl NyashParser {
                         arguments,
                         span: Span::unknown(),
                     })
-                } else if self.match_token(&TokenType::LBRACE) {
+                } else if self.current_lbrace_starts_record_literal() {
                     self.parse_record_literal(parent)
+                } else if self.match_token(&TokenType::LBRACE)
+                    && parent
+                        .chars()
+                        .next()
+                        .map(|ch| ch.is_ascii_uppercase())
+                        .unwrap_or(false)
+                {
+                    Err(ParseError::UnexpectedToken {
+                        found: TokenType::LBRACE,
+                        expected: "[record-literal] field COLON".to_string(),
+                        line: self.current_token().line,
+                    })
                 } else {
                     Ok(ASTNode::Variable {
                         name: parent,
@@ -629,6 +641,25 @@ impl NyashParser {
         let next = self.peek_nth_token(1);
         let after = self.peek_nth_token(2);
         matches!(next, TokenType::STRING(_)) && matches!(after, TokenType::COLON)
+    }
+
+    fn current_lbrace_starts_record_literal(&self) -> bool {
+        if !self.match_token(&TokenType::LBRACE) {
+            return false;
+        }
+
+        let mut offset = 1;
+        while matches!(self.peek_nth_token(offset), TokenType::NEWLINE | TokenType::COMMA) {
+            offset += 1;
+        }
+        if !matches!(self.peek_nth_token(offset), TokenType::IDENTIFIER(_)) {
+            return false;
+        }
+        offset += 1;
+        while matches!(self.peek_nth_token(offset), TokenType::NEWLINE) {
+            offset += 1;
+        }
+        matches!(self.peek_nth_token(offset), TokenType::COLON)
     }
 
     /// Parse BlockExpr: { prelude_stmts; tail_expr }

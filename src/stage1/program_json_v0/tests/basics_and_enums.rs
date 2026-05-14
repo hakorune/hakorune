@@ -432,6 +432,57 @@ return meta.ptr
 }
 
 #[test]
+fn source_to_program_json_v0_lowers_record_with_update() {
+    let source = r#"
+record Meta {
+  ptr: i64
+  size: usize
+}
+
+static box Main {
+  main() {
+local meta = Meta { ptr: 1, size: 2 }
+local next = meta with { size: 3 }
+return next.size
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let body = value["body"].as_array().expect("body");
+    assert_eq!(body[1]["type"], "Local");
+    assert_eq!(body[1]["expr"]["type"], "RecordUpdate");
+    assert_eq!(body[1]["expr"]["record"], "Meta");
+    assert_eq!(body[1]["expr"]["updates"][0]["name"], "size");
+    assert_eq!(body[1]["expr"]["updates"][0]["field_index"], 1);
+    assert_eq!(body[2]["expr"]["type"], "RecordField");
+    assert_eq!(body[2]["expr"]["record"], "Meta");
+    assert_eq!(body[2]["expr"]["field"], "size");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_record_with_update_unknown_field() {
+    let source = r#"
+record Meta {
+  ptr: i64
+}
+
+static box Main {
+  main() {
+local meta = Meta { ptr: 1 }
+local next = meta with { size: 3 }
+return 0
+  }
+}
+"#;
+
+    let error =
+        source_to_program_json_v0_strict(source).expect_err("unknown update field must reject");
+    assert!(error.contains("[record/field-read] Meta has no field `size`"));
+}
+
+#[test]
 fn source_to_program_json_v0_emits_type_alias_decls_metadata_only() {
     let source = r#"
 type Bytes = usize
