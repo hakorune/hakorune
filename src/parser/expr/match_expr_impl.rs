@@ -282,17 +282,36 @@ impl NyashParser {
             .cloned()
             .collect::<Vec<_>>();
         if !missing.is_empty() {
+            let is_prelude_enum = is_result_option_prelude_enum(&enum_name);
+            let missing_variants = missing
+                .iter()
+                .map(|variant| {
+                    if is_prelude_enum {
+                        format!("{}::{}", enum_name, variant)
+                    } else {
+                        variant.clone()
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join(", ");
             let suffix = if else_expr.is_some() {
-                " (`_` does not satisfy known-enum exhaustiveness)"
+                if is_prelude_enum {
+                    " (`_` does not satisfy known-enum exhaustiveness; add explicit prelude variant arm)"
+                } else {
+                    " (`_` does not satisfy known-enum exhaustiveness)"
+                }
+            } else {
+                ""
+            };
+            let prefix = if is_prelude_enum {
+                "[enum/missing-arm][prelude] "
             } else {
                 ""
             };
             return Err(ParseError::InvalidMatchPattern {
                 detail: format!(
-                    "non-exhaustive enum match for `{}`; missing variant(s): {}{}",
-                    enum_name,
-                    missing.join(", "),
-                    suffix
+                    "{}non-exhaustive enum match for `{}`; missing variant(s): {}{}",
+                    prefix, enum_name, missing_variants, suffix
                 ),
                 line: anchor_line,
             });
@@ -637,4 +656,8 @@ fn tuple_pattern_bindings(
             binding_name: binding_name.clone(),
         })
         .collect())
+}
+
+fn is_result_option_prelude_enum(enum_name: &str) -> bool {
+    matches!(enum_name, "Option" | "Result")
 }

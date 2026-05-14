@@ -250,7 +250,7 @@ local r = Result::Err(AllocError::ZeroSize)
 | `ARRAY-002C` | complete as `293x-317`; unsupported Array inference fail-fast | Stage1 diagnostics |
 | `ARRAY-002D` | complete as `293x-318`; ArrayBox JSON v0/backend guard and PackedArray no-fallback guard | Stage1/backend guard |
 | `RESULT-001` | complete as `293x-314`; Result/Option prelude and explicit variant diagnostics | Stage1 enum/prelude |
-| `RESULT-002A` | prelude enum missing-arm diagnostics | Stage1 diagnostics |
+| `RESULT-002A` | complete as `293x-319`; prelude enum missing-arm diagnostics | Stage1 diagnostics |
 | `RESULT-002B` | prelude enum payload diagnostics | Stage1 diagnostics |
 | `RESULT-002C` | known-enum exhaustiveness underscore rules | Stage1 diagnostics |
 | `RESULT-002D` | generic enum expected-type diagnostics without inference | Stage1 diagnostics |
@@ -292,6 +292,7 @@ unsupported `Array<T>` inference fail-fast diagnostics
 ordinary `Array<T>` JSON v0 / ArrayBox route guard
 Result/Option diagnostics
 Result/Option prelude enum registry
+Result/Option prelude missing-arm diagnostics
 PackedArray eligibility and backend fail-fast
 ```
 

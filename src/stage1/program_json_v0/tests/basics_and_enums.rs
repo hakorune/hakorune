@@ -681,6 +681,48 @@ return match value {
 }
 
 #[test]
+fn source_to_program_json_v0_rejects_prelude_option_missing_arm_diagnostic() {
+    let source = r#"
+static box Main {
+  main() {
+local value = Option::Some(1)
+return match value {
+  Some(v) => v
+}
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("prelude Option missing arm should fail with explicit diagnostic");
+    assert!(error.contains("[enum/missing-arm][prelude]"), "{error}");
+    assert!(error.contains("Option"), "{error}");
+    assert!(error.contains("Option::None"), "{error}");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_prelude_result_missing_arm_diagnostic() {
+    let source = r#"
+static box Main {
+  main() {
+local value = Result::Ok(1)
+return match value {
+  Ok(v) => v
+  _ => 0
+}
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("prelude Result missing arm should fail with explicit diagnostic");
+    assert!(error.contains("[enum/missing-arm][prelude]"), "{error}");
+    assert!(error.contains("Result::Err"), "{error}");
+    assert!(error.contains("`_` does not satisfy known-enum exhaustiveness"), "{error}");
+    assert!(error.contains("explicit prelude variant arm"), "{error}");
+}
+
+#[test]
 fn source_to_program_json_v0_emits_record_enum_payload_box_contract() {
     let source = r#"
 enum Token {

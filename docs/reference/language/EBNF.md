@@ -212,6 +212,7 @@ Notes
 - `Option<T>` and `Result<T,E>` are built-in enum prelude surfaces in
   RESULT-001. They use qualified constructors such as `Option::None` and
   `Result::Ok(value)`. Dot variants are rejected for known enum variants.
+  RESULT-002A adds tagged prelude missing-arm diagnostics.
 - Static const tables: `static const NAME: u16[] = [...]` and `NAME[index]` reads are accepted for the narrow M11b row. Initializer elements may use side-effect-free integer const expressions; const fn is still reserved.
 
 ### C197 Logical Condition Surface

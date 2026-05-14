@@ -26,13 +26,13 @@ Related:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `RESULT-002A prelude enum missing-arm diagnostics`
+- current blocker token: `RESULT-002B prelude enum payload diagnostics`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after ARRAY-002D; next blocker is RESULT-002A prelude enum missing-arm diagnostics
+- continue phase-293x after RESULT-002A; next blocker is RESULT-002B prelude enum payload diagnostics
 - keep `LOOP-003` open until a JoinIR/CorePlan route is selected; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

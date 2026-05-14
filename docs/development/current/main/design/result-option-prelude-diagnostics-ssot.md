@@ -6,6 +6,7 @@ Scope: RESULT-001 Result/Option prelude and enum variant diagnostics.
 Related:
   - docs/development/current/main/design/array-result-option-canonical-surface-ssot.md
   - docs/development/current/main/design/enum-sum-and-generic-surface-ssot.md
+  - docs/development/current/main/design/result-option-missing-arm-diagnostics-ssot.md
   - docs/reference/language/EBNF.md
 ---
 
@@ -67,6 +68,7 @@ Stage1 owns:
 Option/Result constructor validation
 Option::Some nullish payload rejection
 dot variant fail-fast diagnostics
+prelude missing-arm diagnostics as RESULT-002A
 generic arity diagnostics through existing GEN-002 checker
 ```
 
@@ -75,7 +77,7 @@ Stage1 does not own here:
 ```text
 try / throw / ? sugar
 guard-let
-match exhaustiveness expansion beyond existing known-enum lane
+new match semantics beyond existing known-enum lane
 generic enum type inference
 ```
 
