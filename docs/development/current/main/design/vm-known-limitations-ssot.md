@@ -78,3 +78,34 @@ page fields/methods are resolved through VM object field/key route
 
 This reinforces the current split: keep scalar VM proofs, but use LLVM/EXE as the
 primary acceptance backend for MIMAP-011+ object-heavy allocator routes.
+
+## Follow-up investigation task
+
+Task id: `VM-LIM-001-FOLLOWUP`.
+
+Focus:
+
+```text
+ArrayBox-held InstanceBox identity across push/get
+object_key_for Arc ptr dependency
+returned user/page object as method receiver
+```
+
+Scope:
+
+- read-only or diagnostic-first unless a dedicated VM row is opened
+- use shell timeout and VM step budget for every reproduction attempt
+- do not make this a MIMAP-011+ blocker
+
+Candidate files:
+
+```text
+src/boxes/array/storage.rs
+src/core/instance_v2.rs
+src/backend/mir_interpreter/helpers.rs
+src/backend/mir_interpreter/handlers/boxes_object_fields.rs
+lang/src/hako_alloc/memory/page_queue_box.hako
+```
+
+Retire follow-up when `VM-LIM-001` itself is retired or a dedicated VM fix row is
+opened with its own guard and acceptance contract.
