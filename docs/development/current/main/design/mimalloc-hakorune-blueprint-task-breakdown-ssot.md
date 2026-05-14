@@ -51,6 +51,30 @@ task rows
 
 Do not vendor upstream source into `docs/`, `src/`, `lang/`, or phase folders.
 
+## Current Upstream Pin
+
+`MIMAP-001` pins the upstream reference tree as local-only input:
+
+```text
+upstream:
+  https://github.com/microsoft/mimalloc.git
+
+local path:
+  .external/upstream/mimalloc/
+
+commit:
+  fef6b0dd70f9d7fa0750b0d0b9fbb471203b94cd
+
+describe:
+  fef6b0d
+```
+
+Pin details and the initial source inventory window live in:
+
+```text
+docs/development/current/main/investigations/mimalloc-upstream-pin.md
+```
+
 ## Port Reading
 
 mimalloc should not be line-by-line translated.
@@ -138,4 +162,3 @@ no hooks / #[global_allocator]
 no silent fallback for unsupported substrate
 no new language syntax without Decision docs
 ```
-

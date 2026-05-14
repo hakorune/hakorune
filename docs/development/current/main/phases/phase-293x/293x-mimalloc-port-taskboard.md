@@ -10,8 +10,8 @@ Canonical SSOT:
 
 ## Current Status
 
-This board is parked until the current language-minimal blocker set reaches a
-safe handoff point.
+This board is active. The language-minimal prerequisite set has reached the
+safe handoff point for mimalloc blueprint work.
 
 Preferred handoff point:
 
@@ -20,7 +20,8 @@ LOOP-003C/D complete
 PACKED-003/004 complete
 ```
 
-Blueprint and inventory rows are now the active lane entry. Current row: `MIMAP-001 upstream source pin`.
+Blueprint and inventory rows are now the active lane entry. Current row:
+`MIMAP-002 source concept inventory`.
 
 ## Active Source Policy
 
@@ -38,8 +39,8 @@ Tracked output is docs only.
 
 | Row | Status | Purpose | Expected size |
 | --- | --- | --- | --- |
-| `MIMAP-001` | active | Upstream source pin: URL, commit/tag, license, inspected files, local path. | 1 commit |
-| `MIMAP-002` | ready | Source concept inventory: segment/page/block/heap/free-list/size-class/os/stats. | 1-2 commits |
+| `MIMAP-001` | landed | Upstream source pin: URL, commit/tag, license, inspected files, local path. | 1 commit |
+| `MIMAP-002` | active | Source concept inventory: segment/page/block/heap/free-list/size-class/os/stats. | 1-2 commits |
 | `MIMAP-003` | ready | Lifecycle rewrite blueprint: enum states, transitions, guard points. | 1-2 commits |
 | `MIMAP-004` | ready | Substrate/representation gap ledger from source evidence. | 1-2 commits |
 
@@ -63,8 +64,8 @@ Tracked output is docs only.
 
 ## Readiness Checklist
 
-- [ ] `.external/` is ignored before upstream source is cloned.
-- [ ] Upstream pin doc records commit/tag and license.
+- [x] `.external/` is ignored before upstream source is cloned.
+- [x] Upstream pin doc records commit/tag and license.
 - [ ] Source concepts are classified as `near-transcription`, `lifecycle-rewrite`, `substrate-gap`, `representation-gap`, or `deferred-unsafe`.
 - [ ] Blueprint uses Hakorune canonical surface only.
 - [ ] Provisional syntax is clearly marked and does not become implementation by accident.
@@ -79,4 +80,3 @@ no OSVM/provider/global allocator activation
 no hooks / #[global_allocator]
 no untracked design decision in implementation
 ```
-

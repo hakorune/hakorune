@@ -163,3 +163,6 @@ consult-*.zip
 # Artifacts (local generated bundles / logs / consult packs)
 /artifacts/
 *.db
+
+# External upstream source checkouts (untracked)
+.external/
