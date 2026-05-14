@@ -4,6 +4,7 @@ This is the entry point for the current Hakorune / Nyash language reference.
 
 Current canonical surface:
 
+- Minimal surface policy: development/current/main/design/language-minimal-surface-ssot.md
 - Grammar and accepted rows: reference/language/EBNF.md
 - Type and enum surface: reference/language/types.md
 - Option / Result enum prelude: reference/language/option.md

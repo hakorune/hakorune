@@ -116,6 +116,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_uses_metadata_capsule_guard.sh` | USES-001 の method-level `uses` Stage0 metadata capsule を固定し、contextual syntax / AST JSON / Program JSON v0 transport と capability checker 不在を検証する。 |
 | `tools/checks/k2_wide_generic_type_annotation_metadata_guard.sh` | GEN-001 の generic type annotation Stage0 metadata capsule を固定し、box/record/function/type alias の TYPE_REF transport と Stage1 semantics 不在を検証する。 |
 | `tools/checks/k2_wide_generic_arity_checker_guard.sh` | GEN-002 の Stage1 generic arity checker を固定し、既知 generic type reference の型引数数 mismatch を fail-fast で検出する。 |
+| `tools/checks/k2_wide_language_surface_admission_guard.sh` | language minimal surface の入場審査を固定し、小さい surface / 強い semantics / fold-first rule が docs 入口から辿れることを検証する。 |
 | `tools/checks/k2_wide_array_result_option_surface_guard.sh` | ARRAY-RESULT-SSOT の docs-only canonical surface を固定し、`Array<T>` / `PackedArray<T>` / `Result<T,E>` / `Option<T>` / `Type::Variant` と後続タスク分解を検証する。 |
 | `tools/checks/k2_wide_enum_variant_canonical_surface_guard.sh` | ENUMVAR-001 の canonical `Type::Variant` surface を固定し、transition metadata の `Enum::Value` transport と legacy dot normalization を検証する。 |
 | `tools/checks/k2_wide_localtype_metadata_capsule_guard.sh` | LOCALTYPE-001 の `local name: Type` metadata capsule を固定し、AST/AST JSON/Program JSON v0 transport と単一束縛制約を検証する。 |

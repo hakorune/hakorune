@@ -20,6 +20,25 @@ Related:
 Hakorune keeps one canonical spelling for each core idea.
 Before adding a keyword, prefer extending an existing header shape if it does not create ambiguous meaning.
 
+Small surface, strong semantics:
+
+```text
+surface syntax:
+  keep small
+
+semantic metadata:
+  may grow when it makes compiler facts explicit
+
+verifier / CorePlan / backend capability:
+  may grow behind fail-fast gates
+
+Stage0:
+  read / transport / trivial desugar only
+
+Stage1:
+  owns language meaning
+```
+
 This document fixes the current simplification rule:
 
 ```text
@@ -48,6 +67,61 @@ lifecycle relation:
   transition
 ```
 
+## Surface admission checklist
+
+Use this checklist before accepting any new language surface.
+
+| Question | Required decision |
+| --- | --- |
+| Can an existing canonical family express it? | Do not add a new keyword; fold into the existing family. |
+| Is it only an alias for an existing spelling? | Keep it non-canonical or reject it. |
+| Would Stage0 need to own semantic meaning? | Reject the shape or move the meaning to a Stage1 row. |
+| Can the compiler learn it as type metadata / verifier facts / CorePlan facts? | Prefer metadata/facts over syntax. |
+| Does unsupported backend behavior exist? | Define fail-fast behavior before implementation. |
+| Does it require inference? | Split inference into its own Stage1 row; do not hide it in parser work. |
+| Does it add sugar for convenience only? | Defer until a real code owner needs it. |
+
+Allowed growth:
+
+```text
+type metadata
+brand facts
+record layout facts
+verifier facts
+CorePlan lowering recipes
+fail-fast capability gates
+standard protocol contracts after concrete delegation is insufficient
+```
+
+Default-forbidden growth:
+
+```text
+new keywords
+parallel aliases
+duplicate sugar families
+implicit inference
+silent fallback
+Stage0 semantic checkers
+```
+
+## Fold-first rule
+
+When a feature request appears, fold it into the existing family first.
+
+| Requested family | Canonical fold |
+| --- | --- |
+| `while` / `for` / `repeat` / `until` / `do` | `loop` header shapes |
+| `try` / `throw` / `?` | `Result<T,E>` + `guard` + `match` |
+| `class` / `extends` / `super` | `box` + `delegate`; protocol later only if needed |
+| `struct` / `data` / `valuebox` | `record` |
+| `Vec<T>` / `List<T>` / canonical `T[]` | `Array<T>` |
+| broad `unsafe` | `uses` / capability facts |
+| event keyword syntax | box protocol / future interface contract, not syntax |
+| `state` keyword | `enum` + `transition` |
+
+This is the main guardrail: Hakorune can gain richer meaning without gaining a
+large surface.
+
 ## Canonical keyword families
 
 | Family | Canonical surface |
@@ -68,6 +142,16 @@ lifecycle relation:
 | capability declaration | `uses` |
 | current import | `using` |
 | current static table | `static const` |
+
+Reserved protocol surface:
+
+```text
+interface:
+  deferred until concrete delegate/exposes cannot express the method-set need
+
+impl / trait-object / default methods / associated types / blanket impl:
+  not MVP
+```
 
 ## Not canonical for MVP
 

@@ -27,6 +27,16 @@ typed-collection route guard row after ARRAY-002C.
 
 ## Row rules
 
+Feature admission policy:
+
+```text
+docs/development/current/main/design/language-minimal-surface-ssot.md
+```
+
+Before opening a row, apply the surface admission checklist there. Prefer
+folding into an existing canonical family over adding a keyword or parallel
+alias.
+
 Every task must keep the Stage0/Stage1 split explicit.
 
 ```text
