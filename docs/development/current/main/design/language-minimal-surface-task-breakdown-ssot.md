@@ -74,7 +74,7 @@ Retire condition:
 | Area | Status | Next actionable row |
 | --- | --- | --- |
 | Minimal keyword surface | docs accepted | no immediate code row |
-| Loop-only repetition | LoopRange MVP complete through carrier policy | `PACKED-003 source PackedArray direct-read consumption` |
+| Loop-only repetition | LoopRange MVP complete through carrier policy | no immediate loop row |
 | Loop cleanup / PackedArray gate | complete through `293x-310` | no immediate cleanup row |
 | No-inheritance delegation | exposes lowering complete | `DEL-004 legacy quarantine migration` |
 | Brand/type | brand checker complete; type alias parser capsule complete | `TYPE-002 Stage1 alias diagnostics` |
@@ -83,7 +83,7 @@ Retire condition:
 | Enum transition lifecycle | metadata capsule complete | `TRANS-002 transition legality checker` |
 | Result/Option | guard-let narrow sugar complete | no immediate Result/Option row |
 | Generic containers | generic type annotation metadata and arity checker complete | next substitution/semantics row deferred |
-| PackedArray | source auto-use pilot metadata complete | `PACKED-003 source PackedArray direct-read consumption` after LoopRange facts |
+| PackedArray | source direct-read consumption metadata complete | `PACKED-004 source PackedArray backend fail-fast hardening` |
 | Array / Result / Option canonical surface | docs accepted; LOCALTYPE/ENUMVAR/ARRAY/RESULT/GUARDLET rows complete | no immediate code row |
 | Uses/capability | method-level metadata capsule complete | `USES-002 capability checker` |
 | Span/view | planned later | `SPAN-001 Span API design row` |
@@ -313,6 +313,8 @@ language work, start here:
 6. `LOOP-003B Stage1 LoopRange lowering pilot` (complete as `293x-326`)
 7. `LOOP-003C LoopRange verifier facts and read-only index proof surface` (complete as `293x-327`)
 8. `LOOP-003D LoopRange carrier policy` (complete as `293x-328`)
+9. `PACKED-003 source PackedArray direct-read consumption` (complete as `293x-329`)
+10. `PACKED-004 source PackedArray backend fail-fast hardening`
 9. `BRAND-001 Stage0 brand declaration metadata capsule` (complete as `293x-275`)
 10. `BRAND-002 Stage1 brand constructor unwrap policy` (complete as `293x-276`)
 11. `BRAND-003 Stage1 brand mismatch checker` (complete as `293x-277`)
@@ -389,7 +391,7 @@ Executable mimalloc slices should wait until at least:
 
 ```text
 LOOP-003C/D complete
-PACKED-003/004
+PACKED-004
 ```
 
 Canonical handoff board:

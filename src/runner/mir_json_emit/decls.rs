@@ -282,6 +282,35 @@ pub(super) fn collect_source_packed_array_autouse_pilot_plan_values(
         .collect()
 }
 
+pub(super) fn collect_source_packed_array_direct_read_consumption_plan_values(
+    module: &crate::mir::MirModule,
+) -> Vec<serde_json::Value> {
+    module
+        .metadata
+        .source_packed_array_direct_read_consumption_plans
+        .iter()
+        .map(|plan| {
+            json!({
+                "owner_box": plan.owner_box.as_str(),
+                "source_field": plan.source_field_name.as_str(),
+                "declared_type": plan.declared_type_name.as_str(),
+                "record_name": plan.record_name.as_str(),
+                "layout_id": plan.layout_id,
+                "record_field": plan.record_field_name.as_str(),
+                "record_field_slot": plan.record_field_slot,
+                "storage": plan.storage.as_str(),
+                "read_kind": plan.read_kind.as_str(),
+                "source_declared_packed": plan.source_declared_packed,
+                "direct_indexed_field_reads_consumed": plan.direct_indexed_field_reads_consumed,
+                "private_runtime_storage_consumed": plan.private_runtime_storage_consumed,
+                "public_array_get_materialization_enabled": plan.public_array_get_materialization_enabled,
+                "backend_lowering_enabled": plan.backend_lowering_enabled,
+                "boxed_fallback_enabled": plan.boxed_fallback_enabled,
+            })
+        })
+        .collect()
+}
+
 pub(super) fn collect_hako_alloc_aligned_small_packed_store_pilot_plan_values(
     module: &crate::mir::MirModule,
 ) -> Vec<serde_json::Value> {

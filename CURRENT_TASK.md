@@ -47,7 +47,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc blueprint / port taskboard:
   `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
 - current blocker token:
-  `PACKED-003 source PackedArray direct-read consumption`
+  `PACKED-004 source PackedArray backend fail-fast hardening`
 - primary mode: language minimal surface lane; keep Stage0 thin and Stage1 semantic rows small
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -61,13 +61,13 @@ Scope: current lane / next lane / restart order only.
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
 - resume point: continue Phase 293x after PACKED-002; next blocker is
-  PACKED-003 source PackedArray direct-read consumption. Keep LoopRange on the Stage1 route; do not source-desugar range loops.
+  PACKED-004 source PackedArray backend fail-fast hardening. Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
 ## Task Order
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  PACKED-003 source PackedArray direct-read consumption
+  PACKED-004 source PackedArray backend fail-fast hardening
 - optional future allocator-provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`

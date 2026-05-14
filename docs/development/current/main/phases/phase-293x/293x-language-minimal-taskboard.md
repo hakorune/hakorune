@@ -2,7 +2,7 @@
 
 Status: Active
 Lane: `phase-293x language minimal surface lane`
-Current blocker token: `PACKED-003 source PackedArray direct-read consumption`
+Current blocker token: `PACKED-004 source PackedArray backend fail-fast hardening`
 
 ## Purpose
 
@@ -21,6 +21,7 @@ docs/development/current/main/design/language-minimal-surface-task-breakdown-sso
 - [x] `LOOP-003B` JSON v0 LoopRange lowering pilot
 - [x] `LOOP-003C` LoopRange function metadata facts
 - [x] `LOOP-003D` LoopRange carrier policy
+- [x] `PACKED-003` source PackedArray direct-read consumption
 - [x] `PACKED-001` PackedArray declaration eligibility gate
 - [x] `ENUMVAR-001` enum variant canonical `Type::Variant` surface
 - [x] `LOCALTYPE-001` local type annotation metadata capsule
@@ -39,7 +40,7 @@ docs/development/current/main/design/language-minimal-surface-task-breakdown-sso
 
 ## Current split rows
 
-- [ ] `PACKED-003` source PackedArray direct-read consumption
+- [ ] `PACKED-004` source PackedArray backend fail-fast hardening
 
 ## Blocked / deferred rows
 
@@ -67,7 +68,8 @@ no guard-let before RESULT-002 diagnostics
 - `LOOP-003B`: landed JSON v0 LoopRange lowering pilot.
 - `LOOP-003C`: landed function-level loop_range_facts metadata.
 - `LOOP-003D`: landed carrier policy; fresh body-local writes are allowed while loop-carried writes remain fail-fast.
-- `PACKED-003`: next source PackedArray direct-read consumption.
+- `PACKED-003`: landed source PackedArray direct-read consumption metadata.
+- `PACKED-004`: next backend fail-fast hardening.
 
 ## Remaining implementation rows estimate (2026-05-14)
 
@@ -75,7 +77,6 @@ no guard-let before RESULT-002 diagnostics
 
 | Row | Purpose | Expected size |
 | --- | --- | --- |
-| `PACKED-003` | Consume source `PackedArray<Record>` pilot metadata in the non-escaping direct field-read path. | 2-3 commits |
 | `PACKED-004` | Backend fail-fast hardening for source PackedArray required routes. | 1 commit |
 
 After this set, switch to the mimalloc blueprint board:

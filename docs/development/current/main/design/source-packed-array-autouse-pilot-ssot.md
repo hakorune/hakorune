@@ -56,6 +56,37 @@ backend_lowering_enabled = false
 boxed_fallback_enabled = false
 ```
 
+## PACKED-003 Direct-read Consumption
+
+PACKED-003 consumes `source_packed_array_autouse_pilot_plans` into:
+
+```text
+source_packed_array_direct_read_consumption_plans
+```
+
+The row is per record field and records:
+
+```text
+owner_box
+source_field
+declared_type
+record_name
+layout_id
+record_field
+record_field_slot
+storage
+read_kind = source_packed_record_field_direct_read_v0
+source_declared_packed = true
+direct_indexed_field_reads_consumed = true
+private_runtime_storage_consumed = true
+public_array_get_materialization_enabled = false
+backend_lowering_enabled = false
+boxed_fallback_enabled = false
+```
+
+This is still metadata-only. Runtime/backend lowering, public record
+materialization, hako_alloc migration, and boxed fallback remain disabled.
+
 ## Stage Split
 
 Stage1/MIR owns:
@@ -64,6 +95,7 @@ Stage1/MIR owns:
 source PackedArray<T> declaration-site metadata
 link to existing C209 non-escaping packed ArrayBox pilot rows
 MIR JSON exposure for the metadata row
+PACKED-003 direct-read consumption metadata
 ```
 
 Stage1/MIR does not own here:

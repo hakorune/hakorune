@@ -26,13 +26,13 @@ Related:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `PACKED-003 source PackedArray direct-read consumption`
+- current blocker token: `PACKED-004 source PackedArray backend fail-fast hardening`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after PACKED-002; next blocker is PACKED-003 source PackedArray direct-read consumption
+- continue phase-293x after PACKED-002; next blocker is PACKED-004 source PackedArray backend fail-fast hardening
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

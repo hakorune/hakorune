@@ -677,6 +677,30 @@ pub struct SourcePackedArrayAutoUsePilotPlan {
     pub boxed_fallback_enabled: bool,
 }
 
+/// Source PackedArray<Record> direct-read consumption row.
+///
+/// This is the PACKED-003 consumer-facing plan derived from explicit source
+/// PackedArray declarations plus record layout facts. It remains metadata-only:
+/// runtime/backend lowering and public record materialization stay disabled.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SourcePackedArrayDirectReadConsumptionPlan {
+    pub owner_box: String,
+    pub source_field_name: String,
+    pub declared_type_name: String,
+    pub record_name: String,
+    pub layout_id: u32,
+    pub record_field_name: String,
+    pub record_field_slot: u32,
+    pub storage: String,
+    pub read_kind: String,
+    pub source_declared_packed: bool,
+    pub direct_indexed_field_reads_consumed: bool,
+    pub private_runtime_storage_consumed: bool,
+    pub public_array_get_materialization_enabled: bool,
+    pub backend_lowering_enabled: bool,
+    pub boxed_fallback_enabled: bool,
+}
+
 /// Metadata-only pilot plan for aligned-small hako_alloc metadata packed store.
 ///
 /// This consumes the C209 private packed ArrayBox pilot for the
@@ -805,6 +829,12 @@ pub struct ModuleMetadata {
 
     /// Metadata-only source `PackedArray<T>` auto-use pilot rows.
     pub source_packed_array_autouse_pilot_plans: Vec<SourcePackedArrayAutoUsePilotPlan>,
+
+    /// Metadata-only source `PackedArray<Record>` direct-read consumption rows.
+    /// These rows expose per-record-field direct read slots for future consumers
+    /// without enabling runtime/backend lowering.
+    pub source_packed_array_direct_read_consumption_plans:
+        Vec<SourcePackedArrayDirectReadConsumptionPlan>,
 
     /// Metadata-only aligned-small hako_alloc packed-store pilot rows.
     pub hako_alloc_aligned_small_packed_store_pilot_plans:

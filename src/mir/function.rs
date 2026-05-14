@@ -21,7 +21,7 @@ pub use types::{
     FunctionMetadata, FunctionSignature, FunctionStats, HakoAllocAlignedSmallPackedStorePilotPlan,
     HakoAllocHugePagePackedStorePilotPlan, LoopRangeFact, MirEnumDecl, MirEnumVariantDecl,
     MirFunction, MirModule, MirParamDecl, ModuleMetadata, ModuleStats, RecordDecl,
-    RecordLayoutFieldPlan, RecordLayoutPlan, SourcePackedArrayAutoUsePilotPlan, StaticDataPlan,
-    TypedObjectFieldPlan,
+    RecordLayoutFieldPlan, RecordLayoutPlan, SourcePackedArrayAutoUsePilotPlan,
+    SourcePackedArrayDirectReadConsumptionPlan, StaticDataPlan, TypedObjectFieldPlan,
     TypedObjectFieldStorage, TypedObjectPlan, UserBoxFieldDecl,
 };
