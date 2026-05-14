@@ -19,8 +19,9 @@ pub use types::{
     ArrayRecordPackedAutoUsePilotPlan, ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan,
     ClosureBodyId, ExactNumericRuntimeCheckContract, ExactNumericRuntimeCheckContractKind,
     FunctionMetadata, FunctionSignature, FunctionStats, HakoAllocAlignedSmallPackedStorePilotPlan,
-    HakoAllocHugePagePackedStorePilotPlan, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
-    MirParamDecl, ModuleMetadata, ModuleStats, RecordDecl, RecordLayoutFieldPlan, RecordLayoutPlan,
-    SourcePackedArrayAutoUsePilotPlan, StaticDataPlan, TypedObjectFieldPlan,
+    HakoAllocHugePagePackedStorePilotPlan, LoopRangeFact, MirEnumDecl, MirEnumVariantDecl,
+    MirFunction, MirModule, MirParamDecl, ModuleMetadata, ModuleStats, RecordDecl,
+    RecordLayoutFieldPlan, RecordLayoutPlan, SourcePackedArrayAutoUsePilotPlan, StaticDataPlan,
+    TypedObjectFieldPlan,
     TypedObjectFieldStorage, TypedObjectPlan, UserBoxFieldDecl,
 };

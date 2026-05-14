@@ -13,7 +13,10 @@
 use super::super::ast::{ExprV0, StmtV0};
 use super::{expr, lower_stmt_list_with_vars, new_block, BridgeEnv, LoopContext};
 use crate::ast::Span;
-use crate::mir::{BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction, MirInstruction, ValueId};
+use crate::mir::{
+    BasicBlockId, BinaryOp, CompareOp, ConstValue, LoopRangeFact, MirFunction, MirInstruction,
+    ValueId,
+};
 use std::collections::BTreeMap;
 
 pub(super) fn lower_loop_range_stmt(
@@ -93,6 +96,22 @@ pub(super) fn lower_loop_range_stmt(
         vec![(preheader, start_v), (step_bb, next_index_v)],
         Span::unknown(),
     )?;
+
+    f.metadata.loop_range_facts.push(LoopRangeFact {
+        index_name: var_name.to_string(),
+        start_value: start_v,
+        end_value: end_v,
+        index_phi,
+        preheader_bb: preheader,
+        header_bb,
+        body_bb,
+        step_bb,
+        exit_bb,
+        step: 1,
+        end_exclusive: true,
+        index_read_only: true,
+        body_writes_supported: false,
+    });
 
     *vars = base_vars;
     Ok(exit_bb)

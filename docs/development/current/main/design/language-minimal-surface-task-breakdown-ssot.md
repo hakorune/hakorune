@@ -74,7 +74,7 @@ Retire condition:
 | Area | Status | Next actionable row |
 | --- | --- | --- |
 | Minimal keyword surface | docs accepted | no immediate code row |
-| Loop-only repetition | lowering pilot complete | `LOOP-003C verifier facts and carrier policy` |
+| Loop-only repetition | facts complete | `LOOP-003D carrier policy` |
 | Loop cleanup / PackedArray gate | complete through `293x-310` | no immediate cleanup row |
 | No-inheritance delegation | exposes lowering complete | `DEL-004 legacy quarantine migration` |
 | Brand/type | brand checker complete; type alias parser capsule complete | `TYPE-002 Stage1 alias diagnostics` |
@@ -115,7 +115,7 @@ loop {
 | `LOOP-002 status` | Complete as `293x-272`; parser accepts paren-less and parenthesized LoopRange headers and transports LoopRange metadata only. | Stage0 complete |
 | `LOOP-003A Stage1 LoopRange route decision` | Complete as `293x-325`; fixes metadata/executable route and explicit no-desugar contract. | Stage1 route complete |
 | `LOOP-003B Stage1 LoopRange lowering pilot` | Complete as `293x-326`; entry-bound capture, header index PHI, end-exclusive range, step=1, continue-safe step, carrier writes frozen. | Stage1 pilot complete |
-| `LOOP-003C LoopRange verifier facts` | Expose index/bounds facts such as `i < end`; add read-only index diagnostic surface. | Stage1 verifier |
+| `LOOP-003C LoopRange verifier facts` | Complete as `293x-327`; publishes function-level `loop_range_facts` for index/bound/block facts and read-only index metadata. | Stage1 verifier complete |
 | `LOOP-003D LoopRange carrier policy` | Define/support a narrow carrier subset or keep body writes frozen with stable diagnostics. | Stage1 semantics |
 | `LOOP-004 canonical loop formatter/docs` | Make paren-less `loop i in a..b` the canonical spelling; optional paren compatibility requires a separate decision. | docs/tooling |
 | `LOOPCLEAN-001 loop cleanup phase` | Complete as `293x-289`; open BoxShape cleanup before PackedArray work. | docs |
@@ -311,7 +311,7 @@ language work, start here:
 4. `DEL-003 Stage1 delegate exposes lowering`
 5. `LOOP-003A Stage1 LoopRange route decision` (complete as `293x-325`)
 6. `LOOP-003B Stage1 LoopRange lowering pilot` (complete as `293x-326`)
-7. `LOOP-003C LoopRange verifier facts and read-only index proof surface`
+7. `LOOP-003C LoopRange verifier facts and read-only index proof surface` (complete as `293x-327`)
 8. `LOOP-003D LoopRange carrier policy`
 9. `BRAND-001 Stage0 brand declaration metadata capsule` (complete as `293x-275`)
 10. `BRAND-002 Stage1 brand constructor unwrap policy` (complete as `293x-276`)
@@ -369,8 +369,8 @@ LOOP-003C:
 
 `LOOP-003B` landed the first executable JSON v0 bridge LoopRange pilot:
 entry-bound capture, header index PHI, end-exclusive compare, fixed step 1, and
-continue-to-step routing. The pilot freezes body writes until carrier policy and
-verifier facts land in `LOOP-003C`.
+continue-to-step routing. `LOOP-003C` then published function-level
+`loop_range_facts`; carrier writes remain frozen until `LOOP-003D`.
 
 ## mimalloc blueprint handoff (2026-05-14)
 

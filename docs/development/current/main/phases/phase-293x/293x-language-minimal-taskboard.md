@@ -2,7 +2,7 @@
 
 Status: Active
 Lane: `phase-293x language minimal surface lane`
-Current blocker token: `LOOP-003C Stage1 LoopRange verifier facts and carrier policy`
+Current blocker token: `LOOP-003D LoopRange carrier policy`
 
 ## Purpose
 
@@ -19,6 +19,7 @@ docs/development/current/main/design/language-minimal-surface-task-breakdown-sso
 
 - [x] `LOOP-003A` Stage1 LoopRange route decision
 - [x] `LOOP-003B` JSON v0 LoopRange lowering pilot
+- [x] `LOOP-003C` LoopRange function metadata facts
 - [x] `PACKED-001` PackedArray declaration eligibility gate
 - [x] `ENUMVAR-001` enum variant canonical `Type::Variant` surface
 - [x] `LOCALTYPE-001` local type annotation metadata capsule
@@ -37,7 +38,6 @@ docs/development/current/main/design/language-minimal-surface-task-breakdown-sso
 
 ## Current split rows
 
-- [ ] `LOOP-003C` LoopRange verifier facts and read-only index proof surface
 - [ ] `LOOP-003D` LoopRange carrier policy for body writes and loop-carried locals
 
 ## Blocked / deferred rows
@@ -59,12 +59,13 @@ no guard-let before RESULT-002 diagnostics
 
 - `LOOP-003A`: landed Stage1 route decision and explicit JSON bridge fail-fast receiver.
 - `LOOP-003B`: next Stage1 LoopRange lowering pilot.
-- `LOOP-003C`: later verifier facts and read-only index enforcement.
+- `LOOP-003C`: landed function-level loop_range_facts metadata.
 
 ## LOOP-003B update (2026-05-14)
 
 - `LOOP-003B`: landed JSON v0 LoopRange lowering pilot.
-- `LOOP-003C`: next verifier facts, read-only index proof surface, and carrier policy.
+- `LOOP-003C`: landed function-level loop_range_facts metadata.
+- `LOOP-003D`: next carrier policy for body writes and loop-carried locals.
 
 ## Remaining implementation rows estimate (2026-05-14)
 
@@ -72,7 +73,6 @@ no guard-let before RESULT-002 diagnostics
 
 | Row | Purpose | Expected size |
 | --- | --- | --- |
-| `LOOP-003C` | Emit/read LoopRange facts: index symbol, start/end bound, end-exclusive rule, read-only index diagnostic surface. | 1-2 commits |
 | `LOOP-003D` | Define carrier policy for body writes; either support a narrow carrier subset or freeze it with stable diagnostics. | 1-2 commits |
 | `PACKED-003` | Consume source `PackedArray<Record>` pilot metadata in the non-escaping direct field-read path. | 2-3 commits |
 | `PACKED-004` | Backend fail-fast hardening for source PackedArray required routes. | 1 commit |

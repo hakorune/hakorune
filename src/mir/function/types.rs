@@ -78,6 +78,28 @@ pub struct MirParamDecl {
     pub declared_type_name: Option<String>,
 }
 
+/// Stage1 LoopRange lowering facts.
+///
+/// These facts are emitted by the executable LoopRange route so later verifier
+/// and backend rows can consume a typed metadata surface instead of
+/// rediscovering range-loop shape from raw CFG blocks.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LoopRangeFact {
+    pub index_name: String,
+    pub start_value: ValueId,
+    pub end_value: ValueId,
+    pub index_phi: ValueId,
+    pub preheader_bb: BasicBlockId,
+    pub header_bb: BasicBlockId,
+    pub body_bb: BasicBlockId,
+    pub step_bb: BasicBlockId,
+    pub exit_bb: BasicBlockId,
+    pub step: i64,
+    pub end_exclusive: bool,
+    pub index_read_only: bool,
+    pub body_writes_supported: bool,
+}
+
 /// A MIR function in SSA form
 #[derive(Debug, Clone)]
 pub struct MirFunction {
@@ -132,6 +154,10 @@ pub struct FunctionMetadata {
     /// Backend emitters may consume these facts, but must not re-own consumer
     /// legality by scanning MIR JSON for semantic shape matches.
     pub value_consumer_facts: BTreeMap<ValueId, ValueConsumerFacts>,
+
+    /// Stage1 LoopRange facts derived by the executable range-loop route.
+    /// This metadata owns the index/bound/step contract for later verifier rows.
+    pub loop_range_facts: Vec<LoopRangeFact>,
 
     /// Declaration-local Rune attrs carried from AST/direct MIR routes.
     pub runes: Vec<crate::ast::RuneAttr>,

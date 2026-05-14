@@ -80,6 +80,23 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "direct_set_consumer": facts.direct_set_consumer,
             }))
         }).collect::<serde_json::Map<String, serde_json::Value>>(),
+        "loop_range_facts": metadata.loop_range_facts.iter().map(|fact| {
+            json!({
+                "index_name": fact.index_name.as_str(),
+                "start_value": fact.start_value.as_u32(),
+                "end_value": fact.end_value.as_u32(),
+                "index_phi": fact.index_phi.as_u32(),
+                "preheader_bb": fact.preheader_bb.as_u32(),
+                "header_bb": fact.header_bb.as_u32(),
+                "body_bb": fact.body_bb.as_u32(),
+                "step_bb": fact.step_bb.as_u32(),
+                "exit_bb": fact.exit_bb.as_u32(),
+                "step": fact.step,
+                "end_exclusive": fact.end_exclusive,
+                "index_read_only": fact.index_read_only,
+                "body_writes_supported": fact.body_writes_supported,
+            })
+        }).collect::<Vec<_>>(),
         "storage_classes": metadata.value_storage_classes.iter().map(|(k, v)| {
             (k.as_u32().to_string(), json!(v.to_string()))
         }).collect::<serde_json::Map<String, serde_json::Value>>(),

@@ -98,3 +98,32 @@ loop-carried variables:
 [freeze:contract][json_v0_bridge/loop_range_index_write]
 [freeze:contract][json_v0_bridge/loop_range_carrier_unsupported]
 ```
+
+## LOOP-003C Fact Surface
+
+The executable JSON v0 bridge route emits function-level
+`loop_range_facts` metadata.
+
+Each fact records:
+
+```text
+index_name
+start_value
+end_value
+index_phi
+preheader_bb
+header_bb
+body_bb
+step_bb
+exit_bb
+step = 1
+end_exclusive = true
+index_read_only = true
+body_writes_supported = false
+```
+
+Verifier/backend rows must consume this metadata instead of rediscovering
+range-loop shape from raw block layout.
+
+`body_writes_supported=false` keeps the LOOP-003B carrier stop-line explicit
+until `LOOP-003D` defines the carrier policy.

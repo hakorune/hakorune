@@ -26,14 +26,14 @@ Related:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `LOOP-003C Stage1 LoopRange verifier facts and carrier policy`
+- current blocker token: `LOOP-003D LoopRange carrier policy`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after PACKED-002; next blocker is LOOP-003C Stage1 LoopRange verifier facts and carrier policy
-- keep `LOOP-003` open until a JoinIR/CorePlan route is selected; do not source-desugar range loops
+- continue phase-293x after PACKED-002; next blocker is LOOP-003D LoopRange carrier policy
+- keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
 ## Rules
