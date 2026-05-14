@@ -177,6 +177,29 @@ docs/development/current/main/design/mimalloc-size-class-bin-pilot-ssot.md
 
 The pilot is deliberately no-OSVM, no-atomic, no-TLS, no-rawbuf, and no-provider.
 
+## Collection / Automata Dependency Cut
+
+Map/Set/FST tasks are tracked separately:
+
+```text
+docs/development/current/main/design/collection-set-map-fst-task-breakdown-ssot.md
+```
+
+They are not prerequisites for the current mimalloc sequence.
+
+```text
+MIMAP-008:
+  continue with records, counters, Array, and existing SizeClassBox
+  do not pull Set forward unless unique membership is the blocker
+
+MIMAP-009:
+  may use existing MapBox if a dynamic lookup table is genuinely needed
+  does not need FST
+
+FST:
+  not part of mimalloc port unless a static dictionary/route matcher becomes evidence-backed
+```
+
 ## Port Reading
 
 mimalloc should not be line-by-line translated.
@@ -236,6 +259,9 @@ TRANS-002A:
 
 USES-002A:
   capability checker
+
+COLL/AUTO:
+  not prerequisites for MIMAP-008/009; use existing MapBox only if needed
 ```
 
 The blueprint rows can start earlier because they are docs/inventory only.

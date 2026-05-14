@@ -33,6 +33,27 @@ Upstream mimalloc source is local-only:
 
 Tracked output is docs only.
 
+## Collection / Automata Dependency Cut
+
+Map/Set/FST work is tracked in:
+
+```text
+docs/development/current/main/design/collection-set-map-fst-task-breakdown-ssot.md
+```
+
+Decision for this board:
+
+```text
+Set:
+  not a prerequisite for MIMAP-008
+
+Map:
+  existing MapBox / MapCoreBox is enough if a later row needs dynamic lookup
+
+FST:
+  not a mimalloc prerequisite
+```
+
 ## Rows
 
 ### Source and Inventory
@@ -61,6 +82,17 @@ Tracked output is docs only.
 | `MIMAP-007` | landed | Size-class / bin map executable pilot. | 2-3 commits |
 | `MIMAP-008` | active | Page/free-list model pilot with explicit lifecycle state. | 2-4 commits |
 | `MIMAP-009` | blocked by MIMAP-008 | Decommit/recommit/reuse lifecycle integration pilot. | 2-4 commits |
+
+### Collection / Automata Sidecar Rows
+
+| Row | Status | Purpose | Ordering |
+| --- | --- | --- | --- |
+| `COLL-001` | ready | Map/Set/HashMap naming and placement docs. | sidecar; not blocking MIMAP-008 |
+| `COLL-002` | parked | Set semantic wrapper over Map. | after MIMAP-008 unless Set becomes the blocker |
+| `COLL-003` | parked | Set proof app and guard. | after COLL-002 |
+| `AUTO-001` | ready | FST placement SSOT. | sidecar; not mimalloc prerequisite |
+| `AUTO-002` | parked | FST record vocabulary. | after evidence |
+| `AUTO-003` | parked | Compiler keyword-table FST pilot. | compiler evidence only |
 
 ## Readiness Checklist
 

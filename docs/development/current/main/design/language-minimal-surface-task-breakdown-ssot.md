@@ -85,6 +85,7 @@ Retire condition:
 | Generic containers | generic type annotation metadata and arity checker complete | next substitution/semantics row deferred |
 | PackedArray | source backend fail-fast complete | no immediate PackedArray row |
 | Array / Result / Option canonical surface | docs accepted; LOCALTYPE/ENUMVAR/ARRAY/RESULT/GUARDLET rows complete | no immediate code row |
+| Collections / automata | Map exists as ring1 visible owner; Set/FST are not Stage0/core prerequisites | `COLL-001` / `AUTO-001` docs rows, parked behind mimalloc unless blocking |
 | Uses/capability | method-level metadata capsule complete | `USES-002 capability checker` |
 | Span/view | planned later | `SPAN-001 Span API design row` |
 | Module visibility | planned later | `MOD-001 using/module migration decision` |
@@ -258,6 +259,54 @@ no Stage0 Result/Option special-case
 | `GEN-001 generic type annotation metadata capsule` | Complete as `293x-285`; parses `Array<T>`, `PackedArray<T>`, `Span<T>`, generic records/interfaces as metadata. | Stage0 capsule complete |
 | `GEN-002 generic arity check` | Validate parameter counts without full constraint solving. | Stage1 semantics |
 | `ARRAY-RESULT-SSOT` | Canonicalize `Array<T>`, `PackedArray<T>`, `Result<T,E>`, `Option<T>`, and `Type::Variant`; no implementation. | docs/reference |
+
+## Collections and automata tasks
+
+Canonical placement:
+
+```text
+Map<K,V>:
+  user-visible collection semantics; `HashMap` is not canonical source surface
+
+Set<T>:
+  ring1 collection semantic wrapper over Map, not Stage0
+
+FST:
+  compiler/std automata library, not language core
+```
+
+Task SSOT:
+
+```text
+docs/development/current/main/design/collection-set-map-fst-task-breakdown-ssot.md
+```
+
+| Task | Scope | Stage |
+| --- | --- | --- |
+| `COLL-001 Map/Set/HashMap placement SSOT` | Complete/maintain docs deciding Map canonical, HashMap implementation detail, Set as ring1 wrapper. | docs |
+| `COLL-002 Set semantic wrapper` | Implement `Set<T>` as `Map<T,i64>` wrapper; no raw Set substrate. | ring1 collection |
+| `COLL-003 Set proof app and guard` | Prove `add/has/remove/size/clear` visible contract. | ring1 proof |
+| `COLL-004 key capability inventory` | Document supported key routes and fail-fast unsupported generic keys. | Stage1 / substrate boundary |
+| `AUTO-001 FST placement SSOT` | Decide FST belongs to compiler/std automata library, not language core. | docs |
+| `AUTO-002 FST record vocabulary` | Define `FstState` / `FstTransition` record shapes over Array/PackedArray. | library design |
+| `AUTO-003 compiler keyword-table FST pilot` | Use FST for compiler dictionary only if evidence appears. | compiler library |
+
+Mimalloc ordering:
+
+```text
+do not move Set or FST before MIMAP-008 by default
+use existing MapBox only if a mimalloc row genuinely needs dynamic lookup
+open Set only if unique membership becomes the blocker
+```
+
+Stop lines:
+
+```text
+no Stage0 Set/FST
+no HashMap canonical spelling
+no RawSet substrate first
+no FST language keyword
+```
 | `LOCALTYPE-001 local type annotation metadata capsule` | Parse and transport `local name: Type = expr` without type meaning. | Stage0 metadata |
 | `ENUMVAR-001 enum variant canonical surface` | Keep `Type::Variant` canonical; avoid dot variants and unqualified canonical constructors. | Stage1 enum surface |
 | `ARRAY-001 typed context array literal` | Complete as `293x-313`; interpret `[]` and non-empty literals only under `Array<T>` local typed context, with PackedArray no-fallback fail-fast. | Stage1 typed collection complete |
