@@ -1,0 +1,117 @@
+// object_lifecycle_page_queue_box.hako — MIMAP-012 object-backed lifecycle queue
+// Responsibility: retain page objects and select them through page lifecycle methods.
+// This module does not own OS page sourcing, segment ownership, concurrency primitives, or allocator activation.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+
+box HakoAllocObjectLifecyclePageQueue {
+    pages: ArrayBox = new ArrayBox()
+    page_count: i64 = 0
+    add_count: i64 = 0
+    request_count: i64 = 0
+    select_count: i64 = 0
+    reuse_select_count: i64 = 0
+    active_select_count: i64 = 0
+    decommitted_skip_count: i64 = 0
+    retired_skip_count: i64 = 0
+    unavailable_skip_count: i64 = 0
+    miss_count: i64 = 0
+    reject_count: i64 = 0
+    last_selected_page = null
+    last_selected_page_id: i64 = -1
+    last_selected_kind: i64 = 0
+
+    addPage(page) {
+        if page == null {
+            me.reject_count = me.reject_count + 1
+            return -1
+        }
+
+        local index = me.page_count
+        me.pages.push(page)
+        me.page_count = me.page_count + 1
+        me.add_count = me.add_count + 1
+        return index
+    }
+
+    beginSelection() {
+        me.last_selected_page = null
+        me.last_selected_page_id = -1
+        me.last_selected_kind = 0
+        return 1
+    }
+
+    selectPage() {
+        me.request_count = me.request_count + 1
+        me.beginSelection()
+
+        local pages = me.pages
+        local page_count = me.page_count
+        local i = 0
+        loop(i < page_count) {
+            if me.last_selected_page == null {
+                local page = pages.get(i)
+                me.considerPage(page)
+            }
+            i = i + 1
+        }
+
+        if me.last_selected_page == null {
+            me.miss_count = me.miss_count + 1
+            return null
+        }
+
+        return me.last_selected_page
+    }
+
+    considerPage(page) {
+        if me.last_selected_page != null {
+            return 0
+        }
+
+        if page == null {
+            me.reject_count = me.reject_count + 1
+            return 0
+        }
+
+        if page.decommitted != 0 {
+            me.decommitted_skip_count = me.decommitted_skip_count + 1
+            return 0
+        }
+
+        if page.retired != 0 {
+            if page.canReuse() != 0 {
+                if page.reuse() != 0 {
+                    return me.recordSelectedPage(page, 1)
+                }
+            }
+
+            me.retired_skip_count = me.retired_skip_count + 1
+            return 0
+        }
+
+        if page.freeCount() > 0 {
+            return me.recordSelectedPage(page, 2)
+        }
+
+        me.unavailable_skip_count = me.unavailable_skip_count + 1
+        return 0
+    }
+
+    recordSelectedPage(page, kind) {
+        me.last_selected_page = page
+        me.last_selected_page_id = page.page_id
+        me.last_selected_kind = kind
+        me.select_count = me.select_count + 1
+
+        if kind == 1 {
+            me.reuse_select_count = me.reuse_select_count + 1
+        }
+
+        if kind == 2 {
+            me.active_select_count = me.active_select_count + 1
+        }
+
+        return 1
+    }
+}

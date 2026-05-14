@@ -85,7 +85,8 @@ FST:
 | `MIMAP-010` | landed | Page queue lifecycle selection pilot that skips decommitted pages and selects reusable pages explicitly. | 1 commit |
 | `MIMAP-B001` | landed | Backend acceptance policy: VM scalar reference, LLVM/EXE MIMAP-011+ primary, VM timeout required. | 1 commit |
 | `MIMAP-011` | landed | Allocator facade lifecycle route pilot using lifecycle-aware page selection; LLVM/EXE primary. | 1 commit |
-| `MIMAP-012` | paused | Object-backed lifecycle queue LLVM route pilot; resume after CLEAN-WHILE-002 unless reselected. | 2-4 commits |
+| `MIMAP-012` | landed | Object-backed lifecycle queue LLVM route pilot; `ArrayBox` retains page objects and returns selected page. | 1 commit |
+| `MIMAP-013` | ready | Facade composition over object-backed lifecycle queue. | after MIMAP-012 |
 
 ### Collection / Automata Sidecar Rows
 

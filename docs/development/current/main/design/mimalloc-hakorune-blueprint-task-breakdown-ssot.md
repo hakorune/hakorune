@@ -398,3 +398,25 @@ tools/checks/k2_wide_mimalloc_facade_lifecycle_route_exe_guard.sh
 
 The row intentionally does not pass page objects through queue/facade retention.
 That route remains covered by `VM-LIM-001` and is reserved for `MIMAP-012`.
+
+## MIMAP-012 object-backed lifecycle queue pilot
+
+Decision: accepted.
+
+`MIMAP-012` adds `HakoAllocObjectLifecyclePageQueue`, which retains
+`HakoAllocPageModel` objects in `ArrayBox`, skips decommitted pages, calls
+`page.canReuse()` / `page.reuse()` for retired reusable pages, selects active
+pages by `page.freeCount()`, and returns the selected page object.
+
+Acceptance backend remains LLVM/EXE primary. VM remains diagnostic-only for this
+object-heavy route.
+
+Proof and guard:
+
+```text
+apps/mimalloc-object-lifecycle-queue-proof/main.hako
+tools/checks/k2_wide_mimalloc_object_lifecycle_queue_exe_guard.sh
+```
+
+Next candidate row: `MIMAP-013 facade composition over object-backed lifecycle
+queue`.

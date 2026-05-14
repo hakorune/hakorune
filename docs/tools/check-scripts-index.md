@@ -347,3 +347,5 @@ tools/checks/env_dead_accessors_report.sh
 - `tools/checks/k2_wide_mimalloc_backend_acceptance_policy_guard.sh` - MIMAP VM/LLVM backend acceptance split, VM known limitation registry, and VM timeout guard policy.
 - `tools/checks/k2_wide_mimalloc_facade_lifecycle_route_exe_guard.sh` - `MIMAP-011` LLVM/EXE-primary allocator facade lifecycle selection route guard.
 - `tools/checks/vm_lim_001_object_queue_identity_probe.sh` - diagnostic probe for `VM-LIM-001` ArrayBox-held InstanceBox/page object identity across push/get/method receiver.
+
+| `tools/checks/k2_wide_mimalloc_object_lifecycle_queue_exe_guard.sh` | MIMAP-012 の object-backed lifecycle queue LLVM/EXE-primary proof を固定し、ArrayBox-held page object selection が page lifecycle methods を通りつつ VM を blocker にしないことを検証する。 |

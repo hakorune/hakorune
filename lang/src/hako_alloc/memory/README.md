@@ -29,7 +29,9 @@ Current modules
 - `heap_reuse_priority_box.hako`
 - `lifecycle_stats_observer_box.hako`
 - `page_queue_box.hako`
+- `object_lifecycle_page_queue_box.hako`
 - `page_lifecycle_invariant_box.hako`
+- `page_queue_lifecycle_box.hako`
 - `page_source_policy_box.hako`
 - `purge_bounded_decommit_box.hako`
 - `purge_bounded_scheduler_box.hako`
@@ -65,6 +67,11 @@ Syntax/style contract
   `HakoAllocPageQueue.selectPage()` and `HakoAllocPageModel.acquire()`, but it
   must not source OS pages, collect local-free blocks, or implement remote-free
   policy.
+- `object_lifecycle_page_queue_box.hako` is the MIMAP-012 object-backed
+  lifecycle queue owner. It may retain `HakoAllocPageModel` objects in an
+  `ArrayBox`, call page lifecycle observers/methods, and return a selected page
+  object. It must not source OS pages, own segment/TLS/atomic/remote-free policy,
+  activate providers/hooks, or add backend shortcuts.
 - `osvm_backed_fast_path_heap_box.hako` is the M168 composition owner. It may
   reserve/commit/decommit through `HakoAllocPageSourcePolicy`, then reuse the
   same page queue and page-local free-list owners. It must not add OSVM metal,
