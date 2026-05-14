@@ -50,3 +50,31 @@ Retire when:
 VM executes page queue/facade object-heavy lifecycle route under the standard
 MIMAP VM timeout without hang and with the same output contract as LLVM/EXE.
 ```
+
+### Investigation notes
+
+Read-only worker investigation narrowed the likely VM risk to object identity and
+field-route stability when a user box is retained inside `ArrayBox` and later used
+as a receiver again.
+
+Relevant implementation surfaces:
+
+```text
+lang/src/hako_alloc/memory/page_queue_box.hako
+src/boxes/array/storage.rs
+src/core/instance_v2.rs
+src/backend/mir_interpreter/helpers.rs
+src/backend/mir_interpreter/handlers/boxes_object_fields.rs
+```
+
+Risk pattern:
+
+```text
+ArrayBox.push(page object)
+ArrayBox.get(i)
+returned page object becomes method receiver
+page fields/methods are resolved through VM object field/key route
+```
+
+This reinforces the current split: keep scalar VM proofs, but use LLVM/EXE as the
+primary acceptance backend for MIMAP-011+ object-heavy allocator routes.

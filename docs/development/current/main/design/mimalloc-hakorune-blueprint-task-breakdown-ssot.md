@@ -380,3 +380,21 @@ docs/development/current/main/design/vm-known-limitations-ssot.md
 `VM-LIM-001` records the object-heavy page queue/facade route limitation observed
 while shaping `MIMAP-010`. This limitation is not a blocker for LLVM/EXE
 acceptance, but it must not become a silent pass.
+
+## MIMAP-011 facade lifecycle route pilot
+
+Decision: accepted.
+
+`MIMAP-011` exposes the lifecycle-aware scalar selection policy through
+`HakoAllocProductionFacade` and proves the route with LLVM/EXE as the primary
+acceptance backend.
+
+Proof and guard:
+
+```text
+apps/mimalloc-facade-lifecycle-route-proof/main.hako
+tools/checks/k2_wide_mimalloc_facade_lifecycle_route_exe_guard.sh
+```
+
+The row intentionally does not pass page objects through queue/facade retention.
+That route remains covered by `VM-LIM-001` and is reserved for `MIMAP-012`.

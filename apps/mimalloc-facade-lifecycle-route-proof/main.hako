@@ -1,0 +1,56 @@
+using selfhost.hako_alloc.memory.allocator_facade_box as HakoAllocFacade
+
+static box Main {
+    main(args) {
+        local alloc = new HakoAllocProductionFacade()
+
+        alloc.lifecycleSelectionBegin()
+        alloc.lifecycleSelectionConsider(10, 1, 1, 0, 1)
+        alloc.lifecycleSelectionConsider(20, 0, 1, 1, 1)
+        alloc.lifecycleSelectionConsider(30, 0, 0, 0, 1)
+        local first_page = alloc.lifecycleSelectionFinish()
+        local first_kind = alloc.lifecycleSelectedKind()
+
+        alloc.lifecycleSelectionBegin()
+        alloc.lifecycleSelectionConsider(10, 1, 1, 0, 1)
+        alloc.lifecycleSelectionConsider(20, 0, 0, 0, 0)
+        alloc.lifecycleSelectionConsider(30, 0, 0, 0, 1)
+        local second_page = alloc.lifecycleSelectionFinish()
+        local second_kind = alloc.lifecycleSelectedKind()
+
+        alloc.lifecycleSelectionBegin()
+        alloc.lifecycleSelectionConsider(10, 1, 1, 0, 1)
+        alloc.lifecycleSelectionConsider(20, 0, 0, 0, 0)
+        alloc.lifecycleSelectionConsider(30, 0, 0, 0, 0)
+        local third_page = alloc.lifecycleSelectionFinish()
+        local third_kind = alloc.lifecycleSelectedKind()
+
+        local shape = 0
+        if first_page == 20 { shape = shape + 1 }
+        if first_kind == 1 { shape = shape + 1 }
+        if second_page == 30 { shape = shape + 1 }
+        if second_kind == 2 { shape = shape + 1 }
+        if third_page == -1 { shape = shape + 1 }
+        if third_kind == 0 { shape = shape + 1 }
+        if alloc.lifecycleSelectCount() == 2 { shape = shape + 1 }
+        if alloc.lifecycleReuseSelectCount() == 1 { shape = shape + 1 }
+        if alloc.lifecycleActiveSelectCount() == 1 { shape = shape + 1 }
+        if alloc.lifecycleDecommittedSkipCount() == 3 { shape = shape + 1 }
+        if alloc.lifecycleRetiredSkipCount() == 0 { shape = shape + 1 }
+        if alloc.lifecycleMissCount() == 1 { shape = shape + 1 }
+
+        print("mimalloc-facade-lifecycle-route-proof")
+        print("pages=" + first_page + "," + second_page + "," + third_page)
+        print("kinds=" + first_kind + "," + second_kind + "," + third_kind)
+        print("queue=" + alloc.lifecycleSelectCount() + "," + alloc.lifecycleReuseSelectCount() + "," + alloc.lifecycleActiveSelectCount() + "," + alloc.lifecycleDecommittedSkipCount() + "," + alloc.lifecycleRetiredSkipCount() + "," + alloc.lifecycleMissCount())
+        print("shape=" + shape)
+
+        if shape == 12 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -11,11 +11,13 @@
 
 using selfhost.hako_alloc.memory.page_source_policy_box as HakoAllocPageSourcePolicy
 using selfhost.hako_alloc.memory.page_heap_box as HakoAllocPageHeap
+using selfhost.hako_alloc.memory.page_queue_lifecycle_box as HakoAllocLifecyclePageQueueBox
 using selfhost.hako_alloc.memory.remote_free_policy_box as HakoAllocRemoteFreePolicy
 using selfhost.hako_alloc.memory.stats_box as HakoAllocStats
 
 box HakoAllocProductionFacade {
     heap: HakoAllocHeap = new HakoAllocHeap()
+    lifecycle_queue: HakoAllocLifecyclePageQueue = new HakoAllocLifecyclePageQueue()
     stats_surface: HakoAllocStatsSurface = new HakoAllocStatsSurface()
     alloc_count: usize = 0
     free_count: usize = 0
@@ -108,6 +110,46 @@ box HakoAllocProductionFacade {
             me.mediumPeakUsed(),
             me.mediumFreeCount()
         )
+    }
+
+    lifecycleSelectionBegin() {
+        return me.lifecycle_queue.beginSelection()
+    }
+
+    lifecycleSelectionConsider(page_id, decommitted, retired, reusable, available) {
+        return me.lifecycle_queue.considerPage(page_id, decommitted, retired, reusable, available)
+    }
+
+    lifecycleSelectionFinish() {
+        return me.lifecycle_queue.finishSelection()
+    }
+
+    lifecycleSelectedKind() {
+        return me.lifecycle_queue.last_selected_kind
+    }
+
+    lifecycleSelectCount() {
+        return me.lifecycle_queue.select_count
+    }
+
+    lifecycleReuseSelectCount() {
+        return me.lifecycle_queue.reuse_select_count
+    }
+
+    lifecycleActiveSelectCount() {
+        return me.lifecycle_queue.active_select_count
+    }
+
+    lifecycleDecommittedSkipCount() {
+        return me.lifecycle_queue.decommitted_skip_count
+    }
+
+    lifecycleRetiredSkipCount() {
+        return me.lifecycle_queue.retired_skip_count
+    }
+
+    lifecycleMissCount() {
+        return me.lifecycle_queue.miss_count
     }
 
     remoteInitHead(head_cell) {
