@@ -16,8 +16,6 @@ pub struct UsingResolutionBox<'a> {
     runner: &'a NyashRunner,
     config: UsingConfig,
     ctx_dir: Option<PathBuf>,
-    #[allow(dead_code)]
-    filename_canon: Option<PathBuf>,
     inside_pkg: bool,
     seen_paths: HashMap<String, (String, usize)>, // canon_path -> (alias/label, first_line)
     seen_aliases: HashMap<String, (String, usize)>, // alias -> (canon_path, first_line)
@@ -75,7 +73,6 @@ impl<'a> UsingResolutionBox<'a> {
             runner,
             config,
             ctx_dir,
-            filename_canon,
             inside_pkg,
             seen_paths: HashMap::new(),
             seen_aliases: HashMap::new(),

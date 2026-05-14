@@ -19,7 +19,6 @@ pub(crate) struct LoadedBoxSpec {
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct MethodSpec {
     pub(crate) method_id: u32,
-    #[allow(dead_code)]
     pub(crate) returns_result: bool,
 }
 

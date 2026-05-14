@@ -40,32 +40,10 @@ impl ErrorBuilder {
     /// // => "get expects Integer type, got String"
     /// ```
     #[inline]
-    #[allow(dead_code)]
     pub fn type_mismatch(method: &str, expected: &str, actual: &str) -> VMError {
         VMError::InvalidInstruction(format!(
             "{} expects {} type, got {}",
             method, expected, actual
-        ))
-    }
-
-    /// Index out of bounds error
-    ///
-    /// # Arguments
-    /// * `method` - Method or operation name
-    /// * `index` - Attempted index
-    /// * `len` - Actual length/size
-    ///
-    /// # Example
-    /// ```ignore
-    /// ErrorBuilder::out_of_bounds("get", 5, 3)
-    /// // => "get index out of bounds: 5 >= 3"
-    /// ```
-    #[inline]
-    #[allow(dead_code)]
-    pub fn out_of_bounds(method: &str, index: usize, len: usize) -> VMError {
-        VMError::InvalidInstruction(format!(
-            "{} index out of bounds: {} >= {}",
-            method, index, len
         ))
     }
 
@@ -93,19 +71,6 @@ impl ErrorBuilder {
         VMError::InvalidInstruction(format!("Unknown method '{}' on {}", method, box_type))
     }
 
-    /// Receiver type error
-    ///
-    /// # Example
-    /// ```ignore
-    /// ErrorBuilder::receiver_type_error("ArrayBox")
-    /// // => "receiver must be ArrayBox"
-    /// ```
-    #[inline]
-    #[allow(dead_code)]
-    pub fn receiver_type_error(expected: &str) -> VMError {
-        VMError::InvalidInstruction(format!("receiver must be {}", expected))
-    }
-
     /// Argument count mismatch
     ///
     /// # Example
@@ -124,25 +89,6 @@ impl ErrorBuilder {
         ))
     }
 
-    /// Minimum argument count error
-    ///
-    /// # Example
-    /// ```ignore
-    /// ErrorBuilder::arg_count_min("link_object", 1, 0)
-    /// // => "link_object expects at least 1 arg, got 0"
-    /// ```
-    #[inline]
-    #[allow(dead_code)]
-    pub fn arg_count_min(method: &str, min: usize, actual: usize) -> VMError {
-        VMError::InvalidInstruction(format!(
-            "{} expects at least {} arg{}, got {}",
-            method,
-            min,
-            if min == 1 { "" } else { "s" },
-            actual
-        ))
-    }
-
     /// Custom formatted error with context
     ///
     /// # Example
@@ -155,18 +101,6 @@ impl ErrorBuilder {
         VMError::InvalidInstruction(format!("{}: {}", operation, detail))
     }
 
-    /// Error from another error type
-    ///
-    /// # Example
-    /// ```ignore
-    /// ErrorBuilder::from_error("link_object", &parse_error)
-    /// // => "link_object: <error message>"
-    /// ```
-    #[inline]
-    #[allow(dead_code)]
-    pub fn from_error(operation: &str, error: &dyn std::error::Error) -> VMError {
-        VMError::InvalidInstruction(format!("{}: {}", operation, error))
-    }
 }
 
 // Convenience methods on MirInterpreter to make error generation even shorter
@@ -189,21 +123,8 @@ impl super::super::MirInterpreter {
     /// return Err(self.err_type_mismatch("get", "Integer", actual_type));
     /// ```
     #[inline]
-    #[allow(dead_code)]
     pub(crate) fn err_type_mismatch(&self, method: &str, expected: &str, actual: &str) -> VMError {
         ErrorBuilder::type_mismatch(method, expected, actual)
-    }
-
-    /// Index out of bounds error
-    ///
-    /// # Example
-    /// ```ignore
-    /// return Err(self.err_out_of_bounds("get", idx, len));
-    /// ```
-    #[inline]
-    #[allow(dead_code)]
-    pub(crate) fn err_out_of_bounds(&self, method: &str, index: usize, len: usize) -> VMError {
-        ErrorBuilder::out_of_bounds(method, index, len)
     }
 
     /// Unsupported operation error

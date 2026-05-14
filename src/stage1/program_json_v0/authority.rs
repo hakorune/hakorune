@@ -8,6 +8,7 @@ use super::generic_arity_checker;
 use super::lowering::{
     defs_json_v0_from_methods, program_json_v0_from_body_with_context, ProgramJsonV0LoweringContext,
 };
+use super::packed_array_eligibility_checker;
 use super::record_payload::{
     collect_enum_record_payload_box_decls, enum_variant_payload_type_name,
 };
@@ -63,6 +64,7 @@ fn ast_to_program_json_v0_with_imports(
         );
     }
     generic_arity_checker::check_generic_arities(ast)?;
+    packed_array_eligibility_checker::check_packed_array_eligibility(ast)?;
     let brand_decl_index = collect_brand_decl_index(ast);
     brand_checker::check_brand_mismatches(ast, &brand_decl_index)?;
     let lowering_context = ProgramJsonV0LoweringContext::with_known_enums_brands_and_records(
@@ -273,11 +275,12 @@ fn collect_record_decl_index(ast: &ASTNode) -> BTreeMap<String, Vec<FieldDecl>> 
 }
 
 fn collect_enum_decl_index(ast: &ASTNode) -> BTreeMap<String, Vec<EnumVariantDecl>> {
+    let mut index = crate::semantics::result_option_prelude::result_option_prelude_enum_decls();
     let ASTNode::Program { statements, .. } = ast else {
-        return BTreeMap::new();
+        return index;
     };
 
-    statements
+    index.extend(statements
         .iter()
         .filter_map(|statement| {
             let ASTNode::EnumDeclaration { name, variants, .. } = statement else {
@@ -285,7 +288,8 @@ fn collect_enum_decl_index(ast: &ASTNode) -> BTreeMap<String, Vec<EnumVariantDec
             };
             Some((name.clone(), variants.clone()))
         })
-        .collect()
+    );
+    index
 }
 
 fn collect_brand_decl_index(ast: &ASTNode) -> BTreeMap<String, String> {

@@ -13,7 +13,7 @@ impl MirInterpreter {
     /// * `dst` - 書き込み先のValueId (Noneの場合は何もしない)
     /// * `result` - 書き込むBox
     #[inline]
-    #[allow(dead_code)]
+    #[allow(dead_code)] // ASTCLEAN-009: retained for handlers returning Arc box references.
     pub(crate) fn write_box_result(
         &mut self,
         dst: Option<ValueId>,

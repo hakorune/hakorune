@@ -68,11 +68,23 @@ impl NyashParser {
 
         let mut names = Vec::new();
         let mut initial_values = Vec::new();
+        let mut declared_type_names = Vec::new();
 
         // Get first variable name
         if let TokenType::IDENTIFIER(name) = &self.current_token().token_type {
             names.push(name.clone());
             self.advance();
+            let declared_type_name = if self.match_token(&TokenType::COLON) {
+                self.advance();
+                Some(crate::parser::common::type_refs::parse_type_ref_text(
+                    self,
+                    "local type annotation",
+                )?)
+            } else {
+                None
+            };
+            let has_declared_type = declared_type_name.is_some();
+            declared_type_names.push(declared_type_name);
 
             // Check for initialization
             if self.match_token(&TokenType::ASSIGN) {
@@ -83,6 +95,7 @@ impl NyashParser {
                 let local_node = ASTNode::Local {
                     variables: names,
                     initial_values,
+                    declared_type_names,
                     span: Span::unknown(),
                 };
                 self.maybe_attach_local_fini(local_node, 1)
@@ -92,11 +105,19 @@ impl NyashParser {
 
                 // Parse additional comma-separated variables
                 while self.match_token(&TokenType::COMMA) {
+                    if has_declared_type {
+                        return Err(ParseError::UnexpectedToken {
+                            found: TokenType::COMMA,
+                            expected: "single local binding after a type annotation".to_string(),
+                            line: self.current_token().line,
+                        });
+                    }
                     self.advance(); // consume ','
 
                     if let TokenType::IDENTIFIER(name) = &self.current_token().token_type {
                         names.push(name.clone());
                         initial_values.push(None);
+                        declared_type_names.push(None);
                         self.advance();
                     } else {
                         return Err(ParseError::UnexpectedToken {
@@ -110,6 +131,7 @@ impl NyashParser {
                 let local_node = ASTNode::Local {
                     variables: names,
                     initial_values,
+                    declared_type_names,
                     span: Span::unknown(),
                 };
                 let local_count = match &local_node {

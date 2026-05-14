@@ -47,29 +47,6 @@ pub fn suggest_resolution(name: &str) -> String {
     }
 }
 
-/// Check if a method name is commonly shadowed by global functions
-/// Used for generating warnings about potential self-recursion
-#[allow(dead_code)]
-pub fn is_commonly_shadowed_method(method: &str) -> bool {
-    matches!(
-        method,
-        "print" | "error" | "log" | "panic" | // Console methods
-        "length" | "size" | "count" |         // Container methods
-        "toString" | "valueOf" |              // Conversion methods
-        "equals" | "compare" // Comparison methods
-    )
-}
-
-/// Generate warning message for potential self-recursion
-#[allow(dead_code)]
-pub fn generate_self_recursion_warning(box_name: &str, method: &str) -> String {
-    format!(
-        "Warning: Potential self-recursion detected in {}.{}(). \
-         Consider using ::{}() for global function or {}.{}() for explicit self-call.",
-        box_name, method, method, box_name, method
-    )
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -92,19 +69,4 @@ mod tests {
         assert!(!is_extern_function("custom_function"));
     }
 
-    #[test]
-    fn test_shadowed_method_detection() {
-        assert!(is_commonly_shadowed_method("print"));
-        assert!(is_commonly_shadowed_method("length"));
-        assert!(is_commonly_shadowed_method("toString"));
-        assert!(!is_commonly_shadowed_method("custom_method"));
-    }
-
-    #[test]
-    fn test_warning_generation() {
-        let warning = generate_self_recursion_warning("ConsoleStd", "print");
-        assert!(warning.contains("ConsoleStd.print()"));
-        assert!(warning.contains("::print()"));
-        assert!(warning.contains("self-recursion"));
-    }
 }

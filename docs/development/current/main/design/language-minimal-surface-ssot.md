@@ -214,7 +214,7 @@ enum PageState {
 Lifecycle relations use `transition`:
 
 ```hako
-transition PageState.Active -> PageState.Retired by retire
+transition PageState::Active -> PageState::Retired by retire
 ```
 
 `state` is not canonical MVP syntax.

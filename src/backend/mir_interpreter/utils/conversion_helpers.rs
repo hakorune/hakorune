@@ -42,7 +42,6 @@ impl MirInterpreter {
     /// # Errors
     /// * 値が整数でない場合はエラー
     #[inline]
-    #[allow(dead_code)]
     pub(crate) fn load_as_int(&mut self, vid: ValueId) -> Result<i64, VMError> {
         match self.reg_load(vid)? {
             VMValue::Integer(i) => Ok(i),
@@ -80,7 +79,7 @@ impl MirInterpreter {
     /// # Errors
     /// * 値がboolでない場合はエラー
     #[inline]
-    #[allow(dead_code)]
+    #[allow(dead_code)] // ASTCLEAN-009: retained for boolean receiver helpers not yet migrated to this utility.
     pub(crate) fn load_as_bool(&mut self, vid: ValueId) -> Result<bool, VMError> {
         match self.reg_load(vid)? {
             VMValue::Bool(b) => Ok(b),
@@ -126,7 +125,7 @@ impl MirInterpreter {
     /// # Returns
     /// * `Result<Vec<VMValue>, VMError>` - 読み込んだVMValueのVec
     #[inline]
-    #[allow(dead_code)]
+    #[allow(dead_code)] // ASTCLEAN-009: retained as a generic VMValue arg loader for staged handlers.
     pub(crate) fn load_args_as_values(
         &mut self,
         vids: &[ValueId],

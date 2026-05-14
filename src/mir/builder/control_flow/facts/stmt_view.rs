@@ -201,6 +201,7 @@ mod tests {
             ASTNode::Local {
                 variables: vec!["x".to_string()],
                 initial_values: vec![None],
+                declared_type_names: Vec::new(),
                 span,
             },
             ASTNode::Print {

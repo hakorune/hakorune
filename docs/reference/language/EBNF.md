@@ -49,7 +49,8 @@ loop_head := loop_range_head | loop_condition_head
 loop_condition_head := '('? expr ')'?
 loop_range_head := IDENT 'in' expr '..' expr
 
-local_stmt := 'local' IDENT local_tail
+local_stmt := 'local' IDENT local_type_opt local_tail
+local_type_opt := (':' TYPE_REF)?
 local_tail := '=' expr local_fini_opt
            | (',' IDENT)+
            | local_fini_opt
@@ -92,7 +93,7 @@ contract_clause := ('requires' | 'ensures') expr
 invariant_member := 'invariant' expr
                  ; CONTRACT-002 Stage0 capsule for box/record declaration metadata.
 
-transition_member := 'transition' TYPE_REF '.' IDENT '-' '>' TYPE_REF '.' IDENT 'by' IDENT
+transition_member := 'transition' TYPE_REF '::' IDENT '-' '>' TYPE_REF '::' IDENT 'by' IDENT
                  ; TRANS-001 Stage0 capsule for box-local lifecycle relation metadata.
                  ; Legality checks, enum/method lookup, and verifier facts are Stage1-owned.
 
@@ -397,7 +398,7 @@ boundary policy, verifier facts, or static discharge. Those are Stage1-owned.
 
 Decision: accepted.
 
-`transition Enum.Value -> Enum.Value by method` is Stage0 metadata-only syntax
+`transition Enum::Value -> Enum::Value by method` is Stage0 metadata-only syntax
 for box-local lifecycle relations:
 
 ```hako
@@ -409,7 +410,7 @@ enum PageState {
 box HakoAllocPageModel {
     state: PageState
 
-    transition PageState.Active -> PageState.Retired by retire
+    transition PageState::Active -> PageState::Retired by retire
 }
 ```
 
@@ -562,9 +563,13 @@ AllocError::ZeroSize
 ```
 
 Stop line:
-This docs-only decision does not add parser changes, local type annotation
-metadata, typed array lowering, Result/Option prelude insertion, enum variant
-resolver changes, or PackedArray eligibility checks. Those are separate rows.
+ARRAY-001 implements typed-context array literal lowering for `Array<T>` only.
+`local ids = []` still fail-fasts because no type inference is owned here.
+`PackedArray<T> = []` also fail-fasts; there is no silent fallback to ordinary
+`Array<T>` / `ArrayBox`. RESULT-001 implements `Option<T>` / `Result<T,E>` as built-in enum prelude surfaces.
+Known enum variants must use `Type::Variant`; dot variant spelling fail-fasts.
+Match exhaustiveness expansion and PackedArray runtime/backend lowering remain
+separate rows.
 
 ## Box Members (Phase‑15, env gate: NYASH_ENABLE_UNIFIED_MEMBERS; default ON)
 
@@ -683,7 +688,8 @@ enum_variant     := IDENT
                   | IDENT '(' TYPE_REF ')'
                   | IDENT '{' enum_record_field (',' enum_record_field)* '}'
 enum_record_field:= IDENT ':' TYPE_REF
-qualified_ctor   := IDENT '::' IDENT '(' args? ')'
+qualified_ctor   := IDENT '::' IDENT
+                  | IDENT '::' IDENT '(' args? ')'
                   | IDENT '::' IDENT '{' enum_record_init (',' enum_record_init)* '}'
 enum_record_init := IDENT ':' expr
 ```

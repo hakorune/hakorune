@@ -44,6 +44,7 @@ fn test_mir_phase7_basic_nowait_await() {
                 }),
                 span: Span::unknown(),
             }))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         },
         // return result
@@ -198,6 +199,7 @@ fn test_mir_phase7_multiple_nowait_await() {
                 }),
                 span: Span::unknown(),
             }))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         },
         // local result2 = await f2
@@ -210,6 +212,7 @@ fn test_mir_phase7_multiple_nowait_await() {
                 }),
                 span: Span::unknown(),
             }))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         },
         // return result1 + result2

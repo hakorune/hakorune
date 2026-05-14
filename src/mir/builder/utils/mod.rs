@@ -8,9 +8,8 @@
 //! - **debug**: Builder debug logging (NYASH_BUILDER_DEBUG)
 //! - **id_alloc**: Value/Block ID allocation with PHI reservation (Phase 136, 201-A)
 //!
-//! ### SSA & Type Operations
+//! ### SSA helpers
 //! - **local_ssa**: LocalSSA convenience wrappers (recv, arg, cond, etc.)
-//! - **type_ops**: Type checking and casting (dead_code, future use)
 //!
 //! ### Memory & Concurrency
 //! - **weak_ref**: WeakRef and Barrier operations (Phase 285A1)
@@ -32,7 +31,6 @@ mod debug;
 mod id_alloc;
 mod local_ssa;
 mod pinning;
-mod type_ops;
 mod weak_ref;
 
 // Re-export debug utilities (used across builder modules)

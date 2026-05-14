@@ -105,6 +105,7 @@ fn test_capture_function_param_used_in_method_call() {
                 }],
                 span: Span::unknown(),
             }))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         },
         ASTNode::Assignment {
@@ -256,6 +257,7 @@ fn test_capture_mixed_locals_and_params() {
                 }],
                 span: Span::unknown(),
             }))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         },
         ASTNode::Local {
@@ -272,6 +274,7 @@ fn test_capture_mixed_locals_and_params() {
                 }],
                 span: Span::unknown(),
             }))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         },
     ];
@@ -283,6 +286,7 @@ fn test_capture_mixed_locals_and_params() {
             value: LiteralValue::String("0123".to_string()),
             span: Span::unknown(),
         }))],
+        declared_type_names: Vec::new(),
         span: Span::unknown(),
     }];
 

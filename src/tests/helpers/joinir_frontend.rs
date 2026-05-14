@@ -28,7 +28,7 @@ impl JoinIrFrontendTestRunner {
     }
 
     /// デバッグモードを有効化（JoinIR Module をダンプ）
-    #[allow(dead_code)]
+    #[allow(dead_code)] // ASTCLEAN-008: optional fluent debug hook for focused JoinIR fixture tests.
     pub fn with_debug(mut self) -> Self {
         self.debug_enabled = true;
         self

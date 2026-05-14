@@ -8,16 +8,7 @@ impl NyashParser {
     pub(crate) fn expr_parse_primary(&mut self) -> Result<ASTNode, ParseError> {
         match &self.current_token().token_type {
             TokenType::LBRACK => {
-                let sugar_on = crate::parser::sugar_gate::is_enabled()
-                    || std::env::var("NYASH_ENABLE_ARRAY_LITERAL").ok().as_deref() == Some("1");
-                if !sugar_on {
-                    let line = self.current_token().line;
-                    return Err(ParseError::UnexpectedToken {
-                        found: self.current_token().token_type.clone(),
-                        expected: "enable NYASH_SYNTAX_SUGAR_LEVEL=basic|full or NYASH_ENABLE_ARRAY_LITERAL=1".to_string(),
-                        line,
-                    });
-                }
+                // ARRAY-001: parser accepts the literal shape; Stage1 owns typed-context checks.
                 self.advance();
                 let mut elems: Vec<ASTNode> = Vec::new();
                 while !self.match_token(&TokenType::RBRACK) && !self.is_at_end() {

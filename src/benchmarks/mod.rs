@@ -74,16 +74,6 @@ impl BenchmarkSuite {
 
     // Interpreter benchmark removed with legacy interpreter
 
-    // VM benchmark removed with vm-legacy
-    #[allow(dead_code)]
-    fn run_vm_benchmark(
-        &self,
-        _name: &str,
-        _source: &str,
-    ) -> Result<BenchmarkResult, Box<dyn std::error::Error>> {
-        Err("VM benchmark removed with vm-legacy".into())
-    }
-
     /// Run benchmark on WASM backend
     #[cfg(feature = "wasm-backend")]
     fn run_wasm_benchmark(

@@ -29,7 +29,7 @@ pub fn clone_last_merged_preludes() -> Vec<String> {
 }
 
 /// Take and clear the last recorded prelude file paths.
-#[allow(dead_code)]
+#[allow(dead_code)] // ASTCLEAN-017: diagnostic drain API retained for enriched using-resolution error reporters.
 pub fn take_last_merged_preludes() -> Vec<String> {
     LAST_MERGED_PRELUDES.with(|c| std::mem::take(&mut *c.borrow_mut()))
 }

@@ -48,13 +48,7 @@ pub trait ParserUtils {
     /// 位置を1つ進める（改行スキップ：Cursor無効時のみ最小限）
     fn advance(&mut self) {
         if !self.is_at_end() {
-            // 現在のトークンで深度を更新（進める前）
-            self.update_depth_before_advance();
-
             *self.current_mut() += 1;
-
-            // 新しいトークンで深度を更新（進めた後）
-            self.update_depth_after_advance();
 
             // 改行スキップは Cursor 無効時のみ最小限で行う（互換用）。
             // NYASH_PARSER_TOKEN_CURSOR=1 の場合は Cursor 側で一元管理する。
@@ -73,16 +67,6 @@ pub trait ParserUtils {
                 }
             }
         }
-    }
-
-    /// advance前の深度更新（閉じ括弧の処理）
-    fn update_depth_before_advance(&mut self) {
-        // デフォルト実装は何もしない（NyashParserでオーバーライド）
-    }
-
-    /// advance後の深度更新（開き括弧の処理）
-    fn update_depth_after_advance(&mut self) {
-        // デフォルト実装は何もしない（NyashParserでオーバーライド）
     }
 
     // 旧来の should_auto_skip_newlines / skip_newlines 系は撤去（Cursor に集約）

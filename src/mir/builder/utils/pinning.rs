@@ -45,26 +45,8 @@ impl super::super::MirBuilder {
         Ok(dst)
     }
 
-    /// Ensure a value has a local definition in the current block by inserting a Copy.
-    #[allow(dead_code)]
-    pub(crate) fn materialize_local(
-        &mut self,
-        v: super::super::ValueId,
-    ) -> Result<super::super::ValueId, String> {
-        // Phase 25.1b: Use function-local ID allocator to avoid SSA verification failures
-        let dst = if let Some(ref mut f) = self.scope_ctx.current_function {
-            f.next_value_id() // Function context: use local ID
-        } else {
-            self.core_ctx.next_value() // Module context: use core_ctx SSOT
-        };
-        self.emit_instruction(super::super::MirInstruction::Copy { dst, src: v })?;
-        // Propagate metadata (type/origin) from source to the new local copy
-        crate::mir::builder::metadata::propagate::propagate(self, v, dst);
-        Ok(dst)
-    }
-
     /// Insert a Copy immediately after PHI nodes in the current block (position-stable).
-    #[allow(dead_code)]
+    #[allow(dead_code)] // ASTCLEAN-015: retained for staged scheduler copy insertion routes.
     pub(crate) fn insert_copy_after_phis(
         &mut self,
         dst: super::super::ValueId,
@@ -105,14 +87,4 @@ impl super::super::MirBuilder {
         Err("No current function/block to insert copy".to_string())
     }
 
-    /// Ensure a value is safe to use in the current block by slotifying (pinning) it.
-    /// Currently correctness-first: always pin to get a block-local def and PHI participation.
-    #[allow(dead_code)]
-    pub(crate) fn ensure_slotified_for_use(
-        &mut self,
-        v: super::super::ValueId,
-        hint: &str,
-    ) -> Result<super::super::ValueId, String> {
-        self.pin_to_slot(v, hint)
-    }
 }

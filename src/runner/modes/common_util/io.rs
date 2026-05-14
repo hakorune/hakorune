@@ -5,10 +5,7 @@ use std::time::Duration;
 
 pub struct ChildOutput {
     pub stdout: Vec<u8>,
-    #[allow(dead_code)]
     pub stderr: Vec<u8>,
-    #[allow(dead_code)]
-    pub status_ok: bool,
     pub exit_code: Option<i32>,
     pub timed_out: bool,
 }
@@ -52,15 +49,10 @@ pub fn spawn_with_timeout(mut cmd: Command, timeout_ms: u64) -> std::io::Result<
     if let Some(mut s) = ch_stderr {
         let _ = s.read_to_end(&mut err_buf);
     }
-    let (status_ok, exit_code) = if let Some(st) = exit_status {
-        (st.success(), st.code())
-    } else {
-        (false, None)
-    };
+    let exit_code = exit_status.and_then(|st| st.code());
     Ok(ChildOutput {
         stdout: out_buf,
         stderr: err_buf,
-        status_ok,
         exit_code,
         timed_out,
     })

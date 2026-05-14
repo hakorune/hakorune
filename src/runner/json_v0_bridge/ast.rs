@@ -236,6 +236,14 @@ pub(super) enum ExprV0 {
         name: String,
         args: Vec<ExprV0>,
     },
+    ArrayLiteral {
+        #[serde(rename = "declared_type", default)]
+        declared_type_name: Option<String>,
+        #[serde(rename = "element_type", default)]
+        element_type_name: Option<String>,
+        #[serde(default)]
+        elements: Vec<ExprV0>,
+    },
     Method {
         recv: Box<ExprV0>,
         method: String,

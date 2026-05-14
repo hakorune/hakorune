@@ -185,6 +185,7 @@ impl NyashParser {
         let scr_local = ASTNode::Local {
             variables: vec![scr_var.clone()],
             initial_values: vec![Some(Box::new(scrutinee))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         };
 
@@ -306,6 +307,7 @@ impl NyashParser {
                     let bind_local = ASTNode::Local {
                         variables: vec![bind.clone()],
                         initial_values: vec![Some(Box::new(cast))],
+                        declared_type_names: Vec::new(),
                         span: Span::unknown(),
                     };
                     let else_statements = match else_node.clone() {

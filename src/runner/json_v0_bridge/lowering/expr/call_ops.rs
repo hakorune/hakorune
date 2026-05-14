@@ -24,32 +24,7 @@ pub(super) fn lower_call_expr<S: VarScope>(
     }
 
     if name == "array.of" {
-        let arr = f.next_value_id();
-        if let Some(bb) = f.get_block_mut(cur_bb) {
-            bb.add_instruction(MirInstruction::NewBox {
-                dst: arr,
-                box_type: "ArrayBox".into(),
-                args: vec![],
-            });
-        }
-        let mut cur = cur_bb;
-        for expr in args {
-            let (value, next_bb) = super::lower_expr_with_scope(env, f, cur, expr, vars)?;
-            cur = next_bb;
-            let tmp = f.next_value_id();
-            if let Some(bb) = f.get_block_mut(cur) {
-                bb.add_instruction(crate::mir::ssot::method_call::runtime_method_call(
-                    Some(tmp),
-                    arr,
-                    "ArrayBox",
-                    "push",
-                    vec![value],
-                    EffectMask::READ,
-                    crate::mir::definitions::call_unified::TypeCertainty::Known,
-                ));
-            }
-        }
-        return Ok((arr, cur));
+        return lower_array_values_expr(env, f, cur_bb, args, vars);
     }
 
     if name == "map.of" {
@@ -109,6 +84,41 @@ pub(super) fn lower_call_expr<S: VarScope>(
         });
     }
     Ok((dst, cur))
+}
+
+pub(super) fn lower_array_values_expr<S: VarScope>(
+    env: &BridgeEnv,
+    f: &mut MirFunction,
+    cur_bb: BasicBlockId,
+    elements: &[ExprV0],
+    vars: &mut S,
+) -> Result<(ValueId, BasicBlockId), String> {
+    let arr = f.next_value_id();
+    if let Some(bb) = f.get_block_mut(cur_bb) {
+        bb.add_instruction(MirInstruction::NewBox {
+            dst: arr,
+            box_type: "ArrayBox".into(),
+            args: vec![],
+        });
+    }
+    let mut cur = cur_bb;
+    for expr in elements {
+        let (value, next_bb) = super::lower_expr_with_scope(env, f, cur, expr, vars)?;
+        cur = next_bb;
+        let tmp = f.next_value_id();
+        if let Some(bb) = f.get_block_mut(cur) {
+            bb.add_instruction(crate::mir::ssot::method_call::runtime_method_call(
+                Some(tmp),
+                arr,
+                "ArrayBox",
+                "push",
+                vec![value],
+                EffectMask::READ,
+                crate::mir::definitions::call_unified::TypeCertainty::Known,
+            ));
+        }
+    }
+    Ok((arr, cur))
 }
 
 fn split_imported_alias_call<'a>(env: &'a BridgeEnv, name: &'a str) -> Option<(&'a str, &'a str)> {

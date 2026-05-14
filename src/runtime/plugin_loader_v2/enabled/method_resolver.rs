@@ -51,20 +51,3 @@ impl PluginLoaderV2 {
         ))
     }
 }
-
-/// Helper functions for method resolution
-#[allow(dead_code)]
-pub(super) fn is_special_method(method_name: &str) -> bool {
-    matches!(method_name, "birth" | "fini" | "toString")
-}
-
-/// Get default method IDs for special methods
-#[allow(dead_code)]
-pub(super) fn get_special_method_id(method_name: &str) -> Option<u32> {
-    match method_name {
-        "birth" => Some(1),
-        "toString" => Some(100),
-        "fini" => Some(999),
-        _ => None,
-    }
-}

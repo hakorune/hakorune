@@ -7,7 +7,6 @@
 
 use super::super::{EffectMask, MirBuilder, MirInstruction, ValueId};
 use super::CallTarget;
-use crate::mir::definitions::call_unified::Callee;
 use crate::mir::definitions::call_unified::TypeCertainty;
 
 impl MirBuilder {
@@ -158,28 +157,6 @@ impl MirBuilder {
     // ========================================
     // Private helper methods (small functions)
     // ========================================
-
-    /// Try fallback handlers for global functions (delegates to CallMaterializerBox)
-    #[allow(dead_code)]
-    pub(super) fn try_global_fallback_handlers(
-        &mut self,
-        dst: Option<ValueId>,
-        name: &str,
-        args: &[ValueId],
-    ) -> Result<Option<()>, String> {
-        super::materializer::CallMaterializerBox::try_global_fallback_handlers(
-            self, dst, name, args,
-        )
-    }
-
-    /// Ensure receiver is materialized in Callee::Method (delegates to CallMaterializerBox)
-    #[allow(dead_code)]
-    pub(super) fn materialize_receiver_in_callee(
-        &mut self,
-        callee: Callee,
-    ) -> Result<Callee, String> {
-        super::materializer::CallMaterializerBox::materialize_receiver_in_callee(self, callee)
-    }
 
     // ✅ 箱化完了:
     // - emit_unified_call_impl → UnifiedCallEmitterBox::emit_unified_call_impl (unified_emitter.rs)

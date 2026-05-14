@@ -356,6 +356,7 @@ mod tests {
             ASTNode::Local {
                 variables: vec!["j".to_string()],
                 initial_values: vec![None],
+                declared_type_names: Vec::new(),
                 span: Span::unknown(),
             },
             ASTNode::Assignment {

@@ -173,6 +173,7 @@ impl NyashParser {
                 ASTNode::Local {
                     variables: vec![temp_name.clone()],
                     initial_values: vec![Some(Box::new(scrutinee))],
+                    declared_type_names: Vec::new(),
                     span: Span::unknown(),
                 },
                 ASTNode::If {
@@ -218,7 +219,8 @@ impl NyashParser {
         if self.match_token(&TokenType::LPAREN) {
             self.advance(); // consume '('
             if self.current_loop_range_header_starts() {
-                let (var_name, start, end) = self.parse_loop_range_header()?;
+                let (var_name, start, end) =
+                    self.parse_range_header("loop range index identifier")?;
                 self.consume(TokenType::RPAREN)?;
                 let body = self.parse_block_statements()?;
                 return Ok(ASTNode::ForRange {
@@ -240,7 +242,8 @@ impl NyashParser {
         }
 
         if self.current_loop_range_header_starts() {
-            let (var_name, start, end) = self.parse_loop_range_header()?;
+            let (var_name, start, end) =
+                self.parse_range_header("loop range index identifier")?;
             let body = self.parse_block_statements()?;
             return Ok(ASTNode::ForRange {
                 var_name,
@@ -266,8 +269,9 @@ impl NyashParser {
             && matches!(self.peek_token(), TokenType::IN)
     }
 
-    fn parse_loop_range_header(
+    fn parse_range_header(
         &mut self,
+        expected_identifier: &'static str,
     ) -> Result<(String, Box<ASTNode>, Box<ASTNode>), ParseError> {
         let var_name = match &self.current_token().token_type {
             TokenType::IDENTIFIER(name) => {
@@ -278,7 +282,7 @@ impl NyashParser {
             other => {
                 return Err(ParseError::UnexpectedToken {
                     found: other.clone(),
-                    expected: "loop range index identifier".to_string(),
+                    expected: expected_identifier.to_string(),
                     line: self.current_token().line,
                 });
             }
@@ -309,14 +313,17 @@ impl NyashParser {
         // body block
         let body = self.parse_block_statements()?;
 
-        Ok(ASTNode::While {
+        // LOOPCLEAN-002: legacy while sugar normalizes to canonical Loop at
+        // parser output. Keep the token accepted as Stage-3 compatibility, but
+        // do not propagate a second loop-shaped AST for new parser output.
+        Ok(ASTNode::Loop {
             condition,
             body,
             span: Span::unknown(),
         })
     }
 
-    /// Stage-3: for-range parsing helper (currently unused).
+    /// Stage-3 legacy for-range compatibility parser.
     fn parse_for_range_stage3(&mut self) -> Result<ASTNode, ParseError> {
         // Normalize cursor at statement start
         if super::helpers::cursor_enabled() {
@@ -327,37 +334,7 @@ impl NyashParser {
         }
         // consume 'for'
         self.advance();
-        // expect identifier
-        let var_name = match &self.current_token().token_type {
-            TokenType::IDENTIFIER(s) => {
-                let n = s.clone();
-                self.advance();
-                n
-            }
-            other => {
-                return Err(ParseError::UnexpectedToken {
-                    found: other.clone(),
-                    expected: "identifier".to_string(),
-                    line: self.current_token().line,
-                })
-            }
-        };
-        // expect 'in'
-        if !self.match_token(&TokenType::IN) {
-            return Err(ParseError::UnexpectedToken {
-                found: self.current_token().token_type.clone(),
-                expected: "in".to_string(),
-                line: self.current_token().line,
-            });
-        }
-        self.advance();
-        // start expr
-        let start = Box::new(self.expr_parse_term()?);
-        // expect RANGE ('..')
-        self.consume(TokenType::RANGE)?;
-        // end expr
-        let end = Box::new(self.expr_parse_term()?);
-        // body
+        let (var_name, start, end) = self.parse_range_header("for range index identifier")?;
         let body = self.parse_block_statements()?;
         Ok(ASTNode::ForRange {
             var_name,
@@ -473,6 +450,7 @@ fn option_some_binding_local(binding_name: &str, temp_name: &str) -> ASTNode {
             else_expr: None,
             span: Span::unknown(),
         }))],
+        declared_type_names: Vec::new(),
         span: Span::unknown(),
     }
 }

@@ -35,6 +35,7 @@ fn local(name: &str, value: ASTNode) -> ASTNode {
     ASTNode::Local {
         variables: vec![name.to_string()],
         initial_values: vec![Some(Box::new(value))],
+        declared_type_names: Vec::new(),
         span: Span::unknown(),
     }
 }
@@ -160,6 +161,7 @@ fn extract_loop_break_parse_integer_subset() {
                 arguments: vec![v("digits"), v("ch")],
                 span: Span::unknown(),
             }))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         },
         ASTNode::If {

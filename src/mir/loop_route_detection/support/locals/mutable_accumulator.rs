@@ -400,6 +400,7 @@ mod tests {
                 value: LiteralValue::Integer(1),
                 span: Span::unknown(),
             }))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         }];
 

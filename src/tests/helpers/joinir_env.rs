@@ -17,7 +17,7 @@ pub fn with_joinir_env_lock<F: FnOnce()>(f: F) {
 }
 
 /// Core ON (joinir_core_enabled = true) にする。
-#[allow(dead_code)]
+#[allow(dead_code)] // ASTCLEAN-008: compat helper for tests that still toggle deprecated core env explicitly.
 pub fn set_core_on() {
     std::env::set_var("NYASH_JOINIR_CORE", "1");
 }

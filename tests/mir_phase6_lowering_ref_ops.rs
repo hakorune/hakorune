@@ -31,6 +31,7 @@ fn test_mir_phase6_lowering_ref_ops() {
         ASTNode::Local {
             variables: vec!["o".to_string()],
             initial_values: vec![None],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         },
         // o = new Obj()
@@ -67,6 +68,7 @@ fn test_mir_phase6_lowering_ref_ops() {
         ASTNode::Local {
             variables: vec!["y".to_string()],
             initial_values: vec![None],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         },
         // y = o.x

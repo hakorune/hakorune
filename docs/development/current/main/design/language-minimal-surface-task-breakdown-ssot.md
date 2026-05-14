@@ -18,8 +18,8 @@ This document turns the language-design discussions into task-sized backlog
 rows.
 
 It is not the active allocator lane.
-`PACKED-001 PackedArray eligibility gate` is the current selected language blocker
-unless the user explicitly switches to the language lane.
+`RESULT-001 Result/Option prelude diagnostics` is complete as the current
+selected enum/prelude row after the ARRAY-001 typed literal bridge.
 
 `ARRAY-RESULT-SSOT` is complete as the docs-only canonical surface decision for
 `Array<T>`, `PackedArray<T>`, `Result<T,E>`, `Option<T>`, and
@@ -65,15 +65,16 @@ Retire condition:
 | --- | --- | --- |
 | Minimal keyword surface | docs accepted | no immediate code row |
 | Loop-only repetition | parser capsule complete | `LOOP-003 Stage1 LoopRange lowering` |
+| Loop cleanup / PackedArray gate | complete through `293x-293` | `ASTCLEAN-017 runner/provider/runtime dead_code rationale pass` |
 | No-inheritance delegation | exposes lowering complete | `DEL-004 legacy quarantine migration` |
 | Brand/type | brand checker complete; type alias parser capsule complete | `TYPE-002 Stage1 alias diagnostics` |
 | Record literal | with-update lowering complete | no immediate row |
 | Contracts | syntax metadata capsule complete | `CONTRACT-003 contract runtime-check insertion` |
 | Enum transition lifecycle | metadata capsule complete | `TRANS-002 transition legality checker` |
-| Result/Option | planned | `RESULT-001 prelude and diagnostics` |
+| Result/Option | prelude diagnostics complete | `RESULT-002 enum diagnostics and exhaustiveness` |
 | Generic containers | generic type annotation metadata and arity checker complete | next substitution/semantics row deferred |
 | PackedArray | planned | `PACKED-001 eligibility gate` |
-| Array / Result / Option canonical surface | docs-only decision complete | `LOCALTYPE-001`, `ENUMVAR-001`, `ARRAY-001`, `RESULT-001`, `PACKED-001` |
+| Array / Result / Option canonical surface | docs accepted; LOCALTYPE/ENUMVAR/ARRAY/RESULT rows complete | `ARRAY-002`, then later `RESULT-002` |
 | Uses/capability | method-level metadata capsule complete | `USES-002 capability checker` |
 | Span/view | planned later | `SPAN-001 Span API design row` |
 | Module visibility | planned later | `MOD-001 using/module migration decision` |
@@ -106,6 +107,11 @@ loop {
 | `LOOP-003 Stage1 LoopRange lowering` | Entry-bound capture, block-local read-only index, end-exclusive range, step=1, continue-safe step. | Stage1 semantics |
 | `LOOP-004 LoopRange verifier facts` | Expose index/bounds facts such as `i < end`; add conservative facts only. | Stage1 verifier |
 | `LOOP-005 canonical loop formatter/docs` | Make paren-less `loop i in a..b` the canonical spelling; optional paren compatibility requires a separate decision. | docs/tooling |
+| `LOOPCLEAN-001 loop cleanup phase` | Complete as `293x-289`; open BoxShape cleanup before PackedArray work. | docs |
+| `LOOPCLEAN-002 while parser normalization` | Complete as `293x-290`; new parsed `while` returns `Loop`; old JSON `While` remains compat decode. | BoxShape parser cleanup |
+| `LOOPCLEAN-003 while variant quarantine` | Complete as `293x-291`; quarantine `ASTNode::While` as legacy-only input and keep compat Program(JSON) Loop lowering. | BoxShape cleanup |
+| `LOOPCLEAN-004 range parser helper commonization` | Complete as `293x-292`; share range-header parsing between canonical `loop i in` and legacy `for i in`. | BoxShape parser cleanup |
+| `LOOPCLEAN-005 LoopRange rename decision` | Decide if internal `ForRange` should be renamed to `LoopRange`. | docs/future |
 
 Stop lines:
 
@@ -202,7 +208,7 @@ record methods/delegate/interface are not MVP
 | `CONTRACT-002 contract syntax metadata capsule` | Complete as `293x-282`; parses `requires`, `ensures`, `invariant` metadata only and transports it through AST/JSON. | Stage0 capsule complete |
 | `CONTRACT-003 contract runtime-check insertion` | Insert runtime pre/post/invariant checks at defined boundaries. | Stage1 semantics |
 | `CONTRACT-004 contract verifier discharge` | Statically discharge proven checks and keep diagnostics stable. | Stage1 verifier |
-| `TRANS-001 transition metadata capsule` | Complete as `293x-283`; parses `transition Enum.A -> Enum.B by method` and transports box-local lifecycle relation metadata. | Stage0 capsule complete |
+| `TRANS-001 transition metadata capsule` | Complete as `293x-283`; parses canonical `transition Enum::A -> Enum::B by method` and transports box-local lifecycle relation metadata. Legacy `Enum.A` metadata is accepted and normalized by `ENUMVAR-001`. | Stage0 capsule complete |
 | `TRANS-002 transition legality checker` | Check legal state transitions from enum values. | Stage1 semantics |
 | `TRANS-003 page lifecycle verifier pilot` | Apply transition/contract facts to allocator page lifecycle. | Stage1 verifier |
 
@@ -219,7 +225,7 @@ no Stage0 invariant or transition checker
 
 | Task | Scope | Stage |
 | --- | --- | --- |
-| `RESULT-001 Result Option prelude` | Define canonical `Result<T,E>` and `Option<T>` surface over enum. | Stage1 prelude |
+| `RESULT-001 Result Option prelude` | Complete as `293x-314`; define built-in `Result<T,E>` and `Option<T>` enum surfaces plus dot-variant fail-fast diagnostics. | Stage1 prelude complete |
 | `RESULT-002 enum diagnostics and exhaustiveness` | Improve match diagnostics and exhaustiveness for known enum shapes. | Stage1 diagnostics |
 | `GUARDLET-001 guard-let pattern sugar` | Lower `guard let Pattern = expr else { ... }` through match/pattern rules. | Stage1 semantics |
 
@@ -240,10 +246,10 @@ no Stage0 Result/Option special-case
 | `ARRAY-RESULT-SSOT` | Canonicalize `Array<T>`, `PackedArray<T>`, `Result<T,E>`, `Option<T>`, and `Type::Variant`; no implementation. | docs/reference |
 | `LOCALTYPE-001 local type annotation metadata capsule` | Parse and transport `local name: Type = expr` without type meaning. | Stage0 metadata |
 | `ENUMVAR-001 enum variant canonical surface` | Keep `Type::Variant` canonical; avoid dot variants and unqualified canonical constructors. | Stage1 enum surface |
-| `ARRAY-001 typed context array literal` | Interpret `[]` and non-empty array literals only with expected typed context. | Stage1 typed collection |
+| `ARRAY-001 typed context array literal` | Complete as `293x-313`; interpret `[]` and non-empty literals only under `Array<T>` local typed context, with PackedArray no-fallback fail-fast. | Stage1 typed collection complete |
 | `ARRAY-002 Array typed container semantics` | Define normal typed array behavior beyond literal context. | Stage1 semantics |
-| `RESULT-001 Result/Option prelude diagnostics` | Keep `Result<T,E>` / `Option<T>` as enum surfaces with explicit `Type::Variant`. | Stage1 enum/prelude |
-| `PACKED-001 PackedArray eligibility gate` | Fail-fast if packed residence cannot be proven. | Stage1 CorePlan |
+| `RESULT-001 Result/Option prelude diagnostics` | Complete as `293x-314`; keep `Result<T,E>` / `Option<T>` as enum surfaces with explicit `Type::Variant` and prelude lookup. | Stage1 enum/prelude complete |
+| `PACKED-001 PackedArray eligibility gate` | Complete as `293x-293`; fail-fast if packed residence cannot be proven for declaration type metadata. | Stage1 CorePlan |
 | `PACKED-002 PackedArray non-escaping auto-use pilot` | Use packed ArrayBox for eligible non-escaping record arrays. | Stage1 CorePlan |
 
 Stop lines:
@@ -300,10 +306,14 @@ language work, start here:
 16. `GEN-001 generic type annotation metadata capsule` (complete as `293x-285`)
 17. `GEN-002 generic arity check`
 18. `ARRAY-RESULT-SSOT` (complete docs-only)
-19. `PACKED-001 PackedArray eligibility gate`
-20. `LOCALTYPE-001 local type annotation metadata capsule`
-21. `ENUMVAR-001 enum variant canonical surface`
-22. `ARRAY-001 typed context array literal`
-23. `RESULT-001 Result/Option prelude diagnostics`
+19. `LOOPCLEAN-001 loop cleanup phase` (complete docs-only)
+20. `LOOPCLEAN-002 while parser normalization` (complete as `293x-290`)
+21. `LOOPCLEAN-003 while variant quarantine` (complete as `293x-291`)
+22. `LOOPCLEAN-004 range parser helper commonization` (complete as `293x-292`)
+23. `PACKED-001 PackedArray eligibility gate` (complete as `293x-293`)
+24. `ASTCLEAN-017 runner/provider/runtime dead_code rationale pass`
+25. `ENUMVAR-001 enum variant canonical surface`
+26. `ARRAY-001 typed context array literal`
+27. `RESULT-001 Result/Option prelude diagnostics`
 
 This order keeps early wins concrete while avoiding Stage0 semantic growth.

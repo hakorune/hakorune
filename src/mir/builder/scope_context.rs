@@ -32,7 +32,6 @@ pub(in crate::mir) struct ScopeContext {
     pub(super) loop_header_stack: Vec<BasicBlockId>,
 
     /// Stack of loop exit blocks (innermost first)
-    #[allow(dead_code)]
     pub(super) loop_exit_stack: Vec<BasicBlockId>,
 
     /// Stack of if/merge blocks (innermost first)
@@ -88,41 +87,6 @@ impl ScopeContext {
     }
 
     // ---- Control flow stack helpers ----
-
-    /// Push loop header block
-    #[inline]
-    #[allow(dead_code)]
-    pub(super) fn push_loop_header(&mut self, bb: BasicBlockId) {
-        self.loop_header_stack.push(bb);
-    }
-
-    /// Pop loop header block
-    #[inline]
-    #[allow(dead_code)]
-    pub(super) fn pop_loop_header(&mut self) -> Option<BasicBlockId> {
-        self.loop_header_stack.pop()
-    }
-
-    /// Get innermost loop header
-    #[inline]
-    #[allow(dead_code)]
-    pub(super) fn current_loop_header(&self) -> Option<BasicBlockId> {
-        self.loop_header_stack.last().copied()
-    }
-
-    /// Push loop exit block
-    #[inline]
-    #[allow(dead_code)]
-    pub(super) fn push_loop_exit(&mut self, bb: BasicBlockId) {
-        self.loop_exit_stack.push(bb);
-    }
-
-    /// Pop loop exit block
-    #[inline]
-    #[allow(dead_code)]
-    pub(super) fn pop_loop_exit(&mut self) -> Option<BasicBlockId> {
-        self.loop_exit_stack.pop()
-    }
 
     /// Push if/merge block
     #[inline]
@@ -213,23 +177,23 @@ mod tests {
         let header2 = BasicBlockId(2);
 
         // Initially empty
-        assert!(ctx.current_loop_header().is_none());
+        assert!(ctx.loop_header_stack.last().copied().is_none());
 
         // Push first loop
-        ctx.push_loop_header(header1);
-        assert_eq!(ctx.current_loop_header(), Some(header1));
+        ctx.loop_header_stack.push(header1);
+        assert_eq!(ctx.loop_header_stack.last().copied(), Some(header1));
 
         // Push nested loop (innermost)
-        ctx.push_loop_header(header2);
-        assert_eq!(ctx.current_loop_header(), Some(header2));
+        ctx.loop_header_stack.push(header2);
+        assert_eq!(ctx.loop_header_stack.last().copied(), Some(header2));
 
         // Pop innermost
-        assert_eq!(ctx.pop_loop_header(), Some(header2));
-        assert_eq!(ctx.current_loop_header(), Some(header1));
+        assert_eq!(ctx.loop_header_stack.pop(), Some(header2));
+        assert_eq!(ctx.loop_header_stack.last().copied(), Some(header1));
 
         // Pop outermost
-        assert_eq!(ctx.pop_loop_header(), Some(header1));
-        assert!(ctx.current_loop_header().is_none());
+        assert_eq!(ctx.loop_header_stack.pop(), Some(header1));
+        assert!(ctx.loop_header_stack.last().copied().is_none());
     }
 
     #[test]

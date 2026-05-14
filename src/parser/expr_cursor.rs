@@ -1,6 +1,5 @@
 use crate::ast::{ASTNode, BinaryOperator, CheckItem, LiteralValue, Span};
 use crate::parser::cursor::TokenCursor;
-use crate::parser::sugar_gate;
 use crate::parser::ParseError;
 use crate::tokenizer::TokenType;
 use std::collections::BTreeSet;
@@ -311,17 +310,7 @@ impl ExprParserWithCursor {
     fn parse_primary_expr(cursor: &mut TokenCursor) -> Result<ASTNode, ParseError> {
         match &cursor.current().token_type.clone() {
             TokenType::LBRACK => {
-                // Array literal (sugar gated)
-                let sugar_on = sugar_gate::is_enabled()
-                    || std::env::var("NYASH_ENABLE_ARRAY_LITERAL").ok().as_deref() == Some("1");
-                if !sugar_on {
-                    let line = cursor.current().line;
-                    return Err(ParseError::UnexpectedToken {
-                        found: cursor.current().token_type.clone(),
-                        expected: "enable NYASH_SYNTAX_SUGAR_LEVEL=basic|full or NYASH_ENABLE_ARRAY_LITERAL=1".to_string(),
-                        line,
-                    });
-                }
+                // ARRAY-001: parser accepts the literal shape; Stage1 owns typed-context checks.
                 cursor.advance(); // consume '['
                 let mut elements: Vec<ASTNode> = Vec::new();
                 while !cursor.match_token(&TokenType::RBRACK) && !cursor.is_at_end() {

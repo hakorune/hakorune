@@ -44,7 +44,7 @@ impl MirInterpreter {
     /// # Returns
     /// 引数数が範囲内の場合はOk(())、そうでない場合はエラー
     #[inline]
-    #[allow(dead_code)]
+    #[allow(dead_code)] // ASTCLEAN-009: retained for staged handlers needing bounded arity checks.
     pub(crate) fn validate_args_range(
         &self,
         method: &str,
@@ -72,7 +72,7 @@ impl MirInterpreter {
     /// # Returns
     /// 引数数が最小値以上の場合はOk(())、そうでない場合はエラー
     #[inline]
-    #[allow(dead_code)]
+    #[allow(dead_code)] // ASTCLEAN-009: retained for staged variadic handler migration.
     pub(crate) fn validate_args_min(
         &self,
         method: &str,

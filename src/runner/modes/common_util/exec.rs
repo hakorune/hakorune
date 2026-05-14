@@ -276,7 +276,6 @@ fn emit_json_and_run_ny_llvmc_emit_exe(
 }
 
 /// Emit native executable via ny-llvmc (lib-side MIR)
-#[allow(dead_code)]
 pub fn ny_llvmc_emit_exe_lib(
     module: &nyash_rust::mir::MirModule,
     exe_out: &str,
@@ -328,7 +327,6 @@ pub fn llvmlite_emit_obj_lib(
 }
 
 /// Deprecated compatibility alias for older internal call sites.
-#[allow(dead_code)]
 pub fn ny_llvmc_emit_obj_lib(
     module: &nyash_rust::mir::MirModule,
     obj_out: &str,
@@ -343,7 +341,6 @@ pub fn ny_llvmc_emit_obj_lib(
 }
 
 /// Emit native executable via ny-llvmc (bin-side MIR)
-#[allow(dead_code)]
 pub fn ny_llvmc_emit_exe_bin(
     module: &crate::mir::MirModule,
     exe_out: &str,
@@ -364,7 +361,6 @@ pub fn ny_llvmc_emit_exe_bin(
 
 /// Run an executable with arguments and a timeout.
 /// Returns (exit_code, timed_out, stdout_text).
-#[allow(dead_code)]
 pub fn run_executable(
     exe_path: &str,
     args: &[&str],

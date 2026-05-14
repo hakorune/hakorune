@@ -83,6 +83,7 @@ fn local_with_init(name: &str, init: ASTNode) -> ASTNode {
     ASTNode::Local {
         variables: vec![name.to_string()],
         initial_values: vec![Some(Box::new(init))],
+        declared_type_names: Vec::new(),
         span: Span::unknown(),
     }
 }

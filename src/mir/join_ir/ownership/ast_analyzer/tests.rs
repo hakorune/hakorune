@@ -34,6 +34,7 @@ fn shadowing_inner_local_does_not_create_relay_write() {
                 ASTNode::Local {
                     variables: vec!["sum".to_string()],
                     initial_values: vec![Some(Box::new(lit_i(1)))],
+                    declared_type_names: Vec::new(),
                     span: Span::unknown(),
                 },
                 ASTNode::Assignment {
@@ -123,6 +124,7 @@ fn loop_local_written_is_owned_var() {
         ASTNode::Local {
             variables: vec!["tmp".to_string()],
             initial_values: vec![Some(Box::new(lit_i(0)))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         },
         ASTNode::Assignment {

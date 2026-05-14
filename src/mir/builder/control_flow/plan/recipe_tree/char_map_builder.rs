@@ -123,6 +123,7 @@ fn build_body_from_facts(facts: &LoopCharMapFacts) -> Vec<ASTNode> {
             ],
             span,
         }))],
+        declared_type_names: Vec::new(),
         span,
     };
 

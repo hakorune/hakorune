@@ -12,7 +12,7 @@
 //! - 実行結果が完全一致（[2, 4, 6]）
 //! - 5回連続PASS
 
-#![allow(dead_code)]
+#![allow(dead_code)] // ASTCLEAN-008: phase fixture keeps helper paths available under selective test filters.
 
 use crate::mir::join_ir::frontend::AstToJoinIrLowerer;
 use crate::mir::join_ir_vm_bridge::convert_join_module_to_mir_with_meta;
@@ -149,6 +149,7 @@ fn phase40_joinir_detects_local_declarations() {
                 value: LiteralValue::Integer(1),
                 span: Span::unknown(),
             }))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         },
         ASTNode::Local {
@@ -157,6 +158,7 @@ fn phase40_joinir_detects_local_declarations() {
                 value: LiteralValue::Integer(2),
                 span: Span::unknown(),
             }))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         },
     ];
@@ -194,6 +196,7 @@ fn phase40_joinir_nested_if_local() {
                     value: LiteralValue::Integer(1),
                     span: Span::unknown(),
                 }))],
+                declared_type_names: Vec::new(),
                 span: Span::unknown(),
             }],
             else_body: None,
@@ -205,6 +208,7 @@ fn phase40_joinir_nested_if_local() {
                 value: LiteralValue::Integer(2),
                 span: Span::unknown(),
             }))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         },
     ];

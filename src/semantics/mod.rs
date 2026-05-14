@@ -80,4 +80,5 @@ pub trait SemanticsExt: Semantics {
 
 impl<T: Semantics> SemanticsExt for T {}
 pub mod option_contract;
+pub mod result_option_prelude;
 pub mod vm_impl;

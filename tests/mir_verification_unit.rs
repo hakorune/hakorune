@@ -47,6 +47,7 @@ fn test_if_merge_uses_phi_not_predecessor() {
             ASTNode::Local {
                 variables: vec!["result".to_string()],
                 initial_values: vec![None],
+                declared_type_names: Vec::new(),
                 span: Span::unknown(),
             },
             ASTNode::If {
@@ -203,6 +204,7 @@ fn test_loop_phi_normalization() {
                     value: LiteralValue::Integer(0),
                     span: Span::unknown(),
                 }))],
+                declared_type_names: Vec::new(),
                 span: Span::unknown(),
             },
             ASTNode::Loop {
@@ -285,6 +287,7 @@ fn test_loop_nested_if_phi() {
                     value: LiteralValue::Integer(0),
                     span: Span::unknown(),
                 }))],
+                declared_type_names: Vec::new(),
                 span: Span::unknown(),
             },
             ASTNode::Local {
@@ -293,6 +296,7 @@ fn test_loop_nested_if_phi() {
                     value: LiteralValue::Integer(0),
                     span: Span::unknown(),
                 }))],
+                declared_type_names: Vec::new(),
                 span: Span::unknown(),
             },
             ASTNode::Loop {

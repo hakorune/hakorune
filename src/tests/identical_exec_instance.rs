@@ -11,7 +11,7 @@ mod tests {
     };
 
     // Minimal Person factory: creates InstanceBox with fields [name, age]
-    #[allow(dead_code)]
+    #[allow(dead_code)] // ASTCLEAN-008: feature-gated JIT fixture factory used by manual parity tests.
     struct PersonFactory;
     impl crate::box_factory::BoxFactory for PersonFactory {
         fn create_box(
@@ -41,7 +41,7 @@ mod tests {
         }
     }
 
-    #[allow(dead_code)]
+    #[allow(dead_code)] // ASTCLEAN-008: feature-gated JIT fixture builder used by manual parity tests.
     fn build_person_module() -> MirModule {
         let mut module = MirModule::new("identical_person".to_string());
         let sig = FunctionSignature {

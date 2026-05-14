@@ -124,6 +124,7 @@ fn detects_balanced_array_end_min_shape() {
             ],
             span: span(),
         }))],
+        declared_type_names: Vec::new(),
         span: span(),
     };
     let open_branch = if_then(
@@ -278,6 +279,7 @@ fn analysis_view_blockexpr_accepts_single_update_and_rejects_ambiguous_or_contro
         vec![ASTNode::Local {
             variables: vec!["t".to_string()],
             initial_values: vec![Some(Box::new(int_lit(0)))],
+            declared_type_names: Vec::new(),
             span: span(),
         }],
         assign(

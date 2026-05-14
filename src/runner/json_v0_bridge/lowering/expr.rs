@@ -24,19 +24,6 @@ pub(super) trait VarScope {
     ) -> Result<Option<ValueId>, String>;
 }
 
-pub(super) struct NoVars;
-impl VarScope for NoVars {
-    fn resolve(
-        &mut self,
-        _env: &BridgeEnv,
-        _f: &mut MirFunction,
-        _cur_bb: BasicBlockId,
-        name: &str,
-    ) -> Result<Option<ValueId>, String> {
-        Err(format!("undefined variable in this context: {}", name))
-    }
-}
-
 pub(super) struct MapVars<'a> {
     vars: &'a mut BTreeMap<String, ValueId>,
 }
@@ -168,6 +155,9 @@ pub(super) fn lower_expr_with_scope<S: VarScope>(
         ExprV0::Call { name, args } => {
             call_ops::lower_call_expr(env, f, cur_bb, name, args, vars)
         }
+        ExprV0::ArrayLiteral { elements, .. } => {
+            call_ops::lower_array_values_expr(env, f, cur_bb, elements, vars)
+        }
         ExprV0::Method { recv, method, args } => {
             call_ops::lower_method_expr(env, f, cur_bb, recv, method, args, vars)
         }
@@ -233,17 +223,6 @@ fn lower_args_with_scope<S: VarScope>(
     Ok((out, cur))
 }
 
-#[allow(dead_code)]
-fn lower_expr(
-    env: &BridgeEnv,
-    f: &mut MirFunction,
-    cur_bb: BasicBlockId,
-    e: &ExprV0,
-) -> Result<(ValueId, BasicBlockId), String> {
-    let mut scope = NoVars;
-    lower_expr_with_scope(env, f, cur_bb, e, &mut scope)
-}
-
 pub(super) fn lower_expr_with_vars(
     env: &BridgeEnv,
     f: &mut MirFunction,
@@ -274,17 +253,6 @@ pub(super) fn lower_expr_with_vars(
     }
     let mut scope = MapVars::new(vars);
     lower_expr_with_scope(env, f, cur_bb, e, &mut scope)
-}
-
-#[allow(dead_code)]
-fn lower_args(
-    env: &BridgeEnv,
-    f: &mut MirFunction,
-    cur_bb: BasicBlockId,
-    args: &[ExprV0],
-) -> Result<(Vec<ValueId>, BasicBlockId), String> {
-    let mut scope = NoVars;
-    lower_args_with_scope(env, f, cur_bb, args, &mut scope)
 }
 
 pub(super) fn lower_args_with_vars(

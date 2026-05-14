@@ -551,6 +551,7 @@ mod tests {
         ASTNode::Local {
             variables: vec![name.to_string()],
             initial_values: vec![Some(Box::new(init))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         }
     }

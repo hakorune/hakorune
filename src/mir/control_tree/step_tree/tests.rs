@@ -45,6 +45,7 @@ fn build_step_tree_if_only_nested_if_is_structural() {
                 value: LiteralValue::Integer(0),
                 span: Span::unknown(),
             }))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         },
         ASTNode::If {
@@ -258,11 +259,13 @@ fn contract_extracts_loop_exits_and_writes_minimal() {
         ASTNode::Local {
             variables: vec!["i".to_string()],
             initial_values: vec![Some(Box::new(int_lit(0)))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         },
         ASTNode::Local {
             variables: vec!["x".to_string()],
             initial_values: vec![Some(Box::new(int_lit(0)))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         },
         ASTNode::Loop {

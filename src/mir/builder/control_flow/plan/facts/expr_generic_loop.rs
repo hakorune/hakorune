@@ -149,6 +149,7 @@ mod tests {
             prelude_stmts: vec![ASTNode::Local {
                 variables: vec!["x".to_string()],
                 initial_values: vec![Some(Box::new(int_lit(1)))],
+                declared_type_names: Vec::new(),
                 span: Span::unknown(),
             }],
             tail_expr: Box::new(int_lit(42)),

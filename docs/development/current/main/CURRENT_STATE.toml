@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-14"
 
 active_lane = "phase-293x language minimal surface lane"
-active_lane_status = "Phase 293x is now on the language minimal surface lane after the post-M215 mimalloc inventory closeout. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants is complete, M191-M213 hako_alloc stats/purge/recommit/reuse/lifecycle/reclaim inventory rows are complete and closed by D204, C194b verifier-owned page lifecycle invariants is complete, D197-D199 guard/proof manifest runner pilots are complete, D200 agent current-entry docs are refreshed, and D201/D202 language minimal surface docs are parked. D205 selects the order: D206 mimalloc remaining inventory, then selected mimalloc migration rows, then language minimal-surface rows, then selfhost migration. D209 closes the post-M215 mimalloc inventory wave, D210 switches to the language minimal surface lane, DEL-001 reconciles legacy delegation docs, LOOP-002 adds the Stage0 LoopRange parser capsule, DEL-002 adds the Stage0 delegate parser/metadata capsule, DEL-003 adds Stage1 delegate exposes forwarding lowering, and BRAND-001 adds the Stage0 brand declaration metadata capsule, and BRAND-002 adds Stage1 explicit brand constructor/unwrap lowering, and BRAND-003 adds same-program brand mismatch checks, and TYPE-001 adds the Stage0 type alias metadata capsule, and REC-001 adds the Stage0 record literal metadata capsule, and REC-002 adds Stage1 record construction/read lowering, and REC-003 adds record with-update replacement lowering, and CONTRACT-002 adds contract syntax metadata transport, and TRANS-001 adds transition metadata transport, and USES-001 adds method-level capability metadata transport, and GEN-001 adds generic type annotation metadata transport, and GEN-002 adds known generic arity checks. Visible record materialization and packed record backend lowering remain closed. Next selected row is PACKED-001 PackedArray eligibility gate; LOOP-003 remains open and requires a JoinIR/CorePlan route rather than a source-level desugar. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "Phase 293x is now on the language minimal surface lane after the post-M215 mimalloc inventory closeout. M172-M190 allocator API rows are complete, C197-C206 proof/record/cleanup rows are complete, C207-C212 packed ArrayBox auto-use / metadata pilot / backend fail-fast rows are complete, C194 verifier-owned allocation invariants is complete, M191-M213 hako_alloc stats/purge/recommit/reuse/lifecycle/reclaim inventory rows are complete and closed by D204, C194b verifier-owned page lifecycle invariants is complete, D197-D199 guard/proof manifest runner pilots are complete, D200 agent current-entry docs are refreshed, and D201/D202 language minimal surface docs are parked. D205 selects the order: D206 mimalloc remaining inventory, then selected mimalloc migration rows, then language minimal-surface rows, then selfhost migration. D209 closes the post-M215 mimalloc inventory wave, D210 switches to the language minimal surface lane, DEL-001 reconciles legacy delegation docs, LOOP-002 adds the Stage0 LoopRange parser capsule, DEL-002 adds the Stage0 delegate parser/metadata capsule, DEL-003 adds Stage1 delegate exposes forwarding lowering, and BRAND-001 adds the Stage0 brand declaration metadata capsule, and BRAND-002 adds Stage1 explicit brand constructor/unwrap lowering, and BRAND-003 adds same-program brand mismatch checks, and TYPE-001 adds the Stage0 type alias metadata capsule, and REC-001 adds the Stage0 record literal metadata capsule, and REC-002 adds Stage1 record construction/read lowering, and REC-003 adds record with-update replacement lowering, and CONTRACT-002 adds contract syntax metadata transport, and TRANS-001 adds transition metadata transport, and USES-001 adds method-level capability metadata transport, and GEN-001 adds generic type annotation metadata transport, and GEN-002 adds known generic arity checks. LOOPCLEAN-001 opened the pre-PACKED BoxShape cleanup phase, LOOPCLEAN-002 normalizes new Stage-3 while parser output to canonical Loop, LOOPCLEAN-003 quarantines ASTNode::While as legacy-only compatibility input, LOOPCLEAN-004 commonizes range-header parsing for canonical loop-range and legacy for-range, and PACKED-001 adds Stage1 fail-fast eligibility for source-level PackedArray<T> declaration metadata. Visible record materialization and packed record backend lowering remain closed. ARRAY-001 adds typed-context Array<T> literal lowering with no inference and no PackedArray fallback. RESULT-001 seeds Option<T> and Result<T,E> prelude enum diagnostics. Next selected row is ARRAY-002 Array typed container semantics; LOOP-003 remains open and requires a JoinIR/CorePlan route rather than a source-level desugar. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-288-ARRAY-RESULT-OPTION-CANONICAL-SURFACE-SSOT.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-314-RESULT-001-RESULT-OPTION-PRELUDE-DIAGNOSTICS.md"
 method_anchor = "docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
-latest_card = "293x-288-ARRAY-RESULT-OPTION-CANONICAL-SURFACE-SSOT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-288-ARRAY-RESULT-OPTION-CANONICAL-SURFACE-SSOT.md"
-latest_card_summary = "293x-288 completes a docs-only canonical surface lock for Array<T>, PackedArray<T>, Result<T,E>, Option<T>, and Type::Variant, with follow-up rows split from PACKED-001."
+latest_card = "293x-314-RESULT-001-RESULT-OPTION-PRELUDE-DIAGNOSTICS"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-314-RESULT-001-RESULT-OPTION-PRELUDE-DIAGNOSTICS.md"
+latest_card_summary = "RESULT-001 seeds Option<T> and Result<T,E> as built-in enum prelude surfaces and rejects dot-variant spelling for known enum variants."
 
-current_blocker_token = "PACKED-001 PackedArray eligibility gate"
+current_blocker_token = "ARRAY-002 Array typed container semantics"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,32 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-314 RESULT-001 Result/Option prelude diagnostics landed",
+  "293x-313 ARRAY-001 typed context array literal landed",
+  "293x-312 LOCALTYPE-001 local type annotation metadata capsule landed",
+  "293x-311 ENUMVAR-001 enum variant canonical surface landed",
+  "293x-310 ASTCLEAN-017 runner/provider/runtime dead_code rationale pass landed",
+  "293x-309 ASTCLEAN-016 MIR builder call resolution duplicate helper prune landed",
+  "293x-308 ASTCLEAN-015 MIR builder utility shelf prune landed",
+  "293x-307 ASTCLEAN-014 MIR builder scope/local utility dead_code prune landed",
+  "293x-306 ASTCLEAN-013 MIR builder loops stale module removal landed",
+  "293x-305 ASTCLEAN-012 host provider compare bridge rationale guard landed",
+  "293x-304 ASTCLEAN-011 runner exec stale dead_code allowance removal landed",
+  "293x-303 ASTCLEAN-010 runner backend JSON bridge helper prune landed",
+  "293x-302 ASTCLEAN-009 backend/optimizer utility dead_code prune landed",
+  "293x-301 ASTCLEAN-008 test/dev helper dead_code allow prune landed",
+  "293x-300 ASTCLEAN-007 MIR loops duplicate dead_code allow prune landed",
+  "293x-299 ASTCLEAN-006 MIR numeric substrate dead_code rationale guard landed",
+  "293x-298 ASTCLEAN-005 MIR TypeRegistry dead_code allow prune landed",
+  "293x-297 ASTCLEAN-004 dead-code allowance inventory landed",
+  "293x-296 ASTCLEAN-003 parser depth no-op hook removal landed",
+  "293x-295 ASTCLEAN-002 normalize logical ops helper landed",
+  "293x-294 ASTCLEAN-001 legacy AST enum removal landed",
+  "293x-293 PACKED-001 PackedArray eligibility gate landed",
+  "293x-292 LOOPCLEAN-004 range parser helper commonization landed",
+  "293x-291 LOOPCLEAN-003 while variant quarantine landed",
+  "293x-290 LOOPCLEAN-002 while parser normalization landed",
+  "293x-289 LOOPCLEAN-001 loop cleanup phase opened",
   "293x-288 Array / Result / Option canonical surface SSOT landed",
   "293x-287 GEN-002 generic arity checker landed",
   "293x-286 AST JSON metadata helper cleanup landed",

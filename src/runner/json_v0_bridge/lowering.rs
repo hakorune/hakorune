@@ -64,11 +64,6 @@ pub(super) struct BridgeEnv {
 }
 
 impl BridgeEnv {
-    #[allow(dead_code)]
-    pub(super) fn load() -> Self {
-        Self::with_imports(BTreeMap::new())
-    }
-
     pub(super) fn with_imports(imports: BTreeMap<String, String>) -> Self {
         let trm = crate::config::env::try_result_mode();
         // フェーズM.2: no_phi変数削除

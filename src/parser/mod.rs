@@ -181,7 +181,7 @@ impl NyashParser {
             debug_fuel: Some(100_000), // デフォルト値
             pending_runes: Vec::new(),
             rune_metadata: Vec::new(),
-            known_enums: std::collections::BTreeMap::new(),
+            known_enums: crate::semantics::result_option_prelude::result_option_prelude_enum_decls(),
         }
     }
 
@@ -210,92 +210,6 @@ impl NyashParser {
         input: impl Into<String>,
         fuel: Option<usize>,
     ) -> Result<ASTNode, ParseError> {
-        // Normalize logical operators '||'/'&&' to 'or'/'and' before tokenization (outside strings/comments)
-        fn normalize_logical_ops(src: &str) -> String {
-            let mut out = String::with_capacity(src.len());
-            let mut it = src.chars().peekable();
-            let mut in_str = false;
-            let mut in_line = false;
-            let mut in_block = false;
-            while let Some(c) = it.next() {
-                if in_line {
-                    out.push(c);
-                    if c == '\n' {
-                        in_line = false;
-                    }
-                    continue;
-                }
-                if in_block {
-                    out.push(c);
-                    if c == '*' && matches!(it.peek(), Some('/')) {
-                        out.push('/');
-                        it.next();
-                        in_block = false;
-                    }
-                    continue;
-                }
-                if in_str {
-                    out.push(c);
-                    if c == '\\' {
-                        if let Some(nc) = it.next() {
-                            out.push(nc);
-                        }
-                        continue;
-                    }
-                    if c == '"' {
-                        in_str = false;
-                    }
-                    continue;
-                }
-                match c {
-                    '"' => {
-                        in_str = true;
-                        out.push(c);
-                    }
-                    '/' => match it.peek() {
-                        Some('/') => {
-                            out.push('/');
-                            out.push('/');
-                            it.next();
-                            in_line = true;
-                        }
-                        Some('*') => {
-                            out.push('/');
-                            out.push('*');
-                            it.next();
-                            in_block = true;
-                        }
-                        _ => out.push('/'),
-                    },
-                    '#' => {
-                        in_line = true;
-                        out.push('#');
-                    }
-                    '|' => {
-                        if matches!(it.peek(), Some('|')) {
-                            out.push_str(" or ");
-                            it.next();
-                        } else if matches!(it.peek(), Some('>')) {
-                            out.push('|');
-                            out.push('>');
-                            it.next();
-                        } else {
-                            out.push('|');
-                        }
-                    }
-                    '&' => {
-                        if matches!(it.peek(), Some('&')) {
-                            out.push_str(" and ");
-                            it.next();
-                        } else {
-                            out.push('&');
-                        }
-                    }
-                    _ => out.push(c),
-                }
-            }
-            out
-        }
         let input_s: String = input.into();
         let pre = normalize_logical_ops(&input_s);
         let mut tokenizer = crate::tokenizer::NyashTokenizer::new(pre);
@@ -322,92 +236,6 @@ impl NyashParser {
         input: impl Into<String>,
         fuel: Option<usize>,
     ) -> Result<(ASTNode, ParserMetadata), ParseError> {
-        // Normalize logical operators '||'/'&&' to 'or'/'and' before tokenization (outside strings/comments)
-        fn normalize_logical_ops(src: &str) -> String {
-            let mut out = String::with_capacity(src.len());
-            let mut it = src.chars().peekable();
-            let mut in_str = false;
-            let mut in_line = false;
-            let mut in_block = false;
-            while let Some(c) = it.next() {
-                if in_line {
-                    out.push(c);
-                    if c == '\n' {
-                        in_line = false;
-                    }
-                    continue;
-                }
-                if in_block {
-                    out.push(c);
-                    if c == '*' && matches!(it.peek(), Some('/')) {
-                        out.push('/');
-                        it.next();
-                        in_block = false;
-                    }
-                    continue;
-                }
-                if in_str {
-                    out.push(c);
-                    if c == '\\' {
-                        if let Some(nc) = it.next() {
-                            out.push(nc);
-                        }
-                        continue;
-                    }
-                    if c == '"' {
-                        in_str = false;
-                    }
-                    continue;
-                }
-                match c {
-                    '"' => {
-                        in_str = true;
-                        out.push(c);
-                    }
-                    '/' => match it.peek() {
-                        Some('/') => {
-                            out.push('/');
-                            out.push('/');
-                            it.next();
-                            in_line = true;
-                        }
-                        Some('*') => {
-                            out.push('/');
-                            out.push('*');
-                            it.next();
-                            in_block = true;
-                        }
-                        _ => out.push('/'),
-                    },
-                    '#' => {
-                        in_line = true;
-                        out.push('#');
-                    }
-                    '|' => {
-                        if matches!(it.peek(), Some('|')) {
-                            out.push_str(" or ");
-                            it.next();
-                        } else if matches!(it.peek(), Some('>')) {
-                            out.push('|');
-                            out.push('>');
-                            it.next();
-                        } else {
-                            out.push('|');
-                        }
-                    }
-                    '&' => {
-                        if matches!(it.peek(), Some('&')) {
-                            out.push_str(" and ");
-                            it.next();
-                        } else {
-                            out.push('&');
-                        }
-                    }
-                    _ => out.push(c),
-                }
-            }
-            out
-        }
         let input_s: String = input.into();
         let pre = normalize_logical_ops(&input_s);
         let mut tokenizer = crate::tokenizer::NyashTokenizer::new(pre);
@@ -592,9 +420,95 @@ impl common::ParserUtils for NyashParser {
     }
     fn current_mut(&mut self) -> &mut usize {
         &mut self.current
+    }}
+
+fn normalize_logical_ops(src: &str) -> String {
+    let mut out = String::with_capacity(src.len());
+    let mut it = src.chars().peekable();
+    let mut in_str = false;
+    let mut in_line = false;
+    let mut in_block = false;
+
+    while let Some(c) = it.next() {
+        if in_line {
+            out.push(c);
+            if c == '\n' {
+                in_line = false;
+            }
+            continue;
+        }
+
+        if in_block {
+            out.push(c);
+            if c == '*' && matches!(it.peek(), Some('/')) {
+                out.push('/');
+                it.next();
+                in_block = false;
+            }
+            continue;
+        }
+
+        if in_str {
+            out.push(c);
+            if c == '\\' {
+                if let Some(nc) = it.next() {
+                    out.push(nc);
+                }
+                continue;
+            }
+            if c == '"' {
+                in_str = false;
+            }
+            continue;
+        }
+
+        match c {
+            '"' => {
+                in_str = true;
+                out.push(c);
+            }
+            '/' => match it.peek() {
+                Some('/') => {
+                    out.push('/');
+                    out.push('/');
+                    it.next();
+                    in_line = true;
+                }
+                Some('*') => {
+                    out.push('/');
+                    out.push('*');
+                    it.next();
+                    in_block = true;
+                }
+                _ => out.push('/'),
+            },
+            '#' => {
+                in_line = true;
+                out.push('#');
+            }
+            '|' => {
+                if matches!(it.peek(), Some('|')) {
+                    out.push_str(" or ");
+                    it.next();
+                } else if matches!(it.peek(), Some('>')) {
+                    out.push('|');
+                    out.push('>');
+                    it.next();
+                } else {
+                    out.push('|');
+                }
+            }
+            '&' => {
+                if matches!(it.peek(), Some('&')) {
+                    out.push_str(" and ");
+                    it.next();
+                } else {
+                    out.push('&');
+                }
+            }
+            _ => out.push(c),
+        }
     }
-    fn update_depth_before_advance(&mut self) { /* no-op (legacy removed) */
-    }
-    fn update_depth_after_advance(&mut self) { /* no-op (legacy removed) */
-    }
+
+    out
 }

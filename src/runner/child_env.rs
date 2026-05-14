@@ -8,20 +8,6 @@ pub fn pre_run_reset_oob_if_strict() {
     }
 }
 
-#[allow(dead_code)]
-pub fn post_run_exit_if_oob_strict_triggered() -> ! {
-    if crate::config::env::oob_strict_fail() && crate::runtime::observe::oob_seen() {
-        crate::runtime::get_global_ring0()
-            .log
-            .error("[gate-c][oob-strict] Out-of-bounds observed → exit(1)");
-        std::process::exit(1);
-    }
-    // If not strict or no OOB, return to caller path; caller should exit(…) itself.
-    // This function is defined as diverging only when it actually exits above; otherwise it does nothing.
-    // To keep signature simple for callers, they should not rely on this returning.
-    std::process::exit(0)
-}
-
 /// Apply a consistent child environment for selfhost/core wrapper executions.
 /// - Forces JSON-only quiet pipe
 /// - Disables plugins to avoid host-side side effects

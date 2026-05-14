@@ -90,7 +90,7 @@ pub(super) fn demo_parser_system() {
     }
 }
 
-#[allow(dead_code)]
+#[allow(dead_code)] // ASTCLEAN-008: retained as an opt-in migration note for legacy interpreter demos.
 pub(super) fn demo_interpreter_system() {
     println!("\n🎭 7. Interpreter System:");
     println!("  ⚠️  Legacy interpreter removed - use VM or LLVM backends instead");

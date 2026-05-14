@@ -117,6 +117,15 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_generic_type_annotation_metadata_guard.sh` | GEN-001 の generic type annotation Stage0 metadata capsule を固定し、box/record/function/type alias の TYPE_REF transport と Stage1 semantics 不在を検証する。 |
 | `tools/checks/k2_wide_generic_arity_checker_guard.sh` | GEN-002 の Stage1 generic arity checker を固定し、既知 generic type reference の型引数数 mismatch を fail-fast で検出する。 |
 | `tools/checks/k2_wide_array_result_option_surface_guard.sh` | ARRAY-RESULT-SSOT の docs-only canonical surface を固定し、`Array<T>` / `PackedArray<T>` / `Result<T,E>` / `Option<T>` / `Type::Variant` と後続タスク分解を検証する。 |
+| `tools/checks/k2_wide_enum_variant_canonical_surface_guard.sh` | ENUMVAR-001 の canonical `Type::Variant` surface を固定し、transition metadata の `Enum::Value` transport と legacy dot normalization を検証する。 |
+| `tools/checks/k2_wide_localtype_metadata_capsule_guard.sh` | LOCALTYPE-001 の `local name: Type` metadata capsule を固定し、AST/AST JSON/Program JSON v0 transport と単一束縛制約を検証する。 |
+| `tools/checks/k2_wide_array_typed_context_literal_guard.sh` | ARRAY-001 の typed-context `Array<T>` literal lowering を固定し、untyped `[]` と `PackedArray<T> = []` の no-fallback fail-fast を検証する。 |
+| `tools/checks/k2_wide_result_option_prelude_diagnostics_guard.sh` | RESULT-001 の `Option<T>` / `Result<T,E>` built-in enum prelude と dot-variant fail-fast diagnostics を検証する。 |
+| `tools/checks/k2_wide_loopclean_while_parser_normalization_guard.sh` | LOOPCLEAN-002 の while parser normalization を固定し、新規 Stage-3 `while` が canonical `ASTNode::Loop` として出ることを検証する。 |
+| `tools/checks/k2_wide_loopclean_while_variant_quarantine_guard.sh` | LOOPCLEAN-003 の while variant quarantine を固定し、新規 source は `Loop`、legacy `ASTNode::While` は Program(JSON) `Loop` 互換 lowering に閉じることを検証する。 |
+| `tools/checks/k2_wide_loopclean_range_parser_helper_guard.sh` | LOOPCLEAN-004 の range parser helper commonization を固定し、canonical `loop i in` と legacy `for i in` が共有 header parser から同じ `ForRange` shape を出すことを検証する。 |
+| `tools/checks/k2_wide_packed_array_eligibility_guard.sh` | PACKED-001 の Stage1 `PackedArray<T>` eligibility gate を固定し、packed residence が証明できない source を fail-fast しつつ runtime/backend auto-use に広がらないことを検証する。 |
+| `tools/checks/k2_wide_astclean_legacy_enum_guard.sh` | ASTCLEAN-001 の legacy AST enum removal を固定し、旧 split enum / `ASTNodeType` が戻らず `is_expression()` の直接判定だけが残ることを検証する。 |
 | `tools/checks/k2_wide_record_decl_metadata_transport_guard.sh` | C203a の `record_decls` metadata transport lane を固定し、Program JSON v0 / JSON bridge / MIR metadata / MIR JSON が record を ordinary user-box lane に混ぜないことを検証する。 |
 | `tools/checks/k2_wide_record_layout_plan_guard.sh` | C203b の `record_layout_plans` metadata lane を固定し、concrete record fields の slot/storage layout が typed-object/user-box layout lane と混ざらないことを検証する。 |
 | `tools/checks/k2_wide_record_local_scalar_metadata_guard.sh` | C203c の `record_local_layout` folded agg-local / placement metadata lane を固定し、record route が user-box seed route や backend matcher に漏れないことを検証する。 |
@@ -287,3 +296,34 @@ tools/checks/env_dead_accessors_report.sh
 - `tools/checks/k2_wide_record_literal_parser_capsule_guard.sh` - REC-001 Stage0 record literal parser/metadata capsule guard.
 - `tools/checks/k2_wide_record_construction_read_lowering_guard.sh` - REC-002 Stage1 record literal shape validation and record field read lowering guard.
 - `tools/checks/k2_wide_record_with_update_lowering_guard.sh` - REC-003 record with-update parser/metadata and Stage1 replacement lowering guard.
+
+- `tools/checks/k2_wide_astclean_normalize_logical_ops_guard.sh` — guards ASTCLEAN-002 by requiring one parser-owned `normalize_logical_ops` helper and rejecting nested duplicate copies.
+
+- `tools/checks/k2_wide_astclean_parser_depth_noop_guard.sh` — guards ASTCLEAN-003 by rejecting legacy parser depth no-op hook references.
+
+- `tools/checks/k2_wide_astclean_dead_code_inventory_guard.sh` — guards ASTCLEAN-004 by fixing the `#[allow(dead_code)]` source baseline and next-row split.
+
+- `tools/checks/k2_wide_astclean_mir_typeregistry_dead_code_guard.sh` — guards ASTCLEAN-005 by pruning used TypeRegistry `dead_code` allowances and requiring row reasons for retained ones.
+
+- `tools/checks/k2_wide_astclean_numeric_substrate_dead_code_rationale_guard.sh` — guards ASTCLEAN-006 by requiring rationale comments for numeric substrate staged `dead_code` allowances.
+
+- `tools/checks/k2_wide_astclean_mir_loops_duplicate_dead_code_guard.sh` — guards ASTCLEAN-007 by rejecting duplicate adjacent `dead_code` allowances in MIR loop utilities.
+
+- `tools/checks/k2_wide_astclean_test_dev_dead_code_guard.sh` — guards ASTCLEAN-008 by deleting a legacy VM benchmark stub and requiring reasons for retained test/dev `dead_code` allowances.
+
+- `tools/checks/k2_wide_astclean_backend_optimizer_dead_code_guard.sh` — guards ASTCLEAN-009 by pruning backend utility wrappers, deleting stale optimizer diagnostics, and requiring rationales for retained backend utility `dead_code` allowances.
+
+- `tools/checks/k2_wide_astclean_runner_json_bridge_helper_guard.sh` — guards ASTCLEAN-010 by rejecting stale runner JSON bridge wrappers and capping source `dead_code` allowances.
+
+- `tools/checks/k2_wide_astclean_runner_exec_stale_allow_guard.sh` — guards ASTCLEAN-011 by removing stale `dead_code` allowances from live runner exec backend APIs.
+
+- `tools/checks/k2_wide_astclean_host_provider_rationale_guard.sh` — guards ASTCLEAN-012 by requiring Phase 291x-126 rationale comments on hako-ll host-provider staged `dead_code` module allowances.
+
+- `tools/checks/k2_wide_astclean_mir_builder_loops_stale_module_guard.sh` — guards ASTCLEAN-013 by deleting the stale MIR builder loop helper module and capping source `dead_code` allowances.
+
+- `tools/checks/k2_wide_astclean_mir_builder_scope_local_guard.sh` — guards ASTCLEAN-014 by deleting stale MIR builder scope/local helper methods and capping source `dead_code` allowances.
+
+- `tools/checks/k2_wide_astclean_mir_builder_utility_shelf_guard.sh` — guards ASTCLEAN-015 by deleting stale MIR builder utility wrappers and capping source `dead_code` allowances.
+
+- `tools/checks/k2_wide_astclean_call_resolution_duplicate_helper_guard.sh` — guards ASTCLEAN-016 by removing duplicate call-resolution warning helpers and capping source `dead_code` allowances.
+- `tools/checks/k2_wide_astclean_runner_provider_runtime_guard.sh` — guards ASTCLEAN-017 by pruning runner/provider/runtime helper shelves and requiring rationale comments for retained optional surfaces.

@@ -200,67 +200,6 @@ fn emit_externcall_with_name(
     })
 }
 
-#[allow(dead_code)]
-pub(crate) fn emit_extern_call(
-    dst: &Option<ValueId>,
-    iface_name: &str,
-    method_name: &str,
-    args: &[ValueId],
-) -> serde_json::Value {
-    let args_a: Vec<_> = args.iter().map(|v| json!(v.as_u32())).collect();
-    let func_name = if iface_name == "env.console" {
-        format!("nyash.console.{}", method_name)
-    } else {
-        format!("{}.{}", iface_name, method_name)
-    };
-    let mut obj = json!({
-        "op": "externcall",
-        "func": func_name,
-        "args": args_a,
-        "dst": dst.map(|d| d.as_u32()),
-    });
-    // Minimal dst_type hints for known externs
-    if iface_name == "env.console" {
-        // console.* returns i64 status (ignored by user code)
-        if dst.is_some() {
-            obj["dst_type"] = json!("i64");
-        }
-    }
-    obj
-}
-
-#[allow(dead_code)]
-pub(crate) fn emit_box_call(
-    dst: &Option<ValueId>,
-    box_val: &ValueId,
-    method: &str,
-    method_id: Option<&u16>,
-    args: &[ValueId],
-) -> serde_json::Value {
-    let args_a: Vec<_> = args.iter().map(|v| json!(v.as_u32())).collect();
-    // Minimal dst_type hints
-    let mut obj = json!({
-        "op":"boxcall","box": box_val.as_u32(), "method": method, "args": args_a, "dst": dst.map(|d| d.as_u32())
-    });
-    // Phase 287 P4: Include method_id for universal slot tracking (toString[#0])
-    if let Some(mid) = method_id {
-        obj["method_id"] = json!(mid);
-    }
-    let m = method;
-    let dst_ty =
-        if m == "substring" || m == "dirname" || m == "join" || m == "read_all" || m == "read" {
-            Some(json!({"kind":"handle","box_type":"StringBox"}))
-        } else if m == "length" || m == "lastIndexOf" {
-            Some(json!("i64"))
-        } else {
-            None
-        };
-    if let Some(t) = dst_ty {
-        obj["dst_type"] = t;
-    }
-    obj
-}
-
 pub(crate) fn emit_new_box(dst: &ValueId, box_type: &str, args: &[ValueId]) -> serde_json::Value {
     let args_a: Vec<_> = args.iter().map(|v| json!(v.as_u32())).collect();
     json!({"op":"newbox","type": box_type, "args": args_a, "dst": dst.as_u32()})

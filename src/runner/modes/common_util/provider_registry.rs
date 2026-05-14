@@ -68,13 +68,11 @@ fn ensure_builtin_file_provider_registered() {
 }
 
 /// Backward-compat public readers for existing callers (if any)
-#[allow(dead_code)]
 pub fn read_filebox_mode_from_env() -> FileBoxMode {
     provider_env::filebox_mode_from_env()
 }
 
 /// Select provider based on mode and registered factories (SSOT)
-#[allow(dead_code)]
 pub fn select_file_provider(mode: FileBoxMode) -> Arc<dyn FileIo> {
     let quiet_pipe = crate::config::env::env_bool("NYASH_JSON_ONLY");
     // Always ensure ring‑1 (core‑ro) exists before inspecting registry
@@ -190,14 +188,4 @@ pub fn select_file_provider(mode: FileBoxMode) -> Arc<dyn FileIo> {
             Arc::new(CoreRoFileIo::new())
         }
     }
-}
-/// Provider descriptor (ring/source/capabilities). Currently informational.
-#[allow(dead_code)]
-#[derive(Clone, Debug)]
-struct ProviderDescriptor {
-    box_name: &'static str,
-    ring: &'static str,                    // "0" | "1" | "plugin"
-    source: &'static str,                  // "static" | "dynamic"
-    capabilities: &'static [&'static str], // e.g., ["read"]
-    priority: i32,
 }

@@ -14,7 +14,6 @@ use std::collections::HashMap;
 pub struct TraceEntry {
     pub vid: ValueId,
     pub source: String, // "newbox:MapBox", "param:args", "propagate:from_%123"
-    #[allow(dead_code)]
     pub timestamp: usize,
 }
 
@@ -52,7 +51,6 @@ impl TypeRegistry {
     // ============================================================
 
     /// NewBox起源を記録
-    #[allow(dead_code)]
     pub fn record_newbox(&mut self, vid: ValueId, class: String) {
         self.origins.insert(vid, class.clone());
 
@@ -70,7 +68,7 @@ impl TypeRegistry {
     }
 
     /// パラメータ型を記録
-    #[allow(dead_code)]
+    #[allow(dead_code)] // ASTCLEAN-005: staged entry for param metadata producers.
     pub fn record_param(&mut self, vid: ValueId, param_name: &str, param_type: Option<MirType>) {
         if let Some(ty) = param_type.clone() {
             self.types.insert(vid, ty.clone());
@@ -117,7 +115,6 @@ impl TypeRegistry {
     }
 
     /// 起源を明示的に設定（推論結果など）
-    #[allow(dead_code)]
     pub fn record_origin(&mut self, vid: ValueId, origin: String, reason: &str) {
         self.origins.insert(vid, origin.clone());
 
@@ -181,15 +178,9 @@ impl TypeRegistry {
     // ============================================================
 
     /// 起源クラス名を取得
-    #[allow(dead_code)]
+    #[allow(dead_code)] // ASTCLEAN-005: retained for trace/debug inspection callers.
     pub fn get_origin(&self, vid: ValueId) -> Option<&String> {
         self.origins.get(&vid)
-    }
-
-    /// 型情報を取得
-    #[allow(dead_code)]
-    pub fn get_type(&self, vid: ValueId) -> Option<&MirType> {
-        self.types.get(&vid)
     }
 
     /// クラス名を推論（フォールバック戦略付き）
@@ -239,7 +230,7 @@ impl TypeRegistry {
     }
 
     /// 全トレースログを表示
-    #[allow(dead_code)]
+    #[allow(dead_code)] // ASTCLEAN-005: debug-only trace dump, called manually when tracing.
     pub fn dump_trace(&self) {
         get_global_ring0().log.debug(&format!(
             "[type-registry] === Trace Log ({} entries) ===",
@@ -254,7 +245,7 @@ impl TypeRegistry {
     }
 
     /// 統計情報を表示
-    #[allow(dead_code)]
+    #[allow(dead_code)] // ASTCLEAN-005: debug-only stats dump, called manually when tracing.
     pub fn dump_stats(&self) {
         get_global_ring0()
             .log
@@ -278,7 +269,7 @@ impl TypeRegistry {
     // ============================================================
 
     /// 起源情報のみクリア（型情報は保持）
-    #[allow(dead_code)]
+    #[allow(dead_code)] // ASTCLEAN-005: staged reset hook for scoped builder contexts.
     pub fn clear_origins(&mut self) {
         self.origins.clear();
         if self.trace_enabled {
@@ -289,7 +280,7 @@ impl TypeRegistry {
     }
 
     /// 全情報クリア
-    #[allow(dead_code)]
+    #[allow(dead_code)] // ASTCLEAN-005: staged reset hook for scoped builder contexts.
     pub fn clear_all(&mut self) {
         self.origins.clear();
         self.types.clear();

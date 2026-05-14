@@ -6,7 +6,6 @@
  */
 
 mod core;
-mod diagnostics;
 #[cfg(test)]
 mod tests;
 

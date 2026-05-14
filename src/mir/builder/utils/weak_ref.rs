@@ -6,7 +6,6 @@
 use crate::mir::{BarrierOp, WeakRefOp};
 
 impl super::super::MirBuilder {
-    #[allow(dead_code)]
     pub(in crate::mir::builder) fn emit_weak_new(
         &mut self,
         box_val: super::super::ValueId,
@@ -48,7 +47,6 @@ impl super::super::MirBuilder {
         Ok(dst)
     }
 
-    #[allow(dead_code)]
     pub(in crate::mir::builder) fn emit_barrier_read(
         &mut self,
         ptr: super::super::ValueId,
@@ -59,7 +57,6 @@ impl super::super::MirBuilder {
         })
     }
 
-    #[allow(dead_code)]
     pub(in crate::mir::builder) fn emit_barrier_write(
         &mut self,
         ptr: super::super::ValueId,

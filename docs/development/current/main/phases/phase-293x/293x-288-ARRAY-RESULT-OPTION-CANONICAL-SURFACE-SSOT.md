@@ -49,6 +49,6 @@ bash tools/checks/k2_wide_array_result_option_surface_guard.sh
 
 ## Next selected row
 
-`PACKED-001 PackedArray eligibility gate` remains the current implementation
-blocker. `LOCALTYPE-001`, `ENUMVAR-001`, `ARRAY-001`, and `RESULT-001` are now
-explicit follow-up rows.
+`PACKED-001 PackedArray eligibility gate` later landed as `293x-293`.
+`LOCALTYPE-001`, `ENUMVAR-001`, `ARRAY-001`, and `RESULT-001` remain explicit
+follow-up rows.

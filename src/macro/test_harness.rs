@@ -441,6 +441,7 @@ pub fn maybe_inject_test_harness(ast: &ASTNode) -> ASTNode {
                             let setup = nyash_rust::ASTNode::Local {
                                 variables: vec![inst_var.clone()],
                                 initial_values: vec![Some(Box::new(inst_init))],
+                                declared_type_names: Vec::new(),
                                 span: nyash_rust::ast::Span::unknown(),
                             };
                             let mut args: Vec<nyash_rust::ASTNode> = Vec::new();

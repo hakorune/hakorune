@@ -192,6 +192,7 @@ pub(super) fn transform_for_foreach(ast: &nyash_rust::ASTNode) -> nyash_rust::AS
                             let init = A::Local {
                                 variables: vec!["__i".to_string()],
                                 initial_values: vec![Some(Box::new(zero))],
+                                declared_type_names: Vec::new(),
                                 span: Span::unknown(),
                             };
                             let len_call = A::MethodCall {

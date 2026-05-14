@@ -207,7 +207,7 @@ impl MirOptimizer {
     }
 
     /// Convert instruction to string key for CSE
-    #[allow(dead_code)]
+    #[allow(dead_code)] // ASTCLEAN-009: retained for optimizer unit tests and CSE diagnostic probes.
     pub(crate) fn instruction_to_key(&self, instruction: &MirInstruction) -> String {
         match instruction {
             MirInstruction::Const { value, .. } => format!("const_{:?}", value),
@@ -235,39 +235,6 @@ impl MirOptimizer {
     /// Expose debug flag for helper modules
     pub(crate) fn debug_enabled(&self) -> bool {
         self.debug
-    }
-}
-
-impl MirOptimizer {
-    /// Normalize Python helper calls that route via PyRuntimeBox into proper receiver form.
-    ///
-    /// Rewrites: BoxCall { box_val=py (PyRuntimeBox), method="getattr"|"call", args=[obj, rest...] }
-    ///        →  BoxCall { box_val=obj, method, args=[rest...] }
-    #[allow(dead_code)]
-    pub(crate) fn normalize_python_helper_calls(
-        &mut self,
-        module: &mut MirModule,
-    ) -> OptimizationStats {
-        crate::mir::optimizer_passes::normalize::normalize_python_helper_calls(self, module)
-    }
-    /// Normalize legacy instructions into unified MIR26 forms.
-    /// - WeakRef(Load) を canonical 表現として維持（WeakNew/WeakLoad は enum remove 済み）
-    /// - Barrier は unified op として維持（BarrierRead/BarrierWrite は enum remove 済み）
-    #[allow(dead_code)]
-    pub(crate) fn normalize_legacy_instructions(
-        &mut self,
-        module: &mut MirModule,
-    ) -> OptimizationStats {
-        crate::mir::optimizer_passes::normalize::normalize_legacy_instructions(self, module)
-    }
-
-    /// Normalize RefGet/RefSet to BoxCall("getField"/"setField") with Const String field argument.
-    #[allow(dead_code)]
-    pub(crate) fn normalize_ref_field_access(
-        &mut self,
-        module: &mut MirModule,
-    ) -> OptimizationStats {
-        crate::mir::optimizer_passes::normalize::normalize_ref_field_access(self, module)
     }
 }
 

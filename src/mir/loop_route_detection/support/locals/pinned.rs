@@ -220,6 +220,7 @@ mod tests {
                 }],
                 span: Span::unknown(),
             }))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         }];
 
@@ -266,6 +267,7 @@ mod tests {
                 value: LiteralValue::Integer(42),
                 span: Span::unknown(),
             }))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         }];
 

@@ -367,7 +367,7 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
             span: Span::unknown(),
         },
         "Local" => {
-            let vars = v
+            let vars: Vec<String> = v
                 .get("variables")?
                 .as_array()?
                 .iter()
@@ -385,9 +385,11 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                     }
                 })
                 .collect();
+            let declared_type_names = json_to_local_declared_type_names(v, vars.len());
             ASTNode::Local {
                 variables: vars,
                 initial_values: inits,
+                declared_type_names,
                 span: Span::unknown(),
             }
         }
@@ -674,4 +676,25 @@ fn json_to_attrs(value: Option<&Value>) -> DeclarationAttrs {
         })
         .unwrap_or_default();
     DeclarationAttrs { runes }
+}
+
+fn json_to_local_declared_type_names(v: &Value, len: usize) -> Vec<Option<String>> {
+    if let Some(values) = v.get("declared_type_names").and_then(Value::as_array) {
+        return values
+            .iter()
+            .map(|value| {
+                if value.is_null() {
+                    None
+                } else {
+                    value.as_str().map(str::to_string)
+                }
+            })
+            .collect();
+    }
+    if len == 1 {
+        if let Some(value) = v.get("declared_type") {
+            return vec![value.as_str().map(str::to_string)];
+        }
+    }
+    vec![None; len]
 }

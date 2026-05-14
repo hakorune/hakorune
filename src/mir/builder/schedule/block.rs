@@ -5,6 +5,7 @@ use crate::mir::{MirFunction, MirInstruction, ValueId};
 /// Contract: PHI group → materialize group (Copy/Id) → body (Call etc.)
 pub struct BlockScheduleBox;
 
+#[allow(dead_code)] // ASTCLEAN-015: scheduler shelf is consumed by selective emit_guard routes, not default parser guard builds.
 impl BlockScheduleBox {
     #[inline]
     fn strict_planner_required() -> bool {
@@ -88,7 +89,6 @@ impl BlockScheduleBox {
     }
 
     /// Insert a Copy immediately after PHI nodes. Returns the local value id.
-    #[allow(dead_code)]
     pub fn ensure_after_phis_copy(
         builder: &mut MirBuilder,
         src: ValueId,
@@ -159,7 +159,6 @@ impl BlockScheduleBox {
 
     /// Emit a Copy right before the next emitted instruction (best-effort):
     /// place it at the tail of the current block. Returns the local value id.
-    #[allow(dead_code)]
     pub fn emit_before_call_copy(
         builder: &mut MirBuilder,
         src: ValueId,

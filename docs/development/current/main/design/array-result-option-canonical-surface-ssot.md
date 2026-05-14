@@ -235,8 +235,8 @@ local r = Result::Err(AllocError::ZeroSize)
 | `ARRAY-RESULT-SSOT` | this docs-only canonical surface decision | docs/reference |
 | `LOCALTYPE-001` | `local name: Type = expr` metadata capsule | Stage0 parse / transport |
 | `ENUMVAR-001` | keep `Type::Variant` canonical and reject/avoid dot variants | Stage1 enum surface |
-| `ARRAY-001` | typed-context array literals; `[]` requires expected type | Stage1 typed collection |
-| `RESULT-001` | Result/Option prelude and explicit variant diagnostics | Stage1 enum/prelude |
+| `ARRAY-001` | complete as `293x-313`; typed-context `Array<T>` literals lower with no inference and no PackedArray fallback | Stage1 typed collection |
+| `RESULT-001` | complete as `293x-314`; Result/Option prelude and explicit variant diagnostics | Stage1 enum/prelude |
 | `PACKED-001` | PackedArray eligibility gate and fail-fast policy | Stage1 CorePlan |
 
 ## Stage Split
@@ -268,11 +268,15 @@ Stage1 owns:
 expected type propagation
 generic enum constructor resolution
 typed-context array literal lowering
+typed-context `Array<T>` literal JSON v0 bridge lowering
 Result/Option diagnostics
+Result/Option prelude enum registry
 PackedArray eligibility and backend fail-fast
 ```
 
 ## Stop Line
 
-This SSOT does not implement syntax or semantics. It fixes the canonical
-surface and task split before the next implementation rows.
+This SSOT fixes the canonical surface and task split. ARRAY-001 now implements
+only the typed-context `Array<T>` literal slice. RESULT-001 now implements the
+Result/Option prelude and dot-variant diagnostics. Array element type checking
+and PackedArray literal/backend behavior remain separate rows.

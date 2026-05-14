@@ -39,6 +39,8 @@ pub mod parser_lambda_call;
 pub mod parser_logical_condition_surface;
 #[path = "../parser_loop_scan_range_shape.rs"]
 pub mod parser_loop_scan_range_shape;
+#[path = "../parser_loop_cleanup_surface.rs"]
+pub mod parser_loop_cleanup_surface;
 #[path = "../parser_method_postfix.rs"]
 pub mod parser_method_postfix;
 #[path = "../parser_null_void_surface.rs"]

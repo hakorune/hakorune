@@ -268,6 +268,67 @@ return 0
 }
 
 #[test]
+fn source_to_program_json_v0_uses_result_option_prelude() {
+    let source = r#"
+static box Main {
+  main() {
+local empty: Option<i64> = Option::None
+local ok: Result<i64, String> = Result::Ok(7)
+local err: Result<i64, String> = Result::Err("bad")
+return 0
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let body = value["body"].as_array().expect("body");
+
+    assert_eq!(body[0]["expr"]["type"], "EnumCtor");
+    assert_eq!(body[0]["expr"]["enum"], "Option");
+    assert_eq!(body[0]["expr"]["variant"], "None");
+    assert_eq!(body[1]["expr"]["type"], "EnumCtor");
+    assert_eq!(body[1]["expr"]["enum"], "Result");
+    assert_eq!(body[1]["expr"]["variant"], "Ok");
+    assert_eq!(body[2]["expr"]["type"], "EnumCtor");
+    assert_eq!(body[2]["expr"]["enum"], "Result");
+    assert_eq!(body[2]["expr"]["variant"], "Err");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_dot_enum_variant_surface() {
+    let source = r#"
+static box Main {
+  main() {
+local bad = Result.Ok(1)
+return 0
+  }
+}
+"#;
+
+    let error =
+        source_to_program_json_v0_strict(source).expect_err("dot enum variant should fail-fast");
+    assert!(error.contains("[enum/variant-surface]"), "{error}");
+    assert!(error.contains("Result::Ok"), "{error}");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_prelude_option_some_null_payload() {
+    let source = r#"
+static box Main {
+  main() {
+local x = Option::Some(null)
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("prelude Option::Some(null) should fail fast");
+    assert!(error.contains("[freeze:contract][option/some_nullish]"));
+}
+
+#[test]
 fn source_to_program_json_v0_emits_option_sugar_some_and_none() {
     let source = r#"
 enum Option<T> {
@@ -818,7 +879,7 @@ enum PageState {
 
 box Page {
   state: PageState
-  transition PageState.Active -> PageState.Retired by retire
+  transition PageState::Active -> PageState::Retired by retire
 }
 
 static box Main {
@@ -838,9 +899,42 @@ return 0
     let transitions = page["transitions"].as_array().expect("transitions metadata");
 
     assert_eq!(transitions.len(), 1);
-    assert_eq!(transitions[0]["from"], "PageState.Active");
-    assert_eq!(transitions[0]["to"], "PageState.Retired");
+    assert_eq!(transitions[0]["from"], "PageState::Active");
+    assert_eq!(transitions[0]["to"], "PageState::Retired");
     assert_eq!(transitions[0]["method"], "retire");
+}
+
+#[test]
+fn source_to_program_json_v0_normalizes_legacy_dot_transition_refs() {
+    let source = r#"
+enum PageState {
+  Active
+  Retired
+}
+
+box Page {
+  state: PageState
+  transition PageState.Active -> PageState.Retired by retire
+}
+
+static box Main {
+  main() {
+return 0
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let user_box_decls = value["user_box_decls"].as_array().expect("user box decls");
+    let page = user_box_decls
+        .iter()
+        .find(|decl| decl["name"] == "Page")
+        .expect("Page decl");
+    let transitions = page["transitions"].as_array().expect("transitions metadata");
+
+    assert_eq!(transitions[0]["from"], "PageState::Active");
+    assert_eq!(transitions[0]["to"], "PageState::Retired");
 }
 
 #[test]
@@ -879,7 +973,7 @@ record Meta<T> {
 }
 
 box Store {
-  metas: PackedArray<Meta<PageId>>
+  metas: Array<Meta<PageId>>
 }
 
 static box Main {
@@ -906,13 +1000,112 @@ return 0
         .expect("Store decl");
     assert_eq!(
         store["field_decls"][0]["declared_type"],
-        "PackedArray<Meta<PageId>>"
+        "Array<Meta<PageId>>"
     );
 
     let defs = value["defs"].as_array().expect("helper defs");
     let process = defs.iter().find(|def| def["name"] == "process").expect("process def");
     assert_eq!(process["param_decls"][0]["declared_type"], "Array<PageId>");
     assert_eq!(process["return_type"], "Result<PageId,Error>");
+}
+
+#[test]
+fn source_to_program_json_v0_transports_local_type_annotation_metadata() {
+    let source = r#"
+static box Main {
+  main() {
+local ids: Array<PageId> = null
+return 0
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let body = value["body"].as_array().expect("body");
+
+    assert_eq!(body[0]["type"], "Local");
+    assert_eq!(body[0]["name"], "ids");
+    assert_eq!(body[0]["declared_type"], "Array<PageId>");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_multi_local_after_type_annotation() {
+    let source = r#"
+static box Main {
+  main() {
+local ids: Array<PageId>, other
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("typed local with comma should fail fast");
+    assert!(error.contains("single local binding after a type annotation"));
+}
+
+#[test]
+fn source_to_program_json_v0_lowers_typed_array_literal_context() {
+    let source = r#"
+brand PageId: i64
+
+static box Main {
+  main() {
+local ids: Array<PageId> = []
+return 0
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let body = value["body"].as_array().expect("body");
+
+    assert_eq!(body[0]["type"], "Local");
+    assert_eq!(body[0]["name"], "ids");
+    assert_eq!(body[0]["declared_type"], "Array<PageId>");
+    assert_eq!(body[0]["expr"]["type"], "ArrayLiteral");
+    assert_eq!(body[0]["expr"]["declared_type"], "Array<PageId>");
+    assert_eq!(body[0]["expr"]["element_type"], "PageId");
+    assert_eq!(body[0]["expr"]["elements"], serde_json::json!([]));
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_untyped_empty_array_literal() {
+    let source = r#"
+static box Main {
+  main() {
+local ids = []
+return 0
+  }
+}
+"#;
+
+    let error =
+        source_to_program_json_v0_strict(source).expect_err("untyped array literal should fail");
+    assert!(error.contains("[array/literal-context]"));
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_packed_array_literal_without_backend_fallback() {
+    let source = r#"
+record Meta {
+  ptr: i64
+}
+
+static box Main {
+  main() {
+local metas: PackedArray<Meta> = []
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("PackedArray literal must not fallback to ArrayBox");
+    assert!(error.contains("[array/literal-context]"));
+    assert!(error.contains("PackedArray"));
 }
 
 #[test]
@@ -923,7 +1116,7 @@ record Meta<T> {
 }
 
 box Store {
-  metas: PackedArray<Meta<PageId>>
+  metas: Array<Meta<PageId>>
 }
 
 static box Main {
@@ -934,7 +1127,109 @@ return 0
 "#;
 
     let json = source_to_program_json_v0_strict(source).expect("matching arities");
-    assert!(json.contains("\"PackedArray<Meta<PageId>>\""));
+    assert!(json.contains("\"Array<Meta<PageId>>\""));
+}
+
+#[test]
+fn source_to_program_json_v0_accepts_packed_array_integer_record_eligibility() {
+    let source = r#"
+brand PageId: i64
+type Bytes = usize
+
+record Meta {
+  page: PageId
+  size: Bytes
+}
+
+box Store {
+  metas: PackedArray<Meta>
+}
+
+static box Main {
+  main() {
+return 0
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source)
+        .expect("integer-lane record PackedArray should be eligible");
+    assert!(json.contains("\"PackedArray<Meta>\""));
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_packed_array_ordinary_box_element() {
+    let source = r#"
+box Item {
+  value: i64
+}
+
+box Store {
+  items: PackedArray<Item>
+}
+
+static box Main {
+  main() {
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("ordinary box element must fail PackedArray eligibility");
+    assert!(error.contains("[packed/eligibility]"), "{error}");
+    assert!(error.contains("reason=ordinary-box-element"), "{error}");
+    assert!(error.contains("type=PackedArray<Item>"), "{error}");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_packed_array_handle_field() {
+    let source = r#"
+record Meta {
+  label: String
+}
+
+box Store {
+  metas: PackedArray<Meta>
+}
+
+static box Main {
+  main() {
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("handle field must fail PackedArray eligibility");
+    assert!(error.contains("[packed/eligibility]"), "{error}");
+    assert!(error.contains("reason=unsupported-field-storage"), "{error}");
+    assert!(error.contains("field=label"), "{error}");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_packed_array_generic_record_instantiation() {
+    let source = r#"
+record Meta<T> {
+  value: T
+}
+
+box Store {
+  metas: PackedArray<Meta<PageId>>
+}
+
+static box Main {
+  main() {
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("generic record instantiation must fail PackedArray eligibility");
+    assert!(error.contains("[packed/eligibility]"), "{error}");
+    assert!(error.contains("reason=generic-element"), "{error}");
+    assert!(error.contains("type=PackedArray<Meta<PageId>>"), "{error}");
 }
 
 #[test]

@@ -79,7 +79,6 @@ mod declaration_order; // Deterministic box-member traversal owner
 pub mod joinir_id_remapper; // Phase 189: JoinIR ID remapping (ValueId/BlockId translation) - Public for tests
 mod joinir_inline_boundary_injector; // Phase 189: JoinInlineBoundary Copy instruction injector
 mod loop_api_impl; // CLEAN-D: LoopBuilderApi wiring kept inside builder layer
-pub(crate) mod loops;
 mod module_lifecycle; // Phase 29bq+: Module lifecycle orchestrator (prepare → lower → finalize)
 mod ops;
 mod phi;

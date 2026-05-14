@@ -170,18 +170,38 @@ fn statement_to_json_v0_many(
         ASTNode::Local {
             variables,
             initial_values,
+            declared_type_names,
             ..
         } => {
             let mut out = Vec::new();
             for (index, name) in variables.iter().enumerate() {
+                let declared_type_name = declared_type_names
+                    .get(index)
+                    .and_then(|value| value.as_deref());
                 let initializer_node = initial_values.get(index).and_then(|value| value.as_deref());
                 let record_type = initializer_node
                     .and_then(|value| record_type_name_for_expr(value, local_types))
+                    .or_else(|| {
+                        declared_type_name
+                            .filter(|type_name| context.find_record(type_name).is_some())
+                    })
                     .map(str::to_string);
-                let initializer = initializer_node
-                    .map(|value| expression_to_json_v0(value, context, local_types))
-                    .transpose()?
-                    .unwrap_or_else(|| serde_json::json!({ "type": "Null" }));
+                let initializer = match initializer_node {
+                    Some(ASTNode::ArrayLiteral { elements, .. }) => {
+                        let declared_type_name = declared_type_name.ok_or_else(|| {
+                            "[array/literal-context] array literal requires local typed context"
+                                .to_string()
+                        })?;
+                        array_literal_to_json_v0(
+                            declared_type_name,
+                            elements,
+                            context,
+                            local_types,
+                        )?
+                    }
+                    Some(value) => expression_to_json_v0(value, context, local_types)?,
+                    None => serde_json::json!({ "type": "Null" }),
+                };
                 if let Some(record_type) = record_type {
                     local_types
                         .record_locals
@@ -192,6 +212,7 @@ fn statement_to_json_v0_many(
                 out.push(serde_json::json!({
                     "type": "Local",
                     "name": name,
+                    "declared_type": declared_type_name,
                     "expr": initializer,
                 }));
             }
@@ -419,6 +440,15 @@ fn expression_to_json_v0(
             ..
         } => {
             if let Some(static_receiver) = static_path_from_expr(object) {
+                if context
+                    .find_enum_variant(&static_receiver, method)
+                    .is_some()
+                {
+                    return Err(format!(
+                        "[enum/variant-surface] use `{}::{}` for enum variants; `{}.{}` is object/member syntax",
+                        static_receiver, method, static_receiver, method
+                    ));
+                }
                 if let Some(underlying_type) = context.brand_underlying_type(&static_receiver) {
                     return brand_static_method_to_json_v0(
                         &static_receiver,
@@ -449,6 +479,17 @@ fn expression_to_json_v0(
             ..
         } => enum_ctor_to_json_v0(parent, method, arguments, context, local_types),
         ASTNode::FieldAccess { object, field, .. } => {
+            if let Some(static_receiver) = static_path_from_expr(object) {
+                if context
+                    .find_enum_variant(&static_receiver, field)
+                    .is_some()
+                {
+                    return Err(format!(
+                        "[enum/variant-surface] use `{}::{}` for enum variants; `{}.{}` is object/member syntax",
+                        static_receiver, field, static_receiver, field
+                    ));
+                }
+            }
             if let Some(path) = static_path_from_expr(expression) {
                 return Ok(serde_json::json!({
                     "type": "Var",
@@ -480,6 +521,9 @@ fn expression_to_json_v0(
             "class": class,
             "args": expressions_to_json_v0(arguments, context, local_types)?,
         })),
+        ASTNode::ArrayLiteral { .. } => {
+            Err("[array/literal-context] array literal requires local typed context".to_string())
+        }
         ASTNode::This { .. } => Ok(serde_json::json!({
             "type": "Var",
             "name": "this",
@@ -586,6 +630,47 @@ fn expression_to_json_v0(
             other.node_type()
         )),
     }
+}
+
+fn array_literal_to_json_v0(
+    declared_type_name: &str,
+    elements: &[ASTNode],
+    context: &ProgramJsonV0LoweringContext,
+    local_types: &mut ProgramJsonV0LocalTypes,
+) -> Result<serde_json::Value, String> {
+    let element_type = array_literal_element_type_for_context(declared_type_name)?;
+    Ok(serde_json::json!({
+        "type": "ArrayLiteral",
+        "declared_type": declared_type_name,
+        "element_type": element_type,
+        "elements": expressions_to_json_v0(elements, context, local_types)?,
+    }))
+}
+
+fn array_literal_element_type_for_context(declared_type_name: &str) -> Result<&str, String> {
+    let type_name = declared_type_name.trim();
+    if let Some(inner) = type_name
+        .strip_prefix("Array<")
+        .and_then(|rest| rest.strip_suffix('>'))
+    {
+        if inner.trim().is_empty() {
+            return Err(format!(
+                "[array/literal-context] invalid Array<T> context `{}`",
+                declared_type_name
+            ));
+        }
+        return Ok(inner.trim());
+    }
+    if type_name.starts_with("PackedArray<") {
+        return Err(
+            "[array/literal-context] PackedArray literal lowering is deferred; no Array<T> fallback"
+                .to_string(),
+        );
+    }
+    Err(format!(
+        "[array/literal-context] array literal requires Array<T> typed context, got `{}`",
+        declared_type_name
+    ))
 }
 
 fn record_type_name_for_expr<'a>(
@@ -1082,6 +1167,37 @@ mod tests {
                         "type": "Float",
                         "value": -1.25
                     }
+                }],
+            })
+        );
+    }
+
+    #[test]
+    fn program_json_v0_from_body_lowers_legacy_while_ast_to_loop_json() {
+        let body = vec![ASTNode::While {
+            condition: Box::new(ASTNode::Literal {
+                value: LiteralValue::Bool(true),
+                span: Span::unknown(),
+            }),
+            body: vec![],
+            span: Span::unknown(),
+        }];
+
+        let program = program_json_v0_from_body(&body)
+            .expect("legacy While AST should remain compat-lowerable");
+
+        assert_eq!(
+            program,
+            json!({
+                "version": 0,
+                "kind": "Program",
+                "body": [{
+                    "type": "Loop",
+                    "cond": {
+                        "type": "Bool",
+                        "value": true
+                    },
+                    "body": []
                 }],
             })
         );

@@ -17,8 +17,6 @@ use std::rc::Rc;
 /// Phase 288: REPL実行器（箱理論モジュール化）
 /// Phase 288.1: session を Rc<RefCell<>> で保持（永続化のため）
 pub(super) struct ReplRunnerBox {
-    #[allow(dead_code)]
-    config: CliConfig,
     /// Phase 288.1: Rc<RefCell<>> で保持（clone は Rc のみ、中身は永続化）
     session: Rc<RefCell<ReplSessionBox>>,
     /// REPL mode での内部ログ抑制フラグ
@@ -27,12 +25,11 @@ pub(super) struct ReplRunnerBox {
 }
 
 impl ReplRunnerBox {
-    pub(super) fn new(config: CliConfig) -> Self {
+    pub(super) fn new(_config: CliConfig) -> Self {
         // REPL mode では verbose が false なら内部ログを抑制
         let quiet_internal_logs = !crate::config::env::cli_verbose();
 
         Self {
-            config,
             // Phase 288.1: Rc<RefCell<>> で初期化（即座に生成）
             session: Rc::new(RefCell::new(ReplSessionBox::new())),
             quiet_internal_logs,

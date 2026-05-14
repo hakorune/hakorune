@@ -513,6 +513,7 @@ mod tests {
                     value: LiteralValue::Integer(0),
                     span: Span::unknown(),
                 }))],
+                declared_type_names: Vec::new(),
                 span: Span::unknown(),
             },
             ASTNode::If {

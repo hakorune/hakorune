@@ -13,7 +13,7 @@ Related:
 
 ## Decision
 
-`transition Enum.Value -> Enum.Value by method` is accepted as box-local
+`transition Enum::Value -> Enum::Value by method` is accepted as box-local
 Stage0 metadata-only syntax.
 
 `transition` and `by` are contextual identifiers, not global keywords.
@@ -30,8 +30,8 @@ enum PageState {
 box HakoAllocPageModel {
     state: PageState
 
-    transition PageState.Active -> PageState.Retired by retire
-    transition PageState.Retired -> PageState.Decommitted by decommit
+    transition PageState::Active -> PageState::Retired by retire
+    transition PageState::Retired -> PageState::Decommitted by decommit
 }
 ```
 
@@ -74,7 +74,7 @@ Box declarations carry ordered transition declarations:
 
 ```text
 transitions: [
-  { from: PageState.Active, to: PageState.Retired, method: retire },
+  { from: PageState::Active, to: PageState::Retired, method: retire },
 ]
 ```
 

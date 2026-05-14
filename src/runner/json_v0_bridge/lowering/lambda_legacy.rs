@@ -98,6 +98,7 @@ fn stageb_stmt_to_ast(s: &StmtV0) -> Result<ASTNode, String> {
         StmtV0::Local { name, expr } => Ok(ASTNode::Local {
             variables: vec![name.clone()],
             initial_values: vec![Some(Box::new(stageb_expr_to_ast(expr)?))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         }),
         _ => Err("stageb legacy fn literal: unsupported stmt in lambda body".into()),

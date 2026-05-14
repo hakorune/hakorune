@@ -169,6 +169,7 @@ fn rewrite(ast: ASTNode) -> ASTNode {
         ASTNode::Local {
             variables,
             initial_values,
+            declared_type_names,
             span,
         } => ASTNode::Local {
             variables,
@@ -176,6 +177,7 @@ fn rewrite(ast: ASTNode) -> ASTNode {
                 .into_iter()
                 .map(|o| o.map(|b| Box::new(rewrite(*b))))
                 .collect(),
+            declared_type_names,
             span,
         },
         other => other,

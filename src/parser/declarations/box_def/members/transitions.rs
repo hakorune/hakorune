@@ -30,9 +30,16 @@ pub(crate) fn try_parse_transition_decl(
 
 fn parse_state_ref(p: &mut NyashParser, context: &str) -> Result<String, ParseError> {
     let mut out = parse_ident(p, context)?;
-    while p.match_token(&TokenType::DOT) {
+    while p.match_token(&TokenType::DoubleColon) || p.match_token(&TokenType::DOT) {
+        let is_legacy_dot = p.match_token(&TokenType::DOT);
         p.advance();
-        out.push('.');
+        if is_legacy_dot {
+            // ENUMVAR-001: accept legacy transition metadata spelling
+            // `Enum.Value`, but transport canonical `Enum::Value`.
+            out.push_str("::");
+        } else {
+            out.push_str("::");
+        }
         out.push_str(&parse_ident(p, context)?);
     }
     Ok(out)

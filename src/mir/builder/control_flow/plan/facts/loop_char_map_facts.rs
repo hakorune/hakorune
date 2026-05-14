@@ -276,6 +276,7 @@ mod tests {
                     },
                 ],
             )))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         };
 

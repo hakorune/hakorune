@@ -15,7 +15,7 @@ impl MirInterpreter {
     /// # Returns
     /// 変換成功時はBox、失敗時はエラー
     #[inline]
-    #[allow(dead_code)]
+    #[allow(dead_code)] // ASTCLEAN-009: retained for receiver-conversion handler migration.
     pub(crate) fn convert_to_box(
         &mut self,
         receiver: ValueId,

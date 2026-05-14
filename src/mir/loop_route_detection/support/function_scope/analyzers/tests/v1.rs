@@ -19,6 +19,7 @@ fn test_capture_simple_digits() {
             value: LiteralValue::String("0123456789".to_string()),
             span: Span::unknown(),
         }))],
+        declared_type_names: Vec::new(),
         span: Span::unknown(),
     };
 
@@ -36,6 +37,7 @@ fn test_capture_simple_digits() {
             }],
             span: Span::unknown(),
         }))],
+        declared_type_names: Vec::new(),
         span: Span::unknown(),
     }];
 
@@ -97,6 +99,7 @@ fn test_capture_reassigned_rejected() {
             value: LiteralValue::String("0123456789".to_string()),
             span: Span::unknown(),
         }))],
+        declared_type_names: Vec::new(),
         span: Span::unknown(),
     };
 
@@ -123,6 +126,7 @@ fn test_capture_reassigned_rejected() {
             arguments: vec![],
             span: Span::unknown(),
         }))],
+        declared_type_names: Vec::new(),
         span: Span::unknown(),
     }];
 
@@ -193,6 +197,7 @@ fn test_capture_after_loop_rejected() {
             value: LiteralValue::String("0123456789".to_string()),
             span: Span::unknown(),
         }))],
+        declared_type_names: Vec::new(),
         span: Span::unknown(),
     };
 
@@ -236,6 +241,7 @@ fn test_capture_method_call_init_rejected() {
             arguments: vec![],
             span: Span::unknown(),
         }))],
+        declared_type_names: Vec::new(),
         span: Span::unknown(),
     };
 
@@ -250,6 +256,7 @@ fn test_capture_method_call_init_rejected() {
             arguments: vec![],
             span: Span::unknown(),
         }))],
+        declared_type_names: Vec::new(),
         span: Span::unknown(),
     }];
 
@@ -305,6 +312,7 @@ fn test_capture_unused_in_loop_rejected() {
             value: LiteralValue::String("0123456789".to_string()),
             span: Span::unknown(),
         }))],
+        declared_type_names: Vec::new(),
         span: Span::unknown(),
     };
 

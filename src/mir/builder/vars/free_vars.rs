@@ -260,6 +260,7 @@ mod tests {
         ASTNode::Local {
             variables: vec![name.to_string()],
             initial_values: vec![None],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         }
     }
@@ -301,6 +302,7 @@ mod tests {
         let node = block(vec![ASTNode::Local {
             variables: vec!["x".to_string()],
             initial_values: vec![Some(Box::new(var("y")))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         }]);
         let mut used = HashSet::new();

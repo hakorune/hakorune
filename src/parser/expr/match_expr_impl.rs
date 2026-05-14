@@ -602,6 +602,7 @@ fn wrap_compat_payload_enum_arm_body(
                 field: binding.field_name.clone(),
                 span: Span::unknown(),
             }))],
+            declared_type_names: Vec::new(),
             span: Span::unknown(),
         })
         .collect();

@@ -22,10 +22,14 @@ mod extract;
 mod generic_arity_checker;
 #[path = "program_json_v0/lowering.rs"]
 mod lowering;
+#[path = "program_json_v0/packed_array_eligibility_checker.rs"]
+mod packed_array_eligibility_checker;
 #[path = "program_json_v0/record_payload.rs"]
 mod record_payload;
 #[path = "program_json_v0/routing.rs"]
 mod routing;
+#[path = "program_json_v0/type_ref.rs"]
+mod type_ref;
 
 #[cfg(test)]
 use routing::strict_authority_program_json_v0_source_rejection;

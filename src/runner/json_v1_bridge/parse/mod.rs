@@ -43,7 +43,6 @@ fn infer_param_count_from_v1_func(func: &Value, func_name: &str) -> Result<usize
 /// - const (integer)
 /// - copy
 /// - ret
-#[allow(dead_code)]
 pub fn try_parse_v1_to_module(json: &str) -> Result<Option<MirModule>, String> {
     let value: Value = match serde_json::from_str(json) {
         Ok(v) => v,
