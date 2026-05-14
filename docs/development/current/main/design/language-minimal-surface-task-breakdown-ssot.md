@@ -83,7 +83,7 @@ Retire condition:
 | Enum transition lifecycle | metadata capsule complete | `TRANS-002 transition legality checker` |
 | Result/Option | guard-let narrow sugar complete | no immediate Result/Option row |
 | Generic containers | generic type annotation metadata and arity checker complete | next substitution/semantics row deferred |
-| PackedArray | eligibility gate complete | `PACKED-002 non-escaping auto-use pilot` |
+| PackedArray | source auto-use pilot metadata complete | `LOOP-003 Stage1 LoopRange route decision` |
 | Array / Result / Option canonical surface | docs accepted; LOCALTYPE/ENUMVAR/ARRAY/RESULT/GUARDLET rows complete | no immediate code row |
 | Uses/capability | method-level metadata capsule complete | `USES-002 capability checker` |
 | Span/view | planned later | `SPAN-001 Span API design row` |
@@ -265,7 +265,7 @@ no Stage0 Result/Option special-case
 | `ARRAY-002D ArrayBox JSON v0/backend guard` | Complete as `293x-318`; guard that ordinary `Array<T>` lowers through ArrayBox while `PackedArray<T>` never silently falls back. | Stage1/backend guard complete |
 | `RESULT-001 Result/Option prelude diagnostics` | Complete as `293x-314`; keep `Result<T,E>` / `Option<T>` as enum surfaces with explicit `Type::Variant` and prelude lookup. | Stage1 enum/prelude complete |
 | `PACKED-001 PackedArray eligibility gate` | Complete as `293x-293`; fail-fast if packed residence cannot be proven for declaration type metadata. | Stage1 CorePlan |
-| `PACKED-002 PackedArray non-escaping auto-use pilot` | Use packed ArrayBox for eligible non-escaping record arrays. | Stage1 CorePlan |
+| `PACKED-002 PackedArray non-escaping auto-use pilot` | Complete as `293x-324`; emit metadata-only source `PackedArray<Record>` pilot rows by consuming existing C209 plans. | Stage1 CorePlan complete |
 
 Stop lines:
 
@@ -340,5 +340,6 @@ language work, start here:
 35. `RESULT-002C known-enum exhaustiveness underscore rules` (complete as `293x-321`)
 36. `RESULT-002D generic enum expected-type diagnostics` (complete as `293x-322`)
 37. `GUARDLET-001 guard-let pattern sugar` (complete as `293x-323`)
+38. `PACKED-002 PackedArray non-escaping auto-use pilot` (complete as `293x-324`)
 
 This order keeps early wins concrete while avoiding Stage0 semantic growth.

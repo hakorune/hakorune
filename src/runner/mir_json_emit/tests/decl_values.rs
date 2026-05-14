@@ -5,6 +5,7 @@ use super::super::{
     collect_array_record_storage_plan_values,
     collect_hako_alloc_aligned_small_packed_store_pilot_plan_values,
     collect_hako_alloc_huge_page_packed_store_pilot_plan_values, collect_record_layout_plan_values,
+    collect_source_packed_array_autouse_pilot_plan_values,
     collect_sorted_enum_decl_values, collect_sorted_record_decl_values,
     collect_sorted_user_box_decl_values, collect_static_data_plan_values,
     collect_typed_object_plan_values,
@@ -13,8 +14,8 @@ use crate::mir::function::{
     ArrayRecordAutoUseEligibilityPlan, ArrayRecordMaterializationBoundaryPlan,
     ArrayRecordPackedAutoUsePilotPlan, ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan,
     HakoAllocAlignedSmallPackedStorePilotPlan, HakoAllocHugePagePackedStorePilotPlan,
-    RecordLayoutFieldPlan, RecordLayoutPlan, StaticDataPlan, TypedObjectFieldPlan,
-    TypedObjectFieldStorage, TypedObjectPlan,
+    RecordLayoutFieldPlan, RecordLayoutPlan, SourcePackedArrayAutoUsePilotPlan, StaticDataPlan,
+    TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan,
 };
 use crate::mir::MirModule;
 use serde_json::json;
@@ -456,6 +457,45 @@ fn collect_array_record_packed_autouse_pilot_plan_values_preserves_pilot_limits(
     assert_eq!(plans[0]["public_array_get_materialization_enabled"], false);
     assert_eq!(plans[0]["hako_alloc_migration_enabled"], false);
     assert_eq!(plans[0]["backend_lowering_enabled"], false);
+}
+
+#[test]
+fn collect_source_packed_array_autouse_pilot_plan_values_preserves_source_limits() {
+    let mut module = MirModule::new("test".to_string());
+    module
+        .metadata
+        .source_packed_array_autouse_pilot_plans
+        .push(SourcePackedArrayAutoUsePilotPlan {
+            owner_box: "Store".to_string(),
+            field_name: "metas".to_string(),
+            declared_type_name: "PackedArray<Meta>".to_string(),
+            record_name: "Meta".to_string(),
+            layout_id: 1,
+            pilot_kind: "declared_packed_record_array_v0".to_string(),
+            source_boundary_kind: "non_escaping_direct_field_reads_v0".to_string(),
+            source_declared_packed: true,
+            direct_indexed_field_reads_enabled: true,
+            private_runtime_storage_enabled: true,
+            public_array_get_materialization_enabled: false,
+            backend_lowering_enabled: false,
+            boxed_fallback_enabled: false,
+        });
+
+    let plans = collect_source_packed_array_autouse_pilot_plan_values(&module);
+
+    assert_eq!(plans.len(), 1);
+    assert_eq!(plans[0]["owner_box"], "Store");
+    assert_eq!(plans[0]["field_name"], "metas");
+    assert_eq!(plans[0]["declared_type"], "PackedArray<Meta>");
+    assert_eq!(plans[0]["record_name"], "Meta");
+    assert_eq!(plans[0]["layout_id"], 1);
+    assert_eq!(plans[0]["pilot_kind"], "declared_packed_record_array_v0");
+    assert_eq!(plans[0]["source_declared_packed"], true);
+    assert_eq!(plans[0]["direct_indexed_field_reads_enabled"], true);
+    assert_eq!(plans[0]["private_runtime_storage_enabled"], true);
+    assert_eq!(plans[0]["public_array_get_materialization_enabled"], false);
+    assert_eq!(plans[0]["backend_lowering_enabled"], false);
+    assert_eq!(plans[0]["boxed_fallback_enabled"], false);
 }
 
 #[test]

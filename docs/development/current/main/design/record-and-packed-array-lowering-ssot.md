@@ -241,6 +241,11 @@ Status:
   runtime i64-column construction/read seam for non-escaping direct field reads.
   Public materialization, hako_alloc migration, and backend lowering remain
   disabled.
+- `PACKED-002` is complete as `293x-324`: explicit source
+  `PackedArray<Record>` field declarations now emit metadata-only
+  `source_packed_array_autouse_pilot_plans` by consuming existing C209 pilot
+  rows. Public materialization, backend lowering, hako_alloc migration, and
+  boxed fallback remain disabled.
 - `C210` is complete as `293x-227`: it emits
   `hako_alloc_aligned_small_packed_store_pilot_plans` for
   `HakoAllocAlignedSmallMeta` and proves the aligned-small metadata shape can be

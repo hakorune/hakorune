@@ -70,6 +70,7 @@ Collections and failure values
 - unresolved generic element contexts such as `Array<T>` fail-fast until a later generic row
 - ordinary `Array<T>` literals use JSON v0 `ArrayLiteral` / ArrayBox route; `PackedArray<T>` has no fallback
 - `PackedArray<T>` — packed residence request; no silent fallback
+- source `PackedArray<Record>` field declarations emit metadata-only pilot rows when eligible; backend lowering remains closed
 - `local opt: Option<T> = Option::Some(v)` / `Option::None`
 - `local res: Result<T,E> = Result::Ok(v)` / `Result::Err(e)`
 - `guard let Result::Ok(v) = res else { ... }` — narrow enum-variant guard sugar

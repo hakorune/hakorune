@@ -135,6 +135,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_loopclean_while_variant_quarantine_guard.sh` | LOOPCLEAN-003 の while variant quarantine を固定し、新規 source は `Loop`、legacy `ASTNode::While` は Program(JSON) `Loop` 互換 lowering に閉じることを検証する。 |
 | `tools/checks/k2_wide_loopclean_range_parser_helper_guard.sh` | LOOPCLEAN-004 の range parser helper commonization を固定し、canonical `loop i in` と legacy `for i in` が共有 header parser から同じ `ForRange` shape を出すことを検証する。 |
 | `tools/checks/k2_wide_packed_array_eligibility_guard.sh` | PACKED-001 の Stage1 `PackedArray<T>` eligibility gate を固定し、packed residence が証明できない source を fail-fast しつつ runtime/backend auto-use に広がらないことを検証する。 |
+| `tools/checks/k2_wide_source_packed_array_autouse_pilot_guard.sh` | PACKED-002 の source `PackedArray<Record>` auto-use pilot metadata を固定し、backend lowering / public materialization / boxed fallback が閉じていることを検証する。 |
 | `tools/checks/k2_wide_astclean_legacy_enum_guard.sh` | ASTCLEAN-001 の legacy AST enum removal を固定し、旧 split enum / `ASTNodeType` が戻らず `is_expression()` の直接判定だけが残ることを検証する。 |
 | `tools/checks/k2_wide_record_decl_metadata_transport_guard.sh` | C203a の `record_decls` metadata transport lane を固定し、Program JSON v0 / JSON bridge / MIR metadata / MIR JSON が record を ordinary user-box lane に混ぜないことを検証する。 |
 | `tools/checks/k2_wide_record_layout_plan_guard.sh` | C203b の `record_layout_plans` metadata lane を固定し、concrete record fields の slot/storage layout が typed-object/user-box layout lane と混ざらないことを検証する。 |

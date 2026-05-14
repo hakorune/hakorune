@@ -224,6 +224,50 @@ fn parse_json_v0_to_module_derives_concrete_record_layout_plans() {
 }
 
 #[test]
+fn parse_json_v0_to_module_derives_source_packed_array_autouse_pilot_plans() {
+    let json = json!({
+        "version": 0,
+        "kind": "Program",
+        "record_decls": [
+            {
+                "name": "Meta",
+                "fields": ["ptr", "size"],
+                "field_decls": [
+                    { "name": "ptr", "declared_type": "i64", "is_weak": false },
+                    { "name": "size", "declared_type": "usize", "is_weak": false }
+                ]
+            }
+        ],
+        "user_box_decls": [
+            {
+                "name": "Store",
+                "fields": ["metas"],
+                "field_decls": [
+                    { "name": "metas", "declared_type": "PackedArray<Meta>", "is_weak": false }
+                ]
+            }
+        ],
+        "body": [
+            { "type": "Return", "expr": { "type": "Int", "value": 0 } }
+        ]
+    })
+    .to_string();
+
+    let module = parse_json_v0_to_module(&json).expect("source packed array module");
+    let plans = &module.metadata.source_packed_array_autouse_pilot_plans;
+    assert_eq!(plans.len(), 1);
+    assert_eq!(plans[0].owner_box, "Store");
+    assert_eq!(plans[0].field_name, "metas");
+    assert_eq!(plans[0].declared_type_name, "PackedArray<Meta>");
+    assert_eq!(plans[0].record_name, "Meta");
+    assert!(plans[0].source_declared_packed);
+    assert!(plans[0].private_runtime_storage_enabled);
+    assert!(!plans[0].public_array_get_materialization_enabled);
+    assert!(!plans[0].backend_lowering_enabled);
+    assert!(!plans[0].boxed_fallback_enabled);
+}
+
+#[test]
 fn parse_json_v0_to_module_rejects_option_some_null_payload() {
     let json = json!({
         "version": 0,

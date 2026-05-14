@@ -582,6 +582,9 @@ Rules:
   tags those diagnostics with `[enum/expected-type][prelude]`.
 - Known enum variants written with dot syntax, such as `Result.Ok(...)`, are
   rejected with enum-variant diagnostics.
+- PACKED-002 emits metadata-only source PackedArray auto-use pilot rows for
+  eligible `PackedArray<Record>` field declarations. Public record
+  materialization, backend lowering, and boxed fallback stay disabled.
 
 Canonical enum variants:
 

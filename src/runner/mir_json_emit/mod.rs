@@ -24,6 +24,7 @@ use decls::{
     collect_array_record_storage_plan_values,
     collect_hako_alloc_aligned_small_packed_store_pilot_plan_values,
     collect_hako_alloc_huge_page_packed_store_pilot_plan_values, collect_record_layout_plan_values,
+    collect_source_packed_array_autouse_pilot_plan_values,
     collect_sorted_enum_decl_values, collect_sorted_record_decl_values,
     collect_sorted_user_box_decl_values, collect_static_data_plan_values,
     collect_typed_object_plan_values,

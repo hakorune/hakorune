@@ -51,6 +51,7 @@ use super::{
     refresh_function_thin_entry_selections, refresh_function_userbox_local_scalar_seed_route,
     refresh_function_userbox_loop_micro_seed_route, refresh_function_value_consumer_facts,
     rune_plan_refresh::refresh_function_rune_plans,
+    source_packed_array_autouse_pilot::refresh_module_source_packed_array_autouse_pilot_plans,
     substring_views_micro_seed_plan::refresh_function_substring_views_micro_seed_route,
     typed_object_plan::{
         refresh_module_typed_object_field_value_types, refresh_module_typed_object_plans,
@@ -127,6 +128,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
     refresh_module_array_record_autouse_eligibility_plans(module);
     refresh_module_array_record_materialization_boundary_plans(module);
     refresh_module_array_record_packed_autouse_pilot_plans(module);
+    refresh_module_source_packed_array_autouse_pilot_plans(module);
     refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans(module);
     refresh_module_hako_alloc_huge_page_packed_store_pilot_plans(module);
     refresh_module_typed_object_plans(module);

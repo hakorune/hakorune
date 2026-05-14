@@ -626,6 +626,29 @@ pub struct ArrayRecordPackedAutoUsePilotPlan {
     pub backend_lowering_enabled: bool,
 }
 
+/// Metadata-only source `PackedArray<T>` auto-use pilot row.
+///
+/// This connects an explicit source declaration site such as
+/// `field: PackedArray<Meta>` to an already-proven C209 packed ArrayBox pilot
+/// row. It still does not rewrite storage, materialize records, enable backend
+/// lowering, or allow boxed fallback.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SourcePackedArrayAutoUsePilotPlan {
+    pub owner_box: String,
+    pub field_name: String,
+    pub declared_type_name: String,
+    pub record_name: String,
+    pub layout_id: u32,
+    pub pilot_kind: String,
+    pub source_boundary_kind: String,
+    pub source_declared_packed: bool,
+    pub direct_indexed_field_reads_enabled: bool,
+    pub private_runtime_storage_enabled: bool,
+    pub public_array_get_materialization_enabled: bool,
+    pub backend_lowering_enabled: bool,
+    pub boxed_fallback_enabled: bool,
+}
+
 /// Metadata-only pilot plan for aligned-small hako_alloc metadata packed store.
 ///
 /// This consumes the C209 private packed ArrayBox pilot for the
@@ -751,6 +774,9 @@ pub struct ModuleMetadata {
 
     /// Metadata-only non-escaping packed ArrayBox auto-use pilot rows.
     pub array_record_packed_autouse_pilot_plans: Vec<ArrayRecordPackedAutoUsePilotPlan>,
+
+    /// Metadata-only source `PackedArray<T>` auto-use pilot rows.
+    pub source_packed_array_autouse_pilot_plans: Vec<SourcePackedArrayAutoUsePilotPlan>,
 
     /// Metadata-only aligned-small hako_alloc packed-store pilot rows.
     pub hako_alloc_aligned_small_packed_store_pilot_plans:

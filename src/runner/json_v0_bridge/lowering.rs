@@ -275,6 +275,7 @@ pub(super) fn lower_program(
     crate::mir::array_record_autouse_eligibility::refresh_module_array_record_autouse_eligibility_plans(&mut module);
     crate::mir::array_record_materialization_boundary::refresh_module_array_record_materialization_boundary_plans(&mut module);
     crate::mir::array_record_packed_autouse_pilot::refresh_module_array_record_packed_autouse_pilot_plans(&mut module);
+    crate::mir::source_packed_array_autouse_pilot::refresh_module_source_packed_array_autouse_pilot_plans(&mut module);
     crate::mir::hako_alloc_aligned_small_packed_store_pilot::refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans(&mut module);
     crate::mir::hako_alloc_huge_page_packed_store_pilot::refresh_module_hako_alloc_huge_page_packed_store_pilot_plans(&mut module);
     program::lower_main_body(&mut module, &prog.body, &env)?;

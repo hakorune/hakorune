@@ -2,7 +2,7 @@
 
 Status: Active
 Lane: `phase-293x language minimal surface lane`
-Current blocker token: `PACKED-002 PackedArray non-escaping auto-use pilot`
+Current blocker token: `LOOP-003 Stage1 LoopRange JoinIR/CorePlan route decision`
 
 ## Purpose
 
@@ -31,14 +31,14 @@ docs/development/current/main/design/language-minimal-surface-task-breakdown-sso
 - [x] `RESULT-002C` known-enum exhaustiveness underscore rules
 - [x] `RESULT-002D` generic enum expected-type diagnostics
 - [x] `GUARDLET-001` guard-let pattern sugar after Result/Option diagnostics
+- [x] `PACKED-002` PackedArray non-escaping auto-use pilot
 
 ## Current split rows
 
-- [ ] `PACKED-002` PackedArray non-escaping auto-use pilot
+- [ ] `LOOP-003` Stage1 LoopRange lowering, blocked on JoinIR/CorePlan route decision
 
 ## Blocked / deferred rows
 
-- [ ] `LOOP-003` Stage1 LoopRange lowering, blocked on JoinIR/CorePlan route decision
 - [ ] `LOOP-004` LoopRange verifier facts
 
 ## Stop lines

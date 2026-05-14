@@ -70,6 +70,7 @@ pub(crate) mod numeric_substrate; // fixed-width/pointer-sized numeric type-name
 pub mod optimizer;
 pub mod policies; // shared routing policies (SSOT)
 pub mod ssot; // Shared helpers (SSOT) for instruction lowering
+pub mod source_packed_array_autouse_pilot; // MIR-owned source PackedArray<T> pilot metadata
 pub mod types; // core MIR enums (ConstValue, Ops, MirType)
 pub mod utils; // Phase 15 control flow utilities for root treatment
                // pub mod lowerers; // reserved: Stage-3 loop lowering (while/for-range)
@@ -197,7 +198,8 @@ pub use function::{
     ArrayRecordPackedAutoUsePilotPlan, ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan,
     ClosureBodyId, FunctionSignature, HakoAllocAlignedSmallPackedStorePilotPlan,
     HakoAllocHugePagePackedStorePilotPlan, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
-    RecordDecl, RecordLayoutFieldPlan, RecordLayoutPlan, TypedObjectFieldStorage, UserBoxFieldDecl,
+    RecordDecl, RecordLayoutFieldPlan, RecordLayoutPlan, SourcePackedArrayAutoUsePilotPlan,
+    TypedObjectFieldStorage, UserBoxFieldDecl,
 };
 pub use generic_method_route_plan::{
     refresh_function_generic_method_routes, refresh_module_generic_method_routes,
