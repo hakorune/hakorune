@@ -26,13 +26,13 @@ Related:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `RESULT-002C known-enum exhaustiveness underscore rules`
+- current blocker token: `RESULT-002D generic enum expected-type diagnostics`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after RESULT-002B; next blocker is RESULT-002C known-enum exhaustiveness underscore rules
+- continue phase-293x after RESULT-002C; next blocker is RESULT-002D generic enum expected-type diagnostics
 - keep `LOOP-003` open until a JoinIR/CorePlan route is selected; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

@@ -209,6 +209,7 @@ Notes
 - Pattern matching: `match` replaces legacy `peek`. MVP supports wildcard `_`, literals, simple type patterns, fixed/variadic array heads `[hd, ..tl]`, simple map key extract `{ "k": v, .. }`, OR patterns, and guards `if`.
 - Known-enum shorthand: `Some(v)` / `None` is accepted only when the arm set resolves to a known enum declaration in the current source inventory.
 - Known-enum exhaustiveness: shorthand enum matches must name every variant explicitly; `_` does not satisfy exhaustiveness for that lane.
+  RESULT-002C tags known-enum `_` exhaustiveness diagnostics.
 - `Option<T>` and `Result<T,E>` are built-in enum prelude surfaces in
   RESULT-001. They use qualified constructors such as `Option::None` and
   `Result::Ok(value)`. Dot variants are rejected for known enum variants.

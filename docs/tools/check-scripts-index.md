@@ -128,6 +128,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_result_option_prelude_diagnostics_guard.sh` | RESULT-001 の `Option<T>` / `Result<T,E>` built-in enum prelude と dot-variant fail-fast diagnostics を検証する。 |
 | `tools/checks/k2_wide_result_option_missing_arm_diagnostics_guard.sh` | RESULT-002A の prelude enum missing-arm diagnostics を固定し、`Option::None` / `Result::Err` と `_` 不成立メッセージを検証する。 |
 | `tools/checks/k2_wide_result_option_payload_diagnostics_guard.sh` | RESULT-002B の prelude enum payload diagnostics を固定し、`Some` / `None` / `Ok` / `Err` の arity diagnostics と nullish contract 維持を検証する。 |
+| `tools/checks/k2_wide_known_enum_underscore_exhaustiveness_guard.sh` | RESULT-002C の known-enum `_` exhaustiveness rule を固定し、fallback arm が missing variant を満たさないことを検証する。 |
 | `tools/checks/k2_wide_loopclean_while_parser_normalization_guard.sh` | LOOPCLEAN-002 の while parser normalization を固定し、新規 Stage-3 `while` が canonical `ASTNode::Loop` として出ることを検証する。 |
 | `tools/checks/k2_wide_loopclean_while_variant_quarantine_guard.sh` | LOOPCLEAN-003 の while variant quarantine を固定し、新規 source は `Loop`、legacy `ASTNode::While` は Program(JSON) `Loop` 互換 lowering に閉じることを検証する。 |
 | `tools/checks/k2_wide_loopclean_range_parser_helper_guard.sh` | LOOPCLEAN-004 の range parser helper commonization を固定し、canonical `loop i in` と legacy `for i in` が共有 header parser から同じ `ForRange` shape を出すことを検証する。 |

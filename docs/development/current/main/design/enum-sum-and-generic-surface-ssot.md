@@ -54,7 +54,8 @@ Related:
   - exhaustiveness checking against the known enum inventory
   - Stage1 lowering to `EnumMatch`
   - record constructors / patterns must name the declared field set exactly
-  - `_` does not satisfy known-enum exhaustiveness
+  - `_` does not satisfy known-enum exhaustiveness; RESULT-002C tags this
+    diagnostic as `[enum/exhaustiveness][underscore]`
   - guarded enum shorthand arms and block-bodied record shorthand arms are still outside this cut
 - 137x-B reading:
   - enum/sum/generic is a separate design owner from primitive fast-path and container residence

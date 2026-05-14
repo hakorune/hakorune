@@ -305,6 +305,8 @@ impl NyashParser {
             };
             let prefix = if is_prelude_enum {
                 "[enum/missing-arm][prelude] "
+            } else if else_expr.is_some() {
+                "[enum/exhaustiveness][underscore] "
             } else {
                 ""
             };

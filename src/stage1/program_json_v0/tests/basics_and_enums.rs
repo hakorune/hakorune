@@ -774,6 +774,33 @@ return match value {
 }
 
 #[test]
+fn source_to_program_json_v0_rejects_known_enum_underscore_exhaustiveness_rule() {
+    let source = r#"
+enum PageState {
+  Active
+  Retired
+}
+
+static box Main {
+  main() {
+local state = PageState::Active
+return match state {
+  Active => 1
+  _ => 0
+}
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("known enum default arm must not satisfy exhaustiveness");
+    assert!(error.contains("[enum/exhaustiveness][underscore]"), "{error}");
+    assert!(error.contains("PageState"), "{error}");
+    assert!(error.contains("Retired"), "{error}");
+    assert!(error.contains("`_` does not satisfy known-enum exhaustiveness"), "{error}");
+}
+
+#[test]
 fn source_to_program_json_v0_emits_record_enum_payload_box_contract() {
     let source = r#"
 enum Token {
