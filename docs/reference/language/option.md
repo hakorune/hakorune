@@ -81,6 +81,18 @@ match a {
 }
 ```
 
+`guard let` is available as a narrow early-exit sugar for explicit qualified
+single-payload enum variants:
+
+```hako
+guard let Result::Ok(value) = result else {
+  return Result::Err("bad")
+}
+```
+
+This is still part of the `guard` / `match` family. It is not `try`, `throw`,
+or `?` propagation.
+
 Prelude `Option` / `Result` matches must still name every variant explicitly.
 The `_` default arm does not satisfy known-enum exhaustiveness. Missing prelude
 arms fail with `[enum/missing-arm][prelude]` and name canonical constructors

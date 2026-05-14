@@ -18,8 +18,8 @@ This document turns the language-design discussions into task-sized backlog
 rows.
 
 It is not the active allocator lane.
-`RESULT-002D generic enum expected-type diagnostics` is complete as the
-current Result/Option diagnostics row after RESULT-002C.
+`GUARDLET-001 guard-let pattern sugar` is complete as the current Result/Option
+control ergonomics row after RESULT-002D.
 
 `ARRAY-RESULT-SSOT` is complete as the docs-only canonical surface decision for
 `Array<T>`, `PackedArray<T>`, `Result<T,E>`, `Option<T>`, and
@@ -81,10 +81,10 @@ Retire condition:
 | Record literal | with-update lowering complete | no immediate row |
 | Contracts | syntax metadata capsule complete | `CONTRACT-003 contract runtime-check insertion` |
 | Enum transition lifecycle | metadata capsule complete | `TRANS-002 transition legality checker` |
-| Result/Option | expected-type diagnostics complete | `GUARDLET-001 guard-let pattern sugar` |
+| Result/Option | guard-let narrow sugar complete | no immediate Result/Option row |
 | Generic containers | generic type annotation metadata and arity checker complete | next substitution/semantics row deferred |
 | PackedArray | eligibility gate complete | `PACKED-002 non-escaping auto-use pilot` |
-| Array / Result / Option canonical surface | docs accepted; LOCALTYPE/ENUMVAR/ARRAY/RESULT rows complete through `RESULT-002D` | guard-let design |
+| Array / Result / Option canonical surface | docs accepted; LOCALTYPE/ENUMVAR/ARRAY/RESULT/GUARDLET rows complete | no immediate code row |
 | Uses/capability | method-level metadata capsule complete | `USES-002 capability checker` |
 | Span/view | planned later | `SPAN-001 Span API design row` |
 | Module visibility | planned later | `MOD-001 using/module migration decision` |
@@ -239,7 +239,7 @@ no Stage0 invariant or transition checker
 | `RESULT-002B prelude enum payload diagnostics` | Complete as `293x-320`; improve arity/payload diagnostics for `Ok`, `Err`, `Some`, and `None`. | Stage1 diagnostics complete |
 | `RESULT-002C known-enum exhaustiveness underscore rules` | Complete as `293x-321`; keep `_` rules explicit for known enum exhaustiveness. | Stage1 diagnostics complete |
 | `RESULT-002D generic enum expected-type diagnostics` | Complete as `293x-322`; diagnose ambiguous prelude generic enum local constructors without adding inference. | Stage1 diagnostics complete |
-| `GUARDLET-001 guard-let pattern sugar` | Lower `guard let Pattern = expr else { ... }` through match/pattern rules. | Stage1 semantics |
+| `GUARDLET-001 guard-let pattern sugar` | Complete as `293x-323`; lower narrow `guard let Type::Variant(binding) = expr else { ... }` through existing Local / If / EnumMatchExpr pieces. | Parser sugar complete |
 
 Stop lines:
 
@@ -339,5 +339,6 @@ language work, start here:
 34. `RESULT-002B prelude enum payload diagnostics` (complete as `293x-320`)
 35. `RESULT-002C known-enum exhaustiveness underscore rules` (complete as `293x-321`)
 36. `RESULT-002D generic enum expected-type diagnostics` (complete as `293x-322`)
+37. `GUARDLET-001 guard-let pattern sugar` (complete as `293x-323`)
 
 This order keeps early wins concrete while avoiding Stage0 semantic growth.

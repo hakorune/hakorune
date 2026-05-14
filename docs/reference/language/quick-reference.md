@@ -72,6 +72,7 @@ Collections and failure values
 - `PackedArray<T>` — packed residence request; no silent fallback
 - `local opt: Option<T> = Option::Some(v)` / `Option::None`
 - `local res: Result<T,E> = Result::Ok(v)` / `Result::Err(e)`
+- `guard let Result::Ok(v) = res else { ... }` — narrow enum-variant guard sugar
 - `Result.Ok(v)` is not canonical; dot is object/member access
 
 Using / SSOT

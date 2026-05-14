@@ -45,7 +45,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - current blocker token:
-  `GUARDLET-001 guard-let pattern sugar after Result/Option diagnostics`
+  `PACKED-002 PackedArray non-escaping auto-use pilot`
 - primary mode: language minimal surface lane; keep Stage0 thin and Stage1 semantic rows small
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -58,15 +58,15 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after RESULT-002D; next blocker is
-  GUARDLET-001 guard-let pattern sugar after Result/Option diagnostics. Keep LOOP-003 open until a
+- resume point: continue Phase 293x after GUARDLET-001; next blocker is
+  PACKED-002 PackedArray non-escaping auto-use pilot. Keep LOOP-003 open until a
   JoinIR/CorePlan route is selected; do not source-desugar range loops.
 
 ## Task Order
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  GUARDLET-001 guard-let pattern sugar after Result/Option diagnostics
+  PACKED-002 PackedArray non-escaping auto-use pilot
 - optional future allocator-provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`

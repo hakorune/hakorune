@@ -8,7 +8,7 @@
  * - return statements
  */
 
-use crate::ast::{ASTNode, EnumMatchArm, LiteralValue, Span, UnaryOperator};
+use crate::ast::{ASTNode, EnumMatchArm, EnumVariantDecl, LiteralValue, Span, UnaryOperator};
 use crate::parser::common::ParserUtils;
 use crate::parser::cursor::TokenCursor;
 use crate::parser::{NyashParser, ParseError};
@@ -97,6 +97,10 @@ impl NyashParser {
         }
         self.advance(); // consume 'guard'
 
+        if self.current_is_contextual_let() {
+            return self.parse_guard_let_after_guard();
+        }
+
         let condition = self.parse_expression()?;
 
         if !self.match_token(&TokenType::ELSE) {
@@ -120,6 +124,116 @@ impl NyashParser {
             else_body: None,
             span: Span::unknown(),
         })
+    }
+
+    fn current_is_contextual_let(&self) -> bool {
+        matches!(
+            &self.current_token().token_type,
+            TokenType::IDENTIFIER(name) if name == "let"
+        )
+    }
+
+    fn parse_guard_let_after_guard(&mut self) -> Result<ASTNode, ParseError> {
+        let let_line = self.current_token().line;
+        let let_column = self.current_token().column;
+        self.advance(); // consume contextual `let`
+
+        let enum_name = self.consume_identifier("enum name in `guard let Type::Variant(...)`")?;
+        self.consume(TokenType::DoubleColon)?;
+        let variant_name =
+            self.consume_identifier("variant name in `guard let Type::Variant(...)`")?;
+        self.consume(TokenType::LPAREN)?;
+        let binding_name = self.consume_identifier("binding identifier in `guard let`")?;
+        self.consume(TokenType::RPAREN)?;
+        self.consume(TokenType::ASSIGN)?;
+        let scrutinee = self.parse_expression()?;
+
+        if !self.match_token(&TokenType::ELSE) {
+            return Err(ParseError::UnexpectedToken {
+                found: self.current_token().token_type.clone(),
+                expected: "else after guard let pattern".to_string(),
+                line: self.current_token().line,
+            });
+        }
+        self.advance(); // consume 'else'
+        let else_body = self.parse_block_statements()?;
+
+        let variants = self.known_enums.get(&enum_name).ok_or_else(|| {
+            ParseError::InvalidMatchPattern {
+                detail: format!("unknown enum `{}` in guard let pattern", enum_name),
+                line: let_line,
+            }
+        })?;
+        let variant = variants
+            .iter()
+            .find(|decl| decl.name == variant_name)
+            .ok_or_else(|| ParseError::InvalidMatchPattern {
+                detail: format!(
+                    "unknown variant `{}` for enum `{}` in guard let pattern",
+                    variant_name, enum_name
+                ),
+                line: let_line,
+            })?;
+        if variant.is_record_payload()
+            || variant.is_multi_payload_tuple()
+            || variant.payload_arity() != 1
+        {
+            return Err(ParseError::InvalidMatchPattern {
+                detail: format!(
+                    "guard let MVP supports single-payload enum variants only; got {}::{}",
+                    enum_name, variant_name
+                ),
+                line: let_line,
+            });
+        }
+
+        let temp_name = format!(
+            "__ny_guard_let_subject_{}_{}_{}",
+            let_line, let_column, self.current
+        );
+        let condition =
+            enum_variant_failure_match_expr(&enum_name, &variant_name, &temp_name, variants);
+        let binding_local = enum_variant_binding_local(
+            &enum_name,
+            &variant_name,
+            &binding_name,
+            &temp_name,
+            variants,
+        );
+
+        Ok(ASTNode::ScopeBox {
+            body: vec![
+                ASTNode::Local {
+                    variables: vec![temp_name.clone()],
+                    initial_values: vec![Some(Box::new(scrutinee))],
+                    declared_type_names: Vec::new(),
+                    span: Span::unknown(),
+                },
+                ASTNode::If {
+                    condition: Box::new(condition),
+                    then_body: else_body,
+                    else_body: None,
+                    span: Span::unknown(),
+                },
+                binding_local,
+            ],
+            span: Span::unknown(),
+        })
+    }
+
+    fn consume_identifier(&mut self, expected: &'static str) -> Result<String, ParseError> {
+        match &self.current_token().token_type {
+            TokenType::IDENTIFIER(name) => {
+                let value = name.clone();
+                self.advance();
+                Ok(value)
+            }
+            other => Err(ParseError::UnexpectedToken {
+                found: other.clone(),
+                expected: expected.to_string(),
+                line: self.current_token().line,
+            }),
+        }
     }
 
     fn parse_if_some_sugar(&mut self) -> Result<ASTNode, ParseError> {
@@ -416,6 +530,79 @@ fn option_some_presence_match_expr(temp_name: &str) -> ASTNode {
             },
         ],
         else_expr: None,
+        span: Span::unknown(),
+    }
+}
+
+fn enum_variant_failure_match_expr(
+    enum_name: &str,
+    variant_name: &str,
+    temp_name: &str,
+    variants: &[EnumVariantDecl],
+) -> ASTNode {
+    ASTNode::EnumMatchExpr {
+        enum_name: enum_name.to_string(),
+        scrutinee: Box::new(ASTNode::Variable {
+            name: temp_name.to_string(),
+            span: Span::unknown(),
+        }),
+        arms: variants
+            .iter()
+            .map(|variant| EnumMatchArm {
+                variant_name: variant.name.clone(),
+                binding_name: None,
+                body: ASTNode::Literal {
+                    value: LiteralValue::Bool(variant.name != variant_name),
+                    span: Span::unknown(),
+                },
+            })
+            .collect(),
+        else_expr: None,
+        span: Span::unknown(),
+    }
+}
+
+fn enum_variant_binding_local(
+    enum_name: &str,
+    variant_name: &str,
+    binding_name: &str,
+    temp_name: &str,
+    variants: &[EnumVariantDecl],
+) -> ASTNode {
+    ASTNode::Local {
+        variables: vec![binding_name.to_string()],
+        initial_values: vec![Some(Box::new(ASTNode::EnumMatchExpr {
+            enum_name: enum_name.to_string(),
+            scrutinee: Box::new(ASTNode::Variable {
+                name: temp_name.to_string(),
+                span: Span::unknown(),
+            }),
+            arms: variants
+                .iter()
+                .map(|variant| EnumMatchArm {
+                    variant_name: variant.name.clone(),
+                    binding_name: if variant.name == variant_name {
+                        Some(binding_name.to_string())
+                    } else {
+                        None
+                    },
+                    body: if variant.name == variant_name {
+                        ASTNode::Variable {
+                            name: binding_name.to_string(),
+                            span: Span::unknown(),
+                        }
+                    } else {
+                        ASTNode::Literal {
+                            value: LiteralValue::Null,
+                            span: Span::unknown(),
+                        }
+                    },
+                })
+                .collect(),
+            else_expr: None,
+            span: Span::unknown(),
+        }))],
+        declared_type_names: Vec::new(),
         span: Span::unknown(),
     }
 }

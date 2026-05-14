@@ -26,13 +26,13 @@ Related:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `GUARDLET-001 guard-let pattern sugar after Result/Option diagnostics`
+- current blocker token: `PACKED-002 PackedArray non-escaping auto-use pilot`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after RESULT-002D; next blocker is GUARDLET-001 guard-let pattern sugar after Result/Option diagnostics
+- continue phase-293x after GUARDLET-001; next blocker is PACKED-002 PackedArray non-escaping auto-use pilot
 - keep `LOOP-003` open until a JoinIR/CorePlan route is selected; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

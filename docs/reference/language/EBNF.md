@@ -61,8 +61,14 @@ local_fini_opt := ('fini' block)?
 fini_stmt  := 'fini' block
 
 guard_stmt := 'guard' expr 'else' block
+           | 'guard' 'let' qualified_variant_pattern '=' expr 'else' block
            ; C200: guard else is default early-exit sugar.
            ; It lowers to `if !(expr) block`.
+           ; GUARDLET-001: guard-let is narrow enum variant sugar.
+           ; MVP form: guard let Type::Variant(binding) = expr else block.
+           ; It rewrites through existing Local / If / EnumMatchExpr pieces.
+
+qualified_variant_pattern := IDENT '::' IDENT '(' IDENT ')'
 
 assign_stmt := assign_target '=' expr
              | assign_target compound_assign_op expr

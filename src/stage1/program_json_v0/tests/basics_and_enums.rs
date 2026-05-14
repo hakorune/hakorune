@@ -663,6 +663,47 @@ if some v = value {
 }
 
 #[test]
+fn source_to_program_json_v0_rewrites_guard_let_enum_variant_to_local_if_binding() {
+    let source = r#"
+static box Main {
+  main() {
+local result: Result<i64, String> = Result::Ok(7)
+guard let Result::Ok(value) = result else {
+  return 0
+}
+return value
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let body = value["body"].as_array().expect("body");
+
+    assert_eq!(body[1]["type"], "Local");
+    let temp_name = body[1]["name"].as_str().expect("temp local name");
+    assert!(
+        temp_name.starts_with("__ny_guard_let_subject_"),
+        "expected hidden guard-let temp local, got {temp_name}"
+    );
+    assert_eq!(body[2]["type"], "If");
+    assert_eq!(body[2]["cond"]["type"], "EnumMatch");
+    assert_eq!(body[2]["cond"]["enum"], "Result");
+    assert_eq!(body[2]["cond"]["arms"][0]["variant"], "Ok");
+    assert_eq!(body[2]["cond"]["arms"][0]["expr"]["value"], false);
+    assert_eq!(body[2]["cond"]["arms"][1]["variant"], "Err");
+    assert_eq!(body[2]["cond"]["arms"][1]["expr"]["value"], true);
+    assert_eq!(body[2]["then"][0]["type"], "Return");
+    assert_eq!(body[3]["type"], "Local");
+    assert_eq!(body[3]["name"], "value");
+    assert_eq!(body[3]["expr"]["type"], "EnumMatch");
+    assert_eq!(body[3]["expr"]["scrutinee"]["name"], temp_name);
+    assert_eq!(body[3]["expr"]["arms"][0]["bind"], "value");
+    assert_eq!(body[4]["type"], "Return");
+    assert_eq!(body[4]["expr"]["name"], "value");
+}
+
+#[test]
 fn source_to_program_json_v0_rejects_option_some_null_payload() {
     let source = r#"
 enum Option<T> {

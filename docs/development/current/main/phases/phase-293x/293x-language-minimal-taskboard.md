@@ -2,7 +2,7 @@
 
 Status: Active
 Lane: `phase-293x language minimal surface lane`
-Current blocker token: `GUARDLET-001 guard-let pattern sugar after Result/Option diagnostics`
+Current blocker token: `PACKED-002 PackedArray non-escaping auto-use pilot`
 
 ## Purpose
 
@@ -30,16 +30,16 @@ docs/development/current/main/design/language-minimal-surface-task-breakdown-sso
 - [x] `RESULT-002B` prelude enum payload diagnostics
 - [x] `RESULT-002C` known-enum exhaustiveness underscore rules
 - [x] `RESULT-002D` generic enum expected-type diagnostics
+- [x] `GUARDLET-001` guard-let pattern sugar after Result/Option diagnostics
 
 ## Current split rows
 
-- [ ] `GUARDLET-001` guard-let pattern sugar after Result/Option diagnostics
+- [ ] `PACKED-002` PackedArray non-escaping auto-use pilot
 
 ## Blocked / deferred rows
 
 - [ ] `LOOP-003` Stage1 LoopRange lowering, blocked on JoinIR/CorePlan route decision
 - [ ] `LOOP-004` LoopRange verifier facts
-- [ ] `PACKED-002` PackedArray non-escaping auto-use pilot
 
 ## Stop lines
 
