@@ -338,3 +338,7 @@ tools/checks/env_dead_accessors_report.sh
 
 - `tools/checks/k2_wide_astclean_call_resolution_duplicate_helper_guard.sh` — guards ASTCLEAN-016 by removing duplicate call-resolution warning helpers and capping source `dead_code` allowances.
 - `tools/checks/k2_wide_astclean_runner_provider_runtime_guard.sh` — guards ASTCLEAN-017 by pruning runner/provider/runtime helper shelves and requiring rationale comments for retained optional surfaces.
+
+## Phase 293x mimalloc blueprint guards
+
+- `tools/checks/k2_wide_mimalloc_page_free_list_pilot_guard.sh` - `MIMAP-008` direct page/free-list pilot proof guard.

@@ -21,7 +21,7 @@ PACKED-003/004 complete
 ```
 
 Blueprint and inventory rows are now the active lane entry. Current row:
-`MIMAP-008 page/free-list model pilot`.
+`MIMAP-009 lifecycle integration pilot`.
 
 ## Active Source Policy
 
@@ -45,7 +45,7 @@ Decision for this board:
 
 ```text
 Set:
-  not a prerequisite for MIMAP-008
+  not a prerequisite for MIMAP-009
 
 Map:
   existing MapBox / MapCoreBox is enough if a later row needs dynamic lookup
@@ -80,15 +80,15 @@ FST:
 | --- | --- | --- | --- |
 | `MIMAP-006` | landed | Select first near-transcription executable slice. | 1 commit |
 | `MIMAP-007` | landed | Size-class / bin map executable pilot. | 2-3 commits |
-| `MIMAP-008` | active | Page/free-list model pilot with explicit lifecycle state. | 2-4 commits |
-| `MIMAP-009` | blocked by MIMAP-008 | Decommit/recommit/reuse lifecycle integration pilot. | 2-4 commits |
+| `MIMAP-008` | landed | Page/free-list model pilot with direct executable proof and guard. | 1 commit |
+| `MIMAP-009` | active | Decommit/recommit/reuse lifecycle integration pilot. | 2-4 commits |
 
 ### Collection / Automata Sidecar Rows
 
 | Row | Status | Purpose | Ordering |
 | --- | --- | --- | --- |
-| `COLL-001` | ready | Map/Set/HashMap naming and placement docs. | sidecar; not blocking MIMAP-008 |
-| `COLL-002` | parked | Set semantic wrapper over Map. | after MIMAP-008 unless Set becomes the blocker |
+| `COLL-001` | ready | Map/Set/HashMap naming and placement docs. | sidecar; not blocking MIMAP-009 |
+| `COLL-002` | parked | Set semantic wrapper over Map. | after MIMAP-009 unless Set becomes the blocker |
 | `COLL-003` | parked | Set proof app and guard. | after COLL-002 |
 | `AUTO-001` | ready | FST placement SSOT. | sidecar; not mimalloc prerequisite |
 | `AUTO-002` | parked | FST record vocabulary. | after evidence |

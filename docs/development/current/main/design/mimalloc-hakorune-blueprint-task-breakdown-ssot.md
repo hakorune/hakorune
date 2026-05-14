@@ -290,3 +290,24 @@ no hooks / #[global_allocator]
 no silent fallback for unsupported substrate
 no new language syntax without Decision docs
 ```
+
+## MIMAP-008 page/free-list executable pilot
+
+Decision: accepted.
+
+`MIMAP-008` adopts the existing `HakoAllocPageModel` instead of introducing a
+second page model. The durable owner remains:
+
+```text
+lang/src/hako_alloc/memory/page_box.hako
+```
+
+The row is fixed by the direct proof app and guard:
+
+```text
+apps/mimalloc-page-free-list-pilot-proof/main.hako
+tools/checks/k2_wide_mimalloc_page_free_list_pilot_guard.sh
+```
+
+This closes the page/free-list slice for the mimalloc blueprint lane. Decommit,
+recommit, and reuse integration are intentionally left to `MIMAP-009`.

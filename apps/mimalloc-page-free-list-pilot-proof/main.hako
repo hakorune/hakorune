@@ -1,0 +1,72 @@
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+
+static box Main {
+    main(args) {
+        local page = new HakoAllocPageModel(7, 32, 4, 4)
+
+        local b0 = page.acquire(8)
+        local b1 = page.acquire(16)
+        local b2 = page.acquire(32)
+        local b3 = page.acquire(33)
+        local live_b0 = page.blockIsLive(b0)
+        local live_b1 = page.blockIsLive(b1)
+
+        local rel_b0 = page.releaseLocal(b0)
+        local live_b0_after = page.blockIsLive(b0)
+        local rel_b0_again = page.releaseLocal(b0)
+
+        local a0 = page.freeCount()
+        local a1 = page.localFreeCount()
+        local a2 = page.availableBlockCount()
+
+        local reac_busy = page.reactivate()
+
+        local rel_b1 = page.releaseLocal(b1)
+        local rel_b2 = page.releaseLocal(b2)
+        local retired_after_release = page.retired
+        local local_after_all = page.localFreeCount()
+        local free_after_all = page.freeCount()
+        local avail_after_all = page.availableBlockCount()
+
+        local reac = page.reactivate()
+        local retired_after_reac = page.retired
+        local local_after_reac = page.localFreeCount()
+        local free_after_reac = page.freeCount()
+
+        local b4 = page.acquire(24)
+        local live_b4 = page.blockIsLive(b4)
+
+        local shape = 0
+        if b0 >= 0 { shape = shape + 1 }
+        if b1 >= 0 { shape = shape + 1 }
+        if b2 >= 0 { shape = shape + 1 }
+        if b3 == -1 { shape = shape + 1 }
+        if live_b0 == 1 { shape = shape + 1 }
+        if live_b1 == 1 { shape = shape + 1 }
+        if rel_b0 == 1 { shape = shape + 1 }
+        if live_b0_after == 0 { shape = shape + 1 }
+        if rel_b0_again == 0 { shape = shape + 1 }
+        if a0 == 1 && a1 == 1 && a2 == 2 { shape = shape + 1 }
+        if reac_busy == 0 { shape = shape + 1 }
+        if rel_b1 == 1 && rel_b2 == 1 { shape = shape + 1 }
+        if retired_after_release == 1 { shape = shape + 1 }
+        if local_after_all == 3 && free_after_all == 1 && avail_after_all == 4 { shape = shape + 1 }
+        if reac == 1 && retired_after_reac == 0 { shape = shape + 1 }
+        if local_after_reac == 0 && free_after_reac == 4 { shape = shape + 1 }
+        if b4 >= 0 && live_b4 == 1 { shape = shape + 1 }
+
+        print("mimalloc-page-free-list-pilot-proof")
+        print("blocks=" + b0 + "," + b1 + "," + b2 + "," + b3 + "," + b4)
+        print("counts=" + page.alloc_count + "," + page.local_free_count + "," + page.local_free_collect_count + "," + page.local_free_collected_blocks + "," + page.reject_count)
+        print("state=" + page.used + "," + page.freeCount() + "," + page.localFreeCount() + "," + page.availableBlockCount() + "," + page.retired)
+        print("shape=" + shape)
+
+        if shape == 17 && page.alloc_count == 4 && page.local_free_count == 3 && page.local_free_collect_count == 3 && page.local_free_collected_blocks == 3 && page.reject_count == 3 && page.used == 1 && page.freeCount() == 3 && page.localFreeCount() == 0 && page.availableBlockCount() == 3 && page.retired == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -26,13 +26,13 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-008 page/free-list model pilot`
+- current blocker token: `MIMAP-009 lifecycle integration pilot`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after MIMAP-007; next blocker is MIMAP-008 page/free-list model pilot
+- continue phase-293x after MIMAP-008; next blocker is MIMAP-009 lifecycle integration pilot
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
