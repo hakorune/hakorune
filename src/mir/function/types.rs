@@ -97,6 +97,8 @@ pub struct LoopRangeFact {
     pub step: i64,
     pub end_exclusive: bool,
     pub index_read_only: bool,
+    pub body_local_writes_supported: bool,
+    pub loop_carried_writes_supported: bool,
     pub body_writes_supported: bool,
 }
 

@@ -94,6 +94,8 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
                 "step": fact.step,
                 "end_exclusive": fact.end_exclusive,
                 "index_read_only": fact.index_read_only,
+                "body_local_writes_supported": fact.body_local_writes_supported,
+                "loop_carried_writes_supported": fact.loop_carried_writes_supported,
                 "body_writes_supported": fact.body_writes_supported,
             })
         }).collect::<Vec<_>>(),

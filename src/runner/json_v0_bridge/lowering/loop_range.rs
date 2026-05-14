@@ -17,7 +17,7 @@ use crate::mir::{
     BasicBlockId, BinaryOp, CompareOp, ConstValue, LoopRangeFact, MirFunction, MirInstruction,
     ValueId,
 };
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 pub(super) fn lower_loop_range_stmt(
     f: &mut MirFunction,
@@ -30,11 +30,11 @@ pub(super) fn lower_loop_range_stmt(
     loop_stack: &mut Vec<LoopContext>,
     env: &BridgeEnv,
 ) -> Result<BasicBlockId, String> {
-    reject_pilot_unsupported_writes(var_name, body)?;
-
+    let base_vars = vars.clone();
+    let loop_carried_names = base_vars.keys().cloned().collect::<BTreeSet<_>>();
+    reject_pilot_unsupported_writes(var_name, &loop_carried_names, body)?;
     let (start_v, cur) = expr::lower_expr_with_vars(env, f, cur_bb, start, vars)?;
     let (end_v, preheader) = expr::lower_expr_with_vars(env, f, cur, end, vars)?;
-    let base_vars = vars.clone();
 
     let header_bb = new_block(f);
     let body_bb = new_block(f);
@@ -110,6 +110,8 @@ pub(super) fn lower_loop_range_stmt(
         step: 1,
         end_exclusive: true,
         index_read_only: true,
+        body_local_writes_supported: true,
+        loop_carried_writes_supported: false,
         body_writes_supported: false,
     });
 
@@ -117,47 +119,56 @@ pub(super) fn lower_loop_range_stmt(
     Ok(exit_bb)
 }
 
-fn reject_pilot_unsupported_writes(var_name: &str, body: &[StmtV0]) -> Result<(), String> {
+fn reject_pilot_unsupported_writes(
+    var_name: &str,
+    loop_carried_names: &BTreeSet<String>,
+    body: &[StmtV0],
+) -> Result<(), String> {
     for stmt in body {
-        reject_stmt_write(var_name, stmt)?;
+        reject_stmt_write(var_name, loop_carried_names, stmt)?;
     }
     Ok(())
 }
 
-fn reject_stmt_write(var_name: &str, stmt: &StmtV0) -> Result<(), String> {
+fn reject_stmt_write(
+    var_name: &str,
+    loop_carried_names: &BTreeSet<String>,
+    stmt: &StmtV0,
+) -> Result<(), String> {
     match stmt {
         StmtV0::Local { name, .. } if name == var_name => Err(format!(
             "[freeze:contract][json_v0_bridge/loop_range_index_write] LoopRange index `{}` is read-only in LOOP-003B",
             var_name
         )),
-        StmtV0::Local { name, .. } => Err(format!(
-            "[freeze:contract][json_v0_bridge/loop_range_carrier_unsupported] LoopRange pilot does not yet support body writes; first write is `{}`",
+        StmtV0::Local { name, .. } if loop_carried_names.contains(name) => Err(format!(
+            "[freeze:contract][json_v0_bridge/loop_range_carrier_unsupported] LoopRange pilot does not yet support loop-carried writes; first carrier write is `{}`",
             name
         )),
+        StmtV0::Local { .. } => Ok(()),
         StmtV0::If { then, r#else, .. } => {
-            reject_pilot_unsupported_writes(var_name, then)?;
+            reject_pilot_unsupported_writes(var_name, loop_carried_names, then)?;
             if let Some(else_body) = r#else {
-                reject_pilot_unsupported_writes(var_name, else_body)?;
+                reject_pilot_unsupported_writes(var_name, loop_carried_names, else_body)?;
             }
             Ok(())
         }
         StmtV0::Loop { body, .. } | StmtV0::LoopRange { body, .. } => {
-            reject_pilot_unsupported_writes(var_name, body)
+            reject_pilot_unsupported_writes(var_name, loop_carried_names, body)
         }
         StmtV0::Try {
             try_body,
             catches,
             finally,
         } => {
-            reject_pilot_unsupported_writes(var_name, try_body)?;
+            reject_pilot_unsupported_writes(var_name, loop_carried_names, try_body)?;
             for catch in catches {
-                reject_pilot_unsupported_writes(var_name, &catch.body)?;
+                reject_pilot_unsupported_writes(var_name, loop_carried_names, &catch.body)?;
             }
-            reject_pilot_unsupported_writes(var_name, finally)
+            reject_pilot_unsupported_writes(var_name, loop_carried_names, finally)
         }
         StmtV0::FiniReg { prelude, fini } => {
-            reject_pilot_unsupported_writes(var_name, prelude)?;
-            reject_pilot_unsupported_writes(var_name, fini)
+            reject_pilot_unsupported_writes(var_name, loop_carried_names, prelude)?;
+            reject_pilot_unsupported_writes(var_name, loop_carried_names, fini)
         }
         _ => Ok(()),
     }

@@ -119,11 +119,50 @@ exit_bb
 step = 1
 end_exclusive = true
 index_read_only = true
+body_local_writes_supported = true
+loop_carried_writes_supported = false
 body_writes_supported = false
 ```
 
 Verifier/backend rows must consume this metadata instead of rediscovering
 range-loop shape from raw block layout.
 
-`body_writes_supported=false` keeps the LOOP-003B carrier stop-line explicit
-until `LOOP-003D` defines the carrier policy.
+`body_writes_supported=false` means broad loop-carried writes are still not
+available.
+
+## LOOP-003D Carrier Policy
+
+LOOP-003D accepts fresh body-local bindings and keeps loop-carried writes
+fail-fast.
+
+Allowed:
+
+```hako
+loop i in start..end {
+    local tmp = i + 1
+    use(tmp)
+}
+```
+
+Rejected:
+
+```hako
+local acc = 0
+loop i in start..end {
+    local acc = acc + i
+}
+```
+
+The rejected form freezes with:
+
+```text
+[freeze:contract][json_v0_bridge/loop_range_carrier_unsupported]
+```
+
+Index writes remain rejected:
+
+```text
+[freeze:contract][json_v0_bridge/loop_range_index_write]
+```
+
+This is the MVP carrier policy before full loop-carried PHI support.

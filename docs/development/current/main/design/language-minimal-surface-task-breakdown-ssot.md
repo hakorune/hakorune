@@ -74,7 +74,7 @@ Retire condition:
 | Area | Status | Next actionable row |
 | --- | --- | --- |
 | Minimal keyword surface | docs accepted | no immediate code row |
-| Loop-only repetition | facts complete | `LOOP-003D carrier policy` |
+| Loop-only repetition | LoopRange MVP complete through carrier policy | `PACKED-003 source PackedArray direct-read consumption` |
 | Loop cleanup / PackedArray gate | complete through `293x-310` | no immediate cleanup row |
 | No-inheritance delegation | exposes lowering complete | `DEL-004 legacy quarantine migration` |
 | Brand/type | brand checker complete; type alias parser capsule complete | `TYPE-002 Stage1 alias diagnostics` |
@@ -116,7 +116,7 @@ loop {
 | `LOOP-003A Stage1 LoopRange route decision` | Complete as `293x-325`; fixes metadata/executable route and explicit no-desugar contract. | Stage1 route complete |
 | `LOOP-003B Stage1 LoopRange lowering pilot` | Complete as `293x-326`; entry-bound capture, header index PHI, end-exclusive range, step=1, continue-safe step, carrier writes frozen. | Stage1 pilot complete |
 | `LOOP-003C LoopRange verifier facts` | Complete as `293x-327`; publishes function-level `loop_range_facts` for index/bound/block facts and read-only index metadata. | Stage1 verifier complete |
-| `LOOP-003D LoopRange carrier policy` | Define/support a narrow carrier subset or keep body writes frozen with stable diagnostics. | Stage1 semantics |
+| `LOOP-003D LoopRange carrier policy` | Complete as `293x-328`; accepts fresh body-local bindings while keeping index writes and loop-carried writes fail-fast. | Stage1 semantics complete |
 | `LOOP-004 canonical loop formatter/docs` | Make paren-less `loop i in a..b` the canonical spelling; optional paren compatibility requires a separate decision. | docs/tooling |
 | `LOOPCLEAN-001 loop cleanup phase` | Complete as `293x-289`; open BoxShape cleanup before PackedArray work. | docs |
 | `LOOPCLEAN-002 while parser normalization` | Complete as `293x-290`; new parsed `while` returns `Loop`; old JSON `While` remains compat decode. | BoxShape parser cleanup |
@@ -312,7 +312,7 @@ language work, start here:
 5. `LOOP-003A Stage1 LoopRange route decision` (complete as `293x-325`)
 6. `LOOP-003B Stage1 LoopRange lowering pilot` (complete as `293x-326`)
 7. `LOOP-003C LoopRange verifier facts and read-only index proof surface` (complete as `293x-327`)
-8. `LOOP-003D LoopRange carrier policy`
+8. `LOOP-003D LoopRange carrier policy` (complete as `293x-328`)
 9. `BRAND-001 Stage0 brand declaration metadata capsule` (complete as `293x-275`)
 10. `BRAND-002 Stage1 brand constructor unwrap policy` (complete as `293x-276`)
 11. `BRAND-003 Stage1 brand mismatch checker` (complete as `293x-277`)
@@ -370,7 +370,7 @@ LOOP-003C:
 `LOOP-003B` landed the first executable JSON v0 bridge LoopRange pilot:
 entry-bound capture, header index PHI, end-exclusive compare, fixed step 1, and
 continue-to-step routing. `LOOP-003C` then published function-level
-`loop_range_facts`; carrier writes remain frozen until `LOOP-003D`.
+`loop_range_facts`; carrier writes are governed by `LOOP-003D`: fresh body-locals are allowed, loop-carried writes remain fail-fast.
 
 ## mimalloc blueprint handoff (2026-05-14)
 
@@ -388,7 +388,7 @@ MIMAP-004 substrate and representation gap ledger
 Executable mimalloc slices should wait until at least:
 
 ```text
-LOOP-003C/D
+LOOP-003C/D complete
 PACKED-003/004
 ```
 
