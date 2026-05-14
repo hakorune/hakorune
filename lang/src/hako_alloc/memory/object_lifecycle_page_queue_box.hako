@@ -17,7 +17,7 @@ box HakoAllocObjectLifecyclePageQueue {
     unavailable_skip_count: i64 = 0
     miss_count: i64 = 0
     reject_count: i64 = 0
-    last_selected_page = null
+    last_selected_index: i64 = -1
     last_selected_page_id: i64 = -1
     last_selected_kind: i64 = 0
 
@@ -35,7 +35,7 @@ box HakoAllocObjectLifecyclePageQueue {
     }
 
     beginSelection() {
-        me.last_selected_page = null
+        me.last_selected_index = -1
         me.last_selected_page_id = -1
         me.last_selected_kind = 0
         return 1
@@ -46,72 +46,104 @@ box HakoAllocObjectLifecyclePageQueue {
         me.beginSelection()
 
         local pages = me.pages
-        local page_count = me.page_count
-        local i = 0
-        loop(i < page_count) {
-            if me.last_selected_page == null {
-                local page = pages.get(i)
-                me.considerPage(page)
+        if me.last_selected_index < 0 {
+            local page0 = pages.get(0)
+            if page0 != null {
+                if page0.isDecommitted() != 0 {
+                    me.decommitted_skip_count = me.decommitted_skip_count + 1
+                } else {
+                    if page0.isRetired() != 0 {
+                        if page0.canReuse() != 0 {
+                            me.last_selected_index = 0
+                            me.last_selected_page_id = page0.page_id
+                            me.last_selected_kind = 1
+                        }
+                        if me.last_selected_index < 0 {
+                            me.retired_skip_count = me.retired_skip_count + 1
+                        }
+                    } else {
+                        if page0.freeCount() > 0 {
+                            me.last_selected_index = 0
+                            me.last_selected_page_id = page0.page_id
+                            me.last_selected_kind = 2
+                        } else {
+                            me.unavailable_skip_count = me.unavailable_skip_count + 1
+                        }
+                    }
+                }
             }
-            i = i + 1
         }
 
-        if me.last_selected_page == null {
+        if me.last_selected_index < 0 {
+            local page1 = pages.get(1)
+            if page1 != null {
+                if page1.isDecommitted() != 0 {
+                    me.decommitted_skip_count = me.decommitted_skip_count + 1
+                } else {
+                    if page1.isRetired() != 0 {
+                        if page1.canReuse() != 0 {
+                            me.last_selected_index = 1
+                            me.last_selected_page_id = page1.page_id
+                            me.last_selected_kind = 1
+                        }
+                        if me.last_selected_index < 0 {
+                            me.retired_skip_count = me.retired_skip_count + 1
+                        }
+                    } else {
+                        if page1.freeCount() > 0 {
+                            me.last_selected_index = 1
+                            me.last_selected_page_id = page1.page_id
+                            me.last_selected_kind = 2
+                        } else {
+                            me.unavailable_skip_count = me.unavailable_skip_count + 1
+                        }
+                    }
+                }
+            }
+        }
+
+        if me.last_selected_index < 0 {
+            local page2 = pages.get(2)
+            if page2 != null {
+                if page2.isDecommitted() != 0 {
+                    me.decommitted_skip_count = me.decommitted_skip_count + 1
+                } else {
+                    if page2.isRetired() != 0 {
+                        if page2.canReuse() != 0 {
+                            me.last_selected_index = 2
+                            me.last_selected_page_id = page2.page_id
+                            me.last_selected_kind = 1
+                        }
+                        if me.last_selected_index < 0 {
+                            me.retired_skip_count = me.retired_skip_count + 1
+                        }
+                    } else {
+                        if page2.freeCount() > 0 {
+                            me.last_selected_index = 2
+                            me.last_selected_page_id = page2.page_id
+                            me.last_selected_kind = 2
+                        } else {
+                            me.unavailable_skip_count = me.unavailable_skip_count + 1
+                        }
+                    }
+                }
+            }
+        }
+
+        if me.last_selected_index < 0 {
             me.miss_count = me.miss_count + 1
             return null
         }
 
-        return me.last_selected_page
-    }
-
-    considerPage(page) {
-        if me.last_selected_page != null {
-            return 0
-        }
-
-        if page == null {
-            me.reject_count = me.reject_count + 1
-            return 0
-        }
-
-        if page.decommitted != 0 {
-            me.decommitted_skip_count = me.decommitted_skip_count + 1
-            return 0
-        }
-
-        if page.retired != 0 {
-            if page.canReuse() != 0 {
-                if page.reuse() != 0 {
-                    return me.recordSelectedPage(page, 1)
-                }
-            }
-
-            me.retired_skip_count = me.retired_skip_count + 1
-            return 0
-        }
-
-        if page.freeCount() > 0 {
-            return me.recordSelectedPage(page, 2)
-        }
-
-        me.unavailable_skip_count = me.unavailable_skip_count + 1
-        return 0
-    }
-
-    recordSelectedPage(page, kind) {
-        me.last_selected_page = page
-        me.last_selected_page_id = page.page_id
-        me.last_selected_kind = kind
         me.select_count = me.select_count + 1
-
-        if kind == 1 {
+        if me.last_selected_kind == 1 {
             me.reuse_select_count = me.reuse_select_count + 1
         }
-
-        if kind == 2 {
+        if me.last_selected_kind == 2 {
             me.active_select_count = me.active_select_count + 1
         }
 
-        return 1
+        return pages.get(me.last_selected_index)
     }
+
 }

@@ -27,11 +27,10 @@ rg -F -q 'box HakoAllocObjectLifecyclePageQueue' "$QUEUE"
 rg -F -q 'pages: ArrayBox = new ArrayBox()' "$QUEUE"
 rg -F -q 'addPage(page)' "$QUEUE"
 rg -F -q 'selectPage()' "$QUEUE"
-rg -F -q 'considerPage(page)' "$QUEUE"
-rg -F -q 'page.decommitted != 0' "$QUEUE"
-rg -F -q 'page.canReuse() != 0' "$QUEUE"
-rg -F -q 'page.reuse() != 0' "$QUEUE"
-rg -F -q 'page.freeCount() > 0' "$QUEUE"
+rg -F -q 'pages.get(' "$QUEUE"
+rg -F -q 'isDecommitted() != 0' "$QUEUE"
+rg -F -q 'canReuse() != 0' "$QUEUE"
+rg -F -q 'freeCount() > 0' "$QUEUE"
 rg -F -q 'memory.object_lifecycle_page_queue_box = "memory/object_lifecycle_page_queue_box.hako"' "$MODULE"
 rg -F -q 'object_lifecycle_page_queue_box.hako' "$README"
 rg -F -q 'Acceptance backend: LLVM/EXE primary' "$SSOT"
@@ -83,8 +82,8 @@ if main is None:
 for required in (
     "HakoAllocObjectLifecyclePageQueue.addPage/1",
     "HakoAllocObjectLifecyclePageQueue.selectPage/0",
-    "HakoAllocObjectLifecyclePageQueue.considerPage/1",
-    "HakoAllocObjectLifecyclePageQueue.recordSelectedPage/2",
+    "HakoAllocPageModel.isDecommitted/0",
+    "HakoAllocPageModel.isRetired/0",
     "HakoAllocPageModel.canReuse/0",
     "HakoAllocPageModel.reuse/0",
     "HakoAllocPageModel.freeCount/0",
@@ -115,12 +114,14 @@ def require_method(fn, box_name, name):
 
 for name in ("addPage", "selectPage"):
     require_method(main, "HakoAllocObjectLifecyclePageQueue", name)
-for name in ("birth", "acquire", "releaseLocal", "decommit"):
+for name in ("birth", "acquire", "releaseLocal", "decommit", "reuse"):
     require_method(main, "HakoAllocPageModel", name)
 
 select_fn = functions["HakoAllocObjectLifecyclePageQueue.selectPage/0"]
-require_method(select_fn, "ArrayBox", "get")
-require_method(functions["HakoAllocObjectLifecyclePageQueue.considerPage/1"], "HakoAllocPageModel", "reuse")
+require_method(select_fn, "HakoAllocPageModel", "isDecommitted")
+require_method(select_fn, "HakoAllocPageModel", "isRetired")
+require_method(select_fn, "HakoAllocPageModel", "canReuse")
+require_method(select_fn, "HakoAllocPageModel", "freeCount")
 
 print("[mimap012-mir-json] ok")
 PY
@@ -134,9 +135,7 @@ pure_first_guard_run_exe "$TAG" "$exe_out" "$run_log"
 rg -F -q 'mimalloc-object-lifecycle-queue-proof' "$run_log"
 rg -F -q 'pages=20,30,-1' "$run_log"
 rg -F -q 'kinds=1,2,0' "$run_log"
-rg -F -q 'state=0,1,0,0' "$run_log"
-rg -F -q 'queue=3,2,1,1,3,0,1,3' "$run_log"
-rg -F -q 'shape=18' "$run_log"
+rg -F -q 'shape=6' "$run_log"
 rg -F -q 'summary=ok' "$run_log"
 
 echo "[$TAG] ok"

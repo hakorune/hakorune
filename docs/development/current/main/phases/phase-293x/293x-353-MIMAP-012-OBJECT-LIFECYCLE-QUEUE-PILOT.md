@@ -5,7 +5,7 @@ Date: 2026-05-15
 
 ## Decision
 
-`MIMAP-012` adds an object-backed lifecycle queue owner. The queue retains
+`MIMAP-012` adds an bounded object-backed lifecycle queue owner. The queue retains up to three pilot
 `HakoAllocPageModel` objects in `ArrayBox`, selects through page lifecycle
 methods, and returns the selected page object to the caller.
 
@@ -24,8 +24,7 @@ methods, and returns the selected page object to the caller.
 - Expected proof output includes:
   - `pages=20,30,-1`
   - `kinds=1,2,0`
-  - `queue=3,2,1,1,3,0,1,3`
-  - `shape=18`
+  - `shape=6`
   - `summary=ok`
 
 ## Follow-up

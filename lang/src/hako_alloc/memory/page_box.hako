@@ -213,6 +213,14 @@ box HakoAllocPageModel {
         return 1
     }
 
+    isRetired() {
+        return me.retired
+    }
+
+    isDecommitted() {
+        return me.decommitted
+    }
+
     canReuse() {
         if me.retired == 0 {
             return 0

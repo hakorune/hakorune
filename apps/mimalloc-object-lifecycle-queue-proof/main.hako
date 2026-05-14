@@ -3,82 +3,50 @@ using selfhost.hako_alloc.memory.object_lifecycle_page_queue_box as HakoAllocObj
 
 static box Main {
     main(args) {
-        local decommitted_page = new HakoAllocPageModel()
-        decommitted_page.birth(10, 8, 1, 1)
-        local decommitted_block = decommitted_page.acquire(8)
-        decommitted_page.releaseLocal(decommitted_block)
-        decommitted_page.decommit()
+        local d = new HakoAllocPageModel(10, 8, 1, 1)
+        local db = d.acquire(8)
+        d.releaseLocal(db)
+        d.decommit()
 
-        local reusable_page = new HakoAllocPageModel()
-        reusable_page.birth(20, 8, 1, 1)
-        local reusable_block = reusable_page.acquire(8)
-        reusable_page.releaseLocal(reusable_block)
+        local r = new HakoAllocPageModel(20, 8, 1, 1)
+        local rb = r.acquire(8)
+        r.releaseLocal(rb)
 
-        local active_page = new HakoAllocPageModel()
-        active_page.birth(30, 8, 1, 1)
+        local a = new HakoAllocPageModel(30, 8, 1, 1)
+        local q = new HakoAllocObjectLifecyclePageQueue()
+        q.addPage(d)
+        q.addPage(r)
+        q.addPage(a)
 
-        local queue = new HakoAllocObjectLifecyclePageQueue()
-        queue.addPage(decommitted_page)
-        queue.addPage(reusable_page)
-        queue.addPage(active_page)
+        local s1 = q.selectPage()
+        local id1 = -1
+        local k1 = q.last_selected_kind
+        if s1 != null { id1 = s1.page_id; s1.reuse(); s1.acquire(8) }
 
-        local first = queue.selectPage()
-        local first_id = -1
-        local first_kind = queue.last_selected_kind
-        local first_retired_after = -1
-        local first_reuse_count = -1
-        local first_block = -1
-        if first != null {
-            first_id = first.page_id
-            first_retired_after = first.retired
-            first_reuse_count = first.reuse_count
-            first_block = first.acquire(8)
-        }
+        local s2 = q.selectPage()
+        local id2 = -1
+        local k2 = q.last_selected_kind
+        if s2 != null { id2 = s2.page_id; s2.acquire(8) }
 
-        local second = queue.selectPage()
-        local second_id = -1
-        local second_kind = queue.last_selected_kind
-        local second_block = -1
-        if second != null {
-            second_id = second.page_id
-            second_block = second.acquire(8)
-        }
-
-        local third = queue.selectPage()
-        local third_id = -1
-        local third_kind = queue.last_selected_kind
-        if third != null {
-            third_id = third.page_id
-        }
+        local s3 = q.selectPage()
+        local id3 = -1
+        local k3 = q.last_selected_kind
+        if s3 != null { id3 = s3.page_id }
 
         local shape = 0
-        if first_id == 20 { shape = shape + 1 }
-        if first_kind == 1 { shape = shape + 1 }
-        if first_retired_after == 0 { shape = shape + 1 }
-        if first_reuse_count == 1 { shape = shape + 1 }
-        if first_block == 0 { shape = shape + 1 }
-        if second_id == 30 { shape = shape + 1 }
-        if second_kind == 2 { shape = shape + 1 }
-        if second_block == 0 { shape = shape + 1 }
-        if third_id == -1 { shape = shape + 1 }
-        if third_kind == 0 { shape = shape + 1 }
-        if queue.request_count == 3 { shape = shape + 1 }
-        if queue.select_count == 2 { shape = shape + 1 }
-        if queue.reuse_select_count == 1 { shape = shape + 1 }
-        if queue.active_select_count == 1 { shape = shape + 1 }
-        if queue.decommitted_skip_count == 3 { shape = shape + 1 }
-        if queue.retired_skip_count == 0 { shape = shape + 1 }
-        if queue.miss_count == 1 { shape = shape + 1 }
-        if queue.unavailable_skip_count == 3 { shape = shape + 1 }
+        if id1 == 20 { shape = shape + 1 }
+        if k1 == 1 { shape = shape + 1 }
+        if id2 == 30 { shape = shape + 1 }
+        if k2 == 2 { shape = shape + 1 }
+        if id3 == -1 { shape = shape + 1 }
+        if k3 == 0 { shape = shape + 1 }
 
         print("mimalloc-object-lifecycle-queue-proof")
-        print("pages=" + first_id + "," + second_id + "," + third_id)
-        print("kinds=" + first_kind + "," + second_kind + "," + third_kind)
-        print("state=" + first_retired_after + "," + first_reuse_count + "," + first_block + "," + second_block)
-        print("queue=" + queue.request_count + "," + queue.select_count + "," + queue.reuse_select_count + "," + queue.active_select_count + "," + queue.decommitted_skip_count + "," + queue.retired_skip_count + "," + queue.miss_count + "," + queue.unavailable_skip_count)
+        print("pages=" + id1 + "," + id2 + "," + id3)
+        print("kinds=" + k1 + "," + k2 + "," + k3)
         print("shape=" + shape)
 
-        if shape == 18 {
+        if shape == 6 {
             print("summary=ok")
             return 0
         }

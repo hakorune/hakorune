@@ -1,4 +1,4 @@
-# MIMAP-012 object-backed lifecycle queue SSOT
+# MIMAP-012 bounded object-backed lifecycle queue SSOT
 
 Decision: accepted.
 
@@ -26,7 +26,7 @@ The owner may:
 - skip `page.decommitted != 0`
 - call `page.canReuse()` and `page.reuse()` for retired reusable pages
 - call `page.freeCount()` for active pages
-- return the selected page object to the caller
+- return the selected page object to the caller through the stored page index
 
 The owner must not:
 
