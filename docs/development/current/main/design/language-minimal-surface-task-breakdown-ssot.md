@@ -18,7 +18,7 @@ This document turns the language-design discussions into task-sized backlog
 rows.
 
 It is not the active allocator lane.
-`GEN-002 generic arity check` is the current selected language blocker
+`PACKED-001 PackedArray eligibility gate` is the current selected language blocker
 unless the user explicitly switches to the language lane.
 
 ## Row rules
@@ -67,7 +67,7 @@ Retire condition:
 | Contracts | syntax metadata capsule complete | `CONTRACT-003 contract runtime-check insertion` |
 | Enum transition lifecycle | metadata capsule complete | `TRANS-002 transition legality checker` |
 | Result/Option | planned | `RESULT-001 prelude and diagnostics` |
-| Generic containers | generic type annotation metadata capsule complete | `GEN-002 generic arity check` |
+| Generic containers | generic type annotation metadata and arity checker complete | next substitution/semantics row deferred |
 | PackedArray | planned | `PACKED-001 eligibility gate` |
 | Uses/capability | method-level metadata capsule complete | `USES-002 capability checker` |
 | Span/view | planned later | `SPAN-001 Span API design row` |

@@ -484,6 +484,48 @@ GEN-001 does not add generic arity checking, constraint solving, `where`
 clauses, `Array<T>` semantics, `PackedArray<T>` planning, `Span<T>` no-escape
 semantics, or backend fallback policy. Those are Stage1/CorePlan rows.
 
+### GEN-002 Generic Arity Checker
+
+Decision: accepted.
+
+Stage1 checks generic type argument counts for known generic type names in
+declaration metadata. The checker covers built-in/prelude generic surfaces and
+same-program `box` / `record` / `enum` declarations:
+
+```text
+Array<T>       expects 1 argument
+PackedArray<T> expects 1 argument
+Span<T>        expects 1 argument
+Option<T>      expects 1 argument
+Result<T,E>    expects 2 arguments
+```
+
+Same-program declarations use their declared type parameter count:
+
+```hako
+record Meta<T> {
+    value: T
+}
+
+box Store {
+    ok: PackedArray<Meta<PageId>>
+    // reject: Meta expects 1 argument
+    bad: PackedArray<Meta<PageId, BlockId>>
+}
+```
+
+Fail-fast tag:
+
+```text
+[generic/arity]
+```
+
+Stop line:
+GEN-002 does not add type existence checking for unknown names, constraint
+solving, `where` clauses, type substitution, monomorphization, `Array<T>`
+semantics, `PackedArray<T>` eligibility, or `Span<T>` no-escape semantics.
+Those remain later Stage1/CorePlan rows.
+
 ## Box Members (Phase‑15, env gate: NYASH_ENABLE_UNIFIED_MEMBERS; default ON)
 
 This section adds a minimal grammar for Box members (a unified member model) without changing JSON v0/MIR. Parsing is controlled by env `NYASH_ENABLE_UNIFIED_MEMBERS` (default ON; set `0/false/off` to disable).

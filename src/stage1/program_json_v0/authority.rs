@@ -4,6 +4,7 @@ use std::collections::BTreeMap;
 
 use super::brand_checker;
 use super::extract::{collect_using_imports, find_static_main_box, preexpand_dev_local_aliases};
+use super::generic_arity_checker;
 use super::lowering::{
     defs_json_v0_from_methods, program_json_v0_from_body_with_context, ProgramJsonV0LoweringContext,
 };
@@ -61,6 +62,7 @@ fn ast_to_program_json_v0_with_imports(
             imports.len()
         );
     }
+    generic_arity_checker::check_generic_arities(ast)?;
     let brand_decl_index = collect_brand_decl_index(ast);
     brand_checker::check_brand_mismatches(ast, &brand_decl_index)?;
     let lowering_context = ProgramJsonV0LoweringContext::with_known_enums_brands_and_records(

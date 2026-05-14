@@ -18,6 +18,8 @@ mod authority;
 mod brand_checker;
 #[path = "program_json_v0/extract.rs"]
 mod extract;
+#[path = "program_json_v0/generic_arity_checker.rs"]
+mod generic_arity_checker;
 #[path = "program_json_v0/lowering.rs"]
 mod lowering;
 #[path = "program_json_v0/record_payload.rs"]

@@ -914,3 +914,99 @@ return 0
     assert_eq!(process["param_decls"][0]["declared_type"], "Array<PageId>");
     assert_eq!(process["return_type"], "Result<PageId,Error>");
 }
+
+#[test]
+fn source_to_program_json_v0_accepts_matching_generic_arities() {
+    let source = r#"
+record Meta<T> {
+  value: T
+}
+
+box Store {
+  metas: PackedArray<Meta<PageId>>
+}
+
+static box Main {
+  main(items: Array<PageId>): Result<PageId, Error> {
+return 0
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("matching arities");
+    assert!(json.contains("\"PackedArray<Meta<PageId>>\""));
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_builtin_generic_arity_mismatch() {
+    let source = r#"
+box Store {
+  ids: Array<PageId, BlockId>
+}
+
+static box Main {
+  main() {
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("builtin generic arity mismatch must fail-fast");
+    assert!(error.contains("[generic/arity]"), "{error}");
+    assert!(error.contains("type=Array"), "{error}");
+    assert!(error.contains("expected=1"), "{error}");
+    assert!(error.contains("actual=2"), "{error}");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_declared_generic_arity_mismatch() {
+    let source = r#"
+record Meta<T> {
+  value: T
+}
+
+box Store {
+  metas: PackedArray<Meta<PageId, BlockId>>
+}
+
+static box Main {
+  main() {
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("declared generic arity mismatch must fail-fast");
+    assert!(error.contains("[generic/arity]"), "{error}");
+    assert!(error.contains("type=Meta"), "{error}");
+    assert!(error.contains("expected=1"), "{error}");
+    assert!(error.contains("actual=2"), "{error}");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_bare_declared_generic_type() {
+    let source = r#"
+record Meta<T> {
+  value: T
+}
+
+box Store {
+  metas: PackedArray<Meta>
+}
+
+static box Main {
+  main() {
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("bare declared generic type must fail-fast");
+    assert!(error.contains("[generic/arity]"), "{error}");
+    assert!(error.contains("type=Meta"), "{error}");
+    assert!(error.contains("expected=1"), "{error}");
+    assert!(error.contains("actual=0"), "{error}");
+}
