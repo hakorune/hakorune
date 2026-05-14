@@ -56,3 +56,8 @@ no guard-let before RESULT-002 diagnostics
 - `LOOP-003A`: landed Stage1 route decision and explicit JSON bridge fail-fast receiver.
 - `LOOP-003B`: next Stage1 LoopRange lowering pilot.
 - `LOOP-003C`: later verifier facts and read-only index enforcement.
+
+## LOOP-003B update (2026-05-14)
+
+- `LOOP-003B`: landed JSON v0 LoopRange lowering pilot.
+- `LOOP-003C`: next verifier facts, read-only index proof surface, and carrier policy.

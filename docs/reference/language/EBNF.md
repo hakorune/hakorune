@@ -805,3 +805,11 @@ Notes
 - active grammar requires Rust parser / `.hako` parser parity.
 - Rune metadata is declaration-local on AST/direct MIR; do not widen Program(JSON v0).
 - body-position legacy aliases remain compat/noop during the current migration window.
+
+## LoopRange implementation note (2026-05-14)
+
+`loop i in start..end { ... }` is the canonical range-loop surface. Stage1 JSON
+v0 lowering currently supports the first pilot route: `start` and `end` are
+captured once at entry, the index advances by fixed step `1`, `continue` routes
+to the step path, and `break` routes to exit. Loop-carried body writes are still
+rejected by the pilot until verifier facts and carrier policy land.

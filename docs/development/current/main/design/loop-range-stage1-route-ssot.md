@@ -33,11 +33,13 @@ LOOP-003B:
   capture start/end once at loop entry
   create a block-local index
   route continue to the step block
+  keep loop-carried body writes frozen in the pilot
 
 LOOP-003C:
   add verifier facts
   enforce read-only index
   expose bounds facts
+  define carrier policy
 ```
 
 ## Required Semantics
@@ -77,15 +79,22 @@ allowing assignment to the range index
 silent fallback to legacy for-range lowering
 ```
 
-## Current Fail-fast Contract
+## Current Pilot Contract
 
-Until LOOP-003B lands, JSON v0 bridge accepts the `LoopRange` shape only as
-metadata and freezes before executable lowering:
+LOOP-003B enables the first executable JSON v0 bridge pilot:
 
 ```text
-[freeze:contract][json_v0_bridge/loop_range_route_open]
+entry-bound start/end capture
+header index PHI
+end-exclusive compare
+continue jumps to the step block
+step is fixed 1
 ```
 
-This keeps parser/metadata progress visible without pretending that
-continue-safe lowering exists.
+The pilot still freezes unsupported body writes instead of silently miscompiling
+loop-carried variables:
 
+```text
+[freeze:contract][json_v0_bridge/loop_range_index_write]
+[freeze:contract][json_v0_bridge/loop_range_carrier_unsupported]
+```

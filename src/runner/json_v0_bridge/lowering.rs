@@ -16,6 +16,7 @@ pub(super) mod if_else;
 pub(super) mod if_legacy;
 pub(super) mod lambda_legacy;
 pub(super) mod loop_;
+pub(super) mod loop_range;
 pub(super) mod loop_runtime;
 pub(super) mod match_expr;
 pub(super) mod program;

@@ -92,3 +92,17 @@ Dev/Prod toggles (indicative)
 Notes
 - Keep the language small. Prefer explicit conversions (`x.toInteger()`, `x.toString()`, `x.toBool()`) over implicit coercions.
 - Builder rewrites method calls to keep runtime dispatch simple and consistent across backends.
+
+## LoopRange pilot status (2026-05-14)
+
+Canonical range loop:
+
+```hako
+loop i in start..end {
+    use(i)
+}
+```
+
+Current Stage1 pilot semantics: entry-bound capture, end-exclusive range,
+fixed step `1`, and continue-safe step routing. Body writes inside the loop are
+still fail-fast until the carrier policy row lands.

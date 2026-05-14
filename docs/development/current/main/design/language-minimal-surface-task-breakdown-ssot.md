@@ -359,3 +359,10 @@ LOOP-003B:
 LOOP-003C:
   later verifier facts and read-only index enforcement
 ```
+
+## LOOP-003B update (2026-05-14)
+
+`LOOP-003B` landed the first executable JSON v0 bridge LoopRange pilot:
+entry-bound capture, header index PHI, end-exclusive compare, fixed step 1, and
+continue-to-step routing. The pilot freezes body writes until carrier policy and
+verifier facts land in `LOOP-003C`.
