@@ -75,6 +75,18 @@ Pin details and the initial source inventory window live in:
 docs/development/current/main/investigations/mimalloc-upstream-pin.md
 ```
 
+## Current Concept Inventory
+
+`MIMAP-002` classifies the pinned source into concept families before any
+Hakorune implementation starts:
+
+```text
+docs/development/current/main/investigations/mimalloc-source-concept-inventory.md
+```
+
+The inventory separates near-transcription candidates from lifecycle rewrites,
+substrate gaps, representation gaps, and deferred unsafe surfaces.
+
 ## Port Reading
 
 mimalloc should not be line-by-line translated.

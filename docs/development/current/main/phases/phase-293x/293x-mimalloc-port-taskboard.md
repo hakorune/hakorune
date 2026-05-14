@@ -21,7 +21,7 @@ PACKED-003/004 complete
 ```
 
 Blueprint and inventory rows are now the active lane entry. Current row:
-`MIMAP-002 source concept inventory`.
+`MIMAP-003 lifecycle rewrite blueprint`.
 
 ## Active Source Policy
 
@@ -40,8 +40,8 @@ Tracked output is docs only.
 | Row | Status | Purpose | Expected size |
 | --- | --- | --- | --- |
 | `MIMAP-001` | landed | Upstream source pin: URL, commit/tag, license, inspected files, local path. | 1 commit |
-| `MIMAP-002` | active | Source concept inventory: segment/page/block/heap/free-list/size-class/os/stats. | 1-2 commits |
-| `MIMAP-003` | ready | Lifecycle rewrite blueprint: enum states, transitions, guard points. | 1-2 commits |
+| `MIMAP-002` | landed | Source concept inventory: segment/page/block/heap/free-list/size-class/os/stats. | 1-2 commits |
+| `MIMAP-003` | active | Lifecycle rewrite blueprint: enum states, transitions, guard points. | 1-2 commits |
 | `MIMAP-004` | ready | Substrate/representation gap ledger from source evidence. | 1-2 commits |
 
 ### Hakorune Blueprint
@@ -66,7 +66,7 @@ Tracked output is docs only.
 
 - [x] `.external/` is ignored before upstream source is cloned.
 - [x] Upstream pin doc records commit/tag and license.
-- [ ] Source concepts are classified as `near-transcription`, `lifecycle-rewrite`, `substrate-gap`, `representation-gap`, or `deferred-unsafe`.
+- [x] Source concepts are classified as `near-transcription`, `lifecycle-rewrite`, `substrate-gap`, `representation-gap`, or `deferred-unsafe`.
 - [ ] Blueprint uses Hakorune canonical surface only.
 - [ ] Provisional syntax is clearly marked and does not become implementation by accident.
 - [ ] Executable slices have proof apps or guards.
