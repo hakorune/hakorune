@@ -167,6 +167,16 @@ docs/development/current/main/design/mimalloc-first-executable-slice-ssot.md
 
 The selected first slice is `MIMAP-007 size-class / bin map executable pilot`.
 
+## Current Size-Class Pilot
+
+`MIMAP-007` adopts the existing executable size-class policy as the first pilot:
+
+```text
+docs/development/current/main/design/mimalloc-size-class-bin-pilot-ssot.md
+```
+
+The pilot is deliberately no-OSVM, no-atomic, no-TLS, no-rawbuf, and no-provider.
+
 ## Port Reading
 
 mimalloc should not be line-by-line translated.
