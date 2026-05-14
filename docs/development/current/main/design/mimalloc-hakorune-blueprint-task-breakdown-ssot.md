@@ -146,6 +146,17 @@ docs/development/current/main/design/mimalloc-hakorune-lifecycle-skeleton-ssot.m
 The skeleton uses `enum`, `transition`, `requires`, `ensures`, and `uses`
 metadata only. It does not implement allocator behavior.
 
+## Current Capability Surface
+
+`MIMAP-005D` defines the capability surface and fail-fast boundaries:
+
+```text
+docs/development/current/main/design/mimalloc-hakorune-capability-surface-ssot.md
+```
+
+The first executable slice should avoid hard OSVM, atomic, TLS, rawbuf, random,
+and provider gaps.
+
 ## Port Reading
 
 mimalloc should not be line-by-line translated.

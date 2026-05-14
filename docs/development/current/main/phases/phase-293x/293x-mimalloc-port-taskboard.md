@@ -21,7 +21,7 @@ PACKED-003/004 complete
 ```
 
 Blueprint and inventory rows are now the active lane entry. Current row:
-`MIMAP-005D capability surface`.
+`MIMAP-006 first executable near-transcription slice`.
 
 ## Active Source Policy
 
@@ -51,13 +51,13 @@ Tracked output is docs only.
 | `MIMAP-005A` | landed | Define brand/type vocabulary: `Bytes`, `PageId`, `BlockId`, `SegmentId`, `Generation`. | 1 commit |
 | `MIMAP-005B` | landed | Define record vocabulary for page/block refs, size-class entries, stats snapshots. | 1 commit |
 | `MIMAP-005C` | landed | Define enum/transition lifecycle blueprint for page/segment state. | 1 commit |
-| `MIMAP-005D` | active | Define capability surface: `uses osvm`, `uses atomic`, `uses rawbuf` inventory. | 1 commit |
+| `MIMAP-005D` | landed | Define capability surface: `uses osvm`, `uses atomic`, `uses rawbuf` inventory. | 1 commit |
 
 ### First Executable Slices
 
 | Row | Status | Purpose | Expected size |
 | --- | --- | --- | --- |
-| `MIMAP-006` | blocked by inventory | Select first near-transcription executable slice. | 1 commit |
+| `MIMAP-006` | active | Select first near-transcription executable slice. | 1 commit |
 | `MIMAP-007` | blocked by MIMAP-006 | Size-class / bin map executable pilot. | 2-3 commits |
 | `MIMAP-008` | blocked by MIMAP-006 | Page/free-list model pilot with explicit lifecycle state. | 2-4 commits |
 | `MIMAP-009` | blocked by MIMAP-008 | Decommit/recommit/reuse lifecycle integration pilot. | 2-4 commits |
@@ -67,8 +67,8 @@ Tracked output is docs only.
 - [x] `.external/` is ignored before upstream source is cloned.
 - [x] Upstream pin doc records commit/tag and license.
 - [x] Source concepts are classified as `near-transcription`, `lifecycle-rewrite`, `substrate-gap`, `representation-gap`, or `deferred-unsafe`.
-- [ ] Blueprint uses Hakorune canonical surface only.
-- [ ] Provisional syntax is clearly marked and does not become implementation by accident.
+- [x] Blueprint uses Hakorune canonical surface only.
+- [x] Provisional syntax is clearly marked and does not become implementation by accident.
 - [ ] Executable slices have proof apps or guards.
 
 ## Stop Lines
