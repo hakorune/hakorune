@@ -18,6 +18,7 @@
 
 // サブモジュール宣言
 mod common;
+mod contracts;
 mod cursor; // TokenCursor: 改行処理を一元管理
 mod declarations;
 mod delegate_lowering;

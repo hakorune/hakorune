@@ -1,6 +1,6 @@
 use nyash_rust::ast::{
-    ASTNode, DeclarationAttrs, DelegateDecl, DelegateExposeDecl, EnumVariantDecl, FieldDecl,
-    LiteralValue, RuneAttr, Span,
+    ASTNode, ContractClause, ContractKind, DeclarationAttrs, DelegateDecl, DelegateExposeDecl,
+    EnumVariantDecl, FieldDecl, LiteralValue, RuneAttr, Span,
 };
 use serde_json::Value;
 use std::collections::HashMap;
@@ -194,6 +194,11 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                             })
                             .collect::<Vec<_>>()
                     })
+                    .unwrap_or_default(),
+                invariants: v
+                    .get("invariants")
+                    .and_then(|a| a.as_array())
+                    .map(|arr| arr.iter().filter_map(json_to_ast).collect::<Vec<_>>())
                     .unwrap_or_default(),
                 is_interface: v
                     .get("is_interface")
@@ -421,6 +426,7 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                     .iter()
                     .filter_map(json_to_ast)
                     .collect(),
+                contracts: json_to_contract_clauses(v.get("contracts")).unwrap_or_default(),
                 is_static: v.get("static").and_then(|b| b.as_bool()).unwrap_or(false),
                 is_override: v.get("override").and_then(|b| b.as_bool()).unwrap_or(false),
                 attrs: json_to_attrs(v.get("attrs")),
@@ -664,4 +670,24 @@ fn json_to_attrs(value: Option<&Value>) -> DeclarationAttrs {
         })
         .unwrap_or_default();
     DeclarationAttrs { runes }
+}
+
+fn json_to_contract_clauses(value: Option<&Value>) -> Option<Vec<ContractClause>> {
+    Some(
+        value?
+            .as_array()?
+            .iter()
+            .filter_map(|clause| {
+                let kind = match clause.get("kind")?.as_str()? {
+                    "requires" => ContractKind::Requires,
+                    "ensures" => ContractKind::Ensures,
+                    _ => return None,
+                };
+                Some(ContractClause {
+                    kind,
+                    condition: json_to_ast(clause.get("condition")?)?,
+                })
+            })
+            .collect(),
+    )
 }

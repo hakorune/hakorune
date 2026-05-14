@@ -146,6 +146,7 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                 is_static,
                 is_override,
                 attrs,
+                contracts,
                 span,
             } => A::FunctionDeclaration {
                 name,
@@ -159,6 +160,7 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                 is_static,
                 is_override,
                 attrs,
+                contracts,
                 span,
             },
             A::If {
@@ -262,6 +264,7 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                     is_static,
                     is_override,
                     attrs,
+                    contracts,
                     span,
                 } => {
                     let mut locals: HashSet<String> = HashSet::new();
@@ -275,6 +278,7 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                             is_static,
                             is_override,
                             attrs: attrs.clone(),
+                            contracts: contracts.clone(),
                             span,
                         },
                         &mut locals,
@@ -290,6 +294,7 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                             is_static,
                             is_override,
                             attrs: attrs.clone(),
+                            contracts: contracts.clone(),
                             span,
                         },
                         &mut used,
@@ -308,6 +313,7 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                             is_static: true,
                             is_override,
                             attrs,
+                            contracts,
                             span,
                         };
                         hoisted.push(lifted);
@@ -346,6 +352,7 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                 is_static,
                 is_override,
                 attrs,
+                contracts,
                 span,
             } => {
                 let mut mapping = std::collections::HashMap::new();
@@ -360,6 +367,7 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                     is_static,
                     is_override,
                     attrs,
+                    contracts,
                     span,
                 }
             }

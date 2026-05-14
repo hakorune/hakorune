@@ -46,6 +46,7 @@ mod tests {
             is_static: false,
             is_override: false,
             attrs: DeclarationAttrs::default(),
+            contracts: vec![],
             span: Span::unknown(),
         }
     }

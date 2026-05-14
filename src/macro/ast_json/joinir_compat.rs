@@ -1,5 +1,6 @@
 use nyash_rust::ast::{
-    ASTNode, DelegateDecl, DelegateExposeDecl, EnumVariantDecl, FieldDecl, LiteralValue, Span,
+    ASTNode, ContractClause, ContractKind, DelegateDecl, DelegateExposeDecl, EnumVariantDecl,
+    FieldDecl, LiteralValue, Span,
 };
 use serde_json::{json, Value};
 use std::collections::HashMap;
@@ -36,6 +37,7 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             init_fields,
             weak_fields,
             delegates,
+            invariants,
             is_interface,
             is_record,
             extends,
@@ -73,6 +75,7 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
                     "exposed_name": expose.exposed_name,
                 })).collect::<Vec<_>>(),
             })).collect::<Vec<_>>(),
+            "invariants": invariants.into_iter().map(|expr| ast_to_json(&expr)).collect::<Vec<_>>(),
             "is_interface": is_interface,
             "is_record": is_record,
             "extends": extends,
@@ -252,6 +255,7 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             param_decls,
             return_type_name,
             body,
+            contracts,
             is_static,
             is_override,
             attrs,
@@ -262,6 +266,13 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             "params": params,
             "param_decls": shared::param_decls_to_json(&param_decls, &params),
             "return_type": return_type_name,
+            "contracts": contracts.into_iter().map(|clause| json!({
+                "kind": match clause.kind {
+                    ContractKind::Requires => "requires",
+                    ContractKind::Ensures => "ensures",
+                },
+                "condition": ast_to_json(&clause.condition),
+            })).collect::<Vec<_>>(),
             "body": body.into_iter().map(|s| ast_to_json(&s)).collect::<Vec<_>>(),
             "static": is_static,
             "override": is_override,
@@ -592,6 +603,11 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                             .collect::<Vec<_>>()
                     })
                     .unwrap_or_default(),
+                invariants: v
+                    .get("invariants")
+                    .and_then(|a| a.as_array())
+                    .map(|arr| arr.iter().filter_map(json_to_ast).collect::<Vec<_>>())
+                    .unwrap_or_default(),
                 is_interface: v
                     .get("is_interface")
                     .and_then(|b| b.as_bool())
@@ -748,6 +764,7 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                     .iter()
                     .filter_map(json_to_ast)
                     .collect(),
+                contracts: json_to_contract_clauses(v.get("contracts")).unwrap_or_default(),
                 is_static: v.get("static").and_then(|b| b.as_bool()).unwrap_or(false),
                 is_override: v.get("override").and_then(|b| b.as_bool()).unwrap_or(false),
                 attrs: json_to_attrs(v.get("attrs")),
@@ -1034,4 +1051,24 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
         }
         _ => return None,
     })
+}
+
+fn json_to_contract_clauses(value: Option<&Value>) -> Option<Vec<ContractClause>> {
+    Some(
+        value?
+            .as_array()?
+            .iter()
+            .filter_map(|clause| {
+                let kind = match clause.get("kind")?.as_str()? {
+                    "requires" => ContractKind::Requires,
+                    "ensures" => ContractKind::Ensures,
+                    _ => return None,
+                };
+                Some(ContractClause {
+                    kind,
+                    condition: json_to_ast(clause.get("condition")?)?,
+                })
+            })
+            .collect(),
+    )
 }

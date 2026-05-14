@@ -172,6 +172,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
     let mut init_fields = Vec::new();
     let mut weak_fields = Vec::new(); // 🔗 Track weak fields
     let mut delegates = Vec::new();
+    let mut invariants = Vec::new();
                                       // Track birth_once properties for constructor prologue emission.
     let mut birth_once_props: Vec<String> = Vec::new();
 
@@ -204,6 +205,12 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
         }
 
         if box_try_delegate(p, &mut delegates)? {
+            last_method_name = None;
+            continue;
+        }
+
+        if let Some(invariant) = p.try_parse_invariant_clause()? {
+            invariants.push(invariant);
             last_method_name = None;
             continue;
         }
@@ -357,6 +364,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
         init_fields,
         weak_fields, // 🔗 Add weak fields to AST
         delegates,
+        invariants,
         is_interface: false,
         is_record: false,
         extends,
@@ -396,12 +404,17 @@ pub fn parse_record_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseErr
 
     let mut fields = Vec::new();
     let mut field_decls = Vec::new();
+    let mut invariants = Vec::new();
     while !p.match_token(&TokenType::RBRACE) && !p.is_at_end() {
         while p.match_token(&TokenType::NEWLINE) {
             p.advance();
         }
         if p.match_token(&TokenType::RBRACE) {
             break;
+        }
+        if let Some(invariant) = p.try_parse_invariant_clause()? {
+            invariants.push(invariant);
+            continue;
         }
         if p.match_token(&TokenType::WEAK) {
             return Err(ParseError::UnexpectedToken {
@@ -462,6 +475,7 @@ pub fn parse_record_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseErr
         init_fields: vec![],
         weak_fields: vec![],
         delegates: vec![],
+        invariants,
         is_interface: false,
         is_record: true,
         extends: vec![],

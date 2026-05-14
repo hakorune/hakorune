@@ -1,8 +1,8 @@
 use super::extract::HelperMethod;
 use super::record_payload::enum_variant_payload_type_name;
 use crate::ast::{
-    ASTNode, BinaryOperator, CatchClause, EnumVariantDecl, FieldDecl, LiteralValue, ParamDecl,
-    UnaryOperator,
+    ASTNode, BinaryOperator, CatchClause, ContractClause, ContractKind, EnumVariantDecl, FieldDecl,
+    LiteralValue, ParamDecl, UnaryOperator,
 };
 use crate::semantics::option_contract::{nullish_payload_error, requires_non_nullish_payload};
 use std::collections::{BTreeMap, BTreeSet};
@@ -90,6 +90,7 @@ fn function_def_json_v0(
         param_decls,
         return_type_name,
         body,
+        contracts,
         ..
     } = declaration
     else {
@@ -101,9 +102,29 @@ fn function_def_json_v0(
         "params": params,
         "param_decls": param_decls_json_v0(params, param_decls),
         "return_type": return_type_name,
+        "contracts": contract_clauses_json_v0(contracts, context)?,
         "body": program_json_v0_from_body_with_context(body, context)?,
         "box": box_name,
     }))
+}
+
+fn contract_clauses_json_v0(
+    contracts: &[ContractClause],
+    context: &ProgramJsonV0LoweringContext,
+) -> Result<Vec<serde_json::Value>, String> {
+    let mut out = Vec::with_capacity(contracts.len());
+    let mut local_types = ProgramJsonV0LocalTypes::default();
+    for clause in contracts {
+        let kind = match clause.kind {
+            ContractKind::Requires => "requires",
+            ContractKind::Ensures => "ensures",
+        };
+        out.push(serde_json::json!({
+            "kind": kind,
+            "condition": expression_to_json_v0(&clause.condition, context, &mut local_types)?,
+        }));
+    }
+    Ok(out)
 }
 
 fn param_decls_json_v0(params: &[String], param_decls: &[ParamDecl]) -> Vec<serde_json::Value> {

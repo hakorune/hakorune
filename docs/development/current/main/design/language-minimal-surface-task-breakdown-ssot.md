@@ -18,7 +18,7 @@ This document turns the language-design discussions into task-sized backlog
 rows.
 
 It is not the active allocator lane.
-`CONTRACT-002 contract syntax metadata capsule` is the current selected language blocker
+`TRANS-001 transition metadata capsule` is the current selected language blocker
 unless the user explicitly switches to the language lane.
 
 ## Row rules
@@ -64,7 +64,7 @@ Retire condition:
 | No-inheritance delegation | exposes lowering complete | `DEL-004 legacy quarantine migration` |
 | Brand/type | brand checker complete; type alias parser capsule complete | `TYPE-002 Stage1 alias diagnostics` |
 | Record literal | with-update lowering complete | no immediate row |
-| Contracts | planned | `CONTRACT-002 contract syntax metadata capsule` |
+| Contracts | syntax metadata capsule complete | `CONTRACT-003 contract runtime-check insertion` |
 | Enum transition lifecycle | planned | `TRANS-001 transition metadata capsule` |
 | Result/Option | planned | `RESULT-001 prelude and diagnostics` |
 | Generic containers | planned | `GEN-001 generic type annotation metadata capsule` |
@@ -194,7 +194,7 @@ record methods/delegate/interface are not MVP
 | Task | Scope | Stage |
 | --- | --- | --- |
 | `CONTRACT-001 assert runtime-check sugar decision` | Decide exact `assert cond : message` runtime fail-fast lowering. | Stage1 or Stage0 trivial sugar |
-| `CONTRACT-002 contract syntax metadata capsule` | Parse `requires`, `ensures`, `invariant` metadata only. | Stage0 capsule |
+| `CONTRACT-002 contract syntax metadata capsule` | Complete as `293x-282`; parses `requires`, `ensures`, `invariant` metadata only and transports it through AST/JSON. | Stage0 capsule complete |
 | `CONTRACT-003 contract runtime-check insertion` | Insert runtime pre/post/invariant checks at defined boundaries. | Stage1 semantics |
 | `CONTRACT-004 contract verifier discharge` | Statically discharge proven checks and keep diagnostics stable. | Stage1 verifier |
 | `TRANS-001 transition metadata capsule` | Parse `transition Enum.A -> Enum.B by method`. | Stage0 capsule |
@@ -284,7 +284,7 @@ language work, start here:
 10. `REC-001 Stage0 explicit record literal shape capsule` (complete as `293x-279`)
 11. `REC-002 Stage1 record construction/read lowering` (complete as `293x-280`)
 12. `REC-003 record with-update lowering` (complete as `293x-281`)
-13. `CONTRACT-002 contract syntax metadata capsule`
+13. `CONTRACT-002 contract syntax metadata capsule` (complete as `293x-282`)
 14. `TRANS-001 transition metadata capsule`
 15. `USES-001 method-level uses metadata capsule`
 

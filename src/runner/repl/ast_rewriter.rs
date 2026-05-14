@@ -185,6 +185,7 @@ impl ReplAstRewriter {
                 is_static,
                 is_override,
                 attrs,
+                contracts,
                 span,
             } => {
                 let prev_nested = self.in_nested_scope;
@@ -207,6 +208,7 @@ impl ReplAstRewriter {
                     is_static,
                     is_override,
                     attrs,
+                    contracts,
                     span,
                 }
             }
@@ -232,6 +234,7 @@ impl ReplAstRewriter {
                 is_static,
                 static_init,
                 attrs,
+                invariants,
                 span,
             } => {
                 let prev_nested = self.in_nested_scope;
@@ -251,6 +254,10 @@ impl ReplAstRewriter {
                     .collect();
                 let rewritten_static_init = static_init
                     .map(|stmts| stmts.into_iter().map(|s| self.rewrite_node(s)).collect());
+                let rewritten_invariants = invariants
+                    .into_iter()
+                    .map(|expr| self.rewrite_node(expr))
+                    .collect();
 
                 self.in_nested_scope = prev_nested;
 
@@ -273,6 +280,7 @@ impl ReplAstRewriter {
                     is_static,
                     static_init: rewritten_static_init,
                     attrs,
+                    invariants: rewritten_invariants,
                     span,
                 }
             }

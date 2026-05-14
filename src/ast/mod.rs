@@ -41,6 +41,7 @@ pub enum StructureNode {
         init_fields: Vec<String>,
         weak_fields: Vec<String>, // 🔗 weak修飾子が付いたフィールドのリスト
         delegates: Vec<DelegateDecl>,
+        invariants: Vec<ASTNode>,
         is_interface: bool,
         extends: Vec<String>, // 🚀 Multi-delegation: Changed from Option<String> to Vec<String>
         implements: Vec<String>,
@@ -76,6 +77,7 @@ pub enum StructureNode {
         param_decls: Vec<ParamDecl>,
         return_type_name: Option<String>,
         body: Vec<ASTNode>,
+        contracts: Vec<ContractClause>,
         is_static: bool,   // 🔥 静的メソッドフラグ
         is_override: bool, // 🔥 オーバーライドフラグ
         attrs: DeclarationAttrs,
@@ -224,6 +226,18 @@ pub struct FieldDecl {
     pub name: String,
     pub declared_type_name: Option<String>,
     pub is_weak: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ContractKind {
+    Requires,
+    Ensures,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ContractClause {
+    pub kind: ContractKind,
+    pub condition: ASTNode,
 }
 
 /// Explicit method exposure carried by `delegate <field> exposes { ... }`.
@@ -679,6 +693,7 @@ pub enum ASTNode {
         init_fields: Vec<String>,          // initブロック内のフィールド定義
         weak_fields: Vec<String>,          // 🔗 weak修飾子が付いたフィールドのリスト
         delegates: Vec<DelegateDecl>,      // explicit field delegation metadata
+        invariants: Vec<ASTNode>,          // Stage0 contract metadata capsule
         is_interface: bool,                // interface box かどうか
         is_record: bool, // record surface かどうか（identity-free aggregate contract）
         extends: Vec<String>, // 🚀 Multi-delegation: Changed from Option<String> to Vec<String>
@@ -699,6 +714,7 @@ pub enum ASTNode {
         param_decls: Vec<ParamDecl>,
         return_type_name: Option<String>,
         body: Vec<ASTNode>,
+        contracts: Vec<ContractClause>,
         is_static: bool,   // 🔥 静的メソッドフラグ
         is_override: bool, // 🔥 オーバーライドフラグ
         attrs: DeclarationAttrs,

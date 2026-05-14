@@ -13,6 +13,8 @@ pub mod parser_brand_surface;
 pub mod parser_check_block_surface;
 #[path = "../parser_compound_assignment_surface.rs"]
 pub mod parser_compound_assignment_surface;
+#[path = "../parser_contract_surface.rs"]
+pub mod parser_contract_surface;
 #[path = "../parser_delegate_surface.rs"]
 pub mod parser_delegate_surface;
 #[path = "../parser_enum_match.rs"]

@@ -75,6 +75,14 @@ fn parse_optional_type_annotation(
     while !p.is_at_end() {
         match &p.current_token().token_type {
             TokenType::IDENTIFIER(name) => {
+                if matches!(site, TypeAnnotationSite::Return)
+                    && consumed_any
+                    && generic_depth == 0
+                    && array_depth == 0
+                    && (name == "requires" || name == "ensures")
+                {
+                    break;
+                }
                 consumed_any = true;
                 type_text.push_str(name);
                 p.advance();

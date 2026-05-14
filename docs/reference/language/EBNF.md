@@ -11,7 +11,7 @@ Design SSOT note (Scope Exit Semantics):
   - `docs/development/current/main/design/rune-v0-contract-rollout-ssot.md`
   - `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`
 
-program   := (static_const_table_decl | brand_decl | type_alias_decl | record_decl | stmt)* EOF
+program   := (static_const_table_decl | brand_decl | type_alias_decl | record_decl | box_decl | function_decl | stmt)* EOF
 
 ; M11b static const table syntax.
 ; Reads use the existing postfix index expression.
@@ -77,7 +77,17 @@ compound_assign_op := '+=' | '-=' | '*=' | '/='
 
 block     := '{' stmt* '}'
 
-record_decl := 'record' IDENT type_params? '{' record_field+ '}'
+function_decl := 'function' IDENT '(' params? ')' ( ':' TYPE_REF )? contract_clause* block
+
+contract_clause := ('requires' | 'ensures') expr
+                 ; CONTRACT-002 Stage0 capsule. Carries metadata only.
+                 ; Runtime insertion, invariant checking, and verifier facts are Stage1-owned.
+
+invariant_member := 'invariant' expr
+                 ; CONTRACT-002 Stage0 capsule for box/record declaration metadata.
+
+record_decl := 'record' IDENT type_params? '{' record_member+ '}'
+record_member:= record_field | invariant_member
 record_field:= IDENT ':' TYPE_REF ','?
            ; C202: record is the explicit identity-free aggregate surface.
            ; MVP fields must be typed and non-weak.
@@ -343,6 +353,36 @@ C202 does not add local scalar replacement, packed `ArrayBox` storage, blanket
 ordinary-box flattening, reflection semantics, or allocator-specific syntax.
 Ordinary `box` declarations keep identity-capable object semantics.
 
+### CONTRACT-002 Contract Metadata Surface
+
+Decision: accepted.
+
+`requires`, `ensures`, and `invariant` are Stage0 metadata-only syntax:
+
+```hako
+releaseLocal(block_id: BlockId): Result<void, ReleaseError>
+    requires block_id >= 0
+    ensures block_id >= 0
+{
+    return Ok(void)
+}
+
+box HakoAllocPageModel {
+    used: usize
+    capacity: usize
+
+    invariant used <= capacity
+}
+```
+
+The parser preserves these clauses as metadata and leaves the body unchanged.
+`requires`, `ensures`, and `invariant` are contextual in their syntax slots and
+are not reserved as general identifiers.
+
+Stop line:
+CONTRACT-002 does not add `assert`, runtime contract insertion, invariant
+boundary policy, verifier facts, or static discharge. Those are Stage1-owned.
+
 ## Box Members (Phase‑15, env gate: NYASH_ENABLE_UNIFIED_MEMBERS; default ON)
 
 This section adds a minimal grammar for Box members (a unified member model) without changing JSON v0/MIR. Parsing is controlled by env `NYASH_ENABLE_UNIFIED_MEMBERS` (default ON; set `0/false/off` to disable).
@@ -357,6 +397,7 @@ member         := visibility_block
                 | once_decl
                 | birth_once_decl
                 | delegate_decl
+                | invariant_member
                 | method_decl
                 | block_as_role      ; nyash-mode (block-first) equivalent
 
@@ -400,7 +441,7 @@ once_decl      := 'once' IDENT ':' TYPE ( '=>' expr | block ) handler_tail?
 birth_once_decl:= 'birth_once' IDENT ':' TYPE ( '=>' expr | block ) handler_tail?
                   ; eager once. Computed during construction (before user birth), in declaration order.
 
-method_decl    := IDENT '(' params? ')' ( ':' TYPE )? block handler_tail?
+method_decl    := IDENT '(' params? ')' ( ':' TYPE )? contract_clause* block handler_tail?
 
 params         := param (',' param)*
 param          := IDENT (':' TYPE_REF)?

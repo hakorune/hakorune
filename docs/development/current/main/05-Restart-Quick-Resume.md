@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x language minimal surface lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `CONTRACT-002 contract syntax metadata capsule`
+- current blocker token: `TRANS-001 transition metadata capsule`
 - record / packed ArrayBox SSOT:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
@@ -44,7 +44,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `CONTRACT-002 contract syntax metadata capsule`
+- current blocker token: `TRANS-001 transition metadata capsule`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -55,7 +55,7 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after REC-003; next blocker is CONTRACT-002 contract syntax metadata capsule
+- continue `phase-293x` after CONTRACT-002; next blocker is TRANS-001 transition metadata capsule
 - keep `LOOP-003` open until a JoinIR/CorePlan route is selected; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

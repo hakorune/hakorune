@@ -133,6 +133,7 @@ impl MacroEngine {
                 is_static,
                 static_init,
                 attrs,
+                invariants,
                 span,
             } => {
                 if crate::config::env::macro_trace() {
@@ -199,6 +200,7 @@ impl MacroEngine {
                     is_static,
                     static_init,
                     attrs,
+                    invariants,
                     span,
                 }
             }
@@ -320,6 +322,7 @@ fn build_equals_method(_box_name: &str, fields: &Vec<String>) -> ASTNode {
         is_static: false,
         is_override: false,
         attrs: crate::ast::DeclarationAttrs::default(),
+        contracts: vec![],
         span: Span::unknown(),
     }
 }
@@ -348,6 +351,7 @@ fn build_tostring_method(box_name: &str, fields: &Vec<String>) -> ASTNode {
         is_static: false,
         is_override: false,
         attrs: crate::ast::DeclarationAttrs::default(),
+        contracts: vec![],
         span: Span::unknown(),
     }
 }

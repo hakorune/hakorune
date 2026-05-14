@@ -146,6 +146,7 @@ impl NyashParser {
                 self,
                 "static method",
             )?;
+        let contracts = self.parse_contract_clauses_until_body()?;
 
         // 関数本体をパース（共通ブロックヘルパー）
         let body = self.parse_block_statements()?;
@@ -156,6 +157,7 @@ impl NyashParser {
             param_decls,
             return_type_name,
             body,
+            contracts,
             is_static: true,    // 🔥 静的関数フラグを設定
             is_override: false, // デフォルトは非オーバーライド
             attrs,

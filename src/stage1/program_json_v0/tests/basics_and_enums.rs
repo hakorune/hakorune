@@ -739,3 +739,71 @@ return match pair {
         "_1"
     );
 }
+
+#[test]
+fn source_to_program_json_v0_transports_contract_metadata() {
+    let source = r#"
+static box Main {
+  main() {
+return me.releaseLocal(1)
+  }
+
+  method releaseLocal(block: i64): i64
+    requires block >= 0
+    ensures block >= 0
+  {
+return block
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let defs = value["defs"].as_array().expect("helper defs");
+    let release = defs
+        .iter()
+        .find(|def| def["name"] == "releaseLocal")
+        .expect("releaseLocal def");
+    let contracts = release["contracts"].as_array().expect("contracts metadata");
+
+    assert_eq!(contracts.len(), 2);
+    assert_eq!(contracts[0]["kind"], "requires");
+    assert_eq!(contracts[1]["kind"], "ensures");
+}
+
+#[test]
+fn source_to_program_json_v0_transports_invariant_metadata() {
+    let source = r#"
+box Page {
+  used: i64
+  invariant used >= 0
+}
+
+record Meta {
+  ptr: i64
+  invariant ptr >= 0
+}
+
+static box Main {
+  main() {
+return 0
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let user_box_decls = value["user_box_decls"].as_array().expect("user box decls");
+    let page = user_box_decls
+        .iter()
+        .find(|decl| decl["name"] == "Page")
+        .expect("Page decl");
+    let record_decls = value["record_decls"].as_array().expect("record decls");
+    let meta = record_decls
+        .iter()
+        .find(|decl| decl["name"] == "Meta")
+        .expect("Meta decl");
+
+    assert_eq!(page["invariants"].as_array().expect("Page invariants").len(), 1);
+    assert_eq!(meta["invariants"].as_array().expect("Meta invariants").len(), 1);
+}

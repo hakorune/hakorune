@@ -105,6 +105,7 @@ fn test_mir_phase6_lowering_ref_ops() {
         is_static: false,
         is_override: false,
         attrs: nyash_rust::ast::DeclarationAttrs::default(),
+        contracts: vec![],
         span: Span::unknown(),
     };
 
@@ -130,6 +131,7 @@ fn test_mir_phase6_lowering_ref_ops() {
         is_static: true,
         static_init: None,
         attrs: nyash_rust::ast::DeclarationAttrs::default(),
+        invariants: vec![],
         span: Span::unknown(),
     };
 

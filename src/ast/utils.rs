@@ -76,8 +76,12 @@ impl ASTNode {
                 methods,
                 constructors,
                 static_init,
+                invariants,
                 ..
             } => {
+                for invariant in invariants {
+                    visitor(invariant);
+                }
                 if let Some(static_init) = static_init {
                     for statement in static_init {
                         visitor(statement);
@@ -90,7 +94,17 @@ impl ASTNode {
                     visitor(constructor);
                 }
             }
-            ASTNode::FunctionDeclaration { body, .. } | ASTNode::Lambda { body, .. } => {
+            ASTNode::FunctionDeclaration {
+                body, contracts, ..
+            } => {
+                for contract in contracts {
+                    visitor(&contract.condition);
+                }
+                for statement in body {
+                    visitor(statement);
+                }
+            }
+            ASTNode::Lambda { body, .. } => {
                 for statement in body {
                     visitor(statement);
                 }
