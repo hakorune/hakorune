@@ -21,7 +21,7 @@ PACKED-003/004 complete
 ```
 
 Blueprint and inventory rows are now the active lane entry. Current row:
-`MIMAP-005A brand/type vocabulary`.
+`MIMAP-005B record vocabulary`.
 
 ## Active Source Policy
 
@@ -48,8 +48,8 @@ Tracked output is docs only.
 
 | Row | Status | Purpose | Expected size |
 | --- | --- | --- | --- |
-| `MIMAP-005A` | active | Define brand/type vocabulary: `Bytes`, `PageId`, `BlockId`, `SegmentId`, `Generation`. | 1 commit |
-| `MIMAP-005B` | parked | Define record vocabulary for page/block refs, size-class entries, stats snapshots. | 1 commit |
+| `MIMAP-005A` | landed | Define brand/type vocabulary: `Bytes`, `PageId`, `BlockId`, `SegmentId`, `Generation`. | 1 commit |
+| `MIMAP-005B` | active | Define record vocabulary for page/block refs, size-class entries, stats snapshots. | 1 commit |
 | `MIMAP-005C` | parked | Define enum/transition lifecycle blueprint for page/segment state. | 1 commit |
 | `MIMAP-005D` | parked | Define capability surface: `uses osvm`, `uses atomic`, `uses rawbuf` inventory. | 1 commit |
 

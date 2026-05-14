@@ -112,6 +112,17 @@ docs/development/current/main/design/mimalloc-substrate-representation-gap-ledge
 Unsupported capabilities must fail fast. The first executable slice should avoid
 hard OSVM, atomic, TLS, raw pointer, and global replacement gaps.
 
+## Current Hakorune Vocabulary
+
+`MIMAP-005A` defines the brand/type vocabulary used by the blueprint skeleton:
+
+```text
+docs/development/current/main/design/mimalloc-hakorune-brand-type-vocabulary-ssot.md
+```
+
+Identity values are brands. Measurement units are aliases unless mixing them
+would hide a lifecycle bug.
+
 ## Port Reading
 
 mimalloc should not be line-by-line translated.
