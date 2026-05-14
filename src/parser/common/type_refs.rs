@@ -28,13 +28,7 @@ fn parse_type_ref_text_inner(
         p.advance();
         let mut args = Vec::new();
         loop {
-            if p.match_token(&TokenType::GREATER) {
-                p.advance();
-                break;
-            }
-            if p.match_token(&TokenType::ShiftRight) {
-                p.advance();
-                pending_gt = true;
+            if consume_generic_close(p, &mut pending_gt) {
                 break;
             }
             let (arg, child_pending_gt) = parse_type_ref_text_inner(p, context)?;
@@ -46,13 +40,7 @@ fn parse_type_ref_text_inner(
                 p.advance();
                 continue;
             }
-            if p.match_token(&TokenType::GREATER) {
-                p.advance();
-                break;
-            }
-            if p.match_token(&TokenType::ShiftRight) {
-                p.advance();
-                pending_gt = true;
+            if consume_generic_close(p, &mut pending_gt) {
                 break;
             }
             return Err(ParseError::UnexpectedToken {
@@ -80,6 +68,19 @@ fn parse_type_ref_text_inner(
     }
 
     Ok((text, pending_gt))
+}
+
+fn consume_generic_close(p: &mut NyashParser, pending_gt: &mut bool) -> bool {
+    if p.match_token(&TokenType::GREATER) {
+        p.advance();
+        return true;
+    }
+    if p.match_token(&TokenType::ShiftRight) {
+        p.advance();
+        *pending_gt = true;
+        return true;
+    }
+    false
 }
 
 fn parse_type_ref_path(p: &mut NyashParser, context: &str) -> Result<String, ParseError> {

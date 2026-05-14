@@ -1,4 +1,7 @@
-use nyash_rust::ast::{BinaryOperator, LiteralValue, ParamDecl, UnaryOperator};
+use nyash_rust::ast::{
+    ASTNode, BinaryOperator, ContractClause, ContractKind, LiteralValue, ParamDecl,
+    TransitionDecl, UnaryOperator,
+};
 use serde_json::{json, Value};
 
 pub(crate) fn lit_to_json(v: &LiteralValue) -> Value {
@@ -146,4 +149,56 @@ pub(crate) fn json_to_param_decls(v: &Value, params: &[String]) -> Option<Vec<Pa
         });
     }
     Some(decls)
+}
+
+pub(crate) fn json_to_contract_clauses_with<F>(
+    value: Option<&Value>,
+    mut json_to_ast: F,
+) -> Option<Vec<ContractClause>>
+where
+    F: FnMut(&Value) -> Option<ASTNode>,
+{
+    Some(
+        value?
+            .as_array()?
+            .iter()
+            .filter_map(|clause| {
+                let kind = match clause.get("kind")?.as_str()? {
+                    "requires" => ContractKind::Requires,
+                    "ensures" => ContractKind::Ensures,
+                    _ => return None,
+                };
+                Some(ContractClause {
+                    kind,
+                    condition: json_to_ast(clause.get("condition")?)?,
+                })
+            })
+            .collect(),
+    )
+}
+
+pub(crate) fn json_to_string_array(value: Option<&Value>) -> Option<Vec<String>> {
+    Some(
+        value?
+            .as_array()?
+            .iter()
+            .filter_map(|item| item.as_str().map(str::to_string))
+            .collect(),
+    )
+}
+
+pub(crate) fn json_to_transition_decls(value: Option<&Value>) -> Option<Vec<TransitionDecl>> {
+    Some(
+        value?
+            .as_array()?
+            .iter()
+            .filter_map(|decl| {
+                Some(TransitionDecl {
+                    from_state: decl.get("from")?.as_str()?.to_string(),
+                    to_state: decl.get("to")?.as_str()?.to_string(),
+                    method_name: decl.get("method")?.as_str()?.to_string(),
+                })
+            })
+            .collect(),
+    )
 }

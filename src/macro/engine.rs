@@ -325,7 +325,6 @@ fn build_equals_method(_box_name: &str, fields: &Vec<String>) -> ASTNode {
         is_override: false,
         attrs: crate::ast::DeclarationAttrs::default(),
         uses: vec![],
-
         contracts: vec![],
         span: Span::unknown(),
     }
@@ -356,7 +355,6 @@ fn build_tostring_method(box_name: &str, fields: &Vec<String>) -> ASTNode {
         is_override: false,
         attrs: crate::ast::DeclarationAttrs::default(),
         uses: vec![],
-
         contracts: vec![],
         span: Span::unknown(),
     }

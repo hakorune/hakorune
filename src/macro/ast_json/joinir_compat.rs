@@ -1,6 +1,6 @@
 use nyash_rust::ast::{
-    ASTNode, ContractClause, ContractKind, DelegateDecl, DelegateExposeDecl, EnumVariantDecl,
-    FieldDecl, LiteralValue, Span, TransitionDecl,
+    ASTNode, ContractKind, DelegateDecl, DelegateExposeDecl, EnumVariantDecl, FieldDecl,
+    LiteralValue, Span,
 };
 use serde_json::{json, Value};
 use std::collections::HashMap;
@@ -616,7 +616,8 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                     .and_then(|a| a.as_array())
                     .map(|arr| arr.iter().filter_map(json_to_ast).collect::<Vec<_>>())
                     .unwrap_or_default(),
-                transitions: json_to_transition_decls(v.get("transitions")).unwrap_or_default(),
+                transitions: shared::json_to_transition_decls(v.get("transitions"))
+                    .unwrap_or_default(),
                 is_interface: v
                     .get("is_interface")
                     .and_then(|b| b.as_bool())
@@ -773,8 +774,9 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                     .iter()
                     .filter_map(json_to_ast)
                     .collect(),
-                uses: json_to_string_array(v.get("uses")).unwrap_or_default(),
-                contracts: json_to_contract_clauses(v.get("contracts")).unwrap_or_default(),
+                uses: shared::json_to_string_array(v.get("uses")).unwrap_or_default(),
+                contracts: shared::json_to_contract_clauses_with(v.get("contracts"), json_to_ast)
+                    .unwrap_or_default(),
                 is_static: v.get("static").and_then(|b| b.as_bool()).unwrap_or(false),
                 is_override: v.get("override").and_then(|b| b.as_bool()).unwrap_or(false),
                 attrs: json_to_attrs(v.get("attrs")),
@@ -1061,50 +1063,4 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
         }
         _ => return None,
     })
-}
-
-fn json_to_contract_clauses(value: Option<&Value>) -> Option<Vec<ContractClause>> {
-    Some(
-        value?
-            .as_array()?
-            .iter()
-            .filter_map(|clause| {
-                let kind = match clause.get("kind")?.as_str()? {
-                    "requires" => ContractKind::Requires,
-                    "ensures" => ContractKind::Ensures,
-                    _ => return None,
-                };
-                Some(ContractClause {
-                    kind,
-                    condition: json_to_ast(clause.get("condition")?)?,
-                })
-            })
-            .collect(),
-    )
-}
-
-fn json_to_string_array(value: Option<&Value>) -> Option<Vec<String>> {
-    Some(
-        value?
-            .as_array()?
-            .iter()
-            .filter_map(|item| item.as_str().map(str::to_string))
-            .collect(),
-    )
-}
-
-fn json_to_transition_decls(value: Option<&Value>) -> Option<Vec<TransitionDecl>> {
-    Some(
-        value?
-            .as_array()?
-            .iter()
-            .filter_map(|decl| {
-                Some(TransitionDecl {
-                    from_state: decl.get("from")?.as_str()?.to_string(),
-                    to_state: decl.get("to")?.as_str()?.to_string(),
-                    method_name: decl.get("method")?.as_str()?.to_string(),
-                })
-            })
-            .collect(),
-    )
 }
