@@ -351,6 +351,12 @@ impl AstOwnershipAnalyzer {
                 }
             }
 
+            ASTNode::RecordLiteral { fields, .. } => {
+                for (_, v) in fields {
+                    self.analyze_node(v, current_scope, is_condition)?;
+                }
+            }
+
             ASTNode::MatchExpr {
                 scrutinee,
                 arms,

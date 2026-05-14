@@ -350,6 +350,15 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             "type": "Map",  // JoinIR Frontend expects "type"
             "entries": entries.into_iter().map(|(k,v)| json!({"k":k,"v":ast_to_json(&v)})).collect::<Vec<_>>()
         }),
+        ASTNode::RecordLiteral {
+            record_type_name,
+            fields,
+            ..
+        } => json!({
+            "kind": "RecordLiteral",
+            "record_type": record_type_name,
+            "fields": fields.into_iter().map(|(k,v)| json!({"name":k,"value":ast_to_json(&v)})).collect::<Vec<_>>()
+        }),
         ASTNode::MatchExpr {
             scrutinee,
             arms,
@@ -901,6 +910,21 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                 .iter()
                 .filter_map(|e| {
                     Some((e.get("k")?.as_str()?.to_string(), json_to_ast(e.get("v")?)?))
+                })
+                .collect(),
+            span: Span::unknown(),
+        },
+        "RecordLiteral" => ASTNode::RecordLiteral {
+            record_type_name: v.get("record_type")?.as_str()?.to_string(),
+            fields: v
+                .get("fields")?
+                .as_array()?
+                .iter()
+                .filter_map(|field| {
+                    Some((
+                        field.get("name")?.as_str()?.to_string(),
+                        json_to_ast(field.get("value")?)?,
+                    ))
                 })
                 .collect(),
             span: Span::unknown(),

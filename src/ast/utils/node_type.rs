@@ -55,6 +55,7 @@ impl ASTNode {
             ASTNode::Lambda { .. } => "Lambda",
             ASTNode::ArrayLiteral { .. } => "ArrayLiteral",
             ASTNode::MapLiteral { .. } => "MapLiteral",
+            ASTNode::RecordLiteral { .. } => "RecordLiteral",
             ASTNode::BlockExpr { .. } => "BlockExpr",
             ASTNode::ScopeBox { .. } => "ScopeBox",
             ASTNode::GroupedAssignmentExpr { .. } => "GroupedAssignmentExpr",

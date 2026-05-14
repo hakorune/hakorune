@@ -26,13 +26,13 @@ Related:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `REC-001 Stage0 explicit record literal shape capsule`
+- current blocker token: `REC-002 Stage1 record construction/read lowering`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after TYPE-001; next blocker is REC-001 Stage0 explicit record literal shape capsule
+- continue phase-293x after REC-001; next blocker is REC-002 Stage1 record construction/read lowering
 - keep `LOOP-003` open until a JoinIR/CorePlan route is selected; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

@@ -186,6 +186,13 @@ impl ExprParserWithCursor {
         let mut expr = Self::parse_primary_expr(cursor)?;
 
         loop {
+            if matches!(expr, ASTNode::Variable { .. }) && cursor.match_token(&TokenType::LBRACE) {
+                if let ASTNode::Variable { name, .. } = expr {
+                    expr = Self::parse_record_literal(cursor, name)?;
+                    continue;
+                }
+            }
+
             // フィールドアクセス obj.field
             if cursor.match_token(&TokenType::DOT) {
                 cursor.advance();
@@ -571,6 +578,60 @@ impl ExprParserWithCursor {
         cursor.consume(TokenType::RBRACE)?;
         Ok(ASTNode::MapLiteral {
             entries,
+            span: Span::unknown(),
+        })
+    }
+
+    fn parse_record_literal(
+        cursor: &mut TokenCursor,
+        record_type_name: String,
+    ) -> Result<ASTNode, ParseError> {
+        cursor.consume(TokenType::LBRACE)?;
+        let mut fields = Vec::new();
+        let mut seen = std::collections::BTreeSet::new();
+
+        while !cursor.match_token(&TokenType::RBRACE) && !cursor.is_at_end() {
+            if cursor.match_token(&TokenType::COMMA) {
+                cursor.advance();
+                continue;
+            }
+
+            let field_name = match &cursor.current().token_type {
+                TokenType::IDENTIFIER(name) => {
+                    let name = name.clone();
+                    cursor.advance();
+                    name
+                }
+                other => {
+                    let line = cursor.current().line;
+                    return Err(ParseError::UnexpectedToken {
+                        found: other.clone(),
+                        expected: "[record-literal] field name".to_string(),
+                        line,
+                    });
+                }
+            };
+            if !seen.insert(field_name.clone()) {
+                let line = cursor.current().line;
+                return Err(ParseError::UnexpectedToken {
+                    found: TokenType::IDENTIFIER(field_name),
+                    expected: "[record-literal] unique field name".to_string(),
+                    line,
+                });
+            }
+            cursor.consume(TokenType::COLON)?;
+            let value = Self::parse_expression(cursor)?;
+            fields.push((field_name, value));
+
+            if cursor.match_token(&TokenType::COMMA) {
+                cursor.advance();
+            }
+        }
+
+        cursor.consume(TokenType::RBRACE)?;
+        Ok(ASTNode::RecordLiteral {
+            record_type_name,
+            fields,
             span: Span::unknown(),
         })
     }

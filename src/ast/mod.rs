@@ -614,6 +614,12 @@ pub enum ASTNode {
         entries: Vec<(String, ASTNode)>,
         span: Span,
     },
+    /// record literal metadata capsule: `RecordName { field: expr }`
+    RecordLiteral {
+        record_type_name: String,
+        fields: Vec<(String, ASTNode)>,
+        span: Span,
+    },
 
     /// 無名関数（最小P1: 値としてのみ。呼び出しは未対応）
     Lambda {

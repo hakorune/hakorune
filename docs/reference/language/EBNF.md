@@ -120,9 +120,16 @@ factor    := INT
            | '(' expr ')'
            | '(' assignment_expr ')'  ; Stage‑3: grouped assignment as expression
            | 'new' IDENT '(' args? ')'
+           | record_literal
            | '[' args? ']'           ; Array literal (Stage‑1 sugar, gated)
            | '%{' map_entries? '}'   ; Map literal (Stage‑2 sugar, gated)
            | match_expr              ; Pattern matching (replaces legacy peek)
+
+record_literal := IDENT '{' record_literal_field (',' record_literal_field)* ','? '}'
+record_literal_field := IDENT ':' expr
+              ; REC-001: explicit named fields only.
+              ; Missing/extra validation, construction/read lowering, and
+              ; shorthand `RecordName { field }` are Stage1/later rows.
 
 check_expr := 'check' STRING? '{' check_item* '}'
 check_item := STRING ':' expr

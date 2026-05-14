@@ -382,6 +382,24 @@ fn expression_to_json_v0(
                 "expr": expression_to_json_v0(tail_expr, context)?,
             },
         })),
+        ASTNode::RecordLiteral {
+            record_type_name,
+            fields,
+            ..
+        } => {
+            let mut lowered_fields = Vec::with_capacity(fields.len());
+            for (name, value) in fields {
+                lowered_fields.push(serde_json::json!({
+                    "name": name,
+                    "value": expression_to_json_v0(value, context)?,
+                }));
+            }
+            Ok(serde_json::json!({
+                "type": "RecordLiteral",
+                "record": record_type_name,
+                "fields": lowered_fields,
+            }))
+        }
         ASTNode::MatchExpr {
             scrutinee,
             arms,

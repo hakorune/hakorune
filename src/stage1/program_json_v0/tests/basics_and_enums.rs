@@ -336,6 +336,34 @@ return 0
 }
 
 #[test]
+fn source_to_program_json_v0_emits_record_literal_shape_metadata() {
+    let source = r#"
+record Meta {
+  ptr: i64
+  size: usize
+}
+
+static box Main {
+  main() {
+local meta = Meta { ptr: 1, size: 2 }
+return 0
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let body = value["body"].as_array().expect("body");
+    assert_eq!(body[0]["type"], "Local");
+    assert_eq!(body[0]["expr"]["type"], "RecordLiteral");
+    assert_eq!(body[0]["expr"]["record"], "Meta");
+    assert_eq!(body[0]["expr"]["fields"][0]["name"], "ptr");
+    assert_eq!(body[0]["expr"]["fields"][0]["value"]["value"], 1);
+    assert_eq!(body[0]["expr"]["fields"][1]["name"], "size");
+    assert_eq!(body[0]["expr"]["fields"][1]["value"]["value"], 2);
+}
+
+#[test]
 fn source_to_program_json_v0_emits_type_alias_decls_metadata_only() {
     let source = r#"
 type Bytes = usize

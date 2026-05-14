@@ -39,6 +39,7 @@ impl ASTNode {
             ASTNode::Lambda { .. } => E,
             ASTNode::ArrayLiteral { .. } => E,
             ASTNode::MapLiteral { .. } => E,
+            ASTNode::RecordLiteral { .. } => E,
             ASTNode::BlockExpr { .. } => E,
             ASTNode::AwaitExpression { .. } => E,
             ASTNode::GroupedAssignmentExpr { .. } => E,

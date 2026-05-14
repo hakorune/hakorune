@@ -342,6 +342,8 @@ impl NyashParser {
                         arguments,
                         span: Span::unknown(),
                     })
+                } else if self.match_token(&TokenType::LBRACE) {
+                    self.parse_record_literal(parent)
                 } else {
                     Ok(ASTNode::Variable {
                         name: parent,
@@ -568,6 +570,55 @@ impl NyashParser {
             });
         }
         Ok(ordered)
+    }
+
+    fn parse_record_literal(&mut self, record_type_name: String) -> Result<ASTNode, ParseError> {
+        self.consume(TokenType::LBRACE)?;
+        let mut fields = Vec::new();
+        let mut seen = BTreeSet::new();
+
+        while !self.match_token(&TokenType::RBRACE) && !self.is_at_end() {
+            if self.match_token(&TokenType::COMMA) || self.match_token(&TokenType::NEWLINE) {
+                self.advance();
+                continue;
+            }
+
+            let field_name = match &self.current_token().token_type {
+                TokenType::IDENTIFIER(name) => {
+                    let name = name.clone();
+                    self.advance();
+                    name
+                }
+                other => {
+                    return Err(ParseError::UnexpectedToken {
+                        found: other.clone(),
+                        expected: "[record-literal] field name".to_string(),
+                        line: self.current_token().line,
+                    });
+                }
+            };
+            if !seen.insert(field_name.clone()) {
+                return Err(ParseError::UnexpectedToken {
+                    found: TokenType::IDENTIFIER(field_name),
+                    expected: "[record-literal] unique field name".to_string(),
+                    line: self.current_token().line,
+                });
+            }
+            self.consume(TokenType::COLON)?;
+            let value = self.parse_expression()?;
+            fields.push((field_name, value));
+
+            if self.match_token(&TokenType::COMMA) {
+                self.advance();
+            }
+        }
+
+        self.consume(TokenType::RBRACE)?;
+        Ok(ASTNode::RecordLiteral {
+            record_type_name,
+            fields,
+            span: Span::unknown(),
+        })
     }
 
     /// Check if current position looks like legacy map literal: { "key" : ...

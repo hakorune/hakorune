@@ -522,6 +522,21 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                 .collect(),
             span: Span::unknown(),
         },
+        "RecordLiteral" => ASTNode::RecordLiteral {
+            record_type_name: v.get("record_type")?.as_str()?.to_string(),
+            fields: v
+                .get("fields")?
+                .as_array()?
+                .iter()
+                .filter_map(|field| {
+                    Some((
+                        field.get("name")?.as_str()?.to_string(),
+                        json_to_ast(field.get("value")?)?,
+                    ))
+                })
+                .collect(),
+            span: Span::unknown(),
+        },
         "MatchExpr" => {
             let scr = json_to_ast(v.get("scrutinee")?)?;
             let arms_json = v.get("arms")?.as_array()?.iter();

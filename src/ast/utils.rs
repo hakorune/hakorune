@@ -171,6 +171,11 @@ impl ASTNode {
                     visitor(value);
                 }
             }
+            ASTNode::RecordLiteral { fields, .. } => {
+                for (_, value) in fields {
+                    visitor(value);
+                }
+            }
             ASTNode::BlockExpr {
                 prelude_stmts,
                 tail_expr,
@@ -491,6 +496,17 @@ impl ASTNode {
             ASTNode::MapLiteral { entries, .. } => {
                 format!("MapLiteral({} entries)", entries.len())
             }
+            ASTNode::RecordLiteral {
+                record_type_name,
+                fields,
+                ..
+            } => {
+                format!(
+                    "RecordLiteral({}, {} fields)",
+                    record_type_name,
+                    fields.len()
+                )
+            }
             ASTNode::BlockExpr {
                 prelude_stmts,
                 tail_expr,
@@ -565,6 +581,7 @@ impl ASTNode {
             ASTNode::Lambda { span, .. } => *span,
             ASTNode::ArrayLiteral { span, .. } => *span,
             ASTNode::MapLiteral { span, .. } => *span,
+            ASTNode::RecordLiteral { span, .. } => *span,
             ASTNode::BlockExpr { span, .. } => *span,
             ASTNode::ScopeBox { span, .. } => *span,
             // Phase 152-A: Grouped assignment expression

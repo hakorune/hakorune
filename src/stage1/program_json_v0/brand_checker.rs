@@ -391,6 +391,12 @@ fn check_expr(
             check_expr(index, current_box, current_fn, env, sigs, brands)?;
             Ok(None)
         }
+        ASTNode::RecordLiteral { fields, .. } => {
+            for (_, value) in fields {
+                check_expr(value, current_box, current_fn, env, sigs, brands)?;
+            }
+            Ok(None)
+        }
         ASTNode::New { arguments, .. } | ASTNode::FromCall { arguments, .. } => {
             for argument in arguments {
                 check_expr(argument, current_box, current_fn, env, sigs, brands)?;
