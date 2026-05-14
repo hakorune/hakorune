@@ -66,6 +66,11 @@ fi
 
 rg -F -q 'mimalloc-lifecycle-integration-pilot-proof' "$out" || fail "missing proof banner"
 rg -F -q 'summary=ok' "$out" || fail "proof app did not report summary=ok"
+rg -F -q 'blocks=2,1,2,-1' "$out" || fail "unexpected lifecycle block sequence"
+rg -F -q 'lifecycle=0,0,1,1,1,4' "$out" || fail "unexpected lifecycle counters"
+rg -F -q 'counts=3,2,2,2,2,1' "$out" || fail "unexpected page counters"
+rg -F -q 'state=1,2,0,2' "$out" || fail "unexpected final lifecycle state"
+rg -F -q 'shape=17' "$out" || fail "unexpected lifecycle shape count"
 
 cat "$out"
 echo "[$TAG] ok"

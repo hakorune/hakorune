@@ -62,6 +62,10 @@ fi
 
 rg -F -q 'mimalloc-page-free-list-pilot-proof' "$out" || fail "missing proof banner"
 rg -F -q 'summary=ok' "$out" || fail "proof app did not report summary=ok"
+rg -F -q 'blocks=3,2,1,-1,3' "$out" || fail "unexpected block sequence"
+rg -F -q 'counts=4,3,3,3,3' "$out" || fail "unexpected page counters"
+rg -F -q 'state=1,3,0,3,0' "$out" || fail "unexpected final page state"
+rg -F -q 'shape=15' "$out" || fail "unexpected shape count"
 
 cat "$out"
 echo "[$TAG] ok"

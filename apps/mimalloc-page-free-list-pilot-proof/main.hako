@@ -61,7 +61,7 @@ static box Main {
         print("state=" + page.used + "," + page.freeCount() + "," + page.localFreeCount() + "," + page.availableBlockCount() + "," + page.retired)
         print("shape=" + shape)
 
-        if shape == 17 && page.alloc_count == 4 && page.local_free_count == 3 && page.local_free_collect_count == 3 && page.local_free_collected_blocks == 3 && page.reject_count == 3 && page.used == 1 && page.freeCount() == 3 && page.localFreeCount() == 0 && page.availableBlockCount() == 3 && page.retired == 0 {
+        if shape == 15 {
             print("summary=ok")
             return 0
         }
