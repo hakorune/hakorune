@@ -18,8 +18,8 @@ This document turns the language-design discussions into task-sized backlog
 rows.
 
 It is not the active allocator lane.
-`ARRAY-002C unsupported Array inference fail-fast` is complete as the current
-typed-collection inference stop-line row after ARRAY-002B.
+`ARRAY-002D ArrayBox JSON v0/backend guard` is complete as the current
+typed-collection route guard row after ARRAY-002C.
 
 `ARRAY-RESULT-SSOT` is complete as the docs-only canonical surface decision for
 `Array<T>`, `PackedArray<T>`, `Result<T,E>`, `Option<T>`, and
@@ -74,7 +74,7 @@ Retire condition:
 | Result/Option | prelude diagnostics complete | `RESULT-002 enum diagnostics and exhaustiveness` |
 | Generic containers | generic type annotation metadata and arity checker complete | next substitution/semantics row deferred |
 | PackedArray | eligibility gate complete | `PACKED-002 non-escaping auto-use pilot` |
-| Array / Result / Option canonical surface | docs accepted; LOCALTYPE/ENUMVAR/ARRAY/RESULT rows complete | `ARRAY-002D`, then `RESULT-002A` |
+| Array / Result / Option canonical surface | docs accepted; LOCALTYPE/ENUMVAR/ARRAY/RESULT rows complete | `RESULT-002A`, then `RESULT-002B` |
 | Uses/capability | method-level metadata capsule complete | `USES-002 capability checker` |
 | Span/view | planned later | `SPAN-001 Span API design row` |
 | Module visibility | planned later | `MOD-001 using/module migration decision` |
@@ -252,7 +252,7 @@ no Stage0 Result/Option special-case
 | `ARRAY-002A typed Array method contract` | Complete as `293x-315`; define canonical `Array<T>` methods (`push`, `get`, `set`, `length`) and diagnostics without element checker expansion. | Stage1 typed collection complete |
 | `ARRAY-002B typed local Array element checks` | Complete as `293x-316`; track local `Array<T>` element contexts for literal and direct method values. | Stage1 typed collection complete |
 | `ARRAY-002C unsupported Array inference fail-fast` | Complete as `293x-317`; keep `local x = []`, mixed literals, and unresolved `T` explicitly rejected. | Stage1 diagnostics complete |
-| `ARRAY-002D ArrayBox JSON v0/backend guard` | Guard that ordinary `Array<T>` lowers through ArrayBox while `PackedArray<T>` never silently falls back. | Stage1/backend guard |
+| `ARRAY-002D ArrayBox JSON v0/backend guard` | Complete as `293x-318`; guard that ordinary `Array<T>` lowers through ArrayBox while `PackedArray<T>` never silently falls back. | Stage1/backend guard complete |
 | `RESULT-001 Result/Option prelude diagnostics` | Complete as `293x-314`; keep `Result<T,E>` / `Option<T>` as enum surfaces with explicit `Type::Variant` and prelude lookup. | Stage1 enum/prelude complete |
 | `PACKED-001 PackedArray eligibility gate` | Complete as `293x-293`; fail-fast if packed residence cannot be proven for declaration type metadata. | Stage1 CorePlan |
 | `PACKED-002 PackedArray non-escaping auto-use pilot` | Use packed ArrayBox for eligible non-escaping record arrays. | Stage1 CorePlan |
@@ -324,7 +324,7 @@ language work, start here:
 29. `ARRAY-002A typed Array method contract` (complete as `293x-315`)
 30. `ARRAY-002B typed local Array element checks` (complete as `293x-316`)
 31. `ARRAY-002C unsupported Array inference fail-fast` (complete as `293x-317`)
-32. `ARRAY-002D ArrayBox JSON v0/backend guard`
+32. `ARRAY-002D ArrayBox JSON v0/backend guard` (complete as `293x-318`)
 33. `RESULT-002A prelude enum missing-arm diagnostics`
 34. `RESULT-002B prelude enum payload diagnostics`
 

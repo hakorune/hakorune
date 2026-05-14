@@ -123,6 +123,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_array_typed_method_contract_guard.sh` | ARRAY-002A の typed `Array<T>` method contract を固定し、`push/get/set/length` の名前と arity diagnostics を検証する。 |
 | `tools/checks/k2_wide_array_typed_element_checks_guard.sh` | ARRAY-002B の typed local `Array<T>` direct element checks を固定し、literal / `push` / `set` の known mismatch diagnostics を検証する。 |
 | `tools/checks/k2_wide_array_inference_failfast_guard.sh` | ARRAY-002C の unsupported `Array<T>` inference fail-fast を固定し、unresolved `Array<T>` element と mixed direct literals の診断を検証する。 |
+| `tools/checks/k2_wide_arraybox_json_v0_backend_guard.sh` | ARRAY-002D の ordinary `Array<T>` JSON v0 / ArrayBox route と `PackedArray<T>` no-fallback contract を検証する。 |
 | `tools/checks/k2_wide_result_option_prelude_diagnostics_guard.sh` | RESULT-001 の `Option<T>` / `Result<T,E>` built-in enum prelude と dot-variant fail-fast diagnostics を検証する。 |
 | `tools/checks/k2_wide_loopclean_while_parser_normalization_guard.sh` | LOOPCLEAN-002 の while parser normalization を固定し、新規 Stage-3 `while` が canonical `ASTNode::Loop` として出ることを検証する。 |
 | `tools/checks/k2_wide_loopclean_while_variant_quarantine_guard.sh` | LOOPCLEAN-003 の while variant quarantine を固定し、新規 source は `Loop`、legacy `ASTNode::While` は Program(JSON) `Loop` 互換 lowering に閉じることを検証する。 |

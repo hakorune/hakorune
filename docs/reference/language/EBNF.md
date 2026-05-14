@@ -588,6 +588,7 @@ ARRAY-001 implements typed-context array literal lowering for `Array<T>` only.
 `Array<T>` / `ArrayBox`. ARRAY-002A implements typed `Array<T>` method-name and arity diagnostics.
 ARRAY-002B implements direct typed `Array<T>` element diagnostics.
 ARRAY-002C keeps unsupported `Array<T>` inference fail-fast.
+ARRAY-002D fixes the JSON v0 / ArrayBox guard for ordinary `Array<T>` and PackedArray no-fallback.
 RESULT-001 implements `Option<T>` / `Result<T,E>` as built-in enum prelude surfaces.
 Known enum variants must use `Type::Variant`; dot variant spelling fail-fasts.
 Match exhaustiveness expansion and PackedArray runtime/backend lowering remain

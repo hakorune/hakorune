@@ -62,6 +62,8 @@ Rules:
   `push`, and `set` values when the direct expression type is known.
 - `ARRAY-002C` keeps unsupported `Array<T>` inference fail-fast, including
   unresolved generic element contexts such as `Array<T>`.
+- `ARRAY-002D` guards ordinary `Array<T>` JSON v0 / ArrayBox lowering and
+  keeps `PackedArray<T>` no-fallback behavior fixed.
 - `len()` / `size()` aliases are not canonical typed `Array<T>` source.
 
 Canonical empty array:
@@ -246,7 +248,7 @@ local r = Result::Err(AllocError::ZeroSize)
 | `ARRAY-002A` | complete as `293x-315`; typed `Array<T>` method contract for `push/get/set/length` | Stage1 typed collection |
 | `ARRAY-002B` | complete as `293x-316`; typed local Array element checks | Stage1 typed collection |
 | `ARRAY-002C` | complete as `293x-317`; unsupported Array inference fail-fast | Stage1 diagnostics |
-| `ARRAY-002D` | ArrayBox JSON v0/backend guard and PackedArray no-fallback guard | Stage1/backend guard |
+| `ARRAY-002D` | complete as `293x-318`; ArrayBox JSON v0/backend guard and PackedArray no-fallback guard | Stage1/backend guard |
 | `RESULT-001` | complete as `293x-314`; Result/Option prelude and explicit variant diagnostics | Stage1 enum/prelude |
 | `RESULT-002A` | prelude enum missing-arm diagnostics | Stage1 diagnostics |
 | `RESULT-002B` | prelude enum payload diagnostics | Stage1 diagnostics |
@@ -287,6 +289,7 @@ typed-context `Array<T>` literal JSON v0 bridge lowering
 typed `Array<T>` method contract diagnostics
 typed `Array<T>` direct element diagnostics
 unsupported `Array<T>` inference fail-fast diagnostics
+ordinary `Array<T>` JSON v0 / ArrayBox route guard
 Result/Option diagnostics
 Result/Option prelude enum registry
 PackedArray eligibility and backend fail-fast
@@ -299,5 +302,6 @@ only the typed-context `Array<T>` literal slice. RESULT-001 now implements the
 Result/Option prelude and dot-variant diagnostics. ARRAY-002A now implements
 typed `Array<T>` method name and arity diagnostics. ARRAY-002B now implements
 direct element diagnostics for known expressions. ARRAY-002C now keeps
-unsupported Array inference fail-fast. PackedArray literal/backend behavior
-remain separate rows.
+unsupported Array inference fail-fast. ARRAY-002D guards the ordinary ArrayBox
+route and the PackedArray no-fallback stop line. PackedArray literal/backend
+implementation remains a separate row.

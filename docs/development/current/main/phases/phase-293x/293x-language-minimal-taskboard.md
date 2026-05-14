@@ -2,7 +2,7 @@
 
 Status: Active
 Lane: `phase-293x language minimal surface lane`
-Current blocker token: `ARRAY-002D ArrayBox JSON v0/backend guard`
+Current blocker token: `RESULT-002A prelude enum missing-arm diagnostics`
 
 ## Purpose
 
@@ -25,10 +25,10 @@ docs/development/current/main/design/language-minimal-surface-task-breakdown-sso
 - [x] `ARRAY-002A` typed `Array<T>` method contract
 - [x] `ARRAY-002B` typed local Array element checks
 - [x] `ARRAY-002C` unsupported Array inference fail-fast
+- [x] `ARRAY-002D` ArrayBox JSON v0/backend guard
 
 ## Current split rows
 
-- [ ] `ARRAY-002D` ArrayBox JSON v0/backend guard
 - [ ] `RESULT-002A` prelude enum missing-arm diagnostics
 - [ ] `RESULT-002B` prelude enum payload diagnostics
 - [ ] `RESULT-002C` known-enum exhaustiveness underscore rules
