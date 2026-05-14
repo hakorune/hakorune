@@ -19,7 +19,7 @@ require_text docs/reference/language/EBNF.md "contract_clause := ('requires' | '
 require_text docs/reference/language/EBNF.md "invariant_member := 'invariant' expr"
 require_text docs/reference/language/low-level-capabilities.md "contract syntax metadata capsule complete"
 require_text src/ast/mod.rs "pub struct ContractClause"
-require_text src/parser/contracts.rs "parse_contract_clauses_until_body"
+require_text src/parser/contracts.rs "parse_signature_metadata_until_body"
 require_text src/macro/ast_json/joinir_compat.rs '"contracts"'
 require_text src/stage1/program_json_v0/lowering.rs '"contracts"'
 require_text src/stage1/program_json_v0/authority.rs '"invariants"'

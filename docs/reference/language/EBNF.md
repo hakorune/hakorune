@@ -77,7 +77,13 @@ compound_assign_op := '+=' | '-=' | '*=' | '/='
 
 block     := '{' stmt* '}'
 
-function_decl := 'function' IDENT '(' params? ')' ( ':' TYPE_REF )? contract_clause* block
+function_decl := 'function' IDENT '(' params? ')' ( ':' TYPE_REF )? signature_clause* block
+
+signature_clause := uses_clause | contract_clause
+
+uses_clause := 'uses' IDENT (',' IDENT)*
+                 ; USES-001 Stage0 capsule. Carries capability metadata only.
+                 ; Capability policy and backend gates are Stage1-owned.
 
 contract_clause := ('requires' | 'ensures') expr
                  ; CONTRACT-002 Stage0 capsule. Carries metadata only.
@@ -416,6 +422,40 @@ TRANS-001 does not add a `state` keyword, enum/variant lookup, method existence
 checking, transition legality checking, runtime lowering, or lifecycle verifier
 facts. Those are Stage1-owned.
 
+### USES-001 Capability Metadata Surface
+
+Decision: accepted.
+
+`uses capability` is Stage0 metadata-only syntax for declaration-level
+capability requirements:
+
+```hako
+freshPage(size: Bytes): Result<Page, Error>
+    uses osvm
+{
+    return OsVm.reserve(size)
+}
+```
+
+Multiple capability names can be listed with commas:
+
+```hako
+copyRaw(dst: RawBuf, src: RawBuf, len: Bytes): i64
+    uses rawbuf, atomic
+{
+    return len
+}
+```
+
+The parser preserves the capability names as metadata and leaves the body
+unchanged. `uses` is contextual in this declaration-header syntax slot and is
+not reserved as a general identifier.
+
+Stop line:
+USES-001 does not add `unsafe`, `cap` blocks, capability checking, backend
+route selection, runtime lowering, provider activation, allocator hooks, or
+`#[global_allocator]` coupling. Those are later Stage1/substrate rows.
+
 ## Box Members (Phase‑15, env gate: NYASH_ENABLE_UNIFIED_MEMBERS; default ON)
 
 This section adds a minimal grammar for Box members (a unified member model) without changing JSON v0/MIR. Parsing is controlled by env `NYASH_ENABLE_UNIFIED_MEMBERS` (default ON; set `0/false/off` to disable).
@@ -475,7 +515,7 @@ once_decl      := 'once' IDENT ':' TYPE ( '=>' expr | block ) handler_tail?
 birth_once_decl:= 'birth_once' IDENT ':' TYPE ( '=>' expr | block ) handler_tail?
                   ; eager once. Computed during construction (before user birth), in declaration order.
 
-method_decl    := IDENT '(' params? ')' ( ':' TYPE )? contract_clause* block handler_tail?
+method_decl    := IDENT '(' params? ')' ( ':' TYPE )? signature_clause* block handler_tail?
 
 params         := param (',' param)*
 param          := IDENT (':' TYPE_REF)?

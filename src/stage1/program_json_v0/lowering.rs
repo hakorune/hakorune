@@ -90,6 +90,7 @@ fn function_def_json_v0(
         param_decls,
         return_type_name,
         body,
+        uses,
         contracts,
         ..
     } = declaration
@@ -102,6 +103,7 @@ fn function_def_json_v0(
         "params": params,
         "param_decls": param_decls_json_v0(params, param_decls),
         "return_type": return_type_name,
+        "uses": uses,
         "contracts": contract_clauses_json_v0(contracts, context)?,
         "body": program_json_v0_from_body_with_context(body, context)?,
         "box": box_name,

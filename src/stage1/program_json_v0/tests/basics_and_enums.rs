@@ -842,3 +842,31 @@ return 0
     assert_eq!(transitions[0]["to"], "PageState.Retired");
     assert_eq!(transitions[0]["method"], "retire");
 }
+
+#[test]
+fn source_to_program_json_v0_transports_uses_metadata() {
+    let source = r#"
+static box Main {
+  main() {
+return me.reserve(1)
+  }
+
+  method reserve(size: i64): i64
+    uses osvm, rawbuf
+  {
+return size
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let defs = value["defs"].as_array().expect("helper defs");
+    let reserve = defs
+        .iter()
+        .find(|def| def["name"] == "reserve")
+        .expect("reserve def");
+    let uses = reserve["uses"].as_array().expect("uses metadata");
+
+    assert_eq!(uses, &vec![serde_json::json!("osvm"), serde_json::json!("rawbuf")]);
+}

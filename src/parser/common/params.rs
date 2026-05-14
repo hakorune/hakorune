@@ -79,7 +79,7 @@ fn parse_optional_type_annotation(
                     && consumed_any
                     && generic_depth == 0
                     && array_depth == 0
-                    && (name == "requires" || name == "ensures")
+                    && (name == "requires" || name == "ensures" || name == "uses")
                 {
                     break;
                 }

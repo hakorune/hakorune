@@ -18,7 +18,7 @@ This document turns the language-design discussions into task-sized backlog
 rows.
 
 It is not the active allocator lane.
-`USES-001 method-level uses metadata capsule` is the current selected language blocker
+`GEN-001 generic type annotation metadata capsule` is the current selected language blocker
 unless the user explicitly switches to the language lane.
 
 ## Row rules
@@ -69,7 +69,7 @@ Retire condition:
 | Result/Option | planned | `RESULT-001 prelude and diagnostics` |
 | Generic containers | planned | `GEN-001 generic type annotation metadata capsule` |
 | PackedArray | planned | `PACKED-001 eligibility gate` |
-| Uses/capability | planned | `USES-001 method-level uses metadata capsule` |
+| Uses/capability | method-level metadata capsule complete | `USES-002 capability checker` |
 | Span/view | planned later | `SPAN-001 Span API design row` |
 | Module visibility | planned later | `MOD-001 using/module migration decision` |
 | Check report | planned later | `CHECK-001 check report object design row` |
@@ -249,7 +249,7 @@ no generic constraint solver in MVP
 | Task | Scope | Stage |
 | --- | --- | --- |
 | `CONST-001 const fn const assert design row` | Define const evaluator scope, purity, and table generation. | Stage1 later |
-| `USES-001 method-level uses metadata capsule` | Parse `uses osvm`, `uses atomic`, `uses rawbuf` metadata. | Stage0 capsule |
+| `USES-001 method-level uses metadata capsule` | Complete as `293x-284`; parses `uses osvm`, `uses atomic`, `uses rawbuf` metadata. | Stage0 capsule complete |
 | `USES-002 capability checker` | Check allowed host routes and backend capability gates. | Stage1 semantics |
 | `CAP-001 cap block decision` | Add block-scoped `cap` only if method-level `uses` is insufficient. | deferred |
 | `SPAN-001 Span API design row` | Start with `Span<T>` API over bounded RawBuf views. | Stage1 design |
@@ -286,6 +286,7 @@ language work, start here:
 12. `REC-003 record with-update lowering` (complete as `293x-281`)
 13. `CONTRACT-002 contract syntax metadata capsule` (complete as `293x-282`)
 14. `TRANS-001 transition metadata capsule` (complete as `293x-283`)
-15. `USES-001 method-level uses metadata capsule`
+15. `USES-001 method-level uses metadata capsule` (complete as `293x-284`)
+16. `GEN-001 generic type annotation metadata capsule`
 
 This order keeps early wins concrete while avoiding Stage0 semantic growth.

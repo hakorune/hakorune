@@ -146,6 +146,7 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                 is_static,
                 is_override,
                 attrs,
+                uses,
                 contracts,
                 span,
             } => A::FunctionDeclaration {
@@ -160,6 +161,7 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                 is_static,
                 is_override,
                 attrs,
+                uses,
                 contracts,
                 span,
             },
@@ -264,6 +266,7 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                     is_static,
                     is_override,
                     attrs,
+                    uses,
                     contracts,
                     span,
                 } => {
@@ -278,6 +281,7 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                             is_static,
                             is_override,
                             attrs: attrs.clone(),
+                            uses: uses.clone(),
                             contracts: contracts.clone(),
                             span,
                         },
@@ -294,6 +298,7 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                             is_static,
                             is_override,
                             attrs: attrs.clone(),
+                            uses: uses.clone(),
                             contracts: contracts.clone(),
                             span,
                         },
@@ -313,6 +318,7 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                             is_static: true,
                             is_override,
                             attrs,
+                            uses,
                             contracts,
                             span,
                         };
@@ -352,6 +358,7 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                 is_static,
                 is_override,
                 attrs,
+                uses,
                 contracts,
                 span,
             } => {
@@ -367,6 +374,7 @@ pub(super) fn transform_lift_nested_functions(ast: &nyash_rust::ASTNode) -> nyas
                     is_static,
                     is_override,
                     attrs,
+                    uses,
                     contracts,
                     span,
                 }

@@ -90,6 +90,8 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
                     param_decls,
                     return_type_name,
                     body: vec![],       // 空の実装
+                    uses: vec![],
+
                     contracts: vec![],
                     is_static: false,   // インターフェースメソッドは通常静的でない
                     is_override: false, // デフォルトは非オーバーライド

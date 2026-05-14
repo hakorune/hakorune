@@ -59,7 +59,7 @@ unsupported-backend fail-fast behavior.
 | `Result` / `Option` / `guard let` | planned enum/prelude lane | enum surface only | prelude, exhaustiveness, pattern sugar |
 | `Array<T>` / `PackedArray<T>` | planned CorePlan lane | generic annotation metadata | typed array semantics and packed eligibility gates |
 | `const fn` / `comptime` / `const assert` | planned const lane | no evaluator beyond existing const-table support | const evaluator and purity rules |
-| `uses` / deferred `cap` | planned capability lane | method capability metadata only | capability checking and backend gates |
+| `uses` / deferred `cap` | method-level uses metadata capsule complete; `cap` block still deferred | method capability metadata only | capability checking and backend gates |
 | `Span<T>` / deferred `view` | planned raw-view lane | none | Span APIs first; scoped view syntax only if needed |
 | `delegate field exposes` / deferred `interface` / `impl` | planned delegation lane plus later interface lane | delegate metadata only; legacy `from` / `override` are not new canonical spelling | delegate lowering first, static conformance only after delegation is insufficient |
 | `using` / deferred `module` family | current import plus planned module lane | `using` remains current; minimal module metadata later | visibility and package semantics |

@@ -99,7 +99,7 @@ pub(crate) fn try_parse_method_or_field(
         p,
         "static box method",
     )?;
-    let contracts = p.parse_contract_clauses_until_body()?;
+    let (uses, contracts) = p.parse_signature_metadata_until_body()?;
     // Allow NEWLINE(s) between ')' and '{' of method body
     while p.match_token(&TokenType::NEWLINE) {
         p.advance();
@@ -119,6 +119,7 @@ pub(crate) fn try_parse_method_or_field(
         return_type_name,
         body,
         contracts,
+        uses,
         // Methods inside a static box are semantically static
         is_static: true,
         is_override: false,

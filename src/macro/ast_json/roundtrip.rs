@@ -427,6 +427,7 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                     .iter()
                     .filter_map(json_to_ast)
                     .collect(),
+                uses: json_to_string_array(v.get("uses")).unwrap_or_default(),
                 contracts: json_to_contract_clauses(v.get("contracts")).unwrap_or_default(),
                 is_static: v.get("static").and_then(|b| b.as_bool()).unwrap_or(false),
                 is_override: v.get("override").and_then(|b| b.as_bool()).unwrap_or(false),
@@ -689,6 +690,16 @@ fn json_to_contract_clauses(value: Option<&Value>) -> Option<Vec<ContractClause>
                     condition: json_to_ast(clause.get("condition")?)?,
                 })
             })
+            .collect(),
+    )
+}
+
+fn json_to_string_array(value: Option<&Value>) -> Option<Vec<String>> {
+    Some(
+        value?
+            .as_array()?
+            .iter()
+            .filter_map(|item| item.as_str().map(str::to_string))
             .collect(),
     )
 }

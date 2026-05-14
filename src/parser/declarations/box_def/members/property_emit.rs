@@ -13,6 +13,8 @@ fn function_decl(name: String, body: Vec<ASTNode>) -> ASTNode {
         param_decls: vec![],
         return_type_name: None,
         body,
+        uses: vec![],
+
         contracts: vec![],
         is_static: false,
         is_override: false,
@@ -277,6 +279,8 @@ fn empty_birth_constructor(body: Vec<ASTNode>) -> ASTNode {
         param_decls: vec![],
         return_type_name: None,
         body,
+        uses: vec![],
+
         contracts: vec![],
         is_static: false,
         is_override: false,

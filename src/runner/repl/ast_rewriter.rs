@@ -185,6 +185,7 @@ impl ReplAstRewriter {
                 is_static,
                 is_override,
                 attrs,
+                uses,
                 contracts,
                 span,
             } => {
@@ -208,6 +209,7 @@ impl ReplAstRewriter {
                     is_static,
                     is_override,
                     attrs,
+                    uses,
                     contracts,
                     span,
                 }

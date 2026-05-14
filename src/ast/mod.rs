@@ -78,6 +78,7 @@ pub enum StructureNode {
         param_decls: Vec<ParamDecl>,
         return_type_name: Option<String>,
         body: Vec<ASTNode>,
+        uses: Vec<String>,
         contracts: Vec<ContractClause>,
         is_static: bool,   // 🔥 静的メソッドフラグ
         is_override: bool, // 🔥 オーバーライドフラグ
@@ -727,6 +728,7 @@ pub enum ASTNode {
         param_decls: Vec<ParamDecl>,
         return_type_name: Option<String>,
         body: Vec<ASTNode>,
+        uses: Vec<String>,
         contracts: Vec<ContractClause>,
         is_static: bool,   // 🔥 静的メソッドフラグ
         is_override: bool, // 🔥 オーバーライドフラグ

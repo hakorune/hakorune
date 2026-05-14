@@ -270,6 +270,8 @@ fn build_forwarding_method(field_name: &str, exposed_name: &str, sig: MethodSig)
             value: Some(Box::new(call)),
             span: Span::unknown(),
         }],
+        uses: vec![],
+
         contracts: vec![],
         is_static: false,
         is_override: false,

@@ -30,7 +30,7 @@ pub(crate) fn try_parse_constructor(
         let params = crate::ast::ParamDecl::names(&param_decls);
 
         p.consume(TokenType::RPAREN)?;
-        let contracts = p.parse_contract_clauses_until_body()?;
+        let (uses, contracts) = p.parse_signature_metadata_until_body()?;
         let mut body = p.parse_block_statements()?;
         // Optional postfix catch/cleanup (method-level gate)
         if p.match_token(&TokenType::CATCH) || p.match_token(&TokenType::CLEANUP) {
@@ -47,6 +47,7 @@ pub(crate) fn try_parse_constructor(
             return_type_name: None,
             body,
             contracts,
+        uses,
             is_static: false,
             is_override: false,
             attrs,
@@ -75,7 +76,7 @@ pub(crate) fn try_parse_constructor(
         let params = crate::ast::ParamDecl::names(&param_decls);
 
         p.consume(TokenType::RPAREN)?;
-        let contracts = p.parse_contract_clauses_until_body()?;
+        let (uses, contracts) = p.parse_signature_metadata_until_body()?;
         let body = p.parse_block_statements()?;
         let node = ASTNode::FunctionDeclaration {
             name: name.clone(),
@@ -84,6 +85,7 @@ pub(crate) fn try_parse_constructor(
             return_type_name: None,
             body,
             contracts,
+        uses,
             is_static: false,
             is_override: false,
             attrs,
@@ -112,7 +114,7 @@ pub(crate) fn try_parse_constructor(
         let params = crate::ast::ParamDecl::names(&param_decls);
 
         p.consume(TokenType::RPAREN)?;
-        let contracts = p.parse_contract_clauses_until_body()?;
+        let (uses, contracts) = p.parse_signature_metadata_until_body()?;
         let body = p.parse_block_statements()?;
         let node = ASTNode::FunctionDeclaration {
             name: name.clone(),
@@ -121,6 +123,7 @@ pub(crate) fn try_parse_constructor(
             return_type_name: None,
             body,
             contracts,
+        uses,
             is_static: false,
             is_override: false,
             attrs,

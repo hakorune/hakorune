@@ -22,7 +22,7 @@ pub(crate) fn try_parse_method(
     p.consume(TokenType::RPAREN)?;
     let return_type_name =
         crate::parser::common::params::parse_optional_return_type_annotation(p, "method")?;
-    let contracts = p.parse_contract_clauses_until_body()?;
+    let (uses, contracts) = p.parse_signature_metadata_until_body()?;
     let body = p.parse_block_statements()?;
 
     let method = ASTNode::FunctionDeclaration {
@@ -32,6 +32,7 @@ pub(crate) fn try_parse_method(
         return_type_name,
         body,
         contracts,
+        uses,
         is_static: false,
         is_override,
         attrs,

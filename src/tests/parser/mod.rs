@@ -67,6 +67,8 @@ pub mod parser_static_const_table;
 pub mod parser_type_alias_surface;
 #[path = "../parser_transition_surface.rs"]
 pub mod parser_transition_surface;
+#[path = "../parser_uses_surface.rs"]
+pub mod parser_uses_surface;
 #[path = "../parser_unified_members_get.rs"]
 pub mod parser_unified_members_get;
 #[path = "../parser_unified_members_property_emit.rs"]

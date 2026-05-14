@@ -36,7 +36,7 @@ impl NyashParser {
         self.consume(TokenType::RPAREN)?;
         let return_type_name =
             crate::parser::common::params::parse_optional_return_type_annotation(self, "function")?;
-        let contracts = self.parse_contract_clauses_until_body()?;
+        let (uses, contracts) = self.parse_signature_metadata_until_body()?;
 
         // 関数本体をパース（共通ブロックヘルパー）
         let body = self.parse_block_statements()?;
@@ -48,6 +48,7 @@ impl NyashParser {
             return_type_name,
             body,
             contracts,
+            uses,
             is_static: false,   // 通常の関数は静的でない
             is_override: false, // デフォルトは非オーバーライド
             attrs,
