@@ -334,3 +334,22 @@ apps/mimalloc-lifecycle-integration-pilot-proof/main.hako
 This keeps OSVM, segment ownership, provider activation, and host allocator
 replacement out of scope. The next mimalloc row is `MIMAP-010 page queue lifecycle
 selection pilot`.
+
+## MIMAP-010 page queue lifecycle selection pilot
+
+Decision: accepted.
+
+`MIMAP-010` adds a lifecycle-aware page queue owner:
+
+```text
+lang/src/hako_alloc/memory/page_queue_lifecycle_box.hako
+```
+
+It selects pages by skipping decommitted pages, explicitly reusing eligible retired
+pages, then falling through to active pages. The executable proof is:
+
+```text
+apps/mimalloc-page-queue-lifecycle-selection-proof/main.hako
+```
+
+The next mimalloc row is `MIMAP-011 allocator facade lifecycle route pilot`.

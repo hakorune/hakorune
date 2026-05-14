@@ -1,0 +1,56 @@
+using selfhost.hako_alloc.memory.page_queue_lifecycle_box as HakoAllocLifecyclePageQueueBox
+
+static box Main {
+    main(args) {
+        local queue = new HakoAllocLifecyclePageQueue()
+
+        queue.beginSelection()
+        queue.considerPage(10, 1, 1, 0, 1)
+        queue.considerPage(20, 0, 1, 1, 1)
+        queue.considerPage(30, 0, 0, 0, 1)
+        local first_page = queue.finishSelection()
+        local first_kind = queue.last_selected_kind
+
+        queue.beginSelection()
+        queue.considerPage(10, 1, 1, 0, 1)
+        queue.considerPage(20, 0, 0, 0, 0)
+        queue.considerPage(30, 0, 0, 0, 1)
+        local second_page = queue.finishSelection()
+        local second_kind = queue.last_selected_kind
+
+        queue.beginSelection()
+        queue.considerPage(10, 1, 1, 0, 1)
+        queue.considerPage(20, 0, 0, 0, 0)
+        queue.considerPage(30, 0, 0, 0, 0)
+        local third_page = queue.finishSelection()
+        local third_kind = queue.last_selected_kind
+
+        local shape = 0
+        if first_page == 20 { shape = shape + 1 }
+        if first_kind == 1 { shape = shape + 1 }
+        if second_page == 30 { shape = shape + 1 }
+        if second_kind == 2 { shape = shape + 1 }
+        if third_page == -1 { shape = shape + 1 }
+        if third_kind == 0 { shape = shape + 1 }
+        if queue.select_count == 2 { shape = shape + 1 }
+        if queue.reuse_select_count == 1 { shape = shape + 1 }
+        if queue.active_select_count == 1 { shape = shape + 1 }
+        if queue.decommitted_skip_count == 3 { shape = shape + 1 }
+        if queue.retired_skip_count == 0 { shape = shape + 1 }
+        if queue.miss_count == 1 { shape = shape + 1 }
+
+        print("mimalloc-page-queue-lifecycle-selection-proof")
+        print("pages=" + first_page + "," + second_page + "," + third_page)
+        print("kinds=" + first_kind + "," + second_kind + "," + third_kind)
+        print("queue=" + queue.select_count + "," + queue.reuse_select_count + "," + queue.active_select_count + "," + queue.decommitted_skip_count + "," + queue.retired_skip_count + "," + queue.miss_count)
+        print("shape=" + shape)
+
+        if shape == 12 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

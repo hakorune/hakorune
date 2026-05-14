@@ -1,0 +1,65 @@
+// page_queue_lifecycle_box.hako — mimalloc-shaped lifecycle-aware page selection
+// Responsibility: choose active/reusable pages while skipping decommitted pages.
+// This module does not own host memory substrate, segments, TLS, concurrency primitives, or allocator activation.
+
+box HakoAllocLifecyclePageQueue {
+    select_count: i64 = 0
+    reuse_select_count: i64 = 0
+    active_select_count: i64 = 0
+    decommitted_skip_count: i64 = 0
+    retired_skip_count: i64 = 0
+    miss_count: i64 = 0
+    last_selected_page_id: i64 = -1
+    last_selected_kind: i64 = 0
+
+    beginSelection() {
+        me.last_selected_page_id = -1
+        me.last_selected_kind = 0
+        return 1
+    }
+
+    considerPage(page_id, decommitted, retired, reusable, available) {
+        if me.last_selected_page_id >= 0 {
+            return 0
+        }
+
+        if decommitted != 0 {
+            me.decommitted_skip_count = me.decommitted_skip_count + 1
+            return 0
+        }
+
+        if retired != 0 {
+            if reusable != 0 {
+                if available > 0 {
+                    me.select_count = me.select_count + 1
+                    me.reuse_select_count = me.reuse_select_count + 1
+                    me.last_selected_page_id = page_id
+                    me.last_selected_kind = 1
+                    return 1
+                }
+            }
+
+            me.retired_skip_count = me.retired_skip_count + 1
+            return 0
+        }
+
+        if available > 0 {
+            me.select_count = me.select_count + 1
+            me.active_select_count = me.active_select_count + 1
+            me.last_selected_page_id = page_id
+            me.last_selected_kind = 2
+            return 1
+        }
+
+        return 0
+    }
+
+    finishSelection() {
+        if me.last_selected_page_id < 0 {
+            me.miss_count = me.miss_count + 1
+            return -1
+        }
+
+        return me.last_selected_page_id
+    }
+}

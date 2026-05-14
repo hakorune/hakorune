@@ -186,6 +186,7 @@ Current modules
 - `memory.page_map_realloc_failure_contract_box`
 - `memory.page_map_realloc_same_class_box`
 - `memory.page_queue_box`
+- `memory.page_queue_lifecycle_box`
 - `memory.page_source_policy_box`
 - `memory.remote_free_page_integration_box`
 - `memory.remote_free_policy_box`

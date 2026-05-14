@@ -21,7 +21,7 @@ PACKED-003/004 complete
 ```
 
 Blueprint and inventory rows are now the active lane entry. Current row:
-`MIMAP-010 page queue lifecycle selection pilot`.
+`MIMAP-011 allocator facade lifecycle route pilot`.
 
 ## Active Source Policy
 
@@ -45,7 +45,7 @@ Decision for this board:
 
 ```text
 Set:
-  not a prerequisite for MIMAP-010
+  not a prerequisite for MIMAP-011
 
 Map:
   existing MapBox / MapCoreBox is enough if a later row needs dynamic lookup
@@ -82,14 +82,15 @@ FST:
 | `MIMAP-007` | landed | Size-class / bin map executable pilot. | 2-3 commits |
 | `MIMAP-008` | landed | Page/free-list model pilot with direct executable proof and guard. | 1 commit |
 | `MIMAP-009` | landed | Decommit/recommit/reuse lifecycle integration pilot. | 1 commit |
-| `MIMAP-010` | active | Page queue lifecycle selection pilot that skips decommitted pages and selects reusable pages explicitly. | 2-4 commits |
+| `MIMAP-010` | landed | Page queue lifecycle selection pilot that skips decommitted pages and selects reusable pages explicitly. | 1 commit |
+| `MIMAP-011` | active | Allocator facade lifecycle route pilot using lifecycle-aware page selection. | 2-4 commits |
 
 ### Collection / Automata Sidecar Rows
 
 | Row | Status | Purpose | Ordering |
 | --- | --- | --- | --- |
-| `COLL-001` | ready | Map/Set/HashMap naming and placement docs. | sidecar; not blocking MIMAP-010 |
-| `COLL-002` | parked | Set semantic wrapper over Map. | after MIMAP-010 unless Set becomes the blocker |
+| `COLL-001` | ready | Map/Set/HashMap naming and placement docs. | sidecar; not blocking MIMAP-011 |
+| `COLL-002` | parked | Set semantic wrapper over Map. | after MIMAP-011 unless Set becomes the blocker |
 | `COLL-003` | parked | Set proof app and guard. | after COLL-002 |
 | `AUTO-001` | ready | FST placement SSOT. | sidecar; not mimalloc prerequisite |
 | `AUTO-002` | parked | FST record vocabulary. | after evidence |
