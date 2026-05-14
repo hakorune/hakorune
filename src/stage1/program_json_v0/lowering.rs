@@ -420,84 +420,16 @@ fn expression_to_json_v0(
         } => unary_expr_to_json_v0(operator, operand),
         ASTNode::FunctionCall {
             name, arguments, ..
-        } => {
-            if let Some(underlying_type) = context.brand_underlying_type(name) {
-                return brand_construct_to_json_v0(
-                    name,
-                    underlying_type,
-                    arguments,
-                    context,
-                    local_types,
-                );
-            }
-            Ok(serde_json::json!({
-                "type": "Call",
-                "name": name,
-                "args": expressions_to_json_v0(arguments, context, local_types)?,
-            }))
-        }
+        } => function_call_expr_to_json_v0(name, arguments, context, local_types),
         ASTNode::Call {
             callee, arguments, ..
-        } => {
-            let call_name = static_path_from_expr(callee)
-                .ok_or_else(|| "unsupported dynamic call callee in Main.main/0".to_string())?;
-            Ok(serde_json::json!({
-                "type": "Call",
-                "name": call_name,
-                "args": expressions_to_json_v0(arguments, context, local_types)?,
-            }))
-        }
+        } => call_expr_to_json_v0(callee, arguments, context, local_types),
         ASTNode::MethodCall {
             object,
             method,
             arguments,
             ..
-        } => {
-            if let Some(static_receiver) = static_path_from_expr(object) {
-                if context
-                    .find_enum_variant(&static_receiver, method)
-                    .is_some()
-                {
-                    return Err(format!(
-                        "[enum/variant-surface] use `{}::{}` for enum variants; `{}.{}` is object/member syntax",
-                        static_receiver, method, static_receiver, method
-                    ));
-                }
-                if let Some(underlying_type) = context.brand_underlying_type(&static_receiver) {
-                    return brand_static_method_to_json_v0(
-                        &static_receiver,
-                        underlying_type,
-                        method,
-                        arguments,
-                        context,
-                        local_types,
-                    );
-                }
-                return Ok(serde_json::json!({
-                    "type": "Call",
-                    "name": format!("{}.{}", static_receiver, method),
-                    "args": expressions_to_json_v0(arguments, context, local_types)?,
-                }));
-            }
-            if let ASTNode::Variable { name, .. } = object.as_ref() {
-                if let Some(element_type) = local_types.array_locals.get(name).cloned() {
-                    validate_typed_array_method_contract(name, method, arguments.len())?;
-                    validate_typed_array_method_value(
-                        &element_type,
-                        method,
-                        arguments,
-                        context,
-                        local_types,
-                    )?;
-                }
-            }
-            Ok(serde_json::json!({
-                "type": "Method",
-                "recv": expression_to_json_v0(object, context, local_types)?,
-                "method": method,
-                "args": expressions_to_json_v0(arguments, context, local_types)?,
-            }))
-        }
+        } => method_call_expr_to_json_v0(object, method, arguments, context, local_types),
         ASTNode::FromCall {
             parent,
             method,
@@ -505,40 +437,7 @@ fn expression_to_json_v0(
             ..
         } => enum_ctor_to_json_v0(parent, method, arguments, context, local_types),
         ASTNode::FieldAccess { object, field, .. } => {
-            if let Some(static_receiver) = static_path_from_expr(object) {
-                if context
-                    .find_enum_variant(&static_receiver, field)
-                    .is_some()
-                {
-                    return Err(format!(
-                        "[enum/variant-surface] use `{}::{}` for enum variants; `{}.{}` is object/member syntax",
-                        static_receiver, field, static_receiver, field
-                    ));
-                }
-            }
-            if let Some(path) = static_path_from_expr(expression) {
-                return Ok(serde_json::json!({
-                    "type": "Var",
-                    "name": path,
-                }));
-            }
-            if let Some(record_type_name) = record_type_name_for_expr(object, local_types) {
-                let (field_index, field_decl) =
-                    record_field_decl(context, record_type_name, field)?;
-                return Ok(serde_json::json!({
-                    "type": "RecordField",
-                    "record": record_type_name,
-                    "recv": expression_to_json_v0(object, context, local_types)?,
-                    "field": field,
-                    "field_index": field_index,
-                    "declared_type": field_decl.declared_type_name.clone(),
-                }));
-            }
-            Ok(serde_json::json!({
-                "type": "Field",
-                "recv": expression_to_json_v0(object, context, local_types)?,
-                "field": field,
-            }))
+            field_access_expr_to_json_v0(expression, object, field, context, local_types)
         }
         ASTNode::New {
             class, arguments, ..
@@ -562,81 +461,21 @@ fn expression_to_json_v0(
             prelude_stmts,
             tail_expr,
             ..
-        } => {
-            let mut block_types = local_types.clone();
-            Ok(serde_json::json!({
-                "type": "BlockExpr",
-                "prelude": statements_to_json_v0(prelude_stmts, context, &mut block_types)?,
-                "tail": {
-                    "type": "Expr",
-                    "expr": expression_to_json_v0(tail_expr, context, &mut block_types)?,
-                },
-            }))
-        }
+        } => block_expr_to_json_v0(prelude_stmts, tail_expr, context, local_types),
         ASTNode::RecordLiteral {
             record_type_name,
             fields,
             ..
-        } => {
-            validate_record_literal_fields(context, record_type_name, fields)?;
-            let mut lowered_fields = Vec::with_capacity(fields.len());
-            for (name, value) in fields {
-                let (field_index, field_decl) = record_field_decl(context, record_type_name, name)?;
-                lowered_fields.push(serde_json::json!({
-                    "name": name,
-                    "field_index": field_index,
-                    "declared_type": field_decl.declared_type_name.clone(),
-                    "value": expression_to_json_v0(value, context, local_types)?,
-                }));
-            }
-            Ok(serde_json::json!({
-                "type": "RecordLiteral",
-                "record": record_type_name,
-                "fields": lowered_fields,
-            }))
-        }
+        } => record_literal_to_json_v0(record_type_name, fields, context, local_types),
         ASTNode::RecordUpdate { base, updates, .. } => {
-            let record_type_name = record_type_name_for_expr(base, local_types)
-                .ok_or_else(|| "[record/update] base expression is not a tracked record".to_string())?
-                .to_string();
-            validate_record_update_fields(context, &record_type_name, updates)?;
-            let mut lowered_updates = Vec::with_capacity(updates.len());
-            for (name, value) in updates {
-                let (field_index, field_decl) = record_field_decl(context, &record_type_name, name)?;
-                lowered_updates.push(serde_json::json!({
-                    "name": name,
-                    "field_index": field_index,
-                    "declared_type": field_decl.declared_type_name.clone(),
-                    "value": expression_to_json_v0(value, context, local_types)?,
-                }));
-            }
-            Ok(serde_json::json!({
-                "type": "RecordUpdate",
-                "record": record_type_name,
-                "base": expression_to_json_v0(base, context, local_types)?,
-                "updates": lowered_updates,
-            }))
+            record_update_to_json_v0(base, updates, context, local_types)
         }
         ASTNode::MatchExpr {
             scrutinee,
             arms,
             else_expr,
             ..
-        } => {
-            let mut arm_values = Vec::new();
-            for (label, value) in arms {
-                arm_values.push(serde_json::json!({
-                    "label": match_label_from_literal(label),
-                    "expr": expression_to_json_v0(value, context, local_types)?,
-                }));
-            }
-            Ok(serde_json::json!({
-                "type": "Match",
-                "scrutinee": expression_to_json_v0(scrutinee, context, local_types)?,
-                "arms": arm_values,
-                "else": expression_to_json_v0(else_expr, context, local_types)?,
-            }))
-        }
+        } => match_expr_to_json_v0(scrutinee, arms, else_expr, context, local_types),
         ASTNode::EnumMatchExpr {
             enum_name,
             scrutinee,
@@ -656,6 +495,223 @@ fn expression_to_json_v0(
             other.node_type()
         )),
     }
+}
+
+fn function_call_expr_to_json_v0(
+    name: &str,
+    arguments: &[ASTNode],
+    context: &ProgramJsonV0LoweringContext,
+    local_types: &mut ProgramJsonV0LocalTypes,
+) -> Result<serde_json::Value, String> {
+    if let Some(underlying_type) = context.brand_underlying_type(name) {
+        return brand_construct_to_json_v0(
+            name,
+            underlying_type,
+            arguments,
+            context,
+            local_types,
+        );
+    }
+    Ok(serde_json::json!({
+        "type": "Call",
+        "name": name,
+        "args": expressions_to_json_v0(arguments, context, local_types)?,
+    }))
+}
+
+fn call_expr_to_json_v0(
+    callee: &ASTNode,
+    arguments: &[ASTNode],
+    context: &ProgramJsonV0LoweringContext,
+    local_types: &mut ProgramJsonV0LocalTypes,
+) -> Result<serde_json::Value, String> {
+    let call_name = static_path_from_expr(callee)
+        .ok_or_else(|| "unsupported dynamic call callee in Main.main/0".to_string())?;
+    Ok(serde_json::json!({
+        "type": "Call",
+        "name": call_name,
+        "args": expressions_to_json_v0(arguments, context, local_types)?,
+    }))
+}
+
+fn method_call_expr_to_json_v0(
+    object: &ASTNode,
+    method: &str,
+    arguments: &[ASTNode],
+    context: &ProgramJsonV0LoweringContext,
+    local_types: &mut ProgramJsonV0LocalTypes,
+) -> Result<serde_json::Value, String> {
+    if let Some(static_receiver) = static_path_from_expr(object) {
+        if context.find_enum_variant(&static_receiver, method).is_some() {
+            return Err(format!(
+                "[enum/variant-surface] use `{}::{}` for enum variants; `{}.{}` is object/member syntax",
+                static_receiver, method, static_receiver, method
+            ));
+        }
+        if let Some(underlying_type) = context.brand_underlying_type(&static_receiver) {
+            return brand_static_method_to_json_v0(
+                &static_receiver,
+                underlying_type,
+                method,
+                arguments,
+                context,
+                local_types,
+            );
+        }
+        return Ok(serde_json::json!({
+            "type": "Call",
+            "name": format!("{}.{}", static_receiver, method),
+            "args": expressions_to_json_v0(arguments, context, local_types)?,
+        }));
+    }
+    if let ASTNode::Variable { name, .. } = object {
+        if let Some(element_type) = local_types.array_locals.get(name).cloned() {
+            validate_typed_array_method_contract(name, method, arguments.len())?;
+            validate_typed_array_method_value(
+                &element_type,
+                method,
+                arguments,
+                context,
+                local_types,
+            )?;
+        }
+    }
+    Ok(serde_json::json!({
+        "type": "Method",
+        "recv": expression_to_json_v0(object, context, local_types)?,
+        "method": method,
+        "args": expressions_to_json_v0(arguments, context, local_types)?,
+    }))
+}
+
+fn field_access_expr_to_json_v0(
+    expression: &ASTNode,
+    object: &ASTNode,
+    field: &str,
+    context: &ProgramJsonV0LoweringContext,
+    local_types: &mut ProgramJsonV0LocalTypes,
+) -> Result<serde_json::Value, String> {
+    if let Some(static_receiver) = static_path_from_expr(object) {
+        if context.find_enum_variant(&static_receiver, field).is_some() {
+            return Err(format!(
+                "[enum/variant-surface] use `{}::{}` for enum variants; `{}.{}` is object/member syntax",
+                static_receiver, field, static_receiver, field
+            ));
+        }
+    }
+    if let Some(path) = static_path_from_expr(expression) {
+        return Ok(serde_json::json!({
+            "type": "Var",
+            "name": path,
+        }));
+    }
+    if let Some(record_type_name) = record_type_name_for_expr(object, local_types) {
+        let (field_index, field_decl) = record_field_decl(context, record_type_name, field)?;
+        return Ok(serde_json::json!({
+            "type": "RecordField",
+            "record": record_type_name,
+            "recv": expression_to_json_v0(object, context, local_types)?,
+            "field": field,
+            "field_index": field_index,
+            "declared_type": field_decl.declared_type_name.clone(),
+        }));
+    }
+    Ok(serde_json::json!({
+        "type": "Field",
+        "recv": expression_to_json_v0(object, context, local_types)?,
+        "field": field,
+    }))
+}
+
+fn block_expr_to_json_v0(
+    prelude_stmts: &[ASTNode],
+    tail_expr: &ASTNode,
+    context: &ProgramJsonV0LoweringContext,
+    local_types: &ProgramJsonV0LocalTypes,
+) -> Result<serde_json::Value, String> {
+    let mut block_types = local_types.clone();
+    Ok(serde_json::json!({
+        "type": "BlockExpr",
+        "prelude": statements_to_json_v0(prelude_stmts, context, &mut block_types)?,
+        "tail": {
+            "type": "Expr",
+            "expr": expression_to_json_v0(tail_expr, context, &mut block_types)?,
+        },
+    }))
+}
+
+fn record_literal_to_json_v0(
+    record_type_name: &str,
+    fields: &[(String, ASTNode)],
+    context: &ProgramJsonV0LoweringContext,
+    local_types: &mut ProgramJsonV0LocalTypes,
+) -> Result<serde_json::Value, String> {
+    validate_record_literal_fields(context, record_type_name, fields)?;
+    let mut lowered_fields = Vec::with_capacity(fields.len());
+    for (name, value) in fields {
+        let (field_index, field_decl) = record_field_decl(context, record_type_name, name)?;
+        lowered_fields.push(serde_json::json!({
+            "name": name,
+            "field_index": field_index,
+            "declared_type": field_decl.declared_type_name.clone(),
+            "value": expression_to_json_v0(value, context, local_types)?,
+        }));
+    }
+    Ok(serde_json::json!({
+        "type": "RecordLiteral",
+        "record": record_type_name,
+        "fields": lowered_fields,
+    }))
+}
+
+fn record_update_to_json_v0(
+    base: &ASTNode,
+    updates: &[(String, ASTNode)],
+    context: &ProgramJsonV0LoweringContext,
+    local_types: &mut ProgramJsonV0LocalTypes,
+) -> Result<serde_json::Value, String> {
+    let record_type_name = record_type_name_for_expr(base, local_types)
+        .ok_or_else(|| "[record/update] base expression is not a tracked record".to_string())?
+        .to_string();
+    validate_record_update_fields(context, &record_type_name, updates)?;
+    let mut lowered_updates = Vec::with_capacity(updates.len());
+    for (name, value) in updates {
+        let (field_index, field_decl) = record_field_decl(context, &record_type_name, name)?;
+        lowered_updates.push(serde_json::json!({
+            "name": name,
+            "field_index": field_index,
+            "declared_type": field_decl.declared_type_name.clone(),
+            "value": expression_to_json_v0(value, context, local_types)?,
+        }));
+    }
+    Ok(serde_json::json!({
+        "type": "RecordUpdate",
+        "record": record_type_name,
+        "base": expression_to_json_v0(base, context, local_types)?,
+        "updates": lowered_updates,
+    }))
+}
+
+fn match_expr_to_json_v0(
+    scrutinee: &ASTNode,
+    arms: &[(LiteralValue, ASTNode)],
+    else_expr: &ASTNode,
+    context: &ProgramJsonV0LoweringContext,
+    local_types: &mut ProgramJsonV0LocalTypes,
+) -> Result<serde_json::Value, String> {
+    let mut arm_values = Vec::new();
+    for (label, value) in arms {
+        arm_values.push(serde_json::json!({
+            "label": match_label_from_literal(label),
+            "expr": expression_to_json_v0(value, context, local_types)?,
+        }));
+    }
+    Ok(serde_json::json!({
+        "type": "Match",
+        "scrutinee": expression_to_json_v0(scrutinee, context, local_types)?,
+        "arms": arm_values,
+        "else": expression_to_json_v0(else_expr, context, local_types)?,
+    }))
 }
 
 fn array_literal_to_json_v0(
