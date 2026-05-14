@@ -1045,6 +1045,15 @@ fn enum_ctor_to_json_v0(
         })?;
     let expected_arity = variant.payload_arity();
     if arguments.len() != expected_arity {
+        if is_result_option_prelude_enum(enum_name) {
+            return Err(format!(
+                "[enum/payload][prelude] {}::{} expects {} payload arg(s), got {}",
+                enum_name,
+                variant_name,
+                expected_arity,
+                arguments.len()
+            ));
+        }
         return Err(format!(
             "enum constructor arity mismatch in Main.main/0: {}::{} expects {} arg(s), got {}",
             enum_name,
@@ -1082,6 +1091,10 @@ fn enum_ctor_to_json_v0(
         "payload_type": payload_type,
         "args": lowered_args,
     }))
+}
+
+fn is_result_option_prelude_enum(enum_name: &str) -> bool {
+    matches!(enum_name, "Option" | "Result")
 }
 
 fn ast_expr_is_statically_nullish(node: &ASTNode) -> bool {

@@ -7,6 +7,7 @@ Related:
   - docs/development/current/main/design/array-result-option-canonical-surface-ssot.md
   - docs/development/current/main/design/enum-sum-and-generic-surface-ssot.md
   - docs/development/current/main/design/result-option-missing-arm-diagnostics-ssot.md
+  - docs/development/current/main/design/result-option-payload-diagnostics-ssot.md
   - docs/reference/language/EBNF.md
 ---
 
@@ -69,6 +70,7 @@ Option/Result constructor validation
 Option::Some nullish payload rejection
 dot variant fail-fast diagnostics
 prelude missing-arm diagnostics as RESULT-002A
+prelude payload arity diagnostics as RESULT-002B
 generic arity diagnostics through existing GEN-002 checker
 ```
 

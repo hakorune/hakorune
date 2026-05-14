@@ -12,6 +12,7 @@ Design SSOT:
 - `docs/development/current/main/design/hako-option-null-no-match-policy-ssot.md`
 - `docs/development/current/main/design/enum-sum-and-generic-surface-ssot.md`
 - `docs/development/current/main/design/result-option-missing-arm-diagnostics-ssot.md`
+- `docs/development/current/main/design/result-option-payload-diagnostics-ssot.md`
 
 ## Historical Note
 
@@ -84,6 +85,11 @@ Prelude `Option` / `Result` matches must still name every variant explicitly.
 The `_` default arm does not satisfy known-enum exhaustiveness. Missing prelude
 arms fail with `[enum/missing-arm][prelude]` and name canonical constructors
 such as `Option::None` or `Result::Err`.
+
+Prelude constructor payload arity errors fail with `[enum/payload][prelude]`.
+`Option::Some` / `Result::Ok` / `Result::Err` require one payload. `Option::None`
+takes no payload. `Option::Some(null)` and `Option::Some(void)` stay on the
+stricter nullish payload contract.
 
 ## Semantics
 

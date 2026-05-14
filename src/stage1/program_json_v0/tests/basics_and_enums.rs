@@ -329,6 +329,57 @@ return 0
 }
 
 #[test]
+fn source_to_program_json_v0_rejects_prelude_enum_payload_some_missing_arg() {
+    let source = r#"
+static box Main {
+  main() {
+local x = Option::Some()
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("Option::Some missing payload should fail fast");
+    assert!(error.contains("[enum/payload][prelude]"), "{error}");
+    assert!(error.contains("Option::Some expects 1 payload arg(s), got 0"), "{error}");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_prelude_enum_payload_none_extra_arg() {
+    let source = r#"
+static box Main {
+  main() {
+local x = Option::None(1)
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("Option::None extra payload should fail fast");
+    assert!(error.contains("[enum/payload][prelude]"), "{error}");
+    assert!(error.contains("Option::None expects 0 payload arg(s), got 1"), "{error}");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_prelude_enum_payload_result_err_missing_arg() {
+    let source = r#"
+static box Main {
+  main() {
+local x = Result::Err()
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("Result::Err missing payload should fail fast");
+    assert!(error.contains("[enum/payload][prelude]"), "{error}");
+    assert!(error.contains("Result::Err expects 1 payload arg(s), got 0"), "{error}");
+}
+
+#[test]
 fn source_to_program_json_v0_emits_option_sugar_some_and_none() {
     let source = r#"
 enum Option<T> {

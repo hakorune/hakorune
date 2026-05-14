@@ -213,6 +213,7 @@ Notes
   RESULT-001. They use qualified constructors such as `Option::None` and
   `Result::Ok(value)`. Dot variants are rejected for known enum variants.
   RESULT-002A adds tagged prelude missing-arm diagnostics.
+  RESULT-002B adds tagged prelude payload arity diagnostics.
 - Static const tables: `static const NAME: u16[] = [...]` and `NAME[index]` reads are accepted for the narrow M11b row. Initializer elements may use side-effect-free integer const expressions; const fn is still reserved.
 
 ### C197 Logical Condition Surface
