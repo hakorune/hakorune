@@ -1,4 +1,4 @@
-use crate::ast::{ASTNode, EnumVariantDecl};
+use crate::ast::{ASTNode, EnumVariantDecl, FieldDecl};
 use crate::parser::NyashParser;
 use std::collections::BTreeMap;
 
@@ -63,9 +63,10 @@ fn ast_to_program_json_v0_with_imports(
     }
     let brand_decl_index = collect_brand_decl_index(ast);
     brand_checker::check_brand_mismatches(ast, &brand_decl_index)?;
-    let lowering_context = ProgramJsonV0LoweringContext::with_known_enums_and_brands(
+    let lowering_context = ProgramJsonV0LoweringContext::with_known_enums_brands_and_records(
         collect_enum_decl_index(ast),
         brand_decl_index,
+        collect_record_decl_index(ast),
     );
     let mut program = program_json_v0_from_body_with_context(main_box.body, &lowering_context)?;
     let defs = defs_json_v0_from_methods(&main_box.helper_methods, &lowering_context)?;
@@ -230,6 +231,31 @@ fn collect_record_decls(ast: &ASTNode) -> Vec<serde_json::Value> {
                     "field_index": index,
                 })).collect::<Vec<_>>(),
             }))
+        })
+        .collect()
+}
+
+fn collect_record_decl_index(ast: &ASTNode) -> BTreeMap<String, Vec<FieldDecl>> {
+    let ASTNode::Program { statements, .. } = ast else {
+        return BTreeMap::new();
+    };
+
+    statements
+        .iter()
+        .filter_map(|statement| {
+            let ASTNode::BoxDeclaration {
+                name,
+                field_decls,
+                is_record,
+                ..
+            } = statement
+            else {
+                return None;
+            };
+            if !*is_record {
+                return None;
+            }
+            Some((name.clone(), field_decls.clone()))
         })
         .collect()
 }

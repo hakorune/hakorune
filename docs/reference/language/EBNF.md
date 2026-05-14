@@ -302,6 +302,22 @@ The C202 MVP accepts only fixed typed fields. It rejects weak fields,
 initializers, methods, `fini`, inheritance, and interface implementation in
 record declarations.
 
+Explicit record literals construct identity-free record values:
+
+```hako
+local meta = HakoAllocAlignedSmallMeta {
+    ptr: ptr_id
+    alignment: 16
+    requested_size: requested
+    usable_size: usable
+}
+```
+
+Record literals must mention exactly the declared field set. Missing fields and
+extra fields are Stage1 errors. Lowered Program JSON v0 carries declared field
+index/type metadata on construction fields, and tracked local record reads lower
+as `RecordField` rather than ordinary box field access.
+
 Stop line:
 C202 does not add local scalar replacement, packed `ArrayBox` storage, blanket
 ordinary-box flattening, reflection semantics, or allocator-specific syntax.

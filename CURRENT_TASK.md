@@ -45,7 +45,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - current blocker token:
-  `REC-002 Stage1 record construction/read lowering`
+  `REC-003 record with-update lowering`
 - primary mode: compiler/runtime packed record array lane for mimalloc metadata completeness
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -58,15 +58,15 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after REC-001; next blocker is
-  REC-002 Stage1 record construction/read lowering. Keep LOOP-003 open until a
+- resume point: continue Phase 293x after REC-002; next blocker is
+  REC-003 record with-update lowering. Keep LOOP-003 open until a
   JoinIR/CorePlan route is selected; do not source-desugar range loops.
 
 ## Task Order
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  REC-002 Stage1 record construction/read lowering
+  REC-003 record with-update lowering
 - optional future allocator-provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`

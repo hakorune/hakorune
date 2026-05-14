@@ -18,7 +18,7 @@ This document turns the language-design discussions into task-sized backlog
 rows.
 
 It is not the active allocator lane.
-`REC-002 Stage1 record construction/read lowering` is the current selected language blocker
+`REC-003 record with-update lowering` is the current selected language blocker
 unless the user explicitly switches to the language lane.
 
 ## Row rules
@@ -63,7 +63,7 @@ Retire condition:
 | Loop-only repetition | parser capsule complete | `LOOP-003 Stage1 LoopRange lowering` |
 | No-inheritance delegation | exposes lowering complete | `DEL-004 legacy quarantine migration` |
 | Brand/type | brand checker complete; type alias parser capsule complete | `TYPE-002 Stage1 alias diagnostics` |
-| Record literal | parser capsule complete | `REC-002 Stage1 record construction/read lowering` |
+| Record literal | construction/read lowering complete | `REC-003 record with-update lowering` |
 | Contracts | planned | `CONTRACT-001 assert runtime-check sugar decision` |
 | Enum transition lifecycle | planned | `TRANS-001 transition metadata capsule` |
 | Result/Option | planned | `RESULT-001 prelude and diagnostics` |
@@ -176,7 +176,7 @@ no MirType-as-language-semantics expansion
 | Task | Scope | Stage |
 | --- | --- | --- |
 | `REC-001 Stage0 explicit record literal shape capsule` | Complete as `293x-279`; parses `RecordName { field: value }` and transports field-shape metadata only. | Stage0 capsule complete |
-| `REC-002 Stage1 record construction/read lowering` | Validate missing/extra fields and lower identity-free construction/read. | Stage1 semantics |
+| `REC-002 Stage1 record construction/read lowering` | Complete as `293x-280`; validates missing/extra fields and lowers identity-free construction/read metadata. | Stage1 semantics complete |
 | `REC-003 record with-update lowering` | Lower `value with { field: next }` as replacement, not mutation. | Stage1 semantics |
 | `REC-004 record shorthand literal decision` | Decide whether `RecordName { field }` is worth adding. | deferred |
 | `REC-005 record array element update decision` | Keep `metas.set(i, metas.get(i) with {...})` as MVP; field write-through is later. | deferred |
@@ -282,9 +282,10 @@ language work, start here:
 8. `BRAND-003 Stage1 brand mismatch checker` (complete as `293x-277`)
 9. `TYPE-001 Stage0 type alias metadata capsule` (complete as `293x-278`)
 10. `REC-001 Stage0 explicit record literal shape capsule` (complete as `293x-279`)
-11. `REC-002 Stage1 record construction/read lowering`
-12. `CONTRACT-002 contract syntax metadata capsule`
-13. `TRANS-001 transition metadata capsule`
-14. `USES-001 method-level uses metadata capsule`
+11. `REC-002 Stage1 record construction/read lowering` (complete as `293x-280`)
+12. `REC-003 record with-update lowering`
+13. `CONTRACT-002 contract syntax metadata capsule`
+14. `TRANS-001 transition metadata capsule`
+15. `USES-001 method-level uses metadata capsule`
 
 This order keeps early wins concrete while avoiding Stage0 semantic growth.

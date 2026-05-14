@@ -364,6 +364,74 @@ return 0
 }
 
 #[test]
+fn source_to_program_json_v0_rejects_record_literal_missing_field() {
+    let source = r#"
+record Meta {
+  ptr: i64
+  size: usize
+}
+
+static box Main {
+  main() {
+local meta = Meta { ptr: 1 }
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source).expect_err("missing field must reject");
+    assert!(error.contains("[record/literal-shape] Meta missing field `size`"));
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_record_literal_extra_field() {
+    let source = r#"
+record Meta {
+  ptr: i64
+}
+
+static box Main {
+  main() {
+local meta = Meta { ptr: 1, size: 2 }
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source).expect_err("extra field must reject");
+    assert!(error.contains("[record/literal-shape] Meta extra field `size`"));
+}
+
+#[test]
+fn source_to_program_json_v0_lowers_record_field_read() {
+    let source = r#"
+record Meta {
+  ptr: i64
+  size: usize
+}
+
+static box Main {
+  main() {
+local meta = Meta { ptr: 1, size: 2 }
+return meta.ptr
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let body = value["body"].as_array().expect("body");
+    assert_eq!(body[1]["type"], "Return");
+    assert_eq!(body[1]["expr"]["type"], "RecordField");
+    assert_eq!(body[1]["expr"]["record"], "Meta");
+    assert_eq!(body[1]["expr"]["field"], "ptr");
+    assert_eq!(body[1]["expr"]["field_index"], 0);
+    assert_eq!(body[1]["expr"]["declared_type"], "i64");
+    assert_eq!(body[1]["expr"]["recv"]["type"], "Var");
+    assert_eq!(body[1]["expr"]["recv"]["name"], "meta");
+}
+
+#[test]
 fn source_to_program_json_v0_emits_type_alias_decls_metadata_only() {
     let source = r#"
 type Bytes = usize
