@@ -342,3 +342,4 @@ tools/checks/env_dead_accessors_report.sh
 ## Phase 293x mimalloc blueprint guards
 
 - `tools/checks/k2_wide_mimalloc_page_free_list_pilot_guard.sh` - `MIMAP-008` direct page/free-list pilot proof guard.
+- `tools/checks/k2_wide_mimalloc_lifecycle_integration_pilot_guard.sh` - `MIMAP-009` page-local decommit/recommit/reuse lifecycle pilot guard.

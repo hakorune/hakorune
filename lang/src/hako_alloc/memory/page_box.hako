@@ -19,7 +19,12 @@ box HakoAllocPageModel {
     local_free_collected_blocks: i64 = 0
     reject_count: i64 = 0
     retired: i64 = 0
+    decommitted: i64 = 0
     retire_count: i64 = 0
+    decommit_count: i64 = 0
+    recommit_count: i64 = 0
+    reuse_count: i64 = 0
+    lifecycle_reject_count: i64 = 0
     reactivate_count: i64 = 0
     reactivate_reject_count: i64 = 0
     peak_used: i64 = 0
@@ -51,6 +56,11 @@ box HakoAllocPageModel {
 
     acquire(requested_size) {
         if me.retired != 0 {
+            me.reject_count = me.reject_count + 1
+            return -1
+        }
+
+        if me.decommitted != 0 {
             me.reject_count = me.reject_count + 1
             return -1
         }
@@ -134,6 +144,13 @@ box HakoAllocPageModel {
             return 0
         }
 
+        if me.decommitted != 0 {
+            me.reject_count = me.reject_count + 1
+            me.reactivate_reject_count = me.reactivate_reject_count + 1
+            me.lifecycle_reject_count = me.lifecycle_reject_count + 1
+            return 0
+        }
+
         if me.availableBlockCount() == 0 {
             me.reject_count = me.reject_count + 1
             me.reactivate_reject_count = me.reactivate_reject_count + 1
@@ -156,6 +173,79 @@ box HakoAllocPageModel {
             me.retired = 0
             me.reactivate_count = me.reactivate_count + 1
         }
+        return 1
+    }
+
+    decommit() {
+        if me.retired == 0 {
+            me.lifecycle_reject_count = me.lifecycle_reject_count + 1
+            return 0
+        }
+
+        if me.used != 0 {
+            me.lifecycle_reject_count = me.lifecycle_reject_count + 1
+            return 0
+        }
+
+        if me.decommitted != 0 {
+            me.lifecycle_reject_count = me.lifecycle_reject_count + 1
+            return 0
+        }
+
+        me.decommitted = 1
+        me.decommit_count = me.decommit_count + 1
+        return 1
+    }
+
+    recommit() {
+        if me.retired == 0 {
+            me.lifecycle_reject_count = me.lifecycle_reject_count + 1
+            return 0
+        }
+
+        if me.decommitted == 0 {
+            me.lifecycle_reject_count = me.lifecycle_reject_count + 1
+            return 0
+        }
+
+        me.decommitted = 0
+        me.recommit_count = me.recommit_count + 1
+        return 1
+    }
+
+    canReuse() {
+        if me.retired == 0 {
+            return 0
+        }
+
+        if me.decommitted != 0 {
+            return 0
+        }
+
+        if me.used != 0 {
+            return 0
+        }
+
+        if me.availableBlockCount() == 0 {
+            return 0
+        }
+
+        return 1
+    }
+
+    reuse() {
+        if me.canReuse() == 0 {
+            me.lifecycle_reject_count = me.lifecycle_reject_count + 1
+            return 0
+        }
+
+        local ok = me.reactivate()
+        if ok == 0 {
+            me.lifecycle_reject_count = me.lifecycle_reject_count + 1
+            return 0
+        }
+
+        me.reuse_count = me.reuse_count + 1
         return 1
     }
 

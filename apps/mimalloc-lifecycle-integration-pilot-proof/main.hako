@@ -1,0 +1,70 @@
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+
+static box Main {
+    main(args) {
+        local page = new HakoAllocPageModel(9, 64, 3, 3)
+
+        local b0 = page.acquire(16)
+        local b1 = page.acquire(48)
+        local decommit_busy = page.decommit()
+
+        local rel0 = page.releaseLocal(b0)
+        local retired_mid = page.retired
+        local rel1 = page.releaseLocal(b1)
+        local retired_after_release = page.retired
+
+        local decommit_ok = page.decommit()
+        local decommitted_after_decommit = page.decommitted
+        local acquire_decommitted = page.acquire(8)
+        local reactivate_decommitted = page.reactivate()
+        local reuse_decommitted = page.reuse()
+
+        local recommit_ok = page.recommit()
+        local decommitted_after_recommit = page.decommitted
+        local retired_after_recommit = page.retired
+        local can_reuse = page.canReuse()
+
+        local reuse_ok = page.reuse()
+        local retired_after_reuse = page.retired
+        local free_after_reuse = page.freeCount()
+        local local_after_reuse = page.localFreeCount()
+
+        local b2 = page.acquire(32)
+        local live_b2 = page.blockIsLive(b2)
+        local decommit_active = page.decommit()
+
+        local shape = 0
+        if b0 >= 0 { shape = shape + 1 }
+        if b1 >= 0 { shape = shape + 1 }
+        if decommit_busy == 0 { shape = shape + 1 }
+        if rel0 == 1 && retired_mid == 0 { shape = shape + 1 }
+        if rel1 == 1 && retired_after_release == 1 { shape = shape + 1 }
+        if decommit_ok == 1 && decommitted_after_decommit == 1 { shape = shape + 1 }
+        if acquire_decommitted == -1 { shape = shape + 1 }
+        if reactivate_decommitted == 0 { shape = shape + 1 }
+        if reuse_decommitted == 0 { shape = shape + 1 }
+        if recommit_ok == 1 && decommitted_after_recommit == 0 && retired_after_recommit == 1 { shape = shape + 1 }
+        if can_reuse == 1 { shape = shape + 1 }
+        if reuse_ok == 1 && retired_after_reuse == 0 { shape = shape + 1 }
+        if free_after_reuse == 3 && local_after_reuse == 0 { shape = shape + 1 }
+        if b2 >= 0 && live_b2 == 1 { shape = shape + 1 }
+        if decommit_active == 0 { shape = shape + 1 }
+        if page.decommit_count == 1 && page.recommit_count == 1 && page.reuse_count == 1 { shape = shape + 1 }
+        if page.lifecycle_reject_count == 4 && page.reactivate_reject_count == 1 { shape = shape + 1 }
+
+        print("mimalloc-lifecycle-integration-pilot-proof")
+        print("blocks=" + b0 + "," + b1 + "," + b2 + "," + acquire_decommitted)
+        print("lifecycle=" + page.retired + "," + page.decommitted + "," + page.decommit_count + "," + page.recommit_count + "," + page.reuse_count + "," + page.lifecycle_reject_count)
+        print("counts=" + page.alloc_count + "," + page.local_free_count + "," + page.local_free_collect_count + "," + page.local_free_collected_blocks + "," + page.reject_count + "," + page.reactivate_reject_count)
+        print("state=" + page.used + "," + page.freeCount() + "," + page.localFreeCount() + "," + page.availableBlockCount())
+        print("shape=" + shape)
+
+        if shape == 17 && page.alloc_count == 3 && page.local_free_count == 2 && page.local_free_collect_count == 2 && page.local_free_collected_blocks == 2 && page.reject_count == 2 && page.used == 1 && page.freeCount() == 2 && page.localFreeCount() == 0 && page.availableBlockCount() == 2 && page.retired == 0 && page.decommitted == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

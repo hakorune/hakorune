@@ -311,3 +311,26 @@ tools/checks/k2_wide_mimalloc_page_free_list_pilot_guard.sh
 
 This closes the page/free-list slice for the mimalloc blueprint lane. Decommit,
 recommit, and reuse integration are intentionally left to `MIMAP-009`.
+
+## MIMAP-009 lifecycle integration pilot
+
+Decision: accepted.
+
+`MIMAP-009` adds page-local lifecycle state and methods to `HakoAllocPageModel`:
+
+```text
+decommit()
+recommit()
+canReuse()
+reuse()
+```
+
+The executable proof is:
+
+```text
+apps/mimalloc-lifecycle-integration-pilot-proof/main.hako
+```
+
+This keeps OSVM, segment ownership, provider activation, and host allocator
+replacement out of scope. The next mimalloc row is `MIMAP-010 page queue lifecycle
+selection pilot`.
