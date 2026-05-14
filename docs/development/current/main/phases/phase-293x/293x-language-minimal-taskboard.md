@@ -50,3 +50,9 @@ no PackedArray<T> fallback to ArrayBox
 no try / throw / ? family
 no guard-let before RESULT-002 diagnostics
 ```
+
+## LOOP-003 split update (2026-05-14)
+
+- `LOOP-003A`: landed Stage1 route decision and explicit JSON bridge fail-fast receiver.
+- `LOOP-003B`: next Stage1 LoopRange lowering pilot.
+- `LOOP-003C`: later verifier facts and read-only index enforcement.

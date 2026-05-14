@@ -92,6 +92,12 @@ pub(super) enum StmtV0 {
         cond: ExprV0,
         body: Vec<StmtV0>,
     },
+    LoopRange {
+        var_name: String,
+        start: ExprV0,
+        end: ExprV0,
+        body: Vec<StmtV0>,
+    },
     Throw {
         expr: ExprV0,
     },

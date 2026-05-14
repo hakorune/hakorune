@@ -90,6 +90,10 @@ pub(super) fn lower_stmt_with_vars(
         StmtV0::Loop { cond, body } => {
             loop_::lower_loop_stmt(f, cur_bb, cond, body, vars, loop_stack, env)
         }
+        StmtV0::LoopRange { .. } => Err(
+            "[freeze:contract][json_v0_bridge/loop_range_route_open] LoopRange decode is accepted as Stage1 metadata, but executable lowering is owned by LOOP-003B; no Stage0 desugar or silent fallback"
+                .to_string(),
+        ),
         StmtV0::FiniReg { .. } => Err(
             "[freeze:contract][json_v0_bridge/fini_marker_leak] unnormalized FiniReg marker"
                 .to_string(),

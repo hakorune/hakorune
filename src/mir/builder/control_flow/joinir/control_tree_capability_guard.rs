@@ -126,7 +126,7 @@ fn get_hint_for_cap(cap: &StepCapability) -> String {
         }
         StepCapability::While => "use 'loop(cond)' instead of 'while(cond)' syntax".to_string(),
         StepCapability::ForRange => {
-            "use 'loop(i < n)' instead of 'for i in range' syntax".to_string()
+            "LoopRange is Stage1 metadata-only until LOOP-003B; use a manual condition loop on executable paths or keep this as a route-decision fixture".to_string()
         }
         StepCapability::Match => {
             "match expressions not supported in JoinIR yet, use if-else chain".to_string()

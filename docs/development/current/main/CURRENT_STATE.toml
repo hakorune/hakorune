@@ -16,10 +16,10 @@ method_anchor = "docs/development/current/main/design/record-and-packed-array-lo
 taskboard = "docs/development/current/main/phases/phase-293x/293x-language-minimal-taskboard.md"
 
 latest_card = "293x-324-PACKED-002-SOURCE-PACKED-ARRAY-AUTOUSE-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-324-PACKED-002-SOURCE-PACKED-ARRAY-AUTOUSE-PILOT.md"
-latest_card_summary = "PACKED-002 emits source PackedArray auto-use pilot metadata while keeping materialization, backend lowering, and boxed fallback disabled."
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-325-LOOP-003A-LOOPRANGE-STAGE1-ROUTE-DECISION.md"
+latest_card_summary = "LOOP-003A fixes the Stage1 LoopRange route and adds an explicit JSON bridge fail-fast receiver before executable lowering."
 
-current_blocker_token = "LOOP-003 Stage1 LoopRange JoinIR/CorePlan route decision"
+current_blocker_token = "LOOP-003B"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

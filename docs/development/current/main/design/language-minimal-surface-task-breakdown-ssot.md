@@ -343,3 +343,19 @@ language work, start here:
 38. `PACKED-002 PackedArray non-escaping auto-use pilot` (complete as `293x-324`)
 
 This order keeps early wins concrete while avoiding Stage0 semantic growth.
+
+## LOOP-003 split update (2026-05-14)
+
+`LOOP-003` is split to keep the route decision separate from executable
+semantics:
+
+```text
+LOOP-003A:
+  landed route decision and JSON bridge fail-fast receiver
+
+LOOP-003B:
+  next lowering pilot with entry-bound capture and continue-safe step
+
+LOOP-003C:
+  later verifier facts and read-only index enforcement
+```
