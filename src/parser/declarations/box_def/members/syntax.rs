@@ -20,13 +20,16 @@ pub(crate) enum PropertyBodyPostfix {
     ArrowOrBlock,
 }
 
-pub(crate) fn parse_optional_declared_type_name(p: &mut NyashParser) -> Option<String> {
-    if let TokenType::IDENTIFIER(ty) = &p.current_token().token_type {
-        let ty = Some(ty.clone());
-        p.advance();
-        ty
+pub(crate) fn parse_optional_declared_type_name(
+    p: &mut NyashParser,
+    context: &str,
+) -> Result<Option<String>, ParseError> {
+    if matches!(p.current_token().token_type, TokenType::IDENTIFIER(_)) {
+        Ok(Some(crate::parser::common::type_refs::parse_type_ref_text(
+            p, context,
+        )?))
     } else {
-        None
+        Ok(None)
     }
 }
 
@@ -72,7 +75,7 @@ pub(crate) fn parse_optional_type_after_colon(
         });
     }
     p.advance();
-    Ok(parse_optional_declared_type_name(p))
+    parse_optional_declared_type_name(p, expected_colon)
 }
 
 pub(crate) fn try_parse_property_body(
@@ -133,7 +136,7 @@ fn parse_required_declared_type_name(
     p: &mut NyashParser,
     expected: &'static str,
 ) -> Result<String, ParseError> {
-    parse_optional_declared_type_name(p).ok_or_else(|| ParseError::UnexpectedToken {
+    parse_optional_declared_type_name(p, expected)?.ok_or_else(|| ParseError::UnexpectedToken {
         found: p.current_token().token_type.clone(),
         expected: expected.to_string(),
         line: p.current_token().line,

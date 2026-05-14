@@ -114,6 +114,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_contract_syntax_metadata_guard.sh` | CONTRACT-002 の `requires` / `ensures` / `invariant` Stage0 metadata capsule を固定し、AST/JSON transport と runtime lowering 不在を検証する。 |
 | `tools/checks/k2_wide_transition_metadata_capsule_guard.sh` | TRANS-001 の `transition Enum.A -> Enum.B by method` Stage0 metadata capsule を固定し、contextual syntax / AST JSON / Program JSON v0 transport と checker 不在を検証する。 |
 | `tools/checks/k2_wide_uses_metadata_capsule_guard.sh` | USES-001 の method-level `uses` Stage0 metadata capsule を固定し、contextual syntax / AST JSON / Program JSON v0 transport と capability checker 不在を検証する。 |
+| `tools/checks/k2_wide_generic_type_annotation_metadata_guard.sh` | GEN-001 の generic type annotation Stage0 metadata capsule を固定し、box/record/function/type alias の TYPE_REF transport と Stage1 semantics 不在を検証する。 |
 | `tools/checks/k2_wide_record_decl_metadata_transport_guard.sh` | C203a の `record_decls` metadata transport lane を固定し、Program JSON v0 / JSON bridge / MIR metadata / MIR JSON が record を ordinary user-box lane に混ぜないことを検証する。 |
 | `tools/checks/k2_wide_record_layout_plan_guard.sh` | C203b の `record_layout_plans` metadata lane を固定し、concrete record fields の slot/storage layout が typed-object/user-box layout lane と混ざらないことを検証する。 |
 | `tools/checks/k2_wide_record_local_scalar_metadata_guard.sh` | C203c の `record_local_layout` folded agg-local / placement metadata lane を固定し、record route が user-box seed route や backend matcher に漏れないことを検証する。 |

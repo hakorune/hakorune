@@ -26,6 +26,8 @@ pub mod parser_enum_surface;
 pub mod parser_expr_postfix_catch;
 #[path = "../parser_guard_else_surface.rs"]
 pub mod parser_guard_else_surface;
+#[path = "../parser_generic_type_annotation_surface.rs"]
+pub mod parser_generic_type_annotation_surface;
 #[path = "../parser_header_param_extensions.rs"]
 pub mod parser_header_param_extensions;
 #[cfg(feature = "legacy-tests")]

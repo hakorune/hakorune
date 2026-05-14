@@ -57,7 +57,7 @@ unsupported-backend fail-fast behavior.
 | `assert` / `requires` / `ensures` / `invariant` | `requires` / `ensures` / `invariant` contract syntax metadata capsule complete; `assert` still planned separately | syntax and metadata only for `requires` / `ensures` / `invariant`; `assert` may be fail-fast sugar if explicitly carded | runtime checks, verifier discharge, diagnostics |
 | enum state values / `transition` | transition metadata capsule complete | transition metadata and enum references only | transition legality and lifecycle verifier facts |
 | `Result` / `Option` / `guard let` | planned enum/prelude lane | enum surface only | prelude, exhaustiveness, pattern sugar |
-| `Array<T>` / `PackedArray<T>` | planned CorePlan lane | generic annotation metadata | typed array semantics and packed eligibility gates |
+| `Array<T>` / `PackedArray<T>` | generic type annotation metadata capsule complete | generic annotation metadata | typed array semantics and packed eligibility gates |
 | `const fn` / `comptime` / `const assert` | planned const lane | no evaluator beyond existing const-table support | const evaluator and purity rules |
 | `uses` / deferred `cap` | method-level uses metadata capsule complete; `cap` block still deferred | method capability metadata only | capability checking and backend gates |
 | `Span<T>` / deferred `view` | planned raw-view lane | none | Span APIs first; scoped view syntax only if needed |

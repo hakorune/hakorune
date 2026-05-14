@@ -106,7 +106,7 @@ pub(crate) fn try_parse_header_first_field_or_property(
     }
     p.advance(); // consume ':'
                  // Optional type name (identifier). Keep it as declared field metadata.
-    let declared_type_name = syntax::parse_optional_declared_type_name(p);
+    let declared_type_name = syntax::parse_optional_declared_type_name(p, "field type")?;
 
     // name: Type = expr  → field with constructor initializer.
     if p.match_token(&TokenType::ASSIGN) {
@@ -302,7 +302,7 @@ pub(crate) fn parse_weak_field(
 ) -> Result<(), ParseError> {
     let declared_type_name = if p.match_token(&TokenType::COLON) {
         p.advance();
-        syntax::parse_optional_declared_type_name(p)
+        syntax::parse_optional_declared_type_name(p, "weak field type")?
     } else {
         None
     };

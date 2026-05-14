@@ -870,3 +870,47 @@ return size
 
     assert_eq!(uses, &vec![serde_json::json!("osvm"), serde_json::json!("rawbuf")]);
 }
+
+#[test]
+fn source_to_program_json_v0_transports_generic_type_metadata() {
+    let source = r#"
+record Meta<T> {
+  value: T
+}
+
+box Store {
+  metas: PackedArray<Meta<PageId>>
+}
+
+static box Main {
+  main() {
+return me.process(0)
+  }
+
+  method process(items: Array<PageId>): Result<PageId, Error> {
+return 0
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let record_decls = value["record_decls"].as_array().expect("record decls");
+    assert_eq!(record_decls[0]["type_parameters"], serde_json::json!(["T"]));
+    assert_eq!(record_decls[0]["field_decls"][0]["declared_type"], "T");
+
+    let user_box_decls = value["user_box_decls"].as_array().expect("user box decls");
+    let store = user_box_decls
+        .iter()
+        .find(|decl| decl["name"] == "Store")
+        .expect("Store decl");
+    assert_eq!(
+        store["field_decls"][0]["declared_type"],
+        "PackedArray<Meta<PageId>>"
+    );
+
+    let defs = value["defs"].as_array().expect("helper defs");
+    let process = defs.iter().find(|def| def["name"] == "process").expect("process def");
+    assert_eq!(process["param_decls"][0]["declared_type"], "Array<PageId>");
+    assert_eq!(process["return_type"], "Result<PageId,Error>");
+}

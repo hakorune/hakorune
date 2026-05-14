@@ -6,20 +6,68 @@ pub(crate) fn parse_type_ref_text(
     p: &mut NyashParser,
     context: &str,
 ) -> Result<String, ParseError> {
+    let (text, pending_gt) = parse_type_ref_text_inner(p, context)?;
+    if pending_gt {
+        return Err(ParseError::UnexpectedToken {
+            found: TokenType::ShiftRight,
+            expected: format!("balanced generic type reference in {}", context),
+            line: p.current_token().line,
+        });
+    }
+    Ok(text)
+}
+
+fn parse_type_ref_text_inner(
+    p: &mut NyashParser,
+    context: &str,
+) -> Result<(String, bool), ParseError> {
     let mut text = parse_type_ref_path(p, context)?;
+    let mut pending_gt = false;
 
     if p.match_token(&TokenType::LESS) {
         p.advance();
         let mut args = Vec::new();
-        while !p.match_token(&TokenType::GREATER) && !p.is_at_end() {
-            args.push(parse_type_ref_text(p, context)?);
+        loop {
+            if p.match_token(&TokenType::GREATER) {
+                p.advance();
+                break;
+            }
+            if p.match_token(&TokenType::ShiftRight) {
+                p.advance();
+                pending_gt = true;
+                break;
+            }
+            let (arg, child_pending_gt) = parse_type_ref_text_inner(p, context)?;
+            args.push(arg);
+            if child_pending_gt {
+                break;
+            }
             if p.match_token(&TokenType::COMMA) {
                 p.advance();
                 continue;
             }
-            break;
+            if p.match_token(&TokenType::GREATER) {
+                p.advance();
+                break;
+            }
+            if p.match_token(&TokenType::ShiftRight) {
+                p.advance();
+                pending_gt = true;
+                break;
+            }
+            return Err(ParseError::UnexpectedToken {
+                found: p.current_token().token_type.clone(),
+                expected: format!("',' or '>' in {}", context),
+                line: p.current_token().line,
+            });
         }
-        p.consume(TokenType::GREATER)?;
+        if args.is_empty() {
+            return Err(ParseError::UnexpectedToken {
+                found: p.current_token().token_type.clone(),
+                expected: format!("generic type argument in {}", context),
+                line: p.current_token().line,
+            });
+        }
         text.push('<');
         text.push_str(&args.join(", "));
         text.push('>');
@@ -31,7 +79,7 @@ pub(crate) fn parse_type_ref_text(
         text.push_str("[]");
     }
 
-    Ok(text)
+    Ok((text, pending_gt))
 }
 
 fn parse_type_ref_path(p: &mut NyashParser, context: &str) -> Result<String, ParseError> {

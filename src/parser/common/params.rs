@@ -107,6 +107,23 @@ fn parse_optional_type_annotation(
                 type_text.push('>');
                 p.advance();
             }
+            TokenType::ShiftRight => {
+                if generic_depth < 2 {
+                    return Err(ParseError::UnexpectedToken {
+                        found: p.current_token().token_type.clone(),
+                        expected: format!(
+                            "balanced generic delimiters in {} {} type annotation",
+                            context,
+                            site.label()
+                        ),
+                        line: p.current_token().line,
+                    });
+                }
+                consumed_any = true;
+                generic_depth -= 2;
+                type_text.push_str(">>");
+                p.advance();
+            }
             TokenType::LBRACK => {
                 consumed_any = true;
                 array_depth += 1;

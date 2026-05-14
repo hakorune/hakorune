@@ -456,6 +456,34 @@ USES-001 does not add `unsafe`, `cap` blocks, capability checking, backend
 route selection, runtime lowering, provider activation, allocator hooks, or
 `#[global_allocator]` coupling. Those are later Stage1/substrate rows.
 
+### GEN-001 Generic Type Annotation Metadata Surface
+
+Decision: accepted.
+
+Generic type references are Stage0 metadata in declaration type positions:
+
+```hako
+type PageList = Array<PageId>
+
+record MetaStore<T> {
+    metas: PackedArray<T>
+}
+
+box Store {
+    metas: PackedArray<Meta<PageId>>
+    weak view: Span<PageId>
+}
+```
+
+The parser preserves type-reference text in the AST and Program JSON v0. This
+includes params, returns, fields, aliases, brands, enum payloads, and
+box/record/enum type parameters.
+
+Stop line:
+GEN-001 does not add generic arity checking, constraint solving, `where`
+clauses, `Array<T>` semantics, `PackedArray<T>` planning, `Span<T>` no-escape
+semantics, or backend fallback policy. Those are Stage1/CorePlan rows.
+
 ## Box Members (Phase‑15, env gate: NYASH_ENABLE_UNIFIED_MEMBERS; default ON)
 
 This section adds a minimal grammar for Box members (a unified member model) without changing JSON v0/MIR. Parsing is controlled by env `NYASH_ENABLE_UNIFIED_MEMBERS` (default ON; set `0/false/off` to disable).

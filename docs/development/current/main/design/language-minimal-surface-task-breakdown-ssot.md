@@ -18,7 +18,7 @@ This document turns the language-design discussions into task-sized backlog
 rows.
 
 It is not the active allocator lane.
-`GEN-001 generic type annotation metadata capsule` is the current selected language blocker
+`GEN-002 generic arity check` is the current selected language blocker
 unless the user explicitly switches to the language lane.
 
 ## Row rules
@@ -67,7 +67,7 @@ Retire condition:
 | Contracts | syntax metadata capsule complete | `CONTRACT-003 contract runtime-check insertion` |
 | Enum transition lifecycle | metadata capsule complete | `TRANS-002 transition legality checker` |
 | Result/Option | planned | `RESULT-001 prelude and diagnostics` |
-| Generic containers | planned | `GEN-001 generic type annotation metadata capsule` |
+| Generic containers | generic type annotation metadata capsule complete | `GEN-002 generic arity check` |
 | PackedArray | planned | `PACKED-001 eligibility gate` |
 | Uses/capability | method-level metadata capsule complete | `USES-002 capability checker` |
 | Span/view | planned later | `SPAN-001 Span API design row` |
@@ -230,7 +230,7 @@ no Stage0 Result/Option special-case
 
 | Task | Scope | Stage |
 | --- | --- | --- |
-| `GEN-001 generic type annotation metadata capsule` | Parse `Array<T>`, `PackedArray<T>`, `Span<T>`, generic records/interfaces as metadata. | Stage0 capsule |
+| `GEN-001 generic type annotation metadata capsule` | Complete as `293x-285`; parses `Array<T>`, `PackedArray<T>`, `Span<T>`, generic records/interfaces as metadata. | Stage0 capsule complete |
 | `GEN-002 generic arity check` | Validate parameter counts without full constraint solving. | Stage1 semantics |
 | `ARRAY-001 Array typed container semantics` | Define normal typed array behavior. | Stage1 semantics |
 | `PACKED-001 PackedArray eligibility gate` | Fail-fast if packed residence cannot be proven. | Stage1 CorePlan |
@@ -287,6 +287,7 @@ language work, start here:
 13. `CONTRACT-002 contract syntax metadata capsule` (complete as `293x-282`)
 14. `TRANS-001 transition metadata capsule` (complete as `293x-283`)
 15. `USES-001 method-level uses metadata capsule` (complete as `293x-284`)
-16. `GEN-001 generic type annotation metadata capsule`
+16. `GEN-001 generic type annotation metadata capsule` (complete as `293x-285`)
+17. `GEN-002 generic arity check`
 
 This order keeps early wins concrete while avoiding Stage0 semantic growth.
