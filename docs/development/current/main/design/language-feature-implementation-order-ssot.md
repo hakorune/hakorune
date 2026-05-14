@@ -91,7 +91,7 @@ Wave B rows create the first useful semantic core for allocator safety and lifec
 | B6 | `S1-6 page lifecycle verifier pilot` | apply state/contract facts to page lifecycle rows such as decommit, recommit, reactivate, reuse | Stage1 lifecycle lane |
 | B7 | `S1-7 record literal construction read lowering` | validate fields and lower construction/read without ordinary box identity | Stage1 record lane |
 | B8 | `S1-8 record with-update lowering` | lower `meta with { field: value }` as identity-free replacement | Stage1 record lane |
-| B9 | `S1-9 Result Option prelude and diagnostics` | define standard `Result<T,E>` / `Option<T>`, match diagnostics, and exhaustiveness basis | Stage1 enum/prelude lane |
+| B9 | `S1-9 Result Option prelude and diagnostics` | `RESULT-001` complete as `293x-314`; follow-up diagnostics split into `RESULT-002A..D` | Stage1 enum/prelude lane |
 | B10 | `S1-10 guard-let sugar` | lower `guard let Pattern = expr else { ... }` through Stage1 pattern binding and match rules | Stage1 pattern lane |
 
 ## Wave C: Stage1 low-level and CorePlan wave
@@ -101,7 +101,7 @@ They must not be implemented in Stage0.
 
 | Order | Row | Slice | Owner |
 | --- | --- | --- | --- |
-| C1 | `S1-11 PackedArray eligibility gate` | decide whether `PackedArray<T>` can reside packed and fail-fast otherwise | Stage1 CorePlan lane |
+| C1 | `S1-11 PackedArray eligibility gate` | complete as `293x-293`; decide whether `PackedArray<T>` can reside packed and fail-fast otherwise | Stage1 CorePlan lane |
 | C2 | `S1-12 PackedArray non-escaping auto-use pilot` | choose packed ArrayBox for eligible non-escaping record arrays | Stage1 CorePlan lane |
 | C3 | `S1-13 const fn const assert` | const evaluator, purity restriction, generated static tables, compile-time asserts | Stage1 const lane |
 | C4 | `S1-14 uses capability checker` | check `uses osvm`, `uses atomic`, `uses rawbuf`, and backend capability gates; keep `cap` blocks deferred | Stage1 capability lane |

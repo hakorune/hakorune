@@ -21,18 +21,18 @@ Related:
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - task breakdown:
-  `docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md`
+  `docs/development/current/main/phases/phase-293x/293x-language-minimal-taskboard.md`
 - record / packed ArrayBox SSOT:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `ARRAY-002 Array typed container semantics`
+- current blocker token: `ARRAY-002A typed Array method contract`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after PACKED-001; next blocker is ARRAY-002 Array typed container semantics
+- continue phase-293x after RESULT-001; next blocker is ARRAY-002A typed Array method contract
 - keep `LOOP-003` open until a JoinIR/CorePlan route is selected; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
@@ -50,7 +50,7 @@ Related:
 2. `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 3. `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
 4. `docs/development/current/main/phases/phase-293x/README.md`
-5. `docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md`
+5. `docs/development/current/main/phases/phase-293x/293x-language-minimal-taskboard.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 7. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 8. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`

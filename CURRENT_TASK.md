@@ -39,14 +39,14 @@ Scope: current lane / next lane / restart order only.
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - task breakdown:
-  `docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md`
+  `docs/development/current/main/phases/phase-293x/293x-language-minimal-taskboard.md`
 - record / packed ArrayBox SSOT:
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - current blocker token:
-  `ASTCLEAN-017 runner/provider/runtime dead_code rationale pass`
-- primary mode: compiler/runtime packed record array lane for mimalloc metadata completeness
+  `ARRAY-002A typed Array method contract`
+- primary mode: language minimal surface lane; keep Stage0 thin and Stage1 semantic rows small
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
@@ -59,15 +59,19 @@ Scope: current lane / next lane / restart order only.
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
 - resume point: continue Phase 293x after RESULT-001; next blocker is
-  ARRAY-002 Array typed container semantics. Keep LOOP-003 open until a
+  ARRAY-002A typed Array method contract. Keep LOOP-003 open until a
   JoinIR/CorePlan route is selected; do not source-desugar range loops.
 
 ## Task Order
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  ARRAY-002 Array typed container semantics
-  RESULT-002 enum diagnostics and exhaustiveness
+  ARRAY-002A typed Array method contract
+  ARRAY-002B typed local Array element checks
+  ARRAY-002C unsupported Array inference fail-fast
+  ARRAY-002D ArrayBox JSON v0/backend guard
+  RESULT-002A prelude enum missing-arm diagnostics
+  RESULT-002B prelude enum payload diagnostics
 - optional future allocator-provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`
@@ -117,8 +121,8 @@ Scope: current lane / next lane / restart order only.
 
 - Real-app bringup phase:
   `docs/development/current/main/phases/phase-293x/README.md`
-- Real-app taskboard:
-  `docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md`
+- Language-minimal taskboard:
+  `docs/development/current/main/phases/phase-293x/293x-language-minimal-taskboard.md`
 - Real-app smoke suite:
   `tools/smokes/v2/suites/integration/real-apps.txt`
 - Real-app EXE boundary suite:

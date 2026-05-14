@@ -1,6 +1,9 @@
-# Nyash Grammar (Stage‑2 EBNF)
+# Hakorune / Nyash Grammar Reference
 
-Status: Fixed for Phase 15 Stage‑2. Parser implementations (Rust/Python/Nyash selfhost) should conform to this subset.
+Status: Living reference for the current Hakorune language-minimal surface.
+Parser implementations (Rust / selfhost) should conform to the accepted rows
+listed in this document. Historical Stage-2 notes remain for compatibility
+where explicitly labeled.
 
 Design SSOT note (Scope Exit Semantics):
 - `throw` is prohibited in surface language design.
@@ -550,6 +553,10 @@ Rules:
 - `Type::Variant` is the canonical enum variant spelling.
 - `.` remains object field / method access, so `Result.Ok(...)` is not
   canonical.
+- `Option<T>` and `Result<T,E>` are built-in enum prelude surfaces as of
+  RESULT-001. `Option::Some(null)` / `Option::Some(void)` fail-fast.
+- Known enum variants written with dot syntax, such as `Result.Ok(...)`, are
+  rejected with enum-variant diagnostics.
 
 Canonical enum variants:
 

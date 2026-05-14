@@ -236,8 +236,16 @@ local r = Result::Err(AllocError::ZeroSize)
 | `LOCALTYPE-001` | `local name: Type = expr` metadata capsule | Stage0 parse / transport |
 | `ENUMVAR-001` | keep `Type::Variant` canonical and reject/avoid dot variants | Stage1 enum surface |
 | `ARRAY-001` | complete as `293x-313`; typed-context `Array<T>` literals lower with no inference and no PackedArray fallback | Stage1 typed collection |
+| `ARRAY-002A` | typed `Array<T>` method contract for `push/get/set/length` | Stage1 typed collection |
+| `ARRAY-002B` | typed local Array element checks | Stage1 typed collection |
+| `ARRAY-002C` | unsupported Array inference fail-fast | Stage1 diagnostics |
+| `ARRAY-002D` | ArrayBox JSON v0/backend guard and PackedArray no-fallback guard | Stage1/backend guard |
 | `RESULT-001` | complete as `293x-314`; Result/Option prelude and explicit variant diagnostics | Stage1 enum/prelude |
-| `PACKED-001` | PackedArray eligibility gate and fail-fast policy | Stage1 CorePlan |
+| `RESULT-002A` | prelude enum missing-arm diagnostics | Stage1 diagnostics |
+| `RESULT-002B` | prelude enum payload diagnostics | Stage1 diagnostics |
+| `RESULT-002C` | known-enum exhaustiveness underscore rules | Stage1 diagnostics |
+| `RESULT-002D` | generic enum expected-type diagnostics without inference | Stage1 diagnostics |
+| `PACKED-001` | complete as `293x-293`; PackedArray eligibility gate and fail-fast policy | Stage1 CorePlan |
 
 ## Stage Split
 
