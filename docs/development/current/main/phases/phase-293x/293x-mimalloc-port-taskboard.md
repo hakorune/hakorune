@@ -122,5 +122,12 @@ no untracked design decision in implementation
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `CLEAN-WHILE-001` | active | While deletion readiness inventory. | BoxShape cleanup; do not mix with MIMAP-012. |
+| `CLEAN-WHILE-001` | landed | While deletion readiness inventory. | BoxShape cleanup; do not mix with MIMAP-012. |
 | `CLEAN-WHILE-002` | landed | Delete `ASTNode::While` after inventory. | Parser `while` stays canonical Loop. |
+
+## Remaining cleanup sidecar
+
+| Row | Status | Scope | Notes |
+| --- | --- | --- | --- |
+| `CLEAN-FOR-001` | active | Decide legacy `parse_for_range_stage3` fate. | Keep LoopRange as Stage1 route; no source desugar. |
+| `CLEAN-DEAD-001` | next | Audit first `#[allow(dead_code)]` cluster. | One cluster per commit. |

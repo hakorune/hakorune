@@ -43,8 +43,8 @@ The remaining `ASTNode::While` vocabulary is legacy/compat residue.
 | `CLEAN-WHILE-002` | landed | Delete `ASTNode::While` variant and direct refs. | `ASTNode::While` is removed from source; `while` remains parser sugar to `Loop`. |
 | `CLEAN-LOWER-001` | ready after While cleanup | Split `expression_to_json_v0` by expression family. | Behavior-preserving helpers for literal/var/op/call/member/record/enum/array lanes; no new Program JSON shape. |
 | `CLEAN-LOWER-002` | ready after 001 | Split `statement_to_json_v0` by statement family. | Behavior-preserving helpers for local/print/return/if/loop/range/match/check lanes. |
-| `CLEAN-FOR-001` | parked | Decide legacy `parse_for_range_stage3` fate. | Either quarantine as legacy syntax with documented retire condition, or remove after compatibility check. |
-| `CLEAN-DEAD-001` | parked | Continue `#[allow(dead_code)]` pruning by cluster. | One cluster per commit; keep reason comments for intentional staging residue. |
+| `CLEAN-FOR-001` | active | Decide legacy `parse_for_range_stage3` fate. | Either quarantine as legacy syntax with documented retire condition, or remove after compatibility check. |
+| `CLEAN-DEAD-001` | next after CLEAN-FOR-001 | Continue `#[allow(dead_code)]` pruning by cluster. | One cluster per commit; keep reason comments for intentional staging residue. |
 
 ## CLEAN-WHILE-001 details
 
@@ -128,7 +128,7 @@ This VM investigation remains non-blocking for MIMAP-011+ LLVM/EXE acceptance.
 
 Decision: accepted.
 
-Current active task is `CLEAN-WHILE-001`. `MIMAP-012` is paused mainline and
+Current active task is `CLEAN-FOR-001`. `CLEAN-DEAD-001` is next, `MIMAP-012` is paused mainline, and
 `VM-LIM-001` is parked diagnostic. Do not mix these lanes in one commit.
 
 SSOT:
@@ -136,3 +136,9 @@ SSOT:
 ```text
 docs/development/current/main/design/task-lane-reconciliation-ssot.md
 ```
+
+## Remaining cleanup queue reset
+
+2026-05-15: after `CLEAN-WHILE-002`, continue with `CLEAN-FOR-001` and
+`CLEAN-DEAD-001` before returning to `MIMAP-012`, unless the user explicitly
+reselects the mimalloc mainline.

@@ -70,3 +70,9 @@ probes non-blocking for MIMAP LLVM/EXE acceptance.
 2026-05-15: `CLEAN-WHILE-001` and `CLEAN-WHILE-002` landed as
 `293x-349-CLEAN-WHILE-AST-VARIANT-REMOVAL`; `MIMAP-012` is the next active
 mainline row again.
+
+## Amendment
+
+2026-05-15: `MIMAP-012` was selected too early after `CLEAN-WHILE-002`. The
+remaining cleanup queue is restored: `CLEAN-FOR-001`, then `CLEAN-DEAD-001`, then
+return to `MIMAP-012` unless reselected.

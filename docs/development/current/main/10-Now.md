@@ -26,13 +26,13 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-012 object-backed lifecycle queue LLVM route pilot`
+- current blocker token: `CLEAN-FOR-001 parse_for_range_stage3 legacy fate decision`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after CLEAN-WHILE AST variant removal; next blocker is MIMAP-012 object-backed lifecycle queue LLVM route pilot; VM-LIM-001 is parked
+- continue phase-293x after CLEAN-WHILE AST variant removal; next blocker is CLEAN-FOR-001 parse_for_range_stage3 legacy fate decision; CLEAN-DEAD-001 follows before MIMAP-012; VM-LIM-001 is parked
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
