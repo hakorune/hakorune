@@ -20,8 +20,17 @@ LOOP-003C/D complete
 PACKED-003/004 complete
 ```
 
-Blueprint and inventory rows are now the active lane entry. Current row:
-`MIMAP-011 allocator facade lifecycle route pilot`.
+Blueprint and inventory rows are now the active lane entry. Current primary row:
+`MIMAP-013 facade composition over object-backed lifecycle queue`.
+
+Latest sidecar closeout:
+
+```text
+MIR-ROW-A-FIX:
+  landed
+  dynamic ArrayBox.get(i) now recovers local collection element origin facts
+  LLVM/EXE guard is green for pages.get(i) -> page.freeCount()
+```
 
 ## Active Source Policy
 
@@ -88,6 +97,85 @@ FST:
 | `MIMAP-012` | landed | Object-backed lifecycle queue LLVM route pilot; `ArrayBox` retains page objects and returns selected page. | 1 commit |
 | `MIMAP-013` | ready | Facade composition over object-backed lifecycle queue. | after MIMAP-012 |
 
+### Construction / Lifecycle Policy Rows
+
+| Row | Status | Purpose | Ordering |
+| --- | --- | --- | --- |
+| `LIFECYCLE-BIRTH-001` | ready | Lock `birth` as a constructor hook fired only by `new`; direct receiver calls stay forbidden. | before parser widening |
+| `PARSER-BIRTH-001` | ready | Add a negative parser fixture for `obj.birth(...)` so constructor policy does not regress. | after LIFECYCLE-BIRTH-001 |
+| `PARSER-BIRTH-002` | ready | Improve direct-`birth` diagnostic with a `use new Box(...)` hint. | after PARSER-BIRTH-001 |
+| `NEW-NAMED-ARGS-001` | parked | Design named constructor arguments for `new Box(field: value, ...)`. | later; not a MIMAP-013 blocker |
+| `REUSE-LIFECYCLE-001` | ready | Keep reuse as explicit methods such as `reset`, `reactivate`, `configure`, `clear`, and `attach` with contracts/transitions. | sidecar with allocator lifecycle rows |
+
+Policy SSOT:
+
+```text
+docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md
+```
+
+Decision for this board:
+
+```text
+Do not fix constructor failures by accepting source-level obj.birth(...).
+Use new Box(...) for construction and explicit lifecycle methods for reuse.
+```
+
+### MIR Object-Loop Acceptance Follow-up Rows
+
+| Row | Status | Purpose | Ordering |
+| --- | --- | --- | --- |
+| `MIR-INV-MIMAP012` | ready | Pin the MIMAP-012 heavy loop/object shape investigation and minimized hypotheses. | before broadening MIMAP-012 shape |
+| `MIR-ROW-A` | landed | Minimal fixture for `loop + if guard + pages.get(i)` with scalar result only; MIR JSON and LLVM/EXE pass. | after MIR-INV-MIMAP012 |
+| `MIR-ROW-B` | ready | Add `considerPage(page)` helper call while selected state remains scalar; prove both MIR JSON and LLVM/EXE acceptance. | after MIR-ROW-A |
+| `MIR-ROW-C` | parked | Accept nullable object field selection, e.g. `me.last_selected_page = page`, and return it; prove both MIR JSON and LLVM/EXE acceptance. | after MIR-ROW-B |
+| `MIR-ROW-D` | parked | Reintroduce dense queue field-read proof after object selection is green; prove both MIR JSON and LLVM/EXE acceptance. | after MIR-ROW-C |
+| `MIR-ROW-A-FIX` | landed | Preserve or recover typed user-box receiver facts after dynamic `ArrayBox.get(i)` so `page.freeCount()` lowers as `HakoAllocPageModel.freeCount/0`, not `RuntimeDataBox.freeCount`. | before MIR-ROW-A closeout |
+
+MIMAP-013 may proceed with the bounded-slot object queue from MIMAP-012. Do
+not reintroduce dynamic scan, helper call, nullable object field selection, and
+dense proof reads in one row.
+
+Acceptance split for every `MIR-ROW-*`:
+
+```text
+MIR JSON:
+  parser / Stage1 / planner / emit can produce JSON for the shape
+
+LLVM/EXE:
+  the emitted route compiles and executes with the expected proof output
+
+VM:
+  diagnostic smoke only; VM object-heavy timeout is not a MIMAP blocker
+```
+
+Guard policy:
+
+```text
+each implemented MIR-ROW-* must add a k2_wide_*.sh guard
+the guard must fail if MIR JSON generation fails
+the guard must fail if LLVM/EXE execution fails
+the guard must not treat VM timeout as success for the EXE route
+```
+
+Current MIR-ROW-A evidence:
+
+```text
+tools/checks/k2_wide_mimap012_object_loop_row_a_exe_guard.sh
+
+MIR JSON:
+  passes
+
+LLVM/EXE:
+  passes
+  pages.get(i) result recovers HakoAllocPageModel origin
+  page.freeCount() routes as a user-box method rather than RuntimeDataBox.freeCount
+
+Guard:
+  bash tools/checks/k2_wide_mimap012_object_loop_row_a_exe_guard.sh
+  [mimap012-row-a-mir-json] ok
+  [k2-wide-mimap012-object-loop-row-a-exe] ok
+```
+
 ### Collection / Automata Sidecar Rows
 
 | Row | Status | Purpose | Ordering |
@@ -116,6 +204,7 @@ no full port as the first row
 no OSVM/provider/global allocator activation
 no hooks / #[global_allocator]
 no untracked design decision in implementation
+no source-level receiver.birth(...) as lifecycle workaround
 ```
 
 

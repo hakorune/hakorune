@@ -1,0 +1,54 @@
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+
+static box Main {
+    main(args) {
+        local p0 = new HakoAllocPageModel(10, 8, 1, 1)
+        local b0 = p0.acquire(8)
+
+        local p1 = new HakoAllocPageModel(20, 8, 1, 1)
+        local p2 = new HakoAllocPageModel(30, 8, 1, 1)
+
+        local pages = new ArrayBox()
+        pages.push(p0)
+        pages.push(p1)
+        pages.push(p2)
+
+        local page_count = 3
+        local selected = -1
+        local selected_id = -1
+        local i = 0
+
+        loop(i < page_count) {
+            local page = pages.get(i)
+            if selected < 0 {
+                if page != null {
+                    if page.freeCount() > 0 {
+                        selected = i
+                        selected_id = page.page_id
+                    }
+                }
+            }
+            i = i + 1
+        }
+
+        local shape = 0
+        if b0 == 0 { shape = shape + 1 }
+        if selected == 1 { shape = shape + 1 }
+        if selected_id == 20 { shape = shape + 1 }
+        if i == 3 { shape = shape + 1 }
+
+        print("mimap012-object-loop-row-a-proof")
+        print("selected=" + selected)
+        print("selected_id=" + selected_id)
+        print("shape=" + shape)
+
+        if shape == 4 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
+

@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-05-14
+Date: 2026-05-15
 Scope: current lane / next lane / restart order only.
 
 ## Purpose
@@ -60,14 +60,19 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after CLEAN-WHILE AST variant removal; next blocker is
-  MIMAP-013 facade composition over object-backed lifecycle queue. VM-LIM-001 remains parked diagnostic. Keep LoopRange on the Stage1 route; do not source-desugar range loops.
+- resume point: continue Phase 293x after MIR-ROW-A-FIX; next primary blocker is
+  MIMAP-013 facade composition over object-backed lifecycle queue. MIR-ROW-B is a
+  ready sidecar if the dynamic object-loop acceptance series should continue
+  before facade work. VM-LIM-001 remains parked diagnostic. Keep LoopRange on
+  the Stage1 route; do not source-desugar range loops.
 
 ## Task Order
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
   MIMAP-013 facade composition over object-backed lifecycle queue
+  sidecar: MIR-ROW-B helper-call object-loop acceptance if selected before
+  MIMAP-013
 - optional future allocator-provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`

@@ -11,6 +11,12 @@ Design note:
 
 This document defines the Nyash object lifecycle model: lexical scope, ownership (strong/weak), finalization (`fini()`), and what is (and is not) guaranteed across backends.
 
+Construction SSOT:
+- Source-level construction order and the `birth` direct-call policy are fixed
+  in `docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md`.
+- Short rule: `birth` is a constructor hook. It is fired only by `new`.
+  Direct source calls such as `obj.birth(...)` are forbidden.
+
 ## Terms
 
 - **Binding**: a local variable slot (created by `local`) that points to a value.
@@ -18,6 +24,56 @@ This document defines the Nyash object lifecycle model: lexical scope, ownership
 - **Strong reference**: an owning reference that contributes to keeping the object alive.
 - **Weak reference**: a non-owning reference; it does not keep the object alive and may become dead.
 - **Finalization (`fini`)**: a logical end-of-life hook. It is not “physical deallocation”.
+
+## Construction lifecycle (`new` / field initializers / `birth`)
+
+Canonical construction surface:
+
+```nyash
+local obj = new SomeBox(arg0, arg1)
+```
+
+Construction order:
+
+```text
+allocate object identity
+run declaration-site field initializers
+run matching birth(args...)
+publish the object as usable
+```
+
+Rules:
+
+- `new Box(args...)` is the canonical source surface for constructing a box.
+- `birth(...)` is a constructor hook, not an ordinary public method.
+- Direct source calls such as `obj.birth(...)` are forbidden.
+- Stored field initializers are per-instance values and run before `birth`.
+- Reuse/reset/reactivation must use explicit ordinary methods such as
+  `reset`, `reactivate`, `configure`, `clear`, or `attach`.
+- `birth` must not be reused as a reset or reactivation surface.
+- Named constructor arguments are reserved for a later row; current canonical
+  construction uses positional arguments.
+
+Example:
+
+```nyash
+local page = new HakoAllocPageModel(PageId(0), Bytes(32), 2, 2)
+page.reactivate()
+page.resetForReuse(Bytes(64), 4)
+```
+
+Non-canonical and rejected:
+
+```nyash
+page.birth(PageId(0), Bytes(32), 2, 2)
+```
+
+Rationale:
+
+```text
+Allowing direct birth calls would let user code reinitialize an existing object
+identity. That makes lifecycle state ambiguous and weakens verifier reasoning.
+```
 
 ## 0) Two-layer model (resource vs memory)
 

@@ -35,11 +35,11 @@ pub(in crate::mir::builder) fn observe_array_write_call(
     else {
         return;
     };
-    if box_name != "ArrayBox" {
+    if !receiver_is_array_like(builder, box_name, *receiver) {
         return;
     }
 
-    let user_args = user_args(*receiver, args_with_optional_receiver);
+    let user_args = user_args(builder, *receiver, args_with_optional_receiver);
     let Some(method_id) =
         crate::boxes::array::ArrayMethodId::from_name_and_arity(method, user_args.len())
     else {
@@ -75,11 +75,11 @@ pub(in crate::mir::builder) fn annotate_array_element_result(
     else {
         return;
     };
-    if box_name != "ArrayBox" {
+    if !receiver_is_array_like(builder, box_name, *receiver) {
         return;
     }
 
-    let user_args = user_args(*receiver, args_with_optional_receiver);
+    let user_args = user_args(builder, *receiver, args_with_optional_receiver);
     let Some(method_id) =
         crate::boxes::array::ArrayMethodId::from_name_and_arity(method, user_args.len())
     else {
@@ -119,12 +119,62 @@ pub(in crate::mir::builder) fn annotate_array_element_result(
     }
 }
 
-fn user_args(receiver: ValueId, args: &[ValueId]) -> &[ValueId] {
+fn user_args<'a>(builder: &MirBuilder, receiver: ValueId, args: &'a [ValueId]) -> &'a [ValueId] {
     if args.first() == Some(&receiver) {
+        &args[1..]
+    } else if args.len() >= 2
+        && args
+            .first()
+            .copied()
+            .map(|first| value_is_array_like(builder, first))
+            .unwrap_or(false)
+    {
         &args[1..]
     } else {
         args
     }
+}
+
+fn receiver_is_array_like(builder: &MirBuilder, box_name: &str, receiver: ValueId) -> bool {
+    if box_name == "ArrayBox" {
+        return true;
+    }
+    if box_name != "RuntimeDataBox" {
+        return false;
+    }
+    if matches!(
+        builder.type_ctx.value_types.get(&receiver),
+        Some(MirType::Array(_))
+    ) {
+        return true;
+    }
+    builder
+        .type_ctx
+        .value_origin_newbox
+        .get(&receiver)
+        .map(|name| name == "ArrayBox")
+        .unwrap_or(false)
+}
+
+fn value_is_array_like(builder: &MirBuilder, value: ValueId) -> bool {
+    if matches!(
+        builder.type_ctx.value_types.get(&value),
+        Some(MirType::Array(_))
+    ) {
+        return true;
+    }
+    if matches!(
+        builder.type_ctx.value_types.get(&value),
+        Some(MirType::Box(box_name)) if box_name == "ArrayBox"
+    ) {
+        return true;
+    }
+    builder
+        .type_ctx
+        .value_origin_newbox
+        .get(&value)
+        .map(|name| name == "ArrayBox")
+        .unwrap_or(false)
 }
 
 fn homogeneous_element_type(element_types: &[Option<MirType>]) -> Option<MirType> {
@@ -185,7 +235,9 @@ fn merge_array_element_type(
         {
             set_array_type(builder, receiver, next_type);
         }
-        None => {}
+        None => {
+            set_array_type(builder, receiver, next_type);
+        }
     }
 }
 
@@ -198,16 +250,42 @@ fn array_element_type(builder: &MirBuilder, receiver: ValueId) -> Option<MirType
 
 fn set_array_type(builder: &mut MirBuilder, receiver: ValueId, element_type: MirType) {
     let array_type = MirType::Array(Box::new(element_type));
-    builder
-        .type_ctx
-        .value_types
-        .insert(receiver, array_type.clone());
-    builder
-        .comp_ctx
-        .type_registry
-        .record_type(receiver, array_type);
+    for value in receiver_copy_source_chain(builder, receiver) {
+        builder.type_ctx.value_types.insert(value, array_type.clone());
+        builder.comp_ctx.type_registry.record_type(value, array_type.clone());
+    }
 }
 
 fn is_publishable_element_type(ty: &MirType) -> bool {
     !matches!(ty, MirType::Unknown | MirType::Void)
+}
+
+fn receiver_copy_source_chain(builder: &MirBuilder, receiver: ValueId) -> Vec<ValueId> {
+    let mut values = vec![receiver];
+    let mut cursor = receiver;
+    for _ in 0..16 {
+        let Some(src) = copy_source_for_value(builder, cursor) else {
+            break;
+        };
+        if values.contains(&src) {
+            break;
+        }
+        values.push(src);
+        cursor = src;
+    }
+    values
+}
+
+fn copy_source_for_value(builder: &MirBuilder, value: ValueId) -> Option<ValueId> {
+    let function = builder.scope_ctx.current_function.as_ref()?;
+    for block in function.blocks.values() {
+        for inst in &block.instructions {
+            if let crate::mir::MirInstruction::Copy { dst, src } = inst {
+                if *dst == value {
+                    return Some(*src);
+                }
+            }
+        }
+    }
+    None
 }

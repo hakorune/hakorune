@@ -6,8 +6,9 @@ use crate::mir::{
 };
 
 use super::{
-    method_args_without_redundant_receiver, BoxOriginInference, CollectionElementOriginMap,
-    FieldHandleOriginKey, FieldHandleOriginMap, MethodParamBoxOriginKey, MethodParamBoxOriginMap,
+    method_args_without_redundant_receiver, BoxOriginInference, CollectionElementOriginKey,
+    CollectionElementOriginMap, FieldHandleOriginKey, FieldHandleOriginMap,
+    MethodParamBoxOriginKey, MethodParamBoxOriginMap,
 };
 
 pub(super) fn infer_typed_object_field_handle_origins(module: &MirModule) -> FieldHandleOriginMap {
@@ -74,7 +75,7 @@ pub(super) fn infer_typed_object_collection_element_origins(
 ) -> CollectionElementOriginMap {
     let param_box_origins = infer_same_module_method_param_box_origins(module);
     let mut origins = CollectionElementOriginMap::new();
-    let mut conflicts = BTreeSet::<FieldHandleOriginKey>::new();
+    let mut conflicts = BTreeSet::<CollectionElementOriginKey>::new();
 
     for function in module.functions.values() {
         let def_map = build_value_def_map(function);
@@ -94,21 +95,21 @@ pub(super) fn infer_typed_object_collection_element_origins(
                 else {
                     continue;
                 };
-                let Some(field_key) =
-                    typed_object_collection_field_key(function, &def_map, *receiver)
-                else {
+                let Some((collection_key, collection_box)) = collection_element_origin_key(
+                    function,
+                    &def_map,
+                    *receiver,
+                    field_handle_origins,
+                ) else {
                     continue;
                 };
-                let Some(collection_box) = field_handle_origins.get(&field_key) else {
-                    continue;
-                };
-                let semantic_args = match method.as_str() {
-                    "push" if collection_box == "ArrayBox" => {
+                let semantic_args = match (method.as_str(), collection_box.as_str()) {
+                    ("push", "ArrayBox") => {
                         method_args_without_redundant_receiver(
                             function, &def_map, *receiver, args, 1,
                         )
                     }
-                    "set" if matches!(collection_box.as_str(), "ArrayBox" | "MapBox") => {
+                    ("set", "ArrayBox" | "MapBox") => {
                         method_args_without_redundant_receiver(
                             function, &def_map, *receiver, args, 2,
                         )
@@ -132,7 +133,7 @@ pub(super) fn infer_typed_object_collection_element_origins(
                 ) else {
                     continue;
                 };
-                merge_collection_origin(&mut origins, &mut conflicts, field_key, origin_box);
+                merge_collection_origin(&mut origins, &mut conflicts, collection_key, origin_box);
                 let _ = box_name;
             }
         }
@@ -143,8 +144,8 @@ pub(super) fn infer_typed_object_collection_element_origins(
 
 fn merge_collection_origin(
     origins: &mut CollectionElementOriginMap,
-    conflicts: &mut BTreeSet<FieldHandleOriginKey>,
-    key: FieldHandleOriginKey,
+    conflicts: &mut BTreeSet<CollectionElementOriginKey>,
+    key: CollectionElementOriginKey,
     origin_box: String,
 ) {
     if conflicts.contains(&key) {
@@ -160,6 +161,34 @@ fn merge_collection_origin(
             origins.insert(key, origin_box);
         }
     }
+}
+
+fn collection_element_origin_key(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    receiver: ValueId,
+    field_handle_origins: &FieldHandleOriginMap,
+) -> Option<(CollectionElementOriginKey, String)> {
+    if let Some(field_key) = typed_object_collection_field_key(function, def_map, receiver) {
+        if let Some(collection_box) = field_handle_origins.get(&field_key) {
+            return Some((
+                CollectionElementOriginKey::Field(field_key),
+                collection_box.clone(),
+            ));
+        }
+    }
+
+    let collection_box = typed_object_value_box_name(function, def_map, receiver)?;
+    if !matches!(collection_box.as_str(), "ArrayBox" | "MapBox") {
+        return None;
+    }
+    Some((
+        CollectionElementOriginKey::Local {
+            function: function.signature.name.clone(),
+            receiver_origin: resolve_value_origin(function, def_map, receiver),
+        },
+        collection_box,
+    ))
 }
 
 fn infer_same_module_method_param_box_origins(module: &MirModule) -> MethodParamBoxOriginMap {
@@ -269,8 +298,21 @@ pub(super) fn generic_collection_element_origin_box_name(
     collection_element_origins: &CollectionElementOriginMap,
     receiver: ValueId,
 ) -> Option<String> {
-    let field_key = typed_object_collection_field_key(function, def_map, receiver)?;
-    collection_element_origins.get(&field_key).cloned()
+    if let Some(field_key) = typed_object_collection_field_key(function, def_map, receiver) {
+        if let Some(origin) = collection_element_origins
+            .get(&CollectionElementOriginKey::Field(field_key))
+            .cloned()
+        {
+            return Some(origin);
+        }
+    }
+
+    collection_element_origins
+        .get(&CollectionElementOriginKey::Local {
+            function: function.signature.name.clone(),
+            receiver_origin: resolve_value_origin(function, def_map, receiver),
+        })
+        .cloned()
 }
 
 pub(super) fn typed_object_value_box_name(

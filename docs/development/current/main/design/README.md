@@ -160,6 +160,7 @@
 - Primitive family + user box fast path SSOT（primitive semantic builtin family と user box field access を compiler/MIR 主導で薄くする follow-on 設計正本）: `docs/development/current/main/design/primitive-family-and-user-box-fast-path-ssot.md`
 - Record + packed array lowering SSOT（`record` を identity-free aggregate の表面語彙として固定し、packed/container lowering 順序を決める設計正本）: `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - Lifecycle-typed value language SSOT（`inside = value / boundary = box` の親設計正本）: `docs/development/current/main/design/lifecycle-typed-value-language-ssot.md`
+- Constructor Birth / New Lifecycle SSOT（`birth` は `new` 専用 constructor hook、再利用は明示 method）: `docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md`
 - VM fallback lane separation SSOT（runner compat fallback / kernel Rust fallback / `vm-hako` reference lane の owner split を optimization 前に固定する）: `docs/development/current/main/design/vm-fallback-lane-separation-ssot.md`
 - Helper boundary policy SSOT（host handle / string span cache tuning 集約）: `docs/development/current/main/design/helper-boundary-policy-ssot.md`
 - Optimization portability classification SSOT（最適化の移植可能性分類）: `docs/development/current/main/design/optimization-portability-classification-ssot.md`

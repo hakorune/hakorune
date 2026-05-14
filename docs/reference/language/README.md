@@ -34,6 +34,7 @@ Imports and namespaces
 Variables and scope
 - See: reference/language/variables-and-scope.md — Block-scoped locals, assignment resolution, and strong/weak reference guidance.
 - See: reference/language/lifecycle.md — Box lifetime, ownership (strong/weak), and finalization (`fini`) SSOT.
+- See: development/current/main/design/constructor-birth-new-lifecycle-ssot.md — `new` / field initializer / `birth` construction order, direct `birth` call rejection, and explicit reuse method policy.
 - See: reference/language/scope-exit-semantics.md — SSOT for DropScope (`fini {}` / `local ... fini {}`), `catch`/`cleanup` exit ordering, and ownership-transfer terminology (no `move` keyword).
 - See: reference/language/repl.md — REPL mode semantics (file mode vs REPL binding rules).
 

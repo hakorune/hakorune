@@ -52,7 +52,16 @@ type FieldHandleOriginKey = (String, String);
 type FieldHandleOriginMap = BTreeMap<FieldHandleOriginKey, String>;
 type MethodParamBoxOriginKey = (String, usize);
 type MethodParamBoxOriginMap = BTreeMap<MethodParamBoxOriginKey, BoxOriginInference>;
-type CollectionElementOriginMap = BTreeMap<FieldHandleOriginKey, String>;
+type CollectionElementOriginMap = BTreeMap<CollectionElementOriginKey, String>;
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+enum CollectionElementOriginKey {
+    Field(FieldHandleOriginKey),
+    Local {
+        function: String,
+        receiver_origin: ValueId,
+    },
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum BoxOriginInference {
