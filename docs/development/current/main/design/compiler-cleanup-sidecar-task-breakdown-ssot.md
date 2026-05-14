@@ -9,7 +9,7 @@ MIMAP BoxCount feature rows.
 Current main blocker remains:
 
 ```text
-MIMAP-012 object-backed lifecycle queue LLVM route pilot
+MIMAP-012 object-backed lifecycle queue LLVM route pilot (paused)
 ```
 
 ## Ground rules
@@ -39,8 +39,8 @@ The remaining `ASTNode::While` vocabulary is legacy/compat residue.
 
 | Row | Status | Scope | Acceptance |
 | --- | --- | --- | --- |
-| `CLEAN-WHILE-001` | ready | While deletion readiness inventory. | Finds every `ASTNode::While` constructor/ref and classifies it as parser-output impossible, legacy decode compat, test fixture, or delete target. |
-| `CLEAN-WHILE-002` | ready after 001 | Delete `ASTNode::While` variant and direct refs. | Parser `while` still emits `Loop`; legacy JSON/roundtrip paths decode old `While` shape into `Loop`; no `ASTNode::While` refs remain. |
+| `CLEAN-WHILE-001` | active | While deletion readiness inventory. | Finds every `ASTNode::While` constructor/ref and classifies it as parser-output impossible, legacy decode compat, test fixture, or delete target. |
+| `CLEAN-WHILE-002` | next after 001 | Delete `ASTNode::While` variant and direct refs. | Parser `while` still emits `Loop`; legacy JSON/roundtrip paths decode old `While` shape into `Loop`; no `ASTNode::While` refs remain. |
 | `CLEAN-LOWER-001` | ready after While cleanup | Split `expression_to_json_v0` by expression family. | Behavior-preserving helpers for literal/var/op/call/member/record/enum/array lanes; no new Program JSON shape. |
 | `CLEAN-LOWER-002` | ready after 001 | Split `statement_to_json_v0` by statement family. | Behavior-preserving helpers for local/print/return/if/loop/range/match/check lanes. |
 | `CLEAN-FOR-001` | parked | Decide legacy `parse_for_range_stage3` fate. | Either quarantine as legacy syntax with documented retire condition, or remove after compatibility check. |
@@ -122,3 +122,17 @@ returned user/page object as method receiver
 ```
 
 This VM investigation remains non-blocking for MIMAP-011+ LLVM/EXE acceptance.
+
+
+## Lane reconciliation
+
+Decision: accepted.
+
+Current active task is `CLEAN-WHILE-001`. `MIMAP-012` is paused mainline and
+`VM-LIM-001` is parked diagnostic. Do not mix these lanes in one commit.
+
+SSOT:
+
+```text
+docs/development/current/main/design/task-lane-reconciliation-ssot.md
+```

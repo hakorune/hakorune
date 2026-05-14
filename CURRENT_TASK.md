@@ -47,7 +47,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc blueprint / port taskboard:
   `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
 - current blocker token:
-  `MIMAP-012 object-backed lifecycle queue LLVM route pilot`
+  `CLEAN-WHILE-001 While deletion readiness inventory`
 - primary mode: mimalloc blueprint inventory lane; keep upstream source untracked and classify concepts before implementation
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -60,14 +60,14 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after MIMAP-011; next blocker is
-  MIMAP-012 object-backed lifecycle queue LLVM route pilot. Keep LoopRange on the Stage1 route; do not source-desugar range loops.
+- resume point: continue Phase 293x after task lane reconciliation; active sidecar is
+  CLEAN-WHILE-001 While deletion readiness inventory. MIMAP-012 is paused until CLEAN-WHILE-002 lands unless reselected. VM-LIM-001 is parked diagnostic. Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
 ## Task Order
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  MIMAP-012 object-backed lifecycle queue LLVM route pilot
+  CLEAN-WHILE-001 While deletion readiness inventory
 - optional future allocator-provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`

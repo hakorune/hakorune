@@ -137,3 +137,12 @@ Therefore `VM-LIM-001` is narrowed: current evidence does not prove a general
 `ArrayBox-held InstanceBox` identity failure. Keep the limitation as a caution for
 MIMAP prototype object-heavy lifecycle/facade routes, but treat it as a retirement
 candidate if MIMAP-012 LLVM/EXE and a bounded VM probe agree.
+
+
+## Lane status
+
+Decision: parked diagnostic.
+
+`VM-LIM-001` is not the active task. The active sidecar is `CLEAN-WHILE-001`, and
+`MIMAP-012` is paused mainline. VM-LIM follow-up should resume only if the user
+selects it or if MIMAP-012 exposes a fresh VM-specific issue.
