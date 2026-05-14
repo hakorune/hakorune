@@ -21,7 +21,7 @@ PACKED-003/004 complete
 ```
 
 Blueprint and inventory rows are now the active lane entry. Current row:
-`MIMAP-003 lifecycle rewrite blueprint`.
+`MIMAP-004 substrate and representation gap ledger`.
 
 ## Active Source Policy
 
@@ -41,8 +41,8 @@ Tracked output is docs only.
 | --- | --- | --- | --- |
 | `MIMAP-001` | landed | Upstream source pin: URL, commit/tag, license, inspected files, local path. | 1 commit |
 | `MIMAP-002` | landed | Source concept inventory: segment/page/block/heap/free-list/size-class/os/stats. | 1-2 commits |
-| `MIMAP-003` | active | Lifecycle rewrite blueprint: enum states, transitions, guard points. | 1-2 commits |
-| `MIMAP-004` | ready | Substrate/representation gap ledger from source evidence. | 1-2 commits |
+| `MIMAP-003` | landed | Lifecycle rewrite blueprint: enum states, transitions, guard points. | 1-2 commits |
+| `MIMAP-004` | active | Substrate/representation gap ledger from source evidence. | 1-2 commits |
 
 ### Hakorune Blueprint
 

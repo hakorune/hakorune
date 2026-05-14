@@ -87,6 +87,19 @@ docs/development/current/main/investigations/mimalloc-source-concept-inventory.m
 The inventory separates near-transcription candidates from lifecycle rewrites,
 substrate gaps, representation gaps, and deferred unsafe surfaces.
 
+## Current Lifecycle Blueprint
+
+`MIMAP-003` turns the lifecycle-rewrite concepts into explicit page, block, and
+segment state vocabularies:
+
+```text
+docs/development/current/main/design/mimalloc-lifecycle-rewrite-blueprint-ssot.md
+```
+
+The blueprint keeps heap/TLS, OSVM, atomic cross-thread free, raw block
+residence, hooks, and global allocator replacement out of the first executable
+model.
+
 ## Port Reading
 
 mimalloc should not be line-by-line translated.
