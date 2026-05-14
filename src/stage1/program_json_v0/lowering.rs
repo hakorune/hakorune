@@ -214,6 +214,8 @@ fn statement_to_json_v0_many(
                     local_types.record_locals.remove(name);
                 }
                 if let Some(array_element_type) = array_element_type {
+                    let declared_type_name = declared_type_name.expect("array type has declaration");
+                    validate_array_element_type_supported(&array_element_type, declared_type_name)?;
                     local_types
                         .array_locals
                         .insert(name.clone(), array_element_type);
@@ -662,6 +664,7 @@ fn array_literal_to_json_v0(
     local_types: &mut ProgramJsonV0LocalTypes,
 ) -> Result<serde_json::Value, String> {
     let element_type = array_literal_element_type_for_context(declared_type_name)?;
+    validate_array_element_type_supported(element_type, declared_type_name)?;
     for element in elements {
         validate_array_element_expr(
             element_type,
@@ -712,6 +715,32 @@ fn array_type_element_type(type_name: &str) -> Option<&str> {
         return None;
     }
     Some(inner)
+}
+
+fn validate_array_element_type_supported(
+    element_type: &str,
+    declared_type_name: &str,
+) -> Result<(), String> {
+    if array_element_type_has_unresolved_generic(element_type) {
+        return Err(format!(
+            "[array/inference] `{}` uses unresolved Array element type `{}`; use a concrete `Array<T>` element type",
+            declared_type_name, element_type
+        ));
+    }
+    Ok(())
+}
+
+fn array_element_type_has_unresolved_generic(type_name: &str) -> bool {
+    type_name
+        .split(|ch: char| !ch.is_ascii_alphanumeric() && ch != '_')
+        .any(|ident| {
+            ident.len() == 1
+                && ident
+                    .chars()
+                    .next()
+                    .map(|ch| ch.is_ascii_uppercase())
+                    .unwrap_or(false)
+        })
 }
 
 fn validate_typed_array_method_contract(

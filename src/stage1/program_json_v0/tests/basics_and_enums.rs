@@ -1217,6 +1217,43 @@ return 0
 }
 
 #[test]
+fn source_to_program_json_v0_rejects_typed_array_inference_unresolved_element() {
+    let source = r#"
+static box Main {
+  main() {
+local ids: Array<T> = []
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("unresolved Array<T> element should fail fast");
+    assert!(error.contains("[array/inference]"), "{error}");
+    assert!(error.contains("Array<T>"), "{error}");
+    assert!(error.contains("unresolved Array element type `T`"), "{error}");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_typed_array_inference_mixed_literals() {
+    let source = r#"
+static box Main {
+  main() {
+local ids: Array<i64> = [1, "bad"]
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("mixed direct literal elements should fail fast");
+    assert!(error.contains("[array/element-type]"), "{error}");
+    assert!(error.contains("array literal element"), "{error}");
+    assert!(error.contains("i64"), "{error}");
+    assert!(error.contains("String"), "{error}");
+}
+
+#[test]
 fn source_to_program_json_v0_rejects_untyped_empty_array_literal() {
     let source = r#"
 static box Main {
