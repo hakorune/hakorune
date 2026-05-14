@@ -157,6 +157,16 @@ docs/development/current/main/design/mimalloc-hakorune-capability-surface-ssot.m
 The first executable slice should avoid hard OSVM, atomic, TLS, rawbuf, random,
 and provider gaps.
 
+## Current Executable Slice
+
+`MIMAP-006` selects the first executable near-transcription slice:
+
+```text
+docs/development/current/main/design/mimalloc-first-executable-slice-ssot.md
+```
+
+The selected first slice is `MIMAP-007 size-class / bin map executable pilot`.
+
 ## Port Reading
 
 mimalloc should not be line-by-line translated.

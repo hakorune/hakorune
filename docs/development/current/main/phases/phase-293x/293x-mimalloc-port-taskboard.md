@@ -21,7 +21,7 @@ PACKED-003/004 complete
 ```
 
 Blueprint and inventory rows are now the active lane entry. Current row:
-`MIMAP-006 first executable near-transcription slice`.
+`MIMAP-007 size-class / bin map executable pilot`.
 
 ## Active Source Policy
 
@@ -57,8 +57,8 @@ Tracked output is docs only.
 
 | Row | Status | Purpose | Expected size |
 | --- | --- | --- | --- |
-| `MIMAP-006` | active | Select first near-transcription executable slice. | 1 commit |
-| `MIMAP-007` | blocked by MIMAP-006 | Size-class / bin map executable pilot. | 2-3 commits |
+| `MIMAP-006` | landed | Select first near-transcription executable slice. | 1 commit |
+| `MIMAP-007` | active | Size-class / bin map executable pilot. | 2-3 commits |
 | `MIMAP-008` | blocked by MIMAP-006 | Page/free-list model pilot with explicit lifecycle state. | 2-4 commits |
 | `MIMAP-009` | blocked by MIMAP-008 | Decommit/recommit/reuse lifecycle integration pilot. | 2-4 commits |
 
