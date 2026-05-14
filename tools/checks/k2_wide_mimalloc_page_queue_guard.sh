@@ -92,8 +92,11 @@ if rg -n 'mimalloc-page-queue|HakoAllocPageQueue|page_queue_box|direct_page_inde
 fi
 rm -f /tmp/"$TAG".inc
 
-NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
-  cargo run -q --bin hakorune -- --backend vm "$ROOT_DIR/$APP" >"$OUT" 2>"$ERR"
+if ! guard_timeout_run "$TAG" "${MIMAP_VM_TIMEOUT:-25s}" "$OUT" "$ERR" env NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" cargo run -q --bin hakorune -- --backend vm "$ROOT_DIR/$APP"; then
+  cat "$OUT" >&2 || true
+  cat "$ERR" >&2 || true
+  guard_fail "$TAG" "VM page queue proof failed or timed out"
+fi
 
 grep -q '^mimalloc-page-queue-proof$' "$OUT"
 grep -q '^entries=0,1,2$' "$OUT"

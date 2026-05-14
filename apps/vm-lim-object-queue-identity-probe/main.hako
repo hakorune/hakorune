@@ -1,0 +1,27 @@
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+
+static box Main {
+    main(args) {
+        local page = new HakoAllocPageModel(77, 16, 2, 2)
+        local pages = new ArrayBox()
+
+        pages.push(page)
+        local retained = pages.get(0)
+
+        local free0 = retained.freeCount()
+        local block = retained.acquire(8)
+        local free1 = retained.freeCount()
+        local live = retained.blockIsLive(block)
+
+        print("vm-lim-object-queue-identity-probe")
+        print("values=" + free0 + "," + block + "," + free1 + "," + live)
+
+        if free0 == 2 && block >= 0 && free1 == 1 && live == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

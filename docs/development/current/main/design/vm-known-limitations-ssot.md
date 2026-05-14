@@ -109,3 +109,31 @@ lang/src/hako_alloc/memory/page_queue_box.hako
 
 Retire follow-up when `VM-LIM-001` itself is retired or a dedicated VM fix row is
 opened with its own guard and acceptance contract.
+
+### Follow-up result: identity hypothesis narrowed
+
+The broad identity hypothesis was probed with:
+
+```text
+apps/vm-lim-object-queue-identity-probe/main.hako
+tools/checks/vm_lim_001_object_queue_identity_probe.sh
+```
+
+The VM completed the minimal route:
+
+```text
+ArrayBox.push(page object)
+ArrayBox.get(0)
+returned page object becomes method receiver
+```
+
+Existing M166 page queue also completed under an external timeout:
+
+```text
+timeout --kill-after=2s 25s bash tools/checks/k2_wide_mimalloc_page_queue_guard.sh
+```
+
+Therefore `VM-LIM-001` is narrowed: current evidence does not prove a general
+`ArrayBox-held InstanceBox` identity failure. Keep the limitation as a caution for
+MIMAP prototype object-heavy lifecycle/facade routes, but treat it as a retirement
+candidate if MIMAP-012 LLVM/EXE and a bounded VM probe agree.
