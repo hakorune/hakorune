@@ -1,6 +1,6 @@
 use crate::ast::{ASTNode, EnumVariantDecl, FieldDecl};
 use crate::parser::NyashParser;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use super::brand_checker;
 use super::extract::{collect_using_imports, find_static_main_box, preexpand_dev_local_aliases};
@@ -71,6 +71,7 @@ fn ast_to_program_json_v0_with_imports(
         collect_enum_decl_index(ast),
         brand_decl_index,
         collect_record_decl_index(ast),
+        collect_source_enum_decl_names(ast),
     );
     let mut program = program_json_v0_from_body_with_context(main_box.body, &lowering_context)?;
     let defs = defs_json_v0_from_methods(&main_box.helper_methods, &lowering_context)?;
@@ -290,6 +291,22 @@ fn collect_enum_decl_index(ast: &ASTNode) -> BTreeMap<String, Vec<EnumVariantDec
         })
     );
     index
+}
+
+fn collect_source_enum_decl_names(ast: &ASTNode) -> BTreeSet<String> {
+    let ASTNode::Program { statements, .. } = ast else {
+        return BTreeSet::new();
+    };
+
+    statements
+        .iter()
+        .filter_map(|statement| {
+            let ASTNode::EnumDeclaration { name, .. } = statement else {
+                return None;
+            };
+            Some(name.clone())
+        })
+        .collect()
 }
 
 fn collect_brand_decl_index(ast: &ASTNode) -> BTreeMap<String, String> {

@@ -215,6 +215,8 @@ Rules:
 - constructors use `Type::Variant`, for example `Option::None` and
   `Result::Ok(value)`;
 - dot variants such as `Result.Ok(value)` are rejected for known enum variants;
+- prelude `Option<T>` / `Result<T,E>` local constructors need explicit typed
+  context when generic parameters would otherwise be ambiguous;
 - `Option::None` is not `null`.
 - `Option::Some(null)` is forbidden.
 - `Option::Some(void)` is forbidden.

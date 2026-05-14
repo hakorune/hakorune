@@ -215,6 +215,7 @@ Notes
   `Result::Ok(value)`. Dot variants are rejected for known enum variants.
   RESULT-002A adds tagged prelude missing-arm diagnostics.
   RESULT-002B adds tagged prelude payload arity diagnostics.
+  RESULT-002D adds tagged prelude expected-type diagnostics.
 - Static const tables: `static const NAME: u16[] = [...]` and `NAME[index]` reads are accepted for the narrow M11b row. Initializer elements may use side-effect-free integer const expressions; const fn is still reserved.
 
 ### C197 Logical Condition Surface
@@ -570,6 +571,9 @@ Rules:
   canonical.
 - `Option<T>` and `Result<T,E>` are built-in enum prelude surfaces as of
   RESULT-001. `Option::Some(null)` / `Option::Some(void)` fail-fast.
+- Prelude `Option<T>` / `Result<T,E>` local constructors require explicit typed
+  context when generic parameters would otherwise be ambiguous; RESULT-002D
+  tags those diagnostics with `[enum/expected-type][prelude]`.
 - Known enum variants written with dot syntax, such as `Result.Ok(...)`, are
   rejected with enum-variant diagnostics.
 

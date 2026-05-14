@@ -58,10 +58,10 @@ enum Result<T, E> {
 Construction uses qualified enum constructors:
 
 ```hako
-local a = Option::Some(42)
-local b = Option::None
-local ok = Result::Ok(42)
-local err = Result::Err("bad")
+local a: Option<i64> = Option::Some(42)
+local b: Option<i64> = Option::None
+local ok: Result<i64, String> = Result::Ok(42)
+local err: Result<i64, String> = Result::Err("bad")
 ```
 
 Dot variants are not canonical:
@@ -90,6 +90,11 @@ Prelude constructor payload arity errors fail with `[enum/payload][prelude]`.
 `Option::Some` / `Result::Ok` / `Result::Err` require one payload. `Option::None`
 takes no payload. `Option::Some(null)` and `Option::Some(void)` stay on the
 stricter nullish payload contract.
+
+Prelude `Option<T>` / `Result<T,E>` local constructors require explicit typed
+context when type arguments would otherwise be ambiguous. Untyped local
+initializers such as `local err = Result::Err("bad")` and
+`local empty = Option::None` fail with `[enum/expected-type][prelude]`.
 
 ## Semantics
 

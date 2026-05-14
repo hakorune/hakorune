@@ -237,6 +237,10 @@ Rejected until a later inference row:
 local r = Result::Err(AllocError::ZeroSize)
 ```
 
+`RESULT-002D` enforces this for prelude `Option<T>` / `Result<T,E>` local
+initializers with `[enum/expected-type][prelude]`. Broader expected-type
+propagation remains Stage1 type-context work, not a new inference rule.
+
 ## Required Implementation Rows
 
 | Row | Scope | Owner |
@@ -252,8 +256,8 @@ local r = Result::Err(AllocError::ZeroSize)
 | `RESULT-001` | complete as `293x-314`; Result/Option prelude and explicit variant diagnostics | Stage1 enum/prelude |
 | `RESULT-002A` | complete as `293x-319`; prelude enum missing-arm diagnostics | Stage1 diagnostics |
 | `RESULT-002B` | complete as `293x-320`; prelude enum payload diagnostics | Stage1 diagnostics |
-| `RESULT-002C` | known-enum exhaustiveness underscore rules | Stage1 diagnostics |
-| `RESULT-002D` | generic enum expected-type diagnostics without inference | Stage1 diagnostics |
+| `RESULT-002C` | complete as `293x-321`; known-enum exhaustiveness underscore rules | Stage1 diagnostics |
+| `RESULT-002D` | complete as `293x-322`; generic enum expected-type diagnostics without inference | Stage1 diagnostics |
 | `PACKED-001` | complete as `293x-293`; PackedArray eligibility gate and fail-fast policy | Stage1 CorePlan |
 
 ## Stage Split

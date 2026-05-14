@@ -70,8 +70,8 @@ Collections and failure values
 - unresolved generic element contexts such as `Array<T>` fail-fast until a later generic row
 - ordinary `Array<T>` literals use JSON v0 `ArrayLiteral` / ArrayBox route; `PackedArray<T>` has no fallback
 - `PackedArray<T>` — packed residence request; no silent fallback
-- `Option::Some(v)` / `Option::None`
-- `Result::Ok(v)` / `Result::Err(e)`
+- `local opt: Option<T> = Option::Some(v)` / `Option::None`
+- `local res: Result<T,E> = Result::Ok(v)` / `Result::Err(e)`
 - `Result.Ok(v)` is not canonical; dot is object/member access
 
 Using / SSOT

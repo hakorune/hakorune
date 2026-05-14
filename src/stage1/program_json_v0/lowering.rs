@@ -17,6 +17,7 @@ pub(super) struct ProgramJsonV0LoweringContext {
     known_enums: BTreeMap<String, Vec<EnumVariantDecl>>,
     known_brands: BTreeMap<String, String>,
     known_records: BTreeMap<String, Vec<FieldDecl>>,
+    source_enum_names: BTreeSet<String>,
 }
 
 impl ProgramJsonV0LoweringContext {
@@ -24,11 +25,13 @@ impl ProgramJsonV0LoweringContext {
         known_enums: BTreeMap<String, Vec<EnumVariantDecl>>,
         known_brands: BTreeMap<String, String>,
         known_records: BTreeMap<String, Vec<FieldDecl>>,
+        source_enum_names: BTreeSet<String>,
     ) -> Self {
         Self {
             known_enums,
             known_brands,
             known_records,
+            source_enum_names,
         }
     }
 
@@ -44,6 +47,10 @@ impl ProgramJsonV0LoweringContext {
 
     fn find_record(&self, record_name: &str) -> Option<&[FieldDecl]> {
         self.known_records.get(record_name).map(Vec::as_slice)
+    }
+
+    fn is_prelude_result_option_enum(&self, enum_name: &str) -> bool {
+        matches!(enum_name, "Option" | "Result") && !self.source_enum_names.contains(enum_name)
     }
 }
 
@@ -180,6 +187,12 @@ fn statement_to_json_v0_many(
                     .get(index)
                     .and_then(|value| value.as_deref());
                 let initializer_node = initial_values.get(index).and_then(|value| value.as_deref());
+                validate_prelude_enum_expected_type_context(
+                    name,
+                    declared_type_name,
+                    initializer_node,
+                    context,
+                )?;
                 let record_type = initializer_node
                     .and_then(|value| record_type_name_for_expr(value, local_types))
                     .or_else(|| {
@@ -730,6 +743,54 @@ fn validate_array_element_type_supported(
     Ok(())
 }
 
+fn validate_prelude_enum_expected_type_context(
+    local_name: &str,
+    declared_type_name: Option<&str>,
+    initializer_node: Option<&ASTNode>,
+    context: &ProgramJsonV0LoweringContext,
+) -> Result<(), String> {
+    if declared_type_name.is_some() {
+        return Ok(());
+    }
+    let Some(ASTNode::FromCall {
+        parent,
+        method,
+        arguments,
+        ..
+    }) = initializer_node
+    else {
+        return Ok(());
+    };
+    if !context.is_prelude_result_option_enum(parent) {
+        return Ok(());
+    }
+    let Some(variant) = context.find_enum_variant(parent, method) else {
+        return Ok(());
+    };
+    if arguments.len() != variant.payload_arity() {
+        return Ok(());
+    }
+    if requires_non_nullish_payload(parent, method)
+        && arguments.iter().any(ast_expr_is_statically_nullish)
+    {
+        return Ok(());
+    }
+    let type_hint = match parent.as_str() {
+        "Option" => "Option<T>",
+        "Result" => "Result<T,E>",
+        _ => unreachable!("prelude enum gate only accepts Option/Result"),
+    };
+    let ctor_hint = if variant.payload_arity() == 0 {
+        format!("{}::{}", parent, method)
+    } else {
+        format!("{}::{}(...)", parent, method)
+    };
+    Err(format!(
+        "[enum/expected-type][prelude] {}::{} for local `{}` requires explicit expected type; add `local {}: {} = {}`",
+        parent, method, local_name, local_name, type_hint, ctor_hint
+    ))
+}
+
 fn array_element_type_has_unresolved_generic(type_name: &str) -> bool {
     type_name
         .split(|ch: char| !ch.is_ascii_alphanumeric() && ch != '_')
@@ -1045,7 +1106,7 @@ fn enum_ctor_to_json_v0(
         })?;
     let expected_arity = variant.payload_arity();
     if arguments.len() != expected_arity {
-        if is_result_option_prelude_enum(enum_name) {
+        if context.is_prelude_result_option_enum(enum_name) {
             return Err(format!(
                 "[enum/payload][prelude] {}::{} expects {} payload arg(s), got {}",
                 enum_name,
@@ -1091,10 +1152,6 @@ fn enum_ctor_to_json_v0(
         "payload_type": payload_type,
         "args": lowered_args,
     }))
-}
-
-fn is_result_option_prelude_enum(enum_name: &str) -> bool {
-    matches!(enum_name, "Option" | "Result")
 }
 
 fn ast_expr_is_statically_nullish(node: &ASTNode) -> bool {

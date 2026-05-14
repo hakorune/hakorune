@@ -736,7 +736,7 @@ fn source_to_program_json_v0_rejects_prelude_option_missing_arm_diagnostic() {
     let source = r#"
 static box Main {
   main() {
-local value = Option::Some(1)
+local value: Option<i64> = Option::Some(1)
 return match value {
   Some(v) => v
 }
@@ -756,7 +756,7 @@ fn source_to_program_json_v0_rejects_prelude_result_missing_arm_diagnostic() {
     let source = r#"
 static box Main {
   main() {
-local value = Result::Ok(1)
+local value: Result<i64, String> = Result::Ok(1)
 return match value {
   Ok(v) => v
   _ => 0
@@ -798,6 +798,42 @@ return match state {
     assert!(error.contains("PageState"), "{error}");
     assert!(error.contains("Retired"), "{error}");
     assert!(error.contains("`_` does not satisfy known-enum exhaustiveness"), "{error}");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_prelude_result_constructor_without_expected_type() {
+    let source = r#"
+static box Main {
+  main() {
+local value = Result::Err("bad")
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("prelude generic enum constructor needs expected type");
+    assert!(error.contains("[enum/expected-type][prelude]"), "{error}");
+    assert!(error.contains("Result::Err"), "{error}");
+    assert!(error.contains("local value: Result<T,E> = Result::Err(...)"), "{error}");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_prelude_option_unit_constructor_without_expected_type() {
+    let source = r#"
+static box Main {
+  main() {
+local value = Option::None
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("prelude generic unit enum constructor needs expected type");
+    assert!(error.contains("[enum/expected-type][prelude]"), "{error}");
+    assert!(error.contains("Option::None"), "{error}");
+    assert!(error.contains("local value: Option<T> = Option::None"), "{error}");
 }
 
 #[test]
