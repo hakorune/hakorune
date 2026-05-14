@@ -2,7 +2,7 @@
 
 Status: Active
 Lane: `phase-293x language minimal surface lane`
-Current blocker token: `PACKED-004 source PackedArray backend fail-fast hardening`
+Current blocker token: `MIMAP-001 upstream source pin`
 
 ## Purpose
 
@@ -40,7 +40,7 @@ docs/development/current/main/design/language-minimal-surface-task-breakdown-sso
 
 ## Current split rows
 
-- [ ] `PACKED-004` source PackedArray backend fail-fast hardening
+- [x] `PACKED-004` source PackedArray backend fail-fast hardening
 
 ## Blocked / deferred rows
 
@@ -69,7 +69,8 @@ no guard-let before RESULT-002 diagnostics
 - `LOOP-003C`: landed function-level loop_range_facts metadata.
 - `LOOP-003D`: landed carrier policy; fresh body-local writes are allowed while loop-carried writes remain fail-fast.
 - `PACKED-003`: landed source PackedArray direct-read consumption metadata.
-- `PACKED-004`: next backend fail-fast hardening.
+- `PACKED-004`: landed backend fail-fast hardening.
+- `MIMAP-001`: active next upstream source pin.
 
 ## Remaining implementation rows estimate (2026-05-14)
 
@@ -77,7 +78,7 @@ no guard-let before RESULT-002 diagnostics
 
 | Row | Purpose | Expected size |
 | --- | --- | --- |
-| `PACKED-004` | Backend fail-fast hardening for source PackedArray required routes. | 1 commit |
+| `PACKED-004` | Complete as `293x-330`; source direct-read consumption plans are included in the backend fail-fast gate. | complete |
 
 After this set, switch to the mimalloc blueprint board:
 

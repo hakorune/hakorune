@@ -1,5 +1,5 @@
 ---
-Status: Parked
+Status: Active
 Date: 2026-05-14
 Lane: phase-293x mimalloc blueprint / port preparation
 Canonical SSOT:
@@ -20,8 +20,7 @@ LOOP-003C/D complete
 PACKED-003/004 complete
 ```
 
-Blueprint and inventory rows may start before that because they do not change
-runtime behavior.
+Blueprint and inventory rows are now the active lane entry. Current row: `MIMAP-001 upstream source pin`.
 
 ## Active Source Policy
 
@@ -39,7 +38,7 @@ Tracked output is docs only.
 
 | Row | Status | Purpose | Expected size |
 | --- | --- | --- | --- |
-| `MIMAP-001` | ready | Upstream source pin: URL, commit/tag, license, inspected files, local path. | 1 commit |
+| `MIMAP-001` | active | Upstream source pin: URL, commit/tag, license, inspected files, local path. | 1 commit |
 | `MIMAP-002` | ready | Source concept inventory: segment/page/block/heap/free-list/size-class/os/stats. | 1-2 commits |
 | `MIMAP-003` | ready | Lifecycle rewrite blueprint: enum states, transitions, guard points. | 1-2 commits |
 | `MIMAP-004` | ready | Substrate/representation gap ledger from source evidence. | 1-2 commits |

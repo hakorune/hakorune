@@ -47,6 +47,12 @@ fn packed_record_required_route_count(module: &MirModule) -> usize {
         .count()
         + module
             .metadata
+            .source_packed_array_direct_read_consumption_plans
+            .iter()
+            .filter(|plan| plan.backend_lowering_enabled)
+            .count()
+        + module
+            .metadata
             .hako_alloc_aligned_small_packed_store_pilot_plans
             .iter()
             .filter(|plan| plan.backend_lowering_enabled)

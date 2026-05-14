@@ -35,19 +35,19 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Lane
 
-- active lane: `phase-293x language minimal surface lane`
+- active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - task breakdown:
-  `docs/development/current/main/phases/phase-293x/293x-language-minimal-taskboard.md`
-- record / packed ArrayBox SSOT:
-  `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
+  `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
+- mimalloc blueprint SSOT:
+  `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - mimalloc blueprint / port taskboard:
   `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
 - current blocker token:
-  `PACKED-004 source PackedArray backend fail-fast hardening`
+  `MIMAP-001 upstream source pin`
 - primary mode: language minimal surface lane; keep Stage0 thin and Stage1 semantic rows small
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -60,14 +60,14 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after PACKED-002; next blocker is
-  PACKED-004 source PackedArray backend fail-fast hardening. Keep LoopRange on the Stage1 route; do not source-desugar range loops.
+- resume point: continue Phase 293x after PACKED-004; next blocker is
+  MIMAP-001 upstream source pin. Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
 ## Task Order
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  PACKED-004 source PackedArray backend fail-fast hardening
+  MIMAP-001 upstream source pin
 - optional future allocator-provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`
@@ -118,7 +118,7 @@ Scope: current lane / next lane / restart order only.
 - Real-app bringup phase:
   `docs/development/current/main/phases/phase-293x/README.md`
 - Language-minimal taskboard:
-  `docs/development/current/main/phases/phase-293x/293x-language-minimal-taskboard.md`
+  `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
 - Real-app smoke suite:
   `tools/smokes/v2/suites/integration/real-apps.txt`
 - Real-app EXE boundary suite:

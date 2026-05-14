@@ -83,7 +83,7 @@ Retire condition:
 | Enum transition lifecycle | metadata capsule complete | `TRANS-002 transition legality checker` |
 | Result/Option | guard-let narrow sugar complete | no immediate Result/Option row |
 | Generic containers | generic type annotation metadata and arity checker complete | next substitution/semantics row deferred |
-| PackedArray | source direct-read consumption metadata complete | `PACKED-004 source PackedArray backend fail-fast hardening` |
+| PackedArray | source backend fail-fast complete | no immediate PackedArray row |
 | Array / Result / Option canonical surface | docs accepted; LOCALTYPE/ENUMVAR/ARRAY/RESULT/GUARDLET rows complete | no immediate code row |
 | Uses/capability | method-level metadata capsule complete | `USES-002 capability checker` |
 | Span/view | planned later | `SPAN-001 Span API design row` |
@@ -314,7 +314,7 @@ language work, start here:
 7. `LOOP-003C LoopRange verifier facts and read-only index proof surface` (complete as `293x-327`)
 8. `LOOP-003D LoopRange carrier policy` (complete as `293x-328`)
 9. `PACKED-003 source PackedArray direct-read consumption` (complete as `293x-329`)
-10. `PACKED-004 source PackedArray backend fail-fast hardening`
+10. `PACKED-004 source PackedArray backend fail-fast hardening` (complete as `293x-330`)
 9. `BRAND-001 Stage0 brand declaration metadata capsule` (complete as `293x-275`)
 10. `BRAND-002 Stage1 brand constructor unwrap policy` (complete as `293x-276`)
 11. `BRAND-003 Stage1 brand mismatch checker` (complete as `293x-277`)
@@ -387,12 +387,7 @@ MIMAP-003 lifecycle rewrite blueprint
 MIMAP-004 substrate and representation gap ledger
 ```
 
-Executable mimalloc slices should wait until at least:
-
-```text
-LOOP-003C/D complete
-PACKED-004
-```
+Executable mimalloc slices can now start after MIMAP inventory selects the first near-transcription slice.
 
 Canonical handoff board:
 

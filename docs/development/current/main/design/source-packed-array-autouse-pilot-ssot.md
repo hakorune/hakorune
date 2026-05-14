@@ -87,6 +87,25 @@ boxed_fallback_enabled = false
 This is still metadata-only. Runtime/backend lowering, public record
 materialization, hako_alloc migration, and boxed fallback remain disabled.
 
+## PACKED-004 Backend Fail-fast Hardening
+
+PACKED-004 connects source direct-read consumption plans to the existing packed
+record backend capability gate.
+
+Current rows keep:
+
+```text
+backend_lowering_enabled = false
+```
+
+so no backend is required today. If a future row enables backend lowering on a
+source PackedArray direct-read route, unsupported backends must fail with the
+existing packed record backend tag instead of falling back:
+
+```text
+[freeze:backend][array-record/packed-route-unsupported]
+```
+
 ## Stage Split
 
 Stage1/MIR owns:
@@ -96,6 +115,7 @@ source PackedArray<T> declaration-site metadata
 link to existing C209 non-escaping packed ArrayBox pilot rows
 MIR JSON exposure for the metadata row
 PACKED-003 direct-read consumption metadata
+PACKED-004 backend fail-fast hardening for future required source routes
 ```
 
 Stage1/MIR does not own here:

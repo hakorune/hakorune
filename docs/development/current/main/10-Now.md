@@ -14,25 +14,25 @@ Related:
 ## Current
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- active lane: `phase-293x language minimal surface lane`
+- active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - phase status: read `phase_status` in `CURRENT_STATE.toml`
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - task breakdown:
-  `docs/development/current/main/phases/phase-293x/293x-language-minimal-taskboard.md`
-- record / packed ArrayBox SSOT:
-  `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
+  `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
+- mimalloc blueprint SSOT:
+  `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `PACKED-004 source PackedArray backend fail-fast hardening`
+- current blocker token: `MIMAP-001 upstream source pin`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after PACKED-002; next blocker is PACKED-004 source PackedArray backend fail-fast hardening
+- continue phase-293x after PACKED-004; next blocker is MIMAP-001 upstream source pin
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
@@ -50,7 +50,7 @@ Related:
 2. `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 3. `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
 4. `docs/development/current/main/phases/phase-293x/README.md`
-5. `docs/development/current/main/phases/phase-293x/293x-language-minimal-taskboard.md`
+5. `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 7. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
 8. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
