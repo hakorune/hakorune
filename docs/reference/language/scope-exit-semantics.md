@@ -95,7 +95,9 @@ If constructor (`birth`) fails:
 1. do not call `box.fini()`
 2. destroy only already-initialized fields
 3. field destruction order is reverse declaration order
-4. for `from Parent.birth(...)`, apply the same rule across the full initialized field set
+4. for legacy `from Parent.birth(...)` compatibility paths, apply the same rule
+   across the full initialized field set. New delegation code should use
+   explicit field composition and `delegate field exposes`.
 
 ## 7) Ownership Terminology (No `move` Keyword)
 

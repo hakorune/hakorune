@@ -1,10 +1,11 @@
 # Option Values
 
-Status: Provisional public language direction.
+Status: Current reference.
 
-`Option<T>` is the planned public optional-value shape for Hakorune/Nyash. It
-is distinct from `null` / `void` and must not be used as the compiler helper
-no-match carrier on the Stage0 path.
+`Option<T>` is the public optional-value shape for Hakorune/Nyash. `Result<T,E>`
+is the public failure-value shape. Both are built-in enum prelude surfaces as of
+RESULT-001. They are distinct from `null` / `void` and must not be used as the
+compiler helper no-match carrier on the Stage0 path.
 
 Design SSOT:
 
@@ -15,7 +16,7 @@ Design SSOT:
 
 Older development history included a Box-first `OptionBox` / `ResultBox`
 library implementation, Optional/Null proposal docs, and Phase 12.7-era
-`ResultBox` / `?` references. Those are references, not the current canonical
+`ResultBox` / `?` references. Those are historical references, not the current canonical
 language semantics.
 
 Current rule:
@@ -27,6 +28,10 @@ OptionBox:
 Option<T>:
   public language meaning
   enum Option<T> { None, Some(T) }
+
+Result<T,E>:
+  public failure value meaning
+  enum Result<T,E> { Ok(T), Err(E) }
 ```
 
 If an `OptionBox` facade is restored later, it must preserve the enum Option
@@ -34,12 +39,17 @@ semantics described here.
 
 ## Surface Shape
 
-`Option<T>` uses the enum surface:
+`Option<T>` and `Result<T,E>` use the enum surface:
 
 ```hako
 enum Option<T> {
   None
   Some(T)
+}
+
+enum Result<T, E> {
+  Ok(T)
+  Err(E)
 }
 ```
 
@@ -48,6 +58,15 @@ Construction uses qualified enum constructors:
 ```hako
 local a = Option::Some(42)
 local b = Option::None
+local ok = Result::Ok(42)
+local err = Result::Err("bad")
+```
+
+Dot variants are not canonical:
+
+```hako
+Result.Ok(42)   // rejected for known enum variants
+Option.None     // rejected for known enum variants
 ```
 
 Matching may use known-enum shorthand when the scrutinee resolves to the known
@@ -98,7 +117,8 @@ when empty string is not a legal payload, or a tagged text carrier when it is.
 
 ## Sugar Surface
 
-AQ-5 now allows the optional sugar surface on top of the same enum lane:
+Legacy parser paths may still accept narrow optional sugar on top of the same
+enum lane:
 
 ```hako
 some expr
@@ -110,8 +130,8 @@ if some v = maybe_value {
 }
 ```
 
-These forms desugar to the same `Option::Some(...)`, `Option::None`, and known-enum
-`match` route used by the explicit enum surface. They do not introduce a separate
-runtime representation.
+These forms are not the canonical documentation surface. New code should prefer
+explicit `Option::Some(...)`, `Option::None`, and `match`.
 
-`?` propagation is still deferred until function return-shape policy is fixed.
+`?`, `try`, and exception-like propagation are not part of the canonical
+Result/Option surface.

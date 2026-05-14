@@ -1,6 +1,6 @@
 # Low-Level Capability Surface
 
-Status: provisional reference
+Status: Current reference with staged implementation rows.
 
 This document is the language-facing entry for low-level `.hako` code used by
 allocator, collection, and runtime internals.
@@ -51,17 +51,17 @@ unsupported-backend fail-fast behavior.
 
 | Feature family | Status | Stage0 reading | Stage1 reading |
 | --- | --- | --- | --- |
-| `loop` condition / range / infinite forms | planned capsule for range header only | existing loop parse plus LoopRange metadata for `loop i in start..end` | entry-bound capture, read-only index, continue-safe lowering, bounds facts |
-| `type` / `brand` | planned capsule then semantics | declaration metadata only | alias facts, brand constructor/unwrap policy, mixed-brand rejection |
+| `loop` condition / range / infinite forms | LoopRange parser capsule complete; Stage1 lowering still open | existing loop parse plus LoopRange metadata for `loop i in start..end` | entry-bound capture, read-only index, continue-safe lowering, bounds facts |
+| `type` / `brand` | brand declaration + constructor/unwrap + mismatch checker complete; type alias metadata complete | declaration metadata only | alias diagnostics remain open |
 | `record` / record literal / `with` | record declaration + literal parser capsule complete; construction/read lowering complete; with-update lowering complete | declaration and literal/update-shape metadata only | identity-free layout, scalar/packed planning |
 | `assert` / `requires` / `ensures` / `invariant` | `requires` / `ensures` / `invariant` contract syntax metadata capsule complete; `assert` still planned separately | syntax and metadata only for `requires` / `ensures` / `invariant`; `assert` may be fail-fast sugar if explicitly carded | runtime checks, verifier discharge, diagnostics |
 | enum state values / `transition` | transition metadata capsule complete | transition metadata and enum references only | transition legality and lifecycle verifier facts |
-| `Result` / `Option` / `guard let` | planned enum/prelude lane | enum surface only | prelude, exhaustiveness, pattern sugar |
-| `Array<T>` / `PackedArray<T>` | generic type annotation metadata capsule complete; generic arity checker complete | generic annotation metadata; known generic arity fail-fast | typed array semantics and packed eligibility gates |
+| `Result` / `Option` / `guard let` | Result/Option prelude diagnostics complete; guard-let deferred | enum surface and explicit constructor shape only | prelude diagnostics complete; exhaustiveness and pattern sugar remain Stage1 rows |
+| `Array<T>` / `PackedArray<T>` | generic annotation, arity checker, typed-context `Array<T>` literals, and PackedArray declaration eligibility complete | generic annotation metadata; known generic arity fail-fast; array literal shape transport | Array method contract and element checks remain open; PackedArray auto-use remains CorePlan |
 | `const fn` / `comptime` / `const assert` | planned const lane | no evaluator beyond existing const-table support | const evaluator and purity rules |
 | `uses` / deferred `cap` | method-level uses metadata capsule complete; `cap` block still deferred | method capability metadata only | capability checking and backend gates |
 | `Span<T>` / deferred `view` | planned raw-view lane | none | Span APIs first; scoped view syntax only if needed |
-| `delegate field exposes` / deferred `interface` / `impl` | planned delegation lane plus later interface lane | delegate metadata only; legacy `from` / `override` are not new canonical spelling | delegate lowering first, static conformance only after delegation is insufficient |
+| `delegate field exposes` / deferred `interface` / `impl` | delegate parser metadata and exposes lowering complete; interface still deferred | delegate metadata only; legacy `from` / `override` are not new canonical spelling | legacy quarantine and static conformance remain later |
 | `using` / deferred `module` family | current import plus planned module lane | `using` remains current; minimal module metadata later | visibility and package semantics |
 | `check report` | planned proof lane | none | report object and diagnostics |
 

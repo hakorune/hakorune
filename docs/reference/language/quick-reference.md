@@ -1,12 +1,12 @@
-# Nyash Quick Reference (MVP)
+# Hakorune / Nyash Quick Reference
 
 Purpose
-- One‑page practical summary for writing and implementing Nyash.
+- One-page practical summary for writing and implementing current Hakorune/Nyash.
 - Keep grammar minimal; clarify rules that often cause confusion.
 
 Keywords (reserved)
-- control: `if`, `else`, `loop`, `match`, `case`, `break`, `continue`, `return`
-- decl: `static`, `box`, `local`, `using`, `as`
+- control: `if`, `else`, `guard`, `loop`, `match`, `break`, `continue`, `return`
+- decl: `static`, `box`, `record`, `enum`, `brand`, `type`, `local`, `using`, `delegate`, `uses`, `as`
 - lit: `true`, `false`, `null`, `void`
 
 Expressions and Calls
@@ -57,8 +57,18 @@ String and Numeric `+`
 
 Blocks and Control
 - `if (cond) { ... } [else { ... }]`
-- `loop (cond) { ... }` — minimal loop form
-- `match (expr) { case ... }` — MVP (literals and simple type patterns)
+- `guard cond else { ... }` — early-exit branch
+- `loop cond { ... }` — condition loop
+- `loop i in start..end { ... }` — range loop header, end-exclusive
+- `loop { ... }` — infinite loop
+- `match expr { pattern => expr, _ => fallback }` — MVP match form; no `case` keyword
+
+Collections and failure values
+- `local xs: Array<T> = []` — typed-context Array literal; `local xs = []` fail-fasts
+- `PackedArray<T>` — packed residence request; no silent fallback
+- `Option::Some(v)` / `Option::None`
+- `Result::Ok(v)` / `Result::Err(e)`
+- `Result.Ok(v)` is not canonical; dot is object/member access
 
 Using / SSOT
 - Dev/CI: file‑based `using` allowed for convenience.

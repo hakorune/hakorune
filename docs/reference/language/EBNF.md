@@ -128,7 +128,7 @@ unary_no_group := ( '-' | '!' | 'not' | '~' ) unary_no_group
                 | 'void'
                 | IDENT call_tail*
                 | 'new' IDENT '(' args? ')'
-                | '[' args? ']'           ; Array literal (Stage‑1 sugar, gated)
+                | '[' args? ']'           ; Array literal shape; Stage1 requires typed Array<T> context
                 | '%{' map_entries? '}'   ; Map literal (Stage‑2 sugar, gated)
                 | match_expr              ; Pattern matching (replaces legacy peek)
 
@@ -146,7 +146,7 @@ factor    := INT
            | 'new' IDENT '(' args? ')'
            | record_literal
            | record_update
-           | '[' args? ']'           ; Array literal (Stage‑1 sugar, gated)
+           | '[' args? ']'           ; Array literal shape; Stage1 requires typed Array<T> context
            | '%{' map_entries? '}'   ; Map literal (Stage‑2 sugar, gated)
            | match_expr              ; Pattern matching (replaces legacy peek)
 
@@ -195,19 +195,23 @@ assignment_expr := IDENT '=' expr
 Notes
 - ASI: Newline is the primary statement separator. Do not insert a semicolon between a closed block and a following 'else'.
 - Semicolon (optional): When `NYASH_PARSER_ALLOW_SEMICOLON=1` is set, `;` is accepted as an additional statement separator (equivalent to newline). It is not allowed between `}` and a following `else`.
-- Do‑while: not supported by design. Prefer a single‑entry, pre‑condition loop normalized via sugar (e.g., `repeat N {}` / `until cond {}`) to a `loop` with clear break conditions.
+- Do-while, repeat, until, while, and for are not canonical surface forms.
+  Use `loop cond { ... }`, `loop i in start..end { ... }`, or `loop { ... }`.
 - Short-circuit: '&&' and '||' must not evaluate the RHS when not needed.
 - Proof checks: `check "name" { "label": expr }` is an eager proof-list
   expression. It must not be treated as an alias for short-circuit '&&' / '||'.
 - Unary minus has higher precedence than '*' and '/'.
 - IDENT names consist of [A-Za-z_][A-Za-z0-9_]*
-- Array literal is enabled when syntax sugar is on (NYASH_SYNTAX_SUGAR_LEVEL=basic|full) or when NYASH_ENABLE_ARRAY_LITERAL=1 is set.
+- Array literal shape is parsed. Stage1 accepts it only with explicit
+  `Array<T>` local typed context in ARRAY-001; untyped `[]` fail-fasts.
 - Map literal is enabled when syntax sugar is on (NYASH_SYNTAX_SUGAR_LEVEL=basic|full) or when NYASH_ENABLE_MAP_LITERAL=1 is set.
 - Identifier keys in map literals are out of v1 scope (string keys only): use `%{"name" => v}`.
 - Pattern matching: `match` replaces legacy `peek`. MVP supports wildcard `_`, literals, simple type patterns, fixed/variadic array heads `[hd, ..tl]`, simple map key extract `{ "k": v, .. }`, OR patterns, and guards `if`.
 - Known-enum shorthand: `Some(v)` / `None` is accepted only when the arm set resolves to a known enum declaration in the current source inventory.
 - Known-enum exhaustiveness: shorthand enum matches must name every variant explicitly; `_` does not satisfy exhaustiveness for that lane.
-- `Option<T>` does not add new grammar in the first cut. It uses the existing enum declaration, qualified constructor, and known-enum match surface. Future `some` / `none` / `if some` sugar is reserved and must be implemented in both Rust and `.hako` parsers together.
+- `Option<T>` and `Result<T,E>` are built-in enum prelude surfaces in
+  RESULT-001. They use qualified constructors such as `Option::None` and
+  `Result::Ok(value)`. Dot variants are rejected for known enum variants.
 - Static const tables: `static const NAME: u16[] = [...]` and `NAME[index]` reads are accepted for the narrow M11b row. Initializer elements may use side-effect-free integer const expressions; const fn is still reserved.
 
 ### C197 Logical Condition Surface
@@ -484,9 +488,12 @@ includes params, returns, fields, aliases, brands, enum payloads, and
 box/record/enum type parameters.
 
 Stop line:
-GEN-001 does not add generic arity checking, constraint solving, `where`
-clauses, `Array<T>` semantics, `PackedArray<T>` planning, `Span<T>` no-escape
-semantics, or backend fallback policy. Those are Stage1/CorePlan rows.
+GEN-001 only added generic type annotation transport. GEN-002 now owns known
+generic arity checking. ARRAY-001 owns typed-context `Array<T>` literals.
+PACKED-001 owns source-level `PackedArray<T>` declaration eligibility.
+Constraint solving, `where` clauses, full `Array<T>` method semantics,
+PackedArray auto-use/backend lowering, `Span<T>` no-escape semantics, and
+backend fallback policy remain later Stage1/CorePlan rows.
 
 ### GEN-002 Generic Arity Checker
 

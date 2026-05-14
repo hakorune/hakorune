@@ -194,20 +194,27 @@ Practical consequence:
 - `x == null` and `x == void` are equivalent checks.
 - `WeakRef.weak_to_strong()` returns `null` on failure (i.e., `void` / none).
 
-### Option<T> (public direction, null-free)
+### Option<T> / Result<T,E> (current enum prelude, null-free)
 
-`Option<T>` is the public optional-value direction, built on the first-class
-enum surface:
+`Option<T>` and `Result<T,E>` are public enum prelude surfaces:
 
 ```hako
 enum Option<T> {
   None
   Some(T)
 }
+
+enum Result<T, E> {
+  Ok(T)
+  Err(E)
+}
 ```
 
 Rules:
 
+- constructors use `Type::Variant`, for example `Option::None` and
+  `Result::Ok(value)`;
+- dot variants such as `Result.Ok(value)` are rejected for known enum variants;
 - `Option::None` is not `null`.
 - `Option::Some(null)` is forbidden.
 - `Option::Some(void)` is forbidden.

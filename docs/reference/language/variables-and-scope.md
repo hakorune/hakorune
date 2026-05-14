@@ -16,7 +16,7 @@ For the lifecycle/finalization SSOT, see: `docs/reference/language/lifecycle.md`
 - Concurrency: `local` is per routine/task activation and is thread-irrelevant. Concurrency-specific state lives in `lock<T>` / `scoped` / `worker_local` (SSOT: `docs/reference/concurrency/lock_scoped_worker_local.md`).
 
 Notes:
-- Stage‑3 gate: Parsing `local` requires Stage‑3 to be enabled (`NYASH_PARSER_STAGE3=1` or equivalent runner profile).
+- `local` is part of the current surface.
 - `local x` is treated as `local x = null` (SSOT: `docs/reference/language/types.md`).
 
 ## Assignment Resolution (Enclosing Scope Update)
@@ -32,7 +32,7 @@ This matches intuitive block‑scoped semantics (Lua‑like), and differs from P
 ## Reference Semantics (Strong/Weak)
 
 - Default: Locals hold strong references to boxes/collections.
-- Weak references: Use `weak(x)` (and fields that store `WeakRef`) to hold a non‑owning reference. Weak refs do not keep the object alive; they can be upgraded at use sites (see SSOT: `docs/reference/language/lifecycle.md`).
+- Weak references: Use `weak x` (and fields that store `WeakRef`) to hold a non-owning reference. `weak(x)` is not the canonical grammar. Weak refs do not keep the object alive; they can be upgraded at use sites (see SSOT: `docs/reference/language/lifecycle.md`).
 - Typical guidance:
   - Locals and return values: strong references.
   - Object fields that create cycles (child→parent): weak references.

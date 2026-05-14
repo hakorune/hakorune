@@ -1,65 +1,93 @@
-# フィールド可視性とデリゲーション設計（提案/仕様草案）
+# Field Visibility and Delegation
 
-本書は Nyash 言語の「フィールド可視性」と「デリゲーション（from/override）」の設計をまとめた仕様草案です。実装は段階的に進めます。
+Status: Current reference for the no-inheritance delegation surface.
 
-注: `init { ... }` は legacy のフィールド宣言（slot）です。新しい宣言モデル（stored/computed/once/birth_once）は `docs/reference/language/EBNF.md` を参照してください。
+Design SSOT:
 
-## 1. フィールド可視性（Blocks）
-- 構文
-  ```nyash
-  box User {
-      private { age, passwordHash, internalCache }
-      public  { name, email, displayName }
+- `docs/development/current/main/design/delegation-no-inheritance-ssot.md`
+- `docs/development/current/main/design/language-minimal-surface-ssot.md`
 
-      init { name, email, displayName, age }
-      // ... methods ...
-  }
-  ```
-- ルール
-  - `private`: box 内のメソッドからのみアクセス可（外部アクセス不可）
-  - `public`: 外部から `obj.field` で参照可
-  - いずれにも属さないフィールドはエラー（明示主義）
-  - `me.field` は可視性に関わらず常に許可（自身の内部）
-  - init は現状どおり public（将来 `public/private init` の導入は別途検討）
-- エラー例
-  - 外部から `user.age` → Compile/Interpret Error: private field access
-  - 親の private フィールド参照 → Error: parent private field not accessible
+## Decision
 
-実装フェーズ（予定）
-1. パーサ: `private { ... }` / `public { ... }` の受理、AST/宣言モデルに可視性付与
-2. 解決/実行: 外部アクセス時に public のみ許可、`me.field` は常にOK
-3. MIR/VM: 既存の `RefGet/RefSet` に可視性チェックフックを追加
+Hakorune does not use class inheritance as a canonical language model.
 
-## 2. デリゲーション（from/override）
-目標: ビルトイン/プラグイン/ユーザー定義の全Boxで、同一の書き味（from/override/super呼び出し）を提供しつつ、安全性を担保する。
+Do not introduce or document new code using:
 
-- 基本方針
-  - 継承モデルは維持（「委譲の糖衣」ではない）
-  - 親の内部フィールドは不可視（private は子からも見えない）
-  - メソッド解決規則は統一：子の override → なければ親へ解決
-  - 親がビルトイン/プラグインの場合、親メソッド呼び出しは `BoxCall` に lower（ローダ経由）
+```text
+extends
+super
+origin
+inherited fields
+protected
+implicit override
+field merge
+property forwarding
+```
 
-- 書式例
-  ```nyash
-  box MyFile from FileBox {
-      override write(x) {
-          // 前処理
-          from FileBox.write(x)
-          // 後処理
-      }
-  }
-  ```
+Legacy `from` / `override` names may still exist in old parser/model internals
+or historical examples, but they are not the current canonical surface.
 
-- 安全性
-  - 親の状態は親の実体としてのみ存在（フィールド継承しない）
-  - `from Parent.method()` は親タイプ名での明示ディスパッチ（暗黙の内包はしない）
-  - MIR では `BoxCall` を生成し、VM/Interpreter はローダへ委譲
+## Canonical Delegation
 
-実装フェーズ（予定）
-1. MIR Lowering: 親がビルトイン/プラグインの `from` を常に `BoxCall` へ（現状踏襲）
-2. VM/Interpreter: 既存どおりローダ委譲（Handle/BoxRef を統一処理）
+Behavior reuse is explicit composition:
 
-## 3. 参考
-- BoxRef/Handle 仕様: `docs/reference/plugin-system/boxref-behavior.md`
-- nyash.toml v2.1–v2.2: `docs/reference/plugin-system/nyash-toml-v2_1-spec.md`
-- 実装箇所（予定）: `src/parser/declarations/box_definition.rs`, `src/core/model.rs`, `src/interpreter/expressions/access.rs`, `src/mir/*`, `src/backend/vm.rs`
+```hako
+box MeshNode {
+    p2p: P2PBox = new P2PBox()
+    logger: LoggerBox = new LoggerBox()
+
+    delegate p2p exposes {
+        connect
+        broadcast
+        send as p2pSend
+    }
+
+    delegate logger exposes {
+        log
+    }
+
+    send(intent, data, target) {
+        me.logger.log("send")
+        return me.p2p.send(intent, data, target)
+    }
+}
+```
+
+Rules:
+
+- Delegation is declared on a concrete field.
+- Only explicitly exposed methods are forwarded.
+- Delegate fields are never imported into the owner box.
+- Parent/delegate state is accessed through an explicit field path such as
+  `me.p2p.state`.
+- Local method calls to the delegate use `me.<field>.<method>(...)`.
+- Duplicate exposed names fail-fast unless resolved by an explicit alias.
+- Wildcard exposes are not MVP.
+
+## Field Visibility
+
+Current field visibility is still a separate design area. Do not use field
+visibility proposals to imply inheritance semantics.
+
+Current practical rules:
+
+- `box` owns identity and fields.
+- `record` owns identity-free aggregate data.
+- `delegate` forwards behavior only.
+- Public field/property exposure should be explicit and documented by the
+  owning box surface.
+
+## Legacy Quarantine
+
+Historical examples such as:
+
+```hako
+box Child from Parent {
+    override save() {
+        from Parent.save()
+    }
+}
+```
+
+are legacy / historical and should not be copied into new code. New code should
+use an explicit field plus `delegate field exposes { ... }`.

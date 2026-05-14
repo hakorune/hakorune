@@ -36,7 +36,10 @@ Note: Empty blocks or blocks ending with a statement (without a trailing express
 
 ### Exit statements (v1 rule)
 
-In **expression position**, `return` / `break` / `continue` / `throw` **anywhere inside** a block expression are **rejected** (compile-time fail-fast). This includes exits nested inside control flow structures (e.g., `if true { return 1 }` is forbidden).
+In **expression position**, `return` / `break` / `continue` are rejected
+anywhere inside a block expression (compile-time fail-fast). `throw` is
+rejected by the surface parser in general; it is mentioned here only for legacy
+compatibility clarity.
 
 Rationale: permitting non-local exit turns block expressions into mini-CFG and expands verifier/lowering responsibility.
 
