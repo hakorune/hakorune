@@ -123,6 +123,18 @@ docs/development/current/main/design/mimalloc-hakorune-brand-type-vocabulary-sso
 Identity values are brands. Measurement units are aliases unless mixing them
 would hide a lifecycle bug.
 
+## Current Record Vocabulary
+
+`MIMAP-005B` defines identity-free records for refs, table rows, snapshots, and
+stats:
+
+```text
+docs/development/current/main/design/mimalloc-hakorune-record-vocabulary-ssot.md
+```
+
+Records do not own behavior, raw memory, delegate declarations, or lifecycle
+transitions.
+
 ## Port Reading
 
 mimalloc should not be line-by-line translated.
