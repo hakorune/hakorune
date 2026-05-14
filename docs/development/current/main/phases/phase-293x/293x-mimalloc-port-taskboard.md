@@ -130,4 +130,4 @@ no untracked design decision in implementation
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
 | `CLEAN-FOR-001` | landed | Decide legacy `parse_for_range_stage3` fate. | Legacy `for` quarantined; canonical source is `loop i in`. |
-| `CLEAN-DEAD-001` | active | Audit first `#[allow(dead_code)]` cluster. | One cluster per commit. |
+| `CLEAN-DEAD-001` | landed | Audit first `#[allow(dead_code)]` cluster. | `numeric_substrate` and `type_registry` classified as intentional staging. |

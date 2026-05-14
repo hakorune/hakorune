@@ -44,7 +44,7 @@ The remaining `ASTNode::While` vocabulary is legacy/compat residue.
 | `CLEAN-LOWER-001` | ready after While cleanup | Split `expression_to_json_v0` by expression family. | Behavior-preserving helpers for literal/var/op/call/member/record/enum/array lanes; no new Program JSON shape. |
 | `CLEAN-LOWER-002` | ready after 001 | Split `statement_to_json_v0` by statement family. | Behavior-preserving helpers for local/print/return/if/loop/range/match/check lanes. |
 | `CLEAN-FOR-001` | landed | Decide legacy `parse_for_range_stage3` fate. | Quarantined as Stage-3 legacy compatibility via `parse_legacy_for_range_stage3`; canonical surface remains `loop i in`. |
-| `CLEAN-DEAD-001` | active | Continue `#[allow(dead_code)]` pruning by cluster. | One cluster per commit; keep reason comments for intentional staging residue. |
+| `CLEAN-DEAD-001` | landed | First `#[allow(dead_code)]` cluster audit. | `numeric_substrate` and `type_registry` inspected; precise reason comments retained, no broad module allow. |
 
 ## CLEAN-WHILE-001 details
 
@@ -142,3 +142,10 @@ docs/development/current/main/design/task-lane-reconciliation-ssot.md
 2026-05-15: after `CLEAN-WHILE-002`, continue with `CLEAN-FOR-001` and
 `CLEAN-DEAD-001` before returning to `MIMAP-012`, unless the user explicitly
 reselects the mimalloc mainline.
+
+## Dead-code audit ledger
+
+2026-05-15 `CLEAN-DEAD-001`: audited `src/mir/numeric_substrate.rs` (18) and
+`src/mir/builder/type_registry.rs` (6). Both are intentional staging clusters
+with per-item reason comments; no deletion without a validation row. Next optional
+cluster is `CLEAN-DEAD-002`, not a MIMAP-012 blocker.
