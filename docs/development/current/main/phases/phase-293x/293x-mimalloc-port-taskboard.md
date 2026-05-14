@@ -21,7 +21,7 @@ PACKED-003/004 complete
 ```
 
 Blueprint and inventory rows are now the active lane entry. Current row:
-`MIMAP-005C enum/transition lifecycle skeleton`.
+`MIMAP-005D capability surface`.
 
 ## Active Source Policy
 
@@ -50,8 +50,8 @@ Tracked output is docs only.
 | --- | --- | --- | --- |
 | `MIMAP-005A` | landed | Define brand/type vocabulary: `Bytes`, `PageId`, `BlockId`, `SegmentId`, `Generation`. | 1 commit |
 | `MIMAP-005B` | landed | Define record vocabulary for page/block refs, size-class entries, stats snapshots. | 1 commit |
-| `MIMAP-005C` | active | Define enum/transition lifecycle blueprint for page/segment state. | 1 commit |
-| `MIMAP-005D` | parked | Define capability surface: `uses osvm`, `uses atomic`, `uses rawbuf` inventory. | 1 commit |
+| `MIMAP-005C` | landed | Define enum/transition lifecycle blueprint for page/segment state. | 1 commit |
+| `MIMAP-005D` | active | Define capability surface: `uses osvm`, `uses atomic`, `uses rawbuf` inventory. | 1 commit |
 
 ### First Executable Slices
 

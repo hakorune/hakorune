@@ -135,6 +135,17 @@ docs/development/current/main/design/mimalloc-hakorune-record-vocabulary-ssot.md
 Records do not own behavior, raw memory, delegate declarations, or lifecycle
 transitions.
 
+## Current Lifecycle Skeleton
+
+`MIMAP-005C` defines the non-executable enum/transition skeleton:
+
+```text
+docs/development/current/main/design/mimalloc-hakorune-lifecycle-skeleton-ssot.md
+```
+
+The skeleton uses `enum`, `transition`, `requires`, `ensures`, and `uses`
+metadata only. It does not implement allocator behavior.
+
 ## Port Reading
 
 mimalloc should not be line-by-line translated.
