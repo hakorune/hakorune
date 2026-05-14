@@ -13,9 +13,9 @@
 use super::super::ast::{ExprV0, StmtV0};
 use super::{expr, lower_stmt_list_with_vars, new_block, BridgeEnv, LoopContext};
 use crate::ast::Span;
+use crate::mir::function::LoopRangeFact;
 use crate::mir::{
-    BasicBlockId, BinaryOp, CompareOp, ConstValue, LoopRangeFact, MirFunction, MirInstruction,
-    ValueId,
+    BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction, MirInstruction, ValueId,
 };
 use std::collections::{BTreeMap, BTreeSet};
 

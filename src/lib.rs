@@ -1,3 +1,5 @@
+#![recursion_limit = "256"]
+
 /*!
  Nyash Programming Language — Rust library crate.
  Provides parser, MIR, backends, runner, and supporting runtime.

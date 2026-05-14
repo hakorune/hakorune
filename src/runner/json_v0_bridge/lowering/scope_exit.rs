@@ -89,6 +89,12 @@ fn validate_fini_body_stmt(stmt: &StmtV0) -> Result<(), String> {
             }
             Ok(())
         }
+        StmtV0::LoopRange { body, .. } => {
+            for s in body {
+                validate_fini_body_stmt(s)?;
+            }
+            Ok(())
+        }
         StmtV0::Try {
             try_body,
             catches,
