@@ -44,6 +44,8 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/design/record-and-packed-array-lowering-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
+- mimalloc blueprint / port taskboard:
+  `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
 - current blocker token:
   `LOOP-003C Stage1 LoopRange verifier facts and carrier policy`
 - primary mode: language minimal surface lane; keep Stage0 thin and Stage1 semantic rows small

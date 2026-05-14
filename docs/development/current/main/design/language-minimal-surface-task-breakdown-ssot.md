@@ -74,7 +74,7 @@ Retire condition:
 | Area | Status | Next actionable row |
 | --- | --- | --- |
 | Minimal keyword surface | docs accepted | no immediate code row |
-| Loop-only repetition | parser capsule complete | `LOOP-003 Stage1 LoopRange lowering` |
+| Loop-only repetition | lowering pilot complete | `LOOP-003C verifier facts and carrier policy` |
 | Loop cleanup / PackedArray gate | complete through `293x-310` | no immediate cleanup row |
 | No-inheritance delegation | exposes lowering complete | `DEL-004 legacy quarantine migration` |
 | Brand/type | brand checker complete; type alias parser capsule complete | `TYPE-002 Stage1 alias diagnostics` |
@@ -83,7 +83,7 @@ Retire condition:
 | Enum transition lifecycle | metadata capsule complete | `TRANS-002 transition legality checker` |
 | Result/Option | guard-let narrow sugar complete | no immediate Result/Option row |
 | Generic containers | generic type annotation metadata and arity checker complete | next substitution/semantics row deferred |
-| PackedArray | source auto-use pilot metadata complete | `LOOP-003 Stage1 LoopRange route decision` |
+| PackedArray | source auto-use pilot metadata complete | `PACKED-003 source PackedArray direct-read consumption` after LoopRange facts |
 | Array / Result / Option canonical surface | docs accepted; LOCALTYPE/ENUMVAR/ARRAY/RESULT/GUARDLET rows complete | no immediate code row |
 | Uses/capability | method-level metadata capsule complete | `USES-002 capability checker` |
 | Span/view | planned later | `SPAN-001 Span API design row` |
@@ -113,9 +113,11 @@ loop {
 | `LOOP-001 loop-only control surface docs` | Decide no `while`, no `for`, no `repeat`, no `until`; docs and examples use `loop` only. | docs, complete via D201 |
 | `LOOP-002 Stage0 LoopRange parser capsule` | Parse `loop i in start..end` and transport `LoopRange` metadata. | Stage0 capsule |
 | `LOOP-002 status` | Complete as `293x-272`; parser accepts paren-less and parenthesized LoopRange headers and transports LoopRange metadata only. | Stage0 complete |
-| `LOOP-003 Stage1 LoopRange lowering` | Entry-bound capture, block-local read-only index, end-exclusive range, step=1, continue-safe step. | Stage1 semantics |
-| `LOOP-004 LoopRange verifier facts` | Expose index/bounds facts such as `i < end`; add conservative facts only. | Stage1 verifier |
-| `LOOP-005 canonical loop formatter/docs` | Make paren-less `loop i in a..b` the canonical spelling; optional paren compatibility requires a separate decision. | docs/tooling |
+| `LOOP-003A Stage1 LoopRange route decision` | Complete as `293x-325`; fixes metadata/executable route and explicit no-desugar contract. | Stage1 route complete |
+| `LOOP-003B Stage1 LoopRange lowering pilot` | Complete as `293x-326`; entry-bound capture, header index PHI, end-exclusive range, step=1, continue-safe step, carrier writes frozen. | Stage1 pilot complete |
+| `LOOP-003C LoopRange verifier facts` | Expose index/bounds facts such as `i < end`; add read-only index diagnostic surface. | Stage1 verifier |
+| `LOOP-003D LoopRange carrier policy` | Define/support a narrow carrier subset or keep body writes frozen with stable diagnostics. | Stage1 semantics |
+| `LOOP-004 canonical loop formatter/docs` | Make paren-less `loop i in a..b` the canonical spelling; optional paren compatibility requires a separate decision. | docs/tooling |
 | `LOOPCLEAN-001 loop cleanup phase` | Complete as `293x-289`; open BoxShape cleanup before PackedArray work. | docs |
 | `LOOPCLEAN-002 while parser normalization` | Complete as `293x-290`; new parsed `while` returns `Loop`; old JSON `While` remains compat decode. | BoxShape parser cleanup |
 | `LOOPCLEAN-003 while variant quarantine` | Complete as `293x-291`; quarantine `ASTNode::While` as legacy-only input and keep compat Program(JSON) Loop lowering. | BoxShape cleanup |
@@ -307,40 +309,43 @@ language work, start here:
 2. `LOOP-002 Stage0 LoopRange parser capsule`
 3. `DEL-002 Stage0 delegate syntax metadata capsule`
 4. `DEL-003 Stage1 delegate exposes lowering`
-5. `LOOP-003 Stage1 LoopRange lowering` (open; requires JoinIR/CorePlan route, not source-level desugar)
-6. `BRAND-001 Stage0 brand declaration metadata capsule` (complete as `293x-275`)
-7. `BRAND-002 Stage1 brand constructor unwrap policy` (complete as `293x-276`)
-8. `BRAND-003 Stage1 brand mismatch checker` (complete as `293x-277`)
-9. `TYPE-001 Stage0 type alias metadata capsule` (complete as `293x-278`)
-10. `REC-001 Stage0 explicit record literal shape capsule` (complete as `293x-279`)
-11. `REC-002 Stage1 record construction/read lowering` (complete as `293x-280`)
-12. `REC-003 record with-update lowering` (complete as `293x-281`)
-13. `CONTRACT-002 contract syntax metadata capsule` (complete as `293x-282`)
-14. `TRANS-001 transition metadata capsule` (complete as `293x-283`)
-15. `USES-001 method-level uses metadata capsule` (complete as `293x-284`)
-16. `GEN-001 generic type annotation metadata capsule` (complete as `293x-285`)
-17. `GEN-002 generic arity check`
-18. `ARRAY-RESULT-SSOT` (complete docs-only)
-19. `LOOPCLEAN-001 loop cleanup phase` (complete docs-only)
-20. `LOOPCLEAN-002 while parser normalization` (complete as `293x-290`)
-21. `LOOPCLEAN-003 while variant quarantine` (complete as `293x-291`)
-22. `LOOPCLEAN-004 range parser helper commonization` (complete as `293x-292`)
-23. `PACKED-001 PackedArray eligibility gate` (complete as `293x-293`)
-24. `ASTCLEAN-017 runner/provider/runtime dead_code rationale pass` (complete as `293x-310`)
-25. `ENUMVAR-001 enum variant canonical surface` (complete as `293x-311`)
-26. `LOCALTYPE-001 local type annotation metadata capsule` (complete as `293x-312`)
-27. `ARRAY-001 typed context array literal` (complete as `293x-313`)
-28. `RESULT-001 Result/Option prelude diagnostics` (complete as `293x-314`)
-29. `ARRAY-002A typed Array method contract` (complete as `293x-315`)
-30. `ARRAY-002B typed local Array element checks` (complete as `293x-316`)
-31. `ARRAY-002C unsupported Array inference fail-fast` (complete as `293x-317`)
-32. `ARRAY-002D ArrayBox JSON v0/backend guard` (complete as `293x-318`)
-33. `RESULT-002A prelude enum missing-arm diagnostics` (complete as `293x-319`)
-34. `RESULT-002B prelude enum payload diagnostics` (complete as `293x-320`)
-35. `RESULT-002C known-enum exhaustiveness underscore rules` (complete as `293x-321`)
-36. `RESULT-002D generic enum expected-type diagnostics` (complete as `293x-322`)
-37. `GUARDLET-001 guard-let pattern sugar` (complete as `293x-323`)
-38. `PACKED-002 PackedArray non-escaping auto-use pilot` (complete as `293x-324`)
+5. `LOOP-003A Stage1 LoopRange route decision` (complete as `293x-325`)
+6. `LOOP-003B Stage1 LoopRange lowering pilot` (complete as `293x-326`)
+7. `LOOP-003C LoopRange verifier facts and read-only index proof surface`
+8. `LOOP-003D LoopRange carrier policy`
+9. `BRAND-001 Stage0 brand declaration metadata capsule` (complete as `293x-275`)
+10. `BRAND-002 Stage1 brand constructor unwrap policy` (complete as `293x-276`)
+11. `BRAND-003 Stage1 brand mismatch checker` (complete as `293x-277`)
+12. `TYPE-001 Stage0 type alias metadata capsule` (complete as `293x-278`)
+13. `REC-001 Stage0 explicit record literal shape capsule` (complete as `293x-279`)
+14. `REC-002 Stage1 record construction/read lowering` (complete as `293x-280`)
+15. `REC-003 record with-update lowering` (complete as `293x-281`)
+16. `CONTRACT-002 contract syntax metadata capsule` (complete as `293x-282`)
+17. `TRANS-001 transition metadata capsule` (complete as `293x-283`)
+18. `USES-001 method-level uses metadata capsule` (complete as `293x-284`)
+19. `GEN-001 generic type annotation metadata capsule` (complete as `293x-285`)
+20. `GEN-002 generic arity check`
+21. `ARRAY-RESULT-SSOT` (complete docs-only)
+22. `LOOPCLEAN-001 loop cleanup phase` (complete docs-only)
+23. `LOOPCLEAN-002 while parser normalization` (complete as `293x-290`)
+24. `LOOPCLEAN-003 while variant quarantine` (complete as `293x-291`)
+25. `LOOPCLEAN-004 range parser helper commonization` (complete as `293x-292`)
+26. `PACKED-001 PackedArray eligibility gate` (complete as `293x-293`)
+27. `ASTCLEAN-017 runner/provider/runtime dead_code rationale pass` (complete as `293x-310`)
+28. `ENUMVAR-001 enum variant canonical surface` (complete as `293x-311`)
+29. `LOCALTYPE-001 local type annotation metadata capsule` (complete as `293x-312`)
+30. `ARRAY-001 typed context array literal` (complete as `293x-313`)
+31. `RESULT-001 Result/Option prelude diagnostics` (complete as `293x-314`)
+32. `ARRAY-002A typed Array method contract` (complete as `293x-315`)
+33. `ARRAY-002B typed local Array element checks` (complete as `293x-316`)
+34. `ARRAY-002C unsupported Array inference fail-fast` (complete as `293x-317`)
+35. `ARRAY-002D ArrayBox JSON v0/backend guard` (complete as `293x-318`)
+36. `RESULT-002A prelude enum missing-arm diagnostics` (complete as `293x-319`)
+37. `RESULT-002B prelude enum payload diagnostics` (complete as `293x-320`)
+38. `RESULT-002C known-enum exhaustiveness underscore rules` (complete as `293x-321`)
+39. `RESULT-002D generic enum expected-type diagnostics` (complete as `293x-322`)
+40. `GUARDLET-001 guard-let pattern sugar` (complete as `293x-323`)
+41. `PACKED-002 PackedArray non-escaping auto-use pilot` (complete as `293x-324`)
 
 This order keeps early wins concrete while avoiding Stage0 semantic growth.
 
@@ -366,3 +371,29 @@ LOOP-003C:
 entry-bound capture, header index PHI, end-exclusive compare, fixed step 1, and
 continue-to-step routing. The pilot freezes body writes until carrier policy and
 verifier facts land in `LOOP-003C`.
+
+## mimalloc blueprint handoff (2026-05-14)
+
+The next allocator-facing lane should not wait for every optional language
+feature. It should start with docs/inventory rows that use upstream mimalloc as
+an oracle:
+
+```text
+MIMAP-001 upstream source pin
+MIMAP-002 source concept inventory
+MIMAP-003 lifecycle rewrite blueprint
+MIMAP-004 substrate and representation gap ledger
+```
+
+Executable mimalloc slices should wait until at least:
+
+```text
+LOOP-003C/D
+PACKED-003/004
+```
+
+Canonical handoff board:
+
+```text
+docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md
+```
