@@ -5,6 +5,8 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-mimalloc-lifecycle-integration-pilot"
 cd "$ROOT_DIR"
 
+source tools/checks/lib/guard_common.sh
+
 fail() {
   echo "[$TAG] ERROR: $*" >&2
   exit 1
@@ -58,7 +60,7 @@ out="$(mktemp)"
 err="$(mktemp)"
 trap 'rm -f "$out" "$err" /tmp/${TAG}.forbidden' EXIT
 
-if ! NYASH_DISABLE_PLUGINS=1 cargo run -q --bin hakorune -- --backend vm "$APP" >"$out" 2>"$err"; then
+if ! guard_timeout_run "$TAG" "${MIMAP_VM_TIMEOUT:-20s}" "$out" "$err" env NYASH_DISABLE_PLUGINS=1 cargo run -q --bin hakorune -- --backend vm "$APP"; then
   cat "$out" >&2 || true
   cat "$err" >&2 || true
   fail "proof app failed"

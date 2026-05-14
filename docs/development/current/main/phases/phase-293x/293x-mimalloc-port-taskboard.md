@@ -83,7 +83,8 @@ FST:
 | `MIMAP-008` | landed | Page/free-list model pilot with direct executable proof and guard. | 1 commit |
 | `MIMAP-009` | landed | Decommit/recommit/reuse lifecycle integration pilot. | 1 commit |
 | `MIMAP-010` | landed | Page queue lifecycle selection pilot that skips decommitted pages and selects reusable pages explicitly. | 1 commit |
-| `MIMAP-011` | active | Allocator facade lifecycle route pilot using lifecycle-aware page selection. | 2-4 commits |
+| `MIMAP-B001` | landed | Backend acceptance policy: VM scalar reference, LLVM/EXE MIMAP-011+ primary, VM timeout required. | 1 commit |
+| `MIMAP-011` | active | Allocator facade lifecycle route pilot using lifecycle-aware page selection; LLVM/EXE primary. | 2-4 commits |
 
 ### Collection / Automata Sidecar Rows
 

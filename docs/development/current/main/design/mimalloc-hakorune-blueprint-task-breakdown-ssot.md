@@ -353,3 +353,30 @@ apps/mimalloc-page-queue-lifecycle-selection-proof/main.hako
 ```
 
 The next mimalloc row is `MIMAP-011 allocator facade lifecycle route pilot`.
+
+## MIMAP backend acceptance policy
+
+Decision: accepted.
+
+Before `MIMAP-011`, backend acceptance is split deliberately:
+
+```text
+VM:
+  semantic reference and small scalar policy proof
+  timeout required for every MIMAP VM guard
+
+LLVM/EXE:
+  primary acceptance backend for MIMAP-011+ object-heavy page queue, heap facade,
+  lifecycle, and object-return allocator routes
+```
+
+SSOT:
+
+```text
+docs/development/current/main/design/mimalloc-backend-acceptance-policy-ssot.md
+docs/development/current/main/design/vm-known-limitations-ssot.md
+```
+
+`VM-LIM-001` records the object-heavy page queue/facade route limitation observed
+while shaping `MIMAP-010`. This limitation is not a blocker for LLVM/EXE
+acceptance, but it must not become a silent pass.

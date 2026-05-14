@@ -48,3 +48,25 @@ guard_expect_in_file() {
         guard_fail "$tag" "$msg"
     fi
 }
+
+guard_timeout_run() {
+    local tag="$1"
+    local seconds="$2"
+    local out="$3"
+    local err="$4"
+    shift 4
+
+    guard_require_command "$tag" timeout
+
+    local rc
+    if timeout --kill-after=2s "$seconds" "$@" >"$out" 2>"$err"; then
+        return 0
+    else
+        rc=$?
+    fi
+
+    if [[ "$rc" == "124" || "$rc" == "137" ]]; then
+        echo "[${tag}] ERROR: command timed out after ${seconds}: $*" >&2
+    fi
+    return "$rc"
+}
