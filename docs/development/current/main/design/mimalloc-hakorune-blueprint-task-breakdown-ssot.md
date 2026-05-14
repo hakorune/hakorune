@@ -100,6 +100,18 @@ The blueprint keeps heap/TLS, OSVM, atomic cross-thread free, raw block
 residence, hooks, and global allocator replacement out of the first executable
 model.
 
+## Current Gap Ledger
+
+`MIMAP-004` records missing substrate and representation features as explicit
+future rows:
+
+```text
+docs/development/current/main/design/mimalloc-substrate-representation-gap-ledger-ssot.md
+```
+
+Unsupported capabilities must fail fast. The first executable slice should avoid
+hard OSVM, atomic, TLS, raw pointer, and global replacement gaps.
+
 ## Port Reading
 
 mimalloc should not be line-by-line translated.
