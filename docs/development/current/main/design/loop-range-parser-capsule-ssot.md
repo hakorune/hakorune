@@ -68,3 +68,10 @@ LOOP-003 Stage1 LoopRange lowering
 
 LOOP-003 must define entry-bound capture, block-local read-only index,
 end-exclusive range, step=1, continue behavior, and diagnostics.
+
+## Legacy for-range quarantine
+
+Decision: accepted on 2026-05-15 by `CLEAN-FOR-001`. Canonical range loops use
+`loop i in start..end`; legacy `for i in start..end` remains Stage-3 gated
+compatibility input only. Both paths emit the same `ASTNode::ForRange` metadata
+shape and must not gain separate lowering semantics.

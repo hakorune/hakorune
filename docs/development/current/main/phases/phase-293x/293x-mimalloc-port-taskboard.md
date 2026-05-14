@@ -129,5 +129,5 @@ no untracked design decision in implementation
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `CLEAN-FOR-001` | active | Decide legacy `parse_for_range_stage3` fate. | Keep LoopRange as Stage1 route; no source desugar. |
-| `CLEAN-DEAD-001` | next | Audit first `#[allow(dead_code)]` cluster. | One cluster per commit. |
+| `CLEAN-FOR-001` | landed | Decide legacy `parse_for_range_stage3` fate. | Legacy `for` quarantined; canonical source is `loop i in`. |
+| `CLEAN-DEAD-001` | active | Audit first `#[allow(dead_code)]` cluster. | One cluster per commit. |

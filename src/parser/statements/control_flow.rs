@@ -24,8 +24,8 @@ impl NyashParser {
             TokenType::GUARD => self.parse_guard_else(),
             // Stage-3: while
             TokenType::WHILE if stage3 => self.parse_while_stage3(),
-            // Stage-3: for-range (stubbed to clear error path; implement next)
-            TokenType::FOR if stage3 => self.parse_for_range_stage3(),
+            // Stage-3 legacy for-range compatibility. Canonical surface is loop i in a..b.
+            TokenType::FOR if stage3 => self.parse_legacy_for_range_stage3(),
             // Legacy loop
             TokenType::LOOP => self.parse_loop(),
             TokenType::BREAK => self.parse_break(),
@@ -438,7 +438,12 @@ impl NyashParser {
     }
 
     /// Stage-3 legacy for-range compatibility parser.
-    fn parse_for_range_stage3(&mut self) -> Result<ASTNode, ParseError> {
+    ///
+    /// Canonical Hakorune source uses `loop i in start..end { ... }`. This
+    /// parser branch keeps older `for i in start..end { ... }` input readable
+    /// and routes it through the same range-header metadata shape. It must not
+    /// grow independent lowering semantics.
+    fn parse_legacy_for_range_stage3(&mut self) -> Result<ASTNode, ParseError> {
         // Normalize cursor at statement start
         if super::helpers::cursor_enabled() {
             let mut cursor = TokenCursor::new(&self.tokens);

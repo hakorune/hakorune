@@ -47,7 +47,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc blueprint / port taskboard:
   `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
 - current blocker token:
-  `CLEAN-FOR-001 parse_for_range_stage3 legacy fate decision`
+  `CLEAN-DEAD-001 first dead_code cluster audit`
 - primary mode: mimalloc blueprint inventory lane; keep upstream source untracked and classify concepts before implementation
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -61,13 +61,13 @@ Scope: current lane / next lane / restart order only.
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
 - resume point: continue Phase 293x after CLEAN-WHILE AST variant removal; next blocker is
-  CLEAN-FOR-001 parse_for_range_stage3 legacy fate decision. Then run `CLEAN-DEAD-001` first dead_code cluster audit before returning to MIMAP-012. VM-LIM-001 remains parked diagnostic. Keep LoopRange on the Stage1 route; do not source-desugar range loops.
+  CLEAN-DEAD-001 first dead_code cluster audit. VM-LIM-001 remains parked diagnostic. Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
 ## Task Order
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  CLEAN-FOR-001 parse_for_range_stage3 legacy fate decision
+  CLEAN-DEAD-001 first dead_code cluster audit
 - optional future allocator-provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`

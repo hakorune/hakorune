@@ -27,7 +27,7 @@ As of the latest local inventory:
 ```text
 ASTNode::While references: 74 refs / 47 files
 #[allow(dead_code)] references: 129 refs
-parse_for_range_stage3: still present
+parse_legacy_for_range_stage3: present as legacy Stage-3 compatibility
 expression_to_json_v0: large single expression lowering function
 statement_to_json_v0: still large enough to split after expression cleanup
 ```
@@ -43,8 +43,8 @@ The remaining `ASTNode::While` vocabulary is legacy/compat residue.
 | `CLEAN-WHILE-002` | landed | Delete `ASTNode::While` variant and direct refs. | `ASTNode::While` is removed from source; `while` remains parser sugar to `Loop`. |
 | `CLEAN-LOWER-001` | ready after While cleanup | Split `expression_to_json_v0` by expression family. | Behavior-preserving helpers for literal/var/op/call/member/record/enum/array lanes; no new Program JSON shape. |
 | `CLEAN-LOWER-002` | ready after 001 | Split `statement_to_json_v0` by statement family. | Behavior-preserving helpers for local/print/return/if/loop/range/match/check lanes. |
-| `CLEAN-FOR-001` | active | Decide legacy `parse_for_range_stage3` fate. | Either quarantine as legacy syntax with documented retire condition, or remove after compatibility check. |
-| `CLEAN-DEAD-001` | next after CLEAN-FOR-001 | Continue `#[allow(dead_code)]` pruning by cluster. | One cluster per commit; keep reason comments for intentional staging residue. |
+| `CLEAN-FOR-001` | landed | Decide legacy `parse_for_range_stage3` fate. | Quarantined as Stage-3 legacy compatibility via `parse_legacy_for_range_stage3`; canonical surface remains `loop i in`. |
+| `CLEAN-DEAD-001` | active | Continue `#[allow(dead_code)]` pruning by cluster. | One cluster per commit; keep reason comments for intentional staging residue. |
 
 ## CLEAN-WHILE-001 details
 
@@ -128,7 +128,7 @@ This VM investigation remains non-blocking for MIMAP-011+ LLVM/EXE acceptance.
 
 Decision: accepted.
 
-Current active task is `CLEAN-FOR-001`. `CLEAN-DEAD-001` is next, `MIMAP-012` is paused mainline, and
+Current active task is `CLEAN-DEAD-001`. `MIMAP-012` is paused mainline, and
 `VM-LIM-001` is parked diagnostic. Do not mix these lanes in one commit.
 
 SSOT:
