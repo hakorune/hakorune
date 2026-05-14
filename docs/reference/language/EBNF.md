@@ -526,6 +526,46 @@ solving, `where` clauses, type substitution, monomorphization, `Array<T>`
 semantics, `PackedArray<T>` eligibility, or `Span<T>` no-escape semantics.
 Those remain later Stage1/CorePlan rows.
 
+### Array / PackedArray / Result / Option Canonical Surface
+
+Decision: accepted.
+
+Canonical collection and failure surfaces:
+
+```hako
+local ids: Array<PageId> = []
+local metas: PackedArray<Meta> = []
+local r: Result<Handle, AllocError> = Result::Err(AllocError::ZeroSize)
+```
+
+Rules:
+
+- `Array<T>` is the ordinary typed collection spelling.
+- `PackedArray<T>` requests packed residence and must fail-fast if unsupported.
+- `Option<T>` and `Result<T,E>` are enum surfaces, not exception/null sugar.
+- `[]` requires typed context in canonical code.
+- `T[]` is compatibility / low-level static-table spelling, not the canonical
+  ordinary collection spelling.
+- `Type::Variant` is the canonical enum variant spelling.
+- `.` remains object field / method access, so `Result.Ok(...)` is not
+  canonical.
+
+Canonical enum variants:
+
+```hako
+Option::Some(value)
+Option::None
+Result::Ok(handle)
+Result::Err(reason)
+PageState::Active
+AllocError::ZeroSize
+```
+
+Stop line:
+This docs-only decision does not add parser changes, local type annotation
+metadata, typed array lowering, Result/Option prelude insertion, enum variant
+resolver changes, or PackedArray eligibility checks. Those are separate rows.
+
 ## Box Members (Phase‑15, env gate: NYASH_ENABLE_UNIFIED_MEMBERS; default ON)
 
 This section adds a minimal grammar for Box members (a unified member model) without changing JSON v0/MIR. Parsing is controlled by env `NYASH_ENABLE_UNIFIED_MEMBERS` (default ON; set `0/false/off` to disable).

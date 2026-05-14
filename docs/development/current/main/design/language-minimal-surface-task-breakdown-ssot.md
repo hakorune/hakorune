@@ -21,6 +21,10 @@ It is not the active allocator lane.
 `PACKED-001 PackedArray eligibility gate` is the current selected language blocker
 unless the user explicitly switches to the language lane.
 
+`ARRAY-RESULT-SSOT` is complete as the docs-only canonical surface decision for
+`Array<T>`, `PackedArray<T>`, `Result<T,E>`, `Option<T>`, and
+`Type::Variant`.
+
 ## Row rules
 
 Every task must keep the Stage0/Stage1 split explicit.
@@ -69,6 +73,7 @@ Retire condition:
 | Result/Option | planned | `RESULT-001 prelude and diagnostics` |
 | Generic containers | generic type annotation metadata and arity checker complete | next substitution/semantics row deferred |
 | PackedArray | planned | `PACKED-001 eligibility gate` |
+| Array / Result / Option canonical surface | docs-only decision complete | `LOCALTYPE-001`, `ENUMVAR-001`, `ARRAY-001`, `RESULT-001`, `PACKED-001` |
 | Uses/capability | method-level metadata capsule complete | `USES-002 capability checker` |
 | Span/view | planned later | `SPAN-001 Span API design row` |
 | Module visibility | planned later | `MOD-001 using/module migration decision` |
@@ -232,7 +237,12 @@ no Stage0 Result/Option special-case
 | --- | --- | --- |
 | `GEN-001 generic type annotation metadata capsule` | Complete as `293x-285`; parses `Array<T>`, `PackedArray<T>`, `Span<T>`, generic records/interfaces as metadata. | Stage0 capsule complete |
 | `GEN-002 generic arity check` | Validate parameter counts without full constraint solving. | Stage1 semantics |
-| `ARRAY-001 Array typed container semantics` | Define normal typed array behavior. | Stage1 semantics |
+| `ARRAY-RESULT-SSOT` | Canonicalize `Array<T>`, `PackedArray<T>`, `Result<T,E>`, `Option<T>`, and `Type::Variant`; no implementation. | docs/reference |
+| `LOCALTYPE-001 local type annotation metadata capsule` | Parse and transport `local name: Type = expr` without type meaning. | Stage0 metadata |
+| `ENUMVAR-001 enum variant canonical surface` | Keep `Type::Variant` canonical; avoid dot variants and unqualified canonical constructors. | Stage1 enum surface |
+| `ARRAY-001 typed context array literal` | Interpret `[]` and non-empty array literals only with expected typed context. | Stage1 typed collection |
+| `ARRAY-002 Array typed container semantics` | Define normal typed array behavior beyond literal context. | Stage1 semantics |
+| `RESULT-001 Result/Option prelude diagnostics` | Keep `Result<T,E>` / `Option<T>` as enum surfaces with explicit `Type::Variant`. | Stage1 enum/prelude |
 | `PACKED-001 PackedArray eligibility gate` | Fail-fast if packed residence cannot be proven. | Stage1 CorePlan |
 | `PACKED-002 PackedArray non-escaping auto-use pilot` | Use packed ArrayBox for eligible non-escaping record arrays. | Stage1 CorePlan |
 
@@ -289,5 +299,11 @@ language work, start here:
 15. `USES-001 method-level uses metadata capsule` (complete as `293x-284`)
 16. `GEN-001 generic type annotation metadata capsule` (complete as `293x-285`)
 17. `GEN-002 generic arity check`
+18. `ARRAY-RESULT-SSOT` (complete docs-only)
+19. `PACKED-001 PackedArray eligibility gate`
+20. `LOCALTYPE-001 local type annotation metadata capsule`
+21. `ENUMVAR-001 enum variant canonical surface`
+22. `ARRAY-001 typed context array literal`
+23. `RESULT-001 Result/Option prelude diagnostics`
 
 This order keeps early wins concrete while avoiding Stage0 semantic growth.
