@@ -1072,6 +1072,70 @@ return 0
 }
 
 #[test]
+fn source_to_program_json_v0_accepts_typed_array_method_contract() {
+    let source = r#"
+static box Main {
+  main() {
+local ids: Array<i64> = []
+ids.push(1)
+local first = ids.get(0)
+ids.set(0, 2)
+local n = ids.length()
+return n
+  }
+}
+"#;
+
+    let json = source_to_program_json_v0_strict(source).expect("typed array methods");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let body = value["body"].as_array().expect("body");
+
+    assert_eq!(body[1]["expr"]["type"], "Method");
+    assert_eq!(body[1]["expr"]["method"], "push");
+    assert_eq!(body[2]["expr"]["method"], "get");
+    assert_eq!(body[3]["expr"]["method"], "set");
+    assert_eq!(body[4]["expr"]["method"], "length");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_typed_array_method_contract_noncanonical_method() {
+    let source = r#"
+static box Main {
+  main() {
+local ids: Array<i64> = []
+ids.len()
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("typed array non-canonical method should fail");
+    assert!(error.contains("[array/method-contract]"), "{error}");
+    assert!(error.contains("push/get/set/length"), "{error}");
+    assert!(error.contains("len"), "{error}");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_typed_array_method_contract_arity() {
+    let source = r#"
+static box Main {
+  main() {
+local ids: Array<i64> = []
+ids.set(0)
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("typed array method arity should fail");
+    assert!(error.contains("[array/method-contract]"), "{error}");
+    assert!(error.contains("set"), "{error}");
+    assert!(error.contains("expects 2 arg(s), got 1"), "{error}");
+}
+
+#[test]
 fn source_to_program_json_v0_rejects_untyped_empty_array_literal() {
     let source = r#"
 static box Main {

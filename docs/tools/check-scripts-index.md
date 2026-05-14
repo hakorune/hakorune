@@ -120,6 +120,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_enum_variant_canonical_surface_guard.sh` | ENUMVAR-001 の canonical `Type::Variant` surface を固定し、transition metadata の `Enum::Value` transport と legacy dot normalization を検証する。 |
 | `tools/checks/k2_wide_localtype_metadata_capsule_guard.sh` | LOCALTYPE-001 の `local name: Type` metadata capsule を固定し、AST/AST JSON/Program JSON v0 transport と単一束縛制約を検証する。 |
 | `tools/checks/k2_wide_array_typed_context_literal_guard.sh` | ARRAY-001 の typed-context `Array<T>` literal lowering を固定し、untyped `[]` と `PackedArray<T> = []` の no-fallback fail-fast を検証する。 |
+| `tools/checks/k2_wide_array_typed_method_contract_guard.sh` | ARRAY-002A の typed `Array<T>` method contract を固定し、`push/get/set/length` の名前と arity diagnostics を検証する。 |
 | `tools/checks/k2_wide_result_option_prelude_diagnostics_guard.sh` | RESULT-001 の `Option<T>` / `Result<T,E>` built-in enum prelude と dot-variant fail-fast diagnostics を検証する。 |
 | `tools/checks/k2_wide_loopclean_while_parser_normalization_guard.sh` | LOOPCLEAN-002 の while parser normalization を固定し、新規 Stage-3 `while` が canonical `ASTNode::Loop` として出ることを検証する。 |
 | `tools/checks/k2_wide_loopclean_while_variant_quarantine_guard.sh` | LOOPCLEAN-003 の while variant quarantine を固定し、新規 source は `Loop`、legacy `ASTNode::While` は Program(JSON) `Loop` 互換 lowering に閉じることを検証する。 |

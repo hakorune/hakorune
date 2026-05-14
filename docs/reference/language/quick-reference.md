@@ -65,6 +65,7 @@ Blocks and Control
 
 Collections and failure values
 - `local xs: Array<T> = []` — typed-context Array literal; `local xs = []` fail-fasts
+- `xs.push(v)`, `xs.get(i)`, `xs.set(i, v)`, `xs.length()` — canonical typed `Array<T>` methods
 - `PackedArray<T>` — packed residence request; no silent fallback
 - `Option::Some(v)` / `Option::None`
 - `Result::Ok(v)` / `Result::Err(e)`

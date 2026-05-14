@@ -50,6 +50,7 @@ impl ProgramJsonV0LoweringContext {
 #[derive(Debug, Default, Clone)]
 struct ProgramJsonV0LocalTypes {
     record_locals: BTreeMap<String, String>,
+    array_locals: BTreeMap<String, String>,
 }
 
 pub(super) fn program_json_v0_from_body_with_context(
@@ -186,6 +187,9 @@ fn statement_to_json_v0_many(
                             .filter(|type_name| context.find_record(type_name).is_some())
                     })
                     .map(str::to_string);
+                let array_element_type = declared_type_name
+                    .and_then(array_type_element_type)
+                    .map(str::to_string);
                 let initializer = match initializer_node {
                     Some(ASTNode::ArrayLiteral { elements, .. }) => {
                         let declared_type_name = declared_type_name.ok_or_else(|| {
@@ -208,6 +212,13 @@ fn statement_to_json_v0_many(
                         .insert(name.clone(), record_type.to_string());
                 } else {
                     local_types.record_locals.remove(name);
+                }
+                if let Some(array_element_type) = array_element_type {
+                    local_types
+                        .array_locals
+                        .insert(name.clone(), array_element_type);
+                } else if declared_type_name.is_some() {
+                    local_types.array_locals.remove(name);
                 }
                 out.push(serde_json::json!({
                     "type": "Local",
@@ -465,6 +476,11 @@ fn expression_to_json_v0(
                     "args": expressions_to_json_v0(arguments, context, local_types)?,
                 }));
             }
+            if let ASTNode::Variable { name, .. } = object.as_ref() {
+                if local_types.array_locals.contains_key(name) {
+                    validate_typed_array_method_contract(name, method, arguments.len())?;
+                }
+            }
             Ok(serde_json::json!({
                 "type": "Method",
                 "recv": expression_to_json_v0(object, context, local_types)?,
@@ -649,17 +665,14 @@ fn array_literal_to_json_v0(
 
 fn array_literal_element_type_for_context(declared_type_name: &str) -> Result<&str, String> {
     let type_name = declared_type_name.trim();
-    if let Some(inner) = type_name
-        .strip_prefix("Array<")
-        .and_then(|rest| rest.strip_suffix('>'))
-    {
-        if inner.trim().is_empty() {
-            return Err(format!(
-                "[array/literal-context] invalid Array<T> context `{}`",
-                declared_type_name
-            ));
-        }
-        return Ok(inner.trim());
+    if let Some(inner) = array_type_element_type(type_name) {
+        return Ok(inner);
+    }
+    if type_name.starts_with("Array<") {
+        return Err(format!(
+            "[array/literal-context] invalid Array<T> context `{}`",
+            declared_type_name
+        ));
     }
     if type_name.starts_with("PackedArray<") {
         return Err(
@@ -671,6 +684,44 @@ fn array_literal_element_type_for_context(declared_type_name: &str) -> Result<&s
         "[array/literal-context] array literal requires Array<T> typed context, got `{}`",
         declared_type_name
     ))
+}
+
+fn array_type_element_type(type_name: &str) -> Option<&str> {
+    let inner = type_name
+        .trim()
+        .strip_prefix("Array<")
+        .and_then(|rest| rest.strip_suffix('>'))?
+        .trim();
+    if inner.is_empty() {
+        return None;
+    }
+    Some(inner)
+}
+
+fn validate_typed_array_method_contract(
+    receiver_name: &str,
+    method: &str,
+    arg_count: usize,
+) -> Result<(), String> {
+    let expected = match method {
+        "push" => 1,
+        "get" => 1,
+        "set" => 2,
+        "length" => 0,
+        _ => {
+            return Err(format!(
+                "[array/method-contract] Array<T> local `{}` supports push/get/set/length; got `{}`",
+                receiver_name, method
+            ));
+        }
+    };
+    if arg_count != expected {
+        return Err(format!(
+            "[array/method-contract] Array<T>.{} on local `{}` expects {} arg(s), got {}",
+            method, receiver_name, expected, arg_count
+        ));
+    }
+    Ok(())
 }
 
 fn record_type_name_for_expr<'a>(

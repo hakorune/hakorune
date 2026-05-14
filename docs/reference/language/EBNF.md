@@ -491,7 +491,8 @@ Stop line:
 GEN-001 only added generic type annotation transport. GEN-002 now owns known
 generic arity checking. ARRAY-001 owns typed-context `Array<T>` literals.
 PACKED-001 owns source-level `PackedArray<T>` declaration eligibility.
-Constraint solving, `where` clauses, full `Array<T>` method semantics,
+ARRAY-002A owns typed `Array<T>` method-name and arity diagnostics.
+Constraint solving, `where` clauses, `Array<T>` element/type semantics,
 PackedArray auto-use/backend lowering, `Span<T>` no-escape semantics, and
 backend fallback policy remain later Stage1/CorePlan rows.
 
@@ -534,8 +535,8 @@ Fail-fast tag:
 Stop line:
 GEN-002 does not add type existence checking for unknown names, constraint
 solving, `where` clauses, type substitution, monomorphization, `Array<T>`
-semantics, `PackedArray<T>` eligibility, or `Span<T>` no-escape semantics.
-Those remain later Stage1/CorePlan rows.
+element semantics, `PackedArray<T>` eligibility, or `Span<T>` no-escape
+semantics. Those remain later Stage1/CorePlan rows.
 
 ### Array / PackedArray / Result / Option Canonical Surface
 
@@ -555,6 +556,8 @@ Rules:
 - `PackedArray<T>` requests packed residence and must fail-fast if unsupported.
 - `Option<T>` and `Result<T,E>` are enum surfaces, not exception/null sugar.
 - `[]` requires typed context in canonical code.
+- `Array<T>` locals support the canonical methods `push(value)`, `get(index)`,
+  `set(index, value)`, and `length()`; name/arity diagnostics are Stage1-owned.
 - `T[]` is compatibility / low-level static-table spelling, not the canonical
   ordinary collection spelling.
 - `Type::Variant` is the canonical enum variant spelling.
@@ -580,7 +583,8 @@ Stop line:
 ARRAY-001 implements typed-context array literal lowering for `Array<T>` only.
 `local ids = []` still fail-fasts because no type inference is owned here.
 `PackedArray<T> = []` also fail-fasts; there is no silent fallback to ordinary
-`Array<T>` / `ArrayBox`. RESULT-001 implements `Option<T>` / `Result<T,E>` as built-in enum prelude surfaces.
+`Array<T>` / `ArrayBox`. ARRAY-002A implements typed `Array<T>` method-name and arity diagnostics.
+RESULT-001 implements `Option<T>` / `Result<T,E>` as built-in enum prelude surfaces.
 Known enum variants must use `Type::Variant`; dot variant spelling fail-fasts.
 Match exhaustiveness expansion and PackedArray runtime/backend lowering remain
 separate rows.
