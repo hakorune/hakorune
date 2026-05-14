@@ -2,7 +2,7 @@
 
 Status: Active
 Lane: `phase-293x language minimal surface lane`
-Current blocker token: `ARRAY-002B typed local Array element checks`
+Current blocker token: `ARRAY-002C unsupported Array inference fail-fast`
 
 ## Purpose
 
@@ -23,10 +23,10 @@ docs/development/current/main/design/language-minimal-surface-task-breakdown-sso
 - [x] `ARRAY-001` typed-context `Array<T>` literal lowering
 - [x] `RESULT-001` Result/Option prelude diagnostics
 - [x] `ARRAY-002A` typed `Array<T>` method contract
+- [x] `ARRAY-002B` typed local Array element checks
 
 ## Current split rows
 
-- [ ] `ARRAY-002B` typed local Array element checks
 - [ ] `ARRAY-002C` unsupported Array inference fail-fast
 - [ ] `ARRAY-002D` ArrayBox JSON v0/backend guard
 - [ ] `RESULT-002A` prelude enum missing-arm diagnostics
@@ -45,7 +45,7 @@ docs/development/current/main/design/language-minimal-surface-task-breakdown-sso
 
 ```text
 no source-level range-loop desugar
-no Array<T> inference before ARRAY-002C
+no broad Array<T> inference outside ARRAY-002C
 no PackedArray<T> fallback to ArrayBox
 no try / throw / ? family
 no guard-let before RESULT-002 diagnostics

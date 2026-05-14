@@ -558,6 +558,8 @@ Rules:
 - `[]` requires typed context in canonical code.
 - `Array<T>` locals support the canonical methods `push(value)`, `get(index)`,
   `set(index, value)`, and `length()`; name/arity diagnostics are Stage1-owned.
+- Direct literal / `push` / `set` element values are checked for typed
+  `Array<T>` locals when the direct expression type is known.
 - `T[]` is compatibility / low-level static-table spelling, not the canonical
   ordinary collection spelling.
 - `Type::Variant` is the canonical enum variant spelling.
@@ -584,6 +586,7 @@ ARRAY-001 implements typed-context array literal lowering for `Array<T>` only.
 `local ids = []` still fail-fasts because no type inference is owned here.
 `PackedArray<T> = []` also fail-fasts; there is no silent fallback to ordinary
 `Array<T>` / `ArrayBox`. ARRAY-002A implements typed `Array<T>` method-name and arity diagnostics.
+ARRAY-002B implements direct typed `Array<T>` element diagnostics.
 RESULT-001 implements `Option<T>` / `Result<T,E>` as built-in enum prelude surfaces.
 Known enum variants must use `Type::Variant`; dot variant spelling fail-fasts.
 Match exhaustiveness expansion and PackedArray runtime/backend lowering remain

@@ -477,8 +477,15 @@ fn expression_to_json_v0(
                 }));
             }
             if let ASTNode::Variable { name, .. } = object.as_ref() {
-                if local_types.array_locals.contains_key(name) {
+                if let Some(element_type) = local_types.array_locals.get(name).cloned() {
                     validate_typed_array_method_contract(name, method, arguments.len())?;
+                    validate_typed_array_method_value(
+                        &element_type,
+                        method,
+                        arguments,
+                        context,
+                        local_types,
+                    )?;
                 }
             }
             Ok(serde_json::json!({
@@ -655,6 +662,15 @@ fn array_literal_to_json_v0(
     local_types: &mut ProgramJsonV0LocalTypes,
 ) -> Result<serde_json::Value, String> {
     let element_type = array_literal_element_type_for_context(declared_type_name)?;
+    for element in elements {
+        validate_array_element_expr(
+            element_type,
+            element,
+            context,
+            local_types,
+            "array literal element",
+        )?;
+    }
     Ok(serde_json::json!({
         "type": "ArrayLiteral",
         "declared_type": declared_type_name,
@@ -722,6 +738,121 @@ fn validate_typed_array_method_contract(
         ));
     }
     Ok(())
+}
+
+fn validate_typed_array_method_value(
+    element_type: &str,
+    method: &str,
+    arguments: &[ASTNode],
+    context: &ProgramJsonV0LoweringContext,
+    local_types: &ProgramJsonV0LocalTypes,
+) -> Result<(), String> {
+    match method {
+        "push" => validate_array_element_expr(
+            element_type,
+            &arguments[0],
+            context,
+            local_types,
+            "push value",
+        ),
+        "set" => validate_array_element_expr(
+            element_type,
+            &arguments[1],
+            context,
+            local_types,
+            "set value",
+        ),
+        _ => Ok(()),
+    }
+}
+
+fn validate_array_element_expr(
+    element_type: &str,
+    expression: &ASTNode,
+    context: &ProgramJsonV0LoweringContext,
+    local_types: &ProgramJsonV0LocalTypes,
+    position: &str,
+) -> Result<(), String> {
+    let expected = element_type.trim();
+    let Some(actual) = array_element_direct_type_name(expression, context, local_types) else {
+        return Ok(());
+    };
+    if array_element_type_accepts(expected, &actual) {
+        return Ok(());
+    }
+    if !array_element_type_is_enforced(expected, context) {
+        return Ok(());
+    }
+    Err(format!(
+        "[array/element-type] {} expects `{}`, got `{}`",
+        position, expected, actual
+    ))
+}
+
+fn array_element_direct_type_name(
+    expression: &ASTNode,
+    context: &ProgramJsonV0LoweringContext,
+    local_types: &ProgramJsonV0LocalTypes,
+) -> Option<String> {
+    match expression {
+        ASTNode::Literal { value, .. } => literal_direct_type_name(value),
+        ASTNode::FunctionCall { name, .. } if context.brand_underlying_type(name).is_some() => {
+            Some(name.clone())
+        }
+        ASTNode::FromCall { parent, .. } if context.known_enums.contains_key(parent) => {
+            Some(parent.clone())
+        }
+        ASTNode::RecordLiteral {
+            record_type_name, ..
+        } => Some(record_type_name.clone()),
+        ASTNode::Variable { .. } | ASTNode::RecordUpdate { .. } | ASTNode::BlockExpr { .. } => {
+            record_type_name_for_expr(expression, local_types).map(str::to_string)
+        }
+        _ => None,
+    }
+}
+
+fn literal_direct_type_name(value: &LiteralValue) -> Option<String> {
+    match value {
+        LiteralValue::String(_) => Some("String".to_string()),
+        LiteralValue::Integer(_) => Some("i64".to_string()),
+        LiteralValue::TypedInteger {
+            declared_type_name, ..
+        } => Some(declared_type_name.clone()),
+        LiteralValue::Float(_) => Some("f64".to_string()),
+        LiteralValue::Bool(_) => Some("bool".to_string()),
+        LiteralValue::Null => Some("null".to_string()),
+        LiteralValue::Void => Some("void".to_string()),
+    }
+}
+
+fn array_element_type_accepts(expected: &str, actual: &str) -> bool {
+    if expected == actual {
+        return true;
+    }
+    is_builtin_integer_type(expected) && actual == "i64"
+}
+
+fn array_element_type_is_enforced(
+    expected: &str,
+    context: &ProgramJsonV0LoweringContext,
+) -> bool {
+    is_builtin_scalar_type(expected)
+        || context.brand_underlying_type(expected).is_some()
+        || context.find_record(expected).is_some()
+        || context.known_enums.contains_key(expected)
+}
+
+fn is_builtin_scalar_type(type_name: &str) -> bool {
+    is_builtin_integer_type(type_name)
+        || matches!(type_name, "String" | "str" | "bool" | "f32" | "f64")
+}
+
+fn is_builtin_integer_type(type_name: &str) -> bool {
+    matches!(
+        type_name,
+        "i8" | "i16" | "i32" | "i64" | "isize" | "u8" | "u16" | "u32" | "u64" | "usize"
+    )
 }
 
 fn record_type_name_for_expr<'a>(

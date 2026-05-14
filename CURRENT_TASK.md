@@ -45,7 +45,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - current blocker token:
-  `ARRAY-002B typed local Array element checks`
+  `ARRAY-002C unsupported Array inference fail-fast`
 - primary mode: language minimal surface lane; keep Stage0 thin and Stage1 semantic rows small
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -58,15 +58,14 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after ARRAY-002A; next blocker is
-  ARRAY-002B typed local Array element checks. Keep LOOP-003 open until a
+- resume point: continue Phase 293x after ARRAY-002B; next blocker is
+  ARRAY-002C unsupported Array inference fail-fast. Keep LOOP-003 open until a
   JoinIR/CorePlan route is selected; do not source-desugar range loops.
 
 ## Task Order
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  ARRAY-002B typed local Array element checks
   ARRAY-002C unsupported Array inference fail-fast
   ARRAY-002D ArrayBox JSON v0/backend guard
   RESULT-002A prelude enum missing-arm diagnostics

@@ -1136,6 +1136,87 @@ return 0
 }
 
 #[test]
+fn source_to_program_json_v0_accepts_typed_array_element_checks_for_brands() {
+    let source = r#"
+brand PageId: i64
+
+static box Main {
+  main() {
+local ids: Array<PageId> = [PageId(1)]
+ids.push(PageId(2))
+ids.set(0, PageId(3))
+return 0
+  }
+}
+"#;
+
+    source_to_program_json_v0_strict(source).expect("brand element values should match");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_typed_array_element_check_literal_mismatch() {
+    let source = r#"
+brand PageId: i64
+
+static box Main {
+  main() {
+local ids: Array<PageId> = [1]
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("raw integer must not satisfy PageId element type");
+    assert!(error.contains("[array/element-type]"), "{error}");
+    assert!(error.contains("array literal element"), "{error}");
+    assert!(error.contains("PageId"), "{error}");
+    assert!(error.contains("i64"), "{error}");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_typed_array_element_check_push_mismatch() {
+    let source = r#"
+brand PageId: i64
+
+static box Main {
+  main() {
+local ids: Array<PageId> = []
+ids.push(1)
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("push value must match PageId element type");
+    assert!(error.contains("[array/element-type]"), "{error}");
+    assert!(error.contains("push value"), "{error}");
+    assert!(error.contains("PageId"), "{error}");
+}
+
+#[test]
+fn source_to_program_json_v0_rejects_typed_array_element_check_set_mismatch() {
+    let source = r#"
+brand PageId: i64
+
+static box Main {
+  main() {
+local ids: Array<PageId> = []
+ids.set(0, 1)
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("set value must match PageId element type");
+    assert!(error.contains("[array/element-type]"), "{error}");
+    assert!(error.contains("set value"), "{error}");
+    assert!(error.contains("PageId"), "{error}");
+}
+
+#[test]
 fn source_to_program_json_v0_rejects_untyped_empty_array_literal() {
     let source = r#"
 static box Main {

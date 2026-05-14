@@ -58,6 +58,8 @@ Rules:
 - `[]` needs a typed context in canonical code.
 - `ARRAY-002A` implements the canonical typed `Array<T>` local method contract:
   `push(value)`, `get(index)`, `set(index, value)`, and `length()`.
+- `ARRAY-002B` implements direct element checks for typed `Array<T>` literal,
+  `push`, and `set` values when the direct expression type is known.
 - `len()` / `size()` aliases are not canonical typed `Array<T>` source.
 
 Canonical empty array:
@@ -240,7 +242,7 @@ local r = Result::Err(AllocError::ZeroSize)
 | `ENUMVAR-001` | keep `Type::Variant` canonical and reject/avoid dot variants | Stage1 enum surface |
 | `ARRAY-001` | complete as `293x-313`; typed-context `Array<T>` literals lower with no inference and no PackedArray fallback | Stage1 typed collection |
 | `ARRAY-002A` | complete as `293x-315`; typed `Array<T>` method contract for `push/get/set/length` | Stage1 typed collection |
-| `ARRAY-002B` | typed local Array element checks | Stage1 typed collection |
+| `ARRAY-002B` | complete as `293x-316`; typed local Array element checks | Stage1 typed collection |
 | `ARRAY-002C` | unsupported Array inference fail-fast | Stage1 diagnostics |
 | `ARRAY-002D` | ArrayBox JSON v0/backend guard and PackedArray no-fallback guard | Stage1/backend guard |
 | `RESULT-001` | complete as `293x-314`; Result/Option prelude and explicit variant diagnostics | Stage1 enum/prelude |
@@ -281,6 +283,7 @@ generic enum constructor resolution
 typed-context array literal lowering
 typed-context `Array<T>` literal JSON v0 bridge lowering
 typed `Array<T>` method contract diagnostics
+typed `Array<T>` direct element diagnostics
 Result/Option diagnostics
 Result/Option prelude enum registry
 PackedArray eligibility and backend fail-fast
@@ -291,5 +294,6 @@ PackedArray eligibility and backend fail-fast
 This SSOT fixes the canonical surface and task split. ARRAY-001 now implements
 only the typed-context `Array<T>` literal slice. RESULT-001 now implements the
 Result/Option prelude and dot-variant diagnostics. ARRAY-002A now implements
-typed `Array<T>` method name and arity diagnostics. Array element type checking
-and PackedArray literal/backend behavior remain separate rows.
+typed `Array<T>` method name and arity diagnostics. ARRAY-002B now implements
+direct element diagnostics for known expressions. Array inference and
+PackedArray literal/backend behavior remain separate rows.
