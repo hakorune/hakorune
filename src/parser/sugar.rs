@@ -116,15 +116,6 @@ fn rewrite(ast: ASTNode) -> ASTNode {
             body: body.into_iter().map(rewrite).collect(),
             span,
         },
-        ASTNode::While {
-            condition,
-            body,
-            span,
-        } => ASTNode::While {
-            condition: Box::new(rewrite(*condition)),
-            body: body.into_iter().map(rewrite).collect(),
-            span,
-        },
         ASTNode::ForRange {
             var_name,
             start,

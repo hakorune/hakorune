@@ -148,7 +148,6 @@ fn scan_body(
             }
             ASTNode::Return { .. }
             | ASTNode::Loop { .. }
-            | ASTNode::While { .. }
             | ASTNode::ForRange { .. }
             | ASTNode::Print { .. } => return false,
             _ => return false,

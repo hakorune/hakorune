@@ -61,8 +61,4 @@ static box Main {
         body.iter().any(|node| matches!(node, ASTNode::Loop { .. })),
         "while sugar should emit canonical Loop"
     );
-    assert!(
-        !body.iter().any(|node| matches!(node, ASTNode::While { .. })),
-        "parser output must not propagate While for new stage3 while sugar"
-    );
 }

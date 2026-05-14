@@ -325,18 +325,6 @@ fn statement_to_json_v0(
                 "body": body_json,
             }))
         }
-        ASTNode::While {
-            condition, body, ..
-        } => {
-            let cond = expression_to_json_v0(condition, context, local_types)?;
-            let mut body_types = local_types.clone();
-            let body_json = statements_to_json_v0(body, context, &mut body_types)?;
-            Ok(serde_json::json!({
-                "type": "Loop",
-                "cond": cond,
-                "body": body_json,
-            }))
-        }
         ASTNode::ForRange {
             var_name,
             start,
@@ -1448,37 +1436,6 @@ mod tests {
                         "type": "Float",
                         "value": -1.25
                     }
-                }],
-            })
-        );
-    }
-
-    #[test]
-    fn program_json_v0_from_body_lowers_legacy_while_ast_to_loop_json() {
-        let body = vec![ASTNode::While {
-            condition: Box::new(ASTNode::Literal {
-                value: LiteralValue::Bool(true),
-                span: Span::unknown(),
-            }),
-            body: vec![],
-            span: Span::unknown(),
-        }];
-
-        let program = program_json_v0_from_body(&body)
-            .expect("legacy While AST should remain compat-lowerable");
-
-        assert_eq!(
-            program,
-            json!({
-                "version": 0,
-                "kind": "Program",
-                "body": [{
-                    "type": "Loop",
-                    "cond": {
-                        "type": "Bool",
-                        "value": true
-                    },
-                    "body": []
                 }],
             })
         );

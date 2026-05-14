@@ -226,9 +226,7 @@ fn check_statement(
         ASTNode::Loop {
             condition, body, ..
         }
-        | ASTNode::While {
-            condition, body, ..
-        } => {
+ => {
             check_expr(condition, current_box, current_fn, env, sigs, brands)?;
             let mut loop_env = env.clone();
             check_body(body, current_box, current_fn, &mut loop_env, sigs, brands)?;

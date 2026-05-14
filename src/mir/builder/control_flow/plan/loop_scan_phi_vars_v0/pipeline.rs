@@ -48,7 +48,6 @@ fn collect_assigned_vars_in_stmt(stmt: &ASTNode, out: &mut BTreeSet<String>) {
             }
         }
         ASTNode::Loop { body, .. }
-        | ASTNode::While { body, .. }
         | ASTNode::ForRange { body, .. } => {
             for s in body {
                 collect_assigned_vars_in_stmt(s, out);

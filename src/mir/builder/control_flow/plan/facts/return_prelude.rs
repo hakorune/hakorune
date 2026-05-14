@@ -59,15 +59,6 @@ fn flatten_block_containers(body: &[ASTNode]) -> Vec<ASTNode> {
                 body: flatten_block_containers(body),
                 span: span.clone(),
             },
-            ASTNode::While {
-                condition,
-                body,
-                span,
-            } => ASTNode::While {
-                condition: condition.clone(),
-                body: flatten_block_containers(body),
-                span: span.clone(),
-            },
             ASTNode::ForRange {
                 var_name,
                 start,
@@ -183,9 +174,7 @@ fn try_build_exit_allowed_return_prelude_recipe(
             ASTNode::Loop {
                 condition, body, ..
             }
-            | ASTNode::While {
-                condition, body, ..
-            } => {
+ => {
                 if !is_supported_bool_expr_with_canon(condition, allow_extended) {
                     return None;
                 }
@@ -253,24 +242,6 @@ pub(in crate::mir::builder) fn try_build_return_prelude_container_recipe(
             // Container wrappers (ScopeBox/Program) inside loop bodies must be flattened before
             // recipe construction, otherwise `ExitAllowed` loop-body recipes cannot represent them.
             let stmt = ASTNode::Loop {
-                condition: condition.clone(),
-                body: flatten_block_containers(body),
-                span: span.clone(),
-            };
-            let stmts = std::slice::from_ref(&stmt);
-            if let Some(recipe) = try_build_no_exit_block_recipe(stmts, allow_extended) {
-                return Some(ReturnPreludeContainerRecipe::NoExit(recipe));
-            }
-            try_build_exit_allowed_return_prelude_recipe(stmts, allow_extended)
-                .map(ReturnPreludeContainerRecipe::ExitAllowed)
-        }
-        ASTNode::While {
-            condition,
-            body,
-            span,
-            ..
-        } => {
-            let stmt = ASTNode::While {
                 condition: condition.clone(),
                 body: flatten_block_containers(body),
                 span: span.clone(),

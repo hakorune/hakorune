@@ -387,7 +387,7 @@ pub(in crate::mir::builder) fn has_generic_loop_v1_recipe_hint(
         let has_nested_loop = flat_body.iter().any(|stmt| {
             matches!(
                 stmt,
-                ASTNode::Loop { .. } | ASTNode::While { .. } | ASTNode::ForRange { .. }
+                ASTNode::Loop { .. } | ASTNode::ForRange { .. }
             )
         });
         if has_nested_loop {

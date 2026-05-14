@@ -181,7 +181,6 @@ fn contains_exit_anywhere(stmts: &[ASTNode]) -> bool {
                 }
             }
             ASTNode::Loop { body, .. }
-            | ASTNode::While { body, .. }
             | ASTNode::ForRange { body, .. }
             | ASTNode::Program {
                 statements: body, ..

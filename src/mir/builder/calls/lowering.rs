@@ -518,7 +518,7 @@ fn has_any_loop(body: &[ASTNode]) -> bool {
 /// ノード単位のループ検出: 再帰的にASTノードをトラバースしてループを検索
 fn node_has_loop(node: &ASTNode) -> bool {
     match node {
-        ASTNode::Loop { .. } | ASTNode::While { .. } | ASTNode::ForRange { .. } => true,
+        ASTNode::Loop { .. } | ASTNode::ForRange { .. } => true,
         ASTNode::ScopeBox { body, .. } => has_any_loop(body),
         ASTNode::If {
             then_body,

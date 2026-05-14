@@ -276,7 +276,7 @@ fn build_port_sig_with_pre(
                     continue;
                 };
                 let loop_body = match loop_node {
-                    ASTNode::Loop { body, .. } | ASTNode::While { body, .. } => body.as_slice(),
+                    ASTNode::Loop { body, .. } => body.as_slice(),
                     _ => continue,
                 };
                 let carrier_vars = carriers::collect_from_body(loop_body).vars;

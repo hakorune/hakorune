@@ -123,4 +123,4 @@ no untracked design decision in implementation
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
 | `CLEAN-WHILE-001` | active | While deletion readiness inventory. | BoxShape cleanup; do not mix with MIMAP-012. |
-| `CLEAN-WHILE-002` | next | Delete `ASTNode::While` after inventory. | Parser `while` stays canonical Loop. |
+| `CLEAN-WHILE-002` | landed | Delete `ASTNode::While` after inventory. | Parser `while` stays canonical Loop. |

@@ -71,7 +71,6 @@ fn collect_outer_carrier_vars_impl(builder: &MirBuilder, body: &[ASTNode]) -> Ve
                 }
             }
             ASTNode::Loop { body, .. }
-            | ASTNode::While { body, .. }
             | ASTNode::ForRange { body, .. } => {
                 for stmt in body {
                     scan_stmt(builder, carriers, stmt);
@@ -125,7 +124,6 @@ fn collect_carrier_vars_from_stmt(
             }
         }
         ASTNode::Loop { body, .. }
-        | ASTNode::While { body, .. }
         | ASTNode::ForRange { body, .. } => {
             for stmt in body {
                 collect_carrier_vars_from_stmt(stmt, loop_locals, carriers);
@@ -167,7 +165,6 @@ fn collect_local_vars_from_stmt(stmt: &ASTNode, locals: &mut BTreeMap<String, ()
             }
         }
         ASTNode::Loop { body, .. }
-        | ASTNode::While { body, .. }
         | ASTNode::ForRange { body, .. } => {
             for stmt in body {
                 collect_local_vars_from_stmt(stmt, locals);

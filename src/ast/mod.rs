@@ -369,12 +369,6 @@ pub enum ASTNode {
         span: Span,
     },
 
-    /// Stage-3: while文: while condition { body }
-    While {
-        condition: Box<ASTNode>,
-        body: Vec<ASTNode>,
-        span: Span,
-    },
 
     /// Stage-3: for-range文: for ident in start..end { body }
     /// - 半開区間 [start, end)

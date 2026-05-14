@@ -57,12 +57,6 @@ impl super::MirBuilder {
                 }
                 self.cf_loop(*condition, body)
             }
-            ASTNode::While {
-                condition, body, ..
-            } => {
-                // Desugar Stage-3 while into legacy loop(condition) { body }
-                self.cf_loop(*condition, body)
-            }
             ASTNode::TryCatch {
                 try_body,
                 catch_clauses,

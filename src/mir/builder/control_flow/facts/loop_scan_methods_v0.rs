@@ -119,7 +119,7 @@ fn contains_exit_outside_nested_loops(stmts: &[ASTNode]) -> bool {
                     }
                 }
                 // NOTE: Exits inside nested loops are allowed; do not recurse.
-                ASTNode::Loop { .. } | ASTNode::While { .. } | ASTNode::ForRange { .. } => {}
+                ASTNode::Loop { .. } | ASTNode::ForRange { .. } => {}
                 _ => {}
             }
         }
@@ -195,7 +195,7 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_methods_v0_facts(
     let mut linear = Vec::new();
     for (_idx, stmt) in body.iter().enumerate() {
         match stmt {
-            ASTNode::Loop { .. } | ASTNode::While { .. } => {
+            ASTNode::Loop { .. } => {
                 if !linear.is_empty() {
                     let Some(recipe) = try_build_no_exit_block_recipe(&linear, ALLOW_EXTENDED)
                     else {
@@ -209,9 +209,7 @@ pub(in crate::mir::builder) fn try_extract_loop_scan_methods_v0_facts(
                     ASTNode::Loop {
                         condition, body, ..
                     }
-                    | ASTNode::While {
-                        condition, body, ..
-                    } => {
+ => {
                         let cond_view = CondBlockView::from_expr(condition);
                         let body_stmt_only = try_build_stmt_only_block_recipe(body);
                         NestedLoopRecipe {

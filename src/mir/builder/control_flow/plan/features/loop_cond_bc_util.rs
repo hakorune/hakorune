@@ -263,7 +263,7 @@ fn value_has_blockexpr_prelude_loop(value: &ASTNode) -> bool {
 
 fn stmt_has_loop_stmt_recursive(stmt: &ASTNode) -> bool {
     match stmt {
-        ASTNode::Loop { .. } | ASTNode::While { .. } => true,
+        ASTNode::Loop { .. } => true,
         ASTNode::If {
             then_body,
             else_body,

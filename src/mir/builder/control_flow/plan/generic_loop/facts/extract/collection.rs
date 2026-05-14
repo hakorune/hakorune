@@ -70,7 +70,7 @@ pub(in crate::mir::builder) fn collect_loop_var_candidates_from_body(
                     }
                 }
             }
-            ASTNode::Loop { body, .. } | ASTNode::While { body, .. } => {
+            ASTNode::Loop { body, .. } => {
                 for s in body {
                     walk(s, out);
                 }
@@ -104,7 +104,6 @@ pub(in crate::mir::builder) fn has_continue_recursive(stmt: &ASTNode) -> bool {
                     .is_some_and(|body| body.iter().any(has_continue_recursive))
         }
         ASTNode::Loop { body, .. } => body.iter().any(has_continue_recursive),
-        ASTNode::While { body, .. } => body.iter().any(has_continue_recursive),
         ASTNode::ForRange { body, .. } => body.iter().any(has_continue_recursive),
         ASTNode::Program { statements, .. } => statements.iter().any(has_continue_recursive),
         ASTNode::ScopeBox { body, .. } => body.iter().any(has_continue_recursive),

@@ -64,3 +64,9 @@ probes non-blocking for MIMAP LLVM/EXE acceptance.
 - `docs/development/current/main/10-Now.md`
 - `docs/development/current/main/design/compiler-cleanup-sidecar-task-breakdown-ssot.md`
 - `docs/development/current/main/design/vm-known-limitations-ssot.md`
+
+## Resolution
+
+2026-05-15: `CLEAN-WHILE-001` and `CLEAN-WHILE-002` landed as
+`293x-349-CLEAN-WHILE-AST-VARIANT-REMOVAL`; `MIMAP-012` is the next active
+mainline row again.

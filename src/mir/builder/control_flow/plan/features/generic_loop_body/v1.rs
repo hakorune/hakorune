@@ -329,7 +329,7 @@ fn try_lower_blockexpr_loop_prelude_value(
     };
     if !prelude_stmts
         .iter()
-        .any(|stmt| matches!(stmt, ASTNode::Loop { .. } | ASTNode::While { .. }))
+        .any(|stmt| matches!(stmt, ASTNode::Loop { .. }))
     {
         return Ok(None);
     }
@@ -394,9 +394,7 @@ fn stmt_has_blockexpr_prelude_loop(stmt: &ASTNode) -> bool {
         ASTNode::Loop {
             condition, body, ..
         }
-        | ASTNode::While {
-            condition, body, ..
-        } => expr_has_blockexpr_prelude_loop(condition) || body_has_blockexpr_prelude_loop(body),
+ => expr_has_blockexpr_prelude_loop(condition) || body_has_blockexpr_prelude_loop(body),
         ASTNode::Return { value, .. } => value
             .as_ref()
             .is_some_and(|v| expr_has_blockexpr_prelude_loop(v)),
@@ -429,7 +427,7 @@ fn expr_has_blockexpr_prelude_loop(expr: &ASTNode) -> bool {
         } => {
             prelude_stmts
                 .iter()
-                .any(|stmt| matches!(stmt, ASTNode::Loop { .. } | ASTNode::While { .. }))
+                .any(|stmt| matches!(stmt, ASTNode::Loop { .. }))
                 || body_has_blockexpr_prelude_loop(prelude_stmts)
                 || expr_has_blockexpr_prelude_loop(tail_expr)
         }

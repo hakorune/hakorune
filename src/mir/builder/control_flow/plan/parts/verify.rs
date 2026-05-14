@@ -118,7 +118,7 @@ fn verify_no_exit_block_contract(
                     ));
                 }
                 if let Some(node) = body.get_ref(*loop_stmt) {
-                    if !matches!(node, ASTNode::Loop { .. } | ASTNode::While { .. }) {
+                    if !matches!(node, ASTNode::Loop { .. }) {
                         return Err(format!(
                             "[freeze:contract][recipe] loop_stmt_is_not_loop_node: idx={} ctx={context}",
                             loop_stmt.index()
@@ -455,7 +455,7 @@ fn verify_item_refs_in_range(
                 ));
             }
             if let Some(node) = body.get_ref(*loop_stmt) {
-                if !matches!(node, ASTNode::Loop { .. } | ASTNode::While { .. }) {
+                if !matches!(node, ASTNode::Loop { .. }) {
                     return Err(format!(
                         "[freeze:contract][recipe] loop_stmt_is_not_loop_node: idx={} ctx={context}",
                         loop_stmt.index()

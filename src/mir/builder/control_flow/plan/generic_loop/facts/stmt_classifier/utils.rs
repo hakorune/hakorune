@@ -66,7 +66,6 @@ pub(in crate::mir::builder) fn stmt_kind_name(stmt: &ASTNode) -> &'static str {
         ASTNode::Print { .. } => "Print",
         ASTNode::If { .. } => "If",
         ASTNode::Loop { .. } => "Loop",
-        ASTNode::While { .. } => "While",
         ASTNode::ForRange { .. } => "ForRange",
         ASTNode::Break { .. } => "Break",
         ASTNode::Continue { .. } => "Continue",

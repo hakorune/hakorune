@@ -137,10 +137,6 @@ pub(super) fn is_reassigned_in_fn(fn_body: &[ASTNode], name: &str) -> bool {
                 condition, body, ..
             } => check_node(condition, name) || body.iter().any(|n| check_node(n, name)),
 
-            ASTNode::While {
-                condition, body, ..
-            } => check_node(condition, name) || body.iter().any(|n| check_node(n, name)),
-
             ASTNode::TryCatch {
                 try_body,
                 catch_clauses,

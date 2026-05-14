@@ -129,7 +129,6 @@ fn stmt_writes_outer_binding(stmt: &ASTNode, outer_bindings: &BTreeMap<String, V
                     .is_some_and(|body| prelude_writes_outer_binding(body, outer_bindings))
         }
         ASTNode::Loop { body, .. }
-        | ASTNode::While { body, .. }
         | ASTNode::ForRange { body, .. }
         | ASTNode::ScopeBox { body, .. } => prelude_writes_outer_binding(body, outer_bindings),
         ASTNode::Program { statements, .. } => {

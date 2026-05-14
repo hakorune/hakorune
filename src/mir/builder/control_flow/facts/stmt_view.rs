@@ -35,15 +35,6 @@ pub(in crate::mir::builder) fn flatten_scope_boxes(body: &[ASTNode]) -> Vec<ASTN
                 body: flatten_scope_boxes(body),
                 span: span.clone(),
             },
-            ASTNode::While {
-                condition,
-                body,
-                span,
-            } => ASTNode::While {
-                condition: condition.clone(),
-                body: flatten_scope_boxes(body),
-                span: span.clone(),
-            },
             ASTNode::ForRange {
                 var_name,
                 start,

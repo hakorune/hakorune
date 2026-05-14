@@ -50,9 +50,7 @@ impl ASTNode {
             ASTNode::Loop {
                 condition, body, ..
             }
-            | ASTNode::While {
-                condition, body, ..
-            } => {
+ => {
                 visitor(condition);
                 for statement in body {
                     visitor(statement);
@@ -279,11 +277,6 @@ impl ASTNode {
                 condition: _, body, ..
             } => {
                 format!("Loop({} statements)", body.len())
-            }
-            ASTNode::While {
-                condition: _, body, ..
-            } => {
-                format!("While({} statements)", body.len())
             }
             ASTNode::ForRange {
                 var_name,
@@ -560,7 +553,6 @@ impl ASTNode {
             ASTNode::Print { span, .. } => *span,
             ASTNode::If { span, .. } => *span,
             ASTNode::Loop { span, .. } => *span,
-            ASTNode::While { span, .. } => *span,
             ASTNode::ForRange { span, .. } => *span,
             ASTNode::Return { span, .. } => *span,
             ASTNode::Break { span, .. } => *span,
@@ -741,9 +733,7 @@ impl ASTNode {
                 ASTNode::Loop {
                     condition, body, ..
                 }
-                | ASTNode::While {
-                    condition, body, ..
-                } => {
+ => {
                     contains(condition, loop_depth)
                         || body
                             .iter()

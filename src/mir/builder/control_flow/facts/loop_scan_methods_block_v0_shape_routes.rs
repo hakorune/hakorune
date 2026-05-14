@@ -85,9 +85,7 @@ fn match_scan_window_block<'a>(
         ASTNode::Loop {
             condition, body, ..
         }
-        | ASTNode::While {
-            condition, body, ..
-        } => (condition.as_ref(), body.as_slice()),
+ => (condition.as_ref(), body.as_slice()),
         _ => return None,
     };
 
@@ -205,7 +203,7 @@ fn scan_window_substring_receiver(stmt: &ASTNode) -> Option<String> {
 
     let inner_loop = &stmts[3];
     let body = match inner_loop {
-        ASTNode::Loop { body, .. } | ASTNode::While { body, .. } => body.as_slice(),
+        ASTNode::Loop { body, .. } => body.as_slice(),
         _ => return None,
     };
     if body.is_empty() {

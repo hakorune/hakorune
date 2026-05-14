@@ -27,14 +27,12 @@ pub(in crate::mir::builder) fn lower_loop_scan_phi_vars_found_if_branch_body(
 
     let mut idx = 0;
     while idx < stmts.len() {
-        if matches!(stmts[idx], ASTNode::Loop { .. } | ASTNode::While { .. }) {
+        if matches!(stmts[idx], ASTNode::Loop { .. }) {
             let nested = match &stmts[idx] {
                 ASTNode::Loop {
                     condition, body, ..
                 }
-                | ASTNode::While {
-                    condition, body, ..
-                } => NestedLoopRecipe {
+ => NestedLoopRecipe {
                     cond_view: CondBlockView::from_expr(condition),
                     loop_stmt: stmts[idx].clone(),
                     body: RecipeBody::new(body.to_vec()),
@@ -56,7 +54,7 @@ pub(in crate::mir::builder) fn lower_loop_scan_phi_vars_found_if_branch_body(
         let start = idx;
         idx += 1;
         while idx < stmts.len() {
-            if matches!(stmts[idx], ASTNode::Loop { .. } | ASTNode::While { .. }) {
+            if matches!(stmts[idx], ASTNode::Loop { .. }) {
                 break;
             }
             idx += 1;

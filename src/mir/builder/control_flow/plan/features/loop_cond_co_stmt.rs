@@ -292,9 +292,7 @@ pub(super) fn lower_stmt_ast(
         ASTNode::Loop {
             condition, body, ..
         }
-        | ASTNode::While {
-            condition, body, ..
-        } => {
+ => {
             // Phase 29bq: Allow nested loops in group-if body (e.g., hex-parsing loop in _decode_escapes)
             let plan = lower_nested_loop_depth1_any(
                 builder,

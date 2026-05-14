@@ -65,7 +65,6 @@ pub(super) fn collect_assigned_vars(ast: &crate::ast::ASTNode, vars: &mut BTreeS
             }
         }
         ASTNode::Loop { body, .. }
-        | ASTNode::While { body, .. }
         | ASTNode::ForRange { body, .. } => {
             for stmt in body {
                 collect_assigned_vars(stmt, vars);

@@ -75,9 +75,7 @@ fn try_segmentize_stmt_list(stmts: &[ASTNode], allow_extended: bool) -> Option<V
             ASTNode::Loop {
                 condition, body, ..
             }
-            | ASTNode::While {
-                condition, body, ..
-            } => {
+ => {
                 flush_linear(&mut segments, &mut cur_stmts, &mut cur_recipe);
                 segments.push(ScanSegment::NestedLoop(NestedLoopRecipe {
                     cond_view: CondBlockView::from_expr(condition),

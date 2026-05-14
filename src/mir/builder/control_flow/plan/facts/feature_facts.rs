@@ -85,7 +85,7 @@ pub(in crate::mir::builder) fn detect_nested_loop(body: &[ASTNode]) -> bool {
 
 fn stmt_has_nested_loop(stmt: &ASTNode) -> bool {
     match stmt {
-        ASTNode::Loop { .. } | ASTNode::While { .. } | ASTNode::ForRange { .. } => true,
+        ASTNode::Loop { .. } | ASTNode::ForRange { .. } => true,
         ASTNode::If {
             then_body,
             else_body,
@@ -121,7 +121,7 @@ fn update_exit_usage_from_stmt(stmt: &ASTNode, usage: &mut ExitUsageFacts) {
                 }
             }
         }
-        ASTNode::Loop { .. } | ASTNode::While { .. } | ASTNode::ForRange { .. } => {}
+        ASTNode::Loop { .. } | ASTNode::ForRange { .. } => {}
         _ => {}
     }
 }

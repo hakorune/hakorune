@@ -39,8 +39,8 @@ The remaining `ASTNode::While` vocabulary is legacy/compat residue.
 
 | Row | Status | Scope | Acceptance |
 | --- | --- | --- | --- |
-| `CLEAN-WHILE-001` | active | While deletion readiness inventory. | Finds every `ASTNode::While` constructor/ref and classifies it as parser-output impossible, legacy decode compat, test fixture, or delete target. |
-| `CLEAN-WHILE-002` | next after 001 | Delete `ASTNode::While` variant and direct refs. | Parser `while` still emits `Loop`; legacy JSON/roundtrip paths decode old `While` shape into `Loop`; no `ASTNode::While` refs remain. |
+| `CLEAN-WHILE-001` | landed | While deletion readiness inventory. | Remaining refs were direct legacy/model vocabulary cleanup targets; parser `while` already emits canonical `Loop`. |
+| `CLEAN-WHILE-002` | landed | Delete `ASTNode::While` variant and direct refs. | `ASTNode::While` is removed from source; `while` remains parser sugar to `Loop`. |
 | `CLEAN-LOWER-001` | ready after While cleanup | Split `expression_to_json_v0` by expression family. | Behavior-preserving helpers for literal/var/op/call/member/record/enum/array lanes; no new Program JSON shape. |
 | `CLEAN-LOWER-002` | ready after 001 | Split `statement_to_json_v0` by statement family. | Behavior-preserving helpers for local/print/return/if/loop/range/match/check lanes. |
 | `CLEAN-FOR-001` | parked | Decide legacy `parse_for_range_stage3` fate. | Either quarantine as legacy syntax with documented retire condition, or remove after compatibility check. |

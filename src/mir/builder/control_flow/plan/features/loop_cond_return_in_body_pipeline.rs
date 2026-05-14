@@ -279,9 +279,7 @@ fn collect_vars_from_stmt(stmt: &ASTNode, vars: &mut BTreeSet<String>) {
         ASTNode::Loop {
             condition, body, ..
         }
-        | ASTNode::While {
-            condition, body, ..
-        } => {
+ => {
             collect_vars_from_expr(condition, vars);
             for child in body {
                 collect_vars_from_stmt(child, vars);

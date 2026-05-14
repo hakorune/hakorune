@@ -164,9 +164,7 @@ impl AstOwnershipAnalyzer {
             ASTNode::Loop {
                 condition, body, ..
             }
-            | ASTNode::While {
-                condition, body, ..
-            } => {
+ => {
                 let loop_scope = self.alloc_scope(ScopeKind::Loop, Some(current_scope));
                 self.push_env();
                 let result: Result<(), String> = (|| {

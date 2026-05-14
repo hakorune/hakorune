@@ -144,9 +144,7 @@ fn build_exit_allowed_item(
         ASTNode::Loop {
             condition, body, ..
         }
-        | ASTNode::While {
-            condition, body, ..
-        } => {
+ => {
             if !is_supported_bool_expr_with_canon(condition, allow_extended) {
                 return None;
             }

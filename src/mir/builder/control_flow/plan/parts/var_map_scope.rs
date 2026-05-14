@@ -105,7 +105,6 @@ fn collect_scope_local_vars_from_stmt(stmt: &ASTNode, locals: &mut BTreeSet<Stri
             }
         }
         ASTNode::Loop { body, .. }
-        | ASTNode::While { body, .. }
         | ASTNode::ForRange { body, .. }
         | ASTNode::ScopeBox { body, .. } => {
             for stmt in body {

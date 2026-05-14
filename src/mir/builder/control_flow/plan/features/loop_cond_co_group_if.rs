@@ -184,9 +184,7 @@ pub(super) fn lower_continue_if_nested_loop(
         ASTNode::Loop {
             condition, body, ..
         }
-        | ASTNode::While {
-            condition, body, ..
-        } => (condition.as_ref(), body.as_slice()),
+ => (condition.as_ref(), body.as_slice()),
         ASTNode::ForRange { .. } => {
             return Err(format!(
                 "{LOOP_COND_CONTINUE_ONLY_ERR}: ForRange in nested loop not supported"
