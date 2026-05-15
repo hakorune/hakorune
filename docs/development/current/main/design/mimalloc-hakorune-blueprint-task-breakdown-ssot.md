@@ -1,12 +1,13 @@
 ---
 Status: SSOT
 Decision: accepted
-Date: 2026-05-14
+Date: 2026-05-15
 Scope: mimalloc upstream source pin, Hakorune-shaped blueprint, and port task slicing.
 Related:
   - docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md
   - docs/development/current/main/design/record-and-packed-array-lowering-ssot.md
   - docs/development/current/main/design/language-minimal-surface-task-breakdown-ssot.md
+  - docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md
   - docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md
 ---
 
@@ -239,6 +240,35 @@ Every source finding should be classified as one of:
 | `MIMAP-007 size-class table pilot` | Implement size-class/bin map slice if it stays near-transcription. | executable pilot | no const evaluator dependency unless row says so |
 | `MIMAP-008 page/free-list model pilot` | Implement local page/free-list model with explicit lifecycle state. | executable pilot | no OSVM/global allocator activation |
 | `MIMAP-009 lifecycle integration pilot` | Connect decommit/recommit/reuse model to existing lifecycle observers. | proof app / diagnostics | no host allocator replacement |
+| `MIMAP-010 page queue lifecycle selection` | Select reusable/active pages and skip unavailable pages. | executable pilot | no object-heavy facade route |
+| `MIMAP-011 facade lifecycle route` | Expose lifecycle selection through a facade with LLVM/EXE primary acceptance. | proof app / guard | no provider/hook/global allocator activation |
+| `MIMAP-012 object-backed lifecycle queue` | Retain page objects in a queue and return selected page object. | proof app / guard | no facade allocation behavior |
+| `MIMAP-013 facade object lifecycle queue` | Compose the object queue through a thin facade and scalar observers. | proof app / guard | no selected-object return through facade |
+| `MIMAP-014A single-page small allocation fast-path` | Select one reusable page through the facade and acquire one block. | proof app / guard | no release/realloc/alignment/OSVM |
+| `MIMAP-014B active fallback and miss` | Prove reusable preference, active fallback, and miss reason. | proof app / guard | no release/realloc/OSVM |
+| `MIMAP-014C allocation stats observers` | Add read-only allocation fast-path counters. | proof app / guard | no selection semantic change |
+| `MIMAP-015A/B release route` | Release known blocks, then double/stale release fail-fast. | proof app / guard | no realloc |
+| `MIMAP-016A/B alignment route` | Add alignment request metadata, then aligned allocation success/fail. | proof app / guard | no OSVM unless row says so |
+| `MIMAP-017A/B realloc route` | Prove same-page shrink and grow/move behavior. | proof app / guard | no provider/global allocator |
+| `MIMAP-018A stats snapshot` | Integrate allocator stats snapshot observers. | proof app / guard | no purge policy change |
+| `MIMAP-019A purge/reclaim policy` | Integrate purge/reclaim/decommit policy. | proof app / guard | no OSVM activation unless explicitly selected |
+| `MIMAP-020A OSVM page-source pilot` | Start capability-gated OSVM/page-source route. | proof app / guard | unsupported backend fail-fast |
+
+## Allocator-first granularity
+
+Implementation order and sidecar trigger rules live in:
+
+```text
+docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md
+```
+
+The short rule is:
+
+```text
+allocator row first
+smallest compiler/language sidecar only when blocked
+return to allocator row after the sidecar guard is green
+```
 
 ## Dependency with Language Rows
 

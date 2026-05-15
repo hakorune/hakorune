@@ -1,9 +1,10 @@
 ---
 Status: Active
-Date: 2026-05-14
+Date: 2026-05-15
 Lane: phase-293x mimalloc blueprint / port preparation
 Canonical SSOT:
   - docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md
+  - docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md
 ---
 
 # Phase 293x mimalloc Port Taskboard
@@ -21,7 +22,7 @@ PACKED-003/004 complete
 ```
 
 Blueprint and inventory rows are now the active lane entry. Current primary row:
-`MIMAP-014 allocation fast-path over facade-owned object lifecycle queue`.
+`MIMAP-014A single-page small allocation fast-path`.
 
 Latest sidecar closeout:
 
@@ -96,7 +97,18 @@ FST:
 | `MIMAP-011` | landed | Allocator facade lifecycle route pilot using lifecycle-aware page selection; LLVM/EXE primary. | 1 commit |
 | `MIMAP-012` | landed | Object-backed lifecycle queue LLVM route pilot; `ArrayBox` retains page objects and returns selected page. | 1 commit |
 | `MIMAP-013` | landed | Facade composition over object-backed lifecycle queue. | after MIMAP-012 |
-| `MIMAP-014` | ready | Small allocation fast-path over the facade-owned object lifecycle queue, with LLVM/EXE primary proof and no OSVM/provider activation. | after MIMAP-013 |
+| `MIMAP-014A` | ready | Single-page small allocation fast-path over the facade-owned object lifecycle queue. | after MIMAP-013 |
+| `MIMAP-014B` | ready | Reusable-page preference, active-page fallback, and allocation miss reason. | after MIMAP-014A |
+| `MIMAP-014C` | ready | Allocation fast-path stats observers. | after MIMAP-014B |
+| `MIMAP-015A` | ready | Release/free one known block through the facade. | after MIMAP-014C |
+| `MIMAP-015B` | ready | Double-release / stale-release fail-fast route. | after MIMAP-015A |
+| `MIMAP-016A` | ready | Alignment request metadata and observer result. | after MIMAP-015B |
+| `MIMAP-016B` | parked | Aligned allocation success/fail route. | after MIMAP-016A |
+| `MIMAP-017A` | parked | Realloc shrink / same-page route. | after release and alignment are stable |
+| `MIMAP-017B` | parked | Realloc grow / move route. | after MIMAP-017A |
+| `MIMAP-018A` | parked | Stats snapshot observer integration. | after allocation/release counters are stable |
+| `MIMAP-019A` | parked | Purge/reclaim/decommit policy route. | after lifecycle observers are stable |
+| `MIMAP-020A` | parked | OSVM/page-source capability pilot. | after in-memory facade route is stable |
 
 ### Construction / Lifecycle Policy Rows
 
@@ -168,6 +180,44 @@ Landed evidence:
 bash tools/checks/k2_wide_mimalloc_facade_object_lifecycle_queue_exe_guard.sh
 [mimap013-mir-json] ok
 [k2-wide-mimalloc-facade-object-lifecycle-queue-exe] ok
+```
+
+### MIMAP-014A ready row
+
+Owner boundary:
+
+```text
+lang/src/hako_alloc/memory/object_lifecycle_facade_box.hako
+lang/src/hako_alloc/memory/object_lifecycle_page_queue_box.hako
+lang/src/hako_alloc/memory/page_box.hako
+```
+
+Expected proof and guard:
+
+```text
+apps/mimalloc-facade-small-alloc-proof/main.hako
+tools/checks/k2_wide_mimalloc_facade_small_alloc_exe_guard.sh
+```
+
+Scope:
+
+```text
+HakoAllocObjectLifecycleFacade selects one reusable page from its object
+lifecycle queue and calls HakoAllocPageModel.acquire(size).
+The row returns scalar observer data only: selected page id, block id, reason
+code, and summary.
+No release/free, realloc, alignment, OSVM/page-source, provider hook,
+remote-free execution, host allocator replacement, selected-object return, or
+backend shortcut is activated.
+```
+
+Stop condition:
+
+```text
+If helper-call object-loop shape blocks MIR JSON or LLVM/EXE, stop MIMAP-014A
+and land MIR-ROW-B first with a minimized fixture.
+If selected-object return is required, stop and land MIR-ROW-C instead of
+broadening MIMAP-014A.
 ```
 
 Acceptance split for every `MIR-ROW-*`:
