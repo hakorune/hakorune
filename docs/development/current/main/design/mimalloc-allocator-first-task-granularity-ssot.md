@@ -146,6 +146,7 @@ Forbidden:
 | `MIMAP-023B` | post-huge-page-model allocator row selection | MIMAP-023A is green |
 | `MIMAP-024A` | facade huge-release metadata route | MIMAP-023B selects the narrow huge-handle lifetime seam |
 | `MIMAP-024B` | post-huge-release allocator row selection | MIMAP-024A is green |
+| `MIMAP-025A` | facade huge-release fail-fast diagnostics route | MIMAP-024B selects double-release / stale-pointer diagnostics |
 
 ### MIMAP-020A granularity
 
@@ -255,9 +256,26 @@ double-release / stale-pointer facade fail-fast, realloc, alignment,
 purge/reclaim, remote-free, TLS, atomic, provider hooks, host allocator
 replacement, or `#[global_allocator]`.
 
-MIMAP-024B is the next planning-only row. It must pick exactly one
-post-huge-release allocator behavior slice and record the owner, proof app,
-guard, and stop lines before implementation begins.
+MIMAP-024B is a landed planning-only row. It selects MIMAP-025A as the next
+allocator behavior slice.
+
+### MIMAP-025A granularity
+
+MIMAP-025A is the selected behavior row. It should add one narrow
+object-lifecycle facade diagnostics route that proves:
+
+```text
+first huge release -> MIMAP-024A success
+second release of same huge pointer -> reject
+stale/unknown huge pointer -> reject
+scalar report -> live-count stability and reject counters
+```
+
+The row must reuse the existing MIMAP-024A route and the existing M180
+huge-page model metadata rejection behavior. It must not adopt the wider M181
+`HakoAllocHugeReleaseSeam`, use page-map lookup/unregister, release OS pages,
+add small release/free, realloc, alignment, purge/reclaim, remote-free, TLS,
+atomic, provider hooks, host allocator replacement, or `#[global_allocator]`.
 
 ## Compiler / language sidecar triggers
 
