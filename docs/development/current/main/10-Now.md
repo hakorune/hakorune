@@ -26,13 +26,13 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-014A single-page small allocation fast-path`
+- current blocker token: `MIMAP-014B reusable-page preference, active-page fallback, and allocation miss reason`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after MIMAP-013 thin facade composition; next blocker is MIMAP-014A single-page small allocation fast-path over the facade-owned object lifecycle queue; VM-LIM-001 is parked
+- continue phase-293x after MIMAP-014A facade small allocation fast-path; next blocker is MIMAP-014B reusable-page preference, active-page fallback, and allocation miss reason over the facade-owned object lifecycle queue; VM-LIM-001 is parked
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

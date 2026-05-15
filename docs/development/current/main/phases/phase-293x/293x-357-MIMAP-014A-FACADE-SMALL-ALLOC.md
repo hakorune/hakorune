@@ -1,6 +1,6 @@
 # 293x-357 MIMAP-014A Facade Small Allocation Fast-Path
 
-Status: ready
+Status: landed
 Date: 2026-05-15
 
 ## Decision
@@ -65,6 +65,44 @@ Required guard evidence:
 [mimap014a-mir-json] ok
 [k2-wide-mimalloc-facade-small-alloc-exe] ok
 ```
+
+## Implementation
+
+`HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc(size)` selects through
+the existing facade-owned queue, reads the queue's scalar selected index, then
+retrieves the selected page from the queue-owned `pages` collection before
+calling `HakoAllocPageModel.reuse()` and `HakoAllocPageModel.acquire(size)`.
+
+The selected object is not returned through the facade. The proof app consumes
+only scalar observers:
+
+- `objectLifecycleAllocPageId()`
+- `objectLifecycleAllocBlockId()`
+- `objectLifecycleAllocReason()`
+- `objectLifecycleAllocOk()`
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_mimalloc_facade_small_alloc_exe_guard.sh
+[mimap014a-mir-json] ok
+[k2-wide-mimalloc-facade-small-alloc-exe] ok
+
+bash tools/checks/k2_wide_mimalloc_facade_object_lifecycle_queue_exe_guard.sh
+[mimap013-mir-json] ok
+[k2-wide-mimalloc-facade-object-lifecycle-queue-exe] ok
+
+bash tools/checks/current_state_pointer_guard.sh
+[current-state-pointer-guard] ok
+
+bash tools/checks/dev_gate.sh quick
+[dev-gate] profile=quick ok
+```
+
+The quick gate initially stopped at the existing MIR root facade allowlist drift.
+Cleanup kept semantic metadata imports on `crate::mir::function::*` instead of
+re-exporting them from `crate::mir::*`; `mir-root-facade-guard` now reports
+`ok exports=108`.
 
 ## Stop lines
 

@@ -1,0 +1,38 @@
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+
+static box Main {
+    main(args) {
+        local reusable = new HakoAllocPageModel(40, 8, 1, 1)
+        local old_block = reusable.acquire(8)
+        reusable.releaseLocal(old_block)
+
+        local alloc = new HakoAllocObjectLifecycleFacade()
+        local add0 = alloc.objectLifecycleAddPage(reusable)
+        local ok = alloc.objectLifecycleSmallAlloc(8)
+
+        local alloc_page = alloc.objectLifecycleAllocPageId()
+        local alloc_block = alloc.objectLifecycleAllocBlockId()
+        local alloc_reason = alloc.objectLifecycleAllocReason()
+        local alloc_ok = alloc.objectLifecycleAllocOk()
+
+        print("mimalloc-facade-small-alloc-proof")
+        print("adds=" + add0)
+        print("alloc_page=" + alloc_page)
+        print("alloc_block=" + alloc_block)
+        print("alloc_reason=" + alloc_reason)
+
+        if ok == 1 {
+            if alloc_ok == 1 {
+                print("summary=ok")
+                return 0
+            } else {
+                print("summary=fail")
+                return 1
+            }
+        } else {
+            print("summary=fail")
+            return 1
+        }
+    }
+}
