@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-15"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-STAGE1-ORDER-001 parked broad Stage1 .hako owner reduction until after mimalloc completeness evidence. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Current row is MIMAP-SUBSTRATE-CONC-002 route inventory guard before returning to MIMAP-021C facade page-source allocation-miss fallback. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-SUBSTRATE-CONC-002 landed the hako.mem / hako.osvm / hako.tls / hako.atomic route inventory guard without adding new substrate behavior. Current row returns to MIMAP-021C facade page-source allocation-miss fallback. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-390-MIMAP-SUBSTRATE-CONC-002-ROUTE-INVENTORY-GUARD.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-384-MIMAP-021C-FACADE-PAGE-SOURCE-ALLOC-MISS-FALLBACK.md"
 method_anchor = "docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-392-MIMAP-STAGE1-ORDER-001-POST-MIMALLOC-SELFHOST-ORDER"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-392-MIMAP-STAGE1-ORDER-001-POST-MIMALLOC-SELFHOST-ORDER.md"
-latest_card_summary = "MIMAP-STAGE1-ORDER-001 parks broad Stage1 .hako owner reduction until after mimalloc completeness evidence."
+latest_card = "293x-390-MIMAP-SUBSTRATE-CONC-002-ROUTE-INVENTORY-GUARD"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-390-MIMAP-SUBSTRATE-CONC-002-ROUTE-INVENTORY-GUARD.md"
+latest_card_summary = "MIMAP-SUBSTRATE-CONC-002 pins allocator substrate route inventory and a focused guard without adding new behavior."
 
-current_blocker_token = "MIMAP-SUBSTRATE-CONC-002"
+current_blocker_token = "MIMAP-021C"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-390 MIMAP-SUBSTRATE-CONC-002 route inventory guard landed",
   "293x-392 MIMAP-STAGE1-ORDER-001 post-mimalloc selfhost order landed",
   "293x-391 MIMAP-PURPOSE-002 allocator replacement boundary landed",
   "293x-389 MIMAP-SUBSTRATE-CONC-001 concurrency substrate cut landed",

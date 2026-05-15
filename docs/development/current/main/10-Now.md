@@ -28,16 +28,14 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-SUBSTRATE-CONC-002 route inventory guard`
+- current blocker token: `MIMAP-021C facade page-source allocation-miss fallback`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after MIMAP-SUBSTRATE-CONC-001; next blocker is
-  MIMAP-SUBSTRATE-CONC-002 route inventory guard
-- return to MIMAP-021C facade page-source allocation-miss fallback after the
-  route inventory guard is pinned
+- continue phase-293x after MIMAP-SUBSTRATE-CONC-002; next blocker is
+  MIMAP-021C facade page-source allocation-miss fallback
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

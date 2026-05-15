@@ -23,15 +23,9 @@ PACKED-003/004 complete
 ```
 
 Blueprint and inventory rows are active again after the MIR builder diet cleanup
-sidecar closeout. The mimalloc concurrency substrate cut is now pinned, so the
-current primary row is the route inventory guard before returning to page-source
+sidecar closeout. The mimalloc concurrency substrate cut and route inventory
+guard are now pinned, so the current primary row returns to page-source
 allocator behavior:
-
-```text
-MIMAP-SUBSTRATE-CONC-002 route inventory guard
-```
-
-Return row:
 
 ```text
 MIMAP-021C facade page-source allocation-miss fallback
@@ -65,7 +59,11 @@ MIMAP-SUBSTRATE-CONC-001:
   landed
   mimalloc needs runtime/internal concurrency substrate, not the full
   user-facing concurrency language surface
-  MIMAP-SUBSTRATE-CONC-002 is the current selected primary row
+MIMAP-SUBSTRATE-CONC-002:
+  landed
+  route inventory guard pins hako.mem / hako.osvm / hako.tls / hako.atomic
+  route facts and proof guards without adding behavior
+  MIMAP-021C is the current selected primary row
 ```
 
 ## Active Source Policy
@@ -145,8 +143,8 @@ not prerequisites:
 | Row | Status | Purpose | Ordering |
 | --- | --- | --- | --- |
 | `MIMAP-SUBSTRATE-CONC-001` | landed | Pin the boundary between allocator concurrency substrate and user-facing concurrency language features. | before route inventory |
-| `MIMAP-SUBSTRATE-CONC-002` | ready | Inventory and guard existing hako.atomic / hako.tls / hako.osvm / hako.mem route facts so backend lowering reads MIR-owned routes, not raw helper names. | current |
-| `MIMAP-021C` | ready | Facade page-source allocation-miss fallback. | after MIMAP-SUBSTRATE-CONC-002 |
+| `MIMAP-SUBSTRATE-CONC-002` | landed | Inventory and guard existing hako.atomic / hako.tls / hako.osvm / hako.mem route facts so backend lowering reads MIR-owned routes, not raw helper names. | before MIMAP-021C |
+| `MIMAP-021C` | ready | Facade page-source allocation-miss fallback. | current |
 | `MIMAP-WORKER-001` | planned | Add internal worker/thread identity substrate for allocator owner/cache policy; no source-level worker identity semantics. | after MIMAP-021C |
 | `MIMAP-TLS-001` | planned | Add or harden internal TLS / worker-local cache-slot substrate for allocator caches. | after MIMAP-WORKER-001 |
 | `MIMAP-ATOMIC-001` | planned | Add or harden allocator-facing atomic load/store/CAS/fetch_add route guards. | after MIMAP-TLS-001 |

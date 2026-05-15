@@ -91,6 +91,7 @@ list_profiles() {
     - tools/checks/k2_wide_runtime_decl_return_proof_row_guard.sh
     - tools/checks/k2_wide_native_ptr_decl_type_guard.sh
     - tools/checks/k2_wide_hako_mem_runtime_decl_guard.sh
+    - tools/checks/k2_wide_mimalloc_substrate_route_inventory_guard.sh
     - tools/checks/allocator_provider_inactive_sentinel_guard.sh
     - tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
     - tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
@@ -502,6 +503,9 @@ run_quick() {
 
   run_step "K2-wide hako_mem runtime-decl guard" \
     bash tools/checks/k2_wide_hako_mem_runtime_decl_guard.sh
+
+  run_step "K2-wide mimalloc substrate route inventory guard" \
+    bash tools/checks/k2_wide_mimalloc_substrate_route_inventory_guard.sh
 
   run_step "allocator provider inactive sentinel guard" \
     bash tools/checks/allocator_provider_inactive_sentinel_guard.sh

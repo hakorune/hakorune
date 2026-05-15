@@ -75,6 +75,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_native_ptr_decl_type_guard.sh` | M10c-native-ptr-declare-type の `native_ptr_* -> ptr` 型名対応を `.hako` ll_emit reader に閉じ、型名 reader が `.inc` に漏れないことを固定する。 |
 | `tools/checks/k2_wide_hako_mem_runtime_decl_guard.sh` | M10c-hako-mem alloc/realloc/free rows の `hako_mem_alloc` / `hako_mem_realloc -> native_ptr_nullable` と `hako_mem_free -> void` runtime-decl row / generated defaults 同期を固定し、native pointer arg emission が `ptr` で void call が `call void` であること、他 native pointer row / `ret_proofs` / strong attrs の混入を防ぐ。 |
 | `tools/checks/k2_wide_hako_mem_alloc_runtime_decl_guard.sh` | 293x-052 互換入口。現在は `k2_wide_hako_mem_runtime_decl_guard.sh` に委譲する。 |
+| `tools/checks/k2_wide_hako_mem_extern_pure_first_guard.sh` | M14 の `hako_mem_alloc` / `hako_mem_free` pure-first EXE proof を固定し、hako.mem extern routes が MIR-owned `extern_call_routes` から emit されることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_raw_page_exe_guard.sh` | M20 の mimalloc raw-page pure-first EXE parity guard を固定し、M14-M19 raw memory / RawBuf / RawArray route surface の合成が allocator policy なしで実行できることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_size_class_table_exe_guard.sh` | M21 の static u16 size-class table + raw-page pure-first EXE 合成 proof を固定し、runtime Array/Map table materialization、app-specific `.inc` matcher、新しい source syntax / allocator policy の混入を防ぐ。 |
 | `tools/checks/k2_wide_mimalloc_two_class_page_exe_guard.sh` | M22 の static u16 size-class table + two-class raw-page pure-first EXE proof を固定し、small/medium の reject/release/reuse が既存 route surface だけで動くことを検証する。 |
@@ -201,6 +202,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_mimalloc_remote_free_list_policy_exe_guard.sh` | M42 の allocator remote-free list policy proof を固定し、M41 の two-node push shape が same-module policy box 経由で pure-first EXE 実行できることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_remote_free_retry_loop_exe_guard.sh` | M43 の allocator remote-free retry-loop proof を固定し、same-module policy box 内の bounded CAS retry loop が pure-first EXE 実行できることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_allocator_substrate_closeout_guard.sh` | M44 の mimalloc allocator substrate closeout を固定し、M20-M43 proof apps/guards/docs/allocator-wide coverage と app-specific `.inc` matcher 不在を検証する。 |
+| `tools/checks/k2_wide_mimalloc_substrate_route_inventory_guard.sh` | MIMAP-SUBSTRATE-CONC-002 の hako.mem / hako.osvm / hako.tls / hako.atomic route inventory を固定し、MIR-owned `extern_call_routes` / `lowering_plan` 経由の既存 proof guard と stop line が一枚で辿れることを検証する。 |
 | `tools/checks/k2_wide_production_allocator_port_entry_plan_guard.sh` | M45 の production allocator port entry plan を固定し、M46-M50 の実装順・境界・pointer fetch_add/native attrs inactive を検証する。 |
 | `tools/checks/k2_wide_hako_alloc_production_facade_exe_guard.sh` | M46 の `hako_alloc` production facade boundary を固定し、`HakoAllocProductionFacade` が pure-first EXE で既存 page/free-list policy state へ委譲することを検証する。 |
 | `tools/checks/k2_wide_hako_alloc_local_page_policy_exe_guard.sh` | M47 の allocator local page policy proof を固定し、`HakoAllocProductionFacade` 経由で small/medium allocate/free/reject/reuse accounting が pure-first EXE 実行できることを検証する。 |
