@@ -28,14 +28,14 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-REMOTE-001 remote-free / abandoned-owner policy`
+- current blocker token: `MIMAP-THREADSAFE-ABI-001 thread-safe hako_mem ABI`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after MIMAP-ATOMIC-001; next blocker is
-  MIMAP-REMOTE-001 remote-free / abandoned-owner policy
+- continue phase-293x after MIMAP-REMOTE-001; next blocker is
+  MIMAP-THREADSAFE-ABI-001 thread-safe hako_mem ABI
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

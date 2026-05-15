@@ -185,6 +185,22 @@ bash tools/checks/k2_wide_mimalloc_remote_free_page_integration_guard.sh
 - caller-provided block id proof seam なので page-map / arbitrary pointer
   free / provider / hook / replacement はまだ扱わない
 
+#### mimalloc-remote-abandoned-owner-policy-proof
+**場所**: `mimalloc-remote-abandoned-owner-policy-proof/main.hako`
+MIMAP-REMOTE-001 proof。`HakoAllocRemoteAbandonedOwnerPolicy` が worker/TLS
+cache-slot、bounded remote-free policy、thread heap owner inventory、abandoned
+reclaim inventory を合成し、same-owner / remote-owner / abandoned-owner の
+scalar policy decision を pure-first EXE で固定する。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_remote_abandoned_owner_policy_guard.sh
+```
+
+**特徴**:
+- route ownership は既存 worker/TLS/atomic rows に残す
+- true threads なしで owner transition を deterministic に検証する
+- page ownership mutation / reclaim execution / provider / hook / replacement は追加しない
+
 #### mimalloc-page-map-proof
 **場所**: `mimalloc-page-map-proof/main.hako`
 M171 proof。caller-visible pointer id を `page_id` / `block_id` に解決する
@@ -790,6 +806,7 @@ box TreeNode {
 - [x] mimalloc-remote-free-retry-loop-proof（M43 allocator remote-free retry-loop proof）
 - [x] mimalloc-tls-ptr-remote-free-proof（M36 TLS pointer remote-free proof）
 - [x] mimalloc-remote-free-policy-proof（M37 remote-free policy integration proof）
+- [x] mimalloc-remote-abandoned-owner-policy-proof（MIMAP-REMOTE-001 remote-free / abandoned-owner policy proof）
 
 ### 🚧 実装予定（論文・ベンチマーク用）
 - [ ] n-body（数値計算）

@@ -51,6 +51,7 @@ Current modules
 - `purge_candidate_policy_box.hako`
 - `purge_policy_box.hako`
 - `remote_free_page_integration_box.hako`
+- `remote_free_abandoned_owner_policy_box.hako`
 - `refcell_box.hako`
 - `remote_free_policy_box.hako`
 - `size_class_box.hako`
@@ -195,6 +196,16 @@ Syntax/style contract
   inbox composition. It may call `HakoAllocRemoteFreePolicy.pushRetry(...)` and
   `HakoAllocPageModel.releaseLocal(...)`, but it must not resolve arbitrary
   pointers to pages or add new pointer atomic vocabulary.
+- `remote_free_abandoned_owner_policy_box.hako` owns MIMAP-REMOTE-001
+  allocator remote-free / abandoned-owner policy composition. It may compose
+  `HakoAllocWorkerTlsCache`, `HakoAllocRemoteFreePolicy`,
+  `HakoAllocThreadHeapOwnerInventory`, and
+  `HakoAllocAbandonedReclaimInventory` into scalar same-owner,
+  remote-owner-publish, abandoned-owner-candidate, and reject decisions. It
+  must not open source-level concurrency syntax, mutate page ownership, drain
+  arbitrary remote-free queues, execute reclaim, call page-source APIs, use
+  page-map lookup, add route rows, activate providers/hooks, or replace the
+  host allocator.
 - `page_map_box.hako` owns M171 pointer-to-page ownership lookup. It may record
   and resolve caller-visible pointer identity to page/block ids, but it must not
   perform page release, realloc, pointer arithmetic, or native metal work.

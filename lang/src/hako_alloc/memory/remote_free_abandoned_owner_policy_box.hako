@@ -1,0 +1,145 @@
+// remote_free_abandoned_owner_policy_box.hako -- MIMAP-REMOTE-001 policy owner.
+// Responsibility: compose worker identity, TLS cache-slot mailbox, bounded
+// remote-free pointer policy, and read-only owner/reclaim inventories into one
+// allocator-facing scalar policy surface.
+// Non-responsibility: true threads, source-level concurrency syntax, arbitrary
+// page-map lookup, page ownership mutation, reclaim execution, provider hooks,
+// allocator replacement, or backend shortcuts.
+
+using selfhost.hako_alloc.memory.worker_tls_cache_box as HakoAllocWorkerTlsCacheBox
+using selfhost.hako_alloc.memory.remote_free_policy_box as HakoAllocRemoteFreePolicy
+using selfhost.hako_alloc.memory.thread_heap_owner_inventory_box as HakoAllocThreadHeapOwnerInventoryBox
+using selfhost.hako_alloc.memory.abandoned_reclaim_inventory_box as HakoAllocAbandonedReclaimInventoryBox
+
+box HakoAllocRemoteAbandonedOwnerDecision {
+    status: i64 = 0
+    reason: i64 = 0
+    page_id: i64 = -1
+    owner_worker_id: i64 = -1
+    observer_worker_id: i64 = -1
+    slot_id: i64 = -1
+    head_cell: i64 = 0
+    block_ptr: i64 = 0
+    head_after: i64 = 0
+    retry_count: i64 = -1
+    same_owner: i64 = 0
+    remote_owner: i64 = 0
+    remote_published: i64 = 0
+    abandoned_candidate: i64 = 0
+    owner_adoption_candidate: i64 = 0
+    reclaim_candidate: i64 = 0
+    purge_forward_candidate: i64 = 0
+    remote_free_pending: i64 = 0
+    decommitted: i64 = 0
+    owner_reason: i64 = 0
+    reclaim_reason: i64 = 0
+}
+
+box HakoAllocRemoteAbandonedOwnerPolicy {
+    cache: HakoAllocWorkerTlsCache = new HakoAllocWorkerTlsCache()
+    owner_inventory: HakoAllocThreadHeapOwnerInventory = new HakoAllocThreadHeapOwnerInventory()
+    reclaim_inventory: HakoAllocAbandonedReclaimInventory = new HakoAllocAbandonedReclaimInventory()
+    classify_count: i64 = 0
+    same_owner_count: i64 = 0
+    remote_publish_count: i64 = 0
+    abandoned_candidate_count: i64 = 0
+    reject_count: i64 = 0
+    last_status: i64 = 0
+    last_reason: i64 = 0
+    last_worker_id: i64 = -1
+    last_head: i64 = 0
+
+    installMailbox(slot, head_cell) {
+        return me.cache.storeSlot(slot, head_cell)
+    }
+
+    clearMailbox(slot) {
+        return me.cache.clearSlot(slot)
+    }
+
+    decision(status, reason, page_id, owner_worker_id, observer_worker_id, slot_id, head_cell, block_ptr, head_after, retry_count, same_owner, remote_owner, remote_published, abandoned_candidate, owner_adoption_candidate, reclaim_candidate, purge_forward_candidate, remote_free_pending, decommitted, owner_reason, reclaim_reason) {
+        local result = new HakoAllocRemoteAbandonedOwnerDecision()
+        result.status = status
+        result.reason = reason
+        result.page_id = page_id
+        result.owner_worker_id = owner_worker_id
+        result.observer_worker_id = observer_worker_id
+        result.slot_id = slot_id
+        result.head_cell = head_cell
+        result.block_ptr = block_ptr
+        result.head_after = head_after
+        result.retry_count = retry_count
+        result.same_owner = same_owner
+        result.remote_owner = remote_owner
+        result.remote_published = remote_published
+        result.abandoned_candidate = abandoned_candidate
+        result.owner_adoption_candidate = owner_adoption_candidate
+        result.reclaim_candidate = reclaim_candidate
+        result.purge_forward_candidate = purge_forward_candidate
+        result.remote_free_pending = remote_free_pending
+        result.decommitted = decommitted
+        result.owner_reason = owner_reason
+        result.reclaim_reason = reclaim_reason
+        me.last_status = status
+        me.last_reason = reason
+        me.last_worker_id = observer_worker_id
+        me.last_head = head_after
+        return result
+    }
+
+    reject(reason, page_id, owner_worker_id, observer_worker_id, slot_id, head_cell, block_ptr, remote_free_pending, decommitted, owner_reason, reclaim_reason) {
+        me.reject_count = me.reject_count + 1
+        return me.decision(0, reason, page_id, owner_worker_id, observer_worker_id, slot_id, head_cell, block_ptr, head_cell, -1, 0, 0, 0, 0, 0, 0, 0, remote_free_pending, decommitted, owner_reason, reclaim_reason)
+    }
+
+    routeFreeOrClassify(page_id, owner_worker_id, owner_active, remote_free_pending, decommitted, used, retired, backing_bytes, tls_slot, block_ptr, interferer_ptr) {
+        me.classify_count = me.classify_count + 1
+
+        local head_cell = me.cache.loadSlot(tls_slot)
+        local observer_worker_id = me.cache.lastWorkerId()
+
+        if owner_worker_id < 0 {
+            return me.reject(1, page_id, owner_worker_id, observer_worker_id, tls_slot, head_cell, block_ptr, remote_free_pending, decommitted, 1, 0)
+        }
+
+        if owner_worker_id == observer_worker_id {
+            if owner_active != 0 {
+                me.same_owner_count = me.same_owner_count + 1
+                return me.decision(1, 0, page_id, owner_worker_id, observer_worker_id, tls_slot, head_cell, block_ptr, head_cell, 0, 1, 0, 0, 0, 0, 0, 0, remote_free_pending, decommitted, 0, 0)
+            }
+        }
+
+        if owner_active != 0 {
+            if remote_free_pending != 0 {
+                return me.reject(2, page_id, owner_worker_id, observer_worker_id, tls_slot, head_cell, block_ptr, remote_free_pending, decommitted, 0, 0)
+            }
+            if head_cell == 0 {
+                return me.reject(3, page_id, owner_worker_id, observer_worker_id, tls_slot, head_cell, block_ptr, remote_free_pending, decommitted, 0, 0)
+            }
+            if block_ptr == 0 {
+                return me.reject(4, page_id, owner_worker_id, observer_worker_id, tls_slot, head_cell, block_ptr, remote_free_pending, decommitted, 0, 0)
+            }
+
+            local retries = HakoAllocRemoteFreePolicy.pushRetry(head_cell, block_ptr, interferer_ptr)
+            if retries < 0 {
+                return me.reject(5, page_id, owner_worker_id, observer_worker_id, tls_slot, head_cell, block_ptr, remote_free_pending, decommitted, 0, 0)
+            }
+
+            local head_after = HakoAllocRemoteFreePolicy.peekHead(head_cell)
+            me.remote_publish_count = me.remote_publish_count + 1
+            return me.decision(2, 0, page_id, owner_worker_id, observer_worker_id, tls_slot, head_cell, block_ptr, head_after, retries, 0, 1, 1, 0, 0, 0, 0, remote_free_pending, decommitted, 0, 0)
+        }
+
+        local owner = me.owner_inventory.classifyOwner(page_id, owner_worker_id, observer_worker_id, owner_active, remote_free_pending, decommitted)
+        local reclaim = me.reclaim_inventory.classifyPage(page_id, owner_worker_id, observer_worker_id, owner_active, used, retired, backing_bytes, decommitted, remote_free_pending)
+
+        if owner.eligible == 1 {
+            if reclaim.eligible == 1 {
+                me.abandoned_candidate_count = me.abandoned_candidate_count + 1
+                return me.decision(3, 0, page_id, owner_worker_id, observer_worker_id, tls_slot, head_cell, block_ptr, head_cell, 0, 0, 0, 0, 1, owner.adoption_candidate, reclaim.reclaim_candidate, reclaim.can_forward_to_purge_candidate, remote_free_pending, decommitted, owner.reason, reclaim.reason)
+            }
+        }
+
+        return me.reject(6, page_id, owner_worker_id, observer_worker_id, tls_slot, head_cell, block_ptr, remote_free_pending, decommitted, owner.reason, reclaim.reason)
+    }
+}

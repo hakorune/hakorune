@@ -1,0 +1,61 @@
+using selfhost.hako_alloc.memory.remote_free_abandoned_owner_policy_box as HakoAllocRemoteAbandonedOwnerPolicyBox
+
+static box Main {
+    main(args) {
+        local head_cell = externcall "hako_mem_alloc"(8)
+        local block_a = externcall "hako_mem_alloc"(24)
+        local block_b = externcall "hako_mem_alloc"(24)
+
+        if head_cell == 0 || block_a == 0 || block_b == 0 {
+            print("mimalloc-remote-abandoned-owner-policy-proof")
+            print("summary=alloc_failed")
+            if block_b != 0 { externcall "hako_mem_free"(block_b) }
+            if block_a != 0 { externcall "hako_mem_free"(block_a) }
+            if head_cell != 0 { externcall "hako_mem_free"(head_cell) }
+            return 1
+        }
+
+        local policy = new HakoAllocRemoteAbandonedOwnerPolicy()
+        local install = policy.installMailbox(0, head_cell)
+
+        local same = policy.routeFreeOrClassify(40, 0, 1, 0, 0, 2, 0, 4096, 0, block_a, 0)
+        local remote = policy.routeFreeOrClassify(41, 1, 1, 0, 0, 2, 0, 4096, 0, block_a, 0)
+        local abandoned = policy.routeFreeOrClassify(42, 1, 0, 0, 0, 0, 1, 4096, 0, block_b, 0)
+        local pending = policy.routeFreeOrClassify(43, 1, 0, 2, 0, 0, 1, 4096, 0, block_b, 0)
+
+        local clear = policy.clearMailbox(0)
+        local final_mailbox = policy.cache.loadSlot(0)
+
+        externcall "hako_mem_free"(block_b)
+        externcall "hako_mem_free"(block_a)
+        externcall "hako_mem_free"(head_cell)
+
+        local shape = 0
+        if install == 0 { shape = shape + 1 }
+        if same.status == 1 && same.same_owner == 1 { shape = shape + 1 }
+        if remote.status == 2 && remote.remote_owner == 1 && remote.remote_published == 1 { shape = shape + 1 }
+        if remote.retry_count == 0 && remote.head_after == block_a { shape = shape + 1 }
+        if abandoned.status == 3 && abandoned.abandoned_candidate == 1 { shape = shape + 1 }
+        if abandoned.owner_adoption_candidate == 1 && abandoned.reclaim_candidate == 1 && abandoned.purge_forward_candidate == 1 { shape = shape + 1 }
+        if pending.status == 0 && pending.reason == 6 && pending.owner_reason == 4 && pending.reclaim_reason == 3 { shape = shape + 1 }
+        if policy.classify_count == 4 && policy.same_owner_count == 1 && policy.remote_publish_count == 1 && policy.abandoned_candidate_count == 1 && policy.reject_count == 1 { shape = shape + 1 }
+        if clear == 0 && final_mailbox == 0 { shape = shape + 1 }
+
+        print("mimalloc-remote-abandoned-owner-policy-proof")
+        print("same=" + same.status + "," + same.same_owner + "," + same.observer_worker_id)
+        print("remote=" + remote.status + "," + remote.remote_owner + "," + remote.remote_published + "," + remote.retry_count)
+        print("abandoned=" + abandoned.status + "," + abandoned.abandoned_candidate + "," + abandoned.owner_adoption_candidate + "," + abandoned.reclaim_candidate + "," + abandoned.purge_forward_candidate)
+        print("pending=" + pending.status + "," + pending.reason + "," + pending.owner_reason + "," + pending.reclaim_reason)
+        print("counts=" + policy.classify_count + "," + policy.same_owner_count + "," + policy.remote_publish_count + "," + policy.abandoned_candidate_count + "," + policy.reject_count)
+        print("mailbox=" + install + "," + clear + "," + final_mailbox)
+        print("shape=" + shape)
+
+        if shape == 9 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
