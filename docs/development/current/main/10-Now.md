@@ -28,14 +28,14 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `PARSER-BIRTH-002 direct birth diagnostic hint`
+- current blocker token: `REUSE-LIFECYCLE-001 explicit reuse methods`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after PARSER-BIRTH-001; next blocker is
-  PARSER-BIRTH-002 direct birth diagnostic hint
+- continue phase-293x after PARSER-BIRTH-002; next blocker is
+  REUSE-LIFECYCLE-001 explicit reuse methods
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

@@ -49,7 +49,7 @@ Scope: current lane / next lane / restart order only.
 - constructor/new lifecycle SSOT:
   `docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md`
 - current blocker token:
-  `PARSER-BIRTH-002 direct birth diagnostic hint`
+  `REUSE-LIFECYCLE-001 explicit reuse methods`
 - current BoxShape sidecar:
   none active; `MIRBUILDER-DIET` closed through `MIR-SEMANTIC-PLANS-001`
 - primary mode: mimalloc substrate implementation lane; keep upstream source
@@ -66,8 +66,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after PARSER-BIRTH-001; next blocker
-  is PARSER-BIRTH-002 direct birth diagnostic hint.
+- resume point: continue Phase 293x after PARSER-BIRTH-002; next blocker
+  is REUSE-LIFECYCLE-001 explicit reuse methods.
   VM-LIM-001 remains parked diagnostic. Keep LoopRange on the Stage1 route; do
   not source-desugar range loops.
 
@@ -75,7 +75,7 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  PARSER-BIRTH-002 direct birth diagnostic hint
+  REUSE-LIFECYCLE-001 explicit reuse methods
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
   reduction after mimalloc completeness evidence. Do not make broad `.hako`

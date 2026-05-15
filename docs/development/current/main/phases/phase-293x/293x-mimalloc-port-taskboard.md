@@ -28,10 +28,10 @@ guard are pinned, the facade page-source allocation-miss fallback is green, and
 the internal worker identity, TLS cache-slot, atomic route guard, and
 remote-free / abandoned-owner policy, thread-safe `hako_mem` ABI, and native
 multi-worker substrate stress rows are now live. The current primary row moves
-to the constructor/lifecycle diagnostic row:
+to the explicit lifecycle reuse row:
 
 ```text
-  PARSER-BIRTH-002 direct birth diagnostic hint
+  REUSE-LIFECYCLE-001 explicit reuse methods
 ```
 
 Closed cleanup sidecar:
@@ -93,7 +93,10 @@ LIFECYCLE-BIRTH-001:
 PARSER-BIRTH-001:
   landed
   direct receiver birth parser guard is green
-  PARSER-BIRTH-002 is the current selected primary row
+PARSER-BIRTH-002:
+  landed
+  direct receiver birth diagnostic hint guard is green
+  REUSE-LIFECYCLE-001 is the current selected primary row
 ```
 
 ## Active Source Policy
@@ -286,9 +289,9 @@ allocator-provider ladder:
 | --- | --- | --- | --- |
 | `LIFECYCLE-BIRTH-001` | landed | Lock `birth` as a constructor hook fired only by `new`; direct receiver calls stay forbidden. | before parser widening |
 | `PARSER-BIRTH-001` | landed | Add a negative parser fixture for `obj.birth(...)` so constructor policy does not regress. | before PARSER-BIRTH-002 |
-| `PARSER-BIRTH-002` | ready current | Improve direct-`birth` diagnostic with a `use new Box(...)` hint. | current |
+| `PARSER-BIRTH-002` | landed | Improve direct-`birth` diagnostic with a `use new Box(...)` hint. | before REUSE-LIFECYCLE-001 |
 | `NEW-NAMED-ARGS-001` | parked | Design named constructor arguments for `new Box(field: value, ...)`. | later; not a MIMAP-013 blocker |
-| `REUSE-LIFECYCLE-001` | ready | Keep reuse as explicit methods such as `reset`, `reactivate`, `configure`, `clear`, and `attach` with contracts/transitions. | sidecar with allocator lifecycle rows |
+| `REUSE-LIFECYCLE-001` | ready current | Keep reuse as explicit methods such as `reset`, `reactivate`, `configure`, `clear`, and `attach` with contracts/transitions. | current |
 
 Policy SSOT:
 

@@ -24,6 +24,7 @@ fn parser_birth_rejects_direct_receiver_birth_call_legacy_expr_parser() {
             msg.contains("direct source birth calls are forbidden"),
             "{msg}"
         );
+        assert!(msg.contains("use new Box(...)"), "{msg}");
     });
 }
 
@@ -39,7 +40,16 @@ fn parser_birth_rejects_direct_receiver_birth_call_token_cursor() {
             msg.contains("direct source birth calls are forbidden"),
             "{msg}"
         );
+        assert!(msg.contains("use new Box(...)"), "{msg}");
     });
+}
+
+#[test]
+fn parser_birth_direct_call_diagnostic_points_to_new_expression() {
+    let err = NyashParser::parse_from_string(direct_birth_call_source())
+        .expect_err("direct receiver birth call must reject");
+    let msg = err.to_string();
+    assert!(msg.contains("use new Box(...) for construction"), "{msg}");
 }
 
 #[test]

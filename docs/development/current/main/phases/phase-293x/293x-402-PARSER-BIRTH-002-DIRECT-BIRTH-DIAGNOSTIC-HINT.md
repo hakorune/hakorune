@@ -1,6 +1,6 @@
 # 293x-402 PARSER-BIRTH-002 Direct Birth Diagnostic Hint
 
-Status: ready
+Status: landed
 Date: 2026-05-15
 
 ## Decision
@@ -36,6 +36,22 @@ new Page(PageId(0), Bytes(32), 2, 2)
   row.
 
 ## Required Evidence
+
+```text
+bash tools/checks/k2_wide_parser_birth_diagnostic_hint_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+tools/checks/dev_gate.sh quick
+```
+
+## Implementation
+
+- Extended the parser lifecycle direct-birth diagnostic with
+  `use new Box(...) for construction`.
+- Kept the diagnostic owned by `src/parser/lifecycle.rs`, with both expression
+  parser paths continuing to use the shared helper.
+- Added a focused diagnostic fixture and guard.
+
+## Evidence
 
 ```text
 bash tools/checks/k2_wide_parser_birth_diagnostic_hint_guard.sh
