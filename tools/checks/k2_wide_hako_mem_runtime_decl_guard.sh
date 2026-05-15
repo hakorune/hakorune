@@ -4,6 +4,15 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-hako-mem-runtime-decl"
 cd "$ROOT_DIR"
+source tools/checks/lib/guard_common.sh
+source tools/checks/lib/phase_card_paths.sh
+
+export REALLOC_CARD_PATH
+REALLOC_CARD_PATH="$(guard_require_phase293x_card "$TAG" "293x-053-HAKO-MEM-REALLOC-RUNTIME-DECL.md")"
+export ARG_EMIT_CARD_PATH
+ARG_EMIT_CARD_PATH="$(guard_require_phase293x_card "$TAG" "293x-054-NATIVE-PTR-CALL-ARG-EMIT.md")"
+export FREE_CARD_PATH
+FREE_CARD_PATH="$(guard_require_phase293x_card "$TAG" "293x-055-HAKO-MEM-FREE-VOID-RUNTIME-DECL.md")"
 
 echo "[$TAG] running hako_mem native pointer runtime-decl guard"
 
@@ -11,6 +20,7 @@ python3 tools/backend_runtime_decl_manifest_codegen.py --check
 
 python3 - <<'PY'
 import pathlib
+import os
 import sys
 import tomllib
 
@@ -19,9 +29,9 @@ MANIFEST = ROOT / "docs/development/current/main/design/runtime-decl-manifest-v0
 GENERATED = ROOT / "lang/src/shared/backend/ll_emit/generated/runtime_decl_defaults.hako"
 SSOT = ROOT / "docs/development/current/main/design/return-proof-vocabulary-ssot.md"
 TASKBOARD = ROOT / "docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
-REALLOC_CARD = ROOT / "docs/development/current/main/phases/phase-293x/293x-053-HAKO-MEM-REALLOC-RUNTIME-DECL.md"
-ARG_EMIT_CARD = ROOT / "docs/development/current/main/phases/phase-293x/293x-054-NATIVE-PTR-CALL-ARG-EMIT.md"
-FREE_CARD = ROOT / "docs/development/current/main/phases/phase-293x/293x-055-HAKO-MEM-FREE-VOID-RUNTIME-DECL.md"
+REALLOC_CARD = pathlib.Path(os.environ["REALLOC_CARD_PATH"])
+ARG_EMIT_CARD = pathlib.Path(os.environ["ARG_EMIT_CARD_PATH"])
+FREE_CARD = pathlib.Path(os.environ["FREE_CARD_PATH"])
 SHIMS_README = ROOT / "lang/c-abi/shims/README.md"
 CALL_POLICY = ROOT / "lang/src/shared/backend/ll_emit/call_policy_box.hako"
 LL_TEXT = ROOT / "lang/src/shared/backend/ll_emit/ll_text_emit_box.hako"

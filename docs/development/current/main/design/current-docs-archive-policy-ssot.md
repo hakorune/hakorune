@@ -162,3 +162,17 @@ Physical archive moves are `DOCS-SLIM-002+`.
 - remove direct M46-M51 phase-card paths from that script
 - keep phase README / taskboard proof assertions unchanged
 - do not physically move old cards yet
+
+## Sixth Slimming Phase
+
+`DOCS-SLIM-006` owns the M10c runtime-decl resolver adoption:
+
+- convert `k2_wide_runtime_decl_return_proof_row_guard.sh` to use
+  `guard_require_phase293x_card`
+- convert `k2_wide_native_ptr_decl_type_guard.sh` to use
+  `guard_require_phase293x_card`
+- convert `k2_wide_hako_mem_runtime_decl_guard.sh` to resolve hako_mem
+  realloc / call-arg / free cards through the helper and pass them into the
+  embedded Python checker via environment variables
+- do not change runtime-decl manifests or return-proof semantics
+- do not physically move old cards yet

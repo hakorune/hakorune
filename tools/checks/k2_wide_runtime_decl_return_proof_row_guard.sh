@@ -4,7 +4,12 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-runtime-decl-return-proof-row"
 cd "$ROOT_DIR"
+source tools/checks/lib/guard_common.sh
+source tools/checks/lib/phase_card_paths.sh
 source tools/checks/lib/cargo_test_filter_group.sh
+
+export CARD_PATH
+CARD_PATH="$(guard_require_phase293x_card "$TAG" "293x-050-M10C-RUNTIME-DECL-RETURN-PROOF-ROW.md")"
 
 echo "[$TAG] running M10c-proof-row runtime-decl return proof row guard"
 
@@ -13,6 +18,7 @@ run_cargo_test_filter_group "$TAG" "runtime-decl return proof acceptance" \
 
 python3 - <<'PY'
 import pathlib
+import os
 import sys
 import tomllib
 
@@ -22,7 +28,7 @@ RUNTIME_DECL = ROOT / "docs/development/current/main/design/runtime-decl-manifes
 GENERATED = ROOT / "lang/src/shared/backend/ll_emit/generated/runtime_decl_defaults.hako"
 SSOT = ROOT / "docs/development/current/main/design/return-proof-vocabulary-ssot.md"
 TASKBOARD = ROOT / "docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
-CARD = ROOT / "docs/development/current/main/phases/phase-293x/293x-050-M10C-RUNTIME-DECL-RETURN-PROOF-ROW.md"
+CARD = pathlib.Path(os.environ["CARD_PATH"])
 RUST = ROOT / "src/abi/runtime_decl_return_proof.rs"
 
 STRONG_ATTRS = ("noalias", "nonnull", "dereferenceable", "align")
