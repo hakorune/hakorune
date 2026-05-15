@@ -106,6 +106,7 @@ FST:
 | `MIMAP-016B` | landed | Aligned allocation success/fail route. | after MIMAP-016A |
 | `MIMAP-017A` | landed | Realloc shrink / same-page route. | after release and alignment are stable |
 | `MIMAP-017B` | ready | Realloc grow / move route. | after MIMAP-017A |
+| `MIMAP-FACADE-CLEAN-001` | parked | Facade result observer / reason-code SSOT cleanup TODO. | after MIMAP-017B |
 | `MIMAP-018A` | parked | Stats snapshot observer integration. | after allocation/release counters are stable |
 | `MIMAP-019A` | parked | Purge/reclaim/decommit policy route. | after lifecycle observers are stable |
 | `MIMAP-020A` | parked | OSVM/page-source capability pilot. | after in-memory facade route is stable |

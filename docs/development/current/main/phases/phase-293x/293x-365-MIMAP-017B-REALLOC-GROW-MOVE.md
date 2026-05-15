@@ -82,6 +82,15 @@ and split a separate owner row.
 After `MIMAP-017B` lands:
 
 ```text
+MIMAP-FACADE-CLEAN-001:
+  facade result observer / reason-code SSOT cleanup
+
 MIMAP-018A:
   stats snapshot observer integration
+```
+
+Cleanup TODO:
+
+```text
+docs/development/current/main/phases/phase-293x/293x-366-MIMAP-FACADE-CLEAN-001-RESULT-SSOT-TODO.md
 ```
