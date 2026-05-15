@@ -1,6 +1,6 @@
 # 293x-362 MIMAP-016A Alignment Metadata Observers
 
-Status: ready
+Status: landed
 Date: 2026-05-15
 
 ## Decision
@@ -50,6 +50,8 @@ Expected proof output shape:
 ```text
 mimalloc-facade-alignment-metadata-proof
 align=<requested>,<normalized>,<reason code>
+unsupported=<requested>,<normalized>,<reason code>
+support=<supported>,<unsupported>
 summary=ok
 ```
 
@@ -58,6 +60,42 @@ Required guard evidence:
 ```text
 [mimap016a-mir-json] ok
 [k2-wide-mimalloc-facade-alignment-metadata-exe] ok
+```
+
+## Implementation
+
+`MIMAP-016A` keeps alignment handling as facade-local request metadata only.
+`HakoAllocObjectLifecycleFacade.objectLifecycleRecordAlignmentRequest(alignment)`
+normalizes through `HakoAllocAlignmentPolicy.normalize_alignment(alignment)`,
+then stores requested alignment, normalized alignment, reason code, and a
+supported scalar observer.
+
+Reason codes:
+
+- `0`: normalized and supported
+- `1`: unsupported alignment policy result
+
+This row intentionally does not call padded-size policy, aligned good-size
+policy, page-map allocation, or page-local acquire/release from the proof app.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_mimalloc_facade_alignment_metadata_exe_guard.sh
+[mimap016a-mir-json] ok
+[k2-wide-mimalloc-facade-alignment-metadata-exe] ok
+
+for s in tools/checks/k2_wide_mimalloc_facade_small_alloc_exe_guard.sh tools/checks/k2_wide_mimalloc_facade_small_alloc_fallback_exe_guard.sh tools/checks/k2_wide_mimalloc_facade_small_alloc_stats_exe_guard.sh tools/checks/k2_wide_mimalloc_facade_release_one_block_exe_guard.sh tools/checks/k2_wide_mimalloc_facade_release_failfast_exe_guard.sh; do bash "$s"; done
+[mimap014a-mir-json] ok
+[k2-wide-mimalloc-facade-small-alloc-exe] ok
+[mimap014b-mir-json] ok
+[k2-wide-mimalloc-facade-small-alloc-fallback-exe] ok
+[mimap014c-mir-json] ok
+[k2-wide-mimalloc-facade-small-alloc-stats-exe] ok
+[mimap015a-mir-json] ok
+[k2-wide-mimalloc-facade-release-one-block-exe] ok
+[mimap015b-mir-json] ok
+[k2-wide-mimalloc-facade-release-failfast-exe] ok
 ```
 
 ## Stop Lines

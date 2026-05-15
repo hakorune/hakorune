@@ -26,8 +26,8 @@ rg -F -q 'MIMAP-015B' "$CARD"
 rg -F -q 'MIMAP-015B' "$README"
 rg -F -q 'k2_wide_mimalloc_facade_release_failfast_exe_guard.sh' "$INDEX"
 
-if rg -n 'realloc[A-Za-z0-9_]*\(|align[A-Za-z0-9_]*\(|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(|PageMap|page_map|lookup\(' "$FACADE" >/tmp/"$TAG".forbidden 2>&1; then
-  echo "[$TAG] ERROR: MIMAP-015B facade must not activate realloc/alignment/substrate/provider/page-map behavior" >&2
+if rg -n 'objectLifecycleAligned[A-Za-z0-9_]*\(|allocateAligned[A-Za-z0-9_]*\(|aligned_good_size[A-Za-z0-9_]*\(|padded_request_size[A-Za-z0-9_]*\(|realloc[A-Za-z0-9_]*\(|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(|PageMap|page_map|lookup\(' "$FACADE" >/tmp/"$TAG".forbidden 2>&1; then
+  echo "[$TAG] ERROR: MIMAP-015B facade must not activate aligned allocation/realloc/substrate/provider/page-map behavior" >&2
   cat /tmp/"$TAG".forbidden >&2
   rm -f /tmp/"$TAG".forbidden
   exit 1

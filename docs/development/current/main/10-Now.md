@@ -26,13 +26,13 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-016A alignment request metadata and observer result`
+- current blocker token: `MIMAP-016B aligned allocation success/fail route`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after MIMAP-015B facade release fail-fast; next blocker is MIMAP-016A alignment request metadata and observer result over the facade-owned object lifecycle queue; VM-LIM-001 is parked
+- continue phase-293x after MIMAP-016A alignment metadata observers; next blocker is MIMAP-016B aligned allocation success/fail route over the facade-owned object lifecycle queue; VM-LIM-001 is parked
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

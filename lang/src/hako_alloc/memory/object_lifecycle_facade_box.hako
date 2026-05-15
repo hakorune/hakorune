@@ -1,8 +1,9 @@
 // object_lifecycle_facade_box.hako — thin facade over object-backed lifecycle queue
-// Responsibility: compose facade-level add/select/small-alloc/release/observer methods over HakoAllocObjectLifecyclePageQueue.
+// Responsibility: compose facade-level add/select/small-alloc/release/alignment-metadata observer methods over HakoAllocObjectLifecyclePageQueue.
 // This module does not own production provider activation, OS page sourcing, realloc, remote-free, or backend shortcuts.
 
 using selfhost.hako_alloc.memory.object_lifecycle_page_queue_box as HakoAllocObjectLifecyclePageQueueBox
+using selfhost.hako_alloc.memory.alignment_policy_box as HakoAllocAlignmentPolicy
 
 box HakoAllocObjectLifecycleFacade {
     object_lifecycle_queue: HakoAllocObjectLifecyclePageQueue = new HakoAllocObjectLifecyclePageQueue()
@@ -19,6 +20,10 @@ box HakoAllocObjectLifecycleFacade {
     last_release_block_id: i64 = -1
     last_release_reason: i64 = 0
     last_release_ok: i64 = 0
+    last_alignment_requested: i64 = -1
+    last_alignment_normalized: i64 = -1
+    last_alignment_reason: i64 = 0
+    last_alignment_supported: i64 = 0
 
     objectLifecycleAddPage(page) {
         return me.object_lifecycle_queue.addPage(page)
@@ -165,6 +170,41 @@ box HakoAllocObjectLifecycleFacade {
         return me.recordReleaseFailure(1)
     }
 
+    resetAlignmentResult() {
+        me.last_alignment_requested = -1
+        me.last_alignment_normalized = -1
+        me.last_alignment_reason = 0
+        me.last_alignment_supported = 0
+        return 1
+    }
+
+    recordAlignmentFailure(requested, reason) {
+        me.last_alignment_requested = requested
+        me.last_alignment_normalized = -1
+        me.last_alignment_reason = reason
+        me.last_alignment_supported = 0
+        return 0
+    }
+
+    recordAlignmentSuccess(requested, normalized) {
+        me.last_alignment_requested = requested
+        me.last_alignment_normalized = normalized
+        me.last_alignment_reason = 0
+        me.last_alignment_supported = 1
+        return 1
+    }
+
+    objectLifecycleRecordAlignmentRequest(alignment) {
+        me.resetAlignmentResult()
+
+        local normalized = HakoAllocAlignmentPolicy.normalize_alignment(alignment)
+        if normalized < 0 {
+            return me.recordAlignmentFailure(alignment, 1)
+        }
+
+        return me.recordAlignmentSuccess(alignment, normalized)
+    }
+
     objectLifecyclePageCount() {
         return me.object_lifecycle_queue.page_count
     }
@@ -267,5 +307,21 @@ box HakoAllocObjectLifecycleFacade {
 
     objectLifecycleReleaseOk() {
         return me.last_release_ok
+    }
+
+    objectLifecycleAlignmentRequested() {
+        return me.last_alignment_requested
+    }
+
+    objectLifecycleAlignmentNormalized() {
+        return me.last_alignment_normalized
+    }
+
+    objectLifecycleAlignmentReason() {
+        return me.last_alignment_reason
+    }
+
+    objectLifecycleAlignmentSupported() {
+        return me.last_alignment_supported
     }
 }

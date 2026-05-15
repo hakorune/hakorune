@@ -1,0 +1,44 @@
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+
+static box Main {
+    main(args) {
+        local alloc = new HakoAllocObjectLifecycleFacade()
+
+        local valid_status = alloc.objectLifecycleRecordAlignmentRequest(4)
+        local valid_requested = alloc.objectLifecycleAlignmentRequested()
+        local valid_normalized = alloc.objectLifecycleAlignmentNormalized()
+        local valid_reason = alloc.objectLifecycleAlignmentReason()
+        local valid_supported = alloc.objectLifecycleAlignmentSupported()
+
+        local invalid_status = alloc.objectLifecycleRecordAlignmentRequest(3)
+        local invalid_requested = alloc.objectLifecycleAlignmentRequested()
+        local invalid_normalized = alloc.objectLifecycleAlignmentNormalized()
+        local invalid_reason = alloc.objectLifecycleAlignmentReason()
+        local invalid_supported = alloc.objectLifecycleAlignmentSupported()
+
+        local shape = 0
+        if valid_status == 1 { shape = shape + 1 }
+        if valid_requested == 4 { shape = shape + 1 }
+        if valid_normalized == 8 { shape = shape + 1 }
+        if valid_reason == 0 { shape = shape + 1 }
+        if valid_supported == 1 { shape = shape + 1 }
+        if invalid_status == 0 { shape = shape + 1 }
+        if invalid_requested == 3 { shape = shape + 1 }
+        if invalid_normalized == -1 { shape = shape + 1 }
+        if invalid_reason == 1 { shape = shape + 1 }
+        if invalid_supported == 0 { shape = shape + 1 }
+
+        print("mimalloc-facade-alignment-metadata-proof")
+        print("align=" + valid_requested + "," + valid_normalized + "," + valid_reason)
+        print("unsupported=" + invalid_requested + "," + invalid_normalized + "," + invalid_reason)
+        print("support=" + valid_supported + "," + invalid_supported)
+
+        if shape == 10 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
