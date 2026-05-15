@@ -11,7 +11,6 @@ TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ss
 CARD="$(guard_require_phase293x_card "$TAG" "293x-103-M51-PRODUCTION-ALLOCATOR-PORT-CLOSEOUT-GUARD.md")"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 HAKO_ALLOC_README="lang/src/hako_alloc/README.md"
 HAKO_ALLOC_MODULE="lang/src/hako_alloc/hako_module.toml"
@@ -46,7 +45,6 @@ require_file "$TASKBOARD"
 require_file "$CARD"
 require_file "$INDEX"
 require_file "$DEV_GATE"
-require_file "$PHASE_README"
 require_file "$REAL_APP_TASKBOARD"
 require_file "$HAKO_ALLOC_README"
 require_file "$HAKO_ALLOC_MODULE"
@@ -111,7 +109,6 @@ require_text "$TASKBOARD" '| `M49 allocator OSVM page-source proof` | `live-narr
 require_text "$TASKBOARD" '| `M50 allocator stress production-facade parity` | `live-narrow` |'
 require_text "$TASKBOARD" '| `M51 production allocator port closeout guard` | `live-narrow` |'
 require_text "$CARD" "M51 Production Allocator Port Closeout Guard"
-require_text "$PHASE_README" '`293x-103`'
 require_text "$REAL_APP_TASKBOARD" '`293x-103` M51 production allocator port closeout guard'
 
 require_text "$HAKO_ALLOC_MODULE" 'memory.allocator_facade_box = "memory/allocator_facade_box.hako"'

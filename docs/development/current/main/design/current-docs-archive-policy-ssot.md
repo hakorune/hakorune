@@ -401,3 +401,18 @@ guard band phase README pin decoupling:
 - keep the README-only decoupling from `DOCS-SLIM-017` and the 018-022
   taskboard decouplings intact
 - do not physically move old cards yet
+
+## Twenty-fourth Slimming Phase
+
+`DOCS-SLIM-024` owns the production allocator port and mimalloc closeout guard
+band phase README pin decoupling:
+
+- remove landed-history phase README pins from the production allocator port
+  entry/closeout and mimalloc allocator closeout guard band
+- keep card status, design taskboard, real-app taskboard, implementation
+  checks, and check-index assertions
+- keep production allocator port entry/closeout and mimalloc allocator
+  closeout behavior unchanged
+- keep the README-only decoupling from `DOCS-SLIM-017` and the 018-023
+  taskboard decouplings intact
+- do not physically move old cards yet

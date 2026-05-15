@@ -7,7 +7,6 @@ cd "$ROOT_DIR"
 
 CARD="docs/development/current/main/phases/phase-293x/293x-097-M45-PRODUCTION-ALLOCATOR-PORT-ENTRY-PLAN.md"
 TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
@@ -36,7 +35,6 @@ require_text() {
 
 require_file "$CARD"
 require_file "$TASKBOARD"
-require_file "$PHASE_README"
 require_file "$REAL_APP_TASKBOARD"
 require_file "$CURRENT_STATE"
 require_file "$INDEX"
@@ -63,7 +61,6 @@ require_text "$TASKBOARD" '| `M48 allocator remote-free policy proof` | `live-na
 require_text "$TASKBOARD" '| `M49 allocator OSVM page-source proof` | `live-narrow` |'
 require_text "$TASKBOARD" '| `M50 allocator stress production-facade parity` | `live-narrow` |'
 require_text "$TASKBOARD" '| `M51 production allocator port closeout guard` | `live-narrow` |'
-require_text "$PHASE_README" '`293x-097`'
 require_text "$REAL_APP_TASKBOARD" '`293x-097` M45 production allocator port entry plan'
 require_text "$INDEX" "tools/checks/k2_wide_production_allocator_port_entry_plan_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_production_allocator_port_entry_plan_guard.sh"

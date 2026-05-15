@@ -9,7 +9,6 @@ TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ss
 CARD="docs/development/current/main/phases/phase-293x/293x-096-M44-MIMALLOC-ALLOCATOR-SUBSTRATE-CLOSEOUT-GUARD.md"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 
 echo "[$TAG] checking M44 mimalloc allocator substrate closeout coverage"
@@ -39,7 +38,6 @@ require_file "$TASKBOARD"
 require_file "$CARD"
 require_file "$INDEX"
 require_file "$DEV_GATE"
-require_file "$PHASE_README"
 require_file "$REAL_APP_TASKBOARD"
 
 required_apps=(
@@ -109,7 +107,6 @@ require_text "$DEV_GATE" "tools/checks/k2_wide_mimalloc_allocator_substrate_clos
 
 require_text "$TASKBOARD" '| `M44 mimalloc allocator substrate closeout guard` | `live-narrow` |'
 require_text "$CARD" "M44 Mimalloc Allocator Substrate Closeout Guard"
-require_text "$PHASE_README" '`293x-096`'
 require_text "$REAL_APP_TASKBOARD" '`293x-096` M44 mimalloc allocator substrate closeout guard'
 
 if rg -n 'mimalloc-(raw-page|size-class-table|two-class-page|dynamic-bin|size-to-bin-inline|osvm-page|tls-cache-slot|atomic-cas|atomic-load|atomic-store|atomic-fetch-add|remote-free-i64|ptr-atomic-store|tls-ptr-remote-free|remote-free-policy|ptr-atomic-load|ptr-atomic-cas|ptr-remote-free-list|remote-free-list-policy|remote-free-retry-loop)-proof|AllocatorRemoteFree(List|Retry)?Policy' \

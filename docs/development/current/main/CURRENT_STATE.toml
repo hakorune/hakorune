@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-05-16"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "DOCS-SLIM-023 landed the allocator provider proof/rollback/activation safety guard band phase README pin decoupling. Current row remains MIMAP-022A post-lifecycle row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "DOCS-SLIM-024 landed the production allocator port and mimalloc closeout phase README pin decoupling. Current row remains MIMAP-022A post-lifecycle row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
 phase_status = "docs/development/current/main/phases/phase-293x/293x-404-MIMAP-022A-POST-LIFECYCLE-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-430-DOCS-SLIM-023-ALLOCATOR-PROVIDER-PROOF-ROLLBACK-ACTIVATION-SAFETY-README-PIN-DECOUPLING"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-430-DOCS-SLIM-023-ALLOCATOR-PROVIDER-PROOF-ROLLBACK-ACTIVATION-SAFETY-README-PIN-DECOUPLING.md"
-latest_card_summary = "DOCS-SLIM-023 removes landed-history phase README pins from the allocator provider proof/rollback/activation safety band while keeping design taskboard assertions."
+latest_card = "293x-431-DOCS-SLIM-024-PRODUCTION-ALLOCATOR-PORT-AND-MIMALLOC-CLOSEOUT-README-PIN-DECOUPLING"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-431-DOCS-SLIM-024-PRODUCTION-ALLOCATOR-PORT-AND-MIMALLOC-CLOSEOUT-README-PIN-DECOUPLING.md"
+latest_card_summary = "DOCS-SLIM-024 removes landed-history phase README pins from the production allocator port and mimalloc closeout band while keeping design and real-app taskboard assertions."
 
 current_blocker_token = "MIMAP-022A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-431 DOCS-SLIM-024 production allocator port and mimalloc closeout README pin decoupling landed",
   "293x-430 DOCS-SLIM-023 allocator provider proof/rollback/activation safety README pin decoupling landed",
   "293x-429 DOCS-SLIM-022 allocator provider manifest/readiness/registry README pin decoupling landed",
   "293x-428 DOCS-SLIM-021 allocator provider boundary/manifest/task breakdown taskboard pin decoupling landed",
