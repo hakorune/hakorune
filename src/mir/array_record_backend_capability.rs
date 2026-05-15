@@ -72,7 +72,8 @@ fn backend_supports_packed_record_inline_columns(backend: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::{ArrayRecordPackedAutoUsePilotPlan, MirModule};
+    use crate::mir::function::ArrayRecordPackedAutoUsePilotPlan;
+    use crate::mir::MirModule;
 
     fn module_with_packed_route_required(required: bool) -> MirModule {
         let mut module = MirModule::new("test".to_string());

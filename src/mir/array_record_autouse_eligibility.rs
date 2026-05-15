@@ -96,9 +96,10 @@ pub fn classify_array_record_storage_plan(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::{
-        ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan, MirModule, TypedObjectFieldStorage,
+    use crate::mir::function::{
+        ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan, TypedObjectFieldStorage,
     };
+    use crate::mir::MirModule;
 
     fn storage_plan(
         record_name: &str,

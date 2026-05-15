@@ -111,10 +111,11 @@ fn field_column(layout: &RecordLayoutPlan, field_name: &str) -> Option<u32> {
 mod tests {
     use super::*;
     use crate::mir::array_record_packed_autouse_pilot::ARRAY_RECORD_PACKED_AUTOUSE_PILOT_KIND_INTEGER_LANE_DIRECT_READS_V0;
-    use crate::mir::{
-        ArrayRecordPackedAutoUsePilotPlan, MirModule, RecordLayoutFieldPlan, RecordLayoutPlan,
+    use crate::mir::function::{
+        ArrayRecordPackedAutoUsePilotPlan, RecordLayoutFieldPlan, RecordLayoutPlan,
         TypedObjectFieldStorage,
     };
+    use crate::mir::MirModule;
 
     fn packed_pilot(record_name: &str) -> ArrayRecordPackedAutoUsePilotPlan {
         ArrayRecordPackedAutoUsePilotPlan {

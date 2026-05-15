@@ -14,8 +14,8 @@ use crate::mir::function::{
     ArrayRecordAutoUseEligibilityPlan, ArrayRecordMaterializationBoundaryPlan,
     ArrayRecordPackedAutoUsePilotPlan, ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan,
     HakoAllocAlignedSmallPackedStorePilotPlan, HakoAllocHugePagePackedStorePilotPlan,
-    RecordLayoutFieldPlan, RecordLayoutPlan, SourcePackedArrayAutoUsePilotPlan, StaticDataPlan,
-    TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan,
+    RecordDecl, RecordLayoutFieldPlan, RecordLayoutPlan, SourcePackedArrayAutoUsePilotPlan,
+    StaticDataPlan, TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan,
 };
 use crate::mir::MirModule;
 use serde_json::json;
@@ -159,7 +159,7 @@ fn collect_sorted_record_decl_values_preserves_record_lane() {
     let mut module = MirModule::new("test".to_string());
     module.metadata.record_decls.insert(
         "Meta".to_string(),
-        crate::mir::RecordDecl {
+        RecordDecl {
             name: "Meta".to_string(),
             type_parameters: vec!["T".to_string()],
             fields: vec![

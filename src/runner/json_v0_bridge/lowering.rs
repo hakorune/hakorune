@@ -1,4 +1,5 @@
 use super::ast::{EnumDeclV0, ProgramV0, RecordDeclV0, StaticDataPlanV0, StmtV0, UserBoxDeclV0};
+use crate::mir::function::RecordDecl;
 use crate::mir::{
     BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType, ValueId,
 };
@@ -230,7 +231,7 @@ pub(super) fn lower_program(
         .map(|(name, decl)| {
             (
                 name.clone(),
-                crate::mir::RecordDecl {
+                RecordDecl {
                     name: name.clone(),
                     type_parameters: decl.type_parameters.clone(),
                     fields: decl

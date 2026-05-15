@@ -24,8 +24,9 @@
 
 use crate::ast::ASTNode;
 use crate::ast::FieldDecl;
+use crate::mir::function::RecordDecl;
 use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
-use crate::mir::{MirType, RecordDecl, UserBoxFieldDecl, ValueId};
+use crate::mir::{MirType, UserBoxFieldDecl, ValueId};
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Clone)]

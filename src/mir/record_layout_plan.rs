@@ -57,7 +57,8 @@ fn build_record_field_plans(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::{MirModule, RecordDecl, UserBoxFieldDecl};
+    use crate::mir::function::RecordDecl;
+    use crate::mir::{MirModule, UserBoxFieldDecl};
 
     #[test]
     fn build_record_layout_plans_accepts_concrete_typed_fields() {

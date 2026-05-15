@@ -486,11 +486,12 @@ fn push_error(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::{
+    use crate::mir::function::{
         ArrayRecordPackedAutoUsePilotPlan, HakoAllocAlignedSmallPackedStorePilotPlan,
-        HakoAllocHugePagePackedStorePilotPlan, MirModule, RecordLayoutFieldPlan, RecordLayoutPlan,
+        HakoAllocHugePagePackedStorePilotPlan, RecordLayoutFieldPlan, RecordLayoutPlan,
         TypedObjectFieldStorage,
     };
+    use crate::mir::MirModule;
 
     fn source_pilot(
         record_name: &str,

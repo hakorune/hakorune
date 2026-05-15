@@ -15,9 +15,10 @@ pub(crate) fn enforce_mir_backend_supported(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::function::ArrayRecordPackedAutoUsePilotPlan;
     use crate::mir::{
         array_record_backend_capability::ARRAY_RECORD_BACKEND_PACKED_ROUTE_UNSUPPORTED_TAG,
-        ArrayRecordPackedAutoUsePilotPlan, MirModule,
+        MirModule,
     };
 
     fn module_with_packed_route(required: bool) -> MirModule {

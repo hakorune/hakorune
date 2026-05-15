@@ -212,9 +212,8 @@ mod tests {
         ThinEntryValueClass,
     };
     use crate::mir::thin_entry_selection::{ThinEntrySelection, ThinEntrySelectionState};
-    use crate::mir::{
-        BasicBlockId, EffectMask, FunctionSignature, MirType, RecordLayoutPlan, ValueId,
-    };
+    use crate::mir::function::RecordLayoutPlan;
+    use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirType, ValueId};
 
     #[test]
     fn refresh_function_collects_folded_agg_local_routes() {

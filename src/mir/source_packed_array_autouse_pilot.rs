@@ -115,9 +115,11 @@ fn packed_array_record_name(type_name: &str) -> Option<&str> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::function::{
+        ArrayRecordPackedAutoUsePilotPlan, SourcePackedArrayAutoUsePilotPlan,
+    };
     use crate::mir::{
-        ArrayRecordPackedAutoUsePilotPlan, MirModule, SourcePackedArrayAutoUsePilotPlan,
-        UserBoxFieldDecl,
+        MirModule, UserBoxFieldDecl,
     };
 
     fn packed_pilot(record_name: &str) -> ArrayRecordPackedAutoUsePilotPlan {

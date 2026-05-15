@@ -41,7 +41,10 @@ pub fn build_array_record_storage_plans(module: &MirModule) -> Vec<ArrayRecordSt
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::{MirModule, RecordLayoutFieldPlan, RecordLayoutPlan, TypedObjectFieldStorage};
+    use crate::mir::function::{
+        RecordLayoutFieldPlan, RecordLayoutPlan, TypedObjectFieldStorage,
+    };
+    use crate::mir::MirModule;
 
     #[test]
     fn build_array_record_storage_plans_maps_record_layout_to_columns() {

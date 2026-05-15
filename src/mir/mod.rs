@@ -195,12 +195,8 @@ pub use exact_seed_backend_route::{
     refresh_function_exact_seed_backend_route, refresh_module_exact_seed_backend_routes,
 };
 pub use function::{
-    ArrayRecordAutoUseEligibilityPlan, ArrayRecordMaterializationBoundaryPlan,
-    ArrayRecordPackedAutoUsePilotPlan, ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan,
-    ClosureBodyId, FunctionSignature, HakoAllocAlignedSmallPackedStorePilotPlan,
-    HakoAllocHugePagePackedStorePilotPlan, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
-    RecordDecl, RecordLayoutFieldPlan, RecordLayoutPlan, SourcePackedArrayAutoUsePilotPlan,
-    SourcePackedArrayDirectReadConsumptionPlan, TypedObjectFieldStorage, UserBoxFieldDecl,
+    ClosureBodyId, FunctionSignature, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
+    UserBoxFieldDecl,
 };
 pub use generic_method_route_plan::{
     refresh_function_generic_method_routes, refresh_module_generic_method_routes,
