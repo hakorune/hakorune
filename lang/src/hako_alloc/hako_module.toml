@@ -44,6 +44,7 @@ memory.object_lifecycle_facade_page_source_box = "memory/object_lifecycle_facade
 memory.object_lifecycle_facade_page_source_alloc_miss_box = "memory/object_lifecycle_facade_page_source_alloc_miss_box.hako"
 memory.object_lifecycle_facade_huge_failfast_box = "memory/object_lifecycle_facade_huge_failfast_box.hako"
 memory.object_lifecycle_facade_huge_page_model_box = "memory/object_lifecycle_facade_huge_page_model_box.hako"
+memory.object_lifecycle_facade_huge_release_box = "memory/object_lifecycle_facade_huge_release_box.hako"
 memory.page_lifecycle_invariant_box = "memory/page_lifecycle_invariant_box.hako"
 memory.page_source_policy_box = "memory/page_source_policy_box.hako"
 memory.purge_bounded_decommit_box = "memory/purge_bounded_decommit_box.hako"

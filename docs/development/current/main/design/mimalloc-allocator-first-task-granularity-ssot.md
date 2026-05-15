@@ -145,6 +145,7 @@ Forbidden:
 | `MIMAP-023A` | facade huge-page model route | MIMAP-022C selects the facade huge-page model seam |
 | `MIMAP-023B` | post-huge-page-model allocator row selection | MIMAP-023A is green |
 | `MIMAP-024A` | facade huge-release metadata route | MIMAP-023B selects the narrow huge-handle lifetime seam |
+| `MIMAP-024B` | post-huge-release allocator row selection | MIMAP-024A is green |
 
 ### MIMAP-020A granularity
 
@@ -253,6 +254,10 @@ page-map unregister, OSVM release/unreserve/decommit, small release/free,
 double-release / stale-pointer facade fail-fast, realloc, alignment,
 purge/reclaim, remote-free, TLS, atomic, provider hooks, host allocator
 replacement, or `#[global_allocator]`.
+
+MIMAP-024B is the next planning-only row. It must pick exactly one
+post-huge-release allocator behavior slice and record the owner, proof app,
+guard, and stop lines before implementation begins.
 
 ## Compiler / language sidecar triggers
 

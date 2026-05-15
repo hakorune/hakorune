@@ -1,0 +1,176 @@
+// object_lifecycle_facade_huge_release_box.hako -- MIMAP-024A facade
+// huge-release metadata route
+// Responsibility: prove one facade-owned huge allocation can be retired through
+// the existing M180 huge page model metadata seam. This module intentionally
+// stops before the wider M181 page-map lookup/unregister release seam, OS page
+// return, small release, realloc, alignment, purge/reclaim, remote-free, TLS,
+// atomics, provider hooks, and allocator replacement.
+
+using selfhost.hako_alloc.memory.object_lifecycle_facade_huge_page_model_box as HakoAllocObjectLifecycleFacadeHugePageModelBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_reason_box as HakoAllocObjectLifecycleFacadeReason
+
+box HakoAllocObjectLifecycleFacadeHugeReleaseReport {
+    status: i64 = 0
+    requested_size: i64 = 0
+    huge_threshold: i64 = 0
+    huge_routed: i64 = 0
+    huge_allocated: i64 = 0
+    huge_ptr: i64 = 0
+    huge_page_id: i64 = -1
+    huge_requested_size: i64 = 0
+    huge_committed_size: i64 = 0
+    allocation_final_ok: i64 = 0
+    allocation_final_reason: i64 = 0
+    small_forwarded: i64 = 0
+    fallback_attempted: i64 = 0
+    small_source_status: i64 = 0
+    small_source_added_page_id: i64 = -1
+    release_attempted: i64 = 0
+    release_ok: i64 = 0
+    release_ptr: i64 = 0
+    release_page_id: i64 = -1
+    release_requested_size: i64 = 0
+    release_committed_size: i64 = 0
+    release_live_before: i64 = 0
+    release_live_after: i64 = 0
+    release_failure_kind: i64 = 0
+    huge_count: i64 = 0
+    huge_live_count: i64 = 0
+    huge_allocate_count: i64 = 0
+    huge_release_count: i64 = 0
+    huge_release_reject_count: i64 = 0
+    page_map_entry_count: i64 = 0
+    page_map_live_count: i64 = 0
+    page_map_register_count: i64 = 0
+    final_ok: i64 = 0
+    final_reason: i64 = 0
+    final_page_id: i64 = -1
+    final_block_id: i64 = -1
+    final_ptr: i64 = 0
+    release_attempt_count: i64 = 0
+    release_success_count: i64 = 0
+    release_failure_count: i64 = 0
+    small_forward_count: i64 = 0
+    success_count: i64 = 0
+    failure_count: i64 = 0
+}
+
+box HakoAllocObjectLifecycleFacadeHugeReleaseRoute {
+    alloc_route: HakoAllocObjectLifecycleFacadeHugePageModelRoute = new HakoAllocObjectLifecycleFacadeHugePageModelRoute()
+    release_attempt_count: i64 = 0
+    release_success_count: i64 = 0
+    release_failure_count: i64 = 0
+    small_forward_count: i64 = 0
+    success_count: i64 = 0
+    failure_count: i64 = 0
+
+    hugeReleaseThreshold() {
+        return me.alloc_route.hugeThreshold()
+    }
+
+    initReleaseReport(size) {
+        local result = new HakoAllocObjectLifecycleFacadeHugeReleaseReport()
+        result.requested_size = size
+        result.huge_threshold = me.hugeReleaseThreshold()
+        return result
+    }
+
+    copyReleaseAllocation(result, alloc_result) {
+        result.huge_routed = alloc_result.huge_routed
+        result.huge_allocated = alloc_result.huge_allocated
+        result.huge_ptr = alloc_result.huge_ptr
+        result.huge_page_id = alloc_result.huge_page_id
+        result.huge_requested_size = alloc_result.huge_requested_size
+        result.huge_committed_size = alloc_result.huge_committed_size
+        result.allocation_final_ok = alloc_result.final_ok
+        result.allocation_final_reason = alloc_result.final_reason
+        result.small_forwarded = alloc_result.small_forwarded
+        result.fallback_attempted = alloc_result.fallback_attempted
+        result.small_source_status = alloc_result.small_source_status
+        result.small_source_added_page_id = alloc_result.small_source_added_page_id
+        result.final_ok = alloc_result.final_ok
+        result.final_reason = alloc_result.final_reason
+        result.final_page_id = alloc_result.final_page_id
+        result.final_block_id = alloc_result.final_block_id
+        result.final_ptr = alloc_result.final_ptr
+        result.status = alloc_result.final_ok
+        return result
+    }
+
+    snapshotReleaseCounters(result) {
+        result.release_attempt_count = me.release_attempt_count
+        result.release_success_count = me.release_success_count
+        result.release_failure_count = me.release_failure_count
+        result.small_forward_count = me.small_forward_count
+        result.success_count = me.success_count
+        result.failure_count = me.failure_count
+        result.huge_count = me.alloc_route.huge_model.huge_count
+        result.huge_live_count = me.alloc_route.huge_model.live_count
+        result.huge_allocate_count = me.alloc_route.huge_model.allocate_count
+        result.huge_release_count = me.alloc_route.huge_model.release_count
+        result.huge_release_reject_count = me.alloc_route.huge_model.release_reject_count
+        result.page_map_entry_count = me.alloc_route.page_map.entry_count
+        result.page_map_live_count = me.alloc_route.page_map.live_count
+        result.page_map_register_count = me.alloc_route.page_map.register_count
+        return result
+    }
+
+    releaseHugeMetadata(result) {
+        me.release_attempt_count = me.release_attempt_count + 1
+        result.release_attempted = 1
+        result.release_ptr = result.huge_ptr
+        result.release_page_id = result.huge_page_id
+        result.release_requested_size = result.huge_requested_size
+        result.release_committed_size = result.huge_committed_size
+        result.release_live_before = me.alloc_route.huge_model.live_count
+
+        local released = me.alloc_route.huge_model.markReleased(result.huge_ptr)
+        result.release_ok = released
+        result.release_live_after = me.alloc_route.huge_model.live_count
+
+        if released == 1 {
+            me.release_success_count = me.release_success_count + 1
+            me.success_count = me.success_count + 1
+            result.status = 1
+            result.final_ok = 1
+            result.final_reason = HakoAllocObjectLifecycleFacadeReason.ok()
+            return me.snapshotReleaseCounters(result)
+        }
+
+        me.release_failure_count = me.release_failure_count + 1
+        me.failure_count = me.failure_count + 1
+        result.release_failure_kind = 1
+        result.status = 0
+        result.final_ok = 0
+        result.final_reason = HakoAllocObjectLifecycleFacadeReason.release_no_page()
+        return me.snapshotReleaseCounters(result)
+    }
+
+    allocateThenReleaseHuge(facade, size, page_id, block_size, capacity, reserved) {
+        local result = me.initReleaseReport(size)
+        local alloc_result = me.alloc_route.allocateWithHugePageModel(facade, size, page_id, block_size, capacity, reserved)
+        me.copyReleaseAllocation(result, alloc_result)
+
+        if result.huge_routed == 1 {
+            if result.huge_allocated == 1 {
+                return me.releaseHugeMetadata(result)
+            }
+
+            me.release_failure_count = me.release_failure_count + 1
+            me.failure_count = me.failure_count + 1
+            result.release_failure_kind = 2
+            result.status = 0
+            result.final_ok = 0
+            return me.snapshotReleaseCounters(result)
+        }
+
+        me.small_forward_count = me.small_forward_count + 1
+        if result.final_ok == 1 {
+            me.success_count = me.success_count + 1
+        } else {
+            me.failure_count = me.failure_count + 1
+        }
+
+        return me.snapshotReleaseCounters(result)
+    }
+}

@@ -100,6 +100,11 @@ Principles
     moves those metadata columns behind `huge_page_meta_store_box.hako` /
     `HakoAllocHugePageMetaStore`, where record construction/read is used as the
     source-facing seam while storage remains scalar columns.
+  - `HakoAllocObjectLifecycleFacadeHugeReleaseRoute` is the MIMAP-024A facade
+    metadata release owner. It allocates a huge handle through the MIMAP-023A
+    facade huge-page route and retires that same handle through
+    `HakoAllocHugePageModel.markReleased(ptr)` while stopping before M181
+    page-map unregister and OS page return.
   - `HakoAllocHugeReleaseSeam` is the M181 huge release seam owner. It retires
     huge handles through `HakoAllocHugePageModel` and unregisters page-map
     ownership without touching small page `releaseLocal(...)`.

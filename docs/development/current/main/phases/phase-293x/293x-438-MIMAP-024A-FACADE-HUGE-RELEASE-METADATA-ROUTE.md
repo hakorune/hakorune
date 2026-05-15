@@ -1,6 +1,6 @@
 # 293x-438 MIMAP-024A Facade Huge-Release Metadata Route
 
-Status: ready
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -62,3 +62,34 @@ bash tools/checks/k2_wide_mimalloc_facade_huge_release_exe_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 tools/checks/dev_gate.sh quick
 ```
+
+## Landed Implementation
+
+Owner:
+
+```text
+lang/src/hako_alloc/memory/object_lifecycle_facade_huge_release_box.hako
+```
+
+Proof app:
+
+```text
+apps/mimalloc-facade-huge-release-proof/main.hako
+```
+
+Guard:
+
+```text
+tools/checks/k2_wide_mimalloc_facade_huge_release_exe_guard.sh
+```
+
+The implementation keeps the behavior to one durable slice: a huge request is
+allocated through the MIMAP-023A facade route, then that same live huge pointer
+is retired through `HakoAllocHugePageModel.markReleased(ptr)`. The page-map
+entry remains registered in this row; page-map unregister / OS page return stay
+outside MIMAP-024A.
+
+## Closeout
+
+MIMAP-024A is closed. The active blocker moves to MIMAP-024B
+post-huge-release row selection.

@@ -1,0 +1,55 @@
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_huge_release_box as HakoAllocObjectLifecycleFacadeHugeReleaseBox
+
+static box Main {
+    main(args) {
+        local facade = new HakoAllocObjectLifecycleFacade()
+        local route = new HakoAllocObjectLifecycleFacadeHugeReleaseRoute()
+
+        local huge_size = route.hugeReleaseThreshold() + 1
+        local huge_result = route.allocateThenReleaseHuge(facade, huge_size, 701, 8, 2, 2)
+        local small_result = route.allocateThenReleaseHuge(facade, 8, 702, 8, 2, 2)
+
+        local shape = 0
+        local huge_shape = huge_result.huge_routed + huge_result.huge_allocated + huge_result.release_attempted + huge_result.release_ok + huge_result.final_ok + huge_result.final_reason + huge_result.final_block_id
+        if huge_shape == 5 { shape = shape + 1 }
+        local huge_identity = huge_result.huge_ptr + huge_result.huge_page_id + huge_result.release_page_id + huge_result.final_page_id
+        if huge_identity == 73000 { shape = shape + 1 }
+        local huge_sizes = huge_result.huge_requested_size + huge_result.huge_committed_size + huge_result.release_requested_size + huge_result.release_committed_size
+        local expected_huge_sizes = huge_size + huge_size + huge_size + huge_size
+        if huge_sizes == expected_huge_sizes { shape = shape + 1 }
+        local release_state = huge_result.release_live_before + huge_result.release_live_after + huge_result.huge_count + huge_result.huge_live_count + huge_result.huge_allocate_count + huge_result.huge_release_count + huge_result.huge_release_reject_count
+        if release_state == 4 { shape = shape + 1 }
+        local small_shape = small_result.huge_routed + small_result.huge_allocated + small_result.small_forwarded + small_result.fallback_attempted + small_result.release_attempted + small_result.final_ok + small_result.final_reason + small_result.final_block_id
+        if small_shape == 4 { shape = shape + 1 }
+        local small_identity = small_result.small_source_added_page_id + small_result.final_page_id
+        if small_identity == 1404 { shape = shape + 1 }
+        local release_counts = small_result.release_attempt_count + small_result.release_success_count + small_result.release_failure_count + small_result.small_forward_count + small_result.success_count + small_result.failure_count
+        if release_counts == 5 { shape = shape + 1 }
+        local map_counts = small_result.page_map_entry_count + small_result.page_map_live_count + small_result.page_map_register_count
+        if map_counts == 3 { shape = shape + 1 }
+        local facade_ready = facade.objectLifecyclePageCount() + facade.objectLifecycleAllocPageId() + facade.objectLifecycleAllocBlockId()
+        if facade_ready == 704 { shape = shape + 1 }
+
+        print("mimalloc-facade-huge-release-proof")
+        print("huge=" + huge_result.huge_routed + "," + huge_result.huge_allocated + "," + huge_result.huge_ptr + "," + huge_result.huge_page_id)
+        print("release=" + huge_result.release_attempted + "," + huge_result.release_ok + "," + huge_result.release_ptr + "," + huge_result.release_page_id + "," + huge_result.release_live_before + "," + huge_result.release_live_after)
+        print("release_meta=" + huge_result.release_requested_size + "," + huge_result.release_committed_size + "," + huge_result.huge_count + "," + huge_result.huge_live_count + "," + huge_result.huge_allocate_count + "," + huge_result.huge_release_count + "," + huge_result.huge_release_reject_count)
+        print("huge_final=" + huge_result.final_ok + "," + huge_result.final_reason + "," + huge_result.final_page_id + "," + huge_result.final_block_id)
+        print("small=" + small_result.huge_routed + "," + small_result.huge_allocated + "," + small_result.small_forwarded + "," + small_result.fallback_attempted + "," + small_result.release_attempted)
+        print("small_source=" + small_result.small_source_status + "," + small_result.small_source_added_page_id)
+        print("small_final=" + small_result.final_ok + "," + small_result.final_reason + "," + small_result.final_page_id + "," + small_result.final_block_id)
+        print("release_counts=" + small_result.release_attempt_count + "," + small_result.release_success_count + "," + small_result.release_failure_count + "," + small_result.small_forward_count + "," + small_result.success_count + "," + small_result.failure_count)
+        print("page_map=" + small_result.page_map_entry_count + "," + small_result.page_map_live_count + "," + small_result.page_map_register_count)
+        print("facade=" + facade.objectLifecyclePageCount() + "," + facade.objectLifecycleAllocPageId() + "," + facade.objectLifecycleAllocBlockId())
+        print("shape=" + shape)
+
+        if shape == 9 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

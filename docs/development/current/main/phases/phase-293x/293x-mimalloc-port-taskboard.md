@@ -29,11 +29,10 @@ the internal worker identity, TLS cache-slot, atomic route guard, and
 remote-free / abandoned-owner policy, thread-safe `hako_mem` ABI, and native
 multi-worker substrate stress rows are now live. The facade huge-request
 fail-fast routing row is green, and the facade huge-page model route is green.
-The current primary row moves to the selected facade huge-release metadata
-route:
+The current primary row moves to post-huge-release row selection:
 
 ```text
-  MIMAP-024A facade huge-release metadata route
+  MIMAP-024B post-huge-release row selection
 ```
 
 Closed cleanup sidecar:
@@ -120,8 +119,11 @@ MIMAP-023B:
   selected MIMAP-024A facade huge-release metadata route as the next allocator
   behavior row
 MIMAP-024A:
+  landed
+  facade huge-release metadata route is green
+MIMAP-024B:
   ready current
-  facade huge-release metadata route is the current primary row
+  post-huge-release row selection is the current primary row
 ```
 
 ## Active Source Policy
@@ -285,7 +287,8 @@ FST:
 | `MIMAP-022C` | landed | Post-huge-failfast allocator row selection. | after MIMAP-022B |
 | `MIMAP-023A` | landed | Facade huge-page model route using the existing M180 huge-page model owner. | after MIMAP-022C |
 | `MIMAP-023B` | landed | Post-huge-page-model allocator row selection. | after MIMAP-023A |
-| `MIMAP-024A` | ready current | Facade huge-release metadata route. | current |
+| `MIMAP-024A` | landed | Facade huge-release metadata route. | after MIMAP-023B |
+| `MIMAP-024B` | ready current | Post-huge-release allocator row selection. | current |
 
 MIMAP-020A execution order:
 

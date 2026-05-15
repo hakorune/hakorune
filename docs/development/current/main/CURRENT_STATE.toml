@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-16"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-023B post-huge-page-model row selection landed; MIMAP-024A facade huge-release metadata route is current. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-024A facade huge-release metadata route landed; MIMAP-024B post-huge-release row selection is current. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-438-MIMAP-024A-FACADE-HUGE-RELEASE-METADATA-ROUTE.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-439-MIMAP-024B-POST-HUGE-RELEASE-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-437-MIMAP-023B-POST-HUGE-PAGE-MODEL-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-437-MIMAP-023B-POST-HUGE-PAGE-MODEL-ROW-SELECTION.md"
-latest_card_summary = "MIMAP-023B selects MIMAP-024A as the next allocator behavior row: a facade huge-release metadata route that reuses the MIMAP-023A huge-page model path and stops before page-map unregister, OS release, provider hooks, and host allocator replacement."
+latest_card = "293x-438-MIMAP-024A-FACADE-HUGE-RELEASE-METADATA-ROUTE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-438-MIMAP-024A-FACADE-HUGE-RELEASE-METADATA-ROUTE.md"
+latest_card_summary = "MIMAP-024A adds a facade huge-release metadata route that allocates through the MIMAP-023A huge-page model path, retires the selected live huge pointer via HakoAllocHugePageModel.markReleased(ptr), forwards non-huge requests through the existing small fallback, and keeps page-map unregister, OS release, provider hooks, and host allocator replacement inactive."
 
-current_blocker_token = "MIMAP-024A"
+current_blocker_token = "MIMAP-024B"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-438 MIMAP-024A facade huge-release metadata route landed",
   "293x-437 MIMAP-023B post-huge-page-model row selection landed",
   "293x-436 MIMAP-023A facade huge-page model route landed",
   "293x-435 MIMAP-022C post-huge-failfast row selection landed",
