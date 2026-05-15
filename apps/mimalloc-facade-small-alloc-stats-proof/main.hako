@@ -1,0 +1,49 @@
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+
+static box Main {
+    main(args) {
+        local reusable = new HakoAllocPageModel(70, 8, 1, 1)
+        local old_block = reusable.acquire(8)
+        reusable.releaseLocal(old_block)
+        local active = new HakoAllocPageModel(80, 8, 1, 1)
+
+        local alloc = new HakoAllocObjectLifecycleFacade()
+        alloc.objectLifecycleAddPage(reusable)
+        alloc.objectLifecycleAddPage(active)
+
+        local reusable_ok = alloc.objectLifecycleSmallAlloc(8)
+        local active_ok = alloc.objectLifecycleSmallAlloc(8)
+        local miss_ok = alloc.objectLifecycleSmallAlloc(8)
+
+        local attempts = alloc.objectLifecycleAllocAttemptCount()
+        local successes = alloc.objectLifecycleAllocSuccessCount()
+        local failures = alloc.objectLifecycleAllocFailureCount()
+        local reusable_successes = alloc.objectLifecycleAllocReusableSuccessCount()
+        local active_successes = alloc.objectLifecycleAllocActiveSuccessCount()
+
+        local shape = 0
+        if reusable_ok == 1 { shape = shape + 1 }
+        if active_ok == 1 { shape = shape + 1 }
+        if miss_ok == 0 { shape = shape + 1 }
+        if attempts == 3 { shape = shape + 1 }
+        if successes == 2 { shape = shape + 1 }
+        if failures == 1 { shape = shape + 1 }
+        if reusable_successes == 1 { shape = shape + 1 }
+        if active_successes == 1 { shape = shape + 1 }
+
+        print("mimalloc-facade-small-alloc-stats-proof")
+        print("attempts=" + attempts)
+        print("successes=" + successes)
+        print("failures=" + failures)
+        print("by_kind=" + reusable_successes + "," + active_successes)
+
+        if shape == 8 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

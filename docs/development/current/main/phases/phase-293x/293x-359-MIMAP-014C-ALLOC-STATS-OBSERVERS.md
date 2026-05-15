@@ -1,6 +1,6 @@
 # 293x-359 MIMAP-014C Allocation Fast-Path Stats Observers
 
-Status: ready
+Status: landed
 Date: 2026-05-15
 
 ## Decision
@@ -62,6 +62,40 @@ Required guard evidence:
 ```text
 [mimap014c-mir-json] ok
 [k2-wide-mimalloc-facade-small-alloc-stats-exe] ok
+```
+
+## Implementation
+
+`HakoAllocObjectLifecycleFacade` now owns facade-local scalar counters for the
+small allocation route:
+
+- `small_alloc_attempt_count`
+- `small_alloc_success_count`
+- `small_alloc_failure_count`
+- `small_alloc_reusable_success_count`
+- `small_alloc_active_success_count`
+
+The counters are updated only through `objectLifecycleSmallAlloc(size)`.
+`resetSmallAllocResult()` continues to reset the last-result observer fields
+without clearing cumulative stats.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_mimalloc_facade_small_alloc_stats_exe_guard.sh
+[mimap014c-mir-json] ok
+[k2-wide-mimalloc-facade-small-alloc-stats-exe] ok
+
+bash tools/checks/k2_wide_mimalloc_facade_small_alloc_fallback_exe_guard.sh
+[mimap014b-mir-json] ok
+[k2-wide-mimalloc-facade-small-alloc-fallback-exe] ok
+
+bash tools/checks/k2_wide_mimalloc_facade_small_alloc_exe_guard.sh
+[mimap014a-mir-json] ok
+[k2-wide-mimalloc-facade-small-alloc-exe] ok
+
+bash tools/checks/dev_gate.sh quick
+[dev-gate] profile=quick ok
 ```
 
 ## Stop Lines
