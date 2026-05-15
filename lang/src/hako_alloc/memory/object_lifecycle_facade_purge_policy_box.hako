@@ -1,0 +1,288 @@
+// object_lifecycle_facade_purge_policy_box.hako -- MIMAP-019A facade purge/reclaim policy route
+// Responsibility:
+// - adapt facade stats snapshots and facade-known page lifecycle state into
+//   existing M211 purge candidate and M213 abandoned reclaim inventory rows
+// - keep this route read-only and policy-only
+// Non-responsibility:
+// - decommit, recommit, reclaim execution, page-source calls, OSVM, provider
+//   hooks, remote-free execution, page-map lookup, or backend shortcuts
+
+using selfhost.hako_alloc.memory.purge_candidate_policy_box as HakoAllocPurgeCandidatePolicy
+using selfhost.hako_alloc.memory.abandoned_reclaim_inventory_box as HakoAllocAbandonedReclaimInventoryBox
+
+box HakoAllocObjectLifecycleFacadePurgePolicyLifecycleReport {
+    status: i64 = 0
+    page_id: i64 = -1
+    state: i64 = 0
+    active: i64 = 0
+    retired: i64 = 0
+    decommitted: i64 = 0
+    recommitted: i64 = 0
+    acquire_allowed: i64 = 0
+    decommit_candidate: i64 = 0
+    recommit_required: i64 = 0
+    duplicate_decommit_blocked: i64 = 0
+    used: i64 = 0
+    free_count: i64 = 0
+    local_free_count: i64 = 0
+    marked_generations: i64 = 0
+    recommitted_generations: i64 = 0
+    backing_bytes: i64 = 0
+}
+
+box HakoAllocObjectLifecycleFacadePurgePolicyPageView {
+    page_id: i64 = -1
+    used: i64 = 0
+    retired: i64 = 0
+    decommitted: i64 = 0
+    free_count: i64 = 0
+    local_free_count: i64 = 0
+    backing_bytes: i64 = 0
+    owner_thread_id: i64 = -1
+    observer_thread_id: i64 = -1
+    owner_active: i64 = 0
+    remote_free_pending: i64 = 0
+    marked_generations: i64 = 0
+    recommitted_generations: i64 = 0
+}
+
+box HakoAllocObjectLifecycleFacadePurgePolicyDecision {
+    status: i64 = 0
+    reason: i64 = 0
+    page_id: i64 = -1
+    stats_alloc_terminal_count: i64 = 0
+    stats_release_terminal_count: i64 = 0
+    stats_total_terminal_count: i64 = 0
+
+    purge_eligible: i64 = 0
+    purge_reason: i64 = 0
+    purge_lifecycle_state: i64 = 0
+    purge_decommit_candidate: i64 = 0
+    purge_recommit_required: i64 = 0
+    purge_duplicate_decommit_blocked: i64 = 0
+    purge_has_backing: i64 = 0
+    purge_backing_bytes: i64 = 0
+
+    reclaim_eligible: i64 = 0
+    reclaim_reason: i64 = 0
+    reclaim_abandoned: i64 = 0
+    reclaim_candidate: i64 = 0
+    reclaim_requires_owner_adoption: i64 = 0
+    reclaim_forward_to_purge_candidate: i64 = 0
+    reclaim_has_backing: i64 = 0
+    reclaim_page_empty: i64 = 0
+    reclaim_retired: i64 = 0
+    reclaim_decommitted: i64 = 0
+
+    would_decommit: i64 = 0
+    would_reclaim: i64 = 0
+    would_unreserve: i64 = 0
+    would_release_osvm: i64 = 0
+}
+
+box HakoAllocObjectLifecycleFacadePurgePolicyRoute {
+    purge_inventory: HakoAllocPurgeCandidatePolicyInventory = new HakoAllocPurgeCandidatePolicyInventory()
+    reclaim_inventory: HakoAllocAbandonedReclaimInventory = new HakoAllocAbandonedReclaimInventory()
+    classify_count: i64 = 0
+    success_count: i64 = 0
+    reject_count: i64 = 0
+    last_page_id: i64 = -1
+    last_reason: i64 = 0
+
+    emptyDecision(status, reason) {
+        local result = new HakoAllocObjectLifecycleFacadePurgePolicyDecision()
+        result.status = status
+        result.reason = reason
+        return result
+    }
+
+    lifecycleReport(status, page_id, state, active, retired, decommitted, recommitted, acquire_allowed, decommit_candidate, recommit_required, duplicate_decommit_blocked, used, free_count, local_free_count, marked_generations, recommitted_generations, backing_bytes) {
+        local result = new HakoAllocObjectLifecycleFacadePurgePolicyLifecycleReport()
+        result.status = status
+        result.page_id = page_id
+        result.state = state
+        result.active = active
+        result.retired = retired
+        result.decommitted = decommitted
+        result.recommitted = recommitted
+        result.acquire_allowed = acquire_allowed
+        result.decommit_candidate = decommit_candidate
+        result.recommit_required = recommit_required
+        result.duplicate_decommit_blocked = duplicate_decommit_blocked
+        result.used = used
+        result.free_count = free_count
+        result.local_free_count = local_free_count
+        result.marked_generations = marked_generations
+        result.recommitted_generations = recommitted_generations
+        result.backing_bytes = backing_bytes
+        return result
+    }
+
+    pageView(page_id, used, retired, decommitted, free_count, local_free_count, backing_bytes, owner_thread_id, observer_thread_id, owner_active, remote_free_pending, marked_generations, recommitted_generations) {
+        local result = new HakoAllocObjectLifecycleFacadePurgePolicyPageView()
+        result.page_id = page_id
+        result.used = used
+        result.retired = retired
+        result.decommitted = decommitted
+        result.free_count = free_count
+        result.local_free_count = local_free_count
+        result.backing_bytes = backing_bytes
+        result.owner_thread_id = owner_thread_id
+        result.observer_thread_id = observer_thread_id
+        result.owner_active = owner_active
+        result.remote_free_pending = remote_free_pending
+        result.marked_generations = marked_generations
+        result.recommitted_generations = recommitted_generations
+        return result
+    }
+
+    reject(reason) {
+        me.reject_count = me.reject_count + 1
+        me.last_reason = reason
+        me.last_page_id = -1
+        return me.emptyDecision(1, reason)
+    }
+
+    classifyPageView(stats, page_view) {
+        me.classify_count = me.classify_count + 1
+
+        if stats == null {
+            return me.reject(1)
+        }
+        if page_view == null {
+            return me.reject(2)
+        }
+
+        local has_backing = 0
+        if page_view.backing_bytes > 0 {
+            has_backing = 1
+        }
+
+        local decommitted = page_view.decommitted
+        if page_view.marked_generations > page_view.recommitted_generations {
+            decommitted = 1
+        }
+
+        local acquire_allowed = 0
+        if page_view.retired == 0 {
+            if decommitted == 0 {
+                local available_blocks = page_view.free_count + page_view.local_free_count
+                if available_blocks > 0 {
+                    acquire_allowed = 1
+                }
+            }
+        }
+
+        local decommit_candidate = 0
+        if page_view.used == 0 {
+            if page_view.retired != 0 {
+                if decommitted == 0 {
+                    decommit_candidate = 1
+                }
+            }
+        }
+
+        local lifecycle_state = 1
+        local active = 1
+        local retired = 0
+        local recommitted_active = 0
+        local recommit_required = 0
+        local duplicate_decommit_blocked = 0
+
+        if page_view.retired != 0 {
+            lifecycle_state = 2
+            active = 0
+            retired = 1
+        }
+
+        if decommitted != 0 {
+            lifecycle_state = 3
+            active = 0
+            retired = 0
+            recommit_required = 1
+            duplicate_decommit_blocked = 1
+        } else {
+            if page_view.marked_generations > 0 {
+                if page_view.marked_generations == page_view.recommitted_generations {
+                    if page_view.retired == 0 {
+                        lifecycle_state = 4
+                        active = 1
+                        retired = 0
+                        recommitted_active = 1
+                    }
+                }
+            }
+        }
+
+        local lifecycle = me.lifecycleReport(
+            0,
+            page_view.page_id,
+            lifecycle_state,
+            active,
+            retired,
+            decommitted,
+            recommitted_active,
+            acquire_allowed,
+            decommit_candidate,
+            recommit_required,
+            duplicate_decommit_blocked,
+            page_view.used,
+            page_view.free_count,
+            page_view.local_free_count,
+            page_view.marked_generations,
+            page_view.recommitted_generations,
+            page_view.backing_bytes
+        )
+
+        local purge = me.purge_inventory.classifyLifecycleReport(lifecycle)
+        local reclaim = me.reclaim_inventory.classifyPage(
+            page_view.page_id,
+            page_view.owner_thread_id,
+            page_view.observer_thread_id,
+            page_view.owner_active,
+            page_view.used,
+            lifecycle.retired,
+            page_view.backing_bytes,
+            lifecycle.decommitted,
+            page_view.remote_free_pending
+        )
+
+        local result = new HakoAllocObjectLifecycleFacadePurgePolicyDecision()
+        result.status = 0
+        result.reason = 0
+        result.page_id = page_view.page_id
+        result.stats_alloc_terminal_count = stats.allocTerminalCount()
+        result.stats_release_terminal_count = stats.releaseTerminalCount()
+        result.stats_total_terminal_count = stats.totalTerminalCount()
+
+        result.purge_eligible = purge.eligible
+        result.purge_reason = purge.reason
+        result.purge_lifecycle_state = purge.lifecycle_state
+        result.purge_decommit_candidate = purge.decommit_candidate
+        result.purge_recommit_required = purge.recommit_required
+        result.purge_duplicate_decommit_blocked = purge.duplicate_decommit_blocked
+        result.purge_has_backing = purge.has_backing
+        result.purge_backing_bytes = purge.backing_bytes
+
+        result.reclaim_eligible = reclaim.eligible
+        result.reclaim_reason = reclaim.reason
+        result.reclaim_abandoned = reclaim.abandoned
+        result.reclaim_candidate = reclaim.reclaim_candidate
+        result.reclaim_requires_owner_adoption = reclaim.requires_owner_adoption
+        result.reclaim_forward_to_purge_candidate = reclaim.can_forward_to_purge_candidate
+        result.reclaim_has_backing = reclaim.has_backing
+        result.reclaim_page_empty = reclaim.page_empty
+        result.reclaim_retired = reclaim.retired
+        result.reclaim_decommitted = reclaim.decommitted
+
+        result.would_decommit = purge.would_decommit
+        result.would_reclaim = reclaim.would_reclaim
+        result.would_unreserve = purge.would_unreserve
+        result.would_release_osvm = purge.would_release_osvm + reclaim.would_release_osvm
+
+        me.success_count = me.success_count + 1
+        me.last_page_id = page_view.page_id
+        me.last_reason = 0
+        return result
+    }
+}

@@ -22,15 +22,15 @@ PACKED-003/004 complete
 ```
 
 Blueprint and inventory rows are now the active lane entry. Current primary row:
-`MIMAP-019A purge/reclaim/decommit policy route`.
+`MIMAP-020A OSVM/page-source capability pilot`.
 
 Latest closeout:
 
 ```text
-MIMAP-018A:
+MIMAP-019A:
   landed
-  object-lifecycle facade stats snapshot observer is green
-  MIMAP-019A is the next selected allocator row
+  object-lifecycle facade purge/reclaim policy route is green
+  MIMAP-020A is the next selected allocator row
 ```
 
 ## Active Source Policy
@@ -108,8 +108,8 @@ FST:
 | `MIMAP-017B` | landed | Realloc grow / move route. | after MIMAP-017A |
 | `MIMAP-FACADE-CLEAN-001` | landed | Facade result observer / reason-code SSOT cleanup TODO. | after MIMAP-017B |
 | `MIMAP-018A` | landed | Stats snapshot observer integration. | after allocation/release counters are stable |
-| `MIMAP-019A` | ready | Purge/reclaim/decommit policy route. | after lifecycle and stats observers are stable |
-| `MIMAP-020A` | parked | OSVM/page-source capability pilot. | after in-memory facade route is stable |
+| `MIMAP-019A` | landed | Purge/reclaim/decommit policy route. | after lifecycle and stats observers are stable |
+| `MIMAP-020A` | ready | OSVM/page-source capability pilot. | after in-memory facade route is stable |
 
 ### Construction / Lifecycle Policy Rows
 

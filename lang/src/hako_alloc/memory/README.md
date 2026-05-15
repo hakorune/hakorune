@@ -34,6 +34,7 @@ Current modules
 - `object_lifecycle_facade_reason_box.hako`
 - `object_lifecycle_facade_result_box.hako`
 - `object_lifecycle_facade_stats_box.hako`
+- `object_lifecycle_facade_purge_policy_box.hako`
 - `page_lifecycle_invariant_box.hako`
 - `page_queue_lifecycle_box.hako`
 - `page_source_policy_box.hako`
@@ -140,6 +141,13 @@ Syntax/style contract
   from already-recorded allocation/release result counters, but it must not
   trigger allocation, release, selection, page-map lookup, provider hooks,
   backend routes, or purge/decommit policy.
+- `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
+  read-only facade purge/reclaim/decommit policy route. It may adapt one
+  facade stats snapshot and one scalar lifecycle view of a facade-known
+  `HakoAllocPageModel` into the existing M211 purge candidate policy inventory
+  and M213 abandoned reclaim inventory. It may expose a combined scalar
+  decision and route counters. It must not execute decommit, recommit, reclaim, page-source calls, OSVM,
+  provider hooks, remote-free behavior, page-map lookup, or backend shortcuts.
 - `osvm_backed_fast_path_heap_box.hako` is the M168 composition owner. It may
   reserve/commit/decommit through `HakoAllocPageSourcePolicy`, then reuse the
   same page queue and page-local free-list owners. It must not add OSVM metal,

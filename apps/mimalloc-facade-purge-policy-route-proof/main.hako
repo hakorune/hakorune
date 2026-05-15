@@ -1,0 +1,60 @@
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_stats_box as HakoAllocObjectLifecycleFacadeStatsBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_purge_policy_box as HakoAllocObjectLifecycleFacadePurgePolicy
+
+static box Main {
+    main(args) {
+        local retired = new HakoAllocPageModel(210, 8, 1, 1)
+        local active = new HakoAllocPageModel(220, 8, 1, 1)
+        local dec_page = new HakoAllocPageModel(230, 8, 1, 1)
+
+        local retired_block = retired.acquire(8)
+        local retired_release_ok = retired.releaseLocal(retired_block)
+
+        local dec_block = dec_page.acquire(8)
+        dec_page.releaseLocal(dec_block)
+        dec_page.decommit()
+
+        local stats_surface = new HakoAllocObjectLifecycleFacadeStatsSurface()
+        local stats = stats_surface.snapshot(1, 1, 0, 0, 1, 1, 0)
+        local route = new HakoAllocObjectLifecycleFacadePurgePolicyRoute()
+
+        local ready_view = route.pageView(retired.page_id, retired.used, retired.retired, retired.decommitted, retired.freeCount(), retired.localFreeCount(), 4096, 10, 20, 0, 0, 0, 0)
+        local active_view = route.pageView(active.page_id, active.used, active.retired, active.decommitted, active.freeCount(), active.localFreeCount(), 4096, 10, 10, 1, 0, 0, 0)
+        local dec_view = route.pageView(dec_page.page_id, dec_page.used, dec_page.retired, dec_page.decommitted, dec_page.freeCount(), dec_page.localFreeCount(), 4096, 10, 20, 0, 0, 1, 0)
+
+        local ready = route.classifyPageView(stats, ready_view)
+        local active_reject = route.classifyPageView(stats, active_view)
+        local dec_reject = route.classifyPageView(stats, dec_view)
+
+        local shape = 0
+        if retired_block == 0 { shape = shape + 1 }
+        if retired_release_ok == 1 { shape = shape + 1 }
+        if stats.totalTerminalCount() == 2 { shape = shape + 1 }
+        if ready.purge_eligible == 1 { shape = shape + 1 }
+        if ready.purge_decommit_candidate == 1 { shape = shape + 1 }
+        if ready.reclaim_forward_to_purge_candidate == 1 { shape = shape + 1 }
+        if active_reject.purge_reason == 3 { shape = shape + 1 }
+        if active_reject.reclaim_reason == 2 { shape = shape + 1 }
+        if dec_reject.purge_reason == 4 { shape = shape + 1 }
+        if dec_reject.reclaim_reason == 4 { shape = shape + 1 }
+        if ready.would_decommit == 0 { shape = shape + 1 }
+        if ready.would_reclaim == 0 { shape = shape + 1 }
+        if route.classify_count == 3 { shape = shape + 1 }
+
+        print("mimalloc-facade-purge-policy-route-proof")
+        print("stats=" + ready.stats_alloc_terminal_count + "," + ready.stats_release_terminal_count + "," + ready.stats_total_terminal_count)
+        print("ready=" + ready.purge_eligible + "," + ready.purge_reason + "," + ready.purge_decommit_candidate + "," + ready.reclaim_forward_to_purge_candidate)
+        print("rejects=" + active_reject.purge_reason + "," + active_reject.reclaim_reason + "," + dec_reject.purge_reason + "," + dec_reject.reclaim_reason)
+        print("would=" + ready.would_decommit + "," + ready.would_reclaim)
+        print("counts=" + route.classify_count)
+
+        if shape == 13 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
