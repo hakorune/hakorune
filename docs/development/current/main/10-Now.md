@@ -28,14 +28,14 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `LIFECYCLE-BIRTH-001 new-only birth policy`
+- current blocker token: `PARSER-BIRTH-001 direct birth negative fixture`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after MIMAP-PAR-STRESS-001; next blocker is
-  LIFECYCLE-BIRTH-001 new-only birth policy
+- continue phase-293x after LIFECYCLE-BIRTH-001; next blocker is
+  PARSER-BIRTH-001 direct birth negative fixture
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

@@ -31,7 +31,7 @@ multi-worker substrate stress rows are now live. The current primary row moves
 back to the constructor/lifecycle cleanup row:
 
 ```text
-LIFECYCLE-BIRTH-001 new-only birth policy
+  PARSER-BIRTH-001 direct birth negative fixture
 ```
 
 Closed cleanup sidecar:
@@ -87,7 +87,10 @@ MIMAP-THREADSAFE-ABI-001:
 MIMAP-PAR-STRESS-001:
   landed
   native Rust/kernel multi-worker substrate stress is green
-  LIFECYCLE-BIRTH-001 is the current selected primary row
+LIFECYCLE-BIRTH-001:
+  landed
+  new-only birth policy guard is green
+  PARSER-BIRTH-001 is the current selected primary row
 ```
 
 ## Active Source Policy
@@ -278,8 +281,8 @@ allocator-provider ladder:
 
 | Row | Status | Purpose | Ordering |
 | --- | --- | --- | --- |
-| `LIFECYCLE-BIRTH-001` | ready current | Lock `birth` as a constructor hook fired only by `new`; direct receiver calls stay forbidden. | current |
-| `PARSER-BIRTH-001` | ready | Add a negative parser fixture for `obj.birth(...)` so constructor policy does not regress. | after LIFECYCLE-BIRTH-001 |
+| `LIFECYCLE-BIRTH-001` | landed | Lock `birth` as a constructor hook fired only by `new`; direct receiver calls stay forbidden. | before parser widening |
+| `PARSER-BIRTH-001` | ready current | Add a negative parser fixture for `obj.birth(...)` so constructor policy does not regress. | current |
 | `PARSER-BIRTH-002` | ready | Improve direct-`birth` diagnostic with a `use new Box(...)` hint. | after PARSER-BIRTH-001 |
 | `NEW-NAMED-ARGS-001` | parked | Design named constructor arguments for `new Box(field: value, ...)`. | later; not a MIMAP-013 blocker |
 | `REUSE-LIFECYCLE-001` | ready | Keep reuse as explicit methods such as `reset`, `reactivate`, `configure`, `clear`, and `attach` with contracts/transitions. | sidecar with allocator lifecycle rows |
