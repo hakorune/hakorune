@@ -55,7 +55,7 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after METADATA-CATALOG-001 MIR metadata catalog cleanup; next blocker is MIMAP-FACADE-CLEAN-001 facade result observer / reason-code SSOT cleanup; VM-LIM-001 is parked
+- continue `phase-293x` after METADATA-CATALOG-002 metadata state and CorePlan policy; next blocker is MIMAP-FACADE-CLEAN-001 facade result observer / reason-code SSOT cleanup; VM-LIM-001 is parked
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

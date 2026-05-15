@@ -33,6 +33,7 @@ require_source_token() {
 for class in \
   SourceAttrs \
   SemanticFacts \
+  Contracts \
   LayoutPlans \
   PlacementPlans \
   LoweringRoutes \
@@ -45,10 +46,52 @@ for field in \
   "owner:" \
   "producer:" \
   "consumer:" \
+  "state:" \
   "backend_active:" \
   "fallback_allowed:" \
+  "coreplan_promotion:" \
   "retire_condition:"; do
   require_doc_token "$field"
+done
+
+for state in \
+  transport_only \
+  inspection_only \
+  semantic_layout_truth \
+  verifier_active \
+  optimizer_active \
+  backend_active \
+  runtime_active \
+  retired; do
+  require_doc_token "$state"
+done
+
+for suffix in \
+  "*_decls" \
+  "*_facts" \
+  "*_contracts" \
+  "*_plans" \
+  "*_routes" \
+  "*_seed_route" \
+  "*_micro_seed_route"; do
+  require_doc_token "$suffix"
+done
+
+for boundary in \
+  "Stage0 metadata = transport" \
+  "Stage1 metadata = meaning / facts / contracts / plans" \
+  "CorePlan metadata = placement / lowering decision" \
+  "Backend metadata = route consumption"; do
+  require_doc_token "$boundary"
+done
+
+for split in \
+  "RecordSpec Metadata" \
+  "PackedResidence Metadata" \
+  "AllocatorPackedStore Pilot" \
+  "CorePlan Promotion Criteria" \
+  "Plan and route are intentionally different"; do
+  require_doc_token "$split"
 done
 
 module_keys=(

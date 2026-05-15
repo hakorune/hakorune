@@ -24,6 +24,7 @@ so ownership and retirement stay visible:
 | --- | --- | --- | --- | --- |
 | `SourceAttrs` | Parser / Stage0 / Stage1 transport | Declaration-local source facts such as runes, declared signatures, user boxes, records, and enums | none by itself | no direct lowering unless a later MIR plan consumes it |
 | `SemanticFacts` | MIR semantic refresh | Facts derived from canonical MIR values, calls, loops, types, effects, and exact numeric observations | none by itself | verifier/backend may consume typed facts without rediscovering from helper names |
+| `Contracts` | Verifier / fail-fast owners | Obligations, prohibitions, capabilities, and guarantees used to accept or reject behavior | verifier/fail-fast only unless promoted by a route | backend sees only derived routes, not raw contract source |
 | `LayoutPlans` | MIR layout owners | Typed object, record, static data, and packed-column layout truth | none unless a runtime/backend row explicitly consumes it | backend may consume active rows; inactive rows must remain metadata-only |
 | `PlacementPlans` | MIR placement/effect owners | Objectization, materialization, residence, escape, and publication boundary decisions | none until a transform/lowering row consumes the plan | prefer generic `placement_effect_routes` over family-specific rows |
 | `LoweringRoutes` | MIR route planners | Backend-facing route, symbol, proof, value-demand, and effect rows | no source/MIR rewrite | backend may emit from these rows and must not reclassify raw helper names |
@@ -38,9 +39,136 @@ class:
 owner:
 producer:
 consumer:
+state:
 backend_active:
 fallback_allowed:
+coreplan_promotion:
 retire_condition:
+```
+
+## Row State Vocabulary
+
+Each row should expose its activation state. Use these states instead of prose
+such as "maybe active":
+
+| State | Meaning |
+| --- | --- |
+| `transport_only` | Source or declaration data is carried forward, but no meaning is decided at this layer |
+| `inspection_only` | MIR/compiler records an observation or candidate; no verifier, optimizer, runtime, or backend behavior changes |
+| `semantic_layout_truth` | MIR owns a layout or declaration-derived semantic truth, but execution still needs an explicit consumer |
+| `verifier_active` | The row can accept/reject behavior or produce fail-fast diagnostics |
+| `optimizer_active` | A MIR/CorePlan transform may consume the row |
+| `backend_active` | Backend emitters may lower from the row |
+| `runtime_active` | Runtime behavior/storage changes are active |
+| `retired` | The row is kept only for historical compatibility or should no longer be emitted |
+
+## Naming Contract
+
+Metadata suffixes carry meaning:
+
+| Suffix | Meaning | Backend may consume directly? |
+| --- | --- | --- |
+| `*_decls` | Source declaration inventory | no, except legacy declaration handoff |
+| `*_facts` | Facts observed or derived from canonical MIR | no direct lowering; a plan/route should consume them first |
+| `*_contracts` | Verifier/fail-fast obligations or runtime-check contracts | no direct lowering; backend sees accepted routes |
+| `*_plans` | Compiler-owned plan, candidate, selected layout, or future placement | only if explicitly marked `backend_active` |
+| `*_routes` | Lowering or consumer route with proof/demand/effects | yes when `backend_active` |
+| `*_seed_route` / `*_micro_seed_route` | Temporary exact-shape proof bridge | yes only as `ExperimentalSeedRoutes` with a retire condition |
+
+Plan and route are intentionally different:
+
+```text
+plan:
+  compiler-owned plan/candidate/selection; may still be metadata-only
+
+route:
+  backend/VM-consumable lowering contract with proof, demand, effects, and
+  fallback policy
+```
+
+## Stage Boundary Contract
+
+Stage0 metadata is transport only.
+
+Allowed Stage0 payload:
+
+- `@rune` declarations;
+- type annotation text;
+- brand declaration text;
+- `requires` / `ensures` / `invariant` source text;
+- transition source relations;
+- `uses` capability names;
+- delegate exposes lists.
+
+Forbidden at Stage0:
+
+- layout decisions;
+- packed eligibility;
+- record materialization decisions;
+- capability legality;
+- contract insertion;
+- backend routes;
+- optimizer routes.
+
+The intended pipeline is:
+
+```text
+Stage0 metadata = transport
+Stage1 metadata = meaning / facts / contracts / plans
+CorePlan metadata = placement / lowering decision
+Backend metadata = route consumption
+```
+
+## Record And PackedArray Metadata Split
+
+Record and PackedArray rows are split by responsibility:
+
+```text
+RecordSpec Metadata:
+  record_decls
+  record_layout_plans
+
+PackedResidence Metadata:
+  array_record_storage_plans
+  array_record_autouse_eligibility_plans
+  array_record_materialization_boundary_plans
+  array_record_packed_autouse_pilot_plans
+  source_packed_array_autouse_pilot_plans
+  source_packed_array_direct_read_consumption_plans
+
+AllocatorPackedStore Pilot:
+  hako_alloc_aligned_small_packed_store_pilot_plans
+  hako_alloc_huge_page_packed_store_pilot_plans
+```
+
+`RecordSpec Metadata` is closest to language semantics. `PackedResidence
+Metadata` and `AllocatorPackedStore Pilot` are staged compiler/runtime/backend
+bring-up rows and must keep materialization, backend lowering, and boxed
+fallback state explicit.
+
+## CorePlan Promotion Criteria
+
+Keep metadata as metadata when it is diagnostic provenance, inspection-only
+facts, candidate inventory, debug trace, or temporary proof inventory.
+
+Promote a row toward `Contracts`, `PlacementPlans`, `LoweringRoutes`, or
+CorePlan ownership when it:
+
+- supplies fail-fast evidence;
+- decides backend lowering availability;
+- encodes a silent-fallback prohibition;
+- decides layout / ABI / storage;
+- changes language semantics.
+
+Example target shape for PackedArray:
+
+```text
+PackedArray<T> declared
+  -> eligible plan exists?
+  -> materialization boundary OK?
+  -> backend capability OK?
+  -> boxed fallback forbidden
+  -> unsupported route fails fast
 ```
 
 ## Module-level metadata keys
