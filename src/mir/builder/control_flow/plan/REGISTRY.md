@@ -75,6 +75,50 @@ Planner: `src/mir/builder/control_flow/plan/single_planner/`
 Composer (adopt ordering SSOT): `src/mir/builder/control_flow/plan/composer/`  
 Lower: `src/mir/builder/control_flow/plan/lowerer/`
 
+## FLOWPLANNER-ENTRY-001 Public Surface Inventory
+
+Conceptual owner:
+
+```text
+FlowPlanner
+```
+
+Physical implementation root:
+
+```text
+src/mir/builder/control_flow/plan/
+```
+
+Allowed public entry surfaces:
+
+| Surface | Role |
+| --- | --- |
+| `joinir::route_entry::router::route_loop` | main loop routing entry from `MirBuilder::cf_loop` |
+| `control_flow/lower/planner_compat.rs` | consumer-facing compatibility facade for planner/lowerer exports |
+| `route_entry/registry` | ordered recipe-first route table and ambiguity/candidate checks |
+| `plan/REGISTRY.md` | route-order, exception, and cleanup ledger |
+
+Accepted temporary exceptions:
+
+| Exception | Current reason | Cleanup direction |
+| --- | --- | --- |
+| `route_entry/router.rs` imports `plan::composer::shadow_pre_plan_guard_error` | router-only diagnostic seam | move behind lower/planner facade or document as router facade export |
+| `route_entry/router.rs` imports `plan::facts::feature_facts::detect_nested_loop` | route selection preflight | move behind a facts facade |
+| `route_entry/registry/handlers*` imports composer / recipe-tree / facts internals | route table still owns candidate ordering | keep local to registry or wrap in a route-handler facade |
+| `control_flow/facts/**` imports plan freeze / recipe vocabulary | facts split is mid-folderization | decide whether top-level facts or plan-local facts owns each vocabulary |
+| `control_flow/recipes/**` imports plan facts / recipe_tree | recipe split is mid-folderization | decide whether top-level recipes or plan-local recipe_tree owns each vocabulary |
+| `builder/stmts/return_stmt.rs` directly adopts match-return CorePlan | non-loop CorePlan adoption lacks a named facade | add a non-loop FlowPlanner adoption boundary before changing behavior |
+
+Rejected bypasses:
+
+- builder core must not import route-specific `plan/loop_*` internals.
+- builder core must not create ad hoc `LoopRouteContext` for new non-loop
+  routes without a named adoption boundary.
+- route selection order must remain in `route_entry/registry`, not individual
+  plan boxes.
+- new `plan/mod.rs` public exports need an owner, consumer, and retire/promote
+  note in this registry.
+
 ## Notes (avoid box explosion)
 
 - Canon (analysis-only) lives in `src/mir/builder/control_flow/plan/canon/` (phase-29bq migration; legacy layouts remain in box folders).

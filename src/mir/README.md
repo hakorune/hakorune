@@ -15,7 +15,8 @@ navigation order must stay narrow and explicit.
 ## Top-Level Map
 
 - `analysis/`: analysis helpers and shared inspection utilities.
-- `builder/`: AST -> MIR construction, control-flow planning, joinir merge.
+- `builder/`: AST -> MIR construction. FlowPlanner / JoinIR glue are
+  physically under builder today but conceptually separate from builder core.
 - `contracts/`: backend acceptance allowlists and fail-fast instruction tags.
 - `control_tree/`: structure-only control-flow SSOT and normalized shadow path.
 - `definitions/`: MIR definition data and shared type/shape declarations.
@@ -70,7 +71,8 @@ SSOT:
 Candidate future crates:
 
 - `hakorune-mir-core`: definitions, instruction kinds, shared shape data, value kind substrate
-- `hakorune-mir-builder`: AST -> MIR construction and control-flow planning
+- `hakorune-mir-builder`: AST -> MIR construction; FlowPlanner boundary stays
+  documented before any future packaging decision
 - `hakorune-mir-joinir`: JoinIR lowering and ownership helpers
 - `hakorune-mir-passes`: passes, normalization, and verification helpers
 

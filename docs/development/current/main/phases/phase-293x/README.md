@@ -8,7 +8,7 @@
 - Current sidecar:
   `docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md`
 - Current sidecar blocker token:
-  `FLOWPLANNER-ENTRY-001 public FlowPlanner facade inventory`
+  `FLOWPLANNER-V0-001 loop v0 retire/promote rules`
 - Parked mimalloc return row:
   `docs/development/current/main/phases/phase-293x/293x-384-MIMAP-021C-FACADE-PAGE-SOURCE-ALLOC-MISS-FALLBACK.md`
 - Mimalloc purpose SSOT:

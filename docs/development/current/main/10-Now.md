@@ -28,13 +28,13 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `FLOWPLANNER-ENTRY-001 public FlowPlanner facade inventory`
+- current blocker token: `FLOWPLANNER-V0-001 loop v0 retire/promote rules`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after MIRBUILDER-DIET-001; next blocker is FLOWPLANNER-ENTRY-001 public FlowPlanner facade inventory; MIMAP-021C is parked until this cleanup sidecar closes
+- continue phase-293x after FLOWPLANNER-ENTRY-001; next blocker is FLOWPLANNER-V0-001 loop v0 retire/promote rules; MIMAP-021C is parked until this cleanup sidecar closes
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

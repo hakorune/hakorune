@@ -8,15 +8,52 @@ Pointers:
 - MIR navigation root:
   - `src/mir/README.md`
 
-このディレクトリは Rust 側の MIR 生成（AST → MIR）を担う。  
-JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
+このディレクトリは Rust 側の MIR 生成（AST → canonical MIR emission）を担う。
+`control_flow/plan` と JoinIR merge は物理的にはここにあるが、builder core
+ではなく FlowPlanner / JoinIR glue として読む。
 
 ## Reading Order
 
 1. `src/mir/README.md`
 2. `src/mir/builder/README.md`
-3. `src/mir/builder/control_flow/plan/`
-4. `src/mir/contracts/README.md`
+3. `src/mir/builder/control_flow/plan/ARCHITECTURE.md`
+4. `src/mir/builder/control_flow/plan/REGISTRY.md`
+5. `src/mir/contracts/README.md`
+
+## Builder Core vs FlowPlanner
+
+Builder core owns:
+
+- AST node dispatch into canonical MIR emission.
+- ValueId / BlockId issuance through `MirBuilder::next_value_id()` and related
+  helpers.
+- lexical scope / binding / local state through Context owners.
+- source span / diagnostic provenance.
+- actual MIR block assembly after a route has been selected.
+
+FlowPlanner owns:
+
+- control-flow shape facts.
+- recipe contracts.
+- CorePlan skeletons / features.
+- planner-required fail-fast boundaries.
+- plan lowering contracts.
+
+Physical path today:
+
+```text
+src/mir/builder/control_flow/plan/
+```
+
+Conceptual owner name:
+
+```text
+FlowPlanner
+```
+
+Builder code should call the documented FlowPlanner / route-entry facades, not
+reach into route-specific plan internals. The current boundary SSOT is
+`docs/development/current/main/design/mir-builder-diet-flowplanner-boundary-ssot.md`.
 
 ## 原則（SSOT / Box-First）
 
@@ -55,6 +92,10 @@ JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
 - JoinIR merge（契約検証を含む）
   - `src/mir/builder/control_flow/joinir/merge/mod.rs`
   - `src/mir/builder/control_flow/joinir/merge/contract_checks.rs`
+- FlowPlanner public entry
+  - `src/mir/builder/control_flow/joinir/route_entry/router.rs`
+  - `src/mir/builder/control_flow/lower/planner_compat.rs`
+  - `src/mir/builder/control_flow/plan/REGISTRY.md`
 
 ## Top-Level Map
 
@@ -71,6 +112,9 @@ JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
 ## 追加ルール（将来の変更者向け）
 
 - 新しい状態を追加する場合は、まず「どの Context の責務か」を決めてから追加する（`MirBuilder` 直下に増やさない）。
+- 新しい control-flow shape / CorePlan rule は builder core ではなく
+  FlowPlanner row として扱う。builder から route-specific plan internals を
+  直接 import しない。
 - 変更後に最低限確認する:
   - `tools/smokes/v2/profiles/integration/apps/phase135_trim_mir_verify.sh`（MIR verify の回帰防止）
 

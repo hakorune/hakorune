@@ -1,6 +1,6 @@
 # 293x-386 FLOWPLANNER-ENTRY-001 Public Facade Inventory
 
-Status: ready
+Status: landed
 Date: 2026-05-15
 
 ## Decision
@@ -37,3 +37,11 @@ FlowPlanner, plus rejected bypasses.
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 ```
+
+## Landed Notes
+
+- `src/mir/builder/README.md` now separates builder core from FlowPlanner.
+- `src/mir/builder/control_flow/plan/ARCHITECTURE.md` now names the
+  FlowPlanner public surface and rejected surface.
+- `src/mir/builder/control_flow/plan/REGISTRY.md` now records accepted
+  temporary exceptions and rejected bypasses.

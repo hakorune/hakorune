@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x MIR builder diet cleanup sidecar`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `FLOWPLANNER-ENTRY-001 public FlowPlanner facade inventory`
+- current blocker token: `FLOWPLANNER-V0-001 loop v0 retire/promote rules`
 - cleanup boundary SSOT:
   `docs/development/current/main/design/mir-builder-diet-flowplanner-boundary-ssot.md`
 - mimalloc blueprint SSOT (return lane after cleanup):
@@ -46,7 +46,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `FLOWPLANNER-ENTRY-001 public FlowPlanner facade inventory`
+- current blocker token: `FLOWPLANNER-V0-001 loop v0 retire/promote rules`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -57,7 +57,7 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after MIRBUILDER-DIET-001; next blocker is FLOWPLANNER-ENTRY-001 public FlowPlanner facade inventory; MIMAP-021C is parked until this cleanup sidecar closes
+- continue `phase-293x` after FLOWPLANNER-ENTRY-001; next blocker is FLOWPLANNER-V0-001 loop v0 retire/promote rules; MIMAP-021C is parked until this cleanup sidecar closes
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
