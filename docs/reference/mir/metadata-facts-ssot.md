@@ -171,6 +171,69 @@ PackedArray<T> declared
   -> unsupported route fails fast
 ```
 
+## Current Promotion Matrix
+
+This matrix fixes the current interpretation of rows that already behave like
+contracts, CorePlan inputs, or backend routes. It is a task-order guide, not a
+request to change JSON shape in place.
+
+### Promote / Treat As Active Now
+
+| Key | Target | Reason | Required next action |
+| --- | --- | --- | --- |
+| `lowering_plan` | `LoweringRoutes`, `backend_active` | Backends already consume flattened route entries instead of helper names. | Keep backend consumers route-first; do not add new raw helper-name classifiers. |
+| `typed_object_plans` | `LayoutPlans`, CorePlan layout/ABI truth | Type ids, slots, storage, and field counts are backend-visible layout truth. | Add or keep verifier checks for unique contiguous slots, `field_count`, layout kind, and unsupported weak fields before expanding backend use. |
+| `static_data_plans` | `LayoutPlans` / `LoweringRoutes`, `backend_active` | Static data load/emit already depends on MIR-owned table shape and bounds. | Harden verifier checks for supported element type, alignment, symbol uniqueness, and instruction/plan consistency. |
+| `effect_plans` | `Contracts`, `verifier_active` | `Contract(no_alloc/no_safepoint)` is verified through effect plans, not raw runes. | Keep backend use indirect; backend should see only accepted routes. |
+| `inline_plans` with `request=required` and `verified=true` | `Contracts` / `optimizer_active` | Required inline can fail fast and verified rows may drive narrow optimizer lowering. | Advisory `prefer/avoid/hot/cold` rows remain metadata; backends must not treat the row as an inline mandate. |
+| `string_kernel_plans` | `Contracts` / `LoweringRoutes` when consumed | Publication, borrow, carrier, and consumer legality are already verified. | Preserve verifier ownership of legality; emitters consume only checked route shape. |
+| `placement_effect_routes` | `PlacementPlans`, CorePlan placement/effect owner | It is the generic folded surface for publication/materialization/effect decisions. | Prefer this row over direct family-specific reads for new backend consumers. |
+| `exact_numeric_runtime_check_contracts` | `Contracts`, `verifier_active` | Dynamic exact numeric checks and backend support already fail fast when unsupported. | Keep dynamic range-check capability tied to verifier/backend gates. |
+| `hako_alloc_*_packed_store_pilot_plans` | `Contracts`, `verifier_active` | The verifier already enforces fixed record/column/sentinel/no-lowering invariants. | Do not promote to CorePlan lowering until a real storage owner and backend route exist. |
+
+### Promote Soon / Prepare A Dedicated Row
+
+| Key | Future target | Trigger | Required next action |
+| --- | --- | --- | --- |
+| `array_record_materialization_boundary_plans` | `Contracts`, `verifier_active` | Public `get`, returned record elements, or backend escapes become observable. | Fail fast unsupported materialization before public record materialization work begins. |
+| `source_packed_array_direct_read_consumption_plans` | `LoweringRoutes`, CorePlan direct-read route | Real packed direct-read backend lowering is introduced. | Add backend proof, capability gate, and `boxed_fallback=false` contract in the same row. |
+| `loop_range_facts` | `Contracts`, `verifier_active` | LoopRange facts start deciding accepted write/index policy. | Promote the write-policy booleans into a verifier-owned accept/reject contract before lowering depends on them. |
+| `array_text_*` / `array_text_state_residence_route` | `LoweringRoutes`, CorePlan text/array route | C/EXE consumers depend on effects, materialization policy, byte-boundary proof, or executor mode. | Route consumers must read a proof-bearing route, not rediscover region legality. |
+| enum use rows derived from `enum_decls` | `Contracts`, `verifier_active` | Sum construction/projection/runtime dispatch depends on declared tag/payload shape. | Keep `enum_decls` as source inventory; add verifier checks for declared variant/tag/payload use. |
+| exact numeric binary/compare/shift route facts | `LoweringRoutes` | Backend lowering consumes op-specific exact numeric facts. | Move consumption behind route rows with backend capability rejection. |
+
+### Keep As Metadata / Do Not Promote Directly
+
+| Key | Keep as | Reason |
+| --- | --- | --- |
+| `record_decls`, `enum_decls`, `user_box_decls` | `SourceAttrs` | Declaration inventories are not lowering contracts. Promote derived rows, not raw declarations. |
+| `record_layout_plans` | `LayoutPlans`, `semantic_layout_truth` | Record layout is canonical layout truth, but record materialization/backend lowering is still closed. |
+| `array_record_storage_plans`, `array_record_autouse_eligibility_plans` | `LayoutPlans` / `PlacementPlans`, metadata-only | They describe storage candidates and eligibility; they must not mutate ArrayBox runtime storage by themselves. |
+| `value_consumer_facts`, `storage_classes` | `SemanticFacts` | Raw facts are fold-up inputs. Promote only the route or contract that consumes them. |
+| `string_corridor_*`, `sum_placement_*`, `thin_entry_*` | family facts / compatibility rows | Long-term backend consumption should fold through `placement_effect_routes` or family-specific route rows. |
+| `*_micro_seed_route`, `*_seed_route`, `exact_seed_backend_route` | `ExperimentalSeedRoutes` | Seed payloads are temporary exact-shape bridges. They need retire conditions, not CorePlan promotion. |
+
+## Promotion Task Queue
+
+Use this order when turning the matrix into implementation cards:
+
+1. `METADATA-PROMOTE-001`: harden catalog rows for active contracts and routes
+   without changing MIR JSON shape.
+2. `METADATA-PROMOTE-002`: typed-object/static-data verifier hardening
+   (`typed_object_plans`, `static_data_plans`).
+3. `METADATA-PROMOTE-003`: exact numeric / effect / required-inline /
+   string-kernel contract wording and guard coverage.
+4. `METADATA-PROMOTE-004`: `placement_effect_routes` consumer fold-up plan for
+   family-specific string/sum/thin-entry readers.
+5. `METADATA-PROMOTE-005`: PackedArray no-fallback contract before any packed
+   record backend lowering flag is enabled.
+6. `METADATA-PROMOTE-006`: seed route retirement ledger and generic route
+   replacement plan.
+
+Stop line: do not combine these with allocator behavior rows. Promotion tasks
+are BoxShape work unless a card explicitly adds one new accepted lowering route
+with proof and guard.
+
 ## Module-level metadata keys
 
 | Key | Class | Producer | Primary consumer | backend_active | fallback_allowed | retire_condition |

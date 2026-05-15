@@ -49,7 +49,7 @@ Scope: current lane / next lane / restart order only.
 - current blocker token:
   `MIMAP-FACADE-CLEAN-001 facade result observer / reason-code SSOT cleanup`
 - current BoxShape sidecar:
-  `METADATA-CATALOG-002 metadata state / CorePlan policy cleanup`
+  `METADATA-CATALOG-003 metadata promotion matrix / task queue docs`
 - primary mode: mimalloc blueprint inventory lane; keep upstream source untracked and classify concepts before implementation
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -62,8 +62,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after METADATA-CATALOG-002 metadata
-  state / CorePlan policy cleanup;
+- resume point: continue Phase 293x after METADATA-CATALOG-003 metadata
+  promotion matrix / task queue docs;
   next primary blocker is MIMAP-FACADE-CLEAN-001 facade result observer /
   reason-code SSOT cleanup. VM-LIM-001 remains parked
   diagnostic. Keep LoopRange on the
@@ -75,7 +75,13 @@ Scope: current lane / next lane / restart order only.
 - next 293x order:
   MIMAP-FACADE-CLEAN-001 facade result observer / reason-code SSOT cleanup
 - recent BoxShape sidecar:
-  METADATA-CATALOG-002 metadata state / CorePlan policy cleanup
+  METADATA-CATALOG-003 metadata promotion matrix / task queue docs
+- metadata promotion queue:
+  `docs/reference/mir/metadata-facts-ssot.md` `Current Promotion Matrix`
+  and
+  `docs/development/current/main/phases/phase-293x/293x-369-METADATA-CATALOG-003-PROMOTION-MATRIX.md`
+  are the restart entries. Do not combine these promotion cleanup cards with
+  allocator behavior rows.
 - optional future allocator-provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`
