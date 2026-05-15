@@ -82,6 +82,8 @@ landed_tail = [
 Full landed history belongs in phase docs and cards, not in current mirrors.
 `docs/development/current/main/design/current-docs-archive-policy-ssot.md`
 owns archive buckets and landed ledger policy.
+Phase-local archive manifests own safe-move inventory before physical card
+moves.
 
 `landed_tail` should stay short:
 

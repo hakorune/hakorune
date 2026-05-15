@@ -314,6 +314,7 @@ tools/checks/env_dead_accessors_report.sh
 | `tools/checks/k2_wide_loopclean_while_parser_facade_guard.sh` | LOOPCLEAN-006 の while parser facade merge を固定し、Stage-3 `while` compatibility が `parse_loop()` 経由で canonical `Loop` を出すことを検証する。 |
 | `tools/checks/k2_wide_clean_stage1_lowering_stmt_split_guard.sh` | CLEAN-STAGE1-LOWERING-002 の statement lowering split を固定し、`statement_to_json_v0` が薄い dispatcher と statement-family helpers に分かれていることを検証する。 |
 | `tools/checks/docs_slim_001_archive_policy_guard.sh` | DOCS-SLIM-001 の archive policy / landed_tail cap / recent cleanup guard taskboard-decoupling を固定する。 |
+| `tools/checks/docs_slim_002_archive_manifest_guard.sh` | DOCS-SLIM-002 の phase-293x archive manifest / bucket counts / no-move safe-prep contract を固定する。 |
 - `tools/checks/k2_wide_delegate_parser_capsule_guard.sh` - DEL-002 Stage0 delegate parser/metadata capsule guard.
 - `tools/checks/k2_wide_delegate_exposes_lowering_guard.sh` - DEL-003 delegate exposes Stage1 forwarding lowering guard.
 - `tools/checks/k2_wide_brand_parser_capsule_guard.sh` - BRAND-001 Stage0 brand declaration parser/metadata capsule guard.

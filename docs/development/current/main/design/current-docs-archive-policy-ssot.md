@@ -117,3 +117,14 @@ Do not add a taskboard assertion just to prove a card landed.
 - do not physically move old cards yet
 
 Physical archive moves are `DOCS-SLIM-002+`.
+
+## Second Slimming Phase
+
+`DOCS-SLIM-002` owns archive manifest prep only:
+
+- add `phase-293x/archive/` entry docs
+- add card bucket protocol
+- add a root-card count / direct-reference risk manifest
+- guard that no cards moved yet
+- keep physical moves for a later row after guard references are decoupled or
+  forwarding stubs are planned

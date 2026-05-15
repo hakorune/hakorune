@@ -132,6 +132,16 @@ closeout / accepted monitor-only / parked / superseded の phase front を置く
 - archived phase front は `phases/archive/<phase>/README.md` に移す。
 - phase 配下の child docs は必要な限り元の場所に残してよい。
 
+### `docs/development/current/main/phases/phase-293x/archive/`（phase-local execution archive）
+
+phase-293x numbered-card archive prep lives here while the active phase remains
+in `phase-293x/README.md`.
+
+- card archive manifest:
+  `docs/development/current/main/phases/phase-293x/archive/cards/phase-293x-card-archive-manifest.md`
+- physical card moves require either guard-reference decoupling or forwarding
+  stubs at the old paths.
+
 ### `docs/private/development/current/main/`（private canonical）
 
 公開したくない計画本文・作業メモの正本を置くローカル領域。

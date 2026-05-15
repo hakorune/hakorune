@@ -48,8 +48,6 @@ guard_expect_in_file "$TAG" 'current-docs-archive-policy-ssot' "$DOCS_LAYOUT" "D
 guard_expect_in_file "$TAG" 'current-docs-archive-policy-ssot' "$UPDATE_POLICY" "update policy must link archive policy"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 
-guard_expect_in_file "$TAG" 'latest_card = "293x-408-DOCS-SLIM-001-ARCHIVE-POLICY-AND-INVENTORY"' "$STATE" "CURRENT_STATE latest_card must point at DOCS-SLIM-001"
-
 tail_count="$(awk '
   /^[[:space:]]*landed_tail[[:space:]]*=/ { in_tail=1; next }
   in_tail && /^[[:space:]]*]/ { print count; exit }
