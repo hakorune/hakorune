@@ -1,0 +1,133 @@
+// object_lifecycle_facade_huge_failfast_box.hako -- MIMAP-022B facade huge-request fail-fast route
+// Responsibility: classify facade page-source allocation requests before the
+// MIMAP-021C alloc-miss fallback and reject huge requests without sourcing a
+// page. Small requests are forwarded to the existing alloc-miss fallback.
+// This module does not own huge pages, page-map lookup, release/realloc,
+// alignment, purge/reclaim, remote-free, TLS, atomics, provider hooks, or
+// allocator replacement.
+
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_page_source_alloc_miss_box as HakoAllocObjectLifecycleFacadePageSourceAllocMissBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_reason_box as HakoAllocObjectLifecycleFacadeReason
+using selfhost.hako_alloc.memory.size_class_box as SizeClassBox
+
+box HakoAllocObjectLifecycleFacadeHugeFailfastReport {
+    status: i64 = 0
+    requested_size: i64 = 0
+    size_bin: i64 = 0
+    huge_threshold: i64 = 0
+    huge_rejected: i64 = 0
+    small_forwarded: i64 = 0
+    fallback_attempted: i64 = 0
+    initial_ok: i64 = 0
+    initial_reason: i64 = 0
+    source_status: i64 = 0
+    source_reserved: i64 = 0
+    source_committed: i64 = 0
+    source_reject: i64 = 0
+    source_added_page_id: i64 = -1
+    source_facade_page_count: i64 = 0
+    retry_ok: i64 = 0
+    retry_reason: i64 = 0
+    final_ok: i64 = 0
+    final_reason: i64 = 0
+    final_page_id: i64 = -1
+    final_block_id: i64 = -1
+    huge_reject_count: i64 = 0
+    small_forward_count: i64 = 0
+    fallback_attempt_count: i64 = 0
+    success_count: i64 = 0
+    failure_count: i64 = 0
+}
+
+box HakoAllocObjectLifecycleFacadeHugeFailfastRoute {
+    alloc_miss_fallback: HakoAllocObjectLifecycleFacadePageSourceAllocMissFallback = new HakoAllocObjectLifecycleFacadePageSourceAllocMissFallback()
+    huge_reject_count: i64 = 0
+    small_forward_count: i64 = 0
+    fallback_attempt_count: i64 = 0
+    success_count: i64 = 0
+    failure_count: i64 = 0
+
+    hugeThreshold() {
+        return SizeClassBox.bin_size(SizeClassBox.max_regular_bin())
+    }
+
+    classifyRequest(size) {
+        if SizeClassBox.size_to_bin(size) == SizeClassBox.huge_bin() {
+            return 2
+        }
+        return 1
+    }
+
+    initReport(size) {
+        local result = new HakoAllocObjectLifecycleFacadeHugeFailfastReport()
+        result.requested_size = size
+        result.size_bin = SizeClassBox.size_to_bin(size)
+        result.huge_threshold = me.hugeThreshold()
+        return result
+    }
+
+    snapshotCounters(result) {
+        result.huge_reject_count = me.huge_reject_count
+        result.small_forward_count = me.small_forward_count
+        result.fallback_attempt_count = me.fallback_attempt_count
+        result.success_count = me.success_count
+        result.failure_count = me.failure_count
+        return result
+    }
+
+    rejectHuge(result) {
+        me.huge_reject_count = me.huge_reject_count + 1
+        me.failure_count = me.failure_count + 1
+        result.huge_rejected = 1
+        result.final_reason = HakoAllocObjectLifecycleFacadeReason.small_huge_request()
+        result.huge_reject_count = me.huge_reject_count
+        result.small_forward_count = me.small_forward_count
+        result.fallback_attempt_count = me.fallback_attempt_count
+        result.success_count = me.success_count
+        result.failure_count = me.failure_count
+        return result
+    }
+
+    copyFallback(result, fallback_result) {
+        result.fallback_attempted = fallback_result.fallback_attempted
+        result.initial_ok = fallback_result.initial_ok
+        result.initial_reason = fallback_result.initial_reason
+        result.source_status = fallback_result.source_status
+        result.source_reserved = fallback_result.source_reserved
+        result.source_committed = fallback_result.source_committed
+        result.source_reject = fallback_result.source_reject
+        result.source_added_page_id = fallback_result.source_added_page_id
+        result.source_facade_page_count = fallback_result.source_facade_page_count
+        result.retry_ok = fallback_result.retry_ok
+        result.retry_reason = fallback_result.retry_reason
+        result.final_ok = fallback_result.final_ok
+        result.final_reason = fallback_result.final_reason
+        result.final_page_id = fallback_result.final_page_id
+        result.final_block_id = fallback_result.final_block_id
+        return result
+    }
+
+    allocateWithHugeFailfast(facade, size, page_id, block_size, capacity, reserved) {
+        local result = me.initReport(size)
+
+        if me.classifyRequest(size) == 2 {
+            return me.rejectHuge(result)
+        }
+
+        me.small_forward_count = me.small_forward_count + 1
+        result.small_forwarded = 1
+
+        local fallback_result = me.alloc_miss_fallback.allocateOnMiss(facade, size, page_id, block_size, capacity, reserved)
+        me.fallback_attempt_count = me.fallback_attempt_count + fallback_result.fallback_attempted
+        me.copyFallback(result, fallback_result)
+
+        if result.final_ok == 1 {
+            me.success_count = me.success_count + 1
+        } else {
+            me.failure_count = me.failure_count + 1
+        }
+
+        return me.snapshotCounters(result)
+    }
+}

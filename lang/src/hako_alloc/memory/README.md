@@ -39,6 +39,7 @@ Current modules
 - `object_lifecycle_facade_purge_policy_box.hako`
 - `object_lifecycle_facade_page_source_box.hako`
 - `object_lifecycle_facade_page_source_alloc_miss_box.hako`
+- `object_lifecycle_facade_huge_failfast_box.hako`
 - `page_lifecycle_invariant_box.hako`
 - `page_queue_lifecycle_box.hako`
 - `page_source_policy_box.hako`
@@ -123,6 +124,7 @@ Syntax/style contract
   | small allocation | `small_reuse_failed()` | 3 | Reusable page reactivation rejected. |
   | small allocation | `small_acquire_failed()` | 4 | Page-local acquire returned no block. |
   | small allocation | `small_alignment_unsupported()` | 5 | Alignment request failed before normal small allocation. |
+  | small allocation | `small_huge_request()` | 6 | Facade page-source route rejected a huge request before small fallback. |
   | release | `release_no_page()` | 1 | Page id is invalid or not in the facade-owned known-page scan. |
   | release | `release_bad_block()` | 2 | Block id is invalid. |
   | release | `release_page_reject()` | 3 | Known page rejected the local release. |
@@ -170,6 +172,15 @@ Syntax/style contract
   realloc, align, purge, reclaim, decommit, recommit, use page-map lookup,
   unreserve, release OSVM pages, call provider hooks, replace allocators, use
   TLS/atomics/remote-free, or add backend shortcuts.
+- `object_lifecycle_facade_huge_failfast_box.hako` owns the MIMAP-022B facade
+  huge-request fail-fast route. It may classify request size through
+  `SizeClassBox`, reject huge requests before invoking the MIMAP-021C
+  allocation-miss fallback, forward non-huge requests to that fallback, and
+  expose scalar report fields/counters for the route decision. It must not own a
+  huge page model, use page-map lookup, call page-source/OSVM APIs directly,
+  alter release/realloc/alignment behavior, execute purge/reclaim/decommit/
+  recommit, use remote-free/TLS/atomics, activate provider hooks, replace the
+  host allocator, or add backend shortcuts.
 - `worker_identity_box.hako` owns the MIMAP-WORKER-001 allocator-facing worker
   identity observer. It may call `WorkerCoreBox.current_id_i64()`, store
   scalar `last_worker_id` / `call_count` proof state, and keep the single-worker

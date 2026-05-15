@@ -27,11 +27,12 @@ sidecar closeout. The mimalloc concurrency substrate cut and route inventory
 guard are pinned, the facade page-source allocation-miss fallback is green, and
 the internal worker identity, TLS cache-slot, atomic route guard, and
 remote-free / abandoned-owner policy, thread-safe `hako_mem` ABI, and native
-multi-worker substrate stress rows are now live. The current primary row moves
-to the selected facade huge-request fail-fast routing row:
+multi-worker substrate stress rows are now live. The facade huge-request
+fail-fast routing row is green. The current primary row moves to post-huge
+row selection:
 
 ```text
-  MIMAP-022B facade huge-request fail-fast routing
+  MIMAP-022C post-huge-failfast row selection
 ```
 
 Closed cleanup sidecar:
@@ -104,8 +105,11 @@ MIMAP-022A:
   selected MIMAP-022B facade huge-request fail-fast routing as the next
   allocator behavior row
 MIMAP-022B:
+  landed
+  facade huge-request fail-fast routing is green
+MIMAP-022C:
   ready current
-  facade huge-request fail-fast routing is the current selected primary row
+  post-huge-failfast row selection is the current primary row
 ```
 
 ## Active Source Policy
@@ -265,7 +269,8 @@ FST:
 | `MIMAP-021B` | landed | Facade page-source fresh-page attach. | after MIMAP-021A |
 | `MIMAP-021C` | landed | Facade page-source allocation-miss fallback. | after MIMAP-SUBSTRATE-CONC-002 |
 | `MIMAP-022A` | landed | Post-lifecycle allocator row selection. | after REUSE-LIFECYCLE-001 |
-| `MIMAP-022B` | ready current | Facade huge-request fail-fast routing before page-source attach/retry. | current |
+| `MIMAP-022B` | landed | Facade huge-request fail-fast routing before page-source attach/retry. | after MIMAP-022A |
+| `MIMAP-022C` | ready current | Post-huge-failfast allocator row selection. | current |
 
 MIMAP-020A execution order:
 

@@ -1,6 +1,6 @@
 # 293x-434 MIMAP-022B Facade Huge-Request Fail-Fast Routing
 
-Status: ready
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -71,4 +71,26 @@ bash tools/checks/k2_wide_mimalloc_facade_huge_failfast_exe_guard.sh
 bash tools/checks/k2_wide_mimap022a_next_row_selection_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 tools/checks/dev_gate.sh quick
+```
+
+## Closeout
+
+Implemented the selected facade huge-request boundary in:
+
+```text
+lang/src/hako_alloc/memory/object_lifecycle_facade_huge_failfast_box.hako
+apps/mimalloc-facade-huge-failfast-proof/main.hako
+tools/checks/k2_wide_mimalloc_facade_huge_failfast_exe_guard.sh
+```
+
+The route uses `SizeClassBox` as the request-size classifier, rejects huge
+requests with the facade reason-code SSOT before invoking the MIMAP-021C
+allocation-miss fallback, and forwards non-huge requests to the existing
+fallback. The proof app covers both the huge reject and the small forwarding
+case.
+
+The next current row is planning-only:
+
+```text
+docs/development/current/main/phases/phase-293x/293x-435-MIMAP-022C-POST-HUGE-FAILFAST-ROW-SELECTION.md
 ```

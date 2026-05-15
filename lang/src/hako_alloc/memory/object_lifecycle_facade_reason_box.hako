@@ -28,6 +28,10 @@ static box HakoAllocObjectLifecycleFacadeReason {
         return 5
     }
 
+    small_huge_request() {
+        return 6
+    }
+
     release_no_page() {
         return 1
     }

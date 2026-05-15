@@ -1,0 +1,56 @@
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_huge_failfast_box as HakoAllocObjectLifecycleFacadeHugeFailfastBox
+
+static box Main {
+    main(args) {
+        local facade = new HakoAllocObjectLifecycleFacade()
+        local route = new HakoAllocObjectLifecycleFacadeHugeFailfastRoute()
+
+        local huge_size = route.hugeThreshold() + 1
+        local huge_result = route.allocateWithHugeFailfast(facade, huge_size, 501, 8, 2, 2)
+        local small_result = route.allocateWithHugeFailfast(facade, 8, 502, 8, 2, 2)
+
+        local shape = 0
+        if huge_result.huge_rejected == 1 { shape = shape + 1 }
+        if huge_result.small_forwarded == 0 { shape = shape + 1 }
+        if huge_result.fallback_attempted == 0 { shape = shape + 1 }
+        if huge_result.final_ok == 0 { shape = shape + 1 }
+        if huge_result.final_reason == 6 { shape = shape + 1 }
+        if huge_result.final_page_id == -1 { shape = shape + 1 }
+        if huge_result.source_status == 0 { shape = shape + 1 }
+        if huge_result.huge_reject_count == 1 { shape = shape + 1 }
+        if small_result.huge_rejected == 0 { shape = shape + 1 }
+        if small_result.small_forwarded == 1 { shape = shape + 1 }
+        if small_result.fallback_attempted == 1 { shape = shape + 1 }
+        local source_ready = small_result.source_status + small_result.source_reserved + small_result.source_committed + small_result.source_reject
+        if source_ready == 3 { shape = shape + 1 }
+        if small_result.source_added_page_id == 502 { shape = shape + 1 }
+        local final_ready = small_result.final_ok + small_result.final_reason
+        if final_ready == 1 { shape = shape + 1 }
+        if small_result.final_page_id == 502 { shape = shape + 1 }
+        if small_result.final_block_id == 1 { shape = shape + 1 }
+        local route_counts = small_result.huge_reject_count + small_result.small_forward_count + small_result.fallback_attempt_count + small_result.success_count + small_result.failure_count
+        if route_counts == 5 { shape = shape + 1 }
+        local facade_ready = facade.objectLifecyclePageCount() + facade.objectLifecycleAllocPageId() + facade.objectLifecycleAllocBlockId()
+        if facade_ready == 504 { shape = shape + 1 }
+
+        print("mimalloc-facade-huge-failfast-proof")
+        print("huge=" + huge_result.huge_rejected + "," + huge_result.small_forwarded + "," + huge_result.fallback_attempted + "," + huge_result.final_ok + "," + huge_result.final_reason)
+        print("huge_source=" + huge_result.source_status + "," + huge_result.source_reserved + "," + huge_result.source_committed + "," + huge_result.source_reject)
+        print("huge_size=" + huge_result.requested_size + "," + huge_result.size_bin + "," + huge_result.huge_threshold)
+        print("small=" + small_result.huge_rejected + "," + small_result.small_forwarded + "," + small_result.fallback_attempted)
+        print("small_source=" + small_result.source_status + "," + small_result.source_reserved + "," + small_result.source_committed + "," + small_result.source_reject)
+        print("small_final=" + small_result.final_ok + "," + small_result.final_reason + "," + small_result.final_page_id + "," + small_result.final_block_id)
+        print("route_counts=" + small_result.huge_reject_count + "," + small_result.small_forward_count + "," + small_result.fallback_attempt_count + "," + small_result.success_count + "," + small_result.failure_count)
+        print("facade=" + facade.objectLifecyclePageCount() + "," + facade.objectLifecycleAllocPageId() + "," + facade.objectLifecycleAllocBlockId())
+        print("shape=" + shape)
+
+        if shape == 18 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

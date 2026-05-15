@@ -141,6 +141,7 @@ Forbidden:
 | `MIMAP-021C` | facade page-source allocation-miss fallback | MIMAP-021B is green |
 | `MIMAP-022A` | post-lifecycle allocator row selection | lifecycle construction/reuse cleanup rows are closed |
 | `MIMAP-022B` | facade huge-request fail-fast routing | MIMAP-022A selects the facade huge-request boundary |
+| `MIMAP-022C` | post-huge-failfast allocator row selection | MIMAP-022B is green |
 
 ### MIMAP-020A granularity
 
@@ -205,6 +206,10 @@ The row must stop before a huge page model. It must not change release,
 realloc, alignment, purge/reclaim/decommit/recommit execution, remote-free,
 TLS, atomic behavior, page-map lookup, provider hooks, host allocator
 replacement, or `#[global_allocator]`.
+
+MIMAP-022C is the next planning-only row. It must pick exactly one post-huge
+allocator behavior slice and record the owner, proof app, guard, and stop
+lines before implementation begins.
 
 ## Compiler / language sidecar triggers
 
