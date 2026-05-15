@@ -5,11 +5,11 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-arraybox-inline-record-probe"
 cd "$ROOT_DIR"
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
+source "$ROOT_DIR/tools/checks/lib/phase_card_paths.sh"
 
-CARD="docs/development/current/main/phases/phase-293x/293x-219-C206B-ARRAYBOX-INLINE-RECORD-PROBE.md"
+CARD="$(guard_require_phase293x_card "$TAG" "293x-219-C206B-ARRAYBOX-INLINE-RECORD-PROBE.md")"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 RECORD_SSOT="docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 ARRAY_MOD="src/boxes/array/mod.rs"
 PROBE="src/boxes/array/inline_record_probe.rs"
 ARRAY_TESTS="src/boxes/array/tests.rs"
@@ -23,7 +23,6 @@ guard_require_files \
   "$CARD" \
   "$PLAN" \
   "$RECORD_SSOT" \
-  "$PHASE_README" \
   "$ARRAY_MOD" \
   "$PROBE" \
   "$ARRAY_TESTS" \
@@ -35,7 +34,6 @@ guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "C206b card must be complete"
 guard_expect_in_file "$TAG" 'C206b status:' "$PLAN" "mimalloc plan must record C206b status"
 guard_expect_in_file "$TAG" '`C206b` is complete as `293x-219`' "$RECORD_SSOT" "record SSOT must mark C206b complete"
-guard_expect_in_file "$TAG" '`293x-219`' "$PHASE_README" "phase README must list C206b row"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list C206b guard"
 
 guard_expect_in_file "$TAG" '#\[cfg\(test\)\]' "$ARRAY_MOD" "inline-record probe module must stay cfg(test)"

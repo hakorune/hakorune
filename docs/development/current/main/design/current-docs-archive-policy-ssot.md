@@ -241,3 +241,17 @@ Physical archive moves are `DOCS-SLIM-002+`.
 - keep card status, implementation, record SSOT, and check-index assertions
 - keep record, metadata, and packed-array behavior unchanged
 - do not physically move old cards yet
+
+## Twelfth Slimming Phase
+
+`DOCS-SLIM-012` owns the inline record probe resolver adoption:
+
+- convert `k2_wide_arraybox_inline_record_probe_guard.sh` to use
+  `guard_require_phase293x_card`
+- convert `k2_wide_arraybox_inline_record_plan_probe_guard.sh` to use
+  `guard_require_phase293x_card`
+- convert `k2_wide_metadata_store_indexed_read_guard.sh` to use
+  `guard_require_phase293x_card`
+- remove landed-history phase README pins from the trio
+- keep probe, plan, metadata-store, and check-index assertions unchanged
+- do not physically move old cards yet

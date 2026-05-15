@@ -5,14 +5,14 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-metadata-store-indexed-read"
 cd "$ROOT_DIR"
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
+source "$ROOT_DIR/tools/checks/lib/phase_card_paths.sh"
 
 ALIGNED_STORE="lang/src/hako_alloc/memory/aligned_small_meta_store_box.hako"
 HUGE_STORE="lang/src/hako_alloc/memory/huge_page_meta_store_box.hako"
 HUGE_MODEL="lang/src/hako_alloc/memory/huge_page_model_box.hako"
-CARD="docs/development/current/main/phases/phase-293x/293x-223-C206E-METADATA-STORE-INDEXED-READ-CLEANUP.md"
+CARD="$(guard_require_phase293x_card "$TAG" "293x-223-C206E-METADATA-STORE-INDEXED-READ-CLEANUP.md")"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 RECORD_SSOT="docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 INDEX="docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/k2_wide_metadata_store_indexed_read_guard.sh"
 
@@ -26,7 +26,6 @@ guard_require_files \
   "$CARD" \
   "$PLAN" \
   "$RECORD_SSOT" \
-  "$PHASE_README" \
   "$INDEX" \
   "$SELF_SCRIPT"
 
@@ -35,7 +34,6 @@ guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "C206e card must be complete"
 guard_expect_in_file "$TAG" 'C206e status:' "$PLAN" "mimalloc plan must record C206e status"
 guard_expect_in_file "$TAG" '`C206e` is complete as `293x-223`' "$RECORD_SSOT" "record SSOT must mark C206e complete"
-guard_expect_in_file "$TAG" '`293x-223`' "$PHASE_README" "phase README must list C206e row"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list C206e guard"
 
 guard_expect_in_file "$TAG" 'alignmentAt\(index\)' "$ALIGNED_STORE" "aligned store must expose indexed alignment read"
