@@ -30,13 +30,11 @@ cargo check -q
 ## Current Lane
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- active lane: `phase-293x MIR builder diet cleanup sidecar`
+- active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIR-SEMANTIC-PLANS-001 MIR plan/route/seed classification`
-- cleanup boundary SSOT:
-  `docs/development/current/main/design/mir-builder-diet-flowplanner-boundary-ssot.md`
-- mimalloc blueprint SSOT (return lane after cleanup):
+- current blocker token: `MIMAP-021C facade page-source allocation-miss fallback`
+- mimalloc blueprint SSOT:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
@@ -46,7 +44,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIR-SEMANTIC-PLANS-001 MIR plan/route/seed classification`
+- current blocker token: `MIMAP-021C facade page-source allocation-miss fallback`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -57,7 +55,7 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after FLOWPLANNER-V0-001; next blocker is MIR-SEMANTIC-PLANS-001 MIR plan/route/seed classification; MIMAP-021C is parked until this cleanup sidecar closes
+- continue `phase-293x` after MIR-SEMANTIC-PLANS-001; next blocker is MIMAP-021C facade page-source allocation-miss fallback
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

@@ -1,6 +1,6 @@
 # 293x-388 MIR-SEMANTIC-PLANS-001 Classification
 
-Status: ready
+Status: landed
 Date: 2026-05-15
 
 ## Decision
@@ -31,3 +31,10 @@ bridges.
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 ```
+
+## Landed Notes
+
+- `src/mir/README.md` now classifies top-level MIR plan/route/seed surfaces.
+- The classification preserves `LayoutPlans`, `PlacementPlans`,
+  `LoweringRoutes`, `ExperimentalSeedRoutes`, and `SemanticFacts/Contracts`.
+- No files were moved and no routes were activated.

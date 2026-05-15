@@ -1,15 +1,13 @@
 # Phase 293x: real-app bringup
 
-- Status: Active / MIR builder diet cleanup sidecar before returning to mimalloc
+- Status: Active / mimalloc blueprint lane after MIR builder diet cleanup sidecar
 - Purpose: use real applications to expose compiler/runtime seams after the
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
 - Parent lane token: `phase-293x real-app bringup`
-- Current sidecar:
+- Closed sidecar:
   `docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md`
-- Current sidecar blocker token:
-  `MIR-SEMANTIC-PLANS-001 MIR plan/route/seed classification`
-- Parked mimalloc return row:
+- Current mimalloc blocker:
   `docs/development/current/main/phases/phase-293x/293x-384-MIMAP-021C-FACADE-PAGE-SOURCE-ALLOC-MISS-FALLBACK.md`
 - Mimalloc purpose SSOT:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`

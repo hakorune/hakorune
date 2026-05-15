@@ -53,6 +53,29 @@ navigation order must stay narrow and explicit.
 - Legacy `.inc` mirror rows may only be pruned after a metadata-absent boundary
   contract exists for the same method family.
 
+## MIR Semantic Plans / Routes Map
+
+This map keeps top-level MIR plan/route/seed surfaces readable without moving
+files. Keep the terms distinct:
+
+- `Plan`: compiler-owned candidate, selection, layout, or placement data.
+- `Route`: backend/VM-consumable lowering contract.
+- `SeedRoute`: temporary exact-shape proof bridge with a retire path.
+- `Fact` / `Contract`: verifier, optimizer, or diagnostics input; not a
+  backend helper selector by itself.
+
+| Class | Top-level surfaces | Current state |
+| --- | --- | --- |
+| `LayoutPlans` | `typed_object_plan.rs` + `typed_object_plan/`, `record_layout_plan.rs`, `static_data_plan.rs`, `array_record_storage_plan.rs` | `typed_object_plans` and `static_data_plans` are backend-active. `record_layout_plans` are semantic layout truth. `array_record_storage_plans` remain metadata-only storage candidates. |
+| `PlacementPlans` | `array_text_residence_session_plan.rs`, `array_text_state_residence_plan.rs`, `map_lookup_fusion_plan.rs` | residence/session plans are metadata-only unless a route row explicitly promotes them. `array_text_state_residence_route` is the active residence contract. |
+| `LoweringRoutes` | `generic_method_route_plan.rs` + dir, `extern_call_route_plan.rs` + dir, `global_call_route_plan.rs` + dir, `user_box_method_route_plan.rs` + dir, `array_rmw_window_plan.rs`, `array_string_len_window_plan.rs`, `array_text_*_plan.rs`, `string_direct_set_window_plan.rs`, `string_kernel_plan.rs`, `exact_seed_backend_route.rs` | backend/VM-facing route carriers. Route rows may be fail-fast or unsupported-route metadata; they do not automatically make an operation lowerable. |
+| `ExperimentalSeedRoutes` | `array_getset_micro_seed_plan.rs`, `array_rmw_add1_leaf_seed_plan.rs`, `array_string_store_micro_seed_plan.rs`, `concat_const_suffix_micro_seed_plan.rs`, `substring_views_micro_seed_plan.rs`, `sum_variant_*_seed_plan.rs`, `userbox_*_seed_plan.rs`, `indexof_search_micro_seed_plan.rs` | temporary exact-shape bridges. Keep retire conditions in metadata/seed ledgers before making them long-term route vocabulary. |
+| `SemanticFacts/Contracts` | `generic_method_route_facts.rs`, `effect_capability_plan.rs`, `inline_plan.rs`, `rune_plan_refresh.rs`, `aot_plan_import.rs` | facts/contracts/support surfaces. `effect_capability_plan` is verifier-active contract material; `inline_plan` is optimizer-active only for verified rows. |
+
+Do not collapse these categories into one `plans/` bucket without preserving the
+plan vs route vs seed distinction. The reference catalog owner remains
+`docs/reference/mir/metadata-facts-ssot.md`.
+
 ## Boundary Rules
 
 - Add shared policy once under `policies/` and reuse it from the other subtrees.

@@ -21,14 +21,14 @@ LOOP-003C/D complete
 PACKED-003/004 complete
 ```
 
-Blueprint and inventory rows are temporarily parked while the MIR builder diet
-cleanup sidecar is active. Parked primary row:
+Blueprint and inventory rows are active again after the MIR builder diet cleanup
+sidecar closeout. Current primary row:
 
 ```text
 MIMAP-021C facade page-source allocation-miss fallback
 ```
 
-Active cleanup sidecar:
+Closed cleanup sidecar:
 
 ```text
 docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md

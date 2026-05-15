@@ -14,27 +14,25 @@ Related:
 ## Current
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- active lane: `phase-293x MIR builder diet cleanup sidecar`
+- active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - phase status: read `phase_status` in `CURRENT_STATE.toml`
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - taskboard: read `taskboard` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - task breakdown:
-  `docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md`
-- cleanup boundary SSOT:
-  `docs/development/current/main/design/mir-builder-diet-flowplanner-boundary-ssot.md`
-- mimalloc blueprint SSOT (return lane after cleanup):
+  `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
+- mimalloc blueprint SSOT:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIR-SEMANTIC-PLANS-001 MIR plan/route/seed classification`
+- current blocker token: `MIMAP-021C facade page-source allocation-miss fallback`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after FLOWPLANNER-V0-001; next blocker is MIR-SEMANTIC-PLANS-001 MIR plan/route/seed classification; MIMAP-021C is parked until this cleanup sidecar closes
+- continue phase-293x after MIR-SEMANTIC-PLANS-001; next blocker is MIMAP-021C facade page-source allocation-miss fallback
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
@@ -49,8 +47,8 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/design/mir-builder-diet-flowplanner-boundary-ssot.md`
-3. `docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md`
+2. `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
+3. `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
 4. `docs/development/current/main/phases/phase-293x/README.md`
 5. `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
 6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`

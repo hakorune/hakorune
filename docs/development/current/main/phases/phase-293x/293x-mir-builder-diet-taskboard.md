@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Closed
 Date: 2026-05-15
 Lane: phase-293x MIR builder diet cleanup sidecar
 Canonical SSOT:
@@ -10,20 +10,23 @@ Canonical SSOT:
 
 ## Purpose
 
-This is a temporary BoxShape cleanup sidecar before returning to
-`MIMAP-021C`. It does not change allocator behavior, source semantics, release
-defaults, or backend routes.
+This was a temporary BoxShape cleanup sidecar before returning to `MIMAP-021C`.
+It did not change allocator behavior, source semantics, release defaults, or
+backend routes.
 
 ## Current Status
 
-Current primary row:
+Closeout:
 
 ```text
-MIR-SEMANTIC-PLANS-001
+MIRBUILDER-DIET-001 -> FLOWPLANNER-ENTRY-001 -> FLOWPLANNER-V0-001 -> MIR-SEMANTIC-PLANS-001 landed
 ```
 
-`MIMAP-021C` is parked until this sidecar pins the builder / FlowPlanner
-boundary strongly enough that the next mimalloc rows do not add more ambiguity.
+Return row:
+
+```text
+MIMAP-021C
+```
 
 ## Rows
 
@@ -32,7 +35,7 @@ boundary strongly enough that the next mimalloc rows do not add more ambiguity.
 | `MIRBUILDER-DIET-001` | landed | Open the sidecar, add the boundary SSOT, and update current pointers. | 1 commit |
 | `FLOWPLANNER-ENTRY-001` | landed | Inventory builder -> FlowPlanner public entries and document rejected bypasses. | 1 commit |
 | `FLOWPLANNER-V0-001` | landed | Add `loop_*_v0` retire/promote rules and no-new-v0 guard wording. | 1 commit |
-| `MIR-SEMANTIC-PLANS-001` | ready | Classify top-level MIR plan/route/seed owners as SemanticPlans without physical moves. | 1 commit |
+| `MIR-SEMANTIC-PLANS-001` | landed | Classify top-level MIR plan/route/seed owners as SemanticPlans without physical moves. | 1 commit |
 | `JOINIR-FENCE-001` | parked | Revisit JoinIR merge/bridge fence after FlowPlanner entry is stable. | later |
 
 ## Stop Lines
