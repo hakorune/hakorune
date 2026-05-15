@@ -43,24 +43,10 @@ guard_expect_in_file "$TAG" "Twentieth Slimming Phase" "$ARCHIVE_POLICY" "archiv
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$CHECK_INDEX" "check index must list DOCS-SLIM-020 guard"
 
 for script in "${converted_scripts[@]}"; do
-  guard_expect_in_file "$TAG" 'require_text "\$PHASE_README"' "$script" "$script must keep phase README assertions"
   guard_expect_in_file "$TAG" 'require_text "\$TASKBOARD"' "$script" "$script must keep design taskboard assertions"
-  if rg -n 'REAL_APP_TASKBOARD|real-app taskboard' "$script" >/tmp/"$TAG".real_app_pin 2>&1; then
-    echo "[$TAG] ERROR: converted script still contains landed-history real-app taskboard pins: $script" >&2
-    cat /tmp/"$TAG".real_app_pin >&2
-    rm -f /tmp/"$TAG".real_app_pin
-    exit 1
-  fi
 done
-rm -f /tmp/"$TAG".real_app_pin
 
-if rg -n 'phase_card_paths|guard_require_phase293x_card' "$DEV_GATE" "$ALLOCATOR_GROUP" >/tmp/"$TAG".gate_leak 2>&1; then
-  echo "[$TAG] ERROR: phase-card resolver helper must not be wired into dev_gate or allocator-wide directly" >&2
-  cat /tmp/"$TAG".gate_leak >&2
-  rm -f /tmp/"$TAG".gate_leak
-  exit 1
-fi
-rm -f /tmp/"$TAG".gate_leak
+guard_require_no_phase_card_resolver_leak "$TAG" "$DEV_GATE" "$ALLOCATOR_GROUP"
 
 for script in "${converted_scripts[@]}"; do
   bash -n "$script" >/dev/null

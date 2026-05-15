@@ -54,13 +54,7 @@ if rg -n 'PHASE_README|TASKBOARD|293x-90-real-app-taskboard|phase-293x/README' "
 fi
 rm -f /tmp/"$TAG".landed_pin
 
-if rg -n 'phase_card_paths|guard_require_phase293x_card' "$DEV_GATE" "$ALLOCATOR_GATE" >/tmp/"$TAG".gate_leak 2>&1; then
-  echo "[$TAG] ERROR: phase-card resolver helper must not be wired into dev_gate or allocator-wide directly" >&2
-  cat /tmp/"$TAG".gate_leak >&2
-  rm -f /tmp/"$TAG".gate_leak
-  exit 1
-fi
-rm -f /tmp/"$TAG".gate_leak
+guard_require_no_phase_card_resolver_leak "$TAG" "$DEV_GATE" "$ALLOCATOR_GATE"
 
 bash "$MANIFEST_GUARD" >/dev/null
 

@@ -338,6 +338,7 @@ tools/checks/env_dead_accessors_report.sh
 | `tools/checks/docs_slim_023_allocator_provider_readme_pin_decoupling_guard.sh` | DOCS-SLIM-023 の allocator provider proof/rollback/activation safety guard band phase README pin decoupling を固定する。 |
 | `tools/checks/docs_slim_024_production_allocator_port_readme_pin_decoupling_guard.sh` | DOCS-SLIM-024 の production allocator port / mimalloc closeout guard band phase README pin decoupling を固定する。 |
 | `tools/checks/docs_slim_025_docs_slim_card_metadata_helper_guard.sh` | DOCS-SLIM-025 の docs-slim card metadata helper extraction を固定する。 |
+| `tools/checks/docs_slim_026_phase_card_resolver_leak_helper_guard.sh` | DOCS-SLIM-026 の phase-card resolver leak helper extraction を固定する。 |
 | `tools/checks/lib/phase_card_paths.sh` | phase-293x card resolver helper。live root path を優先し、将来の archive bucket path も解決できる薄い lookup helper。 |
 - `tools/checks/k2_wide_delegate_parser_capsule_guard.sh` - DEL-002 Stage0 delegate parser/metadata capsule guard.
 - `tools/checks/k2_wide_delegate_exposes_lowering_guard.sh` - DEL-003 delegate exposes Stage1 forwarding lowering guard.

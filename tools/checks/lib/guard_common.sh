@@ -64,6 +64,22 @@ guard_require_docs_slim_card_metadata() {
     guard_expect_in_file "$tag" "$self_script" "$check_index" "check index must list $doc_tag guard"
 }
 
+guard_require_no_phase_card_resolver_leak() {
+    local tag="$1"
+    local dev_gate="$2"
+    local allocator_gate="$3"
+
+    local leak
+    leak="$(mktemp "/tmp/${tag}.phase-card-leak.XXXXXX")"
+    if rg -n 'phase_card_paths|guard_require_phase293x_card' "$dev_gate" "$allocator_gate" >"$leak" 2>&1; then
+        echo "[${tag}] ERROR: phase-card resolver helper must not be wired into dev_gate or allocator-wide directly" >&2
+        cat "$leak" >&2
+        rm -f "$leak"
+        exit 1
+    fi
+    rm -f "$leak"
+}
+
 guard_timeout_run() {
     local tag="$1"
     local seconds="$2"

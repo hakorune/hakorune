@@ -427,3 +427,14 @@ band phase README pin decoupling:
 - keep the per-script landed-history pin assertions and gate-leak checks in
   place
 - do not physically move old cards yet
+
+## Twenty-sixth Slimming Phase
+
+`DOCS-SLIM-026` owns the phase-card resolver leak helper extraction:
+
+- add a shared helper for repeated phase-card resolver leak checks
+- convert the DOCS-SLIM-004/005/006/007/008/009/010/013/014/015/016/017/
+  018/019/020/021/022/023/024 guards to use the helper
+- keep the per-row landed-history pin assertions and card metadata checks in
+  place
+- do not physically move old cards yet
