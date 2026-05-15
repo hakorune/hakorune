@@ -191,3 +191,16 @@ Physical archive moves are `DOCS-SLIM-002+`.
   `guard_require_phase293x_card`
 - keep lifecycle / parser / hako_alloc behavior unchanged
 - do not physically move old cards yet
+
+## Eighth Slimming Phase
+
+`DOCS-SLIM-008` owns the recent cleanup guard resolver adoption:
+
+- convert `k2_wide_looprange_ast_rename_guard.sh` to use
+  `guard_require_phase293x_card`
+- convert `k2_wide_loopclean_while_parser_facade_guard.sh` to use
+  `guard_require_phase293x_card`
+- convert `k2_wide_clean_stage1_lowering_stmt_split_guard.sh` to use
+  `guard_require_phase293x_card`
+- keep parser / Stage1 lowering behavior unchanged
+- do not physically move old cards yet
