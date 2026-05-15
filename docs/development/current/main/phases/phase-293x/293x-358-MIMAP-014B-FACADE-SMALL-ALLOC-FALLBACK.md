@@ -1,6 +1,6 @@
 # 293x-358 MIMAP-014B Facade Small Allocation Fallback
 
-Status: ready
+Status: landed
 Date: 2026-05-15
 
 ## Decision
@@ -64,6 +64,37 @@ Required guard evidence:
 ```text
 [mimap014b-mir-json] ok
 [k2-wide-mimalloc-facade-small-alloc-fallback-exe] ok
+```
+
+## Implementation
+
+`HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc(size)` now accepts
+both queue selection kinds used by the object lifecycle queue:
+
+- kind `1`: reusable page, calling `HakoAllocPageModel.reuse()` before
+  `acquire(size)`
+- kind `2`: active page fallback, calling `acquire(size)` directly
+
+The proof keeps the selected page object inside the queue/facade route and reads
+only scalar observers for page id, selected kind, miss reason, and success.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_mimalloc_facade_small_alloc_fallback_exe_guard.sh
+[mimap014b-mir-json] ok
+[k2-wide-mimalloc-facade-small-alloc-fallback-exe] ok
+
+bash tools/checks/k2_wide_mimalloc_facade_small_alloc_exe_guard.sh
+[mimap014a-mir-json] ok
+[k2-wide-mimalloc-facade-small-alloc-exe] ok
+
+bash tools/checks/k2_wide_mimalloc_facade_object_lifecycle_queue_exe_guard.sh
+[mimap013-mir-json] ok
+[k2-wide-mimalloc-facade-object-lifecycle-queue-exe] ok
+
+bash tools/checks/dev_gate.sh quick
+[dev-gate] profile=quick ok
 ```
 
 ## Stop Lines

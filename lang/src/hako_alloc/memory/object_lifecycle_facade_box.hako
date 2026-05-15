@@ -40,9 +40,12 @@ box HakoAllocObjectLifecycleFacade {
 
         me.last_alloc_page_id = me.object_lifecycle_queue.last_selected_page_id
 
-        if me.object_lifecycle_queue.last_selected_kind != 1 {
-            me.last_alloc_reason = 2
-            return 0
+        local selected_kind = me.object_lifecycle_queue.last_selected_kind
+        if selected_kind != 1 {
+            if selected_kind != 2 {
+                me.last_alloc_reason = 2
+                return 0
+            }
         }
 
         local pages = me.object_lifecycle_queue.pages
@@ -52,9 +55,11 @@ box HakoAllocObjectLifecycleFacade {
             return 0
         }
 
-        if page.reuse() == 0 {
-            me.last_alloc_reason = 3
-            return 0
+        if selected_kind == 1 {
+            if page.reuse() == 0 {
+                me.last_alloc_reason = 3
+                return 0
+            }
         }
 
         local block_id = page.acquire(size)

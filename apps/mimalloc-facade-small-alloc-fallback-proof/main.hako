@@ -1,0 +1,57 @@
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+
+static box Main {
+    main(args) {
+        local reusable = new HakoAllocPageModel(50, 8, 1, 1)
+        local old_block = reusable.acquire(8)
+        reusable.releaseLocal(old_block)
+        local active = new HakoAllocPageModel(60, 8, 1, 1)
+
+        local alloc = new HakoAllocObjectLifecycleFacade()
+        alloc.objectLifecycleAddPage(reusable)
+        alloc.objectLifecycleAddPage(active)
+
+        local reusable_ok = alloc.objectLifecycleSmallAlloc(8)
+        local reusable_page = alloc.objectLifecycleAllocPageId()
+        local reusable_kind = alloc.objectLifecycleSelectedKind()
+
+        local active_ok = alloc.objectLifecycleSmallAlloc(8)
+        local active_page = alloc.objectLifecycleAllocPageId()
+        local active_kind = alloc.objectLifecycleSelectedKind()
+
+        local miss_ok = alloc.objectLifecycleSmallAlloc(8)
+        local miss_reason = alloc.objectLifecycleAllocReason()
+        local miss_kind = alloc.objectLifecycleSelectedKind()
+
+        print("mimalloc-facade-small-alloc-fallback-proof")
+        print("reusable_page=" + reusable_page)
+        print("active_page=" + active_page)
+        print("miss_reason=" + miss_reason)
+        print("kinds=" + reusable_kind + "," + active_kind + "," + miss_kind)
+
+        if reusable_ok == 1 {
+            if active_ok == 1 {
+                if miss_ok == 0 {
+                    if reusable_page == 50 {
+                        if active_page == 60 {
+                            if miss_reason == 1 {
+                                if reusable_kind == 1 {
+                                    if active_kind == 2 {
+                                        if miss_kind == 0 {
+                                            print("summary=ok")
+                                            return 0
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -98,7 +98,7 @@ FST:
 | `MIMAP-012` | landed | Object-backed lifecycle queue LLVM route pilot; `ArrayBox` retains page objects and returns selected page. | 1 commit |
 | `MIMAP-013` | landed | Facade composition over object-backed lifecycle queue. | after MIMAP-012 |
 | `MIMAP-014A` | landed | Single-page small allocation fast-path over the facade-owned object lifecycle queue. | after MIMAP-013 |
-| `MIMAP-014B` | ready | Reusable-page preference, active-page fallback, and allocation miss reason. | after MIMAP-014A |
+| `MIMAP-014B` | landed | Reusable-page preference, active-page fallback, and allocation miss reason. | after MIMAP-014A |
 | `MIMAP-014C` | ready | Allocation fast-path stats observers. | after MIMAP-014B |
 | `MIMAP-015A` | ready | Release/free one known block through the facade. | after MIMAP-014C |
 | `MIMAP-015B` | ready | Double-release / stale-release fail-fast route. | after MIMAP-015A |
