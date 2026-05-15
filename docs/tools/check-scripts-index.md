@@ -319,6 +319,7 @@ tools/checks/env_dead_accessors_report.sh
 | `tools/checks/docs_slim_004_activation_closeout_resolver_guard.sh` | DOCS-SLIM-004 の allocator-provider activation closeout guard resolver adoption を固定する。 |
 | `tools/checks/docs_slim_005_production_closeout_resolver_guard.sh` | DOCS-SLIM-005 の production allocator port closeout guard resolver adoption を固定する。 |
 | `tools/checks/docs_slim_006_m10c_runtime_decl_resolver_guard.sh` | DOCS-SLIM-006 の M10c runtime-decl guard resolver adoption を固定する。 |
+| `tools/checks/docs_slim_007_lifecycle_ladder_resolver_guard.sh` | DOCS-SLIM-007 の lifecycle birth / parser birth / reuse lifecycle ladder guard resolver adoption を固定する。 |
 | `tools/checks/lib/phase_card_paths.sh` | phase-293x card resolver helper。live root path を優先し、将来の archive bucket path も解決できる薄い lookup helper。 |
 - `tools/checks/k2_wide_delegate_parser_capsule_guard.sh` - DEL-002 Stage0 delegate parser/metadata capsule guard.
 - `tools/checks/k2_wide_delegate_exposes_lowering_guard.sh` - DEL-003 delegate exposes Stage1 forwarding lowering guard.

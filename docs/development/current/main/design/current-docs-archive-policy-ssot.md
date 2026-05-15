@@ -176,3 +176,18 @@ Physical archive moves are `DOCS-SLIM-002+`.
   embedded Python checker via environment variables
 - do not change runtime-decl manifests or return-proof semantics
 - do not physically move old cards yet
+
+## Seventh Slimming Phase
+
+`DOCS-SLIM-007` owns the lifecycle ladder resolver adoption:
+
+- convert `k2_wide_lifecycle_birth_new_only_guard.sh` to use
+  `guard_require_phase293x_card`
+- convert `k2_wide_parser_birth_direct_call_guard.sh` to use
+  `guard_require_phase293x_card`
+- convert `k2_wide_parser_birth_diagnostic_hint_guard.sh` to use
+  `guard_require_phase293x_card`
+- convert `k2_wide_reuse_lifecycle_explicit_methods_guard.sh` to use
+  `guard_require_phase293x_card`
+- keep lifecycle / parser / hako_alloc behavior unchanged
+- do not physically move old cards yet
