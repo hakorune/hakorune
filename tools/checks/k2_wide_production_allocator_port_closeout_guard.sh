@@ -4,9 +4,11 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-production-allocator-port-closeout"
 cd "$ROOT_DIR"
+source tools/checks/lib/guard_common.sh
+source tools/checks/lib/phase_card_paths.sh
 
 TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
-CARD="docs/development/current/main/phases/phase-293x/293x-103-M51-PRODUCTION-ALLOCATOR-PORT-CLOSEOUT-GUARD.md"
+CARD="$(guard_require_phase293x_card "$TAG" "293x-103-M51-PRODUCTION-ALLOCATOR-PORT-CLOSEOUT-GUARD.md")"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
@@ -70,13 +72,17 @@ required_guards=(
   "tools/checks/k2_wide_production_allocator_port_entry_plan_guard.sh"
 )
 
-required_cards=(
-  "docs/development/current/main/phases/phase-293x/293x-098-M46-HAKO-ALLOC-PRODUCTION-FACADE-BOUNDARY.md"
-  "docs/development/current/main/phases/phase-293x/293x-099-M47-ALLOCATOR-LOCAL-PAGE-POLICY-PROOF.md"
-  "docs/development/current/main/phases/phase-293x/293x-100-M48-ALLOCATOR-REMOTE-FREE-POLICY-PROOF.md"
-  "docs/development/current/main/phases/phase-293x/293x-101-M49-ALLOCATOR-OSVM-PAGE-SOURCE-PROOF.md"
-  "docs/development/current/main/phases/phase-293x/293x-102-M50-ALLOCATOR-STRESS-PRODUCTION-FACADE-PARITY.md"
+required_card_files=(
+  "293x-098-M46-HAKO-ALLOC-PRODUCTION-FACADE-BOUNDARY.md"
+  "293x-099-M47-ALLOCATOR-LOCAL-PAGE-POLICY-PROOF.md"
+  "293x-100-M48-ALLOCATOR-REMOTE-FREE-POLICY-PROOF.md"
+  "293x-101-M49-ALLOCATOR-OSVM-PAGE-SOURCE-PROOF.md"
+  "293x-102-M50-ALLOCATOR-STRESS-PRODUCTION-FACADE-PARITY.md"
 )
+required_cards=()
+for card_file in "${required_card_files[@]}"; do
+  required_cards+=("$(guard_require_phase293x_card "$TAG" "$card_file")")
+done
 
 for app in "${required_apps[@]}"; do
   require_dir "$app"

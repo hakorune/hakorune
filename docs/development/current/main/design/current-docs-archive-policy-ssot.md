@@ -152,3 +152,13 @@ Physical archive moves are `DOCS-SLIM-002+`.
 - keep production allocator port closeout and other direct-reference guards for
   later rows
 - do not physically move old cards yet
+
+## Fifth Slimming Phase
+
+`DOCS-SLIM-005` owns the production allocator port closeout resolver adoption:
+
+- convert `k2_wide_production_allocator_port_closeout_guard.sh` to use
+  `guard_require_phase293x_card`
+- remove direct M46-M51 phase-card paths from that script
+- keep phase README / taskboard proof assertions unchanged
+- do not physically move old cards yet
