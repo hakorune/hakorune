@@ -9,12 +9,13 @@ source "$ROOT_DIR/tools/checks/lib/pure_first_exe_guard.sh"
 APP="apps/mimalloc-facade-realloc-grow-proof/main.hako"
 APP_README="apps/mimalloc-facade-realloc-grow-proof/README.md"
 FACADE="lang/src/hako_alloc/memory/object_lifecycle_facade_box.hako"
+REASON="lang/src/hako_alloc/memory/object_lifecycle_facade_reason_box.hako"
 PAGE="lang/src/hako_alloc/memory/page_box.hako"
 CARD="docs/development/current/main/phases/phase-293x/293x-365-MIMAP-017B-REALLOC-GROW-MOVE.md"
 INDEX="docs/tools/check-scripts-index.md"
 README="lang/src/hako_alloc/memory/README.md"
 
-for path in "$APP" "$APP_README" "$FACADE" "$PAGE" "$CARD" "$INDEX" "$README"; do
+for path in "$APP" "$APP_README" "$FACADE" "$REASON" "$PAGE" "$CARD" "$INDEX" "$README"; do
   [[ -f "$path" ]] || { echo "[$TAG] ERROR: missing required file: $path" >&2; exit 1; }
 done
 
@@ -28,8 +29,10 @@ rg -F -q 'objectLifecycleReallocGrowFromPage(page, page_id, block_id, requested_
 rg -F -q 'objectLifecycleReallocGrow(page_id, block_id, requested_size)' "$FACADE"
 rg -F -q 'local alloc_ok = me.objectLifecycleSmallAlloc(requested_size)' "$FACADE"
 rg -F -q 'local release_ok = me.objectLifecycleReleaseBlock(page_id, block_id)' "$FACADE"
-rg -F -q 'return me.recordReallocFailure(6)' "$FACADE"
-rg -F -q 'return me.recordReallocFailure(7)' "$FACADE"
+rg -F -q 'return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_alloc_failed())' "$FACADE"
+rg -F -q 'return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_release_failed())' "$FACADE"
+rg -F -q 'realloc_alloc_failed()' "$REASON"
+rg -F -q 'realloc_release_failed()' "$REASON"
 rg -F -q 'objectLifecycleReallocNewPageId()' "$FACADE"
 rg -F -q 'objectLifecycleReallocNewBlockId()' "$FACADE"
 rg -F -q 'MIMAP-017B' "$CARD"

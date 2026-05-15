@@ -1,0 +1,74 @@
+// object_lifecycle_facade_reason_box.hako -- facade result reason-code SSOT
+// Responsibility: name stable scalar observer reason codes for the
+// object-lifecycle facade. This module must not allocate, scan pages, mutate
+// allocator state, or add fallback behavior.
+
+static box HakoAllocObjectLifecycleFacadeReason {
+    ok() {
+        return 0
+    }
+
+    small_no_page() {
+        return 1
+    }
+
+    small_bad_selected_kind() {
+        return 2
+    }
+
+    small_reuse_failed() {
+        return 3
+    }
+
+    small_acquire_failed() {
+        return 4
+    }
+
+    small_alignment_unsupported() {
+        return 5
+    }
+
+    release_no_page() {
+        return 1
+    }
+
+    release_bad_block() {
+        return 2
+    }
+
+    release_page_reject() {
+        return 3
+    }
+
+    alignment_unsupported() {
+        return 1
+    }
+
+    realloc_no_page() {
+        return 1
+    }
+
+    realloc_bad_block() {
+        return 2
+    }
+
+    realloc_bad_size() {
+        return 3
+    }
+
+    realloc_direction_unsupported() {
+        return 4
+    }
+
+    realloc_stale_block() {
+        return 5
+    }
+
+    realloc_alloc_failed() {
+        return 6
+    }
+
+    realloc_release_failed() {
+        return 7
+    }
+}

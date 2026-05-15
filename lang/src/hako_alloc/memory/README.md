@@ -31,6 +31,7 @@ Current modules
 - `page_queue_box.hako`
 - `object_lifecycle_page_queue_box.hako`
 - `object_lifecycle_facade_box.hako`
+- `object_lifecycle_facade_reason_box.hako`
 - `page_lifecycle_invariant_box.hako`
 - `page_queue_lifecycle_box.hako`
 - `page_source_policy_box.hako`
@@ -82,10 +83,12 @@ Syntax/style contract
   store one `HakoAllocObjectLifecyclePageQueue`, forward add/select object-page
   operations, prefer a selected reusable page, fall back to one selected active
   page, call `HakoAllocPageModel.acquire(size)`, release one known `(page id,
-  block id)` through `HakoAllocPageModel.releaseLocal(block_id)`, and expose
-  read-only scalar observer data including miss/release reason and facade-local
-  allocation counters. It may surface double-release and stale-page rejection as
-  scalar fail-fast reasons without adding page-map lookup. It may record one
+  block id)` through `HakoAllocPageModel.releaseLocal(block_id)`, find that page
+  only through the facade-local `objectLifecycleKnownPageIndexById(page_id)`
+  scan of already-owned queue slots, and expose read-only scalar observer data
+  including miss/release reason and facade-local allocation counters. It may surface
+  double-release and stale-page rejection as scalar fail-fast reasons without
+  adding page-map lookup or arbitrary pointer resolution. It may record one
   alignment request, normalize it through `HakoAllocAlignmentPolicy`, expose
   requested/normalized/reason/supported scalar metadata, and route supported
   aligned small allocations through the existing small allocation path. It may
@@ -97,6 +100,32 @@ Syntax/style contract
   hooks, remote-free execution, host allocator replacement, arbitrary page-map
   lookup, padded pointer arithmetic, unregister/register behavior, or backend
   shortcuts.
+- `object_lifecycle_facade_reason_box.hako` is the MIMAP-FACADE-CLEAN-001
+  Reason-code SSOT for `object_lifecycle_facade_box.hako` scalar observers. It
+  may name stable integer result reasons for allocation, release, alignment, and
+  realloc result capsules, but it must not scan pages, allocate, release,
+  normalize alignment, mutate allocator state, read page-map ownership, or add
+  fallback behavior. The current reason families are:
+
+  | Family | Reason method | Code | Meaning |
+  | --- | --- | ---: | --- |
+  | common | `ok()` | 0 | Last operation succeeded or reset state is clear. |
+  | small allocation | `small_no_page()` | 1 | No selected page or selected page object is unavailable. |
+  | small allocation | `small_bad_selected_kind()` | 2 | Queue selected neither reusable nor active page kind. |
+  | small allocation | `small_reuse_failed()` | 3 | Reusable page reactivation rejected. |
+  | small allocation | `small_acquire_failed()` | 4 | Page-local acquire returned no block. |
+  | small allocation | `small_alignment_unsupported()` | 5 | Alignment request failed before normal small allocation. |
+  | release | `release_no_page()` | 1 | Page id is invalid or not in the facade-owned known-page scan. |
+  | release | `release_bad_block()` | 2 | Block id is invalid. |
+  | release | `release_page_reject()` | 3 | Known page rejected the local release. |
+  | alignment | `alignment_unsupported()` | 1 | Alignment policy rejected the request. |
+  | realloc | `realloc_no_page()` | 1 | Page id is invalid or not in the facade-owned known-page scan. |
+  | realloc | `realloc_bad_block()` | 2 | Block id is invalid. |
+  | realloc | `realloc_bad_size()` | 3 | Requested size is invalid. |
+  | realloc | `realloc_direction_unsupported()` | 4 | Requested size does not match the shrink/grow route direction. |
+  | realloc | `realloc_stale_block()` | 5 | Old block is outside reserved range or not live. |
+  | realloc | `realloc_alloc_failed()` | 6 | Replacement allocation failed. |
+  | realloc | `realloc_release_failed()` | 7 | Old known block release failed after replacement allocation. |
 - `osvm_backed_fast_path_heap_box.hako` is the M168 composition owner. It may
   reserve/commit/decommit through `HakoAllocPageSourcePolicy`, then reuse the
   same page queue and page-local free-list owners. It must not add OSVM metal,

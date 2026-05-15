@@ -4,6 +4,7 @@
 
 using selfhost.hako_alloc.memory.object_lifecycle_page_queue_box as HakoAllocObjectLifecyclePageQueueBox
 using selfhost.hako_alloc.memory.alignment_policy_box as HakoAllocAlignmentPolicy
+using selfhost.hako_alloc.memory.object_lifecycle_facade_reason_box as HakoAllocObjectLifecycleFacadeReason
 
 box HakoAllocObjectLifecycleFacade {
     object_lifecycle_queue: HakoAllocObjectLifecyclePageQueue = new HakoAllocObjectLifecyclePageQueue()
@@ -44,7 +45,7 @@ box HakoAllocObjectLifecycleFacade {
     resetSmallAllocResult() {
         me.last_alloc_page_id = -1
         me.last_alloc_block_id = -1
-        me.last_alloc_reason = 0
+        me.last_alloc_reason = HakoAllocObjectLifecycleFacadeReason.ok()
         me.last_alloc_ok = 0
         return 1
     }
@@ -56,7 +57,7 @@ box HakoAllocObjectLifecycleFacade {
     }
 
     recordSmallAllocSuccess(selected_kind) {
-        me.last_alloc_reason = 0
+        me.last_alloc_reason = HakoAllocObjectLifecycleFacadeReason.ok()
         me.last_alloc_ok = 1
         me.small_alloc_success_count = me.small_alloc_success_count + 1
         if selected_kind == 1 {
@@ -75,7 +76,7 @@ box HakoAllocObjectLifecycleFacade {
         me.object_lifecycle_queue.selectPage()
         local selected_index = me.object_lifecycle_queue.last_selected_index
         if selected_index < 0 {
-            return me.recordSmallAllocFailure(1)
+            return me.recordSmallAllocFailure(HakoAllocObjectLifecycleFacadeReason.small_no_page())
         }
 
         me.last_alloc_page_id = me.object_lifecycle_queue.last_selected_page_id
@@ -83,19 +84,19 @@ box HakoAllocObjectLifecycleFacade {
         local selected_kind = me.object_lifecycle_queue.last_selected_kind
         if selected_kind != 1 {
             if selected_kind != 2 {
-                return me.recordSmallAllocFailure(2)
+                return me.recordSmallAllocFailure(HakoAllocObjectLifecycleFacadeReason.small_bad_selected_kind())
             }
         }
 
         local pages = me.object_lifecycle_queue.pages
         local page = pages.get(selected_index)
         if page == null {
-            return me.recordSmallAllocFailure(1)
+            return me.recordSmallAllocFailure(HakoAllocObjectLifecycleFacadeReason.small_no_page())
         }
 
         if selected_kind == 1 {
             if page.reuse() == 0 {
-                return me.recordSmallAllocFailure(3)
+                return me.recordSmallAllocFailure(HakoAllocObjectLifecycleFacadeReason.small_reuse_failed())
             }
         }
 
@@ -103,7 +104,7 @@ box HakoAllocObjectLifecycleFacade {
         me.last_alloc_block_id = block_id
 
         if block_id < 0 {
-            return me.recordSmallAllocFailure(4)
+            return me.recordSmallAllocFailure(HakoAllocObjectLifecycleFacadeReason.small_acquire_failed())
         }
 
         return me.recordSmallAllocSuccess(selected_kind)
@@ -112,7 +113,7 @@ box HakoAllocObjectLifecycleFacade {
     resetReleaseResult() {
         me.last_release_page_id = -1
         me.last_release_block_id = -1
-        me.last_release_reason = 0
+        me.last_release_reason = HakoAllocObjectLifecycleFacadeReason.ok()
         me.last_release_ok = 0
         return 1
     }
@@ -125,9 +126,36 @@ box HakoAllocObjectLifecycleFacade {
     recordReleaseSuccess(page_id, block_id) {
         me.last_release_page_id = page_id
         me.last_release_block_id = block_id
-        me.last_release_reason = 0
+        me.last_release_reason = HakoAllocObjectLifecycleFacadeReason.ok()
         me.last_release_ok = 1
         return 1
+    }
+
+    objectLifecycleKnownPageIndexById(page_id) {
+        local pages = me.object_lifecycle_queue.pages
+
+        local page0 = pages.get(0)
+        if page0 != null {
+            if page0.page_id == page_id {
+                return 0
+            }
+        }
+
+        local page1 = pages.get(1)
+        if page1 != null {
+            if page1.page_id == page_id {
+                return 1
+            }
+        }
+
+        local page2 = pages.get(2)
+        if page2 != null {
+            if page2.page_id == page_id {
+                return 2
+            }
+        }
+
+        return -1
     }
 
     objectLifecycleReleaseBlock(page_id, block_id) {
@@ -136,51 +164,32 @@ box HakoAllocObjectLifecycleFacade {
         me.last_release_block_id = block_id
 
         if page_id < 0 {
-            return me.recordReleaseFailure(1)
+            return me.recordReleaseFailure(HakoAllocObjectLifecycleFacadeReason.release_no_page())
         }
         if block_id < 0 {
-            return me.recordReleaseFailure(2)
+            return me.recordReleaseFailure(HakoAllocObjectLifecycleFacadeReason.release_bad_block())
         }
 
-        local pages = me.object_lifecycle_queue.pages
-
-        local page0 = pages.get(0)
-        if page0 != null {
-            if page0.page_id == page_id {
-                if page0.releaseLocal(block_id) == 1 {
-                    return me.recordReleaseSuccess(page_id, block_id)
-                }
-                return me.recordReleaseFailure(3)
+        local known_index = me.objectLifecycleKnownPageIndexById(page_id)
+        if known_index >= 0 {
+            local pages = me.object_lifecycle_queue.pages
+            local page = pages.get(known_index)
+            if page == null {
+                return me.recordReleaseFailure(HakoAllocObjectLifecycleFacadeReason.release_no_page())
             }
-        }
-
-        local page1 = pages.get(1)
-        if page1 != null {
-            if page1.page_id == page_id {
-                if page1.releaseLocal(block_id) == 1 {
-                    return me.recordReleaseSuccess(page_id, block_id)
-                }
-                return me.recordReleaseFailure(3)
+            if page.releaseLocal(block_id) == 1 {
+                return me.recordReleaseSuccess(page_id, block_id)
             }
+            return me.recordReleaseFailure(HakoAllocObjectLifecycleFacadeReason.release_page_reject())
         }
 
-        local page2 = pages.get(2)
-        if page2 != null {
-            if page2.page_id == page_id {
-                if page2.releaseLocal(block_id) == 1 {
-                    return me.recordReleaseSuccess(page_id, block_id)
-                }
-                return me.recordReleaseFailure(3)
-            }
-        }
-
-        return me.recordReleaseFailure(1)
+        return me.recordReleaseFailure(HakoAllocObjectLifecycleFacadeReason.release_no_page())
     }
 
     resetAlignmentResult() {
         me.last_alignment_requested = -1
         me.last_alignment_normalized = -1
-        me.last_alignment_reason = 0
+        me.last_alignment_reason = HakoAllocObjectLifecycleFacadeReason.ok()
         me.last_alignment_supported = 0
         return 1
     }
@@ -196,7 +205,7 @@ box HakoAllocObjectLifecycleFacade {
     recordAlignmentSuccess(requested, normalized) {
         me.last_alignment_requested = requested
         me.last_alignment_normalized = normalized
-        me.last_alignment_reason = 0
+        me.last_alignment_reason = HakoAllocObjectLifecycleFacadeReason.ok()
         me.last_alignment_supported = 1
         return 1
     }
@@ -206,7 +215,7 @@ box HakoAllocObjectLifecycleFacade {
 
         local normalized = HakoAllocAlignmentPolicy.normalize_alignment(alignment)
         if normalized < 0 {
-            return me.recordAlignmentFailure(alignment, 1)
+            return me.recordAlignmentFailure(alignment, HakoAllocObjectLifecycleFacadeReason.alignment_unsupported())
         }
 
         return me.recordAlignmentSuccess(alignment, normalized)
@@ -217,7 +226,7 @@ box HakoAllocObjectLifecycleFacade {
         if alignment_ok == 0 {
             me.resetSmallAllocResult()
             me.small_alloc_attempt_count = me.small_alloc_attempt_count + 1
-            return me.recordSmallAllocFailure(5)
+            return me.recordSmallAllocFailure(HakoAllocObjectLifecycleFacadeReason.small_alignment_unsupported())
         }
 
         return me.objectLifecycleSmallAlloc(size)
@@ -229,7 +238,7 @@ box HakoAllocObjectLifecycleFacade {
         me.last_realloc_new_page_id = -1
         me.last_realloc_new_block_id = -1
         me.last_realloc_requested_size = 0
-        me.last_realloc_reason = 0
+        me.last_realloc_reason = HakoAllocObjectLifecycleFacadeReason.ok()
         me.last_realloc_ok = 0
         return 1
     }
@@ -246,7 +255,7 @@ box HakoAllocObjectLifecycleFacade {
         me.last_realloc_new_page_id = page_id
         me.last_realloc_new_block_id = block_id
         me.last_realloc_requested_size = requested_size
-        me.last_realloc_reason = 0
+        me.last_realloc_reason = HakoAllocObjectLifecycleFacadeReason.ok()
         me.last_realloc_ok = 1
         return 1
     }
@@ -257,33 +266,33 @@ box HakoAllocObjectLifecycleFacade {
         me.last_realloc_new_page_id = new_page_id
         me.last_realloc_new_block_id = new_block_id
         me.last_realloc_requested_size = requested_size
-        me.last_realloc_reason = 0
+        me.last_realloc_reason = HakoAllocObjectLifecycleFacadeReason.ok()
         me.last_realloc_ok = 1
         return 1
     }
 
     validateReallocShrinkPage(page, block_id, requested_size) {
         if requested_size > page.block_size {
-            return me.recordReallocFailure(4)
+            return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_direction_unsupported())
         }
         if block_id >= page.reserved {
-            return me.recordReallocFailure(5)
+            return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_stale_block())
         }
         if page.block_used.get(block_id) == 0 {
-            return me.recordReallocFailure(5)
+            return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_stale_block())
         }
         return me.recordReallocSuccess(page.page_id, block_id, requested_size)
     }
 
     validateReallocGrowOldPage(page, block_id, requested_size) {
         if requested_size <= page.block_size {
-            return me.recordReallocFailure(4)
+            return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_direction_unsupported())
         }
         if block_id >= page.reserved {
-            return me.recordReallocFailure(5)
+            return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_stale_block())
         }
         if page.block_used.get(block_id) == 0 {
-            return me.recordReallocFailure(5)
+            return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_stale_block())
         }
         return 1
     }
@@ -295,7 +304,7 @@ box HakoAllocObjectLifecycleFacade {
 
         local alloc_ok = me.objectLifecycleSmallAlloc(requested_size)
         if alloc_ok == 0 {
-            return me.recordReallocFailure(6)
+            return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_alloc_failed())
         }
 
         local new_page_id = me.objectLifecycleAllocPageId()
@@ -303,7 +312,7 @@ box HakoAllocObjectLifecycleFacade {
 
         local release_ok = me.objectLifecycleReleaseBlock(page_id, block_id)
         if release_ok == 0 {
-            return me.recordReallocFailure(7)
+            return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_release_failed())
         }
 
         return me.recordReallocMoveSuccess(page_id, block_id, new_page_id, new_block_id, requested_size)
@@ -316,39 +325,26 @@ box HakoAllocObjectLifecycleFacade {
         me.last_realloc_requested_size = requested_size
 
         if page_id < 0 {
-            return me.recordReallocFailure(1)
+            return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_no_page())
         }
         if block_id < 0 {
-            return me.recordReallocFailure(2)
+            return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_bad_block())
         }
         if requested_size <= 0 {
-            return me.recordReallocFailure(3)
+            return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_bad_size())
         }
 
-        local pages = me.object_lifecycle_queue.pages
-
-        local page0 = pages.get(0)
-        if page0 != null {
-            if page0.page_id == page_id {
-                return me.validateReallocShrinkPage(page0, block_id, requested_size)
+        local known_index = me.objectLifecycleKnownPageIndexById(page_id)
+        if known_index >= 0 {
+            local pages = me.object_lifecycle_queue.pages
+            local page = pages.get(known_index)
+            if page == null {
+                return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_no_page())
             }
+            return me.validateReallocShrinkPage(page, block_id, requested_size)
         }
 
-        local page1 = pages.get(1)
-        if page1 != null {
-            if page1.page_id == page_id {
-                return me.validateReallocShrinkPage(page1, block_id, requested_size)
-            }
-        }
-
-        local page2 = pages.get(2)
-        if page2 != null {
-            if page2.page_id == page_id {
-                return me.validateReallocShrinkPage(page2, block_id, requested_size)
-            }
-        }
-
-        return me.recordReallocFailure(1)
+        return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_no_page())
     }
 
     objectLifecycleReallocGrow(page_id, block_id, requested_size) {
@@ -358,39 +354,26 @@ box HakoAllocObjectLifecycleFacade {
         me.last_realloc_requested_size = requested_size
 
         if page_id < 0 {
-            return me.recordReallocFailure(1)
+            return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_no_page())
         }
         if block_id < 0 {
-            return me.recordReallocFailure(2)
+            return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_bad_block())
         }
         if requested_size <= 0 {
-            return me.recordReallocFailure(3)
+            return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_bad_size())
         }
 
-        local pages = me.object_lifecycle_queue.pages
-
-        local page0 = pages.get(0)
-        if page0 != null {
-            if page0.page_id == page_id {
-                return me.objectLifecycleReallocGrowFromPage(page0, page_id, block_id, requested_size)
+        local known_index = me.objectLifecycleKnownPageIndexById(page_id)
+        if known_index >= 0 {
+            local pages = me.object_lifecycle_queue.pages
+            local page = pages.get(known_index)
+            if page == null {
+                return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_no_page())
             }
+            return me.objectLifecycleReallocGrowFromPage(page, page_id, block_id, requested_size)
         }
 
-        local page1 = pages.get(1)
-        if page1 != null {
-            if page1.page_id == page_id {
-                return me.objectLifecycleReallocGrowFromPage(page1, page_id, block_id, requested_size)
-            }
-        }
-
-        local page2 = pages.get(2)
-        if page2 != null {
-            if page2.page_id == page_id {
-                return me.objectLifecycleReallocGrowFromPage(page2, page_id, block_id, requested_size)
-            }
-        }
-
-        return me.recordReallocFailure(1)
+        return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_no_page())
     }
 
     objectLifecyclePageCount() {

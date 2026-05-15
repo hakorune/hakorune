@@ -1,6 +1,6 @@
 # 293x-366 MIMAP-FACADE-CLEAN-001 Result SSOT TODO
 
-Status: ready
+Status: in progress
 Date: 2026-05-15
 
 ## Decision
@@ -21,16 +21,23 @@ allocation behavior.
   - release result
   - alignment result
   - realloc result
-- [ ] Move facade reason-code tables into one SSOT:
+- [x] Move facade reason-code tables into one SSOT:
   - either a tracked README table next to `object_lifecycle_facade_box.hako`
   - or a tiny `object_lifecycle_facade_reason_box.hako` if source-level
     constants become useful
-- [ ] Deduplicate the facade-local known-page scan used by release/realloc
+- [x] Deduplicate the facade-local known-page scan used by release/realloc
   without introducing page-map lookup or arbitrary pointer resolution.
 - [ ] Commonize allocator-facade guard forbidden-pattern wording where it
   reduces drift, while keeping row-specific stop lines readable.
-- [ ] Update `lang/src/hako_alloc/memory/README.md` so future agents can see
+- [x] Update `lang/src/hako_alloc/memory/README.md` so future agents can see
   the facade boundary, reason SSOT, and cleanup stop lines from one entry.
+
+## Landed slices
+
+- `293x-376` adds `object_lifecycle_facade_reason_box.hako`, routes facade
+  failure/success reason writes through that SSOT, and centralizes the
+  release/realloc known-page scan in
+  `objectLifecycleKnownPageIndexById(page_id)`.
 
 ## Non-goals
 

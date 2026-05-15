@@ -9,13 +9,14 @@ source "$ROOT_DIR/tools/checks/lib/pure_first_exe_guard.sh"
 APP="apps/mimalloc-facade-aligned-alloc-proof/main.hako"
 APP_README="apps/mimalloc-facade-aligned-alloc-proof/README.md"
 FACADE="lang/src/hako_alloc/memory/object_lifecycle_facade_box.hako"
+REASON="lang/src/hako_alloc/memory/object_lifecycle_facade_reason_box.hako"
 ALIGNMENT="lang/src/hako_alloc/memory/alignment_policy_box.hako"
 PAGE="lang/src/hako_alloc/memory/page_box.hako"
 CARD="docs/development/current/main/phases/phase-293x/293x-363-MIMAP-016B-ALIGNED-ALLOC-SUCCESS-FAIL.md"
 INDEX="docs/tools/check-scripts-index.md"
 README="lang/src/hako_alloc/memory/README.md"
 
-for path in "$APP" "$APP_README" "$FACADE" "$ALIGNMENT" "$PAGE" "$CARD" "$INDEX" "$README"; do
+for path in "$APP" "$APP_README" "$FACADE" "$REASON" "$ALIGNMENT" "$PAGE" "$CARD" "$INDEX" "$README"; do
   [[ -f "$path" ]] || { echo "[$TAG] ERROR: missing required file: $path" >&2; exit 1; }
 done
 
@@ -23,15 +24,16 @@ rg -F -q 'using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox' "$APP"
 rg -F -q 'using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox' "$APP"
 rg -F -q 'objectLifecycleSmallAllocAligned(size, alignment)' "$FACADE"
 rg -F -q 'objectLifecycleRecordAlignmentRequest(alignment)' "$FACADE"
-rg -F -q 'return me.recordSmallAllocFailure(5)' "$FACADE"
+rg -F -q 'return me.recordSmallAllocFailure(HakoAllocObjectLifecycleFacadeReason.small_alignment_unsupported())' "$FACADE"
+rg -F -q 'small_alignment_unsupported()' "$REASON"
 rg -F -q 'return me.objectLifecycleSmallAlloc(size)' "$FACADE"
 rg -F -q 'HakoAllocAlignmentPolicy.normalize_alignment(alignment)' "$FACADE"
 rg -F -q 'MIMAP-016B' "$CARD"
 rg -F -q 'MIMAP-016B' "$README"
 rg -F -q 'k2_wide_mimalloc_facade_aligned_alloc_exe_guard.sh' "$INDEX"
 
-if rg -n 'aligned_good_size[A-Za-z0-9_]*\(|padded_request_size[A-Za-z0-9_]*\(|PageMap|page_map|lookup\(|realloc[A-Za-z0-9_]*\(|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(' "$FACADE" >/tmp/"$TAG".forbidden 2>&1; then
-  echo "[$TAG] ERROR: MIMAP-016B facade must not activate padded/native/page-map/realloc/substrate/provider behavior" >&2
+if rg -n 'aligned_good_size[A-Za-z0-9_]*\(|padded_request_size[A-Za-z0-9_]*\(|PageMap|page_map|lookup\(|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(' "$FACADE" >/tmp/"$TAG".forbidden 2>&1; then
+  echo "[$TAG] ERROR: MIMAP-016B facade must not activate padded/native/page-map/substrate/provider behavior" >&2
   cat /tmp/"$TAG".forbidden >&2
   rm -f /tmp/"$TAG".forbidden
   exit 1
