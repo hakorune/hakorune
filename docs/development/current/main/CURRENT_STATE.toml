@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-16"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-022B facade huge-request fail-fast routing landed; MIMAP-022C post-huge-failfast row selection is current. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-022C selected MIMAP-023A facade huge-page model route as current. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-435-MIMAP-022C-POST-HUGE-FAILFAST-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-436-MIMAP-023A-FACADE-HUGE-PAGE-MODEL-ROUTE.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-434-MIMAP-022B-FACADE-HUGE-REQUEST-FAILFAST-ROUTING"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-434-MIMAP-022B-FACADE-HUGE-REQUEST-FAILFAST-ROUTING.md"
-latest_card_summary = "MIMAP-022B adds a facade huge-request fail-fast route before the MIMAP-021C allocation-miss fallback while keeping huge page models, page-map lookup, provider hooks, and host allocator replacement inactive."
+latest_card = "293x-435-MIMAP-022C-POST-HUGE-FAILFAST-ROW-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-435-MIMAP-022C-POST-HUGE-FAILFAST-ROW-SELECTION.md"
+latest_card_summary = "MIMAP-022C selects MIMAP-023A facade huge-page model route, reusing the existing M180 huge-page model through a facade-facing route while keeping huge release, page-map lookup, provider hooks, and host allocator replacement inactive."
 
-current_blocker_token = "MIMAP-022C"
+current_blocker_token = "MIMAP-023A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-435 MIMAP-022C post-huge-failfast row selection landed",
   "293x-434 MIMAP-022B facade huge-request fail-fast routing landed",
   "293x-404 MIMAP-022A post-lifecycle row selection landed",
   "293x-433 DOCS-SLIM-026 phase-card resolver leak helper extraction landed",

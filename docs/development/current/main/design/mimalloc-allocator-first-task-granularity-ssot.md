@@ -142,6 +142,7 @@ Forbidden:
 | `MIMAP-022A` | post-lifecycle allocator row selection | lifecycle construction/reuse cleanup rows are closed |
 | `MIMAP-022B` | facade huge-request fail-fast routing | MIMAP-022A selects the facade huge-request boundary |
 | `MIMAP-022C` | post-huge-failfast allocator row selection | MIMAP-022B is green |
+| `MIMAP-023A` | facade huge-page model route | MIMAP-022C selects the facade huge-page model seam |
 
 ### MIMAP-020A granularity
 
@@ -207,9 +208,25 @@ realloc, alignment, purge/reclaim/decommit/recommit execution, remote-free,
 TLS, atomic behavior, page-map lookup, provider hooks, host allocator
 replacement, or `#[global_allocator]`.
 
-MIMAP-022C is the next planning-only row. It must pick exactly one post-huge
-allocator behavior slice and record the owner, proof app, guard, and stop
-lines before implementation begins.
+MIMAP-022C is a planning-only row. It selects exactly one post-huge allocator
+behavior slice and records the owner, proof app, guard, and stop lines before
+implementation begins.
+
+### MIMAP-023A granularity
+
+MIMAP-023A is the selected behavior row. It should add one narrow
+object-lifecycle facade route that proves:
+
+```text
+request size classification through the MIMAP-022B threshold
+huge request -> existing HakoAllocHugePageModel allocation
+non-huge request -> existing MIMAP-022B / MIMAP-021C forwarding
+```
+
+The row must reuse the existing M180 huge-page model owner. It must not add a
+new huge page model, huge release/unregister/unreserve/decommit behavior,
+page-map lookup route, provider hooks, host allocator replacement, or
+`#[global_allocator]`.
 
 ## Compiler / language sidecar triggers
 

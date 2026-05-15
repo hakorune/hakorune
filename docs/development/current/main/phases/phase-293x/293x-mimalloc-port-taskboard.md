@@ -28,11 +28,11 @@ guard are pinned, the facade page-source allocation-miss fallback is green, and
 the internal worker identity, TLS cache-slot, atomic route guard, and
 remote-free / abandoned-owner policy, thread-safe `hako_mem` ABI, and native
 multi-worker substrate stress rows are now live. The facade huge-request
-fail-fast routing row is green. The current primary row moves to post-huge
-row selection:
+fail-fast routing row is green, and MIMAP-022C selected the next huge-path row.
+The current primary row moves to the facade huge-page model route:
 
 ```text
-  MIMAP-022C post-huge-failfast row selection
+  MIMAP-023A facade huge-page model route
 ```
 
 Closed cleanup sidecar:
@@ -108,8 +108,12 @@ MIMAP-022B:
   landed
   facade huge-request fail-fast routing is green
 MIMAP-022C:
+  landed
+  selected MIMAP-023A facade huge-page model route as the next allocator
+  behavior row
+MIMAP-023A:
   ready current
-  post-huge-failfast row selection is the current primary row
+  facade huge-page model route is the current primary row
 ```
 
 ## Active Source Policy
@@ -270,7 +274,8 @@ FST:
 | `MIMAP-021C` | landed | Facade page-source allocation-miss fallback. | after MIMAP-SUBSTRATE-CONC-002 |
 | `MIMAP-022A` | landed | Post-lifecycle allocator row selection. | after REUSE-LIFECYCLE-001 |
 | `MIMAP-022B` | landed | Facade huge-request fail-fast routing before page-source attach/retry. | after MIMAP-022A |
-| `MIMAP-022C` | ready current | Post-huge-failfast allocator row selection. | current |
+| `MIMAP-022C` | landed | Post-huge-failfast allocator row selection. | after MIMAP-022B |
+| `MIMAP-023A` | ready current | Facade huge-page model route using the existing M180 huge-page model owner. | current |
 
 MIMAP-020A execution order:
 
