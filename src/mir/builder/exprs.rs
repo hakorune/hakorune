@@ -230,8 +230,15 @@ impl super::MirBuilder {
                 constructors,
                 init_fields,
                 weak_fields,
+                is_sync,
                 ..
             } => {
+                if is_sync {
+                    return Err(format!(
+                        "[freeze:contract][mir_builder/sync_box_lowering_missing] box={} sync box serialized runtime behavior is owned by CONC-SYNCBOX-003",
+                        name
+                    ));
+                }
                 if is_static && name == "Main" {
                     // Special entry box: materialize main() as Program and lower others as static functions
                     self.build_static_main_box(name.clone(), methods.clone())

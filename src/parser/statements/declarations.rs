@@ -11,6 +11,13 @@ use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 
 impl NyashParser {
+    pub(super) fn is_sync_box_declaration_start(&self) -> bool {
+        matches!(
+            (&self.current_token().token_type, self.peek_token()),
+            (TokenType::IDENTIFIER(name), TokenType::BOX) if name == "sync"
+        )
+    }
+
     /// Parse declaration statement dispatch
     pub(super) fn parse_declaration_statement(&mut self) -> Result<ASTNode, ParseError> {
         match &self.current_token().token_type {

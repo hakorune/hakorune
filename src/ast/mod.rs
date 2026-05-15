@@ -522,6 +522,9 @@ pub enum ASTNode {
         extends: Vec<String>, // 🚀 Multi-delegation: Changed from Option<String> to Vec<String>
         implements: Vec<String>, // 実装するinterface名のリスト
         type_parameters: Vec<String>, // 🔥 ジェネリクス型パラメータ (例: ["T", "U"])
+        /// `sync box` source marker. Stage0 owns only parse/transport;
+        /// serialized method entry is a later verifier/runtime row.
+        is_sync: bool,
         /// 🔥 Static boxかどうかのフラグ
         is_static: bool,
         /// 🔥 Static初期化ブロック (static { ... })

@@ -212,6 +212,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         extends,
         implements,
         type_parameters,
+        is_sync: false,
         is_static: true, // 🔥 static boxフラグを設定
         static_init,     // 🔥 static初期化ブロック
         attrs,

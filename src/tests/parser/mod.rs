@@ -71,6 +71,8 @@ pub mod parser_semicolon;
 pub mod parser_static_box_members;
 #[path = "../parser_static_const_table.rs"]
 pub mod parser_static_const_table;
+#[path = "../parser_sync_box_surface.rs"]
+pub mod parser_sync_box_surface;
 #[path = "../parser_type_alias_surface.rs"]
 pub mod parser_type_alias_surface;
 #[path = "../parser_transition_surface.rs"]

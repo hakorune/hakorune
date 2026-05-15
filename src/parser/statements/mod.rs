@@ -347,6 +347,9 @@ impl NyashParser {
                 if self.is_task_scope_statement_start() {
                     return self.parse_task_scope_statement();
                 }
+                if self.is_sync_box_declaration_start() {
+                    return crate::parser::declarations::box_def::parse_sync_box_declaration(self);
+                }
                 self.parse_assignment_or_function_call()
             }
 

@@ -44,6 +44,7 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             extends,
             implements,
             type_parameters,
+            is_sync,
             is_static,
             static_init,
             attrs,
@@ -87,6 +88,7 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             "extends": extends,
             "implements": implements,
             "type_parameters": type_parameters,
+            "is_sync": is_sync,
             "is_static": is_static,
             "static_init": static_init.map(|stmts| stmts.into_iter().map(|s| ast_to_json(&s)).collect::<Vec<_>>()),
             "attrs": attrs_to_json(&attrs),
@@ -671,6 +673,10 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                             .collect::<Vec<_>>()
                     })
                     .unwrap_or_default(),
+                is_sync: v
+                    .get("is_sync")
+                    .and_then(|b| b.as_bool())
+                    .unwrap_or(false),
                 is_static: v
                     .get("is_static")
                     .and_then(|b| b.as_bool())

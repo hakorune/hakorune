@@ -65,11 +65,15 @@ pub(super) fn index_declarations(builder: &mut MirBuilder, node: &ASTNode) {
             methods,
             is_static,
             is_record,
+            is_sync,
             init_fields,
             weak_fields,
             type_parameters,
             ..
         } => {
+            if *is_sync {
+                return;
+            }
             if *is_record {
                 builder.comp_ctx.register_record_decl(
                     name.clone(),

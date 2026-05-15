@@ -137,6 +137,7 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
         extends: vec![], // Multi-delegation: None → vec![] として表現
         implements: vec![],
         type_parameters,
+        is_sync: false,
         is_static: false,  // インターフェースは非static
         static_init: None, // インターフェースにstatic initなし
         attrs,

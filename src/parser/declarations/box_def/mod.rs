@@ -169,6 +169,37 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
         });
     }
     p.advance(); // consume BOX or FLOW
+    parse_box_declaration_after_box_keyword(p, false)
+}
+
+/// Parse canonical `sync box Name { ... }`.
+///
+/// `sync` remains contextual: only the `sync box` statement head is special.
+/// Runtime serialization is intentionally not implemented by this parser row.
+pub fn parse_sync_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
+    let TokenType::IDENTIFIER(name) = &p.current_token().token_type else {
+        return Err(ParseError::UnexpectedToken {
+            found: p.current_token().token_type.clone(),
+            expected: "`sync box`".to_string(),
+            line: p.current_token().line,
+        });
+    };
+    if name != "sync" {
+        return Err(ParseError::UnexpectedToken {
+            found: p.current_token().token_type.clone(),
+            expected: "`sync box`".to_string(),
+            line: p.current_token().line,
+        });
+    }
+    p.advance(); // consume contextual `sync`
+    p.consume(TokenType::BOX)?;
+    parse_box_declaration_after_box_keyword(p, true)
+}
+
+fn parse_box_declaration_after_box_keyword(
+    p: &mut NyashParser,
+    is_sync: bool,
+) -> Result<ASTNode, ParseError> {
     let attrs = p.take_pending_runes_for_box()?;
     let (name, type_parameters, extends, implements) = header::parse_header(p)?;
 
@@ -389,6 +420,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
         extends,
         implements,
         type_parameters,
+        is_sync,
         is_static: false,  // 通常のboxはnon-static
         static_init: None, // 通常のboxはstatic初期化ブロックなし
         attrs,
@@ -501,6 +533,7 @@ pub fn parse_record_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseErr
         extends: vec![],
         implements: vec![],
         type_parameters,
+        is_sync: false,
         is_static: false,
         static_init: None,
         attrs,

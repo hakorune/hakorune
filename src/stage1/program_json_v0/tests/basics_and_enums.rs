@@ -78,6 +78,27 @@ return 0
 }
 
 #[test]
+fn source_to_program_json_v0_rejects_sync_box_until_runtime_rows() {
+    let source = r#"
+sync box Counter {
+  value: i64
+}
+
+static box Main {
+  main() {
+return 0
+  }
+}
+"#;
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("sync box must not silently lower as ordinary box");
+    assert!(
+        error.contains("[program_json_v0/sync_box_not_supported]"),
+        "{error}"
+    );
+}
+
+#[test]
 fn source_to_program_json_v0_supports_static_method_call() {
     let source = r#"
 static box Driver {

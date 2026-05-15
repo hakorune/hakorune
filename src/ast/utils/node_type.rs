@@ -18,6 +18,7 @@ impl ASTNode {
             ASTNode::BoxDeclaration {
                 is_record: true, ..
             } => "RecordDeclaration",
+            ASTNode::BoxDeclaration { is_sync: true, .. } => "SyncBoxDeclaration",
             ASTNode::BoxDeclaration { .. } => "BoxDeclaration",
             ASTNode::EnumDeclaration { .. } => "EnumDeclaration",
             ASTNode::BrandDeclaration { .. } => "BrandDeclaration",

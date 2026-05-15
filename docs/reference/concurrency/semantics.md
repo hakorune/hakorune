@@ -20,7 +20,7 @@ kept only as provenance in phase logs and execution ledgers.
 | `nowait` / `await` | yes | yes | yes | CONC-1..4 done for Phase-0 future/await parity. |
 | `Channel` | yes | scaffold | not active | Boundary model requires await-visible `send` / `recv` / `close`; runtime wait integration is later. |
 | `co` / `task_scope` | yes | scaffold | scaffold | `co` is the preferred source spelling; `task_scope` remains compatibility/runtime wording. |
-| `sync box` | yes | no | no | Preferred shared-mutable Boundary surface; verifier/runtime rows are later. |
+| `sync box` | yes | no | no | Parser/AST JSON capsule is active; verifier/runtime rows are later. |
 | `lock<T>` | provisional | no | no | Implementation concept / historical design spelling; not the preferred canonical surface. |
 | `context` / `scoped` | yes | no | no | `context` is the preferred surface name; `scoped` is historical/provisional wording. |
 | `worker_local` | yes | no | no | Design-only/cache-only model; not a semantic mechanism. |

@@ -315,6 +315,7 @@ impl ASTNode {
                 constructors,
                 is_interface,
                 is_record,
+                is_sync,
                 extends,
                 implements,
                 ..
@@ -323,6 +324,14 @@ impl ASTNode {
                     format!("RecordDeclaration({}, {} fields", name, fields.len())
                 } else if *is_interface {
                     format!("InterfaceBox({}, {} methods", name, methods.len())
+                } else if *is_sync {
+                    format!(
+                        "SyncBoxDeclaration({}, {} fields, {} methods, {} constructors",
+                        name,
+                        fields.len(),
+                        methods.len(),
+                        constructors.len()
+                    )
                 } else {
                     format!(
                         "BoxDeclaration({}, {} fields, {} methods, {} constructors",

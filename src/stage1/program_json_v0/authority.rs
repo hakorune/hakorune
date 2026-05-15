@@ -63,6 +63,7 @@ fn ast_to_program_json_v0_with_imports(
             imports.len()
         );
     }
+    reject_sync_box_decls(ast)?;
     generic_arity_checker::check_generic_arities(ast)?;
     packed_array_eligibility_checker::check_packed_array_eligibility(ast)?;
     let brand_decl_index = collect_brand_decl_index(ast);
@@ -155,6 +156,26 @@ fn ast_to_program_json_v0_with_imports(
         );
     }
     serde_json::to_string(&program).map_err(|error| format!("serialize error: {}", error))
+}
+
+fn reject_sync_box_decls(ast: &ASTNode) -> Result<(), String> {
+    let ASTNode::Program { statements, .. } = ast else {
+        return Ok(());
+    };
+    for statement in statements {
+        if let ASTNode::BoxDeclaration {
+            name,
+            is_sync: true,
+            ..
+        } = statement
+        {
+            return Err(format!(
+                "[freeze:contract][program_json_v0/sync_box_not_supported] box={} sync box Program JSON lowering is owned by CONC-SYNCBOX runtime rows",
+                name
+            ));
+        }
+    }
+    Ok(())
 }
 
 fn collect_user_box_decls(ast: &ASTNode) -> Vec<serde_json::Value> {
