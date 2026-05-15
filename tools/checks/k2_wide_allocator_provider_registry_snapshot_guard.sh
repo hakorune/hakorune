@@ -14,7 +14,6 @@ TASK_BREAKDOWN="docs/development/current/main/design/allocator-provider-current-
 TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-129-M77-ALLOCATOR-PROVIDER-REGISTRY-SNAPSHOT.md"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
-REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
@@ -45,7 +44,6 @@ require_file "$TASK_BREAKDOWN"
 require_file "$TASKBOARD"
 require_file "$CARD"
 require_file "$PHASE_README"
-require_file "$REAL_APP_TASKBOARD"
 require_file "$INDEX"
 require_file "$DEV_GATE"
 require_file "$ALLOCATOR_GROUP"
@@ -64,7 +62,6 @@ require_text "$TASK_BREAKDOWN" "M77 | registry snapshot diagnostic shape"
 require_text "$TASKBOARD" '| `M77 allocator provider registry snapshot` | `live-docs` |'
 require_text "$TASKBOARD" '100. `M77 allocator provider registry snapshot`'
 require_text "$PHASE_README" '`293x-129`'
-require_text "$REAL_APP_TASKBOARD" '[x] `293x-129` M77 allocator provider registry snapshot'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_registry_snapshot_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_registry_snapshot_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_registry_snapshot_guard.sh"

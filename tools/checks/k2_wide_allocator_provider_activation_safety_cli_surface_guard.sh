@@ -19,7 +19,6 @@ TASK_BREAKDOWN="docs/development/current/main/design/allocator-provider-current-
 TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-136-M84-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-CLI-SURFACE.md"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
-REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
@@ -61,7 +60,6 @@ require_file "$TASK_BREAKDOWN"
 require_file "$TASKBOARD"
 require_file "$CARD"
 require_file "$PHASE_README"
-require_file "$REAL_APP_TASKBOARD"
 require_file "$INDEX"
 require_file "$DEV_GATE"
 require_file "$ALLOCATOR_GROUP"
@@ -105,7 +103,6 @@ require_text "$TASKBOARD" '| `M84 allocator provider activation safety CLI surfa
 require_text "$TASKBOARD" '107. `M84 allocator provider activation safety CLI surface`'
 require_text "$CARD" "293x-136 M84 Allocator Provider Activation Safety CLI Surface"
 require_text "$PHASE_README" '`293x-136`'
-require_text "$REAL_APP_TASKBOARD" '[x] `293x-136` M84 allocator provider activation safety CLI surface'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_activation_safety_cli_surface_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_activation_safety_cli_surface_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_activation_safety_cli_surface_guard.sh"

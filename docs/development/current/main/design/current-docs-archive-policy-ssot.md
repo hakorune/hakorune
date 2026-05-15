@@ -300,3 +300,43 @@ decoupling:
 - keep hook, dry-run, and activation behavior unchanged
 - keep the README-only decoupling from `DOCS-SLIM-015` intact
 - do not physically move old cards yet
+
+## Seventeenth Slimming Phase
+
+`DOCS-SLIM-017` owns the allocator provider guard band README pin decoupling:
+
+- remove landed-history phase README pins from the allocator provider guard
+  band
+- keep card status, design taskboard, implementation checks, and check-index
+  assertions
+- keep provider boundary, manifest, and task-breakdown behavior unchanged
+- keep the taskboard-pin decoupling for a follow-up row
+- do not physically move old cards yet
+
+## Eighteenth Slimming Phase
+
+`DOCS-SLIM-018` owns the allocator provider guard band real-app taskboard pin
+decoupling:
+
+- remove landed-history real-app taskboard pins from the allocator provider
+  guard band
+- keep card status, phase README, implementation checks, and check-index
+  assertions
+- keep provider boundary, manifest, and task-breakdown behavior unchanged
+- keep the README-only decoupling from `DOCS-SLIM-017` intact
+- do not physically move old cards yet
+
+## Nineteenth Slimming Phase
+
+`DOCS-SLIM-019` owns the allocator provider proof/registry guard band real-app
+taskboard pin decoupling:
+
+- remove landed-history real-app taskboard pins from the allocator provider
+  proof/registry guard band
+- keep card status, phase README, implementation checks, and check-index
+  assertions
+- keep provider proof, registry, activation-entry, selection, and proof-bundle
+  behavior unchanged
+- keep the README-only decoupling from `DOCS-SLIM-017` and the 018 taskboard
+  decoupling intact
+- do not physically move old cards yet

@@ -4,13 +4,14 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-allocator-provider-manifest-vocab"
 cd "$ROOT_DIR"
+source tools/checks/lib/guard_common.sh
+source tools/checks/lib/phase_card_paths.sh
 source tools/checks/lib/allocator_provider_forbidden_patterns.sh
 
 SSOT="docs/development/current/main/design/allocator-provider-manifest-v0-ssot.md"
 MANIFEST="docs/development/current/main/design/allocator-provider-manifest-v0.toml"
 TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
-CARD="docs/development/current/main/phases/phase-293x/293x-117-M65-ALLOCATOR-PROVIDER-MANIFEST-VOCAB.md"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
+CARD="$(guard_require_phase293x_card "$TAG" "293x-117-M65-ALLOCATOR-PROVIDER-MANIFEST-VOCAB.md")"
 REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
@@ -39,7 +40,6 @@ require_file "$SSOT"
 require_file "$MANIFEST"
 require_file "$TASKBOARD"
 require_file "$CARD"
-require_file "$PHASE_README"
 require_file "$REAL_APP_TASKBOARD"
 require_file "$CURRENT_STATE"
 require_file "$INDEX"
@@ -56,7 +56,6 @@ require_text "$MANIFEST" 'provider_id = "hako_model_allocator"'
 require_text "$MANIFEST" 'provider_id = "debug_guarded_allocator"'
 require_text "$TASKBOARD" '| `M65 allocator provider manifest vocabulary` | `live-docs` |'
 require_text "$TASKBOARD" '88. `M65 allocator provider manifest vocabulary`'
-require_text "$PHASE_README" '`293x-117`'
 require_text "$REAL_APP_TASKBOARD" '`293x-117` M65 allocator provider manifest vocabulary'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_manifest_vocab_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_manifest_vocab_guard.sh"

@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-05-15"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "DOCS-SLIM-016 landed the allocator hook guard band real-app taskboard pin decoupling. Current row remains MIMAP-022A post-lifecycle row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "DOCS-SLIM-019 landed the allocator provider proof/registry guard band real-app taskboard pin decoupling. Current row remains MIMAP-022A post-lifecycle row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
 phase_status = "docs/development/current/main/phases/phase-293x/293x-404-MIMAP-022A-POST-LIFECYCLE-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-423-DOCS-SLIM-016-ALLOCATOR-HOOK-TASKBOARD-PIN-DECOUPLING"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-423-DOCS-SLIM-016-ALLOCATOR-HOOK-TASKBOARD-PIN-DECOUPLING.md"
-latest_card_summary = "DOCS-SLIM-016 removes landed-history real-app taskboard pins from the allocator hook guard band while keeping design taskboard assertions."
+latest_card = "293x-426-DOCS-SLIM-019-ALLOCATOR-PROVIDER-PROOF-REGISTRY-TASKBOARD-PIN-DECOUPLING"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-426-DOCS-SLIM-019-ALLOCATOR-PROVIDER-PROOF-REGISTRY-TASKBOARD-PIN-DECOUPLING.md"
+latest_card_summary = "DOCS-SLIM-019 removes landed-history real-app taskboard pins from the allocator provider proof/registry band while keeping phase README assertions."
 
 current_blocker_token = "MIMAP-022A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,9 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-426 DOCS-SLIM-019 allocator provider proof/registry taskboard pin decoupling landed",
+  "293x-425 DOCS-SLIM-018 allocator provider taskboard pin decoupling landed",
+  "293x-424 DOCS-SLIM-017 allocator provider README pin decoupling landed",
   "293x-423 DOCS-SLIM-016 allocator hook taskboard pin decoupling landed",
   "293x-422 DOCS-SLIM-015 allocator hook README pin decoupling landed",
   "293x-421 DOCS-SLIM-014 packed record taskboard pin decoupling landed",
@@ -38,6 +41,4 @@ landed_tail = [
   "293x-416 DOCS-SLIM-009 C197-C200 proof surface resolver adoption landed",
   "293x-415 DOCS-SLIM-008 recent cleanup guard resolver adoption landed",
   "293x-414 DOCS-SLIM-007 lifecycle ladder resolver adoption landed",
-  "293x-413 DOCS-SLIM-006 M10c runtime-decl resolver adoption landed",
-  "293x-412 DOCS-SLIM-005 production closeout resolver adoption landed",
 ]
