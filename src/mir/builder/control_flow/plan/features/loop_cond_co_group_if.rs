@@ -183,11 +183,10 @@ pub(super) fn lower_continue_if_nested_loop(
     let (loop_condition, loop_body) = match inner_loop_node {
         ASTNode::Loop {
             condition, body, ..
-        }
- => (condition.as_ref(), body.as_slice()),
-        ASTNode::ForRange { .. } => {
+        } => (condition.as_ref(), body.as_slice()),
+        ASTNode::LoopRange { .. } => {
             return Err(format!(
-                "{LOOP_COND_CONTINUE_ONLY_ERR}: ForRange in nested loop not supported"
+                "{LOOP_COND_CONTINUE_ONLY_ERR}: LoopRange in nested loop not supported"
             ));
         }
         _ => {

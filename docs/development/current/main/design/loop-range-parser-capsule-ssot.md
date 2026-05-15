@@ -38,7 +38,7 @@ Stage0 owns only parser and metadata transport:
 
 ```text
 parse loop range header
-store it as the existing ForRange AST metadata node
+store it as the LoopRange AST metadata node
 transport it as LoopRange JSON metadata
 accept paren-less condition loop headers: loop cond { ... }
 ```
@@ -73,5 +73,27 @@ end-exclusive range, step=1, continue behavior, and diagnostics.
 
 Decision: accepted on 2026-05-15 by `CLEAN-FOR-001`. Canonical range loops use
 `loop i in start..end`; legacy `for i in start..end` remains Stage-3 gated
-compatibility input only. Both paths emit the same `ASTNode::ForRange` metadata
+compatibility input only. Both paths emit the same `ASTNode::LoopRange` metadata
 shape and must not gain separate lowering semantics.
+
+## Internal AST rename
+
+Decision: accepted on 2026-05-15 by `LOOPCLEAN-005`.
+
+The old `ASTNode::ForRange` name was retained from the compatibility `for`
+surface even after the canonical source moved to `loop i in start..end`. The
+internal AST node is now `ASTNode::LoopRange`.
+
+Compatibility rule:
+
+```text
+JSON emit:
+  LoopRange only
+
+JSON decode:
+  LoopRange canonical
+  ForRange legacy compatibility input
+```
+
+This is a naming cleanup only. LoopRange remains a metadata-bearing range-loop
+node and is not merged into plain `ASTNode::Loop`.

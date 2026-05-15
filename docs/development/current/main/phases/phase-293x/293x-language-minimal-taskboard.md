@@ -37,6 +37,7 @@ docs/development/current/main/design/language-minimal-surface-task-breakdown-sso
 - [x] `RESULT-002D` generic enum expected-type diagnostics
 - [x] `GUARDLET-001` guard-let pattern sugar after Result/Option diagnostics
 - [x] `PACKED-002` PackedArray non-escaping auto-use pilot
+- [x] `LOOPCLEAN-005` internal ForRange-to-LoopRange AST rename
 
 ## Current split rows
 
@@ -45,7 +46,6 @@ docs/development/current/main/design/language-minimal-surface-task-breakdown-sso
 ## Blocked / deferred rows
 
 - [ ] `LOOP-004` canonical loop formatter/docs
-- [ ] `LOOPCLEAN-005` internal ForRange-to-LoopRange rename decision
 
 ## Stop lines
 

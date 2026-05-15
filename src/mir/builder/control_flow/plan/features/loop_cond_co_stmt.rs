@@ -291,8 +291,7 @@ pub(super) fn lower_stmt_ast(
         )),
         ASTNode::Loop {
             condition, body, ..
-        }
- => {
+        } => {
             // Phase 29bq: Allow nested loops in group-if body (e.g., hex-parsing loop in _decode_escapes)
             let plan = lower_nested_loop_depth1_any(
                 builder,
@@ -304,11 +303,11 @@ pub(super) fn lower_stmt_ast(
             sync_carrier_bindings(builder, current_bindings, carrier_phis);
             Ok(vec![plan])
         }
-        ASTNode::ForRange { .. } => {
-            // ForRange has a different structure; delegate to nested_loop_depth1 via a match.
+        ASTNode::LoopRange { .. } => {
+            // LoopRange has a different structure; delegate to nested_loop_depth1 via a match.
             // For now, reject as unsupported; can be expanded if needed.
             Err(format!(
-                "{LOOP_COND_CONTINUE_ONLY_ERR}: nested ForRange out-of-scope"
+                "{LOOP_COND_CONTINUE_ONLY_ERR}: nested LoopRange out-of-scope"
             ))
         }
         _ => Err(format!(

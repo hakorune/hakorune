@@ -166,7 +166,7 @@ fn contains_exit_outside_nested_loops(stmts: &[ASTNode]) -> bool {
                         return true;
                     }
                 }
-                ASTNode::Loop { .. } | ASTNode::ForRange { .. } => {}
+                ASTNode::Loop { .. } | ASTNode::LoopRange { .. } => {}
                 _ => {}
             }
         }

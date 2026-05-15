@@ -163,8 +163,7 @@ impl AstOwnershipAnalyzer {
 
             ASTNode::Loop {
                 condition, body, ..
-            }
- => {
+            } => {
                 let loop_scope = self.alloc_scope(ScopeKind::Loop, Some(current_scope));
                 self.push_env();
                 let result: Result<(), String> = (|| {
@@ -179,7 +178,7 @@ impl AstOwnershipAnalyzer {
                 self.propagate_to_parent(loop_scope);
             }
 
-            ASTNode::ForRange {
+            ASTNode::LoopRange {
                 var_name,
                 start,
                 end,

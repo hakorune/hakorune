@@ -120,7 +120,7 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_continue_only_facts(
 fn has_top_level_nested_loop(body: &[ASTNode]) -> bool {
     for stmt in body {
         match stmt {
-            ASTNode::Loop { .. } | ASTNode::ForRange { .. } => {
+            ASTNode::Loop { .. } | ASTNode::LoopRange { .. } => {
                 return true;
             }
             _ => {}
@@ -147,8 +147,7 @@ fn has_continue_in_if_with_else(body: &[ASTNode]) -> bool {
                 }
                 then_body.iter().any(scan) || else_body.as_ref().is_some_and(|b| b.iter().any(scan))
             }
-            ASTNode::Loop { body, .. }
-            | ASTNode::ForRange { body, .. } => body.iter().any(scan),
+            ASTNode::Loop { body, .. } | ASTNode::LoopRange { body, .. } => body.iter().any(scan),
             ASTNode::ScopeBox { body, .. } => body.iter().any(scan),
             _ => false,
         }
@@ -359,8 +358,9 @@ fn prelude_has_illegal_return(body: &[ASTNode]) -> bool {
                         .is_some_and(|b| b.iter().any(|s| scan(s, true)))
             }
             ASTNode::ScopeBox { body, .. } => body.iter().any(|s| scan(s, in_if)),
-            ASTNode::Loop { body, .. }
-            | ASTNode::ForRange { body, .. } => body.iter().any(|s| scan(s, in_if)),
+            ASTNode::Loop { body, .. } | ASTNode::LoopRange { body, .. } => {
+                body.iter().any(|s| scan(s, in_if))
+            }
             _ => false,
         }
     }
@@ -388,7 +388,7 @@ fn group_if_fallthrough_is_allowed(body: &ContinueOnlyRecipe) -> bool {
                     ASTNode::Local { .. }
                     | ASTNode::If { .. }
                     | ASTNode::Loop { .. }
-                    | ASTNode::ForRange { .. } => {}
+                    | ASTNode::LoopRange { .. } => {}
                     _ => return false,
                 }
             }
@@ -408,7 +408,7 @@ fn try_extract_continue_if_nested_loop(
     let mut loop_idx = None;
     for (idx, stmt) in prelude.iter().enumerate() {
         match stmt {
-            ASTNode::Loop { .. } | ASTNode::ForRange { .. } => {
+            ASTNode::Loop { .. } | ASTNode::LoopRange { .. } => {
                 if loop_idx.is_some() {
                     // Multiple loops - not supported
                     log_reject(

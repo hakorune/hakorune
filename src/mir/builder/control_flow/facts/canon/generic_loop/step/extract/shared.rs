@@ -35,8 +35,7 @@ pub(in crate::mir::builder) fn collect_assigned_var_names(
                 collect_assigned_var_names(stmt, out);
             }
         }
-        ASTNode::Loop { body, .. }
-        | ASTNode::ForRange { body, .. } => {
+        ASTNode::Loop { body, .. } | ASTNode::LoopRange { body, .. } => {
             for stmt in body {
                 collect_assigned_var_names(stmt, out);
             }

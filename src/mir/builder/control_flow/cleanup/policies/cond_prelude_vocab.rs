@@ -29,9 +29,7 @@ pub(in crate::mir::builder) fn classify_cond_prelude_stmt(
         ASTNode::Local { .. } => Some(CondPreludeStmtKind::Local),
         ASTNode::Assignment { .. } => Some(CondPreludeStmtKind::Assignment),
         ASTNode::If { .. } => Some(CondPreludeStmtKind::If),
-        ASTNode::Loop { .. } | ASTNode::ForRange { .. } => {
-            Some(CondPreludeStmtKind::Loop)
-        }
+        ASTNode::Loop { .. } | ASTNode::LoopRange { .. } => Some(CondPreludeStmtKind::Loop),
         ASTNode::MethodCall { .. } => Some(CondPreludeStmtKind::MethodCall),
         ASTNode::FunctionCall { .. } => Some(CondPreludeStmtKind::FunctionCall),
         ASTNode::Print { .. } => Some(CondPreludeStmtKind::Print),
@@ -41,7 +39,7 @@ pub(in crate::mir::builder) fn classify_cond_prelude_stmt(
 
 pub(in crate::mir::builder) fn stmt_has_loop_like_stmt(stmt: &ASTNode) -> bool {
     match stmt {
-        ASTNode::Loop { .. } | ASTNode::ForRange { .. } => true,
+        ASTNode::Loop { .. } | ASTNode::LoopRange { .. } => true,
         ASTNode::If {
             then_body,
             else_body,

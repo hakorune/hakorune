@@ -326,7 +326,7 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                 .collect::<Vec<_>>(),
             span: Span::unknown(),
         },
-        "LoopRange" | "ForRange" => ASTNode::ForRange {
+        "LoopRange" | "ForRange" => ASTNode::LoopRange {
             var_name: v.get("var_name")?.as_str()?.to_string(),
             start: Box::new(json_to_ast(v.get("start")?)?),
             end: Box::new(json_to_ast(v.get("end")?)?),

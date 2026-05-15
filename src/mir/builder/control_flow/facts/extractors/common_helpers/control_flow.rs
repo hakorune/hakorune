@@ -65,8 +65,7 @@ pub(crate) fn count_control_flow(
             ASTNode::Return { .. } if detector.count_returns => {
                 counts.return_count += 1;
             }
-            ASTNode::Loop { body, .. }
-            | ASTNode::ForRange { body, .. } => {
+            ASTNode::Loop { body, .. } | ASTNode::LoopRange { body, .. } => {
                 counts.has_nested_loop = true;
                 // Skip nested loop bodies if configured
                 if detector.skip_nested_control_flow {

@@ -125,10 +125,10 @@ box Scan {
         let body = find_method_body(&ast, "Scan", "run");
         let range_stmt = body
             .iter()
-            .find(|stmt| matches!(stmt, ASTNode::ForRange { .. }))
+            .find(|stmt| matches!(stmt, ASTNode::LoopRange { .. }))
             .expect("loop range statement must exist");
 
-        let ASTNode::ForRange {
+        let ASTNode::LoopRange {
             var_name,
             start,
             end,
@@ -136,7 +136,7 @@ box Scan {
             ..
         } = range_stmt
         else {
-            panic!("expected ForRange metadata node");
+            panic!("expected LoopRange metadata node");
         };
 
         assert_eq!(var_name, "i");
@@ -173,11 +173,14 @@ box Scan {
         let body = find_method_body(&ast, "Scan", "run");
         let range_stmt = body
             .iter()
-            .find(|stmt| matches!(stmt, ASTNode::ForRange { .. }))
+            .find(|stmt| matches!(stmt, ASTNode::LoopRange { .. }))
             .expect("loop range statement must exist");
 
-        let ASTNode::ForRange { var_name, start, .. } = range_stmt else {
-            panic!("expected ForRange metadata node");
+        let ASTNode::LoopRange {
+            var_name, start, ..
+        } = range_stmt
+        else {
+            panic!("expected LoopRange metadata node");
         };
         assert_eq!(var_name, "i");
         assert!(matches!(
@@ -208,17 +211,17 @@ box Scan {
         let body = find_method_body(&ast, "Scan", "run");
         let range_stmt = body
             .iter()
-            .find(|stmt| matches!(stmt, ASTNode::ForRange { .. }))
+            .find(|stmt| matches!(stmt, ASTNode::LoopRange { .. }))
             .expect("legacy for range statement must exist");
 
-        let ASTNode::ForRange {
+        let ASTNode::LoopRange {
             var_name,
             start,
             end,
             ..
         } = range_stmt
         else {
-            panic!("expected ForRange metadata node");
+            panic!("expected LoopRange metadata node");
         };
 
         assert_eq!(var_name, "i");

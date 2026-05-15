@@ -106,7 +106,7 @@ pub enum StepCapability {
     Throw,
     Lambda,
     While,
-    ForRange,
+    LoopRange,
     Match,
     Arrow,
 }

@@ -164,7 +164,7 @@ pub(in crate::mir::builder) fn build_block(
 /// - Expression-level If (value used) goes through build_expression
 ///
 /// # Note
-/// - While/ForRange will be delegated to Loop lowering in the future
+/// - While/LoopRange will be delegated to Loop lowering in the future
 /// - Currently delegates to build_expression like other specialized builders
 pub(in crate::mir::builder) fn build_statement(
     builder: &mut MirBuilder,
@@ -189,7 +189,7 @@ pub(in crate::mir::builder) fn build_statement(
             // Metadata-only declaration; execution observes no runtime statement.
             Ok(crate::mir::builder::emission::constant::emit_void(builder)?)
         }
-        // 将来ここに While / ForRange / Match / Using など statement 専用分岐を追加する。
+        // 将来ここに While / LoopRange / Match / Using など statement 専用分岐を追加する。
         other => builder.build_expression(other),
     }
 }

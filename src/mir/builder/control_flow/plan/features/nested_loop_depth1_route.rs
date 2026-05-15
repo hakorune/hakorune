@@ -193,9 +193,7 @@ fn nested_loop_body_is_simple(body: &[ASTNode]) -> bool {
                 }
             }
             ASTNode::Break { .. } | ASTNode::Continue { .. } | ASTNode::Return { .. } => {}
-            ASTNode::Loop { .. } | ASTNode::ForRange { .. } => {
-                return false
-            }
+            ASTNode::Loop { .. } | ASTNode::LoopRange { .. } => return false,
             _ => return false,
         }
     }

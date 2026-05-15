@@ -27,7 +27,7 @@ pub(super) struct ScopeInfo {
 /// This analyzer:
 /// - Treats `ASTNode::Local` as "definition" (no JSON v0 rebind hack)
 /// - Records writes via `ASTNode::Assignment` / `ASTNode::GroupedAssignmentExpr`
-/// - Treats `Loop/While/ForRange` and `If` conditions as `condition_reads`
+/// - Treats `Loop/While/LoopRange` and `If` conditions as `condition_reads`
 pub struct AstOwnershipAnalyzer {
     pub(super) scopes: BTreeMap<ScopeId, ScopeInfo>,
     pub(super) bindings: BTreeMap<BindingId, BindingInfo>,

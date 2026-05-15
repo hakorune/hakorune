@@ -116,13 +116,13 @@ fn rewrite(ast: ASTNode) -> ASTNode {
             body: body.into_iter().map(rewrite).collect(),
             span,
         },
-        ASTNode::ForRange {
+        ASTNode::LoopRange {
             var_name,
             start,
             end,
             body,
             span,
-        } => ASTNode::ForRange {
+        } => ASTNode::LoopRange {
             var_name,
             start: Box::new(rewrite(*start)),
             end: Box::new(rewrite(*end)),

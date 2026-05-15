@@ -123,7 +123,7 @@ loop {
 | `LOOPCLEAN-002 while parser normalization` | Complete as `293x-290`; new parsed `while` returns `Loop`; old JSON `While` remains compat decode. | BoxShape parser cleanup |
 | `LOOPCLEAN-003 while variant quarantine` | Complete as `293x-291`; quarantine `ASTNode::While` as legacy-only input and keep compat Program(JSON) Loop lowering. | BoxShape cleanup |
 | `LOOPCLEAN-004 range parser helper commonization` | Complete as `293x-292`; share range-header parsing between canonical `loop i in` and legacy `for i in`. | BoxShape parser cleanup |
-| `LOOPCLEAN-005 LoopRange rename decision` | Decide if internal `ForRange` should be renamed to `LoopRange`. | docs/future |
+| `LOOPCLEAN-005 LoopRange AST rename` | Complete as `293x-405`; rename the stale internal `ForRange` AST variant to `LoopRange` while keeping legacy `"ForRange"` JSON decode compatibility. | BoxShape cleanup |
 
 Stop lines:
 

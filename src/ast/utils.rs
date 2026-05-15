@@ -49,14 +49,13 @@ impl ASTNode {
             }
             ASTNode::Loop {
                 condition, body, ..
-            }
- => {
+            } => {
                 visitor(condition);
                 for statement in body {
                     visitor(statement);
                 }
             }
-            ASTNode::ForRange {
+            ASTNode::LoopRange {
                 start, end, body, ..
             } => {
                 visitor(start);
@@ -278,14 +277,14 @@ impl ASTNode {
             } => {
                 format!("Loop({} statements)", body.len())
             }
-            ASTNode::ForRange {
+            ASTNode::LoopRange {
                 var_name,
                 start: _,
                 end: _,
                 body,
                 ..
             } => {
-                format!("ForRange(var={}, {} statements)", var_name, body.len())
+                format!("LoopRange(var={}, {} statements)", var_name, body.len())
             }
             ASTNode::Return { value, .. } => {
                 if value.is_some() {
@@ -553,7 +552,7 @@ impl ASTNode {
             ASTNode::Print { span, .. } => *span,
             ASTNode::If { span, .. } => *span,
             ASTNode::Loop { span, .. } => *span,
-            ASTNode::ForRange { span, .. } => *span,
+            ASTNode::LoopRange { span, .. } => *span,
             ASTNode::Return { span, .. } => *span,
             ASTNode::Break { span, .. } => *span,
             ASTNode::Continue { span, .. } => *span,
@@ -732,14 +731,13 @@ impl ASTNode {
                 }
                 ASTNode::Loop {
                     condition, body, ..
-                }
- => {
+                } => {
                     contains(condition, loop_depth)
                         || body
                             .iter()
                             .any(|s| contains(s, loop_depth.saturating_add(1)))
                 }
-                ASTNode::ForRange {
+                ASTNode::LoopRange {
                     start, end, body, ..
                 } => {
                     contains(start, loop_depth)

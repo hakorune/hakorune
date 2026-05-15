@@ -6,7 +6,7 @@
 //!
 //! ## Design
 //! - **Allowlist**: If, NestedIf, Loop, Return, Break, Continue
-//! - **Deny (strict)**: NestedLoop, TryCatch, Throw, Lambda, While, ForRange, Match, Arrow
+//! - **Deny (strict)**: NestedLoop, TryCatch, Throw, Lambda, While, LoopRange, Match, Arrow
 //! - **Default behavior unchanged**: strict=false always returns Ok(())
 //!
 //! ## Integration
@@ -125,7 +125,7 @@ fn get_hint_for_cap(cap: &StepCapability) -> String {
             "lambda not supported in JoinIR yet, extract to named function".to_string()
         }
         StepCapability::While => "use 'loop(cond)' instead of 'while(cond)' syntax".to_string(),
-        StepCapability::ForRange => {
+        StepCapability::LoopRange => {
             "LoopRange is Stage1 metadata-only until LOOP-003B; use a manual condition loop on executable paths or keep this as a route-decision fixture".to_string()
         }
         StepCapability::Match => {

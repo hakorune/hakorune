@@ -59,13 +59,13 @@ fn flatten_block_containers(body: &[ASTNode]) -> Vec<ASTNode> {
                 body: flatten_block_containers(body),
                 span: span.clone(),
             },
-            ASTNode::ForRange {
+            ASTNode::LoopRange {
                 var_name,
                 start,
                 end,
                 body,
                 span,
-            } => ASTNode::ForRange {
+            } => ASTNode::LoopRange {
                 var_name: var_name.clone(),
                 start: start.clone(),
                 end: end.clone(),
@@ -173,8 +173,7 @@ fn try_build_exit_allowed_return_prelude_recipe(
             }),
             ASTNode::Loop {
                 condition, body, ..
-            }
- => {
+            } => {
                 if !is_supported_bool_expr_with_canon(condition, allow_extended) {
                     return None;
                 }

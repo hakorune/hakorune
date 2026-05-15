@@ -33,7 +33,7 @@ pub(super) fn ast_kind_name(ast: &ASTNode) -> &'static str {
         ASTNode::Print { .. } => "Print",
         ASTNode::If { .. } => "If",
         ASTNode::Loop { .. } => "Loop",
-        ASTNode::ForRange { .. } => "ForRange",
+        ASTNode::LoopRange { .. } => "LoopRange",
         ASTNode::Return { .. } => "Return",
         ASTNode::Break { .. } => "Break",
         ASTNode::Continue { .. } => "Continue",

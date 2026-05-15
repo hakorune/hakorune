@@ -325,7 +325,7 @@ fn statement_to_json_v0(
                 "body": body_json,
             }))
         }
-        ASTNode::ForRange {
+        ASTNode::LoopRange {
             var_name,
             start,
             end,

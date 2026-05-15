@@ -124,7 +124,7 @@ impl super::MirBuilder {
     ///
     /// **Delegates to**: `block_stmt::build_statement`
     ///
-    /// Handles statement-level If, While, ForRange, and delegates other
+    /// Handles statement-level If, While, LoopRange, and delegates other
     /// expressions to build_expression.
     pub(super) fn build_statement(&mut self, node: ASTNode) -> Result<ValueId, String> {
         block_stmt::build_statement(self, node)

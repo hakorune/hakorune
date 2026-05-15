@@ -192,7 +192,7 @@ fn branch_has_exit_or_forbidden_loop(
                     return true;
                 }
             }
-            ASTNode::ForRange { .. } => return true,
+            ASTNode::LoopRange { .. } => return true,
             _ => {}
         }
     }

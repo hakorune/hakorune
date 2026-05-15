@@ -70,7 +70,7 @@ impl StepTreeContract {
                 StepCapability::Throw => "Throw",
                 StepCapability::Lambda => "Lambda",
                 StepCapability::While => "While",
-                StepCapability::ForRange => "ForRange",
+                StepCapability::LoopRange => "LoopRange",
                 StepCapability::Match => "Match",
                 StepCapability::Arrow => "Arrow",
             })

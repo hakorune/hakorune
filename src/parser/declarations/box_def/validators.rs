@@ -178,12 +178,11 @@ fn ast_collect_me_fields(nodes: &[ASTNode]) -> std::collections::HashSet<String>
             }
             ASTNode::Loop {
                 condition, body, ..
-            }
- => {
+            } => {
                 scan_node(condition, out);
                 scan_body(body, out);
             }
-            ASTNode::ForRange {
+            ASTNode::LoopRange {
                 start, end, body, ..
             } => {
                 scan_node(start, out);

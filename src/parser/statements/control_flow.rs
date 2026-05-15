@@ -337,7 +337,7 @@ impl NyashParser {
                     self.parse_range_header("loop range index identifier")?;
                 self.consume(TokenType::RPAREN)?;
                 let body = self.parse_block_statements()?;
-                return Ok(ASTNode::ForRange {
+                return Ok(ASTNode::LoopRange {
                     var_name,
                     start,
                     end,
@@ -359,7 +359,7 @@ impl NyashParser {
             let (var_name, start, end) =
                 self.parse_range_header("loop range index identifier")?;
             let body = self.parse_block_statements()?;
-            return Ok(ASTNode::ForRange {
+            return Ok(ASTNode::LoopRange {
                 var_name,
                 start,
                 end,
@@ -455,7 +455,7 @@ impl NyashParser {
         self.advance();
         let (var_name, start, end) = self.parse_range_header("for range index identifier")?;
         let body = self.parse_block_statements()?;
-        Ok(ASTNode::ForRange {
+        Ok(ASTNode::LoopRange {
             var_name,
             start,
             end,

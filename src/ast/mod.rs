@@ -369,10 +369,10 @@ pub enum ASTNode {
         span: Span,
     },
 
-
-    /// Stage-3: for-range文: for ident in start..end { body }
+    /// LoopRange metadata node: loop ident in start..end { body }
+    /// - Legacy Stage-3 `for ident in start..end` parses to this same node.
     /// - 半開区間 [start, end)
-    ForRange {
+    LoopRange {
         var_name: String,
         start: Box<ASTNode>,
         end: Box<ASTNode>,

@@ -104,7 +104,7 @@ pub(in crate::mir::builder) fn has_continue_recursive(stmt: &ASTNode) -> bool {
                     .is_some_and(|body| body.iter().any(has_continue_recursive))
         }
         ASTNode::Loop { body, .. } => body.iter().any(has_continue_recursive),
-        ASTNode::ForRange { body, .. } => body.iter().any(has_continue_recursive),
+        ASTNode::LoopRange { body, .. } => body.iter().any(has_continue_recursive),
         ASTNode::Program { statements, .. } => statements.iter().any(has_continue_recursive),
         ASTNode::ScopeBox { body, .. } => body.iter().any(has_continue_recursive),
         _ => false,

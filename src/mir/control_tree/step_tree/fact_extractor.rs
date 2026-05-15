@@ -118,8 +118,8 @@ fn walk_for_facts(node: &StepNode, facts: &mut StepTreeFacts) {
                 "While" => {
                     facts.add_capability(StepCapability::While);
                 }
-                "ForRange" => {
-                    facts.add_capability(StepCapability::ForRange);
+                "LoopRange" | "ForRange" => {
+                    facts.add_capability(StepCapability::LoopRange);
                 }
                 "MatchExpr" => {
                     facts.add_capability(StepCapability::Match);

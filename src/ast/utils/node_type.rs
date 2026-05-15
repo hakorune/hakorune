@@ -9,7 +9,7 @@ impl ASTNode {
             ASTNode::Print { .. } => "Print",
             ASTNode::If { .. } => "If",
             ASTNode::Loop { .. } => "Loop",
-            ASTNode::ForRange { .. } => "ForRange",
+            ASTNode::LoopRange { .. } => "LoopRange",
             ASTNode::Return { .. } => "Return",
             ASTNode::Break { .. } => "Break",
             ASTNode::Continue { .. } => "Continue",
