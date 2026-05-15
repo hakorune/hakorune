@@ -5,6 +5,7 @@ True parallel scheduling remains future work.
 
 See also:
 - `docs/reference/concurrency/boundary-model.md` (new Boundary-model design SSOT)
+- `docs/development/current/main/design/concurrency-boundary-migration-taskboard-ssot.md` (implementation rows and compatibility archive rule)
 - `docs/reference/concurrency/lock_scoped_worker_local.md` (`lock` / `scoped` / `worker_local` historical/provisional state-model notes)
 - `docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md` (VM+LLVM execution ledger and historical phase provenance)
 

@@ -38,6 +38,8 @@
 
 Concurrency note:
 - new concurrency Boundary model owner は `docs/reference/concurrency/boundary-model.md`
+- implementation taskboard / compat archive rule owner は
+  `docs/development/current/main/design/concurrency-boundary-migration-taskboard-ssot.md`
 - current user-facing concurrency manual owner は `docs/reference/concurrency/semantics.md`
 - `lock` / `scoped` / `worker_local` の historical/provisional state-model SSOT は `docs/reference/concurrency/lock_scoped_worker_local.md`
 

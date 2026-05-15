@@ -7,6 +7,7 @@ Scope: user-facing concurrency surface design and verifier/CorePlan ownership mo
 Related:
 - `docs/reference/concurrency/semantics.md`
 - `docs/reference/concurrency/lock_scoped_worker_local.md`
+- `docs/development/current/main/design/concurrency-boundary-migration-taskboard-ssot.md`
 - `docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md`
 - `docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md`
 
@@ -268,11 +269,18 @@ and must not be inferred from Phase-0 `nowait` or allocator substrate stress.
 
 ## Migration Tasks
 
-The migration should be cut into docs-first rows:
+The implementation taskboard SSOT is:
+
+```text
+docs/development/current/main/design/concurrency-boundary-migration-taskboard-ssot.md
+```
+
+Summary rows:
 
 | Row | Purpose |
 | --- | --- |
 | `CONC-BOUNDARY-001` | Adopt this Boundary model as the concurrency design SSOT. |
+| `CONC-COMPAT-001` | Audit legacy spellings and archive smoke-only compatibility users. |
 | `CONC-SYNCBOX-001` | Move `lock<T>` from canonical surface to implementation concept; define `sync box` verifier rules. |
 | `CONC-CHANNEL-001` | Update channel API docs so `send` / `recv` / `close` are await-visible and `try_*` APIs are non-blocking. |
 | `CONC-CONTEXT-001` | Rename/design `scoped` as `context` and pin structured child inheritance. |
