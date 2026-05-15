@@ -4,6 +4,7 @@ set -euo pipefail
 TAG="docs-slim-002-archive-manifest"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT_DIR"
+source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 
 PHASE="docs/development/current/main/phases/phase-293x"
 POLICY="docs/development/current/main/design/current-docs-archive-policy-ssot.md"
@@ -41,7 +42,7 @@ done
 require_text "$POLICY" "DOCS-SLIM-002"
 require_text "$LAYOUT" "phase-293x/archive/cards/phase-293x-card-archive-manifest.md"
 require_text "$CHECK_INDEX" "docs_slim_002_archive_manifest_guard.sh"
-require_text "$CARD" "Do not move numbered cards in this row"
+guard_require_docs_slim_no_move_stop_line "$TAG" "$CARD"
 require_text "$MANIFEST" 'Do not physically move phase cards in `DOCS-SLIM-002`'
 require_text "$MANIFEST" "293x-400-499: 10"
 require_text "$MANIFEST" "Reference Risk"

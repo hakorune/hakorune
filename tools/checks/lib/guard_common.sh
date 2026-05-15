@@ -49,6 +49,13 @@ guard_expect_in_file() {
     fi
 }
 
+guard_require_docs_slim_no_move_stop_line() {
+    local tag="$1"
+    local card="$2"
+
+    guard_expect_in_file "$tag" "Do not move numbered cards in this row" "$card" "card must keep no-move stop-line"
+}
+
 guard_require_docs_slim_card_metadata() {
     local tag="$1"
     local card="$2"
@@ -59,7 +66,7 @@ guard_require_docs_slim_card_metadata() {
     local phase_phrase="$7"
 
     guard_expect_in_file "$tag" "$doc_tag" "$card" "$doc_tag card must exist"
-    guard_expect_in_file "$tag" "Do not move numbered cards in this row" "$card" "card must keep no-move stop-line"
+    guard_require_docs_slim_no_move_stop_line "$tag" "$card"
     guard_expect_in_file "$tag" "$phase_phrase" "$archive_policy" "archive policy must record $doc_tag"
     guard_expect_in_file "$tag" "$self_script" "$check_index" "check index must list $doc_tag guard"
 }

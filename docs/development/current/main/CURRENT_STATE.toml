@@ -40,5 +40,4 @@ landed_tail = [
   "293x-424 DOCS-SLIM-017 allocator provider README pin decoupling landed",
   "293x-423 DOCS-SLIM-016 allocator hook taskboard pin decoupling landed",
   "293x-422 DOCS-SLIM-015 allocator hook README pin decoupling landed",
-  "293x-421 DOCS-SLIM-014 packed record taskboard pin decoupling landed",
 ]

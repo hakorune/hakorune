@@ -34,10 +34,10 @@ guard_require_files \
 guard_require_exec_files "$TAG" "$PHASE_HELPER" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" "DOCS-SLIM-025" "$CARD" "DOCS-SLIM-025 card must exist"
-guard_expect_in_file "$TAG" "Do not move numbered cards in this row" "$CARD" "card must keep no-move stop-line"
 guard_expect_in_file "$TAG" "Twenty-fifth Slimming Phase" "$ARCHIVE_POLICY" "archive policy must record DOCS-SLIM-025"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$CHECK_INDEX" "check index must list DOCS-SLIM-025 guard"
 guard_expect_in_file "$TAG" "guard_require_docs_slim_card_metadata" "$HELPER" "guard_common must expose docs-slim card metadata helper"
+guard_expect_in_file "$TAG" "guard_require_docs_slim_no_move_stop_line" "$HELPER" "guard_common must expose docs-slim stop-line helper"
 
 for script in "${converted_scripts[@]}"; do
   guard_expect_in_file "$TAG" 'guard_require_docs_slim_card_metadata' "$script" "$script must call shared docs-slim card metadata helper"
