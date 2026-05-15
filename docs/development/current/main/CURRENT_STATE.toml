@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-05-15"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "DOCS-SLIM-008 landed the recent cleanup guard resolver adoption. Current row remains MIMAP-022A post-lifecycle row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "DOCS-SLIM-009 landed the C197-C200 proof surface resolver adoption. Current row remains MIMAP-022A post-lifecycle row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
 phase_status = "docs/development/current/main/phases/phase-293x/293x-404-MIMAP-022A-POST-LIFECYCLE-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-415-DOCS-SLIM-008-RECENT-CLEANUP-RESOLVER"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-415-DOCS-SLIM-008-RECENT-CLEANUP-RESOLVER.md"
-latest_card_summary = "DOCS-SLIM-008 converts recent LoopClean / Stage1 lowering cleanup guards to the phase-card resolver helper without moving cards."
+latest_card = "293x-416-DOCS-SLIM-009-PROOF-SURFACE-RESOLVER"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-416-DOCS-SLIM-009-PROOF-SURFACE-RESOLVER.md"
+latest_card_summary = "DOCS-SLIM-009 converts C197-C200 proof application surface guards to the phase-card resolver helper without moving cards."
 
 current_blocker_token = "MIMAP-022A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-416 DOCS-SLIM-009 C197-C200 proof surface resolver adoption landed",
   "293x-415 DOCS-SLIM-008 recent cleanup guard resolver adoption landed",
   "293x-414 DOCS-SLIM-007 lifecycle ladder resolver adoption landed",
   "293x-413 DOCS-SLIM-006 M10c runtime-decl resolver adoption landed",
@@ -39,5 +40,4 @@ landed_tail = [
   "293x-407 CLEAN-STAGE1-LOWERING-002 statement lowering split landed",
   "293x-406 LOOPCLEAN-006 while parser facade merge landed",
   "293x-405 LOOPCLEAN-005 internal LoopRange AST rename landed",
-  "293x-403 REUSE-LIFECYCLE-001 explicit reuse methods landed",
 ]

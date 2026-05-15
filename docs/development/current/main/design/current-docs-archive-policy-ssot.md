@@ -204,3 +204,18 @@ Physical archive moves are `DOCS-SLIM-002+`.
   `guard_require_phase293x_card`
 - keep parser / Stage1 lowering behavior unchanged
 - do not physically move old cards yet
+
+## Ninth Slimming Phase
+
+`DOCS-SLIM-009` owns the C197-C200 proof surface resolver adoption:
+
+- convert `k2_wide_logical_condition_surface_guard.sh` to use
+  `guard_require_phase293x_card`
+- convert `k2_wide_check_block_surface_guard.sh` to use
+  `guard_require_phase293x_card`
+- convert `k2_wide_compound_assignment_surface_guard.sh` to use
+  `guard_require_phase293x_card`
+- convert `k2_wide_guard_else_surface_guard.sh` to use
+  `guard_require_phase293x_card`
+- keep parser / syntax / proof app behavior unchanged
+- do not physically move old cards yet
