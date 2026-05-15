@@ -3,16 +3,16 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="manifest-runner-pilot-guard"
+cd "$ROOT_DIR"
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
+source "$ROOT_DIR/tools/checks/lib/phase_card_paths.sh"
 
 ROW_RUNNER="$ROOT_DIR/tools/checks/run_row_guard.sh"
 PROOF_RUNNER="$ROOT_DIR/tools/checks/run_proof_app.sh"
 SHARED_RUNNER="$ROOT_DIR/tools/checks/lib/manifest_runner.py"
 ROW_MANIFEST="$ROOT_DIR/tools/checks/guard_rows.toml"
 PROOF_MANIFEST="$ROOT_DIR/tools/checks/proof_apps.toml"
-CARD="$ROOT_DIR/docs/development/current/main/phases/phase-293x/293x-243-D199-MANIFEST-RUNNER-LIBRARY-CLEANUP.md"
-PHASE_README="$ROOT_DIR/docs/development/current/main/phases/phase-293x/README.md"
-TASKBOARD="$ROOT_DIR/docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
+CARD="$(guard_require_phase293x_card "$TAG" "293x-243-D199-MANIFEST-RUNNER-LIBRARY-CLEANUP.md")"
 CHECK_INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
 DEV_GATE="$ROOT_DIR/tools/checks/dev_gate.sh"
 ALLOCATOR_GATE="$ROOT_DIR/tools/checks/k2_wide_allocator_gate.sh"
@@ -26,8 +26,6 @@ guard_require_files "$TAG" \
   "$ROW_MANIFEST" \
   "$PROOF_MANIFEST" \
   "$CARD" \
-  "$PHASE_README" \
-  "$TASKBOARD" \
   "$CHECK_INDEX" \
   "$DEV_GATE" \
   "$ALLOCATOR_GATE"
@@ -36,8 +34,6 @@ guard_require_exec_files "$TAG" "$ROW_RUNNER" "$PROOF_RUNNER" "$SHARED_RUNNER" "
 guard_expect_in_file "$TAG" "Status: Complete" "$CARD" "D199 card must be complete"
 guard_expect_in_file "$TAG" "manifest_runner.py" "$CARD" "D199 card must name the shared runner"
 guard_expect_in_file "$TAG" "manifest_runner_pilot_guard.sh" "$CARD" "D199 card must name this guard"
-guard_expect_in_file "$TAG" "293x-243" "$PHASE_README" "phase README must list D199"
-guard_expect_in_file "$TAG" "D199 manifest runner library cleanup" "$TASKBOARD" "taskboard must list D199"
 guard_expect_in_file "$TAG" "manifest_runner_pilot_guard.sh" "$CHECK_INDEX" "check index must list this guard"
 guard_expect_in_file "$TAG" "tools/checks/lib/manifest_runner.py" "$CHECK_INDEX" "check index must mention shared runner library"
 

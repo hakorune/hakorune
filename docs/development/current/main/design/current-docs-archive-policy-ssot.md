@@ -219,3 +219,15 @@ Physical archive moves are `DOCS-SLIM-002+`.
   `guard_require_phase293x_card`
 - keep parser / syntax / proof app behavior unchanged
 - do not physically move old cards yet
+
+## Tenth Slimming Phase
+
+`DOCS-SLIM-010` owns the manifest runner pilot guard decoupling:
+
+- remove landed-history phase README and old real-app taskboard pins from
+  `manifest_runner_pilot_guard.sh`
+- keep D199 card, check index, wrapper, manifest, shared runner, and gate-leak
+  assertions
+- resolve the D199 card through `guard_require_phase293x_card`
+- keep manifest runner behavior unchanged
+- do not physically move old cards yet
