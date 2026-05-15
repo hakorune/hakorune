@@ -12,9 +12,16 @@ INLINE_REQUIRED="$ROOT_DIR/src/mir/verification/inline_required.rs"
 STRING_KERNEL_VERIFIER="$ROOT_DIR/src/mir/verification/string_kernel.rs"
 EXACT_NUMERIC_CONTRACTS="$ROOT_DIR/src/mir/exact_numeric_field_contracts.rs"
 EXACT_NUMERIC_BACKEND="$ROOT_DIR/src/mir/exact_numeric_backend_capability.rs"
+ARRAY_RECORD_BOUNDARY="$ROOT_DIR/src/mir/array_record_materialization_boundary.rs"
+ARRAY_RECORD_PACKED_PILOT="$ROOT_DIR/src/mir/array_record_packed_autouse_pilot.rs"
+SOURCE_PACKED_AUTOUSE="$ROOT_DIR/src/mir/source_packed_array_autouse_pilot.rs"
+SOURCE_PACKED_DIRECT="$ROOT_DIR/src/mir/source_packed_array_direct_read_consumption.rs"
+ARRAY_RECORD_BACKEND="$ROOT_DIR/src/mir/array_record_backend_capability.rs"
 LLVM_COMMON_SHIM="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_common.inc"
 LLVM_SUM_LOCAL_SHIM="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc"
 LLVM_STRING_CANDIDATE_SHIM="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_string_candidate_plan_readers.inc"
+PACKED_BACKEND_GUARD="$ROOT_DIR/tools/checks/k2_wide_packed_record_backend_failfast_guard.sh"
+SOURCE_PACKED_AUTOUSE_GUARD="$ROOT_DIR/tools/checks/k2_wide_source_packed_array_autouse_pilot_guard.sh"
 INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
 
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
@@ -24,8 +31,11 @@ guard_require_command "$TAG" realpath
 guard_require_files "$TAG" "$DOC" "$ROOT_EMIT" "$FUNCTION_TYPES" \
   "$SEMANTIC_REFRESH" "$RUNE_CONTRACTS" "$INLINE_REQUIRED" \
   "$STRING_KERNEL_VERIFIER" "$EXACT_NUMERIC_CONTRACTS" \
-  "$EXACT_NUMERIC_BACKEND" "$LLVM_COMMON_SHIM" "$LLVM_SUM_LOCAL_SHIM" \
-  "$LLVM_STRING_CANDIDATE_SHIM" "$INDEX"
+  "$EXACT_NUMERIC_BACKEND" "$ARRAY_RECORD_BOUNDARY" \
+  "$ARRAY_RECORD_PACKED_PILOT" "$SOURCE_PACKED_AUTOUSE" \
+  "$SOURCE_PACKED_DIRECT" "$ARRAY_RECORD_BACKEND" "$LLVM_COMMON_SHIM" \
+  "$LLVM_SUM_LOCAL_SHIM" "$LLVM_STRING_CANDIDATE_SHIM" \
+  "$PACKED_BACKEND_GUARD" "$SOURCE_PACKED_AUTOUSE_GUARD" "$INDEX"
 
 require_doc_token() {
   local token="$1"
@@ -185,6 +195,28 @@ done
 
 require_doc_token "do not combine these with allocator behavior rows"
 
+packed_no_fallback_tokens=(
+  "PackedArray No-Fallback Contract"
+  "storage requirements, not"
+  "falling back to ordinary"
+  "fail_fast_unmaterialized_record_value"
+  "visible_record_materialization_enabled=false"
+  "runtime_auto_use_enabled=false"
+  "public_array_get_materialization_enabled=false"
+  "hako_alloc_migration_enabled=false"
+  "backend_lowering_enabled=false"
+  "boxed_fallback_enabled=false"
+  "backend_lowering_enabled=true"
+  "proof-bearing direct-read route"
+  "silent_fallback_allowed=false"
+  "storage as an implicit fallback"
+  "Do not enable packed backend lowering from source text alone"
+)
+
+for token in "${packed_no_fallback_tokens[@]}"; do
+  require_doc_token "$token"
+done
+
 active_function_contract_tokens=(
   "Active Function Contract Rows"
   "are the obligation source for live"
@@ -212,6 +244,20 @@ require_source_token "StringKernelPlanVerifierOwner::LoweringDirectKernelEntry" 
 require_source_token "exact_numeric_runtime_check_contracts" "$EXACT_NUMERIC_CONTRACTS"
 require_source_token "enforce_exact_numeric_runtime_checks_supported" "$EXACT_NUMERIC_CONTRACTS"
 require_source_token "enforce_exact_numeric_backend_supported" "$EXACT_NUMERIC_BACKEND"
+require_source_token "ARRAY_RECORD_MATERIALIZATION_ACTION_FAIL_FAST_UNMATERIALIZED_RECORD" "$ARRAY_RECORD_BOUNDARY"
+require_source_token "visible_record_materialization_enabled: false" "$ARRAY_RECORD_BOUNDARY"
+require_source_token "runtime_auto_use_enabled: false" "$ARRAY_RECORD_BOUNDARY"
+require_source_token "public_array_get_materialization_enabled: false" "$ARRAY_RECORD_PACKED_PILOT"
+require_source_token "hako_alloc_migration_enabled: false" "$ARRAY_RECORD_PACKED_PILOT"
+require_source_token "backend_lowering_enabled: false" "$ARRAY_RECORD_PACKED_PILOT"
+require_source_token "boxed_fallback_enabled: false" "$SOURCE_PACKED_AUTOUSE"
+require_source_token "backend_lowering_enabled: false" "$SOURCE_PACKED_AUTOUSE"
+require_source_token "boxed_fallback_enabled: false" "$SOURCE_PACKED_DIRECT"
+require_source_token "backend_lowering_enabled: false" "$SOURCE_PACKED_DIRECT"
+require_source_token "silent_fallback_allowed=false" "$ARRAY_RECORD_BACKEND"
+require_source_token "filter(|plan| plan.backend_lowering_enabled)" "$ARRAY_RECORD_BACKEND"
+require_source_token "silent_fallback_allowed=false" "$PACKED_BACKEND_GUARD"
+require_source_token "boxed_fallback_enabled: false" "$SOURCE_PACKED_AUTOUSE_GUARD"
 
 module_keys=(
   user_box_decls

@@ -171,6 +171,41 @@ PackedArray<T> declared
   -> unsupported route fails fast
 ```
 
+## PackedArray No-Fallback Contract
+
+Explicit `PackedArray<T>` source declarations are storage requirements, not
+optimizer hints. Unsupported packed routes must fail fast instead of silently
+falling back to ordinary `Array<T>` / `ArrayBox` materialization.
+
+Current packed-record rows remain metadata-only unless a later card explicitly
+turns on backend lowering with proof:
+
+| Row | Required no-fallback state | Backend activation gate |
+| --- | --- | --- |
+| `array_record_materialization_boundary_plans` | public `ArrayBox.get`, returned element, and host/backend escape actions stay `fail_fast_unmaterialized_record_value`; `visible_record_materialization_enabled=false` and `runtime_auto_use_enabled=false` | materialization stays closed until public record materialization is implemented as its own contract row |
+| `array_record_packed_autouse_pilot_plans` | private direct-read pilot only; `public_array_get_materialization_enabled=false`, `hako_alloc_migration_enabled=false`, and `backend_lowering_enabled=false` | any future backend route must pass the shared packed-record backend capability gate |
+| `source_packed_array_autouse_pilot_plans` | source-declared packed row must carry `boxed_fallback_enabled=false`, `public_array_get_materialization_enabled=false`, and `backend_lowering_enabled=false` | no backend lowering until a direct-read route row owns proof and capability |
+| `source_packed_array_direct_read_consumption_plans` | direct-read consumption rows must carry `boxed_fallback_enabled=false`, `public_array_get_materialization_enabled=false`, and `backend_lowering_enabled=false` | if backend lowering is enabled, unsupported backends must reject with `[freeze:backend][array-record/packed-route-unsupported]` |
+| `hako_alloc_*_packed_store_pilot_plans` | allocator packed-store pilots retain live scalar columns and keep public materialization/backend lowering disabled | verifier-active only; do not promote to CorePlan lowering until a real storage owner and backend route exist |
+
+Activation rule:
+
+```text
+backend_lowering_enabled=true
+  requires proof-bearing direct-read route
+  requires backend capability gate
+  requires boxed_fallback_enabled=false where the row has that field
+  rejects unsupported backends with silent_fallback_allowed=false
+```
+
+Stop lines:
+
+- Do not use ordinary `ArrayBox` storage as an implicit fallback for declared
+  `PackedArray<T>`.
+- Do not enable packed backend lowering from source text alone.
+- Do not let hako_alloc packed-store pilot rows become the storage truth while
+  live scalar columns are still retained.
+
 ## Current Promotion Matrix
 
 This matrix fixes the current interpretation of rows that already behave like
