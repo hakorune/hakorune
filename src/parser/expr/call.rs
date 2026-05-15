@@ -17,6 +17,7 @@ impl NyashParser {
         loop {
             // Phase 2: expression-level postfix catch/cleanup
             // Example: foo(bar) catch(Type e) { ... } cleanup { ... }
+            //          foo(bar) catch { ... }
             // Guarded by Stage-3 gate to avoid surprising Stage-2 programs.
             if crate::config::env::expr_postfix_catch()
                 && (self.match_token(&TokenType::CATCH) || self.match_token(&TokenType::CLEANUP))
@@ -26,9 +27,14 @@ impl NyashParser {
                 let mut catch_clauses: Vec<CatchClause> = Vec::new();
                 if self.match_token(&TokenType::CATCH) {
                     self.advance(); // consume 'catch'
-                    self.consume(TokenType::LPAREN)?;
-                    let (exception_type, exception_var) = self.parse_catch_param()?;
-                    self.consume(TokenType::RPAREN)?;
+                    let (exception_type, exception_var) = if self.match_token(&TokenType::LPAREN) {
+                        self.advance();
+                        let params = self.parse_catch_param()?;
+                        self.consume(TokenType::RPAREN)?;
+                        params
+                    } else {
+                        (None, None)
+                    };
                     let catch_body = self.parse_block_statements()?;
                     catch_clauses.push(CatchClause {
                         exception_type,
