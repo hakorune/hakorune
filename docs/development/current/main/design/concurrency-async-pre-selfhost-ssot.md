@@ -37,7 +37,7 @@ traceable.
 
 | Historical label | Topic | Current semantic owner |
 | --- | --- | --- |
-| Phase 242x | `task_scope` vocabulary; `RoutineScopeBox` retired as wording. | `semantics.md` terminology note |
+| Phase 242x | `task_scope` vocabulary; `RoutineScopeBox` retired as wording. `co` is now the preferred source spelling while `task_scope` remains compat/runtime wording. | `semantics.md` terminology note |
 | Phase 247x | root-scope fallback; bare `nowait` is not detached. | `semantics.md` structured concurrency and root-scope note |
 | Phase 248x | explicit-scope sibling-failure cancellation. | `semantics.md` structured concurrency |
 | Phase 250x | late registration latches, terminal `FutureBox` success, plugin timeout boundary. | `semantics.md` future `await` contract |
@@ -154,8 +154,10 @@ docs/reference/concurrency/lock_scoped_worker_local.md
 - `local`: call activation / lexical scope。スレッド/ワーカーとは無関係。
 - `sync box`: 共有 mutable の canonical Boundary surface。`lock<T>` は
   historical/provisional concept として読む（実装は後段）。
+- `co`: structured child Future ownership boundary。`task_scope` は
+  compatibility/runtime wording として読む。
 - `context`: 文脈（trace/request/config）。**nowait の wrapper ではない**。
-  structured child に creation-time snapshot として継承する（detached は別物）。
+  `co` structured child に creation-time snapshot として継承する（detached は別物）。
 - context/scoped inheritance is design intent in the current tree:
   - phases 242x-255x pin future ownership / cancellation / timeout surfaces
   - runtime propagation wiring remains phased, but the semantic direction is pinned

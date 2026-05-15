@@ -19,7 +19,7 @@ kept only as provenance in phase logs and execution ledgers.
 | --- | --- | --- | --- | --- |
 | `nowait` / `await` | yes | yes | yes | CONC-1..4 done for Phase-0 future/await parity. |
 | `Channel` | yes | scaffold | not active | Boundary model requires await-visible `send` / `recv` / `close`; runtime wait integration is later. |
-| `task_scope` | yes | scaffold | scaffold | `TaskGroupBox` owns scoped child futures in the current cut. |
+| `co` / `task_scope` | yes | scaffold | scaffold | `co` is the preferred source spelling; `task_scope` remains compatibility/runtime wording. |
 | `sync box` | yes | no | no | Preferred shared-mutable Boundary surface; verifier/runtime rows are later. |
 | `lock<T>` | provisional | no | no | Implementation concept / historical design spelling; not the preferred canonical surface. |
 | `context` / `scoped` | yes | no | no | `context` is the preferred surface name; `scoped` is historical/provisional wording. |
@@ -47,7 +47,8 @@ Mimalloc reading:
 
 Terminology note:
 - This doc uses “spawn” as a generic term for “starting a concurrent task”. The current Nyash surface syntax for async start is `nowait`.
-- The structured-concurrency surface should be read as `task_scope`.
+- The structured-concurrency source surface should be read as `co`.
+- `task_scope` is the compatibility spelling and semantic/runtime wording.
 - The current runtime scaffold behind that scope is `TaskGroupBox` plus `push_task_scope()` / `pop_task_scope()`.
 - `RoutineScopeBox` is historical wording only; do not use it as the current code name.
 
@@ -73,8 +74,10 @@ Implementation note (Phase-0): no busy loop. Use cooperative queues; later repla
   - If none ready: Phase-0 may block via a multi-wait helper or return false if non-blocking policy requested.
 - Fairness: no starvation requirement; Phase-0 uses simple fairness; Phase-2 integrates runtime help.
 
-### Structured Concurrency (`task_scope`, Phase-0 scaffold)
-- `task_scope` is the user-facing structured-concurrency boundary.
+### Structured Concurrency (`co`, Phase-0 scaffold)
+- `co` is the preferred user-facing structured-concurrency boundary.
+- `task_scope` is accepted as a compatibility spelling and remains the
+  semantic/runtime wording in existing implementation notes.
 - `TaskGroupBox` is the current runtime-side owner for child futures registered under that scope.
 - Current lifecycle vocabulary is `cancelAll()` and `joinAll(timeout_ms)`, plus best-effort bounded join on scope exit.
 - current scope exit is structured shutdown for the popped explicit scope:
@@ -87,10 +90,10 @@ Implementation note (Phase-0): no busy loop. Use cooperative queues; later repla
 - object `fini()` aggregate surfacing remains later-phase work; cleanup
   ordering is defined by `docs/reference/language/scope-exit-semantics.md`.
 - bare `nowait` is not detached.
-- `nowait` inside explicit `task_scope` belongs to that scope.
-- `nowait` outside explicit `task_scope` falls back to an implicit root scope owned by the runtime hooks registry.
+- `nowait` inside explicit `co` / compatibility `task_scope` belongs to that scope.
+- `nowait` outside explicit `co` / compatibility `task_scope` falls back to an implicit root scope owned by the runtime hooks registry.
 - detached work is still reserved for a later explicit surface; do not treat the current implicit root scope as detached-task semantics.
-- first failure in an explicit `task_scope` cancels pending siblings with reason `sibling-failed`.
+- first failure in an explicit `co` / compatibility `task_scope` cancels pending siblings with reason `sibling-failed`.
 - late child futures registered after that first failure are immediately cancelled with the same reason.
 - implicit root scope does not participate in sibling-failure cancellation in the current cut.
 - aggregate/multi-failure reporting is now a separate owner-side diagnostic surface:
@@ -98,7 +101,7 @@ Implementation note (Phase-0): no busy loop. Use cooperative queues; later repla
   - report order is `[first_failure, additional_failures...]`
   - `joinAll()` and scope exit still surface only the first failure
 - Cancellation should eventually unblock channel waits promptly; Phase-0 only guarantees best-effort scope-owned future cleanup.
-- Structured child tasks created by `nowait` inside an explicit `task_scope`
+- Structured child tasks created by `nowait` inside an explicit `co` scope
   inherit the active `context`/historical `scoped` bindings by snapshot at child
   creation time. The implicit root scope remains best-effort ownership only and
   is not a detached context propagation contract.
@@ -116,7 +119,7 @@ Implementation note (Phase-0): no busy loop. Use cooperative queues; later repla
   - `ContractError`
   - `TaskFailed(error)`
   - `Cancelled(reason)` for scope-owned pending futures only
-- `task_scope.cancelAll()` is currently a narrow future-owner cut:
+- `task_scope.cancelAll()` is the current runtime API name for a narrow future-owner cut:
   - it cancels owned pending futures with reason `scope-cancelled`
   - late child futures registered after that cancellation are immediately cancelled with the same reason
   - it does not yet define interruption for arbitrary blocking APIs
@@ -139,7 +142,8 @@ Implementation note (Phase-0): no busy loop. Use cooperative queues; later repla
 
 ### Root-scope note
 - The current implicit root scope is best-effort ownership only.
-- It exists so top-level `nowait` / `FutureNew` paths have an owner even when no explicit `task_scope` is open.
+- It exists so top-level `nowait` / `FutureNew` paths have an owner even when
+  no explicit `co` / compatibility `task_scope` is open.
 - It does not currently promise lexical join, sibling-failure cancellation, or a detached-task shutdown contract.
 
 ### Types & Safety
@@ -162,7 +166,7 @@ Implementation note (Phase-0): no busy loop. Use cooperative queues; later repla
 - bounded_pc.hako: producer/consumer with capacity=1..N; ensure no busy-wait and correct totals.
 - select_two.hako: two channels; verify first-ready choice and distribution.
 - close_semantics.hako: send after close -> error; drain -> End; double close -> error.
-- scope_cancel.hako: `task_scope` / `TaskGroupBox` cancels owned child futures with stable reasons; blocking-API interruption remains a later runtime wait contract.
+- scope_cancel.hako: `co` / compatibility `task_scope` plus `TaskGroupBox` cancels owned child futures with stable reasons; blocking-API interruption remains a later runtime wait contract.
 
 ### Migration Path
 - Phase-0 userland boxes are kept while Phase-2 runtime grows; API stable.

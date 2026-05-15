@@ -45,7 +45,7 @@ source code should keep the role visible.
 Canonical surface direction:
 
 ```text
-task_scope
+co { ... }
 nowait { ... }
 await expr
 Channel<T>
@@ -58,6 +58,7 @@ Non-canonical or deferred public surface:
 ```text
 lock<T>
 scoped
+task_scope
 worker_local
 Atomic<T>
 Mutex
@@ -71,6 +72,9 @@ canonical user-facing shared-mutable surface. The preferred surface is
 `sync box`, because it exposes a serialized object boundary rather than a raw
 guard.
 
+`task_scope` remains the semantic/runtime wording and compatibility spelling.
+The preferred source keyword is `co`.
+
 `scoped` is the historical/provisional name for context. The preferred surface
 name is `context`, because the feature is about structured ambient context, not
 task spawning or detached execution.
@@ -78,6 +82,60 @@ task spawning or detached execution.
 `worker_local` remains runtime/internal unless a later explicit language row
 opens a pinned worker-local surface. Mimalloc work must continue to use the
 allocator substrate split, not source-level worker-local syntax.
+
+## Co Scope Boundary
+
+`co { ... }` is the canonical source spelling for a structured concurrency
+scope.
+
+Example:
+
+```hako
+co {
+    local a = nowait { workA() }
+    local b = nowait { workB() }
+
+    local x = await a
+    local y = await b
+
+    return x + y
+}
+```
+
+Meaning:
+
+- `co` is a child-`Future` ownership boundary.
+- `nowait` children created inside the block belong to that `co` scope.
+- On scope exit, pending children are cancelled and joined according to the
+  structured-concurrency runtime contract.
+- The first child failure is surfaced by the scope.
+- `co` does not guarantee true parallel execution.
+
+Negative definitions:
+
+- `co` is not detached work.
+- `co` is not an OS thread guarantee.
+- `co` is not channel `select`.
+- `co` is not a scheduler/fairness guarantee.
+- `co` is not a replacement for `nowait`; it owns child futures created inside.
+
+Compatibility:
+
+```text
+source canonical: co
+source compatibility: task_scope
+semantic wording: structured concurrency scope / co scope
+runtime owner: TaskGroupBox
+runtime hooks: push_task_scope / pop_task_scope
+```
+
+Diagnostics should guide compatibility source toward `co`:
+
+```text
+[concurrency/scope-compat]
+`task_scope` is accepted as a compatibility spelling.
+Use `co { ... }` for the canonical structured concurrency scope.
+```
 
 ## Future Boundary
 
@@ -184,7 +242,7 @@ Example:
 
 ```hako
 context request_id: RequestId = rid {
-    task_scope {
+    co {
         local fut = nowait {
             handle(request_id)
         }
@@ -195,7 +253,7 @@ context request_id: RequestId = rid {
 
 Decision:
 
-- Structured child tasks created by `nowait` inside an explicit `task_scope`
+- Structured child tasks created by `nowait` inside an explicit `co` scope
   inherit the parent active `context` bindings.
 - The inheritance snapshot is taken when the child task is created.
 - Context values are restored at block exit.
@@ -237,7 +295,8 @@ Stage1 owns language semantics:
 
 ```text
 nowait / await
-task_scope ownership and cancellation
+co / task_scope ownership and cancellation
+co / task_scope compatibility facts
 Channel<T> API meaning
 sync box no-await/no-block verifier rules
 context inheritance
@@ -281,6 +340,7 @@ Summary rows:
 | --- | --- |
 | `CONC-BOUNDARY-001` | Adopt this Boundary model as the concurrency design SSOT. |
 | `CONC-COMPAT-001` | Audit legacy spellings and archive smoke-only compatibility users. |
+| `CONC-CO-001` | Add `co` as the canonical source spelling for structured concurrency scope. |
 | `CONC-SYNCBOX-001` | Move `lock<T>` from canonical surface to implementation concept; define `sync box` verifier rules. |
 | `CONC-CHANNEL-001` | Update channel API docs so `send` / `recv` / `close` are await-visible and `try_*` APIs are non-blocking. |
 | `CONC-CONTEXT-001` | Rename/design `scoped` as `context` and pin structured child inheritance. |

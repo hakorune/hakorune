@@ -16,7 +16,7 @@
 - 内部設計ドキュメント
 
 ### concurrency/
-- `task_scope` / `nowait` / `await` / `Channel` / `sync box` / `context` / `worker_local` の reference
+- `co` / `task_scope` / `nowait` / `await` / `Channel` / `sync box` / `context` / `worker_local` の reference
 - current structured-concurrency CONC status and semantics manual
 
 ### runtime/

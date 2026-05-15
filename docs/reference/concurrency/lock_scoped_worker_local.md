@@ -13,7 +13,7 @@ It is designed to be:
 Related SSOT:
 - `docs/reference/concurrency/boundary-model.md` (new canonical concurrency Boundary model)
 - `docs/reference/language/variables-and-scope.md` (locals / lexical scope)
-- `docs/reference/concurrency/semantics.md` (current implementation status, `nowait` / `await`, `task_scope`, channels)
+- `docs/reference/concurrency/semantics.md` (current implementation status, `co` / `task_scope`, `nowait` / `await`, channels)
 - Pre-selfhost execution plan (VM+LLVM): `docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md`
 - Mimalloc allocator substrate cut:
   `docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md`
@@ -125,7 +125,7 @@ Rule of thumb:
 `context` values are inherited by **structured** child tasks.
 
 Boundary rule:
-- A child task started with `nowait` inside explicit `task_scope` inherits a
+- A child task started with `nowait` inside explicit `co` / compatibility `task_scope` inherits a
   snapshot of the parent’s active `context` bindings at child creation time.
 - The implicit root-scope fallback is not a detached/task-local propagation contract.
 - Concrete propagation wiring is still phased, but the semantic direction is pinned.
@@ -135,7 +135,7 @@ Boundary rule:
 Rules:
 1. Scope entry binds a key/value; scope exit restores the previous binding.
 2. A `context` value must not be persisted as “state”; it is context only.
-3. Structured child tasks inherit active bindings under `task_scope`.
+3. Structured child tasks inherit active bindings under `co` / compatibility `task_scope`.
 4. Current `task_scope.cancelAll()` is narrow: it marks owned pending futures as cancelled, but it does not define general blocking-call interruption yet.
 
 Notes:

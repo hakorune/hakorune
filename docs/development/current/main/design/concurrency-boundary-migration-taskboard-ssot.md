@@ -17,6 +17,7 @@ is documented. The source surface should move toward:
 
 ```text
 Future<T>
+co
 Channel<T>
 sync box
 context
@@ -24,6 +25,8 @@ context
 
 Historical/provisional surfaces such as raw `lock<T>` and `scoped` may remain as
 compatibility input only while active users are audited.
+`task_scope` remains a compatibility spelling and runtime/semantic term; new
+source examples should use `co`.
 
 ## Compatibility Archive Rule
 
@@ -71,6 +74,7 @@ compat/archive lane and let canonical smokes cover the live behavior.
 | --- | --- | --- | --- | --- |
 | `CONC-BOUNDARY-001` | landed-docs | Adopt Boundary model as design SSOT. | `docs/reference/concurrency/boundary-model.md` | no runtime change |
 | `CONC-COMPAT-001` | ready | Audit legacy concurrency spellings and smoke-only compatibility users. | inventory + no-active-use guard plan | no parser/runtime deletion |
+| `CONC-CO-001` | ready | Add `co` as canonical structured concurrency source spelling while keeping `task_scope` as compat/internal wording. | parser/docs guard + diagnostic plan | no runtime owner rename |
 | `CONC-CHANNEL-001` | ready | Pin Channel API shapes around await-visible `send` / `recv` / `close`. | reference/API docs + fixture plan | no wait runtime rewrite |
 | `CONC-CHANNEL-002` | pending | Implement `await ch.close()` semantics in the current ChannelBox/runtime scaffold. | VM/reference guard for close wake/drain/send-after-close | no true parallel scheduler |
 | `CONC-CHANNEL-003` | pending | Implement await-visible `send` / `recv` route shape or fail-fast bridge. | parser/MIR/runtime route guard | no hidden blocking ordinary call |
@@ -78,7 +82,7 @@ compat/archive lane and let canonical smokes cover the live behavior.
 | `CONC-SYNCBOX-002` | pending | Add verifier rule: no `await` / `nowait` / channel wait inside `sync box` method. | fail-fast diagnostics guard | no lock-order inference |
 | `CONC-SYNCBOX-003` | pending | Add VM/reference serialized method-entry behavior. | no-contention reference guard | no fairness/reentrancy guarantee |
 | `CONC-CONTEXT-001` | ready | Add `context` surface as canonical name and quarantine `scoped` as compat. | parser/docs guard + scoped compat audit | no propagation runtime yet |
-| `CONC-CONTEXT-002` | pending | Implement context snapshot on `nowait` child creation inside explicit `task_scope`. | VM/reference guard | implicit root is not detached propagation |
+| `CONC-CONTEXT-002` | pending | Implement context snapshot on `nowait` child creation inside explicit `co` / compatibility `task_scope`. | VM/reference guard | implicit root is not detached propagation |
 | `CONC-WORKERLOCAL-001` | pending | Keep `worker_local` source syntax closed while allocator substrate remains internal. | no-source-worker-local guard | no mimalloc behavior change |
 
 ## Row Details
@@ -92,6 +96,7 @@ lock<T>
 lock { ... }
 scoped
 with scoped
+task_scope
 ChannelBox blocking send/receive without await
 Channel close() without await
 worker_local source syntax
@@ -113,6 +118,45 @@ rg-based audit command is checked in
 no active non-smoke use remains before parser/runtime quarantine
 canonical smoke covers the live behavior
 compat smoke is either archived or explicitly named legacy-compat
+```
+
+### CONC-CO-001
+
+Canonical source spelling:
+
+```hako
+co {
+    local fut = nowait { work() }
+    return await fut
+}
+```
+
+Compatibility/internal spelling:
+
+```text
+task_scope
+TaskGroupBox
+push_task_scope / pop_task_scope
+```
+
+Rules:
+
+```text
+co is not detach
+co is not thread
+co is not select
+co is not a true-parallel guarantee
+co owns child Futures created inside the block
+```
+
+Acceptance:
+
+```text
+parser accepts co block
+AST/Program JSON carries the same structured-scope meaning as task_scope
+task_scope remains accepted as compatibility spelling
+diagnostics prefer co for new source
+no runtime owner rename in this row
 ```
 
 ### CONC-CHANNEL-001
@@ -150,7 +194,7 @@ Split naming from propagation:
 
 ```text
 001: context syntax / docs / scoped compat quarantine
-002: creation-time snapshot inheritance for explicit task_scope children
+002: creation-time snapshot inheritance for explicit co/task_scope children
 ```
 
 The implicit root scope must not become detached context propagation.
