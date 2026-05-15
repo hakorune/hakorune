@@ -6,18 +6,18 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-05-15"
+date = "2026-05-16"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "DOCS-SLIM-022 landed the allocator provider manifest/readiness/registry guard band phase README pin decoupling. Current row remains MIMAP-022A post-lifecycle row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "DOCS-SLIM-023 landed the allocator provider proof/rollback/activation safety guard band phase README pin decoupling. Current row remains MIMAP-022A post-lifecycle row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
 phase_status = "docs/development/current/main/phases/phase-293x/293x-404-MIMAP-022A-POST-LIFECYCLE-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-429-DOCS-SLIM-022-ALLOCATOR-PROVIDER-MANIFEST-READINESS-REGISTRY-README-PIN-DECOUPLING"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-429-DOCS-SLIM-022-ALLOCATOR-PROVIDER-MANIFEST-READINESS-REGISTRY-README-PIN-DECOUPLING.md"
-latest_card_summary = "DOCS-SLIM-022 removes landed-history phase README pins from the allocator provider manifest/readiness/registry band while keeping design taskboard assertions."
+latest_card = "293x-430-DOCS-SLIM-023-ALLOCATOR-PROVIDER-PROOF-ROLLBACK-ACTIVATION-SAFETY-README-PIN-DECOUPLING"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-430-DOCS-SLIM-023-ALLOCATOR-PROVIDER-PROOF-ROLLBACK-ACTIVATION-SAFETY-README-PIN-DECOUPLING.md"
+latest_card_summary = "DOCS-SLIM-023 removes landed-history phase README pins from the allocator provider proof/rollback/activation safety band while keeping design taskboard assertions."
 
 current_blocker_token = "MIMAP-022A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-430 DOCS-SLIM-023 allocator provider proof/rollback/activation safety README pin decoupling landed",
   "293x-429 DOCS-SLIM-022 allocator provider manifest/readiness/registry README pin decoupling landed",
   "293x-428 DOCS-SLIM-021 allocator provider boundary/manifest/task breakdown taskboard pin decoupling landed",
   "293x-427 DOCS-SLIM-020 allocator provider manifest/readiness/registry taskboard pin decoupling landed",
@@ -39,5 +40,4 @@ landed_tail = [
   "293x-421 DOCS-SLIM-014 packed record taskboard pin decoupling landed",
   "293x-420 DOCS-SLIM-013 packed record history pin decoupling landed",
   "293x-419 DOCS-SLIM-012 inline record probe resolver adoption landed",
-  "293x-418 DOCS-SLIM-011 record metadata README decoupling landed",
 ]

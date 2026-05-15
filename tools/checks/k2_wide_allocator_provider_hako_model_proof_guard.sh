@@ -13,7 +13,6 @@ REGISTRY_SSOT="docs/development/current/main/design/allocator-provider-registry-
 TASK_BREAKDOWN="docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md"
 TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-124-M72-HAKO-MODEL-PROVIDER-PROOF-FIXTURE.md"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
@@ -43,7 +42,6 @@ require_file "$REGISTRY_SSOT"
 require_file "$TASK_BREAKDOWN"
 require_file "$TASKBOARD"
 require_file "$CARD"
-require_file "$PHASE_README"
 require_file "$INDEX"
 require_file "$DEV_GATE"
 require_file "$ALLOCATOR_GROUP"
@@ -60,7 +58,6 @@ require_text "$TASK_BREAKDOWN" "M72 | hako model provider proof fixture"
 require_text "$TASK_BREAKDOWN" "M73 | debug guarded provider proof fixture"
 require_text "$TASKBOARD" '| `M72 hako model provider proof fixture` | `live-docs` |'
 require_text "$TASKBOARD" '95. `M72 hako model provider proof fixture`'
-require_text "$PHASE_README" '`293x-124`'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_hako_model_proof_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_hako_model_proof_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_hako_model_proof_guard.sh"

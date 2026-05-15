@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-05-15
+Date: 2026-05-16
 Scope: current docs archive and slimming policy.
 Related:
   - docs/development/current/main/DOCS_LAYOUT.md
@@ -383,5 +383,21 @@ band phase README pin decoupling:
 - keep provider manifest parser, manifest CLI, readiness preflight, registry
   boundary, and combined dry-run behavior unchanged
 - keep the README-only decoupling from `DOCS-SLIM-017` and the 018-021
+  taskboard decouplings intact
+- do not physically move old cards yet
+
+## Twenty-third Slimming Phase
+
+`DOCS-SLIM-023` owns the allocator provider proof/rollback/activation safety
+guard band phase README pin decoupling:
+
+- remove landed-history phase README pins from the allocator provider
+  proof/rollback/activation safety guard band
+- keep card status, design taskboard, implementation checks, and check-index
+  assertions
+- keep provider proof, registry snapshot, selection decision, proof bundle,
+  rollback preflight, activation safety, and activation decision behavior
+  unchanged
+- keep the README-only decoupling from `DOCS-SLIM-017` and the 018-022
   taskboard decouplings intact
 - do not physically move old cards yet
