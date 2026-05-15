@@ -14,7 +14,6 @@ RUNTIME_FILE="src/runtime/allocator_hook_dry_run.rs"
 SSOT="docs/development/current/main/design/allocator-hook-dry-run-cli-surface-ssot.md"
 TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-113-M61-ALLOCATOR-HOOK-DRY-RUN-CLI-SURFACE.md"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
@@ -48,7 +47,6 @@ require_file "$RUNTIME_FILE"
 require_file "$SSOT"
 require_file "$TASKBOARD"
 require_file "$CARD"
-require_file "$PHASE_README"
 require_file "$REAL_APP_TASKBOARD"
 require_file "$CURRENT_STATE"
 require_file "$INDEX"
@@ -70,7 +68,6 @@ require_text "$MAIN_FILE" "maybe_run_allocator_hook_dry_run"
 require_text "$SSOT" "Allocator Hook Dry-Run CLI Surface (SSOT)"
 require_text "$TASKBOARD" '| `M61 allocator hook dry-run CLI surface` | `live-narrow` |'
 require_text "$TASKBOARD" '84. `M61 allocator hook dry-run CLI surface`'
-require_text "$PHASE_README" '`293x-113`'
 require_text "$REAL_APP_TASKBOARD" '`293x-113` M61 allocator hook dry-run CLI surface'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_hook_dry_run_cli_surface_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_hook_dry_run_cli_surface_guard.sh"

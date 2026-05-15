@@ -276,3 +276,14 @@ Physical archive moves are `DOCS-SLIM-002+`.
 - keep probe, pilot, packed-store, and backend behavior unchanged
 - keep the README-only decoupling from `DOCS-SLIM-013` intact
 - do not physically move old cards yet
+
+## Fifteenth Slimming Phase
+
+`DOCS-SLIM-015` owns the allocator hook guard band README pin decoupling:
+
+- remove landed-history phase README pins from the allocator hook guard band
+- keep card status, taskboard rows, implementation checks, and check-index
+  assertions
+- keep hook, dry-run, and activation behavior unchanged
+- keep the taskboard-pin decoupling for a follow-up row
+- do not physically move old cards yet
