@@ -139,6 +139,13 @@ pub enum VerificationError {
         owner: String,
         reason: String,
     },
+    /// Module-level metadata row invariant violation before CorePlan/backend
+    /// consumers may rely on layout or static data plans.
+    ModuleMetadataInvariantViolation {
+        key: &'static str,
+        owner: String,
+        reason: String,
+    },
 }
 
 impl std::fmt::Display for VerificationError {
@@ -402,6 +409,13 @@ impl std::fmt::Display for VerificationError {
                     f,
                     "[mir/verify:hako_alloc_page_lifecycle] owner={} reason={}",
                     owner, reason
+                )
+            }
+            VerificationError::ModuleMetadataInvariantViolation { key, owner, reason } => {
+                write!(
+                    f,
+                    "[mir/verify:module_metadata] key={} owner={} reason={}",
+                    key, owner, reason
                 )
             }
         }

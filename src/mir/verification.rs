@@ -15,6 +15,7 @@ mod hako_alloc_metadata;
 mod hako_alloc_page_lifecycle;
 mod inline_required;
 mod legacy;
+mod module_metadata;
 mod numeric_substrate;
 mod rune_contracts;
 mod ssa;
@@ -46,6 +47,11 @@ impl MirVerifier {
             numeric_substrate::check_exact_numeric_field_assignments(module)
         {
             self.errors.append(&mut numeric_errors);
+        }
+        if let Err(mut module_metadata_errors) =
+            module_metadata::check_module_metadata_invariants(module)
+        {
+            self.errors.append(&mut module_metadata_errors);
         }
         if let Err(mut hako_alloc_metadata_errors) =
             hako_alloc_metadata::check_hako_alloc_metadata_invariants(module)
