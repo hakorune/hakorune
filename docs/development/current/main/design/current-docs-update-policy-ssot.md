@@ -80,6 +80,15 @@ landed_tail = [
 ```
 
 Full landed history belongs in phase docs and cards, not in current mirrors.
+`docs/development/current/main/design/current-docs-archive-policy-ssot.md`
+owns archive buckets and landed ledger policy.
+
+`landed_tail` should stay short:
+
+```text
+target maximum:
+  12 rows
+```
 
 ## Guard Contract
 

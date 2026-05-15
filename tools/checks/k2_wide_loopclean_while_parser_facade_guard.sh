@@ -9,7 +9,6 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-406-LOOPCLEAN-006-WHILE-PARSER-FACADE-MERGE.md"
 SIDE_BAND="docs/development/current/main/design/compiler-cleanup-sidecar-task-breakdown-ssot.md"
 LOOP_SSOT="docs/development/current/main/design/loop-cleanup-before-packedarray-ssot.md"
-TASKBOARD="docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 INDEX="docs/tools/check-scripts-index.md"
 PARSER="src/parser/statements/control_flow.rs"
 TEST_FILE="src/tests/parser_loop_cleanup_surface.rs"
@@ -22,7 +21,6 @@ guard_require_files \
   "$CARD" \
   "$SIDE_BAND" \
   "$LOOP_SSOT" \
-  "$TASKBOARD" \
   "$INDEX" \
   "$PARSER" \
   "$TEST_FILE" \
@@ -37,7 +35,6 @@ guard_expect_in_file "$TAG" 'while cond \{ \.\.\. \}` parses to the same `ASTNod
 guard_expect_in_file "$TAG" 'parser_loopclean_while_stage3_normalizes_to_loop_ast' "$TEST_FILE" "while normalization fixture missing"
 guard_expect_in_file "$TAG" 'LOOPCLEAN-006' "$SIDE_BAND" "cleanup sidecar SSOT must list LOOPCLEAN-006"
 guard_expect_in_file "$TAG" 'LOOPCLEAN-006 while parser facade merge' "$LOOP_SSOT" "loop cleanup SSOT must list LOOPCLEAN-006"
-guard_expect_in_file "$TAG" 'LOOPCLEAN-006' "$TASKBOARD" "taskboard must list LOOPCLEAN-006"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 
 if hits="$(rg -n 'parse_while_stage3' src || true)"; then

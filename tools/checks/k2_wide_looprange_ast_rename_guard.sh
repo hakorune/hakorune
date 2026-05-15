@@ -9,7 +9,6 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-405-LOOPCLEAN-005-FORRANGE-TO-LOOPRANGE-AST-RENAME.md"
 SSOT="docs/development/current/main/design/loop-range-parser-capsule-ssot.md"
 TASKS="docs/development/current/main/design/language-minimal-surface-task-breakdown-ssot.md"
-TASKBOARD="docs/development/current/main/phases/phase-293x/293x-language-minimal-taskboard.md"
 INDEX="docs/tools/check-scripts-index.md"
 AST_MOD="src/ast/mod.rs"
 NODE_TYPE="src/ast/utils/node_type.rs"
@@ -27,7 +26,6 @@ guard_require_files \
   "$CARD" \
   "$SSOT" \
   "$TASKS" \
-  "$TASKBOARD" \
   "$INDEX" \
   "$AST_MOD" \
   "$NODE_TYPE" \
@@ -44,7 +42,6 @@ guard_expect_in_file "$TAG" 'ASTNode::LoopRange' "$CARD" "card must name the Loo
 guard_expect_in_file "$TAG" 'ForRange legacy compatibility input' "$CARD" "card must preserve old JSON decode compatibility"
 guard_expect_in_file "$TAG" 'ASTNode::LoopRange' "$SSOT" "LoopRange SSOT must record the AST rename"
 guard_expect_in_file "$TAG" 'LOOPCLEAN-005 LoopRange AST rename' "$TASKS" "task breakdown must mark LOOPCLEAN-005 complete"
-guard_expect_in_file "$TAG" 'LOOPCLEAN-005.*LoopRange AST rename' "$TASKBOARD" "taskboard must close LOOPCLEAN-005"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list this guard"
 
 guard_expect_in_file "$TAG" 'LoopRange \{' "$AST_MOD" "AST must define LoopRange variant"
@@ -67,4 +64,3 @@ cargo test -q --lib parser_loop_range_surface
 cargo test -q --lib parser_legacy_for_range_surface
 
 echo "[$TAG] ok"
-

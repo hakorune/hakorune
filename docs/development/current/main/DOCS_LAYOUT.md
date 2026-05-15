@@ -38,6 +38,8 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - zero-cost hot-line keeper gate and CoreMethodContract migration owner
 - `design/current-docs-update-policy-ssot.md`
   - current docs update policy and mirror-thinning contract
+- `design/current-docs-archive-policy-ssot.md`
+  - archive buckets, landed ledger, and current-doc slimming contract
 - `design/kernel-replacement-axis-ssot.md`
   - `K-axis` / artifact / task-placement vocabulary owner
 - `design/substrate-capability-ladder-ssot.md`
