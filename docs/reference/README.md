@@ -15,7 +15,7 @@
 
 ### concurrency/
 - `task_scope` / `nowait` / `await` / `lock` / `scoped` / `worker_local` の reference
-- current structured-concurrency Phase-0 manual
+- current structured-concurrency CONC status and semantics manual
 
 ### runtime/
 - runtime/kernel/substrate reference manuals

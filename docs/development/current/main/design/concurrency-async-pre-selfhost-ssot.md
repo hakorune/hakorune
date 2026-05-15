@@ -1,14 +1,20 @@
 # Concurrency / Async (pre-selfhost) — VM+LLVM stabilization plan
 
-Status: SSOT (design + execution plan)  
+Status: execution ledger for pre-selfhost VM+LLVM concurrency stabilization
 Scope: Nyash/Hakorune の **既存構文**（`nowait` / `await`）と、並行の **状態モデル**（`lock<T>` / `scoped` / `worker_local`）を、selfhost 前に **VM + LLVM で矛盾なく動く**ところまで固める。  
 
 Related:
-- Semantic SSOT: `docs/reference/concurrency/lock_scoped_worker_local.md`
-- Concurrency API (Phase‑0): `docs/reference/concurrency/semantics.md`
+- Current concurrency semantic SSOT + implementation status: `docs/reference/concurrency/semantics.md`
+- State-model SSOT (`lock` / `scoped` / `worker_local`): `docs/reference/concurrency/lock_scoped_worker_local.md`
 - Long-term note (deferred): `docs/development/current/main/design/exception-cleanup-async.md`（state-machine lowering）
 - Current lowering: `src/mir/builder/stmts/async_stmt.rs`
 - LLVM harness runner: `tools/run_llvm_harness.sh`
+
+Current status policy:
+- Read `docs/reference/concurrency/semantics.md` first for the current
+  implementation table and `CONC-*` vocabulary.
+- This file is the VM+LLVM execution ledger. Historical `Phase 242x` style
+  labels below are provenance only; new status summaries should use `CONC-*`.
 
 ---
 
@@ -22,117 +28,23 @@ Non-goals (この文書で今すぐやらない):
 - “真の並列性” の保証（スレッド/ワーカープールの意味論化）
 - 例外 + cleanup + async を統合した state-machine lowering（Phase 260 以降に委譲）
 
-### Structured task-scope vocabulary (Phase 242x)
+### Historical structured-scope follow-ups (Phase 242x-255x)
 
-- user-facing structured concurrency should be read as `task_scope`
-- current runtime scaffold behind that boundary is `TaskGroupBox` plus `push_task_scope()` / `pop_task_scope()`
-- `RoutineScopeBox` is historical wording only; do not treat it as the current code name
-- this vocabulary alignment does **not** change Phase-0 `nowait` / `await` lowering
-- detached tasks and sibling-failure policy remain later-phase work
+Current semantics are summarized in `docs/reference/concurrency/semantics.md`.
+The historical phase labels below are retained only so old phase cards remain
+traceable.
 
-### Detached / root-scope policy (Phase 247x)
-
-- bare `nowait` is **not** detached
-- `nowait` inside explicit `task_scope` belongs to that structured scope
-- `nowait` outside explicit `task_scope` falls back to the implicit runtime root scope
-- current root scope is the `global_hooks` fallback registry used by `register_future_to_current_group(...)`
-- `env.task.cancelCurrent` cancels the active explicit scope if present, otherwise the implicit root scope
-- detached work remains a future explicit surface; do not read the current root-scope fallback as detached-task semantics
-
-### Sibling-failure policy (Phase 248x)
-
-- current sibling-failure policy is scoped to explicit `task_scope` only
-- the first child future that reaches `TaskFailed(error)` becomes the current main failure for that scope
-- pending sibling futures owned by the same explicit scope are cancelled with reason `sibling-failed`
-- already-ready sibling futures are not rewritten
-- implicit root scope does not participate in sibling-failure cancellation in this cut
-- aggregate failure reporting remains later-phase work
-
-### Runtime hygiene follow-up (Phase 250x)
-
-- closed scope ownership is now read as a one-way latch:
-  - explicit `task_scope` that has been cancelled or has already latched first failure must not accept a late child future as pending work
-  - implicit root scope that has been cancelled must not accept a late root-owned future as pending work
-- current Phase-0 behavior for such late registrations is immediate `Cancelled(reason)` using the already-latched scope reason
-- `FutureBox` success is also terminal:
-  - `set_result(...)` is single-assignment just like `set_failed(...)` and `set_cancelled(...)`
-  - later writes to a ready future are ignored
-- owner-seam cleanup is still in progress:
-  - `TaskGroupBox` / `TaskGroupInner` remains the policy box
-  - `runtime::global_hooks` may register/push/pop current scope state, but should not define a parallel failure contract
-- current plugin/runtime `env.future.await` timeout remains a plugin-only escape hatch:
-  - it may still return `ResultBox::Err("Timeout")`
-  - that timeout shape is not part of the MIR `Await` contract
-  - do not describe it as VM-side `await` semantics
-
-### Scope-exit structured shutdown (Phase 251x)
-
-- each explicit `task_scope` closes independently on scope exit
-- current Phase-0 scope-exit rule is:
-  - cancel pending futures owned by the popped explicit scope with reason `scope-exit-cancelled`
-  - then perform best-effort bounded join for that same explicit scope
-- this applies to nested scopes too:
-  - popping an inner explicit scope must not defer its cleanup to the outermost scope
-  - outer explicit scopes keep their own owner/token state after an inner scope exits
-- this section only pins shutdown order
-- current failure / timeout surface is defined by the later Phase 252x-255x sections below
-
-### Scope-exit first-failure surface (Phase 252x)
-
-- explicit `task_scope` exit now surfaces the popped scope's latched `first_failure`
-- current Phase-0 order is:
-  - cancel still-pending child futures owned by the popped explicit scope with `scope-exit-cancelled`
-  - bounded-join that same explicit scope
-  - if `first_failure` is latched, return/rethrow that first failure for the scope-exit path
-- this cut is still explicit-scope-only:
-  - implicit root scope does not gain scope-exit failure surfacing here
-  - `joinAll(timeout_ms)` still does not surface failure in this cut
-  - aggregate/multi-failure reporting remains later work
-
-### `joinAll()` first-failure surface (Phase 253x)
-
-- `TaskGroupBox.joinAll(timeout_ms)` now surfaces the same first failure latch used by explicit scope exit
-- current Phase-0 public shape is:
-  - `ResultBox::Ok(void)` when no first failure is latched after the bounded join
-  - `ResultBox::Err(first_failure_payload)` when a first failure is latched
-- current timeout behavior is intentionally unchanged:
-  - timeout does not yet have a dedicated public error payload
-  - a timeout with no latched failure still returns `Ok(void)` in this cut
-- current failure payload preservation is now box-based:
-  - explicit-scope owner state stores the first failure as a box payload, not only a rendered string
-  - scope exit and `joinAll()` now read the same preserved first-failure payload
-- aggregate/multi-failure reporting remains a separate later cut
-
-### Aggregate / multi-failure reporting (Phase 254x)
-
-- explicit `task_scope` owner state may now preserve failures beyond the first one
-- current aggregation is diagnostic-only:
-  - `joinAll(timeout_ms)` still returns only `ResultBox::Ok(void)` / `ResultBox::Err(first_failure_payload)`
-  - explicit scope exit still returns/rethrows only the latched first failure
-- current aggregate report surface is `TaskGroupBox.failureReport()`
-  - returns `ArrayBox`
-  - empty when no failed child future has been observed
-  - otherwise ordered as `[first_failure, additional_failures...]`
-- current aggregate report stores only failed child outcomes:
-  - sibling cancellations with reason `sibling-failed` are not appended as extra failures
-  - pending siblings cancelled by the first failure remain cancellation side-effects, not aggregate causes
-- current aggregate report is explicit-scope-owner only:
-  - implicit root scope does not expose aggregate reporting in this cut
-  - `pop_task_scope()` does not yet return aggregate failure payloads
-
-### `joinAll()` timeout payload (Phase 255x)
-
-- `TaskGroupBox.joinAll(timeout_ms)` now exposes a dedicated timeout payload
-- current Phase-0 public shape is:
-  - `ResultBox::Ok(void)` when the bounded join finishes in time and no first failure is latched
-  - `ResultBox::Err(first_failure_payload)` when a first failure is latched
-  - `ResultBox::Err(ErrorBox("TaskJoinTimeout", "timed out after <ms>ms"))` when the bounded join hits its deadline without a latched first failure
-- precedence is fixed:
-  - first failure wins over timeout
-  - timeout wins over plain `Ok(void)`
-- scope-exit remains narrower in this cut:
-  - explicit scope exit still only surfaces the latched first failure
-  - explicit scope-exit timeout payload remains later work
+| Historical label | Topic | Current semantic owner |
+| --- | --- | --- |
+| Phase 242x | `task_scope` vocabulary; `RoutineScopeBox` retired as wording. | `semantics.md` terminology note |
+| Phase 247x | root-scope fallback; bare `nowait` is not detached. | `semantics.md` structured concurrency and root-scope note |
+| Phase 248x | explicit-scope sibling-failure cancellation. | `semantics.md` structured concurrency |
+| Phase 250x | late registration latches, terminal `FutureBox` success, plugin timeout boundary. | `semantics.md` future `await` contract |
+| Phase 251x | explicit-scope structured shutdown on scope exit. | `semantics.md` structured concurrency |
+| Phase 252x | scope-exit first-failure surfacing. | `semantics.md` structured concurrency |
+| Phase 253x | `joinAll()` first-failure surfacing. | `semantics.md` structured concurrency |
+| Phase 254x | `failureReport()` aggregate diagnostics. | `semantics.md` structured concurrency |
+| Phase 255x | `joinAll()` timeout payload and precedence. | `semantics.md` future `await` contract |
 
 ---
 
@@ -144,8 +56,8 @@ Non-goals (この文書で今すぐやらない):
 - Optimizer: `NYASH_REWRITE_FUTURE=1` で Future 命令を `ExternCall env.future.*` に rewrite できる。
 
 ### 1.2 Rust VM (MIR interpreter)
-- `FutureNew/FutureSet/Await` は実装済み（Phase‑0: resolved FutureBox + `await` は同期ブロック）。
-- `nowait` は “spawn” の意味を持たず、式を順次評価して resolved future を作る（Phase‑0 semantics）。
+- `FutureNew/FutureSet/Await` は実装済み（Phase-0: resolved FutureBox + `await` は同期ブロック）。
+- `nowait` は “spawn” の意味を持たず、式を順次評価して resolved future を作る（Phase-0 semantics）。
 
 Repro (VM):
 - `./target/release/hakorune --backend vm apps/tests/async-await-min/main.hako`
@@ -165,18 +77,18 @@ Repro (LLVM harness):
 
 ---
 
-## 2. Phase‑0 semantics to pin (minimal + backend-neutral)
+## 2. Phase-0 semantics to pin (minimal + backend-neutral)
 
 この段階で pin するのは “正しさ” と “導線”。
 並列実行の保証はしない（順次実行でも OK）。
 
 ### 2.1 `nowait` (spawn-like surface)
 - `nowait fut = expr` は “Future 値を得る” 構文である。
-- Phase‑0 では `expr` の評価は **順次でもよい**（実装は future を “resolved” として作っても良い）。
+- Phase-0 では `expr` の評価は **順次でもよい**（実装は future を “resolved” として作っても良い）。
 - `nowait` が “スレッド” を意味する仕様にはしない。
 
 ### 2.2 `await`
-- `await fut` は fut が完了していれば値を返す。未完了なら Phase‑0 では待つ（実装は即完了のみでもよい）。
+- `await fut` は fut が完了していれば値を返す。未完了なら Phase-0 では待つ（実装は即完了のみでもよい）。
 - strict/dev では `await` の前後に `Safepoint` があることを verifier で要求する（既存方針に従う）。
 
 Current VM contract to pin:
@@ -188,7 +100,7 @@ Current VM contract to pin:
   - non-`Future` operands fail-fast as `TypeError("Await expects Future in \`future\` operand")`
 - completion rule:
   - current VM path blocks until the future is ready, then returns the stored value
-  - current Phase‑0 `FutureNew` creates an already-resolved future on the VM path
+  - current Phase-0 `FutureNew` creates an already-resolved future on the VM path
 - current non-goals:
   - no timeout result shape
   - no general cancellation result shape beyond the current scope-owned `Cancelled(reason)` path
@@ -215,7 +127,7 @@ Current failure taxonomy to pin:
 ### 2.3 Method-call `nowait`
 最短の selfhost 安定化として、以下のどちらかを SSOT として選ぶ（決め打ちが必要）。
 
-Option A (recommended for Phase‑0):
+Option A (recommended for Phase-0):
 - method-call `nowait fut = obj.m(args...)` は **通常の式評価**で値を作り、`FutureNew` で包む（spawn_instance を使わない）。
 - ねらい: backend に “spawn_instance” の ABI を増やさず、VM/LLVM を揃えやすくする。
 
@@ -245,28 +157,28 @@ Option B (later / full runtime route):
 
 ## 4. Execution plan (1 task = 1 commit)
 
-### CONC‑0 (docs-first) — SSOT + drift inventory
-- 目的: “何が動く/動かない” の SSOT を 1 箇所に寄せる（本ファイル）。
+### CONC-0 (docs-first) — SSOT + drift inventory
+- 目的: “何が動く/動かない” の SSOT を `docs/reference/concurrency/semantics.md` に寄せる。
 - 追加: docs 内の “Implemented” 記述の棚卸し（Future/await 周りの drift を減らす）。
 
-### CONC‑1 (VM) — implement `FutureNew`/`Await` in MIR interpreter (minimal)
+### CONC-1 (VM) — implement `FutureNew`/`Await` in MIR interpreter (minimal)
 - 受け入れ基準:
   - `./target/release/hakorune --backend vm apps/tests/async-await-min/main.hako` が `NYASH_REWRITE_FUTURE` 無しで exit 42
   - `apps/tests/async-nowait-basic/main.hako` が exit 33
-- 方針: Phase‑0 は resolved future のみ（即完了）でもよい。スケジューラ連携は後段。
+- 方針: Phase-0 は resolved future のみ（即完了）でもよい。スケジューラ連携は後段。
 
-### CONC‑2 (lowering) — method-call nowait を Option A に寄せる
+### CONC-2 (lowering) — method-call nowait を Option A に寄せる
 - 変更: `src/mir/builder/stmts/async_stmt.rs` から `env.future.spawn_instance` を消し、式評価 + `FutureNew` へ統一。
 - 受け入れ基準:
   - `./target/release/hakorune --backend vm apps/tests/async-spawn-instance/main.hako` が exit 3
 
-### CONC‑3 (LLVM) — harness parity for Phase‑0 futures
+### CONC-3 (LLVM) — harness parity for Phase-0 futures
 - 受け入れ基準:
   - `tools/run_llvm_harness.sh apps/tests/async-await-min/main.hako` が exit 42
   - `tools/run_llvm_harness.sh apps/tests/async-nowait-basic/main.hako` が exit 33
-  - `tools/run_llvm_harness.sh apps/tests/async-spawn-instance/main.hako` が exit 3（CONC‑2 後）
+  - `tools/run_llvm_harness.sh apps/tests/async-spawn-instance/main.hako` が exit 3（CONC-2 後）
 
-### CONC‑4 (gates) — VM+LLVM smoke wiring **(done)**
+### CONC-4 (gates) — VM+LLVM smoke wiring **(done)**
 - Status: **done** (2026‑02‑04)
 - Added smokes:
   - `tools/smokes/v2/profiles/integration/async/async_min_vm.sh`

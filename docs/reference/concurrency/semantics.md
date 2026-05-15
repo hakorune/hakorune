@@ -1,9 +1,37 @@
-## Concurrency Semantics (docs-only; to guide MVP)
+## Concurrency Semantics
 
-Status: reference for userland Phase‑0. No runtime changes during the feature‑pause.
+Status: concurrency semantics SSOT for the current Phase-0 / CONC line.
+True parallel scheduling remains future work.
 
 See also:
-- `docs/reference/concurrency/lock_scoped_worker_local.md` (Lock/Scoped/WorkerLocal SSOT)
+- `docs/reference/concurrency/lock_scoped_worker_local.md` (`lock` / `scoped` / `worker_local` state-model SSOT)
+- `docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md` (VM+LLVM execution ledger and historical phase provenance)
+
+## Implementation Status
+
+Use this table as the quick read for "what works now". Use `CONC-*`
+labels for current cross-doc status; historical `Phase 242x` style labels are
+kept only as provenance in phase logs and execution ledgers.
+
+| Feature | Design | VM | LLVM | Notes |
+| --- | --- | --- | --- | --- |
+| `nowait` / `await` | yes | yes | yes | CONC-1..4 done for Phase-0 future/await parity. |
+| `Channel` | yes | scaffold | not active | API semantics are documented; runtime wait integration is later. |
+| `task_scope` | yes | scaffold | scaffold | `TaskGroupBox` owns scoped child futures in the current cut. |
+| `lock<T>` | yes | no | no | Design-only state model; no runtime/backend surface yet. |
+| `scoped` | yes | no | no | Design-only context model; propagation wiring is not pinned yet. |
+| `worker_local` | yes | no | no | Design-only/cache-only model; not a semantic mechanism. |
+| true parallel scheduler | no | no | no | Phase-1+ future work; no detached-task contract yet. |
+
+## CONC Vocabulary
+
+| CONC id | Meaning | Current state |
+| --- | --- | --- |
+| CONC-0 | SSOT and drift inventory for async/concurrency docs. | done |
+| CONC-1 | VM `FutureNew` / `Await` minimal support. | done |
+| CONC-2 | Method-call `nowait` lowering unified to Phase-0 future wrapping. | done |
+| CONC-3 | LLVM harness parity for Phase-0 futures. | done |
+| CONC-4 | VM+LLVM smoke wiring. | done |
 
 Terminology note:
 - This doc uses “spawn” as a generic term for “starting a concurrent task”. The current Nyash surface syntax for async start is `nowait`.
@@ -18,7 +46,7 @@ Terminology note:
 - `try_receive() -> (Bool, Any?)`: returns immediately; false if empty and not closed.
 - `receive_timeout(ms) -> (Bool, Any?)`: returns false on timeout.
 
-Implementation note (Phase‑0): no busy loop. Use cooperative queues; later replaced by OS-efficient wait.
+Implementation note (Phase-0): no busy loop. Use cooperative queues; later replaced by OS-efficient wait.
 
 ### Close Semantics
 - `close()` marks the channel closed. Further `send` is an error.
@@ -29,8 +57,8 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
 - `when(channel, handler)` registers selectable cases.
 - `await()` examines cases:
   - If one or more ready: choose one (random/round‑robin) and execute its handler atomically.
-  - If none ready: Phase‑0 may block via a multi-wait helper or return false if non-blocking policy requested.
-- Fairness: no starvation requirement; Phase‑0 uses simple fairness; Phase‑2 integrates runtime help.
+  - If none ready: Phase-0 may block via a multi-wait helper or return false if non-blocking policy requested.
+- Fairness: no starvation requirement; Phase-0 uses simple fairness; Phase-2 integrates runtime help.
 
 ### Structured Concurrency (`task_scope`, Phase-0 scaffold)
 - `task_scope` is the user-facing structured-concurrency boundary.
@@ -50,6 +78,7 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
 - `nowait` outside explicit `task_scope` falls back to an implicit root scope owned by the runtime hooks registry.
 - detached work is still reserved for a later explicit surface; do not treat the current implicit root scope as detached-task semantics.
 - first failure in an explicit `task_scope` cancels pending siblings with reason `sibling-failed`.
+- late child futures registered after that first failure are immediately cancelled with the same reason.
 - implicit root scope does not participate in sibling-failure cancellation in the current cut.
 - aggregate/multi-failure reporting is now a separate owner-side diagnostic surface:
   - `TaskGroupBox.failureReport()` returns `ArrayBox`
@@ -84,11 +113,7 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
   - `ResultBox::Err(first_failure_payload)` when a first failure is latched
   - `ResultBox::Err(TaskJoinTimeout: timed out after Nms)` when the bounded join deadline is hit without a latched first failure
   - first failure wins over timeout
-- current sibling-failure cut is also narrow:
-  - only explicit `task_scope` ownership participates
-  - first failed child future cancels pending siblings with reason `sibling-failed`
-  - late child futures registered after that first failure are immediately cancelled with the same reason
-  - it does not yet define aggregate rethrow / scope-exit aggregate surfacing
+- sibling-failure policy is owned by the structured-concurrency section above; `await` only observes the resulting `Cancelled(reason)` state.
 - `FutureBox` success is single-assignment in the current contract:
   - once a future is `Ready`, later `set_result` / failed / cancelled writes are ignored
 - plugin/runtime timeout is not part of the VM-side `await` contract:
@@ -101,7 +126,7 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
 - It does not currently promise lexical join, sibling-failure cancellation, or a detached-task shutdown contract.
 
 ### Types & Safety
-- Phase‑0: runtime tag checks on `ChannelBox` send/receive are optional; document expected element type.
+- Phase-0: runtime tag checks on `ChannelBox` send/receive are optional; document expected element type.
 - Future: `TypedChannelBox<T>` with static verification; falls back to runtime tags when needed.
 
 ### Observability
@@ -123,5 +148,5 @@ Implementation note (Phase‑0): no busy loop. Use cooperative queues; later rep
 - scope_cancel.hako: `task_scope` / `TaskGroupBox` cancels owned child futures with stable reasons; blocking-API interruption remains a later runtime wait contract.
 
 ### Migration Path
-- Phase‑0 userland boxes are kept while Phase‑2 runtime grows; API stable.
-- Replace cooperative wait with WaiterBox (Phase‑1) and runtime park/unpark later.
+- Phase-0 userland boxes are kept while Phase-2 runtime grows; API stable.
+- Replace cooperative wait with WaiterBox (Phase-1) and runtime park/unpark later.
