@@ -4,7 +4,8 @@ Status: concurrency semantics SSOT for the current Phase-0 / CONC line.
 True parallel scheduling remains future work.
 
 See also:
-- `docs/reference/concurrency/lock_scoped_worker_local.md` (`lock` / `scoped` / `worker_local` state-model SSOT)
+- `docs/reference/concurrency/boundary-model.md` (new Boundary-model design SSOT)
+- `docs/reference/concurrency/lock_scoped_worker_local.md` (`lock` / `scoped` / `worker_local` historical/provisional state-model notes)
 - `docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md` (VM+LLVM execution ledger and historical phase provenance)
 
 ## Implementation Status
@@ -16,10 +17,11 @@ kept only as provenance in phase logs and execution ledgers.
 | Feature | Design | VM | LLVM | Notes |
 | --- | --- | --- | --- | --- |
 | `nowait` / `await` | yes | yes | yes | CONC-1..4 done for Phase-0 future/await parity. |
-| `Channel` | yes | scaffold | not active | API semantics are documented; runtime wait integration is later. |
+| `Channel` | yes | scaffold | not active | Boundary model requires await-visible `send` / `recv` / `close`; runtime wait integration is later. |
 | `task_scope` | yes | scaffold | scaffold | `TaskGroupBox` owns scoped child futures in the current cut. |
-| `lock<T>` | yes | no | no | Design-only state model; no runtime/backend surface yet. |
-| `scoped` | yes | no | no | Design-only context model; propagation wiring is not pinned yet. |
+| `sync box` | yes | no | no | Preferred shared-mutable Boundary surface; verifier/runtime rows are later. |
+| `lock<T>` | provisional | no | no | Implementation concept / historical design spelling; not the preferred canonical surface. |
+| `context` / `scoped` | yes | no | no | `context` is the preferred surface name; `scoped` is historical/provisional wording. |
 | `worker_local` | yes | no | no | Design-only/cache-only model; not a semantic mechanism. |
 | true parallel scheduler | no | no | no | Phase-1+ future work; no detached-task contract yet. |
 
@@ -49,18 +51,19 @@ Terminology note:
 - `RoutineScopeBox` is historical wording only; do not use it as the current code name.
 
 ### Blocking & Non-Blocking
-- `send(v)` blocks when the buffer is full (capacity reached). Unblocks when a receiver takes an item.
-- `receive()` blocks when buffer is empty. Unblocks when a sender provides an item.
+- `await send(v)` waits when the buffer is full. It resumes when capacity is available or the channel is closed/cancelled.
+- `await receive()` waits when the buffer is empty. It resumes when a sender provides an item or the channel is closed/cancelled.
 - `try_send(v) -> Bool`: returns immediately; false if full or closed.
 - `try_receive() -> (Bool, Any?)`: returns immediately; false if empty and not closed.
-- `receive_timeout(ms) -> (Bool, Any?)`: returns false on timeout.
+- `await receive_timeout(ms) -> (Bool, Any?)`: waits up to the deadline and returns false on timeout.
 
 Implementation note (Phase-0): no busy loop. Use cooperative queues; later replaced by OS-efficient wait.
 
 ### Close Semantics
-- `close()` marks the channel closed. Further `send` is an error.
+- `await close()` marks the channel closed and wakes current waiters. It is await-visible for API consistency even if a runtime can complete it immediately.
+- Further `send` is an error or an explicit closed result in fallible APIs. Silent drop is forbidden.
 - After close, `receive` continues to drain buffered items; once empty, returns a closed indicator (shape per API, e.g., `(false, End)`).
-- Double close is an error.
+- Double close is an error unless a later API explicitly introduces `try_close`.
 
 ### Select Semantics
 - `when(channel, handler)` registers selectable cases.
@@ -94,6 +97,10 @@ Implementation note (Phase-0): no busy loop. Use cooperative queues; later repla
   - report order is `[first_failure, additional_failures...]`
   - `joinAll()` and scope exit still surface only the first failure
 - Cancellation should eventually unblock channel waits promptly; Phase-0 only guarantees best-effort scope-owned future cleanup.
+- Structured child tasks created by `nowait` inside an explicit `task_scope`
+  inherit the active `context`/historical `scoped` bindings by snapshot at child
+  creation time. The implicit root scope remains best-effort ownership only and
+  is not a detached context propagation contract.
 
 ### Future `await` (current VM contract)
 - This document is not the canonical owner for `await fut` failure/cancel semantics.

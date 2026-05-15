@@ -16,7 +16,7 @@
 - 内部設計ドキュメント
 
 ### concurrency/
-- `task_scope` / `nowait` / `await` / `lock` / `scoped` / `worker_local` の reference
+- `task_scope` / `nowait` / `await` / `Channel` / `sync box` / `context` / `worker_local` の reference
 - current structured-concurrency CONC status and semantics manual
 
 ### runtime/
@@ -37,8 +37,9 @@
 このディレクトリのドキュメントは安定版です。開発中の仕様は`development/`を参照してください。
 
 Concurrency note:
+- new concurrency Boundary model owner は `docs/reference/concurrency/boundary-model.md`
 - current user-facing concurrency manual owner は `docs/reference/concurrency/semantics.md`
-- `lock` / `scoped` / `worker_local` の state-model SSOT は `docs/reference/concurrency/lock_scoped_worker_local.md`
+- `lock` / `scoped` / `worker_local` の historical/provisional state-model SSOT は `docs/reference/concurrency/lock_scoped_worker_local.md`
 
 Runtime substrate note:
 - current capability manual owner は `docs/reference/runtime/substrate-capabilities.md`

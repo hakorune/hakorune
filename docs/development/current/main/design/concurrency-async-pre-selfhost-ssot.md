@@ -1,11 +1,12 @@
 # Concurrency / Async (pre-selfhost) — VM+LLVM stabilization plan
 
 Status: execution ledger for pre-selfhost VM+LLVM concurrency stabilization
-Scope: Nyash/Hakorune の **既存構文**（`nowait` / `await`）と、並行の **状態モデル**（`lock<T>` / `scoped` / `worker_local`）を、selfhost 前に **VM + LLVM で矛盾なく動く**ところまで固める。  
+Scope: Nyash/Hakorune の **既存構文**（`nowait` / `await`）と、並行の **Boundary 状態モデル**（`Channel<T>` / `sync box` / `context` / runtime-internal `worker_local`）を、selfhost 前に **VM + LLVM で矛盾なく動く**ところまで固める。
 
 Related:
 - Current concurrency semantic SSOT + implementation status: `docs/reference/concurrency/semantics.md`
-- State-model SSOT (`lock` / `scoped` / `worker_local`): `docs/reference/concurrency/lock_scoped_worker_local.md`
+- Boundary-model SSOT: `docs/reference/concurrency/boundary-model.md`
+- Historical/provisional state-model notes (`lock` / `scoped` / `worker_local`): `docs/reference/concurrency/lock_scoped_worker_local.md`
 - Long-term note (deferred): `docs/development/current/main/design/exception-cleanup-async.md`（state-machine lowering）
 - Current lowering: `src/mir/builder/stmts/async_stmt.rs`
 - LLVM harness runner: `tools/run_llvm_harness.sh`
@@ -139,17 +140,25 @@ Option B (later / full runtime route):
 
 ---
 
-## 3. `lock<T>` / `scoped` / `worker_local` (meaning model)
+## 3. Boundary state model (`sync box` / `context` / `worker_local`)
 
-意味論 SSOT は `docs/reference/concurrency/lock_scoped_worker_local.md` に固定済み。
+意味論 SSOT は次に固定済み。
+
+```text
+docs/reference/concurrency/boundary-model.md
+docs/reference/concurrency/lock_scoped_worker_local.md
+```
+
 ここでは selfhost 前の “実装境界” のみ pin する。
 
 - `local`: call activation / lexical scope。スレッド/ワーカーとは無関係。
-- `lock<T>`: 共有 mutable の唯一入口（`lock {}` は構文案。実装は後段でも良い）。
-- `scoped`: 文脈（trace/request/config）。**nowait の wrapper ではない**。structured child に継承する（detached は別物）。
-- `scoped` inheritance is still design intent in the current tree:
+- `sync box`: 共有 mutable の canonical Boundary surface。`lock<T>` は
+  historical/provisional concept として読む（実装は後段）。
+- `context`: 文脈（trace/request/config）。**nowait の wrapper ではない**。
+  structured child に creation-time snapshot として継承する（detached は別物）。
+- context/scoped inheritance is design intent in the current tree:
   - phases 242x-255x pin future ownership / cancellation / timeout surfaces
-  - they do not yet pin a concrete runtime propagation mechanism for `scoped`
+  - runtime propagation wiring remains phased, but the semantic direction is pinned
 - current root-scope fallback does not pin detached/task-local propagation semantics yet
 - `worker_local`: cache 専用。意味論に使わない。
 

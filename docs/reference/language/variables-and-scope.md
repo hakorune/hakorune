@@ -13,7 +13,7 @@ For the lifecycle/finalization SSOT, see: `docs/reference/language/lifecycle.md`
 - Redeclaration: Writing `local name = ...` inside a nested block creates a new shadowing binding. Same-scope redeclaration (`local name` twice in one lexical scope) is a compile-time error. Writing `name = ...` without `local` updates the nearest existing binding in an enclosing scope.
 - Mutability: Locals are mutable unless future keywords specify otherwise (e.g., `const`).
 - Lifetime: The variable binding is dropped at block end (`}`); object lifetime/finalization is defined separately in `docs/reference/language/lifecycle.md`.
-- Concurrency: `local` is per routine/task activation and is thread-irrelevant. Concurrency-specific state lives in `lock<T>` / `scoped` / `worker_local` (SSOT: `docs/reference/concurrency/lock_scoped_worker_local.md`).
+- Concurrency: `local` is per routine/task activation and is thread-irrelevant. Concurrency-specific state crosses tasks only through explicit boundaries such as `Future<T>`, `Channel<T>`, `sync box`, `context`, or runtime/internal worker-local substrate (SSOT: `docs/reference/concurrency/boundary-model.md`).
 
 Notes:
 - `local` is part of the current surface.
