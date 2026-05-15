@@ -381,6 +381,39 @@ Retire condition: backend consumers stop reading family-specific rows directly
 for a route family once the folded `placement_effect_routes` payload carries
 the same proof, demand, publication boundary, and selected value identity.
 
+### Placement Effect Consumer Fold-Up Plan
+
+`placement_effect_routes` is the preferred generic reader for new
+placement/effect backend consumers. Family rows remain compatibility fallbacks
+until each family has proof parity through the folded row.
+
+| Family | Current preferred reader | Compatibility fallback | Fold-up retire condition |
+| --- | --- | --- | --- |
+| string corridor route windows | `placement_effect_routes` rows with `source=string_corridor` and `decision=direct_kernel_entry` | `string_corridor_candidates` plan window readers | retire fallback once folded routes carry all source-root/window/proof fields needed by string concat/substring readers |
+| sum placement local aggregate | `placement_effect_routes` rows with `source=sum_placement` and `decision=local_aggregate` | `sum_placement_facts` and `sum_placement_selections` | retire fallback once selected value/source-sum/manifest-row proof parity is covered by folded routes |
+| sum local aggregate layout | `placement_effect_routes` rows with `source=agg_local_scalarization` and `decision=local_aggregate` | `sum_placement_layouts` | retire fallback once layout detail is represented by folded route detail or a generic layout route |
+| thin entry | `placement_effect_routes` rows with `source=thin_entry` and selected entry decision | `thin_entry_selections` | retire fallback once public/thin entry selection consumers no longer need family rows |
+| string direct kernels | `string_kernel_plans` | none; family-specific verified route remains active | do not fold into `placement_effect_routes` until borrow/publication/carrier/text-consumer verifier facts have an equivalent generic route shape |
+
+Current C shim anchors:
+
+- `hako_llvmc_placement_effect_routes`
+- `hako_llvmc_has_thin_entry_selection`
+- `hako_llvmc_sum_has_thin_internal_selection`
+- `hako_llvmc_sum_has_local_aggregate_fact`
+- `hako_llvmc_sum_has_local_aggregate_selection`
+- `hako_llvmc_sum_has_layout`
+- `hako_llvmc_string_corridor_read_route_window_from_placement_effect_routes`
+
+Stop lines:
+
+- Do not delete family-specific readers until the folded route carries the same
+  proof, demand, publication boundary, and selected value identity.
+- Do not make backend readers infer placement from raw helper names or app
+  shapes while migrating.
+- Do not fold `string_kernel_plans` into `placement_effect_routes` without a
+  verifier-equivalent generic route shape.
+
 ## Experimental Seed Route Policy
 
 Rows ending in `*_micro_seed_route` or `*_seed_route`, plus

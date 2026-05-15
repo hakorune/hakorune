@@ -12,13 +12,20 @@ INLINE_REQUIRED="$ROOT_DIR/src/mir/verification/inline_required.rs"
 STRING_KERNEL_VERIFIER="$ROOT_DIR/src/mir/verification/string_kernel.rs"
 EXACT_NUMERIC_CONTRACTS="$ROOT_DIR/src/mir/exact_numeric_field_contracts.rs"
 EXACT_NUMERIC_BACKEND="$ROOT_DIR/src/mir/exact_numeric_backend_capability.rs"
+LLVM_COMMON_SHIM="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_common.inc"
+LLVM_SUM_LOCAL_SHIM="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc"
+LLVM_STRING_CANDIDATE_SHIM="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_string_candidate_plan_readers.inc"
 INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
 
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" realpath
-guard_require_files "$TAG" "$DOC" "$ROOT_EMIT" "$FUNCTION_TYPES" "$SEMANTIC_REFRESH" "$RUNE_CONTRACTS" "$INLINE_REQUIRED" "$STRING_KERNEL_VERIFIER" "$EXACT_NUMERIC_CONTRACTS" "$EXACT_NUMERIC_BACKEND" "$INDEX"
+guard_require_files "$TAG" "$DOC" "$ROOT_EMIT" "$FUNCTION_TYPES" \
+  "$SEMANTIC_REFRESH" "$RUNE_CONTRACTS" "$INLINE_REQUIRED" \
+  "$STRING_KERNEL_VERIFIER" "$EXACT_NUMERIC_CONTRACTS" \
+  "$EXACT_NUMERIC_BACKEND" "$LLVM_COMMON_SHIM" "$LLVM_SUM_LOCAL_SHIM" \
+  "$LLVM_STRING_CANDIDATE_SHIM" "$INDEX"
 
 require_doc_token() {
   local token="$1"
@@ -295,10 +302,25 @@ require_doc_token "ModuleMetadata"
 require_doc_token "PluginMetadata"
 require_doc_token "placement_effect_routes"
 require_doc_token "family-specific rows"
+require_doc_token "Placement Effect Consumer Fold-Up Plan"
+require_doc_token "Family rows remain compatibility fallbacks"
+require_doc_token "string corridor route windows"
+require_doc_token "sum placement local aggregate"
+require_doc_token "sum local aggregate layout"
+require_doc_token "thin entry"
+require_doc_token "string direct kernels"
+require_doc_token "verifier-equivalent generic route shape"
 require_doc_token "boxed fallback disabled"
 require_doc_token "metadata-only"
 require_doc_token "tools/checks/mir_metadata_catalog_guard.sh"
 
 require_source_token "tools/checks/mir_metadata_catalog_guard.sh" "$INDEX"
+require_source_token "hako_llvmc_placement_effect_routes" "$LLVM_COMMON_SHIM"
+require_source_token "hako_llvmc_has_thin_entry_selection" "$LLVM_COMMON_SHIM"
+require_source_token "hako_llvmc_sum_has_thin_internal_selection" "$LLVM_SUM_LOCAL_SHIM"
+require_source_token "hako_llvmc_sum_has_local_aggregate_fact" "$LLVM_SUM_LOCAL_SHIM"
+require_source_token "hako_llvmc_sum_has_local_aggregate_selection" "$LLVM_SUM_LOCAL_SHIM"
+require_source_token "hako_llvmc_sum_has_layout" "$LLVM_SUM_LOCAL_SHIM"
+require_source_token "hako_llvmc_string_corridor_read_route_window_from_placement_effect_routes" "$LLVM_STRING_CANDIDATE_SHIM"
 
 echo "[$TAG] ok module_keys=${#module_keys[@]} seed_keys=${#seed_keys[@]}"

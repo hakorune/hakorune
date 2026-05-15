@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-366-MIMAP-F
 method_anchor = "docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-372-METADATA-PROMOTE-003-FUNCTION-CONTRACT-ROWS"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-372-METADATA-PROMOTE-003-FUNCTION-CONTRACT-ROWS.md"
-latest_card_summary = "METADATA-PROMOTE-003 documents and guards active function-level metadata contract rows."
+latest_card = "293x-373-METADATA-PROMOTE-004-PLACEMENT-FOLDUP-PLAN"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-373-METADATA-PROMOTE-004-PLACEMENT-FOLDUP-PLAN.md"
+latest_card_summary = "METADATA-PROMOTE-004 records and guards the placement_effect_routes consumer fold-up plan."
 
 current_blocker_token = "MIMAP-FACADE-CLEAN-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-373 METADATA-PROMOTE-004 placement_effect consumer fold-up plan landed",
   "293x-372 METADATA-PROMOTE-003 active function metadata contract rows landed",
   "293x-371 METADATA-PROMOTE-002 typed object and static data verifier hardening landed",
   "293x-370 METADATA-PROMOTE-001 active promotion matrix guard landed",
