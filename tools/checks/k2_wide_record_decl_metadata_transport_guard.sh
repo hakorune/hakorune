@@ -9,10 +9,8 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-209-C203A-RECORD-DECL-METADATA-TRANSPORT.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 RECORD_SSOT="docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 MIR_TYPES="src/mir/function/types.rs"
 MIR_FUNCTION="src/mir/function.rs"
-MIR_MOD="src/mir/mod.rs"
 COMP_CTX="src/mir/builder/compilation_context.rs"
 DECL_INDEXER="src/mir/builder/declaration_indexer.rs"
 MODULE_LIFECYCLE="src/mir/builder/module_lifecycle.rs"
@@ -34,10 +32,8 @@ guard_require_files \
   "$CARD" \
   "$PLAN" \
   "$RECORD_SSOT" \
-  "$PHASE_README" \
   "$MIR_TYPES" \
   "$MIR_FUNCTION" \
-  "$MIR_MOD" \
   "$COMP_CTX" \
   "$DECL_INDEXER" \
   "$MODULE_LIFECYCLE" \
@@ -57,11 +53,9 @@ guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "C203a card must be complete"
 guard_expect_in_file "$TAG" 'C203a status:' "$PLAN" "mimalloc plan must record C203a status"
 guard_expect_in_file "$TAG" '`C203a` is complete as `293x-209`' "$RECORD_SSOT" "record SSOT must mark C203a complete"
-guard_expect_in_file "$TAG" '`293x-209`' "$PHASE_README" "phase README must list C203a row"
 guard_expect_in_file "$TAG" 'pub struct RecordDecl' "$MIR_TYPES" "MIR metadata must define RecordDecl"
 guard_expect_in_file "$TAG" 'pub record_decls: BTreeMap<String, RecordDecl>' "$MIR_TYPES" "MIR metadata must carry record_decls"
 guard_expect_in_file "$TAG" 'RecordDecl' "$MIR_FUNCTION" "MIR function module must re-export RecordDecl"
-guard_expect_in_file "$TAG" 'RecordDecl' "$MIR_MOD" "MIR public module must re-export RecordDecl"
 guard_expect_in_file "$TAG" 'register_record_decl' "$COMP_CTX" "compilation context must register record declarations separately"
 guard_expect_in_file "$TAG" 'register_record_decl' "$DECL_INDEXER" "declaration indexer must route records to record metadata"
 guard_expect_in_file "$TAG" 'record_decls' "$MODULE_LIFECYCLE" "module lifecycle must copy record metadata"

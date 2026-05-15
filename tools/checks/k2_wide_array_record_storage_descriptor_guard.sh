@@ -9,7 +9,6 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-212-C204A-ARRAY-RECORD-STORAGE-DESCRIPTORS.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 RECORD_SSOT="docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 ARRAY_RECORD_PLAN="src/mir/array_record_storage_plan.rs"
 MIR_TYPES="src/mir/function/types.rs"
 MIR_MOD="src/mir/mod.rs"
@@ -30,7 +29,6 @@ guard_require_files \
   "$CARD" \
   "$PLAN" \
   "$RECORD_SSOT" \
-  "$PHASE_README" \
   "$ARRAY_RECORD_PLAN" \
   "$MIR_TYPES" \
   "$MIR_MOD" \
@@ -49,7 +47,6 @@ guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "C204a card must be complete"
 guard_expect_in_file "$TAG" 'C204a status:' "$PLAN" "mimalloc plan must record C204a status"
 guard_expect_in_file "$TAG" '`C204a` is complete as `293x-212`' "$RECORD_SSOT" "record SSOT must mark C204a complete"
-guard_expect_in_file "$TAG" '`293x-212`' "$PHASE_README" "phase README must list C204a row"
 guard_expect_in_file "$TAG" 'pub struct ArrayRecordStoragePlan' "$MIR_TYPES" "MIR metadata must define ArrayRecordStoragePlan"
 guard_expect_in_file "$TAG" 'pub array_record_storage_plans: Vec<ArrayRecordStoragePlan>' "$MIR_TYPES" "MIR metadata must carry array_record_storage_plans"
 guard_expect_in_file "$TAG" 'ARRAY_RECORD_STORAGE_KIND_INLINE_RECORD_COLUMNS_V0' "$ARRAY_RECORD_PLAN" "array record storage owner must define storage kind"

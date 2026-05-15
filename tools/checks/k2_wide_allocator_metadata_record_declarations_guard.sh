@@ -17,7 +17,6 @@ HUGE_STORE="lang/src/hako_alloc/memory/huge_page_meta_store_box.hako"
 CARD="docs/development/current/main/phases/phase-293x/293x-214-C205A-ALLOCATOR-METADATA-RECORD-DECLARATIONS.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 RECORD_SSOT="docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 INDEX="docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/k2_wide_allocator_metadata_record_declarations_guard.sh"
 
@@ -36,7 +35,6 @@ guard_require_files \
   "$CARD" \
   "$PLAN" \
   "$RECORD_SSOT" \
-  "$PHASE_README" \
   "$INDEX" \
   "$SELF_SCRIPT"
 
@@ -50,7 +48,6 @@ guard_expect_in_file "$TAG" 'allocator_metadata_records.hako' "$ROOT_README" "ro
 guard_expect_in_file "$TAG" 'allocator_metadata_records.hako' "$MEMORY_README" "memory README must document C205a owner"
 guard_expect_in_file "$TAG" 'C205a status:' "$PLAN" "mimalloc plan must record C205a status"
 guard_expect_in_file "$TAG" '`C205a` is complete as `293x-214`' "$RECORD_SSOT" "record SSOT must mark C205a complete"
-guard_expect_in_file "$TAG" '`293x-214`' "$PHASE_README" "phase README must list C205a row"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list C205a guard"
 
 guard_expect_in_file "$TAG" 'meta_store: HakoAllocAlignedSmallMetaStore' "$ALIGNED" "M178 owner must delegate metadata storage after C205c"

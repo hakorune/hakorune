@@ -9,7 +9,6 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-215-C205B-ALLOCATOR-RECORD-CONSTRUCTION-READ-LOWERING.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 RECORD_SSOT="docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 INDEX="docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/k2_wide_allocator_record_construction_read_guard.sh"
 
@@ -20,7 +19,6 @@ guard_require_files \
   "$CARD" \
   "$PLAN" \
   "$RECORD_SSOT" \
-  "$PHASE_README" \
   "$INDEX" \
   "$SELF_SCRIPT" \
   "src/mir/builder/record_values.rs" \
@@ -38,7 +36,6 @@ guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "C205b card must be complete"
 guard_expect_in_file "$TAG" 'C205b status:' "$PLAN" "mimalloc plan must record C205b status"
 guard_expect_in_file "$TAG" '`C205b` is complete as `293x-215`' "$RECORD_SSOT" "record SSOT must mark C205b complete"
-guard_expect_in_file "$TAG" '`293x-215`' "$PHASE_README" "phase README must list C205b row"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list C205b guard"
 
 guard_expect_in_file "$TAG" 'RecordValueScalarizationBox' "src/mir/builder/record_values.rs" "record scalarization owner must be explicit"

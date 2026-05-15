@@ -16,7 +16,6 @@ APP="apps/mimalloc-huge-page-model-proof/main.hako"
 CARD="docs/development/current/main/phases/phase-293x/293x-217-C205D-HUGE-PAGE-METADATA-RECORD-STORE.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 RECORD_SSOT="docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 INDEX="docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/k2_wide_huge_page_metadata_record_store_guard.sh"
 
@@ -34,7 +33,6 @@ guard_require_files \
   "$CARD" \
   "$PLAN" \
   "$RECORD_SSOT" \
-  "$PHASE_README" \
   "$INDEX" \
   "$SELF_SCRIPT"
 
@@ -43,7 +41,6 @@ guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "C205d card must be complete"
 guard_expect_in_file "$TAG" 'C205d status:' "$PLAN" "mimalloc plan must record C205d status"
 guard_expect_in_file "$TAG" '`C205d` is complete as `293x-217`' "$RECORD_SSOT" "record SSOT must mark C205d complete"
-guard_expect_in_file "$TAG" '`293x-217`' "$PHASE_README" "phase README must list C205d row"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list C205d guard"
 
 guard_expect_in_file "$TAG" 'memory.huge_page_meta_store_box = "memory/huge_page_meta_store_box.hako"' "$MODULE" "hako module must export C205d store"

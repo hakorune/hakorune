@@ -16,7 +16,6 @@ APP="apps/mimalloc-aligned-small-path-proof/main.hako"
 CARD="docs/development/current/main/phases/phase-293x/293x-216-C205C-ALIGNED-SMALL-METADATA-RECORD-STORE.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 RECORD_SSOT="docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 INDEX="docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/k2_wide_aligned_small_metadata_record_store_guard.sh"
 
@@ -34,7 +33,6 @@ guard_require_files \
   "$CARD" \
   "$PLAN" \
   "$RECORD_SSOT" \
-  "$PHASE_README" \
   "$INDEX" \
   "$SELF_SCRIPT"
 
@@ -45,8 +43,6 @@ guard_expect_in_file "$TAG" 'C205c status:' "$PLAN" "mimalloc plan must record C
 guard_expect_in_file "$TAG" 'C206a status:' "$PLAN" "mimalloc plan must record C206a cleanup status"
 guard_expect_in_file "$TAG" '`C205c` is complete as `293x-216`' "$RECORD_SSOT" "record SSOT must mark C205c complete"
 guard_expect_in_file "$TAG" '`C206a` is complete as `293x-218`' "$RECORD_SSOT" "record SSOT must mark C206a complete"
-guard_expect_in_file "$TAG" '`293x-216`' "$PHASE_README" "phase README must list C205c row"
-guard_expect_in_file "$TAG" '`293x-218`' "$PHASE_README" "phase README must list C206a row"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list C205c guard"
 
 guard_expect_in_file "$TAG" 'memory.aligned_small_meta_store_box = "memory/aligned_small_meta_store_box.hako"' "$MODULE" "hako module must export C205c store"

@@ -9,7 +9,6 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-210-C203B-RECORD-LAYOUT-PLANS.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 RECORD_SSOT="docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 DECLARED_STORAGE="src/mir/declared_type_storage.rs"
 MIR_TYPES="src/mir/function/types.rs"
 RECORD_LAYOUT="src/mir/record_layout_plan.rs"
@@ -31,7 +30,6 @@ guard_require_files \
   "$CARD" \
   "$PLAN" \
   "$RECORD_SSOT" \
-  "$PHASE_README" \
   "$DECLARED_STORAGE" \
   "$MIR_TYPES" \
   "$RECORD_LAYOUT" \
@@ -51,7 +49,6 @@ guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "C203b card must be complete"
 guard_expect_in_file "$TAG" 'C203b status:' "$PLAN" "mimalloc plan must record C203b status"
 guard_expect_in_file "$TAG" '`C203b` is complete as `293x-210`' "$RECORD_SSOT" "record SSOT must mark C203b complete"
-guard_expect_in_file "$TAG" '`293x-210`' "$PHASE_README" "phase README must list C203b row"
 guard_expect_in_file "$TAG" 'storage_for_declared_type' "$DECLARED_STORAGE" "declared-type storage helper must be shared"
 guard_expect_in_file "$TAG" 'pub struct RecordLayoutPlan' "$MIR_TYPES" "MIR metadata must define RecordLayoutPlan"
 guard_expect_in_file "$TAG" 'pub record_layout_plans: Vec<RecordLayoutPlan>' "$MIR_TYPES" "MIR metadata must carry record_layout_plans"

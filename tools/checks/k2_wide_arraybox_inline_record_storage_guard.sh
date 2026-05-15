@@ -9,7 +9,6 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-213-C204B-ARRAYBOX-INLINE-RECORD-STORAGE-VOCAB.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 RECORD_SSOT="docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 ARRAY_STORAGE="src/boxes/array/storage.rs"
 ARRAY_SHARED="src/boxes/array/ops/shared.rs"
 ARRAY_TRAITS="src/boxes/array/traits.rs"
@@ -25,7 +24,6 @@ guard_require_files \
   "$CARD" \
   "$PLAN" \
   "$RECORD_SSOT" \
-  "$PHASE_README" \
   "$ARRAY_STORAGE" \
   "$ARRAY_SHARED" \
   "$ARRAY_TRAITS" \
@@ -39,7 +37,6 @@ guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "C204b card must be complete"
 guard_expect_in_file "$TAG" 'C204b status:' "$PLAN" "mimalloc plan must record C204b status"
 guard_expect_in_file "$TAG" '`C204b` is complete as `293x-213`' "$RECORD_SSOT" "record SSOT must mark C204b complete"
-guard_expect_in_file "$TAG" '`293x-213`' "$PHASE_README" "phase README must list C204b row"
 guard_expect_in_file "$TAG" 'InlineRecord' "$ARRAY_STORAGE" "ArrayStorage must define inline-record variant"
 guard_expect_in_file "$TAG" 'struct ArrayInlineRecordStorage' "$ARRAY_STORAGE" "inline-record storage struct must be private to array runtime"
 guard_expect_in_file "$TAG" 'enum ArrayInlineRecordColumn' "$ARRAY_STORAGE" "inline-record storage must define scalar columns"

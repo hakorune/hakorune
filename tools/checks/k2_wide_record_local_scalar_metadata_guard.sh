@@ -9,7 +9,6 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-211-C203C-RECORD-LOCAL-SCALAR-METADATA.md"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 RECORD_SSOT="docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 AGG_LOCAL="src/mir/agg_local_scalarization.rs"
 PLACEMENT="src/mir/placement_effect.rs"
 AGG_JSON="src/runner/mir_json_emit/agg_local.rs"
@@ -24,7 +23,6 @@ guard_require_files \
   "$CARD" \
   "$PLAN" \
   "$RECORD_SSOT" \
-  "$PHASE_README" \
   "$AGG_LOCAL" \
   "$PLACEMENT" \
   "$AGG_JSON" \
@@ -37,7 +35,6 @@ guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "C203c card must be complete"
 guard_expect_in_file "$TAG" 'C203c status:' "$PLAN" "mimalloc plan must record C203c status"
 guard_expect_in_file "$TAG" '`C203c` is complete as `293x-211`' "$RECORD_SSOT" "record SSOT must mark C203c complete"
-guard_expect_in_file "$TAG" '`293x-211`' "$PHASE_README" "phase README must list C203c row"
 guard_expect_in_file "$TAG" 'RecordLocalLayout' "$AGG_LOCAL" "agg-local owner must define record-local layout kind"
 guard_expect_in_file "$TAG" 'collect_record_layout_routes' "$AGG_LOCAL" "agg-local owner must collect record layouts"
 guard_expect_in_file "$TAG" 'record_local_layout' "$AGG_JSON" "MIR JSON agg-local emitter must expose record_local_layout"

@@ -231,3 +231,13 @@ Physical archive moves are `DOCS-SLIM-002+`.
 - resolve the D199 card through `guard_require_phase293x_card`
 - keep manifest runner behavior unchanged
 - do not physically move old cards yet
+
+## Eleventh Slimming Phase
+
+`DOCS-SLIM-011` owns the record metadata README decoupling:
+
+- remove landed-history phase README pins from the record / metadata guard
+  cluster
+- keep card status, implementation, record SSOT, and check-index assertions
+- keep record, metadata, and packed-array behavior unchanged
+- do not physically move old cards yet
