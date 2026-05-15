@@ -253,6 +253,8 @@ Every source finding should be classified as one of:
 | `MIMAP-018A stats snapshot` | Integrate allocator stats snapshot observers. | proof app / guard | no purge policy change |
 | `MIMAP-019A purge/reclaim policy` | Integrate purge/reclaim/decommit policy. | proof app / guard | no OSVM activation unless explicitly selected |
 | `MIMAP-020A OSVM page-source pilot` | Start capability-gated OSVM/page-source route. | proof app / guard | unsupported backend fail-fast |
+| `MIMAP-021A post-020 row selection` | Select the next allocator row after page-source adoption and metadata cleanup. | taskboard/card update | no allocator behavior |
+| `MIMAP-021B facade page-source fresh-page attach` | Attach one freshly reserved/committed page to the object-lifecycle facade. | proof app / guard | no allocation-on-miss or provider activation |
 
 ## Allocator-first granularity
 

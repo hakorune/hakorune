@@ -47,7 +47,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc blueprint / port taskboard:
   `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
 - current blocker token:
-  `MIMAP-021A post-020 allocator row selection`
+  `MIMAP-021B facade page-source fresh-page attach`
 - current BoxShape sidecar:
   none active
 - primary mode: mimalloc blueprint inventory lane; keep upstream source untracked and classify concepts before implementation
@@ -62,9 +62,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after METADATA-CATALOG-004
-  post-promotion reconcile; next blocker is MIMAP-021A post-020 allocator row
-  selection.
+- resume point: continue Phase 293x after MIMAP-021A post-020 allocator row
+  selection; next blocker is MIMAP-021B facade page-source fresh-page attach.
   VM-LIM-001 remains parked diagnostic. Keep LoopRange on the Stage1 route; do
   not source-desugar range loops.
 
@@ -72,7 +71,7 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  MIMAP-021A post-020 allocator row selection
+  MIMAP-021B facade page-source fresh-page attach
 - recent BoxShape sidecar:
   MIMAP-FACADE-CLEAN-001 facade result observer / reason-code SSOT cleanup
 - metadata promotion queue:

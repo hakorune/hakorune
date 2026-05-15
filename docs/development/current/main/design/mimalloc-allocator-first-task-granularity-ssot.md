@@ -136,6 +136,8 @@ Forbidden:
 | `MIMAP-018A` | stats snapshot observer integration | allocation/release counters are stable |
 | `MIMAP-019A` | purge/reclaim/decommit policy route | stats and lifecycle observers are stable |
 | `MIMAP-020A` | OSVM/page-source capability pilot; first closeout is existing M49 owner adoption | in-memory allocator facade route is stable |
+| `MIMAP-021A` | post-020 allocator row selection | MIMAP-020A and metadata post-promotion reconcile are closed |
+| `MIMAP-021B` | facade page-source fresh-page attach | MIMAP-021A selects the facade-facing seam |
 
 ### MIMAP-020A granularity
 
@@ -153,6 +155,27 @@ reserve/commit/decommit through MIR-owned OSVM extern routes. A new owner,
 proof app, or guard is allowed only if the existing proof misses a
 MIMAP-specific acceptance seam. Provider selection, hooks, host allocator
 replacement, and `#[global_allocator]` remain parked outside this row.
+
+### MIMAP-021A / MIMAP-021B granularity
+
+MIMAP-021A is a planning-only row. It selects the next allocator behavior row
+after the page-source capability checkpoint and must not implement allocator
+behavior.
+
+MIMAP-021B is the selected behavior row. It should add one narrow facade-facing
+adapter that proves:
+
+```text
+HakoAllocPageSourcePolicy.reservePage(bytes)
+HakoAllocPageSourcePolicy.commitPage(base, bytes)
+new HakoAllocPageModel(...)
+HakoAllocObjectLifecycleFacade.objectLifecycleAddPage(page)
+```
+
+The row must stop before allocation-on-miss retry. It must not change
+release/realloc/alignment, purge/reclaim/decommit/recommit execution,
+remote-free/TLS/atomic behavior, page-map lookup, provider hooks, host allocator
+replacement, or `#[global_allocator]`.
 
 ## Compiler / language sidecar triggers
 

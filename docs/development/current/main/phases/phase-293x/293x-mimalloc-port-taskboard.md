@@ -21,8 +21,8 @@ LOOP-003C/D complete
 PACKED-003/004 complete
 ```
 
-Blueprint and inventory rows remain the active lane entry. Current planning row:
-`MIMAP-021A post-020 allocator row selection`.
+Blueprint and inventory rows remain the active lane entry. Current primary row:
+`MIMAP-021B facade page-source fresh-page attach`.
 
 Latest closeout:
 
@@ -36,7 +36,10 @@ MIMAP-020A:
 METADATA-CATALOG-004:
   landed
   stale metadata promotion queue reconciled after PROMOTE-001..006
-  MIMAP-021A is the next selected allocator planning row
+MIMAP-021A:
+  landed
+  selected facade page-source fresh-page attach as the next allocator row
+  MIMAP-021B is the current selected primary row
 ```
 
 ## Active Source Policy
@@ -116,7 +119,8 @@ FST:
 | `MIMAP-018A` | landed | Stats snapshot observer integration. | after allocation/release counters are stable |
 | `MIMAP-019A` | landed | Purge/reclaim/decommit policy route. | after lifecycle and stats observers are stable |
 | `MIMAP-020A` | landed | OSVM/page-source capability pilot; adopts the existing M49 page-source owner. | after in-memory facade route is stable |
-| `MIMAP-021A` | ready | Post-020 allocator row selection. | after METADATA-CATALOG-004 |
+| `MIMAP-021A` | landed | Post-020 allocator row selection. | after METADATA-CATALOG-004 |
+| `MIMAP-021B` | ready | Facade page-source fresh-page attach. | after MIMAP-021A |
 
 MIMAP-020A execution order:
 
