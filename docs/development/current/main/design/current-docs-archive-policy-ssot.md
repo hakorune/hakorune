@@ -370,3 +370,18 @@ guard band real-app taskboard pin decoupling:
 - keep the README-only decoupling from `DOCS-SLIM-017` and the 018-020
   taskboard decouplings intact
 - do not physically move old cards yet
+
+## Twenty-second Slimming Phase
+
+`DOCS-SLIM-022` owns the allocator provider manifest/readiness/registry guard
+band phase README pin decoupling:
+
+- remove landed-history phase README pins from the allocator provider
+  manifest/readiness/registry guard band
+- keep card status, design taskboard, implementation checks, and check-index
+  assertions
+- keep provider manifest parser, manifest CLI, readiness preflight, registry
+  boundary, and combined dry-run behavior unchanged
+- keep the README-only decoupling from `DOCS-SLIM-017` and the 018-021
+  taskboard decouplings intact
+- do not physically move old cards yet
