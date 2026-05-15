@@ -287,3 +287,16 @@ Physical archive moves are `DOCS-SLIM-002+`.
 - keep hook, dry-run, and activation behavior unchanged
 - keep the taskboard-pin decoupling for a follow-up row
 - do not physically move old cards yet
+
+## Sixteenth Slimming Phase
+
+`DOCS-SLIM-016` owns the allocator hook guard band real-app taskboard pin
+decoupling:
+
+- remove landed-history real-app taskboard pins from the allocator hook guard
+  band
+- keep card status, design taskboard, implementation checks, and check-index
+  assertions
+- keep hook, dry-run, and activation behavior unchanged
+- keep the README-only decoupling from `DOCS-SLIM-015` intact
+- do not physically move old cards yet

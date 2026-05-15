@@ -10,7 +10,6 @@ MANIFEST="docs/development/current/main/design/allocator-hook-plan-v0.toml"
 BOUNDARY="docs/development/current/main/design/allocator-replacement-hook-boundary-ssot.md"
 TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-105-M53-ALLOCATOR-HOOK-PLAN-VOCAB-LOCK.md"
-REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
@@ -39,7 +38,6 @@ require_file "$MANIFEST"
 require_file "$BOUNDARY"
 require_file "$TASKBOARD"
 require_file "$CARD"
-require_file "$REAL_APP_TASKBOARD"
 require_file "$CURRENT_STATE"
 require_file "$INDEX"
 require_file "$DEV_GATE"
@@ -52,7 +50,6 @@ require_text "$BOUNDARY" "M53 allocator HookPlan vocabulary lock"
 require_text "$CARD" "M53 Allocator HookPlan Vocabulary Lock"
 require_text "$TASKBOARD" '| `M53 allocator HookPlan vocabulary lock` | `live-docs` |'
 require_text "$TASKBOARD" '76. `M53 allocator HookPlan vocabulary lock`'
-require_text "$REAL_APP_TASKBOARD" '`293x-105` M53 allocator HookPlan vocabulary lock'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_hook_plan_vocab_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_hook_plan_vocab_guard.sh"
 

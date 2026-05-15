@@ -10,7 +10,6 @@ PLAN_SSOT="docs/development/current/main/design/allocator-hook-plan-v0-ssot.md"
 PLAN_MANIFEST="docs/development/current/main/design/allocator-hook-plan-v0.toml"
 TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-106-M54-ALLOCATOR-HOOK-RUNTIME-DRY-RUN.md"
-REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
@@ -40,7 +39,6 @@ require_file "$PLAN_SSOT"
 require_file "$PLAN_MANIFEST"
 require_file "$TASKBOARD"
 require_file "$CARD"
-require_file "$REAL_APP_TASKBOARD"
 require_file "$CURRENT_STATE"
 require_file "$INDEX"
 require_file "$DEV_GATE"
@@ -56,7 +54,6 @@ require_text "$PLAN_MANIFEST" 'active = false'
 require_text "$CARD" "M54 Allocator Hook Runtime Dry-Run Boundary"
 require_text "$TASKBOARD" '| `M54 allocator hook runtime dry-run boundary` | `live-docs` |'
 require_text "$TASKBOARD" '77. `M54 allocator hook runtime dry-run boundary`'
-require_text "$REAL_APP_TASKBOARD" '`293x-106` M54 allocator hook runtime dry-run boundary'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_hook_runtime_dry_run_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_hook_runtime_dry_run_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_hook_runtime_dry_run_guard.sh"

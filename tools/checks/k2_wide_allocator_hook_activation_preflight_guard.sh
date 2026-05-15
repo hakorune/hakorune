@@ -8,7 +8,6 @@ cd "$ROOT_DIR"
 SSOT="docs/development/current/main/design/allocator-hook-activation-preflight-ssot.md"
 TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-114-M62-ALLOCATOR-HOOK-ACTIVATION-PREFLIGHT.md"
-REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
@@ -35,7 +34,6 @@ require_text() {
 require_file "$SSOT"
 require_file "$TASKBOARD"
 require_file "$CARD"
-require_file "$REAL_APP_TASKBOARD"
 require_file "$CURRENT_STATE"
 require_file "$INDEX"
 require_file "$DEV_GATE"
@@ -50,7 +48,6 @@ require_text "$SSOT" "fail-fast diagnostic"
 require_text "$SSOT" "would_activate = false"
 require_text "$TASKBOARD" '| `M62 allocator hook activation preflight boundary` | `live-docs` |'
 require_text "$TASKBOARD" '85. `M62 allocator hook activation preflight boundary`'
-require_text "$REAL_APP_TASKBOARD" '`293x-114` M62 allocator hook activation preflight boundary'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_hook_activation_preflight_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_hook_activation_preflight_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_hook_activation_preflight_guard.sh"

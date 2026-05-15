@@ -8,7 +8,6 @@ cd "$ROOT_DIR"
 DESIGN="docs/development/current/main/design/allocator-replacement-hook-boundary-ssot.md"
 TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-104-M52-ALLOCATOR-REPLACEMENT-HOOK-BOUNDARY.md"
-REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
@@ -36,7 +35,6 @@ require_text() {
 require_file "$DESIGN"
 require_file "$TASKBOARD"
 require_file "$CARD"
-require_file "$REAL_APP_TASKBOARD"
 require_file "$CURRENT_STATE"
 require_file "$INDEX"
 require_file "$DEV_GATE"
@@ -54,7 +52,6 @@ require_text "$CARD" "live-docs"
 
 require_text "$TASKBOARD" '| `M52 allocator replacement hook boundary` | `live-docs` |'
 require_text "$TASKBOARD" '75. `M52 allocator replacement hook boundary`'
-require_text "$REAL_APP_TASKBOARD" '`293x-104` M52 allocator replacement hook boundary'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_replacement_hook_boundary_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_replacement_hook_boundary_guard.sh"
 require_text "$HAKO_ALLOC_README" "Allocator replacement hook boundary"

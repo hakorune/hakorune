@@ -9,7 +9,6 @@ RUNTIME_FILE="src/runtime/allocator_hook_dry_run.rs"
 SSOT="docs/development/current/main/design/allocator-hook-dry-run-test-surface-ssot.md"
 TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-111-M59-ALLOCATOR-HOOK-DRY-RUN-TEST-SURFACE.md"
-REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
@@ -37,7 +36,6 @@ require_file "$RUNTIME_FILE"
 require_file "$SSOT"
 require_file "$TASKBOARD"
 require_file "$CARD"
-require_file "$REAL_APP_TASKBOARD"
 require_file "$CURRENT_STATE"
 require_file "$INDEX"
 require_file "$DEV_GATE"
@@ -49,7 +47,6 @@ require_text "$RUNTIME_FILE" "manifest_callsite_reports_ready_diagnostic_without
 require_text "$SSOT" "Allocator Hook Dry-Run Test Surface (SSOT)"
 require_text "$TASKBOARD" '| `M59 allocator hook dry-run test surface` | `live-narrow` |'
 require_text "$TASKBOARD" '82. `M59 allocator hook dry-run test surface`'
-require_text "$REAL_APP_TASKBOARD" '`293x-111` M59 allocator hook dry-run test surface'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_hook_dry_run_test_surface_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_hook_dry_run_test_surface_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_hook_dry_run_test_surface_guard.sh"
