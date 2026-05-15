@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-15"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-WORKER-001 landed allocator-internal worker identity substrate through WorkerCoreBox, a MIR-owned hako_worker_current_id_i64 route, and HakoAllocWorkerIdentity scalar proof state. Current row moves to MIMAP-TLS-001 internal TLS cache-slot substrate. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-TLS-001 landed allocator-internal worker TLS cache-slot substrate by composing HakoAllocWorkerIdentity with existing TlsCoreBox cache-slot routes and scalar proof state. Current row moves to MIMAP-ATOMIC-001 allocator atomic route guard. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-394-MIMAP-TLS-001-INTERNAL-TLS-CACHE-SLOT-SUBSTRATE.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-395-MIMAP-ATOMIC-001-ALLOCATOR-ATOMIC-ROUTE-GUARD.md"
 method_anchor = "docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-393-MIMAP-WORKER-001-INTERNAL-WORKER-IDENTITY-SUBSTRATE"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-393-MIMAP-WORKER-001-INTERNAL-WORKER-IDENTITY-SUBSTRATE.md"
-latest_card_summary = "MIMAP-WORKER-001 adds allocator-internal worker identity substrate with a single-worker EXE proof and no source-level worker semantics."
+latest_card = "293x-394-MIMAP-TLS-001-INTERNAL-TLS-CACHE-SLOT-SUBSTRATE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-394-MIMAP-TLS-001-INTERNAL-TLS-CACHE-SLOT-SUBSTRATE.md"
+latest_card_summary = "MIMAP-TLS-001 composes allocator worker identity with TLS cache-slot get/set routes and proves scalar cache state in pure-first EXE."
 
-current_blocker_token = "MIMAP-TLS-001"
+current_blocker_token = "MIMAP-ATOMIC-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-394 MIMAP-TLS-001 internal TLS cache-slot substrate landed",
   "293x-393 MIMAP-WORKER-001 internal worker identity substrate landed",
   "293x-384 MIMAP-021C facade page-source allocation-miss fallback landed",
   "293x-390 MIMAP-SUBSTRATE-CONC-002 route inventory guard landed",

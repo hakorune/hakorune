@@ -380,6 +380,23 @@ bash tools/checks/k2_wide_mimalloc_tls_cache_slot_exe_guard.sh
 - pure-first は route facts を emit するだけで、app-specific matcher を持たない
 - generic TLS cell / allocator policy / atomic remote-free は追加しない
 
+#### mimalloc-worker-tls-cache-proof
+**場所**: `mimalloc-worker-tls-cache-proof/main.hako`
+MIMAP-TLS-001 substrate proof。`HakoAllocWorkerTlsCache` が
+`HakoAllocWorkerIdentity` と `TlsCoreBox.cache_slot_get_i64/cache_slot_set_i64`
+を合成し、allocator-internal worker cache-slot state を pure-first EXE で
+固定する fixture。
+
+```bash
+bash tools/checks/k2_wide_mimalloc_worker_tls_cache_exe_guard.sh
+```
+
+**特徴**:
+- source は `hako_alloc` の allocator-facing owner を使う
+- worker id と cache-slot get/set の両方を MIR-owned route facts から emit する
+- scalar proof state は slot/value/worker/count に限定する
+- source-level worker-local / generic TLS cell / atomics / remote-free は追加しない
+
 #### mimalloc-atomic-cas-proof
 **場所**: `mimalloc-atomic-cas-proof/main.hako`
 M27 substrate proof。`AtomicCoreBox.cas_i64/3` を pure-first EXE で実行し、

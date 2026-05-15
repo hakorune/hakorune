@@ -10,6 +10,7 @@ Current modules
 - `options_inventory_box.hako`
 - `thread_heap_owner_inventory_box.hako`
 - `worker_identity_box.hako`
+- `worker_tls_cache_box.hako`
 - `alignment_policy_box.hako`
 - `aligned_small_meta_store_box.hako`
 - `allocator_metadata_records.hako`
@@ -175,6 +176,13 @@ Syntax/style contract
   `worker_local` syntax, TLS/cache slots, atomics, remote-free, page ownership
   transfer, provider hooks, allocator replacement, task scheduling, or backend
   shortcuts.
+- `worker_tls_cache_box.hako` owns the MIMAP-TLS-001 allocator-facing worker
+  TLS cache-slot observer. It may compose `HakoAllocWorkerIdentity` with
+  `TlsCoreBox.cache_slot_get_i64/cache_slot_set_i64`, store scalar slot/value/
+  observed-worker/get-count/set-count proof state, and keep the single-worker
+  lane deterministic. It must not open source-level worker-local syntax,
+  generic TLS cells, atomics, remote-free, page ownership transfer, provider
+  hooks, allocator replacement, task scheduling, or backend shortcuts.
 - `osvm_backed_fast_path_heap_box.hako` is the M168 composition owner. It may
   reserve/commit/decommit through `HakoAllocPageSourcePolicy`, then reuse the
   same page queue and page-local free-list owners. It must not add OSVM metal,

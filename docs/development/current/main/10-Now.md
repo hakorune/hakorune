@@ -28,14 +28,14 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-TLS-001 internal TLS / worker-local cache-slot substrate`
+- current blocker token: `MIMAP-ATOMIC-001 allocator atomic route guard`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after MIMAP-WORKER-001; next blocker is
-  MIMAP-TLS-001 internal TLS / worker-local cache-slot substrate
+- continue phase-293x after MIMAP-TLS-001; next blocker is
+  MIMAP-ATOMIC-001 allocator atomic route guard
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

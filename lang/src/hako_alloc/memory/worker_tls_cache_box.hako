@@ -1,0 +1,56 @@
+// worker_tls_cache_box.hako -- allocator-facing worker TLS cache-slot observer.
+// Responsibility: compose HakoAllocWorkerIdentity with the narrow TlsCoreBox
+// cache-slot routes and expose scalar proof state for allocator cache policy.
+// This module does not open source-level worker-local syntax, generic TLS
+// cells, atomics, remote-free, page ownership transfer, provider hooks,
+// allocator replacement, task scheduling, or backend shortcuts.
+
+using selfhost.hako_alloc.memory.worker_identity_box as HakoAllocWorkerIdentityBox
+using selfhost.runtime.substrate.tls.tls_core_box as TlsCoreBox
+
+box HakoAllocWorkerTlsCache {
+    identity: HakoAllocWorkerIdentity = new HakoAllocWorkerIdentity()
+    slot_id: i64 = -1
+    stored_value: i64 = 0
+    observed_worker_id: i64 = -1
+    get_count: i64 = 0
+    set_count: i64 = 0
+
+    storeSlot(slot, value) {
+        local worker_id = me.identity.currentWorkerId()
+        local rc = TlsCoreBox.cache_slot_set_i64(slot, value)
+        me.slot_id = slot
+        me.observed_worker_id = worker_id
+        me.set_count = me.set_count + 1
+        if rc == 0 {
+            me.stored_value = value
+        }
+        return rc
+    }
+
+    loadSlot(slot) {
+        local worker_id = me.identity.currentWorkerId()
+        local value = TlsCoreBox.cache_slot_get_i64(slot)
+        me.slot_id = slot
+        me.observed_worker_id = worker_id
+        me.stored_value = value
+        me.get_count = me.get_count + 1
+        return value
+    }
+
+    clearSlot(slot) {
+        return me.storeSlot(slot, 0)
+    }
+
+    operationCount() {
+        return me.get_count + me.set_count
+    }
+
+    identityCallCount() {
+        return me.identity.call_count
+    }
+
+    lastWorkerId() {
+        return me.identity.last_worker_id
+    }
+}

@@ -1,0 +1,44 @@
+using selfhost.hako_alloc.memory.worker_tls_cache_box as HakoAllocWorkerTlsCacheBox
+
+static box Main {
+    main(args) {
+        local cache = new HakoAllocWorkerTlsCache()
+
+        local before = cache.loadSlot(0)
+        local set_rc = cache.storeSlot(0, 8192)
+        local after = cache.loadSlot(0)
+        local clear_rc = cache.clearSlot(0)
+        local final = cache.loadSlot(0)
+
+        local shape = 0
+        if before == 0 { shape = shape + 1 }
+        if set_rc == 0 { shape = shape + 1 }
+        if after == 8192 { shape = shape + 1 }
+        if clear_rc == 0 { shape = shape + 1 }
+        if final == 0 { shape = shape + 1 }
+        if cache.slot_id == 0 { shape = shape + 1 }
+        if cache.stored_value == 0 { shape = shape + 1 }
+        if cache.observed_worker_id == 0 { shape = shape + 1 }
+        if cache.get_count == 3 { shape = shape + 1 }
+        if cache.set_count == 2 { shape = shape + 1 }
+        if cache.operationCount() == 5 { shape = shape + 1 }
+        if cache.identityCallCount() == 5 { shape = shape + 1 }
+        if cache.lastWorkerId() == 0 { shape = shape + 1 }
+
+        print("mimalloc-worker-tls-cache-proof")
+        print("worker=" + cache.lastWorkerId() + " identity_calls=" + cache.identityCallCount())
+        print("values=" + before + "," + after + "," + final)
+        print("rc=" + set_rc + "," + clear_rc)
+        print("state=" + cache.slot_id + "," + cache.stored_value + "," + cache.observed_worker_id)
+        print("counts=" + cache.get_count + "," + cache.set_count + "," + cache.operationCount())
+        print("shape=" + shape)
+
+        if shape == 13 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
