@@ -35,8 +35,8 @@ rg -F -q 'MIMAP-017A' "$CARD"
 rg -F -q 'MIMAP-017A' "$README"
 rg -F -q 'k2_wide_mimalloc_facade_realloc_shrink_exe_guard.sh' "$INDEX"
 
-if rg -n 'objectLifecycleReallocGrow[A-Za-z0-9_]*\(|copy[A-Za-z0-9_]*\(|byte[A-Za-z0-9_]*\(|memcpy|register[A-Za-z0-9_]*\(|unregister[A-Za-z0-9_]*\(|PageMap|page_map|lookup\(|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(' "$FACADE" >/tmp/"$TAG".forbidden 2>&1; then
-  echo "[$TAG] ERROR: MIMAP-017A facade must not activate grow/copy/page-map/substrate/provider behavior" >&2
+if rg -n 'copy[A-Za-z0-9_]*\(|byte[A-Za-z0-9_]*\(|memcpy|register[A-Za-z0-9_]*\(|unregister[A-Za-z0-9_]*\(|PageMap|page_map|lookup\(|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(' "$FACADE" >/tmp/"$TAG".forbidden 2>&1; then
+  echo "[$TAG] ERROR: MIMAP-017A facade must not activate copy/page-map/substrate/provider behavior" >&2
   cat /tmp/"$TAG".forbidden >&2
   rm -f /tmp/"$TAG".forbidden
   exit 1

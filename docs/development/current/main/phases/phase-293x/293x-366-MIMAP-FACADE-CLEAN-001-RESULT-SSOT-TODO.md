@@ -1,6 +1,6 @@
 # 293x-366 MIMAP-FACADE-CLEAN-001 Result SSOT TODO
 
-Status: parked
+Status: ready
 Date: 2026-05-15
 
 ## Decision

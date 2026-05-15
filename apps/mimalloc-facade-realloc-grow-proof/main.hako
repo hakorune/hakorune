@@ -1,0 +1,52 @@
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+
+static box Main {
+    main(args) {
+        local old_page = new HakoAllocPageModel(160, 8, 1, 1)
+        local new_page = new HakoAllocPageModel(161, 16, 1, 1)
+        local alloc = new HakoAllocObjectLifecycleFacade()
+        alloc.objectLifecycleAddPage(old_page)
+        alloc.objectLifecycleAddPage(new_page)
+
+        local alloc_ok = alloc.objectLifecycleSmallAlloc(8)
+        local old_page_id = alloc.objectLifecycleAllocPageId()
+        local old_block_id = alloc.objectLifecycleAllocBlockId()
+
+        local grow = alloc.objectLifecycleReallocGrow(old_page_id, old_block_id, 16)
+        local grow_old_page = alloc.objectLifecycleReallocPageId()
+        local grow_old_block = alloc.objectLifecycleReallocBlockId()
+        local grow_new_page = alloc.objectLifecycleReallocNewPageId()
+        local grow_new_block = alloc.objectLifecycleReallocNewBlockId()
+        local grow_size = alloc.objectLifecycleReallocRequestedSize()
+        local grow_reason = alloc.objectLifecycleReallocReason()
+
+        local reject = alloc.objectLifecycleReallocGrow(old_page_id, old_block_id, 16)
+        local reject_reason = alloc.objectLifecycleReallocReason()
+
+        local shape = 0
+        if alloc_ok == 1 { shape = shape + 1 }
+        if grow == 1 { shape = shape + 1 }
+        if grow_old_page == 160 { shape = shape + 1 }
+        if grow_old_block == 0 { shape = shape + 1 }
+        if grow_new_page == 161 { shape = shape + 1 }
+        if grow_new_block == 0 { shape = shape + 1 }
+        if grow_size == 16 { shape = shape + 1 }
+        if grow_reason == 0 { shape = shape + 1 }
+        if reject == 0 { shape = shape + 1 }
+        if reject_reason == 5 { shape = shape + 1 }
+        if old_page.localFreeCount() == 1 { shape = shape + 1 }
+
+        print("mimalloc-facade-realloc-grow-proof")
+        print("grow=" + grow + "," + grow_old_page + "," + grow_old_block + "," + grow_new_page + "," + grow_new_block + "," + grow_size + "," + grow_reason)
+        print("reject=" + reject + "," + reject_reason)
+
+        if shape == 11 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

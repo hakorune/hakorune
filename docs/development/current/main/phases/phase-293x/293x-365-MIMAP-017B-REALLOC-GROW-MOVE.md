@@ -1,6 +1,6 @@
 # 293x-365 MIMAP-017B Realloc Grow Move Route
 
-Status: ready
+Status: landed
 Date: 2026-05-15
 
 ## Decision
@@ -96,6 +96,43 @@ Required guard evidence:
 ```text
 [mimap017b-mir-json] ok
 [k2-wide-mimalloc-facade-realloc-grow-exe] ok
+```
+
+## Implementation
+
+`MIMAP-017B` adds
+`HakoAllocObjectLifecycleFacade.objectLifecycleReallocGrow(page_id, block_id,
+requested_size)` as a facade-owned grow/move route. It validates the old known
+block, allocates the replacement through `objectLifecycleSmallAlloc(size)`, and
+then releases the old known block through `objectLifecycleReleaseBlock(page_id,
+block_id)`.
+
+The route records old/new page and block ids only after old-block release
+succeeds. It intentionally does not copy bytes, resolve arbitrary pointers, use
+page-map lookup, or register/unregister ownership.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_mimalloc_facade_realloc_grow_exe_guard.sh
+[mimap017b-mir-json] ok
+[k2-wide-mimalloc-facade-realloc-grow-exe] ok
+
+for s in tools/checks/k2_wide_mimalloc_facade_realloc_shrink_exe_guard.sh tools/checks/k2_wide_mimalloc_facade_aligned_alloc_exe_guard.sh tools/checks/k2_wide_mimalloc_facade_release_failfast_exe_guard.sh tools/checks/k2_wide_mimalloc_facade_small_alloc_exe_guard.sh; do bash "$s"; done
+[mimap017a-mir-json] ok
+[k2-wide-mimalloc-facade-realloc-shrink-exe] ok
+[mimap016b-mir-json] ok
+[k2-wide-mimalloc-facade-aligned-alloc-exe] ok
+[mimap015b-mir-json] ok
+[k2-wide-mimalloc-facade-release-failfast-exe] ok
+[mimap014a-mir-json] ok
+[k2-wide-mimalloc-facade-small-alloc-exe] ok
+
+bash tools/checks/current_state_pointer_guard.sh
+[current-state-pointer-guard] ok
+
+bash tools/checks/dev_gate.sh quick
+[dev-gate] profile=quick ok
 ```
 
 ## Stop Lines

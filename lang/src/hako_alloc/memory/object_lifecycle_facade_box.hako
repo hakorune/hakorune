@@ -1,6 +1,6 @@
 // object_lifecycle_facade_box.hako — thin facade over object-backed lifecycle queue
 // Responsibility: compose facade-level add/select/small-alloc/release/alignment/realloc observer methods over HakoAllocObjectLifecyclePageQueue.
-// This module does not own production provider activation, OS page sourcing, realloc, remote-free, or backend shortcuts.
+// This module does not own production provider activation, OS page sourcing, byte copy, page-map lookup, remote-free, or backend shortcuts.
 
 using selfhost.hako_alloc.memory.object_lifecycle_page_queue_box as HakoAllocObjectLifecyclePageQueueBox
 using selfhost.hako_alloc.memory.alignment_policy_box as HakoAllocAlignmentPolicy
@@ -26,6 +26,8 @@ box HakoAllocObjectLifecycleFacade {
     last_alignment_supported: i64 = 0
     last_realloc_page_id: i64 = -1
     last_realloc_block_id: i64 = -1
+    last_realloc_new_page_id: i64 = -1
+    last_realloc_new_block_id: i64 = -1
     last_realloc_requested_size: i64 = 0
     last_realloc_reason: i64 = 0
     last_realloc_ok: i64 = 0
@@ -224,6 +226,8 @@ box HakoAllocObjectLifecycleFacade {
     resetReallocResult() {
         me.last_realloc_page_id = -1
         me.last_realloc_block_id = -1
+        me.last_realloc_new_page_id = -1
+        me.last_realloc_new_block_id = -1
         me.last_realloc_requested_size = 0
         me.last_realloc_reason = 0
         me.last_realloc_ok = 0
@@ -239,6 +243,19 @@ box HakoAllocObjectLifecycleFacade {
     recordReallocSuccess(page_id, block_id, requested_size) {
         me.last_realloc_page_id = page_id
         me.last_realloc_block_id = block_id
+        me.last_realloc_new_page_id = page_id
+        me.last_realloc_new_block_id = block_id
+        me.last_realloc_requested_size = requested_size
+        me.last_realloc_reason = 0
+        me.last_realloc_ok = 1
+        return 1
+    }
+
+    recordReallocMoveSuccess(old_page_id, old_block_id, new_page_id, new_block_id, requested_size) {
+        me.last_realloc_page_id = old_page_id
+        me.last_realloc_block_id = old_block_id
+        me.last_realloc_new_page_id = new_page_id
+        me.last_realloc_new_block_id = new_block_id
         me.last_realloc_requested_size = requested_size
         me.last_realloc_reason = 0
         me.last_realloc_ok = 1
@@ -256,6 +273,40 @@ box HakoAllocObjectLifecycleFacade {
             return me.recordReallocFailure(5)
         }
         return me.recordReallocSuccess(page.page_id, block_id, requested_size)
+    }
+
+    validateReallocGrowOldPage(page, block_id, requested_size) {
+        if requested_size <= page.block_size {
+            return me.recordReallocFailure(4)
+        }
+        if block_id >= page.reserved {
+            return me.recordReallocFailure(5)
+        }
+        if page.block_used.get(block_id) == 0 {
+            return me.recordReallocFailure(5)
+        }
+        return 1
+    }
+
+    objectLifecycleReallocGrowFromPage(page, page_id, block_id, requested_size) {
+        if me.validateReallocGrowOldPage(page, block_id, requested_size) == 0 {
+            return 0
+        }
+
+        local alloc_ok = me.objectLifecycleSmallAlloc(requested_size)
+        if alloc_ok == 0 {
+            return me.recordReallocFailure(6)
+        }
+
+        local new_page_id = me.objectLifecycleAllocPageId()
+        local new_block_id = me.objectLifecycleAllocBlockId()
+
+        local release_ok = me.objectLifecycleReleaseBlock(page_id, block_id)
+        if release_ok == 0 {
+            return me.recordReallocFailure(7)
+        }
+
+        return me.recordReallocMoveSuccess(page_id, block_id, new_page_id, new_block_id, requested_size)
     }
 
     objectLifecycleReallocShrink(page_id, block_id, requested_size) {
@@ -294,6 +345,48 @@ box HakoAllocObjectLifecycleFacade {
         if page2 != null {
             if page2.page_id == page_id {
                 return me.validateReallocShrinkPage(page2, block_id, requested_size)
+            }
+        }
+
+        return me.recordReallocFailure(1)
+    }
+
+    objectLifecycleReallocGrow(page_id, block_id, requested_size) {
+        me.resetReallocResult()
+        me.last_realloc_page_id = page_id
+        me.last_realloc_block_id = block_id
+        me.last_realloc_requested_size = requested_size
+
+        if page_id < 0 {
+            return me.recordReallocFailure(1)
+        }
+        if block_id < 0 {
+            return me.recordReallocFailure(2)
+        }
+        if requested_size <= 0 {
+            return me.recordReallocFailure(3)
+        }
+
+        local pages = me.object_lifecycle_queue.pages
+
+        local page0 = pages.get(0)
+        if page0 != null {
+            if page0.page_id == page_id {
+                return me.objectLifecycleReallocGrowFromPage(page0, page_id, block_id, requested_size)
+            }
+        }
+
+        local page1 = pages.get(1)
+        if page1 != null {
+            if page1.page_id == page_id {
+                return me.objectLifecycleReallocGrowFromPage(page1, page_id, block_id, requested_size)
+            }
+        }
+
+        local page2 = pages.get(2)
+        if page2 != null {
+            if page2.page_id == page_id {
+                return me.objectLifecycleReallocGrowFromPage(page2, page_id, block_id, requested_size)
             }
         }
 
@@ -426,6 +519,14 @@ box HakoAllocObjectLifecycleFacade {
 
     objectLifecycleReallocBlockId() {
         return me.last_realloc_block_id
+    }
+
+    objectLifecycleReallocNewPageId() {
+        return me.last_realloc_new_page_id
+    }
+
+    objectLifecycleReallocNewBlockId() {
+        return me.last_realloc_new_block_id
     }
 
     objectLifecycleReallocRequestedSize() {
