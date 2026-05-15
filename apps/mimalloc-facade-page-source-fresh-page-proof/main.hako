@@ -1,0 +1,50 @@
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_page_source_box as HakoAllocObjectLifecycleFacadePageSourceBox
+
+static box Main {
+    main(args) {
+        local facade = new HakoAllocObjectLifecycleFacade()
+        local attach = new HakoAllocObjectLifecycleFacadePageSourceAttach()
+
+        local result = attach.attachFreshPage(facade, 310, 8, 2, 2)
+        local selected = facade.objectLifecycleSelectPage()
+
+        local shape = 0
+        if result.status == 1 { shape = shape + 1 }
+        if result.source_reserved == 1 { shape = shape + 1 }
+        if result.source_committed == 1 { shape = shape + 1 }
+        if result.added_page_id == 310 { shape = shape + 1 }
+        if result.facade_page_count == 1 { shape = shape + 1 }
+        if result.source_reject == 0 { shape = shape + 1 }
+        if result.base != 0 { shape = shape + 1 }
+        if result.bytes == 16 { shape = shape + 1 }
+        if facade.objectLifecyclePageCount() == 1 { shape = shape + 1 }
+        if facade.objectLifecycleAddCount() == 1 { shape = shape + 1 }
+        if selected == 310 { shape = shape + 1 }
+        if facade.objectLifecycleSelectedKind() == 2 { shape = shape + 1 }
+        if attach.reserve_count == 1 { shape = shape + 1 }
+        if attach.commit_count == 1 { shape = shape + 1 }
+        if attach.attach_count == 1 { shape = shape + 1 }
+        if attach.reject_count == 0 { shape = shape + 1 }
+
+        print("mimalloc-facade-page-source-fresh-page-proof")
+        print("source_reserved=" + result.source_reserved)
+        print("source_committed=" + result.source_committed)
+        print("source_reject=" + result.source_reject)
+        print("added_page_id=" + result.added_page_id)
+        print("facade_page_count=" + facade.objectLifecyclePageCount())
+        print("facade_add_count=" + facade.objectLifecycleAddCount())
+        print("selected=" + selected + "," + facade.objectLifecycleSelectedKind())
+        print("backing=" + result.base + "," + result.bytes)
+        print("counts=" + attach.reserve_count + "," + attach.commit_count + "," + attach.attach_count + "," + attach.reject_count)
+        print("shape=" + shape)
+
+        if shape == 16 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

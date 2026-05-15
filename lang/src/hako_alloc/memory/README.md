@@ -35,6 +35,7 @@ Current modules
 - `object_lifecycle_facade_result_box.hako`
 - `object_lifecycle_facade_stats_box.hako`
 - `object_lifecycle_facade_purge_policy_box.hako`
+- `object_lifecycle_facade_page_source_box.hako`
 - `page_lifecycle_invariant_box.hako`
 - `page_queue_lifecycle_box.hako`
 - `page_source_policy_box.hako`
@@ -148,6 +149,14 @@ Syntax/style contract
   and M213 abandoned reclaim inventory. It may expose a combined scalar
   decision and route counters. It must not execute decommit, recommit, reclaim, page-source calls, OSVM,
   provider hooks, remote-free behavior, page-map lookup, or backend shortcuts.
+- `object_lifecycle_facade_page_source_box.hako` owns the MIMAP-021B
+  facade page-source fresh-page attach seam. It may reserve/commit one backing
+  range through `HakoAllocPageSourcePolicy`, construct one `HakoAllocPageModel`,
+  and attach it through `HakoAllocObjectLifecycleFacade.objectLifecycleAddPage`
+  with scalar proof counters. It must not allocate-on-miss, release, realloc,
+  align, purge, reclaim, decommit, recommit, use page-map lookup, unreserve,
+  release OSVM pages, call provider hooks, replace allocators, or add backend
+  shortcuts.
 - `osvm_backed_fast_path_heap_box.hako` is the M168 composition owner. It may
   reserve/commit/decommit through `HakoAllocPageSourcePolicy`, then reuse the
   same page queue and page-local free-list owners. It must not add OSVM metal,

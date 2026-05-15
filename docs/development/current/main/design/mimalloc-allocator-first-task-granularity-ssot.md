@@ -138,6 +138,7 @@ Forbidden:
 | `MIMAP-020A` | OSVM/page-source capability pilot; first closeout is existing M49 owner adoption | in-memory allocator facade route is stable |
 | `MIMAP-021A` | post-020 allocator row selection | MIMAP-020A and metadata post-promotion reconcile are closed |
 | `MIMAP-021B` | facade page-source fresh-page attach | MIMAP-021A selects the facade-facing seam |
+| `MIMAP-021C` | facade page-source allocation-miss fallback | MIMAP-021B is green |
 
 ### MIMAP-020A granularity
 
@@ -176,6 +177,12 @@ The row must stop before allocation-on-miss retry. It must not change
 release/realloc/alignment, purge/reclaim/decommit/recommit execution,
 remote-free/TLS/atomic behavior, page-map lookup, provider hooks, host allocator
 replacement, or `#[global_allocator]`.
+
+MIMAP-021C may add allocation-on-miss retry, but only as a one-fresh-page
+fallback. It must reuse the MIMAP-021B adapter, retry once, and expose scalar
+proof fields. It must not loop over multiple fresh pages, add page-source
+decommit/recommit policy, use page-map lookup, or reopen provider hooks / host
+allocator replacement.
 
 ## Compiler / language sidecar triggers
 

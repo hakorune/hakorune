@@ -22,7 +22,7 @@ PACKED-003/004 complete
 ```
 
 Blueprint and inventory rows remain the active lane entry. Current primary row:
-`MIMAP-021B facade page-source fresh-page attach`.
+`MIMAP-021C facade page-source allocation-miss fallback`.
 
 Latest closeout:
 
@@ -39,7 +39,10 @@ METADATA-CATALOG-004:
 MIMAP-021A:
   landed
   selected facade page-source fresh-page attach as the next allocator row
-  MIMAP-021B is the current selected primary row
+MIMAP-021B:
+  landed
+  facade page-source fresh-page attach is green
+  MIMAP-021C is the current selected primary row
 ```
 
 ## Active Source Policy
@@ -120,7 +123,8 @@ FST:
 | `MIMAP-019A` | landed | Purge/reclaim/decommit policy route. | after lifecycle and stats observers are stable |
 | `MIMAP-020A` | landed | OSVM/page-source capability pilot; adopts the existing M49 page-source owner. | after in-memory facade route is stable |
 | `MIMAP-021A` | landed | Post-020 allocator row selection. | after METADATA-CATALOG-004 |
-| `MIMAP-021B` | ready | Facade page-source fresh-page attach. | after MIMAP-021A |
+| `MIMAP-021B` | landed | Facade page-source fresh-page attach. | after MIMAP-021A |
+| `MIMAP-021C` | ready | Facade page-source allocation-miss fallback. | after MIMAP-021B |
 
 MIMAP-020A execution order:
 

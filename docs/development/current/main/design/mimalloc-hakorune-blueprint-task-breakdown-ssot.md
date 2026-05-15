@@ -255,6 +255,7 @@ Every source finding should be classified as one of:
 | `MIMAP-020A OSVM page-source pilot` | Start capability-gated OSVM/page-source route. | proof app / guard | unsupported backend fail-fast |
 | `MIMAP-021A post-020 row selection` | Select the next allocator row after page-source adoption and metadata cleanup. | taskboard/card update | no allocator behavior |
 | `MIMAP-021B facade page-source fresh-page attach` | Attach one freshly reserved/committed page to the object-lifecycle facade. | proof app / guard | no allocation-on-miss or provider activation |
+| `MIMAP-021C facade page-source allocation-miss fallback` | Source one fresh page after allocation miss, attach it, and retry once. | proof app / guard | no multi-page sourcing or provider activation |
 
 ## Allocator-first granularity
 

@@ -1,6 +1,6 @@
 # 293x-383 MIMAP-021B Facade Page-Source Fresh-Page Attach
 
-Status: ready
+Status: landed
 Date: 2026-05-15
 
 ## Decision
@@ -65,10 +65,32 @@ tools/checks/k2_wide_mimalloc_facade_page_source_fresh_page_exe_guard.sh
 - No remote-free, TLS, atomic, page-map lookup, unreserve, or OS release.
 - No backend `.inc` matcher shortcut.
 
+## Closeout
+
+`MIMAP-021B` adds the narrow facade-facing page-source adapter, proof app, and
+guard.
+
+Implemented owner:
+
+```text
+lang/src/hako_alloc/memory/object_lifecycle_facade_page_source_box.hako
+```
+
+The row proves one fresh page can be reserved/committed, modeled as a
+`HakoAllocPageModel`, and attached through
+`HakoAllocObjectLifecycleFacade.objectLifecycleAddPage`. It intentionally stops
+before allocation-on-miss retry.
+
 ## Required Evidence
 
 ```text
 bash tools/checks/k2_wide_mimalloc_facade_page_source_fresh_page_exe_guard.sh
+# [mimap021b-mir-json] ok
+# [k2-wide-mimalloc-facade-page-source-fresh-page-exe] ok
+
 bash tools/checks/current_state_pointer_guard.sh
+# [current-state-pointer-guard] ok
+
 tools/checks/dev_gate.sh quick
+# [dev-gate] profile=quick ok
 ```

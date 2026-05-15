@@ -1,0 +1,98 @@
+// object_lifecycle_facade_page_source_box.hako -- MIMAP-021B facade page-source attach
+// Responsibility: reserve/commit one fresh modeled page and attach it to the
+// object-lifecycle facade as a known page.
+// This module does not allocate-on-miss, release/realloc, purge/reclaim,
+// page-map lookup, remote-free, provider hooks, or allocator replacement.
+
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.page_source_policy_box as HakoAllocPageSourcePolicy
+
+box HakoAllocObjectLifecycleFacadePageSourceAttachReport {
+    status: i64 = 0
+    source_reserved: i64 = 0
+    source_committed: i64 = 0
+    added_page_id: i64 = -1
+    facade_page_count: i64 = 0
+    source_reject: i64 = 0
+    base: i64 = 0
+    bytes: i64 = 0
+    block_size: i64 = 0
+    capacity: i64 = 0
+    reserved: i64 = 0
+}
+
+box HakoAllocObjectLifecycleFacadePageSourceAttach {
+    reserve_count: i64 = 0
+    commit_count: i64 = 0
+    attach_count: i64 = 0
+    reject_count: i64 = 0
+
+    report(status, source_reserved, source_committed, added_page_id, facade_page_count, source_reject, base, bytes, block_size, capacity, reserved) {
+        local result = new HakoAllocObjectLifecycleFacadePageSourceAttachReport()
+        result.status = status
+        result.source_reserved = source_reserved
+        result.source_committed = source_committed
+        result.added_page_id = added_page_id
+        result.facade_page_count = facade_page_count
+        result.source_reject = source_reject
+        result.base = base
+        result.bytes = bytes
+        result.block_size = block_size
+        result.capacity = capacity
+        result.reserved = reserved
+        return result
+    }
+
+    reject(facade, base, bytes, block_size, capacity, reserved) {
+        me.reject_count = me.reject_count + 1
+        local facade_count = 0
+        if facade != null {
+            facade_count = facade.objectLifecyclePageCount()
+        }
+        return me.report(0, me.reserve_count, me.commit_count, -1, facade_count, me.reject_count, base, bytes, block_size, capacity, reserved)
+    }
+
+    attachFreshPage(facade, page_id, block_size, capacity, reserved) {
+        if facade == null {
+            return me.reject(facade, 0, 0, block_size, capacity, reserved)
+        }
+        if page_id < 0 {
+            return me.reject(facade, 0, 0, block_size, capacity, reserved)
+        }
+        if block_size <= 0 {
+            return me.reject(facade, 0, 0, block_size, capacity, reserved)
+        }
+        if capacity <= 0 {
+            return me.reject(facade, 0, 0, block_size, capacity, reserved)
+        }
+        if reserved <= 0 {
+            return me.reject(facade, 0, 0, block_size, capacity, reserved)
+        }
+        if reserved > capacity {
+            return me.reject(facade, 0, 0, block_size, capacity, reserved)
+        }
+
+        local bytes = block_size * capacity
+        local base = HakoAllocPageSourcePolicy.reservePage(bytes)
+        if base == 0 {
+            return me.reject(facade, base, bytes, block_size, capacity, reserved)
+        }
+        me.reserve_count = me.reserve_count + 1
+
+        local commit_rc = HakoAllocPageSourcePolicy.commitPage(base, bytes)
+        if commit_rc != 0 {
+            return me.reject(facade, base, bytes, block_size, capacity, reserved)
+        }
+        me.commit_count = me.commit_count + 1
+
+        local page = new HakoAllocPageModel(page_id, block_size, capacity, reserved)
+        local add_index = facade.objectLifecycleAddPage(page)
+        if add_index < 0 {
+            return me.reject(facade, base, bytes, block_size, capacity, reserved)
+        }
+
+        me.attach_count = me.attach_count + 1
+        return me.report(1, me.reserve_count, me.commit_count, page_id, facade.objectLifecyclePageCount(), me.reject_count, base, bytes, block_size, capacity, reserved)
+    }
+}

@@ -26,13 +26,13 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-021B facade page-source fresh-page attach`
+- current blocker token: `MIMAP-021C facade page-source allocation-miss fallback`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after MIMAP-021A post-020 allocator row selection; next blocker is MIMAP-021B facade page-source fresh-page attach; VM-LIM-001 is parked
+- continue phase-293x after MIMAP-021B facade page-source fresh-page attach; next blocker is MIMAP-021C facade page-source allocation-miss fallback; VM-LIM-001 is parked
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
