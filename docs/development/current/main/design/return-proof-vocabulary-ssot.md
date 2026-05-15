@@ -236,6 +236,24 @@ result. The argument is nullable because `hako_mem_free(NULL)` is a no-op at the
 C seam. This row does not introduce `ret_proofs`, pointer attrs, aliasing
 facts, or ownership inference.
 
+Decision: accepted MIMAP-THREADSAFE-ABI-001 lock.
+
+The three active `hako_mem` runtime-decl rows are thread-safe ABI leaves for
+distinct allocations:
+
+```text
+hako_mem_alloc(size) may be called concurrently.
+hako_mem_realloc(ptr, size) may be called concurrently when each call owns a
+distinct pointer.
+hako_mem_free(ptr) may be called concurrently when each call owns a distinct
+pointer.
+```
+
+This thread-safety contract does not create non-null, dereferenceability,
+alignment, noalias, or ownership proofs. It also does not activate provider
+selection, hooks, host allocator replacement, process allocator replacement, or
+`#[global_allocator]`.
+
 ## Machine Truth
 
 The machine-readable vocabulary lock is:

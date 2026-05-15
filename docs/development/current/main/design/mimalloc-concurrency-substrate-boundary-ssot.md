@@ -125,8 +125,8 @@ no true thread pool
 | `MIMAP-TLS-001` | landed | Allocator-internal worker-local cache slot usage; no source syntax. |
 | `MIMAP-ATOMIC-001` | landed | Consolidate allocator ownership atomic route set. |
 | `MIMAP-REMOTE-001` | landed | Production-facade remote-free policy integration over existing atomic/TLS proofs. |
-| `MIMAP-THREADSAFE-ABI-001` | ready current | Thread-safe `hako_mem` ABI contract. |
-| `MIMAP-PAR-STRESS-001` | parked | Native multi-worker stress after substrate rows are live. |
+| `MIMAP-THREADSAFE-ABI-001` | landed | Thread-safe `hako_mem` ABI contract. |
+| `MIMAP-PAR-STRESS-001` | ready current | Native multi-worker stress after substrate rows are live. |
 
 ## Stop Lines
 

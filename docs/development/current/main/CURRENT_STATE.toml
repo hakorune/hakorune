@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-15"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "LANG-STAGE-PROFILES-001 landed the Stage0 / Stage1 .hako profile manual as a docs sidecar. Current row remains MIMAP-THREADSAFE-ABI-001 thread-safe hako_mem ABI. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-THREADSAFE-ABI-001 landed the thread-safe hako_mem ABI contract and smoke guard. Current row moves to MIMAP-PAR-STRESS-001 native multi-worker substrate stress. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-397-MIMAP-THREADSAFE-ABI-001-THREAD-SAFE-HAKO-MEM-ABI.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-399-MIMAP-PAR-STRESS-001-NATIVE-MULTI-WORKER-STRESS.md"
 method_anchor = "docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-398-LANG-STAGE-PROFILES-001-STAGE0-STAGE1-HAKO-MANUAL"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-398-LANG-STAGE-PROFILES-001-STAGE0-STAGE1-HAKO-MANUAL.md"
-latest_card_summary = "LANG-STAGE-PROFILES-001 adds a Stage0 / Stage1 .hako usable surface manual without splitting the canonical language spec."
+latest_card = "293x-397-MIMAP-THREADSAFE-ABI-001-THREAD-SAFE-HAKO-MEM-ABI"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-397-MIMAP-THREADSAFE-ABI-001-THREAD-SAFE-HAKO-MEM-ABI.md"
+latest_card_summary = "MIMAP-THREADSAFE-ABI-001 pins hako_mem alloc/realloc/free as thread-safe ABI leaves without provider activation."
 
-current_blocker_token = "MIMAP-THREADSAFE-ABI-001"
+current_blocker_token = "MIMAP-PAR-STRESS-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-397 MIMAP-THREADSAFE-ABI-001 thread-safe hako_mem ABI landed",
   "293x-398 LANG-STAGE-PROFILES-001 Stage0 / Stage1 .hako manual landed",
   "293x-396 MIMAP-REMOTE-001 remote-free / abandoned-owner policy landed",
   "293x-395 MIMAP-ATOMIC-001 allocator atomic route guard landed",

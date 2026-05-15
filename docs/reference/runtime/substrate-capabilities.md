@@ -58,7 +58,7 @@ The current live surface is intentionally narrow.
 | --- | --- |
 | numeric substrate | fixed-width and pointer-sized type names are classified by MIR metadata for storage planning; exact numeric constant/conversion metadata range-checks values; checked exact numeric add/sub/mul policy rejects type mismatch and out-of-range results; exact numeric compare and unsigned logical right-shift policy reject type mismatch, signed logical shift, and invalid shift counts; PHI/Select exact numeric merge policy preserves exact facts only for identical incoming exact types; typed-object plans preserve exact numeric storage names; the MIR verifier rejects statically known out-of-range writes and unchecked dynamic writes to runtime-range-sensitive exact numeric declared fields; MIR semantic refresh attaches `DynamicIntegerRange` contracts for real exact numeric `FieldSet` producers, the VM interpreter executes existing contracts at `FieldSet` sites, and unsupported non-VM backend routes fail fast while exact numeric contracts, typed-object exact storage, or op-route facts remain unlowered; runtime values still use the current `Integer(i64)` lane; current `>>` is signed i64 arithmetic shift |
 | raw layout | MIR-owned `repr_c_v0` vocabulary can plan fixed-width numeric field offsets/size; no source syntax or backend-active native allocation yet |
-| `hako.mem` | allocation facade rows exist under `MemCoreBox`; exact public surface is still substrate-internal |
+| `hako.mem` | thread-safe allocation facade rows exist under `MemCoreBox`; exact public surface is still substrate-internal |
 | `hako.value_repr` | `CurrentLaneBox.is_usize_i64` owns the shared non-negative current-lane i64 predicate used by provisional `usize` facades; exact pointer-sized unsigned storage remains future |
 | `hako.buf` | `len/cap/reserve/grow` facade rows exist under `BufCoreBox`; capacity routes through `PtrCoreBox.slot_cap_i64`; provisional `usize` aliases use the non-negative current-lane i64 subset |
 | `hako.ptr` | typed pointer/span facade is staged for current raw collection routes and owns direct array-slot backend route names for the live row |
@@ -84,7 +84,7 @@ apps. The current route chain is:
 
 | Slice | Current proof reading |
 | --- | --- |
-| `hako.mem` extern leaves | `hako_mem_alloc` and `hako_mem_free` are route-owned native leaves; `hako_mem_realloc` is a runtime-decl native leaf but not part of the current `extern_call_routes` list |
+| `hako.mem` extern leaves | `hako_mem_alloc` and `hako_mem_free` are route-owned native leaves; `hako_mem_realloc` is a runtime-decl native leaf but not part of the current `extern_call_routes` list; all three are thread-safe for distinct allocations |
 | `RawBufCoreBox` | `alloc_bytes_i64`, `realloc_bytes_i64`, and `free_bytes_i64` stay thin substrate facades over `MemCoreBox`; `alloc_bytes_usize` and `realloc_bytes_usize` are thin non-negative current-lane i64 subset aliases checked through `CurrentLaneBox.is_usize_i64` |
 | `RawArrayCoreBox` | slot append/len/load/store plus reserve/grow route through ownership, bounds, initialized-range, `BufCoreBox`, and `PtrCoreBox` gates; provisional `usize` aliases reuse the same gates with `CurrentLaneBox.is_usize_i64` |
 | static tables | `u16[]` static const declarations emit readonly static data and `StaticDataLoad` reads |
@@ -96,6 +96,41 @@ apps. The current route chain is:
 These proof rows do not activate a host allocator replacement path.
 They only prove that allocator-grade `.hako` code can use narrow substrate
 routes through MIR-owned facts.
+
+## Thread-Safe hako.mem ABI
+
+Decision: `MIMAP-THREADSAFE-ABI-001` is live-narrow.
+
+The `hako.mem` native leaves are thread-safe runtime ABI leaves:
+
+```text
+hako_mem_alloc(size: i64) -> native_ptr_nullable
+hako_mem_realloc(ptr: native_ptr_nullable, new_size: i64) -> native_ptr_nullable
+hako_mem_free(ptr: native_ptr_nullable) -> void
+```
+
+Contract:
+
+- calls may run concurrently from multiple workers / OS threads when they
+  operate on distinct allocations;
+- `hako_mem_alloc(0)` and `hako_mem_realloc(ptr, 0)` normalize the size to at
+  least one byte;
+- allocation failure returns `NULL` / `0` and must not be rewritten into a
+  non-null proof;
+- `hako_mem_realloc(NULL, size)` is equivalent to allocation;
+- if `hako_mem_realloc(ptr, size)` fails, the original pointer remains owned by
+  the caller;
+- `hako_mem_free(NULL)` is a no-op;
+- implementations may use thread-local diagnostics such as `hako_last_error`;
+- callers must preserve single logical ownership of each allocation. Concurrent
+  free/realloc/use of the same pointer is outside the ABI contract.
+
+Stop line:
+
+This contract does not activate host/process allocator replacement, provider
+selection, allocator hooks, `#[global_allocator]`, source-level
+`worker_local`, `lock<T>`, or true-parallel language semantics. It only fixes
+the substrate ABI expectations for allocator-style `.hako` code.
 
 ## Internal hako_alloc Inventory Surfaces
 

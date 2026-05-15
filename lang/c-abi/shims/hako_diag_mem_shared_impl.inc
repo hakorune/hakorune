@@ -1,5 +1,11 @@
 // hako_diag_mem_shared_impl.inc
 // Shared diagnostics + libc-backed memory foundation for C shims.
+//
+// Thread-safety contract: hako_mem_alloc / hako_mem_realloc / hako_mem_free may
+// be called concurrently for distinct allocations. They delegate to the
+// platform malloc/realloc/free and use thread-local diagnostics. Callers remain
+// responsible for single logical ownership of each pointer; concurrent
+// free/realloc/use of the same allocation is outside the ABI contract.
 
 #if defined(_MSC_VER)
 __declspec(thread) static const char* hako_tls_last_error = "OK";

@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-THREADSAFE-ABI-001 thread-safe hako_mem ABI`
+- current blocker token: `MIMAP-PAR-STRESS-001 native multi-worker substrate stress`
 - mimalloc concurrency substrate boundary SSOT:
   `docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md`
 - mimalloc blueprint SSOT:
@@ -46,7 +46,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-THREADSAFE-ABI-001 thread-safe hako_mem ABI`
+- current blocker token: `MIMAP-PAR-STRESS-001 native multi-worker substrate stress`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -57,8 +57,8 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after MIMAP-REMOTE-001; next blocker is
-  MIMAP-THREADSAFE-ABI-001 thread-safe hako_mem ABI
+- continue `phase-293x` after MIMAP-THREADSAFE-ABI-001; next blocker is
+  MIMAP-PAR-STRESS-001 native multi-worker substrate stress
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

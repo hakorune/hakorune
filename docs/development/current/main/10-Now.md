@@ -28,14 +28,14 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-THREADSAFE-ABI-001 thread-safe hako_mem ABI`
+- current blocker token: `MIMAP-PAR-STRESS-001 native multi-worker substrate stress`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after MIMAP-REMOTE-001; next blocker is
-  MIMAP-THREADSAFE-ABI-001 thread-safe hako_mem ABI
+- continue phase-293x after MIMAP-THREADSAFE-ABI-001; next blocker is
+  MIMAP-PAR-STRESS-001 native multi-worker substrate stress
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

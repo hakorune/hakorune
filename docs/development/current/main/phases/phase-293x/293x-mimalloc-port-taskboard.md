@@ -26,11 +26,11 @@ Blueprint and inventory rows are active again after the MIR builder diet cleanup
 sidecar closeout. The mimalloc concurrency substrate cut and route inventory
 guard are pinned, the facade page-source allocation-miss fallback is green, and
 the internal worker identity, TLS cache-slot, atomic route guard, and
-remote-free / abandoned-owner policy rows are now live. The current primary row
-moves to thread-safe `hako_mem` ABI:
+remote-free / abandoned-owner policy and thread-safe `hako_mem` ABI rows are
+now live. The current primary row moves to native multi-worker substrate stress:
 
 ```text
-MIMAP-THREADSAFE-ABI-001 thread-safe hako_mem ABI
+MIMAP-PAR-STRESS-001 native multi-worker substrate stress
 ```
 
 Closed cleanup sidecar:
@@ -80,7 +80,10 @@ MIMAP-ATOMIC-001:
 MIMAP-REMOTE-001:
   landed
   remote-free / abandoned-owner policy composition is green
-  MIMAP-THREADSAFE-ABI-001 is the current selected primary row
+MIMAP-THREADSAFE-ABI-001:
+  landed
+  thread-safe hako_mem ABI contract and smoke guard are green
+  MIMAP-PAR-STRESS-001 is the current selected primary row
 ```
 
 ## Active Source Policy
@@ -166,8 +169,8 @@ not prerequisites:
 | `MIMAP-TLS-001` | landed | Add internal TLS / worker-local cache-slot substrate for allocator caches. | after MIMAP-WORKER-001 |
 | `MIMAP-ATOMIC-001` | landed | Add allocator-facing atomic load/store/CAS/fetch_add route guard. | after MIMAP-TLS-001 |
 | `MIMAP-REMOTE-001` | landed | Model remote free / abandoned-owner / page ownership policy on the existing atomic/TLS substrate. | after MIMAP-ATOMIC-001 |
-| `MIMAP-THREADSAFE-ABI-001` | ready current | Pin thread-safe `hako_mem` ABI requirements and smoke boundary. | current |
-| `MIMAP-PAR-STRESS-001` | parked | Native true-parallel stress for per-worker heaps and remote free pressure. | after substrate smoke exists |
+| `MIMAP-THREADSAFE-ABI-001` | landed | Pin thread-safe `hako_mem` ABI requirements and smoke boundary. | after MIMAP-REMOTE-001 |
+| `MIMAP-PAR-STRESS-001` | ready current | Native true-parallel stress for per-worker heaps and remote free pressure. | current |
 
 ## Collection / Automata Dependency Cut
 

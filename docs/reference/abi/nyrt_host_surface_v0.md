@@ -36,7 +36,7 @@ Host-facing API は次の 7 カテゴリに限定する。
 | Handle lifecycle | `nyrt_handle_retain_h`, `nyrt_handle_release_h` | `include/nyrt.h` | borrowed/owned lifecycle boundary |
 | Runtime V0 helper slice | `string_len`, `array_get_i64`, `array_set_i64`, `map_size_i64` (route lock) | runtime/plugin route lock docs | `.hako` runtime entry boxes from VM callsite (`string_core_box`/`array_core_box`/`map_core_box`) |
 | Hako forward hook registry | `nyrt_hako_register_*`, `nyrt_hako_try_*` | `include/nyrt.h` | C registry for `.hako` callback forward (dot-name aliases remain compatibility surface) |
-| Runtime substrate native leaf slice | `hako_mem_alloc`, `hako_mem_realloc`, `hako_mem_free`, `hako_osvm_page_size_i64`, `hako_osvm_reserve_bytes_i64`, `hako_osvm_commit_bytes_i64`, `hako_osvm_decommit_bytes_i64`, `hako_tls_cache_slot_get_i64`, `hako_tls_cache_slot_set_i64`, narrow `hako_atomic_*` rows | `docs/reference/runtime/substrate-capabilities.md`, `lang/src/runtime/substrate/**` | capability leaves for `.hako` allocator/runtime substrate; route metadata or runtime-decl rows own exact acceptance |
+| Runtime substrate native leaf slice | `hako_mem_alloc`, `hako_mem_realloc`, `hako_mem_free`, `hako_osvm_page_size_i64`, `hako_osvm_reserve_bytes_i64`, `hako_osvm_commit_bytes_i64`, `hako_osvm_decommit_bytes_i64`, `hako_tls_cache_slot_get_i64`, `hako_tls_cache_slot_set_i64`, narrow `hako_atomic_*` rows | `docs/reference/runtime/substrate-capabilities.md`, `lang/src/runtime/substrate/**` | capability leaves for `.hako` allocator/runtime substrate; route metadata or runtime-decl rows own exact acceptance; `hako_mem_*` leaves are thread-safe for distinct allocations |
 
 ## 2.1 Current vs Planned Extensions (explicit)
 

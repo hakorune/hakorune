@@ -1,7 +1,6 @@
 # Phase 293x: real-app bringup
 
-- Status: Active / mimalloc blueprint lane with remote-free / abandoned-owner
-  policy landed
+- Status: Active / mimalloc blueprint lane with thread-safe hako_mem ABI landed
 - Purpose: use real applications to expose compiler/runtime seams after the
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
@@ -9,9 +8,9 @@
 - Closed sidecar:
   `docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md`
 - Current mimalloc blocker:
-  `docs/development/current/main/phases/phase-293x/293x-397-MIMAP-THREADSAFE-ABI-001-THREAD-SAFE-HAKO-MEM-ABI.md`
+  `docs/development/current/main/phases/phase-293x/293x-399-MIMAP-PAR-STRESS-001-NATIVE-MULTI-WORKER-STRESS.md`
 - Latest mimalloc substrate closeout:
-  `docs/development/current/main/phases/phase-293x/293x-396-MIMAP-REMOTE-001-REMOTE-FREE-ABANDONED-OWNER-POLICY.md`
+  `docs/development/current/main/phases/phase-293x/293x-397-MIMAP-THREADSAFE-ABI-001-THREAD-SAFE-HAKO-MEM-ABI.md`
 - Mimalloc purpose SSOT:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - Mimalloc concurrency substrate boundary SSOT:
