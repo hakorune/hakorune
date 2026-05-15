@@ -1,0 +1,159 @@
+// object_lifecycle_facade_huge_release_failfast_box.hako -- MIMAP-025A
+// facade huge-release fail-fast diagnostics route
+// Responsibility: prove double-release and stale-pointer rejection through the
+// existing huge page model metadata release seam. This module intentionally
+// stops before the wider M181 page-map lookup/unregister release seam, OS page
+// return, small release, realloc, alignment, purge/reclaim, remote-free, TLS,
+// atomics, provider hooks, and allocator replacement.
+
+using selfhost.hako_alloc.memory.object_lifecycle_facade_huge_release_box as HakoAllocObjectLifecycleFacadeHugeReleaseBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_reason_box as HakoAllocObjectLifecycleFacadeReason
+
+box HakoAllocObjectLifecycleFacadeHugeReleaseFailfastReport {
+    status: i64 = 0
+    requested_size: i64 = 0
+    huge_threshold: i64 = 0
+    first_release_ok: i64 = 0
+    first_ptr: i64 = 0
+    first_page_id: i64 = -1
+    first_live_after: i64 = 0
+    first_release_count: i64 = 0
+    double_attempted: i64 = 0
+    double_ok: i64 = 0
+    double_ptr: i64 = 0
+    double_live_before: i64 = 0
+    double_live_after: i64 = 0
+    double_failure_kind: i64 = 0
+    stale_attempted: i64 = 0
+    stale_ok: i64 = 0
+    stale_ptr: i64 = 0
+    stale_live_before: i64 = 0
+    stale_live_after: i64 = 0
+    stale_failure_kind: i64 = 0
+    huge_count: i64 = 0
+    huge_live_count: i64 = 0
+    huge_allocate_count: i64 = 0
+    huge_release_count: i64 = 0
+    huge_release_reject_count: i64 = 0
+    huge_reject_count: i64 = 0
+    page_map_entry_count: i64 = 0
+    page_map_live_count: i64 = 0
+    page_map_register_count: i64 = 0
+    failfast_attempt_count: i64 = 0
+    double_reject_count: i64 = 0
+    stale_reject_count: i64 = 0
+    success_count: i64 = 0
+    failure_count: i64 = 0
+    final_ok: i64 = 0
+    final_reason: i64 = 0
+}
+
+box HakoAllocObjectLifecycleFacadeHugeReleaseFailfastRoute {
+    release_route: HakoAllocObjectLifecycleFacadeHugeReleaseRoute = new HakoAllocObjectLifecycleFacadeHugeReleaseRoute()
+    failfast_attempt_count: i64 = 0
+    double_reject_count: i64 = 0
+    stale_reject_count: i64 = 0
+    success_count: i64 = 0
+    failure_count: i64 = 0
+
+    hugeReleaseFailfastThreshold() {
+        return me.release_route.hugeReleaseThreshold()
+    }
+
+    initFailfastReport(size) {
+        local result = new HakoAllocObjectLifecycleFacadeHugeReleaseFailfastReport()
+        result.requested_size = size
+        result.huge_threshold = me.hugeReleaseFailfastThreshold()
+        return result
+    }
+
+    copyFirstReleaseResult(result, first_result) {
+        result.first_release_ok = first_result.release_ok
+        result.first_ptr = first_result.release_ptr
+        result.first_page_id = first_result.release_page_id
+        result.first_live_after = first_result.release_live_after
+        result.first_release_count = first_result.huge_release_count
+        return result
+    }
+
+    snapshotFailfastCounters(result) {
+        result.failfast_attempt_count = me.failfast_attempt_count
+        result.double_reject_count = me.double_reject_count
+        result.stale_reject_count = me.stale_reject_count
+        result.success_count = me.success_count
+        result.failure_count = me.failure_count
+        result.huge_count = me.release_route.alloc_route.huge_model.huge_count
+        result.huge_live_count = me.release_route.alloc_route.huge_model.live_count
+        result.huge_allocate_count = me.release_route.alloc_route.huge_model.allocate_count
+        result.huge_release_count = me.release_route.alloc_route.huge_model.release_count
+        result.huge_release_reject_count = me.release_route.alloc_route.huge_model.release_reject_count
+        result.huge_reject_count = me.release_route.alloc_route.huge_model.reject_count
+        result.page_map_entry_count = me.release_route.alloc_route.page_map.entry_count
+        result.page_map_live_count = me.release_route.alloc_route.page_map.live_count
+        result.page_map_register_count = me.release_route.alloc_route.page_map.register_count
+        return result
+    }
+
+    rejectDoubleReleasedPtr(result) {
+        me.failfast_attempt_count = me.failfast_attempt_count + 1
+        result.double_attempted = 1
+        result.double_ptr = result.first_ptr
+        result.double_live_before = me.release_route.alloc_route.huge_model.live_count
+        result.double_ok = me.release_route.alloc_route.huge_model.markReleased(result.first_ptr)
+        result.double_live_after = me.release_route.alloc_route.huge_model.live_count
+
+        if result.double_ok == 0 {
+            me.double_reject_count = me.double_reject_count + 1
+            result.double_failure_kind = 1
+        }
+
+        return result
+    }
+
+    rejectStaleHugePtr(result, stale_ptr) {
+        me.failfast_attempt_count = me.failfast_attempt_count + 1
+        result.stale_attempted = 1
+        result.stale_ptr = stale_ptr
+        result.stale_live_before = me.release_route.alloc_route.huge_model.live_count
+        result.stale_ok = me.release_route.alloc_route.huge_model.markReleased(stale_ptr)
+        result.stale_live_after = me.release_route.alloc_route.huge_model.live_count
+
+        if result.stale_ok == 0 {
+            me.stale_reject_count = me.stale_reject_count + 1
+            result.stale_failure_kind = 2
+        }
+
+        return result
+    }
+
+    proveHugeReleaseFailfast(facade, size, page_id, block_size, capacity, reserved, stale_ptr) {
+        local result = me.initFailfastReport(size)
+        local first_result = me.release_route.allocateThenReleaseHuge(facade, size, page_id, block_size, capacity, reserved)
+        me.copyFirstReleaseResult(result, first_result)
+
+        if result.first_release_ok != 1 {
+            me.failure_count = me.failure_count + 1
+            result.final_ok = 0
+            result.final_reason = first_result.final_reason
+            return me.snapshotFailfastCounters(result)
+        }
+
+        me.rejectDoubleReleasedPtr(result)
+        me.rejectStaleHugePtr(result, stale_ptr)
+
+        if result.double_ok == 0 {
+            if result.stale_ok == 0 {
+                me.success_count = me.success_count + 1
+                result.status = 1
+                result.final_ok = 1
+                result.final_reason = HakoAllocObjectLifecycleFacadeReason.ok()
+                return me.snapshotFailfastCounters(result)
+            }
+        }
+
+        me.failure_count = me.failure_count + 1
+        result.final_ok = 0
+        result.final_reason = HakoAllocObjectLifecycleFacadeReason.release_page_reject()
+        return me.snapshotFailfastCounters(result)
+    }
+}

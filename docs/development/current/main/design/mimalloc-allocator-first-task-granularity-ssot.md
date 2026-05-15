@@ -147,6 +147,7 @@ Forbidden:
 | `MIMAP-024A` | facade huge-release metadata route | MIMAP-023B selects the narrow huge-handle lifetime seam |
 | `MIMAP-024B` | post-huge-release allocator row selection | MIMAP-024A is green |
 | `MIMAP-025A` | facade huge-release fail-fast diagnostics route | MIMAP-024B selects double-release / stale-pointer diagnostics |
+| `MIMAP-025B` | post-huge-release-failfast allocator row selection | MIMAP-025A is green |
 
 ### MIMAP-020A granularity
 
@@ -276,6 +277,10 @@ huge-page model metadata rejection behavior. It must not adopt the wider M181
 `HakoAllocHugeReleaseSeam`, use page-map lookup/unregister, release OS pages,
 add small release/free, realloc, alignment, purge/reclaim, remote-free, TLS,
 atomic, provider hooks, host allocator replacement, or `#[global_allocator]`.
+
+MIMAP-025B is the next planning-only row. It must pick exactly one
+post-huge-release-failfast allocator behavior slice and record the owner, proof
+app, guard, and stop lines before implementation begins.
 
 ## Compiler / language sidecar triggers
 

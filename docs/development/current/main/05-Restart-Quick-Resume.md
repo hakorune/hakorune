@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-025A facade huge-release fail-fast diagnostics route`
+- current blocker token: `MIMAP-025B post-huge-release-failfast row selection`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - mimalloc blueprint SSOT:
@@ -46,7 +46,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-025A facade huge-release fail-fast diagnostics route`
+- current blocker token: `MIMAP-025B post-huge-release-failfast row selection`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -57,8 +57,8 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after MIMAP-024B; next blocker is
-  MIMAP-025A facade huge-release fail-fast diagnostics route
+- continue `phase-293x` after MIMAP-025A; next blocker is
+  MIMAP-025B post-huge-release-failfast row selection
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

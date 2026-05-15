@@ -105,6 +105,10 @@ Principles
     facade huge-page route and retires that same handle through
     `HakoAllocHugePageModel.markReleased(ptr)` while stopping before M181
     page-map unregister and OS page return.
+  - `HakoAllocObjectLifecycleFacadeHugeReleaseFailfastRoute` is the MIMAP-025A
+    facade diagnostics owner. It rejects double-release and stale/unknown huge
+    pointers through the same huge-page model metadata seam while still stopping
+    before M181 page-map unregister and OS page return.
   - `HakoAllocHugeReleaseSeam` is the M181 huge release seam owner. It retires
     huge handles through `HakoAllocHugePageModel` and unregisters page-map
     ownership without touching small page `releaseLocal(...)`.
