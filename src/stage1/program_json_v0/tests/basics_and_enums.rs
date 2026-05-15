@@ -17,6 +17,46 @@ return 0
 }
 
 #[test]
+fn source_to_program_json_v0_emits_statement_family_shapes() {
+    with_features(Some("stage3"), || {
+        let source = r#"
+static box Main {
+  main() {
+local i = 0
+loop i < 3 {
+print(i)
+i = i + 1
+if i == 2 {
+continue
+}
+if i == 3 {
+break
+}
+}
+loop j in 0..2 {
+print(j)
+}
+return i
+  }
+}
+"#;
+        let json = source_to_program_json_v0_strict(source).expect("program json");
+        let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+        let body = value["body"].as_array().expect("body");
+        assert_eq!(body[0]["type"], "Local");
+        assert_eq!(body[1]["type"], "Loop");
+        assert_eq!(body[1]["body"][0]["type"], "Expr");
+        assert_eq!(body[1]["body"][1]["type"], "Local");
+        assert_eq!(body[1]["body"][2]["type"], "If");
+        assert_eq!(body[1]["body"][2]["then"][0]["type"], "Continue");
+        assert_eq!(body[1]["body"][3]["then"][0]["type"], "Break");
+        assert_eq!(body[2]["type"], "LoopRange");
+        assert_eq!(body[2]["body"][0]["type"], "Expr");
+        assert_eq!(body[3]["type"], "Return");
+    });
+}
+
+#[test]
 fn source_to_program_json_v0_supports_static_method_call() {
     let source = r#"
 static box Driver {

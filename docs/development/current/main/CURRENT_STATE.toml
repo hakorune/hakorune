@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-05-15"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "LOOPCLEAN-006 landed the residual while parser facade merge as a cleanup sidecar. Current row remains MIMAP-022A post-lifecycle row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "CLEAN-STAGE1-LOWERING-002 landed the statement lowering split as a cleanup sidecar. Current row remains MIMAP-022A post-lifecycle row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
 phase_status = "docs/development/current/main/phases/phase-293x/293x-404-MIMAP-022A-POST-LIFECYCLE-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-406-LOOPCLEAN-006-WHILE-PARSER-FACADE-MERGE"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-406-LOOPCLEAN-006-WHILE-PARSER-FACADE-MERGE.md"
-latest_card_summary = "LOOPCLEAN-006 removes the separate parse_while_stage3 facade by routing Stage-3 while compatibility through parse_loop."
+latest_card = "293x-407-CLEAN-STAGE1-LOWERING-002-STMT-SPLIT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-407-CLEAN-STAGE1-LOWERING-002-STMT-SPLIT.md"
+latest_card_summary = "CLEAN-STAGE1-LOWERING-002 splits statement_to_json_v0 into statement-family helpers without changing Program(JSON v0) output."
 
 current_blocker_token = "MIMAP-022A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-407 CLEAN-STAGE1-LOWERING-002 statement lowering split landed",
   "293x-406 LOOPCLEAN-006 while parser facade merge landed",
   "293x-405 LOOPCLEAN-005 internal LoopRange AST rename landed",
   "293x-403 REUSE-LIFECYCLE-001 explicit reuse methods landed",

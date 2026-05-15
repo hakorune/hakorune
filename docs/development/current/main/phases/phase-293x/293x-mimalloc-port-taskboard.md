@@ -485,6 +485,7 @@ no source-level receiver.birth(...) as lifecycle workaround
 | `CLEAN-FOR-001` | landed | Decide legacy `parse_for_range_stage3` fate. | Legacy `for` quarantined; canonical source is `loop i in`. |
 | `CLEAN-DEAD-001` | landed | Audit first `#[allow(dead_code)]` cluster. | `numeric_substrate` and `type_registry` classified as intentional staging. |
 | `CLEAN-STAGE1-LOWERING-001` | landed | Split `expression_to_json_v0` into case helpers without changing Program(JSON v0) output. | BoxShape cleanup before more lowering rows. |
+| `CLEAN-STAGE1-LOWERING-002` | landed | Split `statement_to_json_v0` into statement-family helpers without changing Program(JSON v0) output. | BoxShape cleanup; Stage1 lowering owner stays in place. |
 | `METADATA-CATALOG-001` | landed | Classify MIR metadata catalog and add drift guard. | BoxShape cleanup; no MIR JSON schema or backend behavior change. |
 | `METADATA-CATALOG-002` | landed | Add metadata state, naming, Stage0 boundary, and CorePlan promotion policy. | BoxShape cleanup; no metadata struct split or backend behavior change. |
 | `METADATA-CATALOG-003` | landed | Add metadata promotion matrix and near-term promotion queue. | BoxShape cleanup; queue landed through `METADATA-PROMOTE-006`. |
