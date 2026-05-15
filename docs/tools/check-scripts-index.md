@@ -311,6 +311,7 @@ tools/checks/env_dead_accessors_report.sh
 | `tools/checks/k2_wide_hako_alloc_thread_heap_owner_inventory_guard.sh` | M215 の hako_alloc thread heap owner-token inventory を固定し、owner-token facts を read-only に分類しつつ thread scheduling / atomic claim / remote-free drain / owner mutation / reclaim execution / page-source / OS release へ広がらないことを検証する。 |
 | `tools/checks/k2_wide_loop_range_parser_capsule_guard.sh` | LOOP-002 の Stage0 LoopRange parser capsule を固定し、`loop i in start..end` / `loop(i in start..end)` / paren-less `loop cond` を parser + metadata transport に閉じ、Stage1 lowering / readonly index / continue-safe step / bounds facts へ広がらないことを検証する。 |
 | `tools/checks/k2_wide_looprange_ast_rename_guard.sh` | LOOPCLEAN-005 の internal ForRange-to-LoopRange AST rename を固定し、Program JSON の `LoopRange` emission と旧 `"ForRange"` decode 互換を保つことを検証する。 |
+| `tools/checks/k2_wide_loopclean_while_parser_facade_guard.sh` | LOOPCLEAN-006 の while parser facade merge を固定し、Stage-3 `while` compatibility が `parse_loop()` 経由で canonical `Loop` を出すことを検証する。 |
 - `tools/checks/k2_wide_delegate_parser_capsule_guard.sh` - DEL-002 Stage0 delegate parser/metadata capsule guard.
 - `tools/checks/k2_wide_delegate_exposes_lowering_guard.sh` - DEL-003 delegate exposes Stage1 forwarding lowering guard.
 - `tools/checks/k2_wide_brand_parser_capsule_guard.sh` - BRAND-001 Stage0 brand declaration parser/metadata capsule guard.

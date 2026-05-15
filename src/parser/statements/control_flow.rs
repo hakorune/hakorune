@@ -22,8 +22,8 @@ impl NyashParser {
         match &self.current_token().token_type {
             TokenType::IF => self.parse_if(),
             TokenType::GUARD => self.parse_guard_else(),
-            // Stage-3: while
-            TokenType::WHILE if stage3 => self.parse_while_stage3(),
+            // Stage-3 while compatibility routes through the canonical loop parser.
+            TokenType::WHILE if stage3 => self.parse_loop(),
             // Stage-3 legacy for-range compatibility. Canonical surface is loop i in a..b.
             TokenType::FOR if stage3 => self.parse_legacy_for_range_stage3(),
             // Legacy loop
@@ -301,14 +301,17 @@ impl NyashParser {
         })
     }
 
-    /// Parse loop statement.
+    /// Parse canonical loop statement and Stage-3 while compatibility.
     ///
-    /// Supported header shapes:
+    /// Supported canonical `loop` header shapes:
     /// - `loop { ... }`
     /// - `loop(cond) { ... }`
     /// - `loop cond { ... }`
     /// - `loop i in start..end { ... }`
     /// - `loop(i in start..end) { ... }`
+    ///
+    /// Stage-3 compatibility:
+    /// - `while cond { ... }` parses to the same `ASTNode::Loop` output.
     pub(super) fn parse_loop(&mut self) -> Result<ASTNode, ParseError> {
         if super::helpers::cursor_enabled() {
             let mut cursor = TokenCursor::new(&self.tokens);
@@ -316,7 +319,19 @@ impl NyashParser {
             cursor.with_stmt_mode(|c| c.skip_newlines());
             self.current = cursor.position();
         }
-        self.advance(); // consume 'loop'
+
+        let is_while_compat = self.match_token(&TokenType::WHILE);
+        self.advance(); // consume 'loop' or Stage-3 compatibility 'while'
+
+        if is_while_compat {
+            let condition = Box::new(self.parse_expression()?);
+            let body = self.parse_block_statements()?;
+            return Ok(ASTNode::Loop {
+                condition,
+                body,
+                span: Span::unknown(),
+            });
+        }
 
         if self.match_token(&TokenType::LBRACE) {
             let body = self.parse_block_statements()?;
@@ -407,34 +422,6 @@ impl NyashParser {
         self.consume(TokenType::RANGE)?;
         let end = Box::new(self.expr_parse_term()?);
         Ok((var_name, start, end))
-    }
-
-    /// Stage-3: while <cond> { body }
-    fn parse_while_stage3(&mut self) -> Result<ASTNode, ParseError> {
-        // Normalize cursor at statement start (skip leading newlines etc.)
-        if super::helpers::cursor_enabled() {
-            let mut cursor = TokenCursor::new(&self.tokens);
-            cursor.set_position(self.current);
-            cursor.with_stmt_mode(|c| c.skip_newlines());
-            self.current = cursor.position();
-        }
-        // consume 'while'
-        self.advance();
-
-        // condition expression (no parentheses required in MVP)
-        let condition = Box::new(self.parse_expression()?);
-
-        // body block
-        let body = self.parse_block_statements()?;
-
-        // LOOPCLEAN-002: legacy while sugar normalizes to canonical Loop at
-        // parser output. Keep the token accepted as Stage-3 compatibility, but
-        // do not propagate a second loop-shaped AST for new parser output.
-        Ok(ASTNode::Loop {
-            condition,
-            body,
-            span: Span::unknown(),
-        })
     }
 
     /// Stage-3 legacy for-range compatibility parser.

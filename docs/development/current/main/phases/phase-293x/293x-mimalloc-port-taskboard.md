@@ -476,6 +476,7 @@ no source-level receiver.birth(...) as lifecycle workaround
 | --- | --- | --- | --- |
 | `CLEAN-WHILE-001` | landed | While deletion readiness inventory. | BoxShape cleanup; do not mix with MIMAP-012. |
 | `CLEAN-WHILE-002` | landed | Delete `ASTNode::While` after inventory. | Parser `while` stays canonical Loop. |
+| `LOOPCLEAN-006` | landed | Merge residual `parse_while_stage3()` into `parse_loop()`. | Stage-3 `while` remains compatibility input only. |
 
 ## Remaining cleanup sidecar
 

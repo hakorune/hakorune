@@ -41,6 +41,7 @@ The remaining `ASTNode::While` vocabulary is legacy/compat residue.
 | --- | --- | --- | --- |
 | `CLEAN-WHILE-001` | landed | While deletion readiness inventory. | Remaining refs were direct legacy/model vocabulary cleanup targets; parser `while` already emits canonical `Loop`. |
 | `CLEAN-WHILE-002` | landed | Delete `ASTNode::While` variant and direct refs. | `ASTNode::While` is removed from source; `while` remains parser sugar to `Loop`. |
+| `LOOPCLEAN-006` | landed | Merge the residual `parse_while_stage3()` bridge into `parse_loop()`. | Stage-3 `while` still emits canonical `Loop`; no separate while parser facade remains. |
 | `CLEAN-LOWER-001` | ready after While cleanup | Split `expression_to_json_v0` by expression family. | Behavior-preserving helpers for literal/var/op/call/member/record/enum/array lanes; no new Program JSON shape. |
 | `CLEAN-LOWER-002` | ready after 001 | Split `statement_to_json_v0` by statement family. | Behavior-preserving helpers for local/print/return/if/loop/range/match/check lanes. |
 | `CLEAN-FOR-001` | landed | Decide legacy `parse_for_range_stage3` fate. | Quarantined as Stage-3 legacy compatibility via `parse_legacy_for_range_stage3`; canonical surface remains `loop i in`. |
@@ -142,6 +143,10 @@ docs/development/current/main/design/task-lane-reconciliation-ssot.md
 2026-05-15: after `CLEAN-WHILE-002`, continue with `CLEAN-FOR-001` and
 `CLEAN-DEAD-001` before returning to `MIMAP-012`, unless the user explicitly
 reselects the mimalloc mainline.
+
+2026-05-15: `LOOPCLEAN-006` folds the remaining Stage-3 `while` parser bridge
+into `parse_loop()`. `while` remains compatibility input only and still emits
+canonical `ASTNode::Loop`.
 
 ## Dead-code audit ledger
 
