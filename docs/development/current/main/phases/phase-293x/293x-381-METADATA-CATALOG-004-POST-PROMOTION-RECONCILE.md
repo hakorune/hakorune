@@ -1,6 +1,6 @@
 # 293x-381 METADATA-CATALOG-004 Post-Promotion Reconcile
 
-Status: ready
+Status: landed
 Date: 2026-05-15
 
 ## Decision
@@ -53,10 +53,33 @@ Only split follow-up rows when a real owner appears:
 - Do not turn Stage0 source attrs into layout, legality, optimizer, or backend
   decisions.
 
+## Closeout
+
+`METADATA-CATALOG-004` reconciles the stale open promotion queue after
+`METADATA-PROMOTE-001` through `METADATA-PROMOTE-006` landed.
+
+Changed docs:
+
+- `docs/reference/mir/metadata-facts-ssot.md` now treats the promotion queue as
+  a completed wave and keeps future work in owner-triggered row families.
+- `293x-369-METADATA-CATALOG-003-PROMOTION-MATRIX.md` now records the original
+  queue as landed history instead of future work.
+- `293x-mimalloc-port-taskboard.md` exposes the full metadata catalog/promotion
+  cleanup wave and points the next row back to allocator-row selection.
+
+No MIR JSON shape, Rust metadata struct, verifier behavior, backend lowering,
+runtime behavior, allocator behavior, packed backend activation, seed deletion,
+or provider activation changed.
+
 ## Required Evidence
 
 ```text
 bash tools/checks/mir_metadata_catalog_guard.sh
+# [mir-metadata-catalog] ok module_keys=14 seed_keys=11
+
 bash tools/checks/current_state_pointer_guard.sh
+# [current-state-pointer-guard] ok
+
 tools/checks/dev_gate.sh quick
+# [dev-gate] profile=quick ok
 ```

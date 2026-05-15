@@ -44,16 +44,22 @@ follow-up work:
 
 ## Near-Term Promotion Queue
 
-Follow-up cards should use this order unless the active blocker changes:
+This queue is closed. The follow-up cards landed in this order:
 
-1. `METADATA-PROMOTE-001`: harden catalog rows for active contracts and routes.
-2. `METADATA-PROMOTE-002`: typed-object/static-data verifier hardening.
-3. `METADATA-PROMOTE-003`: exact numeric / effect / required-inline /
-   string-kernel contract wording and guard coverage.
-4. `METADATA-PROMOTE-004`: `placement_effect_routes` consumer fold-up plan.
-5. `METADATA-PROMOTE-005`: PackedArray no-fallback contract before backend
-   lowering activation.
-6. `METADATA-PROMOTE-006`: seed route retirement ledger.
+1. `293x-370 METADATA-PROMOTE-001`: active promotion matrix guard.
+2. `293x-371 METADATA-PROMOTE-002`: typed-object/static-data verifier
+   hardening.
+3. `293x-372 METADATA-PROMOTE-003`: exact numeric / effect /
+   required-inline / string-kernel contract rows.
+4. `293x-373 METADATA-PROMOTE-004`: `placement_effect_routes` consumer
+   fold-up plan.
+5. `293x-374 METADATA-PROMOTE-005`: PackedArray no-fallback contract before
+   backend lowering activation.
+6. `293x-375 METADATA-PROMOTE-006`: seed route retirement ledger.
+
+Future metadata cleanup should use `metadata-facts-ssot.md` and a new owner
+row. Do not reopen this original queue to add allocator behavior or backend
+activation work.
 
 ## Stop Lines
 

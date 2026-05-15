@@ -21,9 +21,8 @@ LOOP-003C/D complete
 PACKED-003/004 complete
 ```
 
-Blueprint and inventory rows remain the active lane entry. Current BoxShape
-cleanup row:
-`METADATA-CATALOG-004 post-promotion reconcile`.
+Blueprint and inventory rows remain the active lane entry. Current planning row:
+`MIMAP-021A post-020 allocator row selection`.
 
 Latest closeout:
 
@@ -34,7 +33,10 @@ MIMAP-019A:
 MIMAP-020A:
   landed
   existing M49 page-source owner adopted; no new OSVM abstraction needed
-  METADATA-CATALOG-004 is the next selected BoxShape cleanup row
+METADATA-CATALOG-004:
+  landed
+  stale metadata promotion queue reconciled after PROMOTE-001..006
+  MIMAP-021A is the next selected allocator planning row
 ```
 
 ## Active Source Policy
@@ -114,6 +116,7 @@ FST:
 | `MIMAP-018A` | landed | Stats snapshot observer integration. | after allocation/release counters are stable |
 | `MIMAP-019A` | landed | Purge/reclaim/decommit policy route. | after lifecycle and stats observers are stable |
 | `MIMAP-020A` | landed | OSVM/page-source capability pilot; adopts the existing M49 page-source owner. | after in-memory facade route is stable |
+| `MIMAP-021A` | ready | Post-020 allocator row selection. | after METADATA-CATALOG-004 |
 
 MIMAP-020A execution order:
 
@@ -341,6 +344,13 @@ no source-level receiver.birth(...) as lifecycle workaround
 | `CLEAN-STAGE1-LOWERING-001` | landed | Split `expression_to_json_v0` into case helpers without changing Program(JSON v0) output. | BoxShape cleanup before more lowering rows. |
 | `METADATA-CATALOG-001` | landed | Classify MIR metadata catalog and add drift guard. | BoxShape cleanup; no MIR JSON schema or backend behavior change. |
 | `METADATA-CATALOG-002` | landed | Add metadata state, naming, Stage0 boundary, and CorePlan promotion policy. | BoxShape cleanup; no metadata struct split or backend behavior change. |
-| `METADATA-CATALOG-004` | ready | Reconcile post-promotion queue docs and taskboard visibility. | BoxShape cleanup after MIMAP-020A; do not mix with allocator behavior rows. |
+| `METADATA-CATALOG-003` | landed | Add metadata promotion matrix and near-term promotion queue. | BoxShape cleanup; queue landed through `METADATA-PROMOTE-006`. |
+| `METADATA-PROMOTE-001` | landed | Guard active promotion matrix rows. | BoxShape cleanup; no MIR JSON schema change. |
+| `METADATA-PROMOTE-002` | landed | Harden typed-object and static-data verifier contracts. | BoxShape cleanup; no backend behavior change. |
+| `METADATA-PROMOTE-003` | landed | Add active function metadata contract rows. | BoxShape cleanup; no lowering behavior change. |
+| `METADATA-PROMOTE-004` | landed | Record placement-effect consumer fold-up plan. | BoxShape cleanup; consumer migration remains future work. |
+| `METADATA-PROMOTE-005` | landed | Fix PackedArray no-fallback contract before backend activation. | BoxShape cleanup; packed backend lowering remains closed. |
+| `METADATA-PROMOTE-006` | landed | Add seed route retirement ledger. | BoxShape cleanup; no seed deletion or CorePlan promotion. |
+| `METADATA-CATALOG-004` | landed | Reconcile post-promotion queue docs and taskboard visibility. | BoxShape cleanup after MIMAP-020A; no behavior change. |
 | `CLEAN-TOKEN-STAGE3-001` | ready | Commonize the Stage-3 keyword token list in tokenizer ident classification. | Small follow-up; keep separate from lowering refactor if possible. |
 | `CLEAN-AST-DECL-001` | parked | Evaluate `Local` / `Outbox` declaration unification. | Broad AST/API cleanup; do not mix with MIMAP-013. |

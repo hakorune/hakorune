@@ -250,24 +250,36 @@ request to change JSON shape in place.
 
 ## Promotion Task Queue
 
-Use this order when turning the matrix into implementation cards:
+The first promotion wave is closed through `METADATA-PROMOTE-006`. These rows
+are now historical queue entries, not open tasks:
 
-1. `METADATA-PROMOTE-001`: harden catalog rows for active contracts and routes
-   without changing MIR JSON shape.
+1. `METADATA-PROMOTE-001`: hardened catalog rows for active contracts and
+   routes without changing MIR JSON shape.
 2. `METADATA-PROMOTE-002`: typed-object/static-data verifier hardening
    (`typed_object_plans`, `static_data_plans`).
 3. `METADATA-PROMOTE-003`: exact numeric / effect / required-inline /
    string-kernel contract wording and guard coverage.
-4. `METADATA-PROMOTE-004`: `placement_effect_routes` consumer fold-up plan for
-   family-specific string/sum/thin-entry readers.
-5. `METADATA-PROMOTE-005`: PackedArray no-fallback contract before any packed
-   record backend lowering flag is enabled.
-6. `METADATA-PROMOTE-006`: seed route retirement ledger and generic route
-   replacement plan.
+4. `METADATA-PROMOTE-004`: recorded the `placement_effect_routes` consumer
+   fold-up plan for family-specific string/sum/thin-entry readers.
+5. `METADATA-PROMOTE-005`: fixed the PackedArray no-fallback contract before
+   any packed record backend lowering flag is enabled.
+6. `METADATA-PROMOTE-006`: added the seed route retirement ledger and generic
+   route replacement plan.
 
-Stop line: do not combine these with allocator behavior rows. Promotion tasks
-are BoxShape work unless a card explicitly adds one new accepted lowering route
-with proof and guard.
+Future metadata work must start from the matrix above and should be named by
+the owner it is changing. Use a dedicated follow-up row only when a real owner
+appears:
+
+| Future row family | Trigger | Boundary |
+| --- | --- | --- |
+| `METADATA-CONSUME-PLACEMENT-*` | A backend consumer is ready to stop reading family-specific placement rows directly. | One consumer family per row; consume a proof-bearing route, not raw helper names. |
+| `METADATA-SEED-RETIRE-*` | A generic route can replace one exact seed payload with the same proof and publication boundary. | One seed family per row; no broad seed deletion. |
+| verifier contract sidecar | A metadata row starts deciding fail-fast legality. | Promote the derived contract, not raw source attrs. |
+| `PACKED-BACKEND-*` | Packed direct-read backend lowering is explicitly reopened. | Must carry backend proof, capability gate, and `boxed_fallback=false`. |
+
+Stop line: do not combine these with allocator behavior rows. Metadata cleanup
+tasks are BoxShape work unless a card explicitly adds one new accepted lowering
+route with proof and guard.
 
 ## Module-level metadata keys
 
