@@ -37,7 +37,7 @@ Not required for mimalloc migration:
 ```text
 nowait/await language expansion
 Channel
-task_scope
+co / task_scope structured concurrency
 scoped request context propagation
 source-level worker_local syntax
 true parallel language semantics
@@ -52,7 +52,7 @@ worker-local/TLS substrate, not a source-level `worker_local` feature.
 | --- | --- | --- |
 | `nowait` / `await` | not a direct allocator prerequisite | keep existing Phase-0 Future parity; do not tie allocator thread cache to async semantics |
 | `Channel` | not required | allocator remote-free queues are allocator-owned structures, not `ChannelBox` |
-| `task_scope` | not required | Future ownership and allocator heap ownership stay separate |
+| `co` / `task_scope` | not required | Future ownership and allocator heap ownership stay separate; `co` source cleanup does not block allocator rows |
 | `lock<T>` | source surface not required; internal mutex may be required | runtime/internal primitive can exist without opening `lock<T>` syntax |
 | `scoped` | not required | request/trace context must not become allocator correctness state |
 | `worker_local` | internal substrate required; source surface deferred | use runtime/internal TLS or worker slots for heap/cache/stats; no user syntax yet |
@@ -160,7 +160,7 @@ hako_atomic_ptr_load_ordered / hako_atomic_ptr_cas_ordered
 It remains an allocator substrate stress only:
 
 ```text
-no source-level worker_local / lock<T> / Channel / task_scope
+no source-level worker_local / lock<T> / Channel / co / task_scope
 no provider hook / host allocator replacement / #[global_allocator]
 no backend .inc special-case
 ```

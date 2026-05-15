@@ -341,8 +341,9 @@ Summary rows:
 | `CONC-BOUNDARY-001` | Adopt this Boundary model as the concurrency design SSOT. |
 | `CONC-COMPAT-001` | Audit legacy spellings and archive smoke-only compatibility users. |
 | `CONC-CO-001` | Add `co` as the canonical source spelling for structured concurrency scope. |
-| `CONC-SYNCBOX-001` | Move `lock<T>` from canonical surface to implementation concept; define `sync box` verifier rules. |
 | `CONC-CHANNEL-001` | Update channel API docs so `send` / `recv` / `close` are await-visible and `try_*` APIs are non-blocking. |
+| `CONC-SYNCBOX-001` | Keep raw `lock<T>` non-canonical; add `sync box` as the shared-mutable surface. |
+| `CONC-SYNCBOX-002` | Reject `await` / `nowait` / channel waits inside serialized `sync box` methods. |
 | `CONC-CONTEXT-001` | Rename/design `scoped` as `context` and pin structured child inheritance. |
 
 Implementation must remain separate from mimalloc substrate rows. Mimalloc may

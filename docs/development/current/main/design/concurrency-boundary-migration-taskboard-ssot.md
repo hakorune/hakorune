@@ -28,6 +28,34 @@ compatibility input only while active users are audited.
 `task_scope` remains a compatibility spelling and runtime/semantic term; new
 source examples should use `co`.
 
+`lock<T>` must not be promoted to the canonical source surface. The canonical
+shared-mutable surface is `sync box`; raw locks remain implementation concepts,
+historical/provisional compatibility, or runtime/internal primitives.
+
+## Recommended Task Order
+
+Use this order when the language-surface cleanup is prioritized before
+returning to the mimalloc lane:
+
+| Order | Row | Why now | Stop line |
+| --- | --- | --- | --- |
+| 1 | `CONC-COMPAT-001` | Know which legacy spellings are active source vs smoke-only compatibility. | no parser/runtime deletion |
+| 2 | `CONC-CO-001` | Make `co { ... }` the canonical structured-concurrency source spelling. | no `TaskGroupBox` / hook rename |
+| 3 | `CONC-CHANNEL-001` | Pin the visible API shape before runtime wait work: `await send` / `await recv` / `await close`, `try_*` non-blocking. | no scheduler or wait runtime rewrite |
+| 4 | `CONC-SYNCBOX-001` | Add the canonical shared-mutable syntax capsule. | no serialized runtime behavior |
+| 5 | `CONC-SYNCBOX-002` | Add the important safety verifier: no `await` / `nowait` / channel wait inside serialized methods. | no lock-order inference |
+| 6 | `CONC-CONTEXT-001` | Move the surface name from `scoped` toward `context`. | no propagation runtime |
+
+After this cut, the user-facing concurrency surface is clean enough to return
+to `MIMAP-022C`. Do not wait for full Channel runtime, `sync box` fairness,
+context propagation, source-level `worker_local`, or true parallel language
+semantics before resuming mimalloc work.
+
+Allocator substrate rows are already tracked in
+`docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md`.
+Those rows are separate from this taskboard and must not reopen user-facing
+concurrency syntax.
+
 ## Compatibility Archive Rule
 
 Yes: if an old compatibility surface is used only by smoke tests, legacy
@@ -184,6 +212,11 @@ Split parser, verifier, and runtime behavior:
 002: reject await/nowait/blocking waits inside sync methods
 003: reference serialized method-entry behavior
 ```
+
+`lock<T>` is not a competing canonical surface. If raw lock syntax exists in
+legacy tests or design notes, `CONC-COMPAT-001` decides whether it is active
+compatibility or archive-only coverage. The canonical direction stays
+`sync box`.
 
 This keeps syntax acceptance separate from semantic enforcement and backend
 lowering.
