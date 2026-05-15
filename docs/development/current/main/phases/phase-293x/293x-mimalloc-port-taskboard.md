@@ -5,6 +5,7 @@ Lane: phase-293x mimalloc blueprint / port preparation
 Canonical SSOT:
   - docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md
   - docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md
+  - docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md
 ---
 
 # Phase 293x mimalloc Port Taskboard
@@ -22,7 +23,15 @@ PACKED-003/004 complete
 ```
 
 Blueprint and inventory rows are active again after the MIR builder diet cleanup
-sidecar closeout. Current primary row:
+sidecar closeout. The mimalloc concurrency substrate cut is now pinned, so the
+current primary row is the route inventory guard before returning to page-source
+allocator behavior:
+
+```text
+MIMAP-SUBSTRATE-CONC-002 route inventory guard
+```
+
+Return row:
 
 ```text
 MIMAP-021C facade page-source allocation-miss fallback
@@ -52,7 +61,11 @@ MIMAP-021A:
 MIMAP-021B:
   landed
   facade page-source fresh-page attach is green
-  MIMAP-021C is the current selected primary row
+MIMAP-SUBSTRATE-CONC-001:
+  landed
+  mimalloc needs runtime/internal concurrency substrate, not the full
+  user-facing concurrency language surface
+  MIMAP-SUBSTRATE-CONC-002 is the current selected primary row
 ```
 
 ## Active Source Policy
@@ -64,6 +77,49 @@ Upstream mimalloc source is local-only:
 ```
 
 Tracked output is docs only.
+
+## Allocator Concurrency Substrate Cut
+
+SSOT:
+
+```text
+docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md
+```
+
+Decision:
+
+```text
+mimalloc port:
+  needs allocator-facing concurrency substrate
+  does not require widening user-facing concurrency language features first
+
+required substrate:
+  worker/thread identity
+  runtime/internal TLS or worker-local cache slots
+  atomic load/store/CAS/fetch_add routes
+  OS virtual memory reserve/commit/decommit
+  thread-safe hako_mem ABI
+  remote free / abandoned-owner / page ownership policy
+
+not prerequisites:
+  Channel
+  task_scope
+  scoped request context
+  source-level worker_local syntax
+  true parallel language semantics
+```
+
+| Row | Status | Purpose | Ordering |
+| --- | --- | --- | --- |
+| `MIMAP-SUBSTRATE-CONC-001` | landed | Pin the boundary between allocator concurrency substrate and user-facing concurrency language features. | before route inventory |
+| `MIMAP-SUBSTRATE-CONC-002` | ready | Inventory and guard existing hako.atomic / hako.tls / hako.osvm / hako.mem route facts so backend lowering reads MIR-owned routes, not raw helper names. | current |
+| `MIMAP-021C` | ready | Facade page-source allocation-miss fallback. | after MIMAP-SUBSTRATE-CONC-002 |
+| `MIMAP-WORKER-001` | planned | Add internal worker/thread identity substrate for allocator owner/cache policy; no source-level worker identity semantics. | after MIMAP-021C |
+| `MIMAP-TLS-001` | planned | Add or harden internal TLS / worker-local cache-slot substrate for allocator caches. | after MIMAP-WORKER-001 |
+| `MIMAP-ATOMIC-001` | planned | Add or harden allocator-facing atomic load/store/CAS/fetch_add route guards. | after MIMAP-TLS-001 |
+| `MIMAP-REMOTE-001` | planned | Model remote free / abandoned-owner / page ownership policy on the existing atomic/TLS substrate. | after MIMAP-ATOMIC-001 |
+| `MIMAP-THREADSAFE-ABI-001` | planned | Pin thread-safe `hako_mem` ABI requirements and smoke boundary. | after MIMAP-REMOTE-001 |
+| `MIMAP-PAR-STRESS-001` | parked | Native true-parallel stress for per-worker heaps and remote free pressure. | after substrate smoke exists |
 
 ## Collection / Automata Dependency Cut
 
@@ -134,7 +190,7 @@ FST:
 | `MIMAP-020A` | landed | OSVM/page-source capability pilot; adopts the existing M49 page-source owner. | after in-memory facade route is stable |
 | `MIMAP-021A` | landed | Post-020 allocator row selection. | after METADATA-CATALOG-004 |
 | `MIMAP-021B` | landed | Facade page-source fresh-page attach. | after MIMAP-021A |
-| `MIMAP-021C` | ready | Facade page-source allocation-miss fallback. | after MIMAP-021B |
+| `MIMAP-021C` | ready | Facade page-source allocation-miss fallback. | after MIMAP-SUBSTRATE-CONC-002 |
 
 MIMAP-020A execution order:
 

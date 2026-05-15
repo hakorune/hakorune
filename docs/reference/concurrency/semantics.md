@@ -23,6 +23,15 @@ kept only as provenance in phase logs and execution ledgers.
 | `worker_local` | yes | no | no | Design-only/cache-only model; not a semantic mechanism. |
 | true parallel scheduler | no | no | no | Phase-1+ future work; no detached-task contract yet. |
 
+Mimalloc reading:
+- This table is the user-facing concurrency surface status.
+- Mimalloc migration reads allocator substrate requirements from
+  `docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md`.
+- Internal worker-local/TLS cache slots, atomics, OSVM, and thread-safe
+  `hako_mem` ABI are runtime/backend substrate rows; they do not imply that
+  source-level `worker_local`, `lock<T>`, channels, task scopes, or true
+  parallel language semantics are active.
+
 ## CONC Vocabulary
 
 | CONC id | Meaning | Current state |

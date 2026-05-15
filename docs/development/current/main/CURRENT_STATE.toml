@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-15"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIRBUILDER-DIET cleanup sidecar is closed through MIR-SEMANTIC-PLANS-001. Builder core vs FlowPlanner public surface, v0 retire/promote rules, and MIR plan/route/seed classifications are documented. Return to MIMAP-021C facade page-source allocation-miss fallback. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-SUBSTRATE-CONC-001 pinned the allocator concurrency substrate cut: mimalloc needs runtime/internal worker identity, TLS/worker-local slots, atomic routes, OSVM, and thread-safe hako_mem ABI, not the full user-facing concurrency surface. Current row is MIMAP-SUBSTRATE-CONC-002 route inventory guard before returning to MIMAP-021C facade page-source allocation-miss fallback. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-384-MIMAP-021C-FACADE-PAGE-SOURCE-ALLOC-MISS-FALLBACK.md"
-method_anchor = "docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-390-MIMAP-SUBSTRATE-CONC-002-ROUTE-INVENTORY-GUARD.md"
+method_anchor = "docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-388-MIR-SEMANTIC-PLANS-001-CLASSIFICATION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-388-MIR-SEMANTIC-PLANS-001-CLASSIFICATION.md"
-latest_card_summary = "MIR-SEMANTIC-PLANS-001 classifies top-level MIR plan, route, seed, fact, and contract surfaces without moving files."
+latest_card = "293x-389-MIMAP-SUBSTRATE-CONC-001-CONCURRENCY-SUBSTRATE-CUT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-389-MIMAP-SUBSTRATE-CONC-001-CONCURRENCY-SUBSTRATE-CUT.md"
+latest_card_summary = "MIMAP-SUBSTRATE-CONC-001 pins allocator concurrency substrate vs user-facing concurrency surface and task order."
 
-current_blocker_token = "MIMAP-021C"
+current_blocker_token = "MIMAP-SUBSTRATE-CONC-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-389 MIMAP-SUBSTRATE-CONC-001 concurrency substrate cut landed",
   "293x-388 MIR-SEMANTIC-PLANS-001 classification landed",
   "293x-387 FLOWPLANNER-V0-001 retire promote rules landed",
   "293x-386 FLOWPLANNER-ENTRY-001 public facade inventory landed",

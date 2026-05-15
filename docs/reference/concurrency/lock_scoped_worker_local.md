@@ -14,6 +14,8 @@ Related SSOT:
 - `docs/reference/language/variables-and-scope.md` (locals / lexical scope)
 - `docs/reference/concurrency/semantics.md` (current implementation status, `nowait` / `await`, `task_scope`, channels)
 - Pre-selfhost execution plan (VM+LLVM): `docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md`
+- Mimalloc allocator substrate cut:
+  `docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md`
 
 ---
 
@@ -128,6 +130,8 @@ Notes:
 `worker_local` is intentionally separated from language meaning:
 - It may be implemented with TLS (`__thread`, `thread_local`) or per-worker arrays.
 - It is **not** inherited by tasks/routines (tasks can move between workers).
+- Allocator internals may use runtime/internal worker-local or TLS slots before
+  source-level `worker_local` is exposed.
 
 Allowed use:
 - allocator thread cache
@@ -139,4 +143,6 @@ Forbidden use:
 - anything that must not leak across tasks
 
 If/when exposed to userland, access must be explicitly “pinned” to a worker (`pin { ... }`-style),
-otherwise it remains runtime/internal only.
+otherwise it remains runtime/internal only. Mimalloc migration uses the
+runtime/internal substrate side of this split; it does not open userland
+`worker_local` syntax by itself.

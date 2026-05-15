@@ -22,17 +22,22 @@ Related:
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - task breakdown:
   `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
+- mimalloc concurrency substrate boundary SSOT:
+  `docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md`
 - mimalloc blueprint SSOT:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-021C facade page-source allocation-miss fallback`
+- current blocker token: `MIMAP-SUBSTRATE-CONC-002 route inventory guard`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after MIR-SEMANTIC-PLANS-001; next blocker is MIMAP-021C facade page-source allocation-miss fallback
+- continue phase-293x after MIMAP-SUBSTRATE-CONC-001; next blocker is
+  MIMAP-SUBSTRATE-CONC-002 route inventory guard
+- return to MIMAP-021C facade page-source allocation-miss fallback after the
+  route inventory guard is pinned
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
@@ -47,13 +52,14 @@ Related:
 ## Read Next
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-3. `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
-4. `docs/development/current/main/phases/phase-293x/README.md`
-5. `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
-6. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
-7. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
-8. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+2. `docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md`
+3. `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
+4. `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
+5. `docs/development/current/main/phases/phase-293x/README.md`
+6. `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
+7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+8. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
+9. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 
 ## Proof Bundle
 

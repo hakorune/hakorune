@@ -33,7 +33,9 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-021C facade page-source allocation-miss fallback`
+- current blocker token: `MIMAP-SUBSTRATE-CONC-002 route inventory guard`
+- mimalloc concurrency substrate boundary SSOT:
+  `docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md`
 - mimalloc blueprint SSOT:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
@@ -44,7 +46,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-021C facade page-source allocation-miss fallback`
+- current blocker token: `MIMAP-SUBSTRATE-CONC-002 route inventory guard`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -55,7 +57,10 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after MIR-SEMANTIC-PLANS-001; next blocker is MIMAP-021C facade page-source allocation-miss fallback
+- continue `phase-293x` after MIMAP-SUBSTRATE-CONC-001; next blocker is
+  MIMAP-SUBSTRATE-CONC-002 route inventory guard
+- return to MIMAP-021C facade page-source allocation-miss fallback after the
+  route inventory guard is pinned
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
