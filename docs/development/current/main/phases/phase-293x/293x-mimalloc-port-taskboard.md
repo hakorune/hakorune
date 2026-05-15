@@ -28,10 +28,10 @@ guard are pinned, the facade page-source allocation-miss fallback is green, and
 the internal worker identity, TLS cache-slot, atomic route guard, and
 remote-free / abandoned-owner policy, thread-safe `hako_mem` ABI, and native
 multi-worker substrate stress rows are now live. The current primary row moves
-to the explicit lifecycle reuse row:
+to the post-lifecycle allocator row-selection row:
 
 ```text
-  REUSE-LIFECYCLE-001 explicit reuse methods
+  MIMAP-022A post-lifecycle row selection
 ```
 
 Closed cleanup sidecar:
@@ -96,7 +96,10 @@ PARSER-BIRTH-001:
 PARSER-BIRTH-002:
   landed
   direct receiver birth diagnostic hint guard is green
-  REUSE-LIFECYCLE-001 is the current selected primary row
+REUSE-LIFECYCLE-001:
+  landed
+  explicit reuse method inventory guard is green
+  MIMAP-022A is the current selected primary row
 ```
 
 ## Active Source Policy
@@ -255,6 +258,7 @@ FST:
 | `MIMAP-021A` | landed | Post-020 allocator row selection. | after METADATA-CATALOG-004 |
 | `MIMAP-021B` | landed | Facade page-source fresh-page attach. | after MIMAP-021A |
 | `MIMAP-021C` | landed | Facade page-source allocation-miss fallback. | after MIMAP-SUBSTRATE-CONC-002 |
+| `MIMAP-022A` | ready current | Post-lifecycle allocator row selection. | current |
 
 MIMAP-020A execution order:
 
@@ -291,7 +295,7 @@ allocator-provider ladder:
 | `PARSER-BIRTH-001` | landed | Add a negative parser fixture for `obj.birth(...)` so constructor policy does not regress. | before PARSER-BIRTH-002 |
 | `PARSER-BIRTH-002` | landed | Improve direct-`birth` diagnostic with a `use new Box(...)` hint. | before REUSE-LIFECYCLE-001 |
 | `NEW-NAMED-ARGS-001` | parked | Design named constructor arguments for `new Box(field: value, ...)`. | later; not a MIMAP-013 blocker |
-| `REUSE-LIFECYCLE-001` | ready current | Keep reuse as explicit methods such as `reset`, `reactivate`, `configure`, `clear`, and `attach` with contracts/transitions. | current |
+| `REUSE-LIFECYCLE-001` | landed | Keep reuse as explicit methods such as `reset`, `reactivate`, `configure`, `clear`, and `attach` with contracts/transitions. | before MIMAP-022A |
 
 Policy SSOT:
 

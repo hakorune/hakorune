@@ -22,20 +22,20 @@ Related:
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - task breakdown:
   `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
-- constructor/new lifecycle SSOT:
-  `docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md`
+- allocator-first granularity SSOT:
+  `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - mimalloc blueprint SSOT:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `REUSE-LIFECYCLE-001 explicit reuse methods`
+- current blocker token: `MIMAP-022A post-lifecycle row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after PARSER-BIRTH-002; next blocker is
-  REUSE-LIFECYCLE-001 explicit reuse methods
+- continue phase-293x after REUSE-LIFECYCLE-001; next blocker is
+  MIMAP-022A post-lifecycle row selection
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

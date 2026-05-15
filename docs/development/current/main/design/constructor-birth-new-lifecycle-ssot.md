@@ -141,6 +141,31 @@ transition:
 Do not reuse `birth` for reset/reactivation. This keeps construction,
 reconfiguration, and cleanup separate.
 
+### Current allocator reuse inventory
+
+Current `hako_alloc` reuse surface is explicit ordinary method surface:
+
+| Method surface | Owner file | Role |
+| --- | --- | --- |
+| `HakoAllocPageModel.reactivate()` | `lang/src/hako_alloc/memory/page_box.hako` | Move an empty, committed page back to active reusable state. |
+| `HakoAllocPageModel.reuse()` | `lang/src/hako_alloc/memory/page_box.hako` | Guarded wrapper over `canReuse()` and `reactivate()`. |
+| `HakoAllocObjectLifecycle*Result.reset()` | `lang/src/hako_alloc/memory/object_lifecycle_facade_result_box.hako` | Clear result capsule observer state before a new facade operation. |
+| `HakoAllocObjectLifecycleFacadePageSourceAttach.attachFreshPage(...)` | `lang/src/hako_alloc/memory/object_lifecycle_facade_page_source_box.hako` | Attach a newly sourced page to the object-lifecycle facade. |
+
+These methods are normal public methods. Future `configure`, `clear`, or
+`attach*` methods are allowed only as explicit lifecycle methods with their own
+contracts / transitions or row guard. They must not be implemented as direct
+receiver `birth(...)` calls.
+
+Compatibility exception:
+
+```text
+lang/src/hako_alloc/memory/arc_box.hako: arc.birth(ptr)
+```
+
+This remains a legacy non-constructor host facade exception. It is not
+permission to add source-level receiver `birth(...)` lifecycle reuse.
+
 ## Factories
 
 Named construction variants belong in factory methods or factory boxes, not in

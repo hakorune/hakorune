@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-15"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "PARSER-BIRTH-002 landed the direct receiver birth diagnostic hint while keeping the parser rejection helper as the owner. Current row moves to REUSE-LIFECYCLE-001 explicit reuse methods. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "REUSE-LIFECYCLE-001 landed the explicit allocator reuse method inventory and direct-birth no-growth guard. Current row moves to MIMAP-022A post-lifecycle row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-403-REUSE-LIFECYCLE-001-EXPLICIT-REUSE-METHODS.md"
-method_anchor = "docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-404-MIMAP-022A-POST-LIFECYCLE-ROW-SELECTION.md"
+method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-402-PARSER-BIRTH-002-DIRECT-BIRTH-DIAGNOSTIC-HINT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-402-PARSER-BIRTH-002-DIRECT-BIRTH-DIAGNOSTIC-HINT.md"
-latest_card_summary = "PARSER-BIRTH-002 adds a use-new diagnostic hint for rejected direct receiver birth calls."
+latest_card = "293x-403-REUSE-LIFECYCLE-001-EXPLICIT-REUSE-METHODS"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-403-REUSE-LIFECYCLE-001-EXPLICIT-REUSE-METHODS.md"
+latest_card_summary = "REUSE-LIFECYCLE-001 pins allocator reuse to explicit methods and guards hako_alloc against direct birth reuse workarounds."
 
-current_blocker_token = "REUSE-LIFECYCLE-001"
+current_blocker_token = "MIMAP-022A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-403 REUSE-LIFECYCLE-001 explicit reuse methods landed",
   "293x-402 PARSER-BIRTH-002 direct birth diagnostic hint landed",
   "293x-401 PARSER-BIRTH-001 direct birth negative fixture landed",
   "293x-400 LIFECYCLE-BIRTH-001 new-only birth policy landed",
