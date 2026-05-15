@@ -25,11 +25,12 @@ PACKED-003/004 complete
 Blueprint and inventory rows are active again after the MIR builder diet cleanup
 sidecar closeout. The mimalloc concurrency substrate cut and route inventory
 guard are pinned, the facade page-source allocation-miss fallback is green, and
-the internal worker identity plus TLS cache-slot substrate rows are now live.
-The current primary row moves to allocator atomic route guarding:
+the internal worker identity, TLS cache-slot, and atomic route guard substrate
+rows are now live. The current primary row moves to remote-free /
+abandoned-owner policy modeling:
 
 ```text
-MIMAP-ATOMIC-001 allocator atomic route guard
+MIMAP-REMOTE-001 remote-free / abandoned-owner policy
 ```
 
 Closed cleanup sidecar:
@@ -73,7 +74,10 @@ MIMAP-WORKER-001:
 MIMAP-TLS-001:
   landed
   internal worker TLS cache-slot substrate is green
-  MIMAP-ATOMIC-001 is the current selected primary row
+MIMAP-ATOMIC-001:
+  landed
+  allocator fixed-slot atomic route guard is green
+  MIMAP-REMOTE-001 is the current selected primary row
 ```
 
 ## Active Source Policy
@@ -157,8 +161,8 @@ not prerequisites:
 | `MIMAP-021C` | landed | Facade page-source allocation-miss fallback. | after MIMAP-SUBSTRATE-CONC-002 |
 | `MIMAP-WORKER-001` | landed | Add internal worker/thread identity substrate for allocator owner/cache policy; no source-level worker identity semantics. | after MIMAP-021C |
 | `MIMAP-TLS-001` | landed | Add internal TLS / worker-local cache-slot substrate for allocator caches. | after MIMAP-WORKER-001 |
-| `MIMAP-ATOMIC-001` | ready current | Add or harden allocator-facing atomic load/store/CAS/fetch_add route guards. | current |
-| `MIMAP-REMOTE-001` | planned | Model remote free / abandoned-owner / page ownership policy on the existing atomic/TLS substrate. | after MIMAP-ATOMIC-001 |
+| `MIMAP-ATOMIC-001` | landed | Add allocator-facing atomic load/store/CAS/fetch_add route guard. | after MIMAP-TLS-001 |
+| `MIMAP-REMOTE-001` | ready current | Model remote free / abandoned-owner / page ownership policy on the existing atomic/TLS substrate. | current |
 | `MIMAP-THREADSAFE-ABI-001` | planned | Pin thread-safe `hako_mem` ABI requirements and smoke boundary. | after MIMAP-REMOTE-001 |
 | `MIMAP-PAR-STRESS-001` | parked | Native true-parallel stress for per-worker heaps and remote free pressure. | after substrate smoke exists |
 

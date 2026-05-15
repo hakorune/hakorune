@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-ATOMIC-001 allocator atomic route guard`
+- current blocker token: `MIMAP-REMOTE-001 remote-free / abandoned-owner policy`
 - mimalloc concurrency substrate boundary SSOT:
   `docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md`
 - mimalloc blueprint SSOT:
@@ -46,7 +46,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-ATOMIC-001 allocator atomic route guard`
+- current blocker token: `MIMAP-REMOTE-001 remote-free / abandoned-owner policy`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -57,8 +57,8 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after MIMAP-TLS-001; next blocker is
-  MIMAP-ATOMIC-001 allocator atomic route guard
+- continue `phase-293x` after MIMAP-ATOMIC-001; next blocker is
+  MIMAP-REMOTE-001 remote-free / abandoned-owner policy
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

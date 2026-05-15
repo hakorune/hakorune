@@ -49,7 +49,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc concurrency substrate boundary SSOT:
   `docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md`
 - current blocker token:
-  `MIMAP-ATOMIC-001 allocator atomic route guard`
+  `MIMAP-REMOTE-001 remote-free / abandoned-owner policy`
 - current BoxShape sidecar:
   none active; `MIRBUILDER-DIET` closed through `MIR-SEMANTIC-PLANS-001`
 - primary mode: mimalloc blueprint inventory lane; keep upstream source untracked and classify concepts before implementation
@@ -64,8 +64,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after MIMAP-TLS-001; next blocker is
-  MIMAP-ATOMIC-001 allocator atomic route guard.
+- resume point: continue Phase 293x after MIMAP-ATOMIC-001; next blocker is
+  MIMAP-REMOTE-001 remote-free / abandoned-owner policy.
   VM-LIM-001 remains parked diagnostic. Keep LoopRange on the Stage1 route; do
   not source-desugar range loops.
 
@@ -73,8 +73,7 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  MIMAP-ATOMIC-001 allocator atomic route guard
-  -> MIMAP-REMOTE-001 remote-free / abandoned-owner policy
+  MIMAP-REMOTE-001 remote-free / abandoned-owner policy
   -> MIMAP-THREADSAFE-ABI-001 thread-safe hako_mem ABI
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner

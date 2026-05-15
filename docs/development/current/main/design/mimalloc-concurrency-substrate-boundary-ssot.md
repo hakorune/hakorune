@@ -123,8 +123,8 @@ no true thread pool
 | `MIMAP-021C` | landed | Facade page-source allocation-miss fallback. |
 | `MIMAP-WORKER-001` | landed | Internal worker identity substrate; VM/reference returns 0. |
 | `MIMAP-TLS-001` | landed | Allocator-internal worker-local cache slot usage; no source syntax. |
-| `MIMAP-ATOMIC-001` | ready current | Consolidate allocator ownership atomic route set. |
-| `MIMAP-REMOTE-001` | planned | Production-facade remote-free policy integration over existing atomic/TLS proofs. |
+| `MIMAP-ATOMIC-001` | landed | Consolidate allocator ownership atomic route set. |
+| `MIMAP-REMOTE-001` | ready current | Production-facade remote-free policy integration over existing atomic/TLS proofs. |
 | `MIMAP-THREADSAFE-ABI-001` | planned | Thread-safe `hako_mem` ABI contract. |
 | `MIMAP-PAR-STRESS-001` | parked | Native multi-worker stress after substrate rows are live. |
 

@@ -190,6 +190,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_mimalloc_atomic_load_exe_guard.sh` | M28 の `AtomicCoreBox.load_i64` + pure-first EXE proof を固定し、atomic load route が MIR-owned extern route facts から emit されることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_atomic_store_exe_guard.sh` | M29 の `AtomicCoreBox.store_i64` + pure-first EXE proof を固定し、atomic store route が MIR-owned extern route facts から emit されることを検証する。 |
 | `tools/checks/k2_wide_mimalloc_atomic_fetch_add_exe_guard.sh` | M30 の `AtomicCoreBox.fetch_add_i64` + pure-first EXE proof を固定し、atomic fetch-add route が MIR-owned extern route facts から emit されることを検証する。 |
+| `tools/checks/k2_wide_mimalloc_allocator_atomic_route_guard.sh` | MIMAP-ATOMIC-001 の allocator-facing fixed-slot atomic route set を束ね、CAS/load/store/fetch_add proofs と route inventory をまとめて検証し、ordered rows / pointer fetch_add / remote-free policy へ広がらないことを固定する。 |
 | `tools/checks/k2_wide_mimalloc_remote_free_i64_exe_guard.sh` | M31 の fixed-slot i64 remote-free sketch + pure-first EXE proof を固定し、既存 atomic route facts の合成で LIFO push が動くことを検証する。 |
 | `tools/checks/k2_wide_atomic_memory_order_args_vocab_guard.sh` | M33 の ordered fixed-slot i64 atomic facade/route vocabulary を docs-only で固定し、active source / `.inc` / NyRT に ordered implementation row が混入しないことを検証する。 |
 | `tools/checks/k2_wide_pointer_atomic_vocab_guard.sh` | M34 の native-pointer atomic load/store/CAS facade/route vocabulary を固定し、M35/M39/M40/M41/M42/M43 以降も pointer fetch_add implementation row が混入しないことを検証する。 |
