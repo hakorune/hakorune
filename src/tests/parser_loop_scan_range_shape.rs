@@ -1,24 +1,7 @@
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::parser::NyashParser;
+use crate::tests::helpers::env::with_stage3_features;
 use crate::tests::helpers::parser::find_method_body;
-use std::sync::{Mutex, OnceLock};
-
-fn env_guard() -> &'static Mutex<()> {
-    static GUARD: OnceLock<Mutex<()>> = OnceLock::new();
-    GUARD.get_or_init(|| Mutex::new(()))
-}
-
-fn with_stage3_features<R>(f: impl FnOnce() -> R) -> R {
-    let _lock = env_guard().lock().unwrap_or_else(|e| e.into_inner());
-    let prev_features = std::env::var("NYASH_FEATURES").ok();
-    std::env::set_var("NYASH_FEATURES", "stage3");
-    let out = f();
-    match prev_features {
-        Some(v) => std::env::set_var("NYASH_FEATURES", v),
-        None => std::env::remove_var("NYASH_FEATURES"),
-    }
-    out
-}
 
 #[test]
 fn parser_loop_scan_range_shape_preserves_lte_n_minus_one_ast() {

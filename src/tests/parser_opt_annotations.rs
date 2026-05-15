@@ -1,9 +1,9 @@
 use crate::ast::ASTNode;
 use crate::parser::NyashParser;
 use crate::r#macro::ast_json::{ast_to_json_roundtrip, json_to_ast};
+use crate::tests::helpers::env::with_env_vars;
 use crate::tests::helpers::parser::find_method_body;
 use crate::tokenizer::{NyashTokenizer, TokenizeError};
-use std::sync::{Mutex, MutexGuard, OnceLock};
 
 #[path = "parser_opt_annotations_parts/compat.rs"]
 mod compat;
@@ -14,43 +14,8 @@ mod placements;
 #[path = "parser_opt_annotations_parts/rejects.rs"]
 mod rejects;
 
-fn env_guard() -> &'static Mutex<()> {
-    static GUARD: OnceLock<Mutex<()>> = OnceLock::new();
-    GUARD.get_or_init(|| Mutex::new(()))
-}
-
-struct FeatureOverrideGuard {
-    prev: Option<String>,
-    _lock: MutexGuard<'static, ()>,
-}
-
-impl FeatureOverrideGuard {
-    fn new(features: Option<&str>) -> Self {
-        let lock = match env_guard().lock() {
-            Ok(lock) => lock,
-            Err(poisoned) => poisoned.into_inner(),
-        };
-        let prev = std::env::var("NYASH_FEATURES").ok();
-        match features {
-            Some(v) => std::env::set_var("NYASH_FEATURES", v),
-            None => std::env::remove_var("NYASH_FEATURES"),
-        }
-        Self { prev, _lock: lock }
-    }
-}
-
-impl Drop for FeatureOverrideGuard {
-    fn drop(&mut self) {
-        match &self.prev {
-            Some(v) => std::env::set_var("NYASH_FEATURES", v),
-            None => std::env::remove_var("NYASH_FEATURES"),
-        }
-    }
-}
-
 fn with_features<R>(features: Option<&str>, f: impl FnOnce() -> R) -> R {
-    let _guard = FeatureOverrideGuard::new(features);
-    f()
+    with_env_vars(&[("NYASH_FEATURES", features)], f)
 }
 
 fn find_runes(metadata: &crate::parser::ParserMetadata) -> Vec<(String, Vec<String>)> {

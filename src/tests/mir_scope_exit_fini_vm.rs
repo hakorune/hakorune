@@ -2,26 +2,25 @@
 mod tests {
     use crate::backend::VM;
     use crate::parser::NyashParser;
-
-    fn enable_stage3() {
-        std::env::set_var("NYASH_FEATURES", "stage3");
-    }
+    use crate::tests::helpers::env::with_stage3_features;
 
     fn run(code: &str) -> String {
-        enable_stage3();
-        let ast = NyashParser::parse_from_string(code).expect("parse");
-        let mut compiler = crate::mir::MirCompiler::new();
-        let result = compiler.compile(ast).expect("compile");
-        let mut vm = VM::new();
-        let out = vm.execute_module(&result.module).expect("vm exec");
-        out.to_string_box().value
+        with_stage3_features(|| {
+            let ast = NyashParser::parse_from_string(code).expect("parse");
+            let mut compiler = crate::mir::MirCompiler::new();
+            let result = compiler.compile(ast).expect("compile");
+            let mut vm = VM::new();
+            let out = vm.execute_module(&result.module).expect("vm exec");
+            out.to_string_box().value
+        })
     }
 
     fn compile_error(code: &str) -> String {
-        enable_stage3();
-        let ast = NyashParser::parse_from_string(code).expect("parse");
-        let mut compiler = crate::mir::MirCompiler::new();
-        compiler.compile(ast).expect_err("compile should fail")
+        with_stage3_features(|| {
+            let ast = NyashParser::parse_from_string(code).expect("parse");
+            let mut compiler = crate::mir::MirCompiler::new();
+            compiler.compile(ast).expect_err("compile should fail")
+        })
     }
 
     #[test]

@@ -79,3 +79,17 @@ pub fn with_env_vars<R>(updates: &[(&'static str, Option<&str>)], f: impl FnOnce
     let _guard = EnvVarsGuard::apply(updates);
     f()
 }
+
+pub fn with_stage3_features<R>(f: impl FnOnce() -> R) -> R {
+    with_env_vars(&[("NYASH_FEATURES", Some("stage3"))], f)
+}
+
+pub fn with_stage3_block_catch<R>(f: impl FnOnce() -> R) -> R {
+    with_env_vars(
+        &[
+            ("NYASH_FEATURES", Some("stage3")),
+            ("NYASH_BLOCK_CATCH", Some("1")),
+        ],
+        f,
+    )
+}
