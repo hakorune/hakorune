@@ -21,8 +21,9 @@ LOOP-003C/D complete
 PACKED-003/004 complete
 ```
 
-Blueprint and inventory rows are now the active lane entry. Current primary row:
-`MIMAP-020A OSVM/page-source capability pilot`.
+Blueprint and inventory rows remain the active lane entry. Current BoxShape
+cleanup row:
+`METADATA-CATALOG-004 post-promotion reconcile`.
 
 Latest closeout:
 
@@ -30,7 +31,10 @@ Latest closeout:
 MIMAP-019A:
   landed
   object-lifecycle facade purge/reclaim policy route is green
-  MIMAP-020A is the next selected allocator row
+MIMAP-020A:
+  landed
+  existing M49 page-source owner adopted; no new OSVM abstraction needed
+  METADATA-CATALOG-004 is the next selected BoxShape cleanup row
 ```
 
 ## Active Source Policy
@@ -109,7 +113,7 @@ FST:
 | `MIMAP-FACADE-CLEAN-001` | landed | Facade result observer / reason-code SSOT cleanup TODO. | after MIMAP-017B |
 | `MIMAP-018A` | landed | Stats snapshot observer integration. | after allocation/release counters are stable |
 | `MIMAP-019A` | landed | Purge/reclaim/decommit policy route. | after lifecycle and stats observers are stable |
-| `MIMAP-020A` | ready | OSVM/page-source capability pilot. | after in-memory facade route is stable |
+| `MIMAP-020A` | landed | OSVM/page-source capability pilot; adopts the existing M49 page-source owner. | after in-memory facade route is stable |
 
 MIMAP-020A execution order:
 
@@ -337,5 +341,6 @@ no source-level receiver.birth(...) as lifecycle workaround
 | `CLEAN-STAGE1-LOWERING-001` | landed | Split `expression_to_json_v0` into case helpers without changing Program(JSON v0) output. | BoxShape cleanup before more lowering rows. |
 | `METADATA-CATALOG-001` | landed | Classify MIR metadata catalog and add drift guard. | BoxShape cleanup; no MIR JSON schema or backend behavior change. |
 | `METADATA-CATALOG-002` | landed | Add metadata state, naming, Stage0 boundary, and CorePlan promotion policy. | BoxShape cleanup; no metadata struct split or backend behavior change. |
+| `METADATA-CATALOG-004` | ready | Reconcile post-promotion queue docs and taskboard visibility. | BoxShape cleanup after MIMAP-020A; do not mix with allocator behavior rows. |
 | `CLEAN-TOKEN-STAGE3-001` | ready | Commonize the Stage-3 keyword token list in tokenizer ident classification. | Small follow-up; keep separate from lowering refactor if possible. |
 | `CLEAN-AST-DECL-001` | parked | Evaluate `Local` / `Outbox` declaration unification. | Broad AST/API cleanup; do not mix with MIMAP-013. |

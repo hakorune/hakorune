@@ -47,7 +47,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc blueprint / port taskboard:
   `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
 - current blocker token:
-  `MIMAP-020A OSVM/page-source capability pilot`
+  `METADATA-CATALOG-004 post-promotion reconcile`
 - current BoxShape sidecar:
   none active
 - primary mode: mimalloc blueprint inventory lane; keep upstream source untracked and classify concepts before implementation
@@ -62,9 +62,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after MIMAP-019A facade purge/reclaim
-  policy route; next primary blocker is MIMAP-020A OSVM/page-source capability
-  pilot.
+- resume point: continue Phase 293x after MIMAP-020A OSVM/page-source
+  capability adoption; next blocker is METADATA-CATALOG-004 post-promotion
+  reconcile.
   VM-LIM-001 remains parked diagnostic. Keep LoopRange on the Stage1 route; do
   not source-desugar range loops.
 
@@ -72,15 +72,17 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  MIMAP-020A OSVM/page-source capability pilot
+  METADATA-CATALOG-004 post-promotion reconcile
 - recent BoxShape sidecar:
   MIMAP-FACADE-CLEAN-001 facade result observer / reason-code SSOT cleanup
 - metadata promotion queue:
   `docs/reference/mir/metadata-facts-ssot.md` `Current Promotion Matrix`
   and
   `docs/development/current/main/phases/phase-293x/293x-369-METADATA-CATALOG-003-PROMOTION-MATRIX.md`
-  are the restart entries. Do not combine these promotion cleanup cards with
-  allocator behavior rows.
+  remain the historical restart entries for the landed promotion wave. The
+  current cleanup entry is
+  `docs/development/current/main/phases/phase-293x/293x-381-METADATA-CATALOG-004-POST-PROMOTION-RECONCILE.md`.
+  Do not combine metadata cleanup cards with allocator behavior rows.
 - optional future allocator-provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`

@@ -1,6 +1,6 @@
 # 293x-380 MIMAP-020A OSVM/Page-Source Capability Pilot
 
-Status: ready
+Status: landed
 Date: 2026-05-15
 
 ## Decision
@@ -49,6 +49,30 @@ Existing proof/guard to adopt:
 apps/hako-alloc-page-source-policy-proof/main.hako
 tools/checks/k2_wide_hako_alloc_page_source_policy_exe_guard.sh
 ```
+
+## Closeout
+
+`MIMAP-020A` closes as an existing-owner adoption row. The selected M49
+page-source owner already proves the reserve/commit/decommit route through the
+facade-owned page-source methods, so no new `.hako` owner, proof app, guard, or
+OSVM abstraction is needed for this card.
+
+Evidence:
+
+```text
+bash tools/checks/k2_wide_hako_alloc_page_source_policy_exe_guard.sh
+# [m49-mir-json] ok
+# [k2-wide-hako-alloc-page-source-policy-exe] ok
+```
+
+No split trigger fired:
+
+- `MIMAP-020B`: not needed; the existing M49 proof is sufficient for the
+  selected mimalloc-facing page-source facade seam.
+- `USES-002A`: not needed for this closeout; method-level `uses osvm`
+  capability metadata can remain a future verifier contract row.
+- provider ladder reopen: not triggered; provider hooks, host allocator
+  replacement, and `#[global_allocator]` stay inactive.
 
 ## Split Rules
 

@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-020A OSVM/page-source capability pilot`
+- current blocker token: `METADATA-CATALOG-004 post-promotion reconcile`
 - mimalloc blueprint SSOT:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
@@ -44,7 +44,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-020A OSVM/page-source capability pilot`
+- current blocker token: `METADATA-CATALOG-004 post-promotion reconcile`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -55,7 +55,7 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after MIMAP-019A facade purge/reclaim policy route; next blocker is MIMAP-020A OSVM/page-source capability pilot; VM-LIM-001 is parked
+- continue `phase-293x` after MIMAP-020A page-source capability adoption; next blocker is METADATA-CATALOG-004 post-promotion reconcile; VM-LIM-001 is parked
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
