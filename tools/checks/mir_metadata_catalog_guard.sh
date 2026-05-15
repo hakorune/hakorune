@@ -12,6 +12,7 @@ INLINE_REQUIRED="$ROOT_DIR/src/mir/verification/inline_required.rs"
 STRING_KERNEL_VERIFIER="$ROOT_DIR/src/mir/verification/string_kernel.rs"
 EXACT_NUMERIC_CONTRACTS="$ROOT_DIR/src/mir/exact_numeric_field_contracts.rs"
 EXACT_NUMERIC_BACKEND="$ROOT_DIR/src/mir/exact_numeric_backend_capability.rs"
+EXACT_SEED_BACKEND="$ROOT_DIR/src/mir/exact_seed_backend_route.rs"
 ARRAY_RECORD_BOUNDARY="$ROOT_DIR/src/mir/array_record_materialization_boundary.rs"
 ARRAY_RECORD_PACKED_PILOT="$ROOT_DIR/src/mir/array_record_packed_autouse_pilot.rs"
 SOURCE_PACKED_AUTOUSE="$ROOT_DIR/src/mir/source_packed_array_autouse_pilot.rs"
@@ -20,6 +21,7 @@ ARRAY_RECORD_BACKEND="$ROOT_DIR/src/mir/array_record_backend_capability.rs"
 LLVM_COMMON_SHIM="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_common.inc"
 LLVM_SUM_LOCAL_SHIM="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc"
 LLVM_STRING_CANDIDATE_SHIM="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_string_candidate_plan_readers.inc"
+LLVM_PURE_COMPILE_SHIM="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc"
 PACKED_BACKEND_GUARD="$ROOT_DIR/tools/checks/k2_wide_packed_record_backend_failfast_guard.sh"
 SOURCE_PACKED_AUTOUSE_GUARD="$ROOT_DIR/tools/checks/k2_wide_source_packed_array_autouse_pilot_guard.sh"
 INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
@@ -31,11 +33,12 @@ guard_require_command "$TAG" realpath
 guard_require_files "$TAG" "$DOC" "$ROOT_EMIT" "$FUNCTION_TYPES" \
   "$SEMANTIC_REFRESH" "$RUNE_CONTRACTS" "$INLINE_REQUIRED" \
   "$STRING_KERNEL_VERIFIER" "$EXACT_NUMERIC_CONTRACTS" \
-  "$EXACT_NUMERIC_BACKEND" "$ARRAY_RECORD_BOUNDARY" \
+  "$EXACT_NUMERIC_BACKEND" "$EXACT_SEED_BACKEND" "$ARRAY_RECORD_BOUNDARY" \
   "$ARRAY_RECORD_PACKED_PILOT" "$SOURCE_PACKED_AUTOUSE" \
   "$SOURCE_PACKED_DIRECT" "$ARRAY_RECORD_BACKEND" "$LLVM_COMMON_SHIM" \
   "$LLVM_SUM_LOCAL_SHIM" "$LLVM_STRING_CANDIDATE_SHIM" \
-  "$PACKED_BACKEND_GUARD" "$SOURCE_PACKED_AUTOUSE_GUARD" "$INDEX"
+  "$LLVM_PURE_COMPILE_SHIM" "$PACKED_BACKEND_GUARD" \
+  "$SOURCE_PACKED_AUTOUSE_GUARD" "$INDEX"
 
 require_doc_token() {
   local token="$1"
@@ -235,6 +238,30 @@ for token in "${active_function_contract_tokens[@]}"; do
   require_doc_token "$token"
 done
 
+seed_retirement_tokens=(
+  "Seed Route Retirement Ledger"
+  "not CorePlan promotion candidates"
+  "is a selector over already"
+  "Generic replacement target"
+  "array/string micro seed"
+  "array get/set micro seed"
+  "array RMW add1 leaf seed"
+  "string const-suffix micro seed"
+  "string substring views micro seed"
+  "sum placement seed"
+  "thin-entry / typed-object seed"
+  "userbox loop micro seed"
+  "known-receiver userbox method seed"
+  "string_kernel_plans.loop_payload"
+  "Do not add a new seed row without an owner family"
+  "Do not promote seed payloads to CorePlan ownership"
+  "app-specific block counts"
+)
+
+for token in "${seed_retirement_tokens[@]}"; do
+  require_doc_token "$token"
+done
+
 require_source_token "check_rune_contracts" "$RUNE_CONTRACTS"
 require_source_token "RuneContractSet::from_effect_plans" "$RUNE_CONTRACTS"
 require_source_token "check_required_inline_plans" "$INLINE_REQUIRED"
@@ -244,6 +271,11 @@ require_source_token "StringKernelPlanVerifierOwner::LoweringDirectKernelEntry" 
 require_source_token "exact_numeric_runtime_check_contracts" "$EXACT_NUMERIC_CONTRACTS"
 require_source_token "enforce_exact_numeric_runtime_checks_supported" "$EXACT_NUMERIC_CONTRACTS"
 require_source_token "enforce_exact_numeric_backend_supported" "$EXACT_NUMERIC_BACKEND"
+require_source_token "ExactSeedBackendRouteKind" "$EXACT_SEED_BACKEND"
+require_source_token "source_route_field" "$EXACT_SEED_BACKEND"
+require_source_token "selected_substring_concat_loop_plan" "$EXACT_SEED_BACKEND"
+require_source_token "hako_llvmc_exact_seed_backend_route_supported" "$LLVM_PURE_COMPILE_SHIM"
+require_source_token "unsupported exact_seed_backend_route metadata" "$LLVM_PURE_COMPILE_SHIM"
 require_source_token "ARRAY_RECORD_MATERIALIZATION_ACTION_FAIL_FAST_UNMATERIALIZED_RECORD" "$ARRAY_RECORD_BOUNDARY"
 require_source_token "visible_record_materialization_enabled: false" "$ARRAY_RECORD_BOUNDARY"
 require_source_token "runtime_auto_use_enabled: false" "$ARRAY_RECORD_BOUNDARY"

@@ -467,6 +467,37 @@ Contract:
 - generic `LoweringRoutes` or `PlacementPlans` are the preferred long-term
   replacement.
 
+### Seed Route Retirement Ledger
+
+Seed routes are not CorePlan promotion candidates. They are exact-shape proof
+bridges that let backend code select a known emitter without rediscovering app
+shape from raw MIR. `exact_seed_backend_route` is a selector over already
+proven source seed rows; it does not own legality.
+
+| Seed row | Current owner family | Generic replacement target | Retire condition |
+| --- | --- | --- | --- |
+| `array_string_store_micro_seed_route` | array/string micro seed | `lowering_plan` entries over array store/string value-demand routes | retire when the backend consumes proof-bearing array/string store route entries without exact block-count payloads |
+| `array_getset_micro_seed_route` | array get/set micro seed | generic array get/set `LoweringRoutes` with value-demand/proof fields | retire when array get/set lowering no longer needs a seven-block exact payload |
+| `array_rmw_add1_leaf_seed_route` | array RMW add1 leaf seed | `array_rmw_window_routes` folded into `lowering_plan` | retire when RMW legality, selected value, and publication proof are carried by the generic route |
+| `concat_const_suffix_micro_seed_route` | string const-suffix micro seed | `string_kernel_plans` / string lowering route entries | retire when const-suffix concat is emitted from verified string kernel routes |
+| `substring_views_micro_seed_route` | string substring views micro seed | `string_kernel_plans` / string view route entries | retire when substring view legality and retained-form proof are emitted from generic string routes |
+| `sum_variant_tag_seed_route` | sum placement seed | `placement_effect_routes` plus generic sum tag lowering route | retire when tag layout/proof/value identity is carried by generic sum routes |
+| `sum_variant_project_seed_route` | sum placement seed | `placement_effect_routes` plus generic sum project lowering route | retire when payload layout/proof/value identity is carried by generic sum routes |
+| `userbox_local_scalar_seed_route` | thin-entry / typed-object seed | `typed_object_plans`, `thin_entry_*`, and `placement_effect_routes` folded into `lowering_plan` | retire when local scalar field get/set routes carry slot, value, and publication proof without Point/Flag/PointF exact payloads |
+| `userbox_loop_micro_seed_route` | userbox loop micro seed | generic userbox method/body `LoweringRoutes` | retire when loop method lowering consumes method route proof instead of exact loop payloads |
+| `userbox_known_receiver_method_seed_route` | known-receiver userbox method seed | `user_box_method_routes` folded into `lowering_plan` | retire when known receiver method calls lower from typed route facts without exact receiver app-shape payloads |
+| `exact_seed_backend_route` | selector over source seed rows | generic backend route priority over `lowering_plan` / `placement_effect_routes` / `string_kernel_plans` | retire after all source seed rows above are retired or the C shim reads only generic route entries |
+| `string_kernel_plans.loop_payload` exact seed tag | route-backed string exact entry | direct `string_kernel_plans` consumer | retire when substring concat loop ASCII emit reads the verified string kernel route directly and no longer uses `exact_seed_backend_route` |
+
+Stop lines:
+
+- Do not add a new seed row without an owner family, generic replacement target,
+  and retire condition in this ledger.
+- Do not promote seed payloads to CorePlan ownership; promote the generic route
+  that replaces them.
+- Do not make backend shims infer seed legality from raw helper names, method
+  names, or app-specific block counts.
+
 ## Metadata Namespace Boundary
 
 Do not mix these similarly named structures:
