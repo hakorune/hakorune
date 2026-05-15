@@ -111,6 +111,33 @@ FST:
 | `MIMAP-019A` | landed | Purge/reclaim/decommit policy route. | after lifecycle and stats observers are stable |
 | `MIMAP-020A` | ready | OSVM/page-source capability pilot. | after in-memory facade route is stable |
 
+MIMAP-020A execution order:
+
+```text
+020A.1 adopt existing M49 page-source owner:
+  HakoAllocPageSourcePolicy
+  HakoAllocProductionFacade.pageSource*
+
+020A.2 rerun existing proof:
+  bash tools/checks/k2_wide_hako_alloc_page_source_policy_exe_guard.sh
+
+020A.3 close the card without new code unless a MIMAP-specific seam is missing.
+```
+
+Split policy:
+
+```text
+MIMAP-020B:
+  only if a mimalloc-facing page-source acceptance seam is missing
+
+USES-002A:
+  only if verifier-active method-level `uses osvm` becomes the blocker
+
+allocator-provider ladder:
+  only by explicit reopen; provider hooks, host replacement, and
+  #[global_allocator] stay inactive
+```
+
 ### Construction / Lifecycle Policy Rows
 
 | Row | Status | Purpose | Ordering |

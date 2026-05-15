@@ -135,7 +135,24 @@ Forbidden:
 | `MIMAP-017B` | realloc grow / move route | `MIMAP-017A` is green |
 | `MIMAP-018A` | stats snapshot observer integration | allocation/release counters are stable |
 | `MIMAP-019A` | purge/reclaim/decommit policy route | stats and lifecycle observers are stable |
-| `MIMAP-020A` | OSVM/page-source capability pilot | in-memory allocator facade route is stable |
+| `MIMAP-020A` | OSVM/page-source capability pilot; first closeout is existing M49 owner adoption | in-memory allocator facade route is stable |
+
+### MIMAP-020A granularity
+
+MIMAP-020A is not a provider-activation row. Its first task is to adopt and
+document the already-live page-source capability owner:
+
+```text
+HakoAllocPageSourcePolicy
+HakoAllocProductionFacade.pageSource*
+tools/checks/k2_wide_hako_alloc_page_source_policy_exe_guard.sh
+```
+
+The row may close with no new code when the existing proof still demonstrates
+reserve/commit/decommit through MIR-owned OSVM extern routes. A new owner,
+proof app, or guard is allowed only if the existing proof misses a
+MIMAP-specific acceptance seam. Provider selection, hooks, host allocator
+replacement, and `#[global_allocator]` remain parked outside this row.
 
 ## Compiler / language sidecar triggers
 
