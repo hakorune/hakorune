@@ -46,12 +46,17 @@ guard_require_files \
   "${stale_pin_guards[@]}"
 guard_require_exec_files "$TAG" "$HELPER" "$SELF_SCRIPT"
 
-guard_expect_in_file "$TAG" "DOCS-SLIM-003" "$CARD" "DOCS-SLIM-003 card must exist"
-guard_expect_in_file "$TAG" "Do not move numbered cards in this row" "$CARD" "card must keep no-move stop-line"
+guard_require_docs_slim_card_metadata \
+  "$TAG" \
+  "$CARD" \
+  "$ARCHIVE_POLICY" \
+  "$CHECK_INDEX" \
+  "$SELF_SCRIPT" \
+  "DOCS-SLIM-003" \
+  "Third Slimming Phase"
+
 guard_expect_in_file "$TAG" "Past row guards must not pin" "$POLICY" "update policy must forbid stale current pointer pins"
-guard_expect_in_file "$TAG" "Third Slimming Phase" "$ARCHIVE_POLICY" "archive policy must record DOCS-SLIM-003"
 guard_expect_in_file "$TAG" "historical snapshot" "$MANIFEST" "archive manifest must describe DOCS-SLIM-002 counts as historical"
-guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$CHECK_INDEX" "check script index must list DOCS-SLIM-003 guard"
 guard_expect_in_file "$TAG" "phase293x_card_path" "$HELPER" "phase card helper must expose resolver"
 
 latest_prefix='latest_card = "'

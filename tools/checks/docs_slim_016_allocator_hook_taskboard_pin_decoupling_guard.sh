@@ -44,10 +44,14 @@ guard_require_files \
   "${converted_scripts[@]}"
 guard_require_exec_files "$TAG" "$HELPER" "$SELF_SCRIPT"
 
-guard_expect_in_file "$TAG" "DOCS-SLIM-016" "$CARD" "DOCS-SLIM-016 card must exist"
-guard_expect_in_file "$TAG" "Do not move numbered cards in this row" "$CARD" "card must keep no-move stop-line"
-guard_expect_in_file "$TAG" "Sixteenth Slimming Phase" "$ARCHIVE_POLICY" "archive policy must record DOCS-SLIM-016"
-guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$CHECK_INDEX" "check index must list DOCS-SLIM-016 guard"
+guard_require_docs_slim_card_metadata \
+  "$TAG" \
+  "$CARD" \
+  "$ARCHIVE_POLICY" \
+  "$CHECK_INDEX" \
+  "$SELF_SCRIPT" \
+  "DOCS-SLIM-016" \
+  "Sixteenth Slimming Phase"
 
 for script in "${converted_scripts[@]}"; do
   guard_expect_in_file "$TAG" 'require_text "\$TASKBOARD"' "$script" "$script must keep design taskboard assertions"

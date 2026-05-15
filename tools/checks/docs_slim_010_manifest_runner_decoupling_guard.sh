@@ -30,10 +30,14 @@ guard_require_files \
   "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$HELPER" "$MANIFEST_GUARD" "$SELF_SCRIPT"
 
-guard_expect_in_file "$TAG" "DOCS-SLIM-010" "$CARD" "DOCS-SLIM-010 card must exist"
-guard_expect_in_file "$TAG" "Do not move numbered cards in this row" "$CARD" "card must keep no-move stop-line"
-guard_expect_in_file "$TAG" "Tenth Slimming Phase" "$ARCHIVE_POLICY" "archive policy must record DOCS-SLIM-010"
-guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$CHECK_INDEX" "check index must list DOCS-SLIM-010 guard"
+guard_require_docs_slim_card_metadata \
+  "$TAG" \
+  "$CARD" \
+  "$ARCHIVE_POLICY" \
+  "$CHECK_INDEX" \
+  "$SELF_SCRIPT" \
+  "DOCS-SLIM-010" \
+  "Tenth Slimming Phase"
 
 guard_expect_in_file "$TAG" "phase_card_paths.sh" "$MANIFEST_GUARD" "manifest guard must source phase card resolver helper"
 guard_expect_in_file "$TAG" "guard_require_phase293x_card" "$MANIFEST_GUARD" "manifest guard must resolve its card via helper"

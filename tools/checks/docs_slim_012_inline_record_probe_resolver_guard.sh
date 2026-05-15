@@ -29,10 +29,14 @@ guard_require_files \
   "${converted_scripts[@]}"
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 
-guard_expect_in_file "$TAG" "DOCS-SLIM-012" "$CARD" "DOCS-SLIM-012 card must exist"
-guard_expect_in_file "$TAG" "Do not move numbered cards in this row" "$CARD" "card must keep no-move stop-line"
-guard_expect_in_file "$TAG" "Twelfth Slimming Phase" "$ARCHIVE_POLICY" "archive policy must record DOCS-SLIM-012"
-guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$CHECK_INDEX" "check index must list DOCS-SLIM-012 guard"
+guard_require_docs_slim_card_metadata \
+  "$TAG" \
+  "$CARD" \
+  "$ARCHIVE_POLICY" \
+  "$CHECK_INDEX" \
+  "$SELF_SCRIPT" \
+  "DOCS-SLIM-012" \
+  "Twelfth Slimming Phase"
 
 for script in "${converted_scripts[@]}"; do
   guard_expect_in_file "$TAG" "phase_card_paths.sh" "$script" "$script must source phase card resolver helper"
