@@ -417,6 +417,20 @@ pub enum ASTNode {
         span: Span,
     },
 
+    /// Structured ambient context binding.
+    ///
+    /// `context name[: Type] = value { ... }` is canonical. `scoped` remains
+    /// a compatibility spelling while propagation/runtime semantics are owned
+    /// by later CONC-CONTEXT rows.
+    ContextScope {
+        name: String,
+        declared_type_name: Option<String>,
+        value: Box<ASTNode>,
+        body: Vec<ASTNode>,
+        source_keyword: String,
+        span: Span,
+    },
+
     /// await式: await expression
     AwaitExpression {
         expression: Box<ASTNode>,

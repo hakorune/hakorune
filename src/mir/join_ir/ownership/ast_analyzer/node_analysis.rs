@@ -212,6 +212,18 @@ impl AstOwnershipAnalyzer {
                 self.propagate_to_parent(block_scope);
             }
 
+            ASTNode::ContextScope { value, body, .. } => {
+                self.analyze_node(value, current_scope, false)?;
+                let block_scope = self.alloc_scope(ScopeKind::Block, Some(current_scope));
+                self.push_env();
+                let result: Result<(), String> = body
+                    .iter()
+                    .try_for_each(|s| self.analyze_node(s, block_scope, false));
+                self.pop_env();
+                result?;
+                self.propagate_to_parent(block_scope);
+            }
+
             ASTNode::TryCatch {
                 try_body,
                 catch_clauses,

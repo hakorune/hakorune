@@ -25,6 +25,12 @@ impl ASTNode {
                     visitor(statement);
                 }
             }
+            ASTNode::ContextScope { value, body, .. } => {
+                visitor(value);
+                for statement in body {
+                    visitor(statement);
+                }
+            }
             ASTNode::Assignment { target, value, .. } => {
                 visitor(target);
                 visitor(value);
@@ -493,6 +499,19 @@ impl ASTNode {
             } => {
                 format!("TaskScope({}, {} statements)", source_keyword, body.len())
             }
+            ASTNode::ContextScope {
+                source_keyword,
+                name,
+                body,
+                ..
+            } => {
+                format!(
+                    "ContextScope({} {}, {} statements)",
+                    source_keyword,
+                    name,
+                    body.len()
+                )
+            }
             ASTNode::Arrow { .. } => "Arrow(>>)".to_string(),
             ASTNode::TryCatch {
                 try_body,
@@ -579,6 +598,7 @@ impl ASTNode {
             ASTNode::ImportStatement { span, .. } => *span,
             ASTNode::Nowait { span, .. } => *span,
             ASTNode::TaskScope { span, .. } => *span,
+            ASTNode::ContextScope { span, .. } => *span,
             ASTNode::Arrow { span, .. } => *span,
             ASTNode::TryCatch { span, .. } => *span,
             ASTNode::Throw { span, .. } => *span,

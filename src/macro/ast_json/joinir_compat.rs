@@ -167,6 +167,22 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             "spelling": source_keyword,
             "body": body.into_iter().map(|s| ast_to_json(&s)).collect::<Vec<_>>()
         }),
+        ASTNode::ContextScope {
+            name,
+            declared_type_name,
+            value,
+            body,
+            source_keyword,
+            ..
+        } => json!({
+            "kind": "ContextScope",
+            "type": "ContextScope",
+            "spelling": source_keyword,
+            "name": name,
+            "declared_type": declared_type_name,
+            "value": ast_to_json(&value),
+            "body": body.into_iter().map(|s| ast_to_json(&s)).collect::<Vec<_>>()
+        }),
         // Phase 54: Print with JoinIR-compatible fields
         ASTNode::Print { expression, .. } => json!({
             "kind": "Print",
@@ -714,6 +730,26 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                 .and_then(|value| value.as_str())
                 .unwrap_or("co")
                 .to_string(),
+            body: v
+                .get("body")?
+                .as_array()?
+                .iter()
+                .filter_map(json_to_ast)
+                .collect::<Vec<_>>(),
+            span: Span::unknown(),
+        },
+        "ContextScope" => ASTNode::ContextScope {
+            source_keyword: v
+                .get("spelling")
+                .and_then(|value| value.as_str())
+                .unwrap_or("context")
+                .to_string(),
+            name: v.get("name")?.as_str()?.to_string(),
+            declared_type_name: v
+                .get("declared_type")
+                .and_then(|value| value.as_str())
+                .map(str::to_string),
+            value: Box::new(json_to_ast(v.get("value")?)?),
             body: v
                 .get("body")?
                 .as_array()?

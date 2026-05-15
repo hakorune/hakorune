@@ -297,6 +297,14 @@ fn statement_to_json_v0(
             source_keyword,
             ..
         } => task_scope_statement_to_json_v0(body, source_keyword, context, local_types),
+        ASTNode::ContextScope {
+            source_keyword,
+            name,
+            ..
+        } => Err(format!(
+            "[freeze:contract][program_json_v0/context_scope_not_supported] spelling={} name={} context propagation is owned by CONC-CONTEXT-002",
+            source_keyword, name
+        )),
         ASTNode::Break { .. } => Ok(serde_json::json!({ "type": "Break" })),
         ASTNode::Continue { .. } => Ok(serde_json::json!({ "type": "Continue" })),
         ASTNode::Throw { expression, .. } => {

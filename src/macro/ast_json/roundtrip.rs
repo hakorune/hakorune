@@ -356,6 +356,26 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                 .collect::<Vec<_>>(),
             span: Span::unknown(),
         },
+        "ContextScope" => ASTNode::ContextScope {
+            source_keyword: v
+                .get("spelling")
+                .and_then(|value| value.as_str())
+                .unwrap_or("context")
+                .to_string(),
+            name: v.get("name")?.as_str()?.to_string(),
+            declared_type_name: v
+                .get("declared_type")
+                .and_then(|value| value.as_str())
+                .map(str::to_string),
+            value: Box::new(json_to_ast(v.get("value")?)?),
+            body: v
+                .get("body")?
+                .as_array()?
+                .iter()
+                .filter_map(json_to_ast)
+                .collect::<Vec<_>>(),
+            span: Span::unknown(),
+        },
         "Print" => ASTNode::Print {
             expression: Box::new(json_to_ast(v.get("expression")?)?),
             span: Span::unknown(),

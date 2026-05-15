@@ -22,7 +22,7 @@ kept only as provenance in phase logs and execution ledgers.
 | `co` / `task_scope` | yes | scaffold | scaffold | `co` is the preferred source spelling; `task_scope` remains compatibility/runtime wording. |
 | `sync box` | yes | no | no | Parser/AST JSON capsule is active; verifier/runtime rows are later. |
 | `lock<T>` | provisional | no | no | Implementation concept / historical design spelling; not the preferred canonical surface. |
-| `context` / `scoped` | yes | no | no | `context` is the preferred surface name; `scoped` is historical/provisional wording. |
+| `context` / `scoped` | yes | no | no | Parser/AST JSON capsule is active; `context` is preferred and `scoped` is compatibility spelling. |
 | `worker_local` | yes | no | no | Design-only/cache-only model; not a semantic mechanism. |
 | true parallel scheduler | no | no | no | Phase-1+ future work; no detached-task contract yet. |
 
@@ -110,6 +110,16 @@ Implementation naming note:
   inherit the active `context`/historical `scoped` bindings by snapshot at child
   creation time. The implicit root scope remains best-effort ownership only and
   is not a detached context propagation contract.
+
+### Ambient Context (`context`, parser capsule)
+- `context name[: Type] = value { ... }` is the preferred source spelling.
+- `scoped name[: Type] = value { ... }` remains accepted as compatibility
+  spelling and preserves `source_keyword` for diagnostics.
+- `context` and `scoped` are contextual identifiers; ordinary locals and calls
+  with those names remain legal outside the exact context statement shape.
+- Current implementation carries the AST/AST-JSON capsule only. Program JSON
+  and MIR lowering fail-fast until `CONC-CONTEXT-002` owns propagation and child
+  creation snapshots.
 
 ### Serialized Shared State (`sync box`, parser/verifier capsule)
 - `sync box` is the preferred shared-mutable source surface.

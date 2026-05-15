@@ -19,6 +19,7 @@ pub mod variables;
 
 // I/O and async statements
 pub mod io_async;
+pub mod context_scope;
 pub mod task_scope;
 
 // Exception handling
@@ -346,6 +347,9 @@ impl NyashParser {
             TokenType::IDENTIFIER(_) | TokenType::THIS | TokenType::ME => {
                 if self.is_task_scope_statement_start() {
                     return self.parse_task_scope_statement();
+                }
+                if self.is_context_scope_statement_start() {
+                    return self.parse_context_scope_statement();
                 }
                 if self.is_sync_box_declaration_start() {
                     return crate::parser::declarations::box_def::parse_sync_box_declaration(self);

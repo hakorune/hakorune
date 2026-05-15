@@ -99,6 +99,27 @@ return 0
 }
 
 #[test]
+fn source_to_program_json_v0_rejects_context_scope_until_propagation_row() {
+    let source = r#"
+static box Main {
+  main() {
+local rid = 1
+context request_id = rid {
+local value = 1
+}
+return 0
+  }
+}
+"#;
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("context scope must not silently lower as lexical block");
+    assert!(
+        error.contains("[program_json_v0/context_scope_not_supported]"),
+        "{error}"
+    );
+}
+
+#[test]
 fn source_to_program_json_v0_supports_static_method_call() {
     let source = r#"
 static box Driver {

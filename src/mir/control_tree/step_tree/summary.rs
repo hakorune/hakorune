@@ -41,6 +41,7 @@ pub(super) fn ast_kind_name(ast: &ASTNode) -> &'static str {
         ASTNode::ImportStatement { .. } => "ImportStatement",
         ASTNode::Nowait { .. } => "Nowait",
         ASTNode::TaskScope { .. } => "TaskScope",
+        ASTNode::ContextScope { .. } => "ContextScope",
         ASTNode::AwaitExpression { .. } => "AwaitExpression",
         ASTNode::QMarkPropagate { .. } => "QMarkPropagate",
         ASTNode::MatchExpr { .. } => "MatchExpr",

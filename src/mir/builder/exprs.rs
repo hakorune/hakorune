@@ -32,6 +32,14 @@ impl super::MirBuilder {
                 "[freeze:contract][mir_builder/task_scope_lowering_missing] spelling={} task scope lowering must be owned by CONC-CO runtime hooks",
                 source_keyword
             )),
+            ASTNode::ContextScope {
+                source_keyword,
+                name,
+                ..
+            } => Err(format!(
+                "[freeze:contract][mir_builder/context_scope_lowering_missing] spelling={} name={} context propagation is owned by CONC-CONTEXT-002",
+                source_keyword, name
+            )),
             ASTNode::Print { expression, .. } => {
                 super::stmts::print_stmt::build_print_statement(self, *expression)
             }

@@ -17,6 +17,8 @@ pub mod parser_compound_assignment_surface;
 pub mod parser_concurrency_boundary_surface;
 #[path = "../parser_contract_surface.rs"]
 pub mod parser_contract_surface;
+#[path = "../parser_context_surface.rs"]
+pub mod parser_context_surface;
 #[path = "../parser_delegate_surface.rs"]
 pub mod parser_delegate_surface;
 #[path = "../parser_direct_birth_call.rs"]

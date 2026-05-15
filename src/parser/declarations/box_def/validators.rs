@@ -160,6 +160,10 @@ fn ast_collect_me_fields(nodes: &[ASTNode]) -> std::collections::HashSet<String>
             | ASTNode::TaskScope {
                 body: statements, ..
             } => scan_body(statements, out),
+            ASTNode::ContextScope { value, body, .. } => {
+                scan_node(value, out);
+                scan_body(body, out);
+            }
             ASTNode::Assignment { target, value, .. } => {
                 scan_node(target, out);
                 scan_node(value, out);
