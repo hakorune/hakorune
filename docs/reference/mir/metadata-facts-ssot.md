@@ -421,6 +421,33 @@ refresh entry points. If a new metadata key is emitted, update this SSOT in the
 same change with its class, owner, producer, consumer, backend-active state,
 fallback policy, and retire condition.
 
+## Active Function Contract Rows
+
+The following function-level rows are already contract-active and must remain
+verifier-owned. Backend consumers may only consume checked routes or accepted
+lowering plans; they must not rediscover legality from raw runes, profile
+names, helper names, or app shape.
+
+| Row | Verifier owner | Contract |
+| --- | --- | --- |
+| `effect_plans` | `src/mir/verification/rune_contracts.rs` | `effect_plans` are the obligation source for live `Contract(no_alloc/no_safepoint)` checks. Raw `runes` are transport/provenance after refresh, not the verifier source of truth. |
+| `inline_plans` | `src/mir/verification/inline_required.rs` | Required inline is contract-active only for `request=required`; accepted plans must have `verified=true`, required `no_alloc` / `no_safepoint`, supported narrow leaf shape, and `fallback=fail_fast`. Advisory `prefer/avoid/hot/cold` rows stay metadata/optimizer hints. |
+| `string_kernel_plans` | `src/mir/verification/string_kernel.rs` | Direct-kernel string plans must carry verifier-visible borrow, publication, carrier, text-consumer, and stable-view provenance facts before emitters trust them. `StringKernelPlanVerifierOwner::LoweringDirectKernelEntry` owns the current lane. |
+| `exact_numeric_runtime_check_contracts` | `src/mir/exact_numeric_field_contracts.rs` plus `src/mir/exact_numeric_backend_capability.rs` | Dynamic `Integer` to exact numeric field assignments become runtime range-check obligations. Backend use must pass `enforce_exact_numeric_backend_supported`; unsupported backends fail fast instead of silently lowering. |
+
+Guard anchors:
+
+- `tools/checks/k2_wide_effect_capability_plan_guard.sh`
+- `tools/checks/k2_wide_inline_required_verify_guard.sh`
+- `tools/checks/mir_metadata_catalog_guard.sh`
+
+Stop lines:
+
+- `capability_plans` remain metadata until capability verification lands.
+- `Profile(...)` names must not be backend-consumed.
+- seed routes remain `ExperimentalSeedRoutes`; their legality comes from
+  source-family plans or generic route rows.
+
 ## InlinePlan metadata
 
 `inline_plans` records MIR-owned inline metadata in MIR JSON. M11c-soft-leaf

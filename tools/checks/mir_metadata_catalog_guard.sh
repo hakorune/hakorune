@@ -7,13 +7,18 @@ DOC="$ROOT_DIR/docs/reference/mir/metadata-facts-ssot.md"
 ROOT_EMIT="$ROOT_DIR/src/runner/mir_json_emit/root.rs"
 FUNCTION_TYPES="$ROOT_DIR/src/mir/function/types.rs"
 SEMANTIC_REFRESH="$ROOT_DIR/src/mir/semantic_refresh.rs"
+RUNE_CONTRACTS="$ROOT_DIR/src/mir/verification/rune_contracts.rs"
+INLINE_REQUIRED="$ROOT_DIR/src/mir/verification/inline_required.rs"
+STRING_KERNEL_VERIFIER="$ROOT_DIR/src/mir/verification/string_kernel.rs"
+EXACT_NUMERIC_CONTRACTS="$ROOT_DIR/src/mir/exact_numeric_field_contracts.rs"
+EXACT_NUMERIC_BACKEND="$ROOT_DIR/src/mir/exact_numeric_backend_capability.rs"
 INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
 
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" realpath
-guard_require_files "$TAG" "$DOC" "$ROOT_EMIT" "$FUNCTION_TYPES" "$SEMANTIC_REFRESH" "$INDEX"
+guard_require_files "$TAG" "$DOC" "$ROOT_EMIT" "$FUNCTION_TYPES" "$SEMANTIC_REFRESH" "$RUNE_CONTRACTS" "$INLINE_REQUIRED" "$STRING_KERNEL_VERIFIER" "$EXACT_NUMERIC_CONTRACTS" "$EXACT_NUMERIC_BACKEND" "$INDEX"
 
 require_doc_token() {
   local token="$1"
@@ -172,6 +177,34 @@ for task in \
 done
 
 require_doc_token "do not combine these with allocator behavior rows"
+
+active_function_contract_tokens=(
+  "Active Function Contract Rows"
+  "are the obligation source for live"
+  "transport/provenance after refresh"
+  "contract-active only for"
+  "verified=true"
+  "fallback=fail_fast"
+  "StringKernelPlanVerifierOwner::LoweringDirectKernelEntry"
+  "stable-view provenance"
+  "exact_numeric_runtime_check_contracts"
+  "enforce_exact_numeric_backend_supported"
+  "names must not be backend-consumed"
+)
+
+for token in "${active_function_contract_tokens[@]}"; do
+  require_doc_token "$token"
+done
+
+require_source_token "check_rune_contracts" "$RUNE_CONTRACTS"
+require_source_token "RuneContractSet::from_effect_plans" "$RUNE_CONTRACTS"
+require_source_token "check_required_inline_plans" "$INLINE_REQUIRED"
+require_source_token "InlineRequest::Required" "$INLINE_REQUIRED"
+require_source_token "check_string_kernel_plans" "$STRING_KERNEL_VERIFIER"
+require_source_token "StringKernelPlanVerifierOwner::LoweringDirectKernelEntry" "$STRING_KERNEL_VERIFIER"
+require_source_token "exact_numeric_runtime_check_contracts" "$EXACT_NUMERIC_CONTRACTS"
+require_source_token "enforce_exact_numeric_runtime_checks_supported" "$EXACT_NUMERIC_CONTRACTS"
+require_source_token "enforce_exact_numeric_backend_supported" "$EXACT_NUMERIC_BACKEND"
 
 module_keys=(
   user_box_decls

@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-366-MIMAP-F
 method_anchor = "docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-371-METADATA-PROMOTE-002-TYPED-STATIC-VERIFY"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-371-METADATA-PROMOTE-002-TYPED-STATIC-VERIFY.md"
-latest_card_summary = "METADATA-PROMOTE-002 adds verifier hardening for typed_object_plans and static_data_plans."
+latest_card = "293x-372-METADATA-PROMOTE-003-FUNCTION-CONTRACT-ROWS"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-372-METADATA-PROMOTE-003-FUNCTION-CONTRACT-ROWS.md"
+latest_card_summary = "METADATA-PROMOTE-003 documents and guards active function-level metadata contract rows."
 
 current_blocker_token = "MIMAP-FACADE-CLEAN-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-372 METADATA-PROMOTE-003 active function metadata contract rows landed",
   "293x-371 METADATA-PROMOTE-002 typed object and static data verifier hardening landed",
   "293x-370 METADATA-PROMOTE-001 active promotion matrix guard landed",
   "293x-369 METADATA-CATALOG-003 metadata promotion matrix and task queue landed",
