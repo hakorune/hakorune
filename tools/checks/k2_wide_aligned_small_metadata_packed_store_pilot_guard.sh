@@ -5,12 +5,11 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-aligned-small-metadata-packed-store-pilot"
 cd "$ROOT_DIR"
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
+source "$ROOT_DIR/tools/checks/lib/phase_card_paths.sh"
 
-CARD="docs/development/current/main/phases/phase-293x/293x-227-C210-ALIGNED-SMALL-METADATA-PACKED-STORE-PILOT.md"
+CARD="$(guard_require_phase293x_card "$TAG" "293x-227-C210-ALIGNED-SMALL-METADATA-PACKED-STORE-PILOT.md")"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 RECORD_SSOT="docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
-TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 INDEX="docs/tools/check-scripts-index.md"
 MIR_MOD="src/mir/mod.rs"
 MIR_TYPES="src/mir/function/types.rs"
@@ -34,8 +33,6 @@ guard_require_files \
   "$CARD" \
   "$PLAN" \
   "$RECORD_SSOT" \
-  "$PHASE_README" \
-  "$TASKBOARD" \
   "$INDEX" \
   "$MIR_MOD" \
   "$MIR_TYPES" \
@@ -57,8 +54,6 @@ guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "C210 card must be complete"
 guard_expect_in_file "$TAG" 'C210 status:' "$PLAN" "mimalloc plan must record C210 status"
 guard_expect_in_file "$TAG" '`C210` is complete as' "$RECORD_SSOT" "record SSOT must mark C210 complete"
-guard_expect_in_file "$TAG" '`293x-227`' "$PHASE_README" "phase README must list C210 row"
-guard_expect_in_file "$TAG" '\[x\] `293x-227`' "$TASKBOARD" "taskboard must mark C210 complete"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list C210 guard"
 
 guard_expect_in_file "$TAG" 'hako_alloc_aligned_small_packed_store_pilot' "$MIR_MOD" "MIR root must expose C210 planner"

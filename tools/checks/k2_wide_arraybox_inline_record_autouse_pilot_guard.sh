@@ -5,12 +5,11 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-arraybox-inline-record-autouse-pilot"
 cd "$ROOT_DIR"
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
+source "$ROOT_DIR/tools/checks/lib/phase_card_paths.sh"
 
-CARD="docs/development/current/main/phases/phase-293x/293x-226-C209-NON-ESCAPING-PACKED-ARRAYBOX-AUTOUSE-PILOT.md"
+CARD="$(guard_require_phase293x_card "$TAG" "293x-226-C209-NON-ESCAPING-PACKED-ARRAYBOX-AUTOUSE-PILOT.md")"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 RECORD_SSOT="docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
-TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 INDEX="docs/tools/check-scripts-index.md"
 MIR_MOD="src/mir/mod.rs"
 MIR_TYPES="src/mir/function/types.rs"
@@ -36,8 +35,6 @@ guard_require_files \
   "$CARD" \
   "$PLAN" \
   "$RECORD_SSOT" \
-  "$PHASE_README" \
-  "$TASKBOARD" \
   "$INDEX" \
   "$MIR_MOD" \
   "$MIR_TYPES" \
@@ -61,8 +58,6 @@ guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "C209 card must be complete"
 guard_expect_in_file "$TAG" 'C209 status:' "$PLAN" "mimalloc plan must record C209 status"
 guard_expect_in_file "$TAG" '`C209` is complete as' "$RECORD_SSOT" "record SSOT must mark C209 complete"
-guard_expect_in_file "$TAG" '`293x-226`' "$PHASE_README" "phase README must list C209 row"
-guard_expect_in_file "$TAG" '\[x\] `293x-226`' "$TASKBOARD" "taskboard must mark C209 complete"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list C209 guard"
 
 guard_expect_in_file "$TAG" 'array_record_packed_autouse_pilot' "$MIR_MOD" "MIR root must expose C209 planner"

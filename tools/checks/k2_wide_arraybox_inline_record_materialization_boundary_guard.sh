@@ -5,12 +5,11 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-arraybox-inline-record-materialization-boundary"
 cd "$ROOT_DIR"
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
+source "$ROOT_DIR/tools/checks/lib/phase_card_paths.sh"
 
-CARD="docs/development/current/main/phases/phase-293x/293x-225-C208-INLINE-RECORD-MATERIALIZATION-ESCAPE-BOUNDARY.md"
+CARD="$(guard_require_phase293x_card "$TAG" "293x-225-C208-INLINE-RECORD-MATERIALIZATION-ESCAPE-BOUNDARY.md")"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 RECORD_SSOT="docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
-TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 INDEX="docs/tools/check-scripts-index.md"
 MIR_MOD="src/mir/mod.rs"
 MIR_TYPES="src/mir/function/types.rs"
@@ -33,8 +32,6 @@ guard_require_files \
   "$CARD" \
   "$PLAN" \
   "$RECORD_SSOT" \
-  "$PHASE_README" \
-  "$TASKBOARD" \
   "$INDEX" \
   "$MIR_MOD" \
   "$MIR_TYPES" \
@@ -55,8 +52,6 @@ guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "C208 card must be complete"
 guard_expect_in_file "$TAG" 'C208 status:' "$PLAN" "mimalloc plan must record C208 status"
 guard_expect_in_file "$TAG" '`C208` is complete as' "$RECORD_SSOT" "record SSOT must mark C208 complete"
-guard_expect_in_file "$TAG" '`293x-225`' "$PHASE_README" "phase README must list C208 row"
-guard_expect_in_file "$TAG" '\[x\] `293x-225`' "$TASKBOARD" "taskboard must mark C208 complete"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list C208 guard"
 
 guard_expect_in_file "$TAG" 'array_record_materialization_boundary' "$MIR_MOD" "MIR root must expose C208 planner"

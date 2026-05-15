@@ -5,12 +5,11 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-packed-record-backend-failfast"
 cd "$ROOT_DIR"
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
+source "$ROOT_DIR/tools/checks/lib/phase_card_paths.sh"
 
-CARD="docs/development/current/main/phases/phase-293x/293x-229-C212-PACKED-RECORD-BACKEND-FAILFAST-HARDENING.md"
+CARD="$(guard_require_phase293x_card "$TAG" "293x-229-C212-PACKED-RECORD-BACKEND-FAILFAST-HARDENING.md")"
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 RECORD_SSOT="docs/development/current/main/design/record-and-packed-array-lowering-ssot.md"
-PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
-TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 INDEX="docs/tools/check-scripts-index.md"
 MIR_MOD="src/mir/mod.rs"
 SHARED_GATE="src/mir/backend_capability.rs"
@@ -34,8 +33,6 @@ guard_require_files \
   "$CARD" \
   "$PLAN" \
   "$RECORD_SSOT" \
-  "$PHASE_README" \
-  "$TASKBOARD" \
   "$INDEX" \
   "$MIR_MOD" \
   "$SHARED_GATE" \
@@ -57,8 +54,6 @@ guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "C212 card must be complete"
 guard_expect_in_file "$TAG" 'C212 status:' "$PLAN" "mimalloc plan must record C212 status"
 guard_expect_in_file "$TAG" '`C212` is complete as' "$RECORD_SSOT" "record SSOT must mark C212 complete"
-guard_expect_in_file "$TAG" '`293x-229`' "$PHASE_README" "phase README must list C212 row"
-guard_expect_in_file "$TAG" '\[x\] `293x-229`' "$TASKBOARD" "taskboard must mark C212 complete"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list C212 guard"
 
 guard_expect_in_file "$TAG" 'array_record_backend_capability' "$MIR_MOD" "MIR root must expose array-record backend gate"

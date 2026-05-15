@@ -255,3 +255,24 @@ Physical archive moves are `DOCS-SLIM-002+`.
 - remove landed-history phase README pins from the trio
 - keep probe, plan, metadata-store, and check-index assertions unchanged
 - do not physically move old cards yet
+
+## Thirteenth Slimming Phase
+
+`DOCS-SLIM-013` owns the packed record guard cluster README pin decoupling:
+
+- remove landed-history phase README pins from the packed record guard cluster
+- keep card status, implementation, record SSOT, taskboard rows, tests, and
+  check-index assertions
+- keep probe, pilot, packed-store, and backend behavior unchanged
+- do not physically move old cards yet
+
+## Fourteenth Slimming Phase
+
+`DOCS-SLIM-014` owns the packed record guard cluster taskboard pin decoupling:
+
+- remove landed-history taskboard pins from the packed record guard cluster
+- keep card status, implementation, record SSOT, tests, and check-index
+  assertions
+- keep probe, pilot, packed-store, and backend behavior unchanged
+- keep the README-only decoupling from `DOCS-SLIM-013` intact
+- do not physically move old cards yet

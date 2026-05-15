@@ -325,6 +325,8 @@ tools/checks/env_dead_accessors_report.sh
 | `tools/checks/docs_slim_010_manifest_runner_decoupling_guard.sh` | DOCS-SLIM-010 の manifest runner pilot guard landed-history pin decoupling を固定する。 |
 | `tools/checks/docs_slim_011_record_metadata_readme_decoupling_guard.sh` | DOCS-SLIM-011 の record metadata guard cluster landed-history pin decoupling を固定する。 |
 | `tools/checks/docs_slim_012_inline_record_probe_resolver_guard.sh` | DOCS-SLIM-012 の inline record probe guard trio resolver adoption を固定する。 |
+| `tools/checks/docs_slim_013_packed_record_history_pin_decoupling_guard.sh` | DOCS-SLIM-013 の packed record guard cluster README pin decoupling を固定する。 |
+| `tools/checks/docs_slim_014_packed_record_taskboard_pin_decoupling_guard.sh` | DOCS-SLIM-014 の packed record guard cluster taskboard pin decoupling を固定する。 |
 | `tools/checks/lib/phase_card_paths.sh` | phase-293x card resolver helper。live root path を優先し、将来の archive bucket path も解決できる薄い lookup helper。 |
 - `tools/checks/k2_wide_delegate_parser_capsule_guard.sh` - DEL-002 Stage0 delegate parser/metadata capsule guard.
 - `tools/checks/k2_wide_delegate_exposes_lowering_guard.sh` - DEL-003 delegate exposes Stage1 forwarding lowering guard.
