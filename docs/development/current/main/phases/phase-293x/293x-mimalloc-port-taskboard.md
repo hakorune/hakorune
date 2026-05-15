@@ -21,7 +21,7 @@ PACKED-003/004 complete
 ```
 
 Blueprint and inventory rows are now the active lane entry. Current primary row:
-`MIMAP-013 facade composition over object-backed lifecycle queue`.
+`MIMAP-014 allocation fast-path over facade-owned object lifecycle queue`.
 
 Latest sidecar closeout:
 
@@ -95,7 +95,8 @@ FST:
 | `MIMAP-B001` | landed | Backend acceptance policy: VM scalar reference, LLVM/EXE MIMAP-011+ primary, VM timeout required. | 1 commit |
 | `MIMAP-011` | landed | Allocator facade lifecycle route pilot using lifecycle-aware page selection; LLVM/EXE primary. | 1 commit |
 | `MIMAP-012` | landed | Object-backed lifecycle queue LLVM route pilot; `ArrayBox` retains page objects and returns selected page. | 1 commit |
-| `MIMAP-013` | ready | Facade composition over object-backed lifecycle queue. | after MIMAP-012 |
+| `MIMAP-013` | landed | Facade composition over object-backed lifecycle queue. | after MIMAP-012 |
+| `MIMAP-014` | ready | Small allocation fast-path over the facade-owned object lifecycle queue, with LLVM/EXE primary proof and no OSVM/provider activation. | after MIMAP-013 |
 
 ### Construction / Lifecycle Policy Rows
 
@@ -134,6 +135,40 @@ Use new Box(...) for construction and explicit lifecycle methods for reuse.
 MIMAP-013 may proceed with the bounded-slot object queue from MIMAP-012. Do
 not reintroduce dynamic scan, helper call, nullable object field selection, and
 dense proof reads in one row.
+
+### MIMAP-013 landed row
+
+Owner boundary:
+
+```text
+lang/src/hako_alloc/memory/object_lifecycle_facade_box.hako
+lang/src/hako_alloc/memory/object_lifecycle_page_queue_box.hako
+```
+
+Proof and guard:
+
+```text
+apps/mimalloc-facade-object-lifecycle-queue-proof/main.hako
+tools/checks/k2_wide_mimalloc_facade_object_lifecycle_queue_exe_guard.sh
+```
+
+Scope:
+
+```text
+HakoAllocObjectLifecycleFacade stores one HakoAllocObjectLifecyclePageQueue.
+Facade methods forward page-object add, invoke queue selection, and expose
+selected page identity and queue counters through read-only scalar observers.
+No OSVM/page-source execution, provider hook, remote-free execution, host
+allocator replacement, or backend shortcut is activated.
+```
+
+Landed evidence:
+
+```text
+bash tools/checks/k2_wide_mimalloc_facade_object_lifecycle_queue_exe_guard.sh
+[mimap013-mir-json] ok
+[k2-wide-mimalloc-facade-object-lifecycle-queue-exe] ok
+```
 
 Acceptance split for every `MIR-ROW-*`:
 

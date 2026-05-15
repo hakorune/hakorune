@@ -1,0 +1,70 @@
+// object_lifecycle_facade_box.hako — MIMAP-013 thin facade over object-backed lifecycle queue
+// Responsibility: compose facade-level add/select/observer methods over HakoAllocObjectLifecyclePageQueue.
+// This module does not own production allocation, OS page sourcing, provider hooks, remote-free, or backend shortcuts.
+
+using selfhost.hako_alloc.memory.object_lifecycle_page_queue_box as HakoAllocObjectLifecyclePageQueueBox
+
+box HakoAllocObjectLifecycleFacade {
+    object_lifecycle_queue: HakoAllocObjectLifecyclePageQueue = new HakoAllocObjectLifecyclePageQueue()
+
+    objectLifecycleAddPage(page) {
+        return me.object_lifecycle_queue.addPage(page)
+    }
+
+    objectLifecycleSelectPage() {
+        me.object_lifecycle_queue.selectPage()
+        return me.object_lifecycle_queue.last_selected_page_id
+    }
+
+    objectLifecyclePageCount() {
+        return me.object_lifecycle_queue.page_count
+    }
+
+    objectLifecycleAddCount() {
+        return me.object_lifecycle_queue.add_count
+    }
+
+    objectLifecycleSelectCount() {
+        return me.object_lifecycle_queue.select_count
+    }
+
+    objectLifecycleReuseSelectCount() {
+        return me.object_lifecycle_queue.reuse_select_count
+    }
+
+    objectLifecycleActiveSelectCount() {
+        return me.object_lifecycle_queue.active_select_count
+    }
+
+    objectLifecycleDecommittedSkipCount() {
+        return me.object_lifecycle_queue.decommitted_skip_count
+    }
+
+    objectLifecycleRetiredSkipCount() {
+        return me.object_lifecycle_queue.retired_skip_count
+    }
+
+    objectLifecycleUnavailableSkipCount() {
+        return me.object_lifecycle_queue.unavailable_skip_count
+    }
+
+    objectLifecycleMissCount() {
+        return me.object_lifecycle_queue.miss_count
+    }
+
+    objectLifecycleRejectCount() {
+        return me.object_lifecycle_queue.reject_count
+    }
+
+    objectLifecycleSelectedKind() {
+        return me.object_lifecycle_queue.last_selected_kind
+    }
+
+    objectLifecycleSelectedPageId() {
+        return me.object_lifecycle_queue.last_selected_page_id
+    }
+
+    objectLifecycleSelectedIndex() {
+        return me.object_lifecycle_queue.last_selected_index
+    }
+}

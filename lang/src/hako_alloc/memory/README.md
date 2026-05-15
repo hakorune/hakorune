@@ -30,6 +30,7 @@ Current modules
 - `lifecycle_stats_observer_box.hako`
 - `page_queue_box.hako`
 - `object_lifecycle_page_queue_box.hako`
+- `object_lifecycle_facade_box.hako`
 - `page_lifecycle_invariant_box.hako`
 - `page_queue_lifecycle_box.hako`
 - `page_source_policy_box.hako`
@@ -72,6 +73,12 @@ Syntax/style contract
   `ArrayBox`, call page lifecycle observers/methods, and return a selected page
   object. It must not source OS pages, own segment/TLS/atomic/remote-free policy,
   activate providers/hooks, or add backend shortcuts.
+- `object_lifecycle_facade_box.hako` owns the MIMAP-013 thin facade object
+  lifecycle queue seam. It may store one `HakoAllocObjectLifecyclePageQueue`,
+  forward add/select object-page operations, and expose read-only queue
+  counters. It must not use that facade seam to activate OSVM/page-source
+  execution, provider hooks, remote-free execution, host allocator replacement,
+  or backend shortcuts.
 - `osvm_backed_fast_path_heap_box.hako` is the M168 composition owner. It may
   reserve/commit/decommit through `HakoAllocPageSourcePolicy`, then reuse the
   same page queue and page-local free-list owners. It must not add OSVM metal,

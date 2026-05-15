@@ -349,4 +349,5 @@ tools/checks/env_dead_accessors_report.sh
 - `tools/checks/vm_lim_001_object_queue_identity_probe.sh` - diagnostic probe for `VM-LIM-001` ArrayBox-held InstanceBox/page object identity across push/get/method receiver.
 
 | `tools/checks/k2_wide_mimalloc_object_lifecycle_queue_exe_guard.sh` | MIMAP-012 の object-backed lifecycle queue LLVM/EXE-primary proof を固定し、ArrayBox-held page object selection が page lifecycle methods を通りつつ VM を blocker にしないことを検証する。 |
-| `tools/checks/k2_wide_mimap012_object_loop_row_a_exe_guard.sh` | MIR-ROW-A の `loop + if guard + pages.get(i)` 最小 object-loop 診断。現在は MIR JSON 通過後、LLVM/EXE が dynamic `ArrayBox.get(i)` 由来の receiver を `RuntimeDataBox.freeCount` として扱い失敗する repro guard。 |
+| `tools/checks/k2_wide_mimalloc_facade_object_lifecycle_queue_exe_guard.sh` | MIMAP-013 の thin facade object-backed lifecycle queue 合成を固定し、`HakoAllocObjectLifecycleFacade` が page object add、selection 実行、selected identity / queue counter の read-only scalar observer を `HakoAllocObjectLifecyclePageQueue` に委譲して LLVM/EXE primary で実行できることを検証する。 |
+| `tools/checks/k2_wide_mimap012_object_loop_row_a_exe_guard.sh` | MIR-ROW-A の `loop + if guard + pages.get(i)` 最小 object-loop 診断。dynamic `ArrayBox.get(i)` 後の user-box receiver facts が LLVM/EXE route まで保たれることを検証する。 |

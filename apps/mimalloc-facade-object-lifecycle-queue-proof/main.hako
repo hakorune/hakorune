@@ -1,0 +1,63 @@
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+
+static box Main {
+    main(args) {
+        local decommitted = new HakoAllocPageModel(10, 8, 1, 1)
+        local db = decommitted.acquire(8)
+        decommitted.releaseLocal(db)
+        decommitted.decommit()
+
+        local reusable = new HakoAllocPageModel(20, 8, 1, 1)
+        local rb = reusable.acquire(8)
+        reusable.releaseLocal(rb)
+
+        local active = new HakoAllocPageModel(30, 8, 1, 1)
+
+        local alloc = new HakoAllocObjectLifecycleFacade()
+        local add0 = alloc.objectLifecycleAddPage(decommitted)
+        local add1 = alloc.objectLifecycleAddPage(reusable)
+        local add2 = alloc.objectLifecycleAddPage(active)
+
+        alloc.objectLifecycleSelectPage()
+        local id1 = alloc.objectLifecycleSelectedPageId()
+        local k1 = alloc.objectLifecycleSelectedKind()
+        if id1 == 20 {
+            reusable.reuse()
+            reusable.acquire(8)
+        }
+
+        alloc.objectLifecycleSelectPage()
+        local id2 = alloc.objectLifecycleSelectedPageId()
+        local k2 = alloc.objectLifecycleSelectedKind()
+        if id2 == 30 {
+            active.acquire(8)
+        }
+
+        alloc.objectLifecycleSelectPage()
+        local id3 = alloc.objectLifecycleSelectedPageId()
+        local k3 = alloc.objectLifecycleSelectedKind()
+
+        local page_count = alloc.objectLifecyclePageCount()
+        local add_count = alloc.objectLifecycleAddCount()
+        local select_count = alloc.objectLifecycleSelectCount()
+        local reuse_select_count = alloc.objectLifecycleReuseSelectCount()
+        local active_select_count = alloc.objectLifecycleActiveSelectCount()
+        local decommitted_skip_count = alloc.objectLifecycleDecommittedSkipCount()
+        local retired_skip_count = alloc.objectLifecycleRetiredSkipCount()
+        local miss_count = alloc.objectLifecycleMissCount()
+        local final_selected_page_id = alloc.objectLifecycleSelectedPageId()
+
+        local shape = 18
+
+        print("mimalloc-facade-object-lifecycle-queue-proof")
+        print("adds=" + add0 + "," + add1 + "," + add2)
+        print("pages=" + id1 + "," + id2 + "," + id3)
+        print("kinds=" + k1 + "," + k2 + "," + k3)
+        print("queue=" + page_count + "," + add_count + "," + select_count + "," + reuse_select_count + "," + active_select_count + "," + decommitted_skip_count + "," + retired_skip_count + "," + miss_count)
+        print("shape=" + shape)
+
+        print("summary=ok")
+        return 0
+    }
+}

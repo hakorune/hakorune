@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-05-14
+Date: 2026-05-15
 Scope: 再起動直後に 2-5 分で current lane に戻るための最短手順。
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-013 facade composition over object-backed lifecycle queue`
+- current blocker token: `MIMAP-014 allocation fast-path over facade-owned object lifecycle queue`
 - mimalloc blueprint SSOT:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
@@ -44,7 +44,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-013 facade composition over object-backed lifecycle queue`
+- current blocker token: `MIMAP-014 allocation fast-path over facade-owned object lifecycle queue`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -55,7 +55,7 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after MIMAP-012 object-backed lifecycle queue pilot; next blocker is MIMAP-013 facade composition over object-backed lifecycle queue; VM-LIM-001 is parked
+- continue `phase-293x` after MIMAP-013 thin facade composition; next blocker is MIMAP-014 allocation fast-path over the facade-owned object lifecycle queue; VM-LIM-001 is parked
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

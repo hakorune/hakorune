@@ -47,7 +47,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc blueprint / port taskboard:
   `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
 - current blocker token:
-  `MIMAP-013 facade composition over object-backed lifecycle queue`
+  `MIMAP-014 allocation fast-path over facade-owned object lifecycle queue`
 - primary mode: mimalloc blueprint inventory lane; keep upstream source untracked and classify concepts before implementation
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -60,19 +60,20 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after MIR-ROW-A-FIX; next primary blocker is
-  MIMAP-013 facade composition over object-backed lifecycle queue. MIR-ROW-B is a
-  ready sidecar if the dynamic object-loop acceptance series should continue
-  before facade work. VM-LIM-001 remains parked diagnostic. Keep LoopRange on
-  the Stage1 route; do not source-desugar range loops.
+- resume point: continue Phase 293x after MIMAP-013 thin facade composition;
+  next primary blocker is MIMAP-014 allocation fast-path over the facade-owned
+  object lifecycle queue. MIR-ROW-B is a ready sidecar if the dynamic object-loop
+  acceptance series should continue before allocation fast-path work. VM-LIM-001
+  remains parked diagnostic. Keep LoopRange on the Stage1 route; do not
+  source-desugar range loops.
 
 ## Task Order
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  MIMAP-013 facade composition over object-backed lifecycle queue
+  MIMAP-014 allocation fast-path over facade-owned object lifecycle queue
   sidecar: MIR-ROW-B helper-call object-loop acceptance if selected before
-  MIMAP-013
+  MIMAP-014
 - optional future allocator-provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`
