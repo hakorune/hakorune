@@ -6,6 +6,7 @@ Current canonical surface:
 
 - Minimal surface policy: development/current/main/design/language-minimal-surface-ssot.md
 - Grammar and accepted rows: reference/language/EBNF.md
+- Stage0 / Stage1 usable surface profiles: reference/language/stage-profiles.md
 - Type and enum surface: reference/language/types.md
 - Option / Result enum prelude: reference/language/option.md
 - Low-level language surface: reference/language/low-level-capabilities.md
@@ -51,6 +52,9 @@ Type system (SSOT)
 Grammar (EBNF)
 - See: reference/language/EBNF.md — living grammar reference used by parser
   implementations.
+- See: reference/language/stage-profiles.md — practical support manual for
+  what Stage0 may carry and what Stage1 code may rely on. It is not a second
+  grammar.
 - Unified Members (stored/computed/once/birth_once): see reference/language/EBNF.md “Box Members (Phase 15)” and the Language Reference section. Stored fields use `name` for simple dynamic slots and `name: Type` when declared-type metadata helps typed-object planning / optimization / verification. Canonical computed syntax is `get name: Type { ... }`; legacy `name: Type { ... }` remains accepted. Default ON (disable with `NYASH_ENABLE_UNIFIED_MEMBERS=0`).
 
 Member exceptions and handlers (Stage‑3)

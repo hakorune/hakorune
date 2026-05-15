@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-05-15"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-REMOTE-001 landed the remote-free / abandoned-owner policy composition over existing worker/TLS/atomic rows, bounded remote-free policy, and read-only owner/reclaim inventories. Current row moves to MIMAP-THREADSAFE-ABI-001 thread-safe hako_mem ABI. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "LANG-STAGE-PROFILES-001 landed the Stage0 / Stage1 .hako profile manual as a docs sidecar. Current row remains MIMAP-THREADSAFE-ABI-001 thread-safe hako_mem ABI. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
 phase_status = "docs/development/current/main/phases/phase-293x/293x-397-MIMAP-THREADSAFE-ABI-001-THREAD-SAFE-HAKO-MEM-ABI.md"
 method_anchor = "docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-396-MIMAP-REMOTE-001-REMOTE-FREE-ABANDONED-OWNER-POLICY"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-396-MIMAP-REMOTE-001-REMOTE-FREE-ABANDONED-OWNER-POLICY.md"
-latest_card_summary = "MIMAP-REMOTE-001 adds allocator remote-free / abandoned-owner policy composition without new route rows or ownership mutation."
+latest_card = "293x-398-LANG-STAGE-PROFILES-001-STAGE0-STAGE1-HAKO-MANUAL"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-398-LANG-STAGE-PROFILES-001-STAGE0-STAGE1-HAKO-MANUAL.md"
+latest_card_summary = "LANG-STAGE-PROFILES-001 adds a Stage0 / Stage1 .hako usable surface manual without splitting the canonical language spec."
 
 current_blocker_token = "MIMAP-THREADSAFE-ABI-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-398 LANG-STAGE-PROFILES-001 Stage0 / Stage1 .hako manual landed",
   "293x-396 MIMAP-REMOTE-001 remote-free / abandoned-owner policy landed",
   "293x-395 MIMAP-ATOMIC-001 allocator atomic route guard landed",
   "293x-394 MIMAP-TLS-001 internal TLS cache-slot substrate landed",

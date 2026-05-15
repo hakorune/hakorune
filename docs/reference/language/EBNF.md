@@ -3,7 +3,8 @@
 Status: Living reference for the current Hakorune language-minimal surface.
 Parser implementations (Rust / selfhost) should conform to the accepted rows
 listed in this document. Historical Stage-2 notes remain for compatibility
-where explicitly labeled.
+where explicitly labeled. Practical Stage0 / Stage1 support status is tracked
+in `docs/reference/language/stage-profiles.md`.
 
 Design SSOT note (Scope Exit Semantics):
 - `throw` is prohibited in surface language design.
@@ -14,7 +15,7 @@ Design SSOT note (Scope Exit Semantics):
   - `docs/development/current/main/design/rune-v0-contract-rollout-ssot.md`
   - `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`
 
-program   := (static_const_table_decl | brand_decl | type_alias_decl | record_decl | box_decl | function_decl | stmt)* EOF
+program   := (static_const_table_decl | brand_decl | type_alias_decl | record_decl | enum_decl | box_decl | function_decl | stmt)* EOF
 
 ; M11b static const table syntax.
 ; Reads use the existing postfix index expression.
@@ -806,10 +807,10 @@ Notes
 - Rune metadata is declaration-local on AST/direct MIR; do not widen Program(JSON v0).
 - body-position legacy aliases remain compat/noop during the current migration window.
 
-## LoopRange implementation note (2026-05-14)
+## LoopRange implementation note (2026-05-15)
 
 `loop i in start..end { ... }` is the canonical range-loop surface. Stage1 JSON
-v0 lowering currently supports the first pilot route: `start` and `end` are
-captured once at entry, the index advances by fixed step `1`, `continue` routes
-to the step path, and `break` routes to exit. Loop-carried body writes are still
-rejected by the pilot until verifier facts and carrier policy land.
+v0 lowering supports the current route: `start` and `end` are captured once at
+entry, the index advances by fixed step `1`, `continue` routes to the step path,
+and `break` routes to exit. The index is read-only. Fresh body-local writes are
+accepted; loop-carried writes remain fail-fast under the current carrier policy.

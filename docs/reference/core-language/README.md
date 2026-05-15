@@ -1,11 +1,17 @@
 # Nyash Core Language Documentation
 
-## 📚 最新の言語仕様
+## 📚 Current Language References
 
-**最新の完全な言語リファレンスは以下を参照してください：**
+Current canonical language references are:
 
-- **[🚀 Nyash Language Reference 2025](../../../reference/language/LANGUAGE_REFERENCE_2025.md)** - 完全な言語仕様（最新版）
-- **[📝 構文早見表](../../quick-reference/syntax-cheatsheet.md)** - よく使う構文のクイックリファレンス
+- **[Language Reference Index](../language/README.md)** - current
+  entry point for grammar and topic pages
+- **[Grammar Reference](../language/EBNF.md)** - living
+  canonical grammar / accepted rows
+- **[Stage Profiles](../language/stage-profiles.md)** -
+  practical Stage0 / Stage1 usable `.hako` surface manual
+- **[Quick Reference](../language/quick-reference.md)** -
+  practical syntax summary
 
 ## 📁 このディレクトリの内容
 
@@ -20,4 +26,6 @@
 
 ---
 
-**注意**: 言語仕様に関する最新情報は必ず [LANGUAGE_REFERENCE_2025.md](../../../reference/language/LANGUAGE_REFERENCE_2025.md) を参照してください。
+**注意**: [LANGUAGE_REFERENCE_2025.md](../language/LANGUAGE_REFERENCE_2025.md)
+is a historical long-form snapshot. Use the language index, EBNF, topic pages,
+and Stage Profiles above for current work.

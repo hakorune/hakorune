@@ -93,7 +93,7 @@ Notes
 - Keep the language small. Prefer explicit conversions (`x.toInteger()`, `x.toString()`, `x.toBool()`) over implicit coercions.
 - Builder rewrites method calls to keep runtime dispatch simple and consistent across backends.
 
-## LoopRange pilot status (2026-05-14)
+## LoopRange profile status (2026-05-15)
 
 Canonical range loop:
 
@@ -103,6 +103,11 @@ loop i in start..end {
 }
 ```
 
-Current Stage1 pilot semantics: entry-bound capture, end-exclusive range,
-fixed step `1`, and continue-safe step routing. Body writes inside the loop are
-still fail-fast until the carrier policy row lands.
+Current Stage1 profile: entry-bound capture, end-exclusive range, fixed step
+`1`, continue-safe step routing, and read-only index facts. Fresh body-local
+writes are accepted; loop-carried writes remain fail-fast under the current
+carrier policy.
+
+Stage0 must not desugar this shape to `local i; loop i < end; i += 1`.
+For the full Stage0 / Stage1 support manual, see
+`docs/reference/language/stage-profiles.md`.

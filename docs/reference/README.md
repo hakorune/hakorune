@@ -7,6 +7,8 @@
 ### language/
 - 言語仕様（構文、型システム、Box仕様、デリゲーション）
 - 正式な言語リファレンス
+- Stage0 / Stage1 で使える `.hako` surface profile:
+  `docs/reference/language/stage-profiles.md`
 
 ### architecture/
 - システムアーキテクチャ（MIR、VM、インタープリター）
@@ -42,3 +44,8 @@ Runtime substrate note:
 - current capability manual owner は `docs/reference/runtime/substrate-capabilities.md`
 - language-facing low-level capability entry は
   `docs/reference/language/low-level-capabilities.md`
+
+Language stage profile note:
+- canonical grammar owner は `docs/reference/language/EBNF.md`
+- Stage0 / Stage1 support manual owner は
+  `docs/reference/language/stage-profiles.md`
