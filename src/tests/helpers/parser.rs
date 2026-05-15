@@ -7,6 +7,13 @@ pub fn parse_ok(src: &str) -> ASTNode {
     NyashParser::parse_from_string(src).expect("parse ok")
 }
 
+pub fn program_statements(src: &str) -> Vec<ASTNode> {
+    let ASTNode::Program { statements, .. } = parse_ok(src) else {
+        panic!("expected Program");
+    };
+    statements
+}
+
 pub fn parse_ok_with_unified_members(src: &str) -> ASTNode {
     crate::tests::helpers::env::with_env_var("NYASH_ENABLE_UNIFIED_MEMBERS", "1", || parse_ok(src))
 }

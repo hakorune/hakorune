@@ -1,17 +1,10 @@
 use crate::ast::ASTNode;
 use crate::parser::NyashParser;
-
-fn parse_program(source: &str) -> Vec<ASTNode> {
-    let ast = NyashParser::parse_from_string(source).expect("parse transition surface");
-    let ASTNode::Program { statements, .. } = ast else {
-        panic!("expected Program");
-    };
-    statements
-}
+use crate::tests::helpers::parser::program_statements;
 
 #[test]
 fn parser_transition_surface_parses_box_transition_metadata_only() {
-    let statements = parse_program(
+    let statements = program_statements(
         r#"
 box Page {
     transition PageState.Active -> PageState.Retired by retire
@@ -39,7 +32,7 @@ box Page {
 
 #[test]
 fn parser_transition_surface_keeps_transition_and_by_contextual() {
-    let statements = parse_program(
+    let statements = program_statements(
         r#"
 static box Main {
     main() {

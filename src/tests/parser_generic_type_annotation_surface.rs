@@ -1,17 +1,9 @@
 use crate::ast::{ASTNode, ParamDecl};
-use crate::parser::NyashParser;
-
-fn parse_program(source: &str) -> Vec<ASTNode> {
-    let ast = NyashParser::parse_from_string(source).expect("parse generic type annotations");
-    let ASTNode::Program { statements, .. } = ast else {
-        panic!("expected Program");
-    };
-    statements
-}
+use crate::tests::helpers::parser::program_statements;
 
 #[test]
 fn parser_generic_type_annotation_surface_parses_box_field_metadata() {
-    let statements = parse_program(
+    let statements = program_statements(
         r#"
 box Store {
     metas: PackedArray<Meta>
@@ -28,14 +20,20 @@ box Store {
         panic!("expected box declaration");
     };
 
-    assert_eq!(field_decls[0].declared_type_name.as_deref(), Some("PackedArray<Meta>"));
-    assert_eq!(field_decls[1].declared_type_name.as_deref(), Some("Span<PageId>"));
+    assert_eq!(
+        field_decls[0].declared_type_name.as_deref(),
+        Some("PackedArray<Meta>")
+    );
+    assert_eq!(
+        field_decls[1].declared_type_name.as_deref(),
+        Some("Span<PageId>")
+    );
     assert_eq!(weak_fields, &vec!["span".to_string()]);
 }
 
 #[test]
 fn parser_generic_type_annotation_surface_parses_signature_metadata() {
-    let statements = parse_program(
+    let statements = program_statements(
         r#"
 static box Main {
     main(items: Array<PageId>): Result<Page, Error> {
@@ -68,7 +66,7 @@ static box Main {
 
 #[test]
 fn parser_generic_type_annotation_surface_parses_record_and_alias_metadata() {
-    let statements = parse_program(
+    let statements = program_statements(
         r#"
 type PageList = Array<PageId>
 record MetaStore<T> {
@@ -95,5 +93,8 @@ record MetaStore<T> {
     };
     assert!(*is_record);
     assert_eq!(type_parameters, &vec!["T".to_string()]);
-    assert_eq!(field_decls[0].declared_type_name.as_deref(), Some("PackedArray<T>"));
+    assert_eq!(
+        field_decls[0].declared_type_name.as_deref(),
+        Some("PackedArray<T>")
+    );
 }

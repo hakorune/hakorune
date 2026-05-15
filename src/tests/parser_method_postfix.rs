@@ -1,63 +1,32 @@
 use crate::parser::NyashParser;
-use std::sync::Mutex;
+use crate::tests::helpers::env::with_env_vars;
 
-static ENV_LOCK: Mutex<()> = Mutex::new(());
-
-const ENV_KEYS: &[&str] = &[
-    "NYASH_FEATURES",
-    "NYASH_METHOD_CATCH",
-    "NYASH_PARSER_STAGE3",
-    "HAKO_PARSER_STAGE3",
-];
-
-struct EnvSnapshot {
-    values: Vec<(&'static str, Option<String>)>,
+fn with_stage3_member_postfix<R>(f: impl FnOnce() -> R) -> R {
+    with_env_vars(
+        &[
+            ("NYASH_FEATURES", Some("stage3")),
+            ("NYASH_METHOD_CATCH", Some("1")),
+            ("NYASH_PARSER_STAGE3", None),
+            ("HAKO_PARSER_STAGE3", None),
+        ],
+        f,
+    )
 }
 
-impl EnvSnapshot {
-    fn capture() -> Self {
-        Self {
-            values: ENV_KEYS
-                .iter()
-                .map(|key| (*key, std::env::var(key).ok()))
-                .collect(),
-        }
-    }
-}
-
-impl Drop for EnvSnapshot {
-    fn drop(&mut self) {
-        for (key, value) in &self.values {
-            match value {
-                Some(value) => std::env::set_var(key, value),
-                None => std::env::remove_var(key),
-            }
-        }
-    }
-}
-
-fn enable_stage3() -> EnvSnapshot {
-    let snapshot = EnvSnapshot::capture();
-    std::env::set_var("NYASH_FEATURES", "stage3");
-    std::env::set_var("NYASH_METHOD_CATCH", "1");
-    std::env::remove_var("NYASH_PARSER_STAGE3");
-    std::env::remove_var("HAKO_PARSER_STAGE3");
-    snapshot
-}
-
-fn disable_member_postfix() -> EnvSnapshot {
-    let snapshot = EnvSnapshot::capture();
-    std::env::set_var("NYASH_FEATURES", "");
-    std::env::remove_var("NYASH_METHOD_CATCH");
-    std::env::set_var("NYASH_PARSER_STAGE3", "0");
-    std::env::set_var("HAKO_PARSER_STAGE3", "0");
-    snapshot
+fn without_member_postfix<R>(f: impl FnOnce() -> R) -> R {
+    with_env_vars(
+        &[
+            ("NYASH_FEATURES", Some("")),
+            ("NYASH_METHOD_CATCH", None),
+            ("NYASH_PARSER_STAGE3", Some("0")),
+            ("HAKO_PARSER_STAGE3", Some("0")),
+        ],
+        f,
+    )
 }
 
 #[test]
 fn method_postfix_cleanup_only_wraps_trycatch() {
-    let _lock = ENV_LOCK.lock().unwrap();
-    let _env = enable_stage3();
     let src = r#"
 box SafeBox {
   value: IntegerBox
@@ -70,7 +39,7 @@ box SafeBox {
   }
 }
 "#;
-    let ast = NyashParser::parse_from_string(src).expect("parse ok");
+    let ast = with_stage3_member_postfix(|| NyashParser::parse_from_string(src).expect("parse ok"));
     // Find FunctionDeclaration 'update' and ensure its body contains a TryCatch
     fn has_method_trycatch(ast: &crate::ast::ASTNode) -> bool {
         match ast {
@@ -100,8 +69,6 @@ box SafeBox {
 
 #[test]
 fn init_constructor_postfix_cleanup_wraps_trycatch() {
-    let _lock = ENV_LOCK.lock().unwrap();
-    let _env = enable_stage3();
     let src = r#"
 box SafeInit {
   init() {
@@ -111,7 +78,7 @@ box SafeInit {
   }
 }
 "#;
-    let ast = NyashParser::parse_from_string(src).expect("parse ok");
+    let ast = with_stage3_member_postfix(|| NyashParser::parse_from_string(src).expect("parse ok"));
 
     fn init_has_trycatch(ast: &crate::ast::ASTNode) -> bool {
         match ast {
@@ -139,8 +106,6 @@ box SafeInit {
 
 #[test]
 fn method_postfix_cleanup_requires_member_gate() {
-    let _lock = ENV_LOCK.lock().unwrap();
-    let _env = disable_member_postfix();
     let src = r#"
 box SafeBox {
   update() {
@@ -150,13 +115,13 @@ box SafeBox {
   }
 }
 "#;
-    assert!(NyashParser::parse_from_string(src).is_err());
+    assert!(without_member_postfix(|| {
+        NyashParser::parse_from_string(src).is_err()
+    }));
 }
 
 #[test]
 fn init_constructor_postfix_cleanup_requires_member_gate() {
-    let _lock = ENV_LOCK.lock().unwrap();
-    let _env = disable_member_postfix();
     let src = r#"
 box SafeInit {
   init() {
@@ -166,5 +131,7 @@ box SafeInit {
   }
 }
 "#;
-    assert!(NyashParser::parse_from_string(src).is_err());
+    assert!(without_member_postfix(|| {
+        NyashParser::parse_from_string(src).is_err()
+    }));
 }

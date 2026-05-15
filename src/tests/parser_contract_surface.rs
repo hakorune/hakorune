@@ -1,17 +1,9 @@
 use crate::ast::{ASTNode, ContractKind};
-use crate::parser::NyashParser;
-
-fn parse_program(source: &str) -> Vec<ASTNode> {
-    let ast = NyashParser::parse_from_string(source).expect("parse contract surface");
-    let ASTNode::Program { statements, .. } = ast else {
-        panic!("expected Program");
-    };
-    statements
-}
+use crate::tests::helpers::parser::program_statements;
 
 #[test]
 fn parser_contract_surface_parses_method_requires_ensures_metadata_only() {
-    let statements = parse_program(
+    let statements = program_statements(
         r#"
 static box Main {
     main(x: i64): i64
@@ -25,25 +17,34 @@ static box Main {
     );
     let main_box = statements
         .iter()
-        .find(|statement| matches!(statement, ASTNode::BoxDeclaration { name, .. } if name == "Main"))
+        .find(
+            |statement| matches!(statement, ASTNode::BoxDeclaration { name, .. } if name == "Main"),
+        )
         .expect("Main box");
     let ASTNode::BoxDeclaration { methods, .. } = main_box else {
         panic!("expected box declaration");
     };
-    let ASTNode::FunctionDeclaration { contracts, body, .. } = &methods["main"] else {
+    let ASTNode::FunctionDeclaration {
+        contracts, body, ..
+    } = &methods["main"]
+    else {
         panic!("expected main method");
     };
 
     assert_eq!(contracts.len(), 2);
     assert!(matches!(contracts[0].kind, ContractKind::Requires));
     assert!(matches!(contracts[1].kind, ContractKind::Ensures));
-    assert_eq!(body.len(), 1, "Stage0 must not inject runtime contract checks");
+    assert_eq!(
+        body.len(),
+        1,
+        "Stage0 must not inject runtime contract checks"
+    );
     assert!(matches!(body[0], ASTNode::Return { .. }));
 }
 
 #[test]
 fn parser_contract_surface_parses_free_function_contract_metadata() {
-    let statements = parse_program(
+    let statements = program_statements(
         r#"
 function validate(x: i64): i64
     requires x >= 0
@@ -52,7 +53,10 @@ function validate(x: i64): i64
 }
 "#,
     );
-    let ASTNode::FunctionDeclaration { contracts, body, .. } = &statements[0] else {
+    let ASTNode::FunctionDeclaration {
+        contracts, body, ..
+    } = &statements[0]
+    else {
         panic!("expected function declaration");
     };
 
@@ -63,7 +67,7 @@ function validate(x: i64): i64
 
 #[test]
 fn parser_contract_surface_parses_box_invariant_member_metadata() {
-    let statements = parse_program(
+    let statements = program_statements(
         r#"
 box Page {
     used: i64
@@ -90,7 +94,7 @@ box Page {
 
 #[test]
 fn parser_contract_surface_parses_record_invariant_member_metadata() {
-    let statements = parse_program(
+    let statements = program_statements(
         r#"
 record Meta {
     ptr: i64
@@ -110,12 +114,15 @@ record Meta {
 
     assert!(*is_record);
     assert_eq!(invariants.len(), 1);
-    assert!(methods.is_empty(), "record invariant metadata must not create methods");
+    assert!(
+        methods.is_empty(),
+        "record invariant metadata must not create methods"
+    );
 }
 
 #[test]
 fn parser_contract_surface_keeps_contract_words_contextual() {
-    let statements = parse_program(
+    let statements = program_statements(
         r#"
 static box Main {
     main() {
@@ -129,7 +136,10 @@ static box Main {
     let ASTNode::BoxDeclaration { methods, .. } = &statements[0] else {
         panic!("expected box declaration");
     };
-    let ASTNode::FunctionDeclaration { contracts, body, .. } = &methods["main"] else {
+    let ASTNode::FunctionDeclaration {
+        contracts, body, ..
+    } = &methods["main"]
+    else {
         panic!("expected main method");
     };
 

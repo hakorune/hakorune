@@ -1,9 +1,10 @@
 use crate::ast::ASTNode;
 use crate::parser::NyashParser;
+use crate::tests::helpers::parser::{find_method_body, parse_ok};
 
 #[test]
 fn parser_record_literal_surface_parses_explicit_named_fields() {
-    let ast = NyashParser::parse_from_string(
+    let ast = parse_ok(
         r#"
 record Meta {
   ptr: i64
@@ -17,22 +18,8 @@ return 0
   }
 }
 "#,
-    )
-    .expect("parse record literal");
-
-    let ASTNode::Program { statements, .. } = ast else {
-        panic!("expected Program");
-    };
-    let main_box = statements
-        .iter()
-        .find(|stmt| matches!(stmt, ASTNode::BoxDeclaration { name, .. } if name == "Main"))
-        .expect("Main box");
-    let ASTNode::BoxDeclaration { methods, .. } = main_box else {
-        panic!("expected box");
-    };
-    let ASTNode::FunctionDeclaration { body, .. } = &methods["main"] else {
-        panic!("expected main method");
-    };
+    );
+    let body = find_method_body(&ast, "Main", "main");
     let ASTNode::Local { initial_values, .. } = &body[0] else {
         panic!("expected local statement");
     };
@@ -72,7 +59,7 @@ return 0
 
 #[test]
 fn parser_record_update_surface_parses_explicit_named_updates() {
-    let ast = NyashParser::parse_from_string(
+    let ast = parse_ok(
         r#"
 record Meta {
   ptr: i64
@@ -87,22 +74,8 @@ return 0
   }
 }
 "#,
-    )
-    .expect("parse record update");
-
-    let ASTNode::Program { statements, .. } = ast else {
-        panic!("expected Program");
-    };
-    let main_box = statements
-        .iter()
-        .find(|stmt| matches!(stmt, ASTNode::BoxDeclaration { name, .. } if name == "Main"))
-        .expect("Main box");
-    let ASTNode::BoxDeclaration { methods, .. } = main_box else {
-        panic!("expected box");
-    };
-    let ASTNode::FunctionDeclaration { body, .. } = &methods["main"] else {
-        panic!("expected main method");
-    };
+    );
+    let body = find_method_body(&ast, "Main", "main");
     let ASTNode::Local { initial_values, .. } = &body[1] else {
         panic!("expected second local statement");
     };

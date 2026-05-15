@@ -1,17 +1,9 @@
 use crate::ast::ASTNode;
-use crate::parser::NyashParser;
-
-fn parse_program(source: &str) -> Vec<ASTNode> {
-    let ast = NyashParser::parse_from_string(source).expect("parse uses surface");
-    let ASTNode::Program { statements, .. } = ast else {
-        panic!("expected Program");
-    };
-    statements
-}
+use crate::tests::helpers::parser::program_statements;
 
 #[test]
 fn parser_uses_surface_parses_method_uses_metadata_only() {
-    let statements = parse_program(
+    let statements = program_statements(
         r#"
 static box Main {
     main(size: i64): i64
@@ -35,7 +27,7 @@ static box Main {
 
 #[test]
 fn parser_uses_surface_parses_free_function_uses_metadata() {
-    let statements = parse_program(
+    let statements = program_statements(
         r#"
 function reserve(size: i64): i64
     uses osvm
@@ -54,7 +46,7 @@ function reserve(size: i64): i64
 
 #[test]
 fn parser_uses_surface_keeps_uses_contextual() {
-    let statements = parse_program(
+    let statements = program_statements(
         r#"
 static box Main {
     main() {

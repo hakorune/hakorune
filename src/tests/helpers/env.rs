@@ -29,10 +29,53 @@ impl Drop for EnvVarGuard {
     }
 }
 
+struct EnvVarsGuard {
+    old: Vec<(&'static str, Option<String>)>,
+}
+
+impl EnvVarsGuard {
+    fn apply(updates: &[(&'static str, Option<&str>)]) -> Self {
+        let old = updates
+            .iter()
+            .map(|(key, _)| (*key, std::env::var(key).ok()))
+            .collect();
+        for (key, value) in updates {
+            match value {
+                Some(value) => std::env::set_var(key, value),
+                None => std::env::remove_var(key),
+            }
+        }
+        Self { old }
+    }
+}
+
+impl Drop for EnvVarsGuard {
+    fn drop(&mut self) {
+        for (key, value) in self.old.iter().rev() {
+            match value {
+                Some(value) => std::env::set_var(key, value),
+                None => std::env::remove_var(key),
+            }
+        }
+    }
+}
+
 pub fn with_env_var<R>(key: &'static str, value: &str, f: impl FnOnce() -> R) -> R {
     #[cfg(test)]
-    let _lock = ENV_LOCK.lock().expect("test env lock poisoned");
+    let _lock = ENV_LOCK
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
 
     let _guard = EnvVarGuard::set(key, value);
+    f()
+}
+
+pub fn with_env_vars<R>(updates: &[(&'static str, Option<&str>)], f: impl FnOnce() -> R) -> R {
+    #[cfg(test)]
+    let _lock = ENV_LOCK
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+
+    let _guard = EnvVarsGuard::apply(updates);
     f()
 }
