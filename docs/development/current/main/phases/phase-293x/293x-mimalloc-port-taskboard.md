@@ -103,8 +103,8 @@ FST:
 | `MIMAP-015A` | landed | Release/free one known block through the facade. | after MIMAP-014C |
 | `MIMAP-015B` | landed | Double-release / stale-release fail-fast route. | after MIMAP-015A |
 | `MIMAP-016A` | landed | Alignment request metadata and observer result. | after MIMAP-015B |
-| `MIMAP-016B` | ready | Aligned allocation success/fail route. | after MIMAP-016A |
-| `MIMAP-017A` | parked | Realloc shrink / same-page route. | after release and alignment are stable |
+| `MIMAP-016B` | landed | Aligned allocation success/fail route. | after MIMAP-016A |
+| `MIMAP-017A` | ready | Realloc shrink / same-page route. | after release and alignment are stable |
 | `MIMAP-017B` | parked | Realloc grow / move route. | after MIMAP-017A |
 | `MIMAP-018A` | parked | Stats snapshot observer integration. | after allocation/release counters are stable |
 | `MIMAP-019A` | parked | Purge/reclaim/decommit policy route. | after lifecycle observers are stable |

@@ -1,0 +1,42 @@
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+
+static box Main {
+    main(args) {
+        local page = new HakoAllocPageModel(140, 8, 1, 1)
+        local alloc = new HakoAllocObjectLifecycleFacade()
+        alloc.objectLifecycleAddPage(page)
+
+        local ok = alloc.objectLifecycleSmallAllocAligned(8, 4)
+        local page_id = alloc.objectLifecycleAllocPageId()
+        local block_id = alloc.objectLifecycleAllocBlockId()
+        local normalized = alloc.objectLifecycleAlignmentNormalized()
+        local reason = alloc.objectLifecycleAllocReason()
+
+        local reject = alloc.objectLifecycleSmallAllocAligned(8, 3)
+        local reject_normalized = alloc.objectLifecycleAlignmentNormalized()
+        local reject_reason = alloc.objectLifecycleAllocReason()
+
+        local shape = 0
+        if ok == 1 { shape = shape + 1 }
+        if page_id == 140 { shape = shape + 1 }
+        if block_id == 0 { shape = shape + 1 }
+        if normalized == 8 { shape = shape + 1 }
+        if reason == 0 { shape = shape + 1 }
+        if reject == 0 { shape = shape + 1 }
+        if reject_normalized == -1 { shape = shape + 1 }
+        if reject_reason == 5 { shape = shape + 1 }
+
+        print("mimalloc-facade-aligned-alloc-proof")
+        print("aligned=" + ok + "," + page_id + "," + block_id + "," + normalized + "," + reason)
+        print("reject=" + reject + "," + reject_normalized + "," + reject_reason)
+
+        if shape == 8 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

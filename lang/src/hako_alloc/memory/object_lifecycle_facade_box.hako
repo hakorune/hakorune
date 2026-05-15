@@ -1,5 +1,5 @@
 // object_lifecycle_facade_box.hako — thin facade over object-backed lifecycle queue
-// Responsibility: compose facade-level add/select/small-alloc/release/alignment-metadata observer methods over HakoAllocObjectLifecyclePageQueue.
+// Responsibility: compose facade-level add/select/small-alloc/release/alignment observer methods over HakoAllocObjectLifecyclePageQueue.
 // This module does not own production provider activation, OS page sourcing, realloc, remote-free, or backend shortcuts.
 
 using selfhost.hako_alloc.memory.object_lifecycle_page_queue_box as HakoAllocObjectLifecyclePageQueueBox
@@ -203,6 +203,17 @@ box HakoAllocObjectLifecycleFacade {
         }
 
         return me.recordAlignmentSuccess(alignment, normalized)
+    }
+
+    objectLifecycleSmallAllocAligned(size, alignment) {
+        local alignment_ok = me.objectLifecycleRecordAlignmentRequest(alignment)
+        if alignment_ok == 0 {
+            me.resetSmallAllocResult()
+            me.small_alloc_attempt_count = me.small_alloc_attempt_count + 1
+            return me.recordSmallAllocFailure(5)
+        }
+
+        return me.objectLifecycleSmallAlloc(size)
     }
 
     objectLifecyclePageCount() {

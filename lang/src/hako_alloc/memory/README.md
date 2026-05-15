@@ -76,7 +76,8 @@ Syntax/style contract
 - `object_lifecycle_facade_box.hako` owns the MIMAP-013 thin facade object
   lifecycle queue seam plus the MIMAP-014A/MIMAP-014B/MIMAP-014C small
   allocation fast-path, the MIMAP-015A/MIMAP-015B release route, and the
-  MIMAP-016A alignment request metadata observer seam. It may
+  MIMAP-016A/MIMAP-016B alignment request metadata / aligned small allocation
+  facade seam. It may
   store one `HakoAllocObjectLifecyclePageQueue`, forward add/select object-page
   operations, prefer a selected reusable page, fall back to one selected active
   page, call `HakoAllocPageModel.acquire(size)`, release one known `(page id,
@@ -84,12 +85,14 @@ Syntax/style contract
   read-only scalar observer data including miss/release reason and facade-local
   allocation counters. It may surface double-release and stale-page rejection as
   scalar fail-fast reasons without adding page-map lookup. It may record one
-  alignment request, normalize it through `HakoAllocAlignmentPolicy`, and expose
-  requested/normalized/reason/supported scalar metadata without executing
-  aligned allocation placement. It must not use that facade seam to activate
-  realloc, aligned allocation execution, OSVM/page-source execution, provider
-  hooks, remote-free execution, host allocator replacement, arbitrary page-map
-  lookup, or backend shortcuts.
+  alignment request, normalize it through `HakoAllocAlignmentPolicy`, expose
+  requested/normalized/reason/supported scalar metadata, and route supported
+  aligned small allocations through the existing small allocation path. It may
+  fail fast before allocation for unsupported alignment. It must not use that
+  facade seam to activate realloc, native aligned pointer placement,
+  OSVM/page-source execution, provider hooks, remote-free execution, host
+  allocator replacement, arbitrary page-map lookup, padded pointer arithmetic,
+  or backend shortcuts.
 - `osvm_backed_fast_path_heap_box.hako` is the M168 composition owner. It may
   reserve/commit/decommit through `HakoAllocPageSourcePolicy`, then reuse the
   same page queue and page-local free-list owners. It must not add OSVM metal,
