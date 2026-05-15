@@ -1,24 +1,11 @@
 use crate::ast::ASTNode;
 use crate::parser::NyashParser;
 use crate::r#macro::ast_json::{ast_to_json_roundtrip, json_to_ast};
-
-fn parse(src: &str) -> ASTNode {
-    NyashParser::parse_from_string(src).expect("parse ok")
-}
-
-fn find_box<'a>(ast: &'a ASTNode, box_name: &str) -> &'a ASTNode {
-    let ASTNode::Program { statements, .. } = ast else {
-        panic!("expected Program");
-    };
-    statements
-        .iter()
-        .find(|stmt| matches!(stmt, ASTNode::BoxDeclaration { name, .. } if name == box_name))
-        .expect("box declaration not found")
-}
+use crate::tests::helpers::parser::{find_box, parse_ok};
 
 #[test]
 fn parser_accepts_sync_box_as_contextual_surface() {
-    let ast = parse(
+    let ast = parse_ok(
         r#"
 sync box Counter {
   value: i64
@@ -54,7 +41,7 @@ sync box Counter {
 
 #[test]
 fn parser_keeps_plain_box_non_sync() {
-    let ast = parse(
+    let ast = parse_ok(
         r#"
 box Plain {
   value: i64
@@ -70,7 +57,7 @@ box Plain {
 
 #[test]
 fn parser_keeps_sync_contextual_for_bindings() {
-    let ast = parse(
+    let ast = parse_ok(
         r#"
 box Main {
   run() {
@@ -93,7 +80,7 @@ box Main {
 
 #[test]
 fn ast_json_roundtrip_preserves_sync_box_capsule() {
-    let ast = parse(
+    let ast = parse_ok(
         r#"
 sync box Counter {
   value: i64

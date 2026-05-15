@@ -1,40 +1,6 @@
 use crate::ast::{ASTNode, ParamDecl};
-use crate::parser::NyashParser;
 use crate::r#macro::ast_json::{ast_to_json_roundtrip, json_to_ast};
-
-fn parse(src: &str) -> ASTNode {
-    NyashParser::parse_from_string(src).expect("parse ok")
-}
-
-fn find_box<'a>(ast: &'a ASTNode, box_name: &str) -> &'a ASTNode {
-    let ASTNode::Program { statements, .. } = ast else {
-        panic!("expected Program");
-    };
-    statements
-        .iter()
-        .find(|stmt| matches!(stmt, ASTNode::BoxDeclaration { name, .. } if name == box_name))
-        .expect("box declaration not found")
-}
-
-fn find_method_params(ast: &ASTNode, box_name: &str, method_name: &str) -> Vec<String> {
-    let box_decl = find_box(ast, box_name);
-    let ASTNode::BoxDeclaration { methods, .. } = box_decl else {
-        panic!("expected BoxDeclaration");
-    };
-    let method = methods.get(method_name).expect("method not found");
-    let ASTNode::FunctionDeclaration { params, .. } = method else {
-        panic!("expected FunctionDeclaration");
-    };
-    params.clone()
-}
-
-fn find_method_decl<'a>(ast: &'a ASTNode, box_name: &str, method_name: &str) -> &'a ASTNode {
-    let box_decl = find_box(ast, box_name);
-    let ASTNode::BoxDeclaration { methods, .. } = box_decl else {
-        panic!("expected BoxDeclaration");
-    };
-    methods.get(method_name).expect("method not found")
-}
+use crate::tests::helpers::parser::{find_box, find_method_decl, find_method_params, parse_ok};
 
 fn param(name: &str, ty: Option<&str>) -> ParamDecl {
     ParamDecl {
@@ -52,7 +18,7 @@ box Worker {
   }
 }
 "#;
-    let ast = parse(src);
+    let ast = parse_ok(src);
     let params = find_method_params(&ast, "Worker", "run");
     assert_eq!(params, vec!["input".to_string(), "flags".to_string()]);
 
@@ -84,7 +50,7 @@ box B implements Runnable {
   run() { return 0 }
 }
 "#;
-    let ast = parse(src);
+    let ast = parse_ok(src);
 
     let ASTNode::BoxDeclaration {
         extends,
@@ -113,7 +79,7 @@ interface box Mapper<T, U> {
   map(input: T, output: U): U
 }
 "#;
-    let ast = parse(src);
+    let ast = parse_ok(src);
     let ASTNode::BoxDeclaration {
         is_interface,
         type_parameters,
@@ -157,7 +123,7 @@ static box Main {
   }
 }
 "#;
-    let ast = parse(src);
+    let ast = parse_ok(src);
 
     let ASTNode::BoxDeclaration { constructors, .. } = find_box(&ast, "Page") else {
         panic!("expected BoxDeclaration Page");
@@ -206,7 +172,7 @@ box Worker {
   }
 }
 "#;
-    let ast = parse(src);
+    let ast = parse_ok(src);
     let json = ast_to_json_roundtrip(&ast);
     let roundtrip = json_to_ast(&json).expect("ast json roundtrip");
 

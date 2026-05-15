@@ -1,31 +1,11 @@
 use crate::ast::ASTNode;
-use crate::parser::NyashParser;
-
-fn parse(src: &str) -> ASTNode {
-    crate::tests::helpers::env::with_env_var("NYASH_ENABLE_UNIFIED_MEMBERS", "1", || {
-        NyashParser::parse_from_string(src).expect("parse ok")
-    })
-}
-
-fn parse_err(src: &str) {
-    crate::tests::helpers::env::with_env_var("NYASH_ENABLE_UNIFIED_MEMBERS", "1", || {
-        NyashParser::parse_from_string(src).expect_err("parse should fail");
-    });
-}
-
-fn find_box<'a>(ast: &'a ASTNode, box_name: &str) -> &'a ASTNode {
-    let ASTNode::Program { statements, .. } = ast else {
-        panic!("expected Program");
-    };
-    statements
-        .iter()
-        .find(|stmt| matches!(stmt, ASTNode::BoxDeclaration { name, .. } if name == box_name))
-        .expect("box should exist")
-}
+use crate::tests::helpers::parser::{
+    find_box, parse_err_with_unified_members, parse_ok_with_unified_members,
+};
 
 #[test]
 fn weak_field_is_stored_field_metadata() {
-    let ast = parse(
+    let ast = parse_ok_with_unified_members(
         r#"
 box Node {
   weak parent: Node
@@ -57,7 +37,7 @@ box Node {
 
 #[test]
 fn public_weak_field_tracks_visibility_and_weak_metadata() {
-    let ast = parse(
+    let ast = parse_ok_with_unified_members(
         r#"
 box Node {
   public weak parent: Node
@@ -82,7 +62,7 @@ box Node {
 
 #[test]
 fn weak_field_rejects_computed_arrow_body() {
-    parse_err(
+    parse_err_with_unified_members(
         r#"
 box Node {
   weak parent: Node => 1
@@ -93,7 +73,7 @@ box Node {
 
 #[test]
 fn weak_field_rejects_computed_block_body() {
-    parse_err(
+    parse_err_with_unified_members(
         r#"
 box Node {
   weak parent: Node {

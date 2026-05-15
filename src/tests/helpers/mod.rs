@@ -3,3 +3,4 @@
 pub mod env;
 pub mod joinir_env;
 pub mod joinir_frontend;
+pub mod parser;

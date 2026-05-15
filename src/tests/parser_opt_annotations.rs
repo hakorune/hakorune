@@ -1,6 +1,7 @@
 use crate::ast::ASTNode;
 use crate::parser::NyashParser;
 use crate::r#macro::ast_json::{ast_to_json_roundtrip, json_to_ast};
+use crate::tests::helpers::parser::find_method_body;
 use crate::tokenizer::{NyashTokenizer, TokenizeError};
 use std::sync::{Mutex, MutexGuard, OnceLock};
 
@@ -50,23 +51,6 @@ impl Drop for FeatureOverrideGuard {
 fn with_features<R>(features: Option<&str>, f: impl FnOnce() -> R) -> R {
     let _guard = FeatureOverrideGuard::new(features);
     f()
-}
-
-fn find_method_body<'a>(ast: &'a ASTNode, box_name: &str, method_name: &str) -> &'a [ASTNode] {
-    let ASTNode::Program { statements, .. } = ast else {
-        panic!("expected Program");
-    };
-    for stmt in statements {
-        if let ASTNode::BoxDeclaration { name, methods, .. } = stmt {
-            if name != box_name {
-                continue;
-            }
-            if let Some(ASTNode::FunctionDeclaration { body, .. }) = methods.get(method_name) {
-                return body;
-            }
-        }
-    }
-    panic!("method not found: {}.{}", box_name, method_name);
 }
 
 fn find_runes(metadata: &crate::parser::ParserMetadata) -> Vec<(String, Vec<String>)> {

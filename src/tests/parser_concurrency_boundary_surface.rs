@@ -1,22 +1,5 @@
 use crate::ast::ASTNode;
-use crate::parser::NyashParser;
-
-fn find_method_body<'a>(ast: &'a ASTNode, box_name: &str, method_name: &str) -> &'a [ASTNode] {
-    let ASTNode::Program { statements, .. } = ast else {
-        panic!("expected Program");
-    };
-    for statement in statements {
-        if let ASTNode::BoxDeclaration { name, methods, .. } = statement {
-            if name != box_name {
-                continue;
-            }
-            if let Some(ASTNode::FunctionDeclaration { body, .. }) = methods.get(method_name) {
-                return body;
-            }
-        }
-    }
-    panic!("method not found: {}.{}", box_name, method_name);
-}
+use crate::tests::helpers::parser::{find_method_body, parse_ok};
 
 #[test]
 fn parser_accepts_canonical_co_task_scope_surface() {
@@ -31,7 +14,7 @@ box Main {
 }
 "#;
 
-    let ast = NyashParser::parse_from_string(source).expect("parse co scope");
+    let ast = parse_ok(source);
     let body = find_method_body(&ast, "Main", "run");
     let ASTNode::TaskScope {
         source_keyword,
@@ -58,7 +41,7 @@ box Main {
 }
 "#;
 
-    let ast = NyashParser::parse_from_string(source).expect("parse task_scope compat");
+    let ast = parse_ok(source);
     let body = find_method_body(&ast, "Main", "run");
     let ASTNode::TaskScope { source_keyword, .. } = &body[0] else {
         panic!("expected first statement to be TaskScope");
@@ -81,7 +64,7 @@ box Main {
 }
 "#;
 
-    let ast = NyashParser::parse_from_string(source).expect("parse contextual co");
+    let ast = parse_ok(source);
     let body = find_method_body(&ast, "Main", "run");
     assert!(matches!(body[0], ASTNode::Local { .. }));
     assert!(matches!(body[1], ASTNode::Return { .. }));

@@ -1,31 +1,10 @@
 use crate::ast::ASTNode;
-use crate::parser::NyashParser;
 use crate::r#macro::ast_json::{ast_to_json_roundtrip, json_to_ast};
-
-fn parse(src: &str) -> ASTNode {
-    NyashParser::parse_from_string(src).expect("parse ok")
-}
-
-fn find_method_body<'a>(ast: &'a ASTNode, box_name: &str, method_name: &str) -> &'a [ASTNode] {
-    let ASTNode::Program { statements, .. } = ast else {
-        panic!("expected Program");
-    };
-    for statement in statements {
-        if let ASTNode::BoxDeclaration { name, methods, .. } = statement {
-            if name != box_name {
-                continue;
-            }
-            if let Some(ASTNode::FunctionDeclaration { body, .. }) = methods.get(method_name) {
-                return body;
-            }
-        }
-    }
-    panic!("method not found: {}.{}", box_name, method_name);
-}
+use crate::tests::helpers::parser::{find_method_body, parse_ok};
 
 #[test]
 fn parser_accepts_canonical_context_scope_surface() {
-    let ast = parse(
+    let ast = parse_ok(
         r#"
 box Main {
   run(rid: RequestId) {
@@ -57,7 +36,7 @@ box Main {
 
 #[test]
 fn parser_accepts_scoped_compat_spelling() {
-    let ast = parse(
+    let ast = parse_ok(
         r#"
 box Main {
   run(rid) {
@@ -79,7 +58,7 @@ box Main {
 
 #[test]
 fn parser_keeps_context_contextual_for_calls_and_bindings() {
-    let ast = parse(
+    let ast = parse_ok(
         r#"
 box Main {
   context() {
@@ -103,7 +82,7 @@ box Main {
 
 #[test]
 fn ast_json_roundtrip_preserves_context_scope_capsule() {
-    let ast = parse(
+    let ast = parse_ok(
         r#"
 box Main {
   run(rid: RequestId) {

@@ -1,5 +1,6 @@
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::parser::NyashParser;
+use crate::tests::helpers::parser::find_method_body;
 use std::sync::{Mutex, OnceLock};
 
 fn env_guard() -> &'static Mutex<()> {
@@ -17,23 +18,6 @@ fn with_stage3_features<R>(f: impl FnOnce() -> R) -> R {
         None => std::env::remove_var("NYASH_FEATURES"),
     }
     out
-}
-
-fn find_method_body<'a>(ast: &'a ASTNode, box_name: &str, method_name: &str) -> &'a [ASTNode] {
-    let ASTNode::Program { statements, .. } = ast else {
-        panic!("expected Program");
-    };
-    for stmt in statements {
-        if let ASTNode::BoxDeclaration { name, methods, .. } = stmt {
-            if name != box_name {
-                continue;
-            }
-            if let Some(ASTNode::FunctionDeclaration { body, .. }) = methods.get(method_name) {
-                return body;
-            }
-        }
-    }
-    panic!("method not found: {}.{}", box_name, method_name);
 }
 
 #[test]

@@ -1,8 +1,4 @@
-use crate::parser::NyashParser;
-
-fn parse(src: &str) -> crate::ast::ASTNode {
-    NyashParser::parse_from_string(src).expect("parse ok")
-}
+use crate::tests::helpers::parser::parse_ok;
 
 fn no_toplevel_funccall(ast: &crate::ast::ASTNode) -> bool {
     match ast {
@@ -48,7 +44,7 @@ static box S {
   g(b) { return b }
 }
 "#;
-    let ast = parse(src);
+    let ast = parse_ok(src);
     assert!(
         no_toplevel_funccall(&ast),
         "no top-level FunctionCall expected"
@@ -74,7 +70,7 @@ static box S {
   }
 }
 "#;
-    let ast = parse(src);
+    let ast = parse_ok(src);
     assert!(
         no_toplevel_funccall(&ast),
         "no top-level FunctionCall expected at seams"

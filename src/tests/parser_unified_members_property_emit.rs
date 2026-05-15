@@ -1,21 +1,7 @@
 use crate::ast::ASTNode;
-use crate::parser::NyashParser;
-
-fn parse(src: &str) -> ASTNode {
-    crate::tests::helpers::env::with_env_var("NYASH_ENABLE_UNIFIED_MEMBERS", "1", || {
-        NyashParser::parse_from_string(src).expect("parse ok")
-    })
-}
-
-fn find_box<'a>(ast: &'a ASTNode, box_name: &str) -> &'a ASTNode {
-    let ASTNode::Program { statements, .. } = ast else {
-        panic!("expected Program");
-    };
-    statements
-        .iter()
-        .find(|stmt| matches!(stmt, ASTNode::BoxDeclaration { name, .. } if name == box_name))
-        .expect("box should exist")
-}
+use crate::tests::helpers::parser::{
+    find_box, find_constructor_body, parse_ok_with_unified_members,
+};
 
 fn has_method(methods: &std::collections::HashMap<String, ASTNode>, name: &str) -> bool {
     methods.contains_key(name)
@@ -26,19 +12,6 @@ fn method_body<'a>(
     name: &str,
 ) -> &'a Vec<ASTNode> {
     let ASTNode::FunctionDeclaration { body, .. } = methods.get(name).expect("method should exist")
-    else {
-        panic!("expected FunctionDeclaration");
-    };
-    body
-}
-
-fn birth_body<'a>(box_node: &'a ASTNode, key: &str) -> &'a Vec<ASTNode> {
-    let ASTNode::BoxDeclaration { constructors, .. } = box_node else {
-        panic!("expected BoxDeclaration");
-    };
-    let ASTNode::FunctionDeclaration { body, .. } = constructors
-        .get(key)
-        .expect("birth constructor should exist")
     else {
         panic!("expected FunctionDeclaration");
     };
@@ -178,7 +151,7 @@ fn assert_once_getter_poison_write(body: &[ASTNode], name: &str) {
 
 #[test]
 fn block_first_computed_uses_computed_getter_not_birth_once() {
-    let ast = parse(
+    let ast = parse_ok_with_unified_members(
         r#"
 box Shape {
   { 7 } as size: IntegerBox
@@ -197,7 +170,7 @@ box Shape {
 
 #[test]
 fn once_emit_is_shared_for_header_and_block_first() {
-    let ast = parse(
+    let ast = parse_ok_with_unified_members(
         r#"
 box Lazy {
   once a: IntegerBox => 1
@@ -220,7 +193,7 @@ box Lazy {
 
 #[test]
 fn birth_once_emit_is_shared_for_header_and_block_first() {
-    let ast = parse(
+    let ast = parse_ok_with_unified_members(
         r#"
 box Eager {
   birth_once a: IntegerBox => 1
@@ -245,7 +218,7 @@ box Eager {
 
 #[test]
 fn birth_once_prologue_is_inserted_into_canonical_birth_constructor() {
-    let ast = parse(
+    let ast = parse_ok_with_unified_members(
         r#"
 box Eager {
   birth_once a: IntegerBox => 1
@@ -259,7 +232,7 @@ box Eager {
 "#,
     );
 
-    let body = birth_body(find_box(&ast, "Eager"), "birth/0");
+    let body = find_constructor_body(find_box(&ast, "Eager"), "birth/0");
 
     assert_birth_once_initializer_pair(body, 0, "a");
     assert_birth_once_initializer_pair(body, 2, "b");
@@ -268,7 +241,7 @@ box Eager {
 
 #[test]
 fn birth_once_without_user_birth_synthesizes_birth_constructor() {
-    let ast = parse(
+    let ast = parse_ok_with_unified_members(
         r#"
 box EagerOnly {
   birth_once config: IntegerBox => 7
@@ -276,7 +249,7 @@ box EagerOnly {
 "#,
     );
 
-    let body = birth_body(find_box(&ast, "EagerOnly"), "birth/0");
+    let body = find_constructor_body(find_box(&ast, "EagerOnly"), "birth/0");
 
     assert_eq!(body.len(), 2);
     assert_birth_once_initializer_pair(body, 0, "config");

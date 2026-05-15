@@ -1,20 +1,10 @@
 use crate::ast::ASTNode;
 use crate::parser::NyashParser;
-
-fn find_box(source: &str, target: &str) -> ASTNode {
-    let ast = NyashParser::parse_from_string(source).expect("parse delegate source");
-    let ASTNode::Program { statements, .. } = ast else {
-        panic!("expected Program");
-    };
-    statements
-        .into_iter()
-        .find(|statement| matches!(statement, ASTNode::BoxDeclaration { name, .. } if name == target))
-        .expect("target box")
-}
+use crate::tests::helpers::parser::{find_box, parse_ok};
 
 #[test]
 fn parser_delegate_surface_parses_explicit_exposes_list() {
-    let decl = find_box(
+    let ast = parse_ok(
         r#"
 box P2PBox {
     connect() {
@@ -35,8 +25,8 @@ box MeshNode {
     }
 }
 "#,
-        "MeshNode",
     );
+    let decl = find_box(&ast, "MeshNode");
 
     let ASTNode::BoxDeclaration {
         fields,
@@ -48,7 +38,7 @@ box MeshNode {
         panic!("expected box declaration");
     };
 
-    assert_eq!(fields, vec!["p2p"]);
+    assert_eq!(fields, &vec!["p2p".to_string()]);
     assert_eq!(delegates.len(), 1);
     assert_eq!(delegates[0].field_name, "p2p");
     assert_eq!(delegates[0].exposes.len(), 2);

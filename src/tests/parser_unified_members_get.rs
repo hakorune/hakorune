@@ -1,25 +1,9 @@
 use crate::ast::ASTNode;
-use crate::parser::NyashParser;
-
-fn parse(src: &str) -> ASTNode {
-    crate::tests::helpers::env::with_env_var("NYASH_ENABLE_UNIFIED_MEMBERS", "1", || {
-        NyashParser::parse_from_string(src).expect("parse ok")
-    })
-}
-
-fn find_box<'a>(ast: &'a ASTNode, box_name: &str) -> &'a ASTNode {
-    let ASTNode::Program { statements, .. } = ast else {
-        panic!("expected Program");
-    };
-    statements
-        .iter()
-        .find(|stmt| matches!(stmt, ASTNode::BoxDeclaration { name, .. } if name == box_name))
-        .expect("box should exist")
-}
+use crate::tests::helpers::parser::{find_box, parse_ok_with_unified_members};
 
 #[test]
 fn get_computed_property_generates_standard_getter() {
-    let ast = parse(
+    let ast = parse_ok_with_unified_members(
         r#"
 box Greeter {
   name: StringBox = "Nya"
@@ -42,7 +26,7 @@ box Greeter {
 
 #[test]
 fn get_identifier_can_remain_stored_field_name() {
-    let ast = parse(
+    let ast = parse_ok_with_unified_members(
         r#"
 box HasGetField {
   get: StringBox
@@ -65,7 +49,7 @@ box HasGetField {
 
 #[test]
 fn get_identifier_can_remain_method_name() {
-    let ast = parse(
+    let ast = parse_ok_with_unified_members(
         r#"
 box HasGetMethod {
   get() {
@@ -89,7 +73,7 @@ box HasGetMethod {
 
 #[test]
 fn get_identifier_on_previous_line_stays_stored_field() {
-    let ast = parse(
+    let ast = parse_ok_with_unified_members(
         r#"
 box HasBareGetField {
   get
@@ -112,7 +96,7 @@ box HasBareGetField {
 
 #[test]
 fn public_get_computed_property_tracks_visibility_name() {
-    let ast = parse(
+    let ast = parse_ok_with_unified_members(
         r#"
 box VisibleComputed {
   public get size: IntegerBox => 1
@@ -137,7 +121,7 @@ box VisibleComputed {
 
 #[test]
 fn private_get_computed_property_tracks_visibility_name() {
-    let ast = parse(
+    let ast = parse_ok_with_unified_members(
         r#"
 box PrivateComputed {
   private get hidden: IntegerBox => 1
@@ -164,7 +148,7 @@ box PrivateComputed {
 
 #[test]
 fn visible_get_identifier_can_remain_stored_field_name() {
-    let ast = parse(
+    let ast = parse_ok_with_unified_members(
         r#"
 box VisibleGetField {
   public get: StringBox
@@ -189,7 +173,7 @@ box VisibleGetField {
 
 #[test]
 fn stored_field_initializers_generate_birth_prologue() {
-    let ast = parse(
+    let ast = parse_ok_with_unified_members(
         r#"
 box FieldDefaults {
   count = 41
