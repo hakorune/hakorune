@@ -75,13 +75,14 @@ Syntax/style contract
   activate providers/hooks, or add backend shortcuts.
 - `object_lifecycle_facade_box.hako` owns the MIMAP-013 thin facade object
   lifecycle queue seam plus the MIMAP-014A/MIMAP-014B/MIMAP-014C small
-  allocation fast-path and the MIMAP-015A one-known-block release route. It may
+  allocation fast-path and the MIMAP-015A/MIMAP-015B release route. It may
   store one `HakoAllocObjectLifecyclePageQueue`, forward add/select object-page
   operations, prefer a selected reusable page, fall back to one selected active
   page, call `HakoAllocPageModel.acquire(size)`, release one known `(page id,
   block id)` through `HakoAllocPageModel.releaseLocal(block_id)`, and expose
   read-only scalar observer data including miss/release reason and facade-local
-  allocation counters. It
+  allocation counters. It may surface double-release and stale-page rejection as
+  scalar fail-fast reasons without adding page-map lookup. It
   must not use that facade seam to activate realloc, alignment, OSVM/page-source
   execution, provider hooks, remote-free execution, host allocator replacement,
   arbitrary page-map lookup, or backend shortcuts.

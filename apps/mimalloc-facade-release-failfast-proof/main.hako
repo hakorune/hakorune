@@ -1,0 +1,43 @@
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+
+static box Main {
+    main(args) {
+        local page = new HakoAllocPageModel(110, 8, 1, 1)
+        local alloc = new HakoAllocObjectLifecycleFacade()
+        alloc.objectLifecycleAddPage(page)
+
+        local alloc_ok = alloc.objectLifecycleSmallAlloc(8)
+        local alloc_page = alloc.objectLifecycleAllocPageId()
+        local alloc_block = alloc.objectLifecycleAllocBlockId()
+
+        local first_release = alloc.objectLifecycleReleaseBlock(alloc_page, alloc_block)
+
+        local double_status = alloc.objectLifecycleReleaseBlock(alloc_page, alloc_block)
+        local double_reason = alloc.objectLifecycleReleaseReason()
+
+        local stale_status = alloc.objectLifecycleReleaseBlock(999, alloc_block)
+        local stale_reason = alloc.objectLifecycleReleaseReason()
+
+        local shape = 0
+        if alloc_ok == 1 { shape = shape + 1 }
+        if first_release == 1 { shape = shape + 1 }
+        if double_status == 0 { shape = shape + 1 }
+        if double_reason == 3 { shape = shape + 1 }
+        if stale_status == 0 { shape = shape + 1 }
+        if stale_reason == 1 { shape = shape + 1 }
+        if page.localFreeCount() == 1 { shape = shape + 1 }
+
+        print("mimalloc-facade-release-failfast-proof")
+        print("double=" + double_status + "," + double_reason)
+        print("stale=" + stale_status + "," + stale_reason)
+
+        if shape == 7 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

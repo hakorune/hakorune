@@ -1,6 +1,6 @@
 # 293x-361 MIMAP-015B Facade Release Fail-Fast
 
-Status: ready
+Status: landed
 Date: 2026-05-15
 
 ## Decision
@@ -59,6 +59,38 @@ Required guard evidence:
 ```text
 [mimap015b-mir-json] ok
 [k2-wide-mimalloc-facade-release-failfast-exe] ok
+```
+
+## Implementation
+
+No new release storage owner was required. `MIMAP-015B` fixes the fail-fast
+contract around the existing
+`HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock(page_id, block_id)`
+route:
+
+- double-release: page-local `releaseLocal(block_id)` rejects and facade reason
+  remains generic release reject `3`
+- stale/missing page id: facade page-id scan misses and reason is `1`
+
+This keeps page-map lookup and arbitrary pointer resolution out of the row.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_mimalloc_facade_release_failfast_exe_guard.sh
+[mimap015b-mir-json] ok
+[k2-wide-mimalloc-facade-release-failfast-exe] ok
+
+bash tools/checks/k2_wide_mimalloc_facade_release_one_block_exe_guard.sh
+[mimap015a-mir-json] ok
+[k2-wide-mimalloc-facade-release-one-block-exe] ok
+
+bash tools/checks/k2_wide_mimalloc_facade_small_alloc_stats_exe_guard.sh
+[mimap014c-mir-json] ok
+[k2-wide-mimalloc-facade-small-alloc-stats-exe] ok
+
+bash tools/checks/dev_gate.sh quick
+[dev-gate] profile=quick ok
 ```
 
 ## Stop Lines

@@ -101,7 +101,7 @@ FST:
 | `MIMAP-014B` | landed | Reusable-page preference, active-page fallback, and allocation miss reason. | after MIMAP-014A |
 | `MIMAP-014C` | landed | Allocation fast-path stats observers. | after MIMAP-014B |
 | `MIMAP-015A` | landed | Release/free one known block through the facade. | after MIMAP-014C |
-| `MIMAP-015B` | ready | Double-release / stale-release fail-fast route. | after MIMAP-015A |
+| `MIMAP-015B` | landed | Double-release / stale-release fail-fast route. | after MIMAP-015A |
 | `MIMAP-016A` | ready | Alignment request metadata and observer result. | after MIMAP-015B |
 | `MIMAP-016B` | parked | Aligned allocation success/fail route. | after MIMAP-016A |
 | `MIMAP-017A` | parked | Realloc shrink / same-page route. | after release and alignment are stable |
