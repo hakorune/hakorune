@@ -35,6 +35,7 @@ list_profiles() {
 [dev-gate] profiles:
   quick:
     - tools/checks/current_state_pointer_guard.sh
+    - tools/checks/mir_metadata_catalog_guard.sh
     - tools/checks/stage0_shape_inventory_guard.sh
     - tools/checks/stage1_emit_program_json_runtime_helper_guard.sh
     - tools/checks/program_json_dev_surface_guard.sh
@@ -330,6 +331,9 @@ run_step() {
 run_quick() {
   run_step "current-state pointer guard" \
     bash tools/checks/current_state_pointer_guard.sh
+
+  run_step "MIR metadata catalog guard" \
+    bash tools/checks/mir_metadata_catalog_guard.sh
 
   run_step "Stage0 shape inventory guard" \
     bash tools/checks/stage0_shape_inventory_guard.sh

@@ -3,8 +3,11 @@
 Status: Canonical for emitted MIR metadata
 Primary sources:
 
-- `src/mir/function.rs`
-- `src/runner/mir_json_emit/mod.rs`
+- `src/mir/function/types.rs`
+- `src/mir/semantic_refresh.rs`
+- `src/runner/mir_json_emit/root.rs`
+- `src/runner/mir_json_emit/metadata.rs`
+- `src/runner/mir_json_emit/decls.rs`
 - `src/mir/printer.rs`
 
 This document covers inspection-only metadata emitted in MIR JSON. These facts
@@ -12,12 +15,52 @@ do **not** create a second MIR dialect. They annotate canonical MIR so backends
 and diagnostics can make placement/entry decisions without guessing from helper
 names.
 
+## Metadata Classes
+
+`metadata` is not one semantic bucket. Rows must belong to one of these classes
+so ownership and retirement stay visible:
+
+| Class | Owner | Meaning | Runtime effect | Backend use |
+| --- | --- | --- | --- | --- |
+| `SourceAttrs` | Parser / Stage0 / Stage1 transport | Declaration-local source facts such as runes, declared signatures, user boxes, records, and enums | none by itself | no direct lowering unless a later MIR plan consumes it |
+| `SemanticFacts` | MIR semantic refresh | Facts derived from canonical MIR values, calls, loops, types, effects, and exact numeric observations | none by itself | verifier/backend may consume typed facts without rediscovering from helper names |
+| `LayoutPlans` | MIR layout owners | Typed object, record, static data, and packed-column layout truth | none unless a runtime/backend row explicitly consumes it | backend may consume active rows; inactive rows must remain metadata-only |
+| `PlacementPlans` | MIR placement/effect owners | Objectization, materialization, residence, escape, and publication boundary decisions | none until a transform/lowering row consumes the plan | prefer generic `placement_effect_routes` over family-specific rows |
+| `LoweringRoutes` | MIR route planners | Backend-facing route, symbol, proof, value-demand, and effect rows | no source/MIR rewrite | backend may emit from these rows and must not reclassify raw helper names |
+| `DiagnosticsMetadata` | Builder/MIR diagnostics owners | Source spans, origin callers, debug/provenance data | none | diagnostics only |
+| `ExperimentalSeedRoutes` | Narrow proof owners | Temporary exact-shape payloads for current micro/proof bridges | no canonical MIR replacement | backend may select a guarded emitter; each row needs a retire condition |
+
+New rows should document:
+
+```text
+key:
+class:
+owner:
+producer:
+consumer:
+backend_active:
+fallback_allowed:
+retire_condition:
+```
+
 ## Module-level metadata keys
 
-| Key | Shape | Purpose |
-| --- | --- | --- |
-| `typed_object_plans` | array | MIR-owned layout plans for accepted typed user objects; backends read these plans for general user-box `newbox` / `field_set` / `field_get` lowering |
-| `static_data_plans` | array | MIR-owned readonly static data rows for accepted `static const u16[]` declarations |
+| Key | Class | Producer | Primary consumer | backend_active | fallback_allowed | retire_condition |
+| --- | --- | --- | --- | --- | --- | --- |
+| `user_box_decls` | `SourceAttrs` | Stage1 / MIR builder declaration transport | typed-object planning, thin-entry facts, diagnostics, legacy builder input | yes for existing user-box routes | names-only compatibility still exists for legacy declarations | retire names-only compatibility after all frontends emit typed field declarations |
+| `record_decls` | `SourceAttrs` | Stage1 record declaration transport | `record_layout_plans` | no | no ordinary user-box fallback | retain as record source truth |
+| `enum_decls` | `SourceAttrs` | Stage1 enum declaration transport and prelude enum injection | sum placement, thin-entry, diagnostics | yes for existing sum routes | unsupported surfaces fail fast | retain as enum source truth |
+| `typed_object_plans` | `LayoutPlans` | `refresh_module_typed_object_plans` | EXE typed-object newbox / field get / field set lowering, verifier rows | yes | no app-specific slot inference | retain while typed user boxes lower through runtime slot object layout |
+| `record_layout_plans` | `LayoutPlans` | `refresh_module_record_layout_plans` | record storage descriptors, hako_alloc metadata verifier rows | no direct backend lowering | no ordinary user-box fallback | retain as record layout truth |
+| `array_record_storage_plans` | `LayoutPlans` | `refresh_module_array_record_storage_plans` | packed ArrayBox eligibility and probes | no | no runtime storage mutation | fold into packed storage owner when production storage lands |
+| `array_record_autouse_eligibility_plans` | `PlacementPlans` | `refresh_module_array_record_autouse_eligibility_plans` | materialization boundary and packed auto-use pilot | no | unsupported shapes remain rejected/fail-fast | retire only after production auto-use has a verifier-owned replacement |
+| `array_record_materialization_boundary_plans` | `PlacementPlans` | `refresh_module_array_record_materialization_boundary_plans` | packed auto-use pilot and diagnostics | no | visible materialization has no boxed fallback | retire when public record materialization is implemented |
+| `array_record_packed_autouse_pilot_plans` | `PlacementPlans` | `refresh_module_array_record_packed_autouse_pilot_plans` | source PackedArray pilot, backend capability gate | metadata-only today | boxed fallback disabled | retire or convert when packed backend lowering becomes production |
+| `source_packed_array_autouse_pilot_plans` | `PlacementPlans` | `refresh_module_source_packed_array_autouse_pilot_plans` | direct-read consumption rows | no | boxed fallback disabled | fold into production PackedArray plan when available |
+| `source_packed_array_direct_read_consumption_plans` | `PlacementPlans` | `refresh_module_source_packed_array_direct_read_consumption_plans` | backend capability gate / future direct-read lowering | no | boxed fallback disabled | retire when direct-read lowering has a generic plan |
+| `hako_alloc_aligned_small_packed_store_pilot_plans` | `PlacementPlans` | `refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans` | hako_alloc metadata verifier | no | live scalar columns retained | retire after allocator metadata store migrates to production storage |
+| `hako_alloc_huge_page_packed_store_pilot_plans` | `PlacementPlans` | `refresh_module_hako_alloc_huge_page_packed_store_pilot_plans` | hako_alloc metadata verifier | no | live scalar columns retained | retire after allocator huge metadata store migrates to production storage |
+| `static_data_plans` | `LayoutPlans` | static const table lowering | static data emit/load lowering | yes | no runtime Array/Map materialization fallback | retain while static readonly data is MIR-owned |
 
 ### `typed_object_plans[]`
 
@@ -84,23 +127,108 @@ Contract:
 | Key | Shape | Purpose |
 | --- | --- | --- |
 | `value_types` | object map `{value_id: type_hint}` | Per-value type hints (`i64`, `i1`, `f64`, `void`, `{kind:"handle"}` etc.) |
+| `value_consumer_facts` | object map `{value_id: fact}` | Generic consumer facts derived from canonical MIR; backend consumers must not re-own legality scans |
+| `loop_range_facts` | array | Stage1 LoopRange index/bound/step contract facts |
+| `runes` | array | Declaration-local `@rune` attrs carried into MIR |
 | `storage_classes` | object map `{value_id: storage_class}` | Current storage-class inventory for value lanes |
 | `string_corridor_facts` | object map `{value_id: fact}` | Canonical string corridor facts (`str.slice`, `str.len`, `freeze.str`) keyed by produced value |
+| `string_corridor_relations` | object map `{value_id: [relation, ...]}` | Structural relation facts derived from canonical MIR plus PHI queries |
 | `string_corridor_candidates` | object map `{value_id: [candidate, ...]}` | Placement/effect candidate inventory derived from string corridor facts |
+| `string_kernel_plans` | object map `{value_id: plan}` | Backend-consumable string kernel plans derived from corridor candidates |
+| `string_direct_set_window_routes` | array | Source-window direct-set route plans |
 | `thin_entry_candidates` | array | Candidate sites for public-entry vs thin-entry selection |
 | `thin_entry_selections` | array | Manifest-bound thin-entry decisions |
 | `inline_plans` | array | InlinePlan rows derived from declaration-local `Hint(inline/noinline/hot/cold)` and `Lowering(inline_required)` runes; M11c-soft-leaf may consume `request=prefer` for narrow same-module MIR leaf inline, and M13 may consume verified `request=required` for narrow same-module scalar leaf inline before backend emission |
 | `effect_plans` | array | EffectPlan rows derived from live verifier-backed `Contract(no_alloc/no_safepoint)` runes and reserved `Profile(...)` expansions; consumed by the MIR verifier, not by backends |
 | `capability_plans` | array | CapabilityPlan rows derived from reserved `Profile(...)` expansions; metadata only until capability verification lands |
+| `generic_method_routes` | array | MIR-owned method route facts; backend shims consume these instead of reclassifying method strings |
 | `extern_call_routes` | array | MIR-owned route facts for accepted `externcall` sites; pure-first reads these rows instead of classifying helper names locally |
+| `global_call_routes` | array | MIR-owned global-call route / unsupported route facts |
+| `user_box_method_routes` | array | MIR-owned typed user-box method route facts |
+| `map_lookup_fusion_routes` | array | Metadata-only Map get/has same-key fusion preflight rows |
 | `lowering_plan` | array | Flattened backend route entries derived from explicit route facts, including `extern_call_routes`; backends consume these entries as lowering decisions, not as semantic discovery |
 | `sum_placement_facts` | array | Observed sum objectization / local-aggregate facts |
 | `sum_placement_selections` | array | Selected sum path (`local_aggregate` vs compat fallback) |
 | `sum_placement_layouts` | array | LLVM-side local aggregate layout choice for selected sums |
+| `agg_local_scalarization_routes` | array | Folded agg-local route inventory over sum, thin-entry, and storage-class pilots |
+| `placement_effect_routes` | array | Generic folded placement/effect route inventory; consumers should prefer this before family-specific rows |
+| `array_rmw_window_routes` | array | Backend-consumable array RMW legality window |
+| `array_string_len_window_routes` | array | Backend-consumable array string length observer window |
+| `array_text_*` | array/object | Array/text loopcarry, edit, residence, observer, combined-region, and state-residence plans |
+| `declared_param_decls` / `declared_return_type_name` | array / string or null | Source signature annotation transported without forcing the callable ABI |
+| `exact_numeric_*` | arrays / maps | Exact numeric facts, route facts, rejection rows, and runtime-check contracts |
+| `array_string_store_micro_seed_route` | object or null | Exact array/string-store micro seed payload |
+| `array_getset_micro_seed_route` | object or null | Exact array get/set micro seed payload |
+| `array_rmw_add1_leaf_seed_route` | object or null | Exact array RMW add1 leaf seed payload |
+| `concat_const_suffix_micro_seed_route` | object or null | Exact concat const-suffix micro seed payload |
+| `substring_views_micro_seed_route` | object or null | Exact substring views micro seed payload |
 | `sum_variant_tag_seed_route` | object or null | Exact Sum `variant_tag` seed route selected from Sum placement metadata |
 | `sum_variant_project_seed_route` | object or null | Exact Sum `variant_project` seed route selected from Sum placement metadata |
 | `userbox_local_scalar_seed_route` | object or null | Exact UserBox Point local/copy scalar seed route selected from thin-entry field metadata |
+| `userbox_loop_micro_seed_route` | object or null | Exact UserBox loop micro seed payload |
+| `userbox_known_receiver_method_seed_route` | object or null | Exact UserBox known-receiver method seed payload |
 | `exact_seed_backend_route` | object or null | Function-level backend route tag for one already-proven exact seed payload |
+
+## Placement Route Fold-Up Contract
+
+`placement_effect_routes` is the generic folded owner for placement/effect
+decisions. Family-specific rows such as `sum_placement_*`,
+`thin_entry_selections`, and `string_corridor_*` may remain as source-family
+facts or compatibility inspection rows, but new backend consumers should prefer
+the folded route first.
+
+Current C backend shims already follow this direction for several paths:
+
+```text
+placement_effect_routes
+  -> preferred generic reader
+family-specific rows
+  -> compatibility fallback while consumers are being migrated
+```
+
+Retire condition: backend consumers stop reading family-specific rows directly
+for a route family once the folded `placement_effect_routes` payload carries
+the same proof, demand, publication boundary, and selected value identity.
+
+## Experimental Seed Route Policy
+
+Rows ending in `*_micro_seed_route` or `*_seed_route`, plus
+`exact_seed_backend_route`, are `ExperimentalSeedRoutes`. They are allowed only
+when they quarantine a temporary exact-shape proof in MIR metadata so a backend
+can remain an emitter selector instead of a raw MIR/app-shape planner.
+
+Contract:
+
+- canonical MIR instructions remain unchanged;
+- legality is owned by the source family plan (`array_rmw_window_routes`,
+  `string_kernel_plans`, `sum_placement_*`, `thin_entry_*`, etc.);
+- `exact_seed_backend_route` may select one already-proven payload, but does
+  not own payload legality;
+- each new seed row must document `retire_condition`;
+- generic `LoweringRoutes` or `PlacementPlans` are the preferred long-term
+  replacement.
+
+## Metadata Namespace Boundary
+
+Do not mix these similarly named structures:
+
+| Name | Owner | Scope |
+| --- | --- | --- |
+| `MetadataContext` | MIR builder | builder-time provenance, source-file hints, hint scope, region trace, and diagnostics context |
+| `FunctionMetadata` / `ModuleMetadata` | MIR semantic refresh / MIR JSON emit | semantic facts, layout plans, placement plans, lowering routes, diagnostics metadata |
+| `PluginMetadata` | BID/plugin runtime | FFI plugin type/method table and plugin lifecycle state |
+
+`MetadataContext` is not the MIR metadata ledger. If it is renamed later,
+prefer a provenance/diagnostic name such as `BuilderProvenanceContext`, but do
+not do that as part of route or layout work.
+
+## Drift Guard
+
+`tools/checks/mir_metadata_catalog_guard.sh` keeps this catalog synchronized
+with the MIR JSON root emitter, `FunctionMetadata` seed rows, and semantic
+refresh entry points. If a new metadata key is emitted, update this SSOT in the
+same change with its class, owner, producer, consumer, backend-active state,
+fallback policy, and retire condition.
 
 ## InlinePlan metadata
 

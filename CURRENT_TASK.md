@@ -48,6 +48,8 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
 - current blocker token:
   `MIMAP-FACADE-CLEAN-001 facade result observer / reason-code SSOT cleanup`
+- current BoxShape sidecar:
+  `METADATA-CATALOG-001 MIR metadata catalog / drift guard cleanup`
 - primary mode: mimalloc blueprint inventory lane; keep upstream source untracked and classify concepts before implementation
 - phase-137x: observe-only unless app work reopens a real blocker
 
@@ -60,7 +62,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after MIMAP-017B realloc grow/move route;
+- resume point: continue Phase 293x after METADATA-CATALOG-001 MIR metadata
+  catalog cleanup;
   next primary blocker is MIMAP-FACADE-CLEAN-001 facade result observer /
   reason-code SSOT cleanup. VM-LIM-001 remains parked
   diagnostic. Keep LoopRange on the
@@ -71,6 +74,8 @@ Scope: current lane / next lane / restart order only.
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
   MIMAP-FACADE-CLEAN-001 facade result observer / reason-code SSOT cleanup
+- recent BoxShape sidecar:
+  METADATA-CATALOG-001 MIR metadata catalog / drift guard cleanup
 - optional future allocator-provider ladder:
   `docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md`
   and `docs/development/current/main/design/allocator-provider-post-m101-implementation-ladder-ssot.md`
