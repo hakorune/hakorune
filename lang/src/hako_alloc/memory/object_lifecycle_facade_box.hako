@@ -6,6 +6,7 @@ using selfhost.hako_alloc.memory.object_lifecycle_page_queue_box as HakoAllocObj
 using selfhost.hako_alloc.memory.alignment_policy_box as HakoAllocAlignmentPolicy
 using selfhost.hako_alloc.memory.object_lifecycle_facade_reason_box as HakoAllocObjectLifecycleFacadeReason
 using selfhost.hako_alloc.memory.object_lifecycle_facade_result_box as HakoAllocObjectLifecycleFacadeResultBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_stats_box as HakoAllocObjectLifecycleFacadeStatsBox
 
 box HakoAllocObjectLifecycleFacade {
     object_lifecycle_queue: HakoAllocObjectLifecyclePageQueue = new HakoAllocObjectLifecyclePageQueue()
@@ -13,6 +14,7 @@ box HakoAllocObjectLifecycleFacade {
     release_result: HakoAllocObjectLifecycleReleaseResult = new HakoAllocObjectLifecycleReleaseResult()
     alignment_result: HakoAllocObjectLifecycleAlignmentResult = new HakoAllocObjectLifecycleAlignmentResult()
     realloc_result: HakoAllocObjectLifecycleReallocResult = new HakoAllocObjectLifecycleReallocResult()
+    stats_surface: HakoAllocObjectLifecycleFacadeStatsSurface = new HakoAllocObjectLifecycleFacadeStatsSurface()
 
     objectLifecycleAddPage(page) {
         return me.object_lifecycle_queue.addPage(page)
@@ -397,6 +399,14 @@ box HakoAllocObjectLifecycleFacade {
         return me.release_result.ok()
     }
 
+    objectLifecycleReleaseSuccessCount() {
+        return me.release_result.success_count
+    }
+
+    objectLifecycleReleaseFailureCount() {
+        return me.release_result.failure_count
+    }
+
     objectLifecycleAlignmentRequested() {
         return me.alignment_result.requested()
     }
@@ -439,5 +449,17 @@ box HakoAllocObjectLifecycleFacade {
 
     objectLifecycleReallocOk() {
         return me.realloc_result.ok()
+    }
+
+    objectLifecycleStatsSnapshot() {
+        return me.stats_surface.snapshot(
+            me.objectLifecycleAllocAttemptCount(),
+            me.objectLifecycleAllocSuccessCount(),
+            me.objectLifecycleAllocFailureCount(),
+            me.objectLifecycleAllocReusableSuccessCount(),
+            me.objectLifecycleAllocActiveSuccessCount(),
+            me.objectLifecycleReleaseSuccessCount(),
+            me.objectLifecycleReleaseFailureCount()
+        )
     }
 }

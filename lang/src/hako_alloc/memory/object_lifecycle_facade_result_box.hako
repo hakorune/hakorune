@@ -80,6 +80,8 @@ box HakoAllocObjectLifecycleReleaseResult {
     last_block_id: i64 = -1
     last_reason: i64 = 0
     last_ok: i64 = 0
+    success_count: i64 = 0
+    failure_count: i64 = 0
 
     reset() {
         me.last_page_id = -1
@@ -97,6 +99,7 @@ box HakoAllocObjectLifecycleReleaseResult {
 
     recordFailure(reason) {
         me.last_reason = reason
+        me.failure_count = me.failure_count + 1
         return 0
     }
 
@@ -105,6 +108,7 @@ box HakoAllocObjectLifecycleReleaseResult {
         me.last_block_id = block_id
         me.last_reason = HakoAllocObjectLifecycleFacadeReason.ok()
         me.last_ok = 1
+        me.success_count = me.success_count + 1
         return 1
     }
 

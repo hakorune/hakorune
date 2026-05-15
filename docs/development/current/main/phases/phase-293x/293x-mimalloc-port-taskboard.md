@@ -22,15 +22,15 @@ PACKED-003/004 complete
 ```
 
 Blueprint and inventory rows are now the active lane entry. Current primary row:
-`MIMAP-014A single-page small allocation fast-path`.
+`MIMAP-019A purge/reclaim/decommit policy route`.
 
-Latest sidecar closeout:
+Latest closeout:
 
 ```text
-MIR-ROW-A-FIX:
+MIMAP-018A:
   landed
-  dynamic ArrayBox.get(i) now recovers local collection element origin facts
-  LLVM/EXE guard is green for pages.get(i) -> page.freeCount()
+  object-lifecycle facade stats snapshot observer is green
+  MIMAP-019A is the next selected allocator row
 ```
 
 ## Active Source Policy
@@ -106,9 +106,9 @@ FST:
 | `MIMAP-016B` | landed | Aligned allocation success/fail route. | after MIMAP-016A |
 | `MIMAP-017A` | landed | Realloc shrink / same-page route. | after release and alignment are stable |
 | `MIMAP-017B` | landed | Realloc grow / move route. | after MIMAP-017A |
-| `MIMAP-FACADE-CLEAN-001` | ready | Facade result observer / reason-code SSOT cleanup TODO. | after MIMAP-017B |
-| `MIMAP-018A` | parked | Stats snapshot observer integration. | after allocation/release counters are stable |
-| `MIMAP-019A` | parked | Purge/reclaim/decommit policy route. | after lifecycle observers are stable |
+| `MIMAP-FACADE-CLEAN-001` | landed | Facade result observer / reason-code SSOT cleanup TODO. | after MIMAP-017B |
+| `MIMAP-018A` | landed | Stats snapshot observer integration. | after allocation/release counters are stable |
+| `MIMAP-019A` | ready | Purge/reclaim/decommit policy route. | after lifecycle and stats observers are stable |
 | `MIMAP-020A` | parked | OSVM/page-source capability pilot. | after in-memory facade route is stable |
 
 ### Construction / Lifecycle Policy Rows

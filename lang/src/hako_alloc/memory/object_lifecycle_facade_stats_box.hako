@@ -1,0 +1,48 @@
+// object_lifecycle_facade_stats_box.hako -- object-lifecycle facade stats snapshot
+// Responsibility: build read-only stats snapshots from the facade result
+// capsules. This module must not allocate blocks, release blocks, select pages,
+// mutate allocator behavior, or activate provider/backend routes.
+
+box HakoAllocObjectLifecycleFacadeStatsSnapshot {
+    alloc_attempt_count: i64 = 0
+    alloc_success_count: i64 = 0
+    alloc_failure_count: i64 = 0
+    alloc_reusable_success_count: i64 = 0
+    alloc_active_success_count: i64 = 0
+    release_success_count: i64 = 0
+    release_failure_count: i64 = 0
+
+    allocTerminalCount() {
+        return me.alloc_success_count + me.alloc_failure_count
+    }
+
+    releaseTerminalCount() {
+        return me.release_success_count + me.release_failure_count
+    }
+
+    totalTerminalCount() {
+        return me.allocTerminalCount() + me.releaseTerminalCount()
+    }
+}
+
+box HakoAllocObjectLifecycleFacadeStatsSurface {
+    snapshot(
+        alloc_attempt_count,
+        alloc_success_count,
+        alloc_failure_count,
+        alloc_reusable_success_count,
+        alloc_active_success_count,
+        release_success_count,
+        release_failure_count
+    ) {
+        local stats = new HakoAllocObjectLifecycleFacadeStatsSnapshot()
+        stats.alloc_attempt_count = alloc_attempt_count
+        stats.alloc_success_count = alloc_success_count
+        stats.alloc_failure_count = alloc_failure_count
+        stats.alloc_reusable_success_count = alloc_reusable_success_count
+        stats.alloc_active_success_count = alloc_active_success_count
+        stats.release_success_count = release_success_count
+        stats.release_failure_count = release_failure_count
+        return stats
+    }
+}
