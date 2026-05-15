@@ -28,10 +28,13 @@ box Page {
     };
 
     assert_eq!(transitions.len(), 1);
-    assert_eq!(transitions[0].from_state, "PageState.Active");
-    assert_eq!(transitions[0].to_state, "PageState.Retired");
+    assert_eq!(transitions[0].from_state, "PageState::Active");
+    assert_eq!(transitions[0].to_state, "PageState::Retired");
     assert_eq!(transitions[0].method_name, "retire");
-    assert!(methods.is_empty(), "Stage0 must not generate transition methods");
+    assert!(
+        methods.is_empty(),
+        "Stage0 must not generate transition methods"
+    );
 }
 
 #[test]
@@ -47,7 +50,12 @@ static box Main {
 }
 "#,
     );
-    let ASTNode::BoxDeclaration { methods, transitions, .. } = &statements[0] else {
+    let ASTNode::BoxDeclaration {
+        methods,
+        transitions,
+        ..
+    } = &statements[0]
+    else {
         panic!("expected box declaration");
     };
     let ASTNode::FunctionDeclaration { body, .. } = &methods["main"] else {
