@@ -32,6 +32,7 @@ Current modules
 - `object_lifecycle_page_queue_box.hako`
 - `object_lifecycle_facade_box.hako`
 - `object_lifecycle_facade_reason_box.hako`
+- `object_lifecycle_facade_result_box.hako`
 - `page_lifecycle_invariant_box.hako`
 - `page_queue_lifecycle_box.hako`
 - `page_source_policy_box.hako`
@@ -126,6 +127,13 @@ Syntax/style contract
   | realloc | `realloc_stale_block()` | 5 | Old block is outside reserved range or not live. |
   | realloc | `realloc_alloc_failed()` | 6 | Replacement allocation failed. |
   | realloc | `realloc_release_failed()` | 7 | Old known block release failed after replacement allocation. |
+- `object_lifecycle_facade_result_box.hako` is the
+  MIMAP-FACADE-CLEAN-001 result capsule owner for facade scalar observer state.
+  It owns the allocation, release, alignment, and realloc last-result fields and
+  counters that used to live directly on `object_lifecycle_facade_box.hako`.
+  The facade remains the orchestration owner and public observer API owner; the
+  result boxes must not select pages, call page lifecycle methods, allocate,
+  release, normalize alignment, read page maps, or add fallback behavior.
 - `osvm_backed_fast_path_heap_box.hako` is the M168 composition owner. It may
   reserve/commit/decommit through `HakoAllocPageSourcePolicy`, then reuse the
   same page queue and page-local free-list owners. It must not add OSVM metal,

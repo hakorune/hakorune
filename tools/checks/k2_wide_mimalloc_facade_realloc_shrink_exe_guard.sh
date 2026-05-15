@@ -10,22 +10,24 @@ APP="apps/mimalloc-facade-realloc-shrink-proof/main.hako"
 APP_README="apps/mimalloc-facade-realloc-shrink-proof/README.md"
 FACADE="lang/src/hako_alloc/memory/object_lifecycle_facade_box.hako"
 REASON="lang/src/hako_alloc/memory/object_lifecycle_facade_reason_box.hako"
+RESULT="lang/src/hako_alloc/memory/object_lifecycle_facade_result_box.hako"
 PAGE="lang/src/hako_alloc/memory/page_box.hako"
 CARD="docs/development/current/main/phases/phase-293x/293x-364-MIMAP-017A-REALLOC-SHRINK-SAME-PAGE.md"
 INDEX="docs/tools/check-scripts-index.md"
 README="lang/src/hako_alloc/memory/README.md"
 
-for path in "$APP" "$APP_README" "$FACADE" "$REASON" "$PAGE" "$CARD" "$INDEX" "$README"; do
+for path in "$APP" "$APP_README" "$FACADE" "$REASON" "$RESULT" "$PAGE" "$CARD" "$INDEX" "$README"; do
   [[ -f "$path" ]] || { echo "[$TAG] ERROR: missing required file: $path" >&2; exit 1; }
 done
 
 rg -F -q 'using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox' "$APP"
 rg -F -q 'using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox' "$APP"
-rg -F -q 'last_realloc_page_id: i64 = -1' "$FACADE"
-rg -F -q 'last_realloc_block_id: i64 = -1' "$FACADE"
-rg -F -q 'last_realloc_requested_size: i64 = 0' "$FACADE"
-rg -F -q 'last_realloc_reason: i64 = 0' "$FACADE"
-rg -F -q 'last_realloc_ok: i64 = 0' "$FACADE"
+rg -F -q 'realloc_result: HakoAllocObjectLifecycleReallocResult = new HakoAllocObjectLifecycleReallocResult()' "$FACADE"
+rg -F -q 'last_page_id: i64 = -1' "$RESULT"
+rg -F -q 'last_block_id: i64 = -1' "$RESULT"
+rg -F -q 'last_requested_size: i64 = 0' "$RESULT"
+rg -F -q 'last_reason: i64 = 0' "$RESULT"
+rg -F -q 'last_ok: i64 = 0' "$RESULT"
 rg -F -q 'validateReallocShrinkPage(page, block_id, requested_size)' "$FACADE"
 rg -F -q 'objectLifecycleReallocShrink(page_id, block_id, requested_size)' "$FACADE"
 rg -F -q 'return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_direction_unsupported())' "$FACADE"

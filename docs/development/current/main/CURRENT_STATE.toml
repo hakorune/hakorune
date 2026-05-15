@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-366-MIMAP-F
 method_anchor = "docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-376-MIMAP-FACADE-CLEAN-001-REASON-SSOT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-376-MIMAP-FACADE-CLEAN-001-REASON-SSOT.md"
-latest_card_summary = "MIMAP-FACADE-CLEAN-001 adds the facade reason-code SSOT and known-page scan helper."
+latest_card = "293x-377-MIMAP-FACADE-CLEAN-001-RESULT-CAPSULES"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-377-MIMAP-FACADE-CLEAN-001-RESULT-CAPSULES.md"
+latest_card_summary = "MIMAP-FACADE-CLEAN-001 moves facade observer state into result capsules."
 
 current_blocker_token = "MIMAP-FACADE-CLEAN-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-377 MIMAP-FACADE-CLEAN-001 result capsules landed",
   "293x-376 MIMAP-FACADE-CLEAN-001 reason SSOT and known-page helper landed",
   "293x-375 METADATA-PROMOTE-006 seed route retirement ledger landed",
   "293x-374 METADATA-PROMOTE-005 PackedArray no-fallback contract landed",

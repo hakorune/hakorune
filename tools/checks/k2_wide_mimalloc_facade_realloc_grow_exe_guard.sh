@@ -10,19 +10,21 @@ APP="apps/mimalloc-facade-realloc-grow-proof/main.hako"
 APP_README="apps/mimalloc-facade-realloc-grow-proof/README.md"
 FACADE="lang/src/hako_alloc/memory/object_lifecycle_facade_box.hako"
 REASON="lang/src/hako_alloc/memory/object_lifecycle_facade_reason_box.hako"
+RESULT="lang/src/hako_alloc/memory/object_lifecycle_facade_result_box.hako"
 PAGE="lang/src/hako_alloc/memory/page_box.hako"
 CARD="docs/development/current/main/phases/phase-293x/293x-365-MIMAP-017B-REALLOC-GROW-MOVE.md"
 INDEX="docs/tools/check-scripts-index.md"
 README="lang/src/hako_alloc/memory/README.md"
 
-for path in "$APP" "$APP_README" "$FACADE" "$REASON" "$PAGE" "$CARD" "$INDEX" "$README"; do
+for path in "$APP" "$APP_README" "$FACADE" "$REASON" "$RESULT" "$PAGE" "$CARD" "$INDEX" "$README"; do
   [[ -f "$path" ]] || { echo "[$TAG] ERROR: missing required file: $path" >&2; exit 1; }
 done
 
 rg -F -q 'using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox' "$APP"
 rg -F -q 'using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox' "$APP"
-rg -F -q 'last_realloc_new_page_id: i64 = -1' "$FACADE"
-rg -F -q 'last_realloc_new_block_id: i64 = -1' "$FACADE"
+rg -F -q 'realloc_result: HakoAllocObjectLifecycleReallocResult = new HakoAllocObjectLifecycleReallocResult()' "$FACADE"
+rg -F -q 'last_new_page_id: i64 = -1' "$RESULT"
+rg -F -q 'last_new_block_id: i64 = -1' "$RESULT"
 rg -F -q 'recordReallocMoveSuccess(old_page_id, old_block_id, new_page_id, new_block_id, requested_size)' "$FACADE"
 rg -F -q 'validateReallocGrowOldPage(page, block_id, requested_size)' "$FACADE"
 rg -F -q 'objectLifecycleReallocGrowFromPage(page, page_id, block_id, requested_size)' "$FACADE"

@@ -5,33 +5,14 @@
 using selfhost.hako_alloc.memory.object_lifecycle_page_queue_box as HakoAllocObjectLifecyclePageQueueBox
 using selfhost.hako_alloc.memory.alignment_policy_box as HakoAllocAlignmentPolicy
 using selfhost.hako_alloc.memory.object_lifecycle_facade_reason_box as HakoAllocObjectLifecycleFacadeReason
+using selfhost.hako_alloc.memory.object_lifecycle_facade_result_box as HakoAllocObjectLifecycleFacadeResultBox
 
 box HakoAllocObjectLifecycleFacade {
     object_lifecycle_queue: HakoAllocObjectLifecyclePageQueue = new HakoAllocObjectLifecyclePageQueue()
-    last_alloc_page_id: i64 = -1
-    last_alloc_block_id: i64 = -1
-    last_alloc_reason: i64 = 0
-    last_alloc_ok: i64 = 0
-    small_alloc_attempt_count: i64 = 0
-    small_alloc_success_count: i64 = 0
-    small_alloc_failure_count: i64 = 0
-    small_alloc_reusable_success_count: i64 = 0
-    small_alloc_active_success_count: i64 = 0
-    last_release_page_id: i64 = -1
-    last_release_block_id: i64 = -1
-    last_release_reason: i64 = 0
-    last_release_ok: i64 = 0
-    last_alignment_requested: i64 = -1
-    last_alignment_normalized: i64 = -1
-    last_alignment_reason: i64 = 0
-    last_alignment_supported: i64 = 0
-    last_realloc_page_id: i64 = -1
-    last_realloc_block_id: i64 = -1
-    last_realloc_new_page_id: i64 = -1
-    last_realloc_new_block_id: i64 = -1
-    last_realloc_requested_size: i64 = 0
-    last_realloc_reason: i64 = 0
-    last_realloc_ok: i64 = 0
+    alloc_result: HakoAllocObjectLifecycleAllocResult = new HakoAllocObjectLifecycleAllocResult()
+    release_result: HakoAllocObjectLifecycleReleaseResult = new HakoAllocObjectLifecycleReleaseResult()
+    alignment_result: HakoAllocObjectLifecycleAlignmentResult = new HakoAllocObjectLifecycleAlignmentResult()
+    realloc_result: HakoAllocObjectLifecycleReallocResult = new HakoAllocObjectLifecycleReallocResult()
 
     objectLifecycleAddPage(page) {
         return me.object_lifecycle_queue.addPage(page)
@@ -43,35 +24,20 @@ box HakoAllocObjectLifecycleFacade {
     }
 
     resetSmallAllocResult() {
-        me.last_alloc_page_id = -1
-        me.last_alloc_block_id = -1
-        me.last_alloc_reason = HakoAllocObjectLifecycleFacadeReason.ok()
-        me.last_alloc_ok = 0
-        return 1
+        return me.alloc_result.reset()
     }
 
     recordSmallAllocFailure(reason) {
-        me.last_alloc_reason = reason
-        me.small_alloc_failure_count = me.small_alloc_failure_count + 1
-        return 0
+        return me.alloc_result.recordFailure(reason)
     }
 
     recordSmallAllocSuccess(selected_kind) {
-        me.last_alloc_reason = HakoAllocObjectLifecycleFacadeReason.ok()
-        me.last_alloc_ok = 1
-        me.small_alloc_success_count = me.small_alloc_success_count + 1
-        if selected_kind == 1 {
-            me.small_alloc_reusable_success_count = me.small_alloc_reusable_success_count + 1
-        }
-        if selected_kind == 2 {
-            me.small_alloc_active_success_count = me.small_alloc_active_success_count + 1
-        }
-        return 1
+        return me.alloc_result.recordSuccess(selected_kind)
     }
 
     objectLifecycleSmallAlloc(size) {
         me.resetSmallAllocResult()
-        me.small_alloc_attempt_count = me.small_alloc_attempt_count + 1
+        me.alloc_result.recordAttempt()
 
         me.object_lifecycle_queue.selectPage()
         local selected_index = me.object_lifecycle_queue.last_selected_index
@@ -79,7 +45,7 @@ box HakoAllocObjectLifecycleFacade {
             return me.recordSmallAllocFailure(HakoAllocObjectLifecycleFacadeReason.small_no_page())
         }
 
-        me.last_alloc_page_id = me.object_lifecycle_queue.last_selected_page_id
+        me.alloc_result.recordSelectedPage(me.object_lifecycle_queue.last_selected_page_id)
 
         local selected_kind = me.object_lifecycle_queue.last_selected_kind
         if selected_kind != 1 {
@@ -101,7 +67,7 @@ box HakoAllocObjectLifecycleFacade {
         }
 
         local block_id = page.acquire(size)
-        me.last_alloc_block_id = block_id
+        me.alloc_result.recordBlock(block_id)
 
         if block_id < 0 {
             return me.recordSmallAllocFailure(HakoAllocObjectLifecycleFacadeReason.small_acquire_failed())
@@ -111,24 +77,15 @@ box HakoAllocObjectLifecycleFacade {
     }
 
     resetReleaseResult() {
-        me.last_release_page_id = -1
-        me.last_release_block_id = -1
-        me.last_release_reason = HakoAllocObjectLifecycleFacadeReason.ok()
-        me.last_release_ok = 0
-        return 1
+        return me.release_result.reset()
     }
 
     recordReleaseFailure(reason) {
-        me.last_release_reason = reason
-        return 0
+        return me.release_result.recordFailure(reason)
     }
 
     recordReleaseSuccess(page_id, block_id) {
-        me.last_release_page_id = page_id
-        me.last_release_block_id = block_id
-        me.last_release_reason = HakoAllocObjectLifecycleFacadeReason.ok()
-        me.last_release_ok = 1
-        return 1
+        return me.release_result.recordSuccess(page_id, block_id)
     }
 
     objectLifecycleKnownPageIndexById(page_id) {
@@ -160,8 +117,7 @@ box HakoAllocObjectLifecycleFacade {
 
     objectLifecycleReleaseBlock(page_id, block_id) {
         me.resetReleaseResult()
-        me.last_release_page_id = page_id
-        me.last_release_block_id = block_id
+        me.release_result.recordRequest(page_id, block_id)
 
         if page_id < 0 {
             return me.recordReleaseFailure(HakoAllocObjectLifecycleFacadeReason.release_no_page())
@@ -187,27 +143,15 @@ box HakoAllocObjectLifecycleFacade {
     }
 
     resetAlignmentResult() {
-        me.last_alignment_requested = -1
-        me.last_alignment_normalized = -1
-        me.last_alignment_reason = HakoAllocObjectLifecycleFacadeReason.ok()
-        me.last_alignment_supported = 0
-        return 1
+        return me.alignment_result.reset()
     }
 
     recordAlignmentFailure(requested, reason) {
-        me.last_alignment_requested = requested
-        me.last_alignment_normalized = -1
-        me.last_alignment_reason = reason
-        me.last_alignment_supported = 0
-        return 0
+        return me.alignment_result.recordFailure(requested, reason)
     }
 
     recordAlignmentSuccess(requested, normalized) {
-        me.last_alignment_requested = requested
-        me.last_alignment_normalized = normalized
-        me.last_alignment_reason = HakoAllocObjectLifecycleFacadeReason.ok()
-        me.last_alignment_supported = 1
-        return 1
+        return me.alignment_result.recordSuccess(requested, normalized)
     }
 
     objectLifecycleRecordAlignmentRequest(alignment) {
@@ -225,7 +169,7 @@ box HakoAllocObjectLifecycleFacade {
         local alignment_ok = me.objectLifecycleRecordAlignmentRequest(alignment)
         if alignment_ok == 0 {
             me.resetSmallAllocResult()
-            me.small_alloc_attempt_count = me.small_alloc_attempt_count + 1
+            me.alloc_result.recordAttempt()
             return me.recordSmallAllocFailure(HakoAllocObjectLifecycleFacadeReason.small_alignment_unsupported())
         }
 
@@ -233,42 +177,19 @@ box HakoAllocObjectLifecycleFacade {
     }
 
     resetReallocResult() {
-        me.last_realloc_page_id = -1
-        me.last_realloc_block_id = -1
-        me.last_realloc_new_page_id = -1
-        me.last_realloc_new_block_id = -1
-        me.last_realloc_requested_size = 0
-        me.last_realloc_reason = HakoAllocObjectLifecycleFacadeReason.ok()
-        me.last_realloc_ok = 0
-        return 1
+        return me.realloc_result.reset()
     }
 
     recordReallocFailure(reason) {
-        me.last_realloc_reason = reason
-        me.last_realloc_ok = 0
-        return 0
+        return me.realloc_result.recordFailure(reason)
     }
 
     recordReallocSuccess(page_id, block_id, requested_size) {
-        me.last_realloc_page_id = page_id
-        me.last_realloc_block_id = block_id
-        me.last_realloc_new_page_id = page_id
-        me.last_realloc_new_block_id = block_id
-        me.last_realloc_requested_size = requested_size
-        me.last_realloc_reason = HakoAllocObjectLifecycleFacadeReason.ok()
-        me.last_realloc_ok = 1
-        return 1
+        return me.realloc_result.recordSuccess(page_id, block_id, requested_size)
     }
 
     recordReallocMoveSuccess(old_page_id, old_block_id, new_page_id, new_block_id, requested_size) {
-        me.last_realloc_page_id = old_page_id
-        me.last_realloc_block_id = old_block_id
-        me.last_realloc_new_page_id = new_page_id
-        me.last_realloc_new_block_id = new_block_id
-        me.last_realloc_requested_size = requested_size
-        me.last_realloc_reason = HakoAllocObjectLifecycleFacadeReason.ok()
-        me.last_realloc_ok = 1
-        return 1
+        return me.realloc_result.recordMoveSuccess(old_page_id, old_block_id, new_page_id, new_block_id, requested_size)
     }
 
     validateReallocShrinkPage(page, block_id, requested_size) {
@@ -320,9 +241,7 @@ box HakoAllocObjectLifecycleFacade {
 
     objectLifecycleReallocShrink(page_id, block_id, requested_size) {
         me.resetReallocResult()
-        me.last_realloc_page_id = page_id
-        me.last_realloc_block_id = block_id
-        me.last_realloc_requested_size = requested_size
+        me.realloc_result.recordRequest(page_id, block_id, requested_size)
 
         if page_id < 0 {
             return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_no_page())
@@ -349,9 +268,7 @@ box HakoAllocObjectLifecycleFacade {
 
     objectLifecycleReallocGrow(page_id, block_id, requested_size) {
         me.resetReallocResult()
-        me.last_realloc_page_id = page_id
-        me.last_realloc_block_id = block_id
-        me.last_realloc_requested_size = requested_size
+        me.realloc_result.recordRequest(page_id, block_id, requested_size)
 
         if page_id < 0 {
             return me.recordReallocFailure(HakoAllocObjectLifecycleFacadeReason.realloc_no_page())
@@ -429,98 +346,98 @@ box HakoAllocObjectLifecycleFacade {
     }
 
     objectLifecycleAllocPageId() {
-        return me.last_alloc_page_id
+        return me.alloc_result.pageId()
     }
 
     objectLifecycleAllocBlockId() {
-        return me.last_alloc_block_id
+        return me.alloc_result.blockId()
     }
 
     objectLifecycleAllocReason() {
-        return me.last_alloc_reason
+        return me.alloc_result.reason()
     }
 
     objectLifecycleAllocOk() {
-        return me.last_alloc_ok
+        return me.alloc_result.ok()
     }
 
     objectLifecycleAllocAttemptCount() {
-        return me.small_alloc_attempt_count
+        return me.alloc_result.attempt_count
     }
 
     objectLifecycleAllocSuccessCount() {
-        return me.small_alloc_success_count
+        return me.alloc_result.success_count
     }
 
     objectLifecycleAllocFailureCount() {
-        return me.small_alloc_failure_count
+        return me.alloc_result.failure_count
     }
 
     objectLifecycleAllocReusableSuccessCount() {
-        return me.small_alloc_reusable_success_count
+        return me.alloc_result.reusable_success_count
     }
 
     objectLifecycleAllocActiveSuccessCount() {
-        return me.small_alloc_active_success_count
+        return me.alloc_result.active_success_count
     }
 
     objectLifecycleReleasePageId() {
-        return me.last_release_page_id
+        return me.release_result.pageId()
     }
 
     objectLifecycleReleaseBlockId() {
-        return me.last_release_block_id
+        return me.release_result.blockId()
     }
 
     objectLifecycleReleaseReason() {
-        return me.last_release_reason
+        return me.release_result.reason()
     }
 
     objectLifecycleReleaseOk() {
-        return me.last_release_ok
+        return me.release_result.ok()
     }
 
     objectLifecycleAlignmentRequested() {
-        return me.last_alignment_requested
+        return me.alignment_result.requested()
     }
 
     objectLifecycleAlignmentNormalized() {
-        return me.last_alignment_normalized
+        return me.alignment_result.normalized()
     }
 
     objectLifecycleAlignmentReason() {
-        return me.last_alignment_reason
+        return me.alignment_result.reason()
     }
 
     objectLifecycleAlignmentSupported() {
-        return me.last_alignment_supported
+        return me.alignment_result.supported()
     }
 
     objectLifecycleReallocPageId() {
-        return me.last_realloc_page_id
+        return me.realloc_result.pageId()
     }
 
     objectLifecycleReallocBlockId() {
-        return me.last_realloc_block_id
+        return me.realloc_result.blockId()
     }
 
     objectLifecycleReallocNewPageId() {
-        return me.last_realloc_new_page_id
+        return me.realloc_result.newPageId()
     }
 
     objectLifecycleReallocNewBlockId() {
-        return me.last_realloc_new_block_id
+        return me.realloc_result.newBlockId()
     }
 
     objectLifecycleReallocRequestedSize() {
-        return me.last_realloc_requested_size
+        return me.realloc_result.requestedSize()
     }
 
     objectLifecycleReallocReason() {
-        return me.last_realloc_reason
+        return me.realloc_result.reason()
     }
 
     objectLifecycleReallocOk() {
-        return me.last_realloc_ok
+        return me.realloc_result.ok()
     }
 }

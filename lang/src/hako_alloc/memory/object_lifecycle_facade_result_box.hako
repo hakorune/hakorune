@@ -1,0 +1,257 @@
+// object_lifecycle_facade_result_box.hako -- facade scalar result capsules
+// Responsibility: own the last-result observer state for the object-lifecycle
+// facade. These boxes are state capsules only; they do not select pages,
+// allocate, release, normalize alignment, or perform allocator behavior.
+
+using selfhost.hako_alloc.memory.object_lifecycle_facade_reason_box as HakoAllocObjectLifecycleFacadeReason
+
+box HakoAllocObjectLifecycleAllocResult {
+    last_page_id: i64 = -1
+    last_block_id: i64 = -1
+    last_reason: i64 = 0
+    last_ok: i64 = 0
+    attempt_count: i64 = 0
+    success_count: i64 = 0
+    failure_count: i64 = 0
+    reusable_success_count: i64 = 0
+    active_success_count: i64 = 0
+
+    reset() {
+        me.last_page_id = -1
+        me.last_block_id = -1
+        me.last_reason = HakoAllocObjectLifecycleFacadeReason.ok()
+        me.last_ok = 0
+        return 1
+    }
+
+    recordAttempt() {
+        me.attempt_count = me.attempt_count + 1
+        return 1
+    }
+
+    recordSelectedPage(page_id) {
+        me.last_page_id = page_id
+        return 1
+    }
+
+    recordBlock(block_id) {
+        me.last_block_id = block_id
+        return 1
+    }
+
+    recordFailure(reason) {
+        me.last_reason = reason
+        me.failure_count = me.failure_count + 1
+        return 0
+    }
+
+    recordSuccess(selected_kind) {
+        me.last_reason = HakoAllocObjectLifecycleFacadeReason.ok()
+        me.last_ok = 1
+        me.success_count = me.success_count + 1
+        if selected_kind == 1 {
+            me.reusable_success_count = me.reusable_success_count + 1
+        }
+        if selected_kind == 2 {
+            me.active_success_count = me.active_success_count + 1
+        }
+        return 1
+    }
+
+    pageId() {
+        return me.last_page_id
+    }
+
+    blockId() {
+        return me.last_block_id
+    }
+
+    reason() {
+        return me.last_reason
+    }
+
+    ok() {
+        return me.last_ok
+    }
+}
+
+box HakoAllocObjectLifecycleReleaseResult {
+    last_page_id: i64 = -1
+    last_block_id: i64 = -1
+    last_reason: i64 = 0
+    last_ok: i64 = 0
+
+    reset() {
+        me.last_page_id = -1
+        me.last_block_id = -1
+        me.last_reason = HakoAllocObjectLifecycleFacadeReason.ok()
+        me.last_ok = 0
+        return 1
+    }
+
+    recordRequest(page_id, block_id) {
+        me.last_page_id = page_id
+        me.last_block_id = block_id
+        return 1
+    }
+
+    recordFailure(reason) {
+        me.last_reason = reason
+        return 0
+    }
+
+    recordSuccess(page_id, block_id) {
+        me.last_page_id = page_id
+        me.last_block_id = block_id
+        me.last_reason = HakoAllocObjectLifecycleFacadeReason.ok()
+        me.last_ok = 1
+        return 1
+    }
+
+    pageId() {
+        return me.last_page_id
+    }
+
+    blockId() {
+        return me.last_block_id
+    }
+
+    reason() {
+        return me.last_reason
+    }
+
+    ok() {
+        return me.last_ok
+    }
+}
+
+box HakoAllocObjectLifecycleAlignmentResult {
+    last_requested: i64 = -1
+    last_normalized: i64 = -1
+    last_reason: i64 = 0
+    last_supported: i64 = 0
+
+    reset() {
+        me.last_requested = -1
+        me.last_normalized = -1
+        me.last_reason = HakoAllocObjectLifecycleFacadeReason.ok()
+        me.last_supported = 0
+        return 1
+    }
+
+    recordFailure(requested, reason) {
+        me.last_requested = requested
+        me.last_normalized = -1
+        me.last_reason = reason
+        me.last_supported = 0
+        return 0
+    }
+
+    recordSuccess(requested, normalized) {
+        me.last_requested = requested
+        me.last_normalized = normalized
+        me.last_reason = HakoAllocObjectLifecycleFacadeReason.ok()
+        me.last_supported = 1
+        return 1
+    }
+
+    requested() {
+        return me.last_requested
+    }
+
+    normalized() {
+        return me.last_normalized
+    }
+
+    reason() {
+        return me.last_reason
+    }
+
+    supported() {
+        return me.last_supported
+    }
+}
+
+box HakoAllocObjectLifecycleReallocResult {
+    last_page_id: i64 = -1
+    last_block_id: i64 = -1
+    last_new_page_id: i64 = -1
+    last_new_block_id: i64 = -1
+    last_requested_size: i64 = 0
+    last_reason: i64 = 0
+    last_ok: i64 = 0
+
+    reset() {
+        me.last_page_id = -1
+        me.last_block_id = -1
+        me.last_new_page_id = -1
+        me.last_new_block_id = -1
+        me.last_requested_size = 0
+        me.last_reason = HakoAllocObjectLifecycleFacadeReason.ok()
+        me.last_ok = 0
+        return 1
+    }
+
+    recordRequest(page_id, block_id, requested_size) {
+        me.last_page_id = page_id
+        me.last_block_id = block_id
+        me.last_requested_size = requested_size
+        return 1
+    }
+
+    recordFailure(reason) {
+        me.last_reason = reason
+        me.last_ok = 0
+        return 0
+    }
+
+    recordSuccess(page_id, block_id, requested_size) {
+        me.last_page_id = page_id
+        me.last_block_id = block_id
+        me.last_new_page_id = page_id
+        me.last_new_block_id = block_id
+        me.last_requested_size = requested_size
+        me.last_reason = HakoAllocObjectLifecycleFacadeReason.ok()
+        me.last_ok = 1
+        return 1
+    }
+
+    recordMoveSuccess(old_page_id, old_block_id, new_page_id, new_block_id, requested_size) {
+        me.last_page_id = old_page_id
+        me.last_block_id = old_block_id
+        me.last_new_page_id = new_page_id
+        me.last_new_block_id = new_block_id
+        me.last_requested_size = requested_size
+        me.last_reason = HakoAllocObjectLifecycleFacadeReason.ok()
+        me.last_ok = 1
+        return 1
+    }
+
+    pageId() {
+        return me.last_page_id
+    }
+
+    blockId() {
+        return me.last_block_id
+    }
+
+    newPageId() {
+        return me.last_new_page_id
+    }
+
+    newBlockId() {
+        return me.last_new_block_id
+    }
+
+    requestedSize() {
+        return me.last_requested_size
+    }
+
+    reason() {
+        return me.last_reason
+    }
+
+    ok() {
+        return me.last_ok
+    }
+}

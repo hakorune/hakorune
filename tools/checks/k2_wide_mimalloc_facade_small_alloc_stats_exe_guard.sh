@@ -9,21 +9,23 @@ source "$ROOT_DIR/tools/checks/lib/pure_first_exe_guard.sh"
 APP="apps/mimalloc-facade-small-alloc-stats-proof/main.hako"
 APP_README="apps/mimalloc-facade-small-alloc-stats-proof/README.md"
 FACADE="lang/src/hako_alloc/memory/object_lifecycle_facade_box.hako"
+RESULT="lang/src/hako_alloc/memory/object_lifecycle_facade_result_box.hako"
 CARD="docs/development/current/main/phases/phase-293x/293x-359-MIMAP-014C-ALLOC-STATS-OBSERVERS.md"
 SSOT="docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
 README="lang/src/hako_alloc/memory/README.md"
 
-for path in "$APP" "$APP_README" "$FACADE" "$CARD" "$SSOT" "$INDEX" "$README"; do
+for path in "$APP" "$APP_README" "$FACADE" "$RESULT" "$CARD" "$SSOT" "$INDEX" "$README"; do
   [[ -f "$path" ]] || { echo "[$TAG] ERROR: missing required file: $path" >&2; exit 1; }
 done
 
 rg -F -q 'using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox' "$APP"
-rg -F -q 'small_alloc_attempt_count: i64 = 0' "$FACADE"
-rg -F -q 'small_alloc_success_count: i64 = 0' "$FACADE"
-rg -F -q 'small_alloc_failure_count: i64 = 0' "$FACADE"
-rg -F -q 'small_alloc_reusable_success_count: i64 = 0' "$FACADE"
-rg -F -q 'small_alloc_active_success_count: i64 = 0' "$FACADE"
+rg -F -q 'alloc_result: HakoAllocObjectLifecycleAllocResult = new HakoAllocObjectLifecycleAllocResult()' "$FACADE"
+rg -F -q 'attempt_count: i64 = 0' "$RESULT"
+rg -F -q 'success_count: i64 = 0' "$RESULT"
+rg -F -q 'failure_count: i64 = 0' "$RESULT"
+rg -F -q 'reusable_success_count: i64 = 0' "$RESULT"
+rg -F -q 'active_success_count: i64 = 0' "$RESULT"
 rg -F -q 'recordSmallAllocFailure(reason)' "$FACADE"
 rg -F -q 'recordSmallAllocSuccess(selected_kind)' "$FACADE"
 rg -F -q 'objectLifecycleAllocAttemptCount()' "$FACADE"
@@ -35,8 +37,8 @@ rg -F -q 'MIMAP-014C allocation fast-path stats observers' "$SSOT"
 rg -F -q 'k2_wide_mimalloc_facade_small_alloc_stats_exe_guard.sh' "$INDEX"
 rg -F -q 'MIMAP-014C' "$README"
 
-if rg -n 'objectLifecycleAligned[A-Za-z0-9_]*\(|allocateAligned[A-Za-z0-9_]*\(|aligned_good_size[A-Za-z0-9_]*\(|padded_request_size[A-Za-z0-9_]*\(|realloc[A-Za-z0-9_]*\(|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(' "$FACADE" >/tmp/"$TAG".forbidden 2>&1; then
-  echo "[$TAG] ERROR: MIMAP-014C facade must not activate aligned allocation/realloc/substrate/provider/hook behavior" >&2
+if rg -n 'allocateAligned[A-Za-z0-9_]*\(|aligned_good_size[A-Za-z0-9_]*\(|padded_request_size[A-Za-z0-9_]*\(|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(' "$FACADE" >/tmp/"$TAG".forbidden 2>&1; then
+  echo "[$TAG] ERROR: MIMAP-014C facade must not activate substrate/provider/hook behavior" >&2
   cat /tmp/"$TAG".forbidden >&2
   rm -f /tmp/"$TAG".forbidden
   exit 1

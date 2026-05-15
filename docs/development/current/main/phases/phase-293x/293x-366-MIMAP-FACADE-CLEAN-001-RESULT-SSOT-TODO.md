@@ -1,6 +1,6 @@
 # 293x-366 MIMAP-FACADE-CLEAN-001 Result SSOT TODO
 
-Status: in progress
+Status: landed
 Date: 2026-05-15
 
 ## Decision
@@ -15,7 +15,7 @@ allocation behavior.
 
 ## TODO
 
-- [ ] Split facade result observer state into small owned helper boxes or a
+- [x] Split facade result observer state into small owned helper boxes or a
   clearly named result capsule:
   - allocation result
   - release result
@@ -27,7 +27,7 @@ allocation behavior.
     constants become useful
 - [x] Deduplicate the facade-local known-page scan used by release/realloc
   without introducing page-map lookup or arbitrary pointer resolution.
-- [ ] Commonize allocator-facade guard forbidden-pattern wording where it
+- [x] Commonize allocator-facade guard forbidden-pattern wording where it
   reduces drift, while keeping row-specific stop lines readable.
 - [x] Update `lang/src/hako_alloc/memory/README.md` so future agents can see
   the facade boundary, reason SSOT, and cleanup stop lines from one entry.
@@ -38,6 +38,9 @@ allocation behavior.
   failure/success reason writes through that SSOT, and centralizes the
   release/realloc known-page scan in
   `objectLifecycleKnownPageIndexById(page_id)`.
+- `293x-377` moves allocation, release, alignment, and realloc observer state
+  into `object_lifecycle_facade_result_box.hako` while keeping the facade public
+  observer methods stable.
 
 ## Non-goals
 

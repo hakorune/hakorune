@@ -9,22 +9,24 @@ source "$ROOT_DIR/tools/checks/lib/pure_first_exe_guard.sh"
 APP="apps/mimalloc-facade-alignment-metadata-proof/main.hako"
 APP_README="apps/mimalloc-facade-alignment-metadata-proof/README.md"
 FACADE="lang/src/hako_alloc/memory/object_lifecycle_facade_box.hako"
+RESULT="lang/src/hako_alloc/memory/object_lifecycle_facade_result_box.hako"
 ALIGNMENT="lang/src/hako_alloc/memory/alignment_policy_box.hako"
 CARD="docs/development/current/main/phases/phase-293x/293x-362-MIMAP-016A-ALIGNMENT-METADATA-OBSERVERS.md"
 SSOT="docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
 README="lang/src/hako_alloc/memory/README.md"
 
-for path in "$APP" "$APP_README" "$FACADE" "$ALIGNMENT" "$CARD" "$SSOT" "$INDEX" "$README"; do
+for path in "$APP" "$APP_README" "$FACADE" "$RESULT" "$ALIGNMENT" "$CARD" "$SSOT" "$INDEX" "$README"; do
   [[ -f "$path" ]] || { echo "[$TAG] ERROR: missing required file: $path" >&2; exit 1; }
 done
 
 rg -F -q 'using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox' "$APP"
 rg -F -q 'using selfhost.hako_alloc.memory.alignment_policy_box as HakoAllocAlignmentPolicy' "$FACADE"
-rg -F -q 'last_alignment_requested: i64 = -1' "$FACADE"
-rg -F -q 'last_alignment_normalized: i64 = -1' "$FACADE"
-rg -F -q 'last_alignment_reason: i64 = 0' "$FACADE"
-rg -F -q 'last_alignment_supported: i64 = 0' "$FACADE"
+rg -F -q 'alignment_result: HakoAllocObjectLifecycleAlignmentResult = new HakoAllocObjectLifecycleAlignmentResult()' "$FACADE"
+rg -F -q 'last_requested: i64 = -1' "$RESULT"
+rg -F -q 'last_normalized: i64 = -1' "$RESULT"
+rg -F -q 'last_reason: i64 = 0' "$RESULT"
+rg -F -q 'last_supported: i64 = 0' "$RESULT"
 rg -F -q 'objectLifecycleRecordAlignmentRequest(alignment)' "$FACADE"
 rg -F -q 'HakoAllocAlignmentPolicy.normalize_alignment(alignment)' "$FACADE"
 rg -F -q 'objectLifecycleAlignmentRequested()' "$FACADE"
@@ -35,8 +37,8 @@ rg -F -q 'MIMAP-016A' "$CARD"
 rg -F -q 'MIMAP-016A' "$README"
 rg -F -q 'k2_wide_mimalloc_facade_alignment_metadata_exe_guard.sh' "$INDEX"
 
-if rg -n 'objectLifecycleAligned[A-Za-z0-9_]*\(|allocateAligned[A-Za-z0-9_]*\(|aligned_good_size[A-Za-z0-9_]*\(|padded_request_size[A-Za-z0-9_]*\(|realloc[A-Za-z0-9_]*\(|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(|PageMap|page_map|lookup\(' "$FACADE" >/tmp/"$TAG".forbidden 2>&1; then
-  echo "[$TAG] ERROR: MIMAP-016A facade must not activate aligned allocation/realloc/substrate/provider/page-map behavior" >&2
+if rg -n 'allocateAligned[A-Za-z0-9_]*\(|aligned_good_size[A-Za-z0-9_]*\(|padded_request_size[A-Za-z0-9_]*\(|OSVM|OsVm|externcall|atomic[A-Za-z0-9_]*\(|RawBuf|provider[A-Za-z0-9_]*\(|global_allocator|install_hook|hook[A-Za-z0-9_]*\(|pageSource|remote[A-Za-z0-9_]*\(|PageMap|page_map|lookup\(' "$FACADE" >/tmp/"$TAG".forbidden 2>&1; then
+  echo "[$TAG] ERROR: MIMAP-016A facade must not activate substrate/provider/page-map behavior" >&2
   cat /tmp/"$TAG".forbidden >&2
   rm -f /tmp/"$TAG".forbidden
   exit 1
