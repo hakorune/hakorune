@@ -29,6 +29,7 @@ mod expr;
 mod expr_cursor; // TokenCursorを使用した式パーサー（実験的）
 mod expressions;
 mod items;
+mod lifecycle;
 mod runes;
 mod stage3; // Phase 152-A: Stage-3 parser extensions
 mod statements; // Now uses modular structure in statements/

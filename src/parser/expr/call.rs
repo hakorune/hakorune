@@ -61,6 +61,14 @@ impl NyashParser {
             } else if self.match_token(&TokenType::DOT) {
                 self.advance(); // consume '.'
 
+                if self.match_token(&TokenType::BIRTH) {
+                    let line = self.current_token().line;
+                    return Err(crate::parser::lifecycle::direct_birth_call_error(
+                        self.current_token().token_type.clone(),
+                        line,
+                    ));
+                }
+
                 if let TokenType::IDENTIFIER(method_name) = &self.current_token().token_type {
                     let method_name = method_name.clone();
                     self.advance();

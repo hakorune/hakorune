@@ -28,10 +28,10 @@ guard are pinned, the facade page-source allocation-miss fallback is green, and
 the internal worker identity, TLS cache-slot, atomic route guard, and
 remote-free / abandoned-owner policy, thread-safe `hako_mem` ABI, and native
 multi-worker substrate stress rows are now live. The current primary row moves
-back to the constructor/lifecycle cleanup row:
+to the constructor/lifecycle diagnostic row:
 
 ```text
-  PARSER-BIRTH-001 direct birth negative fixture
+  PARSER-BIRTH-002 direct birth diagnostic hint
 ```
 
 Closed cleanup sidecar:
@@ -90,7 +90,10 @@ MIMAP-PAR-STRESS-001:
 LIFECYCLE-BIRTH-001:
   landed
   new-only birth policy guard is green
-  PARSER-BIRTH-001 is the current selected primary row
+PARSER-BIRTH-001:
+  landed
+  direct receiver birth parser guard is green
+  PARSER-BIRTH-002 is the current selected primary row
 ```
 
 ## Active Source Policy
@@ -282,8 +285,8 @@ allocator-provider ladder:
 | Row | Status | Purpose | Ordering |
 | --- | --- | --- | --- |
 | `LIFECYCLE-BIRTH-001` | landed | Lock `birth` as a constructor hook fired only by `new`; direct receiver calls stay forbidden. | before parser widening |
-| `PARSER-BIRTH-001` | ready current | Add a negative parser fixture for `obj.birth(...)` so constructor policy does not regress. | current |
-| `PARSER-BIRTH-002` | ready | Improve direct-`birth` diagnostic with a `use new Box(...)` hint. | after PARSER-BIRTH-001 |
+| `PARSER-BIRTH-001` | landed | Add a negative parser fixture for `obj.birth(...)` so constructor policy does not regress. | before PARSER-BIRTH-002 |
+| `PARSER-BIRTH-002` | ready current | Improve direct-`birth` diagnostic with a `use new Box(...)` hint. | current |
 | `NEW-NAMED-ARGS-001` | parked | Design named constructor arguments for `new Box(field: value, ...)`. | later; not a MIMAP-013 blocker |
 | `REUSE-LIFECYCLE-001` | ready | Keep reuse as explicit methods such as `reset`, `reactivate`, `configure`, `clear`, and `attach` with contracts/transitions. | sidecar with allocator lifecycle rows |
 

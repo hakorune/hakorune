@@ -1,6 +1,6 @@
 # Phase 293x: real-app bringup
 
-- Status: Active / mimalloc blueprint lane with new-only birth policy guard landed
+- Status: Active / mimalloc blueprint lane with direct birth parser guard landed
 - Purpose: use real applications to expose compiler/runtime seams after the
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
@@ -8,9 +8,9 @@
 - Closed sidecar:
   `docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md`
 - Current lifecycle blocker:
-  `docs/development/current/main/phases/phase-293x/293x-401-PARSER-BIRTH-001-DIRECT-BIRTH-NEGATIVE-FIXTURE.md`
+  `docs/development/current/main/phases/phase-293x/293x-402-PARSER-BIRTH-002-DIRECT-BIRTH-DIAGNOSTIC-HINT.md`
 - Latest lifecycle closeout:
-  `docs/development/current/main/phases/phase-293x/293x-400-LIFECYCLE-BIRTH-001-NEW-ONLY-BIRTH-POLICY.md`
+  `docs/development/current/main/phases/phase-293x/293x-401-PARSER-BIRTH-001-DIRECT-BIRTH-NEGATIVE-FIXTURE.md`
 - Mimalloc purpose SSOT:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - Mimalloc concurrency substrate boundary SSOT:

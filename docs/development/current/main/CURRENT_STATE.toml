@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-15"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "LIFECYCLE-BIRTH-001 landed the new-only birth policy guard and fixed the hako_alloc direct-birth workaround boundary. Current row moves to PARSER-BIRTH-001 direct birth negative fixture. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "PARSER-BIRTH-001 landed direct receiver birth parser rejection while keeping constructor declarations and parent delegation accepted. Current row moves to PARSER-BIRTH-002 direct birth diagnostic hint. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-401-PARSER-BIRTH-001-DIRECT-BIRTH-NEGATIVE-FIXTURE.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-402-PARSER-BIRTH-002-DIRECT-BIRTH-DIAGNOSTIC-HINT.md"
 method_anchor = "docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-400-LIFECYCLE-BIRTH-001-NEW-ONLY-BIRTH-POLICY"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-400-LIFECYCLE-BIRTH-001-NEW-ONLY-BIRTH-POLICY.md"
-latest_card_summary = "LIFECYCLE-BIRTH-001 pins birth as a new-only constructor hook and guards hako_alloc against new direct receiver birth workarounds."
+latest_card = "293x-401-PARSER-BIRTH-001-DIRECT-BIRTH-NEGATIVE-FIXTURE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-401-PARSER-BIRTH-001-DIRECT-BIRTH-NEGATIVE-FIXTURE.md"
+latest_card_summary = "PARSER-BIRTH-001 rejects direct receiver birth calls in the parser while keeping constructor declarations and parent delegation accepted."
 
-current_blocker_token = "PARSER-BIRTH-001"
+current_blocker_token = "PARSER-BIRTH-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-401 PARSER-BIRTH-001 direct birth negative fixture landed",
   "293x-400 LIFECYCLE-BIRTH-001 new-only birth policy landed",
   "293x-399 MIMAP-PAR-STRESS-001 native multi-worker substrate stress landed",
   "293x-397 MIMAP-THREADSAFE-ABI-001 thread-safe hako_mem ABI landed",

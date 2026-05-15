@@ -17,6 +17,8 @@ pub mod parser_compound_assignment_surface;
 pub mod parser_contract_surface;
 #[path = "../parser_delegate_surface.rs"]
 pub mod parser_delegate_surface;
+#[path = "../parser_direct_birth_call.rs"]
+pub mod parser_direct_birth_call;
 #[path = "../parser_enum_match.rs"]
 pub mod parser_enum_match;
 #[path = "../parser_enum_surface.rs"]

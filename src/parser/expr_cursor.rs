@@ -219,6 +219,13 @@ impl ExprParserWithCursor {
             // フィールドアクセス obj.field
             if cursor.match_token(&TokenType::DOT) {
                 cursor.advance();
+                if cursor.match_token(&TokenType::BIRTH) {
+                    let line = cursor.current().line;
+                    return Err(crate::parser::lifecycle::direct_birth_call_error(
+                        cursor.current().token_type.clone(),
+                        line,
+                    ));
+                }
                 let field = match &cursor.current().token_type {
                     TokenType::IDENTIFIER(s) => {
                         let v = s.clone();
