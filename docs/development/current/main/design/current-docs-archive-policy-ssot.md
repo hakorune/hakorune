@@ -128,3 +128,15 @@ Physical archive moves are `DOCS-SLIM-002+`.
 - guard that no cards moved yet
 - keep physical moves for a later row after guard references are decoupled or
   forwarding stubs are planned
+
+## Third Slimming Phase
+
+`DOCS-SLIM-003` owns guard-reference decoupling:
+
+- remove stale `CURRENT_STATE.latest_card` / `current_blocker_token` pins from
+  old row guards, including `landed_tail` history pins
+- make `DOCS-SLIM-002` guard check archive artifacts instead of live root-card
+  counts
+- add a phase-293x card resolver helper for future archive-bucket moves
+- do not mass-convert existing direct card-reference guards yet
+- do not physically move old cards yet

@@ -106,6 +106,10 @@ target maximum:
   current docs
 
 The guard must not require every current mirror to repeat latest-card history.
+Past row guards must not pin `CURRENT_STATE.latest_card`,
+`latest_card_path`, `current_blocker_token`, or `landed_tail` rows as proof
+that the row landed. Use the row card, durable SSOT, check-script index,
+fixtures, or an explicit phase-card resolver instead.
 
 ## Non-Goals
 

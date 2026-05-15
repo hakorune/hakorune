@@ -18,7 +18,6 @@ MEMORY_README="lang/src/hako_alloc/memory/README.md"
 OWNER="lang/src/hako_alloc/memory/lifecycle_stats_observer_box.hako"
 LIFECYCLE="lang/src/hako_alloc/memory/page_lifecycle_invariant_box.hako"
 REUSE_POLICY="lang/src/hako_alloc/memory/heap_reuse_priority_box.hako"
-CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GATE="tools/checks/k2_wide_allocator_gate.sh"
 SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_lifecycle_stats_observer_surface_guard.sh"
@@ -39,7 +38,6 @@ guard_require_files \
   "$OWNER" \
   "$LIFECYCLE" \
   "$REUSE_POLICY" \
-  "$CURRENT_STATE" \
   "$DEV_GATE" \
   "$ALLOCATOR_GATE" \
   "$SELF_SCRIPT"
@@ -50,8 +48,6 @@ guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "M209 card must be comple
 guard_expect_in_file "$TAG" 'M209 status:' "$PLAN" "mimalloc plan must record M209 status"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M209 guard"
 guard_expect_in_file "$TAG" 'id = "M209"' "$PROOF_MANIFEST" "proof app manifest must list M209"
-guard_expect_in_file "$TAG" 'latest_card = "293x-254-M209-LIFECYCLE-STATS-OBSERVER-SURFACE"' "$CURRENT_STATE" "current state must point at M209 as latest card"
-guard_expect_in_file "$TAG" 'current_blocker_token = "M210 decommit/recommit/reuse EXE hardening"' "$CURRENT_STATE" "current state must advance to M210"
 guard_expect_in_file "$TAG" 'memory.lifecycle_stats_observer_box = "memory/lifecycle_stats_observer_box.hako"' "$MODULE" "hako_alloc module must export M209 owner"
 guard_expect_in_file "$TAG" 'box HakoAllocLifecycleStatsSnapshot' "$OWNER" "M209 snapshot box must exist"
 guard_expect_in_file "$TAG" 'box HakoAllocLifecycleStatsObserverSurface' "$OWNER" "M209 surface box must exist"

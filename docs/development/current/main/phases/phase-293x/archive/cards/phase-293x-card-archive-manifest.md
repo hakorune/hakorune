@@ -19,10 +19,11 @@ This manifest makes the future archive move mechanical by fixing:
 - direct-reference risk
 - no-move guard for this row
 
-## Snapshot
+## Historical Snapshot
 
-After `293x-409` lands, phase-293x has 409 numbered root cards, excluding
-taskboards:
+After `293x-409` landed, phase-293x had 409 numbered root cards, excluding
+taskboards. This is a historical snapshot for archive planning, not a live
+count that every later row must preserve:
 
 ```text
 293x-000-099: 99
@@ -68,7 +69,8 @@ Archive candidates are numbered root cards that are:
 `tools/checks/docs_slim_002_archive_manifest_guard.sh` fixes this row:
 
 - archive entry files exist
-- root card bucket counts match the snapshot
-- no phase cards have moved under `archive/cards/` yet
-- the direct-reference risk remains visible
-- `CURRENT_STATE.toml` points at `293x-409`
+- root card bucket counts are recorded in this manifest as a historical snapshot
+- the direct-reference risk is recorded in this manifest
+- the guard must not pin `CURRENT_STATE.latest_card`
+- the guard must not fail when later rows add cards or reduce direct-reference
+  counts

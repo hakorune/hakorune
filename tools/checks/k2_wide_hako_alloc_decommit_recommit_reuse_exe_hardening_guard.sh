@@ -13,7 +13,6 @@ CARD="docs/development/current/main/phases/phase-293x/293x-255-M210-DECOMMIT-REC
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 INDEX="docs/tools/check-scripts-index.md"
 PROOF_MANIFEST="tools/checks/proof_apps.toml"
-CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GATE="tools/checks/k2_wide_allocator_gate.sh"
 DECOMMIT_GUARD="lang/src/hako_alloc/memory/purge_state_aware_decommit_box.hako"
@@ -37,7 +36,6 @@ guard_require_files \
   "$PLAN" \
   "$INDEX" \
   "$PROOF_MANIFEST" \
-  "$CURRENT_STATE" \
   "$DEV_GATE" \
   "$ALLOCATOR_GATE" \
   "$DECOMMIT_GUARD" \
@@ -56,8 +54,6 @@ guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "M210 card must be comple
 guard_expect_in_file "$TAG" 'M210 status:' "$PLAN" "mimalloc plan must record M210 status"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M210 guard"
 guard_expect_in_file "$TAG" 'id = "M210"' "$PROOF_MANIFEST" "proof app manifest must list M210"
-guard_expect_in_file "$TAG" 'latest_card = "293x-255-M210-DECOMMIT-RECOMMIT-REUSE-EXE-HARDENING"' "$CURRENT_STATE" "current state must point at M210 as latest card"
-guard_expect_in_file "$TAG" 'current_blocker_token = "M211 purge candidate policy inventory"' "$CURRENT_STATE" "current state must advance to M211"
 guard_expect_in_file "$TAG" 'HakoAllocPurgeStateAwareDecommitGuard' "$APP" "M210 proof must compose duplicate guard"
 guard_expect_in_file "$TAG" 'HakoAllocRecommitHeapIntegration' "$APP" "M210 proof must compose recommit integration"
 guard_expect_in_file "$TAG" 'HakoAllocPageLifecycleInvariantObserver' "$APP" "M210 proof must observe lifecycle states"

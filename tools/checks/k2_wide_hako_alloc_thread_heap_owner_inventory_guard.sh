@@ -17,7 +17,6 @@ PROOF_MANIFEST="tools/checks/proof_apps.toml"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
 OWNER="lang/src/hako_alloc/memory/thread_heap_owner_inventory_box.hako"
-CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GATE="tools/checks/k2_wide_allocator_gate.sh"
 SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_thread_heap_owner_inventory_guard.sh"
@@ -37,7 +36,6 @@ guard_require_files \
   "$MODULE" \
   "$MEMORY_README" \
   "$OWNER" \
-  "$CURRENT_STATE" \
   "$DEV_GATE" \
   "$ALLOCATOR_GATE" \
   "$SELF_SCRIPT"
@@ -49,8 +47,6 @@ guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "M215 design must be 
 guard_expect_in_file "$TAG" 'M215 status:' "$PLAN" "mimalloc plan must record M215 status"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M215 guard"
 guard_expect_in_file "$TAG" 'id = "M215"' "$PROOF_MANIFEST" "proof app manifest must list M215"
-guard_expect_in_file "$TAG" 'latest_card = "293x-268-M215-THREAD-HEAP-OWNER-TOKEN-INVENTORY"' "$CURRENT_STATE" "current state must point at M215 as latest card"
-guard_expect_in_file "$TAG" 'current_blocker_token = "D209 mimalloc post-M215 closeout check"' "$CURRENT_STATE" "current state must advance to D209"
 guard_expect_in_file "$TAG" 'memory.thread_heap_owner_inventory_box = "memory/thread_heap_owner_inventory_box.hako"' "$MODULE" "hako_alloc module must export M215 owner"
 guard_expect_in_file "$TAG" 'box HakoAllocThreadHeapOwnerDecision' "$OWNER" "M215 decision box must exist"
 guard_expect_in_file "$TAG" 'box HakoAllocThreadHeapOwnerInventory' "$OWNER" "M215 inventory box must exist"

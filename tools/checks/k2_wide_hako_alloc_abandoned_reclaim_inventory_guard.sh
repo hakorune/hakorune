@@ -16,7 +16,6 @@ PROOF_MANIFEST="tools/checks/proof_apps.toml"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
 OWNER="lang/src/hako_alloc/memory/abandoned_reclaim_inventory_box.hako"
-CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GATE="tools/checks/k2_wide_allocator_gate.sh"
 SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_abandoned_reclaim_inventory_guard.sh"
@@ -35,7 +34,6 @@ guard_require_files \
   "$MODULE" \
   "$MEMORY_README" \
   "$OWNER" \
-  "$CURRENT_STATE" \
   "$DEV_GATE" \
   "$ALLOCATOR_GATE" \
   "$SELF_SCRIPT"
@@ -46,8 +44,6 @@ guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "M213 card must be comple
 guard_expect_in_file "$TAG" 'M213 status:' "$PLAN" "mimalloc plan must record M213 status"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M213 guard"
 guard_expect_in_file "$TAG" 'id = "M213"' "$PROOF_MANIFEST" "proof app manifest must list M213"
-guard_expect_in_file "$TAG" 'latest_card = "293x-261-M213-ABANDONED-RECLAIM-INVENTORY"' "$CURRENT_STATE" "current state must point at M213 as latest card"
-guard_expect_in_file "$TAG" 'current_blocker_token = "D204 purge lifecycle ladder closeout"' "$CURRENT_STATE" "current state must advance to D204"
 guard_expect_in_file "$TAG" 'memory.abandoned_reclaim_inventory_box = "memory/abandoned_reclaim_inventory_box.hako"' "$MODULE" "hako_alloc module must export M213 owner"
 guard_expect_in_file "$TAG" 'box HakoAllocAbandonedReclaimDecision' "$OWNER" "M213 decision box must exist"
 guard_expect_in_file "$TAG" 'box HakoAllocAbandonedReclaimInventory' "$OWNER" "M213 inventory box must exist"

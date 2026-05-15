@@ -17,7 +17,6 @@ MODULE="lang/src/hako_alloc/hako_module.toml"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
 OWNER="lang/src/hako_alloc/memory/purge_candidate_policy_box.hako"
 LIFECYCLE="lang/src/hako_alloc/memory/page_lifecycle_invariant_box.hako"
-CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GATE="tools/checks/k2_wide_allocator_gate.sh"
 SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_purge_candidate_policy_inventory_guard.sh"
@@ -37,7 +36,6 @@ guard_require_files \
   "$MEMORY_README" \
   "$OWNER" \
   "$LIFECYCLE" \
-  "$CURRENT_STATE" \
   "$DEV_GATE" \
   "$ALLOCATOR_GATE" \
   "$SELF_SCRIPT"
@@ -48,8 +46,6 @@ guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "M211 card must be comple
 guard_expect_in_file "$TAG" 'M211 status:' "$PLAN" "mimalloc plan must record M211 status"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M211 guard"
 guard_expect_in_file "$TAG" 'id = "M211"' "$PROOF_MANIFEST" "proof app manifest must list M211"
-guard_expect_in_file "$TAG" 'latest_card = "293x-257-M211-PURGE-CANDIDATE-POLICY-INVENTORY"' "$CURRENT_STATE" "current state must point at M211 as latest card"
-guard_expect_in_file "$TAG" 'current_blocker_token = "M212 bounded purge/decommit scheduler small path"' "$CURRENT_STATE" "current state must advance to M212"
 guard_expect_in_file "$TAG" 'memory.purge_candidate_policy_box = "memory/purge_candidate_policy_box.hako"' "$MODULE" "hako_alloc module must export M211 owner"
 guard_expect_in_file "$TAG" 'box HakoAllocPurgeCandidateDecision' "$OWNER" "M211 decision box must exist"
 guard_expect_in_file "$TAG" 'box HakoAllocPurgeCandidatePolicyInventory' "$OWNER" "M211 policy inventory box must exist"

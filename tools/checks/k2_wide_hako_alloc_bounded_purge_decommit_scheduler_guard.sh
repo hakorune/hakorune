@@ -19,7 +19,6 @@ OWNER="lang/src/hako_alloc/memory/purge_bounded_scheduler_box.hako"
 LIFECYCLE="lang/src/hako_alloc/memory/page_lifecycle_invariant_box.hako"
 CANDIDATE="lang/src/hako_alloc/memory/purge_candidate_policy_box.hako"
 DUPLICATE_GUARD="lang/src/hako_alloc/memory/purge_state_aware_decommit_box.hako"
-CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GATE="tools/checks/k2_wide_allocator_gate.sh"
 SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_bounded_purge_decommit_scheduler_guard.sh"
@@ -41,7 +40,6 @@ guard_require_files \
   "$LIFECYCLE" \
   "$CANDIDATE" \
   "$DUPLICATE_GUARD" \
-  "$CURRENT_STATE" \
   "$DEV_GATE" \
   "$ALLOCATOR_GATE" \
   "$SELF_SCRIPT"
@@ -52,8 +50,6 @@ guard_expect_in_file "$TAG" 'Status: Complete' "$CARD" "M212 card must be comple
 guard_expect_in_file "$TAG" 'M212 status:' "$PLAN" "mimalloc plan must record M212 status"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M212 guard"
 guard_expect_in_file "$TAG" 'id = "M212"' "$PROOF_MANIFEST" "proof app manifest must list M212"
-guard_expect_in_file "$TAG" 'latest_card = "293x-259-M212-BOUNDED-PURGE-DECOMMIT-SCHEDULER-SMALL-PATH"' "$CURRENT_STATE" "current state must point at M212 as latest card"
-guard_expect_in_file "$TAG" 'current_blocker_token = "M213 abandoned/reclaim inventory"' "$CURRENT_STATE" "current state must advance to M213"
 guard_expect_in_file "$TAG" 'memory.purge_bounded_scheduler_box = "memory/purge_bounded_scheduler_box.hako"' "$MODULE" "hako_alloc module must export M212 owner"
 guard_expect_in_file "$TAG" 'box HakoAllocBoundedPurgeDecommitSchedulerReport' "$OWNER" "M212 report box must exist"
 guard_expect_in_file "$TAG" 'box HakoAllocBoundedPurgeDecommitScheduler' "$OWNER" "M212 scheduler box must exist"

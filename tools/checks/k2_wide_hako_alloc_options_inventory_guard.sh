@@ -17,7 +17,6 @@ PROOF_MANIFEST="tools/checks/proof_apps.toml"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
 OWNER="lang/src/hako_alloc/memory/options_inventory_box.hako"
-CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GATE="tools/checks/k2_wide_allocator_gate.sh"
 SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_options_inventory_guard.sh"
@@ -37,7 +36,6 @@ guard_require_files \
   "$MODULE" \
   "$MEMORY_README" \
   "$OWNER" \
-  "$CURRENT_STATE" \
   "$DEV_GATE" \
   "$ALLOCATOR_GATE" \
   "$SELF_SCRIPT"
@@ -49,8 +47,6 @@ guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "M214 design must be 
 guard_expect_in_file "$TAG" 'M214 status:' "$PLAN" "mimalloc plan must record M214 status"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M214 guard"
 guard_expect_in_file "$TAG" 'id = "M214"' "$PROOF_MANIFEST" "proof app manifest must list M214"
-guard_expect_in_file "$TAG" 'latest_card = "293x-266-M214-ALLOCATOR-OPTIONS-DEFAULTS-INVENTORY"' "$CURRENT_STATE" "current state must point at M214 as latest card"
-guard_expect_in_file "$TAG" 'current_blocker_token = "D208 mimalloc migration closeout check"' "$CURRENT_STATE" "current state must advance to D208"
 guard_expect_in_file "$TAG" 'memory.options_inventory_box = "memory/options_inventory_box.hako"' "$MODULE" "hako_alloc module must export M214 owner"
 guard_expect_in_file "$TAG" 'box HakoAllocOptionDefaultFact' "$OWNER" "M214 option fact box must exist"
 guard_expect_in_file "$TAG" 'box HakoAllocOptionsInventorySnapshot' "$OWNER" "M214 snapshot box must exist"

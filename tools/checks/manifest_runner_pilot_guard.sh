@@ -13,7 +13,6 @@ PROOF_MANIFEST="$ROOT_DIR/tools/checks/proof_apps.toml"
 CARD="$ROOT_DIR/docs/development/current/main/phases/phase-293x/293x-243-D199-MANIFEST-RUNNER-LIBRARY-CLEANUP.md"
 PHASE_README="$ROOT_DIR/docs/development/current/main/phases/phase-293x/README.md"
 TASKBOARD="$ROOT_DIR/docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
-CURRENT_STATE="$ROOT_DIR/docs/development/current/main/CURRENT_STATE.toml"
 CHECK_INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
 DEV_GATE="$ROOT_DIR/tools/checks/dev_gate.sh"
 ALLOCATOR_GATE="$ROOT_DIR/tools/checks/k2_wide_allocator_gate.sh"
@@ -29,7 +28,6 @@ guard_require_files "$TAG" \
   "$CARD" \
   "$PHASE_README" \
   "$TASKBOARD" \
-  "$CURRENT_STATE" \
   "$CHECK_INDEX" \
   "$DEV_GATE" \
   "$ALLOCATOR_GATE"
@@ -40,7 +38,6 @@ guard_expect_in_file "$TAG" "manifest_runner.py" "$CARD" "D199 card must name th
 guard_expect_in_file "$TAG" "manifest_runner_pilot_guard.sh" "$CARD" "D199 card must name this guard"
 guard_expect_in_file "$TAG" "293x-243" "$PHASE_README" "phase README must list D199"
 guard_expect_in_file "$TAG" "D199 manifest runner library cleanup" "$TASKBOARD" "taskboard must list D199"
-guard_expect_in_file "$TAG" "293x-243-D199-MANIFEST-RUNNER-LIBRARY-CLEANUP" "$CURRENT_STATE" "CURRENT_STATE must point to D199"
 guard_expect_in_file "$TAG" "manifest_runner_pilot_guard.sh" "$CHECK_INDEX" "check index must list this guard"
 guard_expect_in_file "$TAG" "tools/checks/lib/manifest_runner.py" "$CHECK_INDEX" "check index must mention shared runner library"
 
