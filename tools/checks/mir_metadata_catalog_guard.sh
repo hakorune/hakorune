@@ -94,6 +94,85 @@ for split in \
   require_doc_token "$split"
 done
 
+for promotion_section in \
+  "Current Promotion Matrix" \
+  "Promote / Treat As Active Now" \
+  "Promote Soon / Prepare A Dedicated Row" \
+  "Keep As Metadata / Do Not Promote Directly" \
+  "Promotion Task Queue"; do
+  require_doc_token "$promotion_section"
+done
+
+active_promotion_tokens=(
+  "lowering_plan"
+  "typed_object_plans"
+  "static_data_plans"
+  "effect_plans"
+  "inline_plans"
+  "string_kernel_plans"
+  "placement_effect_routes"
+  "exact_numeric_runtime_check_contracts"
+  "hako_alloc_*_packed_store_pilot_plans"
+  "CorePlan layout/ABI truth"
+  "backend_active"
+  "verifier_active"
+  "optimizer_active"
+  "CorePlan placement/effect owner"
+  "do not add new raw helper-name classifiers"
+  "backends must not treat the row as an inline mandate"
+  "Do not promote to CorePlan lowering until a real storage owner"
+)
+
+for token in "${active_promotion_tokens[@]}"; do
+  require_doc_token "$token"
+done
+
+future_promotion_tokens=(
+  "array_record_materialization_boundary_plans"
+  "source_packed_array_direct_read_consumption_plans"
+  "loop_range_facts"
+  "array_text_*"
+  "enum use rows derived from"
+  "exact numeric binary/compare/shift route facts"
+  "boxed_fallback=false"
+  "proof-bearing route"
+)
+
+for token in "${future_promotion_tokens[@]}"; do
+  require_doc_token "$token"
+done
+
+metadata_only_tokens=(
+  "record_decls"
+  "enum_decls"
+  "user_box_decls"
+  "record_layout_plans"
+  "value_consumer_facts"
+  "storage_classes"
+  "string_corridor_*"
+  "sum_placement_*"
+  "thin_entry_*"
+  "exact_seed_backend_route"
+  "Declaration inventories are not lowering contracts"
+  "Seed payloads are temporary exact-shape bridges"
+)
+
+for token in "${metadata_only_tokens[@]}"; do
+  require_doc_token "$token"
+done
+
+for task in \
+  "METADATA-PROMOTE-001" \
+  "METADATA-PROMOTE-002" \
+  "METADATA-PROMOTE-003" \
+  "METADATA-PROMOTE-004" \
+  "METADATA-PROMOTE-005" \
+  "METADATA-PROMOTE-006"; do
+  require_doc_token "$task"
+done
+
+require_doc_token "do not combine these with allocator behavior rows"
+
 module_keys=(
   user_box_decls
   record_decls

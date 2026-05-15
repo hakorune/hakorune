@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-366-MIMAP-F
 method_anchor = "docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-369-METADATA-CATALOG-003-PROMOTION-MATRIX"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-369-METADATA-CATALOG-003-PROMOTION-MATRIX.md"
-latest_card_summary = "METADATA-CATALOG-003 adds the current metadata promotion matrix and follow-up task queue."
+latest_card = "293x-370-METADATA-PROMOTE-001-ACTIVE-MATRIX-GUARD"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-370-METADATA-PROMOTE-001-ACTIVE-MATRIX-GUARD.md"
+latest_card_summary = "METADATA-PROMOTE-001 hardens the metadata catalog guard for the current promotion matrix."
 
 current_blocker_token = "MIMAP-FACADE-CLEAN-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-370 METADATA-PROMOTE-001 active promotion matrix guard landed",
   "293x-369 METADATA-CATALOG-003 metadata promotion matrix and task queue landed",
   "293x-368 METADATA-CATALOG-002 metadata state and CorePlan policy landed",
   "293x-367 METADATA-CATALOG-001 MIR metadata catalog cleanup landed",
