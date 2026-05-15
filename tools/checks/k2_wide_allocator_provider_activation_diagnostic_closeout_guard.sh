@@ -4,10 +4,12 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-allocator-provider-activation-diagnostic-closeout"
 cd "$ROOT_DIR"
+source tools/checks/lib/guard_common.sh
+source tools/checks/lib/phase_card_paths.sh
 source tools/checks/lib/allocator_provider_forbidden_patterns.sh
 
 SSOT="docs/development/current/main/design/allocator-provider-activation-diagnostic-closeout-inventory-ssot.md"
-CARD="docs/development/current/main/phases/phase-293x/293x-149-M95-ALLOCATOR-PROVIDER-ACTIVATION-DIAGNOSTIC-CLOSEOUT-INVENTORY.md"
+CARD="$(guard_require_phase293x_card "$TAG" "293x-149-M95-ALLOCATOR-PROVIDER-ACTIVATION-DIAGNOSTIC-CLOSEOUT-INVENTORY.md")"
 TASK_BREAKDOWN="docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md"
 CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
@@ -58,12 +60,16 @@ require_file "$RUNTIME_REGISTRY_SNAPSHOT"
 require_file "$INACTIVE_SOURCE"
 require_file "$M94_CLI"
 
-required_cards=(
-  "docs/development/current/main/phases/phase-293x/293x-145-M92-ALLOCATOR-PROVIDER-ACTIVATION-IMPLEMENTATION-ENTRY-CONTRACT.md"
-  "docs/development/current/main/phases/phase-293x/293x-146-M93-ALLOCATOR-PROVIDER-REGISTRY-SNAPSHOT-DIAGNOSTIC-REPORT.md"
-  "docs/development/current/main/phases/phase-293x/293x-147-M93B-ALLOCATOR-PROVIDER-DIAGNOSTIC-INACTIVE-ACTIONS.md"
-  "docs/development/current/main/phases/phase-293x/293x-148-M94-ALLOCATOR-PROVIDER-REGISTRY-SNAPSHOT-CLI-SURFACE.md"
+required_card_files=(
+  "293x-145-M92-ALLOCATOR-PROVIDER-ACTIVATION-IMPLEMENTATION-ENTRY-CONTRACT.md"
+  "293x-146-M93-ALLOCATOR-PROVIDER-REGISTRY-SNAPSHOT-DIAGNOSTIC-REPORT.md"
+  "293x-147-M93B-ALLOCATOR-PROVIDER-DIAGNOSTIC-INACTIVE-ACTIONS.md"
+  "293x-148-M94-ALLOCATOR-PROVIDER-REGISTRY-SNAPSHOT-CLI-SURFACE.md"
 )
+required_cards=()
+for card_file in "${required_card_files[@]}"; do
+  required_cards+=("$(guard_require_phase293x_card "$TAG" "$card_file")")
+done
 
 required_guards=(
   "tools/checks/k2_wide_allocator_provider_activation_implementation_entry_contract_guard.sh"

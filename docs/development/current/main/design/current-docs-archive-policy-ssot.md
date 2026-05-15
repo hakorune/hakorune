@@ -140,3 +140,15 @@ Physical archive moves are `DOCS-SLIM-002+`.
 - add a phase-293x card resolver helper for future archive-bucket moves
 - do not mass-convert existing direct card-reference guards yet
 - do not physically move old cards yet
+
+## Fourth Slimming Phase
+
+`DOCS-SLIM-004` owns the first resolver adoption cluster:
+
+- convert allocator-provider activation closeout guards to use
+  `guard_require_phase293x_card`
+- remove direct phase-293x card paths from the converted activation closeout
+  scripts
+- keep production allocator port closeout and other direct-reference guards for
+  later rows
+- do not physically move old cards yet

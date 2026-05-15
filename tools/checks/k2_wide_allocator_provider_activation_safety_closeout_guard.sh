@@ -4,12 +4,14 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-allocator-provider-activation-safety-closeout"
 cd "$ROOT_DIR"
+source tools/checks/lib/guard_common.sh
+source tools/checks/lib/phase_card_paths.sh
 source tools/checks/lib/allocator_provider_forbidden_patterns.sh
 
 SSOT="docs/development/current/main/design/allocator-provider-activation-safety-closeout-inventory-ssot.md"
 TASK_BREAKDOWN="docs/development/current/main/design/allocator-provider-current-task-breakdown-ssot.md"
 TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
-CARD="docs/development/current/main/phases/phase-293x/293x-137-M85-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-CLOSEOUT-INVENTORY.md"
+CARD="$(guard_require_phase293x_card "$TAG" "293x-137-M85-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-CLOSEOUT-INVENTORY.md")"
 PHASE_README="docs/development/current/main/phases/phase-293x/README.md"
 REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 INDEX="docs/tools/check-scripts-index.md"
@@ -73,17 +75,21 @@ required_fixtures=(
   "docs/development/current/main/design/allocator-provider-activation-safety-gate-v0.toml"
 )
 
-required_cards=(
-  "docs/development/current/main/phases/phase-293x/293x-128-M76-ALLOCATOR-PROVIDER-ACTIVATION-ENTRY-CONTRACT.md"
-  "docs/development/current/main/phases/phase-293x/293x-129-M77-ALLOCATOR-PROVIDER-REGISTRY-SNAPSHOT.md"
-  "docs/development/current/main/phases/phase-293x/293x-130-M78-ALLOCATOR-PROVIDER-SELECTION-DECISION.md"
-  "docs/development/current/main/phases/phase-293x/293x-131-M79-ALLOCATOR-PROVIDER-PROOF-BUNDLE-CONSUMPTION.md"
-  "docs/development/current/main/phases/phase-293x/293x-132-M80-ALLOCATOR-PROVIDER-ROLLBACK-PREFLIGHT.md"
-  "docs/development/current/main/phases/phase-293x/293x-133-M81-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-GATE.md"
-  "docs/development/current/main/phases/phase-293x/293x-134-M82-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-DIAGNOSTIC-OWNER.md"
-  "docs/development/current/main/phases/phase-293x/293x-135-M83-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-DIAGNOSTIC-REPORT.md"
-  "docs/development/current/main/phases/phase-293x/293x-136-M84-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-CLI-SURFACE.md"
+required_card_files=(
+  "293x-128-M76-ALLOCATOR-PROVIDER-ACTIVATION-ENTRY-CONTRACT.md"
+  "293x-129-M77-ALLOCATOR-PROVIDER-REGISTRY-SNAPSHOT.md"
+  "293x-130-M78-ALLOCATOR-PROVIDER-SELECTION-DECISION.md"
+  "293x-131-M79-ALLOCATOR-PROVIDER-PROOF-BUNDLE-CONSUMPTION.md"
+  "293x-132-M80-ALLOCATOR-PROVIDER-ROLLBACK-PREFLIGHT.md"
+  "293x-133-M81-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-GATE.md"
+  "293x-134-M82-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-DIAGNOSTIC-OWNER.md"
+  "293x-135-M83-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-DIAGNOSTIC-REPORT.md"
+  "293x-136-M84-ALLOCATOR-PROVIDER-ACTIVATION-SAFETY-CLI-SURFACE.md"
 )
+required_cards=()
+for card_file in "${required_card_files[@]}"; do
+  required_cards+=("$(guard_require_phase293x_card "$TAG" "$card_file")")
+done
 
 required_guards=(
   "tools/checks/k2_wide_allocator_provider_activation_entry_contract_guard.sh"

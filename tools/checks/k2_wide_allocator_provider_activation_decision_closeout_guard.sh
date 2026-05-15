@@ -4,10 +4,12 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-allocator-provider-activation-decision-closeout"
 cd "$ROOT_DIR"
+source tools/checks/lib/guard_common.sh
+source tools/checks/lib/phase_card_paths.sh
 source tools/checks/lib/allocator_provider_forbidden_patterns.sh
 
 SSOT="docs/development/current/main/design/allocator-provider-activation-decision-closeout-inventory-ssot.md"
-CARD="docs/development/current/main/phases/phase-293x/293x-144-M91-ALLOCATOR-PROVIDER-ACTIVATION-DECISION-CLOSEOUT-INVENTORY.md"
+CARD="$(guard_require_phase293x_card "$TAG" "293x-144-M91-ALLOCATOR-PROVIDER-ACTIVATION-DECISION-CLOSEOUT-INVENTORY.md")"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GROUP="tools/checks/k2_wide_allocator_gate.sh"
@@ -53,13 +55,17 @@ required_fixtures=(
   "docs/development/current/main/design/allocator-provider-activation-decision-v0.toml"
 )
 
-required_cards=(
-  "docs/development/current/main/phases/phase-293x/293x-138-M86-ALLOCATOR-PROVIDER-ACTIVATION-DECISION-SURFACE-PROPOSAL.md"
-  "docs/development/current/main/phases/phase-293x/293x-140-M87-ALLOCATOR-PROVIDER-ACTIVATION-DECISION-FIXTURE-CONTRACT.md"
-  "docs/development/current/main/phases/phase-293x/293x-141-M88-ALLOCATOR-PROVIDER-ACTIVATION-DECISION-DIAGNOSTIC-OWNER.md"
-  "docs/development/current/main/phases/phase-293x/293x-142-M89-ALLOCATOR-PROVIDER-ACTIVATION-DECISION-DIAGNOSTIC-REPORT.md"
-  "docs/development/current/main/phases/phase-293x/293x-143-M90-ALLOCATOR-PROVIDER-ACTIVATION-DECISION-CLI-SURFACE.md"
+required_card_files=(
+  "293x-138-M86-ALLOCATOR-PROVIDER-ACTIVATION-DECISION-SURFACE-PROPOSAL.md"
+  "293x-140-M87-ALLOCATOR-PROVIDER-ACTIVATION-DECISION-FIXTURE-CONTRACT.md"
+  "293x-141-M88-ALLOCATOR-PROVIDER-ACTIVATION-DECISION-DIAGNOSTIC-OWNER.md"
+  "293x-142-M89-ALLOCATOR-PROVIDER-ACTIVATION-DECISION-DIAGNOSTIC-REPORT.md"
+  "293x-143-M90-ALLOCATOR-PROVIDER-ACTIVATION-DECISION-CLI-SURFACE.md"
 )
+required_cards=()
+for card_file in "${required_card_files[@]}"; do
+  required_cards+=("$(guard_require_phase293x_card "$TAG" "$card_file")")
+done
 
 required_guards=(
   "tools/checks/k2_wide_allocator_provider_activation_decision_surface_proposal_guard.sh"
