@@ -1,6 +1,6 @@
 # 293x-364 MIMAP-017A Realloc Shrink Same-Page Route
 
-Status: ready
+Status: landed
 Date: 2026-05-15
 
 ## Decision
@@ -64,6 +64,45 @@ Required guard evidence:
 ```text
 [mimap017a-mir-json] ok
 [k2-wide-mimalloc-facade-realloc-shrink-exe] ok
+```
+
+## Implementation
+
+`MIMAP-017A` adds
+`HakoAllocObjectLifecycleFacade.objectLifecycleReallocShrink(page_id, block_id,
+requested_size)` as a facade-owned same-page/no-move observer route. It scans
+the existing object lifecycle queue for one known page id, checks that the block
+is live on that page, and accepts only requested sizes that fit in the current
+page block size.
+
+Reason codes:
+
+- `0`: same-page shrink/no-move accepted
+- `1`: missing/stale page id
+- `2`: invalid block id
+- `3`: invalid requested size
+- `4`: requested size does not fit same-page shrink/no-move
+- `5`: block is not live on the page
+
+This row does not allocate a replacement block, copy bytes, use page-map lookup,
+or register/unregister ownership.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_mimalloc_facade_realloc_shrink_exe_guard.sh
+[mimap017a-mir-json] ok
+[k2-wide-mimalloc-facade-realloc-shrink-exe] ok
+
+for s in tools/checks/k2_wide_mimalloc_facade_aligned_alloc_exe_guard.sh tools/checks/k2_wide_mimalloc_facade_alignment_metadata_exe_guard.sh tools/checks/k2_wide_mimalloc_facade_small_alloc_exe_guard.sh tools/checks/k2_wide_mimalloc_facade_release_failfast_exe_guard.sh; do bash "$s"; done
+[mimap016b-mir-json] ok
+[k2-wide-mimalloc-facade-aligned-alloc-exe] ok
+[mimap016a-mir-json] ok
+[k2-wide-mimalloc-facade-alignment-metadata-exe] ok
+[mimap014a-mir-json] ok
+[k2-wide-mimalloc-facade-small-alloc-exe] ok
+[mimap015b-mir-json] ok
+[k2-wide-mimalloc-facade-release-failfast-exe] ok
 ```
 
 ## Stop Lines

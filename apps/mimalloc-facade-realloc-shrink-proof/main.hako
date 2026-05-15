@@ -1,0 +1,45 @@
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+
+static box Main {
+    main(args) {
+        local page = new HakoAllocPageModel(150, 8, 1, 1)
+        local alloc = new HakoAllocObjectLifecycleFacade()
+        alloc.objectLifecycleAddPage(page)
+
+        local alloc_ok = alloc.objectLifecycleSmallAlloc(8)
+        local page_id = alloc.objectLifecycleAllocPageId()
+        local block_id = alloc.objectLifecycleAllocBlockId()
+
+        local shrink = alloc.objectLifecycleReallocShrink(page_id, block_id, 4)
+        local shrink_page = alloc.objectLifecycleReallocPageId()
+        local shrink_block = alloc.objectLifecycleReallocBlockId()
+        local shrink_size = alloc.objectLifecycleReallocRequestedSize()
+        local shrink_reason = alloc.objectLifecycleReallocReason()
+
+        local reject = alloc.objectLifecycleReallocShrink(page_id, block_id, 16)
+        local reject_reason = alloc.objectLifecycleReallocReason()
+
+        local shape = 0
+        if alloc_ok == 1 { shape = shape + 1 }
+        if shrink == 1 { shape = shape + 1 }
+        if shrink_page == 150 { shape = shape + 1 }
+        if shrink_block == 0 { shape = shape + 1 }
+        if shrink_size == 4 { shape = shape + 1 }
+        if shrink_reason == 0 { shape = shape + 1 }
+        if reject == 0 { shape = shape + 1 }
+        if reject_reason == 4 { shape = shape + 1 }
+
+        print("mimalloc-facade-realloc-shrink-proof")
+        print("shrink=" + shrink + "," + shrink_page + "," + shrink_block + "," + shrink_size + "," + shrink_reason)
+        print("reject=" + reject + "," + reject_reason)
+
+        if shape == 8 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

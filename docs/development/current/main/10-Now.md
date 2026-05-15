@@ -26,13 +26,13 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-017A realloc shrink / same-page route`
+- current blocker token: `MIMAP-017B realloc grow / move route`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after MIMAP-016B aligned allocation route; next blocker is MIMAP-017A realloc shrink / same-page route over the facade-owned object lifecycle queue; VM-LIM-001 is parked
+- continue phase-293x after MIMAP-017A realloc shrink same-page route; next blocker is MIMAP-017B realloc grow / move route over the facade-owned object lifecycle queue; VM-LIM-001 is parked
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
