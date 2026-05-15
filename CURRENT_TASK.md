@@ -82,6 +82,10 @@ Scope: current lane / next lane / restart order only.
   -> MIMAP-ATOMIC-001 allocator atomic route guard
   -> MIMAP-REMOTE-001 remote-free / abandoned-owner policy
   -> MIMAP-THREADSAFE-ABI-001 thread-safe hako_mem ABI
+- post-mimalloc selfhost order:
+  `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
+  reduction after mimalloc completeness evidence. Do not make broad `.hako`
+  parser/mirbuilder migration a prerequisite for current mimalloc rows.
 - recent BoxShape sidecar:
   MIRBUILDER-DIET builder core / FlowPlanner boundary cleanup closed through MIR-SEMANTIC-PLANS-001
 - metadata promotion queue:

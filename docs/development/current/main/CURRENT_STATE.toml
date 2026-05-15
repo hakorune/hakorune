@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-05-15"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-PURPOSE-002 clarified that the mimalloc port is a .hako / hako_alloc completeness lane, not default process allocator replacement. Ordinary host/process malloc remains the current default; a mimalloc-style provider is only a future explicit option. Current row is MIMAP-SUBSTRATE-CONC-002 route inventory guard before returning to MIMAP-021C facade page-source allocation-miss fallback. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-STAGE1-ORDER-001 parked broad Stage1 .hako owner reduction until after mimalloc completeness evidence. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Current row is MIMAP-SUBSTRATE-CONC-002 route inventory guard before returning to MIMAP-021C facade page-source allocation-miss fallback. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
 phase_status = "docs/development/current/main/phases/phase-293x/293x-390-MIMAP-SUBSTRATE-CONC-002-ROUTE-INVENTORY-GUARD.md"
 method_anchor = "docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-391-MIMAP-PURPOSE-002-ALLOCATOR-REPLACEMENT-BOUNDARY"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-391-MIMAP-PURPOSE-002-ALLOCATOR-REPLACEMENT-BOUNDARY.md"
-latest_card_summary = "MIMAP-PURPOSE-002 clarifies mimalloc port vs future explicit allocator provider replacement."
+latest_card = "293x-392-MIMAP-STAGE1-ORDER-001-POST-MIMALLOC-SELFHOST-ORDER"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-392-MIMAP-STAGE1-ORDER-001-POST-MIMALLOC-SELFHOST-ORDER.md"
+latest_card_summary = "MIMAP-STAGE1-ORDER-001 parks broad Stage1 .hako owner reduction until after mimalloc completeness evidence."
 
 current_blocker_token = "MIMAP-SUBSTRATE-CONC-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-392 MIMAP-STAGE1-ORDER-001 post-mimalloc selfhost order landed",
   "293x-391 MIMAP-PURPOSE-002 allocator replacement boundary landed",
   "293x-389 MIMAP-SUBSTRATE-CONC-001 concurrency substrate cut landed",
   "293x-388 MIR-SEMANTIC-PLANS-001 classification landed",

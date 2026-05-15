@@ -180,6 +180,10 @@ Native keep remains below those layers:
   host/process malloc path. A mimalloc-style `hako_alloc` provider may become a
   future explicit replacement option, but that is a separate provider ladder and
   must not be inferred from the port itself.
+- broad Stage1 `.hako` compiler migration is not a prerequisite for the
+  mimalloc port. Keep Stage1/selfhost routes as monitor/proof while mimalloc
+  advances, and reopen broad Stage1 owner reduction after the mimalloc
+  completeness lane has produced allocator-grade evidence.
 - collection owner growth belongs under `hako_alloc` / ring1 collection runtime, not ring0.
 - `runtime/memory/**` is not the canonical home for alloc/policy helpers in the end-state layering.
 - Rune is a contract layer that sits beside `hako_core` / `hako_alloc` / `hako_std`; it does not replace those implementation layers.
@@ -194,3 +198,36 @@ Native keep remains below those layers:
 - This document does not activate Hakorune process allocator replacement.
 - This document does not select a `hako_alloc` / mimalloc-style provider as the
   default runtime allocator.
+- This document does not require rewriting most of Stage1 in `.hako` before
+  continuing the mimalloc port.
+
+## Mimalloc vs Stage1 Migration Order
+
+Current order:
+
+```text
+1. Continue mimalloc as `.hako` / `hako_alloc` completeness work.
+2. Add only the narrow Stage1 semantics / MIR facts / substrate routes needed
+   by allocator rows.
+3. Keep Stage1/selfhost identity and exact emit checks as monitor/proof.
+4. After mimalloc completeness evidence, reopen broad Stage1 `.hako` owner
+   reduction as a separate selfhost lane.
+```
+
+Allowed before mimalloc closeout:
+
+```text
+narrow Stage1 verifier facts needed by allocator rows
+narrow MIR route contracts needed by substrate rows
+Stage1/selfhost smoke or identity monitoring
+small compatibility repairs required to keep the Stage1 route alive
+```
+
+Not allowed as a mimalloc prerequisite:
+
+```text
+forced broad `.hako` parser migration
+forced broad `.hako` mirbuilder rewrite
+removing Rust bootstrap / bridge keeps just to claim mimalloc completion
+mixing selfhost owner-reduction commits with allocator behavior rows
+```

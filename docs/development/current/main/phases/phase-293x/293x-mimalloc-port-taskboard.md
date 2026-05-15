@@ -78,6 +78,35 @@ Upstream mimalloc source is local-only:
 
 Tracked output is docs only.
 
+## Stage1 / Selfhost Ordering Guard
+
+Stage1/selfhost SSOT:
+
+```text
+docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
+docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md
+```
+
+Decision:
+
+```text
+mimalloc first:
+  continue .hako / hako_alloc allocator completeness work
+  use Stage1/selfhost route as monitor/proof
+  add only narrow Stage1 semantics / MIR facts / substrate routes needed by
+  allocator rows
+
+post-mimalloc:
+  reopen broad Stage1 .hako owner reduction
+  continue mirbuilder-first / parser-after order
+  keep selfhost owner-reduction commits separate from allocator behavior rows
+```
+
+| Row | Status | Purpose | Ordering |
+| --- | --- | --- | --- |
+| `MIMAP-STAGE1-ORDER-001` | landed | Pin that broad Stage1 `.hako` compiler migration is not a mimalloc prerequisite. | docs-only |
+| `SELFHOST-POST-MIMAP-001` | parked | Reopen broad Stage1 `.hako` owner reduction after mimalloc completeness evidence. | after mimalloc closeout |
+
 ## Allocator Concurrency Substrate Cut
 
 SSOT:
