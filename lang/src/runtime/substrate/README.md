@@ -10,6 +10,7 @@ Responsibilities:
   - `hako.ptr`
   - `hako.atomic`
   - `hako.tls`
+  - `hako.worker`
   - `hako.gc`
   - `hako.osvm`
   - `hako.intrin`
@@ -43,7 +44,7 @@ Current phase reading:
 - The first allocator-substrate consumer now has a live allocation-facade slice at:
   - `raw_buf/README.md`
   - `raw_buf/raw_buf_core_box.hako`
-- The current capability-widening locks live at `atomic/README.md`, `tls/README.md`, `gc/README.md`, `osvm/README.md`, and `intrin/README.md`.
+- The current capability-widening locks live at `atomic/README.md`, `tls/README.md`, `worker/README.md`, `gc/README.md`, `osvm/README.md`, and `intrin/README.md`.
 - `gc` now also has a first live box at:
   - `gc/gc_core_box.hako`
 - `osvm` now also has a first live box at:
@@ -71,6 +72,8 @@ Current live capability subset:
   `fence_order_i64(order)` helper-shaped facades.
 - `tls` now has live diagnostics helpers: `last_error_text_h`,
   `last_error_is_ok_i64`, and `last_error_code_i64`.
+- `worker` now has a live single-worker `current_id_i64` helper for
+  allocator-internal identity proof rows.
 - `gc` now has a live `write_barrier_i64` facade.
 - `osvm` now has live `page_size_i64` / `reserve_bytes_i64` /
   `commit_bytes_i64` / `decommit_bytes_i64` facades, plus first

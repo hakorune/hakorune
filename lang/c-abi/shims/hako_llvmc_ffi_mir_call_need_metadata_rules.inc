@@ -568,6 +568,13 @@
             HAKO_LLVMC_MIR_CALL_NEED_HAKO_TLS_CACHE_SLOT_SET_I64,
           },
           {
+            "extern.hako_worker.current_id_i64",
+            "HakoWorkerCurrentIdI64",
+            "extern.hako_worker.current_id_i64",
+            "hako_worker_current_id_i64",
+            HAKO_LLVMC_MIR_CALL_NEED_HAKO_WORKER_CURRENT_ID_I64,
+          },
+          {
             "extern.hostbridge.extern_invoke",
             "HostBridgeExternInvoke",
             "extern.hostbridge.extern_invoke",

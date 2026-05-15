@@ -1,0 +1,28 @@
+using selfhost.hako_alloc.memory.worker_identity_box as HakoAllocWorkerIdentityBox
+
+static box Main {
+    main(args) {
+        local identity = new HakoAllocWorkerIdentity()
+        local first = identity.currentWorkerId()
+        local second = identity.currentWorkerId()
+
+        local shape = 0
+        if first == 0 { shape = shape + 1 }
+        if second == 0 { shape = shape + 1 }
+        if identity.last_worker_id == 0 { shape = shape + 1 }
+        if identity.call_count == 2 { shape = shape + 1 }
+
+        print("mimalloc-worker-identity-proof")
+        print("worker_ids=" + first + "," + second)
+        print("state=" + identity.last_worker_id + "," + identity.call_count)
+        print("shape=" + shape)
+
+        if shape == 4 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -24,11 +24,12 @@ PACKED-003/004 complete
 
 Blueprint and inventory rows are active again after the MIR builder diet cleanup
 sidecar closeout. The mimalloc concurrency substrate cut and route inventory
-guard are pinned, and the facade page-source allocation-miss fallback is now
-green. The current primary row moves to allocator worker identity substrate:
+guard are pinned, the facade page-source allocation-miss fallback is green, and
+the internal worker identity substrate is now live. The current primary row
+moves to allocator TLS/cache-slot substrate:
 
 ```text
-MIMAP-WORKER-001 internal worker identity substrate
+MIMAP-TLS-001 internal TLS / worker-local cache-slot substrate
 ```
 
 Closed cleanup sidecar:
@@ -66,7 +67,10 @@ MIMAP-SUBSTRATE-CONC-002:
 MIMAP-021C:
   landed
   facade page-source allocation-miss fallback is green
-  MIMAP-WORKER-001 is the current selected primary row
+MIMAP-WORKER-001:
+  landed
+  internal worker identity substrate is green
+  MIMAP-TLS-001 is the current selected primary row
 ```
 
 ## Active Source Policy
@@ -148,8 +152,8 @@ not prerequisites:
 | `MIMAP-SUBSTRATE-CONC-001` | landed | Pin the boundary between allocator concurrency substrate and user-facing concurrency language features. | before route inventory |
 | `MIMAP-SUBSTRATE-CONC-002` | landed | Inventory and guard existing hako.atomic / hako.tls / hako.osvm / hako.mem route facts so backend lowering reads MIR-owned routes, not raw helper names. | before MIMAP-021C |
 | `MIMAP-021C` | landed | Facade page-source allocation-miss fallback. | after MIMAP-SUBSTRATE-CONC-002 |
-| `MIMAP-WORKER-001` | ready current | Add internal worker/thread identity substrate for allocator owner/cache policy; no source-level worker identity semantics. | current |
-| `MIMAP-TLS-001` | planned | Add or harden internal TLS / worker-local cache-slot substrate for allocator caches. | after MIMAP-WORKER-001 |
+| `MIMAP-WORKER-001` | landed | Add internal worker/thread identity substrate for allocator owner/cache policy; no source-level worker identity semantics. | after MIMAP-021C |
+| `MIMAP-TLS-001` | ready current | Add or harden internal TLS / worker-local cache-slot substrate for allocator caches. | current |
 | `MIMAP-ATOMIC-001` | planned | Add or harden allocator-facing atomic load/store/CAS/fetch_add route guards. | after MIMAP-TLS-001 |
 | `MIMAP-REMOTE-001` | planned | Model remote free / abandoned-owner / page ownership policy on the existing atomic/TLS substrate. | after MIMAP-ATOMIC-001 |
 | `MIMAP-THREADSAFE-ABI-001` | planned | Pin thread-safe `hako_mem` ABI requirements and smoke boundary. | after MIMAP-REMOTE-001 |

@@ -47,6 +47,7 @@
         int hako_osvm_decommit_bytes_i64;
         int hako_tls_cache_slot_get_i64;
         int hako_tls_cache_slot_set_i64;
+        int hako_worker_current_id_i64;
         int hostbridge_extern_invoke_trap;
         int stage1_emit_program_json;
         int stage1_emit_mir_from_source;
@@ -95,6 +96,7 @@
         HAKO_LLVMC_MIR_CALL_NEED_HAKO_OSVM_DECOMMIT_BYTES_I64,
         HAKO_LLVMC_MIR_CALL_NEED_HAKO_TLS_CACHE_SLOT_GET_I64,
         HAKO_LLVMC_MIR_CALL_NEED_HAKO_TLS_CACHE_SLOT_SET_I64,
+        HAKO_LLVMC_MIR_CALL_NEED_HAKO_WORKER_CURRENT_ID_I64,
         HAKO_LLVMC_MIR_CALL_NEED_HOSTBRIDGE_EXTERN_INVOKE_TRAP,
         HAKO_LLVMC_MIR_CALL_NEED_STAGE1_EMIT_PROGRAM_JSON,
         HAKO_LLVMC_MIR_CALL_NEED_STAGE1_EMIT_MIR_FROM_SOURCE,

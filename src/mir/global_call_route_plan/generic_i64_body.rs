@@ -485,7 +485,8 @@ fn generic_i64_body_refine_instruction(
                 | ExternCallRouteKind::HakoOsvmCommitBytesI64
                 | ExternCallRouteKind::HakoOsvmDecommitBytesI64
                 | ExternCallRouteKind::HakoTlsCacheSlotGetI64
-                | ExternCallRouteKind::HakoTlsCacheSlotSetI64,
+                | ExternCallRouteKind::HakoTlsCacheSlotSetI64
+                | ExternCallRouteKind::HakoWorkerCurrentIdI64,
             ) => {
                 if let Some(dst) = dst {
                     set_generic_i64_value_class(values, *dst, GenericI64ValueClass::I64, changed)

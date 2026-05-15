@@ -26,6 +26,7 @@ pub(crate) mod string_view;
 pub(crate) mod tls;
 pub(crate) mod typed_object;
 pub(crate) mod user_box;
+pub(crate) mod worker;
 
 pub use any::*;
 pub use atomic::*;
@@ -44,3 +45,4 @@ pub use string::*;
 pub use tls::*;
 pub use typed_object::*;
 pub use user_box::*;
+pub use worker::*;

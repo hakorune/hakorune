@@ -121,8 +121,8 @@ no true thread pool
 | `MIMAP-SUBSTRATE-CONC-001` | landed | Pin this boundary and task order. |
 | `MIMAP-SUBSTRATE-CONC-002` | landed | Inventory/guard existing route facts for `hako.atomic`, `hako.tls`, `hako.osvm`, and `hako.mem`; no behavior change. |
 | `MIMAP-021C` | landed | Facade page-source allocation-miss fallback. |
-| `MIMAP-WORKER-001` | ready current | Internal worker identity substrate; VM/reference returns 0. |
-| `MIMAP-TLS-001` | planned | Allocator-internal worker-local cache slot usage; no source syntax. |
+| `MIMAP-WORKER-001` | landed | Internal worker identity substrate; VM/reference returns 0. |
+| `MIMAP-TLS-001` | ready current | Allocator-internal worker-local cache slot usage; no source syntax. |
 | `MIMAP-ATOMIC-001` | planned | Consolidate allocator ownership atomic route set. |
 | `MIMAP-REMOTE-001` | planned | Production-facade remote-free policy integration over existing atomic/TLS proofs. |
 | `MIMAP-THREADSAFE-ABI-001` | planned | Thread-safe `hako_mem` ABI contract. |

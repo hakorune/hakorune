@@ -150,6 +150,7 @@ The current low-level vocabulary is split by capability family:
 | `hako.ptr` | pointer/span and direct slot/native-pointer route vocabulary |
 | `hako.atomic` | fixed-slot i64 atomics plus direct native-pointer store/load/CAS route facts |
 | `hako.tls` | diagnostic TLS rows plus narrow allocator cache-slot get/set |
+| `hako.worker` | single-worker current-id substrate row for allocator-internal policy proof |
 | `hako.gc` | first write-barrier facade |
 | `hako.osvm` | page-size and reserve/commit/decommit rows |
 | `hako.intrin` | current-lane non-negative i64 bit-count rows |
@@ -161,7 +162,7 @@ These modules are low-level vocabulary, not allocator policy owners.
 Current layering:
 
 ```text
-hako.mem / hako.buf / hako.ptr / hako.atomic / hako.tls / hako.osvm
+hako.mem / hako.buf / hako.ptr / hako.atomic / hako.tls / hako.worker / hako.osvm
   -> RawBuf / RawArray substrate helpers
   -> hako_alloc policy/state/facade
   -> mimalloc-style allocator algorithms in .hako

@@ -9,6 +9,7 @@ Current modules
 - `abandoned_reclaim_inventory_box.hako`
 - `options_inventory_box.hako`
 - `thread_heap_owner_inventory_box.hako`
+- `worker_identity_box.hako`
 - `alignment_policy_box.hako`
 - `aligned_small_meta_store_box.hako`
 - `allocator_metadata_records.hako`
@@ -167,6 +168,13 @@ Syntax/style contract
   realloc, align, purge, reclaim, decommit, recommit, use page-map lookup,
   unreserve, release OSVM pages, call provider hooks, replace allocators, use
   TLS/atomics/remote-free, or add backend shortcuts.
+- `worker_identity_box.hako` owns the MIMAP-WORKER-001 allocator-facing worker
+  identity observer. It may call `WorkerCoreBox.current_id_i64()`, store
+  scalar `last_worker_id` / `call_count` proof state, and keep the single-worker
+  lane deterministic. It must not open source-level worker identity,
+  `worker_local` syntax, TLS/cache slots, atomics, remote-free, page ownership
+  transfer, provider hooks, allocator replacement, task scheduling, or backend
+  shortcuts.
 - `osvm_backed_fast_path_heap_box.hako` is the M168 composition owner. It may
   reserve/commit/decommit through `HakoAllocPageSourcePolicy`, then reuse the
   same page queue and page-local free-list owners. It must not add OSVM metal,

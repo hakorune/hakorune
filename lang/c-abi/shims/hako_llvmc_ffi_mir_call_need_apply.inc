@@ -124,6 +124,9 @@
           case HAKO_LLVMC_MIR_CALL_NEED_HAKO_TLS_CACHE_SLOT_SET_I64:
             needs->hako_tls_cache_slot_set_i64 = 1;
             break;
+          case HAKO_LLVMC_MIR_CALL_NEED_HAKO_WORKER_CURRENT_ID_I64:
+            needs->hako_worker_current_id_i64 = 1;
+            break;
           case HAKO_LLVMC_MIR_CALL_NEED_HOSTBRIDGE_EXTERN_INVOKE_TRAP:
             needs->hostbridge_extern_invoke_trap = 1;
             break;

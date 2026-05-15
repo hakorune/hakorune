@@ -668,6 +668,7 @@ Current allocator-substrate extern families include:
 - `hako_osvm_reserve_bytes_i64` / `hako_osvm_commit_bytes_i64` /
   `hako_osvm_decommit_bytes_i64`
 - `hako_tls_cache_slot_get_i64` / `hako_tls_cache_slot_set_i64`
+- `hako_worker_current_id_i64`
 - `hako_atomic_slot_cas_i64`
 - `hako_atomic_slot_load_i64`
 - `hako_atomic_slot_store_i64`

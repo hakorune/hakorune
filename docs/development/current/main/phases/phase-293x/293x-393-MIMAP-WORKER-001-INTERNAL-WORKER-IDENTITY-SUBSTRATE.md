@@ -1,6 +1,6 @@
 # 293x-393 MIMAP-WORKER-001 Internal Worker Identity Substrate
 
-Status: ready
+Status: landed
 Date: 2026-05-15
 
 ## Decision
@@ -30,7 +30,25 @@ smoke, not a true parallel language semantics claim.
 - No provider hooks, host allocator replacement, or `#[global_allocator]`.
 - No backend `.inc` matcher shortcut.
 
+## Implementation
+
+- Added `WorkerCoreBox.current_id_i64()` under `runtime/substrate/worker`.
+- Added `hako_worker_current_id_i64` as a MIR-owned extern route and NyRT
+  single-worker export.
+- Added `HakoAllocWorkerIdentity` as the allocator-facing observer with
+  `last_worker_id` / `call_count` proof state.
+- Added `apps/mimalloc-worker-identity-proof/` and
+  `k2_wide_mimalloc_worker_identity_exe_guard.sh`.
+
 ## Required Evidence
+
+```text
+bash tools/checks/k2_wide_mimalloc_worker_identity_exe_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+tools/checks/dev_gate.sh quick
+```
+
+## Evidence
 
 ```text
 bash tools/checks/k2_wide_mimalloc_worker_identity_exe_guard.sh

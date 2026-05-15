@@ -25,6 +25,7 @@ Low-level operations are exposed through explicit capability modules:
 - `hako.ptr`
 - `hako.atomic`
 - `hako.tls`
+- `hako.worker`
 - `hako.gc`
 - `hako.osvm`
 - `hako.intrin`
@@ -67,6 +68,7 @@ The current live surface is intentionally narrow.
 | `hako_alloc` facade | `HakoAllocProductionFacade` is the production-facing policy seam over the existing `HakoAllocHeap` page/free-list state, `HakoAllocRemoteFreePolicy`, and `HakoAllocPageSourcePolicy`; current proof rows cover local small/medium allocate/free/reject/reuse accounting, bounded CAS retry-loop remote-free policy, and OSVM reserve/commit/decommit page-source policy |
 | `hako.atomic` | helper-shaped `fence_i64`, memory-order vocabulary, `fence_order_i64(order)`, narrow fixed-slot `cas_i64` / `load_i64` / `store_i64` / `fetch_add_i64` rows, and direct native-pointer store/load/CAS routes exist; generic memory-order arguments are not live |
 | `hako.tls` | helper-shaped diagnostics TLS rows exist; narrow allocator cache-slot `i64` get/set rows exist for pure-first EXE; generic thread/task-local cells are not live |
+| `hako.worker` | single-worker `current_id_i64` substrate row exists for allocator-internal owner/cache policy proof; source-level worker identity is not live |
 | `hako.gc` | helper-shaped `write_barrier_i64` row exists |
 | `hako.osvm` | page-size plus reserve/commit/decommit rows exist; first `usize` facades cover page size and byte lengths over the non-negative current-lane i64 subset |
 | `hako.intrin` | current-lane non-negative i64 bit-count rows exist: `clz_i64`, `ctz_i64`, `popcnt_i64`; backend optimization use is not live |

@@ -1,0 +1,20 @@
+// worker_identity_box.hako -- allocator-facing worker identity observer.
+// Responsibility: adapt WorkerCoreBox.current_id_i64 into hako_alloc scalar
+// proof state for owner/cache policy rows.
+// This module does not open source-level worker identity, worker-local syntax,
+// TLS/cache slots, atomics, remote-free, page ownership transfer, provider
+// hooks, or allocator replacement.
+
+using selfhost.runtime.substrate.worker.worker_core_box as WorkerCoreBox
+
+box HakoAllocWorkerIdentity {
+    call_count: i64 = 0
+    last_worker_id: i64 = -1
+
+    currentWorkerId() {
+        local worker_id = WorkerCoreBox.current_id_i64()
+        me.call_count = me.call_count + 1
+        me.last_worker_id = worker_id
+        return worker_id
+    }
+}
