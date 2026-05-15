@@ -26,6 +26,37 @@ Rust-style host allocator replacement feature may remain a future optional
 runtime capability, but it is not the current acceptance target for the
 mimalloc port.
 
+## Terminology: Port vs Replacement
+
+Use these terms precisely:
+
+| Term | Current meaning | Current status |
+| --- | --- | --- |
+| mimalloc port | Re-express mimalloc-derived allocator algorithms in `.hako` under `hako_alloc`, using Hakorune capability substrate rows. | active completeness lane |
+| `hako_alloc` production facade | A `.hako` policy seam and proof surface for allocator behavior. It can model allocation, release, page-source, remote-free, and stats policies. | active proof/algorithm surface |
+| allocator provider option | A future explicit runtime option that may choose a `hako_alloc` / mimalloc-style provider the way Rust can explicitly choose a global allocator. | optional future ladder only |
+| process allocator replacement | Replacing Hakorune's ordinary host/process malloc/free path or installing a global allocator hook by default. | inactive / forbidden in this lane |
+
+The current default runtime allocation path remains the ordinary host/process
+allocator path. Completing the mimalloc port makes `hako_alloc` more complete
+and may create a future provider candidate, but it must not silently install
+that candidate as the process allocator.
+
+Avoid ambiguous wording such as "integrate mimalloc into Hakorune" unless the
+sentence names the layer:
+
+```text
+allowed:
+  port mimalloc-style algorithms into `.hako` / `hako_alloc`
+  prepare a future explicit allocator-provider option
+
+not allowed:
+  imply default malloc/free replacement
+  imply provider activation
+  imply hook installation
+  imply `#[global_allocator]`-style activation without an explicit future row
+```
+
 ## Ownership
 
 ```text
@@ -43,7 +74,7 @@ Rust runtime / Hakorune core
   no implicit process allocator swap in the current lane
 
 allocator-provider activation ladder
-  optional future host replacement support
+  optional future explicit provider/replacement support
   inactive after M103 unless explicitly reopened
 ```
 
@@ -59,7 +90,7 @@ preconditions, but it does not gate `.hako` mimalloc implementation progress.
 4. Use proof apps and focused gates to fix behavior before widening production
    facade ownership.
 5. Reopen allocator-provider M104+ only when host allocator replacement support
-   is explicitly requested.
+   is explicitly requested as an optional provider/replacement row.
 
 The post-analysis implementation ladder is fixed in
 `docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md`.

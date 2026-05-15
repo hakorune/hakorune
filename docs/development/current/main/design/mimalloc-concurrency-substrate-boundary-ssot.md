@@ -16,6 +16,11 @@ Related:
 Mimalloc migration needs concurrency substrate, not the full concurrency
 language surface.
 
+This substrate is required so `.hako` / `hako_alloc` can model allocator-grade
+algorithms. It does not activate a process allocator replacement path. The
+ordinary host/process malloc path remains the current default; a mimalloc-style
+provider is only a possible future explicit replacement option.
+
 Required for mimalloc:
 
 ```text
@@ -133,3 +138,5 @@ no true thread pool
   `extern_call_routes` / `lowering_plan`.
 - Do not activate provider hooks, host allocator replacement, or
   `#[global_allocator]`.
+- Do not imply that finishing these substrate rows changes the default
+  malloc/free path.

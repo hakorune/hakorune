@@ -39,8 +39,13 @@ Language-facing entry:
 Current mimalloc reading:
 
 - implement allocator algorithms in `.hako` / `hako_alloc`;
-- keep provider activation, hook install, and process allocator replacement as
-  optional future host support;
+- keep ordinary host/process malloc as the current default runtime allocation
+  path;
+- treat provider activation, hook install, and process allocator replacement as
+  optional future host support only;
+- if opened later, read replacement as an explicit provider option, similar in
+  spirit to Rust's explicit global-allocator selection, not as a side effect of
+  completing the mimalloc port;
 - keep `.inc` and Stage0 free of provider, hook, and mimalloc-specific
   matchers.
 
@@ -87,6 +92,8 @@ apps. The current route chain is:
 | `hako_alloc` | page/free-list, remote-free, page-source, and production facade policies live above substrate capabilities |
 
 These proof rows do not activate a host allocator replacement path.
+They only prove that allocator-grade `.hako` code can use narrow substrate
+routes through MIR-owned facts.
 
 ## Internal hako_alloc Inventory Surfaces
 

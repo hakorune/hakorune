@@ -92,6 +92,7 @@ Decision:
 mimalloc port:
   needs allocator-facing concurrency substrate
   does not require widening user-facing concurrency language features first
+  does not replace the ordinary host/process malloc path
 
 required substrate:
   worker/thread identity
@@ -107,6 +108,9 @@ not prerequisites:
   scoped request context
   source-level worker_local syntax
   true parallel language semantics
+  allocator-provider activation
+  hook install
+  default process allocator replacement
 ```
 
 | Row | Status | Purpose | Ordering |

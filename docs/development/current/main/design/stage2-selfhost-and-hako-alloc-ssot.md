@@ -176,6 +176,10 @@ Native keep remains below those layers:
 - current mimalloc port completion means `.hako` / `hako_alloc` allocator
   ownership plus narrow capability leaves; it does not require Rust process
   allocator replacement.
+- current mimalloc port completion also does not change the default ordinary
+  host/process malloc path. A mimalloc-style `hako_alloc` provider may become a
+  future explicit replacement option, but that is a separate provider ladder and
+  must not be inferred from the port itself.
 - collection owner growth belongs under `hako_alloc` / ring1 collection runtime, not ring0.
 - `runtime/memory/**` is not the canonical home for alloc/policy helpers in the end-state layering.
 - Rune is a contract layer that sits beside `hako_core` / `hako_alloc` / `hako_std`; it does not replace those implementation layers.
@@ -188,3 +192,5 @@ Native keep remains below those layers:
 - This document does not declare Stage2 distribution complete.
 - This document does not move LLVM / OS VM / GC / ABI metal into `.hako`.
 - This document does not activate Hakorune process allocator replacement.
+- This document does not select a `hako_alloc` / mimalloc-style provider as the
+  default runtime allocator.
