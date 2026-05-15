@@ -26,11 +26,12 @@ Blueprint and inventory rows are active again after the MIR builder diet cleanup
 sidecar closeout. The mimalloc concurrency substrate cut and route inventory
 guard are pinned, the facade page-source allocation-miss fallback is green, and
 the internal worker identity, TLS cache-slot, atomic route guard, and
-remote-free / abandoned-owner policy and thread-safe `hako_mem` ABI rows are
-now live. The current primary row moves to native multi-worker substrate stress:
+remote-free / abandoned-owner policy, thread-safe `hako_mem` ABI, and native
+multi-worker substrate stress rows are now live. The current primary row moves
+back to the constructor/lifecycle cleanup row:
 
 ```text
-MIMAP-PAR-STRESS-001 native multi-worker substrate stress
+LIFECYCLE-BIRTH-001 new-only birth policy
 ```
 
 Closed cleanup sidecar:
@@ -83,7 +84,10 @@ MIMAP-REMOTE-001:
 MIMAP-THREADSAFE-ABI-001:
   landed
   thread-safe hako_mem ABI contract and smoke guard are green
-  MIMAP-PAR-STRESS-001 is the current selected primary row
+MIMAP-PAR-STRESS-001:
+  landed
+  native Rust/kernel multi-worker substrate stress is green
+  LIFECYCLE-BIRTH-001 is the current selected primary row
 ```
 
 ## Active Source Policy
@@ -170,7 +174,7 @@ not prerequisites:
 | `MIMAP-ATOMIC-001` | landed | Add allocator-facing atomic load/store/CAS/fetch_add route guard. | after MIMAP-TLS-001 |
 | `MIMAP-REMOTE-001` | landed | Model remote free / abandoned-owner / page ownership policy on the existing atomic/TLS substrate. | after MIMAP-ATOMIC-001 |
 | `MIMAP-THREADSAFE-ABI-001` | landed | Pin thread-safe `hako_mem` ABI requirements and smoke boundary. | after MIMAP-REMOTE-001 |
-| `MIMAP-PAR-STRESS-001` | ready current | Native true-parallel stress for per-worker heaps and remote free pressure. | current |
+| `MIMAP-PAR-STRESS-001` | landed | Native multi-worker substrate stress for per-worker heaps and remote free pressure. | after MIMAP-THREADSAFE-ABI-001 |
 
 ## Collection / Automata Dependency Cut
 
@@ -274,7 +278,7 @@ allocator-provider ladder:
 
 | Row | Status | Purpose | Ordering |
 | --- | --- | --- | --- |
-| `LIFECYCLE-BIRTH-001` | ready | Lock `birth` as a constructor hook fired only by `new`; direct receiver calls stay forbidden. | before parser widening |
+| `LIFECYCLE-BIRTH-001` | ready current | Lock `birth` as a constructor hook fired only by `new`; direct receiver calls stay forbidden. | current |
 | `PARSER-BIRTH-001` | ready | Add a negative parser fixture for `obj.birth(...)` so constructor policy does not regress. | after LIFECYCLE-BIRTH-001 |
 | `PARSER-BIRTH-002` | ready | Improve direct-`birth` diagnostic with a `use new Box(...)` hint. | after PARSER-BIRTH-001 |
 | `NEW-NAMED-ARGS-001` | parked | Design named constructor arguments for `new Box(field: value, ...)`. | later; not a MIMAP-013 blocker |

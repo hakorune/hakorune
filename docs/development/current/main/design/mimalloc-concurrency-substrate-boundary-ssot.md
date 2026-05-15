@@ -126,7 +126,7 @@ no true thread pool
 | `MIMAP-ATOMIC-001` | landed | Consolidate allocator ownership atomic route set. |
 | `MIMAP-REMOTE-001` | landed | Production-facade remote-free policy integration over existing atomic/TLS proofs. |
 | `MIMAP-THREADSAFE-ABI-001` | landed | Thread-safe `hako_mem` ABI contract. |
-| `MIMAP-PAR-STRESS-001` | ready current | Native multi-worker stress after substrate rows are live. |
+| `MIMAP-PAR-STRESS-001` | landed | Native multi-worker stress after substrate rows are live. |
 
 ## Stop Lines
 
@@ -140,3 +140,27 @@ no true thread pool
   `#[global_allocator]`.
 - Do not imply that finishing these substrate rows changes the default
   malloc/free path.
+
+## Native Stress Reading
+
+`MIMAP-PAR-STRESS-001` closes the substrate smoke ladder with a Rust/kernel
+fixture that uses real OS threads while keeping VM and source-language semantics
+unchanged.
+
+The fixture may compose:
+
+```text
+hako_mem_alloc/free
+hako_worker_current_id_i64
+hako_tls_cache_slot_get_i64 / hako_tls_cache_slot_set_i64
+hako_atomic_slot_fetch_add_i64
+hako_atomic_ptr_load_ordered / hako_atomic_ptr_cas_ordered
+```
+
+It remains an allocator substrate stress only:
+
+```text
+no source-level worker_local / lock<T> / Channel / task_scope
+no provider hook / host allocator replacement / #[global_allocator]
+no backend .inc special-case
+```

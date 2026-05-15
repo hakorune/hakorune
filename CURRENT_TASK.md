@@ -46,10 +46,10 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - mimalloc blueprint / port taskboard:
   `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
-- mimalloc concurrency substrate boundary SSOT:
-  `docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md`
+- constructor/new lifecycle SSOT:
+  `docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md`
 - current blocker token:
-  `MIMAP-PAR-STRESS-001 native multi-worker substrate stress`
+  `LIFECYCLE-BIRTH-001 new-only birth policy`
 - current BoxShape sidecar:
   none active; `MIRBUILDER-DIET` closed through `MIR-SEMANTIC-PLANS-001`
 - primary mode: mimalloc substrate implementation lane; keep upstream source
@@ -66,8 +66,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after MIMAP-THREADSAFE-ABI-001; next
-  blocker is MIMAP-PAR-STRESS-001 native multi-worker substrate stress.
+- resume point: continue Phase 293x after MIMAP-PAR-STRESS-001; next blocker
+  is LIFECYCLE-BIRTH-001 new-only birth policy.
   VM-LIM-001 remains parked diagnostic. Keep LoopRange on the Stage1 route; do
   not source-desugar range loops.
 
@@ -75,7 +75,7 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  MIMAP-PAR-STRESS-001 native multi-worker substrate stress
+  LIFECYCLE-BIRTH-001 new-only birth policy
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
   reduction after mimalloc completeness evidence. Do not make broad `.hako`

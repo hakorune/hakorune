@@ -130,6 +130,8 @@ unsafe extern "C" fn fake_str(
 
 #[path = "tests/filebox.rs"]
 mod filebox;
+#[path = "tests/mimalloc_parallel_substrate.rs"]
+mod mimalloc_parallel_substrate;
 #[path = "tests/string.rs"]
 mod string;
 

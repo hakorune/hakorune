@@ -132,6 +132,38 @@ selection, allocator hooks, `#[global_allocator]`, source-level
 `worker_local`, `lock<T>`, or true-parallel language semantics. It only fixes
 the substrate ABI expectations for allocator-style `.hako` code.
 
+## Native Multi-Worker Stress
+
+Decision: `MIMAP-PAR-STRESS-001` is live-narrow.
+
+The native multi-worker stress is a Rust/kernel substrate smoke. It exercises
+real OS threads against the allocator-facing substrate without widening the
+language surface:
+
+```text
+hako_mem_alloc/free
+hako_worker_current_id_i64
+hako_tls_cache_slot_get_i64 / hako_tls_cache_slot_set_i64
+hako_atomic_slot_fetch_add_i64
+hako_atomic_ptr_load_ordered / hako_atomic_ptr_cas_ordered
+```
+
+Contract:
+
+- worker identity remains the current single-worker proof value (`0`);
+- TLS cache slots are thread-local and must not leak across worker threads;
+- fixed-slot atomics may be used for deterministic counters;
+- pointer CAS may model a native remote-free stack in the stress fixture;
+- the stress owns every allocated node exactly once and drains/free's it after
+  worker completion.
+
+Stop line:
+
+This stress is not true-parallel language semantics. It does not add
+source-level `worker_local`, `lock<T>`, `Channel`, `task_scope`, provider
+selection, allocator hooks, `#[global_allocator]`, or process allocator
+replacement.
+
 ## Internal hako_alloc Inventory Surfaces
 
 `hako_alloc` also contains internal read-only inventory surfaces used by the
