@@ -49,7 +49,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc blueprint / port taskboard:
   `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
 - current blocker token:
-  `FLOWPLANNER-V0-001 loop v0 retire/promote rules`
+  `MIR-SEMANTIC-PLANS-001 MIR plan/route/seed classification`
 - current BoxShape sidecar:
   `MIRBUILDER-DIET` active; keep BoxShape cleanup separate from MIMAP behavior rows
 - primary mode: docs-first FlowPlanner/builder boundary cleanup; keep upstream mimalloc source untracked and parked
@@ -64,8 +64,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after FLOWPLANNER-ENTRY-001; next blocker is
-  FLOWPLANNER-V0-001 loop v0 retire/promote rules. Return to
+- resume point: continue Phase 293x after FLOWPLANNER-V0-001; next blocker is
+  MIR-SEMANTIC-PLANS-001 MIR plan/route/seed classification. Return to
   MIMAP-021C facade page-source allocation-miss fallback after the cleanup
   sidecar closes.
   VM-LIM-001 remains parked diagnostic. Keep LoopRange on the Stage1 route; do
@@ -75,7 +75,7 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the MIR builder diet taskboard
 - next 293x order:
-  FLOWPLANNER-V0-001 -> MIR-SEMANTIC-PLANS-001 -> return to MIMAP-021C
+  MIR-SEMANTIC-PLANS-001 -> return to MIMAP-021C
 - recent BoxShape sidecar:
   MIRBUILDER-DIET builder core / FlowPlanner boundary cleanup
 - metadata promotion queue:

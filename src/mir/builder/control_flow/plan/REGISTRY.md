@@ -38,16 +38,23 @@ See also: `src/mir/builder/control_flow/plan/LEGACY_V0_BOUNDARY.md`
 
 目的: `loop_*_v0` の “実配線（facts→router→compose）” を inventory 化し、削除/縮退の起点を固定する。
 
+FLOWPLANNER-V0-001 rule:
+- new `loop_*_v0` boxes are rejected by default.
+- an exception requires an active blocker, focused fixture/gate, and
+  `retire_when` / `promote_when` wording.
+- two similar one-shape requests trigger skeleton + feature promotion before
+  another v0 box is accepted.
+
 ### Active (routed)
 
-| Box | Route status | Classification | Evidence / next |
+| Box | Route status | Hold reason | Retire / promote next |
 |---|---|---|---|
-| `loop_scan_v0` | routed (`registry/mod.rs` + handlers + composer) | keep | Phase C15 recipe-first active |
-| `loop_scan_methods_v0` | routed (`registry/mod.rs` + handlers + composer) | keep | Phase C15 recipe-first active |
-| `loop_scan_methods_block_v0` | routed (`registry/mod.rs` + handlers + composer) | keep | disjoint predicate with `loop_scan_methods_v0` |
-| `loop_scan_phi_vars_v0` | routed (`registry/mod.rs` + handlers + composer) | keep | selfhost blocker path pinned |
-| `loop_collect_using_entries_v0` | routed (`registry/mod.rs` + handlers + composer) | keep | Phase C16 recipe-first active |
-| `loop_bundle_resolver_v0` | routed (`registry/mod.rs` + handlers + composer) | keep | Phase C16 recipe-first active |
+| `loop_scan_v0` | routed (`registry/mod.rs` + handlers + composer) | Phase C15 recipe-first active | retire when scan skeleton + substring/step features cover the focused fixture; promote common scan features if reused outside this shape |
+| `loop_scan_methods_v0` | routed (`registry/mod.rs` + handlers + composer) | Phase C15 recipe-first active | retire when scan-methods route composes from scan skeleton + nested-loop features; promote nested method-scan feature if a second route needs it |
+| `loop_scan_methods_block_v0` | routed (`registry/mod.rs` + handlers + composer) | disjoint predicate with `loop_scan_methods_v0` | retire by folding block-wrapper observation into the scan-methods facts facade |
+| `loop_scan_phi_vars_v0` | routed (`registry/mod.rs` + handlers + composer) | selfhost blocker path pinned | retire when generic nested search + collect-loop features cover `_collect_phi_vars`; promote if another PHI collection route shares the same structure |
+| `loop_collect_using_entries_v0` | routed (`registry/mod.rs` + handlers + composer) | Phase C16 recipe-first active | retire when var-to-var step + if/else chain become reusable features |
+| `loop_bundle_resolver_v0` | routed (`registry/mod.rs` + handlers + composer) | Phase C16 recipe-first active | retire when loop-local step var + nested return are represented as generic features |
 
 ### Retired
 
@@ -57,6 +64,9 @@ See also: `src/mir/builder/control_flow/plan/LEGACY_V0_BOUNDARY.md`
 
 Audit rule (active運用):
 - routed が無い box は “活性箱” 扱いにしない。削除・縮退は別コミットで fixture/gate を固定して行う。
+- active v0 boxes are hold-only until a row proves a replacement or promotion.
+- no v0 module may become the long-term vocabulary without an explicit
+  promotion row that moves the common behavior into skeleton + feature terms.
 
 ### Retired History (read-only)
 
@@ -213,9 +223,14 @@ Hard patterns (special-rule required):
 
 ## How to add a new box (template)
 
+Default answer: do not add a new `loop_*_v0` box. Add a skeleton / feature /
+recipe route first.
+
+Exception template for an active blocker:
+
 1. Fixture を 1 本作る（`apps/tests/phase29bq_*_min.hako`）
 2. gate を 1 本追加し、`phase29bq_fast_gate_cases.tsv` に入れる
-3. SSOT（design or phase README）に「受理条件 / 禁止事項 / 期待 stdout/RC」を 5 行で固定
+3. SSOT（design or phase README）に「受理条件 / 禁止事項 / 期待 stdout/RC / retire_when / promote_when」を 5 行で固定
 4. `phase29bq_fast_gate_vm.sh` → `phase29bp_planner_required_dev_gate_v4_vm.sh` で緑維持を確認
 
 Checklist:

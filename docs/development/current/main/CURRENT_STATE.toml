@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-15"
 
 active_lane = "phase-293x MIR builder diet cleanup sidecar"
-active_lane_status = "MIRBUILDER-DIET cleanup sidecar is active before returning to MIMAP-021C. MIRBUILDER-DIET-001 landed the boundary SSOT and taskboard; FLOWPLANNER-ENTRY-001 landed the public facade and rejected-bypass inventory; FLOWPLANNER-V0-001 is the current cleanup row. MIMAP-021C is parked until builder core vs FlowPlanner boundaries are documented. No behavior changes, crate split, allocator route changes, provider hooks, host allocator replacement, or #[global_allocator] activation are allowed in this sidecar."
+active_lane_status = "MIRBUILDER-DIET cleanup sidecar is active before returning to MIMAP-021C. MIRBUILDER-DIET-001 landed the boundary SSOT and taskboard; FLOWPLANNER-ENTRY-001 landed the public facade and rejected-bypass inventory; FLOWPLANNER-V0-001 landed v0 retire/promote rules; MIR-SEMANTIC-PLANS-001 is the current cleanup row. MIMAP-021C is parked until builder core vs FlowPlanner boundaries and MIR plan/route/seed classifications are documented. No behavior changes, crate split, allocator route changes, provider hooks, host allocator replacement, or #[global_allocator] activation are allowed in this sidecar."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-387-FLOWPLANNER-V0-001-RETIRE-PROMOTE-RULES.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-388-MIR-SEMANTIC-PLANS-001-CLASSIFICATION.md"
 method_anchor = "docs/development/current/main/design/mir-builder-diet-flowplanner-boundary-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md"
 
-latest_card = "293x-386-FLOWPLANNER-ENTRY-001-PUBLIC-FACADE-INVENTORY"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-386-FLOWPLANNER-ENTRY-001-PUBLIC-FACADE-INVENTORY.md"
-latest_card_summary = "FLOWPLANNER-ENTRY-001 documents the FlowPlanner public surface, accepted temporary exceptions, and rejected bypasses."
+latest_card = "293x-387-FLOWPLANNER-V0-001-RETIRE-PROMOTE-RULES"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-387-FLOWPLANNER-V0-001-RETIRE-PROMOTE-RULES.md"
+latest_card_summary = "FLOWPLANNER-V0-001 adds no-new-v0 defaults and retire/promote rules for active FlowPlanner v0 boxes."
 
-current_blocker_token = "FLOWPLANNER-V0-001"
+current_blocker_token = "MIR-SEMANTIC-PLANS-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-387 FLOWPLANNER-V0-001 retire promote rules landed",
   "293x-386 FLOWPLANNER-ENTRY-001 public facade inventory landed",
   "293x-385 MIRBUILDER-DIET-001 boundary SSOT landed",
   "293x-383 MIMAP-021B facade page-source fresh-page attach landed",

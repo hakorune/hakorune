@@ -99,7 +99,7 @@ the docs and public-entry contract so future crate split remains mechanical.
 | --- | --- | --- |
 | `MIRBUILDER-DIET-001` | landed | Open the sidecar and pin this boundary SSOT. |
 | `FLOWPLANNER-ENTRY-001` | landed | Inventory builder -> FlowPlanner public entries and document rejected bypasses. |
-| `FLOWPLANNER-V0-001` | ready | Add retire/promote rules for active `loop_*_v0` boxes. |
+| `FLOWPLANNER-V0-001` | landed | Add retire/promote rules for active `loop_*_v0` boxes. |
 | `MIR-SEMANTIC-PLANS-001` | ready | Classify top-level MIR plan/route/seed owners without moving files. |
 | `JOINIR-FENCE-001` | parked | Tighten JoinIR merge/bridge boundary after FlowPlanner entry is stable. |
 

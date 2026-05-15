@@ -30,9 +30,32 @@ No module is considered retired unless:
 ## Boundary rules
 
 - `loop_*_v0` modules are temporary compatibility boxes, not the long-term vocabulary.
+- New `loop_*_v0` modules are rejected by default.
 - New acceptance shapes should prefer recipe-first/coreloop slots before adding another `*_v0` module.
+- A new `loop_*_v0` module is allowed only when an active blocker explicitly
+  selects a one-shape proof lane and the row documents `retire_when` /
+  `promote_when`.
 - No AST rewrite in legacy-v0 modules (analysis-only observation only).
 - Acceptance expansion remains strict/dev `planner_required` scoped unless explicitly promoted by SSOT decision.
+- If the same kind of one-shape extension appears twice, stop adding v0 boxes
+  and promote the common part to skeleton + feature composition first.
+
+## Retire / promote vocabulary
+
+Use these fields in the registry before changing v0 wiring:
+
+```text
+retire_when:
+  The generic skeleton/feature route that can replace this v0 box is green
+  under the focused fixture and fast gate.
+
+promote_when:
+  The shape is no longer one-off and appears as a reusable compiler capability
+  across at least two independent routes or apps.
+
+hold_reason:
+  Why this v0 box still exists today.
+```
 
 ## Removal playbook (one box at a time)
 

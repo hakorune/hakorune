@@ -1,6 +1,6 @@
 # 293x-387 FLOWPLANNER-V0-001 Retire / Promote Rules
 
-Status: ready
+Status: landed
 Date: 2026-05-15
 
 ## Decision
@@ -31,3 +31,10 @@ promoting them.
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 ```
+
+## Landed Notes
+
+- `LEGACY_V0_BOUNDARY.md` now rejects new `loop_*_v0` modules by default.
+- `REGISTRY.md` now records hold reasons and retire/promote directions for
+  active routed v0 boxes.
+- New v0 exceptions now require `retire_when` / `promote_when` wording.
