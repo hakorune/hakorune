@@ -1,0 +1,117 @@
+// object_lifecycle_facade_page_source_alloc_miss_box.hako -- MIMAP-021C alloc-miss fallback
+// Responsibility: after a facade small allocation misses with small_no_page,
+// source exactly one fresh page through the MIMAP-021B attach adapter and retry
+// the small allocation once.
+// This module does not release/realloc, align, purge/reclaim, decommit/recommit,
+// use page-map lookup, remote-free, TLS, atomics, provider hooks, or allocator
+// replacement.
+
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_page_source_box as HakoAllocObjectLifecycleFacadePageSourceBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_reason_box as HakoAllocObjectLifecycleFacadeReason
+
+box HakoAllocObjectLifecycleFacadePageSourceAllocMissReport {
+    status: i64 = 0
+    initial_ok: i64 = 0
+    initial_reason: i64 = 0
+    fallback_attempted: i64 = 0
+    source_status: i64 = 0
+    source_reserved: i64 = 0
+    source_committed: i64 = 0
+    source_reject: i64 = 0
+    source_added_page_id: i64 = -1
+    source_facade_page_count: i64 = 0
+    source_base: i64 = 0
+    source_bytes: i64 = 0
+    retry_ok: i64 = 0
+    retry_reason: i64 = 0
+    final_ok: i64 = 0
+    final_reason: i64 = 0
+    final_page_id: i64 = -1
+    final_block_id: i64 = -1
+    fallback_attempt_count: i64 = 0
+    source_success_count: i64 = 0
+    source_failure_count: i64 = 0
+    retry_success_count: i64 = 0
+    retry_failure_count: i64 = 0
+}
+
+box HakoAllocObjectLifecycleFacadePageSourceAllocMissFallback {
+    fallback_attempt_count: i64 = 0
+    source_success_count: i64 = 0
+    source_failure_count: i64 = 0
+    retry_success_count: i64 = 0
+    retry_failure_count: i64 = 0
+
+    snapshotCounters(result) {
+        result.fallback_attempt_count = me.fallback_attempt_count
+        result.source_success_count = me.source_success_count
+        result.source_failure_count = me.source_failure_count
+        result.retry_success_count = me.retry_success_count
+        result.retry_failure_count = me.retry_failure_count
+        return result
+    }
+
+    copyFinalAllocation(facade, result) {
+        result.final_ok = facade.objectLifecycleAllocOk()
+        result.final_reason = facade.objectLifecycleAllocReason()
+        result.final_page_id = facade.objectLifecycleAllocPageId()
+        result.final_block_id = facade.objectLifecycleAllocBlockId()
+        return result
+    }
+
+    allocateOnMiss(facade, size, page_id, block_size, capacity, reserved) {
+        local result = new HakoAllocObjectLifecycleFacadePageSourceAllocMissReport()
+        if facade == null {
+            return me.snapshotCounters(result)
+        }
+        if size <= 0 {
+            return me.snapshotCounters(result)
+        }
+
+        result.initial_ok = facade.objectLifecycleSmallAlloc(size)
+        result.initial_reason = facade.objectLifecycleAllocReason()
+        if result.initial_ok == 1 {
+            result.status = 1
+            return me.snapshotCounters(me.copyFinalAllocation(facade, result))
+        }
+        if result.initial_reason != HakoAllocObjectLifecycleFacadeReason.small_no_page() {
+            result.final_reason = result.initial_reason
+            return me.snapshotCounters(result)
+        }
+
+        me.fallback_attempt_count = me.fallback_attempt_count + 1
+        result.fallback_attempted = 1
+        result.fallback_attempt_count = me.fallback_attempt_count
+
+        local attach = new HakoAllocObjectLifecycleFacadePageSourceAttach()
+        local source = attach.attachFreshPage(facade, page_id, block_size, capacity, reserved)
+        result.source_status = source.status
+        result.source_reserved = source.source_reserved
+        result.source_committed = source.source_committed
+        result.source_reject = source.source_reject
+        result.source_added_page_id = source.added_page_id
+        result.source_facade_page_count = source.facade_page_count
+        result.source_base = source.base
+        result.source_bytes = source.bytes
+
+        if source.status != 1 {
+            me.source_failure_count = me.source_failure_count + 1
+            result.final_reason = result.initial_reason
+            return me.snapshotCounters(result)
+        }
+        me.source_success_count = me.source_success_count + 1
+
+        result.retry_ok = facade.objectLifecycleSmallAlloc(size)
+        result.retry_reason = facade.objectLifecycleAllocReason()
+        if result.retry_ok == 1 {
+            me.retry_success_count = me.retry_success_count + 1
+            result.status = 1
+            return me.snapshotCounters(me.copyFinalAllocation(facade, result))
+        }
+
+        me.retry_failure_count = me.retry_failure_count + 1
+        result.final_reason = result.retry_reason
+        return me.snapshotCounters(result)
+    }
+}

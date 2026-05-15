@@ -36,6 +36,7 @@ Current modules
 - `object_lifecycle_facade_stats_box.hako`
 - `object_lifecycle_facade_purge_policy_box.hako`
 - `object_lifecycle_facade_page_source_box.hako`
+- `object_lifecycle_facade_page_source_alloc_miss_box.hako`
 - `page_lifecycle_invariant_box.hako`
 - `page_queue_lifecycle_box.hako`
 - `page_source_policy_box.hako`
@@ -157,6 +158,15 @@ Syntax/style contract
   align, purge, reclaim, decommit, recommit, use page-map lookup, unreserve,
   release OSVM pages, call provider hooks, replace allocators, or add backend
   shortcuts.
+- `object_lifecycle_facade_page_source_alloc_miss_box.hako` owns the MIMAP-021C
+  facade page-source allocation-miss fallback. It may attempt one facade small
+  allocation, check that the miss reason is `small_no_page()`, source exactly
+  one fresh page through `HakoAllocObjectLifecycleFacadePageSourceAttach`, and
+  retry the small allocation once with scalar proof counters. It must not call
+  page-source/OSVM APIs directly, loop over multiple fresh pages, release,
+  realloc, align, purge, reclaim, decommit, recommit, use page-map lookup,
+  unreserve, release OSVM pages, call provider hooks, replace allocators, use
+  TLS/atomics/remote-free, or add backend shortcuts.
 - `osvm_backed_fast_path_heap_box.hako` is the M168 composition owner. It may
   reserve/commit/decommit through `HakoAllocPageSourcePolicy`, then reuse the
   same page queue and page-local free-list owners. It must not add OSVM metal,

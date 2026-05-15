@@ -1,0 +1,52 @@
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_page_source_alloc_miss_box as HakoAllocObjectLifecycleFacadePageSourceAllocMissBox
+
+static box Main {
+    main(args) {
+        local facade = new HakoAllocObjectLifecycleFacade()
+        local fallback = new HakoAllocObjectLifecycleFacadePageSourceAllocMissFallback()
+
+        local result = fallback.allocateOnMiss(facade, 8, 411, 8, 2, 2)
+
+        local shape = 0
+        if result.initial_ok == 0 { shape = shape + 1 }
+        if result.initial_reason == 1 { shape = shape + 1 }
+        if result.fallback_attempted == 1 { shape = shape + 1 }
+        local source_ready = result.source_status + result.source_reserved + result.source_committed + result.source_reject
+        if source_ready == 3 { shape = shape + 1 }
+        if result.source_added_page_id == 411 { shape = shape + 1 }
+        if result.source_facade_page_count == 1 { shape = shape + 1 }
+        if result.source_base != 0 { shape = shape + 1 }
+        if result.source_bytes == 16 { shape = shape + 1 }
+        local retry_ready = result.retry_ok + result.retry_reason
+        if retry_ready == 1 { shape = shape + 1 }
+        local final_ready = result.final_ok + result.final_reason
+        if final_ready == 1 { shape = shape + 1 }
+        if result.final_page_id == 411 { shape = shape + 1 }
+        if result.final_block_id == 1 { shape = shape + 1 }
+        local counts_ready = result.fallback_attempt_count + result.source_success_count + result.source_failure_count + result.retry_success_count + result.retry_failure_count
+        if counts_ready == 3 { shape = shape + 1 }
+        local facade_ready = facade.objectLifecyclePageCount() + facade.objectLifecycleAllocPageId() + facade.objectLifecycleAllocBlockId()
+        if facade_ready == 413 { shape = shape + 1 }
+
+        print("mimalloc-facade-page-source-alloc-miss-proof")
+        print("initial=" + result.initial_ok + "," + result.initial_reason)
+        print("fallback_attempted=" + result.fallback_attempted)
+        print("source=" + result.source_status + "," + result.source_reserved + "," + result.source_committed + "," + result.source_reject)
+        print("source_page=" + result.source_added_page_id + "," + result.source_facade_page_count)
+        print("backing=" + result.source_base + "," + result.source_bytes)
+        print("retry=" + result.retry_ok + "," + result.retry_reason)
+        print("final=" + result.final_ok + "," + result.final_reason + "," + result.final_page_id + "," + result.final_block_id)
+        print("counts=" + result.fallback_attempt_count + "," + result.source_success_count + "," + result.source_failure_count + "," + result.retry_success_count + "," + result.retry_failure_count)
+        print("facade=" + facade.objectLifecyclePageCount() + "," + facade.objectLifecycleAllocPageId() + "," + facade.objectLifecycleAllocBlockId())
+        print("shape=" + shape)
+
+        if shape == 14 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
