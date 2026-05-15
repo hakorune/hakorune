@@ -355,3 +355,18 @@ band real-app taskboard pin decoupling:
 - keep the README-only decoupling from `DOCS-SLIM-017` and the 018/019
   taskboard decouplings intact
 - do not physically move old cards yet
+
+## Twenty-first Slimming Phase
+
+`DOCS-SLIM-021` owns the allocator provider boundary/manifest/task breakdown
+guard band real-app taskboard pin decoupling:
+
+- remove landed-history real-app taskboard pins from the allocator provider
+  boundary/manifest/task breakdown guard band
+- keep card status, design taskboard, implementation checks, and check-index
+  assertions
+- keep provider boundary vocabulary, manifest vocabulary, and task breakdown
+  behavior unchanged
+- keep the README-only decoupling from `DOCS-SLIM-017` and the 018-020
+  taskboard decouplings intact
+- do not physically move old cards yet

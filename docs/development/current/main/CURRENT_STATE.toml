@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-05-15"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "DOCS-SLIM-020 landed the allocator provider manifest/readiness/registry guard band real-app taskboard pin decoupling. Current row remains MIMAP-022A post-lifecycle row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "DOCS-SLIM-021 landed the allocator provider boundary/manifest/task breakdown guard band real-app taskboard pin decoupling. Current row remains MIMAP-022A post-lifecycle row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
 phase_status = "docs/development/current/main/phases/phase-293x/293x-404-MIMAP-022A-POST-LIFECYCLE-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-427-DOCS-SLIM-020-ALLOCATOR-PROVIDER-MANIFEST-READINESS-REGISTRY-TASKBOARD-PIN-DECOUPLING"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-427-DOCS-SLIM-020-ALLOCATOR-PROVIDER-MANIFEST-READINESS-REGISTRY-TASKBOARD-PIN-DECOUPLING.md"
-latest_card_summary = "DOCS-SLIM-020 removes landed-history real-app taskboard pins from the allocator provider manifest/readiness/registry band while keeping phase README assertions."
+latest_card = "293x-428-DOCS-SLIM-021-ALLOCATOR-PROVIDER-BOUNDARY-MANIFEST-TASK-BREAKDOWN-TASKBOARD-PIN-DECOUPLING"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-428-DOCS-SLIM-021-ALLOCATOR-PROVIDER-BOUNDARY-MANIFEST-TASK-BREAKDOWN-TASKBOARD-PIN-DECOUPLING.md"
+latest_card_summary = "DOCS-SLIM-021 removes landed-history real-app taskboard pins from the allocator provider boundary/manifest/task breakdown band while keeping design taskboard assertions."
 
 current_blocker_token = "MIMAP-022A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-428 DOCS-SLIM-021 allocator provider boundary/manifest/task breakdown taskboard pin decoupling landed",
   "293x-427 DOCS-SLIM-020 allocator provider manifest/readiness/registry taskboard pin decoupling landed",
   "293x-426 DOCS-SLIM-019 allocator provider proof/registry taskboard pin decoupling landed",
   "293x-425 DOCS-SLIM-018 allocator provider taskboard pin decoupling landed",
@@ -39,5 +40,4 @@ landed_tail = [
   "293x-419 DOCS-SLIM-012 inline record probe resolver adoption landed",
   "293x-418 DOCS-SLIM-011 record metadata README decoupling landed",
   "293x-417 DOCS-SLIM-010 manifest runner pilot guard decoupling landed",
-  "293x-416 DOCS-SLIM-009 C197-C200 proof surface resolver adoption landed",
 ]

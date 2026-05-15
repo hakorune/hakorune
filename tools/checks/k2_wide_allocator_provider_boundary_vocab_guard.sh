@@ -11,7 +11,6 @@ source tools/checks/lib/allocator_provider_forbidden_patterns.sh
 SSOT="docs/development/current/main/design/allocator-provider-boundary-v0-ssot.md"
 TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
 CARD="$(guard_require_phase293x_card "$TAG" "293x-116-M64-ALLOCATOR-PROVIDER-BOUNDARY-VOCAB.md")"
-REAL_APP_TASKBOARD="docs/development/current/main/phases/phase-293x/293x-90-real-app-taskboard.md"
 CURRENT_STATE="docs/development/current/main/CURRENT_STATE.toml"
 INDEX="docs/tools/check-scripts-index.md"
 DEV_GATE="tools/checks/dev_gate.sh"
@@ -38,7 +37,6 @@ require_text() {
 require_file "$SSOT"
 require_file "$TASKBOARD"
 require_file "$CARD"
-require_file "$REAL_APP_TASKBOARD"
 require_file "$CURRENT_STATE"
 require_file "$INDEX"
 require_file "$DEV_GATE"
@@ -53,7 +51,6 @@ require_text "$SSOT" "M64 keeps these inactive"
 require_text "$CARD" "M64 Allocator Provider Boundary Vocabulary"
 require_text "$TASKBOARD" '| `M64 allocator provider boundary vocabulary` | `live-docs` |'
 require_text "$TASKBOARD" '87. `M64 allocator provider boundary vocabulary`'
-require_text "$REAL_APP_TASKBOARD" '`293x-116` M64 allocator provider boundary vocabulary'
 require_text "$INDEX" "tools/checks/k2_wide_allocator_provider_boundary_vocab_guard.sh"
 require_text "$DEV_GATE" "tools/checks/k2_wide_allocator_provider_boundary_vocab_guard.sh"
 require_text "$ALLOCATOR_GROUP" "tools/checks/k2_wide_allocator_provider_boundary_vocab_guard.sh"
