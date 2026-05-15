@@ -53,19 +53,24 @@ Terminology note:
 - `RoutineScopeBox` is historical wording only; do not use it as the current code name.
 
 ### Blocking & Non-Blocking
-- `await send(v)` waits when the buffer is full. It resumes when capacity is available or the channel is closed/cancelled.
-- `await receive()` waits when the buffer is empty. It resumes when a sender provides an item or the channel is closed/cancelled.
-- `try_send(v) -> Bool`: returns immediately; false if full or closed.
-- `try_receive() -> (Bool, Any?)`: returns immediately; false if empty and not closed.
-- `await receive_timeout(ms) -> (Bool, Any?)`: waits up to the deadline and returns false on timeout.
+- `await ch.send(v)` waits when the buffer is full. It resumes when capacity is available or the channel is closed/cancelled.
+- `await ch.recv()` waits when the buffer is empty. It resumes when a sender provides an item or close event.
+- `ch.try_send(v) -> Bool`: returns immediately; false if full or closed.
+- `ch.try_recv() -> Option<T>`: returns immediately; `None` when empty or closed-without-buffered-items.
+- timeout-shaped receive is reserved for a later API row; do not introduce a hidden blocking ordinary call.
 
 Implementation note (Phase-0): no busy loop. Use cooperative queues; later replaced by OS-efficient wait.
 
 ### Close Semantics
-- `await close()` marks the channel closed and wakes current waiters. It is await-visible for API consistency even if a runtime can complete it immediately.
+- `await ch.close()` marks the channel closed and wakes current waiters. It is await-visible for API consistency even if a runtime can complete it immediately.
 - Further `send` is an error or an explicit closed result in fallible APIs. Silent drop is forbidden.
-- After close, `receive` continues to drain buffered items; once empty, returns a closed indicator (shape per API, e.g., `(false, End)`).
+- After close, `recv` continues to drain buffered items; once empty, returns the closed result shape.
 - Double close is an error unless a later API explicitly introduces `try_close`.
+
+Implementation naming note:
+- The existing Rust `src/core/channel_box.rs` `ChannelBox` is an older P2P/arrow communication box, not the canonical `Channel<T>` await-visible queue API described here.
+- `src/lib.rs` currently exports that legacy `ChannelBox` / `MessageBox`, and `src/boxes/box_trait.rs` lists `ChannelBox` as a builtin type name; those facts do not make it the `Channel<T>` queue contract.
+- `CONC-CHANNEL-*` rows must not reinterpret that P2P box as the new task boundary without an explicit migration row.
 
 ### Select Semantics
 - `when(channel, handler)` registers selectable cases.
@@ -147,8 +152,9 @@ Implementation note (Phase-0): no busy loop. Use cooperative queues; later repla
 - It does not currently promise lexical join, sibling-failure cancellation, or a detached-task shutdown contract.
 
 ### Types & Safety
-- Phase-0: runtime tag checks on `ChannelBox` send/receive are optional; document expected element type.
-- Future: `TypedChannelBox<T>` with static verification; falls back to runtime tags when needed.
+- Phase-0 docs describe `Channel<T>` as a typed ownership-transfer boundary.
+- Runtime tag checks for a future queue implementation are optional until a runtime row lands, but docs/examples must still use the `Channel<T>` API shape.
+- Future: static verification; fall back to runtime tags only when the implementation row explicitly allows it.
 
 ### Observability
 - Enable `NYASH_CONC_TRACE=1` to emit JSONL events.
@@ -165,7 +171,7 @@ Implementation note (Phase-0): no busy loop. Use cooperative queues; later repla
 - ping_pong.hako: two routines exchange N messages; assert order and count.
 - bounded_pc.hako: producer/consumer with capacity=1..N; ensure no busy-wait and correct totals.
 - select_two.hako: two channels; verify first-ready choice and distribution.
-- close_semantics.hako: send after close -> error; drain -> End; double close -> error.
+- close_semantics.hako: send after close -> error; drain -> closed result shape; double close -> error.
 - scope_cancel.hako: `co` / compatibility `task_scope` plus `TaskGroupBox` cancels owned child futures with stable reasons; blocking-API interruption remains a later runtime wait contract.
 
 ### Migration Path

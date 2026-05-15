@@ -103,8 +103,8 @@ compat/archive lane and let canonical smokes cover the live behavior.
 | `CONC-BOUNDARY-001` | landed-docs | Adopt Boundary model as design SSOT. | `docs/reference/concurrency/boundary-model.md` | no runtime change |
 | `CONC-COMPAT-001` | landed-audit | Audit legacy concurrency spellings and smoke-only compatibility users. | `tools/checks/concurrency_boundary_surface_guard.sh` | no parser/runtime deletion |
 | `CONC-CO-001` | landed-parser-json | Add `co` as canonical structured concurrency source spelling while keeping `task_scope` as compat/internal wording. | parser + AST JSON + Program JSON row | runtime hook lowering remains fail-fast |
-| `CONC-CHANNEL-001` | ready | Pin Channel API shapes around await-visible `send` / `recv` / `close`. | reference/API docs + fixture plan | no wait runtime rewrite |
-| `CONC-CHANNEL-002` | pending | Implement `await ch.close()` semantics in the current ChannelBox/runtime scaffold. | VM/reference guard for close wake/drain/send-after-close | no true parallel scheduler |
+| `CONC-CHANNEL-001` | landed-api-docs | Pin Channel API shapes around await-visible `send` / `recv` / `close`. | docs/reference + guard | no wait runtime rewrite |
+| `CONC-CHANNEL-002` | pending | Implement `await ch.close()` semantics in the future `Channel<T>` queue runtime scaffold. | VM/reference guard for close wake/drain/send-after-close | no true parallel scheduler |
 | `CONC-CHANNEL-003` | pending | Implement await-visible `send` / `recv` route shape or fail-fast bridge. | parser/MIR/runtime route guard | no hidden blocking ordinary call |
 | `CONC-SYNCBOX-001` | ready | Add `sync box` parser/AST capsule and canonical docs. | parse/AST JSON roundtrip guard | no serialized runtime yet |
 | `CONC-SYNCBOX-002` | pending | Add verifier rule: no `await` / `nowait` / channel wait inside `sync box` method. | fail-fast diagnostics guard | no lock-order inference |
@@ -125,7 +125,7 @@ lock { ... }
 scoped
 with scoped
 task_scope
-ChannelBox blocking send/receive without await
+Channel<T> blocking send/recv without await
 Channel close() without await
 worker_local source syntax
 ```
@@ -204,6 +204,15 @@ ch.try_recv()
 This row should make current channel docs and examples consistent. It may add
 fixtures that are expected to fail-fast until runtime rows are implemented, but
 must not silently accept hidden blocking calls.
+
+Acceptance:
+
+```text
+reference docs use recv, not receive, for the canonical API
+close is written as await ch.close()
+try_send / try_recv are explicitly non-blocking
+the existing Rust P2P ChannelBox is not treated as the new Channel<T> queue
+```
 
 ### CONC-SYNCBOX-001 / 002 / 003
 
