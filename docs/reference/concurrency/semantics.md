@@ -111,6 +111,17 @@ Implementation naming note:
   creation time. The implicit root scope remains best-effort ownership only and
   is not a detached context propagation contract.
 
+### Serialized Shared State (`sync box`, parser/verifier capsule)
+- `sync box` is the preferred shared-mutable source surface.
+- Current implementation accepts and preserves the `sync box` AST/AST-JSON
+  capsule, but serialized method entry is not runtime-active yet.
+- Sync methods reject `await` and `nowait` during parser-side declaration
+  validation. Because canonical Channel waits are await-visible
+  (`await ch.send`, `await ch.recv`, `await ch.close`), this also keeps channel
+  waits out of sync methods in the current surface.
+- Program JSON and MIR lowering fail-fast rather than treating `sync box` as an
+  ordinary `box`.
+
 ### Future `await` (current VM contract)
 - This document is not the canonical owner for `await fut` failure/cancel semantics.
 - The current `await fut` contract is pinned by `docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md`.

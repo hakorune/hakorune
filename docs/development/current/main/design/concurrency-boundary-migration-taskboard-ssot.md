@@ -107,7 +107,7 @@ compat/archive lane and let canonical smokes cover the live behavior.
 | `CONC-CHANNEL-002` | pending | Implement `await ch.close()` semantics in the future `Channel<T>` queue runtime scaffold. | VM/reference guard for close wake/drain/send-after-close | no true parallel scheduler |
 | `CONC-CHANNEL-003` | pending | Implement await-visible `send` / `recv` route shape or fail-fast bridge. | parser/MIR/runtime route guard | no hidden blocking ordinary call |
 | `CONC-SYNCBOX-001` | landed-parser-json | Add `sync box` parser/AST capsule and canonical docs. | parse/AST JSON roundtrip guard + lowering fail-fast | no serialized runtime yet |
-| `CONC-SYNCBOX-002` | pending | Add verifier rule: no `await` / `nowait` / channel wait inside `sync box` method. | fail-fast diagnostics guard | no lock-order inference |
+| `CONC-SYNCBOX-002` | landed-verifier | Add verifier rule: no `await` / `nowait` / channel wait inside `sync box` method. | parser-side fail-fast diagnostics guard | no lock-order inference |
 | `CONC-SYNCBOX-003` | pending | Add VM/reference serialized method-entry behavior. | no-contention reference guard | no fairness/reentrancy guarantee |
 | `CONC-CONTEXT-001` | ready | Add `context` surface as canonical name and quarantine `scoped` as compat. | parser/docs guard + scoped compat audit | no propagation runtime yet |
 | `CONC-CONTEXT-002` | pending | Implement context snapshot on `nowait` child creation inside explicit `co` / compatibility `task_scope`. | VM/reference guard | implicit root is not detached propagation |

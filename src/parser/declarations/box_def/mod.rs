@@ -12,6 +12,7 @@ use std::collections::HashMap;
 pub mod header;
 pub mod interface;
 pub mod members;
+mod sync_box;
 pub mod validators;
 
 /// Thin wrappers to keep the main loop tidy (behavior-preserving)
@@ -401,6 +402,9 @@ fn parse_box_declaration_after_box_keyword(
 
     // birth_once 相互依存の簡易検出（宣言間の循環）
     validators::validate_birth_once_cycles(p, &methods)?;
+    if is_sync {
+        sync_box::validate_no_waits_in_sync_box(p, &name, &methods, &constructors)?;
+    }
 
     Ok(ASTNode::BoxDeclaration {
         name,

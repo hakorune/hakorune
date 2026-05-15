@@ -110,3 +110,44 @@ sync box Counter {
     };
     assert!(*is_sync, "roundtrip must preserve sync capsule");
 }
+
+#[test]
+fn sync_box_rejects_await_in_methods() {
+    let error = NyashParser::parse_from_string(
+        r#"
+sync box Counter {
+  read(fut) {
+    return await fut
+  }
+}
+"#,
+    )
+    .expect_err("sync method await must fail-fast");
+
+    let message = error.to_string();
+    assert!(message.contains("[sync_box/wait_forbidden]"), "{message}");
+    assert!(message.contains("wait_kind=await"), "{message}");
+}
+
+#[test]
+fn sync_box_rejects_nowait_in_methods() {
+    let error = NyashParser::parse_from_string(
+        r#"
+sync box Counter {
+  read() {
+    nowait fut = me.compute()
+    return 0
+  }
+
+  compute() {
+    return 1
+  }
+}
+"#,
+    )
+    .expect_err("sync method nowait must fail-fast");
+
+    let message = error.to_string();
+    assert!(message.contains("[sync_box/wait_forbidden]"), "{message}");
+    assert!(message.contains("wait_kind=nowait"), "{message}");
+}
