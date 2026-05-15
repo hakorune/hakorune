@@ -15,6 +15,8 @@ releasing the old known block.
 - Reuse the existing small allocation route to allocate a replacement block.
 - Release the old known `(page id, block id)` only after replacement allocation
   succeeds.
+- Validate the old known block before replacement allocation. This validation
+  must stay facade-local and must not introduce page-map lookup.
 - Expose scalar realloc grow/move observers:
   - old page id
   - old block id
@@ -24,6 +26,35 @@ releasing the old known block.
   - status
   - reason code
 - Add one proof app and one LLVM/EXE-primary guard.
+
+## Implementation Order
+
+Keep the row in this exact order:
+
+1. Validate scalar inputs and old known block liveness.
+2. Allocate the replacement block with the existing small allocation path.
+3. If replacement allocation fails, keep the old block live and return a
+   realloc reason.
+4. If replacement allocation succeeds, release the old known block through the
+   existing facade release route.
+5. Record the grow/move result only after old-block release succeeds.
+
+This row may add grow/move result observers, but it must not perform the
+`MIMAP-FACADE-CLEAN-001` cleanup yet. Result capsule extraction, reason-code
+SSOT, and known-page scan dedupe remain after `MIMAP-017B`.
+
+## Reason Codes
+
+`MIMAP-017B` extends the existing realloc reason space:
+
+- `0`: grow/move accepted
+- `1`: missing/stale old page id
+- `2`: invalid old block id
+- `3`: invalid requested size
+- `4`: request is not a grow/move request for the old page block size
+- `5`: old block is not live on the old page
+- `6`: replacement allocation failed; old block was not released
+- `7`: replacement allocation succeeded but old-block release failed
 
 ## Non-goals
 
@@ -76,6 +107,9 @@ register/unregister behavior, stop and split a page-map handoff row.
 
 If this row needs OSVM/page-source behavior or backend-specific lowering, stop
 and split a separate owner row.
+
+If this row wants to clean up result capsules, reason constants, or known-page
+scan duplication, stop and leave that for `MIMAP-FACADE-CLEAN-001`.
 
 ## Follow-up
 
