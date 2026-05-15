@@ -1,0 +1,164 @@
+// object_lifecycle_facade_huge_page_model_box.hako -- MIMAP-023A facade huge-page model route
+// Responsibility: route facade huge requests into the existing M180 huge page
+// model. Small requests keep the MIMAP-022B non-huge behavior by forwarding to
+// the MIMAP-021C allocation-miss fallback.
+// This module does not own huge release, page-map lookup, release/realloc,
+// alignment, purge/reclaim, remote-free, TLS, atomics, provider hooks, or
+// allocator replacement.
+
+using selfhost.hako_alloc.memory.object_lifecycle_facade_page_source_alloc_miss_box as HakoAllocObjectLifecycleFacadePageSourceAllocMissBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_reason_box as HakoAllocObjectLifecycleFacadeReason
+using selfhost.hako_alloc.memory.huge_page_model_box as HakoAllocHugePageModelBox
+using selfhost.hako_alloc.memory.page_map_box as HakoAllocPageMapBox
+using selfhost.hako_alloc.memory.size_class_box as SizeClassBox
+
+box HakoAllocObjectLifecycleFacadeHugePageModelReport {
+    status: i64 = 0
+    requested_size: i64 = 0
+    size_bin: i64 = 0
+    huge_threshold: i64 = 0
+    huge_routed: i64 = 0
+    huge_allocated: i64 = 0
+    huge_ptr: i64 = 0
+    huge_page_id: i64 = -1
+    huge_requested_size: i64 = 0
+    huge_committed_size: i64 = 0
+    huge_failure_kind: i64 = 0
+    huge_count: i64 = 0
+    huge_live_count: i64 = 0
+    huge_allocate_count: i64 = 0
+    page_map_entry_count: i64 = 0
+    page_map_register_count: i64 = 0
+    small_forwarded: i64 = 0
+    fallback_attempted: i64 = 0
+    small_source_status: i64 = 0
+    small_source_added_page_id: i64 = -1
+    final_ok: i64 = 0
+    final_reason: i64 = 0
+    final_page_id: i64 = -1
+    final_block_id: i64 = -1
+    final_ptr: i64 = 0
+    huge_attempt_count: i64 = 0
+    huge_success_count: i64 = 0
+    huge_failure_count: i64 = 0
+    small_forward_count: i64 = 0
+    fallback_attempt_count: i64 = 0
+    success_count: i64 = 0
+    failure_count: i64 = 0
+}
+
+box HakoAllocObjectLifecycleFacadeHugePageModelRoute {
+    alloc_miss_fallback: HakoAllocObjectLifecycleFacadePageSourceAllocMissFallback = new HakoAllocObjectLifecycleFacadePageSourceAllocMissFallback()
+    page_map: HakoAllocPageMap = new HakoAllocPageMap()
+    huge_model: HakoAllocHugePageModel
+    huge_attempt_count: i64 = 0
+    huge_success_count: i64 = 0
+    huge_failure_count: i64 = 0
+    small_forward_count: i64 = 0
+    fallback_attempt_count: i64 = 0
+    success_count: i64 = 0
+    failure_count: i64 = 0
+
+    birth() {
+        me.huge_model = new HakoAllocHugePageModel(me.page_map)
+    }
+
+    hugeThreshold() {
+        return SizeClassBox.bin_size(SizeClassBox.max_regular_bin())
+    }
+
+    classifyRequest(size) {
+        if SizeClassBox.size_to_bin(size) == SizeClassBox.huge_bin() {
+            return 2
+        }
+        return 1
+    }
+
+    initReport(size) {
+        local result = new HakoAllocObjectLifecycleFacadeHugePageModelReport()
+        result.requested_size = size
+        result.size_bin = SizeClassBox.size_to_bin(size)
+        result.huge_threshold = me.hugeThreshold()
+        return result
+    }
+
+    snapshotCounters(result) {
+        result.huge_attempt_count = me.huge_attempt_count
+        result.huge_success_count = me.huge_success_count
+        result.huge_failure_count = me.huge_failure_count
+        result.small_forward_count = me.small_forward_count
+        result.fallback_attempt_count = me.fallback_attempt_count
+        result.success_count = me.success_count
+        result.failure_count = me.failure_count
+        result.huge_count = me.huge_model.huge_count
+        result.huge_live_count = me.huge_model.live_count
+        result.huge_allocate_count = me.huge_model.allocate_count
+        result.page_map_entry_count = me.page_map.entry_count
+        result.page_map_register_count = me.page_map.register_count
+        return result
+    }
+
+    routeHuge(result, size) {
+        me.huge_attempt_count = me.huge_attempt_count + 1
+        result.huge_routed = 1
+
+        local allocated = me.huge_model.allocateHuge(size, size)
+        result.huge_allocated = allocated
+        result.huge_failure_kind = me.huge_model.last_failure_kind
+
+        if allocated == 1 {
+            me.huge_success_count = me.huge_success_count + 1
+            me.success_count = me.success_count + 1
+            result.status = 1
+            result.final_ok = 1
+            result.final_reason = HakoAllocObjectLifecycleFacadeReason.ok()
+            result.huge_ptr = me.huge_model.last_result_ptr
+            result.huge_page_id = me.huge_model.last_page_id
+            result.huge_requested_size = me.huge_model.last_requested_size
+            result.huge_committed_size = me.huge_model.last_committed_size
+            result.final_ptr = result.huge_ptr
+            result.final_page_id = result.huge_page_id
+            result.final_block_id = 0
+            return me.snapshotCounters(result)
+        }
+
+        me.huge_failure_count = me.huge_failure_count + 1
+        me.failure_count = me.failure_count + 1
+        result.final_reason = HakoAllocObjectLifecycleFacadeReason.small_huge_request()
+        return me.snapshotCounters(result)
+    }
+
+    copySmall(result, small_result) {
+        result.small_forwarded = 1
+        result.fallback_attempted = small_result.fallback_attempted
+        result.small_source_status = small_result.source_status
+        result.small_source_added_page_id = small_result.source_added_page_id
+        result.final_ok = small_result.final_ok
+        result.final_reason = small_result.final_reason
+        result.final_page_id = small_result.final_page_id
+        result.final_block_id = small_result.final_block_id
+        result.status = small_result.final_ok
+        return result
+    }
+
+    allocateWithHugePageModel(facade, size, page_id, block_size, capacity, reserved) {
+        local result = me.initReport(size)
+
+        if me.classifyRequest(size) == 2 {
+            return me.routeHuge(result, size)
+        }
+
+        me.small_forward_count = me.small_forward_count + 1
+        local small_result = me.alloc_miss_fallback.allocateOnMiss(facade, size, page_id, block_size, capacity, reserved)
+        me.fallback_attempt_count = me.fallback_attempt_count + small_result.fallback_attempted
+        me.copySmall(result, small_result)
+
+        if result.final_ok == 1 {
+            me.success_count = me.success_count + 1
+        } else {
+            me.failure_count = me.failure_count + 1
+        }
+
+        return me.snapshotCounters(result)
+    }
+}

@@ -143,6 +143,7 @@ Forbidden:
 | `MIMAP-022B` | facade huge-request fail-fast routing | MIMAP-022A selects the facade huge-request boundary |
 | `MIMAP-022C` | post-huge-failfast allocator row selection | MIMAP-022B is green |
 | `MIMAP-023A` | facade huge-page model route | MIMAP-022C selects the facade huge-page model seam |
+| `MIMAP-023B` | post-huge-page-model allocator row selection | MIMAP-023A is green |
 
 ### MIMAP-020A granularity
 
@@ -227,6 +228,10 @@ The row must reuse the existing M180 huge-page model owner. It must not add a
 new huge page model, huge release/unregister/unreserve/decommit behavior,
 page-map lookup route, provider hooks, host allocator replacement, or
 `#[global_allocator]`.
+
+MIMAP-023B is the next planning-only row. It must pick exactly one
+post-huge-page-model allocator behavior slice and record the owner, proof app,
+guard, and stop lines before implementation begins.
 
 ## Compiler / language sidecar triggers
 

@@ -40,6 +40,7 @@ Current modules
 - `object_lifecycle_facade_page_source_box.hako`
 - `object_lifecycle_facade_page_source_alloc_miss_box.hako`
 - `object_lifecycle_facade_huge_failfast_box.hako`
+- `object_lifecycle_facade_huge_page_model_box.hako`
 - `page_lifecycle_invariant_box.hako`
 - `page_queue_lifecycle_box.hako`
 - `page_source_policy_box.hako`
@@ -181,6 +182,15 @@ Syntax/style contract
   alter release/realloc/alignment behavior, execute purge/reclaim/decommit/
   recommit, use remote-free/TLS/atomics, activate provider hooks, replace the
   host allocator, or add backend shortcuts.
+- `object_lifecycle_facade_huge_page_model_box.hako` owns the MIMAP-023A facade
+  huge-page model route. It may classify request size through the existing
+  MIMAP-022B threshold, route huge requests into the existing M180
+  `HakoAllocHugePageModel`, forward non-huge requests through the MIMAP-022B /
+  MIMAP-021C small path, and expose scalar report fields/counters. It must not
+  add a new huge model, huge release/unregister/unreserve/decommit behavior,
+  page-map lookup route, release/realloc/alignment behavior, purge/reclaim,
+  remote-free/TLS/atomics, provider hooks, host allocator replacement, or
+  backend shortcuts.
 - `worker_identity_box.hako` owns the MIMAP-WORKER-001 allocator-facing worker
   identity observer. It may call `WorkerCoreBox.current_id_i64()`, store
   scalar `last_worker_id` / `call_count` proof state, and keep the single-worker

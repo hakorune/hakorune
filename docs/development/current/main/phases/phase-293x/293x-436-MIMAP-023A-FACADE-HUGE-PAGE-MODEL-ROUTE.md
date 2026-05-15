@@ -1,6 +1,6 @@
 # 293x-436 MIMAP-023A Facade Huge-Page Model Route
 
-Status: ready
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -75,4 +75,29 @@ bash tools/checks/k2_wide_mimalloc_facade_huge_page_model_exe_guard.sh
 bash tools/checks/k2_wide_mimap022c_next_row_selection_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 tools/checks/dev_gate.sh quick
+```
+
+## Closeout
+
+Implemented the selected facade huge-page model route in:
+
+```text
+lang/src/hako_alloc/memory/object_lifecycle_facade_huge_page_model_box.hako
+apps/mimalloc-facade-huge-page-model-proof/main.hako
+tools/checks/k2_wide_mimalloc_facade_huge_page_model_exe_guard.sh
+```
+
+The route classifies request size through the same size-class threshold used by
+MIMAP-022B. Huge requests are allocated through the existing M180
+`HakoAllocHugePageModel`; non-huge requests preserve the MIMAP-022B non-huge
+behavior by forwarding to the MIMAP-021C allocation-miss fallback.
+
+The proof app is intentionally scalar-print based with compact aggregate checks.
+The detailed route values are fixed by the guard output assertions so the app
+does not expand into a large MIR proof shape.
+
+The next current row is planning-only:
+
+```text
+docs/development/current/main/phases/phase-293x/293x-437-MIMAP-023B-POST-HUGE-PAGE-MODEL-ROW-SELECTION.md
 ```
