@@ -416,3 +416,14 @@ band phase README pin decoupling:
 - keep the README-only decoupling from `DOCS-SLIM-017` and the 018-023
   taskboard decouplings intact
 - do not physically move old cards yet
+
+## Twenty-fifth Slimming Phase
+
+`DOCS-SLIM-025` owns the docs-slim card metadata helper extraction:
+
+- add a shared helper for repeated docs-slim card metadata assertions
+- convert the DOCS-SLIM-022/023/024 guards to use the helper for card
+  metadata assertions
+- keep the per-script landed-history pin assertions and gate-leak checks in
+  place
+- do not physically move old cards yet

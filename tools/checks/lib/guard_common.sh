@@ -44,9 +44,24 @@ guard_expect_in_file() {
     local pattern="$2"
     local file="$3"
     local msg="$4"
-    if ! rg -q "$pattern" "$file"; then
+    if ! rg -q -- "$pattern" "$file"; then
         guard_fail "$tag" "$msg"
     fi
+}
+
+guard_require_docs_slim_card_metadata() {
+    local tag="$1"
+    local card="$2"
+    local archive_policy="$3"
+    local check_index="$4"
+    local self_script="$5"
+    local doc_tag="$6"
+    local phase_phrase="$7"
+
+    guard_expect_in_file "$tag" "$doc_tag" "$card" "$doc_tag card must exist"
+    guard_expect_in_file "$tag" "Do not move numbered cards in this row" "$card" "card must keep no-move stop-line"
+    guard_expect_in_file "$tag" "$phase_phrase" "$archive_policy" "archive policy must record $doc_tag"
+    guard_expect_in_file "$tag" "$self_script" "$check_index" "check index must list $doc_tag guard"
 }
 
 guard_timeout_run() {
