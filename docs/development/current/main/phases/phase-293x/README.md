@@ -1,6 +1,6 @@
 # Phase 293x: real-app bringup
 
-- Status: Active / mimalloc blueprint lane with explicit reuse method boundary landed
+- Status: Active / mimalloc blueprint lane with facade huge-request fail-fast row selected
 - Purpose: use real applications to expose compiler/runtime seams after the
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
@@ -8,7 +8,7 @@
 - Closed sidecar:
   `docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md`
 - Current allocator blocker:
-  `docs/development/current/main/phases/phase-293x/293x-404-MIMAP-022A-POST-LIFECYCLE-ROW-SELECTION.md`
+  `docs/development/current/main/phases/phase-293x/293x-434-MIMAP-022B-FACADE-HUGE-REQUEST-FAILFAST-ROUTING.md`
 - Latest lifecycle closeout:
   `docs/development/current/main/phases/phase-293x/293x-403-REUSE-LIFECYCLE-001-EXPLICIT-REUSE-METHODS.md`
 - Mimalloc purpose SSOT:

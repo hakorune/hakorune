@@ -139,6 +139,8 @@ Forbidden:
 | `MIMAP-021A` | post-020 allocator row selection | MIMAP-020A and metadata post-promotion reconcile are closed |
 | `MIMAP-021B` | facade page-source fresh-page attach | MIMAP-021A selects the facade-facing seam |
 | `MIMAP-021C` | facade page-source allocation-miss fallback | MIMAP-021B is green |
+| `MIMAP-022A` | post-lifecycle allocator row selection | lifecycle construction/reuse cleanup rows are closed |
+| `MIMAP-022B` | facade huge-request fail-fast routing | MIMAP-022A selects the facade huge-request boundary |
 
 ### MIMAP-020A granularity
 
@@ -183,6 +185,26 @@ fallback. It must reuse the MIMAP-021B adapter, retry once, and expose scalar
 proof fields. It must not loop over multiple fresh pages, add page-source
 decommit/recommit policy, use page-map lookup, or reopen provider hooks / host
 allocator replacement.
+
+### MIMAP-022A / MIMAP-022B granularity
+
+MIMAP-022A is a planning-only row. It selects the next allocator behavior row
+after the lifecycle construction/reuse cleanup rows and must not implement
+allocator behavior.
+
+MIMAP-022B is the selected behavior row. It should add one narrow
+object-lifecycle facade boundary that proves:
+
+```text
+request size classification
+huge request -> fail-fast scalar report
+non-huge request -> existing MIMAP-021C allocation-miss fallback
+```
+
+The row must stop before a huge page model. It must not change release,
+realloc, alignment, purge/reclaim/decommit/recommit execution, remote-free,
+TLS, atomic behavior, page-map lookup, provider hooks, host allocator
+replacement, or `#[global_allocator]`.
 
 ## Compiler / language sidecar triggers
 

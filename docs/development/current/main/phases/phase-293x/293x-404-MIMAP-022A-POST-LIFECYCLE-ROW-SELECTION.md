@@ -1,7 +1,7 @@
 # 293x-404 MIMAP-022A Post-Lifecycle Row Selection
 
-Status: ready
-Date: 2026-05-15
+Status: landed
+Date: 2026-05-16
 
 ## Decision
 
@@ -25,6 +25,34 @@ update the taskboard / granularity SSOT before implementation starts.
 - Do not reopen provider hooks, host allocator replacement, or
   `#[global_allocator]`.
 - Do not combine selection with cleanup sidecars.
+
+## Closeout
+
+`MIMAP-022A` selects
+`MIMAP-022B facade huge-request fail-fast routing` as the next allocator
+behavior row.
+
+Rationale:
+
+- `MIMAP-021B` and `MIMAP-021C` connected the active object-lifecycle facade to
+  page-source by adding exactly one fresh page and retrying one small
+  allocation after a `small_no_page()` miss.
+- Lifecycle cleanup is closed through `REUSE-LIFECYCLE-001`, so the next
+  allocator behavior should stay on the facade/page-source path instead of
+  reopening construction semantics.
+- The existing `M179` huge-threshold router is complete on the older
+  page-map-backed path, but the current facade/page-source route still needs a
+  narrow fail-fast boundary for oversized requests.
+- The smallest honest next row is therefore a facade-local huge-request
+  classifier that rejects huge requests before page-source attach/retry. It
+  must not implement a huge page model, page-map lookup, provider activation,
+  host allocator replacement, or `#[global_allocator]`.
+
+Selected next row:
+
+```text
+docs/development/current/main/phases/phase-293x/293x-434-MIMAP-022B-FACADE-HUGE-REQUEST-FAILFAST-ROUTING.md
+```
 
 ## Required Evidence
 

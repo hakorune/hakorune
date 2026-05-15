@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-16"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "DOCS-SLIM-026 landed the phase-card resolver leak helper extraction. Current row remains MIMAP-022A post-lifecycle row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-022A selected MIMAP-022B facade huge-request fail-fast routing as the current row. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-404-MIMAP-022A-POST-LIFECYCLE-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-434-MIMAP-022B-FACADE-HUGE-REQUEST-FAILFAST-ROUTING.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-433-DOCS-SLIM-026-PHASE-CARD-RESOLVER-LEAK-HELPER-EXTRACTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-433-DOCS-SLIM-026-PHASE-CARD-RESOLVER-LEAK-HELPER-EXTRACTION.md"
-latest_card_summary = "DOCS-SLIM-026 extracts repeated phase-card resolver leak checks into a shared helper while keeping the DOCS-SLIM-004/005/006/007/008/009/010/013/014/015/016/017/018/019/020/021/022/023/024 leak assertions in place."
+latest_card = "293x-404-MIMAP-022A-POST-LIFECYCLE-ROW-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-404-MIMAP-022A-POST-LIFECYCLE-ROW-SELECTION.md"
+latest_card_summary = "MIMAP-022A selects MIMAP-022B facade huge-request fail-fast routing as the next allocator behavior row; implementation stays out of the selection row."
 
-current_blocker_token = "MIMAP-022A"
+current_blocker_token = "MIMAP-022B"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-404 MIMAP-022A post-lifecycle row selection landed",
   "293x-433 DOCS-SLIM-026 phase-card resolver leak helper extraction landed",
   "293x-432 DOCS-SLIM-025 docs-slim card metadata helper extraction landed",
   "293x-431 DOCS-SLIM-024 production allocator port and mimalloc closeout README pin decoupling landed",
@@ -39,5 +40,4 @@ landed_tail = [
   "293x-425 DOCS-SLIM-018 allocator provider taskboard pin decoupling landed",
   "293x-424 DOCS-SLIM-017 allocator provider README pin decoupling landed",
   "293x-423 DOCS-SLIM-016 allocator hook taskboard pin decoupling landed",
-  "293x-422 DOCS-SLIM-015 allocator hook README pin decoupling landed",
 ]

@@ -28,14 +28,14 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-022A post-lifecycle row selection`
+- current blocker token: `MIMAP-022B facade huge-request fail-fast routing`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after REUSE-LIFECYCLE-001; next blocker is
-  MIMAP-022A post-lifecycle row selection
+- continue phase-293x after MIMAP-022A; next blocker is
+  MIMAP-022B facade huge-request fail-fast routing
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
