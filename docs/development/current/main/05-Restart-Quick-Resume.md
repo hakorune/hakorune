@@ -30,11 +30,13 @@ cargo check -q
 ## Current Lane
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- active lane: `phase-293x mimalloc blueprint lane`
+- active lane: `phase-293x MIR builder diet cleanup sidecar`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-021C facade page-source allocation-miss fallback`
-- mimalloc blueprint SSOT:
+- current blocker token: `FLOWPLANNER-ENTRY-001 public FlowPlanner facade inventory`
+- cleanup boundary SSOT:
+  `docs/development/current/main/design/mir-builder-diet-flowplanner-boundary-ssot.md`
+- mimalloc blueprint SSOT (return lane after cleanup):
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
@@ -44,7 +46,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-021C facade page-source allocation-miss fallback`
+- current blocker token: `FLOWPLANNER-ENTRY-001 public FlowPlanner facade inventory`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -55,7 +57,7 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after MIMAP-021B facade page-source fresh-page attach; next blocker is MIMAP-021C facade page-source allocation-miss fallback; VM-LIM-001 is parked
+- continue `phase-293x` after MIRBUILDER-DIET-001; next blocker is FLOWPLANNER-ENTRY-001 public FlowPlanner facade inventory; MIMAP-021C is parked until this cleanup sidecar closes
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

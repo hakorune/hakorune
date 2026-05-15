@@ -1,14 +1,16 @@
 # Phase 293x: real-app bringup
 
-- Status: Paused / parent lane while Phase 294x grows exact `usize` semantics
+- Status: Active / MIR builder diet cleanup sidecar before returning to mimalloc
 - Purpose: use real applications to expose compiler/runtime seams after the
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
 - Parent lane token: `phase-293x real-app bringup`
-- Current successor:
-  `docs/development/current/main/phases/phase-294x/README.md`
-- Current successor blocker token:
-  `phase-294x exact usize semantics before mimalloc migration`
+- Current sidecar:
+  `docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md`
+- Current sidecar blocker token:
+  `FLOWPLANNER-ENTRY-001 public FlowPlanner facade inventory`
+- Parked mimalloc return row:
+  `docs/development/current/main/phases/phase-293x/293x-384-MIMAP-021C-FACADE-PAGE-SOURCE-ALLOC-MISS-FALLBACK.md`
 - Mimalloc purpose SSOT:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 

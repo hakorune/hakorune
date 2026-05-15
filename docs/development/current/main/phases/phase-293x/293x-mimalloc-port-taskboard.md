@@ -21,8 +21,18 @@ LOOP-003C/D complete
 PACKED-003/004 complete
 ```
 
-Blueprint and inventory rows remain the active lane entry. Current primary row:
-`MIMAP-021C facade page-source allocation-miss fallback`.
+Blueprint and inventory rows are temporarily parked while the MIR builder diet
+cleanup sidecar is active. Parked primary row:
+
+```text
+MIMAP-021C facade page-source allocation-miss fallback
+```
+
+Active cleanup sidecar:
+
+```text
+docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md
+```
 
 Latest closeout:
 

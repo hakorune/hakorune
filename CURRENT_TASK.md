@@ -35,22 +35,24 @@ Scope: current lane / next lane / restart order only.
 
 ## Current Lane
 
-- active lane: `phase-293x mimalloc blueprint lane`
+- active lane: `phase-293x MIR builder diet cleanup sidecar`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - task breakdown:
-  `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
-- mimalloc blueprint SSOT:
+  `docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md`
+- cleanup boundary SSOT:
+  `docs/development/current/main/design/mir-builder-diet-flowplanner-boundary-ssot.md`
+- mimalloc blueprint SSOT (return lane after cleanup):
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - mimalloc blueprint / port taskboard:
   `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
 - current blocker token:
-  `MIMAP-021C facade page-source allocation-miss fallback`
+  `FLOWPLANNER-ENTRY-001 public FlowPlanner facade inventory`
 - current BoxShape sidecar:
-  none active
-- primary mode: mimalloc blueprint inventory lane; keep upstream source untracked and classify concepts before implementation
+  `MIRBUILDER-DIET` active; keep BoxShape cleanup separate from MIMAP behavior rows
+- primary mode: docs-first FlowPlanner/builder boundary cleanup; keep upstream mimalloc source untracked and parked
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
@@ -62,19 +64,20 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after MIMAP-021B facade page-source
-  fresh-page attach; next blocker is MIMAP-021C facade page-source
-  allocation-miss fallback.
+- resume point: continue Phase 293x after MIRBUILDER-DIET-001; next blocker is
+  FLOWPLANNER-ENTRY-001 public FlowPlanner facade inventory. Return to
+  MIMAP-021C facade page-source allocation-miss fallback after the cleanup
+  sidecar closes.
   VM-LIM-001 remains parked diagnostic. Keep LoopRange on the Stage1 route; do
   not source-desugar range loops.
 
 ## Task Order
 
-- current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
+- current task source: `CURRENT_STATE.toml` plus the MIR builder diet taskboard
 - next 293x order:
-  MIMAP-021C facade page-source allocation-miss fallback
+  FLOWPLANNER-ENTRY-001 -> FLOWPLANNER-V0-001 -> MIR-SEMANTIC-PLANS-001 -> return to MIMAP-021C
 - recent BoxShape sidecar:
-  MIMAP-FACADE-CLEAN-001 facade result observer / reason-code SSOT cleanup
+  MIRBUILDER-DIET builder core / FlowPlanner boundary cleanup
 - metadata promotion queue:
   `docs/reference/mir/metadata-facts-ssot.md` `Current Promotion Matrix`
   and
