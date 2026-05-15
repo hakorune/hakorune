@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-05-15
+Date: 2026-05-16
 Scope: 再起動直後に 2-5 分で current lane に戻るための最短手順。
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-023B post-huge-page-model row selection`
+- current blocker token: `MIMAP-024A facade huge-release metadata route`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - mimalloc blueprint SSOT:
@@ -46,7 +46,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-023B post-huge-page-model row selection`
+- current blocker token: `MIMAP-024A facade huge-release metadata route`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -57,8 +57,8 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after MIMAP-023A; next blocker is
-  MIMAP-023B post-huge-page-model row selection
+- continue `phase-293x` after MIMAP-023B; next blocker is
+  MIMAP-024A facade huge-release metadata route
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

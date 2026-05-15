@@ -144,6 +144,7 @@ Forbidden:
 | `MIMAP-022C` | post-huge-failfast allocator row selection | MIMAP-022B is green |
 | `MIMAP-023A` | facade huge-page model route | MIMAP-022C selects the facade huge-page model seam |
 | `MIMAP-023B` | post-huge-page-model allocator row selection | MIMAP-023A is green |
+| `MIMAP-024A` | facade huge-release metadata route | MIMAP-023B selects the narrow huge-handle lifetime seam |
 
 ### MIMAP-020A granularity
 
@@ -229,9 +230,29 @@ new huge page model, huge release/unregister/unreserve/decommit behavior,
 page-map lookup route, provider hooks, host allocator replacement, or
 `#[global_allocator]`.
 
-MIMAP-023B is the next planning-only row. It must pick exactly one
-post-huge-page-model allocator behavior slice and record the owner, proof app,
-guard, and stop lines before implementation begins.
+MIMAP-023B is a landed planning-only row. It selects MIMAP-024A as the next
+allocator behavior slice.
+
+### MIMAP-024A granularity
+
+MIMAP-024A is the selected behavior row. It should add one narrow
+object-lifecycle facade route that proves:
+
+```text
+huge request -> MIMAP-023A huge-page model allocation
+released live huge pointer -> HakoAllocHugePageModel.markReleased(ptr)
+scalar report -> live-count transition and release counters
+non-huge request -> existing MIMAP-021C fallback forwarding
+```
+
+The row must reuse the existing MIMAP-023A facade route and the existing M180
+huge-page model metadata release. It must not adopt the wider M181
+`HakoAllocHugeReleaseSeam` as the facade owner yet, because that seam also owns
+page-map lookup/unregister behavior. It must not add page-map lookup,
+page-map unregister, OSVM release/unreserve/decommit, small release/free,
+double-release / stale-pointer facade fail-fast, realloc, alignment,
+purge/reclaim, remote-free, TLS, atomic, provider hooks, host allocator
+replacement, or `#[global_allocator]`.
 
 ## Compiler / language sidecar triggers
 

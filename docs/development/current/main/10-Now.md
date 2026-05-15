@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-05-15
+Date: 2026-05-16
 Scope: current lane / blocker / next pointer only.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -28,14 +28,14 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-023B post-huge-page-model row selection`
+- current blocker token: `MIMAP-024A facade huge-release metadata route`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after MIMAP-023A; next blocker is
-  MIMAP-023B post-huge-page-model row selection
+- continue phase-293x after MIMAP-023B; next blocker is
+  MIMAP-024A facade huge-release metadata route
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

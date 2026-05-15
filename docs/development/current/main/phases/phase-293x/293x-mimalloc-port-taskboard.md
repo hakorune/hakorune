@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-05-15
+Date: 2026-05-16
 Lane: phase-293x mimalloc blueprint / port preparation
 Canonical SSOT:
   - docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md
@@ -29,10 +29,11 @@ the internal worker identity, TLS cache-slot, atomic route guard, and
 remote-free / abandoned-owner policy, thread-safe `hako_mem` ABI, and native
 multi-worker substrate stress rows are now live. The facade huge-request
 fail-fast routing row is green, and the facade huge-page model route is green.
-The current primary row moves to post-huge-page-model row selection:
+The current primary row moves to the selected facade huge-release metadata
+route:
 
 ```text
-  MIMAP-023B post-huge-page-model row selection
+  MIMAP-024A facade huge-release metadata route
 ```
 
 Closed cleanup sidecar:
@@ -115,8 +116,12 @@ MIMAP-023A:
   landed
   facade huge-page model route is green
 MIMAP-023B:
+  landed
+  selected MIMAP-024A facade huge-release metadata route as the next allocator
+  behavior row
+MIMAP-024A:
   ready current
-  post-huge-page-model row selection is the current primary row
+  facade huge-release metadata route is the current primary row
 ```
 
 ## Active Source Policy
@@ -279,7 +284,8 @@ FST:
 | `MIMAP-022B` | landed | Facade huge-request fail-fast routing before page-source attach/retry. | after MIMAP-022A |
 | `MIMAP-022C` | landed | Post-huge-failfast allocator row selection. | after MIMAP-022B |
 | `MIMAP-023A` | landed | Facade huge-page model route using the existing M180 huge-page model owner. | after MIMAP-022C |
-| `MIMAP-023B` | ready current | Post-huge-page-model allocator row selection. | current |
+| `MIMAP-023B` | landed | Post-huge-page-model allocator row selection. | after MIMAP-023A |
+| `MIMAP-024A` | ready current | Facade huge-release metadata route. | current |
 
 MIMAP-020A execution order:
 
