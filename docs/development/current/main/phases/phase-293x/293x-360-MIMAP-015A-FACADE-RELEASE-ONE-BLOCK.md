@@ -1,6 +1,6 @@
 # 293x-360 MIMAP-015A Facade Release One Block
 
-Status: ready
+Status: landed
 Date: 2026-05-15
 
 ## Decision
@@ -63,6 +63,46 @@ Required guard evidence:
 ```text
 [mimap015a-mir-json] ok
 [k2-wide-mimalloc-facade-release-one-block-exe] ok
+```
+
+## Implementation
+
+`HakoAllocObjectLifecycleFacade.objectLifecycleReleaseBlock(page_id, block_id)`
+resolves one known page id inside the facade-owned object lifecycle queue and
+delegates to `HakoAllocPageModel.releaseLocal(block_id)`.
+
+The route is intentionally bounded to the queue pages already used by the
+facade proof rows. It does not add arbitrary pointer lookup, page-map lookup, or
+double/stale release diagnostics.
+
+Scalar release observers:
+
+- `objectLifecycleReleasePageId()`
+- `objectLifecycleReleaseBlockId()`
+- `objectLifecycleReleaseReason()`
+- `objectLifecycleReleaseOk()`
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_mimalloc_facade_release_one_block_exe_guard.sh
+[mimap015a-mir-json] ok
+[k2-wide-mimalloc-facade-release-one-block-exe] ok
+
+bash tools/checks/k2_wide_mimalloc_facade_small_alloc_stats_exe_guard.sh
+[mimap014c-mir-json] ok
+[k2-wide-mimalloc-facade-small-alloc-stats-exe] ok
+
+bash tools/checks/k2_wide_mimalloc_facade_small_alloc_fallback_exe_guard.sh
+[mimap014b-mir-json] ok
+[k2-wide-mimalloc-facade-small-alloc-fallback-exe] ok
+
+bash tools/checks/k2_wide_mimalloc_facade_small_alloc_exe_guard.sh
+[mimap014a-mir-json] ok
+[k2-wide-mimalloc-facade-small-alloc-exe] ok
+
+bash tools/checks/dev_gate.sh quick
+[dev-gate] profile=quick ok
 ```
 
 ## Stop Lines

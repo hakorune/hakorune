@@ -74,15 +74,17 @@ Syntax/style contract
   object. It must not source OS pages, own segment/TLS/atomic/remote-free policy,
   activate providers/hooks, or add backend shortcuts.
 - `object_lifecycle_facade_box.hako` owns the MIMAP-013 thin facade object
-  lifecycle queue seam plus the MIMAP-014A/MIMAP-014B/MIMAP-014C small allocation
-  fast-path. It may store one `HakoAllocObjectLifecyclePageQueue`, forward
-  add/select object-page operations, prefer a selected reusable page, fall back
-  to one selected active page, call `HakoAllocPageModel.acquire(size)`, and
-  expose read-only scalar observer data including miss reason and facade-local
+  lifecycle queue seam plus the MIMAP-014A/MIMAP-014B/MIMAP-014C small
+  allocation fast-path and the MIMAP-015A one-known-block release route. It may
+  store one `HakoAllocObjectLifecyclePageQueue`, forward add/select object-page
+  operations, prefer a selected reusable page, fall back to one selected active
+  page, call `HakoAllocPageModel.acquire(size)`, release one known `(page id,
+  block id)` through `HakoAllocPageModel.releaseLocal(block_id)`, and expose
+  read-only scalar observer data including miss/release reason and facade-local
   allocation counters. It
-  must not use that facade seam to activate release/free, realloc, alignment,
-  OSVM/page-source execution, provider hooks, remote-free execution, host
-  allocator replacement, or backend shortcuts.
+  must not use that facade seam to activate realloc, alignment, OSVM/page-source
+  execution, provider hooks, remote-free execution, host allocator replacement,
+  arbitrary page-map lookup, or backend shortcuts.
 - `osvm_backed_fast_path_heap_box.hako` is the M168 composition owner. It may
   reserve/commit/decommit through `HakoAllocPageSourcePolicy`, then reuse the
   same page queue and page-local free-list owners. It must not add OSVM metal,

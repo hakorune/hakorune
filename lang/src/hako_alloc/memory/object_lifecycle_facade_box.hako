@@ -1,6 +1,6 @@
 // object_lifecycle_facade_box.hako — thin facade over object-backed lifecycle queue
-// Responsibility: compose facade-level add/select/small-alloc/observer methods over HakoAllocObjectLifecyclePageQueue.
-// This module does not own production provider activation, OS page sourcing, release/realloc, remote-free, or backend shortcuts.
+// Responsibility: compose facade-level add/select/small-alloc/release/observer methods over HakoAllocObjectLifecyclePageQueue.
+// This module does not own production provider activation, OS page sourcing, realloc, remote-free, or backend shortcuts.
 
 using selfhost.hako_alloc.memory.object_lifecycle_page_queue_box as HakoAllocObjectLifecyclePageQueueBox
 
@@ -15,6 +15,10 @@ box HakoAllocObjectLifecycleFacade {
     small_alloc_failure_count: i64 = 0
     small_alloc_reusable_success_count: i64 = 0
     small_alloc_active_success_count: i64 = 0
+    last_release_page_id: i64 = -1
+    last_release_block_id: i64 = -1
+    last_release_reason: i64 = 0
+    last_release_ok: i64 = 0
 
     objectLifecycleAddPage(page) {
         return me.object_lifecycle_queue.addPage(page)
@@ -91,6 +95,74 @@ box HakoAllocObjectLifecycleFacade {
         }
 
         return me.recordSmallAllocSuccess(selected_kind)
+    }
+
+    resetReleaseResult() {
+        me.last_release_page_id = -1
+        me.last_release_block_id = -1
+        me.last_release_reason = 0
+        me.last_release_ok = 0
+        return 1
+    }
+
+    recordReleaseFailure(reason) {
+        me.last_release_reason = reason
+        return 0
+    }
+
+    recordReleaseSuccess(page_id, block_id) {
+        me.last_release_page_id = page_id
+        me.last_release_block_id = block_id
+        me.last_release_reason = 0
+        me.last_release_ok = 1
+        return 1
+    }
+
+    objectLifecycleReleaseBlock(page_id, block_id) {
+        me.resetReleaseResult()
+        me.last_release_page_id = page_id
+        me.last_release_block_id = block_id
+
+        if page_id < 0 {
+            return me.recordReleaseFailure(1)
+        }
+        if block_id < 0 {
+            return me.recordReleaseFailure(2)
+        }
+
+        local pages = me.object_lifecycle_queue.pages
+
+        local page0 = pages.get(0)
+        if page0 != null {
+            if page0.page_id == page_id {
+                if page0.releaseLocal(block_id) == 1 {
+                    return me.recordReleaseSuccess(page_id, block_id)
+                }
+                return me.recordReleaseFailure(3)
+            }
+        }
+
+        local page1 = pages.get(1)
+        if page1 != null {
+            if page1.page_id == page_id {
+                if page1.releaseLocal(block_id) == 1 {
+                    return me.recordReleaseSuccess(page_id, block_id)
+                }
+                return me.recordReleaseFailure(3)
+            }
+        }
+
+        local page2 = pages.get(2)
+        if page2 != null {
+            if page2.page_id == page_id {
+                if page2.releaseLocal(block_id) == 1 {
+                    return me.recordReleaseSuccess(page_id, block_id)
+                }
+                return me.recordReleaseFailure(3)
+            }
+        }
+
+        return me.recordReleaseFailure(1)
     }
 
     objectLifecyclePageCount() {
@@ -179,5 +251,21 @@ box HakoAllocObjectLifecycleFacade {
 
     objectLifecycleAllocActiveSuccessCount() {
         return me.small_alloc_active_success_count
+    }
+
+    objectLifecycleReleasePageId() {
+        return me.last_release_page_id
+    }
+
+    objectLifecycleReleaseBlockId() {
+        return me.last_release_block_id
+    }
+
+    objectLifecycleReleaseReason() {
+        return me.last_release_reason
+    }
+
+    objectLifecycleReleaseOk() {
+        return me.last_release_ok
     }
 }
