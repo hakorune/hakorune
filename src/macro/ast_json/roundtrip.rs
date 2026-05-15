@@ -338,6 +338,20 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                 .collect::<Vec<_>>(),
             span: Span::unknown(),
         },
+        "TaskScope" => ASTNode::TaskScope {
+            source_keyword: v
+                .get("spelling")
+                .and_then(|value| value.as_str())
+                .unwrap_or("co")
+                .to_string(),
+            body: v
+                .get("body")?
+                .as_array()?
+                .iter()
+                .filter_map(json_to_ast)
+                .collect::<Vec<_>>(),
+            span: Span::unknown(),
+        },
         "Print" => ASTNode::Print {
             expression: Box::new(json_to_ast(v.get("expression")?)?),
             span: Span::unknown(),

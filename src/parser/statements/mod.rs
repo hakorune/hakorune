@@ -19,6 +19,7 @@ pub mod variables;
 
 // I/O and async statements
 pub mod io_async;
+pub mod task_scope;
 
 // Exception handling
 pub mod exceptions;
@@ -343,6 +344,9 @@ impl NyashParser {
 
             // Assignment or function call
             TokenType::IDENTIFIER(_) | TokenType::THIS | TokenType::ME => {
+                if self.is_task_scope_statement_start() {
+                    return self.parse_task_scope_statement();
+                }
                 self.parse_assignment_or_function_call()
             }
 

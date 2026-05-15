@@ -17,6 +17,9 @@ impl ASTNode {
             ASTNode::Program { statements, .. }
             | ASTNode::ScopeBox {
                 body: statements, ..
+            }
+            | ASTNode::TaskScope {
+                body: statements, ..
             } => {
                 for statement in statements {
                     visitor(statement);
@@ -474,6 +477,13 @@ impl ASTNode {
             ASTNode::Nowait { variable, .. } => {
                 format!("Nowait({})", variable)
             }
+            ASTNode::TaskScope {
+                source_keyword,
+                body,
+                ..
+            } => {
+                format!("TaskScope({}, {} statements)", source_keyword, body.len())
+            }
             ASTNode::Arrow { .. } => "Arrow(>>)".to_string(),
             ASTNode::TryCatch {
                 try_body,
@@ -559,6 +569,7 @@ impl ASTNode {
             ASTNode::UsingStatement { span, .. } => *span,
             ASTNode::ImportStatement { span, .. } => *span,
             ASTNode::Nowait { span, .. } => *span,
+            ASTNode::TaskScope { span, .. } => *span,
             ASTNode::Arrow { span, .. } => *span,
             ASTNode::TryCatch { span, .. } => *span,
             ASTNode::Throw { span, .. } => *span,

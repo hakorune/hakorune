@@ -189,6 +189,15 @@ impl AstBuilder {
                     statements: statements.into_iter().map(|n| subst(&n, binds)).collect(),
                     span,
                 },
+                ASTNode::TaskScope {
+                    body,
+                    source_keyword,
+                    span,
+                } => ASTNode::TaskScope {
+                    body: body.into_iter().map(|n| subst(&n, binds)).collect(),
+                    source_keyword,
+                    span,
+                },
                 other => other,
             }
         }
@@ -478,6 +487,28 @@ impl MacroPattern for TemplatePattern {
                         ..
                     },
                 ) => go(t1, t2, out) && go(v1, v2, out),
+                (
+                    ASTNode::TaskScope {
+                        body: b1,
+                        source_keyword: k1,
+                        ..
+                    },
+                    ASTNode::TaskScope {
+                        body: b2,
+                        source_keyword: k2,
+                        ..
+                    },
+                ) => {
+                    if k1 != k2 || b1.len() != b2.len() {
+                        return false;
+                    }
+                    for (x, y) in b1.iter().zip(b2.iter()) {
+                        if !go(x, y, out) {
+                            return false;
+                        }
+                    }
+                    true
+                }
                 (ASTNode::Return { value: v1, .. }, ASTNode::Return { value: v2, .. }) => {
                     match (v1, v2) {
                         (Some(a), Some(b)) => go(a, b, out),

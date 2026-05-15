@@ -38,6 +38,15 @@ pub(super) fn transform_array_prepend_zero(ast: &nyash_rust::ASTNode) -> nyash_r
                 .collect(),
             span: Span::unknown(),
         },
+        A::TaskScope {
+            body,
+            source_keyword,
+            ..
+        } => A::TaskScope {
+            body: body.iter().map(transform_array_prepend_zero).collect(),
+            source_keyword: source_keyword.clone(),
+            span: Span::unknown(),
+        },
         A::Print { expression, .. } => A::Print {
             expression: Box::new(transform_array_prepend_zero(expression)),
             span: Span::unknown(),

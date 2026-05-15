@@ -101,8 +101,8 @@ compat/archive lane and let canonical smokes cover the live behavior.
 | Row | Status | Purpose | Output | Stop line |
 | --- | --- | --- | --- | --- |
 | `CONC-BOUNDARY-001` | landed-docs | Adopt Boundary model as design SSOT. | `docs/reference/concurrency/boundary-model.md` | no runtime change |
-| `CONC-COMPAT-001` | ready | Audit legacy concurrency spellings and smoke-only compatibility users. | inventory + no-active-use guard plan | no parser/runtime deletion |
-| `CONC-CO-001` | ready | Add `co` as canonical structured concurrency source spelling while keeping `task_scope` as compat/internal wording. | parser/docs guard + diagnostic plan | no runtime owner rename |
+| `CONC-COMPAT-001` | landed-audit | Audit legacy concurrency spellings and smoke-only compatibility users. | `tools/checks/concurrency_boundary_surface_guard.sh` | no parser/runtime deletion |
+| `CONC-CO-001` | landed-parser-json | Add `co` as canonical structured concurrency source spelling while keeping `task_scope` as compat/internal wording. | parser + AST JSON + Program JSON row | runtime hook lowering remains fail-fast |
 | `CONC-CHANNEL-001` | ready | Pin Channel API shapes around await-visible `send` / `recv` / `close`. | reference/API docs + fixture plan | no wait runtime rewrite |
 | `CONC-CHANNEL-002` | pending | Implement `await ch.close()` semantics in the current ChannelBox/runtime scaffold. | VM/reference guard for close wake/drain/send-after-close | no true parallel scheduler |
 | `CONC-CHANNEL-003` | pending | Implement await-visible `send` / `recv` route shape or fail-fast bridge. | parser/MIR/runtime route guard | no hidden blocking ordinary call |
@@ -142,9 +142,10 @@ Classification:
 Acceptance:
 
 ```text
-rg-based audit command is checked in
+rg-based audit command is checked in:
+  tools/checks/concurrency_boundary_surface_guard.sh
 no active non-smoke use remains before parser/runtime quarantine
-canonical smoke covers the live behavior
+canonical parser/Program JSON tests cover the live behavior
 compat smoke is either archived or explicitly named legacy-compat
 ```
 
@@ -185,6 +186,7 @@ AST/Program JSON carries the same structured-scope meaning as task_scope
 task_scope remains accepted as compatibility spelling
 diagnostics prefer co for new source
 no runtime owner rename in this row
+runtime/MIR hook lowering stays fail-fast until CONC-CONTEXT-002 or a dedicated co-runtime row
 ```
 
 ### CONC-CHANNEL-001

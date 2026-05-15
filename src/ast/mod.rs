@@ -407,6 +407,16 @@ pub enum ASTNode {
         span: Span,
     },
 
+    /// Structured concurrency scope.
+    ///
+    /// `co { ... }` is the canonical source spelling. `task_scope { ... }`
+    /// remains a compatibility spelling and is preserved for diagnostics.
+    TaskScope {
+        body: Vec<ASTNode>,
+        source_keyword: String,
+        span: Span,
+    },
+
     /// await式: await expression
     AwaitExpression {
         expression: Box<ASTNode>,

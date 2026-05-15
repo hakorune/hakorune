@@ -13,6 +13,18 @@ fn subst_var(
                 .collect(),
             span,
         },
+        A::TaskScope {
+            body,
+            source_keyword,
+            span,
+        } => A::TaskScope {
+            body: body
+                .iter()
+                .map(|s| subst_var(s, name, replacement))
+                .collect(),
+            source_keyword,
+            span,
+        },
         A::Print { expression, span } => A::Print {
             expression: Box::new(subst_var(&expression, name, replacement)),
             span,
@@ -254,6 +266,15 @@ pub(super) fn transform_for_foreach(ast: &nyash_rust::ASTNode) -> nyash_rust::AS
     match ast.clone() {
         A::Program { statements, span } => A::Program {
             statements: rewrite_stmt_list(statements),
+            span,
+        },
+        A::TaskScope {
+            body,
+            source_keyword,
+            span,
+        } => A::TaskScope {
+            body: rewrite_stmt_list(body),
+            source_keyword,
             span,
         },
         A::If {

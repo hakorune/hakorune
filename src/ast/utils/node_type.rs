@@ -44,6 +44,7 @@ impl ASTNode {
             ASTNode::FunctionCall { .. } => "FunctionCall",
             ASTNode::Call { .. } => "Call",
             ASTNode::Nowait { .. } => "Nowait",
+            ASTNode::TaskScope { .. } => "TaskScope",
             ASTNode::Arrow { .. } => "Arrow",
             ASTNode::TryCatch { .. } => "TryCatch",
             ASTNode::Throw { .. } => "Throw",

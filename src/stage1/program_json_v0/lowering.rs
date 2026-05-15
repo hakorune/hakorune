@@ -292,6 +292,11 @@ fn statement_to_json_v0(
             body,
             ..
         } => loop_range_statement_to_json_v0(var_name, start, end, body, context, local_types),
+        ASTNode::TaskScope {
+            body,
+            source_keyword,
+            ..
+        } => task_scope_statement_to_json_v0(body, source_keyword, context, local_types),
         ASTNode::Break { .. } => Ok(serde_json::json!({ "type": "Break" })),
         ASTNode::Continue { .. } => Ok(serde_json::json!({ "type": "Continue" })),
         ASTNode::Throw { expression, .. } => {
@@ -423,6 +428,21 @@ fn loop_range_statement_to_json_v0(
         "var_name": var_name,
         "start": start_json,
         "end": end_json,
+        "body": body_json,
+    }))
+}
+
+fn task_scope_statement_to_json_v0(
+    body: &[ASTNode],
+    source_keyword: &str,
+    context: &ProgramJsonV0LoweringContext,
+    local_types: &mut ProgramJsonV0LocalTypes,
+) -> Result<serde_json::Value, String> {
+    let mut body_types = local_types.clone();
+    let body_json = statements_to_json_v0(body, context, &mut body_types)?;
+    Ok(serde_json::json!({
+        "type": "TaskScope",
+        "spelling": source_keyword,
         "body": body_json,
     }))
 }

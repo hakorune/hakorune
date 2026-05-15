@@ -185,6 +185,18 @@ pub(super) fn transform_peek_match_literal(ast: &nyash_rust::ASTNode) -> nyash_r
                 .collect(),
             span,
         },
+        A::TaskScope {
+            body,
+            source_keyword,
+            span,
+        } => A::TaskScope {
+            body: body
+                .into_iter()
+                .map(|n| transform_peek_match_literal(&n))
+                .collect(),
+            source_keyword,
+            span,
+        },
         A::If {
             condition,
             then_body,

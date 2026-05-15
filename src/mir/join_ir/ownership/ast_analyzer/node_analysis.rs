@@ -201,7 +201,7 @@ impl AstOwnershipAnalyzer {
                 self.propagate_to_parent(loop_scope);
             }
 
-            ASTNode::ScopeBox { body, .. } => {
+            ASTNode::ScopeBox { body, .. } | ASTNode::TaskScope { body, .. } => {
                 let block_scope = self.alloc_scope(ScopeKind::Block, Some(current_scope));
                 self.push_env();
                 let result: Result<(), String> = body

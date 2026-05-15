@@ -8,6 +8,18 @@ pub(super) fn transform_loop_normalize(ast: &nyash_rust::ASTNode) -> nyash_rust:
                 .collect(),
             span,
         },
+        A::TaskScope {
+            body,
+            source_keyword,
+            span,
+        } => A::TaskScope {
+            body: body
+                .into_iter()
+                .map(|n| transform_loop_normalize(&n))
+                .collect(),
+            source_keyword,
+            span,
+        },
         A::If {
             condition,
             then_body,

@@ -10,6 +10,15 @@ pub(super) fn transform_postfix_handlers(ast: &nyash_rust::ASTNode) -> nyash_rus
             statements: map_vec(statements),
             span,
         },
+        A::TaskScope {
+            body,
+            source_keyword,
+            span,
+        } => A::TaskScope {
+            body: map_vec(body),
+            source_keyword,
+            span,
+        },
         A::If {
             condition,
             then_body,

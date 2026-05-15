@@ -98,6 +98,11 @@ pub(super) enum StmtV0 {
         end: ExprV0,
         body: Vec<StmtV0>,
     },
+    TaskScope {
+        #[serde(default)]
+        spelling: Option<String>,
+        body: Vec<StmtV0>,
+    },
     Throw {
         expr: ExprV0,
     },

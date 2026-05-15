@@ -57,6 +57,27 @@ return i
 }
 
 #[test]
+fn source_to_program_json_v0_emits_task_scope_shape() {
+    let source = r#"
+static box Main {
+  main() {
+co {
+local value = 1
+}
+return 0
+  }
+}
+"#;
+    let json = source_to_program_json_v0_strict(source).expect("program json");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    let body = value["body"].as_array().expect("body");
+    assert_eq!(body[0]["type"], "TaskScope");
+    assert_eq!(body[0]["spelling"], "co");
+    assert_eq!(body[0]["body"][0]["type"], "Local");
+    assert_eq!(body[1]["type"], "Return");
+}
+
+#[test]
 fn source_to_program_json_v0_supports_static_method_call() {
     let source = r#"
 static box Driver {

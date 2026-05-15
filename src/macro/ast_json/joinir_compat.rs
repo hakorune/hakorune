@@ -155,6 +155,16 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             "end": ast_to_json(&end),
             "body": body.into_iter().map(|s| ast_to_json(&s)).collect::<Vec<_>>()
         }),
+        ASTNode::TaskScope {
+            body,
+            source_keyword,
+            ..
+        } => json!({
+            "kind": "TaskScope",
+            "type": "TaskScope",
+            "spelling": source_keyword,
+            "body": body.into_iter().map(|s| ast_to_json(&s)).collect::<Vec<_>>()
+        }),
         // Phase 54: Print with JoinIR-compatible fields
         ASTNode::Print { expression, .. } => json!({
             "kind": "Print",
@@ -684,6 +694,20 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
             var_name: v.get("var_name")?.as_str()?.to_string(),
             start: Box::new(json_to_ast(v.get("start")?)?),
             end: Box::new(json_to_ast(v.get("end")?)?),
+            body: v
+                .get("body")?
+                .as_array()?
+                .iter()
+                .filter_map(json_to_ast)
+                .collect::<Vec<_>>(),
+            span: Span::unknown(),
+        },
+        "TaskScope" => ASTNode::TaskScope {
+            source_keyword: v
+                .get("spelling")
+                .and_then(|value| value.as_str())
+                .unwrap_or("co")
+                .to_string(),
             body: v
                 .get("body")?
                 .as_array()?

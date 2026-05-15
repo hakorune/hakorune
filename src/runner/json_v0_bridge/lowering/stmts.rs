@@ -98,6 +98,13 @@ pub(super) fn lower_stmt_with_vars(
         } => loop_range::lower_loop_range_stmt(
             f, cur_bb, var_name, start, end, body, vars, loop_stack, env,
         ),
+        StmtV0::TaskScope { spelling, .. } => {
+            let spelling = spelling.as_deref().unwrap_or("co");
+            Err(format!(
+                "[freeze:contract][json_v0_bridge/task_scope_lowering_missing] spelling={} task scope lowering must be owned by CONC-CO runtime hooks",
+                spelling
+            ))
+        }
         StmtV0::FiniReg { .. } => Err(
             "[freeze:contract][json_v0_bridge/fini_marker_leak] unnormalized FiniReg marker"
                 .to_string(),

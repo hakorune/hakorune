@@ -29,6 +29,15 @@ pub(super) fn transform_map_insert_tag(ast: &nyash_rust::ASTNode) -> nyash_rust:
             statements: statements.iter().map(transform_map_insert_tag).collect(),
             span: Span::unknown(),
         },
+        A::TaskScope {
+            body,
+            source_keyword,
+            ..
+        } => A::TaskScope {
+            body: body.iter().map(transform_map_insert_tag).collect(),
+            source_keyword: source_keyword.clone(),
+            span: Span::unknown(),
+        },
         A::Print { expression, .. } => A::Print {
             expression: Box::new(transform_map_insert_tag(expression)),
             span: Span::unknown(),

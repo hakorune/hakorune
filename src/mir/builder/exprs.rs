@@ -28,6 +28,10 @@ impl super::MirBuilder {
                 self.cf_block(statements)
             }
             ASTNode::ScopeBox { body, .. } => self.cf_block(body),
+            ASTNode::TaskScope { source_keyword, .. } => Err(format!(
+                "[freeze:contract][mir_builder/task_scope_lowering_missing] spelling={} task scope lowering must be owned by CONC-CO runtime hooks",
+                source_keyword
+            )),
             ASTNode::Print { expression, .. } => {
                 super::stmts::print_stmt::build_print_statement(self, *expression)
             }
