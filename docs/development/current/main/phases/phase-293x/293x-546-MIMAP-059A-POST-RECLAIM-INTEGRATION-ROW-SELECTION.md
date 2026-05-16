@@ -1,6 +1,6 @@
 # 293x-546 MIMAP-059A Post-Reclaim-Integration Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -53,4 +53,35 @@ next row.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Selection Result
+
+`MIMAP-059A` selects `MIMAP-060A`.
+
+```text
+row:
+  MIMAP-060A reclaim completion marker route
+
+classification:
+  scalar reclaim completion route
+
+why now:
+  post-drain owner-transfer ordering is guarded. The next narrow row can mark a
+  scalar reclaim completion after that integration succeeds, while keeping
+  page-source/OSVM release, thread scheduling, and provider activation closed.
+
+stop lines:
+  no page-source call
+  no OSVM unreserve / release
+  no thread scheduling
+  no provider activation
+  no host allocator replacement
+  no cleanup bundle
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-060A.
 ```

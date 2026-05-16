@@ -218,7 +218,8 @@ Forbidden:
 | `MIMAP-056A` | reclaim remote-free drain contract inventory | landed; selected MIMAP-057A |
 | `MIMAP-057A` | reclaim remote-free drain first execution route | landed; selected MIMAP-058A |
 | `MIMAP-058A` | reclaim post-drain owner-transfer integration route | landed; selected MIMAP-059A |
-| `MIMAP-059A` | post-reclaim-integration row selection | selected current |
+| `MIMAP-059A` | post-reclaim-integration row selection | landed; selected MIMAP-060A |
+| `MIMAP-060A` | reclaim completion marker route | selected current |
 
 ### MIMAP-020A granularity
 
@@ -966,6 +967,17 @@ focused compiler/language sidecar if evidence requires it.
 It must not add implementation code, full reclaim execution, scheduler
 behavior, page-source calls, OSVM unreserve/release, providers, or backend
 matchers.
+
+MIMAP-059A landed by selecting MIMAP-060A.
+
+### MIMAP-060A granularity
+
+MIMAP-060A is a scalar reclaim completion marker route. It may compose the
+MIMAP-058A post-drain owner-transfer integration route and set only an
+executor-local completion marker when that route succeeds.
+
+It must not schedule threads, call page-source APIs, unreserve or release OSVM
+pages, activate providers, replace the host allocator, or add backend matchers.
 
 ## Compiler / language sidecar triggers
 
