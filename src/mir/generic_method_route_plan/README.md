@@ -7,6 +7,8 @@ responsibility.
 - `origin_inference.rs`: typed-object field handle and collection element
   origin inference.
 - `flow_origin.rs`: collection/string value-flow origin observation.
+- `collection_read_routes.rs`: non-mutating collection read route matchers
+  (`has`, `get`, `length`/`len`, `keys`).
 - `write_routes.rs`: mutating generic method route matchers (`push`, `set`,
   `delete`).
 - `mir_json_routes.rs`: MIR JSON-specific generic `get` route shapes.

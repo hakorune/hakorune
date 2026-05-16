@@ -51,7 +51,7 @@ Scope: current lane / next lane / restart order only.
 - pure-first MIR artifact / diagnostics SSOT:
   `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
 - current blocker token:
-  `GENERIC-METHOD-ROUTE-SPLIT-001 generic collection read route cleanup`
+  `GENERIC-METHOD-ROUTE-SPLIT-003 generic string route cleanup`
 - current BoxShape sidecar:
   `MIR-EMIT-SSOT-001`, `MIR-ROUTE-PREFLIGHT-001`, and
   `SELFHOST-PROGRESS-001`, and `MIR-EMIT-SSOT-002` landed; `MIR-ROW-C`
@@ -82,6 +82,8 @@ Scope: current lane / next lane / restart order only.
   `EXPRS-CHECK-002` selected OSVM export validation helper cleanup;
   `OSVM-EXPORT-VALIDATION-HELPER-001` landed OSVM export validation helper cleanup;
   `OSVM-EXPORT-VALIDATION-HELPER-002` selected generic collection read route cleanup;
+  `GENERIC-METHOD-ROUTE-SPLIT-001` landed generic collection read route cleanup;
+  `GENERIC-METHOD-ROUTE-SPLIT-002` selected GENERIC-METHOD-ROUTE-SPLIT-003 generic string route cleanup;
   `MIRBUILDER-DIET` remains closed through `MIR-SEMANTIC-PLANS-001`
 - primary mode: mimalloc substrate implementation lane; keep upstream source
   untracked and keep each allocator row behind explicit guards before provider
@@ -97,18 +99,18 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `OSVM-EXPORT-VALIDATION-HELPER-002`;
-  current blocker is `GENERIC-METHOD-ROUTE-SPLIT-001`, a generic method route
-  collection read matcher cleanup. VM-LIM-001 remains parked diagnostic. Keep
-  LoopRange on the Stage1 route; do not source-desugar range loops.
+- resume point: continue Phase 293x after `GENERIC-METHOD-ROUTE-SPLIT-002`;
+  current blocker is `GENERIC-METHOD-ROUTE-SPLIT-003`, a generic method route
+  string matcher cleanup. VM-LIM-001 remains parked diagnostic. Keep LoopRange
+  on the Stage1 route; do not source-desugar range loops.
 
 ## Task Order
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `GENERIC-METHOD-ROUTE-SPLIT-001`: split collection read route matchers
-     out of the generic method route root facade without behavior changes
-  2. select the next row after `GENERIC-METHOD-ROUTE-SPLIT-001`
+  1. `GENERIC-METHOD-ROUTE-SPLIT-003`: split string route matchers out of the
+     generic method route root facade without behavior changes
+  2. select the next row after `GENERIC-METHOD-ROUTE-SPLIT-003`
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
   reduction after mimalloc completeness evidence. Do not make broad `.hako`

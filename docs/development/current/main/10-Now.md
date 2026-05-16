@@ -30,16 +30,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `GENERIC-METHOD-ROUTE-SPLIT-001 generic collection read route cleanup`
+- current blocker token: `GENERIC-METHOD-ROUTE-SPLIT-003 generic string route cleanup`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `OSVM-EXPORT-VALIDATION-HELPER-002`; current
-  blocker is `GENERIC-METHOD-ROUTE-SPLIT-001`, a generic collection read route
-  cleanup
-- planned order: selected row after `GENERIC-METHOD-ROUTE-SPLIT-001`
+- continue phase-293x after `GENERIC-METHOD-ROUTE-SPLIT-002`; current blocker
+  is `GENERIC-METHOD-ROUTE-SPLIT-003`, a generic string route cleanup
+- planned order: selected row after `GENERIC-METHOD-ROUTE-SPLIT-003`
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
