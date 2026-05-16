@@ -1,6 +1,6 @@
 # 293x-450 MIR-EMIT-SSOT-001 Pure-First MIR Artifact Exactness
 
-Status: selected
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -105,3 +105,55 @@ MIMAP-029A proof still passes
 After closeout, continue to `MIR-ROUTE-PREFLIGHT-001` before returning to
 `MIMAP-029B`, unless the exactness row exposes a smaller blocker that must be
 split first.
+
+## Landed Implementation
+
+Implementation:
+
+```text
+tools/selfhost/selfhost_build.sh
+tools/selfhost/lib/selfhost_build_route.sh
+tools/selfhost/lib/selfhost_build_direct.sh
+tools/selfhost/lib/selfhost_build_run.sh
+tools/selfhost/lib/selfhost_build_exe.sh
+tools/checks/lib/pure_first_exe_guard.sh
+tools/checks/pure_first_mir_artifact_exactness_guard.sh
+docs/tools/check-scripts-index.md
+```
+
+Landed behavior:
+
+```text
+--mir-in FILE:
+  consumes an existing MIR JSON artifact for EXE/run routes and does not
+  re-emit source.
+
+--mir-out FILE:
+  explicit source-to-MIR output spelling.
+
+--mir FILE:
+  compatibility alias for --mir-out.
+
+pure_first_guard_build_exe:
+  passes --mir-in to selfhost_build.sh and hashes the MIR artifact before and
+  after EXE build.
+```
+
+The exactness guard also checks that a generated MIR artifact exposes
+`functions[].metadata.lowering_plan`, keeping the 451 preflight schema sanity
+visible before the route classifier is implemented.
+
+Evidence:
+
+```text
+bash tools/checks/pure_first_mir_artifact_exactness_guard.sh
+bash tools/checks/k2_wide_mimalloc_facade_huge_decommit_exe_guard.sh
+tools/checks/dev_gate.sh quick
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Closeout
+
+MIR-EMIT-SSOT-001 is closed. The active blocker moves to
+`MIR-ROUTE-PREFLIGHT-001`.

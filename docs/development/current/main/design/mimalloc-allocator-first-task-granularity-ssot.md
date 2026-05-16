@@ -155,8 +155,8 @@ Forbidden:
 | `MIMAP-028A` | facade huge page-source backing route | landed after MIMAP-027B |
 | `MIMAP-028B` | post-backed-huge allocator row selection | landed; selected MIMAP-029A |
 | `MIMAP-029A` | facade huge decommit-after-unregister success route | landed after MIMAP-028B |
-| `MIR-EMIT-SSOT-001` | pure-first MIR artifact exactness sidecar | current before MIMAP-029B |
-| `MIR-ROUTE-PREFLIGHT-001` | lowering-plan route preflight sidecar | after MIR-EMIT-SSOT-001 |
+| `MIR-EMIT-SSOT-001` | pure-first MIR artifact exactness sidecar | landed before MIMAP-029B |
+| `MIR-ROUTE-PREFLIGHT-001` | lowering-plan route preflight sidecar | current after MIR-EMIT-SSOT-001 |
 | `SELFHOST-PROGRESS-001` | selfhost/pure-first progress diagnostics sidecar | after MIR-ROUTE-PREFLIGHT-001 |
 | `MIR-EMIT-SSOT-002` | canonical external source-to-MIR route entry | after progress diagnostics |
 | `MIMAP-029B` | post-huge-decommit allocator row selection | after pure-first sidecar |

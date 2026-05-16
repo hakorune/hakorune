@@ -28,6 +28,10 @@ pure_first_guard_build_exe() {
   local mir_json="$4"
   local exe_out="$5"
   local build_log="$6"
+  local mir_sha_before
+  local mir_sha_after
+
+  mir_sha_before="$(sha256sum "$mir_json" | awk '{print $1}')"
 
   if ! NYASH_BIN="$root_dir/target/debug/hakorune" \
     NYASH_FEATURES=rune \
@@ -37,9 +41,17 @@ pure_first_guard_build_exe() {
     HAKO_BACKEND_COMPAT_REPLAY=none \
     timeout 120 tools/selfhost/selfhost_build.sh \
       --in "$app" \
-      --mir "$mir_json" \
+      --mir-in "$mir_json" \
       --exe "$exe_out" >"$build_log" 2>&1; then
     echo "[$tag] ERROR: pure-first build failed" >&2
+    sed -n '1,240p' "$build_log" >&2
+    exit 1
+  fi
+
+  mir_sha_after="$(sha256sum "$mir_json" | awk '{print $1}')"
+  if [ "$mir_sha_before" != "$mir_sha_after" ]; then
+    echo "[$tag] ERROR: pure-first EXE build rewrote preflight MIR artifact" >&2
+    echo "[$tag] before=$mir_sha_before after=$mir_sha_after file=$mir_json" >&2
     sed -n '1,240p' "$build_log" >&2
     exit 1
   fi

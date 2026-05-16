@@ -30,17 +30,17 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIR-EMIT-SSOT-001 pure-first MIR artifact exactness`
+- current blocker token: `MIR-ROUTE-PREFLIGHT-001 lowering-plan route preflight`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after MIMAP-029A; current blocker is
-  `MIR-EMIT-SSOT-001`, a pure-first/selfhost BoxShape sidecar that ensures
-  preflight and EXE build consume the same MIR artifact
-- planned sidecar order: `MIR-ROUTE-PREFLIGHT-001`,
-  `SELFHOST-PROGRESS-001`, `MIR-EMIT-SSOT-002`, then return to `MIMAP-029B`
+- continue phase-293x after `MIR-EMIT-SSOT-001`; current blocker is
+  `MIR-ROUTE-PREFLIGHT-001`, a pure-first/selfhost BoxShape sidecar that
+  classifies missing lowering routes from MIR metadata before backend emission
+- planned sidecar order: `SELFHOST-PROGRESS-001`, `MIR-EMIT-SSOT-002`, then
+  return to `MIMAP-029B`
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

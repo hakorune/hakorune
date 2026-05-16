@@ -17,16 +17,23 @@ run_mir_json_via_direct_loader() {
 
 cleanup_run_mir_tmp_if_needed() {
   local mir_path="$1"
+  if [ -n "${MIR_IN:-}" ]; then
+    return 0
+  fi
   if [ -z "$MIR_OUT" ]; then
     rm -f "$mir_path" 2>/dev/null || true
   fi
 }
 
 run_requested_direct_mir() {
-  local mir_path="${MIR_OUT:-/tmp/hako_run_mir_$$.json}"
+  local mir_path="${MIR_IN:-${MIR_OUT:-/tmp/hako_run_mir_$$.json}}"
   local rc=0
 
-  emit_mir_json_from_source "$mir_path" || rc=$?
+  if [ -n "${MIR_IN:-}" ]; then
+    echo "[selfhost] using MIR JSON input → $mir_path" >&2
+  else
+    emit_mir_json_from_source "$mir_path" || rc=$?
+  fi
   if [ "$rc" -eq 0 ]; then
     run_mir_json_via_direct_loader "$mir_path" || rc=$?
   fi

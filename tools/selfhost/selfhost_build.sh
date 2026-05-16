@@ -8,12 +8,15 @@
 # - Optionally build an executable via ny-llvmc.
 #
 # Usage:
-#   tools/selfhost/selfhost_build.sh --in source.hako (--mir out.json | --exe out | --run)
+#   tools/selfhost/selfhost_build.sh --in source.hako (--mir-out out.json | --exe out | --run)
+#   tools/selfhost/selfhost_build.sh --mir-in input.mir.json --exe out
 #   Options:
-#     --in FILE     Input .hako source file (required)
+#     --in FILE     Input .hako source file (required unless --mir-in is used)
 #     --json FILE   Retired wrapper surface (compat-only; rejected with redirect)
 #     --run         Run via direct MIR(JSON) after compilation
-#     --mir FILE    Emit MIR(JSON) to FILE; MIR-only requests use the direct route
+#     --mir FILE    Compat alias for --mir-out
+#     --mir-out FILE Emit MIR(JSON) to FILE; MIR-only requests use the direct route
+#     --mir-in FILE Existing MIR(JSON) input for EXE/run routes; never re-emits source
 #     --exe FILE    Build native EXE via ny-llvmc
 #     --keep-tmp    Retired; archived Program(JSON v0) probe lives under tools/archive/legacy-selfhost/engineering/
 #     --core        Deprecated (JoinIR Core は常時 ON のため無視・警告のみ)

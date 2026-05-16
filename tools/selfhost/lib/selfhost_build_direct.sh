@@ -7,6 +7,10 @@
 
 emit_mir_json_from_source() {
   local mir_out_path="$1"
+  if [ -z "${IN:-}" ]; then
+    echo "[selfhost] source input is required for MIR emission" >&2
+    return 2
+  fi
   echo "[selfhost] emitting MIR JSON → $mir_out_path" >&2
   "$BIN" --backend mir --emit-mir-json "$mir_out_path" "$IN" >/dev/null
 }

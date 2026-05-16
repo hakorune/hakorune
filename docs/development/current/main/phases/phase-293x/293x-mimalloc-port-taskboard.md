@@ -30,11 +30,11 @@ remote-free / abandoned-owner policy, thread-safe `hako_mem` ABI, and native
 multi-worker substrate stress rows are now live. The facade huge-request
 fail-fast routing row is green, and the facade huge-page model route is green.
 MIMAP-029A exposed a pure-first/selfhost route-shape cleanup before the next
-allocator selection row. The current primary row is the compiler/selfhost
-BoxShape sidecar:
+allocator selection row. The first sidecar landed same-artifact MIR input for
+EXE build; the current primary row is the lowering-plan preflight sidecar:
 
 ```text
-  MIR-EMIT-SSOT-001 pure-first MIR artifact exactness
+  MIR-ROUTE-PREFLIGHT-001 lowering-plan route preflight
 ```
 
 Closed cleanup sidecar:
@@ -163,11 +163,11 @@ MIMAP-029B:
   post-huge-decommit allocator row selection resumes after pure-first artifact
   exactness, route preflight, and progress diagnostics
 MIR-EMIT-SSOT-001:
-  selected current
+  landed
   split --mir-in / --mir-out and make pure-first guards build EXE from the
   exact MIR artifact they preflight
 MIR-ROUTE-PREFLIGHT-001:
-  ready next
+  selected current
   classify missing lowering routes from MIR metadata before ny-llvmc / C shim
   emission
 SELFHOST-PROGRESS-001:
@@ -216,8 +216,8 @@ not part of this sidecar:
 
 | Row | Status | Purpose | Ordering |
 | --- | --- | --- | --- |
-| `MIR-EMIT-SSOT-001` | selected current | Split `--mir-in` / `--mir-out` and make pure-first EXE build consume the exact MIR artifact it preflighted. | before route preflight |
-| `MIR-ROUTE-PREFLIGHT-001` | ready next | Classify missing/unsupported lowering routes from MIR metadata before ny-llvmc / C shim emission. | after artifact exactness |
+| `MIR-EMIT-SSOT-001` | landed | Split `--mir-in` / `--mir-out` and make pure-first EXE build consume the exact MIR artifact it preflighted. | before route preflight |
+| `MIR-ROUTE-PREFLIGHT-001` | selected current | Classify missing/unsupported lowering routes from MIR metadata before ny-llvmc / C shim emission. | after artifact exactness |
 | `SELFHOST-PROGRESS-001` | ready | Add phase progress / timeout closeout for slow/stuck/unsupported build diagnosis. | after route preflight |
 | `MIR-EMIT-SSOT-002` | planned | Make the canonical external source-to-MIR route explicit; prefer `emit_mir_route.sh` or a thin facade over it. | after progress diagnostics |
 | `RETURN-CONTRACT-001` | parked future | Propagate declared return expected type into return expressions such as `ArrayBox.get`. | not a blocker for artifact exactness |
@@ -384,8 +384,8 @@ FST:
 | `MIMAP-028A` | landed | Facade huge page-source backing route. | after MIMAP-027B |
 | `MIMAP-028B` | landed | Post-backed-huge allocator row selection. | selected MIMAP-029A |
 | `MIMAP-029A` | landed | Facade huge decommit-after-unregister success route. | after MIMAP-028B |
-| `MIR-EMIT-SSOT-001` | selected current | Pure-first MIR artifact exactness: `--mir-in` / `--mir-out` and same artifact preflight/EXE build. | before MIMAP-029B |
-| `MIR-ROUTE-PREFLIGHT-001` | ready next | Lowering-plan route preflight before ny-llvmc / C shim emission. | after MIR-EMIT-SSOT-001 |
+| `MIR-EMIT-SSOT-001` | landed | Pure-first MIR artifact exactness: `--mir-in` / `--mir-out` and same artifact preflight/EXE build. | before MIMAP-029B |
+| `MIR-ROUTE-PREFLIGHT-001` | selected current | Lowering-plan route preflight before ny-llvmc / C shim emission. | after MIR-EMIT-SSOT-001 |
 | `SELFHOST-PROGRESS-001` | ready | Selfhost/pure-first phase progress and timeout diagnostics. | after MIR-ROUTE-PREFLIGHT-001 |
 | `MIR-EMIT-SSOT-002` | planned | Canonical external source-to-MIR wrapper. | after progress diagnostics |
 | `MIMAP-029B` | parked after sidecar | Post-huge-decommit allocator row selection. | after pure-first sidecar |

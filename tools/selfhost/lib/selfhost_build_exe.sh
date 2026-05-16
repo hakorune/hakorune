@@ -33,7 +33,9 @@ resolve_emit_exe_context() {
 }
 
 select_emit_exe_mir_tmp_path() {
-  if [ -n "${MIR_OUT:-}" ]; then
+  if [ -n "${MIR_IN:-}" ]; then
+    printf '%s' "$MIR_IN"
+  elif [ -n "${MIR_OUT:-}" ]; then
     printf '%s' "$MIR_OUT"
   else
     printf '%s' "/tmp/hako_selfhost_mir_$$.json"
@@ -48,6 +50,9 @@ emit_exe_from_mir_json() {
 
 cleanup_direct_exe_temp_outputs() {
   local mir_tmp="$1"
+  if [ -n "${MIR_IN:-}" ]; then
+    return 0
+  fi
   if [ "$KEEP_TMP" != "1" ] && [ -z "${MIR_OUT:-}" ]; then
     rm -f "$mir_tmp" 2>/dev/null || true
   fi
@@ -66,7 +71,11 @@ emit_exe_from_source_mir_direct() {
   nyrt_dir="$(printf '%s\n' "$exe_ctx" | sed -n '2p')"
   mir_tmp="$(printf '%s\n' "$exe_ctx" | sed -n '3p')"
 
-  emit_mir_json_from_source "$mir_tmp" || rc=$?
+  if [ -n "${MIR_IN:-}" ]; then
+    echo "[selfhost] using MIR JSON input → $mir_tmp" >&2
+  else
+    emit_mir_json_from_source "$mir_tmp" || rc=$?
+  fi
   if [ "$rc" -eq 0 ]; then
     emit_exe_from_mir_json "$nyll" "$mir_tmp" "$nyrt_dir" "$exe_out_path" || rc=$?
   fi

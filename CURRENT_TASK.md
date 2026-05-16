@@ -51,9 +51,10 @@ Scope: current lane / next lane / restart order only.
 - pure-first MIR artifact / diagnostics SSOT:
   `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
 - current blocker token:
-  `MIR-EMIT-SSOT-001 pure-first MIR artifact exactness`
+  `MIR-ROUTE-PREFLIGHT-001 lowering-plan route preflight`
 - current BoxShape sidecar:
-  `MIR-EMIT-SSOT-001` is active before returning to `MIMAP-029B`;
+  `MIR-EMIT-SSOT-001` landed; `MIR-ROUTE-PREFLIGHT-001` is active before
+  returning to `MIMAP-029B`;
   `MIRBUILDER-DIET` remains closed through `MIR-SEMANTIC-PLANS-001`
 - primary mode: mimalloc substrate implementation lane; keep upstream source
   untracked and keep each allocator row behind explicit guards before provider
@@ -69,9 +70,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after MIMAP-029A; current blocker is
-  `MIR-EMIT-SSOT-001`, a pure-first/selfhost BoxShape sidecar that makes
-  preflight and EXE build consume the same MIR artifact before `MIMAP-029B`.
+- resume point: continue Phase 293x after `MIR-EMIT-SSOT-001`; current blocker
+  is `MIR-ROUTE-PREFLIGHT-001`, a pure-first/selfhost BoxShape sidecar that
+  classifies missing lowering routes from MIR metadata before backend emission.
   VM-LIM-001 remains parked diagnostic. Keep LoopRange on the Stage1 route; do
   not source-desugar range loops.
 
@@ -79,16 +80,14 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIR-EMIT-SSOT-001`: split `--mir-in` / `--mir-out` and make pure-first
-     guards build EXE from the exact MIR artifact they preflight
-  2. `MIR-ROUTE-PREFLIGHT-001`: classify missing lowering routes from MIR
+  1. `MIR-ROUTE-PREFLIGHT-001`: classify missing lowering routes from MIR
      metadata before ny-llvmc / C shim emission
-  3. `SELFHOST-PROGRESS-001`: add phase progress / timeout closeout so slow,
+  2. `SELFHOST-PROGRESS-001`: add phase progress / timeout closeout so slow,
      stuck, and unsupported routes are distinguishable
-  4. `MIR-EMIT-SSOT-002`: make the canonical external source-to-MIR route
+  3. `MIR-EMIT-SSOT-002`: make the canonical external source-to-MIR route
      explicit, preferably by promoting `tools/smokes/v2/lib/emit_mir_route.sh`
      or adding only a thin facade over it
-  5. `MIMAP-029B`: return to post-huge-decommit allocator row selection
+  4. `MIMAP-029B`: return to post-huge-decommit allocator row selection
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
   reduction after mimalloc completeness evidence. Do not make broad `.hako`

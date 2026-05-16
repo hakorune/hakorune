@@ -41,6 +41,7 @@ direct_run_route_requested() {
 
 selfhost_build_output_route_requested() {
   [ -n "$MIR_OUT" ] \
+    || [ -n "$MIR_IN" ] \
     || [ -n "$EXE_OUT" ] \
     || [ "$DO_RUN" = "1" ]
 }
@@ -67,6 +68,7 @@ apply_selfhost_env() {
 selfhost_build_main() {
   IN=""
   JSON_OUT=""
+  MIR_IN=""
   MIR_OUT=""
   EXE_OUT=""
   DO_RUN=0
@@ -80,6 +82,8 @@ selfhost_build_main() {
       --json) JSON_OUT="$2"; shift 2;;
       --run) DO_RUN=1; shift;;
       --mir) MIR_OUT="$2"; shift 2;;
+      --mir-out) MIR_OUT="$2"; shift 2;;
+      --mir-in) MIR_IN="$2"; shift 2;;
       --keep-tmp) KEEP_TMP=1; shift;;
       --exe) EXE_OUT="$2"; shift 2;;
       --strict) export NYASH_JOINIR_STRICT=1; shift;; # Phase 81: Fail-Fast mode
@@ -88,8 +92,26 @@ selfhost_build_main() {
     esac
   done
 
-  if [ -z "$IN" ]; then echo "[selfhost] --in <file.hako> is required" >&2; exit 2; fi
-  if [ ! -f "$IN" ]; then echo "[selfhost] input not found: $IN" >&2; exit 2; fi
+  if [ -n "$MIR_IN" ] && [ -n "$MIR_OUT" ]; then
+    echo "[selfhost] cannot combine --mir-in with --mir/--mir-out" >&2
+    exit 2
+  fi
+
+  if [ -n "$MIR_IN" ] && [ ! -f "$MIR_IN" ]; then
+    echo "[selfhost] MIR input not found: $MIR_IN" >&2
+    exit 2
+  fi
+
+  if [ -n "$MIR_IN" ] && [ -z "$EXE_OUT" ] && [ "$DO_RUN" != "1" ]; then
+    echo "[selfhost] --mir-in requires --exe <file> or --run" >&2
+    exit 2
+  fi
+
+  if [ -z "$IN" ] && [ -z "$MIR_IN" ]; then
+    echo "[selfhost] --in <file.hako> is required unless --mir-in <file.mir.json> is used" >&2
+    exit 2
+  fi
+  if [ -n "$IN" ] && [ ! -f "$IN" ]; then echo "[selfhost] input not found: $IN" >&2; exit 2; fi
 
   if [ -n "$JSON_OUT" ]; then
     exit_program_json_wrapper_retired
