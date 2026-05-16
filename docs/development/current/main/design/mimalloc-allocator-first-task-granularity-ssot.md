@@ -216,7 +216,8 @@ Forbidden:
 | `MIMAP-054A` | reclaim atomic-claim contract | landed; selected MIMAP-055A |
 | `MIMAP-055A` | reclaim owner-transfer first execution route | landed; selected MIMAP-056A |
 | `MIMAP-056A` | reclaim remote-free drain contract inventory | landed; selected MIMAP-057A |
-| `MIMAP-057A` | reclaim remote-free drain first execution route | selected current |
+| `MIMAP-057A` | reclaim remote-free drain first execution route | landed; selected MIMAP-058A |
+| `MIMAP-058A` | reclaim post-drain owner-transfer integration route | selected current |
 
 ### MIMAP-020A granularity
 
@@ -939,6 +940,18 @@ remote-free entry through a dedicated owner.
 It must not schedule threads, call page-source APIs, unreserve or release OSVM
 pages, activate providers, execute full reclaim, mutate production page-map
 ownership outside the modeled drain owner, or add backend matchers.
+
+MIMAP-057A landed by adding `HakoAllocReclaimRemoteFreeDrainExecution`, a proof
+app, guard, and accepted SSOT. It selects MIMAP-058A.
+
+### MIMAP-058A granularity
+
+MIMAP-058A is a narrow integration row. It may compose the MIMAP-057A modeled
+drain execution route and the MIMAP-055A modeled owner-transfer execution
+route to prove the ordering around pending remote-free work.
+
+It must not schedule threads, call page-source APIs, unreserve or release OSVM
+pages, activate providers, execute full reclaim, or add backend matchers.
 
 ## Compiler / language sidecar triggers
 

@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-056A` landed the reclaim remote-free drain contract inventory before
-remote-free drain execution.
+`MIMAP-057A` landed the reclaim remote-free drain first execution route before
+post-drain owner-transfer integration.
 
 Recommended current row:
 
 ```text
-MIMAP-057A
-  reclaim remote-free drain first execution route
+MIMAP-058A
+  reclaim post-drain owner-transfer integration route
 ```
 
 Purpose:
 
 ```text
-execute at most one modeled remote-free drain entry behind the contract
+compose modeled remote-free drain and owner-transfer ordering
 keep thread scheduling, page-source, full reclaim, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -79,11 +79,12 @@ no provider activation
 | 11 | allocator prerequisite | `MIMAP-054A reclaim atomic-claim contract` | landed; claim contract is named |
 | 12 | allocator | `MIMAP-055A reclaim owner-transfer first execution route` | landed; one guarded modeled owner transfer |
 | 13 | allocator prerequisite | `MIMAP-056A reclaim remote-free drain contract inventory` | landed; no-execution drain readiness contract |
-| 14 | allocator | `MIMAP-057A reclaim remote-free drain first execution route` | current; one modeled drain entry |
-| 15 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
-| 16 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
-| 17 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
-| 18 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
+| 14 | allocator | `MIMAP-057A reclaim remote-free drain first execution route` | landed; one modeled drain entry |
+| 15 | allocator | `MIMAP-058A reclaim post-drain owner-transfer integration route` | current; compose drain and transfer order |
+| 16 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
+| 17 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
+| 18 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
+| 19 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
 

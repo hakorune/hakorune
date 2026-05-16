@@ -1,0 +1,72 @@
+// hako-alloc-reclaim-remote-free-drain-execution-proof
+// Purpose: prove MIMAP-057A first modeled remote-free drain execution route.
+
+using selfhost.hako_alloc.memory.reclaim_remote_free_drain_execution_box as HakoAllocReclaimRemoteFreeDrainExecution
+
+static box Main {
+    main(args) {
+        local executor = new HakoAllocReclaimRemoteFreeDrainExecution()
+
+        local drained = executor.drainOne(60, 3, 900, 4)
+        local no_work = executor.drainOne(61, 0, 0, 4)
+        local over_budget = executor.drainOne(62, 5, 901, 2)
+        local inconsistent = executor.drainOne(63, 0, 777, 4)
+        local bad_budget = executor.drainOne(64, 1, 900, -1)
+
+        local ok = check "mimap057a reclaim remote free drain execution" {
+            "drained did drain": drained.did_drain == 1
+            "drained reason": drained.reason == 0
+            "drained pending before": drained.pending_before == 3
+            "drained pending after": drained.pending_after == 2
+            "drained contract reason": drained.contract_reason == 1
+            "drained changed modeled pending": drained.did_change_modeled_pending == 1
+            "no work did not drain": no_work.did_drain == 0
+            "no work reason": no_work.reason == 1
+            "no work contract reason": no_work.contract_reason == 0
+            "over budget did not drain": over_budget.did_drain == 0
+            "over budget reason": over_budget.reason == 3
+            "over budget contract reason": over_budget.contract_reason == 1
+            "over budget pending unchanged": over_budget.pending_after == 5
+            "inconsistent did not drain": inconsistent.did_drain == 0
+            "inconsistent reason": inconsistent.reason == 2
+            "inconsistent contract reason": inconsistent.contract_reason == 3
+            "bad budget did not drain": bad_budget.did_drain == 0
+            "bad budget reason": bad_budget.reason == 2
+            "bad budget contract reason": bad_budget.contract_reason == 4
+            "inactive schedule": drained.would_schedule_thread == 0
+            "inactive page source": drained.would_call_page_source == 0
+            "inactive unreserve": drained.would_unreserve == 0
+            "inactive os release": drained.would_release_osvm == 0
+            "inactive provider": drained.would_activate_provider == 0
+            "inactive full reclaim": drained.would_execute_full_reclaim == 0
+            "inactive production owner change": drained.would_change_production_page_owner == 0
+            "inactive page release": drained.would_call_page_release == 0
+            "attempt count": executor.attempt_count == 5
+            "drain count": executor.drain_count == 1
+            "no work count": executor.no_work_count == 1
+            "contract block count": executor.contract_block_count == 2
+            "budget block count": executor.budget_block_count == 1
+            "last page": executor.last_page_id == 64
+            "last reason": executor.last_reason == 2
+            "last pending after": executor.last_pending_after == 1
+        }
+
+        print("hako-alloc-reclaim-remote-free-drain-execution-proof")
+        print("drained=" + drained.did_drain + "," + drained.reason + "," + drained.pending_before + "," + drained.pending_after + "," + drained.contract_reason + "," + drained.did_change_modeled_pending)
+        print("no_work=" + no_work.did_drain + "," + no_work.reason + "," + no_work.contract_reason + "," + no_work.pending_after)
+        print("over_budget=" + over_budget.did_drain + "," + over_budget.reason + "," + over_budget.contract_reason + "," + over_budget.pending_after)
+        print("inconsistent=" + inconsistent.did_drain + "," + inconsistent.reason + "," + inconsistent.contract_reason)
+        print("bad_budget=" + bad_budget.did_drain + "," + bad_budget.reason + "," + bad_budget.contract_reason + "," + bad_budget.pending_after)
+        print("inactive=" + drained.would_schedule_thread + "," + drained.would_call_page_source + "," + drained.would_unreserve + "," + drained.would_release_osvm + "," + drained.would_activate_provider + "," + drained.would_execute_full_reclaim + "," + drained.would_change_production_page_owner + "," + drained.would_call_page_release)
+        print("counts=" + executor.attempt_count + "," + executor.drain_count + "," + executor.no_work_count + "," + executor.contract_block_count + "," + executor.budget_block_count + "," + executor.last_page_id + "," + executor.last_reason + "," + executor.last_pending_after)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

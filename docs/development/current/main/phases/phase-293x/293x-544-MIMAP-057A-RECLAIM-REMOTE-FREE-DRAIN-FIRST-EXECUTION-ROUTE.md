@@ -1,6 +1,6 @@
 # 293x-544 MIMAP-057A Reclaim Remote-Free Drain First Execution Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -48,4 +48,71 @@ or OSVM seams, activate providers, or perform full reclaim.
 bash tools/checks/k2_wide_hako_alloc_reclaim_remote_free_drain_execution_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Implementation Result
+
+`MIMAP-057A` adds:
+
+```text
+SSOT:
+  docs/development/current/main/design/hako-alloc-reclaim-remote-free-drain-execution-ssot.md
+
+owner:
+  lang/src/hako_alloc/memory/reclaim_remote_free_drain_execution_box.hako
+
+proof app:
+  apps/hako-alloc-reclaim-remote-free-drain-execution-proof/
+
+guard:
+  tools/checks/k2_wide_hako_alloc_reclaim_remote_free_drain_execution_guard.sh
+```
+
+The owner composes the MIMAP-056A contract and executes only one
+executor-local modeled pending-count decrement:
+
+```text
+pending_after = pending_before - 1
+```
+
+No pointer traversal, page-local release, thread scheduling, page-source/OSVM
+call, provider activation, or full reclaim is opened.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_reclaim_remote_free_drain_execution_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Selection Result
+
+`MIMAP-057A` selects `MIMAP-058A`.
+
+```text
+row:
+  MIMAP-058A reclaim post-drain owner-transfer integration route
+
+classification:
+  narrow integration route
+
+why now:
+  owner-transfer execution and one-entry modeled drain execution are both
+  named. The next row can compose them and prove the order without opening
+  full reclaim, page-source calls, scheduler behavior, or provider activation.
+
+stop lines:
+  no full reclaim
+  no thread scheduling
+  no page-source call
+  no OSVM unreserve / release
+  no provider activation
+  no cleanup bundle
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-058A.
 ```

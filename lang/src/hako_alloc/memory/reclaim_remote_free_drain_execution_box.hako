@@ -1,0 +1,88 @@
+// reclaim_remote_free_drain_execution_box.hako -- MIMAP-057A first drain route
+// Responsibility:
+// - compose the MIMAP-056A drain contract
+// - execute one executor-local modeled remote-free pending decrement
+// - keep pointer traversal, page-local release, scheduling, page-source/OSVM,
+//   provider, and full reclaim closed
+// Non-responsibility:
+// - real remote-free queue drain, atomics, page release, thread scheduling,
+//   page-source/OSVM calls, provider activation, or allocator replacement
+
+using selfhost.hako_alloc.memory.reclaim_remote_free_drain_contract_box as HakoAllocReclaimRemoteFreeDrainContract
+
+box HakoAllocReclaimRemoteFreeDrainExecutionReport {
+    did_drain: i64 = 0
+    reason: i64 = 0
+    page_id: i64 = -1
+    pending_before: i64 = 0
+    pending_after: i64 = 0
+    remote_head: i64 = 0
+    drain_budget: i64 = 0
+    contract_reason: i64 = 0
+    needs_drain: i64 = 0
+    bounded_drain_possible: i64 = 0
+    did_change_modeled_pending: i64 = 0
+    would_schedule_thread: i64 = 0
+    would_call_page_source: i64 = 0
+    would_unreserve: i64 = 0
+    would_release_osvm: i64 = 0
+    would_activate_provider: i64 = 0
+    would_execute_full_reclaim: i64 = 0
+    would_change_production_page_owner: i64 = 0
+    would_call_page_release: i64 = 0
+}
+
+box HakoAllocReclaimRemoteFreeDrainExecution {
+    contract: HakoAllocReclaimRemoteFreeDrainContract = new HakoAllocReclaimRemoteFreeDrainContract()
+    attempt_count: i64 = 0
+    drain_count: i64 = 0
+    no_work_count: i64 = 0
+    contract_block_count: i64 = 0
+    budget_block_count: i64 = 0
+    last_page_id: i64 = -1
+    last_reason: i64 = 0
+    last_pending_after: i64 = 0
+
+    report(did_drain, reason, page_id, pending_before, pending_after, remote_head, drain_budget, contract_reason, needs_drain, bounded_drain_possible, did_change_modeled_pending) {
+        local result = new HakoAllocReclaimRemoteFreeDrainExecutionReport()
+        result.did_drain = did_drain
+        result.reason = reason
+        result.page_id = page_id
+        result.pending_before = pending_before
+        result.pending_after = pending_after
+        result.remote_head = remote_head
+        result.drain_budget = drain_budget
+        result.contract_reason = contract_reason
+        result.needs_drain = needs_drain
+        result.bounded_drain_possible = bounded_drain_possible
+        result.did_change_modeled_pending = did_change_modeled_pending
+        me.last_page_id = page_id
+        me.last_reason = reason
+        me.last_pending_after = pending_after
+        return result
+    }
+
+    drainOne(page_id, remote_free_pending, remote_head, drain_budget) {
+        me.attempt_count = me.attempt_count + 1
+
+        local drain = me.contract.classifyDrain(page_id, remote_free_pending, remote_head, drain_budget)
+        if drain.drain_ready == 1 {
+            me.no_work_count = me.no_work_count + 1
+            return me.report(0, 1, page_id, remote_free_pending, remote_free_pending, remote_head, drain_budget, drain.reason, drain.needs_drain, drain.bounded_drain_possible, 0)
+        }
+
+        if drain.reason != 1 {
+            me.contract_block_count = me.contract_block_count + 1
+            return me.report(0, 2, page_id, remote_free_pending, remote_free_pending, remote_head, drain_budget, drain.reason, drain.needs_drain, drain.bounded_drain_possible, 0)
+        }
+
+        if drain.bounded_drain_possible == 0 {
+            me.budget_block_count = me.budget_block_count + 1
+            return me.report(0, 3, page_id, remote_free_pending, remote_free_pending, remote_head, drain_budget, drain.reason, drain.needs_drain, drain.bounded_drain_possible, 0)
+        }
+
+        local pending_after = remote_free_pending - 1
+        me.drain_count = me.drain_count + 1
+        return me.report(1, 0, page_id, remote_free_pending, pending_after, remote_head, drain_budget, drain.reason, drain.needs_drain, drain.bounded_drain_possible, 1)
+    }
+}

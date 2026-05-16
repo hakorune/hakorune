@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-057A reclaim remote-free drain first execution route`
+- current blocker token: `MIMAP-058A reclaim post-drain owner-transfer integration route`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -48,7 +48,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-057A reclaim remote-free drain first execution route`
+- current blocker token: `MIMAP-058A reclaim post-drain owner-transfer integration route`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -59,8 +59,8 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after `MIMAP-056A`; current blocker is `MIMAP-057A`
-- next row: add reclaim remote-free drain first execution route
+- continue `phase-293x` after `MIMAP-057A`; current blocker is `MIMAP-058A`
+- next row: add reclaim post-drain owner-transfer integration route
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
