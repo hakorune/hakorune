@@ -1,0 +1,56 @@
+// hako-alloc-secure-entropy-inventory-proof
+// Purpose: prove MIMAP-049A read-only secure entropy inventory surface.
+
+using selfhost.hako_alloc.memory.secure_entropy_inventory_box as HakoAllocSecureEntropyInventory
+
+static box Main {
+    main(args) {
+        local inventory = new HakoAllocSecureEntropyInventory()
+
+        local proof_key = inventory.classifySource(1, 37, 0, 0)
+        local unknown = inventory.classifySource(9, 37, 0, 0)
+        local runtime = inventory.classifySource(1, 37, 1, 0)
+        local crypto = inventory.classifySource(1, 37, 0, 1)
+        local invalid_key = inventory.classifySource(1, 0, 0, 0)
+
+        local ok = check "mimap049a secure entropy inventory" {
+            "proof key eligible": proof_key.eligible == 1
+            "proof key reason": proof_key.reason == 0
+            "proof key allowed": proof_key.deterministic_proof_key_allowed == 1
+            "proof key no runtime entropy": proof_key.runtime_entropy_available == 0
+            "proof key no random call": proof_key.would_call_random == 0
+            "proof key no os entropy": proof_key.would_call_os_entropy == 0
+            "proof key no secure-list change": proof_key.would_change_secure_list_policy == 0
+            "unknown reject": unknown.reason == 1
+            "runtime reject": runtime.reason == 2
+            "runtime no random call": runtime.would_call_random == 0
+            "crypto reject": crypto.reason == 3
+            "crypto claim observed": crypto.cryptographic_hardening_claim == 1
+            "invalid key reject": invalid_key.reason == 4
+            "inspect count": inventory.inspect_count == 5
+            "proof key count": inventory.proof_key_count == 1
+            "reject count": inventory.reject_count == 4
+            "unknown count": inventory.unknown_source_reject_count == 1
+            "runtime count": inventory.runtime_entropy_reject_count == 1
+            "crypto count": inventory.crypto_claim_reject_count == 1
+            "invalid key count": inventory.invalid_key_reject_count == 1
+            "last source": inventory.last_source_id == 1
+            "last reason": inventory.last_reason == 4
+        }
+
+        print("hako-alloc-secure-entropy-inventory-proof")
+        print("proof=" + proof_key.eligible + "," + proof_key.reason + "," + proof_key.deterministic_key + "," + proof_key.deterministic_proof_key_allowed)
+        print("inactive=" + proof_key.runtime_entropy_available + "," + proof_key.would_call_random + "," + proof_key.would_call_os_entropy + "," + proof_key.would_change_secure_list_policy + "," + proof_key.cryptographic_hardening_claim)
+        print("rejects=" + unknown.reason + "," + runtime.reason + "," + crypto.reason + "," + invalid_key.reason)
+        print("counts=" + inventory.inspect_count + "," + inventory.proof_key_count + "," + inventory.reject_count + "," + inventory.unknown_source_reject_count + "," + inventory.runtime_entropy_reject_count + "," + inventory.crypto_claim_reject_count + "," + inventory.invalid_key_reject_count + "," + inventory.last_source_id + "," + inventory.last_reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

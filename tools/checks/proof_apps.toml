@@ -160,3 +160,10 @@ app = "apps/hako-alloc-thread-heap-owner-inventory-proof"
 label = "thread heap owner-token inventory proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_thread_heap_owner_inventory_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-049A"
+app = "apps/hako-alloc-secure-entropy-inventory-proof"
+label = "secure entropy inventory proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_secure_entropy_inventory_guard.sh"]

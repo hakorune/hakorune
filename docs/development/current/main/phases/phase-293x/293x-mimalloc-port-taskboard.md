@@ -327,7 +327,8 @@ FST:
 | `MIMAP-047B` | landed | Post-fast-path-unreserve-closeout row selection. | selected MIMAP-048A |
 | `MIMAP-048A` | landed | OSVM release capability inventory. | after MIMAP-047B |
 | `MIMAP-048B` | landed | Post-release-inventory row selection. | selected MIMAP-049A |
-| `MIMAP-049A` | selected current | Secure entropy source inventory. | after MIMAP-048B |
+| `MIMAP-049A` | landed | Secure entropy source inventory. | after MIMAP-048B |
+| `MIMAP-049B` | selected current | Post-secure-entropy-inventory row selection. | selected after MIMAP-049A |
 
 MIMAP-020A execution order:
 

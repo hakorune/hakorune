@@ -1,0 +1,92 @@
+// secure_entropy_inventory_box.hako -- MIMAP-049A secure entropy inventory
+// Responsibility:
+// - classify deterministic proof-key and runtime entropy boundary facts
+// - keep random/entropy execution, cryptographic hardening claims, and
+//   secure-list behavior changes out of this row
+// Non-responsibility:
+// - sourcing entropy, calling OS/provider/TLS/atomic helpers, or replacing
+//   allocators
+
+box HakoAllocSecureEntropyDecision {
+    eligible: i64 = 0
+    reason: i64 = 0
+    source_id: i64 = -1
+    deterministic_key: i64 = 0
+    deterministic_proof_key_allowed: i64 = 0
+    runtime_entropy_available: i64 = 0
+    requested_runtime_entropy: i64 = 0
+    would_call_random: i64 = 0
+    would_call_os_entropy: i64 = 0
+    would_change_secure_list_policy: i64 = 0
+    cryptographic_hardening_claim: i64 = 0
+}
+
+box HakoAllocSecureEntropyInventory {
+    inspect_count: i64 = 0
+    proof_key_count: i64 = 0
+    reject_count: i64 = 0
+    unknown_source_reject_count: i64 = 0
+    runtime_entropy_reject_count: i64 = 0
+    crypto_claim_reject_count: i64 = 0
+    invalid_key_reject_count: i64 = 0
+    last_source_id: i64 = -1
+    last_reason: i64 = 0
+
+    decision(eligible, reason, source_id, deterministic_key, deterministic_proof_key_allowed, requested_runtime_entropy, cryptographic_hardening_claim) {
+        local result = new HakoAllocSecureEntropyDecision()
+        result.eligible = eligible
+        result.reason = reason
+        result.source_id = source_id
+        result.deterministic_key = deterministic_key
+        result.deterministic_proof_key_allowed = deterministic_proof_key_allowed
+        result.requested_runtime_entropy = requested_runtime_entropy
+        result.cryptographic_hardening_claim = cryptographic_hardening_claim
+        return result
+    }
+
+    reject(reason, source_id, deterministic_key, requested_runtime_entropy, cryptographic_hardening_claim) {
+        me.reject_count = me.reject_count + 1
+        me.last_source_id = source_id
+        me.last_reason = reason
+
+        if reason == 1 {
+            me.unknown_source_reject_count = me.unknown_source_reject_count + 1
+        }
+        if reason == 2 {
+            me.runtime_entropy_reject_count = me.runtime_entropy_reject_count + 1
+        }
+        if reason == 3 {
+            me.crypto_claim_reject_count = me.crypto_claim_reject_count + 1
+        }
+        if reason == 4 {
+            me.invalid_key_reject_count = me.invalid_key_reject_count + 1
+        }
+
+        return me.decision(0, reason, source_id, deterministic_key, 0, requested_runtime_entropy, cryptographic_hardening_claim)
+    }
+
+    classifySource(source_id, deterministic_key, requested_runtime_entropy, cryptographic_hardening_claim) {
+        me.inspect_count = me.inspect_count + 1
+
+        if source_id != 1 {
+            return me.reject(1, source_id, deterministic_key, requested_runtime_entropy, cryptographic_hardening_claim)
+        }
+
+        if requested_runtime_entropy != 0 {
+            return me.reject(2, source_id, deterministic_key, requested_runtime_entropy, cryptographic_hardening_claim)
+        }
+
+        if cryptographic_hardening_claim != 0 {
+            return me.reject(3, source_id, deterministic_key, requested_runtime_entropy, cryptographic_hardening_claim)
+        }
+
+        if deterministic_key <= 0 {
+            return me.reject(4, source_id, deterministic_key, requested_runtime_entropy, cryptographic_hardening_claim)
+        }
+
+        me.proof_key_count = me.proof_key_count + 1
+        me.last_source_id = source_id
+        me.last_reason = 0
+        return me.decision(1, 0, source_id, deterministic_key, 1, 0, 0)
+    }
+}

@@ -68,6 +68,7 @@ Current modules
 - `remote_free_abandoned_owner_policy_box.hako`
 - `refcell_box.hako`
 - `remote_free_policy_box.hako`
+- `secure_entropy_inventory_box.hako`
 - `size_class_box.hako`
 - `stats_box.hako`
 - `usize_field_probe_box.hako`
@@ -387,6 +388,10 @@ Syntax/style contract
 - `secure_free_list_diagnostics_box.hako` owns M183 secure-list diagnostics. It
   may observe page-local free/local_free shape, but it must not implement
   encode/decode, cookies, or hardening policy.
+- `secure_entropy_inventory_box.hako` owns MIMAP-049A secure entropy inventory.
+  It may classify deterministic proof-key facts and rejected runtime entropy
+  requests, but it must not source entropy, call random/OS/provider helpers,
+  mutate secure-list behavior, or claim cryptographic hardening.
 - `secure_free_list_policy_box.hako` owns M184 secure-list encoded-next policy.
   It may encode/decode next indices and validate decoded capacity, but it must
   not source entropy, mutate page state, or claim hardening policy.

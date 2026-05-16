@@ -202,7 +202,8 @@ Forbidden:
 | `MIMAP-047B` | post-fast-path-unreserve-closeout row selection | landed; selected MIMAP-048A |
 | `MIMAP-048A` | OSVM release capability inventory | landed after MIMAP-047B |
 | `MIMAP-048B` | post-release-inventory row selection | landed; selected MIMAP-049A |
-| `MIMAP-049A` | secure entropy source inventory | selected current |
+| `MIMAP-049A` | secure entropy source inventory | landed after MIMAP-048B |
+| `MIMAP-049B` | post-secure-entropy-inventory row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -784,6 +785,15 @@ It may add an inventory owner, proof app, and guard. It must not add random or
 entropy extern routes, source entropy, mutate secure-list policy behavior, claim
 cryptographic hardening, activate provider/hooks/host replacement, or add
 backend `.inc` app/name matchers.
+
+MIMAP-049A landed by adding the secure entropy inventory owner, VM proof app,
+guard, and manifest/index/docs wiring, then selecting `MIMAP-049B`.
+
+### MIMAP-049B granularity
+
+MIMAP-049B is a planning-only row. It reads the MIMAP-049A inventory evidence and
+selects exactly one next allocator/compiler/language task. It must not implement
+allocator behavior, compiler acceptance, or cleanup by itself.
 
 ## Compiler / language sidecar triggers
 

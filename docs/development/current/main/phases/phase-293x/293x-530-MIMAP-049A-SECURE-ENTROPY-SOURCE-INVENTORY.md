@@ -1,6 +1,6 @@
 # 293x-530 MIMAP-049A Secure Entropy Source Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -53,3 +53,53 @@ git diff --check
 
 This row closes when secure entropy remains an explicit inactive capability
 boundary with a read-only owner and guard.
+
+## Inventory Result
+
+`MIMAP-049A` adds:
+
+```text
+owner:
+  HakoAllocSecureEntropyInventory
+proof app:
+  apps/hako-alloc-secure-entropy-inventory-proof/main.hako
+guard:
+  tools/checks/k2_wide_hako_alloc_secure_entropy_inventory_guard.sh
+```
+
+The owner classifies deterministic proof-key facts and rejected runtime entropy
+requests. It does not source entropy, call random/OS/provider helpers, mutate
+secure-list behavior, or claim cryptographic hardening.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_secure_entropy_inventory_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Selection Result
+
+`MIMAP-049A` selects `MIMAP-049B`.
+
+```text
+row:
+  MIMAP-049B post-secure-entropy-inventory row selection
+classification:
+  planning-only row
+why now:
+  secure entropy remains inactive after MIMAP-049A; the lane needs a single-row
+  selection step before allocator/compiler/language implementation resumes.
+stop lines:
+  no entropy/random execution
+  no secure-list behavior change
+  no provider activation
+  no cleanup bundle
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-049B.
+```
