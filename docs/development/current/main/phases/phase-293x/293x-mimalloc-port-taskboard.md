@@ -42,10 +42,12 @@ selectPage loop cleanup; MIMAP-040A selectPage queue-length loop cleanup is
 green; PURE-FIRST-DIAG-001 acceptance layer diagnostics is green;
 MIMAP-040C selected a record report boundary cleanup before the next allocator
 behavior row; MIMAP-041A record report boundary cleanup is green;
+MIMAP-041B selected an extern route spec table cleanup;
+MIR-EXTERN-SPEC-001 route spec table cleanup is green;
 the current primary row is:
 
 ```text
-  MIMAP-041B post-record-report row selection
+  MIR-EXTERN-SPEC-002 post-extern-spec row selection
 ```
 
 Closed cleanup sidecar:
@@ -243,6 +245,12 @@ MIMAP-040C:
 MIMAP-041A:
   landed
   bounded scheduler report boundary now uses a record-local payload
+MIMAP-041B:
+  landed
+  selected MIR-EXTERN-SPEC-001 extern-call route spec table cleanup
+MIR-EXTERN-SPEC-001:
+  landed
+  extern-call route constants now have one ExternCallRouteSpec table owner
 ```
 
 ## Active Source Policy
@@ -484,7 +492,9 @@ FST:
 | `PURE-FIRST-DIAG-001` | landed | Pure-first acceptance layer/contract diagnostics. | after MIMAP-040B |
 | `MIMAP-040C` | landed | Post-diagnostics row selection. | selected MIMAP-041A |
 | `MIMAP-041A` | landed | Record report boundary cleanup for bounded purge/decommit scheduler. | after MIMAP-040C |
-| `MIMAP-041B` | selected current | Post-record-report row selection. | after MIMAP-041A |
+| `MIMAP-041B` | landed | Post-record-report row selection. | selected MIR-EXTERN-SPEC-001 |
+| `MIR-EXTERN-SPEC-001` | landed | Extern-call route spec table cleanup. | after MIMAP-041B |
+| `MIR-EXTERN-SPEC-002` | selected current | Post-extern-spec row selection. | after MIR-EXTERN-SPEC-001 |
 
 MIMAP-020A execution order:
 

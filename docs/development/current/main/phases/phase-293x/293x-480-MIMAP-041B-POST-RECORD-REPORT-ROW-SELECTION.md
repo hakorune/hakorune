@@ -1,6 +1,6 @@
 # 293x-480 MIMAP-041B Post-Record-Report Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -55,3 +55,43 @@ tools/checks/dev_gate.sh quick
 This row closes when one next row is selected with clear owner/proof/guard names
 and provider/host allocator replacement still inactive unless explicitly
 reopened.
+
+## Selection Result
+
+`MIMAP-041B` selects `MIR-EXTERN-SPEC-001`.
+
+Rationale:
+
+- `src/mir/extern_call_route_plan.rs` owns route facts for accepted extern
+  calls, but each route kind currently repeats route id, core op, symbol,
+  return shape, demand, effect tags, arity, and value-argument policy across
+  multiple `match self` blocks.
+- This creates drift risk whenever hako.mem / hako.osvm / hako.tls /
+  hako.atomic rows are extended.
+- The first cleanup should create one MIR-owned route spec table. Later rows
+  can reuse that table from subset validation without mixing two cleanups.
+
+Selected row:
+
+```text
+row:
+  MIR-EXTERN-SPEC-001 extern-call route spec table
+owner:
+  src/mir/extern_call_route_plan.rs
+primary tests:
+  src/mir/extern_call_route_plan/tests.rs
+guard evidence:
+  tools/checks/dev_gate.sh quick
+stop lines:
+  no route semantics change
+  no new extern routes
+  no backend lowering change
+  no subset validator rewrite in this row
+  no allocator behavior/provider activation
+```
+
+Closeout:
+
+```text
+current blocker moves to MIR-EXTERN-SPEC-001 extern-call route spec table.
+```
