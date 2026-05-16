@@ -1,0 +1,49 @@
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_huge_unregister_failfast_box as HakoAllocObjectLifecycleFacadeHugeUnregisterFailfastBox
+
+static box Main {
+    main(args) {
+        local facade = new HakoAllocObjectLifecycleFacade()
+        local route = new HakoAllocObjectLifecycleFacadeHugeUnregisterFailfastRoute()
+
+        local huge_size = route.hugeUnregisterFailfastThreshold() + 1
+        local result = route.proveHugeUnregisterFailfast(facade, huge_size, 1001, 8, 2, 2, 99999)
+
+        local shape = 0
+        local first_shape = result.first_unregister_ok + result.first_ptr + result.first_page_id + result.first_huge_live_after + result.first_page_map_live_after + result.first_page_map_unregister_count + result.first_seam_release_count + result.first_seam_unregister_count
+        if first_shape == 71004 { shape = shape + 1 }
+        local double_shape = result.double_attempted + result.double_ok + result.double_ptr + result.double_page_map_live_before + result.double_page_map_live_after + result.double_lookup_miss_count + result.double_failure_kind
+        if double_shape == 70003 { shape = shape + 1 }
+        local stale_shape = result.stale_attempted + result.stale_ok + result.stale_ptr + result.stale_page_map_live_before + result.stale_page_map_live_after + result.stale_lookup_miss_count + result.stale_failure_kind
+        if stale_shape == 100003 { shape = shape + 1 }
+        local huge_counts = result.huge_count + result.huge_live_count + result.huge_allocate_count + result.huge_release_count + result.huge_release_reject_count
+        if huge_counts == 3 { shape = shape + 1 }
+        local page_map_counts = result.page_map_entry_count + result.page_map_live_count + result.page_map_register_count + result.page_map_lookup_count + result.page_map_lookup_miss_count + result.page_map_unregister_count + result.page_map_reject_count
+        if page_map_counts == 8 { shape = shape + 1 }
+        local seam_counts = result.seam_release_count + result.seam_unregister_count + result.seam_lookup_miss_count + result.seam_not_huge_count + result.seam_model_reject_count + result.seam_reject_count + result.seam_last_failure_kind
+        if seam_counts == 7 { shape = shape + 1 }
+        local route_counts = result.failfast_attempt_count + result.double_reject_count + result.stale_reject_count + result.success_count + result.failure_count
+        if route_counts == 5 { shape = shape + 1 }
+        local final_shape = result.status + result.final_ok + result.final_reason
+        if final_shape == 2 { shape = shape + 1 }
+
+        print("mimalloc-facade-huge-unregister-failfast-proof")
+        print("first=" + result.first_unregister_ok + "," + result.first_ptr + "," + result.first_page_id + "," + result.first_huge_live_after + "," + result.first_page_map_live_after + "," + result.first_page_map_unregister_count + "," + result.first_seam_release_count + "," + result.first_seam_unregister_count)
+        print("double=" + result.double_attempted + "," + result.double_ok + "," + result.double_ptr + "," + result.double_page_map_live_before + "," + result.double_page_map_live_after + "," + result.double_lookup_miss_count + "," + result.double_failure_kind)
+        print("stale=" + result.stale_attempted + "," + result.stale_ok + "," + result.stale_ptr + "," + result.stale_page_map_live_before + "," + result.stale_page_map_live_after + "," + result.stale_lookup_miss_count + "," + result.stale_failure_kind)
+        print("huge=" + result.huge_count + "," + result.huge_live_count + "," + result.huge_allocate_count + "," + result.huge_release_count + "," + result.huge_release_reject_count)
+        print("page_map=" + result.page_map_entry_count + "," + result.page_map_live_count + "," + result.page_map_register_count + "," + result.page_map_lookup_count + "," + result.page_map_lookup_miss_count + "," + result.page_map_unregister_count + "," + result.page_map_reject_count)
+        print("seam=" + result.seam_release_count + "," + result.seam_unregister_count + "," + result.seam_lookup_miss_count + "," + result.seam_not_huge_count + "," + result.seam_model_reject_count + "," + result.seam_reject_count + "," + result.seam_last_failure_kind)
+        print("route_counts=" + result.failfast_attempt_count + "," + result.double_reject_count + "," + result.stale_reject_count + "," + result.success_count + "," + result.failure_count)
+        print("final=" + result.status + "," + result.final_ok + "," + result.final_reason)
+        print("shape=" + shape)
+
+        if shape == 8 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

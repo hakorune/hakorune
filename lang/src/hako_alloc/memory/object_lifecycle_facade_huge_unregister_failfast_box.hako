@@ -1,0 +1,189 @@
+// object_lifecycle_facade_huge_unregister_failfast_box.hako -- MIMAP-027A
+// facade huge-unregister fail-fast diagnostics route
+// Responsibility: prove post-unregister double/stale huge releases reject
+// through the existing M181 huge release seam. This module intentionally stops
+// before OS page return, unreserve/decommit, small release, realloc, alignment,
+// purge/reclaim, remote-free, TLS, atomics, provider hooks, and allocator
+// replacement.
+
+using selfhost.hako_alloc.memory.object_lifecycle_facade_huge_unregister_box as HakoAllocObjectLifecycleFacadeHugeUnregisterBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_reason_box as HakoAllocObjectLifecycleFacadeReason
+
+box HakoAllocObjectLifecycleFacadeHugeUnregisterFailfastReport {
+    status: i64 = 0
+    requested_size: i64 = 0
+    huge_threshold: i64 = 0
+    first_unregister_ok: i64 = 0
+    first_ptr: i64 = 0
+    first_page_id: i64 = -1
+    first_huge_live_after: i64 = 0
+    first_page_map_live_after: i64 = 0
+    first_page_map_unregister_count: i64 = 0
+    first_seam_release_count: i64 = 0
+    first_seam_unregister_count: i64 = 0
+    double_attempted: i64 = 0
+    double_ok: i64 = 0
+    double_ptr: i64 = 0
+    double_page_map_live_before: i64 = 0
+    double_page_map_live_after: i64 = 0
+    double_lookup_miss_count: i64 = 0
+    double_failure_kind: i64 = 0
+    stale_attempted: i64 = 0
+    stale_ok: i64 = 0
+    stale_ptr: i64 = 0
+    stale_page_map_live_before: i64 = 0
+    stale_page_map_live_after: i64 = 0
+    stale_lookup_miss_count: i64 = 0
+    stale_failure_kind: i64 = 0
+    huge_count: i64 = 0
+    huge_live_count: i64 = 0
+    huge_allocate_count: i64 = 0
+    huge_release_count: i64 = 0
+    huge_release_reject_count: i64 = 0
+    page_map_entry_count: i64 = 0
+    page_map_live_count: i64 = 0
+    page_map_register_count: i64 = 0
+    page_map_lookup_count: i64 = 0
+    page_map_lookup_miss_count: i64 = 0
+    page_map_unregister_count: i64 = 0
+    page_map_reject_count: i64 = 0
+    seam_release_count: i64 = 0
+    seam_unregister_count: i64 = 0
+    seam_lookup_miss_count: i64 = 0
+    seam_not_huge_count: i64 = 0
+    seam_model_reject_count: i64 = 0
+    seam_reject_count: i64 = 0
+    seam_last_failure_kind: i64 = 0
+    failfast_attempt_count: i64 = 0
+    double_reject_count: i64 = 0
+    stale_reject_count: i64 = 0
+    success_count: i64 = 0
+    failure_count: i64 = 0
+    final_ok: i64 = 0
+    final_reason: i64 = 0
+}
+
+box HakoAllocObjectLifecycleFacadeHugeUnregisterFailfastRoute {
+    unregister_route: HakoAllocObjectLifecycleFacadeHugeUnregisterRoute = new HakoAllocObjectLifecycleFacadeHugeUnregisterRoute()
+    failfast_attempt_count: i64 = 0
+    double_reject_count: i64 = 0
+    stale_reject_count: i64 = 0
+    success_count: i64 = 0
+    failure_count: i64 = 0
+
+    hugeUnregisterFailfastThreshold() {
+        return me.unregister_route.hugeUnregisterThreshold()
+    }
+
+    initHugeUnregisterFailfastReport(size) {
+        local result = new HakoAllocObjectLifecycleFacadeHugeUnregisterFailfastReport()
+        result.requested_size = size
+        result.huge_threshold = me.hugeUnregisterFailfastThreshold()
+        return result
+    }
+
+    copyFirstUnregisterResult(result, first_result) {
+        result.first_unregister_ok = first_result.unregister_ok
+        result.first_ptr = first_result.unregister_ptr
+        result.first_page_id = first_result.unregister_page_id
+        result.first_huge_live_after = first_result.unregister_live_after
+        result.first_page_map_live_after = first_result.page_map_live_count
+        result.first_page_map_unregister_count = first_result.page_map_unregister_count
+        result.first_seam_release_count = first_result.seam_release_count
+        result.first_seam_unregister_count = first_result.seam_unregister_count
+        return result
+    }
+
+    snapshotHugeUnregisterFailfastCounters(result) {
+        result.failfast_attempt_count = me.failfast_attempt_count
+        result.double_reject_count = me.double_reject_count
+        result.stale_reject_count = me.stale_reject_count
+        result.success_count = me.success_count
+        result.failure_count = me.failure_count
+        result.huge_count = me.unregister_route.alloc_route.huge_model.huge_count
+        result.huge_live_count = me.unregister_route.alloc_route.huge_model.live_count
+        result.huge_allocate_count = me.unregister_route.alloc_route.huge_model.allocate_count
+        result.huge_release_count = me.unregister_route.alloc_route.huge_model.release_count
+        result.huge_release_reject_count = me.unregister_route.alloc_route.huge_model.release_reject_count
+        result.page_map_entry_count = me.unregister_route.alloc_route.page_map.entry_count
+        result.page_map_live_count = me.unregister_route.alloc_route.page_map.live_count
+        result.page_map_register_count = me.unregister_route.alloc_route.page_map.register_count
+        result.page_map_lookup_count = me.unregister_route.alloc_route.page_map.lookup_count
+        result.page_map_lookup_miss_count = me.unregister_route.alloc_route.page_map.lookup_miss_count
+        result.page_map_unregister_count = me.unregister_route.alloc_route.page_map.unregister_count
+        result.page_map_reject_count = me.unregister_route.alloc_route.page_map.reject_count
+        result.seam_release_count = me.unregister_route.release_seam.release_count
+        result.seam_unregister_count = me.unregister_route.release_seam.unregister_count
+        result.seam_lookup_miss_count = me.unregister_route.release_seam.lookup_miss_count
+        result.seam_not_huge_count = me.unregister_route.release_seam.not_huge_count
+        result.seam_model_reject_count = me.unregister_route.release_seam.model_reject_count
+        result.seam_reject_count = me.unregister_route.release_seam.reject_count
+        result.seam_last_failure_kind = me.unregister_route.release_seam.last_failure_kind
+        return result
+    }
+
+    rejectDoubleUnregisteredPtr(result) {
+        me.failfast_attempt_count = me.failfast_attempt_count + 1
+        result.double_attempted = 1
+        result.double_ptr = result.first_ptr
+        result.double_page_map_live_before = me.unregister_route.alloc_route.page_map.live_count
+        result.double_ok = me.unregister_route.release_seam.releaseHugePtr(result.first_ptr)
+        result.double_page_map_live_after = me.unregister_route.alloc_route.page_map.live_count
+        result.double_lookup_miss_count = me.unregister_route.release_seam.lookup_miss_count
+        result.double_failure_kind = me.unregister_route.release_seam.last_failure_kind
+
+        if result.double_ok == 0 {
+            me.double_reject_count = me.double_reject_count + 1
+        }
+
+        return result
+    }
+
+    rejectStaleHugePtr(result, stale_ptr) {
+        me.failfast_attempt_count = me.failfast_attempt_count + 1
+        result.stale_attempted = 1
+        result.stale_ptr = stale_ptr
+        result.stale_page_map_live_before = me.unregister_route.alloc_route.page_map.live_count
+        result.stale_ok = me.unregister_route.release_seam.releaseHugePtr(stale_ptr)
+        result.stale_page_map_live_after = me.unregister_route.alloc_route.page_map.live_count
+        result.stale_lookup_miss_count = me.unregister_route.release_seam.lookup_miss_count
+        result.stale_failure_kind = me.unregister_route.release_seam.last_failure_kind
+
+        if result.stale_ok == 0 {
+            me.stale_reject_count = me.stale_reject_count + 1
+        }
+
+        return result
+    }
+
+    proveHugeUnregisterFailfast(facade, size, page_id, block_size, capacity, reserved, stale_ptr) {
+        local result = me.initHugeUnregisterFailfastReport(size)
+        local first_result = me.unregister_route.allocateThenUnregisterHuge(facade, size, page_id, block_size, capacity, reserved)
+        me.copyFirstUnregisterResult(result, first_result)
+
+        if result.first_unregister_ok != 1 {
+            me.failure_count = me.failure_count + 1
+            result.final_ok = 0
+            result.final_reason = first_result.final_reason
+            return me.snapshotHugeUnregisterFailfastCounters(result)
+        }
+
+        me.rejectDoubleUnregisteredPtr(result)
+        me.rejectStaleHugePtr(result, stale_ptr)
+
+        if result.double_ok == 0 {
+            if result.stale_ok == 0 {
+                me.success_count = me.success_count + 1
+                result.status = 1
+                result.final_ok = 1
+                result.final_reason = HakoAllocObjectLifecycleFacadeReason.ok()
+                return me.snapshotHugeUnregisterFailfastCounters(result)
+            }
+        }
+
+        me.failure_count = me.failure_count + 1
+        result.final_ok = 0
+        result.final_reason = HakoAllocObjectLifecycleFacadeReason.release_page_reject()
+        return me.snapshotHugeUnregisterFailfastCounters(result)
+    }
+}

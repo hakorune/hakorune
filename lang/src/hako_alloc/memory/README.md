@@ -44,6 +44,7 @@ Current modules
 - `object_lifecycle_facade_huge_release_box.hako`
 - `object_lifecycle_facade_huge_release_failfast_box.hako`
 - `object_lifecycle_facade_huge_unregister_box.hako`
+- `object_lifecycle_facade_huge_unregister_failfast_box.hako`
 - `page_lifecycle_invariant_box.hako`
 - `page_queue_lifecycle_box.hako`
 - `page_source_policy_box.hako`
@@ -221,6 +222,15 @@ Syntax/style contract
   pages, unreserve/decommit/recommit, add small release/free, realloc,
   alignment, purge/reclaim, remote-free/TLS/atomics, provider hooks, host
   allocator replacement, or backend shortcuts.
+- `object_lifecycle_facade_huge_unregister_failfast_box.hako` owns the
+  MIMAP-027A facade huge-unregister fail-fast diagnostics route. It may compose
+  the MIMAP-026A route, reject a second release of the same unregistered huge
+  pointer, reject one stale/unknown pointer through the existing M181
+  `HakoAllocHugeReleaseSeam`, and expose scalar lookup-miss / reject counters.
+  It must not call page-map lookup/unregister or `HakoAllocHugePageModel`
+  release directly, release OS pages, unreserve/decommit/recommit, add small
+  release/free, realloc, alignment, purge/reclaim, remote-free/TLS/atomics,
+  provider hooks, host allocator replacement, or backend shortcuts.
 - `worker_identity_box.hako` owns the MIMAP-WORKER-001 allocator-facing worker
   identity observer. It may call `WorkerCoreBox.current_id_i64()`, store
   scalar `last_worker_id` / `call_count` proof state, and keep the single-worker
