@@ -195,7 +195,8 @@ Forbidden:
 | `MIMAP-044A` | OSVM-backed fast-path route closeout guard | landed after MIMAP-043B |
 | `MIMAP-044B` | post-fast-path-closeout row selection | landed; selected MIMAP-045A |
 | `MIMAP-045A` | OSVM-backed fast-path unreserve route | landed after MIMAP-044B |
-| `MIMAP-045B` | post-fast-path-unreserve row selection | selected current |
+| `MIMAP-045B` | post-fast-path-unreserve row selection | landed; selected MIMAP-046A |
+| `MIMAP-046A` | OSVM-backed fast-path unreserve fail-fast diagnostics | selected current |
 
 ### MIMAP-020A granularity
 
@@ -679,6 +680,34 @@ Forbidden:
 MIMAP-045B is a planning-only row. It reads the MIMAP-045A unreserve evidence
 and selects exactly one next allocator/compiler/language task. It must not
 implement allocator behavior, compiler acceptance, or cleanup by itself.
+
+MIMAP-045B landed by selecting `MIMAP-046A`, the fail-fast companion for
+duplicate/stale/unknown fast-path unreserve requests.
+
+### MIMAP-046A granularity
+
+MIMAP-046A adds scalar diagnostics for invalid fast-path unreserve requests
+without widening the success route:
+
+```text
+first unreserve:
+  success via MIMAP-045A / MIMAP-033A
+
+duplicate unreserve:
+  rejected by the diagnostics owner
+
+unknown or not-decommitted page:
+  rejected before adapter execution
+```
+
+Forbidden:
+
+- direct page-source / OSVM calls from the diagnostics owner or proof app;
+- post-unreserve reuse behavior;
+- provider activation, hooks, host allocator replacement, or `#[global_allocator]`;
+- remote-free execution, TLS/atomic execution changes, thread scheduling,
+  reclaim execution, page ownership migration, or user-facing concurrency work;
+- backend `.inc` app/name matchers.
 
 ## Compiler / language sidecar triggers
 
