@@ -1,6 +1,6 @@
 # 293x-553 MIMAP-066A Post-Scheduler-Marker Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -45,4 +45,32 @@ or Hakorune language work continues.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Selection Result
+
+`MIMAP-066A` selects `MIMAP-067A`.
+
+```text
+row:
+  MIMAP-067A reclaim scheduler substrate proposal-or-park
+
+classification:
+  allocator substrate planning row
+
+why now:
+  the scheduler marker is guarded, but real scheduling is a larger substrate
+  boundary. Before implementing it, decide whether the current mimalloc lane
+  should open a narrow allocator-internal scheduler substrate row, park it, or
+  switch to a Hakorune language/compiler prerequisite.
+
+stop lines:
+  no allocator behavior
+  no real thread scheduling
+  no source-level concurrency feature change
+  no page-source call
+  no OSVM unreserve / release
+  no provider activation
+  no host allocator replacement
+  no cleanup bundle
 ```

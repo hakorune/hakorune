@@ -225,7 +225,8 @@ Forbidden:
 | `MIMAP-063A` | reclaim scheduler boundary inventory | landed; selected MIMAP-064A |
 | `MIMAP-064A` | reclaim scheduler request marker contract | landed; selected MIMAP-065A |
 | `MIMAP-065A` | reclaim scheduler marker closeout guard | landed; selected MIMAP-066A |
-| `MIMAP-066A` | post-scheduler-marker row selection | selected current |
+| `MIMAP-066A` | post-scheduler-marker row selection | landed; selected MIMAP-067A |
+| `MIMAP-067A` | reclaim scheduler substrate proposal-or-park | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1060,6 +1061,18 @@ selects MIMAP-066A.
 MIMAP-066A is a planning-only row. It should select exactly one follow-up after
 the scheduler marker closeout: allocator behavior, a real scheduler substrate
 row, a language-feature row, or a compiler acceptance sidecar.
+
+It must not add allocator behavior, execute real scheduling, add source-level
+concurrency semantics, call page-source APIs, unreserve or release OSVM pages,
+activate providers, replace the host allocator, or add backend matchers.
+
+MIMAP-066A landed by selecting MIMAP-067A.
+
+### MIMAP-067A granularity
+
+MIMAP-067A is a planning-only row. It decides whether to open a narrow
+allocator-internal scheduler substrate implementation row, park real scheduling,
+or switch to a concrete Hakorune language/compiler prerequisite.
 
 It must not add allocator behavior, execute real scheduling, add source-level
 concurrency semantics, call page-source APIs, unreserve or release OSVM pages,

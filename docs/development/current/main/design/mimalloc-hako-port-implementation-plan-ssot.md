@@ -24,11 +24,10 @@ process allocator replacement.
 
 Current implementation rows are selected by `CURRENT_STATE.toml` and the
 phase-293x taskboard. The original size-class row is historical and already
-landed; after `MIMAP-065A` the active row is `MIMAP-066A`, a
-post-scheduler-marker row selection. It must not reopen allocator-provider
-M104+, host replacement behavior, secure entropy execution, real thread
-scheduling, source-level concurrency features, OSVM release, or page-source
-behavior.
+landed; after `MIMAP-066A` the active row is `MIMAP-067A`, a reclaim scheduler
+substrate proposal-or-park row. It must not reopen allocator-provider M104+,
+host replacement behavior, secure entropy execution, real thread scheduling,
+source-level concurrency features, OSVM release, or page-source behavior.
 
 ## Upstream Reference
 
