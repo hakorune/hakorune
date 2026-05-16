@@ -1,0 +1,86 @@
+// reclaim_owner_transfer_execution_box.hako -- MIMAP-055A first execution route
+// Responsibility:
+// - compose reclaim owner-transfer readiness and atomic-claim contracts
+// - execute one executor-local modeled owner-token transfer when both succeed
+// - keep remote-free drain, scheduling, page-source/OSVM, provider, and
+//   production page-map mutation closed
+// Non-responsibility:
+// - full reclaim, remote-free drain, thread scheduling, page-source calls,
+//   OSVM unreserve/release, provider activation, hooks, or allocator replacement
+
+using selfhost.hako_alloc.memory.reclaim_owner_transfer_contract_box as HakoAllocReclaimOwnerTransferContract
+using selfhost.hako_alloc.memory.reclaim_atomic_claim_contract_box as HakoAllocReclaimAtomicClaimContract
+
+box HakoAllocReclaimOwnerTransferExecutionReport {
+    did_transfer: i64 = 0
+    reason: i64 = 0
+    page_id: i64 = -1
+    expected_owner: i64 = -1
+    observed_owner: i64 = -1
+    claimant_owner: i64 = -1
+    owner_after: i64 = -1
+    contract_ready: i64 = 0
+    contract_reason: i64 = 0
+    claim_ready: i64 = 0
+    claim_reason: i64 = 0
+    did_change_modeled_owner: i64 = 0
+    would_change_production_page_owner: i64 = 0
+    would_execute_full_reclaim: i64 = 0
+    would_drain_remote_free: i64 = 0
+    would_schedule_thread: i64 = 0
+    would_call_page_source: i64 = 0
+    would_unreserve: i64 = 0
+    would_release_osvm: i64 = 0
+    would_activate_provider: i64 = 0
+}
+
+box HakoAllocReclaimOwnerTransferExecution {
+    owner_contract: HakoAllocReclaimOwnerTransferContract = new HakoAllocReclaimOwnerTransferContract()
+    claim_contract: HakoAllocReclaimAtomicClaimContract = new HakoAllocReclaimAtomicClaimContract()
+    attempt_count: i64 = 0
+    transfer_count: i64 = 0
+    contract_block_count: i64 = 0
+    claim_block_count: i64 = 0
+    current_owner: i64 = -1
+    last_page_id: i64 = -1
+    last_reason: i64 = 0
+
+    report(did_transfer, reason, page_id, expected_owner, observed_owner, claimant_owner, owner_after, contract_ready, contract_reason, claim_ready, claim_reason, did_change_modeled_owner) {
+        local result = new HakoAllocReclaimOwnerTransferExecutionReport()
+        result.did_transfer = did_transfer
+        result.reason = reason
+        result.page_id = page_id
+        result.expected_owner = expected_owner
+        result.observed_owner = observed_owner
+        result.claimant_owner = claimant_owner
+        result.owner_after = owner_after
+        result.contract_ready = contract_ready
+        result.contract_reason = contract_reason
+        result.claim_ready = claim_ready
+        result.claim_reason = claim_reason
+        result.did_change_modeled_owner = did_change_modeled_owner
+        me.last_page_id = page_id
+        me.last_reason = reason
+        return result
+    }
+
+    executeTransfer(page_id, expected_owner, observed_owner, claimant_owner, owner_active, used, retired, backing_bytes, remote_free_pending, decommitted) {
+        me.attempt_count = me.attempt_count + 1
+
+        local ready = me.owner_contract.classifyTransfer(page_id, observed_owner, claimant_owner, owner_active, used, retired, backing_bytes, remote_free_pending, decommitted)
+        if ready.contract_ready == 0 {
+            me.contract_block_count = me.contract_block_count + 1
+            return me.report(0, 1, page_id, expected_owner, observed_owner, claimant_owner, observed_owner, ready.contract_ready, ready.reason, 0, 0, 0)
+        }
+
+        local claim = me.claim_contract.attemptClaim(expected_owner, observed_owner, claimant_owner)
+        if claim.claim_succeeded == 0 {
+            me.claim_block_count = me.claim_block_count + 1
+            return me.report(0, 2, page_id, expected_owner, observed_owner, claimant_owner, claim.owner_after, ready.contract_ready, ready.reason, claim.claim_ready, claim.reason, 0)
+        }
+
+        me.current_owner = claim.owner_after
+        me.transfer_count = me.transfer_count + 1
+        return me.report(1, 0, page_id, expected_owner, observed_owner, claimant_owner, claim.owner_after, ready.contract_ready, ready.reason, claim.claim_ready, claim.reason, 1)
+    }
+}

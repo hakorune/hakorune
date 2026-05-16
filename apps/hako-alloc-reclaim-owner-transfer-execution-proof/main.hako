@@ -1,0 +1,66 @@
+// hako-alloc-reclaim-owner-transfer-execution-proof
+// Purpose: prove MIMAP-055A guarded modeled owner-transfer execution route.
+
+using selfhost.hako_alloc.memory.reclaim_owner_transfer_execution_box as HakoAllocReclaimOwnerTransferExecution
+
+static box Main {
+    main(args) {
+        local executor = new HakoAllocReclaimOwnerTransferExecution()
+
+        local success = executor.executeTransfer(40, 1, 1, 2, 0, 0, 1, 4096, 0, 0)
+        local contract_block = executor.executeTransfer(41, 1, 1, 2, 1, 0, 1, 4096, 0, 0)
+        local claim_block = executor.executeTransfer(42, 7, 1, 2, 0, 0, 1, 4096, 0, 0)
+
+        local ok = check "mimap055a reclaim owner transfer execution" {
+            "success did transfer": success.did_transfer == 1
+            "success reason": success.reason == 0
+            "success contract ready": success.contract_ready == 1
+            "success contract reason": success.contract_reason == 0
+            "success claim ready": success.claim_ready == 1
+            "success claim reason": success.claim_reason == 0
+            "success owner after": success.owner_after == 2
+            "success modeled owner changed": success.did_change_modeled_owner == 1
+            "contract block no transfer": contract_block.did_transfer == 0
+            "contract block aggregate reason": contract_block.reason == 1
+            "contract block contract reason": contract_block.contract_reason == 3
+            "contract block claim inactive": contract_block.claim_ready == 0
+            "contract block owner unchanged": contract_block.owner_after == 1
+            "claim block no transfer": claim_block.did_transfer == 0
+            "claim block aggregate reason": claim_block.reason == 2
+            "claim block contract ready": claim_block.contract_ready == 1
+            "claim block claim reason": claim_block.claim_reason == 1
+            "claim block owner unchanged": claim_block.owner_after == 1
+            "success no production owner change": success.would_change_production_page_owner == 0
+            "success no full reclaim": success.would_execute_full_reclaim == 0
+            "success no drain": success.would_drain_remote_free == 0
+            "success no schedule": success.would_schedule_thread == 0
+            "success no page source": success.would_call_page_source == 0
+            "success no unreserve": success.would_unreserve == 0
+            "success no os release": success.would_release_osvm == 0
+            "success no provider": success.would_activate_provider == 0
+            "attempt count": executor.attempt_count == 3
+            "transfer count": executor.transfer_count == 1
+            "contract block count": executor.contract_block_count == 1
+            "claim block count": executor.claim_block_count == 1
+            "current owner": executor.current_owner == 2
+            "last page": executor.last_page_id == 42
+            "last reason": executor.last_reason == 2
+        }
+
+        print("hako-alloc-reclaim-owner-transfer-execution-proof")
+        print("success=" + success.did_transfer + "," + success.reason + "," + success.contract_ready + "," + success.claim_ready + "," + success.owner_after + "," + success.did_change_modeled_owner)
+        print("contract_block=" + contract_block.did_transfer + "," + contract_block.reason + "," + contract_block.contract_reason + "," + contract_block.claim_ready + "," + contract_block.owner_after)
+        print("claim_block=" + claim_block.did_transfer + "," + claim_block.reason + "," + claim_block.contract_ready + "," + claim_block.claim_reason + "," + claim_block.owner_after)
+        print("inactive=" + success.would_change_production_page_owner + "," + success.would_execute_full_reclaim + "," + success.would_drain_remote_free + "," + success.would_schedule_thread + "," + success.would_call_page_source + "," + success.would_unreserve + "," + success.would_release_osvm + "," + success.would_activate_provider)
+        print("counts=" + executor.attempt_count + "," + executor.transfer_count + "," + executor.contract_block_count + "," + executor.claim_block_count + "," + executor.current_owner + "," + executor.last_page_id + "," + executor.last_reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

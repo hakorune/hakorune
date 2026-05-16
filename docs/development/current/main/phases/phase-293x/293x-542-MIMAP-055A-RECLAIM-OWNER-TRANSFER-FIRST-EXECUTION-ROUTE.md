@@ -1,6 +1,6 @@
 # 293x-542 MIMAP-055A Reclaim Owner-Transfer First Execution Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -59,4 +59,84 @@ activate allocator providers.
 bash tools/checks/k2_wide_hako_alloc_reclaim_owner_transfer_execution_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Implementation Result
+
+`MIMAP-055A` adds:
+
+```text
+SSOT:
+  docs/development/current/main/design/hako-alloc-reclaim-owner-transfer-execution-ssot.md
+
+owner:
+  lang/src/hako_alloc/memory/reclaim_owner_transfer_execution_box.hako
+
+proof app:
+  apps/hako-alloc-reclaim-owner-transfer-execution-proof/
+
+guard:
+  tools/checks/k2_wide_hako_alloc_reclaim_owner_transfer_execution_guard.sh
+```
+
+The owner composes the MIMAP-051A readiness contract and the MIMAP-054A
+atomic-claim contract. When both succeed, it changes only:
+
+```text
+HakoAllocReclaimOwnerTransferExecution.current_owner
+```
+
+Blocked requests preserve the observed owner in the report and publish whether
+the readiness contract or atomic-claim contract blocked the transfer.
+
+All production surfaces remain inactive:
+
+```text
+would_change_production_page_owner = 0
+would_execute_full_reclaim = 0
+would_drain_remote_free = 0
+would_schedule_thread = 0
+would_call_page_source = 0
+would_unreserve = 0
+would_release_osvm = 0
+would_activate_provider = 0
+```
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_reclaim_owner_transfer_execution_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Selection Result
+
+`MIMAP-055A` selects `MIMAP-056A`.
+
+```text
+row:
+  MIMAP-056A reclaim remote-free drain contract inventory
+
+classification:
+  allocator prerequisite / no-execution contract row
+
+why now:
+  modeled owner transfer can now execute locally, but full reclaim must still
+  not proceed across pending remote-free work. The next narrow row names the
+  remote-free drain readiness contract before any drain execution opens.
+
+stop lines:
+  no remote-free drain execution
+  no thread scheduling
+  no page-source call
+  no OSVM unreserve / release
+  no provider activation
+  no cleanup bundle
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-056A.
 ```

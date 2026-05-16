@@ -34,31 +34,31 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-054A` landed the reclaim atomic-claim contract before first owner
-transfer execution.
+`MIMAP-055A` landed the reclaim owner-transfer first execution route before
+remote-free drain execution.
 
 Recommended current row:
 
 ```text
-MIMAP-055A
-  reclaim owner-transfer first execution route
+MIMAP-056A
+  reclaim remote-free drain contract inventory
 ```
 
 Purpose:
 
 ```text
-execute one guarded modeled owner transfer after readiness and claim success
-keep remote-free drain, scheduling, page-source, and provider activation closed
+name remote-free drain readiness / blocked reasons before drain execution
+keep remote-free drain execution, scheduling, page-source, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
 
 Stop lines:
 
 ```text
-no reclaim execution
-no atomic ownership claim
-no remote-free drain
+no remote-free drain execution
 no thread scheduling
+no page-source call
+no OSVM unreserve / release
 no provider activation
 ```
 
@@ -77,11 +77,12 @@ no provider activation
 | 9 | Hakorune core / allocator gate | `MIMAP-052B reclaim execution intent marker preflight` | landed; fail-fast marker exists |
 | 10 | planning | `MIMAP-053A reclaim execution support row selection` | landed; selected atomic-claim contract |
 | 11 | allocator prerequisite | `MIMAP-054A reclaim atomic-claim contract` | landed; claim contract is named |
-| 12 | allocator | `MIMAP-055A reclaim owner-transfer first execution route` | current; one guarded modeled owner transfer |
-| 13 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
-| 14 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
-| 15 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
-| 16 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
+| 12 | allocator | `MIMAP-055A reclaim owner-transfer first execution route` | landed; one guarded modeled owner transfer |
+| 13 | allocator prerequisite | `MIMAP-056A reclaim remote-free drain contract inventory` | current; no-execution drain readiness contract |
+| 14 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
+| 15 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
+| 16 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
+| 17 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
 
