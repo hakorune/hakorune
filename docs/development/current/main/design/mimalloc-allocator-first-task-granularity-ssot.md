@@ -213,7 +213,8 @@ Forbidden:
 | `MIMAP-052A` | reclaim execution preflight proposal | landed; selected MIMAP-052B |
 | `MIMAP-052B` | reclaim execution intent marker preflight | landed; selected MIMAP-053A |
 | `MIMAP-053A` | reclaim execution support row selection | landed; selected MIMAP-054A |
-| `MIMAP-054A` | reclaim atomic-claim contract | selected current |
+| `MIMAP-054A` | reclaim atomic-claim contract | landed; selected MIMAP-055A |
+| `MIMAP-055A` | reclaim owner-transfer first execution route | selected current |
 
 ### MIMAP-020A granularity
 
@@ -897,6 +898,18 @@ mutates page ownership.
 It may add a `.hako` contract owner, proof app, guard, and SSOT. It must not
 execute reclaim, mutate production page ownership, drain remote frees, schedule
 threads, call page-source APIs, or activate providers.
+
+MIMAP-054A landed by adding `HakoAllocReclaimAtomicClaimContract`, a proof app,
+guard, and accepted SSOT. It selects MIMAP-055A.
+
+### MIMAP-055A granularity
+
+MIMAP-055A is the first guarded reclaim execution row. It may compose the
+owner-transfer readiness contract and atomic-claim contract, then change only
+an executor-local modeled owner token for one ready page.
+
+It must not drain remote frees, schedule threads, call page-source APIs,
+unreserve or release OSVM pages, activate providers, or add backend matchers.
 
 ## Compiler / language sidecar triggers
 

@@ -34,21 +34,21 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-053A` landed by selecting the reclaim atomic-claim contract before
-reclaim execution.
+`MIMAP-054A` landed the reclaim atomic-claim contract before first owner
+transfer execution.
 
 Recommended current row:
 
 ```text
-MIMAP-054A
-  reclaim atomic-claim contract
+MIMAP-055A
+  reclaim owner-transfer first execution route
 ```
 
 Purpose:
 
 ```text
-prove compare-and-claim owner-token semantics before any page-owner mutation
-keep reclaim execution inactive until a separate guarded row opens it
+execute one guarded modeled owner transfer after readiness and claim success
+keep remote-free drain, scheduling, page-source, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
 
@@ -76,8 +76,8 @@ no provider activation
 | 8 | planning | `MIMAP-052A reclaim execution preflight proposal` | landed; selected dedicated reclaim marker |
 | 9 | Hakorune core / allocator gate | `MIMAP-052B reclaim execution intent marker preflight` | landed; fail-fast marker exists |
 | 10 | planning | `MIMAP-053A reclaim execution support row selection` | landed; selected atomic-claim contract |
-| 11 | allocator prerequisite | `MIMAP-054A reclaim atomic-claim contract` | current; prove claim success/failure before owner mutation |
-| 12 | allocator | reclaim execution small guarded row | only after owner-transfer and remote-free drain gates are explicit |
+| 11 | allocator prerequisite | `MIMAP-054A reclaim atomic-claim contract` | landed; claim contract is named |
+| 12 | allocator | `MIMAP-055A reclaim owner-transfer first execution route` | current; one guarded modeled owner transfer |
 | 13 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 14 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 15 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

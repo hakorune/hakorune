@@ -1,0 +1,72 @@
+// reclaim_atomic_claim_contract_box.hako -- MIMAP-054A contract inventory
+// Responsibility:
+// - model owner-token compare-and-claim semantics for future reclaim execution
+// - report success/failure and hypothetical owner_after as scalar facts
+// - keep all production execution surfaces inactive
+// Non-responsibility:
+// - real atomic CAS, page owner mutation, remote-free drain, thread scheduling,
+//   page-source/OSVM calls, provider activation, hooks, or allocator replacement
+
+box HakoAllocReclaimAtomicClaimContractReport {
+    claim_ready: i64 = 0
+    claim_succeeded: i64 = 0
+    reason: i64 = 0
+    expected_owner: i64 = -1
+    observed_owner: i64 = -1
+    claimant_owner: i64 = -1
+    owner_after: i64 = -1
+    would_execute_reclaim: i64 = 0
+    would_change_page_owner: i64 = 0
+    would_atomic_claim: i64 = 0
+    would_drain_remote_free: i64 = 0
+    would_schedule_thread: i64 = 0
+    would_call_page_source: i64 = 0
+    would_unreserve: i64 = 0
+    would_release_osvm: i64 = 0
+}
+
+box HakoAllocReclaimAtomicClaimContract {
+    attempt_count: i64 = 0
+    success_count: i64 = 0
+    mismatch_count: i64 = 0
+    invalid_expected_count: i64 = 0
+    invalid_claimant_count: i64 = 0
+    last_reason: i64 = 0
+    last_owner_after: i64 = -1
+
+    report(claim_ready, claim_succeeded, reason, expected_owner, observed_owner, claimant_owner, owner_after) {
+        local result = new HakoAllocReclaimAtomicClaimContractReport()
+        result.claim_ready = claim_ready
+        result.claim_succeeded = claim_succeeded
+        result.reason = reason
+        result.expected_owner = expected_owner
+        result.observed_owner = observed_owner
+        result.claimant_owner = claimant_owner
+        result.owner_after = owner_after
+        me.last_reason = reason
+        me.last_owner_after = owner_after
+        return result
+    }
+
+    attemptClaim(expected_owner, observed_owner, claimant_owner) {
+        me.attempt_count = me.attempt_count + 1
+
+        if expected_owner < 0 {
+            me.invalid_expected_count = me.invalid_expected_count + 1
+            return me.report(0, 0, 2, expected_owner, observed_owner, claimant_owner, observed_owner)
+        }
+
+        if claimant_owner < 0 {
+            me.invalid_claimant_count = me.invalid_claimant_count + 1
+            return me.report(0, 0, 3, expected_owner, observed_owner, claimant_owner, observed_owner)
+        }
+
+        if observed_owner != expected_owner {
+            me.mismatch_count = me.mismatch_count + 1
+            return me.report(0, 0, 1, expected_owner, observed_owner, claimant_owner, observed_owner)
+        }
+
+        me.success_count = me.success_count + 1
+        return me.report(1, 1, 0, expected_owner, observed_owner, claimant_owner, claimant_owner)
+    }
+}

@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-17"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-053A landed by selecting MIMAP-054A reclaim atomic-claim contract. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-054A landed reclaim atomic-claim contract and selected MIMAP-055A reclaim owner-transfer first execution route. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-541-MIMAP-054A-RECLAIM-ATOMIC-CLAIM-CONTRACT.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-542-MIMAP-055A-RECLAIM-OWNER-TRANSFER-FIRST-EXECUTION-ROUTE.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-540-MIMAP-053A-RECLAIM-EXECUTION-SUPPORT-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-540-MIMAP-053A-RECLAIM-EXECUTION-SUPPORT-ROW-SELECTION.md"
-latest_card_summary = "MIMAP-053A selects MIMAP-054A reclaim atomic-claim contract."
+latest_card = "293x-541-MIMAP-054A-RECLAIM-ATOMIC-CLAIM-CONTRACT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-541-MIMAP-054A-RECLAIM-ATOMIC-CLAIM-CONTRACT.md"
+latest_card_summary = "MIMAP-054A lands reclaim atomic-claim contract and selects MIMAP-055A."
 
-current_blocker_token = "MIMAP-054A"
+current_blocker_token = "MIMAP-055A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-541 MIMAP-054A reclaim atomic-claim contract landed",
   "293x-540 MIMAP-053A reclaim execution support row selection landed",
   "293x-539 MIMAP-052B reclaim execution intent marker preflight landed",
   "293x-538 MIMAP-052A reclaim execution preflight proposal landed",

@@ -1,6 +1,6 @@
 # 293x-541 MIMAP-054A Reclaim Atomic-Claim Contract
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -63,4 +63,87 @@ production facade's page owner.
 bash tools/checks/k2_wide_hako_alloc_reclaim_atomic_claim_contract_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Implementation Result
+
+`MIMAP-054A` adds:
+
+```text
+SSOT:
+  docs/development/current/main/design/hako-alloc-reclaim-atomic-claim-contract-ssot.md
+
+owner:
+  lang/src/hako_alloc/memory/reclaim_atomic_claim_contract_box.hako
+
+proof app:
+  apps/hako-alloc-reclaim-atomic-claim-contract-proof/
+
+guard:
+  tools/checks/k2_wide_hako_alloc_reclaim_atomic_claim_contract_guard.sh
+```
+
+The owner models:
+
+```text
+success:
+  observed_owner == expected_owner
+  owner_after = claimant_owner
+
+failure:
+  invalid expected owner, invalid claimant owner, or observed/expected mismatch
+  owner_after = observed_owner
+```
+
+All production execution flags remain inactive:
+
+```text
+would_execute_reclaim = 0
+would_change_page_owner = 0
+would_atomic_claim = 0
+would_drain_remote_free = 0
+would_schedule_thread = 0
+would_call_page_source = 0
+would_unreserve = 0
+would_release_osvm = 0
+```
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_reclaim_atomic_claim_contract_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Selection Result
+
+`MIMAP-054A` selects `MIMAP-055A`.
+
+```text
+row:
+  MIMAP-055A reclaim owner-transfer first execution route
+
+classification:
+  first guarded reclaim execution row
+
+why now:
+  owner-transfer readiness and atomic-claim semantics are both named. The next
+  narrow row can execute one modeled owner transfer when contract and claim
+  facts both succeed, while keeping remote-free drain, thread scheduling,
+  page-source calls, and provider activation closed.
+
+stop lines:
+  no remote-free drain
+  no thread scheduling
+  no page-source call
+  no OSVM unreserve / release
+  no provider activation
+  no cleanup bundle
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-055A.
 ```

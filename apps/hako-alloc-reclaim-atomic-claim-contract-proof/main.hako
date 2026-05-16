@@ -1,0 +1,65 @@
+// hako-alloc-reclaim-atomic-claim-contract-proof
+// Purpose: prove MIMAP-054A scalar owner-token claim contract.
+
+using selfhost.hako_alloc.memory.reclaim_atomic_claim_contract_box as HakoAllocReclaimAtomicClaimContract
+
+static box Main {
+    main(args) {
+        local contract = new HakoAllocReclaimAtomicClaimContract()
+
+        local success = contract.attemptClaim(10, 10, 20)
+        local mismatch = contract.attemptClaim(10, 11, 20)
+        local bad_expected = contract.attemptClaim(-1, 10, 20)
+        local bad_claimant = contract.attemptClaim(10, 10, -2)
+
+        local ok = check "mimap054a reclaim atomic claim contract" {
+            "success ready": success.claim_ready == 1
+            "success claimed": success.claim_succeeded == 1
+            "success reason": success.reason == 0
+            "success owner after": success.owner_after == 20
+            "success observed": success.observed_owner == 10
+            "mismatch blocked": mismatch.claim_ready == 0
+            "mismatch failed": mismatch.claim_succeeded == 0
+            "mismatch reason": mismatch.reason == 1
+            "mismatch owner unchanged": mismatch.owner_after == 11
+            "bad expected blocked": bad_expected.claim_ready == 0
+            "bad expected reason": bad_expected.reason == 2
+            "bad expected owner unchanged": bad_expected.owner_after == 10
+            "bad claimant blocked": bad_claimant.claim_ready == 0
+            "bad claimant reason": bad_claimant.reason == 3
+            "bad claimant owner unchanged": bad_claimant.owner_after == 10
+            "inactive reclaim": success.would_execute_reclaim == 0
+            "inactive owner mutation": success.would_change_page_owner == 0
+            "inactive atomic": success.would_atomic_claim == 0
+            "inactive drain": success.would_drain_remote_free == 0
+            "inactive schedule": success.would_schedule_thread == 0
+            "inactive page source": success.would_call_page_source == 0
+            "inactive unreserve": success.would_unreserve == 0
+            "inactive os release": success.would_release_osvm == 0
+            "attempt count": contract.attempt_count == 4
+            "success count": contract.success_count == 1
+            "mismatch count": contract.mismatch_count == 1
+            "invalid expected count": contract.invalid_expected_count == 1
+            "invalid claimant count": contract.invalid_claimant_count == 1
+            "last reason": contract.last_reason == 3
+            "last owner after": contract.last_owner_after == 10
+        }
+
+        print("hako-alloc-reclaim-atomic-claim-contract-proof")
+        print("success=" + success.claim_ready + "," + success.claim_succeeded + "," + success.reason + "," + success.owner_after)
+        print("mismatch=" + mismatch.claim_ready + "," + mismatch.claim_succeeded + "," + mismatch.reason + "," + mismatch.owner_after)
+        print("bad_expected=" + bad_expected.claim_ready + "," + bad_expected.claim_succeeded + "," + bad_expected.reason + "," + bad_expected.owner_after)
+        print("bad_claimant=" + bad_claimant.claim_ready + "," + bad_claimant.claim_succeeded + "," + bad_claimant.reason + "," + bad_claimant.owner_after)
+        print("inactive=" + success.would_execute_reclaim + "," + success.would_change_page_owner + "," + success.would_atomic_claim + "," + success.would_drain_remote_free + "," + success.would_schedule_thread + "," + success.would_call_page_source + "," + success.would_unreserve + "," + success.would_release_osvm)
+        print("counts=" + contract.attempt_count + "," + contract.success_count + "," + contract.mismatch_count + "," + contract.invalid_expected_count + "," + contract.invalid_claimant_count + "," + contract.last_reason + "," + contract.last_owner_after)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

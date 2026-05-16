@@ -174,3 +174,10 @@ app = "apps/hako-alloc-reclaim-owner-transfer-contract-proof"
 label = "reclaim owner-transfer contract inventory proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_reclaim_owner_transfer_contract_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-054A"
+app = "apps/hako-alloc-reclaim-atomic-claim-contract-proof"
+label = "reclaim atomic-claim contract proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_reclaim_atomic_claim_contract_guard.sh"]

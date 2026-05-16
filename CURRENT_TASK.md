@@ -53,7 +53,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-054A reclaim atomic-claim contract`
+  `MIMAP-055A reclaim owner-transfer first execution route`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -72,9 +72,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `MIMAP-053A`; reclaim execution
-  intent is explicit, and current blocker is `MIMAP-054A`, the reclaim
-  atomic-claim contract row.
+- resume point: continue Phase 293x after `MIMAP-054A`; reclaim atomic-claim
+  semantics are named, and current blocker is `MIMAP-055A`, the first guarded
+  reclaim owner-transfer execution route.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -82,8 +82,9 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-054A`: add the no-execution reclaim atomic-claim contract proof
-  2. keep reclaim execution inactive until a separate guarded row opens it
+  1. `MIMAP-055A`: add the first guarded reclaim owner-transfer execution route
+  2. keep remote-free drain, thread scheduling, page-source calls, and provider
+     activation inactive
   3. keep secure entropy execution parked until a separate random substrate
      route and audit row are accepted
 - post-mimalloc selfhost order:

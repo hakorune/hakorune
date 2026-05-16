@@ -338,7 +338,8 @@ FST:
 | `MIMAP-052A` | landed | Reclaim execution preflight proposal. | selected MIMAP-052B |
 | `MIMAP-052B` | landed | Reclaim execution intent marker preflight. | selected MIMAP-053A |
 | `MIMAP-053A` | landed | Reclaim execution support row selection. | selected MIMAP-054A |
-| `MIMAP-054A` | selected current | Reclaim atomic-claim contract. | after MIMAP-053A |
+| `MIMAP-054A` | landed | Reclaim atomic-claim contract. | selected MIMAP-055A |
+| `MIMAP-055A` | selected current | Reclaim owner-transfer first execution route. | after MIMAP-054A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -346,9 +347,10 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-053A: `MIMAP-054A` adds a no-execution reclaim
-atomic-claim contract. Reclaim execution, production page-owner mutation,
-remote-free drain, and thread scheduling remain closed.
+Current row after MIMAP-054A: `MIMAP-055A` opens one guarded modeled
+owner-transfer execution route. Remote-free drain, thread scheduling,
+page-source calls, OSVM unreserve/release, provider activation, and backend
+matchers remain closed.
 
 MIMAP-020A execution order:
 
