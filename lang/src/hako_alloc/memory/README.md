@@ -19,6 +19,7 @@ Current modules
 - `arc_box.hako`
 - `layout_box.hako`
 - `osvm_backed_fast_path_heap_box.hako`
+- `osvm_fast_path_reuse_route_box.hako`
 - `page_box.hako`
 - `page_heap_box.hako`
 - `page_map_box.hako`
@@ -490,6 +491,12 @@ Syntax/style contract
   guard state, and M212 bounded scheduling, but it must not call page-source or
   OSVM APIs directly, unreserve, recommit, release OSVM pages, activate
   providers, install hooks, replace allocators, or add user-facing concurrency.
+- `osvm_fast_path_reuse_route_box.hako` owns MIMAP-043A OSVM-backed fast-path
+  recommit/reuse route. It may compose the MIMAP-042A route with M205 recommit
+  heap integration and perform one post-recommit allocation through the same
+  route, but it must not call page-source or OSVM APIs directly, unreserve,
+  release OSVM pages, activate providers, install hooks, replace allocators,
+  change scheduler/page-queue policy, or add user-facing concurrency.
 - `abandoned_reclaim_inventory_box.hako` owns M213 abandoned/reclaim inventory.
 - `options_inventory_box.hako` owns M214 allocator options/defaults inventory. It may classify static option/default facts and report inactive mutable options, env toggles, provider/hook/replacement, and reclaim execution, but it must not parse process configuration or change allocation behavior.
 - `thread_heap_owner_inventory_box.hako` owns M215 thread heap owner-token inventory. It may classify scalar owner-token facts for future abandoned/reclaim rows, but it must not schedule threads, use atomics, drain remote frees, mutate ownership, call page-source APIs, unreserve, or release OSVM pages.

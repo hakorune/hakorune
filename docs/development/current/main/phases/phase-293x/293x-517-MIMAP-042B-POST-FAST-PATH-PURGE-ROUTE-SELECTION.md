@@ -1,6 +1,6 @@
 # 293x-517 MIMAP-042B Post-Fast-Path-Purge Route Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -45,4 +45,29 @@ behavior or compiler acceptance by itself.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Closeout
+
+`MIMAP-042A` did not leave a compiler or language blocker after the
+void-placeholder object route sidecar landed with that row. The next narrow
+allocator behavior row is:
+
+```text
+MIMAP-043A OSVM-backed fast-path recommit/reuse route
+```
+
+Rationale:
+
+- `MIMAP-042A` proves allocation, release, bounded purge, and duplicate purge
+  prevention on the OSVM-backed fast-path route.
+- Existing M205/M206 owners already prove recommit and reuse in isolation.
+- The next missing allocator-facing behavior is a single route owner that
+  composes the 042A route with M205 recommit and proves allocation succeeds
+  again after recommit.
+
+Selected current row:
+
+```text
+docs/development/current/main/phases/phase-293x/293x-518-MIMAP-043A-OSVM-FAST-PATH-RECOMMIT-REUSE-ROUTE.md
 ```

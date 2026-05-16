@@ -120,6 +120,13 @@ profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_osvm_fast_path_purge_route_guard.sh"]
 
 [[proof_apps]]
+id = "MIMAP-043A"
+app = "apps/hako-alloc-osvm-fast-path-reuse-route-proof"
+label = "OSVM-backed fast-path recommit/reuse route proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_osvm_fast_path_reuse_route_guard.sh"]
+
+[[proof_apps]]
 id = "M213"
 app = "apps/hako-alloc-abandoned-reclaim-inventory-proof"
 label = "abandoned reclaim inventory proof"

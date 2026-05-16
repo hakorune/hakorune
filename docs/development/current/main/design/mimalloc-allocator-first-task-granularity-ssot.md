@@ -189,7 +189,9 @@ Forbidden:
 | `MIMAP-041B` | post-record-report row selection | landed; selected MIR-EXTERN-SPEC-001 |
 | `MIMAP-NEXT-BEHAVIOR-SELECTION-001` | post-cleanup row selection | landed; selected MIMAP-042A |
 | `MIMAP-042A` | OSVM-backed fast-path bounded purge route | landed after MIMAP-NEXT-BEHAVIOR-SELECTION-001 |
-| `MIMAP-042B` | post-fast-path-purge route row selection | selected current |
+| `MIMAP-042B` | post-fast-path-purge route row selection | landed; selected MIMAP-043A |
+| `MIMAP-043A` | OSVM-backed fast-path recommit/reuse route | landed after MIMAP-042B |
+| `MIMAP-043B` | post-fast-path-reuse route row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -561,7 +563,43 @@ Forbidden:
 
 ### MIMAP-042B granularity
 
-MIMAP-042B is a planning-only row. It reads the MIMAP-042A proof result and
+MIMAP-042B was a planning-only row. It read the MIMAP-042A proof result and
+selected `MIMAP-043A` as the next allocator behavior task. It did not implement
+allocator behavior, compiler acceptance, or cleanup by itself.
+
+### MIMAP-043A granularity
+
+MIMAP-043A was a narrow allocator behavior row. It added one `.hako` route owner
+that composes:
+
+```text
+HakoAllocOsVmFastPathPurgeRoute
+HakoAllocRecommitHeapIntegration
+```
+
+Allowed:
+
+- allocation / release / bounded purge through the existing MIMAP-042A route;
+- one explicit recommit attempt through M205 for a caller-provided page id;
+- one post-recommit allocation through the same route;
+- scalar report fields proving pre-recommit rejection, recommit success, and
+  post-recommit allocation on the same page.
+
+Forbidden:
+
+- direct page-source / OSVM calls from the new route owner;
+- unreserve, OS release, provider activation, hooks, host allocator
+  replacement, or `#[global_allocator]`;
+- remote-free, TLS, atomic, worker scheduling, or user-facing concurrency
+  syntax expansion;
+- scheduler policy changes, page queue policy changes, or fresh-page fallback
+  changes;
+- compiler acceptance widening unless route preflight exposes a real
+  independent blocker.
+
+### MIMAP-043B granularity
+
+MIMAP-043B is a planning-only row. It reads the MIMAP-043A proof result and
 selects exactly one next allocator/compiler/language task. It must not implement
 allocator behavior, compiler acceptance, or cleanup by itself.
 

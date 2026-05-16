@@ -1,0 +1,123 @@
+// osvm_fast_path_reuse_route_box.hako -- MIMAP-043A route owner
+// Responsibility:
+// - compose the MIMAP-042A OSVM-backed fast-path purge route with M205
+//   recommit heap integration
+// - prove one post-recommit allocation through the same route
+// Non-responsibility:
+// - direct page-source calls, direct OSVM calls, unreserve, OS release,
+//   provider activation, allocator replacement, hooks, atomics, TLS,
+//   remote-free execution, scheduler policy changes, or user-facing
+//   concurrency semantics
+
+using selfhost.hako_alloc.memory.osvm_fast_path_purge_route_box as HakoAllocOsVmFastPathPurgeRouteBox
+using selfhost.hako_alloc.memory.purge_recommit_heap_integration_box as HakoAllocRecommitHeapIntegrationBox
+
+box HakoAllocOsVmFastPathReuseReport {
+    status: i64 = 0
+    page_id: i64 = -1
+    blocked: i64 = 0
+    recommit_status: i64 = -1
+    recommit_executed: i64 = 0
+    marker_recommitted: i64 = 0
+    page_reactivated: i64 = 0
+    reuse_allowed_after: i64 = 0
+    handle_ok: i64 = 0
+    handle_page_id: i64 = -1
+    handle_block_id: i64 = -1
+    marker_marked_after: i64 = 0
+}
+
+box HakoAllocOsVmFastPathReuseRoute {
+    purge_route: HakoAllocOsVmFastPathPurgeRoute
+    recommit: HakoAllocRecommitHeapIntegration
+    reuse_attempt_count: i64 = 0
+    success_count: i64 = 0
+    reject_count: i64 = 0
+    last_status: i64 = 0
+    last_page_id: i64 = -1
+    last_recommit_status: i64 = -1
+    last_handle_page_id: i64 = -1
+    last_handle_block_id: i64 = -1
+    last_marker_marked_after: i64 = 0
+
+    birth(bin, block_size, page_capacity, max_decommit_bytes, max_recommit_bytes) {
+        me.purge_route = new HakoAllocOsVmFastPathPurgeRoute(bin, block_size, page_capacity, max_decommit_bytes)
+        me.recommit = new HakoAllocRecommitHeapIntegration(max_recommit_bytes)
+    }
+
+    allocate(size) {
+        return me.purge_route.allocate(size)
+    }
+
+    release(handle) {
+        return me.purge_route.release(handle)
+    }
+
+    purgeOne(max_scan_pages) {
+        return me.purge_route.purgeOne(max_scan_pages)
+    }
+
+    report(status, page_id, blocked, recommit_status, recommit_executed, marker_recommitted, page_reactivated, reuse_allowed_after, handle_ok, handle_page_id, handle_block_id, marker_marked_after) {
+        local result = new HakoAllocOsVmFastPathReuseReport()
+        result.status = status
+        result.page_id = page_id
+        result.blocked = blocked
+        result.recommit_status = recommit_status
+        result.recommit_executed = recommit_executed
+        result.marker_recommitted = marker_recommitted
+        result.page_reactivated = page_reactivated
+        result.reuse_allowed_after = reuse_allowed_after
+        result.handle_ok = handle_ok
+        result.handle_page_id = handle_page_id
+        result.handle_block_id = handle_block_id
+        result.marker_marked_after = marker_marked_after
+        return result
+    }
+
+    recommitAndAllocate(page_id, size) {
+        me.reuse_attempt_count = me.reuse_attempt_count + 1
+        me.last_page_id = page_id
+        me.last_handle_page_id = -1
+        me.last_handle_block_id = -1
+
+        local recommit_report = me.recommit.attemptHeapPage(me.purge_route.heap, page_id, me.purge_route.decommit_guard.marker)
+        local marker_after = me.purge_route.decommit_guard.marker.isMarked(page_id)
+        me.last_recommit_status = recommit_report.status
+        me.last_marker_marked_after = marker_after
+
+        if recommit_report.status != 0 {
+            me.reject_count = me.reject_count + 1
+            me.last_status = 1
+            return me.report(1, page_id, 1, recommit_report.status, recommit_report.recommit_executed, recommit_report.marker_recommitted, recommit_report.page_reactivated, recommit_report.reuse_allowed_after, 0, -1, -1, marker_after)
+        }
+
+        local handle = me.purge_route.allocate(size)
+        if handle == null {
+            me.reject_count = me.reject_count + 1
+            me.last_status = 2
+            marker_after = me.purge_route.decommit_guard.marker.isMarked(page_id)
+            me.last_marker_marked_after = marker_after
+            return me.report(2, page_id, 1, recommit_report.status, recommit_report.recommit_executed, recommit_report.marker_recommitted, recommit_report.page_reactivated, recommit_report.reuse_allowed_after, 0, -1, -1, marker_after)
+        }
+
+        me.success_count = me.success_count + 1
+        me.last_status = 0
+        me.last_handle_page_id = handle.page_id
+        me.last_handle_block_id = handle.block_id
+        marker_after = me.purge_route.decommit_guard.marker.isMarked(page_id)
+        me.last_marker_marked_after = marker_after
+        return me.report(0, page_id, 0, recommit_report.status, recommit_report.recommit_executed, recommit_report.marker_recommitted, recommit_report.page_reactivated, recommit_report.reuse_allowed_after, 1, handle.page_id, handle.block_id, marker_after)
+    }
+
+    sourceExecutionCount() {
+        return me.purge_route.sourceExecutionCount()
+    }
+
+    markerIsMarked(page_id) {
+        return me.purge_route.decommit_guard.marker.isMarked(page_id)
+    }
+
+    schedulerRunCount() {
+        return me.purge_route.schedulerRunCount()
+    }
+}

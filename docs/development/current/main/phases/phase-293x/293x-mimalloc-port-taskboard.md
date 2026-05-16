@@ -314,7 +314,9 @@ FST:
 | `CURRENT-DOCS-PHASE-SLIM-002` | landed | Post-current-docs-slim row selection. | selected MIMAP-NEXT-BEHAVIOR-SELECTION-001 |
 | `MIMAP-NEXT-BEHAVIOR-SELECTION-001` | landed | Select the next single allocator/compiler cleanup or behavior row. | selected MIMAP-042A |
 | `MIMAP-042A` | landed | OSVM-backed fast-path bounded purge route. | after MIMAP-NEXT-BEHAVIOR-SELECTION-001 |
-| `MIMAP-042B` | selected current | Post-fast-path-purge route row selection. | selected after MIMAP-042A |
+| `MIMAP-042B` | landed | Post-fast-path-purge route row selection. | selected MIMAP-043A |
+| `MIMAP-043A` | landed | OSVM-backed fast-path recommit/reuse route. | after MIMAP-042B |
+| `MIMAP-043B` | selected current | Post-fast-path-reuse route row selection. | selected after MIMAP-043A |
 
 MIMAP-020A execution order:
 
