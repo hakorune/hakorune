@@ -111,7 +111,8 @@ Syntax/style contract
   page, call `HakoAllocPageModel.acquire(size)`, release one known `(page id,
   block id)` through `HakoAllocPageModel.releaseLocal(block_id)`, find that page
   only through the facade-local `objectLifecycleKnownPageIndexById(page_id)`
-  scan of already-owned queue slots, and expose read-only scalar observer data
+  queue-length scan of already-owned queue slots, and expose read-only scalar
+  observer data
   including miss/release reason and facade-local allocation counters. It may surface
   double-release and stale-page rejection as scalar fail-fast reasons without
   adding page-map lookup or arbitrary pointer resolution. It may record one

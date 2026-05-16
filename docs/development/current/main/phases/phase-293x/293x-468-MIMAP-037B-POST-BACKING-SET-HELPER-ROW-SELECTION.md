@@ -1,6 +1,6 @@
 # 293x-468 MIMAP-037B Post-Backing-Set-Helper Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -82,3 +82,43 @@ tools/checks/dev_gate.sh quick
 This row closes when one next row is selected with clear owner/proof/guard names
 and provider/host allocator replacement still inactive unless explicitly
 reopened.
+
+## Selection Result
+
+`MIMAP-037B` selects `MIMAP-038A`.
+
+Rationale:
+
+- MIMAP-037A removed the route-local backing-set parallel arrays from the
+  unreserve fail-fast path.
+- The next smallest cleanup from the design review is a concrete hardcoded
+  shape in `HakoAllocObjectLifecycleFacade.objectLifecycleKnownPageIndexById`.
+- The method currently recognizes only indices 0, 1, and 2 even though the
+  facade queue can hold more pages.
+
+Selected row:
+
+```text
+row:
+  MIMAP-038A object-lifecycle known-page loop cleanup
+owner:
+  lang/src/hako_alloc/memory/object_lifecycle_facade_box.hako
+proof app:
+  apps/mimalloc-facade-known-page-loop-proof/main.hako
+guard:
+  tools/checks/k2_wide_mimalloc_facade_known_page_loop_guard.sh
+primary proof:
+  four known pages; fourth page is found and released through the facade
+stop lines:
+  no allocator behavior beyond lookup shape cleanup
+  no object-lifecycle page queue selection rewrite
+  no provider activation
+  no host allocator replacement / hook / #[global_allocator]
+  no backend .inc matcher shortcut
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-038A object-lifecycle known-page loop cleanup.
+```

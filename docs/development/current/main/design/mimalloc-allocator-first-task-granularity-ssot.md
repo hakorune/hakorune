@@ -174,7 +174,9 @@ Forbidden:
 | `MIMAP-036A` | post-huge-unreserve closeout guard | landed after MIMAP-035B |
 | `MIMAP-036B` | post-huge-unreserve-closeout row selection | landed; selected MIMAP-037A |
 | `MIMAP-037A` | facade huge backing-set helper cleanup | landed after MIMAP-036B |
-| `MIMAP-037B` | post-backing-set-helper row selection | current after MIMAP-037A |
+| `MIMAP-037B` | post-backing-set-helper row selection | landed; selected MIMAP-038A |
+| `MIMAP-038A` | object-lifecycle known-page loop cleanup | landed after MIMAP-037B |
+| `MIMAP-038B` | post-known-page-loop row selection | current after MIMAP-038A |
 
 ### MIMAP-020A granularity
 
@@ -493,7 +495,11 @@ MIMAP-036A as a post-huge-unreserve closeout guard before any broader
 allocator behavior or provider/replacement work is reopened. MIMAP-036B
 selected MIMAP-037A to extract duplicate/stale unreserve backing-set storage
 from the fail-fast route into a helper before the next behavior row. MIMAP-037A
-landed that BoxShape cleanup without adding allocator behavior.
+landed that BoxShape cleanup without adding allocator behavior. MIMAP-037B
+selected MIMAP-038A, which replaced the object-lifecycle facade fixed
+three-page known-page lookup with a queue-length loop while leaving queue
+selection policy unchanged. MIMAP-038B is the current planning-only row after
+that cleanup.
 
 ## Compiler / language sidecar triggers
 

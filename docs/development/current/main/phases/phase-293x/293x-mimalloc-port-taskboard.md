@@ -32,11 +32,13 @@ fail-fast routing row is green, and the facade huge-page model route is green.
 MIMAP-029A exposed a pure-first/selfhost route-shape cleanup before the next
 allocator selection row. Same-artifact MIR input, lowering-plan preflight,
 phase progress diagnostics, and the canonical emit wrapper are landed.
-MIMAP-037A facade huge backing-set helper cleanup is green;
+MIMAP-037A facade huge backing-set helper cleanup is green; MIMAP-037B
+selected the object-lifecycle known-page cleanup; MIMAP-038A known-page
+queue-length loop cleanup is green;
 the current primary row is:
 
 ```text
-  MIMAP-037B post-backing-set-helper row selection
+  MIMAP-038B post-known-page-loop row selection
 ```
 
 Closed cleanup sidecar:
@@ -198,6 +200,12 @@ MIMAP-036B:
 MIMAP-037A:
   landed
   facade huge backing-set helper cleanup is green
+MIMAP-037B:
+  landed
+  selected MIMAP-038A object-lifecycle known-page loop cleanup as the next row
+MIMAP-038A:
+  landed
+  object-lifecycle facade known-page queue-length loop cleanup is green
 ```
 
 ## Active Source Policy
@@ -427,7 +435,9 @@ FST:
 | `MIMAP-036A` | landed | Post-huge-unreserve closeout guard. | after MIMAP-035B |
 | `MIMAP-036B` | landed | Post-huge-unreserve-closeout row selection. | selected MIMAP-037A |
 | `MIMAP-037A` | landed | Facade huge backing-set helper cleanup. | after MIMAP-036B |
-| `MIMAP-037B` | selected current | Post-backing-set-helper row selection. | after MIMAP-037A |
+| `MIMAP-037B` | landed | Post-backing-set-helper row selection. | selected MIMAP-038A |
+| `MIMAP-038A` | landed | Object-lifecycle known-page loop cleanup. | after MIMAP-037B |
+| `MIMAP-038B` | selected current | Post-known-page-loop row selection. | after MIMAP-038A |
 
 MIMAP-020A execution order:
 

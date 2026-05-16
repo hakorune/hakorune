@@ -1,0 +1,52 @@
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+
+static box Main {
+    main(args) {
+        local page0 = new HakoAllocPageModel(10, 8, 1, 1)
+        local page1 = new HakoAllocPageModel(20, 8, 1, 1)
+        local page2 = new HakoAllocPageModel(30, 8, 1, 1)
+        local page3 = new HakoAllocPageModel(40, 8, 1, 1)
+        local block3 = page3.acquire(8)
+
+        local facade = new HakoAllocObjectLifecycleFacade()
+        local add0 = facade.objectLifecycleAddPage(page0)
+        local add1 = facade.objectLifecycleAddPage(page1)
+        local add2 = facade.objectLifecycleAddPage(page2)
+        local add3 = facade.objectLifecycleAddPage(page3)
+
+        local idx0 = facade.objectLifecycleKnownPageIndexById(10)
+        local idx3 = facade.objectLifecycleKnownPageIndexById(40)
+        local missing = facade.objectLifecycleKnownPageIndexById(99)
+        local release_ok = facade.objectLifecycleReleaseBlock(40, block3)
+        local release_summary = facade.objectLifecycleReleaseOk()
+        local release_reason = facade.objectLifecycleReleaseReason()
+
+        local shape = 0
+        if add0 == 0 { shape = shape + 1 }
+        if add1 == 1 { shape = shape + 1 }
+        if add2 == 2 { shape = shape + 1 }
+        if add3 == 3 { shape = shape + 1 }
+        if idx0 == 0 { shape = shape + 1 }
+        if idx3 == 3 { shape = shape + 1 }
+        if missing == -1 { shape = shape + 1 }
+        if release_ok == 1 { shape = shape + 1 }
+        if release_summary == 1 { shape = shape + 1 }
+        if release_reason == 0 { shape = shape + 1 }
+        if page3.localFreeCount() == 1 { shape = shape + 1 }
+
+        print("mimalloc-facade-known-page-loop-proof")
+        print("adds=" + add0 + "," + add1 + "," + add2 + "," + add3)
+        print("idx=" + idx0 + "," + idx3 + "," + missing)
+        print("release=" + release_ok + "," + release_summary + "," + release_reason)
+        print("shape=" + shape)
+
+        if shape == 11 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
