@@ -9,12 +9,13 @@ source "$ROOT_DIR/tools/checks/lib/pure_first_exe_guard.sh"
 APP="apps/mimalloc-osvm-unreserve-proof/main.hako"
 APP_README="apps/mimalloc-osvm-unreserve-proof/README.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-457-MIMAP-032A-OSVM-UNRESERVE-SUBSTRATE-ROUTE.md"
+PAGE_SOURCE_ADAPTER_CARD="docs/development/current/main/phases/phase-293x/293x-459-MIMAP-033A-PAGE-SOURCE-UNRESERVE-ADAPTER.md"
 OSVM_CORE="lang/src/runtime/substrate/osvm/osvm_core_box.hako"
 PAGE_SOURCE="lang/src/hako_alloc/memory/page_source_policy_box.hako"
 
 echo "[$TAG] running MIMAP-032A OSVM unreserve EXE guard"
 
-guard_require_files "$TAG" "$APP" "$APP_README" "$CARD" "$OSVM_CORE" "$PAGE_SOURCE"
+guard_require_files "$TAG" "$APP" "$APP_README" "$CARD" "$PAGE_SOURCE_ADAPTER_CARD" "$OSVM_CORE" "$PAGE_SOURCE"
 
 if rg -n 'mimalloc-osvm-unreserve-proof' lang/c-abi/shims >/tmp/"$TAG".app_specific.inc 2>&1; then
   echo "[$TAG] ERROR: app-specific OSVM unreserve matcher leaked into .inc" >&2
@@ -24,11 +25,15 @@ if rg -n 'mimalloc-osvm-unreserve-proof' lang/c-abi/shims >/tmp/"$TAG".app_speci
 fi
 rm -f /tmp/"$TAG".app_specific.inc
 
-if rg -n 'unreservePage|releasePage' "$PAGE_SOURCE" >/tmp/"$TAG".allocator_owner 2>&1; then
-  echo "[$TAG] ERROR: MIMAP-032A must not open allocator page-source unreserve/release owners" >&2
-  cat /tmp/"$TAG".allocator_owner >&2
-  rm -f /tmp/"$TAG".allocator_owner
-  exit 1
+if rg -q 'Status: landed' "$PAGE_SOURCE_ADAPTER_CARD"; then
+  echo "[$TAG] MIMAP-033A has landed; skipping pre-page-source owner scan"
+else
+  if rg -n 'unreservePage|releasePage' "$PAGE_SOURCE" >/tmp/"$TAG".allocator_owner 2>&1; then
+    echo "[$TAG] ERROR: MIMAP-032A must not open allocator page-source unreserve/release owners" >&2
+    cat /tmp/"$TAG".allocator_owner >&2
+    rm -f /tmp/"$TAG".allocator_owner
+    exit 1
+  fi
 fi
 rm -f /tmp/"$TAG".allocator_owner
 

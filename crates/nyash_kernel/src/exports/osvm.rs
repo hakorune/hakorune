@@ -30,6 +30,19 @@ fn normalize_len(len_bytes: i64) -> Option<usize> {
     round_up_bytes(size, page_bytes())
 }
 
+#[cfg(not(unix))]
+fn region_input_is_positive(base: i64, len_bytes: i64) -> bool {
+    base > 0 && len_bytes > 0
+}
+
+#[cfg(unix)]
+fn normalize_region_len(base: i64, len_bytes: i64) -> Option<usize> {
+    if base <= 0 {
+        return None;
+    }
+    normalize_len(len_bytes)
+}
+
 #[no_mangle]
 pub extern "C" fn hako_osvm_page_size_i64() -> i64 {
     page_bytes() as i64
@@ -102,10 +115,7 @@ mod platform {
     }
 
     pub(super) fn commit(base: i64, len_bytes: i64) -> i64 {
-        if base <= 0 {
-            return HAKO_VALIDATION;
-        }
-        let Some(len) = normalize_len(len_bytes) else {
+        let Some(len) = normalize_region_len(base, len_bytes) else {
             return HAKO_VALIDATION;
         };
         let rc = unsafe { mprotect(base as isize as *mut c_void, len, PROT_READ | PROT_WRITE) };
@@ -117,10 +127,7 @@ mod platform {
     }
 
     pub(super) fn decommit(base: i64, len_bytes: i64) -> i64 {
-        if base <= 0 {
-            return HAKO_VALIDATION;
-        }
-        let Some(len) = normalize_len(len_bytes) else {
+        let Some(len) = normalize_region_len(base, len_bytes) else {
             return HAKO_VALIDATION;
         };
         let rc = unsafe { mprotect(base as isize as *mut c_void, len, PROT_NONE) };
@@ -132,10 +139,7 @@ mod platform {
     }
 
     pub(super) fn unreserve(base: i64, len_bytes: i64) -> i64 {
-        if base <= 0 {
-            return HAKO_VALIDATION;
-        }
-        let Some(len) = normalize_len(len_bytes) else {
+        let Some(len) = normalize_region_len(base, len_bytes) else {
             return HAKO_VALIDATION;
         };
         let rc = unsafe { munmap(base as isize as *mut c_void, len) };
@@ -156,7 +160,7 @@ mod platform {
     }
 
     pub(super) fn commit(base: i64, len_bytes: i64) -> i64 {
-        if base <= 0 || len_bytes <= 0 {
+        if !region_input_is_positive(base, len_bytes) {
             HAKO_VALIDATION
         } else {
             HAKO_UNSUPPORTED
@@ -164,7 +168,7 @@ mod platform {
     }
 
     pub(super) fn decommit(base: i64, len_bytes: i64) -> i64 {
-        if base <= 0 || len_bytes <= 0 {
+        if !region_input_is_positive(base, len_bytes) {
             HAKO_VALIDATION
         } else {
             HAKO_UNSUPPORTED
@@ -172,7 +176,7 @@ mod platform {
     }
 
     pub(super) fn unreserve(base: i64, len_bytes: i64) -> i64 {
-        if base <= 0 || len_bytes <= 0 {
+        if !region_input_is_positive(base, len_bytes) {
             HAKO_VALIDATION
         } else {
             HAKO_UNSUPPORTED

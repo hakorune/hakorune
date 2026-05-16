@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-05-16
+Date: 2026-05-17
 Scope: 再起動直後に 2-5 分で current lane に戻るための最短手順。
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `OSVM-EXPORT-VALIDATION-HELPER-001 OSVM export validation helper cleanup`
+- current blocker token: `GENERIC-METHOD-ROUTE-SPLIT-001 generic collection read route cleanup`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -48,7 +48,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `OSVM-EXPORT-VALIDATION-HELPER-001 OSVM export validation helper cleanup`
+- current blocker token: `GENERIC-METHOD-ROUTE-SPLIT-001 generic collection read route cleanup`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -59,9 +59,10 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after `EXPRS-CHECK-002`; current blocker is
-  `OSVM-EXPORT-VALIDATION-HELPER-001`, an OSVM export validation helper cleanup
-- next row: selected row after `OSVM-EXPORT-VALIDATION-HELPER-001`
+- continue `phase-293x` after `OSVM-EXPORT-VALIDATION-HELPER-002`; current
+  blocker is `GENERIC-METHOD-ROUTE-SPLIT-001`, a generic collection read route
+  cleanup
+- next row: selected row after `GENERIC-METHOD-ROUTE-SPLIT-001`
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

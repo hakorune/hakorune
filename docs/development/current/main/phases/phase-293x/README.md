@@ -8,9 +8,11 @@
 - Closed sidecar:
   `docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md`
 - Current compiler/selfhost sidecar:
-  closed through `MIR-EMIT-SSOT-002`
-- Current allocator row:
-  `docs/development/current/main/phases/phase-293x/293x-462-MIMAP-034B-POST-HUGE-UNRESERVE-ROW-SELECTION.md`
+  closed through `OSVM-EXPORT-VALIDATION-HELPER-001`; current row is
+  `GENERIC-METHOD-ROUTE-SPLIT-001`
+- Current active row:
+  read `phase_status` in `docs/development/current/main/CURRENT_STATE.toml`
+  and the taskboard below
 - Latest lifecycle closeout:
   `docs/development/current/main/phases/phase-293x/293x-403-REUSE-LIFECYCLE-001-EXPLICIT-REUSE-METHODS.md`
 - Mimalloc purpose SSOT:
@@ -44,6 +46,10 @@
 MIMAP-029A landed the facade huge decommit-after-unregister success route. The
 lane now pauses allocator row selection to fix the pure-first/selfhost route
 shape that MIMAP-029A exposed:
+
+This table is a historical excerpt for the MIMAP-029A interruption point. The
+live row pointer is `CURRENT_STATE.toml`; the full ordered taskboard is
+`293x-mimalloc-port-taskboard.md`.
 
 | Row | Status | Purpose |
 | --- | --- | --- |
