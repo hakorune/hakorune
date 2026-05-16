@@ -1,6 +1,6 @@
 # Phase 293x: real-app bringup
 
-- Status: Active / mimalloc blueprint lane with post-huge-unregister-failfast row selection active
+- Status: Active / mimalloc blueprint lane with facade huge page-source backing route active
 - Purpose: use real applications to expose compiler/runtime seams after the
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
@@ -8,7 +8,7 @@
 - Closed sidecar:
   `docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md`
 - Current allocator blocker:
-  `docs/development/current/main/phases/phase-293x/293x-445-MIMAP-027B-POST-HUGE-UNREGISTER-FAILFAST-ROW-SELECTION.md`
+  `docs/development/current/main/phases/phase-293x/293x-446-MIMAP-028A-FACADE-HUGE-PAGE-SOURCE-ROUTE.md`
 - Latest lifecycle closeout:
   `docs/development/current/main/phases/phase-293x/293x-403-REUSE-LIFECYCLE-001-EXPLICIT-REUSE-METHODS.md`
 - Mimalloc purpose SSOT:

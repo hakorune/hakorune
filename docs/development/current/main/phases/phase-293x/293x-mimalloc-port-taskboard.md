@@ -29,11 +29,11 @@ the internal worker identity, TLS cache-slot, atomic route guard, and
 remote-free / abandoned-owner policy, thread-safe `hako_mem` ABI, and native
 multi-worker substrate stress rows are now live. The facade huge-request
 fail-fast routing row is green, and the facade huge-page model route is green.
-The current primary row moves to the selected facade huge-release page-map
-unregister route:
+The current primary row moves to the selected facade huge page-source backing
+route:
 
 ```text
-  MIMAP-026A facade huge-release page-map unregister route
+  MIMAP-028A facade huge page-source backing route
 ```
 
 Closed cleanup sidecar:
@@ -144,8 +144,12 @@ MIMAP-027A:
   landed
   facade huge-unregister fail-fast diagnostics route is green
 MIMAP-027B:
+  landed
+  selected MIMAP-028A facade huge page-source backing route as the next
+  allocator behavior row
+MIMAP-028A:
   ready current
-  post-huge-unregister-failfast allocator row selection is the current primary row
+  facade huge page-source backing route is the current primary row
 ```
 
 ## Active Source Policy
@@ -316,8 +320,8 @@ FST:
 | `MIMAP-026A` | landed | Facade huge-release page-map unregister route. | after MIMAP-025B |
 | `MIMAP-026B` | landed | Post-huge-unregister allocator row selection. | after MIMAP-026A |
 | `MIMAP-027A` | landed | Facade huge-unregister fail-fast diagnostics route. | after MIMAP-026B |
-| `MIMAP-027B` | ready current | Post-huge-unregister-failfast allocator row selection. | current |
-| `MIMAP-028A` | draft candidate | Facade huge page-source backing route. | candidate after MIMAP-027B |
+| `MIMAP-027B` | landed | Post-huge-unregister-failfast allocator row selection. | after MIMAP-027A |
+| `MIMAP-028A` | ready current | Facade huge page-source backing route. | current |
 | `MIMAP-028B` | draft candidate | Post-backed-huge allocator row selection. | after MIMAP-028A if selected |
 | `MIMAP-029A` | draft candidate | Facade huge decommit-after-unregister success route. | after backed huge allocation |
 | `MIMAP-029B` | draft candidate | Post-huge-decommit allocator row selection. | after MIMAP-029A if selected |

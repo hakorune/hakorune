@@ -28,14 +28,14 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-027B post-huge-unregister-failfast row selection`
+- current blocker token: `MIMAP-028A facade huge page-source backing route`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after MIMAP-027A; next blocker is
-  MIMAP-027B post-huge-unregister-failfast row selection
+- continue phase-293x after MIMAP-027B; next blocker is
+  MIMAP-028A facade huge page-source backing route
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

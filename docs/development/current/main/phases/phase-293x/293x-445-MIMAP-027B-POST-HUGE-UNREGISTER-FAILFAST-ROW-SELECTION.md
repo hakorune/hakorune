@@ -1,6 +1,6 @@
 # 293x-445 MIMAP-027B Post-Huge-Unregister-Failfast Row Selection
 
-Status: ready
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -43,6 +43,33 @@ stop lines:
 It should not land code. If the chosen row needs a new capability or verifier
 contract first, `MIMAP-027B` should select that contract row explicitly instead
 of silently widening the allocator owner.
+
+## Selected Next Row
+
+```text
+row:
+  MIMAP-028A facade huge page-source backing route
+
+owner:
+  lang/src/hako_alloc/memory/object_lifecycle_facade_huge_page_source_box.hako
+
+reused owners:
+  lang/src/hako_alloc/memory/object_lifecycle_facade_huge_page_model_box.hako
+  lang/src/hako_alloc/memory/object_lifecycle_facade_page_source_box.hako
+  lang/src/hako_alloc/memory/page_source_policy_box.hako
+  lang/src/hako_alloc/memory/huge_page_model_box.hako
+
+proof app:
+  apps/mimalloc-facade-huge-page-source-proof/main.hako
+
+guard:
+  tools/checks/k2_wide_mimalloc_facade_huge_page_source_exe_guard.sh
+```
+
+MIMAP-028A should attach a scalar page-source backing identity to a huge
+allocation before any later release/decommit row. The proof should show
+reserve/commit backing data, huge allocation metadata, and zero
+release/unregister/decommit activity.
 
 ## Candidate Questions
 
@@ -111,3 +138,8 @@ unregister, decommit, unreserve, and provider activation.
 bash tools/checks/current_state_pointer_guard.sh
 tools/checks/dev_gate.sh quick
 ```
+
+## Closeout
+
+MIMAP-027B is closed as a docs-only row selection. The active blocker moves to
+MIMAP-028A.

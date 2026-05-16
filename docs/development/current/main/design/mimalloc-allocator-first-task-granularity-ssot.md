@@ -152,7 +152,7 @@ Forbidden:
 | `MIMAP-026B` | post-huge-unregister allocator row selection | MIMAP-026A is green |
 | `MIMAP-027A` | facade huge-unregister fail-fast diagnostics route | MIMAP-026B selects M181 post-unregister reject diagnostics |
 | `MIMAP-027B` | post-huge-unregister-failfast allocator row selection | MIMAP-027A is green |
-| `MIMAP-028A` | draft: facade huge page-source backing route | candidate after MIMAP-027B |
+| `MIMAP-028A` | selected: facade huge page-source backing route | current after MIMAP-027B |
 | `MIMAP-028B` | draft: post-backed-huge allocator row selection | after MIMAP-028A if selected |
 | `MIMAP-029A` | draft: facade huge decommit-after-unregister success route | after backed huge allocation is green |
 | `MIMAP-029B` | draft: post-huge-decommit allocator row selection | after MIMAP-029A if selected |
@@ -332,12 +332,12 @@ decommit, purge/reclaim, small release/free, realloc, alignment, remote-free,
 TLS, atomic, provider hooks, host allocator replacement, or
 `#[global_allocator]`.
 
-MIMAP-027B is the current planning-only row. It must inspect the
-post-MIMAP-027A state and select exactly one next allocator behavior row without
-implementing that behavior in the selection card. Candidate directions include
-a narrow OS page return / unreserve planning row, or an owner-triggered CorePlan
-/ verifier contract promotion if the next behavior needs a stronger no-fallback
-contract before OSVM release.
+MIMAP-027B is a landed planning-only row. It inspected the post-MIMAP-027A state
+and selected exactly one next allocator behavior row without implementing that
+behavior in the selection card. Candidate directions included a narrow OS page
+return / unreserve planning row, or an owner-triggered CorePlan / verifier
+contract promotion if the next behavior needed a stronger no-fallback contract
+before OSVM release.
 
 Selection rubric:
 
@@ -349,9 +349,9 @@ Selection rubric:
 4. keep provider activation / host replacement / hooks parked
 ```
 
-The conservative default next row is `MIMAP-028A`: a facade huge page-source
-backing route. It should prove that a huge allocation can carry scalar backing
-identity before any later release/decommit row:
+The selected next row is `MIMAP-028A`: a facade huge page-source backing route.
+It should prove that a huge allocation can carry scalar backing identity before
+any later release/decommit row:
 
 ```text
 huge request -> page-source reserve/commit backing identity
