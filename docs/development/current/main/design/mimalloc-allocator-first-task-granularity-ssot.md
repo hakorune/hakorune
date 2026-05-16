@@ -162,7 +162,8 @@ Forbidden:
 | `MIMAP-029B` | post-huge-decommit allocator row selection | landed; selected MIMAP-030A |
 | `MIMAP-030A` | facade huge decommit fail-fast diagnostics | landed after MIMAP-029B |
 | `MIMAP-030B` | post-huge-decommit-failfast allocator row selection | landed; selected MIMAP-031A |
-| `MIMAP-031A` | OSVM unreserve capability inventory / planning row | current after MIMAP-030B |
+| `MIMAP-031A` | OSVM unreserve capability inventory / planning row | landed; selected MIMAP-032A |
+| `MIMAP-032A` | OSVM unreserve substrate route | current after MIMAP-031A |
 
 ### MIMAP-020A granularity
 
@@ -462,9 +463,9 @@ MIMAP-029A, or add backend name matchers.
 MIMAP-029B landed after the pure-first sidecar and selected MIMAP-030A.
 MIMAP-030A landed duplicate/stale huge decommit diagnostics through
 allocator-side state without relying on OSVM/page-source decommit itself to
-detect duplicate decommit. MIMAP-030B selected MIMAP-031A, which must inventory
-OSVM unreserve capability before any unreserve/recommit/provider behavior is
-implemented.
+detect duplicate decommit. MIMAP-030B selected MIMAP-031A, which inventoried
+OSVM unreserve/release as closed. MIMAP-031A selected MIMAP-032A as a substrate
+route row only; page-source/facade owner adoption remains later.
 
 ## Compiler / language sidecar triggers
 

@@ -32,11 +32,11 @@ fail-fast routing row is green, and the facade huge-page model route is green.
 MIMAP-029A exposed a pure-first/selfhost route-shape cleanup before the next
 allocator selection row. Same-artifact MIR input, lowering-plan preflight,
 phase progress diagnostics, and the canonical emit wrapper are landed; the
-MIMAP-030A facade huge decommit fail-fast diagnostics is green, and MIMAP-030B
-selected the OSVM unreserve inventory row; the current primary row is:
+MIMAP-031A inventoried OSVM unreserve/release as closed and selected the
+substrate route row; the current primary row is:
 
 ```text
-  MIMAP-031A OSVM unreserve capability inventory
+  MIMAP-032A OSVM unreserve substrate route
 ```
 
 Closed cleanup sidecar:
@@ -224,7 +224,8 @@ not part of this sidecar:
 | `MIMAP-029B` | landed | Post-huge-decommit allocator row selection. | selected MIMAP-030A |
 | `MIMAP-030A` | landed | Facade huge decommit fail-fast diagnostics. | after MIMAP-029B |
 | `MIMAP-030B` | landed | Post-huge-decommit-failfast allocator row selection. | selected MIMAP-031A |
-| `MIMAP-031A` | selected current | OSVM unreserve capability inventory / planning row. | after MIMAP-030B |
+| `MIMAP-031A` | landed | OSVM unreserve capability inventory / planning row. | selected MIMAP-032A |
+| `MIMAP-032A` | selected current | OSVM unreserve substrate route. | after MIMAP-031A |
 | `RETURN-CONTRACT-001` | parked future | Propagate declared return expected type into return expressions such as `ArrayBox.get`. | not a blocker for artifact exactness |
 
 ## Stage1 / Selfhost Ordering Guard
@@ -396,7 +397,8 @@ FST:
 | `MIMAP-029B` | landed | Post-huge-decommit allocator row selection. | selected MIMAP-030A |
 | `MIMAP-030A` | landed | Facade huge decommit fail-fast diagnostics. | after MIMAP-029B |
 | `MIMAP-030B` | landed | Post-huge-decommit-failfast allocator row selection. | selected MIMAP-031A |
-| `MIMAP-031A` | selected current | OSVM unreserve capability inventory / planning row. | after MIMAP-030B |
+| `MIMAP-031A` | landed | OSVM unreserve capability inventory / planning row. | selected MIMAP-032A |
+| `MIMAP-032A` | selected current | OSVM unreserve substrate route. | after MIMAP-031A |
 
 MIMAP-020A execution order:
 
