@@ -152,6 +152,13 @@ Forbidden:
 | `MIMAP-026B` | post-huge-unregister allocator row selection | MIMAP-026A is green |
 | `MIMAP-027A` | facade huge-unregister fail-fast diagnostics route | MIMAP-026B selects M181 post-unregister reject diagnostics |
 | `MIMAP-027B` | post-huge-unregister-failfast allocator row selection | MIMAP-027A is green |
+| `MIMAP-028A` | draft: facade huge page-source backing route | candidate after MIMAP-027B |
+| `MIMAP-028B` | draft: post-backed-huge allocator row selection | after MIMAP-028A if selected |
+| `MIMAP-029A` | draft: facade huge decommit-after-unregister success route | after backed huge allocation is green |
+| `MIMAP-029B` | draft: post-huge-decommit allocator row selection | after MIMAP-029A if selected |
+| `MIMAP-030A` | draft: facade huge decommit fail-fast diagnostics | after MIMAP-029A if selected |
+| `MIMAP-030B` | draft: post-huge-decommit-failfast allocator row selection | after MIMAP-030A if selected |
+| `MIMAP-031A` | draft: OSVM unreserve capability inventory / planning row | only after decommit success/reject rows are green |
 
 ### MIMAP-020A granularity
 
@@ -331,6 +338,35 @@ implementing that behavior in the selection card. Candidate directions include
 a narrow OS page return / unreserve planning row, or an owner-triggered CorePlan
 / verifier contract promotion if the next behavior needs a stronger no-fallback
 contract before OSVM release.
+
+Selection rubric:
+
+```text
+1. prefer scalar .hako owner rows when they can prove the next invariant
+2. choose CorePlan / verifier promotion only for a real no-fallback blocker
+3. do not select OSVM release/unreserve/decommit before a page-source-backed
+   huge allocation contract exists
+4. keep provider activation / host replacement / hooks parked
+```
+
+The conservative default next row is `MIMAP-028A`: a facade huge page-source
+backing route. It should prove that a huge allocation can carry scalar backing
+identity before any later release/decommit row:
+
+```text
+huge request -> page-source reserve/commit backing identity
+backing identity -> huge model allocation/register
+scalar report -> page id / ptr / base / bytes / requested size / committed size
+scalar report -> no release/unregister/decommit executed
+```
+
+`MIMAP-028A` may reuse the existing page-source reserve/commit owner, but it
+must not release/unregister the huge handle, call decommit, add unreserve or OS
+release vocabulary, activate providers/hooks, replace the host allocator, add
+small release/free, realloc, alignment, remote-free, TLS, atomic, or backend
+`.inc` shortcuts. If the backed-huge proof cannot be expressed as a scalar
+`.hako` owner, `MIMAP-027B` should select a narrow CorePlan / verifier contract
+row instead of jumping to OS page return.
 
 ## Compiler / language sidecar triggers
 

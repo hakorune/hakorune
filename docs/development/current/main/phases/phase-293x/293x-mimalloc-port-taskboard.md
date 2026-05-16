@@ -317,6 +317,13 @@ FST:
 | `MIMAP-026B` | landed | Post-huge-unregister allocator row selection. | after MIMAP-026A |
 | `MIMAP-027A` | landed | Facade huge-unregister fail-fast diagnostics route. | after MIMAP-026B |
 | `MIMAP-027B` | ready current | Post-huge-unregister-failfast allocator row selection. | current |
+| `MIMAP-028A` | draft candidate | Facade huge page-source backing route. | candidate after MIMAP-027B |
+| `MIMAP-028B` | draft candidate | Post-backed-huge allocator row selection. | after MIMAP-028A if selected |
+| `MIMAP-029A` | draft candidate | Facade huge decommit-after-unregister success route. | after backed huge allocation |
+| `MIMAP-029B` | draft candidate | Post-huge-decommit allocator row selection. | after MIMAP-029A if selected |
+| `MIMAP-030A` | draft candidate | Facade huge decommit fail-fast diagnostics. | after MIMAP-029A if selected |
+| `MIMAP-030B` | draft candidate | Post-huge-decommit-failfast allocator row selection. | after MIMAP-030A if selected |
+| `MIMAP-031A` | draft candidate | OSVM unreserve capability inventory / planning row. | after decommit rows if still needed |
 
 MIMAP-020A execution order:
 
