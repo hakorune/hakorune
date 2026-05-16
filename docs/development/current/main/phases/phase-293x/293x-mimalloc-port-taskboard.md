@@ -221,17 +221,11 @@ not part of this sidecar:
 | `MIR-ROUTE-PREFLIGHT-001` | landed | Classify missing/unsupported lowering routes from MIR metadata before ny-llvmc / C shim emission. | after artifact exactness |
 | `SELFHOST-PROGRESS-001` | landed | Add phase progress / timeout closeout for slow/stuck/unsupported build diagnosis. | after route preflight |
 | `MIR-EMIT-SSOT-002` | landed | Make the canonical external source-to-MIR route explicit through `emit_mir_route.sh`. | after progress diagnostics |
-| `MIMAP-029B` | landed | Post-huge-decommit allocator row selection. | selected MIMAP-030A |
-| `MIMAP-030A` | landed | Facade huge decommit fail-fast diagnostics. | after MIMAP-029B |
-| `MIMAP-030B` | landed | Post-huge-decommit-failfast allocator row selection. | selected MIMAP-031A |
-| `MIMAP-031A` | landed | OSVM unreserve capability inventory / planning row. | selected MIMAP-032A |
-| `MIMAP-032A` | landed | OSVM unreserve substrate route. | after MIMAP-031A |
-| `MIMAP-032B` | landed | Post-OSVM-unreserve allocator row selection. | selected MIMAP-033A |
-| `MIMAP-033A` | landed | Page-source unreserve adapter. | after MIMAP-032B |
-| `MIMAP-033B` | landed | Post-page-source-unreserve row selection. | selected MIMAP-034A |
-| `MIMAP-034A` | landed | Facade huge unreserve-after-decommit success route. | after MIMAP-033B |
-| `MIMAP-034B` | selected current | Post-huge-unreserve row selection. | after MIMAP-034A |
 | `RETURN-CONTRACT-001` | parked future | Propagate declared return expected type into return expressions such as `ArrayBox.get`. | not a blocker for artifact exactness |
+
+Allocator row sequence after this sidecar is not repeated in this section.
+Canonical row order lives in [Rows / First Executable Slices](#first-executable-slices);
+the current active row lives in `CURRENT_STATE.toml`.
 
 ## Stage1 / Selfhost Ordering Guard
 

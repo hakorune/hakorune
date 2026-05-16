@@ -64,10 +64,23 @@ stop lines:
 If the next row needs a compiler/language sidecar, this card must name the
 sidecar and keep allocator implementation parked until the sidecar is green.
 
+## Pre-Selection Cleanup Queue
+
+This row may do docs/task cleanup before selecting the next allocator behavior
+row. Cleanup must stay behavior-neutral and must not change allocator runtime
+semantics.
+
+| Item | Status | Action | Stop line |
+| --- | --- | --- | --- |
+| `DOCS-034B.0` | required | Deduplicate the MIMAP taskboard so sidecar rows and allocator rows each have one SSOT table. | no code |
+| `GUARD-CLEANUP-CANDIDATE` | parked | Consider a pure-first EXE guard helper/manifest row if another guard repeats the same emit/preflight/build/run skeleton. | separate BoxShape row only |
+| `STATE-REPORT-CANDIDATE` | parked | Consider a small facade huge state/report helper only if duplicate/stale unreserve diagnostics repeat the decommit/unreserve report boilerplate. | do not pre-factor before the next behavior proves it |
+
 ## Planned Tasks
 
 | Step | Task | Accept | Stop line |
 | --- | --- | --- | --- |
+| `034B.0` | Finish behavior-neutral docs/taskboard cleanup. | Taskboard sidecar table no longer repeats allocator row sequence. | no code |
 | `034B.1` | Review MIMAP-034A closeout evidence. | Next row does not repeat success-route proof. | no code |
 | `034B.2` | Pick exactly one next allocator row. | Owner/proof/guard/stop lines are named. | no broad provider work |
 | `034B.3` | Update current pointers. | Current state moves to the selected next row. | no implementation |
