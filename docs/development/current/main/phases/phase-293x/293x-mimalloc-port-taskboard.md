@@ -324,7 +324,8 @@ FST:
 | `MIMAP-046A` | landed | OSVM-backed fast-path unreserve fail-fast diagnostics. | after MIMAP-045B |
 | `MIMAP-046B` | landed | Post-fast-path-unreserve-failfast row selection. | selected MIMAP-047A |
 | `MIMAP-047A` | landed | OSVM-backed fast-path unreserve closeout guard. | after MIMAP-046B |
-| `MIMAP-047B` | selected current | Post-fast-path-unreserve-closeout row selection. | selected after MIMAP-047A |
+| `MIMAP-047B` | landed | Post-fast-path-unreserve-closeout row selection. | selected MIMAP-048A |
+| `MIMAP-048A` | selected current | OSVM release capability inventory. | after MIMAP-047B |
 
 MIMAP-020A execution order:
 

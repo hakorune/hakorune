@@ -1,6 +1,6 @@
 # 293x-527 MIMAP-047B Post-Fast-Path-Unreserve-Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -43,4 +43,36 @@ allocator behavior, compiler acceptance, or cleanup by itself.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Selection Result
+
+`MIMAP-047B` selects `MIMAP-048A`.
+
+```text
+row:
+  MIMAP-048A OSVM release capability inventory
+classification:
+  allocator substrate inventory / stop-line guard
+why now:
+  MIMAP-047A closed OSVM-backed fast-path unreserve success and fail-fast
+  diagnostics, while OS release remains explicitly inactive. Before any release
+  route can be considered, the lane needs a narrow inventory/proposal row that
+  distinguishes release from the already-landed unreserve surface.
+owner:
+  docs/development/current/main/design/mimalloc-osvm-release-capability-inventory-ssot.md
+guard:
+  tools/checks/k2_wide_mimalloc_osvm_release_inventory_guard.sh
+stop lines:
+  no hako_osvm_release* extern route
+  no release_bytes / releasePage source surface
+  no fast-path release behavior
+  no provider activation, hooks, host allocator replacement, or #[global_allocator]
+  no backend .inc matcher shortcut
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-048A.
 ```
