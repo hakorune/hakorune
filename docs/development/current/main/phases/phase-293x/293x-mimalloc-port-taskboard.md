@@ -59,10 +59,12 @@ PROOF-APPS-MANIFEST-SCHEMA-001 proof-apps manifest schema cleanup is green;
 PROOF-APPS-MANIFEST-SCHEMA-002 selected a MIR builder indexing owner cleanup;
 EXPRS-INDEXING-001 MIR builder indexing owner cleanup is green;
 EXPRS-INDEXING-002 selected a MIR builder collection literal owner cleanup;
+EXPRS-COLLECTION-LITERAL-001 MIR builder collection literal owner cleanup is green;
+EXPRS-COLLECTION-LITERAL-002 selected a MIR builder check expression owner cleanup;
 the current primary row is:
 
 ```text
-  EXPRS-COLLECTION-LITERAL-001 MIR builder collection literal owner cleanup
+  EXPRS-CHECK-001 MIR builder check expression owner cleanup
 ```
 
 Closed cleanup sidecar:
@@ -524,7 +526,9 @@ FST:
 | `PROOF-APPS-MANIFEST-SCHEMA-002` | landed | Post-manifest row selection. | selected EXPRS-INDEXING-001 |
 | `EXPRS-INDEXING-001` | landed | MIR builder indexing owner cleanup. | after PROOF-APPS-MANIFEST-SCHEMA-002 |
 | `EXPRS-INDEXING-002` | landed | Post-indexing row selection. | selected EXPRS-COLLECTION-LITERAL-001 |
-| `EXPRS-COLLECTION-LITERAL-001` | selected current | MIR builder collection literal owner cleanup. | after EXPRS-INDEXING-002 |
+| `EXPRS-COLLECTION-LITERAL-001` | landed | MIR builder collection literal owner cleanup. | after EXPRS-INDEXING-002 |
+| `EXPRS-COLLECTION-LITERAL-002` | landed | Post-collection-literal row selection. | selected EXPRS-CHECK-001 |
+| `EXPRS-CHECK-001` | selected current | MIR builder check expression owner cleanup. | after EXPRS-COLLECTION-LITERAL-002 |
 
 MIMAP-020A execution order:
 

@@ -1,6 +1,6 @@
 # 293x-497 EXPRS-COLLECTION-LITERAL-001
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -48,3 +48,27 @@ git diff --check
 
 This row closes when collection literal lowering has a dedicated builder owner
 and the accepted ArrayLiteral / MapLiteral behavior is unchanged.
+
+## Result
+
+Landed:
+
+- Added `src/mir/builder/collection_literals.rs`.
+- Moved ArrayLiteral lowering out of `exprs.rs`.
+- Moved MapLiteral lowering out of `exprs.rs`.
+- Kept `exprs.rs` as the AST dispatcher/facade.
+
+No ArrayBox/MapBox method names, route certainty, effect masks, array element
+inference, type/origin registry writes, constructor birth markers, indexing,
+static-data lowering, parser syntax, allocator behavior, provider activation,
+hooks, host allocator replacement, or `#[global_allocator]` behavior changed.
+
+## Evidence
+
+```text
+cargo check -q
+cargo test -q array_value_get_uses_unified_receiver_arg_shape_and_element_return
+cargo test -q map_value_set_uses_unified_receiver_arg_shape_and_receipt_string_return
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
