@@ -51,11 +51,11 @@ Scope: current lane / next lane / restart order only.
 - pure-first MIR artifact / diagnostics SSOT:
   `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
 - current blocker token:
-  `MIMAP-030B post-huge-decommit-failfast row selection`
+  `MIMAP-031A OSVM unreserve capability inventory`
 - current BoxShape sidecar:
   `MIR-EMIT-SSOT-001`, `MIR-ROUTE-PREFLIGHT-001`, and
-  `SELFHOST-PROGRESS-001`, and `MIR-EMIT-SSOT-002` landed; `MIMAP-030A`
-  landed and row selection resumes through `MIMAP-030B`;
+  `SELFHOST-PROGRESS-001`, and `MIR-EMIT-SSOT-002` landed; `MIMAP-030B`
+  selected `MIMAP-031A`;
   `MIRBUILDER-DIET` remains closed through `MIR-SEMANTIC-PLANS-001`
 - primary mode: mimalloc substrate implementation lane; keep upstream source
   untracked and keep each allocator row behind explicit guards before provider
@@ -71,18 +71,18 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `MIMAP-030A`; current blocker is
-  `MIMAP-030B`, a planning-only row that selects exactly one next allocator
-  behavior row after huge decommit fail-fast diagnostics. VM-LIM-001 remains
-  parked diagnostic. Keep LoopRange on the Stage1 route; do not source-desugar
-  range loops.
+- resume point: continue Phase 293x after `MIMAP-030B`; current blocker is
+  `MIMAP-031A`, an OSVM unreserve capability inventory / planning row. It must
+  not implement unreserve/recommit/provider behavior. VM-LIM-001 remains parked
+  diagnostic. Keep LoopRange on the Stage1 route; do not source-desugar range
+  loops.
 
 ## Task Order
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-030B`: post-huge-decommit-failfast row selection
-  2. Selected next allocator behavior row from `MIMAP-030B`
+  1. `MIMAP-031A`: OSVM unreserve capability inventory / planning
+  2. Selected next allocator behavior row from `MIMAP-031A`
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
   reduction after mimalloc completeness evidence. Do not make broad `.hako`

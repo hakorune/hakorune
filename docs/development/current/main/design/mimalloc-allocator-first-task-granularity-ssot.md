@@ -161,8 +161,8 @@ Forbidden:
 | `MIR-EMIT-SSOT-002` | canonical external source-to-MIR route entry | landed after progress diagnostics |
 | `MIMAP-029B` | post-huge-decommit allocator row selection | landed; selected MIMAP-030A |
 | `MIMAP-030A` | facade huge decommit fail-fast diagnostics | landed after MIMAP-029B |
-| `MIMAP-030B` | post-huge-decommit-failfast allocator row selection | current after MIMAP-030A |
-| `MIMAP-031A` | draft: OSVM unreserve capability inventory / planning row | only after decommit success/reject rows are green |
+| `MIMAP-030B` | post-huge-decommit-failfast allocator row selection | landed; selected MIMAP-031A |
+| `MIMAP-031A` | OSVM unreserve capability inventory / planning row | current after MIMAP-030B |
 
 ### MIMAP-020A granularity
 
@@ -462,8 +462,9 @@ MIMAP-029A, or add backend name matchers.
 MIMAP-029B landed after the pure-first sidecar and selected MIMAP-030A.
 MIMAP-030A landed duplicate/stale huge decommit diagnostics through
 allocator-side state without relying on OSVM/page-source decommit itself to
-detect duplicate decommit. MIMAP-030B is the current planning-only row for
-selecting the next allocator behavior after that fail-fast proof.
+detect duplicate decommit. MIMAP-030B selected MIMAP-031A, which must inventory
+OSVM unreserve capability before any unreserve/recommit/provider behavior is
+implemented.
 
 ## Compiler / language sidecar triggers
 

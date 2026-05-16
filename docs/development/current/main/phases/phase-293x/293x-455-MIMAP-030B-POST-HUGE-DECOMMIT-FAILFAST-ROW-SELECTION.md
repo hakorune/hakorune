@@ -1,6 +1,6 @@
 # 293x-455 MIMAP-030B Post-Huge-Decommit-Failfast Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -44,12 +44,27 @@ The closeout for this card should fill in:
 
 ```text
 row:
+  MIMAP-031A OSVM unreserve capability inventory / planning row
 owner:
+  docs/development/current/main/phases/phase-293x/293x-456-MIMAP-031A-OSVM-UNRESERVE-CAPABILITY-INVENTORY.md
 proof app:
+  none in MIMAP-030B; MIMAP-031A decides whether a proof app is needed
 guard:
+  bash tools/checks/current_state_pointer_guard.sh
+  tools/checks/dev_gate.sh quick
 reused owners:
+  HakoAllocPageSourcePolicy
+  OsVmCoreBox
+  HakoAllocObjectLifecycleFacadeHugeDecommitRoute
+  HakoAllocObjectLifecycleFacadeHugeDecommitFailfastRoute
 primary proof:
+  select inventory/planning before adding OSVM unreserve behavior
 stop lines:
+  no unreserve implementation
+  no recommit implementation
+  no provider activation
+  no host allocator replacement / hook / #[global_allocator]
+  no backend .inc matcher shortcut
 ```
 
 If the next row needs a compiler/language sidecar, this card must name the
@@ -74,3 +89,22 @@ tools/checks/dev_gate.sh quick
 
 This row closes when one next allocator behavior row is selected with clear
 owner/proof/guard names and provider/host allocator replacement still inactive.
+
+## Selection Result
+
+`MIMAP-030B` selects `MIMAP-031A`.
+
+Rationale:
+
+- `MIMAP-029A` and `MIMAP-030A` prove decommit success and duplicate/stale
+  fail-fast rejection, but neither opens unreserve/recommit/provider behavior.
+- OSVM unreserve is the next broad lifecycle concept, so it needs an inventory
+  / planning row before implementation.
+- The row must decide whether unreserve belongs behind the existing page-source
+  owner, a new adapter, a verifier contract, or a later provider capability.
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-031A.
+```

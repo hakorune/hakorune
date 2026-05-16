@@ -32,11 +32,11 @@ fail-fast routing row is green, and the facade huge-page model route is green.
 MIMAP-029A exposed a pure-first/selfhost route-shape cleanup before the next
 allocator selection row. Same-artifact MIR input, lowering-plan preflight,
 phase progress diagnostics, and the canonical emit wrapper are landed; the
-MIMAP-030A facade huge decommit fail-fast diagnostics is green; the current
-primary row is:
+MIMAP-030A facade huge decommit fail-fast diagnostics is green, and MIMAP-030B
+selected the OSVM unreserve inventory row; the current primary row is:
 
 ```text
-  MIMAP-030B post-huge-decommit-failfast row selection
+  MIMAP-031A OSVM unreserve capability inventory
 ```
 
 Closed cleanup sidecar:
@@ -223,7 +223,8 @@ not part of this sidecar:
 | `MIR-EMIT-SSOT-002` | landed | Make the canonical external source-to-MIR route explicit through `emit_mir_route.sh`. | after progress diagnostics |
 | `MIMAP-029B` | landed | Post-huge-decommit allocator row selection. | selected MIMAP-030A |
 | `MIMAP-030A` | landed | Facade huge decommit fail-fast diagnostics. | after MIMAP-029B |
-| `MIMAP-030B` | selected current | Post-huge-decommit-failfast allocator row selection. | after MIMAP-030A |
+| `MIMAP-030B` | landed | Post-huge-decommit-failfast allocator row selection. | selected MIMAP-031A |
+| `MIMAP-031A` | selected current | OSVM unreserve capability inventory / planning row. | after MIMAP-030B |
 | `RETURN-CONTRACT-001` | parked future | Propagate declared return expected type into return expressions such as `ArrayBox.get`. | not a blocker for artifact exactness |
 
 ## Stage1 / Selfhost Ordering Guard
@@ -394,8 +395,8 @@ FST:
 | `MIR-EMIT-SSOT-002` | landed | Canonical external source-to-MIR wrapper. | after progress diagnostics |
 | `MIMAP-029B` | landed | Post-huge-decommit allocator row selection. | selected MIMAP-030A |
 | `MIMAP-030A` | landed | Facade huge decommit fail-fast diagnostics. | after MIMAP-029B |
-| `MIMAP-030B` | selected current | Post-huge-decommit-failfast allocator row selection. | after MIMAP-030A |
-| `MIMAP-031A` | draft candidate | OSVM unreserve capability inventory / planning row. | after decommit rows if still needed |
+| `MIMAP-030B` | landed | Post-huge-decommit-failfast allocator row selection. | selected MIMAP-031A |
+| `MIMAP-031A` | selected current | OSVM unreserve capability inventory / planning row. | after MIMAP-030B |
 
 MIMAP-020A execution order:
 
