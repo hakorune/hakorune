@@ -73,10 +73,12 @@ GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001 generic string body analysis cleanup is gr
 GLOBAL-STRING-BODY-ANALYSIS-SPLIT-002 selected NUMERIC-SUBSTRATE-SPLIT-001;
 NUMERIC-SUBSTRATE-SPLIT-001 numeric substrate cleanup is green;
 NUMERIC-SUBSTRATE-SPLIT-002 selected TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001;
+TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001 typed-object storage inference cleanup is green;
+TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-002 selected CURRENT-DOCS-PHASE-SLIM-001;
 the current primary row is:
 
 ```text
-  TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001 typed-object storage inference cleanup
+  CURRENT-DOCS-PHASE-SLIM-001 current docs phase slim cleanup
 ```
 
 Closed cleanup sidecar:
@@ -552,7 +554,9 @@ FST:
 | `GLOBAL-STRING-BODY-ANALYSIS-SPLIT-002` | landed | Post-generic-string-body row selection. | selected NUMERIC-SUBSTRATE-SPLIT-001 |
 | `NUMERIC-SUBSTRATE-SPLIT-001` | landed | Numeric substrate owner-layout cleanup. | after GLOBAL-STRING-BODY-ANALYSIS-SPLIT-002 |
 | `NUMERIC-SUBSTRATE-SPLIT-002` | landed | Post-numeric-substrate row selection. | selected TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001 |
-| `TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001` | selected current | Typed-object storage inference owner-layout cleanup. | after NUMERIC-SUBSTRATE-SPLIT-002 |
+| `TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001` | landed | Typed-object storage inference owner-layout cleanup. | after NUMERIC-SUBSTRATE-SPLIT-002 |
+| `TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-002` | landed | Post-typed-object-storage row selection. | selected CURRENT-DOCS-PHASE-SLIM-001 |
+| `CURRENT-DOCS-PHASE-SLIM-001` | selected current | Current docs / phase taskboard slim cleanup. | after TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-002 |
 
 MIMAP-020A execution order:
 

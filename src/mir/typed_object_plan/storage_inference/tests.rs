@@ -1,7 +1,8 @@
+use super::value_analysis::box_origin_for_value;
 use super::*;
 use crate::mir::{
     BasicBlock, BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, FunctionSignature,
-    MirInstruction, MirType, UserBoxFieldDecl, ValueId,
+    MirFunction, MirInstruction, MirType, UserBoxFieldDecl, ValueId,
 };
 use std::collections::BTreeMap;
 

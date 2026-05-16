@@ -1,6 +1,6 @@
 # Phase 293x: real-app bringup
 
-- Status: Active / mimalloc blueprint lane with typed-object storage inference cleanup active
+- Status: Active / mimalloc blueprint lane with current docs phase slim cleanup active
 - Purpose: use real applications to expose compiler/runtime seams after the
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
@@ -8,8 +8,8 @@
 - Closed sidecar:
   `docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md`
 - Current compiler/selfhost sidecar:
-  closed through `NUMERIC-SUBSTRATE-SPLIT-001`; current row is
-  `TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001`
+  closed through `TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001`; current row is
+  `CURRENT-DOCS-PHASE-SLIM-001`
 - Current active row:
   read `phase_status` in `docs/development/current/main/CURRENT_STATE.toml`
   and the taskboard below

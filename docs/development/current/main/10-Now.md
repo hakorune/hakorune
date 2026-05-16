@@ -30,16 +30,16 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001 typed-object storage inference cleanup`
+- current blocker token: `CURRENT-DOCS-PHASE-SLIM-001 current docs phase slim cleanup`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `NUMERIC-SUBSTRATE-SPLIT-002`; current blocker is
-  `TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001`, a typed-object storage inference
-  owner-layout cleanup
-- planned order: selected row after `TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001`
+- continue phase-293x after `TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-002`;
+  current blocker is `CURRENT-DOCS-PHASE-SLIM-001`, a current docs / phase
+  taskboard slim cleanup
+- planned order: selected row after `CURRENT-DOCS-PHASE-SLIM-001`
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

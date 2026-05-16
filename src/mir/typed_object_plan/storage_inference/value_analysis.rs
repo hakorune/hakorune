@@ -7,9 +7,15 @@ use crate::mir::{
     ValueId,
 };
 
-use super::{
-    collection_element_storage_for_get, BoxOriginInference, CollectionElementStorageMap,
-    FieldBoxOriginMap, FieldKey, FieldStorageInference, ParamBoxOriginMap, ParamKey,
+use super::collection_storage::collection_element_storage_for_get;
+use super::state::{
+    BoxOriginInference, CollectionElementStorageMap, FieldBoxOriginMap, FieldKey,
+    FieldStorageInference, ParamBoxOriginMap, ParamKey,
+};
+use super::type_facts::{
+    box_name_from_mir_type, box_origin_from_mir_type, is_null_or_void_value,
+    method_receiver_box_from_param, method_receiver_box_from_param_index, storage_for_const,
+    storage_for_mir_type, value_box_origin_for, value_type_for,
 };
 
 pub(super) fn box_name_for_value(
@@ -826,110 +832,5 @@ fn field_storage_for_get(
     match inferred.get(&(box_name, field.to_string())) {
         Some(FieldStorageInference::Known(storage)) => Some(*storage),
         Some(FieldStorageInference::Conflict) | None => None,
-    }
-}
-
-fn value_box_origin_for(function: &MirFunction, value: ValueId) -> Option<String> {
-    function
-        .metadata
-        .value_types
-        .get(&value)
-        .and_then(box_origin_from_mir_type)
-        .or_else(|| {
-            function
-                .params
-                .iter()
-                .position(|param| *param == value)
-                .and_then(|index| function.signature.params.get(index))
-                .and_then(box_origin_from_mir_type)
-                .or_else(|| method_receiver_box_from_param(function, value))
-        })
-}
-
-fn method_receiver_box_from_param(function: &MirFunction, value: ValueId) -> Option<String> {
-    let param_index = function.params.iter().position(|param| *param == value)?;
-    method_receiver_box_from_param_index(function, param_index)
-}
-
-fn method_receiver_box_from_param_index(
-    function: &MirFunction,
-    param_index: usize,
-) -> Option<String> {
-    if param_index != 0 {
-        return None;
-    }
-    let (box_name, method_part) = function.signature.name.split_once('.')?;
-    if method_part.contains('/') {
-        Some(box_name.to_string())
-    } else {
-        None
-    }
-}
-
-fn value_type_for(function: &MirFunction, value: ValueId) -> Option<&MirType> {
-    function
-        .metadata
-        .value_types
-        .get(&value)
-        .or_else(|| function.signature.params.get(value.to_usize()))
-}
-
-fn storage_for_const(value: &ConstValue) -> Option<TypedObjectFieldStorage> {
-    match value {
-        ConstValue::Integer(_) | ConstValue::Bool(_) => Some(TypedObjectFieldStorage::I64),
-        ConstValue::String(_) => Some(TypedObjectFieldStorage::Handle),
-        ConstValue::Null | ConstValue::Void | ConstValue::Float(_) => None,
-    }
-}
-
-fn is_null_or_void_value(function: &MirFunction, def_map: &ValueDefMap, value: ValueId) -> bool {
-    let origin = resolve_value_origin(function, def_map, value);
-    let Some((block_id, instruction_index)) = def_map.get(&origin).copied() else {
-        return value_type_for(function, origin).is_some_and(|ty| matches!(ty, MirType::Void));
-    };
-    let Some(block) = function.blocks.get(&block_id) else {
-        return false;
-    };
-    matches!(
-        block.instructions.get(instruction_index),
-        Some(MirInstruction::Const {
-            value: ConstValue::Null | ConstValue::Void,
-            ..
-        })
-    )
-}
-
-pub(super) fn storage_for_mir_type(ty: &MirType) -> Option<TypedObjectFieldStorage> {
-    match ty {
-        MirType::Integer | MirType::Bool => Some(TypedObjectFieldStorage::I64),
-        MirType::Box(name) if matches!(name.as_str(), "IntegerBox" | "BoolBox") => {
-            Some(TypedObjectFieldStorage::I64)
-        }
-        MirType::String | MirType::Box(_) | MirType::Array(_) | MirType::Future(_) => {
-            Some(TypedObjectFieldStorage::Handle)
-        }
-        MirType::Float | MirType::WeakRef | MirType::Void | MirType::Unknown => None,
-    }
-}
-
-fn box_origin_from_mir_type(ty: &MirType) -> Option<String> {
-    match ty {
-        MirType::String => Some("StringBox".to_string()),
-        MirType::Box(name) => Some(name.clone()),
-        MirType::Array(_) => Some("ArrayBox".to_string()),
-        MirType::Integer
-        | MirType::Bool
-        | MirType::Float
-        | MirType::Future(_)
-        | MirType::WeakRef
-        | MirType::Void
-        | MirType::Unknown => None,
-    }
-}
-
-fn box_name_from_mir_type(ty: &MirType) -> Option<&str> {
-    match ty {
-        MirType::Box(name) => Some(name.as_str()),
-        _ => None,
     }
 }
