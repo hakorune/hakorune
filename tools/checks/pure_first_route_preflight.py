@@ -118,13 +118,18 @@ def failure(
     reason: str,
     owner: str,
     suggestion: str,
+    *,
+    layer: str = "route-preflight",
+    contract: str = "metadata.lowering_plan",
 ) -> dict[str, str]:
     return {
+        "layer": layer,
         "function": function,
         "site": site,
         "callee": callee,
         "reason": reason,
         "owner": owner,
+        "contract": contract,
         "suggestion": suggestion,
     }
 
@@ -142,6 +147,8 @@ def classify_plan(fn_name: str, plan: dict[str, Any]) -> dict[str, str] | None:
             "unsupported_tier",
             source,
             "select a supported LoweringPlan tier before pure-first EXE build",
+            layer="route-preflight",
+            contract="tier/emit_kind",
         )
 
     if source in {"global_call_routes", "user_box_method_routes"}:
@@ -153,6 +160,8 @@ def classify_plan(fn_name: str, plan: dict[str, Any]) -> dict[str, str] | None:
                 "target_exists=false",
                 source,
                 "fix resolver/module target publication before backend emission",
+                layer="semantic-route",
+                contract="target_exists",
             )
         if plan.get("arity_matches") is False:
             return failure(
@@ -162,6 +171,8 @@ def classify_plan(fn_name: str, plan: dict[str, Any]) -> dict[str, str] | None:
                 "arity_mismatch",
                 source,
                 "fix call arity or route arity contract before backend emission",
+                layer="semantic-route",
+                contract="arity_matches",
             )
 
     if source == "user_box_method_routes":
@@ -173,6 +184,8 @@ def classify_plan(fn_name: str, plan: dict[str, Any]) -> dict[str, str] | None:
                 "target_body_supported=false",
                 source,
                 "split a generic user-box method body acceptance row",
+                layer="semantic-route",
+                contract="target_body_supported",
             )
         if not accepted_reason(plan):
             return failure(
@@ -182,6 +195,8 @@ def classify_plan(fn_name: str, plan: dict[str, Any]) -> dict[str, str] | None:
                 "typed_user_box_method_contract_missing",
                 source,
                 "publish a supported typed user-box method route contract",
+                layer="semantic-route",
+                contract="reason/proof",
             )
 
     if source == "global_call_routes" and not accepted_reason(plan):
@@ -192,6 +207,8 @@ def classify_plan(fn_name: str, plan: dict[str, Any]) -> dict[str, str] | None:
             "typed_global_call_contract_missing",
             source,
             "publish a supported typed global-call route contract",
+            layer="semantic-route",
+            contract="reason/proof",
         )
 
     if route_needs_return_shape(plan) and plan.get("return_shape") is None:
@@ -202,6 +219,8 @@ def classify_plan(fn_name: str, plan: dict[str, Any]) -> dict[str, str] | None:
             "return_shape_missing",
             source,
             "publish return_shape or make the route diagnostics-only",
+            layer="semantic-route",
+            contract="return_shape",
         )
 
     if route_needs_value_demand(plan) and not plan.get("value_demand"):
@@ -212,6 +231,24 @@ def classify_plan(fn_name: str, plan: dict[str, Any]) -> dict[str, str] | None:
             "value_demand_mismatch",
             source,
             "publish value_demand compatible with return_shape",
+            layer="semantic-route",
+            contract="value_demand",
+        )
+
+    if (
+        source in {"global_call_routes", "user_box_method_routes"}
+        and plan.get("return_shape") == "object_handle"
+        and not plan.get("target_result_box_name")
+    ):
+        return failure(
+            fn_name,
+            site,
+            callee,
+            "object_return_target_box_missing",
+            source,
+            "publish target_result_box_name for object_handle route results",
+            layer="semantic-route",
+            contract="return_shape=object_handle requires target_result_box_name",
         )
 
     return None
@@ -236,6 +273,8 @@ def classify_missing_plans(
                 "lowering_plan_missing",
                 "extern_call_routes",
                 "refresh extern_call_routes/lowering_plan for this extern call site",
+                layer="route-preflight",
+                contract="metadata.lowering_plan[site]",
             )
         )
     return failures
@@ -253,6 +292,8 @@ def collect_failures(data: dict[str, Any]) -> tuple[list[dict[str, str]], int, i
                     "lowering_plan_missing",
                     "mir_json",
                     "MIR JSON root must contain functions[]",
+                    layer="mir-schema",
+                    contract="functions[]",
                 )
             ],
             0,
@@ -285,6 +326,8 @@ def collect_failures(data: dict[str, Any]) -> tuple[list[dict[str, str]], int, i
                     "lowering_plan_missing",
                     "metadata",
                     "function metadata must contain lowering_plan array",
+                    layer="mir-schema",
+                    contract="function.metadata.lowering_plan",
                 )
             )
             continue
@@ -298,6 +341,8 @@ def collect_failures(data: dict[str, Any]) -> tuple[list[dict[str, str]], int, i
                     "lowering_plan_missing",
                     "metadata.lowering_plan",
                     "function metadata.lowering_plan must be an array",
+                    layer="mir-schema",
+                    contract="function.metadata.lowering_plan",
                 )
             )
             continue
@@ -317,6 +362,8 @@ def collect_failures(data: dict[str, Any]) -> tuple[list[dict[str, str]], int, i
                         "lowering_plan_missing",
                         "metadata.lowering_plan",
                         "duplicate lowering_plan entries for one site",
+                        layer="mir-schema",
+                        contract="unique metadata.lowering_plan.site",
                     )
                 )
             plans_by_site[site] = plan
@@ -397,11 +444,13 @@ def reachable_functions(fn_by_name: dict[str, dict[str, Any]]) -> set[str]:
 
 def print_failure(item: dict[str, str]) -> None:
     print(FAIL_TAG, file=sys.stderr)
+    print(f"layer={item['layer']}", file=sys.stderr)
     print(f"function={item['function']}", file=sys.stderr)
     print(f"site={item['site']}", file=sys.stderr)
     print(f"callee={item['callee']}", file=sys.stderr)
     print(f"reason={item['reason']}", file=sys.stderr)
     print(f"owner={item['owner']}", file=sys.stderr)
+    print(f"contract={item['contract']}", file=sys.stderr)
     print(f"suggestion={item['suggestion']}", file=sys.stderr)
 
 
@@ -419,7 +468,7 @@ def main(argv: list[str]) -> int:
             print_failure(item)
         return 1
 
-    print(f"{OK_TAG} functions={function_count} plans={plan_count}")
+    print(f"{OK_TAG} layer=route-preflight functions={function_count} plans={plan_count}")
     return 0
 
 
@@ -428,10 +477,12 @@ if __name__ == "__main__":
         raise SystemExit(main(sys.argv[1:]))
     except Exception as exc:  # noqa: BLE001 - shell guard should get compact failure.
         print(FAIL_TAG, file=sys.stderr)
+        print("layer=mir-schema", file=sys.stderr)
         print("function=<preflight>", file=sys.stderr)
         print("site=<schema>", file=sys.stderr)
         print("callee=?", file=sys.stderr)
         print("reason=lowering_plan_missing", file=sys.stderr)
         print("owner=mir_json", file=sys.stderr)
+        print("contract=valid MIR JSON object", file=sys.stderr)
         print(f"suggestion={exc}", file=sys.stderr)
         raise SystemExit(1)

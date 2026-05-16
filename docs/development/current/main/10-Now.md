@@ -30,15 +30,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-040B post-selectPage-loop row selection`
+- current blocker token: `MIMAP-040C post-diagnostics row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-040A`; current blocker is `MIMAP-040B`, a
-  post-selectPage-loop row selection
-- planned order: selected row after `MIMAP-040B`
+- continue phase-293x after `PURE-FIRST-DIAG-001`; current blocker is
+  `MIMAP-040C`, a post-diagnostics row selection
+- planned order: selected row after `MIMAP-040C`
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

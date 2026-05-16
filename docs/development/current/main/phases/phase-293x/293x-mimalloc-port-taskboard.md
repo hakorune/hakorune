@@ -39,11 +39,11 @@ bound cleanup after the page-queue loop candidate exposed a compiler acceptance
 sidecar; MIMAP-039A retry-bound cleanup is green; MIR-ROW-C nullable object
 return acceptance is green; MIMAP-039C selected the object-lifecycle
 selectPage loop cleanup; MIMAP-040A selectPage queue-length loop cleanup is
-green;
+green; PURE-FIRST-DIAG-001 acceptance layer diagnostics is green;
 the current primary row is:
 
 ```text
-  MIMAP-040B post-selectPage-loop row selection
+  MIMAP-040C post-diagnostics row selection
 ```
 
 Closed cleanup sidecar:
@@ -229,6 +229,12 @@ MIMAP-039C:
 MIMAP-040A:
   landed
   object-lifecycle selectPage queue-length loop cleanup is green
+MIMAP-040B:
+  landed
+  selected PURE-FIRST-DIAG-001 acceptance layer diagnostics as the next row
+PURE-FIRST-DIAG-001:
+  landed
+  pure-first preflight layer/contract diagnostics are green
 ```
 
 ## Active Source Policy
@@ -466,7 +472,9 @@ FST:
 | `MIR-ROW-C` | landed | Nullable user-box object return sidecar. | after MIMAP-039B |
 | `MIMAP-039C` | landed | Post-nullable-object-return row selection. | selected MIMAP-040A |
 | `MIMAP-040A` | landed | Object-lifecycle selectPage queue-length loop cleanup. | after MIMAP-039C |
-| `MIMAP-040B` | selected current | Post-selectPage-loop row selection. | after MIMAP-040A |
+| `MIMAP-040B` | landed | Post-selectPage-loop row selection. | selected PURE-FIRST-DIAG-001 |
+| `PURE-FIRST-DIAG-001` | landed | Pure-first acceptance layer/contract diagnostics. | after MIMAP-040B |
+| `MIMAP-040C` | selected current | Post-diagnostics row selection. | after PURE-FIRST-DIAG-001 |
 
 MIMAP-020A execution order:
 

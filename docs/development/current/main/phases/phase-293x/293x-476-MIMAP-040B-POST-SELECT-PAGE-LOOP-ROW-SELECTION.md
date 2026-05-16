@@ -1,6 +1,6 @@
 # 293x-476 MIMAP-040B Post-SelectPage-Loop Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -51,3 +51,42 @@ tools/checks/dev_gate.sh quick
 This row closes when one next row is selected with clear owner/proof/guard names
 and provider/host allocator replacement still inactive unless explicitly
 reopened.
+
+## Selection Result
+
+`MIMAP-040B` selects `PURE-FIRST-DIAG-001`.
+
+Rationale:
+
+- MIMAP-040A succeeded, but the row exposed that unsupported compiler shapes
+  are still too easy to read as either "slow build" or "late backend failure".
+- The next narrow step is a compiler diagnostics sidecar, not allocator
+  behavior.
+- The sidecar must make the pure-first acceptance layers explicit and classify
+  missing semantic route contracts before LLVM/backend emission.
+
+Selected row:
+
+```text
+row:
+  PURE-FIRST-DIAG-001 pure-first acceptance layer diagnostics
+owners:
+  tools/checks/pure_first_route_preflight.py
+  docs/development/current/main/design/pure-first-acceptance-layer-flow-ssot.md
+guard:
+  tools/checks/pure_first_route_preflight_guard.sh
+primary proof:
+  object_handle routes without target_result_box_name fail in semantic-route
+  preflight with layer/contract diagnostics
+stop lines:
+  no backend lowering behavior change
+  no allocator behavior change
+  no provider activation
+  no host allocator replacement / hook / #[global_allocator]
+```
+
+Closeout:
+
+```text
+current blocker moves to PURE-FIRST-DIAG-001.
+```

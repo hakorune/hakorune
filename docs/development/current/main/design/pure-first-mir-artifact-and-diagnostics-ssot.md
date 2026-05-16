@@ -133,6 +133,7 @@ target_exists=false
 arity_mismatch
 return_shape_missing
 value_demand_mismatch
+object_return_target_box_missing
 ```
 
 Schema reality:
@@ -186,17 +187,26 @@ Initial mapping target:
 | `arity_mismatch` | `arity_matches == false` or `target_arity` disagrees with `arity` |
 | `return_shape_missing` | route needs a result but `return_shape == null` |
 | `value_demand_mismatch` | `value_demand` is absent or incompatible with `return_shape` / route kind |
+| `object_return_target_box_missing` | `return_shape == "object_handle"` on a global/user-box route but `target_result_box_name` is absent |
 
 Output must be stable and actionable:
 
 ```text
 [pure-first-route][fail]
+layer=<source/parser|mir-emit|semantic-route|route-preflight|backend|mir-schema>
 function=<name>
 site=<block.instruction>
 callee=<source callee when available>
 reason=<reason>
 owner=<route owner when available>
+contract=<missing or violated contract>
 suggestion=<narrow next action>
+```
+
+Layer meanings are owned by:
+
+```text
+docs/development/current/main/design/pure-first-acceptance-layer-flow-ssot.md
 ```
 
 The C shim remains the final defense, but pure-first guards should catch known

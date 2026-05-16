@@ -182,7 +182,9 @@ Forbidden:
 | `MIR-ROW-C` | nullable user-box object return sidecar | landed after MIMAP-039B |
 | `MIMAP-039C` | post-nullable-object-return row selection | landed; selected MIMAP-040A |
 | `MIMAP-040A` | object-lifecycle selectPage queue-length loop cleanup | landed after MIMAP-039C |
-| `MIMAP-040B` | post-selectPage-loop row selection | current after MIMAP-040A |
+| `MIMAP-040B` | post-selectPage-loop row selection | landed; selected PURE-FIRST-DIAG-001 |
+| `PURE-FIRST-DIAG-001` | pure-first acceptance layer diagnostics | landed after MIMAP-040B |
+| `MIMAP-040C` | post-diagnostics row selection | current after PURE-FIRST-DIAG-001 |
 
 ### MIMAP-020A granularity
 
@@ -514,7 +516,9 @@ returns before allocator source can be simplified. MIR-ROW-C landed that
 acceptance in same-module user-box route metadata without changing allocator
 behavior. MIMAP-039C selected MIMAP-040A, and MIMAP-040A replaced the fixed
 `selectPage()` slots with a queue-length loop that returns the selected page
-object directly. MIMAP-040B is the current planning-only row after that cleanup.
+object directly. MIMAP-040B selected PURE-FIRST-DIAG-001, which added
+layer/contract preflight diagnostics for pure-first acceptance failures.
+MIMAP-040C is the current planning-only row after that diagnostics sidecar.
 
 ## Compiler / language sidecar triggers
 
