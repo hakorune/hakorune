@@ -168,6 +168,14 @@ fn subset_rejects_externcall_env_get_with_missing_arg() {
 }
 
 #[test]
+fn subset_rejects_externcall_env_get_route_symbol_legacy_shape() {
+    assert_subset_rejects(
+        vec![externcall("nyash.env.get/1", vec![1], Some(2))],
+        "externcall(func:nyash.env.get/1)",
+    );
+}
+
+#[test]
 fn subset_accepts_externcall_env_mirbuilder_emit() {
     assert_subset_accepts(vec![
         string_const(1, "{\"type\":\"Program\",\"body\":[]}"),
@@ -388,6 +396,17 @@ fn subset_accepts_boxcall_osvmcore_decommit_bytes_usize() {
 fn subset_accepts_externcall_hako_osvm_decommit_bytes_i64() {
     assert_externcall_accepts(
         "hako_osvm_decommit_bytes_i64/2",
+        &[(1, 4096), (2, 8192)],
+        vec![1, 2],
+        Some(3),
+        None,
+    );
+}
+
+#[test]
+fn subset_accepts_externcall_hako_osvm_unreserve_bytes_i64() {
+    assert_externcall_accepts(
+        "hako_osvm_unreserve_bytes_i64/2",
         &[(1, 4096), (2, 8192)],
         vec![1, 2],
         Some(3),

@@ -1,6 +1,6 @@
 # 293x-482 MIR-EXTERN-SPEC-002 Post-Extern-Spec Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -8,9 +8,14 @@ Date: 2026-05-16
 `MIR-EXTERN-SPEC-002` is the planning-only row after the landed
 `MIR-EXTERN-SPEC-001` extern-call route spec table cleanup.
 
-It must select exactly one next row.
+It selects exactly one next row:
 
-It must not land code.
+```text
+VMHAKO-EXTERN-SPEC-001:
+  reuse ExternCallRouteSpec from vm-hako subset legacy externcall validation
+```
+
+It does not land code.
 
 ## Candidate Set
 
@@ -52,3 +57,19 @@ tools/checks/dev_gate.sh quick
 This row closes when one next row is selected with clear owner/proof/guard names
 and provider/host allocator replacement still inactive unless explicitly
 reopened.
+
+## Selection Result
+
+```text
+selected:
+  VMHAKO-EXTERN-SPEC-001
+owner:
+  src/runner/reference/vm_hako/subset_check/externcalls.rs
+scope:
+  legacy externcall validation only
+  route-backed rows already present in ExternCallRouteSpec only
+stop_line:
+  do not broaden accepted externcall symbols
+  do not add hako_intrin/page_size rows to ExternCallRouteSpec in this row
+  do not change mir_call validation
+```

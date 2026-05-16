@@ -44,10 +44,12 @@ MIMAP-040C selected a record report boundary cleanup before the next allocator
 behavior row; MIMAP-041A record report boundary cleanup is green;
 MIMAP-041B selected an extern route spec table cleanup;
 MIR-EXTERN-SPEC-001 route spec table cleanup is green;
+MIR-EXTERN-SPEC-002 selected vm-hako subset externcall spec reuse;
+VMHAKO-EXTERN-SPEC-001 subset legacy externcall spec validator cleanup is green;
 the current primary row is:
 
 ```text
-  MIR-EXTERN-SPEC-002 post-extern-spec row selection
+  VMHAKO-EXTERN-SPEC-002 post-subset-validator row selection
 ```
 
 Closed cleanup sidecar:
@@ -494,7 +496,9 @@ FST:
 | `MIMAP-041A` | landed | Record report boundary cleanup for bounded purge/decommit scheduler. | after MIMAP-040C |
 | `MIMAP-041B` | landed | Post-record-report row selection. | selected MIR-EXTERN-SPEC-001 |
 | `MIR-EXTERN-SPEC-001` | landed | Extern-call route spec table cleanup. | after MIMAP-041B |
-| `MIR-EXTERN-SPEC-002` | selected current | Post-extern-spec row selection. | after MIR-EXTERN-SPEC-001 |
+| `MIR-EXTERN-SPEC-002` | landed | Post-extern-spec row selection. | selected VMHAKO-EXTERN-SPEC-001 |
+| `VMHAKO-EXTERN-SPEC-001` | landed | Subset legacy externcall validator uses `ExternCallRouteSpec` for route-backed rows. | after MIR-EXTERN-SPEC-002 |
+| `VMHAKO-EXTERN-SPEC-002` | selected current | Post-subset-validator row selection. | after VMHAKO-EXTERN-SPEC-001 |
 
 MIMAP-020A execution order:
 

@@ -364,11 +364,22 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                 }
                 "externcall" => {
                     let func = inst.get("func").and_then(|v| v.as_str()).unwrap_or("");
-                    if func == "env.get" || func == "env.get/1" {
-                        if let Err(reason) = externcalls::validate_env_get_externcall_shape(inst) {
+                    match externcalls::validate_spec_backed_externcall_shape(inst) {
+                        Ok(true) => continue,
+                        Ok(false) => {}
+                        Err(reason) => return Err((func_name.clone(), bb, reason)),
+                    }
+                    if func == "hako_osvm_page_size_i64" || func == "hako_osvm_page_size_i64/0" {
+                        if let Err(reason) = externcalls::validate_no_arg_externcall_shape(
+                            inst,
+                            "hako_osvm_page_size_i64",
+                        ) {
                             return Err((func_name.clone(), bb, reason));
                         }
                         continue;
+                    }
+                    if func.starts_with("hako_osvm_") {
+                        return Err((func_name.clone(), bb, format!("externcall({})", func)));
                     }
                     if func == "env.mirbuilder_emit"
                         || func == "env.mirbuilder_emit/1"
@@ -425,62 +436,6 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                         continue;
                     }
                     if func.starts_with("hako_intrin_") {
-                        return Err((func_name.clone(), bb, format!("externcall({})", func)));
-                    }
-                    if func == "hako_osvm_page_size_i64" || func == "hako_osvm_page_size_i64/0" {
-                        if let Err(reason) = externcalls::validate_no_arg_externcall_shape(
-                            inst,
-                            "hako_osvm_page_size_i64",
-                        ) {
-                            return Err((func_name.clone(), bb, reason));
-                        }
-                        continue;
-                    }
-                    if func == "hako_osvm_reserve_bytes_i64"
-                        || func == "hako_osvm_reserve_bytes_i64/1"
-                    {
-                        if let Err(reason) = externcalls::validate_single_arg_externcall_shape(
-                            inst,
-                            "hako_osvm_reserve_bytes_i64",
-                        ) {
-                            return Err((func_name.clone(), bb, reason));
-                        }
-                        continue;
-                    }
-                    if func == "hako_osvm_commit_bytes_i64"
-                        || func == "hako_osvm_commit_bytes_i64/2"
-                    {
-                        if let Err(reason) = externcalls::validate_two_arg_externcall_shape(
-                            inst,
-                            "hako_osvm_commit_bytes_i64",
-                        ) {
-                            return Err((func_name.clone(), bb, reason));
-                        }
-                        continue;
-                    }
-                    if func == "hako_osvm_decommit_bytes_i64"
-                        || func == "hako_osvm_decommit_bytes_i64/2"
-                    {
-                        if let Err(reason) = externcalls::validate_two_arg_externcall_shape(
-                            inst,
-                            "hako_osvm_decommit_bytes_i64",
-                        ) {
-                            return Err((func_name.clone(), bb, reason));
-                        }
-                        continue;
-                    }
-                    if func == "hako_osvm_unreserve_bytes_i64"
-                        || func == "hako_osvm_unreserve_bytes_i64/2"
-                    {
-                        if let Err(reason) = externcalls::validate_two_arg_externcall_shape(
-                            inst,
-                            "hako_osvm_unreserve_bytes_i64",
-                        ) {
-                            return Err((func_name.clone(), bb, reason));
-                        }
-                        continue;
-                    }
-                    if func.starts_with("hako_osvm_") {
                         return Err((func_name.clone(), bb, format!("externcall({})", func)));
                     }
                     if func == "nyash.gc.barrier_write" || func == "nyash.gc.barrier_write/1" {
