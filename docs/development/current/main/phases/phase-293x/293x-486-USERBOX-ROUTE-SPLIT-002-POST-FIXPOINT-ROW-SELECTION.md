@@ -1,29 +1,23 @@
-# 293x-484 VMHAKO-EXTERN-SPEC-002 Post-Subset-Validator Row Selection
+# 293x-486 USERBOX-ROUTE-SPLIT-002 Post-Fixpoint Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-16
 
 ## Decision
 
-`VMHAKO-EXTERN-SPEC-002` is the planning-only row after the landed
-`VMHAKO-EXTERN-SPEC-001` subset legacy externcall spec validator cleanup.
+`USERBOX-ROUTE-SPLIT-002` is the planning-only row after the landed
+`USERBOX-ROUTE-SPLIT-001` fixed-point orchestration cleanup.
 
-It selects exactly one next row:
+It must select exactly one next row.
 
-```text
-USERBOX-ROUTE-SPLIT-001:
-  split user_box_method_route_plan fixed-point orchestration into a narrow
-  behavior-preserving owner
-```
-
-It does not land code.
+It must not land code.
 
 ## Candidate Set
 
 ```text
 candidate:
-  split user_box_method_route_plan fixed-point orchestration into a narrow
-  behavior-preserving owner
+  split user_box_method_route_plan target collection / materialization if it
+  can stay behavior-preserving
 candidate:
   thin mir builder expression dispatcher without changing accepted AST shapes
 candidate:
@@ -59,18 +53,3 @@ tools/checks/dev_gate.sh quick
 This row closes when one next row is selected with clear owner/proof/guard names
 and provider/host allocator replacement still inactive unless explicitly
 reopened.
-
-## Selection Result
-
-```text
-selected:
-  USERBOX-ROUTE-SPLIT-001
-owner:
-  src/mir/user_box_method_route_plan/convergence.rs
-scope:
-  module-level fixed-point orchestration only
-stop_line:
-  no accepted route shape changes
-  no target-fact semantics changes
-  no backend lowering changes
-```

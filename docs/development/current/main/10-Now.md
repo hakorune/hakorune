@@ -30,15 +30,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `VMHAKO-EXTERN-SPEC-002 post-subset-validator row selection`
+- current blocker token: `USERBOX-ROUTE-SPLIT-002 post-fixpoint row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `VMHAKO-EXTERN-SPEC-001`; current blocker is
-  `VMHAKO-EXTERN-SPEC-002`, a post-subset-validator row selection
-- planned order: selected row after `VMHAKO-EXTERN-SPEC-002`
+- continue phase-293x after `USERBOX-ROUTE-SPLIT-001`; current blocker is
+  `USERBOX-ROUTE-SPLIT-002`, a post-fixpoint row selection
+- planned order: selected row after `USERBOX-ROUTE-SPLIT-002`
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

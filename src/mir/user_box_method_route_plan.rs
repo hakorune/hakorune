@@ -11,23 +11,18 @@ use std::collections::{BTreeMap, BTreeSet};
 use crate::mir::core_method_op::{LoweringPlanEmitKind, LoweringPlanTier};
 use crate::mir::same_module_body_shape::same_module_body_supported;
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
+mod convergence;
 mod origin_inference;
 mod return_shape;
 mod value_type_publish;
 
 use origin_inference::{
-    box_name_from_type, build_user_box_field_return_hints, field_box_origin,
-    generic_method_route_result_box_name, infer_user_box_field_box_origins,
-    infer_user_box_method_param_box_origins, param_box_origin, route_result_box_name,
-    sorted_block_ids, user_box_route_receiver_box_name, user_box_value_box_name, value_box_name,
+    box_name_from_type, field_box_origin, generic_method_route_result_box_name, param_box_origin,
+    route_result_box_name, sorted_block_ids, user_box_route_receiver_box_name,
+    user_box_value_box_name, value_box_name,
 };
 use return_shape::{
     infer_user_box_method_return, UserBoxFieldReturnHints, UserBoxMethodInferredReturn,
-};
-use value_type_publish::{
-    propagate_user_box_box_value_types, publish_generic_route_result_value_types,
-    publish_user_box_field_get_value_types, publish_user_box_param_origin_value_types,
-    publish_user_box_route_param_value_types, publish_user_box_route_result_value_types,
 };
 
 use crate::mir::{
@@ -381,75 +376,7 @@ impl UserBoxMethodRoute {
 }
 
 pub fn refresh_module_user_box_method_routes(module: &mut MirModule) {
-    let typed_plan_type_ids = module
-        .metadata
-        .typed_object_plans
-        .iter()
-        .map(|plan| (plan.box_name.clone(), plan.type_id))
-        .collect::<BTreeMap<_, _>>();
-    for _ in 0..module.functions.len().saturating_mul(4).max(8) {
-        let before = module
-            .functions
-            .iter()
-            .map(|(name, function)| {
-                (
-                    name.clone(),
-                    function.metadata.user_box_method_routes.clone(),
-                )
-            })
-            .collect::<BTreeMap<_, _>>();
-        let empty_field_return_hints = UserBoxFieldReturnHints::new();
-        let targets =
-            collect_method_targets(module, &typed_plan_type_ids, &empty_field_return_hints);
-        let initial_param_box_origins =
-            infer_user_box_method_param_box_origins(module, &targets, &BTreeMap::new());
-        let field_box_origins =
-            infer_user_box_field_box_origins(module, &targets, &initial_param_box_origins);
-        let param_box_origins =
-            infer_user_box_method_param_box_origins(module, &targets, &field_box_origins);
-        let field_box_origins =
-            infer_user_box_field_box_origins(module, &targets, &param_box_origins);
-        let param_box_origins =
-            infer_user_box_method_param_box_origins(module, &targets, &field_box_origins);
-        let value_type_changed =
-            publish_user_box_param_origin_value_types(module, &param_box_origins);
-        let field_get_value_type_changed =
-            publish_user_box_field_get_value_types(module, &param_box_origins, &field_box_origins);
-        let field_return_hints = build_user_box_field_return_hints(module, &field_box_origins);
-        let targets = collect_method_targets(module, &typed_plan_type_ids, &field_return_hints);
-        for function in module.functions.values_mut() {
-            refresh_function_user_box_method_routes_with_context(
-                function,
-                &targets,
-                &typed_plan_type_ids,
-                &param_box_origins,
-                &field_box_origins,
-            );
-        }
-        let route_result_value_type_changed = publish_user_box_route_result_value_types(module);
-        let generic_result_value_type_changed = publish_generic_route_result_value_types(module);
-        let propagated_value_type_changed = propagate_user_box_box_value_types(module);
-        let route_value_type_changed = publish_user_box_route_param_value_types(
-            module,
-            &param_box_origins,
-            &field_box_origins,
-        );
-        let route_changed = module.functions.iter().any(|(name, function)| {
-            before.get(name).map_or(true, |routes| {
-                routes != &function.metadata.user_box_method_routes
-            })
-        });
-        let changed = value_type_changed
-            || field_get_value_type_changed
-            || route_result_value_type_changed
-            || generic_result_value_type_changed
-            || propagated_value_type_changed
-            || route_value_type_changed
-            || route_changed;
-        if !changed {
-            break;
-        }
-    }
+    convergence::refresh_module_user_box_method_routes_fixpoint(module);
 }
 
 pub fn refresh_function_user_box_method_routes(function: &mut MirFunction) {

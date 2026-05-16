@@ -46,10 +46,12 @@ MIMAP-041B selected an extern route spec table cleanup;
 MIR-EXTERN-SPEC-001 route spec table cleanup is green;
 MIR-EXTERN-SPEC-002 selected vm-hako subset externcall spec reuse;
 VMHAKO-EXTERN-SPEC-001 subset legacy externcall spec validator cleanup is green;
+VMHAKO-EXTERN-SPEC-002 selected user-box route fixed-point orchestration cleanup;
+USERBOX-ROUTE-SPLIT-001 fixed-point orchestration cleanup is green;
 the current primary row is:
 
 ```text
-  VMHAKO-EXTERN-SPEC-002 post-subset-validator row selection
+  USERBOX-ROUTE-SPLIT-002 post-fixpoint row selection
 ```
 
 Closed cleanup sidecar:
@@ -498,7 +500,9 @@ FST:
 | `MIR-EXTERN-SPEC-001` | landed | Extern-call route spec table cleanup. | after MIMAP-041B |
 | `MIR-EXTERN-SPEC-002` | landed | Post-extern-spec row selection. | selected VMHAKO-EXTERN-SPEC-001 |
 | `VMHAKO-EXTERN-SPEC-001` | landed | Subset legacy externcall validator uses `ExternCallRouteSpec` for route-backed rows. | after MIR-EXTERN-SPEC-002 |
-| `VMHAKO-EXTERN-SPEC-002` | selected current | Post-subset-validator row selection. | after VMHAKO-EXTERN-SPEC-001 |
+| `VMHAKO-EXTERN-SPEC-002` | landed | Post-subset-validator row selection. | selected USERBOX-ROUTE-SPLIT-001 |
+| `USERBOX-ROUTE-SPLIT-001` | landed | User-box method route fixed-point orchestration cleanup. | after VMHAKO-EXTERN-SPEC-002 |
+| `USERBOX-ROUTE-SPLIT-002` | selected current | Post-fixpoint row selection. | after USERBOX-ROUTE-SPLIT-001 |
 
 MIMAP-020A execution order:
 
