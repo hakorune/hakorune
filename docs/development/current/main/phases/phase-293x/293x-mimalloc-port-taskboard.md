@@ -328,7 +328,8 @@ FST:
 | `MIMAP-048A` | landed | OSVM release capability inventory. | after MIMAP-047B |
 | `MIMAP-048B` | landed | Post-release-inventory row selection. | selected MIMAP-049A |
 | `MIMAP-049A` | landed | Secure entropy source inventory. | after MIMAP-048B |
-| `MIMAP-049B` | selected current | Post-secure-entropy-inventory row selection. | selected after MIMAP-049A |
+| `MIMAP-049B` | landed | Post-secure-entropy-inventory row selection. | selected RANDOM-CAP-001 |
+| `RANDOM-CAP-001` | selected current | Uses random capability decision + fail-fast contract. | after MIMAP-049B |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -336,8 +337,8 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current recommendation after MIMAP-049A: select `RANDOM-CAP-001` as a
-Hakorune-core capability/fail-fast row before any entropy execution.
+Current row after MIMAP-049B: land `RANDOM-CAP-001` as a Hakorune-core
+capability/fail-fast row before any entropy execution.
 
 MIMAP-020A execution order:
 

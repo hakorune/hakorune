@@ -1,6 +1,6 @@
 # 293x-531 MIMAP-049B Post-Secure-Entropy-Inventory Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -62,4 +62,31 @@ do not select entropy execution directly from MIMAP-049B.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Selection Result
+
+`MIMAP-049B` selects `RANDOM-CAP-001`.
+
+```text
+row:
+  RANDOM-CAP-001 uses random capability decision + fail-fast contract
+classification:
+  Hakorune core capability row
+why now:
+  MIMAP-049A proved secure entropy is an explicit inactive boundary. The next
+  step is to make `uses random` a MIR-visible capability contract before any
+  random/entropy execution is opened.
+stop lines:
+  no random extern route
+  no entropy source
+  no secure-list behavior change
+  no cryptographic hardening claim
+  no provider activation
+```
+
+Closeout:
+
+```text
+current blocker moves to RANDOM-CAP-001.
 ```

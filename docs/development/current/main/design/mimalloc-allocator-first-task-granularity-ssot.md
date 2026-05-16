@@ -203,7 +203,8 @@ Forbidden:
 | `MIMAP-048A` | OSVM release capability inventory | landed after MIMAP-047B |
 | `MIMAP-048B` | post-release-inventory row selection | landed; selected MIMAP-049A |
 | `MIMAP-049A` | secure entropy source inventory | landed after MIMAP-048B |
-| `MIMAP-049B` | post-secure-entropy-inventory row selection | selected current |
+| `MIMAP-049B` | post-secure-entropy-inventory row selection | landed; selected RANDOM-CAP-001 |
+| `RANDOM-CAP-001` | uses random capability decision + fail-fast contract | selected current |
 
 ### MIMAP-020A granularity
 

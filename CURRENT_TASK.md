@@ -53,7 +53,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-049B post-secure-entropy-inventory row selection`
+  `RANDOM-CAP-001 uses random capability decision + fail-fast contract`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -72,9 +72,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `MIMAP-049A`; current blocker is
-  `MIMAP-049B`, a planning-only row that selects the next single allocator,
-  compiler, or language task after the secure entropy inventory.
+- resume point: continue Phase 293x after `MIMAP-049B`; current blocker is
+  `RANDOM-CAP-001`, the Hakorune core capability/fail-fast row that recognizes
+  `uses random` while keeping random/entropy execution unsupported.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -82,11 +82,11 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-049B`: classify the post-secure-entropy-inventory state and select
-     one next row
-  2. recommended: select a Hakorune core `RANDOM-CAP-001` capability decision /
-     fail-fast contract before any random entropy execution
-  3. write/update the next focused card before implementation
+  1. `RANDOM-CAP-001`: land the `uses random` capability/fail-fast contract
+     before any random entropy execution
+  2. recommended next: `RANDOM-CAP-002` random route fail-fast/preflight if the
+     next allocator row needs early unsupported-route diagnostics
+  3. return to allocator row selection after the random capability gate exists
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
   reduction after mimalloc completeness evidence. Do not make broad `.hako`
