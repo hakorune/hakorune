@@ -30,16 +30,16 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-042A OSVM-backed fast-path bounded purge route`
+- current blocker token: `MIMAP-042B post-fast-path-purge route row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-NEXT-BEHAVIOR-SELECTION-001`; current
-  blocker is `MIMAP-042A`, the OSVM-backed fast-path bounded purge route
-- planned order: implement only `MIMAP-042A`; split a focused compiler sidecar
-  if route preflight exposes an independent acceptance blocker
+- continue phase-293x after `MIMAP-042A`; current blocker is `MIMAP-042B`, the
+  planning-only post-fast-path-purge route selection row
+- planned order: select exactly one allocator/compiler/language task and write
+  its focused card before implementation
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

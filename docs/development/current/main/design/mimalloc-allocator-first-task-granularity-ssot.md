@@ -188,7 +188,8 @@ Forbidden:
 | `MIMAP-041A` | record report boundary cleanup for bounded purge/decommit scheduler | landed after MIMAP-040C |
 | `MIMAP-041B` | post-record-report row selection | landed; selected MIR-EXTERN-SPEC-001 |
 | `MIMAP-NEXT-BEHAVIOR-SELECTION-001` | post-cleanup row selection | landed; selected MIMAP-042A |
-| `MIMAP-042A` | OSVM-backed fast-path bounded purge route | selected current |
+| `MIMAP-042A` | OSVM-backed fast-path bounded purge route | landed after MIMAP-NEXT-BEHAVIOR-SELECTION-001 |
+| `MIMAP-042B` | post-fast-path-purge route row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -526,12 +527,13 @@ MIMAP-040C then selected the MIMAP-041A record report cleanup.
 
 MIMAP-041A landed the record-local report payload cleanup for the existing M212
 bounded purge/decommit scheduler. MIMAP-041B selected a compiler cleanup chain,
-and `MIMAP-NEXT-BEHAVIOR-SELECTION-001` returns the lane to allocator behavior
-with `MIMAP-042A`.
+and `MIMAP-NEXT-BEHAVIOR-SELECTION-001` returned the lane to allocator behavior
+with `MIMAP-042A`. MIMAP-042A landed the OSVM-backed fast-path bounded purge
+route and selected `MIMAP-042B` as the next row-selection checkpoint.
 
 ### MIMAP-042A granularity
 
-MIMAP-042A is a narrow allocator behavior row. It adds one `.hako` route owner
+MIMAP-042A was a narrow allocator behavior row. It added one `.hako` route owner
 that composes existing owners:
 
 ```text
@@ -557,6 +559,12 @@ Forbidden:
 - compiler acceptance widening unless the route preflight exposes a real
   independent blocker.
 
+### MIMAP-042B granularity
+
+MIMAP-042B is a planning-only row. It reads the MIMAP-042A proof result and
+selects exactly one next allocator/compiler/language task. It must not implement
+allocator behavior, compiler acceptance, or cleanup by itself.
+
 ## Compiler / language sidecar triggers
 
 | Sidecar | Trigger | Return condition |
@@ -567,7 +575,7 @@ Forbidden:
 | `MIR-EMIT-SSOT-002` | guard/selfhost callers each choose their own source-to-MIR environment | canonical external emit wrapper is used by guard/selfhost callers |
 | `MIR-ROW-B` | helper-call object-loop shape blocks allocator row | MIR JSON and LLVM/EXE guard pass for the minimized helper-call fixture |
 | `MIR-ROW-C` | facade must return or store nullable selected object | nullable object field/return fixture passes LLVM/EXE |
-| `MIR-ROW-D` | dense observer proof reads block MIR emit | dense read fixture passes without broadening allocator row |
+| `MIR-ROW-D` | same-module object route result carries a void placeholder before nested receiver checks | route contract refines the placeholder and MIMAP-042A guard passes |
 | `CONTRACT-003A` | allocator row needs runtime `assert`/`requires` semantics | runtime-check insertion guard passes |
 | `TRANS-002A` | allocator row needs transition legality checks | transition legality diagnostics are guarded |
 | `USES-002A` | OSVM/rawbuf/atomic route starts | unsupported capability fails fast and supported route is guarded |

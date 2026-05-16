@@ -113,6 +113,13 @@ profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_bounded_purge_decommit_scheduler_guard.sh"]
 
 [[proof_apps]]
+id = "MIMAP-042A"
+app = "apps/hako-alloc-osvm-fast-path-purge-route-proof"
+label = "OSVM-backed fast-path bounded purge route proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_osvm_fast_path_purge_route_guard.sh"]
+
+[[proof_apps]]
 id = "M213"
 app = "apps/hako-alloc-abandoned-reclaim-inventory-proof"
 label = "abandoned reclaim inventory proof"

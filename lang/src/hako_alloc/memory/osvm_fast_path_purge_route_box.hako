@@ -1,0 +1,100 @@
+// osvm_fast_path_purge_route_box.hako -- MIMAP-042A route owner
+// Responsibility:
+// - compose the OSVM-backed fast-path heap with the state-aware purge guard
+// - run the bounded purge scheduler as the only purge execution seam
+// Non-responsibility:
+// - direct page-source calls, direct OSVM calls, unreserve, recommit,
+//   OS release, provider activation, allocator replacement, hooks, atomics,
+//   TLS, remote-free execution, or user-facing concurrency semantics
+
+using selfhost.hako_alloc.memory.osvm_backed_fast_path_heap_box as HakoAllocOsVmBackedFastPathHeap
+using selfhost.hako_alloc.memory.purge_bounded_scheduler_box as HakoAllocBoundedPurgeScheduler
+using selfhost.hako_alloc.memory.purge_state_aware_decommit_box as HakoAllocPurgeStateAwareDecommit
+
+box HakoAllocOsVmFastPathPurgeRoute {
+    heap: HakoAllocOsVmBackedFastPathHeap
+    decommit_guard: HakoAllocPurgeStateAwareDecommitGuard
+    scheduler: HakoAllocBoundedPurgeDecommitScheduler = new HakoAllocBoundedPurgeDecommitScheduler()
+    allocate_count: i64 = 0
+    release_count: i64 = 0
+    purge_count: i64 = 0
+    success_count: i64 = 0
+    reject_count: i64 = 0
+    last_status: i64 = 0
+    last_stop_reason: i64 = 0
+    last_scanned_pages: i64 = 0
+    last_attempted: i64 = 0
+    last_source_executed: i64 = 0
+    last_marker_marked: i64 = 0
+    last_selected_page_id: i64 = -1
+    last_decommit_status: i64 = -1
+    last_mark_status: i64 = -1
+    last_guard_attempt_count: i64 = 0
+    last_guard_source_execution_count: i64 = 0
+
+    birth(bin, block_size, page_capacity, max_decommit_bytes) {
+        me.heap = new HakoAllocOsVmBackedFastPathHeap(bin, block_size, page_capacity)
+        me.decommit_guard = new HakoAllocPurgeStateAwareDecommitGuard(max_decommit_bytes)
+    }
+
+    allocate(size) {
+        local handle = me.heap.allocate(size)
+        if handle != null {
+            me.allocate_count = me.allocate_count + 1
+        } else {
+            me.reject_count = me.reject_count + 1
+        }
+        return handle
+    }
+
+    release(handle) {
+        local status = me.heap.release(handle)
+        if status != 0 {
+            me.release_count = me.release_count + 1
+        } else {
+            me.reject_count = me.reject_count + 1
+        }
+        return status
+    }
+
+    snapshotPurge(report) {
+        me.last_status = report.status
+        me.last_stop_reason = report.stop_reason
+        me.last_scanned_pages = report.scanned_pages
+        me.last_attempted = report.attempted
+        me.last_source_executed = report.source_executed
+        me.last_marker_marked = report.marker_marked
+        me.last_selected_page_id = report.selected_page_id
+        me.last_decommit_status = report.decommit_status
+        me.last_mark_status = report.mark_status
+        me.last_guard_attempt_count = me.decommit_guard.attempt_count
+        me.last_guard_source_execution_count = me.decommit_guard.source_execution_count
+
+        if report.status == 0 {
+            me.success_count = me.success_count + 1
+        } else {
+            me.reject_count = me.reject_count + 1
+        }
+
+        return report.status
+    }
+
+    purgeOne(max_scan_pages) {
+        me.purge_count = me.purge_count + 1
+        local report = me.scheduler.run(me.heap, me.decommit_guard, max_scan_pages)
+        me.snapshotPurge(report)
+        return report
+    }
+
+    outstandingBlocks() {
+        return me.heap.outstandingBlocks()
+    }
+
+    sourceExecutionCount() {
+        return me.decommit_guard.source_execution_count
+    }
+
+    schedulerRunCount() {
+        return me.scheduler.run_count
+    }
+}

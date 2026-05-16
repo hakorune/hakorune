@@ -1,0 +1,67 @@
+// hako-alloc-osvm-fast-path-purge-route-proof
+// Purpose: prove MIMAP-042A OSVM-backed fast-path bounded purge route.
+
+using selfhost.hako_alloc.memory.osvm_fast_path_purge_route_box as HakoAllocOsVmFastPathPurgeRouteBox
+using selfhost.hako_alloc.memory.purge_recommit_heap_integration_box as HakoAllocRecommitHeapIntegration
+
+static box Main {
+    main(args) {
+        local verifier_heap = new HakoAllocOsVmFastPathPurgeRoute(0, 16, 1, 64)
+        local verifier_recommit = new HakoAllocRecommitHeapIntegration(64)
+        local verifier_handle = verifier_heap.allocate(8)
+        local verifier_release = verifier_heap.release(verifier_handle)
+        local verifier_decommit = verifier_heap.purgeOne(1)
+        local verifier_recommit_report = verifier_recommit.attemptHeapPage(verifier_heap.heap, 0, verifier_heap.decommit_guard.marker)
+
+        local route = new HakoAllocOsVmFastPathPurgeRoute(0, 16, 1, 64)
+        local handle = route.allocate(8)
+        local handle_ok = 0
+        if handle != null {
+            handle_ok = 1
+        }
+
+        local release_ok = route.release(handle)
+        local first = route.purgeOne(1)
+        local duplicate = route.purgeOne(1)
+
+        local ok = check "mimap042a osvm fast path purge route" {
+            "handle ok": handle_ok == 1
+            "release ok": release_ok == 1
+            "first status": first.status == 0
+            "first stop reason": first.stop_reason == 0
+            "first scanned": first.scanned_pages == 1
+            "first attempted": first.attempted == 1
+            "first source": first.source_executed == 1
+            "first marked": first.marker_marked == 1
+            "duplicate status": duplicate.status == 1
+            "duplicate stopped": duplicate.stop_reason == 2
+            "duplicate attempted": duplicate.attempted == 0
+            "source once": route.sourceExecutionCount() == 1
+            "route purge count": route.purge_count == 2
+            "route success count": route.success_count == 1
+            "route reject count": route.reject_count == 1
+            "guard attempts once": route.decommit_guard.attempt_count == 1
+            "heap direct decommit untouched": route.heap.decommit_count == 0
+            "scheduler run count": route.schedulerRunCount() == 2
+            "verifier lifecycle setup": verifier_release == 1
+            "verifier decommit setup": verifier_decommit.status == 0
+            "verifier recommit setup": verifier_recommit_report.status == 0
+        }
+
+        print("hako-alloc-osvm-fast-path-purge-route-proof")
+        print("alloc=" + handle_ok + "," + release_ok + "," + route.allocate_count + "," + route.release_count)
+        print("first=" + first.status + "," + first.stop_reason + "," + first.scanned_pages + "," + first.attempted + "," + first.source_executed + "," + first.marker_marked + "," + first.selected_page_id)
+        print("duplicate=" + duplicate.status + "," + duplicate.stop_reason + "," + duplicate.scanned_pages + "," + duplicate.rejected_pages + "," + duplicate.attempted + "," + route.decommit_guard.attempt_count + "," + route.sourceExecutionCount())
+        print("route=" + route.purge_count + "," + route.success_count + "," + route.reject_count + "," + route.last_status + "," + route.last_stop_reason)
+        print("heap=" + route.heap.alloc_count + "," + route.heap.release_count + "," + route.heap.decommit_count + "," + route.heap.reserve_count + "," + route.heap.commit_count)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

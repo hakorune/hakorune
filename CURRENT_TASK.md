@@ -51,7 +51,7 @@ Scope: current lane / next lane / restart order only.
 - pure-first MIR artifact / diagnostics SSOT:
   `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
 - current blocker token:
-  `MIMAP-042A OSVM-backed fast-path bounded purge route`
+  `MIMAP-042B post-fast-path-purge route row selection`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -70,10 +70,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `MIMAP-NEXT-BEHAVIOR-SELECTION-001`;
-  current blocker is `MIMAP-042A`, a narrow allocator behavior row that composes
-  the OSVM-backed fast-path heap, M199 state-aware decommit guard, and M212
-  bounded scheduler.
+- resume point: continue Phase 293x after `MIMAP-042A`; current blocker is
+  `MIMAP-042B`, a planning-only row that selects the next single allocator,
+  compiler, or language task after the OSVM-backed fast-path purge route.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -81,9 +80,9 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-042A`: implement the OSVM-backed fast-path bounded purge route
-  2. if route preflight exposes a real compiler blocker, split a focused
-     acceptance sidecar instead of rewriting `.hako` around it
+  1. `MIMAP-042B`: classify the post-fast-path-purge route state and select one
+     next row
+  2. write/update the next focused card before implementation
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
   reduction after mimalloc completeness evidence. Do not make broad `.hako`

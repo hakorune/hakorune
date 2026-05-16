@@ -1,6 +1,6 @@
 # 293x-516 MIMAP-042A OSVM-Backed Fast-Path Bounded Purge Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -35,7 +35,7 @@ Expected shape:
 ```text
 box HakoAllocOsVmFastPathPurgeRoute
   heap: HakoAllocOsVmBackedFastPathHeap
-  guard: HakoAllocPurgeStateAwareDecommitGuard
+  decommit_guard: HakoAllocPurgeStateAwareDecommitGuard
   scheduler: HakoAllocBoundedPurgeDecommitScheduler
 
   allocate(size)
@@ -86,9 +86,45 @@ The proof should demonstrate:
 
 ```text
 bash tools/checks/k2_wide_hako_alloc_osvm_fast_path_purge_route_guard.sh
+cargo test -q user_box_method_route_plan::tests::object_handles::refresh_module_user_box_method_routes_refines_void_placeholder_object_route_result
 bash tools/checks/current_state_pointer_guard.sh
 tools/checks/dev_gate.sh quick
 git diff --check
+```
+
+## Closeout
+
+Implemented:
+
+- `lang/src/hako_alloc/memory/osvm_fast_path_purge_route_box.hako`
+  defines `HakoAllocOsVmFastPathPurgeRoute`, composing M168 allocation/release
+  with M199 duplicate-aware guard state and M212 bounded scheduling.
+- `apps/hako-alloc-osvm-fast-path-purge-route-proof/` proves allocation,
+  release, first purge, and duplicate purge behavior.
+- `tools/checks/k2_wide_hako_alloc_osvm_fast_path_purge_route_guard.sh`
+  fixes the route owner, MIR/EXE proof shape, no direct page-source/OSVM calls,
+  and no `.inc` matcher leak.
+- The route exposed the parked `MIR-ROW-D` acceptance seam: a same-module
+  user-box route can publish `return_shape=object_handle` while the call result
+  still carries an unannotated `void` placeholder. The compiler sidecar refines
+  that placeholder from the route contract before checking nested receiver
+  method calls, guarded by
+  `refresh_module_user_box_method_routes_refines_void_placeholder_object_route_result`.
+
+Evidence run:
+
+```text
+bash tools/checks/k2_wide_hako_alloc_osvm_fast_path_purge_route_guard.sh
+cargo test -q user_box_method_route_plan::tests::object_handles::refresh_module_user_box_method_routes_refines_void_placeholder_object_route_result
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
+Next current row:
+
+```text
+MIMAP-042B post-fast-path-purge route row selection
 ```
 
 ## Next Split Triggers

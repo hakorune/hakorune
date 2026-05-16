@@ -313,7 +313,8 @@ FST:
 | `CURRENT-DOCS-PHASE-SLIM-001` | landed | Current docs / phase taskboard slim cleanup. | after TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-002 |
 | `CURRENT-DOCS-PHASE-SLIM-002` | landed | Post-current-docs-slim row selection. | selected MIMAP-NEXT-BEHAVIOR-SELECTION-001 |
 | `MIMAP-NEXT-BEHAVIOR-SELECTION-001` | landed | Select the next single allocator/compiler cleanup or behavior row. | selected MIMAP-042A |
-| `MIMAP-042A` | selected current | OSVM-backed fast-path bounded purge route. | after MIMAP-NEXT-BEHAVIOR-SELECTION-001 |
+| `MIMAP-042A` | landed | OSVM-backed fast-path bounded purge route. | after MIMAP-NEXT-BEHAVIOR-SELECTION-001 |
+| `MIMAP-042B` | selected current | Post-fast-path-purge route row selection. | selected after MIMAP-042A |
 
 MIMAP-020A execution order:
 
@@ -373,7 +374,7 @@ Use new Box(...) for construction and explicit lifecycle methods for reuse.
 | `MIR-ROW-A` | landed | Minimal fixture for `loop + if guard + pages.get(i)` with scalar result only; MIR JSON and LLVM/EXE pass. | after MIR-INV-MIMAP012 |
 | `MIR-ROW-B` | ready | Add `considerPage(page)` helper call while selected state remains scalar; prove both MIR JSON and LLVM/EXE acceptance. | after MIR-ROW-A |
 | `MIR-ROW-C` | landed | Accept nullable object return through loop-carried `select` / `phi`; prove both MIR JSON and LLVM/EXE acceptance before page queue loop cleanup. | selected by MIMAP-039B |
-| `MIR-ROW-D` | parked | Reintroduce dense queue field-read proof after object selection is green; prove both MIR JSON and LLVM/EXE acceptance. | after MIR-ROW-C |
+| `MIR-ROW-D` | landed | Refine void-placeholder object route results from same-module route contracts before nested receiver method checks. | triggered by MIMAP-042A |
 | `MIR-ROW-A-FIX` | landed | Preserve or recover typed user-box receiver facts after dynamic `ArrayBox.get(i)` so `page.freeCount()` lowers as `HakoAllocPageModel.freeCount/0`, not `RuntimeDataBox.freeCount`. | before MIR-ROW-A closeout |
 
 MIMAP-013 now composes the queue-length object queue from MIMAP-040A. Do not

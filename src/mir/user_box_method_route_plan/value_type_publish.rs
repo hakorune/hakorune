@@ -274,6 +274,10 @@ fn can_refine_placeholder_to_box_type(existing: &MirType, box_name: &str) -> boo
         // scalar placeholders. User-box/generic route facts are the MIR owner
         // for the public ABI shape and may refine those placeholders.
         MirType::Integer | MirType::Bool => true,
+        // Some object-return methods still carry a void placeholder from an
+        // unannotated source signature while their route contract already
+        // owns `return_shape=object_handle` and `target_result_box_name`.
+        MirType::Void => true,
         MirType::String => box_name == "StringBox",
         _ => false,
     }

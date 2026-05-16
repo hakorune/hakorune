@@ -329,3 +329,172 @@ fn refresh_module_user_box_method_routes_accepts_loop_carried_nullable_object_re
         Some(&MirType::Box("Item".to_string()))
     );
 }
+
+#[test]
+fn refresh_module_user_box_method_routes_refines_void_placeholder_object_route_result() {
+    let mut module =
+        MirModule::new("user_box_void_placeholder_object_route_result_test".to_string());
+    for name in ["Factory", "Item"] {
+        module
+            .metadata
+            .user_box_decls
+            .insert(name.to_string(), Vec::new());
+    }
+    module.metadata.typed_object_plans.push(TypedObjectPlan {
+        box_name: "Factory".to_string(),
+        type_id: 61,
+        layout_kind: "runtime_slot_object_v0".to_string(),
+        field_count: 0,
+        fields: Vec::new(),
+    });
+    module.metadata.typed_object_plans.push(TypedObjectPlan {
+        box_name: "Item".to_string(),
+        type_id: 62,
+        layout_kind: "runtime_slot_object_v0".to_string(),
+        field_count: 0,
+        fields: Vec::new(),
+    });
+
+    let mut value = MirFunction::new(
+        FunctionSignature {
+            name: "Item.value/0".to_string(),
+            params: vec![MirType::Box("Item".to_string())],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    value.params = vec![ValueId::new(0)];
+    let mut value_block = BasicBlock::new(BasicBlockId::new(0));
+    value_block.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(1),
+        value: ConstValue::Integer(7),
+    });
+    value_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(1)),
+    });
+    value.add_block(value_block);
+
+    let mut make = MirFunction::new(
+        FunctionSignature {
+            name: "Factory.make/0".to_string(),
+            params: vec![MirType::Box("Factory".to_string())],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    make.params = vec![ValueId::new(0)];
+    let mut make_block = BasicBlock::new(BasicBlockId::new(0));
+    make_block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(2),
+        box_type: "Item".to_string(),
+        args: Vec::new(),
+    });
+    make_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(2)),
+    });
+    make.add_block(make_block);
+
+    let mut consume = MirFunction::new(
+        FunctionSignature {
+            name: "Factory.consume/0".to_string(),
+            params: vec![MirType::Box("Factory".to_string())],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    consume.params = vec![ValueId::new(0)];
+    consume.metadata.value_types.insert(ValueId::new(2), MirType::Void);
+    let mut consume_block = BasicBlock::new(BasicBlockId::new(0));
+    consume_block.add_instruction(MirInstruction::Call {
+        dst: Some(ValueId::new(2)),
+        func: ValueId::INVALID,
+        callee: Some(Callee::Method {
+            box_name: "Factory".to_string(),
+            method: "make".to_string(),
+            receiver: Some(ValueId::new(0)),
+            certainty: TypeCertainty::Known,
+            box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::UserDefined,
+        }),
+        args: Vec::new(),
+        effects: EffectMask::PURE,
+    });
+    consume_block.add_instruction(MirInstruction::Call {
+        dst: Some(ValueId::new(3)),
+        func: ValueId::INVALID,
+        callee: Some(Callee::Method {
+            box_name: "RuntimeDataBox".to_string(),
+            method: "value".to_string(),
+            receiver: Some(ValueId::new(2)),
+            certainty: TypeCertainty::Union,
+            box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+        }),
+        args: Vec::new(),
+        effects: EffectMask::PURE,
+    });
+    consume_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(3)),
+    });
+    consume.add_block(consume_block);
+
+    let mut main = MirFunction::new(
+        FunctionSignature {
+            name: "main".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    let mut main_block = BasicBlock::new(BasicBlockId::new(0));
+    main_block.add_instruction(MirInstruction::NewBox {
+        dst: ValueId::new(10),
+        box_type: "Factory".to_string(),
+        args: Vec::new(),
+    });
+    main_block.add_instruction(MirInstruction::Call {
+        dst: Some(ValueId::new(11)),
+        func: ValueId::INVALID,
+        callee: Some(Callee::Method {
+            box_name: "Factory".to_string(),
+            method: "consume".to_string(),
+            receiver: Some(ValueId::new(10)),
+            certainty: TypeCertainty::Known,
+            box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::UserDefined,
+        }),
+        args: Vec::new(),
+        effects: EffectMask::PURE,
+    });
+    main_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(11)),
+    });
+    main.add_block(main_block);
+
+    module.add_function(value);
+    module.add_function(make);
+    module.add_function(consume);
+    module.add_function(main);
+
+    refresh_module_user_box_method_routes(&mut module);
+
+    let consume = module
+        .get_function("Factory.consume/0")
+        .expect("consume function");
+    assert_eq!(
+        consume.metadata.value_types.get(&ValueId::new(2)),
+        Some(&MirType::Box("Item".to_string()))
+    );
+    assert!(consume.metadata.user_box_method_routes.iter().any(|route| {
+        route.method() == "value"
+            && route.reason().is_none()
+            && route.return_shape() == Some("scalar_i64")
+    }));
+
+    let main = module.get_function("main").expect("main");
+    let route = &main.metadata.user_box_method_routes[0];
+    assert_eq!(route.reason(), None, "{route:?}");
+    assert!(route.target_body_supported());
+    assert_eq!(route.return_shape(), Some("scalar_i64"));
+}
