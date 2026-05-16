@@ -1,6 +1,6 @@
 # 293x-499 EXPRS-CHECK-001
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -47,3 +47,28 @@ git diff --check
 
 This row closes when CheckExpr lowering has a dedicated builder owner and the
 accepted check-block behavior is unchanged.
+
+## Result
+
+Landed:
+
+- Added `src/mir/builder/exprs_check.rs`.
+- Moved CheckExpr lowering out of `exprs.rs`.
+- Updated the C198 check-block surface guard to observe the new CheckExpr owner.
+- Kept `exprs.rs` as the AST dispatcher/facade.
+
+No parser/check-block syntax, boolean coercion, Select semantics, i64 1/0 result
+convention, collection literal lowering, indexing, static-data lowering,
+allocator behavior, provider activation, hooks, host allocator replacement, or
+`#[global_allocator]` behavior changed.
+
+## Evidence
+
+```text
+cargo check -q
+cargo test -q c198_check_block_parses_default_route
+cargo test -q c198_check_block_parses_token_cursor_route
+bash tools/checks/k2_wide_check_block_surface_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```

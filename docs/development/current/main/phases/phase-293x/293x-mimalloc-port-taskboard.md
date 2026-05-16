@@ -61,10 +61,12 @@ EXPRS-INDEXING-001 MIR builder indexing owner cleanup is green;
 EXPRS-INDEXING-002 selected a MIR builder collection literal owner cleanup;
 EXPRS-COLLECTION-LITERAL-001 MIR builder collection literal owner cleanup is green;
 EXPRS-COLLECTION-LITERAL-002 selected a MIR builder check expression owner cleanup;
+EXPRS-CHECK-001 MIR builder check expression owner cleanup is green;
+EXPRS-CHECK-002 selected an OSVM export validation helper cleanup;
 the current primary row is:
 
 ```text
-  EXPRS-CHECK-001 MIR builder check expression owner cleanup
+  OSVM-EXPORT-VALIDATION-HELPER-001 OSVM export validation helper cleanup
 ```
 
 Closed cleanup sidecar:
@@ -528,7 +530,9 @@ FST:
 | `EXPRS-INDEXING-002` | landed | Post-indexing row selection. | selected EXPRS-COLLECTION-LITERAL-001 |
 | `EXPRS-COLLECTION-LITERAL-001` | landed | MIR builder collection literal owner cleanup. | after EXPRS-INDEXING-002 |
 | `EXPRS-COLLECTION-LITERAL-002` | landed | Post-collection-literal row selection. | selected EXPRS-CHECK-001 |
-| `EXPRS-CHECK-001` | selected current | MIR builder check expression owner cleanup. | after EXPRS-COLLECTION-LITERAL-002 |
+| `EXPRS-CHECK-001` | landed | MIR builder check expression owner cleanup. | after EXPRS-COLLECTION-LITERAL-002 |
+| `EXPRS-CHECK-002` | landed | Post-check row selection. | selected OSVM-EXPORT-VALIDATION-HELPER-001 |
+| `OSVM-EXPORT-VALIDATION-HELPER-001` | selected current | OSVM export validation helper cleanup. | after EXPRS-CHECK-002 |
 
 MIMAP-020A execution order:
 

@@ -18,7 +18,7 @@ PARSER_TEST="src/tests/parser_check_block_surface.rs"
 AST="src/ast/mod.rs"
 PARSER_PRIMARY="src/parser/expr/primary.rs"
 PARSER_CURSOR="src/parser/expr_cursor.rs"
-BUILDER="src/mir/builder/exprs.rs"
+BUILDER="src/mir/builder/exprs_check.rs"
 INDEX="docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/k2_wide_check_block_surface_guard.sh"
 
