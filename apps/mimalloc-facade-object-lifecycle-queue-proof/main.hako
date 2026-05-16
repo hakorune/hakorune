@@ -12,12 +12,16 @@ static box Main {
         local rb = reusable.acquire(8)
         reusable.releaseLocal(rb)
 
-        local active = new HakoAllocPageModel(30, 8, 1, 1)
+        local full = new HakoAllocPageModel(30, 8, 1, 1)
+        full.acquire(8)
+
+        local active = new HakoAllocPageModel(40, 8, 1, 1)
 
         local alloc = new HakoAllocObjectLifecycleFacade()
         local add0 = alloc.objectLifecycleAddPage(decommitted)
         local add1 = alloc.objectLifecycleAddPage(reusable)
-        local add2 = alloc.objectLifecycleAddPage(active)
+        local add2 = alloc.objectLifecycleAddPage(full)
+        local add3 = alloc.objectLifecycleAddPage(active)
 
         alloc.objectLifecycleSelectPage()
         local id1 = alloc.objectLifecycleSelectedPageId()
@@ -30,7 +34,7 @@ static box Main {
         alloc.objectLifecycleSelectPage()
         local id2 = alloc.objectLifecycleSelectedPageId()
         local k2 = alloc.objectLifecycleSelectedKind()
-        if id2 == 30 {
+        if id2 == 40 {
             active.acquire(8)
         }
 
@@ -51,7 +55,7 @@ static box Main {
         local shape = 18
 
         print("mimalloc-facade-object-lifecycle-queue-proof")
-        print("adds=" + add0 + "," + add1 + "," + add2)
+        print("adds=" + add0 + "," + add1 + "," + add2 + "," + add3)
         print("pages=" + id1 + "," + id2 + "," + id3)
         print("kinds=" + k1 + "," + k2 + "," + k3)
         print("queue=" + page_count + "," + add_count + "," + select_count + "," + reuse_select_count + "," + active_select_count + "," + decommitted_skip_count + "," + retired_skip_count + "," + miss_count)

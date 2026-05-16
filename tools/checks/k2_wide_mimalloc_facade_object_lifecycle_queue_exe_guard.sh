@@ -31,6 +31,7 @@ rg -F -q 'objectLifecycleSelectPage()' "$FACADE"
 rg -F -q 'objectLifecycleSelectedKind()' "$FACADE"
 rg -F -q 'objectLifecycleSelectedPageId()' "$FACADE"
 rg -F -q 'box HakoAllocObjectLifecyclePageQueue' "$QUEUE"
+rg -F -q 'pages.length()' "$QUEUE"
 rg -F -q 'Acceptance backend: LLVM/EXE primary' "$SSOT"
 rg -F -q 'VM-LIM-001 object-heavy page queue/facade route' "$LIMITS"
 rg -F -q 'object_lifecycle_facade_box.hako' "$README"
@@ -43,6 +44,14 @@ if rg -n 'OSVM|OsVm|externcall|atomic|RawBuf|provider|global_allocator|install_h
   exit 1
 fi
 rm -f /tmp/"$TAG".forbidden
+
+if rg -n 'local page[0-9]+ = pages\.get\([0-9]+\)' "$QUEUE" >/tmp/"$TAG".fixed_slots 2>&1; then
+  echo "[$TAG] ERROR: MIMAP-040A must not reintroduce fixed page0/page1/page2 selection slots" >&2
+  cat /tmp/"$TAG".fixed_slots >&2
+  rm -f /tmp/"$TAG".fixed_slots
+  exit 1
+fi
+rm -f /tmp/"$TAG".fixed_slots
 
 if rg -n 'mimalloc-facade-object-lifecycle-queue-proof|objectLifecycle(AddPage|SelectPage|SelectedKind|SelectedPageId)|HakoAllocObjectLifecyclePageQueue' \
   lang/c-abi/shims >/tmp/"$TAG".app_specific.inc 2>&1; then
@@ -130,10 +139,10 @@ rg -F -q 'mir_call_user_box_method_same_module_emit' "$build_log"
 pure_first_guard_run_exe "$TAG" "$exe_out" "$run_log"
 
 rg -F -q 'mimalloc-facade-object-lifecycle-queue-proof' "$run_log"
-rg -F -q 'adds=0,1,2' "$run_log"
-rg -F -q 'pages=20,30,-1' "$run_log"
+rg -F -q 'adds=0,1,2,3' "$run_log"
+rg -F -q 'pages=20,40,-1' "$run_log"
 rg -F -q 'kinds=1,2,0' "$run_log"
-rg -F -q 'queue=3,3,2,1,1,3,0,1' "$run_log"
+rg -F -q 'queue=4,4,2,1,1,3,0,1' "$run_log"
 rg -F -q 'shape=18' "$run_log"
 rg -F -q 'summary=ok' "$run_log"
 

@@ -6,9 +6,9 @@ This app proves that the thin `HakoAllocObjectLifecycleFacade` can compose the
 object-backed `HakoAllocObjectLifecyclePageQueue` from MIMAP-012. The facade
 stores the queue, adds real `HakoAllocPageModel` objects, calls queue selection,
 and returns selected-page identity through read-only scalar observers at the
-facade boundary. Returned selected page objects are intentionally not exposed,
-bound, or mutated in this row; that heavier dynamic receiver shape stays in the
-MIR object-loop sidecar series.
+facade boundary. The underlying queue proof now exercises fourth-slot selection
+through the queue-length loop. Returned selected page objects are intentionally
+not exposed, bound, or mutated at the facade boundary.
 
 Acceptance backend: LLVM/EXE primary.
 

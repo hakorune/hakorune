@@ -33,6 +33,8 @@ The facade may:
 - forward page-object `addPage` operations
 - call queue selection and return selected-page identity as a scalar observer
 - expose read-only observer counters for the object queue
+- rely on the queue owner's queue-length selection loop without exposing the
+  returned page object at the facade boundary
 
 The facade must not:
 
@@ -50,11 +52,7 @@ tools/checks/k2_wide_mimalloc_facade_object_lifecycle_queue_exe_guard.sh
 
 ## Follow-up
 
-Next rows may either continue the dynamic object-loop sidecar (`MIR-ROW-B`) or
-compose allocation fast-path policy over the facade-owned object queue. Binding
-or mutating a facade-returned selected page object is deliberately deferred to a
-separate dynamic receiver row. `MIMAP-013` keeps facade selection observer-only
-because returning the selected object through the facade re-enters the
-object-heavy MIR route covered by `VM-LIM-001`. Do not combine helper-call
-object loops, nullable selected-object fields, dense proof reads, and allocator
-execution in one row.
+`MIMAP-040A` updates the underlying queue selection to a queue-length loop while
+keeping the facade observer-only. Binding or mutating a facade-returned selected
+page object remains deferred. Do not combine helper-call object loops, facade
+selected-object exposure, dense proof reads, and allocator execution in one row.

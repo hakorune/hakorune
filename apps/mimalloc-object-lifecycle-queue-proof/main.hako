@@ -12,10 +12,14 @@ static box Main {
         local rb = r.acquire(8)
         r.releaseLocal(rb)
 
-        local a = new HakoAllocPageModel(30, 8, 1, 1)
+        local full = new HakoAllocPageModel(30, 8, 1, 1)
+        full.acquire(8)
+
+        local a = new HakoAllocPageModel(40, 8, 1, 1)
         local q = new HakoAllocObjectLifecyclePageQueue()
         q.addPage(d)
         q.addPage(r)
+        q.addPage(full)
         q.addPage(a)
 
         local s1 = q.selectPage()
@@ -36,17 +40,20 @@ static box Main {
         local shape = 0
         if id1 == 20 { shape = shape + 1 }
         if k1 == 1 { shape = shape + 1 }
-        if id2 == 30 { shape = shape + 1 }
+        if id2 == 40 { shape = shape + 1 }
         if k2 == 2 { shape = shape + 1 }
         if id3 == -1 { shape = shape + 1 }
         if k3 == 0 { shape = shape + 1 }
+        if q.page_count == 4 { shape = shape + 1 }
+        if q.unavailable_skip_count == 5 { shape = shape + 1 }
 
         print("mimalloc-object-lifecycle-queue-proof")
         print("pages=" + id1 + "," + id2 + "," + id3)
         print("kinds=" + k1 + "," + k2 + "," + k3)
+        print("queue=" + q.page_count + "," + q.add_count + "," + q.select_count + "," + q.reuse_select_count + "," + q.active_select_count + "," + q.decommitted_skip_count + "," + q.unavailable_skip_count + "," + q.miss_count)
         print("shape=" + shape)
 
-        if shape == 6 {
+        if shape == 8 {
             print("summary=ok")
             return 0
         }

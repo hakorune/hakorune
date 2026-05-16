@@ -26,7 +26,9 @@ The owner may:
 - skip `page.decommitted != 0`
 - call `page.canReuse()` and `page.reuse()` for retired reusable pages
 - call `page.freeCount()` for active pages
-- return the selected page object to the caller through the stored page index
+- scan owned pages with a queue-length loop
+- carry the selected page as a nullable object and return that selected object
+  directly
 
 The owner must not:
 
@@ -46,3 +48,7 @@ tools/checks/k2_wide_mimalloc_object_lifecycle_queue_exe_guard.sh
 
 A later row may compose this object-backed queue through the allocator facade.
 MIMAP-012 itself proves the queue owner route first.
+
+`MIMAP-040A` removes the old fixed `page0/page1/page2` selection shape. The
+queue owner must keep selection based on `pages.length()` and must not re-add
+fixed-slot selectors.

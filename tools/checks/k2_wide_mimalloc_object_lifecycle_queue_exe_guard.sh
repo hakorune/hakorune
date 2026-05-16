@@ -28,6 +28,7 @@ rg -F -q 'pages: ArrayBox = new ArrayBox()' "$QUEUE"
 rg -F -q 'addPage(page)' "$QUEUE"
 rg -F -q 'selectPage()' "$QUEUE"
 rg -F -q 'pages.get(' "$QUEUE"
+rg -F -q 'pages.length()' "$QUEUE"
 rg -F -q 'isDecommitted() != 0' "$QUEUE"
 rg -F -q 'canReuse() != 0' "$QUEUE"
 rg -F -q 'freeCount() > 0' "$QUEUE"
@@ -44,6 +45,14 @@ if rg -n 'OSVM|OsVm|externcall|atomic|RawBuf|provider|global_allocator|install_h
   exit 1
 fi
 rm -f /tmp/"$TAG".forbidden
+
+if rg -n 'local page[0-9]+ = pages\.get\([0-9]+\)' "$QUEUE" >/tmp/"$TAG".fixed_slots 2>&1; then
+  echo "[$TAG] ERROR: MIMAP-040A must not reintroduce fixed page0/page1/page2 selection slots" >&2
+  cat /tmp/"$TAG".fixed_slots >&2
+  rm -f /tmp/"$TAG".fixed_slots
+  exit 1
+fi
+rm -f /tmp/"$TAG".fixed_slots
 
 if rg -n 'mimalloc-object-lifecycle-queue-proof|HakoAllocObjectLifecyclePageQueue' \
   lang/c-abi/shims >/tmp/"$TAG".app_specific.inc 2>&1; then
@@ -112,12 +121,24 @@ def require_method(fn, box_name, name):
             return
     raise SystemExit(f"missing method call {box_name}.{name} in {fn.get('name')}")
 
+def require_lowering_symbol(fn, symbol):
+    for entry in fn.get("metadata", {}).get("lowering_plan", []):
+        if entry.get("symbol") == symbol:
+            return entry
+    raise SystemExit(f"missing lowering symbol {symbol} in {fn.get('name')}")
+
 for name in ("addPage", "selectPage"):
     require_method(main, "HakoAllocObjectLifecyclePageQueue", name)
-for name in ("birth", "acquire", "releaseLocal", "decommit", "reuse"):
+for name in ("birth", "acquire", "releaseLocal", "decommit"):
     require_method(main, "HakoAllocPageModel", name)
+require_lowering_symbol(main, "HakoAllocPageModel.reuse/0")
 
 select_fn = functions["HakoAllocObjectLifecyclePageQueue.selectPage/0"]
+select_route = require_lowering_symbol(main, "HakoAllocObjectLifecyclePageQueue.selectPage/0")
+if select_route.get("return_shape") != "object_handle":
+    raise SystemExit(f"selectPage route must return object_handle, got {select_route.get('return_shape')}")
+if select_route.get("target_result_box_name") != "HakoAllocPageModel":
+    raise SystemExit(f"selectPage route must publish HakoAllocPageModel, got {select_route.get('target_result_box_name')}")
 require_method(select_fn, "HakoAllocPageModel", "isDecommitted")
 require_method(select_fn, "HakoAllocPageModel", "isRetired")
 require_method(select_fn, "HakoAllocPageModel", "canReuse")
@@ -133,9 +154,10 @@ rg -F -q 'mir_call_user_box_method_same_module_emit' "$build_log"
 pure_first_guard_run_exe "$TAG" "$exe_out" "$run_log"
 
 rg -F -q 'mimalloc-object-lifecycle-queue-proof' "$run_log"
-rg -F -q 'pages=20,30,-1' "$run_log"
+rg -F -q 'pages=20,40,-1' "$run_log"
 rg -F -q 'kinds=1,2,0' "$run_log"
-rg -F -q 'shape=6' "$run_log"
+rg -F -q 'queue=4,4,2,1,1,3,5,1' "$run_log"
+rg -F -q 'shape=8' "$run_log"
 rg -F -q 'summary=ok' "$run_log"
 
 echo "[$TAG] ok"

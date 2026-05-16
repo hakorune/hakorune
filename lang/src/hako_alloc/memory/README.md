@@ -97,9 +97,10 @@ Syntax/style contract
   policy.
 - `object_lifecycle_page_queue_box.hako` is the MIMAP-012 object-backed
   lifecycle queue owner. It may retain `HakoAllocPageModel` objects in an
-  `ArrayBox`, call page lifecycle observers/methods, and return a selected page
-  object. It must not source OS pages, own segment/TLS/atomic/remote-free policy,
-  activate providers/hooks, or add backend shortcuts.
+  `ArrayBox`, scan owned pages with a queue-length selection loop, call page
+  lifecycle observers/methods, and return the selected page object directly
+  from the queue owner. It must not source OS pages, own segment/TLS/atomic/
+  remote-free policy, activate providers/hooks, or add backend shortcuts.
 - `object_lifecycle_facade_box.hako` owns the MIMAP-013 thin facade object
   lifecycle queue seam plus the MIMAP-014A/MIMAP-014B/MIMAP-014C small
   allocation fast-path, the MIMAP-015A/MIMAP-015B release route, and the

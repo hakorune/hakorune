@@ -36,11 +36,14 @@ MIMAP-037A facade huge backing-set helper cleanup is green; MIMAP-037B
 selected the object-lifecycle known-page cleanup; MIMAP-038A known-page
 queue-length loop cleanup is green; MIMAP-038B selected a remote-free retry
 bound cleanup after the page-queue loop candidate exposed a compiler acceptance
-sidecar; MIMAP-039A retry-bound cleanup is green;
+sidecar; MIMAP-039A retry-bound cleanup is green; MIR-ROW-C nullable object
+return acceptance is green; MIMAP-039C selected the object-lifecycle
+selectPage loop cleanup; MIMAP-040A selectPage queue-length loop cleanup is
+green;
 the current primary row is:
 
 ```text
-  MIMAP-039B post-remote-free-retry-bound row selection
+  MIMAP-040B post-selectPage-loop row selection
 ```
 
 Closed cleanup sidecar:
@@ -214,6 +217,18 @@ MIMAP-038B:
 MIMAP-039A:
   landed
   hako_alloc remote-free retry bound cleanup is green
+MIMAP-039B:
+  landed
+  selected MIR-ROW-C nullable object return sidecar as the next row
+MIR-ROW-C:
+  landed
+  nullable user-box object return acceptance is green
+MIMAP-039C:
+  landed
+  selected MIMAP-040A object-lifecycle selectPage loop cleanup as the next row
+MIMAP-040A:
+  landed
+  object-lifecycle selectPage queue-length loop cleanup is green
 ```
 
 ## Active Source Policy
@@ -447,7 +462,11 @@ FST:
 | `MIMAP-038A` | landed | Object-lifecycle known-page loop cleanup. | after MIMAP-037B |
 | `MIMAP-038B` | landed | Post-known-page-loop row selection. | selected MIMAP-039A |
 | `MIMAP-039A` | landed | Remote-free retry-bound named owner cleanup. | after MIMAP-038B |
-| `MIMAP-039B` | selected current | Post-remote-free-retry-bound row selection. | after MIMAP-039A |
+| `MIMAP-039B` | landed | Post-remote-free-retry-bound row selection. | selected MIR-ROW-C |
+| `MIR-ROW-C` | landed | Nullable user-box object return sidecar. | after MIMAP-039B |
+| `MIMAP-039C` | landed | Post-nullable-object-return row selection. | selected MIMAP-040A |
+| `MIMAP-040A` | landed | Object-lifecycle selectPage queue-length loop cleanup. | after MIMAP-039C |
+| `MIMAP-040B` | selected current | Post-selectPage-loop row selection. | after MIMAP-040A |
 
 MIMAP-020A execution order:
 
@@ -510,9 +529,9 @@ Use new Box(...) for construction and explicit lifecycle methods for reuse.
 | `MIR-ROW-D` | parked | Reintroduce dense queue field-read proof after object selection is green; prove both MIR JSON and LLVM/EXE acceptance. | after MIR-ROW-C |
 | `MIR-ROW-A-FIX` | landed | Preserve or recover typed user-box receiver facts after dynamic `ArrayBox.get(i)` so `page.freeCount()` lowers as `HakoAllocPageModel.freeCount/0`, not `RuntimeDataBox.freeCount`. | before MIR-ROW-A closeout |
 
-MIMAP-013 may proceed with the bounded-slot object queue from MIMAP-012. Do
-not reintroduce dynamic scan, helper call, nullable object field selection, and
-dense proof reads in one row.
+MIMAP-013 now composes the queue-length object queue from MIMAP-040A. Do not
+combine helper-call object loops, facade selected-object exposure, dense proof
+reads, and allocator execution in one row.
 
 ### MIMAP-013 landed row
 

@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-16"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIR-ROW-C landed nullable user-box object return acceptance through loop-carried select/phi. MIMAP-039C is selecting the next row, with object-lifecycle queue select loop cleanup eligible to resume. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-040A landed object-lifecycle selectPage queue-length loop cleanup after MIR-ROW-C nullable object return acceptance. MIMAP-040B is selecting the next row. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-474-MIMAP-039C-POST-USERBOX-RETURN-OBJECT-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-476-MIMAP-040B-POST-SELECT-PAGE-LOOP-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-473-MIR-ROW-C-NULLABLE-USERBOX-OBJECT-RETURN"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-473-MIR-ROW-C-NULLABLE-USERBOX-OBJECT-RETURN.md"
-latest_card_summary = "MIR-ROW-C accepts nullable loop-carried user-box object returns in same-module route metadata."
+latest_card = "293x-475-MIMAP-040A-OBJECT-LIFECYCLE-SELECT-PAGE-LOOP"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-475-MIMAP-040A-OBJECT-LIFECYCLE-SELECT-PAGE-LOOP.md"
+latest_card_summary = "MIMAP-040A replaces fixed object-lifecycle selectPage slots with a queue-length nullable-object loop."
 
-current_blocker_token = "MIMAP-039C"
+current_blocker_token = "MIMAP-040B"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-475 MIMAP-040A object-lifecycle selectPage queue-length loop cleanup landed",
   "293x-473 MIR-ROW-C nullable user-box object return landed",
   "293x-471 MIMAP-039A remote-free retry bound cleanup landed",
   "293x-470 MIMAP-038B post-known-page-loop row selection landed",
