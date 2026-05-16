@@ -1,13 +1,15 @@
 # Phase 293x: real-app bringup
 
-- Status: Active / mimalloc blueprint lane with post-huge-decommit row selection active
+- Status: Active / mimalloc blueprint lane with pure-first MIR artifact exactness sidecar active before post-huge-decommit row selection
 - Purpose: use real applications to expose compiler/runtime seams after the
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
 - Parent lane token: `phase-293x real-app bringup`
 - Closed sidecar:
   `docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md`
-- Current allocator blocker:
+- Current compiler/selfhost sidecar:
+  `docs/development/current/main/phases/phase-293x/293x-450-MIR-EMIT-SSOT-001-PURE-FIRST-MIR-ARTIFACT-EXACTNESS.md`
+- Parked allocator blocker after the sidecar:
   `docs/development/current/main/phases/phase-293x/293x-449-MIMAP-029B-POST-HUGE-DECOMMIT-ROW-SELECTION.md`
 - Latest lifecycle closeout:
   `docs/development/current/main/phases/phase-293x/293x-403-REUSE-LIFECYCLE-001-EXPLICIT-REUSE-METHODS.md`
@@ -15,6 +17,8 @@
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
 - Mimalloc concurrency substrate boundary SSOT:
   `docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md`
+- Pure-first MIR artifact / diagnostics SSOT:
+  `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
 
 ## Order
 
@@ -34,6 +38,20 @@
   concrete ownership / allocation evidence.
 - Treat mimalloc as `.hako` / `hako_alloc` completeness work in this lane.
   Allocator-provider M104+ is optional future host-replacement support.
+
+## Current Sidecar Queue
+
+MIMAP-029A landed the facade huge decommit-after-unregister success route. The
+lane now pauses allocator row selection to fix the pure-first/selfhost route
+shape that MIMAP-029A exposed:
+
+| Row | Status | Purpose |
+| --- | --- | --- |
+| `MIR-EMIT-SSOT-001` | selected current | Make pure-first preflight and EXE build consume the exact same MIR artifact. |
+| `MIR-ROUTE-PREFLIGHT-001` | ready next | Fail unsupported lowering routes from MIR metadata before backend emission. |
+| `SELFHOST-PROGRESS-001` | ready | Add phase progress / timeout diagnostics for selfhost and pure-first wrappers. |
+| `MIR-EMIT-SSOT-002` | planned | Make the canonical external source-to-MIR route explicit, preferably through the existing route SSOT. |
+| `MIMAP-029B` | parked after sidecar | Resume post-huge-decommit allocator row selection. |
 
 ## Smoke Entry
 

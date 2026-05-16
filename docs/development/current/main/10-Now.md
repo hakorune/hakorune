@@ -24,18 +24,23 @@ Related:
   `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
+- pure-first MIR artifact / diagnostics SSOT:
+  `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
 - mimalloc blueprint SSOT:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-029B post-huge-decommit row selection`
+- current blocker token: `MIR-EMIT-SSOT-001 pure-first MIR artifact exactness`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after MIMAP-029A; next blocker is
-  MIMAP-029B post-huge-decommit row selection
+- continue phase-293x after MIMAP-029A; current blocker is
+  `MIR-EMIT-SSOT-001`, a pure-first/selfhost BoxShape sidecar that ensures
+  preflight and EXE build consume the same MIR artifact
+- planned sidecar order: `MIR-ROUTE-PREFLIGHT-001`,
+  `SELFHOST-PROGRESS-001`, `MIR-EMIT-SSOT-002`, then return to `MIMAP-029B`
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
@@ -56,8 +61,9 @@ Related:
 5. `docs/development/current/main/phases/phase-293x/README.md`
 6. `docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md`
 7. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
-8. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
-9. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
+8. `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
+9. `docs/development/current/main/design/hotline-core-method-contract-ssot.md`
+10. `docs/development/current/main/design/perf-owner-first-optimization-ssot.md`
 
 ## Proof Bundle
 

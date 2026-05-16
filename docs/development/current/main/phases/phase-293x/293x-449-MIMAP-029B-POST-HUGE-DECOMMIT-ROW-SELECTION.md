@@ -1,6 +1,6 @@
 # 293x-449 MIMAP-029B Post-Huge-Decommit Row Selection
 
-Status: ready
+Status: parked after pure-first sidecar
 Date: 2026-05-16
 
 ## Decision
@@ -16,6 +16,21 @@ MIMAP-029A same-backed unregister + decommit success
 The selection must keep provider activation, host allocator replacement, hooks,
 and `#[global_allocator]` inactive unless a future narrow ladder explicitly
 reopens them.
+
+Current prerequisite:
+
+```text
+MIR-EMIT-SSOT-001 -> MIR-ROUTE-PREFLIGHT-001 -> SELFHOST-PROGRESS-001
+```
+
+MIMAP-029A exposed that pure-first guard preflight and selfhost EXE build can
+use different MIR emissions. `MIMAP-029B` resumes only after the same-artifact
+route, route preflight, and basic progress diagnostics are stable. The sidecar
+SSOT is:
+
+```text
+docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md
+```
 
 ## Scope
 
@@ -84,6 +99,7 @@ decommit state-marker rows.
 
 | Step | Task | Accept | Stop line |
 | --- | --- | --- | --- |
+| `029B.0` | Confirm pure-first sidecar closeout. | Same-artifact route, route preflight, and progress diagnostics are closed or explicitly deferred with owner approval. | no allocator behavior |
 | `029B.1` | Review MIMAP-029A landed evidence and duplicate-decommit risk. | One next row is selected with owner/proof/guard names. | no implementation |
 | `029B.2` | Update taskboard and granularity SSOT. | Current pointers move to the selected behavior row. | no provider activation |
 | `029B.3` | Run pointer/quick gates. | Current docs are internally consistent. | no behavior widening |
