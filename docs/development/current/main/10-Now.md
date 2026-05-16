@@ -30,16 +30,16 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001 generic string body analysis cleanup`
+- current blocker token: `NUMERIC-SUBSTRATE-SPLIT-001 numeric substrate cleanup`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `GENERIC-METHOD-ROUTE-SPLIT-004`; current blocker
-  is `GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001`, a generic string body analysis
+- continue phase-293x after `GLOBAL-STRING-BODY-ANALYSIS-SPLIT-002`; current
+  blocker is `NUMERIC-SUBSTRATE-SPLIT-001`, a numeric substrate owner-layout
   cleanup
-- planned order: selected row after `GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001`
+- planned order: selected row after `NUMERIC-SUBSTRATE-SPLIT-001`
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

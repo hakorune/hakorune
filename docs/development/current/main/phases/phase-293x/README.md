@@ -1,6 +1,6 @@
 # Phase 293x: real-app bringup
 
-- Status: Active / mimalloc blueprint lane with post-huge-unreserve row selection active
+- Status: Active / mimalloc blueprint lane with numeric substrate cleanup active
 - Purpose: use real applications to expose compiler/runtime seams after the
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
@@ -8,8 +8,8 @@
 - Closed sidecar:
   `docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md`
 - Current compiler/selfhost sidecar:
-  closed through `GENERIC-METHOD-ROUTE-SPLIT-003`; current row is
-  `GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001`
+  closed through `GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001`; current row is
+  `NUMERIC-SUBSTRATE-SPLIT-001`
 - Current active row:
   read `phase_status` in `docs/development/current/main/CURRENT_STATE.toml`
   and the taskboard below

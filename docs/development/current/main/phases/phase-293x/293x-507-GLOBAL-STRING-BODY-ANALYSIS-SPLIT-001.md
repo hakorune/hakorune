@@ -1,6 +1,6 @@
 # 293x-507 GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -47,5 +47,25 @@ git diff --check
 
 ## Closeout
 
-This row closes when generic string body analysis has a smaller phase-oriented
-owner layout and existing global-call route behavior is unchanged.
+This row split `generic_string_body_analysis.rs` into a small dispatcher/context
+owner plus two phase modules:
+
+```text
+src/mir/global_call_route_plan/generic_string_body_analysis.rs
+src/mir/global_call_route_plan/generic_string_body_analysis/value_transfer.rs
+src/mir/global_call_route_plan/generic_string_body_analysis/call_transfer.rs
+```
+
+The public entry point
+`generic_pure_string_instruction_reject_reason(...)` remains stable. Value-class
+transfer, call/extern/global call acceptance, reject reasons, route contracts,
+and backend behavior are unchanged.
+
+Evidence:
+
+```text
+cargo test -q global_call_route_plan
+bash tools/checks/current_state_pointer_guard.sh
+tools/checks/dev_gate.sh quick
+git diff --check
+```
