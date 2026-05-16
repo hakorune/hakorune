@@ -145,6 +145,12 @@ Principles
     decommitted backing range while still stopping before duplicate/stale
     unreserve diagnostics, recommit, provider activation, and allocator
     replacement.
+  - `HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastRoute` is the
+    MIMAP-035A facade diagnostics owner. It composes the MIMAP-034A success
+    route, records the successful backing range in allocator-side state, and
+    rejects duplicate/stale unreserve attempts before a second page-source
+    unreserve adapter call while still stopping before recommit, provider
+    activation, and allocator replacement.
   - `HakoAllocHugeReleaseSeam` is the M181 huge release seam owner. It retires
     huge handles through `HakoAllocHugePageModel` and unregisters page-map
     ownership without touching small page `releaseLocal(...)`.

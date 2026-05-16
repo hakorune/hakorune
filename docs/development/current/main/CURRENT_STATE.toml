@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-16"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-034B selected MIMAP-035A. MIMAP-035A is implementing facade huge unreserve duplicate/stale fail-fast diagnostics after the landed MIMAP-034A success route. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-035A landed facade huge unreserve duplicate/stale fail-fast diagnostics after the landed MIMAP-034A success route. MIMAP-035B is selecting the next allocator row. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-463-MIMAP-035A-FACADE-HUGE-UNRESERVE-FAILFAST.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-464-MIMAP-035B-POST-HUGE-UNRESERVE-FAILFAST-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-462-MIMAP-034B-POST-HUGE-UNRESERVE-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-462-MIMAP-034B-POST-HUGE-UNRESERVE-ROW-SELECTION.md"
-latest_card_summary = "MIMAP-034B selects MIMAP-035A facade huge unreserve duplicate/stale fail-fast diagnostics."
+latest_card = "293x-463-MIMAP-035A-FACADE-HUGE-UNRESERVE-FAILFAST"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-463-MIMAP-035A-FACADE-HUGE-UNRESERVE-FAILFAST.md"
+latest_card_summary = "MIMAP-035A lands facade huge unreserve duplicate/stale fail-fast diagnostics by composing MIMAP-034A and rejecting before a second adapter call."
 
-current_blocker_token = "MIMAP-035A"
+current_blocker_token = "MIMAP-035B"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-463 MIMAP-035A facade huge unreserve fail-fast diagnostics landed",
   "293x-462 MIMAP-034B post-huge-unreserve row selection landed",
   "293x-461 MIMAP-034A facade huge unreserve-after-decommit route landed",
   "293x-460 MIMAP-033B post-page-source-unreserve row selection landed",

@@ -1,0 +1,84 @@
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_huge_unreserve_failfast_box as HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastBox
+
+static box Main {
+    main(args) {
+        local facade = new HakoAllocObjectLifecycleFacade()
+        local route = new HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastRoute()
+
+        local huge_size = route.hugeUnreserveFailfastThreshold() + 1
+        local stale_base = 99999
+        local report = route.proveHugeUnreserveFailfast(facade, huge_size, stale_base, huge_size)
+
+        local shape = 0
+        if report.first_status == 1 { shape = shape + 1 }
+        if report.first_reason == 0 { shape = shape + 1 }
+        if report.first_source_base != 0 { shape = shape + 1 }
+        if report.first_source_bytes == huge_size { shape = shape + 1 }
+        if report.first_source_commit_rc == 0 { shape = shape + 1 }
+        if report.first_huge_ptr == 70000 { shape = shape + 1 }
+        if report.first_huge_page_id == 1000 { shape = shape + 1 }
+        if report.first_decommit_status == 1 { shape = shape + 1 }
+        if report.first_decommit_ok == 1 { shape = shape + 1 }
+        if report.first_decommit_base == report.first_source_base { shape = shape + 1 }
+        if report.first_decommit_bytes == report.first_source_bytes { shape = shape + 1 }
+        if report.first_decommit_rc == 0 { shape = shape + 1 }
+        if report.first_unreserve_attempted == 1 { shape = shape + 1 }
+        if report.first_unreserve_ok == 1 { shape = shape + 1 }
+        if report.first_unreserve_base == report.first_source_base { shape = shape + 1 }
+        if report.first_unreserve_bytes == report.first_source_bytes { shape = shape + 1 }
+        if report.first_unreserve_rc == 0 { shape = shape + 1 }
+        if report.first_adapter_call_count == 1 { shape = shape + 1 }
+        if report.first_adapter_success_count == 1 { shape = shape + 1 }
+        if report.first_adapter_reject_count == 0 { shape = shape + 1 }
+        if report.mark_status == 0 { shape = shape + 1 }
+        if report.marked_count == 1 { shape = shape + 1 }
+        if report.duplicate_attempted == 1 { shape = shape + 1 }
+        if report.duplicate_rejected == 1 { shape = shape + 1 }
+        if report.duplicate_status == 5 { shape = shape + 1 }
+        if report.duplicate_base == report.first_source_base { shape = shape + 1 }
+        if report.duplicate_bytes == report.first_source_bytes { shape = shape + 1 }
+        if report.adapter_calls_before_duplicate == 1 { shape = shape + 1 }
+        if report.adapter_calls_after_duplicate == 1 { shape = shape + 1 }
+        if report.stale_attempted == 1 { shape = shape + 1 }
+        if report.stale_rejected == 1 { shape = shape + 1 }
+        if report.stale_status == 7 { shape = shape + 1 }
+        if report.stale_base == stale_base { shape = shape + 1 }
+        if report.stale_bytes == huge_size { shape = shape + 1 }
+        if report.adapter_calls_before_stale == 1 { shape = shape + 1 }
+        if report.adapter_calls_after_stale == 1 { shape = shape + 1 }
+        if report.failfast_attempt_count == 2 { shape = shape + 1 }
+        if report.duplicate_reject_count == 1 { shape = shape + 1 }
+        if report.stale_reject_count == 1 { shape = shape + 1 }
+        if report.success_count == 1 { shape = shape + 1 }
+        if report.failure_count == 0 { shape = shape + 1 }
+        if report.final_ok == 1 { shape = shape + 1 }
+        if report.final_reason == 0 { shape = shape + 1 }
+        if report.status == 1 { shape = shape + 1 }
+        if report.no_direct_page_source == 1 { shape = shape + 1 }
+        if report.no_recommit == 1 { shape = shape + 1 }
+        if report.no_provider == 1 { shape = shape + 1 }
+
+        print("mimalloc-facade-huge-unreserve-failfast-proof")
+        print("first=" + report.first_status + "," + report.first_reason + "," + report.first_source_base + "," + report.first_source_bytes + "," + report.first_source_commit_rc)
+        print("huge=" + report.first_huge_ptr + "," + report.first_huge_page_id)
+        print("decommit=" + report.first_decommit_status + "," + report.first_decommit_ok + "," + report.first_decommit_base + "," + report.first_decommit_bytes + "," + report.first_decommit_rc)
+        print("unreserve_first=" + report.first_unreserve_attempted + "," + report.first_unreserve_ok + "," + report.first_unreserve_base + "," + report.first_unreserve_bytes + "," + report.first_unreserve_rc)
+        print("adapter_first=" + report.first_adapter_call_count + "," + report.first_adapter_success_count + "," + report.first_adapter_reject_count)
+        print("marker=" + report.mark_status + "," + report.marked_count)
+        print("duplicate=" + report.duplicate_attempted + "," + report.duplicate_rejected + "," + report.duplicate_status + "," + report.duplicate_base + "," + report.duplicate_bytes + "," + report.adapter_calls_before_duplicate + "," + report.adapter_calls_after_duplicate)
+        print("stale=" + report.stale_attempted + "," + report.stale_rejected + "," + report.stale_status + "," + report.stale_base + "," + report.stale_bytes + "," + report.adapter_calls_before_stale + "," + report.adapter_calls_after_stale)
+        print("route_counts=" + report.failfast_attempt_count + "," + report.duplicate_reject_count + "," + report.stale_reject_count + "," + report.success_count + "," + report.failure_count)
+        print("stop=" + report.no_direct_page_source + "," + report.no_recommit + "," + report.no_provider)
+        print("final=" + report.status + "," + report.final_ok + "," + report.final_reason)
+        print("shape=" + shape)
+
+        if shape == 47 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

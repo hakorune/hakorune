@@ -30,15 +30,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-035A facade huge unreserve fail-fast diagnostics`
+- current blocker token: `MIMAP-035B post-huge-unreserve-failfast row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-034B`; current blocker is `MIMAP-035A`, a
-  facade huge unreserve duplicate/stale fail-fast diagnostics row
-- planned order: selected allocator behavior after `MIMAP-035A`
+- continue phase-293x after `MIMAP-035A`; current blocker is `MIMAP-035B`, a
+  post-huge-unreserve-failfast row selection
+- planned order: selected allocator behavior after `MIMAP-035B`
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

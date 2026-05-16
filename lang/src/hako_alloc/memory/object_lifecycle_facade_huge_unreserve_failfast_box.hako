@@ -1,0 +1,243 @@
+// object_lifecycle_facade_huge_unreserve_failfast_box.hako -- MIMAP-035A
+// facade huge-unreserve fail-fast diagnostics route
+// Responsibility: prove duplicate/stale huge unreserve attempts reject through
+// allocator-side unreserve state before a second page-source adapter call.
+// This module intentionally stops before recommit, purge scheduling, provider
+// hooks, host allocator replacement, and backend matcher shortcuts.
+
+using selfhost.hako_alloc.memory.object_lifecycle_facade_huge_unreserve_box as HakoAllocObjectLifecycleFacadeHugeUnreserveBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_reason_box as HakoAllocObjectLifecycleFacadeReason
+
+box HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastReport {
+    status: i64 = 0
+    requested_size: i64 = 0
+    huge_threshold: i64 = 0
+    first_status: i64 = 0
+    first_reason: i64 = 0
+    first_source_base: i64 = 0
+    first_source_bytes: i64 = 0
+    first_source_status: i64 = 0
+    first_source_commit_rc: i64 = -1
+    first_huge_ptr: i64 = 0
+    first_huge_page_id: i64 = -1
+    first_decommit_status: i64 = 0
+    first_decommit_ok: i64 = 0
+    first_decommit_base: i64 = 0
+    first_decommit_bytes: i64 = 0
+    first_decommit_rc: i64 = -1
+    first_unreserve_attempted: i64 = 0
+    first_unreserve_ok: i64 = 0
+    first_unreserve_base: i64 = 0
+    first_unreserve_bytes: i64 = 0
+    first_unreserve_rc: i64 = -1
+    first_adapter_call_count: i64 = 0
+    first_adapter_success_count: i64 = 0
+    first_adapter_reject_count: i64 = 0
+    mark_status: i64 = -1
+    marked_count: i64 = 0
+    duplicate_attempted: i64 = 0
+    duplicate_rejected: i64 = 0
+    duplicate_status: i64 = -1
+    duplicate_base: i64 = 0
+    duplicate_bytes: i64 = 0
+    adapter_calls_before_duplicate: i64 = 0
+    adapter_calls_after_duplicate: i64 = 0
+    stale_attempted: i64 = 0
+    stale_rejected: i64 = 0
+    stale_status: i64 = -1
+    stale_base: i64 = 0
+    stale_bytes: i64 = 0
+    adapter_calls_before_stale: i64 = 0
+    adapter_calls_after_stale: i64 = 0
+    failfast_attempt_count: i64 = 0
+    duplicate_reject_count: i64 = 0
+    stale_reject_count: i64 = 0
+    success_count: i64 = 0
+    failure_count: i64 = 0
+    final_ok: i64 = 0
+    final_reason: i64 = 0
+    no_direct_page_source: i64 = 1
+    no_recommit: i64 = 1
+    no_provider: i64 = 1
+}
+
+box HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastRoute {
+    unreserve_route: HakoAllocObjectLifecycleFacadeHugeUnreserveRoute = new HakoAllocObjectLifecycleFacadeHugeUnreserveRoute()
+    unreserved_bases: ArrayBox = new ArrayBox()
+    unreserved_bytes: ArrayBox = new ArrayBox()
+    failfast_attempt_count: i64 = 0
+    duplicate_reject_count: i64 = 0
+    stale_reject_count: i64 = 0
+    success_count: i64 = 0
+    failure_count: i64 = 0
+
+    hugeUnreserveFailfastThreshold(): i64 {
+        return me.unreserve_route.hugeUnreserveThreshold()
+    }
+
+    initHugeUnreserveFailfastReport(size) {
+        local result = new HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastReport()
+        result.requested_size = size
+        result.huge_threshold = me.hugeUnreserveFailfastThreshold()
+        return result
+    }
+
+    findUnreservedBacking(base, bytes): i64 {
+        local count = me.unreserved_bases.length()
+        local i = 0
+        loop(i < count) {
+            if me.unreserved_bases.get(i) == base {
+                if me.unreserved_bytes.get(i) == bytes {
+                    return i
+                }
+            }
+            i = i + 1
+        }
+        return -1
+    }
+
+    isUnreservedBacking(base, bytes): i64 {
+        if me.findUnreservedBacking(base, bytes) >= 0 {
+            return 1
+        }
+        return 0
+    }
+
+    markSuccessfulUnreserve(base, bytes): i64 {
+        if base == 0 {
+            return 1
+        }
+        if bytes <= 0 {
+            return 2
+        }
+        if me.isUnreservedBacking(base, bytes) != 0 {
+            return 5
+        }
+        me.unreserved_bases.push(base)
+        me.unreserved_bytes.push(bytes)
+        return 0
+    }
+
+    copyFirstUnreserveResult(result, first_status) {
+        result.first_status = first_status
+        result.first_reason = me.unreserve_route.last_reason
+        result.first_source_base = me.unreserve_route.last_source_base
+        result.first_source_bytes = me.unreserve_route.last_source_bytes
+        result.first_source_status = me.unreserve_route.last_source_status
+        result.first_source_commit_rc = me.unreserve_route.last_source_commit_rc
+        result.first_huge_ptr = me.unreserve_route.last_huge_ptr
+        result.first_huge_page_id = me.unreserve_route.last_huge_page_id
+        result.first_decommit_status = me.unreserve_route.last_decommit_status
+        result.first_decommit_ok = me.unreserve_route.last_decommit_ok
+        result.first_decommit_base = me.unreserve_route.last_decommit_base
+        result.first_decommit_bytes = me.unreserve_route.last_decommit_bytes
+        result.first_decommit_rc = me.unreserve_route.last_decommit_rc
+        result.first_unreserve_attempted = me.unreserve_route.last_unreserve_attempted
+        result.first_unreserve_ok = me.unreserve_route.last_unreserve_ok
+        result.first_unreserve_base = me.unreserve_route.last_unreserve_base
+        result.first_unreserve_bytes = me.unreserve_route.last_unreserve_bytes
+        result.first_unreserve_rc = me.unreserve_route.last_unreserve_rc
+        result.first_adapter_call_count = me.unreserve_route.last_adapter_call_count
+        result.first_adapter_success_count = me.unreserve_route.last_adapter_success_count
+        result.first_adapter_reject_count = me.unreserve_route.last_adapter_reject_count
+        return result
+    }
+
+    snapshotHugeUnreserveFailfastCounters(result) {
+        result.marked_count = me.unreserved_bases.length()
+        result.failfast_attempt_count = me.failfast_attempt_count
+        result.duplicate_reject_count = me.duplicate_reject_count
+        result.stale_reject_count = me.stale_reject_count
+        result.success_count = me.success_count
+        result.failure_count = me.failure_count
+        return result
+    }
+
+    rejectDuplicateUnreserve(result) {
+        me.failfast_attempt_count = me.failfast_attempt_count + 1
+        result.duplicate_attempted = 1
+        result.duplicate_base = result.first_unreserve_base
+        result.duplicate_bytes = result.first_unreserve_bytes
+        result.adapter_calls_before_duplicate = me.unreserve_route.unreserve_adapter.call_count
+
+        if me.isUnreservedBacking(result.duplicate_base, result.duplicate_bytes) != 0 {
+            me.duplicate_reject_count = me.duplicate_reject_count + 1
+            result.duplicate_rejected = 1
+            result.duplicate_status = 5
+        } else {
+            result.duplicate_status = 6
+        }
+
+        result.adapter_calls_after_duplicate = me.unreserve_route.unreserve_adapter.call_count
+        return result
+    }
+
+    rejectStaleUnreserve(result, stale_base, stale_bytes) {
+        me.failfast_attempt_count = me.failfast_attempt_count + 1
+        result.stale_attempted = 1
+        result.stale_base = stale_base
+        result.stale_bytes = stale_bytes
+        result.adapter_calls_before_stale = me.unreserve_route.unreserve_adapter.call_count
+
+        if me.isUnreservedBacking(stale_base, stale_bytes) == 0 {
+            me.stale_reject_count = me.stale_reject_count + 1
+            result.stale_rejected = 1
+            result.stale_status = 7
+        } else {
+            result.stale_status = 8
+        }
+
+        result.adapter_calls_after_stale = me.unreserve_route.unreserve_adapter.call_count
+        return result
+    }
+
+    proveHugeUnreserveFailfast(facade, size, stale_base, stale_bytes) {
+        local result = me.initHugeUnreserveFailfastReport(size)
+        local first_status = me.unreserve_route.allocateUnregisterDecommitUnreserveHuge(facade, size)
+        me.copyFirstUnreserveResult(result, first_status)
+
+        if first_status != 1 {
+            me.failure_count = me.failure_count + 1
+            result.final_ok = 0
+            result.final_reason = me.unreserve_route.last_reason
+            return me.snapshotHugeUnreserveFailfastCounters(result)
+        }
+
+        if result.first_unreserve_ok != 1 {
+            me.failure_count = me.failure_count + 1
+            result.final_ok = 0
+            result.final_reason = HakoAllocObjectLifecycleFacadeReason.release_decommit_reject()
+            return me.snapshotHugeUnreserveFailfastCounters(result)
+        }
+
+        result.mark_status = me.markSuccessfulUnreserve(result.first_unreserve_base, result.first_unreserve_bytes)
+        if result.mark_status != 0 {
+            me.failure_count = me.failure_count + 1
+            result.final_ok = 0
+            result.final_reason = HakoAllocObjectLifecycleFacadeReason.release_decommit_reject()
+            return me.snapshotHugeUnreserveFailfastCounters(result)
+        }
+
+        me.rejectDuplicateUnreserve(result)
+        me.rejectStaleUnreserve(result, stale_base, stale_bytes)
+
+        if result.duplicate_rejected == 1 {
+            if result.stale_rejected == 1 {
+                if result.adapter_calls_before_duplicate == result.adapter_calls_after_duplicate {
+                    if result.adapter_calls_before_stale == result.adapter_calls_after_stale {
+                        me.success_count = me.success_count + 1
+                        result.status = 1
+                        result.final_ok = 1
+                        result.final_reason = HakoAllocObjectLifecycleFacadeReason.ok()
+                        return me.snapshotHugeUnreserveFailfastCounters(result)
+                    }
+                }
+            }
+        }
+
+        me.failure_count = me.failure_count + 1
+        result.final_ok = 0
+        result.final_reason = HakoAllocObjectLifecycleFacadeReason.release_decommit_reject()
+        return me.snapshotHugeUnreserveFailfastCounters(result)
+    }
+}

@@ -1,6 +1,6 @@
 # 293x-463 MIMAP-035A Facade Huge Unreserve Fail-Fast
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -64,3 +64,41 @@ tools/checks/dev_gate.sh quick
 This row closes when facade huge unreserve duplicate/stale diagnostics are live
 and proven through existing owner seams, while recommit, provider activation,
 and host allocator replacement remain inactive.
+
+## Landed Implementation
+
+```text
+facade route owner:
+  lang/src/hako_alloc/memory/object_lifecycle_facade_huge_unreserve_failfast_box.hako
+proof app:
+  apps/mimalloc-facade-huge-unreserve-failfast-proof/main.hako
+guard:
+  tools/checks/k2_wide_mimalloc_facade_huge_unreserve_failfast_exe_guard.sh
+```
+
+The landed row adds
+`HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastRoute`. It composes
+`HakoAllocObjectLifecycleFacadeHugeUnreserveRoute`, records the first
+successful unreserved backing range in allocator-side state, and rejects
+duplicate/stale unreserve attempts before a second page-source unreserve
+adapter call.
+
+Focused proof output includes:
+
+```text
+mimalloc-facade-huge-unreserve-failfast-proof
+unreserve_first=1,1,<base>,<bytes>,0
+adapter_first=1,1,0
+marker=0,1
+duplicate=1,1,5,<same-base>,<same-bytes>,1,1
+stale=1,1,7,99999,<same-bytes>,1,1
+route_counts=2,1,1,1,0
+stop=1,1,1
+summary=ok
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-035B post-huge-unreserve-failfast row selection.
+```
