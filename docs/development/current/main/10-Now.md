@@ -30,15 +30,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `EXPRS-INDEXING-001 MIR builder indexing owner cleanup`
+- current blocker token: `EXPRS-COLLECTION-LITERAL-001 MIR builder collection literal owner cleanup`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `PROOF-APPS-MANIFEST-SCHEMA-002`; current blocker
-  is `EXPRS-INDEXING-001`, a MIR builder indexing owner cleanup
-- planned order: selected row after `EXPRS-INDEXING-001`
+- continue phase-293x after `EXPRS-INDEXING-002`; current blocker is
+  `EXPRS-COLLECTION-LITERAL-001`, a MIR builder collection literal owner cleanup
+- planned order: selected row after `EXPRS-COLLECTION-LITERAL-001`
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

@@ -1,6 +1,6 @@
 # 293x-495 EXPRS-INDEXING-001
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -52,3 +52,32 @@ git diff --check
 
 This row closes when indexing-specific logic has a dedicated builder owner and
 the accepted expression/indexing behavior is unchanged.
+
+## Result
+
+Landed:
+
+- Added `src/mir/builder/indexing.rs`.
+- Moved index target class inference and index target formatting helpers out of
+  `exprs.rs`.
+- Moved static-data index load lowering out of `exprs.rs`.
+- Moved ArrayBox/MapBox index get/set lowering out of `exprs.rs`.
+- Kept `exprs.rs` as the AST dispatcher/facade.
+
+No accepted indexable classes, static table support, ArrayBox/MapBox route
+semantics, receiver/result value shape, parser syntax, allocator behavior,
+provider activation, hooks, host allocator replacement, or `#[global_allocator]`
+behavior changed.
+
+## Evidence
+
+```text
+cargo check -q
+bash tools/checks/k2_wide_static_const_table_load_guard.sh
+cargo test -q static_const_table_load
+cargo test -q array_value_get_uses_unified_receiver_arg_shape_and_element_return
+cargo test -q map_value_get_existing_key_uses_unified_receiver_arg_shape_and_stored_value_return
+bash tools/checks/current_state_pointer_guard.sh
+tools/checks/dev_gate.sh quick
+git diff --check
+```

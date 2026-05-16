@@ -71,6 +71,7 @@ mod exprs_peek; // peek expression
 mod exprs_qmark; // ?-propagate
 mod fields; // field access/assignment lowering split
 mod if_form;
+mod indexing; // indexing expression/assignment lowering
 mod weak_field_validator; // Phase 285A1: Weak field contract validator
                           // Phase 29bq+: sealing 層中立化
 use control_flow::edgecfg::api::FragEmitSession;

@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-16"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "PROOF-APPS-MANIFEST-SCHEMA-001 proof-app manifest schema cleanup landed. PROOF-APPS-MANIFEST-SCHEMA-002 selected EXPRS-INDEXING-001 as the next MIR builder BoxShape cleanup. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "EXPRS-INDEXING-001 MIR builder indexing owner cleanup landed. EXPRS-INDEXING-002 selected EXPRS-COLLECTION-LITERAL-001 as the next MIR builder BoxShape cleanup. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-495-EXPRS-INDEXING-001.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-497-EXPRS-COLLECTION-LITERAL-001.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-494-PROOF-APPS-MANIFEST-SCHEMA-002-POST-MANIFEST-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-494-PROOF-APPS-MANIFEST-SCHEMA-002-POST-MANIFEST-ROW-SELECTION.md"
-latest_card_summary = "PROOF-APPS-MANIFEST-SCHEMA-002 selects EXPRS-INDEXING-001 as the next MIR builder cleanup."
+latest_card = "293x-496-EXPRS-INDEXING-002-POST-INDEXING-ROW-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-496-EXPRS-INDEXING-002-POST-INDEXING-ROW-SELECTION.md"
+latest_card_summary = "EXPRS-INDEXING-002 selects EXPRS-COLLECTION-LITERAL-001 as the next MIR builder cleanup."
 
-current_blocker_token = "EXPRS-INDEXING-001"
+current_blocker_token = "EXPRS-COLLECTION-LITERAL-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-496 EXPRS-INDEXING-002 selected EXPRS-COLLECTION-LITERAL-001 MIR builder collection literal cleanup",
+  "293x-495 EXPRS-INDEXING-001 MIR builder indexing owner cleanup landed",
   "293x-494 PROOF-APPS-MANIFEST-SCHEMA-002 selected EXPRS-INDEXING-001 MIR builder indexing cleanup",
   "293x-493 PROOF-APPS-MANIFEST-SCHEMA-001 proof-app manifest schema cleanup landed",
   "293x-492 RECORD-VALUES-REG-002 selected PROOF-APPS-MANIFEST-SCHEMA-001 manifest schema cleanup",
