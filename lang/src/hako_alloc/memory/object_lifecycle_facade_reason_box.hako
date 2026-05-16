@@ -44,6 +44,10 @@ static box HakoAllocObjectLifecycleFacadeReason {
         return 3
     }
 
+    release_decommit_reject() {
+        return 4
+    }
+
     alignment_unsupported() {
         return 1
     }

@@ -153,9 +153,9 @@ Forbidden:
 | `MIMAP-027A` | facade huge-unregister fail-fast diagnostics route | MIMAP-026B selects M181 post-unregister reject diagnostics |
 | `MIMAP-027B` | post-huge-unregister-failfast allocator row selection | MIMAP-027A is green |
 | `MIMAP-028A` | facade huge page-source backing route | landed after MIMAP-027B |
-| `MIMAP-028B` | post-backed-huge allocator row selection | current after MIMAP-028A |
-| `MIMAP-029A` | draft: facade huge decommit-after-unregister success route | after backed huge allocation is green |
-| `MIMAP-029B` | draft: post-huge-decommit allocator row selection | after MIMAP-029A if selected |
+| `MIMAP-028B` | post-backed-huge allocator row selection | landed; selected MIMAP-029A |
+| `MIMAP-029A` | facade huge decommit-after-unregister success route | landed after MIMAP-028B |
+| `MIMAP-029B` | post-huge-decommit allocator row selection | current after MIMAP-029A |
 | `MIMAP-030A` | draft: facade huge decommit fail-fast diagnostics | after MIMAP-029A if selected |
 | `MIMAP-030B` | draft: post-huge-decommit-failfast allocator row selection | after MIMAP-030A if selected |
 | `MIMAP-031A` | draft: OSVM unreserve capability inventory / planning row | only after decommit success/reject rows are green |
@@ -368,22 +368,59 @@ small release/free, realloc, alignment, remote-free, TLS, atomic, or backend
 `.hako` owner, `MIMAP-027B` should select a narrow CorePlan / verifier contract
 row instead of jumping to OS page return.
 
-MIMAP-028B is the current planning-only row. It must inspect the backed huge
-allocation state and select exactly one next allocator behavior row. The
-conservative default candidate is `MIMAP-029A`: a facade huge
-decommit-after-unregister success route. It should compose:
+MIMAP-028B is a landed planning-only row. It inspected the backed huge
+allocation state and selected `MIMAP-029A`: a facade huge
+decommit-after-unregister success route. The selected row composes:
 
 ```text
 MIMAP-028A backed huge allocation
-MIMAP-026A/M181 huge unregister
-page-source decommit of the MIMAP-028A backing range
+M181 huge unregister bound to the MIMAP-028A route's huge model
+M196 page-source decommit of the MIMAP-028A backing range
 scalar report -> huge/page-map live state is zero and decommit succeeds
 ```
 
-MIMAP-028B must not implement behavior. If decommit needs a stronger
-capability/verifier contract or a narrower backing identity shape before
-execution, select that contract row explicitly instead of silently widening
-MIMAP-029A.
+MIMAP-029A must not call `MIMAP-026A allocateThenUnregisterHuge(...)`
+directly, because that route owns a separate huge model/page-map and therefore
+does not prove decommit of the MIMAP-028A backing range.
+
+MIMAP-029A is a landed behavior row. It started with the scalar owner split
+below before any compiler sidecar:
+
+```text
+page_source_route.allocateHugeWithPageSource(facade, size)
+release_seam = new HakoAllocHugeReleaseSeam(page_source_route.huge_route.huge_model)
+release_seam.releaseHugePtr(result.huge_ptr)
+decommit_adapter.decommitPage(result.source_base, result.source_bytes)
+```
+
+If that minimal owner fails pure-first route acceptance with
+`target_body_supported=false`, `user_box_method_contract_missing`,
+`structured_call_no_route`, or `mir_call_no_route`, stop the allocator row and
+cut `USERBOX-METHOD-COMPOSITE-001`. That sidecar must be allocator-name neutral
+and pin only the generic shape:
+
+```text
+typed report object-return method
+  + field_set
+  + generic_i64 global call
+  + cross-owner same-module user-box method call
+```
+
+The implementation exposed a PHI base-query work explosion before a missing
+user-box route contract. The closeout fixed `src/mir/phi_query.rs` by replacing
+per-branch `BTreeSet` cloning with memoized backtracking. That compiler sidecar
+does not add an allocator behavior or backend capability.
+
+MIMAP-029A does not add unreserve/recommit, duplicate decommit diagnostics,
+provider activation, host allocator replacement, hooks, or backend matcher
+shortcuts.
+
+MIMAP-029B is the current planning-only row. It must inspect the post-decommit
+state and select exactly one next allocator behavior row. The conservative
+default candidate is `MIMAP-030A`, but duplicate decommit diagnostics must be
+allocator-side stateful; do not rely on OSVM/page-source decommit itself to
+detect duplicate decommit. If the duplicate-decommit route needs a state marker
+or verifier contract first, select that row explicitly.
 
 ## Compiler / language sidecar triggers
 

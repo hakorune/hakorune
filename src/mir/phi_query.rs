@@ -77,8 +77,9 @@ pub(crate) fn infer_phi_base_query_with_anchors(
     value: ValueId,
     anchors: &BTreeSet<ValueId>,
 ) -> PhiBaseQueryResult {
-    let visited = BTreeSet::new();
-    infer_phi_base_relation_inner(function, def_map, value, anchors, visited)
+    let mut visiting = BTreeSet::new();
+    let mut memo = HashMap::new();
+    infer_phi_base_relation_inner(function, def_map, value, anchors, &mut visiting, &mut memo)
 }
 
 fn infer_phi_base_relation_inner(
@@ -86,67 +87,87 @@ fn infer_phi_base_relation_inner(
     def_map: &ValueDefMap,
     value: ValueId,
     anchors: &BTreeSet<ValueId>,
-    mut visited: BTreeSet<ValueId>,
+    visiting: &mut BTreeSet<ValueId>,
+    memo: &mut HashMap<ValueId, PhiBaseQueryResult>,
 ) -> PhiBaseQueryResult {
     let root = resolve_value_origin(function, def_map, value);
-    if !visited.insert(root) {
+    if let Some(cached) = memo.get(&root).copied() {
+        return cached;
+    }
+    if !visiting.insert(root) {
         return PhiBaseQueryResult {
             relation: PhiBaseRelation::Unknown,
             window_safe: false,
         };
     }
-    if anchors.contains(&root) {
-        return PhiBaseQueryResult {
+
+    let result = if anchors.contains(&root) {
+        PhiBaseQueryResult {
             relation: PhiBaseRelation::SameBase(root),
             window_safe: true,
-        };
-    }
-
-    let Some((bbid, idx)) = def_map.get(&root).copied() else {
-        return PhiBaseQueryResult {
-            relation: PhiBaseRelation::Unknown,
-            window_safe: false,
-        };
-    };
-    let Some(block) = function.blocks.get(&bbid) else {
-        return PhiBaseQueryResult {
-            relation: PhiBaseRelation::Unknown,
-            window_safe: false,
-        };
-    };
-    let Some(MirInstruction::Phi { inputs, .. }) = block.instructions.get(idx) else {
-        return PhiBaseQueryResult {
-            relation: PhiBaseRelation::Unknown,
-            window_safe: false,
-        };
-    };
-
-    match inputs.as_slice() {
-        [(_, carried)] => {
-            let child =
-                infer_phi_base_relation_inner(function, def_map, *carried, anchors, visited);
-            PhiBaseQueryResult {
-                relation: child.relation,
-                window_safe: matches!(child.relation, PhiBaseRelation::SameBase(_))
-                    && child.window_safe,
-            }
         }
-        [(_, lhs), (_, rhs)] => {
-            let lhs_relation =
-                infer_phi_base_relation_inner(function, def_map, *lhs, anchors, visited.clone());
-            let rhs_relation =
-                infer_phi_base_relation_inner(function, def_map, *rhs, anchors, visited);
-            let relation = merge_phi_base_relations(lhs_relation.relation, rhs_relation.relation);
-            PhiBaseQueryResult {
-                relation,
+    } else {
+        let Some((bbid, idx)) = def_map.get(&root).copied() else {
+            let result = PhiBaseQueryResult {
+                relation: PhiBaseRelation::Unknown,
                 window_safe: false,
+            };
+            visiting.remove(&root);
+            memo.insert(root, result);
+            return result;
+        };
+        let Some(block) = function.blocks.get(&bbid) else {
+            let result = PhiBaseQueryResult {
+                relation: PhiBaseRelation::Unknown,
+                window_safe: false,
+            };
+            visiting.remove(&root);
+            memo.insert(root, result);
+            return result;
+        };
+        let Some(MirInstruction::Phi { inputs, .. }) = block.instructions.get(idx) else {
+            let result = PhiBaseQueryResult {
+                relation: PhiBaseRelation::Unknown,
+                window_safe: false,
+            };
+            visiting.remove(&root);
+            memo.insert(root, result);
+            return result;
+        };
+
+        match inputs.as_slice() {
+            [(_, carried)] => {
+                let child = infer_phi_base_relation_inner(
+                    function, def_map, *carried, anchors, visiting, memo,
+                );
+                PhiBaseQueryResult {
+                    relation: child.relation,
+                    window_safe: matches!(child.relation, PhiBaseRelation::SameBase(_))
+                        && child.window_safe,
+                }
             }
+            [(_, lhs), (_, rhs)] => {
+                let lhs_relation =
+                    infer_phi_base_relation_inner(function, def_map, *lhs, anchors, visiting, memo);
+                let rhs_relation =
+                    infer_phi_base_relation_inner(function, def_map, *rhs, anchors, visiting, memo);
+                let relation =
+                    merge_phi_base_relations(lhs_relation.relation, rhs_relation.relation);
+                PhiBaseQueryResult {
+                    relation,
+                    window_safe: false,
+                }
+            }
+            _ => PhiBaseQueryResult {
+                relation: PhiBaseRelation::Unknown,
+                window_safe: false,
+            },
         }
-        _ => PhiBaseQueryResult {
-            relation: PhiBaseRelation::Unknown,
-            window_safe: false,
-        },
-    }
+    };
+
+    visiting.remove(&root);
+    memo.insert(root, result);
+    result
 }
 
 fn merge_phi_base_relations(lhs: PhiBaseRelation, rhs: PhiBaseRelation) -> PhiBaseRelation {
@@ -295,5 +316,41 @@ mod tests {
 
         assert_eq!(relation.relation, PhiBaseRelation::SameBase(ValueId(10)));
         assert!(relation.window_safe);
+    }
+
+    #[test]
+    fn infer_phi_base_relation_memoizes_shared_binary_phi_dag() {
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![MirType::Integer],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId(0));
+        let entry = function.blocks.get_mut(&BasicBlockId(0)).expect("entry");
+        entry.instructions.push(MirInstruction::Const {
+            dst: ValueId(10),
+            value: ConstValue::Integer(1),
+        });
+        entry.instruction_spans.push(Span::unknown());
+
+        let mut carried = ValueId(10);
+        for idx in 0..16 {
+            let dst = ValueId(100 + idx);
+            entry.instructions.push(MirInstruction::Phi {
+                dst,
+                inputs: vec![(BasicBlockId(0), carried), (BasicBlockId(0), carried)],
+                type_hint: Some(MirType::Integer),
+            });
+            entry.instruction_spans.push(Span::unknown());
+            carried = dst;
+        }
+
+        let def_map = build_value_def_map(&function);
+        let anchors = BTreeSet::from([ValueId(10)]);
+        let relation = infer_phi_base_query_with_anchors(&function, &def_map, carried, &anchors);
+
+        assert_eq!(relation.relation, PhiBaseRelation::SameBase(ValueId(10)));
+        assert!(!relation.window_safe);
     }
 }

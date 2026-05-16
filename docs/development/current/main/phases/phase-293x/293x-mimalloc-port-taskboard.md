@@ -29,10 +29,10 @@ the internal worker identity, TLS cache-slot, atomic route guard, and
 remote-free / abandoned-owner policy, thread-safe `hako_mem` ABI, and native
 multi-worker substrate stress rows are now live. The facade huge-request
 fail-fast routing row is green, and the facade huge-page model route is green.
-The current primary row moves to the post-backed-huge row selection:
+The current primary row moves to the post-huge-decommit row selection:
 
 ```text
-  MIMAP-028B post-backed-huge row selection
+  MIMAP-029B post-huge-decommit row selection
 ```
 
 Closed cleanup sidecar:
@@ -150,8 +150,15 @@ MIMAP-028A:
   landed
   facade huge page-source backing route is green
 MIMAP-028B:
+  landed
+  selected MIMAP-029A facade huge decommit-after-unregister success route and
+  pinned the pure-first acceptance sidecar trigger
+MIMAP-029A:
+  landed
+  facade huge decommit-after-unregister success route is green
+MIMAP-029B:
   ready current
-  post-backed-huge allocator row selection is the current primary row
+  post-huge-decommit allocator row selection is the current primary row
 ```
 
 ## Active Source Policy
@@ -324,9 +331,9 @@ FST:
 | `MIMAP-027A` | landed | Facade huge-unregister fail-fast diagnostics route. | after MIMAP-026B |
 | `MIMAP-027B` | landed | Post-huge-unregister-failfast allocator row selection. | after MIMAP-027A |
 | `MIMAP-028A` | landed | Facade huge page-source backing route. | after MIMAP-027B |
-| `MIMAP-028B` | ready current | Post-backed-huge allocator row selection. | current |
-| `MIMAP-029A` | draft candidate | Facade huge decommit-after-unregister success route. | after backed huge allocation |
-| `MIMAP-029B` | draft candidate | Post-huge-decommit allocator row selection. | after MIMAP-029A if selected |
+| `MIMAP-028B` | landed | Post-backed-huge allocator row selection. | selected MIMAP-029A |
+| `MIMAP-029A` | landed | Facade huge decommit-after-unregister success route. | after MIMAP-028B |
+| `MIMAP-029B` | ready current | Post-huge-decommit allocator row selection. | current |
 | `MIMAP-030A` | draft candidate | Facade huge decommit fail-fast diagnostics. | after MIMAP-029A if selected |
 | `MIMAP-030B` | draft candidate | Post-huge-decommit-failfast allocator row selection. | after MIMAP-030A if selected |
 | `MIMAP-031A` | draft candidate | OSVM unreserve capability inventory / planning row. | after decommit rows if still needed |

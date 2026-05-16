@@ -18,7 +18,7 @@ pure_first_guard_emit_mir() {
 
   NYASH_FEATURES=rune \
   NYASH_DISABLE_PLUGINS=1 \
-  "$root_dir/target/debug/hakorune" --emit-mir-json "$mir_json" "$app" >/dev/null
+  "$root_dir/target/debug/hakorune" --backend mir --emit-mir-json "$mir_json" "$app" >/dev/null
 }
 
 pure_first_guard_build_exe() {

@@ -14,7 +14,7 @@ box HakoAllocHugePageMetaStore {
     count: i64 = 0
     live_count: i64 = 0
 
-    append(page_id, ptr, requested_size, committed_size) {
+    append(page_id, ptr, requested_size, committed_size): i64 {
         local meta = new HakoAllocHugePageMeta(page_id, ptr, requested_size, committed_size, 1)
         me.page_ids.push(meta.page_id)
         me.ptrs.push(meta.ptr)
@@ -26,7 +26,7 @@ box HakoAllocHugePageMetaStore {
         return 1
     }
 
-    findIndex(ptr) {
+    findIndex(ptr): i64 {
         local i = 0
         loop(i < me.count) {
             if me.ptrs.get(i) == ptr {
@@ -40,12 +40,12 @@ box HakoAllocHugePageMetaStore {
         return -1
     }
 
-    pageIdFor(ptr) {
+    pageIdFor(ptr): i64 {
         local index = me.findIndex(ptr)
         return me.pageIdAt(index)
     }
 
-    pageIdAt(index) {
+    pageIdAt(index): i64 {
         if index < 0 {
             return -1
         }
@@ -58,15 +58,16 @@ box HakoAllocHugePageMetaStore {
             return -1
         }
 
-        return me.page_ids.get(index)
+        local page_id: i64 = me.page_ids.get(index)
+        return page_id
     }
 
-    requestedSizeFor(ptr) {
+    requestedSizeFor(ptr): i64 {
         local index = me.findIndex(ptr)
         return me.requestedSizeAt(index)
     }
 
-    requestedSizeAt(index) {
+    requestedSizeAt(index): i64 {
         if index < 0 {
             return 0
         }
@@ -79,15 +80,16 @@ box HakoAllocHugePageMetaStore {
             return 0
         }
 
-        return me.requested_sizes.get(index)
+        local requested_size: i64 = me.requested_sizes.get(index)
+        return requested_size
     }
 
-    committedSizeFor(ptr) {
+    committedSizeFor(ptr): i64 {
         local index = me.findIndex(ptr)
         return me.committedSizeAt(index)
     }
 
-    committedSizeAt(index) {
+    committedSizeAt(index): i64 {
         if index < 0 {
             return 0
         }
@@ -100,15 +102,16 @@ box HakoAllocHugePageMetaStore {
             return 0
         }
 
-        return me.committed_sizes.get(index)
+        local committed_size: i64 = me.committed_sizes.get(index)
+        return committed_size
     }
 
-    markReleased(ptr) {
+    markReleased(ptr): i64 {
         local index = me.findIndex(ptr)
         return me.markReleasedAt(index)
     }
 
-    markReleasedAt(index) {
+    markReleasedAt(index): i64 {
         if index < 0 {
             return 0
         }

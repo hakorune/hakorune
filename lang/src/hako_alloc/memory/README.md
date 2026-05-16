@@ -42,6 +42,7 @@ Current modules
 - `object_lifecycle_facade_huge_failfast_box.hako`
 - `object_lifecycle_facade_huge_page_model_box.hako`
 - `object_lifecycle_facade_huge_page_source_box.hako`
+- `object_lifecycle_facade_huge_decommit_box.hako`
 - `object_lifecycle_facade_huge_release_box.hako`
 - `object_lifecycle_facade_huge_release_failfast_box.hako`
 - `object_lifecycle_facade_huge_unregister_box.hako`
@@ -77,6 +78,11 @@ Syntax/style contract
 - Numeric stored field migration is gated by
   [`NUMERIC_FIELDS.md`](./NUMERIC_FIELDS.md). Do not migrate a field to
   `usize` unless its category and sentinel behavior are recorded there first.
+- `huge_page_meta_store_box.hako` exposes scalar append/read/release methods
+  with explicit `: i64` return contracts. These contracts keep same-module
+  user-box routes stable for huge-page model reads. Scalar column reads should
+  return through typed locals; do not rely on dynamic `ArrayBox.get` return
+  inference for this store API.
 - `usize_field_probe_box.hako` is a probe-only owner for exact `usize` stored
   field behavior. New production migrations still require a named field-group
   row and must not expand just because the probe is green.
@@ -134,6 +140,7 @@ Syntax/style contract
   | release | `release_no_page()` | 1 | Page id is invalid or not in the facade-owned known-page scan. |
   | release | `release_bad_block()` | 2 | Block id is invalid. |
   | release | `release_page_reject()` | 3 | Known page rejected the local release. |
+  | release | `release_decommit_reject()` | 4 | Page-source decommit failed after huge unregister. |
   | alignment | `alignment_unsupported()` | 1 | Alignment policy rejected the request. |
   | realloc | `realloc_no_page()` | 1 | Page id is invalid or not in the facade-owned known-page scan. |
   | realloc | `realloc_bad_block()` | 2 | Block id is invalid. |
@@ -204,6 +211,15 @@ Syntax/style contract
   unregister the huge handle, decommit/unreserve/recommit, add small
   release/free, realloc, alignment, purge/reclaim, remote-free/TLS/atomics,
   provider hooks, host allocator replacement, or backend shortcuts.
+- `object_lifecycle_facade_huge_decommit_box.hako` owns the MIMAP-029A facade
+  huge decommit-after-unregister success route. It may allocate one
+  page-source-backed huge handle through MIMAP-028A, bind M181
+  `HakoAllocHugeReleaseSeam` to that same route's huge model, unregister that
+  same live pointer, and decommit exactly the MIMAP-028A backing range through
+  the M196 `HakoAllocPageSourceDecommitAdapter`. It must not add duplicate
+  decommit diagnostics, unreserve/recommit, small release/free, realloc,
+  alignment, purge/reclaim, remote-free/TLS/atomics, provider hooks, host
+  allocator replacement, or backend shortcuts.
 - `object_lifecycle_facade_huge_release_box.hako` owns the MIMAP-024A facade
   huge-release metadata route. It may allocate one huge request through the
   MIMAP-023A facade huge-page model route, retire that same live huge pointer

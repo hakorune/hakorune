@@ -1,0 +1,66 @@
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_huge_decommit_box as HakoAllocObjectLifecycleFacadeHugeDecommitBox
+
+static box Main {
+    main(args) {
+        local facade = new HakoAllocObjectLifecycleFacade()
+        local route = new HakoAllocObjectLifecycleFacadeHugeDecommitRoute()
+
+        local huge_size = route.hugeDecommitThreshold() + 1
+        local status = route.allocateUnregisterDecommitHuge(facade, huge_size)
+
+        local shape = 0
+        if status == 1 { shape = shape + 1 }
+        if route.last_source_status == 1 { shape = shape + 1 }
+        if route.last_source_base != 0 { shape = shape + 1 }
+        if route.last_source_bytes == huge_size { shape = shape + 1 }
+        if route.last_source_commit_rc == 0 { shape = shape + 1 }
+        if route.last_huge_ptr == 70000 { shape = shape + 1 }
+        if route.last_huge_page_id == 1000 { shape = shape + 1 }
+        if route.last_huge_requested_size == huge_size { shape = shape + 1 }
+        if route.last_huge_committed_size == huge_size { shape = shape + 1 }
+        if route.last_allocation_ok == 1 { shape = shape + 1 }
+        if route.last_unregister_attempted == 1 { shape = shape + 1 }
+        if route.last_unregister_ok == 1 { shape = shape + 1 }
+        if route.last_unregister_live_before == 1 { shape = shape + 1 }
+        if route.last_unregister_live_after == 0 { shape = shape + 1 }
+        if route.last_unregister_failure_kind == 0 { shape = shape + 1 }
+        if route.last_decommit_attempted == 1 { shape = shape + 1 }
+        if route.last_decommit_ok == 1 { shape = shape + 1 }
+        if route.last_decommit_base == route.last_source_base { shape = shape + 1 }
+        if route.last_decommit_bytes == route.last_source_bytes { shape = shape + 1 }
+        if route.last_decommit_rc == 0 { shape = shape + 1 }
+        if route.last_huge_live_count == 0 { shape = shape + 1 }
+        if route.last_page_map_live_count == 0 { shape = shape + 1 }
+        if route.last_page_map_unregister_count == 1 { shape = shape + 1 }
+        if route.last_seam_release_count == 1 { shape = shape + 1 }
+        if route.last_seam_unregister_count == 1 { shape = shape + 1 }
+        if route.last_seam_reject_count == 0 { shape = shape + 1 }
+        if route.last_adapter_call_count == 1 { shape = shape + 1 }
+        if route.last_adapter_success_count == 1 { shape = shape + 1 }
+        if route.last_adapter_reject_count == 0 { shape = shape + 1 }
+        if route.attempt_count == 1 { shape = shape + 1 }
+        if route.success_count == 1 { shape = shape + 1 }
+        if route.failure_count == 0 { shape = shape + 1 }
+        if route.last_status == 1 { shape = shape + 1 }
+        if route.last_reason == 0 { shape = shape + 1 }
+
+        print("mimalloc-facade-huge-decommit-proof")
+        print("source=" + route.last_source_status + "," + route.last_source_base + "," + route.last_source_bytes + "," + route.last_source_commit_rc)
+        print("huge=" + route.last_huge_ptr + "," + route.last_huge_page_id + "," + route.last_huge_requested_size + "," + route.last_huge_committed_size + "," + route.last_allocation_ok)
+        print("unregister=" + route.last_unregister_attempted + "," + route.last_unregister_ok + "," + route.last_unregister_live_before + "," + route.last_unregister_live_after + "," + route.last_unregister_failure_kind)
+        print("decommit=" + route.last_decommit_attempted + "," + route.last_decommit_ok + "," + route.last_decommit_base + "," + route.last_decommit_bytes + "," + route.last_decommit_rc)
+        print("counts=" + route.last_huge_live_count + "," + route.last_page_map_live_count + "," + route.last_page_map_unregister_count + "," + route.last_seam_release_count + "," + route.last_seam_unregister_count + "," + route.last_seam_reject_count + "," + route.last_adapter_call_count + "," + route.last_adapter_success_count + "," + route.last_adapter_reject_count)
+        print("route_counts=" + route.attempt_count + "," + route.success_count + "," + route.failure_count)
+        print("final=" + route.last_status + "," + route.last_reason + "," + status)
+        print("shape=" + shape)
+
+        if shape == 34 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

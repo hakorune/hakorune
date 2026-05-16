@@ -126,6 +126,13 @@ Principles
     allocation/register step to the existing MIMAP-023A huge route while still
     stopping before huge release/unregister, OS page return, unreserve/decommit,
     provider activation, and allocator replacement.
+  - `HakoAllocObjectLifecycleFacadeHugeDecommitRoute` is the MIMAP-029A
+    facade huge decommit owner. It allocates one page-source-backed huge handle
+    through MIMAP-028A, binds M181 `HakoAllocHugeReleaseSeam` to that same huge
+    model, unregisters the live pointer, then decommits exactly the MIMAP-028A
+    backing range through the existing M196 page-source decommit adapter while
+    still stopping before duplicate decommit diagnostics, unreserve/recommit,
+    provider activation, and allocator replacement.
   - `HakoAllocHugeReleaseSeam` is the M181 huge release seam owner. It retires
     huge handles through `HakoAllocHugePageModel` and unregisters page-map
     ownership without touching small page `releaseLocal(...)`.

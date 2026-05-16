@@ -49,7 +49,7 @@ Scope: current lane / next lane / restart order only.
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - current blocker token:
-  `MIMAP-028B post-backed-huge row selection`
+  `MIMAP-029B post-huge-decommit row selection`
 - current BoxShape sidecar:
   none active; `MIRBUILDER-DIET` closed through `MIR-SEMANTIC-PLANS-001`
 - primary mode: mimalloc substrate implementation lane; keep upstream source
@@ -66,8 +66,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after MIMAP-028A; next blocker is
-  MIMAP-028B post-backed-huge row selection.
+- resume point: continue Phase 293x after MIMAP-029A; next blocker is
+  MIMAP-029B post-huge-decommit row selection.
   VM-LIM-001 remains parked diagnostic. Keep LoopRange on the Stage1 route; do
   not source-desugar range loops.
 
@@ -75,7 +75,7 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  MIMAP-028B post-backed-huge row selection
+  MIMAP-029B post-huge-decommit row selection
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
   reduction after mimalloc completeness evidence. Do not make broad `.hako`

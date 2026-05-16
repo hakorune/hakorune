@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-16"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-028A facade huge page-source backing route landed; MIMAP-028B post-backed-huge row selection is current. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-029A facade huge decommit-after-unregister success route landed; MIMAP-029B post-huge-decommit row selection is current. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-447-MIMAP-028B-POST-BACKED-HUGE-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-449-MIMAP-029B-POST-HUGE-DECOMMIT-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-446-MIMAP-028A-FACADE-HUGE-PAGE-SOURCE-ROUTE"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-446-MIMAP-028A-FACADE-HUGE-PAGE-SOURCE-ROUTE.md"
-latest_card_summary = "MIMAP-028A lands the facade huge page-source backing route: page-source reserve/commit scalar identity composes with the existing huge model allocation/register path while release/unregister/decommit and provider activation remain inactive."
+latest_card = "293x-448-MIMAP-029A-FACADE-HUGE-DECOMMIT-ROUTE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-448-MIMAP-029A-FACADE-HUGE-DECOMMIT-ROUTE.md"
+latest_card_summary = "MIMAP-029A lands the facade huge decommit-after-unregister success route: MIMAP-028A backing identity composes with M181 unregister and M196 page-source decommit while unreserve/recommit/provider activation remain inactive."
 
-current_blocker_token = "MIMAP-028B"
+current_blocker_token = "MIMAP-029B"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-448 MIMAP-029A facade huge decommit-after-unregister success route landed",
+  "293x-447 MIMAP-028B post-backed-huge row selection landed",
   "293x-446 MIMAP-028A facade huge page-source backing route landed",
   "293x-445 MIMAP-027B post-huge-unregister-failfast row selection landed",
   "293x-444 MIMAP-027A facade huge-unregister fail-fast diagnostics route landed",
