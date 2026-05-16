@@ -1,0 +1,72 @@
+// hako-alloc-reclaim-post-drain-owner-transfer-proof
+// Purpose: prove MIMAP-058A post-drain owner-transfer integration route.
+
+using selfhost.hako_alloc.memory.reclaim_post_drain_owner_transfer_box as HakoAllocReclaimPostDrainOwnerTransfer
+
+static box Main {
+    main(args) {
+        local route = new HakoAllocReclaimPostDrainOwnerTransfer()
+
+        local drained_transfer = route.executePostDrainTransfer(70, 1, 1, 2, 1, 900, 1, 4096)
+        local direct_transfer = route.executePostDrainTransfer(71, 3, 3, 4, 0, 0, 1, 4096)
+        local pending_remains = route.executePostDrainTransfer(72, 5, 5, 6, 2, 901, 2, 4096)
+        local drain_block = route.executePostDrainTransfer(73, 1, 1, 2, 5, 902, 2, 4096)
+        local transfer_block = route.executePostDrainTransfer(74, 7, 1, 2, 0, 0, 1, 4096)
+
+        local ok = check "mimap058a reclaim post drain owner transfer" {
+            "drained transfer success": drained_transfer.did_transfer == 1
+            "drained transfer reason": drained_transfer.reason == 0
+            "drained transfer did drain": drained_transfer.did_drain == 1
+            "drained transfer pending after": drained_transfer.pending_after == 0
+            "drained transfer owner after": drained_transfer.owner_after == 2
+            "drained transfer changed pending": drained_transfer.did_change_modeled_pending == 1
+            "drained transfer changed owner": drained_transfer.did_change_modeled_owner == 1
+            "direct transfer success": direct_transfer.did_transfer == 1
+            "direct transfer reason": direct_transfer.reason == 0
+            "direct transfer no drain": direct_transfer.did_drain == 0
+            "direct transfer owner after": direct_transfer.owner_after == 4
+            "pending remains blocked": pending_remains.did_transfer == 0
+            "pending remains reason": pending_remains.reason == 2
+            "pending remains after": pending_remains.pending_after == 1
+            "drain block no transfer": drain_block.did_transfer == 0
+            "drain block reason": drain_block.reason == 1
+            "drain block child reason": drain_block.drain_reason == 3
+            "transfer block no transfer": transfer_block.did_transfer == 0
+            "transfer block reason": transfer_block.reason == 3
+            "transfer block child reason": transfer_block.transfer_reason == 2
+            "inactive full reclaim": drained_transfer.would_execute_full_reclaim == 0
+            "inactive schedule": drained_transfer.would_schedule_thread == 0
+            "inactive page source": drained_transfer.would_call_page_source == 0
+            "inactive unreserve": drained_transfer.would_unreserve == 0
+            "inactive os release": drained_transfer.would_release_osvm == 0
+            "inactive provider": drained_transfer.would_activate_provider == 0
+            "attempt count": route.attempt_count == 5
+            "success count": route.success_count == 2
+            "drain block count": route.drain_block_count == 1
+            "pending remain count": route.pending_remain_count == 1
+            "transfer block count": route.transfer_block_count == 1
+            "last page": route.last_page_id == 74
+            "last reason": route.last_reason == 3
+            "last owner after": route.last_owner_after == 1
+            "last pending after": route.last_pending_after == 0
+        }
+
+        print("hako-alloc-reclaim-post-drain-owner-transfer-proof")
+        print("drained_transfer=" + drained_transfer.did_drain + "," + drained_transfer.did_transfer + "," + drained_transfer.reason + "," + drained_transfer.pending_after + "," + drained_transfer.owner_after)
+        print("direct_transfer=" + direct_transfer.did_drain + "," + direct_transfer.did_transfer + "," + direct_transfer.reason + "," + direct_transfer.owner_after)
+        print("pending_remains=" + pending_remains.did_drain + "," + pending_remains.did_transfer + "," + pending_remains.reason + "," + pending_remains.pending_after)
+        print("drain_block=" + drain_block.did_drain + "," + drain_block.did_transfer + "," + drain_block.reason + "," + drain_block.drain_reason)
+        print("transfer_block=" + transfer_block.did_drain + "," + transfer_block.did_transfer + "," + transfer_block.reason + "," + transfer_block.transfer_reason + "," + transfer_block.owner_after)
+        print("inactive=" + drained_transfer.would_execute_full_reclaim + "," + drained_transfer.would_schedule_thread + "," + drained_transfer.would_call_page_source + "," + drained_transfer.would_unreserve + "," + drained_transfer.would_release_osvm + "," + drained_transfer.would_activate_provider)
+        print("counts=" + route.attempt_count + "," + route.success_count + "," + route.drain_block_count + "," + route.pending_remain_count + "," + route.transfer_block_count + "," + route.last_page_id + "," + route.last_reason + "," + route.last_owner_after + "," + route.last_pending_after)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

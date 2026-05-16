@@ -1,0 +1,93 @@
+// reclaim_post_drain_owner_transfer_box.hako -- MIMAP-058A integration route
+// Responsibility:
+// - compose one modeled remote-free drain step with modeled owner transfer
+// - enforce that owner transfer only runs after pending remote-free work is gone
+// - keep full reclaim, scheduling, page-source/OSVM, and provider behavior closed
+// Non-responsibility:
+// - full reclaim, real remote-free queue traversal, page-source/OSVM calls,
+//   thread scheduling, provider activation, or allocator replacement
+
+using selfhost.hako_alloc.memory.reclaim_remote_free_drain_execution_box as HakoAllocReclaimRemoteFreeDrainExecution
+using selfhost.hako_alloc.memory.reclaim_owner_transfer_execution_box as HakoAllocReclaimOwnerTransferExecution
+
+box HakoAllocReclaimPostDrainOwnerTransferReport {
+    did_drain: i64 = 0
+    did_transfer: i64 = 0
+    reason: i64 = 0
+    page_id: i64 = -1
+    pending_before: i64 = 0
+    pending_after: i64 = 0
+    owner_after: i64 = -1
+    drain_reason: i64 = 0
+    transfer_reason: i64 = 0
+    did_change_modeled_pending: i64 = 0
+    did_change_modeled_owner: i64 = 0
+    would_execute_full_reclaim: i64 = 0
+    would_schedule_thread: i64 = 0
+    would_call_page_source: i64 = 0
+    would_unreserve: i64 = 0
+    would_release_osvm: i64 = 0
+    would_activate_provider: i64 = 0
+}
+
+box HakoAllocReclaimPostDrainOwnerTransfer {
+    drain_execution: HakoAllocReclaimRemoteFreeDrainExecution = new HakoAllocReclaimRemoteFreeDrainExecution()
+    transfer_execution: HakoAllocReclaimOwnerTransferExecution = new HakoAllocReclaimOwnerTransferExecution()
+    attempt_count: i64 = 0
+    success_count: i64 = 0
+    drain_block_count: i64 = 0
+    pending_remain_count: i64 = 0
+    transfer_block_count: i64 = 0
+    last_page_id: i64 = -1
+    last_reason: i64 = 0
+    last_owner_after: i64 = -1
+    last_pending_after: i64 = 0
+
+    report(did_drain, did_transfer, reason, page_id, pending_before, pending_after, owner_after, drain_reason, transfer_reason, did_change_modeled_pending, did_change_modeled_owner) {
+        local result = new HakoAllocReclaimPostDrainOwnerTransferReport()
+        result.did_drain = did_drain
+        result.did_transfer = did_transfer
+        result.reason = reason
+        result.page_id = page_id
+        result.pending_before = pending_before
+        result.pending_after = pending_after
+        result.owner_after = owner_after
+        result.drain_reason = drain_reason
+        result.transfer_reason = transfer_reason
+        result.did_change_modeled_pending = did_change_modeled_pending
+        result.did_change_modeled_owner = did_change_modeled_owner
+        me.last_page_id = page_id
+        me.last_reason = reason
+        me.last_owner_after = owner_after
+        me.last_pending_after = pending_after
+        return result
+    }
+
+    executePostDrainTransfer(page_id, expected_owner, observed_owner, claimant_owner, remote_free_pending, remote_head, drain_budget, backing_bytes) {
+        me.attempt_count = me.attempt_count + 1
+
+        local drain = me.drain_execution.drainOne(page_id, remote_free_pending, remote_head, drain_budget)
+        if drain.reason == 2 {
+            me.drain_block_count = me.drain_block_count + 1
+            return me.report(drain.did_drain, 0, 1, page_id, remote_free_pending, drain.pending_after, observed_owner, drain.reason, 0, drain.did_change_modeled_pending, 0)
+        }
+        if drain.reason == 3 {
+            me.drain_block_count = me.drain_block_count + 1
+            return me.report(drain.did_drain, 0, 1, page_id, remote_free_pending, drain.pending_after, observed_owner, drain.reason, 0, drain.did_change_modeled_pending, 0)
+        }
+
+        if drain.pending_after > 0 {
+            me.pending_remain_count = me.pending_remain_count + 1
+            return me.report(drain.did_drain, 0, 2, page_id, remote_free_pending, drain.pending_after, observed_owner, drain.reason, 0, drain.did_change_modeled_pending, 0)
+        }
+
+        local transfer = me.transfer_execution.executeTransfer(page_id, expected_owner, observed_owner, claimant_owner, 0, 0, 1, backing_bytes, drain.pending_after, 0)
+        if transfer.did_transfer == 0 {
+            me.transfer_block_count = me.transfer_block_count + 1
+            return me.report(drain.did_drain, 0, 3, page_id, remote_free_pending, drain.pending_after, transfer.owner_after, drain.reason, transfer.reason, drain.did_change_modeled_pending, transfer.did_change_modeled_owner)
+        }
+
+        me.success_count = me.success_count + 1
+        return me.report(drain.did_drain, 1, 0, page_id, remote_free_pending, drain.pending_after, transfer.owner_after, drain.reason, transfer.reason, drain.did_change_modeled_pending, transfer.did_change_modeled_owner)
+    }
+}

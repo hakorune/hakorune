@@ -53,7 +53,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-058A reclaim post-drain owner-transfer integration route`
+  `MIMAP-059A post-reclaim-integration row selection`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -72,9 +72,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `MIMAP-057A`; one-entry modeled
-  remote-free drain is guarded, and current blocker is `MIMAP-058A`, the
-  post-drain owner-transfer integration route.
+- resume point: continue Phase 293x after `MIMAP-058A`; post-drain
+  owner-transfer ordering is guarded, and current blocker is `MIMAP-059A`,
+  the post-reclaim-integration row selection.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -82,7 +82,7 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-058A`: add reclaim post-drain owner-transfer integration route
+  1. `MIMAP-059A`: select the next post-reclaim-integration row
   2. keep thread scheduling, page-source calls, full reclaim, and provider
      activation inactive
   3. keep secure entropy execution parked until a separate random substrate

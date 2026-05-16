@@ -217,7 +217,8 @@ Forbidden:
 | `MIMAP-055A` | reclaim owner-transfer first execution route | landed; selected MIMAP-056A |
 | `MIMAP-056A` | reclaim remote-free drain contract inventory | landed; selected MIMAP-057A |
 | `MIMAP-057A` | reclaim remote-free drain first execution route | landed; selected MIMAP-058A |
-| `MIMAP-058A` | reclaim post-drain owner-transfer integration route | selected current |
+| `MIMAP-058A` | reclaim post-drain owner-transfer integration route | landed; selected MIMAP-059A |
+| `MIMAP-059A` | post-reclaim-integration row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -952,6 +953,19 @@ route to prove the ordering around pending remote-free work.
 
 It must not schedule threads, call page-source APIs, unreserve or release OSVM
 pages, activate providers, execute full reclaim, or add backend matchers.
+
+MIMAP-058A landed by adding `HakoAllocReclaimPostDrainOwnerTransfer`, a proof
+app, guard, and accepted SSOT. It selects MIMAP-059A.
+
+### MIMAP-059A granularity
+
+MIMAP-059A is a planning-only row. It should select exactly one post-reclaim
+integration follow-up: full reclaim success route, scalar closeout guard, or a
+focused compiler/language sidecar if evidence requires it.
+
+It must not add implementation code, full reclaim execution, scheduler
+behavior, page-source calls, OSVM unreserve/release, providers, or backend
+matchers.
 
 ## Compiler / language sidecar triggers
 

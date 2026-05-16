@@ -9,6 +9,7 @@ memory.reclaim_atomic_claim_contract_box = "memory/reclaim_atomic_claim_contract
 memory.reclaim_owner_transfer_execution_box = "memory/reclaim_owner_transfer_execution_box.hako"
 memory.reclaim_remote_free_drain_contract_box = "memory/reclaim_remote_free_drain_contract_box.hako"
 memory.reclaim_remote_free_drain_execution_box = "memory/reclaim_remote_free_drain_execution_box.hako"
+memory.reclaim_post_drain_owner_transfer_box = "memory/reclaim_post_drain_owner_transfer_box.hako"
 memory.reclaim_owner_transfer_contract_box = "memory/reclaim_owner_transfer_contract_box.hako"
 memory.options_inventory_box = "memory/options_inventory_box.hako"
 memory.thread_heap_owner_inventory_box = "memory/thread_heap_owner_inventory_box.hako"

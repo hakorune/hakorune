@@ -24,10 +24,10 @@ process allocator replacement.
 
 Current implementation rows are selected by `CURRENT_STATE.toml` and the
 phase-293x taskboard. The original size-class row is historical and already
-landed; after `MIMAP-057A` the active row is `MIMAP-058A`, a reclaim
-post-drain owner-transfer integration route. It must not reopen
-allocator-provider M104+, host replacement behavior, secure entropy execution,
-thread scheduling, full reclaim, or page-source behavior.
+landed; after `MIMAP-058A` the active row is `MIMAP-059A`, a
+post-reclaim-integration row selection. It must not reopen allocator-provider
+M104+, host replacement behavior, secure entropy execution, thread scheduling,
+full reclaim, or page-source behavior.
 
 ## Upstream Reference
 

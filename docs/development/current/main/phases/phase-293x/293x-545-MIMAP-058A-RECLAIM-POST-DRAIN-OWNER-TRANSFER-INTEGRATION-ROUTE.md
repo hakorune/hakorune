@@ -1,6 +1,6 @@
 # 293x-545 MIMAP-058A Reclaim Post-Drain Owner-Transfer Integration Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -48,4 +48,72 @@ scheduling, OSVM unreserve/release, or provider activation.
 bash tools/checks/k2_wide_hako_alloc_reclaim_post_drain_owner_transfer_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Implementation Result
+
+`MIMAP-058A` adds:
+
+```text
+SSOT:
+  docs/development/current/main/design/hako-alloc-reclaim-post-drain-owner-transfer-ssot.md
+
+owner:
+  lang/src/hako_alloc/memory/reclaim_post_drain_owner_transfer_box.hako
+
+proof app:
+  apps/hako-alloc-reclaim-post-drain-owner-transfer-proof/
+
+guard:
+  tools/checks/k2_wide_hako_alloc_reclaim_post_drain_owner_transfer_guard.sh
+```
+
+The owner composes:
+
+```text
+HakoAllocReclaimRemoteFreeDrainExecution
+HakoAllocReclaimOwnerTransferExecution
+```
+
+It attempts owner transfer only after modeled pending remote-free work is gone.
+It blocks when one modeled drain still leaves pending work, when the drain
+route blocks, or when the owner-transfer route blocks.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_reclaim_post_drain_owner_transfer_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Selection Result
+
+`MIMAP-058A` selects `MIMAP-059A`.
+
+```text
+row:
+  MIMAP-059A post-reclaim-integration row selection
+
+classification:
+  planning row
+
+why now:
+  remote-free drain and owner-transfer ordering are now modeled. Before opening
+  any broader reclaim behavior, select whether the next row should be a full
+  reclaim success route, a closeout guard, or a language/compiler sidecar.
+
+stop lines:
+  no full reclaim in the selection row
+  no thread scheduling
+  no page-source call
+  no OSVM unreserve / release
+  no provider activation
+  no cleanup bundle
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-059A.
 ```

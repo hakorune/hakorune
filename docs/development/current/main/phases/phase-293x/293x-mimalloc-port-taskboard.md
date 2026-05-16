@@ -342,7 +342,8 @@ FST:
 | `MIMAP-055A` | landed | Reclaim owner-transfer first execution route. | selected MIMAP-056A |
 | `MIMAP-056A` | landed | Reclaim remote-free drain contract inventory. | selected MIMAP-057A |
 | `MIMAP-057A` | landed | Reclaim remote-free drain first execution route. | selected MIMAP-058A |
-| `MIMAP-058A` | selected current | Reclaim post-drain owner-transfer integration route. | after MIMAP-057A |
+| `MIMAP-058A` | landed | Reclaim post-drain owner-transfer integration route. | selected MIMAP-059A |
+| `MIMAP-059A` | selected current | Post-reclaim-integration row selection. | after MIMAP-058A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -350,8 +351,8 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-057A: `MIMAP-058A` composes modeled remote-free drain
-and owner-transfer ordering. Thread scheduling, page-source calls, OSVM
+Current row after MIMAP-058A: `MIMAP-059A` selects the next
+post-reclaim-integration row. Thread scheduling, page-source calls, OSVM
 unreserve/release, full reclaim, provider activation, and backend matchers
 remain closed.
 
