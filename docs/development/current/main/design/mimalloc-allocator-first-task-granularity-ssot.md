@@ -193,7 +193,8 @@ Forbidden:
 | `MIMAP-043A` | OSVM-backed fast-path recommit/reuse route | landed after MIMAP-042B |
 | `MIMAP-043B` | post-fast-path-reuse route row selection | landed; selected MIMAP-044A |
 | `MIMAP-044A` | OSVM-backed fast-path route closeout guard | landed after MIMAP-043B |
-| `MIMAP-044B` | post-fast-path-closeout row selection | selected current |
+| `MIMAP-044B` | post-fast-path-closeout row selection | landed; selected MIMAP-045A |
+| `MIMAP-045A` | OSVM-backed fast-path unreserve route | selected current |
 
 ### MIMAP-020A granularity
 
@@ -638,6 +639,39 @@ Forbidden:
 MIMAP-044B is a planning-only row. It reads the MIMAP-044A closeout evidence and
 selects exactly one next allocator/compiler/language task. It must not implement
 allocator behavior, compiler acceptance, or cleanup by itself.
+
+MIMAP-044B landed by selecting `MIMAP-045A` because no compiler/language blocker
+was exposed by the OSVM-backed fast-path closeout and the smallest explicit
+allocator continuation is the fast-path unreserve seam.
+
+### MIMAP-045A granularity
+
+MIMAP-045A composes the landed fast-path route with the existing page-source
+unreserve adapter:
+
+```text
+HakoAllocOsVmFastPathReuseRoute
+  -> allocate / release / purge / marker state
+
+HakoAllocPageSourceUnreserveAdapter
+  -> page-source unreserve executor
+```
+
+Allowed:
+
+- add `HakoAllocOsVmFastPathUnreserveRoute`;
+- prove one allocate -> release -> bounded purge/decommit -> unreserve sequence;
+- expose scalar report fields for page id, backing range, purge state, adapter
+  counters, and unreserve status.
+
+Forbidden:
+
+- direct page-source / OSVM calls from the new route owner or proof app;
+- provider activation, hooks, host allocator replacement, or `#[global_allocator]`;
+- remote-free execution, TLS/atomic execution changes, thread scheduling,
+  reclaim execution, page ownership migration, or user-facing concurrency work;
+- backend `.inc` app/name matchers;
+- post-unreserve reuse behavior.
 
 ## Compiler / language sidecar triggers
 

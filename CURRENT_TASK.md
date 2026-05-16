@@ -51,7 +51,7 @@ Scope: current lane / next lane / restart order only.
 - pure-first MIR artifact / diagnostics SSOT:
   `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
 - current blocker token:
-  `MIMAP-044B post-fast-path-closeout row selection`
+  `MIMAP-045A OSVM-backed fast-path unreserve route`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -70,9 +70,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `MIMAP-044A`; current blocker is
-  `MIMAP-044B`, a planning-only row that selects the next single allocator,
-  compiler, or language task after the OSVM-backed fast-path route closeout.
+- resume point: continue Phase 293x after `MIMAP-044B`; current blocker is
+  `MIMAP-045A`, the OSVM-backed fast-path unreserve route through the existing
+  page-source adapter.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -80,9 +80,9 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-044B`: classify the post-fast-path-closeout state and select one
-     next row
-  2. write/update the next focused card before implementation
+  1. `MIMAP-045A`: compose the fast-path reuse route with the page-source
+     unreserve adapter and prove allocate/release/purge/unreserve
+  2. write/update the post-row selection card after implementation
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
   reduction after mimalloc completeness evidence. Do not make broad `.hako`
