@@ -31,12 +31,12 @@ multi-worker substrate stress rows are now live. The facade huge-request
 fail-fast routing row is green, and the facade huge-page model route is green.
 MIMAP-029A exposed a pure-first/selfhost route-shape cleanup before the next
 allocator selection row. Same-artifact MIR input, lowering-plan preflight,
-phase progress diagnostics, and the canonical emit wrapper are landed; the
-MIMAP-034A facade huge unreserve-after-decommit success route is landed;
+phase progress diagnostics, and the canonical emit wrapper are landed.
+MIMAP-034B selected the facade huge unreserve fail-fast diagnostics row;
 the current primary row is:
 
 ```text
-  MIMAP-034B post-huge-unreserve row selection
+  MIMAP-035A facade huge unreserve fail-fast diagnostics
 ```
 
 Closed cleanup sidecar:
@@ -179,6 +179,10 @@ MIR-EMIT-SSOT-002:
   landed
   make the canonical external source-to-MIR route explicit; prefer the existing
   emit_mir_route.sh route SSOT or a thin facade over it
+MIMAP-034B:
+  landed
+  selected MIMAP-035A facade huge unreserve duplicate/stale fail-fast
+  diagnostics as the next allocator behavior row
 ```
 
 ## Active Source Policy
@@ -402,7 +406,8 @@ FST:
 | `MIMAP-033A` | landed | Page-source unreserve adapter. | after MIMAP-032B |
 | `MIMAP-033B` | landed | Post-page-source-unreserve row selection. | selected MIMAP-034A |
 | `MIMAP-034A` | landed | Facade huge unreserve-after-decommit success route. | after MIMAP-033B |
-| `MIMAP-034B` | selected current | Post-huge-unreserve row selection. | after MIMAP-034A |
+| `MIMAP-034B` | landed | Post-huge-unreserve row selection. | selected MIMAP-035A |
+| `MIMAP-035A` | selected current | Facade huge unreserve duplicate/stale fail-fast diagnostics. | after MIMAP-034B |
 
 MIMAP-020A execution order:
 

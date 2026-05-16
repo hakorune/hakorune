@@ -1,6 +1,6 @@
 # 293x-462 MIMAP-034B Post-Huge-Unreserve Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -96,3 +96,47 @@ tools/checks/dev_gate.sh quick
 
 This row closes when one next allocator behavior row is selected with clear
 owner/proof/guard names and provider/host allocator replacement still inactive.
+
+## Selection Result
+
+`MIMAP-034B` selects `MIMAP-035A`.
+
+Rationale:
+
+- `MIMAP-034A` proves the facade huge unreserve-after-decommit success route.
+- The nearest safety gap is duplicate/stale unreserve diagnostics, mirroring the
+  landed `MIMAP-030A` huge-decommit fail-fast pattern.
+- Provider activation, host allocator replacement, and recommit/purge behavior
+  still remain outside the current lane.
+
+Selected row:
+
+```text
+row:
+  MIMAP-035A facade huge unreserve fail-fast diagnostics
+owner:
+  lang/src/hako_alloc/memory/object_lifecycle_facade_huge_unreserve_failfast_box.hako
+proof app:
+  apps/mimalloc-facade-huge-unreserve-failfast-proof/main.hako
+guard:
+  tools/checks/k2_wide_mimalloc_facade_huge_unreserve_failfast_exe_guard.sh
+reused owners:
+  HakoAllocObjectLifecycleFacadeHugeUnreserveRoute
+  HakoAllocPageSourceUnreserveAdapter
+primary proof:
+  allocate/decommit/unreserve one page-source-backed huge handle, record the
+  successful backing range, then reject duplicate and stale unreserve attempts
+  before a second page-source unreserve adapter call
+stop lines:
+  no direct page-source / OSVM call from the fail-fast owner
+  no recommit / purge scheduler / remote-free / TLS behavior
+  no provider activation
+  no host allocator replacement / hook / #[global_allocator]
+  no backend .inc matcher shortcut
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-035A facade huge unreserve fail-fast diagnostics.
+```
