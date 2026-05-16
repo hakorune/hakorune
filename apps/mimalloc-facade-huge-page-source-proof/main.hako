@@ -1,0 +1,50 @@
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_huge_page_source_box as HakoAllocObjectLifecycleFacadeHugePageSourceBox
+
+static box Main {
+    main(args) {
+        local facade = new HakoAllocObjectLifecycleFacade()
+        local route = new HakoAllocObjectLifecycleFacadeHugePageSourceRoute()
+
+        local huge_size = route.hugeThreshold() + 1
+        local result = route.allocateHugeWithPageSource(facade, huge_size)
+
+        local shape = 0
+        local source_shape = result.source_attempted + result.source_status + result.source_reserved + result.source_committed + result.source_reject + result.source_commit_rc
+        if source_shape == 4 { shape = shape + 1 }
+        if result.source_base != 0 { shape = shape + 1 }
+        if result.source_bytes == huge_size { shape = shape + 1 }
+        local huge_shape = result.huge_routed + result.huge_allocated + result.final_ok + result.final_reason + result.page_map_entry_count + result.page_map_register_count
+        if huge_shape == 5 { shape = shape + 1 }
+        local huge_identity = result.huge_ptr + result.huge_page_id + result.final_page_id
+        if huge_identity == 72000 { shape = shape + 1 }
+        local huge_sizes = result.huge_requested_size + result.huge_committed_size + result.requested_size + result.source_bytes
+        local expected_sizes = huge_size + huge_size + huge_size + huge_size
+        if huge_sizes == expected_sizes { shape = shape + 1 }
+        local model_counts = result.huge_count + result.huge_live_count + result.huge_allocate_count
+        if model_counts == 3 { shape = shape + 1 }
+        local inactive = result.release_count + result.unregister_count + result.decommit_count
+        if inactive == 0 { shape = shape + 1 }
+        local route_counts = result.source_attempt_count + result.source_success_count + result.source_failure_count + result.huge_success_count + result.huge_failure_count
+        if route_counts == 3 { shape = shape + 1 }
+
+        print("mimalloc-facade-huge-page-source-proof")
+        print("source=" + result.source_attempted + "," + result.source_status + "," + result.source_reserved + "," + result.source_committed + "," + result.source_reject + "," + result.source_commit_rc)
+        print("backing=" + result.source_base + "," + result.source_bytes)
+        print("huge=" + result.huge_routed + "," + result.huge_allocated + "," + result.huge_ptr + "," + result.huge_page_id)
+        print("huge_meta=" + result.huge_requested_size + "," + result.huge_committed_size + "," + result.huge_count + "," + result.huge_live_count + "," + result.huge_allocate_count)
+        print("final=" + result.final_ok + "," + result.final_reason + "," + result.final_page_id + "," + result.final_ptr)
+        print("page_map=" + result.page_map_entry_count + "," + result.page_map_register_count)
+        print("inactive=" + result.release_count + "," + result.unregister_count + "," + result.decommit_count)
+        print("route_counts=" + result.source_attempt_count + "," + result.source_success_count + "," + result.source_failure_count + "," + result.huge_success_count + "," + result.huge_failure_count)
+        print("shape=" + shape)
+
+        if shape == 9 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

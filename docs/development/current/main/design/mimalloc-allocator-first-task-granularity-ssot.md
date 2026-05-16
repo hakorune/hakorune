@@ -152,8 +152,8 @@ Forbidden:
 | `MIMAP-026B` | post-huge-unregister allocator row selection | MIMAP-026A is green |
 | `MIMAP-027A` | facade huge-unregister fail-fast diagnostics route | MIMAP-026B selects M181 post-unregister reject diagnostics |
 | `MIMAP-027B` | post-huge-unregister-failfast allocator row selection | MIMAP-027A is green |
-| `MIMAP-028A` | selected: facade huge page-source backing route | current after MIMAP-027B |
-| `MIMAP-028B` | draft: post-backed-huge allocator row selection | after MIMAP-028A if selected |
+| `MIMAP-028A` | facade huge page-source backing route | landed after MIMAP-027B |
+| `MIMAP-028B` | post-backed-huge allocator row selection | current after MIMAP-028A |
 | `MIMAP-029A` | draft: facade huge decommit-after-unregister success route | after backed huge allocation is green |
 | `MIMAP-029B` | draft: post-huge-decommit allocator row selection | after MIMAP-029A if selected |
 | `MIMAP-030A` | draft: facade huge decommit fail-fast diagnostics | after MIMAP-029A if selected |
@@ -349,9 +349,9 @@ Selection rubric:
 4. keep provider activation / host replacement / hooks parked
 ```
 
-The selected next row is `MIMAP-028A`: a facade huge page-source backing route.
-It should prove that a huge allocation can carry scalar backing identity before
-any later release/decommit row:
+MIMAP-028A is a landed facade huge page-source backing route. It proves that a
+huge allocation can carry scalar backing identity before any later
+release/decommit row:
 
 ```text
 huge request -> page-source reserve/commit backing identity
@@ -367,6 +367,23 @@ small release/free, realloc, alignment, remote-free, TLS, atomic, or backend
 `.inc` shortcuts. If the backed-huge proof cannot be expressed as a scalar
 `.hako` owner, `MIMAP-027B` should select a narrow CorePlan / verifier contract
 row instead of jumping to OS page return.
+
+MIMAP-028B is the current planning-only row. It must inspect the backed huge
+allocation state and select exactly one next allocator behavior row. The
+conservative default candidate is `MIMAP-029A`: a facade huge
+decommit-after-unregister success route. It should compose:
+
+```text
+MIMAP-028A backed huge allocation
+MIMAP-026A/M181 huge unregister
+page-source decommit of the MIMAP-028A backing range
+scalar report -> huge/page-map live state is zero and decommit succeeds
+```
+
+MIMAP-028B must not implement behavior. If decommit needs a stronger
+capability/verifier contract or a narrower backing identity shape before
+execution, select that contract row explicitly instead of silently widening
+MIMAP-029A.
 
 ## Compiler / language sidecar triggers
 

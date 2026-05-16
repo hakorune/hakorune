@@ -120,6 +120,12 @@ Principles
     stale/unknown huge pointers through the same M181 seam after page-map
     unregister while still stopping before OS page return, unreserve/decommit,
     provider activation, and allocator replacement.
+  - `HakoAllocObjectLifecycleFacadeHugePageSourceRoute` is the MIMAP-028A
+    facade huge page-source backing owner. It reserves/commits one scalar
+    backing range through `HakoAllocPageSourcePolicy`, then delegates the huge
+    allocation/register step to the existing MIMAP-023A huge route while still
+    stopping before huge release/unregister, OS page return, unreserve/decommit,
+    provider activation, and allocator replacement.
   - `HakoAllocHugeReleaseSeam` is the M181 huge release seam owner. It retires
     huge handles through `HakoAllocHugePageModel` and unregisters page-map
     ownership without touching small page `releaseLocal(...)`.

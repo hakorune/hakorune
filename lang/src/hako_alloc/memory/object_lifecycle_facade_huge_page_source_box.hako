@@ -1,0 +1,205 @@
+// object_lifecycle_facade_huge_page_source_box.hako -- MIMAP-028A facade huge page-source route
+// Responsibility: attach scalar page-source backing identity to one facade huge
+// allocation before any later page-return row.
+
+using selfhost.hako_alloc.memory.object_lifecycle_facade_huge_page_model_box as HakoAllocObjectLifecycleFacadeHugePageModelBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_reason_box as HakoAllocObjectLifecycleFacadeReason
+using selfhost.hako_alloc.memory.page_source_policy_box as HakoAllocPageSourcePolicy
+using selfhost.hako_alloc.memory.size_class_box as SizeClassBox
+
+box HakoAllocObjectLifecycleFacadeHugePageSourceReport {
+    status: i64 = 0
+    requested_size: i64 = 0
+    size_bin: i64 = 0
+    huge_threshold: i64 = 0
+    huge_routed: i64 = 0
+    source_attempted: i64 = 0
+    source_status: i64 = 0
+    source_reserved: i64 = 0
+    source_committed: i64 = 0
+    source_reject: i64 = 0
+    source_base: i64 = 0
+    source_bytes: i64 = 0
+    source_commit_rc: i64 = -1
+    huge_allocated: i64 = 0
+    huge_ptr: i64 = 0
+    huge_page_id: i64 = -1
+    huge_requested_size: i64 = 0
+    huge_committed_size: i64 = 0
+    huge_count: i64 = 0
+    huge_live_count: i64 = 0
+    huge_allocate_count: i64 = 0
+    page_map_entry_count: i64 = 0
+    page_map_register_count: i64 = 0
+    final_ok: i64 = 0
+    final_reason: i64 = 0
+    final_page_id: i64 = -1
+    final_ptr: i64 = 0
+    release_count: i64 = 0
+    unregister_count: i64 = 0
+    decommit_count: i64 = 0
+    source_attempt_count: i64 = 0
+    source_success_count: i64 = 0
+    source_failure_count: i64 = 0
+    huge_success_count: i64 = 0
+    huge_failure_count: i64 = 0
+}
+
+box HakoAllocObjectLifecycleFacadeHugeBackingReport {
+    status: i64 = 0
+    attempted: i64 = 0
+    reserved: i64 = 0
+    committed: i64 = 0
+    reject: i64 = 0
+    base: i64 = 0
+    bytes: i64 = 0
+    commit_rc: i64 = -1
+    attempt_count: i64 = 0
+    success_count: i64 = 0
+    failure_count: i64 = 0
+}
+
+box HakoAllocObjectLifecycleFacadeHugeBackingSource {
+    attempt_count: i64 = 0
+    success_count: i64 = 0
+    failure_count: i64 = 0
+
+    snapshot(result) {
+        result.attempt_count = me.attempt_count
+        result.success_count = me.success_count
+        result.failure_count = me.failure_count
+        return result
+    }
+
+    reserveCommitBacking(bytes) {
+        local result = new HakoAllocObjectLifecycleFacadeHugeBackingReport()
+        if bytes <= 0 {
+            return me.snapshot(result)
+        }
+
+        me.attempt_count = me.attempt_count + 1
+        result.attempted = 1
+        result.bytes = bytes
+
+        local base = HakoAllocPageSourcePolicy.reservePage(bytes)
+        result.base = base
+        if base == 0 {
+            me.failure_count = me.failure_count + 1
+            result.reject = 1
+            return me.snapshot(result)
+        }
+        result.reserved = 1
+
+        local commit_rc = HakoAllocPageSourcePolicy.commitPage(base, bytes)
+        result.commit_rc = commit_rc
+        if commit_rc != 0 {
+            me.failure_count = me.failure_count + 1
+            result.reject = 1
+            return me.snapshot(result)
+        }
+
+        result.committed = 1
+        result.status = 1
+        me.success_count = me.success_count + 1
+        return me.snapshot(result)
+    }
+}
+
+box HakoAllocObjectLifecycleFacadeHugePageSourceRoute {
+    huge_route: HakoAllocObjectLifecycleFacadeHugePageModelRoute = new HakoAllocObjectLifecycleFacadeHugePageModelRoute()
+    backing_source: HakoAllocObjectLifecycleFacadeHugeBackingSource = new HakoAllocObjectLifecycleFacadeHugeBackingSource()
+    huge_success_count: i64 = 0
+    huge_failure_count: i64 = 0
+
+    hugeThreshold() {
+        return SizeClassBox.bin_size(SizeClassBox.max_regular_bin())
+    }
+
+    classifyRequest(size) {
+        if SizeClassBox.size_to_bin(size) == SizeClassBox.huge_bin() {
+            return 2
+        }
+        return 1
+    }
+
+    initHugePageSourceReport(size) {
+        local result = new HakoAllocObjectLifecycleFacadeHugePageSourceReport()
+        result.requested_size = size
+        result.size_bin = SizeClassBox.size_to_bin(size)
+        result.huge_threshold = me.hugeThreshold()
+        return result
+    }
+
+    snapshotCounters(result) {
+        result.huge_success_count = me.huge_success_count
+        result.huge_failure_count = me.huge_failure_count
+        return result
+    }
+
+    reject(result, reason) {
+        result.final_reason = reason
+        return me.snapshotCounters(result)
+    }
+
+    copyHuge(result, huge_result) {
+        result.huge_allocated = huge_result.huge_allocated
+        result.huge_ptr = huge_result.huge_ptr
+        result.huge_page_id = huge_result.huge_page_id
+        result.huge_requested_size = huge_result.huge_requested_size
+        result.huge_committed_size = huge_result.huge_committed_size
+        result.huge_count = huge_result.huge_count
+        result.huge_live_count = huge_result.huge_live_count
+        result.huge_allocate_count = huge_result.huge_allocate_count
+        result.page_map_entry_count = huge_result.page_map_entry_count
+        result.page_map_register_count = huge_result.page_map_register_count
+        result.final_ok = huge_result.final_ok
+        result.final_reason = huge_result.final_reason
+        result.final_page_id = huge_result.final_page_id
+        result.final_ptr = huge_result.final_ptr
+        result.status = huge_result.status
+        return result
+    }
+
+    copySource(result, source) {
+        result.source_attempted = source.attempted
+        result.source_status = source.status
+        result.source_reserved = source.reserved
+        result.source_committed = source.committed
+        result.source_reject = source.reject
+        result.source_base = source.base
+        result.source_bytes = source.bytes
+        result.source_commit_rc = source.commit_rc
+        result.source_attempt_count = source.attempt_count
+        result.source_success_count = source.success_count
+        result.source_failure_count = source.failure_count
+        return result
+    }
+
+    allocateHugeWithPageSource(facade, size) {
+        local result = me.initHugePageSourceReport(size)
+        if size <= 0 {
+            return me.reject(result, HakoAllocObjectLifecycleFacadeReason.small_huge_request())
+        }
+        if me.classifyRequest(size) != 2 {
+            return me.reject(result, HakoAllocObjectLifecycleFacadeReason.small_huge_request())
+        }
+
+        result.huge_routed = 1
+        local source = me.backing_source.reserveCommitBacking(size)
+        me.copySource(result, source)
+        if source.status != 1 {
+            return me.snapshotCounters(result)
+        }
+
+        local huge_result = me.huge_route.allocateWithHugePageModel(facade, size, -1, 0, 0, 0)
+        me.copyHuge(result, huge_result)
+
+        if result.final_ok == 1 {
+            me.huge_success_count = me.huge_success_count + 1
+        } else {
+            me.huge_failure_count = me.huge_failure_count + 1
+        }
+
+        return me.snapshotCounters(result)
+    }
+}

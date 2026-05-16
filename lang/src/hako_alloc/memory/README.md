@@ -41,6 +41,7 @@ Current modules
 - `object_lifecycle_facade_page_source_alloc_miss_box.hako`
 - `object_lifecycle_facade_huge_failfast_box.hako`
 - `object_lifecycle_facade_huge_page_model_box.hako`
+- `object_lifecycle_facade_huge_page_source_box.hako`
 - `object_lifecycle_facade_huge_release_box.hako`
 - `object_lifecycle_facade_huge_release_failfast_box.hako`
 - `object_lifecycle_facade_huge_unregister_box.hako`
@@ -195,6 +196,14 @@ Syntax/style contract
   page-map lookup route, release/realloc/alignment behavior, purge/reclaim,
   remote-free/TLS/atomics, provider hooks, host allocator replacement, or
   backend shortcuts.
+- `object_lifecycle_facade_huge_page_source_box.hako` owns the MIMAP-028A
+  facade huge page-source backing route. It may reserve/commit one scalar
+  backing range through `HakoAllocPageSourcePolicy`, then delegate the huge
+  allocation/register step to the existing MIMAP-023A facade huge-page model
+  route and expose scalar backing / huge metadata fields. It must not release or
+  unregister the huge handle, decommit/unreserve/recommit, add small
+  release/free, realloc, alignment, purge/reclaim, remote-free/TLS/atomics,
+  provider hooks, host allocator replacement, or backend shortcuts.
 - `object_lifecycle_facade_huge_release_box.hako` owns the MIMAP-024A facade
   huge-release metadata route. It may allocate one huge request through the
   MIMAP-023A facade huge-page model route, retire that same live huge pointer

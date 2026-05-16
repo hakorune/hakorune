@@ -1,6 +1,6 @@
 # 293x-446 MIMAP-028A Facade Huge Page-Source Route
 
-Status: ready
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -65,3 +65,34 @@ bash tools/checks/k2_wide_mimalloc_facade_huge_page_source_exe_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 tools/checks/dev_gate.sh quick
 ```
+
+## Landed Implementation
+
+Owner:
+
+```text
+lang/src/hako_alloc/memory/object_lifecycle_facade_huge_page_source_box.hako
+```
+
+Proof app:
+
+```text
+apps/mimalloc-facade-huge-page-source-proof/main.hako
+```
+
+Guard:
+
+```text
+tools/checks/k2_wide_mimalloc_facade_huge_page_source_exe_guard.sh
+```
+
+The implementation keeps the behavior to one backing slice: reserve/commit one
+page-source backing range, then delegate huge allocation/register to the
+existing MIMAP-023A route. Release, unregister, decommit, unreserve, provider
+activation, host allocator replacement, and backend matcher shortcuts remain
+outside MIMAP-028A.
+
+## Closeout
+
+MIMAP-028A is closed. The active blocker moves to MIMAP-028B post-backed-huge
+row selection.

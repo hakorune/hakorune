@@ -29,11 +29,10 @@ the internal worker identity, TLS cache-slot, atomic route guard, and
 remote-free / abandoned-owner policy, thread-safe `hako_mem` ABI, and native
 multi-worker substrate stress rows are now live. The facade huge-request
 fail-fast routing row is green, and the facade huge-page model route is green.
-The current primary row moves to the selected facade huge page-source backing
-route:
+The current primary row moves to the post-backed-huge row selection:
 
 ```text
-  MIMAP-028A facade huge page-source backing route
+  MIMAP-028B post-backed-huge row selection
 ```
 
 Closed cleanup sidecar:
@@ -148,8 +147,11 @@ MIMAP-027B:
   selected MIMAP-028A facade huge page-source backing route as the next
   allocator behavior row
 MIMAP-028A:
+  landed
+  facade huge page-source backing route is green
+MIMAP-028B:
   ready current
-  facade huge page-source backing route is the current primary row
+  post-backed-huge allocator row selection is the current primary row
 ```
 
 ## Active Source Policy
@@ -321,8 +323,8 @@ FST:
 | `MIMAP-026B` | landed | Post-huge-unregister allocator row selection. | after MIMAP-026A |
 | `MIMAP-027A` | landed | Facade huge-unregister fail-fast diagnostics route. | after MIMAP-026B |
 | `MIMAP-027B` | landed | Post-huge-unregister-failfast allocator row selection. | after MIMAP-027A |
-| `MIMAP-028A` | ready current | Facade huge page-source backing route. | current |
-| `MIMAP-028B` | draft candidate | Post-backed-huge allocator row selection. | after MIMAP-028A if selected |
+| `MIMAP-028A` | landed | Facade huge page-source backing route. | after MIMAP-027B |
+| `MIMAP-028B` | ready current | Post-backed-huge allocator row selection. | current |
 | `MIMAP-029A` | draft candidate | Facade huge decommit-after-unregister success route. | after backed huge allocation |
 | `MIMAP-029B` | draft candidate | Post-huge-decommit allocator row selection. | after MIMAP-029A if selected |
 | `MIMAP-030A` | draft candidate | Facade huge decommit fail-fast diagnostics. | after MIMAP-029A if selected |
