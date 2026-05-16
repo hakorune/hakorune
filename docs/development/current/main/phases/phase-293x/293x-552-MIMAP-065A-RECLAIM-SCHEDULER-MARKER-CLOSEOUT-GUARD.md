@@ -1,6 +1,6 @@
 # 293x-552 MIMAP-065A Reclaim Scheduler Marker Closeout Guard
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -46,4 +46,48 @@ future real scheduling or broader reclaim behavior is considered.
 bash tools/checks/k2_wide_hako_alloc_reclaim_scheduler_marker_closeout_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Implementation Result
+
+`MIMAP-065A` added the scheduler marker closeout SSOT and guard.
+
+The guard locks `MIMAP-063A` and `MIMAP-064A`, including the accepted boundary
+and marker SSOTs, the proof app manifest entry, focused guard index rows,
+module export, memory README owner description, `.inc` no-growth, provider
+inactive sentinel, and source-concurrency/scheduling stop lines.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_reclaim_scheduler_marker_closeout_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Selection Result
+
+`MIMAP-065A` selects `MIMAP-066A`.
+
+```text
+row:
+  MIMAP-066A post-scheduler-marker row selection
+
+classification:
+  planning row
+
+why now:
+  scheduler boundary and marker are closed. The next row should decide one
+  narrow follow-up: continue allocator reclaim, open a concrete compiler /
+  language sidecar, or switch to a broader Hakorune language feature lane.
+
+stop lines:
+  no new allocator behavior
+  no real thread scheduling
+  no source-level concurrency feature change
+  no page-source call
+  no OSVM unreserve / release
+  no provider activation
+  no host allocator replacement
+  no cleanup bundle
 ```

@@ -53,7 +53,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-065A reclaim scheduler marker closeout guard`
+  `MIMAP-066A post-scheduler-marker row selection`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -72,8 +72,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `MIMAP-064A`; the next selected
-  blocker is `MIMAP-065A`, the reclaim scheduler marker closeout guard.
+- resume point: continue Phase 293x after `MIMAP-065A`; the next selected
+  blocker is `MIMAP-066A`, the post-scheduler-marker row selection.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -81,7 +81,7 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-065A`: add reclaim scheduler marker closeout guard
+  1. `MIMAP-066A`: select one post-scheduler-marker follow-up row
   2. keep real thread scheduling, source-level concurrency features,
      page-source calls, OSVM release, and provider
      activation inactive

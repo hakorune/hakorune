@@ -349,7 +349,8 @@ FST:
 | `MIMAP-062A` | landed | Post-reclaim-scalar-closeout row selection. | selected MIMAP-063A |
 | `MIMAP-063A` | landed | Reclaim scheduler boundary inventory. | selected MIMAP-064A |
 | `MIMAP-064A` | landed | Reclaim scheduler request marker contract. | selected MIMAP-065A |
-| `MIMAP-065A` | selected current | Reclaim scheduler marker closeout guard. | after MIMAP-064A |
+| `MIMAP-065A` | landed | Reclaim scheduler marker closeout guard. | selected MIMAP-066A |
+| `MIMAP-066A` | selected current | Post-scheduler-marker row selection. | after MIMAP-065A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -357,8 +358,8 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-064A: `MIMAP-065A` closes out the scheduler boundary
-and request marker rows. Real thread scheduling, source-level concurrency
+Current row after MIMAP-065A: `MIMAP-066A` selects one narrow follow-up after
+the scheduler marker closeout. Real thread scheduling, source-level concurrency
 features, page-source calls, OSVM unreserve/release, provider activation, and
 backend matchers remain closed.
 

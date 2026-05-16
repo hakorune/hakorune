@@ -224,7 +224,8 @@ Forbidden:
 | `MIMAP-062A` | post-reclaim-scalar-closeout row selection | landed; selected MIMAP-063A |
 | `MIMAP-063A` | reclaim scheduler boundary inventory | landed; selected MIMAP-064A |
 | `MIMAP-064A` | reclaim scheduler request marker contract | landed; selected MIMAP-065A |
-| `MIMAP-065A` | reclaim scheduler marker closeout guard | selected current |
+| `MIMAP-065A` | reclaim scheduler marker closeout guard | landed; selected MIMAP-066A |
+| `MIMAP-066A` | post-scheduler-marker row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1046,6 +1047,19 @@ app, guard, and accepted SSOT. It selects MIMAP-065A.
 MIMAP-065A is a closeout/guard row for the scheduler boundary/request marker
 slice. It should lock MIMAP-063A and MIMAP-064A before broader reclaim behavior
 or real scheduling is considered.
+
+It must not add allocator behavior, execute real scheduling, add source-level
+concurrency semantics, call page-source APIs, unreserve or release OSVM pages,
+activate providers, replace the host allocator, or add backend matchers.
+
+MIMAP-065A landed by adding a scheduler marker closeout SSOT and guard. It
+selects MIMAP-066A.
+
+### MIMAP-066A granularity
+
+MIMAP-066A is a planning-only row. It should select exactly one follow-up after
+the scheduler marker closeout: allocator behavior, a real scheduler substrate
+row, a language-feature row, or a compiler acceptance sidecar.
 
 It must not add allocator behavior, execute real scheduling, add source-level
 concurrency semantics, call page-source APIs, unreserve or release OSVM pages,
