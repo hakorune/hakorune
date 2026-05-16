@@ -1,6 +1,6 @@
 # 293x-524 MIMAP-046A OSVM-Backed Fast-Path Unreserve Fail-Fast
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -50,6 +50,20 @@ through the existing page-source unreserve adapter.
 
 ```text
 bash tools/checks/k2_wide_hako_alloc_osvm_fast_path_unreserve_failfast_guard.sh
+[k2-wide-hako-alloc-osvm-fast-path-unreserve-failfast] ok
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Closeout
+
+`MIMAP-046A` lands the diagnostics owner, proof app, proof manifest row, and
+focused guard. The owner rejects duplicate, unknown, and not-decommitted
+fast-path unreserve requests before adapter execution while keeping the
+MIMAP-045A success route unchanged.
+
+Next row:
+
+```text
+MIMAP-046B post-fast-path-unreserve-failfast row selection
 ```

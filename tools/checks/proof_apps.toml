@@ -134,6 +134,13 @@ profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_osvm_fast_path_unreserve_route_guard.sh"]
 
 [[proof_apps]]
+id = "MIMAP-046A"
+app = "apps/hako-alloc-osvm-fast-path-unreserve-failfast-proof"
+label = "OSVM-backed fast-path unreserve fail-fast diagnostics proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_osvm_fast_path_unreserve_failfast_guard.sh"]
+
+[[proof_apps]]
 id = "M213"
 app = "apps/hako-alloc-abandoned-reclaim-inventory-proof"
 label = "abandoned reclaim inventory proof"

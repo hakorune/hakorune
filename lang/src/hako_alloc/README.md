@@ -64,6 +64,10 @@ Principles
     adapter. It proves one allocate/release/purge/unreserve sequence while
     keeping direct page-source/OSVM calls, post-unreserve reuse, provider
     activation, hooks, and allocator replacement outside the route.
+  - `HakoAllocOsVmFastPathUnreserveFailFastRoute` is the MIMAP-046A diagnostics
+    owner for duplicate, unknown, and not-decommitted fast-path unreserve
+    requests. It must reject invalid requests before adapter execution and must
+    not own direct page-source/OSVM calls or post-unreserve reuse.
   - M169 local-free retire stays page-local in `HakoAllocPageModel`; M170 owns
     remote-free integration and any broader heap/queue consumption of retire
     state.

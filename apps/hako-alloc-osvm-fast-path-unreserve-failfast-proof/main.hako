@@ -1,0 +1,69 @@
+// hako-alloc-osvm-fast-path-unreserve-failfast-proof
+// Purpose: prove MIMAP-046A fast-path unreserve fail-fast diagnostics.
+
+using selfhost.hako_alloc.memory.osvm_fast_path_unreserve_failfast_box as HakoAllocOsVmFastPathUnreserveFailFastRouteBox
+
+static box Main {
+    main(args) {
+        local route = new HakoAllocOsVmFastPathUnreserveFailFastRoute(0, 16, 2, 64, 64)
+
+        local handle0 = route.allocate(8)
+        local handle0_ok = 0
+        if handle0 != null {
+            handle0_ok = 1
+        }
+        local release0 = route.release(handle0)
+        local purge0 = route.purgeOne(1)
+        local first0 = route.unreservePurgedPage(purge0.selected_page_id)
+        local duplicate0 = route.unreservePurgedPage(purge0.selected_page_id)
+        local unknown0 = route.unreservePurgedPage(99)
+
+        local stale_route = new HakoAllocOsVmFastPathUnreserveFailFastRoute(0, 16, 2, 64, 64)
+        local stale_handle = stale_route.allocate(8)
+        local stale_handle_ok = 0
+        if stale_handle != null {
+            stale_handle_ok = 1
+        }
+        local stale0 = stale_route.unreservePurgedPage(0)
+
+        local ok = check "mimap046a osvm fast path unreserve failfast" {
+            "initial handle": handle0_ok == 1
+            "release ok": release0 == 1
+            "purge ok": purge0.status == 0
+            "first status": first0.status == 1
+            "first reason": first0.reason == route.ok_reason()
+            "first adapter": first0.adapter_call_count == 1
+            "duplicate rejected": duplicate0.status == 0
+            "duplicate reason": duplicate0.reason == route.duplicate_reason()
+            "duplicate no adapter": duplicate0.adapter_call_count == 1
+            "unknown rejected": unknown0.status == 0
+            "unknown reason": unknown0.reason == route.unknown_reason()
+            "unknown no adapter": unknown0.adapter_call_count == 1
+            "counts": route.success_count == 1
+            "reject counts": route.reject_count == 2
+            "duplicate count": route.duplicate_reject_count == 1
+            "unknown count": route.unknown_reject_count == 1
+            "stale handle": stale_handle_ok == 1
+            "stale rejected": stale0.status == 0
+            "stale reason": stale0.reason == stale_route.not_decommitted_reason()
+            "stale no adapter": stale0.adapter_call_count == 0
+            "stale count": stale_route.stale_reject_count == 1
+        }
+
+        print("hako-alloc-osvm-fast-path-unreserve-failfast-proof")
+        print("first=" + first0.status + "," + first0.reason + "," + first0.unreserve_attempted + "," + first0.unreserve_ok + "," + first0.adapter_call_count)
+        print("duplicate=" + duplicate0.status + "," + duplicate0.reason + "," + duplicate0.unreserve_attempted + "," + duplicate0.adapter_call_count)
+        print("unknown=" + unknown0.status + "," + unknown0.reason + "," + unknown0.unreserve_attempted + "," + unknown0.adapter_call_count)
+        print("stale=" + stale0.status + "," + stale0.reason + "," + stale0.unreserve_attempted + "," + stale0.adapter_call_count)
+        print("counts=" + route.attempt_count + "," + route.success_count + "," + route.reject_count + "," + route.duplicate_reject_count + "," + route.unknown_reject_count + "," + stale_route.stale_reject_count)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

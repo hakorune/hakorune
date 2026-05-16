@@ -196,7 +196,8 @@ Forbidden:
 | `MIMAP-044B` | post-fast-path-closeout row selection | landed; selected MIMAP-045A |
 | `MIMAP-045A` | OSVM-backed fast-path unreserve route | landed after MIMAP-044B |
 | `MIMAP-045B` | post-fast-path-unreserve row selection | landed; selected MIMAP-046A |
-| `MIMAP-046A` | OSVM-backed fast-path unreserve fail-fast diagnostics | selected current |
+| `MIMAP-046A` | OSVM-backed fast-path unreserve fail-fast diagnostics | landed after MIMAP-045B |
+| `MIMAP-046B` | post-fast-path-unreserve-failfast row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -708,6 +709,12 @@ Forbidden:
 - remote-free execution, TLS/atomic execution changes, thread scheduling,
   reclaim execution, page ownership migration, or user-facing concurrency work;
 - backend `.inc` app/name matchers.
+
+### MIMAP-046B granularity
+
+MIMAP-046B is a planning-only row. It reads the MIMAP-046A fail-fast evidence
+and selects exactly one next allocator/compiler/language task. It must not
+implement allocator behavior, compiler acceptance, or cleanup by itself.
 
 ## Compiler / language sidecar triggers
 
