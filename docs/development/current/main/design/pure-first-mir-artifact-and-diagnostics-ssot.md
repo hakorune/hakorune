@@ -134,6 +134,7 @@ arity_mismatch
 return_shape_missing
 value_demand_mismatch
 object_return_target_box_missing
+random_capability_route_unsupported
 ```
 
 Schema reality:
@@ -188,6 +189,7 @@ Initial mapping target:
 | `return_shape_missing` | route needs a result but `return_shape == null` |
 | `value_demand_mismatch` | `value_demand` is absent or incompatible with `return_shape` / route kind |
 | `object_return_target_box_missing` | `return_shape == "object_handle"` on a global/user-box route but `target_result_box_name` is absent |
+| `random_capability_route_unsupported` | `--reject-unsupported-random` is active and a reachable function has `metadata.capability_plans allow=[hako.random]` without a supported random route |
 
 Output must be stable and actionable:
 

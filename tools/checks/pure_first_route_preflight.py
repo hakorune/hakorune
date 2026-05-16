@@ -280,7 +280,43 @@ def classify_missing_plans(
     return failures
 
 
-def collect_failures(data: dict[str, Any]) -> tuple[list[dict[str, str]], int, int]:
+def capability_plan_allows(plan: dict[str, Any], capability: str) -> bool:
+    allow = plan.get("allow")
+    return isinstance(allow, list) and capability in {str(item) for item in allow}
+
+
+def classify_random_capability_plans(
+    fn_name: str,
+    metadata: dict[str, Any],
+) -> list[dict[str, str]]:
+    plans = metadata.get("capability_plans")
+    if not isinstance(plans, list):
+        return []
+
+    failures: list[dict[str, str]] = []
+    for plan in plans:
+        if not isinstance(plan, dict) or not capability_plan_allows(plan, "hako.random"):
+            continue
+        failures.append(
+            failure(
+                fn_name,
+                "<capability>",
+                "hako.random",
+                "random_capability_route_unsupported",
+                "capability_plans",
+                "select a supported random route row or keep the caller on proof-only deterministic keys",
+                layer="route-preflight",
+                contract="metadata.capability_plans[hako.random]",
+            )
+        )
+    return failures
+
+
+def collect_failures(
+    data: dict[str, Any],
+    *,
+    reject_unsupported_random: bool = False,
+) -> tuple[list[dict[str, str]], int, int]:
     functions = data.get("functions", [])
     if not isinstance(functions, list):
         return (
@@ -331,6 +367,8 @@ def collect_failures(data: dict[str, Any]) -> tuple[list[dict[str, str]], int, i
                 )
             )
             continue
+        if reject_unsupported_random:
+            failures.extend(classify_random_capability_plans(fn_name, metadata))
         plans = metadata.get("lowering_plan")
         if not isinstance(plans, list):
             failures.append(
@@ -458,11 +496,19 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description="Preflight pure-first MIR lowering_plan route contracts."
     )
+    parser.add_argument(
+        "--reject-unsupported-random",
+        action="store_true",
+        help="fail on reachable hako.random capability metadata until a random route row lands",
+    )
     parser.add_argument("mir_json", type=Path)
     args = parser.parse_args(argv)
 
     data = load_json(args.mir_json)
-    failures, function_count, plan_count = collect_failures(data)
+    failures, function_count, plan_count = collect_failures(
+        data,
+        reject_unsupported_random=args.reject_unsupported_random,
+    )
     if failures:
         for item in failures:
             print_failure(item)

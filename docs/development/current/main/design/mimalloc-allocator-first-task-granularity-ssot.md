@@ -205,7 +205,8 @@ Forbidden:
 | `MIMAP-049A` | secure entropy source inventory | landed after MIMAP-048B |
 | `MIMAP-049B` | post-secure-entropy-inventory row selection | landed; selected RANDOM-CAP-001 |
 | `RANDOM-CAP-001` | uses random capability decision + fail-fast contract | landed; selected RANDOM-CAP-002 |
-| `RANDOM-CAP-002` | random capability unsupported-route preflight | selected current |
+| `RANDOM-CAP-002` | random capability unsupported-route preflight | landed; selected MIMAP-050A |
+| `MIMAP-050A` | secure entropy route proposal-or-park | selected current |
 
 ### MIMAP-020A granularity
 

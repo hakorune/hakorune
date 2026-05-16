@@ -330,7 +330,8 @@ FST:
 | `MIMAP-049A` | landed | Secure entropy source inventory. | after MIMAP-048B |
 | `MIMAP-049B` | landed | Post-secure-entropy-inventory row selection. | selected RANDOM-CAP-001 |
 | `RANDOM-CAP-001` | landed | Uses random capability decision + fail-fast contract. | after MIMAP-049B |
-| `RANDOM-CAP-002` | selected current | Random capability unsupported-route preflight. | after RANDOM-CAP-001 |
+| `RANDOM-CAP-002` | landed | Random capability unsupported-route preflight. | after RANDOM-CAP-001 |
+| `MIMAP-050A` | selected current | Secure entropy route proposal-or-park. | after RANDOM-CAP-002 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -338,8 +339,8 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after RANDOM-CAP-001: land `RANDOM-CAP-002` so unsupported
-random/entropy execution fails before backend emission.
+Current row after RANDOM-CAP-002: `MIMAP-050A` selects whether secure entropy
+execution should be proposed now or kept parked.
 
 MIMAP-020A execution order:
 

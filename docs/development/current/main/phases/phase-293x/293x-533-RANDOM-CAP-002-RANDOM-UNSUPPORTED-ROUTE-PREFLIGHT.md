@@ -1,6 +1,6 @@
 # 293x-533 RANDOM-CAP-002 Random Unsupported Route Preflight
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -46,4 +46,64 @@ accepted random route exists.
 bash tools/checks/k2_wide_random_capability_preflight_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Implementation Result
+
+`RANDOM-CAP-002` adds:
+
+```text
+SSOT:
+  docs/development/current/main/design/random-capability-preflight-ssot.md
+preflight owner:
+  tools/checks/pure_first_route_preflight.py
+guard:
+  tools/checks/k2_wide_random_capability_preflight_guard.sh
+```
+
+Default preflight still accepts metadata-only `uses random`. Execution rows can
+opt into unsupported random checking with:
+
+```bash
+tools/checks/pure_first_route_preflight.py \
+  --reject-unsupported-random \
+  app.mir.json
+```
+
+The explicit check fails with:
+
+```text
+reason=random_capability_route_unsupported
+owner=capability_plans
+contract=metadata.capability_plans[hako.random]
+```
+
+No random extern route, entropy source, secure-list behavior, provider
+activation, or backend matcher is added.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_random_capability_preflight_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Selection Result
+
+`RANDOM-CAP-002` selects `MIMAP-050A`.
+
+```text
+row:
+  MIMAP-050A secure entropy route proposal-or-park
+classification:
+  allocator planning row
+why now:
+  `uses random` metadata and unsupported-route preflight now exist. The
+  allocator lane can decide whether to propose a real entropy route or keep
+  secure entropy execution parked.
+stop lines:
+  no entropy execution during selection
+  no secure-list hardening behavior change
+  no provider activation
 ```

@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `RANDOM-CAP-002 random capability unsupported-route preflight`
+- current blocker token: `MIMAP-050A secure entropy route proposal-or-park`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -48,7 +48,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `RANDOM-CAP-002 random capability unsupported-route preflight`
+- current blocker token: `MIMAP-050A secure entropy route proposal-or-park`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -59,10 +59,10 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after `RANDOM-CAP-001`; current blocker is
-  `RANDOM-CAP-002`, the unsupported random route preflight/diagnostics row
-- next row: keep random/entropy execution unsupported while making failures
-  happen before backend emission
+- continue `phase-293x` after `RANDOM-CAP-002`; current blocker is
+  `MIMAP-050A`, the secure entropy route proposal-or-park planning row
+- next row: choose exactly one follow-up without adding entropy execution in
+  the planning row
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
