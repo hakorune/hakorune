@@ -197,7 +197,8 @@ Forbidden:
 | `MIMAP-045A` | OSVM-backed fast-path unreserve route | landed after MIMAP-044B |
 | `MIMAP-045B` | post-fast-path-unreserve row selection | landed; selected MIMAP-046A |
 | `MIMAP-046A` | OSVM-backed fast-path unreserve fail-fast diagnostics | landed after MIMAP-045B |
-| `MIMAP-046B` | post-fast-path-unreserve-failfast row selection | selected current |
+| `MIMAP-046B` | post-fast-path-unreserve-failfast row selection | landed; selected MIMAP-047A |
+| `MIMAP-047A` | OSVM-backed fast-path unreserve closeout guard | selected current |
 
 ### MIMAP-020A granularity
 
@@ -715,6 +716,28 @@ Forbidden:
 MIMAP-046B is a planning-only row. It reads the MIMAP-046A fail-fast evidence
 and selects exactly one next allocator/compiler/language task. It must not
 implement allocator behavior, compiler acceptance, or cleanup by itself.
+
+MIMAP-046B landed by selecting `MIMAP-047A`, the closeout guard for the
+OSVM-backed fast-path unreserve success and fail-fast rows.
+
+### MIMAP-047A granularity
+
+MIMAP-047A is a closeout guard row. It freezes the completed OSVM-backed
+fast-path unreserve surface:
+
+```text
+MIMAP-045A:
+  success route via HakoAllocOsVmFastPathUnreserveRoute
+
+MIMAP-046A:
+  duplicate / unknown / not-decommitted diagnostics via
+  HakoAllocOsVmFastPathUnreserveFailFastRoute
+```
+
+It must not implement allocator behavior, compiler acceptance, post-unreserve
+reuse, OS release, provider activation, hooks, host allocator replacement,
+remote-free/TLS/atomic execution changes, reclaim execution, or user-facing
+concurrency work.
 
 ## Compiler / language sidecar triggers
 

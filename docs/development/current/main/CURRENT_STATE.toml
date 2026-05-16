@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-17"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-046A landed the OSVM-backed fast-path unreserve fail-fast diagnostics and selected MIMAP-046B as the next planning row. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-046B landed the post-fast-path-unreserve-failfast row selection and selected MIMAP-047A as the next closeout guard. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-525-MIMAP-046B-POST-FAST-PATH-UNRESERVE-FAILFAST-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-526-MIMAP-047A-OSVM-FAST-PATH-UNRESERVE-CLOSEOUT-GUARD.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-524-MIMAP-046A-OSVM-FAST-PATH-UNRESERVE-FAILFAST"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-524-MIMAP-046A-OSVM-FAST-PATH-UNRESERVE-FAILFAST.md"
-latest_card_summary = "MIMAP-046A lands OSVM-backed fast-path unreserve fail-fast diagnostics and selects MIMAP-046B."
+latest_card = "293x-525-MIMAP-046B-POST-FAST-PATH-UNRESERVE-FAILFAST-ROW-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-525-MIMAP-046B-POST-FAST-PATH-UNRESERVE-FAILFAST-ROW-SELECTION.md"
+latest_card_summary = "MIMAP-046B selects MIMAP-047A OSVM-backed fast-path unreserve closeout guard."
 
-current_blocker_token = "MIMAP-046B"
+current_blocker_token = "MIMAP-047A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-525 MIMAP-046B selected MIMAP-047A OSVM-backed fast-path unreserve closeout guard",
   "293x-524 MIMAP-046A OSVM-backed fast-path unreserve fail-fast diagnostics landed",
   "293x-523 MIMAP-045B selected MIMAP-046A OSVM-backed fast-path unreserve fail-fast diagnostics",
   "293x-522 MIMAP-045A OSVM-backed fast-path unreserve route landed",

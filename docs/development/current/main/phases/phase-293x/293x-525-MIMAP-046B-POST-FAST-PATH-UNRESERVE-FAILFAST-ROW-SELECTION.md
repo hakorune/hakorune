@@ -1,15 +1,22 @@
 # 293x-525 MIMAP-046B Post-Fast-Path-Unreserve-FailFast Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
 
 `MIMAP-046B` is a planning-only row after `MIMAP-046A`.
 
-It selects exactly one next allocator/compiler/language row after the
-OSVM-backed fast-path unreserve fail-fast diagnostics land. It must not
-implement allocator behavior, compiler acceptance, or cleanup by itself.
+It selects:
+
+```text
+MIMAP-047A OSVM-backed fast-path unreserve closeout guard
+```
+
+The MIMAP-045A success route and MIMAP-046A fail-fast diagnostics did not expose
+a compiler or language acceptance blocker. The next smallest row is a closeout
+guard that freezes the completed fast-path unreserve surface before selecting
+any OS release, post-unreserve reuse, reclaim, provider, or language row.
 
 ## Scope
 
@@ -34,8 +41,8 @@ implement allocator behavior, compiler acceptance, or cleanup by itself.
 
 | Step | Task | Accept | Stop line |
 | --- | --- | --- | --- |
-| `046B.1` | Read `MIMAP-046A` fail-fast evidence. | blocker is classified as allocator / compiler / language / cleanup. | no implementation |
-| `046B.2` | Select the next row and write a focused card. | one current blocker token is named. | no multi-row bundle |
+| `046B.1` | Read `MIMAP-046A` fail-fast evidence. | blocker classified as closeout guard. | no implementation |
+| `046B.2` | Select the next row and write a focused card. | `MIMAP-047A` card exists. | no multi-row bundle |
 | `046B.3` | Update current pointers and taskboard. | current pointer guard passes. | no landed history copy expansion |
 
 ## Required Evidence
