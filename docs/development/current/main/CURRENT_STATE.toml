@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-16"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-033A landed the page-source unreserve adapter after the OSVM unreserve substrate route. MIMAP-033B is selecting the next allocator row. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-033B selected MIMAP-034A facade huge unreserve-after-decommit success route after the landed page-source unreserve adapter. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-460-MIMAP-033B-POST-PAGE-SOURCE-UNRESERVE-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-461-MIMAP-034A-FACADE-HUGE-UNRESERVE-ROUTE.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-459-MIMAP-033A-PAGE-SOURCE-UNRESERVE-ADAPTER"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-459-MIMAP-033A-PAGE-SOURCE-UNRESERVE-ADAPTER.md"
-latest_card_summary = "MIMAP-033A lands HakoAllocPageSourcePolicy.unreservePage and HakoAllocPageSourceUnreserveAdapter while facade huge-unreserve/provider behavior stays closed."
+latest_card = "293x-460-MIMAP-033B-POST-PAGE-SOURCE-UNRESERVE-ROW-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-460-MIMAP-033B-POST-PAGE-SOURCE-UNRESERVE-ROW-SELECTION.md"
+latest_card_summary = "MIMAP-033B selects MIMAP-034A as the facade huge unreserve-after-decommit success route after page-source unreserve adapter proof."
 
-current_blocker_token = "MIMAP-033B"
+current_blocker_token = "MIMAP-034A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-460 MIMAP-033B post-page-source-unreserve row selection landed",
   "293x-459 MIMAP-033A page-source unreserve adapter landed",
   "293x-458 MIMAP-032B post-OSVM-unreserve row selection landed",
   "293x-457 MIMAP-032A OSVM unreserve substrate route landed",

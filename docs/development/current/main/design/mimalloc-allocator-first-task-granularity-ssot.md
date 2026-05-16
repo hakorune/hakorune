@@ -166,7 +166,8 @@ Forbidden:
 | `MIMAP-032A` | OSVM unreserve substrate route | landed after MIMAP-031A |
 | `MIMAP-032B` | post-OSVM-unreserve allocator row selection | landed; selected MIMAP-033A |
 | `MIMAP-033A` | page-source unreserve adapter | landed after MIMAP-032B |
-| `MIMAP-033B` | post-page-source-unreserve allocator row selection | current after MIMAP-033A |
+| `MIMAP-033B` | post-page-source-unreserve allocator row selection | landed; selected MIMAP-034A |
+| `MIMAP-034A` | facade huge unreserve-after-decommit success route | current after MIMAP-033B |
 
 ### MIMAP-020A granularity
 
@@ -474,8 +475,10 @@ selected MIMAP-032B as the post-unreserve allocator row selection. MIMAP-032B
 selected MIMAP-033A as the page-source unreserve adapter row so allocator owner
 adoption happens before any facade huge-unreserve route. MIMAP-033A landed
 `HakoAllocPageSourcePolicy.unreservePage` and
-`HakoAllocPageSourceUnreserveAdapter`; MIMAP-033B now selects the next row
-without opening provider activation or host allocator replacement.
+`HakoAllocPageSourceUnreserveAdapter`; MIMAP-033B selected MIMAP-034A as the
+facade huge unreserve-after-decommit success route without opening duplicate /
+stale unreserve diagnostics, provider activation, or host allocator
+replacement.
 
 ## Compiler / language sidecar triggers
 

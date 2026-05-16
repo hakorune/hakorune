@@ -1,6 +1,6 @@
 # Phase 293x: real-app bringup
 
-- Status: Active / mimalloc blueprint lane with post-page-source-unreserve row selection active
+- Status: Active / mimalloc blueprint lane with facade huge unreserve route active
 - Purpose: use real applications to expose compiler/runtime seams after the
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
@@ -10,7 +10,7 @@
 - Current compiler/selfhost sidecar:
   closed through `MIR-EMIT-SSOT-002`
 - Current allocator row:
-  `docs/development/current/main/phases/phase-293x/293x-460-MIMAP-033B-POST-PAGE-SOURCE-UNRESERVE-ROW-SELECTION.md`
+  `docs/development/current/main/phases/phase-293x/293x-461-MIMAP-034A-FACADE-HUGE-UNRESERVE-ROUTE.md`
 - Latest lifecycle closeout:
   `docs/development/current/main/phases/phase-293x/293x-403-REUSE-LIFECYCLE-001-EXPLICIT-REUSE-METHODS.md`
 - Mimalloc purpose SSOT:
@@ -58,7 +58,8 @@ shape that MIMAP-029A exposed:
 | `MIMAP-032A` | landed | Added the OSVM unreserve substrate route without allocator adoption. |
 | `MIMAP-032B` | landed | Selected MIMAP-033A page-source unreserve adapter. |
 | `MIMAP-033A` | landed | Adopted OSVM unreserve behind the page-source owner / adapter. |
-| `MIMAP-033B` | selected current | Select the next row after page-source unreserve adoption. |
+| `MIMAP-033B` | landed | Selected MIMAP-034A facade huge unreserve-after-decommit route. |
+| `MIMAP-034A` | selected current | Compose MIMAP-029A huge decommit with MIMAP-033A unreserve adapter. |
 
 ## Smoke Entry
 

@@ -1,6 +1,6 @@
 # 293x-460 MIMAP-033B Post-Page-Source-Unreserve Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -89,3 +89,49 @@ tools/checks/dev_gate.sh quick
 
 This row closes when one next allocator behavior row is selected with clear
 owner/proof/guard names and provider/host allocator replacement still inactive.
+
+## Selection Result
+
+`MIMAP-033B` selects `MIMAP-034A`.
+
+Rationale:
+
+- `MIMAP-032A` proved the OSVM unreserve substrate route.
+- `MIMAP-033A` adopted that substrate behind the allocator page-source owner and
+  `HakoAllocPageSourceUnreserveAdapter`.
+- The smallest next behavior is a facade huge unreserve-after-decommit success
+  route that composes existing owners, not duplicate/stale unreserve diagnostics
+  or provider activation.
+
+Selected row:
+
+```text
+row:
+  MIMAP-034A facade huge unreserve-after-decommit success route
+owner:
+  lang/src/hako_alloc/memory/object_lifecycle_facade_huge_unreserve_box.hako
+proof app:
+  apps/mimalloc-facade-huge-unreserve-proof/main.hako
+guard:
+  tools/checks/k2_wide_mimalloc_facade_huge_unreserve_exe_guard.sh
+reused owners:
+  HakoAllocObjectLifecycleFacadeHugeDecommitRoute
+  HakoAllocPageSourceUnreserveAdapter
+  HakoAllocPageSourcePolicy.unreservePage
+  OsVmCoreBox.unreserve_bytes_i64
+primary proof:
+  allocate page-source-backed huge handle, unregister/decommit through MIMAP-029A,
+  then unreserve the same backing range through MIMAP-033A adapter
+stop lines:
+  no duplicate/stale unreserve diagnostics
+  no recommit / purge scheduler / remote-free / TLS behavior
+  no provider activation
+  no host allocator replacement / hook / #[global_allocator]
+  no backend .inc matcher shortcut
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-034A facade huge unreserve-after-decommit route.
+```

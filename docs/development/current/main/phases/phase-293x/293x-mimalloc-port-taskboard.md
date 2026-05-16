@@ -32,11 +32,11 @@ fail-fast routing row is green, and the facade huge-page model route is green.
 MIMAP-029A exposed a pure-first/selfhost route-shape cleanup before the next
 allocator selection row. Same-artifact MIR input, lowering-plan preflight,
 phase progress diagnostics, and the canonical emit wrapper are landed; the
-MIMAP-033A page-source unreserve adapter row is landed;
+MIMAP-033B selected the facade huge unreserve-after-decommit success route;
 the current primary row is:
 
 ```text
-  MIMAP-033B post-page-source-unreserve row selection
+  MIMAP-034A facade huge unreserve-after-decommit route
 ```
 
 Closed cleanup sidecar:
@@ -228,7 +228,8 @@ not part of this sidecar:
 | `MIMAP-032A` | landed | OSVM unreserve substrate route. | after MIMAP-031A |
 | `MIMAP-032B` | landed | Post-OSVM-unreserve allocator row selection. | selected MIMAP-033A |
 | `MIMAP-033A` | landed | Page-source unreserve adapter. | after MIMAP-032B |
-| `MIMAP-033B` | selected current | Post-page-source-unreserve row selection. | after MIMAP-033A |
+| `MIMAP-033B` | landed | Post-page-source-unreserve row selection. | selected MIMAP-034A |
+| `MIMAP-034A` | selected current | Facade huge unreserve-after-decommit success route. | after MIMAP-033B |
 | `RETURN-CONTRACT-001` | parked future | Propagate declared return expected type into return expressions such as `ArrayBox.get`. | not a blocker for artifact exactness |
 
 ## Stage1 / Selfhost Ordering Guard
@@ -404,7 +405,8 @@ FST:
 | `MIMAP-032A` | landed | OSVM unreserve substrate route. | after MIMAP-031A |
 | `MIMAP-032B` | landed | Post-OSVM-unreserve allocator row selection. | selected MIMAP-033A |
 | `MIMAP-033A` | landed | Page-source unreserve adapter. | after MIMAP-032B |
-| `MIMAP-033B` | selected current | Post-page-source-unreserve row selection. | after MIMAP-033A |
+| `MIMAP-033B` | landed | Post-page-source-unreserve row selection. | selected MIMAP-034A |
+| `MIMAP-034A` | selected current | Facade huge unreserve-after-decommit success route. | after MIMAP-033B |
 
 MIMAP-020A execution order:
 
