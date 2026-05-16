@@ -1,15 +1,12 @@
 # Phase 293x: real-app bringup
 
-- Status: Active / mimalloc blueprint lane with current docs phase slim cleanup active
+- Status: Active; read current row from `CURRENT_STATE.toml`
 - Purpose: use real applications to expose compiler/runtime seams after the
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
 - Parent lane token: `phase-293x real-app bringup`
 - Closed sidecar:
   `docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md`
-- Current compiler/selfhost sidecar:
-  closed through `TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001`; current row is
-  `CURRENT-DOCS-PHASE-SLIM-001`
 - Current active row:
   read `phase_status` in `docs/development/current/main/CURRENT_STATE.toml`
   and the taskboard below
@@ -43,30 +40,15 @@
 
 ## Current Sidecar Queue
 
-MIMAP-029A landed the facade huge decommit-after-unregister success route. The
-lane now pauses allocator row selection to fix the pure-first/selfhost route
-shape that MIMAP-029A exposed:
+Live current row:
 
-This table is a historical excerpt for the MIMAP-029A interruption point. The
-live row pointer is `CURRENT_STATE.toml`; the full ordered taskboard is
-`293x-mimalloc-port-taskboard.md`.
+```text
+read docs/development/current/main/CURRENT_STATE.toml phase_status
+```
 
-| Row | Status | Purpose |
-| --- | --- | --- |
-| `MIR-EMIT-SSOT-001` | landed | Make pure-first preflight and EXE build consume the exact same MIR artifact. |
-| `MIR-ROUTE-PREFLIGHT-001` | landed | Fail unsupported lowering routes from MIR metadata before backend emission. |
-| `SELFHOST-PROGRESS-001` | landed | Add phase progress / timeout diagnostics for selfhost and pure-first wrappers. |
-| `MIR-EMIT-SSOT-002` | landed | Make the canonical external source-to-MIR route explicit through the existing route SSOT. |
-| `MIMAP-029B` | landed | Selected MIMAP-030A facade huge decommit fail-fast diagnostics. |
-| `MIMAP-030A` | landed | Reject duplicate/stale huge decommit before a second adapter call. |
-| `MIMAP-030B` | landed | Selected MIMAP-031A OSVM unreserve capability inventory. |
-| `MIMAP-031A` | landed | Inventoried OSVM unreserve/release as closed and selected MIMAP-032A. |
-| `MIMAP-032A` | landed | Added the OSVM unreserve substrate route without allocator adoption. |
-| `MIMAP-032B` | landed | Selected MIMAP-033A page-source unreserve adapter. |
-| `MIMAP-033A` | landed | Adopted OSVM unreserve behind the page-source owner / adapter. |
-| `MIMAP-033B` | landed | Selected MIMAP-034A facade huge unreserve-after-decommit route. |
-| `MIMAP-034A` | landed | Composed MIMAP-029A huge decommit with MIMAP-033A unreserve adapter. |
-| `MIMAP-034B` | selected current | Select the next row after facade huge unreserve success. |
+Durable ordered rows live in `293x-mimalloc-port-taskboard.md`. The historical
+MIMAP-029A pure-first/selfhost interruption point remains in its phase cards;
+do not copy that queue into this README.
 
 ## Smoke Entry
 

@@ -22,266 +22,20 @@ LOOP-003C/D complete
 PACKED-003/004 complete
 ```
 
-Blueprint and inventory rows are active again after the MIR builder diet cleanup
-sidecar closeout. The mimalloc concurrency substrate cut and route inventory
-guard are pinned, the facade page-source allocation-miss fallback is green, and
-the internal worker identity, TLS cache-slot, atomic route guard, and
-remote-free / abandoned-owner policy, thread-safe `hako_mem` ABI, and native
-multi-worker substrate stress rows are now live. The facade huge-request
-fail-fast routing row is green, and the facade huge-page model route is green.
-MIMAP-029A exposed a pure-first/selfhost route-shape cleanup before the next
-allocator selection row. Same-artifact MIR input, lowering-plan preflight,
-phase progress diagnostics, and the canonical emit wrapper are landed.
-MIMAP-037A facade huge backing-set helper cleanup is green; MIMAP-037B
-selected the object-lifecycle known-page cleanup; MIMAP-038A known-page
-queue-length loop cleanup is green; MIMAP-038B selected a remote-free retry
-bound cleanup after the page-queue loop candidate exposed a compiler acceptance
-sidecar; MIMAP-039A retry-bound cleanup is green; MIR-ROW-C nullable object
-return acceptance is green; MIMAP-039C selected the object-lifecycle
-selectPage loop cleanup; MIMAP-040A selectPage queue-length loop cleanup is
-green; PURE-FIRST-DIAG-001 acceptance layer diagnostics is green;
-MIMAP-040C selected a record report boundary cleanup before the next allocator
-behavior row; MIMAP-041A record report boundary cleanup is green;
-MIMAP-041B selected an extern route spec table cleanup;
-MIR-EXTERN-SPEC-001 route spec table cleanup is green;
-MIR-EXTERN-SPEC-002 selected vm-hako subset externcall spec reuse;
-VMHAKO-EXTERN-SPEC-001 subset legacy externcall spec validator cleanup is green;
-VMHAKO-EXTERN-SPEC-002 selected user-box route fixed-point orchestration cleanup;
-USERBOX-ROUTE-SPLIT-001 fixed-point orchestration cleanup is green;
-USERBOX-ROUTE-SPLIT-002 selected route materialization owner cleanup;
-USERBOX-ROUTE-SPLIT-003 route materialization owner cleanup is green;
-USERBOX-ROUTE-SPLIT-004 selected target collection owner cleanup;
-USERBOX-ROUTE-SPLIT-005 target collection owner cleanup is green;
-USERBOX-ROUTE-SPLIT-006 selected builder-local record helper cleanup;
-RECORD-VALUES-REG-001 builder-local record helper cleanup is green;
-RECORD-VALUES-REG-002 selected a proof-apps manifest schema cleanup;
-PROOF-APPS-MANIFEST-SCHEMA-001 proof-apps manifest schema cleanup is green;
-PROOF-APPS-MANIFEST-SCHEMA-002 selected a MIR builder indexing owner cleanup;
-EXPRS-INDEXING-001 MIR builder indexing owner cleanup is green;
-EXPRS-INDEXING-002 selected a MIR builder collection literal owner cleanup;
-EXPRS-COLLECTION-LITERAL-001 MIR builder collection literal owner cleanup is green;
-EXPRS-COLLECTION-LITERAL-002 selected a MIR builder check expression owner cleanup;
-EXPRS-CHECK-001 MIR builder check expression owner cleanup is green;
-EXPRS-CHECK-002 selected an OSVM export validation helper cleanup;
-OSVM-EXPORT-VALIDATION-HELPER-001 OSVM export validation helper cleanup is green;
-OSVM-EXPORT-VALIDATION-HELPER-002 selected generic collection read route cleanup;
-GENERIC-METHOD-ROUTE-SPLIT-001 collection read route cleanup is green;
-GENERIC-METHOD-ROUTE-SPLIT-002 selected GENERIC-METHOD-ROUTE-SPLIT-003 generic string route cleanup;
-GENERIC-METHOD-ROUTE-SPLIT-003 generic string route cleanup is green;
-GENERIC-METHOD-ROUTE-SPLIT-004 selected GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001;
-GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001 generic string body analysis cleanup is green;
-GLOBAL-STRING-BODY-ANALYSIS-SPLIT-002 selected NUMERIC-SUBSTRATE-SPLIT-001;
-NUMERIC-SUBSTRATE-SPLIT-001 numeric substrate cleanup is green;
-NUMERIC-SUBSTRATE-SPLIT-002 selected TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001;
-TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001 typed-object storage inference cleanup is green;
-TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-002 selected CURRENT-DOCS-PHASE-SLIM-001;
-the current primary row is:
+Current row and latest-card pointers live in `CURRENT_STATE.toml`. This
+taskboard keeps durable row order and policy boundaries only; do not paste the
+live current status here.
 
 ```text
-  CURRENT-DOCS-PHASE-SLIM-001 current docs phase slim cleanup
+read:
+  docs/development/current/main/CURRENT_STATE.toml phase_status
+  docs/development/current/main/CURRENT_STATE.toml latest_card_path
 ```
 
 Closed cleanup sidecar:
 
 ```text
 docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md
-```
-
-Latest closeout:
-
-```text
-MIMAP-019A:
-  landed
-  object-lifecycle facade purge/reclaim policy route is green
-MIMAP-020A:
-  landed
-  existing M49 page-source owner adopted; no new OSVM abstraction needed
-METADATA-CATALOG-004:
-  landed
-  stale metadata promotion queue reconciled after PROMOTE-001..006
-MIMAP-021A:
-  landed
-  selected facade page-source fresh-page attach as the next allocator row
-MIMAP-021B:
-  landed
-  facade page-source fresh-page attach is green
-MIMAP-SUBSTRATE-CONC-001:
-  landed
-  mimalloc needs runtime/internal concurrency substrate, not the full
-  user-facing concurrency language surface
-MIMAP-SUBSTRATE-CONC-002:
-  landed
-  route inventory guard pins hako.mem / hako.osvm / hako.tls / hako.atomic
-  route facts and proof guards without adding behavior
-MIMAP-021C:
-  landed
-  facade page-source allocation-miss fallback is green
-MIMAP-WORKER-001:
-  landed
-  internal worker identity substrate is green
-MIMAP-TLS-001:
-  landed
-  internal worker TLS cache-slot substrate is green
-MIMAP-ATOMIC-001:
-  landed
-  allocator fixed-slot atomic route guard is green
-MIMAP-REMOTE-001:
-  landed
-  remote-free / abandoned-owner policy composition is green
-MIMAP-THREADSAFE-ABI-001:
-  landed
-  thread-safe hako_mem ABI contract and smoke guard are green
-MIMAP-PAR-STRESS-001:
-  landed
-  native Rust/kernel multi-worker substrate stress is green
-LIFECYCLE-BIRTH-001:
-  landed
-  new-only birth policy guard is green
-PARSER-BIRTH-001:
-  landed
-  direct receiver birth parser guard is green
-PARSER-BIRTH-002:
-  landed
-  direct receiver birth diagnostic hint guard is green
-REUSE-LIFECYCLE-001:
-  landed
-  explicit reuse method inventory guard is green
-MIMAP-022A:
-  landed
-  selected MIMAP-022B facade huge-request fail-fast routing as the next
-  allocator behavior row
-MIMAP-022B:
-  landed
-  facade huge-request fail-fast routing is green
-MIMAP-022C:
-  landed
-  selected MIMAP-023A facade huge-page model route as the next allocator
-  behavior row
-MIMAP-023A:
-  landed
-  facade huge-page model route is green
-MIMAP-023B:
-  landed
-  selected MIMAP-024A facade huge-release metadata route as the next allocator
-  behavior row
-MIMAP-024A:
-  landed
-  facade huge-release metadata route is green
-MIMAP-024B:
-  landed
-  selected MIMAP-025A facade huge-release fail-fast diagnostics route as the
-  next allocator behavior row
-MIMAP-025A:
-  landed
-  facade huge-release fail-fast diagnostics route is green
-MIMAP-025B:
-  landed
-  selected MIMAP-026A facade huge-release page-map unregister route as the next
-  allocator behavior row
-MIMAP-026A:
-  landed
-  facade huge-release page-map unregister route is green
-MIMAP-026B:
-  landed
-  selected MIMAP-027A facade huge-unregister fail-fast diagnostics route as the
-  next allocator behavior row
-MIMAP-027A:
-  landed
-  facade huge-unregister fail-fast diagnostics route is green
-MIMAP-027B:
-  landed
-  selected MIMAP-028A facade huge page-source backing route as the next
-  allocator behavior row
-MIMAP-028A:
-  landed
-  facade huge page-source backing route is green
-MIMAP-028B:
-  landed
-  selected MIMAP-029A facade huge decommit-after-unregister success route and
-  pinned the pure-first acceptance sidecar trigger
-MIMAP-029A:
-  landed
-  facade huge decommit-after-unregister success route is green
-MIMAP-029B:
-  landed
-  selected MIMAP-030A facade huge decommit fail-fast diagnostics
-MIR-EMIT-SSOT-001:
-  landed
-  split --mir-in / --mir-out and make pure-first guards build EXE from the
-  exact MIR artifact they preflight
-MIR-ROUTE-PREFLIGHT-001:
-  landed
-  classify missing/unsupported lowering routes from MIR metadata before
-  ny-llvmc / C shim emission
-SELFHOST-PROGRESS-001:
-  landed
-  add phase progress / timeout closeout so slow, stuck, and unsupported routes
-  are distinguishable
-MIR-EMIT-SSOT-002:
-  landed
-  make the canonical external source-to-MIR route explicit; prefer the existing
-  emit_mir_route.sh route SSOT or a thin facade over it
-MIMAP-034B:
-  landed
-  selected MIMAP-035A facade huge unreserve duplicate/stale fail-fast
-  diagnostics as the next allocator behavior row
-MIMAP-035A:
-  landed
-  facade huge unreserve duplicate/stale fail-fast diagnostics is green
-MIMAP-035B:
-  landed
-  selected MIMAP-036A post-huge-unreserve closeout guard as the next row
-MIMAP-036A:
-  landed
-  post-huge-unreserve closeout guard is green
-MIMAP-036B:
-  landed
-  selected MIMAP-037A facade huge backing-set helper cleanup as the next row
-MIMAP-037A:
-  landed
-  facade huge backing-set helper cleanup is green
-MIMAP-037B:
-  landed
-  selected MIMAP-038A object-lifecycle known-page loop cleanup as the next row
-MIMAP-038A:
-  landed
-  object-lifecycle facade known-page queue-length loop cleanup is green
-MIMAP-038B:
-  landed
-  selected MIMAP-039A remote-free retry-bound named owner cleanup as the next row
-MIMAP-039A:
-  landed
-  hako_alloc remote-free retry bound cleanup is green
-MIMAP-039B:
-  landed
-  selected MIR-ROW-C nullable object return sidecar as the next row
-MIR-ROW-C:
-  landed
-  nullable user-box object return acceptance is green
-MIMAP-039C:
-  landed
-  selected MIMAP-040A object-lifecycle selectPage loop cleanup as the next row
-MIMAP-040A:
-  landed
-  object-lifecycle selectPage queue-length loop cleanup is green
-MIMAP-040B:
-  landed
-  selected PURE-FIRST-DIAG-001 acceptance layer diagnostics as the next row
-PURE-FIRST-DIAG-001:
-  landed
-  pure-first preflight layer/contract diagnostics are green
-MIMAP-040C:
-  landed
-  selected MIMAP-041A record report boundary cleanup as the next BoxShape row
-MIMAP-041A:
-  landed
-  bounded scheduler report boundary now uses a record-local payload
-MIMAP-041B:
-  landed
-  selected MIR-EXTERN-SPEC-001 extern-call route spec table cleanup
-MIR-EXTERN-SPEC-001:
-  landed
-  extern-call route constants now have one ExternCallRouteSpec table owner
 ```
 
 ## Active Source Policy
@@ -556,7 +310,9 @@ FST:
 | `NUMERIC-SUBSTRATE-SPLIT-002` | landed | Post-numeric-substrate row selection. | selected TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001 |
 | `TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001` | landed | Typed-object storage inference owner-layout cleanup. | after NUMERIC-SUBSTRATE-SPLIT-002 |
 | `TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-002` | landed | Post-typed-object-storage row selection. | selected CURRENT-DOCS-PHASE-SLIM-001 |
-| `CURRENT-DOCS-PHASE-SLIM-001` | selected current | Current docs / phase taskboard slim cleanup. | after TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-002 |
+| `CURRENT-DOCS-PHASE-SLIM-001` | landed | Current docs / phase taskboard slim cleanup. | after TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-002 |
+| `CURRENT-DOCS-PHASE-SLIM-002` | landed | Post-current-docs-slim row selection. | selected MIMAP-NEXT-BEHAVIOR-SELECTION-001 |
+| `MIMAP-NEXT-BEHAVIOR-SELECTION-001` | selected current | Select the next single allocator/compiler cleanup or behavior row. | after CURRENT-DOCS-PHASE-SLIM-002 |
 
 MIMAP-020A execution order:
 

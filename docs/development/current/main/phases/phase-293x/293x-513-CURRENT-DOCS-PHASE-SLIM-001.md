@@ -1,6 +1,6 @@
 # 293x-513 CURRENT-DOCS-PHASE-SLIM-001
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -51,5 +51,26 @@ git diff --check
 
 ## Closeout
 
-This row closes when current docs are slimmer, live row selection is readable
-from one path, and the restart guard remains green.
+This row slimmed live-current duplicates across the restart/current mirrors and
+phase-293x taskboard:
+
+```text
+CURRENT_TASK.md
+docs/development/current/main/05-Restart-Quick-Resume.md
+docs/development/current/main/10-Now.md
+docs/development/current/main/phases/phase-293x/README.md
+docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md
+```
+
+The live active row remains owned by `CURRENT_STATE.toml`. The mirrors now keep
+only restart pointers, durable policy links, and the `current_blocker_token`
+required by `current_state_pointer_guard.sh`. Landed history remains in phase
+cards/taskboards instead of the root current pointer.
+
+Evidence:
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
+tools/checks/dev_gate.sh quick
+git diff --check
+```

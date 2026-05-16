@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `CURRENT-DOCS-PHASE-SLIM-001 current docs phase slim cleanup`
+- current blocker token: `MIMAP-NEXT-BEHAVIOR-SELECTION-001 next behavior selection row`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -48,7 +48,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `CURRENT-DOCS-PHASE-SLIM-001 current docs phase slim cleanup`
+- current blocker token: `MIMAP-NEXT-BEHAVIOR-SELECTION-001 next behavior selection row`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -59,10 +59,10 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after `TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-002`;
-  current blocker is `CURRENT-DOCS-PHASE-SLIM-001`, a current docs / phase
-  taskboard slim cleanup
-- next row: selected row after `CURRENT-DOCS-PHASE-SLIM-001`
+- continue `phase-293x` after `CURRENT-DOCS-PHASE-SLIM-002`; current blocker
+  is `MIMAP-NEXT-BEHAVIOR-SELECTION-001`, a planning-only row to select the
+  next single allocator/compiler cleanup or behavior row
+- next row: selected row after `MIMAP-NEXT-BEHAVIOR-SELECTION-001`
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

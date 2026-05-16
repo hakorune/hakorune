@@ -51,48 +51,11 @@ Scope: current lane / next lane / restart order only.
 - pure-first MIR artifact / diagnostics SSOT:
   `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
 - current blocker token:
-  `CURRENT-DOCS-PHASE-SLIM-001 current docs phase slim cleanup`
+  `MIMAP-NEXT-BEHAVIOR-SELECTION-001 next behavior selection row`
 - current BoxShape sidecar:
-  `MIR-EMIT-SSOT-001`, `MIR-ROUTE-PREFLIGHT-001`, and
-  `SELFHOST-PROGRESS-001`, and `MIR-EMIT-SSOT-002` landed; `MIR-ROW-C`
-  landed nullable user-box object return acceptance; `MIMAP-040A` landed
-  object-lifecycle selectPage queue-length loop cleanup; `PURE-FIRST-DIAG-001`
-  landed acceptance layer diagnostics; `MIMAP-040C` selected record report
-  boundary cleanup; `MIMAP-041A` landed the record-local report payload;
-  `MIMAP-041B` selected extern-call route spec table cleanup;
-  `MIR-EXTERN-SPEC-001` landed the ExternCallRouteSpec table owner;
-  `MIR-EXTERN-SPEC-002` selected vm-hako subset externcall spec reuse;
-  `VMHAKO-EXTERN-SPEC-001` landed subset legacy externcall spec reuse;
-  `VMHAKO-EXTERN-SPEC-002` selected user-box route fixed-point orchestration cleanup;
-  `USERBOX-ROUTE-SPLIT-001` landed fixed-point orchestration cleanup;
-  `USERBOX-ROUTE-SPLIT-002` selected route materialization owner cleanup;
-  `USERBOX-ROUTE-SPLIT-003` landed route materialization owner cleanup;
-  `USERBOX-ROUTE-SPLIT-004` selected target collection owner cleanup;
-  `USERBOX-ROUTE-SPLIT-005` landed target collection owner cleanup;
-  `USERBOX-ROUTE-SPLIT-006` selected builder-local record helper cleanup;
-  `RECORD-VALUES-REG-001` landed builder-local record field/register helper cleanup;
-  `RECORD-VALUES-REG-002` selected proof-apps manifest schema cleanup;
-  `PROOF-APPS-MANIFEST-SCHEMA-001` landed proof-app manifest schema cleanup;
-  `PROOF-APPS-MANIFEST-SCHEMA-002` selected MIR builder indexing owner cleanup;
-  `EXPRS-INDEXING-001` landed MIR builder indexing owner cleanup;
-  `EXPRS-INDEXING-002` selected MIR builder collection literal owner cleanup;
-  `EXPRS-COLLECTION-LITERAL-001` landed MIR builder collection literal owner cleanup;
-  `EXPRS-COLLECTION-LITERAL-002` selected MIR builder check expression cleanup;
-  `EXPRS-CHECK-001` landed MIR builder check expression owner cleanup;
-  `EXPRS-CHECK-002` selected OSVM export validation helper cleanup;
-  `OSVM-EXPORT-VALIDATION-HELPER-001` landed OSVM export validation helper cleanup;
-  `OSVM-EXPORT-VALIDATION-HELPER-002` selected generic collection read route cleanup;
-  `GENERIC-METHOD-ROUTE-SPLIT-001` landed generic collection read route cleanup;
-  `GENERIC-METHOD-ROUTE-SPLIT-002` selected GENERIC-METHOD-ROUTE-SPLIT-003 generic string route cleanup;
-  `GENERIC-METHOD-ROUTE-SPLIT-003` landed generic string route cleanup;
-  `GENERIC-METHOD-ROUTE-SPLIT-004` selected GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001 generic string body analysis cleanup;
-  `GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001` landed generic string body analysis cleanup;
-  `GLOBAL-STRING-BODY-ANALYSIS-SPLIT-002` selected NUMERIC-SUBSTRATE-SPLIT-001 numeric substrate cleanup;
-  `NUMERIC-SUBSTRATE-SPLIT-001` landed numeric substrate cleanup;
-  `NUMERIC-SUBSTRATE-SPLIT-002` selected TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001 typed-object storage inference cleanup;
-  `TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001` landed typed-object storage inference cleanup;
-  `TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-002` selected CURRENT-DOCS-PHASE-SLIM-001 current docs phase slim cleanup;
-  `MIRBUILDER-DIET` remains closed through `MIR-SEMANTIC-PLANS-001`
+  read `latest_card_path`, `phase_status`, and `landed_tail` in
+  `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
+  sidecar history into this root pointer.
 - primary mode: mimalloc substrate implementation lane; keep upstream source
   untracked and keep each allocator row behind explicit guards before provider
   activation
@@ -107,9 +70,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after
-  `TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-002`; current blocker is
-  `CURRENT-DOCS-PHASE-SLIM-001`, a current docs / phase taskboard slim cleanup.
+- resume point: continue Phase 293x after `CURRENT-DOCS-PHASE-SLIM-002`;
+  current blocker is `MIMAP-NEXT-BEHAVIOR-SELECTION-001`, a planning-only row
+  to select the next single allocator/compiler cleanup or behavior row.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -117,9 +80,9 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `CURRENT-DOCS-PHASE-SLIM-001`: slim duplicated current-row wording in
-     current docs and the phase-293x taskboard
-  2. select the next row after `CURRENT-DOCS-PHASE-SLIM-001`
+  1. `MIMAP-NEXT-BEHAVIOR-SELECTION-001`: select exactly one next
+     allocator/compiler row after the cleanup sidecar sequence
+  2. implement only the selected row
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
   reduction after mimalloc completeness evidence. Do not make broad `.hako`
