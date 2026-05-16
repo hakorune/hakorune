@@ -32,11 +32,11 @@ fail-fast routing row is green, and the facade huge-page model route is green.
 MIMAP-029A exposed a pure-first/selfhost route-shape cleanup before the next
 allocator selection row. Same-artifact MIR input, lowering-plan preflight,
 phase progress diagnostics, and the canonical emit wrapper are landed; the
-post-huge-decommit row selection selected the fail-fast diagnostics row; the
-current primary row is:
+MIMAP-030A facade huge decommit fail-fast diagnostics is green; the current
+primary row is:
 
 ```text
-  MIMAP-030A facade huge decommit fail-fast diagnostics
+  MIMAP-030B post-huge-decommit-failfast row selection
 ```
 
 Closed cleanup sidecar:
@@ -222,7 +222,8 @@ not part of this sidecar:
 | `SELFHOST-PROGRESS-001` | landed | Add phase progress / timeout closeout for slow/stuck/unsupported build diagnosis. | after route preflight |
 | `MIR-EMIT-SSOT-002` | landed | Make the canonical external source-to-MIR route explicit through `emit_mir_route.sh`. | after progress diagnostics |
 | `MIMAP-029B` | landed | Post-huge-decommit allocator row selection. | selected MIMAP-030A |
-| `MIMAP-030A` | selected current | Facade huge decommit fail-fast diagnostics. | after MIMAP-029B |
+| `MIMAP-030A` | landed | Facade huge decommit fail-fast diagnostics. | after MIMAP-029B |
+| `MIMAP-030B` | selected current | Post-huge-decommit-failfast allocator row selection. | after MIMAP-030A |
 | `RETURN-CONTRACT-001` | parked future | Propagate declared return expected type into return expressions such as `ArrayBox.get`. | not a blocker for artifact exactness |
 
 ## Stage1 / Selfhost Ordering Guard
@@ -392,8 +393,8 @@ FST:
 | `SELFHOST-PROGRESS-001` | landed | Selfhost/pure-first phase progress and timeout diagnostics. | after MIR-ROUTE-PREFLIGHT-001 |
 | `MIR-EMIT-SSOT-002` | landed | Canonical external source-to-MIR wrapper. | after progress diagnostics |
 | `MIMAP-029B` | landed | Post-huge-decommit allocator row selection. | selected MIMAP-030A |
-| `MIMAP-030A` | selected current | Facade huge decommit fail-fast diagnostics. | after MIMAP-029B |
-| `MIMAP-030B` | draft candidate | Post-huge-decommit-failfast allocator row selection. | after MIMAP-030A if selected |
+| `MIMAP-030A` | landed | Facade huge decommit fail-fast diagnostics. | after MIMAP-029B |
+| `MIMAP-030B` | selected current | Post-huge-decommit-failfast allocator row selection. | after MIMAP-030A |
 | `MIMAP-031A` | draft candidate | OSVM unreserve capability inventory / planning row. | after decommit rows if still needed |
 
 MIMAP-020A execution order:

@@ -133,6 +133,12 @@ Principles
     backing range through the existing M196 page-source decommit adapter while
     still stopping before duplicate decommit diagnostics, unreserve/recommit,
     provider activation, and allocator replacement.
+  - `HakoAllocObjectLifecycleFacadeHugeDecommitFailfastRoute` is the
+    MIMAP-030A facade diagnostics owner. It composes the MIMAP-029A success
+    route, records the successful backing range in allocator-side state, and
+    rejects duplicate/stale decommit attempts before a second page-source
+    decommit adapter call while still stopping before unreserve/recommit,
+    provider activation, and allocator replacement.
   - `HakoAllocHugeReleaseSeam` is the M181 huge release seam owner. It retires
     huge handles through `HakoAllocHugePageModel` and unregisters page-map
     ownership without touching small page `releaseLocal(...)`.

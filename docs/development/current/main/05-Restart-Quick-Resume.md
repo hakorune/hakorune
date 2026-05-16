@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-030A facade huge decommit fail-fast diagnostics`
+- current blocker token: `MIMAP-030B post-huge-decommit-failfast row selection`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -48,7 +48,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-030A facade huge decommit fail-fast diagnostics`
+- current blocker token: `MIMAP-030B post-huge-decommit-failfast row selection`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -59,10 +59,10 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after `MIMAP-029B`; current blocker is `MIMAP-030A`,
-  which rejects duplicate/stale huge decommit by allocator-side state before a
-  second page-source decommit adapter call
-- next row: `MIMAP-030B` row selection after MIMAP-030A lands
+- continue `phase-293x` after `MIMAP-030A`; current blocker is `MIMAP-030B`,
+  a planning-only row that selects exactly one next allocator behavior row
+  after huge decommit fail-fast diagnostics
+- next row: selected by `MIMAP-030B`
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

@@ -1,6 +1,6 @@
 # 293x-454 MIMAP-030A Facade Huge Decommit Fail-Fast Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -87,8 +87,47 @@ bash tools/checks/current_state_pointer_guard.sh
 tools/checks/dev_gate.sh quick
 ```
 
+## Landed Implementation
+
+```text
+owner:
+  lang/src/hako_alloc/memory/object_lifecycle_facade_huge_decommit_failfast_box.hako
+proof app:
+  apps/mimalloc-facade-huge-decommit-failfast-proof/main.hako
+guard:
+  tools/checks/k2_wide_mimalloc_facade_huge_decommit_failfast_exe_guard.sh
+```
+
+The landed owner composes `HakoAllocObjectLifecycleFacadeHugeDecommitRoute`,
+records the first successful backing range in allocator-side state, and rejects
+duplicate/stale decommit attempts before calling the page-source decommit
+adapter again.
+
+Focused guard evidence:
+
+```text
+bash tools/checks/k2_wide_mimalloc_facade_huge_decommit_failfast_exe_guard.sh
+```
+
+Observed proof output includes:
+
+```text
+adapter_first=1,1,0
+duplicate=1,1,5,...,4194305,1,1
+stale=1,1,7,99999,4194305,1,1
+route_counts=2,1,1,1,0
+stop=1,1,1
+summary=ok
+```
+
 ## Return Condition
 
 This row closes when duplicate/stale huge decommit is rejected by allocator-side
 state before a second page-source decommit call, with provider/host allocator
 replacement still inactive.
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-030B post-huge-decommit-failfast row selection.
+```

@@ -43,6 +43,7 @@ Current modules
 - `object_lifecycle_facade_huge_page_model_box.hako`
 - `object_lifecycle_facade_huge_page_source_box.hako`
 - `object_lifecycle_facade_huge_decommit_box.hako`
+- `object_lifecycle_facade_huge_decommit_failfast_box.hako`
 - `object_lifecycle_facade_huge_release_box.hako`
 - `object_lifecycle_facade_huge_release_failfast_box.hako`
 - `object_lifecycle_facade_huge_unregister_box.hako`
@@ -218,6 +219,14 @@ Syntax/style contract
   same live pointer, and decommit exactly the MIMAP-028A backing range through
   the M196 `HakoAllocPageSourceDecommitAdapter`. It must not add duplicate
   decommit diagnostics, unreserve/recommit, small release/free, realloc,
+  alignment, purge/reclaim, remote-free/TLS/atomics, provider hooks, host
+  allocator replacement, or backend shortcuts.
+- `object_lifecycle_facade_huge_decommit_failfast_box.hako` owns the
+  MIMAP-030A facade huge-decommit fail-fast diagnostics route. It may compose
+  the MIMAP-029A success owner, record the successful backing range in
+  allocator-side state, and reject duplicate/stale decommit attempts before a
+  second `HakoAllocPageSourceDecommitAdapter` call. It must not call the page
+  source or OSVM directly, add unreserve/recommit, small release/free, realloc,
   alignment, purge/reclaim, remote-free/TLS/atomics, provider hooks, host
   allocator replacement, or backend shortcuts.
 - `object_lifecycle_facade_huge_release_box.hako` owns the MIMAP-024A facade

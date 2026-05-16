@@ -1,6 +1,6 @@
 # Phase 293x: real-app bringup
 
-- Status: Active / mimalloc blueprint lane with facade huge decommit fail-fast diagnostics active
+- Status: Active / mimalloc blueprint lane with post-huge-decommit-failfast row selection active
 - Purpose: use real applications to expose compiler/runtime seams after the
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
@@ -10,7 +10,7 @@
 - Current compiler/selfhost sidecar:
   closed through `MIR-EMIT-SSOT-002`
 - Current allocator row:
-  `docs/development/current/main/phases/phase-293x/293x-454-MIMAP-030A-FACADE-HUGE-DECOMMIT-FAILFAST.md`
+  `docs/development/current/main/phases/phase-293x/293x-455-MIMAP-030B-POST-HUGE-DECOMMIT-FAILFAST-ROW-SELECTION.md`
 - Latest lifecycle closeout:
   `docs/development/current/main/phases/phase-293x/293x-403-REUSE-LIFECYCLE-001-EXPLICIT-REUSE-METHODS.md`
 - Mimalloc purpose SSOT:
@@ -52,7 +52,8 @@ shape that MIMAP-029A exposed:
 | `SELFHOST-PROGRESS-001` | landed | Add phase progress / timeout diagnostics for selfhost and pure-first wrappers. |
 | `MIR-EMIT-SSOT-002` | landed | Make the canonical external source-to-MIR route explicit through the existing route SSOT. |
 | `MIMAP-029B` | landed | Selected MIMAP-030A facade huge decommit fail-fast diagnostics. |
-| `MIMAP-030A` | selected current | Reject duplicate/stale huge decommit before a second adapter call. |
+| `MIMAP-030A` | landed | Reject duplicate/stale huge decommit before a second adapter call. |
+| `MIMAP-030B` | selected current | Select the next allocator behavior row after huge decommit fail-fast diagnostics. |
 
 ## Smoke Entry
 

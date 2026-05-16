@@ -1,0 +1,229 @@
+// object_lifecycle_facade_huge_decommit_failfast_box.hako -- MIMAP-030A
+// facade huge-decommit fail-fast diagnostics route
+// Responsibility: prove duplicate/stale huge decommit attempts reject through
+// allocator-side decommit state before a second page-source adapter call.
+// This module intentionally stops before unreserve, recommit, provider hooks,
+// host allocator replacement, and backend matcher shortcuts.
+
+using selfhost.hako_alloc.memory.object_lifecycle_facade_huge_decommit_box as HakoAllocObjectLifecycleFacadeHugeDecommitBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_reason_box as HakoAllocObjectLifecycleFacadeReason
+
+box HakoAllocObjectLifecycleFacadeHugeDecommitFailfastReport {
+    status: i64 = 0
+    requested_size: i64 = 0
+    huge_threshold: i64 = 0
+    first_status: i64 = 0
+    first_reason: i64 = 0
+    first_source_base: i64 = 0
+    first_source_bytes: i64 = 0
+    first_decommit_ok: i64 = 0
+    first_decommit_rc: i64 = -1
+    first_huge_ptr: i64 = 0
+    first_huge_page_id: i64 = -1
+    first_unregister_ok: i64 = 0
+    first_huge_live_count: i64 = 0
+    first_page_map_live_count: i64 = 0
+    first_adapter_call_count: i64 = 0
+    first_adapter_success_count: i64 = 0
+    first_adapter_reject_count: i64 = 0
+    mark_status: i64 = -1
+    marked_count: i64 = 0
+    duplicate_attempted: i64 = 0
+    duplicate_rejected: i64 = 0
+    duplicate_status: i64 = -1
+    duplicate_base: i64 = 0
+    duplicate_bytes: i64 = 0
+    adapter_calls_before_duplicate: i64 = 0
+    adapter_calls_after_duplicate: i64 = 0
+    stale_attempted: i64 = 0
+    stale_rejected: i64 = 0
+    stale_status: i64 = -1
+    stale_base: i64 = 0
+    stale_bytes: i64 = 0
+    adapter_calls_before_stale: i64 = 0
+    adapter_calls_after_stale: i64 = 0
+    failfast_attempt_count: i64 = 0
+    duplicate_reject_count: i64 = 0
+    stale_reject_count: i64 = 0
+    success_count: i64 = 0
+    failure_count: i64 = 0
+    final_ok: i64 = 0
+    final_reason: i64 = 0
+    no_unreserve: i64 = 1
+    no_recommit: i64 = 1
+    no_provider: i64 = 1
+}
+
+box HakoAllocObjectLifecycleFacadeHugeDecommitFailfastRoute {
+    decommit_route: HakoAllocObjectLifecycleFacadeHugeDecommitRoute = new HakoAllocObjectLifecycleFacadeHugeDecommitRoute()
+    decommitted_bases: ArrayBox = new ArrayBox()
+    decommitted_bytes: ArrayBox = new ArrayBox()
+    failfast_attempt_count: i64 = 0
+    duplicate_reject_count: i64 = 0
+    stale_reject_count: i64 = 0
+    success_count: i64 = 0
+    failure_count: i64 = 0
+
+    hugeDecommitFailfastThreshold(): i64 {
+        return me.decommit_route.hugeDecommitThreshold()
+    }
+
+    initHugeDecommitFailfastReport(size) {
+        local result = new HakoAllocObjectLifecycleFacadeHugeDecommitFailfastReport()
+        result.requested_size = size
+        result.huge_threshold = me.hugeDecommitFailfastThreshold()
+        return result
+    }
+
+    findDecommittedBacking(base, bytes): i64 {
+        local count = me.decommitted_bases.length()
+        local i = 0
+        loop(i < count) {
+            if me.decommitted_bases.get(i) == base {
+                if me.decommitted_bytes.get(i) == bytes {
+                    return i
+                }
+            }
+            i = i + 1
+        }
+        return -1
+    }
+
+    isDecommittedBacking(base, bytes): i64 {
+        if me.findDecommittedBacking(base, bytes) >= 0 {
+            return 1
+        }
+        return 0
+    }
+
+    markSuccessfulDecommit(base, bytes): i64 {
+        if base == 0 {
+            return 1
+        }
+        if bytes <= 0 {
+            return 2
+        }
+        if me.isDecommittedBacking(base, bytes) != 0 {
+            return 5
+        }
+        me.decommitted_bases.push(base)
+        me.decommitted_bytes.push(bytes)
+        return 0
+    }
+
+    copyFirstDecommitResult(result, first_status) {
+        result.first_status = first_status
+        result.first_reason = me.decommit_route.last_reason
+        result.first_source_base = me.decommit_route.last_source_base
+        result.first_source_bytes = me.decommit_route.last_source_bytes
+        result.first_decommit_ok = me.decommit_route.last_decommit_ok
+        result.first_decommit_rc = me.decommit_route.last_decommit_rc
+        result.first_huge_ptr = me.decommit_route.last_huge_ptr
+        result.first_huge_page_id = me.decommit_route.last_huge_page_id
+        result.first_unregister_ok = me.decommit_route.last_unregister_ok
+        result.first_huge_live_count = me.decommit_route.last_huge_live_count
+        result.first_page_map_live_count = me.decommit_route.last_page_map_live_count
+        result.first_adapter_call_count = me.decommit_route.last_adapter_call_count
+        result.first_adapter_success_count = me.decommit_route.last_adapter_success_count
+        result.first_adapter_reject_count = me.decommit_route.last_adapter_reject_count
+        return result
+    }
+
+    snapshotHugeDecommitFailfastCounters(result) {
+        result.marked_count = me.decommitted_bases.length()
+        result.failfast_attempt_count = me.failfast_attempt_count
+        result.duplicate_reject_count = me.duplicate_reject_count
+        result.stale_reject_count = me.stale_reject_count
+        result.success_count = me.success_count
+        result.failure_count = me.failure_count
+        return result
+    }
+
+    rejectDuplicateDecommit(result) {
+        me.failfast_attempt_count = me.failfast_attempt_count + 1
+        result.duplicate_attempted = 1
+        result.duplicate_base = result.first_source_base
+        result.duplicate_bytes = result.first_source_bytes
+        result.adapter_calls_before_duplicate = me.decommit_route.decommit_adapter.call_count
+
+        if me.isDecommittedBacking(result.duplicate_base, result.duplicate_bytes) != 0 {
+            me.duplicate_reject_count = me.duplicate_reject_count + 1
+            result.duplicate_rejected = 1
+            result.duplicate_status = 5
+        } else {
+            result.duplicate_status = 6
+        }
+
+        result.adapter_calls_after_duplicate = me.decommit_route.decommit_adapter.call_count
+        return result
+    }
+
+    rejectStaleDecommit(result, stale_base, stale_bytes) {
+        me.failfast_attempt_count = me.failfast_attempt_count + 1
+        result.stale_attempted = 1
+        result.stale_base = stale_base
+        result.stale_bytes = stale_bytes
+        result.adapter_calls_before_stale = me.decommit_route.decommit_adapter.call_count
+
+        if me.isDecommittedBacking(stale_base, stale_bytes) == 0 {
+            me.stale_reject_count = me.stale_reject_count + 1
+            result.stale_rejected = 1
+            result.stale_status = 7
+        } else {
+            result.stale_status = 8
+        }
+
+        result.adapter_calls_after_stale = me.decommit_route.decommit_adapter.call_count
+        return result
+    }
+
+    proveHugeDecommitFailfast(facade, size, stale_base, stale_bytes) {
+        local result = me.initHugeDecommitFailfastReport(size)
+        local first_status = me.decommit_route.allocateUnregisterDecommitHuge(facade, size)
+        me.copyFirstDecommitResult(result, first_status)
+
+        if first_status != 1 {
+            me.failure_count = me.failure_count + 1
+            result.final_ok = 0
+            result.final_reason = me.decommit_route.last_reason
+            return me.snapshotHugeDecommitFailfastCounters(result)
+        }
+
+        if result.first_decommit_ok != 1 {
+            me.failure_count = me.failure_count + 1
+            result.final_ok = 0
+            result.final_reason = HakoAllocObjectLifecycleFacadeReason.release_decommit_reject()
+            return me.snapshotHugeDecommitFailfastCounters(result)
+        }
+
+        result.mark_status = me.markSuccessfulDecommit(result.first_source_base, result.first_source_bytes)
+        if result.mark_status != 0 {
+            me.failure_count = me.failure_count + 1
+            result.final_ok = 0
+            result.final_reason = HakoAllocObjectLifecycleFacadeReason.release_decommit_reject()
+            return me.snapshotHugeDecommitFailfastCounters(result)
+        }
+
+        me.rejectDuplicateDecommit(result)
+        me.rejectStaleDecommit(result, stale_base, stale_bytes)
+
+        if result.duplicate_rejected == 1 {
+            if result.stale_rejected == 1 {
+                if result.adapter_calls_before_duplicate == result.adapter_calls_after_duplicate {
+                    if result.adapter_calls_before_stale == result.adapter_calls_after_stale {
+                        me.success_count = me.success_count + 1
+                        result.status = 1
+                        result.final_ok = 1
+                        result.final_reason = HakoAllocObjectLifecycleFacadeReason.ok()
+                        return me.snapshotHugeDecommitFailfastCounters(result)
+                    }
+                }
+            }
+        }
+
+        me.failure_count = me.failure_count + 1
+        result.final_ok = 0
+        result.final_reason = HakoAllocObjectLifecycleFacadeReason.release_decommit_reject()
+        return me.snapshotHugeDecommitFailfastCounters(result)
+    }
+}

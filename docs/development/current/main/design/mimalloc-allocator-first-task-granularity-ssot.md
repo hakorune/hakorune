@@ -160,8 +160,8 @@ Forbidden:
 | `SELFHOST-PROGRESS-001` | selfhost/pure-first progress diagnostics sidecar | landed after MIR-ROUTE-PREFLIGHT-001 |
 | `MIR-EMIT-SSOT-002` | canonical external source-to-MIR route entry | landed after progress diagnostics |
 | `MIMAP-029B` | post-huge-decommit allocator row selection | landed; selected MIMAP-030A |
-| `MIMAP-030A` | facade huge decommit fail-fast diagnostics | current after MIMAP-029B |
-| `MIMAP-030B` | draft: post-huge-decommit-failfast allocator row selection | after MIMAP-030A if selected |
+| `MIMAP-030A` | facade huge decommit fail-fast diagnostics | landed after MIMAP-029B |
+| `MIMAP-030B` | post-huge-decommit-failfast allocator row selection | current after MIMAP-030A |
 | `MIMAP-031A` | draft: OSVM unreserve capability inventory / planning row | only after decommit success/reject rows are green |
 
 ### MIMAP-020A granularity
@@ -460,11 +460,10 @@ These are BoxShape rows. They must not add allocator behavior, widen
 MIMAP-029A, or add backend name matchers.
 
 MIMAP-029B landed after the pure-first sidecar and selected MIMAP-030A.
-MIMAP-030A must prove duplicate/stale huge decommit diagnostics through
-allocator-side state. Do not rely on OSVM/page-source decommit itself to detect
-duplicate decommit. If implementation proves that a separate state marker or
-verifier contract is needed first, stop and split that prerequisite row instead
-of widening MIMAP-030A.
+MIMAP-030A landed duplicate/stale huge decommit diagnostics through
+allocator-side state without relying on OSVM/page-source decommit itself to
+detect duplicate decommit. MIMAP-030B is the current planning-only row for
+selecting the next allocator behavior after that fail-fast proof.
 
 ## Compiler / language sidecar triggers
 
