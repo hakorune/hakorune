@@ -506,7 +506,7 @@ Use new Box(...) for construction and explicit lifecycle methods for reuse.
 | `MIR-INV-MIMAP012` | ready | Pin the MIMAP-012 heavy loop/object shape investigation and minimized hypotheses. | before broadening MIMAP-012 shape |
 | `MIR-ROW-A` | landed | Minimal fixture for `loop + if guard + pages.get(i)` with scalar result only; MIR JSON and LLVM/EXE pass. | after MIR-INV-MIMAP012 |
 | `MIR-ROW-B` | ready | Add `considerPage(page)` helper call while selected state remains scalar; prove both MIR JSON and LLVM/EXE acceptance. | after MIR-ROW-A |
-| `MIR-ROW-C` | parked | Accept nullable object field selection, e.g. `me.last_selected_page = page`, and return it; prove both MIR JSON and LLVM/EXE acceptance. | after MIR-ROW-B |
+| `MIR-ROW-C` | landed | Accept nullable object return through loop-carried `select` / `phi`; prove both MIR JSON and LLVM/EXE acceptance before page queue loop cleanup. | selected by MIMAP-039B |
 | `MIR-ROW-D` | parked | Reintroduce dense queue field-read proof after object selection is green; prove both MIR JSON and LLVM/EXE acceptance. | after MIR-ROW-C |
 | `MIR-ROW-A-FIX` | landed | Preserve or recover typed user-box receiver facts after dynamic `ArrayBox.get(i)` so `page.freeCount()` lowers as `HakoAllocPageModel.freeCount/0`, not `RuntimeDataBox.freeCount`. | before MIR-ROW-A closeout |
 

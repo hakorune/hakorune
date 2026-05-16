@@ -179,8 +179,8 @@ fn observe_instruction(
             if let (Some(then_class), Some(else_class)) =
                 (values.get(then_val).copied(), values.get(else_val).copied())
             {
-                if then_class == else_class {
-                    set_value(values, *dst, then_class, changed);
+                if let Some(class) = merge_nullable_value_pair(then_class, else_class) {
+                    set_value(values, *dst, class, changed);
                 }
             }
         }
@@ -189,22 +189,21 @@ fn observe_instruction(
             inputs,
             type_hint,
         } => {
-            let mut input_class = None;
+            let mut merged = None;
             for (_, value) in inputs {
                 let Some(class) = values.get(value).copied() else {
-                    input_class = None;
+                    merged = None;
                     break;
                 };
-                input_class = match input_class {
-                    None => Some(class),
-                    Some(existing) if existing == class => Some(existing),
+                merged = match merge_nullable_phi_class(merged, class) {
+                    Some(class) => Some(class),
                     _ => None,
                 };
-                if input_class.is_none() {
+                if merged.is_none() {
                     break;
                 }
             }
-            if let Some(class) = input_class {
+            if let Some(class) = merged {
                 set_value(values, *dst, class, changed);
             } else if let Some(class) = type_hint.as_ref().and_then(value_class_from_type) {
                 set_value(values, *dst, class, changed);
@@ -377,5 +376,23 @@ fn inferred_return_from_value_class(class: ValueClass) -> UserBoxMethodInferredR
         ValueClass::StringHandle => UserBoxMethodInferredReturn::StringHandle,
         ValueClass::ObjectHandle => UserBoxMethodInferredReturn::ObjectHandle,
         ValueClass::VoidSentinel => UserBoxMethodInferredReturn::VoidSentinel,
+    }
+}
+
+fn merge_nullable_value_pair(left: ValueClass, right: ValueClass) -> Option<ValueClass> {
+    match (left, right) {
+        (left, right) if left == right => Some(left),
+        (ValueClass::VoidSentinel, ValueClass::StringHandle)
+        | (ValueClass::StringHandle, ValueClass::VoidSentinel) => Some(ValueClass::StringHandle),
+        (ValueClass::VoidSentinel, ValueClass::ObjectHandle)
+        | (ValueClass::ObjectHandle, ValueClass::VoidSentinel) => Some(ValueClass::ObjectHandle),
+        _ => None,
+    }
+}
+
+fn merge_nullable_phi_class(current: Option<ValueClass>, next: ValueClass) -> Option<ValueClass> {
+    match current {
+        None => Some(next),
+        Some(existing) => merge_nullable_value_pair(existing, next),
     }
 }

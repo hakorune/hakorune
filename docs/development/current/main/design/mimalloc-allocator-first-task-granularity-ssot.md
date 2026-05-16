@@ -178,7 +178,9 @@ Forbidden:
 | `MIMAP-038A` | object-lifecycle known-page loop cleanup | landed after MIMAP-037B |
 | `MIMAP-038B` | post-known-page-loop row selection | landed; selected MIMAP-039A |
 | `MIMAP-039A` | remote-free retry-bound named owner cleanup | landed after MIMAP-038B |
-| `MIMAP-039B` | post-remote-free-retry-bound row selection | current after MIMAP-039A |
+| `MIMAP-039B` | post-remote-free-retry-bound row selection | landed; selected MIR-ROW-C |
+| `MIR-ROW-C` | nullable user-box object return sidecar | landed after MIMAP-039B |
+| `MIMAP-039C` | post-nullable-object-return row selection | current after MIR-ROW-C |
 
 ### MIMAP-020A granularity
 
@@ -504,8 +506,11 @@ selection policy unchanged. MIMAP-038B probed the remaining object-lifecycle
 queue fixed-shape selection cleanup, but that exposed a compiler acceptance
 sidecar around loop-returned page objects. It selected the smaller MIMAP-039A
 remote-free retry-bound named owner cleanup instead. MIMAP-039A landed without
-changing retry behavior. MIMAP-039B is the current planning-only row after that
-cleanup.
+changing retry behavior. MIMAP-039B selected `MIR-ROW-C` because the remaining
+page queue loop cleanup needs compiler acceptance for nullable selected-object
+returns before allocator source can be simplified. MIR-ROW-C landed that
+acceptance in same-module user-box route metadata without changing allocator
+behavior. MIMAP-039C is the current planning-only row after the sidecar.
 
 ## Compiler / language sidecar triggers
 

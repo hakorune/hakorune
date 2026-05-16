@@ -1,0 +1,73 @@
+box NullableReturnItem {
+    id: i64 = 0
+
+    bump(delta: i64): i64 {
+        me.id = me.id + delta
+        return me.id
+    }
+}
+
+box NullableReturnQueue {
+    items: ArrayBox = new ArrayBox()
+
+    add(item: NullableReturnItem): i64 {
+        me.items.push(item)
+        return 0
+    }
+
+    selectItem(): NullableReturnItem {
+        local items = me.items
+        local count = items.length()
+        local i = 0
+        local selected: NullableReturnItem = null
+
+        loop(i < count) {
+            local item = items.get(i)
+            if item != null {
+                selected = item
+                break
+            }
+            i = i + 1
+        }
+
+        return selected
+    }
+}
+
+static box Main {
+    main(args) {
+        local item = new NullableReturnItem()
+        item.id = 7
+        local queue = new NullableReturnQueue()
+        queue.add(item)
+
+        local selected: NullableReturnItem = queue.selectItem()
+        local id = -1
+        local bumped = -1
+        if selected != null {
+            id = selected.id
+            bumped = selected.bump(5)
+        }
+
+        local shape = 0
+        if id == 7 {
+            shape = shape + 1
+        }
+        if bumped == 12 {
+            shape = shape + 1
+        }
+
+        print("userbox-nullable-loop-return-proof")
+        print("id=" + id)
+        print("bumped=" + bumped)
+        print("shape=" + shape)
+
+        if shape == 2 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

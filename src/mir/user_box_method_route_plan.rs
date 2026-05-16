@@ -635,7 +635,7 @@ fn return_value_box_name(
 ) -> Option<Option<String>> {
     let origin = resolve_value_origin(function, def_map, value);
     if !visiting.insert(origin) {
-        return None;
+        return Some(None);
     }
     let result = return_value_box_name_inner(function, def_map, origin, visiting);
     visiting.remove(&origin);
@@ -684,7 +684,25 @@ fn return_value_box_name_inner(
             }
             Some(result)
         }
+        MirInstruction::Select {
+            then_val, else_val, ..
+        } => merge_return_value_box_names(
+            return_value_box_name(function, def_map, *then_val, visiting)?,
+            return_value_box_name(function, def_map, *else_val, visiting)?,
+        ),
         _ => None,
+    }
+}
+
+fn merge_return_value_box_names(
+    left: Option<String>,
+    right: Option<String>,
+) -> Option<Option<String>> {
+    match (left, right) {
+        (Some(left), Some(right)) if left == right => Some(Some(left)),
+        (Some(_), Some(_)) => None,
+        (Some(name), None) | (None, Some(name)) => Some(Some(name)),
+        (None, None) => Some(None),
     }
 }
 
