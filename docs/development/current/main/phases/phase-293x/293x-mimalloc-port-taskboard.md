@@ -32,11 +32,11 @@ fail-fast routing row is green, and the facade huge-page model route is green.
 MIMAP-029A exposed a pure-first/selfhost route-shape cleanup before the next
 allocator selection row. Same-artifact MIR input, lowering-plan preflight,
 phase progress diagnostics, and the canonical emit wrapper are landed.
-MIMAP-035A facade huge unreserve fail-fast diagnostics is green;
+MIMAP-036A post-huge-unreserve closeout guard is green;
 the current primary row is:
 
 ```text
-  MIMAP-035B post-huge-unreserve-failfast row selection
+  MIMAP-036B post-huge-unreserve-closeout row selection
 ```
 
 Closed cleanup sidecar:
@@ -186,6 +186,12 @@ MIMAP-034B:
 MIMAP-035A:
   landed
   facade huge unreserve duplicate/stale fail-fast diagnostics is green
+MIMAP-035B:
+  landed
+  selected MIMAP-036A post-huge-unreserve closeout guard as the next row
+MIMAP-036A:
+  landed
+  post-huge-unreserve closeout guard is green
 ```
 
 ## Active Source Policy
@@ -411,7 +417,9 @@ FST:
 | `MIMAP-034A` | landed | Facade huge unreserve-after-decommit success route. | after MIMAP-033B |
 | `MIMAP-034B` | landed | Post-huge-unreserve row selection. | selected MIMAP-035A |
 | `MIMAP-035A` | landed | Facade huge unreserve duplicate/stale fail-fast diagnostics. | after MIMAP-034B |
-| `MIMAP-035B` | selected current | Post-huge-unreserve-failfast row selection. | after MIMAP-035A |
+| `MIMAP-035B` | landed | Post-huge-unreserve-failfast row selection. | selected MIMAP-036A |
+| `MIMAP-036A` | landed | Post-huge-unreserve closeout guard. | after MIMAP-035B |
+| `MIMAP-036B` | selected current | Post-huge-unreserve-closeout row selection. | after MIMAP-036A |
 
 MIMAP-020A execution order:
 

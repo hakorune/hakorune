@@ -168,7 +168,11 @@ Forbidden:
 | `MIMAP-033A` | page-source unreserve adapter | landed after MIMAP-032B |
 | `MIMAP-033B` | post-page-source-unreserve allocator row selection | landed; selected MIMAP-034A |
 | `MIMAP-034A` | facade huge unreserve-after-decommit success route | landed after MIMAP-033B |
-| `MIMAP-034B` | post-huge-unreserve allocator row selection | current after MIMAP-034A |
+| `MIMAP-034B` | post-huge-unreserve allocator row selection | landed; selected MIMAP-035A |
+| `MIMAP-035A` | facade huge unreserve fail-fast diagnostics | landed after MIMAP-034B |
+| `MIMAP-035B` | post-huge-unreserve-failfast row selection | landed; selected MIMAP-036A |
+| `MIMAP-036A` | post-huge-unreserve closeout guard | landed after MIMAP-035B |
+| `MIMAP-036B` | post-huge-unreserve-closeout row selection | current after MIMAP-036A |
 
 ### MIMAP-020A granularity
 
@@ -480,7 +484,11 @@ adoption happens before any facade huge-unreserve route. MIMAP-033A landed
 facade huge unreserve-after-decommit success route without opening duplicate /
 stale unreserve diagnostics, provider activation, or host allocator
 replacement. MIMAP-034A landed that success route by composing MIMAP-029A and
-MIMAP-033A; MIMAP-034B now selects the next allocator row.
+MIMAP-033A. MIMAP-034B selected MIMAP-035A, which landed duplicate/stale
+facade huge unreserve diagnostics by recording the successful unreserved
+backing range and rejecting before a second adapter call. MIMAP-035B selected
+MIMAP-036A as a post-huge-unreserve closeout guard before any broader
+allocator behavior or provider/replacement work is reopened.
 
 ## Compiler / language sidecar triggers
 

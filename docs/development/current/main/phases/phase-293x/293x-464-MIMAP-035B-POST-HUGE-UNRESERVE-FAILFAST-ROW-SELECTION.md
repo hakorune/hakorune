@@ -1,6 +1,6 @@
 # 293x-464 MIMAP-035B Post-Huge-Unreserve-Failfast Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -87,3 +87,49 @@ tools/checks/dev_gate.sh quick
 
 This row closes when one next allocator behavior row is selected with clear
 owner/proof/guard names and provider/host allocator replacement still inactive.
+
+## Selection Result
+
+`MIMAP-035B` selects `MIMAP-036A`.
+
+Rationale:
+
+- `MIMAP-034A` and `MIMAP-035A` close facade huge unreserve success plus
+  duplicate/stale diagnostics.
+- Existing post-M213 inventory docs still describe unreserve as inactive, so
+  the next clean step is a closeout/sync guard before any new allocator
+  behavior.
+- Recommit, purge scheduling, remote-free/TLS behavior, provider activation,
+  hooks, host allocator replacement, and `#[global_allocator]` remain parked.
+
+Selected row:
+
+```text
+row:
+  MIMAP-036A post-huge-unreserve closeout guard
+owner:
+  docs/development/current/main/design/mimalloc-post-huge-unreserve-closeout-ssot.md
+proof app:
+  none
+guard:
+  tools/checks/k2_wide_mimalloc_post_huge_unreserve_closeout_guard.sh
+reused owners:
+  HakoAllocObjectLifecycleFacadeHugeUnreserveRoute
+  HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastRoute
+  HakoAllocPageSourceUnreserveAdapter
+primary proof:
+  docs/guard inventory that the huge unreserve lane is closed through
+  MIMAP-035A and the remaining surfaces are explicit inactive future rows
+stop lines:
+  no allocator behavior
+  no provider activation
+  no host allocator replacement / hook / #[global_allocator]
+  no backend .inc matcher shortcut
+  no recommit / purge / remote-free / TLS behavior
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-036A post-huge-unreserve closeout guard.
+```
