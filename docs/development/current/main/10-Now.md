@@ -32,14 +32,14 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-060A reclaim completion marker route`
+- current blocker token: `MIMAP-061A reclaim scalar lane closeout guard`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-059A`; current blocker is `MIMAP-060A`
-- planned order: add scalar reclaim completion marker route
+- continue phase-293x after `MIMAP-060A`; current blocker is `MIMAP-061A`
+- planned order: add reclaim scalar lane closeout guard
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

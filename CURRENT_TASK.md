@@ -53,7 +53,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-060A reclaim completion marker route`
+  `MIMAP-061A reclaim scalar lane closeout guard`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -72,8 +72,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `MIMAP-059A`; the next selected
-  blocker is `MIMAP-060A`, the scalar reclaim completion marker route.
+- resume point: continue Phase 293x after `MIMAP-060A`; the next selected
+  blocker is `MIMAP-061A`, the reclaim scalar lane closeout guard.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -81,7 +81,7 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-060A`: add scalar reclaim completion marker route
+  1. `MIMAP-061A`: add reclaim scalar lane closeout guard
   2. keep thread scheduling, page-source calls, OSVM release, and provider
      activation inactive
   3. keep secure entropy execution parked until a separate random substrate

@@ -1,6 +1,6 @@
 # 293x-547 MIMAP-060A Reclaim Completion Marker Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -48,4 +48,50 @@ schedule workers, activate providers, or replace the host allocator.
 bash tools/checks/k2_wide_hako_alloc_reclaim_completion_marker_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Implementation Result
+
+`MIMAP-060A` added `HakoAllocReclaimCompletionMarker`, a scalar completion
+owner that composes `HakoAllocReclaimPostDrainOwnerTransfer`.
+
+The route marks completion only when post-drain owner-transfer succeeds. It
+preserves the integration reason on blocked rows and keeps page-source calls,
+OSVM release/unreserve, scheduling, provider activation, and host allocator
+replacement inactive.
+
+## Evidence
+
+```text
+NYASH_FEATURES=rune NYASH_DISABLE_PLUGINS=1 timeout 30 target/debug/hakorune --backend vm apps/hako-alloc-reclaim-completion-marker-proof/main.hako
+bash tools/checks/k2_wide_hako_alloc_reclaim_completion_marker_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
+## Selection Result
+
+`MIMAP-060A` selects `MIMAP-061A`.
+
+```text
+row:
+  MIMAP-061A reclaim scalar lane closeout guard
+
+classification:
+  closeout / guard row
+
+why now:
+  reclaim has landed owner-transfer, drain, post-drain integration, and
+  completion-marker rows. Before opening scheduling, page-source release, or
+  provider behavior, lock this scalar reclaim lane with one closeout guard.
+
+stop lines:
+  no new allocator behavior
+  no thread scheduling
+  no page-source call
+  no OSVM unreserve / release
+  no provider activation
+  no host allocator replacement
+  no cleanup bundle
 ```

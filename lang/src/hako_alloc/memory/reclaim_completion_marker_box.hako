@@ -1,0 +1,68 @@
+// reclaim_completion_marker_box.hako -- MIMAP-060A scalar completion marker
+// Responsibility:
+// - compose post-drain owner-transfer integration
+// - set an executor-local reclaim completion marker only when integration wins
+// - keep page-source/OSVM release, scheduling, provider, and host replacement closed
+// Non-responsibility:
+// - page-source calls, OSVM unreserve/release, thread scheduling, providers,
+//   hooks, allocator replacement, or backend shortcuts
+
+using selfhost.hako_alloc.memory.reclaim_post_drain_owner_transfer_box as HakoAllocReclaimPostDrainOwnerTransfer
+
+box HakoAllocReclaimCompletionMarkerReport {
+    did_complete: i64 = 0
+    reason: i64 = 0
+    page_id: i64 = -1
+    completion_marker: i64 = 0
+    integration_reason: i64 = 0
+    did_drain: i64 = 0
+    did_transfer: i64 = 0
+    pending_after: i64 = 0
+    owner_after: i64 = -1
+    would_call_page_source: i64 = 0
+    would_unreserve: i64 = 0
+    would_release_osvm: i64 = 0
+    would_schedule_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_host_allocator_swap: i64 = 0
+}
+
+box HakoAllocReclaimCompletionMarker {
+    integration: HakoAllocReclaimPostDrainOwnerTransfer = new HakoAllocReclaimPostDrainOwnerTransfer()
+    attempt_count: i64 = 0
+    completion_count: i64 = 0
+    blocked_count: i64 = 0
+    last_page_id: i64 = -1
+    last_reason: i64 = 0
+    last_marker: i64 = 0
+
+    report(did_complete, reason, page_id, completion_marker, integration_reason, did_drain, did_transfer, pending_after, owner_after) {
+        local result = new HakoAllocReclaimCompletionMarkerReport()
+        result.did_complete = did_complete
+        result.reason = reason
+        result.page_id = page_id
+        result.completion_marker = completion_marker
+        result.integration_reason = integration_reason
+        result.did_drain = did_drain
+        result.did_transfer = did_transfer
+        result.pending_after = pending_after
+        result.owner_after = owner_after
+        me.last_page_id = page_id
+        me.last_reason = reason
+        me.last_marker = completion_marker
+        return result
+    }
+
+    completeReclaim(page_id, expected_owner, observed_owner, claimant_owner, remote_free_pending, remote_head, drain_budget, backing_bytes) {
+        me.attempt_count = me.attempt_count + 1
+
+        local step = me.integration.executePostDrainTransfer(page_id, expected_owner, observed_owner, claimant_owner, remote_free_pending, remote_head, drain_budget, backing_bytes)
+        if step.did_transfer == 0 {
+            me.blocked_count = me.blocked_count + 1
+            return me.report(0, 1, page_id, 0, step.reason, step.did_drain, step.did_transfer, step.pending_after, step.owner_after)
+        }
+
+        me.completion_count = me.completion_count + 1
+        return me.report(1, 0, page_id, 1, step.reason, step.did_drain, step.did_transfer, step.pending_after, step.owner_after)
+    }
+}

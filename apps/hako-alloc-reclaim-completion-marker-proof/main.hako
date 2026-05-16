@@ -1,0 +1,75 @@
+// hako-alloc-reclaim-completion-marker-proof
+// Purpose: prove MIMAP-060A scalar reclaim completion marker route.
+
+using selfhost.hako_alloc.memory.reclaim_completion_marker_box as HakoAllocReclaimCompletionMarker
+
+static box Main {
+    main(args) {
+        local marker = new HakoAllocReclaimCompletionMarker()
+
+        local completed_drained = marker.completeReclaim(80, 1, 1, 2, 1, 900, 1, 4096)
+        local completed_direct = marker.completeReclaim(81, 3, 3, 4, 0, 0, 1, 4096)
+        local pending_block = marker.completeReclaim(82, 5, 5, 6, 2, 901, 2, 4096)
+        local transfer_block = marker.completeReclaim(83, 7, 1, 2, 0, 0, 1, 4096)
+
+        local ok = check "mimap060a reclaim completion marker" {
+            "drained completion succeeded": completed_drained.did_complete == 1
+            "drained completion reason": completed_drained.reason == 0
+            "drained completion marker": completed_drained.completion_marker == 1
+            "drained integration success": completed_drained.integration_reason == 0
+            "drained child drain": completed_drained.did_drain == 1
+            "drained child transfer": completed_drained.did_transfer == 1
+            "drained pending after": completed_drained.pending_after == 0
+            "drained owner after": completed_drained.owner_after == 2
+            "direct completion succeeded": completed_direct.did_complete == 1
+            "direct completion reason": completed_direct.reason == 0
+            "direct completion marker": completed_direct.completion_marker == 1
+            "direct no drain": completed_direct.did_drain == 0
+            "direct transfer": completed_direct.did_transfer == 1
+            "direct owner after": completed_direct.owner_after == 4
+            "pending block no completion": pending_block.did_complete == 0
+            "pending block reason": pending_block.reason == 1
+            "pending block marker": pending_block.completion_marker == 0
+            "pending block integration reason": pending_block.integration_reason == 2
+            "pending block did drain": pending_block.did_drain == 1
+            "pending block no transfer": pending_block.did_transfer == 0
+            "pending block pending after": pending_block.pending_after == 1
+            "transfer block no completion": transfer_block.did_complete == 0
+            "transfer block reason": transfer_block.reason == 1
+            "transfer block marker": transfer_block.completion_marker == 0
+            "transfer block integration reason": transfer_block.integration_reason == 3
+            "transfer block no drain": transfer_block.did_drain == 0
+            "transfer block no transfer": transfer_block.did_transfer == 0
+            "transfer block owner after": transfer_block.owner_after == 1
+            "inactive page source": completed_drained.would_call_page_source == 0
+            "inactive unreserve": completed_drained.would_unreserve == 0
+            "inactive os release": completed_drained.would_release_osvm == 0
+            "inactive schedule": completed_drained.would_schedule_thread == 0
+            "inactive provider": completed_drained.would_activate_provider == 0
+            "inactive replacement": completed_drained.would_host_allocator_swap == 0
+            "attempt count": marker.attempt_count == 4
+            "completion count": marker.completion_count == 2
+            "blocked count": marker.blocked_count == 2
+            "last page": marker.last_page_id == 83
+            "last reason": marker.last_reason == 1
+            "last marker": marker.last_marker == 0
+        }
+
+        print("hako-alloc-reclaim-completion-marker-proof")
+        print("completed_drained=" + completed_drained.did_complete + "," + completed_drained.reason + "," + completed_drained.completion_marker + "," + completed_drained.did_drain + "," + completed_drained.did_transfer + "," + completed_drained.pending_after + "," + completed_drained.owner_after)
+        print("completed_direct=" + completed_direct.did_complete + "," + completed_direct.reason + "," + completed_direct.completion_marker + "," + completed_direct.did_drain + "," + completed_direct.did_transfer + "," + completed_direct.pending_after + "," + completed_direct.owner_after)
+        print("pending_block=" + pending_block.did_complete + "," + pending_block.reason + "," + pending_block.completion_marker + "," + pending_block.integration_reason + "," + pending_block.did_drain + "," + pending_block.pending_after)
+        print("transfer_block=" + transfer_block.did_complete + "," + transfer_block.reason + "," + transfer_block.completion_marker + "," + transfer_block.integration_reason + "," + transfer_block.did_transfer + "," + transfer_block.owner_after)
+        print("inactive=" + completed_drained.would_call_page_source + "," + completed_drained.would_unreserve + "," + completed_drained.would_release_osvm + "," + completed_drained.would_schedule_thread + "," + completed_drained.would_activate_provider + "," + completed_drained.would_host_allocator_swap)
+        print("counts=" + marker.attempt_count + "," + marker.completion_count + "," + marker.blocked_count + "," + marker.last_page_id + "," + marker.last_reason + "," + marker.last_marker)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -12,6 +12,7 @@ Current modules
 - `reclaim_remote_free_drain_contract_box.hako`
 - `reclaim_remote_free_drain_execution_box.hako`
 - `reclaim_post_drain_owner_transfer_box.hako`
+- `reclaim_completion_marker_box.hako`
 - `thread_heap_owner_inventory_box.hako`
 - `worker_identity_box.hako`
 - `worker_tls_cache_box.hako`
@@ -555,6 +556,11 @@ Syntax/style contract
   when pending remote-free work is gone. It must not execute full reclaim,
   schedule threads, call page-source/OSVM seams, activate providers, install
   hooks, replace the process allocator, or add backend shortcuts.
+- `reclaim_completion_marker_box.hako` owns MIMAP-060A scalar reclaim
+  completion marker route. It may compose MIMAP-058A and set only an
+  executor-local completion marker after integration success. It must not call
+  page-source/OSVM seams, schedule threads, activate providers, install hooks,
+  replace the process allocator, or add backend shortcuts.
 - `reclaim_owner_transfer_contract_box.hako` owns MIMAP-051A reclaim
   owner-transfer contract inventory. It may compose M213 abandoned/reclaim
   facts with M215 thread owner-token facts and report contract-ready vs blocked

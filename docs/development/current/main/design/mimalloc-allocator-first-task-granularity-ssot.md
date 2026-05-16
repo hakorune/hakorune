@@ -219,7 +219,8 @@ Forbidden:
 | `MIMAP-057A` | reclaim remote-free drain first execution route | landed; selected MIMAP-058A |
 | `MIMAP-058A` | reclaim post-drain owner-transfer integration route | landed; selected MIMAP-059A |
 | `MIMAP-059A` | post-reclaim-integration row selection | landed; selected MIMAP-060A |
-| `MIMAP-060A` | reclaim completion marker route | selected current |
+| `MIMAP-060A` | reclaim completion marker route | landed; selected MIMAP-061A |
+| `MIMAP-061A` | reclaim scalar lane closeout guard | selected current |
 
 ### MIMAP-020A granularity
 
@@ -978,6 +979,20 @@ executor-local completion marker when that route succeeds.
 
 It must not schedule threads, call page-source APIs, unreserve or release OSVM
 pages, activate providers, replace the host allocator, or add backend matchers.
+
+MIMAP-060A landed by adding `HakoAllocReclaimCompletionMarker`, a proof app,
+guard, and accepted SSOT. It selects MIMAP-061A.
+
+### MIMAP-061A granularity
+
+MIMAP-061A is a closeout/guard row for the landed scalar reclaim lane. It should
+lock the MIMAP-051A, MIMAP-054A, MIMAP-055A, MIMAP-056A, MIMAP-057A,
+MIMAP-058A, and MIMAP-060A proof rows before broader reclaim behavior is
+opened.
+
+It must not add new allocator behavior, schedule threads, call page-source
+APIs, unreserve or release OSVM pages, activate providers, replace the host
+allocator, or add backend matchers.
 
 ## Compiler / language sidecar triggers
 

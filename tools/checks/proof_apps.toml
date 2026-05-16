@@ -209,3 +209,10 @@ app = "apps/hako-alloc-reclaim-post-drain-owner-transfer-proof"
 label = "reclaim post-drain owner-transfer integration proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_reclaim_post_drain_owner_transfer_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-060A"
+app = "apps/hako-alloc-reclaim-completion-marker-proof"
+label = "reclaim completion marker route proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_reclaim_completion_marker_guard.sh"]
