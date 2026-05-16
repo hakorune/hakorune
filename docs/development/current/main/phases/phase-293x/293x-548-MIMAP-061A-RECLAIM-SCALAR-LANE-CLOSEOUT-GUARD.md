@@ -1,6 +1,6 @@
 # 293x-548 MIMAP-061A Reclaim Scalar Lane Closeout Guard
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -57,4 +57,48 @@ proof and docs synchronization before broader reclaim behavior is considered.
 bash tools/checks/k2_wide_hako_alloc_reclaim_scalar_lane_closeout_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Implementation Result
+
+`MIMAP-061A` added the scalar reclaim lane closeout SSOT and guard.
+
+The guard locks the landed reclaim scalar row set from `MIMAP-051A` through
+`MIMAP-060A`, including proof manifest entries, focused guard index entries,
+owner exports, memory README owner descriptions, `.inc` no-growth, and inactive
+page-source/OSVM/scheduling/provider replacement stop lines.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_reclaim_scalar_lane_closeout_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
+## Selection Result
+
+`MIMAP-061A` selects `MIMAP-062A`.
+
+```text
+row:
+  MIMAP-062A post-reclaim-scalar-closeout row selection
+
+classification:
+  planning row
+
+why now:
+  scalar reclaim is closed through proof and guard. The next step should decide
+  one narrow follow-up before opening broader reclaim, scheduler, page-source,
+  compiler/language, or lane-switch work.
+
+stop lines:
+  no new allocator behavior
+  no thread scheduling
+  no page-source call
+  no OSVM unreserve / release
+  no provider activation
+  no host allocator replacement
+  no cleanup bundle
 ```

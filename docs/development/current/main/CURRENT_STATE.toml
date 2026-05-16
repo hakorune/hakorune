@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-17"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-060A landed reclaim completion marker route and selected MIMAP-061A reclaim scalar lane closeout guard. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-061A landed reclaim scalar lane closeout guard and selected MIMAP-062A post-reclaim-scalar-closeout row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-548-MIMAP-061A-RECLAIM-SCALAR-LANE-CLOSEOUT-GUARD.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-549-MIMAP-062A-POST-RECLAIM-SCALAR-CLOSEOUT-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-547-MIMAP-060A-RECLAIM-COMPLETION-MARKER-ROUTE"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-547-MIMAP-060A-RECLAIM-COMPLETION-MARKER-ROUTE.md"
-latest_card_summary = "MIMAP-060A lands reclaim completion marker route and selects MIMAP-061A closeout guard."
+latest_card = "293x-548-MIMAP-061A-RECLAIM-SCALAR-LANE-CLOSEOUT-GUARD"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-548-MIMAP-061A-RECLAIM-SCALAR-LANE-CLOSEOUT-GUARD.md"
+latest_card_summary = "MIMAP-061A lands reclaim scalar lane closeout guard and selects MIMAP-062A row selection."
 
-current_blocker_token = "MIMAP-061A"
+current_blocker_token = "MIMAP-062A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-548 MIMAP-061A reclaim scalar lane closeout guard landed",
   "293x-547 MIMAP-060A reclaim completion marker route landed",
   "293x-546 MIMAP-059A post-reclaim-integration row selection landed",
   "293x-545 MIMAP-058A reclaim post-drain owner-transfer integration route landed",

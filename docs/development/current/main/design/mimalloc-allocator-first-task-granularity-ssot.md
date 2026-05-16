@@ -220,7 +220,8 @@ Forbidden:
 | `MIMAP-058A` | reclaim post-drain owner-transfer integration route | landed; selected MIMAP-059A |
 | `MIMAP-059A` | post-reclaim-integration row selection | landed; selected MIMAP-060A |
 | `MIMAP-060A` | reclaim completion marker route | landed; selected MIMAP-061A |
-| `MIMAP-061A` | reclaim scalar lane closeout guard | selected current |
+| `MIMAP-061A` | reclaim scalar lane closeout guard | landed; selected MIMAP-062A |
+| `MIMAP-062A` | post-reclaim-scalar-closeout row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -992,6 +993,19 @@ opened.
 
 It must not add new allocator behavior, schedule threads, call page-source
 APIs, unreserve or release OSVM pages, activate providers, replace the host
+allocator, or add backend matchers.
+
+MIMAP-061A landed by adding a scalar reclaim lane closeout SSOT and guard. It
+selects MIMAP-062A.
+
+### MIMAP-062A granularity
+
+MIMAP-062A is a planning-only row. It should select exactly one follow-up after
+the scalar reclaim closeout: a narrow allocator behavior row, a scheduler /
+substrate row, a language-feature row, or a compiler acceptance sidecar.
+
+It must not add allocator behavior, schedule threads, call page-source APIs,
+unreserve or release OSVM pages, activate providers, replace the host
 allocator, or add backend matchers.
 
 ## Compiler / language sidecar triggers

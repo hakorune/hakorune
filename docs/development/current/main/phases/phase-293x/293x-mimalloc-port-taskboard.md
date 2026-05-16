@@ -345,7 +345,8 @@ FST:
 | `MIMAP-058A` | landed | Reclaim post-drain owner-transfer integration route. | selected MIMAP-059A |
 | `MIMAP-059A` | landed | Post-reclaim-integration row selection. | selected MIMAP-060A |
 | `MIMAP-060A` | landed | Reclaim completion marker route. | selected MIMAP-061A |
-| `MIMAP-061A` | selected current | Reclaim scalar lane closeout guard. | after MIMAP-060A |
+| `MIMAP-061A` | landed | Reclaim scalar lane closeout guard. | selected MIMAP-062A |
+| `MIMAP-062A` | selected current | Post-reclaim-scalar-closeout row selection. | after MIMAP-061A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -353,10 +354,9 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-060A: `MIMAP-061A` closes out the scalar reclaim lane
-with a guard before broader behavior. Thread scheduling, page-source calls,
-OSVM unreserve/release, provider activation, and backend matchers remain
-closed.
+Current row after MIMAP-061A: `MIMAP-062A` selects one narrow follow-up after
+the scalar reclaim lane closeout. Thread scheduling, page-source calls, OSVM
+unreserve/release, provider activation, and backend matchers remain closed.
 
 MIMAP-020A execution order:
 
