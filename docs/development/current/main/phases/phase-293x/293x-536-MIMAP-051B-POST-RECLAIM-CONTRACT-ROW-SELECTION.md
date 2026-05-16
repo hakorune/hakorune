@@ -1,6 +1,6 @@
 # 293x-536 MIMAP-051B Post-Reclaim-Contract Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -43,4 +43,42 @@ owner-transfer contract inventory lands.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Selection Result
+
+`MIMAP-051B` selects `USES-002A`.
+
+Reason:
+
+```text
+MIMAP-051A:
+  reclaim owner-transfer preconditions are now named.
+
+next reclaim execution rows:
+  will require executable atomic/TLS/OSVM semantics and must not infer those
+  from helper names.
+
+current compiler state:
+  `uses random` is MIR-visible, but `uses osvm` / `uses atomic` /
+  `uses rawbuf` remain Stage0 metadata without a MIR CapabilityPlan mapping.
+```
+
+Decision:
+
+```text
+open:
+  USES-002A declared uses capability plan mapping
+
+do not open yet:
+  reclaim execution
+  atomic ownership claim
+  remote-free drain
+  TLS source surface
+```
+
+Closeout:
+
+```text
+current blocker moves to USES-002A.
 ```

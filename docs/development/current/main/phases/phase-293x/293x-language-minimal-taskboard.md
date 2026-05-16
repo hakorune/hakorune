@@ -41,6 +41,7 @@ docs/development/current/main/design/language-minimal-surface-task-breakdown-sso
 ## Current split rows
 
 - [x] `PACKED-004` source PackedArray backend fail-fast hardening
+- [ ] `USES-002A` declared uses capability plan mapping
 
 ## Blocked / deferred rows
 

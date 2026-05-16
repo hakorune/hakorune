@@ -32,16 +32,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-051B post-reclaim-contract row selection`
+- current blocker token: `USES-002A declared uses capability plan mapping`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-051A`; reclaim owner-transfer contract
-  inventory is landed and current blocker is `MIMAP-051B`
-- planned order: select exactly one next row; do not open reclaim execution,
-  thread scheduling, atomic claim, or remote-free drain in the planning row
+- continue phase-293x after `MIMAP-051B`; current blocker is `USES-002A`
+- planned order: map declared `uses osvm` / `uses atomic` / `uses rawbuf`
+  metadata to MIR CapabilityPlan ids; do not open backend execution
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

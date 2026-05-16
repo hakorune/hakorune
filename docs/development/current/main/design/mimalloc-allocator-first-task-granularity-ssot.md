@@ -208,7 +208,8 @@ Forbidden:
 | `RANDOM-CAP-002` | random capability unsupported-route preflight | landed; selected MIMAP-050A |
 | `MIMAP-050A` | secure entropy route proposal-or-park | landed; parked entropy execution and selected MIMAP-051A |
 | `MIMAP-051A` | reclaim owner-transfer contract inventory | landed; selected MIMAP-051B |
-| `MIMAP-051B` | post-reclaim-contract row selection | selected current |
+| `MIMAP-051B` | post-reclaim-contract row selection | landed; selected USES-002A |
+| `USES-002A` | declared uses capability plan mapping | selected current |
 
 ### MIMAP-020A granularity
 
@@ -830,6 +831,19 @@ app, guard, and accepted SSOT. It selects MIMAP-051B.
 MIMAP-051B is a planning-only row. It reads MIMAP-051A evidence and selects
 exactly one next allocator/compiler/language task. It must not implement
 reclaim execution, capability checking, or cleanup by itself.
+
+MIMAP-051B landed by selecting USES-002A.
+
+### USES-002A granularity
+
+USES-002A is a Hakorune core metadata row. It maps declared method-level
+`uses osvm`, `uses atomic`, and `uses rawbuf` metadata to canonical MIR
+CapabilityPlan ids while keeping execution unsupported unless a later route
+row proves the capability.
+
+It must not add `cap` block syntax, source-level TLS, random/entropy execution,
+backend helper-name inference, reclaim execution, provider activation, hooks,
+host allocator replacement, or broad capability solving.
 
 ## Compiler / language sidecar triggers
 

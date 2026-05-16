@@ -34,21 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-051A` landed reclaim owner-transfer contract inventory after secure
-entropy execution was parked.
+`MIMAP-051B` selected a Hakorune core capability row before reclaim execution.
 
 Recommended current row:
 
 ```text
-MIMAP-051B
-  post-reclaim-contract row selection
+USES-002A
+  declared uses capability plan mapping
 ```
 
 Purpose:
 
 ```text
-choose exactly one next row after reclaim owner-transfer preconditions are
-named
+map declared uses osvm / uses atomic / uses rawbuf metadata to MIR
+CapabilityPlan ids
 keep reclaim execution inactive until a separate guarded row opens it
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -60,7 +59,7 @@ no reclaim execution
 no atomic ownership claim
 no remote-free drain
 no thread scheduling
-no capability checker implementation in the planning row
+no backend execution or helper-name inference
 no provider activation
 ```
 
@@ -73,8 +72,8 @@ no provider activation
 | 3 | Hakorune core | `RANDOM-CAP-002 random route fail-fast/preflight` | landed |
 | 4 | allocator | `MIMAP-050A secure entropy route proposal or park row` | landed; parked entropy execution |
 | 5 | allocator | `MIMAP-051A reclaim owner-transfer contract inventory` | landed; named explicit preconditions before execution |
-| 6 | planning | `MIMAP-051B post-reclaim-contract row selection` | current; choose one next row |
-| 7 | Hakorune core | `USES-CHECK-* capability checker expansion` | needed when allocator rows start depending on executable `uses random` / `uses tls` semantics |
+| 6 | planning | `MIMAP-051B post-reclaim-contract row selection` | landed; selected USES-002A |
+| 7 | Hakorune core | `USES-002A declared uses capability plan mapping` | current; low-level declared uses must be MIR-visible before execution rows |
 | 8 | allocator | reclaim execution small guarded row | only after owner-transfer and remote-free drain gates are explicit |
 | 9 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 10 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
