@@ -59,6 +59,11 @@ Principles
     post-recommit allocation through the same route. It must not call
     page-source/OSVM APIs directly or open unreserve, OS release, remote-free,
     TLS/atomic execution, provider activation, hooks, or allocator replacement.
+  - `HakoAllocOsVmFastPathUnreserveRoute` is the MIMAP-045A route owner that
+    composes the MIMAP-043A route with the MIMAP-033A page-source unreserve
+    adapter. It proves one allocate/release/purge/unreserve sequence while
+    keeping direct page-source/OSVM calls, post-unreserve reuse, provider
+    activation, hooks, and allocator replacement outside the route.
   - M169 local-free retire stays page-local in `HakoAllocPageModel`; M170 owns
     remote-free integration and any broader heap/queue consumption of retire
     state.

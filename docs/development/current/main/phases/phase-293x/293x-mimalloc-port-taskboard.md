@@ -319,7 +319,8 @@ FST:
 | `MIMAP-043B` | landed | Post-fast-path-reuse route row selection. | selected MIMAP-044A |
 | `MIMAP-044A` | landed | OSVM-backed fast-path route closeout guard. | after MIMAP-043B |
 | `MIMAP-044B` | landed | Post-fast-path-closeout row selection. | selected MIMAP-045A |
-| `MIMAP-045A` | selected current | OSVM-backed fast-path unreserve route. | after MIMAP-044B |
+| `MIMAP-045A` | landed | OSVM-backed fast-path unreserve route. | after MIMAP-044B |
+| `MIMAP-045B` | selected current | Post-fast-path-unreserve row selection. | selected after MIMAP-045A |
 
 MIMAP-020A execution order:
 

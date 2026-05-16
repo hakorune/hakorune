@@ -1,0 +1,64 @@
+// hako-alloc-osvm-fast-path-unreserve-route-proof
+// Purpose: prove MIMAP-045A OSVM-backed fast-path unreserve route.
+
+using selfhost.hako_alloc.memory.osvm_fast_path_unreserve_route_box as HakoAllocOsVmFastPathUnreserveRouteBox
+
+static box Main {
+    main(args) {
+        local route = new HakoAllocOsVmFastPathUnreserveRoute(0, 16, 2, 64, 64)
+
+        local handle0 = route.allocate(8)
+        local handle0_ok = 0
+        if handle0 != null {
+            handle0_ok = 1
+        }
+
+        local release0 = route.release(handle0)
+        local purge0 = route.purgeOne(1)
+        local marker_before = route.markerIsMarked(purge0.selected_page_id)
+        local unreserve0 = route.unreservePurgedPage(purge0.selected_page_id)
+
+        local ok = check "mimap045a osvm fast path unreserve route" {
+            "initial handle": handle0_ok == 1
+            "release ok": release0 == 1
+            "purge status": purge0.status == 0
+            "purge selected": purge0.selected_page_id == 0
+            "purge source": purge0.source_executed == 1
+            "marker before": marker_before == 1
+            "unreserve status": unreserve0.status == 0
+            "unreserve attempted": unreserve0.unreserve_attempted == 1
+            "unreserve ok": unreserve0.unreserve_ok == 1
+            "unreserve base": unreserve0.unreserve_base > 0
+            "unreserve bytes": unreserve0.unreserve_bytes == 32
+            "unreserve rc": unreserve0.unreserve_rc == 0
+            "adapter calls": unreserve0.adapter_call_count == 1
+            "adapter success": unreserve0.adapter_success_count == 1
+            "adapter rejects": unreserve0.adapter_reject_count == 0
+            "route success": route.success_count == 1
+            "route rejects": route.reject_count == 0
+            "source once": route.sourceExecutionCount() == 1
+            "heap one page": route.reuse_route.purge_route.heap.page_create_count == 1
+            "heap allocations": route.reuse_route.purge_route.heap.alloc_count == 1
+            "heap releases": route.reuse_route.purge_route.heap.release_count == 1
+            "heap direct decommit untouched": route.reuse_route.purge_route.heap.decommit_count == 0
+        }
+
+        print("hako-alloc-osvm-fast-path-unreserve-route-proof")
+        print("initial=" + handle0_ok + "," + release0 + "," + route.reuse_route.purge_route.allocate_count + "," + route.reuse_route.purge_route.release_count)
+        print("purge=" + purge0.status + "," + purge0.stop_reason + "," + purge0.selected_page_id + "," + purge0.source_executed + "," + purge0.marker_marked)
+        print("unreserve=" + unreserve0.status + "," + unreserve0.unreserve_attempted + "," + unreserve0.unreserve_ok + "," + unreserve0.unreserve_rc)
+        print("backing=" + unreserve0.page_id + "," + unreserve0.unreserve_base + "," + unreserve0.unreserve_bytes + "," + unreserve0.marker_marked_before)
+        print("adapter=" + unreserve0.adapter_call_count + "," + unreserve0.adapter_success_count + "," + unreserve0.adapter_reject_count)
+        print("route=" + route.attempt_count + "," + route.success_count + "," + route.reject_count + "," + route.last_status + "," + route.last_unreserve_ok)
+        print("heap=" + route.reuse_route.purge_route.heap.alloc_count + "," + route.reuse_route.purge_route.heap.release_count + "," + route.reuse_route.purge_route.heap.page_create_count + "," + route.reuse_route.purge_route.heap.reserve_count + "," + route.reuse_route.purge_route.heap.commit_count + "," + route.reuse_route.purge_route.heap.decommit_count)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

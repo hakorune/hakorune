@@ -194,7 +194,8 @@ Forbidden:
 | `MIMAP-043B` | post-fast-path-reuse route row selection | landed; selected MIMAP-044A |
 | `MIMAP-044A` | OSVM-backed fast-path route closeout guard | landed after MIMAP-043B |
 | `MIMAP-044B` | post-fast-path-closeout row selection | landed; selected MIMAP-045A |
-| `MIMAP-045A` | OSVM-backed fast-path unreserve route | selected current |
+| `MIMAP-045A` | OSVM-backed fast-path unreserve route | landed after MIMAP-044B |
+| `MIMAP-045B` | post-fast-path-unreserve row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -672,6 +673,12 @@ Forbidden:
   reclaim execution, page ownership migration, or user-facing concurrency work;
 - backend `.inc` app/name matchers;
 - post-unreserve reuse behavior.
+
+### MIMAP-045B granularity
+
+MIMAP-045B is a planning-only row. It reads the MIMAP-045A unreserve evidence
+and selects exactly one next allocator/compiler/language task. It must not
+implement allocator behavior, compiler acceptance, or cleanup by itself.
 
 ## Compiler / language sidecar triggers
 

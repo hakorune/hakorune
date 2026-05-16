@@ -1,6 +1,6 @@
 # 293x-522 MIMAP-045A OSVM-Backed Fast-Path Unreserve Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -61,6 +61,22 @@ the new route owner or proof app.
 
 ```text
 bash tools/checks/k2_wide_hako_alloc_osvm_fast_path_unreserve_route_guard.sh
+[k2-wide-hako-alloc-osvm-fast-path-unreserve-route] ok
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Closeout
+
+`MIMAP-045A` lands the route owner, proof app, proof manifest row, and focused
+guard. The route composes the MIMAP-043A fast-path route with the MIMAP-033A
+page-source unreserve adapter; it does not add direct page-source/OSVM calls in
+the new owner/proof, post-unreserve reuse, provider activation, hooks, host
+allocator replacement, remote-free/TLS/atomic execution changes, reclaim
+execution, or user-facing concurrency work.
+
+Next row:
+
+```text
+MIMAP-045B post-fast-path-unreserve row selection
 ```

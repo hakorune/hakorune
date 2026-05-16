@@ -1,0 +1,135 @@
+// osvm_fast_path_unreserve_route_box.hako -- MIMAP-045A route owner
+// Responsibility:
+// - compose the MIMAP-043A OSVM-backed fast-path route with the MIMAP-033A
+//   page-source unreserve adapter
+// - prove one decommitted fast-path backing range can be unreserved through the
+//   adapter seam
+// Non-responsibility:
+// - direct page-source calls, direct OSVM calls, post-unreserve reuse, OS
+//   release beyond the adapter seam, provider activation, allocator
+//   replacement, hooks, atomics, TLS, remote-free execution, scheduler policy
+//   changes, or user-facing concurrency semantics
+
+using selfhost.hako_alloc.memory.osvm_fast_path_reuse_route_box as HakoAllocOsVmFastPathReuseRouteBox
+using selfhost.hako_alloc.memory.purge_page_source_unreserve_adapter_box as HakoAllocPageSourceUnreserveAdapterBox
+
+box HakoAllocOsVmFastPathUnreserveReport {
+    status: i64 = 0
+    page_id: i64 = -1
+    marker_marked_before: i64 = 0
+    unreserve_attempted: i64 = 0
+    unreserve_ok: i64 = 0
+    unreserve_base: i64 = 0
+    unreserve_bytes: i64 = 0
+    unreserve_rc: i64 = -1
+    adapter_call_count: i64 = 0
+    adapter_success_count: i64 = 0
+    adapter_reject_count: i64 = 0
+}
+
+box HakoAllocOsVmFastPathUnreserveRoute {
+    reuse_route: HakoAllocOsVmFastPathReuseRoute
+    unreserve_adapter: HakoAllocPageSourceUnreserveAdapter = new HakoAllocPageSourceUnreserveAdapter()
+    attempt_count: i64 = 0
+    success_count: i64 = 0
+    reject_count: i64 = 0
+    last_status: i64 = 0
+    last_page_id: i64 = -1
+    last_marker_marked_before: i64 = 0
+    last_unreserve_attempted: i64 = 0
+    last_unreserve_ok: i64 = 0
+    last_unreserve_base: i64 = 0
+    last_unreserve_bytes: i64 = 0
+    last_unreserve_rc: i64 = -1
+
+    birth(bin, block_size, page_capacity, max_decommit_bytes, max_recommit_bytes) {
+        me.reuse_route = new HakoAllocOsVmFastPathReuseRoute(bin, block_size, page_capacity, max_decommit_bytes, max_recommit_bytes)
+    }
+
+    allocate(size) {
+        return me.reuse_route.allocate(size)
+    }
+
+    release(handle) {
+        return me.reuse_route.release(handle)
+    }
+
+    purgeOne(max_scan_pages) {
+        return me.reuse_route.purgeOne(max_scan_pages)
+    }
+
+    report(status, page_id, marker_marked_before, unreserve_attempted, unreserve_ok, unreserve_base, unreserve_bytes, unreserve_rc) {
+        local result = new HakoAllocOsVmFastPathUnreserveReport()
+        result.status = status
+        result.page_id = page_id
+        result.marker_marked_before = marker_marked_before
+        result.unreserve_attempted = unreserve_attempted
+        result.unreserve_ok = unreserve_ok
+        result.unreserve_base = unreserve_base
+        result.unreserve_bytes = unreserve_bytes
+        result.unreserve_rc = unreserve_rc
+        result.adapter_call_count = me.unreserve_adapter.call_count
+        result.adapter_success_count = me.unreserve_adapter.success_count
+        result.adapter_reject_count = me.unreserve_adapter.reject_count
+        return result
+    }
+
+    unreservePurgedPage(page_id) {
+        me.attempt_count = me.attempt_count + 1
+        me.last_page_id = page_id
+        me.last_unreserve_attempted = 0
+        me.last_unreserve_ok = 0
+        me.last_unreserve_base = 0
+        me.last_unreserve_bytes = 0
+        me.last_unreserve_rc = -1
+
+        local marker_before = me.reuse_route.markerIsMarked(page_id)
+        me.last_marker_marked_before = marker_before
+
+        if marker_before != 1 {
+            me.reject_count = me.reject_count + 1
+            me.last_status = 1
+            return me.report(1, page_id, marker_before, 0, 0, 0, 0, -1)
+        }
+
+        local base = me.reuse_route.purge_route.heap.pageBase(page_id)
+        local bytes = me.reuse_route.purge_route.heap.pageBackingBytes(page_id)
+        me.last_unreserve_base = base
+        me.last_unreserve_bytes = bytes
+
+        if base == 0 {
+            me.reject_count = me.reject_count + 1
+            me.last_status = 2
+            return me.report(2, page_id, marker_before, 0, 0, base, bytes, -1)
+        }
+
+        if bytes <= 0 {
+            me.reject_count = me.reject_count + 1
+            me.last_status = 3
+            return me.report(3, page_id, marker_before, 0, 0, base, bytes, -1)
+        }
+
+        me.last_unreserve_attempted = 1
+        local rc = me.unreserve_adapter.unreservePage(base, bytes)
+        me.last_unreserve_rc = rc
+
+        if rc == 0 {
+            me.success_count = me.success_count + 1
+            me.last_status = 0
+            me.last_unreserve_ok = 1
+            return me.report(0, page_id, marker_before, 1, 1, base, bytes, rc)
+        }
+
+        me.reject_count = me.reject_count + 1
+        me.last_status = 4
+        return me.report(4, page_id, marker_before, 1, 0, base, bytes, rc)
+    }
+
+    sourceExecutionCount() {
+        return me.reuse_route.sourceExecutionCount()
+    }
+
+    markerIsMarked(page_id) {
+        return me.reuse_route.markerIsMarked(page_id)
+    }
+}

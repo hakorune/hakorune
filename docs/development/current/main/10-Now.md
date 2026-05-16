@@ -30,16 +30,16 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-045A OSVM-backed fast-path unreserve route`
+- current blocker token: `MIMAP-045B post-fast-path-unreserve row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-044B`; current blocker is `MIMAP-045A`, the
-  OSVM-backed fast-path unreserve route
-- planned order: prove allocate/release/purge/unreserve through the fast-path
-  route and existing page-source unreserve adapter
+- continue phase-293x after `MIMAP-045A`; current blocker is `MIMAP-045B`, the
+  planning-only post-fast-path-unreserve row selection
+- planned order: select exactly one allocator/compiler/language task and write
+  its focused card before implementation
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
