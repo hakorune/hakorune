@@ -1,0 +1,35 @@
+// hako-alloc-page-source-unreserve-adapter-proof
+// Purpose: prove MIMAP-033A page-source unreserve adapter ownership.
+
+using selfhost.hako_alloc.memory.page_source_policy_box as HakoAllocPageSourcePolicy
+using selfhost.hako_alloc.memory.purge_page_source_unreserve_adapter_box as HakoAllocPageSourceUnreserveAdapterBox
+
+static box Main {
+    main(args) {
+        local page_bytes = 4096
+        local base = HakoAllocPageSourcePolicy.reservePage(page_bytes)
+        local commit_rc = HakoAllocPageSourcePolicy.commitPage(base, page_bytes)
+        local decommit_rc = HakoAllocPageSourcePolicy.decommitPage(base, page_bytes)
+        local adapter = new HakoAllocPageSourceUnreserveAdapter()
+        local unreserve_rc = adapter.unreservePage(base, page_bytes)
+
+        local reserved = 0
+        if base != 0 {
+            reserved = 1
+        }
+
+        print("hako-alloc-page-source-unreserve-adapter-proof")
+        print("page=" + page_bytes + " reserved=" + reserved)
+        print("route=" + commit_rc + "," + decommit_rc + "," + unreserve_rc)
+        print("adapter=" + adapter.call_count + "," + adapter.success_count + "," + adapter.reject_count + "," + adapter.last_rc + "," + adapter.last_bytes)
+        print("stop=facade=0,provider=0,replacement=0")
+
+        if reserved == 1 && commit_rc == 0 && decommit_rc == 0 && unreserve_rc == 0 && adapter.call_count == 1 && adapter.success_count == 1 && adapter.reject_count == 0 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

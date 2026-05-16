@@ -26,9 +26,9 @@ if rg -n 'hako-alloc-page-source-policy-proof|HakoAllocProductionFacade|HakoAllo
 fi
 rm -f /tmp/"$TAG".app_specific.inc
 
-if rg -n 'hako_osvm_(unreserve|release)|unreserve_bytes|release_bytes' \
-  src lang/c-abi/shims crates/nyash_kernel lang/src >/tmp/"$TAG".inactive_osvm_rows 2>&1; then
-  echo "[$TAG] ERROR: OSVM unreserve/release rows must stay inactive in M49" >&2
+if rg -n 'unreservePage|unreserve_bytes_i64|hako_osvm_unreserve' \
+  "$APP" >/tmp/"$TAG".inactive_osvm_rows 2>&1; then
+  echo "[$TAG] ERROR: M49 proof app must stay reserve/commit/decommit-only" >&2
   cat /tmp/"$TAG".inactive_osvm_rows >&2
   rm -f /tmp/"$TAG".inactive_osvm_rows
   exit 1

@@ -1,6 +1,6 @@
 # 293x-459 MIMAP-033A Page-Source Unreserve Adapter
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -53,7 +53,41 @@ bash tools/checks/current_state_pointer_guard.sh
 tools/checks/dev_gate.sh quick
 ```
 
+## Landed Implementation
+
+```text
+page-source owner:
+  lang/src/hako_alloc/memory/page_source_policy_box.hako
+adapter:
+  lang/src/hako_alloc/memory/purge_page_source_unreserve_adapter_box.hako
+proof app:
+  apps/hako-alloc-page-source-unreserve-adapter-proof/main.hako
+guard:
+  tools/checks/k2_wide_hako_alloc_page_source_unreserve_adapter_guard.sh
+```
+
+The landed row adds `HakoAllocPageSourcePolicy.unreservePage(base, bytes)` and
+`HakoAllocPageSourceUnreserveAdapter.unreservePage(base, bytes)`. The adapter
+records call / success / reject / last-result scalar counters and delegates only
+to the page-source policy. Facade huge-unreserve behavior remains closed.
+
+Focused proof output includes:
+
+```text
+hako-alloc-page-source-unreserve-adapter-proof
+page=4096 reserved=1
+route=0,0,0
+adapter=1,1,0,0,4096
+summary=ok
+```
+
 ## Return Condition
 
 This row closes when page-source unreserve adoption is live and proven, while
 facade huge unreserve and provider/host allocator replacement remain inactive.
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-033B post-page-source-unreserve row selection.
+```

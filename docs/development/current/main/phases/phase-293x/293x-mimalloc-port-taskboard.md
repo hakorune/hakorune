@@ -32,11 +32,11 @@ fail-fast routing row is green, and the facade huge-page model route is green.
 MIMAP-029A exposed a pure-first/selfhost route-shape cleanup before the next
 allocator selection row. Same-artifact MIR input, lowering-plan preflight,
 phase progress diagnostics, and the canonical emit wrapper are landed; the
-MIMAP-032B selected the page-source unreserve adapter row;
+MIMAP-033A page-source unreserve adapter row is landed;
 the current primary row is:
 
 ```text
-  MIMAP-033A page-source unreserve adapter
+  MIMAP-033B post-page-source-unreserve row selection
 ```
 
 Closed cleanup sidecar:
@@ -227,7 +227,8 @@ not part of this sidecar:
 | `MIMAP-031A` | landed | OSVM unreserve capability inventory / planning row. | selected MIMAP-032A |
 | `MIMAP-032A` | landed | OSVM unreserve substrate route. | after MIMAP-031A |
 | `MIMAP-032B` | landed | Post-OSVM-unreserve allocator row selection. | selected MIMAP-033A |
-| `MIMAP-033A` | selected current | Page-source unreserve adapter. | after MIMAP-032B |
+| `MIMAP-033A` | landed | Page-source unreserve adapter. | after MIMAP-032B |
+| `MIMAP-033B` | selected current | Post-page-source-unreserve row selection. | after MIMAP-033A |
 | `RETURN-CONTRACT-001` | parked future | Propagate declared return expected type into return expressions such as `ArrayBox.get`. | not a blocker for artifact exactness |
 
 ## Stage1 / Selfhost Ordering Guard
@@ -402,7 +403,8 @@ FST:
 | `MIMAP-031A` | landed | OSVM unreserve capability inventory / planning row. | selected MIMAP-032A |
 | `MIMAP-032A` | landed | OSVM unreserve substrate route. | after MIMAP-031A |
 | `MIMAP-032B` | landed | Post-OSVM-unreserve allocator row selection. | selected MIMAP-033A |
-| `MIMAP-033A` | selected current | Page-source unreserve adapter. | after MIMAP-032B |
+| `MIMAP-033A` | landed | Page-source unreserve adapter. | after MIMAP-032B |
+| `MIMAP-033B` | selected current | Post-page-source-unreserve row selection. | after MIMAP-033A |
 
 MIMAP-020A execution order:
 

@@ -51,11 +51,11 @@ Scope: current lane / next lane / restart order only.
 - pure-first MIR artifact / diagnostics SSOT:
   `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
 - current blocker token:
-  `MIMAP-033A page-source unreserve adapter`
+  `MIMAP-033B post-page-source-unreserve row selection`
 - current BoxShape sidecar:
   `MIR-EMIT-SSOT-001`, `MIR-ROUTE-PREFLIGHT-001`, and
-  `SELFHOST-PROGRESS-001`, and `MIR-EMIT-SSOT-002` landed; `MIMAP-032B`
-  selected `MIMAP-033A`;
+  `SELFHOST-PROGRESS-001`, and `MIR-EMIT-SSOT-002` landed; `MIMAP-033A`
+  landed page-source unreserve adapter adoption;
   `MIRBUILDER-DIET` remains closed through `MIR-SEMANTIC-PLANS-001`
 - primary mode: mimalloc substrate implementation lane; keep upstream source
   untracked and keep each allocator row behind explicit guards before provider
@@ -71,9 +71,10 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `MIMAP-032B`; current blocker is
-  `MIMAP-033A`, a page-source unreserve adapter row. It must not add facade
-  huge unreserve, recommit, or provider behavior. VM-LIM-001
+- resume point: continue Phase 293x after `MIMAP-033A`; current blocker is
+  `MIMAP-033B`, a post-page-source-unreserve row selection. It must choose one
+  next owner/proof/guard before facade huge unreserve or provider behavior is
+  opened. VM-LIM-001
   remains parked diagnostic. Keep LoopRange on the Stage1 route; do not
   source-desugar range loops.
 
@@ -81,8 +82,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-033A`: page-source unreserve adapter
-  2. post-page-source-unreserve row selection
+  1. `MIMAP-033B`: post-page-source-unreserve row selection
+  2. selected next allocator row after `MIMAP-033B`
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
   reduction after mimalloc completeness evidence. Do not make broad `.hako`

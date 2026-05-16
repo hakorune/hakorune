@@ -57,6 +57,7 @@ Current modules
 - `purge_execution_box.hako`
 - `purge_heap_decommit_box.hako`
 - `purge_page_source_decommit_adapter_box.hako`
+- `purge_page_source_unreserve_adapter_box.hako`
 - `purge_candidate_policy_box.hako`
 - `purge_policy_box.hako`
 - `remote_free_page_integration_box.hako`
@@ -389,6 +390,11 @@ Syntax/style contract
   adapter. It may implement `decommitPage(base, bytes)` by delegating to
   `HakoAllocPageSourcePolicy.decommitPage`, but it must not reserve, commit,
   unreserve, release OSVM pages, or mutate heap/page state.
+- `purge_page_source_unreserve_adapter_box.hako` owns MIMAP-033A page-source
+  unreserve adapter. It may implement `unreservePage(base, bytes)` by
+  delegating to `HakoAllocPageSourcePolicy.unreservePage`, but it must not
+  reserve, commit, decommit, recommit, call facade lifecycle owners, mutate
+  heap/page state, activate provider hooks, or replace allocators.
 - `purge_heap_decommit_box.hako` owns M197 purge decommit heap integration. It
   may compose dry-run observation, bounded decommit policy, and the page-source
   decommit adapter for an existing heap page/backing, but it must not mutate

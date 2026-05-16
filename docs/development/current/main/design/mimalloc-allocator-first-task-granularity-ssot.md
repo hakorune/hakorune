@@ -165,7 +165,8 @@ Forbidden:
 | `MIMAP-031A` | OSVM unreserve capability inventory / planning row | landed; selected MIMAP-032A |
 | `MIMAP-032A` | OSVM unreserve substrate route | landed after MIMAP-031A |
 | `MIMAP-032B` | post-OSVM-unreserve allocator row selection | landed; selected MIMAP-033A |
-| `MIMAP-033A` | page-source unreserve adapter | current after MIMAP-032B |
+| `MIMAP-033A` | page-source unreserve adapter | landed after MIMAP-032B |
+| `MIMAP-033B` | post-page-source-unreserve allocator row selection | current after MIMAP-033A |
 
 ### MIMAP-020A granularity
 
@@ -471,7 +472,10 @@ route row only. MIMAP-032A landed `hako_osvm_unreserve_bytes_i64` /
 `OsVmCoreBox.unreserve_bytes_i64` without page-source/facade adoption, and
 selected MIMAP-032B as the post-unreserve allocator row selection. MIMAP-032B
 selected MIMAP-033A as the page-source unreserve adapter row so allocator owner
-adoption happens before any facade huge-unreserve route.
+adoption happens before any facade huge-unreserve route. MIMAP-033A landed
+`HakoAllocPageSourcePolicy.unreservePage` and
+`HakoAllocPageSourceUnreserveAdapter`; MIMAP-033B now selects the next row
+without opening provider activation or host allocator replacement.
 
 ## Compiler / language sidecar triggers
 
