@@ -1,6 +1,6 @@
 # 293x-458 MIMAP-032B Post-OSVM-Unreserve Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -86,3 +86,31 @@ tools/checks/dev_gate.sh quick
 
 This row closes when one next allocator behavior row is selected with clear
 owner/proof/guard names and provider/host allocator replacement still inactive.
+
+## Selection Result
+
+`MIMAP-032B` selects `MIMAP-033A`.
+
+Rationale:
+
+- `MIMAP-032A` proved `OsVmCoreBox.unreserve_bytes_i64`, but allocator owners
+  still do not consume it.
+- The smallest allocator behavior is the page-source adoption row, not facade
+  huge unreserve. This mirrors the existing decommit split:
+
+```text
+HakoAllocPageSourcePolicy.decommitPage
+  -> HakoAllocPageSourceDecommitAdapter
+  -> facade huge decommit route later
+```
+
+- The selected row should add the analogous unreserve page-source owner /
+  adapter, prove reserve/commit/decommit/unreserve through a scalar proof, and
+  still stop before facade huge unreserve, recommit, provider activation, hooks,
+  host allocator replacement, or backend matcher shortcuts.
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-033A page-source unreserve adapter.
+```
