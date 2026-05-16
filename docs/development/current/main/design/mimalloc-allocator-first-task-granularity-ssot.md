@@ -150,6 +150,7 @@ Forbidden:
 | `MIMAP-025B` | post-huge-release-failfast allocator row selection | MIMAP-025A is green |
 | `MIMAP-026A` | facade huge-release page-map unregister route | MIMAP-025B selects the M181 success seam |
 | `MIMAP-026B` | post-huge-unregister allocator row selection | MIMAP-026A is green |
+| `MIMAP-027A` | facade huge-unregister fail-fast diagnostics route | MIMAP-026B selects M181 post-unregister reject diagnostics |
 
 ### MIMAP-020A granularity
 
@@ -300,12 +301,28 @@ release/unreserve/decommit, purge/reclaim, small release/free, realloc,
 alignment, remote-free, TLS, atomic, provider hooks, host allocator
 replacement, or `#[global_allocator]`.
 
-MIMAP-026B is the current planning-only row. It must inspect the post-MIMAP-026A
-state and select exactly one next allocator behavior row without implementing
-that behavior in the selection card. Candidate directions include a narrow M181
-facade reject-diagnostics row, a later OS page return planning row, or an
-owner-triggered CorePlan / verifier contract promotion if the next behavior
-needs a stronger fail-fast contract first.
+MIMAP-026B is a landed planning-only row. It selects MIMAP-027A as the next
+allocator behavior slice.
+
+### MIMAP-027A granularity
+
+MIMAP-027A is the selected behavior row. It should add one narrow
+object-lifecycle facade diagnostics route that proves:
+
+```text
+first huge unregister -> MIMAP-026A success
+second release of same pointer -> M181 lookup-miss reject
+stale/unknown huge pointer -> M181 lookup-miss reject
+scalar report -> page-map live_count remains 0 and reject counters advance
+```
+
+The row must reuse the existing MIMAP-026A route and the existing M181
+`HakoAllocHugeReleaseSeam` for rejection. It must not call page-map
+lookup/unregister or `HakoAllocHugePageModel.markReleased(ptr)` directly from
+the facade diagnostics owner, and it must not add OSVM release/unreserve/
+decommit, purge/reclaim, small release/free, realloc, alignment, remote-free,
+TLS, atomic, provider hooks, host allocator replacement, or
+`#[global_allocator]`.
 
 ## Compiler / language sidecar triggers
 
