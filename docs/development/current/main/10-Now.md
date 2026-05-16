@@ -26,6 +26,8 @@ Related:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
   `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
+- mimalloc / Hakorune joint task order:
+  `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - mimalloc blueprint SSOT:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
@@ -39,7 +41,9 @@ Related:
 - continue phase-293x after `MIMAP-049A`; current blocker is `MIMAP-049B`, the
   planning-only post-secure-entropy-inventory row selection
 - planned order: select exactly one allocator/compiler/language task and write
-  its focused card before implementation
+  its focused card before implementation; current recommendation is a
+  Hakorune-core `RANDOM-CAP-001` capability/fail-fast row before entropy
+  execution
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

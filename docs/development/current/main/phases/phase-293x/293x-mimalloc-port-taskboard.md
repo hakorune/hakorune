@@ -330,6 +330,15 @@ FST:
 | `MIMAP-049A` | landed | Secure entropy source inventory. | after MIMAP-048B |
 | `MIMAP-049B` | selected current | Post-secure-entropy-inventory row selection. | selected after MIMAP-049A |
 
+Joint Hakorune / mimalloc ordering:
+
+```text
+docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
+```
+
+Current recommendation after MIMAP-049A: select `RANDOM-CAP-001` as a
+Hakorune-core capability/fail-fast row before any entropy execution.
+
 MIMAP-020A execution order:
 
 ```text

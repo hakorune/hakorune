@@ -40,6 +40,23 @@ compiler acceptance, or cleanup by itself.
 | `049B.2` | Select the next row and write a focused card. | one current blocker token is named. | no multi-row bundle |
 | `049B.3` | Update current pointers and taskboard. | current pointer guard passes. | no landed history copy expansion |
 
+## Recommended Ordering Input
+
+Use this task-order SSOT before selecting the next row:
+
+```text
+docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
+```
+
+Current recommendation:
+
+```text
+select a Hakorune core capability row first:
+  RANDOM-CAP-001 uses random capability decision + fail-fast contract
+
+do not select entropy execution directly from MIMAP-049B.
+```
+
 ## Required Evidence
 
 ```text

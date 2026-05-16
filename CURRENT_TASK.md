@@ -50,6 +50,8 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
   `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
+- mimalloc / Hakorune joint task order:
+  `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
   `MIMAP-049B post-secure-entropy-inventory row selection`
 - current BoxShape sidecar:
@@ -82,7 +84,9 @@ Scope: current lane / next lane / restart order only.
 - next 293x order:
   1. `MIMAP-049B`: classify the post-secure-entropy-inventory state and select
      one next row
-  2. write/update the next focused card before implementation
+  2. recommended: select a Hakorune core `RANDOM-CAP-001` capability decision /
+     fail-fast contract before any random entropy execution
+  3. write/update the next focused card before implementation
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
   reduction after mimalloc completeness evidence. Do not make broad `.hako`
