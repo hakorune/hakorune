@@ -1,6 +1,6 @@
 # 293x-461 MIMAP-034A Facade Huge Unreserve Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -58,8 +58,42 @@ bash tools/checks/current_state_pointer_guard.sh
 tools/checks/dev_gate.sh quick
 ```
 
+## Landed Implementation
+
+```text
+facade route owner:
+  lang/src/hako_alloc/memory/object_lifecycle_facade_huge_unreserve_box.hako
+proof app:
+  apps/mimalloc-facade-huge-unreserve-proof/main.hako
+guard:
+  tools/checks/k2_wide_mimalloc_facade_huge_unreserve_exe_guard.sh
+```
+
+The landed row adds `HakoAllocObjectLifecycleFacadeHugeUnreserveRoute`. It
+composes `HakoAllocObjectLifecycleFacadeHugeDecommitRoute` and
+`HakoAllocPageSourceUnreserveAdapter`, then unreserves the exact backing range
+that MIMAP-029A decommitted. The facade owner does not call page-source or OSVM
+APIs directly.
+
+Focused proof output includes:
+
+```text
+mimalloc-facade-huge-unreserve-proof
+decommit=1,1,<base>,<bytes>,0
+unreserve=1,1,<same-base>,<same-bytes>,0
+adapter=1,1,0
+stop=1,1,1
+summary=ok
+```
+
 ## Return Condition
 
 This row closes when facade huge unreserve-after-decommit success is live and
 proven through existing owner seams, while duplicate/stale unreserve diagnostics
 and provider/host allocator replacement remain inactive.
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-034B post-huge-unreserve row selection.
+```

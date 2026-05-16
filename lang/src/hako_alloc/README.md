@@ -139,6 +139,12 @@ Principles
     rejects duplicate/stale decommit attempts before a second page-source
     decommit adapter call while still stopping before unreserve/recommit,
     provider activation, and allocator replacement.
+  - `HakoAllocObjectLifecycleFacadeHugeUnreserveRoute` is the MIMAP-034A
+    facade huge unreserve owner. It composes MIMAP-029A huge decommit with the
+    MIMAP-033A page-source unreserve adapter, then unreserves the exact
+    decommitted backing range while still stopping before duplicate/stale
+    unreserve diagnostics, recommit, provider activation, and allocator
+    replacement.
   - `HakoAllocHugeReleaseSeam` is the M181 huge release seam owner. It retires
     huge handles through `HakoAllocHugePageModel` and unregisters page-map
     ownership without touching small page `releaseLocal(...)`.

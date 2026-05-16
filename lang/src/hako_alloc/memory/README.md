@@ -44,6 +44,7 @@ Current modules
 - `object_lifecycle_facade_huge_page_source_box.hako`
 - `object_lifecycle_facade_huge_decommit_box.hako`
 - `object_lifecycle_facade_huge_decommit_failfast_box.hako`
+- `object_lifecycle_facade_huge_unreserve_box.hako`
 - `object_lifecycle_facade_huge_release_box.hako`
 - `object_lifecycle_facade_huge_release_failfast_box.hako`
 - `object_lifecycle_facade_huge_unregister_box.hako`
@@ -229,6 +230,13 @@ Syntax/style contract
   second `HakoAllocPageSourceDecommitAdapter` call. It must not call the page
   source or OSVM directly, add unreserve/recommit, small release/free, realloc,
   alignment, purge/reclaim, remote-free/TLS/atomics, provider hooks, host
+  allocator replacement, or backend shortcuts.
+- `object_lifecycle_facade_huge_unreserve_box.hako` owns the MIMAP-034A facade
+  huge unreserve-after-decommit success route. It may compose the MIMAP-029A
+  huge decommit route with the MIMAP-033A page-source unreserve adapter and
+  unreserve exactly the decommitted backing range. It must not add
+  duplicate/stale unreserve diagnostics, call page-source/OSVM directly,
+  recommit, purge/reclaim, remote-free/TLS/atomics, provider hooks, host
   allocator replacement, or backend shortcuts.
 - `object_lifecycle_facade_huge_release_box.hako` owns the MIMAP-024A facade
   huge-release metadata route. It may allocate one huge request through the

@@ -1,0 +1,130 @@
+// object_lifecycle_facade_huge_unreserve_box.hako -- MIMAP-034A facade huge unreserve route
+// Responsibility: allocate one page-source-backed huge handle, unregister and
+// decommit it through MIMAP-029A, then unreserve the exact decommitted backing
+// range through the MIMAP-033A page-source unreserve adapter.
+// Duplicate/stale unreserve diagnostics, recommit, provider activation, and
+// host allocator replacement stay outside this owner.
+
+using selfhost.hako_alloc.memory.object_lifecycle_facade_huge_decommit_box as HakoAllocObjectLifecycleFacadeHugeDecommitBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_reason_box as HakoAllocObjectLifecycleFacadeReason
+using selfhost.hako_alloc.memory.purge_page_source_unreserve_adapter_box as HakoAllocPageSourceUnreserveAdapterBox
+
+box HakoAllocObjectLifecycleFacadeHugeUnreserveRoute {
+    decommit_route: HakoAllocObjectLifecycleFacadeHugeDecommitRoute = new HakoAllocObjectLifecycleFacadeHugeDecommitRoute()
+    unreserve_adapter: HakoAllocPageSourceUnreserveAdapter = new HakoAllocPageSourceUnreserveAdapter()
+    attempt_count: i64 = 0
+    success_count: i64 = 0
+    failure_count: i64 = 0
+    last_status: i64 = 0
+    last_reason: i64 = 0
+    last_requested_size: i64 = 0
+    last_huge_threshold: i64 = 0
+    last_source_base: i64 = 0
+    last_source_bytes: i64 = 0
+    last_source_status: i64 = 0
+    last_source_commit_rc: i64 = -1
+    last_huge_ptr: i64 = 0
+    last_huge_page_id: i64 = -1
+    last_decommit_status: i64 = 0
+    last_decommit_ok: i64 = 0
+    last_decommit_base: i64 = 0
+    last_decommit_bytes: i64 = 0
+    last_decommit_rc: i64 = -1
+    last_unreserve_attempted: i64 = 0
+    last_unreserve_ok: i64 = 0
+    last_unreserve_base: i64 = 0
+    last_unreserve_bytes: i64 = 0
+    last_unreserve_rc: i64 = -1
+    last_adapter_call_count: i64 = 0
+    last_adapter_success_count: i64 = 0
+    last_adapter_reject_count: i64 = 0
+    no_extra_diagnostics: i64 = 1
+    no_recommit: i64 = 1
+    no_provider: i64 = 1
+
+    hugeUnreserveThreshold(): i64 {
+        return me.decommit_route.hugeDecommitThreshold()
+    }
+
+    snapshotHugeUnreserveState(): i64 {
+        me.last_adapter_call_count = me.unreserve_adapter.call_count
+        me.last_adapter_success_count = me.unreserve_adapter.success_count
+        me.last_adapter_reject_count = me.unreserve_adapter.reject_count
+        return me.last_status
+    }
+
+    resetHugeUnreserveState(size): i64 {
+        me.last_status = 0
+        me.last_reason = 0
+        me.last_requested_size = size
+        me.last_huge_threshold = me.hugeUnreserveThreshold()
+        me.last_source_base = 0
+        me.last_source_bytes = 0
+        me.last_source_status = 0
+        me.last_source_commit_rc = -1
+        me.last_huge_ptr = 0
+        me.last_huge_page_id = -1
+        me.last_decommit_status = 0
+        me.last_decommit_ok = 0
+        me.last_decommit_base = 0
+        me.last_decommit_bytes = 0
+        me.last_decommit_rc = -1
+        me.last_unreserve_attempted = 0
+        me.last_unreserve_ok = 0
+        me.last_unreserve_base = 0
+        me.last_unreserve_bytes = 0
+        me.last_unreserve_rc = -1
+        return me.snapshotHugeUnreserveState()
+    }
+
+    allocateUnregisterDecommitUnreserveHuge(facade, size): i64 {
+        me.resetHugeUnreserveState(size)
+        me.attempt_count = me.attempt_count + 1
+
+        local decommit_status = me.decommit_route.allocateUnregisterDecommitHuge(facade, size)
+        me.last_decommit_status = decommit_status
+        me.last_source_base = me.decommit_route.last_source_base
+        me.last_source_bytes = me.decommit_route.last_source_bytes
+        me.last_source_status = me.decommit_route.last_source_status
+        me.last_source_commit_rc = me.decommit_route.last_source_commit_rc
+        me.last_huge_ptr = me.decommit_route.last_huge_ptr
+        me.last_huge_page_id = me.decommit_route.last_huge_page_id
+        me.last_decommit_ok = me.decommit_route.last_decommit_ok
+        me.last_decommit_base = me.decommit_route.last_decommit_base
+        me.last_decommit_bytes = me.decommit_route.last_decommit_bytes
+        me.last_decommit_rc = me.decommit_route.last_decommit_rc
+
+        if decommit_status != 1 {
+            me.failure_count = me.failure_count + 1
+            me.last_status = 0
+            me.last_reason = me.decommit_route.last_reason
+            return me.snapshotHugeUnreserveState()
+        }
+
+        if me.last_decommit_ok != 1 {
+            me.failure_count = me.failure_count + 1
+            me.last_status = 0
+            me.last_reason = HakoAllocObjectLifecycleFacadeReason.release_decommit_reject()
+            return me.snapshotHugeUnreserveState()
+        }
+
+        me.last_unreserve_attempted = 1
+        me.last_unreserve_base = me.last_decommit_base
+        me.last_unreserve_bytes = me.last_decommit_bytes
+        local rc = me.unreserve_adapter.unreservePage(me.last_decommit_base, me.last_decommit_bytes)
+        me.last_unreserve_rc = rc
+
+        if rc == 0 {
+            me.last_unreserve_ok = 1
+            me.success_count = me.success_count + 1
+            me.last_status = 1
+            me.last_reason = HakoAllocObjectLifecycleFacadeReason.ok()
+            return me.snapshotHugeUnreserveState()
+        }
+
+        me.failure_count = me.failure_count + 1
+        me.last_status = 0
+        me.last_reason = HakoAllocObjectLifecycleFacadeReason.release_decommit_reject()
+        return me.snapshotHugeUnreserveState()
+    }
+}

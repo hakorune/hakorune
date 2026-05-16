@@ -32,11 +32,11 @@ fail-fast routing row is green, and the facade huge-page model route is green.
 MIMAP-029A exposed a pure-first/selfhost route-shape cleanup before the next
 allocator selection row. Same-artifact MIR input, lowering-plan preflight,
 phase progress diagnostics, and the canonical emit wrapper are landed; the
-MIMAP-033B selected the facade huge unreserve-after-decommit success route;
+MIMAP-034A facade huge unreserve-after-decommit success route is landed;
 the current primary row is:
 
 ```text
-  MIMAP-034A facade huge unreserve-after-decommit route
+  MIMAP-034B post-huge-unreserve row selection
 ```
 
 Closed cleanup sidecar:
@@ -229,7 +229,8 @@ not part of this sidecar:
 | `MIMAP-032B` | landed | Post-OSVM-unreserve allocator row selection. | selected MIMAP-033A |
 | `MIMAP-033A` | landed | Page-source unreserve adapter. | after MIMAP-032B |
 | `MIMAP-033B` | landed | Post-page-source-unreserve row selection. | selected MIMAP-034A |
-| `MIMAP-034A` | selected current | Facade huge unreserve-after-decommit success route. | after MIMAP-033B |
+| `MIMAP-034A` | landed | Facade huge unreserve-after-decommit success route. | after MIMAP-033B |
+| `MIMAP-034B` | selected current | Post-huge-unreserve row selection. | after MIMAP-034A |
 | `RETURN-CONTRACT-001` | parked future | Propagate declared return expected type into return expressions such as `ArrayBox.get`. | not a blocker for artifact exactness |
 
 ## Stage1 / Selfhost Ordering Guard
@@ -406,7 +407,8 @@ FST:
 | `MIMAP-032B` | landed | Post-OSVM-unreserve allocator row selection. | selected MIMAP-033A |
 | `MIMAP-033A` | landed | Page-source unreserve adapter. | after MIMAP-032B |
 | `MIMAP-033B` | landed | Post-page-source-unreserve row selection. | selected MIMAP-034A |
-| `MIMAP-034A` | selected current | Facade huge unreserve-after-decommit success route. | after MIMAP-033B |
+| `MIMAP-034A` | landed | Facade huge unreserve-after-decommit success route. | after MIMAP-033B |
+| `MIMAP-034B` | selected current | Post-huge-unreserve row selection. | after MIMAP-034A |
 
 MIMAP-020A execution order:
 

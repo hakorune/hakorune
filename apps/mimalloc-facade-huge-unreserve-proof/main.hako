@@ -1,0 +1,60 @@
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_huge_unreserve_box as HakoAllocObjectLifecycleFacadeHugeUnreserveBox
+
+static box Main {
+    main(args) {
+        local facade = new HakoAllocObjectLifecycleFacade()
+        local route = new HakoAllocObjectLifecycleFacadeHugeUnreserveRoute()
+
+        local huge_size = route.hugeUnreserveThreshold() + 1
+        local status = route.allocateUnregisterDecommitUnreserveHuge(facade, huge_size)
+
+        local shape = 0
+        if status == 1 { shape = shape + 1 }
+        if route.last_source_base != 0 { shape = shape + 1 }
+        if route.last_source_bytes == huge_size { shape = shape + 1 }
+        if route.last_source_commit_rc == 0 { shape = shape + 1 }
+        if route.last_huge_ptr == 70000 { shape = shape + 1 }
+        if route.last_huge_page_id == 1000 { shape = shape + 1 }
+        if route.last_decommit_status == 1 { shape = shape + 1 }
+        if route.last_decommit_ok == 1 { shape = shape + 1 }
+        if route.last_decommit_base == route.last_source_base { shape = shape + 1 }
+        if route.last_decommit_bytes == route.last_source_bytes { shape = shape + 1 }
+        if route.last_decommit_rc == 0 { shape = shape + 1 }
+        if route.last_unreserve_attempted == 1 { shape = shape + 1 }
+        if route.last_unreserve_ok == 1 { shape = shape + 1 }
+        if route.last_unreserve_base == route.last_source_base { shape = shape + 1 }
+        if route.last_unreserve_bytes == route.last_source_bytes { shape = shape + 1 }
+        if route.last_unreserve_rc == 0 { shape = shape + 1 }
+        if route.last_adapter_call_count == 1 { shape = shape + 1 }
+        if route.last_adapter_success_count == 1 { shape = shape + 1 }
+        if route.last_adapter_reject_count == 0 { shape = shape + 1 }
+        if route.attempt_count == 1 { shape = shape + 1 }
+        if route.success_count == 1 { shape = shape + 1 }
+        if route.failure_count == 0 { shape = shape + 1 }
+        if route.last_status == 1 { shape = shape + 1 }
+        if route.last_reason == 0 { shape = shape + 1 }
+        if route.no_extra_diagnostics == 1 { shape = shape + 1 }
+        if route.no_recommit == 1 { shape = shape + 1 }
+        if route.no_provider == 1 { shape = shape + 1 }
+
+        print("mimalloc-facade-huge-unreserve-proof")
+        print("source=" + route.last_source_base + "," + route.last_source_bytes + "," + route.last_source_commit_rc)
+        print("huge=" + route.last_huge_ptr + "," + route.last_huge_page_id)
+        print("decommit=" + route.last_decommit_status + "," + route.last_decommit_ok + "," + route.last_decommit_base + "," + route.last_decommit_bytes + "," + route.last_decommit_rc)
+        print("unreserve=" + route.last_unreserve_attempted + "," + route.last_unreserve_ok + "," + route.last_unreserve_base + "," + route.last_unreserve_bytes + "," + route.last_unreserve_rc)
+        print("adapter=" + route.last_adapter_call_count + "," + route.last_adapter_success_count + "," + route.last_adapter_reject_count)
+        print("route_counts=" + route.attempt_count + "," + route.success_count + "," + route.failure_count)
+        print("stop=" + route.no_extra_diagnostics + "," + route.no_recommit + "," + route.no_provider)
+        print("final=" + route.last_status + "," + route.last_reason + "," + status)
+        print("shape=" + shape)
+
+        if shape == 27 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

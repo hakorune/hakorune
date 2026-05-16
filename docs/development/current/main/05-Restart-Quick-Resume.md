@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-034A facade huge unreserve-after-decommit route`
+- current blocker token: `MIMAP-034B post-huge-unreserve row selection`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -48,7 +48,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-034A facade huge unreserve-after-decommit route`
+- current blocker token: `MIMAP-034B post-huge-unreserve row selection`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -59,9 +59,9 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after `MIMAP-033B`; current blocker is `MIMAP-034A`,
-  a facade huge unreserve-after-decommit success route
-- next row: post-huge-unreserve row selection after `MIMAP-034A`
+- continue `phase-293x` after `MIMAP-034A`; current blocker is `MIMAP-034B`,
+  a post-huge-unreserve row selection
+- next row: selected allocator behavior after `MIMAP-034B`
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
