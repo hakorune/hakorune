@@ -1,6 +1,6 @@
 # 293x-486 USERBOX-ROUTE-SPLIT-002 Post-Fixpoint Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -8,9 +8,15 @@ Date: 2026-05-16
 `USERBOX-ROUTE-SPLIT-002` is the planning-only row after the landed
 `USERBOX-ROUTE-SPLIT-001` fixed-point orchestration cleanup.
 
-It must select exactly one next row.
+It selects exactly one next row:
 
-It must not land code.
+```text
+USERBOX-ROUTE-SPLIT-003:
+  split user_box_method_route_plan route materialization into a narrow
+  behavior-preserving owner
+```
+
+It does not land code.
 
 ## Candidate Set
 
@@ -53,3 +59,18 @@ tools/checks/dev_gate.sh quick
 This row closes when one next row is selected with clear owner/proof/guard names
 and provider/host allocator replacement still inactive unless explicitly
 reopened.
+
+## Selection Result
+
+```text
+selected:
+  USERBOX-ROUTE-SPLIT-003
+owner:
+  src/mir/user_box_method_route_plan/materialization.rs
+scope:
+  route row materialization only
+stop_line:
+  no target collection changes
+  no accepted route shape changes
+  no route reason vocabulary changes
+```

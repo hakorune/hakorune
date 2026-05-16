@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-16"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "USERBOX-ROUTE-SPLIT-001 landed fixed-point orchestration cleanup. USERBOX-ROUTE-SPLIT-002 is selecting the next row. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "USERBOX-ROUTE-SPLIT-003 materialization owner cleanup landed. Current work selects the next post-materialization row. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-486-USERBOX-ROUTE-SPLIT-002-POST-FIXPOINT-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-488-USERBOX-ROUTE-SPLIT-004-POST-MATERIALIZATION-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-485-USERBOX-ROUTE-SPLIT-001-FIXPOINT-ORCHESTRATION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-485-USERBOX-ROUTE-SPLIT-001-FIXPOINT-ORCHESTRATION.md"
-latest_card_summary = "USERBOX-ROUTE-SPLIT-001 moves user-box method route fixed-point orchestration into convergence.rs."
+latest_card = "293x-487-USERBOX-ROUTE-SPLIT-003-MATERIALIZATION-OWNER"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-487-USERBOX-ROUTE-SPLIT-003-MATERIALIZATION-OWNER.md"
+latest_card_summary = "USERBOX-ROUTE-SPLIT-003 splits user-box method route materialization into a behavior-preserving owner."
 
-current_blocker_token = "USERBOX-ROUTE-SPLIT-002"
+current_blocker_token = "USERBOX-ROUTE-SPLIT-004"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-487 USERBOX-ROUTE-SPLIT-003 route materialization owner cleanup landed",
+  "293x-486 USERBOX-ROUTE-SPLIT-002 selected USERBOX-ROUTE-SPLIT-003 materialization owner cleanup",
   "293x-485 USERBOX-ROUTE-SPLIT-001 fixed-point orchestration cleanup landed",
   "293x-484 VMHAKO-EXTERN-SPEC-002 selected USERBOX-ROUTE-SPLIT-001 fixed-point orchestration cleanup",
   "293x-483 VMHAKO-EXTERN-SPEC-001 subset legacy externcall spec validator cleanup landed",

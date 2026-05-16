@@ -11,8 +11,8 @@ use super::value_type_publish::{
     publish_user_box_route_param_value_types, publish_user_box_route_result_value_types,
 };
 use super::{
-    collect_method_targets, refresh_function_user_box_method_routes_with_context,
-    FieldBoxOriginMap, ParamBoxOriginMap, UserBoxMethodRoute,
+    collect_method_targets, materialization, FieldBoxOriginMap, ParamBoxOriginMap,
+    UserBoxMethodRoute,
 };
 use crate::mir::MirModule;
 
@@ -106,7 +106,7 @@ fn materialize_routes(
     field_box_origins: &FieldBoxOriginMap,
 ) {
     for function in module.functions.values_mut() {
-        refresh_function_user_box_method_routes_with_context(
+        materialization::refresh_function_user_box_method_routes_with_context(
             function,
             targets,
             typed_plan_type_ids,
