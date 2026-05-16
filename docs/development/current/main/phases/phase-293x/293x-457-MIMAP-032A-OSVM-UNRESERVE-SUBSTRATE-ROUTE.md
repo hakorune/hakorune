@@ -1,6 +1,6 @@
 # 293x-457 MIMAP-032A OSVM Unreserve Substrate Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -49,7 +49,50 @@ bash tools/checks/current_state_pointer_guard.sh
 tools/checks/dev_gate.sh quick
 ```
 
+## Landed Implementation
+
+```text
+substrate facade:
+  lang/src/runtime/substrate/osvm/osvm_core_box.hako
+C ABI / native substrate:
+  lang/c-abi/include/hako_hostbridge.h
+  lang/c-abi/shims/hako_kernel.c
+  crates/nyash_kernel/src/exports/osvm.rs
+MIR/backend route metadata:
+  src/mir/extern_call_route_plan.rs
+  lang/c-abi/shims/hako_llvmc_ffi_mir_call_*.inc
+proof app:
+  apps/mimalloc-osvm-unreserve-proof/main.hako
+guard:
+  tools/checks/k2_wide_mimalloc_osvm_unreserve_exe_guard.sh
+```
+
+The landed route adds `hako_osvm_unreserve_bytes_i64(base, len_bytes)` and
+`OsVmCoreBox.unreserve_bytes_i64(base, len_bytes)`. It is a substrate route
+only; allocator page-source / facade owners still do not consume unreserve.
+
+Focused guard evidence:
+
+```text
+bash tools/checks/k2_wide_mimalloc_osvm_unreserve_exe_guard.sh
+```
+
+Observed proof output includes:
+
+```text
+mimalloc-osvm-unreserve-proof
+page=4096 reserved=1
+commit=0 decommit=0 unreserve=0
+summary=ok
+```
+
 ## Return Condition
 
 This row closes when the OSVM unreserve substrate route is live and proven, but
 allocator/page-source/facade owners still do not consume it.
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-032B post-OSVM-unreserve row selection.
+```

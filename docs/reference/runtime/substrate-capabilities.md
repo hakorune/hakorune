@@ -65,12 +65,12 @@ The current live surface is intentionally narrow.
 | verifier | bounds, initialized-range, ownership, and rune contract gates exist for current rows; RawArray remove/insert are verifier-gated before pointer-substrate calls; bounds and initialized-range have provisional `usize` gates over the non-negative current-lane i64 subset; `Contract(no_alloc/no_safepoint)` is MIR-verifier checked |
 | `RawArray` | first raw-array path exists for slot load/store/len/cap/append/reserve/grow; provisional `usize` aliases exist for len/cap/index/capacity inputs without adding new native leaves |
 | `RawBuf` | first allocation facade exists over `MemCoreBox` |
-| `hako_alloc` facade | `HakoAllocProductionFacade` is the production-facing policy seam over the existing `HakoAllocHeap` page/free-list state, `HakoAllocRemoteFreePolicy`, and `HakoAllocPageSourcePolicy`; current proof rows cover local small/medium allocate/free/reject/reuse accounting, bounded CAS retry-loop remote-free policy, and OSVM reserve/commit/decommit page-source policy |
+| `hako_alloc` facade | `HakoAllocProductionFacade` is the production-facing policy seam over the existing `HakoAllocHeap` page/free-list state, `HakoAllocRemoteFreePolicy`, and `HakoAllocPageSourcePolicy`; current proof rows cover local small/medium allocate/free/reject/reuse accounting, bounded CAS retry-loop remote-free policy, and OSVM reserve/commit/decommit page-source policy; OSVM unreserve is live only as a substrate route until a later allocator owner adopts it |
 | `hako.atomic` | helper-shaped `fence_i64`, memory-order vocabulary, `fence_order_i64(order)`, narrow fixed-slot `cas_i64` / `load_i64` / `store_i64` / `fetch_add_i64` rows, and direct native-pointer store/load/CAS routes exist; generic memory-order arguments are not live |
 | `hako.tls` | helper-shaped diagnostics TLS rows exist; narrow allocator cache-slot `i64` get/set rows exist for pure-first EXE; generic thread/task-local cells are not live |
 | `hako.worker` | single-worker `current_id_i64` substrate row exists for allocator-internal owner/cache policy proof; source-level worker identity is not live |
 | `hako.gc` | helper-shaped `write_barrier_i64` row exists |
-| `hako.osvm` | page-size plus reserve/commit/decommit rows exist; first `usize` facades cover page size and byte lengths over the non-negative current-lane i64 subset |
+| `hako.osvm` | page-size plus reserve/commit/decommit/unreserve rows exist; first `usize` facades cover page size and byte lengths over the non-negative current-lane i64 subset |
 | `hako.intrin` | current-lane non-negative i64 bit-count rows exist: `clz_i64`, `ctz_i64`, `popcnt_i64`; backend optimization use is not live |
 | backend export attrs | consistency guard is live; only current weak attrs are allowed, runtime-decl `readonly` rows must carry `memory = "read"`, while `noalias`/`nonnull`/`dereferenceable`/alignment export remain blocked |
 | static readonly data | backend-private static-data manifest can emit a u16 size-class fixture; source `static const NAME: u16[] = [...]` declarations lower to MIR `static_data_plans`; `NAME[index]` reads lower to MIR `StaticDataLoad` and current-lane `i64` values; narrow integer const expressions in u16 table initializers are live |
@@ -88,7 +88,7 @@ apps. The current route chain is:
 | `RawBufCoreBox` | `alloc_bytes_i64`, `realloc_bytes_i64`, and `free_bytes_i64` stay thin substrate facades over `MemCoreBox`; `alloc_bytes_usize` and `realloc_bytes_usize` are thin non-negative current-lane i64 subset aliases checked through `CurrentLaneBox.is_usize_i64` |
 | `RawArrayCoreBox` | slot append/len/load/store plus reserve/grow route through ownership, bounds, initialized-range, `BufCoreBox`, and `PtrCoreBox` gates; provisional `usize` aliases reuse the same gates with `CurrentLaneBox.is_usize_i64` |
 | static tables | `u16[]` static const declarations emit readonly static data and `StaticDataLoad` reads |
-| OSVM | reserve/commit/decommit are route-owned page-source leaves; page-size is a native leaf for capability code |
+| OSVM | reserve/commit/decommit/unreserve are route-owned substrate leaves; page-size is a native leaf for capability code; allocator page-source/facade owners do not consume unreserve yet |
 | TLS | cache-slot get/set rows are narrow allocator substrate leaves, not general language TLS cells |
 | atomics | fixed-slot i64 CAS/load/store/fetch_add and direct native-pointer store/load/CAS route facts are live in narrow rows |
 | `hako_alloc` | page/free-list, remote-free, page-source, and production facade policies live above substrate capabilities |

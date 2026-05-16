@@ -77,6 +77,7 @@ mod platform {
             offset: isize,
         ) -> *mut c_void;
         fn mprotect(addr: *mut c_void, len: usize, prot: c_int) -> c_int;
+        fn munmap(addr: *mut c_void, length: usize) -> c_int;
     }
 
     pub(super) fn reserve(len_bytes: i64) -> i64 {
@@ -129,6 +130,21 @@ mod platform {
             HAKO_VALIDATION
         }
     }
+
+    pub(super) fn unreserve(base: i64, len_bytes: i64) -> i64 {
+        if base <= 0 {
+            return HAKO_VALIDATION;
+        }
+        let Some(len) = normalize_len(len_bytes) else {
+            return HAKO_VALIDATION;
+        };
+        let rc = unsafe { munmap(base as isize as *mut c_void, len) };
+        if rc == 0 {
+            HAKO_OK
+        } else {
+            HAKO_VALIDATION
+        }
+    }
 }
 
 #[cfg(not(unix))]
@@ -154,6 +170,14 @@ mod platform {
             HAKO_UNSUPPORTED
         }
     }
+
+    pub(super) fn unreserve(base: i64, len_bytes: i64) -> i64 {
+        if base <= 0 || len_bytes <= 0 {
+            HAKO_VALIDATION
+        } else {
+            HAKO_UNSUPPORTED
+        }
+    }
 }
 
 #[no_mangle]
@@ -169,6 +193,11 @@ pub extern "C" fn hako_osvm_commit_bytes_i64(base: i64, len_bytes: i64) -> i64 {
 #[no_mangle]
 pub extern "C" fn hako_osvm_decommit_bytes_i64(base: i64, len_bytes: i64) -> i64 {
     platform::decommit(base, len_bytes)
+}
+
+#[no_mangle]
+pub extern "C" fn hako_osvm_unreserve_bytes_i64(base: i64, len_bytes: i64) -> i64 {
+    platform::unreserve(base, len_bytes)
 }
 
 #[cfg(test)]
@@ -191,6 +220,10 @@ mod tests {
         );
         assert_eq!(
             hako_osvm_decommit_bytes_i64(base, DEFAULT_PAGE_BYTES as i64),
+            HAKO_OK
+        );
+        assert_eq!(
+            hako_osvm_unreserve_bytes_i64(base, DEFAULT_PAGE_BYTES as i64),
             HAKO_OK
         );
     }

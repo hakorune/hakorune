@@ -554,6 +554,13 @@
             HAKO_LLVMC_MIR_CALL_NEED_HAKO_OSVM_DECOMMIT_BYTES_I64,
           },
           {
+            "extern.hako_osvm.unreserve_bytes_i64",
+            "HakoOsvmUnreserveBytesI64",
+            "extern.hako_osvm.unreserve_bytes_i64",
+            "hako_osvm_unreserve_bytes_i64",
+            HAKO_LLVMC_MIR_CALL_NEED_HAKO_OSVM_UNRESERVE_BYTES_I64,
+          },
+          {
             "extern.hako_tls.cache_slot_get_i64",
             "HakoTlsCacheSlotGetI64",
             "extern.hako_tls.cache_slot_get_i64",

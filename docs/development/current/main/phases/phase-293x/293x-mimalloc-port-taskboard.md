@@ -32,11 +32,11 @@ fail-fast routing row is green, and the facade huge-page model route is green.
 MIMAP-029A exposed a pure-first/selfhost route-shape cleanup before the next
 allocator selection row. Same-artifact MIR input, lowering-plan preflight,
 phase progress diagnostics, and the canonical emit wrapper are landed; the
-MIMAP-031A inventoried OSVM unreserve/release as closed and selected the
-substrate route row; the current primary row is:
+MIMAP-032A added the OSVM unreserve substrate route without allocator adoption;
+the current primary row is:
 
 ```text
-  MIMAP-032A OSVM unreserve substrate route
+  MIMAP-032B post-OSVM-unreserve row selection
 ```
 
 Closed cleanup sidecar:
@@ -225,7 +225,8 @@ not part of this sidecar:
 | `MIMAP-030A` | landed | Facade huge decommit fail-fast diagnostics. | after MIMAP-029B |
 | `MIMAP-030B` | landed | Post-huge-decommit-failfast allocator row selection. | selected MIMAP-031A |
 | `MIMAP-031A` | landed | OSVM unreserve capability inventory / planning row. | selected MIMAP-032A |
-| `MIMAP-032A` | selected current | OSVM unreserve substrate route. | after MIMAP-031A |
+| `MIMAP-032A` | landed | OSVM unreserve substrate route. | after MIMAP-031A |
+| `MIMAP-032B` | selected current | Post-OSVM-unreserve allocator row selection. | selected after MIMAP-032A |
 | `RETURN-CONTRACT-001` | parked future | Propagate declared return expected type into return expressions such as `ArrayBox.get`. | not a blocker for artifact exactness |
 
 ## Stage1 / Selfhost Ordering Guard
@@ -398,7 +399,8 @@ FST:
 | `MIMAP-030A` | landed | Facade huge decommit fail-fast diagnostics. | after MIMAP-029B |
 | `MIMAP-030B` | landed | Post-huge-decommit-failfast allocator row selection. | selected MIMAP-031A |
 | `MIMAP-031A` | landed | OSVM unreserve capability inventory / planning row. | selected MIMAP-032A |
-| `MIMAP-032A` | selected current | OSVM unreserve substrate route. | after MIMAP-031A |
+| `MIMAP-032A` | landed | OSVM unreserve substrate route. | after MIMAP-031A |
+| `MIMAP-032B` | selected current | Post-OSVM-unreserve allocator row selection. | selected after MIMAP-032A |
 
 MIMAP-020A execution order:
 

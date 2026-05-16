@@ -702,6 +702,9 @@
       if (needs.hako_osvm_decommit_bytes_i64 ||
           module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"hako_osvm_decommit_bytes_i64\"(i64, i64)\n");
+      if (needs.hako_osvm_unreserve_bytes_i64 ||
+          module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"hako_osvm_unreserve_bytes_i64\"(i64, i64)\n");
       if (needs.hako_tls_cache_slot_get_i64 ||
           module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"hako_tls_cache_slot_get_i64\"(i64)\n");

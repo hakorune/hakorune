@@ -36,6 +36,8 @@ const OSVM_CORE_METHODS: &[&str] = &[
     "commit_bytes_usize",
     "decommit_bytes_i64",
     "decommit_bytes_usize",
+    "unreserve_bytes_i64",
+    "unreserve_bytes_usize",
 ];
 
 const RAWBUF_CORE_METHODS: &[&str] = &[
@@ -462,6 +464,17 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                         if let Err(reason) = externcalls::validate_two_arg_externcall_shape(
                             inst,
                             "hako_osvm_decommit_bytes_i64",
+                        ) {
+                            return Err((func_name.clone(), bb, reason));
+                        }
+                        continue;
+                    }
+                    if func == "hako_osvm_unreserve_bytes_i64"
+                        || func == "hako_osvm_unreserve_bytes_i64/2"
+                    {
+                        if let Err(reason) = externcalls::validate_two_arg_externcall_shape(
+                            inst,
+                            "hako_osvm_unreserve_bytes_i64",
                         ) {
                             return Err((func_name.clone(), bb, reason));
                         }

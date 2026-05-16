@@ -348,6 +348,25 @@ fn refresh_function_extern_call_routes_records_hako_osvm_routes() {
     assert_eq!(route.return_shape(), "scalar_i64");
     assert_eq!(route.value_demand(), "runtime_i64");
     assert_eq!(route.effect_tags(), &["hako.osvm.decommit"]);
+
+    let mut unreserve = make_function_with_call(
+        "hako_osvm_unreserve_bytes_i64/2",
+        vec![ValueId::new(9), ValueId::new(10)],
+        Some(ValueId::new(11)),
+    );
+    refresh_function_extern_call_routes(&mut unreserve);
+    assert_eq!(unreserve.metadata.extern_call_routes.len(), 1);
+    let route = &unreserve.metadata.extern_call_routes[0];
+    assert_eq!(route.route_id(), "extern.hako_osvm.unreserve_bytes_i64");
+    assert_eq!(route.core_op(), "HakoOsvmUnreserveBytesI64");
+    assert_eq!(route.symbol(), "hako_osvm_unreserve_bytes_i64");
+    assert_eq!(route.key_value(), ValueId::new(9));
+    assert_eq!(route.value_value(), Some(ValueId::new(10)));
+    assert_eq!(route.result_value(), ValueId::new(11));
+    assert_eq!(route.arity(), 2);
+    assert_eq!(route.return_shape(), "scalar_i64");
+    assert_eq!(route.value_demand(), "runtime_i64");
+    assert_eq!(route.effect_tags(), &["hako.osvm.unreserve"]);
 }
 
 #[test]

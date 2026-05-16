@@ -67,7 +67,7 @@ worker/thread id
 TLS / worker-local slots
 atomic load/store/CAS/fetch_add
 mutex / low-level lock primitive if needed internally
-OSVM reserve/commit/decommit
+OSVM reserve/commit/decommit/unreserve
 hako_mem_alloc/free/realloc ABI
 TLS diagnostics such as hako_last_error
 ```

@@ -30,6 +30,7 @@ pub enum ExternCallRouteKind {
     HakoOsvmReserveBytesI64,
     HakoOsvmCommitBytesI64,
     HakoOsvmDecommitBytesI64,
+    HakoOsvmUnreserveBytesI64,
     HakoTlsCacheSlotGetI64,
     HakoTlsCacheSlotSetI64,
     HakoWorkerCurrentIdI64,
@@ -61,6 +62,7 @@ impl ExternCallRouteKind {
             Self::HakoOsvmReserveBytesI64 => "extern.hako_osvm.reserve_bytes_i64",
             Self::HakoOsvmCommitBytesI64 => "extern.hako_osvm.commit_bytes_i64",
             Self::HakoOsvmDecommitBytesI64 => "extern.hako_osvm.decommit_bytes_i64",
+            Self::HakoOsvmUnreserveBytesI64 => "extern.hako_osvm.unreserve_bytes_i64",
             Self::HakoTlsCacheSlotGetI64 => "extern.hako_tls.cache_slot_get_i64",
             Self::HakoTlsCacheSlotSetI64 => "extern.hako_tls.cache_slot_set_i64",
             Self::HakoWorkerCurrentIdI64 => "extern.hako_worker.current_id_i64",
@@ -92,6 +94,7 @@ impl ExternCallRouteKind {
             Self::HakoOsvmReserveBytesI64 => "HakoOsvmReserveBytesI64",
             Self::HakoOsvmCommitBytesI64 => "HakoOsvmCommitBytesI64",
             Self::HakoOsvmDecommitBytesI64 => "HakoOsvmDecommitBytesI64",
+            Self::HakoOsvmUnreserveBytesI64 => "HakoOsvmUnreserveBytesI64",
             Self::HakoTlsCacheSlotGetI64 => "HakoTlsCacheSlotGetI64",
             Self::HakoTlsCacheSlotSetI64 => "HakoTlsCacheSlotSetI64",
             Self::HakoWorkerCurrentIdI64 => "HakoWorkerCurrentIdI64",
@@ -123,6 +126,7 @@ impl ExternCallRouteKind {
             Self::HakoOsvmReserveBytesI64 => "hako_osvm_reserve_bytes_i64",
             Self::HakoOsvmCommitBytesI64 => "hako_osvm_commit_bytes_i64",
             Self::HakoOsvmDecommitBytesI64 => "hako_osvm_decommit_bytes_i64",
+            Self::HakoOsvmUnreserveBytesI64 => "hako_osvm_unreserve_bytes_i64",
             Self::HakoTlsCacheSlotGetI64 => "hako_tls_cache_slot_get_i64",
             Self::HakoTlsCacheSlotSetI64 => "hako_tls_cache_slot_set_i64",
             Self::HakoWorkerCurrentIdI64 => "hako_worker_current_id_i64",
@@ -170,6 +174,7 @@ impl ExternCallRouteKind {
             Self::HakoOsvmReserveBytesI64 => "extern_registry",
             Self::HakoOsvmCommitBytesI64 => "extern_registry",
             Self::HakoOsvmDecommitBytesI64 => "extern_registry",
+            Self::HakoOsvmUnreserveBytesI64 => "extern_registry",
             Self::HakoTlsCacheSlotGetI64 => "extern_registry",
             Self::HakoTlsCacheSlotSetI64 => "extern_registry",
             Self::HakoWorkerCurrentIdI64 => "extern_registry",
@@ -201,6 +206,7 @@ impl ExternCallRouteKind {
             Self::HakoOsvmReserveBytesI64 => "native_ptr_nullable",
             Self::HakoOsvmCommitBytesI64 => "scalar_i64",
             Self::HakoOsvmDecommitBytesI64 => "scalar_i64",
+            Self::HakoOsvmUnreserveBytesI64 => "scalar_i64",
             Self::HakoTlsCacheSlotGetI64 => "scalar_i64",
             Self::HakoTlsCacheSlotSetI64 => "scalar_i64",
             Self::HakoWorkerCurrentIdI64 => "scalar_i64",
@@ -232,6 +238,7 @@ impl ExternCallRouteKind {
             Self::HakoOsvmReserveBytesI64 => "native_ptr_nullable",
             Self::HakoOsvmCommitBytesI64 => "runtime_i64",
             Self::HakoOsvmDecommitBytesI64 => "runtime_i64",
+            Self::HakoOsvmUnreserveBytesI64 => "runtime_i64",
             Self::HakoTlsCacheSlotGetI64 => "runtime_i64",
             Self::HakoTlsCacheSlotSetI64 => "runtime_i64",
             Self::HakoWorkerCurrentIdI64 => "runtime_i64",
@@ -263,6 +270,7 @@ impl ExternCallRouteKind {
             Self::HakoOsvmReserveBytesI64 => &["hako.osvm.reserve"],
             Self::HakoOsvmCommitBytesI64 => &["hako.osvm.commit"],
             Self::HakoOsvmDecommitBytesI64 => &["hako.osvm.decommit"],
+            Self::HakoOsvmUnreserveBytesI64 => &["hako.osvm.unreserve"],
             Self::HakoTlsCacheSlotGetI64 => &["hako.tls.cache_slot_get"],
             Self::HakoTlsCacheSlotSetI64 => &["hako.tls.cache_slot_set"],
             Self::HakoWorkerCurrentIdI64 => &["hako.worker.current_id"],
@@ -287,6 +295,7 @@ impl ExternCallRouteKind {
                 | Self::HakoMemFree
                 | Self::HakoOsvmCommitBytesI64
                 | Self::HakoOsvmDecommitBytesI64
+                | Self::HakoOsvmUnreserveBytesI64
                 | Self::HakoTlsCacheSlotSetI64
         )
     }
@@ -421,6 +430,7 @@ impl ExternCallRoute {
             ExternCallRouteKind::HakoOsvmReserveBytesI64 => 1,
             ExternCallRouteKind::HakoOsvmCommitBytesI64 => 2,
             ExternCallRouteKind::HakoOsvmDecommitBytesI64 => 2,
+            ExternCallRouteKind::HakoOsvmUnreserveBytesI64 => 2,
             ExternCallRouteKind::HakoTlsCacheSlotGetI64 => 1,
             ExternCallRouteKind::HakoTlsCacheSlotSetI64 => 2,
             ExternCallRouteKind::HakoWorkerCurrentIdI64 => 1,
@@ -478,6 +488,9 @@ pub fn classify_extern_call_route(name: &str, argc: usize) -> Option<ExternCallR
         ("hako_osvm_reserve_bytes_i64", 1) => Some(ExternCallRouteKind::HakoOsvmReserveBytesI64),
         ("hako_osvm_commit_bytes_i64", 2) => Some(ExternCallRouteKind::HakoOsvmCommitBytesI64),
         ("hako_osvm_decommit_bytes_i64", 2) => Some(ExternCallRouteKind::HakoOsvmDecommitBytesI64),
+        ("hako_osvm_unreserve_bytes_i64", 2) => {
+            Some(ExternCallRouteKind::HakoOsvmUnreserveBytesI64)
+        }
         ("hako_tls_cache_slot_get_i64", 1) => Some(ExternCallRouteKind::HakoTlsCacheSlotGetI64),
         ("hako_tls_cache_slot_set_i64", 2) => Some(ExternCallRouteKind::HakoTlsCacheSlotSetI64),
         ("hako_worker_current_id_i64", 1) => Some(ExternCallRouteKind::HakoWorkerCurrentIdI64),
@@ -560,6 +573,7 @@ pub fn refresh_function_extern_call_routes(function: &mut MirFunction) {
                 ExternCallRouteKind::HakoOsvmReserveBytesI64 => None,
                 ExternCallRouteKind::HakoOsvmCommitBytesI64 => args.get(1).copied(),
                 ExternCallRouteKind::HakoOsvmDecommitBytesI64 => args.get(1).copied(),
+                ExternCallRouteKind::HakoOsvmUnreserveBytesI64 => args.get(1).copied(),
                 ExternCallRouteKind::HakoTlsCacheSlotGetI64 => None,
                 ExternCallRouteKind::HakoTlsCacheSlotSetI64 => args.get(1).copied(),
                 ExternCallRouteKind::HakoWorkerCurrentIdI64 => None,

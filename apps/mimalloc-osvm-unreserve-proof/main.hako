@@ -1,0 +1,45 @@
+// mimalloc-osvm-unreserve-proof
+// Purpose: prove the hako.osvm unreserve substrate route in pure-first EXE.
+
+using selfhost.runtime.substrate.osvm.osvm_core_box as OsVmCoreBox
+
+static box Main {
+    main(args) {
+        local page_bytes = 4096
+        local base = OsVmCoreBox.reserve_bytes_i64(page_bytes)
+        local reserved = 0
+        if base != 0 {
+            reserved = 1
+        }
+
+        local commit_rc = OsVmCoreBox.commit_bytes_i64(base, page_bytes)
+        local commit_ok = 0
+        if commit_rc == 0 {
+            commit_ok = 1
+        }
+
+        local decommit_rc = OsVmCoreBox.decommit_bytes_i64(base, page_bytes)
+        local decommit_ok = 0
+        if decommit_rc == 0 {
+            decommit_ok = 1
+        }
+
+        local unreserve_rc = OsVmCoreBox.unreserve_bytes_i64(base, page_bytes)
+        local unreserve_ok = 0
+        if unreserve_rc == 0 {
+            unreserve_ok = 1
+        }
+
+        print("mimalloc-osvm-unreserve-proof")
+        print("page=" + page_bytes + " reserved=" + reserved)
+        print("commit=" + commit_rc + " decommit=" + decommit_rc + " unreserve=" + unreserve_rc)
+
+        if reserved == 1 && commit_ok == 1 && decommit_ok == 1 && unreserve_ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

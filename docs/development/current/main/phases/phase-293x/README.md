@@ -1,6 +1,6 @@
 # Phase 293x: real-app bringup
 
-- Status: Active / mimalloc blueprint lane with OSVM unreserve substrate route active
+- Status: Active / mimalloc blueprint lane with post-OSVM-unreserve row selection active
 - Purpose: use real applications to expose compiler/runtime seams after the
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
@@ -10,7 +10,7 @@
 - Current compiler/selfhost sidecar:
   closed through `MIR-EMIT-SSOT-002`
 - Current allocator row:
-  `docs/development/current/main/phases/phase-293x/293x-457-MIMAP-032A-OSVM-UNRESERVE-SUBSTRATE-ROUTE.md`
+  `docs/development/current/main/phases/phase-293x/293x-458-MIMAP-032B-POST-OSVM-UNRESERVE-ROW-SELECTION.md`
 - Latest lifecycle closeout:
   `docs/development/current/main/phases/phase-293x/293x-403-REUSE-LIFECYCLE-001-EXPLICIT-REUSE-METHODS.md`
 - Mimalloc purpose SSOT:
@@ -55,7 +55,8 @@ shape that MIMAP-029A exposed:
 | `MIMAP-030A` | landed | Reject duplicate/stale huge decommit before a second adapter call. |
 | `MIMAP-030B` | landed | Selected MIMAP-031A OSVM unreserve capability inventory. |
 | `MIMAP-031A` | landed | Inventoried OSVM unreserve/release as closed and selected MIMAP-032A. |
-| `MIMAP-032A` | selected current | Add the OSVM unreserve substrate route without allocator adoption. |
+| `MIMAP-032A` | landed | Added the OSVM unreserve substrate route without allocator adoption. |
+| `MIMAP-032B` | selected current | Select the next allocator row after OSVM unreserve substrate proof. |
 
 ## Smoke Entry
 

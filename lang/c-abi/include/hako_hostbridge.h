@@ -129,6 +129,7 @@ int64_t     hako_osvm_page_size_i64(void);
 int64_t     hako_osvm_reserve_bytes_i64(int64_t len_bytes);
 int64_t     hako_osvm_commit_bytes_i64(int64_t base, int64_t len_bytes);
 int64_t     hako_osvm_decommit_bytes_i64(int64_t base, int64_t len_bytes);
+int64_t     hako_osvm_unreserve_bytes_i64(int64_t base, int64_t len_bytes);
 // Time: current wall-clock ms (dev canary; precision depends on platform)
 int64_t     hako_time_now_ms(void);
 // String: duplicate C string to heap; caller must free with hako_mem_free.

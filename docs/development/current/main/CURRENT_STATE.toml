@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-16"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-031A inventoried OSVM unreserve as closed and selected MIMAP-032A OSVM unreserve substrate route. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-032A landed the OSVM unreserve substrate route and selected MIMAP-032B post-OSVM-unreserve row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-457-MIMAP-032A-OSVM-UNRESERVE-SUBSTRATE-ROUTE.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-458-MIMAP-032B-POST-OSVM-UNRESERVE-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-456-MIMAP-031A-OSVM-UNRESERVE-CAPABILITY-INVENTORY"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-456-MIMAP-031A-OSVM-UNRESERVE-CAPABILITY-INVENTORY.md"
-latest_card_summary = "MIMAP-031A inventories OSVM unreserve/release as closed, adds a no-growth guard, and selects MIMAP-032A as the substrate route row."
+latest_card = "293x-457-MIMAP-032A-OSVM-UNRESERVE-SUBSTRATE-ROUTE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-457-MIMAP-032A-OSVM-UNRESERVE-SUBSTRATE-ROUTE.md"
+latest_card_summary = "MIMAP-032A adds the OSVM unreserve substrate route, proves it in pure-first EXE, and keeps allocator page-source/facade owners inactive."
 
-current_blocker_token = "MIMAP-032A"
+current_blocker_token = "MIMAP-032B"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-457 MIMAP-032A OSVM unreserve substrate route landed",
   "293x-456 MIMAP-031A OSVM unreserve capability inventory landed",
   "293x-455 MIMAP-030B post-huge-decommit-failfast row selection landed",
   "293x-454 MIMAP-030A facade huge decommit fail-fast diagnostics landed",

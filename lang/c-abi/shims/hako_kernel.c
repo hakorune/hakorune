@@ -306,6 +306,35 @@ int64_t hako_osvm_decommit_bytes_i64(int64_t base, int64_t len_bytes) {
 #endif
 }
 
+int64_t hako_osvm_unreserve_bytes_i64(int64_t base, int64_t len_bytes) {
+  if (base <= 0 || len_bytes <= 0) {
+    hako_set_last_error("VALIDATION");
+    return HAKO_VALIDATION;
+  }
+#if defined(_WIN32)
+  if (!VirtualFree((LPVOID)(intptr_t)base, 0, MEM_RELEASE)) {
+    hako_set_last_error("VALIDATION");
+    return HAKO_VALIDATION;
+  }
+  hako_set_last_error(NULL);
+  return HAKO_OK;
+#elif defined(MAP_PRIVATE) && defined(MAP_ANONYMOUS)
+  uint64_t page = hako_osvm_page_size_bytes();
+  uint64_t size = (uint64_t)len_bytes;
+  uint64_t rounded = hako_osvm_round_up_bytes(size, page);
+  void* ptr = (void*)(intptr_t)base;
+  if (munmap(ptr, (size_t)rounded) != 0) {
+    hako_set_last_error(errno == ENOMEM ? "OOM" : "VALIDATION");
+    return errno == ENOMEM ? HAKO_OOM : HAKO_VALIDATION;
+  }
+  hako_set_last_error(NULL);
+  return HAKO_OK;
+#else
+  hako_set_last_error("UNSUPPORTED");
+  return HAKO_UNSUPPORTED;
+#endif
+}
+
 // Simple random-ish i64 (LCG)
 #if defined(__GNUC__) || defined(__clang__)
 __attribute__((visibility("default")))
