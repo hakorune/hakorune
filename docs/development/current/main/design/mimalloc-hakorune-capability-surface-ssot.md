@@ -41,7 +41,7 @@ not a capability surface:
 | `uses atomic` | CAS/load/store/fetch operations and memory-order-sensitive state | cross-thread free, abandoned reclaim, atomic bitmap, global stats | unsupported backend rejects; no single-thread fallback for atomic APIs |
 | `uses rawbuf` | bounded raw memory residence and views | real block payload, pointer validation, span access | unsupported backend rejects; no pointer-as-i64 shortcut |
 | `uses tls` | default heap and thread id fast path | thread-local default heap, thread done hooks | provisional; explicit decision row required before implementation |
-| `uses random` | entropy for encoded free-list keys and secure modes | encoded free lists, guarded security modes | provisional; deterministic test keys only in proof-only models |
+| `uses random` | entropy for encoded free-list keys and secure modes | encoded free lists, guarded security modes | `RANDOM-CAP-001` recognizes the metadata capability as `hako.random`; execution remains unsupported |
 
 ## Explicitly Inactive Surfaces
 
@@ -84,8 +84,9 @@ writeBlockBytes(block_ref: PageBlockRef, offset: Offset, len: Bytes): Result<voi
     uses rawbuf
 ```
 
-`uses tls` and `uses random` are intentionally not given executable method seeds
-until their policy rows are accepted.
+`uses tls` is intentionally not given executable method seeds until its policy
+row is accepted. `uses random` has a metadata-only policy row
+(`RANDOM-CAP-001`) but still has no executable method seed or entropy route.
 
 ## No-Fallback Contract
 
@@ -102,8 +103,9 @@ rawbuf unavailable:
 tls undecided:
   use explicit heap object, not default heap
 
-random undecided:
-  do not implement encoded free-list security behavior
+random execution unavailable:
+  fail fast before runtime entropy behavior; deterministic proof keys stay
+  proof/inventory-only
 ```
 
 ## First Executable Slice Rule

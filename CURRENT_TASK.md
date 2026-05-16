@@ -53,7 +53,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `RANDOM-CAP-001 uses random capability decision + fail-fast contract`
+  `RANDOM-CAP-002 random capability unsupported-route preflight`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -72,9 +72,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `MIMAP-049B`; current blocker is
-  `RANDOM-CAP-001`, the Hakorune core capability/fail-fast row that recognizes
-  `uses random` while keeping random/entropy execution unsupported.
+- resume point: continue Phase 293x after `RANDOM-CAP-001`; current blocker is
+  `RANDOM-CAP-002`, the Hakorune core diagnostics row that rejects unsupported
+  random/entropy execution before backend emission.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -82,11 +82,10 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `RANDOM-CAP-001`: land the `uses random` capability/fail-fast contract
-     before any random entropy execution
-  2. recommended next: `RANDOM-CAP-002` random route fail-fast/preflight if the
-     next allocator row needs early unsupported-route diagnostics
-  3. return to allocator row selection after the random capability gate exists
+  1. `RANDOM-CAP-002`: land unsupported random route preflight/diagnostics
+  2. recommended next: `MIMAP-050A` secure entropy route proposal-or-park row
+     after unsupported random is fail-fast
+  3. keep secure-list hardening parked until a real entropy route is accepted
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
   reduction after mimalloc completeness evidence. Do not make broad `.hako`

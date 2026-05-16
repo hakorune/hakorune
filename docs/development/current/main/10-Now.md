@@ -32,17 +32,17 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `RANDOM-CAP-001 uses random capability decision + fail-fast contract`
+- current blocker token: `RANDOM-CAP-002 random capability unsupported-route preflight`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-049B`; current blocker is
-  `RANDOM-CAP-001`, the Hakorune-core `uses random` capability/fail-fast row
-- planned order: make `uses random` explicit while keeping random/entropy
-  execution unsupported; after that, select `RANDOM-CAP-002` or return to the
-  allocator row according to evidence
+- continue phase-293x after `RANDOM-CAP-001`; current blocker is
+  `RANDOM-CAP-002`, the unsupported random route preflight/diagnostics row
+- planned order: fail unsupported random before backend emission; after that,
+  select `MIMAP-050A` secure entropy route proposal-or-park row according to
+  evidence
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

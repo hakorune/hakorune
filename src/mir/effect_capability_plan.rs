@@ -103,8 +103,21 @@ pub fn effect_plans_from_runes(function: &str, runes: &[RuneAttr]) -> Vec<Effect
     }
 }
 
-pub fn capability_plans_from_runes(function: &str, runes: &[RuneAttr]) -> Vec<CapabilityPlan> {
+fn source_uses_capability_allow(capability: &str) -> Option<&'static str> {
+    match capability {
+        "random" => Some("hako.random"),
+        _ => None,
+    }
+}
+
+pub fn capability_plans_from_sources(
+    function: &str,
+    runes: &[RuneAttr],
+    declared_uses: &[String],
+) -> Vec<CapabilityPlan> {
     let mut allow = Vec::new();
+    let mut saw_profile_capability = false;
+    let mut saw_source_uses_capability = false;
     for rune in runes {
         if rune.name != "Profile" {
             continue;
@@ -121,26 +134,50 @@ pub fn capability_plans_from_runes(function: &str, runes: &[RuneAttr]) -> Vec<Ca
             if !allow.contains(&value) {
                 allow.push(value);
             }
+            saw_profile_capability = true;
         }
+    }
+    for capability in declared_uses {
+        let Some(value) = source_uses_capability_allow(capability) else {
+            continue;
+        };
+        let value = value.to_string();
+        if !allow.contains(&value) {
+            allow.push(value);
+        }
+        saw_source_uses_capability = true;
     }
     if allow.is_empty() {
         Vec::new()
     } else {
         allow.sort();
+        let source = match (saw_profile_capability, saw_source_uses_capability) {
+            (true, true) => "rune_profile+source_uses",
+            (true, false) => "rune_profile",
+            (false, true) => "source_uses",
+            (false, false) => unreachable!("allow is non-empty without a source"),
+        };
         vec![CapabilityPlan {
             function: function.to_string(),
             allow,
             verified: false,
-            source: "rune_profile".to_string(),
+            source: source.to_string(),
         }]
     }
+}
+
+pub fn capability_plans_from_runes(function: &str, runes: &[RuneAttr]) -> Vec<CapabilityPlan> {
+    capability_plans_from_sources(function, runes, &[])
 }
 
 pub fn refresh_function_effect_capability_plans(function: &mut MirFunction) {
     function.metadata.effect_plans =
         effect_plans_from_runes(&function.signature.name, &function.metadata.runes);
-    function.metadata.capability_plans =
-        capability_plans_from_runes(&function.signature.name, &function.metadata.runes);
+    function.metadata.capability_plans = capability_plans_from_sources(
+        &function.signature.name,
+        &function.metadata.runes,
+        &function.metadata.declared_capability_uses,
+    );
 }
 
 #[cfg(test)]
@@ -184,6 +221,21 @@ mod tests {
         assert!(
             capability_plans_from_runes("Main.fast/0", &[rune("Contract", "no_alloc")]).is_empty()
         );
+    }
+
+    #[test]
+    fn source_uses_random_becomes_metadata_only_capability_plan() {
+        let plans = capability_plans_from_sources(
+            "Main.secure/0",
+            &[],
+            &["random".to_string(), "osvm".to_string()],
+        );
+
+        assert_eq!(plans.len(), 1);
+        assert_eq!(plans[0].function, "Main.secure/0");
+        assert_eq!(plans[0].allow, vec!["hako.random"]);
+        assert_eq!(plans[0].source, "source_uses");
+        assert!(!plans[0].verified);
     }
 
     #[test]

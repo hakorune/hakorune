@@ -326,6 +326,7 @@ impl MirBuilder {
         param_decls: Vec<ParamDecl>,
         return_type_name: Option<String>,
         body: Vec<ASTNode>,
+        uses: Vec<String>,
         attrs: crate::ast::DeclarationAttrs,
     ) -> Result<(), String> {
         // Phase 200-C: Store fn_body for capture analysis
@@ -367,6 +368,7 @@ impl MirBuilder {
             return_type_name,
         );
         self.set_current_function_runes(&attrs);
+        self.set_current_function_declared_capability_uses(&uses);
 
         // ========================================
         // Step 3: パラメータ設定 (parameter_setup へ委譲)
@@ -419,6 +421,7 @@ impl MirBuilder {
         param_decls: Vec<ParamDecl>,
         return_type_name: Option<String>,
         body: Vec<ASTNode>,
+        uses: Vec<String>,
         attrs: crate::ast::DeclarationAttrs,
     ) -> Result<(), String> {
         let params = normalize_instance_method_params(&func_name, params);
@@ -463,6 +466,7 @@ impl MirBuilder {
             return_type_name,
         );
         self.set_current_function_runes(&attrs);
+        self.set_current_function_declared_capability_uses(&uses);
 
         // ========================================
         // Step 3b: パラメータ設定 (parameter_setup へ委譲 - me + params)

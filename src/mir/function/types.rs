@@ -164,6 +164,11 @@ pub struct FunctionMetadata {
     /// Declaration-local Rune attrs carried from AST/direct MIR routes.
     pub runes: Vec<crate::ast::RuneAttr>,
 
+    /// Declaration-local `uses ...` capability names carried from source.
+    /// RANDOM-CAP-001 only promotes `uses random` into metadata-only
+    /// CapabilityPlan facts; broader capability checking remains a later row.
+    pub declared_capability_uses: Vec<String>,
+
     /// MIR-owned inline metadata derived from advisory `Hint(...)` runes.
     /// This is preservation-only until an InlinePlan transform/verifier row lands.
     pub inline_plans: Vec<InlinePlan>,

@@ -168,6 +168,7 @@ impl super::MirBuilder {
                                                 param_decls,
                                                 return_type_name,
                                                 body,
+                                                uses,
                                                 attrs,
                                                 ..
                                             } = mast
@@ -184,6 +185,7 @@ impl super::MirBuilder {
                                                     param_decls.clone(),
                                                     return_type_name.clone(),
                                                     body.clone(),
+                                                    uses.clone(),
                                                     attrs.clone(),
                                                 )?;
                                                 self.comp_ctx
@@ -222,6 +224,7 @@ impl super::MirBuilder {
                                     param_decls,
                                     return_type_name,
                                     body,
+                                    uses,
                                     attrs,
                                     ..
                                 } = ctor_ast
@@ -236,6 +239,7 @@ impl super::MirBuilder {
                                         param_decls.clone(),
                                         return_type_name.clone(),
                                         body.clone(),
+                                        uses.clone(),
                                         attrs.clone(),
                                     )?;
                                 }
@@ -247,6 +251,7 @@ impl super::MirBuilder {
                                     return_type_name,
                                     body,
                                     is_static,
+                                    uses,
                                     attrs,
                                     ..
                                 } = mast
@@ -265,6 +270,7 @@ impl super::MirBuilder {
                                             param_decls.clone(),
                                             return_type_name.clone(),
                                             body.clone(),
+                                            uses.clone(),
                                             attrs.clone(),
                                         )?;
                                     }

@@ -23,6 +23,7 @@ impl super::MirBuilder {
                 param_decls,
                 return_type_name,
                 body,
+                uses,
                 attrs,
                 ..
             } = mast
@@ -36,6 +37,7 @@ impl super::MirBuilder {
                     param_decls.clone(),
                     return_type_name.clone(),
                     body.clone(),
+                    uses.clone(),
                     attrs.clone(),
                 )?;
             }
@@ -50,6 +52,7 @@ impl super::MirBuilder {
                 param_decls,
                 return_type_name,
                 body,
+                uses,
                 attrs,
                 ..
             } = main_method
@@ -83,6 +86,7 @@ impl super::MirBuilder {
                         param_decls.clone(),
                         return_type_name.clone(),
                         body.clone(),
+                        uses.clone(),
                         attrs.clone(),
                     );
                     trace.stderr_if(
@@ -161,6 +165,7 @@ impl super::MirBuilder {
                 }
                 self.comp_ctx.fn_body_ast = Some(body.clone());
                 self.set_current_function_runes(attrs);
+                self.set_current_function_declared_capability_uses(uses);
 
                 // Lower statements in order to preserve def→use
                 let lowered = self.cf_block(body.clone());

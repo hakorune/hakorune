@@ -1,6 +1,6 @@
 # 293x-532 RANDOM-CAP-001 Uses Random Capability Decision
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -61,3 +61,62 @@ git diff --check
 
 This row closes when `uses random` is a documented capability/fail-fast
 contract, while random execution remains explicitly unsupported and guarded.
+
+## Implementation Result
+
+`RANDOM-CAP-001` adds:
+
+```text
+SSOT:
+  docs/development/current/main/design/random-capability-failfast-ssot.md
+MIR owner:
+  src/mir/effect_capability_plan.rs
+metadata carrier:
+  FunctionMetadata.declared_capability_uses
+guard:
+  tools/checks/k2_wide_random_capability_contract_guard.sh
+```
+
+The compiler now keeps source `uses random` as declaration-local capability
+metadata and emits:
+
+```text
+metadata.capability_plans:
+  allow=[hako.random]
+  source=source_uses
+  verified=false
+```
+
+Only `random` is promoted by this row. Existing `uses osvm` / `uses atomic` /
+`uses rawbuf` checker expansion remains future work. No random extern route,
+entropy source, backend matcher, provider activation, or secure-list behavior
+change is added.
+
+## Evidence
+
+```text
+cargo test -q --lib mir_transports_source_uses_random_as_metadata_only_capability_plan
+bash tools/checks/k2_wide_random_capability_contract_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Selection Result
+
+`RANDOM-CAP-001` selects `RANDOM-CAP-002`.
+
+```text
+row:
+  RANDOM-CAP-002 random capability unsupported-route preflight
+classification:
+  Hakorune core diagnostics / fail-fast row
+why now:
+  `uses random` now has MIR metadata. The next row should make unsupported
+  random execution fail before backend emission when a future allocator row
+  tries to use it.
+stop lines:
+  no random extern route
+  no entropy source
+  no secure-list behavior change
+  no provider activation
+```

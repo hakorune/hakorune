@@ -29,6 +29,7 @@ Low-level operations are exposed through explicit capability modules:
 - `hako.gc`
 - `hako.osvm`
 - `hako.intrin`
+- `hako.random` (metadata-only reserved capability; no runtime route yet)
 
 Optimization and safety obligations are expressed with `@rune Contract(...)`
 and must be verified before a backend may use them.
@@ -75,7 +76,7 @@ The current live surface is intentionally narrow.
 | backend export attrs | consistency guard is live; only current weak attrs are allowed, runtime-decl `readonly` rows must carry `memory = "read"`, while `noalias`/`nonnull`/`dereferenceable`/alignment export remain blocked |
 | static readonly data | backend-private static-data manifest can emit a u16 size-class fixture; source `static const NAME: u16[] = [...]` declarations lower to MIR `static_data_plans`; `NAME[index]` reads lower to MIR `StaticDataLoad` and current-lane `i64` values; narrow integer const expressions in u16 table initializers are live |
 | inline planning | `@rune Hint(inline/noinline/hot/cold)` and substrate-only `@rune Lowering(inline_required)` preserve MIR InlinePlan metadata; `Hint(inline)` has a narrow best-effort same-module MIR leaf inline row; required inline verifier acceptance is live-narrow for contract-proven leaf bodies; verified required inline is consumed by the MIR optimizer for the M13 scalar allocator-fast EXE proof |
-| profile/effect/capability planning | `EffectPlan` is live-narrow from `Contract(no_alloc/no_safepoint)` and reserved `Profile(...)` expansions; `CapabilityPlan` is emitted from reserved `Profile(...)` expansions as metadata only; `@rune Capability(...)` is not live parser surface |
+| profile/effect/capability planning | `EffectPlan` is live-narrow from `Contract(no_alloc/no_safepoint)` and reserved `Profile(...)` expansions; `CapabilityPlan` is emitted from reserved `Profile(...)` expansions and from metadata-only `uses random` as `hako.random`; `@rune Capability(...)` is not live parser surface |
 
 ## Pure-First / EXE Proof Chain
 
@@ -760,8 +761,10 @@ Decision: M11d is live as a MIR metadata boundary.
 ```
 
 `metadata.capability_plans` is also emitted. It remains empty for plain
-`Contract(...)` runes and is populated only by reserved `Profile(...)`
-expansions in M12c. `Capability(...)` is not parser surface yet.
+`Contract(...)` runes and is populated by reserved `Profile(...)` expansions in
+M12c. `RANDOM-CAP-001` also lets source `uses random` produce a metadata-only
+plan with `allow=[hako.random]` and `source=source_uses`. `Capability(...)` is
+not parser surface yet.
 
 Backends and `.inc` must not consume `effect_plans` or `capability_plans`.
 After a declaration's rune metadata changes, callers must use
