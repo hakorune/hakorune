@@ -40,6 +40,10 @@ SMOKE_ENV_SKIP_EXPORTS=1
 if [ -f "$ROOT/tools/smokes/v2/lib/env.sh" ]; then
   source "$ROOT/tools/smokes/v2/lib/env.sh"
 fi
+if [ -f "$ROOT/tools/selfhost/lib/selfhost_progress.sh" ]; then
+  # Stable phase progress helpers are shared by direct / run / EXE routes.
+  source "$ROOT/tools/selfhost/lib/selfhost_progress.sh"
+fi
 if [ -f "$ROOT/tools/selfhost/lib/selfhost_build_direct.sh" ]; then
   # Direct MIR owner lives in its own helper file.
   # Keep this script focused on run / exe-artifact / dispatcher routing.

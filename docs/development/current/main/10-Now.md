@@ -30,17 +30,16 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `SELFHOST-PROGRESS-001 phase progress diagnostics`
+- current blocker token: `MIR-EMIT-SSOT-002 canonical emit wrapper`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIR-ROUTE-PREFLIGHT-001`; current blocker is
-  `SELFHOST-PROGRESS-001`, a pure-first/selfhost BoxShape sidecar that adds
-  phase progress / timeout closeout for slow, stuck, and unsupported build
-  diagnosis
-- planned sidecar order: `MIR-EMIT-SSOT-002`, then return to `MIMAP-029B`
+- continue phase-293x after `SELFHOST-PROGRESS-001`; current blocker is
+  `MIR-EMIT-SSOT-002`, a pure-first/selfhost BoxShape sidecar that makes the
+  canonical external source-to-MIR route explicit
+- planned sidecar order: return to `MIMAP-029B` after MIR-EMIT-SSOT-002
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

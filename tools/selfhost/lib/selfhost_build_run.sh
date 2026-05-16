@@ -7,11 +7,17 @@
 
 run_mir_json_via_direct_loader() {
   local mir_path="$1"
+  selfhost_phase_start "selfhost.run"
   set +e
   NYASH_QUIET=1 HAKO_QUIET=1 NYASH_CLI_VERBOSE=0 NYASH_NYRT_SILENT_RESULT=1 \
     "$BIN" --mir-json-file "$mir_path" >/dev/null 2>&1
   local rc=$?
   set -e
+  if [ "$rc" -eq 0 ]; then
+    selfhost_phase_done "selfhost.run"
+  else
+    selfhost_phase_fail "selfhost.run" "$rc"
+  fi
   return $rc
 }
 

@@ -1,6 +1,6 @@
 # 293x-452 SELFHOST-PROGRESS-001 Phase Progress Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -37,13 +37,18 @@ selfhost.link
 selfhost.run
 ```
 
+`selfhost.link` is reserved for the future point where the shell wrapper owns a
+separate link command. Today `ny-llvmc --emit exe` is a combined compiler/linker
+phase from this wrapper's perspective, so the active shell boundary is
+`selfhost.nyllvmc`.
+
 Example text output:
 
 ```text
-[selfhost] phase=emit_mir start
-[selfhost] phase=emit_mir done elapsed_ms=123
-[selfhost] phase=route_preflight start
-[selfhost] phase=nyllvmc start
+[selfhost] phase=selfhost.emit_mir start
+[selfhost] phase=selfhost.emit_mir done elapsed_ms=123
+[selfhost] phase=selfhost.route_preflight start
+[selfhost] phase=selfhost.nyllvmc start
 ```
 
 ## Stop Lines
@@ -74,3 +79,48 @@ tools/checks/dev_gate.sh quick
 
 This row closes when a failed or timed-out pure-first build leaves a concise
 last-phase breadcrumb in the log.
+
+## Landed Implementation
+
+Files:
+
+```text
+tools/selfhost/lib/selfhost_progress.sh
+tools/selfhost/selfhost_build.sh
+tools/selfhost/lib/selfhost_build_direct.sh
+tools/selfhost/lib/selfhost_build_exe.sh
+tools/selfhost/lib/selfhost_build_run.sh
+tools/checks/lib/pure_first_exe_guard.sh
+tools/checks/selfhost_progress_diagnostics_guard.sh
+docs/tools/check-scripts-index.md
+```
+
+Behavior:
+
+- `selfhost_progress.sh` owns stable phase start/done/fail lines.
+- `selfhost_build.sh --mir-out` reports `selfhost.emit_mir`.
+- `selfhost_build.sh --mir-in --exe` reports `selfhost.nyllvmc`.
+- `selfhost_build.sh --mir-in --run` reports `selfhost.run` and records fail
+  state when the MIR input is invalid.
+- pure-first guards report `selfhost.route_preflight` before `--mir-in` EXE
+  build.
+- pure-first build failure prints the last `HAKO_SELFHOST_PROGRESS_FILE`
+  breadcrumb when available.
+
+Evidence:
+
+```text
+bash -n tools/selfhost/lib/selfhost_progress.sh tools/selfhost/selfhost_build.sh tools/selfhost/lib/selfhost_build_direct.sh tools/selfhost/lib/selfhost_build_exe.sh tools/selfhost/lib/selfhost_build_run.sh tools/checks/lib/pure_first_exe_guard.sh tools/checks/selfhost_progress_diagnostics_guard.sh
+bash tools/checks/selfhost_progress_diagnostics_guard.sh
+bash tools/checks/pure_first_mir_artifact_exactness_guard.sh
+bash tools/checks/pure_first_route_preflight_guard.sh
+bash tools/checks/k2_wide_mimalloc_facade_huge_decommit_exe_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+tools/checks/dev_gate.sh quick
+```
+
+Closeout:
+
+```text
+current blocker moves to MIR-EMIT-SSOT-002.
+```

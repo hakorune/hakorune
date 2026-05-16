@@ -1,6 +1,6 @@
 # Phase 293x: real-app bringup
 
-- Status: Active / mimalloc blueprint lane with phase progress diagnostics sidecar active before post-huge-decommit row selection
+- Status: Active / mimalloc blueprint lane with canonical emit wrapper sidecar active before post-huge-decommit row selection
 - Purpose: use real applications to expose compiler/runtime seams after the
   Program(JSON v0) cleanup lane, without adding `.hako` workarounds for real
   compiler blockers.
@@ -8,7 +8,7 @@
 - Closed sidecar:
   `docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md`
 - Current compiler/selfhost sidecar:
-  `docs/development/current/main/phases/phase-293x/293x-452-SELFHOST-PROGRESS-001-PHASE-PROGRESS-DIAGNOSTICS.md`
+  `docs/development/current/main/phases/phase-293x/293x-453-MIR-EMIT-SSOT-002-CANONICAL-EMIT-WRAPPER.md`
 - Parked allocator blocker after the sidecar:
   `docs/development/current/main/phases/phase-293x/293x-449-MIMAP-029B-POST-HUGE-DECOMMIT-ROW-SELECTION.md`
 - Latest lifecycle closeout:
@@ -49,8 +49,8 @@ shape that MIMAP-029A exposed:
 | --- | --- | --- |
 | `MIR-EMIT-SSOT-001` | landed | Make pure-first preflight and EXE build consume the exact same MIR artifact. |
 | `MIR-ROUTE-PREFLIGHT-001` | landed | Fail unsupported lowering routes from MIR metadata before backend emission. |
-| `SELFHOST-PROGRESS-001` | selected current | Add phase progress / timeout diagnostics for selfhost and pure-first wrappers. |
-| `MIR-EMIT-SSOT-002` | planned | Make the canonical external source-to-MIR route explicit, preferably through the existing route SSOT. |
+| `SELFHOST-PROGRESS-001` | landed | Add phase progress / timeout diagnostics for selfhost and pure-first wrappers. |
+| `MIR-EMIT-SSOT-002` | selected current | Make the canonical external source-to-MIR route explicit, preferably through the existing route SSOT. |
 | `MIMAP-029B` | parked after sidecar | Resume post-huge-decommit allocator row selection. |
 
 ## Smoke Entry

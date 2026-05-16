@@ -44,8 +44,16 @@ select_emit_exe_mir_tmp_path() {
 
 emit_exe_from_mir_json() {
   local nyll="$1" mir_path="$2" nyrt_dir="$3" exe_out_path="$4"
+  local rc=0
   echo "[selfhost] converting MIR(JSON) → EXE" >&2
-  "$nyll" --in "$mir_path" --emit exe --nyrt "$nyrt_dir" --out "$exe_out_path"
+  selfhost_phase_start "selfhost.nyllvmc"
+  "$nyll" --in "$mir_path" --emit exe --nyrt "$nyrt_dir" --out "$exe_out_path" || rc=$?
+  if [ "$rc" -eq 0 ]; then
+    selfhost_phase_done "selfhost.nyllvmc"
+  else
+    selfhost_phase_fail "selfhost.nyllvmc" "$rc"
+  fi
+  return "$rc"
 }
 
 cleanup_direct_exe_temp_outputs() {

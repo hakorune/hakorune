@@ -157,8 +157,8 @@ Forbidden:
 | `MIMAP-029A` | facade huge decommit-after-unregister success route | landed after MIMAP-028B |
 | `MIR-EMIT-SSOT-001` | pure-first MIR artifact exactness sidecar | landed before MIMAP-029B |
 | `MIR-ROUTE-PREFLIGHT-001` | lowering-plan route preflight sidecar | landed after MIR-EMIT-SSOT-001 |
-| `SELFHOST-PROGRESS-001` | selfhost/pure-first progress diagnostics sidecar | current after MIR-ROUTE-PREFLIGHT-001 |
-| `MIR-EMIT-SSOT-002` | canonical external source-to-MIR route entry | after progress diagnostics |
+| `SELFHOST-PROGRESS-001` | selfhost/pure-first progress diagnostics sidecar | landed after MIR-ROUTE-PREFLIGHT-001 |
+| `MIR-EMIT-SSOT-002` | canonical external source-to-MIR route entry | current after progress diagnostics |
 | `MIMAP-029B` | post-huge-decommit allocator row selection | after pure-first sidecar |
 | `MIMAP-030A` | draft: facade huge decommit fail-fast diagnostics | after MIMAP-029A if selected |
 | `MIMAP-030B` | draft: post-huge-decommit-failfast allocator row selection | after MIMAP-030A if selected |
@@ -447,10 +447,11 @@ MIR-ROUTE-PREFLIGHT-001:
   classify lowering-plan misses from MIR metadata before backend emission
 
 SELFHOST-PROGRESS-001:
-  selected current
+  landed
   add phase progress / timeout closeout for slow/stuck/unsupported diagnosis
 
 MIR-EMIT-SSOT-002:
+  selected current
   make the canonical external source-to-MIR route explicit; prefer the existing
   tools/smokes/v2/lib/emit_mir_route.sh route SSOT or a thin facade over it
 ```

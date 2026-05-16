@@ -208,17 +208,22 @@ Selfhost and pure-first wrappers should emit stable phase progress lines, and
 later optional JSONL events, around the long steps:
 
 ```text
-[selfhost] phase=emit_mir start
-[selfhost] phase=emit_mir done elapsed_ms=<n>
-[selfhost] phase=route_preflight start
-[selfhost] phase=route_preflight done elapsed_ms=<n>
-[selfhost] phase=nyllvmc start
-[selfhost] phase=link start
+[selfhost] phase=selfhost.emit_mir start
+[selfhost] phase=selfhost.emit_mir done elapsed_ms=<n>
+[selfhost] phase=selfhost.route_preflight start
+[selfhost] phase=selfhost.route_preflight done elapsed_ms=<n>
+[selfhost] phase=selfhost.nyllvmc start
+[selfhost] phase=selfhost.nyllvmc done elapsed_ms=<n>
 ```
 
 When a timeout or no-output closeout happens, the wrapper should print the last
 known phase and, after JSONL exists, the last route/function event. This is a
 diagnostic layer only; it must not change lowering behavior.
+
+`selfhost.link` is reserved for the future point where the shell wrapper owns a
+separate link command. Today `ny-llvmc --emit exe` is a combined compiler/linker
+phase from the shell wrapper's perspective, so `selfhost.nyllvmc` is the
+highest-fidelity phase boundary.
 
 ## Task Order
 
@@ -280,7 +285,7 @@ unsupported route fails with a stable reason before backend emission
 
 ### SELFHOST-PROGRESS-001: phase progress diagnostics
 
-Status: selected current after MIR-ROUTE-PREFLIGHT-001
+Status: landed
 
 Purpose:
 
@@ -304,7 +309,7 @@ timeout/no-output failure includes the active phase and last known step
 
 ### MIR-EMIT-SSOT-002: canonical emit wrapper
 
-Status: planned after progress diagnostics
+Status: selected current after progress diagnostics
 
 Purpose:
 

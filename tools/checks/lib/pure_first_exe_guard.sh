@@ -2,7 +2,9 @@
 # pure_first_exe_guard.sh - shared pure-first EXE guard helpers
 
 PURE_FIRST_EXE_GUARD_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PURE_FIRST_EXE_GUARD_ROOT="$(cd "${PURE_FIRST_EXE_GUARD_LIB_DIR}/../../.." && pwd)"
 source "${PURE_FIRST_EXE_GUARD_LIB_DIR}/guard_common.sh"
+source "${PURE_FIRST_EXE_GUARD_ROOT}/tools/selfhost/lib/selfhost_progress.sh"
 
 pure_first_guard_build_toolchain() {
   cargo build -q --bin hakorune
@@ -15,10 +17,29 @@ pure_first_guard_emit_mir() {
   local root_dir="$1"
   local app="$2"
   local mir_json="$3"
+  local rc=0
 
+  selfhost_phase_start "selfhost.emit_mir"
   NYASH_FEATURES=rune \
   NYASH_DISABLE_PLUGINS=1 \
-  "$root_dir/target/debug/hakorune" --backend mir --emit-mir-json "$mir_json" "$app" >/dev/null
+  "$root_dir/target/debug/hakorune" --backend mir --emit-mir-json "$mir_json" "$app" >/dev/null || rc=$?
+  if [ "$rc" -eq 0 ]; then
+    selfhost_phase_done "selfhost.emit_mir"
+  else
+    selfhost_phase_fail "selfhost.emit_mir" "$rc"
+  fi
+  return "$rc"
+}
+
+pure_first_guard_print_progress_closeout() {
+  local tag="$1"
+  local progress_file="$2"
+
+  if [ -s "$progress_file" ]; then
+    echo "[$tag] last selfhost progress: $(cat "$progress_file")" >&2
+  else
+    echo "[$tag] last selfhost progress: unavailable" >&2
+  fi
 }
 
 pure_first_guard_build_exe() {
@@ -31,16 +52,28 @@ pure_first_guard_build_exe() {
   local mir_sha_before
   local mir_sha_after
   local preflight="$root_dir/tools/checks/pure_first_route_preflight.py"
+  local progress_file="$build_log.progress"
 
   mir_sha_before="$(sha256sum "$mir_json" | awk '{print $1}')"
+  rm -f "$progress_file" 2>/dev/null || true
 
-  if ! "$preflight" "$mir_json" >"$build_log" 2>&1; then
+  if ! (
+    selfhost_phase_start "selfhost.route_preflight"
+    if "$preflight" "$mir_json"; then
+      selfhost_phase_done "selfhost.route_preflight"
+    else
+      rc=$?
+      selfhost_phase_fail "selfhost.route_preflight" "$rc"
+      exit "$rc"
+    fi
+  ) >"$build_log" 2>&1; then
     echo "[$tag] ERROR: pure-first route preflight failed" >&2
     sed -n '1,240p' "$build_log" >&2
     exit 1
   fi
 
-  if ! NYASH_BIN="$root_dir/target/debug/hakorune" \
+  if ! HAKO_SELFHOST_PROGRESS_FILE="$progress_file" \
+    NYASH_BIN="$root_dir/target/debug/hakorune" \
     NYASH_FEATURES=rune \
     NYASH_DISABLE_PLUGINS=1 \
     NYASH_LLVM_ROUTE_TRACE=1 \
@@ -51,6 +84,7 @@ pure_first_guard_build_exe() {
       --mir-in "$mir_json" \
       --exe "$exe_out" >>"$build_log" 2>&1; then
     echo "[$tag] ERROR: pure-first build failed" >&2
+    pure_first_guard_print_progress_closeout "$tag" "$progress_file"
     sed -n '1,240p' "$build_log" >&2
     exit 1
   fi

@@ -1,12 +1,12 @@
 # 293x-453 MIR-EMIT-SSOT-002 Canonical Emit Wrapper
 
-Status: planned
+Status: selected current
 Date: 2026-05-16
 
 ## Decision
 
-`MIR-EMIT-SSOT-002` is planned after same-artifact routing, route preflight,
-and phase progress diagnostics.
+`MIR-EMIT-SSOT-002` is selected after same-artifact routing, route preflight,
+and phase progress diagnostics landed.
 
 It makes the external source-to-MIR authority explicit so guards and selfhost
 tools do not each choose their own emit environment.
