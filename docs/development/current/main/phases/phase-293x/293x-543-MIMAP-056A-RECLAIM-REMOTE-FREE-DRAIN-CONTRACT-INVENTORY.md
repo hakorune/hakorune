@@ -1,6 +1,6 @@
 # 293x-543 MIMAP-056A Reclaim Remote-Free Drain Contract Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -51,4 +51,88 @@ remote frees remain pending.
 bash tools/checks/k2_wide_hako_alloc_reclaim_remote_free_drain_contract_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Implementation Result
+
+`MIMAP-056A` adds:
+
+```text
+SSOT:
+  docs/development/current/main/design/hako-alloc-reclaim-remote-free-drain-contract-ssot.md
+
+owner:
+  lang/src/hako_alloc/memory/reclaim_remote_free_drain_contract_box.hako
+
+proof app:
+  apps/hako-alloc-reclaim-remote-free-drain-contract-proof/
+
+guard:
+  tools/checks/k2_wide_hako_alloc_reclaim_remote_free_drain_contract_guard.sh
+```
+
+The owner names remote-free drain readiness as scalar facts:
+
+```text
+reason=0:
+  no remote-free drain is required
+
+reason=1:
+  remote-free work is pending; drain is required before broader reclaim
+
+reason=2/3/4:
+  invalid pending count, inconsistent head, or invalid budget
+```
+
+All production execution flags remain inactive:
+
+```text
+would_drain_remote_free = 0
+would_schedule_thread = 0
+would_call_page_source = 0
+would_unreserve = 0
+would_release_osvm = 0
+would_activate_provider = 0
+would_execute_full_reclaim = 0
+would_change_production_page_owner = 0
+```
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_reclaim_remote_free_drain_contract_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Selection Result
+
+`MIMAP-056A` selects `MIMAP-057A`.
+
+```text
+row:
+  MIMAP-057A reclaim remote-free drain first execution route
+
+classification:
+  first narrow modeled drain execution row
+
+why now:
+  remote-free drain readiness and blocked reasons are named. The next narrow
+  row can drain one modeled remote-free entry through an explicit owner while
+  keeping thread scheduling, page-source/OSVM, provider activation, and full
+  reclaim closed.
+
+stop lines:
+  no thread scheduling
+  no page-source call
+  no OSVM unreserve / release
+  no provider activation
+  no full reclaim
+  no cleanup bundle
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-057A.
 ```

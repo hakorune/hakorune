@@ -32,14 +32,14 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-056A reclaim remote-free drain contract inventory`
+- current blocker token: `MIMAP-057A reclaim remote-free drain first execution route`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-055A`; current blocker is `MIMAP-056A`
-- planned order: add reclaim remote-free drain contract inventory
+- continue phase-293x after `MIMAP-056A`; current blocker is `MIMAP-057A`
+- planned order: add reclaim remote-free drain first execution route
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

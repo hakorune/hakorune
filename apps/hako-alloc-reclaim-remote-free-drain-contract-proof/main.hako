@@ -1,0 +1,73 @@
+// hako-alloc-reclaim-remote-free-drain-contract-proof
+// Purpose: prove MIMAP-056A no-execution remote-free drain contract.
+
+using selfhost.hako_alloc.memory.reclaim_remote_free_drain_contract_box as HakoAllocReclaimRemoteFreeDrainContract
+
+static box Main {
+    main(args) {
+        local contract = new HakoAllocReclaimRemoteFreeDrainContract()
+
+        local ready = contract.classifyDrain(50, 0, 0, 4)
+        local pending = contract.classifyDrain(51, 3, 900, 4)
+        local over_budget = contract.classifyDrain(52, 5, 901, 2)
+        local bad_pending = contract.classifyDrain(53, -1, 0, 4)
+        local inconsistent = contract.classifyDrain(54, 0, 777, 4)
+        local bad_budget = contract.classifyDrain(55, 0, 0, -1)
+
+        local ok = check "mimap056a reclaim remote free drain contract" {
+            "ready accepted": ready.drain_ready == 1
+            "ready reason": ready.reason == 0
+            "ready no drain": ready.needs_drain == 0
+            "ready empty queue": ready.empty_remote_queue == 1
+            "ready bounded": ready.bounded_drain_possible == 1
+            "pending blocked": pending.drain_ready == 0
+            "pending reason": pending.reason == 1
+            "pending needs drain": pending.needs_drain == 1
+            "pending bounded": pending.bounded_drain_possible == 1
+            "pending head": pending.remote_head == 900
+            "over budget blocked": over_budget.drain_ready == 0
+            "over budget reason": over_budget.reason == 1
+            "over budget bounded": over_budget.bounded_drain_possible == 0
+            "bad pending blocked": bad_pending.drain_ready == 0
+            "bad pending reason": bad_pending.reason == 2
+            "inconsistent blocked": inconsistent.drain_ready == 0
+            "inconsistent reason": inconsistent.reason == 3
+            "bad budget blocked": bad_budget.drain_ready == 0
+            "bad budget reason": bad_budget.reason == 4
+            "inactive drain": ready.would_drain_remote_free == 0
+            "inactive schedule": ready.would_schedule_thread == 0
+            "inactive page source": ready.would_call_page_source == 0
+            "inactive unreserve": ready.would_unreserve == 0
+            "inactive os release": ready.would_release_osvm == 0
+            "inactive provider": ready.would_activate_provider == 0
+            "inactive full reclaim": ready.would_execute_full_reclaim == 0
+            "inactive production owner change": ready.would_change_production_page_owner == 0
+            "classify count": contract.classify_count == 6
+            "ready count": contract.ready_count == 1
+            "pending block count": contract.pending_block_count == 2
+            "invalid count": contract.invalid_count == 2
+            "inconsistent count": contract.inconsistent_head_count == 1
+            "last page": contract.last_page_id == 55
+            "last reason": contract.last_reason == 4
+        }
+
+        print("hako-alloc-reclaim-remote-free-drain-contract-proof")
+        print("ready=" + ready.drain_ready + "," + ready.reason + "," + ready.needs_drain + "," + ready.empty_remote_queue + "," + ready.bounded_drain_possible)
+        print("pending=" + pending.drain_ready + "," + pending.reason + "," + pending.needs_drain + "," + pending.remote_free_pending + "," + pending.remote_head + "," + pending.bounded_drain_possible)
+        print("over_budget=" + over_budget.drain_ready + "," + over_budget.reason + "," + over_budget.needs_drain + "," + over_budget.remote_free_pending + "," + over_budget.bounded_drain_possible)
+        print("bad_pending=" + bad_pending.drain_ready + "," + bad_pending.reason)
+        print("inconsistent=" + inconsistent.drain_ready + "," + inconsistent.reason + "," + inconsistent.remote_head)
+        print("bad_budget=" + bad_budget.drain_ready + "," + bad_budget.reason)
+        print("inactive=" + ready.would_drain_remote_free + "," + ready.would_schedule_thread + "," + ready.would_call_page_source + "," + ready.would_unreserve + "," + ready.would_release_osvm + "," + ready.would_activate_provider + "," + ready.would_execute_full_reclaim + "," + ready.would_change_production_page_owner)
+        print("counts=" + contract.classify_count + "," + contract.ready_count + "," + contract.pending_block_count + "," + contract.invalid_count + "," + contract.inconsistent_head_count + "," + contract.last_page_id + "," + contract.last_reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -9,6 +9,7 @@ Current modules
 - `abandoned_reclaim_inventory_box.hako`
 - `options_inventory_box.hako`
 - `reclaim_owner_transfer_execution_box.hako`
+- `reclaim_remote_free_drain_contract_box.hako`
 - `thread_heap_owner_inventory_box.hako`
 - `worker_identity_box.hako`
 - `worker_tls_cache_box.hako`
@@ -532,6 +533,13 @@ Syntax/style contract
   production page map, execute full reclaim, drain remote frees, schedule
   threads, call page-source or OSVM seams, activate providers, install hooks,
   replace the process allocator, or add backend shortcuts.
+- `reclaim_remote_free_drain_contract_box.hako` owns MIMAP-056A reclaim
+  remote-free drain contract inventory. It may classify scalar pending/head
+  facts and report whether reclaim can proceed without drain work, but it must
+  not drain remote-free queues, traverse remote-free pointer lists, schedule
+  threads, call page-source/OSVM seams, mutate production page ownership,
+  activate providers, install hooks, replace the process allocator, or add
+  backend shortcuts.
 - `reclaim_owner_transfer_contract_box.hako` owns MIMAP-051A reclaim
   owner-transfer contract inventory. It may compose M213 abandoned/reclaim
   facts with M215 thread owner-token facts and report contract-ready vs blocked

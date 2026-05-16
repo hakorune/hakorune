@@ -1,0 +1,86 @@
+// reclaim_remote_free_drain_contract_box.hako -- MIMAP-056A contract inventory
+// Responsibility:
+// - classify remote-free pending/drain readiness facts before reclaim execution
+// - report whether reclaim may proceed without drain work
+// - keep drain execution, thread scheduling, page-source/OSVM, provider, and
+//   production page-map mutation closed
+// Non-responsibility:
+// - draining remote-free queues, walking remote-free pointer lists, scheduling
+//   workers, calling page-source/OSVM seams, or replacing allocators
+
+box HakoAllocReclaimRemoteFreeDrainContractReport {
+    drain_ready: i64 = 0
+    reason: i64 = 0
+    page_id: i64 = -1
+    remote_free_pending: i64 = 0
+    remote_head: i64 = 0
+    drain_budget: i64 = 0
+    needs_drain: i64 = 0
+    empty_remote_queue: i64 = 0
+    bounded_drain_possible: i64 = 0
+    would_drain_remote_free: i64 = 0
+    would_schedule_thread: i64 = 0
+    would_call_page_source: i64 = 0
+    would_unreserve: i64 = 0
+    would_release_osvm: i64 = 0
+    would_activate_provider: i64 = 0
+    would_execute_full_reclaim: i64 = 0
+    would_change_production_page_owner: i64 = 0
+}
+
+box HakoAllocReclaimRemoteFreeDrainContract {
+    classify_count: i64 = 0
+    ready_count: i64 = 0
+    pending_block_count: i64 = 0
+    invalid_count: i64 = 0
+    inconsistent_head_count: i64 = 0
+    last_page_id: i64 = -1
+    last_reason: i64 = 0
+
+    report(drain_ready, reason, page_id, remote_free_pending, remote_head, drain_budget, needs_drain, empty_remote_queue, bounded_drain_possible) {
+        local result = new HakoAllocReclaimRemoteFreeDrainContractReport()
+        result.drain_ready = drain_ready
+        result.reason = reason
+        result.page_id = page_id
+        result.remote_free_pending = remote_free_pending
+        result.remote_head = remote_head
+        result.drain_budget = drain_budget
+        result.needs_drain = needs_drain
+        result.empty_remote_queue = empty_remote_queue
+        result.bounded_drain_possible = bounded_drain_possible
+        me.last_page_id = page_id
+        me.last_reason = reason
+        return result
+    }
+
+    classifyDrain(page_id, remote_free_pending, remote_head, drain_budget) {
+        me.classify_count = me.classify_count + 1
+
+        if remote_free_pending < 0 {
+            me.invalid_count = me.invalid_count + 1
+            return me.report(0, 2, page_id, remote_free_pending, remote_head, drain_budget, 0, 0, 0)
+        }
+
+        if drain_budget < 0 {
+            me.invalid_count = me.invalid_count + 1
+            return me.report(0, 4, page_id, remote_free_pending, remote_head, drain_budget, 0, 0, 0)
+        }
+
+        if remote_free_pending > 0 {
+            me.pending_block_count = me.pending_block_count + 1
+            local bounded = 0
+            if drain_budget >= remote_free_pending {
+                bounded = 1
+            }
+            return me.report(0, 1, page_id, remote_free_pending, remote_head, drain_budget, 1, 0, bounded)
+        }
+
+        if remote_head != 0 {
+            me.inconsistent_head_count = me.inconsistent_head_count + 1
+            return me.report(0, 3, page_id, remote_free_pending, remote_head, drain_budget, 0, 0, 0)
+        }
+
+        me.ready_count = me.ready_count + 1
+        return me.report(1, 0, page_id, remote_free_pending, remote_head, drain_budget, 0, 1, 1)
+    }
+}

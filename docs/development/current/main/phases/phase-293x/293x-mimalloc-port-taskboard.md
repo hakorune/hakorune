@@ -340,7 +340,8 @@ FST:
 | `MIMAP-053A` | landed | Reclaim execution support row selection. | selected MIMAP-054A |
 | `MIMAP-054A` | landed | Reclaim atomic-claim contract. | selected MIMAP-055A |
 | `MIMAP-055A` | landed | Reclaim owner-transfer first execution route. | selected MIMAP-056A |
-| `MIMAP-056A` | selected current | Reclaim remote-free drain contract inventory. | after MIMAP-055A |
+| `MIMAP-056A` | landed | Reclaim remote-free drain contract inventory. | selected MIMAP-057A |
+| `MIMAP-057A` | selected current | Reclaim remote-free drain first execution route. | after MIMAP-056A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -348,10 +349,10 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-055A: `MIMAP-056A` names reclaim remote-free drain
-readiness / blocked reasons before drain execution opens. Remote-free drain
-execution, thread scheduling, page-source calls, OSVM unreserve/release,
-provider activation, and backend matchers remain closed.
+Current row after MIMAP-056A: `MIMAP-057A` opens one modeled remote-free drain
+entry behind the MIMAP-056A contract. Thread scheduling, page-source calls,
+OSVM unreserve/release, full reclaim, provider activation, and backend
+matchers remain closed.
 
 MIMAP-020A execution order:
 
