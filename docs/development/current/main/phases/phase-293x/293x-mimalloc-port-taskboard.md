@@ -346,7 +346,8 @@ FST:
 | `MIMAP-059A` | landed | Post-reclaim-integration row selection. | selected MIMAP-060A |
 | `MIMAP-060A` | landed | Reclaim completion marker route. | selected MIMAP-061A |
 | `MIMAP-061A` | landed | Reclaim scalar lane closeout guard. | selected MIMAP-062A |
-| `MIMAP-062A` | selected current | Post-reclaim-scalar-closeout row selection. | after MIMAP-061A |
+| `MIMAP-062A` | landed | Post-reclaim-scalar-closeout row selection. | selected MIMAP-063A |
+| `MIMAP-063A` | selected current | Reclaim scheduler boundary inventory. | after MIMAP-062A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -354,9 +355,10 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-061A: `MIMAP-062A` selects one narrow follow-up after
-the scalar reclaim lane closeout. Thread scheduling, page-source calls, OSVM
-unreserve/release, provider activation, and backend matchers remain closed.
+Current row after MIMAP-062A: `MIMAP-063A` inventories the allocator-internal
+reclaim scheduler boundary. Real thread scheduling, source-level concurrency
+features, page-source calls, OSVM unreserve/release, provider activation, and
+backend matchers remain closed.
 
 MIMAP-020A execution order:
 

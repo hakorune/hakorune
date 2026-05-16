@@ -1,6 +1,6 @@
 # 293x-549 MIMAP-062A Post-Reclaim-Scalar-Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -44,4 +44,31 @@ must select exactly one next implementation or language/compiler sidecar row.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Selection Result
+
+`MIMAP-062A` selects `MIMAP-063A`.
+
+```text
+row:
+  MIMAP-063A reclaim scheduler boundary inventory
+
+classification:
+  allocator prerequisite / boundary inventory
+
+why now:
+  scalar reclaim is closed, but broader reclaim cannot responsibly open real
+  scheduling yet. The next narrow row should define the allocator-internal
+  scheduling boundary, its stop lines, and the proof surface without adding
+  thread execution or source-level concurrency features.
+
+stop lines:
+  no real thread scheduling
+  no source-level nowait / Channel / task_scope / worker_local surface change
+  no page-source call
+  no OSVM unreserve / release
+  no provider activation
+  no host allocator replacement
+  no cleanup bundle
 ```

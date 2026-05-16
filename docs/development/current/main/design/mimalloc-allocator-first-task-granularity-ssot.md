@@ -221,7 +221,8 @@ Forbidden:
 | `MIMAP-059A` | post-reclaim-integration row selection | landed; selected MIMAP-060A |
 | `MIMAP-060A` | reclaim completion marker route | landed; selected MIMAP-061A |
 | `MIMAP-061A` | reclaim scalar lane closeout guard | landed; selected MIMAP-062A |
-| `MIMAP-062A` | post-reclaim-scalar-closeout row selection | selected current |
+| `MIMAP-062A` | post-reclaim-scalar-closeout row selection | landed; selected MIMAP-063A |
+| `MIMAP-063A` | reclaim scheduler boundary inventory | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1007,6 +1008,20 @@ substrate row, a language-feature row, or a compiler acceptance sidecar.
 It must not add allocator behavior, schedule threads, call page-source APIs,
 unreserve or release OSVM pages, activate providers, replace the host
 allocator, or add backend matchers.
+
+MIMAP-062A landed by selecting MIMAP-063A.
+
+### MIMAP-063A granularity
+
+MIMAP-063A is an allocator-internal reclaim scheduler boundary inventory. It
+should define the boundary facts needed before broader reclaim can request
+modeled scheduling, without adding real thread scheduling or source-level
+concurrency semantics.
+
+It must not add real scheduler execution, source-level `nowait`, `Channel`,
+`task_scope`, `co`, `sync box`, `context`, or `worker_local` behavior, call
+page-source APIs, unreserve or release OSVM pages, activate providers, replace
+the host allocator, or add backend matchers.
 
 ## Compiler / language sidecar triggers
 
