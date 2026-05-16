@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-17"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-043A landed the OSVM-backed fast-path recommit/reuse route and selected MIMAP-043B as the next planning row. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-044A landed the OSVM-backed fast-path route closeout guard and selected MIMAP-044B as the next planning row. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-519-MIMAP-043B-POST-FAST-PATH-REUSE-ROUTE-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-521-MIMAP-044B-POST-FAST-PATH-CLOSEOUT-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-518-MIMAP-043A-OSVM-FAST-PATH-RECOMMIT-REUSE-ROUTE"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-518-MIMAP-043A-OSVM-FAST-PATH-RECOMMIT-REUSE-ROUTE.md"
-latest_card_summary = "MIMAP-043A lands the OSVM-backed fast-path recommit/reuse route and selects MIMAP-043B."
+latest_card = "293x-520-MIMAP-044A-OSVM-FAST-PATH-ROUTE-CLOSEOUT-GUARD"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-520-MIMAP-044A-OSVM-FAST-PATH-ROUTE-CLOSEOUT-GUARD.md"
+latest_card_summary = "MIMAP-044A lands the OSVM-backed fast-path route closeout guard and selects MIMAP-044B."
 
-current_blocker_token = "MIMAP-043B"
+current_blocker_token = "MIMAP-044B"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-520 MIMAP-044A OSVM-backed fast-path route closeout guard landed",
+  "293x-519 MIMAP-043B selected MIMAP-044A OSVM-backed fast-path route closeout guard",
   "293x-518 MIMAP-043A OSVM-backed fast-path recommit/reuse route landed",
   "293x-517 MIMAP-042B selected MIMAP-043A OSVM-backed fast-path recommit/reuse route",
   "293x-516 MIMAP-042A OSVM-backed fast-path bounded purge route landed",

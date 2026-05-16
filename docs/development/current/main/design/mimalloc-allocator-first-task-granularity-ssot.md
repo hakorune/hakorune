@@ -191,7 +191,9 @@ Forbidden:
 | `MIMAP-042A` | OSVM-backed fast-path bounded purge route | landed after MIMAP-NEXT-BEHAVIOR-SELECTION-001 |
 | `MIMAP-042B` | post-fast-path-purge route row selection | landed; selected MIMAP-043A |
 | `MIMAP-043A` | OSVM-backed fast-path recommit/reuse route | landed after MIMAP-042B |
-| `MIMAP-043B` | post-fast-path-reuse route row selection | selected current |
+| `MIMAP-043B` | post-fast-path-reuse route row selection | landed; selected MIMAP-044A |
+| `MIMAP-044A` | OSVM-backed fast-path route closeout guard | landed after MIMAP-043B |
+| `MIMAP-044B` | post-fast-path-closeout row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -600,6 +602,40 @@ Forbidden:
 ### MIMAP-043B granularity
 
 MIMAP-043B is a planning-only row. It reads the MIMAP-043A proof result and
+selects exactly one next allocator/compiler/language task. It must not implement
+allocator behavior, compiler acceptance, or cleanup by itself.
+
+### MIMAP-044A granularity
+
+MIMAP-044A is a closeout guard row. It freezes the completed OSVM-backed
+fast-path route surface:
+
+```text
+MIMAP-042A:
+  allocation / release / bounded purge
+
+MIMAP-043A:
+  recommit / post-recommit allocation reuse
+```
+
+Allowed:
+
+- closeout SSOT for the combined route;
+- one guard that pins cards, owners, proof apps, focused guards, docs, and
+  inactive surfaces;
+- taskboard/current pointer updates.
+
+Forbidden:
+
+- `.hako` behavior changes;
+- compiler acceptance widening;
+- provider activation, hooks, host allocator replacement, or `#[global_allocator]`;
+- unreserve, OS release, remote-free/TLS/atomic execution changes, thread
+  scheduling, or user-facing concurrency syntax expansion.
+
+### MIMAP-044B granularity
+
+MIMAP-044B is a planning-only row. It reads the MIMAP-044A closeout evidence and
 selects exactly one next allocator/compiler/language task. It must not implement
 allocator behavior, compiler acceptance, or cleanup by itself.
 

@@ -316,7 +316,9 @@ FST:
 | `MIMAP-042A` | landed | OSVM-backed fast-path bounded purge route. | after MIMAP-NEXT-BEHAVIOR-SELECTION-001 |
 | `MIMAP-042B` | landed | Post-fast-path-purge route row selection. | selected MIMAP-043A |
 | `MIMAP-043A` | landed | OSVM-backed fast-path recommit/reuse route. | after MIMAP-042B |
-| `MIMAP-043B` | selected current | Post-fast-path-reuse route row selection. | selected after MIMAP-043A |
+| `MIMAP-043B` | landed | Post-fast-path-reuse route row selection. | selected MIMAP-044A |
+| `MIMAP-044A` | landed | OSVM-backed fast-path route closeout guard. | after MIMAP-043B |
+| `MIMAP-044B` | selected current | Post-fast-path-closeout row selection. | selected after MIMAP-044A |
 
 MIMAP-020A execution order:
 

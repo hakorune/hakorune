@@ -51,7 +51,7 @@ Scope: current lane / next lane / restart order only.
 - pure-first MIR artifact / diagnostics SSOT:
   `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
 - current blocker token:
-  `MIMAP-043B post-fast-path-reuse route row selection`
+  `MIMAP-044B post-fast-path-closeout row selection`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -70,9 +70,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `MIMAP-043A`; current blocker is
-  `MIMAP-043B`, a planning-only row that selects the next single allocator,
-  compiler, or language task after the OSVM-backed fast-path reuse route.
+- resume point: continue Phase 293x after `MIMAP-044A`; current blocker is
+  `MIMAP-044B`, a planning-only row that selects the next single allocator,
+  compiler, or language task after the OSVM-backed fast-path route closeout.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -80,7 +80,7 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-043B`: classify the post-fast-path-reuse route state and select one
+  1. `MIMAP-044B`: classify the post-fast-path-closeout state and select one
      next row
   2. write/update the next focused card before implementation
 - post-mimalloc selfhost order:

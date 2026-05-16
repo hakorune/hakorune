@@ -30,14 +30,14 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-043B post-fast-path-reuse route row selection`
+- current blocker token: `MIMAP-044B post-fast-path-closeout row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-043A`; current blocker is `MIMAP-043B`, the
-  planning-only post-fast-path-reuse route selection row
+- continue phase-293x after `MIMAP-044A`; current blocker is `MIMAP-044B`, the
+  planning-only post-fast-path-closeout row selection
 - planned order: select exactly one allocator/compiler/language task and write
   its focused card before implementation
 - keep LoopRange on the Stage1 route; do not source-desugar range loops

@@ -1,6 +1,6 @@
 # 293x-519 MIMAP-043B Post-Fast-Path-Reuse Route Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -45,4 +45,31 @@ allocator behavior or compiler acceptance by itself.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Closeout
+
+`MIMAP-043A` did not leave a compiler or language blocker. It landed the
+post-recommit allocation proof without widening user-facing concurrency,
+provider activation, or host allocator replacement.
+
+The next narrow row is a closeout guard:
+
+```text
+MIMAP-044A OSVM-backed fast-path route closeout guard
+```
+
+Rationale:
+
+- `MIMAP-042A` owns allocation / release / bounded purge.
+- `MIMAP-043A` owns recommit / post-recommit allocation reuse.
+- Before opening another allocator behavior or switching lanes, the combined
+  OSVM-backed route should have one closeout guard that keeps direct OSVM,
+  provider activation, host replacement, remote-free/TLS/atomic execution, and
+  `.inc` matchers inactive.
+
+Selected current row:
+
+```text
+docs/development/current/main/phases/phase-293x/293x-520-MIMAP-044A-OSVM-FAST-PATH-ROUTE-CLOSEOUT-GUARD.md
 ```

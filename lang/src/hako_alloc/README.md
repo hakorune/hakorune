@@ -50,6 +50,15 @@ Principles
     modeled pages through `HakoAllocPageSourcePolicy` reserve/commit/decommit.
     It must not add native OSVM leaves, local-free retire, remote-free
     integration, provider activation, hooks, or allocator replacement.
+  - `HakoAllocOsVmFastPathPurgeRoute` is the MIMAP-042A route owner that
+    composes OSVM-backed allocation/release with bounded M199/M212 purge. It
+    must not call page-source/OSVM APIs directly or open unreserve, recommit,
+    provider activation, hooks, or allocator replacement.
+  - `HakoAllocOsVmFastPathReuseRoute` is the MIMAP-043A route owner that
+    composes the MIMAP-042A route with M205 recommit and proves
+    post-recommit allocation through the same route. It must not call
+    page-source/OSVM APIs directly or open unreserve, OS release, remote-free,
+    TLS/atomic execution, provider activation, hooks, or allocator replacement.
   - M169 local-free retire stays page-local in `HakoAllocPageModel`; M170 owns
     remote-free integration and any broader heap/queue consumption of retire
     state.
