@@ -1,0 +1,167 @@
+// reclaim_owner_transfer_contract_box.hako -- MIMAP-051A contract inventory
+// Responsibility:
+// - compose owner-token and abandoned/reclaim facts into a read-only contract
+// - report whether future reclaim ownership transfer preconditions are ready
+// - keep all execution surfaces inactive
+// Non-responsibility:
+// - scheduling threads, claiming ownership, draining remote frees, mutating
+//   page owners, executing reclaim, calling page-source/OSVM seams, or
+//   replacing allocators
+
+using selfhost.hako_alloc.memory.thread_heap_owner_inventory_box as HakoAllocThreadHeapOwnerInventoryBox
+using selfhost.hako_alloc.memory.abandoned_reclaim_inventory_box as HakoAllocAbandonedReclaimInventoryBox
+
+box HakoAllocReclaimOwnerTransferContractReport {
+    contract_ready: i64 = 0
+    reason: i64 = 0
+    page_id: i64 = -1
+    owner_thread_id: i64 = -1
+    observer_thread_id: i64 = -1
+    owner_known: i64 = 0
+    owner_active: i64 = 0
+    same_thread: i64 = 0
+    abandoned: i64 = 0
+    owner_adoption_candidate: i64 = 0
+    reclaim_candidate: i64 = 0
+    requires_owner_adoption: i64 = 0
+    remote_free_pending: i64 = 0
+    decommitted: i64 = 0
+    backing_bytes: i64 = 0
+    page_empty: i64 = 0
+    retired: i64 = 0
+    owner_reason: i64 = 0
+    reclaim_reason: i64 = 0
+    would_schedule_thread: i64 = 0
+    would_atomic_claim: i64 = 0
+    would_drain_remote_free: i64 = 0
+    would_change_page_owner: i64 = 0
+    would_execute_reclaim: i64 = 0
+    would_call_page_source: i64 = 0
+    would_unreserve: i64 = 0
+    would_release_osvm: i64 = 0
+}
+
+box HakoAllocReclaimOwnerTransferContract {
+    owner_inventory: HakoAllocThreadHeapOwnerInventory = new HakoAllocThreadHeapOwnerInventory()
+    reclaim_inventory: HakoAllocAbandonedReclaimInventory = new HakoAllocAbandonedReclaimInventory()
+    classify_count: i64 = 0
+    contract_ready_count: i64 = 0
+    blocked_count: i64 = 0
+    owner_block_count: i64 = 0
+    reclaim_block_count: i64 = 0
+    remote_pending_block_count: i64 = 0
+    decommitted_block_count: i64 = 0
+    last_page_id: i64 = -1
+    last_reason: i64 = 0
+
+    reasonFromOwner(owner_reason) {
+        if owner_reason == 1 {
+            return 1
+        }
+        if owner_reason == 2 {
+            return 2
+        }
+        if owner_reason == 3 {
+            return 3
+        }
+        if owner_reason == 4 {
+            return 4
+        }
+        if owner_reason == 5 {
+            return 5
+        }
+        return 8
+    }
+
+    reasonFromReclaim(reclaim_reason) {
+        if reclaim_reason == 1 {
+            return 6
+        }
+        if reclaim_reason == 2 {
+            return 7
+        }
+        if reclaim_reason == 3 {
+            return 4
+        }
+        if reclaim_reason == 4 {
+            return 5
+        }
+        return 8
+    }
+
+    updateBlockCounts(reason) {
+        me.blocked_count = me.blocked_count + 1
+        if reason == 1 {
+            me.owner_block_count = me.owner_block_count + 1
+        }
+        if reason == 2 {
+            me.owner_block_count = me.owner_block_count + 1
+        }
+        if reason == 3 {
+            me.owner_block_count = me.owner_block_count + 1
+        }
+        if reason == 4 {
+            me.remote_pending_block_count = me.remote_pending_block_count + 1
+        }
+        if reason == 5 {
+            me.decommitted_block_count = me.decommitted_block_count + 1
+        }
+        if reason == 6 {
+            me.reclaim_block_count = me.reclaim_block_count + 1
+        }
+        if reason == 7 {
+            me.reclaim_block_count = me.reclaim_block_count + 1
+        }
+        if reason == 8 {
+            me.reclaim_block_count = me.reclaim_block_count + 1
+        }
+    }
+
+    decision(contract_ready, reason, page_id, owner_thread_id, observer_thread_id, owner_known, owner_active, same_thread, abandoned, owner_adoption_candidate, reclaim_candidate, requires_owner_adoption, remote_free_pending, decommitted, backing_bytes, page_empty, retired, owner_reason, reclaim_reason) {
+        local result = new HakoAllocReclaimOwnerTransferContractReport()
+        result.contract_ready = contract_ready
+        result.reason = reason
+        result.page_id = page_id
+        result.owner_thread_id = owner_thread_id
+        result.observer_thread_id = observer_thread_id
+        result.owner_known = owner_known
+        result.owner_active = owner_active
+        result.same_thread = same_thread
+        result.abandoned = abandoned
+        result.owner_adoption_candidate = owner_adoption_candidate
+        result.reclaim_candidate = reclaim_candidate
+        result.requires_owner_adoption = requires_owner_adoption
+        result.remote_free_pending = remote_free_pending
+        result.decommitted = decommitted
+        result.backing_bytes = backing_bytes
+        result.page_empty = page_empty
+        result.retired = retired
+        result.owner_reason = owner_reason
+        result.reclaim_reason = reclaim_reason
+        me.last_page_id = page_id
+        me.last_reason = reason
+        return result
+    }
+
+    classifyTransfer(page_id, owner_thread_id, observer_thread_id, owner_active, used, retired, backing_bytes, remote_free_pending, decommitted) {
+        me.classify_count = me.classify_count + 1
+
+        local owner = me.owner_inventory.classifyOwner(page_id, owner_thread_id, observer_thread_id, owner_active, remote_free_pending, decommitted)
+        local reclaim = me.reclaim_inventory.classifyPage(page_id, owner_thread_id, observer_thread_id, owner_active, used, retired, backing_bytes, decommitted, remote_free_pending)
+
+        if owner.eligible == 0 {
+            local owner_block_reason = me.reasonFromOwner(owner.reason)
+            me.updateBlockCounts(owner_block_reason)
+            return me.decision(0, owner_block_reason, page_id, owner_thread_id, observer_thread_id, owner.owner_known, owner.owner_active, owner.same_thread, owner.abandoned, owner.adoption_candidate, reclaim.reclaim_candidate, reclaim.requires_owner_adoption, remote_free_pending, decommitted, backing_bytes, reclaim.page_empty, retired, owner.reason, reclaim.reason)
+        }
+
+        if reclaim.eligible == 0 {
+            local reclaim_block_reason = me.reasonFromReclaim(reclaim.reason)
+            me.updateBlockCounts(reclaim_block_reason)
+            return me.decision(0, reclaim_block_reason, page_id, owner_thread_id, observer_thread_id, owner.owner_known, owner.owner_active, owner.same_thread, owner.abandoned, owner.adoption_candidate, reclaim.reclaim_candidate, reclaim.requires_owner_adoption, remote_free_pending, decommitted, backing_bytes, reclaim.page_empty, retired, owner.reason, reclaim.reason)
+        }
+
+        me.contract_ready_count = me.contract_ready_count + 1
+        return me.decision(1, 0, page_id, owner_thread_id, observer_thread_id, owner.owner_known, owner.owner_active, owner.same_thread, owner.abandoned, owner.adoption_candidate, reclaim.reclaim_candidate, reclaim.requires_owner_adoption, remote_free_pending, decommitted, backing_bytes, reclaim.page_empty, retired, owner.reason, reclaim.reason)
+    }
+}

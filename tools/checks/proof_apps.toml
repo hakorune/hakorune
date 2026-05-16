@@ -167,3 +167,10 @@ app = "apps/hako-alloc-secure-entropy-inventory-proof"
 label = "secure entropy inventory proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_secure_entropy_inventory_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-051A"
+app = "apps/hako-alloc-reclaim-owner-transfer-contract-proof"
+label = "reclaim owner-transfer contract inventory proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_reclaim_owner_transfer_contract_guard.sh"]

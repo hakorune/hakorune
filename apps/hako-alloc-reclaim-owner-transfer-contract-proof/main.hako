@@ -1,0 +1,73 @@
+// hako-alloc-reclaim-owner-transfer-contract-proof
+// Purpose: prove MIMAP-051A read-only reclaim owner-transfer contract surface.
+
+using selfhost.hako_alloc.memory.reclaim_owner_transfer_contract_box as HakoAllocReclaimOwnerTransferContract
+
+static box Main {
+    main(args) {
+        local contract = new HakoAllocReclaimOwnerTransferContract()
+
+        local unknown = contract.classifyTransfer(30, -1, 2, 0, 0, 1, 4096, 0, 0)
+        local active = contract.classifyTransfer(31, 1, 2, 1, 0, 1, 4096, 0, 0)
+        local remote = contract.classifyTransfer(32, 1, 2, 0, 0, 1, 4096, 4, 0)
+        local no_backing = contract.classifyTransfer(33, 1, 2, 0, 0, 1, 0, 0, 0)
+        local decommitted = contract.classifyTransfer(34, 1, 2, 0, 0, 1, 4096, 0, 1)
+        local ready = contract.classifyTransfer(35, 1, 2, 0, 0, 1, 4096, 0, 0)
+
+        local ok = check "mimap051a reclaim owner transfer contract" {
+            "unknown blocked": unknown.contract_ready == 0
+            "unknown reason": unknown.reason == 1
+            "active blocked": active.contract_ready == 0
+            "active reason": active.reason == 3
+            "remote blocked": remote.contract_ready == 0
+            "remote reason": remote.reason == 4
+            "remote pending fact": remote.remote_free_pending == 4
+            "no backing blocked": no_backing.contract_ready == 0
+            "no backing reason": no_backing.reason == 6
+            "decommitted blocked": decommitted.contract_ready == 0
+            "decommitted reason": decommitted.reason == 5
+            "ready contract": ready.contract_ready == 1
+            "ready reason": ready.reason == 0
+            "ready abandoned": ready.abandoned == 1
+            "ready owner adoption": ready.owner_adoption_candidate == 1
+            "ready reclaim candidate": ready.reclaim_candidate == 1
+            "ready requires adoption": ready.requires_owner_adoption == 1
+            "ready no schedule": ready.would_schedule_thread == 0
+            "ready no atomic": ready.would_atomic_claim == 0
+            "ready no drain": ready.would_drain_remote_free == 0
+            "ready no owner change": ready.would_change_page_owner == 0
+            "ready no reclaim execution": ready.would_execute_reclaim == 0
+            "ready no page source": ready.would_call_page_source == 0
+            "ready no unreserve": ready.would_unreserve == 0
+            "ready no os release": ready.would_release_osvm == 0
+            "classify count": contract.classify_count == 6
+            "ready count": contract.contract_ready_count == 1
+            "blocked count": contract.blocked_count == 5
+            "owner blocks": contract.owner_block_count == 2
+            "reclaim blocks": contract.reclaim_block_count == 1
+            "remote blocks": contract.remote_pending_block_count == 1
+            "decommitted blocks": contract.decommitted_block_count == 1
+            "last page": contract.last_page_id == 35
+            "last reason": contract.last_reason == 0
+        }
+
+        print("hako-alloc-reclaim-owner-transfer-contract-proof")
+        print("unknown=" + unknown.contract_ready + "," + unknown.reason + "," + unknown.owner_reason)
+        print("active=" + active.contract_ready + "," + active.reason + "," + active.owner_reason)
+        print("remote=" + remote.contract_ready + "," + remote.reason + "," + remote.remote_free_pending)
+        print("no_backing=" + no_backing.contract_ready + "," + no_backing.reason + "," + no_backing.reclaim_reason)
+        print("decommitted=" + decommitted.contract_ready + "," + decommitted.reason + "," + decommitted.owner_reason + "," + decommitted.reclaim_reason)
+        print("ready=" + ready.contract_ready + "," + ready.reason + "," + ready.abandoned + "," + ready.owner_adoption_candidate + "," + ready.reclaim_candidate + "," + ready.requires_owner_adoption)
+        print("inactive=" + ready.would_schedule_thread + "," + ready.would_atomic_claim + "," + ready.would_drain_remote_free + "," + ready.would_change_page_owner + "," + ready.would_execute_reclaim + "," + ready.would_call_page_source + "," + ready.would_unreserve + "," + ready.would_release_osvm)
+        print("counts=" + contract.classify_count + "," + contract.contract_ready_count + "," + contract.blocked_count + "," + contract.owner_block_count + "," + contract.reclaim_block_count + "," + contract.remote_pending_block_count + "," + contract.decommitted_block_count + "," + contract.last_page_id + "," + contract.last_reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

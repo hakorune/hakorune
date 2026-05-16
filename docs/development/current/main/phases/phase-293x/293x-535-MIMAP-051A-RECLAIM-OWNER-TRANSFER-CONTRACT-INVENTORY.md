@@ -1,6 +1,6 @@
 # 293x-535 MIMAP-051A Reclaim Owner-Transfer Contract Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -64,3 +64,78 @@ git diff --check
 
 This row closes when reclaim has a named owner-transfer contract inventory and
 all execution surfaces remain explicitly inactive.
+
+## Implementation Result
+
+`MIMAP-051A` adds:
+
+```text
+SSOT:
+  docs/development/current/main/design/hako-alloc-reclaim-owner-transfer-contract-ssot.md
+
+owner:
+  lang/src/hako_alloc/memory/reclaim_owner_transfer_contract_box.hako
+
+proof app:
+  apps/hako-alloc-reclaim-owner-transfer-contract-proof/
+
+guard:
+  tools/checks/k2_wide_hako_alloc_reclaim_owner_transfer_contract_guard.sh
+```
+
+The owner composes:
+
+```text
+HakoAllocThreadHeapOwnerInventory
+HakoAllocAbandonedReclaimInventory
+```
+
+into a read-only contract report:
+
+```text
+contract_ready
+reason
+owner_reason
+reclaim_reason
+inactive execution flags
+```
+
+`contract_ready = 1` is an inventory fact for a future execution row. It does
+not mutate ownership, execute reclaim, drain remote frees, call page-source
+APIs, or perform atomic claims in this row.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_reclaim_owner_transfer_contract_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Selection Result
+
+`MIMAP-051A` selects `MIMAP-051B`.
+
+```text
+row:
+  MIMAP-051B post-reclaim-contract row selection
+
+classification:
+  planning-only row
+
+why now:
+  reclaim owner-transfer preconditions are now named. The lane needs a
+  single-row selection step before deciding whether to open capability checking,
+  reclaim execution preflight, language ergonomics, or another allocator row.
+
+stop lines:
+  no reclaim execution
+  no capability checker implementation
+  no cleanup bundle
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-051B.
+```

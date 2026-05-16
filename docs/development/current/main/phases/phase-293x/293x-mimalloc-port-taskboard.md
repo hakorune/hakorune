@@ -332,7 +332,8 @@ FST:
 | `RANDOM-CAP-001` | landed | Uses random capability decision + fail-fast contract. | after MIMAP-049B |
 | `RANDOM-CAP-002` | landed | Random capability unsupported-route preflight. | after RANDOM-CAP-001 |
 | `MIMAP-050A` | landed | Secure entropy route proposal-or-park. | parked entropy execution; selected MIMAP-051A |
-| `MIMAP-051A` | selected current | Reclaim owner-transfer contract inventory. | after MIMAP-050A |
+| `MIMAP-051A` | landed | Reclaim owner-transfer contract inventory. | after MIMAP-050A |
+| `MIMAP-051B` | selected current | Post-reclaim-contract row selection. | selected by MIMAP-051A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -340,9 +341,9 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-050A: `MIMAP-051A` names the reclaim owner-transfer
-preconditions before any reclaim execution, atomic claim, remote-free drain, or
-thread scheduling is opened.
+Current row after MIMAP-051A: `MIMAP-051B` selects exactly one follow-up after
+the reclaim owner-transfer contract inventory landed. It must not open reclaim
+execution, atomic claim, remote-free drain, or thread scheduling by itself.
 
 MIMAP-020A execution order:
 

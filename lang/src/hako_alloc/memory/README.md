@@ -517,6 +517,13 @@ Syntax/style contract
   hooks, replace allocators, change scheduler/page-queue policy, or add
   user-facing concurrency.
 - `abandoned_reclaim_inventory_box.hako` owns M213 abandoned/reclaim inventory.
+- `reclaim_owner_transfer_contract_box.hako` owns MIMAP-051A reclaim
+  owner-transfer contract inventory. It may compose M213 abandoned/reclaim
+  facts with M215 thread owner-token facts and report contract-ready vs blocked
+  preconditions for a future reclaim execution row, but it must not schedule
+  threads, use atomics, drain remote frees, mutate ownership, execute reclaim,
+  call page-source APIs, unreserve, release OSVM pages, activate providers,
+  install hooks, or replace the process allocator.
 - `options_inventory_box.hako` owns M214 allocator options/defaults inventory. It may classify static option/default facts and report inactive mutable options, env toggles, provider/hook/replacement, and reclaim execution, but it must not parse process configuration or change allocation behavior.
 - `thread_heap_owner_inventory_box.hako` owns M215 thread heap owner-token inventory. It may classify scalar owner-token facts for future abandoned/reclaim rows, but it must not schedule threads, use atomics, drain remote frees, mutate ownership, call page-source APIs, unreserve, or release OSVM pages.
   It may classify scalar owner/page facts into read-only abandoned and reclaim

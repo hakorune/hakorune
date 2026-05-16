@@ -32,16 +32,16 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-051A reclaim owner-transfer contract inventory`
+- current blocker token: `MIMAP-051B post-reclaim-contract row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-050A`; secure entropy execution is parked
-  and current blocker is `MIMAP-051A`
-- planned order: add a reclaim owner-transfer contract inventory; do not open
-  reclaim execution, thread scheduling, atomic claim, or remote-free drain
+- continue phase-293x after `MIMAP-051A`; reclaim owner-transfer contract
+  inventory is landed and current blocker is `MIMAP-051B`
+- planned order: select exactly one next row; do not open reclaim execution,
+  thread scheduling, atomic claim, or remote-free drain in the planning row
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

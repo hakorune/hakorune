@@ -207,7 +207,8 @@ Forbidden:
 | `RANDOM-CAP-001` | uses random capability decision + fail-fast contract | landed; selected RANDOM-CAP-002 |
 | `RANDOM-CAP-002` | random capability unsupported-route preflight | landed; selected MIMAP-050A |
 | `MIMAP-050A` | secure entropy route proposal-or-park | landed; parked entropy execution and selected MIMAP-051A |
-| `MIMAP-051A` | reclaim owner-transfer contract inventory | selected current |
+| `MIMAP-051A` | reclaim owner-transfer contract inventory | landed; selected MIMAP-051B |
+| `MIMAP-051B` | post-reclaim-contract row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -820,6 +821,15 @@ facts. It must not mutate ownership, execute reclaim, perform atomic claims,
 drain remote-free queues, schedule threads, call page-source APIs, unreserve or
 release OSVM pages, activate providers, install hooks, replace the process
 allocator, or add backend `.inc` app/name matchers.
+
+MIMAP-051A landed by adding `HakoAllocReclaimOwnerTransferContract`, a proof
+app, guard, and accepted SSOT. It selects MIMAP-051B.
+
+### MIMAP-051B granularity
+
+MIMAP-051B is a planning-only row. It reads MIMAP-051A evidence and selects
+exactly one next allocator/compiler/language task. It must not implement
+reclaim execution, capability checking, or cleanup by itself.
 
 ## Compiler / language sidecar triggers
 

@@ -34,21 +34,22 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-050A` parked secure entropy execution after the random capability gate
-landed.
+`MIMAP-051A` landed reclaim owner-transfer contract inventory after secure
+entropy execution was parked.
 
 Recommended current row:
 
 ```text
-MIMAP-051A
-  reclaim owner-transfer contract inventory
+MIMAP-051B
+  post-reclaim-contract row selection
 ```
 
 Purpose:
 
 ```text
-name reclaim owner-transfer preconditions before execution
-keep atomic claim / remote-free drain / thread scheduling inactive
+choose exactly one next row after reclaim owner-transfer preconditions are
+named
+keep reclaim execution inactive until a separate guarded row opens it
 keep secure entropy execution parked until a real random route is accepted
 ```
 
@@ -59,7 +60,7 @@ no reclaim execution
 no atomic ownership claim
 no remote-free drain
 no thread scheduling
-no page-source call
+no capability checker implementation in the planning row
 no provider activation
 ```
 
@@ -71,13 +72,14 @@ no provider activation
 | 2 | Hakorune core | `RANDOM-CAP-001 uses random capability decision` | landed |
 | 3 | Hakorune core | `RANDOM-CAP-002 random route fail-fast/preflight` | landed |
 | 4 | allocator | `MIMAP-050A secure entropy route proposal or park row` | landed; parked entropy execution |
-| 5 | allocator | `MIMAP-051A reclaim owner-transfer contract inventory` | current; reclaim needs explicit preconditions before execution |
-| 6 | Hakorune core | `USES-CHECK-* capability checker expansion` | needed when allocator rows start depending on executable `uses random` / `uses tls` semantics |
-| 7 | allocator | reclaim execution small guarded row | only after owner-transfer and remote-free drain gates are explicit |
-| 8 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
-| 9 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
-| 10 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
-| 11 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
+| 5 | allocator | `MIMAP-051A reclaim owner-transfer contract inventory` | landed; named explicit preconditions before execution |
+| 6 | planning | `MIMAP-051B post-reclaim-contract row selection` | current; choose one next row |
+| 7 | Hakorune core | `USES-CHECK-* capability checker expansion` | needed when allocator rows start depending on executable `uses random` / `uses tls` semantics |
+| 8 | allocator | reclaim execution small guarded row | only after owner-transfer and remote-free drain gates are explicit |
+| 9 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
+| 10 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
+| 11 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
+| 12 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
 
