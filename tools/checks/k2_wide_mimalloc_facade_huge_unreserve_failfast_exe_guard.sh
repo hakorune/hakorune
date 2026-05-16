@@ -11,6 +11,7 @@ APP_TEST="apps/mimalloc-facade-huge-unreserve-failfast-proof/test.sh"
 APP_README="apps/mimalloc-facade-huge-unreserve-failfast-proof/README.md"
 ROUTE="lang/src/hako_alloc/memory/object_lifecycle_facade_huge_unreserve_failfast_box.hako"
 UNRESERVE_ROUTE="lang/src/hako_alloc/memory/object_lifecycle_facade_huge_unreserve_box.hako"
+BACKING_SET="lang/src/hako_alloc/memory/object_lifecycle_facade_huge_backing_set_box.hako"
 UNRESERVE_ADAPTER="lang/src/hako_alloc/memory/purge_page_source_unreserve_adapter_box.hako"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 CARD="docs/development/current/main/phases/phase-293x/293x-463-MIMAP-035A-FACADE-HUGE-UNRESERVE-FAILFAST.md"
@@ -27,6 +28,7 @@ guard_require_files \
   "$APP_README" \
   "$ROUTE" \
   "$UNRESERVE_ROUTE" \
+  "$BACKING_SET" \
   "$UNRESERVE_ADAPTER" \
   "$MODULE" \
   "$CARD" \
@@ -38,8 +40,10 @@ guard_require_exec_files "$TAG" "$APP_TEST" "$0"
 guard_expect_in_file "$TAG" 'box HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastRoute' "$ROUTE" "MIMAP-035A route owner missing"
 guard_expect_in_file "$TAG" 'box HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastReport' "$ROUTE" "MIMAP-035A report owner missing"
 guard_expect_in_file "$TAG" 'unreserve_route: HakoAllocObjectLifecycleFacadeHugeUnreserveRoute' "$ROUTE" "MIMAP-035A must reuse MIMAP-034A"
+guard_expect_in_file "$TAG" 'unreserved_backings: HakoAllocObjectLifecycleFacadeHugeBackingSet' "$ROUTE" "MIMAP-035A must delegate backing state to MIMAP-037A helper"
 guard_expect_in_file "$TAG" 'me\.unreserve_route\.allocateUnregisterDecommitUnreserveHuge\(facade, size\)' "$ROUTE" "MIMAP-035A must start from MIMAP-034A success route"
-guard_expect_in_file "$TAG" 'unreserved_bases: ArrayBox' "$ROUTE" "MIMAP-035A must own allocator-side unreserve state"
+guard_expect_in_file "$TAG" 'box HakoAllocObjectLifecycleFacadeHugeBackingSet' "$BACKING_SET" "MIMAP-037A backing-set helper missing"
+guard_expect_in_file "$TAG" 'mark\(base, bytes\)' "$BACKING_SET" "MIMAP-037A backing-set helper must own mark"
 guard_expect_in_file "$TAG" 'markSuccessfulUnreserve' "$ROUTE" "MIMAP-035A must record successful unreserve state"
 guard_expect_in_file "$TAG" 'rejectDuplicateUnreserve' "$ROUTE" "MIMAP-035A duplicate fail-fast entry missing"
 guard_expect_in_file "$TAG" 'rejectStaleUnreserve' "$ROUTE" "MIMAP-035A stale fail-fast entry missing"
@@ -49,8 +53,11 @@ guard_expect_in_file "$TAG" 'result\.adapter_calls_before_stale = me\.unreserve_
 guard_expect_in_file "$TAG" 'result\.adapter_calls_after_stale = me\.unreserve_route\.unreserve_adapter\.call_count' "$ROUTE" "MIMAP-035A must prove no stale adapter call"
 guard_expect_in_file "$TAG" 'HakoAllocPageSourcePolicy\.unreservePage\(base, bytes\)' "$UNRESERVE_ADAPTER" "MIMAP-033A adapter remains the page-source unreserve owner"
 guard_expect_in_file "$TAG" 'memory.object_lifecycle_facade_huge_unreserve_failfast_box = "memory/object_lifecycle_facade_huge_unreserve_failfast_box.hako"' "$MODULE" "hako module must export MIMAP-035A route"
+guard_expect_in_file "$TAG" 'memory.object_lifecycle_facade_huge_backing_set_box = "memory/object_lifecycle_facade_huge_backing_set_box.hako"' "$MODULE" "hako module must export MIMAP-037A helper"
 guard_expect_in_file "$TAG" 'object_lifecycle_facade_huge_unreserve_failfast_box.hako' "$README" "memory README must name MIMAP-035A owner"
+guard_expect_in_file "$TAG" 'object_lifecycle_facade_huge_backing_set_box.hako' "$README" "memory README must name MIMAP-037A helper"
 guard_expect_in_file "$TAG" 'HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastRoute' "$ROOT_README" "root hako_alloc README must name MIMAP-035A owner"
+guard_expect_in_file "$TAG" 'HakoAllocObjectLifecycleFacadeHugeBackingSet' "$ROOT_README" "root hako_alloc README must name MIMAP-037A helper"
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD" "MIMAP-035A card must be landed after implementation"
 guard_expect_in_file "$TAG" "$0" "$INDEX" "check script index must list MIMAP-035A guard"
 
@@ -117,6 +124,10 @@ required = {
     "HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastRoute.markSuccessfulUnreserve/2",
     "HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastRoute.rejectDuplicateUnreserve/1",
     "HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastRoute.rejectStaleUnreserve/3",
+    "HakoAllocObjectLifecycleFacadeHugeBackingSet.length/0",
+    "HakoAllocObjectLifecycleFacadeHugeBackingSet.find/2",
+    "HakoAllocObjectLifecycleFacadeHugeBackingSet.has/2",
+    "HakoAllocObjectLifecycleFacadeHugeBackingSet.mark/2",
     "HakoAllocObjectLifecycleFacadeHugeUnreserveRoute.allocateUnregisterDecommitUnreserveHuge/2",
     "HakoAllocPageSourceUnreserveAdapter.unreservePage/2",
 }
@@ -128,6 +139,7 @@ plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [
 for name in (
     "HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastRoute",
     "HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastReport",
+    "HakoAllocObjectLifecycleFacadeHugeBackingSet",
     "HakoAllocObjectLifecycleFacadeHugeUnreserveRoute",
     "HakoAllocPageSourceUnreserveAdapter",
 ):
@@ -140,12 +152,20 @@ route_fields = {
 }
 for name, declared in (
     ("unreserve_route", "HakoAllocObjectLifecycleFacadeHugeUnreserveRoute"),
-    ("unreserved_bases", "ArrayBox"),
-    ("unreserved_bytes", "ArrayBox"),
+    ("unreserved_backings", "HakoAllocObjectLifecycleFacadeHugeBackingSet"),
 ):
     field = route_fields.get(name)
     if field is None or field.get("declared_type") != declared or field.get("storage") != "handle":
         raise SystemExit(f"bad failfast route field {name}: {field}")
+
+helper_fields = {
+    field.get("name"): field
+    for field in plans["HakoAllocObjectLifecycleFacadeHugeBackingSet"].get("fields", [])
+}
+for name in ("bases", "bytes_values"):
+    field = helper_fields.get(name)
+    if field is None or field.get("declared_type") != "ArrayBox" or field.get("storage") != "handle":
+        raise SystemExit(f"bad backing-set helper field {name}: {field}")
 
 report_fields = {
     field.get("name")

@@ -51,7 +51,7 @@ guard_expect_in_file "$TAG" "Status: landed" "$CARD_034A" "MIMAP-034A must be la
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_035A" "MIMAP-035A must be landed before closeout"
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_036A" "MIMAP-036A must be landed after closeout"
 guard_expect_in_file "$TAG" "MIMAP-035B selected MIMAP-036A" "$CARD_036A" "MIMAP-036A card must name its selection source"
-guard_expect_in_file "$TAG" "Status: selected current" "$CARD_036B" "MIMAP-036B must be the current row after closeout"
+guard_expect_in_file "$TAG" "Status: landed" "$CARD_036B" "MIMAP-036B must remain landed after closeout selection"
 
 guard_expect_in_file "$TAG" "MIMAP-032A" "$SSOT" "closeout SSOT must include substrate unreserve row"
 guard_expect_in_file "$TAG" "MIMAP-033A" "$SSOT" "closeout SSOT must include page-source unreserve adapter row"
@@ -62,9 +62,9 @@ guard_expect_in_file "$TAG" "process allocator replacement" "$SSOT" "closeout SS
 guard_expect_in_file "$TAG" "MIMAP-036B post-huge-unreserve-closeout row selection" "$SSOT" "closeout SSOT must name the next planning row"
 
 guard_expect_in_file "$TAG" '| `MIMAP-036A` | post-huge-unreserve closeout guard | landed after MIMAP-035B |' "$GRANULARITY" "granularity SSOT must mark MIMAP-036A landed"
-guard_expect_in_file "$TAG" '| `MIMAP-036B` | post-huge-unreserve-closeout row selection | current after MIMAP-036A |' "$GRANULARITY" "granularity SSOT must point at MIMAP-036B"
+guard_expect_in_file "$TAG" '| `MIMAP-036B` | post-huge-unreserve-closeout row selection | landed; selected MIMAP-037A |' "$GRANULARITY" "granularity SSOT must keep MIMAP-036B closeout selection"
 guard_expect_in_file "$TAG" '| `MIMAP-036A` | landed | Post-huge-unreserve closeout guard. | after MIMAP-035B |' "$TASKBOARD" "taskboard must mark MIMAP-036A landed"
-guard_expect_in_file "$TAG" '| `MIMAP-036B` | selected current | Post-huge-unreserve-closeout row selection. | after MIMAP-036A |' "$TASKBOARD" "taskboard must point at MIMAP-036B"
+guard_expect_in_file "$TAG" '| `MIMAP-036B` | landed | Post-huge-unreserve-closeout row selection. | selected MIMAP-037A |' "$TASKBOARD" "taskboard must keep MIMAP-036B closeout selection"
 
 guard_expect_in_file "$TAG" 'memory.object_lifecycle_facade_huge_unreserve_box = "memory/object_lifecycle_facade_huge_unreserve_box.hako"' "$MODULE" "MIMAP-034A owner must stay exported"
 guard_expect_in_file "$TAG" 'memory.object_lifecycle_facade_huge_unreserve_failfast_box = "memory/object_lifecycle_facade_huge_unreserve_failfast_box.hako"' "$MODULE" "MIMAP-035A owner must stay exported"

@@ -1,6 +1,6 @@
 # 293x-466 MIMAP-036B Post-Huge-Unreserve-Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -83,3 +83,47 @@ tools/checks/dev_gate.sh quick
 This row closes when one next row is selected with clear owner/proof/guard names
 and provider/host allocator replacement still inactive unless explicitly
 reopened.
+
+## Selection Result
+
+`MIMAP-036B` selects `MIMAP-037A`.
+
+Rationale:
+
+- MIMAP-036A closed the huge unreserve lane through success, fail-fast
+  diagnostics, and a closeout guard.
+- The next allocator behavior would build on the facade huge lifecycle owners,
+  but those owners now have repeated `last_*` / backing-range state patterns.
+- The smallest clean next step is a BoxShape row that extracts the
+  duplicate/stale unreserve backing-set state from the fail-fast route into a
+  narrow helper.
+
+Selected row:
+
+```text
+row:
+  MIMAP-037A facade huge backing-set helper cleanup
+owner:
+  lang/src/hako_alloc/memory/object_lifecycle_facade_huge_backing_set_box.hako
+proof app:
+  reuse apps/mimalloc-facade-huge-unreserve-failfast-proof/main.hako
+guard:
+  tools/checks/k2_wide_mimalloc_facade_huge_backing_set_helper_guard.sh
+reused guard:
+  tools/checks/k2_wide_mimalloc_facade_huge_unreserve_failfast_exe_guard.sh
+primary proof:
+  existing MIMAP-035A proof still proves duplicate/stale unreserve reject
+  without a second adapter call after the helper extraction
+stop lines:
+  no allocator behavior
+  no new fail-fast reason vocabulary
+  no provider activation
+  no host allocator replacement / hook / #[global_allocator]
+  no backend .inc matcher shortcut
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-037A facade huge backing-set helper cleanup.
+```

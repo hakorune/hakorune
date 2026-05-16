@@ -1,0 +1,49 @@
+// object_lifecycle_facade_huge_backing_set_box.hako -- MIMAP-037A helper
+// Responsibility: track facade huge backing base+bytes pairs for diagnostic
+// routes. It owns pair storage only; lifecycle behavior and page-source/OSVM
+// calls stay with the route owners.
+
+box HakoAllocObjectLifecycleFacadeHugeBackingSet {
+    bases: ArrayBox = new ArrayBox()
+    bytes_values: ArrayBox = new ArrayBox()
+
+    length(): i64 {
+        return me.bases.length()
+    }
+
+    find(base, bytes): i64 {
+        local count = me.bases.length()
+        local i = 0
+        loop(i < count) {
+            if me.bases.get(i) == base {
+                if me.bytes_values.get(i) == bytes {
+                    return i
+                }
+            }
+            i = i + 1
+        }
+        return -1
+    }
+
+    has(base, bytes): i64 {
+        if me.find(base, bytes) >= 0 {
+            return 1
+        }
+        return 0
+    }
+
+    mark(base, bytes): i64 {
+        if base == 0 {
+            return 1
+        }
+        if bytes <= 0 {
+            return 2
+        }
+        if me.has(base, bytes) != 0 {
+            return 5
+        }
+        me.bases.push(base)
+        me.bytes_values.push(bytes)
+        return 0
+    }
+}

@@ -151,6 +151,9 @@ Principles
     rejects duplicate/stale unreserve attempts before a second page-source
     unreserve adapter call while still stopping before recommit, provider
     activation, and allocator replacement.
+  - `HakoAllocObjectLifecycleFacadeHugeBackingSet` is the MIMAP-037A helper
+    for exact `base + bytes` diagnostic backing pairs. It keeps backing-set
+    storage out of facade huge fail-fast routes and owns no lifecycle behavior.
   - `HakoAllocHugeReleaseSeam` is the M181 huge release seam owner. It retires
     huge handles through `HakoAllocHugePageModel` and unregisters page-map
     ownership without touching small page `releaseLocal(...)`.

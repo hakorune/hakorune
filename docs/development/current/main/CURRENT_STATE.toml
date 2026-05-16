@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-16"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-036A landed the post-huge-unreserve closeout guard after the MIMAP-034A/MIMAP-035A facade huge unreserve success and fail-fast lane. MIMAP-036B is selecting the next row. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-037A landed the facade huge backing-set helper cleanup after MIMAP-036A closed the huge unreserve lane. MIMAP-037B is selecting the next row. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-466-MIMAP-036B-POST-HUGE-UNRESERVE-CLOSEOUT-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-468-MIMAP-037B-POST-BACKING-SET-HELPER-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-465-MIMAP-036A-POST-HUGE-UNRESERVE-CLOSEOUT-GUARD"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-465-MIMAP-036A-POST-HUGE-UNRESERVE-CLOSEOUT-GUARD.md"
-latest_card_summary = "MIMAP-036A lands the post-huge-unreserve closeout SSOT and guard after MIMAP-034A/MIMAP-035A."
+latest_card = "293x-467-MIMAP-037A-FACADE-HUGE-BACKING-SET-HELPER"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-467-MIMAP-037A-FACADE-HUGE-BACKING-SET-HELPER.md"
+latest_card_summary = "MIMAP-037A extracts facade huge duplicate/stale unreserve backing-set state into a helper without adding allocator behavior."
 
-current_blocker_token = "MIMAP-036B"
+current_blocker_token = "MIMAP-037B"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-467 MIMAP-037A facade huge backing-set helper cleanup landed",
+  "293x-466 MIMAP-036B post-huge-unreserve-closeout row selection landed",
   "293x-465 MIMAP-036A post-huge-unreserve closeout guard landed",
   "293x-464 MIMAP-035B post-huge-unreserve-failfast row selection landed",
   "293x-463 MIMAP-035A facade huge unreserve fail-fast diagnostics landed",

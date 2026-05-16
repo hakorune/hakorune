@@ -6,6 +6,7 @@
 // hooks, host allocator replacement, and backend matcher shortcuts.
 
 using selfhost.hako_alloc.memory.object_lifecycle_facade_huge_unreserve_box as HakoAllocObjectLifecycleFacadeHugeUnreserveBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_huge_backing_set_box as HakoAllocObjectLifecycleFacadeHugeBackingSetBox
 using selfhost.hako_alloc.memory.object_lifecycle_facade_reason_box as HakoAllocObjectLifecycleFacadeReason
 
 box HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastReport {
@@ -63,8 +64,7 @@ box HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastReport {
 
 box HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastRoute {
     unreserve_route: HakoAllocObjectLifecycleFacadeHugeUnreserveRoute = new HakoAllocObjectLifecycleFacadeHugeUnreserveRoute()
-    unreserved_bases: ArrayBox = new ArrayBox()
-    unreserved_bytes: ArrayBox = new ArrayBox()
+    unreserved_backings: HakoAllocObjectLifecycleFacadeHugeBackingSet = new HakoAllocObjectLifecycleFacadeHugeBackingSet()
     failfast_attempt_count: i64 = 0
     duplicate_reject_count: i64 = 0
     stale_reject_count: i64 = 0
@@ -83,39 +83,15 @@ box HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastRoute {
     }
 
     findUnreservedBacking(base, bytes): i64 {
-        local count = me.unreserved_bases.length()
-        local i = 0
-        loop(i < count) {
-            if me.unreserved_bases.get(i) == base {
-                if me.unreserved_bytes.get(i) == bytes {
-                    return i
-                }
-            }
-            i = i + 1
-        }
-        return -1
+        return me.unreserved_backings.find(base, bytes)
     }
 
     isUnreservedBacking(base, bytes): i64 {
-        if me.findUnreservedBacking(base, bytes) >= 0 {
-            return 1
-        }
-        return 0
+        return me.unreserved_backings.has(base, bytes)
     }
 
     markSuccessfulUnreserve(base, bytes): i64 {
-        if base == 0 {
-            return 1
-        }
-        if bytes <= 0 {
-            return 2
-        }
-        if me.isUnreservedBacking(base, bytes) != 0 {
-            return 5
-        }
-        me.unreserved_bases.push(base)
-        me.unreserved_bytes.push(bytes)
-        return 0
+        return me.unreserved_backings.mark(base, bytes)
     }
 
     copyFirstUnreserveResult(result, first_status) {
@@ -144,7 +120,7 @@ box HakoAllocObjectLifecycleFacadeHugeUnreserveFailfastRoute {
     }
 
     snapshotHugeUnreserveFailfastCounters(result) {
-        result.marked_count = me.unreserved_bases.length()
+        result.marked_count = me.unreserved_backings.length()
         result.failfast_attempt_count = me.failfast_attempt_count
         result.duplicate_reject_count = me.duplicate_reject_count
         result.stale_reject_count = me.stale_reject_count
