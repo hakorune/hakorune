@@ -1,0 +1,84 @@
+// reclaim_scheduler_request_marker_box.hako -- MIMAP-064A scheduler request marker
+// Responsibility:
+// - compose scalar reclaim completion
+// - set an executor-local scheduler request marker only when completion succeeds
+//   and scheduler request is enabled
+// - keep real scheduling, source concurrency, page-source/OSVM release,
+//   provider, and host replacement closed
+// Non-responsibility:
+// - spawning workers, running scheduler threads, source-level concurrency
+//   semantics, page-source/OSVM calls, hooks, allocator replacement, or backend
+//   shortcuts
+
+using selfhost.hako_alloc.memory.reclaim_completion_marker_box as HakoAllocReclaimCompletionMarker
+
+box HakoAllocReclaimSchedulerRequestMarkerReport {
+    should_request_schedule: i64 = 0
+    reason: i64 = 0
+    page_id: i64 = -1
+    request_marker: i64 = 0
+    did_complete: i64 = 0
+    completion_marker: i64 = 0
+    completion_reason: i64 = 0
+    integration_reason: i64 = 0
+    did_drain: i64 = 0
+    did_transfer: i64 = 0
+    pending_after: i64 = 0
+    owner_after: i64 = -1
+    would_schedule_thread: i64 = 0
+    would_spawn_worker: i64 = 0
+    would_touch_source_concurrency: i64 = 0
+    would_call_page_source: i64 = 0
+    would_unreserve: i64 = 0
+    would_release_osvm: i64 = 0
+    would_activate_provider: i64 = 0
+    would_host_allocator_swap: i64 = 0
+}
+
+box HakoAllocReclaimSchedulerRequestMarker {
+    completion: HakoAllocReclaimCompletionMarker = new HakoAllocReclaimCompletionMarker()
+    attempt_count: i64 = 0
+    request_count: i64 = 0
+    suppress_count: i64 = 0
+    last_page_id: i64 = -1
+    last_reason: i64 = 0
+    last_request_marker: i64 = 0
+
+    report(should_request_schedule, reason, page_id, request_marker, did_complete, completion_marker, completion_reason, integration_reason, did_drain, did_transfer, pending_after, owner_after) {
+        local result = new HakoAllocReclaimSchedulerRequestMarkerReport()
+        result.should_request_schedule = should_request_schedule
+        result.reason = reason
+        result.page_id = page_id
+        result.request_marker = request_marker
+        result.did_complete = did_complete
+        result.completion_marker = completion_marker
+        result.completion_reason = completion_reason
+        result.integration_reason = integration_reason
+        result.did_drain = did_drain
+        result.did_transfer = did_transfer
+        result.pending_after = pending_after
+        result.owner_after = owner_after
+        me.last_page_id = page_id
+        me.last_reason = reason
+        me.last_request_marker = request_marker
+        return result
+    }
+
+    classifySchedulerRequest(page_id, expected_owner, observed_owner, claimant_owner, remote_free_pending, remote_head, drain_budget, backing_bytes, scheduler_enabled) {
+        me.attempt_count = me.attempt_count + 1
+
+        local completed = me.completion.completeReclaim(page_id, expected_owner, observed_owner, claimant_owner, remote_free_pending, remote_head, drain_budget, backing_bytes)
+        if completed.did_complete == 0 {
+            me.suppress_count = me.suppress_count + 1
+            return me.report(0, 1, page_id, 0, completed.did_complete, completed.completion_marker, completed.reason, completed.integration_reason, completed.did_drain, completed.did_transfer, completed.pending_after, completed.owner_after)
+        }
+
+        if scheduler_enabled == 0 {
+            me.suppress_count = me.suppress_count + 1
+            return me.report(0, 2, page_id, 0, completed.did_complete, completed.completion_marker, completed.reason, completed.integration_reason, completed.did_drain, completed.did_transfer, completed.pending_after, completed.owner_after)
+        }
+
+        me.request_count = me.request_count + 1
+        return me.report(1, 0, page_id, 1, completed.did_complete, completed.completion_marker, completed.reason, completed.integration_reason, completed.did_drain, completed.did_transfer, completed.pending_after, completed.owner_after)
+    }
+}

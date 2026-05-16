@@ -223,7 +223,8 @@ Forbidden:
 | `MIMAP-061A` | reclaim scalar lane closeout guard | landed; selected MIMAP-062A |
 | `MIMAP-062A` | post-reclaim-scalar-closeout row selection | landed; selected MIMAP-063A |
 | `MIMAP-063A` | reclaim scheduler boundary inventory | landed; selected MIMAP-064A |
-| `MIMAP-064A` | reclaim scheduler request marker contract | selected current |
+| `MIMAP-064A` | reclaim scheduler request marker contract | landed; selected MIMAP-065A |
+| `MIMAP-065A` | reclaim scheduler marker closeout guard | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1036,6 +1037,19 @@ modeled scheduler handoff or stay local/suppressed.
 It must not execute real scheduling, add source-level concurrency semantics,
 call page-source APIs, unreserve or release OSVM pages, activate providers,
 replace the host allocator, or add backend matchers.
+
+MIMAP-064A landed by adding `HakoAllocReclaimSchedulerRequestMarker`, a proof
+app, guard, and accepted SSOT. It selects MIMAP-065A.
+
+### MIMAP-065A granularity
+
+MIMAP-065A is a closeout/guard row for the scheduler boundary/request marker
+slice. It should lock MIMAP-063A and MIMAP-064A before broader reclaim behavior
+or real scheduling is considered.
+
+It must not add allocator behavior, execute real scheduling, add source-level
+concurrency semantics, call page-source APIs, unreserve or release OSVM pages,
+activate providers, replace the host allocator, or add backend matchers.
 
 ## Compiler / language sidecar triggers
 

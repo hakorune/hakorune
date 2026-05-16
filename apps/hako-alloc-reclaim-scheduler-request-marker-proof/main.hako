@@ -1,0 +1,72 @@
+// hako-alloc-reclaim-scheduler-request-marker-proof
+// Purpose: prove MIMAP-064A scalar scheduler request marker contract.
+
+using selfhost.hako_alloc.memory.reclaim_scheduler_request_marker_box as HakoAllocReclaimSchedulerRequestMarker
+
+static box Main {
+    main(args) {
+        local marker = new HakoAllocReclaimSchedulerRequestMarker()
+
+        local request_drained = marker.classifySchedulerRequest(90, 1, 1, 2, 1, 900, 1, 4096, 1)
+        local request_direct = marker.classifySchedulerRequest(91, 3, 3, 4, 0, 0, 1, 4096, 1)
+        local disabled = marker.classifySchedulerRequest(92, 5, 5, 6, 1, 901, 1, 4096, 0)
+        local blocked = marker.classifySchedulerRequest(93, 7, 1, 2, 0, 0, 1, 4096, 1)
+
+        local ok = check "mimap064a reclaim scheduler request marker" {
+            "request drained should schedule": request_drained.should_request_schedule == 1
+            "request drained reason": request_drained.reason == 0
+            "request drained marker": request_drained.request_marker == 1
+            "request drained complete": request_drained.did_complete == 1
+            "request drained completion marker": request_drained.completion_marker == 1
+            "request drained did drain": request_drained.did_drain == 1
+            "request drained did transfer": request_drained.did_transfer == 1
+            "request drained pending after": request_drained.pending_after == 0
+            "request drained owner after": request_drained.owner_after == 2
+            "request direct should schedule": request_direct.should_request_schedule == 1
+            "request direct reason": request_direct.reason == 0
+            "request direct marker": request_direct.request_marker == 1
+            "request direct no drain": request_direct.did_drain == 0
+            "request direct owner after": request_direct.owner_after == 4
+            "disabled suppress": disabled.should_request_schedule == 0
+            "disabled reason": disabled.reason == 2
+            "disabled marker": disabled.request_marker == 0
+            "disabled still complete": disabled.did_complete == 1
+            "blocked suppress": blocked.should_request_schedule == 0
+            "blocked reason": blocked.reason == 1
+            "blocked marker": blocked.request_marker == 0
+            "blocked completion reason": blocked.completion_reason == 1
+            "blocked integration reason": blocked.integration_reason == 3
+            "inactive schedule": request_drained.would_schedule_thread == 0
+            "inactive spawn": request_drained.would_spawn_worker == 0
+            "inactive source concurrency": request_drained.would_touch_source_concurrency == 0
+            "inactive page source": request_drained.would_call_page_source == 0
+            "inactive unreserve": request_drained.would_unreserve == 0
+            "inactive os release": request_drained.would_release_osvm == 0
+            "inactive provider": request_drained.would_activate_provider == 0
+            "inactive replacement": request_drained.would_host_allocator_swap == 0
+            "attempt count": marker.attempt_count == 4
+            "request count": marker.request_count == 2
+            "suppress count": marker.suppress_count == 2
+            "last page": marker.last_page_id == 93
+            "last reason": marker.last_reason == 1
+            "last request marker": marker.last_request_marker == 0
+        }
+
+        print("hako-alloc-reclaim-scheduler-request-marker-proof")
+        print("request_drained=" + request_drained.should_request_schedule + "," + request_drained.reason + "," + request_drained.request_marker + "," + request_drained.did_complete + "," + request_drained.did_drain + "," + request_drained.did_transfer + "," + request_drained.owner_after)
+        print("request_direct=" + request_direct.should_request_schedule + "," + request_direct.reason + "," + request_direct.request_marker + "," + request_direct.did_complete + "," + request_direct.did_drain + "," + request_direct.owner_after)
+        print("disabled=" + disabled.should_request_schedule + "," + disabled.reason + "," + disabled.request_marker + "," + disabled.did_complete)
+        print("blocked=" + blocked.should_request_schedule + "," + blocked.reason + "," + blocked.request_marker + "," + blocked.completion_reason + "," + blocked.integration_reason)
+        print("inactive=" + request_drained.would_schedule_thread + "," + request_drained.would_spawn_worker + "," + request_drained.would_touch_source_concurrency + "," + request_drained.would_call_page_source + "," + request_drained.would_unreserve + "," + request_drained.would_release_osvm + "," + request_drained.would_activate_provider + "," + request_drained.would_host_allocator_swap)
+        print("counts=" + marker.attempt_count + "," + marker.request_count + "," + marker.suppress_count + "," + marker.last_page_id + "," + marker.last_reason + "," + marker.last_request_marker)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

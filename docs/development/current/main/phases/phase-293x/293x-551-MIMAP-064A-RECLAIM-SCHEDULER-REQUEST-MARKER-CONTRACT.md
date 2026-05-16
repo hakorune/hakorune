@@ -1,6 +1,6 @@
 # 293x-551 MIMAP-064A Reclaim Scheduler Request Marker Contract
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -48,4 +48,52 @@ source-level concurrency semantics.
 bash tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_marker_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Implementation Result
+
+`MIMAP-064A` added `HakoAllocReclaimSchedulerRequestMarker`, a scalar marker
+contract that composes `HakoAllocReclaimCompletionMarker`.
+
+The route sets a request marker only when reclaim completion succeeds and the
+modeled scheduler request flag is enabled. Completion-blocked and
+scheduler-disabled cases remain scalar suppressions. Real scheduling,
+source-level concurrency, page-source/OSVM release, provider activation, and
+host allocator replacement remain closed.
+
+## Evidence
+
+```text
+NYASH_FEATURES=rune NYASH_DISABLE_PLUGINS=1 timeout 30 target/debug/hakorune --backend vm apps/hako-alloc-reclaim-scheduler-request-marker-proof/main.hako
+bash tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_marker_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
+## Selection Result
+
+`MIMAP-064A` selects `MIMAP-065A`.
+
+```text
+row:
+  MIMAP-065A reclaim scheduler marker closeout guard
+
+classification:
+  closeout / guard row
+
+why now:
+  the scheduler boundary and request marker are guarded. Before considering
+  real scheduling or broader reclaim behavior, close this marker lane and keep
+  source-level concurrency/provider stop lines explicit.
+
+stop lines:
+  no new allocator behavior
+  no real thread scheduling
+  no source-level concurrency feature change
+  no page-source call
+  no OSVM unreserve / release
+  no provider activation
+  no host allocator replacement
+  no cleanup bundle
 ```
