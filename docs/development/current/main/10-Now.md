@@ -30,16 +30,16 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-029B post-huge-decommit row selection`
+- current blocker token: `MIMAP-030A facade huge decommit fail-fast diagnostics`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIR-EMIT-SSOT-002`; current blocker is
-  `MIMAP-029B`, a planning-only allocator row that selects exactly one next
-  post-huge-decommit behavior row
-- planned order: implement the row selected by `MIMAP-029B`
+- continue phase-293x after `MIMAP-029B`; current blocker is `MIMAP-030A`, a
+  narrow allocator behavior row that rejects duplicate/stale huge decommit by
+  allocator-side state before a second page-source decommit adapter call
+- planned order: `MIMAP-030B` row selection after MIMAP-030A lands
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

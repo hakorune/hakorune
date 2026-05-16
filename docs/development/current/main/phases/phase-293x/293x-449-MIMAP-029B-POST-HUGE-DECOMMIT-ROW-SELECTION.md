@@ -1,6 +1,6 @@
 # 293x-449 MIMAP-029B Post-Huge-Decommit Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -48,12 +48,28 @@ filled in:
 
 ```text
 row:
+  MIMAP-030A facade huge decommit fail-fast diagnostics
 owner:
+  lang/src/hako_alloc/memory/object_lifecycle_facade_huge_decommit_failfast_box.hako
 proof app:
+  apps/mimalloc-facade-huge-decommit-failfast-proof/main.hako
 guard:
+  tools/checks/k2_wide_mimalloc_facade_huge_decommit_failfast_exe_guard.sh
 reused owners:
+  HakoAllocObjectLifecycleFacadeHugeDecommitRoute
+  HakoAllocObjectLifecycleFacadeHugePageSourceRoute
+  HakoAllocHugeReleaseSeam
+  HakoAllocPageSourceDecommitAdapter
+  HakoAllocObjectLifecycleFacadeReason
 primary proof:
+  after one MIMAP-029A success, a duplicate/stale decommit attempt is rejected
+  by allocator-side state before a second page-source decommit adapter call
 stop lines:
+  no OSVM unreserve
+  no recommit
+  no provider activation
+  no host allocator replacement / hook / #[global_allocator]
+  no backend .inc matcher shortcut
 ```
 
 It should not land code. If the chosen row needs a new capability or verifier
@@ -110,4 +126,24 @@ decommit state-marker rows.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 tools/checks/dev_gate.sh quick
+```
+
+## Selection Result
+
+`MIMAP-029B` selects `MIMAP-030A`.
+
+Rationale:
+
+- `MIMAP-029A` already proves same-backed unregister + decommit success.
+- The next correctness gap is duplicate/stale decommit diagnostics.
+- The diagnostic must be allocator-side stateful fail-fast. It must not rely on
+  OSVM/page-source decommit to reject a duplicate call.
+- Existing purge rows M198/M199 already show the pattern: record successful
+  decommit state and reject duplicate decommit before another source call.
+- Unreserve/recommit/provider work remains too broad for the next row.
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-030A.
 ```

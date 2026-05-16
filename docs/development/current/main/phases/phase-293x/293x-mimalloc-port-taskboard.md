@@ -32,10 +32,11 @@ fail-fast routing row is green, and the facade huge-page model route is green.
 MIMAP-029A exposed a pure-first/selfhost route-shape cleanup before the next
 allocator selection row. Same-artifact MIR input, lowering-plan preflight,
 phase progress diagnostics, and the canonical emit wrapper are landed; the
-current primary row is post-huge-decommit row selection:
+post-huge-decommit row selection selected the fail-fast diagnostics row; the
+current primary row is:
 
 ```text
-  MIMAP-029B post-huge-decommit row selection
+  MIMAP-030A facade huge decommit fail-fast diagnostics
 ```
 
 Closed cleanup sidecar:
@@ -160,9 +161,8 @@ MIMAP-029A:
   landed
   facade huge decommit-after-unregister success route is green
 MIMAP-029B:
-  selected current
-  post-huge-decommit allocator row selection resumes after pure-first artifact
-  exactness, route preflight, progress diagnostics, and canonical emit route
+  landed
+  selected MIMAP-030A facade huge decommit fail-fast diagnostics
 MIR-EMIT-SSOT-001:
   landed
   split --mir-in / --mir-out and make pure-first guards build EXE from the
@@ -221,7 +221,8 @@ not part of this sidecar:
 | `MIR-ROUTE-PREFLIGHT-001` | landed | Classify missing/unsupported lowering routes from MIR metadata before ny-llvmc / C shim emission. | after artifact exactness |
 | `SELFHOST-PROGRESS-001` | landed | Add phase progress / timeout closeout for slow/stuck/unsupported build diagnosis. | after route preflight |
 | `MIR-EMIT-SSOT-002` | landed | Make the canonical external source-to-MIR route explicit through `emit_mir_route.sh`. | after progress diagnostics |
-| `MIMAP-029B` | selected current | Post-huge-decommit allocator row selection. | after pure-first sidecar |
+| `MIMAP-029B` | landed | Post-huge-decommit allocator row selection. | selected MIMAP-030A |
+| `MIMAP-030A` | selected current | Facade huge decommit fail-fast diagnostics. | after MIMAP-029B |
 | `RETURN-CONTRACT-001` | parked future | Propagate declared return expected type into return expressions such as `ArrayBox.get`. | not a blocker for artifact exactness |
 
 ## Stage1 / Selfhost Ordering Guard
@@ -390,8 +391,8 @@ FST:
 | `MIR-ROUTE-PREFLIGHT-001` | landed | Lowering-plan route preflight before ny-llvmc / C shim emission. | after MIR-EMIT-SSOT-001 |
 | `SELFHOST-PROGRESS-001` | landed | Selfhost/pure-first phase progress and timeout diagnostics. | after MIR-ROUTE-PREFLIGHT-001 |
 | `MIR-EMIT-SSOT-002` | landed | Canonical external source-to-MIR wrapper. | after progress diagnostics |
-| `MIMAP-029B` | selected current | Post-huge-decommit allocator row selection. | after pure-first sidecar |
-| `MIMAP-030A` | draft candidate | Facade huge decommit fail-fast diagnostics. | after MIMAP-029A if selected |
+| `MIMAP-029B` | landed | Post-huge-decommit allocator row selection. | selected MIMAP-030A |
+| `MIMAP-030A` | selected current | Facade huge decommit fail-fast diagnostics. | after MIMAP-029B |
 | `MIMAP-030B` | draft candidate | Post-huge-decommit-failfast allocator row selection. | after MIMAP-030A if selected |
 | `MIMAP-031A` | draft candidate | OSVM unreserve capability inventory / planning row. | after decommit rows if still needed |
 

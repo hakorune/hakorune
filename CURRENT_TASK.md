@@ -51,11 +51,11 @@ Scope: current lane / next lane / restart order only.
 - pure-first MIR artifact / diagnostics SSOT:
   `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
 - current blocker token:
-  `MIMAP-029B post-huge-decommit row selection`
+  `MIMAP-030A facade huge decommit fail-fast diagnostics`
 - current BoxShape sidecar:
   `MIR-EMIT-SSOT-001`, `MIR-ROUTE-PREFLIGHT-001`, and
-  `SELFHOST-PROGRESS-001`, and `MIR-EMIT-SSOT-002` landed; allocator row
-  selection is active again through `MIMAP-029B`;
+  `SELFHOST-PROGRESS-001`, and `MIR-EMIT-SSOT-002` landed; `MIMAP-029B`
+  selected `MIMAP-030A`;
   `MIRBUILDER-DIET` remains closed through `MIR-SEMANTIC-PLANS-001`
 - primary mode: mimalloc substrate implementation lane; keep upstream source
   untracked and keep each allocator row behind explicit guards before provider
@@ -71,17 +71,17 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `MIR-EMIT-SSOT-002`; current blocker
-  is `MIMAP-029B`, a planning-only allocator row that selects exactly one next
-  post-huge-decommit behavior row. VM-LIM-001 remains parked diagnostic. Keep
-  LoopRange on the Stage1 route; do not source-desugar range loops.
+- resume point: continue Phase 293x after `MIMAP-029B`; current blocker is
+  `MIMAP-030A`, a narrow allocator behavior row for facade huge decommit
+  fail-fast diagnostics. VM-LIM-001 remains parked diagnostic. Keep LoopRange
+  on the Stage1 route; do not source-desugar range loops.
 
 ## Task Order
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-029B`: return to post-huge-decommit allocator row selection
-  2. Selected next allocator behavior row from `MIMAP-029B`
+  1. `MIMAP-030A`: implement facade huge decommit fail-fast diagnostics
+  2. `MIMAP-030B`: post-huge-decommit-failfast row selection
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
   reduction after mimalloc completeness evidence. Do not make broad `.hako`

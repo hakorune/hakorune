@@ -159,8 +159,8 @@ Forbidden:
 | `MIR-ROUTE-PREFLIGHT-001` | lowering-plan route preflight sidecar | landed after MIR-EMIT-SSOT-001 |
 | `SELFHOST-PROGRESS-001` | selfhost/pure-first progress diagnostics sidecar | landed after MIR-ROUTE-PREFLIGHT-001 |
 | `MIR-EMIT-SSOT-002` | canonical external source-to-MIR route entry | landed after progress diagnostics |
-| `MIMAP-029B` | post-huge-decommit allocator row selection | current after pure-first sidecar |
-| `MIMAP-030A` | draft: facade huge decommit fail-fast diagnostics | after MIMAP-029A if selected |
+| `MIMAP-029B` | post-huge-decommit allocator row selection | landed; selected MIMAP-030A |
+| `MIMAP-030A` | facade huge decommit fail-fast diagnostics | current after MIMAP-029B |
 | `MIMAP-030B` | draft: post-huge-decommit-failfast allocator row selection | after MIMAP-030A if selected |
 | `MIMAP-031A` | draft: OSVM unreserve capability inventory / planning row | only after decommit success/reject rows are green |
 
@@ -459,13 +459,12 @@ MIR-EMIT-SSOT-002:
 These are BoxShape rows. They must not add allocator behavior, widen
 MIMAP-029A, or add backend name matchers.
 
-MIMAP-029B is current after the pure-first sidecar landed. It remains the
-planning-only allocator row after the sidecar. It must inspect the
-post-decommit state and select exactly one next allocator behavior row. The
-conservative default candidate is `MIMAP-030A`, but duplicate decommit
-diagnostics must be allocator-side stateful; do not rely on OSVM/page-source
-decommit itself to detect duplicate decommit. If the duplicate-decommit route
-needs a state marker or verifier contract first, select that row explicitly.
+MIMAP-029B landed after the pure-first sidecar and selected MIMAP-030A.
+MIMAP-030A must prove duplicate/stale huge decommit diagnostics through
+allocator-side state. Do not rely on OSVM/page-source decommit itself to detect
+duplicate decommit. If implementation proves that a separate state marker or
+verifier contract is needed first, stop and split that prerequisite row instead
+of widening MIMAP-030A.
 
 ## Compiler / language sidecar triggers
 
