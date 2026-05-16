@@ -54,10 +54,11 @@ USERBOX-ROUTE-SPLIT-004 selected target collection owner cleanup;
 USERBOX-ROUTE-SPLIT-005 target collection owner cleanup is green;
 USERBOX-ROUTE-SPLIT-006 selected builder-local record helper cleanup;
 RECORD-VALUES-REG-001 builder-local record helper cleanup is green;
+RECORD-VALUES-REG-002 selected a proof-apps manifest schema cleanup;
 the current primary row is:
 
 ```text
-  RECORD-VALUES-REG-002 post-record-values-helper row selection
+  PROOF-APPS-MANIFEST-SCHEMA-001 proof apps manifest schema cleanup
 ```
 
 Closed cleanup sidecar:
@@ -514,7 +515,8 @@ FST:
 | `USERBOX-ROUTE-SPLIT-005` | landed | User-box method target collection owner cleanup. | after USERBOX-ROUTE-SPLIT-004 |
 | `USERBOX-ROUTE-SPLIT-006` | landed | Post-target-collection row selection. | selected RECORD-VALUES-REG-001 |
 | `RECORD-VALUES-REG-001` | landed | Builder-local record registration helper cleanup. | after USERBOX-ROUTE-SPLIT-006 |
-| `RECORD-VALUES-REG-002` | selected current | Post-record-values-helper row selection. | after RECORD-VALUES-REG-001 |
+| `RECORD-VALUES-REG-002` | landed | Post-record-values-helper row selection. | selected PROOF-APPS-MANIFEST-SCHEMA-001 |
+| `PROOF-APPS-MANIFEST-SCHEMA-001` | selected current | Proof-apps manifest schema cleanup for M214/M215 rows. | after RECORD-VALUES-REG-002 |
 
 MIMAP-020A execution order:
 
