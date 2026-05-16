@@ -1,6 +1,6 @@
 # 293x-526 MIMAP-047A OSVM-Backed Fast-Path Unreserve Closeout Guard
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -51,6 +51,21 @@ behavior or compiler acceptance.
 
 ```text
 bash tools/checks/k2_wide_hako_alloc_osvm_fast_path_unreserve_closeout_guard.sh
+[k2-wide-hako-alloc-osvm-fast-path-unreserve-closeout] ok
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Closeout
+
+`MIMAP-047A` lands the closeout SSOT and guard for the OSVM-backed fast-path
+unreserve success and fail-fast rows. It does not implement allocator behavior,
+compiler acceptance, post-unreserve reuse, OS release, provider activation,
+hooks, host allocator replacement, remote-free/TLS/atomic execution changes,
+reclaim execution, or user-facing concurrency work.
+
+Next row:
+
+```text
+MIMAP-047B post-fast-path-unreserve-closeout row selection
 ```

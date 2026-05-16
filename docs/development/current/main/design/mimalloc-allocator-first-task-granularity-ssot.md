@@ -198,7 +198,8 @@ Forbidden:
 | `MIMAP-045B` | post-fast-path-unreserve row selection | landed; selected MIMAP-046A |
 | `MIMAP-046A` | OSVM-backed fast-path unreserve fail-fast diagnostics | landed after MIMAP-045B |
 | `MIMAP-046B` | post-fast-path-unreserve-failfast row selection | landed; selected MIMAP-047A |
-| `MIMAP-047A` | OSVM-backed fast-path unreserve closeout guard | selected current |
+| `MIMAP-047A` | OSVM-backed fast-path unreserve closeout guard | landed after MIMAP-046B |
+| `MIMAP-047B` | post-fast-path-unreserve-closeout row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -738,6 +739,12 @@ It must not implement allocator behavior, compiler acceptance, post-unreserve
 reuse, OS release, provider activation, hooks, host allocator replacement,
 remote-free/TLS/atomic execution changes, reclaim execution, or user-facing
 concurrency work.
+
+### MIMAP-047B granularity
+
+MIMAP-047B is a planning-only row. It reads the MIMAP-047A closeout evidence and
+selects exactly one next allocator/compiler/language task. It must not implement
+allocator behavior, compiler acceptance, or cleanup by itself.
 
 ## Compiler / language sidecar triggers
 

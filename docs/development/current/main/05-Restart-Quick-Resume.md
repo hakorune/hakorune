@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-047A OSVM-backed fast-path unreserve closeout guard`
+- current blocker token: `MIMAP-047B post-fast-path-unreserve-closeout row selection`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -48,7 +48,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-047A OSVM-backed fast-path unreserve closeout guard`
+- current blocker token: `MIMAP-047B post-fast-path-unreserve-closeout row selection`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -59,10 +59,10 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after `MIMAP-046B`; current blocker is `MIMAP-047A`,
-  the OSVM-backed fast-path unreserve closeout guard
-- next row: close out the OSVM-backed fast-path unreserve success and fail-fast
-  rows with an SSOT and guard
+- continue `phase-293x` after `MIMAP-047A`; current blocker is `MIMAP-047B`,
+  the planning-only post-fast-path-unreserve-closeout row selection
+- next row: select exactly one allocator/compiler/language task and write its
+  focused card before implementation
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
