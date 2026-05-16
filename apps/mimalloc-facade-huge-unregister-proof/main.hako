@@ -1,0 +1,61 @@
+using selfhost.hako_alloc.memory.object_lifecycle_facade_box as HakoAllocObjectLifecycleFacadeBox
+using selfhost.hako_alloc.memory.object_lifecycle_facade_huge_unregister_box as HakoAllocObjectLifecycleFacadeHugeUnregisterBox
+
+static box Main {
+    main(args) {
+        local facade = new HakoAllocObjectLifecycleFacade()
+        local route = new HakoAllocObjectLifecycleFacadeHugeUnregisterRoute()
+
+        local huge_size = route.hugeUnregisterThreshold() + 1
+        local huge_result = route.allocateThenUnregisterHuge(facade, huge_size, 901, 8, 2, 2)
+        local small_result = route.allocateThenUnregisterHuge(facade, 8, 902, 8, 2, 2)
+
+        local shape = 0
+        local huge_shape = huge_result.huge_routed + huge_result.huge_allocated + huge_result.unregister_attempted + huge_result.unregister_ok + huge_result.final_ok + huge_result.final_reason + huge_result.final_block_id
+        if huge_shape == 5 { shape = shape + 1 }
+        local huge_identity = huge_result.huge_ptr + huge_result.huge_page_id + huge_result.unregister_page_id + huge_result.final_page_id
+        if huge_identity == 73000 { shape = shape + 1 }
+        local huge_sizes = huge_result.huge_requested_size + huge_result.huge_committed_size + huge_result.unregister_requested_size + huge_result.unregister_committed_size
+        local expected_huge_sizes = huge_size + huge_size + huge_size + huge_size
+        if huge_sizes == expected_huge_sizes { shape = shape + 1 }
+        local release_state = huge_result.unregister_live_before + huge_result.unregister_live_after + huge_result.huge_count + huge_result.huge_live_count + huge_result.huge_allocate_count + huge_result.huge_release_count + huge_result.huge_release_reject_count
+        if release_state == 4 { shape = shape + 1 }
+        local page_map_state = huge_result.page_map_entry_count + huge_result.page_map_live_count + huge_result.page_map_register_count + huge_result.page_map_lookup_count + huge_result.page_map_lookup_miss_count + huge_result.page_map_unregister_count + huge_result.page_map_reject_count
+        if page_map_state == 4 { shape = shape + 1 }
+        local seam_state = huge_result.seam_release_count + huge_result.seam_unregister_count + huge_result.seam_lookup_miss_count + huge_result.seam_not_huge_count + huge_result.seam_model_reject_count + huge_result.seam_reject_count + huge_result.seam_last_failure_kind
+        if seam_state == 2 { shape = shape + 1 }
+        local small_shape = small_result.huge_routed + small_result.huge_allocated + small_result.small_forwarded + small_result.fallback_attempted + small_result.unregister_attempted + small_result.final_ok + small_result.final_reason + small_result.final_block_id
+        if small_shape == 4 { shape = shape + 1 }
+        local small_identity = small_result.small_source_added_page_id + small_result.final_page_id
+        if small_identity == 1804 { shape = shape + 1 }
+        local route_counts = small_result.unregister_attempt_count + small_result.unregister_success_count + small_result.unregister_failure_count + small_result.small_forward_count + small_result.success_count + small_result.failure_count
+        if route_counts == 5 { shape = shape + 1 }
+        local final_map_counts = small_result.page_map_entry_count + small_result.page_map_live_count + small_result.page_map_register_count + small_result.page_map_lookup_count + small_result.page_map_unregister_count
+        if final_map_counts == 4 { shape = shape + 1 }
+        local facade_ready = facade.objectLifecyclePageCount() + facade.objectLifecycleAllocPageId() + facade.objectLifecycleAllocBlockId()
+        if facade_ready == 904 { shape = shape + 1 }
+
+        print("mimalloc-facade-huge-unregister-proof")
+        print("huge=" + huge_result.huge_routed + "," + huge_result.huge_allocated + "," + huge_result.huge_ptr + "," + huge_result.huge_page_id)
+        print("unregister=" + huge_result.unregister_attempted + "," + huge_result.unregister_ok + "," + huge_result.unregister_ptr + "," + huge_result.unregister_page_id + "," + huge_result.unregister_live_before + "," + huge_result.unregister_live_after + "," + huge_result.unregister_failure_kind)
+        print("unregister_meta=" + huge_result.unregister_requested_size + "," + huge_result.unregister_committed_size + "," + huge_result.huge_count + "," + huge_result.huge_live_count + "," + huge_result.huge_allocate_count + "," + huge_result.huge_release_count + "," + huge_result.huge_release_reject_count)
+        print("page_map=" + huge_result.page_map_entry_count + "," + huge_result.page_map_live_count + "," + huge_result.page_map_register_count + "," + huge_result.page_map_lookup_count + "," + huge_result.page_map_lookup_miss_count + "," + huge_result.page_map_unregister_count + "," + huge_result.page_map_reject_count)
+        print("seam=" + huge_result.seam_release_count + "," + huge_result.seam_unregister_count + "," + huge_result.seam_lookup_miss_count + "," + huge_result.seam_not_huge_count + "," + huge_result.seam_model_reject_count + "," + huge_result.seam_reject_count + "," + huge_result.seam_last_failure_kind)
+        print("huge_final=" + huge_result.final_ok + "," + huge_result.final_reason + "," + huge_result.final_page_id + "," + huge_result.final_block_id)
+        print("small=" + small_result.huge_routed + "," + small_result.huge_allocated + "," + small_result.small_forwarded + "," + small_result.fallback_attempted + "," + small_result.unregister_attempted)
+        print("small_source=" + small_result.small_source_status + "," + small_result.small_source_added_page_id)
+        print("small_final=" + small_result.final_ok + "," + small_result.final_reason + "," + small_result.final_page_id + "," + small_result.final_block_id)
+        print("route_counts=" + small_result.unregister_attempt_count + "," + small_result.unregister_success_count + "," + small_result.unregister_failure_count + "," + small_result.small_forward_count + "," + small_result.success_count + "," + small_result.failure_count)
+        print("final_page_map=" + small_result.page_map_entry_count + "," + small_result.page_map_live_count + "," + small_result.page_map_register_count + "," + small_result.page_map_lookup_count + "," + small_result.page_map_unregister_count)
+        print("facade=" + facade.objectLifecyclePageCount() + "," + facade.objectLifecycleAllocPageId() + "," + facade.objectLifecycleAllocBlockId())
+        print("shape=" + shape)
+
+        if shape == 11 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

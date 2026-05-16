@@ -149,6 +149,7 @@ Forbidden:
 | `MIMAP-025A` | facade huge-release fail-fast diagnostics route | MIMAP-024B selects double-release / stale-pointer diagnostics |
 | `MIMAP-025B` | post-huge-release-failfast allocator row selection | MIMAP-025A is green |
 | `MIMAP-026A` | facade huge-release page-map unregister route | MIMAP-025B selects the M181 success seam |
+| `MIMAP-026B` | post-huge-unregister allocator row selection | MIMAP-026A is green |
 
 ### MIMAP-020A granularity
 
@@ -298,6 +299,13 @@ lookup/unregister on the success path. It must not add OSVM
 release/unreserve/decommit, purge/reclaim, small release/free, realloc,
 alignment, remote-free, TLS, atomic, provider hooks, host allocator
 replacement, or `#[global_allocator]`.
+
+MIMAP-026B is the current planning-only row. It must inspect the post-MIMAP-026A
+state and select exactly one next allocator behavior row without implementing
+that behavior in the selection card. Candidate directions include a narrow M181
+facade reject-diagnostics row, a later OS page return planning row, or an
+owner-triggered CorePlan / verifier contract promotion if the next behavior
+needs a stronger fail-fast contract first.
 
 ## Compiler / language sidecar triggers
 

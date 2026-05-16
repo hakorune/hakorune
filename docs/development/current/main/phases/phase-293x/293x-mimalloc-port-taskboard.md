@@ -134,8 +134,11 @@ MIMAP-025B:
   selected MIMAP-026A facade huge-release page-map unregister route as the next
   allocator behavior row
 MIMAP-026A:
+  landed
+  facade huge-release page-map unregister route is green
+MIMAP-026B:
   ready current
-  facade huge-release page-map unregister route is the current primary row
+  post-huge-unregister allocator row selection is the current primary row
 ```
 
 ## Active Source Policy
@@ -303,7 +306,8 @@ FST:
 | `MIMAP-024B` | landed | Post-huge-release allocator row selection. | after MIMAP-024A |
 | `MIMAP-025A` | landed | Facade huge-release fail-fast diagnostics route. | after MIMAP-024B |
 | `MIMAP-025B` | landed | Post-huge-release-failfast allocator row selection. | after MIMAP-025A |
-| `MIMAP-026A` | ready current | Facade huge-release page-map unregister route. | current |
+| `MIMAP-026A` | landed | Facade huge-release page-map unregister route. | after MIMAP-025B |
+| `MIMAP-026B` | ready current | Post-huge-unregister allocator row selection. | current |
 
 MIMAP-020A execution order:
 

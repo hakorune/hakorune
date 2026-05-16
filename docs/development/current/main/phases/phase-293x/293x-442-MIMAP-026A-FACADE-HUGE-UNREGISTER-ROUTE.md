@@ -1,6 +1,6 @@
 # 293x-442 MIMAP-026A Facade Huge-Unregister Route
 
-Status: ready
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -62,3 +62,36 @@ bash tools/checks/k2_wide_mimalloc_facade_huge_unregister_exe_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 tools/checks/dev_gate.sh quick
 ```
+
+## Landed Implementation
+
+Owner:
+
+```text
+lang/src/hako_alloc/memory/object_lifecycle_facade_huge_unregister_box.hako
+```
+
+Proof app:
+
+```text
+apps/mimalloc-facade-huge-unregister-proof/main.hako
+```
+
+Guard:
+
+```text
+tools/checks/k2_wide_mimalloc_facade_huge_unregister_exe_guard.sh
+```
+
+The implementation keeps the behavior to one durable success slice: allocate
+one huge handle through the MIMAP-023A facade huge-page model route, then
+release the same live pointer through the existing M181
+`HakoAllocHugeReleaseSeam.releaseHugePtr(ptr)` seam. The proof records both the
+huge metadata live-state transition and the page-map unregister transition.
+OS page return, provider activation, host allocator replacement, and broader
+release diagnostics remain outside MIMAP-026A.
+
+## Closeout
+
+MIMAP-026A is closed. The active blocker moves to MIMAP-026B
+post-huge-unregister row selection.

@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-16"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-025B post-huge-release-failfast row selection landed; MIMAP-026A facade huge-release page-map unregister route is current. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-026A facade huge-release page-map unregister route landed; MIMAP-026B post-huge-unregister row selection is current. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-442-MIMAP-026A-FACADE-HUGE-UNREGISTER-ROUTE.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-443-MIMAP-026B-POST-HUGE-UNREGISTER-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-441-MIMAP-025B-POST-HUGE-RELEASE-FAILFAST-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-441-MIMAP-025B-POST-HUGE-RELEASE-FAILFAST-ROW-SELECTION.md"
-latest_card_summary = "MIMAP-025B selects MIMAP-026A as the next allocator behavior row: a facade huge-release page-map unregister route that adopts the existing M181 HakoAllocHugeReleaseSeam success path while keeping OS page return, provider hooks, and host allocator replacement inactive."
+latest_card = "293x-442-MIMAP-026A-FACADE-HUGE-UNREGISTER-ROUTE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-442-MIMAP-026A-FACADE-HUGE-UNREGISTER-ROUTE.md"
+latest_card_summary = "MIMAP-026A lands the facade huge-release page-map unregister route: a huge handle allocated through MIMAP-023A is released through the existing M181 HakoAllocHugeReleaseSeam success path while OS page return, provider hooks, and host allocator replacement remain inactive."
 
-current_blocker_token = "MIMAP-026A"
+current_blocker_token = "MIMAP-026B"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-442 MIMAP-026A facade huge-release page-map unregister route landed",
   "293x-441 MIMAP-025B post-huge-release-failfast row selection landed",
   "293x-440 MIMAP-025A facade huge-release fail-fast diagnostics route landed",
   "293x-439 MIMAP-024B post-huge-release row selection landed",

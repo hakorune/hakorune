@@ -109,6 +109,12 @@ Principles
     facade diagnostics owner. It rejects double-release and stale/unknown huge
     pointers through the same huge-page model metadata seam while still stopping
     before M181 page-map unregister and OS page return.
+  - `HakoAllocObjectLifecycleFacadeHugeUnregisterRoute` is the MIMAP-026A
+    facade huge-unregister owner. It allocates a huge handle through the
+    MIMAP-023A route and releases that same live pointer through the existing
+    M181 `HakoAllocHugeReleaseSeam`, including page-map unregister, while still
+    stopping before OS page return, unreserve/decommit, provider activation, and
+    allocator replacement.
   - `HakoAllocHugeReleaseSeam` is the M181 huge release seam owner. It retires
     huge handles through `HakoAllocHugePageModel` and unregisters page-map
     ownership without touching small page `releaseLocal(...)`.
