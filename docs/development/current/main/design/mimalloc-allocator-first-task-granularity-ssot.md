@@ -206,7 +206,8 @@ Forbidden:
 | `MIMAP-049B` | post-secure-entropy-inventory row selection | landed; selected RANDOM-CAP-001 |
 | `RANDOM-CAP-001` | uses random capability decision + fail-fast contract | landed; selected RANDOM-CAP-002 |
 | `RANDOM-CAP-002` | random capability unsupported-route preflight | landed; selected MIMAP-050A |
-| `MIMAP-050A` | secure entropy route proposal-or-park | selected current |
+| `MIMAP-050A` | secure entropy route proposal-or-park | landed; parked entropy execution and selected MIMAP-051A |
+| `MIMAP-051A` | reclaim owner-transfer contract inventory | selected current |
 
 ### MIMAP-020A granularity
 
@@ -797,6 +798,28 @@ guard, and manifest/index/docs wiring, then selecting `MIMAP-049B`.
 MIMAP-049B is a planning-only row. It reads the MIMAP-049A inventory evidence and
 selects exactly one next allocator/compiler/language task. It must not implement
 allocator behavior, compiler acceptance, or cleanup by itself.
+
+### MIMAP-050A granularity
+
+MIMAP-050A is a planning-only row. It reads the secure entropy inventory,
+`uses random` metadata contract, and unsupported random route preflight, then
+chooses whether to propose a real entropy route or keep execution parked.
+
+MIMAP-050A landed by keeping secure entropy execution parked. Current
+secure-list proofs continue to use caller-provided cookies and deterministic
+proof keys. The row selects MIMAP-051A rather than secure-list hardening,
+because no current allocator row needs runtime entropy.
+
+### MIMAP-051A granularity
+
+MIMAP-051A is an allocator contract / inventory row. It names reclaim
+owner-transfer preconditions before any execution is opened.
+
+It may add a `.hako` owner, proof app, guard, and SSOT for reclaim readiness
+facts. It must not mutate ownership, execute reclaim, perform atomic claims,
+drain remote-free queues, schedule threads, call page-source APIs, unreserve or
+release OSVM pages, activate providers, install hooks, replace the process
+allocator, or add backend `.inc` app/name matchers.
 
 ## Compiler / language sidecar triggers
 

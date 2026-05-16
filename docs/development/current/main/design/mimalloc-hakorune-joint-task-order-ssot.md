@@ -32,33 +32,34 @@ The order is:
 This keeps Hakorune improving as a language/compiler while preventing mimalloc
 from pulling in broad user-facing concurrency or provider activation too early.
 
-## Immediate Recommended Row
+## Current Recommended Row
 
-`MIMAP-049B` should select a Hakorune core capability row, not entropy execution
-directly.
+`MIMAP-050A` parked secure entropy execution after the random capability gate
+landed.
 
-Recommended next row:
+Recommended current row:
 
 ```text
-RANDOM-CAP-001
-  uses random capability decision + fail-fast contract
+MIMAP-051A
+  reclaim owner-transfer contract inventory
 ```
 
 Purpose:
 
 ```text
-decide how `uses random` is represented in Stage1 / MIR metadata
-keep random/entropy execution unsupported unless a backend route exists
-keep deterministic proof keys legal only in proof/inventory owners
+name reclaim owner-transfer preconditions before execution
+keep atomic claim / remote-free drain / thread scheduling inactive
+keep secure entropy execution parked until a real random route is accepted
 ```
 
 Stop lines:
 
 ```text
-no random extern route
-no entropy source
-no secure-list behavior change
-no cryptographic hardening claim
+no reclaim execution
+no atomic ownership claim
+no remote-free drain
+no thread scheduling
+no page-source call
 no provider activation
 ```
 
@@ -66,18 +67,17 @@ no provider activation
 
 | Order | Track | Row shape | Why next |
 | --- | --- | --- | --- |
-| 1 | planning | `MIMAP-049B` selects one next row | current blocker; no implementation |
-| 2 | Hakorune core | `RANDOM-CAP-001 uses random capability decision` | `MIMAP-049A` proved entropy is a boundary; Stage1/CorePlan must own the gate before execution |
-| 3 | Hakorune core | `RANDOM-CAP-002 random route fail-fast/preflight` | unsupported random must fail early, not reach backend as a missing helper |
-| 4 | allocator | `MIMAP-050A secure entropy route proposal or park row` | only after capability gate exists; may still decide to keep execution parked |
-| 5 | allocator | `MIMAP-050B secure-list hardening pilot` | only if random route is accepted; otherwise keep caller-provided-cookie policy |
-| 6 | Hakorune core | `USES-CHECK-* capability checker expansion` | needed when allocator rows start depending on `uses random` / `uses tls` semantics |
-| 7 | allocator | reclaim execution preflight / owner-transfer contract row | reclaim needs atomics/TLS/remote-free drain; keep as contract before execution |
-| 8 | allocator | reclaim execution small guarded row | only after owner-transfer and remote-free drain gates are explicit |
-| 9 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
-| 10 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
-| 11 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
-| 12 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
+| 1 | planning | `MIMAP-049B` selects one next row | landed |
+| 2 | Hakorune core | `RANDOM-CAP-001 uses random capability decision` | landed |
+| 3 | Hakorune core | `RANDOM-CAP-002 random route fail-fast/preflight` | landed |
+| 4 | allocator | `MIMAP-050A secure entropy route proposal or park row` | landed; parked entropy execution |
+| 5 | allocator | `MIMAP-051A reclaim owner-transfer contract inventory` | current; reclaim needs explicit preconditions before execution |
+| 6 | Hakorune core | `USES-CHECK-* capability checker expansion` | needed when allocator rows start depending on executable `uses random` / `uses tls` semantics |
+| 7 | allocator | reclaim execution small guarded row | only after owner-transfer and remote-free drain gates are explicit |
+| 8 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
+| 9 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
+| 10 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
+| 11 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
 

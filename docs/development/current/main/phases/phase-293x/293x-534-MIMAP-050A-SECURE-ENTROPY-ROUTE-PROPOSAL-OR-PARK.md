@@ -1,6 +1,6 @@
 # 293x-534 MIMAP-050A Secure Entropy Route Proposal Or Park
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -54,4 +54,67 @@ RANDOM-CAP-002:
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Selection Result
+
+`MIMAP-050A` keeps secure entropy execution parked.
+
+Reason:
+
+```text
+MIMAP-049A:
+  secure entropy is a named inactive boundary.
+
+RANDOM-CAP-001:
+  `uses random` now reaches MIR metadata as hako.random.
+
+RANDOM-CAP-002:
+  unsupported random execution can fail before backend emission.
+
+current allocator need:
+  secure-list encode/decode can continue with caller-provided cookies and
+  deterministic proof keys; no current row needs runtime entropy.
+```
+
+Decision:
+
+```text
+secure entropy route:
+  parked
+
+secure-list hardening pilot:
+  not selected; requires a real random/entropy route and audit row first
+
+caller-provided-cookie policy:
+  remains canonical for current allocator proofs
+```
+
+`MIMAP-050A` selects `MIMAP-051A`.
+
+```text
+row:
+  MIMAP-051A reclaim owner-transfer contract inventory
+
+classification:
+  allocator contract / inventory row
+
+why now:
+  the remaining allocator behavior lane is reclaim. Reclaim must not execute
+  until ownership transfer, remote-free drain, atomic claim, and rollback
+  preconditions are made explicit and observable.
+
+stop lines:
+  no reclaim execution
+  no atomic ownership claim
+  no remote-free drain
+  no thread scheduling
+  no page-source call
+  no provider activation
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-051A.
 ```

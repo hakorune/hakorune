@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: historical SSOT
 Decision: accepted
 Date: 2026-05-14
 Scope: Remaining mimalloc `.hako` port inventory after M213 and the next row selection input.
@@ -13,6 +13,15 @@ Related:
 ---
 
 # Mimalloc Port Remaining Inventory SSOT
+
+Current note:
+
+```text
+This D206 inventory selected the older M214/M215 direction and is historical
+for current restart purposes. M214 and M215 have landed. The active row is now
+read from CURRENT_STATE.toml; after MIMAP-050A, it is MIMAP-051A reclaim
+owner-transfer contract inventory.
+```
 
 ## Decision
 

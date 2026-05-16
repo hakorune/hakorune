@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-17"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "RANDOM-CAP-002 landed unsupported random route preflight and selected MIMAP-050A secure entropy route proposal-or-park. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-050A parked secure entropy execution and selected MIMAP-051A reclaim owner-transfer contract inventory. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-534-MIMAP-050A-SECURE-ENTROPY-ROUTE-PROPOSAL-OR-PARK.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-535-MIMAP-051A-RECLAIM-OWNER-TRANSFER-CONTRACT-INVENTORY.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-533-RANDOM-CAP-002-RANDOM-UNSUPPORTED-ROUTE-PREFLIGHT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-533-RANDOM-CAP-002-RANDOM-UNSUPPORTED-ROUTE-PREFLIGHT.md"
-latest_card_summary = "RANDOM-CAP-002 lands unsupported random route preflight and selects MIMAP-050A."
+latest_card = "293x-534-MIMAP-050A-SECURE-ENTROPY-ROUTE-PROPOSAL-OR-PARK"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-534-MIMAP-050A-SECURE-ENTROPY-ROUTE-PROPOSAL-OR-PARK.md"
+latest_card_summary = "MIMAP-050A parks secure entropy execution and selects MIMAP-051A."
 
-current_blocker_token = "MIMAP-050A"
+current_blocker_token = "MIMAP-051A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-534 MIMAP-050A secure entropy route parked; MIMAP-051A selected",
   "293x-533 RANDOM-CAP-002 random unsupported route preflight landed",
   "293x-532 RANDOM-CAP-001 uses random capability decision landed",
   "293x-531 MIMAP-049B selected RANDOM-CAP-001 uses random capability decision",

@@ -53,7 +53,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-050A secure entropy route proposal-or-park`
+  `MIMAP-051A reclaim owner-transfer contract inventory`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -72,9 +72,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `RANDOM-CAP-002`; current blocker is
-  `MIMAP-050A`, the planning row that decides whether to propose a real secure
-  entropy route now or keep entropy execution parked.
+- resume point: continue Phase 293x after `MIMAP-050A`; secure entropy
+  execution is parked, and current blocker is `MIMAP-051A`, the reclaim
+  owner-transfer contract inventory row.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -82,11 +82,11 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-050A`: decide secure entropy route proposal-or-park
-  2. if parked, return to allocator behavior rows that still use deterministic
-     proof keys / caller-provided cookies
-  3. if proposed, write a separate random substrate route card before any
-     secure-list hardening behavior
+  1. `MIMAP-051A`: name reclaim owner-transfer preconditions as an inventory
+     contract; keep reclaim execution inactive
+  2. select a follow-up only after the contract owner and guard land
+  3. keep secure entropy execution parked until a separate random substrate
+     route and audit row are accepted
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
   reduction after mimalloc completeness evidence. Do not make broad `.hako`

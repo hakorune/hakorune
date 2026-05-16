@@ -32,16 +32,16 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-050A secure entropy route proposal-or-park`
+- current blocker token: `MIMAP-051A reclaim owner-transfer contract inventory`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `RANDOM-CAP-002`; current blocker is
-  `MIMAP-050A`, the secure entropy route proposal-or-park planning row
-- planned order: decide whether to propose random/entropy execution or keep it
-  parked; do not change secure-list behavior in the planning row
+- continue phase-293x after `MIMAP-050A`; secure entropy execution is parked
+  and current blocker is `MIMAP-051A`
+- planned order: add a reclaim owner-transfer contract inventory; do not open
+  reclaim execution, thread scheduling, atomic claim, or remote-free drain
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

@@ -22,8 +22,11 @@ work. The upstream C project is a reference for algorithm shape, invariants,
 and naming, not a vendored runtime dependency and not a trigger for Hakorune
 process allocator replacement.
 
-The next implementation row is a small `.hako` size-class policy row. It must
-not reopen allocator-provider M104+ or host replacement behavior.
+Current implementation rows are selected by `CURRENT_STATE.toml` and the
+phase-293x taskboard. The original size-class row is historical and already
+landed; the active post-random-capability row is `MIMAP-051A`, a reclaim
+owner-transfer contract inventory. It must not reopen allocator-provider M104+,
+host replacement behavior, secure entropy execution, or reclaim execution.
 
 ## Upstream Reference
 

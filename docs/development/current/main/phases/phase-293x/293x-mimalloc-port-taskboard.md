@@ -331,7 +331,8 @@ FST:
 | `MIMAP-049B` | landed | Post-secure-entropy-inventory row selection. | selected RANDOM-CAP-001 |
 | `RANDOM-CAP-001` | landed | Uses random capability decision + fail-fast contract. | after MIMAP-049B |
 | `RANDOM-CAP-002` | landed | Random capability unsupported-route preflight. | after RANDOM-CAP-001 |
-| `MIMAP-050A` | selected current | Secure entropy route proposal-or-park. | after RANDOM-CAP-002 |
+| `MIMAP-050A` | landed | Secure entropy route proposal-or-park. | parked entropy execution; selected MIMAP-051A |
+| `MIMAP-051A` | selected current | Reclaim owner-transfer contract inventory. | after MIMAP-050A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -339,8 +340,9 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after RANDOM-CAP-002: `MIMAP-050A` selects whether secure entropy
-execution should be proposed now or kept parked.
+Current row after MIMAP-050A: `MIMAP-051A` names the reclaim owner-transfer
+preconditions before any reclaim execution, atomic claim, remote-free drain, or
+thread scheduling is opened.
 
 MIMAP-020A execution order:
 
