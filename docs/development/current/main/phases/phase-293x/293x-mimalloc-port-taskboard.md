@@ -55,10 +55,12 @@ USERBOX-ROUTE-SPLIT-005 target collection owner cleanup is green;
 USERBOX-ROUTE-SPLIT-006 selected builder-local record helper cleanup;
 RECORD-VALUES-REG-001 builder-local record helper cleanup is green;
 RECORD-VALUES-REG-002 selected a proof-apps manifest schema cleanup;
+PROOF-APPS-MANIFEST-SCHEMA-001 proof-apps manifest schema cleanup is green;
+PROOF-APPS-MANIFEST-SCHEMA-002 selected a MIR builder indexing owner cleanup;
 the current primary row is:
 
 ```text
-  PROOF-APPS-MANIFEST-SCHEMA-001 proof apps manifest schema cleanup
+  EXPRS-INDEXING-001 MIR builder indexing owner cleanup
 ```
 
 Closed cleanup sidecar:
@@ -516,7 +518,9 @@ FST:
 | `USERBOX-ROUTE-SPLIT-006` | landed | Post-target-collection row selection. | selected RECORD-VALUES-REG-001 |
 | `RECORD-VALUES-REG-001` | landed | Builder-local record registration helper cleanup. | after USERBOX-ROUTE-SPLIT-006 |
 | `RECORD-VALUES-REG-002` | landed | Post-record-values-helper row selection. | selected PROOF-APPS-MANIFEST-SCHEMA-001 |
-| `PROOF-APPS-MANIFEST-SCHEMA-001` | selected current | Proof-apps manifest schema cleanup for M214/M215 rows. | after RECORD-VALUES-REG-002 |
+| `PROOF-APPS-MANIFEST-SCHEMA-001` | landed | Proof-apps manifest schema cleanup for M214/M215 rows. | after RECORD-VALUES-REG-002 |
+| `PROOF-APPS-MANIFEST-SCHEMA-002` | landed | Post-manifest row selection. | selected EXPRS-INDEXING-001 |
+| `EXPRS-INDEXING-001` | selected current | MIR builder indexing owner cleanup. | after PROOF-APPS-MANIFEST-SCHEMA-002 |
 
 MIMAP-020A execution order:
 

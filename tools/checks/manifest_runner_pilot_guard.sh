@@ -57,9 +57,12 @@ fi
 if ! "$ROW_RUNNER" --list | rg -Fq "current-state-pointer"; then
   guard_fail "$TAG" "row runner list must expose current-state-pointer"
 fi
-if ! "$PROOF_RUNNER" --list | rg -Fq "M200"; then
-  guard_fail "$TAG" "proof app runner list must expose M200"
-fi
+proof_list="$("$PROOF_RUNNER" --list)"
+for proof_id in M200 M214 M215; do
+  if ! printf '%s\n' "$proof_list" | rg -q "^${proof_id}\\b"; then
+    guard_fail "$TAG" "proof app runner list must expose ${proof_id}"
+  fi
+done
 "$ROW_RUNNER" --profile pilot --dry-run >/dev/null
 "$PROOF_RUNNER" --profile pilot --dry-run >/dev/null
 "$ROW_RUNNER" --only current-state-pointer >/dev/null

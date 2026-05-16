@@ -1,6 +1,6 @@
 # 293x-493 PROOF-APPS-MANIFEST-SCHEMA-001
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -52,3 +52,26 @@ git diff --check
 
 This row closes when M214/M215 are visible through the proof-app manifest runner
 and no default gate wiring or proof behavior has changed.
+
+## Result
+
+Landed:
+
+- M214/M215 manifest rows now use the active `[[proof_apps]]` schema.
+- M214/M215 now carry the runner-required `label` and `profiles` fields.
+- `manifest_runner_pilot_guard.sh` now asserts M214/M215 are visible through
+  `run_proof_app.sh --list`.
+
+No runner selection semantics, proof guard bodies, default gate wiring, compiler,
+parser, kernel, allocator, provider, hooks, host allocator replacement, or
+`#[global_allocator]` behavior changed.
+
+## Evidence
+
+```text
+tools/checks/run_proof_app.sh --list | rg 'M214|M215'
+bash tools/checks/manifest_runner_pilot_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+tools/checks/dev_gate.sh quick
+git diff --check
+```

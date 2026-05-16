@@ -51,7 +51,7 @@ Scope: current lane / next lane / restart order only.
 - pure-first MIR artifact / diagnostics SSOT:
   `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
 - current blocker token:
-  `PROOF-APPS-MANIFEST-SCHEMA-001 proof apps manifest schema cleanup`
+  `EXPRS-INDEXING-001 MIR builder indexing owner cleanup`
 - current BoxShape sidecar:
   `MIR-EMIT-SSOT-001`, `MIR-ROUTE-PREFLIGHT-001`, and
   `SELFHOST-PROGRESS-001`, and `MIR-EMIT-SSOT-002` landed; `MIR-ROW-C`
@@ -72,6 +72,8 @@ Scope: current lane / next lane / restart order only.
   `USERBOX-ROUTE-SPLIT-006` selected builder-local record helper cleanup;
   `RECORD-VALUES-REG-001` landed builder-local record field/register helper cleanup;
   `RECORD-VALUES-REG-002` selected proof-apps manifest schema cleanup;
+  `PROOF-APPS-MANIFEST-SCHEMA-001` landed proof-app manifest schema cleanup;
+  `PROOF-APPS-MANIFEST-SCHEMA-002` selected MIR builder indexing owner cleanup;
   `MIRBUILDER-DIET` remains closed through `MIR-SEMANTIC-PLANS-001`
 - primary mode: mimalloc substrate implementation lane; keep upstream source
   untracked and keep each allocator row behind explicit guards before provider
@@ -87,18 +89,18 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `RECORD-VALUES-REG-002`; current blocker is
-  `PROOF-APPS-MANIFEST-SCHEMA-001`, a proof-apps manifest schema cleanup.
-  VM-LIM-001 remains parked diagnostic. Keep LoopRange on the Stage1 route;
-  do not source-desugar range loops.
+- resume point: continue Phase 293x after `PROOF-APPS-MANIFEST-SCHEMA-002`;
+  current blocker is `EXPRS-INDEXING-001`, a MIR builder indexing owner
+  cleanup. VM-LIM-001 remains parked diagnostic. Keep LoopRange on the Stage1
+  route; do not source-desugar range loops.
 
 ## Task Order
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `PROOF-APPS-MANIFEST-SCHEMA-001`: normalize trailing proof app manifest
-     rows to the active `[[proof_apps]]` schema
-  2. select the next row after `PROOF-APPS-MANIFEST-SCHEMA-001`
+  1. `EXPRS-INDEXING-001`: move indexing-specific expression lowering to a
+     dedicated MIR builder owner
+  2. select the next row after `EXPRS-INDEXING-001`
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
   reduction after mimalloc completeness evidence. Do not make broad `.hako`
