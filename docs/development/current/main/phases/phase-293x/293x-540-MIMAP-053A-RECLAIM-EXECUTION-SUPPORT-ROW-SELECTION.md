@@ -1,6 +1,6 @@
 # 293x-540 MIMAP-053A Reclaim Execution Support Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -48,4 +48,62 @@ owner-transfer execution opens.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Evidence Review
+
+`MIMAP-051A` names the owner-transfer preconditions and proves that execution
+surfaces are still inactive.
+
+`MIMAP-052B` adds a dedicated execution-intent marker:
+
+```text
+uses alloc_reclaim -> hako.alloc.reclaim
+```
+
+and an explicit unsupported preflight reason:
+
+```text
+reclaim_execution_route_unsupported
+```
+
+The remaining blocker before first owner-transfer execution is not a generic
+capability marker. It is the atomic claim contract: a reclaim executor must
+prove the owner token changes only when the expected abandoned owner still
+matches, and failure must leave the modeled owner unchanged.
+
+## Selection Result
+
+`MIMAP-053A` selects `MIMAP-054A`.
+
+```text
+row:
+  MIMAP-054A reclaim atomic-claim contract
+
+classification:
+  allocator prerequisite / no-execution contract row
+
+decision:
+  add a small `.hako` owner and proof app that model the owner-token atomic
+  claim contract before any reclaim execution or page ownership mutation row
+
+why before execution:
+  owner-transfer correctness depends on compare-and-claim semantics. Opening
+  reclaim execution with only read-only contract facts would make owner mutation
+  look like an ordinary scalar assignment.
+
+stop lines:
+  no reclaim execution
+  no page owner mutation in the production facade
+  no remote-free drain
+  no thread scheduling
+  no page-source call
+  no provider activation
+  no cleanup bundle
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-054A.
 ```

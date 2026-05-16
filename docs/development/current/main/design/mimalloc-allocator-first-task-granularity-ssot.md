@@ -212,7 +212,8 @@ Forbidden:
 | `USES-002A` | declared uses capability plan mapping | landed; selected MIMAP-052A |
 | `MIMAP-052A` | reclaim execution preflight proposal | landed; selected MIMAP-052B |
 | `MIMAP-052B` | reclaim execution intent marker preflight | landed; selected MIMAP-053A |
-| `MIMAP-053A` | reclaim execution support row selection | selected current |
+| `MIMAP-053A` | reclaim execution support row selection | landed; selected MIMAP-054A |
+| `MIMAP-054A` | reclaim atomic-claim contract | selected current |
 
 ### MIMAP-020A granularity
 
@@ -884,6 +885,18 @@ first guarded reclaim execution, an atomic-claim contract sidecar, a
 remote-free drain fail-fast row, or another no-execution allocator row.
 
 It must not execute reclaim or mutate ownership by itself.
+
+MIMAP-053A landed by selecting MIMAP-054A.
+
+### MIMAP-054A granularity
+
+MIMAP-054A is an allocator prerequisite / no-execution contract row. It proves
+the owner-token atomic claim vocabulary before a future reclaim execution row
+mutates page ownership.
+
+It may add a `.hako` contract owner, proof app, guard, and SSOT. It must not
+execute reclaim, mutate production page ownership, drain remote frees, schedule
+threads, call page-source APIs, or activate providers.
 
 ## Compiler / language sidecar triggers
 

@@ -32,15 +32,14 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-053A reclaim execution support row selection`
+- current blocker token: `MIMAP-054A reclaim atomic-claim contract`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-052B`; current blocker is `MIMAP-053A`
-- planned order: select whether the next guarded row opens first reclaim
-  execution or adds an atomic / remote-free prerequisite gate
+- continue phase-293x after `MIMAP-053A`; current blocker is `MIMAP-054A`
+- planned order: add the no-execution reclaim atomic-claim contract proof
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
