@@ -1,6 +1,6 @@
 # 293x-529 MIMAP-048B Post-Release-Inventory Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -43,4 +43,38 @@ compiler acceptance, or cleanup by itself.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Selection Result
+
+`MIMAP-048B` selects `MIMAP-049A`.
+
+```text
+row:
+  MIMAP-049A secure entropy source inventory
+classification:
+  allocator capability inventory / read-only .hako owner
+why now:
+  OS release remains closed after MIMAP-048A. The next safe mimalloc-completeness
+  gap is the already documented secure randomness / entropy boundary: secure
+  free-list encode/decode exists with caller-provided cookies, but no entropy
+  source or cryptographic claim is modeled.
+owner:
+  lang/src/hako_alloc/memory/secure_entropy_inventory_box.hako
+proof app:
+  apps/hako-alloc-secure-entropy-inventory-proof/main.hako
+guard:
+  tools/checks/k2_wide_hako_alloc_secure_entropy_inventory_guard.sh
+stop lines:
+  no entropy/random extern route
+  no cryptographic hardening claim
+  no secure-list behavior change
+  no provider activation, hooks, host allocator replacement, or #[global_allocator]
+  no backend .inc matcher shortcut
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-049A.
 ```

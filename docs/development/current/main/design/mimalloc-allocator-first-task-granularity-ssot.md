@@ -201,7 +201,8 @@ Forbidden:
 | `MIMAP-047A` | OSVM-backed fast-path unreserve closeout guard | landed after MIMAP-046B |
 | `MIMAP-047B` | post-fast-path-unreserve-closeout row selection | landed; selected MIMAP-048A |
 | `MIMAP-048A` | OSVM release capability inventory | landed after MIMAP-047B |
-| `MIMAP-048B` | post-release-inventory row selection | selected current |
+| `MIMAP-048B` | post-release-inventory row selection | landed; selected MIMAP-049A |
+| `MIMAP-049A` | secure entropy source inventory | selected current |
 
 ### MIMAP-020A granularity
 
@@ -769,6 +770,20 @@ then selecting `MIMAP-048B`.
 MIMAP-048B is a planning-only row. It reads the MIMAP-048A inventory evidence and
 selects exactly one next allocator/compiler/language task. It must not implement
 allocator behavior, compiler acceptance, or cleanup by itself.
+
+MIMAP-048B landed by selecting `MIMAP-049A`, the secure entropy source
+inventory.
+
+### MIMAP-049A granularity
+
+MIMAP-049A is a read-only `.hako` inventory row. It names the secure
+entropy/randomness boundary after secure-list encode/decode landed with
+caller-provided cookies only.
+
+It may add an inventory owner, proof app, and guard. It must not add random or
+entropy extern routes, source entropy, mutate secure-list policy behavior, claim
+cryptographic hardening, activate provider/hooks/host replacement, or add
+backend `.inc` app/name matchers.
 
 ## Compiler / language sidecar triggers
 
