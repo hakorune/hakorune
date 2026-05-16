@@ -52,10 +52,12 @@ USERBOX-ROUTE-SPLIT-002 selected route materialization owner cleanup;
 USERBOX-ROUTE-SPLIT-003 route materialization owner cleanup is green;
 USERBOX-ROUTE-SPLIT-004 selected target collection owner cleanup;
 USERBOX-ROUTE-SPLIT-005 target collection owner cleanup is green;
+USERBOX-ROUTE-SPLIT-006 selected builder-local record helper cleanup;
+RECORD-VALUES-REG-001 builder-local record helper cleanup is green;
 the current primary row is:
 
 ```text
-  USERBOX-ROUTE-SPLIT-006 post-target-collection row selection
+  RECORD-VALUES-REG-002 post-record-values-helper row selection
 ```
 
 Closed cleanup sidecar:
@@ -510,7 +512,9 @@ FST:
 | `USERBOX-ROUTE-SPLIT-003` | landed | User-box method route materialization owner cleanup. | after USERBOX-ROUTE-SPLIT-002 |
 | `USERBOX-ROUTE-SPLIT-004` | landed | Post-materialization row selection. | selected USERBOX-ROUTE-SPLIT-005 |
 | `USERBOX-ROUTE-SPLIT-005` | landed | User-box method target collection owner cleanup. | after USERBOX-ROUTE-SPLIT-004 |
-| `USERBOX-ROUTE-SPLIT-006` | selected current | Post-target-collection row selection. | after USERBOX-ROUTE-SPLIT-005 |
+| `USERBOX-ROUTE-SPLIT-006` | landed | Post-target-collection row selection. | selected RECORD-VALUES-REG-001 |
+| `RECORD-VALUES-REG-001` | landed | Builder-local record registration helper cleanup. | after USERBOX-ROUTE-SPLIT-006 |
+| `RECORD-VALUES-REG-002` | selected current | Post-record-values-helper row selection. | after RECORD-VALUES-REG-001 |
 
 MIMAP-020A execution order:
 

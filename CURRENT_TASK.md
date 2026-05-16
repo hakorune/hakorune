@@ -51,7 +51,7 @@ Scope: current lane / next lane / restart order only.
 - pure-first MIR artifact / diagnostics SSOT:
   `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
 - current blocker token:
-  `USERBOX-ROUTE-SPLIT-006 post-target-collection row selection`
+  `RECORD-VALUES-REG-002 post-record-values-helper row selection`
 - current BoxShape sidecar:
   `MIR-EMIT-SSOT-001`, `MIR-ROUTE-PREFLIGHT-001`, and
   `SELFHOST-PROGRESS-001`, and `MIR-EMIT-SSOT-002` landed; `MIR-ROW-C`
@@ -69,6 +69,8 @@ Scope: current lane / next lane / restart order only.
   `USERBOX-ROUTE-SPLIT-003` landed route materialization owner cleanup;
   `USERBOX-ROUTE-SPLIT-004` selected target collection owner cleanup;
   `USERBOX-ROUTE-SPLIT-005` landed target collection owner cleanup;
+  `USERBOX-ROUTE-SPLIT-006` selected builder-local record helper cleanup;
+  `RECORD-VALUES-REG-001` landed builder-local record field/register helper cleanup;
   `MIRBUILDER-DIET` remains closed through `MIR-SEMANTIC-PLANS-001`
 - primary mode: mimalloc substrate implementation lane; keep upstream source
   untracked and keep each allocator row behind explicit guards before provider
@@ -84,8 +86,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `USERBOX-ROUTE-SPLIT-005`; current blocker is
-  `USERBOX-ROUTE-SPLIT-006`, a post-target-collection row selection. VM-LIM-001
+- resume point: continue Phase 293x after `RECORD-VALUES-REG-001`; current blocker is
+  `RECORD-VALUES-REG-002`, a post-record-values-helper row selection. VM-LIM-001
   remains parked diagnostic. Keep LoopRange on the Stage1 route; do not
   source-desugar range loops.
 
@@ -93,9 +95,9 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `USERBOX-ROUTE-SPLIT-006`: select the next narrow row after target
-     collection cleanup
-  2. selected next row after `USERBOX-ROUTE-SPLIT-006`
+  1. `RECORD-VALUES-REG-002`: select the next narrow cleanup row after
+     builder-local record helper cleanup
+  2. selected next row after `RECORD-VALUES-REG-002`
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
   reduction after mimalloc completeness evidence. Do not make broad `.hako`

@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-16"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "USERBOX-ROUTE-SPLIT-005 target collection owner cleanup landed. Current work selects the next post-target-collection row. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "RECORD-VALUES-REG-001 builder-local record helper cleanup landed. Current work selects the next post-record-values-helper row. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-490-USERBOX-ROUTE-SPLIT-006-POST-TARGET-COLLECTION-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-492-RECORD-VALUES-REG-002-POST-HELPER-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-489-USERBOX-ROUTE-SPLIT-005-TARGET-COLLECTION-OWNER"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-489-USERBOX-ROUTE-SPLIT-005-TARGET-COLLECTION-OWNER.md"
-latest_card_summary = "USERBOX-ROUTE-SPLIT-005 splits user-box method target collection into a behavior-preserving owner."
+latest_card = "293x-491-RECORD-VALUES-REG-001-COMMON-REGISTRATION-HELPER"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-491-RECORD-VALUES-REG-001-COMMON-REGISTRATION-HELPER.md"
+latest_card_summary = "RECORD-VALUES-REG-001 centralizes builder-local record field/register helpers without adding record acceptance."
 
-current_blocker_token = "USERBOX-ROUTE-SPLIT-006"
+current_blocker_token = "RECORD-VALUES-REG-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-491 RECORD-VALUES-REG-001 builder-local record field/register helper cleanup landed",
+  "293x-490 USERBOX-ROUTE-SPLIT-006 selected RECORD-VALUES-REG-001 builder-local record helper cleanup",
   "293x-489 USERBOX-ROUTE-SPLIT-005 target collection owner cleanup landed",
   "293x-488 USERBOX-ROUTE-SPLIT-004 selected USERBOX-ROUTE-SPLIT-005 target collection owner cleanup",
   "293x-487 USERBOX-ROUTE-SPLIT-003 route materialization owner cleanup landed",

@@ -1,6 +1,6 @@
 # 293x-490 USERBOX-ROUTE-SPLIT-006 Post-Target-Collection Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -8,8 +8,15 @@ Date: 2026-05-16
 `USERBOX-ROUTE-SPLIT-006` is the planning-only row after the landed
 `USERBOX-ROUTE-SPLIT-005` target collection owner cleanup.
 
-It does not land code. Its job is to select exactly one next row with an owner,
-proof/guard, and stop lines before implementation.
+It selects exactly one next row:
+
+```text
+RECORD-VALUES-REG-001:
+  introduce a common builder-local record field/register helper without adding
+  record acceptance
+```
+
+It does not land code.
 
 ## Candidate Set
 
@@ -49,3 +56,18 @@ tools/checks/dev_gate.sh quick
 
 This row closes when one next row is selected with a clear owner, stop lines,
 and evidence plan.
+
+## Selection Result
+
+```text
+selected:
+  RECORD-VALUES-REG-001
+owner:
+  src/mir/builder/record_values.rs
+scope:
+  builder-local record field construction and placeholder registration helper
+stop_line:
+  no record acceptance changes
+  no record escape/materialization
+  no backend/provider behavior
+```

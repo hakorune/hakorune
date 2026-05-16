@@ -44,18 +44,14 @@ impl MirBuilder {
 
         let mut field_values = Vec::with_capacity(decl.fields.len());
         for (field, argument) in decl.fields.iter().zip(arguments.into_iter()) {
-            let value = self.build_expression(argument)?;
-            field_values.push(RecordLocalFieldValue {
-                name: field.name.clone(),
-                declared_type_name: field.declared_type_name.clone(),
-                value,
-            });
+            field_values.push(self.build_record_local_field_value(
+                field.name.clone(),
+                field.declared_type_name.clone(),
+                argument,
+            )?);
         }
 
-        let placeholder = crate::mir::builder::emission::constant::emit_void(self)?;
-        self.comp_ctx
-            .register_record_local_value(placeholder, class, field_values);
-        Ok(placeholder)
+        self.register_record_local_fields(class, field_values)
     }
 
     pub(in crate::mir::builder) fn build_record_literal_value(
@@ -94,12 +90,11 @@ impl MirBuilder {
                     record_type_name, field.name
                 ));
             };
-            let value = self.build_expression(expr)?;
-            field_values.push(RecordLocalFieldValue {
-                name: field.name.clone(),
-                declared_type_name: field.declared_type_name.clone(),
-                value,
-            });
+            field_values.push(self.build_record_local_field_value(
+                field.name.clone(),
+                field.declared_type_name.clone(),
+                expr,
+            )?);
         }
 
         if let Some((field_name, _)) = by_name.into_iter().next() {
@@ -109,10 +104,7 @@ impl MirBuilder {
             ));
         }
 
-        let placeholder = crate::mir::builder::emission::constant::emit_void(self)?;
-        self.comp_ctx
-            .register_record_local_value(placeholder, record_type_name, field_values);
-        Ok(placeholder)
+        self.register_record_local_fields(record_type_name, field_values)
     }
 
     pub(in crate::mir::builder) fn fail_if_record_value_escape_by_name(
@@ -219,5 +211,30 @@ impl MirBuilder {
             self.type_ctx.value_types.insert(field_value.value, ty);
         }
         Ok(Some(field_value.value))
+    }
+
+    fn build_record_local_field_value(
+        &mut self,
+        name: String,
+        declared_type_name: Option<String>,
+        expr: ASTNode,
+    ) -> Result<RecordLocalFieldValue, String> {
+        let value = self.build_expression(expr)?;
+        Ok(RecordLocalFieldValue {
+            name,
+            declared_type_name,
+            value,
+        })
+    }
+
+    fn register_record_local_fields(
+        &mut self,
+        record_name: String,
+        field_values: Vec<RecordLocalFieldValue>,
+    ) -> Result<ValueId, String> {
+        let placeholder = crate::mir::builder::emission::constant::emit_void(self)?;
+        self.comp_ctx
+            .register_record_local_value(placeholder, record_name, field_values);
+        Ok(placeholder)
     }
 }
