@@ -1,10 +1,10 @@
 // purge_page_source_unreserve_adapter_box.hako -- MIMAP-033A page-source unreserve adapter
 // Responsibility:
-// - expose an unreservePage(base, bytes) executor for page-source release rows
+// - expose an unreservePage(base, bytes) executor for page-source unreserve rows
 // - delegate only to HakoAllocPageSourcePolicy.unreservePage
 // Non-responsibility:
 // - reserve, commit, decommit, recommit, facade lifecycle behavior, heap/page mutation,
-//   provider activation, hooks, or allocator replacement
+//   OS release, provider activation, hooks, or allocator replacement
 
 using selfhost.hako_alloc.memory.page_source_policy_box as HakoAllocPageSourcePolicy
 

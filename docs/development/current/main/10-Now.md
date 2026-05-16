@@ -30,16 +30,16 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-048A OSVM release capability inventory`
+- current blocker token: `MIMAP-048B post-release-inventory row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-047B`; current blocker is `MIMAP-048A`, the
-  OSVM release capability inventory
-- planned order: document/guard the release boundary without opening release
-  behavior, then select one follow-up row
+- continue phase-293x after `MIMAP-048A`; current blocker is `MIMAP-048B`, the
+  planning-only post-release-inventory row selection
+- planned order: select exactly one allocator/compiler/language task and write
+  its focused card before implementation
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

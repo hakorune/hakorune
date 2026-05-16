@@ -200,7 +200,8 @@ Forbidden:
 | `MIMAP-046B` | post-fast-path-unreserve-failfast row selection | landed; selected MIMAP-047A |
 | `MIMAP-047A` | OSVM-backed fast-path unreserve closeout guard | landed after MIMAP-046B |
 | `MIMAP-047B` | post-fast-path-unreserve-closeout row selection | landed; selected MIMAP-048A |
-| `MIMAP-048A` | OSVM release capability inventory | selected current |
+| `MIMAP-048A` | OSVM release capability inventory | landed after MIMAP-047B |
+| `MIMAP-048B` | post-release-inventory row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -759,6 +760,15 @@ It may add docs and a guard proving that release remains closed, but it must not
 add `hako_osvm_release*`, `release_bytes_*`, `releasePage`, fast-path release
 behavior, provider activation, hooks, host allocator replacement,
 `#[global_allocator]`, reclaim execution, or backend `.inc` app/name matchers.
+
+MIMAP-048A landed by adding the OSVM release capability inventory SSOT and guard,
+then selecting `MIMAP-048B`.
+
+### MIMAP-048B granularity
+
+MIMAP-048B is a planning-only row. It reads the MIMAP-048A inventory evidence and
+selects exactly one next allocator/compiler/language task. It must not implement
+allocator behavior, compiler acceptance, or cleanup by itself.
 
 ## Compiler / language sidecar triggers
 

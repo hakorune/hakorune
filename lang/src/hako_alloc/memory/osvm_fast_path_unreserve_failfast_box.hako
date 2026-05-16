@@ -5,7 +5,7 @@
 // - reject invalid requests before the page-source unreserve adapter executes
 // Non-responsibility:
 // - direct page-source calls, direct OSVM calls, success-route ownership,
-//   post-unreserve reuse, OS release beyond the adapter seam, provider
+//   post-unreserve reuse, OS release route, provider
 //   activation, allocator replacement, hooks, atomics, TLS, remote-free
 //   execution, scheduler policy changes, or user-facing concurrency semantics
 

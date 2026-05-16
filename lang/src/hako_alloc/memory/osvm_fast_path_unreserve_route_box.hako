@@ -6,7 +6,7 @@
 //   adapter seam
 // Non-responsibility:
 // - direct page-source calls, direct OSVM calls, post-unreserve reuse, OS
-//   release beyond the adapter seam, provider activation, allocator
+//   release route, provider activation, allocator
 //   replacement, hooks, atomics, TLS, remote-free execution, scheduler policy
 //   changes, or user-facing concurrency semantics
 

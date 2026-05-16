@@ -1,6 +1,6 @@
 # 293x-528 MIMAP-048A OSVM Release Capability Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -57,3 +57,58 @@ git diff --check
 
 This row closes when the release capability boundary is documented and guarded
 without opening release behavior.
+
+## Inventory Result
+
+`MIMAP-048A` freezes this boundary:
+
+```text
+landed unreserve surface:
+  OsVmCoreBox.unreserve_bytes_i64 / unreserve_bytes_usize
+  HakoAllocPageSourcePolicy.unreservePage
+  HakoAllocPageSourceUnreserveAdapter.unreservePage
+  HakoAllocOsVmFastPathUnreserveRoute.unreservePurgedPage
+  HakoAllocOsVmFastPathUnreserveFailFastRoute diagnostics
+
+inactive release surface:
+  hako_osvm_release*
+  release_bytes_i64 / release_bytes_usize
+  releasePage
+  fast-path release route
+```
+
+The row also clarifies active owner comments so unreserve owners do not describe
+themselves as release rows.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_mimalloc_osvm_release_inventory_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Selection Result
+
+`MIMAP-048A` selects `MIMAP-048B`.
+
+```text
+row:
+  MIMAP-048B post-release-inventory row selection
+classification:
+  planning-only row
+why now:
+  release remains inactive after MIMAP-048A; the lane needs a single-row
+  selection step before any allocator/compiler/language implementation resumes.
+stop lines:
+  no release implementation
+  no provider activation
+  no host allocator replacement
+  no cleanup bundle
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-048B.
+```
