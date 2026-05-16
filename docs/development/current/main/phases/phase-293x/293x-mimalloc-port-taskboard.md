@@ -50,10 +50,12 @@ VMHAKO-EXTERN-SPEC-002 selected user-box route fixed-point orchestration cleanup
 USERBOX-ROUTE-SPLIT-001 fixed-point orchestration cleanup is green;
 USERBOX-ROUTE-SPLIT-002 selected route materialization owner cleanup;
 USERBOX-ROUTE-SPLIT-003 route materialization owner cleanup is green;
+USERBOX-ROUTE-SPLIT-004 selected target collection owner cleanup;
+USERBOX-ROUTE-SPLIT-005 target collection owner cleanup is green;
 the current primary row is:
 
 ```text
-  USERBOX-ROUTE-SPLIT-004 post-materialization row selection
+  USERBOX-ROUTE-SPLIT-006 post-target-collection row selection
 ```
 
 Closed cleanup sidecar:
@@ -506,7 +508,9 @@ FST:
 | `USERBOX-ROUTE-SPLIT-001` | landed | User-box method route fixed-point orchestration cleanup. | after VMHAKO-EXTERN-SPEC-002 |
 | `USERBOX-ROUTE-SPLIT-002` | landed | Post-fixpoint row selection. | selected USERBOX-ROUTE-SPLIT-003 |
 | `USERBOX-ROUTE-SPLIT-003` | landed | User-box method route materialization owner cleanup. | after USERBOX-ROUTE-SPLIT-002 |
-| `USERBOX-ROUTE-SPLIT-004` | selected current | Post-materialization row selection. | after USERBOX-ROUTE-SPLIT-003 |
+| `USERBOX-ROUTE-SPLIT-004` | landed | Post-materialization row selection. | selected USERBOX-ROUTE-SPLIT-005 |
+| `USERBOX-ROUTE-SPLIT-005` | landed | User-box method target collection owner cleanup. | after USERBOX-ROUTE-SPLIT-004 |
+| `USERBOX-ROUTE-SPLIT-006` | selected current | Post-target-collection row selection. | after USERBOX-ROUTE-SPLIT-005 |
 
 MIMAP-020A execution order:
 

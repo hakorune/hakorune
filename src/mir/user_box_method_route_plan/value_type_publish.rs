@@ -1,10 +1,11 @@
 use crate::mir::value_origin::build_value_def_map;
 use crate::mir::{MirFunction, MirInstruction, MirModule, MirType, ValueId};
 
-use super::{
-    field_box_origin, param_box_origin, sorted_block_ids, user_box_value_box_name,
-    FieldBoxOriginMap, ParamBoxOriginMap,
+use super::origin_inference::{
+    field_box_origin, generic_method_route_result_box_name, param_box_origin, sorted_block_ids,
+    user_box_value_box_name,
 };
+use super::{FieldBoxOriginMap, ParamBoxOriginMap};
 
 pub(super) fn publish_user_box_param_origin_value_types(
     module: &mut MirModule,
@@ -108,7 +109,7 @@ pub(super) fn publish_generic_route_result_value_types(module: &mut MirModule) -
             .filter_map(|route| {
                 Some((
                     route.result_value()?,
-                    super::generic_method_route_result_box_name(route)?.to_string(),
+                    generic_method_route_result_box_name(route)?.to_string(),
                 ))
             })
             .collect::<Vec<_>>();

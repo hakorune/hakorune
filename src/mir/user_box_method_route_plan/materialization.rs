@@ -1,10 +1,8 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::origin_inference::user_box_route_receiver_box_name;
-use super::{
-    method_target_symbol, FieldBoxOriginMap, ParamBoxOriginMap, UserBoxMethodRoute,
-    UserBoxMethodRouteSite, UserBoxMethodTargetFacts,
-};
+use super::target_collection::{method_target_symbol, UserBoxMethodTargetFacts};
+use super::{FieldBoxOriginMap, ParamBoxOriginMap, UserBoxMethodRoute, UserBoxMethodRouteSite};
 use crate::mir::value_origin::build_value_def_map;
 use crate::mir::{Callee, MirFunction, MirInstruction};
 

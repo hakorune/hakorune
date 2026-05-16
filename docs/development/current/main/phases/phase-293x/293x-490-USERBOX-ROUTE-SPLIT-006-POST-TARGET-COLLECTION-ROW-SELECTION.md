@@ -1,37 +1,27 @@
-# 293x-488 USERBOX-ROUTE-SPLIT-004 Post-Materialization Row Selection
+# 293x-490 USERBOX-ROUTE-SPLIT-006 Post-Target-Collection Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-16
 
 ## Decision
 
-`USERBOX-ROUTE-SPLIT-004` is the planning-only row after the landed
-`USERBOX-ROUTE-SPLIT-003` materialization owner cleanup.
+`USERBOX-ROUTE-SPLIT-006` is the planning-only row after the landed
+`USERBOX-ROUTE-SPLIT-005` target collection owner cleanup.
 
-It selects exactly one next row:
-
-```text
-USERBOX-ROUTE-SPLIT-005:
-  split user_box_method_route_plan target collection into a narrow
-  behavior-preserving owner
-```
-
-It does not land code.
+It does not land code. Its job is to select exactly one next row with an owner,
+proof/guard, and stop lines before implementation.
 
 ## Candidate Set
 
 ```text
-candidate:
-  split user_box_method_route_plan target collection into a narrow
-  behavior-preserving owner
 candidate:
   thin mir builder expression dispatcher without changing accepted AST shapes
 candidate:
   introduce record_values common registration helper without adding record
   acceptance
 candidate:
-  continue the next narrow allocator behavior row if no compiler cleanup is
-  blocking readability
+  continue the next narrow allocator behavior row if compiler route cleanup is
+  no longer blocking readability
 candidate:
   clean OSVM export validation boilerplate only if it stays kernel-local
 ```
@@ -59,18 +49,3 @@ tools/checks/dev_gate.sh quick
 
 This row closes when one next row is selected with a clear owner, stop lines,
 and evidence plan.
-
-## Selection Result
-
-```text
-selected:
-  USERBOX-ROUTE-SPLIT-005
-owner:
-  src/mir/user_box_method_route_plan/target_collection.rs
-scope:
-  target fact collection and method-symbol helpers only
-stop_line:
-  no materialization changes
-  no accepted route shape changes
-  no route reason vocabulary changes
-```

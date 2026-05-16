@@ -1,10 +1,12 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::return_shape::{UserBoxFieldReturnHints, UserBoxMethodInferredReturn};
+use super::target_collection::{
+    method_target_symbol, parse_method_symbol, UserBoxMethodTargetFacts,
+};
 use super::{
-    method_target_symbol, parse_method_symbol, BoxOriginInference, FieldBoxOriginKey,
-    FieldBoxOriginMap, ParamBoxOriginKey, ParamBoxOriginMap, UserBoxMethodRoute,
-    UserBoxMethodTargetFacts,
+    BoxOriginInference, FieldBoxOriginKey, FieldBoxOriginMap, ParamBoxOriginKey, ParamBoxOriginMap,
+    UserBoxMethodRoute,
 };
 use crate::mir::definitions::call_unified::TypeCertainty;
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};

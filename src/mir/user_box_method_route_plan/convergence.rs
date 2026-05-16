@@ -11,8 +11,7 @@ use super::value_type_publish::{
     publish_user_box_route_param_value_types, publish_user_box_route_result_value_types,
 };
 use super::{
-    collect_method_targets, materialization, FieldBoxOriginMap, ParamBoxOriginMap,
-    UserBoxMethodRoute,
+    materialization, target_collection, FieldBoxOriginMap, ParamBoxOriginMap, UserBoxMethodRoute,
 };
 use crate::mir::MirModule;
 
@@ -21,8 +20,11 @@ pub(super) fn refresh_module_user_box_method_routes_fixpoint(module: &mut MirMod
     for _ in 0..iteration_budget(module) {
         let before = snapshot_routes(module);
         let empty_field_return_hints = UserBoxFieldReturnHints::new();
-        let targets =
-            collect_method_targets(module, &typed_plan_type_ids, &empty_field_return_hints);
+        let targets = target_collection::collect_method_targets(
+            module,
+            &typed_plan_type_ids,
+            &empty_field_return_hints,
+        );
         let initial_param_box_origins =
             infer_user_box_method_param_box_origins(module, &targets, &BTreeMap::new());
         let field_box_origins =
@@ -40,7 +42,11 @@ pub(super) fn refresh_module_user_box_method_routes_fixpoint(module: &mut MirMod
             publish_user_box_field_get_value_types(module, &param_box_origins, &field_box_origins);
 
         let field_return_hints = build_user_box_field_return_hints(module, &field_box_origins);
-        let targets = collect_method_targets(module, &typed_plan_type_ids, &field_return_hints);
+        let targets = target_collection::collect_method_targets(
+            module,
+            &typed_plan_type_ids,
+            &field_return_hints,
+        );
         materialize_routes(
             module,
             &targets,
@@ -100,7 +106,7 @@ fn snapshot_routes(module: &MirModule) -> BTreeMap<String, Vec<UserBoxMethodRout
 
 fn materialize_routes(
     module: &mut MirModule,
-    targets: &BTreeMap<String, super::UserBoxMethodTargetFacts>,
+    targets: &BTreeMap<String, target_collection::UserBoxMethodTargetFacts>,
     typed_plan_type_ids: &BTreeMap<String, u32>,
     param_box_origins: &ParamBoxOriginMap,
     field_box_origins: &FieldBoxOriginMap,

@@ -30,15 +30,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `USERBOX-ROUTE-SPLIT-004 post-materialization row selection`
+- current blocker token: `USERBOX-ROUTE-SPLIT-006 post-target-collection row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `USERBOX-ROUTE-SPLIT-003`; current blocker is
-  `USERBOX-ROUTE-SPLIT-004`, a post-materialization row selection
-- planned order: selected row after `USERBOX-ROUTE-SPLIT-004`
+- continue phase-293x after `USERBOX-ROUTE-SPLIT-005`; current blocker is
+  `USERBOX-ROUTE-SPLIT-006`, a post-target-collection row selection
+- planned order: selected row after `USERBOX-ROUTE-SPLIT-006`
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
