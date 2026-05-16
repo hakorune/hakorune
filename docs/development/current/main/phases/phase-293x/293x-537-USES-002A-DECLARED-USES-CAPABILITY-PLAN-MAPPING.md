@@ -1,6 +1,6 @@
 # 293x-537 USES-002A Declared Uses Capability Plan Mapping
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -60,3 +60,74 @@ git diff --check
 
 This row closes when declared low-level `uses` metadata has a canonical MIR
 CapabilityPlan mapping without enabling execution.
+
+## Implementation Result
+
+`USES-002A` adds:
+
+```text
+SSOT:
+  docs/development/current/main/design/declared-uses-capability-plan-mapping-ssot.md
+
+owner:
+  src/mir/effect_capability_plan.rs
+
+guard:
+  tools/checks/k2_wide_uses_capability_plan_mapping_guard.sh
+```
+
+Declared source `uses` metadata now maps to canonical MIR ids:
+
+```text
+uses osvm   -> hako.osvm
+uses atomic -> hako.atomic
+uses rawbuf -> hako.rawbuf
+uses random -> hako.random
+```
+
+The row keeps:
+
+```text
+verified=false
+source=source_uses
+backend execution inactive
+```
+
+## Evidence
+
+```text
+cargo test -q --lib source_declared_uses_emit_canonical_capability_plan_ids
+cargo test -q --lib mir_transports_low_level_declared_uses_as_capability_plan_ids
+bash tools/checks/k2_wide_uses_capability_plan_mapping_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Selection Result
+
+`USES-002A` selects `MIMAP-052A`.
+
+```text
+row:
+  MIMAP-052A reclaim execution preflight proposal
+
+classification:
+  allocator planning / preflight row
+
+why now:
+  reclaim owner-transfer preconditions and declared capability ids are now
+  visible. The next row should decide the exact fail-fast/preflight gate before
+  any reclaim execution is opened.
+
+stop lines:
+  no reclaim execution
+  no atomic ownership claim
+  no remote-free drain
+  no thread scheduling
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-052A.
+```

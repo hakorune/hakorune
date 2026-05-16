@@ -53,7 +53,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `USES-002A declared uses capability plan mapping`
+  `MIMAP-052A reclaim execution preflight proposal`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -72,9 +72,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `MIMAP-051B`; current blocker is
-  `USES-002A`, the Hakorune core row that maps declared `uses osvm` /
-  `uses atomic` / `uses rawbuf` metadata into MIR CapabilityPlan ids.
+- resume point: continue Phase 293x after `USES-002A`; declared low-level
+  `uses` metadata maps to MIR CapabilityPlan ids, and current blocker is
+  `MIMAP-052A`, the reclaim execution preflight proposal row.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -82,8 +82,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `USES-002A`: map declared low-level `uses` metadata to canonical MIR
-     CapabilityPlan ids without enabling execution
+  1. `MIMAP-052A`: select the exact fail-fast/preflight gate required before
+     reclaim execution can be opened
   2. keep reclaim execution inactive until a separate guarded row opens it
   3. keep secure entropy execution parked until a separate random substrate
      route and audit row are accepted

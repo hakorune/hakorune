@@ -24,8 +24,8 @@ process allocator replacement.
 
 Current implementation rows are selected by `CURRENT_STATE.toml` and the
 phase-293x taskboard. The original size-class row is historical and already
-landed; after `MIMAP-051B` the active row is `USES-002A`, a Hakorune core
-capability-plan mapping row. It must not reopen allocator-provider M104+, host
+landed; after `USES-002A` the active row is `MIMAP-052A`, a reclaim execution
+preflight proposal row. It must not reopen allocator-provider M104+, host
 replacement behavior, secure entropy execution, or reclaim execution.
 
 ## Upstream Reference

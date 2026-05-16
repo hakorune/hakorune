@@ -105,6 +105,9 @@ pub fn effect_plans_from_runes(function: &str, runes: &[RuneAttr]) -> Vec<Effect
 
 fn source_uses_capability_allow(capability: &str) -> Option<&'static str> {
     match capability {
+        "osvm" => Some("hako.osvm"),
+        "atomic" => Some("hako.atomic"),
+        "rawbuf" => Some("hako.rawbuf"),
         "random" => Some("hako.random"),
         _ => None,
     }
@@ -233,7 +236,31 @@ mod tests {
 
         assert_eq!(plans.len(), 1);
         assert_eq!(plans[0].function, "Main.secure/0");
-        assert_eq!(plans[0].allow, vec!["hako.random"]);
+        assert_eq!(plans[0].allow, vec!["hako.osvm", "hako.random"]);
+        assert_eq!(plans[0].source, "source_uses");
+        assert!(!plans[0].verified);
+    }
+
+    #[test]
+    fn source_declared_uses_emit_canonical_capability_plan_ids() {
+        let plans = capability_plans_from_sources(
+            "Main.low/0",
+            &[],
+            &[
+                "rawbuf".to_string(),
+                "unknown".to_string(),
+                "atomic".to_string(),
+                "osvm".to_string(),
+                "random".to_string(),
+            ],
+        );
+
+        assert_eq!(plans.len(), 1);
+        assert_eq!(plans[0].function, "Main.low/0");
+        assert_eq!(
+            plans[0].allow,
+            vec!["hako.atomic", "hako.osvm", "hako.random", "hako.rawbuf"]
+        );
         assert_eq!(plans[0].source, "source_uses");
         assert!(!plans[0].verified);
     }

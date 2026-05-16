@@ -178,3 +178,47 @@ static box Main {
     assert_eq!(plan.source, "source_uses");
     assert!(!plan.verified);
 }
+
+#[test]
+fn mir_transports_low_level_declared_uses_as_capability_plan_ids() {
+    ensure_ring0_initialized();
+    let ast = NyashParser::parse_from_string(
+        r#"
+static box Main {
+  main(): i64
+    uses osvm, atomic, rawbuf, random
+  {
+    return 0
+  }
+}
+"#,
+    )
+    .expect("parse declared uses");
+
+    let mut compiler = MirCompiler::with_options(false);
+    let module = compiler.compile(ast).expect("compile declared uses").module;
+    let main = module
+        .functions
+        .values()
+        .find(|function| function.signature.name.contains("main"))
+        .expect("main function");
+
+    assert_eq!(
+        main.metadata.declared_capability_uses,
+        vec![
+            "osvm".to_string(),
+            "atomic".to_string(),
+            "rawbuf".to_string(),
+            "random".to_string()
+        ]
+    );
+    assert_eq!(main.metadata.capability_plans.len(), 1);
+    let plan = &main.metadata.capability_plans[0];
+    assert_eq!(plan.function, main.signature.name);
+    assert_eq!(
+        plan.allow,
+        vec!["hako.atomic", "hako.osvm", "hako.random", "hako.rawbuf"]
+    );
+    assert_eq!(plan.source, "source_uses");
+    assert!(!plan.verified);
+}

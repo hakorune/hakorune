@@ -334,7 +334,8 @@ FST:
 | `MIMAP-050A` | landed | Secure entropy route proposal-or-park. | parked entropy execution; selected MIMAP-051A |
 | `MIMAP-051A` | landed | Reclaim owner-transfer contract inventory. | after MIMAP-050A |
 | `MIMAP-051B` | landed | Post-reclaim-contract row selection. | selected USES-002A |
-| `USES-002A` | selected current | Declared uses capability plan mapping. | after MIMAP-051B |
+| `USES-002A` | landed | Declared uses capability plan mapping. | after MIMAP-051B |
+| `MIMAP-052A` | selected current | Reclaim execution preflight proposal. | selected by USES-002A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -342,9 +343,9 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-051B: `USES-002A` maps declared `uses osvm` /
-`uses atomic` / `uses rawbuf` metadata to canonical MIR CapabilityPlan ids
-without enabling backend execution.
+Current row after USES-002A: `MIMAP-052A` selects the exact fail-fast/preflight
+gate required before any reclaim execution, atomic claim, remote-free drain, or
+thread scheduling is opened.
 
 MIMAP-020A execution order:
 

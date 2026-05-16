@@ -209,7 +209,8 @@ Forbidden:
 | `MIMAP-050A` | secure entropy route proposal-or-park | landed; parked entropy execution and selected MIMAP-051A |
 | `MIMAP-051A` | reclaim owner-transfer contract inventory | landed; selected MIMAP-051B |
 | `MIMAP-051B` | post-reclaim-contract row selection | landed; selected USES-002A |
-| `USES-002A` | declared uses capability plan mapping | selected current |
+| `USES-002A` | declared uses capability plan mapping | landed; selected MIMAP-052A |
+| `MIMAP-052A` | reclaim execution preflight proposal | selected current |
 
 ### MIMAP-020A granularity
 
@@ -844,6 +845,17 @@ row proves the capability.
 It must not add `cap` block syntax, source-level TLS, random/entropy execution,
 backend helper-name inference, reclaim execution, provider activation, hooks,
 host allocator replacement, or broad capability solving.
+
+USES-002A landed by extending `src/mir/effect_capability_plan.rs` and selecting
+MIMAP-052A.
+
+### MIMAP-052A granularity
+
+MIMAP-052A is a planning / preflight row. It reads the reclaim owner-transfer
+contract and declared capability mapping evidence, then selects exactly one
+fail-fast/preflight or implementation row. It must not execute reclaim, mutate
+ownership, perform atomic claims, drain remote frees, schedule threads, or call
+page-source APIs by itself.
 
 ## Compiler / language sidecar triggers
 

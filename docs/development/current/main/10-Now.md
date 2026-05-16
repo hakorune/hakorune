@@ -32,15 +32,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `USES-002A declared uses capability plan mapping`
+- current blocker token: `MIMAP-052A reclaim execution preflight proposal`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-051B`; current blocker is `USES-002A`
-- planned order: map declared `uses osvm` / `uses atomic` / `uses rawbuf`
-  metadata to MIR CapabilityPlan ids; do not open backend execution
+- continue phase-293x after `USES-002A`; current blocker is `MIMAP-052A`
+- planned order: select the exact reclaim execution fail-fast/preflight gate;
+  do not open reclaim execution in the planning row
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
