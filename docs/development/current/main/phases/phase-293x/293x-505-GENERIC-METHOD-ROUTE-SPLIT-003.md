@@ -1,6 +1,6 @@
 # 293x-505 GENERIC-METHOD-ROUTE-SPLIT-003
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -50,3 +50,29 @@ git diff --check
 
 This row closes when string route matching has a dedicated `string_routes`
 owner and existing generic method route behavior is unchanged.
+
+## Result
+
+Landed:
+
+- Added `src/mir/generic_method_route_plan/string_routes.rs`.
+- Moved string route matchers for `substring`, `indexOf`, `lastIndexOf`, and
+  `contains`.
+- Kept the root generic method route file as the orchestration facade.
+- Updated the generic method route plan README with the new owner.
+
+No accepted generic method route behavior, route kind, route proof, route id,
+value demand, return shape, publication policy, core method carrier spelling,
+collection read route behavior, write route behavior, scalar map proof,
+typed-object origin inference, MIR JSON route emission, allocator behavior,
+provider activation, hooks, host allocator replacement, or `#[global_allocator]`
+behavior changed.
+
+## Evidence
+
+```text
+cargo test -q generic_method_route_plan
+bash tools/checks/current_state_pointer_guard.sh
+tools/checks/dev_gate.sh quick
+git diff --check
+```

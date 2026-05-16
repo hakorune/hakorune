@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `GENERIC-METHOD-ROUTE-SPLIT-003 generic string route cleanup`
+- current blocker token: `GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001 generic string body analysis cleanup`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -48,7 +48,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `GENERIC-METHOD-ROUTE-SPLIT-003 generic string route cleanup`
+- current blocker token: `GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001 generic string body analysis cleanup`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -59,9 +59,10 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after `GENERIC-METHOD-ROUTE-SPLIT-002`; current
-  blocker is `GENERIC-METHOD-ROUTE-SPLIT-003`, a generic string route cleanup
-- next row: selected row after `GENERIC-METHOD-ROUTE-SPLIT-003`
+- continue `phase-293x` after `GENERIC-METHOD-ROUTE-SPLIT-004`; current
+  blocker is `GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001`, a generic string body
+  analysis cleanup
+- next row: selected row after `GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001`
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

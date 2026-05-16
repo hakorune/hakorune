@@ -8,8 +8,8 @@
 - Closed sidecar:
   `docs/development/current/main/phases/phase-293x/293x-mir-builder-diet-taskboard.md`
 - Current compiler/selfhost sidecar:
-  closed through `GENERIC-METHOD-ROUTE-SPLIT-001`; current row is
-  `GENERIC-METHOD-ROUTE-SPLIT-003`
+  closed through `GENERIC-METHOD-ROUTE-SPLIT-003`; current row is
+  `GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001`
 - Current active row:
   read `phase_status` in `docs/development/current/main/CURRENT_STATE.toml`
   and the taskboard below

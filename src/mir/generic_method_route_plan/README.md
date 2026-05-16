@@ -9,6 +9,8 @@ responsibility.
 - `flow_origin.rs`: collection/string value-flow origin observation.
 - `collection_read_routes.rs`: non-mutating collection read route matchers
   (`has`, `get`, `length`/`len`, `keys`).
+- `string_routes.rs`: generic string route matchers (`substring`, `indexOf`,
+  `lastIndexOf`, `contains`).
 - `write_routes.rs`: mutating generic method route matchers (`push`, `set`,
   `delete`).
 - `mir_json_routes.rs`: MIR JSON-specific generic `get` route shapes.
