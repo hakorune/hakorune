@@ -32,15 +32,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-052A reclaim execution preflight proposal`
+- current blocker token: `MIMAP-052B reclaim execution intent marker preflight`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `USES-002A`; current blocker is `MIMAP-052A`
-- planned order: select the exact reclaim execution fail-fast/preflight gate;
-  do not open reclaim execution in the planning row
+- continue phase-293x after `MIMAP-052A`; current blocker is `MIMAP-052B`
+- planned order: add a dedicated reclaim execution intent marker and explicit
+  unsupported-route preflight; do not open reclaim execution in this row
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

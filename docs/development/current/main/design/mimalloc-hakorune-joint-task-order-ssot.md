@@ -34,20 +34,21 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`USES-002A` landed declared uses capability-plan mapping before reclaim
-execution.
+`MIMAP-052A` landed by selecting a dedicated reclaim execution intent marker
+before reclaim execution.
 
 Recommended current row:
 
 ```text
-MIMAP-052A
-  reclaim execution preflight proposal
+MIMAP-052B
+  reclaim execution intent marker preflight
 ```
 
 Purpose:
 
 ```text
-select the exact fail-fast/preflight gate needed before reclaim execution
+make reclaim execution intent explicit as hako.alloc.reclaim metadata
+reject that intent before backend emission until a later execution row opens it
 keep reclaim execution inactive until a separate guarded row opens it
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -73,12 +74,13 @@ no provider activation
 | 5 | allocator | `MIMAP-051A reclaim owner-transfer contract inventory` | landed; named explicit preconditions before execution |
 | 6 | planning | `MIMAP-051B post-reclaim-contract row selection` | landed; selected USES-002A |
 | 7 | Hakorune core | `USES-002A declared uses capability plan mapping` | landed; low-level declared uses are MIR-visible |
-| 8 | planning | `MIMAP-052A reclaim execution preflight proposal` | current; choose the fail-fast/preflight gate |
-| 9 | allocator | reclaim execution small guarded row | only after owner-transfer and remote-free drain gates are explicit |
-| 10 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
-| 11 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
-| 12 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
-| 13 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
+| 8 | planning | `MIMAP-052A reclaim execution preflight proposal` | landed; selected dedicated reclaim marker |
+| 9 | Hakorune core / allocator gate | `MIMAP-052B reclaim execution intent marker preflight` | current; fail fast before backend execution |
+| 10 | allocator | reclaim execution small guarded row | only after owner-transfer and remote-free drain gates are explicit |
+| 11 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
+| 12 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
+| 13 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
+| 14 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
 

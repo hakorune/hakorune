@@ -210,7 +210,8 @@ Forbidden:
 | `MIMAP-051A` | reclaim owner-transfer contract inventory | landed; selected MIMAP-051B |
 | `MIMAP-051B` | post-reclaim-contract row selection | landed; selected USES-002A |
 | `USES-002A` | declared uses capability plan mapping | landed; selected MIMAP-052A |
-| `MIMAP-052A` | reclaim execution preflight proposal | selected current |
+| `MIMAP-052A` | reclaim execution preflight proposal | landed; selected MIMAP-052B |
+| `MIMAP-052B` | reclaim execution intent marker preflight | selected current |
 
 ### MIMAP-020A granularity
 
@@ -856,6 +857,21 @@ contract and declared capability mapping evidence, then selects exactly one
 fail-fast/preflight or implementation row. It must not execute reclaim, mutate
 ownership, perform atomic claims, drain remote frees, schedule threads, or call
 page-source APIs by itself.
+
+MIMAP-052A landed by selecting MIMAP-052B. The decision is that reclaim
+execution must not be inferred from generic `hako.atomic` or `hako.osvm`
+capabilities; it needs its own MIR-visible intent marker.
+
+### MIMAP-052B granularity
+
+MIMAP-052B is a fail-fast / metadata gate row. It adds the metadata-only
+`uses alloc_reclaim` marker as `hako.alloc.reclaim` and an explicit pure-first
+preflight option that rejects the marker before backend emission until a later
+row opens reclaim execution.
+
+It must not execute reclaim, mutate ownership, perform atomic claims, drain
+remote-free queues, schedule threads, call page-source APIs, add backend
+matchers, or activate allocator providers.
 
 ## Compiler / language sidecar triggers
 
