@@ -30,8 +30,15 @@ pure_first_guard_build_exe() {
   local build_log="$6"
   local mir_sha_before
   local mir_sha_after
+  local preflight="$root_dir/tools/checks/pure_first_route_preflight.py"
 
   mir_sha_before="$(sha256sum "$mir_json" | awk '{print $1}')"
+
+  if ! "$preflight" "$mir_json" >"$build_log" 2>&1; then
+    echo "[$tag] ERROR: pure-first route preflight failed" >&2
+    sed -n '1,240p' "$build_log" >&2
+    exit 1
+  fi
 
   if ! NYASH_BIN="$root_dir/target/debug/hakorune" \
     NYASH_FEATURES=rune \
@@ -42,7 +49,7 @@ pure_first_guard_build_exe() {
     timeout 120 tools/selfhost/selfhost_build.sh \
       --in "$app" \
       --mir-in "$mir_json" \
-      --exe "$exe_out" >"$build_log" 2>&1; then
+      --exe "$exe_out" >>"$build_log" 2>&1; then
     echo "[$tag] ERROR: pure-first build failed" >&2
     sed -n '1,240p' "$build_log" >&2
     exit 1

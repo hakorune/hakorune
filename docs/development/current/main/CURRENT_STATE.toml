@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-16"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIR-EMIT-SSOT-001 pure-first MIR artifact exactness landed; MIR-ROUTE-PREFLIGHT-001 lowering-plan route preflight is current before returning to MIMAP-029B post-huge-decommit row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIR-EMIT-SSOT-001 pure-first MIR artifact exactness and MIR-ROUTE-PREFLIGHT-001 lowering-plan route preflight landed; SELFHOST-PROGRESS-001 phase progress diagnostics is current before returning to MIMAP-029B post-huge-decommit row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-451-MIR-ROUTE-PREFLIGHT-001-LOWERING-PLAN-PREFLIGHT.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-452-SELFHOST-PROGRESS-001-PHASE-PROGRESS-DIAGNOSTICS.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-450-MIR-EMIT-SSOT-001-PURE-FIRST-MIR-ARTIFACT-EXACTNESS"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-450-MIR-EMIT-SSOT-001-PURE-FIRST-MIR-ARTIFACT-EXACTNESS.md"
-latest_card_summary = "MIR-EMIT-SSOT-001 lands selfhost --mir-in / --mir-out split, pure-first EXE same-artifact enforcement, and a schema/exactness guard while keeping allocator behavior unchanged."
+latest_card = "293x-451-MIR-ROUTE-PREFLIGHT-001-LOWERING-PLAN-PREFLIGHT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-451-MIR-ROUTE-PREFLIGHT-001-LOWERING-PLAN-PREFLIGHT.md"
+latest_card_summary = "MIR-ROUTE-PREFLIGHT-001 lands a pure-first lowering_plan preflight, guard fixtures, and pure-first EXE guard integration over the exact MIR artifact while keeping allocator/backend behavior unchanged."
 
-current_blocker_token = "MIR-ROUTE-PREFLIGHT-001"
+current_blocker_token = "SELFHOST-PROGRESS-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-451 MIR-ROUTE-PREFLIGHT-001 lowering-plan route preflight landed",
   "293x-450 MIR-EMIT-SSOT-001 pure-first MIR artifact exactness landed",
   "293x-448 MIMAP-029A facade huge decommit-after-unregister success route landed",
   "293x-447 MIMAP-028B post-backed-huge row selection landed",

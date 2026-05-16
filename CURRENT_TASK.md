@@ -51,9 +51,10 @@ Scope: current lane / next lane / restart order only.
 - pure-first MIR artifact / diagnostics SSOT:
   `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
 - current blocker token:
-  `MIR-ROUTE-PREFLIGHT-001 lowering-plan route preflight`
+  `SELFHOST-PROGRESS-001 phase progress diagnostics`
 - current BoxShape sidecar:
-  `MIR-EMIT-SSOT-001` landed; `MIR-ROUTE-PREFLIGHT-001` is active before
+  `MIR-EMIT-SSOT-001` and `MIR-ROUTE-PREFLIGHT-001` landed;
+  `SELFHOST-PROGRESS-001` is active before
   returning to `MIMAP-029B`;
   `MIRBUILDER-DIET` remains closed through `MIR-SEMANTIC-PLANS-001`
 - primary mode: mimalloc substrate implementation lane; keep upstream source
@@ -70,24 +71,22 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `MIR-EMIT-SSOT-001`; current blocker
-  is `MIR-ROUTE-PREFLIGHT-001`, a pure-first/selfhost BoxShape sidecar that
-  classifies missing lowering routes from MIR metadata before backend emission.
-  VM-LIM-001 remains parked diagnostic. Keep LoopRange on the Stage1 route; do
-  not source-desugar range loops.
+- resume point: continue Phase 293x after `MIR-ROUTE-PREFLIGHT-001`; current
+  blocker is `SELFHOST-PROGRESS-001`, a pure-first/selfhost BoxShape sidecar
+  that adds phase progress and timeout closeout so slow, stuck, and unsupported
+  routes are distinguishable. VM-LIM-001 remains parked diagnostic. Keep
+  LoopRange on the Stage1 route; do not source-desugar range loops.
 
 ## Task Order
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIR-ROUTE-PREFLIGHT-001`: classify missing lowering routes from MIR
-     metadata before ny-llvmc / C shim emission
-  2. `SELFHOST-PROGRESS-001`: add phase progress / timeout closeout so slow,
+  1. `SELFHOST-PROGRESS-001`: add phase progress / timeout closeout so slow,
      stuck, and unsupported routes are distinguishable
-  3. `MIR-EMIT-SSOT-002`: make the canonical external source-to-MIR route
+  2. `MIR-EMIT-SSOT-002`: make the canonical external source-to-MIR route
      explicit, preferably by promoting `tools/smokes/v2/lib/emit_mir_route.sh`
      or adding only a thin facade over it
-  4. `MIMAP-029B`: return to post-huge-decommit allocator row selection
+  3. `MIMAP-029B`: return to post-huge-decommit allocator row selection
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
   reduction after mimalloc completeness evidence. Do not make broad `.hako`

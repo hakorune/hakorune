@@ -156,6 +156,23 @@ The reason names above are preflight classifications, not a promise that every
 name is a literal JSON field. `MIR-ROUTE-PREFLIGHT-001` must map them from the
 actual LoweringPlan JSON v0 fields.
 
+Scope:
+
+```text
+default:
+  main-reachable pure-first EXE route
+
+rule:
+  follow supported direct-function LoweringPlan edges from main and fail only
+  on route rows that the pure-first emitter can reach.
+
+why:
+  MIR JSON may contain diagnostic unsupported rows for library functions that
+  are not emitted into the current EXE. Those rows remain useful metadata, but
+  they are not a same-artifact pure-first build failure until a reachable call
+  path touches them.
+```
+
 Initial mapping target:
 
 | Reason | Source field / condition |
@@ -207,7 +224,7 @@ diagnostic layer only; it must not change lowering behavior.
 
 ### MIR-EMIT-SSOT-001: same MIR artifact
 
-Status: selected current sidecar
+Status: landed
 
 Purpose:
 
@@ -236,7 +253,7 @@ preflight MIR SHA == EXE input MIR SHA
 
 ### MIR-ROUTE-PREFLIGHT-001: lowering-plan preflight
 
-Status: ready after MIR-EMIT-SSOT-001
+Status: landed
 
 Purpose:
 
@@ -263,7 +280,7 @@ unsupported route fails with a stable reason before backend emission
 
 ### SELFHOST-PROGRESS-001: phase progress diagnostics
 
-Status: ready after MIR-ROUTE-PREFLIGHT-001
+Status: selected current after MIR-ROUTE-PREFLIGHT-001
 
 Purpose:
 

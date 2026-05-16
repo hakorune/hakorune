@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIR-ROUTE-PREFLIGHT-001 lowering-plan route preflight`
+- current blocker token: `SELFHOST-PROGRESS-001 phase progress diagnostics`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -48,7 +48,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIR-ROUTE-PREFLIGHT-001 lowering-plan route preflight`
+- current blocker token: `SELFHOST-PROGRESS-001 phase progress diagnostics`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -59,11 +59,11 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after `MIR-EMIT-SSOT-001`; current blocker is
-  `MIR-ROUTE-PREFLIGHT-001`, which classifies missing lowering routes from MIR
-  metadata before ny-llvmc / C shim emission
-- next sidecars: `SELFHOST-PROGRESS-001`, then canonical emit route entry
-  `MIR-EMIT-SSOT-002`, then return to `MIMAP-029B`
+- continue `phase-293x` after `MIR-ROUTE-PREFLIGHT-001`; current blocker is
+  `SELFHOST-PROGRESS-001`, which adds phase progress / timeout closeout for
+  slow, stuck, and unsupported build diagnosis
+- next sidecars: canonical emit route entry `MIR-EMIT-SSOT-002`, then return
+  to `MIMAP-029B`
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

@@ -1,6 +1,6 @@
 # 293x-451 MIR-ROUTE-PREFLIGHT-001 Lowering-Plan Preflight
 
-Status: ready
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -27,6 +27,10 @@ docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-sso
 - Integrate preflight into pure-first guards after the same-artifact route is
   available.
 - Add a narrow guard fixture for a route hit and a route miss.
+
+Default preflight scope is the pure-first EXE route reachable from `main`.
+Diagnostic unsupported rows in unreachable library functions are not a build
+failure until a supported direct-function lowering edge can reach them.
 
 ## Required Reason Vocabulary
 
@@ -91,3 +95,47 @@ tools/checks/dev_gate.sh quick
 
 This row closes when a missing route is classified from MIR metadata before the
 C shim would produce a late `mir_call_no_route`-style failure.
+
+## Landed Implementation
+
+Files:
+
+```text
+tools/checks/pure_first_route_preflight.py
+tools/checks/pure_first_route_preflight_guard.sh
+tools/checks/lib/pure_first_exe_guard.sh
+docs/tools/check-scripts-index.md
+```
+
+Behavior:
+
+- `pure_first_route_preflight.py` reads
+  `functions[].metadata.lowering_plan`.
+- The classifier derives the required reason vocabulary from actual
+  LoweringPlan JSON v0 fields.
+- The default scope follows supported direct-function lowering-plan edges from
+  `main`, so unreachable diagnostic rows do not fail the EXE guard.
+- Missing extern lowering plans in reachable code fail with
+  `reason=lowering_plan_missing`.
+- Unsupported reachable global/user-box plans fail with
+  `reason=unsupported_tier` or a more specific route-contract reason.
+- `pure_first_exe_guard.sh` runs the preflight on the exact MIR artifact before
+  invoking `selfhost_build.sh --mir-in`.
+
+Evidence:
+
+```text
+python3 -m py_compile tools/checks/pure_first_route_preflight.py
+bash -n tools/checks/pure_first_route_preflight_guard.sh tools/checks/lib/pure_first_exe_guard.sh
+bash tools/checks/pure_first_route_preflight_guard.sh
+bash tools/checks/k2_wide_mimalloc_facade_huge_decommit_exe_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+bash tools/checks/pure_first_mir_artifact_exactness_guard.sh
+tools/checks/dev_gate.sh quick
+```
+
+Closeout:
+
+```text
+current blocker moves to SELFHOST-PROGRESS-001.
+```

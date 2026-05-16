@@ -1,6 +1,6 @@
 # 293x-452 SELFHOST-PROGRESS-001 Phase Progress Diagnostics
 
-Status: ready
+Status: selected current
 Date: 2026-05-16
 
 ## Decision
