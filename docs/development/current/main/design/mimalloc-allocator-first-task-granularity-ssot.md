@@ -176,7 +176,9 @@ Forbidden:
 | `MIMAP-037A` | facade huge backing-set helper cleanup | landed after MIMAP-036B |
 | `MIMAP-037B` | post-backing-set-helper row selection | landed; selected MIMAP-038A |
 | `MIMAP-038A` | object-lifecycle known-page loop cleanup | landed after MIMAP-037B |
-| `MIMAP-038B` | post-known-page-loop row selection | current after MIMAP-038A |
+| `MIMAP-038B` | post-known-page-loop row selection | landed; selected MIMAP-039A |
+| `MIMAP-039A` | remote-free retry-bound named owner cleanup | landed after MIMAP-038B |
+| `MIMAP-039B` | post-remote-free-retry-bound row selection | current after MIMAP-039A |
 
 ### MIMAP-020A granularity
 
@@ -498,8 +500,12 @@ from the fail-fast route into a helper before the next behavior row. MIMAP-037A
 landed that BoxShape cleanup without adding allocator behavior. MIMAP-037B
 selected MIMAP-038A, which replaced the object-lifecycle facade fixed
 three-page known-page lookup with a queue-length loop while leaving queue
-selection policy unchanged. MIMAP-038B is the current planning-only row after
-that cleanup.
+selection policy unchanged. MIMAP-038B probed the remaining object-lifecycle
+queue fixed-shape selection cleanup, but that exposed a compiler acceptance
+sidecar around loop-returned page objects. It selected the smaller MIMAP-039A
+remote-free retry-bound named owner cleanup instead. MIMAP-039A landed without
+changing retry behavior. MIMAP-039B is the current planning-only row after that
+cleanup.
 
 ## Compiler / language sidecar triggers
 

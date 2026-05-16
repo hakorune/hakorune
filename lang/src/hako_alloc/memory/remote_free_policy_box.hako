@@ -3,16 +3,21 @@
 // Non-responsibility: implement pointer atomics, native attrs, or allocator metal.
 
 static box HakoAllocRemoteFreePolicy {
+    maxPushRetries() {
+        return 5
+    }
+
     initHead(head_cell) {
         return externcall "hako_atomic_ptr_store_ordered"(head_cell, 0, 2)
     }
 
     pushRetry(head_cell, block_ptr, interferer_ptr) {
+        local max_retries = HakoAllocRemoteFreePolicy.maxPushRetries()
         local retries = 0
         local injected = 0
         local done = 0
 
-        loop (done == 0 && retries < 5) {
+        loop (done == 0 && retries < max_retries) {
             local old_head = externcall "hako_atomic_ptr_load_ordered"(head_cell, 1)
             externcall "hako_atomic_ptr_store_ordered"(block_ptr, old_head, 2)
 
