@@ -222,7 +222,8 @@ Forbidden:
 | `MIMAP-060A` | reclaim completion marker route | landed; selected MIMAP-061A |
 | `MIMAP-061A` | reclaim scalar lane closeout guard | landed; selected MIMAP-062A |
 | `MIMAP-062A` | post-reclaim-scalar-closeout row selection | landed; selected MIMAP-063A |
-| `MIMAP-063A` | reclaim scheduler boundary inventory | selected current |
+| `MIMAP-063A` | reclaim scheduler boundary inventory | landed; selected MIMAP-064A |
+| `MIMAP-064A` | reclaim scheduler request marker contract | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1022,6 +1023,19 @@ It must not add real scheduler execution, source-level `nowait`, `Channel`,
 `task_scope`, `co`, `sync box`, `context`, or `worker_local` behavior, call
 page-source APIs, unreserve or release OSVM pages, activate providers, replace
 the host allocator, or add backend matchers.
+
+MIMAP-063A landed by adding a scheduler boundary inventory SSOT and guard. It
+selects MIMAP-064A.
+
+### MIMAP-064A granularity
+
+MIMAP-064A is a scalar scheduler request marker contract. It may add a `.hako`
+owner that classifies whether a completed scalar reclaim result would request a
+modeled scheduler handoff or stay local/suppressed.
+
+It must not execute real scheduling, add source-level concurrency semantics,
+call page-source APIs, unreserve or release OSVM pages, activate providers,
+replace the host allocator, or add backend matchers.
 
 ## Compiler / language sidecar triggers
 

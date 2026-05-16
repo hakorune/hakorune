@@ -34,14 +34,14 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-062A` landed the post-reclaim-scalar-closeout row selection and selected
-the reclaim scheduler boundary inventory.
+`MIMAP-063A` landed the reclaim scheduler boundary inventory and selected the
+request marker contract.
 
 Recommended current row:
 
 ```text
-MIMAP-063A
-  reclaim scheduler boundary inventory
+MIMAP-064A
+  reclaim scheduler request marker contract
 ```
 
 Purpose:
@@ -85,7 +85,8 @@ no provider activation
 | 17 | allocator | `MIMAP-060A reclaim completion marker route` | landed; selected MIMAP-061A |
 | 18 | closeout | `MIMAP-061A reclaim scalar lane closeout guard` | landed; selected MIMAP-062A |
 | 19 | planning | `MIMAP-062A post-reclaim-scalar-closeout row selection` | landed; selected MIMAP-063A |
-| 20 | allocator prerequisite | `MIMAP-063A reclaim scheduler boundary inventory` | current; no real scheduling |
+| 20 | allocator prerequisite | `MIMAP-063A reclaim scheduler boundary inventory` | landed; selected MIMAP-064A |
+| 21 | allocator contract | `MIMAP-064A reclaim scheduler request marker contract` | current; no real scheduling |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

@@ -32,14 +32,14 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-063A reclaim scheduler boundary inventory`
+- current blocker token: `MIMAP-064A reclaim scheduler request marker contract`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-062A`; current blocker is `MIMAP-063A`
-- planned order: add reclaim scheduler boundary inventory
+- continue phase-293x after `MIMAP-063A`; current blocker is `MIMAP-064A`
+- planned order: add reclaim scheduler request marker contract
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

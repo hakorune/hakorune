@@ -1,6 +1,6 @@
 # 293x-550 MIMAP-063A Reclaim Scheduler Boundary Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -50,4 +50,47 @@ features.
 bash tools/checks/k2_wide_hako_alloc_reclaim_scheduler_boundary_inventory_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Implementation Result
+
+`MIMAP-063A` added a scheduler boundary inventory SSOT and focused guard.
+
+The row keeps allocator-internal scheduler facts separate from source-level
+concurrency (`co`, `nowait`, `Channel`, `sync box`, `context`, and
+`worker_local`). It does not add a `.hako` scheduler owner or real scheduling
+execution.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_reclaim_scheduler_boundary_inventory_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Selection Result
+
+`MIMAP-063A` selects `MIMAP-064A`.
+
+```text
+row:
+  MIMAP-064A reclaim scheduler request marker contract
+
+classification:
+  allocator contract row
+
+why now:
+  the boundary is fixed. The next narrow row can add a `.hako` marker contract
+  that classifies whether completed scalar reclaim would request modeled
+  scheduler handoff, while still not executing scheduling.
+
+stop lines:
+  no real thread scheduling
+  no source-level concurrency feature change
+  no page-source call
+  no OSVM unreserve / release
+  no provider activation
+  no host allocator replacement
+  no cleanup bundle
 ```
