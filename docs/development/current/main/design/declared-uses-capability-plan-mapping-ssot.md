@@ -23,6 +23,7 @@ CapabilityPlan ids:
 | `uses atomic` | `hako.atomic` | metadata only |
 | `uses rawbuf` | `hako.rawbuf` | metadata only |
 | `uses random` | `hako.random` | metadata only; execution unsupported |
+| `uses alloc_reclaim` | `hako.alloc.reclaim` | metadata only; execution unsupported by MIMAP-052B preflight |
 
 The row keeps `verified=false`. It does not prove backend support, lower any
 route, or enable execution.
@@ -53,6 +54,14 @@ thread scheduling
 provider activation
 hooks
 host allocator replacement
+```
+
+Follow-up:
+
+```text
+MIMAP-052B adds alloc_reclaim as a dedicated allocator reclaim execution
+intent marker. It exists because generic hako.atomic / hako.osvm capabilities
+are substrate facts and must not imply reclaim execution.
 ```
 
 ## Guard Contract

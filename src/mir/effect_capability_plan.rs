@@ -109,6 +109,7 @@ fn source_uses_capability_allow(capability: &str) -> Option<&'static str> {
         "atomic" => Some("hako.atomic"),
         "rawbuf" => Some("hako.rawbuf"),
         "random" => Some("hako.random"),
+        "alloc_reclaim" => Some("hako.alloc.reclaim"),
         _ => None,
     }
 }
@@ -261,6 +262,21 @@ mod tests {
             plans[0].allow,
             vec!["hako.atomic", "hako.osvm", "hako.random", "hako.rawbuf"]
         );
+        assert_eq!(plans[0].source, "source_uses");
+        assert!(!plans[0].verified);
+    }
+
+    #[test]
+    fn source_declared_uses_emit_reclaim_execution_capability_marker() {
+        let plans = capability_plans_from_sources(
+            "Main.reclaim/0",
+            &[],
+            &["alloc_reclaim".to_string(), "atomic".to_string()],
+        );
+
+        assert_eq!(plans.len(), 1);
+        assert_eq!(plans[0].function, "Main.reclaim/0");
+        assert_eq!(plans[0].allow, vec!["hako.alloc.reclaim", "hako.atomic"]);
         assert_eq!(plans[0].source, "source_uses");
         assert!(!plans[0].verified);
     }

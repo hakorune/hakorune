@@ -336,7 +336,8 @@ FST:
 | `MIMAP-051B` | landed | Post-reclaim-contract row selection. | selected USES-002A |
 | `USES-002A` | landed | Declared uses capability plan mapping. | after MIMAP-051B |
 | `MIMAP-052A` | landed | Reclaim execution preflight proposal. | selected MIMAP-052B |
-| `MIMAP-052B` | selected current | Reclaim execution intent marker preflight. | after MIMAP-052A |
+| `MIMAP-052B` | landed | Reclaim execution intent marker preflight. | selected MIMAP-053A |
+| `MIMAP-053A` | selected current | Reclaim execution support row selection. | after MIMAP-052B |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -344,9 +345,10 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-052A: `MIMAP-052B` adds a dedicated reclaim execution
-intent marker and explicit unsupported-route preflight. Reclaim execution,
-atomic claim, remote-free drain, and thread scheduling remain closed.
+Current row after MIMAP-052B: `MIMAP-053A` selects whether the next guarded row
+opens first reclaim execution or adds an atomic / remote-free prerequisite
+gate. Reclaim execution, atomic claim, remote-free drain, and thread scheduling
+remain closed in the planning row.
 
 MIMAP-020A execution order:
 

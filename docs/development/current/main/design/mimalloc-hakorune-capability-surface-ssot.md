@@ -27,6 +27,9 @@ provisional capability decisions:
   uses tls
   uses random
 
+allocator execution intent markers:
+  uses alloc_reclaim
+
 not a capability surface:
   provider activation
   hooks
@@ -42,6 +45,7 @@ not a capability surface:
 | `uses rawbuf` | bounded raw memory residence and views | real block payload, pointer validation, span access | unsupported backend rejects; no pointer-as-i64 shortcut |
 | `uses tls` | default heap and thread id fast path | thread-local default heap, thread done hooks | provisional; explicit decision row required before implementation |
 | `uses random` | entropy for encoded free-list keys and secure modes | encoded free lists, guarded security modes | `RANDOM-CAP-001` recognizes the metadata capability as `hako.random`; execution remains unsupported |
+| `uses alloc_reclaim` | explicit reclaim execution intent marker | abandoned-owner reclaim execution | `MIMAP-052B` recognizes the metadata capability as `hako.alloc.reclaim`; execution remains unsupported until a later row |
 
 ## Explicitly Inactive Surfaces
 
@@ -87,6 +91,8 @@ writeBlockBytes(block_ref: PageBlockRef, offset: Offset, len: Bytes): Result<voi
 `uses tls` is intentionally not given executable method seeds until its policy
 row is accepted. `uses random` has a metadata-only policy row
 (`RANDOM-CAP-001`) but still has no executable method seed or entropy route.
+`uses alloc_reclaim` is an execution-intent marker, not a generic substrate
+capability; it has no executable method seed in `MIMAP-052B`.
 
 ## No-Fallback Contract
 

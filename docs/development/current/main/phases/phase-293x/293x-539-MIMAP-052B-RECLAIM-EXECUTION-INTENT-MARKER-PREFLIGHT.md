@@ -1,6 +1,6 @@
 # 293x-539 MIMAP-052B Reclaim Execution Intent Marker Preflight
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -79,4 +79,88 @@ cargo test -q --lib mir_transports_alloc_reclaim_declared_uses_as_capability_pla
 bash tools/checks/k2_wide_reclaim_execution_preflight_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Implementation Result
+
+`MIMAP-052B` adds:
+
+```text
+SSOT:
+  docs/development/current/main/design/reclaim-execution-preflight-ssot.md
+
+mapping owner:
+  src/mir/effect_capability_plan.rs
+
+preflight owner:
+  tools/checks/pure_first_route_preflight.py
+
+guard:
+  tools/checks/k2_wide_reclaim_execution_preflight_guard.sh
+```
+
+The row maps:
+
+```text
+uses alloc_reclaim -> hako.alloc.reclaim
+```
+
+and adds the explicit preflight option:
+
+```text
+--reject-unsupported-reclaim-execution
+```
+
+Stable failure:
+
+```text
+reason=reclaim_execution_route_unsupported
+owner=capability_plans
+contract=metadata.capability_plans[hako.alloc.reclaim]
+```
+
+Default preflight still accepts the metadata-only marker. Generic
+`hako.atomic` / `hako.osvm` capability plans do not imply reclaim execution.
+
+## Evidence
+
+```text
+cargo test -q --lib source_declared_uses_emit_reclaim_execution_capability_marker
+cargo test -q --lib mir_transports_alloc_reclaim_declared_uses_as_capability_plan_id
+bash tools/checks/k2_wide_reclaim_execution_preflight_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Selection Result
+
+`MIMAP-052B` selects `MIMAP-053A`.
+
+```text
+row:
+  MIMAP-053A reclaim execution support row selection
+
+classification:
+  planning-only row
+
+why now:
+  reclaim execution intent is now explicit and can fail before backend
+  emission. The next row must decide whether to open a first guarded execution
+  slice, add an atomic-claim contract sidecar, add a remote-free drain
+  fail-fast row, or keep reclaim on read-only inventory.
+
+stop lines:
+  no reclaim execution
+  no owner mutation
+  no atomic claim
+  no remote-free drain
+  no thread scheduling
+  no page-source call
+  no cleanup bundle
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-053A.
 ```

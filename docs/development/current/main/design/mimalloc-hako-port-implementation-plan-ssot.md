@@ -24,8 +24,8 @@ process allocator replacement.
 
 Current implementation rows are selected by `CURRENT_STATE.toml` and the
 phase-293x taskboard. The original size-class row is historical and already
-landed; after `MIMAP-052A` the active row is `MIMAP-052B`, a reclaim execution
-intent marker preflight row. It must not reopen allocator-provider M104+, host
+landed; after `MIMAP-052B` the active row is `MIMAP-053A`, a reclaim execution
+support row selection. It must not reopen allocator-provider M104+, host
 replacement behavior, secure entropy execution, or reclaim execution.
 
 ## Upstream Reference

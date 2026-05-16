@@ -285,9 +285,13 @@ def capability_plan_allows(plan: dict[str, Any], capability: str) -> bool:
     return isinstance(allow, list) and capability in {str(item) for item in allow}
 
 
-def classify_random_capability_plans(
+def classify_unsupported_capability_plans(
     fn_name: str,
     metadata: dict[str, Any],
+    *,
+    capability: str,
+    reason: str,
+    suggestion: str,
 ) -> list[dict[str, str]]:
     plans = metadata.get("capability_plans")
     if not isinstance(plans, list):
@@ -295,27 +299,54 @@ def classify_random_capability_plans(
 
     failures: list[dict[str, str]] = []
     for plan in plans:
-        if not isinstance(plan, dict) or not capability_plan_allows(plan, "hako.random"):
+        if not isinstance(plan, dict) or not capability_plan_allows(plan, capability):
             continue
         failures.append(
             failure(
                 fn_name,
                 "<capability>",
-                "hako.random",
-                "random_capability_route_unsupported",
+                capability,
+                reason,
                 "capability_plans",
-                "select a supported random route row or keep the caller on proof-only deterministic keys",
+                suggestion,
                 layer="route-preflight",
-                contract="metadata.capability_plans[hako.random]",
+                contract=f"metadata.capability_plans[{capability}]",
             )
         )
     return failures
+
+
+def classify_random_capability_plans(
+    fn_name: str,
+    metadata: dict[str, Any],
+) -> list[dict[str, str]]:
+    return classify_unsupported_capability_plans(
+        fn_name,
+        metadata,
+        capability="hako.random",
+        reason="random_capability_route_unsupported",
+        suggestion="select a supported random route row or keep the caller on proof-only deterministic keys",
+    )
+
+
+def classify_reclaim_execution_capability_plans(
+    fn_name: str,
+    metadata: dict[str, Any],
+) -> list[dict[str, str]]:
+    return classify_unsupported_capability_plans(
+        fn_name,
+        metadata,
+        capability="hako.alloc.reclaim",
+        reason="reclaim_execution_route_unsupported",
+        suggestion="select a supported reclaim execution row or keep the caller on read-only reclaim inventory",
+    )
 
 
 def collect_failures(
     data: dict[str, Any],
     *,
     reject_unsupported_random: bool = False,
+    reject_unsupported_reclaim_execution: bool = False,
 ) -> tuple[list[dict[str, str]], int, int]:
     functions = data.get("functions", [])
     if not isinstance(functions, list):
@@ -369,6 +400,8 @@ def collect_failures(
             continue
         if reject_unsupported_random:
             failures.extend(classify_random_capability_plans(fn_name, metadata))
+        if reject_unsupported_reclaim_execution:
+            failures.extend(classify_reclaim_execution_capability_plans(fn_name, metadata))
         plans = metadata.get("lowering_plan")
         if not isinstance(plans, list):
             failures.append(
@@ -501,6 +534,11 @@ def main(argv: list[str]) -> int:
         action="store_true",
         help="fail on reachable hako.random capability metadata until a random route row lands",
     )
+    parser.add_argument(
+        "--reject-unsupported-reclaim-execution",
+        action="store_true",
+        help="fail on reachable hako.alloc.reclaim capability metadata until a reclaim execution row lands",
+    )
     parser.add_argument("mir_json", type=Path)
     args = parser.parse_args(argv)
 
@@ -508,6 +546,7 @@ def main(argv: list[str]) -> int:
     failures, function_count, plan_count = collect_failures(
         data,
         reject_unsupported_random=args.reject_unsupported_random,
+        reject_unsupported_reclaim_execution=args.reject_unsupported_reclaim_execution,
     )
     if failures:
         for item in failures:

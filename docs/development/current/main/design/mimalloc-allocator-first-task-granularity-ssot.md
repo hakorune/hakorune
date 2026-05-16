@@ -211,7 +211,8 @@ Forbidden:
 | `MIMAP-051B` | post-reclaim-contract row selection | landed; selected USES-002A |
 | `USES-002A` | declared uses capability plan mapping | landed; selected MIMAP-052A |
 | `MIMAP-052A` | reclaim execution preflight proposal | landed; selected MIMAP-052B |
-| `MIMAP-052B` | reclaim execution intent marker preflight | selected current |
+| `MIMAP-052B` | reclaim execution intent marker preflight | landed; selected MIMAP-053A |
+| `MIMAP-053A` | reclaim execution support row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -872,6 +873,17 @@ row opens reclaim execution.
 It must not execute reclaim, mutate ownership, perform atomic claims, drain
 remote-free queues, schedule threads, call page-source APIs, add backend
 matchers, or activate allocator providers.
+
+MIMAP-052B landed by adding the marker/preflight and selecting MIMAP-053A.
+
+### MIMAP-053A granularity
+
+MIMAP-053A is a planning-only row. It reads the reclaim contract and the
+`hako.alloc.reclaim` preflight evidence, then selects exactly one next row:
+first guarded reclaim execution, an atomic-claim contract sidecar, a
+remote-free drain fail-fast row, or another no-execution allocator row.
+
+It must not execute reclaim or mutate ownership by itself.
 
 ## Compiler / language sidecar triggers
 
