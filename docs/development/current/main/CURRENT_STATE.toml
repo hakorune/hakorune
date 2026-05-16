@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-16"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "PURE-FIRST-DIAG-001 landed pure-first acceptance layer diagnostics with layer/contract preflight output. MIMAP-040C is selecting the next row after selectPage loop cleanup and diagnostics. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-041A landed record report boundary cleanup for the bounded purge/decommit scheduler, including direct MIR RecordLiteral local-value acceptance. MIMAP-041B is selecting the next row. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-478-MIMAP-040C-POST-DIAGNOSTICS-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-480-MIMAP-041B-POST-RECORD-REPORT-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-477-PURE-FIRST-DIAG-001-ACCEPTANCE-LAYER-DIAGNOSTICS"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-477-PURE-FIRST-DIAG-001-ACCEPTANCE-LAYER-DIAGNOSTICS.md"
-latest_card_summary = "PURE-FIRST-DIAG-001 adds layer/contract diagnostics and object_handle target box preflight."
+latest_card = "293x-479-MIMAP-041A-RECORD-REPORT-BOUNDARY-CLEANUP"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-479-MIMAP-041A-RECORD-REPORT-BOUNDARY-CLEANUP.md"
+latest_card_summary = "MIMAP-041A replaces the bounded scheduler report/16 boundary with a record-local payload and adds direct MIR RecordLiteral local-value acceptance."
 
-current_blocker_token = "MIMAP-040C"
+current_blocker_token = "MIMAP-041B"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-479 MIMAP-041A record report boundary cleanup landed",
+  "293x-478 MIMAP-040C selected MIMAP-041A record report boundary cleanup",
   "293x-477 PURE-FIRST-DIAG-001 acceptance layer diagnostics landed",
   "293x-475 MIMAP-040A object-lifecycle selectPage queue-length loop cleanup landed",
   "293x-473 MIR-ROW-C nullable user-box object return landed",

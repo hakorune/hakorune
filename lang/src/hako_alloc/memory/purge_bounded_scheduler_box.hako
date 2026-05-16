@@ -11,6 +11,25 @@ using selfhost.hako_alloc.memory.page_lifecycle_invariant_box as HakoAllocPageLi
 using selfhost.hako_alloc.memory.purge_candidate_policy_box as HakoAllocPurgeCandidatePolicy
 using selfhost.hako_alloc.memory.purge_state_aware_decommit_box as HakoAllocPurgeStateAwareDecommit
 
+record HakoAllocBoundedPurgeDecommitSchedulerReportFields {
+    status: i64
+    stop_reason: i64
+    max_scan_pages: i64
+    scan_limit: i64
+    scanned_pages: i64
+    missing_pages: i64
+    rejected_pages: i64
+    candidate_pages: i64
+    attempted: i64
+    source_executed: i64
+    marker_marked: i64
+    selected_page_id: i64
+    selected_lifecycle_state: i64
+    selected_reason: i64
+    decommit_status: i64
+    mark_status: i64
+}
+
 box HakoAllocBoundedPurgeDecommitSchedulerReport {
     status: i64 = 0
     stop_reason: i64 = 0
@@ -40,27 +59,6 @@ box HakoAllocBoundedPurgeDecommitScheduler {
     last_page_id: i64 = -1
     last_stop_reason: i64 = 0
 
-    report(status, stop_reason, max_scan_pages, scan_limit, scanned_pages, missing_pages, rejected_pages, candidate_pages, attempted, source_executed, marker_marked, selected_page_id, selected_lifecycle_state, selected_reason, decommit_status, mark_status) {
-        local result = new HakoAllocBoundedPurgeDecommitSchedulerReport()
-        result.status = status
-        result.stop_reason = stop_reason
-        result.max_scan_pages = max_scan_pages
-        result.scan_limit = scan_limit
-        result.scanned_pages = scanned_pages
-        result.missing_pages = missing_pages
-        result.rejected_pages = rejected_pages
-        result.candidate_pages = candidate_pages
-        result.attempted = attempted
-        result.source_executed = source_executed
-        result.marker_marked = marker_marked
-        result.selected_page_id = selected_page_id
-        result.selected_lifecycle_state = selected_lifecycle_state
-        result.selected_reason = selected_reason
-        result.decommit_status = decommit_status
-        result.mark_status = mark_status
-        return result
-    }
-
     run(heap, decommit_guard, max_scan_pages) {
         me.run_count = me.run_count + 1
         me.last_page_id = -1
@@ -89,6 +87,8 @@ box HakoAllocBoundedPurgeDecommitScheduler {
         local mark_status = -1
         local done = 0
         local i = 0
+        local status = 1
+        local stop_reason = 2
 
         loop(i < scan_limit) {
             if done == 0 {
@@ -131,19 +131,60 @@ box HakoAllocBoundedPurgeDecommitScheduler {
             if source_executed != 0 {
                 me.source_execution_count = me.source_execution_count + 1
                 me.last_stop_reason = 0
-                return me.report(0, 0, max_scan_pages, scan_limit, scanned_pages, missing_pages, rejected_pages, candidate_pages, attempted, source_executed, marker_marked, selected_page_id, selected_lifecycle_state, selected_reason, decommit_status, mark_status)
+                status = 0
+                stop_reason = 0
+            } else {
+                me.last_stop_reason = 3
+                status = 2
+                stop_reason = 3
             }
-
-            me.last_stop_reason = 3
-            return me.report(2, 3, max_scan_pages, scan_limit, scanned_pages, missing_pages, rejected_pages, candidate_pages, attempted, source_executed, marker_marked, selected_page_id, selected_lifecycle_state, selected_reason, decommit_status, mark_status)
+        } else {
+            if scan_limit == 0 {
+                me.last_stop_reason = 1
+                status = 1
+                stop_reason = 1
+            } else {
+                me.last_stop_reason = 2
+                status = 1
+                stop_reason = 2
+            }
         }
 
-        if scan_limit == 0 {
-            me.last_stop_reason = 1
-            return me.report(1, 1, max_scan_pages, scan_limit, scanned_pages, missing_pages, rejected_pages, candidate_pages, attempted, source_executed, marker_marked, selected_page_id, selected_lifecycle_state, selected_reason, decommit_status, mark_status)
+        local fields = HakoAllocBoundedPurgeDecommitSchedulerReportFields {
+            status: status,
+            stop_reason: stop_reason,
+            max_scan_pages: max_scan_pages,
+            scan_limit: scan_limit,
+            scanned_pages: scanned_pages,
+            missing_pages: missing_pages,
+            rejected_pages: rejected_pages,
+            candidate_pages: candidate_pages,
+            attempted: attempted,
+            source_executed: source_executed,
+            marker_marked: marker_marked,
+            selected_page_id: selected_page_id,
+            selected_lifecycle_state: selected_lifecycle_state,
+            selected_reason: selected_reason,
+            decommit_status: decommit_status,
+            mark_status: mark_status,
         }
-
-        me.last_stop_reason = 2
-        return me.report(1, 2, max_scan_pages, scan_limit, scanned_pages, missing_pages, rejected_pages, candidate_pages, attempted, source_executed, marker_marked, selected_page_id, selected_lifecycle_state, selected_reason, decommit_status, mark_status)
+        local result = new HakoAllocBoundedPurgeDecommitSchedulerReport()
+        result.status = fields.status
+        result.stop_reason = fields.stop_reason
+        result.max_scan_pages = fields.max_scan_pages
+        result.scan_limit = fields.scan_limit
+        result.scanned_pages = fields.scanned_pages
+        result.missing_pages = fields.missing_pages
+        result.rejected_pages = fields.rejected_pages
+        result.candidate_pages = fields.candidate_pages
+        result.attempted = fields.attempted
+        result.source_executed = fields.source_executed
+        result.marker_marked = fields.marker_marked
+        result.selected_page_id = fields.selected_page_id
+        result.selected_lifecycle_state = fields.selected_lifecycle_state
+        result.selected_reason = fields.selected_reason
+        result.decommit_status = fields.decommit_status
+        result.mark_status = fields.mark_status
+        return result
     }
 }

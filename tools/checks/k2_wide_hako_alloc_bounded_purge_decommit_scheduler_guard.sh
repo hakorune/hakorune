@@ -51,9 +51,12 @@ guard_expect_in_file "$TAG" 'M212 status:' "$PLAN" "mimalloc plan must record M2
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list M212 guard"
 guard_expect_in_file "$TAG" 'id = "M212"' "$PROOF_MANIFEST" "proof app manifest must list M212"
 guard_expect_in_file "$TAG" 'memory.purge_bounded_scheduler_box = "memory/purge_bounded_scheduler_box.hako"' "$MODULE" "hako_alloc module must export M212 owner"
+guard_expect_in_file "$TAG" 'record HakoAllocBoundedPurgeDecommitSchedulerReportFields' "$OWNER" "MIMAP-041A report payload record must exist"
 guard_expect_in_file "$TAG" 'box HakoAllocBoundedPurgeDecommitSchedulerReport' "$OWNER" "M212 report box must exist"
 guard_expect_in_file "$TAG" 'box HakoAllocBoundedPurgeDecommitScheduler' "$OWNER" "M212 scheduler box must exist"
 guard_expect_in_file "$TAG" 'run\(heap, decommit_guard, max_scan_pages\)' "$OWNER" "M212 scheduler must expose bounded run"
+guard_expect_in_file "$TAG" 'local fields = HakoAllocBoundedPurgeDecommitSchedulerReportFields' "$OWNER" "MIMAP-041A must construct local record report payload"
+guard_expect_in_file "$TAG" 'result.status = fields.status' "$OWNER" "MIMAP-041A must materialize report box from record field reads"
 guard_expect_in_file "$TAG" 'observeHeapPage' "$OWNER" "M212 must consume M207 observation"
 guard_expect_in_file "$TAG" 'classifyLifecycleReport' "$OWNER" "M212 must consume M211 decisions"
 guard_expect_in_file "$TAG" 'decommit_guard.attemptHeapPage' "$OWNER" "M212 must call M199 state-aware guard seam"
@@ -78,6 +81,15 @@ if rg -n 'NYASH_|HAKO_|std::env|env::|provider_|install_hook|global_allocator|In
   exit 1
 fi
 rm -f /tmp/"$TAG".forbidden_vocab
+
+if rg -n 'report[[:space:]]*\(status,[[:space:]]*stop_reason|me\.report[[:space:]]*\(' \
+  "$OWNER" >/tmp/"$TAG".report16 2>&1; then
+  echo "[$TAG] ERROR: MIMAP-041A must not keep the old 16-argument report helper/calls" >&2
+  cat /tmp/"$TAG".report16 >&2
+  rm -f /tmp/"$TAG".report16
+  exit 1
+fi
+rm -f /tmp/"$TAG".report16
 
 if rg -n 'hako-alloc-bounded-purge-decommit-scheduler-proof|HakoAllocBoundedPurgeDecommitScheduler|purge_bounded_scheduler' \
   lang/c-abi/shims >/tmp/"$TAG".inc_leak 2>&1; then
@@ -121,7 +133,6 @@ functions = {fn.get("name"): fn for fn in data.get("functions", [])}
 required = {
     "main",
     "HakoAllocBoundedPurgeDecommitScheduler.run/3",
-    "HakoAllocBoundedPurgeDecommitScheduler.report/16",
     "HakoAllocPageLifecycleInvariantObserver.observeHeapPage/3",
     "HakoAllocPurgeCandidatePolicyInventory.classifyLifecycleReport/1",
     "HakoAllocPurgeStateAwareDecommitGuard.attemptHeapPage/2",
@@ -129,6 +140,17 @@ required = {
 missing = sorted(name for name in required if functions.get(name) is None)
 if missing:
     raise SystemExit(f"missing functions: {missing}")
+
+if functions.get("HakoAllocBoundedPurgeDecommitScheduler.report/16") is not None:
+    raise SystemExit("old report/16 helper must be removed")
+
+record_decls = {
+    decl.get("name"): decl
+    for decl in data.get("record_decls", [])
+}
+payload_decl = record_decls.get("HakoAllocBoundedPurgeDecommitSchedulerReportFields")
+if payload_decl is None:
+    raise SystemExit("missing scheduler report payload record decl")
 
 plans = {
     plan.get("box_name"): plan
@@ -180,6 +202,8 @@ run_fn = functions["HakoAllocBoundedPurgeDecommitScheduler.run/3"]
 seen = set()
 for callee in iter_calls(run_fn):
     seen.add((callee.get("box_name"), callee.get("name")))
+    if (callee.get("box_name"), callee.get("name")) == ("HakoAllocBoundedPurgeDecommitScheduler", "report"):
+        raise SystemExit("run must not call old report helper")
     if callee.get("name") in {"decommitPage", "commitPage", "reservePage", "unreserve", "releasePage"}:
         raise SystemExit(f"scheduler must not call direct page-source/OS method: {callee}")
 

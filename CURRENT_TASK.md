@@ -51,13 +51,14 @@ Scope: current lane / next lane / restart order only.
 - pure-first MIR artifact / diagnostics SSOT:
   `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
 - current blocker token:
-  `MIMAP-040C post-diagnostics row selection`
+  `MIMAP-041B post-record-report row selection`
 - current BoxShape sidecar:
   `MIR-EMIT-SSOT-001`, `MIR-ROUTE-PREFLIGHT-001`, and
   `SELFHOST-PROGRESS-001`, and `MIR-EMIT-SSOT-002` landed; `MIR-ROW-C`
   landed nullable user-box object return acceptance; `MIMAP-040A` landed
   object-lifecycle selectPage queue-length loop cleanup; `PURE-FIRST-DIAG-001`
-  landed acceptance layer diagnostics;
+  landed acceptance layer diagnostics; `MIMAP-040C` selected record report
+  boundary cleanup; `MIMAP-041A` landed the record-local report payload;
   `MIRBUILDER-DIET` remains closed through `MIR-SEMANTIC-PLANS-001`
 - primary mode: mimalloc substrate implementation lane; keep upstream source
   untracked and keep each allocator row behind explicit guards before provider
@@ -73,8 +74,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `PURE-FIRST-DIAG-001`; current blocker is
-  `MIMAP-040C`, a post-diagnostics row selection. VM-LIM-001
+- resume point: continue Phase 293x after `MIMAP-041A`; current blocker is
+  `MIMAP-041B`, a post-record-report row selection. VM-LIM-001
   remains parked diagnostic. Keep LoopRange on the Stage1 route; do not
   source-desugar range loops.
 
@@ -82,8 +83,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-040C`: post-diagnostics row selection
-  2. selected next row after `MIMAP-040C`
+  1. `MIMAP-041B`: post-record-report row selection
+  2. selected next row after `MIMAP-041B`
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
   reduction after mimalloc completeness evidence. Do not make broad `.hako`

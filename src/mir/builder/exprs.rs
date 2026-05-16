@@ -500,6 +500,12 @@ impl super::MirBuilder {
                 super::stmts::async_stmt::build_await_expression(self, *expression.clone())
             }
 
+            ASTNode::RecordLiteral {
+                record_type_name,
+                fields,
+                ..
+            } => self.build_record_literal_value(record_type_name.clone(), fields.clone()),
+
             // UsingStatement: namespace resolution is done at parser/runner level.
             // No MIR emission needed - just return void.
             ASTNode::UsingStatement { .. } => {

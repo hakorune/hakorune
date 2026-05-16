@@ -9,6 +9,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::compilation_context::RecordLocalFieldValue;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
+use std::collections::BTreeMap;
 
 impl MirBuilder {
     pub(in crate::mir::builder) fn is_record_constructor_class(&self, class: &str) -> bool {
@@ -57,6 +58,63 @@ impl MirBuilder {
         Ok(placeholder)
     }
 
+    pub(in crate::mir::builder) fn build_record_literal_value(
+        &mut self,
+        record_type_name: String,
+        fields: Vec<(String, ASTNode)>,
+    ) -> Result<ValueId, String> {
+        let Some(decl) = self.comp_ctx.record_decls.get(&record_type_name).cloned() else {
+            return Err(format!(
+                "[record-literal/unknown-record] record={}",
+                record_type_name
+            ));
+        };
+        if !decl.type_parameters.is_empty() {
+            return Err(format!(
+                "[record-literal/generic-unsupported] record={}",
+                record_type_name
+            ));
+        }
+
+        let mut by_name = BTreeMap::new();
+        for (field_name, expr) in fields {
+            if by_name.insert(field_name.clone(), expr).is_some() {
+                return Err(format!(
+                    "[record-literal/duplicate-field] record={} field={}",
+                    record_type_name, field_name
+                ));
+            }
+        }
+
+        let mut field_values = Vec::with_capacity(decl.fields.len());
+        for field in &decl.fields {
+            let Some(expr) = by_name.remove(&field.name) else {
+                return Err(format!(
+                    "[record-literal/missing-field] record={} field={}",
+                    record_type_name, field.name
+                ));
+            };
+            let value = self.build_expression(expr)?;
+            field_values.push(RecordLocalFieldValue {
+                name: field.name.clone(),
+                declared_type_name: field.declared_type_name.clone(),
+                value,
+            });
+        }
+
+        if let Some((field_name, _)) = by_name.into_iter().next() {
+            return Err(format!(
+                "[record-literal/unknown-field] record={} field={}",
+                record_type_name, field_name
+            ));
+        }
+
+        let placeholder = crate::mir::builder::emission::constant::emit_void(self)?;
+        self.comp_ctx
+            .register_record_local_value(placeholder, record_type_name, field_values);
+        Ok(placeholder)
+    }
+
     pub(in crate::mir::builder) fn fail_if_record_value_escape_by_name(
         &self,
         name: &str,
@@ -90,6 +148,15 @@ impl MirBuilder {
                     self.build_record_constructor_value(class.clone(), arguments.clone())?;
                 self.lower_record_field_read_from_value(value, field)
             }
+            ASTNode::RecordLiteral {
+                record_type_name,
+                fields,
+                ..
+            } => {
+                let value =
+                    self.build_record_literal_value(record_type_name.clone(), fields.clone())?;
+                self.lower_record_field_read_from_value(value, field)
+            }
             _ => Ok(None),
         }
     }
@@ -114,6 +181,14 @@ impl MirBuilder {
                 return Err(format!(
                     "[record-field-set/unsupported] record={} field={}",
                     class, field
+                ));
+            }
+            ASTNode::RecordLiteral {
+                record_type_name, ..
+            } => {
+                return Err(format!(
+                    "[record-field-set/unsupported] record={} field={}",
+                    record_type_name, field
                 ));
             }
             _ => {}
