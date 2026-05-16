@@ -1,0 +1,446 @@
+use super::*;
+
+fn target(pointer_width: NumericResolvedWidth) -> NumericTarget {
+    NumericTarget::from_pointer_width(pointer_width).unwrap()
+}
+
+#[test]
+fn classifies_fixed_width_and_pointer_sized_names() {
+    assert_eq!(
+        classify_numeric_type_name("i8"),
+        Some(NumericTypeName {
+            signedness: NumericSignedness::Signed,
+            width: NumericWidth::Bits8,
+        })
+    );
+    assert_eq!(
+        classify_numeric_type_name("u64"),
+        Some(NumericTypeName {
+            signedness: NumericSignedness::Unsigned,
+            width: NumericWidth::Bits64,
+        })
+    );
+    assert_eq!(
+        classify_numeric_type_name("usize"),
+        Some(NumericTypeName {
+            signedness: NumericSignedness::Unsigned,
+            width: NumericWidth::Pointer,
+        })
+    );
+    assert_eq!(classify_numeric_type_name("IntegerBox"), None);
+    assert_eq!(classify_numeric_type_name("String"), None);
+}
+
+#[test]
+fn host_target_width_matches_rust_compilation_target() {
+    #[cfg(target_pointer_width = "32")]
+    assert_eq!(
+        NumericTarget::host().pointer_width(),
+        NumericResolvedWidth::Bits32
+    );
+    #[cfg(target_pointer_width = "64")]
+    assert_eq!(
+        NumericTarget::host().pointer_width(),
+        NumericResolvedWidth::Bits64
+    );
+}
+
+#[test]
+fn resolves_pointer_sized_kinds_through_target_width() {
+    let pointer64 = target(NumericResolvedWidth::Bits64);
+    let pointer32 = target(NumericResolvedWidth::Bits32);
+    assert_eq!(
+        classify_numeric_kind_for_target("usize", pointer64),
+        Some(NumericKind {
+            signedness: NumericSignedness::Unsigned,
+            width: NumericResolvedWidth::Bits64,
+        })
+    );
+    assert_eq!(
+        classify_numeric_kind_for_target("isize", pointer32),
+        Some(NumericKind {
+            signedness: NumericSignedness::Signed,
+            width: NumericResolvedWidth::Bits32,
+        })
+    );
+}
+
+#[test]
+fn fixed_width_kinds_do_not_depend_on_target_width() {
+    let pointer32 = target(NumericResolvedWidth::Bits32);
+    let pointer64 = target(NumericResolvedWidth::Bits64);
+    assert_eq!(
+        classify_numeric_kind_for_target("u32", pointer32),
+        classify_numeric_kind_for_target("u32", pointer64)
+    );
+}
+
+#[test]
+fn inline_i64_storage_keeps_legacy_scalar_aliases() {
+    for name in ["IntegerBox", "Integer", "BoolBox", "Bool", "bool", "i1"] {
+        assert!(is_inline_i64_storage_type_name(name));
+    }
+    for name in ["i16", "u32", "usize", "isize"] {
+        assert!(is_inline_i64_storage_type_name(name));
+    }
+    for name in ["FloatBox", "StringBox", "String", "Ptr"] {
+        assert!(!is_inline_i64_storage_type_name(name));
+    }
+}
+
+#[test]
+fn exact_numeric_mir_type_preserves_source_name_and_resolved_kind() {
+    let pointer64 = target(NumericResolvedWidth::Bits64);
+
+    assert_eq!(
+        exact_numeric_mir_type_from_declared_name(Some("usize"), pointer64),
+        Some(ExactNumericMirType {
+            source_name: "usize".to_string(),
+            kind: NumericKind {
+                signedness: NumericSignedness::Unsigned,
+                width: NumericResolvedWidth::Bits64,
+            },
+        })
+    );
+    assert_eq!(
+        exact_numeric_mir_type_from_declared_name(Some("IntegerBox"), pointer64),
+        None
+    );
+    assert_eq!(
+        exact_numeric_mir_type_from_declared_name(None, pointer64),
+        None
+    );
+}
+
+#[test]
+fn exact_numeric_mir_signature_keeps_non_numeric_slots_empty() {
+    let pointer32 = target(NumericResolvedWidth::Bits32);
+    let signature = exact_numeric_mir_signature_from_declared_names(
+        [Some("usize"), Some("StringBox"), Some("i64"), None],
+        Some("isize"),
+        pointer32,
+    );
+
+    assert_eq!(signature.params.len(), 4);
+    assert_eq!(
+        signature.params[0],
+        Some(ExactNumericMirType {
+            source_name: "usize".to_string(),
+            kind: NumericKind {
+                signedness: NumericSignedness::Unsigned,
+                width: NumericResolvedWidth::Bits32,
+            },
+        })
+    );
+    assert_eq!(signature.params[1], None);
+    assert_eq!(
+        signature.params[2],
+        Some(ExactNumericMirType {
+            source_name: "i64".to_string(),
+            kind: NumericKind {
+                signedness: NumericSignedness::Signed,
+                width: NumericResolvedWidth::Bits64,
+            },
+        })
+    );
+    assert_eq!(signature.params[3], None);
+    assert_eq!(
+        signature.return_type,
+        Some(ExactNumericMirType {
+            source_name: "isize".to_string(),
+            kind: NumericKind {
+                signedness: NumericSignedness::Signed,
+                width: NumericResolvedWidth::Bits32,
+            },
+        })
+    );
+}
+
+#[test]
+fn exact_numeric_kind_ranges_cover_signed_and_unsigned_widths() {
+    assert_eq!(
+        NumericKind {
+            signedness: NumericSignedness::Signed,
+            width: NumericResolvedWidth::Bits8,
+        }
+        .value_range(),
+        ExactNumericRange {
+            min: -128,
+            max: 127,
+        }
+    );
+    assert_eq!(
+        NumericKind {
+            signedness: NumericSignedness::Unsigned,
+            width: NumericResolvedWidth::Bits8,
+        }
+        .value_range(),
+        ExactNumericRange { min: 0, max: 255 }
+    );
+    assert_eq!(
+        NumericKind {
+            signedness: NumericSignedness::Unsigned,
+            width: NumericResolvedWidth::Bits64,
+        }
+        .value_range()
+        .max,
+        18_446_744_073_709_551_615_i128
+    );
+}
+
+#[test]
+fn exact_numeric_const_converts_i64_with_range_checks() {
+    let pointer64 = target(NumericResolvedWidth::Bits64);
+    let usize_ty = exact_numeric_mir_type_from_declared_name(Some("usize"), pointer64).unwrap();
+    let i8_ty = exact_numeric_mir_type_from_declared_name(Some("i8"), pointer64).unwrap();
+
+    assert_eq!(
+        exact_numeric_value_from_dynamic_integer(42, &usize_ty).unwrap(),
+        ExactNumericConstValue {
+            ty: usize_ty.clone(),
+            value: 42,
+        }
+    );
+    assert_eq!(
+        exact_numeric_value_from_dynamic_integer(-1, &usize_ty),
+        Err(ExactNumericConversionError::NegativeToUnsigned {
+            source_name: "usize".to_string(),
+            value: -1,
+        })
+    );
+    assert_eq!(
+        exact_numeric_value_from_dynamic_integer(128, &i8_ty),
+        Err(ExactNumericConversionError::OutOfRange {
+            source_name: "i8".to_string(),
+            value: 128,
+            min: -128,
+            max: 127,
+        })
+    );
+}
+
+#[test]
+fn exact_numeric_dynamic_conversion_by_declared_name_ignores_non_numeric_names() {
+    let pointer32 = target(NumericResolvedWidth::Bits32);
+
+    assert_eq!(
+        exact_numeric_value_from_dynamic_integer_for_declared_name(7, Some("StringBox"), pointer32),
+        Ok(None)
+    );
+    assert_eq!(
+        exact_numeric_value_from_dynamic_integer_for_declared_name(7, None, pointer32),
+        Ok(None)
+    );
+    assert_eq!(
+        exact_numeric_value_from_dynamic_integer_for_declared_name(7, Some("usize"), pointer32)
+            .unwrap()
+            .unwrap(),
+        ExactNumericConstValue {
+            ty: ExactNumericMirType {
+                source_name: "usize".to_string(),
+                kind: NumericKind {
+                    signedness: NumericSignedness::Unsigned,
+                    width: NumericResolvedWidth::Bits32,
+                },
+            },
+            value: 7,
+        }
+    );
+}
+
+#[test]
+fn exact_numeric_checked_arithmetic_accepts_in_range_usize_add() {
+    let pointer64 = target(NumericResolvedWidth::Bits64);
+    let usize_ty = exact_numeric_mir_type_from_declared_name(Some("usize"), pointer64).unwrap();
+    let lhs = exact_numeric_const_from_i128(40, &usize_ty).unwrap();
+    let rhs = exact_numeric_const_from_i128(2, &usize_ty).unwrap();
+
+    assert_eq!(
+        exact_numeric_checked_arithmetic(&lhs, &rhs, ExactNumericArithmeticOp::Add).unwrap(),
+        ExactNumericConstValue {
+            ty: usize_ty,
+            value: 42,
+        }
+    );
+}
+
+#[test]
+fn exact_numeric_checked_arithmetic_rejects_usize_sub_underflow() {
+    let pointer64 = target(NumericResolvedWidth::Bits64);
+    let usize_ty = exact_numeric_mir_type_from_declared_name(Some("usize"), pointer64).unwrap();
+    let lhs = exact_numeric_const_from_i128(0, &usize_ty).unwrap();
+    let rhs = exact_numeric_const_from_i128(1, &usize_ty).unwrap();
+
+    assert_eq!(
+        exact_numeric_checked_arithmetic(&lhs, &rhs, ExactNumericArithmeticOp::Sub),
+        Err(ExactNumericArithmeticError::ResultOutOfRange {
+            source_name: "usize".to_string(),
+            op: ExactNumericArithmeticOp::Sub,
+            lhs: 0,
+            rhs: 1,
+            result: Some(-1),
+            min: 0,
+            max: 18_446_744_073_709_551_615_i128,
+        })
+    );
+}
+
+#[test]
+fn exact_numeric_checked_arithmetic_rejects_narrow_unsigned_add_overflow() {
+    let pointer64 = target(NumericResolvedWidth::Bits64);
+    let u8_ty = exact_numeric_mir_type_from_declared_name(Some("u8"), pointer64).unwrap();
+    let lhs = exact_numeric_const_from_i128(255, &u8_ty).unwrap();
+    let rhs = exact_numeric_const_from_i128(1, &u8_ty).unwrap();
+
+    assert_eq!(
+        exact_numeric_checked_arithmetic(&lhs, &rhs, ExactNumericArithmeticOp::Add),
+        Err(ExactNumericArithmeticError::ResultOutOfRange {
+            source_name: "u8".to_string(),
+            op: ExactNumericArithmeticOp::Add,
+            lhs: 255,
+            rhs: 1,
+            result: Some(256),
+            min: 0,
+            max: 255,
+        })
+    );
+}
+
+#[test]
+fn exact_numeric_checked_arithmetic_rejects_signed_mul_overflow() {
+    let pointer64 = target(NumericResolvedWidth::Bits64);
+    let i8_ty = exact_numeric_mir_type_from_declared_name(Some("i8"), pointer64).unwrap();
+    let lhs = exact_numeric_const_from_i128(64, &i8_ty).unwrap();
+    let rhs = exact_numeric_const_from_i128(2, &i8_ty).unwrap();
+
+    assert_eq!(
+        exact_numeric_checked_arithmetic(&lhs, &rhs, ExactNumericArithmeticOp::Mul),
+        Err(ExactNumericArithmeticError::ResultOutOfRange {
+            source_name: "i8".to_string(),
+            op: ExactNumericArithmeticOp::Mul,
+            lhs: 64,
+            rhs: 2,
+            result: Some(128),
+            min: -128,
+            max: 127,
+        })
+    );
+}
+
+#[test]
+fn exact_numeric_checked_arithmetic_rejects_i128_internal_overflow() {
+    let pointer64 = target(NumericResolvedWidth::Bits64);
+    let u64_ty = exact_numeric_mir_type_from_declared_name(Some("u64"), pointer64).unwrap();
+    let max = 18_446_744_073_709_551_615_i128;
+    let lhs = exact_numeric_const_from_i128(max, &u64_ty).unwrap();
+    let rhs = exact_numeric_const_from_i128(max, &u64_ty).unwrap();
+
+    assert_eq!(
+        exact_numeric_checked_arithmetic(&lhs, &rhs, ExactNumericArithmeticOp::Mul),
+        Err(ExactNumericArithmeticError::ResultOutOfRange {
+            source_name: "u64".to_string(),
+            op: ExactNumericArithmeticOp::Mul,
+            lhs: max,
+            rhs: max,
+            result: None,
+            min: 0,
+            max,
+        })
+    );
+}
+
+#[test]
+fn exact_numeric_checked_arithmetic_rejects_mismatched_exact_types() {
+    let pointer64 = target(NumericResolvedWidth::Bits64);
+    let u8_ty = exact_numeric_mir_type_from_declared_name(Some("u8"), pointer64).unwrap();
+    let u16_ty = exact_numeric_mir_type_from_declared_name(Some("u16"), pointer64).unwrap();
+    let lhs = exact_numeric_const_from_i128(1, &u8_ty).unwrap();
+    let rhs = exact_numeric_const_from_i128(1, &u16_ty).unwrap();
+
+    assert_eq!(
+        exact_numeric_checked_arithmetic(&lhs, &rhs, ExactNumericArithmeticOp::Add),
+        Err(ExactNumericArithmeticError::TypeMismatch {
+            left_source_name: "u8".to_string(),
+            right_source_name: "u16".to_string(),
+        })
+    );
+}
+
+#[test]
+fn exact_numeric_compare_uses_unsigned_value_order_for_usize() {
+    let pointer64 = target(NumericResolvedWidth::Bits64);
+    let usize_ty = exact_numeric_mir_type_from_declared_name(Some("usize"), pointer64).unwrap();
+    let high = exact_numeric_const_from_i128(i128::from(i64::MAX) + 1, &usize_ty).unwrap();
+    let low = exact_numeric_const_from_i128(1, &usize_ty).unwrap();
+
+    assert_eq!(
+        exact_numeric_compare(&high, &low, ExactNumericCompareOp::Gt),
+        Ok(true)
+    );
+    assert_eq!(
+        exact_numeric_compare(&low, &high, ExactNumericCompareOp::Lt),
+        Ok(true)
+    );
+}
+
+#[test]
+fn exact_numeric_compare_rejects_mismatched_exact_types() {
+    let pointer64 = target(NumericResolvedWidth::Bits64);
+    let u8_ty = exact_numeric_mir_type_from_declared_name(Some("u8"), pointer64).unwrap();
+    let i8_ty = exact_numeric_mir_type_from_declared_name(Some("i8"), pointer64).unwrap();
+    let lhs = exact_numeric_const_from_i128(1, &u8_ty).unwrap();
+    let rhs = exact_numeric_const_from_i128(1, &i8_ty).unwrap();
+
+    assert_eq!(
+        exact_numeric_compare(&lhs, &rhs, ExactNumericCompareOp::Eq),
+        Err(ExactNumericCompareError::TypeMismatch {
+            left_source_name: "u8".to_string(),
+            right_source_name: "i8".to_string(),
+        })
+    );
+}
+
+#[test]
+fn exact_numeric_logical_shr_handles_high_unsigned_usize_bit() {
+    let pointer64 = target(NumericResolvedWidth::Bits64);
+    let usize_ty = exact_numeric_mir_type_from_declared_name(Some("usize"), pointer64).unwrap();
+    let high_bit = exact_numeric_const_from_i128(1_i128 << 63, &usize_ty).unwrap();
+
+    assert_eq!(
+        exact_numeric_logical_shr(&high_bit, 63).unwrap(),
+        ExactNumericConstValue {
+            ty: usize_ty,
+            value: 1,
+        }
+    );
+}
+
+#[test]
+fn exact_numeric_logical_shr_rejects_signed_values() {
+    let pointer64 = target(NumericResolvedWidth::Bits64);
+    let i64_ty = exact_numeric_mir_type_from_declared_name(Some("i64"), pointer64).unwrap();
+    let value = exact_numeric_const_from_i128(-8, &i64_ty).unwrap();
+
+    assert_eq!(
+        exact_numeric_logical_shr(&value, 1),
+        Err(ExactNumericShiftError::SignedLogicalShift {
+            source_name: "i64".to_string(),
+        })
+    );
+}
+
+#[test]
+fn exact_numeric_logical_shr_rejects_shift_count_at_width() {
+    let pointer64 = target(NumericResolvedWidth::Bits64);
+    let u8_ty = exact_numeric_mir_type_from_declared_name(Some("u8"), pointer64).unwrap();
+    let value = exact_numeric_const_from_i128(1, &u8_ty).unwrap();
+
+    assert_eq!(
+        exact_numeric_logical_shr(&value, 8),
+        Err(ExactNumericShiftError::ShiftCountOutOfRange {
+            source_name: "u8".to_string(),
+            shift: 8,
+            width_bits: 8,
+        })
+    );
+}

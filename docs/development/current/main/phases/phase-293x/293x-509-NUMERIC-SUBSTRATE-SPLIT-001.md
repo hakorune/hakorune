@@ -1,6 +1,6 @@
 # 293x-509 NUMERIC-SUBSTRATE-SPLIT-001
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -54,5 +54,27 @@ git diff --check
 
 ## Closeout
 
-This row closes when the numeric substrate has a smaller owner layout and all
-existing numeric substrate behavior remains unchanged.
+This row split `src/mir/numeric_substrate.rs` into a facade plus owner modules:
+
+```text
+src/mir/numeric_substrate.rs
+src/mir/numeric_substrate/target.rs
+src/mir/numeric_substrate/exact_values.rs
+src/mir/numeric_substrate/checked_ops.rs
+src/mir/numeric_substrate/tests.rs
+```
+
+The facade keeps the pre-split crate-visible API stable. Target/type-name
+vocabulary, exact MIR value/signature conversion, checked arithmetic/compare/
+shift policies, and tests are now separated. Existing exact numeric semantics,
+staged `#[allow(dead_code)]` rows, verifier/backend/runtime behavior, and
+allocator/provider behavior are unchanged.
+
+Evidence:
+
+```text
+cargo test -q numeric_substrate
+bash tools/checks/current_state_pointer_guard.sh
+tools/checks/dev_gate.sh quick
+git diff --check
+```

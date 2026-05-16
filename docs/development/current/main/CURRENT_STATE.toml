@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-17"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001 generic string body analysis phase split landed. GLOBAL-STRING-BODY-ANALYSIS-SPLIT-002 selected NUMERIC-SUBSTRATE-SPLIT-001 as the next BoxShape cleanup. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "NUMERIC-SUBSTRATE-SPLIT-001 numeric substrate owner-layout split landed. NUMERIC-SUBSTRATE-SPLIT-002 selected TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001 as the next BoxShape cleanup. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-509-NUMERIC-SUBSTRATE-SPLIT-001.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-511-TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-508-GLOBAL-STRING-BODY-ANALYSIS-SPLIT-002-POST-PHASE-SPLIT-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-508-GLOBAL-STRING-BODY-ANALYSIS-SPLIT-002-POST-PHASE-SPLIT-ROW-SELECTION.md"
-latest_card_summary = "GLOBAL-STRING-BODY-ANALYSIS-SPLIT-002 selects NUMERIC-SUBSTRATE-SPLIT-001 as the next cleanup."
+latest_card = "293x-510-NUMERIC-SUBSTRATE-SPLIT-002-POST-OWNER-SPLIT-ROW-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-510-NUMERIC-SUBSTRATE-SPLIT-002-POST-OWNER-SPLIT-ROW-SELECTION.md"
+latest_card_summary = "NUMERIC-SUBSTRATE-SPLIT-002 selects TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001 as the next cleanup."
 
-current_blocker_token = "NUMERIC-SUBSTRATE-SPLIT-001"
+current_blocker_token = "TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-510 NUMERIC-SUBSTRATE-SPLIT-002 selected TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001 typed-object storage inference cleanup",
+  "293x-509 NUMERIC-SUBSTRATE-SPLIT-001 numeric substrate owner-layout cleanup landed",
   "293x-508 GLOBAL-STRING-BODY-ANALYSIS-SPLIT-002 selected NUMERIC-SUBSTRATE-SPLIT-001 numeric substrate cleanup",
   "293x-507 GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001 generic string body analysis phase split landed",
   "293x-506 GENERIC-METHOD-ROUTE-SPLIT-004 selected GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001 generic string body analysis cleanup",

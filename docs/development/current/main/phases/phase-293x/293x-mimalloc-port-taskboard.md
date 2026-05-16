@@ -71,10 +71,12 @@ GENERIC-METHOD-ROUTE-SPLIT-003 generic string route cleanup is green;
 GENERIC-METHOD-ROUTE-SPLIT-004 selected GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001;
 GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001 generic string body analysis cleanup is green;
 GLOBAL-STRING-BODY-ANALYSIS-SPLIT-002 selected NUMERIC-SUBSTRATE-SPLIT-001;
+NUMERIC-SUBSTRATE-SPLIT-001 numeric substrate cleanup is green;
+NUMERIC-SUBSTRATE-SPLIT-002 selected TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001;
 the current primary row is:
 
 ```text
-  NUMERIC-SUBSTRATE-SPLIT-001 numeric substrate cleanup
+  TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001 typed-object storage inference cleanup
 ```
 
 Closed cleanup sidecar:
@@ -548,7 +550,9 @@ FST:
 | `GENERIC-METHOD-ROUTE-SPLIT-004` | landed | Post-string-route row selection. | selected GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001 |
 | `GLOBAL-STRING-BODY-ANALYSIS-SPLIT-001` | landed | Generic string body analysis phase split. | after GENERIC-METHOD-ROUTE-SPLIT-004 |
 | `GLOBAL-STRING-BODY-ANALYSIS-SPLIT-002` | landed | Post-generic-string-body row selection. | selected NUMERIC-SUBSTRATE-SPLIT-001 |
-| `NUMERIC-SUBSTRATE-SPLIT-001` | selected current | Numeric substrate owner-layout cleanup. | after GLOBAL-STRING-BODY-ANALYSIS-SPLIT-002 |
+| `NUMERIC-SUBSTRATE-SPLIT-001` | landed | Numeric substrate owner-layout cleanup. | after GLOBAL-STRING-BODY-ANALYSIS-SPLIT-002 |
+| `NUMERIC-SUBSTRATE-SPLIT-002` | landed | Post-numeric-substrate row selection. | selected TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001 |
+| `TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-001` | selected current | Typed-object storage inference owner-layout cleanup. | after NUMERIC-SUBSTRATE-SPLIT-002 |
 
 MIMAP-020A execution order:
 
