@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-NEXT-BEHAVIOR-SELECTION-001 next behavior selection row`
+- current blocker token: `MIMAP-042A OSVM-backed fast-path bounded purge route`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -48,7 +48,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-NEXT-BEHAVIOR-SELECTION-001 next behavior selection row`
+- current blocker token: `MIMAP-042A OSVM-backed fast-path bounded purge route`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -59,10 +59,10 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after `CURRENT-DOCS-PHASE-SLIM-002`; current blocker
-  is `MIMAP-NEXT-BEHAVIOR-SELECTION-001`, a planning-only row to select the
-  next single allocator/compiler cleanup or behavior row
-- next row: selected row after `MIMAP-NEXT-BEHAVIOR-SELECTION-001`
+- continue `phase-293x` after `MIMAP-NEXT-BEHAVIOR-SELECTION-001`; current
+  blocker is `MIMAP-042A`, the OSVM-backed fast-path bounded purge route
+- next row: implement only `MIMAP-042A`; split a focused compiler sidecar if
+  route preflight exposes an independent acceptance blocker
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

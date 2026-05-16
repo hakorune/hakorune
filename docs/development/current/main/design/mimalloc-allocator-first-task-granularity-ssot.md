@@ -184,7 +184,11 @@ Forbidden:
 | `MIMAP-040A` | object-lifecycle selectPage queue-length loop cleanup | landed after MIMAP-039C |
 | `MIMAP-040B` | post-selectPage-loop row selection | landed; selected PURE-FIRST-DIAG-001 |
 | `PURE-FIRST-DIAG-001` | pure-first acceptance layer diagnostics | landed after MIMAP-040B |
-| `MIMAP-040C` | post-diagnostics row selection | current after PURE-FIRST-DIAG-001 |
+| `MIMAP-040C` | post-diagnostics row selection | landed; selected MIMAP-041A |
+| `MIMAP-041A` | record report boundary cleanup for bounded purge/decommit scheduler | landed after MIMAP-040C |
+| `MIMAP-041B` | post-record-report row selection | landed; selected MIR-EXTERN-SPEC-001 |
+| `MIMAP-NEXT-BEHAVIOR-SELECTION-001` | post-cleanup row selection | landed; selected MIMAP-042A |
+| `MIMAP-042A` | OSVM-backed fast-path bounded purge route | selected current |
 
 ### MIMAP-020A granularity
 
@@ -518,7 +522,40 @@ behavior. MIMAP-039C selected MIMAP-040A, and MIMAP-040A replaced the fixed
 `selectPage()` slots with a queue-length loop that returns the selected page
 object directly. MIMAP-040B selected PURE-FIRST-DIAG-001, which added
 layer/contract preflight diagnostics for pure-first acceptance failures.
-MIMAP-040C is the current planning-only row after that diagnostics sidecar.
+MIMAP-040C then selected the MIMAP-041A record report cleanup.
+
+MIMAP-041A landed the record-local report payload cleanup for the existing M212
+bounded purge/decommit scheduler. MIMAP-041B selected a compiler cleanup chain,
+and `MIMAP-NEXT-BEHAVIOR-SELECTION-001` returns the lane to allocator behavior
+with `MIMAP-042A`.
+
+### MIMAP-042A granularity
+
+MIMAP-042A is a narrow allocator behavior row. It adds one `.hako` route owner
+that composes existing owners:
+
+```text
+HakoAllocOsVmBackedFastPathHeap
+HakoAllocPurgeStateAwareDecommitGuard
+HakoAllocBoundedPurgeDecommitScheduler
+```
+
+Allowed:
+
+- allocation / release through the OSVM-backed fast-path heap;
+- one bounded scheduler purge attempt through M212;
+- duplicate purge observation through the M199 state-aware guard;
+- scalar report fields proving first purge vs duplicate purge behavior.
+
+Forbidden:
+
+- direct page-source / OSVM calls from the new route owner;
+- unreserve, recommit, OS release, provider activation, hooks, host allocator
+  replacement, or `#[global_allocator]`;
+- remote-free, TLS, atomic, worker scheduling, or user-facing concurrency
+  syntax expansion;
+- compiler acceptance widening unless the route preflight exposes a real
+  independent blocker.
 
 ## Compiler / language sidecar triggers
 

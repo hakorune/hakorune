@@ -51,7 +51,7 @@ Scope: current lane / next lane / restart order only.
 - pure-first MIR artifact / diagnostics SSOT:
   `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
 - current blocker token:
-  `MIMAP-NEXT-BEHAVIOR-SELECTION-001 next behavior selection row`
+  `MIMAP-042A OSVM-backed fast-path bounded purge route`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -70,9 +70,10 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `CURRENT-DOCS-PHASE-SLIM-002`;
-  current blocker is `MIMAP-NEXT-BEHAVIOR-SELECTION-001`, a planning-only row
-  to select the next single allocator/compiler cleanup or behavior row.
+- resume point: continue Phase 293x after `MIMAP-NEXT-BEHAVIOR-SELECTION-001`;
+  current blocker is `MIMAP-042A`, a narrow allocator behavior row that composes
+  the OSVM-backed fast-path heap, M199 state-aware decommit guard, and M212
+  bounded scheduler.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -80,9 +81,9 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-NEXT-BEHAVIOR-SELECTION-001`: select exactly one next
-     allocator/compiler row after the cleanup sidecar sequence
-  2. implement only the selected row
+  1. `MIMAP-042A`: implement the OSVM-backed fast-path bounded purge route
+  2. if route preflight exposes a real compiler blocker, split a focused
+     acceptance sidecar instead of rewriting `.hako` around it
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner
   reduction after mimalloc completeness evidence. Do not make broad `.hako`

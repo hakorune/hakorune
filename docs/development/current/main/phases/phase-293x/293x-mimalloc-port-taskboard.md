@@ -312,7 +312,8 @@ FST:
 | `TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-002` | landed | Post-typed-object-storage row selection. | selected CURRENT-DOCS-PHASE-SLIM-001 |
 | `CURRENT-DOCS-PHASE-SLIM-001` | landed | Current docs / phase taskboard slim cleanup. | after TYPED-OBJECT-STORAGE-INFERENCE-SPLIT-002 |
 | `CURRENT-DOCS-PHASE-SLIM-002` | landed | Post-current-docs-slim row selection. | selected MIMAP-NEXT-BEHAVIOR-SELECTION-001 |
-| `MIMAP-NEXT-BEHAVIOR-SELECTION-001` | selected current | Select the next single allocator/compiler cleanup or behavior row. | after CURRENT-DOCS-PHASE-SLIM-002 |
+| `MIMAP-NEXT-BEHAVIOR-SELECTION-001` | landed | Select the next single allocator/compiler cleanup or behavior row. | selected MIMAP-042A |
+| `MIMAP-042A` | selected current | OSVM-backed fast-path bounded purge route. | after MIMAP-NEXT-BEHAVIOR-SELECTION-001 |
 
 MIMAP-020A execution order:
 
