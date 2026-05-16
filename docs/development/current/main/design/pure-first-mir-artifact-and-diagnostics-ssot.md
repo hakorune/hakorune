@@ -309,7 +309,7 @@ timeout/no-output failure includes the active phase and last known step
 
 ### MIR-EMIT-SSOT-002: canonical emit wrapper
 
-Status: selected current after progress diagnostics
+Status: landed
 
 Purpose:
 
@@ -323,6 +323,16 @@ Return condition:
 ```text
 CI/guard/selfhost callers use one source-to-MIR route entry; direct calls to
 tools/hakorune_emit_mir.sh remain restricted to allowed capsule wrappers
+```
+
+Landed decision:
+
+```text
+canonical external route:
+  tools/smokes/v2/lib/emit_mir_route.sh --route direct
+
+thin facade:
+  not added
 ```
 
 ### RETURN-CONTRACT-001: expected return type propagation

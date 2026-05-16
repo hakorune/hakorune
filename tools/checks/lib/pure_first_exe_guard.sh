@@ -17,12 +17,14 @@ pure_first_guard_emit_mir() {
   local root_dir="$1"
   local app="$2"
   local mir_json="$3"
+  local emit_route="$root_dir/tools/smokes/v2/lib/emit_mir_route.sh"
   local rc=0
 
   selfhost_phase_start "selfhost.emit_mir"
   NYASH_FEATURES=rune \
   NYASH_DISABLE_PLUGINS=1 \
-  "$root_dir/target/debug/hakorune" --backend mir --emit-mir-json "$mir_json" "$app" >/dev/null || rc=$?
+  NYASH_BIN="$root_dir/target/debug/hakorune" \
+  "$emit_route" --route direct --out "$mir_json" --input "$app" >/dev/null || rc=$?
   if [ "$rc" -eq 0 ]; then
     selfhost_phase_done "selfhost.emit_mir"
   else

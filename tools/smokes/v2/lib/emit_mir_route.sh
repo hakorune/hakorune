@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # emit_mir_route.sh
-# Common emit entry for smoke scripts.
+# Common emit entry for smoke/check/selfhost scripts.
 # Routes:
-#   - direct        : hakorune --emit-mir-json
+#   - direct        : hakorune --backend mir --emit-mir-json
 #   - hako-mainline : tools/hakorune_emit_mir.sh with selfhost-first + no-delegate + mainline-only
 #   - hako-helper   : tools/hakorune_emit_mir.sh default route
 
@@ -14,7 +14,7 @@ Usage:
   emit_mir_route.sh --route <direct|hako-mainline|hako-helper> --out <mir.json> --input <src.hako> [--timeout-secs <n>] [-- <extra args>]
 
 Notes:
-  - route=direct uses:      <NYASH_BIN> --emit-mir-json <out> <input>
+  - route=direct uses:      <NYASH_BIN> --backend mir --emit-mir-json <out> <input>
   - route=hako-mainline uses helper with:
       HAKO_SELFHOST_BUILDER_FIRST=1
       HAKO_SELFHOST_NO_DELEGATE=1
@@ -107,7 +107,7 @@ case "$ROUTE" in
       HAKO_STAGE1_MODE=emit-mir \
       HAKO_EMIT_MIR_JSON=1 \
       STAGE1_EMIT_MIR_JSON=1 \
-      "$NYASH_BIN" --emit-mir-json "$OUT" "$INPUT" "${EXTRA_ARGS[@]}")
+      "$NYASH_BIN" --backend mir --emit-mir-json "$OUT" "$INPUT" "${EXTRA_ARGS[@]}")
     ;;
   hako-mainline)
     CMD=(env \

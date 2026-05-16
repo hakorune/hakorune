@@ -8,6 +8,7 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 
 PREFLIGHT="tools/checks/pure_first_route_preflight.py"
 PURE_FIRST_LIB="tools/checks/lib/pure_first_exe_guard.sh"
+EMIT_ROUTE="tools/smokes/v2/lib/emit_mir_route.sh"
 SSOT="docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md"
 LOWERING_SSOT="docs/development/current/main/design/lowering-plan-json-v0-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-451-MIR-ROUTE-PREFLIGHT-001-LOWERING-PLAN-PREFLIGHT.md"
@@ -21,6 +22,7 @@ guard_require_files \
   "$TAG" \
   "$PREFLIGHT" \
   "$PURE_FIRST_LIB" \
+  "$EMIT_ROUTE" \
   "$SSOT" \
   "$LOWERING_SSOT" \
   "$CARD" \
@@ -183,8 +185,9 @@ guard_expect_in_file "$TAG" 'owner=global_call_routes' "$tmp_dir/unsupported.err
 cargo build -q --bin hakorune
 NYASH_FEATURES=rune \
 NYASH_DISABLE_PLUGINS=1 \
-  "$ROOT_DIR/target/debug/hakorune" --backend mir --emit-mir-json "$generated_json" \
-  apps/hako-mem-extern-exe-proof/main.hako >/dev/null
+NYASH_BIN="$ROOT_DIR/target/debug/hakorune" \
+  "$EMIT_ROUTE" --route direct --out "$generated_json" \
+  --input apps/hako-mem-extern-exe-proof/main.hako >/dev/null
 "$PREFLIGHT" "$generated_json" >"$tmp_dir/generated.out" 2>"$tmp_dir/generated.err"
 guard_expect_in_file "$TAG" '\[pure-first-route\]\[ok\]' "$tmp_dir/generated.out" "generated MIR route preflight should pass"
 

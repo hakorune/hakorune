@@ -11,6 +11,7 @@ ROUTE_HELPER="tools/selfhost/lib/selfhost_build_route.sh"
 EXE_HELPER="tools/selfhost/lib/selfhost_build_exe.sh"
 DIRECT_HELPER="tools/selfhost/lib/selfhost_build_direct.sh"
 PURE_FIRST_LIB="tools/checks/lib/pure_first_exe_guard.sh"
+EMIT_ROUTE="tools/smokes/v2/lib/emit_mir_route.sh"
 SSOT="docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-450-MIR-EMIT-SSOT-001-PURE-FIRST-MIR-ARTIFACT-EXACTNESS.md"
 INDEX="docs/tools/check-scripts-index.md"
@@ -27,6 +28,7 @@ guard_require_files \
   "$EXE_HELPER" \
   "$DIRECT_HELPER" \
   "$PURE_FIRST_LIB" \
+  "$EMIT_ROUTE" \
   "$SSOT" \
   "$CARD" \
   "$INDEX"
@@ -62,7 +64,8 @@ cargo build -q --bin hakorune
 
 NYASH_FEATURES=rune \
 NYASH_DISABLE_PLUGINS=1 \
-  "$ROOT_DIR/target/debug/hakorune" --backend mir --emit-mir-json "$mir_json" "$app" >/dev/null
+NYASH_BIN="$ROOT_DIR/target/debug/hakorune" \
+  "$EMIT_ROUTE" --route direct --out "$mir_json" --input "$app" >/dev/null
 
 python3 - "$mir_json" <<'PY'
 import json

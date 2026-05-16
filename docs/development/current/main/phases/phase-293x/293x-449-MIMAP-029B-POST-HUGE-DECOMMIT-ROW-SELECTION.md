@@ -1,6 +1,6 @@
 # 293x-449 MIMAP-029B Post-Huge-Decommit Row Selection
 
-Status: parked after pure-first sidecar
+Status: selected current
 Date: 2026-05-16
 
 ## Decision
@@ -21,12 +21,13 @@ Current prerequisite:
 
 ```text
 MIR-EMIT-SSOT-001 -> MIR-ROUTE-PREFLIGHT-001 -> SELFHOST-PROGRESS-001
+-> MIR-EMIT-SSOT-002
 ```
 
 MIMAP-029A exposed that pure-first guard preflight and selfhost EXE build can
 use different MIR emissions. `MIMAP-029B` resumes only after the same-artifact
-route, route preflight, and basic progress diagnostics are stable. The sidecar
-SSOT is:
+route, route preflight, basic progress diagnostics, and canonical source-to-MIR
+entry are stable. The sidecar SSOT is:
 
 ```text
 docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md

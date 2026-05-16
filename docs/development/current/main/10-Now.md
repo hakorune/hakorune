@@ -30,16 +30,16 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIR-EMIT-SSOT-002 canonical emit wrapper`
+- current blocker token: `MIMAP-029B post-huge-decommit row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `SELFHOST-PROGRESS-001`; current blocker is
-  `MIR-EMIT-SSOT-002`, a pure-first/selfhost BoxShape sidecar that makes the
-  canonical external source-to-MIR route explicit
-- planned sidecar order: return to `MIMAP-029B` after MIR-EMIT-SSOT-002
+- continue phase-293x after `MIR-EMIT-SSOT-002`; current blocker is
+  `MIMAP-029B`, a planning-only allocator row that selects exactly one next
+  post-huge-decommit behavior row
+- planned order: implement the row selected by `MIMAP-029B`
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

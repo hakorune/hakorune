@@ -7,14 +7,19 @@
 
 emit_mir_json_from_source() {
   local mir_out_path="$1"
+  local emit_route="$ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
   local rc=0
   if [ -z "${IN:-}" ]; then
     echo "[selfhost] source input is required for MIR emission" >&2
     return 2
   fi
+  if [ ! -x "$emit_route" ]; then
+    echo "[selfhost] canonical MIR emit route missing: $emit_route" >&2
+    return 2
+  fi
   echo "[selfhost] emitting MIR JSON → $mir_out_path" >&2
   selfhost_phase_start "selfhost.emit_mir"
-  "$BIN" --backend mir --emit-mir-json "$mir_out_path" "$IN" >/dev/null || rc=$?
+  NYASH_BIN="$BIN" "$emit_route" --route direct --out "$mir_out_path" --input "$IN" >/dev/null || rc=$?
   if [ "$rc" -eq 0 ]; then
     selfhost_phase_done "selfhost.emit_mir"
   else

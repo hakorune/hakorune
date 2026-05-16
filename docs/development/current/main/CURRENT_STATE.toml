@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-16"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIR-EMIT-SSOT-001 pure-first MIR artifact exactness, MIR-ROUTE-PREFLIGHT-001 lowering-plan route preflight, and SELFHOST-PROGRESS-001 phase progress diagnostics landed; MIR-EMIT-SSOT-002 canonical emit wrapper is current before returning to MIMAP-029B post-huge-decommit row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "Pure-first sidecar landed through MIR-EMIT-SSOT-002 canonical emit wrapper; MIMAP-029B post-huge-decommit row selection is current. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-453-MIR-EMIT-SSOT-002-CANONICAL-EMIT-WRAPPER.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-449-MIMAP-029B-POST-HUGE-DECOMMIT-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-452-SELFHOST-PROGRESS-001-PHASE-PROGRESS-DIAGNOSTICS"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-452-SELFHOST-PROGRESS-001-PHASE-PROGRESS-DIAGNOSTICS.md"
-latest_card_summary = "SELFHOST-PROGRESS-001 lands stable selfhost phase progress lines, a progress closeout file, and a diagnostics guard for emit_mir, route_preflight, nyllvmc, and run phases."
+latest_card = "293x-453-MIR-EMIT-SSOT-002-CANONICAL-EMIT-WRAPPER"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-453-MIR-EMIT-SSOT-002-CANONICAL-EMIT-WRAPPER.md"
+latest_card_summary = "MIR-EMIT-SSOT-002 lands emit_mir_route.sh --route direct as the canonical external source-to-MIR route and migrates pure-first/selfhost source emit callers without adding a competing wrapper."
 
-current_blocker_token = "MIR-EMIT-SSOT-002"
+current_blocker_token = "MIMAP-029B"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-453 MIR-EMIT-SSOT-002 canonical emit wrapper landed",
   "293x-452 SELFHOST-PROGRESS-001 phase progress diagnostics landed",
   "293x-451 MIR-ROUTE-PREFLIGHT-001 lowering-plan route preflight landed",
   "293x-450 MIR-EMIT-SSOT-001 pure-first MIR artifact exactness landed",

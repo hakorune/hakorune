@@ -158,8 +158,8 @@ Forbidden:
 | `MIR-EMIT-SSOT-001` | pure-first MIR artifact exactness sidecar | landed before MIMAP-029B |
 | `MIR-ROUTE-PREFLIGHT-001` | lowering-plan route preflight sidecar | landed after MIR-EMIT-SSOT-001 |
 | `SELFHOST-PROGRESS-001` | selfhost/pure-first progress diagnostics sidecar | landed after MIR-ROUTE-PREFLIGHT-001 |
-| `MIR-EMIT-SSOT-002` | canonical external source-to-MIR route entry | current after progress diagnostics |
-| `MIMAP-029B` | post-huge-decommit allocator row selection | after pure-first sidecar |
+| `MIR-EMIT-SSOT-002` | canonical external source-to-MIR route entry | landed after progress diagnostics |
+| `MIMAP-029B` | post-huge-decommit allocator row selection | current after pure-first sidecar |
 | `MIMAP-030A` | draft: facade huge decommit fail-fast diagnostics | after MIMAP-029A if selected |
 | `MIMAP-030B` | draft: post-huge-decommit-failfast allocator row selection | after MIMAP-030A if selected |
 | `MIMAP-031A` | draft: OSVM unreserve capability inventory / planning row | only after decommit success/reject rows are green |
@@ -451,7 +451,7 @@ SELFHOST-PROGRESS-001:
   add phase progress / timeout closeout for slow/stuck/unsupported diagnosis
 
 MIR-EMIT-SSOT-002:
-  selected current
+  landed
   make the canonical external source-to-MIR route explicit; prefer the existing
   tools/smokes/v2/lib/emit_mir_route.sh route SSOT or a thin facade over it
 ```
@@ -459,8 +459,8 @@ MIR-EMIT-SSOT-002:
 These are BoxShape rows. They must not add allocator behavior, widen
 MIMAP-029A, or add backend name matchers.
 
-MIMAP-029B is parked until the pure-first sidecar is stable. It remains the
-next planning-only allocator row after the sidecar. It must inspect the
+MIMAP-029B is current after the pure-first sidecar landed. It remains the
+planning-only allocator row after the sidecar. It must inspect the
 post-decommit state and select exactly one next allocator behavior row. The
 conservative default candidate is `MIMAP-030A`, but duplicate decommit
 diagnostics must be allocator-side stateful; do not rely on OSVM/page-source

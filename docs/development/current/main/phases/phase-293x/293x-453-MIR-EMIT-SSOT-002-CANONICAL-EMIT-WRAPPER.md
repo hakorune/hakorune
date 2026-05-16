@@ -1,6 +1,6 @@
 # 293x-453 MIR-EMIT-SSOT-002 Canonical Emit Wrapper
 
-Status: selected current
+Status: landed
 Date: 2026-05-16
 
 ## Decision
@@ -10,6 +10,16 @@ and phase progress diagnostics landed.
 
 It makes the external source-to-MIR authority explicit so guards and selfhost
 tools do not each choose their own emit environment.
+
+Decision:
+
+```text
+canonical external source-to-MIR route:
+  tools/smokes/v2/lib/emit_mir_route.sh --route direct
+
+thin facade:
+  not added in this row
+```
 
 Existing route surface:
 
@@ -85,3 +95,49 @@ This row closes when guard/selfhost source-to-MIR emission has one documented
 external route entry, `tools/hakorune_emit_mir.sh` remains an internal
 compat-capsule, and direct compiler CLI routes are clearly diagnostic escape
 hatches, not competing CI authorities.
+
+## Landed Implementation
+
+Files:
+
+```text
+tools/smokes/v2/lib/emit_mir_route.sh
+tools/selfhost/lib/selfhost_build_direct.sh
+tools/checks/lib/pure_first_exe_guard.sh
+tools/checks/pure_first_mir_artifact_exactness_guard.sh
+tools/checks/pure_first_route_preflight_guard.sh
+tools/checks/canonical_mir_emit_route_guard.sh
+docs/tools/check-scripts-index.md
+```
+
+Behavior:
+
+- `emit_mir_route.sh --route direct` is the canonical external source-to-MIR
+  route for pure-first/selfhost guards.
+- The direct route owns `--backend mir --emit-mir-json`.
+- `selfhost_build.sh --mir-out` delegates source emission to the canonical
+  route.
+- pure-first guard MIR emission delegates to the canonical route.
+- same-artifact and route-preflight guards use the canonical route for source
+  MIR emission fixtures.
+- No `tools/hako_emit_mir_json.sh` facade was added; the existing route SSOT is
+  sufficient for this row.
+
+Evidence:
+
+```text
+bash -n tools/smokes/v2/lib/emit_mir_route.sh tools/selfhost/lib/selfhost_build_direct.sh tools/checks/lib/pure_first_exe_guard.sh tools/checks/pure_first_mir_artifact_exactness_guard.sh tools/checks/pure_first_route_preflight_guard.sh tools/checks/canonical_mir_emit_route_guard.sh
+bash tools/checks/canonical_mir_emit_route_guard.sh
+bash tools/checks/pure_first_mir_artifact_exactness_guard.sh
+bash tools/checks/pure_first_route_preflight_guard.sh
+bash tools/checks/selfhost_progress_diagnostics_guard.sh
+bash tools/checks/k2_wide_mimalloc_facade_huge_decommit_exe_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+tools/checks/dev_gate.sh quick
+```
+
+Closeout:
+
+```text
+current blocker returns to MIMAP-029B.
+```
