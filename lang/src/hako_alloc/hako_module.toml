@@ -28,6 +28,7 @@ memory.segment_allocation_modeled_local_free_candidate_ledger_box = "memory/segm
 memory.segment_allocation_modeled_local_free_apply_plan_box = "memory/segment_allocation_modeled_local_free_apply_plan_box.hako"
 memory.segment_allocation_modeled_local_free_page_apply_box = "memory/segment_allocation_modeled_local_free_page_apply_box.hako"
 memory.segment_allocation_modeled_local_free_integration_box = "memory/segment_allocation_modeled_local_free_integration_box.hako"
+memory.segment_allocation_modeled_local_free_reuse_box = "memory/segment_allocation_modeled_local_free_reuse_box.hako"
 memory.worker_identity_box = "memory/worker_identity_box.hako"
 memory.worker_tls_cache_box = "memory/worker_tls_cache_box.hako"
 memory.arc_box = "memory/arc_box.hako"

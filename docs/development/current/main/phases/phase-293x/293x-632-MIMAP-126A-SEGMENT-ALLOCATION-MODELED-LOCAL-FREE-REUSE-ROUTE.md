@@ -1,6 +1,6 @@
 # 293x-632 MIMAP-126A Segment Allocation Modeled Local-Free Reuse Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -101,3 +101,28 @@ bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Result
+
+`MIMAP-126A` added the page-local reuse owner, proof app, module export, proof
+manifest row, check-script index row, and dedicated guard:
+
+```text
+lang/src/hako_alloc/memory/segment_allocation_modeled_local_free_reuse_box.hako
+apps/hako-alloc-segment-allocation-modeled-local-free-reuse-proof/
+tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_guard.sh
+```
+
+The proof fixes the explicit reuse chain:
+
+```text
+released-span report
+  -> local-free integration
+  -> HakoAllocPageModel.releaseLocal(block_id)
+  -> ordinary free list empty
+  -> HakoAllocPageModel.acquire(size)
+  -> local_free collection count increases
+  -> reused block id is returned
+```
+
+It selects `MIMAP-127A post-local-free-reuse row selection`.

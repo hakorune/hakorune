@@ -456,7 +456,8 @@ FST:
 | `RUNTIME-UNWRAP-001` | landed | Runtime lock expect messages. | selected WASM-LOG-001 |
 | `WASM-LOG-001` | landed | WAT2WASM stable tags. | selected MIMAP-125A |
 | `MIMAP-125A` | landed | Post-source-cleanup row selection. | selected MIMAP-126A |
-| `MIMAP-126A` | selected current | Segment allocation modeled local-free reuse route. | current allocator row |
+| `MIMAP-126A` | landed | Segment allocation modeled local-free reuse route. | selected MIMAP-127A |
+| `MIMAP-127A` | selected current | Post-local-free-reuse row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -464,11 +465,10 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current allocator row:
-`MIMAP-126A` proves that the modeled local-free integration path can feed
-`HakoAllocPageModel.acquire(size)` reuse through a dedicated owner and proof
-app. It continues the MIMAP-119A / MIMAP-121A local-free lane without opening
-real segment free, segment-map lookup, or provider activation.
+Current row selection:
+`MIMAP-127A` selects exactly one next row after the modeled local-free reuse
+route. Prefer allocator behavior progress unless the next row exposes a
+concrete compiler acceptance blocker.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,

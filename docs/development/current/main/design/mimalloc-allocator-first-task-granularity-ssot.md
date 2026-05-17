@@ -294,7 +294,8 @@ Forbidden:
 | `RUNTIME-UNWRAP-001` | runtime lock expect messages | landed; selected WASM-LOG-001 |
 | `WASM-LOG-001` | WAT2WASM stable tags | landed; selected MIMAP-125A |
 | `MIMAP-125A` | post-source-cleanup row selection | landed; selected MIMAP-126A |
-| `MIMAP-126A` | segment allocation modeled local-free reuse route | selected current |
+| `MIMAP-126A` | segment allocation modeled local-free reuse route | landed; selected MIMAP-127A |
+| `MIMAP-127A` | post-local-free-reuse row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1833,6 +1834,20 @@ It must use a dedicated owner, proof app, and guard. It must not add real
 segment allocation/free, segment-map lookup, raw pointer residence, arena
 backing, atomics, page-source calls, OSVM release, provider activation, host
 allocator replacement, backend matchers, source syntax, or silent fallback.
+
+MIMAP-126A landed by adding the local-free reuse owner, proof app, module
+export, proof manifest row, index row, and dedicated guard. It selects
+MIMAP-127A.
+
+### MIMAP-127A granularity
+
+MIMAP-127A is a planning-only row after modeled local-free reuse. It should
+review the current segment allocation modeled lane and select exactly one next
+mimalloc / hako_alloc or Hakorune compiler row.
+
+It must not add allocator behavior, compiler route behavior, source syntax,
+cleanup bundles, provider activation, host allocator replacement, backend
+matchers, or silent fallback.
 
 ### MIMAP-112A granularity
 

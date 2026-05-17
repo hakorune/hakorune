@@ -1,0 +1,146 @@
+// segment_allocation_modeled_local_free_reuse_box.hako -- MIMAP-126A local-free reuse route
+// Responsibility:
+// - compose MIMAP-119A local-free integration with page-local acquire reuse
+// - prove that HakoAllocPageModel.acquire(size) collects from local_free when
+//   the ordinary free list is empty
+// - keep real segment free, segment-map lookup, atomics, OSVM, scheduling,
+//   provider activation, and backend shortcuts closed
+// Non-responsibility:
+// - direct page array mutation, arena backing, raw pointer residence,
+//   page-source calls, or allocator provider activation
+
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_integration_box as HakoAllocSegmentAllocationModeledLocalFreeIntegration
+
+box HakoAllocSegmentAllocationModeledLocalFreeReuseReport {
+    did_reuse_local_free: i64 = 0
+    reason: i64 = 0
+    integration_reason: i64 = 0
+    reused_block_id: i64 = -1
+    modeled_allocation_token: i64 = -1
+    segment_id: i64 = -1
+    page_id: i64 = -1
+    modeled_block_start: i64 = -1
+    modeled_block_end: i64 = -1
+    applied_blocks: i64 = 0
+    page_used_before_reuse: i64 = 0
+    page_used_after_reuse: i64 = 0
+    page_free_before_reuse: i64 = 0
+    page_free_after_reuse: i64 = 0
+    page_local_free_before_reuse: i64 = 0
+    page_local_free_after_reuse: i64 = 0
+    collect_count_before_reuse: i64 = 0
+    collect_count_after_reuse: i64 = 0
+    reuse_attempt_count_after: i64 = 0
+    reuse_success_count_after: i64 = 0
+    reuse_reject_count_after: i64 = 0
+    local_free_reuse_route_present: i64 = 1
+    did_collect_local_free_before_reuse: i64 = 0
+    would_execute_real_segment_free: i64 = 0
+    would_directly_mutate_page_arrays: i64 = 0
+    would_use_raw_pointer: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentAllocationModeledLocalFreeReuse {
+    integration: HakoAllocSegmentAllocationModeledLocalFreeIntegration = new HakoAllocSegmentAllocationModeledLocalFreeIntegration()
+    attempt_count: i64 = 0
+    success_count: i64 = 0
+    reject_count: i64 = 0
+    integration_reject_count: i64 = 0
+    free_list_not_empty_reject_count: i64 = 0
+    acquire_reject_count: i64 = 0
+    collect_reject_count: i64 = 0
+    last_reason: i64 = 0
+    last_reused_block_id: i64 = -1
+
+    report(did_reuse_local_free, reason, integration_reason, reused_block_id, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, applied_blocks, page_used_before_reuse, page_used_after_reuse, page_free_before_reuse, page_free_after_reuse, page_local_free_before_reuse, page_local_free_after_reuse, collect_count_before_reuse, collect_count_after_reuse): HakoAllocSegmentAllocationModeledLocalFreeReuseReport {
+        local result = new HakoAllocSegmentAllocationModeledLocalFreeReuseReport()
+        result.did_reuse_local_free = did_reuse_local_free
+        result.reason = reason
+        result.integration_reason = integration_reason
+        result.reused_block_id = reused_block_id
+        result.modeled_allocation_token = modeled_allocation_token
+        result.segment_id = segment_id
+        result.page_id = page_id
+        result.modeled_block_start = modeled_block_start
+        result.modeled_block_end = modeled_block_end
+        result.applied_blocks = applied_blocks
+        result.page_used_before_reuse = page_used_before_reuse
+        result.page_used_after_reuse = page_used_after_reuse
+        result.page_free_before_reuse = page_free_before_reuse
+        result.page_free_after_reuse = page_free_after_reuse
+        result.page_local_free_before_reuse = page_local_free_before_reuse
+        result.page_local_free_after_reuse = page_local_free_after_reuse
+        result.collect_count_before_reuse = collect_count_before_reuse
+        result.collect_count_after_reuse = collect_count_after_reuse
+        result.reuse_attempt_count_after = me.attempt_count
+        result.reuse_success_count_after = me.success_count
+        result.reuse_reject_count_after = me.reject_count
+        if did_reuse_local_free == 1 {
+            result.did_collect_local_free_before_reuse = 1
+        }
+        me.last_reason = reason
+        me.last_reused_block_id = reused_block_id
+        return result
+    }
+
+    rejectFromIntegration(integration_report) {
+        me.reject_count += 1
+        me.integration_reject_count += 1
+        return me.report(0, 1, integration_report.reason, -1, integration_report.modeled_allocation_token, integration_report.segment_id, integration_report.page_id, integration_report.modeled_block_start, integration_report.modeled_block_end, integration_report.applied_blocks, integration_report.page_used_after, integration_report.page_used_after, integration_report.page_free_after, integration_report.page_free_after, integration_report.page_local_free_after, integration_report.page_local_free_after, 0, 0)
+    }
+
+    rejectFreeListNotEmpty(integration_report, page) {
+        me.reject_count += 1
+        me.free_list_not_empty_reject_count += 1
+        return me.report(0, 2, integration_report.reason, -1, integration_report.modeled_allocation_token, integration_report.segment_id, integration_report.page_id, integration_report.modeled_block_start, integration_report.modeled_block_end, integration_report.applied_blocks, page.used, page.used, page.freeCount(), page.freeCount(), page.localFreeCount(), page.localFreeCount(), page.local_free_collect_count, page.local_free_collect_count)
+    }
+
+    rejectAcquire(integration_report, page, page_used_before, page_free_before, page_local_free_before, collect_count_before) {
+        me.reject_count += 1
+        me.acquire_reject_count += 1
+        return me.report(0, 3, integration_report.reason, -1, integration_report.modeled_allocation_token, integration_report.segment_id, integration_report.page_id, integration_report.modeled_block_start, integration_report.modeled_block_end, integration_report.applied_blocks, page_used_before, page.used, page_free_before, page.freeCount(), page_local_free_before, page.localFreeCount(), collect_count_before, page.local_free_collect_count)
+    }
+
+    rejectCollect(integration_report, page, reused_block_id, page_used_before, page_free_before, page_local_free_before, collect_count_before) {
+        me.reject_count += 1
+        me.collect_reject_count += 1
+        return me.report(0, 4, integration_report.reason, reused_block_id, integration_report.modeled_allocation_token, integration_report.segment_id, integration_report.page_id, integration_report.modeled_block_start, integration_report.modeled_block_end, integration_report.applied_blocks, page_used_before, page.used, page_free_before, page.freeCount(), page_local_free_before, page.localFreeCount(), collect_count_before, page.local_free_collect_count)
+    }
+
+    integrateAndReuseLocalFree(released_span_report, page, requested_size, unsupported_candidate_requirement, unsupported_apply_plan_requirement, unsupported_page_apply_requirement): HakoAllocSegmentAllocationModeledLocalFreeReuseReport {
+        me.attempt_count += 1
+
+        local integration_report = me.integration.integrateLocalFree(released_span_report, page, unsupported_candidate_requirement, unsupported_apply_plan_requirement, unsupported_page_apply_requirement)
+        if integration_report.did_integrate_local_free != 1 {
+            return me.rejectFromIntegration(integration_report)
+        }
+
+        if page.freeCount() != 0 {
+            return me.rejectFreeListNotEmpty(integration_report, page)
+        }
+
+        local page_used_before = page.used
+        local page_free_before = page.freeCount()
+        local page_local_free_before = page.localFreeCount()
+        local collect_count_before = page.local_free_collect_count
+
+        local reused_block_id: i64 = page.acquire(requested_size)
+        if reused_block_id < 0 {
+            return me.rejectAcquire(integration_report, page, page_used_before, page_free_before, page_local_free_before, collect_count_before)
+        }
+
+        if page.local_free_collect_count <= collect_count_before {
+            return me.rejectCollect(integration_report, page, reused_block_id, page_used_before, page_free_before, page_local_free_before, collect_count_before)
+        }
+
+        me.success_count += 1
+        return me.report(1, 0, integration_report.reason, reused_block_id, integration_report.modeled_allocation_token, integration_report.segment_id, integration_report.page_id, integration_report.modeled_block_start, integration_report.modeled_block_end, integration_report.applied_blocks, page_used_before, page.used, page_free_before, page.freeCount(), page_local_free_before, page.localFreeCount(), collect_count_before, page.local_free_collect_count)
+    }
+}
