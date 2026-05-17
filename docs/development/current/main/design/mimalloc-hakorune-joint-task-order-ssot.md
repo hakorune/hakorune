@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-070A` landed the post-scheduler-ledger row selection and selected a
-scalar request ledger consume route.
+`MIMAP-071A` landed the scalar request ledger consume route and selected a
+closeout guard.
 
 Recommended current row:
 
 ```text
-MIMAP-071A
-  reclaim scheduler request ledger consume route
+MIMAP-072A
+  reclaim scheduler ledger consume closeout guard
 ```
 
 Purpose:
 
 ```text
-consume/clear one pending modeled scheduler request locally
+lock the scalar scheduler request ledger consume route
 keep real thread scheduling, worker spawning, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -93,7 +93,8 @@ no provider activation
 | 25 | allocator | `MIMAP-068A reclaim scheduler request ledger route` | landed; selected MIMAP-069A |
 | 26 | closeout | `MIMAP-069A reclaim scheduler request ledger closeout guard` | landed; selected MIMAP-070A |
 | 27 | planning | `MIMAP-070A post-scheduler-ledger row selection` | landed; selected MIMAP-071A |
-| 28 | allocator | `MIMAP-071A reclaim scheduler request ledger consume route` | current; local consume route |
+| 28 | allocator | `MIMAP-071A reclaim scheduler request ledger consume route` | landed; selected MIMAP-072A |
+| 29 | closeout | `MIMAP-072A reclaim scheduler ledger consume closeout guard` | current; lock consume route |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

@@ -1,6 +1,6 @@
 # 293x-558 MIMAP-071A Reclaim Scheduler Request Ledger Consume Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -60,4 +60,39 @@ bash tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_consume_gu
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 tools/checks/dev_gate.sh quick
+```
+
+## Implementation Result
+
+`MIMAP-071A` added:
+
+```text
+HakoAllocReclaimSchedulerRequestLedgerConsumeReport
+HakoAllocReclaimSchedulerRequestLedger.consumePendingRequest(page_id)
+apps/hako-alloc-reclaim-scheduler-request-ledger-consume-proof/
+tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_consume_guard.sh
+docs/development/current/main/design/hako-alloc-reclaim-scheduler-request-ledger-consume-ssot.md
+```
+
+The route clears one pending modeled scheduler request only when the requested
+page id matches. No-pending and page-mismatch rows stay scalar suppressions.
+
+Proof output shape:
+
+```text
+no_pending=0,1,0,0,-1,-1
+recorded=1,0,1,200
+mismatch=0,2,1,1,200,200
+consumed=1,0,1,0,200,-1
+after=0,1,0,0,-1,-1
+inactive=0,0,0,0,0,0,0,0
+record_counts=1,1,0
+consume_counts=1,3,0,-1,200,1
+summary=ok
+```
+
+Next row:
+
+```text
+MIMAP-072A reclaim scheduler ledger consume closeout guard
 ```

@@ -355,7 +355,8 @@ FST:
 | `MIMAP-068A` | landed | Reclaim scheduler request ledger route. | selected MIMAP-069A |
 | `MIMAP-069A` | landed | Reclaim scheduler request ledger closeout guard. | selected MIMAP-070A |
 | `MIMAP-070A` | landed | Post-scheduler-ledger row selection. | selected MIMAP-071A |
-| `MIMAP-071A` | selected current | Reclaim scheduler request ledger consume route. | after MIMAP-070A |
+| `MIMAP-071A` | landed | Reclaim scheduler request ledger consume route. | selected MIMAP-072A |
+| `MIMAP-072A` | selected current | Reclaim scheduler ledger consume closeout guard. | after MIMAP-071A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -363,9 +364,9 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-070A: `MIMAP-071A` adds a scalar local consume route
-for one pending modeled scheduler request. Real thread scheduling, worker
-spawning, source-level concurrency features, page-source calls, OSVM
+Current row after MIMAP-071A: `MIMAP-072A` closes out the scalar local consume
+route for one pending modeled scheduler request. Real thread scheduling,
+worker spawning, source-level concurrency features, page-source calls, OSVM
 unreserve/release, provider activation, and backend matchers remain closed.
 
 MIMAP-020A execution order:

@@ -1,0 +1,76 @@
+// hako-alloc-reclaim-scheduler-request-ledger-consume-proof
+// Purpose: prove MIMAP-071A scalar scheduler request ledger consume route.
+
+using selfhost.hako_alloc.memory.reclaim_scheduler_request_ledger_box as HakoAllocReclaimSchedulerRequestLedger
+
+static box Main {
+    main(args) {
+        local ledger = new HakoAllocReclaimSchedulerRequestLedger()
+
+        local no_pending = ledger.consumePendingRequest(200)
+        local recorded = ledger.recordSchedulerRequest(200, 1, 1, 2, 1, 900, 1, 4096, 1)
+        local mismatch = ledger.consumePendingRequest(201)
+        local consumed = ledger.consumePendingRequest(200)
+        local after = ledger.consumePendingRequest(200)
+
+        local ok = check "mimap071a reclaim scheduler request ledger consume" {
+            "no pending reject": no_pending.did_consume == 0
+            "no pending reason": no_pending.reason == 1
+            "no pending before": no_pending.pending_before == 0
+            "no pending after": no_pending.pending_after == 0
+            "recorded did record": recorded.did_record_request == 1
+            "recorded pending": recorded.pending_request == 1
+            "recorded pending page": recorded.pending_page_id == 200
+            "mismatch reject": mismatch.did_consume == 0
+            "mismatch reason": mismatch.reason == 2
+            "mismatch before": mismatch.pending_before == 1
+            "mismatch after": mismatch.pending_after == 1
+            "mismatch page before": mismatch.pending_page_before == 200
+            "mismatch page after": mismatch.pending_page_after == 200
+            "consume success": consumed.did_consume == 1
+            "consume reason": consumed.reason == 0
+            "consume pending before": consumed.pending_before == 1
+            "consume pending after": consumed.pending_after == 0
+            "consume page": consumed.consumed_page_id == 200
+            "consume page after": consumed.pending_page_after == -1
+            "after reject": after.did_consume == 0
+            "after reason": after.reason == 1
+            "inactive schedule": consumed.would_schedule_thread == 0
+            "inactive spawn": consumed.would_spawn_worker == 0
+            "inactive source concurrency": consumed.would_touch_source_concurrency == 0
+            "inactive page source": consumed.would_call_page_source == 0
+            "inactive unreserve": consumed.would_unreserve == 0
+            "inactive os release": consumed.would_release_osvm == 0
+            "inactive provider": consumed.would_activate_provider == 0
+            "inactive replacement": consumed.would_host_allocator_swap == 0
+            "record attempt count": ledger.attempt_count == 1
+            "recorded count": ledger.recorded_count == 1
+            "suppress count": ledger.suppress_count == 0
+            "consume count": ledger.consume_count == 1
+            "consume reject count": ledger.consume_reject_count == 3
+            "pending cleared": ledger.pending_request == 0
+            "pending page cleared": ledger.pending_page_id == -1
+            "last consume page": ledger.last_consume_page_id == 200
+            "last consume reason": ledger.last_consume_reason == 1
+        }
+
+        print("hako-alloc-reclaim-scheduler-request-ledger-consume-proof")
+        print("no_pending=" + no_pending.did_consume + "," + no_pending.reason + "," + no_pending.pending_before + "," + no_pending.pending_after + "," + no_pending.pending_page_before + "," + no_pending.pending_page_after)
+        print("recorded=" + recorded.did_record_request + "," + recorded.reason + "," + recorded.pending_request + "," + recorded.pending_page_id)
+        print("mismatch=" + mismatch.did_consume + "," + mismatch.reason + "," + mismatch.pending_before + "," + mismatch.pending_after + "," + mismatch.pending_page_before + "," + mismatch.pending_page_after)
+        print("consumed=" + consumed.did_consume + "," + consumed.reason + "," + consumed.pending_before + "," + consumed.pending_after + "," + consumed.consumed_page_id + "," + consumed.pending_page_after)
+        print("after=" + after.did_consume + "," + after.reason + "," + after.pending_before + "," + after.pending_after + "," + after.pending_page_before + "," + after.pending_page_after)
+        print("inactive=" + consumed.would_schedule_thread + "," + consumed.would_spawn_worker + "," + consumed.would_touch_source_concurrency + "," + consumed.would_call_page_source + "," + consumed.would_unreserve + "," + consumed.would_release_osvm + "," + consumed.would_activate_provider + "," + consumed.would_host_allocator_swap)
+        print("record_counts=" + ledger.attempt_count + "," + ledger.recorded_count + "," + ledger.suppress_count)
+        print("consume_counts=" + ledger.consume_count + "," + ledger.consume_reject_count + "," + ledger.pending_request + "," + ledger.pending_page_id + "," + ledger.last_consume_page_id + "," + ledger.last_consume_reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

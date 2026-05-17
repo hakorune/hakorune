@@ -37,6 +37,25 @@ box HakoAllocReclaimSchedulerRequestLedgerReport {
     would_host_allocator_swap: i64 = 0
 }
 
+box HakoAllocReclaimSchedulerRequestLedgerConsumeReport {
+    did_consume: i64 = 0
+    reason: i64 = 0
+    requested_page_id: i64 = -1
+    consumed_page_id: i64 = -1
+    pending_before: i64 = 0
+    pending_after: i64 = 0
+    pending_page_before: i64 = -1
+    pending_page_after: i64 = -1
+    would_schedule_thread: i64 = 0
+    would_spawn_worker: i64 = 0
+    would_touch_source_concurrency: i64 = 0
+    would_call_page_source: i64 = 0
+    would_unreserve: i64 = 0
+    would_release_osvm: i64 = 0
+    would_activate_provider: i64 = 0
+    would_host_allocator_swap: i64 = 0
+}
+
 box HakoAllocReclaimSchedulerRequestLedger {
     marker: HakoAllocReclaimSchedulerRequestMarker = new HakoAllocReclaimSchedulerRequestMarker()
     attempt_count: i64 = 0
@@ -48,6 +67,10 @@ box HakoAllocReclaimSchedulerRequestLedger {
     pending_request_marker: i64 = 0
     last_page_id: i64 = -1
     last_reason: i64 = 0
+    consume_count: i64 = 0
+    consume_reject_count: i64 = 0
+    last_consume_page_id: i64 = -1
+    last_consume_reason: i64 = 0
 
     report(did_record_request, reason, page_id, request_marker, marked) {
         local result = new HakoAllocReclaimSchedulerRequestLedgerReport()
@@ -71,6 +94,21 @@ box HakoAllocReclaimSchedulerRequestLedger {
         return result
     }
 
+    consumeReport(did_consume, reason, requested_page_id, consumed_page_id, pending_before, pending_page_before) {
+        local result = new HakoAllocReclaimSchedulerRequestLedgerConsumeReport()
+        result.did_consume = did_consume
+        result.reason = reason
+        result.requested_page_id = requested_page_id
+        result.consumed_page_id = consumed_page_id
+        result.pending_before = pending_before
+        result.pending_after = me.pending_request
+        result.pending_page_before = pending_page_before
+        result.pending_page_after = me.pending_page_id
+        me.last_consume_page_id = requested_page_id
+        me.last_consume_reason = reason
+        return result
+    }
+
     recordSchedulerRequest(page_id, expected_owner, observed_owner, claimant_owner, remote_free_pending, remote_head, drain_budget, backing_bytes, scheduler_enabled) {
         me.attempt_count = me.attempt_count + 1
 
@@ -91,5 +129,26 @@ box HakoAllocReclaimSchedulerRequestLedger {
         me.pending_request_marker = marked.request_marker
         me.recorded_count = me.recorded_count + 1
         return me.report(1, 0, page_id, marked.request_marker, marked)
+    }
+
+    consumePendingRequest(page_id) {
+        local pending_before = me.pending_request
+        local pending_page_before = me.pending_page_id
+        if pending_before == 0 {
+            me.consume_reject_count = me.consume_reject_count + 1
+            return me.consumeReport(0, 1, page_id, -1, pending_before, pending_page_before)
+        }
+
+        if pending_page_before != page_id {
+            me.consume_reject_count = me.consume_reject_count + 1
+            return me.consumeReport(0, 2, page_id, -1, pending_before, pending_page_before)
+        }
+
+        me.pending_request = 0
+        me.pending_page_id = -1
+        me.pending_reason = 0
+        me.pending_request_marker = 0
+        me.consume_count = me.consume_count + 1
+        return me.consumeReport(1, 0, page_id, pending_page_before, pending_before, pending_page_before)
     }
 }
