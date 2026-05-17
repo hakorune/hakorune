@@ -273,7 +273,8 @@ Forbidden:
 | `MIMAP-109A` | segment allocation modeled local-free candidate ledger route | landed; selected MIMAP-110A |
 | `MIMAP-110A` | post-local-free-candidate-ledger row selection | landed; selected MIMAP-111A |
 | `MIMAP-111A` | segment allocation modeled local-free apply plan route | landed; selected MIMAP-112A |
-| `MIMAP-112A` | post-local-free-apply-plan row selection | selected current |
+| `MIMAP-112A` | post-local-free-apply-plan row selection | landed; selected MIMAP-113A |
+| `MIMAP-113A` | segment allocation modeled local-free scalar lane closeout guard | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1558,6 +1559,24 @@ row.
 
 It must not add allocator behavior, parser/compiler behavior, cleanup bundles,
 provider activation, host allocator replacement, or backend matchers.
+
+MIMAP-112A landed by selecting MIMAP-113A.
+
+### MIMAP-113A granularity
+
+MIMAP-113A is a closeout row for the scalar local-free lane through MIMAP-111A.
+It should add a manifest-backed closeout guard that freezes the selected owner,
+proof app, guard, SSOT, index, and stop-line set for:
+
+```text
+MIMAP-107A released-span ledger
+MIMAP-109A local-free candidate ledger
+MIMAP-111A local-free apply-plan ledger
+```
+
+It must not add allocator behavior, mutate a free-list or page state, execute
+real segment allocation/free, add parser/compiler behavior, activate providers,
+replace the host allocator, or add backend matchers.
 
 MIMAP-107A landed by adding the released-span ledger owner, proof app, SSOT,
 manifest entry, module export, README entry, and local guard. It selects

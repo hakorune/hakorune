@@ -136,7 +136,8 @@ no provider activation
 | 68 | allocator | `MIMAP-109A segment allocation modeled local-free candidate ledger route` | landed; selected MIMAP-110A |
 | 69 | planning | `MIMAP-110A post-local-free-candidate-ledger row selection` | landed; selected MIMAP-111A |
 | 70 | allocator | `MIMAP-111A segment allocation modeled local-free apply plan route` | landed; selected MIMAP-112A |
-| 71 | planning | `MIMAP-112A post-local-free-apply-plan row selection` | current; select one next row |
+| 71 | planning | `MIMAP-112A post-local-free-apply-plan row selection` | landed; selected MIMAP-113A |
+| 72 | closeout | `MIMAP-113A segment allocation modeled local-free scalar lane closeout guard` | current; freeze scalar lane through MIMAP-111A |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

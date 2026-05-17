@@ -1,6 +1,6 @@
 # 293x-611 MIMAP-112A Post-Local-Free-Apply-Plan Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -21,6 +21,25 @@ modeled consume
 This row should select exactly one next allocator behavior, closeout,
 substrate, or narrow Hakorune acceptance row using the mimalloc validation
 cadence.
+
+## Result
+
+`MIMAP-112A` selects:
+
+```text
+MIMAP-113A segment allocation modeled local-free scalar lane closeout guard
+```
+
+Validation cadence:
+
+```text
+L4 closeout row:
+  manifest-backed row guard via run_row_guard.sh --only <row-id>
+  public k2_wide wrapper
+```
+
+The selected row should freeze the scalar local-free chain through
+`MIMAP-111A` before any later page-local free-list mutation row is selected.
 
 ## Scope
 

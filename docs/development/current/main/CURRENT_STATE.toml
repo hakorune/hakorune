@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-17"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-111A landed the segment allocation modeled local-free apply plan route and selected MIMAP-112A row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-112A landed post-local-free-apply-plan row selection and selected MIMAP-113A segment allocation modeled local-free scalar lane closeout guard. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-611-MIMAP-112A-POST-LOCAL-FREE-APPLY-PLAN-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-612-MIMAP-113A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-SCALAR-LANE-CLOSEOUT-GUARD.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-610-MIMAP-111A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-APPLY-PLAN-ROUTE"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-610-MIMAP-111A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-APPLY-PLAN-ROUTE.md"
-latest_card_summary = "MIMAP-111A records successful local-free candidate reports in a separate scalar local-free apply-plan ledger without opening real free-list mutation."
+latest_card = "293x-611-MIMAP-112A-POST-LOCAL-FREE-APPLY-PLAN-ROW-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-611-MIMAP-112A-POST-LOCAL-FREE-APPLY-PLAN-ROW-SELECTION.md"
+latest_card_summary = "MIMAP-112A selected MIMAP-113A as the scalar local-free lane closeout guard before real free-list mutation."
 
-current_blocker_token = "MIMAP-112A"
+current_blocker_token = "MIMAP-113A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-611 MIMAP-112A post-local-free-apply-plan row selection landed; MIMAP-113A selected",
   "293x-610 MIMAP-111A segment allocation modeled local-free apply plan route landed; MIMAP-112A selected",
   "293x-609 MIMAP-110A post-local-free-candidate-ledger row selection landed; MIMAP-111A selected",
   "293x-608 MIMAP-109A segment allocation modeled local-free candidate ledger route landed; MIMAP-110A selected",
