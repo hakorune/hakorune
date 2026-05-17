@@ -475,6 +475,7 @@ FST:
 | `GUARD-MANIFEST-013` | landed | Declarative guard spec pilot. | selected MIMAP-141A |
 | `MIMAP-141A` | landed | Post-guard-spec-pilot row selection. | selected MIMAP-142A |
 | `MIMAP-142A` | landed | Segment allocation modeled local-free reuse ledger release-applied recycle proof. | selected MIMAP-143A |
+| `GUARD-MANIFEST-014` | landed | Proof app test wrapper backfill. | MIMAP-143A remains current |
 | `MIMAP-143A` | selected current | Segment allocation modeled local-free reuse ledger release-applied recycle closeout guard. | current closeout row |
 
 Joint Hakorune / mimalloc ordering:
@@ -707,6 +708,7 @@ no source-level receiver.birth(...) as lifecycle workaround
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
 | `MIMAP-143A` | selected current | Release-applied local-free reuse ledger token recycle closeout guard. | Closeout row; no allocator behavior. |
+| `GUARD-MANIFEST-014` | landed | Proof app test wrapper backfill. | MIMAP-134A / MIMAP-138A app-local tests now use manifest runner. |
 | `MIMAP-142A` | landed | Release-applied local-free reuse ledger token recycle proof. | Added proof app and guard; selected MIMAP-143A. |
 | `MIMAP-141A` | landed | Post-guard-spec-pilot row selection. | Selected MIMAP-142A. |
 | `GUARD-MANIFEST-013` | landed | Declarative guard spec pilot for one guard family. | Added spec runner pilot; no mass conversion. |
