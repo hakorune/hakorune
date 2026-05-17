@@ -362,7 +362,8 @@ FST:
 | `MIMAP-075A` | landed | Reclaim scheduler request ledger roundtrip closeout guard. | selected MIMAP-076A |
 | `MIMAP-076A` | landed | Post-scheduler-roundtrip row selection. | selected MIMAP-077A |
 | `MIMAP-077A` | landed | Reclaim scheduler scalar lane closeout guard. | selected MIMAP-078A |
-| `MIMAP-078A` | selected current | Post-scheduler-scalar-closeout row selection. | after MIMAP-077A |
+| `MIMAP-078A` | landed | Post-scheduler-scalar-closeout row selection. | selected MIMAP-079A |
+| `MIMAP-079A` | selected current | Segment arena bitmap boundary inventory. | after MIMAP-078A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -370,10 +371,11 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-077A: `MIMAP-078A` selects one follow-up after the
-scalar scheduler lane closeout. Real thread scheduling,
-worker spawning, source-level concurrency features, page-source calls, OSVM
-unreserve/release, provider activation, and backend matchers remain closed.
+Current row after MIMAP-078A: `MIMAP-079A` adds one scalar segment / arena /
+bitmap boundary inventory row. Real thread scheduling, worker spawning,
+source-level concurrency features, raw pointer residence, atomic bitmap
+execution, page-source calls, OSVM unreserve/release, provider activation, and
+backend matchers remain closed.
 
 MIMAP-020A execution order:
 

@@ -32,14 +32,14 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-078A post-scheduler-scalar-closeout row selection`
+- current blocker token: `MIMAP-079A segment arena bitmap boundary inventory`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-077A`; current blocker is `MIMAP-078A`
-- planned order: select one follow-up after scheduler scalar closeout
+- continue phase-293x after `MIMAP-078A`; current blocker is `MIMAP-079A`
+- planned order: add one scalar segment / arena / bitmap boundary inventory row
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
