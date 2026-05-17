@@ -173,7 +173,8 @@ no provider activation
 | 103 | planning | `MIMAP-137A post-local-free-reuse-ledger-release-closeout row selection` | landed; selected MIMAP-138A |
 | 104 | allocator | `MIMAP-138A segment allocation modeled local-free reuse ledger release apply route` | landed; selected MIMAP-139A |
 | 105 | closeout | `MIMAP-139A segment allocation modeled local-free reuse ledger release apply closeout guard` | landed; selected MIMAP-140A |
-| 106 | planning | `MIMAP-140A post-local-free-reuse-ledger-release-apply-closeout row selection` | selected current |
+| 106 | planning | `MIMAP-140A post-local-free-reuse-ledger-release-apply-closeout row selection` | landed; selected GUARD-MANIFEST-012 |
+| 107 | guard cleanup | `GUARD-MANIFEST-012 batch migration inventory` | selected current |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

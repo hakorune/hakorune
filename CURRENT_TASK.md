@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-140A post-local-free-reuse-ledger-release-apply-closeout row selection`
+  `GUARD-MANIFEST-012 batch migration inventory`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,8 +74,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-140A`, the planning-only row
-  after the modeled local-free reuse ledger release apply closeout landed.
+- resume point: continue Phase 293x with `GUARD-MANIFEST-012`, the BoxShape
+  cleanup row selected by MIMAP-140A to inventory and batch the guard manifest
+  migration before returning to allocator behavior rows.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -83,8 +84,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-140A`: select exactly one next allocator or compiler row after
-     the local-free reuse ledger release apply closeout
+  1. `GUARD-MANIFEST-012`: add guard manifest batch-migration inventory and a
+     no-growth guard for closeout wrapper coverage
   2. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider
      activation inactive

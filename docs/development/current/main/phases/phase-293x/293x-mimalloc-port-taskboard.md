@@ -470,7 +470,8 @@ FST:
 | `MIMAP-137A` | landed | Post-local-free-reuse-ledger-release-closeout row selection. | selected MIMAP-138A |
 | `MIMAP-138A` | landed | Segment allocation modeled local-free reuse ledger release apply route. | selected MIMAP-139A |
 | `MIMAP-139A` | landed | Segment allocation modeled local-free reuse ledger release apply closeout guard. | selected MIMAP-140A |
-| `MIMAP-140A` | selected current | Post-local-free-reuse-ledger-release-apply-closeout row selection. | current planning row |
+| `MIMAP-140A` | landed | Post-local-free-reuse-ledger-release-apply-closeout row selection. | selected GUARD-MANIFEST-012 |
+| `GUARD-MANIFEST-012` | selected current | Guard manifest batch migration inventory. | BoxShape cleanup; do not mix with allocator behavior |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -479,9 +480,9 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-140A` selects exactly one next mimalloc / hako_alloc allocator row or a
-focused Hakorune compiler row after the modeled local-free reuse ledger release
-apply closeout.
+`GUARD-MANIFEST-012` inventories the remaining guard manifest migration state and
+adds a no-growth guard for closeout wrapper coverage before selecting the next
+allocator behavior row.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,
@@ -702,6 +703,7 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
+| `GUARD-MANIFEST-012` | selected current | Batch migration inventory for guard manifest cleanup. | BoxShape cleanup; no allocator/compiler behavior. |
 | `CLEAN-WHILE-001` | landed | While deletion readiness inventory. | BoxShape cleanup; do not mix with MIMAP-012. |
 | `CLEAN-WHILE-002` | landed | Delete `ASTNode::While` after inventory. | Parser `while` stays canonical Loop. |
 

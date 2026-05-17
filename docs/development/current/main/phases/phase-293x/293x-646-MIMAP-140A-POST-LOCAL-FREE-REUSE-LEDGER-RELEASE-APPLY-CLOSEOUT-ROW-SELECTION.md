@@ -1,6 +1,6 @@
 # 293x-646 MIMAP-140A Post-Local-Free-Reuse-Ledger-Release-Apply-Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -39,3 +39,20 @@ real compiler acceptance blocker.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Result
+
+`MIMAP-140A` selected `GUARD-MANIFEST-012` as a focused BoxShape cleanup row.
+
+Reason:
+
+```text
+The hako_alloc closeout wrapper migration is working, but one-by-one thin-wrap
+migration would turn hundreds of guards into a long manual cleanup tail.
+Before selecting the next allocator behavior row, add an inventory guard and
+batch-migration contract so future guard cleanup is driven by manifest counts
+and family ownership rather than ad hoc wrapper edits.
+```
+
+`MIMAP-140A` did not add allocator behavior, compiler route behavior, source
+syntax, provider activation, backend matchers, or silent fallback.

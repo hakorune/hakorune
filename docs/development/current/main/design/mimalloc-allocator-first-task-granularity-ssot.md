@@ -308,7 +308,8 @@ Forbidden:
 | `MIMAP-137A` | post-local-free-reuse-ledger-release-closeout row selection | landed; selected MIMAP-138A |
 | `MIMAP-138A` | segment allocation modeled local-free reuse ledger release apply route | landed; selected MIMAP-139A |
 | `MIMAP-139A` | segment allocation modeled local-free reuse ledger release apply closeout guard | landed; selected MIMAP-140A |
-| `MIMAP-140A` | post-local-free-reuse-ledger-release-apply-closeout row selection | selected current |
+| `MIMAP-140A` | post-local-free-reuse-ledger-release-apply-closeout row selection | landed; selected GUARD-MANIFEST-012 |
+| `GUARD-MANIFEST-012` | guard manifest batch migration inventory | selected current |
 
 ### MIMAP-020A granularity
 
@@ -2040,6 +2041,24 @@ select exactly one next mimalloc / hako_alloc or Hakorune compiler row.
 It must not add allocator behavior, compiler route behavior, source syntax,
 cleanup bundles, provider activation, host allocator replacement, backend
 matchers, or silent fallback.
+
+MIMAP-140A landed by selecting GUARD-MANIFEST-012, a focused BoxShape cleanup row
+for guard manifest batch migration inventory. The selection is not allocator
+behavior and does not reopen provider activation.
+
+### GUARD-MANIFEST-012 granularity
+
+GUARD-MANIFEST-012 is a BoxShape cleanup row after the thin-wrapper migration
+pilot. It should make the remaining guard manifest migration visible through an
+inventory tool and no-growth guard so future work can batch by family instead of
+hand-migrating hundreds of public wrappers one by one.
+
+It may update the guard manifest migration SSOT, add a lightweight inventory
+tool, add a guard row, and document the check entry.
+
+It must not add allocator behavior, compiler route behavior, source syntax,
+delete or rename public guard entrypoints, wire the manifest pilot into
+`dev_gate.sh` / allocator-wide, add backend matchers, or use silent fallback.
 
 ### MIMAP-112A granularity
 
