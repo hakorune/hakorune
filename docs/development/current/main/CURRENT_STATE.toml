@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-17"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "GUARD-MANIFEST-002 selected recent hako_alloc segment closeout guards for manifest-backed thin-wrapper migration and selected GUARD-MANIFEST-003 implementation. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "GUARD-MANIFEST-003 landed manifest-backed segment closeout thin wrappers and selected GUARD-MANIFEST-004 next closeout family selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-577-GUARD-MANIFEST-003-SEGMENT-CLOSEOUT-THIN-WRAPPERS.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-578-GUARD-MANIFEST-004-NEXT-CLOSEOUT-FAMILY-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-576-GUARD-MANIFEST-002-K2-WIDE-FAMILY-MANIFEST-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-576-GUARD-MANIFEST-002-K2-WIDE-FAMILY-MANIFEST-SELECTION.md"
-latest_card_summary = "GUARD-MANIFEST-002 selects recent hako_alloc segment closeout guards for manifest-backed thin-wrapper migration and selects GUARD-MANIFEST-003."
+latest_card = "293x-577-GUARD-MANIFEST-003-SEGMENT-CLOSEOUT-THIN-WRAPPERS"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-577-GUARD-MANIFEST-003-SEGMENT-CLOSEOUT-THIN-WRAPPERS.md"
+latest_card_summary = "GUARD-MANIFEST-003 moves selected segment closeout guards behind manifest rows while preserving public k2_wide entrypoints; GUARD-MANIFEST-004 is selected."
 
-current_blocker_token = "GUARD-MANIFEST-003"
+current_blocker_token = "GUARD-MANIFEST-004"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-577 GUARD-MANIFEST-003 segment closeout thin wrappers landed",
   "293x-576 GUARD-MANIFEST-002 k2-wide family manifest selection landed",
   "293x-575 GUARD-MANIFEST-001 proof app test wrapper cleanup landed",
   "293x-573 MIMAP-086A segment page membership closeout guard landed",

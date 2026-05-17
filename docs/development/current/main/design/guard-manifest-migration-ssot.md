@@ -39,6 +39,8 @@ entries:
 tools/checks/run_row_guard.sh
   -> tools/checks/guard_rows.toml
   -> tools/checks/lib/manifest_runner.py
+  -> tools/checks/impl/<stable-command>.sh when a public guard wrapper is
+     manifest-backed
 
 tools/checks/run_proof_app.sh
   -> tools/checks/proof_apps.toml
@@ -55,7 +57,9 @@ dispatch. Shell wrappers must remain thin.
 - Convert app-local `test.sh` files first; they should delegate to
   `tools/checks/run_proof_app.sh --only <id>`.
 - Convert `k2_wide_*_guard.sh` files later by family. During migration a guard
-  may stay as the command owned by a manifest entry.
+  may stay as the command owned by a manifest entry. When making a public
+  guard a thin wrapper, keep the public path at `tools/checks/k2_wide_*.sh` and
+  move the thick body to `tools/checks/impl/`.
 - Do not wire manifest pilot profiles into `dev_gate.sh` or allocator-wide by
   default until a separate closeout row accepts that policy.
 - New simple proof apps should be manifest-backed before adding more local
@@ -101,6 +105,24 @@ The guard for this contract is:
 tools/checks/proof_app_manifest_test_entry_guard.sh
 ```
 
+For manifest-backed public `k2_wide_*` wrappers:
+
+```text
+tools/checks/k2_wide_*_guard.sh:
+  must be executable
+  must call tools/checks/run_row_guard.sh --only <id>
+  must not embed guard_common / rg / python / mktemp guard bodies
+
+tools/checks/guard_rows.toml:
+  cmd must point at tools/checks/impl/<stable-command>.sh
+```
+
+The guard for the first selected wrapper family is:
+
+```text
+tools/checks/k2_wide_manifest_wrapper_guard.sh
+```
+
 ## Stop Lines
 
 - no all-at-once deletion of hundreds of guard entrypoints
@@ -109,4 +131,3 @@ tools/checks/proof_app_manifest_test_entry_guard.sh
 - no hidden non-manifest proof app routing for manifest-backed apps
 - no allocator behavior changes
 - no compiler acceptance changes
-

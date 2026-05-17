@@ -1,6 +1,6 @@
 # 293x-577 GUARD-MANIFEST-003 Segment Closeout Thin Wrappers
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -12,6 +12,15 @@ The first `k2_wide_*` migration target is the recent hako_alloc segment
 closeout family. The top-level script names must remain stable for humans and
 docs, but the executable body should move behind manifest-owned implementation
 commands.
+
+Next selected row:
+
+```text
+GUARD-MANIFEST-004
+```
+
+`GUARD-MANIFEST-004` should select the next closeout family or helper
+extraction row after the segment closeout thin-wrapper migration.
 
 ## Scope
 
@@ -57,7 +66,16 @@ tools/checks/run_row_guard.sh --only hako-alloc-segment-page-membership-closeout
 bash tools/checks/k2_wide_hako_alloc_segment_arena_bitmap_inventory_closeout_guard.sh
 bash tools/checks/k2_wide_hako_alloc_segment_lifecycle_scalar_state_closeout_guard.sh
 bash tools/checks/k2_wide_hako_alloc_segment_page_membership_scalar_closeout_guard.sh
+bash tools/checks/k2_wide_manifest_wrapper_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+- Added manifest rows for the three selected segment closeout guards.
+- Moved thick command bodies to `tools/checks/impl/`.
+- Kept public `tools/checks/k2_wide_*_closeout_guard.sh` paths as stable thin
+  wrappers around `run_row_guard.sh --only <id>`.
+- Added `tools/checks/k2_wide_manifest_wrapper_guard.sh` to keep wrappers thin.
 

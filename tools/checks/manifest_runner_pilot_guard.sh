@@ -61,6 +61,9 @@ fi
 if ! printf '%s\n' "$row_list" | rg -Fq "proof-app-manifest-test-entry"; then
   guard_fail "$TAG" "row runner list must expose proof-app-manifest-test-entry"
 fi
+if ! printf '%s\n' "$row_list" | rg -Fq "k2-wide-manifest-wrapper"; then
+  guard_fail "$TAG" "row runner list must expose k2-wide-manifest-wrapper"
+fi
 proof_list="$("$PROOF_RUNNER" --list)"
 for proof_id in M200 M214 M215; do
   if ! printf '%s\n' "$proof_list" | rg -q "^${proof_id}\\b"; then
