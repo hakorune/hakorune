@@ -1,6 +1,6 @@
 # 293x-590 MIMAP-093A Post-Segment-Allocation-Modeled-Consume Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -10,6 +10,16 @@ Date: 2026-05-17
 The segment allocation modeled consume route is implemented and closed behind
 guards. This row should review the current segment allocation model and select
 exactly one next row without bundling allocator behavior.
+
+Result:
+
+```text
+landed:
+  post-segment-allocation-modeled-consume row selection
+
+selected next row:
+  MIMAP-094A segment allocation modeled ledger route
+```
 
 ## Scope
 
@@ -44,7 +54,7 @@ exactly one next row without bundling allocator behavior.
 | Step | Task | Accept | Stop line |
 | --- | --- | --- | --- |
 | `093A.1` | Review current landed allocator rows. | row selection cites evidence through MIMAP-092A. | no behavior |
-| `093A.2` | Pick one next row. | new card exists and is selected current. | no bundle |
+| `093A.2` | Pick one next row. | `MIMAP-094A` card exists and is selected current. | no bundle |
 | `093A.3` | Update current pointers. | current pointer guard passes. | no implementation |
 
 ## Required Evidence

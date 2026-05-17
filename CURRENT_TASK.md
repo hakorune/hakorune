@@ -53,7 +53,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-093A post-segment-allocation-modeled-consume row selection`
+  `MIMAP-094A segment allocation modeled ledger route`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -72,9 +72,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `MIMAP-092A`; the next selected
-  blocker is `MIMAP-093A`, post-segment-allocation-modeled-consume row
-  selection.
+- resume point: continue Phase 293x after `MIMAP-093A`; the next selected
+  blocker is `MIMAP-094A`, segment allocation modeled ledger route.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -82,8 +81,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-093A`: select exactly one next row after the modeled scalar
-     segment allocation consume closeout
+  1. `MIMAP-094A`: add a scalar modeled segment allocation ledger route for
+     accepted consume results
   2. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider
      activation inactive

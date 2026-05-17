@@ -252,7 +252,8 @@ Forbidden:
 | `MIMAP-090A` | post-segment-allocation-readiness row selection | landed; selected MIMAP-091A |
 | `MIMAP-091A` | segment allocation modeled consume route | landed; selected MIMAP-092A |
 | `MIMAP-092A` | segment allocation modeled consume closeout guard | landed; selected MIMAP-093A |
-| `MIMAP-093A` | post-segment-allocation-modeled-consume row selection | selected current |
+| `MIMAP-093A` | post-segment-allocation-modeled-consume row selection | landed; selected MIMAP-094A |
+| `MIMAP-094A` | segment allocation modeled ledger route | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1439,6 +1440,61 @@ It must not add allocator behavior, execute segment allocation/free, allocate
 arena backing, add raw pointer residence, use segment-map pointer lookup,
 execute atomic bitmap claims, call page-source or OSVM seams, schedule threads,
 activate providers, replace the host allocator, or add backend matchers.
+
+MIMAP-090A landed by selecting MIMAP-091A.
+
+### MIMAP-091A granularity
+
+MIMAP-091A is a modeled scalar allocator behavior row after segment allocation
+readiness. It may consume accepted readiness facts and report modeled
+`page_used`, `remaining_blocks`, `modeled_block_start`, and a stable scalar
+modeled allocation token.
+
+It must not execute real segment allocation/free, allocate arena backing, add
+raw pointer residence, use a segment-map pointer lookup, execute atomic bitmap
+claims, call page-source or OSVM seams, schedule threads, activate providers,
+replace the host allocator, or add backend matchers.
+
+MIMAP-091A landed by adding a modeled consume owner, proof app, manifest entry,
+module export, memory README entry, and local-run guard. It selects MIMAP-092A.
+
+### MIMAP-092A granularity
+
+MIMAP-092A is a closeout/guard row for the modeled segment allocation consume
+route. It must lock MIMAP-091A owner/proof/guard wiring and inactive stop lines
+before any broader segment allocation row is selected.
+
+It must not add allocator behavior, execute segment allocation/free, allocate
+arena backing, add raw pointer residence, use segment-map pointer lookup,
+execute atomic bitmap claims, call page-source or OSVM seams, schedule threads,
+activate providers, replace the host allocator, or add backend matchers.
+
+MIMAP-092A landed by adding the closeout SSOT and manifest-backed guard. It
+selects MIMAP-093A.
+
+### MIMAP-093A granularity
+
+MIMAP-093A is a planning row after the modeled segment allocation consume
+closeout. It should review the landed scalar segment evidence and select
+exactly one next row.
+
+It must not add allocator behavior, execute segment allocation/free, allocate
+arena backing, add raw pointer residence, use segment-map pointer lookup,
+execute atomic bitmap claims, call page-source or OSVM seams, schedule threads,
+activate providers, replace the host allocator, or add backend matchers.
+
+MIMAP-093A landed by selecting MIMAP-094A.
+
+### MIMAP-094A granularity
+
+MIMAP-094A is a modeled scalar allocator behavior row after segment allocation
+consume. It may record accepted modeled consume results into a deterministic
+scalar ledger so later rows can find and reason about modeled allocation tokens.
+
+It must not execute real segment allocation/free, allocate arena backing, add
+raw pointer residence, use segment-map pointer lookup, execute atomic bitmap
+claims, call page-source or OSVM seams, schedule threads, activate providers,
+replace the host allocator, or add backend matchers.
 
 ## Compiler / language sidecar triggers
 
