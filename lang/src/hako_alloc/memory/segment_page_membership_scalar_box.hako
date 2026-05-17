@@ -1,0 +1,225 @@
+// segment_page_membership_scalar_box.hako -- MIMAP-085A segment/page membership scalar contract
+// Responsibility:
+// - classify proof-only scalar segment/page membership facts
+// - keep raw pointer residence, segment-map lookup, arena backing, atomic
+//   bitmap execution, OSVM calls, real thread scheduling, provider activation,
+//   host replacement, and backend shortcuts closed
+// Non-responsibility:
+// - allocating/freeing segments, routing arena backing, looking up pointer
+//   membership, claiming bitmaps, calling page-source/OSVM seams, running
+//   threads, or replacing allocators
+
+box HakoAllocSegmentPageMembershipScalarReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    segment_id: i64 = -1
+    page_id: i64 = -1
+    slice_index: i64 = -1
+    slice_count: i64 = 0
+    segment_state: i64 = -1
+    page_used: i64 = 0
+    page_capacity: i64 = 0
+    membership_contract_present: i64 = 1
+    would_use_raw_pointer: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_replace_process_allocator: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentPageMembershipScalar {
+    classify_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    invalid_shape_reject_count: i64 = 0
+    raw_pointer_reject_count: i64 = 0
+    segment_map_reject_count: i64 = 0
+    arena_reject_count: i64 = 0
+    atomic_bitmap_reject_count: i64 = 0
+    osvm_reject_count: i64 = 0
+    unknown_state_reject_count: i64 = 0
+    inactive_state_reject_count: i64 = 0
+    thread_reject_count: i64 = 0
+    provider_reject_count: i64 = 0
+    last_page_id: i64 = -1
+    last_reason: i64 = 0
+
+    stateReserved() {
+        return 0
+    }
+
+    stateActive() {
+        return 1
+    }
+
+    statePurgeScheduled() {
+        return 2
+    }
+
+    statePurged() {
+        return 3
+    }
+
+    stateAbandoned() {
+        return 4
+    }
+
+    stateReclaimed() {
+        return 5
+    }
+
+    stateFreed() {
+        return 6
+    }
+
+    isKnownState(state) {
+        if state < 0 {
+            return 0
+        }
+        if state > 6 {
+            return 0
+        }
+        return 1
+    }
+
+    supportsMembership(state) {
+        if state == 1 {
+            return 1
+        }
+        if state == 2 {
+            return 1
+        }
+        if state == 3 {
+            return 1
+        }
+        if state == 4 {
+            return 1
+        }
+        if state == 5 {
+            return 1
+        }
+        return 0
+    }
+
+    report(accepted, reason, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity) {
+        local result = new HakoAllocSegmentPageMembershipScalarReport()
+        result.accepted = accepted
+        result.reason = reason
+        result.segment_id = segment_id
+        result.page_id = page_id
+        result.slice_index = slice_index
+        result.slice_count = slice_count
+        result.segment_state = segment_state
+        result.page_used = page_used
+        result.page_capacity = page_capacity
+        me.last_page_id = page_id
+        me.last_reason = reason
+        return result
+    }
+
+    reject(reason, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity) {
+        me.reject_count = me.reject_count + 1
+        if reason == 1 {
+            me.invalid_shape_reject_count = me.invalid_shape_reject_count + 1
+        }
+        if reason == 2 {
+            me.raw_pointer_reject_count = me.raw_pointer_reject_count + 1
+        }
+        if reason == 3 {
+            me.segment_map_reject_count = me.segment_map_reject_count + 1
+        }
+        if reason == 4 {
+            me.arena_reject_count = me.arena_reject_count + 1
+        }
+        if reason == 5 {
+            me.atomic_bitmap_reject_count = me.atomic_bitmap_reject_count + 1
+        }
+        if reason == 6 {
+            me.osvm_reject_count = me.osvm_reject_count + 1
+        }
+        if reason == 7 {
+            me.unknown_state_reject_count = me.unknown_state_reject_count + 1
+        }
+        if reason == 8 {
+            me.inactive_state_reject_count = me.inactive_state_reject_count + 1
+        }
+        if reason == 9 {
+            me.thread_reject_count = me.thread_reject_count + 1
+        }
+        if reason == 10 {
+            me.provider_reject_count = me.provider_reject_count + 1
+        }
+        return me.report(0, reason, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+    }
+
+    rejectUnsupportedRequirement(requirement, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity) {
+        if requirement == 1 {
+            return me.reject(2, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+        }
+        if requirement == 2 {
+            return me.reject(3, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+        }
+        if requirement == 3 {
+            return me.reject(4, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+        }
+        if requirement == 4 {
+            return me.reject(5, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+        }
+        if requirement == 5 {
+            return me.reject(6, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+        }
+        if requirement == 6 {
+            return me.reject(9, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+        }
+        if requirement == 7 {
+            return me.reject(10, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+        }
+        return me.reject(1, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+    }
+
+    classifyMembership(segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity, unsupported_requirement) {
+        me.classify_count = me.classify_count + 1
+
+        if segment_id < 0 {
+            return me.reject(1, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+        }
+        if page_id < 0 {
+            return me.reject(1, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+        }
+        if slice_count <= 0 {
+            return me.reject(1, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+        }
+        if slice_index < 0 {
+            return me.reject(1, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+        }
+        if slice_index >= slice_count {
+            return me.reject(1, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+        }
+        if page_used < 0 {
+            return me.reject(1, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+        }
+        if page_capacity <= 0 {
+            return me.reject(1, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+        }
+        if page_used > page_capacity {
+            return me.reject(1, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+        }
+        if me.isKnownState(segment_state) == 0 {
+            return me.reject(7, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+        }
+        if me.supportsMembership(segment_state) == 0 {
+            return me.reject(8, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+        }
+        if unsupported_requirement != 0 {
+            return me.rejectUnsupportedRequirement(unsupported_requirement, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+        }
+
+        me.accepted_count = me.accepted_count + 1
+        return me.report(1, 0, segment_id, page_id, slice_index, slice_count, segment_state, page_used, page_capacity)
+    }
+}
+

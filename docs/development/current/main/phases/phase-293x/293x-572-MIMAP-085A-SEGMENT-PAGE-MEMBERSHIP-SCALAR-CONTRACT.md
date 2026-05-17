@@ -1,6 +1,6 @@
 # 293x-572 MIMAP-085A Segment Page Membership Scalar Contract
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -63,5 +63,35 @@ page_capacity
 bash tools/checks/k2_wide_hako_alloc_segment_page_membership_scalar_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Implementation Result
+
+`MIMAP-085A` added:
+
+```text
+docs/development/current/main/design/hako-alloc-segment-page-membership-scalar-ssot.md
+lang/src/hako_alloc/memory/segment_page_membership_scalar_box.hako
+apps/hako-alloc-segment-page-membership-scalar-proof/
+tools/checks/k2_wide_hako_alloc_segment_page_membership_scalar_guard.sh
+```
+
+Proof output:
+
+```text
+hako-alloc-segment-page-membership-scalar-proof
+members=1,0,40,7,3,16,1,2,8
+accepted_states=1,4
+rejects=1,2,3,4,5,6,7,8,9,10
+inactive=0,0,0,0,0,0,0,0,0
+counts=12,2,10,1,1,1,1,1,1,1,1,1,1,17,10
+check=1
+summary=ok
+```
+
+Next row:
+
+```text
+MIMAP-086A segment page membership closeout guard
 ```
 

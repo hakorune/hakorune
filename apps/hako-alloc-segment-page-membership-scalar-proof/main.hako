@@ -1,0 +1,99 @@
+// hako-alloc-segment-page-membership-scalar-proof
+// Purpose: prove MIMAP-085A scalar segment/page membership contract.
+
+using selfhost.hako_alloc.memory.segment_page_membership_scalar_box as HakoAllocSegmentPageMembershipScalar
+
+static box Main {
+    main(args) {
+        local membership = new HakoAllocSegmentPageMembershipScalar()
+
+        local active = membership.classifyMembership(40, 7, 3, 16, membership.stateActive(), 2, 8, 0)
+        local abandoned = membership.classifyMembership(41, 8, 4, 16, membership.stateAbandoned(), 1, 8, 0)
+
+        local invalid_shape = membership.classifyMembership(42, -1, 3, 16, membership.stateActive(), 2, 8, 0)
+        local raw = membership.classifyMembership(43, 9, 3, 16, membership.stateActive(), 2, 8, 1)
+        local segment_map = membership.classifyMembership(44, 10, 3, 16, membership.stateActive(), 2, 8, 2)
+        local arena = membership.classifyMembership(45, 11, 3, 16, membership.stateActive(), 2, 8, 3)
+        local atomic_bitmap = membership.classifyMembership(46, 12, 3, 16, membership.stateActive(), 2, 8, 4)
+        local osvm = membership.classifyMembership(47, 13, 3, 16, membership.stateActive(), 2, 8, 5)
+        local unknown_state = membership.classifyMembership(48, 14, 3, 16, 9, 2, 8, 0)
+        local inactive_state = membership.classifyMembership(49, 15, 3, 16, membership.stateFreed(), 0, 8, 0)
+        local run_thread = membership.classifyMembership(50, 16, 3, 16, membership.stateActive(), 2, 8, 6)
+        local provider = membership.classifyMembership(51, 17, 3, 16, membership.stateActive(), 2, 8, 7)
+
+        local ok = check "mimap085a segment page membership scalar contract" {
+            "active accepted": active.accepted == 1
+            "active reason": active.reason == 0
+            "active segment": active.segment_id == 40
+            "active page": active.page_id == 7
+            "active slice": active.slice_index == 3
+            "active slice count": active.slice_count == 16
+            "active state": active.segment_state == membership.stateActive()
+            "active used": active.page_used == 2
+            "active capacity": active.page_capacity == 8
+            "abandoned accepted": abandoned.accepted == 1
+            "abandoned state": abandoned.segment_state == membership.stateAbandoned()
+            "invalid shape rejected": invalid_shape.accepted == 0
+            "invalid shape reason": invalid_shape.reason == 1
+            "raw rejected": raw.accepted == 0
+            "raw reason": raw.reason == 2
+            "segment map rejected": segment_map.accepted == 0
+            "segment map reason": segment_map.reason == 3
+            "arena rejected": arena.accepted == 0
+            "arena reason": arena.reason == 4
+            "atomic bitmap rejected": atomic_bitmap.accepted == 0
+            "atomic bitmap reason": atomic_bitmap.reason == 5
+            "osvm rejected": osvm.accepted == 0
+            "osvm reason": osvm.reason == 6
+            "unknown state rejected": unknown_state.accepted == 0
+            "unknown state reason": unknown_state.reason == 7
+            "inactive state rejected": inactive_state.accepted == 0
+            "inactive state reason": inactive_state.reason == 8
+            "thread rejected": run_thread.accepted == 0
+            "thread reason": run_thread.reason == 9
+            "provider rejected": provider.accepted == 0
+            "provider reason": provider.reason == 10
+            "inactive raw": active.would_use_raw_pointer == 0
+            "inactive segment map": active.would_use_segment_map == 0
+            "inactive arena": active.would_allocate_arena_backing == 0
+            "inactive atomic bitmap": active.would_execute_atomic_bitmap == 0
+            "inactive osvm": active.would_call_osvm == 0
+            "inactive thread": active.would_run_thread == 0
+            "inactive provider": active.would_activate_provider == 0
+            "inactive replacement": active.would_replace_process_allocator == 0
+            "inactive matcher": active.would_add_backend_matcher == 0
+            "classify count": membership.classify_count == 12
+            "accepted count": membership.accepted_count == 2
+            "reject count": membership.reject_count == 10
+            "invalid shape reject count": membership.invalid_shape_reject_count == 1
+            "raw reject count": membership.raw_pointer_reject_count == 1
+            "segment map reject count": membership.segment_map_reject_count == 1
+            "arena reject count": membership.arena_reject_count == 1
+            "atomic reject count": membership.atomic_bitmap_reject_count == 1
+            "osvm reject count": membership.osvm_reject_count == 1
+            "unknown state reject count": membership.unknown_state_reject_count == 1
+            "inactive state reject count": membership.inactive_state_reject_count == 1
+            "thread reject count": membership.thread_reject_count == 1
+            "provider reject count": membership.provider_reject_count == 1
+            "last page": membership.last_page_id == 17
+            "last reason": membership.last_reason == 10
+        }
+
+        print("hako-alloc-segment-page-membership-scalar-proof")
+        print("members=" + active.accepted + "," + active.reason + "," + active.segment_id + "," + active.page_id + "," + active.slice_index + "," + active.slice_count + "," + active.segment_state + "," + active.page_used + "," + active.page_capacity)
+        print("accepted_states=" + active.segment_state + "," + abandoned.segment_state)
+        print("rejects=" + invalid_shape.reason + "," + raw.reason + "," + segment_map.reason + "," + arena.reason + "," + atomic_bitmap.reason + "," + osvm.reason + "," + unknown_state.reason + "," + inactive_state.reason + "," + run_thread.reason + "," + provider.reason)
+        print("inactive=" + active.would_use_raw_pointer + "," + active.would_use_segment_map + "," + active.would_allocate_arena_backing + "," + active.would_execute_atomic_bitmap + "," + active.would_call_osvm + "," + active.would_run_thread + "," + active.would_activate_provider + "," + active.would_replace_process_allocator + "," + active.would_add_backend_matcher)
+        print("counts=" + membership.classify_count + "," + membership.accepted_count + "," + membership.reject_count + "," + membership.invalid_shape_reject_count + "," + membership.raw_pointer_reject_count + "," + membership.segment_map_reject_count + "," + membership.arena_reject_count + "," + membership.atomic_bitmap_reject_count + "," + membership.osvm_reject_count + "," + membership.unknown_state_reject_count + "," + membership.inactive_state_reject_count + "," + membership.thread_reject_count + "," + membership.provider_reject_count + "," + membership.last_page_id + "," + membership.last_reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
+

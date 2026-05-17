@@ -15,6 +15,7 @@ Current modules
 - `reclaim_completion_marker_box.hako`
 - `reclaim_scheduler_request_marker_box.hako`
 - `reclaim_scheduler_request_ledger_box.hako`
+- `segment_page_membership_scalar_box.hako`
 - `segment_lifecycle_scalar_state_box.hako`
 - `thread_heap_owner_inventory_box.hako`
 - `worker_identity_box.hako`
@@ -615,6 +616,12 @@ Syntax/style contract
   route arena backing, execute bitmap claims, call page-source/OSVM APIs, run
   threads, activate providers, replace the process allocator, or add backend
   shortcuts.
+- `segment_page_membership_scalar_box.hako` owns MIMAP-085A segment page
+  membership scalar contract. It may classify proof-only segment/page/slice
+  facts and blocked substrate requirements, but it must not allocate/free
+  segments, route arena backing, look up pointer membership, execute bitmap
+  claims, call page-source/OSVM APIs, run threads, activate providers, replace
+  the process allocator, or add backend shortcuts.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
   huge-page metadata. C205c consumes aligned-small metadata through a

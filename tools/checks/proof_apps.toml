@@ -258,3 +258,10 @@ app = "apps/hako-alloc-segment-lifecycle-scalar-state-proof"
 label = "segment lifecycle scalar state proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_lifecycle_scalar_state_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-085A"
+app = "apps/hako-alloc-segment-page-membership-scalar-proof"
+label = "segment page membership scalar proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_page_membership_scalar_guard.sh"]
