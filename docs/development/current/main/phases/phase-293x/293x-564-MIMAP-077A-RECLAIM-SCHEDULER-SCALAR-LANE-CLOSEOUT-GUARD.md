@@ -1,6 +1,6 @@
 # 293x-564 MIMAP-077A Reclaim Scheduler Scalar Lane Closeout Guard
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -49,4 +49,24 @@ behavior, real scheduler substrate work, or Hakorune language work is selected.
 bash tools/checks/k2_wide_hako_alloc_reclaim_scheduler_scalar_lane_closeout_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Closeout Result
+
+`MIMAP-077A` added:
+
+```text
+docs/development/current/main/design/hako-alloc-reclaim-scheduler-scalar-lane-closeout-ssot.md
+tools/checks/k2_wide_hako_alloc_reclaim_scheduler_scalar_lane_closeout_guard.sh
+```
+
+The closeout locks the scheduler boundary, request marker, ledger record,
+ledger consume, and ledger roundtrip row set while keeping real scheduling,
+source-level concurrency, page-source/OSVM release, provider activation, and
+backend matchers closed.
+
+Next row:
+
+```text
+MIMAP-078A post-scheduler-scalar-closeout row selection
 ```
