@@ -34,20 +34,21 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-121A` landed the segment allocation modeled local-free integration
-closeout guard and selected the next planning row.
+`MIMAP-122A` selected a narrow Hakorune compiler acceptance sidecar exposed by
+the local-free integration proof.
 
 Recommended current row:
 
 ```text
-MIMAP-122A
-  post-local-free-integration-closeout row selection
+PURE-FIRST-GLOBAL-CALL-001
+  same-module static helper global-call route support
 ```
 
 Purpose:
 
 ```text
-select exactly one next row after the local-free integration closeout
+accept ordinary same-module static helper calls through MIR route metadata / lowering_plan
+restore allocator proof apps away from source inlining workarounds
 keep real thread scheduling, worker spawning, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -146,7 +147,8 @@ no provider activation
 | 78 | allocator | `MIMAP-119A segment allocation modeled local-free integration route` | landed; selected MIMAP-120A |
 | 79 | planning | `MIMAP-120A post-local-free-integration row selection` | landed; selected MIMAP-121A |
 | 80 | closeout | `MIMAP-121A segment allocation modeled local-free integration closeout guard` | landed; selected MIMAP-122A |
-| 81 | planning | `MIMAP-122A post-local-free-integration-closeout row selection` | current; select one next row |
+| 81 | planning | `MIMAP-122A post-local-free-integration-closeout row selection` | landed; selected PURE-FIRST-GLOBAL-CALL-001 |
+| 82 | Hakorune compiler | `PURE-FIRST-GLOBAL-CALL-001 same-module static helper global-call route support` | current; no allocator behavior |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

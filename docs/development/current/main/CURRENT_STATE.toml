@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-18"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-121A landed the segment allocation modeled local-free integration closeout guard and selected MIMAP-122A row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-122A selected PURE-FIRST-GLOBAL-CALL-001 as a narrow compiler acceptance sidecar for same-module static helper global calls before continuing allocator rows. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-621-MIMAP-122A-POST-LOCAL-FREE-INTEGRATION-CLOSEOUT-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-622-PURE-FIRST-GLOBAL-CALL-001-SAME-MODULE-STATIC-HELPER-ROUTE.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-620-MIMAP-121A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-INTEGRATION-CLOSEOUT-GUARD"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-620-MIMAP-121A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-INTEGRATION-CLOSEOUT-GUARD.md"
-latest_card_summary = "MIMAP-121A froze the local-free integration seam with a manifest-backed closeout guard."
+latest_card = "293x-621-MIMAP-122A-POST-LOCAL-FREE-INTEGRATION-CLOSEOUT-ROW-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-621-MIMAP-122A-POST-LOCAL-FREE-INTEGRATION-CLOSEOUT-ROW-SELECTION.md"
+latest_card_summary = "MIMAP-122A selected PURE-FIRST-GLOBAL-CALL-001 as the next narrow compiler acceptance sidecar."
 
-current_blocker_token = "MIMAP-122A"
+current_blocker_token = "PURE-FIRST-GLOBAL-CALL-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-621 MIMAP-122A post-local-free-integration-closeout row selection landed; PURE-FIRST-GLOBAL-CALL-001 selected",
   "293x-620 MIMAP-121A segment allocation modeled local-free integration closeout guard landed; MIMAP-122A selected",
   "293x-619 MIMAP-120A post-local-free-integration row selection landed; MIMAP-121A selected",
   "293x-618 MIMAP-119A segment allocation modeled local-free integration route landed; MIMAP-120A selected",

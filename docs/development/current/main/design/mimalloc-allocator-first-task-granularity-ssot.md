@@ -283,7 +283,8 @@ Forbidden:
 | `MIMAP-119A` | segment allocation modeled local-free integration route | landed; selected MIMAP-120A |
 | `MIMAP-120A` | post-local-free-integration row selection | landed; selected MIMAP-121A |
 | `MIMAP-121A` | segment allocation modeled local-free integration closeout guard | landed; selected MIMAP-122A |
-| `MIMAP-122A` | post-local-free-integration-closeout row selection | selected current |
+| `MIMAP-122A` | post-local-free-integration-closeout row selection | landed; selected PURE-FIRST-GLOBAL-CALL-001 |
+| `PURE-FIRST-GLOBAL-CALL-001` | same-module static helper global-call route support | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1674,6 +1675,20 @@ one next row.
 
 It must not add allocator behavior, parser/compiler behavior, cleanup bundles,
 provider activation, host allocator replacement, or backend matchers.
+
+MIMAP-122A landed by selecting `PURE-FIRST-GLOBAL-CALL-001`, a narrow compiler
+acceptance sidecar exposed by the local-free integration proof.
+
+### PURE-FIRST-GLOBAL-CALL-001 granularity
+
+PURE-FIRST-GLOBAL-CALL-001 is a compiler acceptance sidecar, not an allocator
+behavior row. It should accept same-module static helper global calls only when
+the callee exists, arity matches, the body is supported by
+`same_module_body_shape`, and a return contract can be published into
+`global_call_routes` / `lowering_plan`.
+
+It must not add allocator behavior, source syntax, cross-module global-call
+widening, recursive broadening, backend app/name matchers, or silent fallback.
 
 MIMAP-111A landed by adding the local-free apply-plan ledger owner, proof app,
 SSOT, manifest entry, module export, README entry, and local guard. It selects
