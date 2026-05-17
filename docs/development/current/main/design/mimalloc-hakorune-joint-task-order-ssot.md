@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-119A` landed the segment allocation modeled local-free integration route
-and selected the next planning row.
+`MIMAP-120A` landed the post-local-free-integration row selection and selected
+the next closeout row.
 
 Recommended current row:
 
 ```text
-MIMAP-120A
-  post-local-free-integration row selection
+MIMAP-121A
+  segment allocation modeled local-free integration closeout guard
 ```
 
 Purpose:
 
 ```text
-select exactly one next row after the local-free integration route
+freeze the local-free integration owner/proof/guard/docs before the next behavior row
 keep real thread scheduling, worker spawning, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -144,7 +144,8 @@ no provider activation
 | 76 | closeout | `MIMAP-117A segment allocation modeled local-free page-apply closeout guard` | landed; selected MIMAP-118A |
 | 77 | planning | `MIMAP-118A post-local-free-page-apply-closeout row selection` | landed; selected MIMAP-119A |
 | 78 | allocator | `MIMAP-119A segment allocation modeled local-free integration route` | landed; selected MIMAP-120A |
-| 79 | planning | `MIMAP-120A post-local-free-integration row selection` | current; select one next row |
+| 79 | planning | `MIMAP-120A post-local-free-integration row selection` | landed; selected MIMAP-121A |
+| 80 | closeout | `MIMAP-121A segment allocation modeled local-free integration closeout guard` | current; freeze integration seam |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

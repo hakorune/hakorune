@@ -1,6 +1,6 @@
 # 293x-619 MIMAP-120A Post-Local-Free-Integration Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -19,6 +19,28 @@ released-span report
 This row should select exactly one next allocator behavior, closeout,
 substrate, or narrow Hakorune acceptance row using the mimalloc validation
 cadence.
+
+## Result
+
+`MIMAP-120A` selects:
+
+```text
+MIMAP-121A segment allocation modeled local-free integration closeout guard
+```
+
+Validation cadence:
+
+```text
+L4 closeout row:
+  manifest-backed row guard via run_row_guard.sh --only <row-id>
+  public k2_wide wrapper
+```
+
+The selected row should freeze the MIMAP-119A integration owner, proof app,
+guard, SSOT, module export, README entry, and stop-line set before any later
+row opens broader segment execution, segment-map lookup, raw pointer residence,
+arena backing, atomic bitmap execution, page-source / OSVM calls, provider
+activation, or backend matchers.
 
 ## Scope
 

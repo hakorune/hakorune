@@ -281,7 +281,8 @@ Forbidden:
 | `MIMAP-117A` | segment allocation modeled local-free page-apply closeout guard | landed; selected MIMAP-118A |
 | `MIMAP-118A` | post-local-free-page-apply-closeout row selection | landed; selected MIMAP-119A |
 | `MIMAP-119A` | segment allocation modeled local-free integration route | landed; selected MIMAP-120A |
-| `MIMAP-120A` | post-local-free-integration row selection | selected current |
+| `MIMAP-120A` | post-local-free-integration row selection | landed; selected MIMAP-121A |
+| `MIMAP-121A` | segment allocation modeled local-free integration closeout guard | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1646,6 +1647,19 @@ row.
 
 It must not add allocator behavior, parser/compiler behavior, cleanup bundles,
 provider activation, host allocator replacement, or backend matchers.
+
+MIMAP-120A landed by selecting MIMAP-121A.
+
+### MIMAP-121A granularity
+
+MIMAP-121A is a closeout row for the local-free integration seam through
+MIMAP-119A. It should add a manifest-backed closeout guard that freezes the
+selected owner, proof app, guard, SSOT, index, module export, README entry, and
+stop-line set.
+
+It must not add allocator behavior, mutate page arrays directly, add raw
+pointer residence, use segment-map lookup, execute atomic bitmap claims,
+activate providers, replace the host allocator, or add backend matchers.
 
 MIMAP-111A landed by adding the local-free apply-plan ledger owner, proof app,
 SSOT, manifest entry, module export, README entry, and local guard. It selects

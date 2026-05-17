@@ -34,15 +34,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-120A post-local-free-integration row selection`
+- current blocker token: `MIMAP-121A segment allocation modeled local-free integration closeout guard`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-119A`; current blocker is `MIMAP-120A`
-- planned order: select exactly one row using the mimalloc row validation
-  cadence
+- continue phase-293x after `MIMAP-120A`; current blocker is `MIMAP-121A`
+- planned order: close out the local-free integration seam with a
+  manifest-backed row guard
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
