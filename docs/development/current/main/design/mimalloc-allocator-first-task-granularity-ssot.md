@@ -291,7 +291,8 @@ Forbidden:
 | `GUARD-MANIFEST-011` | pure-first route thin wrapper pilot | landed; selected ROUTE-DIAG-VOCAB-001 |
 | `ROUTE-DIAG-VOCAB-002` | preflight vocabulary drift guard | landed; selected MIMAP-124A |
 | `MIMAP-124A` | post-route-diagnostics cleanup row selection | landed; selected RUNTIME-UNWRAP-001 |
-| `RUNTIME-UNWRAP-001` | runtime lock expect messages | selected current |
+| `RUNTIME-UNWRAP-001` | runtime lock expect messages | landed; selected WASM-LOG-001 |
+| `WASM-LOG-001` | WAT2WASM stable tags | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1791,6 +1792,18 @@ messages in `box_registry.rs`, `plugin_loader_unified.rs`, and
 It must not add poison recovery policy, allocator behavior, route behavior,
 source syntax, provider activation, host allocator replacement, backend
 matchers, broad unwrap cleanup, or silent fallback.
+
+RUNTIME-UNWRAP-001 landed by replacing focused production runtime
+lock/global-registry `unwrap()` calls with explicit `expect(...)` messages. It
+selects WASM-LOG-001.
+
+### WASM-LOG-001 granularity
+
+WASM-LOG-001 is a source cleanup row. It should replace emoji WAT-to-WASM debug
+messages in `src/backend/wasm/mod.rs` with stable `[wasm/wat2wasm]` tags.
+
+It must not change WAT/WASM conversion behavior, runtime logging APIs,
+allocator behavior, source syntax, backend routes, or silent fallback.
 
 MIMAP-111A landed by adding the local-free apply-plan ledger owner, proof app,
 SSOT, manifest entry, module export, README entry, and local guard. It selects

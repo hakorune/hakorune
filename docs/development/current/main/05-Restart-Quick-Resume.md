@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `RUNTIME-UNWRAP-001 runtime lock expect messages`
+- current blocker token: `WASM-LOG-001 WAT2WASM stable tags`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -50,7 +50,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `RUNTIME-UNWRAP-001 runtime lock expect messages`
+- current blocker token: `WASM-LOG-001 WAT2WASM stable tags`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -61,9 +61,10 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` with `RUNTIME-UNWRAP-001`; current blocker is focused
-  runtime lock/global-registry expect-message cleanup
-- latest planning cleanup: `MIMAP-124A` selected `RUNTIME-UNWRAP-001`
+- continue `phase-293x` with `WASM-LOG-001`; current blocker is focused WASM
+  WAT-to-WASM debug log tag cleanup
+- latest source cleanup: `RUNTIME-UNWRAP-001` landed focused runtime lock
+  expect messages
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

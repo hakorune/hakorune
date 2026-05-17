@@ -5,7 +5,7 @@
 
 use once_cell::sync::Lazy;
 use std::cell::Cell;
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 use crate::bid::{BidError, BidResult};
 use crate::config::nyash_toml_v2::NyashConfigV2;
@@ -58,10 +58,22 @@ impl PluginHost {
         }
     }
 
+    fn loader_read(&self) -> RwLockReadGuard<'_, PluginLoaderV2> {
+        self.loader
+            .read()
+            .expect("plugin host loader RwLock poisoned")
+    }
+
+    fn loader_write(&self) -> RwLockWriteGuard<'_, PluginLoaderV2> {
+        self.loader
+            .write()
+            .expect("plugin host loader RwLock poisoned")
+    }
+
     /// Load config and dynamic libraries, keeping a local config cache.
     pub fn load_libraries(&mut self, config_path: &str) -> BidResult<()> {
         {
-            let mut l = self.loader.write().unwrap();
+            let mut l = self.loader_write();
             l.load_config(config_path)?;
         }
 
@@ -76,7 +88,7 @@ impl PluginHost {
         self.config_path = Some(canonical);
 
         // Delegate actual library loads + pre-birth singletons to v2
-        let l = self.loader.read().unwrap();
+        let l = self.loader_read();
         l.load_all_plugins()
     }
 
@@ -119,7 +131,7 @@ impl PluginHost {
         };
         // Ensure loader has a minimal config so find_library_for_box works
         {
-            let mut l = self.loader.write().unwrap();
+            let mut l = self.loader_write();
             if l.config.is_none() {
                 let mut cfg = NyashConfigV2 {
                     libraries: std::collections::HashMap::new(),
@@ -184,7 +196,7 @@ impl PluginHost {
                     if !compat_loader_fallback_enabled() {
                         return Err(BidError::InvalidMethod);
                     }
-                    let l = self.loader.read().unwrap();
+                    let l = self.loader_read();
                     let mid = l
                         .resolve_method_id(box_type, method_name)
                         .map_err(|_| BidError::InvalidMethod)?;
@@ -239,7 +251,7 @@ impl PluginHost {
         if !compat_loader_fallback_enabled() {
             return Err(BidError::InvalidMethod);
         }
-        let l = self.loader.read().unwrap();
+        let l = self.loader_read();
         let mid = l
             .resolve_method_id(box_type, method_name)
             .map_err(|_| BidError::InvalidMethod)?;
@@ -259,7 +271,7 @@ impl PluginHost {
         box_type: &str,
         args: &[Box<dyn crate::box_trait::NyashBox>],
     ) -> BidResult<Box<dyn crate::box_trait::NyashBox>> {
-        let l = self.loader.read().unwrap();
+        let l = self.loader_read();
         l.create_box(box_type, args)
     }
 
@@ -279,7 +291,7 @@ impl PluginHost {
         let out = HOST_REENTRANT.with(|f| {
             f.set(true);
             let res = {
-                let l = self.loader.read().unwrap();
+                let l = self.loader_read();
                 l.invoke_instance_method(box_type, method_name, instance_id, args)
             };
             f.set(false);
@@ -314,7 +326,7 @@ impl PluginHost {
                 }
             }
         }
-        let l = self.loader.read().unwrap();
+        let l = self.loader_read();
         l.method_returns_result(box_type, method_name)
     }
 
@@ -371,7 +383,7 @@ impl PluginHost {
                 crate::box_trait::StringBox::new("InvalidArgs"),
             )))));
         }
-        let l = self.loader.read().unwrap();
+        let l = self.loader_read();
         l.extern_call(iface_name, method_name, args)
     }
 }
@@ -442,7 +454,9 @@ pub fn get_global_plugin_host() -> Arc<RwLock<PluginHost>> {
 pub fn init_global_plugin_host(config_path: &str) -> BidResult<()> {
     let host = get_global_plugin_host();
     {
-        let mut h = host.write().unwrap();
+        let mut h = host
+            .write()
+            .expect("global plugin host RwLock poisoned during initialization");
         let disabled = crate::config::env::disable_plugins();
         if disabled {
             get_global_ring0()

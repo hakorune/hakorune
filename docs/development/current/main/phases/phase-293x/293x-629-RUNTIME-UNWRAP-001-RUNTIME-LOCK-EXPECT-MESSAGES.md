@@ -1,6 +1,6 @@
 # 293x-629 RUNTIME-UNWRAP-001 Runtime Lock Expect Messages
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -47,6 +47,21 @@ src/runtime/unified_registry.rs
 | `RU1.3` | Close row and select next task. | current pointers are updated. | no behavior bundle |
 
 ## Required Evidence
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
+cargo build --release --bin hakorune
+git diff --check
+```
+
+## Landed Result
+
+- Replaced focused production runtime lock/global-registry `unwrap()` calls
+  with explicit `expect(...)` messages in the selected files.
+- Left test unwraps and broad unwrap cleanup out of scope.
+- Selected `WASM-LOG-001`.
+
+Observed evidence:
 
 ```text
 bash tools/checks/current_state_pointer_guard.sh

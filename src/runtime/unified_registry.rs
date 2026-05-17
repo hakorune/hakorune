@@ -44,13 +44,18 @@ pub fn init_global_unified_registry() {
 /// Get the global unified registry
 pub fn get_global_unified_registry() -> Arc<Mutex<UnifiedBoxRegistry>> {
     init_global_unified_registry();
-    GLOBAL_REGISTRY.get().unwrap().clone()
+    GLOBAL_REGISTRY
+        .get()
+        .expect("global unified registry must be initialized before access")
+        .clone()
 }
 
 /// Register a user-defined Box factory (called by interpreter)
 pub fn register_user_defined_factory(factory: Arc<dyn crate::box_factory::BoxFactory>) {
     let registry = get_global_unified_registry();
-    let mut registry_lock = registry.lock().unwrap();
+    let mut registry_lock = registry
+        .lock()
+        .expect("global unified registry Mutex poisoned while registering factory");
 
     // Phase 25.1b: delegate to policy-aware register() so that
     // type_cache is rebuilt and user-defined Box types (HakoCli など)

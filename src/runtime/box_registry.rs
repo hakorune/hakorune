@@ -8,7 +8,7 @@ use crate::config::env;
 use crate::runtime::get_global_ring0;
 use crate::runtime::plugin_config::PluginConfig;
 use std::collections::HashMap;
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 /// Box生成方法を表す列挙型
 pub enum BoxProvider {
@@ -36,15 +36,27 @@ impl BoxFactoryRegistry {
         }
     }
 
+    fn providers_read(&self) -> RwLockReadGuard<'_, HashMap<String, BoxProvider>> {
+        self.providers
+            .read()
+            .expect("box factory provider registry RwLock poisoned")
+    }
+
+    fn providers_write(&self) -> RwLockWriteGuard<'_, HashMap<String, BoxProvider>> {
+        self.providers
+            .write()
+            .expect("box factory provider registry RwLock poisoned")
+    }
+
     /// 互換用ビルトインBoxを登録（通常は使用しない）
     pub fn register_builtin(&self, name: &str, constructor: BoxConstructor) {
-        let mut providers = self.providers.write().unwrap();
+        let mut providers = self.providers_write();
         providers.insert(name.to_string(), BoxProvider::Builtin(constructor));
     }
 
     /// プラグイン設定を適用（既存のビルトインを上書き）
     pub fn apply_plugin_config(&self, config: &PluginConfig) {
-        let mut providers = self.providers.write().unwrap();
+        let mut providers = self.providers_write();
 
         for (box_name, plugin_name) in &config.plugins {
             if is_reserved_plugin_override_box(box_name) {
@@ -62,7 +74,7 @@ impl BoxFactoryRegistry {
 
     /// Box名からプロバイダーを取得
     pub fn get_provider(&self, name: &str) -> Option<BoxProvider> {
-        let providers = self.providers.read().unwrap();
+        let providers = self.providers_read();
         providers.get(name).cloned()
     }
 
@@ -97,7 +109,9 @@ impl BoxFactoryRegistry {
     ) -> Result<Box<dyn NyashBox>, String> {
         use crate::runtime::get_global_plugin_host;
         let host = get_global_plugin_host();
-        let host = host.read().unwrap();
+        let host = host
+            .read()
+            .expect("global plugin host RwLock poisoned during box creation");
         if env::debug_plugin() {
             get_global_ring0().log.debug(&format!(
                 "[BoxFactoryRegistry] create_plugin_box: plugin={} box_type={}",

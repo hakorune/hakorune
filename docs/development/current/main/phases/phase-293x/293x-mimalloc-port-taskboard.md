@@ -453,7 +453,8 @@ FST:
 | `GUARD-MANIFEST-011` | landed | Pure-first route thin wrapper pilot. | selected ROUTE-DIAG-VOCAB-001 |
 | `ROUTE-DIAG-VOCAB-002` | landed | Preflight vocabulary drift guard. | selected MIMAP-124A |
 | `MIMAP-124A` | landed | Post-route-diagnostics cleanup row selection. | selected RUNTIME-UNWRAP-001 |
-| `RUNTIME-UNWRAP-001` | selected current | Runtime lock expect messages. | current BoxShape cleanup |
+| `RUNTIME-UNWRAP-001` | landed | Runtime lock expect messages. | selected WASM-LOG-001 |
+| `WASM-LOG-001` | selected current | WAT2WASM stable tags. | current BoxShape cleanup |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -462,9 +463,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current source cleanup:
-`RUNTIME-UNWRAP-001` replaces focused production runtime lock/global-registry
-`unwrap()` calls with explicit `expect(...)` messages. This is a small
-BoxShape cleanup selected after the route diagnostics cleanup wave.
+`WASM-LOG-001` replaces WASM backend WAT-to-WASM emoji debug messages with
+stable `[wasm/wat2wasm]` tags.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,
