@@ -1,6 +1,6 @@
 # 293x-645 MIMAP-139A Segment Allocation Modeled Local-Free Reuse Ledger Release Apply Closeout Guard
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -43,4 +43,16 @@ bash tools/checks/run_row_guard.sh --only hako-alloc-segment-allocation-modeled-
 bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_ledger_release_apply_closeout_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Landed Result
+
+`MIMAP-139A` landed by adding the release apply closeout SSOT,
+manifest-backed guard, thin wrapper, and check-script index entry.
+
+It selects the next narrow planning step:
+
+```text
+MIMAP-140A
+  post-local-free-reuse-ledger-release-apply-closeout row selection
 ```
