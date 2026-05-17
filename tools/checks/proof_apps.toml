@@ -335,3 +335,10 @@ app = "apps/hako-alloc-segment-allocation-modeled-local-free-page-model-apply-pr
 label = "segment allocation modeled local-free page-model apply proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_page_model_apply_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-119A"
+app = "apps/hako-alloc-segment-allocation-modeled-local-free-integration-proof"
+label = "segment allocation modeled local-free integration proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_integration_guard.sh"]
