@@ -1,6 +1,6 @@
 # 293x-593 MIMAP-096A Post-Segment-Allocation-Modeled-Ledger Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -10,6 +10,16 @@ Date: 2026-05-17
 The segment allocation modeled ledger route is implemented and closed behind
 guards. This row should review the current segment allocation model and select
 exactly one next row without bundling allocator behavior.
+
+Result:
+
+```text
+landed:
+  post-segment-allocation-modeled-ledger row selection
+
+selected next row:
+  MIMAP-097A segment allocation modeled ledger release route
+```
 
 ## Scope
 
@@ -44,7 +54,7 @@ exactly one next row without bundling allocator behavior.
 | Step | Task | Accept | Stop line |
 | --- | --- | --- | --- |
 | `096A.1` | Review current landed allocator rows. | row selection cites evidence through MIMAP-095A. | no behavior |
-| `096A.2` | Pick one next row. | new card exists and is selected current. | no bundle |
+| `096A.2` | Pick one next row. | `MIMAP-097A` card exists and is selected current. | no bundle |
 | `096A.3` | Update current pointers. | current pointer guard passes. | no implementation |
 
 ## Required Evidence

@@ -255,7 +255,8 @@ Forbidden:
 | `MIMAP-093A` | post-segment-allocation-modeled-consume row selection | landed; selected MIMAP-094A |
 | `MIMAP-094A` | segment allocation modeled ledger route | landed; selected MIMAP-095A |
 | `MIMAP-095A` | segment allocation modeled ledger closeout guard | landed; selected MIMAP-096A |
-| `MIMAP-096A` | post-segment-allocation-modeled-ledger row selection | selected current |
+| `MIMAP-096A` | post-segment-allocation-modeled-ledger row selection | landed; selected MIMAP-097A |
+| `MIMAP-097A` | segment allocation modeled ledger release route | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1526,6 +1527,19 @@ It must not add allocator behavior, execute segment allocation/free, allocate
 arena backing, add raw pointer residence, use segment-map pointer lookup,
 execute atomic bitmap claims, call page-source or OSVM seams, schedule threads,
 activate providers, replace the host allocator, or add backend matchers.
+
+MIMAP-096A landed by selecting MIMAP-097A.
+
+### MIMAP-097A granularity
+
+MIMAP-097A is a modeled scalar allocator behavior row after the modeled
+allocation ledger. It may mark exactly one live modeled allocation token as
+released in the ledger and expose deterministic scalar release facts.
+
+It must not execute real segment allocation/free, allocate arena backing, add
+raw pointer residence, use a segment-map pointer lookup, execute atomic bitmap
+claims, call page-source or OSVM seams, schedule threads, activate providers,
+replace the host allocator, or add backend matchers.
 
 ## Compiler / language sidecar triggers
 
