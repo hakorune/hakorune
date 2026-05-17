@@ -233,7 +233,8 @@ Forbidden:
 | `MIMAP-071A` | reclaim scheduler request ledger consume route | landed; selected MIMAP-072A |
 | `MIMAP-072A` | reclaim scheduler ledger consume closeout guard | landed; selected MIMAP-073A |
 | `MIMAP-073A` | post-scheduler-consume row selection | landed; selected MIMAP-074A |
-| `MIMAP-074A` | reclaim scheduler request ledger roundtrip route | selected current |
+| `MIMAP-074A` | reclaim scheduler request ledger roundtrip route | landed; selected MIMAP-075A |
+| `MIMAP-075A` | reclaim scheduler request ledger roundtrip closeout guard | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1184,6 +1185,20 @@ record scheduler request
 It must not execute real scheduling, spawn workers, add source-level
 concurrency semantics, call page-source APIs, unreserve or release OSVM pages,
 activate providers, replace the host allocator, or add backend matchers.
+
+MIMAP-074A landed by adding a scheduler request ledger roundtrip owner, proof
+app, guard, and accepted SSOT. It selects MIMAP-075A.
+
+### MIMAP-075A granularity
+
+MIMAP-075A is a closeout/guard row for the scheduler request ledger roundtrip
+route. It should lock MIMAP-074A before broader allocator behavior, real
+scheduler substrate work, or language feature work is selected.
+
+It must not add allocator behavior, execute real scheduling, spawn workers, add
+source-level concurrency semantics, call page-source APIs, unreserve or release
+OSVM pages, activate providers, replace the host allocator, or add backend
+matchers.
 
 ## Compiler / language sidecar triggers
 

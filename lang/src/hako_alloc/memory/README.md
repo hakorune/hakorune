@@ -582,6 +582,13 @@ Syntax/style contract
   page-mismatch suppressions. It must not run a scheduler, spawn workers, add
   source-level concurrency, call page-source/OSVM seams, activate providers,
   install hooks, replace the process allocator, or add backend shortcuts.
+- `reclaim_scheduler_request_ledger_roundtrip_box.hako` owns MIMAP-074A
+  scalar scheduler request ledger roundtrip route. It may compose the
+  scheduler request ledger, record one modeled request, and consume the same
+  pending page id to prove a local record->consume lifecycle. It must not run a
+  scheduler, spawn workers, add source-level concurrency, call page-source/OSVM
+  seams, activate providers, install hooks, replace the process allocator, or
+  add backend shortcuts.
 - `reclaim_owner_transfer_contract_box.hako` owns MIMAP-051A reclaim
   owner-transfer contract inventory. It may compose M213 abandoned/reclaim
   facts with M215 thread owner-token facts and report contract-ready vs blocked

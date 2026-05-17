@@ -53,7 +53,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-074A reclaim scheduler request ledger roundtrip route`
+  `MIMAP-075A reclaim scheduler request ledger roundtrip closeout guard`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -72,8 +72,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `MIMAP-073A`; the next selected
-  blocker is `MIMAP-074A`, the reclaim scheduler request ledger roundtrip route.
+- resume point: continue Phase 293x after `MIMAP-074A`; the next selected
+  blocker is `MIMAP-075A`, the reclaim scheduler request ledger roundtrip closeout guard.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -81,7 +81,7 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-074A`: add one allocator-owned scalar record->consume roundtrip route
+  1. `MIMAP-075A`: close out the scheduler request ledger roundtrip route with a guard
   2. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider
      activation inactive

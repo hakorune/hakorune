@@ -1,0 +1,100 @@
+// reclaim_scheduler_request_ledger_roundtrip_box.hako -- MIMAP-074A scheduler request ledger roundtrip
+// Responsibility:
+// - compose the scalar scheduler request ledger
+// - prove record -> consume as one local lifecycle
+// - keep real scheduling, source concurrency, page-source/OSVM release,
+//   provider, and host replacement closed
+// Non-responsibility:
+// - spawning workers, running scheduler threads, scheduler progress,
+//   page-source/OSVM calls, hooks, allocator replacement, or backend shortcuts
+
+using selfhost.hako_alloc.memory.reclaim_scheduler_request_ledger_box as HakoAllocReclaimSchedulerRequestLedger
+
+box HakoAllocReclaimSchedulerRequestLedgerRoundtripReport {
+    did_record_request: i64 = 0
+    did_consume: i64 = 0
+    reason: i64 = 0
+    page_id: i64 = -1
+    pending_after_record: i64 = 0
+    pending_after_consume: i64 = 0
+    record_reason: i64 = 0
+    consume_reason: i64 = 0
+    record_marker: i64 = 0
+    consumed_page_id: i64 = -1
+    marker_did_complete: i64 = 0
+    marker_did_drain: i64 = 0
+    marker_did_transfer: i64 = 0
+    marker_owner_after: i64 = -1
+    would_schedule_thread: i64 = 0
+    would_spawn_worker: i64 = 0
+    would_touch_source_concurrency: i64 = 0
+    would_call_page_source: i64 = 0
+    would_unreserve: i64 = 0
+    would_release_osvm: i64 = 0
+    would_activate_provider: i64 = 0
+    would_host_allocator_swap: i64 = 0
+}
+
+box HakoAllocReclaimSchedulerRequestLedgerRoundtrip {
+    ledger: HakoAllocReclaimSchedulerRequestLedger = new HakoAllocReclaimSchedulerRequestLedger()
+    attempt_count: i64 = 0
+    success_count: i64 = 0
+    suppress_count: i64 = 0
+    last_page_id: i64 = -1
+    last_reason: i64 = 0
+
+    newReport(page_id) {
+        local result = new HakoAllocReclaimSchedulerRequestLedgerRoundtripReport()
+        result.page_id = page_id
+        return result
+    }
+
+    remember(page_id, reason, did_consume) {
+        me.last_page_id = page_id
+        me.last_reason = reason
+        if did_consume == 1 {
+            me.success_count = me.success_count + 1
+        } else {
+            me.suppress_count = me.suppress_count + 1
+        }
+    }
+
+    recordAndConsumeSchedulerRequest(page_id, expected_owner, observed_owner, claimant_owner, remote_free_pending, remote_head, drain_budget, backing_bytes, scheduler_enabled) {
+        me.attempt_count = me.attempt_count + 1
+
+        local result = me.newReport(page_id)
+        local recorded = me.ledger.recordSchedulerRequest(page_id, expected_owner, observed_owner, claimant_owner, remote_free_pending, remote_head, drain_budget, backing_bytes, scheduler_enabled)
+
+        result.did_record_request = recorded.did_record_request
+        result.record_reason = recorded.reason
+        result.pending_after_record = recorded.pending_request
+        result.record_marker = recorded.request_marker
+        result.marker_did_complete = recorded.marker_did_complete
+        result.marker_did_drain = recorded.marker_did_drain
+        result.marker_did_transfer = recorded.marker_did_transfer
+        result.marker_owner_after = recorded.marker_owner_after
+
+        if recorded.did_record_request == 0 {
+            result.reason = recorded.reason
+            result.pending_after_consume = me.ledger.pending_request
+            me.remember(page_id, result.reason, 0)
+            return result
+        }
+
+        local consumed = me.ledger.consumePendingRequest(page_id)
+        result.did_consume = consumed.did_consume
+        result.consume_reason = consumed.reason
+        result.consumed_page_id = consumed.consumed_page_id
+        result.pending_after_consume = consumed.pending_after
+
+        if consumed.did_consume == 0 {
+            result.reason = 4
+            me.remember(page_id, result.reason, 0)
+            return result
+        }
+
+        result.reason = 0
+        me.remember(page_id, result.reason, 1)
+        return result
+    }
+}

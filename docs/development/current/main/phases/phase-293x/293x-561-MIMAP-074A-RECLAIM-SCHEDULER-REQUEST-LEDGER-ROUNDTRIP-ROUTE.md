@@ -1,6 +1,6 @@
 # 293x-561 MIMAP-074A Reclaim Scheduler Request Ledger Roundtrip Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -58,4 +58,39 @@ bash tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_roundtrip_
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 tools/checks/dev_gate.sh quick
+```
+
+## Implementation Result
+
+`MIMAP-074A` added:
+
+```text
+HakoAllocReclaimSchedulerRequestLedgerRoundtripReport
+HakoAllocReclaimSchedulerRequestLedgerRoundtrip.recordAndConsumeSchedulerRequest(...)
+apps/hako-alloc-reclaim-scheduler-request-ledger-roundtrip-proof/
+tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_roundtrip_guard.sh
+docs/development/current/main/design/hako-alloc-reclaim-scheduler-request-ledger-roundtrip-ssot.md
+```
+
+The route composes the existing scheduler request ledger. A success row records
+one modeled scheduler request and consumes the same pending page id, leaving
+the pending request cleared. Scheduler-disabled and completion-blocked rows
+remain scalar suppressions.
+
+Proof output shape:
+
+```text
+success=1,1,0,1,0,300,1,1,1,1,2
+disabled=0,0,2,2,0,0
+blocked=0,0,1,1,0,0
+inactive=0,0,0,0,0,0,0,0
+route_counts=3,1,2,302,1
+ledger_counts=3,1,2,1,0,-1
+summary=ok
+```
+
+Next row:
+
+```text
+MIMAP-075A reclaim scheduler request ledger roundtrip closeout guard
 ```

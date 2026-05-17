@@ -1,0 +1,78 @@
+// hako-alloc-reclaim-scheduler-request-ledger-roundtrip-proof
+// Purpose: prove MIMAP-074A scalar scheduler request ledger record->consume route.
+
+using selfhost.hako_alloc.memory.reclaim_scheduler_request_ledger_roundtrip_box as HakoAllocReclaimSchedulerRequestLedgerRoundtrip
+
+static box Main {
+    main(args) {
+        local route = new HakoAllocReclaimSchedulerRequestLedgerRoundtrip()
+
+        local success = route.recordAndConsumeSchedulerRequest(300, 1, 1, 2, 1, 900, 1, 4096, 1)
+        local disabled = route.recordAndConsumeSchedulerRequest(301, 5, 5, 6, 1, 901, 1, 4096, 0)
+        local blocked = route.recordAndConsumeSchedulerRequest(302, 7, 1, 2, 0, 0, 1, 4096, 1)
+
+        local ok = check "mimap074a reclaim scheduler request ledger roundtrip" {
+            "success record": success.did_record_request == 1
+            "success consume": success.did_consume == 1
+            "success reason": success.reason == 0
+            "success record reason": success.record_reason == 0
+            "success consume reason": success.consume_reason == 0
+            "success pending after record": success.pending_after_record == 1
+            "success pending after consume": success.pending_after_consume == 0
+            "success consumed page": success.consumed_page_id == 300
+            "success marker": success.record_marker == 1
+            "success complete": success.marker_did_complete == 1
+            "success drain": success.marker_did_drain == 1
+            "success transfer": success.marker_did_transfer == 1
+            "success owner after": success.marker_owner_after == 2
+            "disabled no record": disabled.did_record_request == 0
+            "disabled no consume": disabled.did_consume == 0
+            "disabled reason": disabled.reason == 2
+            "disabled record reason": disabled.record_reason == 2
+            "disabled pending after record": disabled.pending_after_record == 0
+            "disabled pending after consume": disabled.pending_after_consume == 0
+            "blocked no record": blocked.did_record_request == 0
+            "blocked no consume": blocked.did_consume == 0
+            "blocked reason": blocked.reason == 1
+            "blocked record reason": blocked.record_reason == 1
+            "blocked pending after record": blocked.pending_after_record == 0
+            "blocked pending after consume": blocked.pending_after_consume == 0
+            "inactive schedule": success.would_schedule_thread == 0
+            "inactive spawn": success.would_spawn_worker == 0
+            "inactive source concurrency": success.would_touch_source_concurrency == 0
+            "inactive page source": success.would_call_page_source == 0
+            "inactive unreserve": success.would_unreserve == 0
+            "inactive os release": success.would_release_osvm == 0
+            "inactive provider": success.would_activate_provider == 0
+            "inactive replacement": success.would_host_allocator_swap == 0
+            "attempt count": route.attempt_count == 3
+            "success count": route.success_count == 1
+            "suppress count": route.suppress_count == 2
+            "last page": route.last_page_id == 302
+            "last reason": route.last_reason == 1
+            "ledger attempts": route.ledger.attempt_count == 3
+            "ledger records": route.ledger.recorded_count == 1
+            "ledger suppressions": route.ledger.suppress_count == 2
+            "ledger consumes": route.ledger.consume_count == 1
+            "ledger pending cleared": route.ledger.pending_request == 0
+            "ledger pending page cleared": route.ledger.pending_page_id == -1
+        }
+
+        print("hako-alloc-reclaim-scheduler-request-ledger-roundtrip-proof")
+        print("success=" + success.did_record_request + "," + success.did_consume + "," + success.reason + "," + success.pending_after_record + "," + success.pending_after_consume + "," + success.consumed_page_id + "," + success.record_marker + "," + success.marker_did_complete + "," + success.marker_did_drain + "," + success.marker_did_transfer + "," + success.marker_owner_after)
+        print("disabled=" + disabled.did_record_request + "," + disabled.did_consume + "," + disabled.reason + "," + disabled.record_reason + "," + disabled.pending_after_record + "," + disabled.pending_after_consume)
+        print("blocked=" + blocked.did_record_request + "," + blocked.did_consume + "," + blocked.reason + "," + blocked.record_reason + "," + blocked.pending_after_record + "," + blocked.pending_after_consume)
+        print("inactive=" + success.would_schedule_thread + "," + success.would_spawn_worker + "," + success.would_touch_source_concurrency + "," + success.would_call_page_source + "," + success.would_unreserve + "," + success.would_release_osvm + "," + success.would_activate_provider + "," + success.would_host_allocator_swap)
+        print("route_counts=" + route.attempt_count + "," + route.success_count + "," + route.suppress_count + "," + route.last_page_id + "," + route.last_reason)
+        print("ledger_counts=" + route.ledger.attempt_count + "," + route.ledger.recorded_count + "," + route.ledger.suppress_count + "," + route.ledger.consume_count + "," + route.ledger.pending_request + "," + route.ledger.pending_page_id)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
