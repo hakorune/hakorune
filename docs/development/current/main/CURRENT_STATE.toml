@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-17"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-108A landed post-released-span-ledger row selection and selected MIMAP-109A segment allocation modeled local-free candidate ledger route. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-109A landed the segment allocation modeled local-free candidate ledger route and selected MIMAP-110A row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-608-MIMAP-109A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-CANDIDATE-LEDGER-ROUTE.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-609-MIMAP-110A-POST-LOCAL-FREE-CANDIDATE-LEDGER-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-607-MIMAP-108A-POST-RELEASED-SPAN-LEDGER-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-607-MIMAP-108A-POST-RELEASED-SPAN-LEDGER-ROW-SELECTION.md"
-latest_card_summary = "MIMAP-108A applies the mimalloc row validation cadence and selects MIMAP-109A as the next L2 allocator behavior row."
+latest_card = "293x-608-MIMAP-109A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-CANDIDATE-LEDGER-ROUTE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-608-MIMAP-109A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-CANDIDATE-LEDGER-ROUTE.md"
+latest_card_summary = "MIMAP-109A records successful released-span reports in a separate scalar local-free candidate ledger without opening real free-list mutation."
 
-current_blocker_token = "MIMAP-109A"
+current_blocker_token = "MIMAP-110A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-608 MIMAP-109A segment allocation modeled local-free candidate ledger route landed; MIMAP-110A selected",
   "293x-607 MIMAP-108A post-released-span-ledger row selection landed; MIMAP-109A selected",
   "293x-606 MIMAP-107A segment allocation modeled released-span ledger route landed; MIMAP-108A selected",
   "293x-605 MIMAP-106A post-validation-cadence row selection landed; MIMAP-107A selected",

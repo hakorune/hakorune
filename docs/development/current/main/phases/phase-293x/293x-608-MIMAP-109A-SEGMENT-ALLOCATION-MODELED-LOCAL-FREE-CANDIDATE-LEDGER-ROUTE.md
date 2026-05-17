@@ -1,6 +1,6 @@
 # 293x-608 MIMAP-109A Segment Allocation Modeled Local-Free Candidate Ledger Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -17,6 +17,21 @@ successful released-span ledger report
 
 This is not real free-list mutation. It is a scalar handoff ledger for a later
 row that can decide whether and how a page-local free-list should be updated.
+
+## Result
+
+`MIMAP-109A` landed by adding:
+
+- `lang/src/hako_alloc/memory/segment_allocation_modeled_local_free_candidate_ledger_box.hako`
+- `docs/development/current/main/design/hako-alloc-segment-allocation-modeled-local-free-candidate-ledger-ssot.md`
+- `apps/hako-alloc-segment-allocation-modeled-local-free-candidate-ledger-proof/`
+- `tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_candidate_ledger_guard.sh`
+
+It selects:
+
+```text
+MIMAP-110A post-local-free-candidate-ledger row selection
+```
 
 ## Validation Cadence
 
@@ -77,3 +92,12 @@ Stop lines:
 | `109A.3` | Add focused proof app and manifest entry. | `run_proof_app.sh --only MIMAP-109A` passes. | no broad gate |
 | `109A.4` | Add public guard and current closeout docs. | dedicated guard and pointer guard pass. | no allocator-wide default growth |
 
+## Evidence
+
+```text
+NYASH_FEATURES=rune NYASH_DISABLE_PLUGINS=1 target/debug/hakorune --backend vm apps/hako-alloc-segment-allocation-modeled-local-free-candidate-ledger-proof/main.hako
+bash tools/checks/run_proof_app.sh --only MIMAP-109A
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_candidate_ledger_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```

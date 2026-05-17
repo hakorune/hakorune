@@ -34,14 +34,14 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-109A segment allocation modeled local-free candidate ledger route`
+- current blocker token: `MIMAP-110A post-local-free-candidate-ledger row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-108A`; current blocker is `MIMAP-109A`
-- planned order: add the scalar local-free candidate ledger using the L2 validation cadence
+- continue phase-293x after `MIMAP-109A`; current blocker is `MIMAP-110A`
+- planned order: select exactly one row using the mimalloc row validation cadence
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

@@ -314,3 +314,10 @@ app = "apps/hako-alloc-segment-allocation-modeled-released-span-ledger-proof"
 label = "segment allocation modeled released-span ledger proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_released_span_ledger_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-109A"
+app = "apps/hako-alloc-segment-allocation-modeled-local-free-candidate-ledger-proof"
+label = "segment allocation modeled local-free candidate ledger proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_candidate_ledger_guard.sh"]

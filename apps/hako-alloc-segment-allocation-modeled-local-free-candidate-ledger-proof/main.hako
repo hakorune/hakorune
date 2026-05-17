@@ -1,0 +1,98 @@
+// hako-alloc-segment-allocation-modeled-local-free-candidate-ledger-proof
+// Purpose: prove MIMAP-109A scalar local-free candidate ledger route.
+
+using selfhost.hako_alloc.memory.segment_allocation_modeled_consume_box as HakoAllocSegmentAllocationModeledConsume
+using selfhost.hako_alloc.memory.segment_allocation_modeled_ledger_box as HakoAllocSegmentAllocationModeledLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_released_span_ledger_box as HakoAllocSegmentAllocationModeledReleasedSpanLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_candidate_ledger_box as HakoAllocSegmentAllocationModeledLocalFreeCandidateLedger
+
+static box Main {
+    main(args) {
+        local consume = new HakoAllocSegmentAllocationModeledConsume()
+        local allocation_ledger = new HakoAllocSegmentAllocationModeledLedger()
+        local released_span_ledger = new HakoAllocSegmentAllocationModeledReleasedSpanLedger()
+        local candidate_ledger = new HakoAllocSegmentAllocationModeledLocalFreeCandidateLedger()
+
+        local success = consume.consumeReadiness(1, 0, 60, 18, 2, 8, 3, 0)
+        local first_allocation = allocation_ledger.recordModeledConsume(success.accepted, success.reason, success.segment_id, success.page_id, success.old_page_used, success.page_capacity, success.request_blocks, success.new_page_used, success.remaining_blocks, success.modeled_block_start, success.modeled_allocation_token, 0)
+        local first_release = allocation_ledger.releaseModeledToken(success.modeled_allocation_token, 0)
+        local first_span = released_span_ledger.recordReleasedSpan(first_release, 0)
+        local first_candidate = candidate_ledger.recordLocalFreeCandidate(first_span, 0)
+        local missing_release = allocation_ledger.releaseModeledToken(999999, 0)
+        local missing_span = released_span_ledger.recordReleasedSpan(missing_release, 0)
+        local missing_candidate = candidate_ledger.recordLocalFreeCandidate(missing_span, 0)
+        local duplicate_candidate = candidate_ledger.recordLocalFreeCandidate(first_span, 0)
+        local unsupported_candidate = candidate_ledger.recordLocalFreeCandidate(first_span, 1)
+        local recycled_allocation = allocation_ledger.recordModeledConsume(success.accepted, success.reason, success.segment_id, success.page_id, success.old_page_used, success.page_capacity, success.request_blocks, success.new_page_used, success.remaining_blocks, success.modeled_block_start, success.modeled_allocation_token, 0)
+        local recycled_release = allocation_ledger.releaseModeledToken(success.modeled_allocation_token, 0)
+        local recycled_span = released_span_ledger.recordReleasedSpan(recycled_release, 0)
+        local recycled_candidate = candidate_ledger.recordLocalFreeCandidate(recycled_span, 0)
+
+        local ok = check "mimap109a segment allocation modeled local-free candidate ledger route" {
+            "first allocation accepted": first_allocation.accepted == 1
+            "first span accepted": first_span.did_record_release_span == 1
+            "first candidate accepted": first_candidate.did_record_local_free_candidate == 1
+            "first candidate reason": first_candidate.reason == 0
+            "first candidate row": first_candidate.row_index == 0
+            "first candidate existing": first_candidate.existing_index == -1
+            "first candidate token": first_candidate.modeled_allocation_token == success.modeled_allocation_token
+            "first candidate segment": first_candidate.segment_id == 60
+            "first candidate page": first_candidate.page_id == 18
+            "first candidate start": first_candidate.modeled_block_start == 2
+            "first candidate end": first_candidate.modeled_block_end == 5
+            "first candidate blocks": first_candidate.candidate_blocks == 3
+            "first count": first_candidate.ledger_count_after == 1
+            "first accepted count": first_candidate.accepted_count_after == 1
+            "missing rejected": missing_candidate.did_record_local_free_candidate == 0
+            "missing reason": missing_candidate.reason == 2
+            "missing no existing": missing_candidate.existing_index == -1
+            "duplicate rejected": duplicate_candidate.did_record_local_free_candidate == 0
+            "duplicate reason": duplicate_candidate.reason == 3
+            "duplicate existing": duplicate_candidate.existing_index == 0
+            "unsupported rejected": unsupported_candidate.did_record_local_free_candidate == 0
+            "unsupported reason": unsupported_candidate.reason == 4
+            "unsupported count": candidate_ledger.execution_reject_count == 1
+            "recycled accepted": recycled_allocation.accepted == 1
+            "recycled span row": recycled_span.row_index == 1
+            "recycled candidate accepted": recycled_candidate.did_record_local_free_candidate == 1
+            "recycled candidate row": recycled_candidate.row_index == 1
+            "recycled candidate token": recycled_candidate.modeled_allocation_token == success.modeled_allocation_token
+            "ledger count": candidate_ledger.count == 2
+            "ledger attempts": candidate_ledger.attempt_count == 5
+            "ledger accepted": candidate_ledger.accepted_count == 2
+            "ledger rejects": candidate_ledger.reject_count == 3
+            "source reject count": candidate_ledger.source_reject_count == 1
+            "duplicate count": candidate_ledger.duplicate_reject_count == 1
+            "read token 0": candidate_ledger.tokenAt(0) == success.modeled_allocation_token
+            "read blocks 1": candidate_ledger.candidateBlocksAt(1) == 3
+            "inactive real free": first_candidate.would_execute_real_segment_free == 0
+            "inactive free list": first_candidate.would_mutate_free_list == 0
+            "inactive raw": first_candidate.would_use_raw_pointer == 0
+            "inactive segment map": first_candidate.would_use_segment_map == 0
+            "inactive arena": first_candidate.would_allocate_arena_backing == 0
+            "inactive atomic": first_candidate.would_execute_atomic_bitmap == 0
+            "inactive osvm": first_candidate.would_call_osvm == 0
+            "inactive thread": first_candidate.would_run_thread == 0
+            "inactive provider": first_candidate.would_activate_provider == 0
+            "inactive matcher": first_candidate.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-allocation-modeled-local-free-candidate-ledger-proof")
+        print("first=" + first_candidate.did_record_local_free_candidate + "," + first_candidate.reason + "," + first_candidate.row_index + "," + first_candidate.existing_index + "," + first_candidate.modeled_allocation_token + "," + first_candidate.segment_id + "," + first_candidate.page_id + "," + first_candidate.modeled_block_start + "," + first_candidate.modeled_block_end + "," + first_candidate.candidate_blocks + "," + first_candidate.ledger_count_after + "," + first_candidate.accepted_count_after)
+        print("missing=" + missing_candidate.did_record_local_free_candidate + "," + missing_candidate.reason + "," + missing_candidate.existing_index + "," + missing_candidate.local_free_candidate_ledger_present)
+        print("duplicate=" + duplicate_candidate.did_record_local_free_candidate + "," + duplicate_candidate.reason + "," + duplicate_candidate.existing_index + "," + candidate_ledger.duplicate_reject_count)
+        print("recycled=" + recycled_candidate.did_record_local_free_candidate + "," + recycled_candidate.reason + "," + recycled_candidate.row_index + "," + recycled_candidate.existing_index + "," + recycled_candidate.modeled_allocation_token + "," + recycled_candidate.segment_id + "," + recycled_candidate.page_id + "," + recycled_candidate.modeled_block_start + "," + recycled_candidate.modeled_block_end + "," + recycled_candidate.candidate_blocks + "," + recycled_candidate.ledger_count_after + "," + recycled_candidate.accepted_count_after)
+        print("unsupported=" + unsupported_candidate.did_record_local_free_candidate + "," + unsupported_candidate.reason + "," + candidate_ledger.execution_reject_count)
+        print("counts=" + candidate_ledger.attempt_count + "," + candidate_ledger.accepted_count + "," + candidate_ledger.count + "," + candidate_ledger.reject_count + "," + candidate_ledger.invalid_shape_reject_count + "," + candidate_ledger.source_reject_count + "," + candidate_ledger.duplicate_reject_count + "," + candidate_ledger.execution_reject_count)
+        print("inactive=" + first_candidate.would_execute_real_segment_free + "," + first_candidate.would_mutate_free_list + "," + first_candidate.would_use_raw_pointer + "," + first_candidate.would_use_segment_map + "," + first_candidate.would_allocate_arena_backing + "," + first_candidate.would_execute_atomic_bitmap + "," + first_candidate.would_call_osvm + "," + first_candidate.would_run_thread + "," + first_candidate.would_activate_provider + "," + first_candidate.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
