@@ -99,7 +99,7 @@ if rg -n 'AtomicCoreBox|hako_atomic|cas_i64|fetch_add|spawn[[:space:]]*\(|thread
 fi
 rm -f /tmp/"$TAG".execution_leak
 
-if rg -n 'page\.(free|local_free|block_used)|\\.set\\(' "$OWNER" >/tmp/"$TAG".page_array_leak 2>&1; then
+if rg -n 'page\.(free|local_free|block_used)' "$OWNER" >/tmp/"$TAG".page_array_leak 2>&1; then
   cat /tmp/"$TAG".page_array_leak >&2
   rm -f /tmp/"$TAG".page_array_leak
   guard_fail "$TAG" "reuse ledger closeout must keep direct page array mutation out of the route owner"

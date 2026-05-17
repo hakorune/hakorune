@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-18"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-133A landed post-local-free-reuse-ledger-closeout row selection and selected MIMAP-134A segment allocation modeled local-free reuse ledger release route. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-134A landed segment allocation modeled local-free reuse ledger release route and selected MIMAP-135A post-local-free-reuse-ledger-release row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-640-MIMAP-134A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-REUSE-LEDGER-RELEASE-ROUTE.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-641-MIMAP-135A-POST-LOCAL-FREE-REUSE-LEDGER-RELEASE-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-639-MIMAP-133A-POST-LOCAL-FREE-REUSE-LEDGER-CLOSEOUT-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-639-MIMAP-133A-POST-LOCAL-FREE-REUSE-LEDGER-CLOSEOUT-ROW-SELECTION.md"
-latest_card_summary = "MIMAP-133A landed post-local-free-reuse-ledger-closeout row selection and selected MIMAP-134A."
+latest_card = "293x-640-MIMAP-134A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-REUSE-LEDGER-RELEASE-ROUTE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-640-MIMAP-134A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-REUSE-LEDGER-RELEASE-ROUTE.md"
+latest_card_summary = "MIMAP-134A landed segment allocation modeled local-free reuse ledger release route and selected MIMAP-135A."
 
-current_blocker_token = "MIMAP-134A"
+current_blocker_token = "MIMAP-135A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-640 MIMAP-134A segment allocation modeled local-free reuse ledger release route landed; MIMAP-135A selected",
   "293x-639 MIMAP-133A post-local-free-reuse-ledger-closeout row selection landed; MIMAP-134A selected",
   "293x-638 MIMAP-132A segment allocation modeled local-free reuse ledger closeout guard landed; MIMAP-133A selected",
   "293x-637 MIMAP-131A post-local-free-reuse-ledger row selection landed; MIMAP-132A selected",

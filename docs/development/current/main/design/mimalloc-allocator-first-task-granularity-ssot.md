@@ -302,7 +302,8 @@ Forbidden:
 | `MIMAP-131A` | post-local-free-reuse-ledger row selection | landed; selected MIMAP-132A |
 | `MIMAP-132A` | segment allocation modeled local-free reuse ledger closeout guard | landed; selected MIMAP-133A |
 | `MIMAP-133A` | post-local-free-reuse-ledger-closeout row selection | landed; selected MIMAP-134A |
-| `MIMAP-134A` | segment allocation modeled local-free reuse ledger release route | selected current |
+| `MIMAP-134A` | segment allocation modeled local-free reuse ledger release route | landed; selected MIMAP-135A |
+| `MIMAP-135A` | post-local-free-reuse-ledger-release row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1828,6 +1829,60 @@ It must not add allocator behavior, compiler route behavior, source syntax,
 cleanup bundles, provider activation, host allocator replacement, backend
 matchers, or silent fallback.
 
+MIMAP-125A landed by selecting MIMAP-126A.
+
+### MIMAP-126A granularity
+
+MIMAP-126A is an allocator behavior row after the local-free integration
+closeout and focused source cleanup. It should prove that the modeled
+local-free chain can return a block to `HakoAllocPageModel.releaseLocal(block_id)`
+and then reuse that collected block through `HakoAllocPageModel.acquire(size)`.
+
+It must use a dedicated owner, proof app, and guard. It must not add real
+segment allocation/free, segment-map lookup, raw pointer residence, arena
+backing, atomics, page-source calls, OSVM release, provider activation, host
+allocator replacement, backend matchers, source syntax, or silent fallback.
+
+MIMAP-126A landed by adding the local-free reuse owner, proof app, module
+export, proof manifest row, index row, and dedicated guard. It selects
+MIMAP-127A.
+
+### MIMAP-127A granularity
+
+MIMAP-127A is a planning-only row after modeled local-free reuse. It should
+review the current segment allocation modeled lane and select exactly one next
+mimalloc / hako_alloc or Hakorune compiler row.
+
+It must not add allocator behavior, compiler route behavior, source syntax,
+cleanup bundles, provider activation, host allocator replacement, backend
+matchers, or silent fallback.
+
+MIMAP-127A landed by selecting MIMAP-128A.
+
+### MIMAP-128A granularity
+
+MIMAP-128A is a closeout guard row after the local-free reuse behavior route.
+It should freeze the MIMAP-126A owner, proof app, guard entry, module export,
+memory README owner note, check-script index row, manifest row, current
+handoff, and inactive stop-line set.
+
+It must not add allocator behavior, compiler behavior, source syntax, cleanup
+bundles, provider activation, host allocator replacement, backend matchers, or
+silent fallback.
+
+MIMAP-128A landed by adding the local-free reuse closeout SSOT, manifest-backed
+guard, thin wrapper, and check-script index entry. It selects MIMAP-129A.
+
+### MIMAP-129A granularity
+
+MIMAP-129A is a planning-only row after modeled local-free reuse closeout. It
+should review the current segment allocation modeled lane and select exactly
+one next mimalloc / hako_alloc or Hakorune compiler row.
+
+It must not add allocator behavior, compiler route behavior, source syntax,
+cleanup bundles, provider activation, host allocator replacement, backend
+matchers, or silent fallback.
+
 MIMAP-129A landed by selecting MIMAP-130A.
 
 ### MIMAP-130A granularity
@@ -1889,64 +1944,25 @@ MIMAP-133A landed by selecting MIMAP-134A.
 ### MIMAP-134A granularity
 
 MIMAP-134A is an allocator behavior row after the reuse ledger closeout. It
-should release a live local-free reuse ledger row by modeled reuse token,
-marking that row inactive and exposing scalar release facts.
+should consume a successful local-free reuse ledger report and record one
+scalar release facts row for that modeled reuse token.
 
-It may modify only the reuse ledger owner and add one proof app / guard. It
-must not depend on or widen the bump-shaped modeled ledger release route, and
-must not add real segment free, page array mutation, raw pointer residence,
-segment-map lookup, atomics, page-source/OSVM calls, thread scheduling, provider
-activation, host allocator replacement, backend matchers, or silent fallback.
-
-MIMAP-127A landed by selecting MIMAP-128A.
-
-### MIMAP-128A granularity
-
-MIMAP-128A is a closeout guard row after the local-free reuse behavior route.
-It should freeze the MIMAP-126A owner, proof app, guard entry, module export,
-memory README owner note, check-script index row, manifest row, current
-handoff, and inactive stop-line set.
-
-It must not add allocator behavior, compiler behavior, source syntax, cleanup
-bundles, provider activation, host allocator replacement, backend matchers, or
-silent fallback.
-
-MIMAP-128A landed by adding the local-free reuse closeout SSOT, manifest-backed
-guard, thin wrapper, and check-script index entry. It selects MIMAP-129A.
-
-### MIMAP-129A granularity
-
-MIMAP-129A is a planning-only row after modeled local-free reuse closeout. It
-should review the current segment allocation modeled lane and select exactly
-one next mimalloc / hako_alloc or Hakorune compiler row.
-
-It must not add allocator behavior, compiler route behavior, source syntax,
-cleanup bundles, provider activation, host allocator replacement, backend
+It may add only a dedicated release facts owner, one proof app, and one guard.
+It must not mutate the source reuse ledger, depend on or widen the bump-shaped
+modeled ledger release route, or add real segment free, page array mutation,
+raw pointer residence, segment-map lookup, atomics, page-source/OSVM calls,
+thread scheduling, provider activation, host allocator replacement, backend
 matchers, or silent fallback.
 
-MIMAP-125A landed by selecting MIMAP-126A.
+MIMAP-134A landed by adding the dedicated local-free reuse ledger release facts
+owner, proof app, module export, memory README owner note, proof manifest row,
+check-script index row, and dedicated guard. It selects MIMAP-135A.
 
-### MIMAP-126A granularity
+### MIMAP-135A granularity
 
-MIMAP-126A is an allocator behavior row after the local-free integration
-closeout and focused source cleanup. It should prove that the modeled
-local-free chain can return a block to `HakoAllocPageModel.releaseLocal(block_id)`
-and then reuse that collected block through `HakoAllocPageModel.acquire(size)`.
-
-It must use a dedicated owner, proof app, and guard. It must not add real
-segment allocation/free, segment-map lookup, raw pointer residence, arena
-backing, atomics, page-source calls, OSVM release, provider activation, host
-allocator replacement, backend matchers, source syntax, or silent fallback.
-
-MIMAP-126A landed by adding the local-free reuse owner, proof app, module
-export, proof manifest row, index row, and dedicated guard. It selects
-MIMAP-127A.
-
-### MIMAP-127A granularity
-
-MIMAP-127A is a planning-only row after modeled local-free reuse. It should
-review the current segment allocation modeled lane and select exactly one next
-mimalloc / hako_alloc or Hakorune compiler row.
+MIMAP-135A is a planning-only row after modeled local-free reuse ledger release.
+It should review the current segment allocation modeled lane and select exactly
+one next mimalloc / hako_alloc or Hakorune compiler row.
 
 It must not add allocator behavior, compiler route behavior, source syntax,
 cleanup bundles, provider activation, host allocator replacement, backend

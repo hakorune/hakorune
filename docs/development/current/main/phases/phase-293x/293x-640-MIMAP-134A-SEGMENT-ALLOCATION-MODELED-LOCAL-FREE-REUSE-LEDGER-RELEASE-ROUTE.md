@@ -1,6 +1,6 @@
 # 293x-640 MIMAP-134A Segment Allocation Modeled Local-Free Reuse Ledger Release Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -13,8 +13,8 @@ It should add a release route for the dedicated local-free reuse ledger from
 ```text
 successful MIMAP-126A local-free reuse report
   -> MIMAP-130A live reuse ledger row
-  -> release the reuse ledger token
-  -> live reuse row becomes inactive
+  -> record one scalar release row for that reuse token
+  -> source reuse ledger remains the allocation fact owner
 ```
 
 This row stays scalar and reuse-ledger-local. It must not widen or call the
@@ -25,7 +25,7 @@ bump-shaped modeled ledger release route.
 Owner:
 
 ```text
-lang/src/hako_alloc/memory/segment_allocation_modeled_local_free_reuse_ledger_box.hako
+lang/src/hako_alloc/memory/segment_allocation_modeled_local_free_reuse_ledger_release_box.hako
 ```
 
 Proof app:
@@ -40,32 +40,34 @@ Guard:
 tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_ledger_release_guard.sh
 ```
 
-The row may add a release report box and methods on the existing reuse ledger
-owner. It may expose scalar observer facts for token, row index, duplicate or
-missing release reasons, live before/after, and ledger counts.
+The row may add a release report box and a dedicated release facts owner. It may
+expose scalar observer facts for token, row index, duplicate or upstream reject
+reasons, and release ledger counts.
 
 ## Acceptance Shape
 
 The proof output should make the release behavior explicit:
 
 ```text
-release=1,0,<row_index>,<token>,<reused_block>,1,0,<count>,<live_after>
-duplicate=0,<duplicate_reason>,<row_index>,0
-missing=0,<missing_reason>,-1
+release=1,0,<row_index>,-1,<token>,<reused_block>,<count>,0
+duplicate=0,<duplicate_reason>,<existing_index>
+missing=0,<upstream_reason>,-1
 unsupported=0,<unsupported_reason>
 inactive=0,0,0,0,0,0,0,0,0,0,0
 summary=ok
 ```
 
 Exact field order can be adjusted in the implementation, but it must be stable
-in the guard and distinguish successful release, duplicate release, missing
-token, unsupported stop-line request, and inactive stop-line families.
+in the guard and distinguish successful release, duplicate release, upstream
+rejected source rows, unsupported stop-line request, and inactive stop-line
+families.
 
 ## Stop Lines
 
 - No real segment allocation/free execution.
 - No page-local free-list mutation.
 - No direct page array mutation.
+- No mutation of the source reuse ledger.
 - No dependency on `segment_allocation_modeled_ledger_box.hako`,
   `releaseModeledToken`, or `recordModeledConsume`.
 - No raw pointer residence.
@@ -88,4 +90,22 @@ bash tools/checks/run_proof_app.sh --only MIMAP-134A
 bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_ledger_release_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Landed Result
+
+`MIMAP-134A` landed by adding a dedicated local-free reuse ledger release facts
+owner, proof app, module export, memory README owner note, proof-app manifest
+row, check-script index row, and pure-first guard.
+
+It records one scalar release row for a successful `MIMAP-130A` reuse-ledger
+report while leaving the source reuse ledger live and untouched. Duplicate,
+upstream-rejected, and unsupported stop-line requests are rejected with explicit
+scalar reasons.
+
+The row selects the next narrow planning step:
+
+```text
+MIMAP-135A
+  post-local-free-reuse-ledger-release row selection
 ```
