@@ -34,16 +34,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-124A post-route-diagnostics cleanup row selection`
+- current blocker token: `RUNTIME-UNWRAP-001 runtime lock expect messages`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x with `MIMAP-124A`; current blocker is planning-only row
-  selection after route diagnostics cleanup
-- latest compiler cleanup: `ROUTE-DIAG-VOCAB-002` landed the preflight
-  vocabulary drift guard
+- continue phase-293x with `RUNTIME-UNWRAP-001`; current blocker is focused
+  runtime lock/global-registry expect-message cleanup
+- latest planning cleanup: `MIMAP-124A` selected `RUNTIME-UNWRAP-001`
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

@@ -452,7 +452,8 @@ FST:
 | `ROUTE-DIAG-VOCAB-001` | landed | Route diagnostics vocabulary SSOT. | selected ROUTE-DIAG-VOCAB-002 |
 | `GUARD-MANIFEST-011` | landed | Pure-first route thin wrapper pilot. | selected ROUTE-DIAG-VOCAB-001 |
 | `ROUTE-DIAG-VOCAB-002` | landed | Preflight vocabulary drift guard. | selected MIMAP-124A |
-| `MIMAP-124A` | selected current | Post-route-diagnostics cleanup row selection. | current planning row |
+| `MIMAP-124A` | landed | Post-route-diagnostics cleanup row selection. | selected RUNTIME-UNWRAP-001 |
+| `RUNTIME-UNWRAP-001` | selected current | Runtime lock expect messages. | current BoxShape cleanup |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -460,10 +461,10 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current compiler cleanup:
-`MIMAP-124A` selects exactly one next row after the route diagnostics cleanup
-wave. Prefer returning to the mimalloc / hako_alloc implementation lane unless
-the next allocator row exposes a concrete compiler acceptance blocker.
+Current source cleanup:
+`RUNTIME-UNWRAP-001` replaces focused production runtime lock/global-registry
+`unwrap()` calls with explicit `expect(...)` messages. This is a small
+BoxShape cleanup selected after the route diagnostics cleanup wave.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,

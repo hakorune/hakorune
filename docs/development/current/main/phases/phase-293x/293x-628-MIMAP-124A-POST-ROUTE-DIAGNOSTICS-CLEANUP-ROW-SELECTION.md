@@ -1,6 +1,6 @@
 # 293x-628 MIMAP-124A Post-Route-Diagnostics-Cleanup Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -51,3 +51,12 @@ blocker.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Result
+
+Selected `RUNTIME-UNWRAP-001`, a narrow BoxShape cleanup for focused production
+runtime lock/global-registry `unwrap()` calls.
+
+This row did not add allocator behavior, compiler route behavior, source
+syntax, provider activation, host allocator replacement, backend matchers, or
+silent fallback.

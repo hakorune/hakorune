@@ -290,7 +290,8 @@ Forbidden:
 | `ROUTE-DIAG-VOCAB-001` | route diagnostics vocabulary SSOT | landed; selected ROUTE-DIAG-VOCAB-002 |
 | `GUARD-MANIFEST-011` | pure-first route thin wrapper pilot | landed; selected ROUTE-DIAG-VOCAB-001 |
 | `ROUTE-DIAG-VOCAB-002` | preflight vocabulary drift guard | landed; selected MIMAP-124A |
-| `MIMAP-124A` | post-route-diagnostics cleanup row selection | selected current |
+| `MIMAP-124A` | post-route-diagnostics cleanup row selection | landed; selected RUNTIME-UNWRAP-001 |
+| `RUNTIME-UNWRAP-001` | runtime lock expect messages | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1777,6 +1778,19 @@ one next mimalloc / hako_alloc or Hakorune compiler row.
 It must not add allocator behavior, compiler route behavior, source syntax,
 guard bundles, provider activation, host allocator replacement, backend
 matchers, or silent fallback.
+
+MIMAP-124A landed by selecting RUNTIME-UNWRAP-001.
+
+### RUNTIME-UNWRAP-001 granularity
+
+RUNTIME-UNWRAP-001 is a source cleanup row. It should replace focused production
+runtime lock / global-registry `unwrap()` calls with explicit `expect(...)`
+messages in `box_registry.rs`, `plugin_loader_unified.rs`, and
+`unified_registry.rs`.
+
+It must not add poison recovery policy, allocator behavior, route behavior,
+source syntax, provider activation, host allocator replacement, backend
+matchers, broad unwrap cleanup, or silent fallback.
 
 MIMAP-111A landed by adding the local-free apply-plan ledger owner, proof app,
 SSOT, manifest entry, module export, README entry, and local guard. It selects

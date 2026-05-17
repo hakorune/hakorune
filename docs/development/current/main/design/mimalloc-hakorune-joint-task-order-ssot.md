@@ -34,19 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-124A` is current after the route diagnostics cleanup wave landed.
+`RUNTIME-UNWRAP-001` is current after the route diagnostics cleanup wave and
+MIMAP-124A planning row landed.
 
 Recommended current row:
 
 ```text
-MIMAP-124A
-  post-route-diagnostics cleanup row selection
+RUNTIME-UNWRAP-001
+  runtime lock expect messages
 ```
 
 Purpose:
 
 ```text
-select exactly one next mimalloc / hako_alloc or Hakorune compiler row
+replace focused production runtime lock/global-registry unwraps with explicit expect messages
 keep real thread scheduling, worker spawning, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -152,7 +153,8 @@ no provider activation
 | 85 | Hakorune compiler cleanup | `ROUTE-DIAG-VOCAB-001 route diagnostics vocabulary SSOT` | landed; selected ROUTE-DIAG-VOCAB-002 |
 | 86 | guard cleanup | `GUARD-MANIFEST-011 pure-first route thin wrapper pilot` | landed; selected ROUTE-DIAG-VOCAB-001 |
 | 87 | Hakorune compiler cleanup | `ROUTE-DIAG-VOCAB-002 preflight vocabulary drift guard` | landed; selected MIMAP-124A |
-| 88 | planning | `MIMAP-124A post-route-diagnostics cleanup row selection` | selected current |
+| 88 | planning | `MIMAP-124A post-route-diagnostics cleanup row selection` | landed; selected RUNTIME-UNWRAP-001 |
+| 89 | source cleanup | `RUNTIME-UNWRAP-001 runtime lock expect messages` | selected current |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
