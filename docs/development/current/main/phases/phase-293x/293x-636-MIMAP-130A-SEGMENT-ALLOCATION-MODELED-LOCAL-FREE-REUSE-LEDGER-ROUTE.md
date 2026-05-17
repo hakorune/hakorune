@@ -1,6 +1,6 @@
 # 293x-636 MIMAP-130A Segment Allocation Modeled Local-Free Reuse Ledger Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -92,3 +92,16 @@ bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Result
+
+`MIMAP-130A` added the dedicated local-free reuse ledger owner, proof app,
+module export, proof manifest row, check-script index row, and dedicated guard:
+
+```text
+lang/src/hako_alloc/memory/segment_allocation_modeled_local_free_reuse_ledger_box.hako
+apps/hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-proof/
+tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_ledger_guard.sh
+```
+
+It selects `MIMAP-131A post-local-free-reuse-ledger row selection`.
