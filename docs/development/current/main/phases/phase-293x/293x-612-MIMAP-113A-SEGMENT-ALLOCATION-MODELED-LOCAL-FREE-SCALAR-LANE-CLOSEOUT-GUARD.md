@@ -1,6 +1,6 @@
 # 293x-612 MIMAP-113A Segment Allocation Modeled Local-Free Scalar Lane Closeout Guard
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -17,6 +17,21 @@ MIMAP-111A local-free apply-plan ledger
 
 This row must not add allocator behavior. It closes the proof/docs/guard shape
 before a later row decides whether to open real page-local free-list mutation.
+
+## Result
+
+`MIMAP-113A` landed by adding:
+
+- `docs/development/current/main/design/hako-alloc-segment-allocation-modeled-local-free-scalar-lane-closeout-ssot.md`
+- `tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_scalar_lane_closeout_guard.sh`
+- `tools/checks/impl/k2_wide_hako_alloc_segment_allocation_modeled_local_free_scalar_lane_closeout_guard.sh`
+- `tools/checks/guard_rows.toml` entry
+
+It selects:
+
+```text
+MIMAP-114A post-local-free-scalar-closeout row selection
+```
 
 ## Validation Cadence
 
@@ -72,3 +87,12 @@ Stop lines:
 | `113A.2` | Add manifest-backed closeout guard. | `run_row_guard.sh --only hako-alloc-segment-allocation-modeled-local-free-scalar-lane-closeout` passes. | no proof reroute |
 | `113A.3` | Add public wrapper and docs/index wiring. | public wrapper delegates to manifest runner. | no broad gate |
 | `113A.4` | Update current pointers and closeout evidence. | pointer guard passes. | no implementation bundle |
+
+## Evidence
+
+```text
+bash tools/checks/run_row_guard.sh --only hako-alloc-segment-allocation-modeled-local-free-scalar-lane-closeout
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_scalar_lane_closeout_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```

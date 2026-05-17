@@ -274,7 +274,8 @@ Forbidden:
 | `MIMAP-110A` | post-local-free-candidate-ledger row selection | landed; selected MIMAP-111A |
 | `MIMAP-111A` | segment allocation modeled local-free apply plan route | landed; selected MIMAP-112A |
 | `MIMAP-112A` | post-local-free-apply-plan row selection | landed; selected MIMAP-113A |
-| `MIMAP-113A` | segment allocation modeled local-free scalar lane closeout guard | selected current |
+| `MIMAP-113A` | segment allocation modeled local-free scalar lane closeout guard | landed; selected MIMAP-114A |
+| `MIMAP-114A` | post-local-free-scalar-closeout row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1577,6 +1578,19 @@ MIMAP-111A local-free apply-plan ledger
 It must not add allocator behavior, mutate a free-list or page state, execute
 real segment allocation/free, add parser/compiler behavior, activate providers,
 replace the host allocator, or add backend matchers.
+
+MIMAP-113A landed by adding the scalar local-free lane closeout SSOT, a
+manifest-backed closeout guard, a public wrapper, a guard manifest entry, and
+check-script index wiring. It selects MIMAP-114A.
+
+### MIMAP-114A granularity
+
+MIMAP-114A is a planning row after the scalar local-free closeout. It should
+review the current segment allocation modeled lane and select exactly one next
+row.
+
+It must not add allocator behavior, parser/compiler behavior, cleanup bundles,
+provider activation, host allocator replacement, or backend matchers.
 
 MIMAP-107A landed by adding the released-span ledger owner, proof app, SSOT,
 manifest entry, module export, README entry, and local guard. It selects
