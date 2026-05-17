@@ -243,7 +243,8 @@ Forbidden:
 | `MIMAP-081A` | post-segment-arena-bitmap-inventory row selection | landed; selected MIMAP-082A |
 | `MIMAP-082A` | segment lifecycle scalar state contract | landed; selected MIMAP-083A |
 | `MIMAP-083A` | segment lifecycle scalar state closeout guard | landed; selected MIMAP-084A |
-| `MIMAP-084A` | post-segment-lifecycle-closeout row selection | selected current |
+| `MIMAP-084A` | post-segment-lifecycle-closeout row selection | landed; selected MIMAP-085A |
+| `MIMAP-085A` | segment page membership scalar contract | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1335,6 +1336,20 @@ It must not add allocator behavior, execute real scheduling, spawn workers, add
 source-level concurrency semantics, add raw pointer residence, execute atomic
 bitmap claims, call page-source APIs, unreserve or release OSVM pages, activate
 providers, replace the host allocator, or add backend matchers.
+
+MIMAP-084A landed by selecting MIMAP-085A.
+
+### MIMAP-085A granularity
+
+MIMAP-085A is a scalar allocator contract row for segment/page membership. It
+may add a `.hako` owner, proof app, local-run guard, and accepted SSOT for
+page/slice membership facts using scalar IDs only.
+
+It must stay proof-only and same-owner. It must not add raw pointer residence,
+segment-map pointer membership, arena backing allocation, atomic bitmap
+claim/unclaim, OSVM execution, real scheduling, source-level concurrency
+semantics, provider activation, process allocator replacement, or backend
+matchers.
 
 ## Compiler / language sidecar triggers
 

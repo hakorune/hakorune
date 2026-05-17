@@ -1,6 +1,6 @@
 # 293x-571 MIMAP-084A Post-Segment-Lifecycle-Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -52,4 +52,54 @@ select exactly one next row without adding allocator behavior.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Evidence Review
+
+Landed evidence:
+
+```text
+MIMAP-079A: segment / arena / bitmap boundary inventory
+MIMAP-080A: segment / arena / bitmap inventory closeout
+MIMAP-082A: segment lifecycle scalar state contract
+MIMAP-083A: segment lifecycle scalar state closeout
+```
+
+Longer-lived SSOT context:
+
+```text
+docs/development/current/main/design/mimalloc-lifecycle-rewrite-blueprint-ssot.md
+docs/development/current/main/investigations/mimalloc-source-concept-inventory.md
+lang/src/hako_alloc/memory/page_box.hako
+```
+
+The current allocator lane has page-local state and segment lifecycle state, but
+it still lacks a scalar boundary that says a page/slice belongs to a segment
+without using raw pointer membership or segment-map lookup.
+
+## Selection Result
+
+Selected next row:
+
+```text
+MIMAP-085A segment page membership scalar contract
+```
+
+Reason:
+
+`MIMAP-085A` can connect the existing page model vocabulary to segment
+lifecycle vocabulary using scalar identifiers only:
+
+```text
+segment_id
+page_id
+slice_index
+segment_state
+page_used
+page_capacity
+```
+
+The row must remain scalar/proof-only. It must not add raw pointer residence,
+segment-map pointer membership, arena backing allocation, atomic bitmap
+claim/unclaim, OSVM execution, real scheduling, source-level concurrency,
+provider activation, host allocator replacement, or backend matchers.
 
