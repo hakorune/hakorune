@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-131A post-local-free-reuse-ledger row selection`
+  `MIMAP-132A segment allocation modeled local-free reuse ledger closeout guard`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,8 +74,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-131A`, a planning-only row
-  after the modeled local-free reuse ledger landed.
+- resume point: continue Phase 293x with `MIMAP-132A`, the closeout guard for
+  the modeled local-free reuse ledger route.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -83,8 +83,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-131A`: review the segment allocation modeled lane after the reuse
-     ledger and pick exactly one next row
+  1. `MIMAP-132A`: freeze the MIMAP-130A local-free reuse ledger owner, proof
+     app, manifest, check index, and inactive stop lines
   2. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider
      activation inactive

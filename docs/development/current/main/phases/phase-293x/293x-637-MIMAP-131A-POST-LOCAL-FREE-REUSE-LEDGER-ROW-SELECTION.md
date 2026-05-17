@@ -1,6 +1,6 @@
 # 293x-637 MIMAP-131A Post-Local-Free-Reuse-Ledger Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -38,3 +38,16 @@ real compiler acceptance blocker.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Result
+
+`MIMAP-131A` selected the next narrow row:
+
+```text
+MIMAP-132A
+  segment allocation modeled local-free reuse ledger closeout guard
+```
+
+The row should freeze the `MIMAP-130A` owner, proof app, module export,
+manifest row, check-script index row, current handoff, and inactive stop lines
+before selecting a broader allocator behavior row.

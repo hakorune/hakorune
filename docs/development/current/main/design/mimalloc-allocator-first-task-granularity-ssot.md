@@ -299,7 +299,8 @@ Forbidden:
 | `MIMAP-128A` | segment allocation modeled local-free reuse closeout guard | landed; selected MIMAP-129A |
 | `MIMAP-129A` | post-local-free-reuse-closeout row selection | landed; selected MIMAP-130A |
 | `MIMAP-130A` | segment allocation modeled local-free reuse ledger route | landed; selected MIMAP-131A |
-| `MIMAP-131A` | post-local-free-reuse-ledger row selection | selected current |
+| `MIMAP-131A` | post-local-free-reuse-ledger row selection | landed; selected MIMAP-132A |
+| `MIMAP-132A` | segment allocation modeled local-free reuse ledger closeout guard | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1854,6 +1855,19 @@ one next mimalloc / hako_alloc or Hakorune compiler row.
 It must not add allocator behavior, compiler route behavior, source syntax,
 cleanup bundles, provider activation, host allocator replacement, backend
 matchers, or silent fallback.
+
+MIMAP-131A landed by selecting MIMAP-132A.
+
+### MIMAP-132A granularity
+
+MIMAP-132A is a closeout guard row after the modeled local-free reuse ledger
+route. It should freeze the MIMAP-130A owner, proof app, module export, memory
+README owner note, proof manifest row, check-script index row, current handoff,
+and inactive stop-line set.
+
+It must not add allocator behavior, compiler behavior, source syntax, cleanup
+bundles, provider activation, host allocator replacement, backend matchers, or
+silent fallback.
 
 MIMAP-127A landed by selecting MIMAP-128A.
 

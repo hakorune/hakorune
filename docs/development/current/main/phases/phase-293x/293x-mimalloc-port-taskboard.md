@@ -461,7 +461,8 @@ FST:
 | `MIMAP-128A` | landed | Segment allocation modeled local-free reuse closeout guard. | selected MIMAP-129A |
 | `MIMAP-129A` | landed | Post-local-free-reuse-closeout row selection. | selected MIMAP-130A |
 | `MIMAP-130A` | landed | Segment allocation modeled local-free reuse ledger route. | selected MIMAP-131A |
-| `MIMAP-131A` | selected current | Post-local-free-reuse-ledger row selection. | current planning row |
+| `MIMAP-131A` | landed | Post-local-free-reuse-ledger row selection. | selected MIMAP-132A |
+| `MIMAP-132A` | selected current | Segment allocation modeled local-free reuse ledger closeout guard. | current closeout row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -469,10 +470,9 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row selection:
-`MIMAP-131A` selects exactly one next row after the modeled local-free reuse
-ledger. Prefer allocator behavior progress unless the next row exposes a
-concrete compiler acceptance blocker.
+Current row:
+`MIMAP-132A` freezes the MIMAP-130A modeled local-free reuse ledger route before
+the next allocator behavior row is selected.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,
