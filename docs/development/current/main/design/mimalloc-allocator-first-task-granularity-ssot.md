@@ -263,7 +263,8 @@ Forbidden:
 | `MIMAP-101A` | segment allocation modeled ledger released-token recycle closeout guard | landed; selected MIMAP-102A |
 | `MIMAP-102A` | post-segment-allocation-modeled-recycle row selection | landed; selected HAKO-ALLOC-SRC-CLEAN-001 |
 | `HAKO-ALLOC-SRC-CLEAN-001` | segment counter compound assignment cleanup | landed; selected MIMAP-103A |
-| `MIMAP-103A` | post-segment-counter-cleanup row selection | selected current |
+| `MIMAP-103A` | post-segment-counter-cleanup row selection | landed; selected MIMAP-104A |
+| `MIMAP-104A` | segment allocation modeled ledger release span facts route | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1433,6 +1434,28 @@ contract. It must lock MIMAP-088A owner/proof/guard wiring and inactive stop
 lines before any broader segment execution row is selected.
 
 It must not add allocator behavior, execute segment allocation/free, allocate
+arena backing, add raw pointer residence, use segment-map pointer lookup,
+execute atomic bitmap claims, call page-source or OSVM seams, schedule threads,
+activate providers, replace the host allocator, or add backend matchers.
+
+MIMAP-103A landed by selecting MIMAP-104A.
+
+### MIMAP-104A granularity
+
+MIMAP-104A is a modeled scalar allocator behavior row after the released-token
+recycle and focused source cleanup rows. It may extend the segment allocation
+modeled ledger release report with deterministic scalar span facts for a live
+token release:
+
+```text
+modeled block start
+request block count
+modeled block end
+allocation-time new page used
+allocation-time remaining blocks
+```
+
+It must not execute real segment allocation/free, mutate a free-list, allocate
 arena backing, add raw pointer residence, use segment-map pointer lookup,
 execute atomic bitmap claims, call page-source or OSVM seams, schedule threads,
 activate providers, replace the host allocator, or add backend matchers.

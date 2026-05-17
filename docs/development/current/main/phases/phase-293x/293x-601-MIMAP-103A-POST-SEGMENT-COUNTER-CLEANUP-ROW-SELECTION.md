@@ -1,6 +1,6 @@
 # 293x-601 MIMAP-103A Post-Segment-Counter-Cleanup Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -11,6 +11,20 @@ Date: 2026-05-17
 The current segment allocation modeled lane is cleaner after the focused
 counter compound-assignment rewrite. This row should select exactly one next
 mimalloc / hako_alloc row without bundling allocator behavior.
+
+## Selection Result
+
+`MIMAP-103A` selects
+`MIMAP-104A segment allocation modeled ledger release span facts route`.
+
+Rationale:
+
+- The modeled segment allocation ledger can record, release, and recycle scalar
+  allocation tokens.
+- The next allocator-relevant fact is the released block span: start, block
+  count, end, allocation-time page usage, and remaining blocks.
+- This keeps the row scalar and ledger-local while preparing future free-list
+  / segment-free work without opening real free execution.
 
 ## Scope
 
@@ -51,4 +65,10 @@ mimalloc / hako_alloc row without bundling allocator behavior.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Evidence
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
 ```
