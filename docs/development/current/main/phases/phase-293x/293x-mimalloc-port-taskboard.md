@@ -467,7 +467,8 @@ FST:
 | `MIMAP-134A` | landed | Segment allocation modeled local-free reuse ledger release route. | selected MIMAP-135A |
 | `MIMAP-135A` | landed | Post-local-free-reuse-ledger-release row selection. | selected MIMAP-136A |
 | `MIMAP-136A` | landed | Segment allocation modeled local-free reuse ledger release closeout guard. | selected MIMAP-137A |
-| `MIMAP-137A` | selected current | Post-local-free-reuse-ledger-release-closeout row selection. | current planning row |
+| `MIMAP-137A` | landed | Post-local-free-reuse-ledger-release-closeout row selection. | selected MIMAP-138A |
+| `MIMAP-138A` | selected current | Segment allocation modeled local-free reuse ledger release apply route. | current allocator row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -476,9 +477,9 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-137A` selects exactly one next mimalloc / hako_alloc allocator row or a
-focused Hakorune compiler row after the modeled local-free reuse ledger release
-closeout.
+`MIMAP-138A` applies successful modeled local-free reuse ledger release facts to
+the source reuse ledger liveness row without opening real segment/page
+execution.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,

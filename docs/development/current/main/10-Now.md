@@ -34,15 +34,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-137A post-local-free-reuse-ledger-release-closeout row selection`
+- current blocker token: `MIMAP-138A segment allocation modeled local-free reuse ledger release apply route`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x with `MIMAP-137A`; current blocker is the
-  planning-only row after the reuse-ledger-local release closeout
-- latest closeout row: `MIMAP-136A` landed and selected MIMAP-137A
+- continue phase-293x with `MIMAP-138A`; current blocker is the
+  release apply route for the reuse-ledger-local release facts
+- latest planning row: `MIMAP-137A` selected MIMAP-138A
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

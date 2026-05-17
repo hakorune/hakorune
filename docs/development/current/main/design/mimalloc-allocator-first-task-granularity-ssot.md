@@ -305,7 +305,8 @@ Forbidden:
 | `MIMAP-134A` | segment allocation modeled local-free reuse ledger release route | landed; selected MIMAP-135A |
 | `MIMAP-135A` | post-local-free-reuse-ledger-release row selection | landed; selected MIMAP-136A |
 | `MIMAP-136A` | segment allocation modeled local-free reuse ledger release closeout guard | landed; selected MIMAP-137A |
-| `MIMAP-137A` | post-local-free-reuse-ledger-release-closeout row selection | selected current |
+| `MIMAP-137A` | post-local-free-reuse-ledger-release-closeout row selection | landed; selected MIMAP-138A |
+| `MIMAP-138A` | segment allocation modeled local-free reuse ledger release apply route | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1995,6 +1996,20 @@ select exactly one next mimalloc / hako_alloc or Hakorune compiler row.
 It must not add allocator behavior, compiler route behavior, source syntax,
 cleanup bundles, provider activation, host allocator replacement, backend
 matchers, or silent fallback.
+
+MIMAP-137A landed by selecting MIMAP-138A.
+
+### MIMAP-138A granularity
+
+MIMAP-138A is an allocator behavior row after the local-free reuse ledger
+release closeout. It should consume a successful MIMAP-134A release facts
+report and mark the matching MIMAP-130A source reuse ledger row non-live.
+
+It may add only a source-ledger-owned release apply method, a small apply
+report, one proof app, and one guard. It must not add released-token recycle,
+real segment free, page array mutation, raw pointer residence, segment-map
+lookup, atomics, page-source/OSVM calls, thread scheduling, provider
+activation, host allocator replacement, backend matchers, or silent fallback.
 
 ### MIMAP-112A granularity
 
