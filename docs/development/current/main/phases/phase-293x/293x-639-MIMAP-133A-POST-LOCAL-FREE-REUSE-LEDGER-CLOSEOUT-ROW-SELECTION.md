@@ -1,6 +1,6 @@
 # 293x-639 MIMAP-133A Post-Local-Free-Reuse-Ledger-Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -37,4 +37,22 @@ real compiler acceptance blocker.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Landed Result
+
+`MIMAP-133A` selected the next narrow row:
+
+```text
+MIMAP-134A
+  segment allocation modeled local-free reuse ledger release route
+```
+
+Rationale:
+
+```text
+MIMAP-130A records a successful local-free reuse as a live scalar allocation row.
+The smallest next allocator behavior is to release that reuse-ledger row without
+touching the bump-shaped modeled ledger, page arrays, segment maps, atomics,
+OSVM/page-source, or provider activation.
 ```
