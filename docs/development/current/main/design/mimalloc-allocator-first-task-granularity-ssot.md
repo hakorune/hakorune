@@ -246,7 +246,8 @@ Forbidden:
 | `MIMAP-084A` | post-segment-lifecycle-closeout row selection | landed; selected MIMAP-085A |
 | `MIMAP-085A` | segment page membership scalar contract | landed; selected MIMAP-086A |
 | `MIMAP-086A` | segment page membership closeout guard | landed; selected MIMAP-087A |
-| `MIMAP-087A` | post-segment-page-membership-closeout row selection | selected current |
+| `MIMAP-087A` | post-segment-page-membership-closeout row selection | landed; selected MIMAP-088A |
+| `MIMAP-088A` | segment allocation readiness scalar contract | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1382,6 +1383,28 @@ It must not add allocator behavior, execute real scheduling, spawn workers, add
 source-level concurrency semantics, add raw pointer residence, segment-map
 pointer membership, arena backing allocation, execute atomic bitmap claims,
 call page-source APIs, unreserve or release OSVM pages, activate providers,
+replace the host allocator, or add backend matchers.
+
+MIMAP-087A landed by selecting MIMAP-088A.
+
+### MIMAP-088A granularity
+
+MIMAP-088A is a scalar allocator contract row after segment/page membership. It
+classifies whether a known segment/page pair is ready for a small allocation
+request using only scalar facts:
+
+```text
+segment_id
+page_id
+segment_state
+page_used / page_capacity
+request block count
+unsupported substrate requirement
+```
+
+It must not execute segment allocation/free, allocate arena backing, add raw
+pointer residence, use a segment-map pointer lookup, execute atomic bitmap
+claims, call page-source or OSVM seams, schedule threads, activate providers,
 replace the host allocator, or add backend matchers.
 
 ## Compiler / language sidecar triggers

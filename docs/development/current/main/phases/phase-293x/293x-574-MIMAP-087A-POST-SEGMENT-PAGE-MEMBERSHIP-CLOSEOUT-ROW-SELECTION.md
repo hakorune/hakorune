@@ -1,6 +1,6 @@
 # 293x-574 MIMAP-087A Post-Segment-Page-Membership-Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -11,6 +11,18 @@ the `GUARD-MANIFEST-001` through `GUARD-MANIFEST-010` cleanup burst.
 The segment page membership scalar contract is now implemented and closed
 behind local-run guards. This row should review the current mimalloc lane and
 select exactly one next row without adding allocator behavior.
+
+Selected next row:
+
+```text
+MIMAP-088A segment allocation readiness scalar contract
+```
+
+The next row stays proof-only and scalar. It composes the landed segment
+lifecycle / page membership vocabulary into an allocation-readiness contract
+without executing segment allocation/free, arena backing, raw pointer
+residence, segment-map lookup, atomic bitmap claims, OSVM calls, thread
+scheduling, provider activation, or backend matchers.
 
 ## Scope
 
@@ -44,7 +56,7 @@ select exactly one next row without adding allocator behavior.
 | Step | Task | Accept | Stop line |
 | --- | --- | --- | --- |
 | `087A.1` | Review current landed allocator rows. | row selection cites evidence through MIMAP-086A. | no behavior |
-| `087A.2` | Pick one next row. | new card exists and is selected current. | no bundle |
+| `087A.2` | Pick one next row. | `MIMAP-088A` card exists and is selected current. | no bundle |
 | `087A.3` | Update current pointers. | current pointer guard passes. | no implementation |
 
 ## Required Evidence
