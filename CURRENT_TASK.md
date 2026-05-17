@@ -53,7 +53,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `GUARD-MANIFEST-005 reclaim scheduler closeout thin wrappers`
+  `GUARD-MANIFEST-006 remaining closeout family selection`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -72,9 +72,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `GUARD-MANIFEST-004`; the next
-  selected blocker is `GUARD-MANIFEST-005`, the reclaim scheduler closeout
-  thin-wrapper implementation.
+- resume point: continue Phase 293x after `GUARD-MANIFEST-005`; the next
+  selected blocker is `GUARD-MANIFEST-006`, the remaining closeout family
+  selection.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -82,8 +82,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `GUARD-MANIFEST-005`: move the selected reclaim scheduler closeout guards
-     behind manifest rows while preserving public guard names
+  1. `GUARD-MANIFEST-006`: select the next remaining closeout family or shared
+     helper extraction row
   2. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider
      activation inactive

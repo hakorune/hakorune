@@ -1,6 +1,6 @@
 # 293x-579 GUARD-MANIFEST-005 Reclaim Scheduler Closeout Thin Wrappers
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -11,6 +11,15 @@ Date: 2026-05-17
 The selected target is the reclaim scheduler closeout family. The top-level
 `k2_wide_*` names must remain stable, while the thick bodies move behind
 manifest-owned implementation commands.
+
+Next selected row:
+
+```text
+GUARD-MANIFEST-006
+```
+
+`GUARD-MANIFEST-006` should pick the next remaining hako_alloc closeout family
+after the scheduler wrappers are manifest-backed.
 
 ## Selected Scripts
 
@@ -53,4 +62,13 @@ bash tools/checks/k2_wide_manifest_wrapper_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+- Added manifest rows for the five selected reclaim scheduler closeout guards.
+- Moved thick command bodies to `tools/checks/impl/`.
+- Kept public `tools/checks/k2_wide_*_closeout_guard.sh` paths as stable thin
+  wrappers around `run_row_guard.sh --only <id>`.
+- Extended `tools/checks/k2_wide_manifest_wrapper_guard.sh` to cover the
+  scheduler closeout wrappers.
 

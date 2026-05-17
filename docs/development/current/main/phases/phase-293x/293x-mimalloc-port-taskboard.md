@@ -114,7 +114,8 @@ not part of this sidecar:
 | `GUARD-MANIFEST-002` | landed | Select recent hako_alloc segment closeout guards as the first `k2_wide_*` manifest-backed thin-wrapper family. | after GM001 |
 | `GUARD-MANIFEST-003` | landed | Move the selected segment closeout guards behind manifest rows while keeping public `k2_wide_*` entrypoints stable. | after GM002 |
 | `GUARD-MANIFEST-004` | landed | Select reclaim scheduler closeout guards as the next manifest-backed thin-wrapper family. | after GM003 |
-| `GUARD-MANIFEST-005` | selected current | Move the selected reclaim scheduler closeout guards behind manifest rows while keeping public `k2_wide_*` entrypoints stable. | after GM004 |
+| `GUARD-MANIFEST-005` | landed | Move the selected reclaim scheduler closeout guards behind manifest rows while keeping public `k2_wide_*` entrypoints stable. | after GM004 |
+| `GUARD-MANIFEST-006` | selected current | Select the next remaining closeout family or helper extraction row. | after GM005 |
 
 ## Stage1 / Selfhost Ordering Guard
 

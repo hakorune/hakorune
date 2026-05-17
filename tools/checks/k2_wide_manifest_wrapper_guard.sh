@@ -40,6 +40,26 @@ expected = {
         "wrapper": "tools/checks/k2_wide_hako_alloc_segment_page_membership_scalar_closeout_guard.sh",
         "impl": "tools/checks/impl/k2_wide_hako_alloc_segment_page_membership_scalar_closeout_guard.sh",
     },
+    "hako-alloc-reclaim-scheduler-marker-closeout": {
+        "wrapper": "tools/checks/k2_wide_hako_alloc_reclaim_scheduler_marker_closeout_guard.sh",
+        "impl": "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_marker_closeout_guard.sh",
+    },
+    "hako-alloc-reclaim-scheduler-ledger-closeout": {
+        "wrapper": "tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_closeout_guard.sh",
+        "impl": "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_closeout_guard.sh",
+    },
+    "hako-alloc-reclaim-scheduler-ledger-consume-closeout": {
+        "wrapper": "tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_consume_closeout_guard.sh",
+        "impl": "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_consume_closeout_guard.sh",
+    },
+    "hako-alloc-reclaim-scheduler-ledger-roundtrip-closeout": {
+        "wrapper": "tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_roundtrip_closeout_guard.sh",
+        "impl": "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_roundtrip_closeout_guard.sh",
+    },
+    "hako-alloc-reclaim-scheduler-scalar-lane-closeout": {
+        "wrapper": "tools/checks/k2_wide_hako_alloc_reclaim_scheduler_scalar_lane_closeout_guard.sh",
+        "impl": "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_scalar_lane_closeout_guard.sh",
+    },
 }
 
 rows = data.get("rows")

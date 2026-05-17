@@ -61,6 +61,36 @@ profiles = ["pilot", "hako-alloc-closeout"]
 cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_page_membership_scalar_closeout_guard.sh"]
 
 [[rows]]
+id = "hako-alloc-reclaim-scheduler-marker-closeout"
+label = "hako_alloc reclaim scheduler marker closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_marker_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-reclaim-scheduler-ledger-closeout"
+label = "hako_alloc reclaim scheduler request ledger closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-reclaim-scheduler-ledger-consume-closeout"
+label = "hako_alloc reclaim scheduler ledger consume closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_consume_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-reclaim-scheduler-ledger-roundtrip-closeout"
+label = "hako_alloc reclaim scheduler ledger roundtrip closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_roundtrip_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-reclaim-scheduler-scalar-lane-closeout"
+label = "hako_alloc reclaim scheduler scalar lane closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_scalar_lane_closeout_guard.sh"]
+
+[[rows]]
 id = "k2-wide-manifest-wrapper"
 label = "k2-wide manifest wrapper no-growth guard"
 profiles = ["pilot", "quick-static"]
