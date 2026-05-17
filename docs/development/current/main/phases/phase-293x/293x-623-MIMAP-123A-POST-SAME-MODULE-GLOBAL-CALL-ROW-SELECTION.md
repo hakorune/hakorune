@@ -1,6 +1,6 @@
 # 293x-623 MIMAP-123A Post-Same-Module-Global-Call Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -15,6 +15,24 @@ values.
 This row should select exactly one next allocator behavior, closeout,
 substrate, or narrow Hakorune acceptance row using the mimalloc validation
 cadence.
+
+Selected row:
+
+```text
+ROUTE-FIXPOINT-001
+  route refresh fixpoint owner extraction
+```
+
+Rationale:
+
+```text
+PURE-FIRST-GLOBAL-CALL-001 exposed that global-call routes, user-box method
+routes, generic-method routes, route-published value types, and body-supported
+checks are already a route convergence system.
+
+The next cleanup should make that owner explicit before adding more allocator
+rows or more same-module helper route profiles.
+```
 
 ## Scope
 
@@ -53,3 +71,16 @@ cadence.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Result
+
+`MIMAP-123A` selected `ROUTE-FIXPOINT-001`.
+
+The selected row is intentionally BoxShape-only:
+
+- no new route vocabulary
+- no allocator behavior
+- no source syntax
+- no backend matcher
+- no preflight reason expansion
+- only ownership/entry cleanup for module route convergence

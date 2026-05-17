@@ -447,7 +447,8 @@ FST:
 | `MIMAP-121A` | landed | Segment allocation modeled local-free integration closeout guard. | selected MIMAP-122A |
 | `MIMAP-122A` | landed | Post-local-free-integration-closeout row selection. | selected PURE-FIRST-GLOBAL-CALL-001 |
 | `PURE-FIRST-GLOBAL-CALL-001` | landed | Same-module static helper global-call route support. | selected MIMAP-123A |
-| `MIMAP-123A` | selected current | Post-same-module-global-call row selection. | choose the next allocator/compiler row |
+| `MIMAP-123A` | landed | Post-same-module-global-call row selection. | selected ROUTE-FIXPOINT-001 |
+| `ROUTE-FIXPOINT-001` | selected current | Route refresh fixpoint owner extraction. | BoxShape only |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -455,9 +456,9 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after PURE-FIRST-GLOBAL-CALL-001:
-`MIMAP-123A` reviews the segment allocation modeled lane after the compiler
-sidecar landed and selects exactly one next allocator/compiler row.
+Current row after MIMAP-123A:
+`ROUTE-FIXPOINT-001` extracts the module route refresh convergence sequence
+behind one compiler owner entry before adding more route profiles.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,

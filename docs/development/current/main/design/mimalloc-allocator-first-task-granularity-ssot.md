@@ -285,7 +285,8 @@ Forbidden:
 | `MIMAP-121A` | segment allocation modeled local-free integration closeout guard | landed; selected MIMAP-122A |
 | `MIMAP-122A` | post-local-free-integration-closeout row selection | landed; selected PURE-FIRST-GLOBAL-CALL-001 |
 | `PURE-FIRST-GLOBAL-CALL-001` | same-module static helper global-call route support | landed; selected MIMAP-123A |
-| `MIMAP-123A` | post-same-module-global-call row selection | selected current |
+| `MIMAP-123A` | post-same-module-global-call row selection | landed; selected ROUTE-FIXPOINT-001 |
+| `ROUTE-FIXPOINT-001` | route refresh fixpoint owner extraction | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1704,6 +1705,19 @@ select exactly one next row.
 It must not add allocator behavior, parser/compiler behavior, cleanup bundles,
 provider activation, host allocator replacement, backend matchers, or silent
 fallback.
+
+MIMAP-123A landed by selecting `ROUTE-FIXPOINT-001`, a BoxShape compiler
+cleanup row for the route refresh convergence owner.
+
+### ROUTE-FIXPOINT-001 granularity
+
+ROUTE-FIXPOINT-001 is a compiler cleanup row. It should move the module route
+convergence sequence out of `semantic_refresh.rs` and behind a dedicated
+RouteFixpoint owner while preserving current behavior.
+
+It must not add allocator behavior, route acceptance shapes, proof vocabulary,
+preflight reason vocabulary, source syntax, backend matchers, provider
+activation, host allocator replacement, or silent fallback.
 
 MIMAP-111A landed by adding the local-free apply-plan ledger owner, proof app,
 SSOT, manifest entry, module export, README entry, and local guard. It selects

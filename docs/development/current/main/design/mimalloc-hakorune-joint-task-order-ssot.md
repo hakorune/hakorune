@@ -34,21 +34,21 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`PURE-FIRST-GLOBAL-CALL-001` landed the narrow Hakorune compiler acceptance
-sidecar exposed by the local-free integration proof.
+`MIMAP-123A` selected a BoxShape compiler cleanup row after the same-module
+static helper global-call sidecar.
 
 Recommended current row:
 
 ```text
-MIMAP-123A
-  post-same-module-global-call row selection
+ROUTE-FIXPOINT-001
+  route refresh fixpoint owner extraction
 ```
 
 Purpose:
 
 ```text
-review the segment allocation modeled lane after the compiler sidecar
-select exactly one next allocator/compiler row
+extract route refresh convergence behind one compiler owner entry
+preserve existing route behavior
 keep real thread scheduling, worker spawning, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -149,7 +149,8 @@ no provider activation
 | 80 | closeout | `MIMAP-121A segment allocation modeled local-free integration closeout guard` | landed; selected MIMAP-122A |
 | 81 | planning | `MIMAP-122A post-local-free-integration-closeout row selection` | landed; selected PURE-FIRST-GLOBAL-CALL-001 |
 | 82 | Hakorune compiler | `PURE-FIRST-GLOBAL-CALL-001 same-module static helper global-call route support` | landed; selected MIMAP-123A |
-| 83 | planning | `MIMAP-123A post-same-module-global-call row selection` | current; select one next row |
+| 83 | planning | `MIMAP-123A post-same-module-global-call row selection` | landed; selected ROUTE-FIXPOINT-001 |
+| 84 | Hakorune compiler cleanup | `ROUTE-FIXPOINT-001 route refresh fixpoint owner extraction` | current; BoxShape only |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
