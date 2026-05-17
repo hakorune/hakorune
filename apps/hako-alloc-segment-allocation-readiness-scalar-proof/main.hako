@@ -1,0 +1,108 @@
+// hako-alloc-segment-allocation-readiness-scalar-proof
+// Purpose: prove MIMAP-088A scalar segment allocation readiness contract.
+
+using selfhost.hako_alloc.memory.segment_allocation_readiness_scalar_box as HakoAllocSegmentAllocationReadinessScalar
+
+static box Main {
+    main(args) {
+        local readiness = new HakoAllocSegmentAllocationReadinessScalar()
+
+        local ready = readiness.classifyReadiness(60, 18, readiness.stateActive(), 2, 8, 3, 0)
+        local edge = readiness.classifyReadiness(61, 19, readiness.stateActive(), 7, 8, 1, 0)
+
+        local invalid_shape = readiness.classifyReadiness(62, -1, readiness.stateActive(), 2, 8, 3, 0)
+        local capacity_miss = readiness.classifyReadiness(63, 20, readiness.stateActive(), 7, 8, 2, 0)
+        local raw = readiness.classifyReadiness(64, 21, readiness.stateActive(), 2, 8, 1, 1)
+        local segment_map = readiness.classifyReadiness(65, 22, readiness.stateActive(), 2, 8, 1, 2)
+        local arena = readiness.classifyReadiness(66, 23, readiness.stateActive(), 2, 8, 1, 3)
+        local atomic_bitmap = readiness.classifyReadiness(67, 24, readiness.stateActive(), 2, 8, 1, 4)
+        local osvm = readiness.classifyReadiness(68, 25, readiness.stateActive(), 2, 8, 1, 5)
+        local unknown_state = readiness.classifyReadiness(69, 26, 9, 2, 8, 1, 0)
+        local inactive_state = readiness.classifyReadiness(70, 27, readiness.stateReclaimed(), 2, 8, 1, 0)
+        local run_thread = readiness.classifyReadiness(71, 28, readiness.stateActive(), 2, 8, 1, 6)
+        local provider = readiness.classifyReadiness(72, 29, readiness.stateActive(), 2, 8, 1, 7)
+        local execution = readiness.classifyReadiness(73, 31, readiness.stateActive(), 2, 8, 1, 8)
+
+        local ok = check "mimap088a segment allocation readiness scalar contract" {
+            "ready accepted": ready.accepted == 1
+            "ready reason": ready.reason == 0
+            "ready segment": ready.segment_id == 60
+            "ready page": ready.page_id == 18
+            "ready state": ready.segment_state == readiness.stateActive()
+            "ready used": ready.page_used == 2
+            "ready capacity": ready.page_capacity == 8
+            "ready request": ready.request_blocks == 3
+            "ready available": ready.available_blocks == 6
+            "edge accepted": edge.accepted == 1
+            "edge available": edge.available_blocks == 1
+            "invalid shape rejected": invalid_shape.accepted == 0
+            "invalid shape reason": invalid_shape.reason == 1
+            "capacity rejected": capacity_miss.accepted == 0
+            "capacity reason": capacity_miss.reason == 2
+            "capacity available": capacity_miss.available_blocks == 1
+            "raw rejected": raw.accepted == 0
+            "raw reason": raw.reason == 3
+            "segment map rejected": segment_map.accepted == 0
+            "segment map reason": segment_map.reason == 4
+            "arena rejected": arena.accepted == 0
+            "arena reason": arena.reason == 5
+            "atomic bitmap rejected": atomic_bitmap.accepted == 0
+            "atomic bitmap reason": atomic_bitmap.reason == 6
+            "osvm rejected": osvm.accepted == 0
+            "osvm reason": osvm.reason == 7
+            "unknown state rejected": unknown_state.accepted == 0
+            "unknown state reason": unknown_state.reason == 8
+            "inactive state rejected": inactive_state.accepted == 0
+            "inactive state reason": inactive_state.reason == 9
+            "thread rejected": run_thread.accepted == 0
+            "thread reason": run_thread.reason == 10
+            "provider rejected": provider.accepted == 0
+            "provider reason": provider.reason == 11
+            "execution rejected": execution.accepted == 0
+            "execution reason": execution.reason == 12
+            "inactive execution": ready.would_execute_segment_allocation == 0
+            "inactive raw": ready.would_use_raw_pointer == 0
+            "inactive segment map": ready.would_use_segment_map == 0
+            "inactive arena": ready.would_allocate_arena_backing == 0
+            "inactive atomic": ready.would_execute_atomic_bitmap == 0
+            "inactive osvm": ready.would_call_osvm == 0
+            "inactive thread": ready.would_run_thread == 0
+            "inactive provider": ready.would_activate_provider == 0
+            "inactive replacement": ready.would_replace_process_allocator == 0
+            "inactive matcher": ready.would_add_backend_matcher == 0
+            "classify count": readiness.classify_count == 14
+            "accepted count": readiness.accepted_count == 2
+            "reject count": readiness.reject_count == 12
+            "invalid shape reject count": readiness.invalid_shape_reject_count == 1
+            "capacity reject count": readiness.capacity_reject_count == 1
+            "raw reject count": readiness.raw_pointer_reject_count == 1
+            "segment map reject count": readiness.segment_map_reject_count == 1
+            "arena reject count": readiness.arena_reject_count == 1
+            "atomic reject count": readiness.atomic_bitmap_reject_count == 1
+            "osvm reject count": readiness.osvm_reject_count == 1
+            "unknown state reject count": readiness.unknown_state_reject_count == 1
+            "inactive state reject count": readiness.inactive_state_reject_count == 1
+            "thread reject count": readiness.thread_reject_count == 1
+            "provider reject count": readiness.provider_reject_count == 1
+            "execution reject count": readiness.execution_reject_count == 1
+            "last page": readiness.last_page_id == 31
+            "last reason": readiness.last_reason == 12
+        }
+
+        print("hako-alloc-segment-allocation-readiness-scalar-proof")
+        print("ready=" + ready.accepted + "," + ready.reason + "," + ready.segment_id + "," + ready.page_id + "," + ready.segment_state + "," + ready.page_used + "," + ready.page_capacity + "," + ready.request_blocks + "," + ready.available_blocks)
+        print("accepted=" + ready.accepted + "," + edge.accepted)
+        print("rejects=" + invalid_shape.reason + "," + capacity_miss.reason + "," + raw.reason + "," + segment_map.reason + "," + arena.reason + "," + atomic_bitmap.reason + "," + osvm.reason + "," + unknown_state.reason + "," + inactive_state.reason + "," + run_thread.reason + "," + provider.reason + "," + execution.reason)
+        print("inactive=" + ready.would_execute_segment_allocation + "," + ready.would_use_raw_pointer + "," + ready.would_use_segment_map + "," + ready.would_allocate_arena_backing + "," + ready.would_execute_atomic_bitmap + "," + ready.would_call_osvm + "," + ready.would_run_thread + "," + ready.would_activate_provider + "," + ready.would_replace_process_allocator + "," + ready.would_add_backend_matcher)
+        print("counts=" + readiness.classify_count + "," + readiness.accepted_count + "," + readiness.reject_count + "," + readiness.invalid_shape_reject_count + "," + readiness.capacity_reject_count + "," + readiness.raw_pointer_reject_count + "," + readiness.segment_map_reject_count + "," + readiness.arena_reject_count + "," + readiness.atomic_bitmap_reject_count + "," + readiness.osvm_reject_count + "," + readiness.unknown_state_reject_count + "," + readiness.inactive_state_reject_count + "," + readiness.thread_reject_count + "," + readiness.provider_reject_count + "," + readiness.execution_reject_count + "," + readiness.last_page_id + "," + readiness.last_reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

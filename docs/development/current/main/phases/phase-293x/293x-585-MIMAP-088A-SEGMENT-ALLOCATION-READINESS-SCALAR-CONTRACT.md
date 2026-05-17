@@ -1,6 +1,6 @@
 # 293x-585 MIMAP-088A Segment Allocation Readiness Scalar Contract
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -11,6 +11,12 @@ It adds a proof-only scalar contract that classifies whether a known
 segment/page pair is ready for a small allocation request. The row composes the
 landed segment lifecycle and page membership vocabulary without executing
 segment allocation/free or opening lower substrate features.
+
+It selects:
+
+```text
+MIMAP-089A segment allocation readiness closeout guard
+```
 
 ## Scope
 
@@ -46,12 +52,15 @@ segment allocation/free or opening lower substrate features.
 | `088A.1` | Add scalar readiness SSOT and owner. | reason vocabulary and inactive flags are documented and implemented. | no execution |
 | `088A.2` | Add proof app and manifest entry. | VM/MIR/EXE proof locks accepted/rejected rows. | no allocator-wide gate |
 | `088A.3` | Add local-run guard and docs/index wiring. | guard checks owner/proof/stop lines. | no provider/backend matcher |
-| `088A.4` | Select closeout row. | next card exists and is selected current. | no bundle |
+| `088A.4` | Select closeout row. | `MIMAP-089A` exists and is selected current. | no bundle |
 
 ## Required Evidence
 
 ```text
 bash tools/checks/k2_wide_hako_alloc_segment_allocation_readiness_scalar_guard.sh
+[mimap088a-mir-json] ok
+[k2-wide-hako-alloc-segment-allocation-readiness-scalar] ok
+
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```

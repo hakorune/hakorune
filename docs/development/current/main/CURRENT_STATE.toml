@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-17"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-087A selected MIMAP-088A segment allocation readiness scalar contract after the profile-derived hako_alloc closeout wrapper no-growth guard. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-088A landed the segment allocation readiness scalar contract and selected MIMAP-089A closeout guard. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-585-MIMAP-088A-SEGMENT-ALLOCATION-READINESS-SCALAR-CONTRACT.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-586-MIMAP-089A-SEGMENT-ALLOCATION-READINESS-CLOSEOUT-GUARD.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-574-MIMAP-087A-POST-SEGMENT-PAGE-MEMBERSHIP-CLOSEOUT-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-574-MIMAP-087A-POST-SEGMENT-PAGE-MEMBERSHIP-CLOSEOUT-ROW-SELECTION.md"
-latest_card_summary = "MIMAP-087A selects MIMAP-088A segment allocation readiness scalar contract after the segment/page membership closeout."
+latest_card = "293x-585-MIMAP-088A-SEGMENT-ALLOCATION-READINESS-SCALAR-CONTRACT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-585-MIMAP-088A-SEGMENT-ALLOCATION-READINESS-SCALAR-CONTRACT.md"
+latest_card_summary = "MIMAP-088A adds a proof-only scalar segment allocation readiness contract and keeps segment execution, raw pointer, arena, bitmap, OSVM, thread, provider, and backend matchers closed."
 
-current_blocker_token = "MIMAP-088A"
+current_blocker_token = "MIMAP-089A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-585 MIMAP-088A segment allocation readiness scalar contract landed; MIMAP-089A selected",
   "293x-574 MIMAP-087A post-segment-page-membership row selection landed; MIMAP-088A selected",
   "293x-584 GUARD-MANIFEST-010 closeout-or-return selection landed; MIMAP-087A selected",
   "293x-583 GUARD-MANIFEST-009 final closeout thin wrappers landed",
@@ -39,5 +40,4 @@ landed_tail = [
   "293x-577 GUARD-MANIFEST-003 segment closeout thin wrappers landed",
   "293x-576 GUARD-MANIFEST-002 k2-wide family manifest selection landed",
   "293x-575 GUARD-MANIFEST-001 proof app test wrapper cleanup landed",
-  "293x-573 MIMAP-086A segment page membership closeout guard landed",
 ]

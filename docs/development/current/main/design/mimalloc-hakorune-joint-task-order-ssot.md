@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-087A` landed the post-segment/page-membership selection row and selected
-the next scalar allocator contract.
+`MIMAP-088A` landed the segment allocation readiness scalar contract and
+selected the next closeout row.
 
 Recommended current row:
 
 ```text
-MIMAP-088A
-  segment allocation readiness scalar contract
+MIMAP-089A
+  segment allocation readiness closeout guard
 ```
 
 Purpose:
 
 ```text
-classify whether a known segment/page pair is allocation-ready using scalar facts only
+lock the MIMAP-088A scalar readiness owner/proof/guard before broader segment work
 keep real thread scheduling, worker spawning, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -110,7 +110,8 @@ no provider activation
 | 42 | allocator contract | `MIMAP-085A segment page membership scalar contract` | landed; selected MIMAP-086A |
 | 43 | closeout | `MIMAP-086A segment page membership closeout guard` | landed; selected MIMAP-087A |
 | 44 | planning | `MIMAP-087A post-segment-page-membership-closeout row selection` | landed; selected MIMAP-088A |
-| 45 | allocator contract | `MIMAP-088A segment allocation readiness scalar contract` | current; no execution |
+| 45 | allocator contract | `MIMAP-088A segment allocation readiness scalar contract` | landed; selected MIMAP-089A |
+| 46 | closeout | `MIMAP-089A segment allocation readiness closeout guard` | current; no behavior |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

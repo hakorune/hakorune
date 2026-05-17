@@ -247,7 +247,8 @@ Forbidden:
 | `MIMAP-085A` | segment page membership scalar contract | landed; selected MIMAP-086A |
 | `MIMAP-086A` | segment page membership closeout guard | landed; selected MIMAP-087A |
 | `MIMAP-087A` | post-segment-page-membership-closeout row selection | landed; selected MIMAP-088A |
-| `MIMAP-088A` | segment allocation readiness scalar contract | selected current |
+| `MIMAP-088A` | segment allocation readiness scalar contract | landed; selected MIMAP-089A |
+| `MIMAP-089A` | segment allocation readiness closeout guard | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1406,6 +1407,20 @@ It must not execute segment allocation/free, allocate arena backing, add raw
 pointer residence, use a segment-map pointer lookup, execute atomic bitmap
 claims, call page-source or OSVM seams, schedule threads, activate providers,
 replace the host allocator, or add backend matchers.
+
+MIMAP-088A landed by adding a scalar readiness owner, proof app, manifest
+entry, and local-run guard. It selects MIMAP-089A.
+
+### MIMAP-089A granularity
+
+MIMAP-089A is a closeout/guard row for the segment allocation readiness scalar
+contract. It must lock MIMAP-088A owner/proof/guard wiring and inactive stop
+lines before any broader segment execution row is selected.
+
+It must not add allocator behavior, execute segment allocation/free, allocate
+arena backing, add raw pointer residence, use segment-map pointer lookup,
+execute atomic bitmap claims, call page-source or OSVM seams, schedule threads,
+activate providers, replace the host allocator, or add backend matchers.
 
 ## Compiler / language sidecar triggers
 
