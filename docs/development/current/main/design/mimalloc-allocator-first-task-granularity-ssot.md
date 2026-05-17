@@ -229,7 +229,8 @@ Forbidden:
 | `MIMAP-067A` | reclaim scheduler substrate proposal-or-park | landed; selected MIMAP-068A |
 | `MIMAP-068A` | reclaim scheduler request ledger route | landed; selected MIMAP-069A |
 | `MIMAP-069A` | reclaim scheduler request ledger closeout guard | landed; selected MIMAP-070A |
-| `MIMAP-070A` | post-scheduler-ledger row selection | selected current |
+| `MIMAP-070A` | post-scheduler-ledger row selection | landed; selected MIMAP-071A |
+| `MIMAP-071A` | reclaim scheduler request ledger consume route | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1121,6 +1122,18 @@ It must not add allocator behavior, execute real scheduling, spawn workers, add
 source-level concurrency semantics, call page-source APIs, unreserve or release
 OSVM pages, activate providers, replace the host allocator, or add backend
 matchers.
+
+MIMAP-070A landed by selecting MIMAP-071A.
+
+### MIMAP-071A granularity
+
+MIMAP-071A is a narrow allocator behavior row. It may extend
+`HakoAllocReclaimSchedulerRequestLedger` with a local consume/clear route for
+one pending modeled scheduler request.
+
+It must not execute real scheduling, spawn workers, add source-level
+concurrency semantics, call page-source APIs, unreserve or release OSVM pages,
+activate providers, replace the host allocator, or add backend matchers.
 
 ## Compiler / language sidecar triggers
 
