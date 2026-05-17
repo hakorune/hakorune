@@ -1,6 +1,6 @@
 # 293x-560 MIMAP-073A Post-Scheduler-Consume Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -46,4 +46,69 @@ real scheduler substrate work, or Hakorune language work continues.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Evidence Review
+
+The reclaim scheduler request chain is now guarded through:
+
+```text
+MIMAP-063A scheduler boundary inventory
+MIMAP-064A scheduler request marker contract
+MIMAP-065A scheduler marker closeout guard
+MIMAP-068A scheduler request ledger route
+MIMAP-069A scheduler request ledger closeout guard
+MIMAP-071A scheduler request ledger consume route
+MIMAP-072A scheduler ledger consume closeout guard
+```
+
+`MIMAP-071A` proves that a pending scheduler request can be consumed locally
+by page id. The record and consume rows are intentionally separate, so the next
+small allocator behavior is to compose them into a single scalar roundtrip
+owner before any real scheduler substrate is opened.
+
+Opening real scheduler substrate would still cross worker handoff / progress
+semantics. No proof app currently exposes a source-language or compiler
+acceptance blocker.
+
+## Selection Result
+
+`MIMAP-073A` selects `MIMAP-074A`.
+
+```text
+row:
+  MIMAP-074A reclaim scheduler request ledger roundtrip route
+
+classification:
+  allocator behavior / scalar ledger lifecycle
+
+why now:
+  after record and consume are independently guarded, the next narrow behavior
+  is to prove record -> consume as one allocator-owned scalar lifecycle.
+  This keeps the scheduler request model local and does not execute a real
+  scheduler.
+
+why not real scheduler substrate:
+  worker handoff, run/progress semantics, and source concurrency are still
+  broader substrate work. The allocator evidence can advance without them.
+
+why not language/compiler sidecar:
+  no current proof is blocked on source-level concurrency features or compiler
+  acceptance.
+
+stop lines:
+  no real thread scheduling
+  no worker spawning
+  no source-level concurrency feature change
+  no page-source call
+  no OSVM unreserve / release
+  no provider activation
+  no host allocator replacement
+  no backend matcher
+```
+
+Closeout:
+
+```text
+current blocker moves to MIMAP-074A.
 ```

@@ -232,7 +232,8 @@ Forbidden:
 | `MIMAP-070A` | post-scheduler-ledger row selection | landed; selected MIMAP-071A |
 | `MIMAP-071A` | reclaim scheduler request ledger consume route | landed; selected MIMAP-072A |
 | `MIMAP-072A` | reclaim scheduler ledger consume closeout guard | landed; selected MIMAP-073A |
-| `MIMAP-073A` | post-scheduler-consume row selection | selected current |
+| `MIMAP-073A` | post-scheduler-consume row selection | landed; selected MIMAP-074A |
+| `MIMAP-074A` | reclaim scheduler request ledger roundtrip route | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1164,6 +1165,25 @@ It must not add allocator behavior, execute real scheduling, spawn workers, add
 source-level concurrency semantics, call page-source APIs, unreserve or release
 OSVM pages, activate providers, replace the host allocator, or add backend
 matchers.
+
+MIMAP-073A landed by selecting MIMAP-074A.
+
+### MIMAP-074A granularity
+
+MIMAP-074A is an allocator behavior row for a scalar scheduler request ledger
+roundtrip. It composes the existing request ledger record and consume routes to
+prove one local lifecycle:
+
+```text
+record scheduler request
+  -> pending request exists
+  -> consume matching page id
+  -> pending request cleared
+```
+
+It must not execute real scheduling, spawn workers, add source-level
+concurrency semantics, call page-source APIs, unreserve or release OSVM pages,
+activate providers, replace the host allocator, or add backend matchers.
 
 ## Compiler / language sidecar triggers
 

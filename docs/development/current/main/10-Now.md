@@ -32,14 +32,14 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-073A post-scheduler-consume row selection`
+- current blocker token: `MIMAP-074A reclaim scheduler request ledger roundtrip route`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-072A`; current blocker is `MIMAP-073A`
-- planned order: select one follow-up after scheduler ledger consume closeout
+- continue phase-293x after `MIMAP-073A`; current blocker is `MIMAP-074A`
+- planned order: add one allocator-owned scalar record->consume scheduler request ledger roundtrip
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
