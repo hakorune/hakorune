@@ -1,6 +1,6 @@
 # 293x-594 MIMAP-097A Segment Allocation Modeled Ledger Release Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -12,6 +12,16 @@ tokens. This row should add a narrow modeled release route that marks exactly
 one live ledger token as released and exposes scalar release facts.
 
 This remains a ledger-only proof route. It is not real segment free execution.
+
+Result:
+
+```text
+landed:
+  segment allocation modeled ledger release route
+
+selected next row:
+  MIMAP-098A segment allocation modeled ledger release closeout guard
+```
 
 ## Scope
 

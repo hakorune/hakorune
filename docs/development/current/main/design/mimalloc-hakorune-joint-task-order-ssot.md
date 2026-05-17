@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-096A` landed the post-segment-allocation-modeled-ledger row selection
-and selected the modeled ledger release route.
+`MIMAP-097A` landed the segment allocation modeled ledger release route and
+selected the closeout row.
 
 Recommended current row:
 
 ```text
-MIMAP-097A
-  segment allocation modeled ledger release route
+MIMAP-098A
+  segment allocation modeled ledger release closeout guard
 ```
 
 Purpose:
 
 ```text
-mark exactly one live modeled allocation token released in the scalar ledger
+close out the modeled segment allocation ledger release owner/proof/guard
 keep real thread scheduling, worker spawning, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -119,7 +119,8 @@ no provider activation
 | 51 | allocator | `MIMAP-094A segment allocation modeled ledger route` | landed; selected MIMAP-095A |
 | 52 | closeout | `MIMAP-095A segment allocation modeled ledger closeout guard` | landed; selected MIMAP-096A |
 | 53 | planning | `MIMAP-096A post-segment-allocation-modeled-ledger row selection` | landed; selected MIMAP-097A |
-| 54 | allocator | `MIMAP-097A segment allocation modeled ledger release route` | current; mark one modeled token released |
+| 54 | allocator | `MIMAP-097A segment allocation modeled ledger release route` | landed; selected MIMAP-098A |
+| 55 | closeout | `MIMAP-098A segment allocation modeled ledger release closeout guard` | current; guard-only |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

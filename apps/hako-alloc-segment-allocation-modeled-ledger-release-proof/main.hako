@@ -1,0 +1,137 @@
+// hako-alloc-segment-allocation-modeled-ledger-release-proof
+// Purpose: prove MIMAP-097A scalar modeled segment allocation ledger release route.
+
+using selfhost.hako_alloc.memory.segment_allocation_modeled_consume_box as HakoAllocSegmentAllocationModeledConsume
+using selfhost.hako_alloc.memory.segment_allocation_modeled_ledger_box as HakoAllocSegmentAllocationModeledLedger
+
+static box Main {
+    main(args) {
+        local consume = new HakoAllocSegmentAllocationModeledConsume()
+        local ledger = new HakoAllocSegmentAllocationModeledLedger()
+
+        local success = consume.consumeReadiness(1, 0, 60, 18, 2, 8, 3, 0)
+        local edge = consume.consumeReadiness(1, 0, 61, 19, 7, 8, 1, 0)
+
+        local first_row = ledger.recordModeledConsume(success.accepted, success.reason, success.segment_id, success.page_id, success.old_page_used, success.page_capacity, success.request_blocks, success.new_page_used, success.remaining_blocks, success.modeled_block_start, success.modeled_allocation_token, 0)
+        local second_row = ledger.recordModeledConsume(edge.accepted, edge.reason, edge.segment_id, edge.page_id, edge.old_page_used, edge.page_capacity, edge.request_blocks, edge.new_page_used, edge.remaining_blocks, edge.modeled_block_start, edge.modeled_allocation_token, 0)
+
+        local release_first = ledger.releaseModeledToken(success.modeled_allocation_token, 0)
+        local duplicate = ledger.releaseModeledToken(success.modeled_allocation_token, 0)
+        local missing = ledger.releaseModeledToken(999999, 0)
+        local invalid = ledger.releaseModeledToken(-1, 0)
+
+        local real_execution = ledger.releaseModeledToken(edge.modeled_allocation_token, 1)
+        local raw = ledger.releaseModeledToken(edge.modeled_allocation_token, 2)
+        local segment_map = ledger.releaseModeledToken(edge.modeled_allocation_token, 3)
+        local arena = ledger.releaseModeledToken(edge.modeled_allocation_token, 4)
+        local atomic_bitmap = ledger.releaseModeledToken(edge.modeled_allocation_token, 5)
+        local osvm = ledger.releaseModeledToken(edge.modeled_allocation_token, 6)
+        local run_thread = ledger.releaseModeledToken(edge.modeled_allocation_token, 7)
+        local provider = ledger.releaseModeledToken(edge.modeled_allocation_token, 8)
+        local backend_matcher = ledger.releaseModeledToken(edge.modeled_allocation_token, 9)
+
+        local release_second = ledger.releaseModeledToken(edge.modeled_allocation_token, 0)
+
+        local first_after = ledger.findIndex(success.modeled_allocation_token)
+        local second_after = ledger.findIndex(edge.modeled_allocation_token)
+        local any_first = ledger.findAnyIndex(success.modeled_allocation_token)
+        local any_second = ledger.findAnyIndex(edge.modeled_allocation_token)
+
+        local ok = check "mimap097a segment allocation modeled ledger release route" {
+            "first row accepted": first_row.accepted == 1
+            "second row accepted": second_row.accepted == 1
+            "first release accepted": release_first.did_release == 1
+            "first release reason": release_first.reason == 0
+            "first release row": release_first.row_index == 0
+            "first release token": release_first.modeled_allocation_token == 60018002
+            "first release segment": release_first.segment_id == 60
+            "first release page": release_first.page_id == 18
+            "first release block": release_first.modeled_block_start == 2
+            "first live before": release_first.live_before == 1
+            "first live after": release_first.live_after == 0
+            "first ledger count": release_first.ledger_count_after == 2
+            "first live count": release_first.ledger_live_count_after == 1
+            "duplicate rejected": duplicate.did_release == 0
+            "duplicate reason": duplicate.reason == 3
+            "duplicate row": duplicate.row_index == 0
+            "missing rejected": missing.did_release == 0
+            "missing reason": missing.reason == 2
+            "invalid rejected": invalid.did_release == 0
+            "invalid reason": invalid.reason == 1
+            "execution rejected": real_execution.did_release == 0
+            "execution reason": real_execution.reason == 4
+            "raw rejected": raw.did_release == 0
+            "raw reason": raw.reason == 5
+            "segment map rejected": segment_map.did_release == 0
+            "segment map reason": segment_map.reason == 6
+            "arena rejected": arena.did_release == 0
+            "arena reason": arena.reason == 7
+            "atomic rejected": atomic_bitmap.did_release == 0
+            "atomic reason": atomic_bitmap.reason == 8
+            "osvm rejected": osvm.did_release == 0
+            "osvm reason": osvm.reason == 9
+            "thread rejected": run_thread.did_release == 0
+            "thread reason": run_thread.reason == 10
+            "provider rejected": provider.did_release == 0
+            "provider reason": provider.reason == 11
+            "backend rejected": backend_matcher.did_release == 0
+            "backend reason": backend_matcher.reason == 12
+            "second release accepted": release_second.did_release == 1
+            "second release reason": release_second.reason == 0
+            "second release row": release_second.row_index == 1
+            "second release token": release_second.modeled_allocation_token == 61019007
+            "second live before": release_second.live_before == 1
+            "second live after": release_second.live_after == 0
+            "second live count": release_second.ledger_live_count_after == 0
+            "first not live after": first_after == -1
+            "second not live after": second_after == -1
+            "first any row": any_first == 0
+            "second any row": any_second == 1
+            "inactive real free": release_first.would_execute_real_segment_free == 0
+            "inactive raw": release_first.would_use_raw_pointer == 0
+            "inactive segment map": release_first.would_use_segment_map == 0
+            "inactive arena": release_first.would_allocate_arena_backing == 0
+            "inactive atomic": release_first.would_execute_atomic_bitmap == 0
+            "inactive osvm": release_first.would_call_osvm == 0
+            "inactive thread": release_first.would_run_thread == 0
+            "inactive provider": release_first.would_activate_provider == 0
+            "inactive matcher": release_first.would_add_backend_matcher == 0
+            "release attempts": ledger.release_attempt_count == 14
+            "release count": ledger.release_count == 2
+            "release rejects": ledger.release_reject_count == 12
+            "invalid reject count": ledger.release_invalid_shape_reject_count == 1
+            "missing reject count": ledger.release_missing_reject_count == 1
+            "duplicate reject count": ledger.release_duplicate_reject_count == 1
+            "execution reject count": ledger.release_execution_reject_count == 1
+            "raw reject count": ledger.release_raw_pointer_reject_count == 1
+            "segment map reject count": ledger.release_segment_map_reject_count == 1
+            "arena reject count": ledger.release_arena_reject_count == 1
+            "atomic reject count": ledger.release_atomic_bitmap_reject_count == 1
+            "osvm reject count": ledger.release_osvm_reject_count == 1
+            "thread reject count": ledger.release_thread_reject_count == 1
+            "provider reject count": ledger.release_provider_reject_count == 1
+            "backend reject count": ledger.release_backend_matcher_reject_count == 1
+            "last release token": ledger.last_release_token == 61019007
+            "last release reason": ledger.last_release_reason == 0
+            "last release index": ledger.last_release_index == 1
+            "live count": ledger.live_count == 0
+        }
+
+        print("hako-alloc-segment-allocation-modeled-ledger-release-proof")
+        print("release_first=" + release_first.did_release + "," + release_first.reason + "," + release_first.row_index + "," + release_first.modeled_allocation_token + "," + release_first.segment_id + "," + release_first.page_id + "," + release_first.modeled_block_start + "," + release_first.live_before + "," + release_first.live_after + "," + release_first.ledger_count_after + "," + release_first.ledger_live_count_after)
+        print("release_second=" + release_second.did_release + "," + release_second.reason + "," + release_second.row_index + "," + release_second.modeled_allocation_token + "," + release_second.segment_id + "," + release_second.page_id + "," + release_second.modeled_block_start + "," + release_second.live_before + "," + release_second.live_after + "," + release_second.ledger_count_after + "," + release_second.ledger_live_count_after)
+        print("finds_after=" + first_after + "," + second_after + "," + any_first + "," + any_second)
+        print("rejects=" + invalid.reason + "," + missing.reason + "," + duplicate.reason + "," + real_execution.reason + "," + raw.reason + "," + segment_map.reason + "," + arena.reason + "," + atomic_bitmap.reason + "," + osvm.reason + "," + run_thread.reason + "," + provider.reason + "," + backend_matcher.reason)
+        print("inactive=" + release_first.would_execute_real_segment_free + "," + release_first.would_use_raw_pointer + "," + release_first.would_use_segment_map + "," + release_first.would_allocate_arena_backing + "," + release_first.would_execute_atomic_bitmap + "," + release_first.would_call_osvm + "," + release_first.would_run_thread + "," + release_first.would_activate_provider + "," + release_first.would_add_backend_matcher)
+        print("release_counts=" + ledger.release_attempt_count + "," + ledger.release_count + "," + ledger.release_reject_count + "," + ledger.release_invalid_shape_reject_count + "," + ledger.release_missing_reject_count + "," + ledger.release_duplicate_reject_count + "," + ledger.release_execution_reject_count + "," + ledger.release_raw_pointer_reject_count + "," + ledger.release_segment_map_reject_count + "," + ledger.release_arena_reject_count + "," + ledger.release_atomic_bitmap_reject_count + "," + ledger.release_osvm_reject_count + "," + ledger.release_thread_reject_count + "," + ledger.release_provider_reject_count + "," + ledger.release_backend_matcher_reject_count + "," + ledger.last_release_token + "," + ledger.last_release_reason + "," + ledger.last_release_index + "," + ledger.live_count)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

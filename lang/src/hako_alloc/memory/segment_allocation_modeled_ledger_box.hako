@@ -35,6 +35,30 @@ box HakoAllocSegmentAllocationModeledLedgerReport {
     would_add_backend_matcher: i64 = 0
 }
 
+box HakoAllocSegmentAllocationModeledLedgerReleaseReport {
+    did_release: i64 = 0
+    reason: i64 = 0
+    row_index: i64 = -1
+    modeled_allocation_token: i64 = -1
+    segment_id: i64 = -1
+    page_id: i64 = -1
+    modeled_block_start: i64 = -1
+    live_before: i64 = 0
+    live_after: i64 = 0
+    ledger_count_after: i64 = 0
+    ledger_live_count_after: i64 = 0
+    modeled_release_present: i64 = 1
+    would_execute_real_segment_free: i64 = 0
+    would_use_raw_pointer: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
 box HakoAllocSegmentAllocationModeledLedger {
     tokens: ArrayBox = new ArrayBox()
     segment_ids: ArrayBox = new ArrayBox()
@@ -67,6 +91,24 @@ box HakoAllocSegmentAllocationModeledLedger {
     last_token: i64 = -1
     last_reason: i64 = 0
     last_index: i64 = -1
+    release_attempt_count: i64 = 0
+    release_count: i64 = 0
+    release_reject_count: i64 = 0
+    release_invalid_shape_reject_count: i64 = 0
+    release_missing_reject_count: i64 = 0
+    release_duplicate_reject_count: i64 = 0
+    release_execution_reject_count: i64 = 0
+    release_raw_pointer_reject_count: i64 = 0
+    release_segment_map_reject_count: i64 = 0
+    release_arena_reject_count: i64 = 0
+    release_atomic_bitmap_reject_count: i64 = 0
+    release_osvm_reject_count: i64 = 0
+    release_thread_reject_count: i64 = 0
+    release_provider_reject_count: i64 = 0
+    release_backend_matcher_reject_count: i64 = 0
+    last_release_token: i64 = -1
+    last_release_reason: i64 = 0
+    last_release_index: i64 = -1
 
     makeModeledToken(segment_id, page_id, modeled_block_start) {
         return (segment_id * 1000000) + (page_id * 1000) + modeled_block_start
@@ -92,6 +134,25 @@ box HakoAllocSegmentAllocationModeledLedger {
         me.last_token = modeled_allocation_token
         me.last_reason = reason
         me.last_index = row_index
+        return result
+    }
+
+    releaseReport(did_release, reason, row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, live_before, live_after) {
+        local result = new HakoAllocSegmentAllocationModeledLedgerReleaseReport()
+        result.did_release = did_release
+        result.reason = reason
+        result.row_index = row_index
+        result.modeled_allocation_token = modeled_allocation_token
+        result.segment_id = segment_id
+        result.page_id = page_id
+        result.modeled_block_start = modeled_block_start
+        result.live_before = live_before
+        result.live_after = live_after
+        result.ledger_count_after = me.count
+        result.ledger_live_count_after = me.live_count
+        me.last_release_token = modeled_allocation_token
+        me.last_release_reason = reason
+        me.last_release_index = row_index
         return result
     }
 
@@ -174,6 +235,93 @@ box HakoAllocSegmentAllocationModeledLedger {
         return me.reject(2, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
     }
 
+    rememberReleaseReject(reason) {
+        me.release_reject_count = me.release_reject_count + 1
+        if reason == 1 {
+            me.release_invalid_shape_reject_count = me.release_invalid_shape_reject_count + 1
+        }
+        if reason == 2 {
+            me.release_missing_reject_count = me.release_missing_reject_count + 1
+        }
+        if reason == 3 {
+            me.release_duplicate_reject_count = me.release_duplicate_reject_count + 1
+        }
+        if reason == 4 {
+            me.release_execution_reject_count = me.release_execution_reject_count + 1
+        }
+        if reason == 5 {
+            me.release_raw_pointer_reject_count = me.release_raw_pointer_reject_count + 1
+        }
+        if reason == 6 {
+            me.release_segment_map_reject_count = me.release_segment_map_reject_count + 1
+        }
+        if reason == 7 {
+            me.release_arena_reject_count = me.release_arena_reject_count + 1
+        }
+        if reason == 8 {
+            me.release_atomic_bitmap_reject_count = me.release_atomic_bitmap_reject_count + 1
+        }
+        if reason == 9 {
+            me.release_osvm_reject_count = me.release_osvm_reject_count + 1
+        }
+        if reason == 10 {
+            me.release_thread_reject_count = me.release_thread_reject_count + 1
+        }
+        if reason == 11 {
+            me.release_provider_reject_count = me.release_provider_reject_count + 1
+        }
+        if reason == 12 {
+            me.release_backend_matcher_reject_count = me.release_backend_matcher_reject_count + 1
+        }
+    }
+
+    rejectRelease(reason, row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, live_before, live_after) {
+        me.rememberReleaseReject(reason)
+        return me.releaseReport(0, reason, row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, live_before, live_after)
+    }
+
+    rejectReleaseUnsupportedRequirement(requirement, modeled_allocation_token) {
+        if requirement == 1 {
+            return me.rejectRelease(4, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+        }
+        if requirement == 2 {
+            return me.rejectRelease(5, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+        }
+        if requirement == 3 {
+            return me.rejectRelease(6, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+        }
+        if requirement == 4 {
+            return me.rejectRelease(7, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+        }
+        if requirement == 5 {
+            return me.rejectRelease(8, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+        }
+        if requirement == 6 {
+            return me.rejectRelease(9, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+        }
+        if requirement == 7 {
+            return me.rejectRelease(10, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+        }
+        if requirement == 8 {
+            return me.rejectRelease(11, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+        }
+        if requirement == 9 {
+            return me.rejectRelease(12, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+        }
+        return me.rejectRelease(1, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+    }
+
+    findAnyIndex(modeled_allocation_token): i64 {
+        local i = 0
+        loop(i < me.count) {
+            if me.tokens.get(i) == modeled_allocation_token {
+                return i
+            }
+            i = i + 1
+        }
+        return -1
+    }
+
     findIndex(modeled_allocation_token): i64 {
         local i = 0
         loop(i < me.count) {
@@ -185,6 +333,35 @@ box HakoAllocSegmentAllocationModeledLedger {
             i = i + 1
         }
         return -1
+    }
+
+    releaseModeledToken(modeled_allocation_token, unsupported_requirement) {
+        me.release_attempt_count = me.release_attempt_count + 1
+
+        if modeled_allocation_token < 0 {
+            return me.rejectRelease(1, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+        }
+        if unsupported_requirement != 0 {
+            return me.rejectReleaseUnsupportedRequirement(unsupported_requirement, modeled_allocation_token)
+        }
+
+        local row_index = me.findAnyIndex(modeled_allocation_token)
+        if row_index < 0 {
+            return me.rejectRelease(2, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+        }
+
+        local live_before: i64 = me.live_flags.get(row_index)
+        local segment_id: i64 = me.segment_ids.get(row_index)
+        local page_id: i64 = me.page_ids.get(row_index)
+        local modeled_block_start: i64 = me.block_starts.get(row_index)
+        if live_before == 0 {
+            return me.rejectRelease(3, row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, live_before, 0)
+        }
+
+        me.live_flags.set(row_index, 0)
+        me.live_count = me.live_count - 1
+        me.release_count = me.release_count + 1
+        return me.releaseReport(1, 0, row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, live_before, 0)
     }
 
     tokenAt(index): i64 {

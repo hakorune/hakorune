@@ -256,7 +256,8 @@ Forbidden:
 | `MIMAP-094A` | segment allocation modeled ledger route | landed; selected MIMAP-095A |
 | `MIMAP-095A` | segment allocation modeled ledger closeout guard | landed; selected MIMAP-096A |
 | `MIMAP-096A` | post-segment-allocation-modeled-ledger row selection | landed; selected MIMAP-097A |
-| `MIMAP-097A` | segment allocation modeled ledger release route | selected current |
+| `MIMAP-097A` | segment allocation modeled ledger release route | landed; selected MIMAP-098A |
+| `MIMAP-098A` | segment allocation modeled ledger release closeout guard | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1540,6 +1541,21 @@ It must not execute real segment allocation/free, allocate arena backing, add
 raw pointer residence, use a segment-map pointer lookup, execute atomic bitmap
 claims, call page-source or OSVM seams, schedule threads, activate providers,
 replace the host allocator, or add backend matchers.
+
+MIMAP-097A landed by adding the ledger release report/method, proof app,
+manifest entry, release SSOT, memory README entry, and local-run guard. It
+selects MIMAP-098A.
+
+### MIMAP-098A granularity
+
+MIMAP-098A is a closeout/guard row for the modeled segment allocation ledger
+release route. It must lock MIMAP-097A owner/proof/guard wiring and inactive
+stop lines before any broader segment allocation/free row is selected.
+
+It must not add allocator behavior, execute segment allocation/free, allocate
+arena backing, add raw pointer residence, use segment-map pointer lookup,
+execute atomic bitmap claims, call page-source or OSVM seams, schedule threads,
+activate providers, replace the host allocator, or add backend matchers.
 
 ## Compiler / language sidecar triggers
 
