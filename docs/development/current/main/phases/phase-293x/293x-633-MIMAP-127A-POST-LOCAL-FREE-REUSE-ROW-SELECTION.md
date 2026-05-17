@@ -1,6 +1,6 @@
 # 293x-633 MIMAP-127A Post-Local-Free-Reuse Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -37,4 +37,21 @@ real compiler acceptance blocker.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Landed Result
+
+`MIMAP-127A` selected:
+
+```text
+MIMAP-128A
+  segment allocation modeled local-free reuse closeout guard
+```
+
+Rationale:
+
+```text
+MIMAP-126A added a new allocator behavior owner and proof. The next durable
+slice should freeze the owner/proof/guard/export/stop-line set before adding
+the next allocator behavior.
 ```

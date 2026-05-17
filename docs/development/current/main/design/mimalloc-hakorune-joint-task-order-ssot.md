@@ -34,19 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-127A` is current after `MIMAP-126A` landed modeled local-free reuse.
+`MIMAP-128A` is current after `MIMAP-127A` selected the local-free reuse
+closeout guard.
 
 Recommended current row:
 
 ```text
-MIMAP-127A
-  post-local-free-reuse row selection
+MIMAP-128A
+  segment allocation modeled local-free reuse closeout guard
 ```
 
 Purpose:
 
 ```text
-select exactly one next mimalloc / hako_alloc or Hakorune compiler row
+freeze MIMAP-126A owner/proof/guard/export/README stop-line set
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -159,7 +160,8 @@ no provider activation
 | 90 | source cleanup | `WASM-LOG-001 WAT2WASM stable tags` | landed; selected MIMAP-125A |
 | 91 | planning | `MIMAP-125A post-source-cleanup row selection` | landed; selected MIMAP-126A |
 | 92 | allocator | `MIMAP-126A segment allocation modeled local-free reuse route` | landed; selected MIMAP-127A |
-| 93 | planning | `MIMAP-127A post-local-free-reuse row selection` | selected current |
+| 93 | planning | `MIMAP-127A post-local-free-reuse row selection` | landed; selected MIMAP-128A |
+| 94 | closeout | `MIMAP-128A segment allocation modeled local-free reuse closeout guard` | selected current |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

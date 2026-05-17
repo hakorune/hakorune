@@ -295,7 +295,8 @@ Forbidden:
 | `WASM-LOG-001` | WAT2WASM stable tags | landed; selected MIMAP-125A |
 | `MIMAP-125A` | post-source-cleanup row selection | landed; selected MIMAP-126A |
 | `MIMAP-126A` | segment allocation modeled local-free reuse route | landed; selected MIMAP-127A |
-| `MIMAP-127A` | post-local-free-reuse row selection | selected current |
+| `MIMAP-127A` | post-local-free-reuse row selection | landed; selected MIMAP-128A |
+| `MIMAP-128A` | segment allocation modeled local-free reuse closeout guard | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1820,6 +1821,19 @@ mimalloc / hako_alloc or Hakorune compiler row.
 It must not add allocator behavior, compiler route behavior, source syntax,
 cleanup bundles, provider activation, host allocator replacement, backend
 matchers, or silent fallback.
+
+MIMAP-127A landed by selecting MIMAP-128A.
+
+### MIMAP-128A granularity
+
+MIMAP-128A is a closeout guard row after the local-free reuse behavior route.
+It should freeze the MIMAP-126A owner, proof app, guard entry, module export,
+memory README owner note, check-script index row, manifest row, current
+handoff, and inactive stop-line set.
+
+It must not add allocator behavior, compiler behavior, source syntax, cleanup
+bundles, provider activation, host allocator replacement, backend matchers, or
+silent fallback.
 
 MIMAP-125A landed by selecting MIMAP-126A.
 
