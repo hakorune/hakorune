@@ -231,7 +231,8 @@ Forbidden:
 | `MIMAP-069A` | reclaim scheduler request ledger closeout guard | landed; selected MIMAP-070A |
 | `MIMAP-070A` | post-scheduler-ledger row selection | landed; selected MIMAP-071A |
 | `MIMAP-071A` | reclaim scheduler request ledger consume route | landed; selected MIMAP-072A |
-| `MIMAP-072A` | reclaim scheduler ledger consume closeout guard | selected current |
+| `MIMAP-072A` | reclaim scheduler ledger consume closeout guard | landed; selected MIMAP-073A |
+| `MIMAP-073A` | post-scheduler-consume row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1144,6 +1145,20 @@ accepted SSOT. It selects MIMAP-072A.
 MIMAP-072A is a closeout/guard row for the scheduler request ledger consume
 route. It should lock MIMAP-071A before broader reclaim behavior, real
 scheduler substrate work, or language feature work is selected.
+
+It must not add allocator behavior, execute real scheduling, spawn workers, add
+source-level concurrency semantics, call page-source APIs, unreserve or release
+OSVM pages, activate providers, replace the host allocator, or add backend
+matchers.
+
+MIMAP-072A landed by adding a scheduler request ledger consume closeout SSOT
+and guard. It selects MIMAP-073A.
+
+### MIMAP-073A granularity
+
+MIMAP-073A is a planning-only row. It should select exactly one follow-up after
+the scheduler request ledger consume closeout: scalar allocator behavior, real
+scheduler substrate, a language feature row, or a compiler acceptance sidecar.
 
 It must not add allocator behavior, execute real scheduling, spawn workers, add
 source-level concurrency semantics, call page-source APIs, unreserve or release

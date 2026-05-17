@@ -1,6 +1,6 @@
 # 293x-559 MIMAP-072A Reclaim Scheduler Ledger Consume Closeout Guard
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -50,4 +50,24 @@ or language feature work is selected.
 bash tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_consume_closeout_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Closeout Result
+
+`MIMAP-072A` added:
+
+```text
+docs/development/current/main/design/hako-alloc-reclaim-scheduler-request-ledger-consume-closeout-ssot.md
+tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_consume_closeout_guard.sh
+```
+
+The closeout locks the scalar record and consume lifecycle of
+`HakoAllocReclaimSchedulerRequestLedger` while keeping real scheduling,
+source-level concurrency, page-source/OSVM release, provider activation, and
+backend matchers closed.
+
+Next row:
+
+```text
+MIMAP-073A post-scheduler-consume row selection
 ```
