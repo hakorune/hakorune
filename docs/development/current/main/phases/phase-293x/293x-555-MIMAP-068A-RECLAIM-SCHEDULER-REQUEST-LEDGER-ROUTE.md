@@ -1,6 +1,6 @@
 # 293x-555 MIMAP-068A Reclaim Scheduler Request Ledger Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -65,4 +65,37 @@ bash tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 tools/checks/dev_gate.sh quick
+```
+
+## Implementation Result
+
+`MIMAP-068A` added:
+
+```text
+lang/src/hako_alloc/memory/reclaim_scheduler_request_ledger_box.hako
+apps/hako-alloc-reclaim-scheduler-request-ledger-proof/
+tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_guard.sh
+docs/development/current/main/design/hako-alloc-reclaim-scheduler-request-ledger-ssot.md
+```
+
+The ledger records one pending modeled scheduler request after the MIMAP-064A
+request marker succeeds. Marker-blocked, scheduler-disabled, and
+already-pending rows stay scalar suppressions.
+
+Proof output shape:
+
+```text
+recorded=1,0,1,100,1,1,1,1,2
+duplicate=0,3,1,100,1,1
+disabled=0,2,1,100,0,1
+blocked=0,1,1,100,0,1,3
+inactive=0,0,0,0,0,0,0,0
+counts=4,1,3,1,100,103,1
+summary=ok
+```
+
+Next row:
+
+```text
+MIMAP-069A reclaim scheduler request ledger closeout guard
 ```

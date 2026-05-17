@@ -14,6 +14,7 @@ Current modules
 - `reclaim_post_drain_owner_transfer_box.hako`
 - `reclaim_completion_marker_box.hako`
 - `reclaim_scheduler_request_marker_box.hako`
+- `reclaim_scheduler_request_ledger_box.hako`
 - `thread_heap_owner_inventory_box.hako`
 - `worker_identity_box.hako`
 - `worker_tls_cache_box.hako`
@@ -568,6 +569,13 @@ Syntax/style contract
   is enabled. It must not execute real scheduling, expose source-level
   concurrency semantics, call page-source/OSVM seams, activate providers,
   install hooks, replace the process allocator, or add backend shortcuts.
+- `reclaim_scheduler_request_ledger_box.hako` owns MIMAP-068A scalar reclaim
+  scheduler request ledger route. It may compose MIMAP-064A, record at most
+  one pending modeled scheduler request, and report marker-blocked,
+  scheduler-disabled, and already-pending suppressions. It must not execute
+  real scheduling, spawn workers, expose source-level concurrency, call
+  page-source/OSVM seams, activate providers, install hooks, replace the
+  process allocator, or add backend shortcuts.
 - `reclaim_owner_transfer_contract_box.hako` owns MIMAP-051A reclaim
   owner-transfer contract inventory. It may compose M213 abandoned/reclaim
   facts with M215 thread owner-token facts and report contract-ready vs blocked

@@ -227,7 +227,8 @@ Forbidden:
 | `MIMAP-065A` | reclaim scheduler marker closeout guard | landed; selected MIMAP-066A |
 | `MIMAP-066A` | post-scheduler-marker row selection | landed; selected MIMAP-067A |
 | `MIMAP-067A` | reclaim scheduler substrate proposal-or-park | landed; selected MIMAP-068A |
-| `MIMAP-068A` | reclaim scheduler request ledger route | selected current |
+| `MIMAP-068A` | reclaim scheduler request ledger route | landed; selected MIMAP-069A |
+| `MIMAP-069A` | reclaim scheduler request ledger closeout guard | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1091,6 +1092,20 @@ request marker and records at most one pending modeled scheduler request.
 It must not execute real scheduling, spawn workers, add source-level
 concurrency semantics, call page-source APIs, unreserve or release OSVM pages,
 activate providers, replace the host allocator, or add backend matchers.
+
+MIMAP-068A landed by adding `HakoAllocReclaimSchedulerRequestLedger`, a proof
+app, guard, and accepted SSOT. It selects MIMAP-069A.
+
+### MIMAP-069A granularity
+
+MIMAP-069A is a closeout/guard row for the scheduler request ledger slice. It
+should lock MIMAP-068A before broader reclaim behavior, real scheduler
+substrate work, or language feature work is selected.
+
+It must not add allocator behavior, execute real scheduling, spawn workers, add
+source-level concurrency semantics, call page-source APIs, unreserve or release
+OSVM pages, activate providers, replace the host allocator, or add backend
+matchers.
 
 ## Compiler / language sidecar triggers
 

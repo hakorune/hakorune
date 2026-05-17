@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-067A` landed the reclaim scheduler substrate proposal-or-park row. It
-parks real scheduling for now and selects a scalar request-ledger allocator row.
+`MIMAP-068A` landed the scalar reclaim scheduler request ledger route and
+selected a closeout guard before broader reclaim/scheduler work.
 
 Recommended current row:
 
 ```text
-MIMAP-068A
-  reclaim scheduler request ledger route
+MIMAP-069A
+  reclaim scheduler request ledger closeout guard
 ```
 
 Purpose:
 
 ```text
-record one modeled scheduler request after the request marker succeeds
+lock the scheduler request ledger slice before broader reclaim/scheduler work
 keep real thread scheduling, worker spawning, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -90,7 +90,8 @@ no provider activation
 | 22 | closeout | `MIMAP-065A reclaim scheduler marker closeout guard` | landed; selected MIMAP-066A |
 | 23 | planning | `MIMAP-066A post-scheduler-marker row selection` | landed; selected MIMAP-067A |
 | 24 | planning | `MIMAP-067A reclaim scheduler substrate proposal-or-park` | landed; selected MIMAP-068A |
-| 25 | allocator | `MIMAP-068A reclaim scheduler request ledger route` | current; scalar request record without real scheduling |
+| 25 | allocator | `MIMAP-068A reclaim scheduler request ledger route` | landed; selected MIMAP-069A |
+| 26 | closeout | `MIMAP-069A reclaim scheduler request ledger closeout guard` | current; lock ledger slice |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

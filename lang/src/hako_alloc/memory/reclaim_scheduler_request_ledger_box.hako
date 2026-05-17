@@ -1,0 +1,95 @@
+// reclaim_scheduler_request_ledger_box.hako -- MIMAP-068A scheduler request ledger
+// Responsibility:
+// - compose scalar reclaim scheduler request marker
+// - record at most one executor-local pending scheduler request
+// - keep real scheduling, source concurrency, page-source/OSVM release,
+//   provider, and host replacement closed
+// Non-responsibility:
+// - spawning workers, running scheduler threads, runtime scheduler progress,
+//   source-level concurrency semantics, page-source/OSVM calls, hooks,
+//   allocator replacement, or backend shortcuts
+
+using selfhost.hako_alloc.memory.reclaim_scheduler_request_marker_box as HakoAllocReclaimSchedulerRequestMarker
+
+box HakoAllocReclaimSchedulerRequestLedgerReport {
+    did_record_request: i64 = 0
+    reason: i64 = 0
+    page_id: i64 = -1
+    pending_request: i64 = 0
+    pending_page_id: i64 = -1
+    request_marker: i64 = 0
+    marker_should_request_schedule: i64 = 0
+    marker_reason: i64 = 0
+    marker_did_complete: i64 = 0
+    marker_completion_marker: i64 = 0
+    marker_integration_reason: i64 = 0
+    marker_did_drain: i64 = 0
+    marker_did_transfer: i64 = 0
+    marker_pending_after: i64 = 0
+    marker_owner_after: i64 = -1
+    would_schedule_thread: i64 = 0
+    would_spawn_worker: i64 = 0
+    would_touch_source_concurrency: i64 = 0
+    would_call_page_source: i64 = 0
+    would_unreserve: i64 = 0
+    would_release_osvm: i64 = 0
+    would_activate_provider: i64 = 0
+    would_host_allocator_swap: i64 = 0
+}
+
+box HakoAllocReclaimSchedulerRequestLedger {
+    marker: HakoAllocReclaimSchedulerRequestMarker = new HakoAllocReclaimSchedulerRequestMarker()
+    attempt_count: i64 = 0
+    recorded_count: i64 = 0
+    suppress_count: i64 = 0
+    pending_request: i64 = 0
+    pending_page_id: i64 = -1
+    pending_reason: i64 = 0
+    pending_request_marker: i64 = 0
+    last_page_id: i64 = -1
+    last_reason: i64 = 0
+
+    report(did_record_request, reason, page_id, request_marker, marked) {
+        local result = new HakoAllocReclaimSchedulerRequestLedgerReport()
+        result.did_record_request = did_record_request
+        result.reason = reason
+        result.page_id = page_id
+        result.pending_request = me.pending_request
+        result.pending_page_id = me.pending_page_id
+        result.request_marker = request_marker
+        result.marker_should_request_schedule = marked.should_request_schedule
+        result.marker_reason = marked.reason
+        result.marker_did_complete = marked.did_complete
+        result.marker_completion_marker = marked.completion_marker
+        result.marker_integration_reason = marked.integration_reason
+        result.marker_did_drain = marked.did_drain
+        result.marker_did_transfer = marked.did_transfer
+        result.marker_pending_after = marked.pending_after
+        result.marker_owner_after = marked.owner_after
+        me.last_page_id = page_id
+        me.last_reason = reason
+        return result
+    }
+
+    recordSchedulerRequest(page_id, expected_owner, observed_owner, claimant_owner, remote_free_pending, remote_head, drain_budget, backing_bytes, scheduler_enabled) {
+        me.attempt_count = me.attempt_count + 1
+
+        local marked = me.marker.classifySchedulerRequest(page_id, expected_owner, observed_owner, claimant_owner, remote_free_pending, remote_head, drain_budget, backing_bytes, scheduler_enabled)
+        if marked.should_request_schedule == 0 {
+            me.suppress_count = me.suppress_count + 1
+            return me.report(0, marked.reason, page_id, 0, marked)
+        }
+
+        if me.pending_request == 1 {
+            me.suppress_count = me.suppress_count + 1
+            return me.report(0, 3, page_id, marked.request_marker, marked)
+        }
+
+        me.pending_request = 1
+        me.pending_page_id = page_id
+        me.pending_reason = 0
+        me.pending_request_marker = marked.request_marker
+        me.recorded_count = me.recorded_count + 1
+        return me.report(1, 0, page_id, marked.request_marker, marked)
+    }
+}

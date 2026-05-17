@@ -1,0 +1,74 @@
+// hako-alloc-reclaim-scheduler-request-ledger-proof
+// Purpose: prove MIMAP-068A scalar scheduler request ledger route.
+
+using selfhost.hako_alloc.memory.reclaim_scheduler_request_ledger_box as HakoAllocReclaimSchedulerRequestLedger
+
+static box Main {
+    main(args) {
+        local ledger = new HakoAllocReclaimSchedulerRequestLedger()
+
+        local recorded = ledger.recordSchedulerRequest(100, 1, 1, 2, 1, 900, 1, 4096, 1)
+        local duplicate = ledger.recordSchedulerRequest(101, 3, 3, 4, 0, 0, 1, 4096, 1)
+        local disabled = ledger.recordSchedulerRequest(102, 5, 5, 6, 1, 901, 1, 4096, 0)
+        local blocked = ledger.recordSchedulerRequest(103, 7, 1, 2, 0, 0, 1, 4096, 1)
+
+        local ok = check "mimap068a reclaim scheduler request ledger" {
+            "recorded did record": recorded.did_record_request == 1
+            "recorded reason": recorded.reason == 0
+            "recorded pending": recorded.pending_request == 1
+            "recorded pending page": recorded.pending_page_id == 100
+            "recorded marker": recorded.request_marker == 1
+            "recorded marker should request": recorded.marker_should_request_schedule == 1
+            "recorded marker reason": recorded.marker_reason == 0
+            "recorded complete": recorded.marker_did_complete == 1
+            "recorded did drain": recorded.marker_did_drain == 1
+            "recorded did transfer": recorded.marker_did_transfer == 1
+            "recorded owner after": recorded.marker_owner_after == 2
+            "duplicate suppressed": duplicate.did_record_request == 0
+            "duplicate reason": duplicate.reason == 3
+            "duplicate marker should request": duplicate.marker_should_request_schedule == 1
+            "duplicate keeps pending": duplicate.pending_page_id == 100
+            "disabled suppressed": disabled.did_record_request == 0
+            "disabled reason": disabled.reason == 2
+            "disabled marker suppressed": disabled.marker_should_request_schedule == 0
+            "disabled still complete": disabled.marker_did_complete == 1
+            "blocked suppressed": blocked.did_record_request == 0
+            "blocked reason": blocked.reason == 1
+            "blocked marker suppressed": blocked.marker_should_request_schedule == 0
+            "blocked completion reason": blocked.marker_reason == 1
+            "blocked integration reason": blocked.marker_integration_reason == 3
+            "inactive schedule": recorded.would_schedule_thread == 0
+            "inactive spawn": recorded.would_spawn_worker == 0
+            "inactive source concurrency": recorded.would_touch_source_concurrency == 0
+            "inactive page source": recorded.would_call_page_source == 0
+            "inactive unreserve": recorded.would_unreserve == 0
+            "inactive os release": recorded.would_release_osvm == 0
+            "inactive provider": recorded.would_activate_provider == 0
+            "inactive replacement": recorded.would_host_allocator_swap == 0
+            "attempt count": ledger.attempt_count == 4
+            "recorded count": ledger.recorded_count == 1
+            "suppress count": ledger.suppress_count == 3
+            "pending request": ledger.pending_request == 1
+            "pending page": ledger.pending_page_id == 100
+            "last page": ledger.last_page_id == 103
+            "last reason": ledger.last_reason == 1
+        }
+
+        print("hako-alloc-reclaim-scheduler-request-ledger-proof")
+        print("recorded=" + recorded.did_record_request + "," + recorded.reason + "," + recorded.pending_request + "," + recorded.pending_page_id + "," + recorded.request_marker + "," + recorded.marker_should_request_schedule + "," + recorded.marker_did_drain + "," + recorded.marker_did_transfer + "," + recorded.marker_owner_after)
+        print("duplicate=" + duplicate.did_record_request + "," + duplicate.reason + "," + duplicate.pending_request + "," + duplicate.pending_page_id + "," + duplicate.request_marker + "," + duplicate.marker_should_request_schedule)
+        print("disabled=" + disabled.did_record_request + "," + disabled.reason + "," + disabled.pending_request + "," + disabled.pending_page_id + "," + disabled.marker_should_request_schedule + "," + disabled.marker_did_complete)
+        print("blocked=" + blocked.did_record_request + "," + blocked.reason + "," + blocked.pending_request + "," + blocked.pending_page_id + "," + blocked.marker_should_request_schedule + "," + blocked.marker_reason + "," + blocked.marker_integration_reason)
+        print("inactive=" + recorded.would_schedule_thread + "," + recorded.would_spawn_worker + "," + recorded.would_touch_source_concurrency + "," + recorded.would_call_page_source + "," + recorded.would_unreserve + "," + recorded.would_release_osvm + "," + recorded.would_activate_provider + "," + recorded.would_host_allocator_swap)
+        print("counts=" + ledger.attempt_count + "," + ledger.recorded_count + "," + ledger.suppress_count + "," + ledger.pending_request + "," + ledger.pending_page_id + "," + ledger.last_page_id + "," + ledger.last_reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

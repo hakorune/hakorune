@@ -223,3 +223,10 @@ app = "apps/hako-alloc-reclaim-scheduler-request-marker-proof"
 label = "reclaim scheduler request marker proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_marker_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-068A"
+app = "apps/hako-alloc-reclaim-scheduler-request-ledger-proof"
+label = "reclaim scheduler request ledger proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_guard.sh"]
