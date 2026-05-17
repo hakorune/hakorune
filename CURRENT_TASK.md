@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-05-17
+Date: 2026-05-18
 Scope: current lane / next lane / restart order only.
 
 ## Purpose
@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-114A post-local-free-scalar-closeout row selection`
+  `MIMAP-115A segment allocation modeled local-free page-model apply route`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,8 +74,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `MIMAP-113A`; the next selected
-  blocker is `MIMAP-114A`, post-local-free-scalar-closeout row selection.
+- resume point: continue Phase 293x after `MIMAP-114A`; the next selected
+  blocker is `MIMAP-115A`, segment allocation modeled local-free page-model
+  apply route.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -83,8 +84,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-114A`: select exactly one next row using the mimalloc row validation
-     cadence
+  1. `MIMAP-115A`: apply a successful scalar local-free plan to an explicit
+     `HakoAllocPageModel` through `releaseLocal`
   2. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider
      activation inactive

@@ -275,7 +275,8 @@ Forbidden:
 | `MIMAP-111A` | segment allocation modeled local-free apply plan route | landed; selected MIMAP-112A |
 | `MIMAP-112A` | post-local-free-apply-plan row selection | landed; selected MIMAP-113A |
 | `MIMAP-113A` | segment allocation modeled local-free scalar lane closeout guard | landed; selected MIMAP-114A |
-| `MIMAP-114A` | post-local-free-scalar-closeout row selection | selected current |
+| `MIMAP-114A` | post-local-free-scalar-closeout row selection | landed; selected MIMAP-115A |
+| `MIMAP-115A` | segment allocation modeled local-free page-model apply route | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1591,6 +1592,47 @@ row.
 
 It must not add allocator behavior, parser/compiler behavior, cleanup bundles,
 provider activation, host allocator replacement, or backend matchers.
+
+MIMAP-114A landed by selecting MIMAP-115A.
+
+### MIMAP-115A granularity
+
+MIMAP-115A is a narrow allocator behavior row after the scalar local-free
+closeout. It should consume a successful `MIMAP-111A` apply-plan report and an
+explicit `HakoAllocPageModel`, then release each block in the plan span through
+`HakoAllocPageModel.releaseLocal(block_id)`.
+
+Validation cadence:
+
+```text
+L2 proof row
+```
+
+Allowed:
+
+- add one page-model apply route owner;
+- consume scalar `HakoAllocSegmentAllocationModeledLocalFreeApplyPlanReport`
+  facts;
+- validate the explicit page model page id and block span;
+- call only `HakoAllocPageModel.releaseLocal(block_id)` to mutate page-local
+  state;
+- expose scalar page used/local-free before/after counters and inactive
+  substrate flags;
+- add one focused proof app and guard.
+
+Forbidden:
+
+- real segment allocation/free execution beyond the existing page-local model
+- direct page array mutation outside `HakoAllocPageModel.releaseLocal`
+- raw pointer residence
+- segment-map lookup
+- arena backing allocation
+- atomic bitmap execution
+- page-source / OSVM execution
+- thread scheduling or worker spawning
+- source-level concurrency changes
+- provider activation / hooks / host allocator replacement
+- backend matchers
 
 MIMAP-107A landed by adding the released-span ledger owner, proof app, SSOT,
 manifest entry, module export, README entry, and local guard. It selects

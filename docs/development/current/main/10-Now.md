@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-05-17
+Date: 2026-05-18
 Scope: current lane / blocker / next pointer only.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -34,14 +34,14 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-114A post-local-free-scalar-closeout row selection`
+- current blocker token: `MIMAP-115A segment allocation modeled local-free page-model apply route`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-113A`; current blocker is `MIMAP-114A`
-- planned order: select exactly one row using the mimalloc row validation cadence
+- continue phase-293x after `MIMAP-114A`; current blocker is `MIMAP-115A`
+- planned order: apply a successful scalar local-free plan to an explicit `HakoAllocPageModel` through `releaseLocal`
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

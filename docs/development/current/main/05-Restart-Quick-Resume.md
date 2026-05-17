@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-05-17
+Date: 2026-05-18
 Scope: 再起動直後に 2-5 分で current lane に戻るための最短手順。
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-114A post-local-free-scalar-closeout row selection`
+- current blocker token: `MIMAP-115A segment allocation modeled local-free page-model apply route`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -50,7 +50,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-114A post-local-free-scalar-closeout row selection`
+- current blocker token: `MIMAP-115A segment allocation modeled local-free page-model apply route`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -61,8 +61,8 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after `MIMAP-113A`; current blocker is `MIMAP-114A`
-- next row: select exactly one row using the mimalloc row validation cadence
+- continue `phase-293x` after `MIMAP-114A`; current blocker is `MIMAP-115A`
+- next row: apply a successful scalar local-free plan to an explicit `HakoAllocPageModel` through `releaseLocal`
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

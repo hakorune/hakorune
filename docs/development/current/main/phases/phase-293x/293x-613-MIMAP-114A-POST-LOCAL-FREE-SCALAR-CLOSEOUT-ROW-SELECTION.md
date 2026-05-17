@@ -1,7 +1,7 @@
 # 293x-613 MIMAP-114A Post-Local-Free-Scalar-Closeout Row Selection
 
-Status: selected current
-Date: 2026-05-17
+Status: landed
+Date: 2026-05-18
 
 ## Decision
 
@@ -18,6 +18,34 @@ released-span ledger
 This row should select exactly one next allocator behavior, closeout,
 substrate, or narrow Hakorune acceptance row using the mimalloc validation
 cadence.
+
+## Result
+
+`MIMAP-114A` selects:
+
+```text
+MIMAP-115A segment allocation modeled local-free page-model apply route
+```
+
+Validation cadence:
+
+```text
+L2 proof row:
+  dedicated proof app via run_proof_app.sh --only MIMAP-115A
+  dedicated public guard
+
+L3 compatibility:
+  run MIMAP-008 page/free-list pilot guard if the implementation changes
+  HakoAllocPageModel.releaseLocal behavior
+```
+
+The selected row should consume successful `MIMAP-111A` apply-plan reports and
+apply the scalar block span to an explicitly supplied `HakoAllocPageModel` by
+calling `HakoAllocPageModel.releaseLocal(block_id)` for each block in the span.
+It may open page-local free-list mutation only through that existing page model
+contract. It must not execute real segment free, use raw pointers, perform
+segment-map lookup, execute atomics, call OSVM/page-source seams, or activate
+providers.
 
 ## Scope
 
