@@ -287,8 +287,8 @@ Forbidden:
 | `PURE-FIRST-GLOBAL-CALL-001` | same-module static helper global-call route support | landed; selected MIMAP-123A |
 | `MIMAP-123A` | post-same-module-global-call row selection | landed; selected ROUTE-FIXPOINT-001 |
 | `ROUTE-FIXPOINT-001` | route refresh fixpoint owner extraction | landed; selected ROUTE-DIAG-VOCAB-001 |
-| `ROUTE-DIAG-VOCAB-001` | route diagnostics vocabulary SSOT | parked; resume after guard cleanup |
-| `GUARD-MANIFEST-011` | pure-first route thin wrapper pilot | selected current |
+| `ROUTE-DIAG-VOCAB-001` | route diagnostics vocabulary SSOT | selected current |
+| `GUARD-MANIFEST-011` | pure-first route thin wrapper pilot | landed; selected ROUTE-DIAG-VOCAB-001 |
 
 ### MIMAP-020A granularity
 
@@ -1733,8 +1733,8 @@ It must not add allocator behavior, route acceptance shapes, proof vocabulary,
 source syntax, backend matchers, provider activation, host allocator
 replacement, or silent fallback.
 
-ROUTE-DIAG-VOCAB-001 is parked while GUARD-MANIFEST-011 reduces guard
-boilerplate through the existing manifest runner path.
+ROUTE-DIAG-VOCAB-001 is resumed after GUARD-MANIFEST-011 landed the guard
+boilerplate pilot through the existing manifest runner path.
 
 ### GUARD-MANIFEST-011 granularity
 
@@ -1745,6 +1745,11 @@ public command stable.
 It must not add allocator behavior, compiler route behavior, proof app source
 changes, new generators, shell `eval`, `shell=True`, dev_gate wiring, provider
 activation, host allocator replacement, or silent fallback.
+
+GUARD-MANIFEST-011 landed by moving the pure-first same-module static helper
+global-call guard body to `tools/checks/impl/`, adding a `guard_rows.toml`
+entry, and keeping the public `k2_wide_*` command as a thin wrapper. It selects
+ROUTE-DIAG-VOCAB-001.
 
 MIMAP-111A landed by adding the local-free apply-plan ledger owner, proof app,
 SSOT, manifest entry, module export, README entry, and local guard. It selects

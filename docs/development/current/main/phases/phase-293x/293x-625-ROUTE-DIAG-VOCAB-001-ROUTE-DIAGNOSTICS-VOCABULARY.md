@@ -1,6 +1,6 @@
 # 293x-625 ROUTE-DIAG-VOCAB-001 Route Diagnostics Vocabulary
 
-Status: parked
+Status: selected current
 Date: 2026-05-18
 
 ## Decision
@@ -12,9 +12,8 @@ The route refresh owner is now explicit. The next cleanup is to keep route
 diagnostic reasons from drifting between Rust route planners, MIR JSON
 metadata, Python pure-first preflight, C shim allowlists, and docs.
 
-This row is parked while `GUARD-MANIFEST-011` reduces guard/proof boilerplate
-using the existing manifest runner path. Return here after the guard cleanup
-slice closes.
+`GUARD-MANIFEST-011` has landed the guard/proof boilerplate cleanup pilot.
+This row is resumed as the current compiler cleanup blocker.
 
 ## Scope
 

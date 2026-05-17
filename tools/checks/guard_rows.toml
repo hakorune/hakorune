@@ -43,6 +43,12 @@ profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/proof_app_manifest_test_entry_guard.sh"]
 
 [[rows]]
+id = "pure-first-same-module-static-helper-global-call"
+label = "pure-first same-module static helper global-call guard"
+profiles = ["pilot", "pure-first-route"]
+cmd = ["bash", "tools/checks/impl/k2_wide_pure_first_same_module_static_helper_global_call_guard.sh"]
+
+[[rows]]
 id = "hako-alloc-segment-arena-bitmap-closeout"
 label = "hako_alloc segment arena bitmap closeout guard"
 profiles = ["pilot", "hako-alloc-closeout"]

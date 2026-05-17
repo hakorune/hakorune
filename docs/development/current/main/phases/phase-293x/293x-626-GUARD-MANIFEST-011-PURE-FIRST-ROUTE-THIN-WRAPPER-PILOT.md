@@ -1,6 +1,6 @@
 # 293x-626 GUARD-MANIFEST-011 Pure-First Route Thin Wrapper Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -54,6 +54,24 @@ tools/checks/k2_wide_pure_first_same_module_static_helper_global_call_guard.sh
 | `GM11.4` | Update current pointers. | pointer guard and diff check pass. | no bundle |
 
 ## Required Evidence
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
+bash tools/checks/run_row_guard.sh --only pure-first-same-module-static-helper-global-call
+bash tools/checks/k2_wide_pure_first_same_module_static_helper_global_call_guard.sh
+git diff --check
+```
+
+## Landed Result
+
+- Added `pure-first-same-module-static-helper-global-call` to
+  `tools/checks/guard_rows.toml`.
+- Moved the thick guard body to `tools/checks/impl/`.
+- Kept the public `tools/checks/k2_wide_pure_first_same_module_static_helper_global_call_guard.sh`
+  entry as a thin wrapper around `run_row_guard.sh`.
+- Resumed `ROUTE-DIAG-VOCAB-001`.
+
+Observed evidence:
 
 ```text
 bash tools/checks/current_state_pointer_guard.sh

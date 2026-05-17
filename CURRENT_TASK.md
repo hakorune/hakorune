@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `GUARD-MANIFEST-011 pure-first route thin wrapper pilot`
+  `ROUTE-DIAG-VOCAB-001 route diagnostics vocabulary SSOT`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,9 +74,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `GUARD-MANIFEST-011`, a guard
-  boilerplate cleanup detour. Return to `ROUTE-DIAG-VOCAB-001` after this
-  cleanup closes.
+- resume point: continue Phase 293x with `ROUTE-DIAG-VOCAB-001`, a route
+  diagnostics vocabulary cleanup. `GUARD-MANIFEST-011` has landed the
+  pure-first guard thin wrapper pilot.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -84,9 +84,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `GUARD-MANIFEST-011`: move one recent pure-first `k2_wide_*` guard behind
-     `guard_rows.toml` / `run_row_guard.sh` while keeping the public command
-     stable
+  1. `ROUTE-DIAG-VOCAB-001`: define the route diagnostics vocabulary SSOT and
+     map current pure-first preflight reason strings to it
   2. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider
      activation inactive

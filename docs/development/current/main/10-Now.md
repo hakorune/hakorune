@@ -34,15 +34,16 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `GUARD-MANIFEST-011 pure-first route thin wrapper pilot`
+- current blocker token: `ROUTE-DIAG-VOCAB-001 route diagnostics vocabulary SSOT`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x with `GUARD-MANIFEST-011`; current blocker is a guard
-  boilerplate cleanup detour
-- planned order: move one recent pure-first guard behind `guard_rows.toml`
+- continue phase-293x with `ROUTE-DIAG-VOCAB-001`; current blocker is route
+  diagnostics vocabulary cleanup
+- latest guard cleanup: `GUARD-MANIFEST-011` landed the pure-first guard thin
+  wrapper pilot
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

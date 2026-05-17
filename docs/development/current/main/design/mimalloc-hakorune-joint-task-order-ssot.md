@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`ROUTE-DIAG-VOCAB-001` is parked while a guard boilerplate cleanup detour runs.
+`ROUTE-DIAG-VOCAB-001` is current after the guard boilerplate cleanup pilot
+landed.
 
 Recommended current row:
 
 ```text
-GUARD-MANIFEST-011
-  pure-first route thin wrapper pilot
+ROUTE-DIAG-VOCAB-001
+  route diagnostics vocabulary SSOT
 ```
 
 Purpose:
 
 ```text
-move one recent pure-first guard behind guard_rows.toml / run_row_guard.sh
-keep ROUTE-DIAG-VOCAB-001 parked until the cleanup closes
+define route diagnostics vocabulary and map pure-first preflight reasons to it
 keep real thread scheduling, worker spawning, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -150,8 +150,8 @@ no provider activation
 | 82 | Hakorune compiler | `PURE-FIRST-GLOBAL-CALL-001 same-module static helper global-call route support` | landed; selected MIMAP-123A |
 | 83 | planning | `MIMAP-123A post-same-module-global-call row selection` | landed; selected ROUTE-FIXPOINT-001 |
 | 84 | Hakorune compiler cleanup | `ROUTE-FIXPOINT-001 route refresh fixpoint owner extraction` | landed; selected ROUTE-DIAG-VOCAB-001 |
-| 85 | Hakorune compiler cleanup | `ROUTE-DIAG-VOCAB-001 route diagnostics vocabulary SSOT` | parked; resume after guard cleanup |
-| 86 | guard cleanup | `GUARD-MANIFEST-011 pure-first route thin wrapper pilot` | current; BoxShape only |
+| 85 | Hakorune compiler cleanup | `ROUTE-DIAG-VOCAB-001 route diagnostics vocabulary SSOT` | selected current |
+| 86 | guard cleanup | `GUARD-MANIFEST-011 pure-first route thin wrapper pilot` | landed; selected ROUTE-DIAG-VOCAB-001 |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
