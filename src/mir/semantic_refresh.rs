@@ -31,12 +31,8 @@ use super::{
     },
     extern_call_route_plan::refresh_function_extern_call_routes,
     function::ModuleMetadata,
-    generic_method_route_plan::{
-        refresh_function_generic_method_routes, refresh_module_generic_method_routes,
-    },
-    global_call_route_plan::{
-        refresh_function_global_call_routes, refresh_module_global_call_routes,
-    },
+    generic_method_route_plan::refresh_function_generic_method_routes,
+    global_call_route_plan::refresh_function_global_call_routes,
     hako_alloc_aligned_small_packed_store_pilot::refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans,
     hako_alloc_huge_page_packed_store_pilot::refresh_module_hako_alloc_huge_page_packed_store_pilot_plans,
     map_lookup_fusion_plan::refresh_function_map_lookup_fusion_routes,
@@ -50,6 +46,7 @@ use super::{
     refresh_function_sum_variant_tag_seed_route, refresh_function_thin_entry_candidates,
     refresh_function_thin_entry_selections, refresh_function_userbox_local_scalar_seed_route,
     refresh_function_userbox_loop_micro_seed_route, refresh_function_value_consumer_facts,
+    route_fixpoint::refresh_module_route_fixpoint,
     rune_plan_refresh::refresh_function_rune_plans,
     source_packed_array_autouse_pilot::refresh_module_source_packed_array_autouse_pilot_plans,
     source_packed_array_direct_read_consumption::refresh_module_source_packed_array_direct_read_consumption_plans,
@@ -57,9 +54,7 @@ use super::{
     typed_object_plan::{
         refresh_module_typed_object_field_value_types, refresh_module_typed_object_plans,
     },
-    user_box_method_route_plan::{
-        refresh_function_user_box_method_routes, refresh_module_user_box_method_routes,
-    },
+    user_box_method_route_plan::refresh_function_user_box_method_routes,
     userbox_known_receiver_method_seed_plan::refresh_module_userbox_known_receiver_method_seed_routes,
     MirFunction, MirModule,
 };
@@ -139,21 +134,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
     for function in module.functions.values_mut() {
         refresh_function_semantic_metadata(function, &module_metadata);
     }
-    refresh_module_generic_method_routes(module);
-    refresh_module_global_call_routes(module);
-    refresh_module_user_box_method_routes(module);
-    for function in module.functions.values_mut() {
-        // Some generic method routes depend on global-call target shapes
-        // discovered only at module scope.
-        refresh_function_map_lookup_fusion_routes(function);
-    }
-    refresh_module_typed_object_field_value_types(module);
-    refresh_module_generic_method_routes(module);
-    for _ in 0..4 {
-        refresh_module_global_call_routes(module);
-        refresh_module_user_box_method_routes(module);
-    }
-    refresh_module_global_call_routes(module);
+    refresh_module_route_fixpoint(module);
     refresh_module_userbox_known_receiver_method_seed_routes(module);
     refresh_module_exact_seed_backend_routes(module);
     refresh_module_exact_numeric_value_facts(module);

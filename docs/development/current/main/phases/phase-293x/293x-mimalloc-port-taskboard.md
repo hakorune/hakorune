@@ -448,7 +448,8 @@ FST:
 | `MIMAP-122A` | landed | Post-local-free-integration-closeout row selection. | selected PURE-FIRST-GLOBAL-CALL-001 |
 | `PURE-FIRST-GLOBAL-CALL-001` | landed | Same-module static helper global-call route support. | selected MIMAP-123A |
 | `MIMAP-123A` | landed | Post-same-module-global-call row selection. | selected ROUTE-FIXPOINT-001 |
-| `ROUTE-FIXPOINT-001` | selected current | Route refresh fixpoint owner extraction. | BoxShape only |
+| `ROUTE-FIXPOINT-001` | landed | Route refresh fixpoint owner extraction. | selected ROUTE-DIAG-VOCAB-001 |
+| `ROUTE-DIAG-VOCAB-001` | selected current | Route diagnostics vocabulary SSOT. | BoxShape only |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -456,9 +457,10 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-123A:
-`ROUTE-FIXPOINT-001` extracts the module route refresh convergence sequence
-behind one compiler owner entry before adding more route profiles.
+Current row after ROUTE-FIXPOINT-001:
+`ROUTE-DIAG-VOCAB-001` fixes the route diagnostic reason vocabulary so Rust
+route planners, MIR JSON, pure-first preflight, C shim allowlists, and docs do
+not drift.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,

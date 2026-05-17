@@ -34,16 +34,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `ROUTE-FIXPOINT-001 route refresh fixpoint owner extraction`
+- current blocker token: `ROUTE-DIAG-VOCAB-001 route diagnostics vocabulary SSOT`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-123A`; current blocker is
-  `ROUTE-FIXPOINT-001`
-- planned order: extract route refresh convergence behind one compiler owner
-  entry
+- continue phase-293x after `ROUTE-FIXPOINT-001`; current blocker is
+  `ROUTE-DIAG-VOCAB-001`
+- planned order: define the route diagnostics vocabulary SSOT
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

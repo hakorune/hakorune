@@ -34,21 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-123A` selected a BoxShape compiler cleanup row after the same-module
-static helper global-call sidecar.
+`ROUTE-FIXPOINT-001` landed the explicit module route convergence owner.
 
 Recommended current row:
 
 ```text
-ROUTE-FIXPOINT-001
-  route refresh fixpoint owner extraction
+ROUTE-DIAG-VOCAB-001
+  route diagnostics vocabulary SSOT
 ```
 
 Purpose:
 
 ```text
-extract route refresh convergence behind one compiler owner entry
-preserve existing route behavior
+define the route diagnostics vocabulary SSOT
+prevent Rust route planners, MIR JSON, Python preflight, C shim allowlists, and docs from drifting
 keep real thread scheduling, worker spawning, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -150,7 +149,8 @@ no provider activation
 | 81 | planning | `MIMAP-122A post-local-free-integration-closeout row selection` | landed; selected PURE-FIRST-GLOBAL-CALL-001 |
 | 82 | Hakorune compiler | `PURE-FIRST-GLOBAL-CALL-001 same-module static helper global-call route support` | landed; selected MIMAP-123A |
 | 83 | planning | `MIMAP-123A post-same-module-global-call row selection` | landed; selected ROUTE-FIXPOINT-001 |
-| 84 | Hakorune compiler cleanup | `ROUTE-FIXPOINT-001 route refresh fixpoint owner extraction` | current; BoxShape only |
+| 84 | Hakorune compiler cleanup | `ROUTE-FIXPOINT-001 route refresh fixpoint owner extraction` | landed; selected ROUTE-DIAG-VOCAB-001 |
+| 85 | Hakorune compiler cleanup | `ROUTE-DIAG-VOCAB-001 route diagnostics vocabulary SSOT` | current; BoxShape only |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

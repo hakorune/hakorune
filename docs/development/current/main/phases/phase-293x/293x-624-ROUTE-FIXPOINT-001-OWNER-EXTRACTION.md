@@ -1,6 +1,6 @@
 # 293x-624 ROUTE-FIXPOINT-001 Owner Extraction
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -22,6 +22,13 @@ return contracts
 
 This row extracts a small RouteFixpoint owner so the semantic refresh entry
 does not own that convergence shape directly.
+
+It selects:
+
+```text
+ROUTE-DIAG-VOCAB-001
+  route diagnostics vocabulary SSOT
+```
 
 ## Scope
 
@@ -56,5 +63,25 @@ does not own that convergence shape directly.
 bash tools/checks/current_state_pointer_guard.sh
 cargo test -q global_call_route_plan
 cargo test -q user_box_method_route_plan
+git diff --check
+```
+
+## Landed Result
+
+ROUTE-FIXPOINT-001 landed the explicit owner extraction:
+
+- added `src/mir/route_fixpoint.rs`
+- moved module-level generic/global/user-box route convergence out of
+  `semantic_refresh.rs`
+- preserved the existing bounded refresh sequence
+- kept family-specific route materialization rules unchanged
+
+Observed evidence:
+
+```text
+cargo check -q
+cargo test -q global_call_route_plan
+cargo test -q user_box_method_route_plan
+bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
