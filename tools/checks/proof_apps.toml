@@ -372,6 +372,13 @@ profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_ledger_release_apply_guard.sh"]
 
 [[proof_apps]]
+id = "MIMAP-142A"
+app = "apps/hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-release-applied-recycle-proof"
+label = "segment allocation modeled local-free reuse ledger release-applied recycle proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_ledger_release_applied_recycle_guard.sh"]
+
+[[proof_apps]]
 id = "PURE-FIRST-GLOBAL-CALL-001"
 app = "apps/pure-first-same-module-static-helper-global-call-proof"
 label = "same-module static helper global-call route proof"

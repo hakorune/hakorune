@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-18"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-141A landed by selecting MIMAP-142A segment allocation modeled local-free reuse ledger release-applied recycle proof. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-142A landed segment allocation modeled local-free reuse ledger release-applied recycle proof and selected MIMAP-143A closeout guard. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-650-MIMAP-142A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLIED-RECYCLE-PROOF.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-651-MIMAP-143A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLIED-RECYCLE-CLOSEOUT-GUARD.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-649-MIMAP-141A-POST-GUARD-SPEC-PILOT-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-649-MIMAP-141A-POST-GUARD-SPEC-PILOT-ROW-SELECTION.md"
-latest_card_summary = "MIMAP-141A landed by selecting MIMAP-142A release-applied recycle proof."
+latest_card = "293x-650-MIMAP-142A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLIED-RECYCLE-PROOF"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-650-MIMAP-142A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLIED-RECYCLE-PROOF.md"
+latest_card_summary = "MIMAP-142A landed release-applied local-free reuse ledger token recycle proof and selected MIMAP-143A."
 
-current_blocker_token = "MIMAP-142A"
+current_blocker_token = "MIMAP-143A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-650 MIMAP-142A segment allocation modeled local-free reuse ledger release-applied recycle proof landed; MIMAP-143A selected",
   "293x-649 MIMAP-141A post-guard-spec-pilot row selection landed; MIMAP-142A selected",
   "293x-648 GUARD-MANIFEST-013 declarative guard spec pilot landed; MIMAP-141A selected",
   "293x-647 GUARD-MANIFEST-012 batch migration inventory landed; GUARD-MANIFEST-013 selected",

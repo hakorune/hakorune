@@ -34,21 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-142A` is current after `MIMAP-141A` returned from the guard manifest
-cleanup sidecar to allocator behavior progress.
+`MIMAP-143A` is current after `MIMAP-142A` landed release-applied local-free
+reuse ledger token recycle proof.
 
 Recommended current row:
 
 ```text
-MIMAP-142A
-  segment allocation modeled local-free reuse ledger release-applied recycle proof
+MIMAP-143A
+  segment allocation modeled local-free reuse ledger release-applied recycle closeout guard
 ```
 
 Purpose:
 
 ```text
-prove release-applied local-free reuse ledger tokens can be recorded again as new live rows
-keep live duplicate rejection intact
+freeze release-applied local-free reuse ledger token recycle proof wiring
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -178,7 +177,8 @@ no provider activation
 | 107 | guard cleanup | `GUARD-MANIFEST-012 batch migration inventory` | landed; selected GUARD-MANIFEST-013 |
 | 108 | guard cleanup | `GUARD-MANIFEST-013 declarative guard spec pilot` | landed; selected MIMAP-141A |
 | 109 | planning | `MIMAP-141A post-guard-spec-pilot row selection` | landed; selected MIMAP-142A |
-| 110 | allocator | `MIMAP-142A release-applied local-free reuse ledger token recycle proof` | selected current |
+| 110 | allocator | `MIMAP-142A release-applied local-free reuse ledger token recycle proof` | landed; selected MIMAP-143A |
+| 111 | closeout | `MIMAP-143A release-applied local-free reuse ledger token recycle closeout guard` | selected current |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

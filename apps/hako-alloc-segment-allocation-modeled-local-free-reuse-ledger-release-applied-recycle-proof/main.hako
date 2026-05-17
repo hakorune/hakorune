@@ -1,0 +1,116 @@
+// hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-release-applied-recycle-proof
+// Purpose: prove MIMAP-142A release-applied local-free reuse ledger token recycle.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.segment_allocation_modeled_consume_box as HakoAllocSegmentAllocationModeledConsume
+using selfhost.hako_alloc.memory.segment_allocation_modeled_ledger_box as HakoAllocSegmentAllocationModeledLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_released_span_ledger_box as HakoAllocSegmentAllocationModeledReleasedSpanLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_box as HakoAllocSegmentAllocationModeledLocalFreeReuse
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_ledger_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_ledger_release_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerRelease
+
+static box Main {
+    seedFullPage(page): i64 {
+        local p0 = page.acquire(8)
+        local p1 = page.acquire(8)
+        local p2 = page.acquire(8)
+        local p3 = page.acquire(8)
+        local p4 = page.acquire(8)
+        local p5 = page.acquire(8)
+        local p6 = page.acquire(8)
+        local p7 = page.acquire(8)
+        return p7
+    }
+
+    nextReleasedSpan(consume, allocation_ledger, released_span_ledger, success): HakoAllocSegmentAllocationModeledReleasedSpanLedgerReport {
+        local allocation = allocation_ledger.recordModeledConsume(success.accepted, success.reason, success.segment_id, success.page_id, success.old_page_used, success.page_capacity, success.request_blocks, success.new_page_used, success.remaining_blocks, success.modeled_block_start, success.modeled_allocation_token, 0)
+        local release = allocation_ledger.releaseModeledToken(success.modeled_allocation_token, 0)
+        return released_span_ledger.recordReleasedSpan(release, 0)
+    }
+
+    nextReuseReport(consume, allocation_ledger, released_span_ledger, reuse_route): HakoAllocSegmentAllocationModeledLocalFreeReuseReport {
+        local success = consume.consumeReadiness(1, 0, 60, 18, 2, 8, 3, 0)
+        local page = new HakoAllocPageModel(18, 32, 8, 8)
+        local p7 = Main.seedFullPage(page)
+        local span = Main.nextReleasedSpan(consume, allocation_ledger, released_span_ledger, success)
+        return reuse_route.integrateAndReuseLocalFree(span, page, 8, 0, 0, 0)
+    }
+
+    main(args) {
+        local consume = new HakoAllocSegmentAllocationModeledConsume()
+        local allocation_ledger = new HakoAllocSegmentAllocationModeledLedger()
+        local released_span_ledger = new HakoAllocSegmentAllocationModeledReleasedSpanLedger()
+        local reuse_route = new HakoAllocSegmentAllocationModeledLocalFreeReuse()
+        local reuse_ledger = new HakoAllocSegmentAllocationModeledLocalFreeReuseLedger()
+        local release_ledger = new HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerRelease()
+
+        local reuse = Main.nextReuseReport(consume, allocation_ledger, released_span_ledger, reuse_route)
+        local first = reuse_ledger.recordLocalFreeReuse(reuse, 0)
+        local release = release_ledger.recordReuseLedgerRelease(first, 0)
+        local apply = reuse_ledger.applyReuseLedgerRelease(release, 0)
+        local recycled = reuse_ledger.recordLocalFreeReuse(reuse, 0)
+        local live_duplicate = reuse_ledger.recordLocalFreeReuse(reuse, 0)
+        local token_after_apply = reuse_ledger.tokenAt(0)
+        local token_after_recycle = reuse_ledger.tokenAt(1)
+        local block_after_recycle = reuse_ledger.reusedBlockAt(1)
+
+        local ok = check "mimap142a segment allocation modeled local-free reuse ledger release-applied recycle proof" {
+            "first accepted": first.accepted == 1
+            "first row": first.row_index == 0
+            "first token": first.modeled_reuse_token == 60018004
+            "release accepted": release.did_release == 1
+            "apply accepted": apply.did_apply == 1
+            "apply row": apply.row_index == 0
+            "apply live count": apply.ledger_live_count_after == 0
+            "recycled accepted": recycled.accepted == 1
+            "recycled reason": recycled.reason == 0
+            "recycled row": recycled.row_index == 1
+            "recycled token": recycled.modeled_reuse_token == 60018004
+            "recycled live": recycled.ledger_live_count_after == 1
+            "live duplicate rejected": live_duplicate.accepted == 0
+            "live duplicate reason": live_duplicate.reason == 4
+            "live duplicate existing": live_duplicate.existing_index == 1
+            "old row not live": token_after_apply == -1
+            "new row live": token_after_recycle == 60018004
+            "new block live": block_after_recycle == 4
+            "record attempts": reuse_ledger.attempt_count == 3
+            "accepted count": reuse_ledger.accepted_count == 2
+            "reject count": reuse_ledger.reject_count == 1
+            "duplicate count": reuse_ledger.duplicate_reject_count == 1
+            "ledger count": reuse_ledger.count == 2
+            "ledger live": reuse_ledger.live_count == 1
+            "apply attempts": reuse_ledger.release_apply_attempt_count == 1
+            "apply count": reuse_ledger.release_apply_count == 1
+            "apply rejects": reuse_ledger.release_apply_reject_count == 0
+            "inactive real allocation": recycled.would_execute_real_segment_allocation == 0
+            "inactive real free": recycled.would_execute_real_segment_free == 0
+            "inactive direct page arrays": recycled.would_directly_mutate_page_arrays == 0
+            "inactive raw": recycled.would_use_raw_pointer == 0
+            "inactive segment map": recycled.would_use_segment_map == 0
+            "inactive arena": recycled.would_allocate_arena_backing == 0
+            "inactive atomic": recycled.would_execute_atomic_bitmap == 0
+            "inactive osvm": recycled.would_call_osvm == 0
+            "inactive thread": recycled.would_run_thread == 0
+            "inactive provider": recycled.would_activate_provider == 0
+            "inactive matcher": recycled.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-release-applied-recycle-proof")
+        print("first=" + first.accepted + "," + first.reason + "," + first.row_index + "," + first.modeled_reuse_token + "," + first.ledger_live_count_after)
+        print("apply=" + apply.did_apply + "," + apply.reason + "," + apply.row_index + "," + apply.modeled_reuse_token + "," + apply.ledger_live_count_after)
+        print("recycle=" + recycled.accepted + "," + recycled.reason + "," + recycled.row_index + "," + recycled.modeled_reuse_token + "," + recycled.ledger_live_count_after)
+        print("live_duplicate=" + live_duplicate.accepted + "," + live_duplicate.reason + "," + live_duplicate.existing_index)
+        print("reads=" + token_after_apply + "," + token_after_recycle + "," + block_after_recycle)
+        print("counts=" + reuse_ledger.attempt_count + "," + reuse_ledger.accepted_count + "," + reuse_ledger.reject_count + "," + reuse_ledger.duplicate_reject_count + "," + reuse_ledger.count + "," + reuse_ledger.live_count + "," + reuse_ledger.release_apply_attempt_count + "," + reuse_ledger.release_apply_count + "," + reuse_ledger.release_apply_reject_count)
+        print("inactive=" + recycled.would_execute_real_segment_allocation + "," + recycled.would_execute_real_segment_free + "," + recycled.would_directly_mutate_page_arrays + "," + recycled.would_use_raw_pointer + "," + recycled.would_use_segment_map + "," + recycled.would_allocate_arena_backing + "," + recycled.would_execute_atomic_bitmap + "," + recycled.would_call_osvm + "," + recycled.would_run_thread + "," + recycled.would_activate_provider + "," + recycled.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -312,7 +312,8 @@ Forbidden:
 | `GUARD-MANIFEST-012` | guard manifest batch migration inventory | landed; selected GUARD-MANIFEST-013 |
 | `GUARD-MANIFEST-013` | declarative guard spec pilot | landed; selected MIMAP-141A |
 | `MIMAP-141A` | post-guard-spec-pilot row selection | landed; selected MIMAP-142A |
-| `MIMAP-142A` | segment allocation modeled local-free reuse ledger release-applied recycle proof | selected current |
+| `MIMAP-142A` | segment allocation modeled local-free reuse ledger release-applied recycle proof | landed; selected MIMAP-143A |
+| `MIMAP-143A` | segment allocation modeled local-free reuse ledger release-applied recycle closeout guard | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1854,6 +1855,20 @@ It must not execute real segment allocation/free, mutate real page arrays, use a
 segment-map pointer lookup, allocate arena backing, execute atomic bitmap claims,
 call page-source or OSVM seams, schedule threads, activate providers, replace
 the host allocator, add backend matchers, or silently fallback.
+
+MIMAP-142A landed by adding a proof app, proof-app manifest row, route guard,
+SSOT, check-script index entry, and memory README owner note. It selects
+MIMAP-143A.
+
+### MIMAP-143A granularity
+
+MIMAP-143A is a closeout guard row for the release-applied local-free reuse
+ledger token recycle proof. It should freeze MIMAP-142A owner/proof/docs/guard
+wiring and inactive stop lines before any broader allocator row is selected.
+
+It must not add allocator behavior, compiler route behavior, source syntax,
+provider activation, host allocator replacement, backend matchers, or silent
+fallback.
 
 MIMAP-125A landed by selecting MIMAP-126A.
 

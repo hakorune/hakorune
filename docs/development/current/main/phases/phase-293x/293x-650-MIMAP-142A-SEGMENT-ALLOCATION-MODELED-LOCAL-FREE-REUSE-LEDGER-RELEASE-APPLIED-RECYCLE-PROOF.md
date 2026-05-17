@@ -1,6 +1,6 @@
 # 293x-650 MIMAP-142A Segment Allocation Modeled Local-Free Reuse Ledger Release-Applied Recycle Proof
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -78,4 +78,27 @@ bash tools/checks/run_proof_app.sh --only MIMAP-142A
 bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_ledger_release_applied_recycle_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Landed Result
+
+`MIMAP-142A` landed by adding a proof app, proof-app manifest row, route guard,
+SSOT, check-script index entry, and memory README owner note.
+
+No new owner behavior was needed: the existing source reuse ledger owner already
+keeps lookup live-row aware after release apply. The proof locks that contract:
+
+```text
+first live row accepted
+release apply marks row0 non-live
+same modeled reuse token records as row1 live
+live duplicate is rejected against row1
+row0 reads fail fast, row1 reads succeed
+```
+
+The row selects:
+
+```text
+MIMAP-143A
+  segment allocation modeled local-free reuse ledger release-applied recycle closeout guard
 ```

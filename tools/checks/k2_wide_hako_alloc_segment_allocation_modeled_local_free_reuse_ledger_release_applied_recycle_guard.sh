@@ -1,0 +1,195 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+TAG="k2-wide-hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-release-applied-recycle"
+cd "$ROOT_DIR"
+source "$ROOT_DIR/tools/checks/lib/pure_first_exe_guard.sh"
+
+APP="apps/hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-release-applied-recycle-proof/main.hako"
+APP_README="apps/hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-release-applied-recycle-proof/README.md"
+APP_TEST="apps/hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-release-applied-recycle-proof/test.sh"
+CARD="docs/development/current/main/phases/phase-293x/293x-650-MIMAP-142A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLIED-RECYCLE-PROOF.md"
+SSOT="docs/development/current/main/design/hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-release-applied-recycle-ssot.md"
+PLAN="docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
+JOINT="docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md"
+INDEX="docs/tools/check-scripts-index.md"
+PROOF_MANIFEST="tools/checks/proof_apps.toml"
+MEMORY_README="lang/src/hako_alloc/memory/README.md"
+MODULE="lang/src/hako_alloc/hako_module.toml"
+OWNER="lang/src/hako_alloc/memory/segment_allocation_modeled_local_free_reuse_ledger_box.hako"
+RELEASE_OWNER="lang/src/hako_alloc/memory/segment_allocation_modeled_local_free_reuse_ledger_release_box.hako"
+DEV_GATE="tools/checks/dev_gate.sh"
+ALLOCATOR_GATE="tools/checks/k2_wide_allocator_gate.sh"
+SELF_SCRIPT="tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_ledger_release_applied_recycle_guard.sh"
+
+printf '[%s] checking MIMAP-142A segment allocation modeled local-free reuse ledger release-applied recycle proof\n' "$TAG"
+
+guard_require_files \
+  "$TAG" \
+  "$APP" \
+  "$APP_README" \
+  "$APP_TEST" \
+  "$CARD" \
+  "$SSOT" \
+  "$PLAN" \
+  "$JOINT" \
+  "$INDEX" \
+  "$PROOF_MANIFEST" \
+  "$MEMORY_README" \
+  "$MODULE" \
+  "$OWNER" \
+  "$RELEASE_OWNER" \
+  "$DEV_GATE" \
+  "$ALLOCATOR_GATE" \
+  "$SELF_SCRIPT"
+
+guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
+
+guard_expect_in_file "$TAG" 'Status: landed' "$CARD" "MIMAP-142A card must be landed"
+guard_expect_in_file "$TAG" 'Decision: accepted' "$SSOT" "MIMAP-142A SSOT must be accepted"
+guard_expect_in_file "$TAG" 'MIMAP-142A' "$PLAN" "granularity SSOT must describe MIMAP-142A"
+guard_expect_in_file "$TAG" 'MIMAP-142A release-applied local-free reuse ledger token recycle proof' "$JOINT" "joint order must name MIMAP-142A"
+guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must list MIMAP-142A guard"
+guard_expect_in_file "$TAG" 'id = "MIMAP-142A"' "$PROOF_MANIFEST" "proof app manifest must list MIMAP-142A"
+guard_expect_in_file "$TAG" 'memory.segment_allocation_modeled_local_free_reuse_ledger_box = "memory/segment_allocation_modeled_local_free_reuse_ledger_box.hako"' "$MODULE" "hako module must export reuse ledger owner"
+guard_expect_in_file "$TAG" 'segment_allocation_modeled_local_free_reuse_ledger_box.hako` owns' "$MEMORY_README" "memory README must define reuse ledger owner"
+guard_expect_in_file "$TAG" 'MIMAP-142A' "$MEMORY_README" "memory README must name MIMAP-142A owner"
+guard_expect_in_file "$TAG" 'applyReuseLedgerRelease' "$OWNER" "reuse ledger owner must expose release apply route"
+guard_expect_in_file "$TAG" 'findIndex' "$OWNER" "reuse ledger owner must keep live-row-aware lookup"
+guard_expect_in_file "$TAG" 'check "mimap142a segment allocation modeled local-free reuse ledger release-applied recycle proof"' "$APP" "MIMAP-142A proof must use labelled check block"
+
+if rg -n 'segment_allocation_modeled_ledger_box|recordModeledConsume|releaseModeledToken' "$OWNER" >/tmp/"$TAG".bump_ledger_leak 2>&1; then
+  echo "[$TAG] ERROR: MIMAP-142A owner must not widen or depend on the bump-shaped modeled ledger" >&2
+  cat /tmp/"$TAG".bump_ledger_leak >&2
+  rm -f /tmp/"$TAG".bump_ledger_leak
+  exit 1
+fi
+rm -f /tmp/"$TAG".bump_ledger_leak
+
+if rg -n 'AtomicCoreBox|hako_atomic|cas_i64|fetch_add|spawn[[:space:]]*\(|thread::|worker_local|ChannelBox|TaskGroupBox|nowait|sync[[:space:]]+box|context[[:space:]]|wake|sleep|runQueue|run_queue|SegmentMap|lookupSegment|pointer_member|claimBitmap|unclaimBitmap|observeHeapPage[[:space:]]*\(|selectHeapPage[[:space:]]*\(|attemptHeapPage[[:space:]]*\(|allocateSegment[[:space:]]*\(|freeSegment[[:space:]]*\(|mutateFreeList|freeList|decommitPage[[:space:]]*\(|commitPage[[:space:]]*\(|reservePage[[:space:]]*\(|unreserve[[:space:]]*\(|releasePage[[:space:]]*\(|hako_osvm_(unreserve|release)' \
+  "$OWNER" "$APP" >/tmp/"$TAG".execution_leak 2>&1; then
+  echo "[$TAG] ERROR: MIMAP-142A must not add real segment execution, raw pointer, concurrency, segment-map, atomics, page-source/OS release seams, or backend-visible page release" >&2
+  cat /tmp/"$TAG".execution_leak >&2
+  rm -f /tmp/"$TAG".execution_leak
+  exit 1
+fi
+rm -f /tmp/"$TAG".execution_leak
+
+if rg -n 'page\.(free|local_free|block_used)' "$OWNER" >/tmp/"$TAG".page_array_leak 2>&1; then
+  echo "[$TAG] ERROR: MIMAP-142A owner must not mutate page arrays directly" >&2
+  cat /tmp/"$TAG".page_array_leak >&2
+  rm -f /tmp/"$TAG".page_array_leak
+  exit 1
+fi
+rm -f /tmp/"$TAG".page_array_leak
+
+if rg -n 'NYASH_|HAKO_|std::env|env::|getenv|global_allocator|GlobalAlloc|AllocatorProviderRegistry|selectProvider|install_hook|hook[A-Za-z0-9_]*[[:space:]]*\(|replace_allocator' \
+  "$OWNER" "$APP" "$APP_README" >/tmp/"$TAG".provider_leak 2>&1; then
+  echo "[$TAG] ERROR: MIMAP-142A must not add env/provider/hook/replacement behavior" >&2
+  cat /tmp/"$TAG".provider_leak >&2
+  rm -f /tmp/"$TAG".provider_leak
+  exit 1
+fi
+rm -f /tmp/"$TAG".provider_leak
+
+if rg -n 'hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-release-applied-recycle-proof|LocalFreeReuseLedgerReleaseAppliedRecycle|releaseAppliedRecycle' \
+  lang/c-abi/shims >/tmp/"$TAG".inc_leak 2>&1; then
+  echo "[$TAG] ERROR: MIMAP-142A app/owner matcher leaked into .inc" >&2
+  cat /tmp/"$TAG".inc_leak >&2
+  rm -f /tmp/"$TAG".inc_leak
+  exit 1
+fi
+rm -f /tmp/"$TAG".inc_leak
+
+if rg -n 'k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_ledger_release_applied_recycle_guard\.sh' \
+  "$DEV_GATE" "$ALLOCATOR_GATE" >/tmp/"$TAG".gate_growth 2>&1; then
+  echo "[$TAG] ERROR: MIMAP-142A guard must stay local-run/index-listed by default" >&2
+  cat /tmp/"$TAG".gate_growth >&2
+  rm -f /tmp/"$TAG".gate_growth
+  exit 1
+fi
+rm -f /tmp/"$TAG".gate_growth
+
+pure_first_guard_build_toolchain
+
+tmp_dir="$(mktemp -d /tmp/hakorune_mimap142a_local_free_reuse_ledger_release_applied_recycle.XXXXXX)"
+trap 'rm -rf "$tmp_dir"' EXIT
+
+mir_json="$tmp_dir/mimap142a.mir.json"
+exe_out="$tmp_dir/mimap142a.exe"
+build_log="$tmp_dir/build.log"
+run_log="$tmp_dir/run.log"
+vm_log="$tmp_dir/vm.log"
+
+if ! NYASH_FEATURES=rune NYASH_DISABLE_PLUGINS=1 timeout 120 \
+  "$ROOT_DIR/target/debug/hakorune" --backend vm "$APP" >"$vm_log" 2>&1; then
+  echo "[$TAG] ERROR: VM run failed" >&2
+  sed -n '1,180p' "$vm_log" >&2
+  exit 1
+fi
+
+rg -F -q 'hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-release-applied-recycle-proof' "$vm_log"
+rg -F -q 'first=1,0,0,60018004,1' "$vm_log"
+rg -F -q 'apply=1,0,0,60018004,0' "$vm_log"
+rg -F -q 'recycle=1,0,1,60018004,1' "$vm_log"
+rg -F -q 'live_duplicate=0,4,1' "$vm_log"
+rg -F -q 'reads=-1,60018004,4' "$vm_log"
+rg -F -q 'counts=3,2,1,1,2,1,1,1,0' "$vm_log"
+rg -F -q 'inactive=0,0,0,0,0,0,0,0,0,0,0' "$vm_log"
+rg -F -q 'summary=ok' "$vm_log"
+
+pure_first_guard_emit_mir "$ROOT_DIR" "$APP" "$mir_json"
+
+python3 - "$mir_json" <<'PY'
+import json
+import sys
+
+path = sys.argv[1]
+with open(path, encoding="utf-8") as fh:
+    data = json.load(fh)
+
+functions = {fn.get("name"): fn for fn in data.get("functions", [])}
+required = {
+    "main",
+    "HakoAllocSegmentAllocationModeledLocalFreeReuseLedger.recordLocalFreeReuse/2",
+    "HakoAllocSegmentAllocationModeledLocalFreeReuseLedger.applyReuseLedgerRelease/2",
+    "HakoAllocSegmentAllocationModeledLocalFreeReuseLedger.findIndex/1",
+}
+missing = sorted(name for name in required if functions.get(name) is None)
+if missing:
+    raise SystemExit(f"missing functions: {missing}")
+
+plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+report = plans.get("HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReport")
+if report is None:
+    raise SystemExit("missing local-free reuse ledger report typed object plan")
+
+fields = {field.get("name"): field for field in report.get("fields", [])}
+for name in (
+    "accepted",
+    "modeled_reuse_token",
+    "ledger_live_count_after",
+    "local_free_reuse_ledger_present",
+):
+    if name not in fields:
+        raise SystemExit(f"missing local-free reuse ledger field: {name}")
+
+print("[mimap142a-mir-json] ok")
+PY
+
+pure_first_guard_build_exe "$TAG" "$ROOT_DIR" "$APP" "$mir_json" "$exe_out" "$build_log"
+pure_first_guard_assert_clean_build_log "$TAG" "$build_log"
+pure_first_guard_run_exe "$TAG" "$exe_out" "$run_log"
+
+rg -F -q 'hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-release-applied-recycle-proof' "$run_log"
+rg -F -q 'first=1,0,0,60018004,1' "$run_log"
+rg -F -q 'apply=1,0,0,60018004,0' "$run_log"
+rg -F -q 'recycle=1,0,1,60018004,1' "$run_log"
+rg -F -q 'live_duplicate=0,4,1' "$run_log"
+rg -F -q 'reads=-1,60018004,4' "$run_log"
+rg -F -q 'counts=3,2,1,1,2,1,1,1,0' "$run_log"
+rg -F -q 'inactive=0,0,0,0,0,0,0,0,0,0,0' "$run_log"
+rg -F -q 'summary=ok' "$run_log"
+
+printf '[%s] ok\n' "$TAG"

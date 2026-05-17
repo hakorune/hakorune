@@ -474,7 +474,8 @@ FST:
 | `GUARD-MANIFEST-012` | landed | Guard manifest batch migration inventory. | selected GUARD-MANIFEST-013 |
 | `GUARD-MANIFEST-013` | landed | Declarative guard spec pilot. | selected MIMAP-141A |
 | `MIMAP-141A` | landed | Post-guard-spec-pilot row selection. | selected MIMAP-142A |
-| `MIMAP-142A` | selected current | Segment allocation modeled local-free reuse ledger release-applied recycle proof. | allocator behavior row |
+| `MIMAP-142A` | landed | Segment allocation modeled local-free reuse ledger release-applied recycle proof. | selected MIMAP-143A |
+| `MIMAP-143A` | selected current | Segment allocation modeled local-free reuse ledger release-applied recycle closeout guard. | current closeout row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -483,8 +484,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-142A` proves that a release-applied local-free reuse ledger token can be
-recorded again as a new live row while live duplicates remain rejected.
+`MIMAP-143A` closes out the release-applied local-free reuse ledger token
+recycle proof before the next allocator behavior row is selected.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,
@@ -705,7 +706,8 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `MIMAP-142A` | selected current | Release-applied local-free reuse ledger token recycle proof. | Allocator behavior row; no real free/provider/backend. |
+| `MIMAP-143A` | selected current | Release-applied local-free reuse ledger token recycle closeout guard. | Closeout row; no allocator behavior. |
+| `MIMAP-142A` | landed | Release-applied local-free reuse ledger token recycle proof. | Added proof app and guard; selected MIMAP-143A. |
 | `MIMAP-141A` | landed | Post-guard-spec-pilot row selection. | Selected MIMAP-142A. |
 | `GUARD-MANIFEST-013` | landed | Declarative guard spec pilot for one guard family. | Added spec runner pilot; no mass conversion. |
 | `GUARD-MANIFEST-012` | landed | Batch migration inventory for guard manifest cleanup. | Added inventory guard and selected GUARD-MANIFEST-013. |
