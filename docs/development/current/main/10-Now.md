@@ -32,15 +32,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-089A segment allocation readiness closeout guard`
+- current blocker token: `MIMAP-090A post-segment-allocation-readiness row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-088A`; current blocker is `MIMAP-089A`
-- planned order: close out the segment allocation readiness scalar contract
-  without adding allocator behavior
+- continue phase-293x after `MIMAP-089A`; current blocker is `MIMAP-090A`
+- planned order: select exactly one next mimalloc row after the segment
+  allocation readiness closeout
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

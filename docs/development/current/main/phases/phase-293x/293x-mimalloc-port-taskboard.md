@@ -410,7 +410,8 @@ FST:
 | `MIMAP-086A` | landed | Segment page membership closeout guard. | selected MIMAP-087A |
 | `MIMAP-087A` | landed | Post-segment-page-membership-closeout row selection. | selected MIMAP-088A |
 | `MIMAP-088A` | landed | Segment allocation readiness scalar contract. | selected MIMAP-089A |
-| `MIMAP-089A` | selected current | Segment allocation readiness closeout guard. | after MIMAP-088A |
+| `MIMAP-089A` | landed | Segment allocation readiness closeout guard. | selected MIMAP-090A |
+| `MIMAP-090A` | selected current | Post-segment-allocation-readiness row selection. | after MIMAP-089A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -418,13 +419,13 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-088A:
-`MIMAP-089A` closes out the proof-only scalar segment allocation readiness
-contract. Real thread scheduling, worker spawning, source-level concurrency
-features, segment allocation/free execution, raw pointer residence, atomic
-bitmap execution, arena backing allocation, segment map pointer membership,
-page-source calls, OSVM unreserve/release, provider activation, and backend
-matchers remain closed.
+Current row after MIMAP-089A:
+`MIMAP-090A` selects exactly one next row after the proof-only scalar segment
+allocation readiness closeout. Real thread scheduling, worker spawning,
+source-level concurrency features, segment allocation/free execution, raw
+pointer residence, atomic bitmap execution, arena backing allocation, segment
+map pointer membership, page-source calls, OSVM unreserve/release, provider
+activation, and backend matchers remain closed.
 
 MIMAP-020A execution order:
 

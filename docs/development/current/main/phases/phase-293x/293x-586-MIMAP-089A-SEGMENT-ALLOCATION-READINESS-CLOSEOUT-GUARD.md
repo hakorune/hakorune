@@ -1,6 +1,6 @@
 # 293x-586 MIMAP-089A Segment Allocation Readiness Closeout Guard
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -11,6 +11,12 @@ It should lock the segment allocation readiness scalar contract before broader
 segment behavior, segment allocation/free execution, arena backing, raw pointer
 residence, segment-map lookup, atomic bitmap execution, page-source/OSVM calls,
 thread scheduling, provider activation, or backend matchers are selected.
+
+It selects:
+
+```text
+MIMAP-090A post-segment-allocation-readiness row selection
+```
 
 ## Scope
 
@@ -43,12 +49,14 @@ thread scheduling, provider activation, or backend matchers are selected.
 | --- | --- | --- | --- |
 | `089A.1` | Add closeout SSOT. | docs name MIMAP-088A owner/proof/guard and stop lines. | no behavior |
 | `089A.2` | Add closeout guard. | guard checks MIMAP-088A wiring and inactive seams. | no allocator-wide gate |
-| `089A.3` | Select next row. | next card exists and is selected current. | no bundle |
+| `089A.3` | Select next row. | `MIMAP-090A` exists and is selected current. | no bundle |
 
 ## Required Evidence
 
 ```text
 bash tools/checks/k2_wide_hako_alloc_segment_allocation_readiness_closeout_guard.sh
+[k2-wide-hako-alloc-segment-allocation-readiness-closeout] ok
+
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
