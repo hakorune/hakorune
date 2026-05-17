@@ -297,7 +297,8 @@ Forbidden:
 | `MIMAP-126A` | segment allocation modeled local-free reuse route | landed; selected MIMAP-127A |
 | `MIMAP-127A` | post-local-free-reuse row selection | landed; selected MIMAP-128A |
 | `MIMAP-128A` | segment allocation modeled local-free reuse closeout guard | landed; selected MIMAP-129A |
-| `MIMAP-129A` | post-local-free-reuse-closeout row selection | selected current |
+| `MIMAP-129A` | post-local-free-reuse-closeout row selection | landed; selected MIMAP-130A |
+| `MIMAP-130A` | segment allocation modeled local-free reuse ledger route | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1822,6 +1823,22 @@ mimalloc / hako_alloc or Hakorune compiler row.
 It must not add allocator behavior, compiler route behavior, source syntax,
 cleanup bundles, provider activation, host allocator replacement, backend
 matchers, or silent fallback.
+
+MIMAP-129A landed by selecting MIMAP-130A.
+
+### MIMAP-130A granularity
+
+MIMAP-130A is an allocator behavior row after the local-free reuse closeout. It
+should consume successful modeled local-free reuse reports and record a
+dedicated scalar reuse allocation ledger row keyed by `(segment_id, page_id,
+reused_block_id)`.
+
+It must not widen the bump-shaped `segment_allocation_modeled_ledger_box.hako`
+contract, execute real segment allocation/free, mutate page arrays, use raw
+pointer residence, perform segment-map lookup, allocate arena backing, execute
+atomic bitmap claims, call page-source/OSVM seams, schedule workers, activate
+provider hooks, replace the host allocator, add backend matchers, or introduce
+silent fallback.
 
 MIMAP-127A landed by selecting MIMAP-128A.
 

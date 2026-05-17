@@ -1,6 +1,6 @@
 # 293x-635 MIMAP-129A Post-Local-Free-Reuse-Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -36,4 +36,23 @@ real compiler acceptance blocker.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Landed Result
+
+`MIMAP-129A` selected:
+
+```text
+MIMAP-130A
+  segment allocation modeled local-free reuse ledger route
+```
+
+Rationale:
+
+```text
+MIMAP-126A proves page-local reuse through HakoAllocPageModel.acquire(size),
+but the reused block is not yet represented as a new live modeled allocation
+row. The existing segment allocation modeled ledger is bump-shaped and requires
+modeled_block_start == old_page_used, so reusing a local_free block should use a
+dedicated reuse ledger instead of widening the bump ledger in place.
 ```
