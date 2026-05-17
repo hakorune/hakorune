@@ -4,6 +4,7 @@ use serde_json::Value;
 #[cfg(test)]
 use std::collections::HashMap;
 use std::process;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 mod compile_bridge;
@@ -114,11 +115,13 @@ fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, u32, String
 }
 
 fn temp_seed() -> String {
+    static TEMP_SEED_COUNTER: AtomicU64 = AtomicU64::new(0);
     let now = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap_or_default()
         .as_nanos();
-    format!("{}_{}", std::process::id(), now)
+    let seq = TEMP_SEED_COUNTER.fetch_add(1, Ordering::Relaxed);
+    format!("{}_{}_{}", std::process::id(), now, seq)
 }
 
 #[cfg(test)]
