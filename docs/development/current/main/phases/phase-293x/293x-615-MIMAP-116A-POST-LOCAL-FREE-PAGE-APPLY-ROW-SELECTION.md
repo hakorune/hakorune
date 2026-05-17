@@ -1,6 +1,6 @@
 # 293x-615 MIMAP-116A Post-Local-Free-Page-Apply Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -17,6 +17,26 @@ HakoAllocPageModel.releaseLocal(block_id)
 This row should select exactly one next allocator behavior, closeout,
 substrate, or narrow Hakorune acceptance row using the mimalloc validation
 cadence.
+
+## Result
+
+`MIMAP-116A` selects:
+
+```text
+MIMAP-117A segment allocation modeled local-free page-apply closeout guard
+```
+
+Validation cadence:
+
+```text
+L4 closeout row:
+  manifest-backed row guard via run_row_guard.sh --only <row-id>
+  public k2_wide wrapper
+```
+
+The selected row should freeze the page-model apply seam before any later
+segment-map, raw pointer, arena, atomic bitmap, or provider-facing row is
+selected.
 
 ## Scope
 

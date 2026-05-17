@@ -439,7 +439,8 @@ FST:
 | `MIMAP-113A` | landed | Segment allocation modeled local-free scalar lane closeout guard. | selected MIMAP-114A |
 | `MIMAP-114A` | landed | Post-local-free-scalar-closeout row selection. | selected MIMAP-115A |
 | `MIMAP-115A` | landed | Segment allocation modeled local-free page-model apply route. | selected MIMAP-116A |
-| `MIMAP-116A` | selected current | Post-local-free-page-apply row selection. | after MIMAP-115A |
+| `MIMAP-116A` | landed | Post-local-free-page-apply row selection. | selected MIMAP-117A |
+| `MIMAP-117A` | selected current | Segment allocation modeled local-free page-apply closeout guard. | after MIMAP-116A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -447,8 +448,9 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-115A:
-`MIMAP-116A` selects exactly one next row using the validation cadence SSOT.
+Current row after MIMAP-116A:
+`MIMAP-117A` closes out the page-model local-free apply seam with a
+manifest-backed row guard.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,
