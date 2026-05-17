@@ -1,0 +1,136 @@
+// hako-alloc-segment-allocation-modeled-ledger-proof
+// Purpose: prove MIMAP-094A scalar modeled segment allocation ledger route.
+
+using selfhost.hako_alloc.memory.segment_allocation_modeled_consume_box as HakoAllocSegmentAllocationModeledConsume
+using selfhost.hako_alloc.memory.segment_allocation_modeled_ledger_box as HakoAllocSegmentAllocationModeledLedger
+
+static box Main {
+    main(args) {
+        local consume = new HakoAllocSegmentAllocationModeledConsume()
+        local ledger = new HakoAllocSegmentAllocationModeledLedger()
+
+        local success = consume.consumeReadiness(1, 0, 60, 18, 2, 8, 3, 0)
+        local edge = consume.consumeReadiness(1, 0, 61, 19, 7, 8, 1, 0)
+        local upstream_source = consume.consumeReadiness(0, 2, 62, 20, 2, 8, 3, 0)
+
+        local first = ledger.recordModeledConsume(success.accepted, success.reason, success.segment_id, success.page_id, success.old_page_used, success.page_capacity, success.request_blocks, success.new_page_used, success.remaining_blocks, success.modeled_block_start, success.modeled_allocation_token, 0)
+        local second = ledger.recordModeledConsume(edge.accepted, edge.reason, edge.segment_id, edge.page_id, edge.old_page_used, edge.page_capacity, edge.request_blocks, edge.new_page_used, edge.remaining_blocks, edge.modeled_block_start, edge.modeled_allocation_token, 0)
+        local duplicate = ledger.recordModeledConsume(success.accepted, success.reason, success.segment_id, success.page_id, success.old_page_used, success.page_capacity, success.request_blocks, success.new_page_used, success.remaining_blocks, success.modeled_block_start, success.modeled_allocation_token, 0)
+        local upstream = ledger.recordModeledConsume(upstream_source.accepted, upstream_source.reason, upstream_source.segment_id, upstream_source.page_id, upstream_source.old_page_used, upstream_source.page_capacity, upstream_source.request_blocks, upstream_source.new_page_used, upstream_source.remaining_blocks, upstream_source.modeled_block_start, upstream_source.modeled_allocation_token, 0)
+        local invalid_shape = ledger.recordModeledConsume(1, 0, -1, 21, 2, 8, 3, 5, 3, 2, -1, 0)
+        local mismatch = ledger.recordModeledConsume(1, 0, 63, 22, 2, 8, 3, 6, 2, 2, 63022002, 0)
+
+        local real_execution = ledger.recordModeledConsume(1, 0, 64, 23, 2, 8, 1, 3, 5, 2, 64023002, 1)
+        local raw = ledger.recordModeledConsume(1, 0, 65, 24, 2, 8, 1, 3, 5, 2, 65024002, 2)
+        local segment_map = ledger.recordModeledConsume(1, 0, 66, 25, 2, 8, 1, 3, 5, 2, 66025002, 3)
+        local arena = ledger.recordModeledConsume(1, 0, 67, 26, 2, 8, 1, 3, 5, 2, 67026002, 4)
+        local atomic_bitmap = ledger.recordModeledConsume(1, 0, 68, 27, 2, 8, 1, 3, 5, 2, 68027002, 5)
+        local osvm = ledger.recordModeledConsume(1, 0, 69, 28, 2, 8, 1, 3, 5, 2, 69028002, 6)
+        local run_thread = ledger.recordModeledConsume(1, 0, 70, 29, 2, 8, 1, 3, 5, 2, 70029002, 7)
+        local provider = ledger.recordModeledConsume(1, 0, 71, 30, 2, 8, 1, 3, 5, 2, 71030002, 8)
+        local backend_matcher = ledger.recordModeledConsume(1, 0, 72, 31, 2, 8, 1, 3, 5, 2, 72031002, 9)
+
+        local first_index = ledger.findIndex(success.modeled_allocation_token)
+        local second_index = ledger.findIndex(edge.modeled_allocation_token)
+        local missing_index = ledger.findIndex(999999)
+
+        local ok = check "mimap094a segment allocation modeled ledger route" {
+            "first accepted": first.accepted == 1
+            "first reason": first.reason == 0
+            "first row": first.row_index == 0
+            "first existing": first.existing_index == -1
+            "first token": first.modeled_allocation_token == 60018002
+            "first count": first.ledger_count_after == 1
+            "first live": first.ledger_live_count_after == 1
+            "second accepted": second.accepted == 1
+            "second reason": second.reason == 0
+            "second row": second.row_index == 1
+            "second token": second.modeled_allocation_token == 61019007
+            "second count": second.ledger_count_after == 2
+            "second live": second.ledger_live_count_after == 2
+            "find first": first_index == 0
+            "find second": second_index == 1
+            "find missing": missing_index == -1
+            "token at first": ledger.tokenAt(0) == 60018002
+            "segment at second": ledger.segmentIdAt(1) == 61
+            "page at second": ledger.pageIdAt(1) == 19
+            "block at second": ledger.blockStartAt(1) == 7
+            "new used at second": ledger.newPageUsedAt(1) == 8
+            "remaining at second": ledger.remainingBlocksAt(1) == 0
+            "duplicate rejected": duplicate.accepted == 0
+            "duplicate reason": duplicate.reason == 4
+            "duplicate existing": duplicate.existing_index == 0
+            "upstream rejected": upstream.accepted == 0
+            "upstream reason": upstream.reason == 1
+            "invalid shape rejected": invalid_shape.accepted == 0
+            "invalid shape reason": invalid_shape.reason == 2
+            "mismatch rejected": mismatch.accepted == 0
+            "mismatch reason": mismatch.reason == 3
+            "execution rejected": real_execution.accepted == 0
+            "execution reason": real_execution.reason == 5
+            "raw rejected": raw.accepted == 0
+            "raw reason": raw.reason == 6
+            "segment map rejected": segment_map.accepted == 0
+            "segment map reason": segment_map.reason == 7
+            "arena rejected": arena.accepted == 0
+            "arena reason": arena.reason == 8
+            "atomic rejected": atomic_bitmap.accepted == 0
+            "atomic reason": atomic_bitmap.reason == 9
+            "osvm rejected": osvm.accepted == 0
+            "osvm reason": osvm.reason == 10
+            "thread rejected": run_thread.accepted == 0
+            "thread reason": run_thread.reason == 11
+            "provider rejected": provider.accepted == 0
+            "provider reason": provider.reason == 12
+            "backend rejected": backend_matcher.accepted == 0
+            "backend reason": backend_matcher.reason == 13
+            "inactive real execution": first.would_execute_real_segment_allocation == 0
+            "inactive raw": first.would_use_raw_pointer == 0
+            "inactive segment map": first.would_use_segment_map == 0
+            "inactive arena": first.would_allocate_arena_backing == 0
+            "inactive atomic": first.would_execute_atomic_bitmap == 0
+            "inactive osvm": first.would_call_osvm == 0
+            "inactive thread": first.would_run_thread == 0
+            "inactive provider": first.would_activate_provider == 0
+            "inactive matcher": first.would_add_backend_matcher == 0
+            "attempt count": ledger.attempt_count == 15
+            "accepted count": ledger.accepted_count == 2
+            "reject count": ledger.reject_count == 13
+            "upstream reject count": ledger.upstream_reject_count == 1
+            "invalid shape reject count": ledger.invalid_shape_reject_count == 1
+            "mismatch reject count": ledger.mismatch_reject_count == 1
+            "duplicate reject count": ledger.duplicate_reject_count == 1
+            "execution reject count": ledger.execution_reject_count == 1
+            "raw reject count": ledger.raw_pointer_reject_count == 1
+            "segment map reject count": ledger.segment_map_reject_count == 1
+            "arena reject count": ledger.arena_reject_count == 1
+            "atomic reject count": ledger.atomic_bitmap_reject_count == 1
+            "osvm reject count": ledger.osvm_reject_count == 1
+            "thread reject count": ledger.thread_reject_count == 1
+            "provider reject count": ledger.provider_reject_count == 1
+            "backend reject count": ledger.backend_matcher_reject_count == 1
+            "last token": ledger.last_token == 72031002
+            "last reason": ledger.last_reason == 13
+            "ledger count": ledger.count == 2
+            "ledger live count": ledger.live_count == 2
+        }
+
+        print("hako-alloc-segment-allocation-modeled-ledger-proof")
+        print("first=" + first.accepted + "," + first.reason + "," + first.row_index + "," + first.existing_index + "," + first.modeled_allocation_token + "," + first.segment_id + "," + first.page_id + "," + first.old_page_used + "," + first.request_blocks + "," + first.new_page_used + "," + first.remaining_blocks + "," + first.modeled_block_start + "," + first.ledger_count_after + "," + first.ledger_live_count_after)
+        print("second=" + second.accepted + "," + second.reason + "," + second.row_index + "," + second.existing_index + "," + second.modeled_allocation_token + "," + second.segment_id + "," + second.page_id + "," + second.old_page_used + "," + second.request_blocks + "," + second.new_page_used + "," + second.remaining_blocks + "," + second.modeled_block_start + "," + second.ledger_count_after + "," + second.ledger_live_count_after)
+        print("finds=" + first_index + "," + second_index + "," + missing_index)
+        print("reads=" + ledger.tokenAt(0) + "," + ledger.segmentIdAt(1) + "," + ledger.pageIdAt(1) + "," + ledger.blockStartAt(1) + "," + ledger.newPageUsedAt(1) + "," + ledger.remainingBlocksAt(1))
+        print("rejects=" + upstream.reason + "," + invalid_shape.reason + "," + mismatch.reason + "," + duplicate.reason + "," + real_execution.reason + "," + raw.reason + "," + segment_map.reason + "," + arena.reason + "," + atomic_bitmap.reason + "," + osvm.reason + "," + run_thread.reason + "," + provider.reason + "," + backend_matcher.reason)
+        print("inactive=" + first.would_execute_real_segment_allocation + "," + first.would_use_raw_pointer + "," + first.would_use_segment_map + "," + first.would_allocate_arena_backing + "," + first.would_execute_atomic_bitmap + "," + first.would_call_osvm + "," + first.would_run_thread + "," + first.would_activate_provider + "," + first.would_add_backend_matcher)
+        print("counts=" + ledger.attempt_count + "," + ledger.accepted_count + "," + ledger.reject_count + "," + ledger.upstream_reject_count + "," + ledger.invalid_shape_reject_count + "," + ledger.mismatch_reject_count + "," + ledger.duplicate_reject_count + "," + ledger.execution_reject_count + "," + ledger.raw_pointer_reject_count + "," + ledger.segment_map_reject_count + "," + ledger.arena_reject_count + "," + ledger.atomic_bitmap_reject_count + "," + ledger.osvm_reject_count + "," + ledger.thread_reject_count + "," + ledger.provider_reject_count + "," + ledger.backend_matcher_reject_count + "," + ledger.last_token + "," + ledger.last_reason + "," + ledger.count + "," + ledger.live_count)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

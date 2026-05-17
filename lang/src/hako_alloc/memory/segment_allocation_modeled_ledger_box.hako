@@ -1,0 +1,348 @@
+// segment_allocation_modeled_ledger_box.hako -- MIMAP-094A modeled ledger route
+// Responsibility:
+// - record accepted scalar modeled segment allocation consume results
+// - expose deterministic token lookup/read facts for later rows
+// Non-responsibility:
+// - allocating/freeing real segments, arena backing, raw pointer residence,
+//   segment-map lookup, atomic bitmap execution, OSVM/page-source calls,
+//   worker scheduling, provider activation, host replacement, or backend shortcuts
+
+box HakoAllocSegmentAllocationModeledLedgerReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    row_index: i64 = -1
+    existing_index: i64 = -1
+    segment_id: i64 = -1
+    page_id: i64 = -1
+    old_page_used: i64 = 0
+    page_capacity: i64 = 0
+    request_blocks: i64 = 0
+    new_page_used: i64 = 0
+    remaining_blocks: i64 = 0
+    modeled_block_start: i64 = -1
+    modeled_allocation_token: i64 = -1
+    ledger_count_after: i64 = 0
+    ledger_live_count_after: i64 = 0
+    modeled_ledger_present: i64 = 1
+    would_execute_real_segment_allocation: i64 = 0
+    would_use_raw_pointer: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentAllocationModeledLedger {
+    tokens: ArrayBox = new ArrayBox()
+    segment_ids: ArrayBox = new ArrayBox()
+    page_ids: ArrayBox = new ArrayBox()
+    old_page_useds: ArrayBox = new ArrayBox()
+    page_capacities: ArrayBox = new ArrayBox()
+    request_blocks_list: ArrayBox = new ArrayBox()
+    new_page_useds: ArrayBox = new ArrayBox()
+    remaining_blocks_list: ArrayBox = new ArrayBox()
+    block_starts: ArrayBox = new ArrayBox()
+    live_flags: ArrayBox = new ArrayBox()
+    attempt_count: i64 = 0
+    count: i64 = 0
+    live_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    upstream_reject_count: i64 = 0
+    invalid_shape_reject_count: i64 = 0
+    mismatch_reject_count: i64 = 0
+    duplicate_reject_count: i64 = 0
+    execution_reject_count: i64 = 0
+    raw_pointer_reject_count: i64 = 0
+    segment_map_reject_count: i64 = 0
+    arena_reject_count: i64 = 0
+    atomic_bitmap_reject_count: i64 = 0
+    osvm_reject_count: i64 = 0
+    thread_reject_count: i64 = 0
+    provider_reject_count: i64 = 0
+    backend_matcher_reject_count: i64 = 0
+    last_token: i64 = -1
+    last_reason: i64 = 0
+    last_index: i64 = -1
+
+    makeModeledToken(segment_id, page_id, modeled_block_start) {
+        return (segment_id * 1000000) + (page_id * 1000) + modeled_block_start
+    }
+
+    report(accepted, reason, row_index, existing_index, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token) {
+        local result = new HakoAllocSegmentAllocationModeledLedgerReport()
+        result.accepted = accepted
+        result.reason = reason
+        result.row_index = row_index
+        result.existing_index = existing_index
+        result.segment_id = segment_id
+        result.page_id = page_id
+        result.old_page_used = old_page_used
+        result.page_capacity = page_capacity
+        result.request_blocks = request_blocks
+        result.new_page_used = new_page_used
+        result.remaining_blocks = remaining_blocks
+        result.modeled_block_start = modeled_block_start
+        result.modeled_allocation_token = modeled_allocation_token
+        result.ledger_count_after = me.count
+        result.ledger_live_count_after = me.live_count
+        me.last_token = modeled_allocation_token
+        me.last_reason = reason
+        me.last_index = row_index
+        return result
+    }
+
+    rememberReject(reason) {
+        me.reject_count = me.reject_count + 1
+        if reason == 1 {
+            me.upstream_reject_count = me.upstream_reject_count + 1
+        }
+        if reason == 2 {
+            me.invalid_shape_reject_count = me.invalid_shape_reject_count + 1
+        }
+        if reason == 3 {
+            me.mismatch_reject_count = me.mismatch_reject_count + 1
+        }
+        if reason == 4 {
+            me.duplicate_reject_count = me.duplicate_reject_count + 1
+        }
+        if reason == 5 {
+            me.execution_reject_count = me.execution_reject_count + 1
+        }
+        if reason == 6 {
+            me.raw_pointer_reject_count = me.raw_pointer_reject_count + 1
+        }
+        if reason == 7 {
+            me.segment_map_reject_count = me.segment_map_reject_count + 1
+        }
+        if reason == 8 {
+            me.arena_reject_count = me.arena_reject_count + 1
+        }
+        if reason == 9 {
+            me.atomic_bitmap_reject_count = me.atomic_bitmap_reject_count + 1
+        }
+        if reason == 10 {
+            me.osvm_reject_count = me.osvm_reject_count + 1
+        }
+        if reason == 11 {
+            me.thread_reject_count = me.thread_reject_count + 1
+        }
+        if reason == 12 {
+            me.provider_reject_count = me.provider_reject_count + 1
+        }
+        if reason == 13 {
+            me.backend_matcher_reject_count = me.backend_matcher_reject_count + 1
+        }
+    }
+
+    reject(reason, existing_index, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token) {
+        me.rememberReject(reason)
+        return me.report(0, reason, -1, existing_index, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+    }
+
+    rejectUnsupportedRequirement(requirement, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token) {
+        if requirement == 1 {
+            return me.reject(5, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+        if requirement == 2 {
+            return me.reject(6, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+        if requirement == 3 {
+            return me.reject(7, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+        if requirement == 4 {
+            return me.reject(8, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+        if requirement == 5 {
+            return me.reject(9, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+        if requirement == 6 {
+            return me.reject(10, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+        if requirement == 7 {
+            return me.reject(11, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+        if requirement == 8 {
+            return me.reject(12, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+        if requirement == 9 {
+            return me.reject(13, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+        return me.reject(2, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+    }
+
+    findIndex(modeled_allocation_token): i64 {
+        local i = 0
+        loop(i < me.count) {
+            if me.tokens.get(i) == modeled_allocation_token {
+                if me.live_flags.get(i) == 1 {
+                    return i
+                }
+            }
+            i = i + 1
+        }
+        return -1
+    }
+
+    tokenAt(index): i64 {
+        if index < 0 {
+            return -1
+        }
+        if index >= me.count {
+            return -1
+        }
+        if me.live_flags.get(index) == 0 {
+            return -1
+        }
+        local token: i64 = me.tokens.get(index)
+        return token
+    }
+
+    segmentIdAt(index): i64 {
+        if index < 0 {
+            return -1
+        }
+        if index >= me.count {
+            return -1
+        }
+        if me.live_flags.get(index) == 0 {
+            return -1
+        }
+        local segment_id: i64 = me.segment_ids.get(index)
+        return segment_id
+    }
+
+    pageIdAt(index): i64 {
+        if index < 0 {
+            return -1
+        }
+        if index >= me.count {
+            return -1
+        }
+        if me.live_flags.get(index) == 0 {
+            return -1
+        }
+        local page_id: i64 = me.page_ids.get(index)
+        return page_id
+    }
+
+    blockStartAt(index): i64 {
+        if index < 0 {
+            return -1
+        }
+        if index >= me.count {
+            return -1
+        }
+        if me.live_flags.get(index) == 0 {
+            return -1
+        }
+        local block_start: i64 = me.block_starts.get(index)
+        return block_start
+    }
+
+    newPageUsedAt(index): i64 {
+        if index < 0 {
+            return 0
+        }
+        if index >= me.count {
+            return 0
+        }
+        if me.live_flags.get(index) == 0 {
+            return 0
+        }
+        local new_page_used: i64 = me.new_page_useds.get(index)
+        return new_page_used
+    }
+
+    remainingBlocksAt(index): i64 {
+        if index < 0 {
+            return 0
+        }
+        if index >= me.count {
+            return 0
+        }
+        if me.live_flags.get(index) == 0 {
+            return 0
+        }
+        local remaining_blocks: i64 = me.remaining_blocks_list.get(index)
+        return remaining_blocks
+    }
+
+    appendRow(segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token) {
+        local row_index = me.count
+        me.tokens.push(modeled_allocation_token)
+        me.segment_ids.push(segment_id)
+        me.page_ids.push(page_id)
+        me.old_page_useds.push(old_page_used)
+        me.page_capacities.push(page_capacity)
+        me.request_blocks_list.push(request_blocks)
+        me.new_page_useds.push(new_page_used)
+        me.remaining_blocks_list.push(remaining_blocks)
+        me.block_starts.push(modeled_block_start)
+        me.live_flags.push(1)
+        me.count = me.count + 1
+        me.live_count = me.live_count + 1
+        me.accepted_count = me.accepted_count + 1
+        return row_index
+    }
+
+    recordModeledConsume(consume_accepted, consume_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token, unsupported_requirement) {
+        me.attempt_count = me.attempt_count + 1
+
+        if consume_accepted != 1 {
+            return me.reject(1, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+        if consume_reason != 0 {
+            return me.reject(1, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+        if segment_id < 0 {
+            return me.reject(2, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+        if page_id < 0 {
+            return me.reject(2, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+        if old_page_used < 0 {
+            return me.reject(2, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+        if page_capacity <= 0 {
+            return me.reject(2, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+        if request_blocks <= 0 {
+            return me.reject(2, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+
+        local expected_new_page_used = old_page_used + request_blocks
+        if expected_new_page_used != new_page_used {
+            return me.reject(3, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+        if new_page_used > page_capacity {
+            return me.reject(3, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+        local expected_remaining = page_capacity - new_page_used
+        if expected_remaining != remaining_blocks {
+            return me.reject(3, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+        if modeled_block_start != old_page_used {
+            return me.reject(3, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+        local expected_token = me.makeModeledToken(segment_id, page_id, modeled_block_start)
+        if expected_token != modeled_allocation_token {
+            return me.reject(3, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+
+        if unsupported_requirement != 0 {
+            return me.rejectUnsupportedRequirement(unsupported_requirement, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+
+        local existing_index = me.findIndex(modeled_allocation_token)
+        if existing_index >= 0 {
+            return me.reject(4, existing_index, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        }
+
+        local row_index = me.appendRow(segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+        return me.report(1, 0, row_index, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+    }
+}

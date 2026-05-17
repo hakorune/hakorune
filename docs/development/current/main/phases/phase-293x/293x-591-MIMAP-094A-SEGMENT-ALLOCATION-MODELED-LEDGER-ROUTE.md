@@ -1,6 +1,6 @@
 # 293x-591 MIMAP-094A Segment Allocation Modeled Ledger Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -11,6 +11,16 @@ The previous row can model one accepted allocation consume result from scalar
 readiness facts. This row should add a narrow scalar ledger that records those
 modeled consume results so later rows can reason about allocation tokens without
 opening real segment allocation/free execution.
+
+Result:
+
+```text
+landed:
+  segment allocation modeled ledger route
+
+selected next row:
+  MIMAP-095A segment allocation modeled ledger closeout guard
+```
 
 ## Scope
 

@@ -279,3 +279,10 @@ app = "apps/hako-alloc-segment-allocation-modeled-consume-proof"
 label = "segment allocation modeled consume proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_consume_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-094A"
+app = "apps/hako-alloc-segment-allocation-modeled-ledger-proof"
+label = "segment allocation modeled ledger proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_ledger_guard.sh"]
