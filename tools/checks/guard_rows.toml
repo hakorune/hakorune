@@ -103,6 +103,18 @@ profiles = ["pilot", "hako-alloc-closeout"]
 cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_osvm_fast_path_unreserve_closeout_guard.sh"]
 
 [[rows]]
+id = "hako-alloc-reclaim-scalar-lane-closeout"
+label = "hako_alloc reclaim scalar lane closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_reclaim_scalar_lane_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-reuse-proof-closeout"
+label = "hako_alloc reuse proof closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_reuse_proof_closeout_guard.sh"]
+
+[[rows]]
 id = "k2-wide-manifest-wrapper"
 label = "k2-wide manifest wrapper no-growth guard"
 profiles = ["pilot", "quick-static"]

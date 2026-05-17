@@ -118,7 +118,8 @@ not part of this sidecar:
 | `GUARD-MANIFEST-006` | landed | Select OSVM fast-path closeout guards as the next manifest-backed thin-wrapper family. | after GM005 |
 | `GUARD-MANIFEST-007` | landed | Move the selected OSVM fast-path closeout guards behind manifest rows while keeping public `k2_wide_*` entrypoints stable. | after GM006 |
 | `GUARD-MANIFEST-008` | landed | Select the final public hako_alloc closeout wrappers for manifest-backed migration. | after GM007 |
-| `GUARD-MANIFEST-009` | selected current | Move the final public hako_alloc closeout wrappers behind manifest rows while keeping public `k2_wide_*` entrypoints stable. | after GM008 |
+| `GUARD-MANIFEST-009` | landed | Move the final public hako_alloc closeout wrappers behind manifest rows while keeping public `k2_wide_*` entrypoints stable. | after GM008 |
+| `GUARD-MANIFEST-010` | selected current | Close the manifest-wrapper cleanup burst or select one final helper extraction before returning to MIMAP rows. | after GM009 |
 
 ## Stage1 / Selfhost Ordering Guard
 

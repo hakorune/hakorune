@@ -1,6 +1,6 @@
 # 293x-583 GUARD-MANIFEST-009 Final Closeout Thin Wrappers
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -14,6 +14,16 @@ The selected target is the final public hako_alloc closeout wrapper pair:
 tools/checks/k2_wide_hako_alloc_reclaim_scalar_lane_closeout_guard.sh
 tools/checks/k2_wide_hako_alloc_reuse_proof_closeout_guard.sh
 ```
+
+Next selected row:
+
+```text
+GUARD-MANIFEST-010
+```
+
+`GUARD-MANIFEST-010` should close the manifest-wrapper cleanup burst and decide
+whether to return to the mimalloc allocator row queue or do one final manifest
+helper extraction.
 
 ## Stop Lines
 
@@ -43,4 +53,13 @@ bash tools/checks/k2_wide_manifest_wrapper_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+- Added manifest rows for the final two public hako_alloc closeout wrappers.
+- Moved thick command bodies to `tools/checks/impl/`.
+- Kept public `tools/checks/k2_wide_*_closeout_guard.sh` paths as stable thin
+  wrappers around `run_row_guard.sh --only <id>`.
+- Extended `tools/checks/k2_wide_manifest_wrapper_guard.sh` to cover all
+  manifest-backed public hako_alloc closeout wrappers.
 

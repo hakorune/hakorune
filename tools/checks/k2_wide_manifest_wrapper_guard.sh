@@ -68,6 +68,14 @@ expected = {
         "wrapper": "tools/checks/k2_wide_hako_alloc_osvm_fast_path_unreserve_closeout_guard.sh",
         "impl": "tools/checks/impl/k2_wide_hako_alloc_osvm_fast_path_unreserve_closeout_guard.sh",
     },
+    "hako-alloc-reclaim-scalar-lane-closeout": {
+        "wrapper": "tools/checks/k2_wide_hako_alloc_reclaim_scalar_lane_closeout_guard.sh",
+        "impl": "tools/checks/impl/k2_wide_hako_alloc_reclaim_scalar_lane_closeout_guard.sh",
+    },
+    "hako-alloc-reuse-proof-closeout": {
+        "wrapper": "tools/checks/k2_wide_hako_alloc_reuse_proof_closeout_guard.sh",
+        "impl": "tools/checks/impl/k2_wide_hako_alloc_reuse_proof_closeout_guard.sh",
+    },
 }
 
 rows = data.get("rows")
