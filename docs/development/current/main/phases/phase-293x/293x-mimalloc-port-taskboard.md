@@ -412,7 +412,8 @@ FST:
 | `MIMAP-088A` | landed | Segment allocation readiness scalar contract. | selected MIMAP-089A |
 | `MIMAP-089A` | landed | Segment allocation readiness closeout guard. | selected MIMAP-090A |
 | `MIMAP-090A` | landed | Post-segment-allocation-readiness row selection. | selected MIMAP-091A |
-| `MIMAP-091A` | selected current | Segment allocation modeled consume route. | after MIMAP-090A |
+| `MIMAP-091A` | landed | Segment allocation modeled consume route. | selected MIMAP-092A |
+| `MIMAP-092A` | selected current | Segment allocation modeled consume closeout guard. | after MIMAP-091A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -420,13 +421,13 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-090A:
-`MIMAP-091A` implements one modeled scalar consume route after accepted segment
-allocation readiness. Real thread scheduling, worker spawning, source-level
-concurrency features, real segment allocation/free execution, raw pointer
-residence, atomic bitmap execution, arena backing allocation, segment-map
-pointer membership, page-source calls, OSVM unreserve/release, provider
-activation, and backend matchers remain closed.
+Current row after MIMAP-091A:
+`MIMAP-092A` closes out the modeled scalar segment allocation consume route.
+Real thread scheduling, worker spawning, source-level concurrency features,
+real segment allocation/free execution, raw pointer residence, atomic bitmap
+execution, arena backing allocation, segment-map pointer membership,
+page-source calls, OSVM unreserve/release, provider activation, and backend
+matchers remain closed.
 
 MIMAP-020A execution order:
 

@@ -1,0 +1,195 @@
+// segment_allocation_modeled_consume_box.hako -- MIMAP-091A modeled consume route
+// Responsibility:
+// - consume accepted scalar segment allocation-readiness facts
+// - model page-used / remaining-block changes without raw substrate execution
+// Non-responsibility:
+// - allocating/freeing real segments, arena backing, raw pointer residence,
+//   segment-map lookup, atomic bitmap execution, OSVM/page-source calls,
+//   worker scheduling, provider activation, host replacement, or backend shortcuts
+
+box HakoAllocSegmentAllocationModeledConsumeReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    upstream_reason: i64 = 0
+    segment_id: i64 = -1
+    page_id: i64 = -1
+    old_page_used: i64 = 0
+    page_capacity: i64 = 0
+    request_blocks: i64 = 0
+    new_page_used: i64 = 0
+    remaining_blocks: i64 = 0
+    modeled_block_start: i64 = -1
+    modeled_allocation_token: i64 = -1
+    modeled_consume_present: i64 = 1
+    would_execute_real_segment_allocation: i64 = 0
+    would_use_raw_pointer: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentAllocationModeledConsume {
+    consume_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    readiness_reject_count: i64 = 0
+    invalid_shape_reject_count: i64 = 0
+    capacity_reject_count: i64 = 0
+    execution_reject_count: i64 = 0
+    raw_pointer_reject_count: i64 = 0
+    segment_map_reject_count: i64 = 0
+    arena_reject_count: i64 = 0
+    atomic_bitmap_reject_count: i64 = 0
+    osvm_reject_count: i64 = 0
+    thread_reject_count: i64 = 0
+    provider_reject_count: i64 = 0
+    backend_matcher_reject_count: i64 = 0
+    last_page_id: i64 = -1
+    last_reason: i64 = 0
+    last_new_page_used: i64 = 0
+
+    report(accepted, reason, upstream_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token) {
+        local result = new HakoAllocSegmentAllocationModeledConsumeReport()
+        result.accepted = accepted
+        result.reason = reason
+        result.upstream_reason = upstream_reason
+        result.segment_id = segment_id
+        result.page_id = page_id
+        result.old_page_used = old_page_used
+        result.page_capacity = page_capacity
+        result.request_blocks = request_blocks
+        result.new_page_used = new_page_used
+        result.remaining_blocks = remaining_blocks
+        result.modeled_block_start = modeled_block_start
+        result.modeled_allocation_token = modeled_allocation_token
+        me.last_page_id = page_id
+        me.last_reason = reason
+        me.last_new_page_used = new_page_used
+        return result
+    }
+
+    reject(reason, upstream_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks) {
+        me.reject_count = me.reject_count + 1
+        if reason == 1 {
+            me.readiness_reject_count = me.readiness_reject_count + 1
+        }
+        if reason == 2 {
+            me.invalid_shape_reject_count = me.invalid_shape_reject_count + 1
+        }
+        if reason == 3 {
+            me.capacity_reject_count = me.capacity_reject_count + 1
+        }
+        if reason == 4 {
+            me.execution_reject_count = me.execution_reject_count + 1
+        }
+        if reason == 5 {
+            me.raw_pointer_reject_count = me.raw_pointer_reject_count + 1
+        }
+        if reason == 6 {
+            me.segment_map_reject_count = me.segment_map_reject_count + 1
+        }
+        if reason == 7 {
+            me.arena_reject_count = me.arena_reject_count + 1
+        }
+        if reason == 8 {
+            me.atomic_bitmap_reject_count = me.atomic_bitmap_reject_count + 1
+        }
+        if reason == 9 {
+            me.osvm_reject_count = me.osvm_reject_count + 1
+        }
+        if reason == 10 {
+            me.thread_reject_count = me.thread_reject_count + 1
+        }
+        if reason == 11 {
+            me.provider_reject_count = me.provider_reject_count + 1
+        }
+        if reason == 12 {
+            me.backend_matcher_reject_count = me.backend_matcher_reject_count + 1
+        }
+        return me.report(0, reason, upstream_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, -1, -1)
+    }
+
+    rejectUnsupportedRequirement(requirement, upstream_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks) {
+        if requirement == 1 {
+            return me.reject(4, upstream_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks)
+        }
+        if requirement == 2 {
+            return me.reject(5, upstream_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks)
+        }
+        if requirement == 3 {
+            return me.reject(6, upstream_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks)
+        }
+        if requirement == 4 {
+            return me.reject(7, upstream_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks)
+        }
+        if requirement == 5 {
+            return me.reject(8, upstream_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks)
+        }
+        if requirement == 6 {
+            return me.reject(9, upstream_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks)
+        }
+        if requirement == 7 {
+            return me.reject(10, upstream_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks)
+        }
+        if requirement == 8 {
+            return me.reject(11, upstream_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks)
+        }
+        if requirement == 9 {
+            return me.reject(12, upstream_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks)
+        }
+        return me.reject(2, upstream_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks)
+    }
+
+    makeModeledToken(segment_id, page_id, modeled_block_start) {
+        return (segment_id * 1000000) + (page_id * 1000) + modeled_block_start
+    }
+
+    consumeReadiness(readiness_accepted, readiness_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, unsupported_requirement) {
+        me.consume_count = me.consume_count + 1
+
+        if readiness_accepted != 1 {
+            return me.reject(1, readiness_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, old_page_used, 0)
+        }
+        if readiness_reason != 0 {
+            return me.reject(1, readiness_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, old_page_used, 0)
+        }
+        if segment_id < 0 {
+            return me.reject(2, readiness_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, old_page_used, 0)
+        }
+        if page_id < 0 {
+            return me.reject(2, readiness_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, old_page_used, 0)
+        }
+        if old_page_used < 0 {
+            return me.reject(2, readiness_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, old_page_used, 0)
+        }
+        if page_capacity <= 0 {
+            return me.reject(2, readiness_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, old_page_used, 0)
+        }
+        if old_page_used > page_capacity {
+            return me.reject(2, readiness_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, old_page_used, 0)
+        }
+        if request_blocks <= 0 {
+            return me.reject(2, readiness_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, old_page_used, 0)
+        }
+
+        local new_page_used = old_page_used + request_blocks
+        if new_page_used > page_capacity {
+            local remaining_at_reject = page_capacity - old_page_used
+            return me.reject(3, readiness_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, old_page_used, remaining_at_reject)
+        }
+
+        local remaining_blocks = page_capacity - new_page_used
+        if unsupported_requirement != 0 {
+            return me.rejectUnsupportedRequirement(unsupported_requirement, readiness_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks)
+        }
+
+        local modeled_block_start = old_page_used
+        local modeled_allocation_token = me.makeModeledToken(segment_id, page_id, modeled_block_start)
+        me.accepted_count = me.accepted_count + 1
+        return me.report(1, 0, readiness_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
+    }
+}

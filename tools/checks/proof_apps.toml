@@ -272,3 +272,10 @@ app = "apps/hako-alloc-segment-allocation-readiness-scalar-proof"
 label = "segment allocation readiness scalar proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_readiness_scalar_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-091A"
+app = "apps/hako-alloc-segment-allocation-modeled-consume-proof"
+label = "segment allocation modeled consume proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_consume_guard.sh"]

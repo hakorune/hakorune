@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-091A segment allocation modeled consume route`
+- current blocker token: `MIMAP-092A segment allocation modeled consume closeout guard`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -48,7 +48,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-091A segment allocation modeled consume route`
+- current blocker token: `MIMAP-092A segment allocation modeled consume closeout guard`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -59,9 +59,8 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after `MIMAP-090A`; current blocker is `MIMAP-091A`
-- next row: implement the modeled scalar consume route after accepted segment
-  allocation readiness
+- continue `phase-293x` after `MIMAP-091A`; current blocker is `MIMAP-092A`
+- next row: close out the modeled scalar segment allocation consume route
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

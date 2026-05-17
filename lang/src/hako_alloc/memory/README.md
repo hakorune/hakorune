@@ -17,6 +17,7 @@ Current modules
 - `reclaim_scheduler_request_ledger_box.hako`
 - `segment_page_membership_scalar_box.hako`
 - `segment_allocation_readiness_scalar_box.hako`
+- `segment_allocation_modeled_consume_box.hako`
 - `segment_lifecycle_scalar_state_box.hako`
 - `thread_heap_owner_inventory_box.hako`
 - `worker_identity_box.hako`
@@ -212,6 +213,13 @@ Syntax/style contract
   segment-map lookup, execute atomic bitmap claims, call page-source/OSVM
   seams, schedule workers, activate provider hooks, replace the host allocator,
   or add backend shortcuts.
+- `segment_allocation_modeled_consume_box.hako` owns MIMAP-091A. It may consume
+  accepted scalar segment allocation-readiness facts and model the resulting
+  `page_used` / `remaining_blocks` values plus a stable scalar modeled
+  allocation token. It must not execute real segment allocation/free, allocate
+  arena backing, use raw pointer residence, perform segment-map lookup, execute
+  atomic bitmap claims, call page-source/OSVM seams, schedule workers, activate
+  provider hooks, replace the host allocator, or add backend shortcuts.
 - `object_lifecycle_facade_huge_failfast_box.hako` owns the MIMAP-022B facade
   huge-request fail-fast route. It may classify request size through
   `SizeClassBox`, reject huge requests before invoking the MIMAP-021C

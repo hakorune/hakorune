@@ -1,0 +1,115 @@
+// hako-alloc-segment-allocation-modeled-consume-proof
+// Purpose: prove MIMAP-091A modeled scalar segment allocation consume route.
+
+using selfhost.hako_alloc.memory.segment_allocation_modeled_consume_box as HakoAllocSegmentAllocationModeledConsume
+
+static box Main {
+    main(args) {
+        local consume = new HakoAllocSegmentAllocationModeledConsume()
+
+        local success = consume.consumeReadiness(1, 0, 60, 18, 2, 8, 3, 0)
+        local edge = consume.consumeReadiness(1, 0, 61, 19, 7, 8, 1, 0)
+
+        local readiness_reject = consume.consumeReadiness(0, 2, 62, 20, 2, 8, 3, 0)
+        local invalid_shape = consume.consumeReadiness(1, 0, -1, 21, 2, 8, 3, 0)
+        local capacity_miss = consume.consumeReadiness(1, 0, 64, 22, 7, 8, 2, 0)
+        local real_execution = consume.consumeReadiness(1, 0, 65, 23, 2, 8, 1, 1)
+        local raw = consume.consumeReadiness(1, 0, 66, 24, 2, 8, 1, 2)
+        local segment_map = consume.consumeReadiness(1, 0, 67, 25, 2, 8, 1, 3)
+        local arena = consume.consumeReadiness(1, 0, 68, 26, 2, 8, 1, 4)
+        local atomic_bitmap = consume.consumeReadiness(1, 0, 69, 27, 2, 8, 1, 5)
+        local osvm = consume.consumeReadiness(1, 0, 70, 28, 2, 8, 1, 6)
+        local run_thread = consume.consumeReadiness(1, 0, 71, 29, 2, 8, 1, 7)
+        local provider = consume.consumeReadiness(1, 0, 72, 30, 2, 8, 1, 8)
+        local backend_matcher = consume.consumeReadiness(1, 0, 73, 31, 2, 8, 1, 9)
+
+        local ok = check "mimap091a segment allocation modeled consume route" {
+            "success accepted": success.accepted == 1
+            "success reason": success.reason == 0
+            "success upstream reason": success.upstream_reason == 0
+            "success segment": success.segment_id == 60
+            "success page": success.page_id == 18
+            "success old used": success.old_page_used == 2
+            "success capacity": success.page_capacity == 8
+            "success request": success.request_blocks == 3
+            "success new used": success.new_page_used == 5
+            "success remaining": success.remaining_blocks == 3
+            "success block start": success.modeled_block_start == 2
+            "success token": success.modeled_allocation_token == 60018002
+            "edge accepted": edge.accepted == 1
+            "edge new used": edge.new_page_used == 8
+            "edge remaining": edge.remaining_blocks == 0
+            "edge block start": edge.modeled_block_start == 7
+            "edge token": edge.modeled_allocation_token == 61019007
+            "readiness rejected": readiness_reject.accepted == 0
+            "readiness reason": readiness_reject.reason == 1
+            "readiness upstream": readiness_reject.upstream_reason == 2
+            "invalid shape rejected": invalid_shape.accepted == 0
+            "invalid shape reason": invalid_shape.reason == 2
+            "capacity rejected": capacity_miss.accepted == 0
+            "capacity reason": capacity_miss.reason == 3
+            "capacity remaining": capacity_miss.remaining_blocks == 1
+            "execution rejected": real_execution.accepted == 0
+            "execution reason": real_execution.reason == 4
+            "raw rejected": raw.accepted == 0
+            "raw reason": raw.reason == 5
+            "segment map rejected": segment_map.accepted == 0
+            "segment map reason": segment_map.reason == 6
+            "arena rejected": arena.accepted == 0
+            "arena reason": arena.reason == 7
+            "atomic rejected": atomic_bitmap.accepted == 0
+            "atomic reason": atomic_bitmap.reason == 8
+            "osvm rejected": osvm.accepted == 0
+            "osvm reason": osvm.reason == 9
+            "thread rejected": run_thread.accepted == 0
+            "thread reason": run_thread.reason == 10
+            "provider rejected": provider.accepted == 0
+            "provider reason": provider.reason == 11
+            "backend rejected": backend_matcher.accepted == 0
+            "backend reason": backend_matcher.reason == 12
+            "inactive real execution": success.would_execute_real_segment_allocation == 0
+            "inactive raw": success.would_use_raw_pointer == 0
+            "inactive segment map": success.would_use_segment_map == 0
+            "inactive arena": success.would_allocate_arena_backing == 0
+            "inactive atomic": success.would_execute_atomic_bitmap == 0
+            "inactive osvm": success.would_call_osvm == 0
+            "inactive thread": success.would_run_thread == 0
+            "inactive provider": success.would_activate_provider == 0
+            "inactive matcher": success.would_add_backend_matcher == 0
+            "consume count": consume.consume_count == 14
+            "accepted count": consume.accepted_count == 2
+            "reject count": consume.reject_count == 12
+            "readiness reject count": consume.readiness_reject_count == 1
+            "invalid shape reject count": consume.invalid_shape_reject_count == 1
+            "capacity reject count": consume.capacity_reject_count == 1
+            "execution reject count": consume.execution_reject_count == 1
+            "raw reject count": consume.raw_pointer_reject_count == 1
+            "segment map reject count": consume.segment_map_reject_count == 1
+            "arena reject count": consume.arena_reject_count == 1
+            "atomic reject count": consume.atomic_bitmap_reject_count == 1
+            "osvm reject count": consume.osvm_reject_count == 1
+            "thread reject count": consume.thread_reject_count == 1
+            "provider reject count": consume.provider_reject_count == 1
+            "backend reject count": consume.backend_matcher_reject_count == 1
+            "last page": consume.last_page_id == 31
+            "last reason": consume.last_reason == 12
+            "last new used": consume.last_new_page_used == 3
+        }
+
+        print("hako-alloc-segment-allocation-modeled-consume-proof")
+        print("success=" + success.accepted + "," + success.reason + "," + success.segment_id + "," + success.page_id + "," + success.old_page_used + "," + success.request_blocks + "," + success.new_page_used + "," + success.remaining_blocks + "," + success.modeled_block_start + "," + success.modeled_allocation_token)
+        print("edge=" + edge.accepted + "," + edge.reason + "," + edge.segment_id + "," + edge.page_id + "," + edge.old_page_used + "," + edge.request_blocks + "," + edge.new_page_used + "," + edge.remaining_blocks + "," + edge.modeled_block_start + "," + edge.modeled_allocation_token)
+        print("rejects=" + readiness_reject.reason + "," + invalid_shape.reason + "," + capacity_miss.reason + "," + real_execution.reason + "," + raw.reason + "," + segment_map.reason + "," + arena.reason + "," + atomic_bitmap.reason + "," + osvm.reason + "," + run_thread.reason + "," + provider.reason + "," + backend_matcher.reason)
+        print("inactive=" + success.would_execute_real_segment_allocation + "," + success.would_use_raw_pointer + "," + success.would_use_segment_map + "," + success.would_allocate_arena_backing + "," + success.would_execute_atomic_bitmap + "," + success.would_call_osvm + "," + success.would_run_thread + "," + success.would_activate_provider + "," + success.would_add_backend_matcher)
+        print("counts=" + consume.consume_count + "," + consume.accepted_count + "," + consume.reject_count + "," + consume.readiness_reject_count + "," + consume.invalid_shape_reject_count + "," + consume.capacity_reject_count + "," + consume.execution_reject_count + "," + consume.raw_pointer_reject_count + "," + consume.segment_map_reject_count + "," + consume.arena_reject_count + "," + consume.atomic_bitmap_reject_count + "," + consume.osvm_reject_count + "," + consume.thread_reject_count + "," + consume.provider_reject_count + "," + consume.backend_matcher_reject_count + "," + consume.last_page_id + "," + consume.last_reason + "," + consume.last_new_page_used)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

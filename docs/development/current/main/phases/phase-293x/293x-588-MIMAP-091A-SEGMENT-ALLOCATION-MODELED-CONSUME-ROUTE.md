@@ -1,6 +1,6 @@
 # 293x-588 MIMAP-091A Segment Allocation Modeled Consume Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -20,6 +20,16 @@ This is still an in-memory `.hako` / `hako_alloc` proof route. It does not
 allocate real segments, allocate arena backing, claim bitmaps, look up raw
 pointers, call OSVM/page-source seams, run workers, activate providers, or
 replace the process allocator.
+
+Result:
+
+```text
+landed:
+  segment allocation modeled consume owner/proof/guard
+
+selected next row:
+  MIMAP-092A segment allocation modeled consume closeout guard
+```
 
 ## Scope
 
@@ -65,7 +75,7 @@ Forbidden:
 | `091A.2` | Add `.hako` owner and module export. | owner returns scalar report and counters. | no raw substrate |
 | `091A.3` | Add proof app. | VM/MIR/EXE observable output covers success and rejection. | no app workaround |
 | `091A.4` | Add guard/index/manifest wiring. | row guard passes locally. | no guard bundle |
-| `091A.5` | Select next row. | current pointers move to a closeout or next narrow row. | no extra behavior |
+| `091A.5` | Select next row. | current pointers move to `MIMAP-092A`. | no extra behavior |
 
 ## Required Evidence
 
