@@ -306,7 +306,8 @@ Forbidden:
 | `MIMAP-135A` | post-local-free-reuse-ledger-release row selection | landed; selected MIMAP-136A |
 | `MIMAP-136A` | segment allocation modeled local-free reuse ledger release closeout guard | landed; selected MIMAP-137A |
 | `MIMAP-137A` | post-local-free-reuse-ledger-release-closeout row selection | landed; selected MIMAP-138A |
-| `MIMAP-138A` | segment allocation modeled local-free reuse ledger release apply route | selected current |
+| `MIMAP-138A` | segment allocation modeled local-free reuse ledger release apply route | landed; selected MIMAP-139A |
+| `MIMAP-139A` | segment allocation modeled local-free reuse ledger release apply closeout guard | selected current |
 
 ### MIMAP-020A granularity
 
@@ -2010,6 +2011,21 @@ report, one proof app, and one guard. It must not add released-token recycle,
 real segment free, page array mutation, raw pointer residence, segment-map
 lookup, atomics, page-source/OSVM calls, thread scheduling, provider
 activation, host allocator replacement, backend matchers, or silent fallback.
+
+MIMAP-138A landed by adding the source-ledger-owned release apply report and
+method, proof app, proof manifest row, check-script index row, and dedicated
+guard. It selects MIMAP-139A.
+
+### MIMAP-139A granularity
+
+MIMAP-139A is a closeout guard row after the modeled local-free reuse ledger
+release apply route. It should freeze the MIMAP-138A owner changes, proof app,
+memory README owner note, proof manifest row, check-script index row, current
+handoff, and inactive stop-line set.
+
+It must not add allocator behavior, compiler behavior, source syntax, cleanup
+bundles, provider activation, host allocator replacement, backend matchers, or
+silent fallback.
 
 ### MIMAP-112A granularity
 

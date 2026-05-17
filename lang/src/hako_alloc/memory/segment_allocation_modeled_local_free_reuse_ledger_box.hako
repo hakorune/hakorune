@@ -38,6 +38,33 @@ box HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReport {
     would_add_backend_matcher: i64 = 0
 }
 
+box HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport {
+    did_apply: i64 = 0
+    reason: i64 = 0
+    row_index: i64 = -1
+    existing_index: i64 = -1
+    modeled_reuse_token: i64 = -1
+    source_modeled_allocation_token: i64 = -1
+    segment_id: i64 = -1
+    page_id: i64 = -1
+    reused_block_id: i64 = -1
+    release_apply_count_after: i64 = 0
+    release_apply_reject_count_after: i64 = 0
+    ledger_live_count_after: i64 = 0
+    local_free_reuse_ledger_release_apply_present: i64 = 1
+    would_execute_real_segment_allocation: i64 = 0
+    would_execute_real_segment_free: i64 = 0
+    would_directly_mutate_page_arrays: i64 = 0
+    would_use_raw_pointer: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
 box HakoAllocSegmentAllocationModeledLocalFreeReuseLedger {
     tokens: ArrayBox = new ArrayBox()
     source_tokens: ArrayBox = new ArrayBox()
@@ -67,6 +94,22 @@ box HakoAllocSegmentAllocationModeledLocalFreeReuseLedger {
     thread_reject_count: i64 = 0
     provider_reject_count: i64 = 0
     backend_matcher_reject_count: i64 = 0
+    release_apply_attempt_count: i64 = 0
+    release_apply_count: i64 = 0
+    release_apply_reject_count: i64 = 0
+    release_apply_upstream_reject_count: i64 = 0
+    release_apply_invalid_shape_reject_count: i64 = 0
+    release_apply_duplicate_reject_count: i64 = 0
+    release_apply_missing_reject_count: i64 = 0
+    release_apply_execution_reject_count: i64 = 0
+    release_apply_raw_pointer_reject_count: i64 = 0
+    release_apply_segment_map_reject_count: i64 = 0
+    release_apply_arena_reject_count: i64 = 0
+    release_apply_atomic_bitmap_reject_count: i64 = 0
+    release_apply_osvm_reject_count: i64 = 0
+    release_apply_thread_reject_count: i64 = 0
+    release_apply_provider_reject_count: i64 = 0
+    release_apply_backend_matcher_reject_count: i64 = 0
     last_token: i64 = -1
     last_reason: i64 = 0
     last_index: i64 = -1
@@ -204,6 +247,17 @@ box HakoAllocSegmentAllocationModeledLocalFreeReuseLedger {
         return -1
     }
 
+    findAnyIndex(modeled_reuse_token): i64 {
+        local i = 0
+        loop(i < me.count) {
+            if me.tokens.get(i) == modeled_reuse_token {
+                return i
+            }
+            i += 1
+        }
+        return -1
+    }
+
     appendRowFromReuseReport(modeled_reuse_token, reuse_report): i64 {
         local row_index = me.count
         me.tokens.push(modeled_reuse_token)
@@ -279,6 +333,157 @@ box HakoAllocSegmentAllocationModeledLocalFreeReuseLedger {
 
         local row_index = me.appendRowFromReuseReport(modeled_reuse_token, reuse_report)
         return me.acceptFromReuseReport(row_index, reuse_report, modeled_reuse_token)
+    }
+
+    acceptReleaseApply(row_index, release_report): HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport {
+        me.live_flags.set(row_index, 0)
+        me.live_count -= 1
+        me.release_apply_count += 1
+
+        local result = new HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport()
+        result.did_apply = 1
+        result.reason = 0
+        result.row_index = row_index
+        result.existing_index = -1
+        result.modeled_reuse_token = release_report.modeled_reuse_token
+        result.source_modeled_allocation_token = release_report.source_modeled_allocation_token
+        result.segment_id = release_report.segment_id
+        result.page_id = release_report.page_id
+        result.reused_block_id = release_report.reused_block_id
+        result.release_apply_count_after = me.release_apply_count
+        result.release_apply_reject_count_after = me.release_apply_reject_count
+        result.ledger_live_count_after = me.live_count
+        me.last_token = release_report.modeled_reuse_token
+        me.last_reason = 0
+        me.last_index = row_index
+        return result
+    }
+
+    rejectReleaseApply(reason, existing_index, release_report): HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport {
+        me.release_apply_reject_count += 1
+        if reason == 1 {
+            me.release_apply_upstream_reject_count += 1
+        }
+        if reason == 2 {
+            me.release_apply_invalid_shape_reject_count += 1
+        }
+        if reason == 3 {
+            me.release_apply_duplicate_reject_count += 1
+        }
+        if reason == 4 {
+            me.release_apply_missing_reject_count += 1
+        }
+        if reason == 5 {
+            me.release_apply_execution_reject_count += 1
+        }
+        if reason == 6 {
+            me.release_apply_raw_pointer_reject_count += 1
+        }
+        if reason == 7 {
+            me.release_apply_segment_map_reject_count += 1
+        }
+        if reason == 8 {
+            me.release_apply_arena_reject_count += 1
+        }
+        if reason == 9 {
+            me.release_apply_atomic_bitmap_reject_count += 1
+        }
+        if reason == 10 {
+            me.release_apply_osvm_reject_count += 1
+        }
+        if reason == 11 {
+            me.release_apply_thread_reject_count += 1
+        }
+        if reason == 12 {
+            me.release_apply_provider_reject_count += 1
+        }
+        if reason == 13 {
+            me.release_apply_backend_matcher_reject_count += 1
+        }
+
+        local result = new HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport()
+        result.did_apply = 0
+        result.reason = reason
+        result.row_index = -1
+        result.existing_index = existing_index
+        result.modeled_reuse_token = release_report.modeled_reuse_token
+        result.source_modeled_allocation_token = release_report.source_modeled_allocation_token
+        result.segment_id = release_report.segment_id
+        result.page_id = release_report.page_id
+        result.reused_block_id = release_report.reused_block_id
+        result.release_apply_count_after = me.release_apply_count
+        result.release_apply_reject_count_after = me.release_apply_reject_count
+        result.ledger_live_count_after = me.live_count
+        me.last_token = release_report.modeled_reuse_token
+        me.last_reason = reason
+        me.last_index = -1
+        return result
+    }
+
+    rejectReleaseApplyUnsupportedRequirement(requirement, release_report): HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport {
+        if requirement == 1 {
+            return me.rejectReleaseApply(5, -1, release_report)
+        }
+        if requirement == 2 {
+            return me.rejectReleaseApply(6, -1, release_report)
+        }
+        if requirement == 3 {
+            return me.rejectReleaseApply(7, -1, release_report)
+        }
+        if requirement == 4 {
+            return me.rejectReleaseApply(8, -1, release_report)
+        }
+        if requirement == 5 {
+            return me.rejectReleaseApply(9, -1, release_report)
+        }
+        if requirement == 6 {
+            return me.rejectReleaseApply(10, -1, release_report)
+        }
+        if requirement == 7 {
+            return me.rejectReleaseApply(11, -1, release_report)
+        }
+        if requirement == 8 {
+            return me.rejectReleaseApply(12, -1, release_report)
+        }
+        if requirement == 9 {
+            return me.rejectReleaseApply(13, -1, release_report)
+        }
+        return me.rejectReleaseApply(2, -1, release_report)
+    }
+
+    applyReuseLedgerRelease(release_report, unsupported_requirement): HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport {
+        me.release_apply_attempt_count += 1
+
+        if release_report.did_release != 1 {
+            return me.rejectReleaseApply(1, -1, release_report)
+        }
+        if release_report.reason != 0 {
+            return me.rejectReleaseApply(1, -1, release_report)
+        }
+        if release_report.local_free_reuse_ledger_release_present != 1 {
+            return me.rejectReleaseApply(1, -1, release_report)
+        }
+        if release_report.modeled_reuse_token < 0 {
+            return me.rejectReleaseApply(2, -1, release_report)
+        }
+
+        if unsupported_requirement != 0 {
+            return me.rejectReleaseApplyUnsupportedRequirement(unsupported_requirement, release_report)
+        }
+
+        local existing_any = me.findAnyIndex(release_report.modeled_reuse_token)
+        if existing_any >= 0 {
+            if me.live_flags.get(existing_any) == 0 {
+                return me.rejectReleaseApply(3, existing_any, release_report)
+            }
+        }
+
+        local row_index = me.findIndex(release_report.modeled_reuse_token)
+        if row_index < 0 {
+            return me.rejectReleaseApply(4, -1, release_report)
+        }
+
+        return me.acceptReleaseApply(row_index, release_report)
     }
 
     tokenAt(index): i64 {

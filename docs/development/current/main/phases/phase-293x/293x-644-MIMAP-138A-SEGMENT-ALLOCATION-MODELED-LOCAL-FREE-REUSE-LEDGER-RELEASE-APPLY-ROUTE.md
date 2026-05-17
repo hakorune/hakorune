@@ -1,6 +1,6 @@
 # 293x-644 MIMAP-138A Segment Allocation Modeled Local-Free Reuse Ledger Release Apply Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -91,4 +91,22 @@ bash tools/checks/run_proof_app.sh --only MIMAP-138A
 bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_ledger_release_apply_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Landed Result
+
+`MIMAP-138A` landed by adding a source-ledger-owned release apply report and
+method, proof app, proof-app manifest row, check-script index row, and
+pure-first guard.
+
+It consumes a successful `MIMAP-134A` release facts report and marks exactly one
+matching live `MIMAP-130A` source reuse ledger row non-live. Duplicate apply,
+missing token, and unsupported stop-line requests are rejected with explicit
+scalar reasons.
+
+The row selects the next narrow closeout step:
+
+```text
+MIMAP-139A
+  segment allocation modeled local-free reuse ledger release apply closeout guard
 ```
