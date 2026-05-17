@@ -1,6 +1,6 @@
 # 293x-617 MIMAP-118A Post-Local-Free-Page-Apply-Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -19,6 +19,36 @@ local-free apply-plan report
 This row should select exactly one next allocator behavior, closeout,
 substrate, or narrow Hakorune acceptance row using the mimalloc validation
 cadence.
+
+## Result
+
+`MIMAP-118A` selects:
+
+```text
+MIMAP-119A segment allocation modeled local-free integration route
+```
+
+Validation cadence:
+
+```text
+L2 proof row:
+  focused proof app
+  dedicated guard
+```
+
+The selected row should move the already-proven proof-app composition into one
+allocator-owned integration owner:
+
+```text
+released-span ledger report
+  -> local-free candidate ledger
+  -> local-free apply-plan ledger
+  -> page-model local-free apply route
+```
+
+It must continue to require an explicit `HakoAllocPageModel` and must not add
+segment-map lookup, raw pointer residence, arena backing, atomic bitmap
+execution, page-source / OSVM calls, provider activation, or backend matchers.
 
 ## Scope
 

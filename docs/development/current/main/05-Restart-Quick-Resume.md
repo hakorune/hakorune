@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-118A post-local-free-page-apply-closeout row selection`
+- current blocker token: `MIMAP-119A segment allocation modeled local-free integration route`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -50,7 +50,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-118A post-local-free-page-apply-closeout row selection`
+- current blocker token: `MIMAP-119A segment allocation modeled local-free integration route`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -61,8 +61,9 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after `MIMAP-117A`; current blocker is `MIMAP-118A`
-- next row: select exactly one row using the mimalloc row validation cadence
+- continue `phase-293x` after `MIMAP-118A`; current blocker is `MIMAP-119A`
+- next row: compose the scalar local-free chain and page-model apply seam into
+  one allocator-owned integration route
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

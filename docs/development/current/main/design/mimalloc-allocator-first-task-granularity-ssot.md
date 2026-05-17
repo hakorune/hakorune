@@ -279,7 +279,8 @@ Forbidden:
 | `MIMAP-115A` | segment allocation modeled local-free page-model apply route | landed; selected MIMAP-116A |
 | `MIMAP-116A` | post-local-free-page-apply row selection | landed; selected MIMAP-117A |
 | `MIMAP-117A` | segment allocation modeled local-free page-apply closeout guard | landed; selected MIMAP-118A |
-| `MIMAP-118A` | post-local-free-page-apply-closeout row selection | selected current |
+| `MIMAP-118A` | post-local-free-page-apply-closeout row selection | landed; selected MIMAP-119A |
+| `MIMAP-119A` | segment allocation modeled local-free integration route | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1589,6 +1590,48 @@ one next row.
 
 It must not add allocator behavior, parser/compiler behavior, cleanup bundles,
 provider activation, host allocator replacement, or backend matchers.
+
+MIMAP-118A landed by selecting MIMAP-119A.
+
+### MIMAP-119A granularity
+
+MIMAP-119A is a narrow allocator behavior row after the page-model local-free
+apply closeout. It should add one integration owner that composes:
+
+```text
+HakoAllocSegmentAllocationModeledReleasedSpanLedgerReport
+  -> HakoAllocSegmentAllocationModeledLocalFreeCandidateLedger
+  -> HakoAllocSegmentAllocationModeledLocalFreeApplyPlan
+  -> HakoAllocSegmentAllocationModeledLocalFreePageApply
+```
+
+Validation cadence:
+
+```text
+L2 proof row
+```
+
+Allowed:
+
+- add one integration owner under `lang/src/hako_alloc/memory/`;
+- require an explicit `HakoAllocPageModel`;
+- record candidate / apply-plan / page-apply reports through existing owners;
+- expose scalar integration report facts and inactive substrate flags;
+- add one focused proof app and guard.
+
+Forbidden:
+
+- real segment allocation/free execution beyond the existing page-local model
+- direct page array mutation outside `HakoAllocPageModel.releaseLocal`
+- raw pointer residence
+- segment-map lookup
+- arena backing allocation
+- atomic bitmap execution
+- page-source / OSVM execution
+- thread scheduling or worker spawning
+- source-level concurrency changes
+- provider activation / hooks / host allocator replacement
+- backend matchers
 
 MIMAP-111A landed by adding the local-free apply-plan ledger owner, proof app,
 SSOT, manifest entry, module export, README entry, and local guard. It selects

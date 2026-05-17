@@ -34,20 +34,21 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-101A` landed the segment allocation modeled ledger released-token
-recycle closeout guard and selected the next planning row.
+`MIMAP-118A` landed the post-local-free-page-apply-closeout row selection and
+selected the next allocator behavior row.
 
 Recommended current row:
 
 ```text
-MIMAP-102A
-  post-segment-allocation-modeled-recycle row selection
+MIMAP-119A
+  segment allocation modeled local-free integration route
 ```
 
 Purpose:
 
 ```text
-select exactly one next row after released-token recycle closeout
+compose released-span -> local-free candidate -> apply-plan -> page-model apply
+inside one allocator-owned integration owner
 keep real thread scheduling, worker spawning, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -142,7 +143,8 @@ no provider activation
 | 74 | allocator | `MIMAP-115A segment allocation modeled local-free page-model apply route` | landed; selected MIMAP-116A |
 | 75 | planning | `MIMAP-116A post-local-free-page-apply row selection` | landed; selected MIMAP-117A |
 | 76 | closeout | `MIMAP-117A segment allocation modeled local-free page-apply closeout guard` | landed; selected MIMAP-118A |
-| 77 | planning | `MIMAP-118A post-local-free-page-apply-closeout row selection` | current; select one next row |
+| 77 | planning | `MIMAP-118A post-local-free-page-apply-closeout row selection` | landed; selected MIMAP-119A |
+| 78 | allocator | `MIMAP-119A segment allocation modeled local-free integration route` | current; compose scalar chain and page apply |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
