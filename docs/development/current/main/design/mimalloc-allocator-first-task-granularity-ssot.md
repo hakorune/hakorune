@@ -242,7 +242,8 @@ Forbidden:
 | `MIMAP-080A` | segment arena bitmap inventory closeout guard | landed; selected MIMAP-081A |
 | `MIMAP-081A` | post-segment-arena-bitmap-inventory row selection | landed; selected MIMAP-082A |
 | `MIMAP-082A` | segment lifecycle scalar state contract | landed; selected MIMAP-083A |
-| `MIMAP-083A` | segment lifecycle scalar state closeout guard | selected current |
+| `MIMAP-083A` | segment lifecycle scalar state closeout guard | landed; selected MIMAP-084A |
+| `MIMAP-084A` | post-segment-lifecycle-closeout row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1315,6 +1316,20 @@ guard, accepted SSOT, and manifest/module/docs wiring. It selects MIMAP-083A.
 MIMAP-083A is a closeout/guard row for the segment lifecycle scalar state
 contract. It should lock MIMAP-082A before broader segment behavior, real
 bitmap/OSVM substrate work, or language feature work is selected.
+
+It must not add allocator behavior, execute real scheduling, spawn workers, add
+source-level concurrency semantics, add raw pointer residence, execute atomic
+bitmap claims, call page-source APIs, unreserve or release OSVM pages, activate
+providers, replace the host allocator, or add backend matchers.
+
+MIMAP-083A landed by adding the local-run closeout SSOT and guard for
+MIMAP-082A. It selects MIMAP-084A.
+
+### MIMAP-084A granularity
+
+MIMAP-084A is a planning row after the segment lifecycle scalar state closeout.
+It should review the landed allocator evidence through MIMAP-083A and select
+exactly one next row.
 
 It must not add allocator behavior, execute real scheduling, spawn workers, add
 source-level concurrency semantics, add raw pointer residence, execute atomic

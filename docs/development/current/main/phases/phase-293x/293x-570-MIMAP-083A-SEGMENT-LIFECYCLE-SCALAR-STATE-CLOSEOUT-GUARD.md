@@ -1,6 +1,6 @@
 # 293x-570 MIMAP-083A Segment Lifecycle Scalar State Closeout Guard
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -53,5 +53,26 @@ Hakorune language work.
 bash tools/checks/k2_wide_hako_alloc_segment_lifecycle_scalar_state_closeout_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Closeout Result
+
+`MIMAP-083A` added:
+
+```text
+docs/development/current/main/design/hako-alloc-segment-lifecycle-scalar-state-closeout-ssot.md
+tools/checks/k2_wide_hako_alloc_segment_lifecycle_scalar_state_closeout_guard.sh
+```
+
+The closeout locks the scalar segment lifecycle state contract, proof app,
+module export, proof manifest, check index, and inactive stop lines while
+keeping raw pointer residence, atomic bitmap execution, page-source/OSVM
+release, real thread scheduling, provider activation, and backend matchers
+closed.
+
+Next row:
+
+```text
+MIMAP-084A post-segment-lifecycle-closeout row selection
 ```
 

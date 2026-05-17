@@ -32,14 +32,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-083A segment lifecycle scalar state closeout guard`
+- current blocker token: `MIMAP-084A post-segment-lifecycle-closeout row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-082A`; current blocker is `MIMAP-083A`
-- planned order: close out the scalar segment lifecycle state contract
+- continue phase-293x after `MIMAP-083A`; current blocker is `MIMAP-084A`
+- planned order: select exactly one next row after the scalar segment lifecycle
+  closeout
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

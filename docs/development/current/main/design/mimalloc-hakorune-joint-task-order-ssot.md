@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-082A` landed the scalar segment lifecycle contract row and selected a
-closeout guard.
+`MIMAP-083A` landed the scalar segment lifecycle closeout guard and selected a
+planning row.
 
 Recommended current row:
 
 ```text
-MIMAP-083A
-  segment lifecycle scalar state closeout guard
+MIMAP-084A
+  post-segment-lifecycle-closeout row selection
 ```
 
 Purpose:
 
 ```text
-close out the scalar segment lifecycle state contract
+select exactly one next row after the scalar segment lifecycle closeout
 keep real thread scheduling, worker spawning, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -105,7 +105,8 @@ no provider activation
 | 37 | closeout | `MIMAP-080A segment arena bitmap inventory closeout guard` | landed; selected MIMAP-081A |
 | 38 | planning | `MIMAP-081A post-segment-arena-bitmap-inventory row selection` | landed; selected MIMAP-082A |
 | 39 | allocator contract | `MIMAP-082A segment lifecycle scalar state contract` | landed; selected MIMAP-083A |
-| 40 | closeout | `MIMAP-083A segment lifecycle scalar state closeout guard` | current; lock segment state row |
+| 40 | closeout | `MIMAP-083A segment lifecycle scalar state closeout guard` | landed; selected MIMAP-084A |
+| 41 | planning | `MIMAP-084A post-segment-lifecycle-closeout row selection` | current; select next row |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
