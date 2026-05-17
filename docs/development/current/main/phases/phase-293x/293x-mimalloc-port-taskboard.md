@@ -433,7 +433,8 @@ FST:
 | `MIMAP-107A` | landed | Segment allocation modeled released-span ledger route. | selected MIMAP-108A |
 | `MIMAP-108A` | landed | Post-released-span-ledger row selection. | selected MIMAP-109A |
 | `MIMAP-109A` | landed | Segment allocation modeled local-free candidate ledger route. | selected MIMAP-110A |
-| `MIMAP-110A` | selected current | Post-local-free-candidate-ledger row selection. | after MIMAP-109A |
+| `MIMAP-110A` | landed | Post-local-free-candidate-ledger row selection. | selected MIMAP-111A |
+| `MIMAP-111A` | selected current | Segment allocation modeled local-free apply plan route. | after MIMAP-110A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -441,8 +442,9 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-109A:
-`MIMAP-110A` selects exactly one next row using the validation cadence SSOT.
+Current row after MIMAP-110A:
+`MIMAP-111A` adds a scalar local-free apply-plan ledger downstream of the
+local-free candidate ledger without mutating a page free-list.
 Real thread scheduling, worker spawning, source-level concurrency features,
 real segment allocation/free execution, raw pointer residence, atomic bitmap
 execution, arena backing allocation, segment-map pointer membership,

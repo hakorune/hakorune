@@ -1,6 +1,6 @@
 # 293x-609 MIMAP-110A Post-Local-Free-Candidate-Ledger Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -20,6 +20,31 @@ modeled consume
 This row should select exactly one next allocator behavior, closeout,
 substrate, or narrow Hakorune acceptance row using the mimalloc validation
 cadence.
+
+## Result
+
+`MIMAP-110A` selects:
+
+```text
+MIMAP-111A segment allocation modeled local-free apply plan route
+```
+
+Validation cadence:
+
+```text
+L2 proof row:
+  dedicated proof app via run_proof_app.sh --only MIMAP-111A
+  dedicated public guard
+
+L3 compatibility:
+  only if the implementation changes MIMAP-109A local-free candidate report
+  fields or candidate ledger-visible behavior
+```
+
+The selected row should consume successful local-free candidate ledger reports
+into a separate scalar apply-plan ledger. It must still not mutate any page
+free-list; the row only records that the candidate is ready for a future
+page-local free-list update row.
 
 ## Scope
 

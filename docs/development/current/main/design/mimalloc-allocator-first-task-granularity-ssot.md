@@ -271,7 +271,8 @@ Forbidden:
 | `MIMAP-107A` | segment allocation modeled released-span ledger route | landed; selected MIMAP-108A |
 | `MIMAP-108A` | post-released-span-ledger row selection | landed; selected MIMAP-109A |
 | `MIMAP-109A` | segment allocation modeled local-free candidate ledger route | landed; selected MIMAP-110A |
-| `MIMAP-110A` | post-local-free-candidate-ledger row selection | selected current |
+| `MIMAP-110A` | post-local-free-candidate-ledger row selection | landed; selected MIMAP-111A |
+| `MIMAP-111A` | segment allocation modeled local-free apply plan route | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1608,7 +1609,44 @@ row.
 It must not add allocator behavior, parser/compiler behavior, cleanup bundles,
 provider activation, host allocator replacement, or backend matchers.
 
-MIMAP-102A landed by selecting HAKO-ALLOC-SRC-CLEAN-001.
+MIMAP-110A landed by selecting MIMAP-111A.
+
+### MIMAP-111A granularity
+
+MIMAP-111A is a modeled scalar allocator behavior row after the local-free
+candidate ledger. It should add a separate local-free apply-plan ledger that
+consumes successful `MIMAP-109A` candidate reports and records deterministic
+page / segment / token / block-span apply-plan rows.
+
+Validation cadence:
+
+```text
+L2 proof row
+```
+
+Allowed:
+
+- add one local-free apply-plan ledger owner;
+- consume scalar `HakoAllocSegmentAllocationModeledLocalFreeCandidateLedgerReport`
+  facts;
+- record successful local-free apply plans as scalar rows;
+- reject invalid, source-rejected, duplicate, or unsupported requests;
+- add one focused proof app and guard.
+
+Forbidden:
+
+- real segment allocation/free execution
+- free-list mutation
+- page state mutation outside the new scalar apply-plan ledger
+- arena backing allocation
+- raw pointer residence
+- segment-map lookup
+- atomic bitmap execution
+- page-source / OSVM execution
+- thread scheduling or worker spawning
+- source-level concurrency changes
+- provider activation / hooks / host allocator replacement
+- backend matchers
 
 ### HAKO-ALLOC-SRC-CLEAN-001 granularity
 
