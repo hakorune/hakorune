@@ -144,30 +144,30 @@ box HakoAllocSegmentLifecycleScalarState {
     }
 
     reject(reason, segment_id, from_state, to_state, transition_id, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement) {
-        me.reject_count = me.reject_count + 1
+        me.reject_count += 1
         if reason == 1 {
-            me.invalid_shape_reject_count = me.invalid_shape_reject_count + 1
+            me.invalid_shape_reject_count += 1
         }
         if reason == 2 {
-            me.raw_pointer_reject_count = me.raw_pointer_reject_count + 1
+            me.raw_pointer_reject_count += 1
         }
         if reason == 3 {
-            me.atomic_bitmap_reject_count = me.atomic_bitmap_reject_count + 1
+            me.atomic_bitmap_reject_count += 1
         }
         if reason == 4 {
-            me.osvm_reject_count = me.osvm_reject_count + 1
+            me.osvm_reject_count += 1
         }
         if reason == 5 {
-            me.thread_reject_count = me.thread_reject_count + 1
+            me.thread_reject_count += 1
         }
         if reason == 6 {
-            me.provider_reject_count = me.provider_reject_count + 1
+            me.provider_reject_count += 1
         }
         if reason == 7 {
-            me.unknown_state_reject_count = me.unknown_state_reject_count + 1
+            me.unknown_state_reject_count += 1
         }
         if reason == 8 {
-            me.invalid_transition_reject_count = me.invalid_transition_reject_count + 1
+            me.invalid_transition_reject_count += 1
         }
         return me.report(0, reason, segment_id, from_state, to_state, transition_id, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement)
     }
@@ -192,7 +192,7 @@ box HakoAllocSegmentLifecycleScalarState {
     }
 
     classifyTransition(segment_id, from_state, to_state, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement) {
-        me.classify_count = me.classify_count + 1
+        me.classify_count += 1
 
         if segment_id < 0 {
             return me.reject(1, segment_id, from_state, to_state, 0, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement)
@@ -230,7 +230,7 @@ box HakoAllocSegmentLifecycleScalarState {
             return me.reject(8, segment_id, from_state, to_state, transition_id, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement)
         }
 
-        me.accepted_count = me.accepted_count + 1
+        me.accepted_count += 1
         return me.report(1, 0, segment_id, from_state, to_state, transition_id, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement)
     }
 }

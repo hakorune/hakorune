@@ -424,7 +424,8 @@ FST:
 | `MIMAP-100A` | landed | Segment allocation modeled ledger released-token recycle route. | selected MIMAP-101A |
 | `MIMAP-101A` | landed | Segment allocation modeled ledger released-token recycle closeout guard. | selected MIMAP-102A |
 | `MIMAP-102A` | landed | Post-segment-allocation-modeled-recycle row selection. | selected HAKO-ALLOC-SRC-CLEAN-001 |
-| `HAKO-ALLOC-SRC-CLEAN-001` | selected current | Segment counter compound assignment cleanup. | after MIMAP-102A |
+| `HAKO-ALLOC-SRC-CLEAN-001` | landed | Segment counter compound assignment cleanup. | selected MIMAP-103A |
+| `MIMAP-103A` | selected current | Post-segment-counter-cleanup row selection. | after HAKO-ALLOC-SRC-CLEAN-001 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -432,9 +433,9 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-102A:
-`HAKO-ALLOC-SRC-CLEAN-001` rewrites exact same-field segment counter increments
-to compound assignment in the selected segment memory owners.
+Current row after HAKO-ALLOC-SRC-CLEAN-001:
+`MIMAP-103A` selects exactly one next row after the focused segment counter
+compound-assignment cleanup.
 Real thread scheduling, worker spawning, source-level concurrency features,
 real segment allocation/free execution, raw pointer residence, atomic bitmap
 execution, arena backing allocation, segment-map pointer membership,

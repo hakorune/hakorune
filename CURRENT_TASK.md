@@ -53,7 +53,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `HAKO-ALLOC-SRC-CLEAN-001 segment counter compound assignment cleanup`
+  `MIMAP-103A post-segment-counter-cleanup row selection`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -72,9 +72,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `MIMAP-102A`; the next selected
-  blocker is `HAKO-ALLOC-SRC-CLEAN-001`, focused segment counter compound
-  assignment cleanup.
+- resume point: continue Phase 293x after `HAKO-ALLOC-SRC-CLEAN-001`; the next
+  selected blocker is `MIMAP-103A`, post-segment-counter-cleanup row selection.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -82,8 +81,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `HAKO-ALLOC-SRC-CLEAN-001`: rewrite exact same-field segment counter
-     increments from `me.x = me.x + 1` to `me.x += 1`
+  1. `MIMAP-103A`: select exactly one next row after the focused segment
+     counter compound-assignment cleanup
   2. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider
      activation inactive

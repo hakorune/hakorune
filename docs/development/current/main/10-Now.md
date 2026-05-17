@@ -32,14 +32,14 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `HAKO-ALLOC-SRC-CLEAN-001 segment counter compound assignment cleanup`
+- current blocker token: `MIMAP-103A post-segment-counter-cleanup row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-102A`; current blocker is `HAKO-ALLOC-SRC-CLEAN-001`
-- planned order: focused segment counter compound-assignment cleanup
+- continue phase-293x after `HAKO-ALLOC-SRC-CLEAN-001`; current blocker is `MIMAP-103A`
+- planned order: select exactly one row after the focused segment counter cleanup
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

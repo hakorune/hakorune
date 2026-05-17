@@ -262,7 +262,8 @@ Forbidden:
 | `MIMAP-100A` | segment allocation modeled ledger released-token recycle route | landed; selected MIMAP-101A |
 | `MIMAP-101A` | segment allocation modeled ledger released-token recycle closeout guard | landed; selected MIMAP-102A |
 | `MIMAP-102A` | post-segment-allocation-modeled-recycle row selection | landed; selected HAKO-ALLOC-SRC-CLEAN-001 |
-| `HAKO-ALLOC-SRC-CLEAN-001` | segment counter compound assignment cleanup | selected current |
+| `HAKO-ALLOC-SRC-CLEAN-001` | segment counter compound assignment cleanup | landed; selected MIMAP-103A |
+| `MIMAP-103A` | post-segment-counter-cleanup row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1449,6 +1450,19 @@ It must not add language semantics, parser/compiler behavior, allocator
 behavior, proof-app formatting, non-segment rewrites, real segment execution,
 page-source/OSVM execution, thread scheduling, provider activation, host
 allocator replacement, or backend matchers.
+
+HAKO-ALLOC-SRC-CLEAN-001 landed by rewriting exact same-field segment counter
+increments in the selected memory owners. It selects MIMAP-103A.
+
+### MIMAP-103A granularity
+
+MIMAP-103A is a planning row after the focused segment counter cleanup. It
+should select exactly one next mimalloc / hako_alloc row.
+
+It must not add allocator behavior, execute segment allocation/free, allocate
+arena backing, add raw pointer residence, use segment-map pointer lookup,
+execute atomic bitmap claims, call page-source or OSVM seams, schedule threads,
+activate providers, replace the host allocator, or add backend matchers.
 
 MIMAP-089A landed by adding the closeout SSOT and guard. It selects
 MIMAP-090A.

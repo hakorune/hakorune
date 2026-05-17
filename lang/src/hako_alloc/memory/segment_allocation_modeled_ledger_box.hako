@@ -157,45 +157,45 @@ box HakoAllocSegmentAllocationModeledLedger {
     }
 
     rememberReject(reason) {
-        me.reject_count = me.reject_count + 1
+        me.reject_count += 1
         if reason == 1 {
-            me.upstream_reject_count = me.upstream_reject_count + 1
+            me.upstream_reject_count += 1
         }
         if reason == 2 {
-            me.invalid_shape_reject_count = me.invalid_shape_reject_count + 1
+            me.invalid_shape_reject_count += 1
         }
         if reason == 3 {
-            me.mismatch_reject_count = me.mismatch_reject_count + 1
+            me.mismatch_reject_count += 1
         }
         if reason == 4 {
-            me.duplicate_reject_count = me.duplicate_reject_count + 1
+            me.duplicate_reject_count += 1
         }
         if reason == 5 {
-            me.execution_reject_count = me.execution_reject_count + 1
+            me.execution_reject_count += 1
         }
         if reason == 6 {
-            me.raw_pointer_reject_count = me.raw_pointer_reject_count + 1
+            me.raw_pointer_reject_count += 1
         }
         if reason == 7 {
-            me.segment_map_reject_count = me.segment_map_reject_count + 1
+            me.segment_map_reject_count += 1
         }
         if reason == 8 {
-            me.arena_reject_count = me.arena_reject_count + 1
+            me.arena_reject_count += 1
         }
         if reason == 9 {
-            me.atomic_bitmap_reject_count = me.atomic_bitmap_reject_count + 1
+            me.atomic_bitmap_reject_count += 1
         }
         if reason == 10 {
-            me.osvm_reject_count = me.osvm_reject_count + 1
+            me.osvm_reject_count += 1
         }
         if reason == 11 {
-            me.thread_reject_count = me.thread_reject_count + 1
+            me.thread_reject_count += 1
         }
         if reason == 12 {
-            me.provider_reject_count = me.provider_reject_count + 1
+            me.provider_reject_count += 1
         }
         if reason == 13 {
-            me.backend_matcher_reject_count = me.backend_matcher_reject_count + 1
+            me.backend_matcher_reject_count += 1
         }
     }
 
@@ -236,42 +236,42 @@ box HakoAllocSegmentAllocationModeledLedger {
     }
 
     rememberReleaseReject(reason) {
-        me.release_reject_count = me.release_reject_count + 1
+        me.release_reject_count += 1
         if reason == 1 {
-            me.release_invalid_shape_reject_count = me.release_invalid_shape_reject_count + 1
+            me.release_invalid_shape_reject_count += 1
         }
         if reason == 2 {
-            me.release_missing_reject_count = me.release_missing_reject_count + 1
+            me.release_missing_reject_count += 1
         }
         if reason == 3 {
-            me.release_duplicate_reject_count = me.release_duplicate_reject_count + 1
+            me.release_duplicate_reject_count += 1
         }
         if reason == 4 {
-            me.release_execution_reject_count = me.release_execution_reject_count + 1
+            me.release_execution_reject_count += 1
         }
         if reason == 5 {
-            me.release_raw_pointer_reject_count = me.release_raw_pointer_reject_count + 1
+            me.release_raw_pointer_reject_count += 1
         }
         if reason == 6 {
-            me.release_segment_map_reject_count = me.release_segment_map_reject_count + 1
+            me.release_segment_map_reject_count += 1
         }
         if reason == 7 {
-            me.release_arena_reject_count = me.release_arena_reject_count + 1
+            me.release_arena_reject_count += 1
         }
         if reason == 8 {
-            me.release_atomic_bitmap_reject_count = me.release_atomic_bitmap_reject_count + 1
+            me.release_atomic_bitmap_reject_count += 1
         }
         if reason == 9 {
-            me.release_osvm_reject_count = me.release_osvm_reject_count + 1
+            me.release_osvm_reject_count += 1
         }
         if reason == 10 {
-            me.release_thread_reject_count = me.release_thread_reject_count + 1
+            me.release_thread_reject_count += 1
         }
         if reason == 11 {
-            me.release_provider_reject_count = me.release_provider_reject_count + 1
+            me.release_provider_reject_count += 1
         }
         if reason == 12 {
-            me.release_backend_matcher_reject_count = me.release_backend_matcher_reject_count + 1
+            me.release_backend_matcher_reject_count += 1
         }
     }
 
@@ -336,7 +336,7 @@ box HakoAllocSegmentAllocationModeledLedger {
     }
 
     releaseModeledToken(modeled_allocation_token, unsupported_requirement) {
-        me.release_attempt_count = me.release_attempt_count + 1
+        me.release_attempt_count += 1
 
         if modeled_allocation_token < 0 {
             return me.rejectRelease(1, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
@@ -367,7 +367,7 @@ box HakoAllocSegmentAllocationModeledLedger {
 
         me.live_flags.set(row_index, 0)
         me.live_count = me.live_count - 1
-        me.release_count = me.release_count + 1
+        me.release_count += 1
         return me.releaseReport(1, 0, row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, live_before, 0)
     }
 
@@ -467,14 +467,14 @@ box HakoAllocSegmentAllocationModeledLedger {
         me.remaining_blocks_list.push(remaining_blocks)
         me.block_starts.push(modeled_block_start)
         me.live_flags.push(1)
-        me.count = me.count + 1
-        me.live_count = me.live_count + 1
-        me.accepted_count = me.accepted_count + 1
+        me.count += 1
+        me.live_count += 1
+        me.accepted_count += 1
         return row_index
     }
 
     recordModeledConsume(consume_accepted, consume_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token, unsupported_requirement) {
-        me.attempt_count = me.attempt_count + 1
+        me.attempt_count += 1
 
         if consume_accepted != 1 {
             return me.reject(1, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)

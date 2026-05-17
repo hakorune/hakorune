@@ -1,6 +1,6 @@
 # 293x-600 HAKO-ALLOC-SRC-CLEAN-001 Segment Counter Compound Assignment Cleanup
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -12,6 +12,15 @@ row uses that existing syntax to reduce noisy same-field counter increments in
 the current segment allocation modeled lane.
 
 This is not a new language feature row.
+
+## Result
+
+The selected segment memory owners now use compound assignment for exact
+same-field `+ 1` counter increments.
+
+`HAKO-ALLOC-SRC-CLEAN-001` selects
+`MIMAP-103A post-segment-counter-cleanup row selection` as the next planning
+row.
 
 ## Scope
 
@@ -74,4 +83,15 @@ bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_ledger_release_g
 bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_ledger_released_token_recycle_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_compound_assignment_surface_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_readiness_scalar_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_consume_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_ledger_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_ledger_release_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_ledger_released_token_recycle_guard.sh
 ```

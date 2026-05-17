@@ -73,42 +73,42 @@ box HakoAllocSegmentAllocationModeledConsume {
     }
 
     reject(reason, upstream_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks) {
-        me.reject_count = me.reject_count + 1
+        me.reject_count += 1
         if reason == 1 {
-            me.readiness_reject_count = me.readiness_reject_count + 1
+            me.readiness_reject_count += 1
         }
         if reason == 2 {
-            me.invalid_shape_reject_count = me.invalid_shape_reject_count + 1
+            me.invalid_shape_reject_count += 1
         }
         if reason == 3 {
-            me.capacity_reject_count = me.capacity_reject_count + 1
+            me.capacity_reject_count += 1
         }
         if reason == 4 {
-            me.execution_reject_count = me.execution_reject_count + 1
+            me.execution_reject_count += 1
         }
         if reason == 5 {
-            me.raw_pointer_reject_count = me.raw_pointer_reject_count + 1
+            me.raw_pointer_reject_count += 1
         }
         if reason == 6 {
-            me.segment_map_reject_count = me.segment_map_reject_count + 1
+            me.segment_map_reject_count += 1
         }
         if reason == 7 {
-            me.arena_reject_count = me.arena_reject_count + 1
+            me.arena_reject_count += 1
         }
         if reason == 8 {
-            me.atomic_bitmap_reject_count = me.atomic_bitmap_reject_count + 1
+            me.atomic_bitmap_reject_count += 1
         }
         if reason == 9 {
-            me.osvm_reject_count = me.osvm_reject_count + 1
+            me.osvm_reject_count += 1
         }
         if reason == 10 {
-            me.thread_reject_count = me.thread_reject_count + 1
+            me.thread_reject_count += 1
         }
         if reason == 11 {
-            me.provider_reject_count = me.provider_reject_count + 1
+            me.provider_reject_count += 1
         }
         if reason == 12 {
-            me.backend_matcher_reject_count = me.backend_matcher_reject_count + 1
+            me.backend_matcher_reject_count += 1
         }
         return me.report(0, reason, upstream_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, -1, -1)
     }
@@ -149,7 +149,7 @@ box HakoAllocSegmentAllocationModeledConsume {
     }
 
     consumeReadiness(readiness_accepted, readiness_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, unsupported_requirement) {
-        me.consume_count = me.consume_count + 1
+        me.consume_count += 1
 
         if readiness_accepted != 1 {
             return me.reject(1, readiness_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, old_page_used, 0)
@@ -189,7 +189,7 @@ box HakoAllocSegmentAllocationModeledConsume {
 
         local modeled_block_start = old_page_used
         local modeled_allocation_token = me.makeModeledToken(segment_id, page_id, modeled_block_start)
-        me.accepted_count = me.accepted_count + 1
+        me.accepted_count += 1
         return me.report(1, 0, readiness_reason, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
     }
 }
