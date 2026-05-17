@@ -124,7 +124,8 @@ no provider activation
 | 56 | planning | `MIMAP-099A post-segment-allocation-modeled-release row selection` | landed; selected MIMAP-100A |
 | 57 | allocator | `MIMAP-100A segment allocation modeled ledger released-token recycle route` | landed; selected MIMAP-101A |
 | 58 | closeout | `MIMAP-101A segment allocation modeled ledger released-token recycle closeout guard` | landed; selected MIMAP-102A |
-| 59 | planning | `MIMAP-102A post-segment-allocation-modeled-recycle row selection` | current; select one next row |
+| 59 | planning | `MIMAP-102A post-segment-allocation-modeled-recycle row selection` | landed; selected HAKO-ALLOC-SRC-CLEAN-001 |
+| 60 | cleanup | `HAKO-ALLOC-SRC-CLEAN-001 segment counter compound assignment cleanup` | current; focused segment lane cleanup |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

@@ -261,7 +261,8 @@ Forbidden:
 | `MIMAP-099A` | post-segment-allocation-modeled-release row selection | landed; selected MIMAP-100A |
 | `MIMAP-100A` | segment allocation modeled ledger released-token recycle route | landed; selected MIMAP-101A |
 | `MIMAP-101A` | segment allocation modeled ledger released-token recycle closeout guard | landed; selected MIMAP-102A |
-| `MIMAP-102A` | post-segment-allocation-modeled-recycle row selection | selected current |
+| `MIMAP-102A` | post-segment-allocation-modeled-recycle row selection | landed; selected HAKO-ALLOC-SRC-CLEAN-001 |
+| `HAKO-ALLOC-SRC-CLEAN-001` | segment counter compound assignment cleanup | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1434,6 +1435,20 @@ It must not add allocator behavior, execute segment allocation/free, allocate
 arena backing, add raw pointer residence, use segment-map pointer lookup,
 execute atomic bitmap claims, call page-source or OSVM seams, schedule threads,
 activate providers, replace the host allocator, or add backend matchers.
+
+MIMAP-102A landed by selecting HAKO-ALLOC-SRC-CLEAN-001.
+
+### HAKO-ALLOC-SRC-CLEAN-001 granularity
+
+HAKO-ALLOC-SRC-CLEAN-001 is a focused source cleanup sidecar for the current
+segment allocation modeled lane. It may rewrite exact same-field diagnostic
+counter increments in the selected segment memory owners from
+`me.FIELD = me.FIELD + 1` to `me.FIELD += 1`.
+
+It must not add language semantics, parser/compiler behavior, allocator
+behavior, proof-app formatting, non-segment rewrites, real segment execution,
+page-source/OSVM execution, thread scheduling, provider activation, host
+allocator replacement, or backend matchers.
 
 MIMAP-089A landed by adding the closeout SSOT and guard. It selects
 MIMAP-090A.
