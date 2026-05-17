@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-17"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-081A landed post-segment-arena-bitmap-inventory row selection and selected MIMAP-082A segment lifecycle scalar state contract. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-082A landed segment lifecycle scalar state contract and selected MIMAP-083A segment lifecycle scalar state closeout guard. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-569-MIMAP-082A-SEGMENT-LIFECYCLE-SCALAR-STATE-CONTRACT.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-570-MIMAP-083A-SEGMENT-LIFECYCLE-SCALAR-STATE-CLOSEOUT-GUARD.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-568-MIMAP-081A-POST-SEGMENT-ARENA-BITMAP-INVENTORY-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-568-MIMAP-081A-POST-SEGMENT-ARENA-BITMAP-INVENTORY-ROW-SELECTION.md"
-latest_card_summary = "MIMAP-081A selects MIMAP-082A segment lifecycle scalar state contract after the segment / arena / bitmap inventory closeout."
+latest_card = "293x-569-MIMAP-082A-SEGMENT-LIFECYCLE-SCALAR-STATE-CONTRACT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-569-MIMAP-082A-SEGMENT-LIFECYCLE-SCALAR-STATE-CONTRACT.md"
+latest_card_summary = "MIMAP-082A adds a scalar segment lifecycle state contract and selects MIMAP-083A closeout guard."
 
-current_blocker_token = "MIMAP-082A"
+current_blocker_token = "MIMAP-083A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-569 MIMAP-082A segment lifecycle scalar state contract landed",
   "293x-568 MIMAP-081A post-segment-arena-bitmap-inventory row selection landed",
   "293x-567 MIMAP-080A segment arena bitmap inventory closeout guard landed",
   "293x-566 MIMAP-079A segment arena bitmap boundary inventory landed",

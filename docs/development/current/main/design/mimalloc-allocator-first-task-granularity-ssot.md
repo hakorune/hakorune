@@ -241,7 +241,8 @@ Forbidden:
 | `MIMAP-079A` | segment arena bitmap boundary inventory | landed; selected MIMAP-080A |
 | `MIMAP-080A` | segment arena bitmap inventory closeout guard | landed; selected MIMAP-081A |
 | `MIMAP-081A` | post-segment-arena-bitmap-inventory row selection | landed; selected MIMAP-082A |
-| `MIMAP-082A` | segment lifecycle scalar state contract | selected current |
+| `MIMAP-082A` | segment lifecycle scalar state contract | landed; selected MIMAP-083A |
+| `MIMAP-083A` | segment lifecycle scalar state closeout guard | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1305,6 +1306,20 @@ atomic bitmap claim/unclaim, OSVM execution, real scheduling, source-level
 concurrency semantics, arena backing allocation, segment map pointer
 membership, provider activation, process allocator replacement, or backend
 matchers.
+
+MIMAP-082A landed by adding a scalar segment lifecycle state owner, proof app,
+guard, accepted SSOT, and manifest/module/docs wiring. It selects MIMAP-083A.
+
+### MIMAP-083A granularity
+
+MIMAP-083A is a closeout/guard row for the segment lifecycle scalar state
+contract. It should lock MIMAP-082A before broader segment behavior, real
+bitmap/OSVM substrate work, or language feature work is selected.
+
+It must not add allocator behavior, execute real scheduling, spawn workers, add
+source-level concurrency semantics, add raw pointer residence, execute atomic
+bitmap claims, call page-source APIs, unreserve or release OSVM pages, activate
+providers, replace the host allocator, or add backend matchers.
 
 ## Compiler / language sidecar triggers
 

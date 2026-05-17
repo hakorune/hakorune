@@ -1,0 +1,95 @@
+// hako-alloc-segment-lifecycle-scalar-state-proof
+// Purpose: prove MIMAP-082A scalar segment lifecycle state contract.
+
+using selfhost.hako_alloc.memory.segment_lifecycle_scalar_state_box as HakoAllocSegmentLifecycleScalarState
+
+static box Main {
+    main(args) {
+        local lifecycle = new HakoAllocSegmentLifecycleScalarState()
+
+        local reserved_active = lifecycle.classifyTransition(20, lifecycle.stateReserved(), lifecycle.stateActive(), 0, 0, 4, 0, 0)
+        local active_purge = lifecycle.classifyTransition(21, lifecycle.stateActive(), lifecycle.statePurgeScheduled(), 3, 0, 4, 1, 0)
+        local purge_purged = lifecycle.classifyTransition(22, lifecycle.statePurgeScheduled(), lifecycle.statePurged(), 3, 0, 4, 1, 0)
+        local active_abandoned = lifecycle.classifyTransition(23, lifecycle.stateActive(), lifecycle.stateAbandoned(), 3, 1, 4, 0, 0)
+        local abandoned_reclaimed = lifecycle.classifyTransition(24, lifecycle.stateAbandoned(), lifecycle.stateReclaimed(), 3, 1, 4, 0, 0)
+        local reclaimed_active = lifecycle.classifyTransition(25, lifecycle.stateReclaimed(), lifecycle.stateActive(), 3, 0, 4, 0, 0)
+        local active_freed = lifecycle.classifyTransition(26, lifecycle.stateActive(), lifecycle.stateFreed(), 0, 0, 4, 0, 0)
+        local purged_freed = lifecycle.classifyTransition(27, lifecycle.statePurged(), lifecycle.stateFreed(), 0, 0, 4, 0, 0)
+
+        local invalid_shape = lifecycle.classifyTransition(-1, lifecycle.stateReserved(), lifecycle.stateActive(), 0, 0, 4, 0, 0)
+        local raw = lifecycle.classifyTransition(28, lifecycle.stateReserved(), lifecycle.stateActive(), 0, 0, 4, 0, 1)
+        local atomic_bitmap = lifecycle.classifyTransition(29, lifecycle.stateReserved(), lifecycle.stateActive(), 0, 0, 4, 0, 2)
+        local osvm = lifecycle.classifyTransition(30, lifecycle.stateReserved(), lifecycle.stateActive(), 0, 0, 4, 0, 3)
+        local run_thread = lifecycle.classifyTransition(31, lifecycle.stateReserved(), lifecycle.stateActive(), 0, 0, 4, 0, 4)
+        local provider = lifecycle.classifyTransition(32, lifecycle.stateReserved(), lifecycle.stateActive(), 0, 0, 4, 0, 5)
+        local unknown_state = lifecycle.classifyTransition(33, 9, lifecycle.stateActive(), 0, 0, 4, 0, 0)
+        local invalid_transition = lifecycle.classifyTransition(34, lifecycle.stateFreed(), lifecycle.stateActive(), 0, 0, 4, 0, 0)
+
+        local ok = check "mimap082a segment lifecycle scalar state contract" {
+            "reserved active accepted": reserved_active.accepted == 1
+            "reserved active reason": reserved_active.reason == 0
+            "reserved active transition": reserved_active.transition_id == 10
+            "active purge accepted": active_purge.accepted == 1
+            "active purge transition": active_purge.transition_id == 11
+            "purge purged transition": purge_purged.transition_id == 12
+            "active abandoned transition": active_abandoned.transition_id == 13
+            "abandoned reclaimed transition": abandoned_reclaimed.transition_id == 14
+            "reclaimed active transition": reclaimed_active.transition_id == 15
+            "active freed transition": active_freed.transition_id == 16
+            "purged freed transition": purged_freed.transition_id == 17
+            "invalid shape rejected": invalid_shape.accepted == 0
+            "invalid shape reason": invalid_shape.reason == 1
+            "raw rejected": raw.accepted == 0
+            "raw reason": raw.reason == 2
+            "atomic bitmap rejected": atomic_bitmap.accepted == 0
+            "atomic bitmap reason": atomic_bitmap.reason == 3
+            "osvm rejected": osvm.accepted == 0
+            "osvm reason": osvm.reason == 4
+            "thread rejected": run_thread.accepted == 0
+            "thread reason": run_thread.reason == 5
+            "provider rejected": provider.accepted == 0
+            "provider reason": provider.reason == 6
+            "unknown state rejected": unknown_state.accepted == 0
+            "unknown state reason": unknown_state.reason == 7
+            "invalid transition rejected": invalid_transition.accepted == 0
+            "invalid transition reason": invalid_transition.reason == 8
+            "inactive raw": reserved_active.would_use_raw_pointer == 0
+            "inactive atomic bitmap": reserved_active.would_execute_atomic_bitmap == 0
+            "inactive osvm": reserved_active.would_call_osvm == 0
+            "inactive thread": reserved_active.would_run_thread == 0
+            "inactive provider": reserved_active.would_activate_provider == 0
+            "inactive replacement": reserved_active.would_replace_process_allocator == 0
+            "inactive matcher": reserved_active.would_add_backend_matcher == 0
+            "classify count": lifecycle.classify_count == 16
+            "accepted count": lifecycle.accepted_count == 8
+            "reject count": lifecycle.reject_count == 8
+            "invalid shape reject count": lifecycle.invalid_shape_reject_count == 1
+            "raw reject count": lifecycle.raw_pointer_reject_count == 1
+            "atomic reject count": lifecycle.atomic_bitmap_reject_count == 1
+            "osvm reject count": lifecycle.osvm_reject_count == 1
+            "thread reject count": lifecycle.thread_reject_count == 1
+            "provider reject count": lifecycle.provider_reject_count == 1
+            "unknown state reject count": lifecycle.unknown_state_reject_count == 1
+            "invalid transition reject count": lifecycle.invalid_transition_reject_count == 1
+            "last segment": lifecycle.last_segment_id == 34
+            "last reason": lifecycle.last_reason == 8
+            "last transition": lifecycle.last_transition_id == 0
+        }
+
+        print("hako-alloc-segment-lifecycle-scalar-state-proof")
+        print("transitions=" + reserved_active.transition_id + "," + active_purge.transition_id + "," + purge_purged.transition_id + "," + active_abandoned.transition_id + "," + abandoned_reclaimed.transition_id + "," + reclaimed_active.transition_id + "," + active_freed.transition_id + "," + purged_freed.transition_id)
+        print("rejects=" + invalid_shape.reason + "," + raw.reason + "," + atomic_bitmap.reason + "," + osvm.reason + "," + run_thread.reason + "," + provider.reason + "," + unknown_state.reason + "," + invalid_transition.reason)
+        print("inactive=" + reserved_active.would_use_raw_pointer + "," + reserved_active.would_execute_atomic_bitmap + "," + reserved_active.would_call_osvm + "," + reserved_active.would_run_thread + "," + reserved_active.would_activate_provider + "," + reserved_active.would_replace_process_allocator + "," + reserved_active.would_add_backend_matcher)
+        print("counts=" + lifecycle.classify_count + "," + lifecycle.accepted_count + "," + lifecycle.reject_count + "," + lifecycle.invalid_shape_reject_count + "," + lifecycle.raw_pointer_reject_count + "," + lifecycle.atomic_bitmap_reject_count + "," + lifecycle.osvm_reject_count + "," + lifecycle.thread_reject_count + "," + lifecycle.provider_reject_count + "," + lifecycle.unknown_state_reject_count + "," + lifecycle.invalid_transition_reject_count + "," + lifecycle.last_segment_id + "," + lifecycle.last_reason + "," + lifecycle.last_transition_id)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
+

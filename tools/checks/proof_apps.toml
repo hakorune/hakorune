@@ -251,3 +251,10 @@ app = "apps/hako-alloc-segment-arena-bitmap-inventory-proof"
 label = "segment arena bitmap boundary inventory proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_bitmap_inventory_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-082A"
+app = "apps/hako-alloc-segment-lifecycle-scalar-state-proof"
+label = "segment lifecycle scalar state proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_lifecycle_scalar_state_guard.sh"]

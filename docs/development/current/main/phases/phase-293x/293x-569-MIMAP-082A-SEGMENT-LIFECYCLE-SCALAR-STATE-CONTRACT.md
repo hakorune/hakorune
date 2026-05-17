@@ -1,6 +1,6 @@
 # 293x-569 MIMAP-082A Segment Lifecycle Scalar State Contract
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -76,5 +76,34 @@ Purged -> Freed
 bash tools/checks/k2_wide_hako_alloc_segment_lifecycle_scalar_state_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Implementation Result
+
+`MIMAP-082A` added:
+
+```text
+docs/development/current/main/design/hako-alloc-segment-lifecycle-scalar-state-ssot.md
+lang/src/hako_alloc/memory/segment_lifecycle_scalar_state_box.hako
+apps/hako-alloc-segment-lifecycle-scalar-state-proof/
+tools/checks/k2_wide_hako_alloc_segment_lifecycle_scalar_state_guard.sh
+```
+
+Proof output:
+
+```text
+hako-alloc-segment-lifecycle-scalar-state-proof
+transitions=10,11,12,13,14,15,16,17
+rejects=1,2,3,4,5,6,7,8
+inactive=0,0,0,0,0,0,0
+counts=16,8,8,1,1,1,1,1,1,1,1,34,8,0
+check=1
+summary=ok
+```
+
+Next row:
+
+```text
+MIMAP-083A segment lifecycle scalar state closeout guard
 ```
 

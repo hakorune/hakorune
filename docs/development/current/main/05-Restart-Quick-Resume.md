@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-082A segment lifecycle scalar state contract`
+- current blocker token: `MIMAP-083A segment lifecycle scalar state closeout guard`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -48,7 +48,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-082A segment lifecycle scalar state contract`
+- current blocker token: `MIMAP-083A segment lifecycle scalar state closeout guard`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -59,8 +59,8 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after `MIMAP-081A`; current blocker is `MIMAP-082A`
-- next row: add a scalar/proof-only segment lifecycle state contract
+- continue `phase-293x` after `MIMAP-082A`; current blocker is `MIMAP-083A`
+- next row: close out the scalar segment lifecycle state contract
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

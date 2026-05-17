@@ -1,0 +1,237 @@
+// segment_lifecycle_scalar_state_box.hako -- MIMAP-082A segment lifecycle scalar state contract
+// Responsibility:
+// - classify proof-only scalar segment lifecycle transitions
+// - keep raw pointer residence, atomic bitmap execution, OSVM calls, real
+//   thread scheduling, provider activation, host replacement, and backend
+//   shortcuts closed
+// Non-responsibility:
+// - allocating/freeing segments, routing arena backing, claiming bitmaps,
+//   calling page-source/OSVM seams, running threads, or replacing allocators
+
+box HakoAllocSegmentLifecycleScalarStateReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    segment_id: i64 = -1
+    from_state: i64 = -1
+    to_state: i64 = -1
+    transition_id: i64 = 0
+    used_slices: i64 = 0
+    abandoned_slices: i64 = 0
+    committed_slices: i64 = 0
+    purge_scheduled_slices: i64 = 0
+    unsupported_requirement: i64 = 0
+    lifecycle_contract_present: i64 = 1
+    would_use_raw_pointer: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_replace_process_allocator: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentLifecycleScalarState {
+    classify_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    invalid_shape_reject_count: i64 = 0
+    raw_pointer_reject_count: i64 = 0
+    atomic_bitmap_reject_count: i64 = 0
+    osvm_reject_count: i64 = 0
+    thread_reject_count: i64 = 0
+    provider_reject_count: i64 = 0
+    unknown_state_reject_count: i64 = 0
+    invalid_transition_reject_count: i64 = 0
+    last_segment_id: i64 = -1
+    last_reason: i64 = 0
+    last_transition_id: i64 = 0
+
+    stateReserved() {
+        return 0
+    }
+
+    stateActive() {
+        return 1
+    }
+
+    statePurgeScheduled() {
+        return 2
+    }
+
+    statePurged() {
+        return 3
+    }
+
+    stateAbandoned() {
+        return 4
+    }
+
+    stateReclaimed() {
+        return 5
+    }
+
+    stateFreed() {
+        return 6
+    }
+
+    isKnownState(state) {
+        if state < 0 {
+            return 0
+        }
+        if state > 6 {
+            return 0
+        }
+        return 1
+    }
+
+    transitionId(from_state, to_state) {
+        if from_state == 0 {
+            if to_state == 1 {
+                return 10
+            }
+        }
+        if from_state == 1 {
+            if to_state == 2 {
+                return 11
+            }
+            if to_state == 4 {
+                return 13
+            }
+            if to_state == 6 {
+                return 16
+            }
+        }
+        if from_state == 2 {
+            if to_state == 3 {
+                return 12
+            }
+        }
+        if from_state == 3 {
+            if to_state == 6 {
+                return 17
+            }
+        }
+        if from_state == 4 {
+            if to_state == 5 {
+                return 14
+            }
+        }
+        if from_state == 5 {
+            if to_state == 1 {
+                return 15
+            }
+        }
+        return 0
+    }
+
+    report(accepted, reason, segment_id, from_state, to_state, transition_id, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement) {
+        local result = new HakoAllocSegmentLifecycleScalarStateReport()
+        result.accepted = accepted
+        result.reason = reason
+        result.segment_id = segment_id
+        result.from_state = from_state
+        result.to_state = to_state
+        result.transition_id = transition_id
+        result.used_slices = used_slices
+        result.abandoned_slices = abandoned_slices
+        result.committed_slices = committed_slices
+        result.purge_scheduled_slices = purge_scheduled_slices
+        result.unsupported_requirement = unsupported_requirement
+        me.last_segment_id = segment_id
+        me.last_reason = reason
+        me.last_transition_id = transition_id
+        return result
+    }
+
+    reject(reason, segment_id, from_state, to_state, transition_id, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement) {
+        me.reject_count = me.reject_count + 1
+        if reason == 1 {
+            me.invalid_shape_reject_count = me.invalid_shape_reject_count + 1
+        }
+        if reason == 2 {
+            me.raw_pointer_reject_count = me.raw_pointer_reject_count + 1
+        }
+        if reason == 3 {
+            me.atomic_bitmap_reject_count = me.atomic_bitmap_reject_count + 1
+        }
+        if reason == 4 {
+            me.osvm_reject_count = me.osvm_reject_count + 1
+        }
+        if reason == 5 {
+            me.thread_reject_count = me.thread_reject_count + 1
+        }
+        if reason == 6 {
+            me.provider_reject_count = me.provider_reject_count + 1
+        }
+        if reason == 7 {
+            me.unknown_state_reject_count = me.unknown_state_reject_count + 1
+        }
+        if reason == 8 {
+            me.invalid_transition_reject_count = me.invalid_transition_reject_count + 1
+        }
+        return me.report(0, reason, segment_id, from_state, to_state, transition_id, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement)
+    }
+
+    rejectUnsupportedRequirement(requirement, segment_id, from_state, to_state, transition_id, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices) {
+        if requirement == 1 {
+            return me.reject(2, segment_id, from_state, to_state, transition_id, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, requirement)
+        }
+        if requirement == 2 {
+            return me.reject(3, segment_id, from_state, to_state, transition_id, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, requirement)
+        }
+        if requirement == 3 {
+            return me.reject(4, segment_id, from_state, to_state, transition_id, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, requirement)
+        }
+        if requirement == 4 {
+            return me.reject(5, segment_id, from_state, to_state, transition_id, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, requirement)
+        }
+        if requirement == 5 {
+            return me.reject(6, segment_id, from_state, to_state, transition_id, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, requirement)
+        }
+        return me.reject(1, segment_id, from_state, to_state, transition_id, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, requirement)
+    }
+
+    classifyTransition(segment_id, from_state, to_state, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement) {
+        me.classify_count = me.classify_count + 1
+
+        if segment_id < 0 {
+            return me.reject(1, segment_id, from_state, to_state, 0, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement)
+        }
+        if used_slices < 0 {
+            return me.reject(1, segment_id, from_state, to_state, 0, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement)
+        }
+        if abandoned_slices < 0 {
+            return me.reject(1, segment_id, from_state, to_state, 0, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement)
+        }
+        if committed_slices < 0 {
+            return me.reject(1, segment_id, from_state, to_state, 0, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement)
+        }
+        if purge_scheduled_slices < 0 {
+            return me.reject(1, segment_id, from_state, to_state, 0, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement)
+        }
+        if abandoned_slices > used_slices {
+            return me.reject(1, segment_id, from_state, to_state, 0, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement)
+        }
+        if purge_scheduled_slices > committed_slices {
+            return me.reject(1, segment_id, from_state, to_state, 0, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement)
+        }
+        if me.isKnownState(from_state) == 0 {
+            return me.reject(7, segment_id, from_state, to_state, 0, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement)
+        }
+        if me.isKnownState(to_state) == 0 {
+            return me.reject(7, segment_id, from_state, to_state, 0, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement)
+        }
+
+        local transition_id = me.transitionId(from_state, to_state)
+        if unsupported_requirement != 0 {
+            return me.rejectUnsupportedRequirement(unsupported_requirement, segment_id, from_state, to_state, transition_id, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices)
+        }
+        if transition_id == 0 {
+            return me.reject(8, segment_id, from_state, to_state, transition_id, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement)
+        }
+
+        me.accepted_count = me.accepted_count + 1
+        return me.report(1, 0, segment_id, from_state, to_state, transition_id, used_slices, abandoned_slices, committed_slices, purge_scheduled_slices, unsupported_requirement)
+    }
+}
+
