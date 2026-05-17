@@ -226,7 +226,8 @@ Forbidden:
 | `MIMAP-064A` | reclaim scheduler request marker contract | landed; selected MIMAP-065A |
 | `MIMAP-065A` | reclaim scheduler marker closeout guard | landed; selected MIMAP-066A |
 | `MIMAP-066A` | post-scheduler-marker row selection | landed; selected MIMAP-067A |
-| `MIMAP-067A` | reclaim scheduler substrate proposal-or-park | selected current |
+| `MIMAP-067A` | reclaim scheduler substrate proposal-or-park | landed; selected MIMAP-068A |
+| `MIMAP-068A` | reclaim scheduler request ledger route | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1075,6 +1076,19 @@ allocator-internal scheduler substrate implementation row, park real scheduling,
 or switch to a concrete Hakorune language/compiler prerequisite.
 
 It must not add allocator behavior, execute real scheduling, add source-level
+concurrency semantics, call page-source APIs, unreserve or release OSVM pages,
+activate providers, replace the host allocator, or add backend matchers.
+
+MIMAP-067A landed by parking real scheduler substrate for now and selecting
+MIMAP-068A.
+
+### MIMAP-068A granularity
+
+MIMAP-068A is a narrow allocator behavior row. It may add a scalar
+allocator-owned reclaim scheduler request ledger that composes the MIMAP-064A
+request marker and records at most one pending modeled scheduler request.
+
+It must not execute real scheduling, spawn workers, add source-level
 concurrency semantics, call page-source APIs, unreserve or release OSVM pages,
 activate providers, replace the host allocator, or add backend matchers.
 

@@ -53,7 +53,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-067A reclaim scheduler substrate proposal-or-park`
+  `MIMAP-068A reclaim scheduler request ledger route`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -72,8 +72,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `MIMAP-066A`; the next selected
-  blocker is `MIMAP-067A`, the reclaim scheduler substrate proposal-or-park.
+- resume point: continue Phase 293x after `MIMAP-067A`; the next selected
+  blocker is `MIMAP-068A`, the reclaim scheduler request ledger route.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -81,8 +81,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-067A`: decide open vs park for reclaim scheduler substrate
-  2. keep real thread scheduling, source-level concurrency features,
+  1. `MIMAP-068A`: add scalar reclaim scheduler request ledger route
+  2. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider
      activation inactive
   3. keep secure entropy execution parked until a separate random substrate

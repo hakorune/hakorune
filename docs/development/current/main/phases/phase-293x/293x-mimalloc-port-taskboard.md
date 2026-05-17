@@ -351,7 +351,8 @@ FST:
 | `MIMAP-064A` | landed | Reclaim scheduler request marker contract. | selected MIMAP-065A |
 | `MIMAP-065A` | landed | Reclaim scheduler marker closeout guard. | selected MIMAP-066A |
 | `MIMAP-066A` | landed | Post-scheduler-marker row selection. | selected MIMAP-067A |
-| `MIMAP-067A` | selected current | Reclaim scheduler substrate proposal-or-park. | after MIMAP-066A |
+| `MIMAP-067A` | landed | Reclaim scheduler substrate proposal-or-park. | selected MIMAP-068A |
+| `MIMAP-068A` | selected current | Reclaim scheduler request ledger route. | after MIMAP-067A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -359,10 +360,10 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-066A: `MIMAP-067A` decides whether to open or park a
-real reclaim scheduler substrate row. Real thread scheduling, source-level
-concurrency features, page-source calls, OSVM unreserve/release, provider
-activation, and backend matchers remain closed.
+Current row after MIMAP-067A: `MIMAP-068A` adds a scalar allocator-owned
+request ledger after the scheduler request marker. Real thread scheduling,
+worker spawning, source-level concurrency features, page-source calls, OSVM
+unreserve/release, provider activation, and backend matchers remain closed.
 
 MIMAP-020A execution order:
 

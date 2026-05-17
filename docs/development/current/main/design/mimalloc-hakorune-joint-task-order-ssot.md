@@ -34,30 +34,30 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-066A` landed the post-scheduler-marker row selection and selected the
-reclaim scheduler substrate proposal-or-park row.
+`MIMAP-067A` landed the reclaim scheduler substrate proposal-or-park row. It
+parks real scheduling for now and selects a scalar request-ledger allocator row.
 
 Recommended current row:
 
 ```text
-MIMAP-067A
-  reclaim scheduler substrate proposal-or-park
+MIMAP-068A
+  reclaim scheduler request ledger route
 ```
 
 Purpose:
 
 ```text
-mark scalar reclaim completion after post-drain owner-transfer success
-keep thread scheduling, page-source, OSVM release, and provider activation closed
+record one modeled scheduler request after the request marker succeeds
+keep real thread scheduling, worker spawning, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
 
 Stop lines:
 
 ```text
-no thread scheduling
+no real thread scheduling
+no worker spawning
 no page-source call
-no OSVM unreserve / release
 no OSVM unreserve / release
 no provider activation
 ```
@@ -89,7 +89,8 @@ no provider activation
 | 21 | allocator contract | `MIMAP-064A reclaim scheduler request marker contract` | landed; selected MIMAP-065A |
 | 22 | closeout | `MIMAP-065A reclaim scheduler marker closeout guard` | landed; selected MIMAP-066A |
 | 23 | planning | `MIMAP-066A post-scheduler-marker row selection` | landed; selected MIMAP-067A |
-| 24 | planning | `MIMAP-067A reclaim scheduler substrate proposal-or-park` | current; choose open vs park |
+| 24 | planning | `MIMAP-067A reclaim scheduler substrate proposal-or-park` | landed; selected MIMAP-068A |
+| 25 | allocator | `MIMAP-068A reclaim scheduler request ledger route` | current; scalar request record without real scheduling |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
