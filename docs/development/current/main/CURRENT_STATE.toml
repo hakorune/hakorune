@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-17"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "GUARD-MANIFEST-006 selected OSVM fast-path closeout guards for manifest-backed thin-wrapper migration and selected GUARD-MANIFEST-007 implementation. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "GUARD-MANIFEST-007 landed manifest-backed OSVM closeout thin wrappers and selected GUARD-MANIFEST-008 final closeout wrapper selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-581-GUARD-MANIFEST-007-OSVM-CLOSEOUT-THIN-WRAPPERS.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-582-GUARD-MANIFEST-008-FINAL-CLOSEOUT-WRAPPER-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-580-GUARD-MANIFEST-006-REMAINING-CLOSEOUT-FAMILY-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-580-GUARD-MANIFEST-006-REMAINING-CLOSEOUT-FAMILY-SELECTION.md"
-latest_card_summary = "GUARD-MANIFEST-006 selects OSVM fast-path closeout guards for manifest-backed thin-wrapper migration and selects GUARD-MANIFEST-007."
+latest_card = "293x-581-GUARD-MANIFEST-007-OSVM-CLOSEOUT-THIN-WRAPPERS"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-581-GUARD-MANIFEST-007-OSVM-CLOSEOUT-THIN-WRAPPERS.md"
+latest_card_summary = "GUARD-MANIFEST-007 moves selected OSVM closeout guards behind manifest rows while preserving public k2_wide entrypoints; GUARD-MANIFEST-008 is selected."
 
-current_blocker_token = "GUARD-MANIFEST-007"
+current_blocker_token = "GUARD-MANIFEST-008"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-581 GUARD-MANIFEST-007 OSVM closeout thin wrappers landed",
   "293x-580 GUARD-MANIFEST-006 remaining closeout family selection landed",
   "293x-579 GUARD-MANIFEST-005 reclaim scheduler closeout thin wrappers landed",
   "293x-578 GUARD-MANIFEST-004 next closeout family selection landed",

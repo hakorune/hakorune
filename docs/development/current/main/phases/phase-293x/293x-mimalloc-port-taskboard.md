@@ -116,7 +116,8 @@ not part of this sidecar:
 | `GUARD-MANIFEST-004` | landed | Select reclaim scheduler closeout guards as the next manifest-backed thin-wrapper family. | after GM003 |
 | `GUARD-MANIFEST-005` | landed | Move the selected reclaim scheduler closeout guards behind manifest rows while keeping public `k2_wide_*` entrypoints stable. | after GM004 |
 | `GUARD-MANIFEST-006` | landed | Select OSVM fast-path closeout guards as the next manifest-backed thin-wrapper family. | after GM005 |
-| `GUARD-MANIFEST-007` | selected current | Move the selected OSVM fast-path closeout guards behind manifest rows while keeping public `k2_wide_*` entrypoints stable. | after GM006 |
+| `GUARD-MANIFEST-007` | landed | Move the selected OSVM fast-path closeout guards behind manifest rows while keeping public `k2_wide_*` entrypoints stable. | after GM006 |
+| `GUARD-MANIFEST-008` | selected current | Select the final closeout wrapper migration or helper extraction row. | after GM007 |
 
 ## Stage1 / Selfhost Ordering Guard
 

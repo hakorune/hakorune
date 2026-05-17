@@ -60,6 +60,14 @@ expected = {
         "wrapper": "tools/checks/k2_wide_hako_alloc_reclaim_scheduler_scalar_lane_closeout_guard.sh",
         "impl": "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_scalar_lane_closeout_guard.sh",
     },
+    "hako-alloc-osvm-fast-path-route-closeout": {
+        "wrapper": "tools/checks/k2_wide_hako_alloc_osvm_fast_path_route_closeout_guard.sh",
+        "impl": "tools/checks/impl/k2_wide_hako_alloc_osvm_fast_path_route_closeout_guard.sh",
+    },
+    "hako-alloc-osvm-fast-path-unreserve-closeout": {
+        "wrapper": "tools/checks/k2_wide_hako_alloc_osvm_fast_path_unreserve_closeout_guard.sh",
+        "impl": "tools/checks/impl/k2_wide_hako_alloc_osvm_fast_path_unreserve_closeout_guard.sh",
+    },
 }
 
 rows = data.get("rows")

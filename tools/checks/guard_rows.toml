@@ -91,6 +91,18 @@ profiles = ["pilot", "hako-alloc-closeout"]
 cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_scalar_lane_closeout_guard.sh"]
 
 [[rows]]
+id = "hako-alloc-osvm-fast-path-route-closeout"
+label = "hako_alloc OSVM fast-path route closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_osvm_fast_path_route_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-osvm-fast-path-unreserve-closeout"
+label = "hako_alloc OSVM fast-path unreserve closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_osvm_fast_path_unreserve_closeout_guard.sh"]
+
+[[rows]]
 id = "k2-wide-manifest-wrapper"
 label = "k2-wide manifest wrapper no-growth guard"
 profiles = ["pilot", "quick-static"]

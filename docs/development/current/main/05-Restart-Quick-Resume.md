@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `GUARD-MANIFEST-007 OSVM closeout thin wrappers`
+- current blocker token: `GUARD-MANIFEST-008 final closeout wrapper selection`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -48,7 +48,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `GUARD-MANIFEST-007 OSVM closeout thin wrappers`
+- current blocker token: `GUARD-MANIFEST-008 final closeout wrapper selection`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -59,10 +59,10 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after `GUARD-MANIFEST-006`; current blocker is
-  `GUARD-MANIFEST-007`
-- next row: move the selected OSVM fast-path closeout guards behind manifest
-  rows while preserving public guard names
+- continue `phase-293x` after `GUARD-MANIFEST-007`; current blocker is
+  `GUARD-MANIFEST-008`
+- next row: select the final closeout wrapper migration or helper extraction
+  row
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

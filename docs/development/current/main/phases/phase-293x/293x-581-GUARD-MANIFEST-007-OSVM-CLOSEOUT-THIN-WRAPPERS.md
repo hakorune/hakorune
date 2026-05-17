@@ -1,6 +1,6 @@
 # 293x-581 GUARD-MANIFEST-007 OSVM Closeout Thin Wrappers
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -11,6 +11,15 @@ Date: 2026-05-17
 The selected target is the OSVM fast-path closeout pair. Public
 `k2_wide_*` names stay stable; thick bodies move behind manifest-owned
 implementation commands.
+
+Next selected row:
+
+```text
+GUARD-MANIFEST-008
+```
+
+`GUARD-MANIFEST-008` should decide the final hako_alloc closeout wrapper
+migration target for `reclaim_scalar_lane_closeout` and `reuse_proof_closeout`.
 
 ## Selected Scripts
 
@@ -47,4 +56,13 @@ bash tools/checks/k2_wide_manifest_wrapper_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+- Added manifest rows for the two selected OSVM closeout guards.
+- Moved thick command bodies to `tools/checks/impl/`.
+- Kept public `tools/checks/k2_wide_*_closeout_guard.sh` paths as stable thin
+  wrappers around `run_row_guard.sh --only <id>`.
+- Extended `tools/checks/k2_wide_manifest_wrapper_guard.sh` to cover the OSVM
+  closeout wrappers.
 
