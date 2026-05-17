@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-17"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-094A landed the segment allocation modeled ledger route and selected MIMAP-095A closeout. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-095A landed the segment allocation modeled ledger closeout guard and selected MIMAP-096A row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-592-MIMAP-095A-SEGMENT-ALLOCATION-MODELED-LEDGER-CLOSEOUT-GUARD.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-593-MIMAP-096A-POST-SEGMENT-ALLOCATION-MODELED-LEDGER-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-591-MIMAP-094A-SEGMENT-ALLOCATION-MODELED-LEDGER-ROUTE"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-591-MIMAP-094A-SEGMENT-ALLOCATION-MODELED-LEDGER-ROUTE.md"
-latest_card_summary = "MIMAP-094A records accepted modeled segment allocation consume results into a deterministic scalar token ledger without opening real allocation/free, substrate execution, provider activation, or backend matchers."
+latest_card = "293x-592-MIMAP-095A-SEGMENT-ALLOCATION-MODELED-LEDGER-CLOSEOUT-GUARD"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-592-MIMAP-095A-SEGMENT-ALLOCATION-MODELED-LEDGER-CLOSEOUT-GUARD.md"
+latest_card_summary = "MIMAP-095A closes out the modeled scalar segment allocation ledger route with manifest-backed wiring and stop-line guards while keeping behavior, provider activation, and backend matchers closed."
 
-current_blocker_token = "MIMAP-095A"
+current_blocker_token = "MIMAP-096A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-592 MIMAP-095A segment allocation modeled ledger closeout guard landed; MIMAP-096A selected",
   "293x-591 MIMAP-094A segment allocation modeled ledger route landed; MIMAP-095A selected",
   "293x-590 MIMAP-093A post-segment-allocation-modeled-consume row selection landed; MIMAP-094A selected",
   "293x-589 MIMAP-092A segment allocation modeled consume closeout guard landed; MIMAP-093A selected",
@@ -39,5 +40,4 @@ landed_tail = [
   "293x-584 GUARD-MANIFEST-010 closeout-or-return selection landed; MIMAP-087A selected",
   "293x-583 GUARD-MANIFEST-009 final closeout thin wrappers landed",
   "293x-582 GUARD-MANIFEST-008 final closeout wrapper selection landed",
-  "293x-581 GUARD-MANIFEST-007 OSVM closeout thin wrappers landed",
 ]
