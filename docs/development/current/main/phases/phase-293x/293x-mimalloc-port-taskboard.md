@@ -359,7 +359,8 @@ FST:
 | `MIMAP-072A` | landed | Reclaim scheduler ledger consume closeout guard. | selected MIMAP-073A |
 | `MIMAP-073A` | landed | Post-scheduler-consume row selection. | selected MIMAP-074A |
 | `MIMAP-074A` | landed | Reclaim scheduler request ledger roundtrip route. | selected MIMAP-075A |
-| `MIMAP-075A` | selected current | Reclaim scheduler request ledger roundtrip closeout guard. | after MIMAP-074A |
+| `MIMAP-075A` | landed | Reclaim scheduler request ledger roundtrip closeout guard. | selected MIMAP-076A |
+| `MIMAP-076A` | selected current | Post-scheduler-roundtrip row selection. | after MIMAP-075A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -367,8 +368,8 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-074A: `MIMAP-075A` closes out the scalar record->consume
-scheduler request ledger roundtrip route. Real thread scheduling,
+Current row after MIMAP-075A: `MIMAP-076A` selects one follow-up after the
+scalar scheduler request ledger roundtrip closeout. Real thread scheduling,
 worker spawning, source-level concurrency features, page-source calls, OSVM
 unreserve/release, provider activation, and backend matchers remain closed.
 

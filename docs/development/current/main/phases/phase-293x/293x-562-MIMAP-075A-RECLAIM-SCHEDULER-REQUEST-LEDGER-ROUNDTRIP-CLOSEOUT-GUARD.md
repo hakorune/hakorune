@@ -1,6 +1,6 @@
 # 293x-562 MIMAP-075A Reclaim Scheduler Request Ledger Roundtrip Closeout Guard
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -51,4 +51,23 @@ Hakorune language work.
 bash tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_roundtrip_closeout_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Closeout Result
+
+`MIMAP-075A` added:
+
+```text
+docs/development/current/main/design/hako-alloc-reclaim-scheduler-request-ledger-roundtrip-closeout-ssot.md
+tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_roundtrip_closeout_guard.sh
+```
+
+The closeout locks the scalar scheduler request ledger record, consume, and
+roundtrip lifecycle while keeping real scheduling, source-level concurrency,
+page-source/OSVM release, provider activation, and backend matchers closed.
+
+Next row:
+
+```text
+MIMAP-076A post-scheduler-roundtrip row selection
 ```
