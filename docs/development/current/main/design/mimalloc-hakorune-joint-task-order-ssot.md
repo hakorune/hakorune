@@ -34,14 +34,14 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-135A` is current after `MIMAP-134A` landed the local-free reuse ledger
-release route.
+`MIMAP-136A` is current after `MIMAP-135A` selected the local-free reuse ledger
+release closeout guard.
 
 Recommended current row:
 
 ```text
-MIMAP-135A
-  post-local-free-reuse-ledger-release row selection
+MIMAP-136A
+  segment allocation modeled local-free reuse ledger release closeout guard
 ```
 
 Purpose:
@@ -168,7 +168,8 @@ no provider activation
 | 98 | closeout | `MIMAP-132A segment allocation modeled local-free reuse ledger closeout guard` | landed; selected MIMAP-133A |
 | 99 | planning | `MIMAP-133A post-local-free-reuse-ledger-closeout row selection` | landed; selected MIMAP-134A |
 | 100 | allocator | `MIMAP-134A segment allocation modeled local-free reuse ledger release route` | landed; selected MIMAP-135A |
-| 101 | planning | `MIMAP-135A post-local-free-reuse-ledger-release row selection` | selected current |
+| 101 | planning | `MIMAP-135A post-local-free-reuse-ledger-release row selection` | landed; selected MIMAP-136A |
+| 102 | closeout | `MIMAP-136A segment allocation modeled local-free reuse ledger release closeout guard` | selected current |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
