@@ -1,6 +1,6 @@
 # 293x-634 MIMAP-128A Segment Allocation Modeled Local-Free Reuse Closeout Guard
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -59,3 +59,10 @@ bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Result
+
+`MIMAP-128A` added the local-free reuse closeout SSOT, manifest-backed closeout
+guard, thin wrapper, and check-script index entry.
+
+It selects `MIMAP-129A post-local-free-reuse-closeout row selection`.

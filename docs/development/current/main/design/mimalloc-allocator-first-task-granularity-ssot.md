@@ -296,7 +296,8 @@ Forbidden:
 | `MIMAP-125A` | post-source-cleanup row selection | landed; selected MIMAP-126A |
 | `MIMAP-126A` | segment allocation modeled local-free reuse route | landed; selected MIMAP-127A |
 | `MIMAP-127A` | post-local-free-reuse row selection | landed; selected MIMAP-128A |
-| `MIMAP-128A` | segment allocation modeled local-free reuse closeout guard | selected current |
+| `MIMAP-128A` | segment allocation modeled local-free reuse closeout guard | landed; selected MIMAP-129A |
+| `MIMAP-129A` | post-local-free-reuse-closeout row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1834,6 +1835,19 @@ handoff, and inactive stop-line set.
 It must not add allocator behavior, compiler behavior, source syntax, cleanup
 bundles, provider activation, host allocator replacement, backend matchers, or
 silent fallback.
+
+MIMAP-128A landed by adding the local-free reuse closeout SSOT, manifest-backed
+guard, thin wrapper, and check-script index entry. It selects MIMAP-129A.
+
+### MIMAP-129A granularity
+
+MIMAP-129A is a planning-only row after modeled local-free reuse closeout. It
+should review the current segment allocation modeled lane and select exactly
+one next mimalloc / hako_alloc or Hakorune compiler row.
+
+It must not add allocator behavior, compiler route behavior, source syntax,
+cleanup bundles, provider activation, host allocator replacement, backend
+matchers, or silent fallback.
 
 MIMAP-125A landed by selecting MIMAP-126A.
 
