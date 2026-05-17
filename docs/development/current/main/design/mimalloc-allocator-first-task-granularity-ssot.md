@@ -300,7 +300,8 @@ Forbidden:
 | `MIMAP-129A` | post-local-free-reuse-closeout row selection | landed; selected MIMAP-130A |
 | `MIMAP-130A` | segment allocation modeled local-free reuse ledger route | landed; selected MIMAP-131A |
 | `MIMAP-131A` | post-local-free-reuse-ledger row selection | landed; selected MIMAP-132A |
-| `MIMAP-132A` | segment allocation modeled local-free reuse ledger closeout guard | selected current |
+| `MIMAP-132A` | segment allocation modeled local-free reuse ledger closeout guard | landed; selected MIMAP-133A |
+| `MIMAP-133A` | post-local-free-reuse-ledger-closeout row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1868,6 +1869,19 @@ and inactive stop-line set.
 It must not add allocator behavior, compiler behavior, source syntax, cleanup
 bundles, provider activation, host allocator replacement, backend matchers, or
 silent fallback.
+
+MIMAP-132A landed by adding the reuse ledger closeout SSOT, manifest-backed
+guard, thin wrapper, and check-script index entry. It selects MIMAP-133A.
+
+### MIMAP-133A granularity
+
+MIMAP-133A is a planning-only row after modeled local-free reuse ledger
+closeout. It should review the current segment allocation modeled lane and
+select exactly one next mimalloc / hako_alloc or Hakorune compiler row.
+
+It must not add allocator behavior, compiler route behavior, source syntax,
+cleanup bundles, provider activation, host allocator replacement, backend
+matchers, or silent fallback.
 
 MIMAP-127A landed by selecting MIMAP-128A.
 

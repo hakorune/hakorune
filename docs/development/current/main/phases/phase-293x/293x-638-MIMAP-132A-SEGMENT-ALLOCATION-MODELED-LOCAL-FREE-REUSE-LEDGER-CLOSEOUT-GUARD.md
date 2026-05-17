@@ -1,6 +1,6 @@
 # 293x-638 MIMAP-132A Segment Allocation Modeled Local-Free Reuse Ledger Closeout Guard
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -41,3 +41,10 @@ bash tools/checks/run_row_guard.sh --only hako-alloc-segment-allocation-modeled-
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Result
+
+`MIMAP-132A` added the local-free reuse ledger closeout SSOT,
+manifest-backed closeout guard, thin wrapper, and check-script index entry.
+
+It selects `MIMAP-133A post-local-free-reuse-ledger-closeout row selection`.
