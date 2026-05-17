@@ -449,7 +449,8 @@ FST:
 | `PURE-FIRST-GLOBAL-CALL-001` | landed | Same-module static helper global-call route support. | selected MIMAP-123A |
 | `MIMAP-123A` | landed | Post-same-module-global-call row selection. | selected ROUTE-FIXPOINT-001 |
 | `ROUTE-FIXPOINT-001` | landed | Route refresh fixpoint owner extraction. | selected ROUTE-DIAG-VOCAB-001 |
-| `ROUTE-DIAG-VOCAB-001` | selected current | Route diagnostics vocabulary SSOT. | BoxShape only |
+| `ROUTE-DIAG-VOCAB-001` | parked | Route diagnostics vocabulary SSOT. | resume after guard cleanup |
+| `GUARD-MANIFEST-011` | selected current | Pure-first route thin wrapper pilot. | guard boilerplate cleanup |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -457,10 +458,10 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after ROUTE-FIXPOINT-001:
-`ROUTE-DIAG-VOCAB-001` fixes the route diagnostic reason vocabulary so Rust
-route planners, MIR JSON, pure-first preflight, C shim allowlists, and docs do
-not drift.
+Current cleanup detour:
+`GUARD-MANIFEST-011` moves one recent pure-first route guard behind
+`guard_rows.toml` / `run_row_guard.sh` while keeping the public command stable.
+`ROUTE-DIAG-VOCAB-001` is parked and should resume after this cleanup closes.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,

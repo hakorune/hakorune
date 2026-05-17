@@ -287,7 +287,8 @@ Forbidden:
 | `PURE-FIRST-GLOBAL-CALL-001` | same-module static helper global-call route support | landed; selected MIMAP-123A |
 | `MIMAP-123A` | post-same-module-global-call row selection | landed; selected ROUTE-FIXPOINT-001 |
 | `ROUTE-FIXPOINT-001` | route refresh fixpoint owner extraction | landed; selected ROUTE-DIAG-VOCAB-001 |
-| `ROUTE-DIAG-VOCAB-001` | route diagnostics vocabulary SSOT | selected current |
+| `ROUTE-DIAG-VOCAB-001` | route diagnostics vocabulary SSOT | parked; resume after guard cleanup |
+| `GUARD-MANIFEST-011` | pure-first route thin wrapper pilot | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1731,6 +1732,19 @@ diagnostics vocabulary SSOT and map existing preflight reason strings to it.
 It must not add allocator behavior, route acceptance shapes, proof vocabulary,
 source syntax, backend matchers, provider activation, host allocator
 replacement, or silent fallback.
+
+ROUTE-DIAG-VOCAB-001 is parked while GUARD-MANIFEST-011 reduces guard
+boilerplate through the existing manifest runner path.
+
+### GUARD-MANIFEST-011 granularity
+
+GUARD-MANIFEST-011 is a guard cleanup row. It should move one recent pure-first
+`k2_wide_*` guard behind `guard_rows.toml` and `run_row_guard.sh`, keeping the
+public command stable.
+
+It must not add allocator behavior, compiler route behavior, proof app source
+changes, new generators, shell `eval`, `shell=True`, dev_gate wiring, provider
+activation, host allocator replacement, or silent fallback.
 
 MIMAP-111A landed by adding the local-free apply-plan ledger owner, proof app,
 SSOT, manifest entry, module export, README entry, and local guard. It selects
