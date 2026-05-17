@@ -475,8 +475,9 @@ FST:
 | `GUARD-MANIFEST-013` | landed | Declarative guard spec pilot. | selected MIMAP-141A |
 | `MIMAP-141A` | landed | Post-guard-spec-pilot row selection. | selected MIMAP-142A |
 | `MIMAP-142A` | landed | Segment allocation modeled local-free reuse ledger release-applied recycle proof. | selected MIMAP-143A |
-| `GUARD-MANIFEST-014` | landed | Proof app test wrapper backfill. | MIMAP-143A remains current |
-| `MIMAP-143A` | selected current | Segment allocation modeled local-free reuse ledger release-applied recycle closeout guard. | current closeout row |
+| `GUARD-MANIFEST-014` | landed | Proof app test wrapper backfill. | sidecar before MIMAP-143A closeout |
+| `MIMAP-143A` | landed | Segment allocation modeled local-free reuse ledger release-applied recycle closeout guard. | selected MIMAP-144A |
+| `MIMAP-144A` | selected current | Post-release-applied-recycle-closeout row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -485,8 +486,9 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-143A` closes out the release-applied local-free reuse ledger token
-recycle proof before the next allocator behavior row is selected.
+`MIMAP-144A` reads the release-applied local-free reuse ledger token recycle
+closeout evidence and selects exactly one next allocator / compiler / language
+row.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,
@@ -707,7 +709,8 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `MIMAP-143A` | selected current | Release-applied local-free reuse ledger token recycle closeout guard. | Closeout row; no allocator behavior. |
+| `MIMAP-144A` | selected current | Post-release-applied-recycle-closeout row selection. | Planning row; no allocator behavior. |
+| `MIMAP-143A` | landed | Release-applied local-free reuse ledger token recycle closeout guard. | Added closeout SSOT and manifest-backed guard; selected MIMAP-144A. |
 | `GUARD-MANIFEST-014` | landed | Proof app test wrapper backfill. | MIMAP-134A / MIMAP-138A app-local tests now use manifest runner. |
 | `MIMAP-142A` | landed | Release-applied local-free reuse ledger token recycle proof. | Added proof app and guard; selected MIMAP-143A. |
 | `MIMAP-141A` | landed | Post-guard-spec-pilot row selection. | Selected MIMAP-142A. |

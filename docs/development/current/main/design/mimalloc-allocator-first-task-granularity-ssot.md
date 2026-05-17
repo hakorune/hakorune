@@ -313,7 +313,8 @@ Forbidden:
 | `GUARD-MANIFEST-013` | declarative guard spec pilot | landed; selected MIMAP-141A |
 | `MIMAP-141A` | post-guard-spec-pilot row selection | landed; selected MIMAP-142A |
 | `MIMAP-142A` | segment allocation modeled local-free reuse ledger release-applied recycle proof | landed; selected MIMAP-143A |
-| `MIMAP-143A` | segment allocation modeled local-free reuse ledger release-applied recycle closeout guard | selected current |
+| `MIMAP-143A` | segment allocation modeled local-free reuse ledger release-applied recycle closeout guard | landed; selected MIMAP-144A |
+| `MIMAP-144A` | post-release-applied-recycle-closeout row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -361,7 +362,19 @@ It must not add allocator behavior, compiler route behavior, source syntax,
 provider activation, host allocator replacement, backend matchers, or silent
 fallback.
 
-MIMAP-125A landed by selecting MIMAP-126A.
+MIMAP-143A landed by adding a closeout SSOT, manifest-backed guard, thin
+wrapper, and check-script index entry. It selects MIMAP-144A.
+
+
+### MIMAP-144A granularity
+
+MIMAP-144A is a planning-only row after the release-applied local-free reuse
+ledger token recycle closeout. It should read MIMAP-143A evidence and select
+exactly one next allocator / compiler / language task.
+
+It must not implement allocator behavior, compiler route behavior, source
+syntax, provider activation, host allocator replacement, backend matchers, or
+silent fallback by itself.
 
 
 ## Historical Granularity Anchors

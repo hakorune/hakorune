@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-143A` is current after `MIMAP-142A` landed release-applied local-free
-reuse ledger token recycle proof.
+`MIMAP-144A` is current after `MIMAP-143A` landed the release-applied
+local-free reuse ledger token recycle closeout guard.
 
 Recommended current row:
 
 ```text
-MIMAP-143A
-  segment allocation modeled local-free reuse ledger release-applied recycle closeout guard
+MIMAP-144A
+  post-release-applied-recycle-closeout row selection
 ```
 
 Purpose:
 
 ```text
-freeze release-applied local-free reuse ledger token recycle proof wiring
+select exactly one next allocator / compiler / language row after the closeout
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -178,7 +178,8 @@ no provider activation
 | 108 | guard cleanup | `GUARD-MANIFEST-013 declarative guard spec pilot` | landed; selected MIMAP-141A |
 | 109 | planning | `MIMAP-141A post-guard-spec-pilot row selection` | landed; selected MIMAP-142A |
 | 110 | allocator | `MIMAP-142A release-applied local-free reuse ledger token recycle proof` | landed; selected MIMAP-143A |
-| 111 | closeout | `MIMAP-143A release-applied local-free reuse ledger token recycle closeout guard` | selected current |
+| 111 | closeout | `MIMAP-143A release-applied local-free reuse ledger token recycle closeout guard` | landed; selected MIMAP-144A |
+| 112 | planning | `MIMAP-144A post-release-applied-recycle-closeout row selection` | selected current |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

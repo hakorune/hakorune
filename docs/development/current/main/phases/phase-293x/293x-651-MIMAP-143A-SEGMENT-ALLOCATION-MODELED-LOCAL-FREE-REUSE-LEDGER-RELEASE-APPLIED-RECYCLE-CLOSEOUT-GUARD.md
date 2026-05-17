@@ -1,6 +1,6 @@
 # 293x-651 MIMAP-143A Segment Allocation Modeled Local-Free Reuse Ledger Release-Applied Recycle Closeout Guard
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -35,6 +35,19 @@ stop-line set before another allocator behavior row is selected.
 ```text
 bash tools/checks/run_proof_app.sh --only MIMAP-142A
 bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_ledger_release_applied_recycle_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_ledger_release_applied_recycle_closeout_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Landed Result
+
+`MIMAP-143A` landed by adding a closeout SSOT, manifest-backed closeout guard,
+thin public wrapper, check-script index entry, and current/ordering docs updates.
+
+The row selects:
+
+```text
+MIMAP-144A
+  post-release-applied-recycle-closeout row selection
 ```
