@@ -34,20 +34,21 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-140A` is current after `MIMAP-139A` landed the local-free reuse ledger
-release apply closeout guard.
+`MIMAP-142A` is current after `MIMAP-141A` returned from the guard manifest
+cleanup sidecar to allocator behavior progress.
 
 Recommended current row:
 
 ```text
-MIMAP-140A
-  post-local-free-reuse-ledger-release-apply-closeout row selection
+MIMAP-142A
+  segment allocation modeled local-free reuse ledger release-applied recycle proof
 ```
 
 Purpose:
 
 ```text
-record reuse-ledger release facts without touching the bump-shaped modeled ledger
+prove release-applied local-free reuse ledger tokens can be recorded again as new live rows
+keep live duplicate rejection intact
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -176,7 +177,8 @@ no provider activation
 | 106 | planning | `MIMAP-140A post-local-free-reuse-ledger-release-apply-closeout row selection` | landed; selected GUARD-MANIFEST-012 |
 | 107 | guard cleanup | `GUARD-MANIFEST-012 batch migration inventory` | landed; selected GUARD-MANIFEST-013 |
 | 108 | guard cleanup | `GUARD-MANIFEST-013 declarative guard spec pilot` | landed; selected MIMAP-141A |
-| 109 | planning | `MIMAP-141A post-guard-spec-pilot row selection` | selected current |
+| 109 | planning | `MIMAP-141A post-guard-spec-pilot row selection` | landed; selected MIMAP-142A |
+| 110 | allocator | `MIMAP-142A release-applied local-free reuse ledger token recycle proof` | selected current |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

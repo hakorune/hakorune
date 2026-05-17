@@ -34,15 +34,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-141A post-guard-spec-pilot row selection`
+- current blocker token: `MIMAP-142A segment allocation modeled local-free reuse ledger release-applied recycle proof`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x with `MIMAP-141A`; current blocker is the
-  planning-only row after the declarative guard spec pilot
-- latest cleanup row: `GUARD-MANIFEST-013` landed and selected MIMAP-141A
+- continue phase-293x with `MIMAP-142A`; current blocker is the allocator
+  behavior row for release-applied local-free reuse ledger token recycle
+- latest planning row: `MIMAP-141A` landed and selected MIMAP-142A
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

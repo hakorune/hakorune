@@ -1,6 +1,6 @@
 # 293x-649 MIMAP-141A Post-Guard-Spec-Pilot Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -34,3 +34,20 @@ acceptance blocker.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Result
+
+`MIMAP-141A` selected `MIMAP-142A`.
+
+Reason:
+
+```text
+The guard cleanup sidecar is closed through the first declarative-spec pilot.
+The allocator lane can now return to the modeled local-free reuse ledger:
+after MIMAP-138A applies a release to the source reuse ledger, the same modeled
+reuse token should be recordable again as a new live row while live duplicates
+remain rejected.
+```
+
+`MIMAP-141A` did not add allocator behavior, compiler route behavior, source
+syntax, provider activation, backend matchers, or silent fallback.

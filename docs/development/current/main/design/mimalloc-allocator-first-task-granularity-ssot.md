@@ -311,7 +311,8 @@ Forbidden:
 | `MIMAP-140A` | post-local-free-reuse-ledger-release-apply-closeout row selection | landed; selected GUARD-MANIFEST-012 |
 | `GUARD-MANIFEST-012` | guard manifest batch migration inventory | landed; selected GUARD-MANIFEST-013 |
 | `GUARD-MANIFEST-013` | declarative guard spec pilot | landed; selected MIMAP-141A |
-| `MIMAP-141A` | post-guard-spec-pilot row selection | selected current |
+| `MIMAP-141A` | post-guard-spec-pilot row selection | landed; selected MIMAP-142A |
+| `MIMAP-142A` | segment allocation modeled local-free reuse ledger release-applied recycle proof | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1836,6 +1837,23 @@ mimalloc / hako_alloc or Hakorune compiler row.
 It must not add allocator behavior, compiler route behavior, source syntax,
 cleanup bundles, provider activation, host allocator replacement, backend
 matchers, or silent fallback.
+
+MIMAP-141A landed by selecting MIMAP-142A.
+
+### MIMAP-142A granularity
+
+MIMAP-142A is a modeled allocator behavior row after the release apply closeout.
+It should prove that a modeled local-free reuse token whose source ledger row was
+release-applied can be recorded again as a new live source row, while a
+still-live duplicate remains rejected.
+
+It may add a focused proof app, manifest row, guard, SSOT, and small owner helper
+only if needed to expose the existing source ledger contract.
+
+It must not execute real segment allocation/free, mutate real page arrays, use a
+segment-map pointer lookup, allocate arena backing, execute atomic bitmap claims,
+call page-source or OSVM seams, schedule threads, activate providers, replace
+the host allocator, add backend matchers, or silently fallback.
 
 MIMAP-125A landed by selecting MIMAP-126A.
 

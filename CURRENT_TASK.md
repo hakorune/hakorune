@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-141A post-guard-spec-pilot row selection`
+  `MIMAP-142A segment allocation modeled local-free reuse ledger release-applied recycle proof`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,8 +74,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-141A`, the planning-only row
-  after GUARD-MANIFEST-013 landed the first declarative guard spec pilot.
+- resume point: continue Phase 293x with `MIMAP-142A`, the allocator behavior
+  row selected by MIMAP-141A after the guard manifest cleanup sidecar.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -83,8 +83,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-141A`: select exactly one next allocator or compiler row after the
-     guard manifest cleanup sidecar
+  1. `MIMAP-142A`: prove release-applied local-free reuse ledger tokens can be
+     recycled as new live rows while live duplicates remain rejected
   2. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider
      activation inactive
