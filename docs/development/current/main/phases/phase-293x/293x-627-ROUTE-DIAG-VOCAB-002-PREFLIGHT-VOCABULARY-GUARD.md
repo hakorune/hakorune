@@ -1,6 +1,6 @@
 # 293x-627 ROUTE-DIAG-VOCAB-002 Preflight Vocabulary Guard
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -49,6 +49,29 @@ The next narrow cleanup is to prevent drift between the SSOT and
 
 ```text
 bash tools/checks/current_state_pointer_guard.sh
+bash tools/checks/route_diagnostics_vocabulary_guard.sh
+bash tools/checks/run_row_guard.sh --only route-diagnostics-vocabulary
+bash tools/checks/pure_first_route_preflight_guard.sh
+git diff --check
+```
+
+## Landed Result
+
+- Added `tools/checks/route_diagnostics_vocabulary_guard.sh`.
+- Added the guard to `tools/checks/guard_rows.toml` as
+  `route-diagnostics-vocabulary`.
+- Added the public guard entry to `docs/tools/check-scripts-index.md`.
+- The guard statically compares reason tokens emitted by
+  `tools/checks/pure_first_route_preflight.py` with
+  `docs/reference/mir/route-diagnostics-vocabulary.md`.
+- Selected `MIMAP-124A`.
+
+Observed evidence:
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
+bash tools/checks/route_diagnostics_vocabulary_guard.sh
+bash tools/checks/run_row_guard.sh --only route-diagnostics-vocabulary
 bash tools/checks/pure_first_route_preflight_guard.sh
 git diff --check
 ```

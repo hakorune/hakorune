@@ -289,7 +289,8 @@ Forbidden:
 | `ROUTE-FIXPOINT-001` | route refresh fixpoint owner extraction | landed; selected ROUTE-DIAG-VOCAB-001 |
 | `ROUTE-DIAG-VOCAB-001` | route diagnostics vocabulary SSOT | landed; selected ROUTE-DIAG-VOCAB-002 |
 | `GUARD-MANIFEST-011` | pure-first route thin wrapper pilot | landed; selected ROUTE-DIAG-VOCAB-001 |
-| `ROUTE-DIAG-VOCAB-002` | preflight vocabulary drift guard | selected current |
+| `ROUTE-DIAG-VOCAB-002` | preflight vocabulary drift guard | landed; selected MIMAP-124A |
+| `MIMAP-124A` | post-route-diagnostics cleanup row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1762,6 +1763,20 @@ and `docs/reference/mir/route-diagnostics-vocabulary.md`.
 It must not add allocator behavior, route acceptance shapes, proof vocabulary,
 source syntax, backend matchers, provider activation, host allocator
 replacement, broad guard generator work, or silent fallback.
+
+ROUTE-DIAG-VOCAB-002 landed by adding a static guard that keeps
+`tools/checks/pure_first_route_preflight.py` reason tokens aligned with
+`docs/reference/mir/route-diagnostics-vocabulary.md`. It selects MIMAP-124A.
+
+### MIMAP-124A granularity
+
+MIMAP-124A is a planning-only row after the route diagnostics cleanup wave. It
+should review the current segment allocation modeled lane and select exactly
+one next mimalloc / hako_alloc or Hakorune compiler row.
+
+It must not add allocator behavior, compiler route behavior, source syntax,
+guard bundles, provider activation, host allocator replacement, backend
+matchers, or silent fallback.
 
 MIMAP-111A landed by adding the local-free apply-plan ledger owner, proof app,
 SSOT, manifest entry, module export, README entry, and local guard. It selects

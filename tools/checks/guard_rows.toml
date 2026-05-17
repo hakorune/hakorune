@@ -43,6 +43,12 @@ profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/proof_app_manifest_test_entry_guard.sh"]
 
 [[rows]]
+id = "route-diagnostics-vocabulary"
+label = "route diagnostics vocabulary guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/route_diagnostics_vocabulary_guard.sh"]
+
+[[rows]]
 id = "pure-first-same-module-static-helper-global-call"
 label = "pure-first same-module static helper global-call guard"
 profiles = ["pilot", "pure-first-route"]

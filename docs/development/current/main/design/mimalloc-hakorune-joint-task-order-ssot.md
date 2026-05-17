@@ -34,20 +34,19 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`ROUTE-DIAG-VOCAB-002` is current after the route diagnostics vocabulary SSOT
-landed.
+`MIMAP-124A` is current after the route diagnostics cleanup wave landed.
 
 Recommended current row:
 
 ```text
-ROUTE-DIAG-VOCAB-002
-  preflight vocabulary drift guard
+MIMAP-124A
+  post-route-diagnostics cleanup row selection
 ```
 
 Purpose:
 
 ```text
-keep pure-first preflight reason tokens aligned with the route diagnostics vocabulary SSOT
+select exactly one next mimalloc / hako_alloc or Hakorune compiler row
 keep real thread scheduling, worker spawning, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -152,7 +151,8 @@ no provider activation
 | 84 | Hakorune compiler cleanup | `ROUTE-FIXPOINT-001 route refresh fixpoint owner extraction` | landed; selected ROUTE-DIAG-VOCAB-001 |
 | 85 | Hakorune compiler cleanup | `ROUTE-DIAG-VOCAB-001 route diagnostics vocabulary SSOT` | landed; selected ROUTE-DIAG-VOCAB-002 |
 | 86 | guard cleanup | `GUARD-MANIFEST-011 pure-first route thin wrapper pilot` | landed; selected ROUTE-DIAG-VOCAB-001 |
-| 87 | Hakorune compiler cleanup | `ROUTE-DIAG-VOCAB-002 preflight vocabulary drift guard` | selected current |
+| 87 | Hakorune compiler cleanup | `ROUTE-DIAG-VOCAB-002 preflight vocabulary drift guard` | landed; selected MIMAP-124A |
+| 88 | planning | `MIMAP-124A post-route-diagnostics cleanup row selection` | selected current |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
