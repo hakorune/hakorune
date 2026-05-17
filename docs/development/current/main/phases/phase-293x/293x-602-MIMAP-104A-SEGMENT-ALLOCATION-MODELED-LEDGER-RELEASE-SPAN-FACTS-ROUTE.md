@@ -1,6 +1,6 @@
 # 293x-602 MIMAP-104A Segment Allocation Modeled Ledger Release Span Facts Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -20,6 +20,22 @@ allocation-time remaining blocks
 
 This is still ledger-local metadata. It does not mutate a real page free-list or
 execute segment free.
+
+## Result
+
+Successful modeled ledger releases now expose scalar release span facts:
+
+- `old_page_used_at_allocation`
+- `page_capacity`
+- `request_blocks`
+- `new_page_used_at_allocation`
+- `remaining_blocks_at_allocation`
+- `modeled_block_end`
+- `released_blocks`
+- `release_span_present`
+
+`MIMAP-104A` selects
+`MIMAP-105A post-release-span-facts row selection` as the next planning row.
 
 ## Scope
 
@@ -58,6 +74,18 @@ execute segment free.
 ## Required Evidence
 
 ```text
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_ledger_release_span_facts_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_ledger_release_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_ledger_released_token_recycle_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Evidence
+
+```text
+NYASH_FEATURES=rune NYASH_DISABLE_PLUGINS=1 target/debug/hakorune --backend vm apps/hako-alloc-segment-allocation-modeled-ledger-release-span-facts-proof/main.hako
+bash tools/checks/run_proof_app.sh --only MIMAP-104A
 bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_ledger_release_span_facts_guard.sh
 bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_ledger_release_guard.sh
 bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_ledger_released_token_recycle_guard.sh

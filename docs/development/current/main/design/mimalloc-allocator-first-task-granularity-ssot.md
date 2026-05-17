@@ -264,7 +264,8 @@ Forbidden:
 | `MIMAP-102A` | post-segment-allocation-modeled-recycle row selection | landed; selected HAKO-ALLOC-SRC-CLEAN-001 |
 | `HAKO-ALLOC-SRC-CLEAN-001` | segment counter compound assignment cleanup | landed; selected MIMAP-103A |
 | `MIMAP-103A` | post-segment-counter-cleanup row selection | landed; selected MIMAP-104A |
-| `MIMAP-104A` | segment allocation modeled ledger release span facts route | selected current |
+| `MIMAP-104A` | segment allocation modeled ledger release span facts route | landed; selected MIMAP-105A |
+| `MIMAP-105A` | post-release-span-facts row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1459,6 +1460,21 @@ It must not execute real segment allocation/free, mutate a free-list, allocate
 arena backing, add raw pointer residence, use segment-map pointer lookup,
 execute atomic bitmap claims, call page-source or OSVM seams, schedule threads,
 activate providers, replace the host allocator, or add backend matchers.
+
+MIMAP-104A landed by adding release span facts to the modeled ledger release
+report. It selects MIMAP-105A.
+
+### MIMAP-105A granularity
+
+MIMAP-105A is a planning row after the modeled segment allocation release span
+facts route. It should review the landed scalar segment allocation evidence
+and select exactly one next row.
+
+It must not add allocator behavior, execute segment allocation/free, mutate a
+free-list, allocate arena backing, add raw pointer residence, use segment-map
+pointer lookup, execute atomic bitmap claims, call page-source or OSVM seams,
+schedule threads, activate providers, replace the host allocator, or add
+backend matchers.
 
 MIMAP-102A landed by selecting HAKO-ALLOC-SRC-CLEAN-001.
 

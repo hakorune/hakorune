@@ -43,6 +43,14 @@ box HakoAllocSegmentAllocationModeledLedgerReleaseReport {
     segment_id: i64 = -1
     page_id: i64 = -1
     modeled_block_start: i64 = -1
+    old_page_used_at_allocation: i64 = 0
+    page_capacity: i64 = 0
+    request_blocks: i64 = 0
+    new_page_used_at_allocation: i64 = 0
+    remaining_blocks_at_allocation: i64 = 0
+    modeled_block_end: i64 = -1
+    released_blocks: i64 = 0
+    release_span_present: i64 = 0
     live_before: i64 = 0
     live_after: i64 = 0
     ledger_count_after: i64 = 0
@@ -361,6 +369,11 @@ box HakoAllocSegmentAllocationModeledLedger {
         local segment_id: i64 = me.segment_ids.get(row_index)
         local page_id: i64 = me.page_ids.get(row_index)
         local modeled_block_start: i64 = me.block_starts.get(row_index)
+        local old_page_used: i64 = me.old_page_useds.get(row_index)
+        local page_capacity: i64 = me.page_capacities.get(row_index)
+        local request_blocks: i64 = me.request_blocks_list.get(row_index)
+        local new_page_used: i64 = me.new_page_useds.get(row_index)
+        local remaining_blocks: i64 = me.remaining_blocks_list.get(row_index)
         if live_before == 0 {
             return me.rejectRelease(3, row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, live_before, 0)
         }
@@ -368,7 +381,16 @@ box HakoAllocSegmentAllocationModeledLedger {
         me.live_flags.set(row_index, 0)
         me.live_count = me.live_count - 1
         me.release_count += 1
-        return me.releaseReport(1, 0, row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, live_before, 0)
+        local result = me.releaseReport(1, 0, row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, live_before, 0)
+        result.old_page_used_at_allocation = old_page_used
+        result.page_capacity = page_capacity
+        result.request_blocks = request_blocks
+        result.new_page_used_at_allocation = new_page_used
+        result.remaining_blocks_at_allocation = remaining_blocks
+        result.modeled_block_end = modeled_block_start + request_blocks
+        result.released_blocks = request_blocks
+        result.release_span_present = 1
+        return result
     }
 
     tokenAt(index): i64 {

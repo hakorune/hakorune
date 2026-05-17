@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-17"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-103A selected MIMAP-104A segment allocation modeled ledger release span facts route. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-104A landed scalar release span facts for the segment allocation modeled ledger and selected MIMAP-105A row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-602-MIMAP-104A-SEGMENT-ALLOCATION-MODELED-LEDGER-RELEASE-SPAN-FACTS-ROUTE.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-603-MIMAP-105A-POST-RELEASE-SPAN-FACTS-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-601-MIMAP-103A-POST-SEGMENT-COUNTER-CLEANUP-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-601-MIMAP-103A-POST-SEGMENT-COUNTER-CLEANUP-ROW-SELECTION.md"
-latest_card_summary = "MIMAP-103A selects MIMAP-104A to add scalar release span facts to the modeled segment allocation ledger without opening real free execution."
+latest_card = "293x-602-MIMAP-104A-SEGMENT-ALLOCATION-MODELED-LEDGER-RELEASE-SPAN-FACTS-ROUTE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-602-MIMAP-104A-SEGMENT-ALLOCATION-MODELED-LEDGER-RELEASE-SPAN-FACTS-ROUTE.md"
+latest_card_summary = "MIMAP-104A extends modeled ledger release reports with scalar block span facts while keeping real free execution, free-list mutation, provider activation, and backend matchers closed."
 
-current_blocker_token = "MIMAP-104A"
+current_blocker_token = "MIMAP-105A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-602 MIMAP-104A segment allocation modeled ledger release span facts route landed; MIMAP-105A selected",
   "293x-601 MIMAP-103A post-segment-counter-cleanup row selection landed; MIMAP-104A selected",
   "293x-600 HAKO-ALLOC-SRC-CLEAN-001 segment counter compound assignment cleanup landed; MIMAP-103A selected",
   "293x-599 MIMAP-102A post-segment-allocation-modeled-recycle row selection landed; HAKO-ALLOC-SRC-CLEAN-001 selected",

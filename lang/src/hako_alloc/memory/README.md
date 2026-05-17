@@ -242,6 +242,13 @@ Syntax/style contract
   backing, use raw pointer residence, perform segment-map lookup, execute atomic
   bitmap claims, call page-source/OSVM seams, schedule workers, activate
   provider hooks, replace the host allocator, or add backend shortcuts.
+- `segment_allocation_modeled_ledger_box.hako` owns MIMAP-104A as well. It may
+  enrich successful modeled release reports with scalar block span facts from
+  the ledger row. It must not execute real segment free, mutate a free-list,
+  mutate page state outside the modeled ledger, allocate arena backing, use raw
+  pointer residence, perform segment-map lookup, execute atomic bitmap claims,
+  call page-source/OSVM seams, schedule workers, activate provider hooks,
+  replace the host allocator, or add backend shortcuts.
 - `object_lifecycle_facade_huge_failfast_box.hako` owns the MIMAP-022B facade
   huge-request fail-fast route. It may classify request size through
   `SizeClassBox`, reject huge requests before invoking the MIMAP-021C

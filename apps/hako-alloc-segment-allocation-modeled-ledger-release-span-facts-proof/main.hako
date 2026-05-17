@@ -1,0 +1,82 @@
+// hako-alloc-segment-allocation-modeled-ledger-release-span-facts-proof
+// Purpose: prove MIMAP-104A scalar release span facts route.
+
+using selfhost.hako_alloc.memory.segment_allocation_modeled_consume_box as HakoAllocSegmentAllocationModeledConsume
+using selfhost.hako_alloc.memory.segment_allocation_modeled_ledger_box as HakoAllocSegmentAllocationModeledLedger
+
+static box Main {
+    main(args) {
+        local consume = new HakoAllocSegmentAllocationModeledConsume()
+        local ledger = new HakoAllocSegmentAllocationModeledLedger()
+
+        local success = consume.consumeReadiness(1, 0, 60, 18, 2, 8, 3, 0)
+        local first = ledger.recordModeledConsume(success.accepted, success.reason, success.segment_id, success.page_id, success.old_page_used, success.page_capacity, success.request_blocks, success.new_page_used, success.remaining_blocks, success.modeled_block_start, success.modeled_allocation_token, 0)
+        local release_first = ledger.releaseModeledToken(success.modeled_allocation_token, 0)
+        local missing = ledger.releaseModeledToken(999999, 0)
+        local recycled = ledger.recordModeledConsume(success.accepted, success.reason, success.segment_id, success.page_id, success.old_page_used, success.page_capacity, success.request_blocks, success.new_page_used, success.remaining_blocks, success.modeled_block_start, success.modeled_allocation_token, 0)
+        local release_recycled = ledger.releaseModeledToken(success.modeled_allocation_token, 0)
+
+        local ok = check "mimap104a segment allocation modeled ledger release span facts route" {
+            "first row accepted": first.accepted == 1
+            "first release accepted": release_first.did_release == 1
+            "first release reason": release_first.reason == 0
+            "first span present": release_first.release_span_present == 1
+            "first old page used": release_first.old_page_used_at_allocation == 2
+            "first page capacity": release_first.page_capacity == 8
+            "first request blocks": release_first.request_blocks == 3
+            "first new page used": release_first.new_page_used_at_allocation == 5
+            "first remaining blocks": release_first.remaining_blocks_at_allocation == 3
+            "first block start": release_first.modeled_block_start == 2
+            "first block end": release_first.modeled_block_end == 5
+            "first released blocks": release_first.released_blocks == 3
+            "missing rejected": missing.did_release == 0
+            "missing reason": missing.reason == 2
+            "missing span absent": missing.release_span_present == 0
+            "recycled accepted": recycled.accepted == 1
+            "recycled row": recycled.row_index == 1
+            "recycled release accepted": release_recycled.did_release == 1
+            "recycled release reason": release_recycled.reason == 0
+            "recycled release row": release_recycled.row_index == 1
+            "recycled span present": release_recycled.release_span_present == 1
+            "recycled old page used": release_recycled.old_page_used_at_allocation == 2
+            "recycled page capacity": release_recycled.page_capacity == 8
+            "recycled request blocks": release_recycled.request_blocks == 3
+            "recycled new page used": release_recycled.new_page_used_at_allocation == 5
+            "recycled remaining blocks": release_recycled.remaining_blocks_at_allocation == 3
+            "recycled block start": release_recycled.modeled_block_start == 2
+            "recycled block end": release_recycled.modeled_block_end == 5
+            "recycled released blocks": release_recycled.released_blocks == 3
+            "ledger count": ledger.count == 2
+            "ledger live count": ledger.live_count == 0
+            "release attempts": ledger.release_attempt_count == 3
+            "release count": ledger.release_count == 2
+            "release rejects": ledger.release_reject_count == 1
+            "missing reject count": ledger.release_missing_reject_count == 1
+            "inactive real free": release_first.would_execute_real_segment_free == 0
+            "inactive raw": release_first.would_use_raw_pointer == 0
+            "inactive segment map": release_first.would_use_segment_map == 0
+            "inactive arena": release_first.would_allocate_arena_backing == 0
+            "inactive atomic": release_first.would_execute_atomic_bitmap == 0
+            "inactive osvm": release_first.would_call_osvm == 0
+            "inactive thread": release_first.would_run_thread == 0
+            "inactive provider": release_first.would_activate_provider == 0
+            "inactive matcher": release_first.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-allocation-modeled-ledger-release-span-facts-proof")
+        print("first_span=" + release_first.release_span_present + "," + release_first.row_index + "," + release_first.modeled_allocation_token + "," + release_first.old_page_used_at_allocation + "," + release_first.page_capacity + "," + release_first.request_blocks + "," + release_first.new_page_used_at_allocation + "," + release_first.remaining_blocks_at_allocation + "," + release_first.modeled_block_start + "," + release_first.modeled_block_end + "," + release_first.released_blocks)
+        print("missing_span=" + missing.did_release + "," + missing.reason + "," + missing.release_span_present)
+        print("recycled_span=" + release_recycled.release_span_present + "," + release_recycled.row_index + "," + release_recycled.modeled_allocation_token + "," + release_recycled.old_page_used_at_allocation + "," + release_recycled.page_capacity + "," + release_recycled.request_blocks + "," + release_recycled.new_page_used_at_allocation + "," + release_recycled.remaining_blocks_at_allocation + "," + release_recycled.modeled_block_start + "," + release_recycled.modeled_block_end + "," + release_recycled.released_blocks)
+        print("counts=" + ledger.attempt_count + "," + ledger.accepted_count + "," + ledger.count + "," + ledger.live_count + "," + ledger.release_attempt_count + "," + ledger.release_count + "," + ledger.release_reject_count + "," + ledger.release_missing_reject_count)
+        print("inactive=" + release_first.would_execute_real_segment_free + "," + release_first.would_use_raw_pointer + "," + release_first.would_use_segment_map + "," + release_first.would_allocate_arena_backing + "," + release_first.would_execute_atomic_bitmap + "," + release_first.would_call_osvm + "," + release_first.would_run_thread + "," + release_first.would_activate_provider + "," + release_first.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
