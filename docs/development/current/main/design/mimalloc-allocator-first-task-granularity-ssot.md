@@ -293,7 +293,8 @@ Forbidden:
 | `MIMAP-124A` | post-route-diagnostics cleanup row selection | landed; selected RUNTIME-UNWRAP-001 |
 | `RUNTIME-UNWRAP-001` | runtime lock expect messages | landed; selected WASM-LOG-001 |
 | `WASM-LOG-001` | WAT2WASM stable tags | landed; selected MIMAP-125A |
-| `MIMAP-125A` | post-source-cleanup row selection | selected current |
+| `MIMAP-125A` | post-source-cleanup row selection | landed; selected MIMAP-126A |
+| `MIMAP-126A` | segment allocation modeled local-free reuse route | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1819,9 +1820,19 @@ It must not add allocator behavior, compiler route behavior, source syntax,
 cleanup bundles, provider activation, host allocator replacement, backend
 matchers, or silent fallback.
 
-MIMAP-111A landed by adding the local-free apply-plan ledger owner, proof app,
-SSOT, manifest entry, module export, README entry, and local guard. It selects
-MIMAP-112A.
+MIMAP-125A landed by selecting MIMAP-126A.
+
+### MIMAP-126A granularity
+
+MIMAP-126A is an allocator behavior row after the local-free integration
+closeout and focused source cleanup. It should prove that the modeled
+local-free chain can return a block to `HakoAllocPageModel.releaseLocal(block_id)`
+and then reuse that collected block through `HakoAllocPageModel.acquire(size)`.
+
+It must use a dedicated owner, proof app, and guard. It must not add real
+segment allocation/free, segment-map lookup, raw pointer residence, arena
+backing, atomics, page-source calls, OSVM release, provider activation, host
+allocator replacement, backend matchers, source syntax, or silent fallback.
 
 ### MIMAP-112A granularity
 

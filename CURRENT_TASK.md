@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-125A post-source-cleanup row selection`
+  `MIMAP-126A segment allocation modeled local-free reuse route`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,9 +74,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-125A`, a planning-only row
-  after focused source cleanup. Select exactly one next mimalloc / hako_alloc
-  or Hakorune compiler row.
+- resume point: continue Phase 293x with `MIMAP-126A`, the selected
+  segment allocation modeled local-free reuse route after focused source
+  cleanup.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -84,8 +84,9 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-125A`: review the current segment allocation modeled lane and pick
-     exactly one next row after focused source cleanup
+  1. `MIMAP-126A`: prove that the modeled local-free integration path can feed
+     `HakoAllocPageModel.acquire(size)` reuse through a dedicated owner and
+     proof app
   2. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider
      activation inactive
