@@ -1,6 +1,6 @@
 # 293x-597 MIMAP-100A Segment Allocation Modeled Ledger Released-Token Recycle Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -19,6 +19,16 @@ record live token
 
 The row stays ledger-only. It must not become real segment allocation/free
 execution.
+
+Result:
+
+```text
+landed:
+  segment allocation modeled ledger released-token recycle route
+
+selected next row:
+  MIMAP-101A segment allocation modeled ledger released-token recycle closeout guard
+```
 
 ## Scope
 

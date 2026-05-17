@@ -259,7 +259,8 @@ Forbidden:
 | `MIMAP-097A` | segment allocation modeled ledger release route | landed; selected MIMAP-098A |
 | `MIMAP-098A` | segment allocation modeled ledger release closeout guard | landed; selected MIMAP-099A |
 | `MIMAP-099A` | post-segment-allocation-modeled-release row selection | landed; selected MIMAP-100A |
-| `MIMAP-100A` | segment allocation modeled ledger released-token recycle route | selected current |
+| `MIMAP-100A` | segment allocation modeled ledger released-token recycle route | landed; selected MIMAP-101A |
+| `MIMAP-101A` | segment allocation modeled ledger released-token recycle closeout guard | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1590,6 +1591,23 @@ It must not execute real segment allocation/free, allocate arena backing, add
 raw pointer residence, use segment-map pointer lookup, execute atomic bitmap
 claims, call page-source or OSVM seams, schedule threads, activate providers,
 replace the host allocator, or add backend matchers.
+
+MIMAP-100A landed by adding the released-token recycle SSOT, proof app, local
+guard, manifest entry, memory README entry, and a small release lookup fix that
+prefers the live row before historical duplicate-release diagnostics. It
+selects MIMAP-101A.
+
+### MIMAP-101A granularity
+
+MIMAP-101A is a closeout/guard row for the modeled segment allocation ledger
+released-token recycle route. It must lock MIMAP-100A owner/proof/guard wiring
+and inactive stop lines before any broader segment allocation/free row is
+selected.
+
+It must not add allocator behavior, execute segment allocation/free, allocate
+arena backing, add raw pointer residence, use segment-map pointer lookup,
+execute atomic bitmap claims, call page-source or OSVM seams, schedule threads,
+activate providers, replace the host allocator, or add backend matchers.
 
 ## Compiler / language sidecar triggers
 

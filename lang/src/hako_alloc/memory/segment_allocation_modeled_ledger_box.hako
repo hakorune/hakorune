@@ -345,9 +345,16 @@ box HakoAllocSegmentAllocationModeledLedger {
             return me.rejectReleaseUnsupportedRequirement(unsupported_requirement, modeled_allocation_token)
         }
 
-        local row_index = me.findAnyIndex(modeled_allocation_token)
+        local row_index = me.findIndex(modeled_allocation_token)
         if row_index < 0 {
-            return me.rejectRelease(2, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+            local historical_index = me.findAnyIndex(modeled_allocation_token)
+            if historical_index < 0 {
+                return me.rejectRelease(2, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+            }
+            local historical_segment_id: i64 = me.segment_ids.get(historical_index)
+            local historical_page_id: i64 = me.page_ids.get(historical_index)
+            local historical_block_start: i64 = me.block_starts.get(historical_index)
+            return me.rejectRelease(3, historical_index, modeled_allocation_token, historical_segment_id, historical_page_id, historical_block_start, 0, 0)
         }
 
         local live_before: i64 = me.live_flags.get(row_index)

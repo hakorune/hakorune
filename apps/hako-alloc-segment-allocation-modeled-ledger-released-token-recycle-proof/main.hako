@@ -1,0 +1,113 @@
+// hako-alloc-segment-allocation-modeled-ledger-released-token-recycle-proof
+// Purpose: prove MIMAP-100A scalar modeled ledger released-token recycle route.
+
+using selfhost.hako_alloc.memory.segment_allocation_modeled_consume_box as HakoAllocSegmentAllocationModeledConsume
+using selfhost.hako_alloc.memory.segment_allocation_modeled_ledger_box as HakoAllocSegmentAllocationModeledLedger
+
+static box Main {
+    main(args) {
+        local consume = new HakoAllocSegmentAllocationModeledConsume()
+        local ledger = new HakoAllocSegmentAllocationModeledLedger()
+
+        local success = consume.consumeReadiness(1, 0, 60, 18, 2, 8, 3, 0)
+
+        local first = ledger.recordModeledConsume(success.accepted, success.reason, success.segment_id, success.page_id, success.old_page_used, success.page_capacity, success.request_blocks, success.new_page_used, success.remaining_blocks, success.modeled_block_start, success.modeled_allocation_token, 0)
+        local duplicate_live = ledger.recordModeledConsume(success.accepted, success.reason, success.segment_id, success.page_id, success.old_page_used, success.page_capacity, success.request_blocks, success.new_page_used, success.remaining_blocks, success.modeled_block_start, success.modeled_allocation_token, 0)
+        local release_first = ledger.releaseModeledToken(success.modeled_allocation_token, 0)
+
+        local index_after_release = ledger.findIndex(success.modeled_allocation_token)
+        local any_after_release = ledger.findAnyIndex(success.modeled_allocation_token)
+        local token_after_release = ledger.tokenAt(0)
+
+        local recycled = ledger.recordModeledConsume(success.accepted, success.reason, success.segment_id, success.page_id, success.old_page_used, success.page_capacity, success.request_blocks, success.new_page_used, success.remaining_blocks, success.modeled_block_start, success.modeled_allocation_token, 0)
+        local index_after_recycle = ledger.findIndex(success.modeled_allocation_token)
+        local any_after_recycle = ledger.findAnyIndex(success.modeled_allocation_token)
+        local recycled_token = ledger.tokenAt(1)
+        local duplicate_after_recycle = ledger.recordModeledConsume(success.accepted, success.reason, success.segment_id, success.page_id, success.old_page_used, success.page_capacity, success.request_blocks, success.new_page_used, success.remaining_blocks, success.modeled_block_start, success.modeled_allocation_token, 0)
+        local release_recycled = ledger.releaseModeledToken(success.modeled_allocation_token, 0)
+
+        local ok = check "mimap100a segment allocation modeled ledger released-token recycle route" {
+            "first accepted": first.accepted == 1
+            "first reason": first.reason == 0
+            "first row": first.row_index == 0
+            "first existing": first.existing_index == -1
+            "first token": first.modeled_allocation_token == 60018002
+            "first count": first.ledger_count_after == 1
+            "first live": first.ledger_live_count_after == 1
+            "live duplicate rejected": duplicate_live.accepted == 0
+            "live duplicate reason": duplicate_live.reason == 4
+            "live duplicate existing": duplicate_live.existing_index == 0
+            "release accepted": release_first.did_release == 1
+            "release reason": release_first.reason == 0
+            "release row": release_first.row_index == 0
+            "release live before": release_first.live_before == 1
+            "release live after": release_first.live_after == 0
+            "release live count": release_first.ledger_live_count_after == 0
+            "not live after release": index_after_release == -1
+            "historical row after release": any_after_release == 0
+            "token read closed after release": token_after_release == -1
+            "recycled accepted": recycled.accepted == 1
+            "recycled reason": recycled.reason == 0
+            "recycled row": recycled.row_index == 1
+            "recycled existing": recycled.existing_index == -1
+            "recycled token": recycled.modeled_allocation_token == 60018002
+            "recycled count": recycled.ledger_count_after == 2
+            "recycled live": recycled.ledger_live_count_after == 1
+            "live index after recycle": index_after_recycle == 1
+            "historical first row remains": any_after_recycle == 0
+            "recycled token read": recycled_token == 60018002
+            "duplicate after recycle rejected": duplicate_after_recycle.accepted == 0
+            "duplicate after recycle reason": duplicate_after_recycle.reason == 4
+            "duplicate after recycle existing": duplicate_after_recycle.existing_index == 1
+            "recycled release accepted": release_recycled.did_release == 1
+            "recycled release reason": release_recycled.reason == 0
+            "recycled release row": release_recycled.row_index == 1
+            "recycled release live before": release_recycled.live_before == 1
+            "recycled release live after": release_recycled.live_after == 0
+            "recycled release live count": release_recycled.ledger_live_count_after == 0
+            "attempt count": ledger.attempt_count == 4
+            "accepted count": ledger.accepted_count == 2
+            "reject count": ledger.reject_count == 2
+            "duplicate reject count": ledger.duplicate_reject_count == 2
+            "ledger count": ledger.count == 2
+            "ledger live count": ledger.live_count == 0
+            "release attempts": ledger.release_attempt_count == 2
+            "release count": ledger.release_count == 2
+            "release rejects": ledger.release_reject_count == 0
+            "last release token": ledger.last_release_token == 60018002
+            "last release reason": ledger.last_release_reason == 0
+            "last release index": ledger.last_release_index == 1
+            "inactive real allocation": recycled.would_execute_real_segment_allocation == 0
+            "inactive real free": release_recycled.would_execute_real_segment_free == 0
+            "inactive raw": recycled.would_use_raw_pointer == 0
+            "inactive segment map": recycled.would_use_segment_map == 0
+            "inactive arena": recycled.would_allocate_arena_backing == 0
+            "inactive atomic": recycled.would_execute_atomic_bitmap == 0
+            "inactive osvm": recycled.would_call_osvm == 0
+            "inactive thread": recycled.would_run_thread == 0
+            "inactive provider": recycled.would_activate_provider == 0
+            "inactive matcher": recycled.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-allocation-modeled-ledger-released-token-recycle-proof")
+        print("first=" + first.accepted + "," + first.reason + "," + first.row_index + "," + first.existing_index + "," + first.modeled_allocation_token + "," + first.ledger_count_after + "," + first.ledger_live_count_after)
+        print("duplicate_live=" + duplicate_live.accepted + "," + duplicate_live.reason + "," + duplicate_live.existing_index)
+        print("release_first=" + release_first.did_release + "," + release_first.reason + "," + release_first.row_index + "," + release_first.live_before + "," + release_first.live_after + "," + release_first.ledger_live_count_after)
+        print("after_release=" + index_after_release + "," + any_after_release + "," + token_after_release)
+        print("recycled=" + recycled.accepted + "," + recycled.reason + "," + recycled.row_index + "," + recycled.existing_index + "," + recycled.modeled_allocation_token + "," + recycled.ledger_count_after + "," + recycled.ledger_live_count_after)
+        print("after_recycle=" + index_after_recycle + "," + any_after_recycle + "," + recycled.row_index + "," + recycled_token)
+        print("duplicate_after_recycle=" + duplicate_after_recycle.accepted + "," + duplicate_after_recycle.reason + "," + duplicate_after_recycle.existing_index)
+        print("release_recycled=" + release_recycled.did_release + "," + release_recycled.reason + "," + release_recycled.row_index + "," + release_recycled.live_before + "," + release_recycled.live_after + "," + release_recycled.ledger_live_count_after)
+        print("counts=" + ledger.attempt_count + "," + ledger.accepted_count + "," + ledger.reject_count + "," + ledger.duplicate_reject_count + "," + ledger.count + "," + ledger.live_count + "," + ledger.release_attempt_count + "," + ledger.release_count + "," + ledger.release_reject_count + "," + ledger.last_release_token + "," + ledger.last_release_reason + "," + ledger.last_release_index)
+        print("inactive=" + recycled.would_execute_real_segment_allocation + "," + release_recycled.would_execute_real_segment_free + "," + recycled.would_use_raw_pointer + "," + recycled.would_use_segment_map + "," + recycled.would_allocate_arena_backing + "," + recycled.would_execute_atomic_bitmap + "," + recycled.would_call_osvm + "," + recycled.would_run_thread + "," + recycled.would_activate_provider + "," + recycled.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
