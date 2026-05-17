@@ -11,7 +11,7 @@ Owned by this row:
 
 - direct page model construction
 - free-list acquire path
-- local-free release path
+- local-free release path through `HakoAllocPageModel.releaseLocal(block_id)`
 - double-release rejection
 - retire-on-empty behavior
 - reactivation that drains local-free blocks back to the free list

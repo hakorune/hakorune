@@ -1,0 +1,142 @@
+// hako-alloc-segment-allocation-modeled-local-free-page-model-apply-proof
+// Purpose: prove MIMAP-115A page-model local-free apply route.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.segment_allocation_modeled_consume_box as HakoAllocSegmentAllocationModeledConsume
+using selfhost.hako_alloc.memory.segment_allocation_modeled_ledger_box as HakoAllocSegmentAllocationModeledLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_released_span_ledger_box as HakoAllocSegmentAllocationModeledReleasedSpanLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_candidate_ledger_box as HakoAllocSegmentAllocationModeledLocalFreeCandidateLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_apply_plan_box as HakoAllocSegmentAllocationModeledLocalFreeApplyPlan
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_page_apply_box as HakoAllocSegmentAllocationModeledLocalFreePageApply
+
+static box Main {
+    main(args) {
+        local consume = new HakoAllocSegmentAllocationModeledConsume()
+        local allocation_ledger = new HakoAllocSegmentAllocationModeledLedger()
+        local released_span_ledger = new HakoAllocSegmentAllocationModeledReleasedSpanLedger()
+        local candidate_ledger = new HakoAllocSegmentAllocationModeledLocalFreeCandidateLedger()
+        local apply_plan_ledger = new HakoAllocSegmentAllocationModeledLocalFreeApplyPlan()
+        local page_apply = new HakoAllocSegmentAllocationModeledLocalFreePageApply()
+
+        local page = new HakoAllocPageModel(18, 32, 8, 8)
+        local p0 = page.acquire(8)
+        local p1 = page.acquire(8)
+        local p2 = page.acquire(8)
+        local p3 = page.acquire(8)
+        local p4 = page.acquire(8)
+        local p5 = page.acquire(8)
+
+        local success = consume.consumeReadiness(1, 0, 60, 18, 2, 8, 3, 0)
+        local first_allocation = allocation_ledger.recordModeledConsume(success.accepted, success.reason, success.segment_id, success.page_id, success.old_page_used, success.page_capacity, success.request_blocks, success.new_page_used, success.remaining_blocks, success.modeled_block_start, success.modeled_allocation_token, 0)
+        local first_release = allocation_ledger.releaseModeledToken(success.modeled_allocation_token, 0)
+        local first_span = released_span_ledger.recordReleasedSpan(first_release, 0)
+        local first_candidate = candidate_ledger.recordLocalFreeCandidate(first_span, 0)
+        local first_plan = apply_plan_ledger.recordLocalFreeApplyPlan(first_candidate, 0)
+        local first_page_apply = page_apply.recordLocalFreePageApply(first_plan, page, 0)
+
+        local missing_release = allocation_ledger.releaseModeledToken(999999, 0)
+        local missing_span = released_span_ledger.recordReleasedSpan(missing_release, 0)
+        local missing_candidate = candidate_ledger.recordLocalFreeCandidate(missing_span, 0)
+        local missing_plan = apply_plan_ledger.recordLocalFreeApplyPlan(missing_candidate, 0)
+        local missing_page_apply = page_apply.recordLocalFreePageApply(missing_plan, page, 0)
+        local duplicate_page_apply = page_apply.recordLocalFreePageApply(first_plan, page, 0)
+        local wrong_page = new HakoAllocPageModel(99, 32, 8, 8)
+        local wrong_page_apply = page_apply.recordLocalFreePageApply(first_plan, wrong_page, 0)
+        local unsupported_page_apply = page_apply.recordLocalFreePageApply(first_plan, page, 1)
+
+        local recycled_page = new HakoAllocPageModel(18, 32, 8, 8)
+        local r0 = recycled_page.acquire(8)
+        local r1 = recycled_page.acquire(8)
+        local r2 = recycled_page.acquire(8)
+        local r3 = recycled_page.acquire(8)
+        local r4 = recycled_page.acquire(8)
+        local r5 = recycled_page.acquire(8)
+        local recycled_allocation = allocation_ledger.recordModeledConsume(success.accepted, success.reason, success.segment_id, success.page_id, success.old_page_used, success.page_capacity, success.request_blocks, success.new_page_used, success.remaining_blocks, success.modeled_block_start, success.modeled_allocation_token, 0)
+        local recycled_release = allocation_ledger.releaseModeledToken(success.modeled_allocation_token, 0)
+        local recycled_span = released_span_ledger.recordReleasedSpan(recycled_release, 0)
+        local recycled_candidate = candidate_ledger.recordLocalFreeCandidate(recycled_span, 0)
+        local recycled_plan = apply_plan_ledger.recordLocalFreeApplyPlan(recycled_candidate, 0)
+        local recycled_page_apply = page_apply.recordLocalFreePageApply(recycled_plan, recycled_page, 0)
+
+        local ok = check "mimap115a segment allocation modeled local-free page-model apply route" {
+            "page seeded live block 2": page.blockIsLive(2) == 0
+            "first allocation accepted": first_allocation.accepted == 1
+            "first plan accepted": first_plan.did_record_local_free_apply_plan == 1
+            "first page apply accepted": first_page_apply.did_apply_local_free_to_page == 1
+            "first reason": first_page_apply.reason == 0
+            "first row": first_page_apply.row_index == 0
+            "first existing": first_page_apply.existing_index == -1
+            "first plan row": first_page_apply.local_free_apply_plan_row_index == 0
+            "first token": first_page_apply.modeled_allocation_token == success.modeled_allocation_token
+            "first segment": first_page_apply.segment_id == 60
+            "first page id": first_page_apply.page_id == 18
+            "first start": first_page_apply.modeled_block_start == 2
+            "first end": first_page_apply.modeled_block_end == 5
+            "first blocks": first_page_apply.candidate_blocks == 3
+            "first applied blocks": first_page_apply.applied_blocks == 3
+            "first used before": first_page_apply.page_used_before == 6
+            "first used after": first_page_apply.page_used_after == 3
+            "first local before": first_page_apply.page_local_free_before == 0
+            "first local after": first_page_apply.page_local_free_after == 3
+            "first free before": first_page_apply.page_free_before == 2
+            "first free after": first_page_apply.page_free_after == 2
+            "first block no longer live": page.blockIsLive(2) == 0
+            "first local free state": page.localFreeCount() == 3
+            "missing rejected": missing_page_apply.did_apply_local_free_to_page == 0
+            "missing reason": missing_page_apply.reason == 2
+            "duplicate rejected": duplicate_page_apply.did_apply_local_free_to_page == 0
+            "duplicate reason": duplicate_page_apply.reason == 3
+            "duplicate existing": duplicate_page_apply.existing_index == 0
+            "wrong page rejected": wrong_page_apply.did_apply_local_free_to_page == 0
+            "wrong page reason": wrong_page_apply.reason == 4
+            "unsupported rejected": unsupported_page_apply.did_apply_local_free_to_page == 0
+            "unsupported reason": unsupported_page_apply.reason == 6
+            "recycled accepted": recycled_allocation.accepted == 1
+            "recycled plan row": recycled_plan.row_index == 1
+            "recycled page apply accepted": recycled_page_apply.did_apply_local_free_to_page == 1
+            "recycled page apply row": recycled_page_apply.row_index == 1
+            "recycled used after": recycled_page_apply.page_used_after == 3
+            "ledger count": page_apply.count == 2
+            "ledger attempts": page_apply.attempt_count == 6
+            "ledger accepted": page_apply.accepted_count == 2
+            "ledger rejects": page_apply.reject_count == 4
+            "source reject count": page_apply.source_reject_count == 1
+            "duplicate count": page_apply.duplicate_reject_count == 1
+            "page mismatch count": page_apply.page_mismatch_reject_count == 1
+            "execution reject count": page_apply.execution_reject_count == 1
+            "read token 0": page_apply.tokenAt(0) == success.modeled_allocation_token
+            "read applied 1": page_apply.appliedBlocksAt(1) == 3
+            "mutated via page model": first_page_apply.did_mutate_page_local_free_list == 1
+            "inactive real free": first_page_apply.would_execute_real_segment_free == 0
+            "inactive direct page arrays": first_page_apply.would_directly_mutate_page_arrays == 0
+            "inactive raw": first_page_apply.would_use_raw_pointer == 0
+            "inactive segment map": first_page_apply.would_use_segment_map == 0
+            "inactive arena": first_page_apply.would_allocate_arena_backing == 0
+            "inactive atomic": first_page_apply.would_execute_atomic_bitmap == 0
+            "inactive osvm": first_page_apply.would_call_osvm == 0
+            "inactive thread": first_page_apply.would_run_thread == 0
+            "inactive provider": first_page_apply.would_activate_provider == 0
+            "inactive matcher": first_page_apply.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-allocation-modeled-local-free-page-model-apply-proof")
+        print("first=" + first_page_apply.did_apply_local_free_to_page + "," + first_page_apply.reason + "," + first_page_apply.row_index + "," + first_page_apply.existing_index + "," + first_page_apply.local_free_apply_plan_row_index + "," + first_page_apply.modeled_allocation_token + "," + first_page_apply.segment_id + "," + first_page_apply.page_id + "," + first_page_apply.modeled_block_start + "," + first_page_apply.modeled_block_end + "," + first_page_apply.candidate_blocks + "," + first_page_apply.applied_blocks + "," + first_page_apply.page_used_before + "," + first_page_apply.page_used_after + "," + first_page_apply.page_local_free_before + "," + first_page_apply.page_local_free_after)
+        print("missing=" + missing_page_apply.did_apply_local_free_to_page + "," + missing_page_apply.reason + "," + missing_page_apply.existing_index + "," + missing_page_apply.local_free_page_apply_ledger_present)
+        print("duplicate=" + duplicate_page_apply.did_apply_local_free_to_page + "," + duplicate_page_apply.reason + "," + duplicate_page_apply.existing_index + "," + page_apply.duplicate_reject_count)
+        print("wrong_page=" + wrong_page_apply.did_apply_local_free_to_page + "," + wrong_page_apply.reason + "," + page_apply.page_mismatch_reject_count)
+        print("unsupported=" + unsupported_page_apply.did_apply_local_free_to_page + "," + unsupported_page_apply.reason + "," + page_apply.execution_reject_count)
+        print("recycled=" + recycled_page_apply.did_apply_local_free_to_page + "," + recycled_page_apply.reason + "," + recycled_page_apply.row_index + "," + recycled_page_apply.existing_index + "," + recycled_page_apply.local_free_apply_plan_row_index + "," + recycled_page_apply.modeled_allocation_token + "," + recycled_page_apply.segment_id + "," + recycled_page_apply.page_id + "," + recycled_page_apply.modeled_block_start + "," + recycled_page_apply.modeled_block_end + "," + recycled_page_apply.candidate_blocks + "," + recycled_page_apply.applied_blocks + "," + recycled_page_apply.page_used_before + "," + recycled_page_apply.page_used_after + "," + recycled_page_apply.page_local_free_before + "," + recycled_page_apply.page_local_free_after)
+        print("counts=" + page_apply.attempt_count + "," + page_apply.accepted_count + "," + page_apply.count + "," + page_apply.reject_count + "," + page_apply.invalid_shape_reject_count + "," + page_apply.source_reject_count + "," + page_apply.duplicate_reject_count + "," + page_apply.page_mismatch_reject_count + "," + page_apply.page_block_reject_count + "," + page_apply.execution_reject_count)
+        print("page=" + page.used + "," + page.freeCount() + "," + page.localFreeCount() + "," + page.availableBlockCount())
+        print("inactive=" + first_page_apply.would_execute_real_segment_free + "," + first_page_apply.would_directly_mutate_page_arrays + "," + first_page_apply.would_use_raw_pointer + "," + first_page_apply.would_use_segment_map + "," + first_page_apply.would_allocate_arena_backing + "," + first_page_apply.would_execute_atomic_bitmap + "," + first_page_apply.would_call_osvm + "," + first_page_apply.would_run_thread + "," + first_page_apply.would_activate_provider + "," + first_page_apply.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
