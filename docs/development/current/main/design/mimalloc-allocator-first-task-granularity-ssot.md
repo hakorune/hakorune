@@ -257,7 +257,8 @@ Forbidden:
 | `MIMAP-095A` | segment allocation modeled ledger closeout guard | landed; selected MIMAP-096A |
 | `MIMAP-096A` | post-segment-allocation-modeled-ledger row selection | landed; selected MIMAP-097A |
 | `MIMAP-097A` | segment allocation modeled ledger release route | landed; selected MIMAP-098A |
-| `MIMAP-098A` | segment allocation modeled ledger release closeout guard | selected current |
+| `MIMAP-098A` | segment allocation modeled ledger release closeout guard | landed; selected MIMAP-099A |
+| `MIMAP-099A` | post-segment-allocation-modeled-release row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1551,6 +1552,20 @@ selects MIMAP-098A.
 MIMAP-098A is a closeout/guard row for the modeled segment allocation ledger
 release route. It must lock MIMAP-097A owner/proof/guard wiring and inactive
 stop lines before any broader segment allocation/free row is selected.
+
+It must not add allocator behavior, execute segment allocation/free, allocate
+arena backing, add raw pointer residence, use segment-map pointer lookup,
+execute atomic bitmap claims, call page-source or OSVM seams, schedule threads,
+activate providers, replace the host allocator, or add backend matchers.
+
+MIMAP-098A landed by adding the closeout SSOT, manifest row, wrapper guard,
+guard index entry, and next-card pointer. It selects MIMAP-099A.
+
+### MIMAP-099A granularity
+
+MIMAP-099A is a planning row after the modeled segment allocation ledger release
+closeout. It should review the landed scalar segment allocation evidence and
+select exactly one next row.
 
 It must not add allocator behavior, execute segment allocation/free, allocate
 arena backing, add raw pointer residence, use segment-map pointer lookup,

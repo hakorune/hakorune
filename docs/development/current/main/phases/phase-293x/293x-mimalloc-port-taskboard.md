@@ -419,7 +419,8 @@ FST:
 | `MIMAP-095A` | landed | Segment allocation modeled ledger closeout guard. | selected MIMAP-096A |
 | `MIMAP-096A` | landed | Post-segment-allocation-modeled-ledger row selection. | selected MIMAP-097A |
 | `MIMAP-097A` | landed | Segment allocation modeled ledger release route. | selected MIMAP-098A |
-| `MIMAP-098A` | selected current | Segment allocation modeled ledger release closeout guard. | after MIMAP-097A |
+| `MIMAP-098A` | landed | Segment allocation modeled ledger release closeout guard. | selected MIMAP-099A |
+| `MIMAP-099A` | selected current | Post-segment-allocation-modeled-release row selection. | after MIMAP-098A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -427,9 +428,9 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-097A:
-`MIMAP-098A` closes out the modeled scalar segment allocation ledger release
-route.
+Current row after MIMAP-098A:
+`MIMAP-099A` selects exactly one next row after the modeled scalar segment
+allocation ledger release closeout.
 Real thread scheduling, worker spawning, source-level concurrency features,
 real segment allocation/free execution, raw pointer residence, atomic bitmap
 execution, arena backing allocation, segment-map pointer membership,

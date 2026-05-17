@@ -1,6 +1,6 @@
 # 293x-595 MIMAP-098A Segment Allocation Modeled Ledger Release Closeout Guard
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -10,6 +10,16 @@ Date: 2026-05-17
 It should add a guard-only closeout for the modeled segment allocation ledger
 release route, confirming that the MIMAP-097A owner method, proof app, manifest
 entry, docs, and inactive stop lines remain synchronized.
+
+Result:
+
+```text
+landed:
+  segment allocation modeled ledger release closeout guard
+
+selected next row:
+  MIMAP-099A post-segment-allocation-modeled-release row selection
+```
 
 ## Scope
 
@@ -42,6 +52,8 @@ Forbidden:
 
 ```text
 bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_ledger_release_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_ledger_release_closeout_guard.sh
+tools/checks/run_row_guard.sh --only hako-alloc-segment-allocation-modeled-ledger-release-closeout
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
