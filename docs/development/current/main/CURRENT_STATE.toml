@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-17"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-086A landed segment page membership closeout guard and selected MIMAP-087A post-segment-page-membership-closeout row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "GUARD-MANIFEST-001 landed proof app test wrapper cleanup and selected GUARD-MANIFEST-002 k2-wide guard family manifest selection before adding more guard-heavy MIMAP rows. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-574-MIMAP-087A-POST-SEGMENT-PAGE-MEMBERSHIP-CLOSEOUT-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-576-GUARD-MANIFEST-002-K2-WIDE-FAMILY-MANIFEST-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-573-MIMAP-086A-SEGMENT-PAGE-MEMBERSHIP-CLOSEOUT-GUARD"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-573-MIMAP-086A-SEGMENT-PAGE-MEMBERSHIP-CLOSEOUT-GUARD.md"
-latest_card_summary = "MIMAP-086A adds a closeout guard for the segment page membership scalar contract and selects MIMAP-087A row selection."
+latest_card = "293x-575-GUARD-MANIFEST-001-PROOF-APP-TEST-WRAPPER-CLEANUP"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-575-GUARD-MANIFEST-001-PROOF-APP-TEST-WRAPPER-CLEANUP.md"
+latest_card_summary = "GUARD-MANIFEST-001 converts manifest-backed proof app test entries to run_proof_app.sh and adds a no-growth guard; GUARD-MANIFEST-002 is selected."
 
-current_blocker_token = "MIMAP-087A"
+current_blocker_token = "GUARD-MANIFEST-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-575 GUARD-MANIFEST-001 proof app test wrapper cleanup landed",
   "293x-573 MIMAP-086A segment page membership closeout guard landed",
   "293x-572 MIMAP-085A segment page membership scalar contract landed",
   "293x-571 MIMAP-084A post-segment-lifecycle-closeout row selection landed",

@@ -54,8 +54,12 @@ if rg -n "run_row_guard|run_proof_app|manifest_runner_pilot_guard" "$DEV_GATE" "
   guard_fail "$TAG" "manifest runner pilots must not be wired into dev_gate or allocator-wide gate yet"
 fi
 
-if ! "$ROW_RUNNER" --list | rg -Fq "current-state-pointer"; then
+row_list="$("$ROW_RUNNER" --list)"
+if ! printf '%s\n' "$row_list" | rg -Fq "current-state-pointer"; then
   guard_fail "$TAG" "row runner list must expose current-state-pointer"
+fi
+if ! printf '%s\n' "$row_list" | rg -Fq "proof-app-manifest-test-entry"; then
+  guard_fail "$TAG" "row runner list must expose proof-app-manifest-test-entry"
 fi
 proof_list="$("$PROOF_RUNNER" --list)"
 for proof_id in M200 M214 M215; do

@@ -19,6 +19,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/run_row_guard.sh` | `tools/checks/guard_rows.toml` を読む非破壊 row guard pilot runner。安定入口は shell に残し、共通 TOML/argv-array 実行は `tools/checks/lib/manifest_runner.py` に集約する。`dev_gate.sh` / allocator-wide にはまだ組み込まない。 |
 | `tools/checks/run_proof_app.sh` | `tools/checks/proof_apps.toml` を読む非破壊 proof app runner。app-local `test.sh` 入口を保ったまま、共通 TOML/argv-array 実行を `tools/checks/lib/manifest_runner.py` に委譲する。 |
 | `tools/checks/manifest_runner_pilot_guard.sh` | D199 manifest runner cleanup guard。`run_row_guard.sh` / `run_proof_app.sh` が薄い wrapper に留まり、共有 runner が `tomllib` と `subprocess.run(argv)` を持ち、pilot が `dev_gate.sh` / allocator-wide に入らないことを固定する。 |
+| `tools/checks/proof_app_manifest_test_entry_guard.sh` | GUARD-MANIFEST-001 の no-growth guard。`proof_apps.toml` に載る app-local `test.sh` が `run_proof_app.sh --only <id>` に委譲し、直接 `k2_wide_*_guard.sh` を呼ばないことを固定する。 |
 | `tools/checks/allocator_provider_inactive_sentinel_guard.sh` | quick 用の軽量 provider inactive sentinel。selection/proof consumption/rollback/gate/hook/replacement/`.inc` matcher の危険信号だけを共有 forbidden-pattern guard で固定する。 |
 | `tools/checks/lib/cargo_test_filter_group.sh` | quick first-row guards 用の共有 helper。main crate lib test target に限定して関連 cargo test filter を contract-family 単位に束ね、route/file lock は各 guard 側に残す。 |
 | `tools/checks/current_state_pointer_guard.sh` | `CURRENT_STATE.toml` をSSOTとして current pointer の必須path / latest-card整合 / stale phase 名を fail-fast で検出する。current mirrors に latest-card履歴の再掲は要求しない。 |

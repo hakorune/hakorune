@@ -84,6 +84,35 @@ Allocator row sequence after this sidecar is not repeated in this section.
 Canonical row order lives in [Rows / First Executable Slices](#first-executable-slices);
 the current active row lives in `CURRENT_STATE.toml`.
 
+## Guard Manifest Cleanup Sidecar
+
+SSOT:
+
+```text
+docs/development/current/main/design/guard-manifest-migration-ssot.md
+docs/tools/check-scripts-index.md
+```
+
+Decision:
+
+```text
+before adding many more allocator rows:
+  keep stable shell entrypoints
+  move proof app and row guard selection/routing into manifest-backed runners
+  prevent app-local test.sh from directly re-encoding guard script choices
+
+not part of this sidecar:
+  allocator behavior
+  compiler acceptance
+  dev_gate / allocator-wide manifest pilot activation
+  bulk deletion of k2_wide_* entrypoints
+```
+
+| Row | Status | Purpose | Ordering |
+| --- | --- | --- | --- |
+| `GUARD-MANIFEST-001` | landed | Convert manifest-backed proof app `test.sh` entries to `run_proof_app.sh --only <id>` and add a no-growth guard. | before more guard-heavy MIMAP rows |
+| `GUARD-MANIFEST-002` | selected current | Select exactly one `k2_wide_*` guard family for manifest-backed thin-wrapper migration. | after GM001 |
+
 ## Stage1 / Selfhost Ordering Guard
 
 Stage1/selfhost SSOT:

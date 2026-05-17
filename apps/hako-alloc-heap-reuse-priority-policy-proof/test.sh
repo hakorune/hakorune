@@ -2,6 +2,4 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
-cd "$ROOT_DIR"
-
-exec bash tools/checks/k2_wide_hako_alloc_heap_reuse_priority_policy_guard.sh
+exec "$ROOT_DIR/tools/checks/run_proof_app.sh" --only M208

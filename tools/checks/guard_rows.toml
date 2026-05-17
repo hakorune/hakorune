@@ -35,3 +35,9 @@ id = "current-state-pointer"
 label = "current state pointer guard"
 profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/current_state_pointer_guard.sh"]
+
+[[rows]]
+id = "proof-app-manifest-test-entry"
+label = "proof app manifest test entry guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/proof_app_manifest_test_entry_guard.sh"]
