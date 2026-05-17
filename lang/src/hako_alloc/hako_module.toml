@@ -17,6 +17,7 @@ memory.reclaim_scheduler_request_ledger_roundtrip_box = "memory/reclaim_schedule
 memory.reclaim_owner_transfer_contract_box = "memory/reclaim_owner_transfer_contract_box.hako"
 memory.options_inventory_box = "memory/options_inventory_box.hako"
 memory.thread_heap_owner_inventory_box = "memory/thread_heap_owner_inventory_box.hako"
+memory.segment_arena_bitmap_inventory_box = "memory/segment_arena_bitmap_inventory_box.hako"
 memory.worker_identity_box = "memory/worker_identity_box.hako"
 memory.worker_tls_cache_box = "memory/worker_tls_cache_box.hako"
 memory.arc_box = "memory/arc_box.hako"

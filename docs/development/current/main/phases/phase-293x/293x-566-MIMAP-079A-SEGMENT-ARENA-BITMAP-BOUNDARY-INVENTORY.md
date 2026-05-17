@@ -1,6 +1,6 @@
 # 293x-566 MIMAP-079A Segment Arena Bitmap Boundary Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -51,4 +51,36 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_bitmap_inventory_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 tools/checks/dev_gate.sh quick
+```
+
+## Implementation Result
+
+`MIMAP-079A` added:
+
+```text
+HakoAllocSegmentArenaBitmapInventoryReport
+HakoAllocSegmentArenaBitmapInventory.classifyBoundary(...)
+apps/hako-alloc-segment-arena-bitmap-inventory-proof/
+tools/checks/k2_wide_hako_alloc_segment_arena_bitmap_inventory_guard.sh
+docs/development/current/main/design/hako-alloc-segment-arena-bitmap-inventory-ssot.md
+```
+
+The route accepts one tiny proof-only scalar segment/arena/mask shape and
+rejects invalid, raw-pointer, atomic-bitmap, OSVM, and provider rows with
+stable scalar reasons.
+
+Proof output shape:
+
+```text
+ready=1,0,10,2,16,8,3,1
+rejects=1,2,3,4,5
+inactive=0,0,0,0,0,0
+counts=6,1,5,1,1,1,1,1,14,5
+summary=ok
+```
+
+Next row:
+
+```text
+MIMAP-080A segment arena bitmap inventory closeout guard
 ```

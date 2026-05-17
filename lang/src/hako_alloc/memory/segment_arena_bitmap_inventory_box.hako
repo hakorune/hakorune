@@ -1,0 +1,118 @@
+// segment_arena_bitmap_inventory_box.hako -- MIMAP-079A segment/arena/bitmap boundary inventory
+// Responsibility:
+// - classify tiny scalar segment/arena/bitmap proof facts
+// - keep raw pointer residence, bitmap execution, OSVM calls, provider
+//   activation, host replacement, and backend shortcuts closed
+// Non-responsibility:
+// - allocating segments, routing arenas, claiming bitmaps, calling page-source
+//   seams, or replacing allocators
+
+box HakoAllocSegmentArenaBitmapInventoryReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    segment_id: i64 = -1
+    arena_id: i64 = -1
+    slice_count: i64 = 0
+    committed_slices: i64 = 0
+    purge_scheduled_slices: i64 = 0
+    scalar_mask_model: i64 = 0
+    segment_inventory_present: i64 = 1
+    arena_inventory_present: i64 = 1
+    bitmap_inventory_present: i64 = 1
+    would_use_raw_pointer: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_activate_provider: i64 = 0
+    would_replace_process_allocator: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentArenaBitmapInventory {
+    classify_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    invalid_shape_reject_count: i64 = 0
+    raw_pointer_reject_count: i64 = 0
+    atomic_bitmap_reject_count: i64 = 0
+    osvm_reject_count: i64 = 0
+    provider_reject_count: i64 = 0
+    last_segment_id: i64 = -1
+    last_reason: i64 = 0
+
+    report(accepted, reason, segment_id, arena_id, slice_count, committed_slices, purge_scheduled_slices, scalar_mask_model) {
+        local result = new HakoAllocSegmentArenaBitmapInventoryReport()
+        result.accepted = accepted
+        result.reason = reason
+        result.segment_id = segment_id
+        result.arena_id = arena_id
+        result.slice_count = slice_count
+        result.committed_slices = committed_slices
+        result.purge_scheduled_slices = purge_scheduled_slices
+        result.scalar_mask_model = scalar_mask_model
+        me.last_segment_id = segment_id
+        me.last_reason = reason
+        return result
+    }
+
+    reject(reason, segment_id, arena_id, slice_count, committed_slices, purge_scheduled_slices) {
+        me.reject_count = me.reject_count + 1
+        if reason == 1 {
+            me.invalid_shape_reject_count = me.invalid_shape_reject_count + 1
+        }
+        if reason == 2 {
+            me.raw_pointer_reject_count = me.raw_pointer_reject_count + 1
+        }
+        if reason == 3 {
+            me.atomic_bitmap_reject_count = me.atomic_bitmap_reject_count + 1
+        }
+        if reason == 4 {
+            me.osvm_reject_count = me.osvm_reject_count + 1
+        }
+        if reason == 5 {
+            me.provider_reject_count = me.provider_reject_count + 1
+        }
+        return me.report(0, reason, segment_id, arena_id, slice_count, committed_slices, purge_scheduled_slices, 0)
+    }
+
+    classifyBoundary(segment_id, arena_id, slice_count, committed_slices, purge_scheduled_slices, needs_raw_pointer, needs_atomic_bitmap, needs_osvm, provider_requested) {
+        me.classify_count = me.classify_count + 1
+
+        if segment_id < 0 {
+            return me.reject(1, segment_id, arena_id, slice_count, committed_slices, purge_scheduled_slices)
+        }
+        if arena_id < 0 {
+            return me.reject(1, segment_id, arena_id, slice_count, committed_slices, purge_scheduled_slices)
+        }
+        if slice_count <= 0 {
+            return me.reject(1, segment_id, arena_id, slice_count, committed_slices, purge_scheduled_slices)
+        }
+        if committed_slices < 0 {
+            return me.reject(1, segment_id, arena_id, slice_count, committed_slices, purge_scheduled_slices)
+        }
+        if purge_scheduled_slices < 0 {
+            return me.reject(1, segment_id, arena_id, slice_count, committed_slices, purge_scheduled_slices)
+        }
+        if committed_slices > slice_count {
+            return me.reject(1, segment_id, arena_id, slice_count, committed_slices, purge_scheduled_slices)
+        }
+        if purge_scheduled_slices > committed_slices {
+            return me.reject(1, segment_id, arena_id, slice_count, committed_slices, purge_scheduled_slices)
+        }
+
+        if needs_raw_pointer != 0 {
+            return me.reject(2, segment_id, arena_id, slice_count, committed_slices, purge_scheduled_slices)
+        }
+        if needs_atomic_bitmap != 0 {
+            return me.reject(3, segment_id, arena_id, slice_count, committed_slices, purge_scheduled_slices)
+        }
+        if needs_osvm != 0 {
+            return me.reject(4, segment_id, arena_id, slice_count, committed_slices, purge_scheduled_slices)
+        }
+        if provider_requested != 0 {
+            return me.reject(5, segment_id, arena_id, slice_count, committed_slices, purge_scheduled_slices)
+        }
+
+        me.accepted_count = me.accepted_count + 1
+        return me.report(1, 0, segment_id, arena_id, slice_count, committed_slices, purge_scheduled_slices, 1)
+    }
+}

@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-078A` landed the post-scheduler-scalar-closeout row selection and
-selected a segment / arena / bitmap boundary inventory.
+`MIMAP-079A` landed the segment / arena / bitmap boundary inventory and
+selected a closeout guard.
 
 Recommended current row:
 
 ```text
-MIMAP-079A
-  segment arena bitmap boundary inventory
+MIMAP-080A
+  segment arena bitmap inventory closeout guard
 ```
 
 Purpose:
 
 ```text
-name segment / arena / bitmap boundaries without opening raw pointers, atomic bitmaps, OSVM execution, or provider activation
+close out the segment / arena / bitmap boundary inventory
 keep real thread scheduling, worker spawning, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -101,7 +101,8 @@ no provider activation
 | 33 | planning | `MIMAP-076A post-scheduler-roundtrip row selection` | landed; selected MIMAP-077A |
 | 34 | closeout | `MIMAP-077A reclaim scheduler scalar lane closeout guard` | landed; selected MIMAP-078A |
 | 35 | planning | `MIMAP-078A post-scheduler-scalar-closeout row selection` | landed; selected MIMAP-079A |
-| 36 | allocator inventory | `MIMAP-079A segment arena bitmap boundary inventory` | current; name representation/substrate boundaries |
+| 36 | allocator inventory | `MIMAP-079A segment arena bitmap boundary inventory` | landed; selected MIMAP-080A |
+| 37 | closeout | `MIMAP-080A segment arena bitmap inventory closeout guard` | current; lock representation/substrate boundary |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

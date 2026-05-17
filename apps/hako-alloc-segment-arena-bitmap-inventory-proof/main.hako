@@ -1,0 +1,72 @@
+// hako-alloc-segment-arena-bitmap-inventory-proof
+// Purpose: prove MIMAP-079A scalar segment/arena/bitmap boundary inventory.
+
+using selfhost.hako_alloc.memory.segment_arena_bitmap_inventory_box as HakoAllocSegmentArenaBitmapInventory
+
+static box Main {
+    main(args) {
+        local inventory = new HakoAllocSegmentArenaBitmapInventory()
+
+        local ready = inventory.classifyBoundary(10, 2, 16, 8, 3, 0, 0, 0, 0)
+        local invalid = inventory.classifyBoundary(-1, 2, 16, 8, 3, 0, 0, 0, 0)
+        local raw = inventory.classifyBoundary(11, 2, 16, 8, 3, 1, 0, 0, 0)
+        local atomic_bitmap = inventory.classifyBoundary(12, 2, 16, 8, 3, 0, 1, 0, 0)
+        local osvm = inventory.classifyBoundary(13, 2, 16, 8, 3, 0, 0, 1, 0)
+        local provider = inventory.classifyBoundary(14, 2, 16, 8, 3, 0, 0, 0, 1)
+
+        local ok = check "mimap079a segment arena bitmap boundary inventory" {
+            "ready accepted": ready.accepted == 1
+            "ready reason": ready.reason == 0
+            "ready segment": ready.segment_id == 10
+            "ready arena": ready.arena_id == 2
+            "ready slices": ready.slice_count == 16
+            "ready committed": ready.committed_slices == 8
+            "ready purge": ready.purge_scheduled_slices == 3
+            "ready scalar mask": ready.scalar_mask_model == 1
+            "ready segment inventory": ready.segment_inventory_present == 1
+            "ready arena inventory": ready.arena_inventory_present == 1
+            "ready bitmap inventory": ready.bitmap_inventory_present == 1
+            "invalid rejected": invalid.accepted == 0
+            "invalid reason": invalid.reason == 1
+            "raw rejected": raw.accepted == 0
+            "raw reason": raw.reason == 2
+            "atomic bitmap rejected": atomic_bitmap.accepted == 0
+            "atomic bitmap reason": atomic_bitmap.reason == 3
+            "osvm rejected": osvm.accepted == 0
+            "osvm reason": osvm.reason == 4
+            "provider rejected": provider.accepted == 0
+            "provider reason": provider.reason == 5
+            "inactive raw": ready.would_use_raw_pointer == 0
+            "inactive atomic bitmap": ready.would_execute_atomic_bitmap == 0
+            "inactive osvm": ready.would_call_osvm == 0
+            "inactive provider": ready.would_activate_provider == 0
+            "inactive replacement": ready.would_replace_process_allocator == 0
+            "inactive matcher": ready.would_add_backend_matcher == 0
+            "classify count": inventory.classify_count == 6
+            "accepted count": inventory.accepted_count == 1
+            "reject count": inventory.reject_count == 5
+            "invalid reject count": inventory.invalid_shape_reject_count == 1
+            "raw reject count": inventory.raw_pointer_reject_count == 1
+            "atomic reject count": inventory.atomic_bitmap_reject_count == 1
+            "osvm reject count": inventory.osvm_reject_count == 1
+            "provider reject count": inventory.provider_reject_count == 1
+            "last segment": inventory.last_segment_id == 14
+            "last reason": inventory.last_reason == 5
+        }
+
+        print("hako-alloc-segment-arena-bitmap-inventory-proof")
+        print("ready=" + ready.accepted + "," + ready.reason + "," + ready.segment_id + "," + ready.arena_id + "," + ready.slice_count + "," + ready.committed_slices + "," + ready.purge_scheduled_slices + "," + ready.scalar_mask_model)
+        print("rejects=" + invalid.reason + "," + raw.reason + "," + atomic_bitmap.reason + "," + osvm.reason + "," + provider.reason)
+        print("inactive=" + ready.would_use_raw_pointer + "," + ready.would_execute_atomic_bitmap + "," + ready.would_call_osvm + "," + ready.would_activate_provider + "," + ready.would_replace_process_allocator + "," + ready.would_add_backend_matcher)
+        print("counts=" + inventory.classify_count + "," + inventory.accepted_count + "," + inventory.reject_count + "," + inventory.invalid_shape_reject_count + "," + inventory.raw_pointer_reject_count + "," + inventory.atomic_bitmap_reject_count + "," + inventory.osvm_reject_count + "," + inventory.provider_reject_count + "," + inventory.last_segment_id + "," + inventory.last_reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

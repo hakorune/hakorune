@@ -602,6 +602,12 @@ Syntax/style contract
   candidate vocabulary, but it must not schedule threads, add atomics, execute
   reclaim, call page-source APIs, decommit, recommit, unreserve, release OSVM
   pages, or replace allocators.
+- `segment_arena_bitmap_inventory_box.hako` owns MIMAP-079A segment / arena /
+  bitmap boundary inventory. It may classify tiny scalar proof-only facts and
+  explicit blocked reasons for raw pointer, atomic bitmap, OSVM, provider, and
+  invalid-shape requests, but it must not allocate segments, route arena
+  memory, execute bitmap claims, call page-source APIs, activate providers,
+  replace the process allocator, or add backend shortcuts.
 - `allocator_metadata_records.hako` owns C205a allocator metadata record
   declarations. It may declare identity-free shapes for aligned-small and
   huge-page metadata. C205c consumes aligned-small metadata through a

@@ -244,3 +244,10 @@ app = "apps/hako-alloc-reclaim-scheduler-request-ledger-roundtrip-proof"
 label = "reclaim scheduler request ledger roundtrip proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_roundtrip_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-079A"
+app = "apps/hako-alloc-segment-arena-bitmap-inventory-proof"
+label = "segment arena bitmap boundary inventory proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_bitmap_inventory_guard.sh"]

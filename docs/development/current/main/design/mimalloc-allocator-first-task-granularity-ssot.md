@@ -238,7 +238,8 @@ Forbidden:
 | `MIMAP-076A` | post-scheduler-roundtrip row selection | landed; selected MIMAP-077A |
 | `MIMAP-077A` | reclaim scheduler scalar lane closeout guard | landed; selected MIMAP-078A |
 | `MIMAP-078A` | post-scheduler-scalar-closeout row selection | landed; selected MIMAP-079A |
-| `MIMAP-079A` | segment arena bitmap boundary inventory | selected current |
+| `MIMAP-079A` | segment arena bitmap boundary inventory | landed; selected MIMAP-080A |
+| `MIMAP-080A` | segment arena bitmap inventory closeout guard | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1260,6 +1261,20 @@ It must not add allocation/free behavior, execute real scheduling, spawn
 workers, add source-level concurrency semantics, add raw pointer residence,
 execute atomic bitmap claims, call page-source APIs, unreserve or release OSVM
 pages, activate providers, replace the host allocator, or add backend matchers.
+
+MIMAP-079A landed by adding a segment / arena / bitmap inventory owner, proof
+app, guard, and accepted SSOT. It selects MIMAP-080A.
+
+### MIMAP-080A granularity
+
+MIMAP-080A is a closeout/guard row for the segment / arena / bitmap boundary
+inventory. It should lock MIMAP-079A before broader allocator behavior, real
+bitmap/OSVM substrate work, or language feature work is selected.
+
+It must not add allocator behavior, execute real scheduling, spawn workers, add
+source-level concurrency semantics, add raw pointer residence, execute atomic
+bitmap claims, call page-source APIs, unreserve or release OSVM pages, activate
+providers, replace the host allocator, or add backend matchers.
 
 ## Compiler / language sidecar triggers
 
