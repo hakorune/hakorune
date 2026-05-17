@@ -1,0 +1,61 @@
+// pure-first-same-module-static-helper-global-call-proof
+// Purpose: prove same-module static helper global-call route support.
+
+box HelperReport {
+    value: i64 = 0
+    tag: i64 = 0
+}
+
+box ScalarCell {
+    value: i64 = 0
+
+    inc(x): i64 {
+        me.value = x + 1
+        return me.value
+    }
+}
+
+static box Main {
+    seedScalar(cell, x): i64 {
+        return cell.inc(x)
+    }
+
+    makeReport(x): HelperReport {
+        local report = new HelperReport()
+        report.value = x
+        report.tag = x + 10
+        return report
+    }
+
+    readReport(report): i64 {
+        return report.value + report.tag
+    }
+
+    main(args) {
+        local cell = new ScalarCell()
+        local seed = Main.seedScalar(cell, 31)
+        local report = Main.makeReport(seed)
+        local total = Main.readReport(report)
+
+        local ok = check "pure-first same-module static helper global-call route" {
+            "seed scalar": seed == 32
+            "report value": report.value == 32
+            "report tag": report.tag == 42
+            "total": total == 74
+        }
+
+        print("pure-first-same-module-static-helper-global-call-proof")
+        print("seed=" + seed)
+        print("report=" + report.value + "," + report.tag)
+        print("total=" + total)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

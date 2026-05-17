@@ -149,8 +149,11 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
     }
     refresh_module_typed_object_field_value_types(module);
     refresh_module_generic_method_routes(module);
+    for _ in 0..4 {
+        refresh_module_global_call_routes(module);
+        refresh_module_user_box_method_routes(module);
+    }
     refresh_module_global_call_routes(module);
-    refresh_module_user_box_method_routes(module);
     refresh_module_userbox_known_receiver_method_seed_routes(module);
     refresh_module_exact_seed_backend_routes(module);
     refresh_module_exact_numeric_value_facts(module);

@@ -104,9 +104,24 @@ fn same_module_instruction_supported(
                             && (route.reason().is_none()
                                 || route.target_symbol() == function.signature.name)
                     })
+                || known_user_defined_method_call(instruction)
         }
         _ => false,
     }
+}
+
+fn known_user_defined_method_call(instruction: &MirInstruction) -> bool {
+    matches!(
+        instruction,
+        MirInstruction::Call {
+            callee: Some(Callee::Method {
+                certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::UserDefined,
+                ..
+            }),
+            ..
+        }
+    )
 }
 
 fn is_self_recursive_method_call(

@@ -8,6 +8,22 @@ using selfhost.hako_alloc.memory.segment_allocation_modeled_released_span_ledger
 using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_integration_box as HakoAllocSegmentAllocationModeledLocalFreeIntegration
 
 static box Main {
+    seedPage(page): i64 {
+        local p0 = page.acquire(8)
+        local p1 = page.acquire(8)
+        local p2 = page.acquire(8)
+        local p3 = page.acquire(8)
+        local p4 = page.acquire(8)
+        local p5 = page.acquire(8)
+        return p5
+    }
+
+    nextReleasedSpan(consume, allocation_ledger, released_span_ledger, success): HakoAllocSegmentAllocationModeledReleasedSpanLedgerReport {
+        local allocation = allocation_ledger.recordModeledConsume(success.accepted, success.reason, success.segment_id, success.page_id, success.old_page_used, success.page_capacity, success.request_blocks, success.new_page_used, success.remaining_blocks, success.modeled_block_start, success.modeled_allocation_token, 0)
+        local release = allocation_ledger.releaseModeledToken(success.modeled_allocation_token, 0)
+        return released_span_ledger.recordReleasedSpan(release, 0)
+    }
+
     main(args) {
         local consume = new HakoAllocSegmentAllocationModeledConsume()
         local allocation_ledger = new HakoAllocSegmentAllocationModeledLedger()
@@ -17,15 +33,8 @@ static box Main {
         local success = consume.consumeReadiness(1, 0, 60, 18, 2, 8, 3, 0)
 
         local page = new HakoAllocPageModel(18, 32, 8, 8)
-        local p0 = page.acquire(8)
-        local p1 = page.acquire(8)
-        local p2 = page.acquire(8)
-        local p3 = page.acquire(8)
-        local p4 = page.acquire(8)
-        local p5 = page.acquire(8)
-        local first_allocation = allocation_ledger.recordModeledConsume(success.accepted, success.reason, success.segment_id, success.page_id, success.old_page_used, success.page_capacity, success.request_blocks, success.new_page_used, success.remaining_blocks, success.modeled_block_start, success.modeled_allocation_token, 0)
-        local first_release = allocation_ledger.releaseModeledToken(success.modeled_allocation_token, 0)
-        local first_span = released_span_ledger.recordReleasedSpan(first_release, 0)
+        local p5 = Main.seedPage(page)
+        local first_span = Main.nextReleasedSpan(consume, allocation_ledger, released_span_ledger, success)
         local first = integration.integrateLocalFree(first_span, page, 0, 0, 0)
 
         local missing_release = allocation_ledger.releaseModeledToken(999999, 0)
@@ -33,27 +42,16 @@ static box Main {
         local missing = integration.integrateLocalFree(missing_span, page, 0, 0, 0)
         local duplicate = integration.integrateLocalFree(first_span, page, 0, 0, 0)
 
-        local wrong_page_allocation = allocation_ledger.recordModeledConsume(success.accepted, success.reason, success.segment_id, success.page_id, success.old_page_used, success.page_capacity, success.request_blocks, success.new_page_used, success.remaining_blocks, success.modeled_block_start, success.modeled_allocation_token, 0)
-        local wrong_page_release = allocation_ledger.releaseModeledToken(success.modeled_allocation_token, 0)
-        local wrong_page_span = released_span_ledger.recordReleasedSpan(wrong_page_release, 0)
+        local wrong_page_span = Main.nextReleasedSpan(consume, allocation_ledger, released_span_ledger, success)
         local wrong_page = new HakoAllocPageModel(99, 32, 8, 8)
         local wrong = integration.integrateLocalFree(wrong_page_span, wrong_page, 0, 0, 0)
 
-        local unsupported_allocation = allocation_ledger.recordModeledConsume(success.accepted, success.reason, success.segment_id, success.page_id, success.old_page_used, success.page_capacity, success.request_blocks, success.new_page_used, success.remaining_blocks, success.modeled_block_start, success.modeled_allocation_token, 0)
-        local unsupported_release = allocation_ledger.releaseModeledToken(success.modeled_allocation_token, 0)
-        local unsupported_span = released_span_ledger.recordReleasedSpan(unsupported_release, 0)
+        local unsupported_span = Main.nextReleasedSpan(consume, allocation_ledger, released_span_ledger, success)
         local unsupported = integration.integrateLocalFree(unsupported_span, page, 1, 0, 0)
 
         local recycled_page = new HakoAllocPageModel(18, 32, 8, 8)
-        local r0 = recycled_page.acquire(8)
-        local r1 = recycled_page.acquire(8)
-        local r2 = recycled_page.acquire(8)
-        local r3 = recycled_page.acquire(8)
-        local r4 = recycled_page.acquire(8)
-        local r5 = recycled_page.acquire(8)
-        local recycled_allocation = allocation_ledger.recordModeledConsume(success.accepted, success.reason, success.segment_id, success.page_id, success.old_page_used, success.page_capacity, success.request_blocks, success.new_page_used, success.remaining_blocks, success.modeled_block_start, success.modeled_allocation_token, 0)
-        local recycled_release = allocation_ledger.releaseModeledToken(success.modeled_allocation_token, 0)
-        local recycled_span = released_span_ledger.recordReleasedSpan(recycled_release, 0)
+        local r5 = Main.seedPage(recycled_page)
+        local recycled_span = Main.nextReleasedSpan(consume, allocation_ledger, released_span_ledger, success)
         local recycled = integration.integrateLocalFree(recycled_span, recycled_page, 0, 0, 0)
 
         local ok = check "mimap119a segment allocation modeled local-free integration route" {

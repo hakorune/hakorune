@@ -1,6 +1,6 @@
 # 293x-622 PURE-FIRST-GLOBAL-CALL-001 Same-Module Static Helper Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -66,12 +66,38 @@ functions[].metadata.global_call_routes
 | `GCALL.3` | Restore MIMAP-119A helper shape. | MIMAP-119A guard passes with helper calls. | no source inlining workaround |
 | `GCALL.4` | Update docs / current state. | pointer guard and diff check pass. | no task bundle |
 
+## Landed Result
+
+PURE-FIRST-GLOBAL-CALL-001 landed the same-module static helper route support:
+
+- `typed_global_call_same_module_scalar_i64` for supported scalar helpers that
+  cross a known user-defined method boundary
+- `typed_global_call_same_module_object_handle` for typed object helper returns
+- `typed_global_call_same_module_void_sentinel` vocabulary for void helpers
+- focused proof app:
+  `apps/pure-first-same-module-static-helper-global-call-proof`
+- focused guard:
+  `tools/checks/k2_wide_pure_first_same_module_static_helper_global_call_guard.sh`
+- MIMAP-119A proof restored to helper calls instead of source inlining
+
+It selects `MIMAP-123A`, the post-sidecar planning row.
+
 ## Required Evidence
 
 ```text
 bash tools/checks/current_state_pointer_guard.sh
-bash tools/checks/<focused-global-call-guard>.sh
+bash tools/checks/k2_wide_pure_first_same_module_static_helper_global_call_guard.sh
 bash tools/checks/run_proof_app.sh --only MIMAP-119A
 bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_integration_guard.sh
 git diff --check
+```
+
+Observed evidence:
+
+```text
+bash tools/checks/k2_wide_pure_first_same_module_static_helper_global_call_guard.sh
+bash tools/checks/run_proof_app.sh --only PURE-FIRST-GLOBAL-CALL-001
+bash tools/checks/run_proof_app.sh --only MIMAP-119A
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_integration_guard.sh
+cargo test -q global_call_route_plan
 ```

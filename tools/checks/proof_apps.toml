@@ -342,3 +342,10 @@ app = "apps/hako-alloc-segment-allocation-modeled-local-free-integration-proof"
 label = "segment allocation modeled local-free integration proof"
 profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_integration_guard.sh"]
+
+[[proof_apps]]
+id = "PURE-FIRST-GLOBAL-CALL-001"
+app = "apps/pure-first-same-module-static-helper-global-call-proof"
+label = "same-module static helper global-call route proof"
+profiles = ["pilot"]
+cmd = ["bash", "tools/checks/k2_wide_pure_first_same_module_static_helper_global_call_guard.sh"]

@@ -463,6 +463,9 @@ The lowerable v0 rows are:
 | `global.user_call` | `null` | `DirectAbi` | `direct_function_call` | `typed_global_call_generic_string_void_logging` |
 | `global.user_call` | `generic_i64_body` | `DirectAbi` | `direct_function_call` | `typed_global_call_generic_i64` |
 | `global.user_call` | `program_json_emit_body` | `DirectAbi` | `direct_function_call` | `typed_global_call_program_json_emit` |
+| `global.user_call` | `null` | `DirectAbi` | `direct_function_call` | `typed_global_call_same_module_scalar_i64` |
+| `global.user_call` | `null` | `DirectAbi` | `direct_function_call` | `typed_global_call_same_module_object_handle` |
+| `global.user_call` | `null` | `DirectAbi` | `direct_function_call` | `typed_global_call_same_module_void_sentinel` |
 
 ny-llvmc may emit a direct call only after it has emitted the target function as
 a definition in the same LLVM module. Calling a same-module `target_symbol`

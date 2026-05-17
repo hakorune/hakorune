@@ -34,16 +34,16 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `PURE-FIRST-GLOBAL-CALL-001 same-module static helper global-call route`
+- current blocker token: `MIMAP-123A post-same-module-global-call row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-122A`; current blocker is
-  `PURE-FIRST-GLOBAL-CALL-001`
-- planned order: accept same-module static helper global calls through MIR
-  route metadata / lowering_plan, then return to allocator rows
+- continue phase-293x after `PURE-FIRST-GLOBAL-CALL-001`; current blocker is
+  `MIMAP-123A`
+- planned order: select exactly one row using the mimalloc row validation
+  cadence
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

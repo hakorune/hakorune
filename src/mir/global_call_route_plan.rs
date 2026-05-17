@@ -293,15 +293,18 @@ fn classify_global_call_target_shape(
             GlobalCallReturnContract::VoidSentinelI64Zero,
         );
     }
-    if same_module_object_handle_return_type_candidate(
-        &function.signature.return_type,
-        typed_plan_type_ids,
-    ) && same_module_body_supported(function, typed_plan_type_ids)
-    {
-        return GlobalCallTargetClassification::direct_contract(
-            GlobalCallProof::SameModuleObjectHandle,
-            GlobalCallReturnContract::ObjectHandle,
-        );
+    if same_module_body_supported(function, typed_plan_type_ids) {
+        if let Some((proof, return_contract)) =
+            infer_same_module_static_helper_return_contract(function, typed_plan_type_ids)
+        {
+            if same_module_static_helper_contract_allowed(
+                function,
+                return_contract,
+                typed_plan_type_ids,
+            ) {
+                return GlobalCallTargetClassification::direct_contract(proof, return_contract);
+            }
+        }
     }
     if let Some(reject) = generic_pure_string_body_reject_reason(function, targets) {
         if let Some(blocker) = reject.blocker {
@@ -318,11 +321,190 @@ fn classify_global_call_target_shape(
     }
 }
 
-fn same_module_object_handle_return_type_candidate(
+fn infer_same_module_static_helper_return_contract(
+    function: &MirFunction,
+    typed_plan_type_ids: &BTreeMap<String, u32>,
+) -> Option<(GlobalCallProof, GlobalCallReturnContract)> {
+    let mut inferred = same_module_static_helper_return_type_contract(
+        &function.signature.return_type,
+        typed_plan_type_ids,
+    );
+    let mut copy_sources = BTreeMap::new();
+    let mut result_contracts = BTreeMap::new();
+
+    for route in &function.metadata.user_box_method_routes {
+        if route.reason().is_none() {
+            if let Some(value) = route.result_value() {
+                if let Some(contract) = same_module_static_helper_route_return_contract(
+                    route.return_shape(),
+                    route.target_result_box_name(),
+                ) {
+                    result_contracts.insert(value, contract);
+                }
+            }
+        }
+    }
+
+    for block in function.blocks.values() {
+        for instruction in block.instructions.iter().chain(block.terminator.iter()) {
+            match instruction {
+                MirInstruction::Copy { dst, src } => {
+                    copy_sources.insert(*dst, *src);
+                }
+                MirInstruction::Const { dst, value } => {
+                    if let Some(contract) = same_module_static_helper_const_return_contract(value) {
+                        result_contracts.insert(*dst, contract);
+                    }
+                }
+                MirInstruction::Return { value } => {
+                    let contract = match value {
+                        Some(value) => same_module_static_helper_value_contract(
+                            *value,
+                            typed_plan_type_ids,
+                            &copy_sources,
+                            &result_contracts,
+                            &function.metadata.value_types,
+                        ),
+                        None => Some(GlobalCallReturnContract::VoidSentinelI64Zero),
+                    };
+                    inferred = merge_same_module_static_helper_contract(inferred, contract)?;
+                }
+                _ => {}
+            }
+        }
+    }
+
+    inferred.map(|contract| (same_module_static_helper_contract_proof(contract), contract))
+}
+
+fn same_module_static_helper_return_type_contract(
     return_type: &MirType,
     typed_plan_type_ids: &BTreeMap<String, u32>,
+) -> Option<GlobalCallReturnContract> {
+    match return_type {
+        MirType::Integer | MirType::Bool => Some(GlobalCallReturnContract::ScalarI64),
+        MirType::Void => Some(GlobalCallReturnContract::VoidSentinelI64Zero),
+        MirType::Box(name) if typed_plan_type_ids.contains_key(name) => {
+            Some(GlobalCallReturnContract::ObjectHandle)
+        }
+        _ => None,
+    }
+}
+
+fn same_module_static_helper_route_return_contract(
+    return_shape: Option<&str>,
+    target_result_box_name: Option<&str>,
+) -> Option<GlobalCallReturnContract> {
+    match return_shape {
+        Some("scalar_i64") => Some(GlobalCallReturnContract::ScalarI64),
+        Some("void_sentinel_i64_zero") => Some(GlobalCallReturnContract::VoidSentinelI64Zero),
+        Some("object_handle") if target_result_box_name.is_some() => {
+            Some(GlobalCallReturnContract::ObjectHandle)
+        }
+        _ => None,
+    }
+}
+
+fn same_module_static_helper_const_return_contract(
+    value: &ConstValue,
+) -> Option<GlobalCallReturnContract> {
+    match value {
+        ConstValue::Integer(_) | ConstValue::Bool(_) => Some(GlobalCallReturnContract::ScalarI64),
+        ConstValue::Void => Some(GlobalCallReturnContract::VoidSentinelI64Zero),
+        _ => None,
+    }
+}
+
+fn same_module_static_helper_value_contract(
+    value: ValueId,
+    typed_plan_type_ids: &BTreeMap<String, u32>,
+    copy_sources: &BTreeMap<ValueId, ValueId>,
+    result_contracts: &BTreeMap<ValueId, GlobalCallReturnContract>,
+    value_types: &BTreeMap<ValueId, MirType>,
+) -> Option<GlobalCallReturnContract> {
+    let mut current = value;
+    for _ in 0..32 {
+        if let Some(contract) = result_contracts.get(&current) {
+            return Some(*contract);
+        }
+        if let Some(contract) = value_types
+            .get(&current)
+            .and_then(|ty| same_module_static_helper_return_type_contract(ty, typed_plan_type_ids))
+        {
+            return Some(contract);
+        }
+        let Some(next) = copy_sources.get(&current).copied() else {
+            return None;
+        };
+        if next == current {
+            return None;
+        }
+        current = next;
+    }
+    None
+}
+
+fn merge_same_module_static_helper_contract(
+    current: Option<GlobalCallReturnContract>,
+    next: Option<GlobalCallReturnContract>,
+) -> Option<Option<GlobalCallReturnContract>> {
+    match (current, next) {
+        (None, Some(next)) => Some(Some(next)),
+        (Some(current), Some(next)) if current == next => Some(Some(current)),
+        (Some(current), None) => Some(Some(current)),
+        (None, None) => Some(None),
+        (Some(_), Some(_)) => None,
+    }
+}
+
+fn same_module_static_helper_contract_proof(contract: GlobalCallReturnContract) -> GlobalCallProof {
+    match contract {
+        GlobalCallReturnContract::ScalarI64 => GlobalCallProof::SameModuleScalarI64,
+        GlobalCallReturnContract::VoidSentinelI64Zero => GlobalCallProof::SameModuleVoidSentinel,
+        GlobalCallReturnContract::ObjectHandle => GlobalCallProof::SameModuleObjectHandle,
+        _ => GlobalCallProof::ContractMissing,
+    }
+}
+
+fn same_module_static_helper_contract_allowed(
+    function: &MirFunction,
+    contract: GlobalCallReturnContract,
+    typed_plan_type_ids: &BTreeMap<String, u32>,
 ) -> bool {
-    matches!(return_type, MirType::Box(name) if typed_plan_type_ids.contains_key(name))
+    match contract {
+        GlobalCallReturnContract::ObjectHandle => matches!(
+            function.signature.return_type,
+            MirType::Box(ref name) if typed_plan_type_ids.contains_key(name)
+        ),
+        GlobalCallReturnContract::ScalarI64 | GlobalCallReturnContract::VoidSentinelI64Zero => {
+            same_module_body_has_known_user_defined_method_call(function)
+        }
+        _ => false,
+    }
+}
+
+fn same_module_body_has_known_user_defined_method_call(function: &MirFunction) -> bool {
+    function.blocks.values().any(|block| {
+        block
+            .instructions
+            .iter()
+            .chain(block.terminator.iter())
+            .any(known_user_defined_method_instruction)
+    })
+}
+
+fn known_user_defined_method_instruction(instruction: &MirInstruction) -> bool {
+    matches!(
+        instruction,
+        MirInstruction::Call {
+            callee: Some(Callee::Method {
+                certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::UserDefined,
+                ..
+            }),
+            ..
+        }
+    )
 }
 
 fn is_numeric_i64_leaf_function(function: &MirFunction) -> bool {

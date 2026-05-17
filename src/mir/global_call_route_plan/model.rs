@@ -66,6 +66,8 @@ pub(super) enum GlobalCallProof {
     BoxTypeInspectorDescribe,
     PatternUtilLocalValueProbe,
     SameModuleObjectHandle,
+    SameModuleScalarI64,
+    SameModuleVoidSentinel,
     VoidSideEffect,
 }
 
@@ -143,6 +145,8 @@ impl GlobalCallProof {
             Self::BoxTypeInspectorDescribe => "typed_global_call_box_type_inspector_describe",
             Self::PatternUtilLocalValueProbe => "typed_global_call_pattern_util_local_value_probe",
             Self::SameModuleObjectHandle => "typed_global_call_same_module_object_handle",
+            Self::SameModuleScalarI64 => "typed_global_call_same_module_scalar_i64",
+            Self::SameModuleVoidSentinel => "typed_global_call_same_module_void_sentinel",
             Self::VoidSideEffect => "typed_global_call_void_side_effect",
         }
     }
@@ -174,6 +178,8 @@ impl GlobalCallProof {
             | Self::GenericI64
             | Self::PatternUtilLocalValueProbe
             | Self::SameModuleObjectHandle
+            | Self::SameModuleScalarI64
+            | Self::SameModuleVoidSentinel
             | Self::VoidSideEffect => "none",
         }
     }
@@ -191,6 +197,8 @@ impl GlobalCallProof {
             | Self::GenericStringOrVoidSentinel
             | Self::PatternUtilLocalValueProbe
             | Self::SameModuleObjectHandle
+            | Self::SameModuleScalarI64
+            | Self::SameModuleVoidSentinel
             | Self::VoidSideEffect => GlobalCallDefinitionOwner::UniformMir,
             Self::Stage1EmitProgramJson => GlobalCallDefinitionOwner::RuntimeHelper,
             Self::GenericPureString => GlobalCallDefinitionOwner::ModuleGeneric,

@@ -1,5 +1,6 @@
 use super::{BasicBlockId, FunctionSignature, MirBuilder, MirFunction};
 use crate::mir::function::MirParamDecl;
+use crate::mir::MirType;
 
 impl MirBuilder {
     // ---- Hint helpers (no-op by default) ----
@@ -81,8 +82,27 @@ impl MirBuilder {
         declared_return_type_name: Option<String>,
     ) {
         if let Some(function) = self.scope_ctx.current_function.as_mut() {
+            if let Some(return_type) = declared_return_type_name
+                .as_deref()
+                .map(source_type_name_to_mir)
+            {
+                function.signature.return_type = return_type;
+            }
             function.metadata.declared_param_decls = declared_param_decls;
             function.metadata.declared_return_type_name = declared_return_type_name;
         }
+    }
+}
+
+fn source_type_name_to_mir(name: &str) -> MirType {
+    match name {
+        "i64" | "int" | "Integer" | "IntegerBox" => MirType::Integer,
+        "bool" | "i1" | "Bool" | "BoolBox" => MirType::Bool,
+        "f64" | "float" | "Float" | "FloatBox" => MirType::Float,
+        "String" | "StringBox" => MirType::String,
+        "void" | "Void" => MirType::Void,
+        "Array" | "ArrayBox" => MirType::Box("ArrayBox".to_string()),
+        "Map" | "MapBox" => MirType::Box("MapBox".to_string()),
+        other => MirType::Box(other.to_string()),
     }
 }
