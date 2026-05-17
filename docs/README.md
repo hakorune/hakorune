@@ -81,12 +81,15 @@
 ## 🎯 クイックアクセス
 
 ### すぐ始める
-- guides/getting-started.md
-- guides/language-guide.md
+- ../README.md（repository overview）
+- ../CURRENT_TASK.md（current development lane）
+- reference/language/README.md（現行言語リファレンス入口）
+- reference/language/quick-reference.md（現行構文早見表）
 - guides/p2p-guide.md
 
 ### 技術リファレンス
-- reference/language/LANGUAGE_REFERENCE_2025.md
+- reference/language/README.md
+- reference/language/stage-profiles.md（Stage0 / Stage1 usable surface）
 - reference/language/EBNF.md（演算子: ! 採用 / do-while 非採用）
 - reference/language/strings.md（UTF‑8/Byte 二本柱）
 - reference/architecture/TECHNICAL_ARCHITECTURE_2025.md
@@ -96,7 +99,8 @@
 - tools/cli-options.md（CLI早見表）
  
 ### デザイン/ガイド
-- guides/language-core-and-sugar.md（コア最小＋糖衣）
+- development/current/main/design/language-minimal-surface-ssot.md（現行 canonical surface）
+- development/current/main/design/language-feature-implementation-order-ssot.md（言語機能の実装順）
 - guides/loopform.md（ループ正規化）
 - guides/scopebox.md（開発時の可視化）
 - guides/dev-local-alias.md（開発向け: 行頭 @name = expr → local 宣言糖衣）

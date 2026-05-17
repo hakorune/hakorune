@@ -236,7 +236,7 @@ Design SSOT:
 - Re-assignment is always allowed: `x = expr`.
 - “Immutable locals” (let/const) are not part of the language today; they can be introduced later as lint/strict checks without changing core semantics.
 
-Note: Field type annotations like `field: TypeBox` exist in syntax, but are currently **not enforced** as a type contract (metadata for planner/optimizer/verifier). Stored field initializers (`field = expr` / `field: TypeBox = expr`) run as constructor prologue assignments before the user `birth` body — see `LANGUAGE_REFERENCE_2025.md`.
+Note: Field type annotations like `field: TypeBox` exist in syntax, but are currently **not enforced** as a type contract (metadata for planner/optimizer/verifier). Stored field initializers (`field = expr` / `field: TypeBox = expr`) run as constructor prologue assignments before the user `birth` body — see `docs/reference/language/lifecycle.md`.
 
 ---
 

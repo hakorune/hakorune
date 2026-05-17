@@ -82,4 +82,6 @@ Migration Checklist
 References
 - Stage-2 design (`parser_mvp_stage2.md`)
 - CURRENT_TASK stage checklist (Phase 15)
-- `docs/guides/language-guide.md` section “Exceptions & Flow Control” (update when Stage-3 fully lands).
+- `docs/reference/language/scope-exit-semantics.md` for current
+  catch/cleanup/fini exit ordering.
+- `docs/reference/language/EBNF.md` for the living grammar rows.

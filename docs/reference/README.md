@@ -23,10 +23,9 @@
 - runtime/kernel/substrate reference manuals
 - current substrate capability manual: `docs/reference/runtime/substrate-capabilities.md`
 
-### api/
-- ビルトインBoxのAPI仕様
-- 標準ライブラリリファレンス
-- 各Boxのメソッド詳細
+### boxes-system/
+- ビルトイン Box / Box システムの仕様
+- Everything-is-Box、delegation、lifecycle、plugin Box 周辺の参照
 
 ### plugin-system/
 - プラグインシステム仕様
@@ -52,3 +51,7 @@ Language stage profile note:
 - canonical grammar owner は `docs/reference/language/EBNF.md`
 - Stage0 / Stage1 support manual owner は
   `docs/reference/language/stage-profiles.md`
+- practical current syntax summary は
+  `docs/reference/language/quick-reference.md`
+- old guide / cheat-sheet files outside `docs/reference/language/` may be
+  historical stubs. Do not treat them as canonical language surface.

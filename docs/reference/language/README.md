@@ -7,18 +7,21 @@ Current canonical surface:
 - Minimal surface policy: development/current/main/design/language-minimal-surface-ssot.md
 - Grammar and accepted rows: reference/language/EBNF.md
 - Stage0 / Stage1 usable surface profiles: reference/language/stage-profiles.md
+- Practical syntax summary: reference/language/quick-reference.md
 - Type and enum surface: reference/language/types.md
 - Option / Result enum prelude: reference/language/option.md
 - Low-level language surface: reference/language/low-level-capabilities.md
 - Delegation and no-inheritance rule: reference/language/field-visibility-and-delegation.md
 
-Historical long-form reference:
+Historical references:
 
 - reference/language/LANGUAGE_REFERENCE_2025.md is a historical snapshot. It is
   useful for old Phase 12/15 context, but it is not the current canonical source
   when it conflicts with the files above.
-
-- Syntax Cheat Sheet: quick-reference/syntax-cheatsheet.md
+- quick-reference/syntax-cheatsheet.md is a historical stub that redirects to
+  reference/language/quick-reference.md.
+- guides/language-guide.md and guides/language-core-and-sugar.md are historical
+  stubs. They are not permission to use legacy sugar or inheritance surfaces.
 - Phase 12.7 Grammar Specs (ternary, sugar; peek → match に統合):
   - Overview: archive/roadmap/phases/phase-12.7/grammar-specs/README.md
   - Token/Grammar: archive/roadmap/phases/phase-12.7/ancp-specs/ANCP-Token-Specification-v1.md

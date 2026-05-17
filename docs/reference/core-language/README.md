@@ -15,8 +15,8 @@ Current canonical language references are:
 
 ## 📁 このディレクトリの内容
 
-- `design-philosophy.md` - Nyashの設計哲学
-- `override-delegation-syntax.md` - オーバーライド・デリゲーション構文の詳細
+- `design-philosophy.md` - Historical stub; current delegation direction is no-inheritance explicit field delegation
+- `override-delegation-syntax.md` - Historical page; `override` and `from Parent.method()` are not canonical new source
 - `portability-contract.md` - 移植性に関する契約（アーカイブ。参照先: `docs/archive/core-language/portability-contract.md`）
 
 ## 📦 アーカイブ

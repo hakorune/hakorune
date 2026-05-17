@@ -1,58 +1,18 @@
-# Nyash Language Guide
+# Language Guide
 
-Start here to learn Nyash language basics and find deeper references.
+Status: Historical
+Scope: legacy learning-guide path kept as a redirect stub.
 
-- Syntax Cheat Sheet: quick-reference/syntax-cheatsheet.md
-- Full Language Reference (2025): reference/language/LANGUAGE_REFERENCE_2025.md
-- Phase 12.7 Grammar (match / ternary / sugar):
-  - Overview: development/roadmap/phases/phase-12.7/grammar-specs/README.md
-  - Tokens & Grammar: development/roadmap/phases/phase-12.7/ancp-specs/ANCP-Token-Specification-v1.md
-- Sugar transformations (?., ??, |> ...): tools/nyfmt/NYFMT_POC_ROADMAP.md
+This guide previously described older sugar and Phase 12-era examples. The
+current language surface is smaller and is owned by the reference pages below.
 
-Common Constructs
-- Ternary operator: `cond ? then : else` (Phase 12.7); lowered to If-expression
-- Match expression (pattern matching): `match value { pat => expr, _, ... }`
-- Null-coalesce: `x ?? y` → `match x { null => y, _ => x }`
-- Safe access: `a?.b` → `match a { null => null, _ => a.b }`
+Use these current references instead:
 
-Minimal Examples
-- Ternary
-  ```nyash
-  static box Main {
-    main(args) {
-      local a = 3
-      local b = 5
-      // Nested ternary is supported
-      local v = (a < b) ? ((b < 0) ? 40 : 50) : 60
-      return v
-    }
-  }
-  ```
-- Match as expression block (last expression is the value)
-  ```nyash
-  static box Main {
-    main(args) {
-      local d = "1"
-      // Each arm can be a block; the last expression becomes the value
-      local dv = match d {
-        "0" => { print("found zero") 0 }
-        "1" => { print("found one") 1 }
-        _ => { print("other") 0 }
-      }
-      return dv
-    }
-  }
-  ```
+- `docs/reference/language/README.md` - current language reference entry
+- `docs/reference/language/quick-reference.md` - practical syntax summary
+- `docs/reference/language/EBNF.md` - grammar and accepted syntax rows
+- `docs/reference/language/stage-profiles.md` - Stage0 / Stage1 usable surface profile
+- `docs/development/current/main/design/language-minimal-surface-ssot.md` - minimal canonical surface policy
 
-must_use Notes
-- Match arms are expressions. When using a block arm `{ ... }`, the last expression is the resulting value; statements without a final expression yield no usable value.
-- Ternary is an expression; ensure both branches are type-compatible at MIR level (e.g., both yield integer or both yield string handle in current phase).
-
-When you need the implementation details
-- Tokenizer: src/tokenizer.rs
-- Parser: src/parser/expressions.rs, src/parser/statements.rs
-- Lowering to MIR: src/mir/builder/**
-Statement Separation (Semicolons)
-- Newline separates statements by default; semicolons are optional.
-- Use semicolons only when placing multiple statements on one line.
-- Minimal ASI rules: newline does not end a statement when the line ends with an operator/dot/comma, or while inside grouping.
+Historical sugar notes remain in git history and archived phase docs. They are
+not permission to add or rely on legacy surface syntax in new source.

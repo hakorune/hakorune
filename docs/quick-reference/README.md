@@ -20,9 +20,13 @@
 
 ## 📋 実装ガイド
 
-### [構文早見表](syntax-cheatsheet.md)
-- 基本構文・よくある間違い
-- birth構文・match式・loop構文
+### [現行構文早見表](../reference/language/quick-reference.md)
+- current canonical syntax summary
+- Stage0 / Stage1 の差分は `../reference/language/stage-profiles.md`
+
+### [旧構文早見表](syntax-cheatsheet.md)
+- Historical stub
+- 古い syntax examples は現行 surface の正本ではない
 
 ### [アーキテクチャマップ](architecture-map.md)
 - 全体構成図
@@ -31,7 +35,9 @@
 
 ## 🔗 関連ドキュメント
 
-- [完全言語リファレンス](../reference/language/LANGUAGE_REFERENCE_2025.md)
+- [現行言語リファレンス入口](../reference/language/README.md)
+- [Grammar Reference](../reference/language/EBNF.md)
+- [Stage Profiles](../reference/language/stage-profiles.md)
 - [Phase 15 ロードマップ](../development/roadmap/phases/phase-15/README.md)
 - [using system詳細](../reference/language/using.md)
 
