@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-17"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-089A landed the segment allocation readiness closeout guard and selected MIMAP-090A post-readiness row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-090A selected MIMAP-091A segment allocation modeled consume route after the segment allocation readiness closeout. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-587-MIMAP-090A-POST-SEGMENT-ALLOCATION-READINESS-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-588-MIMAP-091A-SEGMENT-ALLOCATION-MODELED-CONSUME-ROUTE.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-586-MIMAP-089A-SEGMENT-ALLOCATION-READINESS-CLOSEOUT-GUARD"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-586-MIMAP-089A-SEGMENT-ALLOCATION-READINESS-CLOSEOUT-GUARD.md"
-latest_card_summary = "MIMAP-089A closes the segment allocation readiness scalar contract and keeps segment execution, raw pointer, arena, bitmap, OSVM, thread, provider, and backend matchers closed."
+latest_card = "293x-587-MIMAP-090A-POST-SEGMENT-ALLOCATION-READINESS-ROW-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-587-MIMAP-090A-POST-SEGMENT-ALLOCATION-READINESS-ROW-SELECTION.md"
+latest_card_summary = "MIMAP-090A selects MIMAP-091A as the next narrow modeled segment allocation consume route, while keeping raw pointer, arena, bitmap, OSVM, thread, provider, and backend matchers closed."
 
-current_blocker_token = "MIMAP-090A"
+current_blocker_token = "MIMAP-091A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-587 MIMAP-090A post-segment-allocation-readiness row selection landed; MIMAP-091A selected",
   "293x-586 MIMAP-089A segment allocation readiness closeout guard landed; MIMAP-090A selected",
   "293x-585 MIMAP-088A segment allocation readiness scalar contract landed; MIMAP-089A selected",
   "293x-574 MIMAP-087A post-segment-page-membership row selection landed; MIMAP-088A selected",
@@ -39,5 +40,4 @@ landed_tail = [
   "293x-579 GUARD-MANIFEST-005 reclaim scheduler closeout thin wrappers landed",
   "293x-578 GUARD-MANIFEST-004 next closeout family selection landed",
   "293x-577 GUARD-MANIFEST-003 segment closeout thin wrappers landed",
-  "293x-576 GUARD-MANIFEST-002 k2-wide family manifest selection landed",
 ]

@@ -249,7 +249,8 @@ Forbidden:
 | `MIMAP-087A` | post-segment-page-membership-closeout row selection | landed; selected MIMAP-088A |
 | `MIMAP-088A` | segment allocation readiness scalar contract | landed; selected MIMAP-089A |
 | `MIMAP-089A` | segment allocation readiness closeout guard | landed; selected MIMAP-090A |
-| `MIMAP-090A` | post-segment-allocation-readiness row selection | selected current |
+| `MIMAP-090A` | post-segment-allocation-readiness row selection | landed; selected MIMAP-091A |
+| `MIMAP-091A` | segment allocation modeled consume route | selected current |
 
 ### MIMAP-020A granularity
 
