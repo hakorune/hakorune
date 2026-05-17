@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-17"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-068A landed reclaim scheduler request ledger route and selected MIMAP-069A reclaim scheduler request ledger closeout guard. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-069A landed reclaim scheduler request ledger closeout guard and selected MIMAP-070A post-scheduler-ledger row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-556-MIMAP-069A-RECLAIM-SCHEDULER-REQUEST-LEDGER-CLOSEOUT-GUARD.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-557-MIMAP-070A-POST-SCHEDULER-LEDGER-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-555-MIMAP-068A-RECLAIM-SCHEDULER-REQUEST-LEDGER-ROUTE"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-555-MIMAP-068A-RECLAIM-SCHEDULER-REQUEST-LEDGER-ROUTE.md"
-latest_card_summary = "MIMAP-068A adds a scalar reclaim scheduler request ledger and selects MIMAP-069A closeout guard."
+latest_card = "293x-556-MIMAP-069A-RECLAIM-SCHEDULER-REQUEST-LEDGER-CLOSEOUT-GUARD"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-556-MIMAP-069A-RECLAIM-SCHEDULER-REQUEST-LEDGER-CLOSEOUT-GUARD.md"
+latest_card_summary = "MIMAP-069A closes the scheduler request ledger slice and selects MIMAP-070A row selection."
 
-current_blocker_token = "MIMAP-069A"
+current_blocker_token = "MIMAP-070A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-556 MIMAP-069A reclaim scheduler request ledger closeout guard landed",
   "293x-555 MIMAP-068A reclaim scheduler request ledger route landed",
   "293x-554 MIMAP-067A reclaim scheduler substrate proposal-or-park landed",
   "293x-553 MIMAP-066A post-scheduler-marker row selection landed",

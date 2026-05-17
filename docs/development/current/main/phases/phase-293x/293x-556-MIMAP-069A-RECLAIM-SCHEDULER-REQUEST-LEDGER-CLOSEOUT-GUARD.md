@@ -1,6 +1,6 @@
 # 293x-556 MIMAP-069A Reclaim Scheduler Request Ledger Closeout Guard
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -50,4 +50,24 @@ feature work is selected.
 bash tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_closeout_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Closeout Result
+
+`MIMAP-069A` added:
+
+```text
+docs/development/current/main/design/hako-alloc-reclaim-scheduler-request-ledger-closeout-ssot.md
+tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_closeout_guard.sh
+```
+
+The closeout locks MIMAP-063A, MIMAP-064A, MIMAP-065A, and MIMAP-068A as a
+modeled scheduler request chain while keeping real scheduling, source-level
+concurrency, page-source/OSVM release, provider activation, and backend
+matchers closed.
+
+Next row:
+
+```text
+MIMAP-070A post-scheduler-ledger row selection
 ```
