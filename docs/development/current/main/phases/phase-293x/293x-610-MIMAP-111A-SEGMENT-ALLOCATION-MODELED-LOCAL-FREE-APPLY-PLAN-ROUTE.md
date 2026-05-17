@@ -1,6 +1,6 @@
 # 293x-610 MIMAP-111A Segment Allocation Modeled Local-Free Apply Plan Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -27,6 +27,21 @@ successful local-free candidate report
 
 This is still not real free-list mutation. It is the final scalar handoff
 before a later row may open a page-local free-list update contract.
+
+## Result
+
+`MIMAP-111A` landed by adding:
+
+- `lang/src/hako_alloc/memory/segment_allocation_modeled_local_free_apply_plan_box.hako`
+- `docs/development/current/main/design/hako-alloc-segment-allocation-modeled-local-free-apply-plan-ssot.md`
+- `apps/hako-alloc-segment-allocation-modeled-local-free-apply-plan-proof/`
+- `tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_apply_plan_guard.sh`
+
+It selects:
+
+```text
+MIMAP-112A post-local-free-apply-plan row selection
+```
 
 ## Validation Cadence
 
@@ -87,3 +102,13 @@ Stop lines:
 | `111A.2` | Implement scalar local-free apply-plan ledger owner. | accepted/rejected rows are deterministic. | no page state mutation |
 | `111A.3` | Add focused proof app and manifest entry. | `run_proof_app.sh --only MIMAP-111A` passes. | no broad gate |
 | `111A.4` | Add public guard and current closeout docs. | dedicated guard and pointer guard pass. | no allocator-wide default growth |
+
+## Evidence
+
+```text
+NYASH_FEATURES=rune NYASH_DISABLE_PLUGINS=1 target/debug/hakorune --backend vm apps/hako-alloc-segment-allocation-modeled-local-free-apply-plan-proof/main.hako
+bash tools/checks/run_proof_app.sh --only MIMAP-111A
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_apply_plan_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```

@@ -1,0 +1,302 @@
+// segment_allocation_modeled_local_free_apply_plan_box.hako -- MIMAP-111A local-free apply plan ledger
+// Responsibility:
+// - consume successful MIMAP-109A local-free candidate reports
+// - record deterministic scalar local-free apply-plan rows
+// - keep real free, free-list mutation, page-state mutation, raw pointers,
+//   atomics, OSVM, scheduling, provider activation, and backend shortcuts closed
+// Non-responsibility:
+// - mutating page free-lists, executing segment free, page-map lookup,
+//   bitmap execution, page-source calls, or allocator provider activation
+
+box HakoAllocSegmentAllocationModeledLocalFreeApplyPlanReport {
+    did_record_local_free_apply_plan: i64 = 0
+    reason: i64 = 0
+    row_index: i64 = -1
+    existing_index: i64 = -1
+    local_free_candidate_row_index: i64 = -1
+    modeled_allocation_token: i64 = -1
+    segment_id: i64 = -1
+    page_id: i64 = -1
+    modeled_block_start: i64 = -1
+    modeled_block_end: i64 = -1
+    candidate_blocks: i64 = 0
+    plan_kind: i64 = 0
+    ledger_count_after: i64 = 0
+    accepted_count_after: i64 = 0
+    reject_count_after: i64 = 0
+    local_free_apply_plan_ledger_present: i64 = 1
+    would_execute_real_segment_free: i64 = 0
+    would_mutate_free_list: i64 = 0
+    would_mutate_page_state: i64 = 0
+    would_use_raw_pointer: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentAllocationModeledLocalFreeApplyPlan {
+    local_free_candidate_row_indices: ArrayBox = new ArrayBox()
+    tokens: ArrayBox = new ArrayBox()
+    segment_ids: ArrayBox = new ArrayBox()
+    page_ids: ArrayBox = new ArrayBox()
+    block_starts: ArrayBox = new ArrayBox()
+    block_ends: ArrayBox = new ArrayBox()
+    candidate_blocks_list: ArrayBox = new ArrayBox()
+    plan_kinds: ArrayBox = new ArrayBox()
+    attempt_count: i64 = 0
+    count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    invalid_shape_reject_count: i64 = 0
+    source_reject_count: i64 = 0
+    duplicate_reject_count: i64 = 0
+    execution_reject_count: i64 = 0
+    free_list_reject_count: i64 = 0
+    page_state_reject_count: i64 = 0
+    raw_pointer_reject_count: i64 = 0
+    segment_map_reject_count: i64 = 0
+    arena_reject_count: i64 = 0
+    atomic_bitmap_reject_count: i64 = 0
+    osvm_reject_count: i64 = 0
+    thread_reject_count: i64 = 0
+    provider_reject_count: i64 = 0
+    backend_matcher_reject_count: i64 = 0
+    last_reason: i64 = 0
+    last_index: i64 = -1
+    last_token: i64 = -1
+
+    localFreeApplyPlanReport(did_record_local_free_apply_plan, reason, row_index, existing_index, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind): HakoAllocSegmentAllocationModeledLocalFreeApplyPlanReport {
+        local result = new HakoAllocSegmentAllocationModeledLocalFreeApplyPlanReport()
+        result.did_record_local_free_apply_plan = did_record_local_free_apply_plan
+        result.reason = reason
+        result.row_index = row_index
+        result.existing_index = existing_index
+        result.local_free_candidate_row_index = local_free_candidate_row_index
+        result.modeled_allocation_token = modeled_allocation_token
+        result.segment_id = segment_id
+        result.page_id = page_id
+        result.modeled_block_start = modeled_block_start
+        result.modeled_block_end = modeled_block_end
+        result.candidate_blocks = candidate_blocks
+        result.plan_kind = plan_kind
+        result.ledger_count_after = me.count
+        result.accepted_count_after = me.accepted_count
+        result.reject_count_after = me.reject_count
+        me.last_reason = reason
+        me.last_index = row_index
+        me.last_token = modeled_allocation_token
+        return result
+    }
+
+    rememberLocalFreeApplyPlanReject(reason) {
+        me.reject_count += 1
+        if reason == 1 {
+            me.invalid_shape_reject_count += 1
+        }
+        if reason == 2 {
+            me.source_reject_count += 1
+        }
+        if reason == 3 {
+            me.duplicate_reject_count += 1
+        }
+        if reason == 4 {
+            me.execution_reject_count += 1
+        }
+        if reason == 5 {
+            me.free_list_reject_count += 1
+        }
+        if reason == 6 {
+            me.page_state_reject_count += 1
+        }
+        if reason == 7 {
+            me.raw_pointer_reject_count += 1
+        }
+        if reason == 8 {
+            me.segment_map_reject_count += 1
+        }
+        if reason == 9 {
+            me.arena_reject_count += 1
+        }
+        if reason == 10 {
+            me.atomic_bitmap_reject_count += 1
+        }
+        if reason == 11 {
+            me.osvm_reject_count += 1
+        }
+        if reason == 12 {
+            me.thread_reject_count += 1
+        }
+        if reason == 13 {
+            me.provider_reject_count += 1
+        }
+        if reason == 14 {
+            me.backend_matcher_reject_count += 1
+        }
+    }
+
+    rejectLocalFreeApplyPlan(reason, existing_index, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind): HakoAllocSegmentAllocationModeledLocalFreeApplyPlanReport {
+        me.rememberLocalFreeApplyPlanReject(reason)
+        return me.localFreeApplyPlanReport(0, reason, -1, existing_index, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+    }
+
+    rejectLocalFreeApplyPlanUnsupportedRequirement(requirement, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind): HakoAllocSegmentAllocationModeledLocalFreeApplyPlanReport {
+        if requirement == 1 {
+            return me.rejectLocalFreeApplyPlan(4, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        if requirement == 2 {
+            return me.rejectLocalFreeApplyPlan(5, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        if requirement == 3 {
+            return me.rejectLocalFreeApplyPlan(6, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        if requirement == 4 {
+            return me.rejectLocalFreeApplyPlan(7, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        if requirement == 5 {
+            return me.rejectLocalFreeApplyPlan(8, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        if requirement == 6 {
+            return me.rejectLocalFreeApplyPlan(9, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        if requirement == 7 {
+            return me.rejectLocalFreeApplyPlan(10, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        if requirement == 8 {
+            return me.rejectLocalFreeApplyPlan(11, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        if requirement == 9 {
+            return me.rejectLocalFreeApplyPlan(12, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        if requirement == 10 {
+            return me.rejectLocalFreeApplyPlan(13, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        if requirement == 11 {
+            return me.rejectLocalFreeApplyPlan(14, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        return me.rejectLocalFreeApplyPlan(1, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+    }
+
+    findLocalFreeApplyPlanIndex(local_free_candidate_row_index, modeled_allocation_token): i64 {
+        local i = 0
+        loop(i < me.count) {
+            if me.local_free_candidate_row_indices.get(i) == local_free_candidate_row_index {
+                if me.tokens.get(i) == modeled_allocation_token {
+                    return i
+                }
+            }
+            i += 1
+        }
+        return -1
+    }
+
+    appendLocalFreeApplyPlanRow(local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind): i64 {
+        local row_index = me.count
+        me.local_free_candidate_row_indices.push(local_free_candidate_row_index)
+        me.tokens.push(modeled_allocation_token)
+        me.segment_ids.push(segment_id)
+        me.page_ids.push(page_id)
+        me.block_starts.push(modeled_block_start)
+        me.block_ends.push(modeled_block_end)
+        me.candidate_blocks_list.push(candidate_blocks)
+        me.plan_kinds.push(plan_kind)
+        me.count += 1
+        me.accepted_count += 1
+        return row_index
+    }
+
+    recordLocalFreeApplyPlan(local_free_candidate_report, unsupported_requirement): HakoAllocSegmentAllocationModeledLocalFreeApplyPlanReport {
+        me.attempt_count += 1
+
+        local local_free_candidate_row_index: i64 = local_free_candidate_report.row_index
+        local modeled_allocation_token: i64 = local_free_candidate_report.modeled_allocation_token
+        local segment_id: i64 = local_free_candidate_report.segment_id
+        local page_id: i64 = local_free_candidate_report.page_id
+        local modeled_block_start: i64 = local_free_candidate_report.modeled_block_start
+        local modeled_block_end: i64 = local_free_candidate_report.modeled_block_end
+        local candidate_blocks: i64 = local_free_candidate_report.candidate_blocks
+        local plan_kind: i64 = 1
+
+        if local_free_candidate_report.did_record_local_free_candidate != 1 {
+            return me.rejectLocalFreeApplyPlan(2, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        if local_free_candidate_report.reason != 0 {
+            return me.rejectLocalFreeApplyPlan(2, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        if local_free_candidate_report.local_free_candidate_ledger_present != 1 {
+            return me.rejectLocalFreeApplyPlan(2, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        if local_free_candidate_row_index < 0 {
+            return me.rejectLocalFreeApplyPlan(1, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        if modeled_allocation_token < 0 {
+            return me.rejectLocalFreeApplyPlan(1, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        if segment_id < 0 {
+            return me.rejectLocalFreeApplyPlan(1, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        if page_id < 0 {
+            return me.rejectLocalFreeApplyPlan(1, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        if modeled_block_start < 0 {
+            return me.rejectLocalFreeApplyPlan(1, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        if candidate_blocks <= 0 {
+            return me.rejectLocalFreeApplyPlan(1, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        if modeled_block_end <= modeled_block_start {
+            return me.rejectLocalFreeApplyPlan(1, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+        if modeled_block_start + candidate_blocks != modeled_block_end {
+            return me.rejectLocalFreeApplyPlan(1, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+
+        if unsupported_requirement != 0 {
+            return me.rejectLocalFreeApplyPlanUnsupportedRequirement(unsupported_requirement, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+
+        local existing_index = me.findLocalFreeApplyPlanIndex(local_free_candidate_row_index, modeled_allocation_token)
+        if existing_index >= 0 {
+            return me.rejectLocalFreeApplyPlan(3, existing_index, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        }
+
+        local row_index = me.appendLocalFreeApplyPlanRow(local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+        return me.localFreeApplyPlanReport(1, 0, row_index, -1, local_free_candidate_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, plan_kind)
+    }
+
+    tokenAt(index): i64 {
+        if index < 0 {
+            return -1
+        }
+        if index >= me.count {
+            return -1
+        }
+        local token: i64 = me.tokens.get(index)
+        return token
+    }
+
+    candidateBlocksAt(index): i64 {
+        if index < 0 {
+            return 0
+        }
+        if index >= me.count {
+            return 0
+        }
+        local blocks: i64 = me.candidate_blocks_list.get(index)
+        return blocks
+    }
+
+    planKindAt(index): i64 {
+        if index < 0 {
+            return 0
+        }
+        if index >= me.count {
+            return 0
+        }
+        local kind: i64 = me.plan_kinds.get(index)
+        return kind
+    }
+}

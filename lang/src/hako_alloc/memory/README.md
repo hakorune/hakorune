@@ -21,6 +21,7 @@ Current modules
 - `segment_allocation_modeled_ledger_box.hako`
 - `segment_allocation_modeled_released_span_ledger_box.hako`
 - `segment_allocation_modeled_local_free_candidate_ledger_box.hako`
+- `segment_allocation_modeled_local_free_apply_plan_box.hako`
 - `segment_lifecycle_scalar_state_box.hako`
 - `thread_heap_owner_inventory_box.hako`
 - `worker_identity_box.hako`
@@ -264,6 +265,14 @@ Syntax/style contract
   and record deterministic scalar local-free candidate rows. It must not
   execute real segment free, mutate a free-list, mutate page state outside the
   local-free candidate ledger, allocate arena backing, use raw pointer
+  residence, perform segment-map lookup, execute atomic bitmap claims, call
+  page-source/OSVM seams, schedule workers, activate provider hooks, replace
+  the host allocator, or add backend shortcuts.
+- `segment_allocation_modeled_local_free_apply_plan_box.hako` owns
+  MIMAP-111A. It may consume successful MIMAP-109A local-free candidate reports
+  and record deterministic scalar local-free apply-plan rows. It must not
+  execute real segment free, mutate a free-list, mutate page state outside the
+  local-free apply-plan ledger, allocate arena backing, use raw pointer
   residence, perform segment-map lookup, execute atomic bitmap claims, call
   page-source/OSVM seams, schedule workers, activate provider hooks, replace
   the host allocator, or add backend shortcuts.

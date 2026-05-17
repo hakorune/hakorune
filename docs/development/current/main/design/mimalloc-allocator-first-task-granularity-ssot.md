@@ -272,7 +272,8 @@ Forbidden:
 | `MIMAP-108A` | post-released-span-ledger row selection | landed; selected MIMAP-109A |
 | `MIMAP-109A` | segment allocation modeled local-free candidate ledger route | landed; selected MIMAP-110A |
 | `MIMAP-110A` | post-local-free-candidate-ledger row selection | landed; selected MIMAP-111A |
-| `MIMAP-111A` | segment allocation modeled local-free apply plan route | selected current |
+| `MIMAP-111A` | segment allocation modeled local-free apply plan route | landed; selected MIMAP-112A |
+| `MIMAP-112A` | post-local-free-apply-plan row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1544,6 +1545,19 @@ Forbidden:
 - source-level concurrency changes
 - provider activation / hooks / host allocator replacement
 - backend matchers
+
+MIMAP-111A landed by adding the local-free apply-plan ledger owner, proof app,
+SSOT, manifest entry, module export, README entry, and local guard. It selects
+MIMAP-112A.
+
+### MIMAP-112A granularity
+
+MIMAP-112A is a planning row after the local-free apply-plan ledger. It should
+review the current segment allocation modeled lane and select exactly one next
+row.
+
+It must not add allocator behavior, parser/compiler behavior, cleanup bundles,
+provider activation, host allocator replacement, or backend matchers.
 
 MIMAP-107A landed by adding the released-span ledger owner, proof app, SSOT,
 manifest entry, module export, README entry, and local guard. It selects
