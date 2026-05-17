@@ -430,7 +430,8 @@ FST:
 | `MIMAP-105A` | landed | Post-release-span-facts row selection. | selected MIMAP-ROW-CADENCE-001 |
 | `MIMAP-ROW-CADENCE-001` | landed | Mimalloc row validation cadence SSOT. | selected MIMAP-106A |
 | `MIMAP-106A` | landed | Post-validation-cadence row selection. | selected MIMAP-107A |
-| `MIMAP-107A` | selected current | Segment allocation modeled released-span ledger route. | after MIMAP-106A |
+| `MIMAP-107A` | landed | Segment allocation modeled released-span ledger route. | selected MIMAP-108A |
+| `MIMAP-108A` | selected current | Post-released-span-ledger row selection. | after MIMAP-107A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -438,9 +439,8 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-106A:
-`MIMAP-107A` adds a scalar released-span ledger downstream of MIMAP-104A release
-span facts using the L2 validation cadence.
+Current row after MIMAP-107A:
+`MIMAP-108A` selects exactly one next row using the validation cadence SSOT.
 Real thread scheduling, worker spawning, source-level concurrency features,
 real segment allocation/free execution, raw pointer residence, atomic bitmap
 execution, arena backing allocation, segment-map pointer membership,

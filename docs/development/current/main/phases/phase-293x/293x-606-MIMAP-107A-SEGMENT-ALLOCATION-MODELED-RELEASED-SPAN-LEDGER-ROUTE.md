@@ -1,6 +1,6 @@
 # 293x-606 MIMAP-107A Segment Allocation Modeled Released-Span Ledger Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -20,6 +20,21 @@ successful modeled ledger release report
 This is not real segment free execution. It does not mutate a free-list, page
 bitmap, segment map, raw pointer residence, page-source/OSVM state, scheduler,
 or provider state.
+
+## Result
+
+`MIMAP-107A` landed by adding:
+
+- `lang/src/hako_alloc/memory/segment_allocation_modeled_released_span_ledger_box.hako`
+- `docs/development/current/main/design/hako-alloc-segment-allocation-modeled-released-span-ledger-ssot.md`
+- `apps/hako-alloc-segment-allocation-modeled-released-span-ledger-proof/`
+- `tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_released_span_ledger_guard.sh`
+
+It selects:
+
+```text
+MIMAP-108A post-released-span-ledger row selection
+```
 
 ## Validation Cadence
 
@@ -79,3 +94,12 @@ Stop lines:
 | `107A.3` | Add focused proof app and manifest entry. | `run_proof_app.sh --only MIMAP-107A` passes. | no broad gate |
 | `107A.4` | Add public guard and current closeout docs. | dedicated guard and pointer guard pass. | no allocator-wide default growth |
 
+## Evidence
+
+```text
+NYASH_FEATURES=rune NYASH_DISABLE_PLUGINS=1 target/debug/hakorune --backend vm apps/hako-alloc-segment-allocation-modeled-released-span-ledger-proof/main.hako
+bash tools/checks/run_proof_app.sh --only MIMAP-107A
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_released_span_ledger_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```

@@ -268,7 +268,8 @@ Forbidden:
 | `MIMAP-105A` | post-release-span-facts row selection | landed; selected MIMAP-ROW-CADENCE-001 |
 | `MIMAP-ROW-CADENCE-001` | mimalloc row validation cadence SSOT | landed; selected MIMAP-106A |
 | `MIMAP-106A` | post-validation-cadence row selection | landed; selected MIMAP-107A |
-| `MIMAP-107A` | segment allocation modeled released-span ledger route | selected current |
+| `MIMAP-107A` | segment allocation modeled released-span ledger route | landed; selected MIMAP-108A |
+| `MIMAP-108A` | post-released-span-ledger row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1540,6 +1541,18 @@ Forbidden:
 - source-level concurrency changes
 - provider activation / hooks / host allocator replacement
 - backend matchers
+
+MIMAP-107A landed by adding the released-span ledger owner, proof app, SSOT,
+manifest entry, module export, README entry, and local guard. It selects
+MIMAP-108A.
+
+### MIMAP-108A granularity
+
+MIMAP-108A is a planning row after the released-span ledger. It should review
+the current segment allocation modeled lane and select exactly one next row.
+
+It must not add allocator behavior, parser/compiler behavior, cleanup bundles,
+provider activation, host allocator replacement, or backend matchers.
 
 MIMAP-102A landed by selecting HAKO-ALLOC-SRC-CLEAN-001.
 
