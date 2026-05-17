@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `GUARD-MANIFEST-002 k2-wide guard family manifest selection`
+- current blocker token: `GUARD-MANIFEST-003 segment closeout thin wrappers`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -48,7 +48,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `GUARD-MANIFEST-002 k2-wide guard family manifest selection`
+- current blocker token: `GUARD-MANIFEST-003 segment closeout thin wrappers`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -59,10 +59,10 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after `GUARD-MANIFEST-001`; current blocker is
-  `GUARD-MANIFEST-002`
-- next row: select exactly one `k2_wide_*` guard family for manifest-backed
-  thin-wrapper migration
+- continue `phase-293x` after `GUARD-MANIFEST-002`; current blocker is
+  `GUARD-MANIFEST-003`
+- next row: move the selected recent hako_alloc segment closeout guards behind
+  manifest rows while preserving public guard names
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

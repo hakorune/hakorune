@@ -32,16 +32,16 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `GUARD-MANIFEST-002 k2-wide guard family manifest selection`
+- current blocker token: `GUARD-MANIFEST-003 segment closeout thin wrappers`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `GUARD-MANIFEST-001`; current blocker is
-  `GUARD-MANIFEST-002`
-- planned order: select exactly one `k2_wide_*` guard family for
-  manifest-backed thin-wrapper migration
+- continue phase-293x after `GUARD-MANIFEST-002`; current blocker is
+  `GUARD-MANIFEST-003`
+- planned order: move the selected recent hako_alloc segment closeout guards
+  behind manifest rows while preserving public guard names
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

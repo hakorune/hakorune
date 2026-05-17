@@ -1,6 +1,6 @@
 # 293x-576 GUARD-MANIFEST-002 K2-Wide Family Manifest Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -11,6 +11,24 @@ Date: 2026-05-17
 The proof app test entrypoints now delegate through `run_proof_app.sh`. The
 next cleanup should select exactly one `k2_wide_*` guard family to migrate
 toward manifest-backed thin wrappers.
+
+Selected family:
+
+```text
+recent hako_alloc segment closeout guards:
+  tools/checks/k2_wide_hako_alloc_segment_arena_bitmap_inventory_closeout_guard.sh
+  tools/checks/k2_wide_hako_alloc_segment_lifecycle_scalar_state_closeout_guard.sh
+  tools/checks/k2_wide_hako_alloc_segment_page_membership_scalar_closeout_guard.sh
+```
+
+Next selected row:
+
+```text
+GUARD-MANIFEST-003
+```
+
+`GUARD-MANIFEST-003` should keep the top-level `k2_wide_*` entrypoints stable
+while moving the thick bodies behind manifest-owned implementation commands.
 
 ## Scope
 
@@ -42,4 +60,13 @@ toward manifest-backed thin wrappers.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+- Selected the recent hako_alloc segment closeout family for the first
+  `k2_wide_*` manifest-backed thin-wrapper migration.
+- Chose wrapper-safe migration: keep public script names stable, move thick
+  bodies behind implementation commands, and add manifest rows pointing to the
+  implementation commands.
+- No schema change is required for `guard_rows.toml`.
 
