@@ -269,7 +269,8 @@ Forbidden:
 | `MIMAP-ROW-CADENCE-001` | mimalloc row validation cadence SSOT | landed; selected MIMAP-106A |
 | `MIMAP-106A` | post-validation-cadence row selection | landed; selected MIMAP-107A |
 | `MIMAP-107A` | segment allocation modeled released-span ledger route | landed; selected MIMAP-108A |
-| `MIMAP-108A` | post-released-span-ledger row selection | selected current |
+| `MIMAP-108A` | post-released-span-ledger row selection | landed; selected MIMAP-109A |
+| `MIMAP-109A` | segment allocation modeled local-free candidate ledger route | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1553,6 +1554,45 @@ the current segment allocation modeled lane and select exactly one next row.
 
 It must not add allocator behavior, parser/compiler behavior, cleanup bundles,
 provider activation, host allocator replacement, or backend matchers.
+
+MIMAP-108A landed by selecting MIMAP-109A.
+
+### MIMAP-109A granularity
+
+MIMAP-109A is a modeled scalar allocator behavior row after the released-span
+ledger. It should add a separate local-free candidate ledger that consumes
+successful `MIMAP-107A` released-span reports and records deterministic page /
+segment / token / block-span candidate rows.
+
+Validation cadence:
+
+```text
+L2 proof row
+```
+
+Allowed:
+
+- add one local-free candidate ledger owner;
+- consume scalar `HakoAllocSegmentAllocationModeledReleasedSpanLedgerReport`
+  facts;
+- record successful local-free candidate spans as scalar rows;
+- reject invalid, source-rejected, duplicate, or unsupported requests;
+- add one focused proof app and guard.
+
+Forbidden:
+
+- real segment allocation/free execution
+- free-list mutation
+- page state mutation outside the new scalar candidate ledger
+- arena backing allocation
+- raw pointer residence
+- segment-map lookup
+- atomic bitmap execution
+- page-source / OSVM execution
+- thread scheduling or worker spawning
+- source-level concurrency changes
+- provider activation / hooks / host allocator replacement
+- backend matchers
 
 MIMAP-102A landed by selecting HAKO-ALLOC-SRC-CLEAN-001.
 

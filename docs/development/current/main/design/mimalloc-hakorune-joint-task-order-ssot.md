@@ -132,7 +132,8 @@ no provider activation
 | 64 | process cleanup | `MIMAP-ROW-CADENCE-001 mimalloc row validation cadence SSOT` | landed; selected MIMAP-106A |
 | 65 | planning | `MIMAP-106A post-validation-cadence row selection` | landed; selected MIMAP-107A |
 | 66 | allocator | `MIMAP-107A segment allocation modeled released-span ledger route` | landed; selected MIMAP-108A |
-| 67 | planning | `MIMAP-108A post-released-span-ledger row selection` | current; select one next row |
+| 67 | planning | `MIMAP-108A post-released-span-ledger row selection` | landed; selected MIMAP-109A |
+| 68 | allocator | `MIMAP-109A segment allocation modeled local-free candidate ledger route` | current; L2 proof row |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

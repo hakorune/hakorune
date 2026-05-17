@@ -1,6 +1,6 @@
 # 293x-607 MIMAP-108A Post-Released-Span-Ledger Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -19,6 +19,29 @@ modeled consume
 This row should select exactly one next allocator behavior, closeout,
 substrate, or narrow Hakorune acceptance row using the mimalloc validation
 cadence.
+
+## Result
+
+`MIMAP-108A` selects:
+
+```text
+MIMAP-109A segment allocation modeled local-free candidate ledger route
+```
+
+Validation cadence:
+
+```text
+L2 proof row:
+  dedicated proof app via run_proof_app.sh --only MIMAP-109A
+  dedicated public guard
+
+L3 compatibility:
+  only if the implementation changes MIMAP-107A released-span report fields
+```
+
+The selected row should consume successful released-span ledger reports into a
+separate scalar local-free candidate ledger. It must not mutate any real
+free-list.
 
 ## Scope
 
