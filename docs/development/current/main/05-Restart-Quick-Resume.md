@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-ROW-CADENCE-001 mimalloc row validation cadence SSOT`
+- current blocker token: `MIMAP-106A post-validation-cadence row selection`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -50,7 +50,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-ROW-CADENCE-001 mimalloc row validation cadence SSOT`
+- current blocker token: `MIMAP-106A post-validation-cadence row selection`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -61,8 +61,8 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` after `MIMAP-105A`; current blocker is `MIMAP-ROW-CADENCE-001`
-- next row: make mimalloc row validation levels explicit before the next allocator behavior row
+- continue `phase-293x` after `MIMAP-ROW-CADENCE-001`; current blocker is `MIMAP-106A`
+- next row: select exactly one row using the mimalloc row validation cadence
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

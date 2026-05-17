@@ -1,6 +1,6 @@
 # 293x-604 MIMAP-ROW-CADENCE-001 Mimalloc Row Validation Cadence SSOT
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -10,6 +10,17 @@ Date: 2026-05-17
 The current mimalloc lane is intentionally proof-heavy. This row clarifies which
 evidence level each row type needs so development can keep moving without
 weakening stop-line safety.
+
+## Result
+
+The validation cadence is now defined in:
+
+```text
+docs/development/current/main/design/mimalloc-row-validation-cadence-ssot.md
+```
+
+`MIMAP-ROW-CADENCE-001` selects
+`MIMAP-106A post-validation-cadence row selection` as the next planning row.
 
 ## Scope
 
@@ -39,6 +50,13 @@ weakening stop-line safety.
 | `CADENCE.3` | Close the row and select the next planning row. | current pointer guard passes. | no allocator behavior |
 
 ## Required Evidence
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Evidence
 
 ```text
 bash tools/checks/current_state_pointer_guard.sh

@@ -34,14 +34,14 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-ROW-CADENCE-001 mimalloc row validation cadence SSOT`
+- current blocker token: `MIMAP-106A post-validation-cadence row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-105A`; current blocker is `MIMAP-ROW-CADENCE-001`
-- planned order: make mimalloc row validation levels explicit before the next allocator behavior row
+- continue phase-293x after `MIMAP-ROW-CADENCE-001`; current blocker is `MIMAP-106A`
+- planned order: select exactly one row using the mimalloc row validation cadence
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

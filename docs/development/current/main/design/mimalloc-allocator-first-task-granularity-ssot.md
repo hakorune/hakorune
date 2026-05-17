@@ -266,7 +266,8 @@ Forbidden:
 | `MIMAP-103A` | post-segment-counter-cleanup row selection | landed; selected MIMAP-104A |
 | `MIMAP-104A` | segment allocation modeled ledger release span facts route | landed; selected MIMAP-105A |
 | `MIMAP-105A` | post-release-span-facts row selection | landed; selected MIMAP-ROW-CADENCE-001 |
-| `MIMAP-ROW-CADENCE-001` | mimalloc row validation cadence SSOT | selected current |
+| `MIMAP-ROW-CADENCE-001` | mimalloc row validation cadence SSOT | landed; selected MIMAP-106A |
+| `MIMAP-106A` | post-validation-cadence row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1488,6 +1489,18 @@ choose the smallest sufficient guard set without weakening stop-line safety.
 It must not add allocator behavior, parser/compiler behavior, remove landed
 guards, weaken evidence, grow dev_gate / allocator-wide defaults, activate
 providers, replace the host allocator, or add backend matchers.
+
+MIMAP-ROW-CADENCE-001 landed by adding
+`docs/development/current/main/design/mimalloc-row-validation-cadence-ssot.md`.
+It selects MIMAP-106A.
+
+### MIMAP-106A granularity
+
+MIMAP-106A is a planning row after the validation cadence SSOT. It should
+select exactly one next row and cite the validation level expected for that row.
+
+It must not add allocator behavior, parser/compiler behavior, cleanup bundles,
+provider activation, host allocator replacement, or backend matchers.
 
 MIMAP-102A landed by selecting HAKO-ALLOC-SRC-CLEAN-001.
 
