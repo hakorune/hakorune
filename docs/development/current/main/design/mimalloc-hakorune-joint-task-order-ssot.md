@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-091A` landed the modeled segment allocation consume route and selected
-the closeout row.
+`MIMAP-092A` landed the modeled segment allocation consume closeout guard and
+selected the post-closeout row selection.
 
 Recommended current row:
 
 ```text
-MIMAP-092A
-  segment allocation modeled consume closeout guard
+MIMAP-093A
+  post-segment-allocation-modeled-consume row selection
 ```
 
 Purpose:
 
 ```text
-close out the modeled segment allocation consume owner/proof/guard
+select exactly one next row after the modeled segment allocation consume closeout
 keep real thread scheduling, worker spawning, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -114,7 +114,8 @@ no provider activation
 | 46 | closeout | `MIMAP-089A segment allocation readiness closeout guard` | landed; selected MIMAP-090A |
 | 47 | planning | `MIMAP-090A post-segment-allocation-readiness row selection` | landed; selected MIMAP-091A |
 | 48 | allocator | `MIMAP-091A segment allocation modeled consume route` | landed; selected MIMAP-092A |
-| 49 | closeout | `MIMAP-092A segment allocation modeled consume closeout guard` | current; guard-only |
+| 49 | closeout | `MIMAP-092A segment allocation modeled consume closeout guard` | landed; selected MIMAP-093A |
+| 50 | planning | `MIMAP-093A post-segment-allocation-modeled-consume row selection` | current; select exactly one next row |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

@@ -251,7 +251,8 @@ Forbidden:
 | `MIMAP-089A` | segment allocation readiness closeout guard | landed; selected MIMAP-090A |
 | `MIMAP-090A` | post-segment-allocation-readiness row selection | landed; selected MIMAP-091A |
 | `MIMAP-091A` | segment allocation modeled consume route | landed; selected MIMAP-092A |
-| `MIMAP-092A` | segment allocation modeled consume closeout guard | selected current |
+| `MIMAP-092A` | segment allocation modeled consume closeout guard | landed; selected MIMAP-093A |
+| `MIMAP-093A` | post-segment-allocation-modeled-consume row selection | selected current |
 
 ### MIMAP-020A granularity
 

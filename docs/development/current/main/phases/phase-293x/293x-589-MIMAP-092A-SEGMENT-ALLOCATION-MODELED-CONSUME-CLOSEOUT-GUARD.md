@@ -1,6 +1,6 @@
 # 293x-589 MIMAP-092A Segment Allocation Modeled Consume Closeout Guard
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -10,6 +10,16 @@ Date: 2026-05-17
 It should add a guard-only closeout for the modeled segment allocation consume
 route, confirming that the MIMAP-091A owner, proof app, module export, manifest
 entry, docs, and inactive stop lines remain synchronized.
+
+Result:
+
+```text
+landed:
+  segment allocation modeled consume closeout guard
+
+selected next row:
+  MIMAP-093A post-segment-allocation-modeled-consume row selection
+```
 
 ## Scope
 
@@ -36,12 +46,14 @@ Forbidden:
 | --- | --- | --- | --- |
 | `092A.1` | Add closeout SSOT / guard. | closeout checks MIMAP-091A wiring and inactive stop lines. | no behavior |
 | `092A.2` | Run MIMAP-091A proof and closeout guard. | both pass locally. | no bundle |
-| `092A.3` | Select exactly one next row. | current pointers move to the next row. | no implementation bundle |
+| `092A.3` | Select exactly one next row. | current pointers move to `MIMAP-093A`. | no implementation bundle |
 
 ## Required Evidence
 
 ```text
 bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_consume_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_consume_closeout_guard.sh
+tools/checks/run_row_guard.sh --only hako-alloc-segment-allocation-modeled-consume-closeout
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
