@@ -32,16 +32,16 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `GUARD-MANIFEST-010 closeout or return selection`
+- current blocker token: `MIMAP-087A post-segment-page-membership row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `GUARD-MANIFEST-009`; current blocker is
-  `GUARD-MANIFEST-010`
-- planned order: close the manifest-wrapper cleanup burst or select one final
-  helper extraction before returning to MIMAP rows
+- continue phase-293x after `GUARD-MANIFEST-010`; current blocker is
+  `MIMAP-087A`
+- planned order: select exactly one next mimalloc row after the
+  segment/page-membership closeout and the manifest-wrapper cleanup burst
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

@@ -123,6 +123,19 @@ The guard for the first selected wrapper family is:
 tools/checks/k2_wide_manifest_wrapper_guard.sh
 ```
 
+For the hako_alloc closeout cleanup burst, the no-growth source of truth is the
+manifest profile, not a second hard-coded wrapper list:
+
+```text
+tools/checks/guard_rows.toml rows with profiles += ["hako-alloc-closeout"]
+  -> cmd must be bash tools/checks/impl/<public-wrapper-name>
+  -> public wrapper is derived as tools/checks/<public-wrapper-name>
+```
+
+`tools/checks/k2_wide_manifest_wrapper_guard.sh` derives the expected public
+wrappers from that profile, rejects public hako_alloc closeout wrappers that are
+not manifest-backed, and keeps the public wrapper body thin.
+
 ## Stop Lines
 
 - no all-at-once deletion of hundreds of guard entrypoints

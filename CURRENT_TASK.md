@@ -53,7 +53,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `GUARD-MANIFEST-010 closeout or return selection`
+  `MIMAP-087A post-segment-page-membership row selection`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -72,8 +72,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x after `GUARD-MANIFEST-009`; the next
-  selected blocker is `GUARD-MANIFEST-010`, closeout-or-return selection.
+- resume point: continue Phase 293x after `GUARD-MANIFEST-010`; the next
+  selected blocker is `MIMAP-087A`, post-segment-page-membership row selection.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -81,8 +81,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `GUARD-MANIFEST-010`: close the manifest-wrapper cleanup burst or select
-     one final helper extraction before returning to MIMAP rows
+  1. `MIMAP-087A`: select exactly one next mimalloc row after the
+     segment/page-membership closeout and the manifest-wrapper cleanup burst
   2. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider
      activation inactive

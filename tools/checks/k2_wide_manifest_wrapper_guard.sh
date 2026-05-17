@@ -8,14 +8,19 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 
 MANIFEST="tools/checks/guard_rows.toml"
 DESIGN="docs/development/current/main/design/guard-manifest-migration-ssot.md"
-CARD="docs/development/current/main/phases/phase-293x/293x-577-GUARD-MANIFEST-003-SEGMENT-CLOSEOUT-THIN-WRAPPERS.md"
+FIRST_WRAPPER_CARD="docs/development/current/main/phases/phase-293x/293x-577-GUARD-MANIFEST-003-SEGMENT-CLOSEOUT-THIN-WRAPPERS.md"
+CLOSEOUT_CARD="docs/development/current/main/phases/phase-293x/293x-584-GUARD-MANIFEST-010-CLOSEOUT-OR-RETURN-SELECTION.md"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$MANIFEST" "$DESIGN" "$CARD"
+guard_require_files "$TAG" "$MANIFEST" "$DESIGN" "$FIRST_WRAPPER_CARD" "$CLOSEOUT_CARD"
 guard_require_exec_files "$TAG" "$0"
 
 guard_expect_in_file "$TAG" "tools/checks/impl" "$DESIGN" "migration SSOT must name implementation command location"
-guard_expect_in_file "$TAG" "k2_wide_manifest_wrapper_guard.sh" "$CARD" "GM003 card must name this guard"
+guard_expect_in_file "$TAG" "hako-alloc-closeout" "$DESIGN" "migration SSOT must name closeout profile"
+guard_expect_in_file "$TAG" "k2_wide_manifest_wrapper_guard.sh" \
+  "$FIRST_WRAPPER_CARD" "GM003 card must name this guard"
+guard_expect_in_file "$TAG" "hako-alloc-closeout" \
+  "$CLOSEOUT_CARD" "GM010 card must name profile-derived closeout guard"
 
 python3 - "$ROOT_DIR" "$MANIFEST" <<'PY'
 import os
@@ -27,76 +32,67 @@ root = pathlib.Path(sys.argv[1]).resolve()
 manifest_path = root / sys.argv[2]
 data = tomllib.loads(manifest_path.read_text(encoding="utf-8"))
 
-expected = {
-    "hako-alloc-segment-arena-bitmap-closeout": {
-        "wrapper": "tools/checks/k2_wide_hako_alloc_segment_arena_bitmap_inventory_closeout_guard.sh",
-        "impl": "tools/checks/impl/k2_wide_hako_alloc_segment_arena_bitmap_inventory_closeout_guard.sh",
-    },
-    "hako-alloc-segment-lifecycle-closeout": {
-        "wrapper": "tools/checks/k2_wide_hako_alloc_segment_lifecycle_scalar_state_closeout_guard.sh",
-        "impl": "tools/checks/impl/k2_wide_hako_alloc_segment_lifecycle_scalar_state_closeout_guard.sh",
-    },
-    "hako-alloc-segment-page-membership-closeout": {
-        "wrapper": "tools/checks/k2_wide_hako_alloc_segment_page_membership_scalar_closeout_guard.sh",
-        "impl": "tools/checks/impl/k2_wide_hako_alloc_segment_page_membership_scalar_closeout_guard.sh",
-    },
-    "hako-alloc-reclaim-scheduler-marker-closeout": {
-        "wrapper": "tools/checks/k2_wide_hako_alloc_reclaim_scheduler_marker_closeout_guard.sh",
-        "impl": "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_marker_closeout_guard.sh",
-    },
-    "hako-alloc-reclaim-scheduler-ledger-closeout": {
-        "wrapper": "tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_closeout_guard.sh",
-        "impl": "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_closeout_guard.sh",
-    },
-    "hako-alloc-reclaim-scheduler-ledger-consume-closeout": {
-        "wrapper": "tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_consume_closeout_guard.sh",
-        "impl": "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_consume_closeout_guard.sh",
-    },
-    "hako-alloc-reclaim-scheduler-ledger-roundtrip-closeout": {
-        "wrapper": "tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_roundtrip_closeout_guard.sh",
-        "impl": "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_roundtrip_closeout_guard.sh",
-    },
-    "hako-alloc-reclaim-scheduler-scalar-lane-closeout": {
-        "wrapper": "tools/checks/k2_wide_hako_alloc_reclaim_scheduler_scalar_lane_closeout_guard.sh",
-        "impl": "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_scalar_lane_closeout_guard.sh",
-    },
-    "hako-alloc-osvm-fast-path-route-closeout": {
-        "wrapper": "tools/checks/k2_wide_hako_alloc_osvm_fast_path_route_closeout_guard.sh",
-        "impl": "tools/checks/impl/k2_wide_hako_alloc_osvm_fast_path_route_closeout_guard.sh",
-    },
-    "hako-alloc-osvm-fast-path-unreserve-closeout": {
-        "wrapper": "tools/checks/k2_wide_hako_alloc_osvm_fast_path_unreserve_closeout_guard.sh",
-        "impl": "tools/checks/impl/k2_wide_hako_alloc_osvm_fast_path_unreserve_closeout_guard.sh",
-    },
-    "hako-alloc-reclaim-scalar-lane-closeout": {
-        "wrapper": "tools/checks/k2_wide_hako_alloc_reclaim_scalar_lane_closeout_guard.sh",
-        "impl": "tools/checks/impl/k2_wide_hako_alloc_reclaim_scalar_lane_closeout_guard.sh",
-    },
-    "hako-alloc-reuse-proof-closeout": {
-        "wrapper": "tools/checks/k2_wide_hako_alloc_reuse_proof_closeout_guard.sh",
-        "impl": "tools/checks/impl/k2_wide_hako_alloc_reuse_proof_closeout_guard.sh",
-    },
-}
+CLOSEOUT_PROFILE = "hako-alloc-closeout"
+IMPL_PREFIX = "tools/checks/impl/"
+WRAPPER_PREFIX = "tools/checks/"
+PUBLIC_GLOB = "k2_wide_hako_alloc_*closeout_guard.sh"
 
 rows = data.get("rows")
 if not isinstance(rows, list):
     raise SystemExit("guard_rows.toml must contain [[rows]] entries")
 
-by_id = {}
+expected = {}
+seen_wrappers = set()
+seen_impls = set()
+errors: list[str] = []
+
 for row in rows:
     if isinstance(row, dict) and isinstance(row.get("id"), str):
-        by_id[row["id"]] = row
+        profiles = row.get("profiles")
+        if isinstance(profiles, list) and CLOSEOUT_PROFILE in profiles:
+            row_id = row["id"]
+            cmd = row.get("cmd")
+            if not (
+                isinstance(cmd, list)
+                and len(cmd) == 2
+                and cmd[0] == "bash"
+                and isinstance(cmd[1], str)
+                and cmd[1].startswith(IMPL_PREFIX)
+                and cmd[1].endswith("_closeout_guard.sh")
+            ):
+                errors.append(
+                    f"{row_id}: closeout row cmd must be "
+                    f"['bash', 'tools/checks/impl/*_closeout_guard.sh'], got {cmd!r}"
+                )
+                continue
 
-errors: list[str] = []
-for row_id, spec in expected.items():
-    row = by_id.get(row_id)
-    if row is None:
-        errors.append(f"missing manifest row: {row_id}")
-        continue
-    expected_cmd = ["bash", spec["impl"]]
-    if row.get("cmd") != expected_cmd:
-        errors.append(f"{row_id}: cmd must be {expected_cmd!r}, got {row.get('cmd')!r}")
+            impl_path = cmd[1]
+            wrapper_path = WRAPPER_PREFIX + pathlib.PurePosixPath(impl_path).name
+            if wrapper_path in seen_wrappers:
+                errors.append(f"{row_id}: duplicate public wrapper path: {wrapper_path}")
+            if impl_path in seen_impls:
+                errors.append(f"{row_id}: duplicate implementation path: {impl_path}")
+            seen_wrappers.add(wrapper_path)
+            seen_impls.add(impl_path)
+            expected[row_id] = {
+                "wrapper": wrapper_path,
+                "impl": impl_path,
+            }
 
+if not expected:
+    errors.append(f"manifest profile has no rows: {CLOSEOUT_PROFILE}")
+
+public_wrappers = {
+    str(path.relative_to(root))
+    for path in (root / "tools/checks").glob(PUBLIC_GLOB)
+}
+expected_wrappers = {spec["wrapper"] for spec in expected.values()}
+for wrapper_path in sorted(public_wrappers - expected_wrappers):
+    errors.append(f"public hako_alloc closeout wrapper is not manifest-backed: {wrapper_path}")
+for wrapper_path in sorted(expected_wrappers - public_wrappers):
+    errors.append(f"manifest closeout row wrapper missing: {wrapper_path}")
+
+for row_id, spec in sorted(expected.items()):
     wrapper = root / spec["wrapper"]
     impl = root / spec["impl"]
     if not wrapper.is_file():
@@ -131,7 +127,7 @@ if errors:
         print(f"[k2-wide-manifest-wrapper-guard] ERROR: {error}", file=sys.stderr)
     raise SystemExit(1)
 
-print(f"[k2-wide-manifest-wrapper-guard] checked={len(expected)}")
+print(f"[k2-wide-manifest-wrapper-guard] profile={CLOSEOUT_PROFILE} checked={len(expected)}")
 PY
 
 echo "[$TAG] ok"

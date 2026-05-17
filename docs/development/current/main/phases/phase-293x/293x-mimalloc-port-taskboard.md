@@ -119,7 +119,7 @@ not part of this sidecar:
 | `GUARD-MANIFEST-007` | landed | Move the selected OSVM fast-path closeout guards behind manifest rows while keeping public `k2_wide_*` entrypoints stable. | after GM006 |
 | `GUARD-MANIFEST-008` | landed | Select the final public hako_alloc closeout wrappers for manifest-backed migration. | after GM007 |
 | `GUARD-MANIFEST-009` | landed | Move the final public hako_alloc closeout wrappers behind manifest rows while keeping public `k2_wide_*` entrypoints stable. | after GM008 |
-| `GUARD-MANIFEST-010` | selected current | Close the manifest-wrapper cleanup burst or select one final helper extraction before returning to MIMAP rows. | after GM009 |
+| `GUARD-MANIFEST-010` | landed | Close the manifest-wrapper cleanup burst by deriving hako_alloc closeout wrapper expectations from `hako-alloc-closeout`, then return to MIMAP rows. | selected MIMAP-087A |
 
 ## Stage1 / Selfhost Ordering Guard
 
@@ -416,12 +416,12 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-086A: `MIMAP-087A` selects exactly one next row after
-the scalar segment page membership closeout. Real thread scheduling, worker
-spawning, source-level concurrency features, raw pointer residence, atomic
-bitmap execution, arena backing allocation, segment map pointer membership,
-page-source calls, OSVM unreserve/release, provider activation, and backend
-matchers remain closed.
+Current row after MIMAP-086A and the manifest-wrapper cleanup burst:
+`MIMAP-087A` selects exactly one next row after the scalar segment page
+membership closeout. Real thread scheduling, worker spawning, source-level
+concurrency features, raw pointer residence, atomic bitmap execution, arena
+backing allocation, segment map pointer membership, page-source calls, OSVM
+unreserve/release, provider activation, and backend matchers remain closed.
 
 MIMAP-020A execution order:
 

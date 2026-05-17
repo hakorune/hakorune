@@ -5,7 +5,8 @@ Date: 2026-05-17
 
 ## Decision
 
-`MIMAP-087A` is the planning row selected by `MIMAP-086A`.
+`MIMAP-087A` is the planning row selected by `MIMAP-086A` and resumed after
+the `GUARD-MANIFEST-001` through `GUARD-MANIFEST-010` cleanup burst.
 
 The segment page membership scalar contract is now implemented and closed
 behind local-run guards. This row should review the current mimalloc lane and
@@ -52,4 +53,3 @@ select exactly one next row without adding allocator behavior.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
-
