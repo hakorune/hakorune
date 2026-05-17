@@ -284,32 +284,36 @@ impl WasmBackend {
         // Debug: Print WAT source for analysis
         let ring0 = crate::runtime::get_global_ring0();
         ring0.log.debug(&format!(
-            "🔍 WAT Source Debug (length: {}):",
+            "[wasm/wat2wasm] source length={}",
             wat_source.len()
         ));
-        ring0.log.debug(&format!("WAT Content:\n{}", wat_source));
+        ring0
+            .log
+            .debug(&format!("[wasm/wat2wasm] source:\n{}", wat_source));
 
         // UTF-8 validation to prevent encoding errors
         if !wat_source.is_ascii() {
             ring0
                 .log
-                .debug("❌ WAT source contains non-ASCII characters");
+                .debug("[wasm/wat2wasm] reject non-ascii source");
             return Err(WasmError::WasmValidationError(
                 "WAT source contains non-ASCII characters".to_string(),
             ));
         }
 
-        ring0.log.debug("✅ WAT source is ASCII-compatible");
+        ring0.log.debug("[wasm/wat2wasm] source ascii ok");
 
         // Convert to bytes as required by wabt::wat2wasm
-        ring0.log.debug("🔄 Converting WAT to WASM bytes...");
+        ring0.log.debug("[wasm/wat2wasm] convert start");
         let wasm_bytes = wabt::wat2wasm(wat_source.as_bytes()).map_err(|e| {
-            ring0.log.debug(&format!("❌ wabt::wat2wasm failed: {}", e));
+            ring0
+                .log
+                .debug(&format!("[wasm/wat2wasm] convert failed: {}", e));
             WasmError::WasmValidationError(format!("WAT to WASM conversion failed: {}", e))
         })?;
 
         ring0.log.debug(&format!(
-            "✅ WASM conversion successful, {} bytes generated",
+            "[wasm/wat2wasm] convert ok bytes={}",
             wasm_bytes.len()
         ));
         Ok(wasm_bytes)

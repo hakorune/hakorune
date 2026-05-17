@@ -34,16 +34,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `WASM-LOG-001 WAT2WASM stable tags`
+- current blocker token: `MIMAP-125A post-source-cleanup row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x with `WASM-LOG-001`; current blocker is focused WASM
-  WAT-to-WASM debug log tag cleanup
-- latest source cleanup: `RUNTIME-UNWRAP-001` landed focused runtime lock
-  expect messages
+- continue phase-293x with `MIMAP-125A`; current blocker is planning-only row
+  selection after focused source cleanup
+- latest source cleanup: `WASM-LOG-001` landed WAT2WASM stable tags
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

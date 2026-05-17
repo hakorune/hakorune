@@ -454,7 +454,8 @@ FST:
 | `ROUTE-DIAG-VOCAB-002` | landed | Preflight vocabulary drift guard. | selected MIMAP-124A |
 | `MIMAP-124A` | landed | Post-route-diagnostics cleanup row selection. | selected RUNTIME-UNWRAP-001 |
 | `RUNTIME-UNWRAP-001` | landed | Runtime lock expect messages. | selected WASM-LOG-001 |
-| `WASM-LOG-001` | selected current | WAT2WASM stable tags. | current BoxShape cleanup |
+| `WASM-LOG-001` | landed | WAT2WASM stable tags. | selected MIMAP-125A |
+| `MIMAP-125A` | selected current | Post-source-cleanup row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -463,8 +464,9 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current source cleanup:
-`WASM-LOG-001` replaces WASM backend WAT-to-WASM emoji debug messages with
-stable `[wasm/wat2wasm]` tags.
+`MIMAP-125A` selects exactly one next row after the focused source cleanup
+slices. Prefer returning to the mimalloc / hako_alloc implementation lane unless
+the next allocator row exposes a concrete compiler acceptance blocker.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,

@@ -34,19 +34,19 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`WASM-LOG-001` is current after focused runtime unwrap cleanup landed.
+`MIMAP-125A` is current after focused source cleanup landed.
 
 Recommended current row:
 
 ```text
-WASM-LOG-001
-  WAT2WASM stable tags
+MIMAP-125A
+  post-source-cleanup row selection
 ```
 
 Purpose:
 
 ```text
-replace WASM backend WAT-to-WASM emoji debug logs with stable tags
+select exactly one next mimalloc / hako_alloc or Hakorune compiler row
 keep real thread scheduling, worker spawning, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -154,7 +154,8 @@ no provider activation
 | 87 | Hakorune compiler cleanup | `ROUTE-DIAG-VOCAB-002 preflight vocabulary drift guard` | landed; selected MIMAP-124A |
 | 88 | planning | `MIMAP-124A post-route-diagnostics cleanup row selection` | landed; selected RUNTIME-UNWRAP-001 |
 | 89 | source cleanup | `RUNTIME-UNWRAP-001 runtime lock expect messages` | landed; selected WASM-LOG-001 |
-| 90 | source cleanup | `WASM-LOG-001 WAT2WASM stable tags` | selected current |
+| 90 | source cleanup | `WASM-LOG-001 WAT2WASM stable tags` | landed; selected MIMAP-125A |
+| 91 | planning | `MIMAP-125A post-source-cleanup row selection` | selected current |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

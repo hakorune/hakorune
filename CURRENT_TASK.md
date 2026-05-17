@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `WASM-LOG-001 WAT2WASM stable tags`
+  `MIMAP-125A post-source-cleanup row selection`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,8 +74,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `WASM-LOG-001`, a narrow BoxShape
-  cleanup for WASM backend WAT-to-WASM debug log tags.
+- resume point: continue Phase 293x with `MIMAP-125A`, a planning-only row
+  after focused source cleanup. Select exactly one next mimalloc / hako_alloc
+  or Hakorune compiler row.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -83,8 +84,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `WASM-LOG-001`: replace WAT-to-WASM emoji debug logs with stable
-     `[wasm/wat2wasm]` tags
+  1. `MIMAP-125A`: review the current segment allocation modeled lane and pick
+     exactly one next row after focused source cleanup
   2. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider
      activation inactive

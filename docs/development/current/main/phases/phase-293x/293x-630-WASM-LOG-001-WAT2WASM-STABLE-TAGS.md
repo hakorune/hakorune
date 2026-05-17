@@ -1,6 +1,6 @@
 # 293x-630 WASM-LOG-001 WAT2WASM Stable Tags
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -37,6 +37,21 @@ contract.
 | `WL1.3` | Close row and select next task. | current pointers update. | no bundle |
 
 ## Required Evidence
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
+cargo build --release --bin hakorune
+git diff --check
+```
+
+## Landed Result
+
+- Replaced WAT-to-WASM emoji debug messages with stable `[wasm/wat2wasm]`
+  tags in `src/backend/wasm/mod.rs`.
+- Kept WAT/WASM conversion behavior unchanged.
+- Selected `MIMAP-125A`.
+
+Observed evidence:
 
 ```text
 bash tools/checks/current_state_pointer_guard.sh
