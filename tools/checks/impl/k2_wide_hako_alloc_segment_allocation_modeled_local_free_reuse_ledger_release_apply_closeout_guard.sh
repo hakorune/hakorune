@@ -69,7 +69,7 @@ guard_expect_in_file "$TAG" "id = \"MIMAP-138A\"" "$PROOF_MANIFEST" "proof manif
 guard_expect_in_file "$TAG" "id = \"hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-release-apply-closeout\"" "$GUARD_MANIFEST" "guard manifest must include MIMAP-139A closeout row"
 guard_expect_in_file "$TAG" "$GUARD_138A" "$INDEX" "check index must list MIMAP-138A route guard"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-139A closeout guard"
-guard_expect_in_file "$TAG" "MIMAP-130A and MIMAP-138A" "$MEMORY_README" "memory README must name release apply owner row"
+guard_expect_in_file "$TAG" "MIMAP-130A, MIMAP-138A, and MIMAP-142A" "$MEMORY_README" "memory README must name release apply owner row"
 guard_expect_in_file "$TAG" "applyReuseLedgerRelease" "$OWNER" "release apply route must stay present"
 guard_expect_in_file "$TAG" "local_free_reuse_ledger_release_apply_present" "$OWNER" "release apply report must expose presence flag"
 guard_expect_in_file "$TAG" "HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport" "$OWNER" "release apply report type must stay present"

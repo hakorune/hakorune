@@ -91,6 +91,26 @@ target maximum:
   12 rows
 ```
 
+## Line Budget Rule
+
+Non-archive current docs have a soft limit of 2000 lines.
+
+When a current doc crosses that limit, split it before adding more landed
+history:
+
+```text
+active entry / SSOT:
+  current decision, stop lines, active row, compact anchors
+
+archive ledger:
+  old session logs, exact evidence, full historical per-row prose
+```
+
+Archive ledgers may exceed 2000 lines when preserving traceability, but their
+old active paths should become compact stubs or dashboards. Guard-compatible
+anchors may stay in the active path when existing row guards still assert those
+tokens.
+
 ## Guard Reference Rule
 
 Implementation guards should not force taskboards to become landed-history
