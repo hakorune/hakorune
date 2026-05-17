@@ -113,7 +113,8 @@ not part of this sidecar:
 | `GUARD-MANIFEST-001` | landed | Convert manifest-backed proof app `test.sh` entries to `run_proof_app.sh --only <id>` and add a no-growth guard. | before more guard-heavy MIMAP rows |
 | `GUARD-MANIFEST-002` | landed | Select recent hako_alloc segment closeout guards as the first `k2_wide_*` manifest-backed thin-wrapper family. | after GM001 |
 | `GUARD-MANIFEST-003` | landed | Move the selected segment closeout guards behind manifest rows while keeping public `k2_wide_*` entrypoints stable. | after GM002 |
-| `GUARD-MANIFEST-004` | selected current | Select the next closeout family or shared helper extraction row. | after GM003 |
+| `GUARD-MANIFEST-004` | landed | Select reclaim scheduler closeout guards as the next manifest-backed thin-wrapper family. | after GM003 |
+| `GUARD-MANIFEST-005` | selected current | Move the selected reclaim scheduler closeout guards behind manifest rows while keeping public `k2_wide_*` entrypoints stable. | after GM004 |
 
 ## Stage1 / Selfhost Ordering Guard
 
