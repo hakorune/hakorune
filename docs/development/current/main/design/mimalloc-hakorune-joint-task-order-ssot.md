@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-098A` landed the segment allocation modeled ledger release closeout guard
-and selected the next planning row.
+`MIMAP-099A` landed the post-segment-allocation-modeled-release planning row and
+selected the released-token recycle route.
 
 Recommended current row:
 
 ```text
-MIMAP-099A
-  post-segment-allocation-modeled-release row selection
+MIMAP-100A
+  segment allocation modeled ledger released-token recycle route
 ```
 
 Purpose:
 
 ```text
-select exactly one next row after the modeled segment allocation ledger release closeout
+prove released-token recycle on the modeled segment allocation ledger
 keep real thread scheduling, worker spawning, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -121,7 +121,8 @@ no provider activation
 | 53 | planning | `MIMAP-096A post-segment-allocation-modeled-ledger row selection` | landed; selected MIMAP-097A |
 | 54 | allocator | `MIMAP-097A segment allocation modeled ledger release route` | landed; selected MIMAP-098A |
 | 55 | closeout | `MIMAP-098A segment allocation modeled ledger release closeout guard` | landed; selected MIMAP-099A |
-| 56 | planning | `MIMAP-099A post-segment-allocation-modeled-release row selection` | current; select one next row |
+| 56 | planning | `MIMAP-099A post-segment-allocation-modeled-release row selection` | landed; selected MIMAP-100A |
+| 57 | allocator | `MIMAP-100A segment allocation modeled ledger released-token recycle route` | current; scalar ledger proof |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

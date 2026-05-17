@@ -1,6 +1,6 @@
 # 293x-596 MIMAP-099A Post-Segment-Allocation-Modeled-Release Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -10,6 +10,16 @@ Date: 2026-05-17
 The segment allocation modeled ledger release route is implemented and closed
 behind guards. This row should review the current modeled segment allocation
 lifecycle and select exactly one next row without bundling allocator behavior.
+
+Result:
+
+```text
+landed:
+  post-segment-allocation-modeled-release row selection
+
+selected next row:
+  MIMAP-100A segment allocation modeled ledger released-token recycle route
+```
 
 ## Scope
 

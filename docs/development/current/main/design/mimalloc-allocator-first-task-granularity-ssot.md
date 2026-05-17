@@ -258,7 +258,8 @@ Forbidden:
 | `MIMAP-096A` | post-segment-allocation-modeled-ledger row selection | landed; selected MIMAP-097A |
 | `MIMAP-097A` | segment allocation modeled ledger release route | landed; selected MIMAP-098A |
 | `MIMAP-098A` | segment allocation modeled ledger release closeout guard | landed; selected MIMAP-099A |
-| `MIMAP-099A` | post-segment-allocation-modeled-release row selection | selected current |
+| `MIMAP-099A` | post-segment-allocation-modeled-release row selection | landed; selected MIMAP-100A |
+| `MIMAP-100A` | segment allocation modeled ledger released-token recycle route | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1571,6 +1572,24 @@ It must not add allocator behavior, execute segment allocation/free, allocate
 arena backing, add raw pointer residence, use segment-map pointer lookup,
 execute atomic bitmap claims, call page-source or OSVM seams, schedule threads,
 activate providers, replace the host allocator, or add backend matchers.
+
+MIMAP-099A landed by selecting MIMAP-100A.
+
+### MIMAP-100A granularity
+
+MIMAP-100A is a modeled scalar allocator behavior row after the modeled ledger
+release closeout. It proves that a released allocation token can be recorded
+again as the live allocation for the same scalar block while live duplicate
+tokens remain rejected.
+
+It may add a proof app, local-run guard, and SSOT for the released-token recycle
+contract. Owner changes are allowed only if the existing scalar ledger needs a
+small helper to expose the contract clearly.
+
+It must not execute real segment allocation/free, allocate arena backing, add
+raw pointer residence, use segment-map pointer lookup, execute atomic bitmap
+claims, call page-source or OSVM seams, schedule threads, activate providers,
+replace the host allocator, or add backend matchers.
 
 ## Compiler / language sidecar triggers
 
