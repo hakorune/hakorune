@@ -1,6 +1,6 @@
 # 293x-598 MIMAP-101A Segment Allocation Modeled Ledger Released-Token Recycle Closeout Guard
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -10,6 +10,16 @@ Date: 2026-05-17
 It should add a guard-only closeout for the modeled segment allocation ledger
 released-token recycle route, confirming that the MIMAP-100A owner/proof/guard
 wiring and inactive stop lines remain synchronized.
+
+Result:
+
+```text
+landed:
+  segment allocation modeled ledger released-token recycle closeout guard
+
+selected next row:
+  MIMAP-102A post-segment-allocation-modeled-recycle row selection
+```
 
 ## Scope
 
@@ -42,6 +52,8 @@ Forbidden:
 
 ```text
 bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_ledger_released_token_recycle_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_ledger_released_token_recycle_closeout_guard.sh
+tools/checks/run_row_guard.sh --only hako-alloc-segment-allocation-modeled-ledger-released-token-recycle-closeout
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```

@@ -260,7 +260,8 @@ Forbidden:
 | `MIMAP-098A` | segment allocation modeled ledger release closeout guard | landed; selected MIMAP-099A |
 | `MIMAP-099A` | post-segment-allocation-modeled-release row selection | landed; selected MIMAP-100A |
 | `MIMAP-100A` | segment allocation modeled ledger released-token recycle route | landed; selected MIMAP-101A |
-| `MIMAP-101A` | segment allocation modeled ledger released-token recycle closeout guard | selected current |
+| `MIMAP-101A` | segment allocation modeled ledger released-token recycle closeout guard | landed; selected MIMAP-102A |
+| `MIMAP-102A` | post-segment-allocation-modeled-recycle row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1603,6 +1604,20 @@ MIMAP-101A is a closeout/guard row for the modeled segment allocation ledger
 released-token recycle route. It must lock MIMAP-100A owner/proof/guard wiring
 and inactive stop lines before any broader segment allocation/free row is
 selected.
+
+It must not add allocator behavior, execute segment allocation/free, allocate
+arena backing, add raw pointer residence, use segment-map pointer lookup,
+execute atomic bitmap claims, call page-source or OSVM seams, schedule threads,
+activate providers, replace the host allocator, or add backend matchers.
+
+MIMAP-101A landed by adding the closeout SSOT and manifest-backed guard. It
+selects MIMAP-102A.
+
+### MIMAP-102A granularity
+
+MIMAP-102A is a planning row after the modeled segment allocation released-token
+recycle closeout. It should review the landed scalar segment allocation
+evidence and select exactly one next row.
 
 It must not add allocator behavior, execute segment allocation/free, allocate
 arena backing, add raw pointer residence, use segment-map pointer lookup,
