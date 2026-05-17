@@ -203,3 +203,9 @@ id = "k2-wide-manifest-wrapper"
 label = "k2-wide manifest wrapper no-growth guard"
 profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/k2_wide_manifest_wrapper_guard.sh"]
+
+[[rows]]
+id = "guard-manifest-inventory"
+label = "guard manifest batch migration inventory guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/guard_manifest_inventory_guard.sh"]

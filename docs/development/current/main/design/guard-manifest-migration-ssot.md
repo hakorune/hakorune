@@ -136,6 +136,50 @@ tools/checks/guard_rows.toml rows with profiles += ["hako-alloc-closeout"]
 wrappers from that profile, rejects public hako_alloc closeout wrappers that are
 not manifest-backed, and keeps the public wrapper body thin.
 
+## Batch Migration Inventory
+
+`GUARD-MANIFEST-012` fixes the next cleanup shape: do not hand-migrate hundreds
+of public guards one wrapper at a time without an inventory owner.
+
+The stable inventory owner is:
+
+```text
+tools/checks/guard_manifest_inventory.py
+```
+
+It reads `tools/checks/guard_rows.toml` and the `tools/checks/` filesystem
+without executing any guards. It reports:
+
+```text
+guard_rows
+top_level_check_sh
+public_k2_wide
+impl_sh
+hako_alloc_closeout_rows
+manifest_backed_hako_alloc_closeout_wrappers
+non_manifest_hako_alloc_closeout_wrappers
+missing_manifest_hako_alloc_closeout_wrappers
+profile_*_rows
+```
+
+The inventory row guard is:
+
+```text
+tools/checks/guard_manifest_inventory_guard.sh
+```
+
+It must keep this contract true:
+
+```text
+non_manifest_hako_alloc_closeout_wrappers=0
+missing_manifest_hako_alloc_closeout_wrappers=0
+```
+
+This is intentionally an inventory/no-growth row, not the full declarative guard
+spec generator. A later row may introduce a declarative guard spec for one guard
+family, but it must consume this inventory instead of starting from an ad hoc
+file list.
+
 ## Stop Lines
 
 - no all-at-once deletion of hundreds of guard entrypoints

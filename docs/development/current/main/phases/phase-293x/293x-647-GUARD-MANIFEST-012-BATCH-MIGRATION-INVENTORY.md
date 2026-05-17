@@ -1,6 +1,6 @@
 # 293x-647 GUARD-MANIFEST-012 Batch Migration Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -44,3 +44,19 @@ bash tools/checks/k2_wide_manifest_wrapper_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Result
+
+`GUARD-MANIFEST-012` landed the guard manifest inventory owner and guard:
+
+```text
+tools/checks/guard_manifest_inventory.py
+tools/checks/guard_manifest_inventory_guard.sh
+tools/checks/guard_rows.toml row id guard-manifest-inventory
+```
+
+The row keeps public guard entrypoints stable and does not move existing guard
+bodies. It makes hako_alloc closeout wrapper coverage fail-fast through manifest
+counts so the remaining migration can batch by family.
+
+`GUARD-MANIFEST-012` selects `GUARD-MANIFEST-013`.

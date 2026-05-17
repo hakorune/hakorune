@@ -309,7 +309,8 @@ Forbidden:
 | `MIMAP-138A` | segment allocation modeled local-free reuse ledger release apply route | landed; selected MIMAP-139A |
 | `MIMAP-139A` | segment allocation modeled local-free reuse ledger release apply closeout guard | landed; selected MIMAP-140A |
 | `MIMAP-140A` | post-local-free-reuse-ledger-release-apply-closeout row selection | landed; selected GUARD-MANIFEST-012 |
-| `GUARD-MANIFEST-012` | guard manifest batch migration inventory | selected current |
+| `GUARD-MANIFEST-012` | guard manifest batch migration inventory | landed; selected GUARD-MANIFEST-013 |
+| `GUARD-MANIFEST-013` | declarative guard spec pilot | selected current |
 
 ### MIMAP-020A granularity
 
@@ -2059,6 +2060,24 @@ tool, add a guard row, and document the check entry.
 It must not add allocator behavior, compiler route behavior, source syntax,
 delete or rename public guard entrypoints, wire the manifest pilot into
 `dev_gate.sh` / allocator-wide, add backend matchers, or use silent fallback.
+
+GUARD-MANIFEST-012 landed by adding `guard_manifest_inventory.py`, the inventory
+guard, a manifest row, and check-script documentation. It selects
+GUARD-MANIFEST-013.
+
+### GUARD-MANIFEST-013 granularity
+
+GUARD-MANIFEST-013 is a BoxShape cleanup row after the inventory guard. It
+should pilot one declarative guard spec family so repeated guard boilerplate can
+move behind structured data without a broad all-at-once rewrite.
+
+It may add a small declarative spec schema, one generated/interpreted pilot
+family, and a no-growth guard for that schema.
+
+It must not add allocator behavior, compiler route behavior, source syntax,
+mass-convert all guards, delete or rename existing public guard entrypoints,
+wire the pilot into `dev_gate.sh` / allocator-wide, add backend matchers, or use
+silent fallback.
 
 ### MIMAP-112A granularity
 

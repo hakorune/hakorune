@@ -471,7 +471,8 @@ FST:
 | `MIMAP-138A` | landed | Segment allocation modeled local-free reuse ledger release apply route. | selected MIMAP-139A |
 | `MIMAP-139A` | landed | Segment allocation modeled local-free reuse ledger release apply closeout guard. | selected MIMAP-140A |
 | `MIMAP-140A` | landed | Post-local-free-reuse-ledger-release-apply-closeout row selection. | selected GUARD-MANIFEST-012 |
-| `GUARD-MANIFEST-012` | selected current | Guard manifest batch migration inventory. | BoxShape cleanup; do not mix with allocator behavior |
+| `GUARD-MANIFEST-012` | landed | Guard manifest batch migration inventory. | selected GUARD-MANIFEST-013 |
+| `GUARD-MANIFEST-013` | selected current | Declarative guard spec pilot. | BoxShape cleanup; one small family only |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -480,9 +481,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`GUARD-MANIFEST-012` inventories the remaining guard manifest migration state and
-adds a no-growth guard for closeout wrapper coverage before selecting the next
-allocator behavior row.
+`GUARD-MANIFEST-013` pilots one declarative guard spec family using the
+GUARD-MANIFEST-012 inventory before selecting the next allocator behavior row.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,
@@ -703,7 +703,8 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `GUARD-MANIFEST-012` | selected current | Batch migration inventory for guard manifest cleanup. | BoxShape cleanup; no allocator/compiler behavior. |
+| `GUARD-MANIFEST-013` | selected current | Declarative guard spec pilot for one guard family. | BoxShape cleanup; no mass conversion. |
+| `GUARD-MANIFEST-012` | landed | Batch migration inventory for guard manifest cleanup. | Added inventory guard and selected GUARD-MANIFEST-013. |
 | `CLEAN-WHILE-001` | landed | While deletion readiness inventory. | BoxShape cleanup; do not mix with MIMAP-012. |
 | `CLEAN-WHILE-002` | landed | Delete `ASTNode::While` after inventory. | Parser `while` stays canonical Loop. |
 
