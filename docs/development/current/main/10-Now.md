@@ -26,20 +26,22 @@ Related:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
   `docs/development/current/main/design/pure-first-mir-artifact-and-diagnostics-ssot.md`
+- mimalloc row validation cadence SSOT:
+  `docs/development/current/main/design/mimalloc-row-validation-cadence-ssot.md`
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - mimalloc blueprint SSOT:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-105A post-release-span-facts row selection`
+- current blocker token: `MIMAP-ROW-CADENCE-001 mimalloc row validation cadence SSOT`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-104A`; current blocker is `MIMAP-105A`
-- planned order: select exactly one row after the scalar release span facts route
+- continue phase-293x after `MIMAP-105A`; current blocker is `MIMAP-ROW-CADENCE-001`
+- planned order: make mimalloc row validation levels explicit before the next allocator behavior row
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

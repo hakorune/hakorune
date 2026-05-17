@@ -427,7 +427,8 @@ FST:
 | `HAKO-ALLOC-SRC-CLEAN-001` | landed | Segment counter compound assignment cleanup. | selected MIMAP-103A |
 | `MIMAP-103A` | landed | Post-segment-counter-cleanup row selection. | selected MIMAP-104A |
 | `MIMAP-104A` | landed | Segment allocation modeled ledger release span facts route. | selected MIMAP-105A |
-| `MIMAP-105A` | selected current | Post-release-span-facts row selection. | after MIMAP-104A |
+| `MIMAP-105A` | landed | Post-release-span-facts row selection. | selected MIMAP-ROW-CADENCE-001 |
+| `MIMAP-ROW-CADENCE-001` | selected current | Mimalloc row validation cadence SSOT. | before next allocator behavior row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -435,9 +436,9 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-104A:
-`MIMAP-105A` selects exactly one next row after the scalar release span facts
-route.
+Current row after MIMAP-105A:
+`MIMAP-ROW-CADENCE-001` makes validation levels explicit before the next
+allocator behavior row.
 Real thread scheduling, worker spawning, source-level concurrency features,
 real segment allocation/free execution, raw pointer residence, atomic bitmap
 execution, arena backing allocation, segment-map pointer membership,

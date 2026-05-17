@@ -1,6 +1,6 @@
 # 293x-603 MIMAP-105A Post-Release-Span-Facts Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -10,6 +10,22 @@ Date: 2026-05-17
 The scalar segment allocation ledger now records, releases, recycles, and
 reports release span facts without opening real segment execution. This row
 should select exactly one next mimalloc / hako_alloc row.
+
+## Selection Result
+
+`MIMAP-105A` selects
+`MIMAP-ROW-CADENCE-001 mimalloc row validation cadence SSOT`.
+
+Rationale:
+
+- Recent rows are correct but heavy because each allocator slice carries docs,
+  proof apps, MIR JSON checks, pure-first EXE checks, stop-line guards, and
+  current pointer updates.
+- The next productive step is to make the validation levels explicit so future
+  rows do not guess whether to run a full guard, compatibility guards, or only
+  current pointer checks.
+- This is a process/SSOT cleanup row. It must not reduce the required evidence
+  for already-landed allocator behavior rows.
 
 ## Scope
 
@@ -51,4 +67,10 @@ should select exactly one next mimalloc / hako_alloc row.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Evidence
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
 ```
