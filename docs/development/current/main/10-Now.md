@@ -32,14 +32,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-086A segment page membership closeout guard`
+- current blocker token: `MIMAP-087A post-segment-page-membership-closeout row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x after `MIMAP-085A`; current blocker is `MIMAP-086A`
-- planned order: close out the scalar segment page membership contract
+- continue phase-293x after `MIMAP-086A`; current blocker is `MIMAP-087A`
+- planned order: select exactly one next row after the scalar segment page
+  membership closeout
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

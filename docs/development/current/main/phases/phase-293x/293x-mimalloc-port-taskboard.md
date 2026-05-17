@@ -370,7 +370,8 @@ FST:
 | `MIMAP-083A` | landed | Segment lifecycle scalar state closeout guard. | selected MIMAP-084A |
 | `MIMAP-084A` | landed | Post-segment-lifecycle-closeout row selection. | selected MIMAP-085A |
 | `MIMAP-085A` | landed | Segment page membership scalar contract. | selected MIMAP-086A |
-| `MIMAP-086A` | selected current | Segment page membership closeout guard. | after MIMAP-085A |
+| `MIMAP-086A` | landed | Segment page membership closeout guard. | selected MIMAP-087A |
+| `MIMAP-087A` | selected current | Post-segment-page-membership-closeout row selection. | after MIMAP-086A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -378,11 +379,12 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-085A: `MIMAP-086A` closes out the scalar segment page
-membership contract. Real thread scheduling, worker spawning, source-level
-concurrency features, raw pointer residence, atomic bitmap execution, arena
-backing allocation, segment map pointer membership, page-source calls, OSVM
-unreserve/release, provider activation, and backend matchers remain closed.
+Current row after MIMAP-086A: `MIMAP-087A` selects exactly one next row after
+the scalar segment page membership closeout. Real thread scheduling, worker
+spawning, source-level concurrency features, raw pointer residence, atomic
+bitmap execution, arena backing allocation, segment map pointer membership,
+page-source calls, OSVM unreserve/release, provider activation, and backend
+matchers remain closed.
 
 MIMAP-020A execution order:
 
