@@ -267,7 +267,8 @@ Forbidden:
 | `MIMAP-104A` | segment allocation modeled ledger release span facts route | landed; selected MIMAP-105A |
 | `MIMAP-105A` | post-release-span-facts row selection | landed; selected MIMAP-ROW-CADENCE-001 |
 | `MIMAP-ROW-CADENCE-001` | mimalloc row validation cadence SSOT | landed; selected MIMAP-106A |
-| `MIMAP-106A` | post-validation-cadence row selection | selected current |
+| `MIMAP-106A` | post-validation-cadence row selection | landed; selected MIMAP-107A |
+| `MIMAP-107A` | segment allocation modeled released-span ledger route | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1501,6 +1502,44 @@ select exactly one next row and cite the validation level expected for that row.
 
 It must not add allocator behavior, parser/compiler behavior, cleanup bundles,
 provider activation, host allocator replacement, or backend matchers.
+
+MIMAP-106A landed by selecting MIMAP-107A.
+
+### MIMAP-107A granularity
+
+MIMAP-107A is a modeled scalar allocator behavior row after release span facts.
+It should add a separate released-span ledger that consumes successful
+`MIMAP-104A` release reports and records deterministic token / segment / page /
+block-span rows.
+
+Validation cadence:
+
+```text
+L2 proof row
+```
+
+Allowed:
+
+- add one released-span ledger owner;
+- consume scalar `HakoAllocSegmentAllocationModeledLedgerReleaseReport` facts;
+- record successful release spans as scalar rows;
+- reject invalid, span-missing, duplicate, or unsupported requests;
+- add one focused proof app and guard.
+
+Forbidden:
+
+- real segment allocation/free execution
+- free-list mutation
+- page state mutation outside the new scalar ledger
+- arena backing allocation
+- raw pointer residence
+- segment-map lookup
+- atomic bitmap execution
+- page-source / OSVM execution
+- thread scheduling or worker spawning
+- source-level concurrency changes
+- provider activation / hooks / host allocator replacement
+- backend matchers
 
 MIMAP-102A landed by selecting HAKO-ALLOC-SRC-CLEAN-001.
 

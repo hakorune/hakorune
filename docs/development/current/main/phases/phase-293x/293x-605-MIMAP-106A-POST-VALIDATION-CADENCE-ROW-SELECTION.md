@@ -1,6 +1,6 @@
 # 293x-605 MIMAP-106A Post-Validation-Cadence Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -9,6 +9,30 @@ Date: 2026-05-17
 
 The mimalloc lane now has an explicit validation cadence. This row should select
 exactly one next mimalloc / hako_alloc row using that cadence.
+
+## Result
+
+`MIMAP-106A` selects:
+
+```text
+MIMAP-107A segment allocation modeled released-span ledger route
+```
+
+Validation cadence:
+
+```text
+L2 proof row:
+  dedicated proof app via run_proof_app.sh --only MIMAP-107A
+  dedicated public guard
+
+L3 compatibility:
+  only if the implementation changes MIMAP-104A release report fields or
+  recycle-visible behavior
+```
+
+The selected row should consume the scalar release span facts introduced by
+`MIMAP-104A` into a separate released-span ledger. It must not mutate a real
+free-list or execute real segment free.
 
 ## Scope
 
