@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-120A` landed the post-local-free-integration row selection and selected
-the next closeout row.
+`MIMAP-121A` landed the segment allocation modeled local-free integration
+closeout guard and selected the next planning row.
 
 Recommended current row:
 
 ```text
-MIMAP-121A
-  segment allocation modeled local-free integration closeout guard
+MIMAP-122A
+  post-local-free-integration-closeout row selection
 ```
 
 Purpose:
 
 ```text
-freeze the local-free integration owner/proof/guard/docs before the next behavior row
+select exactly one next row after the local-free integration closeout
 keep real thread scheduling, worker spawning, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -145,7 +145,8 @@ no provider activation
 | 77 | planning | `MIMAP-118A post-local-free-page-apply-closeout row selection` | landed; selected MIMAP-119A |
 | 78 | allocator | `MIMAP-119A segment allocation modeled local-free integration route` | landed; selected MIMAP-120A |
 | 79 | planning | `MIMAP-120A post-local-free-integration row selection` | landed; selected MIMAP-121A |
-| 80 | closeout | `MIMAP-121A segment allocation modeled local-free integration closeout guard` | current; freeze integration seam |
+| 80 | closeout | `MIMAP-121A segment allocation modeled local-free integration closeout guard` | landed; selected MIMAP-122A |
+| 81 | planning | `MIMAP-122A post-local-free-integration-closeout row selection` | current; select one next row |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

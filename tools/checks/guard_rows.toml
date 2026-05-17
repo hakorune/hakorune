@@ -157,6 +157,12 @@ profiles = ["pilot", "hako-alloc-closeout"]
 cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_allocation_modeled_local_free_page_apply_closeout_guard.sh"]
 
 [[rows]]
+id = "hako-alloc-segment-allocation-modeled-local-free-integration-closeout"
+label = "hako_alloc segment allocation modeled local-free integration closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_allocation_modeled_local_free_integration_closeout_guard.sh"]
+
+[[rows]]
 id = "k2-wide-manifest-wrapper"
 label = "k2-wide manifest wrapper no-growth guard"
 profiles = ["pilot", "quick-static"]
