@@ -1,6 +1,6 @@
 # 293x-567 MIMAP-080A Segment Arena Bitmap Inventory Closeout Guard
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -50,4 +50,24 @@ or Hakorune language work.
 bash tools/checks/k2_wide_hako_alloc_segment_arena_bitmap_inventory_closeout_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Closeout Result
+
+`MIMAP-080A` added:
+
+```text
+docs/development/current/main/design/hako-alloc-segment-arena-bitmap-inventory-closeout-ssot.md
+tools/checks/k2_wide_hako_alloc_segment_arena_bitmap_inventory_closeout_guard.sh
+```
+
+The closeout locks the scalar segment / arena / bitmap boundary inventory,
+proof app, module export, proof manifest, check index, and inactive stop lines
+while keeping raw pointer residence, atomic bitmap execution, page-source/OSVM
+release, provider activation, and backend matchers closed.
+
+Next row:
+
+```text
+MIMAP-081A post-segment-arena-bitmap-inventory row selection
 ```
