@@ -365,7 +365,8 @@ FST:
 | `MIMAP-078A` | landed | Post-scheduler-scalar-closeout row selection. | selected MIMAP-079A |
 | `MIMAP-079A` | landed | Segment arena bitmap boundary inventory. | selected MIMAP-080A |
 | `MIMAP-080A` | landed | Segment arena bitmap inventory closeout guard. | selected MIMAP-081A |
-| `MIMAP-081A` | selected current | Post-segment-arena-bitmap-inventory row selection. | after MIMAP-080A |
+| `MIMAP-081A` | landed | Post-segment-arena-bitmap-inventory row selection. | selected MIMAP-082A |
+| `MIMAP-082A` | selected current | Segment lifecycle scalar state contract. | after MIMAP-081A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -373,11 +374,12 @@ Joint Hakorune / mimalloc ordering:
 docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
-Current row after MIMAP-080A: `MIMAP-081A` selects exactly one next row after
-the scalar segment / arena / bitmap boundary inventory closeout. Real thread
-scheduling, worker spawning, source-level concurrency features, raw pointer
-residence, atomic bitmap execution, page-source calls, OSVM unreserve/release,
-provider activation, and backend matchers remain closed.
+Current row after MIMAP-081A: `MIMAP-082A` adds a scalar/proof-only segment
+lifecycle state contract. Real thread scheduling, worker spawning,
+source-level concurrency features, raw pointer residence, atomic bitmap
+execution, arena backing allocation, segment map pointer membership, page-source
+calls, OSVM unreserve/release, provider activation, and backend matchers remain
+closed.
 
 MIMAP-020A execution order:
 

@@ -1,6 +1,6 @@
 # 293x-568 MIMAP-081A Post-Segment-Arena-Bitmap-Inventory Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-17
 
 ## Decision
@@ -49,4 +49,55 @@ select exactly one next row without adding allocator behavior.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Evidence Review
+
+Landed evidence:
+
+```text
+MIMAP-079A: segment / arena / bitmap boundary inventory
+MIMAP-080A: local-run closeout guard for that inventory
+```
+
+Longer-lived SSOT context:
+
+```text
+docs/development/current/main/design/mimalloc-lifecycle-rewrite-blueprint-ssot.md
+docs/development/current/main/investigations/mimalloc-source-concept-inventory.md
+docs/development/current/main/design/mimalloc-substrate-representation-gap-ledger-ssot.md
+```
+
+The source concept inventory names `mi_segment_t`, commit/purge masks, segment
+abandon/reclaim, and arena/bitmap helpers. The gap ledger keeps raw pointer
+residence, atomic bitmap execution, OSVM execution, and provider activation as
+separate gaps. Therefore the next row should not open bitmap or OSVM execution
+yet.
+
+## Selection Result
+
+Selected next row:
+
+```text
+MIMAP-082A segment lifecycle scalar state contract
+```
+
+Reason:
+
+`MIMAP-082A` can move from inventory to a small allocator-owned scalar contract
+for the segment lifecycle vocabulary already named by the lifecycle blueprint:
+
+```text
+Reserved -> Active
+Active -> PurgeScheduled
+PurgeScheduled -> Purged
+Active -> Abandoned
+Abandoned -> Reclaimed
+Reclaimed -> Active
+Active/Purged -> Freed
+```
+
+The row must remain scalar/proof-only. It must not add raw pointer residence,
+atomic bitmap claim/unclaim, OSVM execution, real scheduling, source-level
+concurrency, provider activation, host allocator replacement, or backend
+matchers.
 
