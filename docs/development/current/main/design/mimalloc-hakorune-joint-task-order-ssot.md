@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-075A` landed the scheduler request ledger roundtrip closeout guard and
-selected a row-selection checkpoint.
+`MIMAP-076A` landed the post-scheduler-roundtrip row selection and selected a
+scheduler scalar lane closeout guard.
 
 Recommended current row:
 
 ```text
-MIMAP-076A
-  post-scheduler-roundtrip row selection
+MIMAP-077A
+  reclaim scheduler scalar lane closeout guard
 ```
 
 Purpose:
 
 ```text
-select one follow-up after the scalar scheduler request ledger roundtrip closeout
+close out the scheduler scalar lane before selecting broader work
 keep real thread scheduling, worker spawning, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -98,7 +98,8 @@ no provider activation
 | 30 | planning | `MIMAP-073A post-scheduler-consume row selection` | landed; selected MIMAP-074A |
 | 31 | allocator | `MIMAP-074A reclaim scheduler request ledger roundtrip route` | landed; selected MIMAP-075A |
 | 32 | closeout | `MIMAP-075A reclaim scheduler request ledger roundtrip closeout guard` | landed; selected MIMAP-076A |
-| 33 | planning | `MIMAP-076A post-scheduler-roundtrip row selection` | current; select one follow-up |
+| 33 | planning | `MIMAP-076A post-scheduler-roundtrip row selection` | landed; selected MIMAP-077A |
+| 34 | closeout | `MIMAP-077A reclaim scheduler scalar lane closeout guard` | current; lock scheduler scalar lane |
 | 18 | Hakorune language | brands/type aliases for allocator scalar IDs | reduces page/block/ptr/generation mix-ups without changing allocator behavior |
 | 19 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
 | 20 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |

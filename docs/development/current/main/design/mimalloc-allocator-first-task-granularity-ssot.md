@@ -235,7 +235,8 @@ Forbidden:
 | `MIMAP-073A` | post-scheduler-consume row selection | landed; selected MIMAP-074A |
 | `MIMAP-074A` | reclaim scheduler request ledger roundtrip route | landed; selected MIMAP-075A |
 | `MIMAP-075A` | reclaim scheduler request ledger roundtrip closeout guard | landed; selected MIMAP-076A |
-| `MIMAP-076A` | post-scheduler-roundtrip row selection | selected current |
+| `MIMAP-076A` | post-scheduler-roundtrip row selection | landed; selected MIMAP-077A |
+| `MIMAP-077A` | reclaim scheduler scalar lane closeout guard | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1210,6 +1211,20 @@ MIMAP-076A is a planning-only row. It should select exactly one follow-up after
 the scheduler request ledger roundtrip closeout: scalar allocator behavior,
 real scheduler substrate, a language feature row, or a compiler acceptance
 sidecar.
+
+It must not add allocator behavior, execute real scheduling, spawn workers, add
+source-level concurrency semantics, call page-source APIs, unreserve or release
+OSVM pages, activate providers, replace the host allocator, or add backend
+matchers.
+
+MIMAP-076A landed by selecting MIMAP-077A.
+
+### MIMAP-077A granularity
+
+MIMAP-077A is a closeout/guard row for the scheduler scalar lane. It should
+lock the scheduler boundary, request marker, request ledger record, consume,
+and roundtrip rows before broader allocator behavior, real scheduler substrate
+work, or language feature work is selected.
 
 It must not add allocator behavior, execute real scheduling, spawn workers, add
 source-level concurrency semantics, call page-source APIs, unreserve or release
