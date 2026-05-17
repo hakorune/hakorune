@@ -449,8 +449,9 @@ FST:
 | `PURE-FIRST-GLOBAL-CALL-001` | landed | Same-module static helper global-call route support. | selected MIMAP-123A |
 | `MIMAP-123A` | landed | Post-same-module-global-call row selection. | selected ROUTE-FIXPOINT-001 |
 | `ROUTE-FIXPOINT-001` | landed | Route refresh fixpoint owner extraction. | selected ROUTE-DIAG-VOCAB-001 |
-| `ROUTE-DIAG-VOCAB-001` | selected current | Route diagnostics vocabulary SSOT. | resumed after guard cleanup |
+| `ROUTE-DIAG-VOCAB-001` | landed | Route diagnostics vocabulary SSOT. | selected ROUTE-DIAG-VOCAB-002 |
 | `GUARD-MANIFEST-011` | landed | Pure-first route thin wrapper pilot. | selected ROUTE-DIAG-VOCAB-001 |
+| `ROUTE-DIAG-VOCAB-002` | selected current | Preflight vocabulary drift guard. | current BoxShape cleanup |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -459,8 +460,9 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current compiler cleanup:
-`ROUTE-DIAG-VOCAB-001` defines the route diagnostics vocabulary SSOT after
-`GUARD-MANIFEST-011` landed the pure-first route thin wrapper pilot.
+`ROUTE-DIAG-VOCAB-002` adds a lightweight guard to keep
+`pure_first_route_preflight.py` reason tokens aligned with
+`docs/reference/mir/route-diagnostics-vocabulary.md`.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,

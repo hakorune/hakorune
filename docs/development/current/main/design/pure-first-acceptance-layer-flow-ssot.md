@@ -52,6 +52,14 @@ names the precise data that is absent or inconsistent.
 
 ## Reason Tokens
 
+The stable reason vocabulary is owned by:
+
+```text
+docs/reference/mir/route-diagnostics-vocabulary.md
+```
+
+This section is a compact operational mirror for the pure-first layer flow.
+
 ```text
 lowering_plan_missing:
   route-preflight could not find a required metadata.lowering_plan row
@@ -82,6 +90,12 @@ value_demand_mismatch:
 
 object_return_target_box_missing:
   route has return_shape=object_handle but no target_result_box_name
+
+random_capability_route_unsupported:
+  route-preflight was asked to reject reachable hako.random capability metadata
+
+reclaim_execution_route_unsupported:
+  route-preflight was asked to reject reachable hako.alloc.reclaim capability metadata
 ```
 
 ## Boundary

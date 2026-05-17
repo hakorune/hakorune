@@ -1,6 +1,6 @@
 # 293x-625 ROUTE-DIAG-VOCAB-001 Route Diagnostics Vocabulary
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -41,6 +41,34 @@ This row is resumed as the current compiler cleanup blocker.
 | `RDV.2` | Inventory existing preflight reasons. | Python reason strings map to SSOT rows. | no route widening |
 | `RDV.3` | Inventory current typed route proof names. | docs state proof vs diagnostic reason boundary. | no proof changes |
 | `RDV.4` | Update current pointers. | pointer guard and diff check pass. | no task bundle |
+
+## Current Result
+
+`RDV.1` through `RDV.3` are organized in:
+
+```text
+docs/reference/mir/route-diagnostics-vocabulary.md
+```
+
+This row is still behavior-neutral. It does not widen route acceptance, proof
+vocabulary, backend allowlists, or preflight behavior.
+
+## Landed Result
+
+- Added `docs/reference/mir/route-diagnostics-vocabulary.md` as the stable
+  route diagnostic reason/proof vocabulary SSOT.
+- Pointed MIR metadata, instruction-set, pure-first artifact, acceptance-layer,
+  and lowering-plan docs to the vocabulary SSOT.
+- Kept all preflight / backend / route behavior unchanged.
+- Selected `ROUTE-DIAG-VOCAB-002`.
+
+Observed evidence:
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
+bash tools/checks/pure_first_route_preflight_guard.sh
+git diff --check
+```
 
 ## Required Evidence
 

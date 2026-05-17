@@ -176,6 +176,8 @@ Treat `missing_multi_function_emitter` as a request for the uniform
 multi-function MIR emitter, not as permission to add another body-specific
 `GlobalCallTargetShape`. See
 `docs/development/current/main/design/stage0-llvm-line-shape-inventory-ssot.md`.
+Stable preflight diagnostic reason tokens and the proof/reason boundary are
+owned by `docs/reference/mir/route-diagnostics-vocabulary.md`.
 
 The generic pure program reader must treat `functions[]` as the module owner and
 entry selection as a view. While the emitter is still entry-only, it must keep

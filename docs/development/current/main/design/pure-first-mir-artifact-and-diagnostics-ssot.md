@@ -121,7 +121,13 @@ tools/checks/pure_first_route_preflight.py
 ```
 
 The preflight reads `functions[].metadata.lowering_plan` and classifies call
-sites before backend emission. Required reason vocabulary:
+sites before backend emission. The stable reason/proof vocabulary is owned by:
+
+```text
+docs/reference/mir/route-diagnostics-vocabulary.md
+```
+
+Current required reason vocabulary:
 
 ```text
 lowering_plan_missing

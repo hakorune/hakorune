@@ -13,6 +13,8 @@ Primary implementation pointers:
 - `src/mir/contracts/backend_core_ops.rs` — kept/removed ledger, backend allowlists, doc-sync tests
 - `src/runner/mir_json_emit/mod.rs` — JSON metadata emission contract
 - `docs/reference/mir/metadata-facts-ssot.md` — function metadata JSON SSOT
+- `docs/reference/mir/route-diagnostics-vocabulary.md` — route diagnostic
+  reason/proof vocabulary SSOT
 
 注意: Debug/Safepointはビルドモードでの降格用メタ命令であり、コア命令数には数えない。
 注意: KeepAlive/ReleaseStrong は lifecycle conformance のための命令（weak/hidden-root 対策）であり、Core-14/15 の最小コア数には数えない（ただし backend が実行する “実命令” である）。

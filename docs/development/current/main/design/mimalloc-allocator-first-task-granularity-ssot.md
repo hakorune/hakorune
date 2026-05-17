@@ -287,8 +287,9 @@ Forbidden:
 | `PURE-FIRST-GLOBAL-CALL-001` | same-module static helper global-call route support | landed; selected MIMAP-123A |
 | `MIMAP-123A` | post-same-module-global-call row selection | landed; selected ROUTE-FIXPOINT-001 |
 | `ROUTE-FIXPOINT-001` | route refresh fixpoint owner extraction | landed; selected ROUTE-DIAG-VOCAB-001 |
-| `ROUTE-DIAG-VOCAB-001` | route diagnostics vocabulary SSOT | selected current |
+| `ROUTE-DIAG-VOCAB-001` | route diagnostics vocabulary SSOT | landed; selected ROUTE-DIAG-VOCAB-002 |
 | `GUARD-MANIFEST-011` | pure-first route thin wrapper pilot | landed; selected ROUTE-DIAG-VOCAB-001 |
+| `ROUTE-DIAG-VOCAB-002` | preflight vocabulary drift guard | selected current |
 
 ### MIMAP-020A granularity
 
@@ -1733,8 +1734,9 @@ It must not add allocator behavior, route acceptance shapes, proof vocabulary,
 source syntax, backend matchers, provider activation, host allocator
 replacement, or silent fallback.
 
-ROUTE-DIAG-VOCAB-001 is resumed after GUARD-MANIFEST-011 landed the guard
-boilerplate pilot through the existing manifest runner path.
+ROUTE-DIAG-VOCAB-001 landed by adding
+`docs/reference/mir/route-diagnostics-vocabulary.md` and pointing existing MIR /
+pure-first route docs to it. It selects ROUTE-DIAG-VOCAB-002.
 
 ### GUARD-MANIFEST-011 granularity
 
@@ -1750,6 +1752,16 @@ GUARD-MANIFEST-011 landed by moving the pure-first same-module static helper
 global-call guard body to `tools/checks/impl/`, adding a `guard_rows.toml`
 entry, and keeping the public `k2_wide_*` command as a thin wrapper. It selects
 ROUTE-DIAG-VOCAB-001.
+
+### ROUTE-DIAG-VOCAB-002 granularity
+
+ROUTE-DIAG-VOCAB-002 is a compiler cleanup row. It should add one lightweight
+static guard that prevents drift between `tools/checks/pure_first_route_preflight.py`
+and `docs/reference/mir/route-diagnostics-vocabulary.md`.
+
+It must not add allocator behavior, route acceptance shapes, proof vocabulary,
+source syntax, backend matchers, provider activation, host allocator
+replacement, broad guard generator work, or silent fallback.
 
 MIMAP-111A landed by adding the local-free apply-plan ledger owner, proof app,
 SSOT, manifest entry, module export, README entry, and local guard. It selects

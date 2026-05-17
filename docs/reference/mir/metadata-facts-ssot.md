@@ -15,6 +15,9 @@ do **not** create a second MIR dialect. They annotate canonical MIR so backends
 and diagnostics can make placement/entry decisions without guessing from helper
 names.
 
+Route diagnostic reason/proof spelling is owned by
+`docs/reference/mir/route-diagnostics-vocabulary.md`.
+
 ## Metadata Classes
 
 `metadata` is not one semantic bucket. Rows must belong to one of these classes

@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-18"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "GUARD-MANIFEST-011 landed the pure-first route thin wrapper pilot and resumed ROUTE-DIAG-VOCAB-001 route diagnostics vocabulary cleanup. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "ROUTE-DIAG-VOCAB-001 landed the route diagnostics vocabulary SSOT and selected ROUTE-DIAG-VOCAB-002 vocabulary drift guard cleanup. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-625-ROUTE-DIAG-VOCAB-001-ROUTE-DIAGNOSTICS-VOCABULARY.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-627-ROUTE-DIAG-VOCAB-002-PREFLIGHT-VOCABULARY-GUARD.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-626-GUARD-MANIFEST-011-PURE-FIRST-ROUTE-THIN-WRAPPER-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-626-GUARD-MANIFEST-011-PURE-FIRST-ROUTE-THIN-WRAPPER-PILOT.md"
-latest_card_summary = "GUARD-MANIFEST-011 landed the pure-first route thin wrapper pilot."
+latest_card = "293x-625-ROUTE-DIAG-VOCAB-001-ROUTE-DIAGNOSTICS-VOCABULARY"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-625-ROUTE-DIAG-VOCAB-001-ROUTE-DIAGNOSTICS-VOCABULARY.md"
+latest_card_summary = "ROUTE-DIAG-VOCAB-001 landed the route diagnostics vocabulary SSOT."
 
-current_blocker_token = "ROUTE-DIAG-VOCAB-001"
+current_blocker_token = "ROUTE-DIAG-VOCAB-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-625 ROUTE-DIAG-VOCAB-001 route diagnostics vocabulary SSOT landed; ROUTE-DIAG-VOCAB-002 selected",
   "293x-626 GUARD-MANIFEST-011 pure-first route thin wrapper pilot landed; ROUTE-DIAG-VOCAB-001 resumed",
   "293x-624 ROUTE-FIXPOINT-001 route refresh fixpoint owner extraction landed; ROUTE-DIAG-VOCAB-001 selected",
   "293x-623 MIMAP-123A post-same-module-global-call row selection landed; ROUTE-FIXPOINT-001 selected",

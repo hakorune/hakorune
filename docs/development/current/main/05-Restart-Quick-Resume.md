@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `ROUTE-DIAG-VOCAB-001 route diagnostics vocabulary SSOT`
+- current blocker token: `ROUTE-DIAG-VOCAB-002 preflight vocabulary guard`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -50,7 +50,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `ROUTE-DIAG-VOCAB-001 route diagnostics vocabulary SSOT`
+- current blocker token: `ROUTE-DIAG-VOCAB-002 preflight vocabulary guard`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -61,10 +61,10 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` with `ROUTE-DIAG-VOCAB-001`; current blocker is route
-  diagnostics vocabulary cleanup
-- latest guard cleanup: `GUARD-MANIFEST-011` landed the pure-first guard thin
-  wrapper pilot
+- continue `phase-293x` with `ROUTE-DIAG-VOCAB-002`; current blocker is route
+  diagnostics vocabulary drift guard cleanup
+- latest compiler cleanup: `ROUTE-DIAG-VOCAB-001` landed the route diagnostics
+  vocabulary SSOT
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
