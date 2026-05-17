@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `GUARD-MANIFEST-013 declarative guard spec pilot`
+- current blocker token: `MIMAP-141A post-guard-spec-pilot row selection`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -50,7 +50,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `GUARD-MANIFEST-013 declarative guard spec pilot`
+- current blocker token: `MIMAP-141A post-guard-spec-pilot row selection`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -61,9 +61,9 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` with `GUARD-MANIFEST-013`; current blocker is the
-  BoxShape cleanup row for a declarative guard spec pilot
-- latest cleanup row: `GUARD-MANIFEST-012` landed and selected GUARD-MANIFEST-013
+- continue `phase-293x` with `MIMAP-141A`; current blocker is the
+  planning-only row after the declarative guard spec pilot
+- latest cleanup row: `GUARD-MANIFEST-013` landed and selected MIMAP-141A
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

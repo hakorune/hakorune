@@ -209,3 +209,9 @@ id = "guard-manifest-inventory"
 label = "guard manifest batch migration inventory guard"
 profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/guard_manifest_inventory_guard.sh"]
+
+[[rows]]
+id = "guard-spec-pilot"
+label = "guard declarative spec pilot no-growth guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/guard_spec_pilot_guard.sh"]

@@ -310,7 +310,8 @@ Forbidden:
 | `MIMAP-139A` | segment allocation modeled local-free reuse ledger release apply closeout guard | landed; selected MIMAP-140A |
 | `MIMAP-140A` | post-local-free-reuse-ledger-release-apply-closeout row selection | landed; selected GUARD-MANIFEST-012 |
 | `GUARD-MANIFEST-012` | guard manifest batch migration inventory | landed; selected GUARD-MANIFEST-013 |
-| `GUARD-MANIFEST-013` | declarative guard spec pilot | selected current |
+| `GUARD-MANIFEST-013` | declarative guard spec pilot | landed; selected MIMAP-141A |
+| `MIMAP-141A` | post-guard-spec-pilot row selection | selected current |
 
 ### MIMAP-020A granularity
 
@@ -2078,6 +2079,21 @@ It must not add allocator behavior, compiler route behavior, source syntax,
 mass-convert all guards, delete or rename existing public guard entrypoints,
 wire the pilot into `dev_gate.sh` / allocator-wide, add backend matchers, or use
 silent fallback.
+
+GUARD-MANIFEST-013 landed by adding a small spec runner, one pilot TOML spec for
+the OSVM fast-path route closeout family, a no-growth guard, and check-script
+documentation. It selects MIMAP-141A.
+
+### MIMAP-141A granularity
+
+MIMAP-141A is a planning-only row after the guard manifest cleanup sidecar. It
+should select exactly one next mimalloc / hako_alloc allocator row or a focused
+Hakorune compiler row if allocator progress exposes a real compiler acceptance
+blocker.
+
+It must not add allocator behavior, compiler route behavior, source syntax,
+cleanup bundles, provider activation, host allocator replacement, backend
+matchers, or silent fallback.
 
 ### MIMAP-112A granularity
 

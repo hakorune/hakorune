@@ -1,0 +1,179 @@
+schema_version = 0
+id = "hako-alloc-osvm-fast-path-route-closeout"
+tag = "k2-wide-hako-alloc-osvm-fast-path-route-closeout"
+message = "checking MIMAP-044A OSVM-backed fast-path route closeout"
+
+require_files = [
+  "docs/development/current/main/design/mimalloc-osvm-fast-path-route-closeout-ssot.md",
+  "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md",
+  "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md",
+  "docs/development/current/main/phases/phase-293x/293x-516-MIMAP-042A-OSVM-FAST-PATH-BOUNDED-PURGE-ROUTE.md",
+  "docs/development/current/main/phases/phase-293x/293x-518-MIMAP-043A-OSVM-FAST-PATH-RECOMMIT-REUSE-ROUTE.md",
+  "docs/development/current/main/phases/phase-293x/293x-520-MIMAP-044A-OSVM-FAST-PATH-ROUTE-CLOSEOUT-GUARD.md",
+  "docs/development/current/main/phases/phase-293x/293x-521-MIMAP-044B-POST-FAST-PATH-CLOSEOUT-ROW-SELECTION.md",
+  "docs/tools/check-scripts-index.md",
+  "lang/src/hako_alloc/hako_module.toml",
+  "lang/src/hako_alloc/memory/README.md",
+  "lang/src/hako_alloc/README.md",
+  "lang/src/hako_alloc/memory/osvm_fast_path_purge_route_box.hako",
+  "lang/src/hako_alloc/memory/osvm_fast_path_reuse_route_box.hako",
+  "apps/hako-alloc-osvm-fast-path-purge-route-proof/main.hako",
+  "apps/hako-alloc-osvm-fast-path-reuse-route-proof/main.hako",
+  "tools/checks/k2_wide_hako_alloc_osvm_fast_path_purge_route_guard.sh",
+  "tools/checks/k2_wide_hako_alloc_osvm_fast_path_reuse_route_guard.sh",
+  "tools/checks/k2_wide_hako_alloc_osvm_fast_path_route_closeout_guard.sh",
+]
+
+require_exec_files = [
+  "tools/checks/k2_wide_hako_alloc_osvm_fast_path_purge_route_guard.sh",
+  "tools/checks/k2_wide_hako_alloc_osvm_fast_path_reuse_route_guard.sh",
+  "tools/checks/k2_wide_hako_alloc_osvm_fast_path_route_closeout_guard.sh",
+]
+
+[[contains]]
+file = "docs/development/current/main/phases/phase-293x/293x-516-MIMAP-042A-OSVM-FAST-PATH-BOUNDED-PURGE-ROUTE.md"
+pattern = "Status: landed"
+message = "MIMAP-042A must be landed before closeout"
+
+[[contains]]
+file = "docs/development/current/main/phases/phase-293x/293x-518-MIMAP-043A-OSVM-FAST-PATH-RECOMMIT-REUSE-ROUTE.md"
+pattern = "Status: landed"
+message = "MIMAP-043A must be landed before closeout"
+
+[[contains]]
+file = "docs/development/current/main/phases/phase-293x/293x-520-MIMAP-044A-OSVM-FAST-PATH-ROUTE-CLOSEOUT-GUARD.md"
+pattern = "Status: landed"
+message = "MIMAP-044A card must be landed after closeout"
+
+[[contains]]
+file = "docs/development/current/main/phases/phase-293x/293x-521-MIMAP-044B-POST-FAST-PATH-CLOSEOUT-ROW-SELECTION.md"
+pattern = "Status:"
+message = "MIMAP-044B selection card must have status"
+
+[[contains]]
+file = "docs/development/current/main/phases/phase-293x/293x-521-MIMAP-044B-POST-FAST-PATH-CLOSEOUT-ROW-SELECTION.md"
+pattern = "MIMAP-044B"
+message = "MIMAP-044B selection card must stay present after closeout"
+
+[[contains]]
+file = "docs/development/current/main/design/mimalloc-osvm-fast-path-route-closeout-ssot.md"
+pattern = "MIMAP-042A"
+message = "closeout SSOT must include bounded purge row"
+
+[[contains]]
+file = "docs/development/current/main/design/mimalloc-osvm-fast-path-route-closeout-ssot.md"
+pattern = "MIMAP-043A"
+message = "closeout SSOT must include recommit/reuse row"
+
+[[contains]]
+file = "docs/development/current/main/design/mimalloc-osvm-fast-path-route-closeout-ssot.md"
+pattern = "provider activation"
+message = "closeout SSOT must keep provider activation inactive"
+
+[[contains]]
+file = "docs/development/current/main/design/mimalloc-osvm-fast-path-route-closeout-ssot.md"
+pattern = "process allocator replacement"
+message = "closeout SSOT must keep process replacement inactive"
+
+[[contains]]
+file = "docs/development/current/main/design/mimalloc-osvm-fast-path-route-closeout-ssot.md"
+pattern = "MIMAP-044B post-fast-path-closeout row selection"
+message = "closeout SSOT must name the next planning row"
+
+[[contains]]
+file = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
+pattern = "| `MIMAP-044A` | OSVM-backed fast-path route closeout guard | landed after MIMAP-043B |"
+message = "granularity SSOT must mark MIMAP-044A landed"
+
+[[contains]]
+file = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
+pattern = "| `MIMAP-044B` | post-fast-path-closeout row selection | selected current |"
+message = "granularity SSOT must mark MIMAP-044B current"
+
+[[contains]]
+file = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
+pattern = "| `MIMAP-044A` | landed | OSVM-backed fast-path route closeout guard. | after MIMAP-043B |"
+message = "taskboard must mark MIMAP-044A landed"
+
+[[contains]]
+file = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
+pattern = "| `MIMAP-044B` | selected current | Post-fast-path-closeout row selection. | selected after MIMAP-044A |"
+message = "taskboard must mark MIMAP-044B current"
+
+[[contains]]
+file = "lang/src/hako_alloc/hako_module.toml"
+pattern = 'memory.osvm_fast_path_purge_route_box = "memory/osvm_fast_path_purge_route_box.hako"'
+message = "MIMAP-042A owner must stay exported"
+
+[[contains]]
+file = "lang/src/hako_alloc/hako_module.toml"
+pattern = 'memory.osvm_fast_path_reuse_route_box = "memory/osvm_fast_path_reuse_route_box.hako"'
+message = "MIMAP-043A owner must stay exported"
+
+[[contains]]
+file = "lang/src/hako_alloc/README.md"
+pattern = "HakoAllocOsVmFastPathPurgeRoute"
+message = "root README must name MIMAP-042A owner"
+
+[[contains]]
+file = "lang/src/hako_alloc/README.md"
+pattern = "HakoAllocOsVmFastPathReuseRoute"
+message = "root README must name MIMAP-043A owner"
+
+[[contains]]
+file = "lang/src/hako_alloc/memory/README.md"
+pattern = "osvm_fast_path_purge_route_box.hako"
+message = "memory README must name MIMAP-042A owner"
+
+[[contains]]
+file = "lang/src/hako_alloc/memory/README.md"
+pattern = "osvm_fast_path_reuse_route_box.hako"
+message = "memory README must name MIMAP-043A owner"
+
+[[contains]]
+file = "docs/tools/check-scripts-index.md"
+pattern = "tools/checks/k2_wide_hako_alloc_osvm_fast_path_purge_route_guard.sh"
+message = "check index must list MIMAP-042A guard"
+
+[[contains]]
+file = "docs/tools/check-scripts-index.md"
+pattern = "tools/checks/k2_wide_hako_alloc_osvm_fast_path_reuse_route_guard.sh"
+message = "check index must list MIMAP-043A guard"
+
+[[contains]]
+file = "docs/tools/check-scripts-index.md"
+pattern = "tools/checks/k2_wide_hako_alloc_osvm_fast_path_route_closeout_guard.sh"
+message = "check index must list MIMAP-044A closeout guard"
+
+[[forbidden]]
+paths = [
+  "lang/src/hako_alloc/memory/osvm_fast_path_purge_route_box.hako",
+  "lang/src/hako_alloc/memory/osvm_fast_path_reuse_route_box.hako",
+]
+pattern = 'HakoAllocPageSourcePolicy|OsVmCoreBox|reservePage[[:space:]]*\(|commitPage[[:space:]]*\(|decommitPage[[:space:]]*\(|unreserve[[:space:]]*\(|releasePage[[:space:]]*\('
+message = "route owners must not call page-source/OSVM/unreserve/OS-release seams directly"
+
+[[forbidden]]
+paths = ["lang/c-abi/shims"]
+pattern = 'hako-alloc-osvm-fast-path-(purge|reuse)-route-proof|HakoAllocOsVmFastPath(Purge|Reuse)Route|osvm_fast_path_(purge|reuse)_route'
+message = "OSVM fast-path route matcher leaked into .inc"
+
+[[forbidden]]
+paths = [
+  "src",
+  "lang/c-abi/shims",
+  "crates/nyash_kernel",
+  "lang/src",
+]
+pattern = '#\[global_allocator\]|GlobalAlloc|replace_allocator\('
+message = "provider / host allocator replacement must remain inactive"
+
+[[forbidden]]
+paths = [
+  "lang/src/hako_alloc/memory/osvm_fast_path_purge_route_box.hako",
+  "lang/src/hako_alloc/memory/osvm_fast_path_reuse_route_box.hako",
+  "apps/hako-alloc-osvm-fast-path-purge-route-proof/main.hako",
+  "apps/hako-alloc-osvm-fast-path-reuse-route-proof/main.hako",
+]
+pattern = 'AtomicCoreBox|TlsCoreBox|worker_local|spawn[[:space:]]*\(|thread::|RemoteFree|remote_free'
+message = "OSVM fast-path route closeout must not open concurrency execution"

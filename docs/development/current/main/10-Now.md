@@ -34,15 +34,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `GUARD-MANIFEST-013 declarative guard spec pilot`
+- current blocker token: `MIMAP-141A post-guard-spec-pilot row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x with `GUARD-MANIFEST-013`; current blocker is the
-  BoxShape cleanup row for a declarative guard spec pilot
-- latest cleanup row: `GUARD-MANIFEST-012` landed and selected GUARD-MANIFEST-013
+- continue phase-293x with `MIMAP-141A`; current blocker is the
+  planning-only row after the declarative guard spec pilot
+- latest cleanup row: `GUARD-MANIFEST-013` landed and selected MIMAP-141A
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

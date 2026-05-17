@@ -180,6 +180,51 @@ spec generator. A later row may introduce a declarative guard spec for one guard
 family, but it must consume this inventory instead of starting from an ad hoc
 file list.
 
+## Declarative Guard Spec Pilot
+
+`GUARD-MANIFEST-013` pilots a declarative guard spec for exactly one low-risk
+guard family. The stable runner is:
+
+```text
+tools/checks/guard_spec_runner.py
+```
+
+The first pilot spec is:
+
+```text
+tools/checks/specs/hako_alloc_osvm_fast_path_route_closeout.toml
+```
+
+The pilot deliberately supports only the guard shapes already needed by that
+family:
+
+```text
+require_files
+require_exec_files
+contains: file + pattern + message
+forbidden: paths + pattern + message
+```
+
+The public entrypoint remains:
+
+```text
+tools/checks/k2_wide_hako_alloc_osvm_fast_path_route_closeout_guard.sh
+```
+
+The manifest command remains an implementation wrapper under
+`tools/checks/impl/`, but that wrapper must call `guard_spec_runner.py` and must
+not regrow embedded `guard_common.sh` / `rg` / `mktemp` guard bodies.
+
+The no-growth guard for this pilot is:
+
+```text
+tools/checks/guard_spec_pilot_guard.sh
+```
+
+This is not permission to mass-convert every guard. Future rows must add one
+family at a time, keep public shell entrypoints stable, and extend the spec
+schema only when a concrete family requires it.
+
 ## Stop Lines
 
 - no all-at-once deletion of hundreds of guard entrypoints
