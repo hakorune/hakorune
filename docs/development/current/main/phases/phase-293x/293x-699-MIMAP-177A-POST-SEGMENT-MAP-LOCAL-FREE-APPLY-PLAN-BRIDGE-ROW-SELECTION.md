@@ -1,12 +1,12 @@
-# 293x-697 MIMAP-175A Post Segment Map Released Span Local Free Candidate Bridge Closeout Row Selection
+# 293x-699 MIMAP-177A Post Segment Map Local Free Apply Plan Bridge Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-18
 
 ## Decision
 
-Choose MIMAP-176A as the next narrow row after MIMAP-174A closes the
-segment-map local-free candidate bridge.
+Choose the next narrow row after MIMAP-176A proves the segment-map local-free
+apply-plan bridge.
 
 ## Context
 
@@ -18,14 +18,13 @@ explicit-ID readiness
   -> modeled ledger release report
   -> released-span ledger can observe the segment-map release report
   -> local-free candidate ledger can consume that released-span row
-  -> representative exact-MIR L3 EXE evidence
+  -> local-free apply-plan ledger can consume that candidate row
 ```
 
-The selected row is MIMAP-176A segment-map local-free apply-plan bridge. It
-should prove the segment-map candidate row can feed the existing local-free
-apply-plan ledger before modeled page-apply/free-list observation, raw pointer
-residence, arena backing, real segment-map execution, real free-list mutation,
-page-state mutation, or atomic bitmap behavior.
+The next row should choose between an apply-plan bridge closeout, modeled page
+apply/free-list observation, or a cleanup sidecar. It should not jump directly
+to raw pointer residence, arena backing, real segment-map execution, real
+free-list mutation, page-state mutation, or atomic bitmap behavior.
 
 ## Stop Lines
 
@@ -34,6 +33,8 @@ page-state mutation, or atomic bitmap behavior.
 - No real segment-map mutation.
 - No real free-list mutation unless a future row explicitly selects a modeled
   bridge and keeps execution closed.
+- No page-state mutation unless a future modeled page-apply row explicitly
+  selects it with execution closed.
 - No arena backing allocation.
 - No atomic bitmap execution.
 - No OSVM/page-source execution.
@@ -48,10 +49,4 @@ page-state mutation, or atomic bitmap behavior.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
-```
-
-## Selected Row
-
-```text
-MIMAP-176A segment-map local-free apply-plan bridge
 ```

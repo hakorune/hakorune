@@ -1,0 +1,113 @@
+// hako-alloc-segment-map-local-free-apply-plan-bridge-proof
+// Purpose: prove MIMAP-176A segment-map local-free candidate -> apply-plan bridge.
+
+using selfhost.hako_alloc.memory.segment_map_lookup_guarded_readiness_composition_box as HakoAllocSegmentMapLookupGuardedReadinessComposition
+using selfhost.hako_alloc.memory.segment_map_accepted_readiness_modeled_consume_ledger_box as HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_released_span_ledger_box as HakoAllocSegmentAllocationModeledReleasedSpanLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_candidate_ledger_box as HakoAllocSegmentAllocationModeledLocalFreeCandidateLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_apply_plan_box as HakoAllocSegmentAllocationModeledLocalFreeApplyPlan
+
+static box Main {
+    main(args) {
+        local composition = new HakoAllocSegmentMapLookupGuardedReadinessComposition()
+        local route = new HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger()
+        local released_spans = new HakoAllocSegmentAllocationModeledReleasedSpanLedger()
+        local candidates = new HakoAllocSegmentAllocationModeledLocalFreeCandidateLedger()
+        local apply_plans = new HakoAllocSegmentAllocationModeledLocalFreeApplyPlan()
+
+        local readiness = composition.composeLookupReadiness(70, 7, 3, 16, 1, composition.stateActive(), 2, 8, 3, 0)
+        local first = route.consumeAcceptedReadiness(readiness, 0)
+        local release_first = route.releaseConsumedToken(first.modeled_allocation_token, 0)
+        local span_first = released_spans.recordReleasedSpan(release_first, 0)
+        local candidate_first = candidates.recordLocalFreeCandidate(span_first, 0)
+        local plan_first = apply_plans.recordLocalFreeApplyPlan(candidate_first, 0)
+
+        local missing_release = route.releaseConsumedToken(999999, 0)
+        local missing_span = released_spans.recordReleasedSpan(missing_release, 0)
+        local candidate_missing = candidates.recordLocalFreeCandidate(missing_span, 0)
+        local plan_missing = apply_plans.recordLocalFreeApplyPlan(candidate_missing, 0)
+        local plan_duplicate = apply_plans.recordLocalFreeApplyPlan(candidate_first, 0)
+        local plan_unsupported = apply_plans.recordLocalFreeApplyPlan(candidate_first, 2)
+
+        local recycled = route.consumeAcceptedReadiness(readiness, 0)
+        local release_recycled = route.releaseConsumedToken(recycled.modeled_allocation_token, 0)
+        local span_recycled = released_spans.recordReleasedSpan(release_recycled, 0)
+        local candidate_recycled = candidates.recordLocalFreeCandidate(span_recycled, 0)
+        local plan_recycled = apply_plans.recordLocalFreeApplyPlan(candidate_recycled, 0)
+
+        local ok = check "mimap176a segment map local free apply plan bridge" {
+            "first consumed": first.accepted == 1
+            "first release accepted": release_first.did_release == 1
+            "first span accepted": span_first.did_record_release_span == 1
+            "first candidate accepted": candidate_first.did_record_local_free_candidate == 1
+            "first plan accepted": plan_first.did_record_local_free_apply_plan == 1
+            "first plan reason": plan_first.reason == 0
+            "first plan row": plan_first.row_index == 0
+            "first plan existing": plan_first.existing_index == -1
+            "first plan candidate row": plan_first.local_free_candidate_row_index == 0
+            "first plan token": plan_first.modeled_allocation_token == 70007002
+            "first plan segment": plan_first.segment_id == 70
+            "first plan page": plan_first.page_id == 7
+            "first plan start": plan_first.modeled_block_start == 2
+            "first plan end": plan_first.modeled_block_end == 5
+            "first plan blocks": plan_first.candidate_blocks == 3
+            "first plan kind": plan_first.plan_kind == 1
+            "first count": plan_first.ledger_count_after == 1
+            "first accepted count": plan_first.accepted_count_after == 1
+            "missing rejected": plan_missing.did_record_local_free_apply_plan == 0
+            "missing reason": plan_missing.reason == 2
+            "missing no existing": plan_missing.existing_index == -1
+            "duplicate rejected": plan_duplicate.did_record_local_free_apply_plan == 0
+            "duplicate reason": plan_duplicate.reason == 3
+            "duplicate existing": plan_duplicate.existing_index == 0
+            "unsupported rejected": plan_unsupported.did_record_local_free_apply_plan == 0
+            "unsupported reason": plan_unsupported.reason == 5
+            "unsupported free-list count": apply_plans.free_list_reject_count == 1
+            "recycled consumed": recycled.accepted == 1
+            "recycled candidate row": candidate_recycled.row_index == 1
+            "recycled plan accepted": plan_recycled.did_record_local_free_apply_plan == 1
+            "recycled plan row": plan_recycled.row_index == 1
+            "recycled plan candidate row": plan_recycled.local_free_candidate_row_index == 1
+            "recycled plan token": plan_recycled.modeled_allocation_token == 70007002
+            "ledger count": apply_plans.count == 2
+            "ledger attempts": apply_plans.attempt_count == 5
+            "ledger accepted": apply_plans.accepted_count == 2
+            "ledger rejects": apply_plans.reject_count == 3
+            "source reject count": apply_plans.source_reject_count == 1
+            "duplicate count": apply_plans.duplicate_reject_count == 1
+            "read token 0": apply_plans.tokenAt(0) == 70007002
+            "read blocks 1": apply_plans.candidateBlocksAt(1) == 3
+            "read plan kind 1": apply_plans.planKindAt(1) == 1
+            "inactive real free": plan_first.would_execute_real_segment_free == 0
+            "inactive free list": plan_first.would_mutate_free_list == 0
+            "inactive page state": plan_first.would_mutate_page_state == 0
+            "inactive raw": plan_first.would_use_raw_pointer == 0
+            "inactive segment map": plan_first.would_use_segment_map == 0
+            "inactive arena": plan_first.would_allocate_arena_backing == 0
+            "inactive atomic": plan_first.would_execute_atomic_bitmap == 0
+            "inactive osvm": plan_first.would_call_osvm == 0
+            "inactive thread": plan_first.would_run_thread == 0
+            "inactive provider": plan_first.would_activate_provider == 0
+            "inactive matcher": plan_first.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-map-local-free-apply-plan-bridge-proof")
+        print("candidate_first=" + candidate_first.did_record_local_free_candidate + "," + candidate_first.reason + "," + candidate_first.row_index + "," + candidate_first.existing_index + "," + candidate_first.modeled_allocation_token + "," + candidate_first.segment_id + "," + candidate_first.page_id + "," + candidate_first.modeled_block_start + "," + candidate_first.modeled_block_end + "," + candidate_first.candidate_blocks)
+        print("plan_first=" + plan_first.did_record_local_free_apply_plan + "," + plan_first.reason + "," + plan_first.row_index + "," + plan_first.existing_index + "," + plan_first.local_free_candidate_row_index + "," + plan_first.modeled_allocation_token + "," + plan_first.segment_id + "," + plan_first.page_id + "," + plan_first.modeled_block_start + "," + plan_first.modeled_block_end + "," + plan_first.candidate_blocks + "," + plan_first.plan_kind + "," + plan_first.ledger_count_after + "," + plan_first.accepted_count_after)
+        print("plan_missing=" + plan_missing.did_record_local_free_apply_plan + "," + plan_missing.reason + "," + plan_missing.existing_index + "," + plan_missing.local_free_apply_plan_ledger_present)
+        print("plan_duplicate=" + plan_duplicate.did_record_local_free_apply_plan + "," + plan_duplicate.reason + "," + plan_duplicate.existing_index + "," + apply_plans.duplicate_reject_count)
+        print("plan_recycled=" + plan_recycled.did_record_local_free_apply_plan + "," + plan_recycled.reason + "," + plan_recycled.row_index + "," + plan_recycled.existing_index + "," + plan_recycled.local_free_candidate_row_index + "," + plan_recycled.modeled_allocation_token + "," + plan_recycled.segment_id + "," + plan_recycled.page_id + "," + plan_recycled.modeled_block_start + "," + plan_recycled.modeled_block_end + "," + plan_recycled.candidate_blocks + "," + plan_recycled.plan_kind + "," + plan_recycled.ledger_count_after + "," + plan_recycled.accepted_count_after)
+        print("plan_unsupported=" + plan_unsupported.did_record_local_free_apply_plan + "," + plan_unsupported.reason + "," + apply_plans.free_list_reject_count)
+        print("plan_counts=" + apply_plans.attempt_count + "," + apply_plans.accepted_count + "," + apply_plans.count + "," + apply_plans.reject_count + "," + apply_plans.invalid_shape_reject_count + "," + apply_plans.source_reject_count + "," + apply_plans.duplicate_reject_count + "," + apply_plans.execution_reject_count + "," + apply_plans.free_list_reject_count)
+        print("inactive=" + plan_first.would_execute_real_segment_free + "," + plan_first.would_mutate_free_list + "," + plan_first.would_mutate_page_state + "," + plan_first.would_use_raw_pointer + "," + plan_first.would_use_segment_map + "," + plan_first.would_allocate_arena_backing + "," + plan_first.would_execute_atomic_bitmap + "," + plan_first.would_call_osvm + "," + plan_first.would_run_thread + "," + plan_first.would_activate_provider + "," + plan_first.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

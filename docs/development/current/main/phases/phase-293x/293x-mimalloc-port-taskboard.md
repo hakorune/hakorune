@@ -549,7 +549,9 @@ FST:
 | `MIMAP-172A` | landed | Segment-map released-span local-free candidate bridge. | selected MIMAP-173A |
 | `MIMAP-173A` | landed | Post-segment-map-released-span-local-free-candidate-bridge row selection. | selected MIMAP-174A |
 | `MIMAP-174A` | landed | Segment-map released-span local-free candidate bridge closeout pack. | selected MIMAP-175A |
-| `MIMAP-175A` | selected current | Post-segment-map-released-span-local-free-candidate-bridge-closeout row selection. | current planning row |
+| `MIMAP-175A` | landed | Post-segment-map-released-span-local-free-candidate-bridge-closeout row selection. | selected MIMAP-176A |
+| `MIMAP-176A` | landed | Segment-map local-free apply-plan bridge. | selected MIMAP-177A |
+| `MIMAP-177A` | selected current | Post-segment-map-local-free-apply-plan-bridge row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -558,8 +560,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-175A` chooses the next narrow row after MIMAP-174A closed the
-segment-map released-span local-free candidate bridge. Raw pointer residence remains
+`MIMAP-177A` chooses the next narrow row after MIMAP-176A connected
+segment-map local-free candidate rows to the apply-plan ledger. Raw pointer residence remains
 parked behind a future rawbuf/no-escape capability. Real thread scheduling,
 worker spawning, source-level concurrency features, arena backing allocation,
 atomic bitmap execution, page-source calls, OSVM unreserve/release, provider
@@ -779,7 +781,9 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `MIMAP-175A` | selected current | Post-segment-map-released-span-local-free-candidate-bridge-closeout row selection. | Current planning row. |
+| `MIMAP-177A` | selected current | Post-segment-map-local-free-apply-plan-bridge row selection. | Current planning row. |
+| `MIMAP-176A` | landed | Segment-map local-free apply-plan bridge. | Selected MIMAP-177A. |
+| `MIMAP-175A` | landed | Post-segment-map-released-span-local-free-candidate-bridge-closeout row selection. | Selected MIMAP-176A. |
 | `MIMAP-174A` | landed | Segment-map released-span local-free candidate bridge closeout pack. | Selected MIMAP-175A. |
 | `MIMAP-173A` | landed | Post-segment-map-released-span-local-free-candidate-bridge row selection. | Selected MIMAP-174A. |
 | `MIMAP-172A` | landed | Segment-map released-span local-free candidate bridge. | Selected MIMAP-173A. |
