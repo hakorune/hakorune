@@ -1,6 +1,6 @@
 # 293x-660 HAKO-ALLOC-REPORT-RECORD-001 Allocator Report Record Cleanup Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -39,4 +39,33 @@ focused compiler row if the current record support is not enough.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Candidate Inventory
+
+| Candidate | Shape | Current state | Decision |
+| --- | --- | --- | --- |
+| `purge_bounded_scheduler_box.hako` | former report/16 | already record-shaped by MIMAP-041A | no new work |
+| `segment_allocation_modeled_local_free_integration_box.hako` | `report(...)` with 22 scalar arguments | widest live helper boundary found in allocator proof reports | select first cleanup pilot |
+| `segment_allocation_modeled_local_free_page_apply_box.hako` | `localFreePageApplyReport(...)` with 19 scalar arguments | good later candidate, but downstream of apply-plan proof | park |
+| `segment_allocation_modeled_local_free_reuse_box.hako` | `report(...)` with 18 scalar arguments | good later candidate, but depends on integration report shape | park |
+| `page_lifecycle_invariant_box.hako` | `report(...)` with 17 scalar arguments | broad lifecycle observer used by many later rows | park until narrower pilots hold |
+| short reclaim / OSVM reports | 5-12 scalar arguments | readable enough or tied to route-specific proof | no pilot now |
+
+## Landed Result
+
+`HAKO-ALLOC-REPORT-RECORD-001` selected the next narrow row:
+
+```text
+HAKO-ALLOC-REPORT-RECORD-002
+  local-free integration report record boundary cleanup
+```
+
+Rationale:
+
+```text
+MIMAP-041A already proved the local record payload pattern for report cleanup.
+The next largest allocator report helper is the local-free integration
+`report(...)` boundary with 22 scalar arguments. It has one owner and a focused
+proof/guard, so it is the smallest high-impact record cleanup pilot.
 ```

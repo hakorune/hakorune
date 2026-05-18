@@ -483,7 +483,8 @@ FST:
 | `HAKO-ALLOC-ID-BRAND-002` | landed | Allocator scalar ID brand first pilot. | selected HAKO-ALLOC-ID-BRAND-003 |
 | `HAKO-ALLOC-ID-BRAND-003` | landed | Allocator scalar ID brand pilot closeout guard. | selected MIMAP-145A |
 | `MIMAP-145A` | landed | Post-ID-brand-pilot-closeout row selection. | selected HAKO-ALLOC-REPORT-RECORD-001 |
-| `HAKO-ALLOC-REPORT-RECORD-001` | selected current | Allocator report record cleanup inventory. | current language/allocator cleanup inventory |
+| `HAKO-ALLOC-REPORT-RECORD-001` | landed | Allocator report record cleanup inventory. | selected HAKO-ALLOC-REPORT-RECORD-002 |
+| `HAKO-ALLOC-REPORT-RECORD-002` | selected current | Local-free integration report record boundary cleanup. | current source cleanup row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -492,8 +493,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-REPORT-RECORD-001` inventories wide allocator proof reports and
-decides whether current record support is enough for one cleanup pilot.
+`HAKO-ALLOC-REPORT-RECORD-002` replaces the local-free integration report/22
+helper boundary with a builder-local record payload.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,
@@ -714,7 +715,8 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `HAKO-ALLOC-REPORT-RECORD-001` | selected current | Allocator report record cleanup inventory. | Current language/allocator cleanup inventory. |
+| `HAKO-ALLOC-REPORT-RECORD-002` | selected current | Local-free integration report record boundary cleanup. | Current source cleanup row. |
+| `HAKO-ALLOC-REPORT-RECORD-001` | landed | Allocator report record cleanup inventory. | Selected HAKO-ALLOC-REPORT-RECORD-002. |
 | `MIMAP-145A` | landed | Post-ID-brand-pilot-closeout row selection. | Selected HAKO-ALLOC-REPORT-RECORD-001. |
 | `HAKO-ALLOC-ID-BRAND-003` | landed | Allocator scalar ID brand pilot closeout guard. | Selected MIMAP-145A. |
 | `HAKO-ALLOC-ID-BRAND-002` | landed | Allocator scalar ID brand first pilot. | Selected HAKO-ALLOC-ID-BRAND-003. |

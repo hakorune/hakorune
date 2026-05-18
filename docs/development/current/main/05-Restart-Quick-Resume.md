@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `HAKO-ALLOC-REPORT-RECORD-001 allocator report record cleanup inventory`
+- current blocker token: `HAKO-ALLOC-REPORT-RECORD-002 local-free integration report record boundary cleanup`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -50,7 +50,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `HAKO-ALLOC-REPORT-RECORD-001 allocator report record cleanup inventory`
+- current blocker token: `HAKO-ALLOC-REPORT-RECORD-002 local-free integration report record boundary cleanup`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -61,10 +61,10 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` with `HAKO-ALLOC-REPORT-RECORD-001`; current blocker is
-  allocator report record cleanup inventory
-- latest planning row: `MIMAP-145A` landed and selected
-  HAKO-ALLOC-REPORT-RECORD-001
+- continue `phase-293x` with `HAKO-ALLOC-REPORT-RECORD-002`; current blocker is
+  local-free integration report record boundary cleanup
+- latest inventory row: `HAKO-ALLOC-REPORT-RECORD-001` landed and selected
+  HAKO-ALLOC-REPORT-RECORD-002
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

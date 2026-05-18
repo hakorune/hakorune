@@ -320,7 +320,8 @@ Forbidden:
 | `HAKO-ALLOC-ID-BRAND-002` | allocator scalar ID brand first pilot | landed; selected HAKO-ALLOC-ID-BRAND-003 |
 | `HAKO-ALLOC-ID-BRAND-003` | allocator scalar ID brand pilot closeout guard | landed; selected MIMAP-145A |
 | `MIMAP-145A` | post-ID-brand-pilot-closeout row selection | landed; selected HAKO-ALLOC-REPORT-RECORD-001 |
-| `HAKO-ALLOC-REPORT-RECORD-001` | allocator report record cleanup inventory | selected current |
+| `HAKO-ALLOC-REPORT-RECORD-001` | allocator report record cleanup inventory | landed; selected HAKO-ALLOC-REPORT-RECORD-002 |
+| `HAKO-ALLOC-REPORT-RECORD-002` | local-free integration report record boundary cleanup | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -473,6 +474,22 @@ surface without changing behavior.
 It must not add allocator behavior, broad report rewrites, packed/backend record
 lowering, provider activation, host allocator replacement, backend matchers, or
 silent fallback.
+
+HAKO-ALLOC-REPORT-RECORD-001 landed by selecting the widest focused report
+helper boundary: `segment_allocation_modeled_local_free_integration_box.hako`
+`report(...)` with 22 scalar arguments. It selects HAKO-ALLOC-REPORT-RECORD-002.
+
+
+### HAKO-ALLOC-REPORT-RECORD-002 granularity
+
+HAKO-ALLOC-REPORT-RECORD-002 is a BoxShape source cleanup row for the
+local-free integration report boundary. It should replace the report/22 helper
+call boundary with an owner-local record payload and copy fields into the
+existing report box, preserving proof output.
+
+It must not add allocator behavior, broad report cleanup, record escape,
+packed/backend record lowering, provider activation, host allocator replacement,
+backend matchers, or silent fallback.
 
 
 ## Historical Granularity Anchors
