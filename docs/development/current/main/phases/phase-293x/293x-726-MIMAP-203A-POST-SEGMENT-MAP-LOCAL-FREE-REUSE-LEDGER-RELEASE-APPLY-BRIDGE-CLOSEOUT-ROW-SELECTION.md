@@ -1,12 +1,12 @@
-# 293x-724 MIMAP-201A Post Segment Map Local Free Reuse Ledger Release Apply Bridge Row Selection
+# 293x-726 MIMAP-203A Post Segment Map Local Free Reuse Ledger Release Apply Bridge Closeout Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-18
 
 ## Decision
 
-Choose MIMAP-202A as the next narrow row after MIMAP-200A proves the
-segment-map local-free reuse ledger release apply bridge.
+Choose the next narrow row after MIMAP-202A closes the segment-map local-free
+reuse ledger release apply bridge pack.
 
 ## Context
 
@@ -25,25 +25,13 @@ explicit-ID readiness
   -> modeled local-free reuse ledger owner records the reuse row
   -> modeled local-free reuse ledger release owner records the release row
   -> source reuse ledger applies that release and marks the row non-live
+  -> representative exact-MIR EXE parity for the release apply bridge pack
 ```
 
-The next row is:
-
-```text
-MIMAP-202A segment-map local-free reuse ledger release apply bridge closeout pack
-```
-
-Rationale:
-
-- MIMAP-200A is a scalar-composition bridge with `exe = "deferred-to-closeout"`.
-- The release apply bridge pack should get representative exact-MIR L3 EXE
-  evidence before selecting release-applied recycle behavior.
-- This keeps the segment-map bridge cadence aligned with the prior 190A, 194A,
-  and 198A closeouts.
-
-It should not jump directly to raw pointer residence, arena backing, real
-segment-map execution, real free-list mutation, real page-state mutation, or
-atomic bitmap behavior.
+The next row should choose between a release-applied recycle bridge and a small
+observer/diagnostic sidecar. It should not jump directly to raw pointer
+residence, arena backing, real segment-map execution, real free-list mutation,
+real page-state mutation, or atomic bitmap behavior.
 
 ## Stop Lines
 
@@ -67,10 +55,4 @@ atomic bitmap behavior.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
-```
-
-## Next
-
-```text
-MIMAP-202A segment-map local-free reuse ledger release apply bridge closeout pack
 ```

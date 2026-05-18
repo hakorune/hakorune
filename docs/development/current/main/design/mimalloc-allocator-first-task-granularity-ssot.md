@@ -1453,6 +1453,37 @@ backing, atomic bitmap execution, OSVM/page-source execution, worker
 scheduling, provider activation, cross-function `Result` direct ABI, runtime
 sum materialization, or backend matchers.
 
+MIMAP-201A landed by selecting MIMAP-202A.
+
+### MIMAP-202A granularity
+
+MIMAP-202A closes the segment-map local-free reuse ledger release apply bridge
+pack with representative exact-MIR L3 EXE evidence. It keeps daily validation
+on L2 and verifies that the MIMAP-200A proof app still reaches identical VM
+and EXE output from the same emitted MIR artifact.
+
+It must not open real segment allocation/free execution, raw pointer
+residence, real segment-map mutation, real allocator free-list mutation, arena
+backing, atomic bitmap execution, OSVM/page-source execution, worker
+scheduling, provider activation, cross-function `Result` direct ABI, runtime
+sum materialization, or backend matchers.
+
+MIMAP-202A landed by adding the release apply bridge closeout SSOT,
+manifest-backed closeout guard, representative L3 EXE evidence, and current
+pointers. It selected MIMAP-203A.
+
+### MIMAP-203A granularity
+
+MIMAP-203A is a planning row after the segment-map local-free reuse ledger
+release apply bridge closeout. It should choose between a release-applied
+recycle bridge and a small observer/diagnostic sidecar.
+
+It must not open real segment allocation/free execution, raw pointer
+residence, real segment-map mutation, real allocator free-list mutation, arena
+backing, atomic bitmap execution, OSVM/page-source execution, worker
+scheduling, provider activation, cross-function `Result` direct ABI, runtime
+sum materialization, or backend matchers.
+
 
 ## Historical Granularity Anchors
 

@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-18"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-200A landed by connecting the segment-map local-free reuse ledger release row to the source local-free reuse ledger release apply route; MIMAP-201A is the active planning blocker for the next narrow allocator row. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-202A landed by closing the segment-map local-free reuse ledger release apply bridge pack with representative exact-MIR L3 EXE evidence; MIMAP-203A is the active planning blocker for the next narrow allocator row. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-724-MIMAP-201A-POST-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-BRIDGE-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-726-MIMAP-203A-POST-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-BRIDGE-CLOSEOUT-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-723-MIMAP-200A-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-BRIDGE"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-723-MIMAP-200A-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-BRIDGE.md"
-latest_card_summary = "MIMAP-200A landed by adding the segment-map local-free reuse ledger release apply bridge proof app, SSOT, L2 guard, proof manifest row, and current pointers; MIMAP-201A selected current."
+latest_card = "293x-725-MIMAP-202A-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-BRIDGE-CLOSEOUT-PACK"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-725-MIMAP-202A-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-BRIDGE-CLOSEOUT-PACK.md"
+latest_card_summary = "MIMAP-202A landed by adding the segment-map local-free reuse ledger release apply bridge closeout SSOT, manifest-backed closeout guard, representative exact-MIR L3 EXE evidence, and current pointers; MIMAP-203A selected current."
 
-current_blocker_token = "MIMAP-201A"
+current_blocker_token = "MIMAP-203A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-725 MIMAP-202A segment-map local-free reuse ledger release apply bridge closeout pack landed; MIMAP-203A selected",
+  "293x-724 MIMAP-201A post-segment-map-local-free-reuse-ledger-release-apply-bridge row selection landed; MIMAP-202A selected",
   "293x-723 MIMAP-200A segment-map local-free reuse ledger release apply bridge landed; MIMAP-201A selected",
   "293x-722 MIMAP-199A post-segment-map-local-free-reuse-ledger-release-bridge-closeout row selection landed; MIMAP-200A selected",
   "293x-721 MIMAP-198A segment-map local-free reuse ledger release bridge closeout pack landed; MIMAP-199A selected",

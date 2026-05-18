@@ -34,21 +34,21 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-201A` is current after MIMAP-200A connected the segment-map local-free
-reuse ledger release row to the source local-free reuse ledger release apply
-route.
+`MIMAP-203A` is current after MIMAP-202A closed the segment-map local-free
+reuse ledger release apply bridge pack with representative exact-MIR L3 EXE
+evidence.
 
 Recommended current row:
 
 ```text
-MIMAP-201A
-  post-segment-map-local-free-reuse-ledger-release-apply-bridge row selection
+MIMAP-203A
+  post-segment-map-local-free-reuse-ledger-release-apply-bridge-closeout row selection
 ```
 
 Purpose:
 
 ```text
-choose the next narrow row after segment-map local-free reuse ledger release apply bridge
+choose the next narrow row after segment-map local-free reuse ledger release apply bridge closeout
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -248,7 +248,9 @@ no provider activation
 | 176 | closeout | `MIMAP-198A segment-map local-free reuse ledger release bridge closeout pack` | landed; selected MIMAP-199A |
 | 177 | planning | `MIMAP-199A post-segment-map-local-free-reuse-ledger-release-bridge-closeout row selection` | landed; selected MIMAP-200A |
 | 178 | allocator | `MIMAP-200A segment-map local-free reuse ledger release apply bridge` | landed; selected MIMAP-201A |
-| 179 | planning | `MIMAP-201A post-segment-map-local-free-reuse-ledger-release-apply-bridge row selection` | selected current |
+| 179 | planning | `MIMAP-201A post-segment-map-local-free-reuse-ledger-release-apply-bridge row selection` | landed; selected MIMAP-202A |
+| 180 | closeout | `MIMAP-202A segment-map local-free reuse ledger release apply bridge closeout pack` | landed; selected MIMAP-203A |
+| 181 | planning | `MIMAP-203A post-segment-map-local-free-reuse-ledger-release-apply-bridge-closeout row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
