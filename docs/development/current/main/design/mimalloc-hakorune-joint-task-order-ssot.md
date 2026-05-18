@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-233A` is current after MIMAP-232A landed the source lifecycle-keyed
-release apply/recycle continuation bridge.
+`MIMAP-234A` is current after MIMAP-233A landed the source lifecycle-keyed
+release apply/recycle continuation diagnostics.
 
 Recommended current row:
 
 ```text
-MIMAP-233A
-  source lifecycle-keyed release apply/recycle continuation diagnostics
+MIMAP-234A
+  source lifecycle-keyed release apply/recycle continuation closeout pack
 ```
 
 Purpose:
 
 ```text
-add narrow diagnostics around lifecycle-keyed source release apply/recycle continuation
+close out lifecycle-keyed source release apply/recycle continuation with representative L3 evidence
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -279,7 +279,8 @@ no provider activation
 | 208 | closeout | `MIMAP-230A source release-ledger lifecycle-key migration closeout pack` | landed; selected MIMAP-231A |
 | 209 | planning | `MIMAP-231A post source release-ledger lifecycle-key migration closeout row selection` | landed; selected MIMAP-232A |
 | 210 | allocator | `MIMAP-232A source lifecycle-keyed release apply/recycle continuation bridge` | landed; selected MIMAP-233A |
-| 211 | allocator | `MIMAP-233A source lifecycle-keyed release apply/recycle continuation diagnostics` | selected current |
+| 211 | allocator | `MIMAP-233A source lifecycle-keyed release apply/recycle continuation diagnostics` | landed; selected MIMAP-234A |
+| 212 | closeout | `MIMAP-234A source lifecycle-keyed release apply/recycle continuation closeout pack` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

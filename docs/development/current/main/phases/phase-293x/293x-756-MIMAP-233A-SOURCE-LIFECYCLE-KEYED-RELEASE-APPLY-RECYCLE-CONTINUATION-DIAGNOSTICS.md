@@ -1,11 +1,17 @@
 # 293x-756 MIMAP-233A Source Lifecycle-Keyed Release Apply/Recycle Continuation Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
 
 Add diagnostics around lifecycle-keyed release apply/recycle continuation.
+
+Selected next row:
+
+```text
+MIMAP-234A source lifecycle-keyed release apply/recycle continuation closeout pack
+```
 
 ## Context
 
@@ -14,6 +20,20 @@ release-apply and recycled local-free reuse. The next row should keep the same
 route shape and add narrower diagnostics for missing live row, unsupported
 lifecycle-keyed apply, and post-continuation duplicate reuse before a closeout
 pack.
+
+MIMAP-233A adds an observer-only diagnostic owner for those facts and keeps L3
+EXE evidence deferred to the closeout pack.
+
+## Scope
+
+- Add diagnostic owner:
+  `lang/src/hako_alloc/memory/segment_allocation_modeled_local_free_reuse_lifecycle_keyed_release_apply_recycle_diagnostic_box.hako`.
+- Add proof app:
+  `apps/hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-apply-recycle-continuation-diagnostics-proof`.
+- Add L2 guard:
+  `tools/checks/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_lifecycle_keyed_release_apply_recycle_continuation_diagnostics_guard.sh`.
+- Add accepted design SSOT:
+  `docs/development/current/main/design/hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-apply-recycle-continuation-diagnostics-ssot.md`.
 
 ## Stop Lines
 
@@ -36,6 +56,14 @@ pack.
 ## Required Evidence
 
 ```text
+bash tools/checks/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_lifecycle_keyed_release_apply_recycle_continuation_diagnostics_guard.sh --level L2
+bash tools/checks/run_proof_app.sh --only MIMAP-233A
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Next
+
+```text
+MIMAP-234A source lifecycle-keyed release apply/recycle continuation closeout pack
 ```

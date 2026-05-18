@@ -1,0 +1,96 @@
+// segment_allocation_modeled_local_free_reuse_lifecycle_keyed_release_apply_recycle_diagnostic_box.hako -- MIMAP-233A
+// Responsibility:
+// - observe lifecycle-keyed release apply/recycle continuation diagnostics
+// - publish missing-live-row, unsupported-apply, and duplicate-reuse summary facts
+// Non-responsibility:
+// - mutating reuse/release ledgers, real allocator execution, raw pointers,
+//   segment-map execution, atomics, OSVM, scheduling, providers, or backend shortcuts
+
+box HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseApplyRecycleDiagnosticReport {
+    observed: i64 = 0
+    reason: i64 = 0
+    release_apply_attempt_count: i64 = 0
+    release_apply_count: i64 = 0
+    release_apply_reject_count: i64 = 0
+    release_apply_missing_reject_count: i64 = 0
+    release_apply_unsupported_seen: i64 = 0
+    post_continuation_duplicate_seen: i64 = 0
+    lifecycle_keyed_apply_seen: i64 = 0
+    ledger_count: i64 = 0
+    ledger_live_count: i64 = 0
+    ledger_last_reason: i64 = 0
+    ledger_last_token: i64 = -1
+    continuation_diagnostic_present: i64 = 1
+    would_execute_real_segment_allocation: i64 = 0
+    would_execute_real_segment_free: i64 = 0
+    would_directly_mutate_page_arrays: i64 = 0
+    would_use_raw_pointer: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseApplyRecycleDiagnostic {
+    observe_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_activity_reject_count: i64 = 0
+    unsupported_requirement_reject_count: i64 = 0
+    last_reason: i64 = 0
+
+    makeReport(observed, reason, ledger): HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseApplyRecycleDiagnosticReport {
+        local result = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseApplyRecycleDiagnosticReport()
+        result.observed = observed
+        result.reason = reason
+        result.release_apply_attempt_count = ledger.release_apply_attempt_count
+        result.release_apply_count = ledger.release_apply_count
+        result.release_apply_reject_count = ledger.release_apply_reject_count
+        result.release_apply_missing_reject_count = ledger.release_apply_missing_reject_count
+        if ledger.release_apply_execution_reject_count > 0 {
+            result.release_apply_unsupported_seen = 1
+        }
+        if ledger.duplicate_reject_count > 0 {
+            result.post_continuation_duplicate_seen = 1
+        }
+        if ledger.release_apply_count > 0 {
+            result.lifecycle_keyed_apply_seen = 1
+        }
+        result.ledger_count = ledger.count
+        result.ledger_live_count = ledger.live_count
+        result.ledger_last_reason = ledger.last_reason
+        result.ledger_last_token = ledger.last_token
+        result.continuation_diagnostic_present = 1
+        return result
+    }
+
+    reject(reason, ledger): HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseApplyRecycleDiagnosticReport {
+        me.reject_count += 1
+        if reason == 1 {
+            me.missing_activity_reject_count += 1
+        }
+        if reason == 2 {
+            me.unsupported_requirement_reject_count += 1
+        }
+        me.last_reason = reason
+        return me.makeReport(0, reason, ledger)
+    }
+
+    observeApplyRecycleDiagnostics(ledger, unsupported_requirement): HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseApplyRecycleDiagnosticReport {
+        me.observe_count += 1
+
+        if ledger.release_apply_attempt_count <= 0 {
+            return me.reject(1, ledger)
+        }
+        if unsupported_requirement != 0 {
+            return me.reject(2, ledger)
+        }
+
+        me.accepted_count += 1
+        me.last_reason = 0
+        return me.makeReport(1, 0, ledger)
+    }
+}

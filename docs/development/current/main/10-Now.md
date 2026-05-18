@@ -34,15 +34,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-233A source lifecycle-keyed release apply/recycle continuation diagnostics`
+- current blocker token: `MIMAP-234A source lifecycle-keyed release apply/recycle continuation closeout pack`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x with `MIMAP-233A`; current blocker is
-  source lifecycle-keyed release apply/recycle continuation diagnostics
-- latest allocator row: `MIMAP-232A` landed and selected MIMAP-233A
+- continue phase-293x with `MIMAP-234A`; current blocker is
+  source lifecycle-keyed release apply/recycle continuation closeout pack
+- latest allocator row: `MIMAP-233A` landed and selected MIMAP-234A
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

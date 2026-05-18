@@ -437,7 +437,7 @@ source lifecycle-keyed release apply/recycle continuation family:
     exe = deferred-to-closeout
   closeout pack:
     closeout_pack = source-lifecycle-keyed-release-apply-recycle-continuation
-    representative L3 EXE evidence in MIMAP-232A and a future closeout pack
+    representative L3 EXE evidence in MIMAP-232A and MIMAP-234A
 
 cleanup row using C199 compound assignment:
   L1 C199 guard
