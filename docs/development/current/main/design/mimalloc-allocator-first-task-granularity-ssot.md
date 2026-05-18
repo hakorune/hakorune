@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-239A
+  MIMAP-240A
 
 current choice boundary:
-  post segment arena backing readiness closeout row selection
+  segment arena backing scalar requirement matrix inventory
   or the next modeled bridge that keeps real execution closed
 
 closed until explicitly reopened:
@@ -423,7 +423,8 @@ Forbidden:
 | `MIMAP-236A` | segment arena backing readiness inventory | landed; selected MIMAP-237A |
 | `MIMAP-237A` | segment arena backing readiness diagnostics | landed; selected MIMAP-238A |
 | `MIMAP-238A` | segment arena backing readiness closeout pack | landed; selected MIMAP-239A |
-| `MIMAP-239A` | post-segment-arena-backing-readiness-closeout row selection | selected current |
+| `MIMAP-239A` | post-segment-arena-backing-readiness-closeout row selection | landed; selected MIMAP-240A |
+| `MIMAP-240A` | segment arena backing scalar requirement matrix inventory | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2159,6 +2160,18 @@ residence, real segment-map mutation, real segment allocation/free, atomic
 bitmap execution, OSVM/page-source execution, worker/provider activation,
 cross-function `Result` direct ABI, runtime sum materialization, or backend
 matchers directly.
+
+MIMAP-239A landed by selecting MIMAP-240A.
+
+### MIMAP-240A granularity
+
+MIMAP-240A should inventory the scalar requirement matrix for future segment
+arena backing. It should keep arena id, segment id, slice geometry, page size,
+alignment, and blocked substrate reason categories in scalar/model space before
+any real arena backing allocation, raw pointer residence, real segment-map
+mutation, real segment allocation/free, atomic bitmap execution,
+OSVM/page-source execution, worker/provider activation, cross-function
+`Result` direct ABI, runtime sum materialization, or backend matcher row opens.
 
 
 ## Historical Granularity Anchors

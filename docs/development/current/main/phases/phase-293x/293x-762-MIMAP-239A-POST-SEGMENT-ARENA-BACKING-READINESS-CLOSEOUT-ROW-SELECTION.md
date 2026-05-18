@@ -1,6 +1,6 @@
 # 293x-762 MIMAP-239A Post Segment Arena Backing Readiness Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -22,6 +22,23 @@ no-escape raw pointer residence without opening multiple substrates at once.
 - No-escape raw pointer capability inventory.
 - Segment arena backing source model bridge.
 - Another planning row if closeout evidence exposes a smaller prerequisite.
+
+## Selected Next Row
+
+MIMAP-239A selects:
+
+```text
+MIMAP-240A segment arena backing scalar requirement matrix inventory
+```
+
+Reason:
+
+```text
+arena readiness is closed out, but real arena backing allocation and raw pointer
+residence are still too large to open directly. First inventory the scalar
+requirement matrix: arena id, segment id, slice geometry, page size, alignment,
+backing requirement flags, and blocked substrate reason categories.
+```
 
 ## Stop Lines
 
