@@ -376,13 +376,14 @@ Syntax/style contract
   segment-map execution, arena backing, atomics, OSVM/page-source calls, and
   backend shortcuts closed.
 - `segment_allocation_modeled_local_free_reuse_ledger_box.hako` owns
-  MIMAP-130A, MIMAP-138A, and MIMAP-142A. It may consume successful MIMAP-126A local-free
+  MIMAP-130A, MIMAP-138A, MIMAP-142A, and MIMAP-192A. It may consume successful MIMAP-126A local-free
   reuse reports and record deterministic scalar live reuse allocation rows
   keyed by `(segment_id, page_id, reused_block_id)`. It may also consume
   successful MIMAP-134A release facts and mark the matching source reuse ledger
   row non-live. After that release apply, it may record the same modeled reuse
   token again as a new live source row while still-live duplicates remain
-  rejected. It must not widen the bump-shaped
+  rejected. MIMAP-192A may consume segment-map-derived local-free reuse reports
+  and record the same deterministic live reuse row shape. It must not widen the bump-shaped
   `segment_allocation_modeled_ledger_box.hako` contract, execute real segment
   allocation/free, mutate page arrays, use raw pointer residence, perform
   segment-map lookup, allocate arena backing, execute atomic bitmap claims,

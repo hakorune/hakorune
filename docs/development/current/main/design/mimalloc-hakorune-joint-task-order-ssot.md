@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-191A` is current after MIMAP-190A closed the segment-map local-free
-reuse bridge pack with representative exact-MIR L3 EXE evidence.
+`MIMAP-193A` is current after MIMAP-192A connected the segment-map
+local-free reuse chain to the modeled local-free reuse ledger owner.
 
 Recommended current row:
 
 ```text
-MIMAP-191A
-  post-segment-map-local-free-reuse-bridge-closeout row selection
+MIMAP-193A
+  post-segment-map-local-free-reuse-ledger-bridge row selection
 ```
 
 Purpose:
 
 ```text
-choose the next narrow row after segment-map local-free reuse bridge closeout
+choose the next narrow row after segment-map local-free reuse ledger bridge
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -237,7 +237,9 @@ no provider activation
 | 166 | allocator | `MIMAP-188A segment-map local-free reuse bridge` | landed; selected MIMAP-189A |
 | 167 | planning | `MIMAP-189A post-segment-map-local-free-reuse-bridge row selection` | landed; selected MIMAP-190A |
 | 168 | closeout | `MIMAP-190A segment-map local-free reuse bridge closeout pack` | landed; selected MIMAP-191A |
-| 169 | planning | `MIMAP-191A post-segment-map-local-free-reuse-bridge-closeout row selection` | selected current |
+| 169 | planning | `MIMAP-191A post-segment-map-local-free-reuse-bridge-closeout row selection` | landed; selected MIMAP-192A |
+| 170 | allocator | `MIMAP-192A segment-map local-free reuse ledger bridge` | landed; selected MIMAP-193A |
+| 171 | planning | `MIMAP-193A post-segment-map-local-free-reuse-ledger-bridge row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

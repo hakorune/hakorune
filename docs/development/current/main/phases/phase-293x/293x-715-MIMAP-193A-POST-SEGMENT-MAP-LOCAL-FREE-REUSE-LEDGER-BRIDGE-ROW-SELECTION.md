@@ -1,12 +1,12 @@
-# 293x-713 MIMAP-191A Post Segment Map Local Free Reuse Bridge Closeout Row Selection
+# 293x-715 MIMAP-193A Post Segment Map Local Free Reuse Ledger Bridge Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-18
 
 ## Decision
 
-Choose MIMAP-192A as the next narrow row after MIMAP-190A closes the
-segment-map local-free reuse bridge pack.
+Choose the next narrow row after MIMAP-192A proves the segment-map local-free
+reuse ledger bridge.
 
 ## Context
 
@@ -22,20 +22,14 @@ explicit-ID readiness
   -> modeled page-apply can consume that apply-plan row
   -> modeled local-free integration owner can consume that released-span row
   -> modeled local-free reuse owner can reuse one local-free block
-  -> representative exact-MIR L3 EXE evidence
+  -> modeled local-free reuse ledger owner records the reuse row
 ```
 
 The next row should choose between a segment-map local-free reuse ledger
-bridge, a local-free reuse diagnostic/observer sidecar, or the next modeled
-allocator boundary. It should not jump directly to raw pointer residence, arena
-backing, real segment-map execution, real free-list mutation, real page-state
-mutation, or atomic bitmap behavior.
-
-## Selected Row
-
-```text
-MIMAP-192A segment-map local-free reuse ledger bridge
-```
+closeout pack, a reuse-ledger release bridge, or a small diagnostic/observer
+sidecar. It should not jump directly to raw pointer residence, arena backing,
+real segment-map execution, real free-list mutation, real page-state mutation,
+or atomic bitmap behavior.
 
 ## Stop Lines
 
@@ -59,10 +53,4 @@ MIMAP-192A segment-map local-free reuse ledger bridge
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
-```
-
-## Next
-
-```text
-MIMAP-192A segment-map local-free reuse ledger bridge
 ```

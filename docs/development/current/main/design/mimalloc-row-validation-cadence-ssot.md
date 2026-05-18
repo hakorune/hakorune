@@ -332,6 +332,15 @@ segment-map local-free reuse bridge family:
     closeout_pack = segment-map-local-free-reuse-bridge
     representative L3 EXE evidence in MIMAP-190A
 
+segment-map local-free reuse ledger bridge family:
+  MIMAP-192A segment-map local-free reuse ledger bridge:
+    validation_profile = scalar-mir
+    closeout_pack = segment-map-local-free-reuse-ledger-bridge
+    exe = deferred-to-closeout
+  closeout pack:
+    closeout_pack = segment-map-local-free-reuse-ledger-bridge
+    representative L3 EXE evidence deferred to a future closeout row
+
 cleanup row using C199 compound assignment:
   L1 C199 guard
   L3 touched segment guards only
