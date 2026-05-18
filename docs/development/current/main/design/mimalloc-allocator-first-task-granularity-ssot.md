@@ -420,7 +420,8 @@ Forbidden:
 | `MIMAP-232A` | source lifecycle-keyed release apply/recycle continuation bridge | landed; selected MIMAP-233A |
 | `MIMAP-233A` | source lifecycle-keyed release apply/recycle continuation diagnostics | landed; selected MIMAP-234A |
 | `MIMAP-234A` | source lifecycle-keyed release apply/recycle continuation closeout pack | landed; selected MIMAP-235A |
-| `MIMAP-235A` | post-source-lifecycle-keyed-release-apply-recycle-continuation-closeout row selection | selected current |
+| `MIMAP-235A` | post-source-lifecycle-keyed-release-apply-recycle-continuation-closeout row selection | landed; selected MIMAP-236A |
+| `MIMAP-236A` | segment arena backing readiness inventory | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2099,6 +2100,19 @@ bridge while keeping raw pointer residence, real segment-map execution, arena
 backing, atomic bitmap execution, OSVM/page-source execution, worker
 scheduling, provider activation, cross-function `Result` direct ABI, runtime
 sum materialization, and backend matchers closed.
+
+MIMAP-235A landed by selecting MIMAP-236A, the segment arena backing readiness
+inventory row.
+
+### MIMAP-236A granularity
+
+MIMAP-236A should inventory arena backing readiness after the lifecycle-keyed
+release apply/recycle continuation closeout. It is inventory-only and must not
+allocate real arena backing, add raw pointer residence, mutate a real
+segment-map, execute real segment allocation/free, execute atomic bitmap claims,
+call OSVM/page-source seams, schedule workers, activate providers, introduce
+cross-function `Result` direct ABI, materialize runtime sums, or add backend
+matchers.
 
 
 ## Historical Granularity Anchors

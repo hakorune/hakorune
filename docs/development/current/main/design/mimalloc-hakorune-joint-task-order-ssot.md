@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-235A` is current after MIMAP-234A closed the source lifecycle-keyed
-release apply/recycle continuation pack.
+`MIMAP-236A` is current after MIMAP-235A selected the segment arena backing
+readiness inventory.
 
 Recommended current row:
 
 ```text
-MIMAP-235A
-  post source lifecycle-keyed release apply/recycle continuation closeout row selection
+MIMAP-236A
+  segment arena backing readiness inventory
 ```
 
 Purpose:
 
 ```text
-select the next narrow allocator bridge after lifecycle-keyed release apply/recycle continuation closeout
+inventory arena backing readiness before raw pointer residence or real segment-map execution
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -281,7 +281,8 @@ no provider activation
 | 210 | allocator | `MIMAP-232A source lifecycle-keyed release apply/recycle continuation bridge` | landed; selected MIMAP-233A |
 | 211 | allocator | `MIMAP-233A source lifecycle-keyed release apply/recycle continuation diagnostics` | landed; selected MIMAP-234A |
 | 212 | closeout | `MIMAP-234A source lifecycle-keyed release apply/recycle continuation closeout pack` | landed; selected MIMAP-235A |
-| 213 | planning | `MIMAP-235A post source lifecycle-keyed release apply/recycle continuation closeout row selection` | selected current |
+| 213 | planning | `MIMAP-235A post source lifecycle-keyed release apply/recycle continuation closeout row selection` | landed; selected MIMAP-236A |
+| 214 | allocator inventory | `MIMAP-236A segment arena backing readiness inventory` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

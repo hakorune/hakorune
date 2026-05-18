@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-19"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-234A landed by closing the lifecycle-keyed release apply/recycle continuation pack; MIMAP-235A is the active planning blocker. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-235A landed by selecting the segment arena backing readiness inventory; MIMAP-236A is the active inventory blocker. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-758-MIMAP-235A-POST-SOURCE-LIFECYCLE-KEYED-RELEASE-APPLY-RECYCLE-CONTINUATION-CLOSEOUT-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-759-MIMAP-236A-SEGMENT-ARENA-BACKING-READINESS-INVENTORY.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-757-MIMAP-234A-SOURCE-LIFECYCLE-KEYED-RELEASE-APPLY-RECYCLE-CONTINUATION-CLOSEOUT-PACK"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-757-MIMAP-234A-SOURCE-LIFECYCLE-KEYED-RELEASE-APPLY-RECYCLE-CONTINUATION-CLOSEOUT-PACK.md"
-latest_card_summary = "MIMAP-234A landed by adding the closeout SSOT, manifest-backed closeout guard, guard manifest row, and current pointers; MIMAP-235A selected current."
+latest_card = "293x-758-MIMAP-235A-POST-SOURCE-LIFECYCLE-KEYED-RELEASE-APPLY-RECYCLE-CONTINUATION-CLOSEOUT-ROW-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-758-MIMAP-235A-POST-SOURCE-LIFECYCLE-KEYED-RELEASE-APPLY-RECYCLE-CONTINUATION-CLOSEOUT-ROW-SELECTION.md"
+latest_card_summary = "MIMAP-235A landed by selecting MIMAP-236A, the segment arena backing readiness inventory row."
 
-current_blocker_token = "MIMAP-235A"
+current_blocker_token = "MIMAP-236A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-758 MIMAP-235A post-source-lifecycle-keyed-release-apply-recycle-continuation-closeout row selection landed; MIMAP-236A selected",
   "293x-757 MIMAP-234A source lifecycle-keyed release apply/recycle continuation closeout pack landed; MIMAP-235A selected",
   "293x-756 MIMAP-233A source lifecycle-keyed release apply/recycle continuation diagnostics landed; MIMAP-234A selected",
   "293x-755 MIMAP-232A source lifecycle-keyed release apply/recycle continuation bridge landed; MIMAP-233A selected",
