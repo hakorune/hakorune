@@ -59,59 +59,116 @@ box HakoAllocSegmentAllocationModeledLocalFreeReuse {
     last_reason: i64 = 0
     last_reused_block_id: i64 = -1
 
-    report(did_reuse_local_free, reason, integration_reason, reused_block_id, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, applied_blocks, page_used_before_reuse, page_used_after_reuse, page_free_before_reuse, page_free_after_reuse, page_local_free_before_reuse, page_local_free_after_reuse, collect_count_before_reuse, collect_count_after_reuse): HakoAllocSegmentAllocationModeledLocalFreeReuseReport {
-        local result = new HakoAllocSegmentAllocationModeledLocalFreeReuseReport()
-        result.did_reuse_local_free = did_reuse_local_free
-        result.reason = reason
-        result.integration_reason = integration_reason
-        result.reused_block_id = reused_block_id
-        result.modeled_allocation_token = modeled_allocation_token
-        result.segment_id = segment_id
-        result.page_id = page_id
-        result.modeled_block_start = modeled_block_start
-        result.modeled_block_end = modeled_block_end
-        result.applied_blocks = applied_blocks
-        result.page_used_before_reuse = page_used_before_reuse
-        result.page_used_after_reuse = page_used_after_reuse
-        result.page_free_before_reuse = page_free_before_reuse
-        result.page_free_after_reuse = page_free_after_reuse
-        result.page_local_free_before_reuse = page_local_free_before_reuse
-        result.page_local_free_after_reuse = page_local_free_after_reuse
-        result.collect_count_before_reuse = collect_count_before_reuse
-        result.collect_count_after_reuse = collect_count_after_reuse
+    finishReport(result): HakoAllocSegmentAllocationModeledLocalFreeReuseReport {
         result.reuse_attempt_count_after = me.attempt_count
         result.reuse_success_count_after = me.success_count
         result.reuse_reject_count_after = me.reject_count
-        if did_reuse_local_free == 1 {
+        if result.did_reuse_local_free == 1 {
             result.did_collect_local_free_before_reuse = 1
         }
-        me.last_reason = reason
-        me.last_reused_block_id = reused_block_id
+        me.last_reason = result.reason
+        me.last_reused_block_id = result.reused_block_id
         return result
     }
 
     rejectFromIntegration(integration_report) {
         me.reject_count += 1
         me.integration_reject_count += 1
-        return me.report(0, 1, integration_report.reason, -1, integration_report.modeled_allocation_token, integration_report.segment_id, integration_report.page_id, integration_report.modeled_block_start, integration_report.modeled_block_end, integration_report.applied_blocks, integration_report.page_used_after, integration_report.page_used_after, integration_report.page_free_after, integration_report.page_free_after, integration_report.page_local_free_after, integration_report.page_local_free_after, 0, 0)
+        local result = new HakoAllocSegmentAllocationModeledLocalFreeReuseReport()
+        result.did_reuse_local_free = 0
+        result.reason = 1
+        result.integration_reason = integration_report.reason
+        result.reused_block_id = -1
+        result.modeled_allocation_token = integration_report.modeled_allocation_token
+        result.segment_id = integration_report.segment_id
+        result.page_id = integration_report.page_id
+        result.modeled_block_start = integration_report.modeled_block_start
+        result.modeled_block_end = integration_report.modeled_block_end
+        result.applied_blocks = integration_report.applied_blocks
+        result.page_used_before_reuse = integration_report.page_used_after
+        result.page_used_after_reuse = integration_report.page_used_after
+        result.page_free_before_reuse = integration_report.page_free_after
+        result.page_free_after_reuse = integration_report.page_free_after
+        result.page_local_free_before_reuse = integration_report.page_local_free_after
+        result.page_local_free_after_reuse = integration_report.page_local_free_after
+        result.collect_count_before_reuse = 0
+        result.collect_count_after_reuse = 0
+        return me.finishReport(result)
     }
 
     rejectFreeListNotEmpty(integration_report, page) {
         me.reject_count += 1
         me.free_list_not_empty_reject_count += 1
-        return me.report(0, 2, integration_report.reason, -1, integration_report.modeled_allocation_token, integration_report.segment_id, integration_report.page_id, integration_report.modeled_block_start, integration_report.modeled_block_end, integration_report.applied_blocks, page.used, page.used, page.freeCount(), page.freeCount(), page.localFreeCount(), page.localFreeCount(), page.local_free_collect_count, page.local_free_collect_count)
+        local result = new HakoAllocSegmentAllocationModeledLocalFreeReuseReport()
+        result.did_reuse_local_free = 0
+        result.reason = 2
+        result.integration_reason = integration_report.reason
+        result.reused_block_id = -1
+        result.modeled_allocation_token = integration_report.modeled_allocation_token
+        result.segment_id = integration_report.segment_id
+        result.page_id = integration_report.page_id
+        result.modeled_block_start = integration_report.modeled_block_start
+        result.modeled_block_end = integration_report.modeled_block_end
+        result.applied_blocks = integration_report.applied_blocks
+        result.page_used_before_reuse = page.used
+        result.page_used_after_reuse = page.used
+        result.page_free_before_reuse = page.freeCount()
+        result.page_free_after_reuse = page.freeCount()
+        result.page_local_free_before_reuse = page.localFreeCount()
+        result.page_local_free_after_reuse = page.localFreeCount()
+        result.collect_count_before_reuse = page.local_free_collect_count
+        result.collect_count_after_reuse = page.local_free_collect_count
+        return me.finishReport(result)
     }
 
     rejectAcquire(integration_report, page, page_used_before, page_free_before, page_local_free_before, collect_count_before) {
         me.reject_count += 1
         me.acquire_reject_count += 1
-        return me.report(0, 3, integration_report.reason, -1, integration_report.modeled_allocation_token, integration_report.segment_id, integration_report.page_id, integration_report.modeled_block_start, integration_report.modeled_block_end, integration_report.applied_blocks, page_used_before, page.used, page_free_before, page.freeCount(), page_local_free_before, page.localFreeCount(), collect_count_before, page.local_free_collect_count)
+        local result = new HakoAllocSegmentAllocationModeledLocalFreeReuseReport()
+        result.did_reuse_local_free = 0
+        result.reason = 3
+        result.integration_reason = integration_report.reason
+        result.reused_block_id = -1
+        result.modeled_allocation_token = integration_report.modeled_allocation_token
+        result.segment_id = integration_report.segment_id
+        result.page_id = integration_report.page_id
+        result.modeled_block_start = integration_report.modeled_block_start
+        result.modeled_block_end = integration_report.modeled_block_end
+        result.applied_blocks = integration_report.applied_blocks
+        result.page_used_before_reuse = page_used_before
+        result.page_used_after_reuse = page.used
+        result.page_free_before_reuse = page_free_before
+        result.page_free_after_reuse = page.freeCount()
+        result.page_local_free_before_reuse = page_local_free_before
+        result.page_local_free_after_reuse = page.localFreeCount()
+        result.collect_count_before_reuse = collect_count_before
+        result.collect_count_after_reuse = page.local_free_collect_count
+        return me.finishReport(result)
     }
 
     rejectCollect(integration_report, page, reused_block_id, page_used_before, page_free_before, page_local_free_before, collect_count_before) {
         me.reject_count += 1
         me.collect_reject_count += 1
-        return me.report(0, 4, integration_report.reason, reused_block_id, integration_report.modeled_allocation_token, integration_report.segment_id, integration_report.page_id, integration_report.modeled_block_start, integration_report.modeled_block_end, integration_report.applied_blocks, page_used_before, page.used, page_free_before, page.freeCount(), page_local_free_before, page.localFreeCount(), collect_count_before, page.local_free_collect_count)
+        local result = new HakoAllocSegmentAllocationModeledLocalFreeReuseReport()
+        result.did_reuse_local_free = 0
+        result.reason = 4
+        result.integration_reason = integration_report.reason
+        result.reused_block_id = reused_block_id
+        result.modeled_allocation_token = integration_report.modeled_allocation_token
+        result.segment_id = integration_report.segment_id
+        result.page_id = integration_report.page_id
+        result.modeled_block_start = integration_report.modeled_block_start
+        result.modeled_block_end = integration_report.modeled_block_end
+        result.applied_blocks = integration_report.applied_blocks
+        result.page_used_before_reuse = page_used_before
+        result.page_used_after_reuse = page.used
+        result.page_free_before_reuse = page_free_before
+        result.page_free_after_reuse = page.freeCount()
+        result.page_local_free_before_reuse = page_local_free_before
+        result.page_local_free_after_reuse = page.localFreeCount()
+        result.collect_count_before_reuse = collect_count_before
+        result.collect_count_after_reuse = page.local_free_collect_count
+        return me.finishReport(result)
     }
 
     integrateAndReuseLocalFree(released_span_report, page, requested_size, unsupported_candidate_requirement, unsupported_apply_plan_requirement, unsupported_page_apply_requirement): HakoAllocSegmentAllocationModeledLocalFreeReuseReport {
@@ -141,6 +198,25 @@ box HakoAllocSegmentAllocationModeledLocalFreeReuse {
         }
 
         me.success_count += 1
-        return me.report(1, 0, integration_report.reason, reused_block_id, integration_report.modeled_allocation_token, integration_report.segment_id, integration_report.page_id, integration_report.modeled_block_start, integration_report.modeled_block_end, integration_report.applied_blocks, page_used_before, page.used, page_free_before, page.freeCount(), page_local_free_before, page.localFreeCount(), collect_count_before, page.local_free_collect_count)
+        local result = new HakoAllocSegmentAllocationModeledLocalFreeReuseReport()
+        result.did_reuse_local_free = 1
+        result.reason = 0
+        result.integration_reason = integration_report.reason
+        result.reused_block_id = reused_block_id
+        result.modeled_allocation_token = integration_report.modeled_allocation_token
+        result.segment_id = integration_report.segment_id
+        result.page_id = integration_report.page_id
+        result.modeled_block_start = integration_report.modeled_block_start
+        result.modeled_block_end = integration_report.modeled_block_end
+        result.applied_blocks = integration_report.applied_blocks
+        result.page_used_before_reuse = page_used_before
+        result.page_used_after_reuse = page.used
+        result.page_free_before_reuse = page_free_before
+        result.page_free_after_reuse = page.freeCount()
+        result.page_local_free_before_reuse = page_local_free_before
+        result.page_local_free_after_reuse = page.localFreeCount()
+        result.collect_count_before_reuse = collect_count_before
+        result.collect_count_after_reuse = page.local_free_collect_count
+        return me.finishReport(result)
     }
 }

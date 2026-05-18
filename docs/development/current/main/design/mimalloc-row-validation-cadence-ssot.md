@@ -330,7 +330,7 @@ segment-map local-free reuse bridge family:
     exe = deferred-to-closeout
   closeout pack:
     closeout_pack = segment-map-local-free-reuse-bridge
-    representative L3 EXE evidence deferred to a future closeout row
+    representative L3 EXE evidence in MIMAP-190A
 
 cleanup row using C199 compound assignment:
   L1 C199 guard

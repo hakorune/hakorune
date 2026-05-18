@@ -1250,6 +1250,38 @@ backing, atomic bitmap execution, OSVM/page-source execution, worker
 scheduling, provider activation, cross-function `Result` direct ABI, runtime
 sum materialization, or backend matchers.
 
+MIMAP-189A landed by selecting MIMAP-190A.
+
+### MIMAP-190A granularity
+
+MIMAP-190A closes the segment-map local-free reuse bridge pack with
+representative exact-MIR L3 EXE evidence. It adds no new allocator behavior;
+it only proves the MIMAP-188A bridge stays stable on VM, MIR preflight, and
+EXE.
+
+It must not open real segment allocation/free execution, raw pointer
+residence, real segment-map mutation, real allocator free-list mutation, arena
+backing, atomic bitmap execution, OSVM/page-source execution, worker
+scheduling, provider activation, cross-function `Result` direct ABI, runtime
+sum materialization, or backend matchers.
+
+MIMAP-190A landed by adding the reuse bridge closeout SSOT,
+manifest-backed closeout guard, exact-MIR L3 EXE evidence, and current
+pointers. It selected MIMAP-191A.
+
+### MIMAP-191A granularity
+
+MIMAP-191A is a planning row after the segment-map local-free reuse bridge
+closeout. It should choose between a segment-map local-free reuse ledger
+bridge, a local-free reuse diagnostic/observer sidecar, or the next modeled
+allocator boundary.
+
+It must not open real segment allocation/free execution, raw pointer
+residence, real segment-map mutation, real allocator free-list mutation, arena
+backing, atomic bitmap execution, OSVM/page-source execution, worker
+scheduling, provider activation, cross-function `Result` direct ABI, runtime
+sum materialization, or backend matchers.
+
 
 ## Historical Granularity Anchors
 

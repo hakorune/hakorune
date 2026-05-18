@@ -563,7 +563,9 @@ FST:
 | `MIMAP-186A` | landed | Segment-map local-free integration bridge closeout pack. | selected MIMAP-187A |
 | `MIMAP-187A` | landed | Post-segment-map-local-free-integration-bridge-closeout row selection. | selected MIMAP-188A |
 | `MIMAP-188A` | landed | Segment-map local-free reuse bridge. | selected MIMAP-189A |
-| `MIMAP-189A` | selected current | Post-segment-map-local-free-reuse-bridge row selection. | current planning row |
+| `MIMAP-189A` | landed | Post-segment-map-local-free-reuse-bridge row selection. | selected MIMAP-190A |
+| `MIMAP-190A` | landed | Segment-map local-free reuse bridge closeout pack. | selected MIMAP-191A |
+| `MIMAP-191A` | selected current | Post-segment-map-local-free-reuse-bridge-closeout row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -572,12 +574,13 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-189A` chooses the next narrow row after MIMAP-188A connected the
-segment-map chain to the modeled local-free reuse owner. Raw pointer residence remains
-parked behind a future rawbuf/no-escape capability. Real thread scheduling,
-worker spawning, source-level concurrency features, arena backing allocation,
-atomic bitmap execution, page-source calls, OSVM unreserve/release, provider
-activation, and backend matchers remain closed.
+`MIMAP-191A` chooses the next narrow row after MIMAP-190A closed the
+segment-map local-free reuse bridge pack with representative L3 EXE evidence.
+Raw pointer residence remains parked behind a future rawbuf/no-escape
+capability. Real thread scheduling, worker spawning, source-level concurrency
+features, arena backing allocation, atomic bitmap execution, page-source calls,
+OSVM unreserve/release, provider activation, and backend matchers remain
+closed.
 
 MIMAP-020A execution order:
 
@@ -793,7 +796,9 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `MIMAP-189A` | selected current | Post-segment-map-local-free-reuse-bridge row selection. | Current planning row. |
+| `MIMAP-191A` | selected current | Post-segment-map-local-free-reuse-bridge-closeout row selection. | Current planning row. |
+| `MIMAP-190A` | landed | Segment-map local-free reuse bridge closeout pack. | Selected MIMAP-191A. |
+| `MIMAP-189A` | landed | Post-segment-map-local-free-reuse-bridge row selection. | Selected MIMAP-190A. |
 | `MIMAP-188A` | landed | Segment-map local-free reuse bridge. | Selected MIMAP-189A. |
 | `MIMAP-187A` | landed | Post-segment-map-local-free-integration-bridge-closeout row selection. | Selected MIMAP-188A. |
 | `MIMAP-186A` | landed | Segment-map local-free integration bridge closeout pack. | Selected MIMAP-187A. |
