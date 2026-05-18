@@ -1,6 +1,6 @@
 # 293x-785 MIMAP-262A Segment Arena Backing Modeled Source Bridge Closeout Pack
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -45,3 +45,15 @@ evidence.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+- Added closeout SSOT and manifest-backed closeout guard.
+- Bundled MIMAP-260A L2 and MIMAP-261A L2 validation.
+- Added representative exact-MIR L3 evidence through the MIMAP-261A
+  diagnostics proof app.
+
+## Selected Next Row
+
+`MIMAP-263A` post segment arena backing modeled source bridge closeout row
+selection.

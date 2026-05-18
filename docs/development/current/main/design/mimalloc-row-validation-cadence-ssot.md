@@ -312,6 +312,9 @@ MIMAP-261A segment arena backing modeled source bridge diagnostics
 
 MIMAP-262A segment arena backing modeled source bridge closeout pack
   L3 representative exact-MIR evidence for segment-arena-backing-modeled-source-bridge
+
+MIMAP-263A post-segment-arena-backing-modeled-source-bridge-closeout row selection
+  L0 planning: select the next narrow bridge
 ```
 
 ## Row-Type Rules

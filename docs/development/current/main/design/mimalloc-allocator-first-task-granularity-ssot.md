@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-262A
+  MIMAP-263A
 
 current choice boundary:
-  modeled source bridge closeout after modeled source bridge diagnostics
+  post modeled source bridge closeout row selection
   while keeping real pointer residence, pointer lookup, and real arena backing closed
 
 closed until explicitly reopened:
@@ -446,7 +446,8 @@ Forbidden:
 | `MIMAP-259A` | post-segment-arena-backing-modeled-arena-slot-closeout row selection | landed; selected MIMAP-260A |
 | `MIMAP-260A` | segment arena backing modeled source bridge inventory | landed; selected MIMAP-261A |
 | `MIMAP-261A` | segment arena backing modeled source bridge diagnostics | landed; selected MIMAP-262A |
-| `MIMAP-262A` | segment arena backing modeled source bridge closeout pack | selected current |
+| `MIMAP-262A` | segment arena backing modeled source bridge closeout pack | landed; selected MIMAP-263A |
+| `MIMAP-263A` | post-segment-arena-backing-modeled-source-bridge-closeout row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2539,6 +2540,22 @@ pointer-derived lookup, real arena backing allocation, real segment-map
 mutation, atomic bitmap execution, OSVM/page-source execution,
 worker/provider activation, cross-function `Result` direct ABI, runtime sum
 materialization, or backend matcher rows.
+
+MIMAP-262A landed by adding the modeled source bridge closeout SSOT, closeout
+guard, guard manifest entry, and representative exact-MIR evidence. It selected
+MIMAP-263A.
+
+### MIMAP-263A granularity
+
+MIMAP-263A post-segment-arena-backing-modeled-source-bridge-closeout row
+selection.
+
+MIMAP-263A should select one next narrow bridge after modeled source bridge
+closeout. It should not open real pointer residence, pointer-derived lookup,
+real arena backing allocation, real segment-map mutation, atomic bitmap
+execution, OSVM/page-source execution, worker/provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, or backend
+matcher rows unless the selected row explicitly reopens one.
 
 
 ## Historical Granularity Anchors
