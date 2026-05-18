@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-213A` is current after MIMAP-212A proved the release-applied recycle
-lifecycle-token pilot.
+`MIMAP-215A` is current after MIMAP-214A closed the release-applied recycle
+lifecycle-token pilot pack.
 
 Recommended current row:
 
 ```text
-MIMAP-213A
-  post-segment-map-local-free-reuse-ledger-lifecycle-token-pilot row selection
+MIMAP-215A
+  post-segment-map-local-free-reuse-ledger-lifecycle-token-pilot-closeout row selection
 ```
 
 Purpose:
 
 ```text
-choose the next narrow row after segment-map local-free reuse ledger lifecycle-token pilot
+choose the next narrow row after segment-map local-free reuse ledger lifecycle-token pilot closeout
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -259,7 +259,9 @@ no provider activation
 | 188 | closeout | `MIMAP-210A segment-map local-free reuse ledger release-applied recycle second-release diagnostic closeout pack` | landed; selected MIMAP-211A |
 | 189 | planning | `MIMAP-211A post-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic-closeout row selection` | landed; selected MIMAP-212A |
 | 190 | allocator | `MIMAP-212A segment-map local-free reuse ledger lifecycle-token pilot` | landed; selected MIMAP-213A |
-| 191 | planning | `MIMAP-213A post-segment-map-local-free-reuse-ledger-lifecycle-token-pilot row selection` | selected current |
+| 191 | planning | `MIMAP-213A post-segment-map-local-free-reuse-ledger-lifecycle-token-pilot row selection` | landed; selected MIMAP-214A |
+| 192 | closeout | `MIMAP-214A segment-map local-free reuse ledger lifecycle-token pilot closeout pack` | landed; selected MIMAP-215A |
+| 193 | planning | `MIMAP-215A post-segment-map-local-free-reuse-ledger-lifecycle-token-pilot-closeout row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

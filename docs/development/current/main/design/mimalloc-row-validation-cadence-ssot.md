@@ -384,7 +384,7 @@ segment-map local-free reuse ledger lifecycle-token pilot family:
     exe = deferred-to-closeout
   closeout pack:
     closeout_pack = segment-map-local-free-reuse-ledger-lifecycle-token-pilot
-    representative L3 EXE evidence deferred to a future closeout row
+    representative L3 EXE evidence in MIMAP-214A
 
 cleanup row using C199 compound assignment:
   L1 C199 guard

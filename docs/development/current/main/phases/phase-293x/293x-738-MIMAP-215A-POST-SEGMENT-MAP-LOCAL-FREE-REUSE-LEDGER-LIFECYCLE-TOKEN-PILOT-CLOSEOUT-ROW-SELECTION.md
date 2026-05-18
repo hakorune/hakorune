@@ -1,18 +1,12 @@
-# 293x-736 MIMAP-213A Post Segment Map Local Free Reuse Ledger Lifecycle-Token Pilot Row Selection
+# 293x-738 MIMAP-215A Post Segment Map Local Free Reuse Ledger Lifecycle-Token Pilot Closeout Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-19
 
 ## Decision
 
-Choose the next narrow row after MIMAP-212A proves the scalar lifecycle-token
-pilot for segment-map local-free reuse ledger rows.
-
-Selected row:
-
-```text
-MIMAP-214A segment-map local-free reuse ledger lifecycle-token pilot closeout pack
-```
+Choose the next narrow row after MIMAP-214A closes the segment-map local-free
+reuse ledger lifecycle-token pilot pack.
 
 ## Context
 
@@ -23,16 +17,12 @@ source reuse ledger applies release
   -> source reuse ledger recycles the same modeled reuse token as a new live row
   -> release owner rejects a second release record for the same modeled reuse token
   -> dedicated lifecycle-token owner derives explicit reuse-lifecycle tokens
+  -> representative exact-MIR L3 EXE evidence for the lifecycle-token pilot
 ```
 
-The next row should decide whether to add a small observer/diagnostic around
-the lifecycle-token owner, close the lifecycle-token pilot pack with
-representative L3 EXE evidence, or choose the next modeled bridge before any
-real allocator execution is opened.
-
-MIMAP-213A selects the closeout pack so that the lifecycle-token pilot receives
-representative exact-MIR L3 EXE evidence before a later row decides whether to
-add an observer or advance to the next modeled bridge.
+The next row should choose whether to add a lifecycle-token observer/diagnostic,
+connect lifecycle-token facts to a later modeled release/recycle row, or choose
+the next modeled bridge while real allocator execution remains closed.
 
 ## Stop Lines
 
@@ -57,10 +47,4 @@ add an observer or advance to the next modeled bridge.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
-```
-
-## Next
-
-```text
-MIMAP-214A segment-map local-free reuse ledger lifecycle-token pilot closeout pack
 ```

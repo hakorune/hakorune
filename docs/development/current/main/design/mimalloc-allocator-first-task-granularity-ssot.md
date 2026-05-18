@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-213A
+  MIMAP-215A
 
 current choice boundary:
-  lifecycle-token pilot closeout
+  lifecycle-token observer/diagnostic sidecar
   or a small observer/diagnostic sidecar
   or the next modeled bridge that keeps real execution closed
 
@@ -398,7 +398,9 @@ Forbidden:
 | `MIMAP-210A` | segment-map local-free reuse ledger release-applied recycle second-release diagnostic closeout pack | landed; selected MIMAP-211A |
 | `MIMAP-211A` | post-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic-closeout row selection | landed; selected MIMAP-212A |
 | `MIMAP-212A` | segment-map local-free reuse ledger lifecycle-token pilot | landed; selected MIMAP-213A |
-| `MIMAP-213A` | post-segment-map-local-free-reuse-ledger-lifecycle-token-pilot row selection | selected current |
+| `MIMAP-213A` | post-segment-map-local-free-reuse-ledger-lifecycle-token-pilot row selection | landed; selected MIMAP-214A |
+| `MIMAP-214A` | segment-map local-free reuse ledger lifecycle-token pilot closeout pack | landed; selected MIMAP-215A |
+| `MIMAP-215A` | post-segment-map-local-free-reuse-ledger-lifecycle-token-pilot-closeout row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -1685,6 +1687,40 @@ MIMAP-213A is a planning row after the segment-map local-free reuse ledger
 lifecycle-token pilot. It should choose between a lifecycle-token closeout pack,
 a small observer/diagnostic sidecar, or the next modeled bridge that keeps real
 allocator execution closed.
+
+It must not migrate release-ledger keys, define generation/lifecycle semantics
+for real allocator cycles, or open real segment allocation/free execution, raw
+pointer residence, real segment-map mutation, real allocator free-list
+mutation, arena backing, atomic bitmap execution, OSVM/page-source execution,
+worker scheduling, provider activation, cross-function `Result` direct ABI,
+runtime sum materialization, or backend matchers.
+
+MIMAP-213A landed by selecting MIMAP-214A, the closeout pack for representative
+exact-MIR L3 EXE evidence.
+
+### MIMAP-214A granularity
+
+MIMAP-214A closes the lifecycle-token pilot pack with representative exact-MIR
+L3 EXE evidence. Daily validation for MIMAP-212A remains L2, while this
+closeout guard proves VM/EXE parity from the exact MIR artifact.
+
+It must not migrate release-ledger keys, define generation/lifecycle semantics
+for real allocator cycles, or open real segment allocation/free execution, raw
+pointer residence, real segment-map mutation, real allocator free-list
+mutation, arena backing, atomic bitmap execution, OSVM/page-source execution,
+worker scheduling, provider activation, cross-function `Result` direct ABI,
+runtime sum materialization, or backend matchers.
+
+MIMAP-214A landed by adding the closeout SSOT, manifest-backed closeout guard,
+guard manifest row, check-script index entry, phase card, and current pointers.
+It selected MIMAP-215A.
+
+### MIMAP-215A granularity
+
+MIMAP-215A is a planning row after the lifecycle-token pilot closeout. It
+should choose between a lifecycle-token observer/diagnostic sidecar, connecting
+lifecycle-token facts to a later modeled release/recycle row, or the next
+modeled bridge that keeps real allocator execution closed.
 
 It must not migrate release-ledger keys, define generation/lifecycle semantics
 for real allocator cycles, or open real segment allocation/free execution, raw
