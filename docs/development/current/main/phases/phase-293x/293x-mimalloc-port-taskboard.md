@@ -496,7 +496,8 @@ FST:
 | `MIMAP-150A` | landed | Post-blocked-substrate-matrix row selection. | selected MIMAP-151A |
 | `MIMAP-151A` | landed | Segment-map scalar lookup boundary inventory. | selected MIMAP-152A |
 | `MIMAP-152A` | landed | Post-segment-map-scalar-lookup row selection. | selected MIMAP-153A |
-| `MIMAP-153A` | selected current | Segment-map lookup guarded readiness composition. | current implementation row |
+| `MIMAP-153A` | landed | Segment-map lookup guarded readiness composition. | selected MIMAP-154A |
+| `MIMAP-154A` | selected current | Post-lookup-guarded-readiness row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -505,12 +506,12 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-153A` gates segment/page membership and allocation readiness behind the
-MIMAP-151A explicit-ID segment-map scalar lookup. Raw pointer residence remains
-parked behind a future rawbuf/no-escape capability. Real thread scheduling,
-worker spawning, source-level concurrency features, arena backing allocation,
-atomic bitmap execution, page-source calls, OSVM unreserve/release, provider
-activation, and backend matchers remain closed.
+`MIMAP-154A` chooses the next follow-up after MIMAP-153A lookup-guarded
+membership/readiness composition. Raw pointer residence remains parked behind a
+future rawbuf/no-escape capability. Real thread scheduling, worker spawning,
+source-level concurrency features, arena backing allocation, atomic bitmap
+execution, page-source calls, OSVM unreserve/release, provider activation, and
+backend matchers remain closed.
 
 MIMAP-020A execution order:
 
@@ -726,7 +727,8 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `MIMAP-153A` | selected current | Segment-map lookup guarded readiness composition. | Current implementation row. |
+| `MIMAP-154A` | selected current | Post-lookup-guarded-readiness row selection. | Current planning row. |
+| `MIMAP-153A` | landed | Segment-map lookup guarded readiness composition. | Selected MIMAP-154A. |
 | `MIMAP-152A` | landed | Post-segment-map-scalar-lookup row selection. | Selected MIMAP-153A. |
 | `MIMAP-151A` | landed | Segment-map scalar lookup boundary inventory. | Selected MIMAP-152A. |
 | `MIMAP-150A` | landed | Post-blocked-substrate-matrix row selection. | Selected MIMAP-151A. |

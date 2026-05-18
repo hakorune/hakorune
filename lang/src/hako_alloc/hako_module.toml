@@ -21,6 +21,7 @@ memory.segment_arena_bitmap_inventory_box = "memory/segment_arena_bitmap_invento
 memory.segment_lifecycle_scalar_state_box = "memory/segment_lifecycle_scalar_state_box.hako"
 memory.segment_page_membership_scalar_box = "memory/segment_page_membership_scalar_box.hako"
 memory.segment_map_scalar_lookup_boundary_inventory_box = "memory/segment_map_scalar_lookup_boundary_inventory_box.hako"
+memory.segment_map_lookup_guarded_readiness_composition_box = "memory/segment_map_lookup_guarded_readiness_composition_box.hako"
 memory.segment_allocation_readiness_scalar_box = "memory/segment_allocation_readiness_scalar_box.hako"
 memory.segment_allocation_blocked_substrate_matrix_box = "memory/segment_allocation_blocked_substrate_matrix_box.hako"
 memory.segment_allocation_modeled_consume_box = "memory/segment_allocation_modeled_consume_box.hako"

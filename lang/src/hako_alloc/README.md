@@ -17,6 +17,9 @@ Current mimalloc policy queue
 - `HakoAllocSegmentMapScalarLookupBoundaryInventory` is the MIMAP-151A
   proof-only owner for explicit-ID segment/page/slice lookup inventory while
   raw pointer residence remains closed.
+- `HakoAllocSegmentMapLookupGuardedReadinessComposition` is the MIMAP-153A
+  proof-only owner that gates membership and readiness facts behind explicit-ID
+  segment-map scalar lookup.
 
 Principles
 - Keep this root as the alloc/policy anchor.

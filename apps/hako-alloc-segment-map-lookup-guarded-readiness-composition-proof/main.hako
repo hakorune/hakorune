@@ -1,0 +1,73 @@
+// hako-alloc-segment-map-lookup-guarded-readiness-composition-proof
+// Purpose: prove MIMAP-153A lookup-guarded membership/readiness composition.
+
+using selfhost.hako_alloc.memory.segment_map_lookup_guarded_readiness_composition_box as HakoAllocSegmentMapLookupGuardedReadinessComposition
+
+static box Main {
+    main(args) {
+        local composition = new HakoAllocSegmentMapLookupGuardedReadinessComposition()
+
+        local accepted = composition.composeLookupReadiness(70, 7, 3, 16, 1, composition.stateActive(), 2, 8, 3, 0)
+        local unknown_segment = composition.composeLookupReadiness(71, 7, 3, 16, 1, composition.stateActive(), 2, 8, 3, 0)
+        local membership_reject = composition.composeLookupReadiness(70, 7, 3, 16, 1, composition.stateFreed(), 0, 8, 3, 0)
+        local readiness_reject = composition.composeLookupReadiness(70, 7, 3, 16, 1, composition.stateActive(), 7, 8, 3, 0)
+        local raw_lookup = composition.composeLookupReadiness(70, 7, 3, 16, 1, composition.stateActive(), 2, 8, 3, 1)
+
+        local ok = check "mimap153a segment map lookup guarded readiness composition" {
+            "accepted": accepted.accepted == 1
+            "accepted reason": accepted.reason == composition.reasonOk()
+            "lookup reason": accepted.lookup_reason == 0
+            "membership reason": accepted.membership_reason == 0
+            "readiness reason": accepted.readiness_reason == 0
+            "accepted row": accepted.row_index == 0
+            "accepted segment": accepted.segment_id == 70
+            "accepted page": accepted.page_id == 7
+            "accepted slice": accepted.slice_index == 3
+            "accepted slice count": accepted.slice_count == 16
+            "accepted generation": accepted.generation == 1
+            "accepted state": accepted.segment_state == composition.stateActive()
+            "accepted available": accepted.available_blocks == 6
+            "unknown segment composition reason": unknown_segment.reason == composition.reasonLookupRejected()
+            "unknown segment lookup reason": unknown_segment.lookup_reason == 3
+            "membership reject reason": membership_reject.reason == composition.reasonMembershipRejected()
+            "membership subreason": membership_reject.membership_reason == 8
+            "readiness reject reason": readiness_reject.reason == composition.reasonReadinessRejected()
+            "readiness subreason": readiness_reject.readiness_reason == 2
+            "raw lookup composition reason": raw_lookup.reason == composition.reasonLookupRejected()
+            "raw lookup subreason": raw_lookup.lookup_reason == 2
+            "inactive raw": accepted.would_use_raw_pointer == 0
+            "inactive real map": accepted.would_use_real_segment_map == 0
+            "inactive arena": accepted.would_allocate_arena_backing == 0
+            "inactive atomic": accepted.would_execute_atomic_bitmap == 0
+            "inactive osvm": accepted.would_call_osvm == 0
+            "inactive thread": accepted.would_run_thread == 0
+            "inactive provider": accepted.would_activate_provider == 0
+            "inactive replacement": accepted.would_replace_process_allocator == 0
+            "inactive matcher": accepted.would_add_backend_matcher == 0
+            "compose count": composition.compose_count == 5
+            "accepted count": composition.accepted_count == 1
+            "reject count": composition.reject_count == 4
+            "lookup reject count": composition.lookup_reject_count == 2
+            "membership reject count": composition.membership_reject_count == 1
+            "readiness reject count": composition.readiness_reject_count == 1
+            "raw lookup reject count": composition.raw_pointer_lookup_reject_count == 1
+            "last reason": composition.last_reason == composition.reasonLookupRejected()
+        }
+
+        print("hako-alloc-segment-map-lookup-guarded-readiness-composition-proof")
+        print("composition=" + accepted.accepted + "," + accepted.reason + "," + accepted.lookup_reason + "," + accepted.membership_reason + "," + accepted.readiness_reason + "," + accepted.segment_id + "," + accepted.page_id + "," + accepted.slice_index + "," + accepted.slice_count + "," + accepted.generation + "," + accepted.page_used + "," + accepted.page_capacity + "," + accepted.request_blocks + "," + accepted.available_blocks)
+        print("reject_reasons=" + unknown_segment.reason + "," + membership_reject.reason + "," + readiness_reject.reason + "," + raw_lookup.reason)
+        print("subreasons=" + unknown_segment.lookup_reason + "," + membership_reject.membership_reason + "," + readiness_reject.readiness_reason + "," + raw_lookup.lookup_reason)
+        print("inactive=" + accepted.would_use_raw_pointer + "," + accepted.would_use_real_segment_map + "," + accepted.would_allocate_arena_backing + "," + accepted.would_execute_atomic_bitmap + "," + accepted.would_call_osvm + "," + accepted.would_run_thread + "," + accepted.would_activate_provider + "," + accepted.would_replace_process_allocator + "," + accepted.would_add_backend_matcher)
+        print("counts=" + composition.compose_count + "," + composition.accepted_count + "," + composition.reject_count + "," + composition.lookup_reject_count + "," + composition.membership_reject_count + "," + composition.readiness_reject_count + "," + composition.raw_pointer_lookup_reject_count + "," + composition.last_reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -288,6 +288,13 @@ profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_scalar_lookup_boundary_inventory_guard.sh"]
 
 [[proof_apps]]
+id = "MIMAP-153A"
+app = "apps/hako-alloc-segment-map-lookup-guarded-readiness-composition-proof"
+label = "segment-map lookup guarded readiness composition proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_lookup_guarded_readiness_composition_guard.sh"]
+
+[[proof_apps]]
 id = "MIMAP-091A"
 app = "apps/hako-alloc-segment-allocation-modeled-consume-proof"
 label = "segment allocation modeled consume proof"

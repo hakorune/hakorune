@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-153A segment-map lookup guarded readiness composition`
+  `MIMAP-154A post-lookup-guarded-readiness row selection`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,8 +74,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-153A`,
-  the segment-map lookup guarded readiness composition selected by MIMAP-152A.
+- resume point: continue Phase 293x with `MIMAP-154A`,
+  the post-lookup-guarded-readiness row selection selected by MIMAP-153A.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -83,11 +83,10 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-153A`: gate segment/page membership and allocation readiness behind
-     explicit-ID segment-map scalar lookup
-  2. prove accepted lookup -> membership -> readiness plus stable reject paths
-     for lookup reject, membership reject, readiness reject, and raw-pointer
-     lookup request
+  1. `MIMAP-154A`: choose exactly one next row after lookup-guarded membership
+     and allocation readiness
+  2. prefer a small follow-up that composes accepted readiness into the existing
+     modeled allocation consume / ledger proof lane
   3. keep cross-function `Result` direct ABI and runtime sum materialization
      closed
   4. keep real thread scheduling, worker spawning, source-level concurrency features,

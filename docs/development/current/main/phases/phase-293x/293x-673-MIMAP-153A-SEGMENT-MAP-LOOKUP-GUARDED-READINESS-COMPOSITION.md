@@ -1,6 +1,6 @@
 # 293x-673 MIMAP-153A Segment Map Lookup Guarded Readiness Composition
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -47,3 +47,30 @@ bash tools/checks/k2_wide_hako_alloc_segment_map_lookup_guarded_readiness_compos
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Implementation
+
+- Added `HakoAllocSegmentMapLookupGuardedReadinessComposition` as the
+  proof-only composition owner.
+- Added a proof app that accepts the lookup -> membership -> readiness path and
+  rejects lookup, membership, readiness, and raw-pointer request paths with
+  stable subreasons.
+- Registered the owner in the `hako_alloc` module, proof manifest, check
+  script index, allocator docs, and current task docs.
+
+## Closeout
+
+MIMAP-153A landed with this proof surface:
+
+```text
+composition=1,0,0,0,0,70,7,3,16,1,2,8,3,6
+reject_reasons=1,2,3,1
+subreasons=3,8,2,2
+inactive=0,0,0,0,0,0,0,0,0
+counts=5,1,4,2,1,1,1,1
+```
+
+The next selected row is `MIMAP-154A`, a post-lookup-guarded-readiness row
+selection. Raw pointer residence, real segment-map execution, arena backing,
+atomic bitmap execution, OSVM execution, thread scheduling, provider
+activation, and backend matchers remain closed.

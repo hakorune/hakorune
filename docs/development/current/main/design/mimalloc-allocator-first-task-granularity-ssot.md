@@ -333,7 +333,8 @@ Forbidden:
 | `MIMAP-150A` | post-blocked-substrate-matrix row selection | landed; selected MIMAP-151A |
 | `MIMAP-151A` | segment-map scalar lookup boundary inventory | landed; selected MIMAP-152A |
 | `MIMAP-152A` | post-segment-map-scalar-lookup row selection | landed; selected MIMAP-153A |
-| `MIMAP-153A` | segment-map lookup guarded readiness composition | selected current |
+| `MIMAP-153A` | segment-map lookup guarded readiness composition | landed; selected MIMAP-154A |
+| `MIMAP-154A` | post-lookup-guarded-readiness row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -666,6 +667,19 @@ with stable reason codes.
 It must not derive lookup identity from raw pointers or open real segment-map
 execution, arena backing, atomic bitmap, OSVM, thread scheduling, provider
 activation, or backend matcher behavior.
+
+MIMAP-153A landed by adding the guarded readiness composition owner, proof app,
+guard, and docs wiring. It selected MIMAP-154A.
+
+### MIMAP-154A granularity
+
+MIMAP-154A is a planning row after lookup-guarded membership/readiness. It
+chooses exactly one next follow-up, preferably a small row that composes the
+accepted readiness path into the existing modeled allocation consume / ledger
+proof lane.
+
+It must not implement real segment allocation/free or open another blocked
+substrate.
 
 
 ## Historical Granularity Anchors

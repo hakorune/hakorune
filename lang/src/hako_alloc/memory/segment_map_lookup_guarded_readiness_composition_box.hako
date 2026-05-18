@@ -1,0 +1,144 @@
+// segment_map_lookup_guarded_readiness_composition_box.hako -- MIMAP-153A composition proof
+// Responsibility:
+// - gate membership/readiness facts behind explicit-ID scalar lookup
+// - compose existing proof-only owners without opening real segment-map execution
+// - keep raw pointer residence and substrate execution closed
+// Non-responsibility:
+// - pointer-derived lookup, real allocation/free, arena backing, bitmap execution,
+//   OSVM calls, scheduling, provider activation, or backend shortcuts
+
+using selfhost.hako_alloc.memory.segment_map_scalar_lookup_boundary_inventory_box as HakoAllocSegmentMapScalarLookupBoundaryInventory
+using selfhost.hako_alloc.memory.segment_page_membership_scalar_box as HakoAllocSegmentPageMembershipScalar
+using selfhost.hako_alloc.memory.segment_allocation_readiness_scalar_box as HakoAllocSegmentAllocationReadinessScalar
+
+box HakoAllocSegmentMapLookupGuardedReadinessCompositionReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    lookup_reason: i64 = -1
+    membership_reason: i64 = -1
+    readiness_reason: i64 = -1
+    row_index: i64 = -1
+    segment_id: i64 = -1
+    page_id: i64 = -1
+    slice_index: i64 = -1
+    slice_count: i64 = 0
+    generation: i64 = -1
+    segment_state: i64 = -1
+    page_used: i64 = 0
+    page_capacity: i64 = 0
+    request_blocks: i64 = 0
+    available_blocks: i64 = 0
+    would_use_raw_pointer: i64 = 0
+    would_use_real_segment_map: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_replace_process_allocator: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentMapLookupGuardedReadinessComposition {
+    compose_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    lookup_reject_count: i64 = 0
+    membership_reject_count: i64 = 0
+    readiness_reject_count: i64 = 0
+    raw_pointer_lookup_reject_count: i64 = 0
+    last_reason: i64 = -1
+
+    reasonOk(): i64 {
+        return 0
+    }
+
+    reasonLookupRejected(): i64 {
+        return 1
+    }
+
+    reasonMembershipRejected(): i64 {
+        return 2
+    }
+
+    reasonReadinessRejected(): i64 {
+        return 3
+    }
+
+    stateActive(): i64 {
+        return 1
+    }
+
+    stateFreed(): i64 {
+        return 6
+    }
+
+    report(accepted, reason, lookup_reason, membership_reason, readiness_reason, row_index, segment_id, page_id, slice_index, slice_count, generation, segment_state, page_used, page_capacity, request_blocks, available_blocks): HakoAllocSegmentMapLookupGuardedReadinessCompositionReport {
+        local result = new HakoAllocSegmentMapLookupGuardedReadinessCompositionReport()
+        result.accepted = accepted
+        result.reason = reason
+        result.lookup_reason = lookup_reason
+        result.membership_reason = membership_reason
+        result.readiness_reason = readiness_reason
+        result.row_index = row_index
+        result.segment_id = segment_id
+        result.page_id = page_id
+        result.slice_index = slice_index
+        result.slice_count = slice_count
+        result.generation = generation
+        result.segment_state = segment_state
+        result.page_used = page_used
+        result.page_capacity = page_capacity
+        result.request_blocks = request_blocks
+        result.available_blocks = available_blocks
+        me.last_reason = reason
+        return result
+    }
+
+    rejectLookup(lookup, segment_state, page_used, page_capacity, request_blocks, raw_pointer_lookup_requested): HakoAllocSegmentMapLookupGuardedReadinessCompositionReport {
+        me.reject_count += 1
+        me.lookup_reject_count += 1
+        if raw_pointer_lookup_requested != 0 {
+            me.raw_pointer_lookup_reject_count += 1
+        }
+        return me.report(0, me.reasonLookupRejected(), lookup.reason, -1, -1, lookup.row_index, lookup.segment_id, lookup.page_id, lookup.slice_index, lookup.slice_count, lookup.generation, segment_state, page_used, page_capacity, request_blocks, 0)
+    }
+
+    rejectMembership(lookup, membership, segment_state, page_used, page_capacity, request_blocks): HakoAllocSegmentMapLookupGuardedReadinessCompositionReport {
+        me.reject_count += 1
+        me.membership_reject_count += 1
+        return me.report(0, me.reasonMembershipRejected(), lookup.reason, membership.reason, -1, lookup.row_index, lookup.segment_id, lookup.page_id, lookup.slice_index, lookup.slice_count, lookup.generation, segment_state, page_used, page_capacity, request_blocks, 0)
+    }
+
+    rejectReadiness(lookup, membership, readiness, segment_state, page_used, page_capacity, request_blocks): HakoAllocSegmentMapLookupGuardedReadinessCompositionReport {
+        me.reject_count += 1
+        me.readiness_reject_count += 1
+        return me.report(0, me.reasonReadinessRejected(), lookup.reason, membership.reason, readiness.reason, lookup.row_index, lookup.segment_id, lookup.page_id, lookup.slice_index, lookup.slice_count, lookup.generation, segment_state, page_used, page_capacity, request_blocks, readiness.available_blocks)
+    }
+
+    composeLookupReadiness(segment_id, page_id, slice_index, slice_count, generation, segment_state, page_used, page_capacity, request_blocks, raw_pointer_lookup_requested): HakoAllocSegmentMapLookupGuardedReadinessCompositionReport {
+        me.compose_count += 1
+
+        local lookup_owner = new HakoAllocSegmentMapScalarLookupBoundaryInventory()
+        local membership_owner = new HakoAllocSegmentPageMembershipScalar()
+        local readiness_owner = new HakoAllocSegmentAllocationReadinessScalar()
+
+        local lookup = lookup_owner.lookupScalar(segment_id, page_id, slice_index, slice_count, generation, raw_pointer_lookup_requested)
+        if lookup.accepted == 0 {
+            return me.rejectLookup(lookup, segment_state, page_used, page_capacity, request_blocks, raw_pointer_lookup_requested)
+        }
+
+        local membership = membership_owner.classifyMembership(lookup.segment_id, lookup.page_id, lookup.slice_index, lookup.slice_count, segment_state, page_used, page_capacity, 0)
+        if membership.accepted == 0 {
+            return me.rejectMembership(lookup, membership, segment_state, page_used, page_capacity, request_blocks)
+        }
+
+        local readiness = readiness_owner.classifyReadiness(lookup.segment_id, lookup.page_id, segment_state, page_used, page_capacity, request_blocks, 0)
+        if readiness.accepted == 0 {
+            return me.rejectReadiness(lookup, membership, readiness, segment_state, page_used, page_capacity, request_blocks)
+        }
+
+        me.accepted_count += 1
+        return me.report(1, me.reasonOk(), lookup.reason, membership.reason, readiness.reason, lookup.row_index, lookup.segment_id, lookup.page_id, lookup.slice_index, lookup.slice_count, lookup.generation, segment_state, page_used, page_capacity, request_blocks, readiness.available_blocks)
+    }
+}
