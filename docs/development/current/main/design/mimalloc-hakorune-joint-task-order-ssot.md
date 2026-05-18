@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-205A` is current after MIMAP-204A proved the segment-map local-free
-reuse ledger release-applied recycle bridge.
+`MIMAP-207A` is current after MIMAP-206A closed the segment-map local-free
+reuse ledger release-applied recycle bridge pack.
 
 Recommended current row:
 
 ```text
-MIMAP-205A
-  post-segment-map-local-free-reuse-ledger-release-applied-recycle-bridge row selection
+MIMAP-207A
+  post-segment-map-local-free-reuse-ledger-release-applied-recycle-bridge-closeout row selection
 ```
 
 Purpose:
 
 ```text
-choose the next narrow row after segment-map local-free reuse ledger release-applied recycle bridge
+choose the next narrow row after segment-map local-free reuse ledger release-applied recycle bridge closeout
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -251,7 +251,9 @@ no provider activation
 | 180 | closeout | `MIMAP-202A segment-map local-free reuse ledger release apply bridge closeout pack` | landed; selected MIMAP-203A |
 | 181 | planning | `MIMAP-203A post-segment-map-local-free-reuse-ledger-release-apply-bridge-closeout row selection` | landed; selected MIMAP-204A |
 | 182 | allocator | `MIMAP-204A segment-map local-free reuse ledger release-applied recycle bridge` | landed; selected MIMAP-205A |
-| 183 | planning | `MIMAP-205A post-segment-map-local-free-reuse-ledger-release-applied-recycle-bridge row selection` | selected current |
+| 183 | planning | `MIMAP-205A post-segment-map-local-free-reuse-ledger-release-applied-recycle-bridge row selection` | landed; selected MIMAP-206A |
+| 184 | closeout | `MIMAP-206A segment-map local-free reuse ledger release-applied recycle bridge closeout pack` | landed; selected MIMAP-207A |
+| 185 | planning | `MIMAP-207A post-segment-map-local-free-reuse-ledger-release-applied-recycle-bridge-closeout row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

@@ -1,12 +1,12 @@
-# 293x-728 MIMAP-205A Post Segment Map Local Free Reuse Ledger Release-Applied Recycle Bridge Row Selection
+# 293x-730 MIMAP-207A Post Segment Map Local Free Reuse Ledger Release-Applied Recycle Bridge Closeout Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-18
 
 ## Decision
 
-Choose MIMAP-206A as the next narrow row after MIMAP-204A proves the
-segment-map local-free reuse ledger release-applied recycle bridge.
+Choose the next narrow row after MIMAP-206A closes the segment-map local-free
+reuse ledger release-applied recycle bridge pack.
 
 ## Context
 
@@ -26,31 +26,20 @@ explicit-ID readiness
   -> modeled local-free reuse ledger release owner records the release row
   -> source reuse ledger applies that release and marks the row non-live
   -> source reuse ledger records the same modeled reuse token as a new live row
+  -> representative exact-MIR EXE parity for the release-applied recycle bridge pack
 ```
 
-The next row is:
-
-```text
-MIMAP-206A segment-map local-free reuse ledger release-applied recycle bridge closeout pack
-```
-
-Rationale:
-
-- MIMAP-204A is a scalar-composition bridge whose EXE evidence is explicitly
-  deferred to its closeout pack.
-- The release-applied recycle bridge is the first segment-map-derived row that
-  reaches the source-ledger recycle route after applying release, so it should
-  get representative exact-MIR L3 evidence before another behavior row.
-- A closeout row keeps the validation cadence small: daily rows remain L2,
-  while pack boundaries carry L3.
+The next row should choose between a small observer/diagnostic sidecar or the
+next modeled bridge that keeps raw pointer residence and real allocator
+execution closed.
 
 ## Stop Lines
 
 - No real segment allocation/free execution.
 - No raw pointer residence or pointer-derived lookup.
 - No real segment-map mutation.
-- No real free-list mutation unless a future row explicitly selects a modeled
-  bridge and keeps execution closed.
+- No real allocator free-list mutation unless a future row explicitly selects a
+  modeled bridge and keeps execution closed.
 - No direct page-array mutation outside explicit modeled page owners.
 - No arena backing allocation.
 - No atomic bitmap execution.
@@ -66,10 +55,4 @@ Rationale:
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
-```
-
-## Next
-
-```text
-MIMAP-206A segment-map local-free reuse ledger release-applied recycle bridge closeout pack
 ```

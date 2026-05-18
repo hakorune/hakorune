@@ -20,11 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-205A
+  MIMAP-207A
 
 current choice boundary:
-  release-applied recycle bridge closeout pack
-  or a small observer/diagnostic sidecar
+  small observer/diagnostic sidecar
   or the next modeled bridge that keeps real execution closed
 
 closed until explicitly reopened:
@@ -390,7 +389,9 @@ Forbidden:
 | `MIMAP-202A` | segment-map local-free reuse ledger release apply bridge closeout pack | landed; selected MIMAP-203A |
 | `MIMAP-203A` | post-segment-map-local-free-reuse-ledger-release-apply-bridge-closeout row selection | landed; selected MIMAP-204A |
 | `MIMAP-204A` | segment-map local-free reuse ledger release-applied recycle bridge | landed; selected MIMAP-205A |
-| `MIMAP-205A` | post-segment-map-local-free-reuse-ledger-release-applied-recycle-bridge row selection | selected current |
+| `MIMAP-205A` | post-segment-map-local-free-reuse-ledger-release-applied-recycle-bridge row selection | landed; selected MIMAP-206A |
+| `MIMAP-206A` | segment-map local-free reuse ledger release-applied recycle bridge closeout pack | landed; selected MIMAP-207A |
+| `MIMAP-207A` | post-segment-map-local-free-reuse-ledger-release-applied-recycle-bridge-closeout row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -1558,8 +1559,36 @@ MIMAP-205A.
 ### MIMAP-205A granularity
 
 MIMAP-205A is a planning row after the segment-map local-free reuse ledger
-release-applied recycle bridge. It should choose between a closeout pack, a
-small observer/diagnostic sidecar, or the next modeled bridge that keeps real
+release-applied recycle bridge. It selected MIMAP-206A, the closeout pack for
+representative exact-MIR L3 evidence before another behavior row.
+
+It must not open real segment allocation/free execution, raw pointer
+residence, real segment-map mutation, real allocator free-list mutation, arena
+backing, atomic bitmap execution, OSVM/page-source execution, worker
+scheduling, provider activation, cross-function `Result` direct ABI, runtime
+sum materialization, or backend matchers.
+
+### MIMAP-206A granularity
+
+MIMAP-206A closes the segment-map local-free reuse ledger release-applied
+recycle bridge pack with representative exact-MIR L3 EXE evidence. Daily
+validation for MIMAP-204A remains L2, while this closeout guard proves VM/EXE
+parity from the exact MIR artifact.
+
+It must keep the same source-ledger `applyReuseLedgerRelease` and
+`recordLocalFreeReuse` route shape from MIMAP-204A. It must not add a new
+allocator behavior, mutate real page/segment state, or widen the source ledger
+with a segment-map-specific backend matcher.
+
+MIMAP-206A landed by adding the closeout SSOT, manifest-backed closeout guard,
+guard manifest row, check-script index entry, phase card, and current pointers.
+It selected MIMAP-207A.
+
+### MIMAP-207A granularity
+
+MIMAP-207A is a planning row after the segment-map local-free reuse ledger
+release-applied recycle bridge closeout. It should choose between a small
+observer/diagnostic sidecar or the next modeled bridge that keeps real
 allocator execution closed.
 
 It must not open real segment allocation/free execution, raw pointer
