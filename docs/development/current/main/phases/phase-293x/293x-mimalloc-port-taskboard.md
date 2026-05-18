@@ -545,7 +545,9 @@ FST:
 | `MIMAP-168A` | landed | Segment-map modeled consume ledger released-span observation route. | selected MIMAP-169A |
 | `MIMAP-169A` | landed | Post-segment-map-modeled-consume-ledger-released-span-observation row selection. | selected MIMAP-170A |
 | `MIMAP-170A` | landed | Segment-map modeled consume ledger released-span observation closeout pack. | selected MIMAP-171A |
-| `MIMAP-171A` | selected current | Post-segment-map-modeled-consume-ledger-released-span-observation-closeout row selection. | current planning row |
+| `MIMAP-171A` | landed | Post-segment-map-modeled-consume-ledger-released-span-observation-closeout row selection. | selected MIMAP-172A |
+| `MIMAP-172A` | landed | Segment-map released-span local-free candidate bridge. | selected MIMAP-173A |
+| `MIMAP-173A` | selected current | Post-segment-map-released-span-local-free-candidate-bridge row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -554,8 +556,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-171A` chooses the next narrow row after MIMAP-170A closed
-segment-map modeled consume-ledger released-span observation. Raw pointer residence remains
+`MIMAP-173A` chooses the next narrow row after MIMAP-172A connected
+segment-map released-span rows to the local-free candidate ledger. Raw pointer residence remains
 parked behind a future rawbuf/no-escape capability. Real thread scheduling,
 worker spawning, source-level concurrency features, arena backing allocation,
 atomic bitmap execution, page-source calls, OSVM unreserve/release, provider
@@ -775,7 +777,9 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `MIMAP-171A` | selected current | Post-segment-map-modeled-consume-ledger-released-span-observation-closeout row selection. | Current planning row. |
+| `MIMAP-173A` | selected current | Post-segment-map-released-span-local-free-candidate-bridge row selection. | Current planning row. |
+| `MIMAP-172A` | landed | Segment-map released-span local-free candidate bridge. | Selected MIMAP-173A. |
+| `MIMAP-171A` | landed | Post-segment-map-modeled-consume-ledger-released-span-observation-closeout row selection. | Selected MIMAP-172A. |
 | `MIMAP-170A` | landed | Segment-map modeled consume ledger released-span observation closeout pack. | Selected MIMAP-171A. |
 | `MIMAP-169A` | landed | Post-segment-map-modeled-consume-ledger-released-span-observation row selection. | Selected MIMAP-170A. |
 | `MIMAP-168A` | landed | Segment-map modeled consume ledger released-span observation route. | Selected MIMAP-169A. |

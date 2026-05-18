@@ -365,6 +365,19 @@ cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_modeled_consume_ledg
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_modeled_consume_ledger_released_span_observation_guard.sh", "--level", "L2"]
 
 [[proof_apps]]
+id = "MIMAP-172A"
+app = "apps/hako-alloc-segment-map-released-span-local-free-candidate-bridge-proof"
+label = "segment-map released-span local-free candidate bridge proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "scalar-composition"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "segment-map-local-free-candidate-bridge"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_released_span_local_free_candidate_bridge_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_released_span_local_free_candidate_bridge_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
 id = "MIMAP-091A"
 app = "apps/hako-alloc-segment-allocation-modeled-consume-proof"
 label = "segment allocation modeled consume proof"

@@ -287,6 +287,15 @@ segment-map consume ledger released-span observation family:
     closeout_pack = segment-map-consume-ledger-released-span
     representative L3 EXE evidence in MIMAP-170A
 
+segment-map local-free candidate bridge family:
+  MIMAP-172A segment-map released-span local-free candidate bridge:
+    validation_profile = scalar-mir
+    closeout_pack = segment-map-local-free-candidate-bridge
+    exe = deferred-to-closeout
+  closeout pack:
+    closeout_pack = segment-map-local-free-candidate-bridge
+    representative L3 EXE evidence deferred to a future closeout row
+
 cleanup row using C199 compound assignment:
   L1 C199 guard
   L3 touched segment guards only

@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-171A post-segment-map-modeled-consume-ledger-released-span-observation-closeout row selection`
+  `MIMAP-173A post-segment-map-released-span-local-free-candidate-bridge row selection`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -76,9 +76,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-171A`,
-  the post-segment-map-modeled-consume-ledger-released-span-observation-closeout
-  planning row selected by MIMAP-170A.
+- resume point: continue Phase 293x with `MIMAP-173A`,
+  the post-segment-map-released-span-local-free-candidate-bridge planning row
+  selected by MIMAP-172A.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -86,8 +86,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-171A`: choose the next narrow row after segment-map modeled
-     consume-ledger released-span observation closeout
+  1. `MIMAP-173A`: choose the next narrow row after segment-map released-span
+     local-free candidate bridge
   2. keep raw pointer residence, real segment-map execution, and provider
      activation closed
   3. keep cross-function `Result` direct ABI and runtime sum materialization

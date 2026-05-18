@@ -955,6 +955,38 @@ OSVM/page-source execution, worker scheduling, provider activation,
 cross-function `Result` direct ABI, runtime sum materialization, or backend
 matchers.
 
+MIMAP-171A landed by selecting MIMAP-172A.
+
+### MIMAP-172A granularity
+
+MIMAP-172A proves that a released-span row produced through the segment-map
+modeled consume-ledger boundary can be consumed by the existing MIMAP-109A
+local-free candidate ledger. It prepares modeled free-list planning without
+mutating a real free-list.
+
+It must not open real segment allocation/free execution, free-list mutation,
+raw pointer residence, real segment-map mutation, arena backing, atomic bitmap
+execution, OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, or backend
+matchers.
+
+MIMAP-172A landed by adding the local-free candidate bridge proof app, L2
+guard, proof manifest row, owner README note, and SSOT. It selected MIMAP-173A.
+
+### MIMAP-173A granularity
+
+MIMAP-173A is a planning row after the segment-map released-span local-free
+candidate bridge. It should choose between local-free apply-plan composition,
+modeled free-list observation, or a cleanup sidecar before opening raw pointer
+residence, arena backing, real segment-map execution, real free-list mutation,
+or atomic bitmap behavior.
+
+It must not open real segment allocation/free execution, raw pointer residence,
+real segment-map mutation, arena backing, atomic bitmap execution,
+OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, or backend
+matchers.
+
 
 ## Historical Granularity Anchors
 

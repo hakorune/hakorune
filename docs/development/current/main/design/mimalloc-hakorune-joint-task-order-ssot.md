@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-171A` is current after MIMAP-170A closed segment-map modeled
-consume-ledger released-span observation.
+`MIMAP-173A` is current after MIMAP-172A added the segment-map released-span
+local-free candidate bridge.
 
 Recommended current row:
 
 ```text
-MIMAP-171A
-  post-segment-map-modeled-consume-ledger-released-span-observation-closeout row selection
+MIMAP-173A
+  post-segment-map-released-span-local-free-candidate-bridge row selection
 ```
 
 Purpose:
 
 ```text
-choose the next narrow row after segment-map owner-boundary released-span observation closeout
+choose the next narrow row after segment-map released-span local-free candidate bridge
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -217,7 +217,9 @@ no provider activation
 | 146 | allocator | `MIMAP-168A segment-map modeled consume ledger released-span observation route` | landed; selected MIMAP-169A |
 | 147 | planning | `MIMAP-169A post-segment-map-modeled-consume-ledger-released-span-observation row selection` | landed; selected MIMAP-170A |
 | 148 | closeout | `MIMAP-170A segment-map modeled consume ledger released-span observation closeout pack` | landed; selected MIMAP-171A |
-| 149 | planning | `MIMAP-171A post-segment-map-modeled-consume-ledger-released-span-observation-closeout row selection` | selected current |
+| 149 | planning | `MIMAP-171A post-segment-map-modeled-consume-ledger-released-span-observation-closeout row selection` | landed; selected MIMAP-172A |
+| 150 | allocator | `MIMAP-172A segment-map released-span local-free candidate bridge` | landed; selected MIMAP-173A |
+| 151 | planning | `MIMAP-173A post-segment-map-released-span-local-free-candidate-bridge row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
