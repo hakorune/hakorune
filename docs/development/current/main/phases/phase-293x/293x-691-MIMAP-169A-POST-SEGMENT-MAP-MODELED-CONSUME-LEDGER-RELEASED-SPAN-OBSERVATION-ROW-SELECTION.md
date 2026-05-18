@@ -1,12 +1,12 @@
-# 293x-689 MIMAP-167A Post Segment Map Modeled Consume Ledger Released Token Recycle Closeout Row Selection
+# 293x-691 MIMAP-169A Post Segment Map Modeled Consume Ledger Released Span Observation Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-18
 
 ## Decision
 
-Choose MIMAP-168A as the next narrow row after MIMAP-166A closes the
-segment-map modeled consume-ledger released-token recycle pack.
+Choose the next narrow row after MIMAP-168A proves segment-map released-span
+observation.
 
 ## Context
 
@@ -17,20 +17,21 @@ explicit-ID readiness
   -> modeled consume ledger live token
   -> modeled ledger release report
   -> released token can become a new live modeled row
-  -> representative exact-MIR L3 EXE evidence
+  -> released-span ledger can observe the segment-map release report
 ```
 
-The selected row is MIMAP-168A segment-map modeled consume-ledger
-released-span observation. It should prove the segment-map release report can
-feed the existing released-span ledger without jumping directly to raw pointer
-residence, arena backing, real segment-map execution, or atomic bitmap
-behavior.
+The next row should choose between a released-span observation closeout pack,
+local-free/free-list bridge preparation, or a cleanup sidecar. It should not
+jump directly to raw pointer residence, arena backing, real segment-map
+execution, or atomic bitmap behavior.
 
 ## Stop Lines
 
 - No real segment allocation/free execution.
 - No raw pointer residence or pointer-derived lookup.
 - No real segment-map mutation.
+- No free-list mutation unless a future row explicitly selects a modeled
+  free-list bridge.
 - No arena backing allocation.
 - No atomic bitmap execution.
 - No OSVM/page-source execution.
@@ -45,10 +46,4 @@ behavior.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
-```
-
-## Selected Row
-
-```text
-MIMAP-168A segment-map modeled consume ledger released-span observation route
 ```

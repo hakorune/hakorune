@@ -263,6 +263,10 @@ Syntax/style contract
   again as a new live modeled row by reusing the existing MIMAP-100A
   released-token recycle contract, while keeping real segment allocation/free
   execution closed.
+  It also owns MIMAP-168A. It may expose the release report's scalar
+  `modeled_block_end` and record successful segment-map release reports into
+  the existing MIMAP-107A released-span ledger, while keeping real segment free
+  execution and free-list mutation closed.
 - `segment_allocation_modeled_consume_box.hako` owns MIMAP-091A. It may consume
   accepted scalar segment allocation-readiness facts and model the resulting
   `page_used` / `remaining_blocks` values plus a stable scalar modeled

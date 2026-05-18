@@ -57,6 +57,7 @@ box HakoAllocSegmentMapModeledConsumeLedgerReleaseReport {
     segment_id: i64 = -1
     page_id: i64 = -1
     modeled_block_start: i64 = -1
+    modeled_block_end: i64 = -1
     live_before: i64 = 0
     live_after: i64 = 0
     ledger_count_after: i64 = 0
@@ -311,6 +312,7 @@ box HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger {
 
         me.release_count += 1
         local result = me.releaseReport(1, me.reasonOk(), release.reason, release.row_index, release.modeled_allocation_token, release.segment_id, release.page_id, release.modeled_block_start, release.live_before, release.live_after, release.ledger_count_after, release.ledger_live_count_after)
+        result.modeled_block_end = release.modeled_block_end
         result.released_blocks = release.released_blocks
         result.release_span_present = release.release_span_present
         return result

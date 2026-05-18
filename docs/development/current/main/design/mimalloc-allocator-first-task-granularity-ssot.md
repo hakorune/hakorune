@@ -891,6 +891,38 @@ OSVM/page-source execution, worker scheduling, provider activation,
 cross-function `Result` direct ABI, runtime sum materialization, or backend
 matchers.
 
+MIMAP-167A landed by selecting MIMAP-168A.
+
+### MIMAP-168A granularity
+
+MIMAP-168A proves that a successful segment-map modeled consume-ledger release
+report can be observed by the existing MIMAP-107A released-span ledger. It adds
+the missing scalar `modeled_block_end` to the segment-map release report and
+keeps the bridge in scalar/model space.
+
+It must not open real segment allocation/free execution, free-list mutation,
+raw pointer residence, real segment-map mutation, arena backing, atomic bitmap
+execution, OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, or backend
+matchers.
+
+MIMAP-168A landed by adding the released-span observation proof app, L2 guard,
+proof manifest row, owner README note, and SSOT. It selected MIMAP-169A.
+
+### MIMAP-169A granularity
+
+MIMAP-169A is a planning row after segment-map modeled consume-ledger
+released-span observation. It should choose between a released-span observation
+closeout pack, local-free/free-list bridge preparation, or a cleanup sidecar
+before opening raw pointer residence, arena backing, real segment-map
+execution, or atomic bitmap behavior.
+
+It must not open real segment allocation/free execution, raw pointer residence,
+real segment-map mutation, arena backing, atomic bitmap execution,
+OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, or backend
+matchers.
+
 
 ## Historical Granularity Anchors
 

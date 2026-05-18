@@ -1,0 +1,98 @@
+// hako-alloc-segment-map-modeled-consume-ledger-released-span-observation-proof
+// Purpose: prove MIMAP-168A segment-map released-span observation bridge.
+
+using selfhost.hako_alloc.memory.segment_map_lookup_guarded_readiness_composition_box as HakoAllocSegmentMapLookupGuardedReadinessComposition
+using selfhost.hako_alloc.memory.segment_map_accepted_readiness_modeled_consume_ledger_box as HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_released_span_ledger_box as HakoAllocSegmentAllocationModeledReleasedSpanLedger
+
+static box Main {
+    main(args) {
+        local composition = new HakoAllocSegmentMapLookupGuardedReadinessComposition()
+        local route = new HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger()
+        local released_spans = new HakoAllocSegmentAllocationModeledReleasedSpanLedger()
+
+        local readiness = composition.composeLookupReadiness(70, 7, 3, 16, 1, composition.stateActive(), 2, 8, 3, 0)
+        local first = route.consumeAcceptedReadiness(readiness, 0)
+        local release_first = route.releaseConsumedToken(first.modeled_allocation_token, 0)
+        local span_first = released_spans.recordReleasedSpan(release_first, 0)
+
+        local missing_release = route.releaseConsumedToken(999999, 0)
+        local missing_span = released_spans.recordReleasedSpan(missing_release, 0)
+        local duplicate_span = released_spans.recordReleasedSpan(release_first, 0)
+        local unsupported_span = released_spans.recordReleasedSpan(release_first, 1)
+
+        local recycled = route.consumeAcceptedReadiness(readiness, 0)
+        local release_recycled = route.releaseConsumedToken(recycled.modeled_allocation_token, 0)
+        local span_recycled = released_spans.recordReleasedSpan(release_recycled, 0)
+
+        local ok = check "mimap168a segment map modeled consume ledger released span observation route" {
+            "first consumed": first.accepted == 1
+            "first release accepted": release_first.did_release == 1
+            "first release span present": release_first.release_span_present == 1
+            "first release block end": release_first.modeled_block_end == 5
+            "first span accepted": span_first.did_record_release_span == 1
+            "first span reason": span_first.reason == 0
+            "first span row": span_first.row_index == 0
+            "first span existing": span_first.existing_index == -1
+            "first span token": span_first.modeled_allocation_token == 70007002
+            "first span segment": span_first.segment_id == 70
+            "first span page": span_first.page_id == 7
+            "first span start": span_first.modeled_block_start == 2
+            "first span end": span_first.modeled_block_end == 5
+            "first released blocks": span_first.released_blocks == 3
+            "first count": span_first.ledger_count_after == 1
+            "first accepted count": span_first.accepted_count_after == 1
+            "missing rejected": missing_span.did_record_release_span == 0
+            "missing reason": missing_span.reason == 2
+            "missing existing": missing_span.existing_index == -1
+            "duplicate rejected": duplicate_span.did_record_release_span == 0
+            "duplicate reason": duplicate_span.reason == 3
+            "duplicate existing": duplicate_span.existing_index == 0
+            "unsupported rejected": unsupported_span.did_record_release_span == 0
+            "unsupported reason": unsupported_span.reason == 4
+            "unsupported count": released_spans.execution_reject_count == 1
+            "recycled consumed": recycled.accepted == 1
+            "recycled release row": release_recycled.row_index == 1
+            "recycled span accepted": span_recycled.did_record_release_span == 1
+            "recycled span row": span_recycled.row_index == 1
+            "recycled span token": span_recycled.modeled_allocation_token == 70007002
+            "ledger count": released_spans.count == 2
+            "ledger attempts": released_spans.attempt_count == 5
+            "ledger accepted": released_spans.accepted_count == 2
+            "ledger rejects": released_spans.reject_count == 3
+            "span missing count": released_spans.span_missing_reject_count == 1
+            "duplicate count": released_spans.duplicate_reject_count == 1
+            "read token 0": released_spans.tokenAt(0) == 70007002
+            "read blocks 1": released_spans.releasedBlocksAt(1) == 3
+            "inactive real free": span_first.would_execute_real_segment_free == 0
+            "inactive free list": span_first.would_mutate_free_list == 0
+            "inactive raw": span_first.would_use_raw_pointer == 0
+            "inactive segment map": span_first.would_use_segment_map == 0
+            "inactive arena": span_first.would_allocate_arena_backing == 0
+            "inactive atomic": span_first.would_execute_atomic_bitmap == 0
+            "inactive osvm": span_first.would_call_osvm == 0
+            "inactive thread": span_first.would_run_thread == 0
+            "inactive provider": span_first.would_activate_provider == 0
+            "inactive matcher": span_first.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-map-modeled-consume-ledger-released-span-observation-proof")
+        print("release_first=" + release_first.did_release + "," + release_first.reason + "," + release_first.row_index + "," + release_first.modeled_allocation_token + "," + release_first.segment_id + "," + release_first.page_id + "," + release_first.modeled_block_start + "," + release_first.modeled_block_end + "," + release_first.released_blocks + "," + release_first.release_span_present)
+        print("first=" + span_first.did_record_release_span + "," + span_first.reason + "," + span_first.row_index + "," + span_first.existing_index + "," + span_first.modeled_allocation_token + "," + span_first.segment_id + "," + span_first.page_id + "," + span_first.modeled_block_start + "," + span_first.modeled_block_end + "," + span_first.released_blocks + "," + span_first.ledger_count_after + "," + span_first.accepted_count_after)
+        print("missing=" + missing_span.did_record_release_span + "," + missing_span.reason + "," + missing_span.existing_index + "," + missing_span.released_span_ledger_present)
+        print("duplicate=" + duplicate_span.did_record_release_span + "," + duplicate_span.reason + "," + duplicate_span.existing_index + "," + released_spans.duplicate_reject_count)
+        print("recycled=" + span_recycled.did_record_release_span + "," + span_recycled.reason + "," + span_recycled.row_index + "," + span_recycled.existing_index + "," + span_recycled.modeled_allocation_token + "," + span_recycled.segment_id + "," + span_recycled.page_id + "," + span_recycled.modeled_block_start + "," + span_recycled.modeled_block_end + "," + span_recycled.released_blocks + "," + span_recycled.ledger_count_after + "," + span_recycled.accepted_count_after)
+        print("unsupported=" + unsupported_span.did_record_release_span + "," + unsupported_span.reason + "," + released_spans.execution_reject_count)
+        print("counts=" + released_spans.attempt_count + "," + released_spans.accepted_count + "," + released_spans.count + "," + released_spans.reject_count + "," + released_spans.invalid_shape_reject_count + "," + released_spans.span_missing_reject_count + "," + released_spans.duplicate_reject_count + "," + released_spans.execution_reject_count)
+        print("inactive=" + span_first.would_execute_real_segment_free + "," + span_first.would_mutate_free_list + "," + span_first.would_use_raw_pointer + "," + span_first.would_use_segment_map + "," + span_first.would_allocate_arena_backing + "," + span_first.would_execute_atomic_bitmap + "," + span_first.would_call_osvm + "," + span_first.would_run_thread + "," + span_first.would_activate_provider + "," + span_first.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
