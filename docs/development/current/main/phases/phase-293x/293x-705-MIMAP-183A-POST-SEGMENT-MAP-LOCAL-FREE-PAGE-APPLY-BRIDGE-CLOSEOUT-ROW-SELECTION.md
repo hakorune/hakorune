@@ -1,12 +1,12 @@
-# 293x-703 MIMAP-181A Post Segment Map Local Free Page Apply Bridge Row Selection
+# 293x-705 MIMAP-183A Post Segment Map Local Free Page Apply Bridge Closeout Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-18
 
 ## Decision
 
-Choose MIMAP-182A as the next narrow row after MIMAP-180A proves the
-segment-map local-free page-apply bridge.
+Choose the next narrow row after MIMAP-182A closes the segment-map local-free
+page-apply bridge pack.
 
 ## Context
 
@@ -20,13 +20,14 @@ explicit-ID readiness
   -> local-free candidate ledger can consume that released-span row
   -> local-free apply-plan ledger can consume that candidate row
   -> modeled page-apply can consume that apply-plan row
+  -> representative exact-MIR L3 EXE evidence
 ```
 
-The selected row is MIMAP-182A segment-map local-free page-apply bridge
-closeout pack. It should add representative exact-MIR L3 EXE evidence for the
-MIMAP-180A bridge before local-free integration observation, raw pointer
-residence, arena backing, real segment-map execution, real free-list mutation,
-real page-state mutation, or atomic bitmap behavior.
+The next row should choose between local-free integration observation from the
+segment-map chain, a page-apply diagnostic/observer sidecar, or a cleanup
+sidecar. It should not jump directly to raw pointer residence, arena backing,
+real segment-map execution, real free-list mutation, real page-state mutation,
+or atomic bitmap behavior.
 
 ## Stop Lines
 
@@ -50,10 +51,4 @@ real page-state mutation, or atomic bitmap behavior.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
-```
-
-## Selected Row
-
-```text
-MIMAP-182A segment-map local-free page-apply bridge closeout pack
 ```

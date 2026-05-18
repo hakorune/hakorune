@@ -312,7 +312,7 @@ segment-map local-free page-apply bridge family:
     exe = deferred-to-closeout
   closeout pack:
     closeout_pack = segment-map-local-free-page-apply-bridge
-    representative L3 EXE evidence deferred to a future closeout row
+    representative L3 EXE evidence in MIMAP-182A
 
 cleanup row using C199 compound assignment:
   L1 C199 guard
