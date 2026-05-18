@@ -284,12 +284,20 @@ box HakoAllocSegmentAllocationModeledLocalFreeIntegration {
         }
 
         local plan = me.apply_plan_ledger.recordLocalFreeApplyPlan(candidate, unsupported_apply_plan_requirement)
+        local plan_result: Result<i64, i64> = Result::Ok(plan.row_index)
         if plan.did_record_local_free_apply_plan != 1 {
+            plan_result = Result::Err(plan.reason)
+        }
+        guard let Result::Ok(apply_plan_row_index) = plan_result else {
             return me.rejectFromApplyPlan(candidate, plan)
         }
 
         local page_apply = me.page_apply_route.recordLocalFreePageApply(plan, page, unsupported_page_apply_requirement)
+        local page_apply_result: Result<i64, i64> = Result::Ok(page_apply.row_index)
         if page_apply.did_apply_local_free_to_page != 1 {
+            page_apply_result = Result::Err(page_apply.reason)
+        }
+        guard let Result::Ok(page_apply_row_index) = page_apply_result else {
             return me.rejectFromPageApply(candidate, plan, page_apply)
         }
 

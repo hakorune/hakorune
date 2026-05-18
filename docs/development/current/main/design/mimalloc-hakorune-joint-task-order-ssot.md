@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`HAKO-ALLOC-RESULT-API-003` is current after MIMAP-147A selected one more
-local Result/guard-let row inside the same allocator owner.
+`MIMAP-148A` is current after HAKO-ALLOC-RESULT-API-003 landed the remaining
+local-free Result/guard-let boundaries inside `integrateLocalFree`.
 
 Recommended current row:
 
 ```text
-HAKO-ALLOC-RESULT-API-003
-  allocator local-free remaining Result guard-let boundaries
+MIMAP-148A
+  post-local-free-Result-boundary row selection
 ```
 
 Purpose:
 
 ```text
-convert apply-plan and page-apply local checks in integrateLocalFree to local Result guard-let boundaries
+select the next single allocator/compiler row after the local-free Result cleanup
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -193,7 +193,8 @@ no provider activation
 | 122 | Hakorune compiler | `PURE-FIRST-GUARDLET-ENUMMATCH-001 direct MIR guard-let EnumMatchExpr acceptance` | landed; selected HAKO-ALLOC-RESULT-API-002 |
 | 123 | Hakorune language / allocator boundary | `HAKO-ALLOC-RESULT-API-002 allocator local-free Result guard-let pilot` | landed; selected MIMAP-147A |
 | 124 | planning | `MIMAP-147A post-Result-guard-let-pilot row selection` | landed; selected HAKO-ALLOC-RESULT-API-003 |
-| 125 | Hakorune language / allocator boundary | `HAKO-ALLOC-RESULT-API-003 allocator local-free remaining Result guard-let boundaries` | selected current |
+| 125 | Hakorune language / allocator boundary | `HAKO-ALLOC-RESULT-API-003 allocator local-free remaining Result guard-let boundaries` | landed; selected MIMAP-148A |
+| 126 | planning | `MIMAP-148A post-local-free-Result-boundary row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

@@ -327,7 +327,8 @@ Forbidden:
 | `PURE-FIRST-GUARDLET-ENUMMATCH-001` | direct MIR guard-let EnumMatchExpr acceptance | landed; selected HAKO-ALLOC-RESULT-API-002 |
 | `HAKO-ALLOC-RESULT-API-002` | allocator local-free Result guard-let pilot | landed; selected MIMAP-147A |
 | `MIMAP-147A` | post-Result-guard-let-pilot row selection | landed; selected HAKO-ALLOC-RESULT-API-003 |
-| `HAKO-ALLOC-RESULT-API-003` | allocator local-free remaining Result guard-let boundaries | selected current |
+| `HAKO-ALLOC-RESULT-API-003` | allocator local-free remaining Result guard-let boundaries | landed; selected MIMAP-148A |
+| `MIMAP-148A` | post-local-free-Result-boundary row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -580,6 +581,17 @@ output, report record fields, and HAKO-ALLOC-RESULT-API-002 candidate boundary.
 It must not add cross-function `Result` direct ABI, runtime sum materialization,
 implicit propagation sugar, broad allocator report rewrites, provider
 activation, host allocator replacement, hooks, or backend matchers.
+
+HAKO-ALLOC-RESULT-API-003 landed by converting the apply-plan and page-apply
+local checks to local `Result<i64, i64>` guard-let boundaries. It selected
+MIMAP-148A.
+
+### MIMAP-148A granularity
+
+MIMAP-148A is a planning row after the local-free Result guard-let cleanup. It
+decides whether to stop the Result cleanup burst and return to ordinary
+mimalloc behavior work, add one more allocator-local Result cleanup row, or open
+a focused compiler row only if a concrete blocked Result shape appears.
 
 
 ## Historical Granularity Anchors
