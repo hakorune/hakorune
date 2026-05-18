@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`HAKO-ALLOC-ID-BRAND-002` is current after `PURE-FIRST-BRAND-CONSTRUCT-001`
-made declared brand constructors acceptable in direct MIR lowering.
+`HAKO-ALLOC-ID-BRAND-003` is current after `HAKO-ALLOC-ID-BRAND-002` applied
+the first allocator scalar ID brand pilot.
 
 Recommended current row:
 
 ```text
-HAKO-ALLOC-ID-BRAND-002
-  allocator scalar ID brand first pilot
+HAKO-ALLOC-ID-BRAND-003
+  allocator scalar ID brand pilot closeout guard
 ```
 
 Purpose:
 
 ```text
-pilot SegmentId / PageId / BlockId at one same-box allocator helper boundary
+freeze the SegmentId / PageId / BlockId same-box allocator helper pilot
 preserve allocator behavior and proof output
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -183,10 +183,11 @@ no provider activation
 | 112 | planning | `MIMAP-144A post-release-applied-recycle-closeout row selection` | landed; selected HAKO-ALLOC-ID-BRAND-001 |
 | 113 | Hakorune language / allocator boundary | `HAKO-ALLOC-ID-BRAND-001 allocator scalar ID brand application inventory` | landed; selected PURE-FIRST-BRAND-CONSTRUCT-001 |
 | 114 | Hakorune compiler | `PURE-FIRST-BRAND-CONSTRUCT-001 brand constructor MIR acceptance` | landed; selected HAKO-ALLOC-ID-BRAND-002 |
-| 115 | Hakorune language / allocator boundary | `HAKO-ALLOC-ID-BRAND-002 allocator scalar ID brand first pilot` | selected current |
-| 116 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
-| 117 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
-| 118 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
+| 115 | Hakorune language / allocator boundary | `HAKO-ALLOC-ID-BRAND-002 allocator scalar ID brand first pilot` | landed; selected HAKO-ALLOC-ID-BRAND-003 |
+| 116 | guard cleanup | `HAKO-ALLOC-ID-BRAND-003 allocator scalar ID brand pilot closeout guard` | selected current |
+| 117 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
+| 118 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
+| 119 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
 

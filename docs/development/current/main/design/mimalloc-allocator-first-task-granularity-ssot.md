@@ -317,7 +317,8 @@ Forbidden:
 | `MIMAP-144A` | post-release-applied-recycle-closeout row selection | landed; selected HAKO-ALLOC-ID-BRAND-001 |
 | `HAKO-ALLOC-ID-BRAND-001` | allocator scalar ID brand application inventory | landed; selected PURE-FIRST-BRAND-CONSTRUCT-001 |
 | `PURE-FIRST-BRAND-CONSTRUCT-001` | brand constructor MIR acceptance | landed; selected HAKO-ALLOC-ID-BRAND-002 |
-| `HAKO-ALLOC-ID-BRAND-002` | allocator scalar ID brand first pilot | selected current |
+| `HAKO-ALLOC-ID-BRAND-002` | allocator scalar ID brand first pilot | landed; selected HAKO-ALLOC-ID-BRAND-003 |
+| `HAKO-ALLOC-ID-BRAND-003` | allocator scalar ID brand pilot closeout guard | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -426,6 +427,22 @@ brand constructors.
 It must not add field/return/typed-local/cross-module brand inference, token
 brand vocabulary expansion, allocator behavior, provider activation, host
 allocator replacement, backend matchers, or silent fallback.
+
+HAKO-ALLOC-ID-BRAND-002 landed by adding `SegmentId`, `PageId`, and `BlockId`
+to the local-free reuse ledger owner and applying them only to the
+`makeReuseToken(...)` helper boundary. It selects HAKO-ALLOC-ID-BRAND-003.
+
+
+### HAKO-ALLOC-ID-BRAND-003 granularity
+
+HAKO-ALLOC-ID-BRAND-003 is a closeout guard row for the first allocator scalar
+ID brand pilot. It should freeze the `SegmentId` / `PageId` / `BlockId`
+declarations, the `makeReuseToken(...)` brand-typed parameter boundary, and the
+explicit constructor call site while keeping token storage and reports scalar.
+
+It must not add allocator behavior, field/return/typed-local/cross-module brand
+inference, provider activation, host allocator replacement, backend matchers, or
+silent fallback.
 
 
 ## Historical Granularity Anchors

@@ -1,6 +1,6 @@
 # 293x-657 HAKO-ALLOC-ID-BRAND-002 Allocator Scalar ID Brand First Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -44,3 +44,23 @@ bash tools/checks/run_proof_app.sh --only MIMAP-142A
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Result
+
+`HAKO-ALLOC-ID-BRAND-002` landed the first allocator scalar ID brand pilot in
+`segment_allocation_modeled_local_free_reuse_ledger_box.hako`.
+
+The row added `SegmentId`, `PageId`, and `BlockId` declarations and applied
+them only to the same-box `makeReuseToken(...)` helper boundary. Storage,
+reports, token values, arrays, and behavior remain scalar `i64`.
+
+Evidence:
+
+```text
+cargo test -q mir_brand_constructor
+bash tools/checks/run_proof_app.sh --only MIMAP-142A
+git diff --check
+```
+
+Selected next row: `HAKO-ALLOC-ID-BRAND-003` allocator scalar ID brand pilot
+closeout guard.

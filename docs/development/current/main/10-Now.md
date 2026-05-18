@@ -34,16 +34,16 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `HAKO-ALLOC-ID-BRAND-002 allocator scalar ID brand first pilot`
+- current blocker token: `HAKO-ALLOC-ID-BRAND-003 allocator scalar ID brand pilot closeout guard`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x with `HAKO-ALLOC-ID-BRAND-002`; current blocker is
-  allocator scalar ID brand first pilot
-- latest compiler row: `PURE-FIRST-BRAND-CONSTRUCT-001` landed and selected
-  HAKO-ALLOC-ID-BRAND-002
+- continue phase-293x with `HAKO-ALLOC-ID-BRAND-003`; current blocker is
+  allocator scalar ID brand pilot closeout guard
+- latest allocator/language row: `HAKO-ALLOC-ID-BRAND-002` landed and selected
+  HAKO-ALLOC-ID-BRAND-003
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

@@ -7,6 +7,10 @@
 // - real segment allocation/free, page mutation, raw pointers, segment-map
 //   lookup, atomics, OSVM, scheduling, provider activation, or backend shortcuts
 
+brand SegmentId: i64
+brand PageId: i64
+brand BlockId: i64
+
 box HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReport {
     accepted: i64 = 0
     reason: i64 = 0
@@ -114,7 +118,7 @@ box HakoAllocSegmentAllocationModeledLocalFreeReuseLedger {
     last_reason: i64 = 0
     last_index: i64 = -1
 
-    makeReuseToken(segment_id, page_id, reused_block_id) {
+    makeReuseToken(segment_id: SegmentId, page_id: PageId, reused_block_id: BlockId): i64 {
         return (segment_id * 1000000) + (page_id * 1000) + reused_block_id
     }
 
@@ -289,7 +293,7 @@ box HakoAllocSegmentAllocationModeledLocalFreeReuseLedger {
         local page_local_free_before_reuse: i64 = reuse_report.page_local_free_before_reuse
         local page_local_free_after_reuse: i64 = reuse_report.page_local_free_after_reuse
         local collect_count_after_reuse: i64 = reuse_report.collect_count_after_reuse
-        local modeled_reuse_token: i64 = me.makeReuseToken(segment_id, page_id, reused_block_id)
+        local modeled_reuse_token: i64 = me.makeReuseToken(SegmentId(segment_id), PageId(page_id), BlockId(reused_block_id))
 
         if reuse_report.did_reuse_local_free != 1 {
             return me.rejectFromReuseReport(1, -1, reuse_report, modeled_reuse_token)
