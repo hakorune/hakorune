@@ -1,3 +1,5 @@
+#[path = "../mir_brand_constructor.rs"]
+pub mod mir_brand_constructor;
 #[path = "../mir_breakfinder_ssa.rs"]
 pub mod mir_breakfinder_ssa;
 #[cfg(feature = "legacy-tests")]

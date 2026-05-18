@@ -58,6 +58,15 @@ pub(super) fn index_declarations(builder: &mut MirBuilder, node: &ASTNode) {
                 index_declarations(builder, st);
             }
         }
+        ASTNode::BrandDeclaration {
+            name,
+            underlying_type_name,
+            ..
+        } => {
+            builder
+                .comp_ctx
+                .register_brand_decl(name.clone(), underlying_type_name.clone());
+        }
         ASTNode::BoxDeclaration {
             name,
             fields, // Phase 285LLVM-1.1: Extract fields

@@ -65,6 +65,13 @@ pub(crate) struct CompilationContext {
     /// For instance boxes: Vec of field names
     pub user_defined_boxes: HashMap<String, Vec<String>>,
 
+    /// Brand declarations visible to direct MIR lowering.
+    ///
+    /// Stage1 owns brand mismatch checking. The MIR builder only needs this
+    /// declaration inventory so `BrandName(value)` can lower as a transparent
+    /// single-value constructor instead of an unresolved function call.
+    pub brand_decls: HashMap<String, String>,
+
     /// Typed field declarations keyed by user box name.
     pub user_box_field_decls: HashMap<String, Vec<FieldDecl>>,
 
@@ -146,6 +153,7 @@ impl CompilationContext {
             compilation_context: None,
             current_static_box: None,
             user_defined_boxes: HashMap::new(), // Phase 285LLVM-1.1: HashMap for fields
+            brand_decls: HashMap::new(),
             user_box_field_decls: HashMap::new(),
             record_decls: HashMap::new(),
             record_local_values: HashMap::new(),
@@ -183,6 +191,14 @@ impl CompilationContext {
     pub fn register_user_box(&mut self, name: String) {
         self.user_defined_boxes.insert(name.clone(), Vec::new()); // Phase 285LLVM-1.1: Empty fields
         self.user_box_field_decls.insert(name, Vec::new());
+    }
+
+    pub fn register_brand_decl(&mut self, name: String, underlying_type_name: String) {
+        self.brand_decls.insert(name, underlying_type_name);
+    }
+
+    pub fn is_brand_declared(&self, name: &str) -> bool {
+        self.brand_decls.contains_key(name)
     }
 
     /// Phase 285LLVM-1.1: Register a user-defined box with field information

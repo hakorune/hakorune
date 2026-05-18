@@ -316,7 +316,8 @@ Forbidden:
 | `MIMAP-143A` | segment allocation modeled local-free reuse ledger release-applied recycle closeout guard | landed; selected MIMAP-144A |
 | `MIMAP-144A` | post-release-applied-recycle-closeout row selection | landed; selected HAKO-ALLOC-ID-BRAND-001 |
 | `HAKO-ALLOC-ID-BRAND-001` | allocator scalar ID brand application inventory | landed; selected PURE-FIRST-BRAND-CONSTRUCT-001 |
-| `PURE-FIRST-BRAND-CONSTRUCT-001` | brand constructor MIR acceptance | selected current |
+| `PURE-FIRST-BRAND-CONSTRUCT-001` | brand constructor MIR acceptance | landed; selected HAKO-ALLOC-ID-BRAND-002 |
+| `HAKO-ALLOC-ID-BRAND-002` | allocator scalar ID brand first pilot | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -409,6 +410,22 @@ collect declared brand names in the direct MIR source route and lower
 It must not add full brand type checking, field/return/typed-local propagation,
 cross-module inference, allocator behavior, provider activation, host allocator
 replacement, backend matchers, or silent fallback.
+
+PURE-FIRST-BRAND-CONSTRUCT-001 landed by registering direct MIR brand
+declarations and lowering declared `BrandName(value)` constructors as
+transparent single-value wrappers. It selects HAKO-ALLOC-ID-BRAND-002.
+
+
+### HAKO-ALLOC-ID-BRAND-002 granularity
+
+HAKO-ALLOC-ID-BRAND-002 is the first allocator source pilot for existing brand
+semantics. It should add `SegmentId`, `PageId`, and `BlockId` only at one
+same-box helper boundary in the local-free reuse ledger owner, fed by explicit
+brand constructors.
+
+It must not add field/return/typed-local/cross-module brand inference, token
+brand vocabulary expansion, allocator behavior, provider activation, host
+allocator replacement, backend matchers, or silent fallback.
 
 
 ## Historical Granularity Anchors

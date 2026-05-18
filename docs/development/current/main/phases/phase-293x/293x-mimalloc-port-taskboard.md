@@ -479,7 +479,8 @@ FST:
 | `MIMAP-143A` | landed | Segment allocation modeled local-free reuse ledger release-applied recycle closeout guard. | selected MIMAP-144A |
 | `MIMAP-144A` | landed | Post-release-applied-recycle-closeout row selection. | selected HAKO-ALLOC-ID-BRAND-001 |
 | `HAKO-ALLOC-ID-BRAND-001` | landed | Allocator scalar ID brand application inventory. | selected PURE-FIRST-BRAND-CONSTRUCT-001 |
-| `PURE-FIRST-BRAND-CONSTRUCT-001` | selected current | Brand constructor MIR acceptance. | current compiler blocker |
+| `PURE-FIRST-BRAND-CONSTRUCT-001` | landed | Brand constructor MIR acceptance. | selected HAKO-ALLOC-ID-BRAND-002 |
+| `HAKO-ALLOC-ID-BRAND-002` | selected current | Allocator scalar ID brand first pilot. | current language/allocator pilot |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -488,8 +489,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`PURE-FIRST-BRAND-CONSTRUCT-001` makes declared brand constructors acceptable in
-direct MIR lowering before allocator scalar ID brands are piloted.
+`HAKO-ALLOC-ID-BRAND-002` pilots `SegmentId` / `PageId` / `BlockId` at one
+same-box allocator helper boundary after brand constructors became MIR-visible.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,
@@ -710,7 +711,8 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `PURE-FIRST-BRAND-CONSTRUCT-001` | selected current | Brand constructor MIR acceptance. | Current compiler blocker; no allocator behavior. |
+| `HAKO-ALLOC-ID-BRAND-002` | selected current | Allocator scalar ID brand first pilot. | Current language/allocator pilot; no allocator behavior change. |
+| `PURE-FIRST-BRAND-CONSTRUCT-001` | landed | Brand constructor MIR acceptance. | Selected HAKO-ALLOC-ID-BRAND-002. |
 | `HAKO-ALLOC-ID-BRAND-001` | landed | Allocator scalar ID brand application inventory. | Selected PURE-FIRST-BRAND-CONSTRUCT-001. |
 | `MIMAP-144A` | landed | Post-release-applied-recycle-closeout row selection. | Selected HAKO-ALLOC-ID-BRAND-001. |
 | `MIMAP-143A` | landed | Release-applied local-free reuse ledger token recycle closeout guard. | Added closeout SSOT and manifest-backed guard; selected MIMAP-144A. |

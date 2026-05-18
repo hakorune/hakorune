@@ -34,22 +34,21 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`PURE-FIRST-BRAND-CONSTRUCT-001` is current after `HAKO-ALLOC-ID-BRAND-001`
-found that allocator scalar ID brands cannot be piloted in direct MIR until
-brand constructors are accepted by the pure-first source route.
+`HAKO-ALLOC-ID-BRAND-002` is current after `PURE-FIRST-BRAND-CONSTRUCT-001`
+made declared brand constructors acceptable in direct MIR lowering.
 
 Recommended current row:
 
 ```text
-PURE-FIRST-BRAND-CONSTRUCT-001
-  brand constructor MIR acceptance
+HAKO-ALLOC-ID-BRAND-002
+  allocator scalar ID brand first pilot
 ```
 
 Purpose:
 
 ```text
-recognize declared BrandId(value) constructors in direct MIR lowering
-preserve Stage1 brand mismatch semantics without adding broad type inference
+pilot SegmentId / PageId / BlockId at one same-box allocator helper boundary
+preserve allocator behavior and proof output
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -183,10 +182,11 @@ no provider activation
 | 111 | closeout | `MIMAP-143A release-applied local-free reuse ledger token recycle closeout guard` | landed; selected MIMAP-144A |
 | 112 | planning | `MIMAP-144A post-release-applied-recycle-closeout row selection` | landed; selected HAKO-ALLOC-ID-BRAND-001 |
 | 113 | Hakorune language / allocator boundary | `HAKO-ALLOC-ID-BRAND-001 allocator scalar ID brand application inventory` | landed; selected PURE-FIRST-BRAND-CONSTRUCT-001 |
-| 114 | Hakorune compiler | `PURE-FIRST-BRAND-CONSTRUCT-001 brand constructor MIR acceptance` | selected current |
-| 115 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
-| 116 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
-| 117 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
+| 114 | Hakorune compiler | `PURE-FIRST-BRAND-CONSTRUCT-001 brand constructor MIR acceptance` | landed; selected HAKO-ALLOC-ID-BRAND-002 |
+| 115 | Hakorune language / allocator boundary | `HAKO-ALLOC-ID-BRAND-002 allocator scalar ID brand first pilot` | selected current |
+| 116 | Hakorune language | record literal / report object cleanup | replaces wide scalar report methods when current compiler support is enough |
+| 117 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
+| 118 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
 

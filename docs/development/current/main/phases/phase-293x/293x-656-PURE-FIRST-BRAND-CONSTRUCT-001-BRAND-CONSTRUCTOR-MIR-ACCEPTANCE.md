@@ -1,6 +1,6 @@
 # 293x-656 PURE-FIRST-BRAND-CONSTRUCT-001 Brand Constructor MIR Acceptance
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -51,4 +51,40 @@ cargo test -q stage1_program_json_v0::tests::basics_and_enums::source_to_program
 cargo test -q parser_brand_surface
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Landed Result
+
+Implemented direct MIR recognition for declared brand constructors:
+
+```text
+brand BlockId: i64
+local block = BlockId(7)
+```
+
+Implementation:
+
+- `declaration_indexer` registers top-level `BrandDeclaration` rows into
+  `CompilationContext`.
+- `build_function_call()` lowers declared `BrandName(value)` calls as the
+  lowered `value`.
+- invalid constructor arity fails fast with `[brand/constructor-arity]`.
+- undeclared function calls still fail through the normal unresolved-function
+  path.
+
+Focused evidence:
+
+```text
+cargo test -q mir_brand_constructor
+cargo test -q parser_brand_surface
+cargo test -q source_to_program_json_v0_accepts_matching_brand_method_arg
+NYASH_DISABLE_PLUGINS=1 NYASH_FEATURES=rune NYASH_USING_AST=1 NYASH_PARSER_ALLOW_SEMICOLON=1 \
+  cargo run -q --bin hakorune -- --backend mir --emit-mir-json /tmp/brand.mir.json /tmp/brand_probe.hako
+```
+
+Selected next row:
+
+```text
+HAKO-ALLOC-ID-BRAND-002
+  allocator scalar ID brand first pilot
 ```

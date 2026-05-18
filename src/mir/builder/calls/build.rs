@@ -67,6 +67,10 @@ impl MirBuilder {
             return self.build_explicit_extern_call(args);
         }
 
+        if self.comp_ctx.is_brand_declared(&name) {
+            return self.build_brand_constructor_call(name, args);
+        }
+
         // 1. TypeOp wiring: isType(value, "Type"), asType(value, "Type")
         if let Some(result) = self.try_build_typeop_function(&name, &args)? {
             return Ok(result);
@@ -232,6 +236,23 @@ impl MirBuilder {
             EffectMask::READ.add(Effect::ReadHeap),
         )?;
         Ok(result_id)
+    }
+
+    fn build_brand_constructor_call(
+        &mut self,
+        name: String,
+        args: Vec<ASTNode>,
+    ) -> Result<ValueId, String> {
+        if args.len() != 1 {
+            return Err(format!(
+                "[brand/constructor-arity] {} expects exactly one value, got {}",
+                name,
+                args.len()
+            ));
+        }
+        let mut args = args.into_iter();
+        let value = args.next().expect("len checked");
+        self.build_expression(value)
     }
 
     // ========================================
