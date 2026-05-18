@@ -32,6 +32,9 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser.add_argument("--item-name", required=True, help="human-readable item name")
     parser.add_argument("--app-key", help="optional app directory field to validate")
     parser.add_argument("--profile", help="run all entries tagged with this profile")
+    parser.add_argument("--validation-profile", help="run entries with this validation_profile field")
+    parser.add_argument("--row-kind", help="run entries with this row_kind field")
+    parser.add_argument("--closeout-pack", help="run entries assigned to this closeout_pack field")
     parser.add_argument("--only", help="comma-separated entry ids to run")
     parser.add_argument("--list", action="store_true", help="list entries instead of running")
     parser.add_argument("--dry-run", action="store_true", help="print selected entries without running")
@@ -51,6 +54,22 @@ def as_string_list(value: object, label: str, tag: str, *, nonempty: bool) -> li
         fail(tag, f"{label} must be a list of non-empty strings")
     if nonempty and not value:
         fail(tag, f"{label} must not be empty")
+    return value
+
+
+def as_optional_string(value: object, label: str, tag: str) -> str | None:
+    if value is None:
+        return None
+    if not isinstance(value, str) or not value:
+        fail(tag, f"{label} must be a non-empty string when present")
+    return value
+
+
+def as_optional_bool(value: object, label: str, tag: str) -> bool | None:
+    if value is None:
+        return None
+    if not isinstance(value, bool):
+        fail(tag, f"{label} must be a boolean when present")
     return value
 
 
@@ -122,6 +141,30 @@ def load_manifest(args: argparse.Namespace) -> list[dict[str, object]]:
             "cmd": cmd,
         }
 
+        optional_string_fields = [
+            "row_kind",
+            "validation_profile",
+            "closeout_pack",
+            "exe",
+            "exe_skip_reason",
+        ]
+        for field in optional_string_fields:
+            value = as_optional_string(
+                raw_entry.get(field),
+                f"{args.item_name} {entry_id} {field}",
+                tag,
+            )
+            if value is not None:
+                entry[field] = value
+
+        first_pattern = as_optional_bool(
+            raw_entry.get("first_pattern"),
+            f"{args.item_name} {entry_id} first_pattern",
+            tag,
+        )
+        if first_pattern is not None:
+            entry["first_pattern"] = first_pattern
+
         if args.app_key:
             app = as_nonempty_string(
                 raw_entry.get(args.app_key),
@@ -167,6 +210,32 @@ def select_entries(entries: list[dict[str, object]], args: argparse.Namespace) -
             fail(tag, f"profile has no {args.item_name} entries: {args.profile}")
         return selected
 
+    if args.validation_profile:
+        selected = [
+            entry
+            for entry in entries
+            if entry.get("validation_profile") == args.validation_profile
+        ]
+        if not selected:
+            fail(tag, f"validation_profile has no {args.item_name} entries: {args.validation_profile}")
+        return selected
+
+    if args.row_kind:
+        selected = [entry for entry in entries if entry.get("row_kind") == args.row_kind]
+        if not selected:
+            fail(tag, f"row_kind has no {args.item_name} entries: {args.row_kind}")
+        return selected
+
+    if args.closeout_pack:
+        selected = [
+            entry
+            for entry in entries
+            if entry.get("closeout_pack") == args.closeout_pack
+        ]
+        if not selected:
+            fail(tag, f"closeout_pack has no {args.item_name} entries: {args.closeout_pack}")
+        return selected
+
     if args.list:
         return entries
 
@@ -183,6 +252,16 @@ def format_entry(entry: dict[str, object], args: argparse.Namespace) -> str:
     ]
     if args.app_key:
         parts.append(f"{args.app_key}={entry[args.app_key]}")
+    for field in [
+        "row_kind",
+        "validation_profile",
+        "closeout_pack",
+        "first_pattern",
+        "exe",
+        "exe_skip_reason",
+    ]:
+        if field in entry:
+            parts.append(f"{field}={entry[field]}")
     parts.extend([
         f"label={entry['label']}",
         f"cmd={cmd}",

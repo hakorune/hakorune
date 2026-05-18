@@ -121,6 +121,37 @@ not part of this sidecar:
 | `GUARD-MANIFEST-009` | landed | Move the final public hako_alloc closeout wrappers behind manifest rows while keeping public `k2_wide_*` entrypoints stable. | after GM008 |
 | `GUARD-MANIFEST-010` | landed | Close the manifest-wrapper cleanup burst by deriving hako_alloc closeout wrapper expectations from `hako-alloc-closeout`, then return to MIMAP rows. | selected MIMAP-087A |
 
+## Row Validation Profile Sidecar
+
+SSOT:
+
+```text
+docs/development/current/main/design/mimalloc-row-validation-cadence-ssot.md
+tools/checks/lib/manifest_runner.py
+tools/checks/proof_apps.toml
+```
+
+Decision:
+
+```text
+before adding more segment-map / allocator scalar rows:
+  keep proof-first row discipline
+  classify rows by validation_profile / row_kind / closeout_pack in manifest
+  make daily rows default to L0/L1/L2 unless an EXE-required rule fires
+  reserve L3 EXE for backend-route / first-pattern / closeout evidence
+
+not part of this sidecar:
+  weakening existing public guards
+  bulk guard deletion
+  changing dev_gate / allocator-wide defaults
+  decomposing every public guard into separate VM/MIR/EXE commands
+```
+
+| Row | Status | Purpose | Ordering |
+| --- | --- | --- | --- |
+| `ROW-VALIDATION-PROFILE-001` | landed | Add validation profile metadata to the manifest runner and seed the segment-map readiness family without changing guard execution semantics. | before MIMAP-154A implementation |
+| `ROW-VALIDATION-PROFILE-002` | parked | Split selected public guards into manifest-selectable VM/MIR/EXE commands so `validation_profile` can reduce runtime, not just classify rows. | after current segment-map closeout selection |
+
 ## Stage1 / Selfhost Ordering Guard
 
 Stage1/selfhost SSOT:

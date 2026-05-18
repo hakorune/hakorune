@@ -278,6 +278,11 @@ id = "MIMAP-149A"
 app = "apps/hako-alloc-segment-allocation-blocked-substrate-matrix-proof"
 label = "segment allocation blocked-substrate matrix proof"
 profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "scalar-proof"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "segment-map-readiness"
+exe = "auto"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_blocked_substrate_matrix_guard.sh"]
 
 [[proof_apps]]
@@ -285,6 +290,11 @@ id = "MIMAP-151A"
 app = "apps/hako-alloc-segment-map-scalar-lookup-boundary-inventory-proof"
 label = "segment-map scalar lookup boundary inventory proof"
 profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "inventory"
+validation_profile = "inventory"
+first_pattern = false
+closeout_pack = "segment-map-readiness"
+exe = "auto"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_scalar_lookup_boundary_inventory_guard.sh"]
 
 [[proof_apps]]
@@ -292,6 +302,11 @@ id = "MIMAP-153A"
 app = "apps/hako-alloc-segment-map-lookup-guarded-readiness-composition-proof"
 label = "segment-map lookup guarded readiness composition proof"
 profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "scalar-composition"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "segment-map-readiness"
+exe = "auto"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_lookup_guarded_readiness_composition_guard.sh"]
 
 [[proof_apps]]

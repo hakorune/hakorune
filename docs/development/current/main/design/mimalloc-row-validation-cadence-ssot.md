@@ -24,7 +24,9 @@ The rule is:
 ```text
 validate the row's new contract directly
 validate touched upstream/downstream compatibility narrowly
-avoid broad gates unless the row changes a broad default or closeout boundary
+run pure-first EXE only when the row touches backend routes, introduces the
+first pattern in a family, or closes out a batch
+avoid broad gates unless the row changes a broad default or release boundary
 ```
 
 This SSOT does not weaken existing guards. It prevents every new row from
@@ -35,12 +37,52 @@ guards must run.
 
 | Level | Use for | Required evidence | Do not run by default |
 | --- | --- | --- | --- |
-| `L0 pointer` | planning rows, docs-only selection rows | `bash tools/checks/current_state_pointer_guard.sh`, `git diff --check` | proof apps, EXE guards |
-| `L1 syntax` | source cleanup that uses an already-live language feature | feature-specific syntax guard plus focused touched-row guard | allocator-wide, unrelated row guards |
-| `L2 proof` | new `.hako` allocator behavior with VM/MIR/EXE proof | one dedicated proof app through `run_proof_app.sh --only <id>` and its public guard | broad closeout pack |
-| `L3 compatibility` | behavior row touches an owner used by earlier rows | only the prior rows whose owner/report contract was touched | all historical guards |
-| `L4 closeout` | explicit closeout rows | manifest-backed closeout guard via `run_row_guard.sh --only <id>` | behavior changes |
-| `L5 broad` | provider/host replacement, dev_gate defaults, or release checkpoints | `dev_gate.sh quick`, allocator-wide, or larger suites as named by the card | daily row work |
+| `L0 static` | planning rows, docs-only selection rows, manifest/index checks | `bash tools/checks/current_state_pointer_guard.sh`, `git diff --check`, focused static guard if the row has one | proof apps, EXE guards |
+| `L1 VM proof` | scalar `.hako` proof rows with an already-live route shape | one dedicated proof app through `run_proof_app.sh --only <id>` or the public row guard VM section | allocator-wide, unrelated row guards |
+| `L2 MIR contract` | scalar proof / composition rows that must publish MIR metadata, route-preflight, or schema evidence | MIR JSON emit, route/preflight, metadata/schema checks owned by the dedicated guard | pure-first EXE unless the row meets an EXE-required rule |
+| `L3 pure-first EXE` | backend route rows, first-pattern rows, C shim / lowering-plan / return-shape / value-demand changes, or closeout rows | exact MIR artifact -> route preflight -> `--mir-in` EXE build/run through the row guard | all historical EXE guards |
+| `L4 batch regression pack` | closeout groups, release checkpoints, weekly/heavy validation | named batch/closeout pack, often one representative EXE app plus VM/MIR for the family | daily row work |
+
+Broad gates such as `dev_gate.sh quick` and allocator-wide are explicit release
+or default-change evidence. They are not part of the daily L0-L4 row cadence
+unless the active card names them.
+
+## Validation Profiles
+
+Manifest-backed rows may carry:
+
+```toml
+row_kind = "scalar-composition"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "segment-map-readiness"
+exe = "auto"
+```
+
+Stable runner support:
+
+```text
+tools/checks/run_proof_app.sh --validation-profile scalar-mir --dry-run
+tools/checks/run_proof_app.sh --row-kind inventory --dry-run
+tools/checks/run_proof_app.sh --closeout-pack segment-map-readiness --dry-run
+```
+
+Current fields are selection metadata first. Existing public guard bodies still
+own their full historical evidence until a later row splits VM/MIR/EXE sections
+into separate manifest commands.
+
+Recommended profiles:
+
+| Profile | Meaning | Default max level |
+| --- | --- | --- |
+| `planning` | row selection / docs-only | L0 |
+| `inventory` | metadata or source inventory, no new behavior route | L0/L1/L2 as named by the row |
+| `scalar-proof` | scalar behavior proof on existing routes | L2 |
+| `scalar-mir` | scalar proof or composition requiring MIR/route preflight evidence | L2 |
+| `first-pattern` | first row of a new proof shape or composition family | L3 |
+| `backend-route` | lowering plan / C shim / route vocabulary change | L3 |
+| `closeout` | family boundary freeze | L3/L4 |
+| `batch` | named multi-row regression pack | L4 |
 
 ## Row-Type Rules
 
@@ -77,8 +119,28 @@ The public row guard should own:
 - owner / card / SSOT / index / manifest wiring;
 - VM output for the new proof shape;
 - MIR JSON checks for the new contract surface;
-- pure-first EXE parity for the proof app;
+- pure-first EXE parity only when the row is `first-pattern`,
+  `backend-route`, or `closeout`;
 - stop-line leak checks for the row's forbidden concepts.
+
+### EXE Required Rules
+
+L3 pure-first EXE is required when a row:
+
+- adds or changes a backend route / `lowering_plan` proof;
+- adds or changes `return_shape`, `value_demand`, or `definition_owner`;
+- touches the C shim route reader / allowlist / emit behavior;
+- changes `pure_first_route_preflight.py` reason vocabulary or schema
+  contract;
+- introduces the first pattern in a row family;
+- opens a new object handle / typed object / user-box method / global-call
+  route shape;
+- affects exact MIR artifact, ny-llvmc, linker, or runtime ABI behavior;
+- is an explicit closeout or batch pack row.
+
+EXE may be omitted for existing-route scalar composition, metadata-only
+inventory, docs-only planning, guard/index/manifest cleanup, and repeated rows
+inside a family that already has first-pattern L3 evidence plus a closeout pack.
 
 ### Compatibility Guards
 
@@ -159,10 +221,19 @@ For the current segment allocation modeled lane:
 planning row:
   L0
 
-behavior row touching segment_allocation_modeled_ledger_box.hako:
-  L2 dedicated proof/guard
-  L3 only for MIMAP-097A / MIMAP-100A if release report or recycle-visible
-  behavior changes
+existing-route scalar/inventory/composition row:
+  L1/L2 dedicated proof or row guard
+  L3 only for first-pattern/backend-route/closeout
+
+segment-map readiness family:
+  MIMAP-149A blocked substrate matrix:
+    validation_profile = scalar-mir
+  MIMAP-151A segment-map scalar lookup boundary inventory:
+    validation_profile = inventory
+  MIMAP-153A lookup guarded readiness composition:
+    validation_profile = scalar-mir
+  closeout pack:
+    closeout_pack = segment-map-readiness
 
 cleanup row using C199 compound assignment:
   L1 C199 guard
