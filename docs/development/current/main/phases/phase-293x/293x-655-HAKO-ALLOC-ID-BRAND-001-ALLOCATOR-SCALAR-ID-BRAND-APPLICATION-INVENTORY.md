@@ -1,6 +1,6 @@
 # 293x-655 HAKO-ALLOC-ID-BRAND-001 Allocator Scalar ID Brand Application Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -77,4 +77,54 @@ pretend field or return brands are verified when they are not.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Candidate Inventory
+
+| Candidate | Intended vocabulary | Current blocker | Decision |
+| --- | --- | --- | --- |
+| `HakoAllocSegmentAllocationModeledLocalFreeReuseReport.segment_id` | `SegmentId` | field type propagation is not checked yet | do not pilot through fields |
+| `HakoAllocSegmentAllocationModeledLocalFreeReuseReport.page_id` | `PageId` | field type propagation is not checked yet | do not pilot through fields |
+| `HakoAllocSegmentAllocationModeledLocalFreeReuseReport.reused_block_id` | `BlockId` | field type propagation is not checked yet | do not pilot through fields |
+| `HakoAllocSegmentAllocationModeledLocalFreeReuseLedger.makeReuseToken(segment_id, page_id, reused_block_id)` | `SegmentId`, `PageId`, `BlockId` parameters | direct MIR treats `SegmentId(...)` / `PageId(...)` / `BlockId(...)` as unresolved function calls | needs compiler row |
+| `modeled_reuse_token` / `source_modeled_allocation_token` | future token vocabulary | not in canonical brand/type vocabulary yet | keep as scalar token for now |
+| `page_used_*`, `local_free_*`, `collect_count_*` | count/unit aliases | aliases are readability only and not identity brands | no brand pilot |
+
+## Acceptance Check
+
+The existing Stage1 Program JSON checker can verify same-program brand-typed
+parameters when brand constructors are already understood. The pure-first MIR
+route used by the allocator proof apps does not yet accept those constructors:
+
+```text
+brand BlockId: i64
+local block = BlockId(7)
+return me.accept(block)
+```
+
+Current direct MIR result:
+
+```text
+Unresolved function: 'BlockId'. Function 'BlockId' not found.
+```
+
+That is a compiler acceptance blocker, not an allocator-source workaround
+point.
+
+## Landed Result
+
+`HAKO-ALLOC-ID-BRAND-001` selects the next focused compiler row:
+
+```text
+PURE-FIRST-BRAND-CONSTRUCT-001
+  brand constructor MIR acceptance
+```
+
+Rationale:
+
+```text
+Allocator scalar ID branding cannot start safely in pure-first proof apps until
+the MIR source route recognizes declared brand constructors as transparent
+underlying scalar values with the existing Stage1 mismatch checker contract
+preserved.
 ```

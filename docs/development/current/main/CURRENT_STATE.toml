@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-18"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-144A landed post-release-applied-recycle row selection; current blocker is HAKO-ALLOC-ID-BRAND-001 allocator scalar ID brand application inventory. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "HAKO-ALLOC-ID-BRAND-001 landed allocator scalar ID brand application inventory; current compiler blocker is PURE-FIRST-BRAND-CONSTRUCT-001 brand constructor MIR acceptance. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-655-HAKO-ALLOC-ID-BRAND-001-ALLOCATOR-SCALAR-ID-BRAND-APPLICATION-INVENTORY.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-656-PURE-FIRST-BRAND-CONSTRUCT-001-BRAND-CONSTRUCTOR-MIR-ACCEPTANCE.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-654-MIMAP-144A-POST-RELEASE-APPLIED-RECYCLE-CLOSEOUT-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-654-MIMAP-144A-POST-RELEASE-APPLIED-RECYCLE-CLOSEOUT-ROW-SELECTION.md"
-latest_card_summary = "MIMAP-144A landed post-release-applied-recycle row selection; HAKO-ALLOC-ID-BRAND-001 selected."
+latest_card = "293x-655-HAKO-ALLOC-ID-BRAND-001-ALLOCATOR-SCALAR-ID-BRAND-APPLICATION-INVENTORY"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-655-HAKO-ALLOC-ID-BRAND-001-ALLOCATOR-SCALAR-ID-BRAND-APPLICATION-INVENTORY.md"
+latest_card_summary = "HAKO-ALLOC-ID-BRAND-001 landed allocator scalar ID brand inventory; PURE-FIRST-BRAND-CONSTRUCT-001 selected."
 
-current_blocker_token = "HAKO-ALLOC-ID-BRAND-001"
+current_blocker_token = "PURE-FIRST-BRAND-CONSTRUCT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-655 HAKO-ALLOC-ID-BRAND-001 allocator scalar ID brand inventory landed; PURE-FIRST-BRAND-CONSTRUCT-001 selected",
   "293x-654 MIMAP-144A post-release-applied-recycle row selection landed; HAKO-ALLOC-ID-BRAND-001 selected",
   "293x-651 MIMAP-143A release-applied local-free reuse ledger token recycle closeout guard landed; MIMAP-144A selected",
   "293x-653 DOCS-LINE-BUDGET-001 current docs line budget cleanup landed; MIMAP-143A resumed",

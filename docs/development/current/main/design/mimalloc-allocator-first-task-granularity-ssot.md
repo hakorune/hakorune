@@ -315,7 +315,8 @@ Forbidden:
 | `MIMAP-142A` | segment allocation modeled local-free reuse ledger release-applied recycle proof | landed; selected MIMAP-143A |
 | `MIMAP-143A` | segment allocation modeled local-free reuse ledger release-applied recycle closeout guard | landed; selected MIMAP-144A |
 | `MIMAP-144A` | post-release-applied-recycle-closeout row selection | landed; selected HAKO-ALLOC-ID-BRAND-001 |
-| `HAKO-ALLOC-ID-BRAND-001` | allocator scalar ID brand application inventory | selected current |
+| `HAKO-ALLOC-ID-BRAND-001` | allocator scalar ID brand application inventory | landed; selected PURE-FIRST-BRAND-CONSTRUCT-001 |
+| `PURE-FIRST-BRAND-CONSTRUCT-001` | brand constructor MIR acceptance | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -393,6 +394,21 @@ covered by current Stage1 brand checks.
 It must not add allocator behavior, new brand syntax, broad type-system
 semantics, field/return/cross-module brand inference, provider activation, host
 allocator replacement, backend matchers, or silent fallback.
+
+HAKO-ALLOC-ID-BRAND-001 landed by documenting the allocator scalar ID candidates
+and selecting PURE-FIRST-BRAND-CONSTRUCT-001 because direct MIR currently treats
+declared brand constructors such as `BlockId(7)` as unresolved function calls.
+
+
+### PURE-FIRST-BRAND-CONSTRUCT-001 granularity
+
+PURE-FIRST-BRAND-CONSTRUCT-001 is a focused compiler acceptance row. It should
+collect declared brand names in the direct MIR source route and lower
+`BrandName(value)` as a transparent single-value wrapper when the brand is known.
+
+It must not add full brand type checking, field/return/typed-local propagation,
+cross-module inference, allocator behavior, provider activation, host allocator
+replacement, backend matchers, or silent fallback.
 
 
 ## Historical Granularity Anchors
