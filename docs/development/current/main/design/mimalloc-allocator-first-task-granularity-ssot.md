@@ -1214,6 +1214,42 @@ backing, atomic bitmap execution, OSVM/page-source execution, worker
 scheduling, provider activation, cross-function `Result` direct ABI, runtime
 sum materialization, or backend matchers.
 
+MIMAP-187A landed by selecting MIMAP-188A.
+
+### MIMAP-188A granularity
+
+MIMAP-188A proves that a segment-map-derived released-span row can be consumed
+by the existing modeled local-free reuse owner. It connects the segment-map
+chain to the MIMAP-126A reuse route while keeping the same scalar/model
+boundary:
+
+```text
+segment-map released-span row
+  -> modeled local-free reuse owner
+```
+
+It must not open real segment allocation/free execution, raw pointer
+residence, real segment-map mutation, real allocator free-list mutation, arena
+backing, atomic bitmap execution, OSVM/page-source execution, worker
+scheduling, provider activation, cross-function `Result` direct ABI, runtime
+sum materialization, or backend matchers.
+
+MIMAP-188A landed by adding the segment-map local-free reuse bridge proof app,
+SSOT, L2 guard, proof manifest row, and current pointers. It selected
+MIMAP-189A.
+
+### MIMAP-189A granularity
+
+MIMAP-189A is a planning row after the segment-map local-free reuse bridge. It
+should choose between a reuse bridge closeout pack, a segment-map local-free
+reuse ledger bridge, or a small diagnostic/observer sidecar.
+
+It must not open real segment allocation/free execution, raw pointer
+residence, real segment-map mutation, real allocator free-list mutation, arena
+backing, atomic bitmap execution, OSVM/page-source execution, worker
+scheduling, provider activation, cross-function `Result` direct ABI, runtime
+sum materialization, or backend matchers.
+
 
 ## Historical Granularity Anchors
 

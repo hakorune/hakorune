@@ -370,6 +370,11 @@ Syntax/style contract
   lookup, allocate arena backing, execute atomic bitmap claims, call
   page-source/OSVM seams, schedule workers, activate provider hooks, replace
   the host allocator, or add backend shortcuts.
+  It also owns MIMAP-188A. It may consume released-span rows produced from the
+  segment-map bridge and prove the same modeled local-free reuse facts, while
+  keeping real allocator free-list mutation, raw pointer residence, real
+  segment-map execution, arena backing, atomics, OSVM/page-source calls, and
+  backend shortcuts closed.
 - `segment_allocation_modeled_local_free_reuse_ledger_box.hako` owns
   MIMAP-130A, MIMAP-138A, and MIMAP-142A. It may consume successful MIMAP-126A local-free
   reuse reports and record deterministic scalar live reuse allocation rows

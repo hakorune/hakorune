@@ -1,0 +1,152 @@
+// hako-alloc-segment-map-local-free-reuse-bridge-proof
+// Purpose: prove MIMAP-188A segment-map released-span -> local-free reuse bridge.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.segment_map_lookup_guarded_readiness_composition_box as HakoAllocSegmentMapLookupGuardedReadinessComposition
+using selfhost.hako_alloc.memory.segment_map_accepted_readiness_modeled_consume_ledger_box as HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_released_span_ledger_box as HakoAllocSegmentAllocationModeledReleasedSpanLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_box as HakoAllocSegmentAllocationModeledLocalFreeReuse
+
+static box Main {
+    seedFullPage(page): i64 {
+        local p0 = page.acquire(8)
+        local p1 = page.acquire(8)
+        local p2 = page.acquire(8)
+        local p3 = page.acquire(8)
+        local p4 = page.acquire(8)
+        local p5 = page.acquire(8)
+        local p6 = page.acquire(8)
+        local p7 = page.acquire(8)
+        return p7
+    }
+
+    seedPartialPage(page): i64 {
+        local p0 = page.acquire(8)
+        local p1 = page.acquire(8)
+        local p2 = page.acquire(8)
+        local p3 = page.acquire(8)
+        local p4 = page.acquire(8)
+        local p5 = page.acquire(8)
+        return p5
+    }
+
+    nextReleasedSpan(route, released_spans, readiness): HakoAllocSegmentAllocationModeledReleasedSpanLedgerReport {
+        local consumed = route.consumeAcceptedReadiness(readiness, 0)
+        local released = route.releaseConsumedToken(consumed.modeled_allocation_token, 0)
+        return released_spans.recordReleasedSpan(released, 0)
+    }
+
+    main(args) {
+        local composition = new HakoAllocSegmentMapLookupGuardedReadinessComposition()
+        local route = new HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger()
+        local released_spans = new HakoAllocSegmentAllocationModeledReleasedSpanLedger()
+        local reuse_route = new HakoAllocSegmentAllocationModeledLocalFreeReuse()
+
+        local readiness = composition.composeLookupReadiness(70, 7, 3, 16, 1, composition.stateActive(), 2, 8, 3, 0)
+
+        local page = new HakoAllocPageModel(7, 16, 8, 8)
+        local p7 = Main.seedFullPage(page)
+        local first_span = Main.nextReleasedSpan(route, released_spans, readiness)
+        local reuse = reuse_route.integrateAndReuseLocalFree(first_span, page, 8, 0, 0, 0)
+
+        local missing_release = route.releaseConsumedToken(999999, 0)
+        local missing_span = released_spans.recordReleasedSpan(missing_release, 0)
+        local missing = reuse_route.integrateAndReuseLocalFree(missing_span, page, 8, 0, 0, 0)
+        local duplicate = reuse_route.integrateAndReuseLocalFree(first_span, page, 8, 0, 0, 0)
+
+        local partial_page = new HakoAllocPageModel(7, 16, 8, 8)
+        local p5 = Main.seedPartialPage(partial_page)
+        local partial_span = Main.nextReleasedSpan(route, released_spans, readiness)
+        local partial = reuse_route.integrateAndReuseLocalFree(partial_span, partial_page, 8, 0, 0, 0)
+
+        local unsupported_page = new HakoAllocPageModel(7, 16, 8, 8)
+        local u7 = Main.seedFullPage(unsupported_page)
+        local unsupported_span = Main.nextReleasedSpan(route, released_spans, readiness)
+        local unsupported = reuse_route.integrateAndReuseLocalFree(unsupported_span, unsupported_page, 8, 1, 0, 0)
+
+        local recycled_page = new HakoAllocPageModel(7, 16, 8, 8)
+        local r7 = Main.seedFullPage(recycled_page)
+        local recycled_span = Main.nextReleasedSpan(route, released_spans, readiness)
+        local recycled = reuse_route.integrateAndReuseLocalFree(recycled_span, recycled_page, 8, 0, 0, 0)
+
+        local ok = check "mimap188a segment map local free reuse bridge" {
+            "reuse accepted": reuse.did_reuse_local_free == 1
+            "reuse reason": reuse.reason == 0
+            "reuse integration reason": reuse.integration_reason == 0
+            "reuse block id": reuse.reused_block_id == 4
+            "reuse token": reuse.modeled_allocation_token == 70007002
+            "reuse segment": reuse.segment_id == 70
+            "reuse page": reuse.page_id == 7
+            "reuse start": reuse.modeled_block_start == 2
+            "reuse end": reuse.modeled_block_end == 5
+            "reuse applied": reuse.applied_blocks == 3
+            "used before reuse": reuse.page_used_before_reuse == 5
+            "used after reuse": reuse.page_used_after_reuse == 6
+            "free before reuse": reuse.page_free_before_reuse == 0
+            "free after reuse": reuse.page_free_after_reuse == 0
+            "local before reuse": reuse.page_local_free_before_reuse == 3
+            "local after reuse": reuse.page_local_free_after_reuse == 2
+            "collect before reuse": reuse.collect_count_before_reuse == 0
+            "collect after reuse": reuse.collect_count_after_reuse == 1
+            "did collect": reuse.did_collect_local_free_before_reuse == 1
+            "page used": page.used == 6
+            "page free": page.freeCount() == 0
+            "page local free": page.localFreeCount() == 2
+            "page collect count": page.local_free_collect_count == 1
+            "missing rejected": missing.did_reuse_local_free == 0
+            "missing reason": missing.reason == 1
+            "missing integration reason": missing.integration_reason == 1
+            "duplicate rejected": duplicate.did_reuse_local_free == 0
+            "duplicate reason": duplicate.reason == 1
+            "duplicate integration reason": duplicate.integration_reason == 1
+            "partial rejected": partial.did_reuse_local_free == 0
+            "partial reason": partial.reason == 2
+            "partial free remained": partial.page_free_before_reuse == 2
+            "unsupported rejected": unsupported.did_reuse_local_free == 0
+            "unsupported reason": unsupported.reason == 1
+            "unsupported integration reason": unsupported.integration_reason == 1
+            "recycled accepted": recycled.did_reuse_local_free == 1
+            "recycled reason": recycled.reason == 0
+            "recycled block id": recycled.reused_block_id == 4
+            "recycled local after": recycled.page_local_free_after_reuse == 2
+            "attempt count": reuse_route.attempt_count == 6
+            "success count": reuse_route.success_count == 2
+            "reject count": reuse_route.reject_count == 4
+            "integration rejects": reuse_route.integration_reject_count == 3
+            "free-list rejects": reuse_route.free_list_not_empty_reject_count == 1
+            "acquire rejects": reuse_route.acquire_reject_count == 0
+            "collect rejects": reuse_route.collect_reject_count == 0
+            "inactive real free": reuse.would_execute_real_segment_free == 0
+            "inactive direct page arrays": reuse.would_directly_mutate_page_arrays == 0
+            "inactive raw": reuse.would_use_raw_pointer == 0
+            "inactive segment map": reuse.would_use_segment_map == 0
+            "inactive arena": reuse.would_allocate_arena_backing == 0
+            "inactive atomic": reuse.would_execute_atomic_bitmap == 0
+            "inactive osvm": reuse.would_call_osvm == 0
+            "inactive thread": reuse.would_run_thread == 0
+            "inactive provider": reuse.would_activate_provider == 0
+            "inactive matcher": reuse.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-map-local-free-reuse-bridge-proof")
+        print("reuse=" + reuse.did_reuse_local_free + "," + reuse.reason + "," + reuse.reused_block_id + "," + reuse.page_used_before_reuse + "," + reuse.page_used_after_reuse + "," + reuse.page_free_before_reuse + "," + reuse.page_free_after_reuse + "," + reuse.page_local_free_before_reuse + "," + reuse.page_local_free_after_reuse + "," + reuse.collect_count_after_reuse)
+        print("integration=" + reuse.integration_reason + "," + reuse.modeled_allocation_token + "," + reuse.segment_id + "," + reuse.page_id + "," + reuse.modeled_block_start + "," + reuse.modeled_block_end + "," + reuse.applied_blocks)
+        print("missing=" + missing.did_reuse_local_free + "," + missing.reason + "," + missing.integration_reason)
+        print("duplicate=" + duplicate.did_reuse_local_free + "," + duplicate.reason + "," + duplicate.integration_reason)
+        print("partial=" + partial.did_reuse_local_free + "," + partial.reason + "," + partial.page_free_before_reuse)
+        print("unsupported=" + unsupported.did_reuse_local_free + "," + unsupported.reason + "," + unsupported.integration_reason)
+        print("recycled=" + recycled.did_reuse_local_free + "," + recycled.reason + "," + recycled.reused_block_id + "," + recycled.page_used_after_reuse + "," + recycled.page_local_free_after_reuse + "," + recycled.collect_count_after_reuse)
+        print("counts=" + reuse_route.attempt_count + "," + reuse_route.success_count + "," + reuse_route.reject_count + "," + reuse_route.integration_reject_count + "," + reuse_route.free_list_not_empty_reject_count + "," + reuse_route.acquire_reject_count + "," + reuse_route.collect_reject_count)
+        print("page=" + page.used + "," + page.freeCount() + "," + page.localFreeCount() + "," + page.local_free_collect_count)
+        print("inactive=" + reuse.would_execute_real_segment_free + "," + reuse.would_directly_mutate_page_arrays + "," + reuse.would_use_raw_pointer + "," + reuse.would_use_segment_map + "," + reuse.would_allocate_arena_backing + "," + reuse.would_execute_atomic_bitmap + "," + reuse.would_call_osvm + "," + reuse.would_run_thread + "," + reuse.would_activate_provider + "," + reuse.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
