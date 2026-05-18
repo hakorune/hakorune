@@ -1,6 +1,6 @@
 # 293x-661 HAKO-ALLOC-REPORT-RECORD-002 Local-Free Integration Report Record Boundary Cleanup
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -44,4 +44,25 @@ apps/hako-alloc-segment-allocation-modeled-local-free-integration-proof/main.hak
 bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_integration_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Closeout
+
+Landed by adding
+`HakoAllocSegmentAllocationModeledLocalFreeIntegrationReportFields`, replacing
+the legacy 22-argument `report(...)` helper boundary with local record payloads
+at each report construction site, and extending the MIMAP-119A guard to reject
+the old helper shape.
+
+Evidence:
+
+```text
+NYASH_FEATURES=rune NYASH_DISABLE_PLUGINS=1 timeout 120 target/debug/hakorune --backend vm apps/hako-alloc-segment-allocation-modeled-local-free-integration-proof/main.hako
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_integration_guard.sh
+```
+
+Next row:
+
+```text
+MIMAP-146A post-report-record-cleanup row selection
 ```

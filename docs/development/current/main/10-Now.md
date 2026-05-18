@@ -34,16 +34,16 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `HAKO-ALLOC-REPORT-RECORD-002 local-free integration report record boundary cleanup`
+- current blocker token: `MIMAP-146A post-report-record-cleanup row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x with `HAKO-ALLOC-REPORT-RECORD-002`; current blocker is
-  local-free integration report record boundary cleanup
-- latest inventory row: `HAKO-ALLOC-REPORT-RECORD-001` landed and selected
-  HAKO-ALLOC-REPORT-RECORD-002
+- continue phase-293x with `MIMAP-146A`; current blocker is
+  post-report-record-cleanup row selection
+- latest cleanup row: `HAKO-ALLOC-REPORT-RECORD-002` landed and selected
+  MIMAP-146A
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

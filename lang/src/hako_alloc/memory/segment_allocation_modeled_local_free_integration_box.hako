@@ -12,6 +12,31 @@ using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_candidate
 using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_apply_plan_box as HakoAllocSegmentAllocationModeledLocalFreeApplyPlan
 using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_page_apply_box as HakoAllocSegmentAllocationModeledLocalFreePageApply
 
+record HakoAllocSegmentAllocationModeledLocalFreeIntegrationReportFields {
+    did_integrate_local_free: i64
+    reason: i64
+    candidate_reason: i64
+    apply_plan_reason: i64
+    page_apply_reason: i64
+    candidate_row_index: i64
+    apply_plan_row_index: i64
+    page_apply_row_index: i64
+    modeled_allocation_token: i64
+    segment_id: i64
+    page_id: i64
+    modeled_block_start: i64
+    modeled_block_end: i64
+    candidate_blocks: i64
+    applied_blocks: i64
+    page_used_before: i64
+    page_used_after: i64
+    page_local_free_before: i64
+    page_local_free_after: i64
+    page_free_before: i64
+    page_free_after: i64
+    did_mutate_page_local_free_list: i64
+}
+
 box HakoAllocSegmentAllocationModeledLocalFreeIntegrationReport {
     did_integrate_local_free: i64 = 0
     reason: i64 = 0
@@ -66,56 +91,184 @@ box HakoAllocSegmentAllocationModeledLocalFreeIntegration {
     last_page_id: i64 = -1
     last_page_apply_row_index: i64 = -1
 
-    report(did_integrate_local_free, reason, candidate_reason, apply_plan_reason, page_apply_reason, candidate_row_index, apply_plan_row_index, page_apply_row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, modeled_block_end, candidate_blocks, applied_blocks, page_used_before, page_used_after, page_local_free_before, page_local_free_after, page_free_before, page_free_after, did_mutate_page_local_free_list): HakoAllocSegmentAllocationModeledLocalFreeIntegrationReport {
-        local result = new HakoAllocSegmentAllocationModeledLocalFreeIntegrationReport()
-        result.did_integrate_local_free = did_integrate_local_free
-        result.reason = reason
-        result.candidate_reason = candidate_reason
-        result.apply_plan_reason = apply_plan_reason
-        result.page_apply_reason = page_apply_reason
-        result.candidate_row_index = candidate_row_index
-        result.apply_plan_row_index = apply_plan_row_index
-        result.page_apply_row_index = page_apply_row_index
-        result.modeled_allocation_token = modeled_allocation_token
-        result.segment_id = segment_id
-        result.page_id = page_id
-        result.modeled_block_start = modeled_block_start
-        result.modeled_block_end = modeled_block_end
-        result.candidate_blocks = candidate_blocks
-        result.applied_blocks = applied_blocks
-        result.page_used_before = page_used_before
-        result.page_used_after = page_used_after
-        result.page_local_free_before = page_local_free_before
-        result.page_local_free_after = page_local_free_after
-        result.page_free_before = page_free_before
-        result.page_free_after = page_free_after
-        result.integration_attempt_count_after = me.attempt_count
-        result.integration_success_count_after = me.success_count
-        result.integration_reject_count_after = me.reject_count
-        result.did_mutate_page_local_free_list = did_mutate_page_local_free_list
-        me.last_reason = reason
-        me.last_token = modeled_allocation_token
-        me.last_page_id = page_id
-        me.last_page_apply_row_index = page_apply_row_index
-        return result
-    }
-
     rejectFromCandidate(candidate) {
         me.reject_count += 1
         me.candidate_reject_count += 1
-        return me.report(0, 1, candidate.reason, 0, 0, candidate.row_index, -1, -1, candidate.modeled_allocation_token, candidate.segment_id, candidate.page_id, candidate.modeled_block_start, candidate.modeled_block_end, candidate.candidate_blocks, 0, 0, 0, 0, 0, 0, 0, 0)
+        local fields = HakoAllocSegmentAllocationModeledLocalFreeIntegrationReportFields {
+            did_integrate_local_free: 0,
+            reason: 1,
+            candidate_reason: candidate.reason,
+            apply_plan_reason: 0,
+            page_apply_reason: 0,
+            candidate_row_index: candidate.row_index,
+            apply_plan_row_index: -1,
+            page_apply_row_index: -1,
+            modeled_allocation_token: candidate.modeled_allocation_token,
+            segment_id: candidate.segment_id,
+            page_id: candidate.page_id,
+            modeled_block_start: candidate.modeled_block_start,
+            modeled_block_end: candidate.modeled_block_end,
+            candidate_blocks: candidate.candidate_blocks,
+            applied_blocks: 0,
+            page_used_before: 0,
+            page_used_after: 0,
+            page_local_free_before: 0,
+            page_local_free_after: 0,
+            page_free_before: 0,
+            page_free_after: 0,
+            did_mutate_page_local_free_list: 0,
+        }
+        local result = new HakoAllocSegmentAllocationModeledLocalFreeIntegrationReport()
+        result.did_integrate_local_free = fields.did_integrate_local_free
+        result.reason = fields.reason
+        result.candidate_reason = fields.candidate_reason
+        result.apply_plan_reason = fields.apply_plan_reason
+        result.page_apply_reason = fields.page_apply_reason
+        result.candidate_row_index = fields.candidate_row_index
+        result.apply_plan_row_index = fields.apply_plan_row_index
+        result.page_apply_row_index = fields.page_apply_row_index
+        result.modeled_allocation_token = fields.modeled_allocation_token
+        result.segment_id = fields.segment_id
+        result.page_id = fields.page_id
+        result.modeled_block_start = fields.modeled_block_start
+        result.modeled_block_end = fields.modeled_block_end
+        result.candidate_blocks = fields.candidate_blocks
+        result.applied_blocks = fields.applied_blocks
+        result.page_used_before = fields.page_used_before
+        result.page_used_after = fields.page_used_after
+        result.page_local_free_before = fields.page_local_free_before
+        result.page_local_free_after = fields.page_local_free_after
+        result.page_free_before = fields.page_free_before
+        result.page_free_after = fields.page_free_after
+        result.integration_attempt_count_after = me.attempt_count
+        result.integration_success_count_after = me.success_count
+        result.integration_reject_count_after = me.reject_count
+        result.did_mutate_page_local_free_list = fields.did_mutate_page_local_free_list
+        me.last_reason = fields.reason
+        me.last_token = fields.modeled_allocation_token
+        me.last_page_id = fields.page_id
+        me.last_page_apply_row_index = fields.page_apply_row_index
+        return result
     }
 
     rejectFromApplyPlan(candidate, plan) {
         me.reject_count += 1
         me.apply_plan_reject_count += 1
-        return me.report(0, 2, candidate.reason, plan.reason, 0, candidate.row_index, plan.row_index, -1, plan.modeled_allocation_token, plan.segment_id, plan.page_id, plan.modeled_block_start, plan.modeled_block_end, plan.candidate_blocks, 0, 0, 0, 0, 0, 0, 0, 0)
+        local fields = HakoAllocSegmentAllocationModeledLocalFreeIntegrationReportFields {
+            did_integrate_local_free: 0,
+            reason: 2,
+            candidate_reason: candidate.reason,
+            apply_plan_reason: plan.reason,
+            page_apply_reason: 0,
+            candidate_row_index: candidate.row_index,
+            apply_plan_row_index: plan.row_index,
+            page_apply_row_index: -1,
+            modeled_allocation_token: plan.modeled_allocation_token,
+            segment_id: plan.segment_id,
+            page_id: plan.page_id,
+            modeled_block_start: plan.modeled_block_start,
+            modeled_block_end: plan.modeled_block_end,
+            candidate_blocks: plan.candidate_blocks,
+            applied_blocks: 0,
+            page_used_before: 0,
+            page_used_after: 0,
+            page_local_free_before: 0,
+            page_local_free_after: 0,
+            page_free_before: 0,
+            page_free_after: 0,
+            did_mutate_page_local_free_list: 0,
+        }
+        local result = new HakoAllocSegmentAllocationModeledLocalFreeIntegrationReport()
+        result.did_integrate_local_free = fields.did_integrate_local_free
+        result.reason = fields.reason
+        result.candidate_reason = fields.candidate_reason
+        result.apply_plan_reason = fields.apply_plan_reason
+        result.page_apply_reason = fields.page_apply_reason
+        result.candidate_row_index = fields.candidate_row_index
+        result.apply_plan_row_index = fields.apply_plan_row_index
+        result.page_apply_row_index = fields.page_apply_row_index
+        result.modeled_allocation_token = fields.modeled_allocation_token
+        result.segment_id = fields.segment_id
+        result.page_id = fields.page_id
+        result.modeled_block_start = fields.modeled_block_start
+        result.modeled_block_end = fields.modeled_block_end
+        result.candidate_blocks = fields.candidate_blocks
+        result.applied_blocks = fields.applied_blocks
+        result.page_used_before = fields.page_used_before
+        result.page_used_after = fields.page_used_after
+        result.page_local_free_before = fields.page_local_free_before
+        result.page_local_free_after = fields.page_local_free_after
+        result.page_free_before = fields.page_free_before
+        result.page_free_after = fields.page_free_after
+        result.integration_attempt_count_after = me.attempt_count
+        result.integration_success_count_after = me.success_count
+        result.integration_reject_count_after = me.reject_count
+        result.did_mutate_page_local_free_list = fields.did_mutate_page_local_free_list
+        me.last_reason = fields.reason
+        me.last_token = fields.modeled_allocation_token
+        me.last_page_id = fields.page_id
+        me.last_page_apply_row_index = fields.page_apply_row_index
+        return result
     }
 
     rejectFromPageApply(candidate, plan, page_apply) {
         me.reject_count += 1
         me.page_apply_reject_count += 1
-        return me.report(0, 3, candidate.reason, plan.reason, page_apply.reason, candidate.row_index, plan.row_index, page_apply.row_index, page_apply.modeled_allocation_token, page_apply.segment_id, page_apply.page_id, page_apply.modeled_block_start, page_apply.modeled_block_end, page_apply.candidate_blocks, page_apply.applied_blocks, page_apply.page_used_before, page_apply.page_used_after, page_apply.page_local_free_before, page_apply.page_local_free_after, page_apply.page_free_before, page_apply.page_free_after, page_apply.did_mutate_page_local_free_list)
+        local fields = HakoAllocSegmentAllocationModeledLocalFreeIntegrationReportFields {
+            did_integrate_local_free: 0,
+            reason: 3,
+            candidate_reason: candidate.reason,
+            apply_plan_reason: plan.reason,
+            page_apply_reason: page_apply.reason,
+            candidate_row_index: candidate.row_index,
+            apply_plan_row_index: plan.row_index,
+            page_apply_row_index: page_apply.row_index,
+            modeled_allocation_token: page_apply.modeled_allocation_token,
+            segment_id: page_apply.segment_id,
+            page_id: page_apply.page_id,
+            modeled_block_start: page_apply.modeled_block_start,
+            modeled_block_end: page_apply.modeled_block_end,
+            candidate_blocks: page_apply.candidate_blocks,
+            applied_blocks: page_apply.applied_blocks,
+            page_used_before: page_apply.page_used_before,
+            page_used_after: page_apply.page_used_after,
+            page_local_free_before: page_apply.page_local_free_before,
+            page_local_free_after: page_apply.page_local_free_after,
+            page_free_before: page_apply.page_free_before,
+            page_free_after: page_apply.page_free_after,
+            did_mutate_page_local_free_list: page_apply.did_mutate_page_local_free_list,
+        }
+        local result = new HakoAllocSegmentAllocationModeledLocalFreeIntegrationReport()
+        result.did_integrate_local_free = fields.did_integrate_local_free
+        result.reason = fields.reason
+        result.candidate_reason = fields.candidate_reason
+        result.apply_plan_reason = fields.apply_plan_reason
+        result.page_apply_reason = fields.page_apply_reason
+        result.candidate_row_index = fields.candidate_row_index
+        result.apply_plan_row_index = fields.apply_plan_row_index
+        result.page_apply_row_index = fields.page_apply_row_index
+        result.modeled_allocation_token = fields.modeled_allocation_token
+        result.segment_id = fields.segment_id
+        result.page_id = fields.page_id
+        result.modeled_block_start = fields.modeled_block_start
+        result.modeled_block_end = fields.modeled_block_end
+        result.candidate_blocks = fields.candidate_blocks
+        result.applied_blocks = fields.applied_blocks
+        result.page_used_before = fields.page_used_before
+        result.page_used_after = fields.page_used_after
+        result.page_local_free_before = fields.page_local_free_before
+        result.page_local_free_after = fields.page_local_free_after
+        result.page_free_before = fields.page_free_before
+        result.page_free_after = fields.page_free_after
+        result.integration_attempt_count_after = me.attempt_count
+        result.integration_success_count_after = me.success_count
+        result.integration_reject_count_after = me.reject_count
+        result.did_mutate_page_local_free_list = fields.did_mutate_page_local_free_list
+        me.last_reason = fields.reason
+        me.last_token = fields.modeled_allocation_token
+        me.last_page_id = fields.page_id
+        me.last_page_apply_row_index = fields.page_apply_row_index
+        return result
     }
 
     integrateLocalFree(released_span_report, page, unsupported_candidate_requirement, unsupported_apply_plan_requirement, unsupported_page_apply_requirement): HakoAllocSegmentAllocationModeledLocalFreeIntegrationReport {
@@ -137,6 +290,60 @@ box HakoAllocSegmentAllocationModeledLocalFreeIntegration {
         }
 
         me.success_count += 1
-        return me.report(1, 0, candidate.reason, plan.reason, page_apply.reason, candidate.row_index, plan.row_index, page_apply.row_index, page_apply.modeled_allocation_token, page_apply.segment_id, page_apply.page_id, page_apply.modeled_block_start, page_apply.modeled_block_end, page_apply.candidate_blocks, page_apply.applied_blocks, page_apply.page_used_before, page_apply.page_used_after, page_apply.page_local_free_before, page_apply.page_local_free_after, page_apply.page_free_before, page_apply.page_free_after, page_apply.did_mutate_page_local_free_list)
+        local fields = HakoAllocSegmentAllocationModeledLocalFreeIntegrationReportFields {
+            did_integrate_local_free: 1,
+            reason: 0,
+            candidate_reason: candidate.reason,
+            apply_plan_reason: plan.reason,
+            page_apply_reason: page_apply.reason,
+            candidate_row_index: candidate.row_index,
+            apply_plan_row_index: plan.row_index,
+            page_apply_row_index: page_apply.row_index,
+            modeled_allocation_token: page_apply.modeled_allocation_token,
+            segment_id: page_apply.segment_id,
+            page_id: page_apply.page_id,
+            modeled_block_start: page_apply.modeled_block_start,
+            modeled_block_end: page_apply.modeled_block_end,
+            candidate_blocks: page_apply.candidate_blocks,
+            applied_blocks: page_apply.applied_blocks,
+            page_used_before: page_apply.page_used_before,
+            page_used_after: page_apply.page_used_after,
+            page_local_free_before: page_apply.page_local_free_before,
+            page_local_free_after: page_apply.page_local_free_after,
+            page_free_before: page_apply.page_free_before,
+            page_free_after: page_apply.page_free_after,
+            did_mutate_page_local_free_list: page_apply.did_mutate_page_local_free_list,
+        }
+        local result = new HakoAllocSegmentAllocationModeledLocalFreeIntegrationReport()
+        result.did_integrate_local_free = fields.did_integrate_local_free
+        result.reason = fields.reason
+        result.candidate_reason = fields.candidate_reason
+        result.apply_plan_reason = fields.apply_plan_reason
+        result.page_apply_reason = fields.page_apply_reason
+        result.candidate_row_index = fields.candidate_row_index
+        result.apply_plan_row_index = fields.apply_plan_row_index
+        result.page_apply_row_index = fields.page_apply_row_index
+        result.modeled_allocation_token = fields.modeled_allocation_token
+        result.segment_id = fields.segment_id
+        result.page_id = fields.page_id
+        result.modeled_block_start = fields.modeled_block_start
+        result.modeled_block_end = fields.modeled_block_end
+        result.candidate_blocks = fields.candidate_blocks
+        result.applied_blocks = fields.applied_blocks
+        result.page_used_before = fields.page_used_before
+        result.page_used_after = fields.page_used_after
+        result.page_local_free_before = fields.page_local_free_before
+        result.page_local_free_after = fields.page_local_free_after
+        result.page_free_before = fields.page_free_before
+        result.page_free_after = fields.page_free_after
+        result.integration_attempt_count_after = me.attempt_count
+        result.integration_success_count_after = me.success_count
+        result.integration_reject_count_after = me.reject_count
+        result.did_mutate_page_local_free_list = fields.did_mutate_page_local_free_list
+        me.last_reason = fields.reason
+        me.last_token = fields.modeled_allocation_token
+        me.last_page_id = fields.page_id
+        me.last_page_apply_row_index = fields.page_apply_row_index
+        return result
     }
 }

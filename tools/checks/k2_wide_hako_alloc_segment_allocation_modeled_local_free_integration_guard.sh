@@ -62,12 +62,23 @@ guard_expect_in_file "$TAG" 'id = "MIMAP-119A"' "$PROOF_MANIFEST" "proof app man
 guard_expect_in_file "$TAG" 'memory.segment_allocation_modeled_local_free_integration_box = "memory/segment_allocation_modeled_local_free_integration_box.hako"' "$MODULE" "hako module must export integration owner"
 guard_expect_in_file "$TAG" 'segment_allocation_modeled_local_free_integration_box.hako` owns' "$MEMORY_README" "memory README must define MIMAP-119A owner"
 guard_expect_in_file "$TAG" 'integrateLocalFree' "$OWNER" "integration owner must expose integration route"
+guard_expect_in_file "$TAG" 'record HakoAllocSegmentAllocationModeledLocalFreeIntegrationReportFields' "$OWNER" "integration owner must group report scalars in a record payload"
+guard_expect_in_file "$TAG" 'HakoAllocSegmentAllocationModeledLocalFreeIntegrationReportFields \{' "$OWNER" "integration owner must construct report field records locally"
+guard_expect_in_file "$TAG" 'result.did_integrate_local_free = fields.did_integrate_local_free' "$OWNER" "integration owner must copy record fields into the public report box"
 guard_expect_in_file "$TAG" 'recordLocalFreeCandidate' "$OWNER" "integration owner must compose candidate ledger"
 guard_expect_in_file "$TAG" 'recordLocalFreeApplyPlan' "$OWNER" "integration owner must compose apply plan ledger"
 guard_expect_in_file "$TAG" 'recordLocalFreePageApply' "$OWNER" "integration owner must compose page apply route"
 guard_expect_in_file "$TAG" 'releaseLocal' "$PAGE_APPLY_OWNER" "page apply owner must call releaseLocal only"
 guard_expect_in_file "$TAG" 'releaseLocal' "$PAGE_OWNER" "page model must own releaseLocal"
 guard_expect_in_file "$TAG" 'check "mimap119a segment allocation modeled local-free integration route"' "$APP" "MIMAP-119A proof must use labelled check block"
+
+if rg -n '(^[[:space:]]*report[[:space:]]*\(|me\.report[[:space:]]*\()' "$OWNER" >/tmp/"$TAG".report_helper_leak 2>&1; then
+  echo "[$TAG] ERROR: local-free integration report must not use the legacy scalar report(...) helper boundary" >&2
+  cat /tmp/"$TAG".report_helper_leak >&2
+  rm -f /tmp/"$TAG".report_helper_leak
+  exit 1
+fi
+rm -f /tmp/"$TAG".report_helper_leak
 
 if rg -n 'AtomicCoreBox|hako_atomic|cas_i64|fetch_add|spawn[[:space:]]*\(|thread::|worker_local|ChannelBox|TaskGroupBox|nowait|sync[[:space:]]+box|context[[:space:]]|wake|sleep|runQueue|run_queue|SegmentMap|lookupSegment|pointer_member|claimBitmap|unclaimBitmap|observeHeapPage[[:space:]]*\(|selectHeapPage[[:space:]]*\(|attemptHeapPage[[:space:]]*\(|allocateSegment[[:space:]]*\(|freeSegment[[:space:]]*\(|mutateFreeList|freeList|decommitPage[[:space:]]*\(|commitPage[[:space:]]*\(|reservePage[[:space:]]*\(|unreserve[[:space:]]*\(|releasePage[[:space:]]*\(|hako_osvm_(unreserve|release)' \
   "$OWNER" "$APP" >/tmp/"$TAG".execution_leak 2>&1; then

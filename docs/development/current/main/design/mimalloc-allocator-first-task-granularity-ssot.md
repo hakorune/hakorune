@@ -321,7 +321,8 @@ Forbidden:
 | `HAKO-ALLOC-ID-BRAND-003` | allocator scalar ID brand pilot closeout guard | landed; selected MIMAP-145A |
 | `MIMAP-145A` | post-ID-brand-pilot-closeout row selection | landed; selected HAKO-ALLOC-REPORT-RECORD-001 |
 | `HAKO-ALLOC-REPORT-RECORD-001` | allocator report record cleanup inventory | landed; selected HAKO-ALLOC-REPORT-RECORD-002 |
-| `HAKO-ALLOC-REPORT-RECORD-002` | local-free integration report record boundary cleanup | selected current |
+| `HAKO-ALLOC-REPORT-RECORD-002` | local-free integration report record boundary cleanup | landed; selected MIMAP-146A |
+| `MIMAP-146A` | post-report-record-cleanup row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -482,14 +483,29 @@ helper boundary: `segment_allocation_modeled_local_free_integration_box.hako`
 
 ### HAKO-ALLOC-REPORT-RECORD-002 granularity
 
-HAKO-ALLOC-REPORT-RECORD-002 is a BoxShape source cleanup row for the
-local-free integration report boundary. It should replace the report/22 helper
-call boundary with an owner-local record payload and copy fields into the
-existing report box, preserving proof output.
+HAKO-ALLOC-REPORT-RECORD-002 replaces the local-free integration report/22
+helper boundary with owner-local record payload construction/read, while keeping
+the returned report box and proof output unchanged.
 
-It must not add allocator behavior, broad report cleanup, record escape,
-packed/backend record lowering, provider activation, host allocator replacement,
-backend matchers, or silent fallback.
+It must not add allocator behavior, broad report rewrites, record-payload pass,
+return, or store escape, packed/backend record lowering, provider activation,
+host allocator replacement, backend matchers, or silent fallback.
+
+HAKO-ALLOC-REPORT-RECORD-002 landed by adding
+`HakoAllocSegmentAllocationModeledLocalFreeIntegrationReportFields`, replacing
+the legacy scalar `report(...)` helper, and extending the MIMAP-119A guard to
+reject the old helper boundary. It selects MIMAP-146A.
+
+
+### MIMAP-146A granularity
+
+MIMAP-146A is a planning-only row after the report-record cleanup. It should
+read HAKO-ALLOC-REPORT-RECORD-002 evidence and select exactly one next
+allocator, Hakorune core, or BoxShape cleanup row.
+
+It must not implement allocator behavior, compiler route behavior, source
+syntax, provider activation, host allocator replacement, backend matchers, or
+silent fallback by itself.
 
 
 ## Historical Granularity Anchors

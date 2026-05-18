@@ -34,22 +34,21 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`HAKO-ALLOC-REPORT-RECORD-002` is current after
-`HAKO-ALLOC-REPORT-RECORD-001` selected the local-free integration report
-record boundary cleanup.
+`MIMAP-146A` is current after `HAKO-ALLOC-REPORT-RECORD-002` landed the
+local-free integration report record boundary cleanup.
 
 Recommended current row:
 
 ```text
-HAKO-ALLOC-REPORT-RECORD-002
-  local-free integration report record boundary cleanup
+MIMAP-146A
+  post-report-record-cleanup row selection
 ```
 
 Purpose:
 
 ```text
-replace one wide local-free integration report helper boundary with a local record payload
-preserve allocator behavior and proof output
+select exactly one next allocator, Hakorune core, or BoxShape cleanup row
+do not implement allocator behavior, compiler behavior, or source syntax in the planning row
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -188,9 +187,10 @@ no provider activation
 | 116 | guard cleanup | `HAKO-ALLOC-ID-BRAND-003 allocator scalar ID brand pilot closeout guard` | landed; selected MIMAP-145A |
 | 117 | planning | `MIMAP-145A post-ID-brand-pilot-closeout row selection` | landed; selected HAKO-ALLOC-REPORT-RECORD-001 |
 | 118 | Hakorune language / allocator cleanup | `HAKO-ALLOC-REPORT-RECORD-001 allocator report record cleanup inventory` | landed; selected HAKO-ALLOC-REPORT-RECORD-002 |
-| 119 | Hakorune language / allocator cleanup | `HAKO-ALLOC-REPORT-RECORD-002 local-free integration report record boundary cleanup` | selected current |
-| 120 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
-| 121 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
+| 119 | Hakorune language / allocator cleanup | `HAKO-ALLOC-REPORT-RECORD-002 local-free integration report record boundary cleanup` | landed; selected MIMAP-146A |
+| 120 | planning | `MIMAP-146A post-report-record-cleanup row selection` | selected current |
+| 121 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
+| 122 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
 
