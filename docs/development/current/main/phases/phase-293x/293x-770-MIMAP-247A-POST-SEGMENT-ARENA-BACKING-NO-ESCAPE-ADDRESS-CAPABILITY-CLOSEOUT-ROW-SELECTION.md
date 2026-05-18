@@ -1,6 +1,6 @@
 # 293x-770 MIMAP-247A Post Segment Arena Backing No-Escape Address Capability Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -43,4 +43,26 @@ execution by accident.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Landed Scope
+
+MIMAP-247A reviewed the closed-out no-escape address capability family and
+selected a modeled residence inventory row. The next row remains scalar/model
+only and does not open real raw pointer residence or pointer-derived lookup.
+
+## Selected Next Row
+
+MIMAP-247A selects:
+
+```text
+MIMAP-248A segment arena backing modeled no-escape address residence inventory
+```
+
+Reason:
+
+```text
+the no-escape address capability family now has L3 closeout evidence. The next
+small bridge should record an accepted capability as a modeled residence row
+while keeping the address carrier scalar and non-dereferenceable.
 ```

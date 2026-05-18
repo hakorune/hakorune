@@ -196,6 +196,20 @@ MIMAP-246A segment arena backing no-escape address capability closeout pack
   L3 representative exact-MIR evidence for segment-arena-backing-no-escape-address-capability
 ```
 
+## Active Segment Arena Backing Modeled No-Escape Address Residence Family
+
+The modeled no-escape address residence rows stay scalar/model-only. They do
+not create real raw pointer residence or pointer-derived lookup.
+
+```toml
+[[proof_apps]]
+id = "MIMAP-248A"
+row_kind = "inventory"
+validation_profile = "scalar-mir"
+closeout_pack = "segment-arena-backing-modeled-no-escape-address-residence"
+exe = "deferred-to-closeout"
+```
+
 ## Row-Type Rules
 
 ### Planning Rows

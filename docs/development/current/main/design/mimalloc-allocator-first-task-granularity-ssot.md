@@ -20,11 +20,11 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-247A
+  MIMAP-248A
 
 current choice boundary:
-  next modeled bridge after no-escape address capability closeout
-  while keeping real execution closed
+  modeled no-escape address residence inventory
+  while keeping real pointer residence and lookup closed
 
 closed until explicitly reopened:
   real raw pointer residence
@@ -431,7 +431,8 @@ Forbidden:
 | `MIMAP-244A` | segment arena backing no-escape raw pointer capability inventory | landed; selected MIMAP-245A |
 | `MIMAP-245A` | segment arena backing no-escape address capability diagnostics | landed; selected MIMAP-246A |
 | `MIMAP-246A` | segment arena backing no-escape address capability closeout pack | landed; selected MIMAP-247A |
-| `MIMAP-247A` | post-segment-arena-backing-no-escape-address-capability-closeout row selection | selected current |
+| `MIMAP-247A` | post-segment-arena-backing-no-escape-address-capability-closeout row selection | landed; selected MIMAP-248A |
+| `MIMAP-248A` | segment arena backing modeled no-escape address residence inventory | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2279,6 +2280,19 @@ segment-map mutation, atomic bitmap execution, OSVM/page-source execution,
 worker/provider activation, cross-function `Result` direct ABI, runtime sum
 materialization, and backend matcher rows remain closed unless the selected row
 explicitly reopens one with its own evidence.
+
+MIMAP-247A landed by selecting MIMAP-248A.
+
+### MIMAP-248A granularity
+
+MIMAP-248A should add a scalar/model inventory that records an accepted
+no-escape address capability as a modeled residence row. It may preserve
+segment id, arena id, lifetime tag, and scalar address carrier as facts, but it
+must not dereference the carrier, perform pointer-derived lookup, allocate real
+arena backing, mutate a real segment-map, execute atomic bitmap operations, call
+OSVM/page-source seams, schedule workers, activate providers, use
+cross-function `Result` direct ABI, materialize runtime sums, or add backend
+matcher rows.
 
 
 ## Historical Granularity Anchors
