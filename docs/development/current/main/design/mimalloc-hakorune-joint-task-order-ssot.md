@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-177A` is current after MIMAP-176A added the segment-map local-free
-apply-plan bridge.
+`MIMAP-179A` is current after MIMAP-178A closed the segment-map local-free
+apply-plan bridge pack with representative exact-MIR L3 EXE evidence.
 
 Recommended current row:
 
 ```text
-MIMAP-177A
-  post-segment-map-local-free-apply-plan-bridge row selection
+MIMAP-179A
+  post-segment-map-local-free-apply-plan-bridge-closeout row selection
 ```
 
 Purpose:
 
 ```text
-choose the next narrow row after segment-map local-free apply-plan bridge
+choose the next narrow row after segment-map local-free apply-plan bridge closeout
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -223,7 +223,9 @@ no provider activation
 | 152 | closeout | `MIMAP-174A segment-map released-span local-free candidate bridge closeout pack` | landed; selected MIMAP-175A |
 | 153 | planning | `MIMAP-175A post-segment-map-released-span-local-free-candidate-bridge-closeout row selection` | landed; selected MIMAP-176A |
 | 154 | allocator | `MIMAP-176A segment-map local-free apply-plan bridge` | landed; selected MIMAP-177A |
-| 155 | planning | `MIMAP-177A post-segment-map-local-free-apply-plan-bridge row selection` | selected current |
+| 155 | planning | `MIMAP-177A post-segment-map-local-free-apply-plan-bridge row selection` | landed; selected MIMAP-178A |
+| 156 | closeout | `MIMAP-178A segment-map local-free apply-plan bridge closeout pack` | landed; selected MIMAP-179A |
+| 157 | planning | `MIMAP-179A post-segment-map-local-free-apply-plan-bridge-closeout row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

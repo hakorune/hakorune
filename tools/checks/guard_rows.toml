@@ -193,6 +193,16 @@ exe = "auto"
 cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_released_span_local_free_candidate_bridge_closeout_guard.sh"]
 
 [[rows]]
+id = "hako-alloc-segment-map-local-free-apply-plan-bridge-closeout"
+label = "hako_alloc segment-map local-free apply-plan bridge closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-local-free-apply-plan-bridge"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_local_free_apply_plan_bridge_closeout_guard.sh"]
+
+[[rows]]
 id = "hako-alloc-segment-allocation-modeled-consume-closeout"
 label = "hako_alloc segment allocation modeled consume closeout guard"
 profiles = ["pilot", "hako-alloc-closeout"]

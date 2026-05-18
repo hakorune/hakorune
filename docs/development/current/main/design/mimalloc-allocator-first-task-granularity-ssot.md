@@ -1051,6 +1051,37 @@ OSVM/page-source execution, worker scheduling, provider activation,
 cross-function `Result` direct ABI, runtime sum materialization, or backend
 matchers.
 
+MIMAP-177A landed by selecting MIMAP-178A.
+
+### MIMAP-178A granularity
+
+MIMAP-178A closes the segment-map local-free apply-plan bridge pack with
+representative exact-MIR L3 EXE evidence. It does not add allocator behavior;
+it only proves the MIMAP-176A bridge stays stable on VM, MIR preflight, and
+EXE from the exact MIR artifact.
+
+It must not open real segment allocation/free execution, free-list mutation,
+page-state mutation, raw pointer residence, real segment-map mutation, arena
+backing, atomic bitmap execution, OSVM/page-source execution, worker
+scheduling, provider activation, cross-function `Result` direct ABI, runtime
+sum materialization, or backend matchers.
+
+MIMAP-178A landed by adding the apply-plan bridge closeout SSOT,
+manifest-backed closeout guard, exact-MIR L3 EXE evidence, and current
+pointers. It selected MIMAP-179A.
+
+### MIMAP-179A granularity
+
+MIMAP-179A is a planning row after the segment-map local-free apply-plan
+bridge closeout. It should choose between modeled page-apply/free-list
+observation, an apply-plan diagnostic/observer sidecar, or a cleanup sidecar.
+
+It must not open real segment allocation/free execution, raw pointer
+residence, real segment-map mutation, arena backing, atomic bitmap execution,
+OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, or backend
+matchers.
+
 
 ## Historical Granularity Anchors
 
