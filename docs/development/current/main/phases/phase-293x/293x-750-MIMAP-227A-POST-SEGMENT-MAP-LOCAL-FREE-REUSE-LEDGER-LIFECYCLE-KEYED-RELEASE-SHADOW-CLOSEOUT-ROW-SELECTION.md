@@ -1,18 +1,12 @@
-# 293x-748 MIMAP-225A Post Segment Map Local Free Reuse Ledger Lifecycle-Keyed Release Shadow Row Selection
+# 293x-750 MIMAP-227A Post Segment Map Local Free Reuse Ledger Lifecycle-Keyed Release Shadow Closeout Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-19
 
 ## Decision
 
-Choose the next narrow row after MIMAP-224A adds the lifecycle-keyed release
-shadow ledger pilot.
-
-Selected row:
-
-```text
-MIMAP-226A segment-map local-free reuse ledger lifecycle-keyed release shadow closeout pack
-```
+Choose the next narrow row after MIMAP-226A closes the lifecycle-keyed release
+shadow pack.
 
 ## Context
 
@@ -23,17 +17,11 @@ release owner rejects second release by modeled reuse token
   -> lifecycle-token facts exist
   -> precondition observer classifies future migration readiness
   -> shadow release ledger can key a row by reuse_lifecycle_token
+  -> representative exact-MIR L3 EXE evidence covers the shadow pack
 ```
 
-The next row should choose whether to close the shadow ledger pack, add one
-more shadow-ledger diagnostic, or continue toward a modeled release/recycle
-bridge while source release-ledger migration remains closed.
-
-MIMAP-225A selects the closeout pack. MIMAP-224A already proves accepted,
-duplicate, precondition-reject, lifecycle-report-reject, token-mismatch, and
-unsupported-requirement paths under daily L2 validation, so the next durable
-step is representative exact-MIR L3 EXE evidence for the pack before opening a
-controlled source release-ledger key migration pilot.
+The next row should select the controlled source release-ledger lifecycle-key
+migration pilot unless a closeout-only blocker is found.
 
 ## Stop Lines
 
@@ -59,10 +47,4 @@ controlled source release-ledger key migration pilot.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
-```
-
-## Next
-
-```text
-MIMAP-226A segment-map local-free reuse ledger lifecycle-keyed release shadow closeout pack
 ```

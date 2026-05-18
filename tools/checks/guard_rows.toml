@@ -313,6 +313,16 @@ exe = "auto"
 cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_lifecycle_token_release_key_precondition_closeout_guard.sh"]
 
 [[rows]]
+id = "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow-closeout"
+label = "hako_alloc segment-map local-free reuse ledger lifecycle-keyed release shadow closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_lifecycle_keyed_release_shadow_closeout_guard.sh"]
+
+[[rows]]
 id = "hako-alloc-segment-allocation-modeled-consume-closeout"
 label = "hako_alloc segment allocation modeled consume closeout guard"
 profiles = ["pilot", "hako-alloc-closeout"]

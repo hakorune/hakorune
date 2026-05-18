@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-225A` is current after MIMAP-224A added the lifecycle-keyed release
-shadow pilot.
+`MIMAP-227A` is current after MIMAP-226A closed the lifecycle-keyed release
+shadow pack.
 
 Recommended current row:
 
 ```text
-MIMAP-225A
-  post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow row selection
+MIMAP-227A
+  post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow-closeout row selection
 ```
 
 Purpose:
 
 ```text
-choose the next narrow row after segment-map local-free reuse ledger lifecycle-keyed release shadow pilot
+choose the next narrow row after segment-map local-free reuse ledger lifecycle-keyed release shadow closeout
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -271,7 +271,9 @@ no provider activation
 | 200 | closeout | `MIMAP-222A segment-map local-free reuse ledger lifecycle-token release-key precondition closeout pack` | landed; selected MIMAP-223A |
 | 201 | planning | `MIMAP-223A post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition-closeout row selection` | landed; selected MIMAP-224A |
 | 202 | allocator | `MIMAP-224A segment-map local-free reuse ledger lifecycle-keyed release shadow pilot` | landed; selected MIMAP-225A |
-| 203 | planning | `MIMAP-225A post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow row selection` | selected current |
+| 203 | planning | `MIMAP-225A post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow row selection` | landed; selected MIMAP-226A |
+| 204 | closeout | `MIMAP-226A segment-map local-free reuse ledger lifecycle-keyed release shadow closeout pack` | landed; selected MIMAP-227A |
+| 205 | planning | `MIMAP-227A post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow-closeout row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

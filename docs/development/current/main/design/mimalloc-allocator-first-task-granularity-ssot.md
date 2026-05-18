@@ -410,7 +410,9 @@ Forbidden:
 | `MIMAP-222A` | segment-map local-free reuse ledger lifecycle-token release-key precondition closeout pack | landed; selected MIMAP-223A |
 | `MIMAP-223A` | post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition-closeout row selection | landed; selected MIMAP-224A |
 | `MIMAP-224A` | segment-map local-free reuse ledger lifecycle-keyed release shadow pilot | landed; selected MIMAP-225A |
-| `MIMAP-225A` | post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow row selection | selected current |
+| `MIMAP-225A` | post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow row selection | landed; selected MIMAP-226A |
+| `MIMAP-226A` | segment-map local-free reuse ledger lifecycle-keyed release shadow closeout pack | landed; selected MIMAP-227A |
+| `MIMAP-227A` | post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow-closeout row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -1917,6 +1919,42 @@ MIMAP-225A is a planning row after the lifecycle-keyed release shadow pilot. It
 should choose whether to close the shadow-ledger pack, add one more
 shadow-ledger diagnostic, or continue toward a modeled release/recycle bridge
 while source release-ledger migration remains closed.
+
+It must not migrate the source release ledger key unless the next row
+explicitly selects that row. It must keep real generation/lifecycle semantics,
+real segment allocation/free execution, raw pointer residence, real segment-map
+mutation, allocator free-list mutation, arena backing, atomic bitmap execution,
+OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, and backend
+matchers closed.
+
+MIMAP-225A landed by selecting MIMAP-226A, the lifecycle-keyed release shadow
+closeout pack.
+
+### MIMAP-226A granularity
+
+MIMAP-226A closes the lifecycle-keyed release shadow pack with representative
+exact-MIR L3 EXE evidence. Daily behavior remains owned by MIMAP-224A and its
+L2 guard; MIMAP-226A proves the same exact MIR artifact can lower to an
+executable and produce the same shadow ledger output.
+
+It must not migrate the source release ledger key, define real
+generation/lifecycle semantics, mutate source reuse ledger or release owner
+state, or open real segment allocation/free execution, raw pointer residence,
+real segment-map mutation, allocator free-list mutation, arena backing, atomic
+bitmap execution, OSVM/page-source execution, worker scheduling, provider
+activation, cross-function `Result` direct ABI, runtime sum materialization, or
+backend matchers.
+
+MIMAP-226A landed by adding the closeout SSOT, manifest-backed closeout guard,
+guard manifest row, check-script index entry, phase card, and current pointers.
+It selected MIMAP-227A.
+
+### MIMAP-227A granularity
+
+MIMAP-227A is a planning row after the lifecycle-keyed release shadow closeout.
+It should select the controlled source release-ledger lifecycle-key migration
+pilot unless a closeout-only blocker is found.
 
 It must not migrate the source release ledger key unless the next row
 explicitly selects that row. It must keep real generation/lifecycle semantics,

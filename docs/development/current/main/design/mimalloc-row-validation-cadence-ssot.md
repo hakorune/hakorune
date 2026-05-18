@@ -411,7 +411,7 @@ segment-map local-free reuse ledger lifecycle-keyed release shadow family:
     exe = deferred-to-closeout
   closeout pack:
     closeout_pack = segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow
-    representative L3 EXE evidence deferred to a future closeout row
+    representative L3 EXE evidence in MIMAP-226A
 
 cleanup row using C199 compound assignment:
   L1 C199 guard
