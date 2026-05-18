@@ -1,0 +1,101 @@
+// segment_allocation_modeled_local_free_reuse_lifecycle_token_release_key_precondition_box.hako -- MIMAP-220A
+// Responsibility:
+// - classify whether lifecycle-token facts are ready for a future release-key
+//   migration decision
+// - keep the release ledger keyed by modeled reuse token
+// Non-responsibility:
+// - migrating release ledger keys, real lifecycle semantics, real allocator
+//   execution, raw pointers, segment-map execution, atomics, OSVM, providers, or backend shortcuts
+
+box HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenReleaseKeyPreconditionReport {
+    ready: i64 = 0
+    reason: i64 = 0
+    modeled_reuse_token: i64 = -1
+    lifecycle_count: i64 = 0
+    release_duplicate_seen: i64 = 0
+    release_key_still_modeled_reuse_token: i64 = 1
+    migration_candidate: i64 = 0
+    would_migrate_release_ledger_key: i64 = 0
+    would_execute_real_segment_allocation: i64 = 0
+    would_execute_real_segment_free: i64 = 0
+    would_directly_mutate_page_arrays: i64 = 0
+    would_use_raw_pointer: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenReleaseKeyPrecondition {
+    classify_count: i64 = 0
+    ready_count: i64 = 0
+    reject_count: i64 = 0
+    observer_missing_reject_count: i64 = 0
+    duplicate_missing_reject_count: i64 = 0
+    lifecycle_count_reject_count: i64 = 0
+    unsupported_requirement_reject_count: i64 = 0
+    last_reason: i64 = 0
+    last_modeled_reuse_token: i64 = -1
+    last_lifecycle_count: i64 = 0
+
+    makeReport(ready, reason, observer_report): HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenReleaseKeyPreconditionReport {
+        local result = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenReleaseKeyPreconditionReport()
+        result.ready = ready
+        result.reason = reason
+        result.modeled_reuse_token = observer_report.modeled_reuse_token
+        result.lifecycle_count = observer_report.lifecycle_count
+        result.release_duplicate_seen = observer_report.release_duplicate_seen
+        result.release_key_still_modeled_reuse_token = observer_report.release_key_still_modeled_reuse_token
+        if ready == 1 {
+            result.migration_candidate = 1
+        }
+        result.would_migrate_release_ledger_key = 0
+        return result
+    }
+
+    reject(reason, observer_report): HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenReleaseKeyPreconditionReport {
+        me.reject_count += 1
+        if reason == 1 {
+            me.observer_missing_reject_count += 1
+        }
+        if reason == 2 {
+            me.duplicate_missing_reject_count += 1
+        }
+        if reason == 3 {
+            me.lifecycle_count_reject_count += 1
+        }
+        if reason == 4 {
+            me.unsupported_requirement_reject_count += 1
+        }
+        me.last_reason = reason
+        me.last_modeled_reuse_token = observer_report.modeled_reuse_token
+        me.last_lifecycle_count = observer_report.lifecycle_count
+        return me.makeReport(0, reason, observer_report)
+    }
+
+    classify(observer_report, unsupported_requirement): HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenReleaseKeyPreconditionReport {
+        me.classify_count += 1
+
+        if unsupported_requirement != 0 {
+            return me.reject(4, observer_report)
+        }
+        if observer_report.observed != 1 {
+            return me.reject(1, observer_report)
+        }
+        if observer_report.release_duplicate_seen != 1 {
+            return me.reject(2, observer_report)
+        }
+        if observer_report.lifecycle_count < 2 {
+            return me.reject(3, observer_report)
+        }
+
+        me.ready_count += 1
+        me.last_reason = 0
+        me.last_modeled_reuse_token = observer_report.modeled_reuse_token
+        me.last_lifecycle_count = observer_report.lifecycle_count
+        return me.makeReport(1, 0, observer_report)
+    }
+}

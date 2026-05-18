@@ -404,7 +404,9 @@ Forbidden:
 | `MIMAP-216A` | segment-map local-free reuse ledger lifecycle-token observer diagnostic | landed; selected MIMAP-217A |
 | `MIMAP-217A` | post-segment-map-local-free-reuse-ledger-lifecycle-token-observer-diagnostic row selection | landed; selected MIMAP-218A |
 | `MIMAP-218A` | segment-map local-free reuse ledger lifecycle-token observer diagnostic closeout pack | landed; selected MIMAP-219A |
-| `MIMAP-219A` | post-segment-map-local-free-reuse-ledger-lifecycle-token-observer-diagnostic-closeout row selection | selected current |
+| `MIMAP-219A` | post-segment-map-local-free-reuse-ledger-lifecycle-token-observer-diagnostic-closeout row selection | landed; selected MIMAP-220A |
+| `MIMAP-220A` | segment-map local-free reuse ledger lifecycle-token release-key precondition observer | landed; selected MIMAP-221A |
+| `MIMAP-221A` | post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -1805,6 +1807,45 @@ segment-map mutation, real allocator free-list mutation, arena backing, atomic
 bitmap execution, OSVM/page-source execution, worker scheduling, provider
 activation, cross-function `Result` direct ABI, runtime sum materialization, or
 backend matchers.
+
+MIMAP-219A landed by selecting MIMAP-220A, the lifecycle-token release-key
+precondition observer.
+
+### MIMAP-220A granularity
+
+MIMAP-220A adds a scalar precondition observer that classifies whether the
+accepted lifecycle-token observer facts are sufficient for a future row to
+consider release-ledger key migration. It reports `migration_candidate = 1`
+only when the observer accepted, a duplicate release was seen, and
+`lifecycle_count >= 2`.
+
+This row must keep `would_migrate_release_ledger_key = 0`. It must not migrate
+release-ledger keys, define real generation/lifecycle semantics, mutate source
+reuse ledger or release owner state, or open real segment allocation/free
+execution, raw pointer residence, real segment-map mutation, allocator
+free-list mutation, arena backing, atomic bitmap execution, OSVM/page-source
+execution, worker scheduling, provider activation, cross-function `Result`
+direct ABI, runtime sum materialization, or backend matchers.
+
+MIMAP-220A uses daily L2 validation and defers representative exact-MIR L3 EXE
+evidence to a future release-key precondition closeout pack. It landed by
+adding the owner, proof app, accepted SSOT, L2 guard, manifest/index rows, and
+current pointers. It selected MIMAP-221A.
+
+### MIMAP-221A granularity
+
+MIMAP-221A is a planning row after the lifecycle-token release-key precondition
+observer. It should choose whether to close the precondition observer pack, add
+one more blocked-precondition diagnostic, or continue toward a later modeled
+release/recycle bridge while real allocator execution remains closed.
+
+It must not migrate release-ledger keys unless the next row explicitly selects
+that row. It must keep real generation/lifecycle semantics, real segment
+allocation/free execution, raw pointer residence, real segment-map mutation,
+allocator free-list mutation, arena backing, atomic bitmap execution,
+OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, and backend
+matchers closed.
 
 
 ## Historical Granularity Anchors

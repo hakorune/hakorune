@@ -1,12 +1,18 @@
 # 293x-742 MIMAP-219A Post Segment Map Local Free Reuse Ledger Lifecycle-Token Observer Diagnostic Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
 
 Choose the next narrow row after MIMAP-218A closes the lifecycle-token observer
 diagnostic pack.
+
+Selected row:
+
+```text
+MIMAP-220A segment-map local-free reuse ledger lifecycle-token release-key precondition observer
+```
 
 ## Context
 
@@ -25,6 +31,10 @@ The next row should choose whether to connect lifecycle-token facts to a later
 modeled release/recycle row, add a small observer around release-key migration
 preconditions, or choose the next modeled bridge while real allocator execution
 remains closed.
+
+MIMAP-219A selects the release-key migration precondition observer. It classifies
+whether lifecycle-token facts are sufficient for a future migration decision,
+without changing the release ledger key.
 
 ## Stop Lines
 
@@ -49,4 +59,10 @@ remains closed.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Next
+
+```text
+MIMAP-220A segment-map local-free reuse ledger lifecycle-token release-key precondition observer
 ```

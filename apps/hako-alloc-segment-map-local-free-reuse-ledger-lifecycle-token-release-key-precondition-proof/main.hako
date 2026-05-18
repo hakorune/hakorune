@@ -1,0 +1,146 @@
+// hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition-proof
+// Purpose: prove MIMAP-220A lifecycle-token release-key precondition observer.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.segment_map_lookup_guarded_readiness_composition_box as HakoAllocSegmentMapLookupGuardedReadinessComposition
+using selfhost.hako_alloc.memory.segment_map_accepted_readiness_modeled_consume_ledger_box as HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_released_span_ledger_box as HakoAllocSegmentAllocationModeledReleasedSpanLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_box as HakoAllocSegmentAllocationModeledLocalFreeReuse
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_ledger_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_ledger_release_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerRelease
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_lifecycle_token_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleToken
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_lifecycle_token_observer_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenObserver
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_lifecycle_token_release_key_precondition_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenReleaseKeyPrecondition
+
+static box Main {
+    seedFullPage(page): i64 {
+        local p0 = page.acquire(8)
+        local p1 = page.acquire(8)
+        local p2 = page.acquire(8)
+        local p3 = page.acquire(8)
+        local p4 = page.acquire(8)
+        local p5 = page.acquire(8)
+        local p6 = page.acquire(8)
+        local p7 = page.acquire(8)
+        return p7
+    }
+
+    nextReleasedSpan(route, released_spans, readiness): HakoAllocSegmentAllocationModeledReleasedSpanLedgerReport {
+        local consumed = route.consumeAcceptedReadiness(readiness, 0)
+        local released = route.releaseConsumedToken(consumed.modeled_allocation_token, 0)
+        return released_spans.recordReleasedSpan(released, 0)
+    }
+
+    nextReuseReport(composition, route, released_spans, reuse_route): HakoAllocSegmentAllocationModeledLocalFreeReuseReport {
+        local readiness = composition.composeLookupReadiness(70, 7, 3, 16, 1, composition.stateActive(), 2, 8, 3, 0)
+        local page = new HakoAllocPageModel(7, 16, 8, 8)
+        local p7 = Main.seedFullPage(page)
+        local span = Main.nextReleasedSpan(route, released_spans, readiness)
+        return reuse_route.integrateAndReuseLocalFree(span, page, 8, 0, 0, 0)
+    }
+
+    main(args) {
+        local composition = new HakoAllocSegmentMapLookupGuardedReadinessComposition()
+        local route = new HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger()
+        local released_spans = new HakoAllocSegmentAllocationModeledReleasedSpanLedger()
+        local reuse_route = new HakoAllocSegmentAllocationModeledLocalFreeReuse()
+        local reuse_ledger = new HakoAllocSegmentAllocationModeledLocalFreeReuseLedger()
+        local release_ledger = new HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerRelease()
+        local lifecycle_owner = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleToken()
+        local observer = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenObserver()
+        local precondition = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenReleaseKeyPrecondition()
+
+        local reuse = Main.nextReuseReport(composition, route, released_spans, reuse_route)
+        local first = reuse_ledger.recordLocalFreeReuse(reuse, 0)
+        local release = release_ledger.recordReuseLedgerRelease(first, 0)
+        local apply = reuse_ledger.applyReuseLedgerRelease(release, 0)
+        local recycled = reuse_ledger.recordLocalFreeReuse(reuse, 0)
+        local second_release = release_ledger.recordReuseLedgerRelease(recycled, 0)
+
+        local first_lifecycle = lifecycle_owner.recordLifecycleToken(recycled.modeled_reuse_token, 1, 0)
+        local second_lifecycle = lifecycle_owner.recordLifecycleToken(recycled.modeled_reuse_token, 2, 0)
+        local duplicate_lifecycle = lifecycle_owner.recordLifecycleToken(recycled.modeled_reuse_token, 2, 0)
+        local invalid_lifecycle = lifecycle_owner.recordLifecycleToken(-1, 3, 0)
+        local unsupported_lifecycle = lifecycle_owner.recordLifecycleToken(recycled.modeled_reuse_token, 4, 1)
+
+        local observed = observer.observeLifecycleBoundary(lifecycle_owner, second_release, 0)
+        local empty_lifecycle_owner = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleToken()
+        local missing_observer = observer.observeLifecycleBoundary(empty_lifecycle_owner, second_release, 0)
+        local no_duplicate_observer = observer.observeLifecycleBoundary(lifecycle_owner, release, 0)
+        local one_lifecycle_owner = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleToken()
+        local only_lifecycle = one_lifecycle_owner.recordLifecycleToken(recycled.modeled_reuse_token, 1, 0)
+        local insufficient_observer = observer.observeLifecycleBoundary(one_lifecycle_owner, second_release, 0)
+
+        local ready = precondition.classify(observed, 0)
+        local missing = precondition.classify(missing_observer, 0)
+        local no_duplicate = precondition.classify(no_duplicate_observer, 0)
+        local insufficient = precondition.classify(insufficient_observer, 0)
+        local unsupported = precondition.classify(observed, 1)
+
+        local ok = check "mimap220a segment map local free reuse ledger lifecycle-token release-key precondition observer" {
+            "recycled accepted": recycled.accepted == 1
+            "second release duplicate": second_release.did_release == 0
+            "second release reason": second_release.reason == 3
+            "lifecycle count": lifecycle_owner.count == 2
+            "lifecycle accepted": lifecycle_owner.accepted_count == 2
+            "lifecycle reject": lifecycle_owner.reject_count == 3
+            "duplicate lifecycle": duplicate_lifecycle.reason == 2
+            "invalid lifecycle": invalid_lifecycle.reason == 1
+            "unsupported lifecycle": unsupported_lifecycle.reason == 3
+            "observer accepted": observed.observed == 1
+            "observer lifecycle count": observed.lifecycle_count == 2
+            "observer duplicate release": observed.release_duplicate_seen == 1
+            "observer release key": observed.release_key_still_modeled_reuse_token == 1
+            "ready accepted": ready.ready == 1
+            "ready reason": ready.reason == 0
+            "ready token": ready.modeled_reuse_token == 70007004
+            "ready lifecycle count": ready.lifecycle_count == 2
+            "ready duplicate seen": ready.release_duplicate_seen == 1
+            "ready release key remains modeled reuse": ready.release_key_still_modeled_reuse_token == 1
+            "ready migration candidate": ready.migration_candidate == 1
+            "ready migration inactive": ready.would_migrate_release_ledger_key == 0
+            "missing rejected": missing.ready == 0
+            "missing reason": missing.reason == 1
+            "no duplicate rejected": no_duplicate.ready == 0
+            "no duplicate reason": no_duplicate.reason == 2
+            "insufficient rejected": insufficient.ready == 0
+            "insufficient reason": insufficient.reason == 3
+            "unsupported rejected": unsupported.ready == 0
+            "unsupported reason": unsupported.reason == 4
+            "classify count": precondition.classify_count == 5
+            "ready count": precondition.ready_count == 1
+            "reject count": precondition.reject_count == 4
+            "observer missing count": precondition.observer_missing_reject_count == 1
+            "duplicate missing count": precondition.duplicate_missing_reject_count == 1
+            "lifecycle count reject": precondition.lifecycle_count_reject_count == 1
+            "unsupported count": precondition.unsupported_requirement_reject_count == 1
+            "inactive real allocation": ready.would_execute_real_segment_allocation == 0
+            "inactive real free": ready.would_execute_real_segment_free == 0
+            "inactive direct page arrays": ready.would_directly_mutate_page_arrays == 0
+            "inactive raw": ready.would_use_raw_pointer == 0
+            "inactive segment map": ready.would_use_segment_map == 0
+            "inactive arena": ready.would_allocate_arena_backing == 0
+            "inactive atomic": ready.would_execute_atomic_bitmap == 0
+            "inactive osvm": ready.would_call_osvm == 0
+            "inactive thread": ready.would_run_thread == 0
+            "inactive provider": ready.would_activate_provider == 0
+            "inactive matcher": ready.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition-proof")
+        print("base=" + recycled.modeled_reuse_token + "," + lifecycle_owner.count + "," + second_release.reason)
+        print("ready=" + ready.ready + "," + ready.reason + "," + ready.modeled_reuse_token + "," + ready.lifecycle_count + "," + ready.release_duplicate_seen + "," + ready.release_key_still_modeled_reuse_token + "," + ready.migration_candidate + "," + ready.would_migrate_release_ledger_key)
+        print("blocked=" + missing.ready + "," + missing.reason + "," + no_duplicate.ready + "," + no_duplicate.reason + "," + insufficient.ready + "," + insufficient.reason + "," + unsupported.ready + "," + unsupported.reason)
+        print("counts=" + precondition.classify_count + "," + precondition.ready_count + "," + precondition.reject_count + "," + precondition.observer_missing_reject_count + "," + precondition.duplicate_missing_reject_count + "," + precondition.lifecycle_count_reject_count + "," + precondition.unsupported_requirement_reject_count)
+        print("inactive=" + ready.would_execute_real_segment_allocation + "," + ready.would_execute_real_segment_free + "," + ready.would_directly_mutate_page_arrays + "," + ready.would_use_raw_pointer + "," + ready.would_use_segment_map + "," + ready.would_allocate_arena_backing + "," + ready.would_execute_atomic_bitmap + "," + ready.would_call_osvm + "," + ready.would_run_thread + "," + ready.would_activate_provider + "," + ready.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
