@@ -1,12 +1,12 @@
-# 293x-726 MIMAP-203A Post Segment Map Local Free Reuse Ledger Release Apply Bridge Closeout Row Selection
+# 293x-728 MIMAP-205A Post Segment Map Local Free Reuse Ledger Release-Applied Recycle Bridge Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-18
 
 ## Decision
 
-Choose MIMAP-204A as the next narrow row after MIMAP-202A closes the
-segment-map local-free reuse ledger release apply bridge pack.
+Choose the next narrow row after MIMAP-204A proves the segment-map local-free
+reuse ledger release-applied recycle bridge.
 
 ## Context
 
@@ -25,28 +25,12 @@ explicit-ID readiness
   -> modeled local-free reuse ledger owner records the reuse row
   -> modeled local-free reuse ledger release owner records the release row
   -> source reuse ledger applies that release and marks the row non-live
-  -> representative exact-MIR EXE parity for the release apply bridge pack
+  -> source reuse ledger records the same modeled reuse token as a new live row
 ```
 
-The next row is:
-
-```text
-MIMAP-204A segment-map local-free reuse ledger release-applied recycle bridge
-```
-
-Rationale:
-
-- MIMAP-202A already provided representative exact-MIR L3 evidence for the
-  release apply bridge pack.
-- The source reuse ledger already owns the release-applied recycle contract
-  from MIMAP-142A.
-- Connecting the segment-map-derived release apply result to that existing
-  recycle contract is the smallest next bridge before considering observer
-  sidecars or later real execution boundaries.
-
-It should not jump directly to raw pointer residence, arena backing, real
-segment-map execution, real free-list mutation, real page-state mutation, or
-atomic bitmap behavior.
+The next row should choose between a release-applied recycle bridge closeout
+pack, a small observer/diagnostic sidecar, or the next modeled bridge that keeps
+raw pointer residence and real allocator execution closed.
 
 ## Stop Lines
 
@@ -70,10 +54,4 @@ atomic bitmap behavior.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
-```
-
-## Next
-
-```text
-MIMAP-204A segment-map local-free reuse ledger release-applied recycle bridge
 ```

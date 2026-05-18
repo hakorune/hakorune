@@ -5,6 +5,50 @@ Decision: accepted
 Date: 2026-05-15
 Scope: allocator-first implementation order and language-feature sidecar policy.
 
+## Current Navigation Contract
+
+Current row and latest-card pointers are owned by:
+
+```text
+docs/development/current/main/CURRENT_STATE.toml
+```
+
+This SSOT owns durable granularity rules, stop lines, and row-selection
+boundaries. It is not the live current-status ledger.
+
+For the active phase:
+
+```text
+current row:
+  MIMAP-205A
+
+current choice boundary:
+  release-applied recycle bridge closeout pack
+  or a small observer/diagnostic sidecar
+  or the next modeled bridge that keeps real execution closed
+
+closed until explicitly reopened:
+  raw pointer residence
+  real segment-map mutation
+  real allocator free-list mutation
+  arena backing
+  atomic bitmap execution
+  OSVM/page-source execution
+  worker scheduling / source-level concurrency
+  provider activation / host allocator replacement / hooks / #[global_allocator]
+  cross-function Result direct ABI
+  runtime sum materialization
+  backend matchers
+```
+
+History-slimming rule:
+
+```text
+keep near-current MIMAP rows as full granularity text
+keep older rows as stable anchors or compact table rows
+do not paste latest-card history already owned by CURRENT_STATE.toml
+```
+
 ## Decision
 
 Continue the mimalloc lane through allocator behavior first.
@@ -339,7 +383,14 @@ Forbidden:
 | `MIMAP-156A` | post-segment-map-readiness-closeout row selection | landed; selected MIMAP-157A |
 | `MIMAP-157A` | segment-map accepted readiness modeled consume ledger route | landed; selected MIMAP-158A |
 | `MIMAP-158A` | segment-map modeled consume ledger diagnostics | landed; selected MIMAP-159A |
-| `MIMAP-159A` | segment-map modeled consume ledger closeout pack | selected current |
+| `MIMAP-159A` | segment-map modeled consume ledger closeout pack | landed; selected MIMAP-160A |
+| `MIMAP-160A..MIMAP-199A` | segment-map modeled release/recycle/local-free bridge progression | landed; summarized in phase taskboard |
+| `MIMAP-200A` | segment-map local-free reuse ledger release apply bridge | landed; selected MIMAP-201A |
+| `MIMAP-201A` | post-segment-map-local-free-reuse-ledger-release-apply-bridge row selection | landed; selected MIMAP-202A |
+| `MIMAP-202A` | segment-map local-free reuse ledger release apply bridge closeout pack | landed; selected MIMAP-203A |
+| `MIMAP-203A` | post-segment-map-local-free-reuse-ledger-release-apply-bridge-closeout row selection | landed; selected MIMAP-204A |
+| `MIMAP-204A` | segment-map local-free reuse ledger release-applied recycle bridge | landed; selected MIMAP-205A |
+| `MIMAP-205A` | post-segment-map-local-free-reuse-ledger-release-applied-recycle-bridge row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -1475,8 +1526,41 @@ pointers. It selected MIMAP-203A.
 ### MIMAP-203A granularity
 
 MIMAP-203A is a planning row after the segment-map local-free reuse ledger
-release apply bridge closeout. It should choose between a release-applied
-recycle bridge and a small observer/diagnostic sidecar.
+release apply bridge closeout. It selected MIMAP-204A, the release-applied
+recycle bridge.
+
+It must not open real segment allocation/free execution, raw pointer
+residence, real segment-map mutation, real allocator free-list mutation, arena
+backing, atomic bitmap execution, OSVM/page-source execution, worker
+scheduling, provider activation, cross-function `Result` direct ABI, runtime
+sum materialization, or backend matchers.
+
+### MIMAP-204A granularity
+
+MIMAP-204A proves that a segment-map-derived local-free reuse ledger row whose
+release was applied to the source reuse ledger can be recorded again as a new
+live source row through the existing source-ledger recycle route.
+
+It must reuse the existing `applyReuseLedgerRelease` and
+`recordLocalFreeReuse` routes. It must not add a segment-map-specific recycle
+owner, mutate real page state, or widen the bump-shaped modeled ledger.
+
+It must not open real segment allocation/free execution, raw pointer
+residence, real segment-map mutation, real allocator free-list mutation, arena
+backing, atomic bitmap execution, OSVM/page-source execution, worker
+scheduling, provider activation, cross-function `Result` direct ABI, runtime
+sum materialization, or backend matchers.
+
+MIMAP-204A landed by adding a proof app, proof-app manifest row, L2 guard,
+SSOT, check-script index entry, and memory README owner note. It selected
+MIMAP-205A.
+
+### MIMAP-205A granularity
+
+MIMAP-205A is a planning row after the segment-map local-free reuse ledger
+release-applied recycle bridge. It should choose between a closeout pack, a
+small observer/diagnostic sidecar, or the next modeled bridge that keeps real
+allocator execution closed.
 
 It must not open real segment allocation/free execution, raw pointer
 residence, real segment-map mutation, real allocator free-list mutation, arena

@@ -32,6 +32,25 @@ read:
   docs/development/current/main/CURRENT_STATE.toml latest_card_path
 ```
 
+Slimming contract:
+
+```text
+current owner:
+  CURRENT_STATE.toml
+
+durable order owner:
+  this taskboard's row tables
+
+do not duplicate:
+  the current MIMAP row window in sidecar sections
+  latest-card history already covered by CURRENT_STATE.toml
+
+allowed here:
+  stable policy sidecars
+  durable row-order tables
+  short pointers to current row/card owners
+```
+
 Closed cleanup sidecar:
 
 ```text
@@ -577,7 +596,9 @@ FST:
 | `MIMAP-200A` | landed | Segment-map local-free reuse ledger release apply bridge. | selected MIMAP-201A |
 | `MIMAP-201A` | landed | Post-segment-map-local-free-reuse-ledger-release-apply-bridge row selection. | selected MIMAP-202A |
 | `MIMAP-202A` | landed | Segment-map local-free reuse ledger release apply bridge closeout pack. | selected MIMAP-203A |
-| `MIMAP-203A` | selected current | Post-segment-map-local-free-reuse-ledger-release-apply-bridge-closeout row selection. | current planning row |
+| `MIMAP-203A` | landed | Post-segment-map-local-free-reuse-ledger-release-apply-bridge-closeout row selection. | selected MIMAP-204A |
+| `MIMAP-204A` | landed | Segment-map local-free reuse ledger release-applied recycle bridge. | selected MIMAP-205A |
+| `MIMAP-205A` | selected current | Post-segment-map-local-free-reuse-ledger-release-applied-recycle-bridge row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -586,9 +607,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-203A` chooses the next narrow row after MIMAP-202A closed the
-segment-map local-free reuse ledger release apply bridge pack with
-representative exact-MIR L3 EXE evidence.
+`MIMAP-205A` chooses the next narrow row after MIMAP-204A proved the
+segment-map local-free reuse ledger release-applied recycle bridge.
 Raw pointer residence remains parked behind a future rawbuf/no-escape
 capability. Real thread scheduling, worker spawning, source-level concurrency
 features, arena backing allocation, atomic bitmap execution, page-source calls,
@@ -810,84 +830,10 @@ no source-level receiver.birth(...) as lifecycle workaround
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
 | `PURE-FIRST-GUARD-RELEASE-BIN-001` | landed | Pure-first guard VM/MIR emit latency cleanup. | MIMAP-192A L2 cut from 119.84s to 16.10s by defaulting active guard VM/MIR paths to release `hakorune`. |
-| `MIMAP-203A` | selected current | Post-segment-map-local-free-reuse-ledger-release-apply-bridge-closeout row selection. | Current planning row. |
-| `MIMAP-202A` | landed | Segment-map local-free reuse ledger release apply bridge closeout pack. | Selected MIMAP-203A. |
-| `MIMAP-201A` | landed | Post-segment-map-local-free-reuse-ledger-release-apply-bridge row selection. | Selected MIMAP-202A. |
-| `MIMAP-200A` | landed | Segment-map local-free reuse ledger release apply bridge. | Selected MIMAP-201A. |
-| `MIMAP-199A` | landed | Post-segment-map-local-free-reuse-ledger-release-bridge-closeout row selection. | Selected MIMAP-200A. |
-| `MIMAP-198A` | landed | Segment-map local-free reuse ledger release bridge closeout pack. | Selected MIMAP-199A. |
-| `MIMAP-197A` | landed | Post-segment-map-local-free-reuse-ledger-release-bridge row selection. | Selected MIMAP-198A. |
-| `MIMAP-196A` | landed | Segment-map local-free reuse ledger release bridge. | Selected MIMAP-197A. |
-| `MIMAP-195A` | landed | Post-segment-map-local-free-reuse-ledger-bridge-closeout row selection. | Selected MIMAP-196A. |
-| `MIMAP-194A` | landed | Segment-map local-free reuse ledger bridge closeout pack. | Selected MIMAP-195A. |
-| `MIMAP-193A` | landed | Post-segment-map-local-free-reuse-ledger-bridge row selection. | Selected MIMAP-194A. |
-| `MIMAP-192A` | landed | Segment-map local-free reuse ledger bridge. | Selected MIMAP-193A. |
-| `MIMAP-191A` | landed | Post-segment-map-local-free-reuse-bridge-closeout row selection. | Selected MIMAP-192A. |
-| `MIMAP-190A` | landed | Segment-map local-free reuse bridge closeout pack. | Selected MIMAP-191A. |
-| `MIMAP-189A` | landed | Post-segment-map-local-free-reuse-bridge row selection. | Selected MIMAP-190A. |
-| `MIMAP-188A` | landed | Segment-map local-free reuse bridge. | Selected MIMAP-189A. |
-| `MIMAP-187A` | landed | Post-segment-map-local-free-integration-bridge-closeout row selection. | Selected MIMAP-188A. |
-| `MIMAP-186A` | landed | Segment-map local-free integration bridge closeout pack. | Selected MIMAP-187A. |
-| `MIMAP-185A` | landed | Post-segment-map-local-free-integration-bridge row selection. | Selected MIMAP-186A. |
-| `MIMAP-184A` | landed | Segment-map local-free integration bridge. | Selected MIMAP-185A. |
-| `MIMAP-183A` | landed | Post-segment-map-local-free-page-apply-bridge-closeout row selection. | Selected MIMAP-184A. |
-| `MIMAP-182A` | landed | Segment-map local-free page-apply bridge closeout pack. | Selected MIMAP-183A. |
-| `MIMAP-181A` | landed | Post-segment-map-local-free-page-apply-bridge row selection. | Selected MIMAP-182A. |
-| `MIMAP-180A` | landed | Segment-map local-free page-apply bridge. | Selected MIMAP-181A. |
-| `MIMAP-179A` | landed | Post-segment-map-local-free-apply-plan-bridge-closeout row selection. | Selected MIMAP-180A. |
-| `MIMAP-178A` | landed | Segment-map local-free apply-plan bridge closeout pack. | Selected MIMAP-179A. |
-| `MIMAP-177A` | landed | Post-segment-map-local-free-apply-plan-bridge row selection. | Selected MIMAP-178A. |
-| `MIMAP-176A` | landed | Segment-map local-free apply-plan bridge. | Selected MIMAP-177A. |
-| `MIMAP-175A` | landed | Post-segment-map-released-span-local-free-candidate-bridge-closeout row selection. | Selected MIMAP-176A. |
-| `MIMAP-174A` | landed | Segment-map released-span local-free candidate bridge closeout pack. | Selected MIMAP-175A. |
-| `MIMAP-173A` | landed | Post-segment-map-released-span-local-free-candidate-bridge row selection. | Selected MIMAP-174A. |
-| `MIMAP-172A` | landed | Segment-map released-span local-free candidate bridge. | Selected MIMAP-173A. |
-| `MIMAP-171A` | landed | Post-segment-map-modeled-consume-ledger-released-span-observation-closeout row selection. | Selected MIMAP-172A. |
-| `MIMAP-170A` | landed | Segment-map modeled consume ledger released-span observation closeout pack. | Selected MIMAP-171A. |
-| `MIMAP-169A` | landed | Post-segment-map-modeled-consume-ledger-released-span-observation row selection. | Selected MIMAP-170A. |
-| `MIMAP-168A` | landed | Segment-map modeled consume ledger released-span observation route. | Selected MIMAP-169A. |
-| `MIMAP-167A` | landed | Post-segment-map-modeled-consume-ledger-released-token-recycle-closeout row selection. | Selected MIMAP-168A. |
-| `MIMAP-166A` | landed | Segment-map modeled consume ledger released-token recycle closeout pack. | Selected MIMAP-167A. |
-| `MIMAP-165A` | landed | Post-segment-map-modeled-consume-ledger-released-token-recycle row selection. | Selected MIMAP-166A. |
-| `MIMAP-164A` | landed | Segment-map modeled consume ledger released-token recycle route. | Selected MIMAP-165A. |
-| `MIMAP-163A` | landed | Post-segment-map-modeled-consume-ledger-release-closeout row selection. | Selected MIMAP-164A. |
-| `MIMAP-162A` | landed | Segment-map modeled consume ledger release closeout pack. | Selected MIMAP-163A. |
-| `MIMAP-161A` | landed | Segment-map modeled consume ledger release route. | Selected MIMAP-162A. |
-| `MIMAP-160A` | landed | Post-segment-map-modeled-consume-ledger-closeout row selection. | Selected MIMAP-161A. |
-| `MIMAP-159A` | landed | Segment-map modeled consume ledger closeout pack. | Selected MIMAP-160A. |
-| `MIMAP-158A` | landed | Segment-map modeled consume ledger diagnostics. | Selected MIMAP-159A. |
-| `MIMAP-157A` | landed | Segment-map accepted readiness modeled consume ledger route. | Selected MIMAP-158A. |
-| `MIMAP-156A` | landed | Post-segment-map-readiness-closeout row selection. | Selected MIMAP-157A. |
-| `MIMAP-155A` | landed | Segment-map readiness validation pack closeout guard. | Selected MIMAP-156A. |
-| `MIMAP-154A` | landed | Post-lookup-guarded-readiness row selection. | Selected MIMAP-155A. |
-| `MIMAP-153A` | landed | Segment-map lookup guarded readiness composition. | Selected MIMAP-154A. |
-| `MIMAP-152A` | landed | Post-segment-map-scalar-lookup row selection. | Selected MIMAP-153A. |
-| `MIMAP-151A` | landed | Segment-map scalar lookup boundary inventory. | Selected MIMAP-152A. |
-| `MIMAP-150A` | landed | Post-blocked-substrate-matrix row selection. | Selected MIMAP-151A. |
-| `MIMAP-149A` | landed | Segment allocation blocked-substrate matrix proof. | Selected MIMAP-150A. |
-| `MIMAP-148A` | landed | Post-local-free-Result-boundary row selection. | Selected MIMAP-149A. |
-| `HAKO-ALLOC-RESULT-API-003` | landed | Allocator local-free remaining Result guard-let boundaries. | Selected MIMAP-148A. |
-| `MIMAP-147A` | landed | Post-Result-guard-let-pilot row selection. | Selected HAKO-ALLOC-RESULT-API-003. |
-| `HAKO-ALLOC-RESULT-API-002` | landed | Allocator local-free Result guard-let pilot. | Selected MIMAP-147A. |
-| `PURE-FIRST-GUARDLET-ENUMMATCH-001` | landed | Direct MIR guard-let EnumMatchExpr acceptance. | Selected HAKO-ALLOC-RESULT-API-002. |
-| `HAKO-ALLOC-RESULT-API-001` | landed | Allocator Result/Option guard-let inventory. | Selected PURE-FIRST-GUARDLET-ENUMMATCH-001. |
-| `MIMAP-146A` | landed | Post-report-record-cleanup row selection. | Selected HAKO-ALLOC-RESULT-API-001. |
-| `HAKO-ALLOC-REPORT-RECORD-002` | landed | Local-free integration report record boundary cleanup. | Selected MIMAP-146A. |
-| `HAKO-ALLOC-REPORT-RECORD-001` | landed | Allocator report record cleanup inventory. | Selected HAKO-ALLOC-REPORT-RECORD-002. |
-| `MIMAP-145A` | landed | Post-ID-brand-pilot-closeout row selection. | Selected HAKO-ALLOC-REPORT-RECORD-001. |
-| `HAKO-ALLOC-ID-BRAND-003` | landed | Allocator scalar ID brand pilot closeout guard. | Selected MIMAP-145A. |
-| `HAKO-ALLOC-ID-BRAND-002` | landed | Allocator scalar ID brand first pilot. | Selected HAKO-ALLOC-ID-BRAND-003. |
-| `PURE-FIRST-BRAND-CONSTRUCT-001` | landed | Brand constructor MIR acceptance. | Selected HAKO-ALLOC-ID-BRAND-002. |
-| `HAKO-ALLOC-ID-BRAND-001` | landed | Allocator scalar ID brand application inventory. | Selected PURE-FIRST-BRAND-CONSTRUCT-001. |
-| `MIMAP-144A` | landed | Post-release-applied-recycle-closeout row selection. | Selected HAKO-ALLOC-ID-BRAND-001. |
-| `MIMAP-143A` | landed | Release-applied local-free reuse ledger token recycle closeout guard. | Added closeout SSOT and manifest-backed guard; selected MIMAP-144A. |
-| `GUARD-MANIFEST-014` | landed | Proof app test wrapper backfill. | MIMAP-134A / MIMAP-138A app-local tests now use manifest runner. |
-| `MIMAP-142A` | landed | Release-applied local-free reuse ledger token recycle proof. | Added proof app and guard; selected MIMAP-143A. |
-| `MIMAP-141A` | landed | Post-guard-spec-pilot row selection. | Selected MIMAP-142A. |
-| `GUARD-MANIFEST-013` | landed | Declarative guard spec pilot for one guard family. | Added spec runner pilot; no mass conversion. |
-| `GUARD-MANIFEST-012` | landed | Batch migration inventory for guard manifest cleanup. | Added inventory guard and selected GUARD-MANIFEST-013. |
-| `CLEAN-WHILE-001` | landed | While deletion readiness inventory. | BoxShape cleanup; do not mix with MIMAP-012. |
-| `CLEAN-WHILE-002` | landed | Delete `ASTNode::While` after inventory. | Parser `while` stays canonical Loop. |
+
+MIMAP row order is not repeated in this sidecar. Read the durable row tables in
+this taskboard for historical order, and read `CURRENT_STATE.toml` for the
+selected current row and latest landed card.
 
 ## Remaining cleanup sidecar
 
