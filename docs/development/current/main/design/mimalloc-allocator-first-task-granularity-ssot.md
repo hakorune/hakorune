@@ -801,6 +801,25 @@ execution, OSVM/page-source execution, worker scheduling, provider activation,
 cross-function `Result` direct ABI, runtime sum materialization, or backend
 matchers.
 
+MIMAP-162A landed by adding the release closeout SSOT, manifest-backed closeout
+guard, and representative exact-MIR L3 EXE evidence. It selected MIMAP-163A.
+
+### MIMAP-163A granularity
+
+MIMAP-163A is a planning row after the segment-map modeled consume-ledger
+release closeout. It chooses the next narrow allocator behavior, compiler
+acceptance, or cleanup row.
+
+The next row should prefer modeled recycle or released-span observation before
+raw pointer residence, arena backing, real segment-map execution, or atomic
+bitmap behavior.
+
+It must not open real segment free execution, raw pointer residence, real
+segment-map mutation, real segment allocation/free, arena backing, atomic bitmap
+execution, OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, or backend
+matchers.
+
 
 ## Historical Granularity Anchors
 

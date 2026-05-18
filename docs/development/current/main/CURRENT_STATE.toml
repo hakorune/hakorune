@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-18"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-161A landed by adding the segment-map modeled consume ledger release route; MIMAP-162A is the active closeout blocker for representative L3 release evidence. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-162A landed by adding the segment-map modeled consume ledger release closeout pack with representative exact-MIR L3 EXE evidence; MIMAP-163A is the active planning blocker for the next narrow allocator row. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-684-MIMAP-162A-SEGMENT-MAP-MODELED-CONSUME-LEDGER-RELEASE-CLOSEOUT-PACK.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-685-MIMAP-163A-POST-SEGMENT-MAP-MODELED-CONSUME-LEDGER-RELEASE-CLOSEOUT-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-683-MIMAP-161A-SEGMENT-MAP-MODELED-CONSUME-LEDGER-RELEASE-ROUTE"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-683-MIMAP-161A-SEGMENT-MAP-MODELED-CONSUME-LEDGER-RELEASE-ROUTE.md"
-latest_card_summary = "MIMAP-161A landed by adding a segment-map modeled consume ledger release report/method, proof app, proof manifest entry, local L2 guard, and SSOT; MIMAP-162A selected current."
+latest_card = "293x-684-MIMAP-162A-SEGMENT-MAP-MODELED-CONSUME-LEDGER-RELEASE-CLOSEOUT-PACK"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-684-MIMAP-162A-SEGMENT-MAP-MODELED-CONSUME-LEDGER-RELEASE-CLOSEOUT-PACK.md"
+latest_card_summary = "MIMAP-162A landed by adding a manifest-backed release closeout guard and representative exact-MIR L3 EXE evidence for MIMAP-161A; MIMAP-163A selected current."
 
-current_blocker_token = "MIMAP-162A"
+current_blocker_token = "MIMAP-163A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-684 MIMAP-162A segment-map modeled consume ledger release closeout pack landed; MIMAP-163A selected",
   "293x-683 MIMAP-161A segment-map modeled consume ledger release route landed; MIMAP-162A selected",
   "293x-682 MIMAP-160A post-segment-map-modeled-consume-ledger-closeout row selection landed; MIMAP-161A selected",
   "293x-681 MIMAP-159A segment-map modeled consume ledger closeout pack landed; MIMAP-160A selected",

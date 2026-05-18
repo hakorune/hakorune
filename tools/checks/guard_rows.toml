@@ -153,6 +153,16 @@ exe = "auto"
 cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_modeled_consume_ledger_closeout_guard.sh"]
 
 [[rows]]
+id = "hako-alloc-segment-map-modeled-consume-ledger-release-closeout"
+label = "hako_alloc segment-map modeled consume ledger release closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-consume-ledger-release"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_modeled_consume_ledger_release_closeout_guard.sh"]
+
+[[rows]]
 id = "hako-alloc-segment-allocation-modeled-consume-closeout"
 label = "hako_alloc segment allocation modeled consume closeout guard"
 profiles = ["pilot", "hako-alloc-closeout"]

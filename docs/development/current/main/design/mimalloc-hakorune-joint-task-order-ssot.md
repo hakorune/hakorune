@@ -208,7 +208,8 @@ no provider activation
 | 137 | closeout | `MIMAP-159A segment-map modeled consume ledger closeout pack` | landed; selected MIMAP-160A |
 | 138 | planning | `MIMAP-160A post-segment-map-modeled-consume-ledger-closeout row selection` | landed; selected MIMAP-161A |
 | 139 | allocator | `MIMAP-161A segment-map modeled consume ledger release route` | landed; selected MIMAP-162A |
-| 140 | closeout | `MIMAP-162A segment-map modeled consume ledger release closeout pack` | selected current |
+| 140 | closeout | `MIMAP-162A segment-map modeled consume ledger release closeout pack` | landed; selected MIMAP-163A |
+| 141 | planning | `MIMAP-163A post-segment-map-modeled-consume-ledger-release-closeout row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
