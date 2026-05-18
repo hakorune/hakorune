@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-19"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-228A landed by adding the lifecycle-keyed source release ledger owner and first-pattern L3 proof; MIMAP-229A is the active diagnostics blocker for the source lifecycle-keyed release ledger. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-229A landed by adding source lifecycle-keyed release ledger diagnostics; MIMAP-230A is the active closeout blocker for the source release-ledger lifecycle-key migration pack. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-752-MIMAP-229A-SOURCE-LIFECYCLE-KEYED-RELEASE-LEDGER-DIAGNOSTICS.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-753-MIMAP-230A-SOURCE-RELEASE-LEDGER-LIFECYCLE-KEY-MIGRATION-CLOSEOUT-PACK.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-751-MIMAP-228A-SOURCE-RELEASE-LEDGER-LIFECYCLE-KEY-MIGRATION-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-751-MIMAP-228A-SOURCE-RELEASE-LEDGER-LIFECYCLE-KEY-MIGRATION-PILOT.md"
-latest_card_summary = "MIMAP-228A landed by adding the lifecycle-keyed source release ledger owner, proof app, first-pattern L3 guard, proof manifest entry, check-script index entry, accepted design SSOT, and current pointers; MIMAP-229A selected current."
+latest_card = "293x-752-MIMAP-229A-SOURCE-LIFECYCLE-KEYED-RELEASE-LEDGER-DIAGNOSTICS"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-752-MIMAP-229A-SOURCE-LIFECYCLE-KEYED-RELEASE-LEDGER-DIAGNOSTICS.md"
+latest_card_summary = "MIMAP-229A landed by adding the observer-only source lifecycle-keyed release ledger diagnostics owner, proof app, L2 guard, proof manifest entry, check-script index entry, accepted design SSOT, and current pointers; MIMAP-230A selected current."
 
-current_blocker_token = "MIMAP-229A"
+current_blocker_token = "MIMAP-230A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-752 MIMAP-229A source lifecycle-keyed release ledger diagnostics landed; MIMAP-230A selected",
   "293x-751 MIMAP-228A source release-ledger lifecycle-key migration pilot landed; MIMAP-229A selected",
   "293x-750 MIMAP-227A post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow-closeout row selection landed; MIMAP-228A selected",
   "293x-749 MIMAP-226A segment-map local-free reuse ledger lifecycle-keyed release shadow closeout pack landed; MIMAP-227A selected",

@@ -1,11 +1,17 @@
 # 293x-752 MIMAP-229A Source Lifecycle-Keyed Release Ledger Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
 
 Add diagnostics around the source lifecycle-keyed release ledger.
+
+Selected next row:
+
+```text
+MIMAP-230A source release-ledger lifecycle-key migration closeout pack
+```
 
 ## Context
 
@@ -16,6 +22,21 @@ release owner as an unmigrated reference.
 The next row should keep the same route shape and add narrower diagnostics for
 duplicate lifecycle keys, stale/mismatched lifecycle reports, and migrated-key
 reject summary before the migration closeout pack.
+
+MIMAP-229A adds a scalar/model diagnostic owner. It observes the MIMAP-228A
+lifecycle-keyed source release ledger and publishes reject summary flags without
+mutating either release ledger.
+
+## Scope
+
+- Add diagnostic owner:
+  `lang/src/hako_alloc/memory/segment_allocation_modeled_local_free_reuse_lifecycle_keyed_release_ledger_diagnostic_box.hako`.
+- Add proof app:
+  `apps/hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-ledger-diagnostics-proof`.
+- Add L2 guard:
+  `tools/checks/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_lifecycle_keyed_release_ledger_diagnostics_guard.sh`.
+- Add accepted design SSOT:
+  `docs/development/current/main/design/hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-ledger-diagnostics-ssot.md`.
 
 ## Stop Lines
 
@@ -38,6 +59,14 @@ reject summary before the migration closeout pack.
 ## Required Evidence
 
 ```text
+bash tools/checks/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_lifecycle_keyed_release_ledger_diagnostics_guard.sh --level L2
+bash tools/checks/run_proof_app.sh --only MIMAP-229A
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Next
+
+```text
+MIMAP-230A source release-ledger lifecycle-key migration closeout pack
 ```

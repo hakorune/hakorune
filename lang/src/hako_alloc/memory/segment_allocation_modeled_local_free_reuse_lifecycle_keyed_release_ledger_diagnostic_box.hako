@@ -1,0 +1,124 @@
+// segment_allocation_modeled_local_free_reuse_lifecycle_keyed_release_ledger_diagnostic_box.hako -- MIMAP-229A
+// Responsibility:
+// - observe the lifecycle-keyed source release ledger and publish reject summary facts
+// - keep the diagnostics scalar/model only
+// Non-responsibility:
+// - mutating release ledgers, real allocator execution, raw pointers,
+//   segment-map execution, atomics, OSVM, scheduling, providers, or backend shortcuts
+
+box HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseLedgerDiagnosticReport {
+    observed: i64 = 0
+    reason: i64 = 0
+    attempt_count: i64 = 0
+    ledger_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    precondition_reject_count: i64 = 0
+    lifecycle_report_reject_count: i64 = 0
+    token_mismatch_reject_count: i64 = 0
+    duplicate_reject_count: i64 = 0
+    unsupported_requirement_reject_count: i64 = 0
+    duplicate_lifecycle_key_seen: i64 = 0
+    precondition_reject_seen: i64 = 0
+    lifecycle_report_reject_seen: i64 = 0
+    token_mismatch_reject_seen: i64 = 0
+    unsupported_requirement_reject_seen: i64 = 0
+    last_reason: i64 = 0
+    last_index: i64 = -1
+    last_reuse_lifecycle_token: i64 = -1
+    source_release_ledger_key_kind: i64 = 1
+    release_key_migrated: i64 = 1
+    reject_summary_present: i64 = 1
+    lifecycle_keyed_release_ledger_present: i64 = 1
+    would_execute_real_segment_allocation: i64 = 0
+    would_execute_real_segment_free: i64 = 0
+    would_directly_mutate_page_arrays: i64 = 0
+    would_use_raw_pointer: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseLedgerDiagnostic {
+    observe_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_ledger_reject_count: i64 = 0
+    unsupported_requirement_reject_count: i64 = 0
+    last_reason: i64 = 0
+    last_attempt_count: i64 = 0
+    last_reuse_lifecycle_token: i64 = -1
+
+    makeReport(observed, reason, ledger): HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseLedgerDiagnosticReport {
+        local result = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseLedgerDiagnosticReport()
+        result.observed = observed
+        result.reason = reason
+        result.attempt_count = ledger.attempt_count
+        result.ledger_count = ledger.count
+        result.accepted_count = ledger.accepted_count
+        result.reject_count = ledger.reject_count
+        result.precondition_reject_count = ledger.precondition_reject_count
+        result.lifecycle_report_reject_count = ledger.lifecycle_report_reject_count
+        result.token_mismatch_reject_count = ledger.token_mismatch_reject_count
+        result.duplicate_reject_count = ledger.duplicate_reject_count
+        result.unsupported_requirement_reject_count = ledger.unsupported_requirement_reject_count
+        if ledger.duplicate_reject_count > 0 {
+            result.duplicate_lifecycle_key_seen = 1
+        }
+        if ledger.precondition_reject_count > 0 {
+            result.precondition_reject_seen = 1
+        }
+        if ledger.lifecycle_report_reject_count > 0 {
+            result.lifecycle_report_reject_seen = 1
+        }
+        if ledger.token_mismatch_reject_count > 0 {
+            result.token_mismatch_reject_seen = 1
+        }
+        if ledger.unsupported_requirement_reject_count > 0 {
+            result.unsupported_requirement_reject_seen = 1
+        }
+        result.last_reason = ledger.last_reason
+        result.last_index = ledger.last_index
+        result.last_reuse_lifecycle_token = ledger.last_reuse_lifecycle_token
+        result.source_release_ledger_key_kind = 1
+        result.release_key_migrated = 1
+        result.reject_summary_present = 1
+        result.lifecycle_keyed_release_ledger_present = 1
+        return result
+    }
+
+    reject(reason, ledger): HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseLedgerDiagnosticReport {
+        me.reject_count += 1
+        if reason == 1 {
+            me.missing_ledger_reject_count += 1
+        }
+        if reason == 2 {
+            me.unsupported_requirement_reject_count += 1
+        }
+        me.last_reason = reason
+        me.last_attempt_count = ledger.attempt_count
+        me.last_reuse_lifecycle_token = ledger.last_reuse_lifecycle_token
+        return me.makeReport(0, reason, ledger)
+    }
+
+    observeReleaseLedgerDiagnostics(ledger, unsupported_requirement): HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseLedgerDiagnosticReport {
+        me.observe_count += 1
+
+        if ledger.attempt_count <= 0 {
+            return me.reject(1, ledger)
+        }
+        if unsupported_requirement != 0 {
+            return me.reject(2, ledger)
+        }
+
+        me.accepted_count += 1
+        me.last_reason = 0
+        me.last_attempt_count = ledger.attempt_count
+        me.last_reuse_lifecycle_token = ledger.last_reuse_lifecycle_token
+        return me.makeReport(1, 0, ledger)
+    }
+}

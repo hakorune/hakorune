@@ -414,7 +414,8 @@ Forbidden:
 | `MIMAP-226A` | segment-map local-free reuse ledger lifecycle-keyed release shadow closeout pack | landed; selected MIMAP-227A |
 | `MIMAP-227A` | post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow-closeout row selection | landed; selected MIMAP-228A |
 | `MIMAP-228A` | source release-ledger lifecycle-key migration pilot | landed; selected MIMAP-229A |
-| `MIMAP-229A` | source lifecycle-keyed release ledger diagnostics | selected current |
+| `MIMAP-229A` | source lifecycle-keyed release ledger diagnostics | landed; selected MIMAP-230A |
+| `MIMAP-230A` | source release-ledger lifecycle-key migration closeout pack | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -1999,6 +2000,22 @@ MIMAP-229A is the diagnostics row after the source release-ledger lifecycle-key
 migration pilot. It should keep the same route shape and add narrower duplicate
 lifecycle-key, stale/mismatched lifecycle-report, and migrated-key reject
 summary coverage before the source-key migration closeout pack.
+
+It must keep real allocator execution, raw pointer residence, arena backing,
+real segment-map mutation, atomic bitmap execution, OSVM/page-source execution,
+worker scheduling, provider activation, cross-function `Result` direct ABI,
+runtime sum materialization, and backend matchers closed.
+
+MIMAP-229A landed by adding an observer-only diagnostics owner, proof app, L2
+guard, proof manifest entry, check-script index entry, accepted design SSOT,
+phase card, and current pointers. It selected MIMAP-230A.
+
+### MIMAP-230A granularity
+
+MIMAP-230A is the closeout pack for the source release-ledger lifecycle-key
+migration family. It should provide representative exact-MIR L3 EXE evidence
+for the MIMAP-228A source-key migration and MIMAP-229A diagnostics before the
+next release/recycle lifecycle continuation bridge is selected.
 
 It must keep real allocator execution, raw pointer residence, arena backing,
 real segment-map mutation, atomic bitmap execution, OSVM/page-source execution,

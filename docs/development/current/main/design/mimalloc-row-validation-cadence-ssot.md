@@ -424,7 +424,7 @@ source release-ledger lifecycle-key migration family:
     exe = deferred-to-closeout
   closeout pack:
     closeout_pack = source-release-ledger-lifecycle-key-migration
-    representative L3 EXE evidence in MIMAP-228A and future closeout row
+    representative L3 EXE evidence in MIMAP-228A and MIMAP-230A
 
 cleanup row using C199 compound assignment:
   L1 C199 guard

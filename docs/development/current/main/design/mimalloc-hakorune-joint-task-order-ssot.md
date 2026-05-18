@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-229A` is current after MIMAP-228A opened the source release-ledger
-lifecycle-key migration pilot.
+`MIMAP-230A` is current after MIMAP-229A added source lifecycle-keyed release
+ledger diagnostics.
 
 Recommended current row:
 
 ```text
-MIMAP-229A
-  source lifecycle-keyed release ledger diagnostics
+MIMAP-230A
+  source release-ledger lifecycle-key migration closeout pack
 ```
 
 Purpose:
 
 ```text
-add duplicate/stale/mismatch diagnostics around the source lifecycle-keyed release ledger
+close the source release-ledger lifecycle-key migration pack with representative exact-MIR L3 evidence
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -275,7 +275,8 @@ no provider activation
 | 204 | closeout | `MIMAP-226A segment-map local-free reuse ledger lifecycle-keyed release shadow closeout pack` | landed; selected MIMAP-227A |
 | 205 | planning | `MIMAP-227A post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow-closeout row selection` | landed; selected MIMAP-228A |
 | 206 | allocator | `MIMAP-228A source release-ledger lifecycle-key migration pilot` | landed; selected MIMAP-229A |
-| 207 | allocator | `MIMAP-229A source lifecycle-keyed release ledger diagnostics` | selected current |
+| 207 | allocator | `MIMAP-229A source lifecycle-keyed release ledger diagnostics` | landed; selected MIMAP-230A |
+| 208 | closeout | `MIMAP-230A source release-ledger lifecycle-key migration closeout pack` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
