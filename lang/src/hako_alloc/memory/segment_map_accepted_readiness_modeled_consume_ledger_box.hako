@@ -1,0 +1,141 @@
+// segment_map_accepted_readiness_modeled_consume_ledger_box.hako -- MIMAP-157A route
+// Responsibility:
+// - consume accepted explicit-ID segment-map readiness reports into the modeled
+//   consume / ledger lane
+// - keep this as scalar/model proof before raw pointer or real segment-map work
+// Non-responsibility:
+// - allocating/freeing real segments, arena backing, raw pointer residence,
+//   real segment-map mutation, atomic bitmap execution, OSVM/page-source calls,
+//   worker scheduling, provider activation, host replacement, or backend shortcuts
+
+using selfhost.hako_alloc.memory.segment_allocation_modeled_consume_box as HakoAllocSegmentAllocationModeledConsume
+using selfhost.hako_alloc.memory.segment_allocation_modeled_ledger_box as HakoAllocSegmentAllocationModeledLedger
+
+box HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedgerReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    upstream_reason: i64 = -1
+    consume_reason: i64 = -1
+    ledger_reason: i64 = -1
+    row_index: i64 = -1
+    existing_index: i64 = -1
+    segment_id: i64 = -1
+    page_id: i64 = -1
+    old_page_used: i64 = 0
+    page_capacity: i64 = 0
+    request_blocks: i64 = 0
+    new_page_used: i64 = 0
+    remaining_blocks: i64 = 0
+    modeled_block_start: i64 = -1
+    modeled_allocation_token: i64 = -1
+    ledger_count_after: i64 = 0
+    ledger_live_count_after: i64 = 0
+    modeled_consume_present: i64 = 1
+    modeled_ledger_present: i64 = 1
+    would_execute_real_segment_allocation: i64 = 0
+    would_use_raw_pointer: i64 = 0
+    would_use_real_segment_map: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_replace_process_allocator: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger {
+    consume: HakoAllocSegmentAllocationModeledConsume = new HakoAllocSegmentAllocationModeledConsume()
+    ledger: HakoAllocSegmentAllocationModeledLedger = new HakoAllocSegmentAllocationModeledLedger()
+    route_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    readiness_reject_count: i64 = 0
+    consume_reject_count: i64 = 0
+    ledger_reject_count: i64 = 0
+    last_reason: i64 = -1
+    last_token: i64 = -1
+
+    reasonOk(): i64 {
+        return 0
+    }
+
+    reasonReadinessRejected(): i64 {
+        return 1
+    }
+
+    reasonConsumeRejected(): i64 {
+        return 2
+    }
+
+    reasonLedgerRejected(): i64 {
+        return 3
+    }
+
+    report(accepted, reason, upstream_reason, consume_reason, ledger_reason, row_index, existing_index, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token, ledger_count_after, ledger_live_count_after): HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedgerReport {
+        local result = new HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedgerReport()
+        result.accepted = accepted
+        result.reason = reason
+        result.upstream_reason = upstream_reason
+        result.consume_reason = consume_reason
+        result.ledger_reason = ledger_reason
+        result.row_index = row_index
+        result.existing_index = existing_index
+        result.segment_id = segment_id
+        result.page_id = page_id
+        result.old_page_used = old_page_used
+        result.page_capacity = page_capacity
+        result.request_blocks = request_blocks
+        result.new_page_used = new_page_used
+        result.remaining_blocks = remaining_blocks
+        result.modeled_block_start = modeled_block_start
+        result.modeled_allocation_token = modeled_allocation_token
+        result.ledger_count_after = ledger_count_after
+        result.ledger_live_count_after = ledger_live_count_after
+        me.last_reason = reason
+        me.last_token = modeled_allocation_token
+        return result
+    }
+
+    rejectReadiness(readiness): HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedgerReport {
+        me.reject_count += 1
+        me.readiness_reject_count += 1
+        return me.report(0, me.reasonReadinessRejected(), readiness.reason, -1, -1, -1, -1, readiness.segment_id, readiness.page_id, readiness.page_used, readiness.page_capacity, readiness.request_blocks, readiness.page_used, 0, -1, -1, me.ledger.count, me.ledger.live_count)
+    }
+
+    rejectConsume(readiness, modeled): HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedgerReport {
+        me.reject_count += 1
+        me.consume_reject_count += 1
+        return me.report(0, me.reasonConsumeRejected(), readiness.reason, modeled.reason, -1, -1, -1, modeled.segment_id, modeled.page_id, modeled.old_page_used, modeled.page_capacity, modeled.request_blocks, modeled.new_page_used, modeled.remaining_blocks, modeled.modeled_block_start, modeled.modeled_allocation_token, me.ledger.count, me.ledger.live_count)
+    }
+
+    rejectLedger(readiness, modeled, entry): HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedgerReport {
+        me.reject_count += 1
+        me.ledger_reject_count += 1
+        return me.report(0, me.reasonLedgerRejected(), readiness.reason, modeled.reason, entry.reason, entry.row_index, entry.existing_index, entry.segment_id, entry.page_id, entry.old_page_used, entry.page_capacity, entry.request_blocks, entry.new_page_used, entry.remaining_blocks, entry.modeled_block_start, entry.modeled_allocation_token, entry.ledger_count_after, entry.ledger_live_count_after)
+    }
+
+    consumeAcceptedReadiness(readiness, unsupported_requirement): HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedgerReport {
+        me.route_count += 1
+
+        if readiness.accepted != 1 {
+            return me.rejectReadiness(readiness)
+        }
+        if readiness.reason != 0 {
+            return me.rejectReadiness(readiness)
+        }
+
+        local modeled = me.consume.consumeReadiness(readiness.accepted, readiness.readiness_reason, readiness.segment_id, readiness.page_id, readiness.page_used, readiness.page_capacity, readiness.request_blocks, unsupported_requirement)
+        if modeled.accepted != 1 {
+            return me.rejectConsume(readiness, modeled)
+        }
+
+        local entry = me.ledger.recordModeledConsume(modeled.accepted, modeled.reason, modeled.segment_id, modeled.page_id, modeled.old_page_used, modeled.page_capacity, modeled.request_blocks, modeled.new_page_used, modeled.remaining_blocks, modeled.modeled_block_start, modeled.modeled_allocation_token, 0)
+        if entry.accepted != 1 {
+            return me.rejectLedger(readiness, modeled, entry)
+        }
+
+        me.accepted_count += 1
+        return me.report(1, me.reasonOk(), readiness.reason, modeled.reason, entry.reason, entry.row_index, entry.existing_index, entry.segment_id, entry.page_id, entry.old_page_used, entry.page_capacity, entry.request_blocks, entry.new_page_used, entry.remaining_blocks, entry.modeled_block_start, entry.modeled_allocation_token, entry.ledger_count_after, entry.ledger_live_count_after)
+    }
+}

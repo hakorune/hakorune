@@ -20,6 +20,7 @@ Current modules
 - `segment_map_lookup_guarded_readiness_composition_box.hako`
 - `segment_allocation_readiness_scalar_box.hako`
 - `segment_allocation_blocked_substrate_matrix_box.hako`
+- `segment_map_accepted_readiness_modeled_consume_ledger_box.hako`
 - `segment_allocation_modeled_consume_box.hako`
 - `segment_allocation_modeled_ledger_box.hako`
 - `segment_allocation_modeled_released_span_ledger_box.hako`
@@ -248,6 +249,13 @@ Syntax/style contract
   lookup execution, allocate arena backing, execute atomic bitmap claims, call
   page-source/OSVM seams, schedule workers, activate provider hooks, replace
   the host allocator, or add backend shortcuts.
+- `segment_map_accepted_readiness_modeled_consume_ledger_box.hako` owns
+  MIMAP-157A. It may compose an accepted MIMAP-153A readiness report into the
+  existing MIMAP-091A modeled consume and MIMAP-094A modeled ledger owners. It
+  must not use raw pointer residence, create real segment-map execution,
+  allocate arena backing, execute atomic bitmap claims, call page-source/OSVM
+  seams, schedule workers, activate provider hooks, replace the host allocator,
+  or add backend shortcuts.
 - `segment_allocation_modeled_consume_box.hako` owns MIMAP-091A. It may consume
   accepted scalar segment allocation-readiness facts and model the resulting
   `page_used` / `remaining_blocks` values plus a stable scalar modeled

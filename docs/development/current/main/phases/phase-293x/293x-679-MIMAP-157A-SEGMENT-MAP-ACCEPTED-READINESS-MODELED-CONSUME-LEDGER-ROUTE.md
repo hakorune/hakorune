@@ -1,6 +1,6 @@
 # 293x-679 MIMAP-157A Segment Map Accepted Readiness Modeled Consume Ledger Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -48,3 +48,29 @@ bash tools/checks/k2_wide_hako_alloc_segment_map_accepted_readiness_modeled_cons
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Implementation
+
+- Added `HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger` as a thin
+  composition owner.
+- Added a proof app that routes one accepted MIMAP-153A readiness report into
+  MIMAP-091A modeled consume and MIMAP-094A modeled ledger.
+- Added L2-only guard coverage: VM proof, MIR JSON assertions, and route
+  preflight.
+
+## Closeout
+
+MIMAP-157A landed with this proof surface:
+
+```text
+consumed=1,0,0,0,0,0,-1,70,7,2,3,5,3,2,70007002,1,1
+rejected=0,1,3,-1,-1,70,7
+inactive=0,0,0,0,0,0,0,0,0,0
+counts=2,1,1,1,0,0,1,1,70007002
+```
+
+The next selected row is `MIMAP-158A`, a diagnostics row for blocked /
+duplicate / stale outcomes around the same modeled consume ledger boundary.
+Raw pointer residence, real segment-map execution, arena backing, atomic bitmap,
+OSVM execution, thread scheduling, provider activation, and backend matchers
+remain closed.

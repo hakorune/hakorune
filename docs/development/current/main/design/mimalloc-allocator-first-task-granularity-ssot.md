@@ -337,7 +337,8 @@ Forbidden:
 | `MIMAP-154A` | post-lookup-guarded-readiness row selection | landed; selected MIMAP-155A |
 | `MIMAP-155A` | segment-map readiness validation pack closeout guard | landed; selected MIMAP-156A |
 | `MIMAP-156A` | post-segment-map-readiness-closeout row selection | landed; selected MIMAP-157A |
-| `MIMAP-157A` | segment-map accepted readiness modeled consume ledger route | selected current |
+| `MIMAP-157A` | segment-map accepted readiness modeled consume ledger route | landed; selected MIMAP-158A |
+| `MIMAP-158A` | segment-map modeled consume ledger diagnostics | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -721,6 +722,19 @@ backend matchers.
 MIMAP-157A uses L2 daily validation. L3 EXE is deferred to a future
 consume-ledger closeout pack unless this row introduces a new backend route
 shape.
+
+MIMAP-157A landed by adding the composition owner, proof app, L2 guard, module
+export, manifest entry, and docs wiring. It selected MIMAP-158A.
+
+### MIMAP-158A granularity
+
+MIMAP-158A adds blocked / duplicate / stale diagnostics around the same modeled
+consume ledger boundary opened by MIMAP-157A.
+
+It must not open raw pointer residence, real segment-map mutation, real segment
+allocation/free, arena backing, atomic bitmap execution, OSVM/page-source
+execution, worker scheduling, provider activation, cross-function `Result`
+direct ABI, runtime sum materialization, or backend matchers.
 
 
 ## Historical Granularity Anchors

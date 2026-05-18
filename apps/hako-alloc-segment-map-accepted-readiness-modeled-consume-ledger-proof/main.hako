@@ -1,0 +1,78 @@
+// hako-alloc-segment-map-accepted-readiness-modeled-consume-ledger-proof
+// Purpose: prove MIMAP-157A accepted readiness -> modeled consume ledger route.
+
+using selfhost.hako_alloc.memory.segment_map_lookup_guarded_readiness_composition_box as HakoAllocSegmentMapLookupGuardedReadinessComposition
+using selfhost.hako_alloc.memory.segment_map_accepted_readiness_modeled_consume_ledger_box as HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger
+
+static box Main {
+    main(args) {
+        local composition = new HakoAllocSegmentMapLookupGuardedReadinessComposition()
+        local route = new HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger()
+
+        local accepted = composition.composeLookupReadiness(70, 7, 3, 16, 1, composition.stateActive(), 2, 8, 3, 0)
+        local consumed = route.consumeAcceptedReadiness(accepted, 0)
+
+        local rejected_readiness = composition.composeLookupReadiness(70, 7, 3, 16, 1, composition.stateActive(), 7, 8, 3, 0)
+        local rejected = route.consumeAcceptedReadiness(rejected_readiness, 0)
+
+        local ok = check "mimap157a segment map accepted readiness modeled consume ledger route" {
+            "accepted source": accepted.accepted == 1
+            "consumed accepted": consumed.accepted == 1
+            "consumed reason": consumed.reason == 0
+            "consumed upstream": consumed.upstream_reason == 0
+            "consumed consume reason": consumed.consume_reason == 0
+            "consumed ledger reason": consumed.ledger_reason == 0
+            "row index": consumed.row_index == 0
+            "existing index": consumed.existing_index == -1
+            "segment id": consumed.segment_id == 70
+            "page id": consumed.page_id == 7
+            "old page used": consumed.old_page_used == 2
+            "capacity": consumed.page_capacity == 8
+            "request blocks": consumed.request_blocks == 3
+            "new page used": consumed.new_page_used == 5
+            "remaining blocks": consumed.remaining_blocks == 3
+            "block start": consumed.modeled_block_start == 2
+            "token": consumed.modeled_allocation_token == 70007002
+            "ledger count": consumed.ledger_count_after == 1
+            "ledger live": consumed.ledger_live_count_after == 1
+            "rejected not accepted": rejected.accepted == 0
+            "rejected reason": rejected.reason == route.reasonReadinessRejected()
+            "rejected upstream": rejected.upstream_reason == composition.reasonReadinessRejected()
+            "modeled consume present": consumed.modeled_consume_present == 1
+            "modeled ledger present": consumed.modeled_ledger_present == 1
+            "inactive real allocation": consumed.would_execute_real_segment_allocation == 0
+            "inactive raw": consumed.would_use_raw_pointer == 0
+            "inactive real map": consumed.would_use_real_segment_map == 0
+            "inactive arena": consumed.would_allocate_arena_backing == 0
+            "inactive atomic": consumed.would_execute_atomic_bitmap == 0
+            "inactive osvm": consumed.would_call_osvm == 0
+            "inactive thread": consumed.would_run_thread == 0
+            "inactive provider": consumed.would_activate_provider == 0
+            "inactive replacement": consumed.would_replace_process_allocator == 0
+            "inactive matcher": consumed.would_add_backend_matcher == 0
+            "route count": route.route_count == 2
+            "accepted count": route.accepted_count == 1
+            "reject count": route.reject_count == 1
+            "readiness reject count": route.readiness_reject_count == 1
+            "consume reject count": route.consume_reject_count == 0
+            "ledger reject count": route.ledger_reject_count == 0
+            "ledger stored token": route.ledger.tokenAt(0) == 70007002
+            "ledger live count": route.ledger.live_count == 1
+        }
+
+        print("hako-alloc-segment-map-accepted-readiness-modeled-consume-ledger-proof")
+        print("consumed=" + consumed.accepted + "," + consumed.reason + "," + consumed.upstream_reason + "," + consumed.consume_reason + "," + consumed.ledger_reason + "," + consumed.row_index + "," + consumed.existing_index + "," + consumed.segment_id + "," + consumed.page_id + "," + consumed.old_page_used + "," + consumed.request_blocks + "," + consumed.new_page_used + "," + consumed.remaining_blocks + "," + consumed.modeled_block_start + "," + consumed.modeled_allocation_token + "," + consumed.ledger_count_after + "," + consumed.ledger_live_count_after)
+        print("rejected=" + rejected.accepted + "," + rejected.reason + "," + rejected.upstream_reason + "," + rejected.consume_reason + "," + rejected.ledger_reason + "," + rejected.segment_id + "," + rejected.page_id)
+        print("inactive=" + consumed.would_execute_real_segment_allocation + "," + consumed.would_use_raw_pointer + "," + consumed.would_use_real_segment_map + "," + consumed.would_allocate_arena_backing + "," + consumed.would_execute_atomic_bitmap + "," + consumed.would_call_osvm + "," + consumed.would_run_thread + "," + consumed.would_activate_provider + "," + consumed.would_replace_process_allocator + "," + consumed.would_add_backend_matcher)
+        print("counts=" + route.route_count + "," + route.accepted_count + "," + route.reject_count + "," + route.readiness_reject_count + "," + route.consume_reject_count + "," + route.ledger_reject_count + "," + route.ledger.count + "," + route.ledger.live_count + "," + route.ledger.tokenAt(0))
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

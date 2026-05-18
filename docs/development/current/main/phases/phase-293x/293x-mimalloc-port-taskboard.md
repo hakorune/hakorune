@@ -531,7 +531,8 @@ FST:
 | `MIMAP-154A` | landed | Post-lookup-guarded-readiness row selection. | selected MIMAP-155A |
 | `MIMAP-155A` | landed | Segment-map readiness validation pack closeout guard. | selected MIMAP-156A |
 | `MIMAP-156A` | landed | Post-segment-map-readiness-closeout row selection. | selected MIMAP-157A |
-| `MIMAP-157A` | selected current | Segment-map accepted readiness modeled consume ledger route. | current behavior row |
+| `MIMAP-157A` | landed | Segment-map accepted readiness modeled consume ledger route. | selected MIMAP-158A |
+| `MIMAP-158A` | selected current | Segment-map modeled consume ledger diagnostics. | current behavior row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -540,11 +541,11 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-157A` composes an accepted segment-map readiness report into the
-existing modeled consume / ledger lane. Raw pointer residence remains parked
-behind a future rawbuf/no-escape capability. Real thread scheduling, worker
-spawning, source-level concurrency features, arena backing allocation, atomic
-bitmap execution, page-source calls, OSVM unreserve/release, provider
+`MIMAP-158A` adds blocked / duplicate / stale diagnostics around the
+MIMAP-157A modeled consume ledger boundary. Raw pointer residence remains
+parked behind a future rawbuf/no-escape capability. Real thread scheduling,
+worker spawning, source-level concurrency features, arena backing allocation,
+atomic bitmap execution, page-source calls, OSVM unreserve/release, provider
 activation, and backend matchers remain closed.
 
 MIMAP-020A execution order:
@@ -761,7 +762,8 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `MIMAP-157A` | selected current | Segment-map accepted readiness modeled consume ledger route. | Current behavior row. |
+| `MIMAP-158A` | selected current | Segment-map modeled consume ledger diagnostics. | Current behavior row. |
+| `MIMAP-157A` | landed | Segment-map accepted readiness modeled consume ledger route. | Selected MIMAP-158A. |
 | `MIMAP-156A` | landed | Post-segment-map-readiness-closeout row selection. | Selected MIMAP-157A. |
 | `MIMAP-155A` | landed | Segment-map readiness validation pack closeout guard. | Selected MIMAP-156A. |
 | `MIMAP-154A` | landed | Post-lookup-guarded-readiness row selection. | Selected MIMAP-155A. |
