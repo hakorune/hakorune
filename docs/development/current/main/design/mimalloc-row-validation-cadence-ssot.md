@@ -321,6 +321,9 @@ MIMAP-264A segment arena backing modeled source accounting inventory
 
 MIMAP-265A segment arena backing modeled source accounting diagnostics
   L2 daily: observer/reject summary only
+
+MIMAP-266A segment arena backing modeled source accounting closeout pack
+  L3 representative exact-MIR evidence for segment-arena-backing-modeled-source-accounting
 ```
 
 ## Row-Type Rules

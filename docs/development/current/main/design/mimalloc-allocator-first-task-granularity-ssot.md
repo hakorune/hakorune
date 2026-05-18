@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-265A
+  MIMAP-266A
 
 current choice boundary:
-  modeled source accounting diagnostics after modeled source accounting inventory
+  modeled source accounting closeout after modeled source accounting diagnostics
   while keeping real pointer residence, pointer lookup, and real arena backing closed
 
 closed until explicitly reopened:
@@ -449,7 +449,8 @@ Forbidden:
 | `MIMAP-262A` | segment arena backing modeled source bridge closeout pack | landed; selected MIMAP-263A |
 | `MIMAP-263A` | post-segment-arena-backing-modeled-source-bridge-closeout row selection | landed; selected MIMAP-264A |
 | `MIMAP-264A` | segment arena backing modeled source accounting inventory | landed; selected MIMAP-265A |
-| `MIMAP-265A` | segment arena backing modeled source accounting diagnostics | selected current |
+| `MIMAP-265A` | segment arena backing modeled source accounting diagnostics | landed; selected MIMAP-266A |
+| `MIMAP-266A` | segment arena backing modeled source accounting closeout pack | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2591,6 +2592,22 @@ rows or opening real pointer residence, pointer-derived lookup, real arena
 backing allocation, real segment-map mutation, atomic bitmap execution,
 OSVM/page-source execution, worker/provider activation, cross-function
 `Result` direct ABI, runtime sum materialization, or backend matcher rows.
+
+MIMAP-265A landed by adding the modeled source accounting diagnostics owner,
+proof app, L2 guard, manifest entry, check index entry, module export, and SSOT.
+It selected MIMAP-266A.
+
+### MIMAP-266A granularity
+
+MIMAP-266A segment arena backing modeled source accounting closeout pack.
+
+MIMAP-266A should close out the MIMAP-264A inventory and MIMAP-265A diagnostics
+pair by running both L2 guards and representative exact-MIR L3 evidence. It
+must not add new source accounting behavior or open real pointer residence,
+pointer-derived lookup, real arena backing allocation, real segment-map
+mutation, atomic bitmap execution, OSVM/page-source execution,
+worker/provider activation, cross-function `Result` direct ABI, runtime sum
+materialization, or backend matcher rows.
 
 
 ## Historical Granularity Anchors

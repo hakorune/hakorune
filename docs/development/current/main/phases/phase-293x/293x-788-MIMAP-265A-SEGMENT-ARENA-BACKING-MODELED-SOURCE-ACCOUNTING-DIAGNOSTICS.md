@@ -1,6 +1,6 @@
 # 293x-788 MIMAP-265A Segment Arena Backing Modeled Source Accounting Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -43,3 +43,15 @@ accounting counters and reason categories before closeout.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+- Added observer-only source accounting diagnostics owner and report.
+- Added proof app, L2 guard, proof manifest row, check index entry, module
+  export, memory README entry, and diagnostics SSOT.
+- Verified the diagnostics row keeps source accounting inventory read-only and
+  keeps all closed runtime/backend seams inactive.
+
+## Selected Next Row
+
+`MIMAP-266A` segment arena backing modeled source accounting closeout pack.

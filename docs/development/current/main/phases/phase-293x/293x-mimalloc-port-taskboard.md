@@ -658,7 +658,8 @@ FST:
 | `MIMAP-262A` | landed | Segment arena backing modeled source bridge closeout pack. | selected MIMAP-263A |
 | `MIMAP-263A` | landed | Post segment arena backing modeled source bridge closeout row selection. | selected MIMAP-264A |
 | `MIMAP-264A` | landed | Segment arena backing modeled source accounting inventory. | selected MIMAP-265A |
-| `MIMAP-265A` | selected current | Segment arena backing modeled source accounting diagnostics. | current diagnostic row |
+| `MIMAP-265A` | landed | Segment arena backing modeled source accounting diagnostics. | selected MIMAP-266A |
+| `MIMAP-266A` | selected current | Segment arena backing modeled source accounting closeout pack. | current closeout row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -667,12 +668,12 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-265A` observes modeled source accounting inventory counters after
-modeled source accounting inventory. Real pointer residence, pointer-derived
-lookup, real thread scheduling, worker spawning, source-level concurrency
-features, arena backing allocation, atomic bitmap execution, page-source
-calls, OSVM unreserve/release, provider activation, and backend matchers
-remain closed.
+`MIMAP-266A` closes out modeled source accounting inventory and diagnostics
+with representative exact-MIR evidence. Real pointer residence,
+pointer-derived lookup, real thread scheduling, worker spawning, source-level
+concurrency features, arena backing allocation, atomic bitmap execution,
+page-source calls, OSVM unreserve/release, provider activation, and backend
+matchers remain closed.
 
 MIMAP-020A execution order:
 

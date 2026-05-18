@@ -1,0 +1,149 @@
+// hako-alloc-segment-arena-backing-modeled-source-accounting-diagnostics-proof
+// Purpose: prove MIMAP-265A observer-only diagnostics.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_requirement_matrix_box as HakoAllocSegmentArenaBackingRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_no_escape_address_capability_box as HakoAllocSegmentArenaBackingNoEscapeAddressCapability
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_no_escape_address_residence_box as HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidence
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_residence_arena_binding_box as HakoAllocSegmentArenaBackingModeledResidenceArenaBinding
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_arena_slot_box as HakoAllocSegmentArenaBackingModeledArenaSlot
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_source_bridge_box as HakoAllocSegmentArenaBackingModeledSourceBridge
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_source_accounting_box as HakoAllocSegmentArenaBackingModeledSourceAccounting
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_source_accounting_diagnostic_box as HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnostic
+
+static box Main {
+    makeMatrix(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingRequirementMatrixReport {
+        local report = new HakoAllocSegmentArenaBackingRequirementMatrixReport()
+        report.accepted = 1
+        report.reason = 0
+        report.matrix_present = 1
+        report.scalar_requirement_matrix_present = 1
+        report.segment_id = segment_id
+        report.arena_id = arena_id
+        report.slice_count = 16
+        report.committed_slices = 8
+        report.free_slices = 4
+        report.required_alignment = 16
+        report.page_size = 4096
+        report.geometry_valid = 1
+        return report
+    }
+
+    makeResidence(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceReport {
+        local capability_inventory = new HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityInventory()
+        local residence_inventory = new HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceInventory()
+        local matrix = Main.makeMatrix(segment_id, arena_id)
+        local capability = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        return residence_inventory.recordResidence(capability)
+    }
+
+    makeBinding(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledResidenceArenaBindingReport {
+        local binding_inventory = new HakoAllocSegmentArenaBackingModeledResidenceArenaBindingInventory()
+        local matrix = Main.makeMatrix(segment_id, arena_id)
+        local residence = Main.makeResidence(segment_id, arena_id)
+        return binding_inventory.recordBinding(residence, matrix)
+    }
+
+    makeSlot(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledArenaSlotReport {
+        local slot_inventory = new HakoAllocSegmentArenaBackingModeledArenaSlotInventory()
+        local binding = Main.makeBinding(segment_id, arena_id)
+        return slot_inventory.recordArenaSlot(binding, 2, 2048, 4096, 8192, 16)
+    }
+
+    makeSource(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledSourceBridgeReport {
+        local source_inventory = new HakoAllocSegmentArenaBackingModeledSourceBridgeInventory()
+        local slot = Main.makeSlot(segment_id, arena_id)
+        return source_inventory.recordSourceBridge(slot, 1, 90007004005, 16384, 4096, 16)
+    }
+
+    main(args) {
+        local accounting_inventory = new HakoAllocSegmentArenaBackingModeledSourceAccountingInventory()
+        local observer = new HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnostic()
+        local source = Main.makeSource(70, 7)
+
+        accounting_inventory.recordSourceAccounting(source)
+
+        local missing_bridge = new HakoAllocSegmentArenaBackingModeledSourceBridgeReport()
+        missing_bridge.source_bridge_present = 0
+        local rejected_bridge = Main.makeSource(70, 7)
+        rejected_bridge.accepted = 0
+        rejected_bridge.reason = 4
+        local invalid_token = Main.makeSource(70, 7)
+        invalid_token.source_token = 0
+        local invalid_geometry = Main.makeSource(70, 7)
+        invalid_geometry.source_capacity = 1024
+        local closed_source = Main.makeSource(70, 7)
+        closed_source.requires_arena_backing = 1
+
+        accounting_inventory.recordSourceAccounting(missing_bridge)
+        accounting_inventory.recordSourceAccounting(rejected_bridge)
+        accounting_inventory.recordSourceAccounting(invalid_token)
+        accounting_inventory.recordSourceAccounting(invalid_geometry)
+        local closed = accounting_inventory.recordSourceAccounting(closed_source)
+
+        local observed = observer.observeSourceAccountingDiagnostics(accounting_inventory, closed)
+        local empty_inventory = new HakoAllocSegmentArenaBackingModeledSourceAccountingInventory()
+        local empty_report = new HakoAllocSegmentArenaBackingModeledSourceAccountingReport()
+        local empty_observed = observer.observeSourceAccountingDiagnostics(empty_inventory, empty_report)
+
+        local ok = check "mimap265a segment arena backing modeled source accounting diagnostics" {
+            "observed": observed.observed == 1
+            "reason mirrors last": observed.reason == 5
+            "diagnostic present": observed.diagnostic_present == 1
+            "inventory count": observed.inventory_count == 6
+            "accepted count": observed.accepted_count == 1
+            "reject count": observed.reject_count == 5
+            "last reason": observed.last_reason == 5
+            "last segment": observed.last_segment_id == 70
+            "last arena": observed.last_arena_id == 7
+            "last source token": observed.last_source_token == 0
+            "last report accepted": observed.last_report_accepted == 0
+            "last report reason": observed.last_report_reason == 5
+            "last report closed blocker": observed.last_report_closed_substrate_blocker_count == 1
+            "last report source capacity": observed.last_report_source_capacity == 16384
+            "last report source committed": observed.last_report_source_committed_bytes == 4096
+            "last report source uncommitted": observed.last_report_source_uncommitted_bytes == 0
+            "last report accounted padded": observed.last_report_accounted_padded_bytes == 0
+            "last report available": observed.last_report_available_after_padded_bytes == 0
+            "source accounting present": observed.source_accounting_present == 1
+            "modeled source accounting present": observed.modeled_source_accounting_present == 1
+            "missing bridge seen": observed.missing_bridge_reject_seen == 1
+            "rejected bridge seen": observed.rejected_bridge_reject_seen == 1
+            "invalid token seen": observed.invalid_source_token_reject_seen == 1
+            "invalid geometry seen": observed.invalid_accounting_geometry_reject_seen == 1
+            "closed seen": observed.closed_substrate_reject_seen == 1
+            "observer count": observer.observe_count == 2
+            "accepted summary count": observer.accepted_summary_count == 1
+            "reject summary count": observer.reject_summary_count == 1
+            "missing inventory reject": observer.missing_inventory_reject_count == 1
+            "empty rejected": empty_observed.observed == 0
+            "empty reason": empty_observed.reason == 1
+            "empty present": empty_observed.source_accounting_present == 0
+            "inactive residence": observed.would_create_pointer_residence == 0
+            "inactive lookup": observed.would_lookup_by_pointer == 0
+            "inactive arena allocation": observed.would_allocate_arena_backing == 0
+            "inactive segment map": observed.would_use_segment_map == 0
+            "inactive atomic": observed.would_execute_atomic_bitmap == 0
+            "inactive osvm": observed.would_call_osvm == 0
+            "inactive thread": observed.would_run_thread == 0
+            "inactive provider": observed.would_activate_provider == 0
+            "inactive matcher": observed.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-modeled-source-accounting-diagnostics-proof")
+        print("diag=" + observed.observed + "," + observed.reason + "," + observed.inventory_count + "," + observed.accepted_count + "," + observed.reject_count + "," + observed.closed_substrate_reject_count + "," + observed.last_reason + "," + observed.last_segment_id + "," + observed.last_arena_id + "," + observed.last_report_closed_substrate_blocker_count)
+        print("seen=" + observed.missing_bridge_reject_seen + "," + observed.rejected_bridge_reject_seen + "," + observed.invalid_source_token_reject_seen + "," + observed.invalid_accounting_geometry_reject_seen + "," + observed.closed_substrate_reject_seen)
+        print("account=" + observed.last_report_source_token + "," + observed.last_report_source_capacity + "," + observed.last_report_source_committed_bytes + "," + observed.last_report_source_uncommitted_bytes + "," + observed.last_report_accounted_padded_bytes + "," + observed.last_report_available_after_padded_bytes)
+        print("owner=" + observer.observe_count + "," + observer.accepted_summary_count + "," + observer.reject_summary_count + "," + observer.missing_inventory_reject_count + "," + observer.last_reason)
+        print("empty=" + empty_observed.observed + "," + empty_observed.reason + "," + empty_observed.source_accounting_present)
+        print("inactive=" + observed.would_create_pointer_residence + "," + observed.would_lookup_by_pointer + "," + observed.would_allocate_arena_backing + "," + observed.would_use_segment_map + "," + observed.would_execute_atomic_bitmap + "," + observed.would_call_osvm + "," + observed.would_run_thread + "," + observed.would_activate_provider + "," + observed.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
