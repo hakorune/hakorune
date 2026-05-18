@@ -1,6 +1,6 @@
 # 293x-662 MIMAP-146A Post-Report-Record-Cleanup Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -40,4 +40,18 @@ docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Closeout
+
+Selected `HAKO-ALLOC-RESULT-API-001`, a narrow language/allocator boundary
+inventory row. Result/Option and guard-let are already accepted language
+surfaces, but `hako_alloc` still uses scalar status/reason pairs throughout the
+modeled allocator proof lane. The next row should inventory those surfaces and
+choose one pilot without changing allocator behavior.
+
+Next row:
+
+```text
+HAKO-ALLOC-RESULT-API-001 allocator Result/Option guard-let inventory
 ```

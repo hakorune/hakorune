@@ -485,7 +485,8 @@ FST:
 | `MIMAP-145A` | landed | Post-ID-brand-pilot-closeout row selection. | selected HAKO-ALLOC-REPORT-RECORD-001 |
 | `HAKO-ALLOC-REPORT-RECORD-001` | landed | Allocator report record cleanup inventory. | selected HAKO-ALLOC-REPORT-RECORD-002 |
 | `HAKO-ALLOC-REPORT-RECORD-002` | landed | Local-free integration report record boundary cleanup. | selected MIMAP-146A |
-| `MIMAP-146A` | selected current | Post-report-record-cleanup row selection. | current planning row |
+| `MIMAP-146A` | landed | Post-report-record-cleanup row selection. | selected HAKO-ALLOC-RESULT-API-001 |
+| `HAKO-ALLOC-RESULT-API-001` | selected current | Allocator Result/Option guard-let inventory. | current language/allocator boundary row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -494,8 +495,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-146A` selects the next single allocator, Hakorune core, or BoxShape
-cleanup row after HAKO-ALLOC-REPORT-RECORD-002 landed.
+`HAKO-ALLOC-RESULT-API-001` inventories allocator scalar failure/report
+surfaces against the existing Result/Option + guard-let language support.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,
@@ -716,7 +717,8 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `MIMAP-146A` | selected current | Post-report-record-cleanup row selection. | Current planning row. |
+| `HAKO-ALLOC-RESULT-API-001` | selected current | Allocator Result/Option guard-let inventory. | Current language/allocator boundary row. |
+| `MIMAP-146A` | landed | Post-report-record-cleanup row selection. | Selected HAKO-ALLOC-RESULT-API-001. |
 | `HAKO-ALLOC-REPORT-RECORD-002` | landed | Local-free integration report record boundary cleanup. | Selected MIMAP-146A. |
 | `HAKO-ALLOC-REPORT-RECORD-001` | landed | Allocator report record cleanup inventory. | Selected HAKO-ALLOC-REPORT-RECORD-002. |
 | `MIMAP-145A` | landed | Post-ID-brand-pilot-closeout row selection. | Selected HAKO-ALLOC-REPORT-RECORD-001. |

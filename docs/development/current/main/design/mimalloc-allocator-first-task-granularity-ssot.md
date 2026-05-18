@@ -322,7 +322,8 @@ Forbidden:
 | `MIMAP-145A` | post-ID-brand-pilot-closeout row selection | landed; selected HAKO-ALLOC-REPORT-RECORD-001 |
 | `HAKO-ALLOC-REPORT-RECORD-001` | allocator report record cleanup inventory | landed; selected HAKO-ALLOC-REPORT-RECORD-002 |
 | `HAKO-ALLOC-REPORT-RECORD-002` | local-free integration report record boundary cleanup | landed; selected MIMAP-146A |
-| `MIMAP-146A` | post-report-record-cleanup row selection | selected current |
+| `MIMAP-146A` | post-report-record-cleanup row selection | landed; selected HAKO-ALLOC-RESULT-API-001 |
+| `HAKO-ALLOC-RESULT-API-001` | allocator Result/Option guard-let inventory | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -506,6 +507,21 @@ allocator, Hakorune core, or BoxShape cleanup row.
 It must not implement allocator behavior, compiler route behavior, source
 syntax, provider activation, host allocator replacement, backend matchers, or
 silent fallback by itself.
+
+MIMAP-146A landed by selecting HAKO-ALLOC-RESULT-API-001, an inventory row for
+applying the already-accepted Result/Option + guard-let surface to allocator
+failure APIs.
+
+
+### HAKO-ALLOC-RESULT-API-001 granularity
+
+HAKO-ALLOC-RESULT-API-001 inventories scalar allocator status/reason surfaces
+and decides whether one focused owner can use existing Result/Option +
+guard-let language support without changing allocator behavior.
+
+It must not add allocator behavior, broad report rewrites, implicit `?`, `try`,
+`throw`, null sugar, provider activation, host allocator replacement, backend
+matchers, or silent fallback.
 
 
 ## Historical Granularity Anchors

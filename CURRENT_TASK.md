@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-146A post-report-record-cleanup row selection`
+  `HAKO-ALLOC-RESULT-API-001 allocator Result/Option guard-let inventory`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,9 +74,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-146A`, the planning row
-  selected after HAKO-ALLOC-REPORT-RECORD-002 landed local-free integration
-  report record boundary cleanup.
+- resume point: continue Phase 293x with `HAKO-ALLOC-RESULT-API-001`, the
+  allocator Result/Option guard-let inventory selected by MIMAP-146A.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -84,10 +83,9 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-146A`: select exactly one next allocator, Hakorune core, or
-     BoxShape cleanup row after the report-record cleanup
-  2. keep broad report rewrites and packed/backend record lowering out of the
-     selection row
+  1. `HAKO-ALLOC-RESULT-API-001`: inventory scalar allocator failure/report
+     surfaces against existing Result/Option + guard-let support
+  2. select one narrow pilot owner or one compiler acceptance row
   3. preserve allocator behavior and proof output while selecting
   4. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider activation inactive

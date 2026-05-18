@@ -34,21 +34,21 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-146A` is current after `HAKO-ALLOC-REPORT-RECORD-002` landed the
-local-free integration report record boundary cleanup.
+`HAKO-ALLOC-RESULT-API-001` is current after MIMAP-146A selected the
+Result/Option + guard-let inventory row.
 
 Recommended current row:
 
 ```text
-MIMAP-146A
-  post-report-record-cleanup row selection
+HAKO-ALLOC-RESULT-API-001
+  allocator Result/Option guard-let inventory
 ```
 
 Purpose:
 
 ```text
-select exactly one next allocator, Hakorune core, or BoxShape cleanup row
-do not implement allocator behavior, compiler behavior, or source syntax in the planning row
+inventory scalar allocator failure/report surfaces against existing Result/Option + guard-let support
+select one narrow pilot owner or one compiler acceptance row
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -188,8 +188,8 @@ no provider activation
 | 117 | planning | `MIMAP-145A post-ID-brand-pilot-closeout row selection` | landed; selected HAKO-ALLOC-REPORT-RECORD-001 |
 | 118 | Hakorune language / allocator cleanup | `HAKO-ALLOC-REPORT-RECORD-001 allocator report record cleanup inventory` | landed; selected HAKO-ALLOC-REPORT-RECORD-002 |
 | 119 | Hakorune language / allocator cleanup | `HAKO-ALLOC-REPORT-RECORD-002 local-free integration report record boundary cleanup` | landed; selected MIMAP-146A |
-| 120 | planning | `MIMAP-146A post-report-record-cleanup row selection` | selected current |
-| 121 | Hakorune language | Result/Option + guard-let ergonomics | improves allocator failure APIs after semantics are stable |
+| 120 | planning | `MIMAP-146A post-report-record-cleanup row selection` | landed; selected HAKO-ALLOC-RESULT-API-001 |
+| 121 | Hakorune language / allocator boundary | `HAKO-ALLOC-RESULT-API-001 allocator Result/Option guard-let inventory` | selected current |
 | 122 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
