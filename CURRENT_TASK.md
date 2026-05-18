@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-231A post source release-ledger lifecycle-key migration closeout row selection`
+  `MIMAP-232A source lifecycle-keyed release apply/recycle continuation bridge`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -76,9 +76,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-231A`,
-  the post source release-ledger lifecycle-key migration closeout row selection
-  selected by MIMAP-230A.
+- resume point: continue Phase 293x with `MIMAP-232A`,
+  the source lifecycle-keyed release apply/recycle continuation bridge selected
+  by MIMAP-231A.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -86,8 +86,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-231A`: choose the next narrow bridge after source release-ledger
-     lifecycle-key migration closeout
+  1. `MIMAP-232A`: connect lifecycle-keyed source release rows into modeled
+     release-apply/recycle continuation
   2. keep raw pointer residence, real segment-map execution, and provider
      activation closed
   3. keep cross-function `Result` direct ABI and runtime sum materialization

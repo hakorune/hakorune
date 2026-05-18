@@ -1,12 +1,18 @@
 # 293x-754 MIMAP-231A Post Source Release-Ledger Lifecycle-Key Migration Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
 
 Choose the next narrow row after the source release-ledger lifecycle-key
 migration closeout.
+
+Selected row:
+
+```text
+MIMAP-232A source lifecycle-keyed release apply/recycle continuation bridge
+```
 
 ## Context
 
@@ -24,6 +30,10 @@ modeled-reuse-token keyed release owner remains unmigrated
 The likely next row should select a release/recycle lifecycle continuation
 bridge. It should not open raw pointer residence, real segment-map execution,
 arena backing, or atomic bitmap behavior yet.
+
+MIMAP-231A selects a scalar/model bridge that lets a lifecycle-keyed source
+release report continue into release-apply and recycled local-free reuse without
+opening real allocator execution.
 
 ## Stop Lines
 
@@ -47,4 +57,10 @@ arena backing, or atomic bitmap behavior yet.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Next
+
+```text
+MIMAP-232A source lifecycle-keyed release apply/recycle continuation bridge
 ```
