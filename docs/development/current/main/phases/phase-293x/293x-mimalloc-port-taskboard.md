@@ -491,7 +491,8 @@ FST:
 | `HAKO-ALLOC-RESULT-API-002` | landed | Allocator local-free Result guard-let pilot. | selected MIMAP-147A |
 | `MIMAP-147A` | landed | Post-Result-guard-let-pilot row selection. | selected HAKO-ALLOC-RESULT-API-003 |
 | `HAKO-ALLOC-RESULT-API-003` | landed | Allocator local-free remaining Result guard-let boundaries. | selected MIMAP-148A |
-| `MIMAP-148A` | selected current | Post-local-free-Result-boundary row selection. | current planning row |
+| `MIMAP-148A` | landed | Post-local-free-Result-boundary row selection. | selected MIMAP-149A |
+| `MIMAP-149A` | selected current | Segment allocation blocked-substrate matrix proof. | current implementation row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -500,9 +501,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-148A` selects the next single row after `integrateLocalFree` now uses
-local `Result<i64, i64>` guard-let boundaries for candidate, apply-plan, and
-page-apply acceptance.
+`MIMAP-149A` adds a proof-only matrix for the still-closed hard substrate
+blockers between scalar segment allocation and real segment allocation/free.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,
@@ -723,7 +723,8 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `MIMAP-148A` | selected current | Post-local-free-Result-boundary row selection. | Current planning row. |
+| `MIMAP-149A` | selected current | Segment allocation blocked-substrate matrix proof. | Current implementation row. |
+| `MIMAP-148A` | landed | Post-local-free-Result-boundary row selection. | Selected MIMAP-149A. |
 | `HAKO-ALLOC-RESULT-API-003` | landed | Allocator local-free remaining Result guard-let boundaries. | Selected MIMAP-148A. |
 | `MIMAP-147A` | landed | Post-Result-guard-let-pilot row selection. | Selected HAKO-ALLOC-RESULT-API-003. |
 | `HAKO-ALLOC-RESULT-API-002` | landed | Allocator local-free Result guard-let pilot. | Selected MIMAP-147A. |

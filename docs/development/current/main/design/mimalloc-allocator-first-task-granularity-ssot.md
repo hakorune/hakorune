@@ -328,7 +328,8 @@ Forbidden:
 | `HAKO-ALLOC-RESULT-API-002` | allocator local-free Result guard-let pilot | landed; selected MIMAP-147A |
 | `MIMAP-147A` | post-Result-guard-let-pilot row selection | landed; selected HAKO-ALLOC-RESULT-API-003 |
 | `HAKO-ALLOC-RESULT-API-003` | allocator local-free remaining Result guard-let boundaries | landed; selected MIMAP-148A |
-| `MIMAP-148A` | post-local-free-Result-boundary row selection | selected current |
+| `MIMAP-148A` | post-local-free-Result-boundary row selection | landed; selected MIMAP-149A |
+| `MIMAP-149A` | segment allocation blocked-substrate matrix proof | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -592,6 +593,21 @@ MIMAP-148A is a planning row after the local-free Result guard-let cleanup. It
 decides whether to stop the Result cleanup burst and return to ordinary
 mimalloc behavior work, add one more allocator-local Result cleanup row, or open
 a focused compiler row only if a concrete blocked Result shape appears.
+
+MIMAP-148A landed by stopping the Result cleanup burst and selecting
+MIMAP-149A.
+
+### MIMAP-149A granularity
+
+MIMAP-149A is a proof-only ordinary mimalloc row that names the still-closed
+hard substrate blockers before real segment allocation/free can open. It should
+compose already-landed scalar facts from segment allocation readiness,
+segment/page membership, and segment/arena/bitmap boundary inventory.
+
+It must report blockers without executing them: raw pointer residence,
+segment-map lookup, arena backing allocation, atomic bitmap execution, OSVM,
+thread scheduling, provider activation, and real segment allocation/free remain
+closed.
 
 
 ## Historical Granularity Anchors

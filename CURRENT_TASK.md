@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-148A post-local-free-Result-boundary row selection`
+  `MIMAP-149A segment allocation blocked-substrate matrix proof`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,9 +74,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-148A`,
-  the post-local-free-Result-boundary row selection after
-  HAKO-ALLOC-RESULT-API-003 landed.
+- resume point: continue Phase 293x with `MIMAP-149A`,
+  the segment allocation blocked-substrate matrix proof selected by MIMAP-148A.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -84,12 +83,12 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-148A`: select the next single row after the local-free Result
-     guard-let cleanup
-  2. decide whether to return to ordinary mimalloc behavior work or select one
-     more narrowly scoped allocator/compiler Result row
+  1. `MIMAP-149A`: add a proof-only blocked-substrate matrix for the path from
+     scalar segment allocation to real segment allocation/free
+  2. compose existing scalar readiness, segment/page membership, and
+     arena/bitmap boundary facts
   3. keep cross-function `Result` direct ABI and runtime sum materialization
-     closed unless a separate compiler row is selected
+     closed
   4. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider activation inactive
   5. keep secure entropy execution parked until a separate random substrate
