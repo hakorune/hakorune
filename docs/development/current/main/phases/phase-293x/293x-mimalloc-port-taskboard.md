@@ -539,7 +539,9 @@ FST:
 | `MIMAP-162A` | landed | Segment-map modeled consume ledger release closeout pack. | selected MIMAP-163A |
 | `MIMAP-163A` | landed | Post-segment-map-modeled-consume-ledger-release-closeout row selection. | selected MIMAP-164A |
 | `MIMAP-164A` | landed | Segment-map modeled consume ledger released-token recycle route. | selected MIMAP-165A |
-| `MIMAP-165A` | selected current | Post-segment-map-modeled-consume-ledger-released-token-recycle row selection. | current planning row |
+| `MIMAP-165A` | landed | Post-segment-map-modeled-consume-ledger-released-token-recycle row selection. | selected MIMAP-166A |
+| `MIMAP-166A` | landed | Segment-map modeled consume ledger released-token recycle closeout pack. | selected MIMAP-167A |
+| `MIMAP-167A` | selected current | Post-segment-map-modeled-consume-ledger-released-token-recycle-closeout row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -548,7 +550,7 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-165A` chooses the next narrow row after MIMAP-164A proved
+`MIMAP-167A` chooses the next narrow row after MIMAP-166A closed
 segment-map modeled consume-ledger released-token recycle. Raw pointer residence remains
 parked behind a future rawbuf/no-escape capability. Real thread scheduling,
 worker spawning, source-level concurrency features, arena backing allocation,
@@ -769,7 +771,9 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `MIMAP-165A` | selected current | Post-segment-map-modeled-consume-ledger-released-token-recycle row selection. | Current planning row. |
+| `MIMAP-167A` | selected current | Post-segment-map-modeled-consume-ledger-released-token-recycle-closeout row selection. | Current planning row. |
+| `MIMAP-166A` | landed | Segment-map modeled consume ledger released-token recycle closeout pack. | Selected MIMAP-167A. |
+| `MIMAP-165A` | landed | Post-segment-map-modeled-consume-ledger-released-token-recycle row selection. | Selected MIMAP-166A. |
 | `MIMAP-164A` | landed | Segment-map modeled consume ledger released-token recycle route. | Selected MIMAP-165A. |
 | `MIMAP-163A` | landed | Post-segment-map-modeled-consume-ledger-release-closeout row selection. | Selected MIMAP-164A. |
 | `MIMAP-162A` | landed | Segment-map modeled consume ledger release closeout pack. | Selected MIMAP-163A. |

@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-165A` is current after MIMAP-164A proved segment-map modeled
-consume-ledger released-token recycle.
+`MIMAP-167A` is current after MIMAP-166A closed the segment-map modeled
+consume-ledger released-token recycle pack.
 
 Recommended current row:
 
 ```text
-MIMAP-165A
-  post-segment-map-modeled-consume-ledger-released-token-recycle row selection
+MIMAP-167A
+  post-segment-map-modeled-consume-ledger-released-token-recycle-closeout row selection
 ```
 
 Purpose:
 
 ```text
-choose the next narrow row after segment-map owner-boundary released-token recycle
+choose the next narrow row after segment-map owner-boundary released-token recycle closeout
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -211,7 +211,9 @@ no provider activation
 | 140 | closeout | `MIMAP-162A segment-map modeled consume ledger release closeout pack` | landed; selected MIMAP-163A |
 | 141 | planning | `MIMAP-163A post-segment-map-modeled-consume-ledger-release-closeout row selection` | landed; selected MIMAP-164A |
 | 142 | allocator | `MIMAP-164A segment-map modeled consume ledger released-token recycle route` | landed; selected MIMAP-165A |
-| 143 | planning | `MIMAP-165A post-segment-map-modeled-consume-ledger-released-token-recycle row selection` | selected current |
+| 143 | planning | `MIMAP-165A post-segment-map-modeled-consume-ledger-released-token-recycle row selection` | landed; selected MIMAP-166A |
+| 144 | closeout | `MIMAP-166A segment-map modeled consume ledger released-token recycle closeout pack` | landed; selected MIMAP-167A |
+| 145 | planning | `MIMAP-167A post-segment-map-modeled-consume-ledger-released-token-recycle-closeout row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

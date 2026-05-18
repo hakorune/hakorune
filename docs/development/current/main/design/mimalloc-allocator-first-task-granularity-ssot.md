@@ -860,6 +860,37 @@ OSVM/page-source execution, worker scheduling, provider activation,
 cross-function `Result` direct ABI, runtime sum materialization, or backend
 matchers.
 
+MIMAP-165A landed by selecting MIMAP-166A.
+
+### MIMAP-166A granularity
+
+MIMAP-166A is the closeout pack for MIMAP-164A. It should carry
+representative L3 EXE evidence for the segment-map modeled consume-ledger
+released-token recycle route while preserving the daily L2 validation split.
+
+It must not open real segment allocation/free execution, raw pointer residence,
+real segment-map mutation, arena backing, atomic bitmap execution,
+OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, or backend
+matchers.
+
+MIMAP-166A landed by adding the recycle closeout SSOT, manifest-backed closeout
+guard, and representative exact-MIR L3 EXE evidence. It selected MIMAP-167A.
+
+### MIMAP-167A granularity
+
+MIMAP-167A is a planning row after the segment-map modeled consume-ledger
+released-token recycle closeout. It should choose between released-span
+observation at the segment-map owner boundary, recycle diagnostics, or a
+cleanup sidecar before opening raw pointer residence, arena backing, real
+segment-map execution, or atomic bitmap behavior.
+
+It must not open real segment allocation/free execution, raw pointer residence,
+real segment-map mutation, arena backing, atomic bitmap execution,
+OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, or backend
+matchers.
+
 
 ## Historical Granularity Anchors
 

@@ -274,9 +274,9 @@ segment-map consume ledger recycle family:
     validation_profile = scalar-mir
     closeout_pack = segment-map-consume-ledger-recycle
     exe = deferred-to-closeout
-  future closeout pack:
+  closeout pack:
     closeout_pack = segment-map-consume-ledger-recycle
-    representative L3 EXE evidence when selected
+    representative L3 EXE evidence in MIMAP-166A
 
 cleanup row using C199 compound assignment:
   L1 C199 guard

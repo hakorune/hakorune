@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-18"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-164A landed by proving segment-map modeled consume-ledger released-token recycle at the owner boundary; MIMAP-165A is the active planning blocker for the next narrow allocator row. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-166A landed by closing the segment-map modeled consume-ledger released-token recycle pack with representative exact-MIR L3 EXE evidence; MIMAP-167A is the active planning blocker for the next narrow allocator row. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-687-MIMAP-165A-POST-SEGMENT-MAP-MODELED-CONSUME-LEDGER-RELEASED-TOKEN-RECYCLE-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-689-MIMAP-167A-POST-SEGMENT-MAP-MODELED-CONSUME-LEDGER-RELEASED-TOKEN-RECYCLE-CLOSEOUT-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-686-MIMAP-164A-SEGMENT-MAP-MODELED-CONSUME-LEDGER-RELEASED-TOKEN-RECYCLE-ROUTE"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-686-MIMAP-164A-SEGMENT-MAP-MODELED-CONSUME-LEDGER-RELEASED-TOKEN-RECYCLE-ROUTE.md"
-latest_card_summary = "MIMAP-164A landed by adding a segment-map owner-boundary released-token recycle proof app, L2 guard, proof manifest row, and SSOT; MIMAP-165A selected current."
+latest_card = "293x-688-MIMAP-166A-SEGMENT-MAP-MODELED-CONSUME-LEDGER-RELEASED-TOKEN-RECYCLE-CLOSEOUT-PACK"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-688-MIMAP-166A-SEGMENT-MAP-MODELED-CONSUME-LEDGER-RELEASED-TOKEN-RECYCLE-CLOSEOUT-PACK.md"
+latest_card_summary = "MIMAP-166A landed by adding a manifest-backed recycle closeout guard and representative exact-MIR L3 EXE evidence for MIMAP-164A; MIMAP-167A selected current."
 
-current_blocker_token = "MIMAP-165A"
+current_blocker_token = "MIMAP-167A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-688 MIMAP-166A segment-map modeled consume ledger released-token recycle closeout pack landed; MIMAP-167A selected",
+  "293x-687 MIMAP-165A post-segment-map-modeled-consume-ledger-released-token-recycle row selection landed; MIMAP-166A selected",
   "293x-686 MIMAP-164A segment-map modeled consume ledger released-token recycle route landed; MIMAP-165A selected",
   "293x-685 MIMAP-163A post-segment-map-modeled-consume-ledger-release-closeout row selection landed; MIMAP-164A selected",
   "293x-684 MIMAP-162A segment-map modeled consume ledger release closeout pack landed; MIMAP-163A selected",
