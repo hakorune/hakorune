@@ -331,7 +331,8 @@ Forbidden:
 | `MIMAP-148A` | post-local-free-Result-boundary row selection | landed; selected MIMAP-149A |
 | `MIMAP-149A` | segment allocation blocked-substrate matrix proof | landed; selected MIMAP-150A |
 | `MIMAP-150A` | post-blocked-substrate-matrix row selection | landed; selected MIMAP-151A |
-| `MIMAP-151A` | segment-map scalar lookup boundary inventory | selected current |
+| `MIMAP-151A` | segment-map scalar lookup boundary inventory | landed; selected MIMAP-152A |
+| `MIMAP-152A` | post-segment-map-scalar-lookup row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -637,6 +638,19 @@ and raw-pointer lookup request cases with stable reasons.
 It must not derive lookup identity from raw pointers or open arena backing,
 atomic bitmap, OSVM, thread scheduling, provider activation, or backend matcher
 behavior.
+
+MIMAP-151A landed by adding the explicit-ID scalar lookup owner, proof app,
+guard, and docs wiring. It selected MIMAP-152A.
+
+### MIMAP-152A granularity
+
+MIMAP-152A is a planning row after explicit-ID segment-map scalar lookup. It
+chooses exactly one next follow-up: either compose the lookup into allocator
+proof work or park the next boundary when it requires rawbuf, atomics, OSVM, or
+scheduling substrate.
+
+It must not implement real segment allocation/free or open another blocked
+substrate.
 
 
 ## Historical Granularity Anchors

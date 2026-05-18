@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-151A segment-map scalar lookup boundary inventory`
+  `MIMAP-152A post-segment-map-scalar-lookup row selection`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,8 +74,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-151A`,
-  the segment-map scalar lookup boundary inventory selected by MIMAP-150A.
+- resume point: continue Phase 293x with `MIMAP-152A`,
+  the post-segment-map-scalar-lookup row selection selected by MIMAP-151A.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -83,11 +83,11 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-151A`: add a proof-only segment-map scalar lookup boundary
-     inventory using explicit IDs rather than raw pointer residence
-  2. prove accepted lookup plus stable reject rows for unknown segment,
-     wrong page, stale generation, out-of-range slice, and raw-pointer lookup
-     requests
+  1. `MIMAP-152A`: choose exactly one next row after explicit-ID segment-map
+     scalar lookup
+  2. prefer a small follow-up that composes the lookup into allocator proof
+     work or parks a boundary that requires rawbuf, atomics, OSVM, or scheduling
+     substrate
   3. keep cross-function `Result` direct ABI and runtime sum materialization
      closed
   4. keep real thread scheduling, worker spawning, source-level concurrency features,

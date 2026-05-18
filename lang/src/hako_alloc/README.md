@@ -14,6 +14,9 @@ Current mimalloc policy queue
 - `HakoAllocSegmentAllocationBlockedSubstrateMatrix` is the MIMAP-149A
   proof-only owner for the scalar blocked-substrate matrix before real segment
   allocation/free execution.
+- `HakoAllocSegmentMapScalarLookupBoundaryInventory` is the MIMAP-151A
+  proof-only owner for explicit-ID segment/page/slice lookup inventory while
+  raw pointer residence remains closed.
 
 Principles
 - Keep this root as the alloc/policy anchor.

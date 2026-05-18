@@ -1,0 +1,156 @@
+// segment_map_scalar_lookup_boundary_inventory_box.hako -- MIMAP-151A scalar lookup boundary
+// Responsibility:
+// - prove explicit-ID segment/page/slice lookup against one scalar inventory row
+// - report stable reject reasons before any pointer-derived segment map opens
+// - keep the route proof-only and side-effect-free
+// Non-responsibility:
+// - raw pointer residence, real segment maps, allocation/free, arena backing,
+//   atomic bitmap execution, OSVM calls, scheduling, provider activation, or backend shortcuts
+
+box HakoAllocSegmentMapScalarLookupBoundaryInventoryReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    row_index: i64 = -1
+    segment_id: i64 = -1
+    page_id: i64 = -1
+    slice_index: i64 = -1
+    slice_count: i64 = 0
+    generation: i64 = -1
+    lookup_contract_present: i64 = 1
+    would_use_raw_pointer: i64 = 0
+    would_use_real_segment_map: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_replace_process_allocator: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentMapScalarLookupBoundaryInventory {
+    known_segment_id: i64 = 70
+    known_page_id: i64 = 7
+    known_slice_index: i64 = 3
+    known_slice_count: i64 = 16
+    known_generation: i64 = 1
+    lookup_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    invalid_shape_reject_count: i64 = 0
+    raw_pointer_lookup_reject_count: i64 = 0
+    unknown_segment_reject_count: i64 = 0
+    wrong_page_reject_count: i64 = 0
+    stale_generation_reject_count: i64 = 0
+    out_of_range_slice_reject_count: i64 = 0
+    last_reason: i64 = -1
+
+    reasonOk(): i64 {
+        return 0
+    }
+
+    reasonInvalidShape(): i64 {
+        return 1
+    }
+
+    reasonRawPointerLookup(): i64 {
+        return 2
+    }
+
+    reasonUnknownSegment(): i64 {
+        return 3
+    }
+
+    reasonWrongPage(): i64 {
+        return 4
+    }
+
+    reasonStaleGeneration(): i64 {
+        return 5
+    }
+
+    reasonOutOfRangeSlice(): i64 {
+        return 6
+    }
+
+    report(accepted, reason, row_index, segment_id, page_id, slice_index, slice_count, generation): HakoAllocSegmentMapScalarLookupBoundaryInventoryReport {
+        local result = new HakoAllocSegmentMapScalarLookupBoundaryInventoryReport()
+        result.accepted = accepted
+        result.reason = reason
+        result.row_index = row_index
+        result.segment_id = segment_id
+        result.page_id = page_id
+        result.slice_index = slice_index
+        result.slice_count = slice_count
+        result.generation = generation
+        me.last_reason = reason
+        return result
+    }
+
+    reject(reason, segment_id, page_id, slice_index, slice_count, generation): HakoAllocSegmentMapScalarLookupBoundaryInventoryReport {
+        me.reject_count += 1
+        if reason == me.reasonInvalidShape() {
+            me.invalid_shape_reject_count += 1
+        }
+        if reason == me.reasonRawPointerLookup() {
+            me.raw_pointer_lookup_reject_count += 1
+        }
+        if reason == me.reasonUnknownSegment() {
+            me.unknown_segment_reject_count += 1
+        }
+        if reason == me.reasonWrongPage() {
+            me.wrong_page_reject_count += 1
+        }
+        if reason == me.reasonStaleGeneration() {
+            me.stale_generation_reject_count += 1
+        }
+        if reason == me.reasonOutOfRangeSlice() {
+            me.out_of_range_slice_reject_count += 1
+        }
+        return me.report(0, reason, -1, segment_id, page_id, slice_index, slice_count, generation)
+    }
+
+    lookupScalar(segment_id, page_id, slice_index, slice_count, generation, raw_pointer_lookup_requested): HakoAllocSegmentMapScalarLookupBoundaryInventoryReport {
+        me.lookup_count += 1
+
+        if segment_id < 0 {
+            return me.reject(me.reasonInvalidShape(), segment_id, page_id, slice_index, slice_count, generation)
+        }
+        if page_id < 0 {
+            return me.reject(me.reasonInvalidShape(), segment_id, page_id, slice_index, slice_count, generation)
+        }
+        if slice_index < 0 {
+            return me.reject(me.reasonInvalidShape(), segment_id, page_id, slice_index, slice_count, generation)
+        }
+        if slice_count <= 0 {
+            return me.reject(me.reasonInvalidShape(), segment_id, page_id, slice_index, slice_count, generation)
+        }
+        if generation < 0 {
+            return me.reject(me.reasonInvalidShape(), segment_id, page_id, slice_index, slice_count, generation)
+        }
+        if raw_pointer_lookup_requested != 0 {
+            return me.reject(me.reasonRawPointerLookup(), segment_id, page_id, slice_index, slice_count, generation)
+        }
+        if segment_id != me.known_segment_id {
+            return me.reject(me.reasonUnknownSegment(), segment_id, page_id, slice_index, slice_count, generation)
+        }
+        if page_id != me.known_page_id {
+            return me.reject(me.reasonWrongPage(), segment_id, page_id, slice_index, slice_count, generation)
+        }
+        if generation != me.known_generation {
+            return me.reject(me.reasonStaleGeneration(), segment_id, page_id, slice_index, slice_count, generation)
+        }
+        if slice_index >= slice_count {
+            return me.reject(me.reasonOutOfRangeSlice(), segment_id, page_id, slice_index, slice_count, generation)
+        }
+        if slice_index != me.known_slice_index {
+            return me.reject(me.reasonOutOfRangeSlice(), segment_id, page_id, slice_index, slice_count, generation)
+        }
+        if slice_count != me.known_slice_count {
+            return me.reject(me.reasonOutOfRangeSlice(), segment_id, page_id, slice_index, slice_count, generation)
+        }
+
+        me.accepted_count += 1
+        return me.report(1, me.reasonOk(), 0, segment_id, page_id, slice_index, slice_count, generation)
+    }
+}

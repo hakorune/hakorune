@@ -281,6 +281,13 @@ profiles = ["pilot", "hako-alloc-purge"]
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_blocked_substrate_matrix_guard.sh"]
 
 [[proof_apps]]
+id = "MIMAP-151A"
+app = "apps/hako-alloc-segment-map-scalar-lookup-boundary-inventory-proof"
+label = "segment-map scalar lookup boundary inventory proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_scalar_lookup_boundary_inventory_guard.sh"]
+
+[[proof_apps]]
 id = "MIMAP-091A"
 app = "apps/hako-alloc-segment-allocation-modeled-consume-proof"
 label = "segment allocation modeled consume proof"

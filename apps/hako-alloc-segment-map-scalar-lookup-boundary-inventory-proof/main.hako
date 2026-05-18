@@ -1,0 +1,66 @@
+// hako-alloc-segment-map-scalar-lookup-boundary-inventory-proof
+// Purpose: prove MIMAP-151A explicit-ID scalar segment-map lookup boundary.
+
+using selfhost.hako_alloc.memory.segment_map_scalar_lookup_boundary_inventory_box as HakoAllocSegmentMapScalarLookupBoundaryInventory
+
+static box Main {
+    main(args) {
+        local inventory = new HakoAllocSegmentMapScalarLookupBoundaryInventory()
+
+        local accepted = inventory.lookupScalar(70, 7, 3, 16, 1, 0)
+        local unknown_segment = inventory.lookupScalar(71, 7, 3, 16, 1, 0)
+        local wrong_page = inventory.lookupScalar(70, 8, 3, 16, 1, 0)
+        local stale_generation = inventory.lookupScalar(70, 7, 3, 16, 2, 0)
+        local out_of_range = inventory.lookupScalar(70, 7, 17, 16, 1, 0)
+        local raw_lookup = inventory.lookupScalar(70, 7, 3, 16, 1, 1)
+
+        local ok = check "mimap151a segment map scalar lookup boundary inventory" {
+            "accepted": accepted.accepted == 1
+            "accepted reason": accepted.reason == inventory.reasonOk()
+            "accepted row": accepted.row_index == 0
+            "accepted segment": accepted.segment_id == 70
+            "accepted page": accepted.page_id == 7
+            "accepted slice": accepted.slice_index == 3
+            "accepted slice count": accepted.slice_count == 16
+            "accepted generation": accepted.generation == 1
+            "unknown segment reason": unknown_segment.reason == inventory.reasonUnknownSegment()
+            "wrong page reason": wrong_page.reason == inventory.reasonWrongPage()
+            "stale generation reason": stale_generation.reason == inventory.reasonStaleGeneration()
+            "out of range reason": out_of_range.reason == inventory.reasonOutOfRangeSlice()
+            "raw lookup reason": raw_lookup.reason == inventory.reasonRawPointerLookup()
+            "inactive raw": accepted.would_use_raw_pointer == 0
+            "inactive real map": accepted.would_use_real_segment_map == 0
+            "inactive arena": accepted.would_allocate_arena_backing == 0
+            "inactive atomic": accepted.would_execute_atomic_bitmap == 0
+            "inactive osvm": accepted.would_call_osvm == 0
+            "inactive thread": accepted.would_run_thread == 0
+            "inactive provider": accepted.would_activate_provider == 0
+            "inactive replacement": accepted.would_replace_process_allocator == 0
+            "inactive matcher": accepted.would_add_backend_matcher == 0
+            "lookup count": inventory.lookup_count == 6
+            "accepted count": inventory.accepted_count == 1
+            "reject count": inventory.reject_count == 5
+            "unknown segment count": inventory.unknown_segment_reject_count == 1
+            "wrong page count": inventory.wrong_page_reject_count == 1
+            "stale generation count": inventory.stale_generation_reject_count == 1
+            "out of range count": inventory.out_of_range_slice_reject_count == 1
+            "raw lookup count": inventory.raw_pointer_lookup_reject_count == 1
+            "last reason": inventory.last_reason == inventory.reasonRawPointerLookup()
+        }
+
+        print("hako-alloc-segment-map-scalar-lookup-boundary-inventory-proof")
+        print("lookup=" + accepted.accepted + "," + accepted.reason + "," + accepted.row_index + "," + accepted.segment_id + "," + accepted.page_id + "," + accepted.slice_index + "," + accepted.slice_count + "," + accepted.generation)
+        print("rejects=" + unknown_segment.reason + "," + wrong_page.reason + "," + stale_generation.reason + "," + out_of_range.reason + "," + raw_lookup.reason)
+        print("inactive=" + accepted.would_use_raw_pointer + "," + accepted.would_use_real_segment_map + "," + accepted.would_allocate_arena_backing + "," + accepted.would_execute_atomic_bitmap + "," + accepted.would_call_osvm + "," + accepted.would_run_thread + "," + accepted.would_activate_provider + "," + accepted.would_replace_process_allocator + "," + accepted.would_add_backend_matcher)
+        print("counts=" + inventory.lookup_count + "," + inventory.accepted_count + "," + inventory.reject_count + "," + inventory.unknown_segment_reject_count + "," + inventory.wrong_page_reject_count + "," + inventory.stale_generation_reject_count + "," + inventory.out_of_range_slice_reject_count + "," + inventory.raw_pointer_lookup_reject_count + "," + inventory.last_reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
