@@ -1,0 +1,161 @@
+// segment_arena_backing_no_escape_address_capability_diagnostic_box.hako -- MIMAP-245A
+// Responsibility:
+// - observe MIMAP-244A no-escape address capability counters
+// - publish scalar diagnostic summary facts for escape and closed-substrate rejects
+// Non-responsibility:
+// - recording capability rows, creating pointer residence, pointer-derived
+//   lookup, arena backing, segment-map mutation, atomic bitmap execution,
+//   OSVM calls, scheduling, providers, or backend shortcuts
+
+box HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityDiagnosticReport {
+    observed: i64 = 0
+    reason: i64 = 0
+    diagnostic_present: i64 = 1
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    matrix_reject_count: i64 = 0
+    lifetime_reject_count: i64 = 0
+    address_carrier_reject_count: i64 = 0
+    return_escape_reject_count: i64 = 0
+    storage_escape_reject_count: i64 = 0
+    alias_escape_reject_count: i64 = 0
+    pointer_residence_reject_count: i64 = 0
+    pointer_lookup_reject_count: i64 = 0
+    arena_backing_reject_count: i64 = 0
+    segment_map_reject_count: i64 = 0
+    atomic_bitmap_reject_count: i64 = 0
+    osvm_reject_count: i64 = 0
+    worker_reject_count: i64 = 0
+    provider_reject_count: i64 = 0
+    backend_matcher_reject_count: i64 = 0
+    escape_reject_count: i64 = 0
+    closed_substrate_reject_count: i64 = 0
+    last_reason: i64 = 0
+    last_segment_id: i64 = -1
+    last_arena_id: i64 = -1
+    last_report_accepted: i64 = 0
+    last_report_reason: i64 = 0
+    last_report_escape_blocker_count: i64 = 0
+    capability_present: i64 = 0
+    no_escape_address_capability_present: i64 = 0
+    matrix_reject_seen: i64 = 0
+    lifetime_reject_seen: i64 = 0
+    address_carrier_reject_seen: i64 = 0
+    return_escape_reject_seen: i64 = 0
+    storage_escape_reject_seen: i64 = 0
+    alias_escape_reject_seen: i64 = 0
+    pointer_residence_reject_seen: i64 = 0
+    pointer_lookup_reject_seen: i64 = 0
+    arena_backing_reject_seen: i64 = 0
+    segment_map_reject_seen: i64 = 0
+    atomic_bitmap_reject_seen: i64 = 0
+    osvm_reject_seen: i64 = 0
+    worker_reject_seen: i64 = 0
+    provider_reject_seen: i64 = 0
+    backend_matcher_reject_seen: i64 = 0
+    would_create_pointer_residence: i64 = 0
+    would_lookup_by_pointer: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityDiagnostic {
+    observe_count: i64 = 0
+    accepted_summary_count: i64 = 0
+    reject_summary_count: i64 = 0
+    missing_inventory_reject_count: i64 = 0
+    last_reason: i64 = 0
+
+    markSeen(count): i64 {
+        if count > 0 {
+            return 1
+        }
+        return 0
+    }
+
+    makeReport(observed, reason, inventory, last_report): HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityDiagnosticReport {
+        local result = new HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityDiagnosticReport()
+        result.observed = observed
+        result.reason = reason
+        result.diagnostic_present = 1
+        result.inventory_count = inventory.inventory_count
+        result.accepted_count = inventory.accepted_count
+        result.reject_count = inventory.reject_count
+        result.matrix_reject_count = inventory.matrix_reject_count
+        result.lifetime_reject_count = inventory.lifetime_reject_count
+        result.address_carrier_reject_count = inventory.address_carrier_reject_count
+        result.return_escape_reject_count = inventory.return_escape_reject_count
+        result.storage_escape_reject_count = inventory.storage_escape_reject_count
+        result.alias_escape_reject_count = inventory.alias_escape_reject_count
+        result.pointer_residence_reject_count = inventory.pointer_residence_reject_count
+        result.pointer_lookup_reject_count = inventory.pointer_lookup_reject_count
+        result.arena_backing_reject_count = inventory.arena_backing_reject_count
+        result.segment_map_reject_count = inventory.segment_map_reject_count
+        result.atomic_bitmap_reject_count = inventory.atomic_bitmap_reject_count
+        result.osvm_reject_count = inventory.osvm_reject_count
+        result.worker_reject_count = inventory.worker_reject_count
+        result.provider_reject_count = inventory.provider_reject_count
+        result.backend_matcher_reject_count = inventory.backend_matcher_reject_count
+        result.escape_reject_count = inventory.return_escape_reject_count + inventory.storage_escape_reject_count + inventory.alias_escape_reject_count
+        result.closed_substrate_reject_count = inventory.pointer_residence_reject_count + inventory.pointer_lookup_reject_count + inventory.arena_backing_reject_count + inventory.segment_map_reject_count + inventory.atomic_bitmap_reject_count + inventory.osvm_reject_count + inventory.worker_reject_count + inventory.provider_reject_count + inventory.backend_matcher_reject_count
+        result.last_reason = inventory.last_reason
+        result.last_segment_id = inventory.last_segment_id
+        result.last_arena_id = inventory.last_arena_id
+        result.last_report_accepted = last_report.accepted
+        result.last_report_reason = last_report.reason
+        result.last_report_escape_blocker_count = last_report.escape_blocker_count
+        if observed == 1 {
+            result.capability_present = last_report.capability_present
+            result.no_escape_address_capability_present = last_report.no_escape_address_capability_present
+        }
+        result.matrix_reject_seen = me.markSeen(inventory.matrix_reject_count)
+        result.lifetime_reject_seen = me.markSeen(inventory.lifetime_reject_count)
+        result.address_carrier_reject_seen = me.markSeen(inventory.address_carrier_reject_count)
+        result.return_escape_reject_seen = me.markSeen(inventory.return_escape_reject_count)
+        result.storage_escape_reject_seen = me.markSeen(inventory.storage_escape_reject_count)
+        result.alias_escape_reject_seen = me.markSeen(inventory.alias_escape_reject_count)
+        result.pointer_residence_reject_seen = me.markSeen(inventory.pointer_residence_reject_count)
+        result.pointer_lookup_reject_seen = me.markSeen(inventory.pointer_lookup_reject_count)
+        result.arena_backing_reject_seen = me.markSeen(inventory.arena_backing_reject_count)
+        result.segment_map_reject_seen = me.markSeen(inventory.segment_map_reject_count)
+        result.atomic_bitmap_reject_seen = me.markSeen(inventory.atomic_bitmap_reject_count)
+        result.osvm_reject_seen = me.markSeen(inventory.osvm_reject_count)
+        result.worker_reject_seen = me.markSeen(inventory.worker_reject_count)
+        result.provider_reject_seen = me.markSeen(inventory.provider_reject_count)
+        result.backend_matcher_reject_seen = me.markSeen(inventory.backend_matcher_reject_count)
+        me.last_reason = reason
+        return result
+    }
+
+    reject(reason, inventory, last_report): HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityDiagnosticReport {
+        me.reject_summary_count += 1
+        if reason == 1 {
+            me.missing_inventory_reject_count += 1
+        }
+        return me.makeReport(0, reason, inventory, last_report)
+    }
+
+    observeCapabilityDiagnostics(inventory, last_report): HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityDiagnosticReport {
+        me.observe_count += 1
+
+        if inventory.inventory_count <= 0 {
+            return me.reject(1, inventory, last_report)
+        }
+        if last_report.capability_present != 1 {
+            return me.reject(1, inventory, last_report)
+        }
+        if last_report.no_escape_address_capability_present != 1 {
+            return me.reject(1, inventory, last_report)
+        }
+
+        me.accepted_summary_count += 1
+        me.last_reason = 0
+        return me.makeReport(1, last_report.reason, inventory, last_report)
+    }
+}

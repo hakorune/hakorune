@@ -1,6 +1,6 @@
 # 293x-768 MIMAP-245A Segment Arena Backing No-Escape Address Capability Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -42,6 +42,32 @@ before closeout.
 ## Required Evidence
 
 ```text
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_no_escape_address_capability_diagnostics_guard.sh --level L2
+bash tools/checks/run_proof_app.sh --only MIMAP-245A
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Landed Scope
+
+- Added the no-escape address capability diagnostics owner and typed report.
+- Added a proof app that observes MIMAP-244A counters and last capability
+  report facts without recording new capability rows from the diagnostic owner.
+- Added the MIMAP-245A L2 guard, proof manifest entry, check index entry, and
+  diagnostics SSOT.
+
+## Selected Next Row
+
+MIMAP-245A selects:
+
+```text
+MIMAP-246A segment arena backing no-escape address capability closeout pack
+```
+
+Reason:
+
+```text
+the no-escape address capability inventory and observer diagnostics are now
+present. Close out the family with representative exact-MIR L3 evidence before
+selecting the next allocator bridge.
 ```

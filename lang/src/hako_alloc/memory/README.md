@@ -34,6 +34,7 @@ Current modules
 - `segment_arena_backing_readiness_diagnostic_box.hako`
 - `segment_arena_backing_readiness_inventory_box.hako`
 - `segment_arena_backing_no_escape_address_capability_box.hako`
+- `segment_arena_backing_no_escape_address_capability_diagnostic_box.hako`
 - `segment_arena_backing_requirement_matrix_diagnostic_box.hako`
 - `segment_arena_backing_requirement_matrix_box.hako`
 - `segment_lifecycle_scalar_state_box.hako`
@@ -511,6 +512,13 @@ Syntax/style contract
   scalar owner/lifetime/address-carrier facts plus escape blockers. It must not
   create pointer residence, perform pointer-derived lookup, allocate arena
   backing, mutate a real segment-map, execute atomic bitmap claims, call
+  page-source or OSVM seams, schedule workers, activate provider hooks, replace
+  the host allocator, or add backend shortcuts.
+- `segment_arena_backing_no_escape_address_capability_diagnostic_box.hako` owns
+  MIMAP-245A. It may observe MIMAP-244A no-escape address capability counters
+  and publish scalar diagnostic summary facts. It must not record capability
+  rows, create pointer residence, perform pointer-derived lookup, allocate
+  arena backing, mutate a real segment-map, execute atomic bitmap claims, call
   page-source or OSVM seams, schedule workers, activate provider hooks, replace
   the host allocator, or add backend shortcuts.
 - `object_lifecycle_facade_huge_failfast_box.hako` owns the MIMAP-022B facade

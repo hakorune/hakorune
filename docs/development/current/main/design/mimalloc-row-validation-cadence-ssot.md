@@ -170,8 +170,9 @@ MIMAP-242A segment arena backing requirement matrix closeout pack
 
 ## Active Segment Arena Backing No-Escape Address Capability Family
 
-The no-escape address capability rows stay scalar/model-only. They do not
-create pointer residence or pointer-derived lookup.
+The segment arena backing no-escape address capability rows stay
+scalar/model-only. They do not create pointer residence or pointer-derived
+lookup.
 
 ```toml
 [[proof_apps]]
@@ -190,6 +191,9 @@ MIMAP-244A segment arena backing no-escape address capability inventory
 
 MIMAP-245A segment arena backing no-escape address capability diagnostics
   L2 daily: observer/reject summary only
+
+MIMAP-246A segment arena backing no-escape address capability closeout pack
+  L3 representative exact-MIR evidence for segment-arena-backing-no-escape-address-capability
 ```
 
 ## Row-Type Rules
