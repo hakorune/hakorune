@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-18"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-178A landed by closing the segment-map local-free apply-plan bridge pack with representative exact-MIR L3 EXE evidence; MIMAP-179A is the active planning blocker for the next narrow allocator row. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-180A landed by connecting the segment-map local-free apply-plan row to the existing modeled page-apply owner; MIMAP-181A is the active planning blocker for the next narrow allocator row. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-701-MIMAP-179A-POST-SEGMENT-MAP-LOCAL-FREE-APPLY-PLAN-BRIDGE-CLOSEOUT-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-703-MIMAP-181A-POST-SEGMENT-MAP-LOCAL-FREE-PAGE-APPLY-BRIDGE-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-700-MIMAP-178A-SEGMENT-MAP-LOCAL-FREE-APPLY-PLAN-BRIDGE-CLOSEOUT-PACK"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-700-MIMAP-178A-SEGMENT-MAP-LOCAL-FREE-APPLY-PLAN-BRIDGE-CLOSEOUT-PACK.md"
-latest_card_summary = "MIMAP-178A landed by adding the segment-map local-free apply-plan bridge closeout SSOT, manifest-backed closeout guard, and representative exact-MIR L3 EXE evidence for MIMAP-176A; MIMAP-179A selected current."
+latest_card = "293x-702-MIMAP-180A-SEGMENT-MAP-LOCAL-FREE-PAGE-APPLY-BRIDGE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-702-MIMAP-180A-SEGMENT-MAP-LOCAL-FREE-PAGE-APPLY-BRIDGE.md"
+latest_card_summary = "MIMAP-180A landed by adding a segment-map local-free page-apply bridge proof app, L2 guard, proof manifest row, owner README note, and SSOT; MIMAP-181A selected current."
 
-current_blocker_token = "MIMAP-179A"
+current_blocker_token = "MIMAP-181A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-702 MIMAP-180A segment-map local-free page-apply bridge landed; MIMAP-181A selected",
+  "293x-701 MIMAP-179A post-segment-map-local-free-apply-plan-bridge-closeout row selection landed; MIMAP-180A selected",
   "293x-700 MIMAP-178A segment-map local-free apply-plan bridge closeout pack landed; MIMAP-179A selected",
   "293x-699 MIMAP-177A post-segment-map-local-free-apply-plan-bridge row selection landed; MIMAP-178A selected",
   "293x-698 MIMAP-176A segment-map local-free apply-plan bridge landed; MIMAP-177A selected",

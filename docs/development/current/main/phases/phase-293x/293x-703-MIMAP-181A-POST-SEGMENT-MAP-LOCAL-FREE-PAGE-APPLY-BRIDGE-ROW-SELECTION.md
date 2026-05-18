@@ -1,12 +1,12 @@
-# 293x-701 MIMAP-179A Post Segment Map Local Free Apply Plan Bridge Closeout Row Selection
+# 293x-703 MIMAP-181A Post Segment Map Local Free Page Apply Bridge Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-18
 
 ## Decision
 
-Choose MIMAP-180A as the next narrow row after MIMAP-178A closes the
-segment-map local-free apply-plan bridge pack.
+Choose the next narrow row after MIMAP-180A proves the segment-map local-free
+page-apply bridge.
 
 ## Context
 
@@ -19,14 +19,14 @@ explicit-ID readiness
   -> released-span ledger can observe the segment-map release report
   -> local-free candidate ledger can consume that released-span row
   -> local-free apply-plan ledger can consume that candidate row
-  -> representative exact-MIR L3 EXE evidence
+  -> modeled page-apply can consume that apply-plan row
 ```
 
-The selected row is MIMAP-180A segment-map local-free page-apply bridge. It
-should prove the segment-map-derived apply-plan row can feed the existing
-MIMAP-115A modeled page-apply owner before local-free integration observation,
-raw pointer residence, arena backing, real segment-map execution, real
-free-list mutation, real page-state mutation, or atomic bitmap behavior.
+The next row should choose between a page-apply bridge closeout, local-free
+integration observation from the segment-map chain, or a cleanup sidecar. It
+should not jump directly to raw pointer residence, arena backing, real
+segment-map execution, real free-list mutation, real page-state mutation, or
+atomic bitmap behavior.
 
 ## Stop Lines
 
@@ -35,8 +35,7 @@ free-list mutation, real page-state mutation, or atomic bitmap behavior.
 - No real segment-map mutation.
 - No real free-list mutation unless a future row explicitly selects a modeled
   bridge and keeps execution closed.
-- No page-state mutation unless a future modeled page-apply row explicitly
-  selects it with execution closed.
+- No direct page-array mutation outside explicit modeled page owners.
 - No arena backing allocation.
 - No atomic bitmap execution.
 - No OSVM/page-source execution.
@@ -51,10 +50,4 @@ free-list mutation, real page-state mutation, or atomic bitmap behavior.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
-```
-
-## Selected Row
-
-```text
-MIMAP-180A segment-map local-free page-apply bridge
 ```

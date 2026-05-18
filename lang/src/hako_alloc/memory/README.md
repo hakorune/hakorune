@@ -342,6 +342,11 @@ Syntax/style contract
   directly, use raw pointer residence, perform segment-map lookup, execute
   atomic bitmap claims, call page-source/OSVM seams, schedule workers, activate
   provider hooks, replace the host allocator, or add backend shortcuts.
+  It also owns MIMAP-180A. It may consume apply-plan rows produced from the
+  segment-map bridge and apply the same modeled local-free block span through
+  the explicit page model, while keeping real allocator free-list mutation,
+  raw pointer residence, real segment-map execution, and backend shortcuts
+  closed.
 - `segment_allocation_modeled_local_free_integration_box.hako` owns
   MIMAP-119A. It may compose the existing MIMAP-109A local-free candidate
   ledger, MIMAP-111A apply-plan ledger, and MIMAP-115A page-model apply route

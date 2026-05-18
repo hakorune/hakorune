@@ -1082,6 +1082,37 @@ OSVM/page-source execution, worker scheduling, provider activation,
 cross-function `Result` direct ABI, runtime sum materialization, or backend
 matchers.
 
+MIMAP-179A landed by selecting MIMAP-180A.
+
+### MIMAP-180A granularity
+
+MIMAP-180A proves that a segment-map-derived local-free apply-plan row can be
+consumed by the existing MIMAP-115A modeled page-apply owner. The row may use
+`HakoAllocPageModel.releaseLocal` through that owner, but it does not mutate a
+real allocator free-list or real page state.
+
+It must not open real segment allocation/free execution, raw pointer
+residence, real segment-map mutation, arena backing, atomic bitmap execution,
+OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, or backend
+matchers.
+
+MIMAP-180A landed by adding the segment-map local-free page-apply bridge proof
+app, L2 guard, proof manifest row, owner README note, and SSOT. It selected
+MIMAP-181A.
+
+### MIMAP-181A granularity
+
+MIMAP-181A is a planning row after the segment-map local-free page-apply
+bridge. It should choose between a page-apply bridge closeout, local-free
+integration observation from the segment-map chain, or a cleanup sidecar.
+
+It must not open real segment allocation/free execution, raw pointer
+residence, real segment-map mutation, arena backing, atomic bitmap execution,
+OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, or backend
+matchers.
+
 
 ## Historical Granularity Anchors
 
