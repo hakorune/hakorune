@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-263A
+  MIMAP-264A
 
 current choice boundary:
-  post modeled source bridge closeout row selection
+  modeled source accounting inventory after modeled source bridge closeout
   while keeping real pointer residence, pointer lookup, and real arena backing closed
 
 closed until explicitly reopened:
@@ -447,7 +447,8 @@ Forbidden:
 | `MIMAP-260A` | segment arena backing modeled source bridge inventory | landed; selected MIMAP-261A |
 | `MIMAP-261A` | segment arena backing modeled source bridge diagnostics | landed; selected MIMAP-262A |
 | `MIMAP-262A` | segment arena backing modeled source bridge closeout pack | landed; selected MIMAP-263A |
-| `MIMAP-263A` | post-segment-arena-backing-modeled-source-bridge-closeout row selection | selected current |
+| `MIMAP-263A` | post-segment-arena-backing-modeled-source-bridge-closeout row selection | landed; selected MIMAP-264A |
+| `MIMAP-264A` | segment arena backing modeled source accounting inventory | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2556,6 +2557,22 @@ real arena backing allocation, real segment-map mutation, atomic bitmap
 execution, OSVM/page-source execution, worker/provider activation,
 cross-function `Result` direct ABI, runtime sum materialization, or backend
 matcher rows unless the selected row explicitly reopens one.
+
+MIMAP-263A landed by selecting MIMAP-264A modeled source accounting inventory.
+
+### MIMAP-264A granularity
+
+MIMAP-264A segment arena backing modeled source accounting inventory.
+
+MIMAP-264A should add scalar/model accounting over accepted modeled source
+bridge reports. It should publish source capacity, committed bytes,
+uncommitted bytes, slot capacity, and padded-byte accounting while rejecting
+missing/rejected source bridge reports, invalid source token, invalid
+capacity/commit geometry, and closed-substrate requirements. It must not open
+real pointer residence, pointer-derived lookup, real arena backing allocation,
+real segment-map mutation, atomic bitmap execution, OSVM/page-source execution,
+worker/provider activation, cross-function `Result` direct ABI, runtime sum
+materialization, or backend matcher rows.
 
 
 ## Historical Granularity Anchors

@@ -1,6 +1,6 @@
 # 293x-786 MIMAP-263A Post Segment Arena Backing Modeled Source Bridge Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -43,3 +43,17 @@ real pointer residence or real arena allocation.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Decision
+
+Selected `MIMAP-264A` segment arena backing modeled source accounting
+inventory.
+
+Rationale:
+
+- MIMAP-260A/261A/262A proved modeled source bridge facts and diagnostics.
+- The next smallest bridge is scalar/model accounting over the accepted source
+  bridge, not real arena allocation.
+- Real pointer residence, pointer-derived lookup, arena backing allocation,
+  segment-map mutation, atomic bitmap execution, OSVM/page-source execution,
+  worker/provider activation, and backend matchers remain closed.

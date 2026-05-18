@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-263A` is current after MIMAP-262A landed the segment arena backing
-modeled source bridge closeout.
+`MIMAP-264A` is current after MIMAP-263A selected modeled source accounting
+after the segment arena backing modeled source bridge closeout.
 
 Recommended current row:
 
 ```text
-MIMAP-263A
-  post segment arena backing modeled source bridge closeout row selection
+MIMAP-264A
+  segment arena backing modeled source accounting inventory
 ```
 
 Purpose:
 
 ```text
-select the next narrow arena-backing bridge after modeled source bridge closeout
+record scalar/model source-backed arena accounting before real arena allocation
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real pointer residence, real arena backing allocation, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -309,7 +309,8 @@ no provider activation
 | 238 | allocator inventory | `MIMAP-260A segment arena backing modeled source bridge inventory` | landed; selected MIMAP-261A |
 | 239 | allocator diagnostic | `MIMAP-261A segment arena backing modeled source bridge diagnostics` | landed; selected MIMAP-262A |
 | 240 | closeout | `MIMAP-262A segment arena backing modeled source bridge closeout pack` | landed; selected MIMAP-263A |
-| 241 | planning | `MIMAP-263A post-segment-arena-backing-modeled-source-bridge-closeout row selection` | selected current |
+| 241 | planning | `MIMAP-263A post-segment-arena-backing-modeled-source-bridge-closeout row selection` | landed; selected MIMAP-264A |
+| 242 | allocator inventory | `MIMAP-264A segment arena backing modeled source accounting inventory` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

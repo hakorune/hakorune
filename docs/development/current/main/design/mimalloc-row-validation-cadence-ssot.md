@@ -315,6 +315,9 @@ MIMAP-262A segment arena backing modeled source bridge closeout pack
 
 MIMAP-263A post-segment-arena-backing-modeled-source-bridge-closeout row selection
   L0 planning: select the next narrow bridge
+
+MIMAP-264A segment arena backing modeled source accounting inventory
+  L2 daily: static + VM + MIR JSON/route preflight
 ```
 
 ## Row-Type Rules
