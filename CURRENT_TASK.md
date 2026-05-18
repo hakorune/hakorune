@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-221A post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition row selection`
+  `MIMAP-223A post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition-closeout row selection`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -76,9 +76,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-221A`,
-  the post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition
-  planning row selected by MIMAP-220A.
+- resume point: continue Phase 293x with `MIMAP-223A`,
+  the post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition-closeout
+  planning row selected by MIMAP-222A.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -86,8 +86,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-221A`: choose the next narrow row after segment-map local-free
-     reuse ledger lifecycle-token release-key precondition observer
+  1. `MIMAP-223A`: choose the next narrow row after segment-map local-free
+     reuse ledger lifecycle-token release-key precondition closeout
   2. keep raw pointer residence, real segment-map execution, and provider
      activation closed
   3. keep cross-function `Result` direct ABI and runtime sum materialization

@@ -406,7 +406,9 @@ Forbidden:
 | `MIMAP-218A` | segment-map local-free reuse ledger lifecycle-token observer diagnostic closeout pack | landed; selected MIMAP-219A |
 | `MIMAP-219A` | post-segment-map-local-free-reuse-ledger-lifecycle-token-observer-diagnostic-closeout row selection | landed; selected MIMAP-220A |
 | `MIMAP-220A` | segment-map local-free reuse ledger lifecycle-token release-key precondition observer | landed; selected MIMAP-221A |
-| `MIMAP-221A` | post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition row selection | selected current |
+| `MIMAP-221A` | post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition row selection | landed; selected MIMAP-222A |
+| `MIMAP-222A` | segment-map local-free reuse ledger lifecycle-token release-key precondition closeout pack | landed; selected MIMAP-223A |
+| `MIMAP-223A` | post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition-closeout row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -1838,6 +1840,43 @@ MIMAP-221A is a planning row after the lifecycle-token release-key precondition
 observer. It should choose whether to close the precondition observer pack, add
 one more blocked-precondition diagnostic, or continue toward a later modeled
 release/recycle bridge while real allocator execution remains closed.
+
+It must not migrate release-ledger keys unless the next row explicitly selects
+that row. It must keep real generation/lifecycle semantics, real segment
+allocation/free execution, raw pointer residence, real segment-map mutation,
+allocator free-list mutation, arena backing, atomic bitmap execution,
+OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, and backend
+matchers closed.
+
+MIMAP-221A landed by selecting MIMAP-222A, the release-key precondition closeout
+pack.
+
+### MIMAP-222A granularity
+
+MIMAP-222A closes the lifecycle-token release-key precondition pack with
+representative exact-MIR L3 EXE evidence. Daily behavior remains owned by
+MIMAP-220A and its L2 guard; MIMAP-222A proves the same exact MIR artifact can
+lower to an executable and produce the same precondition diagnostic output.
+
+It must not migrate release-ledger keys, define real generation/lifecycle
+semantics, mutate source reuse ledger or release owner state, or open real
+segment allocation/free execution, raw pointer residence, real segment-map
+mutation, allocator free-list mutation, arena backing, atomic bitmap execution,
+OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, or backend
+matchers.
+
+MIMAP-222A landed by adding the closeout SSOT, manifest-backed closeout guard,
+guard manifest row, check-script index entry, phase card, and current pointers.
+It selected MIMAP-223A.
+
+### MIMAP-223A granularity
+
+MIMAP-223A is a planning row after the lifecycle-token release-key precondition
+closeout. It should choose whether to keep release-key migration parked and move
+to another modeled bridge, add a narrower pre-migration diagnostic, or
+explicitly select a release-ledger key migration row.
 
 It must not migrate release-ledger keys unless the next row explicitly selects
 that row. It must keep real generation/lifecycle semantics, real segment

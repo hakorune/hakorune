@@ -402,7 +402,7 @@ segment-map local-free reuse ledger lifecycle-token release-key precondition fam
     exe = deferred-to-closeout
   closeout pack:
     closeout_pack = segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition
-    representative L3 EXE evidence deferred to a future closeout row
+    representative L3 EXE evidence in MIMAP-222A
 
 cleanup row using C199 compound assignment:
   L1 C199 guard

@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-221A` is current after MIMAP-220A added the lifecycle-token release-key
-precondition observer.
+`MIMAP-223A` is current after MIMAP-222A closed the lifecycle-token release-key
+precondition pack.
 
 Recommended current row:
 
 ```text
-MIMAP-221A
-  post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition row selection
+MIMAP-223A
+  post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition-closeout row selection
 ```
 
 Purpose:
 
 ```text
-choose the next narrow row after segment-map local-free reuse ledger lifecycle-token release-key precondition observer
+choose the next narrow row after segment-map local-free reuse ledger lifecycle-token release-key precondition closeout
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -267,7 +267,9 @@ no provider activation
 | 196 | closeout | `MIMAP-218A segment-map local-free reuse ledger lifecycle-token observer diagnostic closeout pack` | landed; selected MIMAP-219A |
 | 197 | planning | `MIMAP-219A post-segment-map-local-free-reuse-ledger-lifecycle-token-observer-diagnostic-closeout row selection` | landed; selected MIMAP-220A |
 | 198 | allocator | `MIMAP-220A segment-map local-free reuse ledger lifecycle-token release-key precondition observer` | landed; selected MIMAP-221A |
-| 199 | planning | `MIMAP-221A post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition row selection` | selected current |
+| 199 | planning | `MIMAP-221A post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition row selection` | landed; selected MIMAP-222A |
+| 200 | closeout | `MIMAP-222A segment-map local-free reuse ledger lifecycle-token release-key precondition closeout pack` | landed; selected MIMAP-223A |
+| 201 | planning | `MIMAP-223A post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition-closeout row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

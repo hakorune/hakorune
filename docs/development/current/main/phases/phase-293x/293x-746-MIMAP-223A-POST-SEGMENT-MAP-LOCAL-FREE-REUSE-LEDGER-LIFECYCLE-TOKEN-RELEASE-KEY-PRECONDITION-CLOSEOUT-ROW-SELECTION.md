@@ -1,18 +1,12 @@
-# 293x-744 MIMAP-221A Post Segment Map Local Free Reuse Ledger Lifecycle-Token Release-Key Precondition Row Selection
+# 293x-746 MIMAP-223A Post Segment Map Local Free Reuse Ledger Lifecycle-Token Release-Key Precondition Closeout Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-19
 
 ## Decision
 
-Choose the next narrow row after MIMAP-220A adds the lifecycle-token release-key
-precondition observer.
-
-Selected row:
-
-```text
-MIMAP-222A segment-map local-free reuse ledger lifecycle-token release-key precondition closeout pack
-```
+Choose the next narrow row after MIMAP-222A closes the lifecycle-token
+release-key precondition pack.
 
 ## Context
 
@@ -24,16 +18,12 @@ release-applied recycle creates a live modeled reuse row
   -> lifecycle-token facts exist
   -> observer confirms release key remains modeled reuse token
   -> precondition observer classifies future migration readiness
+  -> representative exact-MIR L3 EXE evidence covers the precondition pack
 ```
 
-The next row should choose whether to close the precondition observer pack,
-add one more diagnostic around blocked migration conditions, or choose the next
-modeled bridge while real allocator execution remains closed.
-
-MIMAP-221A selects the closeout pack. MIMAP-220A already proves accepted,
-missing-observer, missing-duplicate, insufficient-lifecycle-count, and
-unsupported-requirement paths under daily L2 validation, so the next durable
-step is representative exact-MIR L3 EXE evidence for the pack.
+The next row should choose whether to keep release-key migration parked and move
+to another modeled bridge, add a narrower pre-migration diagnostic, or explicitly
+select a release-ledger key migration row.
 
 ## Stop Lines
 
@@ -58,10 +48,4 @@ step is representative exact-MIR L3 EXE evidence for the pack.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
-```
-
-## Next
-
-```text
-MIMAP-222A segment-map local-free reuse ledger lifecycle-token release-key precondition closeout pack
 ```
