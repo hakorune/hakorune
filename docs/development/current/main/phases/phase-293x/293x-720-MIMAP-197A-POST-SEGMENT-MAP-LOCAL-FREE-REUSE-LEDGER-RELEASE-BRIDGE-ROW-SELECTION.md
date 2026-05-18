@@ -1,12 +1,12 @@
-# 293x-717 MIMAP-195A Post Segment Map Local Free Reuse Ledger Bridge Closeout Row Selection
+# 293x-720 MIMAP-197A Post Segment Map Local Free Reuse Ledger Release Bridge Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-18
 
 ## Decision
 
-Choose MIMAP-196A as the next narrow row after MIMAP-194A closes the
-segment-map local-free reuse ledger bridge pack.
+Choose the next narrow row after MIMAP-196A proves the segment-map local-free
+reuse ledger release bridge.
 
 ## Context
 
@@ -23,27 +23,14 @@ explicit-ID readiness
   -> modeled local-free integration owner can consume that released-span row
   -> modeled local-free reuse owner can reuse one local-free block
   -> modeled local-free reuse ledger owner records the reuse row
-  -> representative exact-MIR EXE parity for the reuse ledger bridge pack
+  -> modeled local-free reuse ledger release owner records the release row
 ```
 
-The next row is:
-
-```text
-MIMAP-196A segment-map local-free reuse ledger release bridge
-```
-
-Rationale:
-
-- MIMAP-194A closed the reuse ledger bridge pack with representative EXE
-  evidence.
-- The existing MIMAP-134A release owner already records scalar release facts
-  for reuse ledger rows.
-- Connecting the segment-map-derived reuse ledger row to that owner is the
-  smallest next bridge before release-apply or recycle behavior.
-
-It should not jump directly to raw pointer residence, arena backing, real
-segment-map execution, real free-list mutation, real page-state mutation, or
-atomic bitmap behavior.
+The next row should choose between a reuse-ledger release bridge closeout pack,
+a release-apply bridge, or a small observer/diagnostic sidecar. It should not
+jump directly to raw pointer residence, arena backing, real segment-map
+execution, real free-list mutation, real page-state mutation, or atomic bitmap
+behavior.
 
 ## Stop Lines
 
@@ -65,11 +52,6 @@ atomic bitmap behavior.
 ## Required Evidence
 
 ```text
-bash tools/checks/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_release_bridge_guard.sh
-```
-
-## Next
-
-```text
-MIMAP-196A segment-map local-free reuse ledger release bridge
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
 ```

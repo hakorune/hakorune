@@ -1350,6 +1350,42 @@ backing, atomic bitmap execution, OSVM/page-source execution, worker
 scheduling, provider activation, cross-function `Result` direct ABI, runtime
 sum materialization, or backend matchers.
 
+MIMAP-195A landed by selecting MIMAP-196A.
+
+### MIMAP-196A granularity
+
+MIMAP-196A proves that a segment-map-derived local-free reuse ledger row can be
+recorded by the existing modeled local-free reuse ledger release owner. It
+connects the segment-map chain to the MIMAP-134A release route while keeping
+the same scalar/model boundary:
+
+```text
+segment-map local-free reuse ledger row
+  -> modeled local-free reuse ledger release owner
+```
+
+It must not open real segment allocation/free execution, raw pointer
+residence, real segment-map mutation, real allocator free-list mutation, arena
+backing, atomic bitmap execution, OSVM/page-source execution, worker
+scheduling, provider activation, cross-function `Result` direct ABI, runtime
+sum materialization, or backend matchers.
+
+MIMAP-196A landed by adding the segment-map local-free reuse ledger release
+bridge proof app, SSOT, L2 guard, proof manifest row, and current pointers. It
+selected MIMAP-197A.
+
+### MIMAP-197A granularity
+
+MIMAP-197A is a planning row after the segment-map local-free reuse ledger
+release bridge. It should choose between a release bridge closeout pack, a
+release-apply bridge, or a small observer/diagnostic sidecar.
+
+It must not open real segment allocation/free execution, raw pointer
+residence, real segment-map mutation, real allocator free-list mutation, arena
+backing, atomic bitmap execution, OSVM/page-source execution, worker
+scheduling, provider activation, cross-function `Result` direct ABI, runtime
+sum materialization, or backend matchers.
+
 
 ## Historical Granularity Anchors
 

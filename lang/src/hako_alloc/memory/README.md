@@ -391,7 +391,8 @@ Syntax/style contract
   replace the host allocator, or add backend shortcuts.
 - `segment_allocation_modeled_local_free_reuse_ledger_release_box.hako` owns
   MIMAP-134A. It may consume successful MIMAP-130A local-free reuse ledger
-  reports and record one scalar release row per modeled reuse token. It must not
+  reports and record one scalar release row per modeled reuse token. MIMAP-196A
+  may feed it a segment-map-derived local-free reuse ledger row. It must not
   mutate the source reuse ledger, widen the bump-shaped modeled ledger contract,
   execute real segment allocation/free, mutate page arrays, use raw pointer
   residence, perform segment-map lookup, allocate arena backing, execute atomic
