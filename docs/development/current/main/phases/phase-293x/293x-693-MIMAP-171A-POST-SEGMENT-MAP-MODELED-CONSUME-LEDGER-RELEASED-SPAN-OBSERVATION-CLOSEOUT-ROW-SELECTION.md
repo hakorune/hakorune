@@ -1,12 +1,12 @@
-# 293x-691 MIMAP-169A Post Segment Map Modeled Consume Ledger Released Span Observation Row Selection
+# 293x-693 MIMAP-171A Post Segment Map Modeled Consume Ledger Released Span Observation Closeout Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-18
 
 ## Decision
 
-Choose MIMAP-170A as the next narrow row after MIMAP-168A proves segment-map
-released-span observation.
+Choose the next narrow row after MIMAP-170A closes segment-map released-span
+observation.
 
 ## Context
 
@@ -18,13 +18,13 @@ explicit-ID readiness
   -> modeled ledger release report
   -> released token can become a new live modeled row
   -> released-span ledger can observe the segment-map release report
+  -> representative exact-MIR L3 EXE evidence
 ```
 
-The selected row is MIMAP-170A segment-map modeled consume-ledger
-released-span observation closeout. It should carry representative exact-MIR
-L3 EXE evidence for MIMAP-168A before local-free/free-list bridge preparation,
-raw pointer residence, arena backing, real segment-map execution, or atomic
-bitmap behavior.
+The next row should choose between local-free/free-list bridge preparation,
+modeled free-list observation, or a cleanup sidecar. It should not jump
+directly to raw pointer residence, arena backing, real segment-map execution,
+or atomic bitmap behavior.
 
 ## Stop Lines
 
@@ -47,10 +47,4 @@ bitmap behavior.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
-```
-
-## Selected Row
-
-```text
-MIMAP-170A segment-map modeled consume ledger released-span observation closeout pack
 ```

@@ -923,6 +923,38 @@ OSVM/page-source execution, worker scheduling, provider activation,
 cross-function `Result` direct ABI, runtime sum materialization, or backend
 matchers.
 
+MIMAP-169A landed by selecting MIMAP-170A.
+
+### MIMAP-170A granularity
+
+MIMAP-170A is the closeout pack for MIMAP-168A. It should carry
+representative L3 EXE evidence for segment-map modeled consume-ledger
+released-span observation while keeping daily validation on L2.
+
+It must not open real segment allocation/free execution, free-list mutation,
+raw pointer residence, real segment-map mutation, arena backing, atomic bitmap
+execution, OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, or backend
+matchers.
+
+MIMAP-170A landed by adding the released-span observation closeout SSOT,
+manifest-backed closeout guard, and representative exact-MIR L3 EXE evidence.
+It selected MIMAP-171A.
+
+### MIMAP-171A granularity
+
+MIMAP-171A is a planning row after segment-map modeled consume-ledger
+released-span observation closeout. It should choose between local-free /
+free-list bridge preparation, modeled free-list observation, or a cleanup
+sidecar before opening raw pointer residence, arena backing, real segment-map
+execution, or atomic bitmap behavior.
+
+It must not open real segment allocation/free execution, raw pointer residence,
+real segment-map mutation, arena backing, atomic bitmap execution,
+OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, or backend
+matchers.
+
 
 ## Historical Granularity Anchors
 
