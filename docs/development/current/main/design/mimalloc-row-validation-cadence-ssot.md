@@ -146,6 +146,13 @@ row_kind = "inventory"
 validation_profile = "scalar-mir"
 closeout_pack = "segment-arena-backing-requirement-matrix"
 exe = "deferred-to-closeout"
+
+[[proof_apps]]
+id = "MIMAP-241A"
+row_kind = "scalar-diagnostic"
+validation_profile = "scalar-mir"
+closeout_pack = "segment-arena-backing-requirement-matrix"
+exe = "deferred-to-closeout"
 ```
 
 Planned continuation:
@@ -157,7 +164,7 @@ MIMAP-240A segment arena backing scalar requirement matrix inventory
 MIMAP-241A segment arena backing requirement matrix diagnostics
   L2 daily: observer/reject summary only
 
-future closeout pack
+MIMAP-242A segment arena backing requirement matrix closeout pack
   L3 representative exact-MIR evidence for segment-arena-backing-requirement-matrix
 ```
 

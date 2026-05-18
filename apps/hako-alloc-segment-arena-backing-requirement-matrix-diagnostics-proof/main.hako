@@ -1,0 +1,130 @@
+// hako-alloc-segment-arena-backing-requirement-matrix-diagnostics-proof
+// Purpose: prove MIMAP-241A observer-only diagnostics.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_readiness_inventory_box as HakoAllocSegmentArenaBackingReadinessInventory
+using selfhost.hako_alloc.memory.segment_arena_backing_readiness_diagnostic_box as HakoAllocSegmentArenaBackingReadinessDiagnostic
+using selfhost.hako_alloc.memory.segment_arena_backing_requirement_matrix_box as HakoAllocSegmentArenaBackingRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_requirement_matrix_diagnostic_box as HakoAllocSegmentArenaBackingRequirementMatrixDiagnostic
+
+static box Main {
+    makeReadiness(segment_id: i64, arena_id: i64, slice_count: i64, committed_slices: i64, free_slices: i64): HakoAllocSegmentArenaBackingReadinessInventoryReport {
+        local report = new HakoAllocSegmentArenaBackingReadinessInventoryReport()
+        report.accepted = 1
+        report.reason = 0
+        report.segment_id = segment_id
+        report.arena_id = arena_id
+        report.slice_count = slice_count
+        report.committed_slices = committed_slices
+        report.free_slices = free_slices
+        report.required_alignment = 8
+        report.page_size = 4096
+        report.arena_backing_readiness_present = 1
+        report.scalar_arena_backing_model = 1
+        return report
+    }
+
+    makeReadinessReject(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingReadinessInventoryReport {
+        local report = Main.makeReadiness(segment_id, arena_id, 16, 8, 8)
+        report.accepted = 0
+        report.reason = 8
+        return report
+    }
+
+    makeDiagnostic(): HakoAllocSegmentArenaBackingReadinessDiagnosticReport {
+        local report = new HakoAllocSegmentArenaBackingReadinessDiagnosticReport()
+        report.observed = 1
+        report.reason = 0
+        report.diagnostic_present = 1
+        return report
+    }
+
+    main(args) {
+        local requirement_matrix = new HakoAllocSegmentArenaBackingRequirementMatrixInventory()
+        local observer = new HakoAllocSegmentArenaBackingRequirementMatrixDiagnostic()
+
+        local readiness = Main.makeReadiness(70, 7, 16, 8, 8)
+        local readiness_reject_source = Main.makeReadinessReject(70, 7)
+        local diagnostic = Main.makeDiagnostic()
+        local empty_diagnostic = new HakoAllocSegmentArenaBackingReadinessDiagnosticReport()
+
+        local invalid_shape = Main.makeReadiness(70, 7, 0, 0, 0)
+
+        local accepted = requirement_matrix.recordRequirementMatrix(readiness, diagnostic, 0, 0, 0, 0, 0, 0, 0, 0)
+        local readiness_rejected = requirement_matrix.recordRequirementMatrix(readiness_reject_source, diagnostic, 0, 0, 0, 0, 0, 0, 0, 0)
+        local diagnostic_rejected = requirement_matrix.recordRequirementMatrix(readiness, empty_diagnostic, 0, 0, 0, 0, 0, 0, 0, 0)
+        local invalid = requirement_matrix.recordRequirementMatrix(invalid_shape, diagnostic, 0, 0, 0, 0, 0, 0, 0, 0)
+        local arena_blocked = requirement_matrix.recordRequirementMatrix(readiness, diagnostic, 1, 0, 0, 0, 0, 0, 0, 0)
+        local raw_blocked = requirement_matrix.recordRequirementMatrix(readiness, diagnostic, 0, 1, 0, 0, 0, 0, 0, 0)
+        local segment_map_blocked = requirement_matrix.recordRequirementMatrix(readiness, diagnostic, 0, 0, 1, 0, 0, 0, 0, 0)
+        local atomic_blocked = requirement_matrix.recordRequirementMatrix(readiness, diagnostic, 0, 0, 0, 1, 0, 0, 0, 0)
+        local osvm_blocked = requirement_matrix.recordRequirementMatrix(readiness, diagnostic, 0, 0, 0, 0, 1, 0, 0, 0)
+        local worker_blocked = requirement_matrix.recordRequirementMatrix(readiness, diagnostic, 0, 0, 0, 0, 0, 1, 0, 0)
+        local provider_blocked = requirement_matrix.recordRequirementMatrix(readiness, diagnostic, 0, 0, 0, 0, 0, 0, 1, 0)
+        local backend_blocked = requirement_matrix.recordRequirementMatrix(readiness, diagnostic, 0, 0, 0, 0, 0, 0, 0, 1)
+
+        local observed = observer.observeRequirementMatrixDiagnostics(requirement_matrix, backend_blocked)
+        local empty_inventory = new HakoAllocSegmentArenaBackingRequirementMatrixInventory()
+        local empty_report = new HakoAllocSegmentArenaBackingRequirementMatrixReport()
+        local empty_observed = observer.observeRequirementMatrixDiagnostics(empty_inventory, empty_report)
+
+        local ok = check "mimap241a segment arena backing requirement matrix diagnostics" {
+            "observed": observed.observed == 1
+            "reason mirrors last": observed.reason == 11
+            "diagnostic present": observed.diagnostic_present == 1
+            "inventory count": observed.inventory_count == 12
+            "accepted count": observed.accepted_count == 1
+            "reject count": observed.reject_count == 11
+            "blocked requirement count": observed.blocked_requirement_reject_count == 8
+            "last reason": observed.last_reason == 11
+            "last segment": observed.last_segment_id == 70
+            "last arena": observed.last_arena_id == 7
+            "last report accepted": observed.last_report_accepted == 0
+            "last report reason": observed.last_report_reason == 11
+            "last report blocked": observed.last_report_blocked_requirement_count == 1
+            "matrix present": observed.matrix_present == 1
+            "scalar matrix present": observed.scalar_requirement_matrix_present == 1
+            "readiness seen": observed.readiness_reject_seen == 1
+            "matrix diagnostic seen": observed.matrix_diagnostic_reject_seen == 1
+            "geometry seen": observed.geometry_reject_seen == 1
+            "arena seen": observed.arena_requirement_reject_seen == 1
+            "raw seen": observed.raw_pointer_requirement_reject_seen == 1
+            "segment map seen": observed.segment_map_requirement_reject_seen == 1
+            "atomic seen": observed.atomic_bitmap_requirement_reject_seen == 1
+            "osvm seen": observed.osvm_requirement_reject_seen == 1
+            "worker seen": observed.worker_requirement_reject_seen == 1
+            "provider seen": observed.provider_requirement_reject_seen == 1
+            "backend seen": observed.backend_matcher_requirement_reject_seen == 1
+            "observer count": observer.observe_count == 2
+            "accepted summary count": observer.accepted_summary_count == 1
+            "reject summary count": observer.reject_summary_count == 1
+            "missing inventory reject": observer.missing_inventory_reject_count == 1
+            "empty rejected": empty_observed.observed == 0
+            "empty reason": empty_observed.reason == 1
+            "empty matrix present": empty_observed.matrix_present == 0
+            "inactive arena allocation": observed.would_allocate_arena_backing == 0
+            "inactive raw": observed.would_use_raw_pointer == 0
+            "inactive segment map": observed.would_use_segment_map == 0
+            "inactive atomic": observed.would_execute_atomic_bitmap == 0
+            "inactive osvm": observed.would_call_osvm == 0
+            "inactive thread": observed.would_run_thread == 0
+            "inactive provider": observed.would_activate_provider == 0
+            "inactive matcher": observed.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-requirement-matrix-diagnostics-proof")
+        print("diag=" + observed.observed + "," + observed.reason + "," + observed.inventory_count + "," + observed.accepted_count + "," + observed.reject_count + "," + observed.blocked_requirement_reject_count + "," + observed.last_reason + "," + observed.last_segment_id + "," + observed.last_arena_id + "," + observed.last_report_blocked_requirement_count)
+        print("seen=" + observed.readiness_reject_seen + "," + observed.matrix_diagnostic_reject_seen + "," + observed.geometry_reject_seen + "," + observed.arena_requirement_reject_seen + "," + observed.raw_pointer_requirement_reject_seen + "," + observed.segment_map_requirement_reject_seen + "," + observed.atomic_bitmap_requirement_reject_seen + "," + observed.osvm_requirement_reject_seen + "," + observed.worker_requirement_reject_seen + "," + observed.provider_requirement_reject_seen + "," + observed.backend_matcher_requirement_reject_seen)
+        print("owner=" + observer.observe_count + "," + observer.accepted_summary_count + "," + observer.reject_summary_count + "," + observer.missing_inventory_reject_count + "," + observer.last_reason)
+        print("empty=" + empty_observed.observed + "," + empty_observed.reason + "," + empty_observed.matrix_present)
+        print("inactive=" + observed.would_allocate_arena_backing + "," + observed.would_use_raw_pointer + "," + observed.would_use_segment_map + "," + observed.would_execute_atomic_bitmap + "," + observed.would_call_osvm + "," + observed.would_run_thread + "," + observed.would_activate_provider + "," + observed.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

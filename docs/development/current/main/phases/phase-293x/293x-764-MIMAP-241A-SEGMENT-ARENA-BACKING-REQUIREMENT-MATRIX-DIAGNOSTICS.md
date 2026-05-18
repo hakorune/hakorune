@@ -1,6 +1,6 @@
 # 293x-764 MIMAP-241A Segment Arena Backing Requirement Matrix Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -41,6 +41,32 @@ residence.
 ## Required Evidence
 
 ```text
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_requirement_matrix_diagnostics_guard.sh --level L2
+bash tools/checks/run_proof_app.sh --only MIMAP-241A
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Landed Scope
+
+- Added the requirement matrix diagnostics owner and typed report.
+- Added a proof app that observes MIMAP-240A counters and last matrix report
+  facts without recording new matrix rows from the diagnostic owner.
+- Added the MIMAP-241A L2 guard, proof manifest entry, check index entry, and
+  diagnostics SSOT.
+
+## Selected Next Row
+
+MIMAP-241A selects:
+
+```text
+MIMAP-242A segment arena backing requirement matrix closeout pack
+```
+
+Reason:
+
+```text
+the requirement matrix inventory and observer diagnostics are now present. Close
+out the family with representative exact-MIR L3 evidence before selecting the
+next allocator bridge.
 ```
