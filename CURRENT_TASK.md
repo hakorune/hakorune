@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-150A post-blocked-substrate-matrix row selection`
+  `MIMAP-151A segment-map scalar lookup boundary inventory`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,8 +74,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-150A`,
-  the post-blocked-substrate-matrix row selection selected by MIMAP-149A.
+- resume point: continue Phase 293x with `MIMAP-151A`,
+  the segment-map scalar lookup boundary inventory selected by MIMAP-150A.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -83,10 +83,11 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-150A`: choose exactly one next boundary from the MIMAP-149A
-     blocked-substrate matrix
-  2. prefer a row that advances allocator completeness without opening broad
-     user-facing concurrency or provider activation
+  1. `MIMAP-151A`: add a proof-only segment-map scalar lookup boundary
+     inventory using explicit IDs rather than raw pointer residence
+  2. prove accepted lookup plus stable reject rows for unknown segment,
+     wrong page, stale generation, out-of-range slice, and raw-pointer lookup
+     requests
   3. keep cross-function `Result` direct ABI and runtime sum materialization
      closed
   4. keep real thread scheduling, worker spawning, source-level concurrency features,

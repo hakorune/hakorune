@@ -34,21 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-150A` is current after MIMAP-149A proved the blocked-substrate matrix
-for the path from scalar segment allocation toward real segment
-allocation/free.
+`MIMAP-151A` is current after MIMAP-150A selected a scalar segment-map lookup
+boundary as the next safe row after the blocked-substrate matrix.
 
 Recommended current row:
 
 ```text
-MIMAP-150A
-  post-blocked-substrate-matrix row selection
+MIMAP-151A
+  segment-map scalar lookup boundary inventory
 ```
 
 Purpose:
 
 ```text
-choose exactly one next boundary from the MIMAP-149A matrix
+prove explicit-ID segment-map lookup inventory without raw pointer residence
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -197,7 +196,8 @@ no provider activation
 | 125 | Hakorune language / allocator boundary | `HAKO-ALLOC-RESULT-API-003 allocator local-free remaining Result guard-let boundaries` | landed; selected MIMAP-148A |
 | 126 | planning | `MIMAP-148A post-local-free-Result-boundary row selection` | landed; selected MIMAP-149A |
 | 127 | allocator | `MIMAP-149A segment allocation blocked-substrate matrix proof` | landed; selected MIMAP-150A |
-| 128 | planning | `MIMAP-150A post-blocked-substrate-matrix row selection` | selected current |
+| 128 | planning | `MIMAP-150A post-blocked-substrate-matrix row selection` | landed; selected MIMAP-151A |
+| 129 | allocator | `MIMAP-151A segment-map scalar lookup boundary inventory` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

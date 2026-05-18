@@ -330,7 +330,8 @@ Forbidden:
 | `HAKO-ALLOC-RESULT-API-003` | allocator local-free remaining Result guard-let boundaries | landed; selected MIMAP-148A |
 | `MIMAP-148A` | post-local-free-Result-boundary row selection | landed; selected MIMAP-149A |
 | `MIMAP-149A` | segment allocation blocked-substrate matrix proof | landed; selected MIMAP-150A |
-| `MIMAP-150A` | post-blocked-substrate-matrix row selection | selected current |
+| `MIMAP-150A` | post-blocked-substrate-matrix row selection | landed; selected MIMAP-151A |
+| `MIMAP-151A` | segment-map scalar lookup boundary inventory | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -622,6 +623,20 @@ acceptance work, substrate/capability inventory, or a park row.
 
 It must not implement real segment allocation/free or open more than one
 blocked substrate.
+
+MIMAP-150A landed by selecting MIMAP-151A, a scalar segment-map lookup boundary
+that keeps raw pointer residence parked.
+
+### MIMAP-151A granularity
+
+MIMAP-151A is a proof-only allocator row for segment-map lookup by explicit
+scalar identities. It should accept a known `(segment_id, page_id, slice)` row
+and reject unknown segment, wrong page, stale generation, out-of-range slice,
+and raw-pointer lookup request cases with stable reasons.
+
+It must not derive lookup identity from raw pointers or open arena backing,
+atomic bitmap, OSVM, thread scheduling, provider activation, or backend matcher
+behavior.
 
 
 ## Historical Granularity Anchors
