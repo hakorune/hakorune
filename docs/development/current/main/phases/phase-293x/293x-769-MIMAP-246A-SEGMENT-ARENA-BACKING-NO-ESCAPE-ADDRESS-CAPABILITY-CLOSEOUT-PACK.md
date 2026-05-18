@@ -1,6 +1,6 @@
 # 293x-769 MIMAP-246A Segment Arena Backing No-Escape Address Capability Closeout Pack
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -39,6 +39,34 @@ real pointer residence, arena backing, or segment-map execution row.
 ## Required Evidence
 
 ```text
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_no_escape_address_capability_closeout_guard.sh
+bash tools/checks/run_row_guard.sh --only hako-alloc-segment-arena-backing-no-escape-address-capability-closeout
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+MIMAP-246A added the closeout SSOT and manifest-backed closeout guard:
+
+```text
+docs/development/current/main/design/hako-alloc-segment-arena-backing-no-escape-address-capability-closeout-ssot.md
+tools/checks/k2_wide_hako_alloc_segment_arena_backing_no_escape_address_capability_closeout_guard.sh
+```
+
+The guard runs MIMAP-244A L2, MIMAP-245A L2, and representative exact-MIR L3
+EXE evidence through the diagnostics proof app.
+
+## Selected Next Row
+
+MIMAP-246A selects:
+
+```text
+MIMAP-247A post-segment-arena-backing-no-escape-address-capability-closeout row selection
+```
+
+MIMAP-247A should choose the next narrow bridge after no-escape address
+capability closeout while keeping real raw pointer residence, pointer-derived
+lookup, real arena backing allocation, real segment-map execution, atomic
+bitmap execution, OSVM/page-source execution, worker/provider activation, and
+backend matchers closed unless a focused row explicitly reopens one.
