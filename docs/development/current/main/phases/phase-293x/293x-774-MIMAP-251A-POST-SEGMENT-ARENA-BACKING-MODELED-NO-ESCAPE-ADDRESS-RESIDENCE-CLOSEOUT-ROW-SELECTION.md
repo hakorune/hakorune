@@ -1,6 +1,6 @@
 # 293x-774 MIMAP-251A Post Segment Arena Backing Modeled No-Escape Address Residence Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -44,3 +44,20 @@ backing execution by accident.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Selected Next Row
+
+MIMAP-251A selects:
+
+```text
+MIMAP-252A segment arena backing modeled residence arena-binding inventory
+```
+
+MIMAP-252A should bind an accepted modeled no-escape address residence report
+to an accepted scalar requirement matrix for the same segment and arena. The
+row stays scalar/model-only: it may publish a modeled binding token and geometry
+facts, but it must not create real raw pointer residence, perform
+pointer-derived lookup, allocate arena backing, mutate a real segment-map,
+execute atomic bitmap operations, call OSVM/page-source seams, schedule workers,
+activate providers, use cross-function `Result` direct ABI, materialize runtime
+sums, or add backend matchers.

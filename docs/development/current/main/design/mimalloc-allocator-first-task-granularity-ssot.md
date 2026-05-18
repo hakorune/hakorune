@@ -20,11 +20,11 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-251A
+  MIMAP-252A
 
 current choice boundary:
-  next modeled bridge after no-escape address residence closeout
-  while keeping real pointer residence and lookup closed
+  modeled residence arena-binding inventory
+  while keeping real pointer residence, pointer lookup, and real arena backing closed
 
 closed until explicitly reopened:
   real raw pointer residence
@@ -435,7 +435,8 @@ Forbidden:
 | `MIMAP-248A` | segment arena backing modeled no-escape address residence inventory | landed; selected MIMAP-249A |
 | `MIMAP-249A` | segment arena backing modeled no-escape address residence diagnostics | landed; selected MIMAP-250A |
 | `MIMAP-250A` | segment arena backing modeled no-escape address residence closeout pack | landed; selected MIMAP-251A |
-| `MIMAP-251A` | post-segment-arena-backing-modeled-no-escape-address-residence-closeout row selection | selected current |
+| `MIMAP-251A` | post-segment-arena-backing-modeled-no-escape-address-residence-closeout row selection | landed; selected MIMAP-252A |
+| `MIMAP-252A` | segment arena backing modeled residence arena-binding inventory | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2342,6 +2343,23 @@ backing, real segment-map mutation, atomic bitmap execution, OSVM/page-source
 execution, worker/provider activation, cross-function `Result` direct ABI,
 runtime sum materialization, and backend matcher rows remain closed unless the
 selected row explicitly reopens one with its own evidence.
+
+MIMAP-251A landed by selecting MIMAP-252A.
+
+### MIMAP-252A granularity
+
+MIMAP-252A segment arena backing modeled residence arena-binding inventory.
+
+MIMAP-252A should add a scalar/model owner that binds an accepted modeled
+no-escape address residence report to an accepted scalar requirement matrix for
+the same segment and arena. It may preserve residence token, lifetime
+generation, arena geometry, and row index facts. It must reject missing or
+rejected inputs, segment/arena mismatch, invalid residence token, invalid
+geometry, and closed-substrate requirement flags. It must not create real raw
+pointer residence, perform pointer-derived lookup, allocate real arena backing,
+mutate a real segment-map, execute atomic bitmap operations, call OSVM/page
+source seams, schedule workers, activate providers, use cross-function `Result`
+direct ABI, materialize runtime sums, or add backend matchers.
 
 
 ## Historical Granularity Anchors
