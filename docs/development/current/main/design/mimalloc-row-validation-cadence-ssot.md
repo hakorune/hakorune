@@ -375,7 +375,7 @@ segment-map local-free reuse ledger release-applied recycle second-release diagn
     exe = deferred-to-closeout
   closeout pack:
     closeout_pack = segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic
-    representative L3 EXE evidence deferred to MIMAP-209A selection or later
+    representative L3 EXE evidence in MIMAP-210A
 
 cleanup row using C199 compound assignment:
   L1 C199 guard

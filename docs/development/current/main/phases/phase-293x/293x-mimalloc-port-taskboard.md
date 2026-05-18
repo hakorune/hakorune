@@ -602,7 +602,9 @@ FST:
 | `MIMAP-206A` | landed | Segment-map local-free reuse ledger release-applied recycle bridge closeout pack. | selected MIMAP-207A |
 | `MIMAP-207A` | landed | Post-segment-map-local-free-reuse-ledger-release-applied-recycle-bridge-closeout row selection. | selected MIMAP-208A |
 | `MIMAP-208A` | landed | Segment-map local-free reuse ledger release-applied recycle second-release diagnostic. | selected MIMAP-209A |
-| `MIMAP-209A` | selected current | Post-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic row selection. | current planning row |
+| `MIMAP-209A` | landed | Post-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic row selection. | selected MIMAP-210A |
+| `MIMAP-210A` | landed | Segment-map local-free reuse ledger release-applied recycle second-release diagnostic closeout pack. | selected MIMAP-211A |
+| `MIMAP-211A` | selected current | Post-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic-closeout row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -611,9 +613,9 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-209A` chooses the next narrow row after MIMAP-208A proved the
+`MIMAP-211A` chooses the next narrow row after MIMAP-210A closed the
 segment-map local-free reuse ledger release-applied recycle second-release
-diagnostic.
+diagnostic pack.
 Raw pointer residence remains parked behind a future rawbuf/no-escape
 capability. Real thread scheduling, worker spawning, source-level concurrency
 features, arena backing allocation, atomic bitmap execution, page-source calls,

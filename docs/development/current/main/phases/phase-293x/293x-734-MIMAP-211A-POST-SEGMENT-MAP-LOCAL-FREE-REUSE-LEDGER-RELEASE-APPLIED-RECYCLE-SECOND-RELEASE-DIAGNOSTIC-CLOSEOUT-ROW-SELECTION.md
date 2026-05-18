@@ -1,12 +1,12 @@
-# 293x-732 MIMAP-209A Post Segment Map Local Free Reuse Ledger Release-Applied Recycle Second-Release Diagnostic Row Selection
+# 293x-734 MIMAP-211A Post Segment Map Local Free Reuse Ledger Release-Applied Recycle Second-Release Diagnostic Closeout Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-18
 
 ## Decision
 
-Choose MIMAP-210A as the next narrow row after MIMAP-208A fixed the
-second-release diagnostic boundary for the release-applied recycle bridge.
+Choose the next narrow row after MIMAP-210A closes the segment-map local-free
+reuse ledger release-applied recycle second-release diagnostic pack.
 
 ## Context
 
@@ -16,20 +16,12 @@ The current scalar/model chain now proves:
 source reuse ledger applies release
   -> source reuse ledger recycles the same modeled reuse token as a new live row
   -> release owner rejects a second release record for the same token
+  -> representative exact-MIR EXE parity for the second-release diagnostic pack
 ```
 
-The next row is:
-
-```text
-MIMAP-210A segment-map local-free reuse ledger release-applied recycle second-release diagnostic closeout pack
-```
-
-Rationale:
-
-- MIMAP-208A is a scalar-diagnostic row whose EXE evidence is deferred to a
-  closeout pack.
-- The duplicate second-release boundary should get representative exact-MIR
-  L3 evidence before choosing a generation/lifecycle token row.
+The next row should decide whether to introduce a generation/lifecycle-token
+contract, add a small observer, or choose a different modeled bridge while real
+allocator execution remains closed.
 
 ## Stop Lines
 
@@ -52,10 +44,4 @@ Rationale:
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
-```
-
-## Next
-
-```text
-MIMAP-210A segment-map local-free reuse ledger release-applied recycle second-release diagnostic closeout pack
 ```

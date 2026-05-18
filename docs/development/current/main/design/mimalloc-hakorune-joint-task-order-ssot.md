@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-209A` is current after MIMAP-208A proved the release-applied recycle
-second-release diagnostic.
+`MIMAP-211A` is current after MIMAP-210A closed the release-applied recycle
+second-release diagnostic pack.
 
 Recommended current row:
 
 ```text
-MIMAP-209A
-  post-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic row selection
+MIMAP-211A
+  post-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic-closeout row selection
 ```
 
 Purpose:
 
 ```text
-choose the next narrow row after segment-map local-free reuse ledger release-applied recycle second-release diagnostic
+choose the next narrow row after segment-map local-free reuse ledger release-applied recycle second-release diagnostic closeout
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -255,7 +255,9 @@ no provider activation
 | 184 | closeout | `MIMAP-206A segment-map local-free reuse ledger release-applied recycle bridge closeout pack` | landed; selected MIMAP-207A |
 | 185 | planning | `MIMAP-207A post-segment-map-local-free-reuse-ledger-release-applied-recycle-bridge-closeout row selection` | landed; selected MIMAP-208A |
 | 186 | allocator | `MIMAP-208A segment-map local-free reuse ledger release-applied recycle second-release diagnostic` | landed; selected MIMAP-209A |
-| 187 | planning | `MIMAP-209A post-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic row selection` | selected current |
+| 187 | planning | `MIMAP-209A post-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic row selection` | landed; selected MIMAP-210A |
+| 188 | closeout | `MIMAP-210A segment-map local-free reuse ledger release-applied recycle second-release diagnostic closeout pack` | landed; selected MIMAP-211A |
+| 189 | planning | `MIMAP-211A post-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic-closeout row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
