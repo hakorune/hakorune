@@ -1,0 +1,118 @@
+// hako-alloc-segment-arena-backing-modeled-no-escape-address-residence-proof
+// Purpose: prove MIMAP-248A modeled no-escape address residence inventory.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_requirement_matrix_box as HakoAllocSegmentArenaBackingRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_no_escape_address_capability_box as HakoAllocSegmentArenaBackingNoEscapeAddressCapability
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_no_escape_address_residence_box as HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidence
+
+static box Main {
+    makeMatrix(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingRequirementMatrixReport {
+        local report = new HakoAllocSegmentArenaBackingRequirementMatrixReport()
+        report.accepted = 1
+        report.reason = 0
+        report.matrix_present = 1
+        report.scalar_requirement_matrix_present = 1
+        report.segment_id = segment_id
+        report.arena_id = arena_id
+        return report
+    }
+
+    makeRejectedMatrix(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingRequirementMatrixReport {
+        local report = Main.makeMatrix(segment_id, arena_id)
+        report.accepted = 0
+        report.reason = 4
+        return report
+    }
+
+    main(args) {
+        local capability_inventory = new HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityInventory()
+        local residence_inventory = new HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceInventory()
+        local matrix = Main.makeMatrix(70, 7)
+        local rejected_matrix = Main.makeRejectedMatrix(70, 7)
+
+        local accepted_capability = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local missing_capability = new HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityReport()
+        missing_capability.capability_present = 0
+        local rejected_capability = capability_inventory.recordCapability(rejected_matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local invalid_address = capability_inventory.recordCapability(matrix, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local escape_blocked = capability_inventory.recordCapability(matrix, 3, 70007004002, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local residence_blocked = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0)
+        local lookup_blocked = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0)
+        local arena_blocked = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0)
+        local segment_map_blocked = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
+        local atomic_blocked = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0)
+        local osvm_blocked = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0)
+        local worker_blocked = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0)
+        local provider_blocked = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0)
+        local backend_blocked = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+
+        local accepted = residence_inventory.recordResidence(accepted_capability)
+        local missing = residence_inventory.recordResidence(missing_capability)
+        local rejected = residence_inventory.recordResidence(rejected_capability)
+        local invalid = residence_inventory.recordResidence(invalid_address)
+        local escape = residence_inventory.recordResidence(escape_blocked)
+        local residence = residence_inventory.recordResidence(residence_blocked)
+        local lookup = residence_inventory.recordResidence(lookup_blocked)
+        local arena = residence_inventory.recordResidence(arena_blocked)
+        local segment = residence_inventory.recordResidence(segment_map_blocked)
+        local atomic = residence_inventory.recordResidence(atomic_blocked)
+        local osvm = residence_inventory.recordResidence(osvm_blocked)
+        local worker = residence_inventory.recordResidence(worker_blocked)
+        local provider = residence_inventory.recordResidence(provider_blocked)
+        local backend = residence_inventory.recordResidence(backend_blocked)
+
+        local ok = check "mimap248a segment arena backing modeled no escape address residence" {
+            "accepted": accepted.accepted == 1
+            "accepted reason": accepted.reason == 0
+            "residence present": accepted.modeled_no_escape_address_residence_present == 1
+            "row index": accepted.row_index == 1
+            "segment": accepted.segment_id == 70
+            "arena": accepted.arena_id == 7
+            "lifetime": accepted.lifetime_generation == 3
+            "address": accepted.address_carrier == 70007004002
+            "token": accepted.residence_token == 70007004002
+            "non dereferenceable": accepted.non_dereferenceable == 1
+            "missing": missing.reason == 1
+            "rejected": rejected.reason == 2
+            "invalid": invalid.reason == 4
+            "escape": escape.reason == 5
+            "residence blocked": residence.reason == 6
+            "lookup blocked": lookup.reason == 7
+            "arena blocked": arena.reason == 8
+            "segment blocked": segment.reason == 9
+            "atomic blocked": atomic.reason == 10
+            "osvm blocked": osvm.reason == 11
+            "worker blocked": worker.reason == 12
+            "provider blocked": provider.reason == 13
+            "backend blocked": backend.reason == 14
+            "inventory count": residence_inventory.inventory_count == 14
+            "accepted count": residence_inventory.accepted_count == 1
+            "reject count": residence_inventory.reject_count == 13
+            "closed substrate count": residence_inventory.closed_substrate_reject_count == 9
+            "inactive residence": accepted.would_create_pointer_residence == 0
+            "inactive lookup": accepted.would_lookup_by_pointer == 0
+            "inactive arena allocation": accepted.would_allocate_arena_backing == 0
+            "inactive segment map": accepted.would_use_segment_map == 0
+            "inactive atomic": accepted.would_execute_atomic_bitmap == 0
+            "inactive osvm": accepted.would_call_osvm == 0
+            "inactive thread": accepted.would_run_thread == 0
+            "inactive provider": accepted.would_activate_provider == 0
+            "inactive matcher": accepted.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-modeled-no-escape-address-residence-proof")
+        print("residence=" + accepted.accepted + "," + accepted.reason + "," + accepted.row_index + "," + accepted.segment_id + "," + accepted.arena_id + "," + accepted.lifetime_generation + "," + accepted.address_carrier + "," + accepted.residence_token + "," + accepted.non_dereferenceable)
+        print("rejects=" + missing.reason + "," + rejected.reason + "," + invalid.reason + "," + escape.reason + "," + residence.reason + "," + lookup.reason + "," + arena.reason + "," + segment.reason + "," + atomic.reason + "," + osvm.reason + "," + worker.reason + "," + provider.reason + "," + backend.reason)
+        print("counts=" + residence_inventory.inventory_count + "," + residence_inventory.accepted_count + "," + residence_inventory.reject_count + "," + residence_inventory.missing_capability_reject_count + "," + residence_inventory.rejected_capability_reject_count + "," + residence_inventory.invalid_address_reject_count + "," + residence_inventory.escape_reject_count + "," + residence_inventory.closed_substrate_reject_count + "," + residence_inventory.last_reason + "," + residence_inventory.last_residence_token)
+        print("inactive=" + accepted.would_create_pointer_residence + "," + accepted.would_lookup_by_pointer + "," + accepted.would_allocate_arena_backing + "," + accepted.would_use_segment_map + "," + accepted.would_execute_atomic_bitmap + "," + accepted.would_call_osvm + "," + accepted.would_run_thread + "," + accepted.would_activate_provider + "," + accepted.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

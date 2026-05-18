@@ -1,6 +1,6 @@
 # 293x-771 MIMAP-248A Segment Arena Backing Modeled No-Escape Address Residence Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -46,6 +46,33 @@ non-dereferenceable token.
 ## Required Evidence
 
 ```text
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_no_escape_address_residence_guard.sh --level L2
+bash tools/checks/run_proof_app.sh --only MIMAP-248A
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Landed Scope
+
+- Added the modeled no-escape address residence inventory owner and typed
+  report.
+- Added a proof app that records an accepted no-escape address capability as a
+  scalar/model residence row while keeping the address carrier
+  non-dereferenceable.
+- Added the MIMAP-248A L2 guard, proof manifest entry, check index entry, and
+  SSOT.
+
+## Selected Next Row
+
+MIMAP-248A selects:
+
+```text
+MIMAP-249A segment arena backing modeled no-escape address residence diagnostics
+```
+
+Reason:
+
+```text
+the modeled residence inventory is present. Add observer-only diagnostics for
+its accepted/reject counters before closing out the residence family.
 ```

@@ -210,6 +210,16 @@ closeout_pack = "segment-arena-backing-modeled-no-escape-address-residence"
 exe = "deferred-to-closeout"
 ```
 
+Planned continuation:
+
+```text
+MIMAP-248A segment arena backing modeled no-escape address residence inventory
+  L2 daily: static + VM + MIR JSON/route preflight
+
+MIMAP-249A segment arena backing modeled no-escape address residence diagnostics
+  L2 daily: observer/reject summary only
+```
+
 ## Row-Type Rules
 
 ### Planning Rows

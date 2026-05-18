@@ -1,0 +1,249 @@
+// segment_arena_backing_modeled_no_escape_address_residence_box.hako -- MIMAP-248A
+// Responsibility:
+// - record accepted no-escape address capability reports as scalar/model
+//   residence rows
+// - keep the address carrier non-dereferenceable and local to the model ledger
+// Non-responsibility:
+// - creating real pointer residence, pointer-derived lookup, arena backing,
+//   segment-map mutation, atomic bitmap execution, OSVM calls, scheduling,
+//   providers, or backend shortcuts
+
+box HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    residence_present: i64 = 1
+    modeled_no_escape_address_residence_present: i64 = 1
+    capability_present: i64 = 0
+    capability_reason: i64 = 0
+    row_index: i64 = -1
+    segment_id: i64 = -1
+    arena_id: i64 = -1
+    lifetime_generation: i64 = 0
+    address_carrier: i64 = 0
+    address_carrier_valid: i64 = 0
+    residence_token: i64 = 0
+    non_dereferenceable: i64 = 1
+    capability_escape_blocker_count: i64 = 0
+    closed_substrate_blocker_count: i64 = 0
+    requires_pointer_residence: i64 = 0
+    requires_pointer_lookup: i64 = 0
+    requires_arena_backing: i64 = 0
+    requires_segment_map: i64 = 0
+    requires_atomic_bitmap: i64 = 0
+    requires_osvm: i64 = 0
+    requires_worker: i64 = 0
+    requires_provider: i64 = 0
+    requires_backend_matcher: i64 = 0
+    would_create_pointer_residence: i64 = 0
+    would_lookup_by_pointer: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceInventory {
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_capability_reject_count: i64 = 0
+    rejected_capability_reject_count: i64 = 0
+    invalid_address_reject_count: i64 = 0
+    escape_reject_count: i64 = 0
+    residence_requirement_reject_count: i64 = 0
+    lookup_requirement_reject_count: i64 = 0
+    arena_requirement_reject_count: i64 = 0
+    segment_map_requirement_reject_count: i64 = 0
+    atomic_requirement_reject_count: i64 = 0
+    osvm_requirement_reject_count: i64 = 0
+    worker_requirement_reject_count: i64 = 0
+    provider_requirement_reject_count: i64 = 0
+    backend_matcher_requirement_reject_count: i64 = 0
+    closed_substrate_reject_count: i64 = 0
+    last_reason: i64 = 0
+    last_segment_id: i64 = -1
+    last_arena_id: i64 = -1
+    last_residence_token: i64 = 0
+
+    closedSubstrateBlockerCount(capability_report): i64 {
+        local count = 0
+        if capability_report.requires_pointer_residence != 0 {
+            count += 1
+        }
+        if capability_report.requires_pointer_lookup != 0 {
+            count += 1
+        }
+        if capability_report.requires_arena_backing != 0 {
+            count += 1
+        }
+        if capability_report.requires_segment_map != 0 {
+            count += 1
+        }
+        if capability_report.requires_atomic_bitmap != 0 {
+            count += 1
+        }
+        if capability_report.requires_osvm != 0 {
+            count += 1
+        }
+        if capability_report.requires_worker != 0 {
+            count += 1
+        }
+        if capability_report.requires_provider != 0 {
+            count += 1
+        }
+        if capability_report.requires_backend_matcher != 0 {
+            count += 1
+        }
+        return count
+    }
+
+    makeReport(accepted, reason, capability_report): HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceReport {
+        local result = new HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceReport()
+        result.accepted = accepted
+        result.reason = reason
+        result.residence_present = 1
+        result.modeled_no_escape_address_residence_present = 1
+        result.capability_present = capability_report.capability_present
+        result.capability_reason = capability_report.reason
+        result.segment_id = capability_report.segment_id
+        result.arena_id = capability_report.arena_id
+        result.lifetime_generation = capability_report.lifetime_generation
+        result.address_carrier = capability_report.address_carrier
+        result.address_carrier_valid = capability_report.address_carrier_valid
+        result.capability_escape_blocker_count = capability_report.escape_blocker_count
+        result.closed_substrate_blocker_count = me.closedSubstrateBlockerCount(capability_report)
+        result.requires_pointer_residence = capability_report.requires_pointer_residence
+        result.requires_pointer_lookup = capability_report.requires_pointer_lookup
+        result.requires_arena_backing = capability_report.requires_arena_backing
+        result.requires_segment_map = capability_report.requires_segment_map
+        result.requires_atomic_bitmap = capability_report.requires_atomic_bitmap
+        result.requires_osvm = capability_report.requires_osvm
+        result.requires_worker = capability_report.requires_worker
+        result.requires_provider = capability_report.requires_provider
+        result.requires_backend_matcher = capability_report.requires_backend_matcher
+        if accepted == 1 {
+            result.row_index = me.accepted_count
+            result.residence_token = capability_report.address_carrier
+        }
+        me.last_reason = reason
+        me.last_segment_id = capability_report.segment_id
+        me.last_arena_id = capability_report.arena_id
+        me.last_residence_token = result.residence_token
+        return result
+    }
+
+    reject(reason, capability_report): HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceReport {
+        me.reject_count += 1
+        if reason == 1 {
+            me.missing_capability_reject_count += 1
+        }
+        if reason == 2 {
+            me.rejected_capability_reject_count += 1
+        }
+        if reason == 3 {
+            me.missing_capability_reject_count += 1
+        }
+        if reason == 4 {
+            me.invalid_address_reject_count += 1
+        }
+        if reason == 5 {
+            me.escape_reject_count += 1
+        }
+        if reason == 6 {
+            me.residence_requirement_reject_count += 1
+            me.closed_substrate_reject_count += 1
+        }
+        if reason == 7 {
+            me.lookup_requirement_reject_count += 1
+            me.closed_substrate_reject_count += 1
+        }
+        if reason == 8 {
+            me.arena_requirement_reject_count += 1
+            me.closed_substrate_reject_count += 1
+        }
+        if reason == 9 {
+            me.segment_map_requirement_reject_count += 1
+            me.closed_substrate_reject_count += 1
+        }
+        if reason == 10 {
+            me.atomic_requirement_reject_count += 1
+            me.closed_substrate_reject_count += 1
+        }
+        if reason == 11 {
+            me.osvm_requirement_reject_count += 1
+            me.closed_substrate_reject_count += 1
+        }
+        if reason == 12 {
+            me.worker_requirement_reject_count += 1
+            me.closed_substrate_reject_count += 1
+        }
+        if reason == 13 {
+            me.provider_requirement_reject_count += 1
+            me.closed_substrate_reject_count += 1
+        }
+        if reason == 14 {
+            me.backend_matcher_requirement_reject_count += 1
+            me.closed_substrate_reject_count += 1
+        }
+        return me.makeReport(0, reason, capability_report)
+    }
+
+    recordResidence(capability_report): HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceReport {
+        me.inventory_count += 1
+
+        if capability_report.capability_present != 1 {
+            return me.reject(1, capability_report)
+        }
+        if capability_report.no_escape_address_capability_present != 1 {
+            return me.reject(3, capability_report)
+        }
+        if capability_report.address_carrier_valid != 1 {
+            return me.reject(4, capability_report)
+        }
+        if capability_report.escape_to_return != 0 {
+            return me.reject(5, capability_report)
+        }
+        if capability_report.escape_to_storage != 0 {
+            return me.reject(5, capability_report)
+        }
+        if capability_report.escape_to_alias != 0 {
+            return me.reject(5, capability_report)
+        }
+        if capability_report.requires_pointer_residence != 0 {
+            return me.reject(6, capability_report)
+        }
+        if capability_report.requires_pointer_lookup != 0 {
+            return me.reject(7, capability_report)
+        }
+        if capability_report.requires_arena_backing != 0 {
+            return me.reject(8, capability_report)
+        }
+        if capability_report.requires_segment_map != 0 {
+            return me.reject(9, capability_report)
+        }
+        if capability_report.requires_atomic_bitmap != 0 {
+            return me.reject(10, capability_report)
+        }
+        if capability_report.requires_osvm != 0 {
+            return me.reject(11, capability_report)
+        }
+        if capability_report.requires_worker != 0 {
+            return me.reject(12, capability_report)
+        }
+        if capability_report.requires_provider != 0 {
+            return me.reject(13, capability_report)
+        }
+        if capability_report.requires_backend_matcher != 0 {
+            return me.reject(14, capability_report)
+        }
+        if capability_report.accepted != 1 {
+            return me.reject(2, capability_report)
+        }
+
+        me.accepted_count += 1
+        return me.makeReport(1, 0, capability_report)
+    }
+}

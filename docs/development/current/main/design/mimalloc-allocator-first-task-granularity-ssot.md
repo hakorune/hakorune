@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-248A
+  MIMAP-249A
 
 current choice boundary:
-  modeled no-escape address residence inventory
+  modeled no-escape address residence diagnostics
   while keeping real pointer residence and lookup closed
 
 closed until explicitly reopened:
@@ -432,7 +432,8 @@ Forbidden:
 | `MIMAP-245A` | segment arena backing no-escape address capability diagnostics | landed; selected MIMAP-246A |
 | `MIMAP-246A` | segment arena backing no-escape address capability closeout pack | landed; selected MIMAP-247A |
 | `MIMAP-247A` | post-segment-arena-backing-no-escape-address-capability-closeout row selection | landed; selected MIMAP-248A |
-| `MIMAP-248A` | segment arena backing modeled no-escape address residence inventory | selected current |
+| `MIMAP-248A` | segment arena backing modeled no-escape address residence inventory | landed; selected MIMAP-249A |
+| `MIMAP-249A` | segment arena backing modeled no-escape address residence diagnostics | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2293,6 +2294,20 @@ arena backing, mutate a real segment-map, execute atomic bitmap operations, call
 OSVM/page-source seams, schedule workers, activate providers, use
 cross-function `Result` direct ABI, materialize runtime sums, or add backend
 matcher rows.
+
+MIMAP-248A landed by adding the modeled no-escape address residence owner,
+proof app, L2 guard, manifest entry, check index entry, and SSOT. It selected
+MIMAP-249A.
+
+### MIMAP-249A granularity
+
+MIMAP-249A should add observer-only diagnostics for the MIMAP-248A modeled
+no-escape address residence inventory. It should summarize accepted, missing,
+rejected, invalid, escape, and closed-substrate counters without recording new
+residence rows or opening real pointer residence, pointer lookup, arena backing,
+real segment-map mutation, atomic bitmap execution, OSVM/page-source execution,
+worker/provider activation, cross-function `Result` direct ABI, runtime sum
+materialization, or backend matcher rows.
 
 
 ## Historical Granularity Anchors
