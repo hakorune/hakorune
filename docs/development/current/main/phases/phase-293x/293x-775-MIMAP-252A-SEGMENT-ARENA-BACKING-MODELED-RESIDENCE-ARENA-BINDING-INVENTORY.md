@@ -1,6 +1,6 @@
 # 293x-775 MIMAP-252A Segment Arena Backing Modeled Residence Arena-Binding Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -55,3 +55,30 @@ git diff --check
 MIMAP-252A uses daily L2 validation. Representative L3 evidence is deferred to
 the future modeled residence arena-binding closeout pack unless this row opens
 a new backend route shape.
+
+## Landed Scope
+
+MIMAP-252A added the modeled residence arena-binding owner, proof app, SSOT,
+manifest entry, and L2 guard:
+
+```text
+lang/src/hako_alloc/memory/segment_arena_backing_modeled_residence_arena_binding_box.hako
+apps/hako-alloc-segment-arena-backing-modeled-residence-arena-binding-proof/
+docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-residence-arena-binding-ssot.md
+tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_residence_arena_binding_guard.sh
+```
+
+## Selected Next Row
+
+MIMAP-252A selects:
+
+```text
+MIMAP-253A segment arena backing modeled residence arena-binding diagnostics
+```
+
+MIMAP-253A should add observer-only diagnostics for the MIMAP-252A binding
+inventory without recording new binding rows or opening real pointer residence,
+pointer-derived lookup, real arena backing, real segment-map execution, atomic
+bitmap execution, OSVM/page-source execution, worker/provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, or backend
+matchers.

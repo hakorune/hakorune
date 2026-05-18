@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-19"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-251A landed by selecting MIMAP-252A, the segment arena backing modeled residence arena-binding inventory. Cross-function Result direct ABI remains closed. Real raw pointer residence and real arena backing remain closed; the binding remains scalar/model only. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-252A landed by adding the segment arena backing modeled residence arena-binding inventory and selecting MIMAP-253A diagnostics. Cross-function Result direct ABI remains closed. Real raw pointer residence and real arena backing remain closed; the binding remains scalar/model only. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-775-MIMAP-252A-SEGMENT-ARENA-BACKING-MODELED-RESIDENCE-ARENA-BINDING-INVENTORY.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-776-MIMAP-253A-SEGMENT-ARENA-BACKING-MODELED-RESIDENCE-ARENA-BINDING-DIAGNOSTICS.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-774-MIMAP-251A-POST-SEGMENT-ARENA-BACKING-MODELED-NO-ESCAPE-ADDRESS-RESIDENCE-CLOSEOUT-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-774-MIMAP-251A-POST-SEGMENT-ARENA-BACKING-MODELED-NO-ESCAPE-ADDRESS-RESIDENCE-CLOSEOUT-ROW-SELECTION.md"
-latest_card_summary = "MIMAP-251A landed by selecting MIMAP-252A, the segment arena backing modeled residence arena-binding inventory."
+latest_card = "293x-775-MIMAP-252A-SEGMENT-ARENA-BACKING-MODELED-RESIDENCE-ARENA-BINDING-INVENTORY"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-775-MIMAP-252A-SEGMENT-ARENA-BACKING-MODELED-RESIDENCE-ARENA-BINDING-INVENTORY.md"
+latest_card_summary = "MIMAP-252A landed by adding the modeled residence arena-binding inventory and selecting MIMAP-253A diagnostics."
 
-current_blocker_token = "MIMAP-252A"
+current_blocker_token = "MIMAP-253A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-775 MIMAP-252A segment arena backing modeled residence arena-binding inventory landed; MIMAP-253A selected",
   "293x-774 MIMAP-251A post-segment-arena-backing-modeled-no-escape-address-residence-closeout row selection landed; MIMAP-252A selected",
   "293x-773 MIMAP-250A segment arena backing modeled no-escape address residence closeout pack landed; MIMAP-251A selected",
   "293x-772 MIMAP-249A segment arena backing modeled no-escape address residence diagnostics landed; MIMAP-250A selected",

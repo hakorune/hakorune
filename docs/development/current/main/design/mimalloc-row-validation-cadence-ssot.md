@@ -223,6 +223,34 @@ MIMAP-250A segment arena backing modeled no-escape address residence closeout pa
   L3 representative exact-MIR evidence for segment-arena-backing-modeled-no-escape-address-residence
 ```
 
+## Active Segment Arena Backing Modeled Residence Arena-Binding Family
+
+The modeled residence arena-binding rows stay scalar/model-only. They do not
+create real raw pointer residence, pointer-derived lookup, or real arena
+backing.
+
+```toml
+[[proof_apps]]
+id = "MIMAP-252A"
+row_kind = "inventory"
+validation_profile = "scalar-mir"
+closeout_pack = "segment-arena-backing-modeled-residence-arena-binding"
+exe = "deferred-to-closeout"
+```
+
+Planned continuation:
+
+```text
+MIMAP-252A segment arena backing modeled residence arena-binding inventory
+  L2 daily: static + VM + MIR JSON/route preflight
+
+MIMAP-253A segment arena backing modeled residence arena-binding diagnostics
+  L2 daily: observer/reject summary only
+
+MIMAP-254A segment arena backing modeled residence arena-binding closeout pack
+  L3 representative exact-MIR evidence for segment-arena-backing-modeled-residence-arena-binding
+```
+
 ## Row-Type Rules
 
 ### Planning Rows

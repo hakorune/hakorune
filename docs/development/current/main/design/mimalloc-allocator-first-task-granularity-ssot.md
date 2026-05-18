@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-252A
+  MIMAP-253A
 
 current choice boundary:
-  modeled residence arena-binding inventory
+  modeled residence arena-binding diagnostics
   while keeping real pointer residence, pointer lookup, and real arena backing closed
 
 closed until explicitly reopened:
@@ -436,7 +436,8 @@ Forbidden:
 | `MIMAP-249A` | segment arena backing modeled no-escape address residence diagnostics | landed; selected MIMAP-250A |
 | `MIMAP-250A` | segment arena backing modeled no-escape address residence closeout pack | landed; selected MIMAP-251A |
 | `MIMAP-251A` | post-segment-arena-backing-modeled-no-escape-address-residence-closeout row selection | landed; selected MIMAP-252A |
-| `MIMAP-252A` | segment arena backing modeled residence arena-binding inventory | selected current |
+| `MIMAP-252A` | segment arena backing modeled residence arena-binding inventory | landed; selected MIMAP-253A |
+| `MIMAP-253A` | segment arena backing modeled residence arena-binding diagnostics | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2360,6 +2361,23 @@ pointer residence, perform pointer-derived lookup, allocate real arena backing,
 mutate a real segment-map, execute atomic bitmap operations, call OSVM/page
 source seams, schedule workers, activate providers, use cross-function `Result`
 direct ABI, materialize runtime sums, or add backend matchers.
+
+MIMAP-252A landed by adding the modeled residence arena-binding owner, proof
+app, L2 guard, manifest entry, check index entry, and SSOT. It selected
+MIMAP-253A.
+
+### MIMAP-253A granularity
+
+MIMAP-253A segment arena backing modeled residence arena-binding diagnostics.
+
+MIMAP-253A should add observer-only diagnostics for the MIMAP-252A modeled
+residence arena-binding inventory. It should summarize accepted, missing,
+rejected, mismatch, invalid token, invalid geometry, and closed-substrate
+counters without recording new binding rows or opening real pointer residence,
+pointer-derived lookup, real arena backing allocation, real segment-map
+mutation, atomic bitmap execution, OSVM/page-source execution, worker/provider
+activation, cross-function `Result` direct ABI, runtime sum materialization, or
+backend matcher rows.
 
 
 ## Historical Granularity Anchors

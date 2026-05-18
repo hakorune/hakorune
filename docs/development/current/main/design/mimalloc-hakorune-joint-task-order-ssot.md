@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-252A` is current after MIMAP-251A selected the segment arena backing
+`MIMAP-253A` is current after MIMAP-252A landed the segment arena backing
 modeled residence arena-binding inventory.
 
 Recommended current row:
 
 ```text
-MIMAP-252A
-  segment arena backing modeled residence arena-binding inventory
+MIMAP-253A
+  segment arena backing modeled residence arena-binding diagnostics
 ```
 
 Purpose:
 
 ```text
-bind modeled no-escape address residence to the accepted scalar requirement matrix
+publish observer-only diagnostics for modeled residence arena-binding
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -298,7 +298,8 @@ no provider activation
 | 227 | allocator diagnostic | `MIMAP-249A segment arena backing modeled no-escape address residence diagnostics` | landed; selected MIMAP-250A |
 | 228 | closeout | `MIMAP-250A segment arena backing modeled no-escape address residence closeout pack` | landed; selected MIMAP-251A |
 | 229 | planning | `MIMAP-251A post-segment-arena-backing-modeled-no-escape-address-residence-closeout row selection` | landed; selected MIMAP-252A |
-| 230 | allocator inventory | `MIMAP-252A segment arena backing modeled residence arena-binding inventory` | selected current |
+| 230 | allocator inventory | `MIMAP-252A segment arena backing modeled residence arena-binding inventory` | landed; selected MIMAP-253A |
+| 231 | allocator diagnostic | `MIMAP-253A segment arena backing modeled residence arena-binding diagnostics` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
