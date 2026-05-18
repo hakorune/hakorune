@@ -1,0 +1,130 @@
+// hako-alloc-segment-arena-backing-modeled-arena-slot-proof
+// Purpose: prove MIMAP-256A modeled arena-slot inventory.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_requirement_matrix_box as HakoAllocSegmentArenaBackingRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_no_escape_address_capability_box as HakoAllocSegmentArenaBackingNoEscapeAddressCapability
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_no_escape_address_residence_box as HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidence
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_residence_arena_binding_box as HakoAllocSegmentArenaBackingModeledResidenceArenaBinding
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_arena_slot_box as HakoAllocSegmentArenaBackingModeledArenaSlot
+
+static box Main {
+    makeMatrix(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingRequirementMatrixReport {
+        local report = new HakoAllocSegmentArenaBackingRequirementMatrixReport()
+        report.accepted = 1
+        report.reason = 0
+        report.matrix_present = 1
+        report.scalar_requirement_matrix_present = 1
+        report.segment_id = segment_id
+        report.arena_id = arena_id
+        report.slice_count = 16
+        report.committed_slices = 8
+        report.free_slices = 4
+        report.required_alignment = 16
+        report.page_size = 4096
+        report.geometry_valid = 1
+        return report
+    }
+
+    makeResidence(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceReport {
+        local capability_inventory = new HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityInventory()
+        local residence_inventory = new HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceInventory()
+        local matrix = Main.makeMatrix(segment_id, arena_id)
+        local capability = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        return residence_inventory.recordResidence(capability)
+    }
+
+    makeBinding(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledResidenceArenaBindingReport {
+        local binding_inventory = new HakoAllocSegmentArenaBackingModeledResidenceArenaBindingInventory()
+        local matrix = Main.makeMatrix(segment_id, arena_id)
+        local residence = Main.makeResidence(segment_id, arena_id)
+        return binding_inventory.recordBinding(residence, matrix)
+    }
+
+    main(args) {
+        local slot_inventory = new HakoAllocSegmentArenaBackingModeledArenaSlotInventory()
+        local binding = Main.makeBinding(70, 7)
+
+        local accepted = slot_inventory.recordArenaSlot(binding, 2, 2048, 4096, 8192, 16)
+
+        local missing_binding = new HakoAllocSegmentArenaBackingModeledResidenceArenaBindingReport()
+        missing_binding.binding_present = 0
+        local rejected_binding = Main.makeBinding(70, 7)
+        rejected_binding.accepted = 0
+        rejected_binding.reason = 4
+        local invalid_binding_token = Main.makeBinding(70, 7)
+        invalid_binding_token.binding_token = 0
+        local invalid_residence_token = Main.makeBinding(70, 7)
+        invalid_residence_token.residence_token = 0
+        local invalid_geometry = Main.makeBinding(70, 7)
+        invalid_geometry.geometry_valid = 0
+        local closed_binding = Main.makeBinding(70, 7)
+        closed_binding.requires_arena_backing = 1
+
+        local missing_result = slot_inventory.recordArenaSlot(missing_binding, 2, 2048, 4096, 8192, 16)
+        local rejected_result = slot_inventory.recordArenaSlot(rejected_binding, 2, 2048, 4096, 8192, 16)
+        local invalid_binding_token_result = slot_inventory.recordArenaSlot(invalid_binding_token, 2, 2048, 4096, 8192, 16)
+        local invalid_residence_token_result = slot_inventory.recordArenaSlot(invalid_residence_token, 2, 2048, 4096, 8192, 16)
+        local invalid_geometry_result = slot_inventory.recordArenaSlot(invalid_geometry, 2, 2048, 4096, 8192, 16)
+        local invalid_slot_result = slot_inventory.recordArenaSlot(binding, -1, 2048, 4096, 8192, 16)
+        local closed_result = slot_inventory.recordArenaSlot(closed_binding, 2, 2048, 4096, 8192, 16)
+
+        local ok = check "mimap256a segment arena backing modeled arena slot" {
+            "accepted": accepted.accepted == 1
+            "accepted reason": accepted.reason == 0
+            "slot present": accepted.modeled_arena_slot_present == 1
+            "row index": accepted.row_index == 1
+            "segment": accepted.segment_id == 70
+            "arena": accepted.arena_id == 7
+            "lifetime": accepted.lifetime_generation == 3
+            "residence token": accepted.residence_token == 70007004002
+            "binding token": accepted.binding_token == 70007004002
+            "slot token": accepted.arena_slot_token == 70007004005
+            "slot index": accepted.slot_index == 2
+            "requested bytes": accepted.requested_bytes == 2048
+            "padded bytes": accepted.padded_bytes == 4096
+            "slot capacity": accepted.slot_capacity == 8192
+            "slot alignment": accepted.slot_alignment == 16
+            "slice count": accepted.slice_count == 16
+            "committed slices": accepted.committed_slices == 8
+            "free slices": accepted.free_slices == 4
+            "required alignment": accepted.required_alignment == 16
+            "page size": accepted.page_size == 4096
+            "missing binding": missing_result.reason == 1
+            "rejected binding": rejected_result.reason == 2
+            "invalid binding token": invalid_binding_token_result.reason == 3
+            "invalid residence token": invalid_residence_token_result.reason == 4
+            "invalid geometry": invalid_geometry_result.reason == 5
+            "invalid slot": invalid_slot_result.reason == 6
+            "closed substrate": closed_result.reason == 7
+            "inventory count": slot_inventory.inventory_count == 8
+            "accepted count": slot_inventory.accepted_count == 1
+            "reject count": slot_inventory.reject_count == 7
+            "closed count": slot_inventory.closed_substrate_reject_count == 1
+            "inactive residence": accepted.would_create_pointer_residence == 0
+            "inactive lookup": accepted.would_lookup_by_pointer == 0
+            "inactive arena allocation": accepted.would_allocate_arena_backing == 0
+            "inactive segment map": accepted.would_use_segment_map == 0
+            "inactive atomic": accepted.would_execute_atomic_bitmap == 0
+            "inactive osvm": accepted.would_call_osvm == 0
+            "inactive thread": accepted.would_run_thread == 0
+            "inactive provider": accepted.would_activate_provider == 0
+            "inactive matcher": accepted.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-modeled-arena-slot-proof")
+        print("slot=" + accepted.accepted + "," + accepted.reason + "," + accepted.row_index + "," + accepted.segment_id + "," + accepted.arena_id + "," + accepted.lifetime_generation + "," + accepted.residence_token + "," + accepted.binding_token + "," + accepted.arena_slot_token + "," + accepted.slot_index + "," + accepted.requested_bytes + "," + accepted.padded_bytes + "," + accepted.slot_capacity + "," + accepted.slot_alignment)
+        print("geometry=" + accepted.slice_count + "," + accepted.committed_slices + "," + accepted.free_slices + "," + accepted.required_alignment + "," + accepted.page_size + "," + accepted.geometry_valid)
+        print("rejects=" + missing_result.reason + "," + rejected_result.reason + "," + invalid_binding_token_result.reason + "," + invalid_residence_token_result.reason + "," + invalid_geometry_result.reason + "," + invalid_slot_result.reason + "," + closed_result.reason)
+        print("counts=" + slot_inventory.inventory_count + "," + slot_inventory.accepted_count + "," + slot_inventory.reject_count + "," + slot_inventory.missing_binding_reject_count + "," + slot_inventory.rejected_binding_reject_count + "," + slot_inventory.invalid_binding_token_reject_count + "," + slot_inventory.invalid_residence_token_reject_count + "," + slot_inventory.invalid_geometry_reject_count + "," + slot_inventory.invalid_slot_shape_reject_count + "," + slot_inventory.closed_substrate_reject_count + "," + slot_inventory.last_reason + "," + slot_inventory.last_arena_slot_token)
+        print("inactive=" + accepted.would_create_pointer_residence + "," + accepted.would_lookup_by_pointer + "," + accepted.would_allocate_arena_backing + "," + accepted.would_use_segment_map + "," + accepted.would_execute_atomic_bitmap + "," + accepted.would_call_osvm + "," + accepted.would_run_thread + "," + accepted.would_activate_provider + "," + accepted.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

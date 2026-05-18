@@ -37,6 +37,7 @@ Current modules
 - `segment_arena_backing_modeled_no_escape_address_residence_diagnostic_box.hako`
 - `segment_arena_backing_modeled_residence_arena_binding_box.hako`
 - `segment_arena_backing_modeled_residence_arena_binding_diagnostic_box.hako`
+- `segment_arena_backing_modeled_arena_slot_box.hako`
 - `segment_arena_backing_no_escape_address_capability_box.hako`
 - `segment_arena_backing_no_escape_address_capability_diagnostic_box.hako`
 - `segment_arena_backing_requirement_matrix_diagnostic_box.hako`
@@ -553,6 +554,13 @@ Syntax/style contract
   mutate a real segment-map, execute atomic bitmap claims, call page-source or
   OSVM seams, schedule workers, activate provider hooks, replace the host
   allocator, or add backend shortcuts.
+- `segment_arena_backing_modeled_arena_slot_box.hako` owns MIMAP-256A. It may
+  record scalar/model arena-slot facts from an accepted modeled residence
+  arena-binding report. It must not create real pointer residence, perform
+  pointer-derived lookup, allocate arena backing, mutate a real segment-map,
+  execute atomic bitmap claims, call page-source or OSVM seams, schedule
+  workers, activate provider hooks, replace the host allocator, or add backend
+  shortcuts.
 - `object_lifecycle_facade_huge_failfast_box.hako` owns the MIMAP-022B facade
   huge-request fail-fast route. It may classify request size through
   `SizeClassBox`, reject huge requests before invoking the MIMAP-021C

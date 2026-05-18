@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-256A
+  MIMAP-257A
 
 current choice boundary:
-  modeled arena-slot inventory after residence arena-binding closeout
+  modeled arena-slot diagnostics after modeled arena-slot inventory
   while keeping real pointer residence, pointer lookup, and real arena backing closed
 
 closed until explicitly reopened:
@@ -440,7 +440,8 @@ Forbidden:
 | `MIMAP-253A` | segment arena backing modeled residence arena-binding diagnostics | landed; selected MIMAP-254A |
 | `MIMAP-254A` | segment arena backing modeled residence arena-binding closeout pack | landed; selected MIMAP-255A |
 | `MIMAP-255A` | post-segment-arena-backing-modeled-residence-arena-binding-closeout row selection | landed; selected MIMAP-256A |
-| `MIMAP-256A` | segment arena backing modeled arena slot inventory | selected current |
+| `MIMAP-256A` | segment arena backing modeled arena slot inventory | landed; selected MIMAP-257A |
+| `MIMAP-257A` | segment arena backing modeled arena slot diagnostics | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2431,6 +2432,22 @@ closed-substrate requirement flags.
 MIMAP-256A remains daily L2. It does not open real pointer residence,
 pointer-derived lookup, real arena backing allocation, real segment-map
 mutation, atomic bitmap execution, OSVM/page-source execution,
+worker/provider activation, cross-function `Result` direct ABI, runtime sum
+materialization, or backend matcher rows.
+
+MIMAP-256A landed by adding the modeled arena-slot owner, proof app, L2 guard,
+manifest entry, check index entry, and SSOT. It selected MIMAP-257A.
+
+### MIMAP-257A granularity
+
+MIMAP-257A segment arena backing modeled arena slot diagnostics.
+
+MIMAP-257A should add observer-only diagnostics for the MIMAP-256A modeled
+arena-slot inventory. It should summarize accepted, missing/rejected binding,
+invalid token, invalid geometry, invalid slot shape, and closed-substrate
+counter categories without recording new arena-slot rows or opening real
+pointer residence, pointer-derived lookup, real arena backing allocation, real
+segment-map mutation, atomic bitmap execution, OSVM/page-source execution,
 worker/provider activation, cross-function `Result` direct ABI, runtime sum
 materialization, or backend matcher rows.
 

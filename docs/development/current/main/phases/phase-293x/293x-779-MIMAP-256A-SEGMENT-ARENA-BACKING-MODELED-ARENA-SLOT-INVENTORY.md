@@ -1,6 +1,6 @@
 # 293x-779 MIMAP-256A Segment Arena Backing Modeled Arena Slot Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -56,3 +56,30 @@ git diff --check
 MIMAP-256A uses daily L2 validation. Representative L3 evidence is deferred to
 the future modeled arena-slot closeout pack unless this row opens a new backend
 route shape.
+
+## Landed Scope
+
+MIMAP-256A added the modeled arena-slot owner, proof app, SSOT, manifest entry,
+check index entry, and L2 guard:
+
+```text
+lang/src/hako_alloc/memory/segment_arena_backing_modeled_arena_slot_box.hako
+apps/hako-alloc-segment-arena-backing-modeled-arena-slot-proof/
+docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-arena-slot-ssot.md
+tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_arena_slot_guard.sh
+```
+
+## Selected Next Row
+
+MIMAP-256A selects:
+
+```text
+MIMAP-257A segment arena backing modeled arena slot diagnostics
+```
+
+MIMAP-257A should add observer-only diagnostics for the MIMAP-256A modeled
+arena-slot inventory without recording new slot rows or opening real pointer
+residence, pointer-derived lookup, real arena backing allocation,
+real segment-map execution, atomic bitmap execution, OSVM/page-source
+execution, worker/provider activation, cross-function `Result` direct ABI,
+runtime sum materialization, or backend matchers.
