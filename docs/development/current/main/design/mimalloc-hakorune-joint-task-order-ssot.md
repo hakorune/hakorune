@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-250A` is current after MIMAP-249A landed the segment arena backing
-modeled no-escape address residence diagnostics.
+`MIMAP-251A` is current after MIMAP-250A landed the segment arena backing
+modeled no-escape address residence closeout pack.
 
 Recommended current row:
 
 ```text
-MIMAP-250A
-  segment arena backing modeled no-escape address residence closeout pack
+MIMAP-251A
+  post-segment-arena-backing-modeled-no-escape-address-residence-closeout row selection
 ```
 
 Purpose:
 
 ```text
-close out the modeled no-escape address residence family with representative exact-MIR L3 evidence
+select the next narrow bridge after modeled no-escape address residence closeout
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -296,7 +296,8 @@ no provider activation
 | 225 | planning | `MIMAP-247A post-segment-arena-backing-no-escape-address-capability-closeout row selection` | landed; selected MIMAP-248A |
 | 226 | allocator inventory | `MIMAP-248A segment arena backing modeled no-escape address residence inventory` | landed; selected MIMAP-249A |
 | 227 | allocator diagnostic | `MIMAP-249A segment arena backing modeled no-escape address residence diagnostics` | landed; selected MIMAP-250A |
-| 228 | closeout | `MIMAP-250A segment arena backing modeled no-escape address residence closeout pack` | selected current |
+| 228 | closeout | `MIMAP-250A segment arena backing modeled no-escape address residence closeout pack` | landed; selected MIMAP-251A |
+| 229 | planning | `MIMAP-251A post-segment-arena-backing-modeled-no-escape-address-residence-closeout row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

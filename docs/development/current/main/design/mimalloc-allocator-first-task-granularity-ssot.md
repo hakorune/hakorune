@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-250A
+  MIMAP-251A
 
 current choice boundary:
-  modeled no-escape address residence closeout pack
+  next modeled bridge after no-escape address residence closeout
   while keeping real pointer residence and lookup closed
 
 closed until explicitly reopened:
@@ -434,7 +434,8 @@ Forbidden:
 | `MIMAP-247A` | post-segment-arena-backing-no-escape-address-capability-closeout row selection | landed; selected MIMAP-248A |
 | `MIMAP-248A` | segment arena backing modeled no-escape address residence inventory | landed; selected MIMAP-249A |
 | `MIMAP-249A` | segment arena backing modeled no-escape address residence diagnostics | landed; selected MIMAP-250A |
-| `MIMAP-250A` | segment arena backing modeled no-escape address residence closeout pack | selected current |
+| `MIMAP-250A` | segment arena backing modeled no-escape address residence closeout pack | landed; selected MIMAP-251A |
+| `MIMAP-251A` | post-segment-arena-backing-modeled-no-escape-address-residence-closeout row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2316,6 +2317,8 @@ selected MIMAP-250A.
 
 ### MIMAP-250A granularity
 
+MIMAP-250A segment arena backing modeled no-escape address residence closeout pack.
+
 MIMAP-250A should close out the MIMAP-248A / MIMAP-249A modeled no-escape
 address residence family with representative exact-MIR L3 evidence. It should
 run the MIMAP-248A and MIMAP-249A L2 guards plus one representative diagnostics
@@ -2323,6 +2326,22 @@ proof EXE, while keeping real pointer residence, pointer lookup, arena backing,
 real segment-map mutation, atomic bitmap execution, OSVM/page-source execution,
 worker/provider activation, cross-function `Result` direct ABI, runtime sum
 materialization, and backend matcher rows closed.
+
+MIMAP-250A landed by adding the modeled no-escape address residence closeout
+SSOT, manifest-backed closeout guard, and representative exact-MIR L3 evidence.
+It selected MIMAP-251A.
+
+### MIMAP-251A granularity
+
+MIMAP-251A post-segment-arena-backing-modeled-no-escape-address-residence-closeout row selection.
+
+MIMAP-251A should choose exactly one next narrow allocator bridge after the
+modeled no-escape address residence family is closed. It should not add
+allocator behavior directly. Real pointer residence, pointer lookup, arena
+backing, real segment-map mutation, atomic bitmap execution, OSVM/page-source
+execution, worker/provider activation, cross-function `Result` direct ABI,
+runtime sum materialization, and backend matcher rows remain closed unless the
+selected row explicitly reopens one with its own evidence.
 
 
 ## Historical Granularity Anchors

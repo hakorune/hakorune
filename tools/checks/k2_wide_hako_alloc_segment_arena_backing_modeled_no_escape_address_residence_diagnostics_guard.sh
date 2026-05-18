@@ -65,7 +65,7 @@ guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD_248A" "MIMAP-248A inventory must be landed before diagnostics"
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD" "MIMAP-249A card must be landed"
-guard_expect_in_file "$TAG" 'Status: selected current' "$CARD_250A" "MIMAP-250A closeout must be selected after MIMAP-249A"
+guard_expect_in_file "$TAG" 'Status: landed' "$CARD_250A" "MIMAP-250A closeout must be landed after MIMAP-249A"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN_248A" "MIMAP-248A residence design must stay accepted"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-249A diagnostics design must be accepted"
 guard_expect_in_file "$TAG" 'observer-only diagnostics' "$CARD" "MIMAP-249A card must call out observer-only diagnostics"
