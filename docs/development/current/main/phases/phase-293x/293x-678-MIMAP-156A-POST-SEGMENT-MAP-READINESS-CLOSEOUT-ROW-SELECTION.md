@@ -1,12 +1,28 @@
 # 293x-678 MIMAP-156A Post Segment Map Readiness Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
 
 Select the next single row after MIMAP-155A closed the segment-map readiness
 validation pack.
+
+Selected:
+
+```text
+MIMAP-157A segment-map accepted readiness modeled consume ledger route
+```
+
+Rationale:
+
+- The segment-map readiness family now has an L2 validation pack and closeout.
+- The next smallest behavior row is not raw pointer residence or real
+  segment-map execution; it is composing an accepted readiness report into the
+  existing modeled consume / ledger lane.
+- MIMAP-157A should prove one accepted readiness candidate can become one
+  modeled ledger entry without opening runtime substrate or backend-specific
+  matching.
 
 ## Owner
 
@@ -44,3 +60,10 @@ planning row.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Closeout
+
+MIMAP-156A landed as a planning row only. It selected MIMAP-157A. Cross-function
+`Result` direct ABI, runtime sum materialization, raw pointer residence, real
+segment-map execution, OSVM/page-source execution, thread scheduling, provider
+activation, and backend matchers remain closed.

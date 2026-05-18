@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-156A post-segment-map-readiness-closeout row selection`
+  `MIMAP-157A segment-map accepted readiness modeled consume ledger route`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,8 +74,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-156A`,
-  the post-segment-map-readiness-closeout row selection selected by MIMAP-155A.
+- resume point: continue Phase 293x with `MIMAP-157A`,
+  the segment-map accepted readiness modeled consume ledger route selected by
+  MIMAP-156A.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -83,10 +84,10 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-156A`: choose exactly one next row after segment-map readiness
-     validation pack closeout
-  2. prefer a small follow-up that composes accepted readiness into the existing
+  1. `MIMAP-157A`: compose accepted segment-map readiness into the existing
      modeled allocation consume / ledger proof lane
+  2. keep validation L2 unless a new backend route shape appears; defer L3 EXE
+     to a future consume-ledger closeout pack
   3. keep cross-function `Result` direct ABI and runtime sum materialization
      closed
   4. keep real thread scheduling, worker spawning, source-level concurrency features,

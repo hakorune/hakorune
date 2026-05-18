@@ -336,6 +336,8 @@ Forbidden:
 | `MIMAP-153A` | segment-map lookup guarded readiness composition | landed; selected MIMAP-154A |
 | `MIMAP-154A` | post-lookup-guarded-readiness row selection | landed; selected MIMAP-155A |
 | `MIMAP-155A` | segment-map readiness validation pack closeout guard | landed; selected MIMAP-156A |
+| `MIMAP-156A` | post-segment-map-readiness-closeout row selection | landed; selected MIMAP-157A |
+| `MIMAP-157A` | segment-map accepted readiness modeled consume ledger route | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -698,6 +700,27 @@ scheduling, provider activation, or backend matchers.
 
 MIMAP-155A landed by adding the closeout SSOT, manifest-backed closeout guard,
 and index/taskboard wiring. It selected MIMAP-156A.
+
+### MIMAP-156A granularity
+
+MIMAP-156A is a planning row after segment-map readiness validation closeout.
+It selected MIMAP-157A as the next small behavior row.
+
+MIMAP-156A must not add allocator behavior, compiler acceptance, backend
+lowering, or validation infrastructure.
+
+### MIMAP-157A granularity
+
+MIMAP-157A consumes an accepted lookup-guarded readiness report into the
+existing modeled consume / ledger lane. It proves the segment-map readiness
+family can feed a modeled ledger entry without opening raw pointer residence,
+real segment-map execution, arena backing, atomic bitmap execution, OSVM,
+thread scheduling, provider activation, cross-function `Result` direct ABI, or
+backend matchers.
+
+MIMAP-157A uses L2 daily validation. L3 EXE is deferred to a future
+consume-ledger closeout pack unless this row introduces a new backend route
+shape.
 
 
 ## Historical Granularity Anchors

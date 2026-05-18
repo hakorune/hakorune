@@ -530,7 +530,8 @@ FST:
 | `MIMAP-153A` | landed | Segment-map lookup guarded readiness composition. | selected MIMAP-154A |
 | `MIMAP-154A` | landed | Post-lookup-guarded-readiness row selection. | selected MIMAP-155A |
 | `MIMAP-155A` | landed | Segment-map readiness validation pack closeout guard. | selected MIMAP-156A |
-| `MIMAP-156A` | selected current | Post-segment-map-readiness-closeout row selection. | current planning row |
+| `MIMAP-156A` | landed | Post-segment-map-readiness-closeout row selection. | selected MIMAP-157A |
+| `MIMAP-157A` | selected current | Segment-map accepted readiness modeled consume ledger route. | current behavior row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -539,8 +540,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-156A` chooses the next follow-up after MIMAP-155A closed the
-segment-map readiness validation pack. Raw pointer residence remains parked
+`MIMAP-157A` composes an accepted segment-map readiness report into the
+existing modeled consume / ledger lane. Raw pointer residence remains parked
 behind a future rawbuf/no-escape capability. Real thread scheduling, worker
 spawning, source-level concurrency features, arena backing allocation, atomic
 bitmap execution, page-source calls, OSVM unreserve/release, provider
@@ -760,7 +761,8 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `MIMAP-156A` | selected current | Post-segment-map-readiness-closeout row selection. | Current planning row. |
+| `MIMAP-157A` | selected current | Segment-map accepted readiness modeled consume ledger route. | Current behavior row. |
+| `MIMAP-156A` | landed | Post-segment-map-readiness-closeout row selection. | Selected MIMAP-157A. |
 | `MIMAP-155A` | landed | Segment-map readiness validation pack closeout guard. | Selected MIMAP-156A. |
 | `MIMAP-154A` | landed | Post-lookup-guarded-readiness row selection. | Selected MIMAP-155A. |
 | `MIMAP-153A` | landed | Segment-map lookup guarded readiness composition. | Selected MIMAP-154A. |

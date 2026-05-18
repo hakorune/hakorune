@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-156A post-segment-map-readiness-closeout row selection`
+- current blocker token: `MIMAP-157A segment-map accepted readiness modeled consume ledger route`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -50,7 +50,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-156A post-segment-map-readiness-closeout row selection`
+- current blocker token: `MIMAP-157A segment-map accepted readiness modeled consume ledger route`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -61,9 +61,9 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` with `MIMAP-156A`; current blocker is
-  post-segment-map-readiness-closeout row selection
-- latest allocator row: `MIMAP-155A` landed and selected MIMAP-156A
+- continue `phase-293x` with `MIMAP-157A`; current blocker is
+  segment-map accepted readiness modeled consume ledger route
+- latest allocator row: `MIMAP-156A` landed and selected MIMAP-157A
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

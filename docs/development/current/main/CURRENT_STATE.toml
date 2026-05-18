@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-18"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-155A landed by closing the segment-map readiness validation pack; MIMAP-156A is the active allocator planning blocker. The segment-map readiness family can use manifest --level L2 for daily VM/MIR/preflight validation while public no-arg guards keep full EXE evidence where required. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-156A landed by selecting MIMAP-157A, the segment-map accepted readiness modeled consume ledger route. The segment-map readiness family can use manifest --level L2 for daily VM/MIR/preflight validation while public no-arg guards keep full EXE evidence where required. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-678-MIMAP-156A-POST-SEGMENT-MAP-READINESS-CLOSEOUT-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-679-MIMAP-157A-SEGMENT-MAP-ACCEPTED-READINESS-MODELED-CONSUME-LEDGER-ROUTE.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-677-MIMAP-155A-SEGMENT-MAP-READINESS-VALIDATION-PACK-CLOSEOUT-GUARD"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-677-MIMAP-155A-SEGMENT-MAP-READINESS-VALIDATION-PACK-CLOSEOUT-GUARD.md"
-latest_card_summary = "MIMAP-155A landed by adding the segment-map readiness validation pack closeout SSOT, manifest-backed closeout guard, and task/index/current pointers; MIMAP-156A selected current."
+latest_card = "293x-678-MIMAP-156A-POST-SEGMENT-MAP-READINESS-CLOSEOUT-ROW-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-678-MIMAP-156A-POST-SEGMENT-MAP-READINESS-CLOSEOUT-ROW-SELECTION.md"
+latest_card_summary = "MIMAP-156A landed by selecting MIMAP-157A, the segment-map accepted readiness modeled consume ledger route."
 
-current_blocker_token = "MIMAP-156A"
+current_blocker_token = "MIMAP-157A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-678 MIMAP-156A post-segment-map-readiness-closeout row selection landed; MIMAP-157A selected",
   "293x-677 MIMAP-155A segment-map readiness validation pack closeout guard landed; MIMAP-156A selected",
   "293x-676 ROW-VALIDATION-PROFILE-002 segment-map readiness L2 split landed; MIMAP-154A remains current",
   "293x-675 ROW-VALIDATION-PROFILE-001 manifest schema pilot landed; MIMAP-154A remains current",
