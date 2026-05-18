@@ -1,6 +1,6 @@
 # 293x-766 MIMAP-243A Post Segment Arena Backing Requirement Matrix Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -44,4 +44,21 @@ without opening multiple substrates at once.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Selected Next Row
+
+MIMAP-243A selects:
+
+```text
+MIMAP-244A segment arena backing no-escape raw pointer capability inventory
+```
+
+Reason:
+
+```text
+the requirement matrix is closed out, but real raw pointer residence is still
+too large to open directly. First inventory the no-escape capability boundary:
+owner, lifetime, address-like scalar carrier, escape blockers, and closed
+substrates.
 ```

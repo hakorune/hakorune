@@ -20,14 +20,14 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-243A
+  MIMAP-244A
 
 current choice boundary:
-  post segment arena backing requirement matrix closeout row selection
+  segment arena backing no-escape raw pointer capability inventory
   or the next modeled bridge that keeps real execution closed
 
 closed until explicitly reopened:
-  raw pointer residence
+  real raw pointer residence
   real segment-map mutation
   real allocator free-list mutation
   arena backing
@@ -427,7 +427,8 @@ Forbidden:
 | `MIMAP-240A` | segment arena backing scalar requirement matrix inventory | landed; selected MIMAP-241A |
 | `MIMAP-241A` | segment arena backing requirement matrix diagnostics | landed; selected MIMAP-242A |
 | `MIMAP-242A` | segment arena backing requirement matrix closeout pack | landed; selected MIMAP-243A |
-| `MIMAP-243A` | post-segment-arena-backing-requirement-matrix-closeout row selection | selected current |
+| `MIMAP-243A` | post-segment-arena-backing-requirement-matrix-closeout row selection | landed; selected MIMAP-244A |
+| `MIMAP-244A` | segment arena backing no-escape raw pointer capability inventory | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2216,6 +2217,19 @@ inventory, segment arena backing source model bridge, real arena backing
 allocation precondition inventory, or another planning row if the closeout
 evidence exposes a smaller prerequisite. It must not open multiple substrates
 at once.
+
+MIMAP-243A landed by selecting MIMAP-244A.
+
+### MIMAP-244A granularity
+
+MIMAP-244A should inventory the no-escape raw pointer capability boundary before
+any real raw pointer residence opens. It should keep owner, lifetime,
+generation, address-like scalar carrier, escape blockers, and closed-substrate
+reason categories in scalar/model space. It must not create pointer residence,
+perform pointer-derived lookup, allocate arena backing, mutate a real
+segment-map, execute atomic bitmap operations, call OSVM/page-source seams,
+schedule workers, activate providers, use cross-function `Result` direct ABI,
+materialize runtime sums, or add backend matchers.
 
 
 ## Historical Granularity Anchors

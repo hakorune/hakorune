@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-243A post-segment-arena-backing-requirement-matrix-closeout row selection`
+  `MIMAP-244A segment arena backing no-escape raw pointer capability inventory`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -76,9 +76,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-243A`,
-  the post-segment-arena-backing-requirement-matrix-closeout row selection
-  selected by MIMAP-242A.
+- resume point: continue Phase 293x with `MIMAP-244A`,
+  the segment arena backing no-escape raw pointer capability inventory selected
+  by MIMAP-243A.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -86,8 +86,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-243A`: select the next narrow allocator bridge after the segment
-     arena backing requirement matrix closeout
+  1. `MIMAP-244A`: inventory the no-escape raw pointer capability boundary
+     before any real pointer residence
   2. keep raw pointer residence, real segment-map execution, and provider
      activation closed
   3. keep cross-function `Result` direct ABI and runtime sum materialization

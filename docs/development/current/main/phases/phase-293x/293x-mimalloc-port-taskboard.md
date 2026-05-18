@@ -636,7 +636,8 @@ FST:
 | `MIMAP-240A` | landed | Segment arena backing scalar requirement matrix inventory. | selected MIMAP-241A |
 | `MIMAP-241A` | landed | Segment arena backing requirement matrix diagnostics. | selected MIMAP-242A |
 | `MIMAP-242A` | landed | Segment arena backing requirement matrix closeout pack. | selected MIMAP-243A |
-| `MIMAP-243A` | selected current | Post segment arena backing requirement matrix closeout row selection. | current planning row |
+| `MIMAP-243A` | landed | Post segment arena backing requirement matrix closeout row selection. | selected MIMAP-244A |
+| `MIMAP-244A` | selected current | Segment arena backing no-escape raw pointer capability inventory. | current inventory row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -645,13 +646,11 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-243A` selects the next narrow bridge after the segment arena backing
-requirement matrix closeout.
-Raw pointer residence remains parked behind a future rawbuf/no-escape
-capability. Real thread scheduling, worker spawning, source-level concurrency
-features, arena backing allocation, atomic bitmap execution, page-source calls,
-OSVM unreserve/release, provider activation, and backend matchers remain
-closed.
+`MIMAP-244A` inventories the no-escape raw pointer capability boundary before
+any real raw pointer residence opens. Real pointer residence, real thread
+scheduling, worker spawning, source-level concurrency features, arena backing
+allocation, atomic bitmap execution, page-source calls, OSVM unreserve/release,
+provider activation, and backend matchers remain closed.
 
 MIMAP-020A execution order:
 
