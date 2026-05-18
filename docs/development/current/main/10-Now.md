@@ -34,15 +34,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-159A segment-map modeled consume ledger closeout pack`
+- current blocker token: `MIMAP-160A post-segment-map-modeled-consume-ledger-closeout row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x with `MIMAP-159A`; current blocker is
-  segment-map modeled consume ledger closeout pack
-- latest allocator row: `MIMAP-158A` landed and selected MIMAP-159A
+- continue phase-293x with `MIMAP-160A`; current blocker is
+  post-segment-map-modeled-consume-ledger-closeout row selection
+- latest allocator row: `MIMAP-159A` landed and selected MIMAP-160A
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

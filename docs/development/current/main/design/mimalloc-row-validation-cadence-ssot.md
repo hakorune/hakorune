@@ -249,6 +249,17 @@ segment-map readiness family:
   closeout pack:
     closeout_pack = segment-map-readiness
 
+segment-map consume ledger family:
+  MIMAP-157A accepted readiness modeled consume ledger:
+    validation_profile = scalar-mir
+    closeout_pack = segment-map-consume-ledger
+    exe = deferred-to-closeout
+  MIMAP-158A diagnostics:
+    same proof app / same pack
+  closeout pack:
+    closeout_pack = segment-map-consume-ledger
+    representative L3 EXE evidence in MIMAP-159A
+
 cleanup row using C199 compound assignment:
   L1 C199 guard
   L3 touched segment guards only

@@ -1,6 +1,6 @@
 # 293x-681 MIMAP-159A Segment Map Modeled Consume Ledger Closeout Pack
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -12,7 +12,9 @@ with representative L3 EXE evidence.
 
 ```text
 docs/development/current/main/design/hako-alloc-segment-map-modeled-consume-ledger-diagnostics-ssot.md
+docs/development/current/main/design/hako-alloc-segment-map-modeled-consume-ledger-closeout-ssot.md
 tools/checks/k2_wide_hako_alloc_segment_map_accepted_readiness_modeled_consume_ledger_guard.sh
+tools/checks/k2_wide_hako_alloc_segment_map_modeled_consume_ledger_closeout_guard.sh
 ```
 
 ## Scope
@@ -39,6 +41,21 @@ tools/checks/k2_wide_hako_alloc_segment_map_accepted_readiness_modeled_consume_l
 ## Required Evidence
 
 ```text
+bash tools/checks/k2_wide_hako_alloc_segment_map_modeled_consume_ledger_closeout_guard.sh
+bash tools/checks/run_row_guard.sh --only hako-alloc-segment-map-modeled-consume-ledger-closeout
+bash tools/checks/run_proof_app.sh --closeout-pack segment-map-consume-ledger --level L2 --dry-run
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Closeout
+
+MIMAP-159A landed by adding the consume-ledger closeout SSOT, a
+manifest-backed closeout guard, and representative exact-MIR L3 EXE evidence
+for the accepted, blocked, duplicate, and stale proof output.
+
+It selected:
+
+```text
+MIMAP-160A post-segment-map-modeled-consume-ledger-closeout row selection
 ```

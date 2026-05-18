@@ -751,6 +751,23 @@ allocation/free, arena backing, atomic bitmap execution, OSVM/page-source
 execution, worker scheduling, provider activation, cross-function `Result`
 direct ABI, runtime sum materialization, or backend matchers.
 
+MIMAP-159A landed by adding the closeout SSOT, manifest-backed closeout guard,
+and representative exact-MIR L3 EXE evidence. It selected MIMAP-160A.
+
+### MIMAP-160A granularity
+
+MIMAP-160A is a planning row after the segment-map modeled consume ledger
+closeout. It chooses the next narrow allocator behavior, compiler acceptance,
+or cleanup row.
+
+The expected allocator direction is the modeled release/recycle ledger lane.
+This row must not implement the behavior directly.
+
+It must not open raw pointer residence, real segment-map mutation, real segment
+allocation/free, arena backing, atomic bitmap execution, OSVM/page-source
+execution, worker scheduling, provider activation, cross-function `Result`
+direct ABI, runtime sum materialization, or backend matchers.
+
 
 ## Historical Granularity Anchors
 
