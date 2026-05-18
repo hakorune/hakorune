@@ -13,6 +13,67 @@ pure_first_guard_build_toolchain() {
   bash tools/build_hako_llvmc_ffi.sh >/dev/null
 }
 
+pure_first_guard_build_hakorune_debug() {
+  cargo build -q --bin hakorune
+}
+
+pure_first_guard_parse_level() {
+  local tag="$1"
+  shift
+  local level="L3"
+
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --level)
+        if [ "$#" -lt 2 ]; then
+          echo "[$tag] ERROR: --level requires a value" >&2
+          exit 2
+        fi
+        level="$2"
+        shift 2
+        ;;
+      --level=*)
+        level="${1#--level=}"
+        shift
+        ;;
+      *)
+        echo "[$tag] ERROR: unknown argument: $1" >&2
+        exit 2
+        ;;
+    esac
+  done
+
+  case "$level" in
+    L0|L1|L2|L3|L4) ;;
+    *)
+      echo "[$tag] ERROR: unsupported validation level: $level" >&2
+      exit 2
+      ;;
+  esac
+  printf '%s\n' "$level"
+}
+
+pure_first_guard_level_allows_vm() {
+  case "$1" in
+    L1|L2|L3|L4) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+pure_first_guard_level_allows_mir() {
+  case "$1" in
+    L2|L3|L4) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+pure_first_guard_level_allows_exe() {
+  case "$1" in
+    L3|L4) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 pure_first_guard_emit_mir() {
   local root_dir="$1"
   local app="$2"
@@ -53,26 +114,12 @@ pure_first_guard_build_exe() {
   local build_log="$6"
   local mir_sha_before
   local mir_sha_after
-  local preflight="$root_dir/tools/checks/pure_first_route_preflight.py"
   local progress_file="$build_log.progress"
 
   mir_sha_before="$(sha256sum "$mir_json" | awk '{print $1}')"
   rm -f "$progress_file" 2>/dev/null || true
 
-  if ! (
-    selfhost_phase_start "selfhost.route_preflight"
-    if "$preflight" "$mir_json"; then
-      selfhost_phase_done "selfhost.route_preflight"
-    else
-      rc=$?
-      selfhost_phase_fail "selfhost.route_preflight" "$rc"
-      exit "$rc"
-    fi
-  ) >"$build_log" 2>&1; then
-    echo "[$tag] ERROR: pure-first route preflight failed" >&2
-    sed -n '1,240p' "$build_log" >&2
-    exit 1
-  fi
+  pure_first_guard_route_preflight "$tag" "$root_dir" "$mir_json" "$build_log"
 
   if ! HAKO_SELFHOST_PROGRESS_FILE="$progress_file" \
     NYASH_BIN="$root_dir/target/debug/hakorune" \
@@ -95,6 +142,29 @@ pure_first_guard_build_exe() {
   if [ "$mir_sha_before" != "$mir_sha_after" ]; then
     echo "[$tag] ERROR: pure-first EXE build rewrote preflight MIR artifact" >&2
     echo "[$tag] before=$mir_sha_before after=$mir_sha_after file=$mir_json" >&2
+    sed -n '1,240p' "$build_log" >&2
+    exit 1
+  fi
+}
+
+pure_first_guard_route_preflight() {
+  local tag="$1"
+  local root_dir="$2"
+  local mir_json="$3"
+  local build_log="$4"
+  local preflight="$root_dir/tools/checks/pure_first_route_preflight.py"
+
+  if ! (
+    selfhost_phase_start "selfhost.route_preflight"
+    if "$preflight" "$mir_json"; then
+      selfhost_phase_done "selfhost.route_preflight"
+    else
+      rc=$?
+      selfhost_phase_fail "selfhost.route_preflight" "$rc"
+      exit "$rc"
+    fi
+  ) >"$build_log" 2>&1; then
+    echo "[$tag] ERROR: pure-first route preflight failed" >&2
     sed -n '1,240p' "$build_log" >&2
     exit 1
   fi

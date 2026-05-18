@@ -284,6 +284,7 @@ first_pattern = false
 closeout_pack = "segment-map-readiness"
 exe = "auto"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_blocked_substrate_matrix_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_blocked_substrate_matrix_guard.sh", "--level", "L2"]
 
 [[proof_apps]]
 id = "MIMAP-151A"
@@ -296,6 +297,7 @@ first_pattern = false
 closeout_pack = "segment-map-readiness"
 exe = "auto"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_scalar_lookup_boundary_inventory_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_scalar_lookup_boundary_inventory_guard.sh", "--level", "L2"]
 
 [[proof_apps]]
 id = "MIMAP-153A"
@@ -308,6 +310,7 @@ first_pattern = false
 closeout_pack = "segment-map-readiness"
 exe = "auto"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_lookup_guarded_readiness_composition_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_lookup_guarded_readiness_composition_guard.sh", "--level", "L2"]
 
 [[proof_apps]]
 id = "MIMAP-091A"

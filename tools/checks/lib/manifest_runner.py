@@ -35,6 +35,7 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser.add_argument("--validation-profile", help="run entries with this validation_profile field")
     parser.add_argument("--row-kind", help="run entries with this row_kind field")
     parser.add_argument("--closeout-pack", help="run entries assigned to this closeout_pack field")
+    parser.add_argument("--level", help="prefer a level-specific command such as cmd_l2")
     parser.add_argument("--only", help="comma-separated entry ids to run")
     parser.add_argument("--list", action="store_true", help="list entries instead of running")
     parser.add_argument("--dry-run", action="store_true", help="print selected entries without running")
@@ -82,7 +83,9 @@ def resolve_repo_path(root: pathlib.Path, path_text: str) -> pathlib.Path:
 
 def command_target(root: pathlib.Path, cmd: list[str]) -> pathlib.Path:
     if len(cmd) >= 2 and cmd[0] in {"bash", "sh"}:
-        return resolve_repo_path(root, cmd[-1])
+        for arg in cmd[1:]:
+            if not arg.startswith("-"):
+                return resolve_repo_path(root, arg)
     return resolve_repo_path(root, cmd[0])
 
 
@@ -165,6 +168,22 @@ def load_manifest(args: argparse.Namespace) -> list[dict[str, object]]:
         if first_pattern is not None:
             entry["first_pattern"] = first_pattern
 
+        for level in ("l0", "l1", "l2", "l3", "l4"):
+            field = f"cmd_{level}"
+            level_cmd = raw_entry.get(field)
+            if level_cmd is None:
+                continue
+            cmd_value = as_string_list(
+                level_cmd,
+                f"{args.item_name} {entry_id} {field}",
+                tag,
+                nonempty=True,
+            )
+            target = command_target(root, cmd_value)
+            if not target.exists():
+                fail(tag, f"{args.item_name} {entry_id} command target missing: {' '.join(cmd_value)}")
+            entry[field] = cmd_value
+
         if args.app_key:
             app = as_nonempty_string(
                 raw_entry.get(args.app_key),
@@ -245,7 +264,7 @@ def select_entries(entries: list[dict[str, object]], args: argparse.Namespace) -
 
 def format_entry(entry: dict[str, object], args: argparse.Namespace) -> str:
     profiles = ",".join(entry["profiles"])
-    cmd = " ".join(entry["cmd"])
+    cmd = " ".join(command_for_entry(entry, args))
     parts = [
         str(entry["id"]),
         f"profiles={profiles}",
@@ -266,7 +285,22 @@ def format_entry(entry: dict[str, object], args: argparse.Namespace) -> str:
         f"label={entry['label']}",
         f"cmd={cmd}",
     ])
+    for level in ("l0", "l1", "l2", "l3", "l4"):
+        field = f"cmd_{level}"
+        if field in entry:
+            parts.append(f"{field}={' '.join(entry[field])}")
     return "\t".join(parts)
+
+
+def command_for_entry(entry: dict[str, object], args: argparse.Namespace) -> list[str]:
+    if args.level:
+        level = args.level.lower()
+        if level not in {"l0", "l1", "l2", "l3", "l4"}:
+            fail(args.tag, f"unsupported level: {args.level}")
+        level_cmd = entry.get(f"cmd_{level}")
+        if level_cmd is not None:
+            return list(level_cmd)
+    return list(entry["cmd"])
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -285,7 +319,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.dry_run:
             print(format_entry(entry, args))
             continue
-        result = subprocess.run(entry["cmd"], cwd=root)
+        result = subprocess.run(command_for_entry(entry, args), cwd=root)
         if result.returncode != 0:
             print(
                 f"[{args.tag}] FAILED {entry['id']} exit={result.returncode}",

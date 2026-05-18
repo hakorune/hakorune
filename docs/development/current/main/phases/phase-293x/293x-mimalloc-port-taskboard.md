@@ -150,7 +150,7 @@ not part of this sidecar:
 | Row | Status | Purpose | Ordering |
 | --- | --- | --- | --- |
 | `ROW-VALIDATION-PROFILE-001` | landed | Add validation profile metadata to the manifest runner and seed the segment-map readiness family without changing guard execution semantics. | before MIMAP-154A implementation |
-| `ROW-VALIDATION-PROFILE-002` | parked | Split selected public guards into manifest-selectable VM/MIR/EXE commands so `validation_profile` can reduce runtime, not just classify rows. | after current segment-map closeout selection |
+| `ROW-VALIDATION-PROFILE-002` | landed | Split the segment-map readiness family public guards so manifest `--level L2` can run VM/MIR/preflight without EXE while no-arg guards remain full L3. | before MIMAP-154A implementation |
 
 ## Stage1 / Selfhost Ordering Guard
 

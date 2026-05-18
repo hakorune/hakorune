@@ -47,7 +47,9 @@ done
 guard_expect_in_file "$TAG" "tomllib" "$SHARED_RUNNER" "shared runner must own TOML parsing"
 guard_expect_in_file "$TAG" "subprocess.run" "$SHARED_RUNNER" "shared runner must own argv-array subprocess dispatch"
 guard_expect_in_file "$TAG" "--validation-profile" "$SHARED_RUNNER" "shared runner must expose validation profile selection"
+guard_expect_in_file "$TAG" "--level" "$SHARED_RUNNER" "shared runner must expose level-specific command selection"
 guard_expect_in_file "$TAG" "validation_profile" "$PROOF_MANIFEST" "proof manifest must carry validation profile pilot fields"
+guard_expect_in_file "$TAG" "cmd_l2" "$PROOF_MANIFEST" "proof manifest must carry L2 split-command pilot fields"
 if rg -n "shell=True|eval\\(" "$SHARED_RUNNER"; then
   guard_fail "$TAG" "shared runner must not use shell=True or eval"
 fi
@@ -77,6 +79,7 @@ done
 "$PROOF_RUNNER" --validation-profile scalar-mir --dry-run | rg -F "MIMAP-153A" >/dev/null
 "$PROOF_RUNNER" --row-kind inventory --dry-run | rg -F "MIMAP-151A" >/dev/null
 "$PROOF_RUNNER" --closeout-pack segment-map-readiness --dry-run | rg -F "validation_profile=scalar-mir" >/dev/null
+"$PROOF_RUNNER" --validation-profile scalar-mir --level L2 --dry-run | rg -F -- "--level L2" >/dev/null
 "$ROW_RUNNER" --only current-state-pointer >/dev/null
 
 echo "[$TAG] ok"

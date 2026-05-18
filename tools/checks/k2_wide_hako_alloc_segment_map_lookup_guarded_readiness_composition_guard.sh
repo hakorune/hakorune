@@ -5,6 +5,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="k2-wide-hako-alloc-segment-map-lookup-guarded-readiness-composition"
 cd "$ROOT_DIR"
 source "$ROOT_DIR/tools/checks/lib/pure_first_exe_guard.sh"
+VALIDATION_LEVEL="$(pure_first_guard_parse_level "$TAG" "$@")"
 
 APP="apps/hako-alloc-segment-map-lookup-guarded-readiness-composition-proof/main.hako"
 APP_README="apps/hako-alloc-segment-map-lookup-guarded-readiness-composition-proof/README.md"
@@ -108,7 +109,12 @@ if rg -n 'k2_wide_hako_alloc_segment_map_lookup_guarded_readiness_composition_gu
 fi
 rm -f /tmp/"$TAG".gate_growth
 
-pure_first_guard_build_toolchain
+if ! pure_first_guard_level_allows_vm "$VALIDATION_LEVEL"; then
+  printf '[%s] ok level=%s\n' "$TAG" "$VALIDATION_LEVEL"
+  exit 0
+fi
+
+pure_first_guard_build_hakorune_debug
 
 tmp_dir="$(mktemp -d /tmp/hakorune_mimap153a_lookup_guarded_readiness.XXXXXX)"
 trap 'rm -rf "$tmp_dir"' EXIT
@@ -133,6 +139,11 @@ rg -F -q 'subreasons=3,8,2,2' "$vm_log"
 rg -F -q 'inactive=0,0,0,0,0,0,0,0,0' "$vm_log"
 rg -F -q 'counts=5,1,4,2,1,1,1,1' "$vm_log"
 rg -F -q 'summary=ok' "$vm_log"
+
+if ! pure_first_guard_level_allows_mir "$VALIDATION_LEVEL"; then
+  printf '[%s] ok level=%s\n' "$TAG" "$VALIDATION_LEVEL"
+  exit 0
+fi
 
 pure_first_guard_emit_mir "$ROOT_DIR" "$APP" "$mir_json"
 
@@ -187,6 +198,13 @@ for name in (
 print("[mimap153a-mir-json] ok")
 PY
 
+if ! pure_first_guard_level_allows_exe "$VALIDATION_LEVEL"; then
+  pure_first_guard_route_preflight "$TAG" "$ROOT_DIR" "$mir_json" "$build_log"
+  printf '[%s] ok level=%s\n' "$TAG" "$VALIDATION_LEVEL"
+  exit 0
+fi
+
+pure_first_guard_build_toolchain
 pure_first_guard_build_exe "$TAG" "$ROOT_DIR" "$APP" "$mir_json" "$exe_out" "$build_log"
 pure_first_guard_assert_clean_build_log "$TAG" "$build_log"
 pure_first_guard_run_exe "$TAG" "$exe_out" "$run_log"

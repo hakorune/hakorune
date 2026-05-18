@@ -47,6 +47,10 @@ Broad gates such as `dev_gate.sh quick` and allocator-wide are explicit release
 or default-change evidence. They are not part of the daily L0-L4 row cadence
 unless the active card names them.
 
+Compatibility note: older landed cards and guards may still use the phrase
+`L2 proof`; read it as the current `L2 MIR contract` row unless that card
+explicitly requires pure-first EXE.
+
 ## Validation Profiles
 
 Manifest-backed rows may carry:
@@ -70,6 +74,16 @@ tools/checks/run_proof_app.sh --closeout-pack segment-map-readiness --dry-run
 Current fields are selection metadata first. Existing public guard bodies still
 own their full historical evidence until a later row splits VM/MIR/EXE sections
 into separate manifest commands.
+
+For split guards, no-argument public wrappers remain full L3. Manifest level
+selection may call a level-specific command such as:
+
+```toml
+cmd_l2 = ["bash", "tools/checks/<guard>.sh", "--level", "L2"]
+```
+
+`--level L2` means static + VM + MIR JSON + route preflight, without EXE
+build/run. `--level L3` or no argument keeps the existing EXE behavior.
 
 Recommended profiles:
 

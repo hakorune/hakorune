@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-05-18"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "ROW-VALIDATION-PROFILE-001 landed by adding manifest validation profile metadata for the segment-map readiness family; MIMAP-154A remains the active allocator planning blocker. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "ROW-VALIDATION-PROFILE-002 landed by splitting the segment-map readiness family guards so manifest --level L2 can run VM/MIR/preflight without EXE; MIMAP-154A remains the active allocator planning blocker. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
 phase_status = "docs/development/current/main/phases/phase-293x/293x-674-MIMAP-154A-POST-LOOKUP-GUARDED-READINESS-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-675-ROW-VALIDATION-PROFILE-001-MANIFEST-SCHEMA-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-675-ROW-VALIDATION-PROFILE-001-MANIFEST-SCHEMA-PILOT.md"
-latest_card_summary = "ROW-VALIDATION-PROFILE-001 landed by adding manifest validation profile metadata and seeding the segment-map readiness family; MIMAP-154A remains current."
+latest_card = "293x-676-ROW-VALIDATION-PROFILE-002-SEGMENT-MAP-L2-SPLIT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-676-ROW-VALIDATION-PROFILE-002-SEGMENT-MAP-L2-SPLIT.md"
+latest_card_summary = "ROW-VALIDATION-PROFILE-002 landed by adding manifest --level selection and L2 split commands for the segment-map readiness family; MIMAP-154A remains current."
 
 current_blocker_token = "MIMAP-154A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-676 ROW-VALIDATION-PROFILE-002 segment-map readiness L2 split landed; MIMAP-154A remains current",
+  "293x-675 ROW-VALIDATION-PROFILE-001 manifest schema pilot landed; MIMAP-154A remains current",
   "293x-673 MIMAP-153A segment-map lookup guarded readiness composition landed; MIMAP-154A selected",
   "293x-672 MIMAP-152A post-segment-map-scalar-lookup row selection landed; MIMAP-153A selected",
   "293x-671 MIMAP-151A segment-map scalar lookup boundary inventory landed; MIMAP-152A selected",
