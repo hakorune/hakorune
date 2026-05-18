@@ -14,6 +14,10 @@ box HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseLedgerRe
     existing_index: i64 = -1
     reuse_lifecycle_token: i64 = -1
     modeled_reuse_token: i64 = -1
+    source_modeled_allocation_token: i64 = -1
+    segment_id: i64 = -1
+    page_id: i64 = -1
+    reused_block_id: i64 = -1
     lifecycle_id: i64 = -1
     source_release_ledger_key_kind: i64 = 1
     release_key_migrated: i64 = 1

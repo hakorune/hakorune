@@ -490,6 +490,37 @@ box HakoAllocSegmentAllocationModeledLocalFreeReuseLedger {
         return me.acceptReleaseApply(row_index, release_report)
     }
 
+    applyReuseLedgerLifecycleKeyedRelease(release_report, unsupported_requirement): HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport {
+        me.release_apply_attempt_count += 1
+
+        if release_report.did_release != 1 {
+            return me.rejectReleaseApply(1, -1, release_report)
+        }
+        if release_report.reason != 0 {
+            return me.rejectReleaseApply(1, -1, release_report)
+        }
+        if release_report.lifecycle_keyed_release_ledger_present != 1 {
+            return me.rejectReleaseApply(1, -1, release_report)
+        }
+        if release_report.release_key_migrated != 1 {
+            return me.rejectReleaseApply(1, -1, release_report)
+        }
+        if release_report.modeled_reuse_token < 0 {
+            return me.rejectReleaseApply(2, -1, release_report)
+        }
+
+        if unsupported_requirement != 0 {
+            return me.rejectReleaseApplyUnsupportedRequirement(unsupported_requirement, release_report)
+        }
+
+        local row_index = me.findIndex(release_report.modeled_reuse_token)
+        if row_index < 0 {
+            return me.rejectReleaseApply(4, -1, release_report)
+        }
+
+        return me.acceptReleaseApply(row_index, release_report)
+    }
+
     tokenAt(index): i64 {
         if index < 0 {
             return -1

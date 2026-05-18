@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-232A` is current after MIMAP-231A selected the source lifecycle-keyed
+`MIMAP-233A` is current after MIMAP-232A landed the source lifecycle-keyed
 release apply/recycle continuation bridge.
 
 Recommended current row:
 
 ```text
-MIMAP-232A
-  source lifecycle-keyed release apply/recycle continuation bridge
+MIMAP-233A
+  source lifecycle-keyed release apply/recycle continuation diagnostics
 ```
 
 Purpose:
 
 ```text
-connect lifecycle-keyed source release rows into modeled release-apply/recycle continuation
+add narrow diagnostics around lifecycle-keyed source release apply/recycle continuation
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -278,7 +278,8 @@ no provider activation
 | 207 | allocator | `MIMAP-229A source lifecycle-keyed release ledger diagnostics` | landed; selected MIMAP-230A |
 | 208 | closeout | `MIMAP-230A source release-ledger lifecycle-key migration closeout pack` | landed; selected MIMAP-231A |
 | 209 | planning | `MIMAP-231A post source release-ledger lifecycle-key migration closeout row selection` | landed; selected MIMAP-232A |
-| 210 | allocator | `MIMAP-232A source lifecycle-keyed release apply/recycle continuation bridge` | selected current |
+| 210 | allocator | `MIMAP-232A source lifecycle-keyed release apply/recycle continuation bridge` | landed; selected MIMAP-233A |
+| 211 | allocator | `MIMAP-233A source lifecycle-keyed release apply/recycle continuation diagnostics` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

@@ -426,6 +426,19 @@ source release-ledger lifecycle-key migration family:
     closeout_pack = source-release-ledger-lifecycle-key-migration
     representative L3 EXE evidence in MIMAP-228A and MIMAP-230A
 
+source lifecycle-keyed release apply/recycle continuation family:
+  MIMAP-232A source lifecycle-keyed release apply/recycle continuation bridge:
+    validation_profile = first-pattern
+    closeout_pack = source-lifecycle-keyed-release-apply-recycle-continuation
+    exe = auto
+  MIMAP-233A source lifecycle-keyed release apply/recycle continuation diagnostics:
+    validation_profile = scalar-mir
+    closeout_pack = source-lifecycle-keyed-release-apply-recycle-continuation
+    exe = deferred-to-closeout
+  closeout pack:
+    closeout_pack = source-lifecycle-keyed-release-apply-recycle-continuation
+    representative L3 EXE evidence in MIMAP-232A and a future closeout pack
+
 cleanup row using C199 compound assignment:
   L1 C199 guard
   L3 touched segment guards only

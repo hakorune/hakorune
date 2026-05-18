@@ -417,7 +417,8 @@ Forbidden:
 | `MIMAP-229A` | source lifecycle-keyed release ledger diagnostics | landed; selected MIMAP-230A |
 | `MIMAP-230A` | source release-ledger lifecycle-key migration closeout pack | landed; selected MIMAP-231A |
 | `MIMAP-231A` | post-source-release-ledger-lifecycle-key-migration-closeout row selection | landed; selected MIMAP-232A |
-| `MIMAP-232A` | source lifecycle-keyed release apply/recycle continuation bridge | selected current |
+| `MIMAP-232A` | source lifecycle-keyed release apply/recycle continuation bridge | landed; selected MIMAP-233A |
+| `MIMAP-233A` | source lifecycle-keyed release apply/recycle continuation diagnostics | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2042,10 +2043,27 @@ apply/recycle continuation bridge.
 
 ### MIMAP-232A granularity
 
-MIMAP-232A should connect a lifecycle-keyed source release row back into the
+MIMAP-232A connects a lifecycle-keyed source release row back into the
 modeled reuse ledger release-apply and recycled local-free reuse path using
 `modeled_reuse_token` as an explicit backref. It must remain scalar/model only
-and must not reopen old modeled-reuse-token keyed source release owner mutation.
+and must not use the old modeled-reuse-token keyed source release owner as the
+continuation owner. Isolated fixture setup/precondition reports are allowed.
+
+It must keep real allocator execution, raw pointer residence, arena backing,
+real segment-map mutation, atomic bitmap execution, OSVM/page-source execution,
+worker scheduling, provider activation, cross-function `Result` direct ABI,
+runtime sum materialization, and backend matchers closed.
+
+MIMAP-232A landed by adding the lifecycle-keyed apply entry, proof app,
+first-pattern L3 guard, design SSOT, proof manifest row, and current pointers.
+It selected MIMAP-233A.
+
+### MIMAP-233A granularity
+
+MIMAP-233A is the diagnostics row after the lifecycle-keyed release
+apply/recycle continuation bridge. It should keep the MIMAP-232A route shape and
+add narrow diagnostics for missing live row, unsupported lifecycle-keyed apply,
+and post-continuation duplicate reuse before the closeout pack.
 
 It must keep real allocator execution, raw pointer residence, arena backing,
 real segment-map mutation, atomic bitmap execution, OSVM/page-source execution,
