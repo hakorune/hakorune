@@ -319,7 +319,8 @@ Forbidden:
 | `PURE-FIRST-BRAND-CONSTRUCT-001` | brand constructor MIR acceptance | landed; selected HAKO-ALLOC-ID-BRAND-002 |
 | `HAKO-ALLOC-ID-BRAND-002` | allocator scalar ID brand first pilot | landed; selected HAKO-ALLOC-ID-BRAND-003 |
 | `HAKO-ALLOC-ID-BRAND-003` | allocator scalar ID brand pilot closeout guard | landed; selected MIMAP-145A |
-| `MIMAP-145A` | post-ID-brand-pilot-closeout row selection | selected current |
+| `MIMAP-145A` | post-ID-brand-pilot-closeout row selection | landed; selected HAKO-ALLOC-REPORT-RECORD-001 |
+| `HAKO-ALLOC-REPORT-RECORD-001` | allocator report record cleanup inventory | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -458,6 +459,20 @@ Hakorune core, or BoxShape cleanup row.
 It must not implement allocator behavior, compiler route behavior, source
 syntax, provider activation, host allocator replacement, backend matchers, or
 silent fallback by itself.
+
+MIMAP-145A landed by selecting HAKO-ALLOC-REPORT-RECORD-001, an inventory row
+for allocator proof report record cleanup.
+
+
+### HAKO-ALLOC-REPORT-RECORD-001 granularity
+
+HAKO-ALLOC-REPORT-RECORD-001 inventories current wide allocator proof report
+shapes and decides whether existing record support can safely reduce one report
+surface without changing behavior.
+
+It must not add allocator behavior, broad report rewrites, packed/backend record
+lowering, provider activation, host allocator replacement, backend matchers, or
+silent fallback.
 
 
 ## Historical Granularity Anchors

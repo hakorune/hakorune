@@ -1,6 +1,6 @@
 # 293x-659 MIMAP-145A Post-ID-Brand-Pilot-Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -28,3 +28,27 @@ Hakorune core capability, or a BoxShape cleanup row.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Result
+
+`MIMAP-145A` selected the next narrow row:
+
+```text
+HAKO-ALLOC-REPORT-RECORD-001
+  allocator report record cleanup inventory
+```
+
+Rationale:
+
+```text
+The scalar ID brand pilot reduced the risk of mixing page/block/segment IDs at
+one allocator helper boundary. The next recurring source friction is wide
+allocator proof reports and report helper argument lists.
+
+Before rewriting source, inventory the current report shapes and decide whether
+existing record semantics are enough for one safe pilot or whether a focused
+compiler row is needed first.
+```
+
+Stop lines remain closed for allocator behavior, provider activation, host
+allocator replacement, backend matchers, and silent fallback.

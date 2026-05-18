@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-145A post-ID-brand-pilot-closeout row selection`
+  `HAKO-ALLOC-REPORT-RECORD-001 allocator report record cleanup inventory`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,7 +74,7 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-145A`, the post-ID-brand-pilot-closeout row selection selected by HAKO-ALLOC-ID-BRAND-003.
+- resume point: continue Phase 293x with `HAKO-ALLOC-REPORT-RECORD-001`, the allocator report record cleanup inventory selected by MIMAP-145A.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -82,10 +82,9 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-145A`: choose exactly one next allocator / Hakorune core row after
-     the scalar ID brand pilot closeout
-  2. keep full brand type checking, field/return/typed-local propagation, and
-     cross-module inference parked unless MIMAP-145A selects a focused row
+  1. `HAKO-ALLOC-REPORT-RECORD-001`: inventory wide allocator proof reports and
+     decide whether current record support is enough for one cleanup pilot
+  2. keep broad report rewrites and packed/backend record lowering out of this row
   3. preserve allocator behavior and proof output
   4. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider activation inactive
