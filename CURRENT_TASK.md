@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-144A post-release-applied-recycle-closeout row selection`
+  `HAKO-ALLOC-ID-BRAND-001 allocator scalar ID brand application inventory`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,7 +74,7 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-144A`, the planning row after MIMAP-143A landed release-applied local-free reuse ledger token recycle closeout.
+- resume point: continue Phase 293x with `HAKO-ALLOC-ID-BRAND-001`, the allocator scalar ID brand application inventory selected by MIMAP-144A.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -82,12 +82,13 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-144A`: inspect the MIMAP-143A closeout evidence and select exactly
-     one next allocator/compiler/language row
-  2. keep real thread scheduling, worker spawning, source-level concurrency features,
-     page-source calls, OSVM release, and provider
-     activation inactive
-  3. keep secure entropy execution parked until a separate random substrate
+  1. `HAKO-ALLOC-ID-BRAND-001`: inventory allocator scalar ID candidates and
+     determine where existing brand/type semantics can be applied safely
+  2. if current Stage1 brand support is too narrow, select a focused compiler
+     row instead of working around it in `.hako`
+  3. keep real thread scheduling, worker spawning, source-level concurrency features,
+     page-source calls, OSVM release, and provider activation inactive
+  4. keep secure entropy execution parked until a separate random substrate
      route and audit row are accepted
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner

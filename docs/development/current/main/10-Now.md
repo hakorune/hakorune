@@ -34,15 +34,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-144A post-release-applied-recycle-closeout row selection`
+- current blocker token: `HAKO-ALLOC-ID-BRAND-001 allocator scalar ID brand application inventory`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x with `MIMAP-144A`; current blocker is the planning row
-  after release-applied local-free reuse ledger token recycle closeout
-- latest allocator closeout: `MIMAP-143A` landed and selected MIMAP-144A
+- continue phase-293x with `HAKO-ALLOC-ID-BRAND-001`; current blocker is
+  allocator scalar ID brand application inventory
+- latest planning row: `MIMAP-144A` landed and selected HAKO-ALLOC-ID-BRAND-001
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

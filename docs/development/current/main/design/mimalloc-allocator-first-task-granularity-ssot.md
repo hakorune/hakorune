@@ -314,7 +314,8 @@ Forbidden:
 | `MIMAP-141A` | post-guard-spec-pilot row selection | landed; selected MIMAP-142A |
 | `MIMAP-142A` | segment allocation modeled local-free reuse ledger release-applied recycle proof | landed; selected MIMAP-143A |
 | `MIMAP-143A` | segment allocation modeled local-free reuse ledger release-applied recycle closeout guard | landed; selected MIMAP-144A |
-| `MIMAP-144A` | post-release-applied-recycle-closeout row selection | selected current |
+| `MIMAP-144A` | post-release-applied-recycle-closeout row selection | landed; selected HAKO-ALLOC-ID-BRAND-001 |
+| `HAKO-ALLOC-ID-BRAND-001` | allocator scalar ID brand application inventory | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -375,6 +376,23 @@ exactly one next allocator / compiler / language task.
 It must not implement allocator behavior, compiler route behavior, source
 syntax, provider activation, host allocator replacement, backend matchers, or
 silent fallback by itself.
+
+MIMAP-144A landed by selecting HAKO-ALLOC-ID-BRAND-001, a language/allocator
+boundary row that inventories existing allocator scalar IDs against the already
+accepted brand/type vocabulary before any broader allocator execution row.
+
+
+### HAKO-ALLOC-ID-BRAND-001 granularity
+
+HAKO-ALLOC-ID-BRAND-001 is a language/allocator boundary row after MIMAP-144A.
+It should inventory page/block/segment/token scalar IDs in the current
+`hako_alloc` modeled allocator lane, classify where existing `brand` / `type`
+semantics can be applied, and decide whether a first source pilot is already
+covered by current Stage1 brand checks.
+
+It must not add allocator behavior, new brand syntax, broad type-system
+semantics, field/return/cross-module brand inference, provider activation, host
+allocator replacement, backend matchers, or silent fallback.
 
 
 ## Historical Granularity Anchors

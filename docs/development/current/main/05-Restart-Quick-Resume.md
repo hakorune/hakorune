@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-144A post-release-applied-recycle-closeout row selection`
+- current blocker token: `HAKO-ALLOC-ID-BRAND-001 allocator scalar ID brand application inventory`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -50,7 +50,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-144A post-release-applied-recycle-closeout row selection`
+- current blocker token: `HAKO-ALLOC-ID-BRAND-001 allocator scalar ID brand application inventory`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -61,9 +61,9 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` with `MIMAP-144A`; current blocker is the planning row
-  after release-applied local-free reuse ledger token recycle closeout
-- latest allocator closeout: `MIMAP-143A` landed and selected MIMAP-144A
+- continue `phase-293x` with `HAKO-ALLOC-ID-BRAND-001`; current blocker is
+  allocator scalar ID brand application inventory
+- latest planning row: `MIMAP-144A` landed and selected HAKO-ALLOC-ID-BRAND-001
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

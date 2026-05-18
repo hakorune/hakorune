@@ -1,6 +1,6 @@
 # 293x-654 MIMAP-144A Post Release-Applied Recycle Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -38,3 +38,30 @@ one next allocator / compiler / language task.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Result
+
+`MIMAP-144A` selected the next narrow row:
+
+```text
+HAKO-ALLOC-ID-BRAND-001
+  allocator scalar ID brand application inventory
+```
+
+Rationale:
+
+```text
+MIMAP-142A / MIMAP-143A closed a scalar modeled release-applied recycle chain.
+The next risk is not provider activation or real segment execution; it is that
+page / block / segment / token scalars remain easy to mix while the allocator
+surface grows.
+
+The smallest next step is to apply the existing Hakorune brand/type vocabulary
+to one allocator-facing inventory row, then decide whether the current Stage1
+brand checker is sufficient or whether a separate compiler acceptance row is
+needed before source changes.
+```
+
+Stop lines remain closed for real segment allocation/free, page-source/OSVM,
+thread scheduling, provider activation, host allocator replacement, backend
+matchers, and silent fallback.
