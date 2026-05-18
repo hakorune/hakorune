@@ -25,7 +25,13 @@ impl super::MirBuilder {
                 // Sequentially lower statements and return last value (or Void)
                 self.cf_block(statements)
             }
-            ASTNode::ScopeBox { body, .. } => self.cf_block(body),
+            ASTNode::ScopeBox { body, .. } => {
+                if let Some(value) = self.try_build_guard_let_scopebox(body.clone())? {
+                    Ok(value)
+                } else {
+                    self.cf_block(body)
+                }
+            }
             ASTNode::TaskScope { source_keyword, .. } => Err(format!(
                 "[freeze:contract][mir_builder/task_scope_lowering_missing] spelling={} task scope lowering must be owned by CONC-CO runtime hooks",
                 source_keyword
@@ -191,6 +197,19 @@ impl super::MirBuilder {
                 else_expr,
                 ..
             } => self.build_peek_expression(*scrutinee.clone(), arms.clone(), *else_expr.clone()),
+
+            ASTNode::EnumMatchExpr {
+                enum_name,
+                scrutinee,
+                arms,
+                else_expr,
+                ..
+            } => self.build_enum_match_expression(
+                enum_name.clone(),
+                *scrutinee.clone(),
+                arms.clone(),
+                else_expr.clone(),
+            ),
 
             ASTNode::Lambda { params, body, .. } => {
                 self.build_lambda_expression(params.clone(), body.clone())
@@ -449,5 +468,4 @@ impl super::MirBuilder {
             _ => Err(format!("Unsupported AST node type: {:?}", ast)),
         }
     }
-
 }

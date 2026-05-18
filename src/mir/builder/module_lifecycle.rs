@@ -510,6 +510,7 @@ impl super::MirBuilder {
             })
             .collect();
         module.metadata.record_decls = self.comp_ctx.record_decls.clone().into_iter().collect();
+        module.metadata.enum_decls = self.comp_ctx.enum_decls_for_module_metadata();
         crate::mir::record_layout_plan::refresh_module_record_layout_plans(&mut module);
         crate::mir::array_record_storage_plan::refresh_module_array_record_storage_plans(
             &mut module,

@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `PURE-FIRST-GUARDLET-ENUMMATCH-001 direct MIR guard-let EnumMatchExpr acceptance`
+- current blocker token: `HAKO-ALLOC-RESULT-API-002 allocator local-free Result guard-let pilot`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -50,7 +50,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `PURE-FIRST-GUARDLET-ENUMMATCH-001 direct MIR guard-let EnumMatchExpr acceptance`
+- current blocker token: `HAKO-ALLOC-RESULT-API-002 allocator local-free Result guard-let pilot`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -61,10 +61,10 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` with `PURE-FIRST-GUARDLET-ENUMMATCH-001`; current
-  blocker is direct MIR guard-let EnumMatchExpr acceptance
-- latest inventory row: `HAKO-ALLOC-RESULT-API-001` landed and selected
-  PURE-FIRST-GUARDLET-ENUMMATCH-001
+- continue `phase-293x` with `HAKO-ALLOC-RESULT-API-002`; current blocker is
+  allocator local-free Result guard-let pilot
+- latest compiler row: `PURE-FIRST-GUARDLET-ENUMMATCH-001` landed and selected
+  HAKO-ALLOC-RESULT-API-002
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

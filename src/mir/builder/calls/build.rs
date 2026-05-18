@@ -224,6 +224,12 @@ impl MirBuilder {
         method: String,
         arguments: Vec<ASTNode>,
     ) -> Result<ValueId, String> {
+        if let Some(result) =
+            self.try_build_enum_variant_constructor(&parent, &method, arguments.clone())?
+        {
+            return Ok(result);
+        }
+
         let arg_values = self.build_call_args(&arguments)?;
         let parent_value = crate::mir::builder::emission::constant::emit_string(self, parent)?;
         let result_id = self.next_value_id();

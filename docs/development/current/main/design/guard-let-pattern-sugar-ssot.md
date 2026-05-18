@@ -66,6 +66,15 @@ existing known-enum/prelude diagnostics
 future type-context and exhaustiveness refinements
 ```
 
+Direct MIR owns:
+
+```text
+known enum constructor lowering to VariantMake
+guard-let generated boolean EnumMatchExpr lowering through VariantTag + select
+guard-let generated single-payload binding extraction through VariantProject
+parser-emitted guard-let ScopeBox binding visibility for the following source statements
+```
+
 Stage1 does not own here:
 
 ```text

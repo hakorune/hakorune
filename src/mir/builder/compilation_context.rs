@@ -22,9 +22,9 @@
  * - plugin_method_sigs: Plugin method signatures
  */
 
-use crate::ast::ASTNode;
 use crate::ast::FieldDecl;
-use crate::mir::function::RecordDecl;
+use crate::ast::{ASTNode, EnumVariantDecl};
+use crate::mir::function::{MirEnumDecl, MirEnumVariantDecl, RecordDecl};
 use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
 use crate::mir::{MirType, UserBoxFieldDecl, ValueId};
 use std::collections::{HashMap, HashSet};
@@ -40,6 +40,18 @@ pub(crate) struct RecordLocalFieldValue {
 pub(crate) struct RecordLocalValue {
     pub record_name: String,
     pub fields: Vec<RecordLocalFieldValue>,
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct EnumDeclLocal {
+    pub type_parameters: Vec<String>,
+    pub variants: Vec<EnumVariantDecl>,
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct ResolvedEnumVariant<'a> {
+    pub tag: u32,
+    pub decl: &'a EnumVariantDecl,
 }
 
 use super::properties::PropertyRegistry;
@@ -78,6 +90,14 @@ pub(crate) struct CompilationContext {
     /// Record declarations keyed by record name. Records are not ordinary
     /// user boxes and must not enter `user_defined_boxes`.
     pub record_decls: HashMap<String, RecordDecl>,
+
+    /// Enum declarations visible to direct MIR lowering.
+    ///
+    /// The parser preloads `Option` / `Result` for source validation, but direct
+    /// MIR lowering also needs a local inventory so variant constructors and
+    /// guard-let enum probes lower to canonical sum instructions instead of
+    /// falling through to helper calls.
+    pub enum_decls: HashMap<String, EnumDeclLocal>,
 
     /// Builder-local record values created by the C205b scalarization seam.
     ///
@@ -149,6 +169,7 @@ pub(crate) struct CompilationContext {
 impl CompilationContext {
     /// Create a new CompilationContext with default-initialized state
     pub fn new() -> Self {
+        let enum_decls = prelude_enum_decls();
         Self {
             compilation_context: None,
             current_static_box: None,
@@ -156,6 +177,7 @@ impl CompilationContext {
             brand_decls: HashMap::new(),
             user_box_field_decls: HashMap::new(),
             record_decls: HashMap::new(),
+            enum_decls,
             record_local_values: HashMap::new(),
             reserved_value_ids: HashSet::new(),
             fn_body_ast: None,
@@ -276,6 +298,62 @@ impl CompilationContext {
 
     pub fn is_record_decl(&self, name: &str) -> bool {
         self.record_decls.contains_key(name)
+    }
+
+    pub fn register_enum_decl(
+        &mut self,
+        name: String,
+        type_parameters: Vec<String>,
+        variants: Vec<EnumVariantDecl>,
+    ) {
+        self.enum_decls.insert(
+            name,
+            EnumDeclLocal {
+                type_parameters,
+                variants,
+            },
+        );
+    }
+
+    pub fn resolve_enum_variant(
+        &self,
+        enum_name: &str,
+        variant_name: &str,
+    ) -> Option<ResolvedEnumVariant<'_>> {
+        self.enum_decls.get(enum_name).and_then(|decl| {
+            decl.variants
+                .iter()
+                .enumerate()
+                .find(|(_, variant)| variant.name == variant_name)
+                .map(|(tag, variant)| ResolvedEnumVariant {
+                    tag: tag as u32,
+                    decl: variant,
+                })
+        })
+    }
+
+    pub fn enum_decls_for_module_metadata(
+        &self,
+    ) -> std::collections::BTreeMap<String, MirEnumDecl> {
+        self.enum_decls
+            .iter()
+            .map(|(name, decl)| {
+                (
+                    name.clone(),
+                    MirEnumDecl {
+                        type_parameters: decl.type_parameters.clone(),
+                        variants: decl
+                            .variants
+                            .iter()
+                            .map(|variant| MirEnumVariantDecl {
+                                name: variant.name.clone(),
+                                payload_type_name: variant.payload_type_name.clone(),
+                            })
+                            .collect(),
+                    },
+                )
+            })
+            .collect()
     }
 
     pub fn register_record_local_value(
@@ -499,6 +577,26 @@ impl Default for CompilationContext {
     fn default() -> Self {
         Self::new()
     }
+}
+
+fn prelude_enum_decls() -> HashMap<String, EnumDeclLocal> {
+    crate::semantics::result_option_prelude::result_option_prelude_enum_decls()
+        .into_iter()
+        .map(|(name, variants)| {
+            let type_parameters = match name.as_str() {
+                "Option" => vec!["T".to_string()],
+                "Result" => vec!["T".to_string(), "E".to_string()],
+                _ => Vec::new(),
+            };
+            (
+                name,
+                EnumDeclLocal {
+                    type_parameters,
+                    variants,
+                },
+            )
+        })
+        .collect()
 }
 
 #[cfg(test)]

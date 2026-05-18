@@ -67,6 +67,18 @@ pub(super) fn index_declarations(builder: &mut MirBuilder, node: &ASTNode) {
                 .comp_ctx
                 .register_brand_decl(name.clone(), underlying_type_name.clone());
         }
+        ASTNode::EnumDeclaration {
+            name,
+            variants,
+            type_parameters,
+            ..
+        } => {
+            builder.comp_ctx.register_enum_decl(
+                name.clone(),
+                type_parameters.clone(),
+                variants.clone(),
+            );
+        }
         ASTNode::BoxDeclaration {
             name,
             fields, // Phase 285LLVM-1.1: Extract fields

@@ -324,7 +324,8 @@ Forbidden:
 | `HAKO-ALLOC-REPORT-RECORD-002` | local-free integration report record boundary cleanup | landed; selected MIMAP-146A |
 | `MIMAP-146A` | post-report-record-cleanup row selection | landed; selected HAKO-ALLOC-RESULT-API-001 |
 | `HAKO-ALLOC-RESULT-API-001` | allocator Result/Option guard-let inventory | landed; selected PURE-FIRST-GUARDLET-ENUMMATCH-001 |
-| `PURE-FIRST-GUARDLET-ENUMMATCH-001` | direct MIR guard-let EnumMatchExpr acceptance | selected current |
+| `PURE-FIRST-GUARDLET-ENUMMATCH-001` | direct MIR guard-let EnumMatchExpr acceptance | landed; selected HAKO-ALLOC-RESULT-API-002 |
+| `HAKO-ALLOC-RESULT-API-002` | allocator local-free Result guard-let pilot | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -538,6 +539,18 @@ emitted by `guard let Type::Variant(binding) = expr else { ... }` in direct MIR.
 
 It must not add broad pattern matching, implicit Result propagation, allocator
 source rewrites, backend matchers, or silent fallback.
+
+PURE-FIRST-GUARDLET-ENUMMATCH-001 landed by publishing enum metadata in direct
+MIR, lowering known enum constructors to `VariantMake`, and accepting the two
+guard-let generated `EnumMatchExpr` shapes. It selected
+HAKO-ALLOC-RESULT-API-002.
+
+### HAKO-ALLOC-RESULT-API-002 granularity
+
+HAKO-ALLOC-RESULT-API-002 is the first allocator source pilot for the accepted
+Result/guard-let surface. It should touch one local-free integration helper
+boundary only, preserve report record fields and proof output, and keep broad
+allocator report rewrites out of scope.
 
 
 ## Historical Granularity Anchors

@@ -26,8 +26,9 @@ mod collection_literals; // ArrayLiteral / MapLiteral lowering
 mod compilation_context; // Phase 136 follow-up (Step 7/7): CompilationContext extraction
 mod decls; // declarations lowering split
 mod exprs; // expression lowering split
-mod exprs_check; // CheckExpr lowering
 mod exprs_call;
+mod exprs_check; // CheckExpr lowering
+mod exprs_enum_match; // narrow direct-MIR enum match lowering for guard-let sugar
 mod metadata_context; // Phase 136 follow-up (Step 6/7): MetadataContext extraction
 mod method_call_handlers;
 #[cfg(test)]
