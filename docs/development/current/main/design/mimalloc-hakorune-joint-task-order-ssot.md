@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-183A` is current after MIMAP-182A closed the segment-map local-free
-page-apply bridge pack with representative exact-MIR L3 EXE evidence.
+`MIMAP-185A` is current after MIMAP-184A connected the segment-map
+released-span chain to the modeled local-free integration owner.
 
 Recommended current row:
 
 ```text
-MIMAP-183A
-  post-segment-map-local-free-page-apply-bridge-closeout row selection
+MIMAP-185A
+  post-segment-map-local-free-integration-bridge row selection
 ```
 
 Purpose:
 
 ```text
-choose the next narrow row after segment-map local-free page-apply bridge closeout
+choose the next narrow row after segment-map local-free integration bridge
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -229,7 +229,9 @@ no provider activation
 | 158 | allocator | `MIMAP-180A segment-map local-free page-apply bridge` | landed; selected MIMAP-181A |
 | 159 | planning | `MIMAP-181A post-segment-map-local-free-page-apply-bridge row selection` | landed; selected MIMAP-182A |
 | 160 | closeout | `MIMAP-182A segment-map local-free page-apply bridge closeout pack` | landed; selected MIMAP-183A |
-| 161 | planning | `MIMAP-183A post-segment-map-local-free-page-apply-bridge-closeout row selection` | selected current |
+| 161 | planning | `MIMAP-183A post-segment-map-local-free-page-apply-bridge-closeout row selection` | landed; selected MIMAP-184A |
+| 162 | allocator | `MIMAP-184A segment-map local-free integration bridge` | landed; selected MIMAP-185A |
+| 163 | planning | `MIMAP-185A post-segment-map-local-free-integration-bridge row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

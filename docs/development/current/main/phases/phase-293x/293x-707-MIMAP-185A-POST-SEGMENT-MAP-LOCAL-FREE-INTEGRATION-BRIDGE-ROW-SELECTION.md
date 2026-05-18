@@ -1,12 +1,12 @@
-# 293x-705 MIMAP-183A Post Segment Map Local Free Page Apply Bridge Closeout Row Selection
+# 293x-707 MIMAP-185A Post Segment Map Local Free Integration Bridge Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-18
 
 ## Decision
 
-Choose MIMAP-184A as the next narrow row after MIMAP-182A closes the
-segment-map local-free page-apply bridge pack.
+Choose the next narrow row after MIMAP-184A proves the segment-map
+local-free integration bridge.
 
 ## Context
 
@@ -20,19 +20,14 @@ explicit-ID readiness
   -> local-free candidate ledger can consume that released-span row
   -> local-free apply-plan ledger can consume that candidate row
   -> modeled page-apply can consume that apply-plan row
-  -> representative exact-MIR L3 EXE evidence
+  -> modeled local-free integration owner can consume that released-span row
 ```
 
-MIMAP-184A is the next row. It connects the segment-map-derived released-span
-chain to the existing modeled local-free integration owner. It must not jump
-directly to raw pointer residence, arena backing, real segment-map execution,
-real free-list mutation, real page-state mutation, or atomic bitmap behavior.
-
-## Selected Row
-
-```text
-MIMAP-184A segment-map local-free integration bridge
-```
+The next row should choose between a segment-map local-free integration closeout
+pack, a modeled reuse bridge from the segment-map integration chain, or a
+small diagnostic/observer sidecar. It should not jump directly to raw pointer
+residence, arena backing, real segment-map execution, real free-list mutation,
+real page-state mutation, or atomic bitmap behavior.
 
 ## Stop Lines
 
@@ -56,10 +51,4 @@ MIMAP-184A segment-map local-free integration bridge
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
-```
-
-## Next
-
-```text
-MIMAP-184A segment-map local-free integration bridge
 ```

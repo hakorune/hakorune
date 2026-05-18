@@ -356,6 +356,11 @@ Syntax/style contract
   residence, perform segment-map lookup, execute atomic bitmap claims, call
   page-source/OSVM seams, schedule workers, activate provider hooks, replace
   the host allocator, or add backend shortcuts.
+  It also owns MIMAP-184A. It may consume released-span rows produced from the
+  segment-map bridge and record the same modeled local-free integration facts,
+  while keeping real allocator free-list mutation, raw pointer residence, real
+  segment-map execution, arena backing, atomics, OSVM/page-source calls, and
+  backend shortcuts closed.
 - `segment_allocation_modeled_local_free_reuse_box.hako` owns MIMAP-126A. It
   may compose the existing MIMAP-119A local-free integration route with
   `HakoAllocPageModel.acquire(size)` and prove page-local reuse only when the

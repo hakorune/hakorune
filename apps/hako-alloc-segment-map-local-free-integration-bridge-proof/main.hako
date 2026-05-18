@@ -1,0 +1,135 @@
+// hako-alloc-segment-map-local-free-integration-bridge-proof
+// Purpose: prove MIMAP-184A segment-map released-span -> local-free integration bridge.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.segment_map_lookup_guarded_readiness_composition_box as HakoAllocSegmentMapLookupGuardedReadinessComposition
+using selfhost.hako_alloc.memory.segment_map_accepted_readiness_modeled_consume_ledger_box as HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_released_span_ledger_box as HakoAllocSegmentAllocationModeledReleasedSpanLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_integration_box as HakoAllocSegmentAllocationModeledLocalFreeIntegration
+
+static box Main {
+    seedPage(page): i64 {
+        local p0 = page.acquire(8)
+        local p1 = page.acquire(8)
+        local p2 = page.acquire(8)
+        local p3 = page.acquire(8)
+        local p4 = page.acquire(8)
+        local p5 = page.acquire(8)
+        return p5
+    }
+
+    nextReleasedSpan(route, released_spans, readiness): HakoAllocSegmentAllocationModeledReleasedSpanLedgerReport {
+        local consumed = route.consumeAcceptedReadiness(readiness, 0)
+        local released = route.releaseConsumedToken(consumed.modeled_allocation_token, 0)
+        return released_spans.recordReleasedSpan(released, 0)
+    }
+
+    main(args) {
+        local composition = new HakoAllocSegmentMapLookupGuardedReadinessComposition()
+        local route = new HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger()
+        local released_spans = new HakoAllocSegmentAllocationModeledReleasedSpanLedger()
+        local integration = new HakoAllocSegmentAllocationModeledLocalFreeIntegration()
+
+        local readiness = composition.composeLookupReadiness(70, 7, 3, 16, 1, composition.stateActive(), 2, 8, 3, 0)
+
+        local page = new HakoAllocPageModel(7, 16, 8, 8)
+        local p5 = Main.seedPage(page)
+        local first_span = Main.nextReleasedSpan(route, released_spans, readiness)
+        local first = integration.integrateLocalFree(first_span, page, 0, 0, 0)
+
+        local missing_release = route.releaseConsumedToken(999999, 0)
+        local missing_span = released_spans.recordReleasedSpan(missing_release, 0)
+        local missing = integration.integrateLocalFree(missing_span, page, 0, 0, 0)
+        local duplicate = integration.integrateLocalFree(first_span, page, 0, 0, 0)
+
+        local wrong_page_span = Main.nextReleasedSpan(route, released_spans, readiness)
+        local wrong_page = new HakoAllocPageModel(99, 16, 8, 8)
+        local wrong = integration.integrateLocalFree(wrong_page_span, wrong_page, 0, 0, 0)
+
+        local unsupported_span = Main.nextReleasedSpan(route, released_spans, readiness)
+        local unsupported = integration.integrateLocalFree(unsupported_span, page, 1, 0, 0)
+
+        local recycled_page = new HakoAllocPageModel(7, 16, 8, 8)
+        local r5 = Main.seedPage(recycled_page)
+        local recycled_span = Main.nextReleasedSpan(route, released_spans, readiness)
+        local recycled = integration.integrateLocalFree(recycled_span, recycled_page, 0, 0, 0)
+
+        local ok = check "mimap184a segment map local free integration bridge" {
+            "first integrated": first.did_integrate_local_free == 1
+            "first reason": first.reason == 0
+            "first candidate row": first.candidate_row_index == 0
+            "first plan row": first.apply_plan_row_index == 0
+            "first page row": first.page_apply_row_index == 0
+            "first token": first.modeled_allocation_token == 70007002
+            "first segment": first.segment_id == 70
+            "first page": first.page_id == 7
+            "first start": first.modeled_block_start == 2
+            "first end": first.modeled_block_end == 5
+            "first blocks": first.candidate_blocks == 3
+            "first applied": first.applied_blocks == 3
+            "first used before": first.page_used_before == 6
+            "first used after": first.page_used_after == 3
+            "first local before": first.page_local_free_before == 0
+            "first local after": first.page_local_free_after == 3
+            "first page local state": page.localFreeCount() == 3
+            "missing rejected": missing.did_integrate_local_free == 0
+            "missing reason": missing.reason == 1
+            "missing candidate reason": missing.candidate_reason == 2
+            "duplicate rejected": duplicate.did_integrate_local_free == 0
+            "duplicate reason": duplicate.reason == 1
+            "duplicate candidate reason": duplicate.candidate_reason == 3
+            "wrong page rejected": wrong.did_integrate_local_free == 0
+            "wrong reason": wrong.reason == 3
+            "wrong page apply reason": wrong.page_apply_reason == 4
+            "unsupported rejected": unsupported.did_integrate_local_free == 0
+            "unsupported reason": unsupported.reason == 1
+            "unsupported candidate reason": unsupported.candidate_reason == 4
+            "recycled integrated": recycled.did_integrate_local_free == 1
+            "recycled reason": recycled.reason == 0
+            "recycled candidate row": recycled.candidate_row_index == 2
+            "recycled plan row": recycled.apply_plan_row_index == 2
+            "recycled page row": recycled.page_apply_row_index == 1
+            "recycled used after": recycled.page_used_after == 3
+            "attempt count": integration.attempt_count == 6
+            "success count": integration.success_count == 2
+            "reject count": integration.reject_count == 4
+            "candidate rejects": integration.candidate_reject_count == 3
+            "apply plan rejects": integration.apply_plan_reject_count == 0
+            "page apply rejects": integration.page_apply_reject_count == 1
+            "candidate ledger count": integration.candidate_ledger.count == 3
+            "apply plan count": integration.apply_plan_ledger.count == 3
+            "page apply count": integration.page_apply_route.count == 2
+            "mutated via page model": first.did_mutate_page_local_free_list == 1
+            "inactive real free": first.would_execute_real_segment_free == 0
+            "inactive direct page arrays": first.would_directly_mutate_page_arrays == 0
+            "inactive raw": first.would_use_raw_pointer == 0
+            "inactive segment map": first.would_use_segment_map == 0
+            "inactive arena": first.would_allocate_arena_backing == 0
+            "inactive atomic": first.would_execute_atomic_bitmap == 0
+            "inactive osvm": first.would_call_osvm == 0
+            "inactive thread": first.would_run_thread == 0
+            "inactive provider": first.would_activate_provider == 0
+            "inactive matcher": first.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-map-local-free-integration-bridge-proof")
+        print("first=" + first.did_integrate_local_free + "," + first.reason + "," + first.candidate_row_index + "," + first.apply_plan_row_index + "," + first.page_apply_row_index + "," + first.modeled_allocation_token + "," + first.segment_id + "," + first.page_id + "," + first.modeled_block_start + "," + first.modeled_block_end + "," + first.candidate_blocks + "," + first.applied_blocks + "," + first.page_used_before + "," + first.page_used_after + "," + first.page_local_free_before + "," + first.page_local_free_after)
+        print("missing=" + missing.did_integrate_local_free + "," + missing.reason + "," + missing.candidate_reason)
+        print("duplicate=" + duplicate.did_integrate_local_free + "," + duplicate.reason + "," + duplicate.candidate_reason)
+        print("wrong_page=" + wrong.did_integrate_local_free + "," + wrong.reason + "," + wrong.page_apply_reason)
+        print("unsupported=" + unsupported.did_integrate_local_free + "," + unsupported.reason + "," + unsupported.candidate_reason)
+        print("recycled=" + recycled.did_integrate_local_free + "," + recycled.reason + "," + recycled.candidate_row_index + "," + recycled.apply_plan_row_index + "," + recycled.page_apply_row_index + "," + recycled.page_used_after + "," + recycled.page_local_free_after)
+        print("counts=" + integration.attempt_count + "," + integration.success_count + "," + integration.reject_count + "," + integration.candidate_reject_count + "," + integration.apply_plan_reject_count + "," + integration.page_apply_reject_count + "," + integration.candidate_ledger.count + "," + integration.apply_plan_ledger.count + "," + integration.page_apply_route.count)
+        print("page=" + page.used + "," + page.freeCount() + "," + page.localFreeCount() + "," + page.availableBlockCount())
+        print("inactive=" + first.would_execute_real_segment_free + "," + first.would_directly_mutate_page_arrays + "," + first.would_use_raw_pointer + "," + first.would_use_segment_map + "," + first.would_allocate_arena_backing + "," + first.would_execute_atomic_bitmap + "," + first.would_call_osvm + "," + first.would_run_thread + "," + first.would_activate_provider + "," + first.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -404,6 +404,19 @@ cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_local_free_page_appl
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_local_free_page_apply_bridge_guard.sh", "--level", "L2"]
 
 [[proof_apps]]
+id = "MIMAP-184A"
+app = "apps/hako-alloc-segment-map-local-free-integration-bridge-proof"
+label = "segment-map local-free integration bridge proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "scalar-composition"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "segment-map-local-free-integration-bridge"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_local_free_integration_bridge_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_local_free_integration_bridge_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
 id = "MIMAP-091A"
 app = "apps/hako-alloc-segment-allocation-modeled-consume-proof"
 label = "segment allocation modeled consume proof"

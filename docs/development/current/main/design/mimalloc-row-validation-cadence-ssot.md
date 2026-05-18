@@ -314,6 +314,15 @@ segment-map local-free page-apply bridge family:
     closeout_pack = segment-map-local-free-page-apply-bridge
     representative L3 EXE evidence in MIMAP-182A
 
+segment-map local-free integration bridge family:
+  MIMAP-184A segment-map local-free integration bridge:
+    validation_profile = scalar-mir
+    closeout_pack = segment-map-local-free-integration-bridge
+    exe = deferred-to-closeout
+  closeout pack:
+    closeout_pack = segment-map-local-free-integration-bridge
+    representative L3 EXE evidence deferred to a future closeout row
+
 cleanup row using C199 compound assignment:
   L1 C199 guard
   L3 touched segment guards only
