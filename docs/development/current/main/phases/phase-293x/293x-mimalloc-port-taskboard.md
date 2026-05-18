@@ -567,7 +567,9 @@ FST:
 | `MIMAP-190A` | landed | Segment-map local-free reuse bridge closeout pack. | selected MIMAP-191A |
 | `MIMAP-191A` | landed | Post-segment-map-local-free-reuse-bridge-closeout row selection. | selected MIMAP-192A |
 | `MIMAP-192A` | landed | Segment-map local-free reuse ledger bridge. | selected MIMAP-193A |
-| `MIMAP-193A` | selected current | Post-segment-map-local-free-reuse-ledger-bridge row selection. | current planning row |
+| `MIMAP-193A` | landed | Post-segment-map-local-free-reuse-ledger-bridge row selection. | selected MIMAP-194A |
+| `MIMAP-194A` | landed | Segment-map local-free reuse ledger bridge closeout pack. | selected MIMAP-195A |
+| `MIMAP-195A` | selected current | Post-segment-map-local-free-reuse-ledger-bridge-closeout row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -576,8 +578,9 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-193A` chooses the next narrow row after MIMAP-192A connected the
-segment-map local-free reuse chain to the modeled local-free reuse ledger owner.
+`MIMAP-195A` chooses the next narrow row after MIMAP-194A closed the
+segment-map local-free reuse ledger bridge pack with representative exact-MIR
+L3 EXE evidence.
 Raw pointer residence remains parked behind a future rawbuf/no-escape
 capability. Real thread scheduling, worker spawning, source-level concurrency
 features, arena backing allocation, atomic bitmap execution, page-source calls,
@@ -798,7 +801,9 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `MIMAP-193A` | selected current | Post-segment-map-local-free-reuse-ledger-bridge row selection. | Current planning row. |
+| `MIMAP-195A` | selected current | Post-segment-map-local-free-reuse-ledger-bridge-closeout row selection. | Current planning row. |
+| `MIMAP-194A` | landed | Segment-map local-free reuse ledger bridge closeout pack. | Selected MIMAP-195A. |
+| `MIMAP-193A` | landed | Post-segment-map-local-free-reuse-ledger-bridge row selection. | Selected MIMAP-194A. |
 | `MIMAP-192A` | landed | Segment-map local-free reuse ledger bridge. | Selected MIMAP-193A. |
 | `MIMAP-191A` | landed | Post-segment-map-local-free-reuse-bridge-closeout row selection. | Selected MIMAP-192A. |
 | `MIMAP-190A` | landed | Segment-map local-free reuse bridge closeout pack. | Selected MIMAP-191A. |

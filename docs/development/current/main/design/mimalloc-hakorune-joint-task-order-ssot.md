@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-193A` is current after MIMAP-192A connected the segment-map
-local-free reuse chain to the modeled local-free reuse ledger owner.
+`MIMAP-195A` is current after MIMAP-194A closed the segment-map local-free
+reuse ledger bridge pack with representative exact-MIR L3 EXE evidence.
 
 Recommended current row:
 
 ```text
-MIMAP-193A
-  post-segment-map-local-free-reuse-ledger-bridge row selection
+MIMAP-195A
+  post-segment-map-local-free-reuse-ledger-bridge-closeout row selection
 ```
 
 Purpose:
 
 ```text
-choose the next narrow row after segment-map local-free reuse ledger bridge
+choose the next narrow row after segment-map local-free reuse ledger bridge closeout
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -239,7 +239,9 @@ no provider activation
 | 168 | closeout | `MIMAP-190A segment-map local-free reuse bridge closeout pack` | landed; selected MIMAP-191A |
 | 169 | planning | `MIMAP-191A post-segment-map-local-free-reuse-bridge-closeout row selection` | landed; selected MIMAP-192A |
 | 170 | allocator | `MIMAP-192A segment-map local-free reuse ledger bridge` | landed; selected MIMAP-193A |
-| 171 | planning | `MIMAP-193A post-segment-map-local-free-reuse-ledger-bridge row selection` | selected current |
+| 171 | planning | `MIMAP-193A post-segment-map-local-free-reuse-ledger-bridge row selection` | landed; selected MIMAP-194A |
+| 172 | closeout | `MIMAP-194A segment-map local-free reuse ledger bridge closeout pack` | landed; selected MIMAP-195A |
+| 173 | planning | `MIMAP-195A post-segment-map-local-free-reuse-ledger-bridge-closeout row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

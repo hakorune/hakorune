@@ -1,12 +1,12 @@
-# 293x-715 MIMAP-193A Post Segment Map Local Free Reuse Ledger Bridge Row Selection
+# 293x-717 MIMAP-195A Post Segment Map Local Free Reuse Ledger Bridge Closeout Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-18
 
 ## Decision
 
-Choose MIMAP-194A as the next narrow row after MIMAP-192A proves the
-segment-map local-free reuse ledger bridge.
+Choose the next narrow row after MIMAP-194A closes the segment-map local-free
+reuse ledger bridge pack.
 
 ## Context
 
@@ -23,25 +23,14 @@ explicit-ID readiness
   -> modeled local-free integration owner can consume that released-span row
   -> modeled local-free reuse owner can reuse one local-free block
   -> modeled local-free reuse ledger owner records the reuse row
+  -> representative exact-MIR EXE parity for the reuse ledger bridge pack
 ```
 
-The next row is:
-
-```text
-MIMAP-194A segment-map local-free reuse ledger bridge closeout pack
-```
-
-Rationale:
-
-- MIMAP-192A explicitly deferred EXE evidence to a closeout pack.
-- The pack has only one daily L2 row, so representative L3 evidence should be
-  attached before opening another reuse-ledger bridge.
-- This keeps the row cadence consistent with the previous segment-map
-  local-free reuse bridge closeout.
-
-It should not jump directly to raw pointer residence, arena backing, real
-segment-map execution, real free-list mutation, real page-state mutation, or
-atomic bitmap behavior.
+The next row should choose between a reuse-ledger release bridge, a ledger
+observer/diagnostic sidecar, or a small pack-level cleanup if the closeout
+finds a narrow issue. It should not jump directly to raw pointer residence,
+arena backing, real segment-map execution, real free-list mutation, real
+page-state mutation, or atomic bitmap behavior.
 
 ## Stop Lines
 
@@ -63,11 +52,6 @@ atomic bitmap behavior.
 ## Required Evidence
 
 ```text
-bash tools/checks/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_bridge_closeout_guard.sh
-```
-
-## Next
-
-```text
-MIMAP-194A segment-map local-free reuse ledger bridge closeout pack
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
 ```
