@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-238A
+  MIMAP-239A
 
 current choice boundary:
-  segment arena backing readiness closeout pack
+  post segment arena backing readiness closeout row selection
   or the next modeled bridge that keeps real execution closed
 
 closed until explicitly reopened:
@@ -422,7 +422,8 @@ Forbidden:
 | `MIMAP-235A` | post-source-lifecycle-keyed-release-apply-recycle-continuation-closeout row selection | landed; selected MIMAP-236A |
 | `MIMAP-236A` | segment arena backing readiness inventory | landed; selected MIMAP-237A |
 | `MIMAP-237A` | segment arena backing readiness diagnostics | landed; selected MIMAP-238A |
-| `MIMAP-238A` | segment arena backing readiness closeout pack | selected current |
+| `MIMAP-238A` | segment arena backing readiness closeout pack | landed; selected MIMAP-239A |
+| `MIMAP-239A` | post-segment-arena-backing-readiness-closeout row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2135,12 +2136,29 @@ MIMAP-238A.
 
 ### MIMAP-238A granularity
 
+MIMAP-238A segment arena backing readiness closeout pack:
+
 MIMAP-238A should close out the segment arena backing readiness family. It
 should provide representative L3 evidence for MIMAP-236A and MIMAP-237A before
 opening any later arena backing allocation, raw pointer residence, real
 segment-map mutation, real segment allocation/free, atomic bitmap execution,
 OSVM/page-source execution, worker/provider activation, cross-function
 `Result` direct ABI, runtime sum materialization, or backend matcher row.
+
+MIMAP-238A landed by adding the closeout SSOT and manifest-backed guard, then
+running MIMAP-236A L2, MIMAP-237A L2, and representative exact-MIR L3 evidence.
+It selected MIMAP-239A.
+
+### MIMAP-239A granularity
+
+MIMAP-239A should select the next narrow allocator bridge after arena backing
+readiness closeout. Candidate directions include an arena backing scalar
+inventory, a no-escape raw pointer capability inventory, or a source-model arena
+backing bridge. It must not open real arena backing allocation, raw pointer
+residence, real segment-map mutation, real segment allocation/free, atomic
+bitmap execution, OSVM/page-source execution, worker/provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, or backend
+matchers directly.
 
 
 ## Historical Granularity Anchors
