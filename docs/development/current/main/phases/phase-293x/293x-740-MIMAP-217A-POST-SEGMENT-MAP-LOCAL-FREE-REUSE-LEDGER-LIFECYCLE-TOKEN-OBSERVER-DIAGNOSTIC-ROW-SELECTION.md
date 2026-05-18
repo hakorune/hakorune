@@ -1,18 +1,12 @@
-# 293x-738 MIMAP-215A Post Segment Map Local Free Reuse Ledger Lifecycle-Token Pilot Closeout Row Selection
+# 293x-740 MIMAP-217A Post Segment Map Local Free Reuse Ledger Lifecycle-Token Observer Diagnostic Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-19
 
 ## Decision
 
-Choose the next narrow row after MIMAP-214A closes the segment-map local-free
-reuse ledger lifecycle-token pilot pack.
-
-Selected row:
-
-```text
-MIMAP-216A segment-map local-free reuse ledger lifecycle-token observer diagnostic
-```
+Choose the next narrow row after MIMAP-216A adds the lifecycle-token observer
+diagnostic.
 
 ## Context
 
@@ -23,16 +17,13 @@ source reuse ledger applies release
   -> source reuse ledger recycles the same modeled reuse token as a new live row
   -> release owner rejects a second release record for the same modeled reuse token
   -> dedicated lifecycle-token owner derives explicit reuse-lifecycle tokens
-  -> representative exact-MIR L3 EXE evidence for the lifecycle-token pilot
+  -> observer reports lifecycle tokens while release key remains modeled reuse token
 ```
 
-The next row should choose whether to add a lifecycle-token observer/diagnostic,
-connect lifecycle-token facts to a later modeled release/recycle row, or choose
-the next modeled bridge while real allocator execution remains closed.
-
-MIMAP-215A selects the observer/diagnostic sidecar. It observes the
-lifecycle-token owner together with the release-owner duplicate diagnostic and
-keeps release-ledger key migration closed.
+The next row should choose whether to close the observer diagnostic pack with
+representative L3 evidence, connect lifecycle-token facts to a later modeled
+release/recycle row, or choose the next modeled bridge while real allocator
+execution remains closed.
 
 ## Stop Lines
 
@@ -57,10 +48,4 @@ keeps release-ledger key migration closed.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
-```
-
-## Next
-
-```text
-MIMAP-216A segment-map local-free reuse ledger lifecycle-token observer diagnostic
 ```

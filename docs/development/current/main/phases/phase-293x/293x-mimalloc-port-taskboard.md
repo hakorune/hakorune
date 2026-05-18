@@ -608,7 +608,9 @@ FST:
 | `MIMAP-212A` | landed | Segment-map local-free reuse ledger lifecycle-token pilot. | selected MIMAP-213A |
 | `MIMAP-213A` | landed | Post-segment-map-local-free-reuse-ledger-lifecycle-token-pilot row selection. | selected MIMAP-214A |
 | `MIMAP-214A` | landed | Segment-map local-free reuse ledger lifecycle-token pilot closeout pack. | selected MIMAP-215A |
-| `MIMAP-215A` | selected current | Post-segment-map-local-free-reuse-ledger-lifecycle-token-pilot-closeout row selection. | current planning row |
+| `MIMAP-215A` | landed | Post-segment-map-local-free-reuse-ledger-lifecycle-token-pilot-closeout row selection. | selected MIMAP-216A |
+| `MIMAP-216A` | landed | Segment-map local-free reuse ledger lifecycle-token observer diagnostic. | selected MIMAP-217A |
+| `MIMAP-217A` | selected current | Post-segment-map-local-free-reuse-ledger-lifecycle-token-observer-diagnostic row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -617,8 +619,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-215A` chooses the next narrow row after MIMAP-214A closed the
-segment-map local-free reuse ledger lifecycle-token pilot pack.
+`MIMAP-217A` chooses the next narrow row after MIMAP-216A added the
+segment-map local-free reuse ledger lifecycle-token observer diagnostic.
 Raw pointer residence remains parked behind a future rawbuf/no-escape
 capability. Real thread scheduling, worker spawning, source-level concurrency
 features, arena backing allocation, atomic bitmap execution, page-source calls,

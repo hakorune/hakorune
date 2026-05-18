@@ -20,11 +20,11 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-215A
+  MIMAP-217A
 
 current choice boundary:
-  lifecycle-token observer/diagnostic sidecar
-  or a small observer/diagnostic sidecar
+  lifecycle-token observer closeout
+  or lifecycle-token fact bridge
   or the next modeled bridge that keeps real execution closed
 
 closed until explicitly reopened:
@@ -400,7 +400,9 @@ Forbidden:
 | `MIMAP-212A` | segment-map local-free reuse ledger lifecycle-token pilot | landed; selected MIMAP-213A |
 | `MIMAP-213A` | post-segment-map-local-free-reuse-ledger-lifecycle-token-pilot row selection | landed; selected MIMAP-214A |
 | `MIMAP-214A` | segment-map local-free reuse ledger lifecycle-token pilot closeout pack | landed; selected MIMAP-215A |
-| `MIMAP-215A` | post-segment-map-local-free-reuse-ledger-lifecycle-token-pilot-closeout row selection | selected current |
+| `MIMAP-215A` | post-segment-map-local-free-reuse-ledger-lifecycle-token-pilot-closeout row selection | landed; selected MIMAP-216A |
+| `MIMAP-216A` | segment-map local-free reuse ledger lifecycle-token observer diagnostic | landed; selected MIMAP-217A |
+| `MIMAP-217A` | post-segment-map-local-free-reuse-ledger-lifecycle-token-observer-diagnostic row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -1728,6 +1730,42 @@ pointer residence, real segment-map mutation, real allocator free-list
 mutation, arena backing, atomic bitmap execution, OSVM/page-source execution,
 worker scheduling, provider activation, cross-function `Result` direct ABI,
 runtime sum materialization, or backend matchers.
+
+MIMAP-215A landed by selecting MIMAP-216A, a lifecycle-token observer
+diagnostic sidecar.
+
+### MIMAP-216A granularity
+
+MIMAP-216A adds a dedicated observer that reads lifecycle-token pilot state and
+the release-owner duplicate diagnostic. It reports that lifecycle-token facts
+exist while the release ledger remains keyed by modeled reuse token.
+
+It must not migrate release-ledger keys, define generation/lifecycle semantics
+for real allocator cycles, mutate source reuse ledger or release owner state,
+or open real segment allocation/free execution, raw pointer residence, real
+segment-map mutation, real allocator free-list mutation, arena backing, atomic
+bitmap execution, OSVM/page-source execution, worker scheduling, provider
+activation, cross-function `Result` direct ABI, runtime sum materialization, or
+backend matchers.
+
+MIMAP-216A landed by adding the observer owner, proof app, accepted SSOT, L2
+guard, proof manifest row, check-script index entry, phase cards, and current
+pointers. It selected MIMAP-217A.
+
+### MIMAP-217A granularity
+
+MIMAP-217A is a planning row after the lifecycle-token observer diagnostic. It
+should choose between an observer closeout pack, connecting lifecycle-token
+facts to a later modeled release/recycle row, or the next modeled bridge that
+keeps real allocator execution closed.
+
+It must not migrate release-ledger keys, define generation/lifecycle semantics
+for real allocator cycles, mutate source reuse ledger or release owner state,
+or open real segment allocation/free execution, raw pointer residence, real
+segment-map mutation, real allocator free-list mutation, arena backing, atomic
+bitmap execution, OSVM/page-source execution, worker scheduling, provider
+activation, cross-function `Result` direct ABI, runtime sum materialization, or
+backend matchers.
 
 
 ## Historical Granularity Anchors
