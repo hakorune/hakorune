@@ -1,6 +1,6 @@
 # 293x-680 MIMAP-158A Segment Map Modeled Consume Ledger Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -40,6 +40,28 @@ apps/hako-alloc-segment-map-accepted-readiness-modeled-consume-ledger-proof/
 ## Required Evidence
 
 ```text
+bash tools/checks/k2_wide_hako_alloc_segment_map_accepted_readiness_modeled_consume_ledger_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Implementation
+
+- Added scalar diagnostic vocabulary to the MIMAP-157A composition owner:
+  `ok`, `blocked`, `duplicate`, and `stale`.
+- Counted blocked consume rejects, duplicate live-token ledger rejects, and
+  stale lookup/readiness rejects.
+- Extended the existing proof app and L2 guard; no new EXE evidence is required
+  for this row.
+
+## Closeout
+
+MIMAP-158A landed as diagnostics only. It selected:
+
+```text
+MIMAP-159A segment-map modeled consume ledger closeout pack
+```
+
+Raw pointer residence, real segment-map execution, arena backing, atomic bitmap,
+OSVM execution, thread scheduling, provider activation, cross-function `Result`
+direct ABI, runtime sum materialization, and backend matchers remain closed.

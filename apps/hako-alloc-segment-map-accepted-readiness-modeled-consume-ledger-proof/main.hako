@@ -11,9 +11,13 @@ static box Main {
 
         local accepted = composition.composeLookupReadiness(70, 7, 3, 16, 1, composition.stateActive(), 2, 8, 3, 0)
         local consumed = route.consumeAcceptedReadiness(accepted, 0)
+        local duplicate = route.consumeAcceptedReadiness(accepted, 0)
+        local blocked = route.consumeAcceptedReadiness(accepted, 1)
 
         local rejected_readiness = composition.composeLookupReadiness(70, 7, 3, 16, 1, composition.stateActive(), 7, 8, 3, 0)
         local rejected = route.consumeAcceptedReadiness(rejected_readiness, 0)
+        local stale_readiness = composition.composeLookupReadiness(70, 7, 3, 16, 0, composition.stateActive(), 2, 8, 3, 0)
+        local stale = route.consumeAcceptedReadiness(stale_readiness, 0)
 
         local ok = check "mimap157a segment map accepted readiness modeled consume ledger route" {
             "accepted source": accepted.accepted == 1
@@ -35,9 +39,25 @@ static box Main {
             "token": consumed.modeled_allocation_token == 70007002
             "ledger count": consumed.ledger_count_after == 1
             "ledger live": consumed.ledger_live_count_after == 1
+            "consumed diagnostic": consumed.diagnostic_kind == route.diagnosticOk()
+            "duplicate rejected": duplicate.accepted == 0
+            "duplicate route reason": duplicate.reason == route.reasonLedgerRejected()
+            "duplicate ledger reason": duplicate.ledger_reason == 4
+            "duplicate existing index": duplicate.existing_index == 0
+            "duplicate diagnostic": duplicate.diagnostic_kind == route.diagnosticDuplicate()
+            "blocked rejected": blocked.accepted == 0
+            "blocked route reason": blocked.reason == route.reasonConsumeRejected()
+            "blocked consume reason": blocked.consume_reason == 4
+            "blocked diagnostic": blocked.diagnostic_kind == route.diagnosticBlocked()
             "rejected not accepted": rejected.accepted == 0
             "rejected reason": rejected.reason == route.reasonReadinessRejected()
             "rejected upstream": rejected.upstream_reason == composition.reasonReadinessRejected()
+            "rejected diagnostic remains generic": rejected.diagnostic_kind == route.diagnosticOk()
+            "stale rejected": stale.accepted == 0
+            "stale route reason": stale.reason == route.reasonReadinessRejected()
+            "stale upstream": stale.upstream_reason == composition.reasonLookupRejected()
+            "stale lookup subreason": stale.lookup_reason == 5
+            "stale diagnostic": stale.diagnostic_kind == route.diagnosticStale()
             "modeled consume present": consumed.modeled_consume_present == 1
             "modeled ledger present": consumed.modeled_ledger_present == 1
             "inactive real allocation": consumed.would_execute_real_segment_allocation == 0
@@ -50,21 +70,26 @@ static box Main {
             "inactive provider": consumed.would_activate_provider == 0
             "inactive replacement": consumed.would_replace_process_allocator == 0
             "inactive matcher": consumed.would_add_backend_matcher == 0
-            "route count": route.route_count == 2
+            "route count": route.route_count == 5
             "accepted count": route.accepted_count == 1
-            "reject count": route.reject_count == 1
-            "readiness reject count": route.readiness_reject_count == 1
-            "consume reject count": route.consume_reject_count == 0
-            "ledger reject count": route.ledger_reject_count == 0
+            "reject count": route.reject_count == 4
+            "readiness reject count": route.readiness_reject_count == 2
+            "consume reject count": route.consume_reject_count == 1
+            "ledger reject count": route.ledger_reject_count == 1
+            "blocked reject count": route.blocked_reject_count == 1
+            "duplicate reject count": route.duplicate_reject_count == 1
+            "stale reject count": route.stale_reject_count == 1
             "ledger stored token": route.ledger.tokenAt(0) == 70007002
             "ledger live count": route.ledger.live_count == 1
+            "last diagnostic": route.last_diagnostic_kind == route.diagnosticStale()
         }
 
         print("hako-alloc-segment-map-accepted-readiness-modeled-consume-ledger-proof")
         print("consumed=" + consumed.accepted + "," + consumed.reason + "," + consumed.upstream_reason + "," + consumed.consume_reason + "," + consumed.ledger_reason + "," + consumed.row_index + "," + consumed.existing_index + "," + consumed.segment_id + "," + consumed.page_id + "," + consumed.old_page_used + "," + consumed.request_blocks + "," + consumed.new_page_used + "," + consumed.remaining_blocks + "," + consumed.modeled_block_start + "," + consumed.modeled_allocation_token + "," + consumed.ledger_count_after + "," + consumed.ledger_live_count_after)
         print("rejected=" + rejected.accepted + "," + rejected.reason + "," + rejected.upstream_reason + "," + rejected.consume_reason + "," + rejected.ledger_reason + "," + rejected.segment_id + "," + rejected.page_id)
+        print("diagnostics=" + blocked.diagnostic_kind + "," + duplicate.diagnostic_kind + "," + stale.diagnostic_kind + "," + blocked.consume_reason + "," + duplicate.ledger_reason + "," + stale.lookup_reason)
         print("inactive=" + consumed.would_execute_real_segment_allocation + "," + consumed.would_use_raw_pointer + "," + consumed.would_use_real_segment_map + "," + consumed.would_allocate_arena_backing + "," + consumed.would_execute_atomic_bitmap + "," + consumed.would_call_osvm + "," + consumed.would_run_thread + "," + consumed.would_activate_provider + "," + consumed.would_replace_process_allocator + "," + consumed.would_add_backend_matcher)
-        print("counts=" + route.route_count + "," + route.accepted_count + "," + route.reject_count + "," + route.readiness_reject_count + "," + route.consume_reject_count + "," + route.ledger_reject_count + "," + route.ledger.count + "," + route.ledger.live_count + "," + route.ledger.tokenAt(0))
+        print("counts=" + route.route_count + "," + route.accepted_count + "," + route.reject_count + "," + route.readiness_reject_count + "," + route.consume_reject_count + "," + route.ledger_reject_count + "," + route.blocked_reject_count + "," + route.duplicate_reject_count + "," + route.stale_reject_count + "," + route.ledger.count + "," + route.ledger.live_count + "," + route.ledger.tokenAt(0) + "," + route.last_diagnostic_kind)
         print("check=" + ok)
 
         if ok == 1 {

@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-158A segment-map modeled consume ledger diagnostics`
+  `MIMAP-159A segment-map modeled consume ledger closeout pack`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,8 +74,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-158A`,
-  the segment-map modeled consume ledger diagnostics row selected by MIMAP-157A.
+- resume point: continue Phase 293x with `MIMAP-159A`,
+  the segment-map modeled consume ledger closeout pack selected by MIMAP-158A.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -83,10 +83,10 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-158A`: add blocked / duplicate / stale diagnostics around the
-     segment-map modeled consume ledger boundary
-  2. keep validation L2 unless a new backend route shape appears; defer L3 EXE
-     to a future consume-ledger closeout pack
+  1. `MIMAP-159A`: close out the accepted / blocked / duplicate / stale
+     segment-map modeled consume ledger pack with representative L3 evidence
+  2. keep raw pointer residence, real segment-map execution, and provider
+     activation closed
   3. keep cross-function `Result` direct ABI and runtime sum materialization
      closed
   4. keep real thread scheduling, worker spawning, source-level concurrency features,

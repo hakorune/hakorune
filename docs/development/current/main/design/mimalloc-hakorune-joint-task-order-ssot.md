@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-158A` is current after MIMAP-157A connected accepted readiness to the
-modeled consume / ledger lane.
+`MIMAP-159A` is current after MIMAP-158A added modeled consume ledger
+diagnostics.
 
 Recommended current row:
 
 ```text
-MIMAP-158A
-  segment-map modeled consume ledger diagnostics
+MIMAP-159A
+  segment-map modeled consume ledger closeout pack
 ```
 
 Purpose:
 
 ```text
-add blocked / duplicate / stale diagnostics around the modeled consume ledger lane
+close out accepted / blocked / duplicate / stale modeled consume ledger evidence
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -204,7 +204,8 @@ no provider activation
 | 133 | allocator validation | `MIMAP-155A segment-map readiness validation pack closeout guard` | landed; selected MIMAP-156A |
 | 134 | planning | `MIMAP-156A post-segment-map-readiness-closeout row selection` | landed; selected MIMAP-157A |
 | 135 | allocator | `MIMAP-157A segment-map accepted readiness modeled consume ledger route` | landed; selected MIMAP-158A |
-| 136 | allocator | `MIMAP-158A segment-map modeled consume ledger diagnostics` | selected current |
+| 136 | allocator | `MIMAP-158A segment-map modeled consume ledger diagnostics` | landed; selected MIMAP-159A |
+| 137 | closeout | `MIMAP-159A segment-map modeled consume ledger closeout pack` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

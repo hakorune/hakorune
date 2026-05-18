@@ -338,7 +338,8 @@ Forbidden:
 | `MIMAP-155A` | segment-map readiness validation pack closeout guard | landed; selected MIMAP-156A |
 | `MIMAP-156A` | post-segment-map-readiness-closeout row selection | landed; selected MIMAP-157A |
 | `MIMAP-157A` | segment-map accepted readiness modeled consume ledger route | landed; selected MIMAP-158A |
-| `MIMAP-158A` | segment-map modeled consume ledger diagnostics | selected current |
+| `MIMAP-158A` | segment-map modeled consume ledger diagnostics | landed; selected MIMAP-159A |
+| `MIMAP-159A` | segment-map modeled consume ledger closeout pack | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -730,6 +731,20 @@ export, manifest entry, and docs wiring. It selected MIMAP-158A.
 
 MIMAP-158A adds blocked / duplicate / stale diagnostics around the same modeled
 consume ledger boundary opened by MIMAP-157A.
+
+It must not open raw pointer residence, real segment-map mutation, real segment
+allocation/free, arena backing, atomic bitmap execution, OSVM/page-source
+execution, worker scheduling, provider activation, cross-function `Result`
+direct ABI, runtime sum materialization, or backend matchers.
+
+MIMAP-158A landed by extending the MIMAP-157A owner and proof app with scalar
+diagnostic vocabulary and counters. It selected MIMAP-159A.
+
+### MIMAP-159A granularity
+
+MIMAP-159A is the closeout pack for MIMAP-157A/MIMAP-158A. It carries
+representative L3 EXE evidence for accepted, blocked, duplicate, and stale
+diagnostics while preserving the daily L2 validation split.
 
 It must not open raw pointer residence, real segment-map mutation, real segment
 allocation/free, arena backing, atomic bitmap execution, OSVM/page-source

@@ -45,6 +45,9 @@ APP_README="apps/hako-alloc-segment-map-accepted-readiness-modeled-consume-ledge
 APP_TEST="apps/hako-alloc-segment-map-accepted-readiness-modeled-consume-ledger-proof/test.sh"
 CARD="docs/development/current/main/phases/phase-293x/293x-679-MIMAP-157A-SEGMENT-MAP-ACCEPTED-READINESS-MODELED-CONSUME-LEDGER-ROUTE.md"
 DESIGN="docs/development/current/main/design/hako-alloc-segment-map-accepted-readiness-modeled-consume-ledger-ssot.md"
+DIAGNOSTICS_DESIGN="docs/development/current/main/design/hako-alloc-segment-map-modeled-consume-ledger-diagnostics-ssot.md"
+CARD_158A="docs/development/current/main/phases/phase-293x/293x-680-MIMAP-158A-SEGMENT-MAP-MODELED-CONSUME-LEDGER-DIAGNOSTICS.md"
+CARD_159A="docs/development/current/main/phases/phase-293x/293x-681-MIMAP-159A-SEGMENT-MAP-MODELED-CONSUME-LEDGER-CLOSEOUT-PACK.md"
 COMPOSITION_SSOT="docs/development/current/main/design/hako-alloc-segment-map-lookup-guarded-readiness-composition-ssot.md"
 CONSUME_SSOT="docs/development/current/main/design/hako-alloc-segment-allocation-modeled-consume-ssot.md"
 LEDGER_SSOT="docs/development/current/main/design/hako-alloc-segment-allocation-modeled-ledger-ssot.md"
@@ -71,6 +74,9 @@ guard_require_files \
   "$APP_TEST" \
   "$CARD" \
   "$DESIGN" \
+  "$DIAGNOSTICS_DESIGN" \
+  "$CARD_158A" \
+  "$CARD_159A" \
   "$COMPOSITION_SSOT" \
   "$CONSUME_SSOT" \
   "$LEDGER_SSOT" \
@@ -92,6 +98,12 @@ guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD" "MIMAP-157A card must be landed"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-157A design must be accepted"
+guard_expect_in_file "$TAG" 'Status: landed' "$CARD_158A" "MIMAP-158A card must be landed"
+guard_expect_in_file "$TAG" 'Status: selected current' "$CARD_159A" "MIMAP-159A must be selected current"
+guard_expect_in_file "$TAG" 'Decision: accepted' "$DIAGNOSTICS_DESIGN" "MIMAP-158A diagnostics design must be accepted"
+guard_expect_in_file "$TAG" 'blocked' "$DIAGNOSTICS_DESIGN" "MIMAP-158A diagnostics must define blocked"
+guard_expect_in_file "$TAG" 'duplicate' "$DIAGNOSTICS_DESIGN" "MIMAP-158A diagnostics must define duplicate"
+guard_expect_in_file "$TAG" 'stale' "$DIAGNOSTICS_DESIGN" "MIMAP-158A diagnostics must define stale"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$COMPOSITION_SSOT" "MIMAP-153A composition SSOT must stay accepted"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$CONSUME_SSOT" "MIMAP-091A consume SSOT must stay accepted"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$LEDGER_SSOT" "MIMAP-094A ledger SSOT must stay accepted"
@@ -108,6 +120,9 @@ guard_expect_in_file "$TAG" 'box HakoAllocSegmentMapAcceptedReadinessModeledCons
 guard_expect_in_file "$TAG" 'consumeAcceptedReadiness' "$OWNER" "MIMAP-157A owner must expose consumeAcceptedReadiness"
 guard_expect_in_file "$TAG" 'HakoAllocSegmentAllocationModeledConsume' "$OWNER" "MIMAP-157A must compose modeled consume owner"
 guard_expect_in_file "$TAG" 'HakoAllocSegmentAllocationModeledLedger' "$OWNER" "MIMAP-157A must compose modeled ledger owner"
+guard_expect_in_file "$TAG" 'diagnosticBlocked' "$OWNER" "MIMAP-158A owner must expose blocked diagnostic"
+guard_expect_in_file "$TAG" 'diagnosticDuplicate' "$OWNER" "MIMAP-158A owner must expose duplicate diagnostic"
+guard_expect_in_file "$TAG" 'diagnosticStale' "$OWNER" "MIMAP-158A owner must expose stale diagnostic"
 guard_expect_in_file "$TAG" 'check "mimap157a segment map accepted readiness modeled consume ledger route"' "$APP" "MIMAP-157A proof must use labelled check block"
 
 if rg -n 'AtomicCoreBox|hako_atomic|cas_i64|fetch_add|spawn[[:space:]]*\(|thread::|worker_local|ChannelBox|TaskGroupBox|nowait|sync[[:space:]]+box|context[[:space:]]|wake|sleep|runQueue|run_queue|lookupSegment[[:space:]]*\(|pointer_member|claimBitmap|unclaimBitmap|observeHeapPage[[:space:]]*\(|selectHeapPage[[:space:]]*\(|attemptHeapPage[[:space:]]*\(|allocateSegment[[:space:]]*\(|freeSegment[[:space:]]*\(|mutateFreeList|freeList|decommitPage[[:space:]]*\(|commitPage[[:space:]]*\(|reservePage[[:space:]]*\(|unreserve[[:space:]]*\(|releasePage[[:space:]]*\(|hako_osvm_(unreserve|release)' \
@@ -170,8 +185,9 @@ fi
 rg -F -q 'hako-alloc-segment-map-accepted-readiness-modeled-consume-ledger-proof' "$vm_log"
 rg -F -q 'consumed=1,0,0,0,0,0,-1,70,7,2,3,5,3,2,70007002,1,1' "$vm_log"
 rg -F -q 'rejected=0,1,3,-1,-1,70,7' "$vm_log"
+rg -F -q 'diagnostics=1,2,3,4,4,5' "$vm_log"
 rg -F -q 'inactive=0,0,0,0,0,0,0,0,0,0' "$vm_log"
-rg -F -q 'counts=2,1,1,1,0,0,1,1,70007002' "$vm_log"
+rg -F -q 'counts=5,1,4,2,1,1,1,1,1,1,1,70007002,3' "$vm_log"
 rg -F -q 'summary=ok' "$vm_log"
 
 if ! pure_first_guard_level_allows_mir "$VALIDATION_LEVEL"; then
@@ -217,8 +233,12 @@ required_fields = {
     "accepted",
     "reason",
     "upstream_reason",
+    "lookup_reason",
+    "membership_reason",
+    "readiness_reason",
     "consume_reason",
     "ledger_reason",
+    "diagnostic_kind",
     "row_index",
     "existing_index",
     "segment_id",
