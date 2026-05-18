@@ -339,6 +339,19 @@ cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_modeled_consume_ledg
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_modeled_consume_ledger_release_guard.sh", "--level", "L2"]
 
 [[proof_apps]]
+id = "MIMAP-164A"
+app = "apps/hako-alloc-segment-map-modeled-consume-ledger-released-token-recycle-proof"
+label = "segment-map modeled consume ledger released-token recycle proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "scalar-composition"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "segment-map-consume-ledger-recycle"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_modeled_consume_ledger_released_token_recycle_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_modeled_consume_ledger_released_token_recycle_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
 id = "MIMAP-091A"
 app = "apps/hako-alloc-segment-allocation-modeled-consume-proof"
 label = "segment allocation modeled consume proof"

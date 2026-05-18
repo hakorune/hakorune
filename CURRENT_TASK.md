@@ -55,14 +55,16 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-163A post-segment-map-modeled-consume-ledger-release-closeout row selection`
+  `MIMAP-165A post-segment-map-modeled-consume-ledger-released-token-recycle row selection`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
   sidecar history into this root pointer.
 - primary mode: mimalloc substrate implementation lane; keep upstream source
-  untracked and keep each allocator row behind explicit guards before provider
-  activation
+  untracked and keep each allocator row behind explicit guards before any
+  optional provider activation. The current goal is a `.hako` / `hako_alloc`
+  allocator whose performance and memory usage can be compared against C
+  mimalloc, not default process allocator replacement.
 - phase-137x: observe-only unless app work reopens a real blocker
 
 ## Restart Handoff
@@ -74,8 +76,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-159A`,
-  the segment-map modeled consume ledger closeout pack selected by MIMAP-158A.
+- resume point: continue Phase 293x with `MIMAP-165A`,
+  the post-segment-map-modeled-consume-ledger-released-token-recycle planning
+  row selected by MIMAP-164A.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -83,8 +86,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-159A`: close out the accepted / blocked / duplicate / stale
-     segment-map modeled consume ledger pack with representative L3 evidence
+  1. `MIMAP-165A`: choose the next narrow row after segment-map modeled
+     consume-ledger released-token recycle
   2. keep raw pointer residence, real segment-map execution, and provider
      activation closed
   3. keep cross-function `Result` direct ABI and runtime sum materialization

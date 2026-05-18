@@ -259,6 +259,10 @@ Syntax/style contract
   It also owns MIMAP-161A. It may release a live modeled token through the same
   owner boundary by reusing the existing MIMAP-097A modeled ledger release
   substrate, while keeping real segment free execution closed.
+  It also owns MIMAP-164A. It may prove that a released token can be accepted
+  again as a new live modeled row by reusing the existing MIMAP-100A
+  released-token recycle contract, while keeping real segment allocation/free
+  execution closed.
 - `segment_allocation_modeled_consume_box.hako` owns MIMAP-091A. It may consume
   accepted scalar segment allocation-readiness facts and model the resulting
   `page_used` / `remaining_blocks` values plus a stable scalar modeled

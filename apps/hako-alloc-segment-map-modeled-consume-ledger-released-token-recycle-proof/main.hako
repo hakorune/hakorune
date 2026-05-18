@@ -1,0 +1,116 @@
+// hako-alloc-segment-map-modeled-consume-ledger-released-token-recycle-proof
+// Purpose: prove MIMAP-164A segment-map consume-ledger released-token recycle.
+
+using selfhost.hako_alloc.memory.segment_map_lookup_guarded_readiness_composition_box as HakoAllocSegmentMapLookupGuardedReadinessComposition
+using selfhost.hako_alloc.memory.segment_map_accepted_readiness_modeled_consume_ledger_box as HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger
+
+static box Main {
+    main(args) {
+        local composition = new HakoAllocSegmentMapLookupGuardedReadinessComposition()
+        local route = new HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger()
+
+        local readiness = composition.composeLookupReadiness(70, 7, 3, 16, 1, composition.stateActive(), 2, 8, 3, 0)
+
+        local first = route.consumeAcceptedReadiness(readiness, 0)
+        local duplicate_live = route.consumeAcceptedReadiness(readiness, 0)
+        local release_first = route.releaseConsumedToken(first.modeled_allocation_token, 0)
+
+        local index_after_release = route.ledger.findIndex(first.modeled_allocation_token)
+        local any_after_release = route.ledger.findAnyIndex(first.modeled_allocation_token)
+        local token_after_release = route.ledger.tokenAt(0)
+
+        local recycled = route.consumeAcceptedReadiness(readiness, 0)
+        local index_after_recycle = route.ledger.findIndex(first.modeled_allocation_token)
+        local any_after_recycle = route.ledger.findAnyIndex(first.modeled_allocation_token)
+        local recycled_token = route.ledger.tokenAt(1)
+        local duplicate_after_recycle = route.consumeAcceptedReadiness(readiness, 0)
+        local release_recycled = route.releaseConsumedToken(first.modeled_allocation_token, 0)
+
+        local ok = check "mimap164a segment map modeled consume ledger released token recycle route" {
+            "first accepted": first.accepted == 1
+            "first reason": first.reason == route.reasonOk()
+            "first row": first.row_index == 0
+            "first existing": first.existing_index == -1
+            "first token": first.modeled_allocation_token == 70007002
+            "first ledger count": first.ledger_count_after == 1
+            "first live count": first.ledger_live_count_after == 1
+            "live duplicate rejected": duplicate_live.accepted == 0
+            "live duplicate reason": duplicate_live.reason == route.reasonLedgerRejected()
+            "live duplicate ledger reason": duplicate_live.ledger_reason == 4
+            "live duplicate existing": duplicate_live.existing_index == 0
+            "live duplicate diagnostic": duplicate_live.diagnostic_kind == route.diagnosticDuplicate()
+            "release first accepted": release_first.did_release == 1
+            "release first reason": release_first.reason == route.reasonOk()
+            "release first row": release_first.row_index == 0
+            "release first live before": release_first.live_before == 1
+            "release first live after": release_first.live_after == 0
+            "release first live count": release_first.ledger_live_count_after == 0
+            "no live after release": index_after_release == -1
+            "historical row after release": any_after_release == 0
+            "closed token read after release": token_after_release == -1
+            "recycled accepted": recycled.accepted == 1
+            "recycled reason": recycled.reason == route.reasonOk()
+            "recycled row": recycled.row_index == 1
+            "recycled existing": recycled.existing_index == -1
+            "recycled token": recycled.modeled_allocation_token == 70007002
+            "recycled count": recycled.ledger_count_after == 2
+            "recycled live": recycled.ledger_live_count_after == 1
+            "live index after recycle": index_after_recycle == 1
+            "historical first row remains": any_after_recycle == 0
+            "recycled token read": recycled_token == 70007002
+            "duplicate after recycle rejected": duplicate_after_recycle.accepted == 0
+            "duplicate after recycle reason": duplicate_after_recycle.reason == route.reasonLedgerRejected()
+            "duplicate after recycle ledger reason": duplicate_after_recycle.ledger_reason == 4
+            "duplicate after recycle existing": duplicate_after_recycle.existing_index == 1
+            "release recycled accepted": release_recycled.did_release == 1
+            "release recycled reason": release_recycled.reason == route.reasonOk()
+            "release recycled row": release_recycled.row_index == 1
+            "release recycled live before": release_recycled.live_before == 1
+            "release recycled live after": release_recycled.live_after == 0
+            "release recycled live count": release_recycled.ledger_live_count_after == 0
+            "route count": route.route_count == 4
+            "accepted count": route.accepted_count == 2
+            "reject count": route.reject_count == 2
+            "ledger reject count": route.ledger_reject_count == 2
+            "duplicate reject count": route.duplicate_reject_count == 2
+            "ledger count": route.ledger.count == 2
+            "ledger live count": route.ledger.live_count == 0
+            "release attempts": route.release_route_count == 2
+            "release count": route.release_count == 2
+            "release rejects": route.release_reject_count == 0
+            "last release token": route.last_release_token == 70007002
+            "last release reason": route.last_release_reason == route.reasonOk()
+            "inactive real allocation": recycled.would_execute_real_segment_allocation == 0
+            "inactive real free": release_recycled.would_execute_real_segment_free == 0
+            "inactive raw": recycled.would_use_raw_pointer == 0
+            "inactive segment map": recycled.would_use_real_segment_map == 0
+            "inactive arena": recycled.would_allocate_arena_backing == 0
+            "inactive atomic": recycled.would_execute_atomic_bitmap == 0
+            "inactive osvm": recycled.would_call_osvm == 0
+            "inactive thread": recycled.would_run_thread == 0
+            "inactive provider": recycled.would_activate_provider == 0
+            "inactive matcher": recycled.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-map-modeled-consume-ledger-released-token-recycle-proof")
+        print("first=" + first.accepted + "," + first.reason + "," + first.row_index + "," + first.existing_index + "," + first.modeled_allocation_token + "," + first.ledger_count_after + "," + first.ledger_live_count_after)
+        print("duplicate_live=" + duplicate_live.accepted + "," + duplicate_live.reason + "," + duplicate_live.ledger_reason + "," + duplicate_live.existing_index + "," + duplicate_live.diagnostic_kind)
+        print("release_first=" + release_first.did_release + "," + release_first.reason + "," + release_first.row_index + "," + release_first.live_before + "," + release_first.live_after + "," + release_first.ledger_live_count_after)
+        print("after_release=" + index_after_release + "," + any_after_release + "," + token_after_release)
+        print("recycled=" + recycled.accepted + "," + recycled.reason + "," + recycled.row_index + "," + recycled.existing_index + "," + recycled.modeled_allocation_token + "," + recycled.ledger_count_after + "," + recycled.ledger_live_count_after)
+        print("after_recycle=" + index_after_recycle + "," + any_after_recycle + "," + recycled.row_index + "," + recycled_token)
+        print("duplicate_after_recycle=" + duplicate_after_recycle.accepted + "," + duplicate_after_recycle.reason + "," + duplicate_after_recycle.ledger_reason + "," + duplicate_after_recycle.existing_index)
+        print("release_recycled=" + release_recycled.did_release + "," + release_recycled.reason + "," + release_recycled.row_index + "," + release_recycled.live_before + "," + release_recycled.live_after + "," + release_recycled.ledger_live_count_after)
+        print("counts=" + route.route_count + "," + route.accepted_count + "," + route.reject_count + "," + route.ledger_reject_count + "," + route.duplicate_reject_count + "," + route.ledger.count + "," + route.ledger.live_count + "," + route.release_route_count + "," + route.release_count + "," + route.release_reject_count + "," + route.last_release_token + "," + route.last_release_reason)
+        print("inactive=" + recycled.would_execute_real_segment_allocation + "," + release_recycled.would_execute_real_segment_free + "," + recycled.would_use_raw_pointer + "," + recycled.would_use_real_segment_map + "," + recycled.would_allocate_arena_backing + "," + recycled.would_execute_atomic_bitmap + "," + recycled.would_call_osvm + "," + recycled.would_run_thread + "," + recycled.would_activate_provider + "," + recycled.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

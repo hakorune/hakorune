@@ -1,12 +1,12 @@
-# 293x-685 MIMAP-163A Post Segment Map Modeled Consume Ledger Release Closeout Row Selection
+# 293x-687 MIMAP-165A Post Segment Map Modeled Consume Ledger Released Token Recycle Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-18
 
 ## Decision
 
-Choose MIMAP-164A as the next narrow row after MIMAP-162A closes the
-segment-map modeled consume-ledger release pack.
+Choose the next narrow row after MIMAP-164A proves released-token recycle at
+the segment-map modeled consume-ledger boundary.
 
 ## Context
 
@@ -16,21 +16,17 @@ The current scalar/model chain now proves:
 explicit-ID readiness
   -> modeled consume ledger live token
   -> modeled ledger release report
+  -> released token can become a new live modeled row
 ```
 
-The next row should choose between modeled recycle, released-span observation,
-or a cleanup/closeout sidecar. It should not jump directly to raw pointer
-residence, arena backing, real segment-map execution, or atomic bitmap behavior.
-
-Selected row:
-
-```text
-MIMAP-164A segment-map modeled consume ledger released-token recycle route
-```
+The next row should choose between a recycle closeout pack, released-span
+observation at the segment-map owner boundary, or a cleanup sidecar. It should
+not jump directly to raw pointer residence, arena backing, real segment-map
+execution, or atomic bitmap behavior.
 
 ## Stop Lines
 
-- No real segment free execution.
+- No real segment allocation/free execution.
 - No raw pointer residence or pointer-derived lookup.
 - No real segment-map mutation.
 - No arena backing allocation.

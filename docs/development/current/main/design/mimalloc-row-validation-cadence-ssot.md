@@ -269,6 +269,15 @@ segment-map consume ledger release family:
     closeout_pack = segment-map-consume-ledger-release
     representative L3 EXE evidence in MIMAP-162A
 
+segment-map consume ledger recycle family:
+  MIMAP-164A segment-map consume-ledger released-token recycle:
+    validation_profile = scalar-mir
+    closeout_pack = segment-map-consume-ledger-recycle
+    exe = deferred-to-closeout
+  future closeout pack:
+    closeout_pack = segment-map-consume-ledger-recycle
+    representative L3 EXE evidence when selected
+
 cleanup row using C199 compound assignment:
   L1 C199 guard
   L3 touched segment guards only

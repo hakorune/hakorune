@@ -820,6 +820,46 @@ execution, OSVM/page-source execution, worker scheduling, provider activation,
 cross-function `Result` direct ABI, runtime sum materialization, or backend
 matchers.
 
+MIMAP-163A landed by selecting MIMAP-164A.
+
+### MIMAP-164A granularity
+
+MIMAP-164A proves released-token recycle at the segment-map modeled
+consume-ledger owner boundary.
+
+It should reuse the existing MIMAP-100A modeled ledger recycle behavior without
+adding a second recycle ledger:
+
+```text
+accepted readiness
+  -> consume-ledger token live
+  -> release token
+  -> same scalar token accepted again as a new live row
+```
+
+It must not open real segment allocation/free execution, raw pointer residence,
+real segment-map mutation, arena backing, atomic bitmap execution,
+OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, or backend
+matchers.
+
+MIMAP-164A landed by adding the segment-map owner-boundary recycle proof app,
+L2 guard, proof manifest row, and SSOT. It selected MIMAP-165A.
+
+### MIMAP-165A granularity
+
+MIMAP-165A is a planning row after segment-map modeled consume-ledger
+released-token recycle. It should choose between a recycle closeout pack,
+released-span observation at the segment-map owner boundary, or a cleanup
+sidecar before opening raw pointer residence, arena backing, real segment-map
+execution, or atomic bitmap behavior.
+
+It must not open real segment allocation/free execution, raw pointer residence,
+real segment-map mutation, arena backing, atomic bitmap execution,
+OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, or backend
+matchers.
+
 
 ## Historical Granularity Anchors
 
