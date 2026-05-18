@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-05-18"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-194A landed by closing the segment-map local-free reuse ledger bridge pack with representative exact-MIR L3 EXE evidence; MIMAP-195A is the active planning blocker for the next narrow allocator row. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "PURE-FIRST-GUARD-RELEASE-BIN-001 landed by switching active pure-first guard VM/MIR emit paths to release hakorune by default; MIMAP-195A remains the active planning blocker for the next narrow allocator row after MIMAP-194A closeout. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
 phase_status = "docs/development/current/main/phases/phase-293x/293x-717-MIMAP-195A-POST-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-BRIDGE-CLOSEOUT-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-716-MIMAP-194A-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-BRIDGE-CLOSEOUT-PACK"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-716-MIMAP-194A-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-BRIDGE-CLOSEOUT-PACK.md"
-latest_card_summary = "MIMAP-194A landed by adding the segment-map local-free reuse ledger bridge closeout SSOT, manifest-backed closeout guard, representative exact-MIR L3 EXE evidence, and current pointers; MIMAP-195A selected current."
+latest_card = "293x-718-PURE-FIRST-GUARD-RELEASE-BIN-001"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-718-PURE-FIRST-GUARD-RELEASE-BIN-001.md"
+latest_card_summary = "PURE-FIRST-GUARD-RELEASE-BIN-001 landed by defaulting pure-first guard VM and MIR emit paths to release hakorune, cutting MIMAP-192A L2 from 119.84s to 16.10s while keeping debug overrides available."
 
 current_blocker_token = "MIMAP-195A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-718 PURE-FIRST-GUARD-RELEASE-BIN-001 release hakorune VM/MIR guard path landed; MIMAP-195A remains current",
   "293x-716 MIMAP-194A segment-map local-free reuse ledger bridge closeout pack landed; MIMAP-195A selected",
   "293x-715 MIMAP-193A post-segment-map-local-free-reuse-ledger-bridge row selection landed; MIMAP-194A selected",
   "293x-714 MIMAP-192A segment-map local-free reuse ledger bridge landed; MIMAP-193A selected",

@@ -158,10 +158,7 @@ trap 'rm -rf "$tmp_dir"' EXIT
 mir_json="$tmp_dir/mimap192.mir.json"
 vm_log="$tmp_dir/vm.log"
 
-if ! NYASH_FEATURES=rune NYASH_DISABLE_PLUGINS=1 timeout 120 \
-  "$ROOT_DIR/target/debug/hakorune" --backend vm "$APP" >"$vm_log" 2>&1; then
-  echo "[$TAG] ERROR: VM run failed" >&2
-  sed -n '1,180p' "$vm_log" >&2
+if ! pure_first_guard_run_vm "$TAG" "$ROOT_DIR" "$APP" "$vm_log"; then
   exit 1
 fi
 

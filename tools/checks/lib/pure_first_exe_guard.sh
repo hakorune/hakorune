@@ -17,6 +17,57 @@ pure_first_guard_build_hakorune_debug() {
   cargo build -q --bin hakorune
 }
 
+pure_first_guard_hakorune_bin_for_mode() {
+  local root_dir="$1"
+  local mode="$2"
+  local bin=""
+  local rc=0
+
+  case "$mode" in
+    release)
+      cargo build --release -q --bin hakorune || {
+        rc=$?
+        return "$rc"
+      }
+      bin="$root_dir/target/release/hakorune"
+      ;;
+    debug)
+      cargo build -q --bin hakorune || {
+        rc=$?
+        return "$rc"
+      }
+      bin="$root_dir/target/debug/hakorune"
+      ;;
+    *)
+      echo "[pure-first] ERROR: hakorune binary mode must be release or debug, got: $mode" >&2
+      return 2
+      ;;
+  esac
+
+  printf '%s\n' "$bin"
+}
+
+pure_first_guard_run_vm() {
+  local tag="$1"
+  local root_dir="$2"
+  local app="$3"
+  local vm_log="$4"
+  local vm_bin_mode="${PURE_FIRST_VM_BIN:-release}"
+  local vm_bin=""
+
+  if ! vm_bin="$(pure_first_guard_hakorune_bin_for_mode "$root_dir" "$vm_bin_mode")"; then
+    echo "[$tag] ERROR: failed to build hakorune VM binary mode=$vm_bin_mode" >&2
+    return 1
+  fi
+
+  if ! NYASH_FEATURES=rune NYASH_DISABLE_PLUGINS=1 timeout 120 \
+    "$vm_bin" --backend vm "$app" >"$vm_log" 2>&1; then
+    echo "[$tag] ERROR: VM run failed" >&2
+    sed -n '1,180p' "$vm_log" >&2
+    return 1
+  fi
+}
+
 pure_first_guard_parse_level() {
   local tag="$1"
   shift
@@ -79,12 +130,37 @@ pure_first_guard_emit_mir() {
   local app="$2"
   local mir_json="$3"
   local emit_route="$root_dir/tools/smokes/v2/lib/emit_mir_route.sh"
+  local emit_bin_mode="${PURE_FIRST_MIR_EMIT_BIN:-release}"
+  local emit_bin=""
   local rc=0
 
   selfhost_phase_start "selfhost.emit_mir"
+
+  case "$emit_bin_mode" in
+    release)
+      emit_bin="$(pure_first_guard_hakorune_bin_for_mode "$root_dir" release)" || {
+        rc=$?
+        selfhost_phase_fail "selfhost.emit_mir" "$rc"
+        return "$rc"
+      }
+      ;;
+    debug)
+      emit_bin="$(pure_first_guard_hakorune_bin_for_mode "$root_dir" debug)" || {
+        rc=$?
+        selfhost_phase_fail "selfhost.emit_mir" "$rc"
+        return "$rc"
+      }
+      ;;
+    *)
+      echo "[pure-first] ERROR: PURE_FIRST_MIR_EMIT_BIN must be release or debug, got: $emit_bin_mode" >&2
+      selfhost_phase_fail "selfhost.emit_mir" 2
+      return 2
+      ;;
+  esac
+
   NYASH_FEATURES=rune \
   NYASH_DISABLE_PLUGINS=1 \
-  NYASH_BIN="$root_dir/target/debug/hakorune" \
+  NYASH_BIN="$emit_bin" \
   "$emit_route" --route direct --out "$mir_json" --input "$app" >/dev/null || rc=$?
   if [ "$rc" -eq 0 ]; then
     selfhost_phase_done "selfhost.emit_mir"

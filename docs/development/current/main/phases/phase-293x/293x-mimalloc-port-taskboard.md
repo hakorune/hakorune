@@ -801,6 +801,7 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
+| `PURE-FIRST-GUARD-RELEASE-BIN-001` | landed | Pure-first guard VM/MIR emit latency cleanup. | MIMAP-192A L2 cut from 119.84s to 16.10s by defaulting active guard VM/MIR paths to release `hakorune`. |
 | `MIMAP-195A` | selected current | Post-segment-map-local-free-reuse-ledger-bridge-closeout row selection. | Current planning row. |
 | `MIMAP-194A` | landed | Segment-map local-free reuse ledger bridge closeout pack. | Selected MIMAP-195A. |
 | `MIMAP-193A` | landed | Post-segment-map-local-free-reuse-ledger-bridge row selection. | Selected MIMAP-194A. |
