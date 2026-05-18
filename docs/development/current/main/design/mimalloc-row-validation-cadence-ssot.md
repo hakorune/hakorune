@@ -404,6 +404,15 @@ segment-map local-free reuse ledger lifecycle-token release-key precondition fam
     closeout_pack = segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition
     representative L3 EXE evidence in MIMAP-222A
 
+segment-map local-free reuse ledger lifecycle-keyed release shadow family:
+  MIMAP-224A segment-map local-free reuse ledger lifecycle-keyed release shadow:
+    validation_profile = scalar-mir
+    closeout_pack = segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow
+    exe = deferred-to-closeout
+  closeout pack:
+    closeout_pack = segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow
+    representative L3 EXE evidence deferred to a future closeout row
+
 cleanup row using C199 compound assignment:
   L1 C199 guard
   L3 touched segment guards only

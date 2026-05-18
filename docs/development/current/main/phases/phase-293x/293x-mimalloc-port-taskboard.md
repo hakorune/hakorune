@@ -616,7 +616,9 @@ FST:
 | `MIMAP-220A` | landed | Segment-map local-free reuse ledger lifecycle-token release-key precondition observer. | selected MIMAP-221A |
 | `MIMAP-221A` | landed | Post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition row selection. | selected MIMAP-222A |
 | `MIMAP-222A` | landed | Segment-map local-free reuse ledger lifecycle-token release-key precondition closeout pack. | selected MIMAP-223A |
-| `MIMAP-223A` | selected current | Post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition-closeout row selection. | current planning row |
+| `MIMAP-223A` | landed | Post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition-closeout row selection. | selected MIMAP-224A |
+| `MIMAP-224A` | landed | Segment-map local-free reuse ledger lifecycle-keyed release shadow pilot. | selected MIMAP-225A |
+| `MIMAP-225A` | selected current | Post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -625,9 +627,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-223A` chooses the next narrow row after MIMAP-222A closed the
-segment-map local-free reuse ledger lifecycle-token release-key precondition
-pack with representative exact-MIR L3 EXE evidence.
+`MIMAP-225A` chooses the next narrow row after MIMAP-224A added a
+segment-map local-free reuse ledger lifecycle-keyed release shadow pilot.
 Raw pointer residence remains parked behind a future rawbuf/no-escape
 capability. Real thread scheduling, worker spawning, source-level concurrency
 features, arena backing allocation, atomic bitmap execution, page-source calls,

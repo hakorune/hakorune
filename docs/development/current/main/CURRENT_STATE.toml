@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-19"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-222A landed by closing the lifecycle-token release-key precondition pack with representative exact-MIR L3 EXE evidence; MIMAP-223A is the active planning blocker for the next narrow allocator row. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-224A landed by adding the lifecycle-keyed release shadow pilot; MIMAP-225A is the active planning blocker for the next narrow allocator row. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-746-MIMAP-223A-POST-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-LIFECYCLE-TOKEN-RELEASE-KEY-PRECONDITION-CLOSEOUT-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-748-MIMAP-225A-POST-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-LIFECYCLE-KEYED-RELEASE-SHADOW-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-745-MIMAP-222A-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-LIFECYCLE-TOKEN-RELEASE-KEY-PRECONDITION-CLOSEOUT-PACK"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-745-MIMAP-222A-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-LIFECYCLE-TOKEN-RELEASE-KEY-PRECONDITION-CLOSEOUT-PACK.md"
-latest_card_summary = "MIMAP-222A landed by adding the release-key precondition closeout SSOT, manifest-backed closeout guard, guard manifest row, check-script index entry, and current pointers; MIMAP-223A selected current."
+latest_card = "293x-747-MIMAP-224A-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-LIFECYCLE-KEYED-RELEASE-SHADOW-PILOT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-747-MIMAP-224A-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-LIFECYCLE-KEYED-RELEASE-SHADOW-PILOT.md"
+latest_card_summary = "MIMAP-224A landed by adding the lifecycle-keyed release shadow owner, proof app, accepted SSOT, L2 guard, manifest/index rows, and current pointers; MIMAP-225A selected current."
 
-current_blocker_token = "MIMAP-223A"
+current_blocker_token = "MIMAP-225A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-747 MIMAP-224A segment-map local-free reuse ledger lifecycle-keyed release shadow pilot landed; MIMAP-225A selected",
+  "293x-746 MIMAP-223A post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition-closeout row selection landed; MIMAP-224A selected",
   "293x-745 MIMAP-222A segment-map local-free reuse ledger lifecycle-token release-key precondition closeout pack landed; MIMAP-223A selected",
   "293x-744 MIMAP-221A post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition row selection landed; MIMAP-222A selected",
   "293x-743 MIMAP-220A segment-map local-free reuse ledger lifecycle-token release-key precondition observer landed; MIMAP-221A selected",

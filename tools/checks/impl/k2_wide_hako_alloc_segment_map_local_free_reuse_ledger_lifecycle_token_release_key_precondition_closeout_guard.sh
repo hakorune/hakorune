@@ -57,7 +57,7 @@ guard_require_exec_files "$TAG" "$APP_TEST" "$GUARD_220A" "$SELF_SCRIPT" "$IMPL_
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_220A" "MIMAP-220A must be landed before closeout"
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_221A" "MIMAP-221A must be landed before closeout"
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_222A" "MIMAP-222A closeout card must be landed"
-guard_expect_in_file "$TAG" "Status: selected current" "$CARD_223A" "MIMAP-223A must be selected current after closeout"
+guard_expect_in_file "$TAG" "Status: (landed|selected current)" "$CARD_223A" "MIMAP-223A must be selected current or landed after closeout"
 
 guard_expect_in_file "$TAG" "Decision: accepted" "$SSOT" "MIMAP-222A closeout SSOT must be accepted"
 guard_expect_in_file "$TAG" "Decision: accepted" "$PRECONDITION_SSOT" "MIMAP-220A precondition SSOT must stay accepted"

@@ -408,7 +408,9 @@ Forbidden:
 | `MIMAP-220A` | segment-map local-free reuse ledger lifecycle-token release-key precondition observer | landed; selected MIMAP-221A |
 | `MIMAP-221A` | post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition row selection | landed; selected MIMAP-222A |
 | `MIMAP-222A` | segment-map local-free reuse ledger lifecycle-token release-key precondition closeout pack | landed; selected MIMAP-223A |
-| `MIMAP-223A` | post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition-closeout row selection | selected current |
+| `MIMAP-223A` | post-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition-closeout row selection | landed; selected MIMAP-224A |
+| `MIMAP-224A` | segment-map local-free reuse ledger lifecycle-keyed release shadow pilot | landed; selected MIMAP-225A |
+| `MIMAP-225A` | post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -1882,6 +1884,44 @@ It must not migrate release-ledger keys unless the next row explicitly selects
 that row. It must keep real generation/lifecycle semantics, real segment
 allocation/free execution, raw pointer residence, real segment-map mutation,
 allocator free-list mutation, arena backing, atomic bitmap execution,
+OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, and backend
+matchers closed.
+
+MIMAP-223A landed by selecting MIMAP-224A, the lifecycle-keyed release shadow
+pilot.
+
+### MIMAP-224A granularity
+
+MIMAP-224A adds a shadow release ledger keyed by `reuse_lifecycle_token`. It
+consumes the MIMAP-220A release-key precondition report and an accepted
+lifecycle-token report, then records a shadow row only when the modeled reuse
+token matches and the lifecycle-keyed row is not already present.
+
+This row must not migrate the source release ledger key. It must keep the source
+release owner keyed by modeled reuse token, keep real generation/lifecycle
+semantics closed, and avoid real segment allocation/free execution, raw pointer
+residence, real segment-map mutation, allocator free-list mutation, arena
+backing, atomic bitmap execution, OSVM/page-source execution, worker scheduling,
+provider activation, cross-function `Result` direct ABI, runtime sum
+materialization, and backend matchers.
+
+MIMAP-224A uses daily L2 validation and defers representative exact-MIR L3 EXE
+evidence to a future lifecycle-keyed release shadow closeout pack. It landed by
+adding the owner, proof app, accepted SSOT, L2 guard, manifest/index rows, and
+current pointers. It selected MIMAP-225A.
+
+### MIMAP-225A granularity
+
+MIMAP-225A is a planning row after the lifecycle-keyed release shadow pilot. It
+should choose whether to close the shadow-ledger pack, add one more
+shadow-ledger diagnostic, or continue toward a modeled release/recycle bridge
+while source release-ledger migration remains closed.
+
+It must not migrate the source release ledger key unless the next row
+explicitly selects that row. It must keep real generation/lifecycle semantics,
+real segment allocation/free execution, raw pointer residence, real segment-map
+mutation, allocator free-list mutation, arena backing, atomic bitmap execution,
 OSVM/page-source execution, worker scheduling, provider activation,
 cross-function `Result` direct ABI, runtime sum materialization, and backend
 matchers closed.

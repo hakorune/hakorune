@@ -1,12 +1,18 @@
 # 293x-746 MIMAP-223A Post Segment Map Local Free Reuse Ledger Lifecycle-Token Release-Key Precondition Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
 
 Choose the next narrow row after MIMAP-222A closes the lifecycle-token
 release-key precondition pack.
+
+Selected row:
+
+```text
+MIMAP-224A segment-map local-free reuse ledger lifecycle-keyed release shadow pilot
+```
 
 ## Context
 
@@ -24,6 +30,10 @@ release-applied recycle creates a live modeled reuse row
 The next row should choose whether to keep release-key migration parked and move
 to another modeled bridge, add a narrower pre-migration diagnostic, or explicitly
 select a release-ledger key migration row.
+
+MIMAP-223A selects a lifecycle-keyed release shadow pilot. This keeps the
+source release ledger keyed by modeled reuse token while proving a parallel
+shadow ledger shape keyed by `reuse_lifecycle_token`.
 
 ## Stop Lines
 
@@ -48,4 +58,10 @@ select a release-ledger key migration row.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Next
+
+```text
+MIMAP-224A segment-map local-free reuse ledger lifecycle-keyed release shadow pilot
 ```
