@@ -419,7 +419,8 @@ Forbidden:
 | `MIMAP-231A` | post-source-release-ledger-lifecycle-key-migration-closeout row selection | landed; selected MIMAP-232A |
 | `MIMAP-232A` | source lifecycle-keyed release apply/recycle continuation bridge | landed; selected MIMAP-233A |
 | `MIMAP-233A` | source lifecycle-keyed release apply/recycle continuation diagnostics | landed; selected MIMAP-234A |
-| `MIMAP-234A` | source lifecycle-keyed release apply/recycle continuation closeout pack | selected current |
+| `MIMAP-234A` | source lifecycle-keyed release apply/recycle continuation closeout pack | landed; selected MIMAP-235A |
+| `MIMAP-235A` | post-source-lifecycle-keyed-release-apply-recycle-continuation-closeout row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2085,6 +2086,19 @@ It must keep real allocator execution, raw pointer residence, arena backing,
 real segment-map mutation, atomic bitmap execution, OSVM/page-source execution,
 worker scheduling, provider activation, cross-function `Result` direct ABI,
 runtime sum materialization, and backend matchers closed.
+
+MIMAP-234A landed by adding the closeout SSOT, manifest-backed closeout guard,
+guard manifest row, phase card updates, and current pointers. It selected
+MIMAP-235A.
+
+### MIMAP-235A granularity
+
+MIMAP-235A is a planning row after the source lifecycle-keyed release
+apply/recycle continuation closeout. It should select the next narrow allocator
+bridge while keeping raw pointer residence, real segment-map execution, arena
+backing, atomic bitmap execution, OSVM/page-source execution, worker
+scheduling, provider activation, cross-function `Result` direct ABI, runtime
+sum materialization, and backend matchers closed.
 
 
 ## Historical Granularity Anchors

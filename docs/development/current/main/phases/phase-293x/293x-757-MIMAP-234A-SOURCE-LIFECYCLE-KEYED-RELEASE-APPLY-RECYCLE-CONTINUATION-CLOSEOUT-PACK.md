@@ -1,11 +1,17 @@
 # 293x-757 MIMAP-234A Source Lifecycle-Keyed Release Apply/Recycle Continuation Closeout Pack
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
 
 Close out the source lifecycle-keyed release apply/recycle continuation pack.
+
+Selected next row:
+
+```text
+MIMAP-235A post source lifecycle-keyed release apply/recycle continuation closeout row selection
+```
 
 ## Context
 
@@ -16,6 +22,9 @@ apply, and post-continuation duplicate reuse.
 
 The next row should provide representative exact-MIR L3 evidence for the family
 before moving to the next allocator bridge.
+
+MIMAP-234A closes the pack by rerunning the MIMAP-232A first-pattern L3 guard
+and the MIMAP-233A diagnostics L2 guard under one manifest-backed closeout row.
 
 ## Stop Lines
 
@@ -37,6 +46,14 @@ before moving to the next allocator bridge.
 ## Required Evidence
 
 ```text
+bash tools/checks/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_lifecycle_keyed_release_apply_recycle_continuation_closeout_guard.sh
+bash tools/checks/run_proof_app.sh --closeout-pack source-lifecycle-keyed-release-apply-recycle-continuation --level L2 --dry-run
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Next
+
+```text
+MIMAP-235A post source lifecycle-keyed release apply/recycle continuation closeout row selection
 ```

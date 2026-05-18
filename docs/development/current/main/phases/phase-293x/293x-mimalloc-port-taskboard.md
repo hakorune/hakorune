@@ -627,7 +627,8 @@ FST:
 | `MIMAP-231A` | landed | Post source release-ledger lifecycle-key migration closeout row selection. | selected MIMAP-232A |
 | `MIMAP-232A` | landed | Source lifecycle-keyed release apply/recycle continuation bridge. | selected MIMAP-233A |
 | `MIMAP-233A` | landed | Source lifecycle-keyed release apply/recycle continuation diagnostics. | selected MIMAP-234A |
-| `MIMAP-234A` | selected current | Source lifecycle-keyed release apply/recycle continuation closeout pack. | current closeout row |
+| `MIMAP-234A` | landed | Source lifecycle-keyed release apply/recycle continuation closeout pack. | selected MIMAP-235A |
+| `MIMAP-235A` | selected current | Post source lifecycle-keyed release apply/recycle continuation closeout row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -636,8 +637,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-234A` closes source lifecycle-keyed release apply/recycle continuation
-with representative exact-MIR L3 evidence.
+`MIMAP-235A` selects the next narrow allocator bridge after source
+lifecycle-keyed release apply/recycle continuation closeout.
 Raw pointer residence remains parked behind a future rawbuf/no-escape
 capability. Real thread scheduling, worker spawning, source-level concurrency
 features, arena backing allocation, atomic bitmap execution, page-source calls,
