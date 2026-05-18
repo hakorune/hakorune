@@ -559,7 +559,9 @@ FST:
 | `MIMAP-182A` | landed | Segment-map local-free page-apply bridge closeout pack. | selected MIMAP-183A |
 | `MIMAP-183A` | landed | Post-segment-map-local-free-page-apply-bridge-closeout row selection. | selected MIMAP-184A |
 | `MIMAP-184A` | landed | Segment-map local-free integration bridge. | selected MIMAP-185A |
-| `MIMAP-185A` | selected current | Post-segment-map-local-free-integration-bridge row selection. | current planning row |
+| `MIMAP-185A` | landed | Post-segment-map-local-free-integration-bridge row selection. | selected MIMAP-186A |
+| `MIMAP-186A` | landed | Segment-map local-free integration bridge closeout pack. | selected MIMAP-187A |
+| `MIMAP-187A` | selected current | Post-segment-map-local-free-integration-bridge-closeout row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -568,8 +570,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-185A` chooses the next narrow row after MIMAP-184A connected the
-segment-map chain to the modeled local-free integration owner. Raw pointer residence remains
+`MIMAP-187A` chooses the next narrow row after MIMAP-186A closed the
+segment-map local-free integration bridge pack. Raw pointer residence remains
 parked behind a future rawbuf/no-escape capability. Real thread scheduling,
 worker spawning, source-level concurrency features, arena backing allocation,
 atomic bitmap execution, page-source calls, OSVM unreserve/release, provider
@@ -789,7 +791,9 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `MIMAP-185A` | selected current | Post-segment-map-local-free-integration-bridge row selection. | Current planning row. |
+| `MIMAP-187A` | selected current | Post-segment-map-local-free-integration-bridge-closeout row selection. | Current planning row. |
+| `MIMAP-186A` | landed | Segment-map local-free integration bridge closeout pack. | Selected MIMAP-187A. |
+| `MIMAP-185A` | landed | Post-segment-map-local-free-integration-bridge row selection. | Selected MIMAP-186A. |
 | `MIMAP-184A` | landed | Segment-map local-free integration bridge. | Selected MIMAP-185A. |
 | `MIMAP-183A` | landed | Post-segment-map-local-free-page-apply-bridge-closeout row selection. | Selected MIMAP-184A. |
 | `MIMAP-182A` | landed | Segment-map local-free page-apply bridge closeout pack. | Selected MIMAP-183A. |
