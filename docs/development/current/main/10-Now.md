@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-05-18
+Date: 2026-05-19
 Scope: current lane / blocker / next pointer only.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -34,15 +34,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-211A post-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic-closeout row selection`
+- current blocker token: `MIMAP-213A post-segment-map-local-free-reuse-ledger-lifecycle-token-pilot row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x with `MIMAP-211A`; current blocker is
-  post-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic-closeout row selection
-- latest closeout: `MIMAP-210A` landed and selected MIMAP-211A
+- continue phase-293x with `MIMAP-213A`; current blocker is
+  post-segment-map-local-free-reuse-ledger-lifecycle-token-pilot row selection
+- latest allocator row: `MIMAP-212A` landed and selected MIMAP-213A
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

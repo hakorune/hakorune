@@ -377,6 +377,15 @@ segment-map local-free reuse ledger release-applied recycle second-release diagn
     closeout_pack = segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic
     representative L3 EXE evidence in MIMAP-210A
 
+segment-map local-free reuse ledger lifecycle-token pilot family:
+  MIMAP-212A segment-map local-free reuse ledger lifecycle-token pilot:
+    validation_profile = scalar-mir
+    closeout_pack = segment-map-local-free-reuse-ledger-lifecycle-token-pilot
+    exe = deferred-to-closeout
+  closeout pack:
+    closeout_pack = segment-map-local-free-reuse-ledger-lifecycle-token-pilot
+    representative L3 EXE evidence deferred to a future closeout row
+
 cleanup row using C199 compound assignment:
   L1 C199 guard
   L3 touched segment guards only

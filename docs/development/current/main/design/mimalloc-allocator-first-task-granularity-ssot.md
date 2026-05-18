@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-211A
+  MIMAP-213A
 
 current choice boundary:
-  generation/lifecycle-token decision row
+  lifecycle-token pilot closeout
   or a small observer/diagnostic sidecar
   or the next modeled bridge that keeps real execution closed
 
@@ -396,7 +396,9 @@ Forbidden:
 | `MIMAP-208A` | segment-map local-free reuse ledger release-applied recycle second-release diagnostic | landed; selected MIMAP-209A |
 | `MIMAP-209A` | post-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic row selection | landed; selected MIMAP-210A |
 | `MIMAP-210A` | segment-map local-free reuse ledger release-applied recycle second-release diagnostic closeout pack | landed; selected MIMAP-211A |
-| `MIMAP-211A` | post-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic-closeout row selection | selected current |
+| `MIMAP-211A` | post-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic-closeout row selection | landed; selected MIMAP-212A |
+| `MIMAP-212A` | segment-map local-free reuse ledger lifecycle-token pilot | landed; selected MIMAP-213A |
+| `MIMAP-213A` | post-segment-map-local-free-reuse-ledger-lifecycle-token-pilot row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -1655,6 +1657,41 @@ residence, real segment-map mutation, real allocator free-list mutation, arena
 backing, atomic bitmap execution, OSVM/page-source execution, worker
 scheduling, provider activation, cross-function `Result` direct ABI, runtime
 sum materialization, or backend matchers.
+
+MIMAP-211A landed by selecting MIMAP-212A, a lifecycle-token pilot sidecar that
+keeps the release ledger key unchanged.
+
+### MIMAP-212A granularity
+
+MIMAP-212A adds a dedicated scalar lifecycle-token owner. It derives
+`reuse_lifecycle_token = modeled_reuse_token * 1000 + lifecycle_id`, records
+accepted rows, and rejects invalid-shape, duplicate, and unsupported-requirement
+branches.
+
+It must not migrate release-ledger keys, define generation/lifecycle semantics
+for real allocator cycles, or open real segment allocation/free execution, raw
+pointer residence, real segment-map mutation, real allocator free-list
+mutation, arena backing, atomic bitmap execution, OSVM/page-source execution,
+worker scheduling, provider activation, cross-function `Result` direct ABI,
+runtime sum materialization, or backend matchers.
+
+MIMAP-212A landed by adding the lifecycle-token owner, proof app, accepted
+SSOT, L2 guard, proof manifest row, check-script index entry, phase cards, and
+current pointers. It selected MIMAP-213A.
+
+### MIMAP-213A granularity
+
+MIMAP-213A is a planning row after the segment-map local-free reuse ledger
+lifecycle-token pilot. It should choose between a lifecycle-token closeout pack,
+a small observer/diagnostic sidecar, or the next modeled bridge that keeps real
+allocator execution closed.
+
+It must not migrate release-ledger keys, define generation/lifecycle semantics
+for real allocator cycles, or open real segment allocation/free execution, raw
+pointer residence, real segment-map mutation, real allocator free-list
+mutation, arena backing, atomic bitmap execution, OSVM/page-source execution,
+worker scheduling, provider activation, cross-function `Result` direct ABI,
+runtime sum materialization, or backend matchers.
 
 
 ## Historical Granularity Anchors

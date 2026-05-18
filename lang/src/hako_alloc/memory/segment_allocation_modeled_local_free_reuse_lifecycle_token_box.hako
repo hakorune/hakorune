@@ -1,0 +1,150 @@
+// segment_allocation_modeled_local_free_reuse_lifecycle_token_box.hako -- MIMAP-212A lifecycle-token pilot
+// Responsibility:
+// - model a scalar lifecycle token derived from one modeled reuse token and one
+//   explicit lifecycle id
+// - keep source reuse ledger and release owner behavior unchanged
+// Non-responsibility:
+// - release ledger key migration, generation/lifecycle semantics for real
+//   allocator cycles, raw pointers, real segment-map execution, atomics, OSVM,
+//   scheduling, providers, or backend shortcuts
+
+brand ModeledReuseToken: i64
+brand ReuseLifecycleId: i64
+
+box HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    row_index: i64 = -1
+    existing_index: i64 = -1
+    modeled_reuse_token: i64 = -1
+    lifecycle_id: i64 = -1
+    reuse_lifecycle_token: i64 = -1
+    count_after: i64 = 0
+    accepted_count_after: i64 = 0
+    reject_count_after: i64 = 0
+    lifecycle_token_owner_present: i64 = 1
+    would_execute_real_segment_allocation: i64 = 0
+    would_execute_real_segment_free: i64 = 0
+    would_directly_mutate_page_arrays: i64 = 0
+    would_use_raw_pointer: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleToken {
+    modeled_reuse_tokens: ArrayBox = new ArrayBox()
+    lifecycle_ids: ArrayBox = new ArrayBox()
+    reuse_lifecycle_tokens: ArrayBox = new ArrayBox()
+    attempt_count: i64 = 0
+    count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    invalid_shape_reject_count: i64 = 0
+    duplicate_reject_count: i64 = 0
+    unsupported_requirement_reject_count: i64 = 0
+    last_reason: i64 = 0
+    last_index: i64 = -1
+    last_modeled_reuse_token: i64 = -1
+    last_lifecycle_id: i64 = -1
+    last_reuse_lifecycle_token: i64 = -1
+
+    makeReuseLifecycleToken(modeled_reuse_token: ModeledReuseToken, lifecycle_id: ReuseLifecycleId): i64 {
+        return (modeled_reuse_token * 1000) + lifecycle_id
+    }
+
+    findIndex(reuse_lifecycle_token): i64 {
+        local i = 0
+        loop(i < me.count) {
+            if me.reuse_lifecycle_tokens.get(i) == reuse_lifecycle_token {
+                return i
+            }
+            i += 1
+        }
+        return -1
+    }
+
+    accept(row_index, modeled_reuse_token, lifecycle_id, reuse_lifecycle_token): HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenReport {
+        local result = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenReport()
+        result.accepted = 1
+        result.reason = 0
+        result.row_index = row_index
+        result.existing_index = -1
+        result.modeled_reuse_token = modeled_reuse_token
+        result.lifecycle_id = lifecycle_id
+        result.reuse_lifecycle_token = reuse_lifecycle_token
+        result.count_after = me.count
+        result.accepted_count_after = me.accepted_count
+        result.reject_count_after = me.reject_count
+        me.last_reason = 0
+        me.last_index = row_index
+        me.last_modeled_reuse_token = modeled_reuse_token
+        me.last_lifecycle_id = lifecycle_id
+        me.last_reuse_lifecycle_token = reuse_lifecycle_token
+        return result
+    }
+
+    reject(reason, existing_index, modeled_reuse_token, lifecycle_id, reuse_lifecycle_token): HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenReport {
+        me.reject_count += 1
+        if reason == 1 {
+            me.invalid_shape_reject_count += 1
+        }
+        if reason == 2 {
+            me.duplicate_reject_count += 1
+        }
+        if reason == 3 {
+            me.unsupported_requirement_reject_count += 1
+        }
+
+        local result = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenReport()
+        result.accepted = 0
+        result.reason = reason
+        result.row_index = -1
+        result.existing_index = existing_index
+        result.modeled_reuse_token = modeled_reuse_token
+        result.lifecycle_id = lifecycle_id
+        result.reuse_lifecycle_token = reuse_lifecycle_token
+        result.count_after = me.count
+        result.accepted_count_after = me.accepted_count
+        result.reject_count_after = me.reject_count
+        me.last_reason = reason
+        me.last_index = -1
+        me.last_modeled_reuse_token = modeled_reuse_token
+        me.last_lifecycle_id = lifecycle_id
+        me.last_reuse_lifecycle_token = reuse_lifecycle_token
+        return result
+    }
+
+    recordLifecycleToken(modeled_reuse_token, lifecycle_id, unsupported_requirement): HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenReport {
+        me.attempt_count += 1
+
+        local reuse_lifecycle_token = me.makeReuseLifecycleToken(ModeledReuseToken(modeled_reuse_token), ReuseLifecycleId(lifecycle_id))
+
+        if modeled_reuse_token < 0 {
+            return me.reject(1, -1, modeled_reuse_token, lifecycle_id, reuse_lifecycle_token)
+        }
+        if lifecycle_id < 0 {
+            return me.reject(1, -1, modeled_reuse_token, lifecycle_id, reuse_lifecycle_token)
+        }
+        if unsupported_requirement != 0 {
+            return me.reject(3, -1, modeled_reuse_token, lifecycle_id, reuse_lifecycle_token)
+        }
+
+        local existing_index = me.findIndex(reuse_lifecycle_token)
+        if existing_index >= 0 {
+            return me.reject(2, existing_index, modeled_reuse_token, lifecycle_id, reuse_lifecycle_token)
+        }
+
+        local row_index = me.count
+        me.modeled_reuse_tokens.push(modeled_reuse_token)
+        me.lifecycle_ids.push(lifecycle_id)
+        me.reuse_lifecycle_tokens.push(reuse_lifecycle_token)
+        me.count += 1
+        me.accepted_count += 1
+        return me.accept(row_index, modeled_reuse_token, lifecycle_id, reuse_lifecycle_token)
+    }
+}

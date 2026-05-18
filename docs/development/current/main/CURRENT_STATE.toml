@@ -6,20 +6,20 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-05-18"
+date = "2026-05-19"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-210A landed by closing the release-applied recycle second-release diagnostic pack with representative exact-MIR L3 EXE evidence; MIMAP-211A is the active planning blocker for the next narrow allocator row. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-212A landed by adding a dedicated scalar lifecycle-token pilot after the release-applied recycle second-release diagnostic closeout; MIMAP-213A is the active planning blocker for the next narrow allocator row. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-734-MIMAP-211A-POST-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLIED-RECYCLE-SECOND-RELEASE-DIAGNOSTIC-CLOSEOUT-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-736-MIMAP-213A-POST-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-LIFECYCLE-TOKEN-PILOT-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-733-MIMAP-210A-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLIED-RECYCLE-SECOND-RELEASE-DIAGNOSTIC-CLOSEOUT-PACK"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-733-MIMAP-210A-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLIED-RECYCLE-SECOND-RELEASE-DIAGNOSTIC-CLOSEOUT-PACK.md"
-latest_card_summary = "MIMAP-210A landed by adding the second-release diagnostic closeout SSOT, manifest-backed closeout guard, guard manifest row, check-script index entry, and current pointers; MIMAP-211A selected current."
+latest_card = "293x-735-MIMAP-212A-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-LIFECYCLE-TOKEN-PILOT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-735-MIMAP-212A-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-LIFECYCLE-TOKEN-PILOT.md"
+latest_card_summary = "MIMAP-212A landed by adding the lifecycle-token pilot owner, proof app, accepted SSOT, L2 guard, proof manifest row, check-script index entry, and current pointers; MIMAP-213A selected current."
 
-current_blocker_token = "MIMAP-211A"
+current_blocker_token = "MIMAP-213A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-735 MIMAP-212A segment-map local-free reuse ledger lifecycle-token pilot landed; MIMAP-213A selected",
+  "293x-734 MIMAP-211A post-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic-closeout row selection landed; MIMAP-212A selected",
   "293x-733 MIMAP-210A segment-map local-free reuse ledger release-applied recycle second-release diagnostic closeout pack landed; MIMAP-211A selected",
   "293x-732 MIMAP-209A post-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic row selection landed; MIMAP-210A selected",
   "293x-731 MIMAP-208A segment-map local-free reuse ledger release-applied recycle second-release diagnostic landed; MIMAP-209A selected",

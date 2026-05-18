@@ -1,12 +1,18 @@
 # 293x-734 MIMAP-211A Post Segment Map Local Free Reuse Ledger Release-Applied Recycle Second-Release Diagnostic Closeout Row Selection
 
-Status: selected current
-Date: 2026-05-18
+Status: landed
+Date: 2026-05-19
 
 ## Decision
 
 Choose the next narrow row after MIMAP-210A closes the segment-map local-free
 reuse ledger release-applied recycle second-release diagnostic pack.
+
+Selected row:
+
+```text
+MIMAP-212A segment-map local-free reuse ledger lifecycle-token pilot
+```
 
 ## Context
 
@@ -22,6 +28,11 @@ source reuse ledger applies release
 The next row should decide whether to introduce a generation/lifecycle-token
 contract, add a small observer, or choose a different modeled bridge while real
 allocator execution remains closed.
+
+MIMAP-211A selects the smallest lifecycle-token sidecar: a dedicated scalar
+owner derives one reuse-lifecycle token from a modeled reuse token and an
+explicit lifecycle id, without migrating the release ledger key or opening real
+allocator execution.
 
 ## Stop Lines
 
@@ -42,6 +53,15 @@ allocator execution remains closed.
 ## Required Evidence
 
 ```text
+Land MIMAP-212A with:
+bash tools/checks/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_lifecycle_token_pilot_guard.sh --level L2
+bash tools/checks/run_proof_app.sh --only MIMAP-212A
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Next
+
+```text
+MIMAP-212A segment-map local-free reuse ledger lifecycle-token pilot
 ```
