@@ -768,6 +768,24 @@ allocation/free, arena backing, atomic bitmap execution, OSVM/page-source
 execution, worker scheduling, provider activation, cross-function `Result`
 direct ABI, runtime sum materialization, or backend matchers.
 
+MIMAP-160A landed by selecting MIMAP-161A.
+
+### MIMAP-161A granularity
+
+MIMAP-161A adds a scalar modeled release route at the segment-map modeled
+consume ledger owner boundary. It should reuse the existing
+`HakoAllocSegmentAllocationModeledLedger.releaseModeledToken` substrate rather
+than creating a second release ledger.
+
+It should prove accepted release, duplicate release, missing/invalid token, and
+unsupported substrate rejections while staying in scalar/model space.
+
+It must not open real segment free execution, raw pointer residence, real
+segment-map mutation, real segment allocation/free, arena backing, atomic bitmap
+execution, OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, or backend
+matchers.
+
 
 ## Historical Granularity Anchors
 

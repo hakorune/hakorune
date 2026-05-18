@@ -1,6 +1,6 @@
 # 293x-682 MIMAP-160A Post Segment Map Modeled Consume Ledger Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -53,3 +53,15 @@ residence, arena backing, real segment-map execution, or atomic bitmap behavior.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Closeout
+
+MIMAP-160A selected:
+
+```text
+MIMAP-161A segment-map modeled consume ledger release route
+```
+
+This keeps the next row on the existing modeled ledger release substrate by
+adding a segment-map consume-ledger owner boundary, not by opening real segment
+free execution.
