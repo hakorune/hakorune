@@ -34,21 +34,22 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`HAKO-ALLOC-RESULT-API-001` is current after MIMAP-146A selected the
-Result/Option + guard-let inventory row.
+`PURE-FIRST-GUARDLET-ENUMMATCH-001` is current after
+HAKO-ALLOC-RESULT-API-001 found that direct MIR rejects the `EnumMatchExpr`
+shape emitted by guard-let sugar.
 
 Recommended current row:
 
 ```text
-HAKO-ALLOC-RESULT-API-001
-  allocator Result/Option guard-let inventory
+PURE-FIRST-GUARDLET-ENUMMATCH-001
+  direct MIR guard-let EnumMatchExpr acceptance
 ```
 
 Purpose:
 
 ```text
-inventory scalar allocator failure/report surfaces against existing Result/Option + guard-let support
-select one narrow pilot owner or one compiler acceptance row
+accept the narrow EnumMatchExpr shapes emitted by existing guard-let sugar
+keep allocator source rewrites out of this compiler row
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -189,8 +190,9 @@ no provider activation
 | 118 | Hakorune language / allocator cleanup | `HAKO-ALLOC-REPORT-RECORD-001 allocator report record cleanup inventory` | landed; selected HAKO-ALLOC-REPORT-RECORD-002 |
 | 119 | Hakorune language / allocator cleanup | `HAKO-ALLOC-REPORT-RECORD-002 local-free integration report record boundary cleanup` | landed; selected MIMAP-146A |
 | 120 | planning | `MIMAP-146A post-report-record-cleanup row selection` | landed; selected HAKO-ALLOC-RESULT-API-001 |
-| 121 | Hakorune language / allocator boundary | `HAKO-ALLOC-RESULT-API-001 allocator Result/Option guard-let inventory` | selected current |
-| 122 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
+| 121 | Hakorune language / allocator boundary | `HAKO-ALLOC-RESULT-API-001 allocator Result/Option guard-let inventory` | landed; selected PURE-FIRST-GUARDLET-ENUMMATCH-001 |
+| 122 | Hakorune compiler | `PURE-FIRST-GUARDLET-ENUMMATCH-001 direct MIR guard-let EnumMatchExpr acceptance` | selected current |
+| 123 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
 

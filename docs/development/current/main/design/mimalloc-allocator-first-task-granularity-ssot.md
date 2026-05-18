@@ -323,7 +323,8 @@ Forbidden:
 | `HAKO-ALLOC-REPORT-RECORD-001` | allocator report record cleanup inventory | landed; selected HAKO-ALLOC-REPORT-RECORD-002 |
 | `HAKO-ALLOC-REPORT-RECORD-002` | local-free integration report record boundary cleanup | landed; selected MIMAP-146A |
 | `MIMAP-146A` | post-report-record-cleanup row selection | landed; selected HAKO-ALLOC-RESULT-API-001 |
-| `HAKO-ALLOC-RESULT-API-001` | allocator Result/Option guard-let inventory | selected current |
+| `HAKO-ALLOC-RESULT-API-001` | allocator Result/Option guard-let inventory | landed; selected PURE-FIRST-GUARDLET-ENUMMATCH-001 |
+| `PURE-FIRST-GUARDLET-ENUMMATCH-001` | direct MIR guard-let EnumMatchExpr acceptance | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -522,6 +523,21 @@ guard-let language support without changing allocator behavior.
 It must not add allocator behavior, broad report rewrites, implicit `?`, `try`,
 `throw`, null sugar, provider activation, host allocator replacement, backend
 matchers, or silent fallback.
+
+HAKO-ALLOC-RESULT-API-001 landed by confirming that `hako_alloc` does not yet
+use Result/Option/guard-let and that direct MIR currently rejects the
+`EnumMatchExpr` emitted by guard-let sugar. It selects
+PURE-FIRST-GUARDLET-ENUMMATCH-001.
+
+
+### PURE-FIRST-GUARDLET-ENUMMATCH-001 granularity
+
+PURE-FIRST-GUARDLET-ENUMMATCH-001 is a focused compiler acceptance row for the
+existing guard-let sugar. It should lower the narrow `EnumMatchExpr` shapes
+emitted by `guard let Type::Variant(binding) = expr else { ... }` in direct MIR.
+
+It must not add broad pattern matching, implicit Result propagation, allocator
+source rewrites, backend matchers, or silent fallback.
 
 
 ## Historical Granularity Anchors

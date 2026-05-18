@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `HAKO-ALLOC-RESULT-API-001 allocator Result/Option guard-let inventory`
+  `PURE-FIRST-GUARDLET-ENUMMATCH-001 direct MIR guard-let EnumMatchExpr acceptance`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,8 +74,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `HAKO-ALLOC-RESULT-API-001`, the
-  allocator Result/Option guard-let inventory selected by MIMAP-146A.
+- resume point: continue Phase 293x with `PURE-FIRST-GUARDLET-ENUMMATCH-001`,
+  the direct MIR guard-let EnumMatchExpr acceptance row selected by
+  HAKO-ALLOC-RESULT-API-001.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -83,10 +84,10 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `HAKO-ALLOC-RESULT-API-001`: inventory scalar allocator failure/report
-     surfaces against existing Result/Option + guard-let support
-  2. select one narrow pilot owner or one compiler acceptance row
-  3. preserve allocator behavior and proof output while selecting
+  1. `PURE-FIRST-GUARDLET-ENUMMATCH-001`: accept the narrow EnumMatchExpr shapes
+     emitted by existing guard-let sugar in direct MIR
+  2. keep allocator source rewrites out of this compiler row
+  3. preserve allocator behavior and proof output while widening compiler acceptance
   4. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider activation inactive
   5. keep secure entropy execution parked until a separate random substrate

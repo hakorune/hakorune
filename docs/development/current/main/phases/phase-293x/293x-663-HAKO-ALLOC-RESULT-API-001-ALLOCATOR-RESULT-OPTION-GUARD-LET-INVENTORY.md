@@ -1,6 +1,6 @@
 # 293x-663 HAKO-ALLOC-RESULT-API-001 Allocator Result/Option Guard-Let Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -46,4 +46,46 @@ docs/development/current/main/design/guard-let-pattern-sugar-ssot.md
 rg -n "did_|status|reason|Result::|Option::|guard let" lang/src/hako_alloc apps/hako-alloc-* -g '*.hako'
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Inventory Result
+
+Scanned `lang/src/hako_alloc/memory` and `apps/hako-alloc-*` proof sources.
+
+Current allocator source usage:
+
+```text
+Result:: / Option:: / guard let:
+  no current hako_alloc or hako-alloc proof app usage
+
+Top scalar status/reason clusters:
+  segment_allocation_modeled_local_free_integration_box.hako: 68
+  segment_allocation_modeled_ledger_box.hako: 47
+  segment_allocation_modeled_consume_box.hako: 45
+  segment_allocation_modeled_local_free_reuse_ledger_box.hako: 45
+  purge_bounded_scheduler_box.hako: 43
+```
+
+Direct-MIR probe:
+
+```text
+guard let Result::Ok(value) = result else { ... }
+```
+
+currently fails before allocator source can use it:
+
+```text
+Unsupported AST node type: EnumMatchExpr { enum_name: "Result", ... }
+```
+
+## Closeout
+
+Do not start by rewriting allocator reports to Result/Option. The smallest next
+row is compiler acceptance for the narrow `EnumMatchExpr` shape emitted by
+guard-let sugar.
+
+Next row:
+
+```text
+PURE-FIRST-GUARDLET-ENUMMATCH-001 direct MIR guard-let EnumMatchExpr acceptance
 ```

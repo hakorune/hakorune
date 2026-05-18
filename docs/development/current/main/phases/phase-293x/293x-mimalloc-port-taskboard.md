@@ -486,7 +486,8 @@ FST:
 | `HAKO-ALLOC-REPORT-RECORD-001` | landed | Allocator report record cleanup inventory. | selected HAKO-ALLOC-REPORT-RECORD-002 |
 | `HAKO-ALLOC-REPORT-RECORD-002` | landed | Local-free integration report record boundary cleanup. | selected MIMAP-146A |
 | `MIMAP-146A` | landed | Post-report-record-cleanup row selection. | selected HAKO-ALLOC-RESULT-API-001 |
-| `HAKO-ALLOC-RESULT-API-001` | selected current | Allocator Result/Option guard-let inventory. | current language/allocator boundary row |
+| `HAKO-ALLOC-RESULT-API-001` | landed | Allocator Result/Option guard-let inventory. | selected PURE-FIRST-GUARDLET-ENUMMATCH-001 |
+| `PURE-FIRST-GUARDLET-ENUMMATCH-001` | selected current | Direct MIR guard-let EnumMatchExpr acceptance. | current compiler acceptance row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -495,8 +496,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-RESULT-API-001` inventories allocator scalar failure/report
-surfaces against the existing Result/Option + guard-let language support.
+`PURE-FIRST-GUARDLET-ENUMMATCH-001` accepts the narrow `EnumMatchExpr` shapes
+emitted by existing guard-let sugar in direct MIR.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,
@@ -717,7 +718,8 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `HAKO-ALLOC-RESULT-API-001` | selected current | Allocator Result/Option guard-let inventory. | Current language/allocator boundary row. |
+| `PURE-FIRST-GUARDLET-ENUMMATCH-001` | selected current | Direct MIR guard-let EnumMatchExpr acceptance. | Current compiler acceptance row. |
+| `HAKO-ALLOC-RESULT-API-001` | landed | Allocator Result/Option guard-let inventory. | Selected PURE-FIRST-GUARDLET-ENUMMATCH-001. |
 | `MIMAP-146A` | landed | Post-report-record-cleanup row selection. | Selected HAKO-ALLOC-RESULT-API-001. |
 | `HAKO-ALLOC-REPORT-RECORD-002` | landed | Local-free integration report record boundary cleanup. | Selected MIMAP-146A. |
 | `HAKO-ALLOC-REPORT-RECORD-001` | landed | Allocator report record cleanup inventory. | Selected HAKO-ALLOC-REPORT-RECORD-002. |
