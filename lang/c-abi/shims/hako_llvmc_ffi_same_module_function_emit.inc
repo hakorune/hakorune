@@ -381,6 +381,10 @@
             set_typed_object_binding(pr.dst, typed_plan_index);
           }
         }
+        if (all_phi_inputs_are_local_variants(&pr)) {
+          set_variant_binding(pr.dst, 0, pr.dst, pr.dst, 1);
+          set_type(pr.dst, T_I64);
+        }
         pr.explicit_type = explicit_type;
         pb->recs[pb->rec_n++] = pr;
         return 1;

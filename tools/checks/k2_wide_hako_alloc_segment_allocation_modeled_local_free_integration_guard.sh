@@ -65,6 +65,8 @@ guard_expect_in_file "$TAG" 'integrateLocalFree' "$OWNER" "integration owner mus
 guard_expect_in_file "$TAG" 'record HakoAllocSegmentAllocationModeledLocalFreeIntegrationReportFields' "$OWNER" "integration owner must group report scalars in a record payload"
 guard_expect_in_file "$TAG" 'HakoAllocSegmentAllocationModeledLocalFreeIntegrationReportFields \{' "$OWNER" "integration owner must construct report field records locally"
 guard_expect_in_file "$TAG" 'result.did_integrate_local_free = fields.did_integrate_local_free' "$OWNER" "integration owner must copy record fields into the public report box"
+guard_expect_in_file "$TAG" 'local candidate_result: Result<i64, i64>' "$OWNER" "integration owner must keep the Result pilot boundary local to integrateLocalFree"
+guard_expect_in_file "$TAG" 'guard let Result::Ok\(candidate_row_index\) = candidate_result else' "$OWNER" "integration owner must consume the Result pilot through guard-let"
 guard_expect_in_file "$TAG" 'recordLocalFreeCandidate' "$OWNER" "integration owner must compose candidate ledger"
 guard_expect_in_file "$TAG" 'recordLocalFreeApplyPlan' "$OWNER" "integration owner must compose apply plan ledger"
 guard_expect_in_file "$TAG" 'recordLocalFreePageApply' "$OWNER" "integration owner must compose page apply route"

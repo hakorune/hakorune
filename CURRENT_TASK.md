@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `HAKO-ALLOC-RESULT-API-002 allocator local-free Result guard-let pilot`
+  `MIMAP-147A post-Result-guard-let-pilot row selection`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,9 +74,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `HAKO-ALLOC-RESULT-API-002`,
-  the allocator local-free Result guard-let pilot selected by
-  PURE-FIRST-GUARDLET-ENUMMATCH-001.
+- resume point: continue Phase 293x with `MIMAP-147A`,
+  the post-Result-guard-let-pilot row selection after
+  HAKO-ALLOC-RESULT-API-002 landed.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -84,10 +84,11 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `HAKO-ALLOC-RESULT-API-002`: apply Result/guard-let to one local-free
-     integration helper boundary
-  2. preserve allocator behavior, report record fields, and proof output
-  3. keep broader allocator report rewrites out of this pilot
+  1. `MIMAP-147A`: select the next single allocator/compiler row after
+     the local-free Result guard-let pilot
+  2. choose between another Result boundary, a compiler Result sidecar, or
+     returning to ordinary mimalloc behavior work
+  3. keep this selection row docs/planning only
   4. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider activation inactive
   5. keep secure entropy execution parked until a separate random substrate

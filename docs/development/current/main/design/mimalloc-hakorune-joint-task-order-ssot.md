@@ -34,22 +34,22 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`HAKO-ALLOC-RESULT-API-002` is current after
-PURE-FIRST-GUARDLET-ENUMMATCH-001 landed direct MIR acceptance for the
-`EnumMatchExpr` shapes emitted by guard-let sugar.
+`MIMAP-147A` is current after HAKO-ALLOC-RESULT-API-002 landed the first
+allocator Result/guard-let pilot and the local pure-first sum aggregate support
+needed by that pilot.
 
 Recommended current row:
 
 ```text
-HAKO-ALLOC-RESULT-API-002
-  allocator local-free Result guard-let pilot
+MIMAP-147A
+  post-Result-guard-let-pilot row selection
 ```
 
 Purpose:
 
 ```text
-apply Result/guard-let to one local-free integration helper boundary
-preserve allocator behavior, report fields, and proof output
+select the next single allocator/compiler row after the Result guard-let pilot
+choose between another Result boundary, a focused compiler sidecar, or ordinary mimalloc behavior work
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -192,8 +192,9 @@ no provider activation
 | 120 | planning | `MIMAP-146A post-report-record-cleanup row selection` | landed; selected HAKO-ALLOC-RESULT-API-001 |
 | 121 | Hakorune language / allocator boundary | `HAKO-ALLOC-RESULT-API-001 allocator Result/Option guard-let inventory` | landed; selected PURE-FIRST-GUARDLET-ENUMMATCH-001 |
 | 122 | Hakorune compiler | `PURE-FIRST-GUARDLET-ENUMMATCH-001 direct MIR guard-let EnumMatchExpr acceptance` | landed; selected HAKO-ALLOC-RESULT-API-002 |
-| 123 | Hakorune language / allocator boundary | `HAKO-ALLOC-RESULT-API-002 allocator local-free Result guard-let pilot` | selected current |
-| 124 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
+| 123 | Hakorune language / allocator boundary | `HAKO-ALLOC-RESULT-API-002 allocator local-free Result guard-let pilot` | landed; selected MIMAP-147A |
+| 124 | planning | `MIMAP-147A post-Result-guard-let-pilot row selection` | selected current |
+| 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
 

@@ -111,6 +111,10 @@
       auto void emit_block_label(long long bid){ EMIT("bb%lld:\n", bid); }
       auto void emit_phi(long long dst, struct Incoming* in, int in_n){
         int phi_ty = get_type(dst);
+        struct GenericPureVariantBinding variant_binding;
+        int variant_phi = get_variant_binding(dst, &variant_binding) &&
+            variant_binding.tag_reg == dst &&
+            variant_binding.has_payload;
         EMIT("  %%r%lld = phi %s ", dst, phi_ty == T_I1 ? "i1" : "i64");
         for (int i=0;i<in_n;i++){
           long long cv;
@@ -124,6 +128,27 @@
           }
         }
         EMIT("\n");
+        if (variant_phi) {
+          EMIT("  %%r%lld_tag = phi i64 ", dst);
+          for (int i = 0; i < in_n; i++) {
+            struct GenericPureVariantBinding incoming_variant;
+            memset(&incoming_variant, 0, sizeof(incoming_variant));
+            if (get_variant_binding(in[i].val_reg, &incoming_variant) &&
+                incoming_variant.tag_reg) {
+              EMIT("[ %%r%lld_tag, %%bb%lld ]%s",
+                   incoming_variant.tag_reg,
+                   in[i].pred,
+                   (i + 1 < in_n) ? ", " : "");
+            } else {
+              long long tag_value = incoming_variant.tag_const;
+              EMIT("[ %lld, %%bb%lld ]%s",
+                   tag_value,
+                   in[i].pred,
+                   (i + 1 < in_n) ? ", " : "");
+            }
+          }
+          EMIT("\n");
+        }
       }
       auto void emit_icmp(long long dst, const char* pred, long long lhs_reg, long long rhs_reg){ long long vL,vR; long long lhs_base=resolve_copy_source_reg(lhs_reg), rhs_base=resolve_copy_source_reg(rhs_reg); int lc=has_const(lhs_base,&vL), rc=has_const(rhs_base,&vR); EMIT("  %%r%lld = icmp %s i64 %s%lld%s, %s%lld%s\n", dst, pred, lc?"":"%r", lc?vL:lhs_base, lc?"":"", rc?"":"%r", rc?vR:rhs_base, rc?"":""); set_type(dst,T_I1); }
       auto int should_emit_string_compare(yyjson_val* ins, long long lhs_reg, long long rhs_reg){
@@ -604,6 +629,51 @@
               }
               generic_pure_publish_reg_metadata(dst);
             }
+            continue;
+          }
+          if (strcmp(op, "variant_make")==0) {
+            continue;
+          }
+          if (strcmp(op, "variant_tag")==0) {
+            long long dst = read_int(ins, "dst");
+            long long value = read_int(ins, "value");
+            struct GenericPureVariantBinding binding;
+            memset(&binding, 0, sizeof(binding));
+            if (!get_variant_binding(value, &binding)) {
+              note_pure_unsupported_shape(
+                  bid,
+                  ii,
+                  op,
+                  "local_variant_tag_binding_missing",
+                  NULL);
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
+            }
+            if (binding.tag_reg) {
+              EMIT("  %%r%lld = add i64 %%r%lld_tag, 0\n", dst, binding.tag_reg);
+            } else {
+              put_const(dst, binding.tag_const);
+            }
+            set_type(dst, T_I64);
+            continue;
+          }
+          if (strcmp(op, "variant_project")==0) {
+            long long dst = read_int(ins, "dst");
+            long long value = read_int(ins, "value");
+            struct GenericPureVariantBinding binding;
+            memset(&binding, 0, sizeof(binding));
+            if (!get_variant_binding(value, &binding) || !binding.has_payload) {
+              note_pure_unsupported_shape(
+                  bid,
+                  ii,
+                  op,
+                  "local_variant_project_binding_missing",
+                  NULL);
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
+            }
+            set_copy_alias(dst, resolve_copy_source_reg(binding.payload_reg));
+            set_type(dst, T_I64);
             continue;
           }
           if (strcmp(op, "compare")==0) {

@@ -9,6 +9,52 @@
         }
         return cur ? cur : r;
       }
+      auto int get_variant_binding(long long r, struct GenericPureVariantBinding* out) {
+        long long base = resolve_copy_source_reg(r);
+        for (size_t i = 0; i < variant_bindings_n; i++) {
+          if (variant_bindings[i].reg == r || variant_bindings[i].reg == base) {
+            if (out) *out = variant_bindings[i];
+            return 1;
+          }
+        }
+        return 0;
+      }
+      auto void set_variant_binding(
+          long long r,
+          long long tag_const,
+          long long tag_reg,
+          long long payload_reg,
+          int has_payload) {
+        if (!r) return;
+        for (size_t i = 0; i < variant_bindings_n; i++) {
+          if (variant_bindings[i].reg == r) {
+            variant_bindings[i].tag_const = tag_const;
+            variant_bindings[i].tag_reg = tag_reg;
+            variant_bindings[i].payload_reg = payload_reg;
+            variant_bindings[i].has_payload = has_payload;
+            return;
+          }
+        }
+        if (variant_bindings_n < ARR_LEN(variant_bindings)) {
+          variant_bindings[variant_bindings_n].reg = r;
+          variant_bindings[variant_bindings_n].tag_const = tag_const;
+          variant_bindings[variant_bindings_n].tag_reg = tag_reg;
+          variant_bindings[variant_bindings_n].payload_reg = payload_reg;
+          variant_bindings[variant_bindings_n].has_payload = has_payload;
+          variant_bindings_n++;
+        } else {
+          note_generic_capacity_overflow("generic_variant_binding_inventory_full");
+        }
+      }
+      auto int all_phi_inputs_are_local_variants(struct PhiRec* pr) {
+        if (!(pr && pr->in_n > 0)) return 0;
+        for (int i = 0; i < pr->in_n; i++) {
+          struct GenericPureVariantBinding binding;
+          if (!get_variant_binding(pr->in[i].val_reg, &binding)) return 0;
+          if (!binding.has_payload) return 0;
+        }
+        return 1;
+      }
       auto int get_scan_origin(long long r){
         for(size_t i=0;i<scan_origin_n;i++){ if(scan_origin[i].reg==r) return scan_origin[i].kind; }
         long long base = resolve_copy_source_reg(r);
@@ -160,6 +206,11 @@
           return read_int(ins, "cond") == reg ||
                  read_int(ins, "then_val") == reg ||
                  read_int(ins, "else_val") == reg;
+        }
+        if (strcmp(op, "variant_make") == 0) return read_int(ins, "payload") == reg;
+        if (strcmp(op, "variant_tag") == 0 ||
+            strcmp(op, "variant_project") == 0) {
+          return read_int(ins, "value") == reg;
         }
         if (strcmp(op, "phi") == 0) {
           yyjson_val* vals = yyjson_obj_get(ins, "values");

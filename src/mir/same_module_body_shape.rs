@@ -71,6 +71,9 @@ fn same_module_instruction_supported(
             BinaryOp::Add | BinaryOp::Sub | BinaryOp::Mul | BinaryOp::Div | BinaryOp::Mod
         ),
         MirInstruction::Compare { .. } | MirInstruction::Select { .. } => true,
+        MirInstruction::VariantMake { .. }
+        | MirInstruction::VariantTag { .. }
+        | MirInstruction::VariantProject { .. } => true,
         MirInstruction::KeepAlive { .. } | MirInstruction::ReleaseStrong { .. } => true,
         instruction if same_module_terminator_supported(instruction) => true,
         MirInstruction::Call {

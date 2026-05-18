@@ -75,6 +75,22 @@ guard-let generated single-payload binding extraction through VariantProject
 parser-emitted guard-let ScopeBox binding visibility for the following source statements
 ```
 
+Pure-first EXE owns:
+
+```text
+local Result-style sum aggregate tracking inside one same-module body
+VariantMake/VariantTag/VariantProject lowering only when the aggregate stays local
+copy/phi tag+payload tracking for local guard-let consumption
+```
+
+Pure-first EXE does not own here:
+
+```text
+cross-function Result direct ABI
+general runtime sum object materialization
+backend fallback for unsupported sum shapes
+```
+
 Stage1 does not own here:
 
 ```text

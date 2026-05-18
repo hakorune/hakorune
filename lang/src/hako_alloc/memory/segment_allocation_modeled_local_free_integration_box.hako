@@ -275,7 +275,11 @@ box HakoAllocSegmentAllocationModeledLocalFreeIntegration {
         me.attempt_count += 1
 
         local candidate = me.candidate_ledger.recordLocalFreeCandidate(released_span_report, unsupported_candidate_requirement)
+        local candidate_result: Result<i64, i64> = Result::Ok(candidate.row_index)
         if candidate.did_record_local_free_candidate != 1 {
+            candidate_result = Result::Err(candidate.reason)
+        }
+        guard let Result::Ok(candidate_row_index) = candidate_result else {
             return me.rejectFromCandidate(candidate)
         }
 

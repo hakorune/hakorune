@@ -488,7 +488,8 @@ FST:
 | `MIMAP-146A` | landed | Post-report-record-cleanup row selection. | selected HAKO-ALLOC-RESULT-API-001 |
 | `HAKO-ALLOC-RESULT-API-001` | landed | Allocator Result/Option guard-let inventory. | selected PURE-FIRST-GUARDLET-ENUMMATCH-001 |
 | `PURE-FIRST-GUARDLET-ENUMMATCH-001` | landed | Direct MIR guard-let EnumMatchExpr acceptance. | selected HAKO-ALLOC-RESULT-API-002 |
-| `HAKO-ALLOC-RESULT-API-002` | selected current | Allocator local-free Result guard-let pilot. | current allocator language pilot |
+| `HAKO-ALLOC-RESULT-API-002` | landed | Allocator local-free Result guard-let pilot. | selected MIMAP-147A |
+| `MIMAP-147A` | selected current | Post-Result-guard-let-pilot row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -497,8 +498,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-RESULT-API-002` applies the accepted Result/guard-let surface to one
-local-free integration helper boundary while preserving existing proof output.
+`MIMAP-147A` selects the next single allocator/compiler row after the first
+Result/guard-let allocator pilot landed.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,
@@ -719,7 +720,8 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `HAKO-ALLOC-RESULT-API-002` | selected current | Allocator local-free Result guard-let pilot. | Current allocator language pilot. |
+| `MIMAP-147A` | selected current | Post-Result-guard-let-pilot row selection. | Current planning row. |
+| `HAKO-ALLOC-RESULT-API-002` | landed | Allocator local-free Result guard-let pilot. | Selected MIMAP-147A. |
 | `PURE-FIRST-GUARDLET-ENUMMATCH-001` | landed | Direct MIR guard-let EnumMatchExpr acceptance. | Selected HAKO-ALLOC-RESULT-API-002. |
 | `HAKO-ALLOC-RESULT-API-001` | landed | Allocator Result/Option guard-let inventory. | Selected PURE-FIRST-GUARDLET-ENUMMATCH-001. |
 | `MIMAP-146A` | landed | Post-report-record-cleanup row selection. | Selected HAKO-ALLOC-RESULT-API-001. |

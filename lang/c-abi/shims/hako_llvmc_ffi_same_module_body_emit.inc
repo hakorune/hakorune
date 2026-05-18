@@ -429,6 +429,33 @@
               read_int(ins, "dst"),
               read_int(ins, "src"));
         }
+        if (!strcmp(op, "variant_make")) {
+          return 1;
+        }
+        if (!strcmp(op, "variant_tag")) {
+          long long dst = read_int(ins, "dst");
+          long long value = read_int(ins, "value");
+          struct GenericPureVariantBinding binding;
+          memset(&binding, 0, sizeof(binding));
+          if (!get_variant_binding(value, &binding)) return 0;
+          if (binding.tag_reg) {
+            EMIT("  %%r%lld = add i64 %%r%lld_tag, 0\n", dst, binding.tag_reg);
+          } else {
+            put_const(dst, binding.tag_const);
+          }
+          set_type(dst, T_I64);
+          return 1;
+        }
+        if (!strcmp(op, "variant_project")) {
+          long long dst = read_int(ins, "dst");
+          long long value = read_int(ins, "value");
+          struct GenericPureVariantBinding binding;
+          memset(&binding, 0, sizeof(binding));
+          if (!get_variant_binding(value, &binding) || !binding.has_payload) return 0;
+          set_copy_alias(dst, resolve_copy_source_reg(binding.payload_reg));
+          set_type(dst, T_I64);
+          return 1;
+        }
         if (!strcmp(op, "newbox")) {
           return same_module_function_emit_newbox(ins);
         }

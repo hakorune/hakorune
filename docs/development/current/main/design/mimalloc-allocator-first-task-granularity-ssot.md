@@ -325,7 +325,8 @@ Forbidden:
 | `MIMAP-146A` | post-report-record-cleanup row selection | landed; selected HAKO-ALLOC-RESULT-API-001 |
 | `HAKO-ALLOC-RESULT-API-001` | allocator Result/Option guard-let inventory | landed; selected PURE-FIRST-GUARDLET-ENUMMATCH-001 |
 | `PURE-FIRST-GUARDLET-ENUMMATCH-001` | direct MIR guard-let EnumMatchExpr acceptance | landed; selected HAKO-ALLOC-RESULT-API-002 |
-| `HAKO-ALLOC-RESULT-API-002` | allocator local-free Result guard-let pilot | selected current |
+| `HAKO-ALLOC-RESULT-API-002` | allocator local-free Result guard-let pilot | landed; selected MIMAP-147A |
+| `MIMAP-147A` | post-Result-guard-let-pilot row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -551,6 +552,18 @@ HAKO-ALLOC-RESULT-API-002 is the first allocator source pilot for the accepted
 Result/guard-let surface. It should touch one local-free integration helper
 boundary only, preserve report record fields and proof output, and keep broad
 allocator report rewrites out of scope.
+
+HAKO-ALLOC-RESULT-API-002 landed by keeping the Result boundary local to
+`integrateLocalFree`, consuming it with guard-let, and adding pure-first
+same-module support for local sum aggregates. Cross-function `Result` direct
+ABI remains out of scope.
+
+### MIMAP-147A granularity
+
+MIMAP-147A is a planning row after the first Result/guard-let allocator pilot.
+It decides whether the next row should extend Result to one more allocator
+boundary, add a compiler sidecar for a specific missing Result shape, or return
+to ordinary mimalloc behavior/proof work.
 
 
 ## Historical Granularity Anchors

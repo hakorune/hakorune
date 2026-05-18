@@ -189,6 +189,18 @@
               if (get_typed_object_binding(src, &typed_plan_index)) {
                 set_typed_object_binding(dst, typed_plan_index);
               }
+              {
+                struct GenericPureVariantBinding variant_binding;
+                memset(&variant_binding, 0, sizeof(variant_binding));
+                if (get_variant_binding(src, &variant_binding)) {
+                  set_variant_binding(
+                      dst,
+                      variant_binding.tag_const,
+                      variant_binding.tag_reg,
+                      variant_binding.payload_reg,
+                      variant_binding.has_payload);
+                }
+              }
               generic_pure_publish_reg_metadata(dst);
             }
             if (dst && src) {
@@ -197,6 +209,29 @@
                 put_known_string_len(dst, known_len);
               }
             }
+          } else if (strcmp(op, "variant_make")==0) {
+            long long dst = read_int(ins, "dst");
+            long long payload = read_int(ins, "payload");
+            long long tag = read_int(ins, "tag");
+            if (payload) {
+              long long payload_base = resolve_copy_source_reg(payload);
+              set_copy_alias(dst, payload_base);
+              set_variant_binding(dst, tag, 0, payload_base, 1);
+            } else {
+              put_const(dst, 0);
+              set_variant_binding(dst, tag, 0, 0, 0);
+            }
+            set_type(dst, T_I64);
+          } else if (strcmp(op, "variant_tag")==0) {
+            set_type(read_int(ins, "dst"), T_I64);
+          } else if (strcmp(op, "variant_project")==0) {
+            long long dst = read_int(ins, "dst");
+            long long value = read_int(ins, "value");
+            struct GenericPureVariantBinding binding;
+            if (get_variant_binding(value, &binding) && binding.has_payload) {
+              set_copy_alias(dst, resolve_copy_source_reg(binding.payload_reg));
+            }
+            set_type(dst, T_I64);
           } else if (strcmp(op, "compare")==0) {
             long long dst = read_int(ins, "dst");
             if (dst) set_type(dst, T_I1);
@@ -295,6 +330,10 @@
                     generic_pure_publish_value_type_metadata(pr.dst, dst_type);
               } else {
                 explicit_phi_metadata = generic_pure_publish_reg_metadata(pr.dst);
+              }
+              if (all_phi_inputs_are_local_variants(&pr)) {
+                set_variant_binding(pr.dst, 0, pr.dst, pr.dst, 1);
+                set_type(pr.dst, T_I64);
               }
               if (explicit_phi_ty != T_NONE) {
                 set_type(pr.dst, explicit_phi_ty);
