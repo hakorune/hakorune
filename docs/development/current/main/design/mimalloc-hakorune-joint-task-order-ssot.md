@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-236A` is current after MIMAP-235A selected the segment arena backing
-readiness inventory.
+`MIMAP-237A` is current after MIMAP-236A landed the segment arena backing
+readiness inventory and selected the diagnostics row.
 
 Recommended current row:
 
 ```text
-MIMAP-236A
-  segment arena backing readiness inventory
+MIMAP-237A
+  segment arena backing readiness diagnostics
 ```
 
 Purpose:
 
 ```text
-inventory arena backing readiness before raw pointer residence or real segment-map execution
+diagnose arena backing readiness rejects before raw pointer residence or real segment-map execution
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -282,7 +282,8 @@ no provider activation
 | 211 | allocator | `MIMAP-233A source lifecycle-keyed release apply/recycle continuation diagnostics` | landed; selected MIMAP-234A |
 | 212 | closeout | `MIMAP-234A source lifecycle-keyed release apply/recycle continuation closeout pack` | landed; selected MIMAP-235A |
 | 213 | planning | `MIMAP-235A post source lifecycle-keyed release apply/recycle continuation closeout row selection` | landed; selected MIMAP-236A |
-| 214 | allocator inventory | `MIMAP-236A segment arena backing readiness inventory` | selected current |
+| 214 | allocator inventory | `MIMAP-236A segment arena backing readiness inventory` | landed; selected MIMAP-237A |
+| 215 | allocator diagnostic | `MIMAP-237A segment arena backing readiness diagnostics` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

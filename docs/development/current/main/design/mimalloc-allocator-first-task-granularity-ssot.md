@@ -20,11 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-219A
+  MIMAP-237A
 
 current choice boundary:
-  lifecycle-token fact bridge
-  or release-key migration precondition observer
+  segment arena backing readiness diagnostics
   or the next modeled bridge that keeps real execution closed
 
 closed until explicitly reopened:
@@ -421,7 +420,8 @@ Forbidden:
 | `MIMAP-233A` | source lifecycle-keyed release apply/recycle continuation diagnostics | landed; selected MIMAP-234A |
 | `MIMAP-234A` | source lifecycle-keyed release apply/recycle continuation closeout pack | landed; selected MIMAP-235A |
 | `MIMAP-235A` | post-source-lifecycle-keyed-release-apply-recycle-continuation-closeout row selection | landed; selected MIMAP-236A |
-| `MIMAP-236A` | segment arena backing readiness inventory | selected current |
+| `MIMAP-236A` | segment arena backing readiness inventory | landed; selected MIMAP-237A |
+| `MIMAP-237A` | segment arena backing readiness diagnostics | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2106,13 +2106,27 @@ inventory row.
 
 ### MIMAP-236A granularity
 
-MIMAP-236A should inventory arena backing readiness after the lifecycle-keyed
-release apply/recycle continuation closeout. It is inventory-only and must not
-allocate real arena backing, add raw pointer residence, mutate a real
-segment-map, execute real segment allocation/free, execute atomic bitmap claims,
-call OSVM/page-source seams, schedule workers, activate providers, introduce
+MIMAP-236A inventories arena backing readiness after the lifecycle-keyed release
+apply/recycle continuation closeout. It is inventory-only and must not allocate
+real arena backing, add raw pointer residence, mutate a real segment-map,
+execute real segment allocation/free, execute atomic bitmap claims, call
+OSVM/page-source seams, schedule workers, activate providers, introduce
 cross-function `Result` direct ABI, materialize runtime sums, or add backend
 matchers.
+
+MIMAP-236A landed by adding the arena backing readiness inventory owner, its
+row SSOT, proof app, manifest entry, L2 guard, and current pointers. It selected
+MIMAP-237A.
+
+### MIMAP-237A granularity
+
+MIMAP-237A should add observer/report diagnostics for the MIMAP-236A arena
+backing readiness inventory. It should cover missing continuation reports,
+invalid scalar shapes, and blocked requirement reason summaries while keeping
+real arena backing allocation, raw pointer residence, real segment-map mutation,
+real segment allocation/free, atomic bitmap execution, OSVM/page-source
+execution, worker/provider activation, cross-function `Result` direct ABI,
+runtime sum materialization, and backend matchers closed.
 
 
 ## Historical Granularity Anchors

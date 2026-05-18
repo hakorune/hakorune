@@ -98,6 +98,33 @@ Recommended profiles:
 | `closeout` | family boundary freeze | L3/L4 |
 | `batch` | named multi-row regression pack | L4 |
 
+## Active Segment Arena Backing Readiness Family
+
+The segment arena backing readiness rows use a scalar/model daily cadence until
+their closeout row.
+
+```toml
+[[proof_apps]]
+id = "MIMAP-236A"
+row_kind = "inventory"
+validation_profile = "scalar-mir"
+closeout_pack = "segment-arena-backing-readiness"
+exe = "deferred-to-closeout"
+```
+
+Planned continuation:
+
+```text
+MIMAP-236A segment arena backing readiness inventory
+  L2 daily: static + VM + MIR JSON/route preflight
+
+MIMAP-237A segment arena backing readiness diagnostics
+  L2 daily: observer/reject summary only
+
+future closeout pack
+  L3 representative exact-MIR evidence for segment-arena-backing-readiness
+```
+
 ## Row-Type Rules
 
 ### Planning Rows

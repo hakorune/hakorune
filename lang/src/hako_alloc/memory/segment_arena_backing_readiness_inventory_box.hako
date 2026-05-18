@@ -1,0 +1,165 @@
+// segment_arena_backing_readiness_inventory_box.hako -- MIMAP-236A
+// Responsibility:
+// - inventory arena backing readiness after lifecycle-keyed release continuation
+// - publish scalar requirements before real arena/raw pointer/segment-map work opens
+// Non-responsibility:
+// - allocating arena backing, raw pointer residence, real segment-map mutation,
+//   atomic bitmap execution, OSVM calls, scheduling, providers, or backend shortcuts
+
+brand ArenaId: i64
+brand SegmentId: i64
+
+box HakoAllocSegmentArenaBackingReadinessInventoryReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    segment_id: i64 = -1
+    arena_id: i64 = -1
+    slice_count: i64 = 0
+    committed_slices: i64 = 0
+    free_slices: i64 = 0
+    required_alignment: i64 = 0
+    page_size: i64 = 0
+    lifecycle_continuation_observed: i64 = 0
+    lifecycle_keyed_apply_seen: i64 = 0
+    arena_backing_readiness_present: i64 = 1
+    scalar_arena_backing_model: i64 = 1
+    would_allocate_arena_backing: i64 = 0
+    would_use_raw_pointer: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentArenaBackingReadinessInventory {
+    classify_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_continuation_reject_count: i64 = 0
+    invalid_shape_reject_count: i64 = 0
+    arena_allocation_reject_count: i64 = 0
+    raw_pointer_reject_count: i64 = 0
+    segment_map_reject_count: i64 = 0
+    atomic_bitmap_reject_count: i64 = 0
+    osvm_reject_count: i64 = 0
+    provider_reject_count: i64 = 0
+    last_reason: i64 = 0
+    last_segment_id: i64 = -1
+    last_arena_id: i64 = -1
+
+    makeReport(accepted, reason, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size): HakoAllocSegmentArenaBackingReadinessInventoryReport {
+        local result = new HakoAllocSegmentArenaBackingReadinessInventoryReport()
+        result.accepted = accepted
+        result.reason = reason
+        result.segment_id = segment_id
+        result.arena_id = arena_id
+        result.slice_count = slice_count
+        result.committed_slices = committed_slices
+        result.free_slices = free_slices
+        result.required_alignment = required_alignment
+        result.page_size = page_size
+        result.lifecycle_continuation_observed = continuation_report.observed
+        result.lifecycle_keyed_apply_seen = continuation_report.lifecycle_keyed_apply_seen
+        result.arena_backing_readiness_present = 1
+        result.scalar_arena_backing_model = 1
+        me.last_reason = reason
+        me.last_segment_id = segment_id
+        me.last_arena_id = arena_id
+        return result
+    }
+
+    reject(reason, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size): HakoAllocSegmentArenaBackingReadinessInventoryReport {
+        me.reject_count += 1
+        if reason == 1 {
+            me.missing_continuation_reject_count += 1
+        }
+        if reason == 2 {
+            me.invalid_shape_reject_count += 1
+        }
+        if reason == 3 {
+            me.arena_allocation_reject_count += 1
+        }
+        if reason == 4 {
+            me.raw_pointer_reject_count += 1
+        }
+        if reason == 5 {
+            me.segment_map_reject_count += 1
+        }
+        if reason == 6 {
+            me.atomic_bitmap_reject_count += 1
+        }
+        if reason == 7 {
+            me.osvm_reject_count += 1
+        }
+        if reason == 8 {
+            me.provider_reject_count += 1
+        }
+        return me.makeReport(0, reason, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size)
+    }
+
+    classifyReadiness(continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size, needs_arena_allocation, needs_raw_pointer, needs_segment_map, needs_atomic_bitmap, needs_osvm, provider_requested): HakoAllocSegmentArenaBackingReadinessInventoryReport {
+        me.classify_count += 1
+
+        if continuation_report.observed != 1 {
+            return me.reject(1, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size)
+        }
+        if continuation_report.continuation_diagnostic_present != 1 {
+            return me.reject(1, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size)
+        }
+        if continuation_report.lifecycle_keyed_apply_seen != 1 {
+            return me.reject(1, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size)
+        }
+
+        if segment_id < 0 {
+            return me.reject(2, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size)
+        }
+        if arena_id < 0 {
+            return me.reject(2, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size)
+        }
+        if slice_count <= 0 {
+            return me.reject(2, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size)
+        }
+        if committed_slices < 0 {
+            return me.reject(2, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size)
+        }
+        if free_slices < 0 {
+            return me.reject(2, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size)
+        }
+        if committed_slices > slice_count {
+            return me.reject(2, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size)
+        }
+        if free_slices > slice_count {
+            return me.reject(2, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size)
+        }
+        if required_alignment <= 0 {
+            return me.reject(2, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size)
+        }
+        if page_size <= 0 {
+            return me.reject(2, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size)
+        }
+
+        if needs_arena_allocation != 0 {
+            return me.reject(3, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size)
+        }
+        if needs_raw_pointer != 0 {
+            return me.reject(4, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size)
+        }
+        if needs_segment_map != 0 {
+            return me.reject(5, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size)
+        }
+        if needs_atomic_bitmap != 0 {
+            return me.reject(6, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size)
+        }
+        if needs_osvm != 0 {
+            return me.reject(7, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size)
+        }
+        if provider_requested != 0 {
+            return me.reject(8, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size)
+        }
+
+        me.accepted_count += 1
+        return me.makeReport(1, 0, continuation_report, segment_id, arena_id, slice_count, committed_slices, free_slices, required_alignment, page_size)
+    }
+}
