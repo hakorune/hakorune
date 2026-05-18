@@ -34,20 +34,21 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-261A` is current after MIMAP-260A landed the segment arena backing
-modeled source bridge inventory.
+`MIMAP-262A` is current after MIMAP-261A landed the segment arena backing
+modeled source bridge diagnostics.
 
 Recommended current row:
 
 ```text
-MIMAP-261A
-  segment arena backing modeled source bridge diagnostics
+MIMAP-262A
+  segment arena backing modeled source bridge closeout pack
 ```
 
 Purpose:
 
 ```text
-observe modeled source bridge inventory counters before closeout
+close out modeled source bridge inventory and diagnostics before the next
+arena-backing bridge
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real pointer residence, real arena backing allocation, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -307,7 +308,8 @@ no provider activation
 | 236 | closeout | `MIMAP-258A segment arena backing modeled arena slot closeout pack` | landed; selected MIMAP-259A |
 | 237 | planning | `MIMAP-259A post-segment-arena-backing-modeled-arena-slot-closeout row selection` | landed; selected MIMAP-260A |
 | 238 | allocator inventory | `MIMAP-260A segment arena backing modeled source bridge inventory` | landed; selected MIMAP-261A |
-| 239 | allocator diagnostic | `MIMAP-261A segment arena backing modeled source bridge diagnostics` | selected current |
+| 239 | allocator diagnostic | `MIMAP-261A segment arena backing modeled source bridge diagnostics` | landed; selected MIMAP-262A |
+| 240 | closeout | `MIMAP-262A segment arena backing modeled source bridge closeout pack` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

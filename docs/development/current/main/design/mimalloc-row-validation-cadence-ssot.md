@@ -279,6 +279,41 @@ MIMAP-258A segment arena backing modeled arena slot closeout pack
   L3 representative exact-MIR evidence for segment-arena-backing-modeled-arena-slot
 ```
 
+## Active Segment Arena Backing Modeled Source Bridge Family
+
+The modeled source bridge rows stay scalar/model-only. They do not create real
+raw pointer residence, pointer-derived lookup, real arena backing allocation,
+or real segment-map mutation.
+
+```toml
+[[proof_apps]]
+id = "MIMAP-260A"
+row_kind = "inventory"
+validation_profile = "scalar-mir"
+closeout_pack = "segment-arena-backing-modeled-source-bridge"
+exe = "deferred-to-closeout"
+
+[[proof_apps]]
+id = "MIMAP-261A"
+row_kind = "scalar-diagnostic"
+validation_profile = "scalar-mir"
+closeout_pack = "segment-arena-backing-modeled-source-bridge"
+exe = "deferred-to-closeout"
+```
+
+Planned continuation:
+
+```text
+MIMAP-260A segment arena backing modeled source bridge inventory
+  L2 daily: static + VM + MIR JSON/route preflight
+
+MIMAP-261A segment arena backing modeled source bridge diagnostics
+  L2 daily: observer/reject summary only
+
+MIMAP-262A segment arena backing modeled source bridge closeout pack
+  L3 representative exact-MIR evidence for segment-arena-backing-modeled-source-bridge
+```
+
 ## Row-Type Rules
 
 ### Planning Rows

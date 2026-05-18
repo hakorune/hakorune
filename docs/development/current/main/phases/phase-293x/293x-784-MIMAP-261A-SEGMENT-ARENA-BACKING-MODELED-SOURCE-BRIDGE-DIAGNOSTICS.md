@@ -1,6 +1,6 @@
 # 293x-784 MIMAP-261A Segment Arena Backing Modeled Source Bridge Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -44,3 +44,15 @@ reason categories before closeout.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+- Added observer-only source bridge diagnostics owner and report.
+- Added proof app, L2 guard, proof manifest row, check index entry, module
+  export, memory README entry, and diagnostics SSOT.
+- Verified the diagnostics row keeps source bridge inventory read-only and
+  keeps all closed runtime/backend seams inactive.
+
+## Selected Next Row
+
+`MIMAP-262A` segment arena backing modeled source bridge closeout pack.
