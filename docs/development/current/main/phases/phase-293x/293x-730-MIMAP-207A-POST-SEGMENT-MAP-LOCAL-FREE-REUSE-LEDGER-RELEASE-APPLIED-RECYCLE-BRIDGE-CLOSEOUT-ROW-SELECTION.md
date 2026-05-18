@@ -1,12 +1,12 @@
 # 293x-730 MIMAP-207A Post Segment Map Local Free Reuse Ledger Release-Applied Recycle Bridge Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
 
-Choose the next narrow row after MIMAP-206A closes the segment-map local-free
-reuse ledger release-applied recycle bridge pack.
+Choose MIMAP-208A as the next narrow row after MIMAP-206A closes the
+segment-map local-free reuse ledger release-applied recycle bridge pack.
 
 ## Context
 
@@ -29,9 +29,20 @@ explicit-ID readiness
   -> representative exact-MIR EXE parity for the release-applied recycle bridge pack
 ```
 
-The next row should choose between a small observer/diagnostic sidecar or the
-next modeled bridge that keeps raw pointer residence and real allocator
-execution closed.
+The next row is:
+
+```text
+MIMAP-208A segment-map local-free reuse ledger release-applied recycle second-release diagnostic
+```
+
+Rationale:
+
+- MIMAP-204A proved source-ledger recycle, and MIMAP-206A gave the pack L3
+  evidence.
+- The next ambiguity is whether the release owner can record another release
+  for the same modeled reuse token after recycle.
+- MIMAP-208A fixes that boundary as a diagnostic sidecar before deciding on a
+  future generation/lifecycle token.
 
 ## Stop Lines
 
@@ -55,4 +66,10 @@ execution closed.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Next
+
+```text
+MIMAP-208A segment-map local-free reuse ledger release-applied recycle second-release diagnostic
 ```

@@ -20,10 +20,11 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-207A
+  MIMAP-209A
 
 current choice boundary:
-  small observer/diagnostic sidecar
+  generation/lifecycle-token decision row
+  or a closeout pack for the second-release diagnostic
   or the next modeled bridge that keeps real execution closed
 
 closed until explicitly reopened:
@@ -391,7 +392,9 @@ Forbidden:
 | `MIMAP-204A` | segment-map local-free reuse ledger release-applied recycle bridge | landed; selected MIMAP-205A |
 | `MIMAP-205A` | post-segment-map-local-free-reuse-ledger-release-applied-recycle-bridge row selection | landed; selected MIMAP-206A |
 | `MIMAP-206A` | segment-map local-free reuse ledger release-applied recycle bridge closeout pack | landed; selected MIMAP-207A |
-| `MIMAP-207A` | post-segment-map-local-free-reuse-ledger-release-applied-recycle-bridge-closeout row selection | selected current |
+| `MIMAP-207A` | post-segment-map-local-free-reuse-ledger-release-applied-recycle-bridge-closeout row selection | landed; selected MIMAP-208A |
+| `MIMAP-208A` | segment-map local-free reuse ledger release-applied recycle second-release diagnostic | landed; selected MIMAP-209A |
+| `MIMAP-209A` | post-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -1587,8 +1590,36 @@ It selected MIMAP-207A.
 ### MIMAP-207A granularity
 
 MIMAP-207A is a planning row after the segment-map local-free reuse ledger
-release-applied recycle bridge closeout. It should choose between a small
-observer/diagnostic sidecar or the next modeled bridge that keeps real
+release-applied recycle bridge closeout. It selected MIMAP-208A, a diagnostic
+sidecar for the one-release-per-modeled-reuse-token boundary after source
+ledger recycle.
+
+It must not open real segment allocation/free execution, raw pointer
+residence, real segment-map mutation, real allocator free-list mutation, arena
+backing, atomic bitmap execution, OSVM/page-source execution, worker
+scheduling, provider activation, cross-function `Result` direct ABI, runtime
+sum materialization, or backend matchers.
+
+### MIMAP-208A granularity
+
+MIMAP-208A proves that, after the source reuse ledger recycles the same modeled
+reuse token as a new live row, the release owner still rejects a second release
+record for that token. This is a diagnostic row: it records the current
+one-release-per-token contract before a future row decides whether to add a
+generation/lifecycle token.
+
+It must not add generation/lifecycle IDs, mutate source ledger release state,
+or open real execution. It keeps L3 EXE deferred to a later closeout pack.
+
+MIMAP-208A landed by adding the proof app, diagnostic SSOT, L2 guard,
+proof-app manifest row, check-script index entry, phase card, and current
+pointers. It selected MIMAP-209A.
+
+### MIMAP-209A granularity
+
+MIMAP-209A is a planning row after the release-applied recycle second-release
+diagnostic. It should choose between a generation/lifecycle-token decision row,
+a closeout pack for the diagnostic, or the next modeled bridge that keeps real
 allocator execution closed.
 
 It must not open real segment allocation/free execution, raw pointer
