@@ -1,6 +1,6 @@
 # 293x-777 MIMAP-254A Segment Arena Backing Modeled Residence Arena-Binding Closeout Pack
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -46,3 +46,30 @@ bash tools/checks/run_row_guard.sh --only hako-alloc-segment-arena-backing-model
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+MIMAP-254A added the closeout SSOT and manifest-backed closeout guard:
+
+```text
+docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-residence-arena-binding-closeout-ssot.md
+tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_residence_arena_binding_closeout_guard.sh
+```
+
+The guard runs MIMAP-252A L2, MIMAP-253A L2, and representative exact-MIR L3
+EXE evidence through the diagnostics proof app.
+
+## Selected Next Row
+
+MIMAP-254A selects:
+
+```text
+MIMAP-255A post-segment-arena-backing-modeled-residence-arena-binding-closeout row selection
+```
+
+MIMAP-255A should choose exactly one next narrow bridge after modeled residence
+arena-binding closeout while keeping real pointer residence, pointer-derived
+lookup, real arena backing allocation, real segment-map execution, atomic
+bitmap execution, OSVM/page-source execution, worker/provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, and backend
+matchers closed unless a focused row explicitly reopens one.

@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-254A
+  MIMAP-255A
 
 current choice boundary:
-  modeled residence arena-binding closeout pack
+  next modeled bridge after residence arena-binding closeout
   while keeping real pointer residence, pointer lookup, and real arena backing closed
 
 closed until explicitly reopened:
@@ -438,7 +438,8 @@ Forbidden:
 | `MIMAP-251A` | post-segment-arena-backing-modeled-no-escape-address-residence-closeout row selection | landed; selected MIMAP-252A |
 | `MIMAP-252A` | segment arena backing modeled residence arena-binding inventory | landed; selected MIMAP-253A |
 | `MIMAP-253A` | segment arena backing modeled residence arena-binding diagnostics | landed; selected MIMAP-254A |
-| `MIMAP-254A` | segment arena backing modeled residence arena-binding closeout pack | selected current |
+| `MIMAP-254A` | segment arena backing modeled residence arena-binding closeout pack | landed; selected MIMAP-255A |
+| `MIMAP-255A` | post-segment-arena-backing-modeled-residence-arena-binding-closeout row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2395,6 +2396,22 @@ proof EXE, while keeping real pointer residence, pointer-derived lookup, real
 arena backing allocation, real segment-map mutation, atomic bitmap execution,
 OSVM/page-source execution, worker/provider activation, cross-function `Result`
 direct ABI, runtime sum materialization, and backend matcher rows closed.
+
+MIMAP-254A landed by adding the modeled residence arena-binding closeout SSOT,
+manifest-backed closeout guard, and representative exact-MIR L3 evidence. It
+selected MIMAP-255A.
+
+### MIMAP-255A granularity
+
+MIMAP-255A post-segment-arena-backing-modeled-residence-arena-binding-closeout row selection.
+
+MIMAP-255A should choose exactly one next narrow allocator bridge after the
+modeled residence arena-binding family is closed. It should not add allocator
+behavior directly. Real pointer residence, pointer-derived lookup, real arena
+backing allocation, real segment-map mutation, atomic bitmap execution,
+OSVM/page-source execution, worker/provider activation, cross-function `Result`
+direct ABI, runtime sum materialization, and backend matcher rows remain closed
+unless the selected row explicitly reopens one with its own evidence.
 
 
 ## Historical Granularity Anchors

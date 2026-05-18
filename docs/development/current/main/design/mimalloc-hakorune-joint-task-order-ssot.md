@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-254A` is current after MIMAP-253A landed the segment arena backing
-modeled residence arena-binding diagnostics.
+`MIMAP-255A` is current after MIMAP-254A landed the segment arena backing
+modeled residence arena-binding closeout pack.
 
 Recommended current row:
 
 ```text
-MIMAP-254A
-  segment arena backing modeled residence arena-binding closeout pack
+MIMAP-255A
+  post-segment-arena-backing-modeled-residence-arena-binding-closeout row selection
 ```
 
 Purpose:
 
 ```text
-close out modeled residence arena-binding with representative exact-MIR evidence
+select the next narrow bridge after modeled residence arena-binding closeout
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -300,7 +300,8 @@ no provider activation
 | 229 | planning | `MIMAP-251A post-segment-arena-backing-modeled-no-escape-address-residence-closeout row selection` | landed; selected MIMAP-252A |
 | 230 | allocator inventory | `MIMAP-252A segment arena backing modeled residence arena-binding inventory` | landed; selected MIMAP-253A |
 | 231 | allocator diagnostic | `MIMAP-253A segment arena backing modeled residence arena-binding diagnostics` | landed; selected MIMAP-254A |
-| 232 | closeout | `MIMAP-254A segment arena backing modeled residence arena-binding closeout pack` | selected current |
+| 232 | closeout | `MIMAP-254A segment arena backing modeled residence arena-binding closeout pack` | landed; selected MIMAP-255A |
+| 233 | planning | `MIMAP-255A post-segment-arena-backing-modeled-residence-arena-binding-closeout row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
