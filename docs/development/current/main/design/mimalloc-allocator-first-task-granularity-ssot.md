@@ -332,7 +332,8 @@ Forbidden:
 | `MIMAP-149A` | segment allocation blocked-substrate matrix proof | landed; selected MIMAP-150A |
 | `MIMAP-150A` | post-blocked-substrate-matrix row selection | landed; selected MIMAP-151A |
 | `MIMAP-151A` | segment-map scalar lookup boundary inventory | landed; selected MIMAP-152A |
-| `MIMAP-152A` | post-segment-map-scalar-lookup row selection | selected current |
+| `MIMAP-152A` | post-segment-map-scalar-lookup row selection | landed; selected MIMAP-153A |
+| `MIMAP-153A` | segment-map lookup guarded readiness composition | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -651,6 +652,20 @@ scheduling substrate.
 
 It must not implement real segment allocation/free or open another blocked
 substrate.
+
+MIMAP-152A landed by selecting MIMAP-153A.
+
+### MIMAP-153A granularity
+
+MIMAP-153A is a proof-only allocator row that composes explicit-ID segment-map
+scalar lookup with the existing segment/page membership and allocation
+readiness scalar owners. It should accept one lookup -> membership -> readiness
+path and reject lookup, membership, readiness, and raw-pointer request paths
+with stable reason codes.
+
+It must not derive lookup identity from raw pointers or open real segment-map
+execution, arena backing, atomic bitmap, OSVM, thread scheduling, provider
+activation, or backend matcher behavior.
 
 
 ## Historical Granularity Anchors

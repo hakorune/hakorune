@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-152A` is current after MIMAP-151A proved explicit-ID segment-map scalar
-lookup without raw pointer residence.
+`MIMAP-153A` is current after MIMAP-152A selected the explicit-ID lookup ->
+membership -> readiness composition as the next small allocator proof row.
 
 Recommended current row:
 
 ```text
-MIMAP-152A
-  post-segment-map-scalar-lookup row selection
+MIMAP-153A
+  segment-map lookup guarded readiness composition
 ```
 
 Purpose:
 
 ```text
-choose exactly one follow-up after explicit-ID segment-map lookup
+compose explicit-ID segment-map lookup with membership and readiness facts
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -198,7 +198,8 @@ no provider activation
 | 127 | allocator | `MIMAP-149A segment allocation blocked-substrate matrix proof` | landed; selected MIMAP-150A |
 | 128 | planning | `MIMAP-150A post-blocked-substrate-matrix row selection` | landed; selected MIMAP-151A |
 | 129 | allocator | `MIMAP-151A segment-map scalar lookup boundary inventory` | landed; selected MIMAP-152A |
-| 130 | planning | `MIMAP-152A post-segment-map-scalar-lookup row selection` | selected current |
+| 130 | planning | `MIMAP-152A post-segment-map-scalar-lookup row selection` | landed; selected MIMAP-153A |
+| 131 | allocator | `MIMAP-153A segment-map lookup guarded readiness composition` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

@@ -1,6 +1,6 @@
 # 293x-672 MIMAP-152A Post Segment Map Scalar Lookup Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -38,3 +38,23 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Selection
+
+MIMAP-152A selects `MIMAP-153A segment-map lookup guarded readiness
+composition`.
+
+Rationale:
+
+- MIMAP-151A proved explicit-ID segment/page/slice lookup without raw pointer
+  residence.
+- The smallest useful follow-up is to gate the already-landed
+  segment/page-membership and allocation-readiness scalar facts behind that
+  lookup result.
+- This composes existing allocator proof owners while keeping real segment-map
+  execution, raw pointer residence, arena backing, atomic bitmap, OSVM, thread,
+  provider, and backend matcher surfaces closed.
+
+## Closeout
+
+MIMAP-152A landed as a planning row and selected MIMAP-153A.

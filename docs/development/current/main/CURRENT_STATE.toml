@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-18"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-151A landed by proving explicit-ID segment-map scalar lookup and selected MIMAP-152A to choose the next single follow-up boundary. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-152A landed by selecting MIMAP-153A segment-map lookup guarded readiness composition. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-672-MIMAP-152A-POST-SEGMENT-MAP-SCALAR-LOOKUP-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-673-MIMAP-153A-SEGMENT-MAP-LOOKUP-GUARDED-READINESS-COMPOSITION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-671-MIMAP-151A-SEGMENT-MAP-SCALAR-LOOKUP-BOUNDARY-INVENTORY"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-671-MIMAP-151A-SEGMENT-MAP-SCALAR-LOOKUP-BOUNDARY-INVENTORY.md"
-latest_card_summary = "MIMAP-151A landed by proving explicit-ID segment-map scalar lookup and selecting MIMAP-152A."
+latest_card = "293x-672-MIMAP-152A-POST-SEGMENT-MAP-SCALAR-LOOKUP-ROW-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-672-MIMAP-152A-POST-SEGMENT-MAP-SCALAR-LOOKUP-ROW-SELECTION.md"
+latest_card_summary = "MIMAP-152A landed by selecting MIMAP-153A segment-map lookup guarded readiness composition."
 
-current_blocker_token = "MIMAP-152A"
+current_blocker_token = "MIMAP-153A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-672 MIMAP-152A post-segment-map-scalar-lookup row selection landed; MIMAP-153A selected",
   "293x-671 MIMAP-151A segment-map scalar lookup boundary inventory landed; MIMAP-152A selected",
   "293x-670 MIMAP-150A post-blocked-substrate-matrix row selection landed; MIMAP-151A selected",
   "293x-669 MIMAP-149A segment allocation blocked-substrate matrix proof landed; MIMAP-150A selected",
