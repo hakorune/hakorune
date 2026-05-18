@@ -251,6 +251,34 @@ MIMAP-254A segment arena backing modeled residence arena-binding closeout pack
   L3 representative exact-MIR evidence for segment-arena-backing-modeled-residence-arena-binding
 ```
 
+## Active Segment Arena Backing Modeled Arena Slot Family
+
+The modeled arena-slot rows stay scalar/model-only. They do not create real raw
+pointer residence, pointer-derived lookup, real arena backing allocation, or
+real segment-map mutation.
+
+```toml
+[[proof_apps]]
+id = "MIMAP-256A"
+row_kind = "inventory"
+validation_profile = "scalar-mir"
+closeout_pack = "segment-arena-backing-modeled-arena-slot"
+exe = "deferred-to-closeout"
+```
+
+Planned continuation:
+
+```text
+MIMAP-256A segment arena backing modeled arena slot inventory
+  L2 daily: static + VM + MIR JSON/route preflight
+
+MIMAP-257A segment arena backing modeled arena slot diagnostics
+  L2 daily: observer/reject summary only
+
+MIMAP-258A segment arena backing modeled arena slot closeout pack
+  L3 representative exact-MIR evidence for segment-arena-backing-modeled-arena-slot
+```
+
 ## Row-Type Rules
 
 ### Planning Rows

@@ -1,6 +1,6 @@
 # 293x-778 MIMAP-255A Post Segment Arena Backing Modeled Residence Arena-Binding Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -44,3 +44,24 @@ pointer-derived lookup, or real arena backing execution by accident.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+MIMAP-255A reviewed the modeled residence arena-binding closeout and selected
+the next scalar/model bridge. The row does not add allocator behavior.
+
+## Selected Next Row
+
+MIMAP-255A selects:
+
+```text
+MIMAP-256A segment arena backing modeled arena slot inventory
+```
+
+MIMAP-256A should record a modeled arena-slot inventory row from an accepted
+modeled residence arena-binding report. It should preserve the segment, arena,
+residence token, binding token, lifetime generation, and scalar geometry facts
+without opening real raw pointer residence, pointer-derived lookup, real arena
+backing allocation, real segment-map execution, atomic bitmap execution,
+OSVM/page-source execution, worker/provider activation, cross-function
+`Result` direct ABI, runtime sum materialization, or backend matcher rows.

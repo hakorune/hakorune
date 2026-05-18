@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-255A post-segment-arena-backing-modeled-residence-arena-binding-closeout row selection`
+  `MIMAP-256A segment arena backing modeled arena slot inventory`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -76,9 +76,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-255A`,
-  the post-segment-arena-backing-modeled-residence-arena-binding-closeout row
-  selection selected by MIMAP-254A.
+- resume point: continue Phase 293x with `MIMAP-256A`,
+  the segment arena backing modeled arena slot inventory selected by MIMAP-255A.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -86,7 +85,7 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-255A`: choose the next narrow allocator bridge after modeled
+  1. `MIMAP-256A`: add the modeled arena-slot inventory bridge after modeled
      residence arena-binding closeout
   2. keep raw pointer residence, real segment-map execution, and provider
      activation closed

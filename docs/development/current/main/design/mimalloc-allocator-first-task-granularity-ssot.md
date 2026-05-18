@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-255A
+  MIMAP-256A
 
 current choice boundary:
-  next modeled bridge after residence arena-binding closeout
+  modeled arena-slot inventory after residence arena-binding closeout
   while keeping real pointer residence, pointer lookup, and real arena backing closed
 
 closed until explicitly reopened:
@@ -439,7 +439,8 @@ Forbidden:
 | `MIMAP-252A` | segment arena backing modeled residence arena-binding inventory | landed; selected MIMAP-253A |
 | `MIMAP-253A` | segment arena backing modeled residence arena-binding diagnostics | landed; selected MIMAP-254A |
 | `MIMAP-254A` | segment arena backing modeled residence arena-binding closeout pack | landed; selected MIMAP-255A |
-| `MIMAP-255A` | post-segment-arena-backing-modeled-residence-arena-binding-closeout row selection | selected current |
+| `MIMAP-255A` | post-segment-arena-backing-modeled-residence-arena-binding-closeout row selection | landed; selected MIMAP-256A |
+| `MIMAP-256A` | segment arena backing modeled arena slot inventory | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2412,6 +2413,26 @@ backing allocation, real segment-map mutation, atomic bitmap execution,
 OSVM/page-source execution, worker/provider activation, cross-function `Result`
 direct ABI, runtime sum materialization, and backend matcher rows remain closed
 unless the selected row explicitly reopens one with its own evidence.
+
+MIMAP-255A landed by selecting MIMAP-256A.
+
+### MIMAP-256A granularity
+
+MIMAP-256A segment arena backing modeled arena slot inventory.
+
+MIMAP-256A should add a scalar/model inventory owner that records the modeled
+arena slot associated with an accepted modeled residence arena-binding report.
+It should preserve segment id, arena id, residence token, binding token,
+lifetime generation, address alignment, requested bytes, padded bytes, and
+slot scalar facts. It should reject missing/rejected binding reports, invalid
+binding/residence tokens, invalid geometry, invalid slot shape, and
+closed-substrate requirement flags.
+
+MIMAP-256A remains daily L2. It does not open real pointer residence,
+pointer-derived lookup, real arena backing allocation, real segment-map
+mutation, atomic bitmap execution, OSVM/page-source execution,
+worker/provider activation, cross-function `Result` direct ABI, runtime sum
+materialization, or backend matcher rows.
 
 
 ## Historical Granularity Anchors

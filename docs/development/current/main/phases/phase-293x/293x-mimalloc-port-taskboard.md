@@ -648,7 +648,8 @@ FST:
 | `MIMAP-252A` | landed | Segment arena backing modeled residence arena-binding inventory. | selected MIMAP-253A |
 | `MIMAP-253A` | landed | Segment arena backing modeled residence arena-binding diagnostics. | selected MIMAP-254A |
 | `MIMAP-254A` | landed | Segment arena backing modeled residence arena-binding closeout pack. | selected MIMAP-255A |
-| `MIMAP-255A` | selected current | Post segment arena backing modeled residence arena-binding closeout row selection. | current planning row |
+| `MIMAP-255A` | landed | Post segment arena backing modeled residence arena-binding closeout row selection. | selected MIMAP-256A |
+| `MIMAP-256A` | selected current | Segment arena backing modeled arena slot inventory. | current allocator row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -657,7 +658,7 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-255A` selects the next narrow allocator bridge after modeled residence
+`MIMAP-256A` records a modeled arena-slot inventory row after modeled residence
 arena-binding closeout. Real pointer residence, pointer-derived lookup, real
 thread scheduling, worker spawning, source-level concurrency features, arena
 backing allocation, atomic bitmap execution, page-source calls, OSVM

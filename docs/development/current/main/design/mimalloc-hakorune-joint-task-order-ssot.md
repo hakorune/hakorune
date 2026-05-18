@@ -34,22 +34,22 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-255A` is current after MIMAP-254A landed the segment arena backing
-modeled residence arena-binding closeout pack.
+`MIMAP-256A` is current after MIMAP-255A selected the segment arena backing
+modeled arena slot inventory bridge.
 
 Recommended current row:
 
 ```text
-MIMAP-255A
-  post-segment-arena-backing-modeled-residence-arena-binding-closeout row selection
+MIMAP-256A
+  segment arena backing modeled arena slot inventory
 ```
 
 Purpose:
 
 ```text
-select the next narrow bridge after modeled residence arena-binding closeout
+record a modeled arena-slot inventory row after modeled residence arena-binding closeout
 keep cross-function Result direct ABI and runtime sum materialization closed
-keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
+keep real pointer residence, real arena backing allocation, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
 
@@ -301,7 +301,8 @@ no provider activation
 | 230 | allocator inventory | `MIMAP-252A segment arena backing modeled residence arena-binding inventory` | landed; selected MIMAP-253A |
 | 231 | allocator diagnostic | `MIMAP-253A segment arena backing modeled residence arena-binding diagnostics` | landed; selected MIMAP-254A |
 | 232 | closeout | `MIMAP-254A segment arena backing modeled residence arena-binding closeout pack` | landed; selected MIMAP-255A |
-| 233 | planning | `MIMAP-255A post-segment-arena-backing-modeled-residence-arena-binding-closeout row selection` | selected current |
+| 233 | planning | `MIMAP-255A post-segment-arena-backing-modeled-residence-arena-binding-closeout row selection` | landed; selected MIMAP-256A |
+| 234 | allocator inventory | `MIMAP-256A segment arena backing modeled arena slot inventory` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
