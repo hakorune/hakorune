@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `HAKO-ALLOC-ID-BRAND-003 allocator scalar ID brand pilot closeout guard`
+  `MIMAP-145A post-ID-brand-pilot-closeout row selection`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,7 +74,7 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `HAKO-ALLOC-ID-BRAND-003`, the allocator scalar ID brand pilot closeout guard selected by HAKO-ALLOC-ID-BRAND-002.
+- resume point: continue Phase 293x with `MIMAP-145A`, the post-ID-brand-pilot-closeout row selection selected by HAKO-ALLOC-ID-BRAND-003.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -82,10 +82,10 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `HAKO-ALLOC-ID-BRAND-003`: close out the first allocator scalar ID brand
-     pilot with a local-run guard
+  1. `MIMAP-145A`: choose exactly one next allocator / Hakorune core row after
+     the scalar ID brand pilot closeout
   2. keep full brand type checking, field/return/typed-local propagation, and
-     cross-module inference out of this row
+     cross-module inference parked unless MIMAP-145A selects a focused row
   3. preserve allocator behavior and proof output
   4. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider activation inactive

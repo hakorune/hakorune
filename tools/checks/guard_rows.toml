@@ -205,6 +205,12 @@ profiles = ["pilot", "hako-alloc-closeout"]
 cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_ledger_release_applied_recycle_closeout_guard.sh"]
 
 [[rows]]
+id = "hako-alloc-id-brand-first-pilot-closeout"
+label = "hako_alloc scalar ID brand first pilot closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_id_brand_first_pilot_closeout_guard.sh"]
+
+[[rows]]
 id = "k2-wide-manifest-wrapper"
 label = "k2-wide manifest wrapper no-growth guard"
 profiles = ["pilot", "quick-static"]

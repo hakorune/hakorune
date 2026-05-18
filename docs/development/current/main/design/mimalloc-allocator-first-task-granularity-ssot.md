@@ -318,7 +318,8 @@ Forbidden:
 | `HAKO-ALLOC-ID-BRAND-001` | allocator scalar ID brand application inventory | landed; selected PURE-FIRST-BRAND-CONSTRUCT-001 |
 | `PURE-FIRST-BRAND-CONSTRUCT-001` | brand constructor MIR acceptance | landed; selected HAKO-ALLOC-ID-BRAND-002 |
 | `HAKO-ALLOC-ID-BRAND-002` | allocator scalar ID brand first pilot | landed; selected HAKO-ALLOC-ID-BRAND-003 |
-| `HAKO-ALLOC-ID-BRAND-003` | allocator scalar ID brand pilot closeout guard | selected current |
+| `HAKO-ALLOC-ID-BRAND-003` | allocator scalar ID brand pilot closeout guard | landed; selected MIMAP-145A |
+| `MIMAP-145A` | post-ID-brand-pilot-closeout row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -443,6 +444,20 @@ explicit constructor call site while keeping token storage and reports scalar.
 It must not add allocator behavior, field/return/typed-local/cross-module brand
 inference, provider activation, host allocator replacement, backend matchers, or
 silent fallback.
+
+HAKO-ALLOC-ID-BRAND-003 landed by adding a manifest-backed closeout guard for
+the first allocator scalar ID brand pilot. It selects MIMAP-145A.
+
+
+### MIMAP-145A granularity
+
+MIMAP-145A is a planning-only row after the scalar ID brand pilot closeout. It
+should read the closeout evidence and select exactly one next allocator,
+Hakorune core, or BoxShape cleanup row.
+
+It must not implement allocator behavior, compiler route behavior, source
+syntax, provider activation, host allocator replacement, backend matchers, or
+silent fallback by itself.
 
 
 ## Historical Granularity Anchors

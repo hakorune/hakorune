@@ -1,6 +1,6 @@
 # 293x-658 HAKO-ALLOC-ID-BRAND-003 Allocator Scalar ID Brand Pilot Closeout Guard
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -39,7 +39,18 @@ cross-module inference, or token storage.
 ## Required Evidence
 
 ```text
-bash tools/checks/k2_wide_hako_alloc_id_brand_first_pilot_guard.sh
+bash tools/checks/k2_wide_hako_alloc_id_brand_first_pilot_closeout_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Result
+
+`HAKO-ALLOC-ID-BRAND-003` landed a manifest-backed closeout guard for the first
+allocator scalar ID brand pilot.
+
+The guard freezes the `SegmentId` / `PageId` / `BlockId` declarations, the
+`makeReuseToken(...)` brand-typed parameter boundary, the explicit constructor
+call site, and the unchanged MIMAP-142A proof behavior.
+
+Selected next row: `MIMAP-145A` post-ID-brand-pilot-closeout row selection.

@@ -481,7 +481,8 @@ FST:
 | `HAKO-ALLOC-ID-BRAND-001` | landed | Allocator scalar ID brand application inventory. | selected PURE-FIRST-BRAND-CONSTRUCT-001 |
 | `PURE-FIRST-BRAND-CONSTRUCT-001` | landed | Brand constructor MIR acceptance. | selected HAKO-ALLOC-ID-BRAND-002 |
 | `HAKO-ALLOC-ID-BRAND-002` | landed | Allocator scalar ID brand first pilot. | selected HAKO-ALLOC-ID-BRAND-003 |
-| `HAKO-ALLOC-ID-BRAND-003` | selected current | Allocator scalar ID brand pilot closeout guard. | current guard cleanup |
+| `HAKO-ALLOC-ID-BRAND-003` | landed | Allocator scalar ID brand pilot closeout guard. | selected MIMAP-145A |
+| `MIMAP-145A` | selected current | Post-ID-brand-pilot-closeout row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -490,8 +491,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-ID-BRAND-003` closes out the `SegmentId` / `PageId` / `BlockId`
-same-box allocator helper pilot after brand constructors became MIR-visible.
+`MIMAP-145A` selects exactly one next allocator / Hakorune core row after the
+`SegmentId` / `PageId` / `BlockId` same-box allocator helper pilot closeout.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,
@@ -712,7 +713,8 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `HAKO-ALLOC-ID-BRAND-003` | selected current | Allocator scalar ID brand pilot closeout guard. | Current guard cleanup; no allocator behavior change. |
+| `MIMAP-145A` | selected current | Post-ID-brand-pilot-closeout row selection. | Current planning row; no implementation. |
+| `HAKO-ALLOC-ID-BRAND-003` | landed | Allocator scalar ID brand pilot closeout guard. | Selected MIMAP-145A. |
 | `HAKO-ALLOC-ID-BRAND-002` | landed | Allocator scalar ID brand first pilot. | Selected HAKO-ALLOC-ID-BRAND-003. |
 | `PURE-FIRST-BRAND-CONSTRUCT-001` | landed | Brand constructor MIR acceptance. | Selected HAKO-ALLOC-ID-BRAND-002. |
 | `HAKO-ALLOC-ID-BRAND-001` | landed | Allocator scalar ID brand application inventory. | Selected PURE-FIRST-BRAND-CONSTRUCT-001. |
