@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-237A
+  MIMAP-238A
 
 current choice boundary:
-  segment arena backing readiness diagnostics
+  segment arena backing readiness closeout pack
   or the next modeled bridge that keeps real execution closed
 
 closed until explicitly reopened:
@@ -421,7 +421,8 @@ Forbidden:
 | `MIMAP-234A` | source lifecycle-keyed release apply/recycle continuation closeout pack | landed; selected MIMAP-235A |
 | `MIMAP-235A` | post-source-lifecycle-keyed-release-apply-recycle-continuation-closeout row selection | landed; selected MIMAP-236A |
 | `MIMAP-236A` | segment arena backing readiness inventory | landed; selected MIMAP-237A |
-| `MIMAP-237A` | segment arena backing readiness diagnostics | selected current |
+| `MIMAP-237A` | segment arena backing readiness diagnostics | landed; selected MIMAP-238A |
+| `MIMAP-238A` | segment arena backing readiness closeout pack | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2127,6 +2128,19 @@ real arena backing allocation, raw pointer residence, real segment-map mutation,
 real segment allocation/free, atomic bitmap execution, OSVM/page-source
 execution, worker/provider activation, cross-function `Result` direct ABI,
 runtime sum materialization, and backend matchers closed.
+
+MIMAP-237A landed by adding the arena backing readiness diagnostic owner, its
+row SSOT, proof app, manifest entry, L2 guard, and current pointers. It selected
+MIMAP-238A.
+
+### MIMAP-238A granularity
+
+MIMAP-238A should close out the segment arena backing readiness family. It
+should provide representative L3 evidence for MIMAP-236A and MIMAP-237A before
+opening any later arena backing allocation, raw pointer residence, real
+segment-map mutation, real segment allocation/free, atomic bitmap execution,
+OSVM/page-source execution, worker/provider activation, cross-function
+`Result` direct ABI, runtime sum materialization, or backend matcher row.
 
 
 ## Historical Granularity Anchors

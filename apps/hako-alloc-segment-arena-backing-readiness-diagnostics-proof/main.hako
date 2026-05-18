@@ -1,0 +1,160 @@
+// hako-alloc-segment-arena-backing-readiness-diagnostics-proof
+// Purpose: prove MIMAP-237A segment arena backing readiness diagnostics.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.segment_map_lookup_guarded_readiness_composition_box as HakoAllocSegmentMapLookupGuardedReadinessComposition
+using selfhost.hako_alloc.memory.segment_map_accepted_readiness_modeled_consume_ledger_box as HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_released_span_ledger_box as HakoAllocSegmentAllocationModeledReleasedSpanLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_box as HakoAllocSegmentAllocationModeledLocalFreeReuse
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_ledger_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_ledger_release_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerRelease
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_lifecycle_token_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleToken
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_lifecycle_token_observer_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenObserver
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_lifecycle_token_release_key_precondition_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenReleaseKeyPrecondition
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_lifecycle_keyed_release_ledger_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_lifecycle_keyed_release_apply_recycle_diagnostic_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseApplyRecycleDiagnostic
+using selfhost.hako_alloc.memory.segment_arena_backing_readiness_inventory_box as HakoAllocSegmentArenaBackingReadinessInventory
+using selfhost.hako_alloc.memory.segment_arena_backing_readiness_diagnostic_box as HakoAllocSegmentArenaBackingReadinessDiagnostic
+
+static box Main {
+    seedFullPage(page): i64 {
+        local p0 = page.acquire(8)
+        local p1 = page.acquire(8)
+        local p2 = page.acquire(8)
+        local p3 = page.acquire(8)
+        local p4 = page.acquire(8)
+        local p5 = page.acquire(8)
+        local p6 = page.acquire(8)
+        local p7 = page.acquire(8)
+        return p7
+    }
+
+    nextReleasedSpan(route, released_spans, readiness): HakoAllocSegmentAllocationModeledReleasedSpanLedgerReport {
+        local consumed = route.consumeAcceptedReadiness(readiness, 0)
+        local released = route.releaseConsumedToken(consumed.modeled_allocation_token, 0)
+        return released_spans.recordReleasedSpan(released, 0)
+    }
+
+    nextReuseReport(composition, route, released_spans, reuse_route): HakoAllocSegmentAllocationModeledLocalFreeReuseReport {
+        local readiness = composition.composeLookupReadiness(70, 7, 3, 16, 1, composition.stateActive(), 2, 8, 3, 0)
+        local page = new HakoAllocPageModel(7, 16, 8, 8)
+        local p7 = Main.seedFullPage(page)
+        local span = Main.nextReleasedSpan(route, released_spans, readiness)
+        return reuse_route.integrateAndReuseLocalFree(span, page, 8, 0, 0, 0)
+    }
+
+    main(args) {
+        local composition = new HakoAllocSegmentMapLookupGuardedReadinessComposition()
+        local route = new HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger()
+        local released_spans = new HakoAllocSegmentAllocationModeledReleasedSpanLedger()
+        local reuse_route = new HakoAllocSegmentAllocationModeledLocalFreeReuse()
+        local reuse_ledger = new HakoAllocSegmentAllocationModeledLocalFreeReuseLedger()
+        local old_release_ledger = new HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerRelease()
+        local lifecycle_owner = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleToken()
+        local observer = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenObserver()
+        local precondition = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenReleaseKeyPrecondition()
+        local migrated_release_ledger = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseLedger()
+        local continuation_diag = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseApplyRecycleDiagnostic()
+        local arena_inventory = new HakoAllocSegmentArenaBackingReadinessInventory()
+        local arena_diagnostic = new HakoAllocSegmentArenaBackingReadinessDiagnostic()
+        local empty_reuse_ledger = new HakoAllocSegmentAllocationModeledLocalFreeReuseLedger()
+        local empty_continuation = continuation_diag.observeApplyRecycleDiagnostics(empty_reuse_ledger, 0)
+
+        local reuse = Main.nextReuseReport(composition, route, released_spans, reuse_route)
+        local first = reuse_ledger.recordLocalFreeReuse(reuse, 0)
+        local old_release = old_release_ledger.recordReuseLedgerRelease(first, 0)
+        local old_apply = reuse_ledger.applyReuseLedgerRelease(old_release, 0)
+        local recycled = reuse_ledger.recordLocalFreeReuse(reuse, 0)
+        local old_second_release = old_release_ledger.recordReuseLedgerRelease(recycled, 0)
+
+        local first_lifecycle = lifecycle_owner.recordLifecycleToken(recycled.modeled_reuse_token, 1, 0)
+        local second_lifecycle = lifecycle_owner.recordLifecycleToken(recycled.modeled_reuse_token, 2, 0)
+        local duplicate_lifecycle = lifecycle_owner.recordLifecycleToken(recycled.modeled_reuse_token, 2, 0)
+        local invalid_lifecycle = lifecycle_owner.recordLifecycleToken(-1, 3, 0)
+        local unsupported_lifecycle = lifecycle_owner.recordLifecycleToken(recycled.modeled_reuse_token, 4, 1)
+
+        local observed = observer.observeLifecycleBoundary(lifecycle_owner, old_second_release, 0)
+        local ready = precondition.classify(observed, 0)
+        local migrated = migrated_release_ledger.recordLifecycleKeyedRelease(ready, second_lifecycle, 0)
+
+        local lifecycle_apply = reuse_ledger.applyReuseLedgerLifecycleKeyedRelease(migrated, 0)
+        local missing_live_apply = reuse_ledger.applyReuseLedgerLifecycleKeyedRelease(migrated, 0)
+        local continued = reuse_ledger.recordLocalFreeReuse(reuse, 0)
+        local live_duplicate = reuse_ledger.recordLocalFreeReuse(reuse, 0)
+        local unsupported_apply = reuse_ledger.applyReuseLedgerLifecycleKeyedRelease(migrated, 1)
+
+        local continuation_summary = continuation_diag.observeApplyRecycleDiagnostics(reuse_ledger, 0)
+        local accepted = arena_inventory.classifyReadiness(continuation_summary, 70, 7, 16, 8, 8, 8, 4096, 0, 0, 0, 0, 0, 0)
+        local missing = arena_inventory.classifyReadiness(empty_continuation, 70, 7, 16, 8, 8, 8, 4096, 0, 0, 0, 0, 0, 0)
+        local invalid = arena_inventory.classifyReadiness(continuation_summary, -1, 7, 16, 8, 8, 8, 4096, 0, 0, 0, 0, 0, 0)
+        local arena_blocked = arena_inventory.classifyReadiness(continuation_summary, 70, 7, 16, 8, 8, 8, 4096, 1, 0, 0, 0, 0, 0)
+        local raw_blocked = arena_inventory.classifyReadiness(continuation_summary, 70, 7, 16, 8, 8, 8, 4096, 0, 1, 0, 0, 0, 0)
+        local segment_map_blocked = arena_inventory.classifyReadiness(continuation_summary, 70, 7, 16, 8, 8, 8, 4096, 0, 0, 1, 0, 0, 0)
+        local atomic_blocked = arena_inventory.classifyReadiness(continuation_summary, 70, 7, 16, 8, 8, 8, 4096, 0, 0, 0, 1, 0, 0)
+        local osvm_blocked = arena_inventory.classifyReadiness(continuation_summary, 70, 7, 16, 8, 8, 8, 4096, 0, 0, 0, 0, 1, 0)
+        local provider_blocked = arena_inventory.classifyReadiness(continuation_summary, 70, 7, 16, 8, 8, 8, 4096, 0, 0, 0, 0, 0, 1)
+
+        local diagnostic = arena_diagnostic.observeReadinessDiagnostics(arena_inventory, provider_blocked)
+        local empty_inventory = new HakoAllocSegmentArenaBackingReadinessInventory()
+        local empty_report = new HakoAllocSegmentArenaBackingReadinessInventoryReport()
+        local empty_diagnostic = arena_diagnostic.observeReadinessDiagnostics(empty_inventory, empty_report)
+
+        local ok = check "mimap237a segment arena backing readiness diagnostics" {
+            "diagnostic observed": diagnostic.observed == 1
+            "diagnostic reason": diagnostic.reason == 8
+            "diagnostic present": diagnostic.diagnostic_present == 1
+            "classify count": diagnostic.classify_count == 9
+            "accepted count": diagnostic.accepted_count == 1
+            "reject count": diagnostic.reject_count == 8
+            "blocked count": diagnostic.blocked_requirement_reject_count == 6
+            "continuation reject seen": diagnostic.continuation_reject_seen == 1
+            "invalid shape seen": diagnostic.invalid_shape_reject_seen == 1
+            "arena requirement seen": diagnostic.arena_requirement_reject_seen == 1
+            "raw requirement seen": diagnostic.raw_pointer_requirement_reject_seen == 1
+            "segment map requirement seen": diagnostic.segment_map_requirement_reject_seen == 1
+            "atomic requirement seen": diagnostic.atomic_bitmap_requirement_reject_seen == 1
+            "osvm requirement seen": diagnostic.osvm_requirement_reject_seen == 1
+            "provider requirement seen": diagnostic.provider_requirement_reject_seen == 1
+            "last reason": diagnostic.last_reason == 8
+            "last segment": diagnostic.last_segment_id == 70
+            "last arena": diagnostic.last_arena_id == 7
+            "last report accepted": diagnostic.last_report_accepted == 0
+            "last report reason": diagnostic.last_report_reason == 8
+            "readiness present": diagnostic.readiness_present == 1
+            "empty rejected": empty_diagnostic.observed == 0
+            "empty reason": empty_diagnostic.reason == 1
+            "empty readiness absent": empty_diagnostic.readiness_present == 0
+            "observe count": arena_diagnostic.observe_count == 2
+            "accepted summary count": arena_diagnostic.accepted_summary_count == 1
+            "reject summary count": arena_diagnostic.reject_summary_count == 1
+            "missing inventory count": arena_diagnostic.missing_inventory_reject_count == 1
+            "owner last reason": arena_diagnostic.last_reason == 1
+            "inactive arena allocation": diagnostic.would_allocate_arena_backing == 0
+            "inactive raw": diagnostic.would_use_raw_pointer == 0
+            "inactive segment map": diagnostic.would_use_segment_map == 0
+            "inactive atomic": diagnostic.would_execute_atomic_bitmap == 0
+            "inactive osvm": diagnostic.would_call_osvm == 0
+            "inactive thread": diagnostic.would_run_thread == 0
+            "inactive provider": diagnostic.would_activate_provider == 0
+            "inactive matcher": diagnostic.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-readiness-diagnostics-proof")
+        print("base=" + recycled.modeled_reuse_token + "," + migrated.reuse_lifecycle_token + "," + continuation_summary.lifecycle_keyed_apply_seen)
+        print("diag=" + diagnostic.observed + "," + diagnostic.reason + "," + diagnostic.classify_count + "," + diagnostic.accepted_count + "," + diagnostic.reject_count + "," + diagnostic.blocked_requirement_reject_count + "," + diagnostic.readiness_present)
+        print("rejects=" + diagnostic.continuation_reject_seen + "," + diagnostic.invalid_shape_reject_seen + "," + diagnostic.arena_requirement_reject_seen + "," + diagnostic.raw_pointer_requirement_reject_seen + "," + diagnostic.segment_map_requirement_reject_seen + "," + diagnostic.atomic_bitmap_requirement_reject_seen + "," + diagnostic.osvm_requirement_reject_seen + "," + diagnostic.provider_requirement_reject_seen)
+        print("last=" + diagnostic.last_reason + "," + diagnostic.last_segment_id + "," + diagnostic.last_arena_id + "," + diagnostic.last_report_accepted + "," + diagnostic.last_report_reason)
+        print("observer=" + arena_diagnostic.observe_count + "," + arena_diagnostic.accepted_summary_count + "," + arena_diagnostic.reject_summary_count + "," + arena_diagnostic.missing_inventory_reject_count + "," + arena_diagnostic.last_reason)
+        print("empty=" + empty_diagnostic.observed + "," + empty_diagnostic.reason + "," + empty_diagnostic.readiness_present)
+        print("inactive=" + diagnostic.would_allocate_arena_backing + "," + diagnostic.would_use_raw_pointer + "," + diagnostic.would_use_segment_map + "," + diagnostic.would_execute_atomic_bitmap + "," + diagnostic.would_call_osvm + "," + diagnostic.would_run_thread + "," + diagnostic.would_activate_provider + "," + diagnostic.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

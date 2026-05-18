@@ -1,0 +1,123 @@
+// segment_arena_backing_readiness_diagnostic_box.hako -- MIMAP-237A
+// Responsibility:
+// - observe MIMAP-236A arena backing readiness inventory counters
+// - publish scalar diagnostic summary facts for rejected readiness categories
+// Non-responsibility:
+// - classifying readiness, allocating arena backing, raw pointer residence,
+//   real segment-map mutation, atomic bitmap execution, OSVM calls, scheduling,
+//   providers, or backend shortcuts
+
+box HakoAllocSegmentArenaBackingReadinessDiagnosticReport {
+    observed: i64 = 0
+    reason: i64 = 0
+    diagnostic_present: i64 = 1
+    classify_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_continuation_reject_count: i64 = 0
+    invalid_shape_reject_count: i64 = 0
+    arena_allocation_reject_count: i64 = 0
+    raw_pointer_reject_count: i64 = 0
+    segment_map_reject_count: i64 = 0
+    atomic_bitmap_reject_count: i64 = 0
+    osvm_reject_count: i64 = 0
+    provider_reject_count: i64 = 0
+    blocked_requirement_reject_count: i64 = 0
+    last_reason: i64 = 0
+    last_segment_id: i64 = -1
+    last_arena_id: i64 = -1
+    last_report_accepted: i64 = 0
+    last_report_reason: i64 = 0
+    readiness_present: i64 = 0
+    continuation_reject_seen: i64 = 0
+    invalid_shape_reject_seen: i64 = 0
+    arena_requirement_reject_seen: i64 = 0
+    raw_pointer_requirement_reject_seen: i64 = 0
+    segment_map_requirement_reject_seen: i64 = 0
+    atomic_bitmap_requirement_reject_seen: i64 = 0
+    osvm_requirement_reject_seen: i64 = 0
+    provider_requirement_reject_seen: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_use_raw_pointer: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentArenaBackingReadinessDiagnostic {
+    observe_count: i64 = 0
+    accepted_summary_count: i64 = 0
+    reject_summary_count: i64 = 0
+    missing_inventory_reject_count: i64 = 0
+    last_reason: i64 = 0
+
+    markSeen(count): i64 {
+        if count > 0 {
+            return 1
+        }
+        return 0
+    }
+
+    makeReport(observed, reason, inventory, last_report): HakoAllocSegmentArenaBackingReadinessDiagnosticReport {
+        local result = new HakoAllocSegmentArenaBackingReadinessDiagnosticReport()
+        result.observed = observed
+        result.reason = reason
+        result.diagnostic_present = 1
+        result.classify_count = inventory.classify_count
+        result.accepted_count = inventory.accepted_count
+        result.reject_count = inventory.reject_count
+        result.missing_continuation_reject_count = inventory.missing_continuation_reject_count
+        result.invalid_shape_reject_count = inventory.invalid_shape_reject_count
+        result.arena_allocation_reject_count = inventory.arena_allocation_reject_count
+        result.raw_pointer_reject_count = inventory.raw_pointer_reject_count
+        result.segment_map_reject_count = inventory.segment_map_reject_count
+        result.atomic_bitmap_reject_count = inventory.atomic_bitmap_reject_count
+        result.osvm_reject_count = inventory.osvm_reject_count
+        result.provider_reject_count = inventory.provider_reject_count
+        result.blocked_requirement_reject_count = inventory.arena_allocation_reject_count + inventory.raw_pointer_reject_count + inventory.segment_map_reject_count + inventory.atomic_bitmap_reject_count + inventory.osvm_reject_count + inventory.provider_reject_count
+        result.last_reason = inventory.last_reason
+        result.last_segment_id = inventory.last_segment_id
+        result.last_arena_id = inventory.last_arena_id
+        result.last_report_accepted = last_report.accepted
+        result.last_report_reason = last_report.reason
+        if observed == 1 {
+            result.readiness_present = last_report.arena_backing_readiness_present
+        }
+        result.continuation_reject_seen = me.markSeen(inventory.missing_continuation_reject_count)
+        result.invalid_shape_reject_seen = me.markSeen(inventory.invalid_shape_reject_count)
+        result.arena_requirement_reject_seen = me.markSeen(inventory.arena_allocation_reject_count)
+        result.raw_pointer_requirement_reject_seen = me.markSeen(inventory.raw_pointer_reject_count)
+        result.segment_map_requirement_reject_seen = me.markSeen(inventory.segment_map_reject_count)
+        result.atomic_bitmap_requirement_reject_seen = me.markSeen(inventory.atomic_bitmap_reject_count)
+        result.osvm_requirement_reject_seen = me.markSeen(inventory.osvm_reject_count)
+        result.provider_requirement_reject_seen = me.markSeen(inventory.provider_reject_count)
+        me.last_reason = reason
+        return result
+    }
+
+    reject(reason, inventory, last_report): HakoAllocSegmentArenaBackingReadinessDiagnosticReport {
+        me.reject_summary_count += 1
+        if reason == 1 {
+            me.missing_inventory_reject_count += 1
+        }
+        return me.makeReport(0, reason, inventory, last_report)
+    }
+
+    observeReadinessDiagnostics(inventory, last_report): HakoAllocSegmentArenaBackingReadinessDiagnosticReport {
+        me.observe_count += 1
+
+        if inventory.classify_count <= 0 {
+            return me.reject(1, inventory, last_report)
+        }
+        if last_report.arena_backing_readiness_present != 1 {
+            return me.reject(1, inventory, last_report)
+        }
+
+        me.accepted_summary_count += 1
+        me.last_reason = 0
+        return me.makeReport(1, last_report.reason, inventory, last_report)
+    }
+}

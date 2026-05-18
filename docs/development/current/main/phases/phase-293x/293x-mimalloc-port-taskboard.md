@@ -630,7 +630,8 @@ FST:
 | `MIMAP-234A` | landed | Source lifecycle-keyed release apply/recycle continuation closeout pack. | selected MIMAP-235A |
 | `MIMAP-235A` | landed | Post source lifecycle-keyed release apply/recycle continuation closeout row selection. | selected MIMAP-236A |
 | `MIMAP-236A` | landed | Segment arena backing readiness inventory. | selected MIMAP-237A |
-| `MIMAP-237A` | selected current | Segment arena backing readiness diagnostics. | current diagnostic row |
+| `MIMAP-237A` | landed | Segment arena backing readiness diagnostics. | selected MIMAP-238A |
+| `MIMAP-238A` | selected current | Segment arena backing readiness closeout pack. | current closeout row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -639,8 +640,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-237A` adds arena backing readiness diagnostics after MIMAP-236A
-inventoried the scalar/model readiness surface.
+`MIMAP-238A` closes out the arena backing readiness family after MIMAP-236A
+inventoried the scalar/model readiness surface and MIMAP-237A added diagnostics.
 Raw pointer residence remains parked behind a future rawbuf/no-escape
 capability. Real thread scheduling, worker spawning, source-level concurrency
 features, arena backing allocation, atomic bitmap execution, page-source calls,

@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-237A segment arena backing readiness diagnostics`
+  `MIMAP-238A segment arena backing readiness closeout pack`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -76,8 +76,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-237A`,
-  the segment arena backing readiness diagnostics selected by MIMAP-236A.
+- resume point: continue Phase 293x with `MIMAP-238A`,
+  the segment arena backing readiness closeout pack selected by MIMAP-237A.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -85,8 +85,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-237A`: add diagnostics for arena backing readiness rejects after
-     MIMAP-236A inventoried the scalar/model readiness surface
+  1. `MIMAP-238A`: close out the segment arena backing readiness family with
+     representative L3 evidence for MIMAP-236A and MIMAP-237A
   2. keep raw pointer residence, real segment-map execution, and provider
      activation closed
   3. keep cross-function `Result` direct ABI and runtime sum materialization

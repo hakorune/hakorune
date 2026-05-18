@@ -110,6 +110,13 @@ row_kind = "inventory"
 validation_profile = "scalar-mir"
 closeout_pack = "segment-arena-backing-readiness"
 exe = "deferred-to-closeout"
+
+[[proof_apps]]
+id = "MIMAP-237A"
+row_kind = "scalar-diagnostic"
+validation_profile = "scalar-mir"
+closeout_pack = "segment-arena-backing-readiness"
+exe = "deferred-to-closeout"
 ```
 
 Planned continuation:
@@ -121,7 +128,7 @@ MIMAP-236A segment arena backing readiness inventory
 MIMAP-237A segment arena backing readiness diagnostics
   L2 daily: observer/reject summary only
 
-future closeout pack
+MIMAP-238A segment arena backing readiness closeout pack
   L3 representative exact-MIR evidence for segment-arena-backing-readiness
 ```
 

@@ -1,6 +1,6 @@
 # 293x-760 MIMAP-237A Segment Arena Backing Readiness Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -17,6 +17,37 @@ segment-map mutation, and atomic bitmap rows do not inherit ambiguous failure
 states.
 
 This row should focus on observer/report diagnostics only.
+
+## Landed Scope
+
+MIMAP-237A added the observer-only diagnostics owner:
+
+```text
+lang/src/hako_alloc/memory/segment_arena_backing_readiness_diagnostic_box.hako
+```
+
+The owner observes MIMAP-236A readiness counters and the last readiness report,
+then publishes scalar diagnostic summary facts for missing inventory, invalid
+shape, and blocked requirement categories. It does not classify readiness or
+open arena/raw/segment-map/atomic execution.
+
+Row SSOT:
+
+```text
+docs/development/current/main/design/hako-alloc-segment-arena-backing-readiness-diagnostics-ssot.md
+```
+
+Proof app:
+
+```text
+apps/hako-alloc-segment-arena-backing-readiness-diagnostics-proof
+```
+
+Guard:
+
+```text
+tools/checks/k2_wide_hako_alloc_segment_arena_backing_readiness_diagnostics_guard.sh --level L2
+```
 
 ## Candidate Scope
 
@@ -48,6 +79,19 @@ This row should focus on observer/report diagnostics only.
 ## Required Evidence
 
 ```text
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_readiness_diagnostics_guard.sh --level L2
+bash tools/checks/run_proof_app.sh --only MIMAP-237A
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Selected Next Row
+
+MIMAP-237A selects:
+
+```text
+MIMAP-238A segment arena backing readiness closeout pack
+```
+
+MIMAP-238A should provide representative L3 evidence for MIMAP-236A and
+MIMAP-237A before any later arena backing or raw pointer residence bridge.
