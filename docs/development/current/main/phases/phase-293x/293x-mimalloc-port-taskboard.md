@@ -620,7 +620,9 @@ FST:
 | `MIMAP-224A` | landed | Segment-map local-free reuse ledger lifecycle-keyed release shadow pilot. | selected MIMAP-225A |
 | `MIMAP-225A` | landed | Post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow row selection. | selected MIMAP-226A |
 | `MIMAP-226A` | landed | Segment-map local-free reuse ledger lifecycle-keyed release shadow closeout pack. | selected MIMAP-227A |
-| `MIMAP-227A` | selected current | Post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow-closeout row selection. | current planning row |
+| `MIMAP-227A` | landed | Post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow-closeout row selection. | selected MIMAP-228A |
+| `MIMAP-228A` | landed | Source release-ledger lifecycle-key migration pilot. | selected MIMAP-229A |
+| `MIMAP-229A` | selected current | Source lifecycle-keyed release ledger diagnostics. | current allocator row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -629,9 +631,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-227A` chooses the next narrow row after MIMAP-226A closed the
-segment-map local-free reuse ledger lifecycle-keyed release shadow pack with
-representative exact-MIR L3 EXE evidence.
+`MIMAP-229A` adds diagnostics after MIMAP-228A opened the source
+release-ledger lifecycle-key migration pilot with first-pattern L3 EXE evidence.
 Raw pointer residence remains parked behind a future rawbuf/no-escape
 capability. Real thread scheduling, worker spawning, source-level concurrency
 features, arena backing allocation, atomic bitmap execution, page-source calls,

@@ -1,12 +1,18 @@
 # 293x-750 MIMAP-227A Post Segment Map Local Free Reuse Ledger Lifecycle-Keyed Release Shadow Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
 
 Choose the next narrow row after MIMAP-226A closes the lifecycle-keyed release
 shadow pack.
+
+Selected row:
+
+```text
+MIMAP-228A source release-ledger lifecycle-key migration pilot
+```
 
 ## Context
 
@@ -22,6 +28,10 @@ release owner rejects second release by modeled reuse token
 
 The next row should select the controlled source release-ledger lifecycle-key
 migration pilot unless a closeout-only blocker is found.
+
+MIMAP-227A selects the migration pilot. The migration remains scalar/model-only:
+it introduces a new lifecycle-keyed source release ledger owner and keeps the
+old modeled-reuse-token keyed release owner as an unmigrated reference.
 
 ## Stop Lines
 
@@ -47,4 +57,10 @@ migration pilot unless a closeout-only blocker is found.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Next
+
+```text
+MIMAP-228A source release-ledger lifecycle-key migration pilot
 ```

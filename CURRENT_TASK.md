@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-227A post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow-closeout row selection`
+  `MIMAP-229A source lifecycle-keyed release ledger diagnostics`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -76,9 +76,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-227A`,
-  the post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow-closeout
-  planning row selected by MIMAP-226A.
+- resume point: continue Phase 293x with `MIMAP-229A`,
+  the source lifecycle-keyed release ledger diagnostics row selected by
+  MIMAP-228A.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -86,8 +86,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-227A`: choose the next narrow row after segment-map local-free
-     reuse ledger lifecycle-keyed release shadow closeout
+  1. `MIMAP-229A`: add source lifecycle-keyed release ledger diagnostics after
+     MIMAP-228A opened the first-pattern lifecycle-key migration pilot
   2. keep raw pointer residence, real segment-map execution, and provider
      activation closed
   3. keep cross-function `Result` direct ABI and runtime sum materialization

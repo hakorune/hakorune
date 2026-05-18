@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-227A` is current after MIMAP-226A closed the lifecycle-keyed release
-shadow pack.
+`MIMAP-229A` is current after MIMAP-228A opened the source release-ledger
+lifecycle-key migration pilot.
 
 Recommended current row:
 
 ```text
-MIMAP-227A
-  post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow-closeout row selection
+MIMAP-229A
+  source lifecycle-keyed release ledger diagnostics
 ```
 
 Purpose:
 
 ```text
-choose the next narrow row after segment-map local-free reuse ledger lifecycle-keyed release shadow closeout
+add duplicate/stale/mismatch diagnostics around the source lifecycle-keyed release ledger
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -273,7 +273,9 @@ no provider activation
 | 202 | allocator | `MIMAP-224A segment-map local-free reuse ledger lifecycle-keyed release shadow pilot` | landed; selected MIMAP-225A |
 | 203 | planning | `MIMAP-225A post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow row selection` | landed; selected MIMAP-226A |
 | 204 | closeout | `MIMAP-226A segment-map local-free reuse ledger lifecycle-keyed release shadow closeout pack` | landed; selected MIMAP-227A |
-| 205 | planning | `MIMAP-227A post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow-closeout row selection` | selected current |
+| 205 | planning | `MIMAP-227A post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow-closeout row selection` | landed; selected MIMAP-228A |
+| 206 | allocator | `MIMAP-228A source release-ledger lifecycle-key migration pilot` | landed; selected MIMAP-229A |
+| 207 | allocator | `MIMAP-229A source lifecycle-keyed release ledger diagnostics` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

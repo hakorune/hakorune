@@ -1,0 +1,137 @@
+// segment_allocation_modeled_local_free_reuse_lifecycle_keyed_release_ledger_box.hako -- MIMAP-228A
+// Responsibility:
+// - model the migrated source release ledger keyed by reuse lifecycle token
+// - keep modeled reuse token as an observed/backref field
+// Non-responsibility:
+// - mutating the old modeled-reuse-token keyed release owner, real allocator
+//   execution, raw pointers, segment-map execution, atomics, OSVM, scheduling,
+//   providers, or backend shortcuts
+
+box HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseLedgerReport {
+    did_release: i64 = 0
+    reason: i64 = 0
+    row_index: i64 = -1
+    existing_index: i64 = -1
+    reuse_lifecycle_token: i64 = -1
+    modeled_reuse_token: i64 = -1
+    lifecycle_id: i64 = -1
+    source_release_ledger_key_kind: i64 = 1
+    release_key_migrated: i64 = 1
+    modeled_reuse_token_backref_present: i64 = 1
+    lifecycle_keyed_release_ledger_present: i64 = 1
+    would_execute_real_segment_allocation: i64 = 0
+    would_execute_real_segment_free: i64 = 0
+    would_directly_mutate_page_arrays: i64 = 0
+    would_use_raw_pointer: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseLedger {
+    reuse_lifecycle_tokens: ArrayBox = new ArrayBox()
+    modeled_reuse_tokens: ArrayBox = new ArrayBox()
+    lifecycle_ids: ArrayBox = new ArrayBox()
+    attempt_count: i64 = 0
+    count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    precondition_reject_count: i64 = 0
+    lifecycle_report_reject_count: i64 = 0
+    token_mismatch_reject_count: i64 = 0
+    duplicate_reject_count: i64 = 0
+    unsupported_requirement_reject_count: i64 = 0
+    last_reason: i64 = 0
+    last_index: i64 = -1
+    last_reuse_lifecycle_token: i64 = -1
+
+    findIndex(reuse_lifecycle_token): i64 {
+        local i = 0
+        loop(i < me.count) {
+            if me.reuse_lifecycle_tokens.get(i) == reuse_lifecycle_token {
+                return i
+            }
+            i += 1
+        }
+        return -1
+    }
+
+    makeReport(did_release, reason, row_index, existing_index, precondition_report, lifecycle_report): HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseLedgerReport {
+        local result = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseLedgerReport()
+        result.did_release = did_release
+        result.reason = reason
+        result.row_index = row_index
+        result.existing_index = existing_index
+        result.reuse_lifecycle_token = lifecycle_report.reuse_lifecycle_token
+        result.modeled_reuse_token = lifecycle_report.modeled_reuse_token
+        result.lifecycle_id = lifecycle_report.lifecycle_id
+        result.source_release_ledger_key_kind = 1
+        result.release_key_migrated = 1
+        result.modeled_reuse_token_backref_present = 1
+        result.lifecycle_keyed_release_ledger_present = 1
+        return result
+    }
+
+    reject(reason, existing_index, precondition_report, lifecycle_report): HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseLedgerReport {
+        me.reject_count += 1
+        if reason == 1 {
+            me.precondition_reject_count += 1
+        }
+        if reason == 2 {
+            me.lifecycle_report_reject_count += 1
+        }
+        if reason == 3 {
+            me.token_mismatch_reject_count += 1
+        }
+        if reason == 4 {
+            me.duplicate_reject_count += 1
+        }
+        if reason == 5 {
+            me.unsupported_requirement_reject_count += 1
+        }
+        me.last_reason = reason
+        me.last_index = -1
+        me.last_reuse_lifecycle_token = lifecycle_report.reuse_lifecycle_token
+        return me.makeReport(0, reason, -1, existing_index, precondition_report, lifecycle_report)
+    }
+
+    recordLifecycleKeyedRelease(precondition_report, lifecycle_report, unsupported_requirement): HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseLedgerReport {
+        me.attempt_count += 1
+
+        if unsupported_requirement != 0 {
+            return me.reject(5, -1, precondition_report, lifecycle_report)
+        }
+        if precondition_report.ready != 1 {
+            return me.reject(1, -1, precondition_report, lifecycle_report)
+        }
+        if lifecycle_report.accepted != 1 {
+            return me.reject(2, -1, precondition_report, lifecycle_report)
+        }
+        if lifecycle_report.reuse_lifecycle_token < 0 {
+            return me.reject(2, -1, precondition_report, lifecycle_report)
+        }
+        if precondition_report.modeled_reuse_token != lifecycle_report.modeled_reuse_token {
+            return me.reject(3, -1, precondition_report, lifecycle_report)
+        }
+
+        local existing_index = me.findIndex(lifecycle_report.reuse_lifecycle_token)
+        if existing_index >= 0 {
+            return me.reject(4, existing_index, precondition_report, lifecycle_report)
+        }
+
+        local row_index = me.count
+        me.reuse_lifecycle_tokens.push(lifecycle_report.reuse_lifecycle_token)
+        me.modeled_reuse_tokens.push(lifecycle_report.modeled_reuse_token)
+        me.lifecycle_ids.push(lifecycle_report.lifecycle_id)
+        me.count += 1
+        me.accepted_count += 1
+        me.last_reason = 0
+        me.last_index = row_index
+        me.last_reuse_lifecycle_token = lifecycle_report.reuse_lifecycle_token
+        return me.makeReport(1, 0, row_index, -1, precondition_report, lifecycle_report)
+    }
+}

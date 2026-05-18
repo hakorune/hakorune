@@ -413,6 +413,19 @@ segment-map local-free reuse ledger lifecycle-keyed release shadow family:
     closeout_pack = segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow
     representative L3 EXE evidence in MIMAP-226A
 
+source release-ledger lifecycle-key migration family:
+  MIMAP-228A source release-ledger lifecycle-key migration pilot:
+    validation_profile = first-pattern
+    closeout_pack = source-release-ledger-lifecycle-key-migration
+    exe = auto
+  MIMAP-229A source lifecycle-keyed release ledger diagnostics:
+    validation_profile = scalar-mir
+    closeout_pack = source-release-ledger-lifecycle-key-migration
+    exe = deferred-to-closeout
+  closeout pack:
+    closeout_pack = source-release-ledger-lifecycle-key-migration
+    representative L3 EXE evidence in MIMAP-228A and future closeout row
+
 cleanup row using C199 compound assignment:
   L1 C199 guard
   L3 touched segment guards only

@@ -439,6 +439,14 @@ Syntax/style contract
   execution, allocate arena backing, execute atomic bitmap claims, call
   page-source/OSVM seams, schedule workers, activate provider hooks, replace
   the host allocator, or add backend shortcuts.
+- `segment_allocation_modeled_local_free_reuse_lifecycle_keyed_release_ledger_box.hako`
+  owns MIMAP-228A. It may model the migrated source release ledger keyed by
+  reuse lifecycle token while preserving modeled reuse token as a backref. It
+  must not mutate the old modeled-reuse-token keyed release owner, define real
+  lifecycle semantics, execute real segment allocation/free, use raw pointer
+  residence, perform real segment-map execution, allocate arena backing, execute
+  atomic bitmap claims, call page-source/OSVM seams, schedule workers, activate
+  provider hooks, replace the host allocator, or add backend shortcuts.
 - `object_lifecycle_facade_huge_failfast_box.hako` owns the MIMAP-022B facade
   huge-request fail-fast route. It may classify request size through
   `SizeClassBox`, reject huge requests before invoking the MIMAP-021C

@@ -547,6 +547,19 @@ cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_local_free_reuse_led
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_lifecycle_keyed_release_shadow_guard.sh", "--level", "L2"]
 
 [[proof_apps]]
+id = "MIMAP-228A"
+app = "apps/hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-ledger-proof"
+label = "source release-ledger lifecycle-key migration proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "first-pattern"
+validation_profile = "first-pattern"
+first_pattern = true
+closeout_pack = "source-release-ledger-lifecycle-key-migration"
+exe = "auto"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_lifecycle_keyed_release_ledger_guard.sh", "--level", "L3"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_lifecycle_keyed_release_ledger_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
 id = "MIMAP-091A"
 app = "apps/hako-alloc-segment-allocation-modeled-consume-proof"
 label = "segment allocation modeled consume proof"
