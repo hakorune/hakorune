@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-257A
+  MIMAP-258A
 
 current choice boundary:
-  modeled arena-slot diagnostics after modeled arena-slot inventory
+  modeled arena-slot closeout before the next bridge
   while keeping real pointer residence, pointer lookup, and real arena backing closed
 
 closed until explicitly reopened:
@@ -441,7 +441,8 @@ Forbidden:
 | `MIMAP-254A` | segment arena backing modeled residence arena-binding closeout pack | landed; selected MIMAP-255A |
 | `MIMAP-255A` | post-segment-arena-backing-modeled-residence-arena-binding-closeout row selection | landed; selected MIMAP-256A |
 | `MIMAP-256A` | segment arena backing modeled arena slot inventory | landed; selected MIMAP-257A |
-| `MIMAP-257A` | segment arena backing modeled arena slot diagnostics | selected current |
+| `MIMAP-257A` | segment arena backing modeled arena slot diagnostics | landed; selected MIMAP-258A |
+| `MIMAP-258A` | segment arena backing modeled arena slot closeout pack | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2450,6 +2451,22 @@ pointer residence, pointer-derived lookup, real arena backing allocation, real
 segment-map mutation, atomic bitmap execution, OSVM/page-source execution,
 worker/provider activation, cross-function `Result` direct ABI, runtime sum
 materialization, or backend matcher rows.
+
+MIMAP-257A landed by adding the modeled arena-slot diagnostic owner, proof app,
+L2 guard, manifest entry, check index entry, and SSOT. It selected MIMAP-258A.
+
+### MIMAP-258A granularity
+
+MIMAP-258A segment arena backing modeled arena slot closeout pack.
+
+MIMAP-258A should close out the MIMAP-256A / MIMAP-257A modeled arena-slot
+family with representative exact-MIR L3 evidence. It should run the MIMAP-256A
+and MIMAP-257A L2 guards plus one representative diagnostics proof EXE, while
+keeping real pointer residence, pointer-derived lookup, real arena backing
+allocation, real segment-map mutation, atomic bitmap execution,
+OSVM/page-source execution, worker/provider activation, cross-function
+`Result` direct ABI, runtime sum materialization, and backend matcher rows
+closed.
 
 
 ## Historical Granularity Anchors
