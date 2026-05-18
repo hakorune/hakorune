@@ -1,0 +1,87 @@
+// hako-alloc-segment-map-modeled-consume-ledger-release-proof
+// Purpose: prove MIMAP-161A segment-map consume-ledger modeled release route.
+
+using selfhost.hako_alloc.memory.segment_map_lookup_guarded_readiness_composition_box as HakoAllocSegmentMapLookupGuardedReadinessComposition
+using selfhost.hako_alloc.memory.segment_map_accepted_readiness_modeled_consume_ledger_box as HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger
+
+static box Main {
+    main(args) {
+        local composition = new HakoAllocSegmentMapLookupGuardedReadinessComposition()
+        local route = new HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger()
+
+        local accepted = composition.composeLookupReadiness(70, 7, 3, 16, 1, composition.stateActive(), 2, 8, 3, 0)
+        local consumed = route.consumeAcceptedReadiness(accepted, 0)
+
+        local release_first = route.releaseConsumedToken(consumed.modeled_allocation_token, 0)
+        local duplicate = route.releaseConsumedToken(consumed.modeled_allocation_token, 0)
+        local missing = route.releaseConsumedToken(999999, 0)
+        local invalid = route.releaseConsumedToken(-1, 0)
+        local blocked = route.releaseConsumedToken(consumed.modeled_allocation_token, 1)
+
+        local ok = check "mimap161a segment map modeled consume ledger release route" {
+            "first consumed": consumed.accepted == 1
+            "first release accepted": release_first.did_release == 1
+            "first release reason": release_first.reason == route.reasonOk()
+            "first release upstream": release_first.release_reason == 0
+            "first release row": release_first.row_index == 0
+            "first release token": release_first.modeled_allocation_token == 70007002
+            "first release segment": release_first.segment_id == 70
+            "first release page": release_first.page_id == 7
+            "first release block": release_first.modeled_block_start == 2
+            "first live before": release_first.live_before == 1
+            "first live after": release_first.live_after == 0
+            "first ledger count": release_first.ledger_count_after == 1
+            "first live count": release_first.ledger_live_count_after == 0
+            "first released blocks": release_first.released_blocks == 3
+            "first release span": release_first.release_span_present == 1
+            "duplicate rejected": duplicate.did_release == 0
+            "duplicate reason": duplicate.reason == route.reasonReleaseDuplicate()
+            "duplicate upstream": duplicate.release_reason == 3
+            "duplicate row": duplicate.row_index == 0
+            "missing rejected": missing.did_release == 0
+            "missing reason": missing.reason == route.reasonReleaseMissing()
+            "missing upstream": missing.release_reason == 2
+            "invalid rejected": invalid.did_release == 0
+            "invalid reason": invalid.reason == route.reasonReleaseInvalid()
+            "invalid upstream": invalid.release_reason == 1
+            "blocked rejected": blocked.did_release == 0
+            "blocked reason": blocked.reason == route.reasonReleaseBlocked()
+            "blocked upstream": blocked.release_reason == 4
+            "inactive real free": release_first.would_execute_real_segment_free == 0
+            "inactive raw": release_first.would_use_raw_pointer == 0
+            "inactive segment map": release_first.would_use_segment_map == 0
+            "inactive arena": release_first.would_allocate_arena_backing == 0
+            "inactive atomic": release_first.would_execute_atomic_bitmap == 0
+            "inactive osvm": release_first.would_call_osvm == 0
+            "inactive thread": release_first.would_run_thread == 0
+            "inactive provider": release_first.would_activate_provider == 0
+            "inactive matcher": release_first.would_add_backend_matcher == 0
+            "release route count": route.release_route_count == 5
+            "release count": route.release_count == 1
+            "release rejects": route.release_reject_count == 4
+            "invalid rejects": route.release_invalid_reject_count == 1
+            "missing rejects": route.release_missing_reject_count == 1
+            "duplicate rejects": route.release_duplicate_reject_count == 1
+            "blocked rejects": route.release_blocked_reject_count == 1
+            "last release token": route.last_release_token == 70007002
+            "last release reason": route.last_release_reason == route.reasonReleaseBlocked()
+            "ledger live count": route.ledger.live_count == 0
+        }
+
+        print("hako-alloc-segment-map-modeled-consume-ledger-release-proof")
+        print("release_first=" + release_first.did_release + "," + release_first.reason + "," + release_first.release_reason + "," + release_first.row_index + "," + release_first.modeled_allocation_token + "," + release_first.segment_id + "," + release_first.page_id + "," + release_first.modeled_block_start + "," + release_first.live_before + "," + release_first.live_after + "," + release_first.ledger_count_after + "," + release_first.ledger_live_count_after + "," + release_first.released_blocks + "," + release_first.release_span_present)
+        print("blocked=" + blocked.did_release + "," + blocked.reason + "," + blocked.release_reason + "," + blocked.row_index + "," + blocked.modeled_allocation_token)
+        print("rejects=" + invalid.reason + "," + missing.reason + "," + duplicate.reason + "," + blocked.reason + "," + invalid.release_reason + "," + missing.release_reason + "," + duplicate.release_reason + "," + blocked.release_reason)
+        print("inactive=" + release_first.would_execute_real_segment_free + "," + release_first.would_use_raw_pointer + "," + release_first.would_use_segment_map + "," + release_first.would_allocate_arena_backing + "," + release_first.would_execute_atomic_bitmap + "," + release_first.would_call_osvm + "," + release_first.would_run_thread + "," + release_first.would_activate_provider + "," + release_first.would_add_backend_matcher)
+        print("release_counts=" + route.release_route_count + "," + route.release_count + "," + route.release_reject_count + "," + route.release_invalid_reject_count + "," + route.release_missing_reject_count + "," + route.release_duplicate_reject_count + "," + route.release_blocked_reject_count + "," + route.last_release_token + "," + route.last_release_reason + "," + route.ledger.live_count)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

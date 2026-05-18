@@ -786,6 +786,21 @@ execution, OSVM/page-source execution, worker scheduling, provider activation,
 cross-function `Result` direct ABI, runtime sum materialization, or backend
 matchers.
 
+MIMAP-161A landed by adding the release report/method, proof app, proof
+manifest row, local L2 guard, and SSOT. It selected MIMAP-162A.
+
+### MIMAP-162A granularity
+
+MIMAP-162A is the closeout pack for MIMAP-161A. It should carry representative
+L3 EXE evidence for the segment-map modeled consume ledger release route while
+preserving the daily L2 validation split.
+
+It must not open real segment free execution, raw pointer residence, real
+segment-map mutation, real segment allocation/free, arena backing, atomic bitmap
+execution, OSVM/page-source execution, worker scheduling, provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, or backend
+matchers.
+
 
 ## Historical Granularity Anchors
 

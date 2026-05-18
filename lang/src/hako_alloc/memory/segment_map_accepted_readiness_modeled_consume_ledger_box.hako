@@ -48,6 +48,33 @@ box HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedgerReport {
     would_add_backend_matcher: i64 = 0
 }
 
+box HakoAllocSegmentMapModeledConsumeLedgerReleaseReport {
+    did_release: i64 = 0
+    reason: i64 = 0
+    release_reason: i64 = -1
+    row_index: i64 = -1
+    modeled_allocation_token: i64 = -1
+    segment_id: i64 = -1
+    page_id: i64 = -1
+    modeled_block_start: i64 = -1
+    live_before: i64 = 0
+    live_after: i64 = 0
+    ledger_count_after: i64 = 0
+    ledger_live_count_after: i64 = 0
+    released_blocks: i64 = 0
+    release_span_present: i64 = 0
+    modeled_release_present: i64 = 1
+    would_execute_real_segment_free: i64 = 0
+    would_use_raw_pointer: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
 box HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger {
     consume: HakoAllocSegmentAllocationModeledConsume = new HakoAllocSegmentAllocationModeledConsume()
     ledger: HakoAllocSegmentAllocationModeledLedger = new HakoAllocSegmentAllocationModeledLedger()
@@ -63,6 +90,15 @@ box HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger {
     last_reason: i64 = -1
     last_diagnostic_kind: i64 = 0
     last_token: i64 = -1
+    release_route_count: i64 = 0
+    release_count: i64 = 0
+    release_reject_count: i64 = 0
+    release_invalid_reject_count: i64 = 0
+    release_missing_reject_count: i64 = 0
+    release_duplicate_reject_count: i64 = 0
+    release_blocked_reject_count: i64 = 0
+    last_release_reason: i64 = -1
+    last_release_token: i64 = -1
 
     reasonOk(): i64 {
         return 0
@@ -78,6 +114,22 @@ box HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger {
 
     reasonLedgerRejected(): i64 {
         return 3
+    }
+
+    reasonReleaseInvalid(): i64 {
+        return 1
+    }
+
+    reasonReleaseMissing(): i64 {
+        return 2
+    }
+
+    reasonReleaseDuplicate(): i64 {
+        return 3
+    }
+
+    reasonReleaseBlocked(): i64 {
+        return 4
     }
 
     diagnosticOk(): i64 {
@@ -119,6 +171,57 @@ box HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger {
         me.last_reason = reason
         me.last_token = modeled_allocation_token
         return result
+    }
+
+    releaseReport(did_release, reason, release_reason, row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, live_before, live_after, ledger_count_after, ledger_live_count_after): HakoAllocSegmentMapModeledConsumeLedgerReleaseReport {
+        local result = new HakoAllocSegmentMapModeledConsumeLedgerReleaseReport()
+        result.did_release = did_release
+        result.reason = reason
+        result.release_reason = release_reason
+        result.row_index = row_index
+        result.modeled_allocation_token = modeled_allocation_token
+        result.segment_id = segment_id
+        result.page_id = page_id
+        result.modeled_block_start = modeled_block_start
+        result.live_before = live_before
+        result.live_after = live_after
+        result.ledger_count_after = ledger_count_after
+        result.ledger_live_count_after = ledger_live_count_after
+        me.last_release_reason = reason
+        me.last_release_token = modeled_allocation_token
+        return result
+    }
+
+    mapReleaseReason(release_reason): i64 {
+        if release_reason == 1 {
+            return me.reasonReleaseInvalid()
+        }
+        if release_reason == 2 {
+            return me.reasonReleaseMissing()
+        }
+        if release_reason == 3 {
+            return me.reasonReleaseDuplicate()
+        }
+        if release_reason >= 4 {
+            return me.reasonReleaseBlocked()
+        }
+        return me.reasonOk()
+    }
+
+    rememberReleaseReject(reason) {
+        me.release_reject_count += 1
+        if reason == me.reasonReleaseInvalid() {
+            me.release_invalid_reject_count += 1
+        }
+        if reason == me.reasonReleaseMissing() {
+            me.release_missing_reject_count += 1
+        }
+        if reason == me.reasonReleaseDuplicate() {
+            me.release_duplicate_reject_count += 1
+        }
+        if reason == me.reasonReleaseBlocked() {
+            me.release_blocked_reject_count += 1
+        }
     }
 
     rejectReadiness(readiness): HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedgerReport {
@@ -193,6 +296,23 @@ box HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger {
         result.membership_reason = readiness.membership_reason
         result.readiness_reason = readiness.readiness_reason
         result.diagnostic_kind = me.diagnosticOk()
+        return result
+    }
+
+    releaseConsumedToken(modeled_allocation_token, unsupported_requirement): HakoAllocSegmentMapModeledConsumeLedgerReleaseReport {
+        me.release_route_count += 1
+
+        local release = me.ledger.releaseModeledToken(modeled_allocation_token, unsupported_requirement)
+        local reason = me.mapReleaseReason(release.reason)
+        if release.did_release != 1 {
+            me.rememberReleaseReject(reason)
+            return me.releaseReport(0, reason, release.reason, release.row_index, release.modeled_allocation_token, release.segment_id, release.page_id, release.modeled_block_start, release.live_before, release.live_after, release.ledger_count_after, release.ledger_live_count_after)
+        }
+
+        me.release_count += 1
+        local result = me.releaseReport(1, me.reasonOk(), release.reason, release.row_index, release.modeled_allocation_token, release.segment_id, release.page_id, release.modeled_block_start, release.live_before, release.live_after, release.ledger_count_after, release.ledger_live_count_after)
+        result.released_blocks = release.released_blocks
+        result.release_span_present = release.release_span_present
         return result
     }
 }

@@ -1,6 +1,6 @@
 # 293x-683 MIMAP-161A Segment Map Modeled Consume Ledger Release Route
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
@@ -51,6 +51,19 @@ release substrate instead of creating a second release ledger.
 ## Required Evidence
 
 ```text
+bash tools/checks/k2_wide_hako_alloc_segment_map_modeled_consume_ledger_release_guard.sh
+bash tools/checks/run_proof_app.sh --only MIMAP-161A
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Closeout
+
+MIMAP-161A landed by adding a segment-map consume-ledger release report/method,
+proof app, proof manifest entry, local L2 guard, and SSOT.
+
+It selected:
+
+```text
+MIMAP-162A segment-map modeled consume ledger release closeout pack
 ```

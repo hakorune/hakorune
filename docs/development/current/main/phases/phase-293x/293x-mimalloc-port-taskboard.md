@@ -535,7 +535,8 @@ FST:
 | `MIMAP-158A` | landed | Segment-map modeled consume ledger diagnostics. | selected MIMAP-159A |
 | `MIMAP-159A` | landed | Segment-map modeled consume ledger closeout pack. | selected MIMAP-160A |
 | `MIMAP-160A` | landed | Post-segment-map-modeled-consume-ledger-closeout row selection. | selected MIMAP-161A |
-| `MIMAP-161A` | selected current | Segment-map modeled consume ledger release route. | current behavior row |
+| `MIMAP-161A` | landed | Segment-map modeled consume ledger release route. | selected MIMAP-162A |
+| `MIMAP-162A` | selected current | Segment-map modeled consume ledger release closeout pack. | current closeout row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -544,12 +545,12 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-161A` adds a scalar modeled release route at the segment-map modeled
-consume ledger owner boundary, reusing the existing modeled ledger release
-substrate. Raw pointer residence remains parked behind a future rawbuf/no-escape
-capability. Real thread scheduling, worker spawning, source-level concurrency
-features, arena backing allocation, atomic bitmap execution, page-source calls,
-OSVM unreserve/release, provider activation, and backend matchers remain closed.
+`MIMAP-162A` closes the MIMAP-161A segment-map modeled consume ledger release
+route with representative L3 evidence. Raw pointer residence remains parked
+behind a future rawbuf/no-escape capability. Real thread scheduling, worker
+spawning, source-level concurrency features, arena backing allocation, atomic
+bitmap execution, page-source calls, OSVM unreserve/release, provider
+activation, and backend matchers remain closed.
 
 MIMAP-020A execution order:
 
@@ -765,7 +766,8 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `MIMAP-161A` | selected current | Segment-map modeled consume ledger release route. | Current behavior row. |
+| `MIMAP-162A` | selected current | Segment-map modeled consume ledger release closeout pack. | Current closeout row. |
+| `MIMAP-161A` | landed | Segment-map modeled consume ledger release route. | Selected MIMAP-162A. |
 | `MIMAP-160A` | landed | Post-segment-map-modeled-consume-ledger-closeout row selection. | Selected MIMAP-161A. |
 | `MIMAP-159A` | landed | Segment-map modeled consume ledger closeout pack. | Selected MIMAP-160A. |
 | `MIMAP-158A` | landed | Segment-map modeled consume ledger diagnostics. | Selected MIMAP-159A. |

@@ -256,6 +256,9 @@ Syntax/style contract
   allocate arena backing, execute atomic bitmap claims, call page-source/OSVM
   seams, schedule workers, activate provider hooks, replace the host allocator,
   or add backend shortcuts.
+  It also owns MIMAP-161A. It may release a live modeled token through the same
+  owner boundary by reusing the existing MIMAP-097A modeled ledger release
+  substrate, while keeping real segment free execution closed.
 - `segment_allocation_modeled_consume_box.hako` owns MIMAP-091A. It may consume
   accepted scalar segment allocation-readiness facts and model the resulting
   `page_used` / `remaining_blocks` values plus a stable scalar modeled
