@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-258A
+  MIMAP-259A
 
 current choice boundary:
-  modeled arena-slot closeout before the next bridge
+  next modeled bridge after arena-slot closeout
   while keeping real pointer residence, pointer lookup, and real arena backing closed
 
 closed until explicitly reopened:
@@ -442,7 +442,8 @@ Forbidden:
 | `MIMAP-255A` | post-segment-arena-backing-modeled-residence-arena-binding-closeout row selection | landed; selected MIMAP-256A |
 | `MIMAP-256A` | segment arena backing modeled arena slot inventory | landed; selected MIMAP-257A |
 | `MIMAP-257A` | segment arena backing modeled arena slot diagnostics | landed; selected MIMAP-258A |
-| `MIMAP-258A` | segment arena backing modeled arena slot closeout pack | selected current |
+| `MIMAP-258A` | segment arena backing modeled arena slot closeout pack | landed; selected MIMAP-259A |
+| `MIMAP-259A` | post-segment-arena-backing-modeled-arena-slot-closeout row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2467,6 +2468,23 @@ allocation, real segment-map mutation, atomic bitmap execution,
 OSVM/page-source execution, worker/provider activation, cross-function
 `Result` direct ABI, runtime sum materialization, and backend matcher rows
 closed.
+
+MIMAP-258A landed by adding the modeled arena-slot closeout SSOT,
+manifest-backed closeout guard, and representative exact-MIR L3 evidence. It
+selected MIMAP-259A.
+
+### MIMAP-259A granularity
+
+MIMAP-259A post-segment-arena-backing-modeled-arena-slot-closeout row selection.
+
+MIMAP-259A should choose exactly one next narrow allocator bridge after the
+modeled arena-slot family is closed. It should not add allocator behavior
+directly. Real pointer residence, pointer-derived lookup, real arena backing
+allocation, real segment-map mutation, atomic bitmap execution,
+OSVM/page-source execution, worker/provider activation, cross-function
+`Result` direct ABI, runtime sum materialization, and backend matcher rows
+remain closed unless the selected row explicitly reopens one with its own
+evidence.
 
 
 ## Historical Granularity Anchors

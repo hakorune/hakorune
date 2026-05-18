@@ -651,7 +651,8 @@ FST:
 | `MIMAP-255A` | landed | Post segment arena backing modeled residence arena-binding closeout row selection. | selected MIMAP-256A |
 | `MIMAP-256A` | landed | Segment arena backing modeled arena slot inventory. | selected MIMAP-257A |
 | `MIMAP-257A` | landed | Segment arena backing modeled arena slot diagnostics. | selected MIMAP-258A |
-| `MIMAP-258A` | selected current | Segment arena backing modeled arena slot closeout pack. | current closeout row |
+| `MIMAP-258A` | landed | Segment arena backing modeled arena slot closeout pack. | selected MIMAP-259A |
+| `MIMAP-259A` | selected current | Post segment arena backing modeled arena slot closeout row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -660,8 +661,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-258A` closes out the modeled arena-slot family after modeled arena-slot
-diagnostics. Real pointer residence, pointer-derived lookup, real
+`MIMAP-259A` selects the next narrow allocator bridge after modeled arena-slot
+closeout. Real pointer residence, pointer-derived lookup, real
 thread scheduling, worker spawning, source-level concurrency features, arena
 backing allocation, atomic bitmap execution, page-source calls, OSVM
 unreserve/release, provider activation, and backend matchers remain closed.

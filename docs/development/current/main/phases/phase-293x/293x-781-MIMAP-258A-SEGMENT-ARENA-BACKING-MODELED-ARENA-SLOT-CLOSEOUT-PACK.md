@@ -1,6 +1,6 @@
 # 293x-781 MIMAP-258A Segment Arena Backing Modeled Arena Slot Closeout Pack
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -40,6 +40,36 @@ selected.
 ## Required Evidence
 
 ```text
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_arena_slot_closeout_guard.sh
+bash tools/checks/run_row_guard.sh --only hako-alloc-segment-arena-backing-modeled-arena-slot-closeout
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+MIMAP-258A added the modeled arena-slot closeout SSOT and manifest-backed
+closeout guard:
+
+```text
+docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-arena-slot-closeout-ssot.md
+tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_arena_slot_closeout_guard.sh
+```
+
+The guard runs MIMAP-256A L2, MIMAP-257A L2, and representative exact-MIR L3
+EXE evidence through the diagnostics proof app.
+
+## Selected Next Row
+
+MIMAP-258A selects:
+
+```text
+MIMAP-259A post-segment-arena-backing-modeled-arena-slot-closeout row selection
+```
+
+MIMAP-259A should choose exactly one next narrow bridge after modeled
+arena-slot closeout while keeping real pointer residence, pointer-derived
+lookup, real arena backing allocation, real segment-map execution, atomic
+bitmap execution, OSVM/page-source execution, worker/provider activation,
+cross-function `Result` direct ABI, runtime sum materialization, and backend
+matchers closed unless a focused row explicitly reopens one.
