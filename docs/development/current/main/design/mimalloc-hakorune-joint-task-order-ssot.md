@@ -34,20 +34,21 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-199A` is current after MIMAP-198A closed the segment-map local-free
-reuse ledger release bridge pack with representative exact-MIR L3 EXE evidence.
+`MIMAP-201A` is current after MIMAP-200A connected the segment-map local-free
+reuse ledger release row to the source local-free reuse ledger release apply
+route.
 
 Recommended current row:
 
 ```text
-MIMAP-199A
-  post-segment-map-local-free-reuse-ledger-release-bridge-closeout row selection
+MIMAP-201A
+  post-segment-map-local-free-reuse-ledger-release-apply-bridge row selection
 ```
 
 Purpose:
 
 ```text
-choose the next narrow row after segment-map local-free reuse ledger release bridge closeout
+choose the next narrow row after segment-map local-free reuse ledger release apply bridge
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -245,7 +246,9 @@ no provider activation
 | 174 | allocator | `MIMAP-196A segment-map local-free reuse ledger release bridge` | landed; selected MIMAP-197A |
 | 175 | planning | `MIMAP-197A post-segment-map-local-free-reuse-ledger-release-bridge row selection` | landed; selected MIMAP-198A |
 | 176 | closeout | `MIMAP-198A segment-map local-free reuse ledger release bridge closeout pack` | landed; selected MIMAP-199A |
-| 177 | planning | `MIMAP-199A post-segment-map-local-free-reuse-ledger-release-bridge-closeout row selection` | selected current |
+| 177 | planning | `MIMAP-199A post-segment-map-local-free-reuse-ledger-release-bridge-closeout row selection` | landed; selected MIMAP-200A |
+| 178 | allocator | `MIMAP-200A segment-map local-free reuse ledger release apply bridge` | landed; selected MIMAP-201A |
+| 179 | planning | `MIMAP-201A post-segment-map-local-free-reuse-ledger-release-apply-bridge row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

@@ -1,0 +1,122 @@
+// hako-alloc-segment-map-local-free-reuse-ledger-release-apply-bridge-proof
+// Purpose: prove MIMAP-200A segment-map local-free reuse ledger release -> apply bridge.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.segment_map_lookup_guarded_readiness_composition_box as HakoAllocSegmentMapLookupGuardedReadinessComposition
+using selfhost.hako_alloc.memory.segment_map_accepted_readiness_modeled_consume_ledger_box as HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_released_span_ledger_box as HakoAllocSegmentAllocationModeledReleasedSpanLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_box as HakoAllocSegmentAllocationModeledLocalFreeReuse
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_ledger_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_ledger_release_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerRelease
+
+static box Main {
+    seedFullPage(page): i64 {
+        local p0 = page.acquire(8)
+        local p1 = page.acquire(8)
+        local p2 = page.acquire(8)
+        local p3 = page.acquire(8)
+        local p4 = page.acquire(8)
+        local p5 = page.acquire(8)
+        local p6 = page.acquire(8)
+        local p7 = page.acquire(8)
+        return p7
+    }
+
+    nextReleasedSpan(route, released_spans, readiness): HakoAllocSegmentAllocationModeledReleasedSpanLedgerReport {
+        local consumed = route.consumeAcceptedReadiness(readiness, 0)
+        local released = route.releaseConsumedToken(consumed.modeled_allocation_token, 0)
+        return released_spans.recordReleasedSpan(released, 0)
+    }
+
+    nextReuseReport(composition, route, released_spans, reuse_route): HakoAllocSegmentAllocationModeledLocalFreeReuseReport {
+        local readiness = composition.composeLookupReadiness(70, 7, 3, 16, 1, composition.stateActive(), 2, 8, 3, 0)
+        local page = new HakoAllocPageModel(7, 16, 8, 8)
+        local p7 = Main.seedFullPage(page)
+        local span = Main.nextReleasedSpan(route, released_spans, readiness)
+        return reuse_route.integrateAndReuseLocalFree(span, page, 8, 0, 0, 0)
+    }
+
+    main(args) {
+        local composition = new HakoAllocSegmentMapLookupGuardedReadinessComposition()
+        local route = new HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger()
+        local released_spans = new HakoAllocSegmentAllocationModeledReleasedSpanLedger()
+        local reuse_route = new HakoAllocSegmentAllocationModeledLocalFreeReuse()
+        local reuse_ledger = new HakoAllocSegmentAllocationModeledLocalFreeReuseLedger()
+        local release_ledger = new HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerRelease()
+
+        local reuse = Main.nextReuseReport(composition, route, released_spans, reuse_route)
+        local first = reuse_ledger.recordLocalFreeReuse(reuse, 0)
+        local release = release_ledger.recordReuseLedgerRelease(first, 0)
+        local apply = reuse_ledger.applyReuseLedgerRelease(release, 0)
+        local duplicate = reuse_ledger.applyReuseLedgerRelease(release, 0)
+        local missing_source = reuse_ledger.recordLocalFreeReuse(reuse, 1)
+        local missing = release_ledger.recordReuseLedgerRelease(missing_source, 0)
+        local missing_apply = reuse_ledger.applyReuseLedgerRelease(missing, 0)
+        local unsupported = reuse_ledger.applyReuseLedgerRelease(release, 1)
+        local token_read = reuse_ledger.tokenAt(0)
+        local block_read = reuse_ledger.reusedBlockAt(0)
+
+        local ok = check "mimap200a segment map local free reuse ledger release apply bridge" {
+            "first accepted": first.accepted == 1
+            "release accepted": release.did_release == 1
+            "apply accepted": apply.did_apply == 1
+            "apply reason": apply.reason == 0
+            "apply row": apply.row_index == 0
+            "apply existing": apply.existing_index == -1
+            "apply token": apply.modeled_reuse_token == 70007004
+            "apply source token": apply.source_modeled_allocation_token == 70007002
+            "apply segment": apply.segment_id == 70
+            "apply page": apply.page_id == 7
+            "apply block": apply.reused_block_id == 4
+            "apply count": apply.release_apply_count_after == 1
+            "apply rejects": apply.release_apply_reject_count_after == 0
+            "apply live count": apply.ledger_live_count_after == 0
+            "duplicate rejected": duplicate.did_apply == 0
+            "duplicate reason": duplicate.reason == 3
+            "duplicate existing": duplicate.existing_index == 0
+            "missing rejected": missing_apply.did_apply == 0
+            "missing reason": missing_apply.reason == 1
+            "unsupported rejected": unsupported.did_apply == 0
+            "unsupported reason": unsupported.reason == 5
+            "token no longer live": token_read == -1
+            "block no longer live": block_read == -1
+            "apply attempts": reuse_ledger.release_apply_attempt_count == 4
+            "apply count field": reuse_ledger.release_apply_count == 1
+            "apply rejects": reuse_ledger.release_apply_reject_count == 3
+            "apply upstream": reuse_ledger.release_apply_upstream_reject_count == 1
+            "apply duplicate": reuse_ledger.release_apply_duplicate_reject_count == 1
+            "apply execution": reuse_ledger.release_apply_execution_reject_count == 1
+            "source ledger count": reuse_ledger.count == 1
+            "source ledger live": reuse_ledger.live_count == 0
+            "inactive real allocation": apply.would_execute_real_segment_allocation == 0
+            "inactive real free": apply.would_execute_real_segment_free == 0
+            "inactive direct page arrays": apply.would_directly_mutate_page_arrays == 0
+            "inactive raw": apply.would_use_raw_pointer == 0
+            "inactive segment map": apply.would_use_segment_map == 0
+            "inactive arena": apply.would_allocate_arena_backing == 0
+            "inactive atomic": apply.would_execute_atomic_bitmap == 0
+            "inactive osvm": apply.would_call_osvm == 0
+            "inactive thread": apply.would_run_thread == 0
+            "inactive provider": apply.would_activate_provider == 0
+            "inactive matcher": apply.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-map-local-free-reuse-ledger-release-apply-bridge-proof")
+        print("apply=" + apply.did_apply + "," + apply.reason + "," + apply.row_index + "," + apply.existing_index + "," + apply.modeled_reuse_token + "," + apply.source_modeled_allocation_token + "," + apply.segment_id + "," + apply.page_id + "," + apply.reused_block_id + "," + apply.release_apply_count_after + "," + apply.release_apply_reject_count_after + "," + apply.ledger_live_count_after)
+        print("duplicate=" + duplicate.did_apply + "," + duplicate.reason + "," + duplicate.existing_index)
+        print("missing=" + missing_apply.did_apply + "," + missing_apply.reason + "," + missing_apply.existing_index)
+        print("unsupported=" + unsupported.did_apply + "," + unsupported.reason)
+        print("reads=" + token_read + "," + block_read)
+        print("counts=" + reuse_ledger.release_apply_attempt_count + "," + reuse_ledger.release_apply_count + "," + reuse_ledger.release_apply_reject_count + "," + reuse_ledger.release_apply_upstream_reject_count + "," + reuse_ledger.release_apply_duplicate_reject_count + "," + reuse_ledger.release_apply_execution_reject_count + "," + reuse_ledger.count + "," + reuse_ledger.live_count)
+        print("inactive=" + apply.would_execute_real_segment_allocation + "," + apply.would_execute_real_segment_free + "," + apply.would_directly_mutate_page_arrays + "," + apply.would_use_raw_pointer + "," + apply.would_use_segment_map + "," + apply.would_allocate_arena_backing + "," + apply.would_execute_atomic_bitmap + "," + apply.would_call_osvm + "," + apply.would_run_thread + "," + apply.would_activate_provider + "," + apply.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -573,7 +573,9 @@ FST:
 | `MIMAP-196A` | landed | Segment-map local-free reuse ledger release bridge. | selected MIMAP-197A |
 | `MIMAP-197A` | landed | Post-segment-map-local-free-reuse-ledger-release-bridge row selection. | selected MIMAP-198A |
 | `MIMAP-198A` | landed | Segment-map local-free reuse ledger release bridge closeout pack. | selected MIMAP-199A |
-| `MIMAP-199A` | selected current | Post-segment-map-local-free-reuse-ledger-release-bridge-closeout row selection. | current planning row |
+| `MIMAP-199A` | landed | Post-segment-map-local-free-reuse-ledger-release-bridge-closeout row selection. | selected MIMAP-200A |
+| `MIMAP-200A` | landed | Segment-map local-free reuse ledger release apply bridge. | selected MIMAP-201A |
+| `MIMAP-201A` | selected current | Post-segment-map-local-free-reuse-ledger-release-apply-bridge row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -582,9 +584,9 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-199A` chooses the next narrow row after MIMAP-198A closed the
-segment-map local-free reuse ledger release bridge pack with representative
-exact-MIR L3 EXE evidence.
+`MIMAP-201A` chooses the next narrow row after MIMAP-200A connected the
+segment-map local-free reuse ledger release row to the source local-free reuse
+ledger release apply route.
 Raw pointer residence remains parked behind a future rawbuf/no-escape
 capability. Real thread scheduling, worker spawning, source-level concurrency
 features, arena backing allocation, atomic bitmap execution, page-source calls,
@@ -806,7 +808,9 @@ no source-level receiver.birth(...) as lifecycle workaround
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
 | `PURE-FIRST-GUARD-RELEASE-BIN-001` | landed | Pure-first guard VM/MIR emit latency cleanup. | MIMAP-192A L2 cut from 119.84s to 16.10s by defaulting active guard VM/MIR paths to release `hakorune`. |
-| `MIMAP-199A` | selected current | Post-segment-map-local-free-reuse-ledger-release-bridge-closeout row selection. | Current planning row. |
+| `MIMAP-201A` | selected current | Post-segment-map-local-free-reuse-ledger-release-apply-bridge row selection. | Current planning row. |
+| `MIMAP-200A` | landed | Segment-map local-free reuse ledger release apply bridge. | Selected MIMAP-201A. |
+| `MIMAP-199A` | landed | Post-segment-map-local-free-reuse-ledger-release-bridge-closeout row selection. | Selected MIMAP-200A. |
 | `MIMAP-198A` | landed | Segment-map local-free reuse ledger release bridge closeout pack. | Selected MIMAP-199A. |
 | `MIMAP-197A` | landed | Post-segment-map-local-free-reuse-ledger-release-bridge row selection. | Selected MIMAP-198A. |
 | `MIMAP-196A` | landed | Segment-map local-free reuse ledger release bridge. | Selected MIMAP-197A. |

@@ -1,12 +1,12 @@
-# 293x-722 MIMAP-199A Post Segment Map Local Free Reuse Ledger Release Bridge Closeout Row Selection
+# 293x-724 MIMAP-201A Post Segment Map Local Free Reuse Ledger Release Apply Bridge Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-18
 
 ## Decision
 
-Choose MIMAP-200A as the next narrow row after MIMAP-198A closes the
-segment-map local-free reuse ledger release bridge pack.
+Choose the next narrow row after MIMAP-200A proves the segment-map local-free
+reuse ledger release apply bridge.
 
 ## Context
 
@@ -24,24 +24,12 @@ explicit-ID readiness
   -> modeled local-free reuse owner can reuse one local-free block
   -> modeled local-free reuse ledger owner records the reuse row
   -> modeled local-free reuse ledger release owner records the release row
-  -> representative exact-MIR EXE parity for the reuse ledger release bridge pack
+  -> source reuse ledger applies that release and marks the row non-live
 ```
 
-The next row is:
-
-```text
-MIMAP-200A segment-map local-free reuse ledger release apply bridge
-```
-
-Rationale:
-
-- MIMAP-198A closed the release bridge pack with representative EXE evidence.
-- The existing MIMAP-138A source-ledger apply route already marks reuse ledger
-  rows non-live after successful release facts.
-- Connecting the segment-map-derived release row to that route is the smallest
-  next bridge before release-applied recycle behavior.
-
-It should not jump directly to raw pointer residence, arena backing, real
+The next row should choose between a release-apply bridge closeout pack, a
+release-applied recycle bridge, or a small observer/diagnostic sidecar. It
+should not jump directly to raw pointer residence, arena backing, real
 segment-map execution, real free-list mutation, real page-state mutation, or
 atomic bitmap behavior.
 
@@ -67,10 +55,4 @@ atomic bitmap behavior.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
-```
-
-## Next
-
-```text
-MIMAP-200A segment-map local-free reuse ledger release apply bridge
 ```
