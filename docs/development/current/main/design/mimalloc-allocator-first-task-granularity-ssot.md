@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-259A
+  MIMAP-260A
 
 current choice boundary:
-  next modeled bridge after arena-slot closeout
+  modeled source bridge after arena-slot closeout
   while keeping real pointer residence, pointer lookup, and real arena backing closed
 
 closed until explicitly reopened:
@@ -443,7 +443,8 @@ Forbidden:
 | `MIMAP-256A` | segment arena backing modeled arena slot inventory | landed; selected MIMAP-257A |
 | `MIMAP-257A` | segment arena backing modeled arena slot diagnostics | landed; selected MIMAP-258A |
 | `MIMAP-258A` | segment arena backing modeled arena slot closeout pack | landed; selected MIMAP-259A |
-| `MIMAP-259A` | post-segment-arena-backing-modeled-arena-slot-closeout row selection | selected current |
+| `MIMAP-259A` | post-segment-arena-backing-modeled-arena-slot-closeout row selection | landed; selected MIMAP-260A |
+| `MIMAP-260A` | segment arena backing modeled source bridge inventory | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2485,6 +2486,25 @@ OSVM/page-source execution, worker/provider activation, cross-function
 `Result` direct ABI, runtime sum materialization, and backend matcher rows
 remain closed unless the selected row explicitly reopens one with its own
 evidence.
+
+MIMAP-259A landed by selecting MIMAP-260A.
+
+### MIMAP-260A granularity
+
+MIMAP-260A segment arena backing modeled source bridge inventory.
+
+MIMAP-260A should add a scalar/model inventory owner that records the modeled
+backing source associated with an accepted modeled arena-slot report. It should
+preserve segment id, arena id, arena-slot token, slot geometry, source kind,
+source token, and source capacity facts. It should reject missing/rejected slot
+reports, invalid slot token, invalid source shape, invalid geometry, and
+closed-substrate requirement flags.
+
+MIMAP-260A remains daily L2. It does not open real pointer residence,
+pointer-derived lookup, real arena backing allocation, real segment-map
+mutation, atomic bitmap execution, OSVM/page-source execution,
+worker/provider activation, cross-function `Result` direct ABI, runtime sum
+materialization, or backend matcher rows.
 
 
 ## Historical Granularity Anchors

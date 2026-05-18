@@ -1,6 +1,6 @@
 # 293x-782 MIMAP-259A Post Segment Arena Backing Modeled Arena Slot Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -45,3 +45,26 @@ segment-map execution by accident.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Selected Next Row
+
+MIMAP-259A selects:
+
+```text
+MIMAP-260A segment arena backing modeled source bridge inventory
+```
+
+Reason:
+
+```text
+the modeled arena-slot family is closed out, but real arena backing allocation
+is still too large to open directly. First record the backing source that would
+feed a future arena backing owner as scalar/model facts: source kind, arena
+slot token, segment/arena ids, geometry, and closed-substrate blockers.
+```
+
+MIMAP-260A must remain scalar/model-only. It must not allocate arena backing,
+create real raw pointer residence, perform pointer-derived lookup, mutate a
+real segment-map, execute atomic bitmap or OSVM/page-source calls, activate
+workers/providers, rely on cross-function `Result` direct ABI or runtime sum
+materialization, or add backend matchers.
