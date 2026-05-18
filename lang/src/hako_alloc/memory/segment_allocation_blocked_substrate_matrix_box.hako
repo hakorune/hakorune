@@ -1,0 +1,96 @@
+// segment_allocation_blocked_substrate_matrix_box.hako -- MIMAP-149A blocker matrix proof
+// Responsibility:
+// - compose existing scalar segment readiness / membership / arena facts
+// - report the still-closed hard substrate blockers before real segment allocation
+// - keep the route proof-only and side-effect-free
+// Non-responsibility:
+// - opening real allocation/free, raw residence, lookup maps, arena backing,
+//   bitmap execution, OSVM calls, scheduling, provider activation, or backend shortcuts
+
+using selfhost.hako_alloc.memory.segment_allocation_readiness_scalar_box as HakoAllocSegmentAllocationReadinessScalar
+using selfhost.hako_alloc.memory.segment_page_membership_scalar_box as HakoAllocSegmentPageMembershipScalar
+using selfhost.hako_alloc.memory.segment_arena_bitmap_inventory_box as HakoAllocSegmentArenaBitmapInventory
+
+box HakoAllocSegmentAllocationBlockedSubstrateMatrixReport {
+    status: i64 = 0
+    matrix_rows: i64 = 0
+    accepted_surface_count: i64 = 0
+    blocker_mask: i64 = 0
+    readiness_reason: i64 = -1
+    membership_reason: i64 = -1
+    boundary_reason: i64 = -1
+    raw_pointer_reason: i64 = -1
+    segment_map_reason: i64 = -1
+    arena_backing_reason: i64 = -1
+    atomic_bitmap_reason: i64 = -1
+    osvm_reason: i64 = -1
+    thread_reason: i64 = -1
+    provider_reason: i64 = -1
+    segment_execution_reason: i64 = -1
+    raw_pointer_blocked: i64 = 1
+    segment_map_blocked: i64 = 1
+    arena_backing_blocked: i64 = 1
+    atomic_bitmap_blocked: i64 = 1
+    osvm_blocked: i64 = 1
+    thread_blocked: i64 = 1
+    provider_blocked: i64 = 1
+    segment_execution_blocked: i64 = 1
+    would_execute_segment_allocation: i64 = 0
+    would_use_raw_pointer: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_replace_process_allocator: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentAllocationBlockedSubstrateMatrix {
+    build_count: i64 = 0
+    last_status: i64 = -1
+    last_blocker_mask: i64 = 0
+
+    buildMatrix(): HakoAllocSegmentAllocationBlockedSubstrateMatrixReport {
+        me.build_count += 1
+
+        local readiness = new HakoAllocSegmentAllocationReadinessScalar()
+        local membership = new HakoAllocSegmentPageMembershipScalar()
+        local boundary = new HakoAllocSegmentArenaBitmapInventory()
+
+        local ready = readiness.classifyReadiness(60, 18, readiness.stateActive(), 2, 8, 3, 0)
+        local member = membership.classifyMembership(60, 18, 0, 1, membership.stateActive(), 2, 8, 0)
+        local facts = boundary.classifyBoundary(60, 2, 16, 8, 3, 0, 0, 0, 0)
+
+        local raw = boundary.classifyBoundary(61, 2, 16, 8, 3, 1, 0, 0, 0)
+        local segment_map = membership.classifyMembership(62, 19, 0, 1, membership.stateActive(), 2, 8, 2)
+        local arena = membership.classifyMembership(63, 20, 0, 1, membership.stateActive(), 2, 8, 3)
+        local atomic_bitmap = boundary.classifyBoundary(64, 2, 16, 8, 3, 0, 1, 0, 0)
+        local osvm = boundary.classifyBoundary(65, 2, 16, 8, 3, 0, 0, 1, 0)
+        local thread = readiness.classifyReadiness(66, 21, readiness.stateActive(), 2, 8, 1, 6)
+        local provider = boundary.classifyBoundary(67, 2, 16, 8, 3, 0, 0, 0, 1)
+        local segment_execution = readiness.classifyReadiness(68, 22, readiness.stateActive(), 2, 8, 1, 8)
+
+        local result = new HakoAllocSegmentAllocationBlockedSubstrateMatrixReport()
+        result.status = 0
+        result.matrix_rows = 8
+        result.accepted_surface_count = ready.accepted + member.accepted + facts.accepted
+        result.blocker_mask = 255
+        result.readiness_reason = ready.reason
+        result.membership_reason = member.reason
+        result.boundary_reason = facts.reason
+        result.raw_pointer_reason = raw.reason
+        result.segment_map_reason = segment_map.reason
+        result.arena_backing_reason = arena.reason
+        result.atomic_bitmap_reason = atomic_bitmap.reason
+        result.osvm_reason = osvm.reason
+        result.thread_reason = thread.reason
+        result.provider_reason = provider.reason
+        result.segment_execution_reason = segment_execution.reason
+
+        me.last_status = result.status
+        me.last_blocker_mask = result.blocker_mask
+        return result
+    }
+}

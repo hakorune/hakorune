@@ -1,0 +1,67 @@
+// hako-alloc-segment-allocation-blocked-substrate-matrix-proof
+// Purpose: prove MIMAP-149A blocked-substrate matrix before real segment allocation.
+
+using selfhost.hako_alloc.memory.segment_allocation_blocked_substrate_matrix_box as HakoAllocSegmentAllocationBlockedSubstrateMatrix
+
+static box Main {
+    main(args) {
+        local matrix = new HakoAllocSegmentAllocationBlockedSubstrateMatrix()
+        local report = matrix.buildMatrix()
+
+        local ok = check "mimap149a segment allocation blocked substrate matrix proof" {
+            "status": report.status == 0
+            "matrix rows": report.matrix_rows == 8
+            "accepted surfaces": report.accepted_surface_count == 3
+            "blocker mask": report.blocker_mask == 255
+            "readiness accepted reason": report.readiness_reason == 0
+            "membership accepted reason": report.membership_reason == 0
+            "boundary accepted reason": report.boundary_reason == 0
+            "raw pointer reason": report.raw_pointer_reason == 2
+            "segment map reason": report.segment_map_reason == 3
+            "arena backing reason": report.arena_backing_reason == 4
+            "atomic bitmap reason": report.atomic_bitmap_reason == 3
+            "osvm reason": report.osvm_reason == 4
+            "thread reason": report.thread_reason == 10
+            "provider reason": report.provider_reason == 5
+            "segment execution reason": report.segment_execution_reason == 12
+            "raw pointer blocked": report.raw_pointer_blocked == 1
+            "segment map blocked": report.segment_map_blocked == 1
+            "arena backing blocked": report.arena_backing_blocked == 1
+            "atomic bitmap blocked": report.atomic_bitmap_blocked == 1
+            "osvm blocked": report.osvm_blocked == 1
+            "thread blocked": report.thread_blocked == 1
+            "provider blocked": report.provider_blocked == 1
+            "segment execution blocked": report.segment_execution_blocked == 1
+            "inactive segment allocation": report.would_execute_segment_allocation == 0
+            "inactive raw": report.would_use_raw_pointer == 0
+            "inactive segment map": report.would_use_segment_map == 0
+            "inactive arena": report.would_allocate_arena_backing == 0
+            "inactive atomic": report.would_execute_atomic_bitmap == 0
+            "inactive osvm": report.would_call_osvm == 0
+            "inactive thread": report.would_run_thread == 0
+            "inactive provider": report.would_activate_provider == 0
+            "inactive replacement": report.would_replace_process_allocator == 0
+            "inactive matcher": report.would_add_backend_matcher == 0
+            "build count": matrix.build_count == 1
+            "last status": matrix.last_status == 0
+            "last mask": matrix.last_blocker_mask == 255
+        }
+
+        print("hako-alloc-segment-allocation-blocked-substrate-matrix-proof")
+        print("matrix=" + report.status + "," + report.matrix_rows + "," + report.accepted_surface_count + "," + report.blocker_mask)
+        print("accepted_reasons=" + report.readiness_reason + "," + report.membership_reason + "," + report.boundary_reason)
+        print("blocker_reasons=" + report.raw_pointer_reason + "," + report.segment_map_reason + "," + report.arena_backing_reason + "," + report.atomic_bitmap_reason + "," + report.osvm_reason + "," + report.thread_reason + "," + report.provider_reason + "," + report.segment_execution_reason)
+        print("blockers=" + report.raw_pointer_blocked + "," + report.segment_map_blocked + "," + report.arena_backing_blocked + "," + report.atomic_bitmap_blocked + "," + report.osvm_blocked + "," + report.thread_blocked + "," + report.provider_blocked + "," + report.segment_execution_blocked)
+        print("inactive=" + report.would_execute_segment_allocation + "," + report.would_use_raw_pointer + "," + report.would_use_segment_map + "," + report.would_allocate_arena_backing + "," + report.would_execute_atomic_bitmap + "," + report.would_call_osvm + "," + report.would_run_thread + "," + report.would_activate_provider + "," + report.would_replace_process_allocator + "," + report.would_add_backend_matcher)
+        print("counts=" + matrix.build_count + "," + matrix.last_status + "," + matrix.last_blocker_mask)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -329,7 +329,8 @@ Forbidden:
 | `MIMAP-147A` | post-Result-guard-let-pilot row selection | landed; selected HAKO-ALLOC-RESULT-API-003 |
 | `HAKO-ALLOC-RESULT-API-003` | allocator local-free remaining Result guard-let boundaries | landed; selected MIMAP-148A |
 | `MIMAP-148A` | post-local-free-Result-boundary row selection | landed; selected MIMAP-149A |
-| `MIMAP-149A` | segment allocation blocked-substrate matrix proof | selected current |
+| `MIMAP-149A` | segment allocation blocked-substrate matrix proof | landed; selected MIMAP-150A |
+| `MIMAP-150A` | post-blocked-substrate-matrix row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -608,6 +609,19 @@ It must report blockers without executing them: raw pointer residence,
 segment-map lookup, arena backing allocation, atomic bitmap execution, OSVM,
 thread scheduling, provider activation, and real segment allocation/free remain
 closed.
+
+MIMAP-149A landed by adding the proof-only matrix owner, proof app, guard, and
+manifest/index/docs wiring. It selected MIMAP-150A.
+
+### MIMAP-150A granularity
+
+MIMAP-150A is a planning row after the blocked-substrate matrix. It chooses
+exactly one next boundary from the MIMAP-149A matrix and records whether that
+boundary should become allocator-only proof work, Hakorune compiler/language
+acceptance work, substrate/capability inventory, or a park row.
+
+It must not implement real segment allocation/free or open more than one
+blocked substrate.
 
 
 ## Historical Granularity Anchors

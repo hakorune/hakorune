@@ -11,6 +11,9 @@ Current mimalloc policy queue
 - `HakoAllocAlignmentPolicy` is the M177 alignment owner. It normalizes
   requested alignment, rejects unsupported inputs, and computes padded-size
   policy only.
+- `HakoAllocSegmentAllocationBlockedSubstrateMatrix` is the MIMAP-149A
+  proof-only owner for the scalar blocked-substrate matrix before real segment
+  allocation/free execution.
 
 Principles
 - Keep this root as the alloc/policy anchor.

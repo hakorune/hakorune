@@ -492,7 +492,8 @@ FST:
 | `MIMAP-147A` | landed | Post-Result-guard-let-pilot row selection. | selected HAKO-ALLOC-RESULT-API-003 |
 | `HAKO-ALLOC-RESULT-API-003` | landed | Allocator local-free remaining Result guard-let boundaries. | selected MIMAP-148A |
 | `MIMAP-148A` | landed | Post-local-free-Result-boundary row selection. | selected MIMAP-149A |
-| `MIMAP-149A` | selected current | Segment allocation blocked-substrate matrix proof. | current implementation row |
+| `MIMAP-149A` | landed | Segment allocation blocked-substrate matrix proof. | selected MIMAP-150A |
+| `MIMAP-150A` | selected current | Post-blocked-substrate-matrix row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -501,13 +502,12 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-149A` adds a proof-only matrix for the still-closed hard substrate
-blockers between scalar segment allocation and real segment allocation/free.
-Real thread scheduling, worker spawning, source-level concurrency features,
-raw pointer residence, atomic bitmap execution, arena backing allocation,
-segment-map pointer membership,
+`MIMAP-150A` chooses exactly one next boundary from the MIMAP-149A
+blocked-substrate matrix. Real thread scheduling, worker spawning,
+source-level concurrency features, raw pointer residence, atomic bitmap
+execution, arena backing allocation, segment-map pointer membership,
 page-source calls, OSVM unreserve/release, provider activation, and backend
-matchers remain closed.
+matchers remain closed until a focused row explicitly opens one boundary.
 
 MIMAP-020A execution order:
 
@@ -723,7 +723,8 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `MIMAP-149A` | selected current | Segment allocation blocked-substrate matrix proof. | Current implementation row. |
+| `MIMAP-150A` | selected current | Post-blocked-substrate-matrix row selection. | Current planning row. |
+| `MIMAP-149A` | landed | Segment allocation blocked-substrate matrix proof. | Selected MIMAP-150A. |
 | `MIMAP-148A` | landed | Post-local-free-Result-boundary row selection. | Selected MIMAP-149A. |
 | `HAKO-ALLOC-RESULT-API-003` | landed | Allocator local-free remaining Result guard-let boundaries. | Selected MIMAP-148A. |
 | `MIMAP-147A` | landed | Post-Result-guard-let-pilot row selection. | Selected HAKO-ALLOC-RESULT-API-003. |

@@ -34,20 +34,21 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-149A` is current after MIMAP-148A stopped the Result cleanup burst and
-returned the lane to ordinary mimalloc behavior work.
+`MIMAP-150A` is current after MIMAP-149A proved the blocked-substrate matrix
+for the path from scalar segment allocation toward real segment
+allocation/free.
 
 Recommended current row:
 
 ```text
-MIMAP-149A
-  segment allocation blocked-substrate matrix proof
+MIMAP-150A
+  post-blocked-substrate-matrix row selection
 ```
 
 Purpose:
 
 ```text
-prove the still-closed hard substrate blockers before real segment allocation/free opens
+choose exactly one next boundary from the MIMAP-149A matrix
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -195,7 +196,8 @@ no provider activation
 | 124 | planning | `MIMAP-147A post-Result-guard-let-pilot row selection` | landed; selected HAKO-ALLOC-RESULT-API-003 |
 | 125 | Hakorune language / allocator boundary | `HAKO-ALLOC-RESULT-API-003 allocator local-free remaining Result guard-let boundaries` | landed; selected MIMAP-148A |
 | 126 | planning | `MIMAP-148A post-local-free-Result-boundary row selection` | landed; selected MIMAP-149A |
-| 127 | allocator | `MIMAP-149A segment allocation blocked-substrate matrix proof` | selected current |
+| 127 | allocator | `MIMAP-149A segment allocation blocked-substrate matrix proof` | landed; selected MIMAP-150A |
+| 128 | planning | `MIMAP-150A post-blocked-substrate-matrix row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
