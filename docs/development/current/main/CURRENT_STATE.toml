@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-19"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-263A landed by selecting MIMAP-264A modeled source accounting inventory after modeled source bridge closeout. Cross-function Result direct ABI remains closed. Real raw pointer residence and real arena backing remain closed; the next bridge remains scalar/model only. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-264A landed by adding scalar/model source-backed arena accounting after modeled source bridge closeout and selecting MIMAP-265A diagnostics. Cross-function Result direct ABI remains closed. Real raw pointer residence and real arena backing remain closed; the next bridge remains scalar/model only. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-787-MIMAP-264A-SEGMENT-ARENA-BACKING-MODELED-SOURCE-ACCOUNTING-INVENTORY.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-788-MIMAP-265A-SEGMENT-ARENA-BACKING-MODELED-SOURCE-ACCOUNTING-DIAGNOSTICS.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-786-MIMAP-263A-POST-SEGMENT-ARENA-BACKING-MODELED-SOURCE-BRIDGE-CLOSEOUT-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-786-MIMAP-263A-POST-SEGMENT-ARENA-BACKING-MODELED-SOURCE-BRIDGE-CLOSEOUT-ROW-SELECTION.md"
-latest_card_summary = "MIMAP-263A landed by selecting modeled source accounting inventory as MIMAP-264A."
+latest_card = "293x-787-MIMAP-264A-SEGMENT-ARENA-BACKING-MODELED-SOURCE-ACCOUNTING-INVENTORY"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-787-MIMAP-264A-SEGMENT-ARENA-BACKING-MODELED-SOURCE-ACCOUNTING-INVENTORY.md"
+latest_card_summary = "MIMAP-264A landed by adding modeled source accounting inventory and selecting MIMAP-265A diagnostics."
 
-current_blocker_token = "MIMAP-264A"
+current_blocker_token = "MIMAP-265A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-787 MIMAP-264A segment arena backing modeled source accounting inventory landed; MIMAP-265A selected",
   "293x-786 MIMAP-263A post-segment-arena-backing-modeled-source-bridge-closeout row selection landed; MIMAP-264A selected",
   "293x-785 MIMAP-262A segment arena backing modeled source bridge closeout pack landed; MIMAP-263A selected",
   "293x-784 MIMAP-261A segment arena backing modeled source bridge diagnostics landed; MIMAP-262A selected",

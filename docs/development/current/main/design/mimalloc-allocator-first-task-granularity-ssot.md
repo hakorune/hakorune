@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-264A
+  MIMAP-265A
 
 current choice boundary:
-  modeled source accounting inventory after modeled source bridge closeout
+  modeled source accounting diagnostics after modeled source accounting inventory
   while keeping real pointer residence, pointer lookup, and real arena backing closed
 
 closed until explicitly reopened:
@@ -448,7 +448,8 @@ Forbidden:
 | `MIMAP-261A` | segment arena backing modeled source bridge diagnostics | landed; selected MIMAP-262A |
 | `MIMAP-262A` | segment arena backing modeled source bridge closeout pack | landed; selected MIMAP-263A |
 | `MIMAP-263A` | post-segment-arena-backing-modeled-source-bridge-closeout row selection | landed; selected MIMAP-264A |
-| `MIMAP-264A` | segment arena backing modeled source accounting inventory | selected current |
+| `MIMAP-264A` | segment arena backing modeled source accounting inventory | landed; selected MIMAP-265A |
+| `MIMAP-265A` | segment arena backing modeled source accounting diagnostics | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2573,6 +2574,23 @@ real pointer residence, pointer-derived lookup, real arena backing allocation,
 real segment-map mutation, atomic bitmap execution, OSVM/page-source execution,
 worker/provider activation, cross-function `Result` direct ABI, runtime sum
 materialization, or backend matcher rows.
+
+MIMAP-264A landed by adding the modeled source accounting owner, proof app, L2
+guard, manifest entry, check index entry, module export, and SSOT. It selected
+MIMAP-265A.
+
+### MIMAP-265A granularity
+
+MIMAP-265A segment arena backing modeled source accounting diagnostics.
+
+MIMAP-265A should add observer-only diagnostics for the MIMAP-264A modeled
+source accounting inventory. It should summarize accepted, missing/rejected
+bridge, invalid source token, invalid accounting geometry, and
+closed-substrate counter categories without recording new source accounting
+rows or opening real pointer residence, pointer-derived lookup, real arena
+backing allocation, real segment-map mutation, atomic bitmap execution,
+OSVM/page-source execution, worker/provider activation, cross-function
+`Result` direct ABI, runtime sum materialization, or backend matcher rows.
 
 
 ## Historical Granularity Anchors

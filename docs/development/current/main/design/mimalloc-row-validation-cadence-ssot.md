@@ -318,6 +318,9 @@ MIMAP-263A post-segment-arena-backing-modeled-source-bridge-closeout row selecti
 
 MIMAP-264A segment arena backing modeled source accounting inventory
   L2 daily: static + VM + MIR JSON/route preflight
+
+MIMAP-265A segment arena backing modeled source accounting diagnostics
+  L2 daily: observer/reject summary only
 ```
 
 ## Row-Type Rules

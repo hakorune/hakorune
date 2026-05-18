@@ -1,6 +1,6 @@
 # 293x-787 MIMAP-264A Segment Arena Backing Modeled Source Accounting Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -45,3 +45,15 @@ opening real arena backing allocation.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+- Added modeled source accounting owner and report.
+- Added proof app, L2 guard, proof manifest row, check index entry, module
+  export, memory README entry, and accounting SSOT.
+- Verified the accounting row stays scalar/model-only and keeps all closed
+  runtime/backend seams inactive.
+
+## Selected Next Row
+
+`MIMAP-265A` segment arena backing modeled source accounting diagnostics.

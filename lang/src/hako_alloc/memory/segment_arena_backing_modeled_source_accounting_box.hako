@@ -1,0 +1,219 @@
+// segment_arena_backing_modeled_source_accounting_box.hako -- MIMAP-264A
+// Responsibility:
+// - record scalar/model source-backed arena accounting facts from an accepted
+//   modeled source bridge report
+// - keep capacity/commit accounting as model facts before real arena backing
+//   allocation opens
+// Non-responsibility:
+// - creating real pointer residence, pointer-derived lookup, arena backing,
+//   segment-map mutation, atomic bitmap execution, OSVM calls, scheduling,
+//   providers, or backend shortcuts
+
+box HakoAllocSegmentArenaBackingModeledSourceAccountingReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    source_accounting_present: i64 = 1
+    modeled_source_accounting_present: i64 = 1
+    source_bridge_present: i64 = 0
+    source_bridge_reason: i64 = 0
+    row_index: i64 = -1
+    segment_id: i64 = -1
+    arena_id: i64 = -1
+    lifetime_generation: i64 = 0
+    residence_token: i64 = 0
+    binding_token: i64 = 0
+    arena_slot_token: i64 = 0
+    source_kind: i64 = 0
+    source_token: i64 = 0
+    source_capacity: i64 = 0
+    source_committed_bytes: i64 = 0
+    source_uncommitted_bytes: i64 = 0
+    source_alignment: i64 = 0
+    slot_index: i64 = -1
+    slot_capacity: i64 = 0
+    padded_bytes: i64 = 0
+    accounted_padded_bytes: i64 = 0
+    available_after_padded_bytes: i64 = 0
+    closed_substrate_blocker_count: i64 = 0
+    requires_pointer_residence: i64 = 0
+    requires_pointer_lookup: i64 = 0
+    requires_arena_backing: i64 = 0
+    requires_segment_map: i64 = 0
+    requires_atomic_bitmap: i64 = 0
+    requires_osvm: i64 = 0
+    requires_worker: i64 = 0
+    requires_provider: i64 = 0
+    requires_backend_matcher: i64 = 0
+    would_create_pointer_residence: i64 = 0
+    would_lookup_by_pointer: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentArenaBackingModeledSourceAccountingInventory {
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_bridge_reject_count: i64 = 0
+    rejected_bridge_reject_count: i64 = 0
+    invalid_source_token_reject_count: i64 = 0
+    invalid_accounting_geometry_reject_count: i64 = 0
+    closed_substrate_reject_count: i64 = 0
+    last_reason: i64 = 0
+    last_segment_id: i64 = -1
+    last_arena_id: i64 = -1
+    last_source_token: i64 = 0
+
+    closedSubstrateBlockerCount(source_report): i64 {
+        local count = 0
+        if source_report.requires_pointer_residence != 0 {
+            count += 1
+        }
+        if source_report.requires_pointer_lookup != 0 {
+            count += 1
+        }
+        if source_report.requires_arena_backing != 0 {
+            count += 1
+        }
+        if source_report.requires_segment_map != 0 {
+            count += 1
+        }
+        if source_report.requires_atomic_bitmap != 0 {
+            count += 1
+        }
+        if source_report.requires_osvm != 0 {
+            count += 1
+        }
+        if source_report.requires_worker != 0 {
+            count += 1
+        }
+        if source_report.requires_provider != 0 {
+            count += 1
+        }
+        if source_report.requires_backend_matcher != 0 {
+            count += 1
+        }
+        return count
+    }
+
+    accountingGeometryValid(source_report): i64 {
+        if source_report.source_capacity <= 0 {
+            return 0
+        }
+        if source_report.source_committed_bytes < 0 {
+            return 0
+        }
+        if source_report.source_committed_bytes > source_report.source_capacity {
+            return 0
+        }
+        if source_report.padded_bytes <= 0 {
+            return 0
+        }
+        if source_report.source_capacity < source_report.padded_bytes {
+            return 0
+        }
+        if source_report.slot_capacity < source_report.padded_bytes {
+            return 0
+        }
+        if source_report.source_alignment < source_report.slot_alignment {
+            return 0
+        }
+        return 1
+    }
+
+    makeReport(accepted, reason, source_report): HakoAllocSegmentArenaBackingModeledSourceAccountingReport {
+        local result = new HakoAllocSegmentArenaBackingModeledSourceAccountingReport()
+        result.accepted = accepted
+        result.reason = reason
+        result.source_accounting_present = 1
+        result.modeled_source_accounting_present = 1
+        result.source_bridge_present = source_report.source_bridge_present
+        result.source_bridge_reason = source_report.reason
+        result.segment_id = source_report.segment_id
+        result.arena_id = source_report.arena_id
+        result.lifetime_generation = source_report.lifetime_generation
+        result.residence_token = source_report.residence_token
+        result.binding_token = source_report.binding_token
+        result.arena_slot_token = source_report.arena_slot_token
+        result.source_kind = source_report.source_kind
+        result.source_capacity = source_report.source_capacity
+        result.source_committed_bytes = source_report.source_committed_bytes
+        result.source_alignment = source_report.source_alignment
+        result.slot_index = source_report.slot_index
+        result.slot_capacity = source_report.slot_capacity
+        result.padded_bytes = source_report.padded_bytes
+        result.closed_substrate_blocker_count = me.closedSubstrateBlockerCount(source_report)
+        result.requires_pointer_residence = source_report.requires_pointer_residence
+        result.requires_pointer_lookup = source_report.requires_pointer_lookup
+        result.requires_arena_backing = source_report.requires_arena_backing
+        result.requires_segment_map = source_report.requires_segment_map
+        result.requires_atomic_bitmap = source_report.requires_atomic_bitmap
+        result.requires_osvm = source_report.requires_osvm
+        result.requires_worker = source_report.requires_worker
+        result.requires_provider = source_report.requires_provider
+        result.requires_backend_matcher = source_report.requires_backend_matcher
+        if accepted == 1 {
+            result.row_index = me.accepted_count
+            result.source_token = source_report.source_token
+            result.source_uncommitted_bytes = source_report.source_capacity - source_report.source_committed_bytes
+            result.accounted_padded_bytes = source_report.padded_bytes
+            result.available_after_padded_bytes = source_report.source_capacity - source_report.padded_bytes
+        }
+        me.last_reason = reason
+        me.last_segment_id = source_report.segment_id
+        me.last_arena_id = source_report.arena_id
+        me.last_source_token = result.source_token
+        return result
+    }
+
+    reject(reason, source_report): HakoAllocSegmentArenaBackingModeledSourceAccountingReport {
+        me.reject_count += 1
+        if reason == 1 {
+            me.missing_bridge_reject_count += 1
+        }
+        if reason == 2 {
+            me.rejected_bridge_reject_count += 1
+        }
+        if reason == 3 {
+            me.invalid_source_token_reject_count += 1
+        }
+        if reason == 4 {
+            me.invalid_accounting_geometry_reject_count += 1
+        }
+        if reason == 5 {
+            me.closed_substrate_reject_count += 1
+        }
+        return me.makeReport(0, reason, source_report)
+    }
+
+    recordSourceAccounting(source_report): HakoAllocSegmentArenaBackingModeledSourceAccountingReport {
+        me.inventory_count += 1
+
+        if source_report.source_bridge_present != 1 {
+            return me.reject(1, source_report)
+        }
+        if source_report.modeled_source_bridge_present != 1 {
+            return me.reject(1, source_report)
+        }
+        if source_report.accepted != 1 {
+            return me.reject(2, source_report)
+        }
+        if source_report.source_token <= 0 {
+            return me.reject(3, source_report)
+        }
+        if me.accountingGeometryValid(source_report) != 1 {
+            return me.reject(4, source_report)
+        }
+        if me.closedSubstrateBlockerCount(source_report) != 0 {
+            return me.reject(5, source_report)
+        }
+
+        me.accepted_count += 1
+        return me.makeReport(1, 0, source_report)
+    }
+}
