@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-253A
+  MIMAP-254A
 
 current choice boundary:
-  modeled residence arena-binding diagnostics
+  modeled residence arena-binding closeout pack
   while keeping real pointer residence, pointer lookup, and real arena backing closed
 
 closed until explicitly reopened:
@@ -437,7 +437,8 @@ Forbidden:
 | `MIMAP-250A` | segment arena backing modeled no-escape address residence closeout pack | landed; selected MIMAP-251A |
 | `MIMAP-251A` | post-segment-arena-backing-modeled-no-escape-address-residence-closeout row selection | landed; selected MIMAP-252A |
 | `MIMAP-252A` | segment arena backing modeled residence arena-binding inventory | landed; selected MIMAP-253A |
-| `MIMAP-253A` | segment arena backing modeled residence arena-binding diagnostics | selected current |
+| `MIMAP-253A` | segment arena backing modeled residence arena-binding diagnostics | landed; selected MIMAP-254A |
+| `MIMAP-254A` | segment arena backing modeled residence arena-binding closeout pack | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2378,6 +2379,22 @@ pointer-derived lookup, real arena backing allocation, real segment-map
 mutation, atomic bitmap execution, OSVM/page-source execution, worker/provider
 activation, cross-function `Result` direct ABI, runtime sum materialization, or
 backend matcher rows.
+
+MIMAP-253A landed by adding the modeled residence arena-binding diagnostic
+owner, proof app, L2 guard, manifest entry, check index entry, and SSOT. It
+selected MIMAP-254A.
+
+### MIMAP-254A granularity
+
+MIMAP-254A segment arena backing modeled residence arena-binding closeout pack.
+
+MIMAP-254A should close out the MIMAP-252A / MIMAP-253A modeled residence
+arena-binding family with representative exact-MIR L3 evidence. It should run
+the MIMAP-252A and MIMAP-253A L2 guards plus one representative diagnostics
+proof EXE, while keeping real pointer residence, pointer-derived lookup, real
+arena backing allocation, real segment-map mutation, atomic bitmap execution,
+OSVM/page-source execution, worker/provider activation, cross-function `Result`
+direct ABI, runtime sum materialization, and backend matcher rows closed.
 
 
 ## Historical Granularity Anchors

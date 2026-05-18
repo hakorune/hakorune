@@ -646,7 +646,8 @@ FST:
 | `MIMAP-250A` | landed | Segment arena backing modeled no-escape address residence closeout pack. | selected MIMAP-251A |
 | `MIMAP-251A` | landed | Post segment arena backing modeled no-escape address residence closeout row selection. | selected MIMAP-252A |
 | `MIMAP-252A` | landed | Segment arena backing modeled residence arena-binding inventory. | selected MIMAP-253A |
-| `MIMAP-253A` | selected current | Segment arena backing modeled residence arena-binding diagnostics. | current diagnostic row |
+| `MIMAP-253A` | landed | Segment arena backing modeled residence arena-binding diagnostics. | selected MIMAP-254A |
+| `MIMAP-254A` | selected current | Segment arena backing modeled residence arena-binding closeout pack. | current closeout row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -655,11 +656,12 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-253A` adds observer-only diagnostics for the modeled residence
-arena-binding inventory. Real pointer residence, pointer-derived lookup, real
-thread scheduling, worker spawning, source-level concurrency features, arena
-backing allocation, atomic bitmap execution, page-source calls, OSVM
-unreserve/release, provider activation, and backend matchers remain closed.
+`MIMAP-254A` closes out the modeled residence arena-binding family with
+representative exact-MIR evidence. Real pointer residence, pointer-derived
+lookup, real thread scheduling, worker spawning, source-level concurrency
+features, arena backing allocation, atomic bitmap execution, page-source calls,
+OSVM unreserve/release, provider activation, and backend matchers remain
+closed.
 
 MIMAP-020A execution order:
 

@@ -1,6 +1,6 @@
 # 293x-776 MIMAP-253A Segment Arena Backing Modeled Residence Arena-Binding Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -48,3 +48,30 @@ bash tools/checks/run_proof_app.sh --only MIMAP-253A
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+MIMAP-253A added the modeled residence arena-binding diagnostic owner, proof
+app, SSOT, manifest entry, and L2 guard:
+
+```text
+lang/src/hako_alloc/memory/segment_arena_backing_modeled_residence_arena_binding_diagnostic_box.hako
+apps/hako-alloc-segment-arena-backing-modeled-residence-arena-binding-diagnostics-proof/
+docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-residence-arena-binding-diagnostics-ssot.md
+tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_residence_arena_binding_diagnostics_guard.sh
+```
+
+## Selected Next Row
+
+MIMAP-253A selects:
+
+```text
+MIMAP-254A segment arena backing modeled residence arena-binding closeout pack
+```
+
+MIMAP-254A should close out the MIMAP-252A / MIMAP-253A modeled residence
+arena-binding family with representative exact-MIR L3 evidence before any real
+raw pointer residence, pointer-derived lookup, real arena backing allocation,
+real segment-map execution, atomic bitmap execution, OSVM/page-source
+execution, worker/provider activation, cross-function `Result` direct ABI,
+runtime sum materialization, or backend matcher row opens.

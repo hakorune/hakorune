@@ -1,0 +1,142 @@
+// hako-alloc-segment-arena-backing-modeled-residence-arena-binding-diagnostics-proof
+// Purpose: prove MIMAP-253A observer-only diagnostics.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_requirement_matrix_box as HakoAllocSegmentArenaBackingRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_no_escape_address_capability_box as HakoAllocSegmentArenaBackingNoEscapeAddressCapability
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_no_escape_address_residence_box as HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidence
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_residence_arena_binding_box as HakoAllocSegmentArenaBackingModeledResidenceArenaBinding
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_residence_arena_binding_diagnostic_box as HakoAllocSegmentArenaBackingModeledResidenceArenaBindingDiagnostic
+
+static box Main {
+    makeMatrix(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingRequirementMatrixReport {
+        local report = new HakoAllocSegmentArenaBackingRequirementMatrixReport()
+        report.accepted = 1
+        report.reason = 0
+        report.matrix_present = 1
+        report.scalar_requirement_matrix_present = 1
+        report.segment_id = segment_id
+        report.arena_id = arena_id
+        report.slice_count = 16
+        report.committed_slices = 8
+        report.free_slices = 4
+        report.required_alignment = 16
+        report.page_size = 4096
+        report.geometry_valid = 1
+        return report
+    }
+
+    makeRejectedMatrix(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingRequirementMatrixReport {
+        local report = Main.makeMatrix(segment_id, arena_id)
+        report.accepted = 0
+        report.reason = 4
+        return report
+    }
+
+    makeResidence(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceReport {
+        local capability_inventory = new HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityInventory()
+        local residence_inventory = new HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceInventory()
+        local matrix = Main.makeMatrix(segment_id, arena_id)
+        local capability = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        return residence_inventory.recordResidence(capability)
+    }
+
+    main(args) {
+        local binding_inventory = new HakoAllocSegmentArenaBackingModeledResidenceArenaBindingInventory()
+        local observer = new HakoAllocSegmentArenaBackingModeledResidenceArenaBindingDiagnostic()
+        local matrix = Main.makeMatrix(70, 7)
+        local residence = Main.makeResidence(70, 7)
+
+        local accepted = binding_inventory.recordBinding(residence, matrix)
+
+        local missing_residence = new HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceReport()
+        missing_residence.residence_present = 0
+        local rejected_residence = Main.makeResidence(70, 7)
+        rejected_residence.accepted = 0
+        rejected_residence.reason = 4
+        local missing_matrix = new HakoAllocSegmentArenaBackingRequirementMatrixReport()
+        missing_matrix.matrix_present = 0
+        local rejected_matrix = Main.makeRejectedMatrix(70, 7)
+        local segment_mismatch = Main.makeMatrix(71, 7)
+        local arena_mismatch = Main.makeMatrix(70, 8)
+        local invalid_token = Main.makeResidence(70, 7)
+        invalid_token.residence_token = 0
+        local invalid_geometry = Main.makeMatrix(70, 7)
+        invalid_geometry.geometry_valid = 0
+        local closed_matrix = Main.makeMatrix(70, 7)
+        closed_matrix.requires_arena_backing = 1
+
+        binding_inventory.recordBinding(missing_residence, matrix)
+        binding_inventory.recordBinding(rejected_residence, matrix)
+        binding_inventory.recordBinding(residence, missing_matrix)
+        binding_inventory.recordBinding(residence, rejected_matrix)
+        binding_inventory.recordBinding(residence, segment_mismatch)
+        binding_inventory.recordBinding(residence, arena_mismatch)
+        binding_inventory.recordBinding(invalid_token, matrix)
+        binding_inventory.recordBinding(residence, invalid_geometry)
+        local closed = binding_inventory.recordBinding(residence, closed_matrix)
+
+        local observed = observer.observeBindingDiagnostics(binding_inventory, closed)
+        local empty_inventory = new HakoAllocSegmentArenaBackingModeledResidenceArenaBindingInventory()
+        local empty_report = new HakoAllocSegmentArenaBackingModeledResidenceArenaBindingReport()
+        local empty_observed = observer.observeBindingDiagnostics(empty_inventory, empty_report)
+
+        local ok = check "mimap253a segment arena backing modeled residence arena binding diagnostics" {
+            "observed": observed.observed == 1
+            "reason mirrors last": observed.reason == 9
+            "diagnostic present": observed.diagnostic_present == 1
+            "inventory count": observed.inventory_count == 10
+            "accepted count": observed.accepted_count == 1
+            "reject count": observed.reject_count == 9
+            "last reason": observed.last_reason == 9
+            "last segment": observed.last_segment_id == 70
+            "last arena": observed.last_arena_id == 7
+            "last token": observed.last_binding_token == 0
+            "last report accepted": observed.last_report_accepted == 0
+            "last report reason": observed.last_report_reason == 9
+            "last report closed blocker": observed.last_report_closed_substrate_blocker_count == 1
+            "binding present": observed.binding_present == 1
+            "modeled present": observed.modeled_residence_arena_binding_present == 1
+            "missing residence seen": observed.missing_residence_reject_seen == 1
+            "rejected residence seen": observed.rejected_residence_reject_seen == 1
+            "missing matrix seen": observed.missing_matrix_reject_seen == 1
+            "rejected matrix seen": observed.rejected_matrix_reject_seen == 1
+            "segment mismatch seen": observed.segment_mismatch_reject_seen == 1
+            "arena mismatch seen": observed.arena_mismatch_reject_seen == 1
+            "invalid token seen": observed.invalid_residence_token_reject_seen == 1
+            "invalid geometry seen": observed.invalid_geometry_reject_seen == 1
+            "closed seen": observed.closed_substrate_reject_seen == 1
+            "observer count": observer.observe_count == 2
+            "accepted summary count": observer.accepted_summary_count == 1
+            "reject summary count": observer.reject_summary_count == 1
+            "missing inventory reject": observer.missing_inventory_reject_count == 1
+            "empty rejected": empty_observed.observed == 0
+            "empty reason": empty_observed.reason == 1
+            "empty present": empty_observed.binding_present == 0
+            "inactive residence": observed.would_create_pointer_residence == 0
+            "inactive lookup": observed.would_lookup_by_pointer == 0
+            "inactive arena allocation": observed.would_allocate_arena_backing == 0
+            "inactive segment map": observed.would_use_segment_map == 0
+            "inactive atomic": observed.would_execute_atomic_bitmap == 0
+            "inactive osvm": observed.would_call_osvm == 0
+            "inactive thread": observed.would_run_thread == 0
+            "inactive provider": observed.would_activate_provider == 0
+            "inactive matcher": observed.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-modeled-residence-arena-binding-diagnostics-proof")
+        print("diag=" + observed.observed + "," + observed.reason + "," + observed.inventory_count + "," + observed.accepted_count + "," + observed.reject_count + "," + observed.closed_substrate_reject_count + "," + observed.last_reason + "," + observed.last_segment_id + "," + observed.last_arena_id + "," + observed.last_report_closed_substrate_blocker_count)
+        print("seen=" + observed.missing_residence_reject_seen + "," + observed.rejected_residence_reject_seen + "," + observed.missing_matrix_reject_seen + "," + observed.rejected_matrix_reject_seen + "," + observed.segment_mismatch_reject_seen + "," + observed.arena_mismatch_reject_seen + "," + observed.invalid_residence_token_reject_seen + "," + observed.invalid_geometry_reject_seen + "," + observed.closed_substrate_reject_seen)
+        print("owner=" + observer.observe_count + "," + observer.accepted_summary_count + "," + observer.reject_summary_count + "," + observer.missing_inventory_reject_count + "," + observer.last_reason)
+        print("empty=" + empty_observed.observed + "," + empty_observed.reason + "," + empty_observed.binding_present)
+        print("inactive=" + observed.would_create_pointer_residence + "," + observed.would_lookup_by_pointer + "," + observed.would_allocate_arena_backing + "," + observed.would_use_segment_map + "," + observed.would_execute_atomic_bitmap + "," + observed.would_call_osvm + "," + observed.would_run_thread + "," + observed.would_activate_provider + "," + observed.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
