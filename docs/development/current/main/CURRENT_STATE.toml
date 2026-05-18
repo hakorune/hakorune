@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-19"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-241A landed by adding segment arena backing requirement matrix diagnostics and selecting MIMAP-242A closeout. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-242A landed by closing out the segment arena backing requirement matrix family and selecting MIMAP-243A row selection. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-765-MIMAP-242A-SEGMENT-ARENA-BACKING-REQUIREMENT-MATRIX-CLOSEOUT-PACK.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-766-MIMAP-243A-POST-SEGMENT-ARENA-BACKING-REQUIREMENT-MATRIX-CLOSEOUT-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-764-MIMAP-241A-SEGMENT-ARENA-BACKING-REQUIREMENT-MATRIX-DIAGNOSTICS"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-764-MIMAP-241A-SEGMENT-ARENA-BACKING-REQUIREMENT-MATRIX-DIAGNOSTICS.md"
-latest_card_summary = "MIMAP-241A landed by adding segment arena backing requirement matrix diagnostics and selecting MIMAP-242A closeout."
+latest_card = "293x-765-MIMAP-242A-SEGMENT-ARENA-BACKING-REQUIREMENT-MATRIX-CLOSEOUT-PACK"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-765-MIMAP-242A-SEGMENT-ARENA-BACKING-REQUIREMENT-MATRIX-CLOSEOUT-PACK.md"
+latest_card_summary = "MIMAP-242A landed by closing out the segment arena backing requirement matrix family and selecting MIMAP-243A."
 
-current_blocker_token = "MIMAP-242A"
+current_blocker_token = "MIMAP-243A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-765 MIMAP-242A segment arena backing requirement matrix closeout pack landed; MIMAP-243A selected",
   "293x-764 MIMAP-241A segment arena backing requirement matrix diagnostics landed; MIMAP-242A selected",
   "293x-763 MIMAP-240A segment arena backing scalar requirement matrix inventory landed; MIMAP-241A selected",
   "293x-762 MIMAP-239A post-segment-arena-backing-readiness-closeout row selection landed; MIMAP-240A selected",

@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-242A` is current after MIMAP-241A landed the segment arena backing
-requirement matrix diagnostics.
+`MIMAP-243A` is current after MIMAP-242A closed out the segment arena backing
+requirement matrix family.
 
 Recommended current row:
 
 ```text
-MIMAP-242A
-  segment arena backing requirement matrix closeout pack
+MIMAP-243A
+  post-segment-arena-backing-requirement-matrix-closeout row selection
 ```
 
 Purpose:
 
 ```text
-close out scalar arena backing requirement matrix inventory and diagnostics
+select the next narrow bridge after the scalar requirement matrix closeout
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -288,7 +288,8 @@ no provider activation
 | 217 | planning | `MIMAP-239A post-segment-arena-backing-readiness-closeout row selection` | landed; selected MIMAP-240A |
 | 218 | allocator inventory | `MIMAP-240A segment arena backing scalar requirement matrix inventory` | landed; selected MIMAP-241A |
 | 219 | allocator diagnostic | `MIMAP-241A segment arena backing requirement matrix diagnostics` | landed; selected MIMAP-242A |
-| 220 | closeout | `MIMAP-242A segment arena backing requirement matrix closeout pack` | selected current |
+| 220 | closeout | `MIMAP-242A segment arena backing requirement matrix closeout pack` | landed; selected MIMAP-243A |
+| 221 | planning | `MIMAP-243A post-segment-arena-backing-requirement-matrix-closeout row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

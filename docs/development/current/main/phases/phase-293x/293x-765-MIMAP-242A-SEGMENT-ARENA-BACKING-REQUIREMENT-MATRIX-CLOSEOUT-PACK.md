@@ -1,6 +1,6 @@
 # 293x-765 MIMAP-242A Segment Arena Backing Requirement Matrix Closeout Pack
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -38,6 +38,34 @@ modeled bridge toward raw pointer residence or real arena backing.
 ## Required Evidence
 
 ```text
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_requirement_matrix_closeout_guard.sh
+bash tools/checks/run_row_guard.sh --only hako-alloc-segment-arena-backing-requirement-matrix-closeout
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+MIMAP-242A added the closeout SSOT and manifest-backed closeout guard:
+
+```text
+docs/development/current/main/design/hako-alloc-segment-arena-backing-requirement-matrix-closeout-ssot.md
+tools/checks/k2_wide_hako_alloc_segment_arena_backing_requirement_matrix_closeout_guard.sh
+```
+
+The guard runs MIMAP-240A L2, MIMAP-241A L2, and representative exact-MIR L3
+EXE evidence through the diagnostics proof app.
+
+## Selected Next Row
+
+MIMAP-242A selects:
+
+```text
+MIMAP-243A post-segment-arena-backing-requirement-matrix-closeout row selection
+```
+
+MIMAP-243A should choose the next narrow bridge after requirement-matrix
+closeout while keeping real arena backing allocation, raw pointer residence,
+real segment-map execution, atomic bitmap execution, OSVM/page-source
+execution, worker/provider activation, and backend matchers closed unless a
+focused row explicitly reopens one.

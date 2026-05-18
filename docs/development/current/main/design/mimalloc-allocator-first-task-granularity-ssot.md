@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-242A
+  MIMAP-243A
 
 current choice boundary:
-  segment arena backing requirement matrix closeout
+  post segment arena backing requirement matrix closeout row selection
   or the next modeled bridge that keeps real execution closed
 
 closed until explicitly reopened:
@@ -426,7 +426,8 @@ Forbidden:
 | `MIMAP-239A` | post-segment-arena-backing-readiness-closeout row selection | landed; selected MIMAP-240A |
 | `MIMAP-240A` | segment arena backing scalar requirement matrix inventory | landed; selected MIMAP-241A |
 | `MIMAP-241A` | segment arena backing requirement matrix diagnostics | landed; selected MIMAP-242A |
-| `MIMAP-242A` | segment arena backing requirement matrix closeout pack | selected current |
+| `MIMAP-242A` | segment arena backing requirement matrix closeout pack | landed; selected MIMAP-243A |
+| `MIMAP-243A` | post-segment-arena-backing-requirement-matrix-closeout row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2193,6 +2194,8 @@ L2 guard, manifest entry, and SSOT. It selected MIMAP-242A.
 
 ### MIMAP-242A granularity
 
+MIMAP-242A segment arena backing requirement matrix closeout pack:
+
 MIMAP-242A should close out the segment arena backing requirement matrix family.
 It should run MIMAP-240A L2, MIMAP-241A L2, and representative exact-MIR L3
 evidence before selecting the next modeled bridge. It must still keep real
@@ -2200,6 +2203,19 @@ arena backing allocation, raw pointer residence, real segment-map mutation,
 atomic bitmap execution, OSVM/page-source execution, worker/provider
 activation, cross-function `Result` direct ABI, runtime sum materialization,
 and backend matcher rows closed.
+
+MIMAP-242A landed by adding the closeout SSOT and manifest-backed guard, then
+running MIMAP-240A L2, MIMAP-241A L2, and representative exact-MIR L3 evidence.
+It selected MIMAP-243A.
+
+### MIMAP-243A granularity
+
+MIMAP-243A should select the next narrow allocator bridge after requirement
+matrix closeout. Candidate directions include no-escape raw pointer capability
+inventory, segment arena backing source model bridge, real arena backing
+allocation precondition inventory, or another planning row if the closeout
+evidence exposes a smaller prerequisite. It must not open multiple substrates
+at once.
 
 
 ## Historical Granularity Anchors
