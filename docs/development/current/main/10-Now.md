@@ -34,15 +34,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-244A segment arena backing no-escape raw pointer capability inventory`
+- current blocker token: `MIMAP-245A segment arena backing no-escape address capability diagnostics`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x with `MIMAP-244A`; current blocker is
-  segment arena backing no-escape raw pointer capability inventory
-- latest planning row: `MIMAP-243A` landed and selected MIMAP-244A
+- continue phase-293x with `MIMAP-245A`; current blocker is
+  segment arena backing no-escape address capability diagnostics
+- latest allocator row: `MIMAP-244A` landed and selected MIMAP-245A
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

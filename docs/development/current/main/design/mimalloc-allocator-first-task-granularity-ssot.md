@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-244A
+  MIMAP-245A
 
 current choice boundary:
-  segment arena backing no-escape raw pointer capability inventory
+  segment arena backing no-escape address capability diagnostics
   or the next modeled bridge that keeps real execution closed
 
 closed until explicitly reopened:
@@ -428,7 +428,8 @@ Forbidden:
 | `MIMAP-241A` | segment arena backing requirement matrix diagnostics | landed; selected MIMAP-242A |
 | `MIMAP-242A` | segment arena backing requirement matrix closeout pack | landed; selected MIMAP-243A |
 | `MIMAP-243A` | post-segment-arena-backing-requirement-matrix-closeout row selection | landed; selected MIMAP-244A |
-| `MIMAP-244A` | segment arena backing no-escape raw pointer capability inventory | selected current |
+| `MIMAP-244A` | segment arena backing no-escape raw pointer capability inventory | landed; selected MIMAP-245A |
+| `MIMAP-245A` | segment arena backing no-escape address capability diagnostics | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2230,6 +2231,19 @@ perform pointer-derived lookup, allocate arena backing, mutate a real
 segment-map, execute atomic bitmap operations, call OSVM/page-source seams,
 schedule workers, activate providers, use cross-function `Result` direct ABI,
 materialize runtime sums, or add backend matchers.
+
+MIMAP-244A landed by adding the no-escape address capability owner, proof app,
+L2 guard, manifest entry, and SSOT. It selected MIMAP-245A.
+
+### MIMAP-245A granularity
+
+MIMAP-245A should add observer-only diagnostics for the MIMAP-244A no-escape
+address capability inventory. It should summarize matrix, lifetime,
+address-carrier, escape, and closed-substrate reject counters without recording
+new capability rows or opening real pointer residence, pointer lookup, arena
+backing, real segment-map mutation, atomic bitmap execution, OSVM/page-source
+execution, worker/provider activation, cross-function `Result` direct ABI,
+runtime sum materialization, or backend matcher rows.
 
 
 ## Historical Granularity Anchors

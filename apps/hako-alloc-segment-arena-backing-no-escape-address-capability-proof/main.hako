@@ -1,0 +1,118 @@
+// hako-alloc-segment-arena-backing-no-escape-address-capability-proof
+// Purpose: prove MIMAP-244A no-escape address capability inventory.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_requirement_matrix_box as HakoAllocSegmentArenaBackingRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_no_escape_address_capability_box as HakoAllocSegmentArenaBackingNoEscapeAddressCapability
+
+static box Main {
+    makeMatrix(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingRequirementMatrixReport {
+        local report = new HakoAllocSegmentArenaBackingRequirementMatrixReport()
+        report.accepted = 1
+        report.reason = 0
+        report.matrix_present = 1
+        report.scalar_requirement_matrix_present = 1
+        report.segment_id = segment_id
+        report.arena_id = arena_id
+        return report
+    }
+
+    makeRejectedMatrix(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingRequirementMatrixReport {
+        local report = Main.makeMatrix(segment_id, arena_id)
+        report.accepted = 0
+        report.reason = 4
+        return report
+    }
+
+    main(args) {
+        local inventory = new HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityInventory()
+        local matrix = Main.makeMatrix(70, 7)
+        local rejected_matrix = Main.makeRejectedMatrix(70, 7)
+
+        local accepted = inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local matrix_rejected = inventory.recordCapability(rejected_matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local lifetime_rejected = inventory.recordCapability(matrix, 0, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local address_rejected = inventory.recordCapability(matrix, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local return_escape = inventory.recordCapability(matrix, 3, 70007004002, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local storage_escape = inventory.recordCapability(matrix, 3, 70007004002, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local alias_escape = inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local pointer_residence = inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0)
+        local pointer_lookup = inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0)
+        local arena_backing = inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0)
+        local segment_map = inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
+        local atomic_bitmap = inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0)
+        local osvm = inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0)
+        local worker = inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0)
+        local provider = inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0)
+        local backend = inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+
+        local ok = check "mimap244a segment arena backing no escape address capability" {
+            "accepted": accepted.accepted == 1
+            "accepted reason": accepted.reason == 0
+            "capability present": accepted.no_escape_address_capability_present == 1
+            "matrix present": accepted.matrix_present == 1
+            "segment": accepted.segment_id == 70
+            "arena": accepted.arena_id == 7
+            "lifetime": accepted.lifetime_generation == 3
+            "address carrier": accepted.address_carrier == 70007004002
+            "address valid": accepted.address_carrier_valid == 1
+            "accepted blockers": accepted.escape_blocker_count == 0
+            "matrix rejected": matrix_rejected.reason == 1
+            "lifetime rejected": lifetime_rejected.reason == 2
+            "address rejected": address_rejected.reason == 3
+            "return escape": return_escape.reason == 4
+            "storage escape": storage_escape.reason == 5
+            "alias escape": alias_escape.reason == 6
+            "pointer residence": pointer_residence.reason == 7
+            "pointer lookup": pointer_lookup.reason == 8
+            "arena backing": arena_backing.reason == 9
+            "segment map": segment_map.reason == 10
+            "atomic bitmap": atomic_bitmap.reason == 11
+            "osvm": osvm.reason == 12
+            "worker": worker.reason == 13
+            "provider": provider.reason == 14
+            "backend": backend.reason == 15
+            "inventory count": inventory.inventory_count == 16
+            "accepted count": inventory.accepted_count == 1
+            "reject count": inventory.reject_count == 15
+            "matrix reject count": inventory.matrix_reject_count == 1
+            "lifetime reject count": inventory.lifetime_reject_count == 1
+            "address reject count": inventory.address_carrier_reject_count == 1
+            "return reject count": inventory.return_escape_reject_count == 1
+            "storage reject count": inventory.storage_escape_reject_count == 1
+            "alias reject count": inventory.alias_escape_reject_count == 1
+            "pointer residence count": inventory.pointer_residence_reject_count == 1
+            "pointer lookup count": inventory.pointer_lookup_reject_count == 1
+            "arena backing count": inventory.arena_backing_reject_count == 1
+            "segment map count": inventory.segment_map_reject_count == 1
+            "atomic count": inventory.atomic_bitmap_reject_count == 1
+            "osvm count": inventory.osvm_reject_count == 1
+            "worker count": inventory.worker_reject_count == 1
+            "provider count": inventory.provider_reject_count == 1
+            "backend count": inventory.backend_matcher_reject_count == 1
+            "inactive residence": accepted.would_create_pointer_residence == 0
+            "inactive lookup": accepted.would_lookup_by_pointer == 0
+            "inactive arena allocation": accepted.would_allocate_arena_backing == 0
+            "inactive segment map": accepted.would_use_segment_map == 0
+            "inactive atomic": accepted.would_execute_atomic_bitmap == 0
+            "inactive osvm": accepted.would_call_osvm == 0
+            "inactive thread": accepted.would_run_thread == 0
+            "inactive provider": accepted.would_activate_provider == 0
+            "inactive matcher": accepted.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-no-escape-address-capability-proof")
+        print("capability=" + accepted.accepted + "," + accepted.reason + "," + accepted.segment_id + "," + accepted.arena_id + "," + accepted.lifetime_generation + "," + accepted.address_carrier + "," + accepted.address_carrier_valid + "," + accepted.escape_blocker_count)
+        print("rejects=" + matrix_rejected.reason + "," + lifetime_rejected.reason + "," + address_rejected.reason + "," + return_escape.reason + "," + storage_escape.reason + "," + alias_escape.reason + "," + pointer_residence.reason + "," + pointer_lookup.reason + "," + arena_backing.reason + "," + segment_map.reason + "," + atomic_bitmap.reason + "," + osvm.reason + "," + worker.reason + "," + provider.reason + "," + backend.reason)
+        print("counts=" + inventory.inventory_count + "," + inventory.accepted_count + "," + inventory.reject_count + "," + inventory.matrix_reject_count + "," + inventory.lifetime_reject_count + "," + inventory.address_carrier_reject_count + "," + inventory.return_escape_reject_count + "," + inventory.storage_escape_reject_count + "," + inventory.alias_escape_reject_count + "," + inventory.pointer_residence_reject_count + "," + inventory.pointer_lookup_reject_count + "," + inventory.arena_backing_reject_count + "," + inventory.segment_map_reject_count + "," + inventory.atomic_bitmap_reject_count + "," + inventory.osvm_reject_count + "," + inventory.worker_reject_count + "," + inventory.provider_reject_count + "," + inventory.backend_matcher_reject_count)
+        print("inactive=" + accepted.would_create_pointer_residence + "," + accepted.would_lookup_by_pointer + "," + accepted.would_allocate_arena_backing + "," + accepted.would_use_segment_map + "," + accepted.would_execute_atomic_bitmap + "," + accepted.would_call_osvm + "," + accepted.would_run_thread + "," + accepted.would_activate_provider + "," + accepted.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

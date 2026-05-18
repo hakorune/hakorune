@@ -168,6 +168,30 @@ MIMAP-242A segment arena backing requirement matrix closeout pack
   L3 representative exact-MIR evidence for segment-arena-backing-requirement-matrix
 ```
 
+## Active Segment Arena Backing No-Escape Address Capability Family
+
+The no-escape address capability rows stay scalar/model-only. They do not
+create pointer residence or pointer-derived lookup.
+
+```toml
+[[proof_apps]]
+id = "MIMAP-244A"
+row_kind = "inventory"
+validation_profile = "scalar-mir"
+closeout_pack = "segment-arena-backing-no-escape-address-capability"
+exe = "deferred-to-closeout"
+```
+
+Planned continuation:
+
+```text
+MIMAP-244A segment arena backing no-escape address capability inventory
+  L2 daily: static + VM + MIR JSON/route preflight
+
+MIMAP-245A segment arena backing no-escape address capability diagnostics
+  L2 daily: observer/reject summary only
+```
+
 ## Row-Type Rules
 
 ### Planning Rows

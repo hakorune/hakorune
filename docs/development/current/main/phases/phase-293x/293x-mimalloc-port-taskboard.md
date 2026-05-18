@@ -637,7 +637,8 @@ FST:
 | `MIMAP-241A` | landed | Segment arena backing requirement matrix diagnostics. | selected MIMAP-242A |
 | `MIMAP-242A` | landed | Segment arena backing requirement matrix closeout pack. | selected MIMAP-243A |
 | `MIMAP-243A` | landed | Post segment arena backing requirement matrix closeout row selection. | selected MIMAP-244A |
-| `MIMAP-244A` | selected current | Segment arena backing no-escape raw pointer capability inventory. | current inventory row |
+| `MIMAP-244A` | landed | Segment arena backing no-escape raw pointer capability inventory. | selected MIMAP-245A |
+| `MIMAP-245A` | selected current | Segment arena backing no-escape address capability diagnostics. | current diagnostic row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -646,11 +647,11 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-244A` inventories the no-escape raw pointer capability boundary before
-any real raw pointer residence opens. Real pointer residence, real thread
-scheduling, worker spawning, source-level concurrency features, arena backing
-allocation, atomic bitmap execution, page-source calls, OSVM unreserve/release,
-provider activation, and backend matchers remain closed.
+`MIMAP-245A` adds observer-only diagnostics for the MIMAP-244A no-escape
+address capability inventory. Real pointer residence, real thread scheduling,
+worker spawning, source-level concurrency features, arena backing allocation,
+atomic bitmap execution, page-source calls, OSVM unreserve/release, provider
+activation, and backend matchers remain closed.
 
 MIMAP-020A execution order:
 

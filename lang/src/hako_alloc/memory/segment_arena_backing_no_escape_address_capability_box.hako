@@ -1,0 +1,249 @@
+// segment_arena_backing_no_escape_address_capability_box.hako -- MIMAP-244A
+// Responsibility:
+// - inventory scalar no-escape address carrier capability before pointer residence
+// - keep owner/lifetime/escape blockers explicit before real backing opens
+// Non-responsibility:
+// - creating pointer residence, pointer-derived lookup, arena backing,
+//   segment-map mutation, atomic bitmap execution, OSVM calls, scheduling,
+//   providers, or backend shortcuts
+
+box HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    capability_present: i64 = 1
+    no_escape_address_capability_present: i64 = 1
+    matrix_present: i64 = 0
+    matrix_reason: i64 = 0
+    segment_id: i64 = -1
+    arena_id: i64 = -1
+    lifetime_generation: i64 = 0
+    address_carrier: i64 = 0
+    address_carrier_valid: i64 = 0
+    escape_blocker_count: i64 = 0
+    escape_to_return: i64 = 0
+    escape_to_storage: i64 = 0
+    escape_to_alias: i64 = 0
+    requires_pointer_residence: i64 = 0
+    requires_pointer_lookup: i64 = 0
+    requires_arena_backing: i64 = 0
+    requires_segment_map: i64 = 0
+    requires_atomic_bitmap: i64 = 0
+    requires_osvm: i64 = 0
+    requires_worker: i64 = 0
+    requires_provider: i64 = 0
+    requires_backend_matcher: i64 = 0
+    would_create_pointer_residence: i64 = 0
+    would_lookup_by_pointer: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityInventory {
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    matrix_reject_count: i64 = 0
+    lifetime_reject_count: i64 = 0
+    address_carrier_reject_count: i64 = 0
+    return_escape_reject_count: i64 = 0
+    storage_escape_reject_count: i64 = 0
+    alias_escape_reject_count: i64 = 0
+    pointer_residence_reject_count: i64 = 0
+    pointer_lookup_reject_count: i64 = 0
+    arena_backing_reject_count: i64 = 0
+    segment_map_reject_count: i64 = 0
+    atomic_bitmap_reject_count: i64 = 0
+    osvm_reject_count: i64 = 0
+    worker_reject_count: i64 = 0
+    provider_reject_count: i64 = 0
+    backend_matcher_reject_count: i64 = 0
+    last_reason: i64 = 0
+    last_segment_id: i64 = -1
+    last_arena_id: i64 = -1
+
+    blockerCount(escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher): i64 {
+        local count = 0
+        if escape_to_return != 0 {
+            count += 1
+        }
+        if escape_to_storage != 0 {
+            count += 1
+        }
+        if escape_to_alias != 0 {
+            count += 1
+        }
+        if requires_pointer_residence != 0 {
+            count += 1
+        }
+        if requires_pointer_lookup != 0 {
+            count += 1
+        }
+        if requires_arena_backing != 0 {
+            count += 1
+        }
+        if requires_segment_map != 0 {
+            count += 1
+        }
+        if requires_atomic_bitmap != 0 {
+            count += 1
+        }
+        if requires_osvm != 0 {
+            count += 1
+        }
+        if requires_worker != 0 {
+            count += 1
+        }
+        if requires_provider != 0 {
+            count += 1
+        }
+        if requires_backend_matcher != 0 {
+            count += 1
+        }
+        return count
+    }
+
+    makeReport(accepted, reason, matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher): HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityReport {
+        local result = new HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityReport()
+        result.accepted = accepted
+        result.reason = reason
+        result.capability_present = 1
+        result.no_escape_address_capability_present = 1
+        result.matrix_present = matrix_report.scalar_requirement_matrix_present
+        result.matrix_reason = matrix_report.reason
+        result.segment_id = matrix_report.segment_id
+        result.arena_id = matrix_report.arena_id
+        result.lifetime_generation = lifetime_generation
+        result.address_carrier = address_carrier
+        if address_carrier > 0 {
+            result.address_carrier_valid = 1
+        }
+        result.escape_blocker_count = me.blockerCount(escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        result.escape_to_return = escape_to_return
+        result.escape_to_storage = escape_to_storage
+        result.escape_to_alias = escape_to_alias
+        result.requires_pointer_residence = requires_pointer_residence
+        result.requires_pointer_lookup = requires_pointer_lookup
+        result.requires_arena_backing = requires_arena_backing
+        result.requires_segment_map = requires_segment_map
+        result.requires_atomic_bitmap = requires_atomic_bitmap
+        result.requires_osvm = requires_osvm
+        result.requires_worker = requires_worker
+        result.requires_provider = requires_provider
+        result.requires_backend_matcher = requires_backend_matcher
+        me.last_reason = reason
+        me.last_segment_id = matrix_report.segment_id
+        me.last_arena_id = matrix_report.arena_id
+        return result
+    }
+
+    reject(reason, matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher): HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityReport {
+        me.reject_count += 1
+        if reason == 1 {
+            me.matrix_reject_count += 1
+        }
+        if reason == 2 {
+            me.lifetime_reject_count += 1
+        }
+        if reason == 3 {
+            me.address_carrier_reject_count += 1
+        }
+        if reason == 4 {
+            me.return_escape_reject_count += 1
+        }
+        if reason == 5 {
+            me.storage_escape_reject_count += 1
+        }
+        if reason == 6 {
+            me.alias_escape_reject_count += 1
+        }
+        if reason == 7 {
+            me.pointer_residence_reject_count += 1
+        }
+        if reason == 8 {
+            me.pointer_lookup_reject_count += 1
+        }
+        if reason == 9 {
+            me.arena_backing_reject_count += 1
+        }
+        if reason == 10 {
+            me.segment_map_reject_count += 1
+        }
+        if reason == 11 {
+            me.atomic_bitmap_reject_count += 1
+        }
+        if reason == 12 {
+            me.osvm_reject_count += 1
+        }
+        if reason == 13 {
+            me.worker_reject_count += 1
+        }
+        if reason == 14 {
+            me.provider_reject_count += 1
+        }
+        if reason == 15 {
+            me.backend_matcher_reject_count += 1
+        }
+        return me.makeReport(0, reason, matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+    }
+
+    recordCapability(matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher): HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityReport {
+        me.inventory_count += 1
+
+        if matrix_report.accepted != 1 {
+            return me.reject(1, matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if matrix_report.scalar_requirement_matrix_present != 1 {
+            return me.reject(1, matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if lifetime_generation <= 0 {
+            return me.reject(2, matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if address_carrier <= 0 {
+            return me.reject(3, matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if escape_to_return != 0 {
+            return me.reject(4, matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if escape_to_storage != 0 {
+            return me.reject(5, matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if escape_to_alias != 0 {
+            return me.reject(6, matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if requires_pointer_residence != 0 {
+            return me.reject(7, matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if requires_pointer_lookup != 0 {
+            return me.reject(8, matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if requires_arena_backing != 0 {
+            return me.reject(9, matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if requires_segment_map != 0 {
+            return me.reject(10, matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if requires_atomic_bitmap != 0 {
+            return me.reject(11, matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if requires_osvm != 0 {
+            return me.reject(12, matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if requires_worker != 0 {
+            return me.reject(13, matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if requires_provider != 0 {
+            return me.reject(14, matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if requires_backend_matcher != 0 {
+            return me.reject(15, matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+
+        me.accepted_count += 1
+        return me.makeReport(1, 0, matrix_report, lifetime_generation, address_carrier, escape_to_return, escape_to_storage, escape_to_alias, requires_pointer_residence, requires_pointer_lookup, requires_arena_backing, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+    }
+}

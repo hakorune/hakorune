@@ -1,6 +1,6 @@
 # 293x-767 MIMAP-244A Segment Arena Backing No-Escape Raw Pointer Capability Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -43,6 +43,32 @@ allowing pointer-derived lookup.
 ## Required Evidence
 
 ```text
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_no_escape_address_capability_guard.sh --level L2
+bash tools/checks/run_proof_app.sh --only MIMAP-244A
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Landed Scope
+
+- Added the no-escape address capability owner and typed report.
+- Added a proof app that consumes a requirement matrix report and records
+  accepted, matrix-rejected, lifetime-rejected, address-rejected, escape, and
+  closed-substrate blocker rows.
+- Added the MIMAP-244A L2 guard, proof manifest entry, check index entry, and
+  capability SSOT.
+
+## Selected Next Row
+
+MIMAP-244A selects:
+
+```text
+MIMAP-245A segment arena backing no-escape address capability diagnostics
+```
+
+Reason:
+
+```text
+the no-escape address capability inventory now names the scalar carrier and
+escape blockers. Add an observer-only diagnostic row before closeout.
 ```
