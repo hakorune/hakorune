@@ -34,16 +34,16 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-147A post-Result-guard-let-pilot row selection`
+- current blocker token: `HAKO-ALLOC-RESULT-API-003 allocator local-free remaining Result guard-let boundaries`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x with `MIMAP-147A`; current blocker is
-  post-Result-guard-let-pilot row selection
-- latest allocator language pilot: `HAKO-ALLOC-RESULT-API-002` landed and
-  selected MIMAP-147A
+- continue phase-293x with `HAKO-ALLOC-RESULT-API-003`; current blocker is
+  the remaining local-free Result guard-let boundaries inside `integrateLocalFree`
+- latest planning row: `MIMAP-147A` landed and selected
+  HAKO-ALLOC-RESULT-API-003
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

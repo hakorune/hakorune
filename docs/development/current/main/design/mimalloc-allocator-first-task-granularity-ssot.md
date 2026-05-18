@@ -326,7 +326,8 @@ Forbidden:
 | `HAKO-ALLOC-RESULT-API-001` | allocator Result/Option guard-let inventory | landed; selected PURE-FIRST-GUARDLET-ENUMMATCH-001 |
 | `PURE-FIRST-GUARDLET-ENUMMATCH-001` | direct MIR guard-let EnumMatchExpr acceptance | landed; selected HAKO-ALLOC-RESULT-API-002 |
 | `HAKO-ALLOC-RESULT-API-002` | allocator local-free Result guard-let pilot | landed; selected MIMAP-147A |
-| `MIMAP-147A` | post-Result-guard-let-pilot row selection | selected current |
+| `MIMAP-147A` | post-Result-guard-let-pilot row selection | landed; selected HAKO-ALLOC-RESULT-API-003 |
+| `HAKO-ALLOC-RESULT-API-003` | allocator local-free remaining Result guard-let boundaries | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -564,6 +565,21 @@ MIMAP-147A is a planning row after the first Result/guard-let allocator pilot.
 It decides whether the next row should extend Result to one more allocator
 boundary, add a compiler sidecar for a specific missing Result shape, or return
 to ordinary mimalloc behavior/proof work.
+
+MIMAP-147A landed by selecting HAKO-ALLOC-RESULT-API-003. Cross-function
+`Result` direct ABI remains closed; the next row stays inside the same
+`integrateLocalFree` owner and uses only local `Result<i64, i64>` aggregates.
+
+### HAKO-ALLOC-RESULT-API-003 granularity
+
+HAKO-ALLOC-RESULT-API-003 converts the apply-plan and page-apply checks inside
+`HakoAllocSegmentAllocationModeledLocalFreeIntegration.integrateLocalFree` to
+local `Result<i64, i64>` values consumed by guard-let. It preserves the proof
+output, report record fields, and HAKO-ALLOC-RESULT-API-002 candidate boundary.
+
+It must not add cross-function `Result` direct ABI, runtime sum materialization,
+implicit propagation sugar, broad allocator report rewrites, provider
+activation, host allocator replacement, hooks, or backend matchers.
 
 
 ## Historical Granularity Anchors

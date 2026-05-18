@@ -33,7 +33,7 @@ cargo check -q
 - active lane: `phase-293x mimalloc blueprint lane`
 - active phase: read `active_phase` from `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` from `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-147A post-Result-guard-let-pilot row selection`
+- current blocker token: `HAKO-ALLOC-RESULT-API-003 allocator local-free remaining Result guard-let boundaries`
 - allocator-first granularity SSOT:
   `docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md`
 - pure-first MIR artifact / diagnostics SSOT:
@@ -50,7 +50,7 @@ cargo check -q
 ## Handoff Snapshot
 
 - latest landed card: read `latest_card_path` in `CURRENT_STATE.toml`
-- current blocker token: `MIMAP-147A post-Result-guard-let-pilot row selection`
+- current blocker token: `HAKO-ALLOC-RESULT-API-003 allocator local-free remaining Result guard-let boundaries`
 - latest known checkpoint: read `latest_card` / `latest_card_path` in
   `CURRENT_STATE.toml`; `291x-691` remains the historical warning-backlog
   inventory baseline
@@ -61,10 +61,10 @@ cargo check -q
 
 ## Immediate Next
 
-- continue `phase-293x` with `MIMAP-147A`; current blocker is
-  post-Result-guard-let-pilot row selection
-- latest allocator language pilot: `HAKO-ALLOC-RESULT-API-002` landed and
-  selected MIMAP-147A
+- continue `phase-293x` with `HAKO-ALLOC-RESULT-API-003`; current blocker is
+  the remaining local-free Result guard-let boundaries inside `integrateLocalFree`
+- latest planning row: `MIMAP-147A` landed and selected
+  HAKO-ALLOC-RESULT-API-003
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

@@ -34,22 +34,21 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-147A` is current after HAKO-ALLOC-RESULT-API-002 landed the first
-allocator Result/guard-let pilot and the local pure-first sum aggregate support
-needed by that pilot.
+`HAKO-ALLOC-RESULT-API-003` is current after MIMAP-147A selected one more
+local Result/guard-let row inside the same allocator owner.
 
 Recommended current row:
 
 ```text
-MIMAP-147A
-  post-Result-guard-let-pilot row selection
+HAKO-ALLOC-RESULT-API-003
+  allocator local-free remaining Result guard-let boundaries
 ```
 
 Purpose:
 
 ```text
-select the next single allocator/compiler row after the Result guard-let pilot
-choose between another Result boundary, a focused compiler sidecar, or ordinary mimalloc behavior work
+convert apply-plan and page-apply local checks in integrateLocalFree to local Result guard-let boundaries
+keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
 ```
@@ -193,7 +192,8 @@ no provider activation
 | 121 | Hakorune language / allocator boundary | `HAKO-ALLOC-RESULT-API-001 allocator Result/Option guard-let inventory` | landed; selected PURE-FIRST-GUARDLET-ENUMMATCH-001 |
 | 122 | Hakorune compiler | `PURE-FIRST-GUARDLET-ENUMMATCH-001 direct MIR guard-let EnumMatchExpr acceptance` | landed; selected HAKO-ALLOC-RESULT-API-002 |
 | 123 | Hakorune language / allocator boundary | `HAKO-ALLOC-RESULT-API-002 allocator local-free Result guard-let pilot` | landed; selected MIMAP-147A |
-| 124 | planning | `MIMAP-147A post-Result-guard-let-pilot row selection` | selected current |
+| 124 | planning | `MIMAP-147A post-Result-guard-let-pilot row selection` | landed; selected HAKO-ALLOC-RESULT-API-003 |
+| 125 | Hakorune language / allocator boundary | `HAKO-ALLOC-RESULT-API-003 allocator local-free remaining Result guard-let boundaries` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

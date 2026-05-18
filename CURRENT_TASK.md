@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-147A post-Result-guard-let-pilot row selection`
+  `HAKO-ALLOC-RESULT-API-003 allocator local-free remaining Result guard-let boundaries`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,9 +74,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-147A`,
-  the post-Result-guard-let-pilot row selection after
-  HAKO-ALLOC-RESULT-API-002 landed.
+- resume point: continue Phase 293x with `HAKO-ALLOC-RESULT-API-003`,
+  the remaining local-free Result guard-let boundaries inside
+  `integrateLocalFree` after MIMAP-147A selected the row.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -84,11 +84,12 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-147A`: select the next single allocator/compiler row after
-     the local-free Result guard-let pilot
-  2. choose between another Result boundary, a compiler Result sidecar, or
-     returning to ordinary mimalloc behavior work
-  3. keep this selection row docs/planning only
+  1. `HAKO-ALLOC-RESULT-API-003`: convert the apply-plan and page-apply local
+     checks in `integrateLocalFree` to local `Result<i64, i64>` guard-let
+     boundaries
+  2. keep candidate Result boundary from HAKO-ALLOC-RESULT-API-002
+  3. keep cross-function `Result` direct ABI and runtime sum materialization
+     closed
   4. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider activation inactive
   5. keep secure entropy execution parked until a separate random substrate

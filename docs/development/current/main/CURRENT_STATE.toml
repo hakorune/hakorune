@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-18"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "HAKO-ALLOC-RESULT-API-002 landed allocator local-free Result guard-let pilot with local pure-first sum aggregate support; current blocker is MIMAP-147A post-Result-guard-let-pilot row selection. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-147A selected HAKO-ALLOC-RESULT-API-003 to finish the remaining local-free Result guard-let boundaries inside the same owner; cross-function Result direct ABI remains closed. Mimalloc remains a .hako / hako_alloc allocator completeness lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-666-MIMAP-147A-POST-RESULT-GUARD-LET-PILOT-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-667-HAKO-ALLOC-RESULT-API-003-ALLOCATOR-LOCAL-FREE-REMAINING-RESULT-GUARD-LET-BOUNDARIES.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-665-HAKO-ALLOC-RESULT-API-002-ALLOCATOR-LOCAL-FREE-RESULT-GUARD-LET-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-665-HAKO-ALLOC-RESULT-API-002-ALLOCATOR-LOCAL-FREE-RESULT-GUARD-LET-PILOT.md"
-latest_card_summary = "HAKO-ALLOC-RESULT-API-002 landed allocator local-free Result guard-let pilot; MIMAP-147A selected."
+latest_card = "293x-666-MIMAP-147A-POST-RESULT-GUARD-LET-PILOT-ROW-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-666-MIMAP-147A-POST-RESULT-GUARD-LET-PILOT-ROW-SELECTION.md"
+latest_card_summary = "MIMAP-147A landed by selecting HAKO-ALLOC-RESULT-API-003 for the remaining local-free Result guard-let boundaries."
 
-current_blocker_token = "MIMAP-147A"
+current_blocker_token = "HAKO-ALLOC-RESULT-API-003"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-666 MIMAP-147A post-Result-guard-let-pilot row selection landed; HAKO-ALLOC-RESULT-API-003 selected",
   "293x-665 HAKO-ALLOC-RESULT-API-002 allocator local-free Result guard-let pilot landed; MIMAP-147A selected",
   "293x-664 PURE-FIRST-GUARDLET-ENUMMATCH-001 direct MIR guard-let EnumMatchExpr acceptance landed; HAKO-ALLOC-RESULT-API-002 selected",
   "293x-663 HAKO-ALLOC-RESULT-API-001 allocator Result/Option guard-let inventory landed; PURE-FIRST-GUARDLET-ENUMMATCH-001 selected",

@@ -489,7 +489,8 @@ FST:
 | `HAKO-ALLOC-RESULT-API-001` | landed | Allocator Result/Option guard-let inventory. | selected PURE-FIRST-GUARDLET-ENUMMATCH-001 |
 | `PURE-FIRST-GUARDLET-ENUMMATCH-001` | landed | Direct MIR guard-let EnumMatchExpr acceptance. | selected HAKO-ALLOC-RESULT-API-002 |
 | `HAKO-ALLOC-RESULT-API-002` | landed | Allocator local-free Result guard-let pilot. | selected MIMAP-147A |
-| `MIMAP-147A` | selected current | Post-Result-guard-let-pilot row selection. | current planning row |
+| `MIMAP-147A` | landed | Post-Result-guard-let-pilot row selection. | selected HAKO-ALLOC-RESULT-API-003 |
+| `HAKO-ALLOC-RESULT-API-003` | selected current | Allocator local-free remaining Result guard-let boundaries. | current implementation row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -498,8 +499,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-147A` selects the next single allocator/compiler row after the first
-Result/guard-let allocator pilot landed.
+`HAKO-ALLOC-RESULT-API-003` converts the apply-plan and page-apply local checks
+inside `integrateLocalFree` to local `Result<i64, i64>` guard-let boundaries.
 Real thread scheduling, worker spawning, source-level concurrency features,
 raw pointer residence, atomic bitmap execution, arena backing allocation,
 segment-map pointer membership,
@@ -720,7 +721,8 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `MIMAP-147A` | selected current | Post-Result-guard-let-pilot row selection. | Current planning row. |
+| `HAKO-ALLOC-RESULT-API-003` | selected current | Allocator local-free remaining Result guard-let boundaries. | Current implementation row. |
+| `MIMAP-147A` | landed | Post-Result-guard-let-pilot row selection. | Selected HAKO-ALLOC-RESULT-API-003. |
 | `HAKO-ALLOC-RESULT-API-002` | landed | Allocator local-free Result guard-let pilot. | Selected MIMAP-147A. |
 | `PURE-FIRST-GUARDLET-ENUMMATCH-001` | landed | Direct MIR guard-let EnumMatchExpr acceptance. | Selected HAKO-ALLOC-RESULT-API-002. |
 | `HAKO-ALLOC-RESULT-API-001` | landed | Allocator Result/Option guard-let inventory. | Selected PURE-FIRST-GUARDLET-ENUMMATCH-001. |

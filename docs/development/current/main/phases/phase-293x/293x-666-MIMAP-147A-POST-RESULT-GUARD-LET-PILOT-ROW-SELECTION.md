@@ -1,12 +1,24 @@
 # 293x-666 MIMAP-147A Post Result Guard-Let Pilot Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
 
-Select the next single allocator/compiler row after the local-free
-Result/guard-let pilot landed.
+Select `HAKO-ALLOC-RESULT-API-003` as the next single row.
+
+The first pilot proved that local `Result<i64, i64>` values plus guard-let can
+stay inside one same-module pure-first body without opening cross-function
+`Result` direct ABI. The next row should use that already-opened local aggregate
+support to normalize the two remaining `integrateLocalFree` sub-boundary checks:
+
+```text
+apply-plan record accepted?
+page-apply accepted?
+```
+
+This keeps the work inside the same owner and same proof app, avoids a compiler
+sidecar, and does not resume broad mimalloc behavior yet.
 
 ## Scope
 
@@ -25,6 +37,15 @@ Result/guard-let pilot landed.
   compiler row.
 - No provider activation, host allocator replacement, hooks, or
   `#[global_allocator]`.
+
+## Closeout
+
+Selected next row:
+
+```text
+HAKO-ALLOC-RESULT-API-003
+  allocator local-free remaining Result guard-let boundaries
+```
 
 ## Required Evidence
 
