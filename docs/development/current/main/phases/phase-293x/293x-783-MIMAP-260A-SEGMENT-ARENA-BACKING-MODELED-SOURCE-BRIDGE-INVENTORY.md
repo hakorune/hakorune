@@ -1,6 +1,6 @@
 # 293x-783 MIMAP-260A Segment Arena Backing Modeled Source Bridge Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -54,3 +54,30 @@ git diff --check
 MIMAP-260A uses daily L2 validation. Representative L3 evidence is deferred to
 the future modeled source bridge closeout pack unless this row opens a new
 backend route shape.
+
+## Landed Scope
+
+MIMAP-260A added the modeled source bridge owner, proof app, SSOT, manifest
+entry, check index entry, and L2 guard:
+
+```text
+lang/src/hako_alloc/memory/segment_arena_backing_modeled_source_bridge_box.hako
+apps/hako-alloc-segment-arena-backing-modeled-source-bridge-proof/
+docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-source-bridge-ssot.md
+tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_source_bridge_guard.sh
+```
+
+## Selected Next Row
+
+MIMAP-260A selects:
+
+```text
+MIMAP-261A segment arena backing modeled source bridge diagnostics
+```
+
+MIMAP-261A should add observer-only diagnostics for the MIMAP-260A modeled
+source bridge inventory without recording new source bridge rows or opening
+real pointer residence, pointer-derived lookup, real arena backing allocation,
+real segment-map execution, atomic bitmap execution, OSVM/page-source
+execution, worker/provider activation, cross-function `Result` direct ABI,
+runtime sum materialization, or backend matchers.

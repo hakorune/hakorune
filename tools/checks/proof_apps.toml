@@ -755,6 +755,19 @@ cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_ar
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_arena_slot_diagnostics_guard.sh", "--level", "L2"]
 
 [[proof_apps]]
+id = "MIMAP-260A"
+app = "apps/hako-alloc-segment-arena-backing-modeled-source-bridge-proof"
+label = "segment arena backing modeled source bridge proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "inventory"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "segment-arena-backing-modeled-source-bridge"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_source_bridge_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_source_bridge_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
 id = "MIMAP-091A"
 app = "apps/hako-alloc-segment-allocation-modeled-consume-proof"
 label = "segment allocation modeled consume proof"

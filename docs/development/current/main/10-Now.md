@@ -34,15 +34,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `MIMAP-260A segment arena backing modeled source bridge inventory`
+- current blocker token: `MIMAP-261A segment arena backing modeled source bridge diagnostics`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x with `MIMAP-260A`; current blocker is
-  segment arena backing modeled source bridge inventory
-- latest allocator row: `MIMAP-259A` landed and selected MIMAP-260A
+- continue phase-293x with `MIMAP-261A`; current blocker is
+  segment arena backing modeled source bridge diagnostics
+- latest allocator row: `MIMAP-260A` landed and selected MIMAP-261A
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 

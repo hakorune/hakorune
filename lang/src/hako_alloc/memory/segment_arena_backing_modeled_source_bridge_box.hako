@@ -1,0 +1,261 @@
+// segment_arena_backing_modeled_source_bridge_box.hako -- MIMAP-260A
+// Responsibility:
+// - record modeled backing source facts from an accepted modeled arena-slot
+//   report
+// - keep the backing source as scalar/model facts before real arena backing
+//   allocation opens
+// Non-responsibility:
+// - creating real pointer residence, pointer-derived lookup, arena backing,
+//   segment-map mutation, atomic bitmap execution, OSVM calls, scheduling,
+//   providers, or backend shortcuts
+
+box HakoAllocSegmentArenaBackingModeledSourceBridgeReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    source_bridge_present: i64 = 1
+    modeled_source_bridge_present: i64 = 1
+    arena_slot_present: i64 = 0
+    arena_slot_reason: i64 = 0
+    row_index: i64 = -1
+    segment_id: i64 = -1
+    arena_id: i64 = -1
+    lifetime_generation: i64 = 0
+    residence_token: i64 = 0
+    binding_token: i64 = 0
+    arena_slot_token: i64 = 0
+    source_kind: i64 = 0
+    source_token: i64 = 0
+    source_capacity: i64 = 0
+    source_committed_bytes: i64 = 0
+    source_alignment: i64 = 0
+    slot_index: i64 = -1
+    requested_bytes: i64 = 0
+    padded_bytes: i64 = 0
+    slot_capacity: i64 = 0
+    slot_alignment: i64 = 0
+    geometry_valid: i64 = 0
+    slice_count: i64 = 0
+    committed_slices: i64 = 0
+    free_slices: i64 = 0
+    required_alignment: i64 = 0
+    page_size: i64 = 0
+    closed_substrate_blocker_count: i64 = 0
+    requires_pointer_residence: i64 = 0
+    requires_pointer_lookup: i64 = 0
+    requires_arena_backing: i64 = 0
+    requires_segment_map: i64 = 0
+    requires_atomic_bitmap: i64 = 0
+    requires_osvm: i64 = 0
+    requires_worker: i64 = 0
+    requires_provider: i64 = 0
+    requires_backend_matcher: i64 = 0
+    would_create_pointer_residence: i64 = 0
+    would_lookup_by_pointer: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentArenaBackingModeledSourceBridgeInventory {
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_slot_reject_count: i64 = 0
+    rejected_slot_reject_count: i64 = 0
+    invalid_arena_slot_token_reject_count: i64 = 0
+    invalid_source_shape_reject_count: i64 = 0
+    invalid_geometry_reject_count: i64 = 0
+    closed_substrate_reject_count: i64 = 0
+    last_reason: i64 = 0
+    last_segment_id: i64 = -1
+    last_arena_id: i64 = -1
+    last_source_token: i64 = 0
+
+    closedSubstrateBlockerCount(slot_report): i64 {
+        local count = 0
+        if slot_report.requires_pointer_residence != 0 {
+            count += 1
+        }
+        if slot_report.requires_pointer_lookup != 0 {
+            count += 1
+        }
+        if slot_report.requires_arena_backing != 0 {
+            count += 1
+        }
+        if slot_report.requires_segment_map != 0 {
+            count += 1
+        }
+        if slot_report.requires_atomic_bitmap != 0 {
+            count += 1
+        }
+        if slot_report.requires_osvm != 0 {
+            count += 1
+        }
+        if slot_report.requires_worker != 0 {
+            count += 1
+        }
+        if slot_report.requires_provider != 0 {
+            count += 1
+        }
+        if slot_report.requires_backend_matcher != 0 {
+            count += 1
+        }
+        return count
+    }
+
+    geometryValid(slot_report): i64 {
+        if slot_report.geometry_valid != 1 {
+            return 0
+        }
+        if slot_report.slice_count <= 0 {
+            return 0
+        }
+        if slot_report.required_alignment <= 0 {
+            return 0
+        }
+        if slot_report.page_size <= 0 {
+            return 0
+        }
+        if slot_report.requested_bytes <= 0 {
+            return 0
+        }
+        if slot_report.padded_bytes < slot_report.requested_bytes {
+            return 0
+        }
+        if slot_report.slot_capacity < slot_report.padded_bytes {
+            return 0
+        }
+        if slot_report.slot_alignment <= 0 {
+            return 0
+        }
+        return 1
+    }
+
+    sourceShapeValid(slot_report, source_kind, source_token, source_capacity, source_committed_bytes, source_alignment): i64 {
+        if source_kind <= 0 {
+            return 0
+        }
+        if source_token <= 0 {
+            return 0
+        }
+        if source_capacity < slot_report.padded_bytes {
+            return 0
+        }
+        if source_committed_bytes < 0 {
+            return 0
+        }
+        if source_committed_bytes > source_capacity {
+            return 0
+        }
+        if source_alignment < slot_report.slot_alignment {
+            return 0
+        }
+        return 1
+    }
+
+    makeReport(accepted, reason, slot_report, source_kind, source_token, source_capacity, source_committed_bytes, source_alignment): HakoAllocSegmentArenaBackingModeledSourceBridgeReport {
+        local result = new HakoAllocSegmentArenaBackingModeledSourceBridgeReport()
+        result.accepted = accepted
+        result.reason = reason
+        result.source_bridge_present = 1
+        result.modeled_source_bridge_present = 1
+        result.arena_slot_present = slot_report.arena_slot_present
+        result.arena_slot_reason = slot_report.reason
+        result.segment_id = slot_report.segment_id
+        result.arena_id = slot_report.arena_id
+        result.lifetime_generation = slot_report.lifetime_generation
+        result.residence_token = slot_report.residence_token
+        result.binding_token = slot_report.binding_token
+        result.arena_slot_token = slot_report.arena_slot_token
+        result.source_kind = source_kind
+        result.source_capacity = source_capacity
+        result.source_committed_bytes = source_committed_bytes
+        result.source_alignment = source_alignment
+        result.slot_index = slot_report.slot_index
+        result.requested_bytes = slot_report.requested_bytes
+        result.padded_bytes = slot_report.padded_bytes
+        result.slot_capacity = slot_report.slot_capacity
+        result.slot_alignment = slot_report.slot_alignment
+        result.geometry_valid = slot_report.geometry_valid
+        result.slice_count = slot_report.slice_count
+        result.committed_slices = slot_report.committed_slices
+        result.free_slices = slot_report.free_slices
+        result.required_alignment = slot_report.required_alignment
+        result.page_size = slot_report.page_size
+        result.closed_substrate_blocker_count = me.closedSubstrateBlockerCount(slot_report)
+        result.requires_pointer_residence = slot_report.requires_pointer_residence
+        result.requires_pointer_lookup = slot_report.requires_pointer_lookup
+        result.requires_arena_backing = slot_report.requires_arena_backing
+        result.requires_segment_map = slot_report.requires_segment_map
+        result.requires_atomic_bitmap = slot_report.requires_atomic_bitmap
+        result.requires_osvm = slot_report.requires_osvm
+        result.requires_worker = slot_report.requires_worker
+        result.requires_provider = slot_report.requires_provider
+        result.requires_backend_matcher = slot_report.requires_backend_matcher
+        if accepted == 1 {
+            result.row_index = me.accepted_count
+            result.source_token = source_token
+        }
+        me.last_reason = reason
+        me.last_segment_id = slot_report.segment_id
+        me.last_arena_id = slot_report.arena_id
+        me.last_source_token = result.source_token
+        return result
+    }
+
+    reject(reason, slot_report, source_kind, source_token, source_capacity, source_committed_bytes, source_alignment): HakoAllocSegmentArenaBackingModeledSourceBridgeReport {
+        me.reject_count += 1
+        if reason == 1 {
+            me.missing_slot_reject_count += 1
+        }
+        if reason == 2 {
+            me.rejected_slot_reject_count += 1
+        }
+        if reason == 3 {
+            me.invalid_arena_slot_token_reject_count += 1
+        }
+        if reason == 4 {
+            me.invalid_source_shape_reject_count += 1
+        }
+        if reason == 5 {
+            me.invalid_geometry_reject_count += 1
+        }
+        if reason == 6 {
+            me.closed_substrate_reject_count += 1
+        }
+        return me.makeReport(0, reason, slot_report, source_kind, source_token, source_capacity, source_committed_bytes, source_alignment)
+    }
+
+    recordSourceBridge(slot_report, source_kind, source_token, source_capacity, source_committed_bytes, source_alignment): HakoAllocSegmentArenaBackingModeledSourceBridgeReport {
+        me.inventory_count += 1
+
+        if slot_report.arena_slot_present != 1 {
+            return me.reject(1, slot_report, source_kind, source_token, source_capacity, source_committed_bytes, source_alignment)
+        }
+        if slot_report.modeled_arena_slot_present != 1 {
+            return me.reject(1, slot_report, source_kind, source_token, source_capacity, source_committed_bytes, source_alignment)
+        }
+        if slot_report.accepted != 1 {
+            return me.reject(2, slot_report, source_kind, source_token, source_capacity, source_committed_bytes, source_alignment)
+        }
+        if slot_report.arena_slot_token <= 0 {
+            return me.reject(3, slot_report, source_kind, source_token, source_capacity, source_committed_bytes, source_alignment)
+        }
+        if me.sourceShapeValid(slot_report, source_kind, source_token, source_capacity, source_committed_bytes, source_alignment) != 1 {
+            return me.reject(4, slot_report, source_kind, source_token, source_capacity, source_committed_bytes, source_alignment)
+        }
+        if me.geometryValid(slot_report) != 1 {
+            return me.reject(5, slot_report, source_kind, source_token, source_capacity, source_committed_bytes, source_alignment)
+        }
+        if me.closedSubstrateBlockerCount(slot_report) != 0 {
+            return me.reject(6, slot_report, source_kind, source_token, source_capacity, source_committed_bytes, source_alignment)
+        }
+
+        me.accepted_count += 1
+        return me.makeReport(1, 0, slot_report, source_kind, source_token, source_capacity, source_committed_bytes, source_alignment)
+    }
+}
