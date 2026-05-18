@@ -623,7 +623,8 @@ FST:
 | `MIMAP-227A` | landed | Post-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow-closeout row selection. | selected MIMAP-228A |
 | `MIMAP-228A` | landed | Source release-ledger lifecycle-key migration pilot. | selected MIMAP-229A |
 | `MIMAP-229A` | landed | Source lifecycle-keyed release ledger diagnostics. | selected MIMAP-230A |
-| `MIMAP-230A` | selected current | Source release-ledger lifecycle-key migration closeout pack. | current closeout row |
+| `MIMAP-230A` | landed | Source release-ledger lifecycle-key migration closeout pack. | selected MIMAP-231A |
+| `MIMAP-231A` | selected current | Post source release-ledger lifecycle-key migration closeout row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -632,9 +633,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-230A` closes the source release-ledger lifecycle-key migration pack after
-MIMAP-228A opened the source-key migration pilot and MIMAP-229A added
-diagnostics.
+`MIMAP-231A` chooses the next narrow bridge after MIMAP-230A closed the source
+release-ledger lifecycle-key migration pack.
 Raw pointer residence remains parked behind a future rawbuf/no-escape
 capability. Real thread scheduling, worker spawning, source-level concurrency
 features, arena backing allocation, atomic bitmap execution, page-source calls,

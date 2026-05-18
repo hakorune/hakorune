@@ -1,11 +1,17 @@
 # 293x-753 MIMAP-230A Source Release-Ledger Lifecycle-Key Migration Closeout Pack
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
 
 Close out the source release-ledger lifecycle-key migration pack.
+
+Selected next row:
+
+```text
+MIMAP-231A post source release-ledger lifecycle-key migration closeout row selection
+```
 
 ## Context
 
@@ -17,6 +23,9 @@ unsupported-requirement rejects.
 The next row should provide representative exact-MIR L3 EXE evidence for the
 source release-ledger lifecycle-key migration pack before opening the next
 release/recycle lifecycle continuation bridge.
+
+MIMAP-230A closes the pack by rerunning the MIMAP-228A first-pattern L3 guard
+and the MIMAP-229A diagnostics L2 guard under one manifest-backed closeout row.
 
 ## Stop Lines
 
@@ -38,6 +47,14 @@ release/recycle lifecycle continuation bridge.
 ## Required Evidence
 
 ```text
+bash tools/checks/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_lifecycle_keyed_release_ledger_closeout_guard.sh
+bash tools/checks/run_proof_app.sh --closeout-pack source-release-ledger-lifecycle-key-migration --level L2 --dry-run
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Next
+
+```text
+MIMAP-231A post source release-ledger lifecycle-key migration closeout row selection
 ```
