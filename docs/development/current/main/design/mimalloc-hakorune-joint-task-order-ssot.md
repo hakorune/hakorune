@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-217A` is current after MIMAP-216A added the release-applied recycle
-lifecycle-token observer diagnostic.
+`MIMAP-219A` is current after MIMAP-218A closed the release-applied recycle
+lifecycle-token observer diagnostic pack.
 
 Recommended current row:
 
 ```text
-MIMAP-217A
-  post-segment-map-local-free-reuse-ledger-lifecycle-token-observer-diagnostic row selection
+MIMAP-219A
+  post-segment-map-local-free-reuse-ledger-lifecycle-token-observer-diagnostic-closeout row selection
 ```
 
 Purpose:
 
 ```text
-choose the next narrow row after segment-map local-free reuse ledger lifecycle-token observer diagnostic
+choose the next narrow row after segment-map local-free reuse ledger lifecycle-token observer diagnostic closeout
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -263,7 +263,9 @@ no provider activation
 | 192 | closeout | `MIMAP-214A segment-map local-free reuse ledger lifecycle-token pilot closeout pack` | landed; selected MIMAP-215A |
 | 193 | planning | `MIMAP-215A post-segment-map-local-free-reuse-ledger-lifecycle-token-pilot-closeout row selection` | landed; selected MIMAP-216A |
 | 194 | allocator | `MIMAP-216A segment-map local-free reuse ledger lifecycle-token observer diagnostic` | landed; selected MIMAP-217A |
-| 195 | planning | `MIMAP-217A post-segment-map-local-free-reuse-ledger-lifecycle-token-observer-diagnostic row selection` | selected current |
+| 195 | planning | `MIMAP-217A post-segment-map-local-free-reuse-ledger-lifecycle-token-observer-diagnostic row selection` | landed; selected MIMAP-218A |
+| 196 | closeout | `MIMAP-218A segment-map local-free reuse ledger lifecycle-token observer diagnostic closeout pack` | landed; selected MIMAP-219A |
+| 197 | planning | `MIMAP-219A post-segment-map-local-free-reuse-ledger-lifecycle-token-observer-diagnostic-closeout row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

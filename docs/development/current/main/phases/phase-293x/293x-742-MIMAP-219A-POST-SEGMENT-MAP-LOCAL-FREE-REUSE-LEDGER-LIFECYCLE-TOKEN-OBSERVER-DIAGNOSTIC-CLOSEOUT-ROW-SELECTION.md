@@ -1,18 +1,12 @@
-# 293x-740 MIMAP-217A Post Segment Map Local Free Reuse Ledger Lifecycle-Token Observer Diagnostic Row Selection
+# 293x-742 MIMAP-219A Post Segment Map Local Free Reuse Ledger Lifecycle-Token Observer Diagnostic Closeout Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-19
 
 ## Decision
 
-Choose the next narrow row after MIMAP-216A adds the lifecycle-token observer
-diagnostic.
-
-Selected row:
-
-```text
-MIMAP-218A segment-map local-free reuse ledger lifecycle-token observer diagnostic closeout pack
-```
+Choose the next narrow row after MIMAP-218A closes the lifecycle-token observer
+diagnostic pack.
 
 ## Context
 
@@ -22,18 +16,15 @@ The current scalar/model chain now proves:
 source reuse ledger applies release
   -> source reuse ledger recycles the same modeled reuse token as a new live row
   -> release owner rejects a second release record for the same modeled reuse token
-  -> dedicated lifecycle-token owner derives explicit reuse-lifecycle tokens
-  -> observer reports lifecycle tokens while release key remains modeled reuse token
+  -> lifecycle-token owner derives explicit reuse-lifecycle tokens
+  -> observer reports release key remains modeled reuse token
+  -> representative exact-MIR L3 EXE evidence for the observer diagnostic
 ```
 
-The next row should choose whether to close the observer diagnostic pack with
-representative L3 evidence, connect lifecycle-token facts to a later modeled
-release/recycle row, or choose the next modeled bridge while real allocator
-execution remains closed.
-
-MIMAP-217A selects the closeout pack so that the observer diagnostic receives
-representative exact-MIR L3 EXE evidence before later rows connect lifecycle
-facts to any modeled bridge.
+The next row should choose whether to connect lifecycle-token facts to a later
+modeled release/recycle row, add a small observer around release-key migration
+preconditions, or choose the next modeled bridge while real allocator execution
+remains closed.
 
 ## Stop Lines
 
@@ -58,10 +49,4 @@ facts to any modeled bridge.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
-```
-
-## Next
-
-```text
-MIMAP-218A segment-map local-free reuse ledger lifecycle-token observer diagnostic closeout pack
 ```

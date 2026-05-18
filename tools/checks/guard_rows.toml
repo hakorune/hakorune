@@ -293,6 +293,16 @@ exe = "auto"
 cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_lifecycle_token_pilot_closeout_guard.sh"]
 
 [[rows]]
+id = "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-token-observer-diagnostic-closeout"
+label = "hako_alloc segment-map local-free reuse ledger lifecycle-token observer diagnostic closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-local-free-reuse-ledger-lifecycle-token-observer-diagnostic"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_lifecycle_token_observer_diagnostic_closeout_guard.sh"]
+
+[[rows]]
 id = "hako-alloc-segment-allocation-modeled-consume-closeout"
 label = "hako_alloc segment allocation modeled consume closeout guard"
 profiles = ["pilot", "hako-alloc-closeout"]
