@@ -218,6 +218,9 @@ MIMAP-248A segment arena backing modeled no-escape address residence inventory
 
 MIMAP-249A segment arena backing modeled no-escape address residence diagnostics
   L2 daily: observer/reject summary only
+
+MIMAP-250A segment arena backing modeled no-escape address residence closeout pack
+  L3 representative exact-MIR evidence for segment-arena-backing-modeled-no-escape-address-residence
 ```
 
 ## Row-Type Rules

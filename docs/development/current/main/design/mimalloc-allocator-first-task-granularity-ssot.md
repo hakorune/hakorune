@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-249A
+  MIMAP-250A
 
 current choice boundary:
-  modeled no-escape address residence diagnostics
+  modeled no-escape address residence closeout pack
   while keeping real pointer residence and lookup closed
 
 closed until explicitly reopened:
@@ -433,7 +433,8 @@ Forbidden:
 | `MIMAP-246A` | segment arena backing no-escape address capability closeout pack | landed; selected MIMAP-247A |
 | `MIMAP-247A` | post-segment-arena-backing-no-escape-address-capability-closeout row selection | landed; selected MIMAP-248A |
 | `MIMAP-248A` | segment arena backing modeled no-escape address residence inventory | landed; selected MIMAP-249A |
-| `MIMAP-249A` | segment arena backing modeled no-escape address residence diagnostics | selected current |
+| `MIMAP-249A` | segment arena backing modeled no-escape address residence diagnostics | landed; selected MIMAP-250A |
+| `MIMAP-250A` | segment arena backing modeled no-escape address residence closeout pack | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2308,6 +2309,20 @@ residence rows or opening real pointer residence, pointer lookup, arena backing,
 real segment-map mutation, atomic bitmap execution, OSVM/page-source execution,
 worker/provider activation, cross-function `Result` direct ABI, runtime sum
 materialization, or backend matcher rows.
+
+MIMAP-249A landed by adding the modeled no-escape address residence diagnostics
+owner, proof app, L2 guard, manifest entry, check index entry, and SSOT. It
+selected MIMAP-250A.
+
+### MIMAP-250A granularity
+
+MIMAP-250A should close out the MIMAP-248A / MIMAP-249A modeled no-escape
+address residence family with representative exact-MIR L3 evidence. It should
+run the MIMAP-248A and MIMAP-249A L2 guards plus one representative diagnostics
+proof EXE, while keeping real pointer residence, pointer lookup, arena backing,
+real segment-map mutation, atomic bitmap execution, OSVM/page-source execution,
+worker/provider activation, cross-function `Result` direct ABI, runtime sum
+materialization, and backend matcher rows closed.
 
 
 ## Historical Granularity Anchors

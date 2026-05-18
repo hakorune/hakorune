@@ -690,6 +690,19 @@ cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_no
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_no_escape_address_residence_guard.sh", "--level", "L2"]
 
 [[proof_apps]]
+id = "MIMAP-249A"
+app = "apps/hako-alloc-segment-arena-backing-modeled-no-escape-address-residence-diagnostics-proof"
+label = "segment arena backing modeled no-escape address residence diagnostics proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "scalar-diagnostic"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "segment-arena-backing-modeled-no-escape-address-residence"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_no_escape_address_residence_diagnostics_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_no_escape_address_residence_diagnostics_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
 id = "MIMAP-091A"
 app = "apps/hako-alloc-segment-allocation-modeled-consume-proof"
 label = "segment allocation modeled consume proof"

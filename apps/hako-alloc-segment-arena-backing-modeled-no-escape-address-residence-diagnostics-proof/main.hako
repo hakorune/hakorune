@@ -1,0 +1,135 @@
+// hako-alloc-segment-arena-backing-modeled-no-escape-address-residence-diagnostics-proof
+// Purpose: prove MIMAP-249A observer-only diagnostics.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_requirement_matrix_box as HakoAllocSegmentArenaBackingRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_no_escape_address_capability_box as HakoAllocSegmentArenaBackingNoEscapeAddressCapability
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_no_escape_address_residence_box as HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidence
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_no_escape_address_residence_diagnostic_box as HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceDiagnostic
+
+static box Main {
+    makeMatrix(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingRequirementMatrixReport {
+        local report = new HakoAllocSegmentArenaBackingRequirementMatrixReport()
+        report.accepted = 1
+        report.reason = 0
+        report.matrix_present = 1
+        report.scalar_requirement_matrix_present = 1
+        report.segment_id = segment_id
+        report.arena_id = arena_id
+        return report
+    }
+
+    makeRejectedMatrix(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingRequirementMatrixReport {
+        local report = Main.makeMatrix(segment_id, arena_id)
+        report.accepted = 0
+        report.reason = 4
+        return report
+    }
+
+    main(args) {
+        local capability_inventory = new HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityInventory()
+        local residence_inventory = new HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceInventory()
+        local observer = new HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceDiagnostic()
+        local matrix = Main.makeMatrix(70, 7)
+        local rejected_matrix = Main.makeRejectedMatrix(70, 7)
+
+        local accepted_capability = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local missing_capability = new HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityReport()
+        missing_capability.capability_present = 0
+        local rejected_capability = capability_inventory.recordCapability(rejected_matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local invalid_address = capability_inventory.recordCapability(matrix, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local escape_blocked = capability_inventory.recordCapability(matrix, 3, 70007004002, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local residence_blocked = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0)
+        local lookup_blocked = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0)
+        local arena_blocked = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0)
+        local segment_map_blocked = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
+        local atomic_blocked = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0)
+        local osvm_blocked = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0)
+        local worker_blocked = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0)
+        local provider_blocked = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0)
+        local backend_blocked = capability_inventory.recordCapability(matrix, 3, 70007004002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+
+        local accepted = residence_inventory.recordResidence(accepted_capability)
+        local missing = residence_inventory.recordResidence(missing_capability)
+        local rejected = residence_inventory.recordResidence(rejected_capability)
+        local invalid = residence_inventory.recordResidence(invalid_address)
+        local escape = residence_inventory.recordResidence(escape_blocked)
+        local residence = residence_inventory.recordResidence(residence_blocked)
+        local lookup = residence_inventory.recordResidence(lookup_blocked)
+        local arena = residence_inventory.recordResidence(arena_blocked)
+        local segment = residence_inventory.recordResidence(segment_map_blocked)
+        local atomic = residence_inventory.recordResidence(atomic_blocked)
+        local osvm = residence_inventory.recordResidence(osvm_blocked)
+        local worker = residence_inventory.recordResidence(worker_blocked)
+        local provider = residence_inventory.recordResidence(provider_blocked)
+        local backend = residence_inventory.recordResidence(backend_blocked)
+
+        local observed = observer.observeResidenceDiagnostics(residence_inventory, backend)
+        local empty_inventory = new HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceInventory()
+        local empty_report = new HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceReport()
+        local empty_observed = observer.observeResidenceDiagnostics(empty_inventory, empty_report)
+
+        local ok = check "mimap249a segment arena backing modeled no escape address residence diagnostics" {
+            "observed": observed.observed == 1
+            "reason mirrors last": observed.reason == 14
+            "diagnostic present": observed.diagnostic_present == 1
+            "inventory count": observed.inventory_count == 14
+            "accepted count": observed.accepted_count == 1
+            "reject count": observed.reject_count == 13
+            "closed substrate count": observed.closed_substrate_reject_count == 9
+            "last reason": observed.last_reason == 14
+            "last segment": observed.last_segment_id == 70
+            "last arena": observed.last_arena_id == 7
+            "last token": observed.last_residence_token == 0
+            "last report accepted": observed.last_report_accepted == 0
+            "last report reason": observed.last_report_reason == 14
+            "last report closed blocker": observed.last_report_closed_substrate_blocker_count == 1
+            "residence present": observed.residence_present == 1
+            "modeled present": observed.modeled_no_escape_address_residence_present == 1
+            "missing seen": observed.missing_capability_reject_seen == 1
+            "rejected seen": observed.rejected_capability_reject_seen == 1
+            "invalid seen": observed.invalid_address_reject_seen == 1
+            "escape seen": observed.escape_reject_seen == 1
+            "residence seen": observed.residence_requirement_reject_seen == 1
+            "lookup seen": observed.lookup_requirement_reject_seen == 1
+            "arena seen": observed.arena_requirement_reject_seen == 1
+            "segment seen": observed.segment_map_requirement_reject_seen == 1
+            "atomic seen": observed.atomic_requirement_reject_seen == 1
+            "osvm seen": observed.osvm_requirement_reject_seen == 1
+            "worker seen": observed.worker_requirement_reject_seen == 1
+            "provider seen": observed.provider_requirement_reject_seen == 1
+            "backend seen": observed.backend_matcher_requirement_reject_seen == 1
+            "observer count": observer.observe_count == 2
+            "accepted summary count": observer.accepted_summary_count == 1
+            "reject summary count": observer.reject_summary_count == 1
+            "missing inventory reject": observer.missing_inventory_reject_count == 1
+            "empty rejected": empty_observed.observed == 0
+            "empty reason": empty_observed.reason == 1
+            "empty present": empty_observed.residence_present == 0
+            "inactive residence": observed.would_create_pointer_residence == 0
+            "inactive lookup": observed.would_lookup_by_pointer == 0
+            "inactive arena allocation": observed.would_allocate_arena_backing == 0
+            "inactive segment map": observed.would_use_segment_map == 0
+            "inactive atomic": observed.would_execute_atomic_bitmap == 0
+            "inactive osvm": observed.would_call_osvm == 0
+            "inactive thread": observed.would_run_thread == 0
+            "inactive provider": observed.would_activate_provider == 0
+            "inactive matcher": observed.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-modeled-no-escape-address-residence-diagnostics-proof")
+        print("diag=" + observed.observed + "," + observed.reason + "," + observed.inventory_count + "," + observed.accepted_count + "," + observed.reject_count + "," + observed.closed_substrate_reject_count + "," + observed.last_reason + "," + observed.last_segment_id + "," + observed.last_arena_id + "," + observed.last_report_closed_substrate_blocker_count)
+        print("seen=" + observed.missing_capability_reject_seen + "," + observed.rejected_capability_reject_seen + "," + observed.invalid_address_reject_seen + "," + observed.escape_reject_seen + "," + observed.residence_requirement_reject_seen + "," + observed.lookup_requirement_reject_seen + "," + observed.arena_requirement_reject_seen + "," + observed.segment_map_requirement_reject_seen + "," + observed.atomic_requirement_reject_seen + "," + observed.osvm_requirement_reject_seen + "," + observed.worker_requirement_reject_seen + "," + observed.provider_requirement_reject_seen + "," + observed.backend_matcher_requirement_reject_seen)
+        print("owner=" + observer.observe_count + "," + observer.accepted_summary_count + "," + observer.reject_summary_count + "," + observer.missing_inventory_reject_count + "," + observer.last_reason)
+        print("empty=" + empty_observed.observed + "," + empty_observed.reason + "," + empty_observed.residence_present)
+        print("inactive=" + observed.would_create_pointer_residence + "," + observed.would_lookup_by_pointer + "," + observed.would_allocate_arena_backing + "," + observed.would_use_segment_map + "," + observed.would_execute_atomic_bitmap + "," + observed.would_call_osvm + "," + observed.would_run_thread + "," + observed.would_activate_provider + "," + observed.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

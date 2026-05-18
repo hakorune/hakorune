@@ -1,0 +1,153 @@
+// segment_arena_backing_modeled_no_escape_address_residence_diagnostic_box.hako -- MIMAP-249A
+// Responsibility:
+// - observe MIMAP-248A modeled no-escape address residence counters
+// - publish scalar diagnostic summary facts for residence reject categories
+// Non-responsibility:
+// - recording residence rows, creating real pointer residence, pointer-derived
+//   lookup, arena backing, segment-map mutation, atomic bitmap execution,
+//   OSVM calls, scheduling, providers, or backend shortcuts
+
+box HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceDiagnosticReport {
+    observed: i64 = 0
+    reason: i64 = 0
+    diagnostic_present: i64 = 1
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_capability_reject_count: i64 = 0
+    rejected_capability_reject_count: i64 = 0
+    invalid_address_reject_count: i64 = 0
+    escape_reject_count: i64 = 0
+    residence_requirement_reject_count: i64 = 0
+    lookup_requirement_reject_count: i64 = 0
+    arena_requirement_reject_count: i64 = 0
+    segment_map_requirement_reject_count: i64 = 0
+    atomic_requirement_reject_count: i64 = 0
+    osvm_requirement_reject_count: i64 = 0
+    worker_requirement_reject_count: i64 = 0
+    provider_requirement_reject_count: i64 = 0
+    backend_matcher_requirement_reject_count: i64 = 0
+    closed_substrate_reject_count: i64 = 0
+    last_reason: i64 = 0
+    last_segment_id: i64 = -1
+    last_arena_id: i64 = -1
+    last_residence_token: i64 = 0
+    last_report_accepted: i64 = 0
+    last_report_reason: i64 = 0
+    last_report_closed_substrate_blocker_count: i64 = 0
+    residence_present: i64 = 0
+    modeled_no_escape_address_residence_present: i64 = 0
+    missing_capability_reject_seen: i64 = 0
+    rejected_capability_reject_seen: i64 = 0
+    invalid_address_reject_seen: i64 = 0
+    escape_reject_seen: i64 = 0
+    residence_requirement_reject_seen: i64 = 0
+    lookup_requirement_reject_seen: i64 = 0
+    arena_requirement_reject_seen: i64 = 0
+    segment_map_requirement_reject_seen: i64 = 0
+    atomic_requirement_reject_seen: i64 = 0
+    osvm_requirement_reject_seen: i64 = 0
+    worker_requirement_reject_seen: i64 = 0
+    provider_requirement_reject_seen: i64 = 0
+    backend_matcher_requirement_reject_seen: i64 = 0
+    would_create_pointer_residence: i64 = 0
+    would_lookup_by_pointer: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceDiagnostic {
+    observe_count: i64 = 0
+    accepted_summary_count: i64 = 0
+    reject_summary_count: i64 = 0
+    missing_inventory_reject_count: i64 = 0
+    last_reason: i64 = 0
+
+    markSeen(count): i64 {
+        if count > 0 {
+            return 1
+        }
+        return 0
+    }
+
+    makeReport(observed, reason, inventory, last_report): HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceDiagnosticReport {
+        local result = new HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceDiagnosticReport()
+        result.observed = observed
+        result.reason = reason
+        result.diagnostic_present = 1
+        result.inventory_count = inventory.inventory_count
+        result.accepted_count = inventory.accepted_count
+        result.reject_count = inventory.reject_count
+        result.missing_capability_reject_count = inventory.missing_capability_reject_count
+        result.rejected_capability_reject_count = inventory.rejected_capability_reject_count
+        result.invalid_address_reject_count = inventory.invalid_address_reject_count
+        result.escape_reject_count = inventory.escape_reject_count
+        result.residence_requirement_reject_count = inventory.residence_requirement_reject_count
+        result.lookup_requirement_reject_count = inventory.lookup_requirement_reject_count
+        result.arena_requirement_reject_count = inventory.arena_requirement_reject_count
+        result.segment_map_requirement_reject_count = inventory.segment_map_requirement_reject_count
+        result.atomic_requirement_reject_count = inventory.atomic_requirement_reject_count
+        result.osvm_requirement_reject_count = inventory.osvm_requirement_reject_count
+        result.worker_requirement_reject_count = inventory.worker_requirement_reject_count
+        result.provider_requirement_reject_count = inventory.provider_requirement_reject_count
+        result.backend_matcher_requirement_reject_count = inventory.backend_matcher_requirement_reject_count
+        result.closed_substrate_reject_count = inventory.closed_substrate_reject_count
+        result.last_reason = inventory.last_reason
+        result.last_segment_id = inventory.last_segment_id
+        result.last_arena_id = inventory.last_arena_id
+        result.last_residence_token = inventory.last_residence_token
+        result.last_report_accepted = last_report.accepted
+        result.last_report_reason = last_report.reason
+        result.last_report_closed_substrate_blocker_count = last_report.closed_substrate_blocker_count
+        if observed == 1 {
+            result.residence_present = last_report.residence_present
+            result.modeled_no_escape_address_residence_present = last_report.modeled_no_escape_address_residence_present
+        }
+        result.missing_capability_reject_seen = me.markSeen(inventory.missing_capability_reject_count)
+        result.rejected_capability_reject_seen = me.markSeen(inventory.rejected_capability_reject_count)
+        result.invalid_address_reject_seen = me.markSeen(inventory.invalid_address_reject_count)
+        result.escape_reject_seen = me.markSeen(inventory.escape_reject_count)
+        result.residence_requirement_reject_seen = me.markSeen(inventory.residence_requirement_reject_count)
+        result.lookup_requirement_reject_seen = me.markSeen(inventory.lookup_requirement_reject_count)
+        result.arena_requirement_reject_seen = me.markSeen(inventory.arena_requirement_reject_count)
+        result.segment_map_requirement_reject_seen = me.markSeen(inventory.segment_map_requirement_reject_count)
+        result.atomic_requirement_reject_seen = me.markSeen(inventory.atomic_requirement_reject_count)
+        result.osvm_requirement_reject_seen = me.markSeen(inventory.osvm_requirement_reject_count)
+        result.worker_requirement_reject_seen = me.markSeen(inventory.worker_requirement_reject_count)
+        result.provider_requirement_reject_seen = me.markSeen(inventory.provider_requirement_reject_count)
+        result.backend_matcher_requirement_reject_seen = me.markSeen(inventory.backend_matcher_requirement_reject_count)
+        me.last_reason = reason
+        return result
+    }
+
+    reject(reason, inventory, last_report): HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceDiagnosticReport {
+        me.reject_summary_count += 1
+        if reason == 1 {
+            me.missing_inventory_reject_count += 1
+        }
+        return me.makeReport(0, reason, inventory, last_report)
+    }
+
+    observeResidenceDiagnostics(inventory, last_report): HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceDiagnosticReport {
+        me.observe_count += 1
+
+        if inventory.inventory_count <= 0 {
+            return me.reject(1, inventory, last_report)
+        }
+        if last_report.residence_present != 1 {
+            return me.reject(1, inventory, last_report)
+        }
+        if last_report.modeled_no_escape_address_residence_present != 1 {
+            return me.reject(1, inventory, last_report)
+        }
+
+        me.accepted_summary_count += 1
+        me.last_reason = 0
+        return me.makeReport(1, last_report.reason, inventory, last_report)
+    }
+}

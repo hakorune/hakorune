@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-249A segment arena backing modeled no-escape address residence diagnostics`
+  `MIMAP-250A segment arena backing modeled no-escape address residence closeout pack`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -76,9 +76,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-249A`,
-  the segment arena backing modeled no-escape address residence diagnostics
-  selected by MIMAP-248A.
+- resume point: continue Phase 293x with `MIMAP-250A`,
+  the segment arena backing modeled no-escape address residence closeout pack
+  selected by MIMAP-249A.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -86,8 +86,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-249A`: add observer-only diagnostics for the modeled
-     no-escape address residence inventory
+  1. `MIMAP-250A`: close out the modeled no-escape address residence family
+     with representative exact-MIR L3 evidence
   2. keep raw pointer residence, real segment-map execution, and provider
      activation closed
   3. keep cross-function `Result` direct ABI and runtime sum materialization
