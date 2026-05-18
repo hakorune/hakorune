@@ -133,6 +133,16 @@ profiles = ["pilot", "hako-alloc-closeout"]
 cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_allocation_readiness_closeout_guard.sh"]
 
 [[rows]]
+id = "hako-alloc-segment-map-readiness-closeout"
+label = "hako_alloc segment-map readiness closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-readiness"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_readiness_closeout_guard.sh"]
+
+[[rows]]
 id = "hako-alloc-segment-allocation-modeled-consume-closeout"
 label = "hako_alloc segment allocation modeled consume closeout guard"
 profiles = ["pilot", "hako-alloc-closeout"]

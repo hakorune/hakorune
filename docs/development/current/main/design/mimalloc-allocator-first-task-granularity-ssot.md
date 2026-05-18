@@ -334,7 +334,8 @@ Forbidden:
 | `MIMAP-151A` | segment-map scalar lookup boundary inventory | landed; selected MIMAP-152A |
 | `MIMAP-152A` | post-segment-map-scalar-lookup row selection | landed; selected MIMAP-153A |
 | `MIMAP-153A` | segment-map lookup guarded readiness composition | landed; selected MIMAP-154A |
-| `MIMAP-154A` | post-lookup-guarded-readiness row selection | selected current |
+| `MIMAP-154A` | post-lookup-guarded-readiness row selection | landed; selected MIMAP-155A |
+| `MIMAP-155A` | segment-map readiness validation pack closeout guard | landed; selected MIMAP-156A |
 
 
 ## Detailed Granularity Ledger Split
@@ -680,6 +681,23 @@ proof lane.
 
 It must not implement real segment allocation/free or open another blocked
 substrate.
+
+MIMAP-154A landed by selecting MIMAP-155A, the segment-map readiness validation
+pack closeout guard.
+
+### MIMAP-155A granularity
+
+MIMAP-155A is a closeout guard row for the explicit-ID segment-map readiness
+family. It freezes the relationship between MIMAP-149A blocked-substrate
+matrix, MIMAP-151A scalar lookup inventory, MIMAP-153A lookup-guarded readiness
+composition, and ROW-VALIDATION-PROFILE L2 split commands.
+
+It must not add allocator behavior, real segment-map execution, raw pointer
+residence, arena backing allocation, atomic bitmap execution, OSVM, thread
+scheduling, provider activation, or backend matchers.
+
+MIMAP-155A landed by adding the closeout SSOT, manifest-backed closeout guard,
+and index/taskboard wiring. It selected MIMAP-156A.
 
 
 ## Historical Granularity Anchors

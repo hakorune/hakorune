@@ -1,12 +1,28 @@
 # 293x-674 MIMAP-154A Post Lookup Guarded Readiness Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-18
 
 ## Decision
 
 Select the next single row after MIMAP-153A proved lookup-guarded membership
 and allocation readiness.
+
+Selected:
+
+```text
+MIMAP-155A segment-map readiness validation pack closeout guard
+```
+
+Rationale:
+
+- MIMAP-149A, MIMAP-151A, and MIMAP-153A now form one explicit-ID
+  segment-map readiness family.
+- ROW-VALIDATION-PROFILE-001/002 added `segment-map-readiness` manifest
+  metadata and L2 split commands for the family.
+- Before adding another allocator behavior row, freeze the family as a small
+  validation pack so later rows can rely on `--level L2` for daily work and
+  reserve full EXE validation for first-pattern/backend-route/closeout evidence.
 
 ## Owner
 

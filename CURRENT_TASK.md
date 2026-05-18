@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-154A post-lookup-guarded-readiness row selection`
+  `MIMAP-156A post-segment-map-readiness-closeout row selection`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -74,8 +74,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-154A`,
-  the post-lookup-guarded-readiness row selection selected by MIMAP-153A.
+- resume point: continue Phase 293x with `MIMAP-156A`,
+  the post-segment-map-readiness-closeout row selection selected by MIMAP-155A.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -83,8 +83,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-154A`: choose exactly one next row after lookup-guarded membership
-     and allocation readiness
+  1. `MIMAP-156A`: choose exactly one next row after segment-map readiness
+     validation pack closeout
   2. prefer a small follow-up that composes accepted readiness into the existing
      modeled allocation consume / ledger proof lane
   3. keep cross-function `Result` direct ABI and runtime sum materialization

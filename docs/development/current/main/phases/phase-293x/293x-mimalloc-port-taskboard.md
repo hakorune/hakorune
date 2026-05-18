@@ -528,7 +528,9 @@ FST:
 | `MIMAP-151A` | landed | Segment-map scalar lookup boundary inventory. | selected MIMAP-152A |
 | `MIMAP-152A` | landed | Post-segment-map-scalar-lookup row selection. | selected MIMAP-153A |
 | `MIMAP-153A` | landed | Segment-map lookup guarded readiness composition. | selected MIMAP-154A |
-| `MIMAP-154A` | selected current | Post-lookup-guarded-readiness row selection. | current planning row |
+| `MIMAP-154A` | landed | Post-lookup-guarded-readiness row selection. | selected MIMAP-155A |
+| `MIMAP-155A` | landed | Segment-map readiness validation pack closeout guard. | selected MIMAP-156A |
+| `MIMAP-156A` | selected current | Post-segment-map-readiness-closeout row selection. | current planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -537,12 +539,12 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-154A` chooses the next follow-up after MIMAP-153A lookup-guarded
-membership/readiness composition. Raw pointer residence remains parked behind a
-future rawbuf/no-escape capability. Real thread scheduling, worker spawning,
-source-level concurrency features, arena backing allocation, atomic bitmap
-execution, page-source calls, OSVM unreserve/release, provider activation, and
-backend matchers remain closed.
+`MIMAP-156A` chooses the next follow-up after MIMAP-155A closed the
+segment-map readiness validation pack. Raw pointer residence remains parked
+behind a future rawbuf/no-escape capability. Real thread scheduling, worker
+spawning, source-level concurrency features, arena backing allocation, atomic
+bitmap execution, page-source calls, OSVM unreserve/release, provider
+activation, and backend matchers remain closed.
 
 MIMAP-020A execution order:
 
@@ -758,7 +760,9 @@ no source-level receiver.birth(...) as lifecycle workaround
 
 | Row | Status | Scope | Notes |
 | --- | --- | --- | --- |
-| `MIMAP-154A` | selected current | Post-lookup-guarded-readiness row selection. | Current planning row. |
+| `MIMAP-156A` | selected current | Post-segment-map-readiness-closeout row selection. | Current planning row. |
+| `MIMAP-155A` | landed | Segment-map readiness validation pack closeout guard. | Selected MIMAP-156A. |
+| `MIMAP-154A` | landed | Post-lookup-guarded-readiness row selection. | Selected MIMAP-155A. |
 | `MIMAP-153A` | landed | Segment-map lookup guarded readiness composition. | Selected MIMAP-154A. |
 | `MIMAP-152A` | landed | Post-segment-map-scalar-lookup row selection. | Selected MIMAP-153A. |
 | `MIMAP-151A` | landed | Segment-map scalar lookup boundary inventory. | Selected MIMAP-152A. |
