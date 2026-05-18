@@ -94,7 +94,7 @@ guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD_195A" "MIMAP-195A must be landed"
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD" "MIMAP-196A card must be landed"
-guard_expect_in_file "$TAG" 'Status: selected current' "$CARD_197A" "MIMAP-197A must be selected current"
+guard_expect_in_file "$TAG" 'Status: (landed|selected current)' "$CARD_197A" "MIMAP-197A must be selected current or landed"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-196A design must be accepted"
 guard_expect_in_file "$TAG" 'MIMAP-194A' "$LEDGER_CLOSEOUT" "release bridge must stay after reuse ledger bridge closeout"
 guard_expect_in_file "$TAG" 'MIMAP-134A' "$RELEASE_CARD" "bridge row must reuse MIMAP-134A release owner"

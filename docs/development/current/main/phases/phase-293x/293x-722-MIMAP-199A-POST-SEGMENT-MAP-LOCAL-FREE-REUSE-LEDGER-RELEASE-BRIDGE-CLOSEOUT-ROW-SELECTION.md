@@ -1,12 +1,12 @@
-# 293x-720 MIMAP-197A Post Segment Map Local Free Reuse Ledger Release Bridge Row Selection
+# 293x-722 MIMAP-199A Post Segment Map Local Free Reuse Ledger Release Bridge Closeout Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-18
 
 ## Decision
 
-Choose MIMAP-198A as the next narrow row after MIMAP-196A proves the
-segment-map local-free reuse ledger release bridge.
+Choose the next narrow row after MIMAP-198A closes the segment-map local-free
+reuse ledger release bridge pack.
 
 ## Context
 
@@ -24,25 +24,13 @@ explicit-ID readiness
   -> modeled local-free reuse owner can reuse one local-free block
   -> modeled local-free reuse ledger owner records the reuse row
   -> modeled local-free reuse ledger release owner records the release row
+  -> representative exact-MIR EXE parity for the reuse ledger release bridge pack
 ```
 
-The next row is:
-
-```text
-MIMAP-198A segment-map local-free reuse ledger release bridge closeout pack
-```
-
-Rationale:
-
-- MIMAP-196A is a scalar-composition bridge with `exe = "deferred-to-closeout"`.
-- The release bridge pack should get representative exact-MIR L3 EXE evidence
-  before selecting release-apply, recycle, or observer behavior.
-- This keeps the segment-map bridge cadence aligned with the prior 190A and
-  194A closeouts.
-
-It should not jump directly to raw pointer residence, arena backing, real
-segment-map execution, real free-list mutation, real page-state mutation, or
-atomic bitmap behavior.
+The next row should choose between a release-apply bridge, a recycle bridge, or
+a small observer/diagnostic sidecar. It should not jump directly to raw pointer
+residence, arena backing, real segment-map execution, real free-list mutation,
+real page-state mutation, or atomic bitmap behavior.
 
 ## Stop Lines
 
@@ -66,10 +54,4 @@ atomic bitmap behavior.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
-```
-
-## Next
-
-```text
-MIMAP-198A segment-map local-free reuse ledger release bridge closeout pack
 ```

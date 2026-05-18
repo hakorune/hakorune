@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-197A` is current after MIMAP-196A connected the segment-map local-free
-reuse ledger row to the modeled local-free reuse ledger release owner.
+`MIMAP-199A` is current after MIMAP-198A closed the segment-map local-free
+reuse ledger release bridge pack with representative exact-MIR L3 EXE evidence.
 
 Recommended current row:
 
 ```text
-MIMAP-197A
-  post-segment-map-local-free-reuse-ledger-release-bridge row selection
+MIMAP-199A
+  post-segment-map-local-free-reuse-ledger-release-bridge-closeout row selection
 ```
 
 Purpose:
 
 ```text
-choose the next narrow row after segment-map local-free reuse ledger release bridge
+choose the next narrow row after segment-map local-free reuse ledger release bridge closeout
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -243,7 +243,9 @@ no provider activation
 | 172 | closeout | `MIMAP-194A segment-map local-free reuse ledger bridge closeout pack` | landed; selected MIMAP-195A |
 | 173 | planning | `MIMAP-195A post-segment-map-local-free-reuse-ledger-bridge-closeout row selection` | landed; selected MIMAP-196A |
 | 174 | allocator | `MIMAP-196A segment-map local-free reuse ledger release bridge` | landed; selected MIMAP-197A |
-| 175 | planning | `MIMAP-197A post-segment-map-local-free-reuse-ledger-release-bridge row selection` | selected current |
+| 175 | planning | `MIMAP-197A post-segment-map-local-free-reuse-ledger-release-bridge row selection` | landed; selected MIMAP-198A |
+| 176 | closeout | `MIMAP-198A segment-map local-free reuse ledger release bridge closeout pack` | landed; selected MIMAP-199A |
+| 177 | planning | `MIMAP-199A post-segment-map-local-free-reuse-ledger-release-bridge-closeout row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
