@@ -1,7 +1,21 @@
-# 📚 Nyash Documentation
+# 📚 Hakorune Documentation
+
+**Small surface, strong boundaries.**
+**小さい構文、強い境界。**
+
+Hakorune の docs は「仕様」「現在の開発状態」「調査ログ」「歴史資料」を混ぜない方針で整理しています。言語思想の短い読み方は次の3つです。
+
+- Small surface, strong boundaries.
+- Everything has a boundary.
+- No hidden crossings.
+
+Nyash 時代の “Everything is Box” は歴史的な合言葉として残りますが、現在の Hakorune では `record`、`box`、`sync box`、`co`、`await`、`Channel`、`Result`、`brand`、capability route など、それぞれの境界を明示する読み方を優先します。
 
 ## 🚀 はじめに（導線）
 - 現在のタスクと進行状況: ../CURRENT_TASK.md
+- current state SSOT: development/current/main/CURRENT_STATE.toml
+- current docs layout SSOT: development/current/main/DOCS_LAYOUT.md
+- 言語リファレンス入口: reference/language/README.md
 - コア概念の速習: reference/architecture/nyash_core_concepts.md
 - 設計ブループリント（文字列/文字コード）: development/design/blueprints/strings-utf8-byte.md
 
@@ -144,4 +158,4 @@
 - `design/` は公開できる設計ノート。
 - `private/` は下書き保管庫（将来 `reference/`/`design/` に昇格）。
 
-Nyash は「Everything is Box」哲学に基づく言語です。詳細はコア概念とガイドを参照してください。
+Hakorune は「小さい構文、強い境界」を基準に進めています。詳細は `reference/language/README.md` と current design SSOT を参照してください。

@@ -1,11 +1,31 @@
 # 🐱 Hakorune Programming Language (formerly Nyash)
 > Note: the project binary and user‑visible brand have been renamed to “Hakorune”.
 > The legacy `nyash` binary is deprecated (use `hakorune`). Config prefers `hako.toml` (fallback: `nyash.toml`). In scripts and docs, prefer `$NYASH_BIN` which points to `target/release/hakorune` when available.
+
+**Small surface, strong boundaries.**
 **A Seriously-Crafted Hobby Language**  
 **Product main: LLVM/EXE. Engineering keep: Rust VM.**
 
-Quick — Emit MIR (Hako‑first helper)
-- Generate MIR(JSON) from a Hako file using the Stage‑B parser + MirBuilder (wrapper falls back to the Rust CLI builder on failure to keep runs green):
+Hakorune is an experimental self-hosting language and compiler project. The source surface stays intentionally small, while value ownership, sharing, waiting, failure, capabilities, and low-level runtime substrate all cross explicit boundaries.
+
+Design shorthand:
+- **Small surface, strong boundaries.**
+- **Everything has a boundary.**
+- **No hidden crossings.**
+
+Key boundary tools include `record`, `box`, `sync box`, `co`, `nowait`, `await`, `Channel<T>`, `Result<T,E>`, `brand`, and capability routes. Older Nyash-era documents used “Everything is Box”; the current Hakorune reading is broader: boxes are one important boundary, not the only boundary.
+
+Current development truth:
+- Active lane / blocker / latest card: `docs/development/current/main/CURRENT_STATE.toml`
+- Quick restart pointer: `CURRENT_TASK.md`
+- Language reference entry: `docs/reference/language/README.md`
+- Docs layout SSOT: `docs/development/current/main/DOCS_LAYOUT.md`
+- Check script index: `docs/tools/check-scripts-index.md`
+
+Allocator note: the mimalloc-shaped `.hako` lane is a proof/completeness track for Hakorune’s compiler, runtime substrate, and allocator-facing contracts. It is not a silent replacement for the host allocator; selectable allocator backends are a later, explicit layer.
+
+Quick — Emit MIR (developer helper)
+- Generate MIR(JSON) from a Hako file using the Stage‑B parser + MirBuilder helper:
 
 ```
 tools/hakorune_emit_mir.sh path/to/program.hako /tmp/program.mir.json
@@ -14,7 +34,7 @@ target/release/hakorune --mir-json-file /tmp/program.mir.json
 
 Notes
 - The wrapper runs Stage‑B with `NYASH_JSON_ONLY=1` to keep the output clean (no `RC:` lines).
-- When the Hako MirBuilder fails (e.g., under development), the wrapper falls back to the Rust-side MIR builder route. Program(JSON v0) remains compat/proof-only and is not a day-to-day user route.
+- Program(JSON v0) remains compat/proof-only and is not a day-to-day user route. Current exact routes and guard entrypoints are indexed from `docs/tools/check-scripts-index.md`.
 
 [Performance quickstart]
 - MIR emit bench (Stage‑B → MIR(JSON))
@@ -31,7 +51,7 @@ See also: docs/guides/perf/benchmarks.md
 
 [![Selfhost Minimal](https://github.com/moe-charm/nyash/actions/workflows/selfhost-minimal.yml/badge.svg?branch=selfhosting-dev)](https://github.com/moe-charm/nyash/actions/workflows/selfhost-minimal.yml)
 [![Core Smoke](https://github.com/moe-charm/nyash/actions/workflows/smoke.yml/badge.svg)](https://github.com/moe-charm/nyash/actions/workflows/smoke.yml)
-[![Everything is Box](https://img.shields.io/badge/Philosophy-Everything%20is%20Box-blue.svg)](#philosophy)
+[![Philosophy](https://img.shields.io/badge/Philosophy-Small%20surface%2C%20strong%20boundaries-blue.svg)](#philosophy)
 [![Performance](https://img.shields.io/badge/Performance-13.5x%20Faster-ff6b6b.svg)](#performance)
 [![Backend Roles](https://img.shields.io/badge/Backend-LLVM%20product%20main-orange.svg)](#execution-modes)
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](#license)
@@ -234,14 +254,24 @@ cargo build --release --features cranelift-jit
 
 ## ✨ **Why Hakorune?**
 
-### 🎯 **Everything is Box Philosophy**
+<a id="philosophy"></a>
+### 🎯 **Boundary-First Philosophy**
+
+Hakorune’s current slogan is **Small surface, strong boundaries.** The older Nyash-era phrase “Everything is Box” still explains part of the culture: `box` is the identity/object boundary. The current language surface is broader and more precise:
+
+- `record` is an identity-free value boundary.
+- `box` is an identity and behavior boundary.
+- `sync box` is a serialized shared-state boundary.
+- `co`, `nowait`, `await`, and `Channel<T>` are task and ownership-transfer boundaries.
+- `Result<T,E>`, `brand`, and capability routes make failure, meaning, and low-level authority explicit.
+
 ```nyash
-// Traditional languages have complex type systems
-// Nyash: One concept rules them all - Box
+// Hakorune keeps the surface small and makes crossings explicit.
+// Box remains the identity boundary.
 
 static box Main {
     main() {
-        // Every value is a Box - unified, safe, simple
+        // Boxes are explicit identity/behavior boundaries.
         local name = new StringBox("Nyash")
         local count = new IntegerBox(42)
         local data = new MapBox()
@@ -531,7 +561,7 @@ box DataProcessor {
 ## 🔌 **Revolutionary Plugin System (TypeBox Architecture)**
 
 ### TypeBox: The Universal Plugin Bridge (September 2025)
-**"Everything is Box" Philosophy - Even ABI is a Box!**
+**Historical Box-rooted reading: even ABI metadata can cross a box-shaped boundary.**
 
 ```c
 // TypeBox - Type information as a Box (enables cross-plugin creation)

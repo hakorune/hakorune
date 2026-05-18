@@ -1,6 +1,7 @@
 # 🐱 Hakorune プログラミング言語（旧 Nyash）
 > プロジェクト名と利用者向けバイナリは “Hakorune” に改名済みです。
 > 旧 `nyash` バイナリは互換用に残っていますが非推奨です。設定は `hako.toml` を優先し、`nyash.toml` は互換読み込みです。
+**小さい構文、強い境界。**
 **超真面目に作っている趣味言語**  
 **product main は LLVM/EXE、Rust VM は engineering keep**
 
@@ -8,12 +9,30 @@
 
 [![Selfhost Minimal](https://github.com/moe-charm/nyash/actions/workflows/selfhost-minimal.yml/badge.svg?branch=selfhosting-dev)](https://github.com/moe-charm/nyash/actions/workflows/selfhost-minimal.yml)
 [![Core Smoke](https://github.com/moe-charm/nyash/actions/workflows/smoke.yml/badge.svg)](https://github.com/moe-charm/nyash/actions/workflows/smoke.yml)
-[![Everything is Box](https://img.shields.io/badge/Philosophy-Everything%20is%20Box-blue.svg)](#philosophy)
+[![Philosophy](https://img.shields.io/badge/Philosophy-%E5%B0%8F%E3%81%95%E3%81%84%E6%A7%8B%E6%96%87%2C%20%E5%BC%B7%E3%81%84%E5%A2%83%E7%95%8C-blue.svg)](#philosophy)
 [![Performance](https://img.shields.io/badge/Performance-13.5x%20高速化-ff6b6b.svg)](#performance)
 [![Backend Roles](https://img.shields.io/badge/Backend-LLVM%20product%20main-orange.svg)](#execution-modes)
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](#license)
 
 ---
+
+Hakorune は、自己ホストを目指す実験的な言語・コンパイラプロジェクトです。構文の表面は小さく保ちつつ、値・所有・待機・共有・失敗・能力・低レイヤ substrate の越境を明示的な境界として扱います。
+
+設計の短い合言葉:
+- **小さい構文、強い境界。**
+- **すべては境界。**
+- **隠れた越境を許さない。**
+
+主な境界は `record`、`box`、`sync box`、`co`、`nowait`、`await`、`Channel<T>`、`Result<T,E>`、`brand`、capability route です。Nyash 時代の “Everything is Box” は文化的な根ですが、現在の Hakorune では「box は重要な境界のひとつ」と読み替えます。
+
+現在の開発 SSOT:
+- active lane / blocker / latest card: `docs/development/current/main/CURRENT_STATE.toml`
+- 再開入口: `CURRENT_TASK.md`
+- 言語リファレンス入口: `docs/reference/language/README.md`
+- docs layout SSOT: `docs/development/current/main/DOCS_LAYOUT.md`
+- check script index: `docs/tools/check-scripts-index.md`
+
+allocator メモ: mimalloc 風の `.hako` 移植 lane は、Hakorune のコンパイラ・runtime substrate・allocator-facing contract を鍛える proof/completeness track です。host allocator を黙って置き換えるものではなく、通常の malloc 系と同じく選択可能な allocator backend にするかどうかは、後続の明示的な層で扱います。
 
 アーキテクチャノート
 - 実行リング（ring0/ring1/ring2）とプロバイダ選択ポリシー: `docs/architecture/RINGS.md`
@@ -140,14 +159,24 @@ cargo build --release --features cranelift-jit
 
 ## ✨ **なぜHakoruneなのか？**
 
-### 🎯 **Everything is Box 哲学**
+<a id="philosophy"></a>
+### 🎯 **Boundary-First 哲学**
+
+Hakorune の現在の看板は **小さい構文、強い境界。** です。Nyash 時代の “Everything is Box” は、`box` が identity / behavior の境界であることを強く表す合言葉でした。現在はさらに、境界の種類を分けて扱います。
+
+- `record`: identity-free な値境界
+- `box`: identity と振る舞いの境界
+- `sync box`: 直列化された共有状態の境界
+- `co` / `nowait` / `await` / `Channel<T>`: task と所有移動の境界
+- `Result<T,E>` / `brand` / capability route: 失敗・意味・低レイヤ権限の境界
+
 ```nyash
-// 従来の言語は複雑な型システムを持つ
-// Nyash: 一つの概念がすべてを支配する - Box
+// Hakorune は小さい表面で、越境を明示する。
+// Box は identity / behavior の境界。
 
 static box Main {
     main() {
-        // すべての値はBox - 統一、安全、シンプル
+        // Box は明示的な identity / behavior 境界
         local name = new StringBox("Nyash")
         local count = new IntegerBox(42)
         local data = new MapBox()
