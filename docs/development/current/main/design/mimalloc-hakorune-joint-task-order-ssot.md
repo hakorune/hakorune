@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-173A` is current after MIMAP-172A added the segment-map released-span
+`MIMAP-175A` is current after MIMAP-174A closed the segment-map released-span
 local-free candidate bridge.
 
 Recommended current row:
 
 ```text
-MIMAP-173A
-  post-segment-map-released-span-local-free-candidate-bridge row selection
+MIMAP-175A
+  post-segment-map-released-span-local-free-candidate-bridge-closeout row selection
 ```
 
 Purpose:
 
 ```text
-choose the next narrow row after segment-map released-span local-free candidate bridge
+choose the next narrow row after segment-map released-span local-free candidate bridge closeout
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real segment free, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -219,7 +219,9 @@ no provider activation
 | 148 | closeout | `MIMAP-170A segment-map modeled consume ledger released-span observation closeout pack` | landed; selected MIMAP-171A |
 | 149 | planning | `MIMAP-171A post-segment-map-modeled-consume-ledger-released-span-observation-closeout row selection` | landed; selected MIMAP-172A |
 | 150 | allocator | `MIMAP-172A segment-map released-span local-free candidate bridge` | landed; selected MIMAP-173A |
-| 151 | planning | `MIMAP-173A post-segment-map-released-span-local-free-candidate-bridge row selection` | selected current |
+| 151 | planning | `MIMAP-173A post-segment-map-released-span-local-free-candidate-bridge row selection` | landed; selected MIMAP-174A |
+| 152 | closeout | `MIMAP-174A segment-map released-span local-free candidate bridge closeout pack` | landed; selected MIMAP-175A |
+| 153 | planning | `MIMAP-175A post-segment-map-released-span-local-free-candidate-bridge-closeout row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

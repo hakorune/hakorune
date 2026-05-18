@@ -1,12 +1,12 @@
-# 293x-695 MIMAP-173A Post Segment Map Released Span Local Free Candidate Bridge Row Selection
+# 293x-697 MIMAP-175A Post Segment Map Released Span Local Free Candidate Bridge Closeout Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-18
 
 ## Decision
 
-Choose MIMAP-174A as the next narrow row after MIMAP-172A proves the
-segment-map released-span to local-free candidate bridge.
+Choose the next narrow row after MIMAP-174A closes the segment-map local-free
+candidate bridge.
 
 ## Context
 
@@ -18,13 +18,13 @@ explicit-ID readiness
   -> modeled ledger release report
   -> released-span ledger can observe the segment-map release report
   -> local-free candidate ledger can consume that released-span row
+  -> representative exact-MIR L3 EXE evidence
 ```
 
-The selected row is MIMAP-174A segment-map released-span local-free candidate
-bridge closeout. It should carry representative exact-MIR L3 EXE evidence for
-MIMAP-172A before local-free apply-plan composition, modeled free-list
-observation, raw pointer residence, arena backing, real segment-map execution,
-real free-list mutation, or atomic bitmap behavior.
+The next row should choose between local-free apply-plan composition, modeled
+free-list observation, or a cleanup sidecar. It should not jump directly to
+raw pointer residence, arena backing, real segment-map execution, real
+free-list mutation, or atomic bitmap behavior.
 
 ## Stop Lines
 
@@ -47,10 +47,4 @@ real free-list mutation, or atomic bitmap behavior.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
-```
-
-## Selected Row
-
-```text
-MIMAP-174A segment-map released-span local-free candidate bridge closeout pack
 ```

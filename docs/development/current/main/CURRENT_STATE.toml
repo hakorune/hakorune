@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-18"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-172A landed by connecting segment-map released-span rows to the existing modeled local-free candidate ledger; MIMAP-173A is the active planning blocker for the next narrow allocator row. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-174A landed by closing the segment-map released-span local-free candidate bridge with representative exact-MIR L3 EXE evidence; MIMAP-175A is the active planning blocker for the next narrow allocator row. Cross-function Result direct ABI remains closed. Raw pointer residence remains parked behind a future rawbuf/no-escape capability. Mimalloc remains a .hako / hako_alloc allocator completeness and C mimalloc performance/memory comparison lane, not default process allocator replacement. Allocator-provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-695-MIMAP-173A-POST-SEGMENT-MAP-RELEASED-SPAN-LOCAL-FREE-CANDIDATE-BRIDGE-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-697-MIMAP-175A-POST-SEGMENT-MAP-RELEASED-SPAN-LOCAL-FREE-CANDIDATE-BRIDGE-CLOSEOUT-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-694-MIMAP-172A-SEGMENT-MAP-RELEASED-SPAN-LOCAL-FREE-CANDIDATE-BRIDGE"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-694-MIMAP-172A-SEGMENT-MAP-RELEASED-SPAN-LOCAL-FREE-CANDIDATE-BRIDGE.md"
-latest_card_summary = "MIMAP-172A landed by adding a segment-map released-span local-free candidate bridge proof app, L2 guard, manifest row, owner README note, and SSOT; MIMAP-173A selected current."
+latest_card = "293x-696-MIMAP-174A-SEGMENT-MAP-RELEASED-SPAN-LOCAL-FREE-CANDIDATE-BRIDGE-CLOSEOUT-PACK"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-696-MIMAP-174A-SEGMENT-MAP-RELEASED-SPAN-LOCAL-FREE-CANDIDATE-BRIDGE-CLOSEOUT-PACK.md"
+latest_card_summary = "MIMAP-174A landed by adding a manifest-backed local-free candidate bridge closeout guard and representative exact-MIR L3 EXE evidence for MIMAP-172A; MIMAP-175A selected current."
 
-current_blocker_token = "MIMAP-173A"
+current_blocker_token = "MIMAP-175A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-696 MIMAP-174A segment-map released-span local-free candidate bridge closeout pack landed; MIMAP-175A selected",
+  "293x-695 MIMAP-173A post-segment-map-released-span-local-free-candidate-bridge row selection landed; MIMAP-174A selected",
   "293x-694 MIMAP-172A segment-map released-span local-free candidate bridge landed; MIMAP-173A selected",
   "293x-693 MIMAP-171A post-segment-map-modeled-consume-ledger-released-span-observation-closeout row selection landed; MIMAP-172A selected",
   "293x-692 MIMAP-170A segment-map modeled consume ledger released-span observation closeout pack landed; MIMAP-171A selected",
