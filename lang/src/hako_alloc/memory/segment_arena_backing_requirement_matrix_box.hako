@@ -1,0 +1,241 @@
+// segment_arena_backing_requirement_matrix_box.hako -- MIMAP-240A
+// Responsibility:
+// - inventory scalar requirements for future segment arena backing
+// - keep blocked substrate categories explicit before real backing opens
+// Non-responsibility:
+// - allocating arena backing, raw pointer residence, real segment-map mutation,
+//   atomic bitmap execution, OSVM calls, scheduling, providers, or backend shortcuts
+
+box HakoAllocSegmentArenaBackingRequirementMatrixReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    matrix_present: i64 = 1
+    scalar_requirement_matrix_present: i64 = 1
+    readiness_present: i64 = 0
+    diagnostic_present: i64 = 0
+    readiness_reason: i64 = 0
+    diagnostic_reason: i64 = 0
+    segment_id: i64 = -1
+    arena_id: i64 = -1
+    slice_count: i64 = 0
+    committed_slices: i64 = 0
+    free_slices: i64 = 0
+    required_alignment: i64 = 0
+    page_size: i64 = 0
+    geometry_valid: i64 = 0
+    requires_arena_backing: i64 = 0
+    requires_raw_pointer: i64 = 0
+    requires_segment_map: i64 = 0
+    requires_atomic_bitmap: i64 = 0
+    requires_osvm: i64 = 0
+    requires_worker: i64 = 0
+    requires_provider: i64 = 0
+    requires_backend_matcher: i64 = 0
+    blocked_requirement_count: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_use_raw_pointer: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentArenaBackingRequirementMatrixInventory {
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    readiness_reject_count: i64 = 0
+    diagnostic_reject_count: i64 = 0
+    geometry_reject_count: i64 = 0
+    arena_requirement_reject_count: i64 = 0
+    raw_pointer_requirement_reject_count: i64 = 0
+    segment_map_requirement_reject_count: i64 = 0
+    atomic_bitmap_requirement_reject_count: i64 = 0
+    osvm_requirement_reject_count: i64 = 0
+    worker_requirement_reject_count: i64 = 0
+    provider_requirement_reject_count: i64 = 0
+    backend_matcher_requirement_reject_count: i64 = 0
+    last_reason: i64 = 0
+    last_segment_id: i64 = -1
+    last_arena_id: i64 = -1
+
+    blockedCount(requires_arena_backing, requires_raw_pointer, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher): i64 {
+        local count = 0
+        if requires_arena_backing != 0 {
+            count += 1
+        }
+        if requires_raw_pointer != 0 {
+            count += 1
+        }
+        if requires_segment_map != 0 {
+            count += 1
+        }
+        if requires_atomic_bitmap != 0 {
+            count += 1
+        }
+        if requires_osvm != 0 {
+            count += 1
+        }
+        if requires_worker != 0 {
+            count += 1
+        }
+        if requires_provider != 0 {
+            count += 1
+        }
+        if requires_backend_matcher != 0 {
+            count += 1
+        }
+        return count
+    }
+
+    geometryValid(readiness_report): i64 {
+        if readiness_report.segment_id < 0 {
+            return 0
+        }
+        if readiness_report.arena_id < 0 {
+            return 0
+        }
+        if readiness_report.slice_count <= 0 {
+            return 0
+        }
+        if readiness_report.committed_slices < 0 {
+            return 0
+        }
+        if readiness_report.free_slices < 0 {
+            return 0
+        }
+        if readiness_report.committed_slices > readiness_report.slice_count {
+            return 0
+        }
+        if readiness_report.free_slices > readiness_report.slice_count {
+            return 0
+        }
+        if readiness_report.required_alignment <= 0 {
+            return 0
+        }
+        if readiness_report.page_size <= 0 {
+            return 0
+        }
+        return 1
+    }
+
+    makeReport(accepted, reason, readiness_report, diagnostic_report, requires_arena_backing, requires_raw_pointer, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher): HakoAllocSegmentArenaBackingRequirementMatrixReport {
+        local result = new HakoAllocSegmentArenaBackingRequirementMatrixReport()
+        result.accepted = accepted
+        result.reason = reason
+        result.matrix_present = 1
+        result.scalar_requirement_matrix_present = 1
+        result.readiness_present = readiness_report.arena_backing_readiness_present
+        result.diagnostic_present = diagnostic_report.diagnostic_present
+        result.readiness_reason = readiness_report.reason
+        result.diagnostic_reason = diagnostic_report.reason
+        result.segment_id = readiness_report.segment_id
+        result.arena_id = readiness_report.arena_id
+        result.slice_count = readiness_report.slice_count
+        result.committed_slices = readiness_report.committed_slices
+        result.free_slices = readiness_report.free_slices
+        result.required_alignment = readiness_report.required_alignment
+        result.page_size = readiness_report.page_size
+        result.geometry_valid = me.geometryValid(readiness_report)
+        result.requires_arena_backing = requires_arena_backing
+        result.requires_raw_pointer = requires_raw_pointer
+        result.requires_segment_map = requires_segment_map
+        result.requires_atomic_bitmap = requires_atomic_bitmap
+        result.requires_osvm = requires_osvm
+        result.requires_worker = requires_worker
+        result.requires_provider = requires_provider
+        result.requires_backend_matcher = requires_backend_matcher
+        result.blocked_requirement_count = me.blockedCount(requires_arena_backing, requires_raw_pointer, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        me.last_reason = reason
+        me.last_segment_id = readiness_report.segment_id
+        me.last_arena_id = readiness_report.arena_id
+        return result
+    }
+
+    reject(reason, readiness_report, diagnostic_report, requires_arena_backing, requires_raw_pointer, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher): HakoAllocSegmentArenaBackingRequirementMatrixReport {
+        me.reject_count += 1
+        if reason == 1 {
+            me.readiness_reject_count += 1
+        }
+        if reason == 2 {
+            me.diagnostic_reject_count += 1
+        }
+        if reason == 3 {
+            me.geometry_reject_count += 1
+        }
+        if reason == 4 {
+            me.arena_requirement_reject_count += 1
+        }
+        if reason == 5 {
+            me.raw_pointer_requirement_reject_count += 1
+        }
+        if reason == 6 {
+            me.segment_map_requirement_reject_count += 1
+        }
+        if reason == 7 {
+            me.atomic_bitmap_requirement_reject_count += 1
+        }
+        if reason == 8 {
+            me.osvm_requirement_reject_count += 1
+        }
+        if reason == 9 {
+            me.worker_requirement_reject_count += 1
+        }
+        if reason == 10 {
+            me.provider_requirement_reject_count += 1
+        }
+        if reason == 11 {
+            me.backend_matcher_requirement_reject_count += 1
+        }
+        return me.makeReport(0, reason, readiness_report, diagnostic_report, requires_arena_backing, requires_raw_pointer, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+    }
+
+    recordRequirementMatrix(readiness_report, diagnostic_report, requires_arena_backing, requires_raw_pointer, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher): HakoAllocSegmentArenaBackingRequirementMatrixReport {
+        me.inventory_count += 1
+
+        if readiness_report.accepted != 1 {
+            return me.reject(1, readiness_report, diagnostic_report, requires_arena_backing, requires_raw_pointer, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if readiness_report.arena_backing_readiness_present != 1 {
+            return me.reject(1, readiness_report, diagnostic_report, requires_arena_backing, requires_raw_pointer, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if diagnostic_report.observed != 1 {
+            return me.reject(2, readiness_report, diagnostic_report, requires_arena_backing, requires_raw_pointer, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if diagnostic_report.diagnostic_present != 1 {
+            return me.reject(2, readiness_report, diagnostic_report, requires_arena_backing, requires_raw_pointer, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if me.geometryValid(readiness_report) != 1 {
+            return me.reject(3, readiness_report, diagnostic_report, requires_arena_backing, requires_raw_pointer, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if requires_arena_backing != 0 {
+            return me.reject(4, readiness_report, diagnostic_report, requires_arena_backing, requires_raw_pointer, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if requires_raw_pointer != 0 {
+            return me.reject(5, readiness_report, diagnostic_report, requires_arena_backing, requires_raw_pointer, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if requires_segment_map != 0 {
+            return me.reject(6, readiness_report, diagnostic_report, requires_arena_backing, requires_raw_pointer, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if requires_atomic_bitmap != 0 {
+            return me.reject(7, readiness_report, diagnostic_report, requires_arena_backing, requires_raw_pointer, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if requires_osvm != 0 {
+            return me.reject(8, readiness_report, diagnostic_report, requires_arena_backing, requires_raw_pointer, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if requires_worker != 0 {
+            return me.reject(9, readiness_report, diagnostic_report, requires_arena_backing, requires_raw_pointer, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if requires_provider != 0 {
+            return me.reject(10, readiness_report, diagnostic_report, requires_arena_backing, requires_raw_pointer, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+        if requires_backend_matcher != 0 {
+            return me.reject(11, readiness_report, diagnostic_report, requires_arena_backing, requires_raw_pointer, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+        }
+
+        me.accepted_count += 1
+        return me.makeReport(1, 0, readiness_report, diagnostic_report, requires_arena_backing, requires_raw_pointer, requires_segment_map, requires_atomic_bitmap, requires_osvm, requires_worker, requires_provider, requires_backend_matcher)
+    }
+}

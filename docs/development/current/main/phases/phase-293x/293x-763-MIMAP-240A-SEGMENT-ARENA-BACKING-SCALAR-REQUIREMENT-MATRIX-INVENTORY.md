@@ -1,6 +1,6 @@
 # 293x-763 MIMAP-240A Segment Arena Backing Scalar Requirement Matrix Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -42,6 +42,33 @@ requirements that must be satisfied before real backing is allowed.
 ## Required Evidence
 
 ```text
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_requirement_matrix_guard.sh --level L2
+bash tools/checks/run_proof_app.sh --only MIMAP-240A
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Landed Scope
+
+- Added the requirement matrix owner and typed report.
+- Added a proof app that consumes MIMAP-236A readiness and MIMAP-237A
+  diagnostics, then records accepted, readiness-rejected, diagnostic-rejected,
+  invalid-geometry, and closed-substrate requirement rows.
+- Added the MIMAP-240A L2 guard, proof manifest entry, check index entry, and
+  requirement matrix SSOT.
+
+## Selected Next Row
+
+MIMAP-240A selects:
+
+```text
+MIMAP-241A segment arena backing requirement matrix diagnostics
+```
+
+Reason:
+
+```text
+the requirement matrix inventory now names the closed substrates. Add an
+observer-only diagnostic row before closing out the family with representative
+L3 evidence.
 ```

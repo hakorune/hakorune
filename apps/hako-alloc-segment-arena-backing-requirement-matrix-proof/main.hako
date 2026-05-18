@@ -1,0 +1,194 @@
+// hako-alloc-segment-arena-backing-requirement-matrix-proof
+// Purpose: prove MIMAP-240A segment arena backing scalar requirement matrix.
+
+using selfhost.hako_alloc.memory.page_box as HakoAllocPageBox
+using selfhost.hako_alloc.memory.segment_map_lookup_guarded_readiness_composition_box as HakoAllocSegmentMapLookupGuardedReadinessComposition
+using selfhost.hako_alloc.memory.segment_map_accepted_readiness_modeled_consume_ledger_box as HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_released_span_ledger_box as HakoAllocSegmentAllocationModeledReleasedSpanLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_box as HakoAllocSegmentAllocationModeledLocalFreeReuse
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_ledger_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_ledger_release_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerRelease
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_lifecycle_token_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleToken
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_lifecycle_token_observer_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenObserver
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_lifecycle_token_release_key_precondition_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenReleaseKeyPrecondition
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_lifecycle_keyed_release_ledger_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseLedger
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_lifecycle_keyed_release_apply_recycle_diagnostic_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseApplyRecycleDiagnostic
+using selfhost.hako_alloc.memory.segment_arena_backing_readiness_inventory_box as HakoAllocSegmentArenaBackingReadinessInventory
+using selfhost.hako_alloc.memory.segment_arena_backing_readiness_diagnostic_box as HakoAllocSegmentArenaBackingReadinessDiagnostic
+using selfhost.hako_alloc.memory.segment_arena_backing_requirement_matrix_box as HakoAllocSegmentArenaBackingRequirementMatrix
+
+static box Main {
+    seedFullPage(page): i64 {
+        local p0 = page.acquire(8)
+        local p1 = page.acquire(8)
+        local p2 = page.acquire(8)
+        local p3 = page.acquire(8)
+        local p4 = page.acquire(8)
+        local p5 = page.acquire(8)
+        local p6 = page.acquire(8)
+        local p7 = page.acquire(8)
+        return p7
+    }
+
+    nextReleasedSpan(route, released_spans, readiness): HakoAllocSegmentAllocationModeledReleasedSpanLedgerReport {
+        local consumed = route.consumeAcceptedReadiness(readiness, 0)
+        local released = route.releaseConsumedToken(consumed.modeled_allocation_token, 0)
+        return released_spans.recordReleasedSpan(released, 0)
+    }
+
+    nextReuseReport(composition, route, released_spans, reuse_route): HakoAllocSegmentAllocationModeledLocalFreeReuseReport {
+        local readiness = composition.composeLookupReadiness(70, 7, 3, 16, 1, composition.stateActive(), 2, 8, 3, 0)
+        local page = new HakoAllocPageModel(7, 16, 8, 8)
+        local p7 = Main.seedFullPage(page)
+        local span = Main.nextReleasedSpan(route, released_spans, readiness)
+        return reuse_route.integrateAndReuseLocalFree(span, page, 8, 0, 0, 0)
+    }
+
+    main(args) {
+        local composition = new HakoAllocSegmentMapLookupGuardedReadinessComposition()
+        local route = new HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger()
+        local released_spans = new HakoAllocSegmentAllocationModeledReleasedSpanLedger()
+        local reuse_route = new HakoAllocSegmentAllocationModeledLocalFreeReuse()
+        local reuse_ledger = new HakoAllocSegmentAllocationModeledLocalFreeReuseLedger()
+        local old_release_ledger = new HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerRelease()
+        local lifecycle_owner = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleToken()
+        local observer = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenObserver()
+        local precondition = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleTokenReleaseKeyPrecondition()
+        local migrated_release_ledger = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseLedger()
+        local continuation_diag = new HakoAllocSegmentAllocationModeledLocalFreeReuseLifecycleKeyedReleaseApplyRecycleDiagnostic()
+        local arena_inventory = new HakoAllocSegmentArenaBackingReadinessInventory()
+        local arena_diagnostic = new HakoAllocSegmentArenaBackingReadinessDiagnostic()
+        local requirement_matrix = new HakoAllocSegmentArenaBackingRequirementMatrixInventory()
+
+        local reuse = Main.nextReuseReport(composition, route, released_spans, reuse_route)
+        local first = reuse_ledger.recordLocalFreeReuse(reuse, 0)
+        local old_release = old_release_ledger.recordReuseLedgerRelease(first, 0)
+        local old_apply = reuse_ledger.applyReuseLedgerRelease(old_release, 0)
+        local recycled = reuse_ledger.recordLocalFreeReuse(reuse, 0)
+        local old_second_release = old_release_ledger.recordReuseLedgerRelease(recycled, 0)
+
+        local first_lifecycle = lifecycle_owner.recordLifecycleToken(recycled.modeled_reuse_token, 1, 0)
+        local second_lifecycle = lifecycle_owner.recordLifecycleToken(recycled.modeled_reuse_token, 2, 0)
+        local duplicate_lifecycle = lifecycle_owner.recordLifecycleToken(recycled.modeled_reuse_token, 2, 0)
+        local invalid_lifecycle = lifecycle_owner.recordLifecycleToken(-1, 3, 0)
+        local unsupported_lifecycle = lifecycle_owner.recordLifecycleToken(recycled.modeled_reuse_token, 4, 1)
+
+        local observed = observer.observeLifecycleBoundary(lifecycle_owner, old_second_release, 0)
+        local ready = precondition.classify(observed, 0)
+        local migrated = migrated_release_ledger.recordLifecycleKeyedRelease(ready, second_lifecycle, 0)
+
+        local lifecycle_apply = reuse_ledger.applyReuseLedgerLifecycleKeyedRelease(migrated, 0)
+        local missing_live_apply = reuse_ledger.applyReuseLedgerLifecycleKeyedRelease(migrated, 0)
+        local continued = reuse_ledger.recordLocalFreeReuse(reuse, 0)
+        local live_duplicate = reuse_ledger.recordLocalFreeReuse(reuse, 0)
+        local unsupported_apply = reuse_ledger.applyReuseLedgerLifecycleKeyedRelease(migrated, 1)
+
+        local continuation_summary = continuation_diag.observeApplyRecycleDiagnostics(reuse_ledger, 0)
+        local readiness = arena_inventory.classifyReadiness(continuation_summary, 70, 7, 16, 8, 8, 8, 4096, 0, 0, 0, 0, 0, 0)
+        local readiness_reject_source = arena_inventory.classifyReadiness(continuation_summary, 70, 7, 16, 8, 8, 8, 4096, 0, 0, 0, 0, 0, 1)
+        local diagnostic = arena_diagnostic.observeReadinessDiagnostics(arena_inventory, readiness_reject_source)
+        local empty_diagnostic = new HakoAllocSegmentArenaBackingReadinessDiagnosticReport()
+
+        local invalid_shape = new HakoAllocSegmentArenaBackingReadinessInventoryReport()
+        invalid_shape.accepted = 1
+        invalid_shape.reason = 0
+        invalid_shape.segment_id = 70
+        invalid_shape.arena_id = 7
+        invalid_shape.slice_count = 0
+        invalid_shape.committed_slices = 0
+        invalid_shape.free_slices = 0
+        invalid_shape.required_alignment = 8
+        invalid_shape.page_size = 4096
+        invalid_shape.arena_backing_readiness_present = 1
+        invalid_shape.scalar_arena_backing_model = 1
+
+        local accepted = requirement_matrix.recordRequirementMatrix(readiness, diagnostic, 0, 0, 0, 0, 0, 0, 0, 0)
+        local readiness_rejected = requirement_matrix.recordRequirementMatrix(readiness_reject_source, diagnostic, 0, 0, 0, 0, 0, 0, 0, 0)
+        local diagnostic_rejected = requirement_matrix.recordRequirementMatrix(readiness, empty_diagnostic, 0, 0, 0, 0, 0, 0, 0, 0)
+        local invalid = requirement_matrix.recordRequirementMatrix(invalid_shape, diagnostic, 0, 0, 0, 0, 0, 0, 0, 0)
+        local arena_blocked = requirement_matrix.recordRequirementMatrix(readiness, diagnostic, 1, 0, 0, 0, 0, 0, 0, 0)
+        local raw_blocked = requirement_matrix.recordRequirementMatrix(readiness, diagnostic, 0, 1, 0, 0, 0, 0, 0, 0)
+        local segment_map_blocked = requirement_matrix.recordRequirementMatrix(readiness, diagnostic, 0, 0, 1, 0, 0, 0, 0, 0)
+        local atomic_blocked = requirement_matrix.recordRequirementMatrix(readiness, diagnostic, 0, 0, 0, 1, 0, 0, 0, 0)
+        local osvm_blocked = requirement_matrix.recordRequirementMatrix(readiness, diagnostic, 0, 0, 0, 0, 1, 0, 0, 0)
+        local worker_blocked = requirement_matrix.recordRequirementMatrix(readiness, diagnostic, 0, 0, 0, 0, 0, 1, 0, 0)
+        local provider_blocked = requirement_matrix.recordRequirementMatrix(readiness, diagnostic, 0, 0, 0, 0, 0, 0, 1, 0)
+        local backend_blocked = requirement_matrix.recordRequirementMatrix(readiness, diagnostic, 0, 0, 0, 0, 0, 0, 0, 1)
+
+        local ok = check "mimap240a segment arena backing scalar requirement matrix" {
+            "accepted": accepted.accepted == 1
+            "accepted reason": accepted.reason == 0
+            "matrix present": accepted.matrix_present == 1
+            "scalar matrix present": accepted.scalar_requirement_matrix_present == 1
+            "readiness present": accepted.readiness_present == 1
+            "diagnostic present": accepted.diagnostic_present == 1
+            "accepted segment": accepted.segment_id == 70
+            "accepted arena": accepted.arena_id == 7
+            "accepted slices": accepted.slice_count == 16
+            "accepted committed": accepted.committed_slices == 8
+            "accepted free": accepted.free_slices == 8
+            "accepted alignment": accepted.required_alignment == 8
+            "accepted page size": accepted.page_size == 4096
+            "accepted geometry": accepted.geometry_valid == 1
+            "accepted blocked count": accepted.blocked_requirement_count == 0
+            "readiness rejected": readiness_rejected.reason == 1
+            "diagnostic rejected": diagnostic_rejected.reason == 2
+            "invalid rejected": invalid.reason == 3
+            "arena blocked": arena_blocked.reason == 4
+            "raw blocked": raw_blocked.reason == 5
+            "segment map blocked": segment_map_blocked.reason == 6
+            "atomic blocked": atomic_blocked.reason == 7
+            "osvm blocked": osvm_blocked.reason == 8
+            "worker blocked": worker_blocked.reason == 9
+            "provider blocked": provider_blocked.reason == 10
+            "backend blocked": backend_blocked.reason == 11
+            "arena requirement flag": arena_blocked.requires_arena_backing == 1
+            "raw requirement flag": raw_blocked.requires_raw_pointer == 1
+            "segment map requirement flag": segment_map_blocked.requires_segment_map == 1
+            "atomic requirement flag": atomic_blocked.requires_atomic_bitmap == 1
+            "osvm requirement flag": osvm_blocked.requires_osvm == 1
+            "worker requirement flag": worker_blocked.requires_worker == 1
+            "provider requirement flag": provider_blocked.requires_provider == 1
+            "backend requirement flag": backend_blocked.requires_backend_matcher == 1
+            "inventory count": requirement_matrix.inventory_count == 12
+            "accepted count": requirement_matrix.accepted_count == 1
+            "reject count": requirement_matrix.reject_count == 11
+            "readiness reject count": requirement_matrix.readiness_reject_count == 1
+            "diagnostic reject count": requirement_matrix.diagnostic_reject_count == 1
+            "geometry reject count": requirement_matrix.geometry_reject_count == 1
+            "arena reject count": requirement_matrix.arena_requirement_reject_count == 1
+            "raw reject count": requirement_matrix.raw_pointer_requirement_reject_count == 1
+            "segment map reject count": requirement_matrix.segment_map_requirement_reject_count == 1
+            "atomic reject count": requirement_matrix.atomic_bitmap_requirement_reject_count == 1
+            "osvm reject count": requirement_matrix.osvm_requirement_reject_count == 1
+            "worker reject count": requirement_matrix.worker_requirement_reject_count == 1
+            "provider reject count": requirement_matrix.provider_requirement_reject_count == 1
+            "backend reject count": requirement_matrix.backend_matcher_requirement_reject_count == 1
+            "inactive arena allocation": accepted.would_allocate_arena_backing == 0
+            "inactive raw": accepted.would_use_raw_pointer == 0
+            "inactive segment map": accepted.would_use_segment_map == 0
+            "inactive atomic": accepted.would_execute_atomic_bitmap == 0
+            "inactive osvm": accepted.would_call_osvm == 0
+            "inactive thread": accepted.would_run_thread == 0
+            "inactive provider": accepted.would_activate_provider == 0
+            "inactive matcher": accepted.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-requirement-matrix-proof")
+        print("base=" + recycled.modeled_reuse_token + "," + migrated.reuse_lifecycle_token + "," + diagnostic.observed)
+        print("matrix=" + accepted.accepted + "," + accepted.reason + "," + accepted.segment_id + "," + accepted.arena_id + "," + accepted.slice_count + "," + accepted.committed_slices + "," + accepted.free_slices + "," + accepted.required_alignment + "," + accepted.page_size + "," + accepted.geometry_valid + "," + accepted.blocked_requirement_count)
+        print("rejects=" + readiness_rejected.reason + "," + diagnostic_rejected.reason + "," + invalid.reason + "," + arena_blocked.reason + "," + raw_blocked.reason + "," + segment_map_blocked.reason + "," + atomic_blocked.reason + "," + osvm_blocked.reason + "," + worker_blocked.reason + "," + provider_blocked.reason + "," + backend_blocked.reason)
+        print("flags=" + arena_blocked.requires_arena_backing + "," + raw_blocked.requires_raw_pointer + "," + segment_map_blocked.requires_segment_map + "," + atomic_blocked.requires_atomic_bitmap + "," + osvm_blocked.requires_osvm + "," + worker_blocked.requires_worker + "," + provider_blocked.requires_provider + "," + backend_blocked.requires_backend_matcher)
+        print("counts=" + requirement_matrix.inventory_count + "," + requirement_matrix.accepted_count + "," + requirement_matrix.reject_count + "," + requirement_matrix.readiness_reject_count + "," + requirement_matrix.diagnostic_reject_count + "," + requirement_matrix.geometry_reject_count + "," + requirement_matrix.arena_requirement_reject_count + "," + requirement_matrix.raw_pointer_requirement_reject_count + "," + requirement_matrix.segment_map_requirement_reject_count + "," + requirement_matrix.atomic_bitmap_requirement_reject_count + "," + requirement_matrix.osvm_requirement_reject_count + "," + requirement_matrix.worker_requirement_reject_count + "," + requirement_matrix.provider_requirement_reject_count + "," + requirement_matrix.backend_matcher_requirement_reject_count)
+        print("inactive=" + accepted.would_allocate_arena_backing + "," + accepted.would_use_raw_pointer + "," + accepted.would_use_segment_map + "," + accepted.would_execute_atomic_bitmap + "," + accepted.would_call_osvm + "," + accepted.would_run_thread + "," + accepted.would_activate_provider + "," + accepted.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

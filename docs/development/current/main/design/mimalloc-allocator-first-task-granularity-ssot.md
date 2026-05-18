@@ -20,10 +20,10 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-240A
+  MIMAP-241A
 
 current choice boundary:
-  segment arena backing scalar requirement matrix inventory
+  segment arena backing requirement matrix diagnostics
   or the next modeled bridge that keeps real execution closed
 
 closed until explicitly reopened:
@@ -424,7 +424,8 @@ Forbidden:
 | `MIMAP-237A` | segment arena backing readiness diagnostics | landed; selected MIMAP-238A |
 | `MIMAP-238A` | segment arena backing readiness closeout pack | landed; selected MIMAP-239A |
 | `MIMAP-239A` | post-segment-arena-backing-readiness-closeout row selection | landed; selected MIMAP-240A |
-| `MIMAP-240A` | segment arena backing scalar requirement matrix inventory | selected current |
+| `MIMAP-240A` | segment arena backing scalar requirement matrix inventory | landed; selected MIMAP-241A |
+| `MIMAP-241A` | segment arena backing requirement matrix diagnostics | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2172,6 +2173,19 @@ any real arena backing allocation, raw pointer residence, real segment-map
 mutation, real segment allocation/free, atomic bitmap execution,
 OSVM/page-source execution, worker/provider activation, cross-function
 `Result` direct ABI, runtime sum materialization, or backend matcher row opens.
+
+MIMAP-240A landed by adding the requirement matrix owner, proof app, L2 guard,
+manifest entry, and SSOT. It selected MIMAP-241A.
+
+### MIMAP-241A granularity
+
+MIMAP-241A should add observer-only diagnostics for the MIMAP-240A requirement
+matrix inventory. It should summarize readiness, diagnostics, geometry, and
+closed-substrate requirement reject counters without recording new matrix rows
+or opening real arena backing allocation, raw pointer residence, real
+segment-map mutation, atomic bitmap execution, OSVM/page-source execution,
+worker/provider activation, cross-function `Result` direct ABI, runtime sum
+materialization, or backend matcher rows.
 
 
 ## Historical Granularity Anchors

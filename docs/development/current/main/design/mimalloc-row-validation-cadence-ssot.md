@@ -132,6 +132,35 @@ MIMAP-238A segment arena backing readiness closeout pack
   L3 representative exact-MIR evidence for segment-arena-backing-readiness
 ```
 
+## Active Segment Arena Backing Requirement Matrix Family
+
+The segment arena backing requirement matrix rows use the same scalar/model
+cadence after the readiness closeout. They do not open real arena backing,
+raw pointer residence, real segment-map mutation, atomic bitmap execution,
+OSVM/page-source execution, worker/provider activation, or backend matchers.
+
+```toml
+[[proof_apps]]
+id = "MIMAP-240A"
+row_kind = "inventory"
+validation_profile = "scalar-mir"
+closeout_pack = "segment-arena-backing-requirement-matrix"
+exe = "deferred-to-closeout"
+```
+
+Planned continuation:
+
+```text
+MIMAP-240A segment arena backing scalar requirement matrix inventory
+  L2 daily: static + VM + MIR JSON/route preflight
+
+MIMAP-241A segment arena backing requirement matrix diagnostics
+  L2 daily: observer/reject summary only
+
+future closeout pack
+  L3 representative exact-MIR evidence for segment-arena-backing-requirement-matrix
+```
+
 ## Row-Type Rules
 
 ### Planning Rows

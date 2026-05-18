@@ -33,6 +33,7 @@ Current modules
 - `segment_allocation_modeled_local_free_reuse_ledger_release_box.hako`
 - `segment_arena_backing_readiness_diagnostic_box.hako`
 - `segment_arena_backing_readiness_inventory_box.hako`
+- `segment_arena_backing_requirement_matrix_box.hako`
 - `segment_lifecycle_scalar_state_box.hako`
 - `thread_heap_owner_inventory_box.hako`
 - `worker_identity_box.hako`
@@ -489,6 +490,13 @@ Syntax/style contract
   use raw pointer residence, mutate a real segment-map, execute atomic bitmap
   claims, call page-source or OSVM seams, schedule workers, activate provider
   hooks, replace the host allocator, or add backend shortcuts.
+- `segment_arena_backing_requirement_matrix_box.hako` owns MIMAP-240A. It may
+  consume arena readiness and diagnostics reports and publish scalar requirement
+  matrix facts for arena id, segment id, slice geometry, page size, alignment,
+  and blocked substrate categories. It must not allocate arena backing, use raw
+  pointer residence, mutate a real segment-map, execute atomic bitmap claims,
+  call page-source or OSVM seams, schedule workers, activate provider hooks,
+  replace the host allocator, or add backend shortcuts.
 - `object_lifecycle_facade_huge_failfast_box.hako` owns the MIMAP-022B facade
   huge-request fail-fast route. It may classify request size through
   `SizeClassBox`, reject huge requests before invoking the MIMAP-021C

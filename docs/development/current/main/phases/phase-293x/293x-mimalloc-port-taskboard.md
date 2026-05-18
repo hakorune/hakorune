@@ -633,7 +633,8 @@ FST:
 | `MIMAP-237A` | landed | Segment arena backing readiness diagnostics. | selected MIMAP-238A |
 | `MIMAP-238A` | landed | Segment arena backing readiness closeout pack. | selected MIMAP-239A |
 | `MIMAP-239A` | landed | Post segment arena backing readiness closeout row selection. | selected MIMAP-240A |
-| `MIMAP-240A` | selected current | Segment arena backing scalar requirement matrix inventory. | current inventory row |
+| `MIMAP-240A` | landed | Segment arena backing scalar requirement matrix inventory. | selected MIMAP-241A |
+| `MIMAP-241A` | selected current | Segment arena backing requirement matrix diagnostics. | current diagnostic row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -642,8 +643,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-240A` inventories the scalar requirement matrix for future arena backing
-after MIMAP-238A closed out the arena readiness family.
+`MIMAP-241A` adds observer-only diagnostics for the MIMAP-240A scalar
+requirement matrix before a future closeout pack.
 Raw pointer residence remains parked behind a future rawbuf/no-escape
 capability. Real thread scheduling, worker spawning, source-level concurrency
 features, arena backing allocation, atomic bitmap execution, page-source calls,

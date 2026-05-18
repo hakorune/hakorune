@@ -20,6 +20,7 @@ memory.thread_heap_owner_inventory_box = "memory/thread_heap_owner_inventory_box
 memory.segment_arena_bitmap_inventory_box = "memory/segment_arena_bitmap_inventory_box.hako"
 memory.segment_arena_backing_readiness_inventory_box = "memory/segment_arena_backing_readiness_inventory_box.hako"
 memory.segment_arena_backing_readiness_diagnostic_box = "memory/segment_arena_backing_readiness_diagnostic_box.hako"
+memory.segment_arena_backing_requirement_matrix_box = "memory/segment_arena_backing_requirement_matrix_box.hako"
 memory.segment_lifecycle_scalar_state_box = "memory/segment_lifecycle_scalar_state_box.hako"
 memory.segment_page_membership_scalar_box = "memory/segment_page_membership_scalar_box.hako"
 memory.segment_map_scalar_lookup_boundary_inventory_box = "memory/segment_map_scalar_lookup_boundary_inventory_box.hako"
