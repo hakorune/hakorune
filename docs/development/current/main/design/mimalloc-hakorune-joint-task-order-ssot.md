@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-279A` is current after MIMAP-278A closed out the segment arena backing
-modeled allocation ledger family.
+`MIMAP-280A` is current after MIMAP-279A selected the next segment arena
+backing modeled allocation-ledger row.
 
 Recommended current row:
 
 ```text
-MIMAP-279A
-  post segment arena backing modeled allocation ledger closeout row selection
+MIMAP-280A
+  segment arena backing modeled allocation-ledger release candidate inventory
 ```
 
 Purpose:
 
 ```text
-select the next scalar/model allocator row after allocation-ledger closeout
+record a model-only release candidate row from accepted allocation-ledger facts
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real pointer residence, real arena backing allocation, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -327,7 +327,8 @@ no provider activation
 | 256 | allocator inventory | `MIMAP-276A segment arena backing modeled allocation ledger inventory` | landed; selected MIMAP-277A |
 | 257 | allocator diagnostic | `MIMAP-277A segment arena backing modeled allocation ledger diagnostics` | landed; selected MIMAP-278A |
 | 258 | closeout | `MIMAP-278A segment arena backing modeled allocation ledger closeout pack` | landed; selected MIMAP-279A |
-| 259 | planning | `MIMAP-279A post-segment-arena-backing-modeled-allocation-ledger-closeout row selection` | selected current |
+| 259 | planning | `MIMAP-279A post-segment-arena-backing-modeled-allocation-ledger-closeout row selection` | landed; selected MIMAP-280A |
+| 260 | allocator inventory | `MIMAP-280A segment arena backing modeled allocation-ledger release candidate inventory` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

@@ -1,12 +1,12 @@
 # 293x-804 MIMAP-279A Post Segment Arena Backing Modeled Allocation Ledger Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
 
-Select the next narrow allocator row after the modeled allocation-ledger
-closeout.
+Select MIMAP-280A as the next narrow allocator row after the modeled
+allocation-ledger closeout.
 
 ## Context
 
@@ -17,9 +17,9 @@ execution, OSVM/page-source execution, or provider activation.
 
 ## Candidate Direction
 
-The likely next behavior slice is an allocation-ledger continuation bridge that
-prepares later release/recycle modeling from accepted ledger facts. This
-selection row should keep the decision explicit before adding behavior.
+MIMAP-280A adds a model-only allocation-ledger release candidate inventory.
+It consumes accepted allocation-ledger facts and records scalar release-candidate
+facts for later release/recycle modeling.
 
 ## Stop Lines
 
@@ -42,4 +42,11 @@ selection row should keep the decision explicit before adding behavior.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Selected Row
+
+```text
+MIMAP-280A
+  segment arena backing modeled allocation-ledger release candidate inventory
 ```
