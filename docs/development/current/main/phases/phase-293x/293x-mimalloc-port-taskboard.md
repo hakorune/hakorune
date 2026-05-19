@@ -751,7 +751,8 @@ FST:
 | `HAKO-ALLOC-REPORT-RECORD-023` | landed | Select the source-accounting diagnostic ReportFields owner under the record-local scalarization SSOT. | selected HAKO-ALLOC-REPORT-RECORD-024 |
 | `HAKO-ALLOC-REPORT-RECORD-024` | landed | Apply helper-argument scalarization to the source-accounting diagnostic ReportFields owner only. | selected HAKO-ALLOC-REPORT-RECORD-025 |
 | `HAKO-ALLOC-REPORT-RECORD-025` | landed | Close out the source-accounting diagnostic ReportFields helper-scalarization owner. | selected HAKO-ALLOC-REPORT-RECORD-026 |
-| `HAKO-ALLOC-REPORT-RECORD-026` | selected current | Select one more ReportFields owner under the record-local scalarization SSOT, or return to the allocator modeled lane. | after HAKO-ALLOC-REPORT-RECORD-025 |
+| `HAKO-ALLOC-REPORT-RECORD-026` | landed | Select the local-free integration ReportFields owner under the record-local scalarization SSOT. | selected HAKO-ALLOC-REPORT-RECORD-027 |
+| `HAKO-ALLOC-REPORT-RECORD-027` | selected current | Apply helper-argument scalarization to the local-free integration ReportFields owner only. | after HAKO-ALLOC-REPORT-RECORD-026 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -760,8 +761,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-REPORT-RECORD-026` selects one more `ReportFields` owner under the
-record-local scalarization SSOT, or returns to the allocator modeled lane.
+`HAKO-ALLOC-REPORT-RECORD-027` applies helper-argument scalarization to the
+local-free integration `ReportFields` owner only.
 
 SSOT:
 
@@ -809,6 +810,12 @@ Next target record:
 
 ```text
 HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReportFields
+```
+
+Current target record:
+
+```text
+HakoAllocSegmentAllocationModeledLocalFreeIntegrationReportFields
 ```
 
 Real pointer residence, pointer-derived lookup, real thread scheduling, worker
