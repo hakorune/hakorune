@@ -1,6 +1,6 @@
 # 293x-886 MIMAP-283A Post ReportFields Cleanup Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -50,3 +50,43 @@ git diff --check
 - The selected row documents whether it is an L2 daily row, first-pattern L3
   row, or closeout row.
 - The ReportFields cleanup detour remains closed unless a new owner appears.
+
+## Selected Row
+
+`MIMAP-284A` is selected:
+
+```text
+segment arena backing modeled allocation-ledger release intent inventory
+```
+
+Rationale:
+
+- MIMAP-280A / 281A / 282A closed the modeled allocation-ledger
+  release-candidate family.
+- The exact-`usize` field-group and allocator `ReportFields` cleanup detours
+  are now closed.
+- The next narrow allocator behavior should consume an accepted
+  release-candidate report into a scalar/model release-intent ledger before any
+  real arena backing release, pointer residence, segment-map mutation, OSVM,
+  atomics, provider activation, host allocator replacement, hooks, or
+  `#[global_allocator]` open.
+
+Validation profile:
+
+```text
+L2 daily
+  VM proof
+  MIR JSON emit
+  route preflight
+
+L3 EXE:
+  deferred to the future release-intent closeout pack unless this row
+  unexpectedly introduces a new backend route shape.
+```
+
+## Evidence
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```

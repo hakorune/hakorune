@@ -756,7 +756,8 @@ FST:
 | `HAKO-ALLOC-REPORT-RECORD-028` | landed | Close out the local-free integration ReportFields helper-scalarization owner. | selected HAKO-ALLOC-REPORT-RECORD-029 |
 | `HAKO-ALLOC-REPORT-RECORD-029` | landed | Apply helper-argument scalarization to the remaining bounded purge scheduler ReportFields owner. | selected HAKO-ALLOC-REPORT-RECORD-030 |
 | `HAKO-ALLOC-REPORT-RECORD-030` | landed | Close out the bounded purge scheduler ReportFields helper-scalarization owner and current inventory. | selected MIMAP-283A |
-| `MIMAP-283A` | selected current | Return from the ReportFields cleanup detour to the mimalloc modeled lane and select the next narrow allocator row. | after HAKO-ALLOC-REPORT-RECORD-030 |
+| `MIMAP-283A` | landed | Return from the ReportFields cleanup detour to the mimalloc modeled lane and select the next narrow allocator row. | selected MIMAP-284A |
+| `MIMAP-284A` | selected current | Segment arena backing modeled allocation-ledger release intent inventory. | after MIMAP-283A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -765,8 +766,9 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-283A` returns from the `ReportFields` cleanup detour to the mimalloc
-modeled lane and selects the next narrow allocator row.
+`MIMAP-284A` adds the scalar/model segment arena backing allocation-ledger
+release intent inventory after the ReportFields cleanup detour and the
+release-candidate family closeout.
 
 SSOT:
 
