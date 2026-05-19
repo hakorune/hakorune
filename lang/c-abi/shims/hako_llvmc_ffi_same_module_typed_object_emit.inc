@@ -55,6 +55,7 @@
         EMIT("  call void @llvm.trap()\n");
         EMIT("  unreachable\n");
         EMIT("exact_status_continue_%lld_%zu:\n", bid, ii);
+        note_exact_status_continue_label(bid, ii);
       }
 
       auto void same_module_function_emit_unsigned_nonnegative_trap(

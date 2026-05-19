@@ -333,7 +333,8 @@ no provider activation
 | 262 | allocator diagnostic | `MIMAP-281A segment arena backing modeled allocation-ledger release candidate diagnostics` | landed; selected MIMAP-282A |
 | 263 | closeout | `MIMAP-282A segment arena backing modeled allocation-ledger release candidate closeout pack` | landed; selected HAKO-ALLOC-USIZE-FIELD-GROUP-001 |
 | 264 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-001 select allocator byte/capacity field-group pilot` | landed; selected HAKO-ALLOC-USIZE-FIELD-GROUP-002 |
-| 265 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-002 release-candidate byte/capacity migration` | selected current |
+| 265 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-002 release-candidate byte/capacity migration` | landed; selected HAKO-ALLOC-USIZE-FIELD-GROUP-003 |
+| 266 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-003 release-candidate byte/capacity closeout` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

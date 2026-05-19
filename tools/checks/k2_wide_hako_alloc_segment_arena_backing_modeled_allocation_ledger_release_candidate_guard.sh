@@ -68,6 +68,11 @@ guard_expect_in_file "$TAG" 'memory.segment_arena_backing_modeled_allocation_led
 guard_expect_in_file "$TAG" 'segment_arena_backing_modeled_allocation_ledger_release_candidate_box.hako' "$MEMORY_README" "memory README must name release candidate owner"
 guard_expect_in_file "$TAG" 'record HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReportFields' "$CANDIDATE_OWNER" "release candidate owner must use local ReportFields record payload"
 guard_expect_in_file "$TAG" 'local fields = HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReportFields' "$CANDIDATE_OWNER" "release candidate owner must construct report field records locally"
+guard_expect_in_file "$TAG" 'source_capacity: usize' "$CANDIDATE_OWNER" "release candidate byte/capacity group must migrate source_capacity to usize"
+guard_expect_in_file "$TAG" 'applied_backing_bytes: usize' "$CANDIDATE_OWNER" "release candidate byte/capacity group must migrate applied_backing_bytes to usize"
+guard_expect_in_file "$TAG" 'remaining_source_bytes: usize' "$CANDIDATE_OWNER" "release candidate byte/capacity group must migrate remaining_source_bytes to usize"
+guard_expect_in_file "$TAG" 'row_index: i64' "$CANDIDATE_OWNER" "release candidate row_index sentinel must stay i64"
+guard_expect_in_file "$TAG" 'release_candidate_token: i64' "$CANDIDATE_OWNER" "release candidate token must stay i64"
 guard_expect_in_file "$TAG" 'recordReleaseCandidate' "$CANDIDATE_OWNER" "release candidate owner must expose record route"
 guard_expect_in_file "$TAG" 'duplicate_release_candidate_token_reject_count' "$CANDIDATE_OWNER" "release candidate owner must reject duplicate token"
 guard_expect_in_file "$TAG" 'check "mimap280a segment arena backing modeled allocation ledger release candidate"' "$APP" "proof must use labelled check block"
@@ -154,7 +159,7 @@ if report is None:
     raise SystemExit("missing modeled release candidate report typed object plan")
 
 fields = {field.get("name"): field for field in report.get("fields", [])}
-for name in (
+required_fields = (
     "accepted",
     "reason",
     "release_candidate_present",
@@ -166,9 +171,53 @@ for name in (
     "applied_committed_bytes",
     "remaining_source_bytes",
     "would_add_backend_matcher",
-):
+)
+for name in required_fields:
     if name not in fields:
         raise SystemExit(f"missing modeled release candidate field: {name}")
+
+usize_fields = {
+    "source_capacity",
+    "source_committed_bytes",
+    "source_uncommitted_bytes",
+    "padded_bytes",
+    "slot_capacity",
+    "planned_backing_bytes",
+    "planned_committed_bytes",
+    "applied_backing_bytes",
+    "applied_committed_bytes",
+    "remaining_source_bytes",
+}
+for name in usize_fields:
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"release candidate {name} must be exact usize storage: {field}")
+
+for name in ("reason", "row_index", "release_candidate_token"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"release candidate {name} must remain i64 storage: {field}")
+
+record_decl = None
+for decl in data.get("record_decls", []):
+    if isinstance(decl, dict) and decl.get("name") == "HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReportFields":
+        record_decl = decl
+        break
+if record_decl is None:
+    raise SystemExit("missing release candidate ReportFields record details")
+
+record_fields = {
+    field.get("name"): field
+    for field in record_decl.get("field_decls", [])
+}
+for name in usize_fields:
+    field = record_fields.get(name)
+    if field is None or field.get("declared_type") != "usize":
+        raise SystemExit(f"release candidate ReportFields {name} must be declared usize: {field}")
+for name in ("reason", "row_index", "release_candidate_token"):
+    field = record_fields.get(name)
+    if field is None or field.get("declared_type") != "i64":
+        raise SystemExit(f"release candidate ReportFields {name} must remain declared i64: {field}")
 
 print("[mimap280a-mir-json] ok")
 PY

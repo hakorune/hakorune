@@ -680,7 +680,8 @@ FST:
 | `MIMAP-281A` | landed | Segment arena backing modeled allocation-ledger release candidate diagnostics. | selected MIMAP-282A |
 | `MIMAP-282A` | landed | Segment arena backing modeled allocation-ledger release candidate closeout pack. | selected HAKO-ALLOC-USIZE-FIELD-GROUP-001 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-001` | landed | Select release-candidate report byte/capacity fields as the first allocator exact-`usize` field-group pilot after release-candidate closeout. | selected FIELD-GROUP-002 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-002` | selected current | Migrate release-candidate report byte/capacity fields only; keep reason/status/token/sentinel fields on `i64`. | after FIELD-GROUP-001 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-002` | landed | Migrate release-candidate report byte/capacity fields only; keep reason/status/token/sentinel fields on `i64`. | selected FIELD-GROUP-003 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-003` | selected current | Close out the first allocator exact-`usize` stored field group and keep the migration evidence bounded. | after FIELD-GROUP-002 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -689,8 +690,10 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-002` migrates only the release-candidate report
-byte/capacity field group selected by `HAKO-ALLOC-USIZE-FIELD-GROUP-001`.
+`HAKO-ALLOC-USIZE-FIELD-GROUP-003` closes out the first allocator exact-`usize`
+stored field group after `HAKO-ALLOC-USIZE-FIELD-GROUP-002` migrated only the
+release-candidate report byte/capacity fields selected by
+`HAKO-ALLOC-USIZE-FIELD-GROUP-001`.
 Real pointer residence, pointer-derived lookup, real thread scheduling, worker
 spawning, source-level concurrency features, real arena backing allocation,
 atomic bitmap execution, page-source calls, OSVM unreserve/release, provider
@@ -703,6 +706,8 @@ MIMAP-282A closeout first.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-001 selects release-candidate byte/capacity
 fields.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-002 migrates that owner-local group only.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-003 closes out that first field group before
+selecting the next narrow group.
 Reason/status/token/sentinel fields stay i64.
 ```
 

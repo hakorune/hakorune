@@ -29,16 +29,16 @@ record HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReport
     apply_token: i64
     ledger_token: i64
     release_candidate_token: i64
-    source_capacity: i64
-    source_committed_bytes: i64
-    source_uncommitted_bytes: i64
-    padded_bytes: i64
-    slot_capacity: i64
-    planned_backing_bytes: i64
-    planned_committed_bytes: i64
-    applied_backing_bytes: i64
-    applied_committed_bytes: i64
-    remaining_source_bytes: i64
+    source_capacity: usize
+    source_committed_bytes: usize
+    source_uncommitted_bytes: usize
+    padded_bytes: usize
+    slot_capacity: usize
+    planned_backing_bytes: usize
+    planned_committed_bytes: usize
+    applied_backing_bytes: usize
+    applied_committed_bytes: usize
+    remaining_source_bytes: usize
     closed_substrate_blocker_count: i64
     requires_pointer_residence: i64
     requires_pointer_lookup: i64
@@ -71,16 +71,16 @@ box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReport {
     apply_token: i64 = 0
     ledger_token: i64 = 0
     release_candidate_token: i64 = 0
-    source_capacity: i64 = 0
-    source_committed_bytes: i64 = 0
-    source_uncommitted_bytes: i64 = 0
-    padded_bytes: i64 = 0
-    slot_capacity: i64 = 0
-    planned_backing_bytes: i64 = 0
-    planned_committed_bytes: i64 = 0
-    applied_backing_bytes: i64 = 0
-    applied_committed_bytes: i64 = 0
-    remaining_source_bytes: i64 = 0
+    source_capacity: usize = 0
+    source_committed_bytes: usize = 0
+    source_uncommitted_bytes: usize = 0
+    padded_bytes: usize = 0
+    slot_capacity: usize = 0
+    planned_backing_bytes: usize = 0
+    planned_committed_bytes: usize = 0
+    applied_backing_bytes: usize = 0
+    applied_committed_bytes: usize = 0
+    remaining_source_bytes: usize = 0
     closed_substrate_blocker_count: i64 = 0
     requires_pointer_residence: i64 = 0
     requires_pointer_lookup: i64 = 0

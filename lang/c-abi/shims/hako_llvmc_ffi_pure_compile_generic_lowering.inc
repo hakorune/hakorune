@@ -109,6 +109,42 @@
         set_type(region->accumulator_phi_value, T_I64);
       }
       auto void emit_block_label(long long bid){ EMIT("bb%lld:\n", bid); }
+      auto void set_block_tail_label(long long bid, const char* label) {
+        if (bid < 0 || !label || !label[0]) return;
+        for (size_t i = 0; i < block_tail_labels_n; i++) {
+          if (block_tail_labels[i].bid == bid) {
+            snprintf(block_tail_labels[i].label, sizeof(block_tail_labels[i].label), "%s", label);
+            return;
+          }
+        }
+        if (block_tail_labels_n < ARR_LEN(block_tail_labels)) {
+          block_tail_labels[block_tail_labels_n].bid = bid;
+          snprintf(
+              block_tail_labels[block_tail_labels_n].label,
+              sizeof(block_tail_labels[block_tail_labels_n].label),
+              "%s",
+              label);
+          block_tail_labels_n++;
+        } else {
+          note_generic_capacity_overflow("generic_block_tail_label_inventory_full");
+        }
+      }
+      auto void note_exact_status_continue_label(long long bid, size_t ii) {
+        char label[96];
+        snprintf(label, sizeof(label), "exact_status_continue_%lld_%zu", bid, ii);
+        set_block_tail_label(bid, label);
+      }
+      auto const char* phi_predecessor_label(long long pred, char* buf, size_t buf_len) {
+        if (!buf || buf_len == 0) return "%bb0";
+        for (size_t i = 0; i < block_tail_labels_n; i++) {
+          if (block_tail_labels[i].bid == pred && block_tail_labels[i].label[0]) {
+            snprintf(buf, buf_len, "%%%s", block_tail_labels[i].label);
+            return buf;
+          }
+        }
+        snprintf(buf, buf_len, "%%bb%lld", pred);
+        return buf;
+      }
       auto void emit_phi(long long dst, struct Incoming* in, int in_n){
         int phi_ty = get_type(dst);
         struct GenericPureVariantBinding variant_binding;
@@ -117,33 +153,35 @@
             variant_binding.has_payload;
         EMIT("  %%r%lld = phi %s ", dst, phi_ty == T_I1 ? "i1" : "i64");
         for (int i=0;i<in_n;i++){
+          char pred_label[128];
           long long cv;
           long long val_reg = resolve_copy_source_reg(in[i].val_reg);
           int hc=has_const(val_reg,&cv);
           if (phi_ty == T_I1) {
-            if (hc) EMIT("[ %s, %%bb%lld ]%s", cv ? "true" : "false", in[i].pred, (i+1<in_n)?", ":"");
-            else EMIT("[ %%r%lld, %%bb%lld ]%s", val_reg, in[i].pred, (i+1<in_n)?", ":"");
+            if (hc) EMIT("[ %s, %s ]%s", cv ? "true" : "false", phi_predecessor_label(in[i].pred, pred_label, sizeof(pred_label)), (i+1<in_n)?", ":"");
+            else EMIT("[ %%r%lld, %s ]%s", val_reg, phi_predecessor_label(in[i].pred, pred_label, sizeof(pred_label)), (i+1<in_n)?", ":"");
           } else {
-            EMIT("[ %s%lld%s, %%bb%lld ]%s", hc?"":"%r", hc?cv:val_reg, hc?"":"", in[i].pred, (i+1<in_n)?", ":"");
+            EMIT("[ %s%lld%s, %s ]%s", hc?"":"%r", hc?cv:val_reg, hc?"":"", phi_predecessor_label(in[i].pred, pred_label, sizeof(pred_label)), (i+1<in_n)?", ":"");
           }
         }
         EMIT("\n");
         if (variant_phi) {
           EMIT("  %%r%lld_tag = phi i64 ", dst);
           for (int i = 0; i < in_n; i++) {
+            char pred_label[128];
             struct GenericPureVariantBinding incoming_variant;
             memset(&incoming_variant, 0, sizeof(incoming_variant));
             if (get_variant_binding(in[i].val_reg, &incoming_variant) &&
                 incoming_variant.tag_reg) {
-              EMIT("[ %%r%lld_tag, %%bb%lld ]%s",
+              EMIT("[ %%r%lld_tag, %s ]%s",
                    incoming_variant.tag_reg,
-                   in[i].pred,
+                   phi_predecessor_label(in[i].pred, pred_label, sizeof(pred_label)),
                    (i + 1 < in_n) ? ", " : "");
             } else {
               long long tag_value = incoming_variant.tag_const;
-              EMIT("[ %lld, %%bb%lld ]%s",
+              EMIT("[ %lld, %s ]%s",
                    tag_value,
-                   in[i].pred,
+                   phi_predecessor_label(in[i].pred, pred_label, sizeof(pred_label)),
                    (i + 1 < in_n) ? ", " : "");
             }
           }
@@ -540,6 +578,7 @@
                 EMIT("  call void @llvm.trap()\n");
                 EMIT("  unreachable\n");
                 EMIT("exact_status_continue_%lld_%zu:\n", bid, ii);
+                note_exact_status_continue_label(bid, ii);
               }
               continue;
             }

@@ -1,7 +1,7 @@
 # Hako Alloc Numeric Field Inventory
 
 Status: SSOT
-Date: 2026-05-12
+Date: 2026-05-19
 Scope: stored numeric fields under `lang/src/hako_alloc/memory/`.
 Related:
 - `docs/development/current/main/phases/phase-294x/294x-16-HAKO-ALLOC-NUMERIC-FIELD-INVENTORY.md`
@@ -16,9 +16,6 @@ Current production `usize` field group:
 
 - `allocator_facade_box.hako` / `HakoAllocProductionFacade` event counters:
   `alloc_count`, `free_count`, `reject_count`.
-
-Selected next production `usize` field group:
-
 - `segment_arena_backing_modeled_allocation_ledger_release_candidate_box.hako`
   / `HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReport`
   byte/capacity report fields:
@@ -26,8 +23,8 @@ Selected next production `usize` field group:
   `padded_bytes`, `slot_capacity`, `planned_backing_bytes`,
   `planned_committed_bytes`, `applied_backing_bytes`,
   `applied_committed_bytes`, `remaining_source_bytes`.
-  This group is selected by `HAKO-ALLOC-USIZE-FIELD-GROUP-001` and remains
-  pending until `HAKO-ALLOC-USIZE-FIELD-GROUP-002` changes the owner.
+  This group was selected by `HAKO-ALLOC-USIZE-FIELD-GROUP-001` and migrated by
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-002`.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.

@@ -581,6 +581,10 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         long long payload_reg;
         int has_payload;
       };
+      struct GenericPureBlockTailLabel {
+        long long bid;
+        char label[96];
+      };
       struct Incoming { long long pred; long long val_reg; };
       struct PhiRec { long long dst; struct Incoming in[16]; int in_n; int explicit_type; };
       struct BlockPhi { long long bid; struct PhiRec recs[24]; int rec_n; };
@@ -594,6 +598,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         GENERIC_PURE_ORIGIN_BINDING_CAP = 2048,
         GENERIC_PURE_TYPED_OBJECT_BINDING_CAP = 2048,
         GENERIC_PURE_VARIANT_BINDING_CAP = 2048,
+        GENERIC_PURE_BLOCK_TAIL_LABEL_CAP = 1024,
         GENERIC_PURE_BLOCK_PHI_CAP = 512
       };
       struct GenericPureFunctionLoweringState {
@@ -621,6 +626,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         size_t typed_object_bindings_n;
         struct GenericPureVariantBinding variant_bindings[GENERIC_PURE_VARIANT_BINDING_CAP];
         size_t variant_bindings_n;
+        struct GenericPureBlockTailLabel block_tail_labels[GENERIC_PURE_BLOCK_TAIL_LABEL_CAP];
+        size_t block_tail_labels_n;
         struct BlockPhi phis[GENERIC_PURE_BLOCK_PHI_CAP];
         int phi_n;
         int generic_walk_trace_budget;
@@ -663,6 +670,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #define typed_object_bindings_n lowering_state.typed_object_bindings_n
       #define variant_bindings lowering_state.variant_bindings
       #define variant_bindings_n lowering_state.variant_bindings_n
+      #define block_tail_labels lowering_state.block_tail_labels
+      #define block_tail_labels_n lowering_state.block_tail_labels_n
       #define phis lowering_state.phis
       #define phi_n lowering_state.phi_n
       #define generic_walk_trace_budget lowering_state.generic_walk_trace_budget
