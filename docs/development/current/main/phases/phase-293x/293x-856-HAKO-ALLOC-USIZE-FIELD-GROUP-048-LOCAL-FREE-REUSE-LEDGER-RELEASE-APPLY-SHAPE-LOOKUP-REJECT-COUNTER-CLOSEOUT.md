@@ -1,6 +1,6 @@
 # 293x-856 HAKO-ALLOC-USIZE-FIELD-GROUP-048 Local-Free Reuse Ledger Release-Apply Shape/Lookup Reject Counter Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -50,8 +50,16 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Closed out the four-field release-apply shape/lookup reject counter group
+  migrated by `HAKO-ALLOC-USIZE-FIELD-GROUP-047`.
+- Reconfirmed that execution/capability release-apply reject counters and signed
+  sentinels remain on `i64`.
+- Selected `HAKO-ALLOC-USIZE-FIELD-GROUP-049` for the remaining release-apply
+  execution/capability reject counter migration.
+
 ## Next
 
-After closeout, select the next narrow allocator exact-`usize` field group from
-`lang/src/hako_alloc/memory/NUMERIC_FIELDS.md`, likely the remaining
-release-apply execution/capability reject counter group.
+`HAKO-ALLOC-USIZE-FIELD-GROUP-049` migrates only the remaining release-apply
+execution/capability reject counters.
