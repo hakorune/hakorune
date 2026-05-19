@@ -716,7 +716,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-035` | landed | Migrate the segment-map accepted-readiness modeled consume-ledger block/count report group only; keep reasons, ids, indexes, tokens, block-start sentinels, and owner counters on `i64`. | selected FIELD-GROUP-036 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-036` | landed | Close out the segment-map consume-ledger block/count field group and keep the evidence bounded. | selected FIELD-GROUP-037 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-037` | landed | Migrate the segment-map consume-ledger release block/count report group only; keep reasons, ids, indexes, tokens, block-span sentinels, and owner counters on `i64`. | selected FIELD-GROUP-038 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-038` | selected current | Close out the segment-map consume-ledger release block/count field group and keep the evidence bounded. | after FIELD-GROUP-037 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-038` | landed | Close out the segment-map consume-ledger release block/count field group and keep the evidence bounded. | selected FIELD-GROUP-039 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-039` | selected current | Select the next narrow allocator exact-`usize` stored field group after closing the segment-map consume-ledger release chain. | after FIELD-GROUP-038 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -725,16 +726,9 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-038` closes out the segment-map modeled
-consume-ledger release report block/count field group:
-
-```text
-live_before
-live_after
-ledger_count_after
-ledger_live_count_after
-released_blocks
-```
+`HAKO-ALLOC-USIZE-FIELD-GROUP-039` selects the next narrow allocator
+exact-`usize` stored field group after closing the segment-map modeled
+consume-ledger release block/count group.
 
 Real pointer residence, pointer-derived lookup, real thread scheduling, worker
 spawning, source-level concurrency features, real arena backing allocation,
@@ -827,6 +821,8 @@ release-side block/count report group.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-038 closes out that segment-map
 consume-ledger release-side block/count group before selecting another
 allocator exact-`usize` field group.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-039 selects the next narrow allocator
+exact-`usize` stored field group before any further migration.
 Reason/status/token/sentinel fields stay i64.
 ```
 

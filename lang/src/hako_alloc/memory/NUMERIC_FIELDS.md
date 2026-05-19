@@ -200,9 +200,8 @@ Current production `usize` field group:
 
 Selected next production `usize` field group:
 
-- none. `HAKO-ALLOC-USIZE-FIELD-GROUP-038` is a closeout row for the
-  segment-map consume-ledger release block/count group, not a new migration
-  group.
+- none. `HAKO-ALLOC-USIZE-FIELD-GROUP-039` selects the next narrow allocator
+  exact-`usize` field group; it is not itself a migration row.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
