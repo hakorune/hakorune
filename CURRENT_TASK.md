@@ -55,7 +55,7 @@ Scope: current lane / next lane / restart order only.
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
 - current blocker token:
-  `MIMAP-266A segment arena backing modeled source accounting closeout pack`
+  `HAKO-ALLOC-REPORT-RECORD-003 segment arena backing report record carrier inventory`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -76,9 +76,9 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-266A`,
-  the segment arena backing modeled source accounting closeout pack selected by
-  MIMAP-265A.
+- resume point: continue Phase 293x with `HAKO-ALLOC-REPORT-RECORD-003`,
+  the segment arena backing report record carrier inventory selected by
+  MIMAP-266A.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -86,18 +86,16 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-266A`: close out modeled source accounting inventory + diagnostics
-     with representative exact-MIR evidence
-  2. after MIMAP-266A, prefer `HAKO-ALLOC-REPORT-RECORD-003` to inventory the
+  1. `HAKO-ALLOC-REPORT-RECORD-003`: inventory the
      all-i64 segment-arena-backing report carriers and select one focused
      record-carrier cleanup or compiler sidecar before the next behavior bridge
-  3. keep raw pointer residence, real segment-map execution, and provider
+  2. keep raw pointer residence, real segment-map execution, and provider
      activation closed
-  4. keep cross-function `Result` direct ABI and runtime sum materialization
+  3. keep cross-function `Result` direct ABI and runtime sum materialization
      closed
-  5. keep real thread scheduling, worker spawning, source-level concurrency features,
+  4. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider activation inactive
-  6. keep secure entropy execution parked until a separate random substrate
+  5. keep secure entropy execution parked until a separate random substrate
      route and audit row are accepted
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner

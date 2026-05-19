@@ -659,8 +659,8 @@ FST:
 | `MIMAP-263A` | landed | Post segment arena backing modeled source bridge closeout row selection. | selected MIMAP-264A |
 | `MIMAP-264A` | landed | Segment arena backing modeled source accounting inventory. | selected MIMAP-265A |
 | `MIMAP-265A` | landed | Segment arena backing modeled source accounting diagnostics. | selected MIMAP-266A |
-| `MIMAP-266A` | selected current | Segment arena backing modeled source accounting closeout pack. | current closeout row |
-| `HAKO-ALLOC-REPORT-RECORD-003` | planned | Segment arena backing report record carrier inventory. | after MIMAP-266A closeout, before the next arena-backing behavior row |
+| `MIMAP-266A` | landed | Segment arena backing modeled source accounting closeout pack. | selected HAKO-ALLOC-REPORT-RECORD-003 |
+| `HAKO-ALLOC-REPORT-RECORD-003` | selected current | Segment arena backing report record carrier inventory. | current BoxShape row before the next arena-backing behavior row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -669,18 +669,14 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-266A` closes out modeled source accounting inventory and diagnostics
-with representative exact-MIR evidence. Real pointer residence,
-pointer-derived lookup, real thread scheduling, worker spawning, source-level
-concurrency features, arena backing allocation, atomic bitmap execution,
-page-source calls, OSVM unreserve/release, provider activation, and backend
-matchers remain closed.
-
-Next BoxShape stop:
 `HAKO-ALLOC-REPORT-RECORD-003` should inventory the all-i64 segment
 arena-backing report carriers added by the source bridge/accounting rows and
 select one safe record-carrier cleanup or one focused compiler sidecar. This
 keeps report-shape debt from accumulating before the next arena-backing bridge.
+Real pointer residence, pointer-derived lookup, real thread scheduling, worker
+spawning, source-level concurrency features, arena backing allocation, atomic
+bitmap execution, page-source calls, OSVM unreserve/release, provider
+activation, and backend matchers remain closed.
 
 MIMAP-020A execution order:
 

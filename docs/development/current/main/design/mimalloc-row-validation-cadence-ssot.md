@@ -324,6 +324,10 @@ MIMAP-265A segment arena backing modeled source accounting diagnostics
 
 MIMAP-266A segment arena backing modeled source accounting closeout pack
   L3 representative exact-MIR evidence for segment-arena-backing-modeled-source-accounting
+
+HAKO-ALLOC-REPORT-RECORD-003 segment arena backing report record carrier inventory
+  L0/L2 planning+inventory: select one record-carrier cleanup pilot or one
+  focused compiler/language sidecar; no allocator behavior
 ```
 
 ## Row-Type Rules

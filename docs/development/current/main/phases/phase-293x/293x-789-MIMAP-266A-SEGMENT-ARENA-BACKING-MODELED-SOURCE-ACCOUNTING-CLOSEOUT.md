@@ -1,6 +1,6 @@
 # 293x-789 MIMAP-266A Segment Arena Backing Modeled Source Accounting Closeout Pack
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -61,6 +61,23 @@ arena-backing report boxes accumulate.
 ## Required Evidence
 
 ```text
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_source_accounting_closeout_guard.sh
+bash tools/checks/run_row_guard.sh --only hako-alloc-segment-arena-backing-modeled-source-accounting-closeout
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+- Added closeout SSOT and manifest-backed closeout guard.
+- Bound the MIMAP-264A inventory guard and MIMAP-265A diagnostics guard into
+  the `segment-arena-backing-modeled-source-accounting` closeout pack.
+- Added representative exact-MIR L3 evidence through the MIMAP-265A diagnostics
+  proof app.
+- Kept source accounting behavior unchanged and all real runtime/backend seams
+  closed.
+
+## Selected Next Row
+
+`HAKO-ALLOC-REPORT-RECORD-003` segment arena backing report record carrier
+inventory.

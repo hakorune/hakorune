@@ -1,6 +1,6 @@
 # 293x-790 HAKO-ALLOC-REPORT-RECORD-003 Segment Arena Backing Report Record Carrier Inventory
 
-Status: planned
+Status: selected current
 Date: 2026-05-19
 
 ## Decision

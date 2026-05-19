@@ -20,11 +20,12 @@ For the active phase:
 
 ```text
 current row:
-  MIMAP-266A
+  HAKO-ALLOC-REPORT-RECORD-003
 
 current choice boundary:
-  modeled source accounting closeout after modeled source accounting diagnostics
-  while keeping real pointer residence, pointer lookup, and real arena backing closed
+  segment arena backing report record carrier inventory after modeled source
+  accounting closeout, while keeping real pointer residence, pointer lookup,
+  and real arena backing closed
 
 closed until explicitly reopened:
   real raw pointer residence
@@ -450,7 +451,8 @@ Forbidden:
 | `MIMAP-263A` | post-segment-arena-backing-modeled-source-bridge-closeout row selection | landed; selected MIMAP-264A |
 | `MIMAP-264A` | segment arena backing modeled source accounting inventory | landed; selected MIMAP-265A |
 | `MIMAP-265A` | segment arena backing modeled source accounting diagnostics | landed; selected MIMAP-266A |
-| `MIMAP-266A` | segment arena backing modeled source accounting closeout pack | selected current |
+| `MIMAP-266A` | segment arena backing modeled source accounting closeout pack | landed; selected HAKO-ALLOC-REPORT-RECORD-003 |
+| `HAKO-ALLOC-REPORT-RECORD-003` | segment arena backing report record carrier inventory | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2630,6 +2632,23 @@ pointer-derived lookup, real arena backing allocation, real segment-map
 mutation, atomic bitmap execution, OSVM/page-source execution,
 worker/provider activation, cross-function `Result` direct ABI, runtime sum
 materialization, or backend matcher rows.
+
+MIMAP-266A landed by adding the modeled source accounting closeout SSOT,
+manifest-backed closeout guard, and representative exact-MIR L3 evidence through
+the MIMAP-265A diagnostics proof app. It selected HAKO-ALLOC-REPORT-RECORD-003.
+
+### HAKO-ALLOC-REPORT-RECORD-003 granularity
+
+HAKO-ALLOC-REPORT-RECORD-003 segment arena backing report record carrier
+inventory.
+
+HAKO-ALLOC-REPORT-RECORD-003 should inventory all-i64 report carriers introduced
+by the segment arena backing source bridge/accounting family and select one
+owner-local `ReportFields` record payload pilot, one focused compiler/language
+record-carrier sidecar, or an explicit park reason. It must not add allocator
+behavior, record pass/return/store escape, packed/backend record lowering,
+provider activation, host allocator replacement, backend matchers, or silent
+fallback.
 
 
 ## Historical Granularity Anchors
