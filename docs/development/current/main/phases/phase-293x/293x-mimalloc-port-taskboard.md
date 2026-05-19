@@ -678,8 +678,8 @@ FST:
 | `MIMAP-280A` | landed | Segment arena backing modeled allocation-ledger release candidate inventory. | selected HAKO-ALLOC-REPORT-RECORD-005 |
 | `HAKO-ALLOC-REPORT-RECORD-005` | landed | Allocation-ledger release candidate ReportFields pilot. | selected MIMAP-281A |
 | `MIMAP-281A` | landed | Segment arena backing modeled allocation-ledger release candidate diagnostics. | selected MIMAP-282A |
-| `MIMAP-282A` | selected current | Segment arena backing modeled allocation-ledger release candidate closeout pack. | before usize field-group sidecar |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-001` | queued | Select the first allocator exact-`usize` byte/capacity field-group pilot after release-candidate closeout. | after MIMAP-282A |
+| `MIMAP-282A` | landed | Segment arena backing modeled allocation-ledger release candidate closeout pack. | selected HAKO-ALLOC-USIZE-FIELD-GROUP-001 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-001` | selected current | Select the first allocator exact-`usize` byte/capacity field-group pilot after release-candidate closeout. | after MIMAP-282A |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-002` | queued | Migrate one owner-local byte/capacity field group only; keep reason/status/token/sentinel fields on `i64`. | after FIELD-GROUP-001 |
 
 Joint Hakorune / mimalloc ordering:
@@ -689,12 +689,12 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-282A` closes the MIMAP-280A/MIMAP-281A release-candidate family before
-the first exact-`usize` byte/capacity field-group sidecar. Real pointer
-residence, pointer-derived lookup, real thread scheduling, worker spawning,
-source-level concurrency features, real arena backing allocation, atomic bitmap
-execution, page-source calls, OSVM unreserve/release, provider activation, and
-backend matchers remain closed.
+`HAKO-ALLOC-USIZE-FIELD-GROUP-001` selects the first exact-`usize`
+byte/capacity field-group pilot after the MIMAP-282A release-candidate closeout.
+Real pointer residence, pointer-derived lookup, real thread scheduling, worker
+spawning, source-level concurrency features, real arena backing allocation,
+atomic bitmap execution, page-source calls, OSVM unreserve/release, provider
+activation, and backend matchers remain closed.
 
 Exact-`usize` follow-up order:
 

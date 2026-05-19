@@ -1,6 +1,6 @@
 # 293x-808 MIMAP-282A Segment Arena Backing Modeled Allocation-Ledger Release Candidate Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -50,6 +50,23 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_le
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+- Added closeout SSOT and manifest-backed closeout guard.
+- Bound the MIMAP-280A inventory guard and MIMAP-281A diagnostics guard into
+  the `segment-arena-backing-modeled-allocation-ledger-release-candidate`
+  closeout pack.
+- Added representative exact-MIR L3 evidence through the MIMAP-281A diagnostics
+  proof app.
+- Kept release-candidate behavior unchanged and all real runtime/backend seams
+  closed.
+- Kept exact-`usize` stored field migration out of the closeout row.
+
+## Selected Next Row
+
+`HAKO-ALLOC-USIZE-FIELD-GROUP-001` select allocator byte/capacity field-group
+pilot.
 
 ## Next
 
