@@ -1,6 +1,6 @@
 # 293x-835 HAKO-ALLOC-USIZE-FIELD-GROUP-027 Arena-Slot Byte/Capacity Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -57,7 +57,21 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Re-ran the MIMAP-256A arena-slot L2 guard after the arena-slot
+  byte/capacity migration.
+- Re-ran the MIMAP-257A diagnostics L2 guard and the MIMAP-258A closeout L3
+  guard to keep the representative exact-MIR evidence green.
+- Re-ran the downstream MIMAP-260A source-bridge L2 guard because source-bridge
+  consumes the arena-slot byte/capacity facts.
+- Confirmed `NUMERIC_FIELDS.md` lists the arena-slot byte/capacity fields as
+  current production `usize` storage.
+- Kept counters, reasons, tokens, ids, alignments, geometry fields, slot index,
+  row index, and sentinel-bearing fields on `i64`.
+
 ## Next
 
-After this closeout, select the next allocator exact-`usize` byte/capacity field
-group.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-028` for the residence arena-binding
+geometry count / page-size group that feeds the already-migrated arena-slot
+family. This is intentionally not a byte/capacity row.
