@@ -23,6 +23,7 @@ Related:
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
   - docs/development/current/main/design/static-const-table-syntax-ssot.md
+  - docs/development/current/main/design/typed-numeric-memory-substrate-task-order-ssot.md
   - lang/src/runtime/collections/README.md
   - lang/src/hako_alloc/README.md
   - crates/nyash_kernel/src/plugin/handle_cache.rs
@@ -89,6 +90,7 @@ allocator-specific.
 Concrete implementation ordering now lives in:
 
 - [`mimalloc-capability-taskboard-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md)
+- [`typed-numeric-memory-substrate-task-order-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/typed-numeric-memory-substrate-task-order-ssot.md)
 
 The accepted design is capability-module based:
 

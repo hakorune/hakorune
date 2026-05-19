@@ -7,6 +7,7 @@ Scope: exact `usize` / pointer-sized unsigned integer semantics before the
 Related:
   - docs/reference/language/types.md
   - docs/reference/runtime/substrate-capabilities.md
+  - docs/development/current/main/design/typed-numeric-memory-substrate-task-order-ssot.md
   - docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md
   - docs/development/current/main/phases/phase-294x/README.md
   - docs/development/current/main/phases/phase-294x/294x-90-usize-semantics-taskboard.md
@@ -204,6 +205,29 @@ wrap unless this SSOT is updated by an accepted decision card.
 
 This keeps mimalloc policy code honest: size arithmetic failures surface near
 the typed integer operation instead of turning into allocator corruption.
+
+## Mimalloc Memory Gate
+
+The task order for moving from exact numeric field metadata to allocator-grade
+memory behavior is owned by:
+
+```text
+docs/development/current/main/design/typed-numeric-memory-substrate-task-order-ssot.md
+```
+
+Use this document for exact `usize` meaning. Use the task-order SSOT for when a
+mimalloc row is allowed to consume that meaning in memory substrate work. The
+short rule is:
+
+```text
+exact field/storage metadata first
+then exact source/operator/backend parity
+then memory layout/substrate
+then real arena/segment-map/bitmap/atomic behavior
+```
+
+Do not treat a `usize` annotation in hako_alloc as permission to use raw
+pointer arithmetic, bitmap shifts, or arena memory execution.
 
 ## Signed Sentinel Policy
 

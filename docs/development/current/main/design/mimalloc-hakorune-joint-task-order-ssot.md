@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/design/mimalloc-concurrency-substrate-boundary-ssot.md
   - docs/development/current/main/design/mimalloc-hakorune-capability-surface-ssot.md
   - docs/development/current/main/design/language-feature-implementation-order-ssot.md
+  - docs/development/current/main/design/typed-numeric-memory-substrate-task-order-ssot.md
   - docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md
 ---
 
@@ -31,6 +32,18 @@ The order is:
 
 This keeps Hakorune improving as a language/compiler while preventing mimalloc
 from pulling in broad user-facing concurrency or provider activation too early.
+
+Typed numeric / memory substrate ordering is now owned by:
+
+```text
+docs/development/current/main/design/typed-numeric-memory-substrate-task-order-ssot.md
+```
+
+Use that SSOT when a mimalloc row wants to move beyond owner-local
+non-negative `usize` field migrations. In particular, raw pointer residence,
+arena backing execution, bitmap word arithmetic, atomics, and TLS require the
+typed numeric / memory substrate gates there before they can become allocator
+behavior rows.
 
 ## Current Recommended Row
 
