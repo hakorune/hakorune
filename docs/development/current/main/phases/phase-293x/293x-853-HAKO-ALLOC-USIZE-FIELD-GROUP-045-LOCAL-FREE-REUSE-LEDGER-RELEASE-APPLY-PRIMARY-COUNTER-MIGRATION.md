@@ -1,6 +1,6 @@
 # 293x-853 HAKO-ALLOC-USIZE-FIELD-GROUP-045 Local-Free Reuse Ledger Release-Apply Primary Counter Migration
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -48,8 +48,17 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Migrated only the three owner-local release-apply primary counters to exact
+  `usize`.
+- Kept all per-reason release-apply reject counters, last sentinels, reasons,
+  indexes, tokens, segment/page ids, reused block ids, and flags on `i64`.
+- Extended the MIMAP-138A guard to assert both the report count field contract
+  and the owner primary counter typed-object contract.
+
 ## Next
 
-After migration, select `HAKO-ALLOC-USIZE-FIELD-GROUP-046` to close out the
-release-apply primary counter group before selecting per-reason counters or a
-different allocator exact-`usize` field group.
+`HAKO-ALLOC-USIZE-FIELD-GROUP-046` closes out the release-apply primary counter
+group before selecting per-reason counters or a different allocator
+exact-`usize` field group.

@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-19"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "HAKO-ALLOC-USIZE-FIELD-GROUP-044 closed out the modeled local-free reuse ledger release-apply count exact-usize field group; HAKO-ALLOC-USIZE-FIELD-GROUP-045 release-apply primary counter migration is current. Cross-function Result direct ABI remains closed. Real raw pointer residence, pointer-derived lookup, real arena backing, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "HAKO-ALLOC-USIZE-FIELD-GROUP-045 migrated the modeled local-free reuse ledger release-apply primary counter exact-usize field group; HAKO-ALLOC-USIZE-FIELD-GROUP-046 closeout is current. Cross-function Result direct ABI remains closed. Real raw pointer residence, pointer-derived lookup, real arena backing, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-853-HAKO-ALLOC-USIZE-FIELD-GROUP-045-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-PRIMARY-COUNTER-MIGRATION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-854-HAKO-ALLOC-USIZE-FIELD-GROUP-046-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-PRIMARY-COUNTER-CLOSEOUT.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-852-HAKO-ALLOC-USIZE-FIELD-GROUP-044-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-COUNT-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-852-HAKO-ALLOC-USIZE-FIELD-GROUP-044-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-COUNT-CLOSEOUT.md"
-latest_card_summary = "HAKO-ALLOC-USIZE-FIELD-GROUP-044 landed by closing out the modeled local-free reuse ledger release-apply count group."
+latest_card = "293x-853-HAKO-ALLOC-USIZE-FIELD-GROUP-045-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-PRIMARY-COUNTER-MIGRATION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-853-HAKO-ALLOC-USIZE-FIELD-GROUP-045-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-PRIMARY-COUNTER-MIGRATION.md"
+latest_card_summary = "HAKO-ALLOC-USIZE-FIELD-GROUP-045 landed by migrating the modeled local-free reuse ledger release-apply primary counters to exact usize."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-045"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-046"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-853 HAKO-ALLOC-USIZE-FIELD-GROUP-045 local-free reuse ledger release-apply primary counter migration landed; HAKO-ALLOC-USIZE-FIELD-GROUP-046 selected",
   "293x-852 HAKO-ALLOC-USIZE-FIELD-GROUP-044 local-free reuse ledger release-apply count closeout landed; HAKO-ALLOC-USIZE-FIELD-GROUP-045 selected",
   "293x-851 HAKO-ALLOC-USIZE-FIELD-GROUP-043 local-free reuse ledger release-apply count migration landed; HAKO-ALLOC-USIZE-FIELD-GROUP-044 selected",
   "293x-850 HAKO-ALLOC-USIZE-FIELD-GROUP-042 next field-group selection landed; HAKO-ALLOC-USIZE-FIELD-GROUP-043 selected",

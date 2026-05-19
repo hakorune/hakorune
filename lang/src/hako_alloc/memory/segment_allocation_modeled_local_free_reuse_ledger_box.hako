@@ -98,9 +98,9 @@ box HakoAllocSegmentAllocationModeledLocalFreeReuseLedger {
     thread_reject_count: i64 = 0
     provider_reject_count: i64 = 0
     backend_matcher_reject_count: i64 = 0
-    release_apply_attempt_count: i64 = 0
-    release_apply_count: i64 = 0
-    release_apply_reject_count: i64 = 0
+    release_apply_attempt_count: usize = 0
+    release_apply_count: usize = 0
+    release_apply_reject_count: usize = 0
     release_apply_upstream_reject_count: i64 = 0
     release_apply_invalid_shape_reject_count: i64 = 0
     release_apply_duplicate_reject_count: i64 = 0

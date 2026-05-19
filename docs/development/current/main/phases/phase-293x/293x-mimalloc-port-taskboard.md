@@ -723,7 +723,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-042` | landed | Select the next narrow allocator exact-`usize` stored field group after closing the modeled local-free reuse ledger chain. | selected FIELD-GROUP-043 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-043` | landed | Migrate the modeled local-free reuse ledger release-apply report count group only; keep reasons, indexes, tokens, ids, reused block ids, flags, and owner counters on `i64`. | selected FIELD-GROUP-044 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-044` | landed | Close out the modeled local-free reuse ledger release-apply count field group and keep the evidence bounded. | selected FIELD-GROUP-045 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-045` | selected current | Migrate the modeled local-free reuse ledger release-apply owner primary counters only; keep per-reason counters, reasons, indexes, tokens, ids, flags, and sentinels on `i64`. | after FIELD-GROUP-044 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-045` | landed | Migrate the modeled local-free reuse ledger release-apply owner primary counters only; keep per-reason counters, reasons, indexes, tokens, ids, flags, and sentinels on `i64`. | selected FIELD-GROUP-046 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-046` | selected current | Close out the modeled local-free reuse ledger release-apply primary counter field group and keep the evidence bounded. | after FIELD-GROUP-045 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -732,8 +733,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-045` migrates the modeled local-free reuse ledger
-release-apply owner primary counters:
+`HAKO-ALLOC-USIZE-FIELD-GROUP-046` closes out the modeled local-free reuse
+ledger release-apply owner primary counter field group:
 
 ```text
 release_apply_attempt_count
@@ -848,6 +849,8 @@ Then HAKO-ALLOC-USIZE-FIELD-GROUP-044 closes out that release-apply count group
 before selecting another allocator exact-`usize` field group.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-045 migrates the modeled local-free reuse
 ledger release-apply owner primary counters. Per-reason counters stay i64.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-046 closes out that primary counter group
+before selecting another allocator exact-`usize` field group.
 ```
 
 MIMAP-020A execution order:

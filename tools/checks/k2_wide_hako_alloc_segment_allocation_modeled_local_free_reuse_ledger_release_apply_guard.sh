@@ -55,6 +55,10 @@ guard_expect_in_file "$TAG" 'applyReuseLedgerRelease' "$OWNER" "reuse ledger own
 guard_expect_in_file "$TAG" 'release_apply_count_after: usize = 0' "$OWNER" "release apply count must be exact usize"
 guard_expect_in_file "$TAG" 'release_apply_reject_count_after: usize = 0' "$OWNER" "release apply reject count must be exact usize"
 guard_expect_in_file "$TAG" 'ledger_live_count_after: usize = 0' "$OWNER" "release apply ledger live count must be exact usize"
+guard_expect_in_file "$TAG" 'release_apply_attempt_count: usize = 0' "$OWNER" "release apply attempt counter must be exact usize"
+guard_expect_in_file "$TAG" 'release_apply_count: usize = 0' "$OWNER" "release apply counter must be exact usize"
+guard_expect_in_file "$TAG" 'release_apply_reject_count: usize = 0' "$OWNER" "release apply reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'release_apply_duplicate_reject_count: i64 = 0' "$OWNER" "release apply per-reason counters must remain i64"
 guard_expect_in_file "$TAG" 'modeled_reuse_token: i64 = -1' "$OWNER" "release apply token sentinel must remain i64"
 guard_expect_in_file "$TAG" 'source_modeled_allocation_token: i64 = -1' "$OWNER" "release apply source token sentinel must remain i64"
 guard_expect_in_file "$TAG" 'reused_block_id: i64 = -1' "$OWNER" "release apply reused block id must remain i64"
@@ -166,6 +170,9 @@ plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [
 report = plans.get("HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport")
 if report is None:
     raise SystemExit("missing local-free reuse ledger release apply report typed object plan")
+owner = plans.get("HakoAllocSegmentAllocationModeledLocalFreeReuseLedger")
+if owner is None:
+    raise SystemExit("missing local-free reuse ledger owner typed object plan")
 
 fields = {field.get("name"): field for field in report.get("fields", [])}
 usize_fields = (
@@ -209,6 +216,44 @@ for name in (
 ):
     if name not in fields:
         raise SystemExit(f"missing local-free reuse ledger release apply field: {name}")
+
+owner_fields = {field.get("name"): field for field in owner.get("fields", [])}
+owner_usize_fields = (
+    "release_apply_attempt_count",
+    "release_apply_count",
+    "release_apply_reject_count",
+)
+owner_i64_fields = (
+    "release_apply_upstream_reject_count",
+    "release_apply_invalid_shape_reject_count",
+    "release_apply_duplicate_reject_count",
+    "release_apply_missing_reject_count",
+    "release_apply_execution_reject_count",
+    "release_apply_raw_pointer_reject_count",
+    "release_apply_segment_map_reject_count",
+    "release_apply_arena_reject_count",
+    "release_apply_atomic_bitmap_reject_count",
+    "release_apply_osvm_reject_count",
+    "release_apply_thread_reject_count",
+    "release_apply_provider_reject_count",
+    "release_apply_backend_matcher_reject_count",
+    "last_token",
+    "last_reason",
+    "last_index",
+)
+for name in owner_usize_fields:
+    field = owner_fields.get(name)
+    if field is None:
+        raise SystemExit(f"missing local-free reuse ledger owner field: {name}")
+    if field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"bad usize local-free reuse ledger owner field {name}: {field}")
+
+for name in owner_i64_fields:
+    field = owner_fields.get(name)
+    if field is None:
+        raise SystemExit(f"missing local-free reuse ledger owner field: {name}")
+    if field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"bad i64 local-free reuse ledger owner field {name}: {field}")
 
 print("[mimap138a-mir-json] ok")
 PY
