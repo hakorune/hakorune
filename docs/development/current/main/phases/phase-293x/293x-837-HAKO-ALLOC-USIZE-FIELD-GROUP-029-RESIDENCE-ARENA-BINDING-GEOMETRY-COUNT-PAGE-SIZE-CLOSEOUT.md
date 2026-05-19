@@ -1,6 +1,6 @@
 # 293x-837 HAKO-ALLOC-USIZE-FIELD-GROUP-029 Residence Arena-Binding Geometry Count / Page-Size Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -60,6 +60,21 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Re-ran the MIMAP-252A residence arena-binding L2 guard after the geometry
+  count / page-size migration.
+- Re-ran the MIMAP-253A diagnostics L2 guard and the MIMAP-254A closeout L3
+  guard to keep the representative exact-MIR evidence green.
+- Re-ran the downstream MIMAP-256A arena-slot L2 guard because arena-slot
+  consumes the residence arena-binding geometry facts.
+- Confirmed `NUMERIC_FIELDS.md` lists the residence arena-binding geometry
+  count / page-size fields as current production `usize` storage.
+- Kept counters, reasons, tokens, ids, generations, alignments, row index, and
+  sentinel-bearing fields on `i64`.
+
 ## Next
 
-After this closeout, select the next allocator exact-`usize` field group.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-030` for the requirement-matrix geometry
+count / page-size group that feeds the already-migrated residence arena-binding
+family. This is intentionally not a byte/capacity row.

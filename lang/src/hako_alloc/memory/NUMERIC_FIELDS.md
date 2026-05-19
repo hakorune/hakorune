@@ -159,8 +159,15 @@ Current production `usize` field group:
 
 Selected next production `usize` field group:
 
-- none. `HAKO-ALLOC-USIZE-FIELD-GROUP-029` is a closeout row for the residence
-  arena-binding geometry count / page-size group, not a new migration group.
+- `segment_arena_backing_requirement_matrix_box.hako`
+  / `HakoAllocSegmentArenaBackingRequirementMatrixReport` geometry count /
+  page-size report fields:
+  `slice_count`, `committed_slices`, `free_slices`, `page_size`.
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-030` selects this group because it is the
+  owner-local non-negative geometry group that feeds the already-migrated
+  residence arena-binding family. This is intentionally not a byte/capacity
+  row. Counters, reasons, ids, alignments, requirement flags, and blocker
+  counts stay `i64`.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
