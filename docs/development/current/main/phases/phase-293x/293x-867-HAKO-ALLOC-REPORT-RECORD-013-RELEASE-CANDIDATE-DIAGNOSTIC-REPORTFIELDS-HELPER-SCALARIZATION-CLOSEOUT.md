@@ -1,6 +1,6 @@
 # 293x-867 HAKO-ALLOC-REPORT-RECORD-013 Release-Candidate Diagnostic ReportFields Helper Scalarization Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -51,3 +51,27 @@ git diff --check
 - The diagnostics guard proves no runtime `NewBox` is emitted for the
   diagnostic `ReportFields` record.
 - The closeout selects the next narrow row only after evidence is recorded.
+
+## Progress
+
+- Confirmed the release-candidate diagnostic owner keeps its `ReportFields`
+  helper argument builder-local.
+- Confirmed the diagnostics guard proves no runtime `NewBox` is emitted for the
+  diagnostic `ReportFields` record.
+- Kept the closeout evidence-only; no additional report owner was migrated in
+  this row.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_allocator_record_construction_read_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_candidate_diagnostics_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Next
+
+Select `RECORD-LOCAL-SCALARIZATION-SSOT-001` to freeze the local record
+scalarization owner boundaries, helper body stop lines, PHI propagation rule,
+and same-owner receiver rule before another `ReportFields` owner is migrated.

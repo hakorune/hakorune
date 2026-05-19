@@ -737,7 +737,9 @@ FST:
 | `HAKO-ALLOC-REPORT-RECORD-010` | landed | Close out the first two ReportFields helper-argument scalarization owners before selecting another report owner. | selected HAKO-ALLOC-REPORT-RECORD-011 |
 | `HAKO-ALLOC-REPORT-RECORD-011` | landed | Inventory remaining scalar-only report-box candidates and select the next single owner or return to the allocator lane. | selected HAKO-ALLOC-REPORT-RECORD-012 |
 | `HAKO-ALLOC-REPORT-RECORD-012` | landed | Apply helper-argument scalarization to the allocation-ledger release-candidate diagnostic ReportFields owner only. | selected HAKO-ALLOC-REPORT-RECORD-013 |
-| `HAKO-ALLOC-REPORT-RECORD-013` | selected current | Close out the allocation-ledger release-candidate diagnostic ReportFields helper-scalarization owner. | after HAKO-ALLOC-REPORT-RECORD-012 |
+| `HAKO-ALLOC-REPORT-RECORD-013` | landed | Close out the allocation-ledger release-candidate diagnostic ReportFields helper-scalarization owner. | selected RECORD-LOCAL-SCALARIZATION-SSOT-001 |
+| `RECORD-LOCAL-SCALARIZATION-SSOT-001` | landed | Fix the record-local scalarization owner boundaries, helper body stop lines, exact PHI propagation rule, receiver rule, and guard expectations. | selected HAKO-ALLOC-REPORT-RECORD-014 |
+| `HAKO-ALLOC-REPORT-RECORD-014` | selected current | Select the next single ReportFields owner under the record-local scalarization SSOT, or return to the allocator modeled lane. | after RECORD-LOCAL-SCALARIZATION-SSOT-001 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -746,21 +748,29 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-REPORT-RECORD-013` closes out the allocation-ledger
-release-candidate diagnostic ReportFields helper-scalarization owner. The
-already migrated motivating record is:
+`HAKO-ALLOC-REPORT-RECORD-014` selects the next single `ReportFields` owner
+under the record-local scalarization SSOT, or returns to the allocator modeled
+lane if no owner should be migrated now.
+
+SSOT:
+
+```text
+docs/development/current/main/design/record-local-scalarization-ssot.md
+```
+
+Already migrated motivating record:
 
 ```text
 HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields
 ```
 
-The second migrated record is:
+Second migrated record:
 
 ```text
 HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReportFields
 ```
 
-The current target record is:
+Third migrated record:
 
 ```text
 HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateDiagnosticReportFields
