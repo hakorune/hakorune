@@ -77,8 +77,16 @@ Current production `usize` field group:
 
 Selected next production `usize` field group:
 
-- none. `HAKO-ALLOC-USIZE-FIELD-GROUP-013` is a closeout row for the
-  allocation-apply diagnostic mirror byte group, not a new migration group.
+- `segment_arena_backing_modeled_allocation_plan_box.hako`
+  / `HakoAllocSegmentArenaBackingModeledAllocationPlanReport`
+  byte/capacity report fields:
+  `source_capacity`, `source_committed_bytes`, `source_uncommitted_bytes`,
+  `padded_bytes`, `slot_capacity`, `planned_backing_bytes`,
+  `planned_committed_bytes`, `remaining_source_bytes`.
+  This group is selected by `HAKO-ALLOC-USIZE-FIELD-GROUP-014` because it is the
+  owner-local allocation-plan report group that feeds the already-migrated
+  allocation-apply family. Counters, reasons, tokens, ids, and sentinels stay
+  `i64`.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
