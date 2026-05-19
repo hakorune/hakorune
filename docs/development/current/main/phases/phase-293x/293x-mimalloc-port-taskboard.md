@@ -698,7 +698,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-017` | landed | Close out the allocation-plan diagnostic byte mirror field group and keep the evidence bounded. | selected FIELD-GROUP-018 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-018` | landed | Migrate source-accounting report byte/capacity fields only; keep counters, reasons, tokens, ids, and sentinels on `i64`. | selected FIELD-GROUP-019 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-019` | landed | Close out the source-accounting byte/capacity field group and keep the evidence bounded. | selected FIELD-GROUP-020 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-020` | selected current | Migrate source-accounting diagnostic mirror byte fields only; keep diagnostic counters, reasons, tokens, ids, and sentinels on `i64`. | after FIELD-GROUP-019 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-020` | landed | Migrate source-accounting diagnostic mirror byte fields only; keep diagnostic counters, reasons, tokens, ids, and sentinels on `i64`. | selected FIELD-GROUP-021 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-021` | selected current | Close out the source-accounting diagnostic byte mirror field group and keep the evidence bounded. | after FIELD-GROUP-020 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -707,7 +708,7 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-020` migrates the source-accounting diagnostic
+`HAKO-ALLOC-USIZE-FIELD-GROUP-021` closes out the source-accounting diagnostic
 mirror byte fields that copy already-migrated source-accounting facts:
 
 ```text
@@ -766,6 +767,8 @@ Then HAKO-ALLOC-USIZE-FIELD-GROUP-019 closes out that source-accounting group
 before selecting another allocator byte/capacity group.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-020 migrates the source-accounting diagnostic
 mirror byte fields that copy already-migrated source-accounting byte facts.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-021 closes out that source-accounting
+diagnostic mirror group before selecting another allocator byte/capacity group.
 Reason/status/token/sentinel fields stay i64.
 ```
 

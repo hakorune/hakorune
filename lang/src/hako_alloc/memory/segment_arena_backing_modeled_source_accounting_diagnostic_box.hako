@@ -28,11 +28,11 @@ record HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReportFields
     last_report_reason: i64
     last_report_closed_substrate_blocker_count: i64
     last_report_source_token: i64
-    last_report_source_capacity: i64
-    last_report_source_committed_bytes: i64
-    last_report_source_uncommitted_bytes: i64
-    last_report_accounted_padded_bytes: i64
-    last_report_available_after_padded_bytes: i64
+    last_report_source_capacity: usize
+    last_report_source_committed_bytes: usize
+    last_report_source_uncommitted_bytes: usize
+    last_report_accounted_padded_bytes: usize
+    last_report_available_after_padded_bytes: usize
     source_accounting_present: i64
     modeled_source_accounting_present: i64
     missing_bridge_reject_seen: i64
@@ -62,11 +62,11 @@ box HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReport {
     last_report_reason: i64 = 0
     last_report_closed_substrate_blocker_count: i64 = 0
     last_report_source_token: i64 = 0
-    last_report_source_capacity: i64 = 0
-    last_report_source_committed_bytes: i64 = 0
-    last_report_source_uncommitted_bytes: i64 = 0
-    last_report_accounted_padded_bytes: i64 = 0
-    last_report_available_after_padded_bytes: i64 = 0
+    last_report_source_capacity: usize = 0
+    last_report_source_committed_bytes: usize = 0
+    last_report_source_uncommitted_bytes: usize = 0
+    last_report_accounted_padded_bytes: usize = 0
+    last_report_available_after_padded_bytes: usize = 0
     source_accounting_present: i64 = 0
     modeled_source_accounting_present: i64 = 0
     missing_bridge_reject_seen: i64 = 0

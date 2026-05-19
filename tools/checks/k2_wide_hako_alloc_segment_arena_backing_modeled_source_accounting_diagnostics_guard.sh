@@ -78,9 +78,11 @@ guard_expect_in_file "$TAG" 'segment_arena_backing_modeled_source_accounting_dia
 guard_expect_in_file "$TAG" 'record HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReportFields' "$DIAGNOSTIC_OWNER" "diagnostic owner must use local ReportFields record payload"
 guard_expect_in_file "$TAG" 'observeSourceAccountingDiagnostics' "$DIAGNOSTIC_OWNER" "diagnostic owner must expose observer route"
 guard_expect_in_file "$TAG" 'diagnostic_present: i64 = 1' "$DIAGNOSTIC_OWNER" "diagnostic report must publish presence bit"
-guard_expect_in_file "$TAG" 'last_report_source_capacity: i64' "$DIAGNOSTIC_OWNER" "source-accounting diagnostic capacity mirror must remain i64 in HAKO-ALLOC-USIZE-FIELD-GROUP-018"
-guard_expect_in_file "$TAG" 'last_report_accounted_padded_bytes: i64' "$DIAGNOSTIC_OWNER" "source-accounting diagnostic padded mirror must remain i64 in HAKO-ALLOC-USIZE-FIELD-GROUP-018"
-guard_expect_in_file "$TAG" 'last_report_available_after_padded_bytes: i64' "$DIAGNOSTIC_OWNER" "source-accounting diagnostic available mirror must remain i64 in HAKO-ALLOC-USIZE-FIELD-GROUP-018"
+guard_expect_in_file "$TAG" 'last_report_source_capacity: usize' "$DIAGNOSTIC_OWNER" "source-accounting diagnostic capacity mirror must be usize after HAKO-ALLOC-USIZE-FIELD-GROUP-020"
+guard_expect_in_file "$TAG" 'last_report_source_committed_bytes: usize' "$DIAGNOSTIC_OWNER" "source-accounting diagnostic committed mirror must be usize after HAKO-ALLOC-USIZE-FIELD-GROUP-020"
+guard_expect_in_file "$TAG" 'last_report_source_uncommitted_bytes: usize' "$DIAGNOSTIC_OWNER" "source-accounting diagnostic uncommitted mirror must be usize after HAKO-ALLOC-USIZE-FIELD-GROUP-020"
+guard_expect_in_file "$TAG" 'last_report_accounted_padded_bytes: usize' "$DIAGNOSTIC_OWNER" "source-accounting diagnostic padded mirror must be usize after HAKO-ALLOC-USIZE-FIELD-GROUP-020"
+guard_expect_in_file "$TAG" 'last_report_available_after_padded_bytes: usize' "$DIAGNOSTIC_OWNER" "source-accounting diagnostic available mirror must be usize after HAKO-ALLOC-USIZE-FIELD-GROUP-020"
 guard_expect_in_file "$TAG" 'check "mimap265a segment arena backing modeled source accounting diagnostics"' "$APP" "proof must use labelled check block"
 
 if rg -n 'recordSourceAccounting|me\.(inventory_count|accepted_count|reject_count|missing_bridge_reject_count|rejected_bridge_reject_count|invalid_source_token_reject_count|invalid_accounting_geometry_reject_count|closed_substrate_reject_count)[[:space:]]*\+=' \
@@ -199,8 +201,8 @@ for name in (
     "last_report_available_after_padded_bytes",
 ):
     field = fields.get(name)
-    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
-        raise SystemExit(f"source accounting diagnostic mirror {name} must remain i64 storage: {field}")
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"source accounting diagnostic mirror {name} must be usize storage: {field}")
 
 record_decl = None
 for decl in data.get("record_decls", []):
@@ -222,8 +224,8 @@ for name in (
     "last_report_available_after_padded_bytes",
 ):
     field = record_fields.get(name)
-    if field is None or field.get("declared_type") != "i64":
-        raise SystemExit(f"source accounting diagnostic ReportFields {name} must remain declared i64: {field}")
+    if field is None or field.get("declared_type") != "usize":
+        raise SystemExit(f"source accounting diagnostic ReportFields {name} must be declared usize: {field}")
 
 print("[mimap265a-mir-json] ok")
 PY
