@@ -1,6 +1,6 @@
 # 293x-809 HAKO-ALLOC-USIZE-FIELD-GROUP-001 Byte/Capacity Field-Group Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -68,9 +68,33 @@ git diff --check
 
 ## Selected Row
 
-TBD by this row:
-
 ```text
 HAKO-ALLOC-USIZE-FIELD-GROUP-002
-  migrate one owner-local byte/capacity field group only
+  migrate the release-candidate report byte/capacity field group only
 ```
+
+Selected owner:
+
+```text
+lang/src/hako_alloc/memory/segment_arena_backing_modeled_allocation_ledger_release_candidate_box.hako
+```
+
+Selected field group:
+
+```text
+source_capacity
+source_committed_bytes
+source_uncommitted_bytes
+padded_bytes
+slot_capacity
+planned_backing_bytes
+planned_committed_bytes
+applied_backing_bytes
+applied_committed_bytes
+remaining_source_bytes
+```
+
+The migration row should update both the owner-local `ReportFields` record and
+the returned report box for this exact field group, then prove that VM/MIR
+metadata still expose the fields and that reason/status/token/sentinel fields
+remain `i64`.

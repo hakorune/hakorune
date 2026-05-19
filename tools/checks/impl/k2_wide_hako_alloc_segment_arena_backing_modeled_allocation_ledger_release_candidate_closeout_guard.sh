@@ -53,7 +53,7 @@ guard_require_exec_files "$TAG" "$GUARD_280A" "$GUARD_281A" "$SELF_SCRIPT" "$IMP
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_280A" "MIMAP-280A must be landed before closeout"
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_281A" "MIMAP-281A must be landed before closeout"
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_282A" "MIMAP-282A closeout card must be landed"
-guard_expect_in_file "$TAG" "Status: selected current" "$CARD_USIZE" "HAKO-ALLOC-USIZE-FIELD-GROUP-001 must be selected current after closeout"
+guard_expect_in_file "$TAG" "HAKO-ALLOC-USIZE-FIELD-GROUP-001" "$CARD_USIZE" "HAKO-ALLOC-USIZE-FIELD-GROUP-001 card must exist after closeout"
 
 guard_expect_in_file "$TAG" "Decision: accepted" "$SSOT" "MIMAP-282A closeout SSOT must be accepted"
 guard_expect_in_file "$TAG" "Decision: accepted" "$INVENTORY_SSOT" "MIMAP-280A inventory SSOT must stay accepted"

@@ -17,6 +17,18 @@ Current production `usize` field group:
 - `allocator_facade_box.hako` / `HakoAllocProductionFacade` event counters:
   `alloc_count`, `free_count`, `reject_count`.
 
+Selected next production `usize` field group:
+
+- `segment_arena_backing_modeled_allocation_ledger_release_candidate_box.hako`
+  / `HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReport`
+  byte/capacity report fields:
+  `source_capacity`, `source_committed_bytes`, `source_uncommitted_bytes`,
+  `padded_bytes`, `slot_capacity`, `planned_backing_bytes`,
+  `planned_committed_bytes`, `applied_backing_bytes`,
+  `applied_committed_bytes`, `remaining_source_bytes`.
+  This group is selected by `HAKO-ALLOC-USIZE-FIELD-GROUP-001` and remains
+  pending until `HAKO-ALLOC-USIZE-FIELD-GROUP-002` changes the owner.
+
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
 

@@ -679,8 +679,8 @@ FST:
 | `HAKO-ALLOC-REPORT-RECORD-005` | landed | Allocation-ledger release candidate ReportFields pilot. | selected MIMAP-281A |
 | `MIMAP-281A` | landed | Segment arena backing modeled allocation-ledger release candidate diagnostics. | selected MIMAP-282A |
 | `MIMAP-282A` | landed | Segment arena backing modeled allocation-ledger release candidate closeout pack. | selected HAKO-ALLOC-USIZE-FIELD-GROUP-001 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-001` | selected current | Select the first allocator exact-`usize` byte/capacity field-group pilot after release-candidate closeout. | after MIMAP-282A |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-002` | queued | Migrate one owner-local byte/capacity field group only; keep reason/status/token/sentinel fields on `i64`. | after FIELD-GROUP-001 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-001` | landed | Select release-candidate report byte/capacity fields as the first allocator exact-`usize` field-group pilot after release-candidate closeout. | selected FIELD-GROUP-002 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-002` | selected current | Migrate release-candidate report byte/capacity fields only; keep reason/status/token/sentinel fields on `i64`. | after FIELD-GROUP-001 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -689,8 +689,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-001` selects the first exact-`usize`
-byte/capacity field-group pilot after the MIMAP-282A release-candidate closeout.
+`HAKO-ALLOC-USIZE-FIELD-GROUP-002` migrates only the release-candidate report
+byte/capacity field group selected by `HAKO-ALLOC-USIZE-FIELD-GROUP-001`.
 Real pointer residence, pointer-derived lookup, real thread scheduling, worker
 spawning, source-level concurrency features, real arena backing allocation,
 atomic bitmap execution, page-source calls, OSVM unreserve/release, provider
@@ -700,9 +700,9 @@ Exact-`usize` follow-up order:
 
 ```text
 MIMAP-282A closeout first.
-Then HAKO-ALLOC-USIZE-FIELD-GROUP-001 selects a non-negative byte/capacity
-field group.
-Then HAKO-ALLOC-USIZE-FIELD-GROUP-002 migrates one owner-local group only.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-001 selects release-candidate byte/capacity
+fields.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-002 migrates that owner-local group only.
 Reason/status/token/sentinel fields stay i64.
 ```
 
