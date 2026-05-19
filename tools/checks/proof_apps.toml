@@ -6,6 +6,7 @@ includes = [
   "tools/checks/manifests/proof_apps/hako_alloc_reclaim_core.toml",
   "tools/checks/manifests/proof_apps/hako_alloc_reclaim_scheduler.toml",
   "tools/checks/manifests/proof_apps/hako_alloc_segment_readiness.toml",
+  "tools/checks/manifests/proof_apps/hako_alloc_segment_arena_backing_readiness.toml",
   "tools/checks/manifests/proof_apps/hako_alloc_segment_map_release_lifecycle.toml",
   "tools/checks/manifests/proof_apps/hako_alloc_segment_arena_backing_release_lifecycle.toml",
 ]
