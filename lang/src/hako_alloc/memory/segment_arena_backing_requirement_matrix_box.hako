@@ -17,11 +17,11 @@ box HakoAllocSegmentArenaBackingRequirementMatrixReport {
     diagnostic_reason: i64 = 0
     segment_id: i64 = -1
     arena_id: i64 = -1
-    slice_count: i64 = 0
-    committed_slices: i64 = 0
-    free_slices: i64 = 0
+    slice_count: usize = 0
+    committed_slices: usize = 0
+    free_slices: usize = 0
     required_alignment: i64 = 0
-    page_size: i64 = 0
+    page_size: usize = 0
     geometry_valid: i64 = 0
     requires_arena_backing: i64 = 0
     requires_raw_pointer: i64 = 0

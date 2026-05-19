@@ -1,6 +1,6 @@
 # 293x-838 HAKO-ALLOC-USIZE-FIELD-GROUP-030 Requirement-Matrix Geometry Count / Page-Size Migration
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -56,8 +56,21 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Migrated only the
+  `HakoAllocSegmentArenaBackingRequirementMatrixReport` geometry count /
+  page-size group to exact `usize` storage.
+- Kept requirement-matrix counters, reasons, ids, alignments, requirement flags,
+  blocker counts, and sentinel-bearing fields on `i64`.
+- Strengthened the MIMAP-240A guard to assert exact `usize` typed-object storage
+  for the geometry count / page-size fields and to assert `required_alignment`
+  and id sentinel fields remain `i64`.
+- Re-ran the MIMAP-241A diagnostics guard and the downstream MIMAP-252A
+  residence arena-binding L2 guard after the migration.
+
 ## Next
 
-After migration, select `HAKO-ALLOC-USIZE-FIELD-GROUP-031` to close out the
-requirement-matrix geometry count / page-size group before selecting another
-allocator exact-`usize` field group.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-031` to close out the requirement-matrix
+geometry count / page-size group before selecting another allocator
+exact-`usize` field group.

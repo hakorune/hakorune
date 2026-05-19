@@ -86,6 +86,12 @@ guard_expect_in_file "$TAG" 'memory.segment_arena_backing_requirement_matrix_box
 guard_expect_in_file "$TAG" 'segment_arena_backing_requirement_matrix_box.hako' "$MEMORY_README" "memory README must name requirement matrix owner"
 guard_expect_in_file "$TAG" 'recordRequirementMatrix' "$OWNER" "owner must expose requirement matrix recorder"
 guard_expect_in_file "$TAG" 'scalar_requirement_matrix_present: i64 = 1' "$OWNER" "report must publish scalar matrix presence bit"
+guard_expect_in_file "$TAG" 'slice_count: usize = 0' "$OWNER" "requirement matrix slice count must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-030"
+guard_expect_in_file "$TAG" 'committed_slices: usize = 0' "$OWNER" "requirement matrix committed slices must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-030"
+guard_expect_in_file "$TAG" 'free_slices: usize = 0' "$OWNER" "requirement matrix free slices must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-030"
+guard_expect_in_file "$TAG" 'page_size: usize = 0' "$OWNER" "requirement matrix page size must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-030"
+guard_expect_in_file "$TAG" 'required_alignment: i64 = 0' "$OWNER" "requirement matrix alignment must remain i64"
+guard_expect_in_file "$TAG" 'segment_id: i64 = -1' "$OWNER" "requirement matrix id sentinel must remain i64"
 guard_expect_in_file "$TAG" 'check "mimap240a segment arena backing scalar requirement matrix"' "$APP" "proof must use labelled check block"
 
 if rg -n 'allocateArena|ArenaBackingAlloc|arenaBackingAllocate|rawPointer|pointer_member|lookupSegment[[:space:]]*\(|mutateSegmentMap|claimBitmap|unclaimBitmap|AtomicCoreBox|hako_atomic|cas_i64|fetch_add|hako_osvm|spawn[[:space:]]*\(|thread::|worker_local|ChannelBox|TaskGroupBox|nowait|sync[[:space:]]+box|context[[:space:]]|providerActivate|global_allocator' \
@@ -201,6 +207,30 @@ for name in (
 ):
     if name not in fields:
         raise SystemExit(f"missing arena backing requirement matrix report field: {name}")
+
+for name in (
+    "slice_count",
+    "committed_slices",
+    "free_slices",
+    "page_size",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"requirement matrix {name} must be exact usize storage: {field}")
+
+for name in (
+    "accepted",
+    "reason",
+    "segment_id",
+    "arena_id",
+    "required_alignment",
+    "geometry_valid",
+    "requires_arena_backing",
+    "blocked_requirement_count",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"requirement matrix {name} must remain i64 storage: {field}")
 
 print("[mimap240a-mir-json] ok")
 PY

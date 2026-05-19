@@ -708,7 +708,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-027` | landed | Close out the arena-slot byte/capacity field group and keep the evidence bounded. | selected FIELD-GROUP-028 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-028` | landed | Migrate the residence arena-binding geometry count / page-size group only; keep alignments, counters, reasons, tokens, ids, and sentinels on `i64`. | selected FIELD-GROUP-029 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-029` | landed | Close out the residence arena-binding geometry count / page-size field group and keep the evidence bounded. | selected FIELD-GROUP-030 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-030` | selected current | Migrate the requirement-matrix geometry count / page-size group only; keep alignments, counters, reasons, tokens, ids, and sentinels on `i64`. | after FIELD-GROUP-029 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-030` | landed | Migrate the requirement-matrix geometry count / page-size group only; keep alignments, counters, reasons, tokens, ids, and sentinels on `i64`. | selected FIELD-GROUP-031 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-031` | selected current | Close out the requirement-matrix geometry count / page-size field group and keep the evidence bounded. | after FIELD-GROUP-030 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -717,7 +718,7 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-030` migrates the requirement-matrix report
+`HAKO-ALLOC-USIZE-FIELD-GROUP-031` closes out the requirement-matrix report
 geometry count / page-size fields that feed the already-migrated residence
 arena-binding family:
 
@@ -799,6 +800,9 @@ exact-`usize` field group.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-030 migrates the requirement-matrix geometry
 count / page-size group that feeds the already-migrated residence arena-binding
 family. This is intentionally not a byte/capacity row.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-031 closes out that requirement-matrix
+geometry count / page-size group before selecting another allocator
+exact-`usize` field group.
 Reason/status/token/sentinel fields stay i64.
 ```
 
