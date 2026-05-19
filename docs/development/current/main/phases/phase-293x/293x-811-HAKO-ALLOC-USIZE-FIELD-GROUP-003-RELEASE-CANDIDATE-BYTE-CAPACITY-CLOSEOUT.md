@@ -1,6 +1,6 @@
 # 293x-811 HAKO-ALLOC-USIZE-FIELD-GROUP-003 Release-Candidate Byte/Capacity Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -61,7 +61,27 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Re-ran the MIMAP-280A inventory L2 guard after the exact `usize` field
+  migration.
+- Re-ran the MIMAP-281A diagnostics L2 guard after the exact `usize` field
+  migration.
+- Re-ran the MIMAP-282A closeout L3 guard, including exact MIR -> pure-first
+  EXE evidence for the release-candidate diagnostics proof app.
+- Confirmed `NUMERIC_FIELDS.md` lists the release-candidate byte/capacity group
+  as current production `usize` storage.
+
 ## Next
 
-After this closeout, select the next narrow allocator byte/capacity group only
-if its owner-local invariant and sentinel policy are as small as this group.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-004` to migrate the observer-only
+release-candidate diagnostic mirror byte fields:
+
+```text
+last_report_applied_backing_bytes
+last_report_applied_committed_bytes
+last_report_remaining_source_bytes
+```
+
+The migration stays downstream of the already-migrated release-candidate report
+group and keeps reason/status/token/id/count fields on `i64`.

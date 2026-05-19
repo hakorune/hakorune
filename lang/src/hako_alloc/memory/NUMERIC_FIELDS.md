@@ -25,6 +25,15 @@ Current production `usize` field group:
   `applied_committed_bytes`, `remaining_source_bytes`.
   This group was selected by `HAKO-ALLOC-USIZE-FIELD-GROUP-001` and migrated by
   `HAKO-ALLOC-USIZE-FIELD-GROUP-002`.
+- `segment_arena_backing_modeled_allocation_ledger_release_candidate_diagnostic_box.hako`
+  / `HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateDiagnosticReport`
+  observer mirror byte fields:
+  `last_report_applied_backing_bytes`,
+  `last_report_applied_committed_bytes`,
+  `last_report_remaining_source_bytes`.
+  This group was selected and migrated by `HAKO-ALLOC-USIZE-FIELD-GROUP-004`
+  because it only mirrors already-migrated release-candidate byte facts.
+  Diagnostic counters, reasons, tokens, ids, and sentinels stay `i64`.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.

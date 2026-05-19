@@ -69,6 +69,11 @@ guard_expect_in_file "$TAG" 'segment_arena_backing_modeled_allocation_ledger_rel
 guard_expect_in_file "$TAG" 'record HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateDiagnosticReportFields' "$DIAGNOSTIC_OWNER" "diagnostic owner must use local ReportFields record payload"
 guard_expect_in_file "$TAG" 'observeReleaseCandidateDiagnostics' "$DIAGNOSTIC_OWNER" "diagnostic owner must expose observer route"
 guard_expect_in_file "$TAG" 'diagnostic_present: i64 = 1' "$DIAGNOSTIC_OWNER" "diagnostic report must publish presence bit"
+guard_expect_in_file "$TAG" 'last_report_applied_backing_bytes: usize' "$DIAGNOSTIC_OWNER" "diagnostic mirror applied backing bytes must be exact usize"
+guard_expect_in_file "$TAG" 'last_report_applied_committed_bytes: usize' "$DIAGNOSTIC_OWNER" "diagnostic mirror applied committed bytes must be exact usize"
+guard_expect_in_file "$TAG" 'last_report_remaining_source_bytes: usize' "$DIAGNOSTIC_OWNER" "diagnostic mirror remaining source bytes must be exact usize"
+guard_expect_in_file "$TAG" 'last_report_release_candidate_token: i64' "$DIAGNOSTIC_OWNER" "diagnostic token mirrors must remain i64"
+guard_expect_in_file "$TAG" 'last_segment_id: i64 = -1' "$DIAGNOSTIC_OWNER" "diagnostic sentinel id must remain i64"
 guard_expect_in_file "$TAG" 'check "mimap281a segment arena backing modeled allocation ledger release candidate diagnostics"' "$APP" "proof must use labelled check block"
 
 if rg -n 'recordReleaseCandidate|me\.(inventory_count|accepted_count|reject_count|missing_ledger_reject_count|rejected_ledger_reject_count|invalid_release_candidate_token_reject_count|duplicate_release_candidate_token_reject_count|closed_substrate_reject_count)[[:space:]]*\+=' \
@@ -165,7 +170,7 @@ if report is None:
     raise SystemExit("missing modeled release-candidate diagnostic report typed object plan")
 
 fields = {field.get("name"): field for field in report.get("fields", [])}
-for name in (
+required_fields = (
     "observed",
     "reason",
     "diagnostic_present",
@@ -176,9 +181,46 @@ for name in (
     "release_candidate_present",
     "modeled_release_candidate_present",
     "would_add_backend_matcher",
-):
+)
+for name in required_fields:
     if name not in fields:
         raise SystemExit(f"missing modeled release-candidate diagnostic field: {name}")
+
+usize_fields = {
+    "last_report_applied_backing_bytes",
+    "last_report_applied_committed_bytes",
+    "last_report_remaining_source_bytes",
+}
+for name in usize_fields:
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"release-candidate diagnostic {name} must be exact usize storage: {field}")
+
+for name in ("reason", "last_segment_id", "last_arena_id", "last_report_release_candidate_token"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"release-candidate diagnostic {name} must remain i64 storage: {field}")
+
+record_decl = None
+for decl in data.get("record_decls", []):
+    if isinstance(decl, dict) and decl.get("name") == "HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateDiagnosticReportFields":
+        record_decl = decl
+        break
+if record_decl is None:
+    raise SystemExit("missing release-candidate diagnostic ReportFields record details")
+
+record_fields = {
+    field.get("name"): field
+    for field in record_decl.get("field_decls", [])
+}
+for name in usize_fields:
+    field = record_fields.get(name)
+    if field is None or field.get("declared_type") != "usize":
+        raise SystemExit(f"release-candidate diagnostic ReportFields {name} must be declared usize: {field}")
+for name in ("reason", "last_segment_id", "last_arena_id", "last_report_release_candidate_token"):
+    field = record_fields.get(name)
+    if field is None or field.get("declared_type") != "i64":
+        raise SystemExit(f"release-candidate diagnostic ReportFields {name} must remain declared i64: {field}")
 
 print("[mimap281a-mir-json] ok")
 PY
