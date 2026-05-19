@@ -1,0 +1,29 @@
+schema_version = 0
+
+[[proof_apps]]
+id = "M213"
+app = "apps/hako-alloc-abandoned-reclaim-inventory-proof"
+label = "abandoned reclaim inventory proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_abandoned_reclaim_inventory_guard.sh"]
+
+[[proof_apps]]
+id = "M214"
+app = "apps/hako-alloc-options-inventory-proof"
+label = "allocator options/defaults inventory proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_options_inventory_guard.sh"]
+
+[[proof_apps]]
+id = "M215"
+app = "apps/hako-alloc-thread-heap-owner-inventory-proof"
+label = "thread heap owner-token inventory proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_thread_heap_owner_inventory_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-049A"
+app = "apps/hako-alloc-secure-entropy-inventory-proof"
+label = "secure entropy inventory proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_secure_entropy_inventory_guard.sh"]

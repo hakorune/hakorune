@@ -1,0 +1,29 @@
+schema_version = 0
+
+[[proof_apps]]
+id = "MIMAP-042A"
+app = "apps/hako-alloc-osvm-fast-path-purge-route-proof"
+label = "OSVM-backed fast-path bounded purge route proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_osvm_fast_path_purge_route_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-043A"
+app = "apps/hako-alloc-osvm-fast-path-reuse-route-proof"
+label = "OSVM-backed fast-path recommit/reuse route proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_osvm_fast_path_reuse_route_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-045A"
+app = "apps/hako-alloc-osvm-fast-path-unreserve-route-proof"
+label = "OSVM-backed fast-path unreserve route proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_osvm_fast_path_unreserve_route_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-046A"
+app = "apps/hako-alloc-osvm-fast-path-unreserve-failfast-proof"
+label = "OSVM-backed fast-path unreserve fail-fast diagnostics proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_osvm_fast_path_unreserve_failfast_guard.sh"]

@@ -1,0 +1,29 @@
+schema_version = 0
+
+[[proof_apps]]
+id = "MIMAP-079A"
+app = "apps/hako-alloc-segment-arena-bitmap-inventory-proof"
+label = "segment arena bitmap boundary inventory proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_bitmap_inventory_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-082A"
+app = "apps/hako-alloc-segment-lifecycle-scalar-state-proof"
+label = "segment lifecycle scalar state proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_lifecycle_scalar_state_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-085A"
+app = "apps/hako-alloc-segment-page-membership-scalar-proof"
+label = "segment page membership scalar proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_page_membership_scalar_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-088A"
+app = "apps/hako-alloc-segment-allocation-readiness-scalar-proof"
+label = "segment allocation readiness scalar proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_allocation_readiness_scalar_guard.sh"]

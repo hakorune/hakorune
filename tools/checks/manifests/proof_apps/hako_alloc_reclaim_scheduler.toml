@@ -1,0 +1,29 @@
+schema_version = 0
+
+[[proof_apps]]
+id = "MIMAP-064A"
+app = "apps/hako-alloc-reclaim-scheduler-request-marker-proof"
+label = "reclaim scheduler request marker proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_marker_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-068A"
+app = "apps/hako-alloc-reclaim-scheduler-request-ledger-proof"
+label = "reclaim scheduler request ledger proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-071A"
+app = "apps/hako-alloc-reclaim-scheduler-request-ledger-consume-proof"
+label = "reclaim scheduler request ledger consume proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_consume_guard.sh"]
+
+[[proof_apps]]
+id = "MIMAP-074A"
+app = "apps/hako-alloc-reclaim-scheduler-request-ledger-roundtrip-proof"
+label = "reclaim scheduler request ledger roundtrip proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_roundtrip_guard.sh"]
