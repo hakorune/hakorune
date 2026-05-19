@@ -1,6 +1,6 @@
 # 293x-854 HAKO-ALLOC-USIZE-FIELD-GROUP-046 Local-Free Reuse Ledger Release-Apply Primary Counter Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -49,8 +49,16 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Closed out the three-field release-apply primary counter group migrated by
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-045`.
+- Reconfirmed that per-reason reject counters and signed sentinels remain on
+  `i64`.
+- Selected `HAKO-ALLOC-USIZE-FIELD-GROUP-047` for the first narrow
+  release-apply per-reason reject counter group.
+
 ## Next
 
-After closeout, select the next narrow allocator exact-`usize` field group from
-`lang/src/hako_alloc/memory/NUMERIC_FIELDS.md`, or leave the selector parked if
-the next group needs a separate design review.
+`HAKO-ALLOC-USIZE-FIELD-GROUP-047` migrates only the upstream / invalid-shape /
+duplicate / missing release-apply reject counters.
