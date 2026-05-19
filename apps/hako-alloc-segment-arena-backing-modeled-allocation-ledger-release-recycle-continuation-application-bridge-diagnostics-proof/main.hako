@@ -1,0 +1,156 @@
+// hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-continuation-application-bridge-diagnostics-proof
+// Purpose: prove MIMAP-305A modeled continuation application bridge diagnostics.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycle
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_lifecycle_continuation_bridge_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridge
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_continuation_application_bridge_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridge
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_continuation_application_bridge_diagnostic_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridgeDiagnostic
+
+static box Main {
+    makeRecycleReport(segment_id: i64, arena_id: i64, recycle_token: i64): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleReport()
+        report.accepted = 1
+        report.reason = 0
+        report.release_applied_recycle_present = 1
+        report.modeled_release_applied_recycle_present = 1
+        report.row_index = 1
+        report.segment_id = segment_id
+        report.arena_id = arena_id
+        report.lifetime_generation = 3
+        report.release_apply_token = 96019005005
+        report.release_applied_recycle_token = recycle_token
+        report.applied_backing_bytes = 4096
+        report.applied_committed_bytes = 4096
+        report.remaining_source_bytes = 8192
+        return report
+    }
+
+    makeUnknownAcceptedApplicationReport(): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridgeReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridgeReport()
+        report.accepted = 1
+        report.reason = 0
+        report.continuation_application_present = 1
+        report.modeled_continuation_application_present = 1
+        report.lifecycle_continuation_present = 1
+        report.lifecycle_continuation_reason = 0
+        report.row_index = 2
+        report.segment_id = 191
+        report.arena_id = 19
+        report.lifetime_generation = 3
+        report.release_applied_recycle_token = 97019005006
+        report.continuation_token = 98019005006
+        report.application_token = 99019005006
+        report.applied_backing_bytes = 4096
+        report.applied_committed_bytes = 4096
+        report.remaining_source_bytes = 8192
+        return report
+    }
+
+    main(args) {
+        local continuation_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridgeInventory()
+        local application_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridgeInventory()
+        local diagnostics = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridgeDiagnostic()
+        local recycle_report = Main.makeRecycleReport(190, 19, 97019005005)
+
+        local continued = continuation_inventory.recordLifecycleContinuation(recycle_report, 98019005005)
+        local applied = application_inventory.recordContinuationApplication(continued, 99019005005)
+
+        local diag = diagnostics.observeContinuationApplicationBridge(application_inventory, applied)
+        local empty_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridgeInventory()
+        local empty = diagnostics.observeContinuationApplicationBridge(empty_inventory, applied)
+        local missing_report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridgeReport()
+        missing_report.continuation_application_present = 0
+        local missing = diagnostics.observeContinuationApplicationBridge(application_inventory, missing_report)
+        local invalid_token = application_inventory.recordContinuationApplication(continued, 0)
+        local invalid_diag = diagnostics.observeContinuationApplicationBridge(application_inventory, invalid_token)
+        local duplicate = application_inventory.recordContinuationApplication(continued, 99019005005)
+        local duplicate_diag = diagnostics.observeContinuationApplicationBridge(application_inventory, duplicate)
+        local unknown = diagnostics.observeContinuationApplicationBridge(application_inventory, Main.makeUnknownAcceptedApplicationReport())
+        local closed_continuation = continuation_inventory.recordLifecycleContinuation(Main.makeRecycleReport(194, 19, 97019005009), 98019005009)
+        closed_continuation.requires_arena_backing = 1
+        local closed = application_inventory.recordContinuationApplication(closed_continuation, 99019005009)
+        local closed_diag = diagnostics.observeContinuationApplicationBridge(application_inventory, closed)
+
+        local ok = check "mimap305a segment arena backing modeled allocation ledger release recycle continuation application bridge diagnostics" {
+            "observed": diag.observed == 1
+            "reason": diag.reason == 0
+            "diagnostic present": diag.diagnostic_present == 1
+            "application accepted": diag.application_accepted == 1
+            "application reason": diag.application_reason == 0
+            "existing index": diag.existing_index == 1
+            "inventory count": diag.inventory_count == 1
+            "accepted count": diag.accepted_count == 1
+            "reject count": diag.reject_count == 0
+            "last segment": diag.last_segment_id == 190
+            "last arena": diag.last_arena_id == 19
+            "last continuation token": diag.last_continuation_token == 98019005005
+            "last application token": diag.last_application_token == 99019005005
+            "report accepted": diag.report_accepted == 1
+            "report reason": diag.report_reason == 0
+            "report row index": diag.report_row_index == 1
+            "report segment": diag.report_segment_id == 190
+            "report arena": diag.report_arena_id == 19
+            "report lifetime": diag.report_lifetime_generation == 3
+            "report recycle token": diag.report_release_applied_recycle_token == 97019005005
+            "report continuation token": diag.report_continuation_token == 98019005005
+            "report application token": diag.report_application_token == 99019005005
+            "applied backing": diag.report_applied_backing_bytes == 4096
+            "applied committed": diag.report_applied_committed_bytes == 4096
+            "remaining source": diag.report_remaining_source_bytes == 8192
+            "application present": diag.continuation_application_present == 1
+            "modeled present": diag.modeled_continuation_application_present == 1
+            "lifecycle present": diag.lifecycle_continuation_present == 1
+            "owner observe": diagnostics.observe_count == 7
+            "owner accepted": diagnostics.accepted_summary_count == 1
+            "owner rejected": diagnostics.rejected_summary_count == 6
+            "owner missing inventory": diagnostics.missing_inventory_reject_count == 1
+            "owner missing report": diagnostics.missing_report_reject_count == 1
+            "owner rejected application": diagnostics.rejected_application_summary_count == 3
+            "owner missing token": diagnostics.missing_token_reject_count == 1
+            "invalid diagnostic": invalid_diag.observed == 1
+            "invalid reason": invalid_diag.reason == 3
+            "invalid report reason": invalid_diag.report_reason == 3
+            "duplicate diagnostic": duplicate_diag.observed == 1
+            "duplicate reason": duplicate_diag.reason == 3
+            "duplicate report reason": duplicate_diag.report_reason == 4
+            "unknown token": unknown.observed == 0
+            "unknown reason": unknown.reason == 4
+            "closed diagnostic": closed_diag.observed == 1
+            "closed reason": closed_diag.reason == 3
+            "closed report reason": closed_diag.report_reason == 5
+            "empty reject": empty.observed == 0
+            "empty reason": empty.reason == 1
+            "missing reject": missing.observed == 0
+            "missing reason": missing.reason == 2
+            "inactive residence": diag.would_create_pointer_residence == 0
+            "inactive lookup": diag.would_lookup_by_pointer == 0
+            "inactive arena release": diag.would_release_arena_backing == 0
+            "inactive segment map": diag.would_use_segment_map == 0
+            "inactive atomic": diag.would_execute_atomic_bitmap == 0
+            "inactive osvm": diag.would_call_osvm == 0
+            "inactive thread": diag.would_run_thread == 0
+            "inactive provider": diag.would_activate_provider == 0
+            "inactive matcher": diag.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-continuation-application-bridge-diagnostics-proof")
+        print("diag=" + diag.observed + "," + diag.reason + "," + diag.application_accepted + "," + diag.application_reason + "," + diag.existing_index + "," + diag.inventory_count + "," + diag.accepted_count + "," + diag.reject_count + "," + diag.last_segment_id + "," + diag.last_arena_id + "," + diag.last_application_token)
+        print("application=" + diag.report_accepted + "," + diag.report_reason + "," + diag.report_row_index + "," + diag.report_continuation_token + "," + diag.report_application_token + "," + diag.report_applied_backing_bytes + "," + diag.report_applied_committed_bytes + "," + diag.report_remaining_source_bytes)
+        print("present=" + diag.diagnostic_present + "," + diag.continuation_application_present + "," + diag.modeled_continuation_application_present + "," + diag.lifecycle_continuation_present)
+        print("owner=" + diagnostics.observe_count + "," + diagnostics.accepted_summary_count + "," + diagnostics.rejected_summary_count + "," + diagnostics.missing_inventory_reject_count + "," + diagnostics.missing_report_reject_count + "," + diagnostics.rejected_application_summary_count + "," + diagnostics.missing_token_reject_count + "," + diagnostics.last_reason)
+        print("rejected=" + invalid_diag.observed + "," + invalid_diag.reason + "," + invalid_diag.report_reason + "," + duplicate_diag.observed + "," + duplicate_diag.reason + "," + duplicate_diag.report_reason + "," + closed_diag.observed + "," + closed_diag.reason + "," + closed_diag.report_reason)
+        print("empty=" + empty.observed + "," + empty.reason + "," + empty.inventory_count)
+        print("missing=" + missing.observed + "," + missing.reason + "," + missing.continuation_application_present)
+        print("unknown=" + unknown.observed + "," + unknown.reason + "," + unknown.report_application_token)
+        print("inactive=" + diag.would_create_pointer_residence + "," + diag.would_lookup_by_pointer + "," + diag.would_release_arena_backing + "," + diag.would_use_segment_map + "," + diag.would_execute_atomic_bitmap + "," + diag.would_call_osvm + "," + diag.would_run_thread + "," + diag.would_activate_provider + "," + diag.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
