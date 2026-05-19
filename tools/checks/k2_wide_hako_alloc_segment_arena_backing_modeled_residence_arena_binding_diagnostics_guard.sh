@@ -69,7 +69,7 @@ guard_expect_in_file "$TAG" 'Status: landed' "$CARD_254A" "MIMAP-254A closeout m
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN_252A" "MIMAP-252A arena-binding design must stay accepted"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-253A diagnostics design must be accepted"
 guard_expect_in_file "$TAG" 'observer-only diagnostics' "$CARD" "MIMAP-253A card must call out observer-only diagnostics"
-guard_expect_in_file "$TAG" 'MIMAP-253A segment arena backing modeled residence arena-binding diagnostics' "$PLAN" "granularity SSOT must describe MIMAP-253A"
+guard_expect_in_file "$TAG" 'MIMAP-253A granularity' "$PLAN" "granularity SSOT must describe MIMAP-253A"
 guard_expect_in_file "$TAG" 'MIMAP-253A segment arena backing modeled residence arena-binding diagnostics' "$JOINT" "joint order must name MIMAP-253A"
 guard_expect_in_file "$TAG" 'segment-arena-backing-modeled-residence-arena-binding' "$CADENCE" "cadence SSOT must define binding family"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-253A guard"

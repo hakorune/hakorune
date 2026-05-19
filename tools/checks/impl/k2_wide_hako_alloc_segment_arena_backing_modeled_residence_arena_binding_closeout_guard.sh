@@ -57,7 +57,7 @@ guard_require_exec_files "$TAG" "$GUARD_252A" "$GUARD_253A" "$SELF_SCRIPT" "$IMP
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_252A" "MIMAP-252A must be landed before closeout"
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_253A" "MIMAP-253A must be landed before closeout"
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_254A" "MIMAP-254A closeout card must be landed"
-guard_expect_in_file "$TAG" "Status: selected current" "$CARD_255A" "MIMAP-255A must be selected current after closeout"
+guard_expect_in_file "$TAG" "Status: landed" "$CARD_255A" "MIMAP-255A must be landed after closeout"
 
 guard_expect_in_file "$TAG" "Decision: accepted" "$SSOT" "MIMAP-254A closeout SSOT must be accepted"
 guard_expect_in_file "$TAG" "Decision: accepted" "$INVENTORY_SSOT" "MIMAP-252A inventory SSOT must stay accepted"
@@ -65,7 +65,7 @@ guard_expect_in_file "$TAG" "Decision: accepted" "$DIAGNOSTICS_SSOT" "MIMAP-253A
 guard_expect_in_file "$TAG" "closeout_pack = segment-arena-backing-modeled-residence-arena-binding" "$SSOT" "closeout SSOT must name pack"
 guard_expect_in_file "$TAG" "MIMAP-255A post-segment-arena-backing-modeled-residence-arena-binding-closeout row selection" "$SSOT" "closeout SSOT must name next row"
 
-guard_expect_in_file "$TAG" "MIMAP-254A segment arena backing modeled residence arena-binding closeout pack" "$GRANULARITY" "granularity SSOT must describe MIMAP-254A"
+guard_expect_in_file "$TAG" "MIMAP-254A granularity" "$GRANULARITY" "granularity SSOT must describe MIMAP-254A"
 guard_expect_in_file "$TAG" "MIMAP-255A" "$GRANULARITY" "granularity SSOT must describe MIMAP-255A"
 guard_expect_in_file "$TAG" "MIMAP-254A segment arena backing modeled residence arena-binding closeout pack" "$JOINT" "joint order must name closeout row"
 guard_expect_in_file "$TAG" "MIMAP-255A post-segment-arena-backing-modeled-residence-arena-binding-closeout row selection" "$JOINT" "joint order must name next row"

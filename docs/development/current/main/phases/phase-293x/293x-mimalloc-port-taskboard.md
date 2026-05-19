@@ -706,7 +706,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-025` | landed | Close out the source-bridge diagnostic byte mirror field group and keep the evidence bounded. | selected FIELD-GROUP-026 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-026` | landed | Migrate arena-slot report byte/capacity fields only; keep counters, reasons, tokens, ids, alignments, geometry, and sentinels on `i64`. | selected FIELD-GROUP-027 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-027` | landed | Close out the arena-slot byte/capacity field group and keep the evidence bounded. | selected FIELD-GROUP-028 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-028` | selected current | Migrate the residence arena-binding geometry count / page-size group only; keep alignments, counters, reasons, tokens, ids, and sentinels on `i64`. | after FIELD-GROUP-027 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-028` | landed | Migrate the residence arena-binding geometry count / page-size group only; keep alignments, counters, reasons, tokens, ids, and sentinels on `i64`. | selected FIELD-GROUP-029 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-029` | selected current | Close out the residence arena-binding geometry count / page-size field group and keep the evidence bounded. | after FIELD-GROUP-028 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -715,7 +716,7 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-028` migrates the residence arena-binding report
+`HAKO-ALLOC-USIZE-FIELD-GROUP-029` closes out the residence arena-binding report
 geometry count / page-size fields that feed the already-migrated arena-slot
 family:
 
@@ -791,6 +792,9 @@ selecting another allocator exact-`usize` group.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-028 migrates the residence arena-binding
 geometry count / page-size group that feeds the already-migrated arena-slot
 family. This is intentionally not a byte/capacity row.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-029 closes out that residence arena-binding
+geometry count / page-size group before selecting another allocator
+exact-`usize` field group.
 Reason/status/token/sentinel fields stay i64.
 ```
 

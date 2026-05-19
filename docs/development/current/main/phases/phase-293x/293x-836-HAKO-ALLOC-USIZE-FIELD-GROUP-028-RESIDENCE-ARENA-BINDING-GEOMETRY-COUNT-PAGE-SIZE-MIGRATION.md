@@ -1,6 +1,6 @@
 # 293x-836 HAKO-ALLOC-USIZE-FIELD-GROUP-028 Residence Arena-Binding Geometry Count / Page-Size Migration
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -57,8 +57,21 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Migrated only the
+  `HakoAllocSegmentArenaBackingModeledResidenceArenaBindingReport` geometry
+  count / page-size group to exact `usize` storage.
+- Kept residence arena-binding counters, reasons, tokens, ids, generations,
+  alignments, row index, and sentinel-bearing fields on `i64`.
+- Strengthened the MIMAP-252A guard to assert exact `usize` typed-object storage
+  for the geometry count / page-size fields and to assert `required_alignment`
+  and `row_index` remain `i64`.
+- Re-ran the MIMAP-253A diagnostics guard and the downstream MIMAP-256A
+  arena-slot L2 guard after the migration.
+
 ## Next
 
-After migration, select `HAKO-ALLOC-USIZE-FIELD-GROUP-029` to close out the
-residence arena-binding geometry count / page-size group before selecting
-another allocator exact-`usize` field group.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-029` to close out the residence
+arena-binding geometry count / page-size group before selecting another
+allocator exact-`usize` field group.

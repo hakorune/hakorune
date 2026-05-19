@@ -24,11 +24,11 @@ box HakoAllocSegmentArenaBackingModeledResidenceArenaBindingReport {
     residence_token: i64 = 0
     binding_token: i64 = 0
     geometry_valid: i64 = 0
-    slice_count: i64 = 0
-    committed_slices: i64 = 0
-    free_slices: i64 = 0
+    slice_count: usize = 0
+    committed_slices: usize = 0
+    free_slices: usize = 0
     required_alignment: i64 = 0
-    page_size: i64 = 0
+    page_size: usize = 0
     closed_substrate_blocker_count: i64 = 0
     requires_pointer_residence: i64 = 0
     requires_pointer_lookup: i64 = 0

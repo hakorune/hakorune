@@ -359,7 +359,8 @@ no provider activation
 | 288 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-025 source-bridge diagnostic byte mirror closeout` | landed; selected HAKO-ALLOC-USIZE-FIELD-GROUP-026 |
 | 289 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-026 arena-slot byte/capacity migration` | landed; selected HAKO-ALLOC-USIZE-FIELD-GROUP-027 |
 | 290 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-027 arena-slot byte/capacity closeout` | landed; selected HAKO-ALLOC-USIZE-FIELD-GROUP-028 |
-| 291 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-028 residence arena-binding geometry count/page-size migration` | selected current |
+| 291 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-028 residence arena-binding geometry count/page-size migration` | landed; selected HAKO-ALLOC-USIZE-FIELD-GROUP-029 |
+| 292 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-029 residence arena-binding geometry count/page-size closeout` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

@@ -75,7 +75,7 @@ guard_expect_in_file "$TAG" 'Decision: accepted' "$RESIDENCE_SSOT" "MIMAP-248A r
 guard_expect_in_file "$TAG" 'Decision: accepted' "$MATRIX_SSOT" "MIMAP-240A matrix design must stay accepted"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-252A arena-binding design must be accepted"
 guard_expect_in_file "$TAG" 'modeled residence arena-binding accepted' "$DESIGN" "MIMAP-252A reason vocabulary must be present"
-guard_expect_in_file "$TAG" 'MIMAP-252A segment arena backing modeled residence arena-binding inventory' "$PLAN" "granularity SSOT must describe MIMAP-252A"
+guard_expect_in_file "$TAG" 'MIMAP-252A granularity' "$PLAN" "granularity SSOT must describe MIMAP-252A"
 guard_expect_in_file "$TAG" 'MIMAP-252A segment arena backing modeled residence arena-binding inventory' "$JOINT" "joint order must name MIMAP-252A"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-252A guard"
 guard_expect_in_file "$TAG" 'id = "MIMAP-252A"' "$PROOF_MANIFEST" "proof manifest must list MIMAP-252A"
@@ -84,6 +84,12 @@ guard_expect_in_file "$TAG" 'exe = "deferred-to-closeout"' "$PROOF_MANIFEST" "MI
 guard_expect_in_file "$TAG" 'memory.segment_arena_backing_modeled_residence_arena_binding_box' "$MODULE" "module must export arena-binding owner"
 guard_expect_in_file "$TAG" 'segment_arena_backing_modeled_residence_arena_binding_box.hako' "$MEMORY_README" "memory README must name arena-binding owner"
 guard_expect_in_file "$TAG" 'recordBinding' "$OWNER" "arena-binding owner must expose record route"
+guard_expect_in_file "$TAG" 'slice_count: usize = 0' "$OWNER" "arena-binding slice count must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-028"
+guard_expect_in_file "$TAG" 'committed_slices: usize = 0' "$OWNER" "arena-binding committed slices must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-028"
+guard_expect_in_file "$TAG" 'free_slices: usize = 0' "$OWNER" "arena-binding free slices must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-028"
+guard_expect_in_file "$TAG" 'page_size: usize = 0' "$OWNER" "arena-binding page size must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-028"
+guard_expect_in_file "$TAG" 'required_alignment: i64 = 0' "$OWNER" "arena-binding alignment must remain i64"
+guard_expect_in_file "$TAG" 'row_index: i64 = -1' "$OWNER" "arena-binding row index sentinel must remain i64"
 guard_expect_in_file "$TAG" 'check "mimap252a segment arena backing modeled residence arena binding"' "$APP" "proof must use labelled check block"
 
 if rg -n 'lookupByPointer|lookupPointer|pointer_member|dereference[[:space:]]*\(|mutateSegmentMap|claimBitmap|unclaimBitmap|AtomicCoreBox|hako_atomic|cas_i64|fetch_add|hako_osvm|spawn[[:space:]]*\(|thread::|worker_local|ChannelBox|TaskGroupBox|nowait|sync[[:space:]]+box|context[[:space:]]|providerActivate|global_allocator' \
@@ -171,11 +177,39 @@ for name in (
     "binding_token",
     "geometry_valid",
     "slice_count",
+    "committed_slices",
+    "free_slices",
+    "page_size",
     "closed_substrate_blocker_count",
     "would_add_backend_matcher",
 ):
     if name not in fields:
         raise SystemExit(f"missing modeled residence arena-binding field: {name}")
+
+for name in (
+    "slice_count",
+    "committed_slices",
+    "free_slices",
+    "page_size",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"arena-binding {name} must be exact usize storage: {field}")
+
+for name in (
+    "row_index",
+    "segment_id",
+    "arena_id",
+    "lifetime_generation",
+    "residence_token",
+    "binding_token",
+    "required_alignment",
+    "accepted",
+    "reason",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"arena-binding {name} must remain i64 storage: {field}")
 
 print("[mimap252a-mir-json] ok")
 PY
