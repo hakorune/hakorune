@@ -1,6 +1,6 @@
 # 293x-852 HAKO-ALLOC-USIZE-FIELD-GROUP-044 Local-Free Reuse Ledger Release-Apply Count Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -49,8 +49,16 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Closed out the three-field release-apply count report group migrated by
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-043`.
+- Reconfirmed the MIMAP-138A typed-object contract and the MIMAP-139A closeout
+  owner/stop-line guard.
+- Selected `HAKO-ALLOC-USIZE-FIELD-GROUP-045` for the next narrow owner-local
+  release-apply primary counter migration.
+
 ## Next
 
-After closeout, select the next narrow allocator exact-`usize` field group from
-`lang/src/hako_alloc/memory/NUMERIC_FIELDS.md`, or leave the selector parked if
-the next group needs a separate design review.
+`HAKO-ALLOC-USIZE-FIELD-GROUP-045` migrates only the owner-local release-apply
+primary counters that feed the already-migrated release-apply report fields.

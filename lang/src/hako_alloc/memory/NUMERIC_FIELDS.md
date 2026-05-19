@@ -223,9 +223,15 @@ Current production `usize` field group:
 
 Selected next production `usize` field group:
 
-- None. `HAKO-ALLOC-USIZE-FIELD-GROUP-044` closes out the modeled local-free
-  reuse ledger release-apply count group before selecting another allocator
-  exact-`usize` field group.
+- `segment_allocation_modeled_local_free_reuse_ledger_box.hako`
+  / `HakoAllocSegmentAllocationModeledLocalFreeReuseLedger` release-apply
+  primary counter fields:
+  `release_apply_attempt_count`, `release_apply_count`,
+  `release_apply_reject_count`.
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-045` selects this group because these
+  non-negative owner-local counters feed the already-migrated release-apply
+  report count fields. Per-reason counters, reasons, indexes, tokens,
+  segment/page ids, reused block ids, flags, and sentinels stay `i64`.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
