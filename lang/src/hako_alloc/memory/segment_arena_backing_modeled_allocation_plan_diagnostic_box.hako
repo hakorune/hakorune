@@ -101,6 +101,43 @@ box HakoAllocSegmentArenaBackingModeledAllocationPlanDiagnostic {
         return 0
     }
 
+    makeAllocationPlanDiagnosticReport(fields: HakoAllocSegmentArenaBackingModeledAllocationPlanDiagnosticReportFields): HakoAllocSegmentArenaBackingModeledAllocationPlanDiagnosticReport {
+        local result = new HakoAllocSegmentArenaBackingModeledAllocationPlanDiagnosticReport()
+        result.observed = fields.observed
+        result.reason = fields.reason
+        result.diagnostic_present = fields.diagnostic_present
+        result.inventory_count = fields.inventory_count
+        result.accepted_count = fields.accepted_count
+        result.reject_count = fields.reject_count
+        result.missing_accounting_reject_count = fields.missing_accounting_reject_count
+        result.rejected_accounting_reject_count = fields.rejected_accounting_reject_count
+        result.invalid_plan_token_reject_count = fields.invalid_plan_token_reject_count
+        result.invalid_plan_geometry_reject_count = fields.invalid_plan_geometry_reject_count
+        result.closed_substrate_reject_count = fields.closed_substrate_reject_count
+        result.last_reason = fields.last_reason
+        result.last_segment_id = fields.last_segment_id
+        result.last_arena_id = fields.last_arena_id
+        result.last_plan_token = fields.last_plan_token
+        result.last_report_accepted = fields.last_report_accepted
+        result.last_report_reason = fields.last_report_reason
+        result.last_report_source_accounting_present = fields.last_report_source_accounting_present
+        result.last_report_modeled_allocation_plan_present = fields.last_report_modeled_allocation_plan_present
+        result.last_report_closed_substrate_blocker_count = fields.last_report_closed_substrate_blocker_count
+        result.last_report_plan_token = fields.last_report_plan_token
+        result.last_report_planned_backing_bytes = fields.last_report_planned_backing_bytes
+        result.last_report_planned_committed_bytes = fields.last_report_planned_committed_bytes
+        result.last_report_remaining_source_bytes = fields.last_report_remaining_source_bytes
+        result.last_report_source_uncommitted_bytes = fields.last_report_source_uncommitted_bytes
+        result.allocation_plan_present = fields.allocation_plan_present
+        result.modeled_allocation_plan_present = fields.modeled_allocation_plan_present
+        result.missing_accounting_reject_seen = fields.missing_accounting_reject_seen
+        result.rejected_accounting_reject_seen = fields.rejected_accounting_reject_seen
+        result.invalid_plan_token_reject_seen = fields.invalid_plan_token_reject_seen
+        result.invalid_plan_geometry_reject_seen = fields.invalid_plan_geometry_reject_seen
+        result.closed_substrate_reject_seen = fields.closed_substrate_reject_seen
+        return result
+    }
+
     makeReport(observed, reason, inventory, last_report): HakoAllocSegmentArenaBackingModeledAllocationPlanDiagnosticReport {
         local allocation_plan_present = 0
         local modeled_allocation_plan_present = 0
@@ -143,41 +180,8 @@ box HakoAllocSegmentArenaBackingModeledAllocationPlanDiagnostic {
             invalid_plan_geometry_reject_seen: me.markSeen(inventory.invalid_plan_geometry_reject_count),
             closed_substrate_reject_seen: me.markSeen(inventory.closed_substrate_reject_count),
         }
-        local result = new HakoAllocSegmentArenaBackingModeledAllocationPlanDiagnosticReport()
-        result.observed = fields.observed
-        result.reason = fields.reason
-        result.diagnostic_present = fields.diagnostic_present
-        result.inventory_count = fields.inventory_count
-        result.accepted_count = fields.accepted_count
-        result.reject_count = fields.reject_count
-        result.missing_accounting_reject_count = fields.missing_accounting_reject_count
-        result.rejected_accounting_reject_count = fields.rejected_accounting_reject_count
-        result.invalid_plan_token_reject_count = fields.invalid_plan_token_reject_count
-        result.invalid_plan_geometry_reject_count = fields.invalid_plan_geometry_reject_count
-        result.closed_substrate_reject_count = fields.closed_substrate_reject_count
-        result.last_reason = fields.last_reason
-        result.last_segment_id = fields.last_segment_id
-        result.last_arena_id = fields.last_arena_id
-        result.last_plan_token = fields.last_plan_token
-        result.last_report_accepted = fields.last_report_accepted
-        result.last_report_reason = fields.last_report_reason
-        result.last_report_source_accounting_present = fields.last_report_source_accounting_present
-        result.last_report_modeled_allocation_plan_present = fields.last_report_modeled_allocation_plan_present
-        result.last_report_closed_substrate_blocker_count = fields.last_report_closed_substrate_blocker_count
-        result.last_report_plan_token = fields.last_report_plan_token
-        result.last_report_planned_backing_bytes = fields.last_report_planned_backing_bytes
-        result.last_report_planned_committed_bytes = fields.last_report_planned_committed_bytes
-        result.last_report_remaining_source_bytes = fields.last_report_remaining_source_bytes
-        result.last_report_source_uncommitted_bytes = fields.last_report_source_uncommitted_bytes
-        result.allocation_plan_present = fields.allocation_plan_present
-        result.modeled_allocation_plan_present = fields.modeled_allocation_plan_present
-        result.missing_accounting_reject_seen = fields.missing_accounting_reject_seen
-        result.rejected_accounting_reject_seen = fields.rejected_accounting_reject_seen
-        result.invalid_plan_token_reject_seen = fields.invalid_plan_token_reject_seen
-        result.invalid_plan_geometry_reject_seen = fields.invalid_plan_geometry_reject_seen
-        result.closed_substrate_reject_seen = fields.closed_substrate_reject_seen
         me.last_reason = reason
-        return result
+        return me.makeAllocationPlanDiagnosticReport(fields)
     }
 
     reject(reason, inventory, last_report): HakoAllocSegmentArenaBackingModeledAllocationPlanDiagnosticReport {
