@@ -924,6 +924,19 @@ cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_al
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_intent_guard.sh", "--level", "L2"]
 
 [[proof_apps]]
+id = "MIMAP-285A"
+app = "apps/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-intent-diagnostics-proof"
+label = "segment arena backing modeled allocation-ledger release intent diagnostics proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "diagnostic"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "segment-arena-backing-modeled-allocation-ledger-release-intent"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_intent_diagnostics_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_intent_diagnostics_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
 id = "MIMAP-091A"
 app = "apps/hako-alloc-segment-allocation-modeled-consume-proof"
 label = "segment allocation modeled consume proof"

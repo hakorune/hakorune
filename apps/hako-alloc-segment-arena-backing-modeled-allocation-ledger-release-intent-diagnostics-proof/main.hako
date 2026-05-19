@@ -1,0 +1,177 @@
+// hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-intent-diagnostics-proof
+// Purpose: prove MIMAP-285A modeled release-intent diagnostics.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_requirement_matrix_box as HakoAllocSegmentArenaBackingRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_no_escape_address_capability_box as HakoAllocSegmentArenaBackingNoEscapeAddressCapability
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_no_escape_address_residence_box as HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidence
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_residence_arena_binding_box as HakoAllocSegmentArenaBackingModeledResidenceArenaBinding
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_arena_slot_box as HakoAllocSegmentArenaBackingModeledArenaSlot
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_source_bridge_box as HakoAllocSegmentArenaBackingModeledSourceBridge
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_source_accounting_box as HakoAllocSegmentArenaBackingModeledSourceAccounting
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_plan_box as HakoAllocSegmentArenaBackingModeledAllocationPlan
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_apply_box as HakoAllocSegmentArenaBackingModeledAllocationApply
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_box as HakoAllocSegmentArenaBackingModeledAllocationLedger
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_candidate_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidate
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_intent_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntent
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_intent_diagnostic_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentDiagnostic
+
+static box Main {
+    makeMatrix(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingRequirementMatrixReport {
+        local report = new HakoAllocSegmentArenaBackingRequirementMatrixReport()
+        report.accepted = 1
+        report.reason = 0
+        report.matrix_present = 1
+        report.scalar_requirement_matrix_present = 1
+        report.segment_id = segment_id
+        report.arena_id = arena_id
+        report.slice_count = 16
+        report.committed_slices = 8
+        report.free_slices = 4
+        report.required_alignment = 16
+        report.page_size = 4096
+        report.geometry_valid = 1
+        return report
+    }
+
+    makeResidence(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceReport {
+        local capability_inventory = new HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityInventory()
+        local residence_inventory = new HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceInventory()
+        local matrix = Main.makeMatrix(segment_id, arena_id)
+        local capability = capability_inventory.recordCapability(matrix, 3, 70016005002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        return residence_inventory.recordResidence(capability)
+    }
+
+    makeBinding(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledResidenceArenaBindingReport {
+        local binding_inventory = new HakoAllocSegmentArenaBackingModeledResidenceArenaBindingInventory()
+        local matrix = Main.makeMatrix(segment_id, arena_id)
+        local residence = Main.makeResidence(segment_id, arena_id)
+        return binding_inventory.recordBinding(residence, matrix)
+    }
+
+    makeSlot(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledArenaSlotReport {
+        local slot_inventory = new HakoAllocSegmentArenaBackingModeledArenaSlotInventory()
+        local binding = Main.makeBinding(segment_id, arena_id)
+        return slot_inventory.recordArenaSlot(binding, 2, 2048, 4096, 8192, 16)
+    }
+
+    makeSource(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledSourceBridgeReport {
+        local source_inventory = new HakoAllocSegmentArenaBackingModeledSourceBridgeInventory()
+        local slot = Main.makeSlot(segment_id, arena_id)
+        return source_inventory.recordSourceBridge(slot, 1, 90016005005, 16384, 4096, 16)
+    }
+
+    makeAccounting(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledSourceAccountingReport {
+        local accounting_inventory = new HakoAllocSegmentArenaBackingModeledSourceAccountingInventory()
+        local source = Main.makeSource(segment_id, arena_id)
+        return accounting_inventory.recordSourceAccounting(source)
+    }
+
+    makePlan(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledAllocationPlanReport {
+        local plan_inventory = new HakoAllocSegmentArenaBackingModeledAllocationPlanInventory()
+        local accounting = Main.makeAccounting(segment_id, arena_id)
+        return plan_inventory.recordAllocationPlan(accounting, 91016005005, 4096, 4096)
+    }
+
+    makeApply(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledAllocationApplyReport {
+        local apply_inventory = new HakoAllocSegmentArenaBackingModeledAllocationApplyInventory()
+        local plan = Main.makePlan(segment_id, arena_id)
+        return apply_inventory.recordAllocationApply(plan, 92016005005, 4096, 4096)
+    }
+
+    makeLedger(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledAllocationLedgerReport {
+        local ledger_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerInventory()
+        local apply = Main.makeApply(segment_id, arena_id)
+        return ledger_inventory.recordAllocationLedger(apply, 93016005005)
+    }
+
+    makeCandidate(segment_id: i64, arena_id: i64, release_candidate_token: i64): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReport {
+        local candidate_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateInventory()
+        local ledger = Main.makeLedger(segment_id, arena_id)
+        return candidate_inventory.recordReleaseCandidate(ledger, release_candidate_token)
+    }
+
+    main(args) {
+        local intent_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentInventory()
+        local diagnostics = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentDiagnostic()
+        local candidate = Main.makeCandidate(160, 16, 94016005005)
+
+        local accepted = intent_inventory.recordReleaseIntent(candidate, 95016005005)
+
+        local missing_candidate = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReport()
+        missing_candidate.release_candidate_present = 0
+        local rejected_candidate = Main.makeCandidate(161, 16, 94016005006)
+        rejected_candidate.accepted = 0
+        rejected_candidate.reason = 4
+        local invalid_token_candidate = Main.makeCandidate(162, 16, 94016005007)
+        local duplicate_candidate = Main.makeCandidate(163, 16, 94016005008)
+        local closed_candidate = Main.makeCandidate(164, 16, 94016005009)
+        closed_candidate.requires_arena_backing = 1
+
+        intent_inventory.recordReleaseIntent(missing_candidate, 95016005006)
+        intent_inventory.recordReleaseIntent(rejected_candidate, 95016005007)
+        intent_inventory.recordReleaseIntent(invalid_token_candidate, 0)
+        intent_inventory.recordReleaseIntent(duplicate_candidate, 95016005005)
+        intent_inventory.recordReleaseIntent(closed_candidate, 95016005009)
+
+        local diag = diagnostics.observeReleaseIntentDiagnostics(intent_inventory, accepted)
+        local empty_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentInventory()
+        local empty = diagnostics.observeReleaseIntentDiagnostics(empty_inventory, accepted)
+
+        local ok = check "mimap285a segment arena backing modeled allocation ledger release intent diagnostics" {
+            "observed": diag.observed == 1
+            "reason": diag.reason == 0
+            "diagnostic present": diag.diagnostic_present == 1
+            "inventory count": diag.inventory_count == 6
+            "accepted count": diag.accepted_count == 1
+            "reject count": diag.reject_count == 5
+            "missing seen": diag.missing_candidate_reject_seen == 1
+            "rejected seen": diag.rejected_candidate_reject_seen == 1
+            "invalid token seen": diag.invalid_release_intent_token_reject_seen == 1
+            "duplicate seen": diag.duplicate_release_intent_token_reject_seen == 1
+            "closed seen": diag.closed_substrate_reject_seen == 1
+            "last segment": diag.last_segment_id == 164
+            "last arena": diag.last_arena_id == 16
+            "last token": diag.last_release_intent_token == 95016005005
+            "report candidate token": diag.last_report_release_candidate_token == 94016005005
+            "report intent token": diag.last_report_release_intent_token == 95016005005
+            "ledger token": diag.last_report_ledger_token == 93016005005
+            "applied backing": diag.last_report_applied_backing_bytes == 4096
+            "applied committed": diag.last_report_applied_committed_bytes == 4096
+            "remaining source": diag.last_report_remaining_source_bytes == 8192
+            "intent present": diag.release_intent_present == 1
+            "modeled present": diag.modeled_release_intent_present == 1
+            "owner observe": diagnostics.observe_count == 2
+            "owner accepted": diagnostics.accepted_summary_count == 1
+            "owner rejected": diagnostics.reject_summary_count == 1
+            "empty reject": empty.observed == 0
+            "empty reason": empty.reason == 1
+            "inactive residence": diag.would_create_pointer_residence == 0
+            "inactive lookup": diag.would_lookup_by_pointer == 0
+            "inactive arena release": diag.would_release_arena_backing == 0
+            "inactive segment map": diag.would_use_segment_map == 0
+            "inactive atomic": diag.would_execute_atomic_bitmap == 0
+            "inactive osvm": diag.would_call_osvm == 0
+            "inactive thread": diag.would_run_thread == 0
+            "inactive provider": diag.would_activate_provider == 0
+            "inactive matcher": diag.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-intent-diagnostics-proof")
+        print("diag=" + diag.observed + "," + diag.reason + "," + diag.inventory_count + "," + diag.accepted_count + "," + diag.reject_count + "," + diag.last_segment_id + "," + diag.last_arena_id + "," + diag.last_release_intent_token)
+        print("seen=" + diag.missing_candidate_reject_seen + "," + diag.rejected_candidate_reject_seen + "," + diag.invalid_release_intent_token_reject_seen + "," + diag.duplicate_release_intent_token_reject_seen + "," + diag.closed_substrate_reject_seen)
+        print("intent=" + diag.last_report_ledger_token + "," + diag.last_report_release_candidate_token + "," + diag.last_report_release_intent_token + "," + diag.last_report_applied_backing_bytes + "," + diag.last_report_applied_committed_bytes + "," + diag.last_report_remaining_source_bytes)
+        print("present=" + diag.diagnostic_present + "," + diag.release_intent_present + "," + diag.modeled_release_intent_present)
+        print("owner=" + diagnostics.observe_count + "," + diagnostics.accepted_summary_count + "," + diagnostics.reject_summary_count + "," + diagnostics.missing_inventory_reject_count + "," + diagnostics.last_reason)
+        print("empty=" + empty.observed + "," + empty.reason + "," + empty.inventory_count)
+        print("inactive=" + diag.would_create_pointer_residence + "," + diag.would_lookup_by_pointer + "," + diag.would_release_arena_backing + "," + diag.would_use_segment_map + "," + diag.would_execute_atomic_bitmap + "," + diag.would_call_osvm + "," + diag.would_run_thread + "," + diag.would_activate_provider + "," + diag.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

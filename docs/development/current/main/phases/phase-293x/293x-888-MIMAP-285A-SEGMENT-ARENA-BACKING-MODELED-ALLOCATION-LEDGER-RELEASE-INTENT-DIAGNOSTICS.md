@@ -1,6 +1,6 @@
 # 293x-888 MIMAP-285A Segment Arena Backing Modeled Allocation-Ledger Release Intent Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -48,3 +48,33 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_le
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Implementation
+
+- Added
+  `HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentDiagnostic`
+  as an observer-only owner.
+- Added
+  `HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentDiagnosticReportFields`
+  as the owner-local record payload for the diagnostic report construction.
+- Added the MIMAP-285A proof app, proof manifest row, module export, memory
+  README entry, design SSOT, and guard index entry.
+- Kept L3/L4 EXE evidence deferred to the release-intent closeout pack.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_intent_diagnostics_guard.sh --level L2
+```
+
+## Selected Next Row
+
+`MIMAP-286A`:
+
+```text
+segment arena backing modeled allocation-ledger release intent closeout pack
+```
+
+The next row should bind the MIMAP-284A inventory guard and MIMAP-285A
+diagnostics guard into a representative closeout pack before selecting the
+next allocator model bridge.
