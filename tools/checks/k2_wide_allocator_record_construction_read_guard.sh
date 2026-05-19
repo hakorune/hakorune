@@ -221,11 +221,35 @@ static box Main {
 }
 HAKO
 
-if NYASH_DISABLE_PLUGINS=1 cargo run -q --bin hakorune -- --emit-mir-json /tmp/"$TAG".helper_arg.json "$helper_arg_src" \
-  >/tmp/"$TAG".helper_arg.out 2>/tmp/"$TAG".helper_arg.err; then
-  echo "[$TAG] ERROR: record helper argument unexpectedly compiled before helper scalarization is implemented" >&2
-  exit 1
-fi
-guard_expect_in_file "$TAG" '\[record-helper-arg/unsupported\]' /tmp/"$TAG".helper_arg.err "record helper argument must fail fast until scalarization owner lands"
+NYASH_DISABLE_PLUGINS=1 cargo run -q --bin hakorune -- --emit-mir-json /tmp/"$TAG".helper_arg.json "$helper_arg_src" \
+  >/tmp/"$TAG".helper_arg.out 2>/tmp/"$TAG".helper_arg.err
+
+python3 - /tmp/"$TAG".helper_arg.json <<'PY'
+import json
+import sys
+
+path = sys.argv[1]
+data = json.load(open(path))
+main = next((f for f in data.get("functions", []) if f.get("name") == "main"), None)
+if main is None:
+    raise SystemExit("main function not found")
+
+def walk(value):
+    if isinstance(value, dict):
+        yield value
+        for child in value.values():
+            yield from walk(child)
+    elif isinstance(value, list):
+        for child in value:
+            yield from walk(child)
+
+nodes = list(walk(main))
+if any(node.get("op") == "newbox" and node.get("type") == "ProbeMeta" for node in nodes):
+    raise SystemExit("record helper argument materialized as NewBox")
+if any(node.get("op") == "field_get" and node.get("field") == "ptr" for node in nodes):
+    raise SystemExit("record helper argument leaked as FieldGet")
+if not any(node.get("op") == "ret" for node in nodes):
+    raise SystemExit("record helper inline result did not return from main")
+PY
 
 echo "[$TAG] ok"

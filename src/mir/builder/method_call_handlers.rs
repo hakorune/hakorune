@@ -30,9 +30,17 @@ impl MeCallPolicyBox {
             .and_then(|f| f.signature.name.split('.').next().map(|s| s.to_string()));
 
         if let Some(cls) = enclosing_cls.as_ref() {
-            let arg_values = builder.build_call_args(arguments)?;
-            let arity = arg_values.len();
+            let arity = arguments.len();
             let fname = function_lowering::generate_method_function_name(cls, method, arity);
+            if let Ok(me_id) = super::stmts::variable_stmt::build_me_expression(builder) {
+                if let Some(result) =
+                    builder.try_inline_record_helper_call(&fname, arguments, Some(me_id))?
+                {
+                    return Ok(Some(result));
+                }
+            }
+
+            let arg_values = builder.build_call_args(arguments)?;
             if let Some(ref module) = builder.current_module {
                 if let Some(func) = module.functions.get(&fname) {
                     // Decide whether this lowered function expects an implicit receiver.
@@ -131,11 +139,14 @@ impl MirBuilder {
             ));
         }
 
+        // Compose lowered function name: BoxName.method/N
+        let func_name = format!("{}.{}/{}", box_name, method, arguments.len());
+        if let Some(result) = self.try_inline_record_helper_call(&func_name, arguments, None)? {
+            return Ok(result);
+        }
+
         // Build argument values
         let arg_values = self.build_call_args(arguments)?;
-
-        // Compose lowered function name: BoxName.method/N
-        let func_name = format!("{}.{}/{}", box_name, method, arg_values.len());
         let dst = self.next_value_id();
 
         if crate::config::env::builder_static_call_trace() {

@@ -112,17 +112,56 @@ pub(super) fn index_declarations(builder: &mut MirBuilder, node: &ASTNode) {
                     init_fields,
                     weak_fields,
                 );
+                for (mname, mast) in sorted_method_entries(methods) {
+                    if let ASTNode::FunctionDeclaration {
+                        params,
+                        param_decls,
+                        body,
+                        is_static,
+                        ..
+                    } = mast
+                    {
+                        if !*is_static {
+                            let func_name = format!(
+                                "{}.{}{}",
+                                name,
+                                mname,
+                                format!("/{}", params.len())
+                            );
+                            builder.comp_ctx.register_lowered_method_ast(
+                                func_name,
+                                params.clone(),
+                                param_decls.clone(),
+                                body.clone(),
+                            );
+                        }
+                    }
+                }
             } else {
                 // Static box: no fields
                 builder.comp_ctx.register_user_box(name.clone());
                 for (mname, mast) in sorted_method_entries(methods) {
-                    if let ASTNode::FunctionDeclaration { params, .. } = mast {
+                    if let ASTNode::FunctionDeclaration {
+                        params,
+                        param_decls,
+                        body,
+                        ..
+                    } = mast
+                    {
                         builder
                             .comp_ctx
                             .static_method_index
                             .entry(mname.to_string())
                             .or_insert_with(Vec::new)
                             .push((name.clone(), params.len()));
+                        let func_name =
+                            format!("{}.{}{}", name, mname, format!("/{}", params.len()));
+                        builder.comp_ctx.register_lowered_method_ast(
+                            func_name,
+                            params.clone(),
+                            param_decls.clone(),
+                            body.clone(),
+                        );
                     }
                 }
             }

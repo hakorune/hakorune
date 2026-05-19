@@ -731,7 +731,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-050` | landed | Close out the modeled local-free reuse ledger release-apply execution/capability reject counter field group and keep the evidence bounded. | selected HAKO-ALLOC-REPORT-RECORD-006 |
 | `HAKO-ALLOC-REPORT-RECORD-006` | landed | Add an owner-local `ReportFields` record payload for the scalar-only release-apply report while keeping the returned report box. | selected HAKO-ALLOC-REPORT-RECORD-007 |
 | `HAKO-ALLOC-REPORT-RECORD-007` | landed | Close out the release-apply ReportFields pilot and keep the returned report box / local record boundary fixed. | selected RECORD-VALUE-HELPER-001 |
-| `RECORD-VALUE-HELPER-001` | selected current | Add the narrow compiler contract for same-owner helper argument scalarization of local ReportFields records. | after HAKO-ALLOC-REPORT-RECORD-007 |
+| `RECORD-VALUE-HELPER-001` | landed | Add the narrow compiler contract for same-owner helper argument scalarization of local ReportFields records. | selected HAKO-ALLOC-REPORT-RECORD-008 |
+| `HAKO-ALLOC-REPORT-RECORD-008` | selected current | Select the next single ReportFields owner to migrate to the helper-argument scalarization pattern. | after RECORD-VALUE-HELPER-001 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -740,10 +741,9 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`RECORD-VALUE-HELPER-001` keeps allocator behavior fixed and opens a narrow
-compiler acceptance contract so a local `ReportFields` record carrier can be
-passed to a same-owner helper without materializing a runtime record object.
-The immediate motivating record remains:
+`HAKO-ALLOC-REPORT-RECORD-008` selects the next single owner to use the
+landed `RECORD-VALUE-HELPER-001` same-owner helper-argument scalarization
+pattern. The already migrated motivating record is:
 
 ```text
 HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields
@@ -875,6 +875,8 @@ pilot.
 Then RECORD-VALUE-HELPER-001 adds a compiler-owned helper-argument
 scalarization contract before allocator owners pass local record carriers
 through helpers.
+Then HAKO-ALLOC-REPORT-RECORD-008 selects exactly one next ReportFields owner
+for the same pattern.
 ```
 
 MIMAP-020A execution order:

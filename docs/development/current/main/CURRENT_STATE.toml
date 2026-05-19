@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-19"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "HAKO-ALLOC-REPORT-RECORD-007 closed out the local release-apply ReportFields record carrier; RECORD-VALUE-HELPER-001 is current to add a narrow helper-argument scalarization contract before allocator owners pass local record carriers through helpers. Cross-function Result direct ABI remains closed. Real raw pointer residence, pointer-derived lookup, real arena backing, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "RECORD-VALUE-HELPER-001 landed narrow same-owner helper-argument scalarization for local ReportFields record carriers and factored the release-apply report copy through makeReleaseApplyReport(fields); HAKO-ALLOC-REPORT-RECORD-008 is current to select the next single owner that should use the pattern. Cross-function Result direct ABI remains closed. Real raw pointer residence, pointer-derived lookup, real arena backing, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-861-RECORD-VALUE-HELPER-001-LOCAL-REPORTFIELDS-HELPER-ARGUMENT-SCALARIZATION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-862-HAKO-ALLOC-REPORT-RECORD-008-POST-HELPER-SCALARIZATION-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-860-HAKO-ALLOC-REPORT-RECORD-007-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-REPORTFIELDS-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-860-HAKO-ALLOC-REPORT-RECORD-007-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-REPORTFIELDS-CLOSEOUT.md"
-latest_card_summary = "HAKO-ALLOC-REPORT-RECORD-007 landed by closing out the local release-apply ReportFields record carrier and selecting RECORD-VALUE-HELPER-001."
+latest_card = "293x-861-RECORD-VALUE-HELPER-001-LOCAL-REPORTFIELDS-HELPER-ARGUMENT-SCALARIZATION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-861-RECORD-VALUE-HELPER-001-LOCAL-REPORTFIELDS-HELPER-ARGUMENT-SCALARIZATION.md"
+latest_card_summary = "RECORD-VALUE-HELPER-001 landed by adding same-owner helper argument scalarization for local ReportFields records and applying it to the release-apply report helper."
 
-current_blocker_token = "RECORD-VALUE-HELPER-001"
+current_blocker_token = "HAKO-ALLOC-REPORT-RECORD-008"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-861 RECORD-VALUE-HELPER-001 local ReportFields helper argument scalarization landed; HAKO-ALLOC-REPORT-RECORD-008 selected",
   "293x-860 HAKO-ALLOC-REPORT-RECORD-007 local-free reuse ledger release-apply ReportFields closeout landed; RECORD-VALUE-HELPER-001 selected",
   "293x-859 HAKO-ALLOC-REPORT-RECORD-006 local-free reuse ledger release-apply ReportFields pilot landed; HAKO-ALLOC-REPORT-RECORD-007 selected",
   "293x-858 HAKO-ALLOC-USIZE-FIELD-GROUP-050 local-free reuse ledger release-apply execution/capability reject counter closeout landed; HAKO-ALLOC-REPORT-RECORD-006 selected",

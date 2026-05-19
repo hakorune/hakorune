@@ -1,6 +1,6 @@
 # 293x-861 RECORD-VALUE-HELPER-001 Local ReportFields Helper Argument Scalarization
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -98,7 +98,12 @@ negative:
 
 ## Progress
 
-Step 0 landed a dedicated call-argument fail-fast:
+Landed changes:
+
+- Added a compiler-internal lowered method AST index for same-module helper
+  inspection.
+- Added `RecordHelperArgumentScalarizationBox`.
+- Added a dedicated call-argument fail-fast:
 
 ```text
 [record-helper-arg/unsupported]
@@ -106,8 +111,24 @@ Step 0 landed a dedicated call-argument fail-fast:
 
 This keeps unsupported helper passing from falling through the older generic
 `[record-value/escape]` path or, worse, from becoming a fake runtime record
-argument. The next implementation step is the positive scalarization owner, not
-weakening the escape guard.
+argument.
+
+- Added the positive same-owner helper path by inlining the helper body in the
+  caller while binding the record parameter to the caller's builder-local field
+  operands.
+- Factored the modeled local-free reuse ledger release-apply report copy through
+  `makeReleaseApplyReport(fields)`.
+
+Evidence:
+
+```text
+bash tools/checks/k2_wide_allocator_record_construction_read_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_ledger_release_apply_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_ledger_release_apply_closeout_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+cargo build --release --bin hakorune
+git diff --check
+```
 
 ## Completion Criteria
 
@@ -116,3 +137,9 @@ weakening the escape guard.
 - The MIR JSON contains no `NewBox` for the record type.
 - Existing direct field-read scalarization stays green.
 - General record escape diagnostics remain green and specific.
+
+## Next
+
+Select one more existing `ReportFields` owner and migrate only that owner to the
+same helper-argument scalarization pattern. Do not broaden to all ReportFields
+owners in one row.

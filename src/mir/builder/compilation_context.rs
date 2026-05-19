@@ -23,7 +23,7 @@
  */
 
 use crate::ast::FieldDecl;
-use crate::ast::{ASTNode, EnumVariantDecl};
+use crate::ast::{ASTNode, EnumVariantDecl, ParamDecl};
 use crate::mir::function::{MirEnumDecl, MirEnumVariantDecl, RecordDecl};
 use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
 use crate::mir::{MirType, UserBoxFieldDecl, ValueId};
@@ -40,6 +40,13 @@ pub(crate) struct RecordLocalFieldValue {
 pub(crate) struct RecordLocalValue {
     pub record_name: String,
     pub fields: Vec<RecordLocalFieldValue>,
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct LoweredMethodAst {
+    pub params: Vec<String>,
+    pub param_decls: Vec<ParamDecl>,
+    pub body: Vec<ASTNode>,
 }
 
 #[derive(Debug, Clone)]
@@ -118,6 +125,11 @@ pub(crate) struct CompilationContext {
     /// None when not lowering a function, or when fn_body is not available.
     pub fn_body_ast: Option<Vec<ASTNode>>,
 
+    /// Same-module method bodies keyed by lowered function name (`Box.method/N`).
+    /// This stays compiler-internal and is used only by narrow scalarization
+    /// rows that must inspect a helper body before emitting a runtime call.
+    pub lowered_method_asts: HashMap<String, LoweredMethodAst>,
+
     /// Weak field registry: BoxName -> {weak field names}
     pub weak_fields_by_box: HashMap<String, HashSet<String>>,
 
@@ -181,6 +193,7 @@ impl CompilationContext {
             record_local_values: HashMap::new(),
             reserved_value_ids: HashSet::new(),
             fn_body_ast: None,
+            lowered_method_asts: HashMap::new(),
             weak_fields_by_box: HashMap::new(),
             property_registry: PropertyRegistry::new(),
             field_origin_class: HashMap::new(),
@@ -383,6 +396,27 @@ impl CompilationContext {
 
     pub fn clear_record_local_values(&mut self) {
         self.record_local_values.clear();
+    }
+
+    pub fn register_lowered_method_ast(
+        &mut self,
+        func_name: String,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        body: Vec<ASTNode>,
+    ) {
+        self.lowered_method_asts.insert(
+            func_name,
+            LoweredMethodAst {
+                params,
+                param_decls,
+                body,
+            },
+        );
+    }
+
+    pub fn lowered_method_ast(&self, func_name: &str) -> Option<&LoweredMethodAst> {
+        self.lowered_method_asts.get(func_name)
     }
 
     pub fn declared_field_type_name(&self, box_name: &str, field_name: &str) -> Option<&str> {
