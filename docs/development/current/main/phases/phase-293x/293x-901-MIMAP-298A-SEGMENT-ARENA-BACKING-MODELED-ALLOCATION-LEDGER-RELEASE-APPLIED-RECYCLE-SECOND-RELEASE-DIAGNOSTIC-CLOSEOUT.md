@@ -1,6 +1,6 @@
 # 293x-901 MIMAP-298A Segment Arena Backing Modeled Allocation-Ledger Release-Applied Recycle Second-Release Diagnostic Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -39,4 +39,10 @@ representative exact-MIR L3 evidence.
 bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_second_release_diagnostic_closeout_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Next
+
+```text
+MIMAP-299A post release-applied recycle second-release diagnostic closeout row selection
 ```
