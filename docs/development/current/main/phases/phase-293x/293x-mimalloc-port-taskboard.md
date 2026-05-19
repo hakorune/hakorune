@@ -686,7 +686,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-005` | landed | Close out the release-candidate diagnostic byte mirror field group and keep the evidence bounded. | selected FIELD-GROUP-006 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-006` | landed | Migrate allocation-ledger report byte/capacity fields only; keep counters, reasons, tokens, ids, and sentinels on `i64`. | selected FIELD-GROUP-007 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-007` | landed | Close out the allocation-ledger byte/capacity field group and keep the evidence bounded. | selected FIELD-GROUP-008 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-008` | selected current | Migrate allocation-ledger diagnostic mirror byte fields only; keep diagnostic counters, reasons, tokens, ids, and sentinels on `i64`. | after FIELD-GROUP-007 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-008` | landed | Migrate allocation-ledger diagnostic mirror byte fields only; keep diagnostic counters, reasons, tokens, ids, and sentinels on `i64`. | selected FIELD-GROUP-009 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-009` | selected current | Close out the allocation-ledger diagnostic byte mirror field group and keep the evidence bounded. | after FIELD-GROUP-008 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -695,8 +696,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-008` migrates only the observer diagnostic mirror
-byte fields downstream of the allocation-ledger report byte/capacity group:
+`HAKO-ALLOC-USIZE-FIELD-GROUP-009` closes out the observer diagnostic mirror
+byte field group after `HAKO-ALLOC-USIZE-FIELD-GROUP-008` migrated only:
 
 ```text
 last_report_applied_backing_bytes
@@ -728,6 +729,8 @@ Then HAKO-ALLOC-USIZE-FIELD-GROUP-007 closes out that allocation-ledger group
 before selecting another allocator byte/capacity group.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-008 migrates the allocation-ledger diagnostic
 mirror byte fields that copy already-migrated allocation-ledger byte facts.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-009 closes out that diagnostic mirror group
+before selecting another allocator byte/capacity group.
 Reason/status/token/sentinel fields stay i64.
 ```
 

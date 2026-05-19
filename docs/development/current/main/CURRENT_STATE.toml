@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-19"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "HAKO-ALLOC-USIZE-FIELD-GROUP-007 closed out the allocation-ledger exact-usize field group; HAKO-ALLOC-USIZE-FIELD-GROUP-008 diagnostic mirror migration is current. Cross-function Result direct ABI remains closed. Real raw pointer residence, pointer-derived lookup, real arena backing, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "HAKO-ALLOC-USIZE-FIELD-GROUP-008 migrated the allocation-ledger diagnostic mirror byte fields to exact usize; HAKO-ALLOC-USIZE-FIELD-GROUP-009 closeout is current. Cross-function Result direct ABI remains closed. Real raw pointer residence, pointer-derived lookup, real arena backing, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-816-HAKO-ALLOC-USIZE-FIELD-GROUP-008-ALLOCATION-LEDGER-DIAGNOSTIC-BYTE-MIRROR-MIGRATION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-817-HAKO-ALLOC-USIZE-FIELD-GROUP-009-ALLOCATION-LEDGER-DIAGNOSTIC-BYTE-MIRROR-CLOSEOUT.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-815-HAKO-ALLOC-USIZE-FIELD-GROUP-007-ALLOCATION-LEDGER-BYTE-CAPACITY-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-815-HAKO-ALLOC-USIZE-FIELD-GROUP-007-ALLOCATION-LEDGER-BYTE-CAPACITY-CLOSEOUT.md"
-latest_card_summary = "HAKO-ALLOC-USIZE-FIELD-GROUP-007 landed by closing out the allocation-ledger byte/capacity exact-usize field group with MIMAP-276A/MIMAP-277A L2 evidence and MIMAP-278A representative pure-first L3 evidence."
+latest_card = "293x-816-HAKO-ALLOC-USIZE-FIELD-GROUP-008-ALLOCATION-LEDGER-DIAGNOSTIC-BYTE-MIRROR-MIGRATION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-816-HAKO-ALLOC-USIZE-FIELD-GROUP-008-ALLOCATION-LEDGER-DIAGNOSTIC-BYTE-MIRROR-MIGRATION.md"
+latest_card_summary = "HAKO-ALLOC-USIZE-FIELD-GROUP-008 landed by migrating only the observer diagnostic mirror byte fields that copy already-migrated allocation-ledger byte facts."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-008"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-009"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-816 HAKO-ALLOC-USIZE-FIELD-GROUP-008 allocation-ledger diagnostic byte mirror migration landed; HAKO-ALLOC-USIZE-FIELD-GROUP-009 selected",
   "293x-815 HAKO-ALLOC-USIZE-FIELD-GROUP-007 allocation-ledger byte/capacity closeout landed; HAKO-ALLOC-USIZE-FIELD-GROUP-008 selected",
   "293x-814 HAKO-ALLOC-USIZE-FIELD-GROUP-006 allocation-ledger byte/capacity migration landed; HAKO-ALLOC-USIZE-FIELD-GROUP-007 selected",
   "293x-813 HAKO-ALLOC-USIZE-FIELD-GROUP-005 release-candidate diagnostic byte mirror closeout landed; HAKO-ALLOC-USIZE-FIELD-GROUP-006 selected",

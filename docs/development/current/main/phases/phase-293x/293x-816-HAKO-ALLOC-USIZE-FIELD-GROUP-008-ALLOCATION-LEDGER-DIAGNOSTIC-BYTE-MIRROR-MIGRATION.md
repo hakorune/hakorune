@@ -1,6 +1,6 @@
 # 293x-816 HAKO-ALLOC-USIZE-FIELD-GROUP-008 Allocation-Ledger Diagnostic Byte Mirror Migration
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -51,7 +51,17 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Migrated the three allocation-ledger diagnostic mirror byte fields in both
+  `HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnosticReportFields`
+  and `HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnosticReport`.
+- Updated the MIMAP-277A diagnostics guard to verify exact `usize` record
+  declarations and typed object storage for the migrated fields.
+- Re-ran MIMAP-277A L2 and MIMAP-278A closeout L3 evidence.
+
 ## Next
 
-After this migration, close out the allocation-ledger diagnostic mirror field
-group before selecting another allocator byte/capacity group.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-009` to close out the allocation-ledger
+diagnostic mirror field group before selecting another allocator byte/capacity
+group.

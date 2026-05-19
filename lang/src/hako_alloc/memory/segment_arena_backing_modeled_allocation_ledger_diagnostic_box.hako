@@ -31,9 +31,9 @@ record HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnosticReportFields
     last_report_closed_substrate_blocker_count: i64
     last_report_apply_token: i64
     last_report_ledger_token: i64
-    last_report_applied_backing_bytes: i64
-    last_report_applied_committed_bytes: i64
-    last_report_remaining_source_bytes: i64
+    last_report_applied_backing_bytes: usize
+    last_report_applied_committed_bytes: usize
+    last_report_remaining_source_bytes: usize
     allocation_ledger_present: i64
     modeled_allocation_ledger_present: i64
     missing_apply_reject_seen: i64
@@ -66,9 +66,9 @@ box HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnosticReport {
     last_report_closed_substrate_blocker_count: i64 = 0
     last_report_apply_token: i64 = 0
     last_report_ledger_token: i64 = 0
-    last_report_applied_backing_bytes: i64 = 0
-    last_report_applied_committed_bytes: i64 = 0
-    last_report_remaining_source_bytes: i64 = 0
+    last_report_applied_backing_bytes: usize = 0
+    last_report_applied_committed_bytes: usize = 0
+    last_report_remaining_source_bytes: usize = 0
     allocation_ledger_present: i64 = 0
     modeled_allocation_ledger_present: i64 = 0
     missing_apply_reject_seen: i64 = 0
