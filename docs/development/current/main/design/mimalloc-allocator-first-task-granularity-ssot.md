@@ -18,17 +18,10 @@ This SSOT owns durable granularity rules, stop lines, and row-selection
 boundaries. It is not the live current-status ledger and must not regrow into a
 landed-history ledger.
 
-For the active phase:
+For the active phase, read the concrete current row from
+`CURRENT_STATE.toml`. Current stop lines are:
 
 ```text
-current row:
-  MIMAP-267A
-
-current choice boundary:
-  post-segment-arena-backing-reportfields-pilot row selection, while keeping
-  real pointer residence, pointer lookup, real arena backing, and record
-  pass/return/store escape closed
-
 closed until explicitly reopened:
   real raw pointer residence
   real segment-map mutation
@@ -169,19 +162,10 @@ explicitly reopened.
 
 ## Current Row Pointer
 
-The current row is intentionally mirrored here only as a human hint. If this
-block disagrees with `CURRENT_STATE.toml`, `CURRENT_STATE.toml` wins.
+Do not mirror the concrete row token here. The current row is owned by:
 
 ```text
-current row:
-  MIMAP-267A
-
-latest landed row before it:
-  HAKO-ALLOC-REPORT-RECORD-004
-
-next decision:
-  choose the next allocator behavior / Hakorune capability / BoxShape cleanup
-  after the source-accounting diagnostic ReportFields pilot
+docs/development/current/main/CURRENT_STATE.toml
 ```
 
 ## Durable Row Order

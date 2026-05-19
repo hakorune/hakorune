@@ -34,21 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-267A` is current after HAKO-ALLOC-REPORT-RECORD-004 landed the segment
-arena backing source accounting diagnostic ReportFields pilot.
+`MIMAP-268A` is current after MIMAP-267A selected the segment arena backing
+modeled allocation plan inventory.
 
 Recommended current row:
 
 ```text
-MIMAP-267A
-  post-segment-arena-backing-reportfields-pilot row selection
+MIMAP-268A
+  segment arena backing modeled allocation plan inventory
 ```
 
 Purpose:
 
 ```text
-select the next narrow allocator behavior, Hakorune core capability, or
-BoxShape cleanup row after the ReportFields pilot
+consume accepted source-accounting facts into a scalar/model allocation plan
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real pointer residence, real arena backing allocation, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -316,7 +315,8 @@ no provider activation
 | 244 | closeout | `MIMAP-266A segment arena backing modeled source accounting closeout pack` | landed; selected HAKO-ALLOC-REPORT-RECORD-003 |
 | 245 | Hakorune language / allocator cleanup | `HAKO-ALLOC-REPORT-RECORD-003 segment arena backing report record carrier inventory` | landed; selected HAKO-ALLOC-REPORT-RECORD-004 |
 | 246 | Hakorune language / allocator cleanup | `HAKO-ALLOC-REPORT-RECORD-004 segment arena backing source accounting diagnostic ReportFields pilot` | landed; selected MIMAP-267A |
-| 247 | planning | `MIMAP-267A post-segment-arena-backing-reportfields-pilot row selection` | selected current |
+| 247 | planning | `MIMAP-267A post-segment-arena-backing-reportfields-pilot row selection` | landed; selected MIMAP-268A |
+| 248 | allocator inventory | `MIMAP-268A segment arena backing modeled allocation plan inventory` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
@@ -368,7 +368,7 @@ after:
   MIMAP-266A segment arena backing modeled source accounting closeout pack
 
 before:
-  the next arena-backing behavior bridge
+  MIMAP-268A segment arena backing modeled allocation plan inventory
 
 row:
   HAKO-ALLOC-REPORT-RECORD-003 segment arena backing report record carrier inventory
