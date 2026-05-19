@@ -1,7 +1,7 @@
 # 293x-862 HAKO-ALLOC-REPORT-RECORD-008 Post Helper Scalarization Row Selection
 
-Status: selected current
-Date: 2026-05-19
+Status: landed
+Date: 2026-05-20
 
 ## Decision
 
@@ -58,3 +58,14 @@ git diff --check
 ```
 
 The selected implementation row must add or reuse its owner guard.
+
+## Progress
+
+Landed as a planning row.
+
+Selected implementation row:
+
+```text
+293x-863 HAKO-ALLOC-REPORT-RECORD-009
+  allocation-ledger release-candidate ReportFields helper scalarization pilot
+```

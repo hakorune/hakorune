@@ -732,7 +732,8 @@ FST:
 | `HAKO-ALLOC-REPORT-RECORD-006` | landed | Add an owner-local `ReportFields` record payload for the scalar-only release-apply report while keeping the returned report box. | selected HAKO-ALLOC-REPORT-RECORD-007 |
 | `HAKO-ALLOC-REPORT-RECORD-007` | landed | Close out the release-apply ReportFields pilot and keep the returned report box / local record boundary fixed. | selected RECORD-VALUE-HELPER-001 |
 | `RECORD-VALUE-HELPER-001` | landed | Add the narrow compiler contract for same-owner helper argument scalarization of local ReportFields records. | selected HAKO-ALLOC-REPORT-RECORD-008 |
-| `HAKO-ALLOC-REPORT-RECORD-008` | selected current | Select the next single ReportFields owner to migrate to the helper-argument scalarization pattern. | after RECORD-VALUE-HELPER-001 |
+| `HAKO-ALLOC-REPORT-RECORD-008` | landed | Select the next single ReportFields owner to migrate to the helper-argument scalarization pattern. | selected HAKO-ALLOC-REPORT-RECORD-009 |
+| `HAKO-ALLOC-REPORT-RECORD-009` | selected current | Apply helper-argument scalarization to the allocation-ledger release-candidate ReportFields owner only. | after HAKO-ALLOC-REPORT-RECORD-008 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -741,12 +742,19 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-REPORT-RECORD-008` selects the next single owner to use the
-landed `RECORD-VALUE-HELPER-001` same-owner helper-argument scalarization
-pattern. The already migrated motivating record is:
+`HAKO-ALLOC-REPORT-RECORD-009` applies the landed
+`RECORD-VALUE-HELPER-001` same-owner helper-argument scalarization pattern to
+the allocation-ledger release-candidate ReportFields owner only. The already
+migrated motivating record is:
 
 ```text
 HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields
+```
+
+The current target record is:
+
+```text
+HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReportFields
 ```
 
 Real pointer residence, pointer-derived lookup, real thread scheduling, worker
