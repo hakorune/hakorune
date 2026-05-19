@@ -1,6 +1,6 @@
 # 293x-841 HAKO-ALLOC-USIZE-FIELD-GROUP-033 Readiness Geometry Count / Page-Size Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -60,6 +60,21 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Re-ran the MIMAP-236A readiness L2 guard after the geometry count / page-size
+  migration.
+- Re-ran the MIMAP-237A diagnostics L2 guard and the MIMAP-238A closeout L3
+  guard to keep the representative exact-MIR evidence green.
+- Re-ran the downstream MIMAP-240A requirement-matrix L2 guard because
+  requirement matrix consumes the readiness geometry facts.
+- Confirmed `NUMERIC_FIELDS.md` lists the readiness geometry count / page-size
+  fields as current production `usize` storage.
+- Kept counters, reasons, ids, alignments, flags, and sentinel-bearing fields on
+  `i64`.
+
 ## Next
 
-After this closeout, select the next allocator exact-`usize` field group.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-034` as the next exact-`usize`
+field-group selection row. The arena-backing geometry chain is now closed, so
+the next row should explicitly choose the next owner group before any migration.

@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-19"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "HAKO-ALLOC-USIZE-FIELD-GROUP-032 migrated the readiness geometry count/page-size exact-usize field group; HAKO-ALLOC-USIZE-FIELD-GROUP-033 readiness geometry count/page-size closeout is current. Cross-function Result direct ABI remains closed. Real raw pointer residence, pointer-derived lookup, real arena backing, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "HAKO-ALLOC-USIZE-FIELD-GROUP-033 closed out the readiness geometry count/page-size exact-usize field group; HAKO-ALLOC-USIZE-FIELD-GROUP-034 next field-group selection is current. Cross-function Result direct ABI remains closed. Real raw pointer residence, pointer-derived lookup, real arena backing, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-841-HAKO-ALLOC-USIZE-FIELD-GROUP-033-READINESS-GEOMETRY-COUNT-PAGE-SIZE-CLOSEOUT.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-842-HAKO-ALLOC-USIZE-FIELD-GROUP-034-NEXT-FIELD-GROUP-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-840-HAKO-ALLOC-USIZE-FIELD-GROUP-032-READINESS-GEOMETRY-COUNT-PAGE-SIZE-MIGRATION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-840-HAKO-ALLOC-USIZE-FIELD-GROUP-032-READINESS-GEOMETRY-COUNT-PAGE-SIZE-MIGRATION.md"
-latest_card_summary = "HAKO-ALLOC-USIZE-FIELD-GROUP-032 landed by migrating the readiness report geometry count/page-size fields to exact usize while keeping counters, reasons, ids, alignments, flags, and sentinels on i64."
+latest_card = "293x-841-HAKO-ALLOC-USIZE-FIELD-GROUP-033-READINESS-GEOMETRY-COUNT-PAGE-SIZE-CLOSEOUT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-841-HAKO-ALLOC-USIZE-FIELD-GROUP-033-READINESS-GEOMETRY-COUNT-PAGE-SIZE-CLOSEOUT.md"
+latest_card_summary = "HAKO-ALLOC-USIZE-FIELD-GROUP-033 landed by closing out the readiness geometry count/page-size exact-usize field group and selecting the next field-group selection row."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-033"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-034"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-841 HAKO-ALLOC-USIZE-FIELD-GROUP-033 readiness geometry count/page-size closeout landed; HAKO-ALLOC-USIZE-FIELD-GROUP-034 selected",
   "293x-840 HAKO-ALLOC-USIZE-FIELD-GROUP-032 readiness geometry count/page-size migration landed; HAKO-ALLOC-USIZE-FIELD-GROUP-033 selected",
   "293x-839 HAKO-ALLOC-USIZE-FIELD-GROUP-031 requirement-matrix geometry count/page-size closeout landed; HAKO-ALLOC-USIZE-FIELD-GROUP-032 selected",
   "293x-838 HAKO-ALLOC-USIZE-FIELD-GROUP-030 requirement-matrix geometry count/page-size migration landed; HAKO-ALLOC-USIZE-FIELD-GROUP-031 selected",

@@ -181,6 +181,8 @@ Selected next production `usize` field group:
 
 - none. `HAKO-ALLOC-USIZE-FIELD-GROUP-033` is a closeout row for the readiness
   geometry count / page-size group, not a new migration group.
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-034` is the next field-group selection row and
+  must choose a concrete owner-local group before any further migration.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.

@@ -711,7 +711,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-030` | landed | Migrate the requirement-matrix geometry count / page-size group only; keep alignments, counters, reasons, tokens, ids, and sentinels on `i64`. | selected FIELD-GROUP-031 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-031` | landed | Close out the requirement-matrix geometry count / page-size field group and keep the evidence bounded. | selected FIELD-GROUP-032 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-032` | landed | Migrate the readiness geometry count / page-size group only; keep alignments, counters, reasons, tokens, ids, and sentinels on `i64`. | selected FIELD-GROUP-033 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-033` | selected current | Close out the readiness geometry count / page-size field group and keep the evidence bounded. | after FIELD-GROUP-032 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-033` | landed | Close out the readiness geometry count / page-size field group and keep the evidence bounded. | selected FIELD-GROUP-034 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-034` | selected current | Select the next exact-`usize` stored field group after closing the arena-backing geometry chain. | after FIELD-GROUP-033 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -720,16 +721,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-033` closes out the readiness inventory report
-geometry count / page-size fields that feed the already-migrated
-requirement-matrix family:
-
-```text
-slice_count
-committed_slices
-free_slices
-page_size
-```
+`HAKO-ALLOC-USIZE-FIELD-GROUP-034` selects the next exact-`usize` stored field
+group after closing the arena-backing geometry chain. It performs no migration.
 
 Real pointer residence, pointer-derived lookup, real thread scheduling, worker
 spawning, source-level concurrency features, real arena backing allocation,
@@ -810,6 +803,8 @@ count / page-size group that feeds the already-migrated requirement-matrix
 family. This is intentionally not a byte/capacity row.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-033 closes out that readiness geometry count /
 page-size group before selecting another allocator exact-`usize` field group.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-034 selects the next narrow owner-local field
+group before any further migration.
 Reason/status/token/sentinel fields stay i64.
 ```
 
