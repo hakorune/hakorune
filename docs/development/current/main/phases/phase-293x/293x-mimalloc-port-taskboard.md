@@ -720,7 +720,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-039` | landed | Select the next narrow allocator exact-`usize` stored field group after closing the segment-map consume-ledger release chain. | selected FIELD-GROUP-040 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-040` | landed | Migrate the modeled local-free reuse ledger report count group only; keep reasons, indexes, tokens, ids, reused block ids, flags, and owner counters on `i64`. | selected FIELD-GROUP-041 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-041` | landed | Close out the modeled local-free reuse ledger count field group and keep the evidence bounded. | selected FIELD-GROUP-042 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-042` | selected current | Select the next narrow allocator exact-`usize` stored field group after closing the modeled local-free reuse ledger chain. | after FIELD-GROUP-041 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-042` | landed | Select the next narrow allocator exact-`usize` stored field group after closing the modeled local-free reuse ledger chain. | selected FIELD-GROUP-043 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-043` | selected current | Migrate the modeled local-free reuse ledger release-apply report count group only; keep reasons, indexes, tokens, ids, reused block ids, flags, and owner counters on `i64`. | after FIELD-GROUP-042 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -729,9 +730,14 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-042` selects the next narrow allocator
-exact-`usize` stored field group after closing the modeled local-free reuse
-ledger count group.
+`HAKO-ALLOC-USIZE-FIELD-GROUP-043` migrates the modeled local-free reuse ledger
+release-apply report count fields:
+
+```text
+release_apply_count_after
+release_apply_reject_count_after
+ledger_live_count_after
+```
 
 Real pointer residence, pointer-derived lookup, real thread scheduling, worker
 spawning, source-level concurrency features, real arena backing allocation,
@@ -833,6 +839,8 @@ ledger count group before selecting another allocator exact-`usize` field
 group.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-042 selects the next narrow allocator
 exact-`usize` stored field group before any further migration.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-043 migrates the modeled local-free reuse
+ledger release-apply report count group.
 Reason/status/token/sentinel fields stay i64.
 ```
 

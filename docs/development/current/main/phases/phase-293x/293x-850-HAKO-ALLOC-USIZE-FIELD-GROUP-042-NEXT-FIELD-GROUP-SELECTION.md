@@ -1,6 +1,6 @@
 # 293x-850 HAKO-ALLOC-USIZE-FIELD-GROUP-042 Next Field-Group Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -37,7 +37,23 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+Selected `HAKO-ALLOC-USIZE-FIELD-GROUP-043` to migrate the modeled
+local-free reuse ledger release-apply report count group on
+`HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport`:
+
+```text
+release_apply_count_after
+release_apply_reject_count_after
+ledger_live_count_after
+```
+
+These fields are owner-local non-negative release-apply/ledger counts. Reasons,
+row indexes, existing indexes, tokens, segment/page ids, reused block ids,
+presence flags, capability flags, and owner counters remain out of scope.
+
 ## Next
 
-After selection, create `HAKO-ALLOC-USIZE-FIELD-GROUP-043` for the chosen
-field-group migration.
+`HAKO-ALLOC-USIZE-FIELD-GROUP-043` migrates the selected local-free reuse
+ledger release-apply count group.
