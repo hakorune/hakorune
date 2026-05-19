@@ -58,11 +58,11 @@ box HakoAllocSegmentMapModeledConsumeLedgerReleaseReport {
     page_id: i64 = -1
     modeled_block_start: i64 = -1
     modeled_block_end: i64 = -1
-    live_before: i64 = 0
-    live_after: i64 = 0
-    ledger_count_after: i64 = 0
-    ledger_live_count_after: i64 = 0
-    released_blocks: i64 = 0
+    live_before: usize = 0
+    live_after: usize = 0
+    ledger_count_after: usize = 0
+    ledger_live_count_after: usize = 0
+    released_blocks: usize = 0
     release_span_present: i64 = 0
     modeled_release_present: i64 = 1
     would_execute_real_segment_free: i64 = 0

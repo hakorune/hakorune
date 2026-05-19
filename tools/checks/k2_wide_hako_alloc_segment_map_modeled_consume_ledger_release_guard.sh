@@ -98,6 +98,14 @@ guard_expect_in_file "$TAG" 'exe = "deferred-to-closeout"' "$PROOF_MANIFEST" "MI
 guard_expect_in_file "$TAG" 'memory.segment_map_accepted_readiness_modeled_consume_ledger_box = "memory/segment_map_accepted_readiness_modeled_consume_ledger_box.hako"' "$MODULE" "hako module must export owner"
 guard_expect_in_file "$TAG" 'MIMAP-161A' "$MEMORY_README" "memory README must define MIMAP-161A owner"
 guard_expect_in_file "$TAG" 'box HakoAllocSegmentMapModeledConsumeLedgerReleaseReport' "$OWNER" "MIMAP-161A release report box must exist"
+guard_expect_in_file "$TAG" 'live_before: usize = 0' "$OWNER" "release live_before must be exact usize"
+guard_expect_in_file "$TAG" 'live_after: usize = 0' "$OWNER" "release live_after must be exact usize"
+guard_expect_in_file "$TAG" 'ledger_count_after: usize = 0' "$OWNER" "release ledger_count_after must be exact usize"
+guard_expect_in_file "$TAG" 'ledger_live_count_after: usize = 0' "$OWNER" "release ledger_live_count_after must be exact usize"
+guard_expect_in_file "$TAG" 'released_blocks: usize = 0' "$OWNER" "release released_blocks must be exact usize"
+guard_expect_in_file "$TAG" 'modeled_allocation_token: i64 = -1' "$OWNER" "release token sentinel must remain i64"
+guard_expect_in_file "$TAG" 'modeled_block_start: i64 = -1' "$OWNER" "release block-start sentinel must remain i64"
+guard_expect_in_file "$TAG" 'modeled_block_end: i64 = -1' "$OWNER" "release block-end sentinel must remain i64"
 guard_expect_in_file "$TAG" 'releaseConsumedToken' "$OWNER" "MIMAP-161A owner must expose release route"
 guard_expect_in_file "$TAG" 'HakoAllocSegmentAllocationModeledLedger' "$OWNER" "MIMAP-161A must reuse modeled ledger owner"
 guard_expect_in_file "$TAG" 'check "mimap161a segment map modeled consume ledger release route"' "$APP" "MIMAP-161A proof must use labelled check block"
@@ -199,7 +207,14 @@ if report is None:
     raise SystemExit("missing segment-map consume-ledger release report typed object plan")
 
 fields = {field.get("name"): field for field in report.get("fields", [])}
-for name in (
+usize_fields = (
+    "live_before",
+    "live_after",
+    "ledger_count_after",
+    "ledger_live_count_after",
+    "released_blocks",
+)
+i64_fields = (
     "did_release",
     "reason",
     "release_reason",
@@ -208,14 +223,20 @@ for name in (
     "segment_id",
     "page_id",
     "modeled_block_start",
-    "live_before",
-    "live_after",
-    "released_blocks",
+    "modeled_block_end",
     "release_span_present",
     "would_execute_real_segment_free",
     "would_use_raw_pointer",
     "would_use_segment_map",
-):
+)
+for name in usize_fields:
+    field = fields.get(name)
+    if field is None:
+        raise SystemExit(f"missing release report field: {name}")
+    if field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"bad usize release report field {name}: {field}")
+
+for name in i64_fields:
     field = fields.get(name)
     if field is None:
         raise SystemExit(f"missing release report field: {name}")
