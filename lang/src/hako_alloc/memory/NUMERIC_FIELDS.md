@@ -265,9 +265,10 @@ Selected next production `usize` field group:
 
 Selected next production `usize` field group:
 
-- None. `HAKO-ALLOC-USIZE-FIELD-GROUP-050` closes out the modeled local-free
-  reuse ledger release-apply execution/capability reject counter group before
-  selecting another allocator exact-`usize` field group.
+- None. `HAKO-ALLOC-USIZE-FIELD-GROUP-050` closed out the modeled local-free
+  reuse ledger release-apply execution/capability reject counter group.
+  `HAKO-ALLOC-REPORT-RECORD-006` is the current report-carrier record row, not
+  a numeric stored-field migration.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.

@@ -728,7 +728,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-047` | landed | Migrate the modeled local-free reuse ledger release-apply upstream / invalid-shape / duplicate / missing reject counters only; keep execution/capability counters, reasons, indexes, tokens, ids, flags, and sentinels on `i64`. | selected FIELD-GROUP-048 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-048` | landed | Close out the modeled local-free reuse ledger release-apply shape/lookup reject counter field group and keep the evidence bounded. | selected FIELD-GROUP-049 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-049` | landed | Migrate the modeled local-free reuse ledger release-apply execution/capability reject counters only; keep reasons, indexes, tokens, ids, flags, and sentinels on `i64`. | selected FIELD-GROUP-050 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-050` | selected current | Close out the modeled local-free reuse ledger release-apply execution/capability reject counter field group and keep the evidence bounded. | after FIELD-GROUP-049 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-050` | landed | Close out the modeled local-free reuse ledger release-apply execution/capability reject counter field group and keep the evidence bounded. | selected HAKO-ALLOC-REPORT-RECORD-006 |
+| `HAKO-ALLOC-REPORT-RECORD-006` | selected current | Add an owner-local `ReportFields` record payload for the scalar-only release-apply report while keeping the returned report box. | after FIELD-GROUP-050 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -737,19 +738,11 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-050` closes out the modeled local-free reuse
-ledger release-apply execution/capability reject counter field group:
+`HAKO-ALLOC-REPORT-RECORD-006` adds a local `ReportFields` record carrier for
+the scalar-only modeled local-free reuse ledger release-apply report:
 
 ```text
-release_apply_execution_reject_count
-release_apply_raw_pointer_reject_count
-release_apply_segment_map_reject_count
-release_apply_arena_reject_count
-release_apply_atomic_bitmap_reject_count
-release_apply_osvm_reject_count
-release_apply_thread_reject_count
-release_apply_provider_reject_count
-release_apply_backend_matcher_reject_count
+HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields
 ```
 
 Real pointer residence, pointer-derived lookup, real thread scheduling, worker
@@ -871,6 +864,8 @@ ledger release-apply execution/capability reject counters.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-050 closes out that execution/capability
 reject counter group before switching to report-carrier record work or another
 allocator exact-`usize` field group.
+Then HAKO-ALLOC-REPORT-RECORD-006 adds a release-apply ReportFields carrier
+without replacing the returned report box.
 ```
 
 MIMAP-020A execution order:

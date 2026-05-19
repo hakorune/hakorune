@@ -1,6 +1,6 @@
 # 293x-858 HAKO-ALLOC-USIZE-FIELD-GROUP-050 Local-Free Reuse Ledger Release-Apply Execution/Capability Reject Counter Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -53,8 +53,16 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Closed out the nine-field release-apply execution/capability reject counter
+  group migrated by `HAKO-ALLOC-USIZE-FIELD-GROUP-049`.
+- Reconfirmed that the release-apply report and owner counters are exact
+  `usize` while signed sentinels remain on `i64`.
+- Selected `HAKO-ALLOC-REPORT-RECORD-006` as the next narrow report-carrier
+  record row for the scalar-only release-apply report.
+
 ## Next
 
-After closeout, return to the near-term task order: select a narrow
-report-carrier record row for the scalar-only release-apply report, unless a
-new exact numeric blocker appears first.
+`HAKO-ALLOC-REPORT-RECORD-006` adds a local `ReportFields` record carrier for
+the scalar-only release-apply report without replacing the returned report box.
