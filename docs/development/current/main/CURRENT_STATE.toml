@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-911-MIMAP-3
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-910-MIMAP-307A-POST-RELEASE-RECYCLE-CONTINUATION-APPLICATION-BRIDGE-CLOSEOUT-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-910-MIMAP-307A-POST-RELEASE-RECYCLE-CONTINUATION-APPLICATION-BRIDGE-CLOSEOUT-ROW-SELECTION.md"
-latest_card_summary = "MIMAP-307A selected MIMAP-308A release/recycle applied-state summary inventory."
+latest_card = "293x-912-CHECKS-ALLOCATOR-GATE-FAMILY-SPLIT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-912-CHECKS-ALLOCATOR-GATE-FAMILY-SPLIT.md"
+latest_card_summary = "Split allocator-wide gate inventory into family step files while preserving the public entry and current MIMAP-308A blocker."
 
 current_blocker_token = "MIMAP-308A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-912 CHECKS allocator-wide gate family inventory split landed; MIMAP-308A remains current",
   "293x-910 MIMAP-307A post release/recycle continuation application bridge closeout row selection landed; MIMAP-308A selected",
   "293x-909 MIMAP-306A segment arena backing modeled allocation-ledger release/recycle continuation application bridge closeout landed; MIMAP-307A selected",
   "293x-908 MIMAP-305A segment arena backing modeled allocation-ledger release/recycle continuation application bridge diagnostics landed; MIMAP-306A selected",
