@@ -1,6 +1,6 @@
 # 293x-818 HAKO-ALLOC-USIZE-FIELD-GROUP-010 Allocation-Apply Byte/Capacity Migration
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -60,7 +60,22 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Migrated only the
+  `HakoAllocSegmentArenaBackingModeledAllocationApplyReport` byte/capacity
+  owner group to exact `usize` storage.
+- Kept counters, reasons, tokens, ids, and the `row_index = -1` sentinel on
+  `i64`.
+- Strengthened the MIMAP-272A guard to assert exact `usize` typed-object
+  storage for the allocation-apply byte/capacity fields.
+- Strengthened the MIMAP-273A diagnostics guard to prove the allocation-apply
+  diagnostic mirror byte fields remain `i64` in this row.
+- Re-ran the MIMAP-274A closeout guard after fixing its historical MIMAP-275A
+  status expectation from `selected current` to `landed`.
+
 ## Next
 
-After this migration, close out the allocation-apply byte/capacity field group
-before selecting another allocator byte/capacity group.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-011` to close out the allocation-apply
+byte/capacity field group before selecting another allocator byte/capacity
+group.

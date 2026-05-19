@@ -688,7 +688,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-007` | landed | Close out the allocation-ledger byte/capacity field group and keep the evidence bounded. | selected FIELD-GROUP-008 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-008` | landed | Migrate allocation-ledger diagnostic mirror byte fields only; keep diagnostic counters, reasons, tokens, ids, and sentinels on `i64`. | selected FIELD-GROUP-009 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-009` | landed | Close out the allocation-ledger diagnostic byte mirror field group and keep the evidence bounded. | selected FIELD-GROUP-010 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-010` | selected current | Migrate allocation-apply report byte/capacity fields only; keep counters, reasons, tokens, ids, and sentinels on `i64`. | after FIELD-GROUP-009 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-010` | landed | Migrate allocation-apply report byte/capacity fields only; keep counters, reasons, tokens, ids, and sentinels on `i64`. | selected FIELD-GROUP-011 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-011` | selected current | Close out the allocation-apply byte/capacity field group and keep the evidence bounded. | after FIELD-GROUP-010 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -697,7 +698,7 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-010` migrates the allocation-apply report
+`HAKO-ALLOC-USIZE-FIELD-GROUP-011` closes out the allocation-apply report
 byte/capacity group:
 
 ```text
@@ -741,6 +742,8 @@ Then HAKO-ALLOC-USIZE-FIELD-GROUP-009 closes out that diagnostic mirror group
 before selecting another allocator byte/capacity group.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-010 migrates the allocation-apply report
 byte/capacity group that feeds the allocation-ledger family.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-011 closes out that allocation-apply group
+before selecting another allocator byte/capacity group.
 Reason/status/token/sentinel fields stay i64.
 ```
 

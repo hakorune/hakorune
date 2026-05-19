@@ -67,7 +67,11 @@ guard_expect_in_file "$TAG" 'exe = "deferred-to-closeout"' "$PROOF_MANIFEST" "MI
 guard_expect_in_file "$TAG" 'memory.segment_arena_backing_modeled_allocation_apply_box' "$MODULE" "module must export allocation apply owner"
 guard_expect_in_file "$TAG" 'segment_arena_backing_modeled_allocation_apply_box.hako' "$MEMORY_README" "memory README must name allocation apply owner"
 guard_expect_in_file "$TAG" 'recordAllocationApply' "$APPLY_OWNER" "allocation apply owner must expose record route"
-guard_expect_in_file "$TAG" 'applied_backing_bytes' "$APPLY_OWNER" "allocation apply report must publish applied backing bytes"
+guard_expect_in_file "$TAG" 'source_capacity: usize = 0' "$APPLY_OWNER" "allocation apply source capacity must be exact usize"
+guard_expect_in_file "$TAG" 'applied_backing_bytes: usize = 0' "$APPLY_OWNER" "allocation apply applied backing bytes must be exact usize"
+guard_expect_in_file "$TAG" 'remaining_source_bytes: usize = 0' "$APPLY_OWNER" "allocation apply remaining source bytes must be exact usize"
+guard_expect_in_file "$TAG" 'apply_token: i64 = 0' "$APPLY_OWNER" "allocation apply token must remain i64"
+guard_expect_in_file "$TAG" 'row_index: i64 = -1' "$APPLY_OWNER" "allocation apply row sentinel must remain i64"
 guard_expect_in_file "$TAG" 'check "mimap272a segment arena backing modeled allocation apply"' "$APP" "proof must use labelled check block"
 
 if rg -n 'lookupByPointer|lookupPointer|pointer_member|dereference[[:space:]]*\(|mutateSegmentMap|claimBitmap|unclaimBitmap|AtomicCoreBox|hako_atomic|cas_i64|fetch_add|hako_osvm|spawn[[:space:]]*\(|thread::|worker_local|ChannelBox|TaskGroupBox|nowait|sync[[:space:]]+box|context[[:space:]]|providerActivate|global_allocator' \
@@ -143,7 +147,7 @@ if report is None:
     raise SystemExit("missing modeled allocation apply report typed object plan")
 
 fields = {field.get("name"): field for field in report.get("fields", [])}
-for name in (
+required_fields = (
     "accepted",
     "reason",
     "allocation_apply_present",
@@ -153,9 +157,32 @@ for name in (
     "applied_committed_bytes",
     "remaining_source_bytes",
     "would_add_backend_matcher",
-):
+)
+for name in required_fields:
     if name not in fields:
         raise SystemExit(f"missing modeled allocation apply field: {name}")
+
+usize_fields = {
+    "source_capacity",
+    "source_committed_bytes",
+    "source_uncommitted_bytes",
+    "padded_bytes",
+    "slot_capacity",
+    "planned_backing_bytes",
+    "planned_committed_bytes",
+    "applied_backing_bytes",
+    "applied_committed_bytes",
+    "remaining_source_bytes",
+}
+for name in usize_fields:
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"allocation apply {name} must be exact usize storage: {field}")
+
+for name in ("reason", "row_index", "apply_token"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"allocation apply {name} must remain i64 storage: {field}")
 
 print("[mimap272a-mir-json] ok")
 PY
