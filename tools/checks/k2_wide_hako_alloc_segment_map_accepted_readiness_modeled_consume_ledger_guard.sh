@@ -99,7 +99,7 @@ guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD" "MIMAP-157A card must be landed"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-157A design must be accepted"
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD_158A" "MIMAP-158A card must be landed"
-guard_expect_in_file "$TAG" 'Status: selected current' "$CARD_159A" "MIMAP-159A must be selected current"
+guard_expect_in_file "$TAG" 'Status: landed' "$CARD_159A" "MIMAP-159A must be landed"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DIAGNOSTICS_DESIGN" "MIMAP-158A diagnostics design must be accepted"
 guard_expect_in_file "$TAG" 'blocked' "$DIAGNOSTICS_DESIGN" "MIMAP-158A diagnostics must define blocked"
 guard_expect_in_file "$TAG" 'duplicate' "$DIAGNOSTICS_DESIGN" "MIMAP-158A diagnostics must define duplicate"
@@ -118,6 +118,15 @@ guard_expect_in_file "$TAG" 'MIMAP-157A. It may compose an accepted MIMAP-153A r
 guard_expect_in_file "$TAG" 'box HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedgerReport' "$OWNER" "MIMAP-157A report box must exist"
 guard_expect_in_file "$TAG" 'box HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedger' "$OWNER" "MIMAP-157A owner must exist"
 guard_expect_in_file "$TAG" 'consumeAcceptedReadiness' "$OWNER" "MIMAP-157A owner must expose consumeAcceptedReadiness"
+guard_expect_in_file "$TAG" 'old_page_used: usize = 0' "$OWNER" "consume-ledger old page used must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-035"
+guard_expect_in_file "$TAG" 'page_capacity: usize = 0' "$OWNER" "consume-ledger page capacity must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-035"
+guard_expect_in_file "$TAG" 'request_blocks: usize = 0' "$OWNER" "consume-ledger request blocks must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-035"
+guard_expect_in_file "$TAG" 'new_page_used: usize = 0' "$OWNER" "consume-ledger new page used must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-035"
+guard_expect_in_file "$TAG" 'remaining_blocks: usize = 0' "$OWNER" "consume-ledger remaining blocks must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-035"
+guard_expect_in_file "$TAG" 'ledger_count_after: usize = 0' "$OWNER" "consume-ledger count after must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-035"
+guard_expect_in_file "$TAG" 'ledger_live_count_after: usize = 0' "$OWNER" "consume-ledger live count after must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-035"
+guard_expect_in_file "$TAG" 'modeled_block_start: i64 = -1' "$OWNER" "consume-ledger block-start sentinel must remain i64"
+guard_expect_in_file "$TAG" 'modeled_allocation_token: i64 = -1' "$OWNER" "consume-ledger token sentinel must remain i64"
 guard_expect_in_file "$TAG" 'HakoAllocSegmentAllocationModeledConsume' "$OWNER" "MIMAP-157A must compose modeled consume owner"
 guard_expect_in_file "$TAG" 'HakoAllocSegmentAllocationModeledLedger' "$OWNER" "MIMAP-157A must compose modeled ledger owner"
 guard_expect_in_file "$TAG" 'diagnosticBlocked' "$OWNER" "MIMAP-158A owner must expose blocked diagnostic"
@@ -243,6 +252,12 @@ required_fields = {
     "existing_index",
     "segment_id",
     "page_id",
+    "old_page_used",
+    "page_capacity",
+    "request_blocks",
+    "new_page_used",
+    "remaining_blocks",
+    "modeled_block_start",
     "modeled_allocation_token",
     "ledger_count_after",
     "ledger_live_count_after",
@@ -256,10 +271,26 @@ missing_fields = sorted(name for name in required_fields if name not in fields)
 if missing_fields:
     raise SystemExit(f"missing report fields: {missing_fields}")
 
-for name in required_fields:
+usize_fields = {
+    "old_page_used",
+    "page_capacity",
+    "request_blocks",
+    "new_page_used",
+    "remaining_blocks",
+    "ledger_count_after",
+    "ledger_live_count_after",
+}
+i64_fields = required_fields - usize_fields
+
+for name in usize_fields:
+    field = fields[name]
+    if field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"consume-ledger {name} must be exact usize storage: {field}")
+
+for name in i64_fields:
     field = fields[name]
     if field.get("declared_type") != "i64" or field.get("storage") != "i64":
-        raise SystemExit(f"bad report field {name}: {field}")
+        raise SystemExit(f"consume-ledger {name} must remain i64 storage: {field}")
 
 print("[mimap157a-mir-json] ok")
 PY

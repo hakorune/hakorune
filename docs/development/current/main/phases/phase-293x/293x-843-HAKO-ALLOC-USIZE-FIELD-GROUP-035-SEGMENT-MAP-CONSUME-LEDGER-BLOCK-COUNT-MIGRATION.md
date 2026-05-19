@@ -1,6 +1,6 @@
 # 293x-843 HAKO-ALLOC-USIZE-FIELD-GROUP-035 Segment-Map Consume-Ledger Block/Count Migration
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -56,8 +56,21 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Migrated only the
+  `HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedgerReport` block/count
+  group to exact `usize` storage.
+- Kept reasons, diagnostic kinds, ids, indexes, tokens, block-start sentinels,
+  and owner counters on `i64`.
+- Strengthened the MIMAP-157A guard to assert exact `usize` typed-object storage
+  for the selected block/count fields and to assert token / block-start
+  sentinels remain `i64`.
+- Re-ran the MIMAP-159A closeout guard and the MIMAP-161A release L2 guard after
+  the migration.
+
 ## Next
 
-After migration, select `HAKO-ALLOC-USIZE-FIELD-GROUP-036` to close out the
-segment-map consume-ledger block/count group before selecting another allocator
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-036` to close out the segment-map
+consume-ledger block/count group before selecting another allocator
 exact-`usize` field group.

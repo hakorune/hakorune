@@ -85,7 +85,7 @@ guard_require_files \
 guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD" "MIMAP-161A card must be landed"
-guard_expect_in_file "$TAG" 'Status: selected current' "$CARD_162A" "MIMAP-162A must be selected current"
+guard_expect_in_file "$TAG" 'Status: landed' "$CARD_162A" "MIMAP-162A must be landed"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-161A design must be accepted"
 guard_expect_in_file "$TAG" 'MIMAP-157A' "$CONSUME_LEDGER_SSOT" "release route must stay downstream of consume ledger pack"
 guard_expect_in_file "$TAG" 'MIMAP-097A' "$RELEASE_SSOT" "release route must reuse modeled ledger release substrate"

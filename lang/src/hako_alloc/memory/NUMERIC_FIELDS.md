@@ -177,17 +177,20 @@ Current production `usize` field group:
   byte/capacity row. Counters, reasons, ids, alignments, flags, and sentinels
   stay `i64`.
 
-Selected next production `usize` field group:
-
 - `segment_map_accepted_readiness_modeled_consume_ledger_box.hako`
   / `HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedgerReport`
   block/count report fields:
   `old_page_used`, `page_capacity`, `request_blocks`, `new_page_used`,
   `remaining_blocks`, `ledger_count_after`, `ledger_live_count_after`.
-  `HAKO-ALLOC-USIZE-FIELD-GROUP-035` selects this group because it owns
-  non-negative modeled consume/ledger block counts downstream of guarded
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-035` selects and migrates this group because it
+  owns non-negative modeled consume/ledger block counts downstream of guarded
   readiness. Reasons, diagnostic kinds, ids, indexes, tokens, block-start
   sentinels, and owner counters stay `i64`.
+
+Selected next production `usize` field group:
+
+- none. `HAKO-ALLOC-USIZE-FIELD-GROUP-036` is a closeout row for the segment-map
+  consume-ledger block/count group, not a new migration group.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.

@@ -61,7 +61,7 @@ guard_require_exec_files "$TAG" "$APP_TEST" "$GUARD_157A" "$SELF_SCRIPT" "$IMPL_
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_157A" "MIMAP-157A must be landed before closeout"
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_158A" "MIMAP-158A must be landed before closeout"
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_159A" "MIMAP-159A closeout card must be landed"
-guard_expect_in_file "$TAG" "Status: selected current" "$CARD_160A" "MIMAP-160A must be selected current after closeout"
+guard_expect_in_file "$TAG" "Status: landed" "$CARD_160A" "MIMAP-160A must be landed after closeout"
 
 guard_expect_in_file "$TAG" "Decision: accepted" "$SSOT" "MIMAP-159A closeout SSOT must be accepted"
 guard_expect_in_file "$TAG" "Decision: accepted" "$ROUTE_SSOT" "MIMAP-157A route SSOT must stay accepted"
@@ -196,13 +196,21 @@ for name in (
     "ledger_reason",
     "diagnostic_kind",
     "modeled_allocation_token",
+):
+    field = fields.get(name)
+    if field is None:
+        raise SystemExit(f"missing closeout report field: {name}")
+    if field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"bad closeout report field {name}: {field}")
+
+for name in (
     "ledger_count_after",
     "ledger_live_count_after",
 ):
     field = fields.get(name)
     if field is None:
         raise SystemExit(f"missing closeout report field: {name}")
-    if field.get("declared_type") != "i64" or field.get("storage") != "i64":
+    if field.get("declared_type") != "usize" or field.get("storage") != "usize":
         raise SystemExit(f"bad closeout report field {name}: {field}")
 
 print("[mimap159a-mir-json] ok")

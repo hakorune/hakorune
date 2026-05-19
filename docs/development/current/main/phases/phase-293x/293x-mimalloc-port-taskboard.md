@@ -713,7 +713,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-032` | landed | Migrate the readiness geometry count / page-size group only; keep alignments, counters, reasons, tokens, ids, and sentinels on `i64`. | selected FIELD-GROUP-033 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-033` | landed | Close out the readiness geometry count / page-size field group and keep the evidence bounded. | selected FIELD-GROUP-034 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-034` | landed | Select the next exact-`usize` stored field group after closing the arena-backing geometry chain. | selected FIELD-GROUP-035 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-035` | selected current | Migrate the segment-map accepted-readiness modeled consume-ledger block/count report group only; keep reasons, ids, indexes, tokens, block-start sentinels, and owner counters on `i64`. | after FIELD-GROUP-034 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-035` | landed | Migrate the segment-map accepted-readiness modeled consume-ledger block/count report group only; keep reasons, ids, indexes, tokens, block-start sentinels, and owner counters on `i64`. | selected FIELD-GROUP-036 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-036` | selected current | Close out the segment-map consume-ledger block/count field group and keep the evidence bounded. | after FIELD-GROUP-035 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -722,7 +723,7 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-035` migrates the segment-map accepted-readiness
+`HAKO-ALLOC-USIZE-FIELD-GROUP-036` closes out the segment-map accepted-readiness
 modeled consume-ledger report block/count fields:
 
 ```text
@@ -818,6 +819,9 @@ Then HAKO-ALLOC-USIZE-FIELD-GROUP-034 selects the next narrow owner-local field
 group before any further migration.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-035 migrates the segment-map
 accepted-readiness modeled consume-ledger block/count report group.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-036 closes out that segment-map
+consume-ledger block/count group before selecting another allocator
+exact-`usize` field group.
 Reason/status/token/sentinel fields stay i64.
 ```
 
