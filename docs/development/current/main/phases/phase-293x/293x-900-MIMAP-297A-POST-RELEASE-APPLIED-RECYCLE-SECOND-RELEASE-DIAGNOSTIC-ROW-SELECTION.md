@@ -1,6 +1,6 @@
 # 293x-900 MIMAP-297A Post Release-Applied Recycle Second-Release Diagnostic Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -33,4 +33,31 @@ git diff --check
 
 ## Selected Row
 
-Pending: choose the next narrow allocator row after MIMAP-296A.
+`MIMAP-298A`:
+
+```text
+segment arena backing modeled allocation-ledger release-applied recycle second-release diagnostic closeout pack
+```
+
+Rationale:
+
+- MIMAP-296A is a scalar/model diagnostic row with L3 evidence deferred.
+- Closing the diagnostic immediately keeps the release-applied recycle
+  duplicate/stale boundary from remaining as an open proof island.
+- The closeout should bundle MIMAP-296A L2 with representative exact-MIR L3
+  evidence while keeping lifecycle generation, real arena backing recycle,
+  pointer residence, segment-map mutation, atomics, OSVM/page-source, providers,
+  hooks, and `#[global_allocator]` closed.
+
+Validation profile:
+
+```text
+closeout L3
+```
+
+## Evidence
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
