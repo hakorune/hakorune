@@ -1,6 +1,6 @@
 # 293x-840 HAKO-ALLOC-USIZE-FIELD-GROUP-032 Readiness Geometry Count / Page-Size Migration
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -56,8 +56,21 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Migrated only the
+  `HakoAllocSegmentArenaBackingReadinessInventoryReport` geometry count /
+  page-size group to exact `usize` storage.
+- Kept readiness counters, reasons, ids, alignments, flags, and
+  sentinel-bearing fields on `i64`.
+- Strengthened the MIMAP-236A guard to assert exact `usize` typed-object storage
+  for the geometry count / page-size fields and to assert `required_alignment`
+  and id sentinel fields remain `i64`.
+- Re-ran the MIMAP-237A diagnostics guard and the downstream MIMAP-240A
+  requirement-matrix L2 guard after the migration.
+
 ## Next
 
-After migration, select `HAKO-ALLOC-USIZE-FIELD-GROUP-033` to close out the
-readiness geometry count / page-size group before selecting another allocator
-exact-`usize` field group.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-033` to close out the readiness geometry
+count / page-size group before selecting another allocator exact-`usize` field
+group.

@@ -75,6 +75,12 @@ guard_expect_in_file "$TAG" 'memory.segment_arena_backing_readiness_inventory_bo
 guard_expect_in_file "$TAG" 'segment_arena_backing_readiness_inventory_box.hako' "$MEMORY_README" "memory README must name owner"
 guard_expect_in_file "$TAG" 'classifyReadiness' "$OWNER" "owner must expose readiness classifier"
 guard_expect_in_file "$TAG" 'arena_backing_readiness_present: i64 = 1' "$OWNER" "report must publish presence bit"
+guard_expect_in_file "$TAG" 'slice_count: usize = 0' "$OWNER" "readiness slice count must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-032"
+guard_expect_in_file "$TAG" 'committed_slices: usize = 0' "$OWNER" "readiness committed slices must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-032"
+guard_expect_in_file "$TAG" 'free_slices: usize = 0' "$OWNER" "readiness free slices must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-032"
+guard_expect_in_file "$TAG" 'page_size: usize = 0' "$OWNER" "readiness page size must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-032"
+guard_expect_in_file "$TAG" 'required_alignment: i64 = 0' "$OWNER" "readiness alignment must remain i64"
+guard_expect_in_file "$TAG" 'segment_id: i64 = -1' "$OWNER" "readiness id sentinel must remain i64"
 guard_expect_in_file "$TAG" 'check "mimap236a segment arena backing readiness inventory"' "$APP" "proof must use labelled check block"
 
 if rg -n 'allocateArena|ArenaBackingAlloc|arenaBackingAllocate|rawPointer|pointer_member|lookupSegment[[:space:]]*\(|mutateSegmentMap|claimBitmap|unclaimBitmap|AtomicCoreBox|hako_atomic|cas_i64|fetch_add|hako_osvm|spawn[[:space:]]*\(|thread::|worker_local|ChannelBox|TaskGroupBox|nowait|sync[[:space:]]+box|context[[:space:]]|providerActivate|global_allocator' \
@@ -176,6 +182,29 @@ for name in (
 ):
     if name not in fields:
         raise SystemExit(f"missing arena backing readiness report field: {name}")
+
+for name in (
+    "slice_count",
+    "committed_slices",
+    "free_slices",
+    "page_size",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"readiness {name} must be exact usize storage: {field}")
+
+for name in (
+    "accepted",
+    "reason",
+    "segment_id",
+    "arena_id",
+    "required_alignment",
+    "lifecycle_continuation_observed",
+    "arena_backing_readiness_present",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"readiness {name} must remain i64 storage: {field}")
 
 print("[mimap236a-mir-json] ok")
 PY
