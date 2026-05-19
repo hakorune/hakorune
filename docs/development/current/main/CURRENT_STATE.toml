@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-911-MIMAP-3
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-918-CHECKS-PROOF-APPS-MANIFEST-FAMILY-SPLIT-2"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-918-CHECKS-PROOF-APPS-MANIFEST-FAMILY-SPLIT-2.md"
-latest_card_summary = "Split the next hako_alloc proof-app block into a manifest include file while preserving proof-app list output; MIMAP-308A remains current."
+latest_card = "293x-919-CHECKS-PROOF-APPS-MANIFEST-FAMILY-SPLIT-3"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-919-CHECKS-PROOF-APPS-MANIFEST-FAMILY-SPLIT-3.md"
+latest_card_summary = "Split the hako_alloc arena-backing release-lifecycle proof-app block into a manifest include file while preserving proof-app list output; MIMAP-308A remains current."
 
 current_blocker_token = "MIMAP-308A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-919 CHECKS proof-app manifest family split 3 landed; MIMAP-308A remains current",
   "293x-918 CHECKS proof-app manifest family split 2 landed; MIMAP-308A remains current",
   "293x-917 CHECKS guard_rows manifest family split landed; MIMAP-308A remains current",
   "293x-916 CHECKS proof-app manifest family split landed; MIMAP-308A remains current",

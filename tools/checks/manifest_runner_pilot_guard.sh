@@ -48,8 +48,46 @@ guard_expect_in_file "$TAG" "tomllib" "$SHARED_RUNNER" "shared runner must own T
 guard_expect_in_file "$TAG" "subprocess.run" "$SHARED_RUNNER" "shared runner must own argv-array subprocess dispatch"
 guard_expect_in_file "$TAG" "--validation-profile" "$SHARED_RUNNER" "shared runner must expose validation profile selection"
 guard_expect_in_file "$TAG" "--level" "$SHARED_RUNNER" "shared runner must expose level-specific command selection"
-guard_expect_in_file "$TAG" "validation_profile" "$PROOF_MANIFEST" "proof manifest must carry validation profile pilot fields"
-guard_expect_in_file "$TAG" "cmd_l2" "$PROOF_MANIFEST" "proof manifest must carry L2 split-command pilot fields"
+python3 - "$ROOT_DIR" "$PROOF_MANIFEST" <<'PY'
+import pathlib
+import sys
+import tomllib
+
+root = pathlib.Path(sys.argv[1]).resolve()
+manifest = root / sys.argv[2]
+
+def load_entries(path: pathlib.Path, stack: tuple[pathlib.Path, ...] = ()) -> list[dict]:
+    if path in stack:
+        cycle = " -> ".join(str(item.relative_to(root)) for item in (*stack, path))
+        raise SystemExit(f"manifest include cycle: {cycle}")
+
+    data = tomllib.loads(path.read_text(encoding="utf-8"))
+    includes = data.get("includes", [])
+    if not isinstance(includes, list) or not all(isinstance(item, str) and item for item in includes):
+        raise SystemExit(f"{path.relative_to(root)} includes must be a list of non-empty strings")
+
+    rows: list[dict] = []
+    for include in includes:
+        include_path = root / include
+        if not include_path.is_file():
+            raise SystemExit(f"missing included manifest: {include}")
+        rows.extend(load_entries(include_path, (*stack, path)))
+
+    local_rows = data.get("proof_apps")
+    if not isinstance(local_rows, list):
+        raise SystemExit(f"{path.relative_to(root)} must contain [[proof_apps]] entries")
+    for row in local_rows:
+        if not isinstance(row, dict):
+            raise SystemExit(f"{path.relative_to(root)} proof app entry is not a table")
+        rows.append(row)
+    return rows
+
+entries = load_entries(manifest)
+if not any("validation_profile" in row for row in entries):
+    raise SystemExit("proof manifest must carry validation profile pilot fields")
+if not any("cmd_l2" in row for row in entries):
+    raise SystemExit("proof manifest must carry L2 split-command pilot fields")
+PY
 if rg -n "shell=True|eval\\(" "$SHARED_RUNNER"; then
   guard_fail "$TAG" "shared runner must not use shell=True or eval"
 fi
