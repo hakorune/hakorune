@@ -762,7 +762,8 @@ FST:
 | `MIMAP-286A` | landed | Segment arena backing modeled allocation-ledger release intent closeout pack. | selected MIMAP-287A |
 | `MIMAP-287A` | landed | Post release-intent closeout row selection. | selected MIMAP-288A |
 | `MIMAP-288A` | landed | Segment arena backing modeled allocation-ledger release apply inventory. | selected MIMAP-289A |
-| `MIMAP-289A` | selected current | Segment arena backing modeled allocation-ledger release apply diagnostics. | after MIMAP-288A |
+| `MIMAP-289A` | landed | Segment arena backing modeled allocation-ledger release apply diagnostics. | selected MIMAP-290A |
+| `MIMAP-290A` | selected current | Segment arena backing modeled allocation-ledger release apply closeout pack. | after MIMAP-289A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -771,14 +772,15 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-289A` observes the scalar/model segment arena backing allocation-ledger
-release apply inventory after MIMAP-288A and publishes diagnostics without
-recording new release-apply rows.
+`MIMAP-290A` closes the scalar/model segment arena backing allocation-ledger
+release apply family after the MIMAP-288A inventory and MIMAP-289A diagnostics
+rows.
 
 SSOT:
 
 ```text
 docs/development/current/main/phases/phase-293x/293x-892-MIMAP-289A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-APPLY-DIAGNOSTICS.md
+docs/development/current/main/phases/phase-293x/293x-893-MIMAP-290A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-APPLY-CLOSEOUT.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-ssot.md
 ```
 
