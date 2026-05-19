@@ -1,6 +1,6 @@
 # 293x-824 HAKO-ALLOC-USIZE-FIELD-GROUP-016 Allocation-Plan Diagnostic Byte Mirror Migration
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -55,7 +55,20 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Migrated only the allocation-plan diagnostic mirror byte fields on both the
+  report box and its local ReportFields record carrier.
+- Kept diagnostic counters, reasons, tokens, ids, status flags, and sentinels on
+  `i64`.
+- Strengthened the MIMAP-269A diagnostics guard to assert exact `usize`
+  typed-object storage and record declaration types for the three mirror byte
+  fields.
+- Re-ran the MIMAP-270A closeout guard, including representative exact MIR ->
+  pure-first EXE evidence for the allocation-plan diagnostics proof app.
+
 ## Next
 
-After this migration, close out the allocation-plan diagnostic mirror byte field
-group before selecting another allocator byte/capacity group.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-017` to close out the allocation-plan
+diagnostic mirror byte field group before selecting another allocator
+byte/capacity group.

@@ -69,9 +69,9 @@ guard_expect_in_file "$TAG" 'segment_arena_backing_modeled_allocation_plan_diagn
 guard_expect_in_file "$TAG" 'record HakoAllocSegmentArenaBackingModeledAllocationPlanDiagnosticReportFields' "$DIAGNOSTIC_OWNER" "diagnostic owner must use local ReportFields record payload"
 guard_expect_in_file "$TAG" 'observeAllocationPlanDiagnostics' "$DIAGNOSTIC_OWNER" "diagnostic owner must expose observer route"
 guard_expect_in_file "$TAG" 'diagnostic_present: i64 = 1' "$DIAGNOSTIC_OWNER" "diagnostic report must publish presence bit"
-guard_expect_in_file "$TAG" 'last_report_planned_backing_bytes: i64' "$DIAGNOSTIC_OWNER" "allocation-plan diagnostic mirror bytes must remain i64 in HAKO-ALLOC-USIZE-FIELD-GROUP-014"
-guard_expect_in_file "$TAG" 'last_report_planned_committed_bytes: i64' "$DIAGNOSTIC_OWNER" "allocation-plan diagnostic mirror committed bytes must remain i64 in HAKO-ALLOC-USIZE-FIELD-GROUP-014"
-guard_expect_in_file "$TAG" 'last_report_remaining_source_bytes: i64' "$DIAGNOSTIC_OWNER" "allocation-plan diagnostic mirror remaining bytes must remain i64 in HAKO-ALLOC-USIZE-FIELD-GROUP-014"
+guard_expect_in_file "$TAG" 'last_report_planned_backing_bytes: usize' "$DIAGNOSTIC_OWNER" "allocation-plan diagnostic mirror bytes must be exact usize in HAKO-ALLOC-USIZE-FIELD-GROUP-016"
+guard_expect_in_file "$TAG" 'last_report_planned_committed_bytes: usize' "$DIAGNOSTIC_OWNER" "allocation-plan diagnostic mirror committed bytes must be exact usize in HAKO-ALLOC-USIZE-FIELD-GROUP-016"
+guard_expect_in_file "$TAG" 'last_report_remaining_source_bytes: usize' "$DIAGNOSTIC_OWNER" "allocation-plan diagnostic mirror remaining bytes must be exact usize in HAKO-ALLOC-USIZE-FIELD-GROUP-016"
 guard_expect_in_file "$TAG" 'check "mimap269a segment arena backing modeled allocation plan diagnostics"' "$APP" "proof must use labelled check block"
 
 if rg -n 'recordAllocationPlan|me\.(inventory_count|accepted_count|reject_count|missing_accounting_reject_count|rejected_accounting_reject_count|invalid_plan_token_reject_count|invalid_plan_geometry_reject_count|closed_substrate_reject_count)[[:space:]]*\+=' \
@@ -189,8 +189,8 @@ for name in (
     "last_report_remaining_source_bytes",
 ):
     field = fields.get(name)
-    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
-        raise SystemExit(f"allocation plan diagnostic mirror {name} must remain i64 storage: {field}")
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"allocation plan diagnostic mirror {name} must be exact usize storage: {field}")
 
 record_decl = None
 for decl in data.get("record_decls", []):
@@ -210,8 +210,8 @@ for name in (
     "last_report_remaining_source_bytes",
 ):
     field = record_fields.get(name)
-    if field is None or field.get("declared_type") != "i64":
-        raise SystemExit(f"allocation plan diagnostic ReportFields {name} must remain declared i64: {field}")
+    if field is None or field.get("declared_type") != "usize":
+        raise SystemExit(f"allocation plan diagnostic ReportFields {name} must be declared usize: {field}")
 
 print("[mimap269a-mir-json] ok")
 PY

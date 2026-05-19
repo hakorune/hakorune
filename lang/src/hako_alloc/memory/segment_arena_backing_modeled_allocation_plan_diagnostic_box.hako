@@ -30,9 +30,9 @@ record HakoAllocSegmentArenaBackingModeledAllocationPlanDiagnosticReportFields {
     last_report_modeled_allocation_plan_present: i64
     last_report_closed_substrate_blocker_count: i64
     last_report_plan_token: i64
-    last_report_planned_backing_bytes: i64
-    last_report_planned_committed_bytes: i64
-    last_report_remaining_source_bytes: i64
+    last_report_planned_backing_bytes: usize
+    last_report_planned_committed_bytes: usize
+    last_report_remaining_source_bytes: usize
     last_report_source_uncommitted_bytes: i64
     allocation_plan_present: i64
     modeled_allocation_plan_present: i64
@@ -65,9 +65,9 @@ box HakoAllocSegmentArenaBackingModeledAllocationPlanDiagnosticReport {
     last_report_modeled_allocation_plan_present: i64 = 0
     last_report_closed_substrate_blocker_count: i64 = 0
     last_report_plan_token: i64 = 0
-    last_report_planned_backing_bytes: i64 = 0
-    last_report_planned_committed_bytes: i64 = 0
-    last_report_remaining_source_bytes: i64 = 0
+    last_report_planned_backing_bytes: usize = 0
+    last_report_planned_committed_bytes: usize = 0
+    last_report_remaining_source_bytes: usize = 0
     last_report_source_uncommitted_bytes: i64 = 0
     allocation_plan_present: i64 = 0
     modeled_allocation_plan_present: i64 = 0
