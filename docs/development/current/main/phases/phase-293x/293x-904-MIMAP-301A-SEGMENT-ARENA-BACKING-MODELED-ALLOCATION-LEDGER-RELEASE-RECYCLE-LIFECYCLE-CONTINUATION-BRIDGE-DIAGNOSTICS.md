@@ -1,6 +1,6 @@
 # 293x-904 MIMAP-301A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Lifecycle Continuation Bridge Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -54,3 +54,19 @@ bash tools/checks/run_proof_app.sh --only MIMAP-301A
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Next
+
+`MIMAP-302A`:
+
+```text
+segment arena backing modeled allocation-ledger release/recycle lifecycle continuation bridge closeout pack
+```
+
+Rationale:
+
+- MIMAP-300A recorded the model-only continuation bridge.
+- MIMAP-301A observed the bridge and its rejected cases without recording a
+  second continuation row.
+- The next row should close the continuation bridge pack with representative
+  L3 evidence before choosing the next arena-backing release/recycle bridge.

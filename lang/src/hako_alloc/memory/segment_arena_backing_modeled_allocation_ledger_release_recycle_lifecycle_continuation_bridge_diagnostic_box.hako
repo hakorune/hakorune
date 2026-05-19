@@ -1,0 +1,256 @@
+// segment_arena_backing_modeled_allocation_ledger_release_recycle_lifecycle_continuation_bridge_diagnostic_box.hako -- MIMAP-301A
+// Responsibility:
+// - observe MIMAP-300A release/recycle lifecycle-continuation bridge facts and
+//   publish scalar/model diagnostic summary facts
+// - keep the diagnostic observer-only; it does not create another continuation
+//   row or run real arena backing release/recycle behavior
+// Non-responsibility:
+// - creating real lifecycle generation, pointer residence, pointer-derived
+//   lookup, arena backing release/allocation, segment-map mutation, atomic
+//   bitmap execution, OSVM calls, scheduling, providers, or backend shortcuts
+
+record HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridgeDiagnosticReportFields {
+    observed: i64
+    reason: i64
+    diagnostic_present: i64
+    continuation_accepted: i64
+    continuation_reason: i64
+    existing_index: i64
+    inventory_count: i64
+    accepted_count: i64
+    reject_count: i64
+    missing_recycle_reject_count: i64
+    rejected_recycle_reject_count: i64
+    invalid_continuation_token_reject_count: i64
+    duplicate_continuation_token_reject_count: i64
+    closed_substrate_reject_count: i64
+    rejected_bridge_summary_count: i64
+    last_reason: i64
+    last_segment_id: i64
+    last_arena_id: i64
+    last_release_applied_recycle_token: i64
+    last_continuation_token: i64
+    report_accepted: i64
+    report_reason: i64
+    report_row_index: i64
+    report_segment_id: i64
+    report_arena_id: i64
+    report_lifetime_generation: i64
+    report_release_applied_recycle_token: i64
+    report_continuation_token: i64
+    report_applied_backing_bytes: usize
+    report_applied_committed_bytes: usize
+    report_remaining_source_bytes: usize
+    lifecycle_continuation_present: i64
+    modeled_lifecycle_continuation_present: i64
+    would_create_pointer_residence: i64
+    would_lookup_by_pointer: i64
+    would_release_arena_backing: i64
+    would_use_segment_map: i64
+    would_execute_atomic_bitmap: i64
+    would_call_osvm: i64
+    would_run_thread: i64
+    would_activate_provider: i64
+    would_add_backend_matcher: i64
+}
+
+box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridgeDiagnosticReport {
+    observed: i64 = 0
+    reason: i64 = 0
+    diagnostic_present: i64 = 1
+    continuation_accepted: i64 = 0
+    continuation_reason: i64 = 0
+    existing_index: i64 = -1
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_recycle_reject_count: i64 = 0
+    rejected_recycle_reject_count: i64 = 0
+    invalid_continuation_token_reject_count: i64 = 0
+    duplicate_continuation_token_reject_count: i64 = 0
+    closed_substrate_reject_count: i64 = 0
+    rejected_bridge_summary_count: i64 = 0
+    last_reason: i64 = 0
+    last_segment_id: i64 = -1
+    last_arena_id: i64 = -1
+    last_release_applied_recycle_token: i64 = 0
+    last_continuation_token: i64 = 0
+    report_accepted: i64 = 0
+    report_reason: i64 = 0
+    report_row_index: i64 = -1
+    report_segment_id: i64 = -1
+    report_arena_id: i64 = -1
+    report_lifetime_generation: i64 = 0
+    report_release_applied_recycle_token: i64 = 0
+    report_continuation_token: i64 = 0
+    report_applied_backing_bytes: usize = 0
+    report_applied_committed_bytes: usize = 0
+    report_remaining_source_bytes: usize = 0
+    lifecycle_continuation_present: i64 = 0
+    modeled_lifecycle_continuation_present: i64 = 0
+    would_create_pointer_residence: i64 = 0
+    would_lookup_by_pointer: i64 = 0
+    would_release_arena_backing: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridgeDiagnostic {
+    observe_count: i64 = 0
+    accepted_summary_count: i64 = 0
+    rejected_summary_count: i64 = 0
+    missing_inventory_reject_count: i64 = 0
+    missing_report_reject_count: i64 = 0
+    rejected_bridge_summary_count: i64 = 0
+    missing_token_reject_count: i64 = 0
+    last_reason: i64 = 0
+
+    makeContinuationBridgeDiagnosticReport(fields: HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridgeDiagnosticReportFields): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridgeDiagnosticReport {
+        local result = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridgeDiagnosticReport()
+        result.observed = fields.observed
+        result.reason = fields.reason
+        result.diagnostic_present = fields.diagnostic_present
+        result.continuation_accepted = fields.continuation_accepted
+        result.continuation_reason = fields.continuation_reason
+        result.existing_index = fields.existing_index
+        result.inventory_count = fields.inventory_count
+        result.accepted_count = fields.accepted_count
+        result.reject_count = fields.reject_count
+        result.missing_recycle_reject_count = fields.missing_recycle_reject_count
+        result.rejected_recycle_reject_count = fields.rejected_recycle_reject_count
+        result.invalid_continuation_token_reject_count = fields.invalid_continuation_token_reject_count
+        result.duplicate_continuation_token_reject_count = fields.duplicate_continuation_token_reject_count
+        result.closed_substrate_reject_count = fields.closed_substrate_reject_count
+        result.rejected_bridge_summary_count = fields.rejected_bridge_summary_count
+        result.last_reason = fields.last_reason
+        result.last_segment_id = fields.last_segment_id
+        result.last_arena_id = fields.last_arena_id
+        result.last_release_applied_recycle_token = fields.last_release_applied_recycle_token
+        result.last_continuation_token = fields.last_continuation_token
+        result.report_accepted = fields.report_accepted
+        result.report_reason = fields.report_reason
+        result.report_row_index = fields.report_row_index
+        result.report_segment_id = fields.report_segment_id
+        result.report_arena_id = fields.report_arena_id
+        result.report_lifetime_generation = fields.report_lifetime_generation
+        result.report_release_applied_recycle_token = fields.report_release_applied_recycle_token
+        result.report_continuation_token = fields.report_continuation_token
+        result.report_applied_backing_bytes = fields.report_applied_backing_bytes
+        result.report_applied_committed_bytes = fields.report_applied_committed_bytes
+        result.report_remaining_source_bytes = fields.report_remaining_source_bytes
+        result.lifecycle_continuation_present = fields.lifecycle_continuation_present
+        result.modeled_lifecycle_continuation_present = fields.modeled_lifecycle_continuation_present
+        result.would_create_pointer_residence = fields.would_create_pointer_residence
+        result.would_lookup_by_pointer = fields.would_lookup_by_pointer
+        result.would_release_arena_backing = fields.would_release_arena_backing
+        result.would_use_segment_map = fields.would_use_segment_map
+        result.would_execute_atomic_bitmap = fields.would_execute_atomic_bitmap
+        result.would_call_osvm = fields.would_call_osvm
+        result.would_run_thread = fields.would_run_thread
+        result.would_activate_provider = fields.would_activate_provider
+        result.would_add_backend_matcher = fields.would_add_backend_matcher
+        return result
+    }
+
+    makeReport(observed, reason, continuation_accepted, existing_index, inventory, continuation_report): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridgeDiagnosticReport {
+        local lifecycle_continuation_present = 0
+        local modeled_lifecycle_continuation_present = 0
+        if observed == 1 {
+            lifecycle_continuation_present = continuation_report.lifecycle_continuation_present
+            modeled_lifecycle_continuation_present = continuation_report.modeled_lifecycle_continuation_present
+        }
+
+        local fields = HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridgeDiagnosticReportFields {
+            observed: observed,
+            reason: reason,
+            diagnostic_present: 1,
+            continuation_accepted: continuation_accepted,
+            continuation_reason: continuation_report.reason,
+            existing_index: existing_index,
+            inventory_count: inventory.inventory_count,
+            accepted_count: inventory.accepted_count,
+            reject_count: inventory.reject_count,
+            missing_recycle_reject_count: inventory.missing_recycle_reject_count,
+            rejected_recycle_reject_count: inventory.rejected_recycle_reject_count,
+            invalid_continuation_token_reject_count: inventory.invalid_continuation_token_reject_count,
+            duplicate_continuation_token_reject_count: inventory.duplicate_continuation_token_reject_count,
+            closed_substrate_reject_count: inventory.closed_substrate_reject_count,
+            rejected_bridge_summary_count: me.rejected_bridge_summary_count,
+            last_reason: inventory.last_reason,
+            last_segment_id: inventory.last_segment_id,
+            last_arena_id: inventory.last_arena_id,
+            last_release_applied_recycle_token: inventory.last_release_applied_recycle_token,
+            last_continuation_token: inventory.last_continuation_token,
+            report_accepted: continuation_report.accepted,
+            report_reason: continuation_report.reason,
+            report_row_index: continuation_report.row_index,
+            report_segment_id: continuation_report.segment_id,
+            report_arena_id: continuation_report.arena_id,
+            report_lifetime_generation: continuation_report.lifetime_generation,
+            report_release_applied_recycle_token: continuation_report.release_applied_recycle_token,
+            report_continuation_token: continuation_report.continuation_token,
+            report_applied_backing_bytes: continuation_report.applied_backing_bytes,
+            report_applied_committed_bytes: continuation_report.applied_committed_bytes,
+            report_remaining_source_bytes: continuation_report.remaining_source_bytes,
+            lifecycle_continuation_present: lifecycle_continuation_present,
+            modeled_lifecycle_continuation_present: modeled_lifecycle_continuation_present,
+            would_create_pointer_residence: 0,
+            would_lookup_by_pointer: 0,
+            would_release_arena_backing: 0,
+            would_use_segment_map: 0,
+            would_execute_atomic_bitmap: 0,
+            would_call_osvm: 0,
+            would_run_thread: 0,
+            would_activate_provider: 0,
+            would_add_backend_matcher: 0,
+        }
+        me.last_reason = reason
+        return me.makeContinuationBridgeDiagnosticReport(fields)
+    }
+
+    reject(reason, inventory, continuation_report): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridgeDiagnosticReport {
+        me.rejected_summary_count += 1
+        if reason == 1 {
+            me.missing_inventory_reject_count += 1
+        }
+        if reason == 2 {
+            me.missing_report_reject_count += 1
+        }
+        if reason == 4 {
+            me.missing_token_reject_count += 1
+        }
+        return me.makeReport(0, reason, 0, -1, inventory, continuation_report)
+    }
+
+    observeLifecycleContinuationBridge(inventory, continuation_report): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridgeDiagnosticReport {
+        me.observe_count += 1
+
+        if inventory.inventory_count <= 0 {
+            return me.reject(1, inventory, continuation_report)
+        }
+        if continuation_report.lifecycle_continuation_present != 1 {
+            return me.reject(2, inventory, continuation_report)
+        }
+        if continuation_report.modeled_lifecycle_continuation_present != 1 {
+            return me.reject(2, inventory, continuation_report)
+        }
+        if continuation_report.accepted != 1 {
+            me.rejected_summary_count += 1
+            me.rejected_bridge_summary_count += 1
+            return me.makeReport(1, 3, 0, continuation_report.row_index, inventory, continuation_report)
+        }
+        if continuation_report.continuation_token <= 0 {
+            return me.reject(4, inventory, continuation_report)
+        }
+        if inventory.hasContinuationToken(continuation_report.continuation_token) != 1 {
+            return me.reject(4, inventory, continuation_report)
+        }
+
+        me.accepted_summary_count += 1
+        return me.makeReport(1, 0, 1, continuation_report.row_index, inventory, continuation_report)
+    }
+}

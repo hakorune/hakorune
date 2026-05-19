@@ -1015,6 +1015,19 @@ cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_al
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_lifecycle_continuation_bridge_guard.sh", "--level", "L2"]
 
 [[proof_apps]]
+id = "MIMAP-301A"
+app = "apps/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-lifecycle-continuation-bridge-diagnostics-proof"
+label = "segment arena backing modeled allocation-ledger release/recycle lifecycle continuation bridge diagnostics proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "diagnostic"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "segment-arena-backing-modeled-allocation-ledger-release-recycle-lifecycle-continuation-bridge"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_lifecycle_continuation_bridge_diagnostics_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_lifecycle_continuation_bridge_diagnostics_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
 id = "MIMAP-091A"
 app = "apps/hako-alloc-segment-allocation-modeled-consume-proof"
 label = "segment allocation modeled consume proof"

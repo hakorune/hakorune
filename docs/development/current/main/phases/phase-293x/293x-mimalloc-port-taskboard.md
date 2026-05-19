@@ -774,7 +774,8 @@ FST:
 | `MIMAP-298A` | landed | Segment arena backing modeled allocation-ledger release-applied recycle second-release diagnostic closeout pack. | selected MIMAP-299A |
 | `MIMAP-299A` | landed | Post release-applied recycle second-release diagnostic closeout row selection. | selected MIMAP-300A |
 | `MIMAP-300A` | landed | Segment arena backing modeled allocation-ledger release/recycle lifecycle continuation bridge inventory. | selected MIMAP-301A |
-| `MIMAP-301A` | selected current | Segment arena backing modeled allocation-ledger release/recycle lifecycle continuation bridge diagnostics. | after MIMAP-300A |
+| `MIMAP-301A` | landed | Segment arena backing modeled allocation-ledger release/recycle lifecycle continuation bridge diagnostics. | selected MIMAP-302A |
+| `MIMAP-302A` | selected current | Segment arena backing modeled allocation-ledger release/recycle lifecycle continuation bridge closeout pack. | after MIMAP-301A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -783,8 +784,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-301A` adds a scalar/model release/recycle lifecycle continuation bridge
-diagnostic observer after the MIMAP-300A continuation bridge inventory.
+`MIMAP-302A` closes the scalar/model release/recycle lifecycle continuation
+bridge pack with representative L3 evidence after MIMAP-300A/MIMAP-301A.
 
 SSOT:
 
@@ -802,6 +803,7 @@ docs/development/current/main/phases/phase-293x/293x-901-MIMAP-298A-SEGMENT-AREN
 docs/development/current/main/phases/phase-293x/293x-902-MIMAP-299A-POST-RELEASE-APPLIED-RECYCLE-SECOND-RELEASE-DIAGNOSTIC-CLOSEOUT-ROW-SELECTION.md
 docs/development/current/main/phases/phase-293x/293x-903-MIMAP-300A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-LIFECYCLE-CONTINUATION-BRIDGE-INVENTORY.md
 docs/development/current/main/phases/phase-293x/293x-904-MIMAP-301A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-LIFECYCLE-CONTINUATION-BRIDGE-DIAGNOSTICS.md
+docs/development/current/main/phases/phase-293x/293x-905-MIMAP-302A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-LIFECYCLE-CONTINUATION-BRIDGE-CLOSEOUT.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-diagnostics-ssot.md
@@ -809,6 +811,7 @@ docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-al
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-second-release-diagnostic-closeout-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-closeout-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-lifecycle-continuation-bridge-ssot.md
+docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-lifecycle-continuation-bridge-diagnostics-ssot.md
 ```
 
 Real pointer residence, pointer-derived lookup, real thread scheduling, worker
