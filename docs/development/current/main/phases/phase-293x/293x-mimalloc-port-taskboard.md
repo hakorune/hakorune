@@ -689,7 +689,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-008` | landed | Migrate allocation-ledger diagnostic mirror byte fields only; keep diagnostic counters, reasons, tokens, ids, and sentinels on `i64`. | selected FIELD-GROUP-009 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-009` | landed | Close out the allocation-ledger diagnostic byte mirror field group and keep the evidence bounded. | selected FIELD-GROUP-010 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-010` | landed | Migrate allocation-apply report byte/capacity fields only; keep counters, reasons, tokens, ids, and sentinels on `i64`. | selected FIELD-GROUP-011 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-011` | selected current | Close out the allocation-apply byte/capacity field group and keep the evidence bounded. | after FIELD-GROUP-010 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-011` | landed | Close out the allocation-apply byte/capacity field group and keep the evidence bounded. | selected FIELD-GROUP-012 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-012` | selected current | Migrate allocation-apply diagnostic mirror byte fields only; keep diagnostic counters, reasons, tokens, ids, and sentinels on `i64`. | after FIELD-GROUP-011 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -698,20 +699,13 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-011` closes out the allocation-apply report
-byte/capacity group:
+`HAKO-ALLOC-USIZE-FIELD-GROUP-012` migrates the allocation-apply diagnostic
+mirror byte fields that copy the already-migrated allocation-apply byte facts:
 
 ```text
-source_capacity
-source_committed_bytes
-source_uncommitted_bytes
-padded_bytes
-slot_capacity
-planned_backing_bytes
-planned_committed_bytes
-applied_backing_bytes
-applied_committed_bytes
-remaining_source_bytes
+last_report_applied_backing_bytes
+last_report_applied_committed_bytes
+last_report_remaining_source_bytes
 ```
 
 Real pointer residence, pointer-derived lookup, real thread scheduling, worker
@@ -744,6 +738,8 @@ Then HAKO-ALLOC-USIZE-FIELD-GROUP-010 migrates the allocation-apply report
 byte/capacity group that feeds the allocation-ledger family.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-011 closes out that allocation-apply group
 before selecting another allocator byte/capacity group.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-012 migrates the allocation-apply diagnostic
+mirror byte fields that copy already-migrated allocation-apply byte facts.
 Reason/status/token/sentinel fields stay i64.
 ```
 

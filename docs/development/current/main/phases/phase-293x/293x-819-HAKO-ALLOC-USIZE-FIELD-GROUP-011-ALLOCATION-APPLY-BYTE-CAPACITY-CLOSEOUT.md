@@ -1,6 +1,6 @@
 # 293x-819 HAKO-ALLOC-USIZE-FIELD-GROUP-011 Allocation-Apply Byte/Capacity Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -67,7 +67,20 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Re-ran the MIMAP-272A allocation-apply L2 guard after the byte/capacity
+  migration.
+- Re-ran the MIMAP-273A allocation-apply diagnostics L2 guard, confirming the
+  diagnostic mirror byte fields still remain `i64`.
+- Re-ran the MIMAP-274A allocation-apply closeout guard, including
+  representative exact MIR -> pure-first EXE evidence for the allocation-apply
+  diagnostics proof app.
+- Confirmed `NUMERIC_FIELDS.md` lists the allocation-apply byte/capacity group
+  as current production `usize` storage.
+
 ## Next
 
-After this closeout, select a separate row for the allocation-apply diagnostic
-mirror byte fields if the current guard evidence remains stable.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-012` to migrate the allocation-apply
+diagnostic mirror byte fields that copy already-migrated allocation-apply byte
+facts.
