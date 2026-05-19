@@ -761,7 +761,8 @@ FST:
 | `MIMAP-285A` | landed | Segment arena backing modeled allocation-ledger release intent diagnostics. | selected MIMAP-286A |
 | `MIMAP-286A` | landed | Segment arena backing modeled allocation-ledger release intent closeout pack. | selected MIMAP-287A |
 | `MIMAP-287A` | landed | Post release-intent closeout row selection. | selected MIMAP-288A |
-| `MIMAP-288A` | selected current | Segment arena backing modeled allocation-ledger release apply inventory. | after MIMAP-287A |
+| `MIMAP-288A` | landed | Segment arena backing modeled allocation-ledger release apply inventory. | selected MIMAP-289A |
+| `MIMAP-289A` | selected current | Segment arena backing modeled allocation-ledger release apply diagnostics. | after MIMAP-288A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -770,67 +771,15 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-288A` adds the scalar/model segment arena backing allocation-ledger
-release apply inventory after the release-intent family closeout.
+`MIMAP-289A` observes the scalar/model segment arena backing allocation-ledger
+release apply inventory after MIMAP-288A and publishes diagnostics without
+recording new release-apply rows.
 
 SSOT:
 
 ```text
-docs/development/current/main/design/record-local-scalarization-ssot.md
-```
-
-Already migrated motivating record:
-
-```text
-HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields
-```
-
-Second migrated record:
-
-```text
-HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReportFields
-```
-
-Third migrated record:
-
-```text
-HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateDiagnosticReportFields
-```
-
-Current target record:
-
-```text
-HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnosticReportFields
-```
-
-Next target record:
-
-```text
-HakoAllocSegmentArenaBackingModeledAllocationApplyDiagnosticReportFields
-```
-
-Current target record:
-
-```text
-HakoAllocSegmentArenaBackingModeledAllocationPlanDiagnosticReportFields
-```
-
-Next target record:
-
-```text
-HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReportFields
-```
-
-Current target record:
-
-```text
-HakoAllocSegmentAllocationModeledLocalFreeIntegrationReportFields
-```
-
-Current target record:
-
-```text
-HakoAllocBoundedPurgeDecommitSchedulerReportFields
+docs/development/current/main/phases/phase-293x/293x-892-MIMAP-289A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-APPLY-DIAGNOSTICS.md
+docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-ssot.md
 ```
 
 Real pointer residence, pointer-derived lookup, real thread scheduling, worker

@@ -53,6 +53,7 @@ Current modules
 - `segment_arena_backing_modeled_allocation_ledger_release_candidate_box.hako`
 - `segment_arena_backing_modeled_allocation_ledger_release_intent_box.hako`
 - `segment_arena_backing_modeled_allocation_ledger_release_intent_diagnostic_box.hako`
+- `segment_arena_backing_modeled_allocation_ledger_release_apply_box.hako`
 - `segment_lifecycle_scalar_state_box.hako`
 - `thread_heap_owner_inventory_box.hako`
 - `worker_identity_box.hako`
@@ -677,6 +678,13 @@ Syntax/style contract
   or release real arena backing, mutate a real segment-map, execute atomic
   bitmap claims, call page-source or OSVM seams, schedule workers, activate
   provider hooks, replace the host allocator, or add backend shortcuts.
+- `segment_arena_backing_modeled_allocation_ledger_release_apply_box.hako`
+  owns MIMAP-288A. It may record scalar/model release-apply facts from accepted
+  modeled allocation-ledger release-intent reports. It must not create real
+  pointer residence, perform pointer-derived lookup, allocate or release real
+  arena backing, mutate a real segment-map, execute atomic bitmap claims, call
+  page-source or OSVM seams, schedule workers, activate provider hooks, replace
+  the host allocator, or add backend shortcuts.
 - `object_lifecycle_facade_huge_failfast_box.hako` owns the MIMAP-022B facade
   huge-request fail-fast route. It may classify request size through
   `SizeClassBox`, reject huge requests before invoking the MIMAP-021C

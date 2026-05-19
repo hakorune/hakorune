@@ -1,6 +1,6 @@
 # 293x-891 MIMAP-288A Segment Arena Backing Modeled Allocation-Ledger Release Apply Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -83,3 +83,33 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_le
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Implementation
+
+- Added
+  `HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseApplyInventory`
+  as a scalar/model owner.
+- Added
+  `HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseApplyReportFields`
+  as the owner-local record payload for report construction.
+- Added the MIMAP-288A proof app, proof manifest row, module export, memory
+  README entry, design SSOT, and guard index entry.
+- Kept L3/L4 EXE evidence deferred to the future release-apply closeout pack.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_apply_guard.sh --level L2
+```
+
+## Selected Next Row
+
+`MIMAP-289A`:
+
+```text
+segment arena backing modeled allocation-ledger release apply diagnostics
+```
+
+The next row should observe MIMAP-288A release-apply counters and last apply
+facts without recording new release-apply rows or opening any real allocator
+execution seam.
