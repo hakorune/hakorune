@@ -1,6 +1,6 @@
 # 293x-800 MIMAP-275A Post Segment Arena Backing Modeled Allocation Apply Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -41,3 +41,15 @@ facts. MIMAP-274A closes out that family with representative exact-MIR evidence.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+- Selected MIMAP-276A as the next narrow arena-backing behavior row.
+- Kept the next row in scalar/model ledger space after MIMAP-274A closeout.
+- Kept real pointer residence, pointer-derived lookup, real arena backing,
+  segment-map mutation, atomic bitmap execution, OSVM/page-source execution,
+  worker/provider activation, and backend matchers inactive.
+
+## Selected Next Row
+
+`MIMAP-276A` segment arena backing modeled allocation ledger inventory.

@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-19"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-274A landed by closing out the segment arena backing modeled allocation-apply family and selecting MIMAP-275A row selection. Cross-function Result direct ABI remains closed. Real raw pointer residence, pointer-derived lookup, real arena backing, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-275A landed by selecting MIMAP-276A segment arena backing modeled allocation ledger inventory. Cross-function Result direct ABI remains closed. Real raw pointer residence, pointer-derived lookup, real arena backing, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-800-MIMAP-275A-POST-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-APPLY-CLOSEOUT-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-801-MIMAP-276A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-INVENTORY.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-799-MIMAP-274A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-APPLY-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-799-MIMAP-274A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-APPLY-CLOSEOUT.md"
-latest_card_summary = "MIMAP-274A landed by closing the modeled allocation-apply family with representative exact-MIR evidence."
+latest_card = "293x-800-MIMAP-275A-POST-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-APPLY-CLOSEOUT-ROW-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-800-MIMAP-275A-POST-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-APPLY-CLOSEOUT-ROW-SELECTION.md"
+latest_card_summary = "MIMAP-275A landed by selecting the modeled allocation ledger inventory row."
 
-current_blocker_token = "MIMAP-275A"
+current_blocker_token = "MIMAP-276A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-800 MIMAP-275A post segment arena backing modeled allocation apply closeout row selection landed; MIMAP-276A selected",
   "293x-799 MIMAP-274A segment arena backing modeled allocation apply closeout pack landed; MIMAP-275A selected",
   "293x-798 MIMAP-273A segment arena backing modeled allocation apply diagnostics landed; MIMAP-274A selected",
   "293x-797 MIMAP-272A segment arena backing modeled allocation apply inventory landed; MIMAP-273A selected",
