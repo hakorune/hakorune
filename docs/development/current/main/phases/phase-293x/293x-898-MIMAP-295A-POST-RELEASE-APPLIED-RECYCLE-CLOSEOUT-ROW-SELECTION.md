@@ -1,6 +1,6 @@
 # 293x-898 MIMAP-295A Post Release-Applied Recycle Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -44,5 +44,40 @@ git diff --check
 
 ## Selected Row
 
-Pending: choose the next narrow modeled release/recycle continuation row after
-MIMAP-294A closeout.
+`MIMAP-296A`:
+
+```text
+segment arena backing modeled allocation-ledger release-applied recycle second-release diagnostic
+```
+
+Rationale:
+
+- MIMAP-292A / 293A / 294A closed release-applied recycle facts in
+  scalar/model space.
+- The next risk is duplicate / stale release after a modeled recycle has already
+  been recorded.
+- The smallest next step is a diagnostics row that observes the current
+  one-release-applied-recycle boundary and proves a second release attempt is
+  rejected in model space, without opening lifecycle generation, real arena
+  backing release, segment-map mutation, atomics, OSVM/page-source, providers,
+  or raw pointer residence.
+
+Validation profile:
+
+```text
+L2 daily
+  VM proof
+  MIR JSON emit
+  route preflight
+
+L3 EXE:
+  deferred to a future second-release diagnostic closeout pack unless this row
+  introduces a new backend route shape.
+```
+
+## Evidence
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
