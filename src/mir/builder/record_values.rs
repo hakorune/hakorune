@@ -121,6 +121,20 @@ impl MirBuilder {
         Ok(())
     }
 
+    pub(in crate::mir::builder) fn fail_if_record_value_call_arg_by_name(
+        &self,
+        name: &str,
+        value: ValueId,
+    ) -> Result<(), String> {
+        if let Some(record) = self.comp_ctx.record_local_value(value) {
+            return Err(format!(
+                "[record-helper-arg/unsupported] name={} record={} required=helper-argument-scalarization supported_use=field-read",
+                name, record.record_name
+            ));
+        }
+        Ok(())
+    }
+
     pub(in crate::mir::builder) fn try_lower_record_field_read_from_ast(
         &mut self,
         object: &ASTNode,

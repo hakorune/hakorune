@@ -95,7 +95,8 @@ ok_json="$(mktemp /tmp/hakorune_c205b_record_ok.XXXXXX.json)"
 escape_src="$(mktemp /tmp/hakorune_c205b_record_escape.XXXXXX.hako)"
 ctor_escape_src="$(mktemp /tmp/hakorune_c205b_record_ctor_escape.XXXXXX.hako)"
 unknown_src="$(mktemp /tmp/hakorune_c205b_record_unknown.XXXXXX.hako)"
-trap 'rm -f "$ok_src" "$ok_json" "$escape_src" "$ctor_escape_src" "$unknown_src"' EXIT
+helper_arg_src="$(mktemp /tmp/hakorune_c205b_record_helper_arg.XXXXXX.hako)"
+trap 'rm -f "$ok_src" "$ok_json" "$escape_src" "$ctor_escape_src" "$unknown_src" "$helper_arg_src"' EXIT
 
 cat >"$ok_src" <<'HAKO'
 record ProbeMeta {
@@ -202,5 +203,29 @@ if NYASH_DISABLE_PLUGINS=1 cargo run -q --bin hakorune -- --emit-mir-json /tmp/"
   exit 1
 fi
 guard_expect_in_file "$TAG" '\[record-field-read/unknown-field\]' /tmp/"$TAG".unknown.err "unknown record field must fail fast"
+
+cat >"$helper_arg_src" <<'HAKO'
+record ProbeMeta {
+    ptr: i64
+}
+
+static box Main {
+    make(meta: ProbeMeta): i64 {
+        return meta.ptr
+    }
+
+    main(args) {
+        local meta = new ProbeMeta(41)
+        return Main.make(meta)
+    }
+}
+HAKO
+
+if NYASH_DISABLE_PLUGINS=1 cargo run -q --bin hakorune -- --emit-mir-json /tmp/"$TAG".helper_arg.json "$helper_arg_src" \
+  >/tmp/"$TAG".helper_arg.out 2>/tmp/"$TAG".helper_arg.err; then
+  echo "[$TAG] ERROR: record helper argument unexpectedly compiled before helper scalarization is implemented" >&2
+  exit 1
+fi
+guard_expect_in_file "$TAG" '\[record-helper-arg/unsupported\]' /tmp/"$TAG".helper_arg.err "record helper argument must fail fast until scalarization owner lands"
 
 echo "[$TAG] ok"

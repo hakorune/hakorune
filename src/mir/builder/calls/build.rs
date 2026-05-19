@@ -331,6 +331,11 @@ impl MirBuilder {
         let mut arg_values = Vec::new();
 
         for (arg_idx, arg_ast) in args.iter().enumerate() {
+            if let ASTNode::Variable { name, .. } = arg_ast {
+                if let Some(value) = self.variable_ctx.variable_map.get(name).copied() {
+                    self.fail_if_record_value_call_arg_by_name(name, value)?;
+                }
+            }
             let v = self.build_expression(arg_ast.clone())?;
 
             // Debug-only observation: check for undefined ValueId immediately after build
