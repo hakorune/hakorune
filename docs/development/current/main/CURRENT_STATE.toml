@@ -9,9 +9,9 @@ status = "Active"
 date = "2026-05-19"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-280A landed by adding a scalar/model release-candidate inventory over accepted allocation-ledger facts and selecting MIMAP-281A diagnostics. Cross-function Result direct ABI remains closed. Real raw pointer residence, pointer-derived lookup, real arena backing, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-280A landed by adding a scalar/model release-candidate inventory over accepted allocation-ledger facts; HAKO-ALLOC-REPORT-RECORD-005 is current as an owner-local ReportFields sidecar before MIMAP-281A diagnostics. Cross-function Result direct ABI remains closed. Real raw pointer residence, pointer-derived lookup, real arena backing, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-806-MIMAP-281A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-CANDIDATE-DIAGNOSTICS.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-807-HAKO-ALLOC-REPORT-RECORD-005-ALLOCATION-LEDGER-RELEASE-CANDIDATE-REPORTFIELDS-PILOT.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
@@ -19,7 +19,7 @@ latest_card = "293x-805-MIMAP-280A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDG
 latest_card_path = "docs/development/current/main/phases/phase-293x/293x-805-MIMAP-280A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-CANDIDATE-INVENTORY.md"
 latest_card_summary = "MIMAP-280A landed by adding a scalar/model release-candidate inventory over accepted allocation-ledger facts."
 
-current_blocker_token = "MIMAP-281A"
+current_blocker_token = "HAKO-ALLOC-REPORT-RECORD-005"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 

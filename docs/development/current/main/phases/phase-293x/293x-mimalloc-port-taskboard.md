@@ -675,8 +675,9 @@ FST:
 | `MIMAP-277A` | landed | Segment arena backing modeled allocation ledger diagnostics. | selected MIMAP-278A |
 | `MIMAP-278A` | landed | Segment arena backing modeled allocation ledger closeout pack. | selected MIMAP-279A |
 | `MIMAP-279A` | landed | Post segment arena backing modeled allocation ledger closeout row selection. | selected MIMAP-280A |
-| `MIMAP-280A` | landed | Segment arena backing modeled allocation-ledger release candidate inventory. | selected MIMAP-281A |
-| `MIMAP-281A` | selected current | Segment arena backing modeled allocation-ledger release candidate diagnostics. | selected by MIMAP-280A |
+| `MIMAP-280A` | landed | Segment arena backing modeled allocation-ledger release candidate inventory. | selected HAKO-ALLOC-REPORT-RECORD-005 |
+| `HAKO-ALLOC-REPORT-RECORD-005` | selected current | Allocation-ledger release candidate ReportFields pilot. | selected by MIMAP-280A |
+| `MIMAP-281A` | queued next | Segment arena backing modeled allocation-ledger release candidate diagnostics. | resumes after HAKO-ALLOC-REPORT-RECORD-005 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -685,8 +686,9 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-281A` observes MIMAP-280A release-candidate counters and last-candidate
-facts without recording new release-candidate rows. Real pointer residence, pointer-derived lookup, real
+`HAKO-ALLOC-REPORT-RECORD-005` adds an owner-local `ReportFields` record payload
+inside the MIMAP-280A release-candidate report construction while keeping the
+returned report box stable. Real pointer residence, pointer-derived lookup, real
 thread scheduling,
 worker spawning, source-level concurrency features, real arena backing
 allocation, atomic bitmap execution, page-source calls, OSVM unreserve/release,

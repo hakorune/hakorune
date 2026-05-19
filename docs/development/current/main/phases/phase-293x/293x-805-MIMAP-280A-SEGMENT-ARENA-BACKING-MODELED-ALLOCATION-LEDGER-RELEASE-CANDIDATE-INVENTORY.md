@@ -59,5 +59,6 @@ git diff --check
 
 ## Next Row
 
-MIMAP-281A observes MIMAP-280A release-candidate counters and last-candidate
-facts without recording new release-candidate rows.
+HAKO-ALLOC-REPORT-RECORD-005 adds an owner-local `ReportFields` record payload
+inside the release-candidate report construction while keeping the returned
+report box stable.
