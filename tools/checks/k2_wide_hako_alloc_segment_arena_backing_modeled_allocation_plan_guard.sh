@@ -67,7 +67,11 @@ guard_expect_in_file "$TAG" 'exe = "deferred-to-closeout"' "$PROOF_MANIFEST" "MI
 guard_expect_in_file "$TAG" 'memory.segment_arena_backing_modeled_allocation_plan_box' "$MODULE" "module must export allocation plan owner"
 guard_expect_in_file "$TAG" 'segment_arena_backing_modeled_allocation_plan_box.hako' "$MEMORY_README" "memory README must name allocation plan owner"
 guard_expect_in_file "$TAG" 'recordAllocationPlan' "$PLAN_OWNER" "allocation plan owner must expose record route"
-guard_expect_in_file "$TAG" 'remaining_source_bytes' "$PLAN_OWNER" "allocation plan report must publish remaining source bytes"
+guard_expect_in_file "$TAG" 'source_capacity: usize = 0' "$PLAN_OWNER" "allocation plan source capacity must be exact usize"
+guard_expect_in_file "$TAG" 'planned_backing_bytes: usize = 0' "$PLAN_OWNER" "allocation plan planned backing bytes must be exact usize"
+guard_expect_in_file "$TAG" 'remaining_source_bytes: usize = 0' "$PLAN_OWNER" "allocation plan remaining source bytes must be exact usize"
+guard_expect_in_file "$TAG" 'plan_token: i64 = 0' "$PLAN_OWNER" "allocation plan token must remain i64"
+guard_expect_in_file "$TAG" 'row_index: i64 = -1' "$PLAN_OWNER" "allocation plan row sentinel must remain i64"
 guard_expect_in_file "$TAG" 'check "mimap268a segment arena backing modeled allocation plan"' "$APP" "proof must use labelled check block"
 
 if rg -n 'lookupByPointer|lookupPointer|pointer_member|dereference[[:space:]]*\(|mutateSegmentMap|claimBitmap|unclaimBitmap|AtomicCoreBox|hako_atomic|cas_i64|fetch_add|hako_osvm|spawn[[:space:]]*\(|thread::|worker_local|ChannelBox|TaskGroupBox|nowait|sync[[:space:]]+box|context[[:space:]]|providerActivate|global_allocator' \
@@ -149,6 +153,11 @@ for name in (
     "allocation_plan_present",
     "modeled_allocation_plan_present",
     "plan_token",
+    "source_capacity",
+    "source_committed_bytes",
+    "source_uncommitted_bytes",
+    "padded_bytes",
+    "slot_capacity",
     "planned_backing_bytes",
     "planned_committed_bytes",
     "remaining_source_bytes",
@@ -156,6 +165,26 @@ for name in (
 ):
     if name not in fields:
         raise SystemExit(f"missing modeled allocation plan field: {name}")
+
+usize_fields = {
+    "source_capacity",
+    "source_committed_bytes",
+    "source_uncommitted_bytes",
+    "padded_bytes",
+    "slot_capacity",
+    "planned_backing_bytes",
+    "planned_committed_bytes",
+    "remaining_source_bytes",
+}
+for name in usize_fields:
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"allocation plan {name} must be exact usize storage: {field}")
+
+for name in ("reason", "row_index", "plan_token"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"allocation plan {name} must remain i64 storage: {field}")
 
 print("[mimap268a-mir-json] ok")
 PY
