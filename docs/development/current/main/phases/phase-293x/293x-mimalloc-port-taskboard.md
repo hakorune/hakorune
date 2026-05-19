@@ -718,7 +718,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-037` | landed | Migrate the segment-map consume-ledger release block/count report group only; keep reasons, ids, indexes, tokens, block-span sentinels, and owner counters on `i64`. | selected FIELD-GROUP-038 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-038` | landed | Close out the segment-map consume-ledger release block/count field group and keep the evidence bounded. | selected FIELD-GROUP-039 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-039` | landed | Select the next narrow allocator exact-`usize` stored field group after closing the segment-map consume-ledger release chain. | selected FIELD-GROUP-040 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-040` | selected current | Migrate the modeled local-free reuse ledger report count group only; keep reasons, indexes, tokens, ids, reused block ids, flags, and owner counters on `i64`. | after FIELD-GROUP-039 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-040` | landed | Migrate the modeled local-free reuse ledger report count group only; keep reasons, indexes, tokens, ids, reused block ids, flags, and owner counters on `i64`. | selected FIELD-GROUP-041 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-041` | selected current | Close out the modeled local-free reuse ledger count field group and keep the evidence bounded. | after FIELD-GROUP-040 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -727,8 +728,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-040` migrates the modeled local-free reuse ledger
-report count fields:
+`HAKO-ALLOC-USIZE-FIELD-GROUP-041` closes out the modeled local-free reuse
+ledger report count field group:
 
 ```text
 page_used_before_reuse
@@ -835,6 +836,9 @@ Then HAKO-ALLOC-USIZE-FIELD-GROUP-039 selects the next narrow allocator
 exact-`usize` stored field group before any further migration.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-040 migrates the modeled local-free reuse
 ledger report count group.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-041 closes out that modeled local-free reuse
+ledger count group before selecting another allocator exact-`usize` field
+group.
 Reason/status/token/sentinel fields stay i64.
 ```
 

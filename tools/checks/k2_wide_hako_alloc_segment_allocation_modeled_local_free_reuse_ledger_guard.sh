@@ -56,6 +56,16 @@ guard_expect_in_file "$TAG" 'segment_allocation_modeled_local_free_reuse_ledger_
 guard_expect_in_file "$TAG" 'recordLocalFreeReuse' "$OWNER" "reuse ledger owner must expose ledger record route"
 guard_expect_in_file "$TAG" 'makeReuseToken' "$OWNER" "reuse ledger owner must derive deterministic token"
 guard_expect_in_file "$TAG" 'reused_block_id' "$OWNER" "reuse ledger owner must key rows by reused block"
+guard_expect_in_file "$TAG" 'page_used_before_reuse: usize = 0' "$OWNER" "reuse ledger page_used_before_reuse must be exact usize"
+guard_expect_in_file "$TAG" 'page_used_after_reuse: usize = 0' "$OWNER" "reuse ledger page_used_after_reuse must be exact usize"
+guard_expect_in_file "$TAG" 'page_local_free_before_reuse: usize = 0' "$OWNER" "reuse ledger page_local_free_before_reuse must be exact usize"
+guard_expect_in_file "$TAG" 'page_local_free_after_reuse: usize = 0' "$OWNER" "reuse ledger page_local_free_after_reuse must be exact usize"
+guard_expect_in_file "$TAG" 'collect_count_after_reuse: usize = 0' "$OWNER" "reuse ledger collect_count_after_reuse must be exact usize"
+guard_expect_in_file "$TAG" 'ledger_count_after: usize = 0' "$OWNER" "reuse ledger ledger_count_after must be exact usize"
+guard_expect_in_file "$TAG" 'ledger_live_count_after: usize = 0' "$OWNER" "reuse ledger ledger_live_count_after must be exact usize"
+guard_expect_in_file "$TAG" 'modeled_reuse_token: i64 = -1' "$OWNER" "reuse ledger token sentinel must remain i64"
+guard_expect_in_file "$TAG" 'source_modeled_allocation_token: i64 = -1' "$OWNER" "reuse ledger source token sentinel must remain i64"
+guard_expect_in_file "$TAG" 'reused_block_id: i64 = -1' "$OWNER" "reuse ledger reused block id must remain i64"
 guard_expect_in_file "$TAG" 'local_free_reuse_ledger_present' "$OWNER" "reuse ledger report must expose presence flag"
 guard_expect_in_file "$TAG" 'check "mimap130a segment allocation modeled local-free reuse ledger route"' "$APP" "MIMAP-130A proof must use labelled check block"
 
@@ -166,13 +176,49 @@ if report is None:
     raise SystemExit("missing local-free reuse ledger report typed object plan")
 
 fields = {field.get("name"): field for field in report.get("fields", [])}
-for name in (
+usize_fields = (
+    "page_used_before_reuse",
+    "page_used_after_reuse",
+    "page_local_free_before_reuse",
+    "page_local_free_after_reuse",
+    "collect_count_after_reuse",
+    "ledger_count_after",
+    "ledger_live_count_after",
+)
+i64_fields = (
     "accepted",
+    "reason",
+    "row_index",
+    "existing_index",
     "modeled_reuse_token",
     "source_modeled_allocation_token",
+    "segment_id",
+    "page_id",
     "reused_block_id",
     "local_free_reuse_ledger_present",
     "would_execute_real_segment_allocation",
+)
+for name in usize_fields:
+    field = fields.get(name)
+    if field is None:
+        raise SystemExit(f"missing local-free reuse ledger field: {name}")
+    if field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"bad usize local-free reuse ledger field {name}: {field}")
+
+for name in i64_fields:
+    field = fields.get(name)
+    if field is None:
+        raise SystemExit(f"missing local-free reuse ledger field: {name}")
+    if field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"bad i64 local-free reuse ledger field {name}: {field}")
+
+for name in (
+    "would_execute_real_segment_free",
+    "would_directly_mutate_page_arrays",
+    "would_use_raw_pointer",
+    "would_use_segment_map",
+    "would_allocate_arena_backing",
+    "would_execute_atomic_bitmap",
 ):
     if name not in fields:
         raise SystemExit(f"missing local-free reuse ledger field: {name}")

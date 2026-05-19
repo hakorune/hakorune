@@ -1,6 +1,6 @@
 # 293x-848 HAKO-ALLOC-USIZE-FIELD-GROUP-040 Local-Free Reuse Ledger Count Migration
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -52,8 +52,22 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Migrated only `HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReport`
+  reuse/page/ledger count fields to exact `usize`:
+  `page_used_before_reuse`, `page_used_after_reuse`,
+  `page_local_free_before_reuse`, `page_local_free_after_reuse`,
+  `collect_count_after_reuse`, `ledger_count_after`, and
+  `ledger_live_count_after`.
+- Kept reasons, row indexes, existing indexes, tokens, segment/page ids,
+  reused block ids, presence flags, capability flags, and owner counters on
+  `i64`.
+- Updated the MIMAP-130A guard typed-object contract so those seven fields are
+  expected as `usize` and the selected sentinel/id fields remain `i64`.
+
 ## Next
 
-After migration, select `HAKO-ALLOC-USIZE-FIELD-GROUP-041` to close out the
-modeled local-free reuse ledger count group before selecting another allocator
-exact-`usize` field group.
+`HAKO-ALLOC-USIZE-FIELD-GROUP-041` closes out the modeled local-free reuse
+ledger count group before selecting another allocator exact-`usize` field
+group.
