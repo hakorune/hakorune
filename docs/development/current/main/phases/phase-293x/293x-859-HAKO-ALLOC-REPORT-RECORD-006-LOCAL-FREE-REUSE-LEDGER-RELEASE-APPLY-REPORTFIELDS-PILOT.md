@@ -1,6 +1,6 @@
 # 293x-859 HAKO-ALLOC-REPORT-RECORD-006 Local-Free Reuse Ledger Release-Apply ReportFields Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -48,7 +48,19 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Added the owner-local
+  `HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields`
+  record carrier.
+- Built the record in the accept/reject report construction paths and copied
+  fields into the existing returned report box.
+- Kept the record local to each function. Passing the record through a helper
+  would escape the current record-value acceptance lane.
+- Extended the MIMAP-138A guard to assert the source record declaration and MIR
+  `record_decls` entry.
+
 ## Next
 
-After the pilot, select a closeout or post-pilot row before broadening
-ReportFields carriers to another owner.
+`HAKO-ALLOC-REPORT-RECORD-007` closes out the release-apply ReportFields pilot
+before broadening ReportFields carriers to another owner.

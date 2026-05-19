@@ -52,6 +52,8 @@ guard_expect_in_file "$TAG" 'id = "MIMAP-138A"' "$PROOF_MANIFEST" "proof app man
 guard_expect_in_file "$TAG" 'memory.segment_allocation_modeled_local_free_reuse_ledger_box = "memory/segment_allocation_modeled_local_free_reuse_ledger_box.hako"' "$MODULE" "hako module must export reuse ledger owner"
 guard_expect_in_file "$TAG" 'segment_allocation_modeled_local_free_reuse_ledger_box.hako` owns' "$MEMORY_README" "memory README must define reuse ledger owner"
 guard_expect_in_file "$TAG" 'applyReuseLedgerRelease' "$OWNER" "reuse ledger owner must expose release apply route"
+guard_expect_in_file "$TAG" 'record HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields' "$OWNER" "release apply owner must use local ReportFields record payload"
+guard_expect_in_file "$TAG" 'local fields = HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields' "$OWNER" "release apply owner must construct report field records locally"
 guard_expect_in_file "$TAG" 'release_apply_count_after: usize = 0' "$OWNER" "release apply count must be exact usize"
 guard_expect_in_file "$TAG" 'release_apply_reject_count_after: usize = 0' "$OWNER" "release apply reject count must be exact usize"
 guard_expect_in_file "$TAG" 'ledger_live_count_after: usize = 0' "$OWNER" "release apply ledger live count must be exact usize"
@@ -173,6 +175,15 @@ if missing:
     raise SystemExit(f"missing functions: {missing}")
 
 plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+record_names = set()
+for decl in data.get("record_decls", []):
+    if isinstance(decl, str):
+        record_names.add(decl)
+    elif isinstance(decl, dict):
+        record_names.add(decl.get("name"))
+if "HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields" not in record_names:
+    raise SystemExit("missing local-free reuse ledger release apply ReportFields record declaration")
+
 report = plans.get("HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport")
 if report is None:
     raise SystemExit("missing local-free reuse ledger release apply report typed object plan")
@@ -260,6 +271,27 @@ for name in owner_i64_fields:
         raise SystemExit(f"missing local-free reuse ledger owner field: {name}")
     if field.get("declared_type") != "i64" or field.get("storage") != "i64":
         raise SystemExit(f"bad i64 local-free reuse ledger owner field {name}: {field}")
+
+record_decl = None
+for decl in data.get("record_decls", []):
+    if isinstance(decl, dict) and decl.get("name") == "HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields":
+        record_decl = decl
+        break
+if record_decl is None:
+    raise SystemExit("missing release apply ReportFields record details")
+
+record_fields = {
+    field.get("name"): field
+    for field in record_decl.get("field_decls", [])
+}
+for name in usize_fields:
+    field = record_fields.get(name)
+    if field is None or field.get("declared_type") != "usize":
+        raise SystemExit(f"release apply ReportFields {name} must be declared usize: {field}")
+for name in i64_fields:
+    field = record_fields.get(name)
+    if field is None or field.get("declared_type") != "i64":
+        raise SystemExit(f"release apply ReportFields {name} must remain declared i64: {field}")
 
 print("[mimap138a-mir-json] ok")
 PY

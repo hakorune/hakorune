@@ -729,7 +729,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-048` | landed | Close out the modeled local-free reuse ledger release-apply shape/lookup reject counter field group and keep the evidence bounded. | selected FIELD-GROUP-049 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-049` | landed | Migrate the modeled local-free reuse ledger release-apply execution/capability reject counters only; keep reasons, indexes, tokens, ids, flags, and sentinels on `i64`. | selected FIELD-GROUP-050 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-050` | landed | Close out the modeled local-free reuse ledger release-apply execution/capability reject counter field group and keep the evidence bounded. | selected HAKO-ALLOC-REPORT-RECORD-006 |
-| `HAKO-ALLOC-REPORT-RECORD-006` | selected current | Add an owner-local `ReportFields` record payload for the scalar-only release-apply report while keeping the returned report box. | after FIELD-GROUP-050 |
+| `HAKO-ALLOC-REPORT-RECORD-006` | landed | Add an owner-local `ReportFields` record payload for the scalar-only release-apply report while keeping the returned report box. | selected HAKO-ALLOC-REPORT-RECORD-007 |
+| `HAKO-ALLOC-REPORT-RECORD-007` | selected current | Close out the release-apply ReportFields pilot and keep the returned report box / local record boundary fixed. | after HAKO-ALLOC-REPORT-RECORD-006 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -738,8 +739,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-REPORT-RECORD-006` adds a local `ReportFields` record carrier for
-the scalar-only modeled local-free reuse ledger release-apply report:
+`HAKO-ALLOC-REPORT-RECORD-007` closes out the local `ReportFields` record carrier
+for the scalar-only modeled local-free reuse ledger release-apply report:
 
 ```text
 HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields
@@ -866,6 +867,8 @@ reject counter group before switching to report-carrier record work or another
 allocator exact-`usize` field group.
 Then HAKO-ALLOC-REPORT-RECORD-006 adds a release-apply ReportFields carrier
 without replacing the returned report box.
+Then HAKO-ALLOC-REPORT-RECORD-007 closes out that release-apply ReportFields
+pilot before broadening record carriers to another owner.
 ```
 
 MIMAP-020A execution order:
