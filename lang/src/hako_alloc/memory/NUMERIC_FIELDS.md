@@ -189,8 +189,16 @@ Current production `usize` field group:
 
 Selected next production `usize` field group:
 
-- none. `HAKO-ALLOC-USIZE-FIELD-GROUP-036` is a closeout row for the segment-map
-  consume-ledger block/count group, not a new migration group.
+- `segment_map_accepted_readiness_modeled_consume_ledger_box.hako`
+  / `HakoAllocSegmentMapModeledConsumeLedgerReleaseReport` release-side
+  block/count report fields:
+  `live_before`, `live_after`, `ledger_count_after`,
+  `ledger_live_count_after`, `released_blocks`.
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-037` selects this group because it owns
+  non-negative modeled consume-ledger release counts after the
+  accepted-readiness consume-ledger block/count family was closed out. Reasons,
+  ids, indexes, tokens, block-start/end sentinels, and owner counters stay
+  `i64`.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.

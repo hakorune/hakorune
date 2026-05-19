@@ -1,6 +1,6 @@
 # 293x-844 HAKO-ALLOC-USIZE-FIELD-GROUP-036 Segment-Map Consume-Ledger Block/Count Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -59,6 +59,20 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Re-ran the MIMAP-157A segment-map accepted-readiness consume-ledger L2 guard
+  after the block/count migration.
+- Re-ran the MIMAP-159A closeout L3 guard and the MIMAP-161A release L2 guard
+  to keep the representative exact-MIR evidence and immediate release consumer
+  green.
+- Confirmed `NUMERIC_FIELDS.md` lists the consume-ledger block/count fields as
+  current production `usize` storage.
+- Kept reasons, diagnostic kinds, ids, indexes, tokens, block-start sentinels,
+  and owner counters on `i64`.
+
 ## Next
 
-After this closeout, select the next allocator exact-`usize` field group.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-037` for the segment-map consume-ledger
+release report block/count group. This keeps the release-side count facts
+separate from token and block-span sentinel fields.
