@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-20"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "HAKO-ALLOC-REPORT-RECORD-019 closeout landed for the allocation-apply diagnostic ReportFields owner; HAKO-ALLOC-REPORT-RECORD-020 is current to select one more ReportFields owner or return to the allocator modeled lane. Cross-function Result direct ABI remains closed. Real raw pointer residence, pointer-derived lookup, real arena backing, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "HAKO-ALLOC-REPORT-RECORD-020 selected the allocation-plan diagnostic ReportFields owner under the record-local scalarization SSOT; HAKO-ALLOC-REPORT-RECORD-021 is current to migrate that single owner. Cross-function Result direct ABI remains closed. Real raw pointer residence, pointer-derived lookup, real arena backing, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-875-HAKO-ALLOC-REPORT-RECORD-020-POST-ALLOCATION-APPLY-DIAGNOSTIC-REPORTFIELDS-HELPER-SCALARIZATION-CLOSEOUT-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-876-HAKO-ALLOC-REPORT-RECORD-021-ALLOCATION-PLAN-DIAGNOSTIC-REPORTFIELDS-HELPER-SCALARIZATION-PILOT.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-874-HAKO-ALLOC-REPORT-RECORD-019-ALLOCATION-APPLY-DIAGNOSTIC-REPORTFIELDS-HELPER-SCALARIZATION-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-874-HAKO-ALLOC-REPORT-RECORD-019-ALLOCATION-APPLY-DIAGNOSTIC-REPORTFIELDS-HELPER-SCALARIZATION-CLOSEOUT.md"
-latest_card_summary = "HAKO-ALLOC-REPORT-RECORD-019 closed out HakoAllocSegmentArenaBackingModeledAllocationApplyDiagnosticReportFields helper-argument scalarization with record construction/read, target diagnostics, current pointer, and whitespace evidence."
+latest_card = "293x-875-HAKO-ALLOC-REPORT-RECORD-020-POST-ALLOCATION-APPLY-DIAGNOSTIC-REPORTFIELDS-HELPER-SCALARIZATION-CLOSEOUT-ROW-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-875-HAKO-ALLOC-REPORT-RECORD-020-POST-ALLOCATION-APPLY-DIAGNOSTIC-REPORTFIELDS-HELPER-SCALARIZATION-CLOSEOUT-ROW-SELECTION.md"
+latest_card_summary = "HAKO-ALLOC-REPORT-RECORD-020 selected HakoAllocSegmentArenaBackingModeledAllocationPlanDiagnosticReportFields as the next single owner under the record-local scalarization SSOT."
 
-current_blocker_token = "HAKO-ALLOC-REPORT-RECORD-020"
+current_blocker_token = "HAKO-ALLOC-REPORT-RECORD-021"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-875 HAKO-ALLOC-REPORT-RECORD-020 selected allocation-plan diagnostic ReportFields helper scalarization; HAKO-ALLOC-REPORT-RECORD-021 selected",
   "293x-874 HAKO-ALLOC-REPORT-RECORD-019 allocation-apply diagnostic ReportFields helper-scalarization closeout landed; HAKO-ALLOC-REPORT-RECORD-020 selected",
   "293x-873 HAKO-ALLOC-REPORT-RECORD-018 allocation-apply diagnostic ReportFields helper scalarization landed; HAKO-ALLOC-REPORT-RECORD-019 selected",
   "293x-872 HAKO-ALLOC-REPORT-RECORD-017 selected allocation-apply diagnostic ReportFields helper scalarization; HAKO-ALLOC-REPORT-RECORD-018 selected",

@@ -1,6 +1,6 @@
 # 293x-875 HAKO-ALLOC-REPORT-RECORD-020 Post Allocation-Apply Diagnostic ReportFields Helper Scalarization Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -44,3 +44,38 @@ git diff --check
 - The next row is selected with a single owner and a bounded validation profile,
   or `ReportFields` migration is explicitly paused.
 - The selected row references the record-local scalarization SSOT.
+
+## Inventory
+
+Remaining nearby diagnostic `ReportFields` owners:
+
+```text
+HakoAllocSegmentArenaBackingModeledAllocationPlanDiagnosticReportFields
+HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReportFields
+HakoAllocSegmentAllocationModeledLocalFreeIntegrationReportFields
+HakoAllocBoundedPurgeDecommitSchedulerReportFields
+```
+
+## Selection
+
+Select `HAKO-ALLOC-REPORT-RECORD-021`:
+
+```text
+HakoAllocSegmentArenaBackingModeledAllocationPlanDiagnosticReportFields
+```
+
+Reason:
+
+```text
+It is the next adjacent segment-arena-backing diagnostic owner, matches the
+same scalar-only report-box construction shape as allocation-ledger and
+allocation-apply diagnostics, and stays within the existing record-local
+scalarization SSOT.
+```
+
+## Evidence
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
