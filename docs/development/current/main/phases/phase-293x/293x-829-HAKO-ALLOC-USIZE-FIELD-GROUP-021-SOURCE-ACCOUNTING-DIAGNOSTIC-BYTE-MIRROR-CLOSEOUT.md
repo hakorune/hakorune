@@ -1,6 +1,6 @@
 # 293x-829 HAKO-ALLOC-USIZE-FIELD-GROUP-021 Source-Accounting Diagnostic Byte Mirror Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -58,7 +58,18 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Re-ran the MIMAP-265A diagnostics L2 guard after the source-accounting
+  diagnostic byte mirror migration.
+- Re-ran the MIMAP-266A closeout guard and kept the representative exact-MIR to
+  pure-first EXE evidence green.
+- Confirmed `NUMERIC_FIELDS.md` lists the source-accounting diagnostic mirror
+  byte fields as current production `usize` storage.
+- Kept diagnostic counters, reasons, tokens, ids, presence flags, and
+  sentinel-bearing fields on `i64`.
+
 ## Next
 
-After this closeout, select the next allocator exact-`usize` byte/capacity field
-group.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-022` for the source-bridge byte/capacity
+fields that feed the already-migrated source-accounting family.
