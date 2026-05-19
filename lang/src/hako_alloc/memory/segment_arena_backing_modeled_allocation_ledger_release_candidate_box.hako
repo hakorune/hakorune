@@ -1,0 +1,216 @@
+// segment_arena_backing_modeled_allocation_ledger_release_candidate_box.hako -- MIMAP-280A
+// Responsibility:
+// - record scalar/model release-candidate facts from an accepted modeled
+//   allocation-ledger report
+// - keep release/recycle preparation in model space before real arena backing
+//   release opens
+// Non-responsibility:
+// - creating real pointer residence, pointer-derived lookup, arena backing
+//   release/allocation, segment-map mutation, atomic bitmap execution, OSVM
+//   calls, scheduling, providers, or backend shortcuts
+
+box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    release_candidate_present: i64 = 1
+    modeled_release_candidate_present: i64 = 1
+    allocation_ledger_present: i64 = 0
+    allocation_ledger_reason: i64 = 0
+    row_index: i64 = -1
+    segment_id: i64 = -1
+    arena_id: i64 = -1
+    lifetime_generation: i64 = 0
+    residence_token: i64 = 0
+    binding_token: i64 = 0
+    arena_slot_token: i64 = 0
+    source_kind: i64 = 0
+    source_token: i64 = 0
+    plan_token: i64 = 0
+    apply_token: i64 = 0
+    ledger_token: i64 = 0
+    release_candidate_token: i64 = 0
+    source_capacity: i64 = 0
+    source_committed_bytes: i64 = 0
+    source_uncommitted_bytes: i64 = 0
+    padded_bytes: i64 = 0
+    slot_capacity: i64 = 0
+    planned_backing_bytes: i64 = 0
+    planned_committed_bytes: i64 = 0
+    applied_backing_bytes: i64 = 0
+    applied_committed_bytes: i64 = 0
+    remaining_source_bytes: i64 = 0
+    closed_substrate_blocker_count: i64 = 0
+    requires_pointer_residence: i64 = 0
+    requires_pointer_lookup: i64 = 0
+    requires_arena_backing: i64 = 0
+    requires_segment_map: i64 = 0
+    requires_atomic_bitmap: i64 = 0
+    requires_osvm: i64 = 0
+    requires_worker: i64 = 0
+    requires_provider: i64 = 0
+    requires_backend_matcher: i64 = 0
+    would_create_pointer_residence: i64 = 0
+    would_lookup_by_pointer: i64 = 0
+    would_release_arena_backing: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateInventory {
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_ledger_reject_count: i64 = 0
+    rejected_ledger_reject_count: i64 = 0
+    invalid_release_candidate_token_reject_count: i64 = 0
+    duplicate_release_candidate_token_reject_count: i64 = 0
+    closed_substrate_reject_count: i64 = 0
+    last_reason: i64 = 0
+    last_segment_id: i64 = -1
+    last_arena_id: i64 = -1
+    last_release_candidate_token: i64 = 0
+
+    closedSubstrateBlockerCount(ledger_report): i64 {
+        local count = ledger_report.closed_substrate_blocker_count
+        if ledger_report.requires_pointer_residence != 0 {
+            count += 1
+        }
+        if ledger_report.requires_pointer_lookup != 0 {
+            count += 1
+        }
+        if ledger_report.requires_arena_backing != 0 {
+            count += 1
+        }
+        if ledger_report.requires_segment_map != 0 {
+            count += 1
+        }
+        if ledger_report.requires_atomic_bitmap != 0 {
+            count += 1
+        }
+        if ledger_report.requires_osvm != 0 {
+            count += 1
+        }
+        if ledger_report.requires_worker != 0 {
+            count += 1
+        }
+        if ledger_report.requires_provider != 0 {
+            count += 1
+        }
+        if ledger_report.requires_backend_matcher != 0 {
+            count += 1
+        }
+        return count
+    }
+
+    hasReleaseCandidateToken(release_candidate_token): i64 {
+        if me.accepted_count <= 0 {
+            return 0
+        }
+        if me.last_release_candidate_token == release_candidate_token {
+            return 1
+        }
+        return 0
+    }
+
+    makeReport(accepted, reason, ledger_report, release_candidate_token): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReport {
+        local result = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReport()
+        result.accepted = accepted
+        result.reason = reason
+        result.release_candidate_present = 1
+        result.modeled_release_candidate_present = 1
+        result.allocation_ledger_present = ledger_report.allocation_ledger_present
+        result.allocation_ledger_reason = ledger_report.reason
+        result.segment_id = ledger_report.segment_id
+        result.arena_id = ledger_report.arena_id
+        result.lifetime_generation = ledger_report.lifetime_generation
+        result.residence_token = ledger_report.residence_token
+        result.binding_token = ledger_report.binding_token
+        result.arena_slot_token = ledger_report.arena_slot_token
+        result.source_kind = ledger_report.source_kind
+        result.source_token = ledger_report.source_token
+        result.plan_token = ledger_report.plan_token
+        result.apply_token = ledger_report.apply_token
+        result.ledger_token = ledger_report.ledger_token
+        result.source_capacity = ledger_report.source_capacity
+        result.source_committed_bytes = ledger_report.source_committed_bytes
+        result.source_uncommitted_bytes = ledger_report.source_uncommitted_bytes
+        result.padded_bytes = ledger_report.padded_bytes
+        result.slot_capacity = ledger_report.slot_capacity
+        result.planned_backing_bytes = ledger_report.planned_backing_bytes
+        result.planned_committed_bytes = ledger_report.planned_committed_bytes
+        result.applied_backing_bytes = ledger_report.applied_backing_bytes
+        result.applied_committed_bytes = ledger_report.applied_committed_bytes
+        result.remaining_source_bytes = ledger_report.remaining_source_bytes
+        result.closed_substrate_blocker_count = me.closedSubstrateBlockerCount(ledger_report)
+        result.requires_pointer_residence = ledger_report.requires_pointer_residence
+        result.requires_pointer_lookup = ledger_report.requires_pointer_lookup
+        result.requires_arena_backing = ledger_report.requires_arena_backing
+        result.requires_segment_map = ledger_report.requires_segment_map
+        result.requires_atomic_bitmap = ledger_report.requires_atomic_bitmap
+        result.requires_osvm = ledger_report.requires_osvm
+        result.requires_worker = ledger_report.requires_worker
+        result.requires_provider = ledger_report.requires_provider
+        result.requires_backend_matcher = ledger_report.requires_backend_matcher
+        if accepted == 1 {
+            result.row_index = me.accepted_count
+            result.release_candidate_token = release_candidate_token
+        }
+        me.last_reason = reason
+        me.last_segment_id = ledger_report.segment_id
+        me.last_arena_id = ledger_report.arena_id
+        if accepted == 1 {
+            me.last_release_candidate_token = release_candidate_token
+        }
+        return result
+    }
+
+    reject(reason, ledger_report, release_candidate_token): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReport {
+        me.reject_count += 1
+        if reason == 1 {
+            me.missing_ledger_reject_count += 1
+        }
+        if reason == 2 {
+            me.rejected_ledger_reject_count += 1
+        }
+        if reason == 3 {
+            me.invalid_release_candidate_token_reject_count += 1
+        }
+        if reason == 4 {
+            me.duplicate_release_candidate_token_reject_count += 1
+        }
+        if reason == 5 {
+            me.closed_substrate_reject_count += 1
+        }
+        return me.makeReport(0, reason, ledger_report, release_candidate_token)
+    }
+
+    recordReleaseCandidate(ledger_report, release_candidate_token): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReport {
+        me.inventory_count += 1
+
+        if ledger_report.allocation_ledger_present != 1 {
+            return me.reject(1, ledger_report, release_candidate_token)
+        }
+        if ledger_report.modeled_allocation_ledger_present != 1 {
+            return me.reject(1, ledger_report, release_candidate_token)
+        }
+        if ledger_report.accepted != 1 {
+            return me.reject(2, ledger_report, release_candidate_token)
+        }
+        if release_candidate_token <= 0 {
+            return me.reject(3, ledger_report, release_candidate_token)
+        }
+        if me.hasReleaseCandidateToken(release_candidate_token) == 1 {
+            return me.reject(4, ledger_report, release_candidate_token)
+        }
+        if me.closedSubstrateBlockerCount(ledger_report) != 0 {
+            return me.reject(5, ledger_report, release_candidate_token)
+        }
+
+        me.accepted_count += 1
+        return me.makeReport(1, 0, ledger_report, release_candidate_token)
+    }
+}

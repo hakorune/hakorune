@@ -1,0 +1,163 @@
+// hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-candidate-proof
+// Purpose: prove MIMAP-280A modeled release-candidate inventory.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_requirement_matrix_box as HakoAllocSegmentArenaBackingRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_no_escape_address_capability_box as HakoAllocSegmentArenaBackingNoEscapeAddressCapability
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_no_escape_address_residence_box as HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidence
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_residence_arena_binding_box as HakoAllocSegmentArenaBackingModeledResidenceArenaBinding
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_arena_slot_box as HakoAllocSegmentArenaBackingModeledArenaSlot
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_source_bridge_box as HakoAllocSegmentArenaBackingModeledSourceBridge
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_source_accounting_box as HakoAllocSegmentArenaBackingModeledSourceAccounting
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_plan_box as HakoAllocSegmentArenaBackingModeledAllocationPlan
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_apply_box as HakoAllocSegmentArenaBackingModeledAllocationApply
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_box as HakoAllocSegmentArenaBackingModeledAllocationLedger
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_candidate_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidate
+
+static box Main {
+    makeMatrix(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingRequirementMatrixReport {
+        local report = new HakoAllocSegmentArenaBackingRequirementMatrixReport()
+        report.accepted = 1
+        report.reason = 0
+        report.matrix_present = 1
+        report.scalar_requirement_matrix_present = 1
+        report.segment_id = segment_id
+        report.arena_id = arena_id
+        report.slice_count = 16
+        report.committed_slices = 8
+        report.free_slices = 4
+        report.required_alignment = 16
+        report.page_size = 4096
+        report.geometry_valid = 1
+        return report
+    }
+
+    makeResidence(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceReport {
+        local capability_inventory = new HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityInventory()
+        local residence_inventory = new HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceInventory()
+        local matrix = Main.makeMatrix(segment_id, arena_id)
+        local capability = capability_inventory.recordCapability(matrix, 3, 70014005002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        return residence_inventory.recordResidence(capability)
+    }
+
+    makeBinding(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledResidenceArenaBindingReport {
+        local binding_inventory = new HakoAllocSegmentArenaBackingModeledResidenceArenaBindingInventory()
+        local matrix = Main.makeMatrix(segment_id, arena_id)
+        local residence = Main.makeResidence(segment_id, arena_id)
+        return binding_inventory.recordBinding(residence, matrix)
+    }
+
+    makeSlot(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledArenaSlotReport {
+        local slot_inventory = new HakoAllocSegmentArenaBackingModeledArenaSlotInventory()
+        local binding = Main.makeBinding(segment_id, arena_id)
+        return slot_inventory.recordArenaSlot(binding, 2, 2048, 4096, 8192, 16)
+    }
+
+    makeSource(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledSourceBridgeReport {
+        local source_inventory = new HakoAllocSegmentArenaBackingModeledSourceBridgeInventory()
+        local slot = Main.makeSlot(segment_id, arena_id)
+        return source_inventory.recordSourceBridge(slot, 1, 90014005005, 16384, 4096, 16)
+    }
+
+    makeAccounting(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledSourceAccountingReport {
+        local accounting_inventory = new HakoAllocSegmentArenaBackingModeledSourceAccountingInventory()
+        local source = Main.makeSource(segment_id, arena_id)
+        return accounting_inventory.recordSourceAccounting(source)
+    }
+
+    makePlan(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledAllocationPlanReport {
+        local plan_inventory = new HakoAllocSegmentArenaBackingModeledAllocationPlanInventory()
+        local accounting = Main.makeAccounting(segment_id, arena_id)
+        return plan_inventory.recordAllocationPlan(accounting, 91014005005, 4096, 4096)
+    }
+
+    makeApply(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledAllocationApplyReport {
+        local apply_inventory = new HakoAllocSegmentArenaBackingModeledAllocationApplyInventory()
+        local plan = Main.makePlan(segment_id, arena_id)
+        return apply_inventory.recordAllocationApply(plan, 92014005005, 4096, 4096)
+    }
+
+    makeLedger(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledAllocationLedgerReport {
+        local ledger_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerInventory()
+        local apply = Main.makeApply(segment_id, arena_id)
+        return ledger_inventory.recordAllocationLedger(apply, 93014005005)
+    }
+
+    main(args) {
+        local candidate_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateInventory()
+        local ledger = Main.makeLedger(140, 14)
+
+        local accepted = candidate_inventory.recordReleaseCandidate(ledger, 94014005005)
+
+        local missing_ledger = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReport()
+        missing_ledger.allocation_ledger_present = 0
+        local rejected_ledger = Main.makeLedger(140, 14)
+        rejected_ledger.accepted = 0
+        rejected_ledger.reason = 4
+        local invalid_token_ledger = Main.makeLedger(140, 14)
+        local duplicate_ledger = Main.makeLedger(140, 14)
+        local closed_ledger = Main.makeLedger(140, 14)
+        closed_ledger.requires_arena_backing = 1
+
+        local missing_result = candidate_inventory.recordReleaseCandidate(missing_ledger, 94014005006)
+        local rejected_result = candidate_inventory.recordReleaseCandidate(rejected_ledger, 94014005007)
+        local invalid_token_result = candidate_inventory.recordReleaseCandidate(invalid_token_ledger, 0)
+        local duplicate_result = candidate_inventory.recordReleaseCandidate(duplicate_ledger, 94014005005)
+        local closed_result = candidate_inventory.recordReleaseCandidate(closed_ledger, 94014005009)
+
+        local ok = check "mimap280a segment arena backing modeled allocation ledger release candidate" {
+            "accepted": accepted.accepted == 1
+            "accepted reason": accepted.reason == 0
+            "candidate present": accepted.modeled_release_candidate_present == 1
+            "ledger present": accepted.allocation_ledger_present == 1
+            "row index": accepted.row_index == 1
+            "segment": accepted.segment_id == 140
+            "arena": accepted.arena_id == 14
+            "lifetime": accepted.lifetime_generation == 3
+            "arena slot token": accepted.arena_slot_token == 70014005005
+            "source kind": accepted.source_kind == 1
+            "source token": accepted.source_token == 90014005005
+            "plan token": accepted.plan_token == 91014005005
+            "apply token": accepted.apply_token == 92014005005
+            "ledger token": accepted.ledger_token == 93014005005
+            "candidate token": accepted.release_candidate_token == 94014005005
+            "applied backing": accepted.applied_backing_bytes == 4096
+            "applied committed": accepted.applied_committed_bytes == 4096
+            "source uncommitted": accepted.source_uncommitted_bytes == 12288
+            "remaining source": accepted.remaining_source_bytes == 8192
+            "missing ledger": missing_result.reason == 1
+            "rejected ledger": rejected_result.reason == 2
+            "invalid token": invalid_token_result.reason == 3
+            "duplicate token": duplicate_result.reason == 4
+            "closed substrate": closed_result.reason == 5
+            "inventory count": candidate_inventory.inventory_count == 6
+            "accepted count": candidate_inventory.accepted_count == 1
+            "reject count": candidate_inventory.reject_count == 5
+            "closed count": candidate_inventory.closed_substrate_reject_count == 1
+            "last candidate token": candidate_inventory.last_release_candidate_token == 94014005005
+            "inactive residence": accepted.would_create_pointer_residence == 0
+            "inactive lookup": accepted.would_lookup_by_pointer == 0
+            "inactive arena release": accepted.would_release_arena_backing == 0
+            "inactive segment map": accepted.would_use_segment_map == 0
+            "inactive atomic": accepted.would_execute_atomic_bitmap == 0
+            "inactive osvm": accepted.would_call_osvm == 0
+            "inactive thread": accepted.would_run_thread == 0
+            "inactive provider": accepted.would_activate_provider == 0
+            "inactive matcher": accepted.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-candidate-proof")
+        print("candidate=" + accepted.accepted + "," + accepted.reason + "," + accepted.row_index + "," + accepted.segment_id + "," + accepted.arena_id + "," + accepted.lifetime_generation + "," + accepted.arena_slot_token + "," + accepted.source_kind + "," + accepted.source_token + "," + accepted.plan_token + "," + accepted.apply_token + "," + accepted.ledger_token + "," + accepted.release_candidate_token + "," + accepted.applied_backing_bytes + "," + accepted.applied_committed_bytes + "," + accepted.source_uncommitted_bytes + "," + accepted.remaining_source_bytes)
+        print("rejects=" + missing_result.reason + "," + rejected_result.reason + "," + invalid_token_result.reason + "," + duplicate_result.reason + "," + closed_result.reason)
+        print("counts=" + candidate_inventory.inventory_count + "," + candidate_inventory.accepted_count + "," + candidate_inventory.reject_count + "," + candidate_inventory.missing_ledger_reject_count + "," + candidate_inventory.rejected_ledger_reject_count + "," + candidate_inventory.invalid_release_candidate_token_reject_count + "," + candidate_inventory.duplicate_release_candidate_token_reject_count + "," + candidate_inventory.closed_substrate_reject_count + "," + candidate_inventory.last_reason + "," + candidate_inventory.last_release_candidate_token)
+        print("inactive=" + accepted.would_create_pointer_residence + "," + accepted.would_lookup_by_pointer + "," + accepted.would_release_arena_backing + "," + accepted.would_use_segment_map + "," + accepted.would_execute_atomic_bitmap + "," + accepted.would_call_osvm + "," + accepted.would_run_thread + "," + accepted.would_activate_provider + "," + accepted.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

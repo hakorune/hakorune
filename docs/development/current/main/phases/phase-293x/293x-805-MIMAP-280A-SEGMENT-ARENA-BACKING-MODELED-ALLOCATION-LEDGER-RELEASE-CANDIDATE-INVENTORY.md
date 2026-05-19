@@ -1,6 +1,6 @@
 # 293x-805 MIMAP-280A Segment Arena Backing Modeled Allocation Ledger Release Candidate Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -47,3 +47,17 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_le
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+- Added `HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateInventory`.
+- Added a proof app that records an accepted model-only release candidate from
+  an accepted MIMAP-276A allocation-ledger report.
+- Fixed missing/rejected ledger, invalid release-candidate token, duplicate
+  release-candidate token, and closed-substrate rejects.
+- Kept L3 evidence deferred to a future closeout pack.
+
+## Next Row
+
+MIMAP-281A observes MIMAP-280A release-candidate counters and last-candidate
+facts without recording new release-candidate rows.
