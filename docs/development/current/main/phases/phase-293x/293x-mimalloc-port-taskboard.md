@@ -741,7 +741,8 @@ FST:
 | `RECORD-LOCAL-SCALARIZATION-SSOT-001` | landed | Fix the record-local scalarization owner boundaries, helper body stop lines, exact PHI propagation rule, receiver rule, and guard expectations. | selected HAKO-ALLOC-REPORT-RECORD-014 |
 | `HAKO-ALLOC-REPORT-RECORD-014` | landed | Select the allocation-ledger diagnostic ReportFields owner under the record-local scalarization SSOT. | selected HAKO-ALLOC-REPORT-RECORD-015 |
 | `HAKO-ALLOC-REPORT-RECORD-015` | landed | Apply helper-argument scalarization to the allocation-ledger diagnostic ReportFields owner only. | selected HAKO-ALLOC-REPORT-RECORD-016 |
-| `HAKO-ALLOC-REPORT-RECORD-016` | selected current | Close out the allocation-ledger diagnostic ReportFields helper-scalarization owner. | after HAKO-ALLOC-REPORT-RECORD-015 |
+| `HAKO-ALLOC-REPORT-RECORD-016` | landed | Close out the allocation-ledger diagnostic ReportFields helper-scalarization owner. | selected HAKO-ALLOC-REPORT-RECORD-017 |
+| `HAKO-ALLOC-REPORT-RECORD-017` | selected current | Select one more ReportFields owner under the record-local scalarization SSOT, or return to the allocator modeled lane. | after HAKO-ALLOC-REPORT-RECORD-016 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -750,8 +751,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-REPORT-RECORD-016` closes out the allocation-ledger diagnostic
-`ReportFields` helper-scalarization owner.
+`HAKO-ALLOC-REPORT-RECORD-017` selects one more `ReportFields` owner under the
+record-local scalarization SSOT, or returns to the allocator modeled lane.
 
 SSOT:
 

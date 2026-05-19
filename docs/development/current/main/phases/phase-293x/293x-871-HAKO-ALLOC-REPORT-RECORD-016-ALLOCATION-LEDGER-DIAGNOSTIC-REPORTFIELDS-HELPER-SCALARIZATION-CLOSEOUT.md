@@ -1,6 +1,6 @@
 # 293x-871 HAKO-ALLOC-REPORT-RECORD-016 Allocation-Ledger Diagnostic ReportFields Helper Scalarization Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -55,3 +55,26 @@ git diff --check
 - The diagnostics guard proves no runtime `NewBox` is emitted for the
   diagnostic `ReportFields` record.
 - The closeout selects the next narrow row only after evidence is recorded.
+
+## Progress
+
+- Confirmed the allocation-ledger diagnostic owner keeps its `ReportFields`
+  helper argument builder-local.
+- Confirmed the target guard remains green and no runtime `NewBox` is emitted
+  for the diagnostic `ReportFields` carrier.
+- Kept this closeout evidence-only; no additional report owner was migrated.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_allocator_record_construction_read_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_diagnostics_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Next
+
+Select `HAKO-ALLOC-REPORT-RECORD-017` to choose whether the next row should
+migrate another single `ReportFields` owner or return to the allocator modeled
+lane.
