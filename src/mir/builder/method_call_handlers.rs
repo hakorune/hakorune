@@ -229,6 +229,37 @@ impl MirBuilder {
             return Err("WeakRef uses weak_to_strong(), not upgrade()".to_string());
         }
 
+        // RECORD-VALUE-HELPER-001 follow-up:
+        // Some source routes lower `me.helper(fields)` through the standard
+        // receiver path instead of the dedicated me-call path. Keep the same
+        // same-owner scalarization contract here, but only when the receiver is
+        // the current `me` value.
+        if self
+            .variable_ctx
+            .variable_map
+            .get("me")
+            .copied()
+            .is_some_and(|me| me == object_value)
+        {
+            if let Some(cls) = self
+                .scope_ctx
+                .current_function
+                .as_ref()
+                .and_then(|f| f.signature.name.split('.').next().map(|s| s.to_string()))
+            {
+                let func_name = function_lowering::generate_method_function_name(
+                    &cls,
+                    &method,
+                    arguments.len(),
+                );
+                if let Some(result) =
+                    self.try_inline_record_helper_call(&func_name, arguments, Some(object_value))?
+                {
+                    return Ok(result);
+                }
+            }
+        }
+
         // Build argument values
         let arg_values = self.build_call_args(arguments)?;
 

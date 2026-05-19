@@ -68,6 +68,8 @@ guard_expect_in_file "$TAG" 'memory.segment_arena_backing_modeled_allocation_led
 guard_expect_in_file "$TAG" 'segment_arena_backing_modeled_allocation_ledger_release_candidate_box.hako' "$MEMORY_README" "memory README must name release candidate owner"
 guard_expect_in_file "$TAG" 'record HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReportFields' "$CANDIDATE_OWNER" "release candidate owner must use local ReportFields record payload"
 guard_expect_in_file "$TAG" 'local fields = HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReportFields' "$CANDIDATE_OWNER" "release candidate owner must construct report field records locally"
+guard_expect_in_file "$TAG" 'makeReleaseCandidateReport' "$CANDIDATE_OWNER" "release candidate owner must expose ReportFields helper-argument scalarization helper"
+guard_expect_in_file "$TAG" 'return me.makeReleaseCandidateReport' "$CANDIDATE_OWNER" "release candidate makeReport must delegate report copy through ReportFields helper"
 guard_expect_in_file "$TAG" 'source_capacity: usize' "$CANDIDATE_OWNER" "release candidate byte/capacity group must migrate source_capacity to usize"
 guard_expect_in_file "$TAG" 'applied_backing_bytes: usize' "$CANDIDATE_OWNER" "release candidate byte/capacity group must migrate applied_backing_bytes to usize"
 guard_expect_in_file "$TAG" 'remaining_source_bytes: usize' "$CANDIDATE_OWNER" "release candidate byte/capacity group must migrate remaining_source_bytes to usize"
@@ -138,6 +140,7 @@ required = {
     "main",
     "Main.makeLedger/2",
     "HakoAllocSegmentArenaBackingModeledAllocationLedgerInventory.recordAllocationLedger/2",
+    "HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateInventory.makeReleaseCandidateReport/1",
     "HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateInventory.recordReleaseCandidate/2",
 }
 missing = sorted(name for name in required if functions.get(name) is None)
@@ -218,6 +221,23 @@ for name in ("reason", "row_index", "release_candidate_token"):
     field = record_fields.get(name)
     if field is None or field.get("declared_type") != "i64":
         raise SystemExit(f"release candidate ReportFields {name} must remain declared i64: {field}")
+
+def walk(value):
+    if isinstance(value, dict):
+        yield value
+        for child in value.values():
+            yield from walk(child)
+    elif isinstance(value, list):
+        for child in value:
+            yield from walk(child)
+
+nodes = list(walk(data))
+if any(
+    node.get("op") == "newbox"
+    and node.get("type") == "HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReportFields"
+    for node in nodes
+):
+    raise SystemExit("release candidate ReportFields record materialized as NewBox")
 
 print("[mimap280a-mir-json] ok")
 PY

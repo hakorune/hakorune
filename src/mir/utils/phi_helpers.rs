@@ -79,7 +79,7 @@ impl MirBuilder {
                 func,
                 cur_bb,
                 phi_val,
-                inputs,
+                inputs.clone(),
                 self.metadata_ctx.current_span(),
             )?;
         } else {
@@ -89,6 +89,8 @@ impl MirBuilder {
                     .build(),
             );
         }
+        self.comp_ctx
+            .propagate_record_local_value_from_phi(&inputs, phi_val);
 
         Ok(phi_val)
     }
@@ -146,7 +148,7 @@ impl MirBuilder {
                 func,
                 cur_bb,
                 dst,
-                inputs,
+                inputs.clone(),
                 self.metadata_ctx.current_span(),
             )?;
         } else {
@@ -156,6 +158,8 @@ impl MirBuilder {
                     .build(),
             );
         }
+        self.comp_ctx
+            .propagate_record_local_value_from_phi(&inputs, dst);
 
         Ok(())
     }

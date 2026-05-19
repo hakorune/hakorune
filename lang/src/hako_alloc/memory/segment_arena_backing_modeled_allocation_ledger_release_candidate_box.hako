@@ -158,6 +158,50 @@ box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateInventory
         return 0
     }
 
+    makeReleaseCandidateReport(fields: HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReportFields): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReport {
+        local result = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReport()
+        result.accepted = fields.accepted
+        result.reason = fields.reason
+        result.release_candidate_present = fields.release_candidate_present
+        result.modeled_release_candidate_present = fields.modeled_release_candidate_present
+        result.allocation_ledger_present = fields.allocation_ledger_present
+        result.allocation_ledger_reason = fields.allocation_ledger_reason
+        result.row_index = fields.row_index
+        result.segment_id = fields.segment_id
+        result.arena_id = fields.arena_id
+        result.lifetime_generation = fields.lifetime_generation
+        result.residence_token = fields.residence_token
+        result.binding_token = fields.binding_token
+        result.arena_slot_token = fields.arena_slot_token
+        result.source_kind = fields.source_kind
+        result.source_token = fields.source_token
+        result.plan_token = fields.plan_token
+        result.apply_token = fields.apply_token
+        result.ledger_token = fields.ledger_token
+        result.release_candidate_token = fields.release_candidate_token
+        result.source_capacity = fields.source_capacity
+        result.source_committed_bytes = fields.source_committed_bytes
+        result.source_uncommitted_bytes = fields.source_uncommitted_bytes
+        result.padded_bytes = fields.padded_bytes
+        result.slot_capacity = fields.slot_capacity
+        result.planned_backing_bytes = fields.planned_backing_bytes
+        result.planned_committed_bytes = fields.planned_committed_bytes
+        result.applied_backing_bytes = fields.applied_backing_bytes
+        result.applied_committed_bytes = fields.applied_committed_bytes
+        result.remaining_source_bytes = fields.remaining_source_bytes
+        result.closed_substrate_blocker_count = fields.closed_substrate_blocker_count
+        result.requires_pointer_residence = fields.requires_pointer_residence
+        result.requires_pointer_lookup = fields.requires_pointer_lookup
+        result.requires_arena_backing = fields.requires_arena_backing
+        result.requires_segment_map = fields.requires_segment_map
+        result.requires_atomic_bitmap = fields.requires_atomic_bitmap
+        result.requires_osvm = fields.requires_osvm
+        result.requires_worker = fields.requires_worker
+        result.requires_provider = fields.requires_provider
+        result.requires_backend_matcher = fields.requires_backend_matcher
+        return result
+    }
+
     makeReport(accepted, reason, ledger_report, release_candidate_token): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReport {
         local release_row_index = -1
         local release_candidate_value = 0
@@ -207,53 +251,13 @@ box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateInventory
             requires_provider: ledger_report.requires_provider,
             requires_backend_matcher: ledger_report.requires_backend_matcher,
         }
-        local result = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReport()
-        result.accepted = fields.accepted
-        result.reason = fields.reason
-        result.release_candidate_present = fields.release_candidate_present
-        result.modeled_release_candidate_present = fields.modeled_release_candidate_present
-        result.allocation_ledger_present = fields.allocation_ledger_present
-        result.allocation_ledger_reason = fields.allocation_ledger_reason
-        result.row_index = fields.row_index
-        result.segment_id = fields.segment_id
-        result.arena_id = fields.arena_id
-        result.lifetime_generation = fields.lifetime_generation
-        result.residence_token = fields.residence_token
-        result.binding_token = fields.binding_token
-        result.arena_slot_token = fields.arena_slot_token
-        result.source_kind = fields.source_kind
-        result.source_token = fields.source_token
-        result.plan_token = fields.plan_token
-        result.apply_token = fields.apply_token
-        result.ledger_token = fields.ledger_token
-        result.release_candidate_token = fields.release_candidate_token
-        result.source_capacity = fields.source_capacity
-        result.source_committed_bytes = fields.source_committed_bytes
-        result.source_uncommitted_bytes = fields.source_uncommitted_bytes
-        result.padded_bytes = fields.padded_bytes
-        result.slot_capacity = fields.slot_capacity
-        result.planned_backing_bytes = fields.planned_backing_bytes
-        result.planned_committed_bytes = fields.planned_committed_bytes
-        result.applied_backing_bytes = fields.applied_backing_bytes
-        result.applied_committed_bytes = fields.applied_committed_bytes
-        result.remaining_source_bytes = fields.remaining_source_bytes
-        result.closed_substrate_blocker_count = fields.closed_substrate_blocker_count
-        result.requires_pointer_residence = fields.requires_pointer_residence
-        result.requires_pointer_lookup = fields.requires_pointer_lookup
-        result.requires_arena_backing = fields.requires_arena_backing
-        result.requires_segment_map = fields.requires_segment_map
-        result.requires_atomic_bitmap = fields.requires_atomic_bitmap
-        result.requires_osvm = fields.requires_osvm
-        result.requires_worker = fields.requires_worker
-        result.requires_provider = fields.requires_provider
-        result.requires_backend_matcher = fields.requires_backend_matcher
         me.last_reason = reason
         me.last_segment_id = ledger_report.segment_id
         me.last_arena_id = ledger_report.arena_id
         if accepted == 1 {
             me.last_release_candidate_token = release_candidate_token
         }
-        return result
+        return me.makeReleaseCandidateReport(fields)
     }
 
     reject(reason, ledger_report, release_candidate_token): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReport {

@@ -733,7 +733,9 @@ FST:
 | `HAKO-ALLOC-REPORT-RECORD-007` | landed | Close out the release-apply ReportFields pilot and keep the returned report box / local record boundary fixed. | selected RECORD-VALUE-HELPER-001 |
 | `RECORD-VALUE-HELPER-001` | landed | Add the narrow compiler contract for same-owner helper argument scalarization of local ReportFields records. | selected HAKO-ALLOC-REPORT-RECORD-008 |
 | `HAKO-ALLOC-REPORT-RECORD-008` | landed | Select the next single ReportFields owner to migrate to the helper-argument scalarization pattern. | selected HAKO-ALLOC-REPORT-RECORD-009 |
-| `HAKO-ALLOC-REPORT-RECORD-009` | selected current | Apply helper-argument scalarization to the allocation-ledger release-candidate ReportFields owner only. | after HAKO-ALLOC-REPORT-RECORD-008 |
+| `HAKO-ALLOC-REPORT-RECORD-009` | landed | Apply helper-argument scalarization to the allocation-ledger release-candidate ReportFields owner only. | selected HAKO-ALLOC-REPORT-RECORD-010 |
+| `HAKO-ALLOC-REPORT-RECORD-010` | landed | Close out the first two ReportFields helper-argument scalarization owners before selecting another report owner. | selected HAKO-ALLOC-REPORT-RECORD-011 |
+| `HAKO-ALLOC-REPORT-RECORD-011` | selected current | Inventory remaining scalar-only report-box candidates and select the next single owner or return to the allocator lane. | after HAKO-ALLOC-REPORT-RECORD-010 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -742,16 +744,15 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-REPORT-RECORD-009` applies the landed
-`RECORD-VALUE-HELPER-001` same-owner helper-argument scalarization pattern to
-the allocation-ledger release-candidate ReportFields owner only. The already
-migrated motivating record is:
+`HAKO-ALLOC-REPORT-RECORD-011` inventories the remaining scalar-only report-box
+candidates and selects exactly one next owner, or returns to the allocator lane
+if report-record work should pause. The already migrated motivating record is:
 
 ```text
 HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields
 ```
 
-The current target record is:
+The second migrated record is:
 
 ```text
 HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReportFields

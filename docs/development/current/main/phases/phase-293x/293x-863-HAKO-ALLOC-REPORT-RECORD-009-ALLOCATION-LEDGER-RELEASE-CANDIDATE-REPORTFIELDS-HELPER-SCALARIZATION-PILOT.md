@@ -1,6 +1,6 @@
 # 293x-863 HAKO-ALLOC-REPORT-RECORD-009 Allocation-Ledger Release-Candidate ReportFields Helper Scalarization Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -58,3 +58,30 @@ git diff --check
 - The MIR JSON contains no `NewBox` for the `ReportFields` record type.
 - Existing release-candidate behavior and exact-`usize` field declarations stay
   green.
+
+## Progress
+
+- Added `makeReleaseCandidateReport(fields: ...ReportFields)` to the
+  allocation-ledger release-candidate inventory owner.
+- Kept `makeReport(...)` as the local `ReportFields` construction / owner
+  last-state update owner, then delegated field copying through the helper.
+- Fixed the compiler-side record helper scalarization acceptance seam so
+  builder-local record facts survive PHI joins when every incoming value carries
+  the same local record payload.
+- Kept `ReportFields` as a builder-local record carrier; no runtime record box
+  is emitted.
+
+## Evidence
+
+```text
+cargo build --release --bin hakorune
+bash tools/checks/k2_wide_allocator_record_construction_read_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_candidate_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Next
+
+Select `HAKO-ALLOC-REPORT-RECORD-010` to close out the current ReportFields
+helper-argument scalarization pack before broadening to another owner.

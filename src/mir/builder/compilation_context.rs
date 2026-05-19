@@ -394,6 +394,30 @@ impl CompilationContext {
         }
     }
 
+    pub fn propagate_record_local_value_from_phi(
+        &mut self,
+        inputs: &[(crate::mir::BasicBlockId, ValueId)],
+        dst: ValueId,
+    ) {
+        let mut records = inputs
+            .iter()
+            .filter_map(|(_, value)| self.record_local_values.get(value));
+        let Some(first) = records.next().cloned() else {
+            return;
+        };
+        if records.all(|record| {
+            record.record_name == first.record_name
+                && record.fields.len() == first.fields.len()
+                && record.fields.iter().zip(first.fields.iter()).all(|(a, b)| {
+                    a.name == b.name
+                        && a.declared_type_name == b.declared_type_name
+                        && a.value == b.value
+                })
+        }) {
+            self.record_local_values.insert(dst, first);
+        }
+    }
+
     pub fn clear_record_local_values(&mut self) {
         self.record_local_values.clear();
     }

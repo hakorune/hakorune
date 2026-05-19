@@ -34,6 +34,13 @@ impl MirBuilder {
                 // Static normalization here would drop receiver and break arity.
                 self.handle_me_method_call(method, arguments)
             }
+            ASTNode::Variable { name, .. } if name == "me" => {
+                // Some parser paths still surface `me` as an identifier. Keep
+                // receiver normalization as the SSOT so downstream method-call
+                // fallback does not treat same-owner record helpers as runtime
+                // calls.
+                self.handle_me_method_call(method, arguments)
+            }
             ASTNode::This { .. } => {
                 // Priority 1 for `this`: static box → compile-time static call normalization
                 if let Some(box_name) = self.comp_ctx.current_static_box.clone() {
