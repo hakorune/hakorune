@@ -697,7 +697,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-016` | landed | Migrate allocation-plan diagnostic mirror byte fields only; keep diagnostic counters, reasons, tokens, ids, and sentinels on `i64`. | selected FIELD-GROUP-017 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-017` | landed | Close out the allocation-plan diagnostic byte mirror field group and keep the evidence bounded. | selected FIELD-GROUP-018 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-018` | landed | Migrate source-accounting report byte/capacity fields only; keep counters, reasons, tokens, ids, and sentinels on `i64`. | selected FIELD-GROUP-019 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-019` | selected current | Close out the source-accounting byte/capacity field group and keep the evidence bounded. | after FIELD-GROUP-018 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-019` | landed | Close out the source-accounting byte/capacity field group and keep the evidence bounded. | selected FIELD-GROUP-020 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-020` | selected current | Migrate source-accounting diagnostic mirror byte fields only; keep diagnostic counters, reasons, tokens, ids, and sentinels on `i64`. | after FIELD-GROUP-019 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -706,17 +707,15 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-019` closes out the source-accounting report
-byte/capacity group:
+`HAKO-ALLOC-USIZE-FIELD-GROUP-020` migrates the source-accounting diagnostic
+mirror byte fields that copy already-migrated source-accounting facts:
 
 ```text
-source_capacity
-source_committed_bytes
-source_uncommitted_bytes
-slot_capacity
-padded_bytes
-accounted_padded_bytes
-available_after_padded_bytes
+last_report_source_capacity
+last_report_source_committed_bytes
+last_report_source_uncommitted_bytes
+last_report_accounted_padded_bytes
+last_report_available_after_padded_bytes
 ```
 
 Real pointer residence, pointer-derived lookup, real thread scheduling, worker
@@ -765,6 +764,8 @@ Then HAKO-ALLOC-USIZE-FIELD-GROUP-018 migrates the source-accounting report
 byte/capacity group that feeds the allocation-plan family.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-019 closes out that source-accounting group
 before selecting another allocator byte/capacity group.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-020 migrates the source-accounting diagnostic
+mirror byte fields that copy already-migrated source-accounting byte facts.
 Reason/status/token/sentinel fields stay i64.
 ```
 

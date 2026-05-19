@@ -1,6 +1,6 @@
 # 293x-827 HAKO-ALLOC-USIZE-FIELD-GROUP-019 Source-Accounting Byte/Capacity Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -64,7 +64,20 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Re-ran the MIMAP-264A source-accounting L2 guard after the
+  source-accounting byte/capacity migration.
+- Re-ran the MIMAP-265A diagnostics L2 guard to confirm the diagnostic mirror
+  byte fields still remain `i64` in this closeout.
+- Re-ran the MIMAP-266A closeout guard and kept the representative exact-MIR to
+  pure-first EXE evidence green.
+- Confirmed `NUMERIC_FIELDS.md` lists the source-accounting byte/capacity report
+  group as current production `usize` storage.
+- Kept the source-accounting diagnostic mirror byte fields for a separate
+  migration row.
+
 ## Next
 
-After this closeout, select a separate row for the source-accounting diagnostic
-mirror byte fields if the current guard evidence remains stable.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-020` for the source-accounting diagnostic
+mirror byte fields that copy already-migrated source-accounting byte facts.
