@@ -69,7 +69,7 @@ guard_expect_in_file "$TAG" 'Status: landed' "$CARD" "MIMAP-264A card must be la
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN_260A" "MIMAP-260A source bridge design must stay accepted"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-264A accounting design must be accepted"
 guard_expect_in_file "$TAG" 'source-backed arena accounting' "$CARD" "MIMAP-264A card must call out source-backed arena accounting"
-guard_expect_in_file "$TAG" 'MIMAP-264A segment arena backing modeled source accounting inventory' "$PLAN" "granularity SSOT must describe MIMAP-264A"
+guard_expect_in_file "$TAG" 'MIMAP-264A granularity' "$PLAN" "granularity SSOT must describe MIMAP-264A"
 guard_expect_in_file "$TAG" 'MIMAP-264A segment arena backing modeled source accounting inventory' "$JOINT" "joint order must name MIMAP-264A"
 guard_expect_in_file "$TAG" 'MIMAP-264A segment arena backing modeled source accounting inventory' "$CADENCE" "cadence SSOT must name MIMAP-264A"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-264A guard"
@@ -79,7 +79,11 @@ guard_expect_in_file "$TAG" 'exe = "deferred-to-closeout"' "$PROOF_MANIFEST" "MI
 guard_expect_in_file "$TAG" 'memory.segment_arena_backing_modeled_source_accounting_box' "$MODULE" "module must export source accounting owner"
 guard_expect_in_file "$TAG" 'segment_arena_backing_modeled_source_accounting_box.hako' "$MEMORY_README" "memory README must name source accounting owner"
 guard_expect_in_file "$TAG" 'recordSourceAccounting' "$ACCOUNTING_OWNER" "source accounting owner must expose record route"
-guard_expect_in_file "$TAG" 'source_uncommitted_bytes' "$ACCOUNTING_OWNER" "source accounting report must publish uncommitted bytes"
+guard_expect_in_file "$TAG" 'source_capacity: usize = 0' "$ACCOUNTING_OWNER" "source accounting source capacity must be exact usize"
+guard_expect_in_file "$TAG" 'source_uncommitted_bytes: usize = 0' "$ACCOUNTING_OWNER" "source accounting uncommitted bytes must be exact usize"
+guard_expect_in_file "$TAG" 'available_after_padded_bytes: usize = 0' "$ACCOUNTING_OWNER" "source accounting available bytes must be exact usize"
+guard_expect_in_file "$TAG" 'source_alignment: i64 = 0' "$ACCOUNTING_OWNER" "source accounting alignment must remain i64"
+guard_expect_in_file "$TAG" 'slot_index: i64 = -1' "$ACCOUNTING_OWNER" "source accounting slot sentinel must remain i64"
 guard_expect_in_file "$TAG" 'check "mimap264a segment arena backing modeled source accounting"' "$APP" "proof must use labelled check block"
 
 if rg -n 'lookupByPointer|lookupPointer|pointer_member|dereference[[:space:]]*\(|mutateSegmentMap|claimBitmap|unclaimBitmap|AtomicCoreBox|hako_atomic|cas_i64|fetch_add|hako_osvm|spawn[[:space:]]*\(|thread::|worker_local|ChannelBox|TaskGroupBox|nowait|sync[[:space:]]+box|context[[:space:]]|providerActivate|global_allocator' \
@@ -163,12 +167,33 @@ for name in (
     "source_capacity",
     "source_committed_bytes",
     "source_uncommitted_bytes",
+    "slot_capacity",
+    "padded_bytes",
     "accounted_padded_bytes",
     "available_after_padded_bytes",
     "would_add_backend_matcher",
 ):
     if name not in fields:
         raise SystemExit(f"missing modeled source accounting field: {name}")
+
+usize_fields = {
+    "source_capacity",
+    "source_committed_bytes",
+    "source_uncommitted_bytes",
+    "slot_capacity",
+    "padded_bytes",
+    "accounted_padded_bytes",
+    "available_after_padded_bytes",
+}
+for name in usize_fields:
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"source accounting {name} must be exact usize storage: {field}")
+
+for name in ("reason", "row_index", "source_alignment", "slot_index", "source_token"):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"source accounting {name} must remain i64 storage: {field}")
 
 print("[mimap264a-mir-json] ok")
 PY

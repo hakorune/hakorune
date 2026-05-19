@@ -1,6 +1,6 @@
 # 293x-826 HAKO-ALLOC-USIZE-FIELD-GROUP-018 Source-Accounting Byte/Capacity Migration
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -58,7 +58,22 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Migrated only the
+  `HakoAllocSegmentArenaBackingModeledSourceAccountingReport` byte/capacity
+  owner group to exact `usize` storage.
+- Kept counters, reasons, tokens, ids, source alignment, slot index, and
+  sentinel-bearing fields on `i64`.
+- Strengthened the MIMAP-264A guard to assert exact `usize` typed-object
+  storage for the source-accounting byte/capacity fields.
+- Strengthened the MIMAP-265A diagnostics guard to prove the source-accounting
+  diagnostic mirror byte fields remain `i64` in this row.
+- Re-ran the MIMAP-266A closeout guard after fixing historical granularity and
+  report-record next-row status expectations.
+
 ## Next
 
-After this migration, close out the source-accounting byte/capacity field group
-before selecting another allocator byte/capacity group.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-019` to close out the source-accounting
+byte/capacity field group before selecting another allocator byte/capacity
+group.

@@ -57,7 +57,7 @@ guard_require_exec_files "$TAG" "$GUARD_264A" "$GUARD_265A" "$SELF_SCRIPT" "$IMP
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_264A" "MIMAP-264A must be landed before closeout"
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_265A" "MIMAP-265A must be landed before closeout"
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_266A" "MIMAP-266A closeout card must be landed"
-guard_expect_in_file "$TAG" "Status: selected current" "$CARD_REPORT_RECORD" "report-record inventory must be selected current after closeout"
+guard_expect_in_file "$TAG" "Status: landed" "$CARD_REPORT_RECORD" "report-record inventory must be landed after closeout"
 
 guard_expect_in_file "$TAG" "Decision: accepted" "$SSOT" "MIMAP-266A closeout SSOT must be accepted"
 guard_expect_in_file "$TAG" "Decision: accepted" "$INVENTORY_SSOT" "MIMAP-264A inventory SSOT must stay accepted"
@@ -65,7 +65,7 @@ guard_expect_in_file "$TAG" "Decision: accepted" "$DIAGNOSTICS_SSOT" "MIMAP-265A
 guard_expect_in_file "$TAG" "closeout_pack = segment-arena-backing-modeled-source-accounting" "$SSOT" "closeout SSOT must name pack"
 guard_expect_in_file "$TAG" "HAKO-ALLOC-REPORT-RECORD-003 segment arena backing report record carrier inventory" "$SSOT" "closeout SSOT must name next row"
 
-guard_expect_in_file "$TAG" "MIMAP-266A segment arena backing modeled source accounting closeout pack" "$GRANULARITY" "granularity SSOT must describe MIMAP-266A"
+guard_expect_in_file "$TAG" "MIMAP-266A granularity" "$GRANULARITY" "granularity SSOT must describe MIMAP-266A"
 guard_expect_in_file "$TAG" "HAKO-ALLOC-REPORT-RECORD-003" "$GRANULARITY" "granularity SSOT must describe report-record follow-up"
 guard_expect_in_file "$TAG" "MIMAP-266A segment arena backing modeled source accounting closeout pack" "$JOINT" "joint order must name closeout row"
 guard_expect_in_file "$TAG" "HAKO-ALLOC-REPORT-RECORD-003 segment arena backing report record carrier inventory" "$JOINT" "joint order must name report-record follow-up"

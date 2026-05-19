@@ -96,18 +96,21 @@ Current production `usize` field group:
   because it only mirrors already-migrated allocation-plan byte facts.
   Diagnostic counters, reasons, tokens, ids, and sentinels stay `i64`.
 
-Selected next production `usize` field group:
-
 - `segment_arena_backing_modeled_source_accounting_box.hako`
   / `HakoAllocSegmentArenaBackingModeledSourceAccountingReport`
   byte/capacity report fields:
   `source_capacity`, `source_committed_bytes`, `source_uncommitted_bytes`,
   `slot_capacity`, `padded_bytes`, `accounted_padded_bytes`,
   `available_after_padded_bytes`.
-  This group is selected by `HAKO-ALLOC-USIZE-FIELD-GROUP-018` because it is the
-  owner-local source-accounting report group that feeds the already-migrated
-  allocation-plan family. Counters, reasons, tokens, ids, and sentinels stay
-  `i64`.
+  This group was selected and migrated by `HAKO-ALLOC-USIZE-FIELD-GROUP-018`
+  because it is the owner-local source-accounting report group that feeds the
+  already-migrated allocation-plan family. Counters, reasons, tokens, ids, and
+  sentinels stay `i64`.
+
+Selected next production `usize` field group:
+
+- none. `HAKO-ALLOC-USIZE-FIELD-GROUP-019` is a closeout row for the
+  source-accounting byte/capacity group, not a new migration group.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
