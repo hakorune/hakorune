@@ -1,6 +1,6 @@
 # 293x-873 HAKO-ALLOC-REPORT-RECORD-018 Allocation-Apply Diagnostic ReportFields Helper Scalarization Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -57,3 +57,24 @@ git diff --check
 - The target guard stays green and continues proving no runtime `NewBox` for
   the `ReportFields` carrier.
 - No other owner is migrated.
+
+## Progress
+
+- Added `makeAllocationApplyDiagnosticReport(fields)` as the same-owner helper
+  for the allocation-apply diagnostic `ReportFields` owner.
+- Kept `makeReport(...)` responsible for computing scalar fields and updating
+  `me.last_reason` before calling the helper.
+- Migrated no other owner.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_allocator_record_construction_read_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_apply_diagnostics_guard.sh
+```
+
+## Next
+
+Select `HAKO-ALLOC-REPORT-RECORD-019` to close out the allocation-apply
+diagnostic ReportFields helper-scalarization owner before another owner is
+selected.
