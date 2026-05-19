@@ -672,7 +672,8 @@ FST:
 | `MIMAP-274A` | landed | Segment arena backing modeled allocation apply closeout pack. | selected MIMAP-275A |
 | `MIMAP-275A` | landed | Post segment arena backing modeled allocation apply closeout row selection. | selected MIMAP-276A |
 | `MIMAP-276A` | landed | Segment arena backing modeled allocation ledger inventory. | selected MIMAP-277A |
-| `MIMAP-277A` | selected current | Segment arena backing modeled allocation ledger diagnostics. | selected by MIMAP-276A |
+| `MIMAP-277A` | landed | Segment arena backing modeled allocation ledger diagnostics. | selected MIMAP-278A |
+| `MIMAP-278A` | selected current | Segment arena backing modeled allocation ledger closeout pack. | selected by MIMAP-277A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -681,8 +682,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-277A` observes MIMAP-276A allocation-ledger counters and last-ledger
-facts without recording new ledger rows. Real pointer residence, pointer-derived lookup, real
+`MIMAP-278A` closes out the modeled allocation-ledger family with bundled L2
+evidence and representative exact-MIR L3 evidence. Real pointer residence, pointer-derived lookup, real
 thread scheduling,
 worker spawning, source-level concurrency features, real arena backing
 allocation, atomic bitmap execution, page-source calls, OSVM unreserve/release,

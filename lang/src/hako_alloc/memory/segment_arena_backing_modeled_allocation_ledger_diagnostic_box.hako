@@ -1,0 +1,208 @@
+// segment_arena_backing_modeled_allocation_ledger_diagnostic_box.hako -- MIMAP-277A
+// Responsibility:
+// - observe MIMAP-276A modeled allocation-ledger inventory counters
+// - publish scalar diagnostic summary facts for allocation-ledger reject
+//   categories
+// Non-responsibility:
+// - recording allocation-ledger rows, creating real pointer residence,
+//   pointer-derived lookup, arena backing, segment-map mutation, atomic bitmap
+//   execution, OSVM calls, scheduling, providers, or backend shortcuts
+
+record HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnosticReportFields {
+    observed: i64
+    reason: i64
+    diagnostic_present: i64
+    inventory_count: i64
+    accepted_count: i64
+    reject_count: i64
+    missing_apply_reject_count: i64
+    rejected_apply_reject_count: i64
+    invalid_ledger_token_reject_count: i64
+    duplicate_ledger_token_reject_count: i64
+    closed_substrate_reject_count: i64
+    last_reason: i64
+    last_segment_id: i64
+    last_arena_id: i64
+    last_ledger_token: i64
+    last_report_accepted: i64
+    last_report_reason: i64
+    last_report_allocation_apply_present: i64
+    last_report_modeled_allocation_ledger_present: i64
+    last_report_closed_substrate_blocker_count: i64
+    last_report_apply_token: i64
+    last_report_ledger_token: i64
+    last_report_applied_backing_bytes: i64
+    last_report_applied_committed_bytes: i64
+    last_report_remaining_source_bytes: i64
+    allocation_ledger_present: i64
+    modeled_allocation_ledger_present: i64
+    missing_apply_reject_seen: i64
+    rejected_apply_reject_seen: i64
+    invalid_ledger_token_reject_seen: i64
+    duplicate_ledger_token_reject_seen: i64
+    closed_substrate_reject_seen: i64
+}
+
+box HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnosticReport {
+    observed: i64 = 0
+    reason: i64 = 0
+    diagnostic_present: i64 = 1
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_apply_reject_count: i64 = 0
+    rejected_apply_reject_count: i64 = 0
+    invalid_ledger_token_reject_count: i64 = 0
+    duplicate_ledger_token_reject_count: i64 = 0
+    closed_substrate_reject_count: i64 = 0
+    last_reason: i64 = 0
+    last_segment_id: i64 = -1
+    last_arena_id: i64 = -1
+    last_ledger_token: i64 = 0
+    last_report_accepted: i64 = 0
+    last_report_reason: i64 = 0
+    last_report_allocation_apply_present: i64 = 0
+    last_report_modeled_allocation_ledger_present: i64 = 0
+    last_report_closed_substrate_blocker_count: i64 = 0
+    last_report_apply_token: i64 = 0
+    last_report_ledger_token: i64 = 0
+    last_report_applied_backing_bytes: i64 = 0
+    last_report_applied_committed_bytes: i64 = 0
+    last_report_remaining_source_bytes: i64 = 0
+    allocation_ledger_present: i64 = 0
+    modeled_allocation_ledger_present: i64 = 0
+    missing_apply_reject_seen: i64 = 0
+    rejected_apply_reject_seen: i64 = 0
+    invalid_ledger_token_reject_seen: i64 = 0
+    duplicate_ledger_token_reject_seen: i64 = 0
+    closed_substrate_reject_seen: i64 = 0
+    would_create_pointer_residence: i64 = 0
+    would_lookup_by_pointer: i64 = 0
+    would_allocate_arena_backing: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnostic {
+    observe_count: i64 = 0
+    accepted_summary_count: i64 = 0
+    reject_summary_count: i64 = 0
+    missing_inventory_reject_count: i64 = 0
+    last_reason: i64 = 0
+
+    markSeen(count): i64 {
+        if count > 0 {
+            return 1
+        }
+        return 0
+    }
+
+    makeReport(observed, reason, inventory, last_report): HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnosticReport {
+        local allocation_ledger_present = 0
+        local modeled_allocation_ledger_present = 0
+        if observed == 1 {
+            allocation_ledger_present = last_report.allocation_ledger_present
+            modeled_allocation_ledger_present = last_report.modeled_allocation_ledger_present
+        }
+
+        local fields = HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnosticReportFields {
+            observed: observed,
+            reason: reason,
+            diagnostic_present: 1,
+            inventory_count: inventory.inventory_count,
+            accepted_count: inventory.accepted_count,
+            reject_count: inventory.reject_count,
+            missing_apply_reject_count: inventory.missing_apply_reject_count,
+            rejected_apply_reject_count: inventory.rejected_apply_reject_count,
+            invalid_ledger_token_reject_count: inventory.invalid_ledger_token_reject_count,
+            duplicate_ledger_token_reject_count: inventory.duplicate_ledger_token_reject_count,
+            closed_substrate_reject_count: inventory.closed_substrate_reject_count,
+            last_reason: inventory.last_reason,
+            last_segment_id: inventory.last_segment_id,
+            last_arena_id: inventory.last_arena_id,
+            last_ledger_token: inventory.last_ledger_token,
+            last_report_accepted: last_report.accepted,
+            last_report_reason: last_report.reason,
+            last_report_allocation_apply_present: last_report.allocation_apply_present,
+            last_report_modeled_allocation_ledger_present: last_report.modeled_allocation_ledger_present,
+            last_report_closed_substrate_blocker_count: last_report.closed_substrate_blocker_count,
+            last_report_apply_token: last_report.apply_token,
+            last_report_ledger_token: last_report.ledger_token,
+            last_report_applied_backing_bytes: last_report.applied_backing_bytes,
+            last_report_applied_committed_bytes: last_report.applied_committed_bytes,
+            last_report_remaining_source_bytes: last_report.remaining_source_bytes,
+            allocation_ledger_present: allocation_ledger_present,
+            modeled_allocation_ledger_present: modeled_allocation_ledger_present,
+            missing_apply_reject_seen: me.markSeen(inventory.missing_apply_reject_count),
+            rejected_apply_reject_seen: me.markSeen(inventory.rejected_apply_reject_count),
+            invalid_ledger_token_reject_seen: me.markSeen(inventory.invalid_ledger_token_reject_count),
+            duplicate_ledger_token_reject_seen: me.markSeen(inventory.duplicate_ledger_token_reject_count),
+            closed_substrate_reject_seen: me.markSeen(inventory.closed_substrate_reject_count),
+        }
+        local result = new HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnosticReport()
+        result.observed = fields.observed
+        result.reason = fields.reason
+        result.diagnostic_present = fields.diagnostic_present
+        result.inventory_count = fields.inventory_count
+        result.accepted_count = fields.accepted_count
+        result.reject_count = fields.reject_count
+        result.missing_apply_reject_count = fields.missing_apply_reject_count
+        result.rejected_apply_reject_count = fields.rejected_apply_reject_count
+        result.invalid_ledger_token_reject_count = fields.invalid_ledger_token_reject_count
+        result.duplicate_ledger_token_reject_count = fields.duplicate_ledger_token_reject_count
+        result.closed_substrate_reject_count = fields.closed_substrate_reject_count
+        result.last_reason = fields.last_reason
+        result.last_segment_id = fields.last_segment_id
+        result.last_arena_id = fields.last_arena_id
+        result.last_ledger_token = fields.last_ledger_token
+        result.last_report_accepted = fields.last_report_accepted
+        result.last_report_reason = fields.last_report_reason
+        result.last_report_allocation_apply_present = fields.last_report_allocation_apply_present
+        result.last_report_modeled_allocation_ledger_present = fields.last_report_modeled_allocation_ledger_present
+        result.last_report_closed_substrate_blocker_count = fields.last_report_closed_substrate_blocker_count
+        result.last_report_apply_token = fields.last_report_apply_token
+        result.last_report_ledger_token = fields.last_report_ledger_token
+        result.last_report_applied_backing_bytes = fields.last_report_applied_backing_bytes
+        result.last_report_applied_committed_bytes = fields.last_report_applied_committed_bytes
+        result.last_report_remaining_source_bytes = fields.last_report_remaining_source_bytes
+        result.allocation_ledger_present = fields.allocation_ledger_present
+        result.modeled_allocation_ledger_present = fields.modeled_allocation_ledger_present
+        result.missing_apply_reject_seen = fields.missing_apply_reject_seen
+        result.rejected_apply_reject_seen = fields.rejected_apply_reject_seen
+        result.invalid_ledger_token_reject_seen = fields.invalid_ledger_token_reject_seen
+        result.duplicate_ledger_token_reject_seen = fields.duplicate_ledger_token_reject_seen
+        result.closed_substrate_reject_seen = fields.closed_substrate_reject_seen
+        me.last_reason = reason
+        return result
+    }
+
+    reject(reason, inventory, last_report): HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnosticReport {
+        me.reject_summary_count += 1
+        if reason == 1 {
+            me.missing_inventory_reject_count += 1
+        }
+        return me.makeReport(0, reason, inventory, last_report)
+    }
+
+    observeAllocationLedgerDiagnostics(inventory, last_report): HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnosticReport {
+        me.observe_count += 1
+
+        if inventory.inventory_count <= 0 {
+            return me.reject(1, inventory, last_report)
+        }
+        if last_report.allocation_ledger_present != 1 {
+            return me.reject(1, inventory, last_report)
+        }
+        if last_report.modeled_allocation_ledger_present != 1 {
+            return me.reject(1, inventory, last_report)
+        }
+
+        me.accepted_summary_count += 1
+        me.last_reason = 0
+        return me.makeReport(1, last_report.reason, inventory, last_report)
+    }
+}

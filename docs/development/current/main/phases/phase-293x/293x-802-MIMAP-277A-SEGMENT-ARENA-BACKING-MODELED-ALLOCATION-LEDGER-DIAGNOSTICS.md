@@ -1,12 +1,13 @@
 # 293x-802 MIMAP-277A Segment Arena Backing Modeled Allocation Ledger Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
 
-Observe MIMAP-276A allocation-ledger inventory counters and last-ledger facts
-without recording new ledger rows or opening real allocator execution.
+Add observer-only diagnostics for MIMAP-276A allocation-ledger inventory
+counters and last-ledger facts without recording new ledger rows or opening
+real allocator execution.
 
 ## Context
 
@@ -47,3 +48,16 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_le
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+- Added `HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnostic`.
+- Added a proof app that observes MIMAP-276A inventory counters and last-ledger
+  facts without recording new allocation-ledger rows.
+- Fixed reject category seen bits for missing apply, rejected apply, invalid
+  ledger token, duplicate ledger token, and closed substrate.
+- Kept L3 evidence deferred to a future closeout pack.
+
+## Next Row
+
+MIMAP-278A closes out the modeled allocation-ledger family with L3 evidence.
