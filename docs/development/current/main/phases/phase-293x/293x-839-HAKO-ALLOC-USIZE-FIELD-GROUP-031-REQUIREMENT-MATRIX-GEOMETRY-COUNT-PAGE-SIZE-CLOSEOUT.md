@@ -1,6 +1,6 @@
 # 293x-839 HAKO-ALLOC-USIZE-FIELD-GROUP-031 Requirement-Matrix Geometry Count / Page-Size Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -60,6 +60,21 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Re-ran the MIMAP-240A requirement-matrix L2 guard after the geometry count /
+  page-size migration.
+- Re-ran the MIMAP-241A diagnostics L2 guard and the MIMAP-242A closeout L3
+  guard to keep the representative exact-MIR evidence green.
+- Re-ran the downstream MIMAP-252A residence arena-binding L2 guard because
+  residence arena-binding consumes the requirement-matrix geometry facts.
+- Confirmed `NUMERIC_FIELDS.md` lists the requirement-matrix geometry count /
+  page-size fields as current production `usize` storage.
+- Kept counters, reasons, ids, alignments, requirement flags, blocker counts,
+  and sentinel-bearing fields on `i64`.
+
 ## Next
 
-After this closeout, select the next allocator exact-`usize` field group.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-032` for the readiness inventory geometry
+count / page-size group that feeds the already-migrated requirement-matrix
+family. This is intentionally not a byte/capacity row.
