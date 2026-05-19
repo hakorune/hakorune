@@ -423,6 +423,16 @@ exe = "auto"
 cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_modeled_source_accounting_closeout_guard.sh"]
 
 [[rows]]
+id = "hako-alloc-segment-arena-backing-modeled-allocation-plan-closeout"
+label = "hako_alloc segment arena backing modeled allocation plan closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-arena-backing-modeled-allocation-plan"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_plan_closeout_guard.sh"]
+
+[[rows]]
 id = "hako-alloc-segment-allocation-modeled-consume-closeout"
 label = "hako_alloc segment allocation modeled consume closeout guard"
 profiles = ["pilot", "hako-alloc-closeout"]

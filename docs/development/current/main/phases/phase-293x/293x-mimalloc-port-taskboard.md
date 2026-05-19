@@ -665,7 +665,8 @@ FST:
 | `MIMAP-267A` | landed | Post segment arena backing ReportFields pilot row selection. | selected MIMAP-268A |
 | `MIMAP-268A` | landed | Segment arena backing modeled allocation plan inventory. | selected MIMAP-269A |
 | `MIMAP-269A` | landed | Segment arena backing modeled allocation plan diagnostics. | selected MIMAP-270A |
-| `MIMAP-270A` | selected current | Segment arena backing modeled allocation plan closeout pack. | selected by MIMAP-269A |
+| `MIMAP-270A` | landed | Segment arena backing modeled allocation plan closeout pack. | selected MIMAP-271A |
+| `MIMAP-271A` | selected current | Post segment arena backing modeled allocation plan closeout row selection. | selected by MIMAP-270A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -674,9 +675,9 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-270A` closes the MIMAP-268A / MIMAP-269A modeled allocation-plan family
-with representative exact-MIR evidence. Real pointer residence,
-pointer-derived lookup, real thread scheduling,
+`MIMAP-271A` selects the next narrow arena-backing row after the modeled
+allocation-plan closeout. Real pointer residence, pointer-derived lookup, real
+thread scheduling,
 worker spawning, source-level concurrency features, real arena backing
 allocation, atomic bitmap execution, page-source calls, OSVM unreserve/release,
 provider activation, and backend matchers remain closed.
