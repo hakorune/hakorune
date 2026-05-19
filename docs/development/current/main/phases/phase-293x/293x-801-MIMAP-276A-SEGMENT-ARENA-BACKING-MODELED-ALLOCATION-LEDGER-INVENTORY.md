@@ -1,12 +1,12 @@
 # 293x-801 MIMAP-276A Segment Arena Backing Modeled Allocation Ledger Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
 
 Consume an accepted MIMAP-272A allocation-apply report and record a model-only
-allocation ledger row before real arena backing allocation opens.
+modeled allocation ledger row before real arena backing allocation opens.
 
 ## Context
 
@@ -47,3 +47,17 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_le
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+- Added `HakoAllocSegmentArenaBackingModeledAllocationLedgerInventory`.
+- Added a proof app that records an accepted model-only allocation ledger row
+  from an accepted MIMAP-272A allocation-apply report.
+- Fixed missing/rejected apply, invalid ledger token, duplicate ledger token,
+  and closed-substrate rejects.
+- Kept L3 evidence deferred to a future closeout pack.
+
+## Next Row
+
+MIMAP-277A observes MIMAP-276A allocation-ledger counters and last-ledger facts
+without recording new ledger rows.

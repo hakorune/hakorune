@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`MIMAP-276A` is current after MIMAP-275A selected the next segment arena
-backing row.
+`MIMAP-277A` is current after MIMAP-276A landed the segment arena backing
+modeled allocation ledger inventory.
 
 Recommended current row:
 
 ```text
-MIMAP-276A
-  segment arena backing modeled allocation ledger inventory
+MIMAP-277A
+  segment arena backing modeled allocation ledger diagnostics
 ```
 
 Purpose:
 
 ```text
-record a model-only allocation ledger row from accepted modeled allocation-apply reports
+observe MIMAP-276A allocation-ledger counters and last-ledger facts
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real pointer residence, real arena backing allocation, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -324,7 +324,8 @@ no provider activation
 | 253 | allocator diagnostic | `MIMAP-273A segment arena backing modeled allocation apply diagnostics` | landed; selected MIMAP-274A |
 | 254 | closeout | `MIMAP-274A segment arena backing modeled allocation apply closeout pack` | landed; selected MIMAP-275A |
 | 255 | planning | `MIMAP-275A post-segment-arena-backing-modeled-allocation-apply-closeout row selection` | landed; selected MIMAP-276A |
-| 256 | allocator inventory | `MIMAP-276A segment arena backing modeled allocation ledger inventory` | selected current |
+| 256 | allocator inventory | `MIMAP-276A segment arena backing modeled allocation ledger inventory` | landed; selected MIMAP-277A |
+| 257 | allocator diagnostic | `MIMAP-277A segment arena backing modeled allocation ledger diagnostics` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
