@@ -30,16 +30,39 @@ import tomllib
 
 root = pathlib.Path(sys.argv[1]).resolve()
 manifest_path = root / sys.argv[2]
-data = tomllib.loads(manifest_path.read_text(encoding="utf-8"))
 
 CLOSEOUT_PROFILE = "hako-alloc-closeout"
 IMPL_PREFIX = "tools/checks/impl/"
 WRAPPER_PREFIX = "tools/checks/"
 PUBLIC_GLOB = "k2_wide_hako_alloc_*closeout_guard.sh"
 
-rows = data.get("rows")
-if not isinstance(rows, list):
-    raise SystemExit("guard_rows.toml must contain [[rows]] entries")
+def load_rows(path: pathlib.Path, stack: tuple[pathlib.Path, ...] = ()) -> list[dict]:
+    if path in stack:
+        cycle = " -> ".join(str(item.relative_to(root)) for item in (*stack, path))
+        raise SystemExit(f"guard_rows.toml include cycle: {cycle}")
+
+    data = tomllib.loads(path.read_text(encoding="utf-8"))
+    includes = data.get("includes", [])
+    if not isinstance(includes, list) or not all(isinstance(item, str) and item for item in includes):
+        raise SystemExit(f"{path.relative_to(root)} includes must be a list of non-empty strings")
+
+    rows: list[dict] = []
+    for include in includes:
+        include_path = root / include
+        if not include_path.is_file():
+            raise SystemExit(f"missing included manifest: {include}")
+        rows.extend(load_rows(include_path, (*stack, path)))
+
+    local_rows = data.get("rows")
+    if not isinstance(local_rows, list):
+        raise SystemExit(f"{path.relative_to(root)} must contain [[rows]] entries")
+    for row in local_rows:
+        if not isinstance(row, dict):
+            raise SystemExit(f"{path.relative_to(root)} row entry is not a table")
+        rows.append(row)
+    return rows
+
+rows = load_rows(manifest_path)
 
 expected = {}
 seen_wrappers = set()
@@ -107,7 +130,10 @@ for row_id, spec in sorted(expected.items()):
         errors.append(f"{row_id}: implementation command is not executable: {spec['impl']}")
 
     text = wrapper.read_text(encoding="utf-8")
-    if f"run_row_guard.sh\" --only {row_id}" not in text:
+    if (
+        f"run_row_guard.sh --only {row_id}" not in text
+        and f"run_row_guard.sh\" --only {row_id}" not in text
+    ):
         errors.append(f"{row_id}: wrapper must delegate to run_row_guard.sh --only {row_id}")
     forbidden = [
         "guard_common.sh",

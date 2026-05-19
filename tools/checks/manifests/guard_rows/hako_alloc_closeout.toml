@@ -1,0 +1,547 @@
+schema_version = 0
+
+[[rows]]
+id = "hako-alloc-segment-arena-bitmap-closeout"
+label = "hako_alloc segment arena bitmap closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_bitmap_inventory_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-lifecycle-closeout"
+label = "hako_alloc segment lifecycle closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_lifecycle_scalar_state_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-page-membership-closeout"
+label = "hako_alloc segment page membership closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_page_membership_scalar_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-reclaim-scheduler-marker-closeout"
+label = "hako_alloc reclaim scheduler marker closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_marker_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-reclaim-scheduler-ledger-closeout"
+label = "hako_alloc reclaim scheduler request ledger closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-reclaim-scheduler-ledger-consume-closeout"
+label = "hako_alloc reclaim scheduler ledger consume closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_consume_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-reclaim-scheduler-ledger-roundtrip-closeout"
+label = "hako_alloc reclaim scheduler ledger roundtrip closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_request_ledger_roundtrip_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-reclaim-scheduler-scalar-lane-closeout"
+label = "hako_alloc reclaim scheduler scalar lane closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_reclaim_scheduler_scalar_lane_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-osvm-fast-path-route-closeout"
+label = "hako_alloc OSVM fast-path route closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_osvm_fast_path_route_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-osvm-fast-path-unreserve-closeout"
+label = "hako_alloc OSVM fast-path unreserve closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_osvm_fast_path_unreserve_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-reclaim-scalar-lane-closeout"
+label = "hako_alloc reclaim scalar lane closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_reclaim_scalar_lane_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-reuse-proof-closeout"
+label = "hako_alloc reuse proof closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_reuse_proof_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-allocation-readiness-closeout"
+label = "hako_alloc segment allocation readiness closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_allocation_readiness_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-map-readiness-closeout"
+label = "hako_alloc segment-map readiness closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-readiness"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_readiness_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-map-modeled-consume-ledger-closeout"
+label = "hako_alloc segment-map modeled consume ledger closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-consume-ledger"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_modeled_consume_ledger_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-map-modeled-consume-ledger-release-closeout"
+label = "hako_alloc segment-map modeled consume ledger release closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-consume-ledger-release"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_modeled_consume_ledger_release_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-map-modeled-consume-ledger-released-token-recycle-closeout"
+label = "hako_alloc segment-map modeled consume ledger released-token recycle closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-consume-ledger-recycle"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_modeled_consume_ledger_released_token_recycle_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-map-modeled-consume-ledger-released-span-observation-closeout"
+label = "hako_alloc segment-map modeled consume ledger released-span observation closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-consume-ledger-released-span"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_modeled_consume_ledger_released_span_observation_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-map-released-span-local-free-candidate-bridge-closeout"
+label = "hako_alloc segment-map released-span local-free candidate bridge closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-local-free-candidate-bridge"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_released_span_local_free_candidate_bridge_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-map-local-free-apply-plan-bridge-closeout"
+label = "hako_alloc segment-map local-free apply-plan bridge closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-local-free-apply-plan-bridge"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_local_free_apply_plan_bridge_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-map-local-free-page-apply-bridge-closeout"
+label = "hako_alloc segment-map local-free page-apply bridge closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-local-free-page-apply-bridge"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_local_free_page_apply_bridge_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-map-local-free-integration-bridge-closeout"
+label = "hako_alloc segment-map local-free integration bridge closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-local-free-integration-bridge"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_local_free_integration_bridge_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-map-local-free-reuse-bridge-closeout"
+label = "hako_alloc segment-map local-free reuse bridge closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-local-free-reuse-bridge"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_local_free_reuse_bridge_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-map-local-free-reuse-ledger-bridge-closeout"
+label = "hako_alloc segment-map local-free reuse ledger bridge closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-local-free-reuse-ledger-bridge"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_bridge_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-map-local-free-reuse-ledger-release-bridge-closeout"
+label = "hako_alloc segment-map local-free reuse ledger release bridge closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-local-free-reuse-ledger-release-bridge"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_release_bridge_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-map-local-free-reuse-ledger-release-apply-bridge-closeout"
+label = "hako_alloc segment-map local-free reuse ledger release apply bridge closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-local-free-reuse-ledger-release-apply-bridge"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_release_apply_bridge_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-map-local-free-reuse-ledger-release-applied-recycle-bridge-closeout"
+label = "hako_alloc segment-map local-free reuse ledger release-applied recycle bridge closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-local-free-reuse-ledger-release-applied-recycle-bridge"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_release_applied_recycle_bridge_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic-closeout"
+label = "hako_alloc segment-map local-free reuse ledger release-applied recycle second-release diagnostic closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_release_applied_recycle_second_release_diagnostic_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-token-pilot-closeout"
+label = "hako_alloc segment-map local-free reuse ledger lifecycle-token pilot closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-local-free-reuse-ledger-lifecycle-token-pilot"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_lifecycle_token_pilot_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-token-observer-diagnostic-closeout"
+label = "hako_alloc segment-map local-free reuse ledger lifecycle-token observer diagnostic closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-local-free-reuse-ledger-lifecycle-token-observer-diagnostic"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_lifecycle_token_observer_diagnostic_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition-closeout"
+label = "hako_alloc segment-map local-free reuse ledger lifecycle-token release-key precondition closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_lifecycle_token_release_key_precondition_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow-closeout"
+label = "hako_alloc segment-map local-free reuse ledger lifecycle-keyed release shadow closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_lifecycle_keyed_release_shadow_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-source-release-ledger-lifecycle-key-migration-closeout"
+label = "hako_alloc source release-ledger lifecycle-key migration closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "source-release-ledger-lifecycle-key-migration"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_lifecycle_keyed_release_ledger_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-source-lifecycle-keyed-release-apply-recycle-continuation-closeout"
+label = "hako_alloc source lifecycle-keyed release apply/recycle continuation closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "source-lifecycle-keyed-release-apply-recycle-continuation"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_map_local_free_reuse_ledger_lifecycle_keyed_release_apply_recycle_continuation_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-arena-backing-readiness-closeout"
+label = "hako_alloc segment arena backing readiness closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-arena-backing-readiness"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_readiness_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-arena-backing-requirement-matrix-closeout"
+label = "hako_alloc segment arena backing requirement matrix closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-arena-backing-requirement-matrix"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_requirement_matrix_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-arena-backing-no-escape-address-capability-closeout"
+label = "hako_alloc segment arena backing no-escape address capability closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-arena-backing-no-escape-address-capability"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_no_escape_address_capability_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-arena-backing-modeled-no-escape-address-residence-closeout"
+label = "hako_alloc segment arena backing modeled no-escape address residence closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-arena-backing-modeled-no-escape-address-residence"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_modeled_no_escape_address_residence_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-arena-backing-modeled-residence-arena-binding-closeout"
+label = "hako_alloc segment arena backing modeled residence arena-binding closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-arena-backing-modeled-residence-arena-binding"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_modeled_residence_arena_binding_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-arena-backing-modeled-arena-slot-closeout"
+label = "hako_alloc segment arena backing modeled arena slot closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-arena-backing-modeled-arena-slot"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_modeled_arena_slot_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-arena-backing-modeled-source-bridge-closeout"
+label = "hako_alloc segment arena backing modeled source bridge closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-arena-backing-modeled-source-bridge"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_modeled_source_bridge_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-arena-backing-modeled-source-accounting-closeout"
+label = "hako_alloc segment arena backing modeled source accounting closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-arena-backing-modeled-source-accounting"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_modeled_source_accounting_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-arena-backing-modeled-allocation-plan-closeout"
+label = "hako_alloc segment arena backing modeled allocation plan closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-arena-backing-modeled-allocation-plan"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_plan_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-arena-backing-modeled-allocation-apply-closeout"
+label = "hako_alloc segment arena backing modeled allocation apply closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-arena-backing-modeled-allocation-apply"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_apply_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-arena-backing-modeled-allocation-ledger-closeout"
+label = "hako_alloc segment arena backing modeled allocation ledger closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-arena-backing-modeled-allocation-ledger"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-candidate-closeout"
+label = "hako_alloc segment arena backing modeled allocation ledger release candidate closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-arena-backing-modeled-allocation-ledger-release-candidate"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_candidate_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-intent-closeout"
+label = "hako_alloc segment arena backing modeled allocation ledger release intent closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-arena-backing-modeled-allocation-ledger-release-intent"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_intent_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-closeout"
+label = "hako_alloc segment arena backing modeled allocation ledger release apply closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-arena-backing-modeled-allocation-ledger-release-apply"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_apply_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-closeout"
+label = "hako_alloc segment arena backing modeled allocation ledger release-applied recycle closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-arena-backing-modeled-allocation-ledger-release-applied-recycle"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-second-release-diagnostic-closeout"
+label = "hako_alloc segment arena backing modeled allocation ledger release-applied recycle second-release diagnostic closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-second-release-diagnostic"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_second_release_diagnostic_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-lifecycle-continuation-bridge-closeout"
+label = "hako_alloc segment arena backing modeled allocation ledger release/recycle lifecycle continuation bridge closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-arena-backing-modeled-allocation-ledger-release-recycle-lifecycle-continuation-bridge"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_lifecycle_continuation_bridge_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-continuation-application-bridge-closeout"
+label = "hako_alloc segment arena backing modeled allocation ledger release/recycle continuation application bridge closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-arena-backing-modeled-allocation-ledger-release-recycle-continuation-application-bridge"
+exe = "auto"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_continuation_application_bridge_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-allocation-modeled-consume-closeout"
+label = "hako_alloc segment allocation modeled consume closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_allocation_modeled_consume_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-allocation-modeled-ledger-closeout"
+label = "hako_alloc segment allocation modeled ledger closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_allocation_modeled_ledger_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-allocation-modeled-ledger-release-closeout"
+label = "hako_alloc segment allocation modeled ledger release closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_allocation_modeled_ledger_release_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-allocation-modeled-ledger-released-token-recycle-closeout"
+label = "hako_alloc segment allocation modeled ledger released-token recycle closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_allocation_modeled_ledger_released_token_recycle_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-allocation-modeled-local-free-scalar-lane-closeout"
+label = "hako_alloc segment allocation modeled local-free scalar lane closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_allocation_modeled_local_free_scalar_lane_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-allocation-modeled-local-free-page-apply-closeout"
+label = "hako_alloc segment allocation modeled local-free page-apply closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_allocation_modeled_local_free_page_apply_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-allocation-modeled-local-free-integration-closeout"
+label = "hako_alloc segment allocation modeled local-free integration closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_allocation_modeled_local_free_integration_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-allocation-modeled-local-free-reuse-closeout"
+label = "hako_alloc segment allocation modeled local-free reuse closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-closeout"
+label = "hako_alloc segment allocation modeled local-free reuse ledger closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_ledger_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-release-closeout"
+label = "hako_alloc segment allocation modeled local-free reuse ledger release closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_ledger_release_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-release-apply-closeout"
+label = "hako_alloc segment allocation modeled local-free reuse ledger release apply closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_ledger_release_apply_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-release-applied-recycle-closeout"
+label = "hako_alloc segment allocation modeled local-free reuse ledger release-applied recycle closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_allocation_modeled_local_free_reuse_ledger_release_applied_recycle_closeout_guard.sh"]
+
+[[rows]]
+id = "hako-alloc-id-brand-first-pilot-closeout"
+label = "hako_alloc scalar ID brand first pilot closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_id_brand_first_pilot_closeout_guard.sh"]

@@ -23,12 +23,26 @@ def fail(message: str) -> None:
     raise SystemExit(1)
 
 
-def load_rows(manifest: Path) -> list[dict[str, Any]]:
+def load_rows(root: Path, manifest: Path, stack: tuple[Path, ...] = ()) -> list[dict[str, Any]]:
+    if manifest in stack:
+        cycle = " -> ".join(str(path) for path in (*stack, manifest))
+        fail(f"guard_rows.toml include cycle: {cycle}")
+
     data = tomllib.loads(manifest.read_text(encoding="utf-8"))
+    includes = data.get("includes", [])
+    if not isinstance(includes, list) or not all(isinstance(item, str) and item for item in includes):
+        fail(f"{manifest} includes must be a list of non-empty strings")
+
+    result: list[dict[str, Any]] = []
+    for include in includes:
+        include_path = root / include
+        if not include_path.is_file():
+            fail(f"missing included manifest: {include}")
+        result.extend(load_rows(root, include_path, (*stack, manifest)))
+
     rows = data.get("rows")
     if not isinstance(rows, list):
         fail("guard_rows.toml must contain [[rows]] entries")
-    result: list[dict[str, Any]] = []
     for idx, row in enumerate(rows, start=1):
         if not isinstance(row, dict):
             fail(f"row {idx} must be a table")
@@ -127,7 +141,7 @@ def main() -> int:
     if not manifest.is_file():
         fail(f"required file missing: {manifest.relative_to(root)}")
 
-    rows = load_rows(manifest)
+    rows = load_rows(root, manifest)
     impl_files = sorted((root / "tools/checks/impl").glob("*.sh"))
     public_k2_wide = sorted((root / "tools/checks").glob("k2_wide_*.sh"))
     top_level_check_sh = sorted((root / "tools/checks").glob("*.sh"))
