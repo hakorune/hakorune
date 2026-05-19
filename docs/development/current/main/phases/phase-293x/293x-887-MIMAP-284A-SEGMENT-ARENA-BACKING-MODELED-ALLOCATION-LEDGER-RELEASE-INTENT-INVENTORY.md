@@ -1,6 +1,6 @@
 # 293x-887 MIMAP-284A Segment Arena Backing Modeled Allocation-Ledger Release Intent Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -96,3 +96,32 @@ git diff --check
   not become a runtime record object.
 - L3 EXE remains deferred to a future closeout pack unless this row opens a new
   backend route shape.
+
+## Landed Scope
+
+- Added
+  `HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentInventory`
+  as the scalar/model release-intent owner.
+- Added
+  `HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentReportFields`
+  as the owner-local record payload for report construction.
+- Added the MIMAP-284A proof app, proof manifest row, module export, memory
+  README entry, design SSOT, and guard index entry.
+- Kept L3/L4 EXE evidence deferred to the release-intent closeout pack.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_intent_guard.sh --level L2
+```
+
+## Selected Next Row
+
+`MIMAP-285A`:
+
+```text
+segment arena backing modeled allocation-ledger release intent diagnostics
+```
+
+The next row should observe MIMAP-284A counters and last-intent facts without
+recording new release-intent rows or opening real allocator execution.

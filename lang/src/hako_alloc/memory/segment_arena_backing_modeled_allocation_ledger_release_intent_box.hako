@@ -1,0 +1,312 @@
+// segment_arena_backing_modeled_allocation_ledger_release_intent_box.hako -- MIMAP-284A
+// Responsibility:
+// - record scalar/model release-intent facts from an accepted modeled
+//   allocation-ledger release-candidate report
+// - keep release preparation in model space before real arena backing release
+//   opens
+// Non-responsibility:
+// - creating real pointer residence, pointer-derived lookup, arena backing
+//   release/allocation, segment-map mutation, atomic bitmap execution, OSVM
+//   calls, scheduling, providers, or backend shortcuts
+
+record HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentReportFields {
+    accepted: i64
+    reason: i64
+    release_intent_present: i64
+    modeled_release_intent_present: i64
+    release_candidate_present: i64
+    release_candidate_reason: i64
+    row_index: i64
+    segment_id: i64
+    arena_id: i64
+    lifetime_generation: i64
+    residence_token: i64
+    binding_token: i64
+    arena_slot_token: i64
+    source_kind: i64
+    source_token: i64
+    plan_token: i64
+    apply_token: i64
+    ledger_token: i64
+    release_candidate_token: i64
+    release_intent_token: i64
+    source_capacity: usize
+    source_committed_bytes: usize
+    source_uncommitted_bytes: usize
+    padded_bytes: usize
+    slot_capacity: usize
+    planned_backing_bytes: usize
+    planned_committed_bytes: usize
+    applied_backing_bytes: usize
+    applied_committed_bytes: usize
+    remaining_source_bytes: usize
+    closed_substrate_blocker_count: i64
+    requires_pointer_residence: i64
+    requires_pointer_lookup: i64
+    requires_arena_backing: i64
+    requires_segment_map: i64
+    requires_atomic_bitmap: i64
+    requires_osvm: i64
+    requires_worker: i64
+    requires_provider: i64
+    requires_backend_matcher: i64
+}
+
+box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    release_intent_present: i64 = 1
+    modeled_release_intent_present: i64 = 1
+    release_candidate_present: i64 = 0
+    release_candidate_reason: i64 = 0
+    row_index: i64 = -1
+    segment_id: i64 = -1
+    arena_id: i64 = -1
+    lifetime_generation: i64 = 0
+    residence_token: i64 = 0
+    binding_token: i64 = 0
+    arena_slot_token: i64 = 0
+    source_kind: i64 = 0
+    source_token: i64 = 0
+    plan_token: i64 = 0
+    apply_token: i64 = 0
+    ledger_token: i64 = 0
+    release_candidate_token: i64 = 0
+    release_intent_token: i64 = 0
+    source_capacity: usize = 0
+    source_committed_bytes: usize = 0
+    source_uncommitted_bytes: usize = 0
+    padded_bytes: usize = 0
+    slot_capacity: usize = 0
+    planned_backing_bytes: usize = 0
+    planned_committed_bytes: usize = 0
+    applied_backing_bytes: usize = 0
+    applied_committed_bytes: usize = 0
+    remaining_source_bytes: usize = 0
+    closed_substrate_blocker_count: i64 = 0
+    requires_pointer_residence: i64 = 0
+    requires_pointer_lookup: i64 = 0
+    requires_arena_backing: i64 = 0
+    requires_segment_map: i64 = 0
+    requires_atomic_bitmap: i64 = 0
+    requires_osvm: i64 = 0
+    requires_worker: i64 = 0
+    requires_provider: i64 = 0
+    requires_backend_matcher: i64 = 0
+    would_create_pointer_residence: i64 = 0
+    would_lookup_by_pointer: i64 = 0
+    would_release_arena_backing: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentInventory {
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_candidate_reject_count: i64 = 0
+    rejected_candidate_reject_count: i64 = 0
+    invalid_release_intent_token_reject_count: i64 = 0
+    duplicate_release_intent_token_reject_count: i64 = 0
+    closed_substrate_reject_count: i64 = 0
+    last_reason: i64 = 0
+    last_segment_id: i64 = -1
+    last_arena_id: i64 = -1
+    last_release_intent_token: i64 = 0
+
+    closedSubstrateBlockerCount(candidate_report): i64 {
+        local count = candidate_report.closed_substrate_blocker_count
+        if candidate_report.requires_pointer_residence != 0 {
+            count += 1
+        }
+        if candidate_report.requires_pointer_lookup != 0 {
+            count += 1
+        }
+        if candidate_report.requires_arena_backing != 0 {
+            count += 1
+        }
+        if candidate_report.requires_segment_map != 0 {
+            count += 1
+        }
+        if candidate_report.requires_atomic_bitmap != 0 {
+            count += 1
+        }
+        if candidate_report.requires_osvm != 0 {
+            count += 1
+        }
+        if candidate_report.requires_worker != 0 {
+            count += 1
+        }
+        if candidate_report.requires_provider != 0 {
+            count += 1
+        }
+        if candidate_report.requires_backend_matcher != 0 {
+            count += 1
+        }
+        return count
+    }
+
+    hasReleaseIntentToken(release_intent_token): i64 {
+        if me.accepted_count <= 0 {
+            return 0
+        }
+        if me.last_release_intent_token == release_intent_token {
+            return 1
+        }
+        return 0
+    }
+
+    makeReleaseIntentReport(fields: HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentReportFields): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentReport {
+        local result = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentReport()
+        result.accepted = fields.accepted
+        result.reason = fields.reason
+        result.release_intent_present = fields.release_intent_present
+        result.modeled_release_intent_present = fields.modeled_release_intent_present
+        result.release_candidate_present = fields.release_candidate_present
+        result.release_candidate_reason = fields.release_candidate_reason
+        result.row_index = fields.row_index
+        result.segment_id = fields.segment_id
+        result.arena_id = fields.arena_id
+        result.lifetime_generation = fields.lifetime_generation
+        result.residence_token = fields.residence_token
+        result.binding_token = fields.binding_token
+        result.arena_slot_token = fields.arena_slot_token
+        result.source_kind = fields.source_kind
+        result.source_token = fields.source_token
+        result.plan_token = fields.plan_token
+        result.apply_token = fields.apply_token
+        result.ledger_token = fields.ledger_token
+        result.release_candidate_token = fields.release_candidate_token
+        result.release_intent_token = fields.release_intent_token
+        result.source_capacity = fields.source_capacity
+        result.source_committed_bytes = fields.source_committed_bytes
+        result.source_uncommitted_bytes = fields.source_uncommitted_bytes
+        result.padded_bytes = fields.padded_bytes
+        result.slot_capacity = fields.slot_capacity
+        result.planned_backing_bytes = fields.planned_backing_bytes
+        result.planned_committed_bytes = fields.planned_committed_bytes
+        result.applied_backing_bytes = fields.applied_backing_bytes
+        result.applied_committed_bytes = fields.applied_committed_bytes
+        result.remaining_source_bytes = fields.remaining_source_bytes
+        result.closed_substrate_blocker_count = fields.closed_substrate_blocker_count
+        result.requires_pointer_residence = fields.requires_pointer_residence
+        result.requires_pointer_lookup = fields.requires_pointer_lookup
+        result.requires_arena_backing = fields.requires_arena_backing
+        result.requires_segment_map = fields.requires_segment_map
+        result.requires_atomic_bitmap = fields.requires_atomic_bitmap
+        result.requires_osvm = fields.requires_osvm
+        result.requires_worker = fields.requires_worker
+        result.requires_provider = fields.requires_provider
+        result.requires_backend_matcher = fields.requires_backend_matcher
+        return result
+    }
+
+    makeReport(accepted, reason, candidate_report, release_intent_token): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentReport {
+        local release_row_index = -1
+        local release_intent_value = 0
+        if accepted == 1 {
+            release_row_index = me.accepted_count
+            release_intent_value = release_intent_token
+        }
+
+        local fields = HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentReportFields {
+            accepted: accepted,
+            reason: reason,
+            release_intent_present: 1,
+            modeled_release_intent_present: 1,
+            release_candidate_present: candidate_report.release_candidate_present,
+            release_candidate_reason: candidate_report.reason,
+            row_index: release_row_index,
+            segment_id: candidate_report.segment_id,
+            arena_id: candidate_report.arena_id,
+            lifetime_generation: candidate_report.lifetime_generation,
+            residence_token: candidate_report.residence_token,
+            binding_token: candidate_report.binding_token,
+            arena_slot_token: candidate_report.arena_slot_token,
+            source_kind: candidate_report.source_kind,
+            source_token: candidate_report.source_token,
+            plan_token: candidate_report.plan_token,
+            apply_token: candidate_report.apply_token,
+            ledger_token: candidate_report.ledger_token,
+            release_candidate_token: candidate_report.release_candidate_token,
+            release_intent_token: release_intent_value,
+            source_capacity: candidate_report.source_capacity,
+            source_committed_bytes: candidate_report.source_committed_bytes,
+            source_uncommitted_bytes: candidate_report.source_uncommitted_bytes,
+            padded_bytes: candidate_report.padded_bytes,
+            slot_capacity: candidate_report.slot_capacity,
+            planned_backing_bytes: candidate_report.planned_backing_bytes,
+            planned_committed_bytes: candidate_report.planned_committed_bytes,
+            applied_backing_bytes: candidate_report.applied_backing_bytes,
+            applied_committed_bytes: candidate_report.applied_committed_bytes,
+            remaining_source_bytes: candidate_report.remaining_source_bytes,
+            closed_substrate_blocker_count: me.closedSubstrateBlockerCount(candidate_report),
+            requires_pointer_residence: candidate_report.requires_pointer_residence,
+            requires_pointer_lookup: candidate_report.requires_pointer_lookup,
+            requires_arena_backing: candidate_report.requires_arena_backing,
+            requires_segment_map: candidate_report.requires_segment_map,
+            requires_atomic_bitmap: candidate_report.requires_atomic_bitmap,
+            requires_osvm: candidate_report.requires_osvm,
+            requires_worker: candidate_report.requires_worker,
+            requires_provider: candidate_report.requires_provider,
+            requires_backend_matcher: candidate_report.requires_backend_matcher,
+        }
+        me.last_reason = reason
+        me.last_segment_id = candidate_report.segment_id
+        me.last_arena_id = candidate_report.arena_id
+        if accepted == 1 {
+            me.last_release_intent_token = release_intent_token
+        }
+        return me.makeReleaseIntentReport(fields)
+    }
+
+    reject(reason, candidate_report, release_intent_token): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentReport {
+        me.reject_count += 1
+        if reason == 1 {
+            me.missing_candidate_reject_count += 1
+        }
+        if reason == 2 {
+            me.rejected_candidate_reject_count += 1
+        }
+        if reason == 3 {
+            me.invalid_release_intent_token_reject_count += 1
+        }
+        if reason == 4 {
+            me.duplicate_release_intent_token_reject_count += 1
+        }
+        if reason == 5 {
+            me.closed_substrate_reject_count += 1
+        }
+        return me.makeReport(0, reason, candidate_report, release_intent_token)
+    }
+
+    recordReleaseIntent(candidate_report, release_intent_token): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentReport {
+        me.inventory_count += 1
+
+        if candidate_report.release_candidate_present != 1 {
+            return me.reject(1, candidate_report, release_intent_token)
+        }
+        if candidate_report.modeled_release_candidate_present != 1 {
+            return me.reject(1, candidate_report, release_intent_token)
+        }
+        if candidate_report.accepted != 1 {
+            return me.reject(2, candidate_report, release_intent_token)
+        }
+        if release_intent_token <= 0 {
+            return me.reject(3, candidate_report, release_intent_token)
+        }
+        if me.hasReleaseIntentToken(release_intent_token) == 1 {
+            return me.reject(4, candidate_report, release_intent_token)
+        }
+        if me.closedSubstrateBlockerCount(candidate_report) != 0 {
+            return me.reject(5, candidate_report, release_intent_token)
+        }
+
+        me.accepted_count += 1
+        return me.makeReport(1, 0, candidate_report, release_intent_token)
+    }
+}
