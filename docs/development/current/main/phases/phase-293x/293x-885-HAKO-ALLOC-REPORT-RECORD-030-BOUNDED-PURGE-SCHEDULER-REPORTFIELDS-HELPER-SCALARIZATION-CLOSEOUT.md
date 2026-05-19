@@ -1,6 +1,6 @@
 # 293x-885 HAKO-ALLOC-REPORT-RECORD-030 Bounded Purge Scheduler ReportFields Helper Scalarization Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -61,3 +61,42 @@ git diff --check
   unchanged.
 - The closeout records that the known allocator `ReportFields` owner inventory
   is complete for this cleanup lane.
+
+## Progress
+
+- Confirmed the bounded purge scheduler owner keeps its `ReportFields` helper
+  argument builder-local.
+- Confirmed the returned value remains the existing ordinary scheduler report
+  box.
+- Confirmed the M212 guard profile remains green after the helper-backed copy
+  path.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_allocator_record_construction_read_guard.sh
+bash tools/checks/k2_wide_hako_alloc_bounded_purge_decommit_scheduler_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Inventory Result
+
+The current known allocator `ReportFields` cleanup inventory is complete:
+
+```text
+HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields
+HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReportFields
+HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateDiagnosticReportFields
+HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnosticReportFields
+HakoAllocSegmentArenaBackingModeledAllocationApplyDiagnosticReportFields
+HakoAllocSegmentArenaBackingModeledAllocationPlanDiagnosticReportFields
+HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReportFields
+HakoAllocSegmentAllocationModeledLocalFreeIntegrationReportFields
+HakoAllocBoundedPurgeDecommitSchedulerReportFields
+```
+
+## Next
+
+Select `MIMAP-283A` to return from the ReportFields cleanup detour to the
+allocator modeled lane and choose the next narrow mimalloc-port row.
