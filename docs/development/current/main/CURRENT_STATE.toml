@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-20"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-299A selected MIMAP-300A; MIMAP-300A is current to add a scalar/model allocation-ledger release/recycle lifecycle continuation bridge inventory. Cross-function Result direct ABI remains closed. Real raw pointer residence, pointer-derived lookup, real arena backing, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-300A landed scalar/model allocation-ledger release/recycle lifecycle continuation bridge inventory; MIMAP-301A is current to add lifecycle-continuation bridge diagnostics. Cross-function Result direct ABI remains closed. Real lifecycle generation, raw pointer residence, pointer-derived lookup, real arena backing release/recycle, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-903-MIMAP-300A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-LIFECYCLE-CONTINUATION-BRIDGE-INVENTORY.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-904-MIMAP-301A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-LIFECYCLE-CONTINUATION-BRIDGE-DIAGNOSTICS.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-902-MIMAP-299A-POST-RELEASE-APPLIED-RECYCLE-SECOND-RELEASE-DIAGNOSTIC-CLOSEOUT-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-902-MIMAP-299A-POST-RELEASE-APPLIED-RECYCLE-SECOND-RELEASE-DIAGNOSTIC-CLOSEOUT-ROW-SELECTION.md"
-latest_card_summary = "MIMAP-299A selected MIMAP-300A release/recycle lifecycle continuation bridge inventory."
+latest_card = "293x-903-MIMAP-300A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-LIFECYCLE-CONTINUATION-BRIDGE-INVENTORY"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-903-MIMAP-300A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-LIFECYCLE-CONTINUATION-BRIDGE-INVENTORY.md"
+latest_card_summary = "MIMAP-300A added a model-only release/recycle lifecycle continuation bridge inventory and selected MIMAP-301A diagnostics."
 
-current_blocker_token = "MIMAP-300A"
+current_blocker_token = "MIMAP-301A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-903 MIMAP-300A segment arena backing modeled allocation-ledger release/recycle lifecycle continuation bridge inventory landed; MIMAP-301A selected",
   "293x-902 MIMAP-299A post release-applied recycle second-release diagnostic closeout row selection landed; MIMAP-300A selected",
   "293x-901 MIMAP-298A segment arena backing modeled allocation-ledger release-applied recycle second-release diagnostic closeout landed; MIMAP-299A selected",
   "293x-900 MIMAP-297A post release-applied recycle second-release diagnostic row selection landed; MIMAP-298A selected",

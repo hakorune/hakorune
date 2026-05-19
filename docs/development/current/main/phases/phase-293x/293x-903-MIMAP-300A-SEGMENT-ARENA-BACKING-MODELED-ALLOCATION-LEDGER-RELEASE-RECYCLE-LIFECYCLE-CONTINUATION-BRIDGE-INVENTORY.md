@@ -1,6 +1,6 @@
 # 293x-903 MIMAP-300A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Lifecycle Continuation Bridge Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -54,3 +54,21 @@ bash tools/checks/run_proof_app.sh --only MIMAP-300A
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Next
+
+`MIMAP-301A`:
+
+```text
+segment arena backing modeled allocation-ledger release/recycle lifecycle continuation bridge diagnostics
+```
+
+Rationale:
+
+- MIMAP-300A records the scalar/model continuation row after an accepted
+  release-applied recycle report.
+- The next narrow row should observe that bridge and publish diagnostic summary
+  facts before the future continuation closeout pack.
+- Real lifecycle generation, raw pointer residence, arena backing
+  release/recycle, segment-map mutation, atomics, OSVM/page-source, worker/TLS,
+  providers, hooks, `#[global_allocator]`, and backend matchers remain closed.
