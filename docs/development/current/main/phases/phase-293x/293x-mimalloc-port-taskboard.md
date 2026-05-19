@@ -776,7 +776,8 @@ FST:
 | `MIMAP-300A` | landed | Segment arena backing modeled allocation-ledger release/recycle lifecycle continuation bridge inventory. | selected MIMAP-301A |
 | `MIMAP-301A` | landed | Segment arena backing modeled allocation-ledger release/recycle lifecycle continuation bridge diagnostics. | selected MIMAP-302A |
 | `MIMAP-302A` | landed | Segment arena backing modeled allocation-ledger release/recycle lifecycle continuation bridge closeout pack. | selected MIMAP-303A |
-| `MIMAP-303A` | selected current | Post release/recycle lifecycle-continuation bridge closeout row selection. | after MIMAP-302A |
+| `MIMAP-303A` | landed | Post release/recycle lifecycle-continuation bridge closeout row selection. | selected MIMAP-304A |
+| `MIMAP-304A` | selected current | Segment arena backing modeled allocation-ledger release/recycle continuation application bridge inventory. | after MIMAP-303A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -785,8 +786,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-303A` selects the next narrow allocator row after the scalar/model
-release/recycle lifecycle-continuation bridge closeout.
+`MIMAP-304A` adds a scalar/model release/recycle continuation application
+bridge inventory after the lifecycle-continuation bridge closeout.
 
 SSOT:
 
@@ -806,6 +807,7 @@ docs/development/current/main/phases/phase-293x/293x-903-MIMAP-300A-SEGMENT-AREN
 docs/development/current/main/phases/phase-293x/293x-904-MIMAP-301A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-LIFECYCLE-CONTINUATION-BRIDGE-DIAGNOSTICS.md
 docs/development/current/main/phases/phase-293x/293x-905-MIMAP-302A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-LIFECYCLE-CONTINUATION-BRIDGE-CLOSEOUT.md
 docs/development/current/main/phases/phase-293x/293x-906-MIMAP-303A-POST-RELEASE-RECYCLE-LIFECYCLE-CONTINUATION-BRIDGE-CLOSEOUT-ROW-SELECTION.md
+docs/development/current/main/phases/phase-293x/293x-907-MIMAP-304A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-CONTINUATION-APPLICATION-BRIDGE-INVENTORY.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-diagnostics-ssot.md

@@ -1,6 +1,6 @@
 # 293x-906 MIMAP-303A Post Release/Recycle Lifecycle-Continuation Bridge Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -30,11 +30,22 @@ git diff --check
 
 ## Candidate Direction
 
-The likely next behavior row is a scalar/model release/recycle continuation
-application bridge that consumes the MIMAP-300A/MIMAP-301A continuation facts
-and records the next model-only transition before real arena backing
-release/recycle, raw pointer residence, segment-map mutation, atomics, or OSVM
-open.
+Select `MIMAP-304A`:
+
+```text
+segment arena backing modeled allocation-ledger release/recycle continuation application bridge inventory
+```
+
+Rationale:
+
+- MIMAP-300A/MIMAP-301A/MIMAP-302A prove that a release-applied recycle row can
+  produce and diagnose a model-only lifecycle-continuation bridge.
+- The next narrow row should consume the accepted continuation bridge and record
+  an application bridge that says "this modeled continuation is now applied to
+  the release/recycle ladder" without opening real arena backing release/recycle.
+- This keeps the next step scalar/model-only and gives later rows a concrete
+  place to attach diagnostics before any real pointer, segment-map, arena,
+  atomic, OSVM, worker, provider, hook, or backend matcher behavior opens.
 
 ## Stop Lines
 
@@ -52,3 +63,10 @@ open.
   `#[global_allocator]`.
 - No cross-function `Result` direct ABI or runtime sum materialization.
 - No backend `.inc` matcher by app, box, owner, or row name.
+
+## Evidence
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
