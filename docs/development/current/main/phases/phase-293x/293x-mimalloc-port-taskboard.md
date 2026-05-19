@@ -754,7 +754,8 @@ FST:
 | `HAKO-ALLOC-REPORT-RECORD-026` | landed | Select the local-free integration ReportFields owner under the record-local scalarization SSOT. | selected HAKO-ALLOC-REPORT-RECORD-027 |
 | `HAKO-ALLOC-REPORT-RECORD-027` | landed | Apply helper-argument scalarization to the local-free integration ReportFields owner only. | selected HAKO-ALLOC-REPORT-RECORD-028 |
 | `HAKO-ALLOC-REPORT-RECORD-028` | landed | Close out the local-free integration ReportFields helper-scalarization owner. | selected HAKO-ALLOC-REPORT-RECORD-029 |
-| `HAKO-ALLOC-REPORT-RECORD-029` | selected current | Apply helper-argument scalarization to the remaining bounded purge scheduler ReportFields owner. | after HAKO-ALLOC-REPORT-RECORD-028 |
+| `HAKO-ALLOC-REPORT-RECORD-029` | landed | Apply helper-argument scalarization to the remaining bounded purge scheduler ReportFields owner. | selected HAKO-ALLOC-REPORT-RECORD-030 |
+| `HAKO-ALLOC-REPORT-RECORD-030` | selected current | Close out the bounded purge scheduler ReportFields helper-scalarization owner and current inventory. | after HAKO-ALLOC-REPORT-RECORD-029 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -763,8 +764,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-REPORT-RECORD-029` applies helper-argument scalarization to the
-remaining bounded purge scheduler `ReportFields` owner.
+`HAKO-ALLOC-REPORT-RECORD-030` closes out the bounded purge scheduler
+`ReportFields` helper-scalarization owner and the current inventory.
 
 SSOT:
 

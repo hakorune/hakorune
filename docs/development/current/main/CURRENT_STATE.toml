@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-20"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "HAKO-ALLOC-REPORT-RECORD-028 closed out local-free integration ReportFields helper-argument scalarization; HAKO-ALLOC-REPORT-RECORD-029 is current to migrate the remaining bounded purge scheduler ReportFields owner. Cross-function Result direct ABI remains closed. Real raw pointer residence, pointer-derived lookup, real arena backing, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "HAKO-ALLOC-REPORT-RECORD-029 landed bounded purge scheduler ReportFields helper-argument scalarization; HAKO-ALLOC-REPORT-RECORD-030 is current to close out the current allocator ReportFields cleanup inventory. Cross-function Result direct ABI remains closed. Real raw pointer residence, pointer-derived lookup, real arena backing, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-884-HAKO-ALLOC-REPORT-RECORD-029-BOUNDED-PURGE-SCHEDULER-REPORTFIELDS-HELPER-SCALARIZATION-PILOT.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-885-HAKO-ALLOC-REPORT-RECORD-030-BOUNDED-PURGE-SCHEDULER-REPORTFIELDS-HELPER-SCALARIZATION-CLOSEOUT.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-883-HAKO-ALLOC-REPORT-RECORD-028-LOCAL-FREE-INTEGRATION-REPORTFIELDS-HELPER-SCALARIZATION-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-883-HAKO-ALLOC-REPORT-RECORD-028-LOCAL-FREE-INTEGRATION-REPORTFIELDS-HELPER-SCALARIZATION-CLOSEOUT.md"
-latest_card_summary = "HAKO-ALLOC-REPORT-RECORD-028 closed out HakoAllocSegmentAllocationModeledLocalFreeIntegrationReportFields and selected the remaining scheduler ReportFields owner."
+latest_card = "293x-884-HAKO-ALLOC-REPORT-RECORD-029-BOUNDED-PURGE-SCHEDULER-REPORTFIELDS-HELPER-SCALARIZATION-PILOT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-884-HAKO-ALLOC-REPORT-RECORD-029-BOUNDED-PURGE-SCHEDULER-REPORTFIELDS-HELPER-SCALARIZATION-PILOT.md"
+latest_card_summary = "HAKO-ALLOC-REPORT-RECORD-029 migrated HakoAllocBoundedPurgeDecommitSchedulerReportFields through the same-owner helper-argument scalarization path."
 
-current_blocker_token = "HAKO-ALLOC-REPORT-RECORD-029"
+current_blocker_token = "HAKO-ALLOC-REPORT-RECORD-030"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-884 HAKO-ALLOC-REPORT-RECORD-029 bounded purge scheduler ReportFields helper scalarization landed; HAKO-ALLOC-REPORT-RECORD-030 selected",
   "293x-883 HAKO-ALLOC-REPORT-RECORD-028 local-free integration ReportFields helper-scalarization closeout landed; HAKO-ALLOC-REPORT-RECORD-029 selected",
   "293x-882 HAKO-ALLOC-REPORT-RECORD-027 local-free integration ReportFields helper scalarization landed; HAKO-ALLOC-REPORT-RECORD-028 selected",
   "293x-881 HAKO-ALLOC-REPORT-RECORD-026 selected local-free integration ReportFields helper scalarization; HAKO-ALLOC-REPORT-RECORD-027 selected",

@@ -1,6 +1,6 @@
 # 293x-884 HAKO-ALLOC-REPORT-RECORD-029 Bounded Purge Scheduler ReportFields Helper Scalarization Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -56,3 +56,28 @@ git diff --check
   local `ReportFields` record.
 - The target guard stays green and continues proving M212 behavior.
 - No other owner is migrated.
+
+## Progress
+
+- Added `makeSchedulerReport(fields)` as the same-owner helper for the bounded
+  purge scheduler `ReportFields` owner.
+- Kept the scheduler scan/state logic unchanged and moved only the final
+  ordinary report box materialization behind the helper.
+- Updated the M212 guard static contract to recognize the helper-backed copy
+  path.
+- Migrated no other owner.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_allocator_record_construction_read_guard.sh
+bash tools/checks/k2_wide_hako_alloc_bounded_purge_decommit_scheduler_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Next
+
+Select `HAKO-ALLOC-REPORT-RECORD-030` to close out the bounded purge scheduler
+ReportFields helper-scalarization owner and record that the current inventory
+of known allocator `ReportFields` owners has been migrated.

@@ -59,6 +59,27 @@ box HakoAllocBoundedPurgeDecommitScheduler {
     last_page_id: i64 = -1
     last_stop_reason: i64 = 0
 
+    makeSchedulerReport(fields: HakoAllocBoundedPurgeDecommitSchedulerReportFields): HakoAllocBoundedPurgeDecommitSchedulerReport {
+        local scheduler_report = new HakoAllocBoundedPurgeDecommitSchedulerReport()
+        scheduler_report.status = fields.status
+        scheduler_report.stop_reason = fields.stop_reason
+        scheduler_report.max_scan_pages = fields.max_scan_pages
+        scheduler_report.scan_limit = fields.scan_limit
+        scheduler_report.scanned_pages = fields.scanned_pages
+        scheduler_report.missing_pages = fields.missing_pages
+        scheduler_report.rejected_pages = fields.rejected_pages
+        scheduler_report.candidate_pages = fields.candidate_pages
+        scheduler_report.attempted = fields.attempted
+        scheduler_report.source_executed = fields.source_executed
+        scheduler_report.marker_marked = fields.marker_marked
+        scheduler_report.selected_page_id = fields.selected_page_id
+        scheduler_report.selected_lifecycle_state = fields.selected_lifecycle_state
+        scheduler_report.selected_reason = fields.selected_reason
+        scheduler_report.decommit_status = fields.decommit_status
+        scheduler_report.mark_status = fields.mark_status
+        return scheduler_report
+    }
+
     run(heap, decommit_guard, max_scan_pages) {
         me.run_count = me.run_count + 1
         me.last_page_id = -1
@@ -168,23 +189,6 @@ box HakoAllocBoundedPurgeDecommitScheduler {
             decommit_status: decommit_status,
             mark_status: mark_status,
         }
-        local result = new HakoAllocBoundedPurgeDecommitSchedulerReport()
-        result.status = fields.status
-        result.stop_reason = fields.stop_reason
-        result.max_scan_pages = fields.max_scan_pages
-        result.scan_limit = fields.scan_limit
-        result.scanned_pages = fields.scanned_pages
-        result.missing_pages = fields.missing_pages
-        result.rejected_pages = fields.rejected_pages
-        result.candidate_pages = fields.candidate_pages
-        result.attempted = fields.attempted
-        result.source_executed = fields.source_executed
-        result.marker_marked = fields.marker_marked
-        result.selected_page_id = fields.selected_page_id
-        result.selected_lifecycle_state = fields.selected_lifecycle_state
-        result.selected_reason = fields.selected_reason
-        result.decommit_status = fields.decommit_status
-        result.mark_status = fields.mark_status
-        return result
+        return me.makeSchedulerReport(fields)
     }
 }
