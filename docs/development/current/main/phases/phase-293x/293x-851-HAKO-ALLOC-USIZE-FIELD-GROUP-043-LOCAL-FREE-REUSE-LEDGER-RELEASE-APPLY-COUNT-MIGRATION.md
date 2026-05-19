@@ -1,6 +1,6 @@
 # 293x-851 HAKO-ALLOC-USIZE-FIELD-GROUP-043 Local-Free Reuse Ledger Release-Apply Count Migration
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -47,8 +47,21 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Migrated only the three modeled local-free reuse ledger release-apply count
+  fields to exact `usize`.
+- Kept reasons, row indexes, existing indexes, tokens, segment/page ids, reused
+  block ids, presence flags, capability flags, and owner counters on `i64`.
+- Extended the MIMAP-138A release-apply guard to assert the typed-object storage
+  contract for the migrated `usize` fields and the intentionally signed
+  sentinel fields.
+- Relaxed the historical MIMAP-139A closeout guard README expectation so the
+  release-apply owner row remains checked without depending on the old exact
+  row-list wording.
+
 ## Next
 
-After migration, select `HAKO-ALLOC-USIZE-FIELD-GROUP-044` to close out the
-modeled local-free reuse ledger release-apply count group before selecting
-another allocator exact-`usize` field group.
+`HAKO-ALLOC-USIZE-FIELD-GROUP-044` closes out the modeled local-free reuse
+ledger release-apply count group before selecting another allocator exact-`usize`
+field group.

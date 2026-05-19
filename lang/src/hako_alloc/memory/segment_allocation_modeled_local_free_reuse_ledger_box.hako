@@ -52,9 +52,9 @@ box HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport {
     segment_id: i64 = -1
     page_id: i64 = -1
     reused_block_id: i64 = -1
-    release_apply_count_after: i64 = 0
-    release_apply_reject_count_after: i64 = 0
-    ledger_live_count_after: i64 = 0
+    release_apply_count_after: usize = 0
+    release_apply_reject_count_after: usize = 0
+    ledger_live_count_after: usize = 0
     local_free_reuse_ledger_release_apply_present: i64 = 1
     would_execute_real_segment_allocation: i64 = 0
     would_execute_real_segment_free: i64 = 0

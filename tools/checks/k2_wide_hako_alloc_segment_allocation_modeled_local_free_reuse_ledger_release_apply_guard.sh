@@ -52,6 +52,12 @@ guard_expect_in_file "$TAG" 'id = "MIMAP-138A"' "$PROOF_MANIFEST" "proof app man
 guard_expect_in_file "$TAG" 'memory.segment_allocation_modeled_local_free_reuse_ledger_box = "memory/segment_allocation_modeled_local_free_reuse_ledger_box.hako"' "$MODULE" "hako module must export reuse ledger owner"
 guard_expect_in_file "$TAG" 'segment_allocation_modeled_local_free_reuse_ledger_box.hako` owns' "$MEMORY_README" "memory README must define reuse ledger owner"
 guard_expect_in_file "$TAG" 'applyReuseLedgerRelease' "$OWNER" "reuse ledger owner must expose release apply route"
+guard_expect_in_file "$TAG" 'release_apply_count_after: usize = 0' "$OWNER" "release apply count must be exact usize"
+guard_expect_in_file "$TAG" 'release_apply_reject_count_after: usize = 0' "$OWNER" "release apply reject count must be exact usize"
+guard_expect_in_file "$TAG" 'ledger_live_count_after: usize = 0' "$OWNER" "release apply ledger live count must be exact usize"
+guard_expect_in_file "$TAG" 'modeled_reuse_token: i64 = -1' "$OWNER" "release apply token sentinel must remain i64"
+guard_expect_in_file "$TAG" 'source_modeled_allocation_token: i64 = -1' "$OWNER" "release apply source token sentinel must remain i64"
+guard_expect_in_file "$TAG" 'reused_block_id: i64 = -1' "$OWNER" "release apply reused block id must remain i64"
 guard_expect_in_file "$TAG" 'local_free_reuse_ledger_release_apply_present' "$OWNER" "release apply report must expose presence flag"
 guard_expect_in_file "$TAG" 'check "mimap138a segment allocation modeled local-free reuse ledger release apply route"' "$APP" "MIMAP-138A proof must use labelled check block"
 
@@ -162,13 +168,44 @@ if report is None:
     raise SystemExit("missing local-free reuse ledger release apply report typed object plan")
 
 fields = {field.get("name"): field for field in report.get("fields", [])}
-for name in (
-    "did_apply",
-    "modeled_reuse_token",
+usize_fields = (
     "release_apply_count_after",
     "release_apply_reject_count_after",
     "ledger_live_count_after",
+)
+i64_fields = (
+    "did_apply",
+    "reason",
+    "row_index",
+    "existing_index",
+    "modeled_reuse_token",
+    "source_modeled_allocation_token",
+    "segment_id",
+    "page_id",
+    "reused_block_id",
     "local_free_reuse_ledger_release_apply_present",
+)
+for name in usize_fields:
+    field = fields.get(name)
+    if field is None:
+        raise SystemExit(f"missing local-free reuse ledger release apply field: {name}")
+    if field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"bad usize local-free reuse ledger release apply field {name}: {field}")
+
+for name in i64_fields:
+    field = fields.get(name)
+    if field is None:
+        raise SystemExit(f"missing local-free reuse ledger release apply field: {name}")
+    if field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"bad i64 local-free reuse ledger release apply field {name}: {field}")
+
+for name in (
+    "would_execute_real_segment_allocation",
+    "would_execute_real_segment_free",
+    "would_directly_mutate_page_arrays",
+    "would_use_raw_pointer",
+    "would_use_segment_map",
+    "would_allocate_arena_backing",
 ):
     if name not in fields:
         raise SystemExit(f"missing local-free reuse ledger release apply field: {name}")

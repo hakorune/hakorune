@@ -721,7 +721,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-040` | landed | Migrate the modeled local-free reuse ledger report count group only; keep reasons, indexes, tokens, ids, reused block ids, flags, and owner counters on `i64`. | selected FIELD-GROUP-041 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-041` | landed | Close out the modeled local-free reuse ledger count field group and keep the evidence bounded. | selected FIELD-GROUP-042 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-042` | landed | Select the next narrow allocator exact-`usize` stored field group after closing the modeled local-free reuse ledger chain. | selected FIELD-GROUP-043 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-043` | selected current | Migrate the modeled local-free reuse ledger release-apply report count group only; keep reasons, indexes, tokens, ids, reused block ids, flags, and owner counters on `i64`. | after FIELD-GROUP-042 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-043` | landed | Migrate the modeled local-free reuse ledger release-apply report count group only; keep reasons, indexes, tokens, ids, reused block ids, flags, and owner counters on `i64`. | selected FIELD-GROUP-044 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-044` | selected current | Close out the modeled local-free reuse ledger release-apply count field group and keep the evidence bounded. | after FIELD-GROUP-043 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -730,8 +731,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-043` migrates the modeled local-free reuse ledger
-release-apply report count fields:
+`HAKO-ALLOC-USIZE-FIELD-GROUP-044` closes out the modeled local-free reuse ledger
+release-apply report count field group:
 
 ```text
 release_apply_count_after
@@ -842,6 +843,8 @@ exact-`usize` stored field group before any further migration.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-043 migrates the modeled local-free reuse
 ledger release-apply report count group.
 Reason/status/token/sentinel fields stay i64.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-044 closes out that release-apply count group
+before selecting another allocator exact-`usize` field group.
 ```
 
 MIMAP-020A execution order:
