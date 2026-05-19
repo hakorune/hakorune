@@ -23,9 +23,9 @@ box HakoAllocSegmentArenaBackingModeledArenaSlotReport {
     binding_token: i64 = 0
     arena_slot_token: i64 = 0
     slot_index: i64 = -1
-    requested_bytes: i64 = 0
-    padded_bytes: i64 = 0
-    slot_capacity: i64 = 0
+    requested_bytes: usize = 0
+    padded_bytes: usize = 0
+    slot_capacity: usize = 0
     slot_alignment: i64 = 0
     geometry_valid: i64 = 0
     slice_count: i64 = 0

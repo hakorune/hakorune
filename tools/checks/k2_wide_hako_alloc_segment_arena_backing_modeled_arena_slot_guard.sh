@@ -69,7 +69,7 @@ guard_expect_in_file "$TAG" 'Status: landed' "$CARD" "MIMAP-256A card must be la
 guard_expect_in_file "$TAG" 'Decision: accepted' "$BINDING_SSOT" "MIMAP-252A arena-binding design must stay accepted"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-256A modeled arena-slot design must be accepted"
 guard_expect_in_file "$TAG" 'modeled arena slot accepted' "$DESIGN" "MIMAP-256A reason vocabulary must be present"
-guard_expect_in_file "$TAG" 'MIMAP-256A segment arena backing modeled arena slot inventory' "$PLAN" "granularity SSOT must describe MIMAP-256A"
+guard_expect_in_file "$TAG" 'MIMAP-256A granularity' "$PLAN" "granularity SSOT must describe MIMAP-256A"
 guard_expect_in_file "$TAG" 'MIMAP-256A segment arena backing modeled arena slot inventory' "$JOINT" "joint order must name MIMAP-256A"
 guard_expect_in_file "$TAG" 'segment-arena-backing-modeled-arena-slot' "$CADENCE" "validation cadence must name MIMAP-256A closeout pack"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-256A guard"
@@ -79,6 +79,11 @@ guard_expect_in_file "$TAG" 'exe = "deferred-to-closeout"' "$PROOF_MANIFEST" "MI
 guard_expect_in_file "$TAG" 'memory.segment_arena_backing_modeled_arena_slot_box' "$MODULE" "module must export modeled arena-slot owner"
 guard_expect_in_file "$TAG" 'segment_arena_backing_modeled_arena_slot_box.hako' "$MEMORY_README" "memory README must name modeled arena-slot owner"
 guard_expect_in_file "$TAG" 'recordArenaSlot' "$OWNER" "modeled arena-slot owner must expose record route"
+guard_expect_in_file "$TAG" 'requested_bytes: usize = 0' "$OWNER" "arena-slot requested bytes must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-026"
+guard_expect_in_file "$TAG" 'padded_bytes: usize = 0' "$OWNER" "arena-slot padded bytes must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-026"
+guard_expect_in_file "$TAG" 'slot_capacity: usize = 0' "$OWNER" "arena-slot capacity must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-026"
+guard_expect_in_file "$TAG" 'slot_alignment: i64 = 0' "$OWNER" "arena-slot alignment must remain i64"
+guard_expect_in_file "$TAG" 'slot_index: i64 = -1' "$OWNER" "arena-slot index sentinel must remain i64"
 guard_expect_in_file "$TAG" 'check "mimap256a segment arena backing modeled arena slot"' "$APP" "proof must use labelled check block"
 
 if rg -n 'lookupByPointer|lookupPointer|pointer_member|dereference[[:space:]]*\(|mutateSegmentMap|claimBitmap|unclaimBitmap|AtomicCoreBox|hako_atomic|cas_i64|fetch_add|hako_osvm|spawn[[:space:]]*\(|thread::|worker_local|ChannelBox|TaskGroupBox|nowait|sync[[:space:]]+box|context[[:space:]]|providerActivate|global_allocator' \
@@ -174,6 +179,30 @@ for name in (
 ):
     if name not in fields:
         raise SystemExit(f"missing modeled arena-slot field: {name}")
+
+for name in (
+    "requested_bytes",
+    "padded_bytes",
+    "slot_capacity",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"arena-slot {name} must be exact usize storage: {field}")
+
+for name in (
+    "slot_index",
+    "slot_alignment",
+    "slice_count",
+    "committed_slices",
+    "free_slices",
+    "required_alignment",
+    "page_size",
+    "row_index",
+    "arena_slot_token",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"arena-slot {name} must remain i64 storage: {field}")
 
 print("[mimap256a-mir-json] ok")
 PY
