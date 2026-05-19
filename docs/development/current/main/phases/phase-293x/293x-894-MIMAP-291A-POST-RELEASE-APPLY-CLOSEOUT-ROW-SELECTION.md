@@ -1,6 +1,6 @@
 # 293x-894 MIMAP-291A Post Release-Apply Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -35,6 +35,44 @@ remain inactive.
   `#[global_allocator]`.
 
 ## Required Evidence
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Selected Row
+
+`MIMAP-292A`:
+
+```text
+segment arena backing modeled allocation-ledger release-applied recycle inventory
+```
+
+Rationale:
+
+- MIMAP-288A / 289A / 290A closed release-apply facts in scalar/model space.
+- The next narrow behavior should consume an accepted release-apply report and
+  record a model-only release-applied recycle entry.
+- This continues the existing release/recycle cadence used by prior modeled
+  local-free reuse lanes while keeping real arena backing release, segment-map
+  mutation, atomics, OSVM/page-source, provider activation, and raw pointer
+  residence closed.
+
+Validation profile:
+
+```text
+L2 daily
+  VM proof
+  MIR JSON emit
+  route preflight
+
+L3 EXE:
+  deferred to a future release-applied recycle closeout pack unless this row
+  introduces a new backend route shape.
+```
+
+## Evidence
 
 ```text
 bash tools/checks/current_state_pointer_guard.sh
