@@ -1,6 +1,6 @@
 # 293x-860 HAKO-ALLOC-REPORT-RECORD-007 Local-Free Reuse Ledger Release-Apply ReportFields Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -46,6 +46,22 @@ git diff --check
 
 ## Next
 
-After closeout, select the next narrow row from the near-term order: either
-another scalar-only report carrier or a source exact numeric surface row if it
-removes repeated allocator friction.
+This closeout deliberately kept `ReportFields` local to the constructing
+function. During the pilot, passing the builder-local record value through a
+helper call failed fast with:
+
+```text
+[record-value/escape] ... supported_use=field-read
+```
+
+That rejection is correct for C205b: record values are currently builder-local
+scalarization carriers, not runtime objects. The next row therefore must not
+relax the escape guard by itself. It must add an explicit helper-argument
+scalarization contract before allocator owners can factor repeated report-copy
+boilerplate into helpers.
+
+Selected next:
+
+```text
+RECORD-VALUE-HELPER-001
+```
