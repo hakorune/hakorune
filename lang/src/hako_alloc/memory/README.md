@@ -44,6 +44,7 @@ Current modules
 - `segment_arena_backing_no_escape_address_capability_diagnostic_box.hako`
 - `segment_arena_backing_requirement_matrix_diagnostic_box.hako`
 - `segment_arena_backing_requirement_matrix_box.hako`
+- `segment_arena_backing_modeled_allocation_plan_box.hako`
 - `segment_lifecycle_scalar_state_box.hako`
 - `thread_heap_owner_inventory_box.hako`
 - `worker_identity_box.hako`

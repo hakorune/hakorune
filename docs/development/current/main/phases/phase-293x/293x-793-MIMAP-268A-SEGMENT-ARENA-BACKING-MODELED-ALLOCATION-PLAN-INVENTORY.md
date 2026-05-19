@@ -1,6 +1,6 @@
 # 293x-793 MIMAP-268A Segment Arena Backing Modeled Allocation Plan Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -16,8 +16,8 @@ HAKO-ALLOC-REPORT-RECORD-004 keeps the source-accounting diagnostic report
 construction cleaner without changing the returned report box.
 
 The next narrow allocator row should consume an accepted source-accounting
-report and publish a modeled arena-backing allocation plan before real arena
-allocation opens.
+report and publish a modeled allocation plan for future arena backing before
+real arena allocation opens.
 
 ## Scope
 
@@ -56,3 +56,20 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_pl
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+- Added the modeled allocation-plan owner and report.
+- Added proof app, L2 guard, proof manifest row, check index entry, module
+  export, memory README entry, and allocation-plan SSOT.
+- Verified accepted source accounting can produce a model-only plan token,
+  planned backing bytes, planned committed bytes, and remaining source bytes.
+- Verified missing, rejected, invalid-token, invalid-geometry, and
+  closed-substrate reject reasons.
+- Kept real pointer residence, pointer-derived lookup, real arena backing,
+  segment-map mutation, atomic bitmap execution, OSVM/page-source execution,
+  worker/provider activation, and backend matchers inactive.
+
+## Selected Next Row
+
+`MIMAP-269A` segment arena backing modeled allocation plan diagnostics.

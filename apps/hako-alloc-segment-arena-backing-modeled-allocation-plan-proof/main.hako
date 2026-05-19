@@ -1,0 +1,140 @@
+// hako-alloc-segment-arena-backing-modeled-allocation-plan-proof
+// Purpose: prove MIMAP-268A modeled allocation plan inventory.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_requirement_matrix_box as HakoAllocSegmentArenaBackingRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_no_escape_address_capability_box as HakoAllocSegmentArenaBackingNoEscapeAddressCapability
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_no_escape_address_residence_box as HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidence
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_residence_arena_binding_box as HakoAllocSegmentArenaBackingModeledResidenceArenaBinding
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_arena_slot_box as HakoAllocSegmentArenaBackingModeledArenaSlot
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_source_bridge_box as HakoAllocSegmentArenaBackingModeledSourceBridge
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_source_accounting_box as HakoAllocSegmentArenaBackingModeledSourceAccounting
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_plan_box as HakoAllocSegmentArenaBackingModeledAllocationPlan
+
+static box Main {
+    makeMatrix(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingRequirementMatrixReport {
+        local report = new HakoAllocSegmentArenaBackingRequirementMatrixReport()
+        report.accepted = 1
+        report.reason = 0
+        report.matrix_present = 1
+        report.scalar_requirement_matrix_present = 1
+        report.segment_id = segment_id
+        report.arena_id = arena_id
+        report.slice_count = 16
+        report.committed_slices = 8
+        report.free_slices = 4
+        report.required_alignment = 16
+        report.page_size = 4096
+        report.geometry_valid = 1
+        return report
+    }
+
+    makeResidence(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceReport {
+        local capability_inventory = new HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityInventory()
+        local residence_inventory = new HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceInventory()
+        local matrix = Main.makeMatrix(segment_id, arena_id)
+        local capability = capability_inventory.recordCapability(matrix, 3, 70008005002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        return residence_inventory.recordResidence(capability)
+    }
+
+    makeBinding(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledResidenceArenaBindingReport {
+        local binding_inventory = new HakoAllocSegmentArenaBackingModeledResidenceArenaBindingInventory()
+        local matrix = Main.makeMatrix(segment_id, arena_id)
+        local residence = Main.makeResidence(segment_id, arena_id)
+        return binding_inventory.recordBinding(residence, matrix)
+    }
+
+    makeSlot(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledArenaSlotReport {
+        local slot_inventory = new HakoAllocSegmentArenaBackingModeledArenaSlotInventory()
+        local binding = Main.makeBinding(segment_id, arena_id)
+        return slot_inventory.recordArenaSlot(binding, 2, 2048, 4096, 8192, 16)
+    }
+
+    makeSource(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledSourceBridgeReport {
+        local source_inventory = new HakoAllocSegmentArenaBackingModeledSourceBridgeInventory()
+        local slot = Main.makeSlot(segment_id, arena_id)
+        return source_inventory.recordSourceBridge(slot, 1, 90008005005, 16384, 4096, 16)
+    }
+
+    makeAccounting(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledSourceAccountingReport {
+        local accounting_inventory = new HakoAllocSegmentArenaBackingModeledSourceAccountingInventory()
+        local source = Main.makeSource(segment_id, arena_id)
+        return accounting_inventory.recordSourceAccounting(source)
+    }
+
+    main(args) {
+        local plan_inventory = new HakoAllocSegmentArenaBackingModeledAllocationPlanInventory()
+        local accounting = Main.makeAccounting(80, 8)
+
+        local accepted = plan_inventory.recordAllocationPlan(accounting, 91008005005, 4096, 4096)
+
+        local missing_accounting = new HakoAllocSegmentArenaBackingModeledSourceAccountingReport()
+        missing_accounting.source_accounting_present = 0
+        local rejected_accounting = Main.makeAccounting(80, 8)
+        rejected_accounting.accepted = 0
+        rejected_accounting.reason = 4
+        local invalid_token_accounting = Main.makeAccounting(80, 8)
+        local invalid_geometry_accounting = Main.makeAccounting(80, 8)
+        local closed_accounting = Main.makeAccounting(80, 8)
+        closed_accounting.requires_arena_backing = 1
+
+        local missing_result = plan_inventory.recordAllocationPlan(missing_accounting, 91008005006, 4096, 4096)
+        local rejected_result = plan_inventory.recordAllocationPlan(rejected_accounting, 91008005007, 4096, 4096)
+        local invalid_token_result = plan_inventory.recordAllocationPlan(invalid_token_accounting, 0, 4096, 4096)
+        local invalid_geometry_result = plan_inventory.recordAllocationPlan(invalid_geometry_accounting, 91008005008, 16384, 4096)
+        local closed_result = plan_inventory.recordAllocationPlan(closed_accounting, 91008005009, 4096, 4096)
+
+        local ok = check "mimap268a segment arena backing modeled allocation plan" {
+            "accepted": accepted.accepted == 1
+            "accepted reason": accepted.reason == 0
+            "plan present": accepted.modeled_allocation_plan_present == 1
+            "source accounting present": accepted.source_accounting_present == 1
+            "row index": accepted.row_index == 1
+            "segment": accepted.segment_id == 80
+            "arena": accepted.arena_id == 8
+            "lifetime": accepted.lifetime_generation == 3
+            "arena slot token": accepted.arena_slot_token == 70008005005
+            "source kind": accepted.source_kind == 1
+            "source token": accepted.source_token == 90008005005
+            "plan token": accepted.plan_token == 91008005005
+            "planned backing": accepted.planned_backing_bytes == 4096
+            "planned committed": accepted.planned_committed_bytes == 4096
+            "source capacity": accepted.source_capacity == 16384
+            "source committed": accepted.source_committed_bytes == 4096
+            "source uncommitted": accepted.source_uncommitted_bytes == 12288
+            "remaining source": accepted.remaining_source_bytes == 8192
+            "missing accounting": missing_result.reason == 1
+            "rejected accounting": rejected_result.reason == 2
+            "invalid token": invalid_token_result.reason == 3
+            "invalid geometry": invalid_geometry_result.reason == 4
+            "closed substrate": closed_result.reason == 5
+            "inventory count": plan_inventory.inventory_count == 6
+            "accepted count": plan_inventory.accepted_count == 1
+            "reject count": plan_inventory.reject_count == 5
+            "closed count": plan_inventory.closed_substrate_reject_count == 1
+            "inactive residence": accepted.would_create_pointer_residence == 0
+            "inactive lookup": accepted.would_lookup_by_pointer == 0
+            "inactive arena allocation": accepted.would_allocate_arena_backing == 0
+            "inactive segment map": accepted.would_use_segment_map == 0
+            "inactive atomic": accepted.would_execute_atomic_bitmap == 0
+            "inactive osvm": accepted.would_call_osvm == 0
+            "inactive thread": accepted.would_run_thread == 0
+            "inactive provider": accepted.would_activate_provider == 0
+            "inactive matcher": accepted.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-modeled-allocation-plan-proof")
+        print("plan=" + accepted.accepted + "," + accepted.reason + "," + accepted.row_index + "," + accepted.segment_id + "," + accepted.arena_id + "," + accepted.lifetime_generation + "," + accepted.arena_slot_token + "," + accepted.source_kind + "," + accepted.source_token + "," + accepted.plan_token + "," + accepted.planned_backing_bytes + "," + accepted.planned_committed_bytes + "," + accepted.source_uncommitted_bytes + "," + accepted.remaining_source_bytes)
+        print("rejects=" + missing_result.reason + "," + rejected_result.reason + "," + invalid_token_result.reason + "," + invalid_geometry_result.reason + "," + closed_result.reason)
+        print("counts=" + plan_inventory.inventory_count + "," + plan_inventory.accepted_count + "," + plan_inventory.reject_count + "," + plan_inventory.missing_accounting_reject_count + "," + plan_inventory.rejected_accounting_reject_count + "," + plan_inventory.invalid_plan_token_reject_count + "," + plan_inventory.invalid_plan_geometry_reject_count + "," + plan_inventory.closed_substrate_reject_count + "," + plan_inventory.last_reason + "," + plan_inventory.last_plan_token)
+        print("inactive=" + accepted.would_create_pointer_residence + "," + accepted.would_lookup_by_pointer + "," + accepted.would_allocate_arena_backing + "," + accepted.would_use_segment_map + "," + accepted.would_execute_atomic_bitmap + "," + accepted.would_call_osvm + "," + accepted.would_run_thread + "," + accepted.would_activate_provider + "," + accepted.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
