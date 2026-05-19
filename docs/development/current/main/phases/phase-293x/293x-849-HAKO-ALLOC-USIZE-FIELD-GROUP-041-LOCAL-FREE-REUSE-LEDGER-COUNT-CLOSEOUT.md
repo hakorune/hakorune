@@ -1,6 +1,6 @@
 # 293x-849 HAKO-ALLOC-USIZE-FIELD-GROUP-041 Local-Free Reuse Ledger Count Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -48,7 +48,16 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Re-ran the local-free reuse ledger L2 guard and MIMAP-132A closeout guard
+  after the exact-`usize` field migration.
+- Kept the row limited to closeout; no new stored-field migration or backend
+  route was opened.
+- Selected `HAKO-ALLOC-USIZE-FIELD-GROUP-042` as the next planning row to
+  choose another narrow allocator exact-`usize` field group.
+
 ## Next
 
-After closeout, select `HAKO-ALLOC-USIZE-FIELD-GROUP-042` to choose the next
-narrow allocator exact-`usize` field group.
+`HAKO-ALLOC-USIZE-FIELD-GROUP-042` chooses the next narrow allocator
+exact-`usize` field group.

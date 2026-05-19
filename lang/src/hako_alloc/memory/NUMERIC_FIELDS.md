@@ -212,8 +212,8 @@ Current production `usize` field group:
 
 Selected next production `usize` field group:
 
-- none. `HAKO-ALLOC-USIZE-FIELD-GROUP-041` is a closeout row for the
-  modeled local-free reuse ledger count group, not a new migration group.
+- none. `HAKO-ALLOC-USIZE-FIELD-GROUP-042` selects the next narrow allocator
+  exact-`usize` field group; it is not itself a migration row.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
