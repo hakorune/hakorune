@@ -75,6 +75,7 @@ guard_expect_in_file "$TAG" 'validation_profile = "scalar-mir"' "$PROOF_MANIFEST
 guard_expect_in_file "$TAG" 'exe = "deferred-to-closeout"' "$PROOF_MANIFEST" "MIMAP-265A EXE evidence must be deferred"
 guard_expect_in_file "$TAG" 'memory.segment_arena_backing_modeled_source_accounting_diagnostic_box' "$MODULE" "module must export diagnostic owner"
 guard_expect_in_file "$TAG" 'segment_arena_backing_modeled_source_accounting_diagnostic_box.hako' "$MEMORY_README" "memory README must name diagnostic owner"
+guard_expect_in_file "$TAG" 'record HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReportFields' "$DIAGNOSTIC_OWNER" "diagnostic owner must use local ReportFields record payload"
 guard_expect_in_file "$TAG" 'observeSourceAccountingDiagnostics' "$DIAGNOSTIC_OWNER" "diagnostic owner must expose observer route"
 guard_expect_in_file "$TAG" 'diagnostic_present: i64 = 1' "$DIAGNOSTIC_OWNER" "diagnostic report must publish presence bit"
 guard_expect_in_file "$TAG" 'check "mimap265a segment arena backing modeled source accounting diagnostics"' "$APP" "proof must use labelled check block"
@@ -158,6 +159,15 @@ if missing:
     raise SystemExit(f"missing functions: {missing}")
 
 plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+record_names = set()
+for decl in data.get("record_decls", []):
+    if isinstance(decl, str):
+        record_names.add(decl)
+    elif isinstance(decl, dict):
+        record_names.add(decl.get("name"))
+if "HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReportFields" not in record_names:
+    raise SystemExit("missing modeled source accounting diagnostic ReportFields record declaration")
+
 report = plans.get("HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReport")
 if report is None:
     raise SystemExit("missing modeled source accounting diagnostic report typed object plan")

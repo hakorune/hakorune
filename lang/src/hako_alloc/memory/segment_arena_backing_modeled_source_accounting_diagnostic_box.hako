@@ -8,6 +8,40 @@
 //   pointer-derived lookup, arena backing, segment-map mutation, atomic bitmap
 //   execution, OSVM calls, scheduling, providers, or backend shortcuts
 
+record HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReportFields {
+    observed: i64
+    reason: i64
+    diagnostic_present: i64
+    inventory_count: i64
+    accepted_count: i64
+    reject_count: i64
+    missing_bridge_reject_count: i64
+    rejected_bridge_reject_count: i64
+    invalid_source_token_reject_count: i64
+    invalid_accounting_geometry_reject_count: i64
+    closed_substrate_reject_count: i64
+    last_reason: i64
+    last_segment_id: i64
+    last_arena_id: i64
+    last_source_token: i64
+    last_report_accepted: i64
+    last_report_reason: i64
+    last_report_closed_substrate_blocker_count: i64
+    last_report_source_token: i64
+    last_report_source_capacity: i64
+    last_report_source_committed_bytes: i64
+    last_report_source_uncommitted_bytes: i64
+    last_report_accounted_padded_bytes: i64
+    last_report_available_after_padded_bytes: i64
+    source_accounting_present: i64
+    modeled_source_accounting_present: i64
+    missing_bridge_reject_seen: i64
+    rejected_bridge_reject_seen: i64
+    invalid_source_token_reject_seen: i64
+    invalid_accounting_geometry_reject_seen: i64
+    closed_substrate_reject_seen: i64
+}
+
 box HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReport {
     observed: i64 = 0
     reason: i64 = 0
@@ -66,40 +100,78 @@ box HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnostic {
     }
 
     makeReport(observed, reason, inventory, last_report): HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReport {
-        local result = new HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReport()
-        result.observed = observed
-        result.reason = reason
-        result.diagnostic_present = 1
-        result.inventory_count = inventory.inventory_count
-        result.accepted_count = inventory.accepted_count
-        result.reject_count = inventory.reject_count
-        result.missing_bridge_reject_count = inventory.missing_bridge_reject_count
-        result.rejected_bridge_reject_count = inventory.rejected_bridge_reject_count
-        result.invalid_source_token_reject_count = inventory.invalid_source_token_reject_count
-        result.invalid_accounting_geometry_reject_count = inventory.invalid_accounting_geometry_reject_count
-        result.closed_substrate_reject_count = inventory.closed_substrate_reject_count
-        result.last_reason = inventory.last_reason
-        result.last_segment_id = inventory.last_segment_id
-        result.last_arena_id = inventory.last_arena_id
-        result.last_source_token = inventory.last_source_token
-        result.last_report_accepted = last_report.accepted
-        result.last_report_reason = last_report.reason
-        result.last_report_closed_substrate_blocker_count = last_report.closed_substrate_blocker_count
-        result.last_report_source_token = last_report.source_token
-        result.last_report_source_capacity = last_report.source_capacity
-        result.last_report_source_committed_bytes = last_report.source_committed_bytes
-        result.last_report_source_uncommitted_bytes = last_report.source_uncommitted_bytes
-        result.last_report_accounted_padded_bytes = last_report.accounted_padded_bytes
-        result.last_report_available_after_padded_bytes = last_report.available_after_padded_bytes
+        local source_accounting_present = 0
+        local modeled_source_accounting_present = 0
         if observed == 1 {
-            result.source_accounting_present = last_report.source_accounting_present
-            result.modeled_source_accounting_present = last_report.modeled_source_accounting_present
+            source_accounting_present = last_report.source_accounting_present
+            modeled_source_accounting_present = last_report.modeled_source_accounting_present
         }
-        result.missing_bridge_reject_seen = me.markSeen(inventory.missing_bridge_reject_count)
-        result.rejected_bridge_reject_seen = me.markSeen(inventory.rejected_bridge_reject_count)
-        result.invalid_source_token_reject_seen = me.markSeen(inventory.invalid_source_token_reject_count)
-        result.invalid_accounting_geometry_reject_seen = me.markSeen(inventory.invalid_accounting_geometry_reject_count)
-        result.closed_substrate_reject_seen = me.markSeen(inventory.closed_substrate_reject_count)
+
+        local fields = HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReportFields {
+            observed: observed,
+            reason: reason,
+            diagnostic_present: 1,
+            inventory_count: inventory.inventory_count,
+            accepted_count: inventory.accepted_count,
+            reject_count: inventory.reject_count,
+            missing_bridge_reject_count: inventory.missing_bridge_reject_count,
+            rejected_bridge_reject_count: inventory.rejected_bridge_reject_count,
+            invalid_source_token_reject_count: inventory.invalid_source_token_reject_count,
+            invalid_accounting_geometry_reject_count: inventory.invalid_accounting_geometry_reject_count,
+            closed_substrate_reject_count: inventory.closed_substrate_reject_count,
+            last_reason: inventory.last_reason,
+            last_segment_id: inventory.last_segment_id,
+            last_arena_id: inventory.last_arena_id,
+            last_source_token: inventory.last_source_token,
+            last_report_accepted: last_report.accepted,
+            last_report_reason: last_report.reason,
+            last_report_closed_substrate_blocker_count: last_report.closed_substrate_blocker_count,
+            last_report_source_token: last_report.source_token,
+            last_report_source_capacity: last_report.source_capacity,
+            last_report_source_committed_bytes: last_report.source_committed_bytes,
+            last_report_source_uncommitted_bytes: last_report.source_uncommitted_bytes,
+            last_report_accounted_padded_bytes: last_report.accounted_padded_bytes,
+            last_report_available_after_padded_bytes: last_report.available_after_padded_bytes,
+            source_accounting_present: source_accounting_present,
+            modeled_source_accounting_present: modeled_source_accounting_present,
+            missing_bridge_reject_seen: me.markSeen(inventory.missing_bridge_reject_count),
+            rejected_bridge_reject_seen: me.markSeen(inventory.rejected_bridge_reject_count),
+            invalid_source_token_reject_seen: me.markSeen(inventory.invalid_source_token_reject_count),
+            invalid_accounting_geometry_reject_seen: me.markSeen(inventory.invalid_accounting_geometry_reject_count),
+            closed_substrate_reject_seen: me.markSeen(inventory.closed_substrate_reject_count),
+        }
+        local result = new HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReport()
+        result.observed = fields.observed
+        result.reason = fields.reason
+        result.diagnostic_present = fields.diagnostic_present
+        result.inventory_count = fields.inventory_count
+        result.accepted_count = fields.accepted_count
+        result.reject_count = fields.reject_count
+        result.missing_bridge_reject_count = fields.missing_bridge_reject_count
+        result.rejected_bridge_reject_count = fields.rejected_bridge_reject_count
+        result.invalid_source_token_reject_count = fields.invalid_source_token_reject_count
+        result.invalid_accounting_geometry_reject_count = fields.invalid_accounting_geometry_reject_count
+        result.closed_substrate_reject_count = fields.closed_substrate_reject_count
+        result.last_reason = fields.last_reason
+        result.last_segment_id = fields.last_segment_id
+        result.last_arena_id = fields.last_arena_id
+        result.last_source_token = fields.last_source_token
+        result.last_report_accepted = fields.last_report_accepted
+        result.last_report_reason = fields.last_report_reason
+        result.last_report_closed_substrate_blocker_count = fields.last_report_closed_substrate_blocker_count
+        result.last_report_source_token = fields.last_report_source_token
+        result.last_report_source_capacity = fields.last_report_source_capacity
+        result.last_report_source_committed_bytes = fields.last_report_source_committed_bytes
+        result.last_report_source_uncommitted_bytes = fields.last_report_source_uncommitted_bytes
+        result.last_report_accounted_padded_bytes = fields.last_report_accounted_padded_bytes
+        result.last_report_available_after_padded_bytes = fields.last_report_available_after_padded_bytes
+        result.source_accounting_present = fields.source_accounting_present
+        result.modeled_source_accounting_present = fields.modeled_source_accounting_present
+        result.missing_bridge_reject_seen = fields.missing_bridge_reject_seen
+        result.rejected_bridge_reject_seen = fields.rejected_bridge_reject_seen
+        result.invalid_source_token_reject_seen = fields.invalid_source_token_reject_seen
+        result.invalid_accounting_geometry_reject_seen = fields.invalid_accounting_geometry_reject_seen
+        result.closed_substrate_reject_seen = fields.closed_substrate_reject_seen
         me.last_reason = reason
         return result
     }

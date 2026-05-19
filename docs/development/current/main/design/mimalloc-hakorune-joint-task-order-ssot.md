@@ -34,21 +34,21 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`HAKO-ALLOC-REPORT-RECORD-004` is current after
-HAKO-ALLOC-REPORT-RECORD-003 inventoried segment arena backing report carriers.
+`MIMAP-267A` is current after HAKO-ALLOC-REPORT-RECORD-004 landed the segment
+arena backing source accounting diagnostic ReportFields pilot.
 
 Recommended current row:
 
 ```text
-HAKO-ALLOC-REPORT-RECORD-004
-  segment arena backing source accounting diagnostic ReportFields pilot
+MIMAP-267A
+  post-segment-arena-backing-reportfields-pilot row selection
 ```
 
 Purpose:
 
 ```text
-add an owner-local ReportFields record payload to the source accounting
-diagnostic report while keeping the returned report box stable
+select the next narrow allocator behavior, Hakorune core capability, or
+BoxShape cleanup row after the ReportFields pilot
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real pointer residence, real arena backing allocation, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -315,7 +315,8 @@ no provider activation
 | 243 | allocator diagnostic | `MIMAP-265A segment arena backing modeled source accounting diagnostics` | landed; selected MIMAP-266A |
 | 244 | closeout | `MIMAP-266A segment arena backing modeled source accounting closeout pack` | landed; selected HAKO-ALLOC-REPORT-RECORD-003 |
 | 245 | Hakorune language / allocator cleanup | `HAKO-ALLOC-REPORT-RECORD-003 segment arena backing report record carrier inventory` | landed; selected HAKO-ALLOC-REPORT-RECORD-004 |
-| 246 | Hakorune language / allocator cleanup | `HAKO-ALLOC-REPORT-RECORD-004 segment arena backing source accounting diagnostic ReportFields pilot` | selected current; owner-local record payload only |
+| 246 | Hakorune language / allocator cleanup | `HAKO-ALLOC-REPORT-RECORD-004 segment arena backing source accounting diagnostic ReportFields pilot` | landed; selected MIMAP-267A |
+| 247 | planning | `MIMAP-267A post-segment-arena-backing-reportfields-pilot row selection` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

@@ -1,6 +1,6 @@
 # 293x-791 HAKO-ALLOC-REPORT-RECORD-004 Segment Arena Backing Source Accounting Diagnostic ReportFields Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -45,3 +45,18 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_source_accoun
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+- Added
+  `HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReportFields`.
+- Rebuilt the diagnostic report construction path so `makeReport(...)` creates
+  a local record payload and then copies it into the existing returned report
+  box.
+- Extended the MIMAP-265A guard to require the local record payload in source
+  and MIR `record_decls`.
+- Preserved proof output and the returned report box shape.
+
+## Selected Next Row
+
+`MIMAP-267A` post-segment-arena-backing-reportfields-pilot row selection.

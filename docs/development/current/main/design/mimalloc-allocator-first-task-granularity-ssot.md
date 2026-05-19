@@ -20,12 +20,12 @@ For the active phase:
 
 ```text
 current row:
-  HAKO-ALLOC-REPORT-RECORD-004
+  MIMAP-267A
 
 current choice boundary:
-  source accounting diagnostic ReportFields pilot after segment arena backing
-  report carrier inventory, while keeping real pointer residence, pointer
-  lookup, real arena backing, and record pass/return/store escape closed
+  post-segment-arena-backing-reportfields-pilot row selection, while keeping
+  real pointer residence, pointer lookup, real arena backing, and record
+  pass/return/store escape closed
 
 closed until explicitly reopened:
   real raw pointer residence
@@ -453,7 +453,8 @@ Forbidden:
 | `MIMAP-265A` | segment arena backing modeled source accounting diagnostics | landed; selected MIMAP-266A |
 | `MIMAP-266A` | segment arena backing modeled source accounting closeout pack | landed; selected HAKO-ALLOC-REPORT-RECORD-003 |
 | `HAKO-ALLOC-REPORT-RECORD-003` | segment arena backing report record carrier inventory | landed; selected HAKO-ALLOC-REPORT-RECORD-004 |
-| `HAKO-ALLOC-REPORT-RECORD-004` | segment arena backing source accounting diagnostic ReportFields pilot | selected current |
+| `HAKO-ALLOC-REPORT-RECORD-004` | segment arena backing source accounting diagnostic ReportFields pilot | landed; selected MIMAP-267A |
+| `MIMAP-267A` | post-segment-arena-backing-reportfields-pilot row selection | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2668,6 +2669,20 @@ fields, and extend the MIMAP-265A guard to require the local record payload. It
 must not add allocator behavior, broad report rewrites, cross-function record
 return, record pass/store escape, packed/backend record lowering, provider
 activation, backend matchers, or silent fallback.
+
+HAKO-ALLOC-REPORT-RECORD-004 landed by adding the local ReportFields record,
+extending the MIMAP-265A guard, and preserving proof output. It selected
+MIMAP-267A.
+
+### MIMAP-267A granularity
+
+MIMAP-267A is a planning-only row after the segment arena backing ReportFields
+pilot. It should read the pilot evidence and select exactly one next allocator
+behavior, Hakorune core capability, or BoxShape cleanup row.
+
+It must not implement allocator behavior, compiler route behavior, source
+syntax, provider activation, host allocator replacement, backend matchers, or
+silent fallback by itself.
 
 
 ## Historical Granularity Anchors

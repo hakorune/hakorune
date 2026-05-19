@@ -661,7 +661,8 @@ FST:
 | `MIMAP-265A` | landed | Segment arena backing modeled source accounting diagnostics. | selected MIMAP-266A |
 | `MIMAP-266A` | landed | Segment arena backing modeled source accounting closeout pack. | selected HAKO-ALLOC-REPORT-RECORD-003 |
 | `HAKO-ALLOC-REPORT-RECORD-003` | landed | Segment arena backing report record carrier inventory. | selected HAKO-ALLOC-REPORT-RECORD-004 |
-| `HAKO-ALLOC-REPORT-RECORD-004` | selected current | Segment arena backing source accounting diagnostic ReportFields pilot. | current BoxShape row before the next arena-backing behavior row |
+| `HAKO-ALLOC-REPORT-RECORD-004` | landed | Segment arena backing source accounting diagnostic ReportFields pilot. | selected MIMAP-267A |
+| `MIMAP-267A` | selected current | Post segment arena backing ReportFields pilot row selection. | planning row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -670,12 +671,12 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-REPORT-RECORD-004` adds an owner-local ReportFields record payload
-to the source accounting diagnostic report while keeping the returned report box
-stable. Real pointer residence, pointer-derived lookup, real thread scheduling,
-worker spawning, source-level concurrency features, arena backing allocation,
-atomic bitmap execution, page-source calls, OSVM unreserve/release, provider
-activation, and backend matchers remain closed.
+`MIMAP-267A` selects the next narrow allocator behavior, Hakorune core
+capability, or BoxShape cleanup row after the ReportFields pilot. Real pointer
+residence, pointer-derived lookup, real thread scheduling, worker spawning,
+source-level concurrency features, arena backing allocation, atomic bitmap
+execution, page-source calls, OSVM unreserve/release, provider activation, and
+backend matchers remain closed.
 
 MIMAP-020A execution order:
 

@@ -34,15 +34,15 @@ Related:
   `docs/development/current/main/design/mimalloc-hakorune-blueprint-task-breakdown-ssot.md`
 - mimalloc port purpose:
   `docs/development/current/main/design/mimalloc-hako-port-purpose-ssot.md`
-- current blocker token: `HAKO-ALLOC-REPORT-RECORD-004 segment arena backing source accounting diagnostic ReportFields pilot`
+- current blocker token: `MIMAP-267A post-segment-arena-backing-reportfields-pilot row selection`
 - update policy:
   `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Next
 
-- continue phase-293x with `HAKO-ALLOC-REPORT-RECORD-004`; current blocker is
-  segment arena backing source accounting diagnostic ReportFields pilot
-- latest BoxShape row: `HAKO-ALLOC-REPORT-RECORD-003` landed and selected HAKO-ALLOC-REPORT-RECORD-004
+- continue phase-293x with `MIMAP-267A`; current blocker is
+  post-segment-arena-backing-reportfields-pilot row selection
+- latest BoxShape row: `HAKO-ALLOC-REPORT-RECORD-004` landed and selected MIMAP-267A
 - keep LoopRange on the Stage1 route; do not source-desugar range loops
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` inactive unless explicitly reopened
 
