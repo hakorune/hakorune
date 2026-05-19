@@ -1,0 +1,102 @@
+// hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-continuation-application-bridge-proof
+// Purpose: prove MIMAP-304A modeled release/recycle continuation application bridge.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycle
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_lifecycle_continuation_bridge_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridge
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_continuation_application_bridge_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridge
+
+static box Main {
+    makeRecycleReport(segment_id: i64, arena_id: i64, recycle_token: i64): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleReport()
+        report.accepted = 1
+        report.reason = 0
+        report.release_applied_recycle_present = 1
+        report.modeled_release_applied_recycle_present = 1
+        report.row_index = 1
+        report.segment_id = segment_id
+        report.arena_id = arena_id
+        report.lifetime_generation = 3
+        report.release_apply_token = 96019005005
+        report.release_applied_recycle_token = recycle_token
+        report.applied_backing_bytes = 4096
+        report.applied_committed_bytes = 4096
+        report.remaining_source_bytes = 8192
+        return report
+    }
+
+    main(args) {
+        local continuation_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridgeInventory()
+        local application_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridgeInventory()
+        local recycle_report = Main.makeRecycleReport(190, 19, 97019005005)
+
+        local continued = continuation_inventory.recordLifecycleContinuation(recycle_report, 98019005005)
+        local applied = application_inventory.recordContinuationApplication(continued, 99019005005)
+        local missing_report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridgeReport()
+        missing_report.lifecycle_continuation_present = 0
+        local missing = application_inventory.recordContinuationApplication(missing_report, 99019005006)
+        local rejected_continuation = continuation_inventory.recordLifecycleContinuation(recycle_report, 0)
+        local rejected = application_inventory.recordContinuationApplication(rejected_continuation, 99019005007)
+        local invalid_token = application_inventory.recordContinuationApplication(continued, 0)
+        local duplicate = application_inventory.recordContinuationApplication(continued, 99019005005)
+        local closed_continuation = continuation_inventory.recordLifecycleContinuation(Main.makeRecycleReport(194, 19, 97019005009), 98019005009)
+        closed_continuation.requires_arena_backing = 1
+        local closed = application_inventory.recordContinuationApplication(closed_continuation, 99019005009)
+
+        local ok = check "mimap304a segment arena backing modeled allocation ledger release recycle continuation application bridge" {
+            "accepted": applied.accepted == 1
+            "reason": applied.reason == 0
+            "application present": applied.continuation_application_present == 1
+            "modeled application": applied.modeled_continuation_application_present == 1
+            "continuation present": applied.lifecycle_continuation_present == 1
+            "row index": applied.row_index == 1
+            "segment": applied.segment_id == 190
+            "arena": applied.arena_id == 19
+            "lifetime": applied.lifetime_generation == 3
+            "recycle token": applied.release_applied_recycle_token == 97019005005
+            "continuation token": applied.continuation_token == 98019005005
+            "application token": applied.application_token == 99019005005
+            "applied backing": applied.applied_backing_bytes == 4096
+            "applied committed": applied.applied_committed_bytes == 4096
+            "remaining source": applied.remaining_source_bytes == 8192
+            "missing report": missing.reason == 1
+            "rejected report": rejected.reason == 2
+            "invalid token": invalid_token.reason == 3
+            "duplicate token": duplicate.reason == 4
+            "closed substrate": closed.reason == 5
+            "inventory count": application_inventory.inventory_count == 6
+            "accepted count": application_inventory.accepted_count == 1
+            "reject count": application_inventory.reject_count == 5
+            "missing count": application_inventory.missing_continuation_reject_count == 1
+            "rejected count": application_inventory.rejected_continuation_reject_count == 1
+            "invalid count": application_inventory.invalid_application_token_reject_count == 1
+            "duplicate count": application_inventory.duplicate_application_token_reject_count == 1
+            "closed count": application_inventory.closed_substrate_reject_count == 1
+            "last application": application_inventory.last_application_token == 99019005005
+            "inactive residence": applied.would_create_pointer_residence == 0
+            "inactive lookup": applied.would_lookup_by_pointer == 0
+            "inactive arena release": applied.would_release_arena_backing == 0
+            "inactive segment map": applied.would_use_segment_map == 0
+            "inactive atomic": applied.would_execute_atomic_bitmap == 0
+            "inactive osvm": applied.would_call_osvm == 0
+            "inactive thread": applied.would_run_thread == 0
+            "inactive provider": applied.would_activate_provider == 0
+            "inactive matcher": applied.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-continuation-application-bridge-proof")
+        print("application=" + applied.accepted + "," + applied.reason + "," + applied.row_index + "," + applied.segment_id + "," + applied.arena_id + "," + applied.lifetime_generation + "," + applied.continuation_token + "," + applied.application_token)
+        print("bytes=" + applied.applied_backing_bytes + "," + applied.applied_committed_bytes + "," + applied.remaining_source_bytes)
+        print("rejects=" + missing.reason + "," + rejected.reason + "," + invalid_token.reason + "," + duplicate.reason + "," + closed.reason)
+        print("counts=" + application_inventory.inventory_count + "," + application_inventory.accepted_count + "," + application_inventory.reject_count + "," + application_inventory.missing_continuation_reject_count + "," + application_inventory.rejected_continuation_reject_count + "," + application_inventory.invalid_application_token_reject_count + "," + application_inventory.duplicate_application_token_reject_count + "," + application_inventory.closed_substrate_reject_count + "," + application_inventory.last_reason + "," + application_inventory.last_application_token)
+        print("inactive=" + applied.would_create_pointer_residence + "," + applied.would_lookup_by_pointer + "," + applied.would_release_arena_backing + "," + applied.would_use_segment_map + "," + applied.would_execute_atomic_bitmap + "," + applied.would_call_osvm + "," + applied.would_run_thread + "," + applied.would_activate_provider + "," + applied.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

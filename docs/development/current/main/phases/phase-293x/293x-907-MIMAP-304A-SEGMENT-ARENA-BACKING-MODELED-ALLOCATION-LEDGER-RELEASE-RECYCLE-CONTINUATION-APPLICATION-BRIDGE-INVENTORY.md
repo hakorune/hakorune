@@ -1,6 +1,6 @@
 # 293x-907 MIMAP-304A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Continuation Application Bridge Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -54,3 +54,20 @@ bash tools/checks/run_proof_app.sh --only MIMAP-304A
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Next
+
+`MIMAP-305A`:
+
+```text
+segment arena backing modeled allocation-ledger release/recycle continuation application bridge diagnostics
+```
+
+Rationale:
+
+- MIMAP-304A records the model-only continuation application bridge.
+- The next row should observe accepted, missing, rejected, invalid-token,
+  duplicate-token, and closed-substrate outcomes without recording a second
+  application row.
+- L3 evidence remains deferred to a future continuation-application closeout
+  pack.
