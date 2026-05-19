@@ -1,6 +1,6 @@
 # 293x-879 HAKO-ALLOC-REPORT-RECORD-024 Source-Accounting Diagnostic ReportFields Helper Scalarization Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -57,3 +57,24 @@ git diff --check
 - The target guard stays green and continues proving no runtime `NewBox` for
   the `ReportFields` carrier.
 - No other owner is migrated.
+
+## Progress
+
+- Added `makeSourceAccountingDiagnosticReport(fields)` as the same-owner helper
+  for the source-accounting diagnostic `ReportFields` owner.
+- Kept `makeReport(...)` responsible for computing scalar fields and updating
+  `me.last_reason` before calling the helper.
+- Migrated no other owner.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_allocator_record_construction_read_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_source_accounting_diagnostics_guard.sh
+```
+
+## Next
+
+Select `HAKO-ALLOC-REPORT-RECORD-025` to close out the source-accounting
+diagnostic ReportFields helper-scalarization owner before another owner is
+selected.
