@@ -1,6 +1,6 @@
 # 293x-806 MIMAP-281A Segment Arena Backing Modeled Allocation-Ledger Release Candidate Diagnostics
 
-Status: queued next
+Status: selected current
 Date: 2026-05-19
 
 ## Decision
@@ -9,7 +9,7 @@ Observe MIMAP-280A release-candidate inventory counters and last-candidate
 facts without recording new release-candidate rows or opening real allocator
 execution.
 
-This row resumes after HAKO-ALLOC-REPORT-RECORD-005 closes the
+This row resumes after HAKO-ALLOC-REPORT-RECORD-005 closed the
 release-candidate `ReportFields` sidecar.
 
 ## Context

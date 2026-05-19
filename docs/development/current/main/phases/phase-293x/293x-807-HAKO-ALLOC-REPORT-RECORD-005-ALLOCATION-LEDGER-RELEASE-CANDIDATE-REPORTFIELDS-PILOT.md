@@ -1,6 +1,6 @@
 # 293x-807 HAKO-ALLOC-REPORT-RECORD-005 Allocation-Ledger Release Candidate ReportFields Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -54,6 +54,17 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_le
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+- Added
+  `HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReportFields`.
+- Rebuilt the release-candidate report construction path so `makeReport(...)`
+  creates a local record payload and then copies it into the existing returned
+  report box.
+- Extended the MIMAP-280A guard to require the local record payload in source
+  and MIR `record_decls`.
+- Preserved proof output and the returned report box shape.
 
 ## Selected Next Row
 

@@ -34,20 +34,20 @@ from pulling in broad user-facing concurrency or provider activation too early.
 
 ## Current Recommended Row
 
-`HAKO-ALLOC-REPORT-RECORD-005` is current after MIMAP-280A landed the segment
-arena backing modeled allocation-ledger release candidate inventory.
+`MIMAP-281A` is current after HAKO-ALLOC-REPORT-RECORD-005 closed the
+release-candidate ReportFields sidecar.
 
 Recommended current row:
 
 ```text
-HAKO-ALLOC-REPORT-RECORD-005
-  allocation-ledger release candidate ReportFields pilot
+MIMAP-281A
+  segment arena backing modeled allocation-ledger release candidate diagnostics
 ```
 
 Purpose:
 
 ```text
-add an owner-local ReportFields record payload inside release-candidate report construction
+observe MIMAP-280A release-candidate counters and last-candidate facts
 keep cross-function Result direct ABI and runtime sum materialization closed
 keep real pointer residence, real arena backing allocation, segment-map lookup, page-source, OSVM release, and provider activation closed
 keep secure entropy execution parked until a real random route is accepted
@@ -329,8 +329,8 @@ no provider activation
 | 258 | closeout | `MIMAP-278A segment arena backing modeled allocation ledger closeout pack` | landed; selected MIMAP-279A |
 | 259 | planning | `MIMAP-279A post-segment-arena-backing-modeled-allocation-ledger-closeout row selection` | landed; selected MIMAP-280A |
 | 260 | allocator inventory | `MIMAP-280A segment arena backing modeled allocation-ledger release candidate inventory` | landed; selected HAKO-ALLOC-REPORT-RECORD-005 |
-| 261 | Hakorune language / allocator cleanup | `HAKO-ALLOC-REPORT-RECORD-005 allocation-ledger release candidate ReportFields pilot` | selected current |
-| 262 | allocator diagnostic | `MIMAP-281A segment arena backing modeled allocation-ledger release candidate diagnostics` | queued next after HAKO-ALLOC-REPORT-RECORD-005 |
+| 261 | Hakorune language / allocator cleanup | `HAKO-ALLOC-REPORT-RECORD-005 allocation-ledger release candidate ReportFields pilot` | landed; selected MIMAP-281A |
+| 262 | allocator diagnostic | `MIMAP-281A segment arena backing modeled allocation-ledger release candidate diagnostics` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

@@ -66,6 +66,8 @@ guard_expect_in_file "$TAG" 'validation_profile = "scalar-mir"' "$PROOF_MANIFEST
 guard_expect_in_file "$TAG" 'exe = "deferred-to-closeout"' "$PROOF_MANIFEST" "MIMAP-280A EXE evidence must be deferred"
 guard_expect_in_file "$TAG" 'memory.segment_arena_backing_modeled_allocation_ledger_release_candidate_box' "$MODULE" "module must export release candidate owner"
 guard_expect_in_file "$TAG" 'segment_arena_backing_modeled_allocation_ledger_release_candidate_box.hako' "$MEMORY_README" "memory README must name release candidate owner"
+guard_expect_in_file "$TAG" 'record HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReportFields' "$CANDIDATE_OWNER" "release candidate owner must use local ReportFields record payload"
+guard_expect_in_file "$TAG" 'local fields = HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReportFields' "$CANDIDATE_OWNER" "release candidate owner must construct report field records locally"
 guard_expect_in_file "$TAG" 'recordReleaseCandidate' "$CANDIDATE_OWNER" "release candidate owner must expose record route"
 guard_expect_in_file "$TAG" 'duplicate_release_candidate_token_reject_count' "$CANDIDATE_OWNER" "release candidate owner must reject duplicate token"
 guard_expect_in_file "$TAG" 'check "mimap280a segment arena backing modeled allocation ledger release candidate"' "$APP" "proof must use labelled check block"
@@ -138,6 +140,15 @@ if missing:
     raise SystemExit(f"missing functions: {missing}")
 
 plans = {plan.get("box_name"): plan for plan in data.get("typed_object_plans", [])}
+record_names = set()
+for decl in data.get("record_decls", []):
+    if isinstance(decl, str):
+        record_names.add(decl)
+    elif isinstance(decl, dict):
+        record_names.add(decl.get("name"))
+if "HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReportFields" not in record_names:
+    raise SystemExit("missing modeled release candidate ReportFields record declaration")
+
 report = plans.get("HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReport")
 if report is None:
     raise SystemExit("missing modeled release candidate report typed object plan")
