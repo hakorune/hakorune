@@ -1,6 +1,6 @@
 # 293x-883 HAKO-ALLOC-REPORT-RECORD-028 Local-Free Integration ReportFields Helper Scalarization Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -58,3 +58,33 @@ git diff --check
 - The target guard proves the helper-backed copy path and keeps MIMAP-119A
   behavior unchanged.
 - The closeout selects the next narrow row only after evidence is recorded.
+
+## Progress
+
+- Confirmed the local-free integration owner keeps its `ReportFields` helper
+  argument builder-local.
+- Confirmed all four construction paths use the same-owner helper and keep the
+  returned value as the existing ordinary report box.
+- Confirmed no additional `ReportFields` owner migrated in the pilot row.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_allocator_record_construction_read_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_integration_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Inventory
+
+Remaining `ReportFields` owner:
+
+```text
+HakoAllocBoundedPurgeDecommitSchedulerReportFields
+```
+
+## Next
+
+Select `HAKO-ALLOC-REPORT-RECORD-029` to migrate the bounded purge decommit
+scheduler `ReportFields` owner under the record-local scalarization SSOT.
