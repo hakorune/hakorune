@@ -1,6 +1,6 @@
 # 293x-902 MIMAP-299A Post Release-Applied Recycle Second-Release Diagnostic Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -33,4 +33,40 @@ git diff --check
 
 ## Selected Row
 
-Pending: choose the next narrow allocator row after MIMAP-298A.
+`MIMAP-300A`:
+
+```text
+segment arena backing modeled allocation-ledger release/recycle lifecycle continuation bridge inventory
+```
+
+Rationale:
+
+- MIMAP-298A closed the duplicate/stale second-release boundary after modeled
+  release-applied recycle.
+- The next risk is not raw pointer residence yet; it is connecting the modeled
+  release/recycle sequence to an explicit lifecycle-continuation bridge so that
+  later rows can distinguish "recycled continuation" from "stale duplicate"
+  without relying on implicit token reuse.
+- This keeps the row scalar/model-only before opening real arena backing
+  release/recycle, segment-map mutation, atomics, OSVM/page-source, TLS/worker,
+  provider activation, hooks, or `#[global_allocator]`.
+
+Validation profile:
+
+```text
+L2 daily
+  VM proof
+  MIR JSON emit
+  route preflight
+
+L3 EXE:
+  first-pattern only if the bridge introduces a new backend route shape;
+  otherwise defer to lifecycle-continuation closeout.
+```
+
+## Evidence
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
