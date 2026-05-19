@@ -1,6 +1,6 @@
 # 293x-896 MIMAP-293A Segment Arena Backing Modeled Allocation-Ledger Release-Applied Recycle Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -51,3 +51,30 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_le
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Implementation
+
+- Added
+  `segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_diagnostic_box.hako`.
+- Added the manifest-backed diagnostics proof app.
+- Added the L2 diagnostics guard and module / memory README exports.
+- Added the diagnostics SSOT:
+
+```text
+docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-diagnostics-ssot.md
+```
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_diagnostics_guard.sh --level L2
+bash apps/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-diagnostics-proof/test.sh --level L2
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Selected Next Row
+
+MIMAP-294A:
+segment arena backing modeled allocation-ledger release-applied recycle closeout
+pack.
