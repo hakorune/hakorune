@@ -89,10 +89,16 @@ def command_target(root: pathlib.Path, cmd: list[str]) -> pathlib.Path:
     return resolve_repo_path(root, cmd[0])
 
 
-def load_manifest(args: argparse.Namespace) -> list[dict[str, object]]:
-    tag = args.tag
-    root = pathlib.Path(args.root).resolve()
-    manifest_path = resolve_repo_path(root, args.manifest)
+def load_manifest_tables(
+    root: pathlib.Path,
+    manifest_path: pathlib.Path,
+    table: str,
+    tag: str,
+    stack: tuple[pathlib.Path, ...],
+) -> list[dict[str, object]]:
+    if manifest_path in stack:
+        cycle = " -> ".join(str(path) for path in (*stack, manifest_path))
+        fail(tag, f"manifest include cycle: {cycle}")
     if not manifest_path.is_file():
         fail(tag, f"manifest missing: {manifest_path}")
 
@@ -102,11 +108,37 @@ def load_manifest(args: argparse.Namespace) -> list[dict[str, object]]:
         fail(tag, f"manifest parse failed: {manifest_path}: {exc}")
 
     if data.get("schema_version") != 0:
-        fail(tag, "manifest schema_version must be 0")
+        fail(tag, f"manifest schema_version must be 0: {manifest_path}")
 
-    raw_entries = data.get(args.table)
-    if not isinstance(raw_entries, list):
-        fail(tag, f"manifest must contain [[{args.table}]] entries")
+    include_paths = data.get("includes", [])
+    if not isinstance(include_paths, list) or not all(
+        isinstance(item, str) and item for item in include_paths
+    ):
+        fail(tag, f"manifest includes must be a list of non-empty strings: {manifest_path}")
+
+    raw_entries: list[dict[str, object]] = []
+    for include_path in include_paths:
+        include_manifest = resolve_repo_path(root, include_path)
+        raw_entries.extend(
+            load_manifest_tables(root, include_manifest, table, tag, (*stack, manifest_path))
+        )
+
+    local_entries = data.get(table, [])
+    if not isinstance(local_entries, list):
+        fail(tag, f"manifest must contain [[{table}]] entries: {manifest_path}")
+    for index, raw_entry in enumerate(local_entries):
+        if not isinstance(raw_entry, dict):
+            fail(tag, f"{table} #{index} must be a table: {manifest_path}")
+        raw_entries.append(raw_entry)
+
+    return raw_entries
+
+
+def load_manifest(args: argparse.Namespace) -> list[dict[str, object]]:
+    tag = args.tag
+    root = pathlib.Path(args.root).resolve()
+    manifest_path = resolve_repo_path(root, args.manifest)
+    raw_entries = load_manifest_tables(root, manifest_path, args.table, tag, ())
 
     seen: set[str] = set()
     entries: list[dict[str, object]] = []

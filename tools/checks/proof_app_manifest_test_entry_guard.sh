@@ -33,12 +33,32 @@ import tomllib
 
 root = pathlib.Path(sys.argv[1]).resolve()
 manifest_path = root / sys.argv[2]
-data = tomllib.loads(manifest_path.read_text(encoding="utf-8"))
 
-if data.get("schema_version") != 0:
-    raise SystemExit("proof_apps.toml schema_version must be 0")
+def load_entries(path: pathlib.Path, stack: tuple[pathlib.Path, ...] = ()) -> list[dict]:
+    if path in stack:
+        cycle = " -> ".join(str(item.relative_to(root)) for item in (*stack, path))
+        raise SystemExit(f"proof_apps.toml include cycle: {cycle}")
+    data = tomllib.loads(path.read_text(encoding="utf-8"))
+    if data.get("schema_version") != 0:
+        raise SystemExit(f"{path.relative_to(root)} schema_version must be 0")
+    includes = data.get("includes", [])
+    if not isinstance(includes, list) or not all(isinstance(item, str) and item for item in includes):
+        raise SystemExit(f"{path.relative_to(root)} includes must be a list of non-empty strings")
 
-entries = data.get("proof_apps")
+    entries: list[dict] = []
+    for include in includes:
+        entries.extend(load_entries(root / include, (*stack, path)))
+
+    local_entries = data.get("proof_apps", [])
+    if not isinstance(local_entries, list):
+        raise SystemExit(f"{path.relative_to(root)} proof_apps must be a list")
+    for entry in local_entries:
+        if not isinstance(entry, dict):
+            raise SystemExit(f"{path.relative_to(root)} proof_apps entry is not a table")
+        entries.append(entry)
+    return entries
+
+entries = load_entries(manifest_path)
 if not isinstance(entries, list) or not entries:
     raise SystemExit("proof_apps.toml must contain [[proof_apps]] entries")
 

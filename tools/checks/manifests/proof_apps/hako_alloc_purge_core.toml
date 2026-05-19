@@ -1,0 +1,113 @@
+schema_version = 0
+
+[[proof_apps]]
+id = "M197"
+app = "apps/hako-alloc-purge-heap-decommit-proof"
+label = "purge heap decommit integration proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_purge_heap_decommit_guard.sh"]
+
+[[proof_apps]]
+id = "M198"
+app = "apps/hako-alloc-purge-decommit-state-marker-proof"
+label = "purge decommit state marker proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_purge_decommit_state_marker_guard.sh"]
+
+[[proof_apps]]
+id = "M199"
+app = "apps/hako-alloc-purge-state-aware-duplicate-guard-proof"
+label = "purge state-aware duplicate guard proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_purge_state_aware_duplicate_guard.sh"]
+
+[[proof_apps]]
+id = "M200"
+app = "apps/hako-alloc-decommitted-page-reuse-precondition-proof"
+label = "decommitted page reuse precondition proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_decommitted_page_reuse_precondition_guard.sh"]
+
+[[proof_apps]]
+id = "M201"
+app = "apps/hako-alloc-recommit-failfast-proof"
+label = "recommit fail-fast proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_recommit_failfast_guard.sh"]
+
+[[proof_apps]]
+id = "M202"
+app = "apps/hako-alloc-bounded-recommit-policy-proof"
+label = "bounded recommit policy proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_bounded_recommit_policy_guard.sh"]
+
+[[proof_apps]]
+id = "M203"
+app = "apps/hako-alloc-page-source-recommit-adapter-proof"
+label = "page-source recommit adapter proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_page_source_recommit_adapter_guard.sh"]
+
+[[proof_apps]]
+id = "M204"
+app = "apps/hako-alloc-recommit-marker-transition-proof"
+label = "recommit marker transition proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_recommit_marker_transition_guard.sh"]
+
+[[proof_apps]]
+id = "M205"
+app = "apps/hako-alloc-recommit-heap-integration-proof"
+label = "recommit heap integration proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_recommit_heap_integration_guard.sh"]
+
+[[proof_apps]]
+id = "M206"
+app = "apps/hako-alloc-reuse-proof-closeout-proof"
+label = "reuse proof closeout proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_reuse_proof_closeout_guard.sh"]
+
+[[proof_apps]]
+id = "M207"
+app = "apps/hako-alloc-page-lifecycle-invariant-proof"
+label = "page lifecycle invariant proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_page_lifecycle_invariant_guard.sh"]
+
+[[proof_apps]]
+id = "M208"
+app = "apps/hako-alloc-heap-reuse-priority-policy-proof"
+label = "heap reuse priority policy proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_heap_reuse_priority_policy_guard.sh"]
+
+[[proof_apps]]
+id = "M209"
+app = "apps/hako-alloc-lifecycle-stats-observer-surface-proof"
+label = "lifecycle stats observer surface proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_lifecycle_stats_observer_surface_guard.sh"]
+
+[[proof_apps]]
+id = "M210"
+app = "apps/hako-alloc-decommit-recommit-reuse-exe-hardening-proof"
+label = "decommit recommit reuse EXE hardening proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_decommit_recommit_reuse_exe_hardening_guard.sh"]
+
+[[proof_apps]]
+id = "M211"
+app = "apps/hako-alloc-purge-candidate-policy-inventory-proof"
+label = "purge candidate policy inventory proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_purge_candidate_policy_inventory_guard.sh"]
+
+[[proof_apps]]
+id = "M212"
+app = "apps/hako-alloc-bounded-purge-decommit-scheduler-proof"
+label = "bounded purge decommit scheduler proof"
+profiles = ["pilot", "hako-alloc-purge"]
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_bounded_purge_decommit_scheduler_guard.sh"]
