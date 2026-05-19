@@ -57,7 +57,7 @@ guard_require_exec_files "$TAG" "$GUARD_260A" "$GUARD_261A" "$SELF_SCRIPT" "$IMP
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_260A" "MIMAP-260A must be landed before closeout"
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_261A" "MIMAP-261A must be landed before closeout"
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_262A" "MIMAP-262A closeout card must be landed"
-guard_expect_in_file "$TAG" "Status: selected current" "$CARD_263A" "MIMAP-263A must be selected current after closeout"
+guard_expect_in_file "$TAG" "Status: landed" "$CARD_263A" "MIMAP-263A row selection must be landed after closeout"
 
 guard_expect_in_file "$TAG" "Decision: accepted" "$SSOT" "MIMAP-262A closeout SSOT must be accepted"
 guard_expect_in_file "$TAG" "Decision: accepted" "$INVENTORY_SSOT" "MIMAP-260A inventory SSOT must stay accepted"
@@ -65,7 +65,7 @@ guard_expect_in_file "$TAG" "Decision: accepted" "$DIAGNOSTICS_SSOT" "MIMAP-261A
 guard_expect_in_file "$TAG" "closeout_pack = segment-arena-backing-modeled-source-bridge" "$SSOT" "closeout SSOT must name pack"
 guard_expect_in_file "$TAG" "MIMAP-263A post-segment-arena-backing-modeled-source-bridge-closeout row selection" "$SSOT" "closeout SSOT must name next row"
 
-guard_expect_in_file "$TAG" "MIMAP-262A segment arena backing modeled source bridge closeout pack" "$GRANULARITY" "granularity SSOT must describe MIMAP-262A"
+guard_expect_in_file "$TAG" "MIMAP-262A granularity" "$GRANULARITY" "granularity SSOT must describe MIMAP-262A"
 guard_expect_in_file "$TAG" "MIMAP-263A" "$GRANULARITY" "granularity SSOT must describe MIMAP-263A"
 guard_expect_in_file "$TAG" "MIMAP-262A segment arena backing modeled source bridge closeout pack" "$JOINT" "joint order must name closeout row"
 guard_expect_in_file "$TAG" "MIMAP-263A post-segment-arena-backing-modeled-source-bridge-closeout row selection" "$JOINT" "joint order must name next row"

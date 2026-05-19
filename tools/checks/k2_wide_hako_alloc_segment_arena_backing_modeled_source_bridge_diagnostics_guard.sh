@@ -66,7 +66,7 @@ guard_expect_in_file "$TAG" 'Status: landed' "$CARD" "MIMAP-261A card must be la
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN_260A" "MIMAP-260A source bridge design must stay accepted"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-261A diagnostics design must be accepted"
 guard_expect_in_file "$TAG" 'observer-only diagnostics' "$CARD" "MIMAP-261A card must call out observer-only diagnostics"
-guard_expect_in_file "$TAG" 'MIMAP-261A segment arena backing modeled source bridge diagnostics' "$PLAN" "granularity SSOT must describe MIMAP-261A"
+guard_expect_in_file "$TAG" 'MIMAP-261A granularity' "$PLAN" "granularity SSOT must describe MIMAP-261A"
 guard_expect_in_file "$TAG" 'MIMAP-261A segment arena backing modeled source bridge diagnostics' "$JOINT" "joint order must name MIMAP-261A"
 guard_expect_in_file "$TAG" 'segment-arena-backing-modeled-source-bridge' "$CADENCE" "cadence SSOT must define source-bridge family"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-261A guard"
@@ -77,6 +77,8 @@ guard_expect_in_file "$TAG" 'memory.segment_arena_backing_modeled_source_bridge_
 guard_expect_in_file "$TAG" 'segment_arena_backing_modeled_source_bridge_diagnostic_box.hako' "$MEMORY_README" "memory README must name diagnostic owner"
 guard_expect_in_file "$TAG" 'observeSourceBridgeDiagnostics' "$DIAGNOSTIC_OWNER" "diagnostic owner must expose observer route"
 guard_expect_in_file "$TAG" 'diagnostic_present: i64 = 1' "$DIAGNOSTIC_OWNER" "diagnostic report must publish presence bit"
+guard_expect_in_file "$TAG" 'last_report_source_capacity: i64 = 0' "$DIAGNOSTIC_OWNER" "source bridge diagnostic capacity mirror must remain i64 in HAKO-ALLOC-USIZE-FIELD-GROUP-022"
+guard_expect_in_file "$TAG" 'last_report_source_committed_bytes: i64 = 0' "$DIAGNOSTIC_OWNER" "source bridge diagnostic committed mirror must remain i64 in HAKO-ALLOC-USIZE-FIELD-GROUP-022"
 guard_expect_in_file "$TAG" 'check "mimap261a segment arena backing modeled source bridge diagnostics"' "$APP" "proof must use labelled check block"
 
 if rg -n 'recordSourceBridge|me\.(inventory_count|accepted_count|reject_count|missing_slot_reject_count|rejected_slot_reject_count|invalid_arena_slot_token_reject_count|invalid_source_shape_reject_count|invalid_geometry_reject_count|closed_substrate_reject_count)[[:space:]]*\+=' \
@@ -177,6 +179,14 @@ for name in (
 ):
     if name not in fields:
         raise SystemExit(f"missing modeled source bridge diagnostic field: {name}")
+
+for name in (
+    "last_report_source_capacity",
+    "last_report_source_committed_bytes",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"source bridge diagnostic mirror {name} must remain i64 storage: {field}")
 
 print("[mimap261a-mir-json] ok")
 PY

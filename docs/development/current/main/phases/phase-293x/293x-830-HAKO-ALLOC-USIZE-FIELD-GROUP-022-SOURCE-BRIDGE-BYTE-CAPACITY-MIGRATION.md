@@ -1,6 +1,6 @@
 # 293x-830 HAKO-ALLOC-USIZE-FIELD-GROUP-022 Source-Bridge Byte/Capacity Migration
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -52,11 +52,28 @@ inputs after local validation.
 bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_source_bridge_guard.sh
 bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_source_bridge_diagnostics_guard.sh
 bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_source_bridge_closeout_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_source_accounting_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Migrated only the `HakoAllocSegmentArenaBackingModeledSourceBridgeReport`
+  byte/capacity group to exact `usize` storage.
+- Kept source-bridge counters, reasons, tokens, ids, alignments, row index, and
+  sentinel-bearing fields on `i64`.
+- Kept source-bridge diagnostic mirror byte fields on `i64`; those belong to a
+  separate row.
+- Strengthened the MIMAP-260A guard to assert exact `usize` typed-object storage
+  for the source-bridge byte/capacity fields.
+- Strengthened the MIMAP-261A diagnostics guard to prove the source-bridge
+  diagnostic mirror byte fields remain `i64` in this row.
+- Re-ran the MIMAP-262A closeout guard and the downstream MIMAP-264A
+  source-accounting L2 guard after the migration.
+
 ## Next
 
-After this migration, select a closeout row for the source-bridge byte/capacity
-field group before selecting another allocator byte/capacity group.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-023` to close out the source-bridge
+byte/capacity field group before selecting another allocator byte/capacity
+group.

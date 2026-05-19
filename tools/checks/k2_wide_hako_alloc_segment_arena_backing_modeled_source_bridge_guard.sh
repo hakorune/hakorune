@@ -67,7 +67,7 @@ guard_expect_in_file "$TAG" 'Status: landed' "$CARD" "MIMAP-260A card must be la
 guard_expect_in_file "$TAG" 'Decision: accepted' "$SLOT_SSOT" "MIMAP-256A arena-slot design must stay accepted"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-260A source bridge design must be accepted"
 guard_expect_in_file "$TAG" 'modeled source bridge accepted' "$DESIGN" "MIMAP-260A reason vocabulary must be present"
-guard_expect_in_file "$TAG" 'MIMAP-260A segment arena backing modeled source bridge inventory' "$PLAN" "granularity SSOT must describe MIMAP-260A"
+guard_expect_in_file "$TAG" 'MIMAP-260A granularity' "$PLAN" "granularity SSOT must describe MIMAP-260A"
 guard_expect_in_file "$TAG" 'MIMAP-260A segment arena backing modeled source bridge inventory' "$JOINT" "joint order must name MIMAP-260A"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-260A guard"
 guard_expect_in_file "$TAG" 'id = "MIMAP-260A"' "$PROOF_MANIFEST" "proof manifest must list MIMAP-260A"
@@ -76,6 +76,13 @@ guard_expect_in_file "$TAG" 'exe = "deferred-to-closeout"' "$PROOF_MANIFEST" "MI
 guard_expect_in_file "$TAG" 'memory.segment_arena_backing_modeled_source_bridge_box' "$MODULE" "module must export source bridge owner"
 guard_expect_in_file "$TAG" 'segment_arena_backing_modeled_source_bridge_box.hako' "$MEMORY_README" "memory README must name source bridge owner"
 guard_expect_in_file "$TAG" 'recordSourceBridge' "$OWNER" "source bridge owner must expose record route"
+guard_expect_in_file "$TAG" 'source_capacity: usize = 0' "$OWNER" "source bridge capacity must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-022"
+guard_expect_in_file "$TAG" 'source_committed_bytes: usize = 0' "$OWNER" "source bridge committed bytes must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-022"
+guard_expect_in_file "$TAG" 'requested_bytes: usize = 0' "$OWNER" "source bridge requested bytes must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-022"
+guard_expect_in_file "$TAG" 'padded_bytes: usize = 0' "$OWNER" "source bridge padded bytes must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-022"
+guard_expect_in_file "$TAG" 'slot_capacity: usize = 0' "$OWNER" "source bridge slot capacity must be exact usize after HAKO-ALLOC-USIZE-FIELD-GROUP-022"
+guard_expect_in_file "$TAG" 'source_alignment: i64 = 0' "$OWNER" "source bridge source alignment must remain i64"
+guard_expect_in_file "$TAG" 'slot_index: i64 = -1' "$OWNER" "source bridge slot index sentinel must remain i64"
 guard_expect_in_file "$TAG" 'check "mimap260a segment arena backing modeled source bridge"' "$APP" "proof must use labelled check block"
 
 if rg -n 'lookupByPointer|lookupPointer|pointer_member|dereference[[:space:]]*\(|mutateSegmentMap|claimBitmap|unclaimBitmap|AtomicCoreBox|hako_atomic|cas_i64|fetch_add|hako_osvm|spawn[[:space:]]*\(|thread::|worker_local|ChannelBox|TaskGroupBox|nowait|sync[[:space:]]+box|context[[:space:]]|providerActivate|global_allocator' \
@@ -167,6 +174,30 @@ for name in (
 ):
     if name not in fields:
         raise SystemExit(f"missing modeled source bridge field: {name}")
+
+for name in (
+    "source_capacity",
+    "source_committed_bytes",
+    "requested_bytes",
+    "padded_bytes",
+    "slot_capacity",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "usize" or field.get("storage") != "usize":
+        raise SystemExit(f"source bridge {name} must be exact usize storage: {field}")
+
+for name in (
+    "source_alignment",
+    "slot_index",
+    "slot_alignment",
+    "required_alignment",
+    "page_size",
+    "row_index",
+    "source_token",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"source bridge {name} must remain i64 storage: {field}")
 
 print("[mimap260a-mir-json] ok")
 PY
