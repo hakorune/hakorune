@@ -1,6 +1,6 @@
 # 293x-799 MIMAP-274A Segment Arena Backing Modeled Allocation Apply Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -42,3 +42,18 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ap
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+- Added closeout SSOT and manifest-backed closeout guard.
+- Bound the MIMAP-272A inventory guard and MIMAP-273A diagnostics guard into
+  the `segment-arena-backing-modeled-allocation-apply` closeout pack.
+- Added representative exact-MIR L3 evidence through the MIMAP-273A diagnostics
+  proof app.
+- Kept allocation-apply behavior unchanged and all real runtime/backend seams
+  closed.
+
+## Selected Next Row
+
+`MIMAP-275A` post-segment-arena-backing-modeled-allocation-apply-closeout row
+selection.
