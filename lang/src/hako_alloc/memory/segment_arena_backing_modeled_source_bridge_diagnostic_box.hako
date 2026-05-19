@@ -30,8 +30,8 @@ box HakoAllocSegmentArenaBackingModeledSourceBridgeDiagnosticReport {
     last_report_arena_slot_token: i64 = 0
     last_report_source_kind: i64 = 0
     last_report_source_token: i64 = 0
-    last_report_source_capacity: i64 = 0
-    last_report_source_committed_bytes: i64 = 0
+    last_report_source_capacity: usize = 0
+    last_report_source_committed_bytes: usize = 0
     last_report_source_alignment: i64 = 0
     source_bridge_present: i64 = 0
     modeled_source_bridge_present: i64 = 0

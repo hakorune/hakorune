@@ -1,6 +1,6 @@
 # 293x-832 HAKO-ALLOC-USIZE-FIELD-GROUP-024 Source-Bridge Diagnostic Byte Mirror Migration
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -51,7 +51,18 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Migrated only the source-bridge diagnostic mirror byte fields to exact
+  `usize` storage.
+- Kept diagnostic counters, reasons, tokens, ids, alignments, and
+  sentinel-bearing fields on `i64`.
+- Strengthened the MIMAP-261A diagnostics guard to assert exact `usize`
+  typed-object storage for the migrated mirror fields.
+- Re-ran the MIMAP-262A closeout guard after the migration.
+
 ## Next
 
-After this migration, select a closeout row for the source-bridge diagnostic
-byte mirror field group before selecting another allocator byte/capacity group.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-025` to close out the source-bridge
+diagnostic byte mirror field group before selecting another allocator
+byte/capacity group.
