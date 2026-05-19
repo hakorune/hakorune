@@ -83,6 +83,52 @@ Until then, use explicit helpers or keep the row scalar/model-only.
 
 ## Task Order
 
+## Near-Term Current Order
+
+Use this order when deciding whether to keep pushing mimalloc rows or switch to
+Hakorune language/compiler work.
+
+```text
+0. Finish the active exact-usize closeout row.
+   Current: HAKO-ALLOC-USIZE-FIELD-GROUP-048.
+
+1. Finish the local-free reuse ledger release-apply numeric cluster.
+   Remaining likely rows:
+     - execution/capability release-apply reject counters
+     - closeout for that counter group
+
+2. Add narrow report-carrier record rows where the current `box` is only a
+   scalar report carrier.
+   Target first:
+     HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport
+   Do not migrate owner boxes or identity-bearing state in the same row.
+
+3. Strengthen source exact numeric surface only where it removes repeated
+   allocator friction:
+     - exact annotations in fields/params/returns
+     - literal suffixes such as 0usize / 1u32 / 1u64
+     - source-near diagnostics for negative writes to unsigned exact fields
+
+4. Strengthen exact operation semantics before opening bitmap or pointer math:
+     - checked same-type add/sub/mul
+     - exact compare
+     - unsigned shifts / bitwise ops with fail-fast traps
+     - PHI/Select exact-type preservation for identical exact types only
+
+5. Improve return/route diagnostics when a normal `.hako` helper shape still
+   requires unnecessary typed-local workarounds.
+
+6. Return to memory substrate rows:
+     - no-escape address residence
+     - arena backing first execution
+     - real segment-map execution
+     - bitmap / atomic / TLS after exact numeric + memory substrate gates
+```
+
+Do not pause the mimalloc lane for broad language work. Switch to language work
+only when it removes repeated allocator workarounds or blocks the next memory
+substrate step.
+
 ### A. Narrow Exact Stored Fields
 
 Continue the current 293x exact-`usize` field-group lane only for:
