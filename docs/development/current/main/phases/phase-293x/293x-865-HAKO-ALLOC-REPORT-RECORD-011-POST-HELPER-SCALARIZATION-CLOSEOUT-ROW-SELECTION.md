@@ -1,6 +1,6 @@
 # 293x-865 HAKO-ALLOC-REPORT-RECORD-011 Post Helper-Scalarization Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -43,3 +43,37 @@ git diff --check
 - Remaining candidate owners are named with the reason they are or are not next.
 - The selected next row has a single owner and a bounded validation profile.
 - The taskboard and current pointer name the selected next row.
+
+## Inventory
+
+Immediate `ReportFields` candidates already present in `lang/src/hako_alloc/memory`:
+
+```text
+HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateDiagnosticReportFields
+HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnosticReportFields
+HakoAllocSegmentArenaBackingModeledAllocationApplyDiagnosticReportFields
+HakoAllocSegmentArenaBackingModeledAllocationPlanDiagnosticReportFields
+HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReportFields
+HakoAllocSegmentAllocationModeledLocalFreeIntegrationReportFields
+HakoAllocBoundedPurgeDecommitSchedulerReportFields
+```
+
+## Selection
+
+Select `HAKO-ALLOC-REPORT-RECORD-012` for
+`HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateDiagnostic`.
+
+Reason:
+
+```text
+It is adjacent to the just-migrated allocation-ledger release-candidate owner,
+already has a local ReportFields record, has a dedicated scalar-mir guard, and
+does not require broadening runtime record representation.
+```
+
+## Evidence
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```

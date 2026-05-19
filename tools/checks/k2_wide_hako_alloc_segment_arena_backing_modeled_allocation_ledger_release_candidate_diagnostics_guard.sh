@@ -67,6 +67,8 @@ guard_expect_in_file "$TAG" 'exe = "deferred-to-closeout"' "$PROOF_MANIFEST" "MI
 guard_expect_in_file "$TAG" 'memory.segment_arena_backing_modeled_allocation_ledger_release_candidate_diagnostic_box' "$MODULE" "module must export diagnostic owner"
 guard_expect_in_file "$TAG" 'segment_arena_backing_modeled_allocation_ledger_release_candidate_diagnostic_box.hako' "$MEMORY_README" "memory README must name diagnostic owner"
 guard_expect_in_file "$TAG" 'record HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateDiagnosticReportFields' "$DIAGNOSTIC_OWNER" "diagnostic owner must use local ReportFields record payload"
+guard_expect_in_file "$TAG" 'makeReleaseCandidateDiagnosticReport' "$DIAGNOSTIC_OWNER" "diagnostic owner must expose ReportFields helper-argument scalarization helper"
+guard_expect_in_file "$TAG" 'return me.makeReleaseCandidateDiagnosticReport' "$DIAGNOSTIC_OWNER" "diagnostic makeReport must delegate report copy through ReportFields helper"
 guard_expect_in_file "$TAG" 'observeReleaseCandidateDiagnostics' "$DIAGNOSTIC_OWNER" "diagnostic owner must expose observer route"
 guard_expect_in_file "$TAG" 'diagnostic_present: i64 = 1' "$DIAGNOSTIC_OWNER" "diagnostic report must publish presence bit"
 guard_expect_in_file "$TAG" 'last_report_applied_backing_bytes: usize' "$DIAGNOSTIC_OWNER" "diagnostic mirror applied backing bytes must be exact usize"
@@ -149,6 +151,7 @@ required = {
     "main",
     "Main.makeLedger/2",
     "HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateInventory.recordReleaseCandidate/2",
+    "HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateDiagnostic.makeReleaseCandidateDiagnosticReport/1",
     "HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateDiagnostic.observeReleaseCandidateDiagnostics/2",
 }
 missing = sorted(name for name in required if functions.get(name) is None)
@@ -221,6 +224,23 @@ for name in ("reason", "last_segment_id", "last_arena_id", "last_report_release_
     field = record_fields.get(name)
     if field is None or field.get("declared_type") != "i64":
         raise SystemExit(f"release-candidate diagnostic ReportFields {name} must remain declared i64: {field}")
+
+def walk(value):
+    if isinstance(value, dict):
+        yield value
+        for child in value.values():
+            yield from walk(child)
+    elif isinstance(value, list):
+        for child in value:
+            yield from walk(child)
+
+nodes = list(walk(data))
+if any(
+    node.get("op") == "newbox"
+    and node.get("type") == "HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateDiagnosticReportFields"
+    for node in nodes
+):
+    raise SystemExit("release-candidate diagnostic ReportFields record materialized as NewBox")
 
 print("[mimap281a-mir-json] ok")
 PY

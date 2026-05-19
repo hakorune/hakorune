@@ -735,7 +735,9 @@ FST:
 | `HAKO-ALLOC-REPORT-RECORD-008` | landed | Select the next single ReportFields owner to migrate to the helper-argument scalarization pattern. | selected HAKO-ALLOC-REPORT-RECORD-009 |
 | `HAKO-ALLOC-REPORT-RECORD-009` | landed | Apply helper-argument scalarization to the allocation-ledger release-candidate ReportFields owner only. | selected HAKO-ALLOC-REPORT-RECORD-010 |
 | `HAKO-ALLOC-REPORT-RECORD-010` | landed | Close out the first two ReportFields helper-argument scalarization owners before selecting another report owner. | selected HAKO-ALLOC-REPORT-RECORD-011 |
-| `HAKO-ALLOC-REPORT-RECORD-011` | selected current | Inventory remaining scalar-only report-box candidates and select the next single owner or return to the allocator lane. | after HAKO-ALLOC-REPORT-RECORD-010 |
+| `HAKO-ALLOC-REPORT-RECORD-011` | landed | Inventory remaining scalar-only report-box candidates and select the next single owner or return to the allocator lane. | selected HAKO-ALLOC-REPORT-RECORD-012 |
+| `HAKO-ALLOC-REPORT-RECORD-012` | landed | Apply helper-argument scalarization to the allocation-ledger release-candidate diagnostic ReportFields owner only. | selected HAKO-ALLOC-REPORT-RECORD-013 |
+| `HAKO-ALLOC-REPORT-RECORD-013` | selected current | Close out the allocation-ledger release-candidate diagnostic ReportFields helper-scalarization owner. | after HAKO-ALLOC-REPORT-RECORD-012 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -744,9 +746,9 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-REPORT-RECORD-011` inventories the remaining scalar-only report-box
-candidates and selects exactly one next owner, or returns to the allocator lane
-if report-record work should pause. The already migrated motivating record is:
+`HAKO-ALLOC-REPORT-RECORD-013` closes out the allocation-ledger
+release-candidate diagnostic ReportFields helper-scalarization owner. The
+already migrated motivating record is:
 
 ```text
 HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields
@@ -756,6 +758,12 @@ The second migrated record is:
 
 ```text
 HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReportFields
+```
+
+The current target record is:
+
+```text
+HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateDiagnosticReportFields
 ```
 
 Real pointer residence, pointer-derived lookup, real thread scheduling, worker
