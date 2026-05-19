@@ -89,7 +89,7 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
                     params,
                     param_decls,
                     return_type_name,
-                    body: vec![],       // 空の実装
+                    body: vec![], // 空の実装
                     uses: vec![],
 
                     contracts: vec![],
@@ -132,7 +132,7 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
         delegates: vec![],
         invariants: vec![],
         transitions: vec![],
-        is_interface: true,           // インターフェースフラグ
+        is_interface: true, // インターフェースフラグ
         is_record: false,
         extends: vec![], // Multi-delegation: None → vec![] として表現
         implements: vec![],

@@ -640,7 +640,10 @@ impl NyashParser {
         }
 
         let mut offset = 1;
-        while matches!(self.peek_nth_token(offset), TokenType::NEWLINE | TokenType::COMMA) {
+        while matches!(
+            self.peek_nth_token(offset),
+            TokenType::NEWLINE | TokenType::COMMA
+        ) {
             offset += 1;
         }
         if !matches!(self.peek_nth_token(offset), TokenType::IDENTIFIER(_)) {

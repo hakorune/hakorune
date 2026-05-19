@@ -41,9 +41,7 @@ pub fn build_array_record_storage_plans(module: &MirModule) -> Vec<ArrayRecordSt
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::function::{
-        RecordLayoutFieldPlan, RecordLayoutPlan, TypedObjectFieldStorage,
-    };
+    use crate::mir::function::{RecordLayoutFieldPlan, RecordLayoutPlan, TypedObjectFieldStorage};
     use crate::mir::MirModule;
 
     #[test]

@@ -293,9 +293,7 @@ impl WasmBackend {
 
         // UTF-8 validation to prevent encoding errors
         if !wat_source.is_ascii() {
-            ring0
-                .log
-                .debug("[wasm/wat2wasm] reject non-ascii source");
+            ring0.log.debug("[wasm/wat2wasm] reject non-ascii source");
             return Err(WasmError::WasmValidationError(
                 "WAT source contains non-ASCII characters".to_string(),
             ));

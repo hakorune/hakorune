@@ -15,10 +15,12 @@ use std::time::SystemTime;
 
 #[derive(Clone, Default)]
 pub struct BoxIndex {
-    #[allow(dead_code)] // ASTCLEAN-017: retained for strict-prefix alias diagnostics; active using resolution currently reads UsingContext directly.
+    #[allow(dead_code)]
+    // ASTCLEAN-017: retained for strict-prefix alias diagnostics; active using resolution currently reads UsingContext directly.
     pub aliases: HashMap<String, String>,
     pub plugin_boxes: HashSet<String>,
-    #[allow(dead_code)] // ASTCLEAN-017: retained for plugin-prefix metadata queries via get_plugin_meta.
+    #[allow(dead_code)]
+    // ASTCLEAN-017: retained for plugin-prefix metadata queries via get_plugin_meta.
     pub plugin_meta: HashMap<String, PluginMeta>,
     pub plugin_meta_by_box: HashMap<String, PluginMeta>,
     pub plugins_require_prefix_global: bool,

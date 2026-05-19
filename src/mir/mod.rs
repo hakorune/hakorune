@@ -69,9 +69,9 @@ pub mod naming; // Static box / entry naming rules（NamingBox）
 pub(crate) mod numeric_substrate; // fixed-width/pointer-sized numeric type-name vocabulary
 pub mod optimizer;
 pub mod policies; // shared routing policies (SSOT)
-pub mod ssot; // Shared helpers (SSOT) for instruction lowering
 pub mod source_packed_array_autouse_pilot; // MIR-owned source PackedArray<T> pilot metadata
 pub mod source_packed_array_direct_read_consumption; // MIR-owned source PackedArray<T> direct-read consumption metadata
+pub mod ssot; // Shared helpers (SSOT) for instruction lowering
 pub mod types; // core MIR enums (ConstValue, Ops, MirType)
 pub mod utils; // Phase 15 control flow utilities for root treatment
                // pub mod lowerers; // reserved: Stage-3 loop lowering (while/for-range)

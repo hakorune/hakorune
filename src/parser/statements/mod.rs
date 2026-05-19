@@ -18,8 +18,8 @@ pub mod declarations;
 pub mod variables;
 
 // I/O and async statements
-pub mod io_async;
 pub mod context_scope;
+pub mod io_async;
 pub mod task_scope;
 
 // Exception handling

@@ -689,10 +689,7 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                             .collect::<Vec<_>>()
                     })
                     .unwrap_or_default(),
-                is_sync: v
-                    .get("is_sync")
-                    .and_then(|b| b.as_bool())
-                    .unwrap_or(false),
+                is_sync: v.get("is_sync").and_then(|b| b.as_bool()).unwrap_or(false),
                 is_static: v
                     .get("is_static")
                     .and_then(|b| b.as_bool())

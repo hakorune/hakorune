@@ -1,6 +1,6 @@
 use nyash_rust::ast::{
-    ASTNode, BinaryOperator, ContractClause, ContractKind, LiteralValue, ParamDecl,
-    TransitionDecl, UnaryOperator,
+    ASTNode, BinaryOperator, ContractClause, ContractKind, LiteralValue, ParamDecl, TransitionDecl,
+    UnaryOperator,
 };
 use serde_json::{json, Value};
 

@@ -84,8 +84,7 @@ fn match_scan_window_block<'a>(
     let (condition, body) = match inner_loop {
         ASTNode::Loop {
             condition, body, ..
-        }
- => (condition.as_ref(), body.as_slice()),
+        } => (condition.as_ref(), body.as_slice()),
         _ => return None,
     };
 

@@ -1,9 +1,7 @@
 use crate::ast::EnumVariantDecl;
 use std::collections::BTreeMap;
 
-pub fn extend_known_result_option_enums(
-    known_enums: &mut BTreeMap<String, Vec<EnumVariantDecl>>,
-) {
+pub fn extend_known_result_option_enums(known_enums: &mut BTreeMap<String, Vec<EnumVariantDecl>>) {
     for (name, variants) in result_option_prelude_enum_decls() {
         known_enums.entry(name).or_insert(variants);
     }

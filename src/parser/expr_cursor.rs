@@ -682,10 +682,7 @@ impl ExprParserWithCursor {
         matches!(cursor.peek_nth_token(offset), TokenType::COLON)
     }
 
-    fn parse_record_update(
-        cursor: &mut TokenCursor,
-        base: ASTNode,
-    ) -> Result<ASTNode, ParseError> {
+    fn parse_record_update(cursor: &mut TokenCursor, base: ASTNode) -> Result<ASTNode, ParseError> {
         cursor.advance(); // consume contextual `with`
         cursor.consume(TokenType::LBRACE)?;
         let mut updates = Vec::new();

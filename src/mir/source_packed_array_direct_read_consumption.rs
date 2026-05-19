@@ -7,8 +7,7 @@
  */
 
 use crate::mir::function::{
-    RecordLayoutPlan, SourcePackedArrayAutoUsePilotPlan,
-    SourcePackedArrayDirectReadConsumptionPlan,
+    RecordLayoutPlan, SourcePackedArrayAutoUsePilotPlan, SourcePackedArrayDirectReadConsumptionPlan,
 };
 use crate::mir::MirModule;
 
@@ -27,14 +26,9 @@ pub fn build_source_packed_array_direct_read_consumption_plans(
 ) -> Vec<SourcePackedArrayDirectReadConsumptionPlan> {
     let mut out = Vec::new();
     for source in &module.metadata.source_packed_array_autouse_pilot_plans {
-        let Some(layout) = module
-            .metadata
-            .record_layout_plans
-            .iter()
-            .find(|layout| {
-                layout.layout_id == source.layout_id && layout.record_name == source.record_name
-            })
-        else {
+        let Some(layout) = module.metadata.record_layout_plans.iter().find(|layout| {
+            layout.layout_id == source.layout_id && layout.record_name == source.record_name
+        }) else {
             continue;
         };
         out.extend(classify_source_packed_array_direct_read_consumption(
@@ -83,4 +77,3 @@ pub fn classify_source_packed_array_direct_read_consumption(
         })
         .collect()
 }
-

@@ -104,16 +104,12 @@ pub(super) fn infer_typed_object_collection_element_origins(
                     continue;
                 };
                 let semantic_args = match (method.as_str(), collection_box.as_str()) {
-                    ("push", "ArrayBox") => {
-                        method_args_without_redundant_receiver(
-                            function, &def_map, *receiver, args, 1,
-                        )
-                    }
-                    ("set", "ArrayBox" | "MapBox") => {
-                        method_args_without_redundant_receiver(
-                            function, &def_map, *receiver, args, 2,
-                        )
-                    }
+                    ("push", "ArrayBox") => method_args_without_redundant_receiver(
+                        function, &def_map, *receiver, args, 1,
+                    ),
+                    ("set", "ArrayBox" | "MapBox") => method_args_without_redundant_receiver(
+                        function, &def_map, *receiver, args, 2,
+                    ),
                     _ => None,
                 };
                 let Some(semantic_args) = semantic_args else {

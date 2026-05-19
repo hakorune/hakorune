@@ -86,5 +86,4 @@ impl super::super::MirBuilder {
         }
         Err("No current function/block to insert copy".to_string())
     }
-
 }

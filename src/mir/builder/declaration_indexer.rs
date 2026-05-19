@@ -122,12 +122,8 @@ pub(super) fn index_declarations(builder: &mut MirBuilder, node: &ASTNode) {
                     } = mast
                     {
                         if !*is_static {
-                            let func_name = format!(
-                                "{}.{}{}",
-                                name,
-                                mname,
-                                format!("/{}", params.len())
-                            );
+                            let func_name =
+                                format!("{}.{}{}", name, mname, format!("/{}", params.len()));
                             builder.comp_ctx.register_lowered_method_ast(
                                 func_name,
                                 params.clone(),

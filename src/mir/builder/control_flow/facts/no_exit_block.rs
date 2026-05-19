@@ -71,8 +71,7 @@ fn build_no_exit_item(
     match stmt {
         ASTNode::Loop {
             condition, body, ..
-        }
- => {
+        } => {
             if !is_supported_bool_expr_with_canon(condition, allow_extended) {
                 return None;
             }

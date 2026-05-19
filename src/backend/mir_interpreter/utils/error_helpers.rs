@@ -100,7 +100,6 @@ impl ErrorBuilder {
     pub fn with_context(operation: &str, detail: &str) -> VMError {
         VMError::InvalidInstruction(format!("{}: {}", operation, detail))
     }
-
 }
 
 // Convenience methods on MirInterpreter to make error generation even shorter

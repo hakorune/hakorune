@@ -393,8 +393,7 @@ fn stmt_has_blockexpr_prelude_loop(stmt: &ASTNode) -> bool {
         ASTNode::Program { statements, .. } => body_has_blockexpr_prelude_loop(statements),
         ASTNode::Loop {
             condition, body, ..
-        }
- => expr_has_blockexpr_prelude_loop(condition) || body_has_blockexpr_prelude_loop(body),
+        } => expr_has_blockexpr_prelude_loop(condition) || body_has_blockexpr_prelude_loop(body),
         ASTNode::Return { value, .. } => value
             .as_ref()
             .is_some_and(|v| expr_has_blockexpr_prelude_loop(v)),

@@ -6,7 +6,8 @@ use crate::tokenizer::TokenType;
 pub(crate) fn try_parse_transition_decl(
     p: &mut NyashParser,
 ) -> Result<Option<TransitionDecl>, ParseError> {
-    if !matches!(&p.current_token().token_type, TokenType::IDENTIFIER(name) if name == "transition") {
+    if !matches!(&p.current_token().token_type, TokenType::IDENTIFIER(name) if name == "transition")
+    {
         return Ok(None);
     }
 
@@ -59,11 +60,7 @@ fn parse_ident(p: &mut NyashParser, context: &str) -> Result<String, ParseError>
     }
 }
 
-fn consume_context_word(
-    p: &mut NyashParser,
-    word: &str,
-    context: &str,
-) -> Result<(), ParseError> {
+fn consume_context_word(p: &mut NyashParser, word: &str, context: &str) -> Result<(), ParseError> {
     if matches!(&p.current_token().token_type, TokenType::IDENTIFIER(name) if name == word) {
         p.advance();
         Ok(())

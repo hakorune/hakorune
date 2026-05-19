@@ -83,12 +83,17 @@ impl MirBuilder {
                         func_name, idx
                     ));
                 };
-                let value = self.variable_ctx.variable_map.get(name).copied().ok_or_else(|| {
-                    format!(
+                let value = self
+                    .variable_ctx
+                    .variable_map
+                    .get(name)
+                    .copied()
+                    .ok_or_else(|| {
+                        format!(
                         "[record-helper-arg/internal] func={} name={} expected=bound-record-local",
                         func_name, name
                     )
-                })?;
+                    })?;
                 let record = self.comp_ctx.record_local_value(value).ok_or_else(|| {
                     format!(
                         "[record-helper-arg/internal] func={} name={} expected=record-local",
@@ -160,6 +165,9 @@ impl MirBuilder {
             self.build_statement(stmt.clone())?;
         }
 
-        Err(format!("[record-helper-arg/missing-return] func={}", func_name))
+        Err(format!(
+            "[record-helper-arg/missing-return] func={}",
+            func_name
+        ))
     }
 }

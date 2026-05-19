@@ -206,13 +206,13 @@ fn route_sort_key(route: &AggLocalScalarizationRoute) -> (u8, u32, u32, u32, Str
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::function::RecordLayoutPlan;
     use crate::mir::sum_placement_layout::{SumLocalAggregateLayout, SumPlacementLayout};
     use crate::mir::thin_entry::{
         ThinEntryCurrentCarrier, ThinEntryDemand, ThinEntryPreferredEntry, ThinEntrySurface,
         ThinEntryValueClass,
     };
     use crate::mir::thin_entry_selection::{ThinEntrySelection, ThinEntrySelectionState};
-    use crate::mir::function::RecordLayoutPlan;
     use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirType, ValueId};
 
     #[test]

@@ -158,12 +158,13 @@ impl NyashParser {
         self.advance(); // consume 'else'
         let else_body = self.parse_block_statements()?;
 
-        let variants = self.known_enums.get(&enum_name).ok_or_else(|| {
-            ParseError::InvalidMatchPattern {
-                detail: format!("unknown enum `{}` in guard let pattern", enum_name),
-                line: let_line,
-            }
-        })?;
+        let variants =
+            self.known_enums
+                .get(&enum_name)
+                .ok_or_else(|| ParseError::InvalidMatchPattern {
+                    detail: format!("unknown enum `{}` in guard let pattern", enum_name),
+                    line: let_line,
+                })?;
         let variant = variants
             .iter()
             .find(|decl| decl.name == variant_name)
@@ -371,8 +372,7 @@ impl NyashParser {
         }
 
         if self.current_loop_range_header_starts() {
-            let (var_name, start, end) =
-                self.parse_range_header("loop range index identifier")?;
+            let (var_name, start, end) = self.parse_range_header("loop range index identifier")?;
             let body = self.parse_block_statements()?;
             return Ok(ASTNode::LoopRange {
                 var_name,

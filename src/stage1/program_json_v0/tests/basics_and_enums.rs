@@ -445,7 +445,10 @@ return 0
     let error = source_to_program_json_v0_strict(source)
         .expect_err("Option::Some missing payload should fail fast");
     assert!(error.contains("[enum/payload][prelude]"), "{error}");
-    assert!(error.contains("Option::Some expects 1 payload arg(s), got 0"), "{error}");
+    assert!(
+        error.contains("Option::Some expects 1 payload arg(s), got 0"),
+        "{error}"
+    );
 }
 
 #[test]
@@ -462,7 +465,10 @@ return 0
     let error = source_to_program_json_v0_strict(source)
         .expect_err("Option::None extra payload should fail fast");
     assert!(error.contains("[enum/payload][prelude]"), "{error}");
-    assert!(error.contains("Option::None expects 0 payload arg(s), got 1"), "{error}");
+    assert!(
+        error.contains("Option::None expects 0 payload arg(s), got 1"),
+        "{error}"
+    );
 }
 
 #[test]
@@ -479,7 +485,10 @@ return 0
     let error = source_to_program_json_v0_strict(source)
         .expect_err("Result::Err missing payload should fail fast");
     assert!(error.contains("[enum/payload][prelude]"), "{error}");
-    assert!(error.contains("Result::Err expects 1 payload arg(s), got 0"), "{error}");
+    assert!(
+        error.contains("Result::Err expects 1 payload arg(s), got 0"),
+        "{error}"
+    );
 }
 
 #[test]
@@ -913,7 +922,10 @@ return match value {
         .expect_err("prelude Result missing arm should fail with explicit diagnostic");
     assert!(error.contains("[enum/missing-arm][prelude]"), "{error}");
     assert!(error.contains("Result::Err"), "{error}");
-    assert!(error.contains("`_` does not satisfy known-enum exhaustiveness"), "{error}");
+    assert!(
+        error.contains("`_` does not satisfy known-enum exhaustiveness"),
+        "{error}"
+    );
     assert!(error.contains("explicit prelude variant arm"), "{error}");
 }
 
@@ -938,10 +950,16 @@ return match state {
 
     let error = source_to_program_json_v0_strict(source)
         .expect_err("known enum default arm must not satisfy exhaustiveness");
-    assert!(error.contains("[enum/exhaustiveness][underscore]"), "{error}");
+    assert!(
+        error.contains("[enum/exhaustiveness][underscore]"),
+        "{error}"
+    );
     assert!(error.contains("PageState"), "{error}");
     assert!(error.contains("Retired"), "{error}");
-    assert!(error.contains("`_` does not satisfy known-enum exhaustiveness"), "{error}");
+    assert!(
+        error.contains("`_` does not satisfy known-enum exhaustiveness"),
+        "{error}"
+    );
 }
 
 #[test]
@@ -959,7 +977,10 @@ return 0
         .expect_err("prelude generic enum constructor needs expected type");
     assert!(error.contains("[enum/expected-type][prelude]"), "{error}");
     assert!(error.contains("Result::Err"), "{error}");
-    assert!(error.contains("local value: Result<T,E> = Result::Err(...)"), "{error}");
+    assert!(
+        error.contains("local value: Result<T,E> = Result::Err(...)"),
+        "{error}"
+    );
 }
 
 #[test]
@@ -977,7 +998,10 @@ return 0
         .expect_err("prelude generic unit enum constructor needs expected type");
     assert!(error.contains("[enum/expected-type][prelude]"), "{error}");
     assert!(error.contains("Option::None"), "{error}");
-    assert!(error.contains("local value: Option<T> = Option::None"), "{error}");
+    assert!(
+        error.contains("local value: Option<T> = Option::None"),
+        "{error}"
+    );
 }
 
 #[test]
@@ -1165,8 +1189,20 @@ return 0
         .find(|decl| decl["name"] == "Meta")
         .expect("Meta decl");
 
-    assert_eq!(page["invariants"].as_array().expect("Page invariants").len(), 1);
-    assert_eq!(meta["invariants"].as_array().expect("Meta invariants").len(), 1);
+    assert_eq!(
+        page["invariants"]
+            .as_array()
+            .expect("Page invariants")
+            .len(),
+        1
+    );
+    assert_eq!(
+        meta["invariants"]
+            .as_array()
+            .expect("Meta invariants")
+            .len(),
+        1
+    );
 }
 
 #[test]
@@ -1196,7 +1232,9 @@ return 0
         .iter()
         .find(|decl| decl["name"] == "Page")
         .expect("Page decl");
-    let transitions = page["transitions"].as_array().expect("transitions metadata");
+    let transitions = page["transitions"]
+        .as_array()
+        .expect("transitions metadata");
 
     assert_eq!(transitions.len(), 1);
     assert_eq!(transitions[0]["from"], "PageState::Active");
@@ -1231,7 +1269,9 @@ return 0
         .iter()
         .find(|decl| decl["name"] == "Page")
         .expect("Page decl");
-    let transitions = page["transitions"].as_array().expect("transitions metadata");
+    let transitions = page["transitions"]
+        .as_array()
+        .expect("transitions metadata");
 
     assert_eq!(transitions[0]["from"], "PageState::Active");
     assert_eq!(transitions[0]["to"], "PageState::Retired");
@@ -1262,7 +1302,10 @@ return size
         .expect("reserve def");
     let uses = reserve["uses"].as_array().expect("uses metadata");
 
-    assert_eq!(uses, &vec![serde_json::json!("osvm"), serde_json::json!("rawbuf")]);
+    assert_eq!(
+        uses,
+        &vec![serde_json::json!("osvm"), serde_json::json!("rawbuf")]
+    );
 }
 
 #[test]
@@ -1304,7 +1347,10 @@ return 0
     );
 
     let defs = value["defs"].as_array().expect("helper defs");
-    let process = defs.iter().find(|def| def["name"] == "process").expect("process def");
+    let process = defs
+        .iter()
+        .find(|def| def["name"] == "process")
+        .expect("process def");
     assert_eq!(process["param_decls"][0]["declared_type"], "Array<PageId>");
     assert_eq!(process["return_type"], "Result<PageId,Error>");
 }
@@ -1428,8 +1474,8 @@ return 0
 }
 "#;
 
-    let error = source_to_program_json_v0_strict(source)
-        .expect_err("typed array method arity should fail");
+    let error =
+        source_to_program_json_v0_strict(source).expect_err("typed array method arity should fail");
     assert!(error.contains("[array/method-contract]"), "{error}");
     assert!(error.contains("set"), "{error}");
     assert!(error.contains("expects 2 arg(s), got 1"), "{error}");
@@ -1531,7 +1577,10 @@ return 0
         .expect_err("unresolved Array<T> element should fail fast");
     assert!(error.contains("[array/inference]"), "{error}");
     assert!(error.contains("Array<T>"), "{error}");
-    assert!(error.contains("unresolved Array element type `T`"), "{error}");
+    assert!(
+        error.contains("unresolved Array element type `T`"),
+        "{error}"
+    );
 }
 
 #[test]
@@ -1685,7 +1734,10 @@ return 0
     let error = source_to_program_json_v0_strict(source)
         .expect_err("handle field must fail PackedArray eligibility");
     assert!(error.contains("[packed/eligibility]"), "{error}");
-    assert!(error.contains("reason=unsupported-field-storage"), "{error}");
+    assert!(
+        error.contains("reason=unsupported-field-storage"),
+        "{error}"
+    );
     assert!(error.contains("field=label"), "{error}");
 }
 

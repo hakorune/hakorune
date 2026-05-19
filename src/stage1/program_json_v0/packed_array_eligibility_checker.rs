@@ -159,10 +159,7 @@ fn check_field_decls(
     Ok(())
 }
 
-fn check_type_text(
-    type_text: &str,
-    context: &PackedArrayEligibilityContext,
-) -> Result<(), String> {
+fn check_type_text(type_text: &str, context: &PackedArrayEligibilityContext) -> Result<(), String> {
     let type_ref = parse_type_ref_text(type_text)?;
     check_type_ref(&type_ref, context)
 }

@@ -218,7 +218,7 @@ fn parse_box_declaration_after_box_keyword(
     let mut delegates = Vec::new();
     let mut invariants = Vec::new();
     let mut transitions = Vec::new();
-                                      // Track birth_once properties for constructor prologue emission.
+    // Track birth_once properties for constructor prologue emission.
     let mut birth_once_props: Vec<String> = Vec::new();
 
     let mut last_method_name: Option<String> = None;

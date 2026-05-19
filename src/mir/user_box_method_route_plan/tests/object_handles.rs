@@ -406,7 +406,10 @@ fn refresh_module_user_box_method_routes_refines_void_placeholder_object_route_r
         BasicBlockId::new(0),
     );
     consume.params = vec![ValueId::new(0)];
-    consume.metadata.value_types.insert(ValueId::new(2), MirType::Void);
+    consume
+        .metadata
+        .value_types
+        .insert(ValueId::new(2), MirType::Void);
     let mut consume_block = BasicBlock::new(BasicBlockId::new(0));
     consume_block.add_instruction(MirInstruction::Call {
         dst: Some(ValueId::new(2)),

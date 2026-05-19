@@ -61,10 +61,12 @@ fn first_wait_like_in_node(node: &ASTNode) -> Option<&'static str> {
         | ASTNode::TaskScope {
             body: statements, ..
         } => first_wait_like_in_body(statements),
-        ASTNode::ContextScope { value, body, .. } => first_wait_like_in_node(value)
-            .or_else(|| first_wait_like_in_body(body)),
-        ASTNode::Assignment { target, value, .. } => first_wait_like_in_node(target)
-            .or_else(|| first_wait_like_in_node(value)),
+        ASTNode::ContextScope { value, body, .. } => {
+            first_wait_like_in_node(value).or_else(|| first_wait_like_in_body(body))
+        }
+        ASTNode::Assignment { target, value, .. } => {
+            first_wait_like_in_node(target).or_else(|| first_wait_like_in_node(value))
+        }
         ASTNode::Print { expression, .. }
         | ASTNode::QMarkPropagate { expression, .. }
         | ASTNode::Throw { expression, .. } => first_wait_like_in_node(expression),
@@ -87,8 +89,9 @@ fn first_wait_like_in_node(node: &ASTNode) -> Option<&'static str> {
         ASTNode::Return { value, .. } => first_wait_like_in_optional_node(value),
         ASTNode::GlobalVar { value, .. } => first_wait_like_in_node(value),
         ASTNode::UnaryOp { operand, .. } => first_wait_like_in_node(operand),
-        ASTNode::BinaryOp { left, right, .. } => first_wait_like_in_node(left)
-            .or_else(|| first_wait_like_in_node(right)),
+        ASTNode::BinaryOp { left, right, .. } => {
+            first_wait_like_in_node(left).or_else(|| first_wait_like_in_node(right))
+        }
         ASTNode::CheckExpr { items, .. } => items
             .iter()
             .find_map(|item| first_wait_like_in_node(&item.expression)),
@@ -98,8 +101,9 @@ fn first_wait_like_in_node(node: &ASTNode) -> Option<&'static str> {
         } => first_wait_like_in_node(object)
             .or_else(|| arguments.iter().find_map(first_wait_like_in_node)),
         ASTNode::FieldAccess { object, .. } => first_wait_like_in_node(object),
-        ASTNode::Index { target, index, .. } => first_wait_like_in_node(target)
-            .or_else(|| first_wait_like_in_node(index)),
+        ASTNode::Index { target, index, .. } => {
+            first_wait_like_in_node(target).or_else(|| first_wait_like_in_node(index))
+        }
         ASTNode::New { arguments, .. }
         | ASTNode::FromCall { arguments, .. }
         | ASTNode::FunctionCall { arguments, .. } => {
@@ -115,7 +119,10 @@ fn first_wait_like_in_node(node: &ASTNode) -> Option<&'static str> {
             else_expr,
             ..
         } => first_wait_like_in_node(scrutinee)
-            .or_else(|| arms.iter().find_map(|(_, arm)| first_wait_like_in_node(arm)))
+            .or_else(|| {
+                arms.iter()
+                    .find_map(|(_, arm)| first_wait_like_in_node(arm))
+            })
             .or_else(|| first_wait_like_in_node(else_expr)),
         ASTNode::EnumMatchExpr {
             scrutinee,
@@ -135,22 +142,21 @@ fn first_wait_like_in_node(node: &ASTNode) -> Option<&'static str> {
         ASTNode::RecordLiteral { fields, .. } => fields
             .iter()
             .find_map(|(_, value)| first_wait_like_in_node(value)),
-        ASTNode::RecordUpdate { base, updates, .. } => first_wait_like_in_node(base)
-            .or_else(|| {
+        ASTNode::RecordUpdate { base, updates, .. } => {
+            first_wait_like_in_node(base).or_else(|| {
                 updates
                     .iter()
                     .find_map(|(_, value)| first_wait_like_in_node(value))
-            }),
+            })
+        }
         ASTNode::BlockExpr {
             prelude_stmts,
             tail_expr,
             ..
-        } => first_wait_like_in_body(prelude_stmts)
-            .or_else(|| first_wait_like_in_node(tail_expr)),
+        } => first_wait_like_in_body(prelude_stmts).or_else(|| first_wait_like_in_node(tail_expr)),
         ASTNode::Arrow {
             sender, receiver, ..
-        } => first_wait_like_in_node(sender)
-            .or_else(|| first_wait_like_in_node(receiver)),
+        } => first_wait_like_in_node(sender).or_else(|| first_wait_like_in_node(receiver)),
         ASTNode::TryCatch {
             try_body,
             catch_clauses,
@@ -164,7 +170,9 @@ fn first_wait_like_in_node(node: &ASTNode) -> Option<&'static str> {
             })
             .or_else(|| first_wait_like_in_optional_body(finally_body)),
         ASTNode::Local { initial_values, .. } | ASTNode::Outbox { initial_values, .. } => {
-            initial_values.iter().find_map(first_wait_like_in_optional_node)
+            initial_values
+                .iter()
+                .find_map(first_wait_like_in_optional_node)
         }
         ASTNode::Literal { .. }
         | ASTNode::Variable { .. }

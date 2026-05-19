@@ -182,7 +182,8 @@ impl NyashParser {
             debug_fuel: Some(100_000), // デフォルト値
             pending_runes: Vec::new(),
             rune_metadata: Vec::new(),
-            known_enums: crate::semantics::result_option_prelude::result_option_prelude_enum_decls(),
+            known_enums: crate::semantics::result_option_prelude::result_option_prelude_enum_decls(
+            ),
         }
     }
 
@@ -421,7 +422,8 @@ impl common::ParserUtils for NyashParser {
     }
     fn current_mut(&mut self) -> &mut usize {
         &mut self.current
-    }}
+    }
+}
 
 fn normalize_logical_ops(src: &str) -> String {
     let mut out = String::with_capacity(src.len());

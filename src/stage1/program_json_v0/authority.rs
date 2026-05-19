@@ -302,15 +302,12 @@ fn collect_enum_decl_index(ast: &ASTNode) -> BTreeMap<String, Vec<EnumVariantDec
         return index;
     };
 
-    index.extend(statements
-        .iter()
-        .filter_map(|statement| {
-            let ASTNode::EnumDeclaration { name, variants, .. } = statement else {
-                return None;
-            };
-            Some((name.clone(), variants.clone()))
-        })
-    );
+    index.extend(statements.iter().filter_map(|statement| {
+        let ASTNode::EnumDeclaration { name, variants, .. } = statement else {
+            return None;
+        };
+        Some((name.clone(), variants.clone()))
+    }));
     index
 }
 

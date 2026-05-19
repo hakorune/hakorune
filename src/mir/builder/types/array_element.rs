@@ -251,8 +251,14 @@ fn array_element_type(builder: &MirBuilder, receiver: ValueId) -> Option<MirType
 fn set_array_type(builder: &mut MirBuilder, receiver: ValueId, element_type: MirType) {
     let array_type = MirType::Array(Box::new(element_type));
     for value in receiver_copy_source_chain(builder, receiver) {
-        builder.type_ctx.value_types.insert(value, array_type.clone());
-        builder.comp_ctx.type_registry.record_type(value, array_type.clone());
+        builder
+            .type_ctx
+            .value_types
+            .insert(value, array_type.clone());
+        builder
+            .comp_ctx
+            .type_registry
+            .record_type(value, array_type.clone());
     }
 }
 

@@ -101,4 +101,3 @@ pub(crate) fn emit_unified_mir_call(
 
     call_obj
 }
-

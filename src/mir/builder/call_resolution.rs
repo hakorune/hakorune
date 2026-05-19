@@ -68,5 +68,4 @@ mod tests {
         assert!(!is_extern_function("print"));
         assert!(!is_extern_function("custom_function"));
     }
-
 }

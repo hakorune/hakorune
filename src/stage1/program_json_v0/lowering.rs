@@ -625,13 +625,7 @@ fn function_call_expr_to_json_v0(
     local_types: &mut ProgramJsonV0LocalTypes,
 ) -> Result<serde_json::Value, String> {
     if let Some(underlying_type) = context.brand_underlying_type(name) {
-        return brand_construct_to_json_v0(
-            name,
-            underlying_type,
-            arguments,
-            context,
-            local_types,
-        );
+        return brand_construct_to_json_v0(name, underlying_type, arguments, context, local_types);
     }
     Ok(serde_json::json!({
         "type": "Call",
@@ -663,7 +657,10 @@ fn method_call_expr_to_json_v0(
     local_types: &mut ProgramJsonV0LocalTypes,
 ) -> Result<serde_json::Value, String> {
     if let Some(static_receiver) = static_path_from_expr(object) {
-        if context.find_enum_variant(&static_receiver, method).is_some() {
+        if context
+            .find_enum_variant(&static_receiver, method)
+            .is_some()
+        {
             return Err(format!(
                 "[enum/variant-surface] use `{}::{}` for enum variants; `{}.{}` is object/member syntax",
                 static_receiver, method, static_receiver, method
@@ -1088,10 +1085,7 @@ fn array_element_type_accepts(expected: &str, actual: &str) -> bool {
     is_builtin_integer_type(expected) && actual == "i64"
 }
 
-fn array_element_type_is_enforced(
-    expected: &str,
-    context: &ProgramJsonV0LoweringContext,
-) -> bool {
+fn array_element_type_is_enforced(expected: &str, context: &ProgramJsonV0LoweringContext) -> bool {
     is_builtin_scalar_type(expected)
         || context.brand_underlying_type(expected).is_some()
         || context.find_record(expected).is_some()

@@ -8,9 +8,7 @@
  */
 
 use crate::mir::array_record_packed_autouse_pilot::ARRAY_RECORD_PACKED_AUTOUSE_PILOT_KIND_INTEGER_LANE_DIRECT_READS_V0;
-use crate::mir::function::{
-    ArrayRecordPackedAutoUsePilotPlan, SourcePackedArrayAutoUsePilotPlan,
-};
+use crate::mir::function::{ArrayRecordPackedAutoUsePilotPlan, SourcePackedArrayAutoUsePilotPlan};
 use crate::mir::MirModule;
 
 pub const SOURCE_PACKED_ARRAY_AUTOUSE_PILOT_KIND_DECLARED_PACKED_RECORD_ARRAY_V0: &str =
@@ -118,9 +116,7 @@ mod tests {
     use crate::mir::function::{
         ArrayRecordPackedAutoUsePilotPlan, SourcePackedArrayAutoUsePilotPlan,
     };
-    use crate::mir::{
-        MirModule, UserBoxFieldDecl,
-    };
+    use crate::mir::{MirModule, UserBoxFieldDecl};
 
     fn packed_pilot(record_name: &str) -> ArrayRecordPackedAutoUsePilotPlan {
         ArrayRecordPackedAutoUsePilotPlan {

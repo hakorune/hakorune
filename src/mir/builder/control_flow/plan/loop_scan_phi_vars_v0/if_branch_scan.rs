@@ -31,8 +31,7 @@ pub(in crate::mir::builder) fn lower_loop_scan_phi_vars_found_if_branch_body(
             let nested = match &stmts[idx] {
                 ASTNode::Loop {
                     condition, body, ..
-                }
- => NestedLoopRecipe {
+                } => NestedLoopRecipe {
                     cond_view: CondBlockView::from_expr(condition),
                     loop_stmt: stmts[idx].clone(),
                     body: RecipeBody::new(body.to_vec()),
