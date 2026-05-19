@@ -1,6 +1,6 @@
 # 293x-909 MIMAP-306A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Continuation Application Bridge Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -54,3 +54,19 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_le
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Next
+
+`MIMAP-307A`:
+
+```text
+post release/recycle continuation application bridge closeout row selection
+```
+
+Rationale:
+
+- MIMAP-306A closes the scalar/model continuation application bridge pack.
+- The next row should select the next narrow bridge toward modeled arena
+  backing release/recycle while keeping real raw pointer residence, arena
+  backing mutation, segment-map mutation, atomics, OSVM/page-source, worker/TLS,
+  providers, hooks, `#[global_allocator]`, and backend matchers closed.
