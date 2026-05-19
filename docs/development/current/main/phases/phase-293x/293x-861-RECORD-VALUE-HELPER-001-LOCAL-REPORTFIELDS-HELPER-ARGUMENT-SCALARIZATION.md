@@ -96,6 +96,19 @@ negative:
   return/store/pass-onward record value escapes still fail fast
 ```
 
+## Progress
+
+Step 0 landed a dedicated call-argument fail-fast:
+
+```text
+[record-helper-arg/unsupported]
+```
+
+This keeps unsupported helper passing from falling through the older generic
+`[record-value/escape]` path or, worse, from becoming a fake runtime record
+argument. The next implementation step is the positive scalarization owner, not
+weakening the escape guard.
+
 ## Completion Criteria
 
 - The release-apply owner can factor the repeated report-copy block through a
