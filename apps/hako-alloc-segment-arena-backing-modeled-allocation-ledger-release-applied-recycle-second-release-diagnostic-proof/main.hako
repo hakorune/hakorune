@@ -1,0 +1,185 @@
+// hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-second-release-diagnostic-proof
+// Purpose: prove MIMAP-296A modeled second-release diagnostic after release-applied recycle.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_requirement_matrix_box as HakoAllocSegmentArenaBackingRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_no_escape_address_capability_box as HakoAllocSegmentArenaBackingNoEscapeAddressCapability
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_no_escape_address_residence_box as HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidence
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_residence_arena_binding_box as HakoAllocSegmentArenaBackingModeledResidenceArenaBinding
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_arena_slot_box as HakoAllocSegmentArenaBackingModeledArenaSlot
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_source_bridge_box as HakoAllocSegmentArenaBackingModeledSourceBridge
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_source_accounting_box as HakoAllocSegmentArenaBackingModeledSourceAccounting
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_plan_box as HakoAllocSegmentArenaBackingModeledAllocationPlan
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_apply_box as HakoAllocSegmentArenaBackingModeledAllocationApply
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_box as HakoAllocSegmentArenaBackingModeledAllocationLedger
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_candidate_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidate
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_intent_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntent
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_apply_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseApply
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycle
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_second_release_diagnostic_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleSecondReleaseDiagnostic
+
+static box Main {
+    makeMatrix(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingRequirementMatrixReport {
+        local report = new HakoAllocSegmentArenaBackingRequirementMatrixReport()
+        report.accepted = 1
+        report.reason = 0
+        report.matrix_present = 1
+        report.scalar_requirement_matrix_present = 1
+        report.segment_id = segment_id
+        report.arena_id = arena_id
+        report.slice_count = 16
+        report.committed_slices = 8
+        report.free_slices = 4
+        report.required_alignment = 16
+        report.page_size = 4096
+        report.geometry_valid = 1
+        return report
+    }
+
+    makeResidence(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceReport {
+        local capability_inventory = new HakoAllocSegmentArenaBackingNoEscapeAddressCapabilityInventory()
+        local residence_inventory = new HakoAllocSegmentArenaBackingModeledNoEscapeAddressResidenceInventory()
+        local matrix = Main.makeMatrix(segment_id, arena_id)
+        local capability = capability_inventory.recordCapability(matrix, 3, 70019005002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        return residence_inventory.recordResidence(capability)
+    }
+
+    makeBinding(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledResidenceArenaBindingReport {
+        local binding_inventory = new HakoAllocSegmentArenaBackingModeledResidenceArenaBindingInventory()
+        local matrix = Main.makeMatrix(segment_id, arena_id)
+        local residence = Main.makeResidence(segment_id, arena_id)
+        return binding_inventory.recordBinding(residence, matrix)
+    }
+
+    makeSlot(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledArenaSlotReport {
+        local slot_inventory = new HakoAllocSegmentArenaBackingModeledArenaSlotInventory()
+        local binding = Main.makeBinding(segment_id, arena_id)
+        return slot_inventory.recordArenaSlot(binding, 2, 2048, 4096, 8192, 16)
+    }
+
+    makeSource(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledSourceBridgeReport {
+        local source_inventory = new HakoAllocSegmentArenaBackingModeledSourceBridgeInventory()
+        local slot = Main.makeSlot(segment_id, arena_id)
+        return source_inventory.recordSourceBridge(slot, 1, 90019005005, 16384, 4096, 16)
+    }
+
+    makeAccounting(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledSourceAccountingReport {
+        local accounting_inventory = new HakoAllocSegmentArenaBackingModeledSourceAccountingInventory()
+        local source = Main.makeSource(segment_id, arena_id)
+        return accounting_inventory.recordSourceAccounting(source)
+    }
+
+    makePlan(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledAllocationPlanReport {
+        local plan_inventory = new HakoAllocSegmentArenaBackingModeledAllocationPlanInventory()
+        local accounting = Main.makeAccounting(segment_id, arena_id)
+        return plan_inventory.recordAllocationPlan(accounting, 91019005005, 4096, 4096)
+    }
+
+    makeApply(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledAllocationApplyReport {
+        local apply_inventory = new HakoAllocSegmentArenaBackingModeledAllocationApplyInventory()
+        local plan = Main.makePlan(segment_id, arena_id)
+        return apply_inventory.recordAllocationApply(plan, 92019005005, 4096, 4096)
+    }
+
+    makeLedger(segment_id: i64, arena_id: i64): HakoAllocSegmentArenaBackingModeledAllocationLedgerReport {
+        local ledger_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerInventory()
+        local apply = Main.makeApply(segment_id, arena_id)
+        return ledger_inventory.recordAllocationLedger(apply, 93019005005)
+    }
+
+    makeCandidate(segment_id: i64, arena_id: i64, release_candidate_token: i64): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReport {
+        local candidate_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateInventory()
+        local ledger = Main.makeLedger(segment_id, arena_id)
+        return candidate_inventory.recordReleaseCandidate(ledger, release_candidate_token)
+    }
+
+    makeIntent(segment_id: i64, arena_id: i64, release_candidate_token: i64, release_intent_token: i64): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentReport {
+        local intent_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentInventory()
+        local candidate = Main.makeCandidate(segment_id, arena_id, release_candidate_token)
+        return intent_inventory.recordReleaseIntent(candidate, release_intent_token)
+    }
+
+    makeReleaseApply(segment_id: i64, arena_id: i64, release_candidate_token: i64, release_intent_token: i64, release_apply_token: i64): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseApplyReport {
+        local apply_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseApplyInventory()
+        local intent = Main.makeIntent(segment_id, arena_id, release_candidate_token, release_intent_token)
+        return apply_inventory.recordReleaseApply(intent, release_apply_token)
+    }
+
+    main(args) {
+        local recycle_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleInventory()
+        local diagnostics = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleSecondReleaseDiagnostic()
+        local apply = Main.makeReleaseApply(190, 19, 94019005005, 95019005005, 96019005005)
+
+        local accepted = recycle_inventory.recordReleaseAppliedRecycle(apply, 97019005005)
+
+        local diag = diagnostics.observeSecondReleaseAfterAppliedRecycle(recycle_inventory, accepted)
+        local empty_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleInventory()
+        local empty = diagnostics.observeSecondReleaseAfterAppliedRecycle(empty_inventory, accepted)
+        local missing_report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleReport()
+        local missing = diagnostics.observeSecondReleaseAfterAppliedRecycle(recycle_inventory, missing_report)
+
+        local ok = check "mimap296a segment arena backing modeled allocation ledger release applied recycle second release diagnostic" {
+            "observed": diag.observed == 1
+            "reason": diag.reason == 0
+            "diagnostic present": diag.diagnostic_present == 1
+            "second release rejected": diag.second_release_rejected == 1
+            "second release reason": diag.second_release_reason == 4
+            "existing index": diag.existing_index == 1
+            "inventory count": diag.inventory_count == 1
+            "accepted count": diag.accepted_count == 1
+            "reject count": diag.reject_count == 0
+            "duplicate source count": diag.duplicate_release_applied_recycle_token_reject_count == 0
+            "last segment": diag.last_segment_id == 190
+            "last arena": diag.last_arena_id == 19
+            "last token": diag.last_release_applied_recycle_token == 97019005005
+            "report accepted": diag.report_accepted == 1
+            "report reason": diag.report_reason == 0
+            "report row index": diag.report_row_index == 1
+            "report segment": diag.report_segment_id == 190
+            "report arena": diag.report_arena_id == 19
+            "report lifetime": diag.report_lifetime_generation == 3
+            "report apply token": diag.report_release_apply_token == 96019005005
+            "report recycle token": diag.report_release_applied_recycle_token == 97019005005
+            "applied backing": diag.report_applied_backing_bytes == 4096
+            "applied committed": diag.report_applied_committed_bytes == 4096
+            "remaining source": diag.report_remaining_source_bytes == 8192
+            "apply present": diag.release_applied_recycle_present == 1
+            "modeled present": diag.modeled_release_applied_recycle_present == 1
+            "owner observe": diagnostics.observe_count == 3
+            "owner accepted": diagnostics.accepted_summary_count == 1
+            "owner rejected": diagnostics.reject_summary_count == 2
+            "owner missing inventory": diagnostics.missing_inventory_reject_count == 1
+            "owner missing report": diagnostics.missing_report_reject_count == 1
+            "empty reject": empty.observed == 0
+            "empty reason": empty.reason == 1
+            "missing reject": missing.observed == 0
+            "missing reason": missing.reason == 2
+            "inactive residence": diag.would_create_pointer_residence == 0
+            "inactive lookup": diag.would_lookup_by_pointer == 0
+            "inactive arena release": diag.would_release_arena_backing == 0
+            "inactive segment map": diag.would_use_segment_map == 0
+            "inactive atomic": diag.would_execute_atomic_bitmap == 0
+            "inactive osvm": diag.would_call_osvm == 0
+            "inactive thread": diag.would_run_thread == 0
+            "inactive provider": diag.would_activate_provider == 0
+            "inactive matcher": diag.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-second-release-diagnostic-proof")
+        print("diag=" + diag.observed + "," + diag.reason + "," + diag.second_release_rejected + "," + diag.second_release_reason + "," + diag.existing_index + "," + diag.inventory_count + "," + diag.accepted_count + "," + diag.reject_count + "," + diag.last_segment_id + "," + diag.last_arena_id + "," + diag.last_release_applied_recycle_token)
+        print("recycle=" + diag.report_accepted + "," + diag.report_reason + "," + diag.report_row_index + "," + diag.report_release_apply_token + "," + diag.report_release_applied_recycle_token + "," + diag.report_applied_backing_bytes + "," + diag.report_applied_committed_bytes + "," + diag.report_remaining_source_bytes)
+        print("present=" + diag.diagnostic_present + "," + diag.release_applied_recycle_present + "," + diag.modeled_release_applied_recycle_present)
+        print("owner=" + diagnostics.observe_count + "," + diagnostics.accepted_summary_count + "," + diagnostics.reject_summary_count + "," + diagnostics.missing_inventory_reject_count + "," + diagnostics.missing_report_reject_count + "," + diagnostics.missing_token_reject_count + "," + diagnostics.last_reason)
+        print("empty=" + empty.observed + "," + empty.reason + "," + empty.inventory_count)
+        print("missing=" + missing.observed + "," + missing.reason + "," + missing.release_applied_recycle_present)
+        print("inactive=" + diag.would_create_pointer_residence + "," + diag.would_lookup_by_pointer + "," + diag.would_release_arena_backing + "," + diag.would_use_segment_map + "," + diag.would_execute_atomic_bitmap + "," + diag.would_call_osvm + "," + diag.would_run_thread + "," + diag.would_activate_provider + "," + diag.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

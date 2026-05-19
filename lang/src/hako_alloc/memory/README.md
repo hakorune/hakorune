@@ -57,6 +57,7 @@ Current modules
 - `segment_arena_backing_modeled_allocation_ledger_release_apply_diagnostic_box.hako`
 - `segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_box.hako`
 - `segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_diagnostic_box.hako`
+- `segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_second_release_diagnostic_box.hako`
 - `segment_lifecycle_scalar_state_box.hako`
 - `thread_heap_owner_inventory_box.hako`
 - `worker_identity_box.hako`
@@ -232,6 +233,13 @@ Syntax/style contract
   release-applied recycle rows, recycle real arena backing, mutate segment-map
   state, execute atomic bitmap operations, call OSVM/page-source, open pointer
   residence, activate providers, or add backend matchers.
+- `segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_second_release_diagnostic_box.hako`
+  owns MIMAP-296A. It may observe the MIMAP-292A release-applied recycle
+  inventory/report and publish scalar facts that a second release after modeled
+  recycle is rejected, but it must not create additional release-applied recycle
+  rows, introduce lifecycle generation, recycle real arena backing, mutate
+  segment-map state, execute atomic bitmap operations, call OSVM/page-source,
+  open pointer residence, activate providers, or add backend matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known

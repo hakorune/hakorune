@@ -1,6 +1,6 @@
 # 293x-899 MIMAP-296A Segment Arena Backing Modeled Allocation-Ledger Release-Applied Recycle Second-Release Diagnostic
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -57,4 +57,10 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_le
 bash tools/checks/run_proof_app.sh --only MIMAP-296A
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Next
+
+```text
+MIMAP-297A post release-applied recycle second-release diagnostic row selection
 ```
