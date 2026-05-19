@@ -760,7 +760,8 @@ FST:
 | `MIMAP-284A` | landed | Segment arena backing modeled allocation-ledger release intent inventory. | selected MIMAP-285A |
 | `MIMAP-285A` | landed | Segment arena backing modeled allocation-ledger release intent diagnostics. | selected MIMAP-286A |
 | `MIMAP-286A` | landed | Segment arena backing modeled allocation-ledger release intent closeout pack. | selected MIMAP-287A |
-| `MIMAP-287A` | selected current | Post release-intent closeout row selection. | after MIMAP-286A |
+| `MIMAP-287A` | landed | Post release-intent closeout row selection. | selected MIMAP-288A |
+| `MIMAP-288A` | selected current | Segment arena backing modeled allocation-ledger release apply inventory. | after MIMAP-287A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -769,8 +770,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-287A` selects the next narrow allocator model row after the
-release-intent family closeout.
+`MIMAP-288A` adds the scalar/model segment arena backing allocation-ledger
+release apply inventory after the release-intent family closeout.
 
 SSOT:
 

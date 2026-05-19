@@ -1,6 +1,6 @@
 # 293x-890 MIMAP-287A Post Release-Intent Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -35,6 +35,43 @@ remain inactive.
   `#[global_allocator]`.
 
 ## Required Evidence
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Selected Row
+
+`MIMAP-288A`:
+
+```text
+segment arena backing modeled allocation-ledger release apply inventory
+```
+
+Rationale:
+
+- MIMAP-284A / 285A / 286A closed release-intent facts in scalar/model space.
+- The next narrow behavior should consume an accepted release-intent report and
+  record a model-only release-apply entry.
+- This still does not release real arena backing, mutate segment-map state,
+  execute atomic bitmap operations, call OSVM/page-source, or open raw pointer
+  residence.
+
+Validation profile:
+
+```text
+L2 daily
+  VM proof
+  MIR JSON emit
+  route preflight
+
+L3 EXE:
+  deferred to a future release-apply closeout pack unless this row introduces
+  a new backend route shape.
+```
+
+## Evidence
 
 ```text
 bash tools/checks/current_state_pointer_guard.sh
