@@ -88,13 +88,16 @@ Scope: current lane / next lane / restart order only.
 - next 293x order:
   1. `MIMAP-266A`: close out modeled source accounting inventory + diagnostics
      with representative exact-MIR evidence
-  2. keep raw pointer residence, real segment-map execution, and provider
+  2. after MIMAP-266A, prefer `HAKO-ALLOC-REPORT-RECORD-003` to inventory the
+     all-i64 segment-arena-backing report carriers and select one focused
+     record-carrier cleanup or compiler sidecar before the next behavior bridge
+  3. keep raw pointer residence, real segment-map execution, and provider
      activation closed
-  3. keep cross-function `Result` direct ABI and runtime sum materialization
+  4. keep cross-function `Result` direct ABI and runtime sum materialization
      closed
-  4. keep real thread scheduling, worker spawning, source-level concurrency features,
+  5. keep real thread scheduling, worker spawning, source-level concurrency features,
      page-source calls, OSVM release, and provider activation inactive
-  5. keep secure entropy execution parked until a separate random substrate
+  6. keep secure entropy execution parked until a separate random substrate
      route and audit row are accepted
 - post-mimalloc selfhost order:
   `SELFHOST-POST-MIMAP-001` is parked for broad Stage1 `.hako` owner

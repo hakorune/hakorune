@@ -624,6 +624,28 @@ HAKO-ALLOC-REPORT-RECORD-002 landed by adding
 the legacy scalar `report(...)` helper, and extending the MIMAP-119A guard to
 reject the old helper boundary. It selects MIMAP-146A.
 
+Future repeat rule:
+
+```text
+When a closeout bundles a family that introduced new all-i64 proof or diagnostic
+report boxes, schedule one focused report-record inventory before the next
+behavior bridge if the next bridge would otherwise add more report boxes.
+```
+
+The current planned repeat row is:
+
+```text
+HAKO-ALLOC-REPORT-RECORD-003
+  segment arena backing report record carrier inventory
+timing:
+  after MIMAP-266A source-accounting closeout
+  before the next arena-backing behavior bridge
+scope:
+  inventory the MIMAP-260A/MIMAP-261A/MIMAP-264A/MIMAP-265A all-i64 report
+  carriers and select one owner-local ReportFields pilot or one focused
+  compiler/language sidecar
+```
+
 
 ### MIMAP-146A granularity
 

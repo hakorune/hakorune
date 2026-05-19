@@ -23,6 +23,25 @@ both L2 rows and add representative exact-MIR L3 evidence.
 - Keep this as closeout evidence only; do not add new source accounting
   behavior.
 
+## Next Timing Note
+
+After this closeout lands, prefer a focused report-record BoxShape row before
+the next arena-backing behavior row:
+
+```text
+HAKO-ALLOC-REPORT-RECORD-003
+  segment arena backing report record carrier inventory
+```
+
+Reason:
+
+```text
+MIMAP-260A through MIMAP-265A added all-i64 diagnostic/report carriers that are
+semantically identity-free. They can remain box-backed for the current stable
+route, but the record-shaped cleanup should be scheduled before more
+arena-backing report boxes accumulate.
+```
+
 ## Stop Lines
 
 - No new source accounting rows beyond MIMAP-264A inventory.

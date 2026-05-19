@@ -314,6 +314,7 @@ no provider activation
 | 242 | allocator inventory | `MIMAP-264A segment arena backing modeled source accounting inventory` | landed; selected MIMAP-265A |
 | 243 | allocator diagnostic | `MIMAP-265A segment arena backing modeled source accounting diagnostics` | landed; selected MIMAP-266A |
 | 244 | closeout | `MIMAP-266A segment arena backing modeled source accounting closeout pack` | selected current |
+| 245 | Hakorune language / allocator cleanup | `HAKO-ALLOC-REPORT-RECORD-003 segment arena backing report record carrier inventory` | planned after MIMAP-266A closeout; decide one record-carrier pilot or focused compiler sidecar before the next arena-backing behavior row |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows
@@ -345,6 +346,35 @@ limit:
 | record/report objects | compact read-only proof reports | packed/backend lowering unless explicitly selected |
 | contract/assert | runtime fail-fast facts | broad invariant system in one row |
 | Result/Option | allocator failure API normalization | null sugar or hidden fallback |
+
+## Report Record Cleanup Timing
+
+Use report-record cleanup rows as short BoxShape stops when all of these hold:
+
+```text
+1. a closeout row has just bundled a behavior family
+2. the next behavior row would otherwise add more all-i64 report boxes
+3. the report is a diagnostic/proof payload, not an identity owner
+4. one owner-local ReportFields record payload can improve the boundary without
+   opening record pass/return/store escape
+```
+
+For the current arena-backing lane, the next such stop is:
+
+```text
+after:
+  MIMAP-266A segment arena backing modeled source accounting closeout pack
+
+before:
+  the next arena-backing behavior bridge
+
+row:
+  HAKO-ALLOC-REPORT-RECORD-003 segment arena backing report record carrier inventory
+```
+
+If that inventory shows the real blocker is cross-function record return or
+backend record materialization, select a focused compiler/language sidecar
+instead of rewriting `.hako` reports around the missing capability.
 
 ## Provider Replacement Rule
 
