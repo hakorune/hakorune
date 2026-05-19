@@ -660,7 +660,8 @@ FST:
 | `MIMAP-264A` | landed | Segment arena backing modeled source accounting inventory. | selected MIMAP-265A |
 | `MIMAP-265A` | landed | Segment arena backing modeled source accounting diagnostics. | selected MIMAP-266A |
 | `MIMAP-266A` | landed | Segment arena backing modeled source accounting closeout pack. | selected HAKO-ALLOC-REPORT-RECORD-003 |
-| `HAKO-ALLOC-REPORT-RECORD-003` | selected current | Segment arena backing report record carrier inventory. | current BoxShape row before the next arena-backing behavior row |
+| `HAKO-ALLOC-REPORT-RECORD-003` | landed | Segment arena backing report record carrier inventory. | selected HAKO-ALLOC-REPORT-RECORD-004 |
+| `HAKO-ALLOC-REPORT-RECORD-004` | selected current | Segment arena backing source accounting diagnostic ReportFields pilot. | current BoxShape row before the next arena-backing behavior row |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -669,13 +670,11 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-REPORT-RECORD-003` should inventory the all-i64 segment
-arena-backing report carriers added by the source bridge/accounting rows and
-select one safe record-carrier cleanup or one focused compiler sidecar. This
-keeps report-shape debt from accumulating before the next arena-backing bridge.
-Real pointer residence, pointer-derived lookup, real thread scheduling, worker
-spawning, source-level concurrency features, arena backing allocation, atomic
-bitmap execution, page-source calls, OSVM unreserve/release, provider
+`HAKO-ALLOC-REPORT-RECORD-004` adds an owner-local ReportFields record payload
+to the source accounting diagnostic report while keeping the returned report box
+stable. Real pointer residence, pointer-derived lookup, real thread scheduling,
+worker spawning, source-level concurrency features, arena backing allocation,
+atomic bitmap execution, page-source calls, OSVM unreserve/release, provider
 activation, and backend matchers remain closed.
 
 MIMAP-020A execution order:

@@ -328,6 +328,10 @@ MIMAP-266A segment arena backing modeled source accounting closeout pack
 HAKO-ALLOC-REPORT-RECORD-003 segment arena backing report record carrier inventory
   L0/L2 planning+inventory: select one record-carrier cleanup pilot or one
   focused compiler/language sidecar; no allocator behavior
+
+HAKO-ALLOC-REPORT-RECORD-004 segment arena backing source accounting diagnostic ReportFields pilot
+  L2 source cleanup: preserve MIMAP-265A VM/MIR proof output; no allocator
+  behavior or record escape
 ```
 
 ## Row-Type Rules

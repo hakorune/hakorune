@@ -20,12 +20,12 @@ For the active phase:
 
 ```text
 current row:
-  HAKO-ALLOC-REPORT-RECORD-003
+  HAKO-ALLOC-REPORT-RECORD-004
 
 current choice boundary:
-  segment arena backing report record carrier inventory after modeled source
-  accounting closeout, while keeping real pointer residence, pointer lookup,
-  and real arena backing closed
+  source accounting diagnostic ReportFields pilot after segment arena backing
+  report carrier inventory, while keeping real pointer residence, pointer
+  lookup, real arena backing, and record pass/return/store escape closed
 
 closed until explicitly reopened:
   real raw pointer residence
@@ -452,7 +452,8 @@ Forbidden:
 | `MIMAP-264A` | segment arena backing modeled source accounting inventory | landed; selected MIMAP-265A |
 | `MIMAP-265A` | segment arena backing modeled source accounting diagnostics | landed; selected MIMAP-266A |
 | `MIMAP-266A` | segment arena backing modeled source accounting closeout pack | landed; selected HAKO-ALLOC-REPORT-RECORD-003 |
-| `HAKO-ALLOC-REPORT-RECORD-003` | segment arena backing report record carrier inventory | selected current |
+| `HAKO-ALLOC-REPORT-RECORD-003` | segment arena backing report record carrier inventory | landed; selected HAKO-ALLOC-REPORT-RECORD-004 |
+| `HAKO-ALLOC-REPORT-RECORD-004` | segment arena backing source accounting diagnostic ReportFields pilot | selected current |
 
 
 ## Detailed Granularity Ledger Split
@@ -2649,6 +2650,24 @@ record-carrier sidecar, or an explicit park reason. It must not add allocator
 behavior, record pass/return/store escape, packed/backend record lowering,
 provider activation, host allocator replacement, backend matchers, or silent
 fallback.
+
+HAKO-ALLOC-REPORT-RECORD-003 landed by selecting
+HAKO-ALLOC-REPORT-RECORD-004, the source accounting diagnostic ReportFields
+pilot.
+
+### HAKO-ALLOC-REPORT-RECORD-004 granularity
+
+HAKO-ALLOC-REPORT-RECORD-004 adds an owner-local
+`HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReportFields`
+record inside
+`segment_arena_backing_modeled_source_accounting_diagnostic_box.hako`.
+
+It should build that record inside `makeReport(...)`, copy fields into the
+existing returned report box, preserve proof output and MIR-visible typed report
+fields, and extend the MIMAP-265A guard to require the local record payload. It
+must not add allocator behavior, broad report rewrites, cross-function record
+return, record pass/store escape, packed/backend record lowering, provider
+activation, backend matchers, or silent fallback.
 
 
 ## Historical Granularity Anchors

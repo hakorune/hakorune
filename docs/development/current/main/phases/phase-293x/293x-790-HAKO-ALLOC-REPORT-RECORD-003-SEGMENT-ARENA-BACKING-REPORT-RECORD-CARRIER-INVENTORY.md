@@ -1,6 +1,6 @@
 # 293x-790 HAKO-ALLOC-REPORT-RECORD-003 Segment Arena Backing Report Record Carrier Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -62,6 +62,36 @@ or:
 
 or:
   explicit park reason if the current report boxes remain the smallest stable carrier
+```
+
+## Inventory Result
+
+| Candidate | Shape | Decision |
+| --- | --- | --- |
+| `HakoAllocSegmentArenaBackingModeledSourceBridgeReport` | returned report box with 40+ scalar facts | park; full record return would require a compiler/language sidecar |
+| `HakoAllocSegmentArenaBackingModeledSourceBridgeDiagnosticReport` | observer report box with all-i64 diagnostic facts | good later candidate, but start with the current source-accounting family |
+| `HakoAllocSegmentArenaBackingModeledSourceAccountingReport` | returned report box with source accounting facts | park; the report is an inventory result and full record return remains closed |
+| `HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReport` | observer report box with all-i64 diagnostic facts and local `makeReport` construction | selected first pilot |
+
+The smallest safe cleanup is an owner-local `ReportFields` record payload in
+`segment_arena_backing_modeled_source_accounting_diagnostic_box.hako`, while
+keeping the returned
+`HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReport` box
+unchanged.
+
+## Selected Next Row
+
+```text
+HAKO-ALLOC-REPORT-RECORD-004
+  segment arena backing source accounting diagnostic ReportFields pilot
+```
+
+Stop-line carried forward:
+
+```text
+no record pass/return/store escape
+no packed/backend record lowering
+returned report box remains stable
 ```
 
 ## Required Evidence
