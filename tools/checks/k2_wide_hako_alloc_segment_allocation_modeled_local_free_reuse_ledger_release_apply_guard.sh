@@ -17,6 +17,7 @@ PROOF_MANIFEST="tools/checks/proof_apps.toml"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 OWNER="lang/src/hako_alloc/memory/segment_allocation_modeled_local_free_reuse_ledger_box.hako"
+RELEASE_APPLY_SURFACE="lang/src/hako_alloc/memory/segment_allocation_modeled_local_free_reuse_ledger_release_apply_box.hako"
 RELEASE_OWNER="lang/src/hako_alloc/memory/segment_allocation_modeled_local_free_reuse_ledger_release_box.hako"
 DEV_GATE="tools/checks/dev_gate.sh"
 ALLOCATOR_GATE="tools/checks/k2_wide_allocator_gate.sh"
@@ -37,6 +38,7 @@ guard_require_files \
   "$MEMORY_README" \
   "$MODULE" \
   "$OWNER" \
+  "$RELEASE_APPLY_SURFACE" \
   "$RELEASE_OWNER" \
   "$DEV_GATE" \
   "$ALLOCATOR_GATE" \
@@ -52,11 +54,12 @@ guard_expect_in_file "$TAG" 'id = "MIMAP-138A"' "$PROOF_MANIFEST" "proof app man
 guard_expect_in_file "$TAG" 'memory.segment_allocation_modeled_local_free_reuse_ledger_box = "memory/segment_allocation_modeled_local_free_reuse_ledger_box.hako"' "$MODULE" "hako module must export reuse ledger owner"
 guard_expect_in_file "$TAG" 'segment_allocation_modeled_local_free_reuse_ledger_box.hako` owns' "$MEMORY_README" "memory README must define reuse ledger owner"
 guard_expect_in_file "$TAG" 'applyReuseLedgerRelease' "$OWNER" "reuse ledger owner must expose release apply route"
-guard_expect_in_file "$TAG" 'record HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields' "$OWNER" "release apply owner must use local ReportFields record payload"
-guard_expect_in_file "$TAG" 'local fields = HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields' "$OWNER" "release apply owner must construct report field records locally"
-guard_expect_in_file "$TAG" 'release_apply_count_after: usize = 0' "$OWNER" "release apply count must be exact usize"
-guard_expect_in_file "$TAG" 'release_apply_reject_count_after: usize = 0' "$OWNER" "release apply reject count must be exact usize"
-guard_expect_in_file "$TAG" 'ledger_live_count_after: usize = 0' "$OWNER" "release apply ledger live count must be exact usize"
+guard_expect_in_file "$TAG" 'record HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields' "$RELEASE_APPLY_SURFACE" "release apply owner must use local ReportFields record payload"
+guard_expect_in_file "$TAG" 'local fields = HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields' "$RELEASE_APPLY_SURFACE" "release apply owner must construct report field records locally"
+guard_expect_in_file "$TAG" 'release_apply_surface: HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApply' "$OWNER" "release apply owner must delegate report construction to helper surface"
+guard_expect_in_file "$TAG" 'release_apply_count_after: usize = 0' "$RELEASE_APPLY_SURFACE" "release apply count must be exact usize"
+guard_expect_in_file "$TAG" 'release_apply_reject_count_after: usize = 0' "$RELEASE_APPLY_SURFACE" "release apply reject count must be exact usize"
+guard_expect_in_file "$TAG" 'ledger_live_count_after: usize = 0' "$RELEASE_APPLY_SURFACE" "release apply ledger live count must be exact usize"
 guard_expect_in_file "$TAG" 'release_apply_attempt_count: usize = 0' "$OWNER" "release apply attempt counter must be exact usize"
 guard_expect_in_file "$TAG" 'release_apply_count: usize = 0' "$OWNER" "release apply counter must be exact usize"
 guard_expect_in_file "$TAG" 'release_apply_reject_count: usize = 0' "$OWNER" "release apply reject counter must be exact usize"
@@ -70,7 +73,7 @@ guard_expect_in_file "$TAG" 'release_apply_backend_matcher_reject_count: usize =
 guard_expect_in_file "$TAG" 'modeled_reuse_token: i64 = -1' "$OWNER" "release apply token sentinel must remain i64"
 guard_expect_in_file "$TAG" 'source_modeled_allocation_token: i64 = -1' "$OWNER" "release apply source token sentinel must remain i64"
 guard_expect_in_file "$TAG" 'reused_block_id: i64 = -1' "$OWNER" "release apply reused block id must remain i64"
-guard_expect_in_file "$TAG" 'local_free_reuse_ledger_release_apply_present' "$OWNER" "release apply report must expose presence flag"
+guard_expect_in_file "$TAG" 'local_free_reuse_ledger_release_apply_present' "$RELEASE_APPLY_SURFACE" "release apply report must expose presence flag"
 guard_expect_in_file "$TAG" 'check "mimap138a segment allocation modeled local-free reuse ledger release apply route"' "$APP" "MIMAP-138A proof must use labelled check block"
 
 if rg -n 'segment_allocation_modeled_ledger_box|recordModeledConsume|releaseModeledToken' "$OWNER" >/tmp/"$TAG".bump_ledger_leak 2>&1; then

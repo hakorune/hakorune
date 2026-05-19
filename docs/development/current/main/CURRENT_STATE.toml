@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-911-MIMAP-3
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-921-CHECKS-ALLOCATOR-RELEASE-CANDIDATE-GUARD-HELPER-SPLIT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-921-CHECKS-ALLOCATOR-RELEASE-CANDIDATE-GUARD-HELPER-SPLIT.md"
-latest_card_summary = "Split the MIMAP-280A release-candidate guard into a thin wrapper plus helper section library while preserving the L2 release-candidate behavior; MIMAP-308A remains current."
+latest_card = "293x-922-HAKO-ALLOC-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-HELPER-SPLIT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-922-HAKO-ALLOC-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-HELPER-SPLIT.md"
+latest_card_summary = "Split the local-free reuse ledger release-apply responsibilities into a thin wrapper and a dedicated helper box while preserving the scalar release apply behavior; MIMAP-308A remains current."
 
 current_blocker_token = "MIMAP-308A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-922 HAKO-ALLOC local-free reuse ledger release-apply helper split landed; MIMAP-308A remains current",
   "293x-921 CHECKS allocator release-candidate guard helper split landed; MIMAP-308A remains current",
   "293x-920 CHECKS proof-app manifest family split 4 landed; MIMAP-308A remains current",
   "293x-919 CHECKS proof-app manifest family split 3 landed; MIMAP-308A remains current",

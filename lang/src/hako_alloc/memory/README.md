@@ -30,6 +30,7 @@ Current modules
 - `segment_allocation_modeled_local_free_integration_box.hako`
 - `segment_allocation_modeled_local_free_reuse_box.hako`
 - `segment_allocation_modeled_local_free_reuse_ledger_box.hako`
+- `segment_allocation_modeled_local_free_reuse_ledger_release_apply_box.hako`
 - `segment_allocation_modeled_local_free_reuse_ledger_release_box.hako`
 - `segment_arena_backing_readiness_diagnostic_box.hako`
 - `segment_arena_backing_readiness_inventory_box.hako`
@@ -466,7 +467,9 @@ Syntax/style contract
   segment-map-derived release facts to that source ledger and mark the matching
   row non-live. MIMAP-204A may then record the same segment-map-derived modeled
   reuse token again as a new live source row while still-live duplicates remain
-  rejected. It must not widen the bump-shaped
+  rejected. Its release-apply reporting and reject aggregation live in
+  `segment_allocation_modeled_local_free_reuse_ledger_release_apply_box.hako`.
+  It must not widen the bump-shaped
   `segment_allocation_modeled_ledger_box.hako` contract, execute real segment
   allocation/free, mutate page arrays, use raw pointer residence, perform
   segment-map lookup, allocate arena backing, execute atomic bitmap claims,

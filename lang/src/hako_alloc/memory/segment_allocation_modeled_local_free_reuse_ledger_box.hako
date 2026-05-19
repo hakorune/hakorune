@@ -11,32 +11,7 @@ brand SegmentId: i64
 brand PageId: i64
 brand BlockId: i64
 
-record HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields {
-    did_apply: i64
-    reason: i64
-    row_index: i64
-    existing_index: i64
-    modeled_reuse_token: i64
-    source_modeled_allocation_token: i64
-    segment_id: i64
-    page_id: i64
-    reused_block_id: i64
-    release_apply_count_after: usize
-    release_apply_reject_count_after: usize
-    ledger_live_count_after: usize
-    local_free_reuse_ledger_release_apply_present: i64
-    would_execute_real_segment_allocation: i64
-    would_execute_real_segment_free: i64
-    would_directly_mutate_page_arrays: i64
-    would_use_raw_pointer: i64
-    would_use_segment_map: i64
-    would_allocate_arena_backing: i64
-    would_execute_atomic_bitmap: i64
-    would_call_osvm: i64
-    would_run_thread: i64
-    would_activate_provider: i64
-    would_add_backend_matcher: i64
-}
+using selfhost.hako_alloc.memory.segment_allocation_modeled_local_free_reuse_ledger_release_apply_box as HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyBox
 
 box HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReport {
     accepted: i64 = 0
@@ -56,33 +31,6 @@ box HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReport {
     ledger_count_after: usize = 0
     ledger_live_count_after: usize = 0
     local_free_reuse_ledger_present: i64 = 1
-    would_execute_real_segment_allocation: i64 = 0
-    would_execute_real_segment_free: i64 = 0
-    would_directly_mutate_page_arrays: i64 = 0
-    would_use_raw_pointer: i64 = 0
-    would_use_segment_map: i64 = 0
-    would_allocate_arena_backing: i64 = 0
-    would_execute_atomic_bitmap: i64 = 0
-    would_call_osvm: i64 = 0
-    would_run_thread: i64 = 0
-    would_activate_provider: i64 = 0
-    would_add_backend_matcher: i64 = 0
-}
-
-box HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport {
-    did_apply: i64 = 0
-    reason: i64 = 0
-    row_index: i64 = -1
-    existing_index: i64 = -1
-    modeled_reuse_token: i64 = -1
-    source_modeled_allocation_token: i64 = -1
-    segment_id: i64 = -1
-    page_id: i64 = -1
-    reused_block_id: i64 = -1
-    release_apply_count_after: usize = 0
-    release_apply_reject_count_after: usize = 0
-    ledger_live_count_after: usize = 0
-    local_free_reuse_ledger_release_apply_present: i64 = 1
     would_execute_real_segment_allocation: i64 = 0
     would_execute_real_segment_free: i64 = 0
     would_directly_mutate_page_arrays: i64 = 0
@@ -144,6 +92,7 @@ box HakoAllocSegmentAllocationModeledLocalFreeReuseLedger {
     last_token: i64 = -1
     last_reason: i64 = 0
     last_index: i64 = -1
+    release_apply_surface: HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApply = new HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApply()
 
     makeReuseToken(segment_id: SegmentId, page_id: PageId, reused_block_id: BlockId): i64 {
         return (segment_id * 1000000) + (page_id * 1000) + reused_block_id
@@ -366,241 +315,12 @@ box HakoAllocSegmentAllocationModeledLocalFreeReuseLedger {
         return me.acceptFromReuseReport(row_index, reuse_report, modeled_reuse_token)
     }
 
-    makeReleaseApplyReport(fields: HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields): HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport {
-        local result = new HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport()
-        result.did_apply = fields.did_apply
-        result.reason = fields.reason
-        result.row_index = fields.row_index
-        result.existing_index = fields.existing_index
-        result.modeled_reuse_token = fields.modeled_reuse_token
-        result.source_modeled_allocation_token = fields.source_modeled_allocation_token
-        result.segment_id = fields.segment_id
-        result.page_id = fields.page_id
-        result.reused_block_id = fields.reused_block_id
-        result.release_apply_count_after = fields.release_apply_count_after
-        result.release_apply_reject_count_after = fields.release_apply_reject_count_after
-        result.ledger_live_count_after = fields.ledger_live_count_after
-        result.local_free_reuse_ledger_release_apply_present = fields.local_free_reuse_ledger_release_apply_present
-        result.would_execute_real_segment_allocation = fields.would_execute_real_segment_allocation
-        result.would_execute_real_segment_free = fields.would_execute_real_segment_free
-        result.would_directly_mutate_page_arrays = fields.would_directly_mutate_page_arrays
-        result.would_use_raw_pointer = fields.would_use_raw_pointer
-        result.would_use_segment_map = fields.would_use_segment_map
-        result.would_allocate_arena_backing = fields.would_allocate_arena_backing
-        result.would_execute_atomic_bitmap = fields.would_execute_atomic_bitmap
-        result.would_call_osvm = fields.would_call_osvm
-        result.would_run_thread = fields.would_run_thread
-        result.would_activate_provider = fields.would_activate_provider
-        result.would_add_backend_matcher = fields.would_add_backend_matcher
-        return result
+    applyReuseLedgerRelease(release_report, unsupported_requirement) {
+        return me.release_apply_surface.applyReuseLedgerRelease(me, release_report, unsupported_requirement)
     }
 
-    acceptReleaseApply(row_index, release_report): HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport {
-        me.live_flags.set(row_index, 0)
-        me.live_count -= 1
-        me.release_apply_count += 1
-
-        local fields = HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields {
-            did_apply: 1,
-            reason: 0,
-            row_index: row_index,
-            existing_index: -1,
-            modeled_reuse_token: release_report.modeled_reuse_token,
-            source_modeled_allocation_token: release_report.source_modeled_allocation_token,
-            segment_id: release_report.segment_id,
-            page_id: release_report.page_id,
-            reused_block_id: release_report.reused_block_id,
-            release_apply_count_after: me.release_apply_count,
-            release_apply_reject_count_after: me.release_apply_reject_count,
-            ledger_live_count_after: me.live_count,
-            local_free_reuse_ledger_release_apply_present: 1,
-            would_execute_real_segment_allocation: 0,
-            would_execute_real_segment_free: 0,
-            would_directly_mutate_page_arrays: 0,
-            would_use_raw_pointer: 0,
-            would_use_segment_map: 0,
-            would_allocate_arena_backing: 0,
-            would_execute_atomic_bitmap: 0,
-            would_call_osvm: 0,
-            would_run_thread: 0,
-            would_activate_provider: 0,
-            would_add_backend_matcher: 0,
-        }
-        me.last_token = release_report.modeled_reuse_token
-        me.last_reason = 0
-        me.last_index = row_index
-        return me.makeReleaseApplyReport(fields)
-    }
-
-    rejectReleaseApply(reason, existing_index, release_report): HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport {
-        me.release_apply_reject_count += 1
-        if reason == 1 {
-            me.release_apply_upstream_reject_count += 1
-        }
-        if reason == 2 {
-            me.release_apply_invalid_shape_reject_count += 1
-        }
-        if reason == 3 {
-            me.release_apply_duplicate_reject_count += 1
-        }
-        if reason == 4 {
-            me.release_apply_missing_reject_count += 1
-        }
-        if reason == 5 {
-            me.release_apply_execution_reject_count += 1
-        }
-        if reason == 6 {
-            me.release_apply_raw_pointer_reject_count += 1
-        }
-        if reason == 7 {
-            me.release_apply_segment_map_reject_count += 1
-        }
-        if reason == 8 {
-            me.release_apply_arena_reject_count += 1
-        }
-        if reason == 9 {
-            me.release_apply_atomic_bitmap_reject_count += 1
-        }
-        if reason == 10 {
-            me.release_apply_osvm_reject_count += 1
-        }
-        if reason == 11 {
-            me.release_apply_thread_reject_count += 1
-        }
-        if reason == 12 {
-            me.release_apply_provider_reject_count += 1
-        }
-        if reason == 13 {
-            me.release_apply_backend_matcher_reject_count += 1
-        }
-
-        local fields = HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields {
-            did_apply: 0,
-            reason: reason,
-            row_index: -1,
-            existing_index: existing_index,
-            modeled_reuse_token: release_report.modeled_reuse_token,
-            source_modeled_allocation_token: release_report.source_modeled_allocation_token,
-            segment_id: release_report.segment_id,
-            page_id: release_report.page_id,
-            reused_block_id: release_report.reused_block_id,
-            release_apply_count_after: me.release_apply_count,
-            release_apply_reject_count_after: me.release_apply_reject_count,
-            ledger_live_count_after: me.live_count,
-            local_free_reuse_ledger_release_apply_present: 1,
-            would_execute_real_segment_allocation: 0,
-            would_execute_real_segment_free: 0,
-            would_directly_mutate_page_arrays: 0,
-            would_use_raw_pointer: 0,
-            would_use_segment_map: 0,
-            would_allocate_arena_backing: 0,
-            would_execute_atomic_bitmap: 0,
-            would_call_osvm: 0,
-            would_run_thread: 0,
-            would_activate_provider: 0,
-            would_add_backend_matcher: 0,
-        }
-        me.last_token = release_report.modeled_reuse_token
-        me.last_reason = reason
-        me.last_index = -1
-        return me.makeReleaseApplyReport(fields)
-    }
-
-    rejectReleaseApplyUnsupportedRequirement(requirement, release_report): HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport {
-        if requirement == 1 {
-            return me.rejectReleaseApply(5, -1, release_report)
-        }
-        if requirement == 2 {
-            return me.rejectReleaseApply(6, -1, release_report)
-        }
-        if requirement == 3 {
-            return me.rejectReleaseApply(7, -1, release_report)
-        }
-        if requirement == 4 {
-            return me.rejectReleaseApply(8, -1, release_report)
-        }
-        if requirement == 5 {
-            return me.rejectReleaseApply(9, -1, release_report)
-        }
-        if requirement == 6 {
-            return me.rejectReleaseApply(10, -1, release_report)
-        }
-        if requirement == 7 {
-            return me.rejectReleaseApply(11, -1, release_report)
-        }
-        if requirement == 8 {
-            return me.rejectReleaseApply(12, -1, release_report)
-        }
-        if requirement == 9 {
-            return me.rejectReleaseApply(13, -1, release_report)
-        }
-        return me.rejectReleaseApply(2, -1, release_report)
-    }
-
-    applyReuseLedgerRelease(release_report, unsupported_requirement): HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport {
-        me.release_apply_attempt_count += 1
-
-        if release_report.did_release != 1 {
-            return me.rejectReleaseApply(1, -1, release_report)
-        }
-        if release_report.reason != 0 {
-            return me.rejectReleaseApply(1, -1, release_report)
-        }
-        if release_report.local_free_reuse_ledger_release_present != 1 {
-            return me.rejectReleaseApply(1, -1, release_report)
-        }
-        if release_report.modeled_reuse_token < 0 {
-            return me.rejectReleaseApply(2, -1, release_report)
-        }
-
-        if unsupported_requirement != 0 {
-            return me.rejectReleaseApplyUnsupportedRequirement(unsupported_requirement, release_report)
-        }
-
-        local existing_any = me.findAnyIndex(release_report.modeled_reuse_token)
-        if existing_any >= 0 {
-            if me.live_flags.get(existing_any) == 0 {
-                return me.rejectReleaseApply(3, existing_any, release_report)
-            }
-        }
-
-        local row_index = me.findIndex(release_report.modeled_reuse_token)
-        if row_index < 0 {
-            return me.rejectReleaseApply(4, -1, release_report)
-        }
-
-        return me.acceptReleaseApply(row_index, release_report)
-    }
-
-    applyReuseLedgerLifecycleKeyedRelease(release_report, unsupported_requirement): HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReport {
-        me.release_apply_attempt_count += 1
-
-        if release_report.did_release != 1 {
-            return me.rejectReleaseApply(1, -1, release_report)
-        }
-        if release_report.reason != 0 {
-            return me.rejectReleaseApply(1, -1, release_report)
-        }
-        if release_report.lifecycle_keyed_release_ledger_present != 1 {
-            return me.rejectReleaseApply(1, -1, release_report)
-        }
-        if release_report.release_key_migrated != 1 {
-            return me.rejectReleaseApply(1, -1, release_report)
-        }
-        if release_report.modeled_reuse_token < 0 {
-            return me.rejectReleaseApply(2, -1, release_report)
-        }
-
-        if unsupported_requirement != 0 {
-            return me.rejectReleaseApplyUnsupportedRequirement(unsupported_requirement, release_report)
-        }
-
-        local row_index = me.findIndex(release_report.modeled_reuse_token)
-        if row_index < 0 {
-            return me.rejectReleaseApply(4, -1, release_report)
-        }
-
-        return me.acceptReleaseApply(row_index, release_report)
+    applyReuseLedgerLifecycleKeyedRelease(release_report, unsupported_requirement) {
+        return me.release_apply_surface.applyReuseLedgerLifecycleKeyedRelease(me, release_report, unsupported_requirement)
     }
 
     tokenAt(index): i64 {
