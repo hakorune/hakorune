@@ -365,7 +365,8 @@ no provider activation
 | 294 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-031 requirement-matrix geometry count/page-size closeout` | landed; selected HAKO-ALLOC-USIZE-FIELD-GROUP-032 |
 | 295 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-032 readiness geometry count/page-size migration` | landed; selected HAKO-ALLOC-USIZE-FIELD-GROUP-033 |
 | 296 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-033 readiness geometry count/page-size closeout` | landed; selected HAKO-ALLOC-USIZE-FIELD-GROUP-034 |
-| 297 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-034 next exact-usize field-group selection` | selected current |
+| 297 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-034 next exact-usize field-group selection` | landed; selected HAKO-ALLOC-USIZE-FIELD-GROUP-035 |
+| 298 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-035 segment-map consume-ledger block/count migration` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

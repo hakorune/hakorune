@@ -1,6 +1,6 @@
 # 293x-842 HAKO-ALLOC-USIZE-FIELD-GROUP-034 Next Field-Group Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -46,7 +46,16 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Selected the segment-map accepted-readiness modeled consume ledger block/count
+  report group as the next exact-`usize` migration group.
+- Kept the selection downstream-first: migrate the consume-ledger report group
+  before moving upstream to guarded readiness composition or scalar lookup
+  owners.
+- Did not migrate any field in this row.
+
 ## Next
 
 Select `HAKO-ALLOC-USIZE-FIELD-GROUP-035` as the concrete migration row for the
-next chosen owner-local numeric field group.
+segment-map accepted-readiness modeled consume ledger block/count report group.

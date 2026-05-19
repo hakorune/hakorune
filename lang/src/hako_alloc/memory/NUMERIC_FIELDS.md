@@ -179,10 +179,15 @@ Current production `usize` field group:
 
 Selected next production `usize` field group:
 
-- none. `HAKO-ALLOC-USIZE-FIELD-GROUP-033` is a closeout row for the readiness
-  geometry count / page-size group, not a new migration group.
-  `HAKO-ALLOC-USIZE-FIELD-GROUP-034` is the next field-group selection row and
-  must choose a concrete owner-local group before any further migration.
+- `segment_map_accepted_readiness_modeled_consume_ledger_box.hako`
+  / `HakoAllocSegmentMapAcceptedReadinessModeledConsumeLedgerReport`
+  block/count report fields:
+  `old_page_used`, `page_capacity`, `request_blocks`, `new_page_used`,
+  `remaining_blocks`, `ledger_count_after`, `ledger_live_count_after`.
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-035` selects this group because it owns
+  non-negative modeled consume/ledger block counts downstream of guarded
+  readiness. Reasons, diagnostic kinds, ids, indexes, tokens, block-start
+  sentinels, and owner counters stay `i64`.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
