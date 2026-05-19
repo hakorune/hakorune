@@ -131,8 +131,13 @@ Current production `usize` field group:
 
 Selected next production `usize` field group:
 
-- none. `HAKO-ALLOC-USIZE-FIELD-GROUP-023` is a closeout row for the
-  source-bridge byte/capacity group, not a new migration group.
+- `segment_arena_backing_modeled_source_bridge_diagnostic_box.hako`
+  / `HakoAllocSegmentArenaBackingModeledSourceBridgeDiagnosticReport` observer
+  mirror byte fields:
+  `last_report_source_capacity`, `last_report_source_committed_bytes`.
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-024` selects this group because it only mirrors
+  already-migrated source-bridge byte facts. Diagnostic counters, reasons,
+  tokens, ids, alignments, and sentinels stay `i64`.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.

@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-19"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "HAKO-ALLOC-USIZE-FIELD-GROUP-022 migrated the source-bridge byte/capacity exact-usize field group; HAKO-ALLOC-USIZE-FIELD-GROUP-023 source-bridge byte/capacity closeout is current. Cross-function Result direct ABI remains closed. Real raw pointer residence, pointer-derived lookup, real arena backing, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "HAKO-ALLOC-USIZE-FIELD-GROUP-023 closed out the source-bridge byte/capacity exact-usize field group; HAKO-ALLOC-USIZE-FIELD-GROUP-024 source-bridge diagnostic byte mirror migration is current. Cross-function Result direct ABI remains closed. Real raw pointer residence, pointer-derived lookup, real arena backing, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-831-HAKO-ALLOC-USIZE-FIELD-GROUP-023-SOURCE-BRIDGE-BYTE-CAPACITY-CLOSEOUT.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-832-HAKO-ALLOC-USIZE-FIELD-GROUP-024-SOURCE-BRIDGE-DIAGNOSTIC-BYTE-MIRROR-MIGRATION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-830-HAKO-ALLOC-USIZE-FIELD-GROUP-022-SOURCE-BRIDGE-BYTE-CAPACITY-MIGRATION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-830-HAKO-ALLOC-USIZE-FIELD-GROUP-022-SOURCE-BRIDGE-BYTE-CAPACITY-MIGRATION.md"
-latest_card_summary = "HAKO-ALLOC-USIZE-FIELD-GROUP-022 landed by migrating the source-bridge report byte/capacity fields to exact usize while keeping counters, reasons, tokens, ids, alignments, diagnostic mirrors, and sentinels on i64."
+latest_card = "293x-831-HAKO-ALLOC-USIZE-FIELD-GROUP-023-SOURCE-BRIDGE-BYTE-CAPACITY-CLOSEOUT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-831-HAKO-ALLOC-USIZE-FIELD-GROUP-023-SOURCE-BRIDGE-BYTE-CAPACITY-CLOSEOUT.md"
+latest_card_summary = "HAKO-ALLOC-USIZE-FIELD-GROUP-023 landed by closing out the source-bridge byte/capacity exact-usize group with MIMAP-260A/MIMAP-261A L2 evidence, MIMAP-262A L3 closeout evidence, and downstream MIMAP-264A L2 evidence."
 
-current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-023"
+current_blocker_token = "HAKO-ALLOC-USIZE-FIELD-GROUP-024"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-831 HAKO-ALLOC-USIZE-FIELD-GROUP-023 source-bridge byte/capacity closeout landed; HAKO-ALLOC-USIZE-FIELD-GROUP-024 selected",
   "293x-830 HAKO-ALLOC-USIZE-FIELD-GROUP-022 source-bridge byte/capacity migration landed; HAKO-ALLOC-USIZE-FIELD-GROUP-023 selected",
   "293x-829 HAKO-ALLOC-USIZE-FIELD-GROUP-021 source-accounting diagnostic byte mirror closeout landed; HAKO-ALLOC-USIZE-FIELD-GROUP-022 selected",
   "293x-828 HAKO-ALLOC-USIZE-FIELD-GROUP-020 source-accounting diagnostic byte mirror migration landed; HAKO-ALLOC-USIZE-FIELD-GROUP-021 selected",
