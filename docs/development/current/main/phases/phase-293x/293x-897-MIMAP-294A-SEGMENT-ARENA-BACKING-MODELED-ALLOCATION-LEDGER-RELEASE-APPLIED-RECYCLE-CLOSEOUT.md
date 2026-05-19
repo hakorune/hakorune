@@ -1,6 +1,6 @@
 # 293x-897 MIMAP-294A Segment Arena Backing Modeled Allocation-Ledger Release-Applied Recycle Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -38,3 +38,25 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_le
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Implementation
+
+- Added the manifest-backed closeout guard entry.
+- Added the closeout SSOT:
+
+```text
+docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-closeout-ssot.md
+```
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_closeout_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Selected Next Row
+
+MIMAP-295A:
+post release-applied recycle closeout row selection.

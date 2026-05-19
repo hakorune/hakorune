@@ -767,7 +767,8 @@ FST:
 | `MIMAP-291A` | landed | Post release-apply closeout row selection. | selected MIMAP-292A |
 | `MIMAP-292A` | landed | Segment arena backing modeled allocation-ledger release-applied recycle inventory. | selected MIMAP-293A |
 | `MIMAP-293A` | landed | Segment arena backing modeled allocation-ledger release-applied recycle diagnostics. | selected MIMAP-294A |
-| `MIMAP-294A` | selected current | Segment arena backing modeled allocation-ledger release-applied recycle closeout pack. | after MIMAP-293A |
+| `MIMAP-294A` | landed | Segment arena backing modeled allocation-ledger release-applied recycle closeout pack. | selected MIMAP-295A |
+| `MIMAP-295A` | selected current | Post release-applied recycle closeout row selection. | after MIMAP-294A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -776,8 +777,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-294A` closes out the scalar/model segment arena backing
-allocation-ledger release-applied recycle family after MIMAP-292A / MIMAP-293A.
+`MIMAP-295A` selects the next narrow allocator row after the scalar/model
+segment arena backing allocation-ledger release-applied recycle closeout.
 
 SSOT:
 
@@ -788,9 +789,11 @@ docs/development/current/main/phases/phase-293x/293x-894-MIMAP-291A-POST-RELEASE
 docs/development/current/main/phases/phase-293x/293x-895-MIMAP-292A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-APPLIED-RECYCLE-INVENTORY.md
 docs/development/current/main/phases/phase-293x/293x-896-MIMAP-293A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-APPLIED-RECYCLE-DIAGNOSTICS.md
 docs/development/current/main/phases/phase-293x/293x-897-MIMAP-294A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-APPLIED-RECYCLE-CLOSEOUT.md
+docs/development/current/main/phases/phase-293x/293x-898-MIMAP-295A-POST-RELEASE-APPLIED-RECYCLE-CLOSEOUT-ROW-SELECTION.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-diagnostics-ssot.md
+docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-closeout-ssot.md
 ```
 
 Real pointer residence, pointer-derived lookup, real thread scheduling, worker
