@@ -91,7 +91,7 @@ done
 
 for doc in "$CURRENT_TASK_DOC" "$NOW_DOC" "$RESTART_DOC"; do
   expect_fixed "docs/development/current/main/CURRENT_STATE.toml" "$doc"
-  expect_fixed "$blocker_token" "$doc"
+  expect_fixed "current_blocker_token" "$doc"
 done
 
 expect_fixed "$pre_perf_gate" "$PHASE137X_TASKBOARD"

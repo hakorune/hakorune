@@ -51,12 +51,15 @@ Do not update `CURRENT_TASK.md`, `05-Restart-Quick-Resume.md`, `10-Now.md`,
 Update those mirrors only when one of these changes:
 
 - active lane
-- active blocker token
 - restart order
 - phase status path
 - durable design/update policy
 - a taskboard or ledger's own stable contract
 - root AI/developer instruction contract in `AGENTS.md`
+
+Changing only `current_blocker_token`, `latest_card`, `latest_card_path`, or
+`landed_tail` is a `CURRENT_STATE.toml` update. Thin mirrors should point to
+those fields by name instead of repeating the concrete row token.
 
 ## Current State Shape
 
@@ -100,7 +103,9 @@ target maximum:
 - referenced repo-relative paths exist
 - `latest_card_path` matches `latest_card`
 - root/current/restart docs still point at `CURRENT_STATE.toml`
-- active lane and blocker tokens are present in the thin mirrors
+- active lane is present in the thin mirrors
+- thin mirrors name the `current_blocker_token` field instead of repeating its
+  current value
 - stale pointer patterns from
   `tools/checks/current_state_stale_pointer_patterns.txt` are absent from
   current docs
@@ -126,8 +131,9 @@ For a normal implementation card:
    `landed_tail` in `CURRENT_STATE.toml`
 3. run `bash tools/checks/current_state_pointer_guard.sh`
 
-Only update mirrors if the card changes the active lane, blocker, restart
-order, or a durable design policy.
+Only update mirrors if the card changes the active lane, restart order, phase
+status path, or a durable design policy. Do not update mirrors just because the
+blocker token advanced.
 
 ## Applied Lane Policy
 

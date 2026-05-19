@@ -54,8 +54,7 @@ Scope: current lane / next lane / restart order only.
   `docs/development/current/main/design/mimalloc-row-validation-cadence-ssot.md`
 - mimalloc / Hakorune joint task order:
   `docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md`
-- current blocker token:
-  `MIMAP-267A post-segment-arena-backing-reportfields-pilot row selection`
+- current blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
 - current BoxShape sidecar:
   read `latest_card_path`, `phase_status`, and `landed_tail` in
   `CURRENT_STATE.toml`, plus the phase-293x taskboard. Do not paste landed
@@ -76,9 +75,8 @@ Scope: current lane / next lane / restart order only.
 - current no-growth baseline: `classifiers=0 rows=0`; no `.inc`
   method/box string classifiers are allowlisted
 - worktree expectation: clean unless the active slice is in progress
-- resume point: continue Phase 293x with `MIMAP-267A`,
-  the post-segment-arena-backing-reportfields-pilot row selection selected by
-  HAKO-ALLOC-REPORT-RECORD-004.
+- resume point: continue Phase 293x from `current_blocker_token`,
+  `phase_status`, and `latest_card_path` in `CURRENT_STATE.toml`.
   VM-LIM-001 remains parked diagnostic.
   Keep LoopRange on the Stage1 route; do not source-desugar range loops.
 
@@ -86,8 +84,8 @@ Scope: current lane / next lane / restart order only.
 
 - current task source: `CURRENT_STATE.toml` plus the phase-293x taskboard
 - next 293x order:
-  1. `MIMAP-267A`: select the next narrow allocator behavior, Hakorune core
-     capability, or BoxShape cleanup row after the ReportFields pilot
+  1. read `current_blocker_token`, `phase_status`, and `latest_card_path` from
+     `CURRENT_STATE.toml`
   2. keep raw pointer residence, real segment-map execution, and provider
      activation closed
   3. keep cross-function `Result` direct ABI and runtime sum materialization
