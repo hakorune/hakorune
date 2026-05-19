@@ -1,6 +1,6 @@
 # 293x-806 MIMAP-281A Segment Arena Backing Modeled Allocation-Ledger Release Candidate Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -52,3 +52,37 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_le
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Implementation
+
+- Added
+  `HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateDiagnostic`
+  as an observer-only owner.
+- Added
+  `HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateDiagnosticReportFields`
+  as the owner-local record payload for the diagnostic report construction.
+- Added the MIMAP-281A proof app, proof manifest row, module export, memory
+  README entry, and guard index entry.
+- Kept L3/L4 EXE evidence deferred to the release-candidate closeout pack.
+
+## Next
+
+MIMAP-282A
+
+```text
+segment arena backing modeled allocation-ledger release candidate closeout pack
+```
+
+After MIMAP-282A closes this family, the next BoxShape sidecar should select a
+small exact-`usize` field group:
+
+```text
+HAKO-ALLOC-USIZE-FIELD-GROUP-001:
+  select allocator byte/capacity field-group pilot
+
+HAKO-ALLOC-USIZE-FIELD-GROUP-002:
+  migrate one owner-local byte/capacity field group only
+```
+
+Reason/status/token/sentinel fields stay `i64`; only non-negative
+byte/capacity quantities are candidates.

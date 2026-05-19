@@ -654,6 +654,13 @@ Syntax/style contract
   backing, mutate a real segment-map, execute atomic bitmap claims, call
   page-source or OSVM seams, schedule workers, activate provider hooks, replace
   the host allocator, or add backend shortcuts.
+- `segment_arena_backing_modeled_allocation_ledger_release_candidate_diagnostic_box.hako`
+  owns MIMAP-281A. It may observe MIMAP-280A release-candidate counters and
+  publish scalar diagnostic summary facts. It must not record release-candidate
+  rows, create real pointer residence, perform pointer-derived lookup, allocate
+  or release real arena backing, mutate a real segment-map, execute atomic
+  bitmap claims, call page-source or OSVM seams, schedule workers, activate
+  provider hooks, replace the host allocator, or add backend shortcuts.
 - `object_lifecycle_facade_huge_failfast_box.hako` owns the MIMAP-022B facade
   huge-request fail-fast route. It may classify request size through
   `SizeClassBox`, reject huge requests before invoking the MIMAP-021C
