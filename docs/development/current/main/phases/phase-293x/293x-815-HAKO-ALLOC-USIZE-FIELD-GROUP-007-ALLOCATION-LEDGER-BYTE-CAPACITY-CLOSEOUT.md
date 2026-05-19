@@ -1,6 +1,6 @@
 # 293x-815 HAKO-ALLOC-USIZE-FIELD-GROUP-007 Allocation-Ledger Byte/Capacity Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -65,7 +65,27 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Re-ran the MIMAP-276A allocation-ledger L2 guard after the exact `usize`
+  field migration.
+- Re-ran the MIMAP-277A diagnostics L2 guard after the exact `usize` field
+  migration while keeping diagnostic mirror bytes on `i64`.
+- Re-ran the MIMAP-278A closeout L3 guard, including exact MIR -> pure-first EXE
+  evidence for the allocation-ledger diagnostics proof app.
+- Confirmed `NUMERIC_FIELDS.md` lists the allocation-ledger byte/capacity group
+  as current production `usize` storage.
+
 ## Next
 
-After this closeout, select the next narrow allocator byte/capacity group only
-if its owner-local invariant and sentinel policy are as small as this group.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-008` to migrate the observer-only
+allocation-ledger diagnostic mirror byte fields:
+
+```text
+last_report_applied_backing_bytes
+last_report_applied_committed_bytes
+last_report_remaining_source_bytes
+```
+
+The migration stays downstream of the already-migrated allocation-ledger report
+group and keeps reason/status/token/id/count fields on `i64`.
