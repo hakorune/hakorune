@@ -1,6 +1,6 @@
 # 293x-814 HAKO-ALLOC-USIZE-FIELD-GROUP-006 Allocation-Ledger Byte/Capacity Migration
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -59,7 +59,22 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Migrated only the allocation-ledger report byte/capacity fields to exact
+  `usize`.
+- Extended the MIMAP-276A guard to verify exact `usize` storage for the migrated
+  fields and explicit `i64` storage for reason, row-index, and ledger-token
+  fields.
+- Extended the MIMAP-277A diagnostics guard to keep downstream diagnostic mirror
+  bytes on `i64` for this row.
+- Updated the historical MIMAP-278A closeout guard so it accepts the already
+  landed MIMAP-279A row selection instead of requiring that old row to remain
+  `selected current`.
+- Re-ran MIMAP-276A L2, MIMAP-277A L2, and MIMAP-278A closeout L3 evidence.
+
 ## Next
 
-After this migration, close out the allocation-ledger byte/capacity field group
-before selecting another allocator byte/capacity group.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-007` to close out the allocation-ledger
+byte/capacity field group before selecting another allocator byte/capacity
+group.

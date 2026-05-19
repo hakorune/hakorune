@@ -53,7 +53,7 @@ guard_require_exec_files "$TAG" "$GUARD_276A" "$GUARD_277A" "$SELF_SCRIPT" "$IMP
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_276A" "MIMAP-276A must be landed before closeout"
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_277A" "MIMAP-277A must be landed before closeout"
 guard_expect_in_file "$TAG" "Status: landed" "$CARD_278A" "MIMAP-278A closeout card must be landed"
-guard_expect_in_file "$TAG" "Status: selected current" "$CARD_279A" "MIMAP-279A must be selected current after closeout"
+guard_expect_in_file "$TAG" "Status: landed" "$CARD_279A" "MIMAP-279A row selection must be landed after closeout"
 
 guard_expect_in_file "$TAG" "Decision: accepted" "$SSOT" "MIMAP-278A closeout SSOT must be accepted"
 guard_expect_in_file "$TAG" "Decision: accepted" "$INVENTORY_SSOT" "MIMAP-276A inventory SSOT must stay accepted"

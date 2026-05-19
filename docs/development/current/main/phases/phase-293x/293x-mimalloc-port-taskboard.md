@@ -684,7 +684,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-003` | landed | Close out the first allocator exact-`usize` stored field group and keep the migration evidence bounded. | selected FIELD-GROUP-004 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-004` | landed | Migrate release-candidate diagnostic mirror byte fields only; keep diagnostic counters, reasons, tokens, ids, and sentinels on `i64`. | selected FIELD-GROUP-005 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-005` | landed | Close out the release-candidate diagnostic byte mirror field group and keep the evidence bounded. | selected FIELD-GROUP-006 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-006` | selected current | Migrate allocation-ledger report byte/capacity fields only; keep counters, reasons, tokens, ids, and sentinels on `i64`. | after FIELD-GROUP-005 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-006` | landed | Migrate allocation-ledger report byte/capacity fields only; keep counters, reasons, tokens, ids, and sentinels on `i64`. | selected FIELD-GROUP-007 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-007` | selected current | Close out the allocation-ledger byte/capacity field group and keep the evidence bounded. | after FIELD-GROUP-006 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -693,8 +694,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-006` migrates the allocation-ledger report
-byte/capacity group:
+`HAKO-ALLOC-USIZE-FIELD-GROUP-007` closes out the allocation-ledger report
+byte/capacity group after `HAKO-ALLOC-USIZE-FIELD-GROUP-006` migrated:
 
 ```text
 source_capacity
@@ -729,6 +730,8 @@ Then HAKO-ALLOC-USIZE-FIELD-GROUP-005 closes out that diagnostic mirror group
 before selecting another allocator byte/capacity group.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-006 migrates the allocation-ledger report
 byte/capacity group that feeds the release-candidate family.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-007 closes out that allocation-ledger group
+before selecting another allocator byte/capacity group.
 Reason/status/token/sentinel fields stay i64.
 ```
 

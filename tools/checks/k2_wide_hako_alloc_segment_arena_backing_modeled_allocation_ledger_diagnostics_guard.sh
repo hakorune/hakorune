@@ -69,6 +69,9 @@ guard_expect_in_file "$TAG" 'segment_arena_backing_modeled_allocation_ledger_dia
 guard_expect_in_file "$TAG" 'record HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnosticReportFields' "$DIAGNOSTIC_OWNER" "diagnostic owner must use local ReportFields record payload"
 guard_expect_in_file "$TAG" 'observeAllocationLedgerDiagnostics' "$DIAGNOSTIC_OWNER" "diagnostic owner must expose observer route"
 guard_expect_in_file "$TAG" 'diagnostic_present: i64 = 1' "$DIAGNOSTIC_OWNER" "diagnostic report must publish presence bit"
+guard_expect_in_file "$TAG" 'last_report_applied_backing_bytes: i64' "$DIAGNOSTIC_OWNER" "allocation-ledger diagnostic mirror bytes must remain i64 in HAKO-ALLOC-USIZE-FIELD-GROUP-006"
+guard_expect_in_file "$TAG" 'last_report_applied_committed_bytes: i64' "$DIAGNOSTIC_OWNER" "allocation-ledger diagnostic mirror committed bytes must remain i64 in HAKO-ALLOC-USIZE-FIELD-GROUP-006"
+guard_expect_in_file "$TAG" 'last_report_remaining_source_bytes: i64' "$DIAGNOSTIC_OWNER" "allocation-ledger diagnostic mirror remaining bytes must remain i64 in HAKO-ALLOC-USIZE-FIELD-GROUP-006"
 guard_expect_in_file "$TAG" 'check "mimap277a segment arena backing modeled allocation ledger diagnostics"' "$APP" "proof must use labelled check block"
 
 if rg -n 'recordAllocationLedger|me\.(inventory_count|accepted_count|reject_count|missing_apply_reject_count|rejected_apply_reject_count|invalid_ledger_token_reject_count|duplicate_ledger_token_reject_count|closed_substrate_reject_count)[[:space:]]*\+=' \
@@ -165,7 +168,7 @@ if report is None:
     raise SystemExit("missing modeled allocation ledger diagnostic report typed object plan")
 
 fields = {field.get("name"): field for field in report.get("fields", [])}
-for name in (
+required_fields = (
     "observed",
     "reason",
     "diagnostic_present",
@@ -176,9 +179,40 @@ for name in (
     "allocation_ledger_present",
     "modeled_allocation_ledger_present",
     "would_add_backend_matcher",
-):
+)
+for name in required_fields:
     if name not in fields:
         raise SystemExit(f"missing modeled allocation ledger diagnostic field: {name}")
+
+for name in (
+    "last_report_applied_backing_bytes",
+    "last_report_applied_committed_bytes",
+    "last_report_remaining_source_bytes",
+):
+    field = fields.get(name)
+    if field is None or field.get("declared_type") != "i64" or field.get("storage") != "i64":
+        raise SystemExit(f"allocation ledger diagnostic mirror {name} must remain i64 storage: {field}")
+
+record_decl = None
+for decl in data.get("record_decls", []):
+    if isinstance(decl, dict) and decl.get("name") == "HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnosticReportFields":
+        record_decl = decl
+        break
+if record_decl is None:
+    raise SystemExit("missing allocation ledger diagnostic ReportFields record details")
+
+record_fields = {
+    field.get("name"): field
+    for field in record_decl.get("field_decls", [])
+}
+for name in (
+    "last_report_applied_backing_bytes",
+    "last_report_applied_committed_bytes",
+    "last_report_remaining_source_bytes",
+):
+    field = record_fields.get(name)
+    if field is None or field.get("declared_type") != "i64":
+        raise SystemExit(f"allocation ledger diagnostic ReportFields {name} must remain declared i64: {field}")
 
 print("[mimap277a-mir-json] ok")
 PY
