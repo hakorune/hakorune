@@ -1,6 +1,6 @@
 # 293x-869 HAKO-ALLOC-REPORT-RECORD-014 Post Record-Local Scalarization SSOT Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -43,3 +43,48 @@ git diff --check
 
 - The next row is selected with a single owner and a bounded validation profile.
 - The selected row references the record-local scalarization SSOT.
+
+## Inventory
+
+Nearby `ReportFields` owners still using inline report construction:
+
+```text
+HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnosticReportFields
+HakoAllocSegmentArenaBackingModeledAllocationApplyDiagnosticReportFields
+HakoAllocSegmentArenaBackingModeledAllocationPlanDiagnosticReportFields
+HakoAllocSegmentArenaBackingModeledSourceAccountingDiagnosticReportFields
+HakoAllocSegmentAllocationModeledLocalFreeIntegrationReportFields
+HakoAllocBoundedPurgeDecommitSchedulerReportFields
+```
+
+Already migrated through helper-argument scalarization:
+
+```text
+HakoAllocSegmentAllocationModeledLocalFreeReuseLedgerReleaseApplyReportFields
+HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReportFields
+HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateDiagnosticReportFields
+```
+
+## Selection
+
+Select `HAKO-ALLOC-REPORT-RECORD-015`:
+
+```text
+HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnosticReportFields
+```
+
+Reason:
+
+```text
+It is adjacent to the already migrated allocation-ledger release-candidate
+diagnostic owner, uses the same scalar-only diagnostic report style, and can
+stay inside the record-local scalarization SSOT without opening a broader
+helper body shape.
+```
+
+## Evidence
+
+```text
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```

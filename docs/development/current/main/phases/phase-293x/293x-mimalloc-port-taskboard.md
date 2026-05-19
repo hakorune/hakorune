@@ -739,7 +739,8 @@ FST:
 | `HAKO-ALLOC-REPORT-RECORD-012` | landed | Apply helper-argument scalarization to the allocation-ledger release-candidate diagnostic ReportFields owner only. | selected HAKO-ALLOC-REPORT-RECORD-013 |
 | `HAKO-ALLOC-REPORT-RECORD-013` | landed | Close out the allocation-ledger release-candidate diagnostic ReportFields helper-scalarization owner. | selected RECORD-LOCAL-SCALARIZATION-SSOT-001 |
 | `RECORD-LOCAL-SCALARIZATION-SSOT-001` | landed | Fix the record-local scalarization owner boundaries, helper body stop lines, exact PHI propagation rule, receiver rule, and guard expectations. | selected HAKO-ALLOC-REPORT-RECORD-014 |
-| `HAKO-ALLOC-REPORT-RECORD-014` | selected current | Select the next single ReportFields owner under the record-local scalarization SSOT, or return to the allocator modeled lane. | after RECORD-LOCAL-SCALARIZATION-SSOT-001 |
+| `HAKO-ALLOC-REPORT-RECORD-014` | landed | Select the allocation-ledger diagnostic ReportFields owner under the record-local scalarization SSOT. | selected HAKO-ALLOC-REPORT-RECORD-015 |
+| `HAKO-ALLOC-REPORT-RECORD-015` | selected current | Apply helper-argument scalarization to the allocation-ledger diagnostic ReportFields owner only. | after HAKO-ALLOC-REPORT-RECORD-014 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -748,9 +749,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-REPORT-RECORD-014` selects the next single `ReportFields` owner
-under the record-local scalarization SSOT, or returns to the allocator modeled
-lane if no owner should be migrated now.
+`HAKO-ALLOC-REPORT-RECORD-015` applies helper-argument scalarization to the
+allocation-ledger diagnostic `ReportFields` owner only.
 
 SSOT:
 
@@ -774,6 +774,12 @@ Third migrated record:
 
 ```text
 HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateDiagnosticReportFields
+```
+
+Current target record:
+
+```text
+HakoAllocSegmentArenaBackingModeledAllocationLedgerDiagnosticReportFields
 ```
 
 Real pointer residence, pointer-derived lookup, real thread scheduling, worker
