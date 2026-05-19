@@ -1,6 +1,6 @@
 # 293x-798 MIMAP-273A Segment Arena Backing Modeled Allocation Apply Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -51,3 +51,20 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ap
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+- Added observer-only allocation-apply diagnostics owner and report.
+- Added proof app, L2 guard, proof manifest row, check index entry, module
+  export, memory README entry, and diagnostics SSOT.
+- Verified accepted/rejected inventory summary counters and missing /
+  rejected / invalid-token / invalid-geometry / closed-substrate seen flags.
+- Verified the observer mirrors the latest allocation-apply report facts
+  without recording new allocation-apply rows.
+- Kept real pointer residence, pointer-derived lookup, real arena backing,
+  segment-map mutation, atomic bitmap execution, OSVM/page-source execution,
+  worker/provider activation, and backend matchers inactive.
+
+## Selected Next Row
+
+`MIMAP-274A` segment arena backing modeled allocation apply closeout pack.
