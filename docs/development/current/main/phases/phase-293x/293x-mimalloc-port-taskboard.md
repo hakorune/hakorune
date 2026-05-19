@@ -703,7 +703,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-022` | landed | Migrate source-bridge report byte/capacity fields only; keep counters, reasons, tokens, ids, alignments, and sentinels on `i64`. | selected FIELD-GROUP-023 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-023` | landed | Close out the source-bridge byte/capacity field group and keep the evidence bounded. | selected FIELD-GROUP-024 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-024` | landed | Migrate source-bridge diagnostic mirror byte fields only; keep diagnostic counters, reasons, tokens, ids, alignments, and sentinels on `i64`. | selected FIELD-GROUP-025 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-025` | selected current | Close out the source-bridge diagnostic byte mirror field group and keep the evidence bounded. | after FIELD-GROUP-024 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-025` | landed | Close out the source-bridge diagnostic byte mirror field group and keep the evidence bounded. | selected FIELD-GROUP-026 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-026` | selected current | Migrate arena-slot report byte/capacity fields only; keep counters, reasons, tokens, ids, alignments, geometry, and sentinels on `i64`. | after FIELD-GROUP-025 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -712,12 +713,13 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-025` closes out the source-bridge diagnostic
-mirror byte fields that copy already-migrated source-bridge facts:
+`HAKO-ALLOC-USIZE-FIELD-GROUP-026` migrates the arena-slot report byte/capacity
+fields that feed the source-bridge family:
 
 ```text
-last_report_source_capacity
-last_report_source_committed_bytes
+requested_bytes
+padded_bytes
+slot_capacity
 ```
 
 Real pointer residence, pointer-derived lookup, real thread scheduling, worker
@@ -778,6 +780,8 @@ Then HAKO-ALLOC-USIZE-FIELD-GROUP-024 migrates the source-bridge diagnostic
 mirror byte fields that copy already-migrated source-bridge byte facts.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-025 closes out that source-bridge diagnostic
 mirror group before selecting another allocator byte/capacity group.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-026 migrates the arena-slot report
+byte/capacity group that feeds the source-bridge family.
 Reason/status/token/sentinel fields stay i64.
 ```
 
