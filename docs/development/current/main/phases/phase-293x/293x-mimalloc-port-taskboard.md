@@ -727,7 +727,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-046` | landed | Close out the modeled local-free reuse ledger release-apply primary counter field group and keep the evidence bounded. | selected FIELD-GROUP-047 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-047` | landed | Migrate the modeled local-free reuse ledger release-apply upstream / invalid-shape / duplicate / missing reject counters only; keep execution/capability counters, reasons, indexes, tokens, ids, flags, and sentinels on `i64`. | selected FIELD-GROUP-048 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-048` | landed | Close out the modeled local-free reuse ledger release-apply shape/lookup reject counter field group and keep the evidence bounded. | selected FIELD-GROUP-049 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-049` | selected current | Migrate the modeled local-free reuse ledger release-apply execution/capability reject counters only; keep reasons, indexes, tokens, ids, flags, and sentinels on `i64`. | after FIELD-GROUP-048 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-049` | landed | Migrate the modeled local-free reuse ledger release-apply execution/capability reject counters only; keep reasons, indexes, tokens, ids, flags, and sentinels on `i64`. | selected FIELD-GROUP-050 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-050` | selected current | Close out the modeled local-free reuse ledger release-apply execution/capability reject counter field group and keep the evidence bounded. | after FIELD-GROUP-049 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -736,8 +737,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-049` migrates the modeled local-free reuse ledger
-release-apply execution/capability reject counters:
+`HAKO-ALLOC-USIZE-FIELD-GROUP-050` closes out the modeled local-free reuse
+ledger release-apply execution/capability reject counter field group:
 
 ```text
 release_apply_execution_reject_count
@@ -867,6 +868,9 @@ Then HAKO-ALLOC-USIZE-FIELD-GROUP-048 closes out that shape/lookup reject
 counter group before selecting another allocator exact-`usize` field group.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-049 migrates the modeled local-free reuse
 ledger release-apply execution/capability reject counters.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-050 closes out that execution/capability
+reject counter group before switching to report-carrier record work or another
+allocator exact-`usize` field group.
 ```
 
 MIMAP-020A execution order:

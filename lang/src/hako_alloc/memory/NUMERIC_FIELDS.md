@@ -258,10 +258,16 @@ Selected next production `usize` field group:
   `release_apply_thread_reject_count`,
   `release_apply_provider_reject_count`,
   `release_apply_backend_matcher_reject_count`.
-  `HAKO-ALLOC-USIZE-FIELD-GROUP-049` selects this group because these
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-049` selects and migrates this group because these
   non-negative per-reason counters are the remaining release-apply reject
   counters after the shape/lookup group was closed out. Reasons, indexes,
   tokens, segment/page ids, reused block ids, flags, and sentinels stay `i64`.
+
+Selected next production `usize` field group:
+
+- None. `HAKO-ALLOC-USIZE-FIELD-GROUP-050` closes out the modeled local-free
+  reuse ledger release-apply execution/capability reject counter group before
+  selecting another allocator exact-`usize` field group.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.

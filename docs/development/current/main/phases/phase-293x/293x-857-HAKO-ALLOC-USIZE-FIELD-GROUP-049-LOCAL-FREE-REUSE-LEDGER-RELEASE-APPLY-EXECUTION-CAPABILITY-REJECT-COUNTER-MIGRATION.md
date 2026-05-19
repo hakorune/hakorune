@@ -1,6 +1,6 @@
 # 293x-857 HAKO-ALLOC-USIZE-FIELD-GROUP-049 Local-Free Reuse Ledger Release-Apply Execution/Capability Reject Counter Migration
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -53,8 +53,17 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Migrated only the nine release-apply execution/capability reject counters to
+  exact `usize`.
+- Kept last sentinels, reasons, indexes, tokens, segment/page ids, reused block
+  ids, and flags on `i64`.
+- Extended the MIMAP-138A guard to assert that all release-apply counters are now
+  exact `usize` while the signed sentinels remain `i64`.
+
 ## Next
 
-After migration, select `HAKO-ALLOC-USIZE-FIELD-GROUP-050` to close out the
-release-apply execution/capability reject counter group before switching to
-report-carrier record work or another allocator exact-`usize` field group.
+`HAKO-ALLOC-USIZE-FIELD-GROUP-050` closes out the release-apply
+execution/capability reject counter group before switching to report-carrier
+record work or another allocator exact-`usize` field group.
