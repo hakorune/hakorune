@@ -231,8 +231,6 @@ Current production `usize` field group:
   report count fields. Per-reason counters, reasons, indexes, tokens,
   segment/page ids, reused block ids, flags, and sentinels stay `i64`.
 
-Selected next production `usize` field group:
-
 - `segment_allocation_modeled_local_free_reuse_ledger_box.hako`
   / `HakoAllocSegmentAllocationModeledLocalFreeReuseLedger` release-apply
   shape/lookup reject counter fields:
@@ -240,11 +238,17 @@ Selected next production `usize` field group:
   `release_apply_invalid_shape_reject_count`,
   `release_apply_duplicate_reject_count`,
   `release_apply_missing_reject_count`.
-  `HAKO-ALLOC-USIZE-FIELD-GROUP-047` selects this group because these
+  `HAKO-ALLOC-USIZE-FIELD-GROUP-047` selects and migrates this group because these
   non-negative per-reason counters are the first narrow reject-counter group
   after the primary release-apply counters were closed out. Execution/capability
   reject counters, reasons, indexes, tokens, segment/page ids, reused block ids,
   flags, and sentinels stay `i64`.
+
+Selected next production `usize` field group:
+
+- None. `HAKO-ALLOC-USIZE-FIELD-GROUP-048` closes out the modeled local-free
+  reuse ledger release-apply shape/lookup reject counter group before selecting
+  another allocator exact-`usize` field group.
 
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.

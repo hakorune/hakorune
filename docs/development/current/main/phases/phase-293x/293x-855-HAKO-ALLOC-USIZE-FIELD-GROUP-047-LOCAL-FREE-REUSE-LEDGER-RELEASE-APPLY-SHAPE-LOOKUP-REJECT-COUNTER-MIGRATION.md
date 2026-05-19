@@ -1,6 +1,6 @@
 # 293x-855 HAKO-ALLOC-USIZE-FIELD-GROUP-047 Local-Free Reuse Ledger Release-Apply Shape/Lookup Reject Counter Migration
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -49,8 +49,17 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Migrated only the four release-apply shape/lookup reject counters to exact
+  `usize`.
+- Kept execution/capability release-apply reject counters, last sentinels,
+  reasons, indexes, tokens, segment/page ids, reused block ids, and flags on
+  `i64`.
+- Extended the MIMAP-138A guard to assert the migrated reject-counter group and
+  the intentionally signed execution/capability reject counters.
+
 ## Next
 
-After migration, select `HAKO-ALLOC-USIZE-FIELD-GROUP-048` to close out the
-release-apply shape/lookup reject counter group before selecting execution or
-capability reject counters.
+`HAKO-ALLOC-USIZE-FIELD-GROUP-048` closes out the release-apply shape/lookup
+reject counter group before selecting execution or capability reject counters.

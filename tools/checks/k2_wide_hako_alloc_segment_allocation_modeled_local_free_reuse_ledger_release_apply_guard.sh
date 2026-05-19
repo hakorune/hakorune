@@ -58,7 +58,12 @@ guard_expect_in_file "$TAG" 'ledger_live_count_after: usize = 0' "$OWNER" "relea
 guard_expect_in_file "$TAG" 'release_apply_attempt_count: usize = 0' "$OWNER" "release apply attempt counter must be exact usize"
 guard_expect_in_file "$TAG" 'release_apply_count: usize = 0' "$OWNER" "release apply counter must be exact usize"
 guard_expect_in_file "$TAG" 'release_apply_reject_count: usize = 0' "$OWNER" "release apply reject counter must be exact usize"
-guard_expect_in_file "$TAG" 'release_apply_duplicate_reject_count: i64 = 0' "$OWNER" "release apply per-reason counters must remain i64"
+guard_expect_in_file "$TAG" 'release_apply_upstream_reject_count: usize = 0' "$OWNER" "release apply upstream reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'release_apply_invalid_shape_reject_count: usize = 0' "$OWNER" "release apply invalid-shape reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'release_apply_duplicate_reject_count: usize = 0' "$OWNER" "release apply duplicate reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'release_apply_missing_reject_count: usize = 0' "$OWNER" "release apply missing reject counter must be exact usize"
+guard_expect_in_file "$TAG" 'release_apply_execution_reject_count: i64 = 0' "$OWNER" "release apply execution reject counter must remain i64"
+guard_expect_in_file "$TAG" 'release_apply_raw_pointer_reject_count: i64 = 0' "$OWNER" "release apply capability reject counters must remain i64"
 guard_expect_in_file "$TAG" 'modeled_reuse_token: i64 = -1' "$OWNER" "release apply token sentinel must remain i64"
 guard_expect_in_file "$TAG" 'source_modeled_allocation_token: i64 = -1' "$OWNER" "release apply source token sentinel must remain i64"
 guard_expect_in_file "$TAG" 'reused_block_id: i64 = -1' "$OWNER" "release apply reused block id must remain i64"
@@ -222,12 +227,12 @@ owner_usize_fields = (
     "release_apply_attempt_count",
     "release_apply_count",
     "release_apply_reject_count",
-)
-owner_i64_fields = (
     "release_apply_upstream_reject_count",
     "release_apply_invalid_shape_reject_count",
     "release_apply_duplicate_reject_count",
     "release_apply_missing_reject_count",
+)
+owner_i64_fields = (
     "release_apply_execution_reject_count",
     "release_apply_raw_pointer_reject_count",
     "release_apply_segment_map_reject_count",

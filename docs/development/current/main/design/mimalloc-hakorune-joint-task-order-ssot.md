@@ -391,7 +391,8 @@ no provider activation
 | 307 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-044 local-free reuse ledger release-apply count closeout` | landed; selected HAKO-ALLOC-USIZE-FIELD-GROUP-045 |
 | 308 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-045 local-free reuse ledger release-apply primary counter migration` | landed; selected HAKO-ALLOC-USIZE-FIELD-GROUP-046 |
 | 309 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-046 local-free reuse ledger release-apply primary counter closeout` | landed; selected HAKO-ALLOC-USIZE-FIELD-GROUP-047 |
-| 310 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-047 local-free reuse ledger release-apply shape/lookup reject counter migration` | selected current |
+| 310 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-047 local-free reuse ledger release-apply shape/lookup reject counter migration` | landed; selected HAKO-ALLOC-USIZE-FIELD-GROUP-048 |
+| 311 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-048 local-free reuse ledger release-apply shape/lookup reject counter closeout` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

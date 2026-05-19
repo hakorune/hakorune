@@ -101,10 +101,10 @@ box HakoAllocSegmentAllocationModeledLocalFreeReuseLedger {
     release_apply_attempt_count: usize = 0
     release_apply_count: usize = 0
     release_apply_reject_count: usize = 0
-    release_apply_upstream_reject_count: i64 = 0
-    release_apply_invalid_shape_reject_count: i64 = 0
-    release_apply_duplicate_reject_count: i64 = 0
-    release_apply_missing_reject_count: i64 = 0
+    release_apply_upstream_reject_count: usize = 0
+    release_apply_invalid_shape_reject_count: usize = 0
+    release_apply_duplicate_reject_count: usize = 0
+    release_apply_missing_reject_count: usize = 0
     release_apply_execution_reject_count: i64 = 0
     release_apply_raw_pointer_reject_count: i64 = 0
     release_apply_segment_map_reject_count: i64 = 0
