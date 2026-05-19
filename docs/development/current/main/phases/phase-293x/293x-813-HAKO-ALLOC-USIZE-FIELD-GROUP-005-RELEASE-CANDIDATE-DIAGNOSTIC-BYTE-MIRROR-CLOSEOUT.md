@@ -1,6 +1,6 @@
 # 293x-813 HAKO-ALLOC-USIZE-FIELD-GROUP-005 Release-Candidate Diagnostic Byte Mirror Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-19
 
 ## Decision
@@ -54,7 +54,32 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Landed Notes
+
+- Re-ran the MIMAP-281A diagnostics L2 guard after the diagnostic mirror field
+  migration.
+- Re-ran the MIMAP-282A closeout L3 guard after the diagnostic mirror field
+  migration.
+- Confirmed `NUMERIC_FIELDS.md` lists the diagnostic mirror byte group as
+  current production `usize` storage.
+
 ## Next
 
-After this closeout, select the next narrow allocator byte/capacity group only
-if its owner-local invariant and sentinel policy are as small as this group.
+Select `HAKO-ALLOC-USIZE-FIELD-GROUP-006` to migrate the allocation-ledger
+byte/capacity owner group:
+
+```text
+source_capacity
+source_committed_bytes
+source_uncommitted_bytes
+padded_bytes
+slot_capacity
+planned_backing_bytes
+planned_committed_bytes
+applied_backing_bytes
+applied_committed_bytes
+remaining_source_bytes
+```
+
+This returns migration to the owner-local report that feeds the release
+candidate family, instead of migrating more observer-only mirrors first.

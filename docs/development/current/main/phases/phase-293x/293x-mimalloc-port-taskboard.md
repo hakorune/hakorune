@@ -683,7 +683,8 @@ FST:
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-002` | landed | Migrate release-candidate report byte/capacity fields only; keep reason/status/token/sentinel fields on `i64`. | selected FIELD-GROUP-003 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-003` | landed | Close out the first allocator exact-`usize` stored field group and keep the migration evidence bounded. | selected FIELD-GROUP-004 |
 | `HAKO-ALLOC-USIZE-FIELD-GROUP-004` | landed | Migrate release-candidate diagnostic mirror byte fields only; keep diagnostic counters, reasons, tokens, ids, and sentinels on `i64`. | selected FIELD-GROUP-005 |
-| `HAKO-ALLOC-USIZE-FIELD-GROUP-005` | selected current | Close out the release-candidate diagnostic byte mirror field group and keep the evidence bounded. | after FIELD-GROUP-004 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-005` | landed | Close out the release-candidate diagnostic byte mirror field group and keep the evidence bounded. | selected FIELD-GROUP-006 |
+| `HAKO-ALLOC-USIZE-FIELD-GROUP-006` | selected current | Migrate allocation-ledger report byte/capacity fields only; keep counters, reasons, tokens, ids, and sentinels on `i64`. | after FIELD-GROUP-005 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -692,13 +693,20 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-USIZE-FIELD-GROUP-005` closes out the observer diagnostic mirror
-byte field group after `HAKO-ALLOC-USIZE-FIELD-GROUP-004` migrated only:
+`HAKO-ALLOC-USIZE-FIELD-GROUP-006` migrates the allocation-ledger report
+byte/capacity group:
 
 ```text
-last_report_applied_backing_bytes
-last_report_applied_committed_bytes
-last_report_remaining_source_bytes
+source_capacity
+source_committed_bytes
+source_uncommitted_bytes
+padded_bytes
+slot_capacity
+planned_backing_bytes
+planned_committed_bytes
+applied_backing_bytes
+applied_committed_bytes
+remaining_source_bytes
 ```
 
 Real pointer residence, pointer-derived lookup, real thread scheduling, worker
@@ -719,6 +727,8 @@ Then HAKO-ALLOC-USIZE-FIELD-GROUP-004 migrates the diagnostic mirror byte fields
 that copy already-migrated release-candidate byte facts.
 Then HAKO-ALLOC-USIZE-FIELD-GROUP-005 closes out that diagnostic mirror group
 before selecting another allocator byte/capacity group.
+Then HAKO-ALLOC-USIZE-FIELD-GROUP-006 migrates the allocation-ledger report
+byte/capacity group that feeds the release-candidate family.
 Reason/status/token/sentinel fields stay i64.
 ```
 

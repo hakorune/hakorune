@@ -336,7 +336,8 @@ no provider activation
 | 265 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-002 release-candidate byte/capacity migration` | landed; selected HAKO-ALLOC-USIZE-FIELD-GROUP-003 |
 | 266 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-003 release-candidate byte/capacity closeout` | landed; selected HAKO-ALLOC-USIZE-FIELD-GROUP-004 |
 | 267 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-004 release-candidate diagnostic byte mirror migration` | landed; selected HAKO-ALLOC-USIZE-FIELD-GROUP-005 |
-| 268 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-005 release-candidate diagnostic byte mirror closeout` | selected current |
+| 268 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-005 release-candidate diagnostic byte mirror closeout` | landed; selected HAKO-ALLOC-USIZE-FIELD-GROUP-006 |
+| 269 | Hakorune language / allocator cleanup | `HAKO-ALLOC-USIZE-FIELD-GROUP-006 allocation-ledger byte/capacity migration` | selected current |
 | 125 | optional runtime | provider/host allocator replacement ladder | explicit future option only; not a mimalloc completion prerequisite |
 
 ## What Does Not Block Current Mimalloc Rows

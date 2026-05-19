@@ -35,6 +35,20 @@ Current production `usize` field group:
   because it only mirrors already-migrated release-candidate byte facts.
   Diagnostic counters, reasons, tokens, ids, and sentinels stay `i64`.
 
+Selected next production `usize` field group:
+
+- `segment_arena_backing_modeled_allocation_ledger_box.hako`
+  / `HakoAllocSegmentArenaBackingModeledAllocationLedgerReport`
+  byte/capacity report fields:
+  `source_capacity`, `source_committed_bytes`, `source_uncommitted_bytes`,
+  `padded_bytes`, `slot_capacity`, `planned_backing_bytes`,
+  `planned_committed_bytes`, `applied_backing_bytes`,
+  `applied_committed_bytes`, `remaining_source_bytes`.
+  This group is selected by `HAKO-ALLOC-USIZE-FIELD-GROUP-006` because it is the
+  owner-local allocation-ledger report group that feeds the already-migrated
+  release-candidate family. Counters, reasons, tokens, ids, and sentinels stay
+  `i64`.
+
 All other live production numeric stored fields remain `i64` until their own
 field-group row records the invariant, stop line, and acceptance gate.
 
