@@ -64,6 +64,13 @@ Blocks and Control
 - `match expr { pattern => expr, _ => fallback }` — MVP match form; no `case` keyword
 
 Collections and failure values
+- `record Name { field: Type }` declares an identity-free aggregate shape.
+- `local r = Name { field: value }` constructs a local record value; field reads
+  such as `r.field` are accepted for tracked local records.
+- Narrow same-owner helper calls may accept a local record argument when the
+  helper parameter declares the exact record type. This is compiler-local
+  scalarization only: no runtime record object, no record return value, no
+  storage escape, and no backend record lowering.
 - `local xs: Array<T> = []` — typed-context Array literal; `local xs = []` fail-fasts
 - `xs.push(v)`, `xs.get(i)`, `xs.set(i, v)`, `xs.length()` — canonical typed `Array<T>` methods
 - direct literal / `push` / `set` values are checked against typed `Array<T>` when known

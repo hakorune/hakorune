@@ -364,6 +364,41 @@ extra fields are Stage1 errors. Lowered Program JSON v0 carries declared field
 index/type metadata on construction fields, and tracked local record reads lower
 as `RecordField` rather than ordinary box field access.
 
+Current executable record use is intentionally narrow. A local record value may
+act as a compiler-local value carrier for:
+
+```hako
+local fields = SomeReportFields {
+    reason: reason,
+    count: count
+}
+
+local reason = fields.reason
+return me.makeReport(fields)
+```
+
+For same-owner helper calls, the helper parameter must declare the exact record
+type. The compiler may scalarize helper body field reads from that parameter
+without materializing a runtime record object:
+
+```hako
+makeReport(fields: SomeReportFields): SomeReport {
+    local result = new SomeReport()
+    result.reason = fields.reason
+    result.count = fields.count
+    return result
+}
+```
+
+This is a compiler-local scalarization contract, not a second MIR dialect.
+The carrier must not escape as a returned value, ordinary call argument,
+stored field, ArrayBox/MapBox element, or backend/runtime object. The current
+SSOT is:
+
+```text
+docs/development/current/main/design/record-local-scalarization-ssot.md
+```
+
 Record with-update replaces selected fields without mutating the original
 record value:
 
@@ -378,9 +413,11 @@ field write-through such as `metas[i].usable_size = next` is not part of this
 surface; use explicit get/update/set composition in later container rows.
 
 Stop line:
-C202 does not add local scalar replacement, packed `ArrayBox` storage, blanket
-ordinary-box flattening, reflection semantics, or allocator-specific syntax.
-Ordinary `box` declarations keep identity-capable object semantics.
+The current record surface does not add runtime record materialization, packed
+`ArrayBox` storage, blanket ordinary-box flattening, reflection semantics,
+record methods, cross-function record-local ABI, backend record lowering, or
+allocator-specific syntax. Ordinary `box` declarations keep identity-capable
+object semantics.
 
 ### CONTRACT-002 Contract Metadata Surface
 
