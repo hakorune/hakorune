@@ -45,6 +45,7 @@ Current modules
 - `segment_arena_backing_requirement_matrix_diagnostic_box.hako`
 - `segment_arena_backing_requirement_matrix_box.hako`
 - `segment_arena_backing_modeled_allocation_plan_box.hako`
+- `segment_arena_backing_modeled_allocation_plan_diagnostic_box.hako`
 - `segment_lifecycle_scalar_state_box.hako`
 - `thread_heap_owner_inventory_box.hako`
 - `worker_identity_box.hako`
@@ -595,6 +596,20 @@ Syntax/style contract
 - `segment_arena_backing_modeled_source_accounting_diagnostic_box.hako` owns
   MIMAP-265A. It may observe MIMAP-264A source accounting counters and publish
   scalar diagnostic summary facts. It must not record source accounting rows,
+  create real pointer residence, perform pointer-derived lookup, allocate
+  arena backing, mutate a real segment-map, execute atomic bitmap claims, call
+  page-source or OSVM seams, schedule workers, activate provider hooks, replace
+  the host allocator, or add backend shortcuts.
+- `segment_arena_backing_modeled_allocation_plan_box.hako` owns MIMAP-268A.
+  It may record scalar/model allocation-plan facts from accepted source
+  accounting reports. It must not create real pointer residence, perform
+  pointer-derived lookup, allocate arena backing, mutate a real segment-map,
+  execute atomic bitmap claims, call page-source or OSVM seams, schedule
+  workers, activate provider hooks, replace the host allocator, or add backend
+  shortcuts.
+- `segment_arena_backing_modeled_allocation_plan_diagnostic_box.hako` owns
+  MIMAP-269A. It may observe MIMAP-268A allocation-plan counters and publish
+  scalar diagnostic summary facts. It must not record allocation-plan rows,
   create real pointer residence, perform pointer-derived lookup, allocate
   arena backing, mutate a real segment-map, execute atomic bitmap claims, call
   page-source or OSVM seams, schedule workers, activate provider hooks, replace
