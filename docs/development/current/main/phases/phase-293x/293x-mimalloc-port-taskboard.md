@@ -752,7 +752,8 @@ FST:
 | `HAKO-ALLOC-REPORT-RECORD-024` | landed | Apply helper-argument scalarization to the source-accounting diagnostic ReportFields owner only. | selected HAKO-ALLOC-REPORT-RECORD-025 |
 | `HAKO-ALLOC-REPORT-RECORD-025` | landed | Close out the source-accounting diagnostic ReportFields helper-scalarization owner. | selected HAKO-ALLOC-REPORT-RECORD-026 |
 | `HAKO-ALLOC-REPORT-RECORD-026` | landed | Select the local-free integration ReportFields owner under the record-local scalarization SSOT. | selected HAKO-ALLOC-REPORT-RECORD-027 |
-| `HAKO-ALLOC-REPORT-RECORD-027` | selected current | Apply helper-argument scalarization to the local-free integration ReportFields owner only. | after HAKO-ALLOC-REPORT-RECORD-026 |
+| `HAKO-ALLOC-REPORT-RECORD-027` | landed | Apply helper-argument scalarization to the local-free integration ReportFields owner only. | selected HAKO-ALLOC-REPORT-RECORD-028 |
+| `HAKO-ALLOC-REPORT-RECORD-028` | selected current | Close out the local-free integration ReportFields helper-scalarization owner. | after HAKO-ALLOC-REPORT-RECORD-027 |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -761,8 +762,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`HAKO-ALLOC-REPORT-RECORD-027` applies helper-argument scalarization to the
-local-free integration `ReportFields` owner only.
+`HAKO-ALLOC-REPORT-RECORD-028` closes out the local-free integration
+`ReportFields` helper-scalarization owner.
 
 SSOT:
 

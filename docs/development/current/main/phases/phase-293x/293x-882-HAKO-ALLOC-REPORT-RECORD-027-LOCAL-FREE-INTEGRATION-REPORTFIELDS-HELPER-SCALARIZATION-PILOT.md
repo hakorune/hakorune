@@ -1,6 +1,6 @@
 # 293x-882 HAKO-ALLOC-REPORT-RECORD-027 Local-Free Integration ReportFields Helper Scalarization Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -58,3 +58,27 @@ git diff --check
   helper with the local `ReportFields` record.
 - The target guard stays green.
 - No other owner is migrated.
+
+## Progress
+
+- Added `makeLocalFreeIntegrationReport(fields)` as the same-owner helper for
+  the local-free integration `ReportFields` owner.
+- Moved the after-count values into the local `ReportFields` payload so the
+  helper reads the record argument instead of owner state.
+- Updated the MIMAP-119A guard static contract to recognize the helper-backed
+  copy path.
+- Migrated no other owner.
+
+## Evidence
+
+```text
+bash tools/checks/k2_wide_allocator_record_construction_read_guard.sh
+bash tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_local_free_integration_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Next
+
+Select `HAKO-ALLOC-REPORT-RECORD-028` to close out the local-free integration
+ReportFields helper-scalarization owner before another owner is selected.

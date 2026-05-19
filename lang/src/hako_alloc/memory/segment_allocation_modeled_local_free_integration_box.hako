@@ -34,6 +34,9 @@ record HakoAllocSegmentAllocationModeledLocalFreeIntegrationReportFields {
     page_local_free_after: i64
     page_free_before: i64
     page_free_after: i64
+    integration_attempt_count_after: i64
+    integration_success_count_after: i64
+    integration_reject_count_after: i64
     did_mutate_page_local_free_list: i64
 }
 
@@ -91,6 +94,36 @@ box HakoAllocSegmentAllocationModeledLocalFreeIntegration {
     last_page_id: i64 = -1
     last_page_apply_row_index: i64 = -1
 
+    makeLocalFreeIntegrationReport(fields: HakoAllocSegmentAllocationModeledLocalFreeIntegrationReportFields): HakoAllocSegmentAllocationModeledLocalFreeIntegrationReport {
+        local local_free_integration_report = new HakoAllocSegmentAllocationModeledLocalFreeIntegrationReport()
+        local_free_integration_report.did_integrate_local_free = fields.did_integrate_local_free
+        local_free_integration_report.reason = fields.reason
+        local_free_integration_report.candidate_reason = fields.candidate_reason
+        local_free_integration_report.apply_plan_reason = fields.apply_plan_reason
+        local_free_integration_report.page_apply_reason = fields.page_apply_reason
+        local_free_integration_report.candidate_row_index = fields.candidate_row_index
+        local_free_integration_report.apply_plan_row_index = fields.apply_plan_row_index
+        local_free_integration_report.page_apply_row_index = fields.page_apply_row_index
+        local_free_integration_report.modeled_allocation_token = fields.modeled_allocation_token
+        local_free_integration_report.segment_id = fields.segment_id
+        local_free_integration_report.page_id = fields.page_id
+        local_free_integration_report.modeled_block_start = fields.modeled_block_start
+        local_free_integration_report.modeled_block_end = fields.modeled_block_end
+        local_free_integration_report.candidate_blocks = fields.candidate_blocks
+        local_free_integration_report.applied_blocks = fields.applied_blocks
+        local_free_integration_report.page_used_before = fields.page_used_before
+        local_free_integration_report.page_used_after = fields.page_used_after
+        local_free_integration_report.page_local_free_before = fields.page_local_free_before
+        local_free_integration_report.page_local_free_after = fields.page_local_free_after
+        local_free_integration_report.page_free_before = fields.page_free_before
+        local_free_integration_report.page_free_after = fields.page_free_after
+        local_free_integration_report.integration_attempt_count_after = fields.integration_attempt_count_after
+        local_free_integration_report.integration_success_count_after = fields.integration_success_count_after
+        local_free_integration_report.integration_reject_count_after = fields.integration_reject_count_after
+        local_free_integration_report.did_mutate_page_local_free_list = fields.did_mutate_page_local_free_list
+        return local_free_integration_report
+    }
+
     rejectFromCandidate(candidate) {
         me.reject_count += 1
         me.candidate_reject_count += 1
@@ -116,39 +149,17 @@ box HakoAllocSegmentAllocationModeledLocalFreeIntegration {
             page_local_free_after: 0,
             page_free_before: 0,
             page_free_after: 0,
+            integration_attempt_count_after: me.attempt_count,
+            integration_success_count_after: me.success_count,
+            integration_reject_count_after: me.reject_count,
             did_mutate_page_local_free_list: 0,
         }
-        local result = new HakoAllocSegmentAllocationModeledLocalFreeIntegrationReport()
-        result.did_integrate_local_free = fields.did_integrate_local_free
-        result.reason = fields.reason
-        result.candidate_reason = fields.candidate_reason
-        result.apply_plan_reason = fields.apply_plan_reason
-        result.page_apply_reason = fields.page_apply_reason
-        result.candidate_row_index = fields.candidate_row_index
-        result.apply_plan_row_index = fields.apply_plan_row_index
-        result.page_apply_row_index = fields.page_apply_row_index
-        result.modeled_allocation_token = fields.modeled_allocation_token
-        result.segment_id = fields.segment_id
-        result.page_id = fields.page_id
-        result.modeled_block_start = fields.modeled_block_start
-        result.modeled_block_end = fields.modeled_block_end
-        result.candidate_blocks = fields.candidate_blocks
-        result.applied_blocks = fields.applied_blocks
-        result.page_used_before = fields.page_used_before
-        result.page_used_after = fields.page_used_after
-        result.page_local_free_before = fields.page_local_free_before
-        result.page_local_free_after = fields.page_local_free_after
-        result.page_free_before = fields.page_free_before
-        result.page_free_after = fields.page_free_after
-        result.integration_attempt_count_after = me.attempt_count
-        result.integration_success_count_after = me.success_count
-        result.integration_reject_count_after = me.reject_count
-        result.did_mutate_page_local_free_list = fields.did_mutate_page_local_free_list
+        local integration_report = me.makeLocalFreeIntegrationReport(fields)
         me.last_reason = fields.reason
         me.last_token = fields.modeled_allocation_token
         me.last_page_id = fields.page_id
         me.last_page_apply_row_index = fields.page_apply_row_index
-        return result
+        return integration_report
     }
 
     rejectFromApplyPlan(candidate, plan) {
@@ -176,39 +187,17 @@ box HakoAllocSegmentAllocationModeledLocalFreeIntegration {
             page_local_free_after: 0,
             page_free_before: 0,
             page_free_after: 0,
+            integration_attempt_count_after: me.attempt_count,
+            integration_success_count_after: me.success_count,
+            integration_reject_count_after: me.reject_count,
             did_mutate_page_local_free_list: 0,
         }
-        local result = new HakoAllocSegmentAllocationModeledLocalFreeIntegrationReport()
-        result.did_integrate_local_free = fields.did_integrate_local_free
-        result.reason = fields.reason
-        result.candidate_reason = fields.candidate_reason
-        result.apply_plan_reason = fields.apply_plan_reason
-        result.page_apply_reason = fields.page_apply_reason
-        result.candidate_row_index = fields.candidate_row_index
-        result.apply_plan_row_index = fields.apply_plan_row_index
-        result.page_apply_row_index = fields.page_apply_row_index
-        result.modeled_allocation_token = fields.modeled_allocation_token
-        result.segment_id = fields.segment_id
-        result.page_id = fields.page_id
-        result.modeled_block_start = fields.modeled_block_start
-        result.modeled_block_end = fields.modeled_block_end
-        result.candidate_blocks = fields.candidate_blocks
-        result.applied_blocks = fields.applied_blocks
-        result.page_used_before = fields.page_used_before
-        result.page_used_after = fields.page_used_after
-        result.page_local_free_before = fields.page_local_free_before
-        result.page_local_free_after = fields.page_local_free_after
-        result.page_free_before = fields.page_free_before
-        result.page_free_after = fields.page_free_after
-        result.integration_attempt_count_after = me.attempt_count
-        result.integration_success_count_after = me.success_count
-        result.integration_reject_count_after = me.reject_count
-        result.did_mutate_page_local_free_list = fields.did_mutate_page_local_free_list
+        local integration_report = me.makeLocalFreeIntegrationReport(fields)
         me.last_reason = fields.reason
         me.last_token = fields.modeled_allocation_token
         me.last_page_id = fields.page_id
         me.last_page_apply_row_index = fields.page_apply_row_index
-        return result
+        return integration_report
     }
 
     rejectFromPageApply(candidate, plan, page_apply) {
@@ -236,39 +225,17 @@ box HakoAllocSegmentAllocationModeledLocalFreeIntegration {
             page_local_free_after: page_apply.page_local_free_after,
             page_free_before: page_apply.page_free_before,
             page_free_after: page_apply.page_free_after,
+            integration_attempt_count_after: me.attempt_count,
+            integration_success_count_after: me.success_count,
+            integration_reject_count_after: me.reject_count,
             did_mutate_page_local_free_list: page_apply.did_mutate_page_local_free_list,
         }
-        local result = new HakoAllocSegmentAllocationModeledLocalFreeIntegrationReport()
-        result.did_integrate_local_free = fields.did_integrate_local_free
-        result.reason = fields.reason
-        result.candidate_reason = fields.candidate_reason
-        result.apply_plan_reason = fields.apply_plan_reason
-        result.page_apply_reason = fields.page_apply_reason
-        result.candidate_row_index = fields.candidate_row_index
-        result.apply_plan_row_index = fields.apply_plan_row_index
-        result.page_apply_row_index = fields.page_apply_row_index
-        result.modeled_allocation_token = fields.modeled_allocation_token
-        result.segment_id = fields.segment_id
-        result.page_id = fields.page_id
-        result.modeled_block_start = fields.modeled_block_start
-        result.modeled_block_end = fields.modeled_block_end
-        result.candidate_blocks = fields.candidate_blocks
-        result.applied_blocks = fields.applied_blocks
-        result.page_used_before = fields.page_used_before
-        result.page_used_after = fields.page_used_after
-        result.page_local_free_before = fields.page_local_free_before
-        result.page_local_free_after = fields.page_local_free_after
-        result.page_free_before = fields.page_free_before
-        result.page_free_after = fields.page_free_after
-        result.integration_attempt_count_after = me.attempt_count
-        result.integration_success_count_after = me.success_count
-        result.integration_reject_count_after = me.reject_count
-        result.did_mutate_page_local_free_list = fields.did_mutate_page_local_free_list
+        local integration_report = me.makeLocalFreeIntegrationReport(fields)
         me.last_reason = fields.reason
         me.last_token = fields.modeled_allocation_token
         me.last_page_id = fields.page_id
         me.last_page_apply_row_index = fields.page_apply_row_index
-        return result
+        return integration_report
     }
 
     integrateLocalFree(released_span_report, page, unsupported_candidate_requirement, unsupported_apply_plan_requirement, unsupported_page_apply_requirement): HakoAllocSegmentAllocationModeledLocalFreeIntegrationReport {
@@ -324,38 +291,16 @@ box HakoAllocSegmentAllocationModeledLocalFreeIntegration {
             page_local_free_after: page_apply.page_local_free_after,
             page_free_before: page_apply.page_free_before,
             page_free_after: page_apply.page_free_after,
+            integration_attempt_count_after: me.attempt_count,
+            integration_success_count_after: me.success_count,
+            integration_reject_count_after: me.reject_count,
             did_mutate_page_local_free_list: page_apply.did_mutate_page_local_free_list,
         }
-        local result = new HakoAllocSegmentAllocationModeledLocalFreeIntegrationReport()
-        result.did_integrate_local_free = fields.did_integrate_local_free
-        result.reason = fields.reason
-        result.candidate_reason = fields.candidate_reason
-        result.apply_plan_reason = fields.apply_plan_reason
-        result.page_apply_reason = fields.page_apply_reason
-        result.candidate_row_index = fields.candidate_row_index
-        result.apply_plan_row_index = fields.apply_plan_row_index
-        result.page_apply_row_index = fields.page_apply_row_index
-        result.modeled_allocation_token = fields.modeled_allocation_token
-        result.segment_id = fields.segment_id
-        result.page_id = fields.page_id
-        result.modeled_block_start = fields.modeled_block_start
-        result.modeled_block_end = fields.modeled_block_end
-        result.candidate_blocks = fields.candidate_blocks
-        result.applied_blocks = fields.applied_blocks
-        result.page_used_before = fields.page_used_before
-        result.page_used_after = fields.page_used_after
-        result.page_local_free_before = fields.page_local_free_before
-        result.page_local_free_after = fields.page_local_free_after
-        result.page_free_before = fields.page_free_before
-        result.page_free_after = fields.page_free_after
-        result.integration_attempt_count_after = me.attempt_count
-        result.integration_success_count_after = me.success_count
-        result.integration_reject_count_after = me.reject_count
-        result.did_mutate_page_local_free_list = fields.did_mutate_page_local_free_list
+        local integration_report = me.makeLocalFreeIntegrationReport(fields)
         me.last_reason = fields.reason
         me.last_token = fields.modeled_allocation_token
         me.last_page_id = fields.page_id
         me.last_page_apply_row_index = fields.page_apply_row_index
-        return result
+        return integration_report
     }
 }
