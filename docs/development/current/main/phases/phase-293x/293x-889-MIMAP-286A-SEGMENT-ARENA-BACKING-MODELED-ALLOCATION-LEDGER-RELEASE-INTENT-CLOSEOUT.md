@@ -1,6 +1,6 @@
 # 293x-889 MIMAP-286A Segment Arena Backing Modeled Allocation-Ledger Release Intent Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -46,3 +46,18 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_le
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Scope
+
+- Added closeout SSOT and manifest-backed closeout guard.
+- Bound the MIMAP-284A inventory guard and MIMAP-285A diagnostics guard into
+  the `segment-arena-backing-modeled-allocation-ledger-release-intent`
+  closeout pack.
+- Added representative exact-MIR L3 evidence through the MIMAP-285A diagnostics
+  proof app.
+- Kept release-intent behavior unchanged and all real runtime/backend seams
+  closed.
+
+## Selected Next Row
+
+`MIMAP-287A` post release-intent closeout row selection.

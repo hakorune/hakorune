@@ -203,13 +203,6 @@ box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateInventory
     }
 
     makeReport(accepted, reason, ledger_report, release_candidate_token): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReport {
-        local release_row_index = -1
-        local release_candidate_value = 0
-        if accepted == 1 {
-            release_row_index = me.accepted_count
-            release_candidate_value = release_candidate_token
-        }
-
         local fields = HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateReportFields {
             accepted: accepted,
             reason: reason,
@@ -217,7 +210,7 @@ box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateInventory
             modeled_release_candidate_present: 1,
             allocation_ledger_present: ledger_report.allocation_ledger_present,
             allocation_ledger_reason: ledger_report.reason,
-            row_index: release_row_index,
+            row_index: me.accepted_count,
             segment_id: ledger_report.segment_id,
             arena_id: ledger_report.arena_id,
             lifetime_generation: ledger_report.lifetime_generation,
@@ -229,7 +222,7 @@ box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateInventory
             plan_token: ledger_report.plan_token,
             apply_token: ledger_report.apply_token,
             ledger_token: ledger_report.ledger_token,
-            release_candidate_token: release_candidate_value,
+            release_candidate_token: release_candidate_token,
             source_capacity: ledger_report.source_capacity,
             source_committed_bytes: ledger_report.source_committed_bytes,
             source_uncommitted_bytes: ledger_report.source_uncommitted_bytes,
@@ -254,9 +247,6 @@ box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateInventory
         me.last_reason = reason
         me.last_segment_id = ledger_report.segment_id
         me.last_arena_id = ledger_report.arena_id
-        if accepted == 1 {
-            me.last_release_candidate_token = release_candidate_token
-        }
         return me.makeReleaseCandidateReport(fields)
     }
 
@@ -303,6 +293,7 @@ box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseCandidateInventory
         }
 
         me.accepted_count += 1
+        me.last_release_candidate_token = release_candidate_token
         return me.makeReport(1, 0, ledger_report, release_candidate_token)
     }
 }

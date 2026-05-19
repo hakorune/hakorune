@@ -206,13 +206,6 @@ box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentInventory {
     }
 
     makeReport(accepted, reason, candidate_report, release_intent_token): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentReport {
-        local release_row_index = -1
-        local release_intent_value = 0
-        if accepted == 1 {
-            release_row_index = me.accepted_count
-            release_intent_value = release_intent_token
-        }
-
         local fields = HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentReportFields {
             accepted: accepted,
             reason: reason,
@@ -220,7 +213,7 @@ box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentInventory {
             modeled_release_intent_present: 1,
             release_candidate_present: candidate_report.release_candidate_present,
             release_candidate_reason: candidate_report.reason,
-            row_index: release_row_index,
+            row_index: me.accepted_count,
             segment_id: candidate_report.segment_id,
             arena_id: candidate_report.arena_id,
             lifetime_generation: candidate_report.lifetime_generation,
@@ -233,7 +226,7 @@ box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentInventory {
             apply_token: candidate_report.apply_token,
             ledger_token: candidate_report.ledger_token,
             release_candidate_token: candidate_report.release_candidate_token,
-            release_intent_token: release_intent_value,
+            release_intent_token: release_intent_token,
             source_capacity: candidate_report.source_capacity,
             source_committed_bytes: candidate_report.source_committed_bytes,
             source_uncommitted_bytes: candidate_report.source_uncommitted_bytes,
@@ -258,9 +251,6 @@ box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentInventory {
         me.last_reason = reason
         me.last_segment_id = candidate_report.segment_id
         me.last_arena_id = candidate_report.arena_id
-        if accepted == 1 {
-            me.last_release_intent_token = release_intent_token
-        }
         return me.makeReleaseIntentReport(fields)
     }
 
@@ -307,6 +297,7 @@ box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseIntentInventory {
         }
 
         me.accepted_count += 1
+        me.last_release_intent_token = release_intent_token
         return me.makeReport(1, 0, candidate_report, release_intent_token)
     }
 }
