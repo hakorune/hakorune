@@ -1,6 +1,6 @@
 # 293x-910 MIMAP-307A Post Release/Recycle Continuation Application Bridge Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -68,3 +68,22 @@ Rationale:
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Next
+
+`MIMAP-308A`:
+
+```text
+segment arena backing modeled allocation-ledger release/recycle applied-state summary inventory
+```
+
+Rationale:
+
+- MIMAP-306A closes the continuation application bridge pack.
+- The next row should summarize release/recycle applied-state facts in
+  scalar/model space before selecting any real arena backing release/recycle
+  execution row.
+- This gives later diagnostics and closeout rows a compact seam that is not a
+  real lifecycle generation, raw pointer residence, arena backing mutation,
+  segment-map mutation, atomic bitmap execution, OSVM/page-source call,
+  worker/TLS behavior, provider activation, hook, or backend matcher.
