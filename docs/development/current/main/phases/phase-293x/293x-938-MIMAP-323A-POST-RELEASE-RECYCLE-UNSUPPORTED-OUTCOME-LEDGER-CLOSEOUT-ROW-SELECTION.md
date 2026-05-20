@@ -1,6 +1,6 @@
 # 293x-938 MIMAP-323A Post Release/Recycle Unsupported Outcome Ledger Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -44,3 +44,15 @@ release/recycle execution bridge without opening real execution implicitly.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Selected next:
+
+```text
+MIMAP-324A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Execution Support Gate Inventory
+```
+
+The selected row records a model-only support gate from MIMAP-320A unsupported
+outcome facts. It keeps real release/recycle execution closed while making the
+closed gate explicit.
