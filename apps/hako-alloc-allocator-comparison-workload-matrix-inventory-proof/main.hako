@@ -1,0 +1,75 @@
+// hako-alloc-allocator-comparison-workload-matrix-inventory-proof
+// Purpose: prove MIMAP-430A allocator comparison workload matrix inventory.
+
+using selfhost.hako_alloc.memory.allocator_comparison_workload_matrix_inventory_box as HakoAllocAllocatorComparisonWorkloadMatrixInventory
+
+static box Main {
+    main(args) {
+        local owner = new HakoAllocAllocatorComparisonWorkloadMatrixInventory()
+        local accepted = owner.inventoryAllocatorComparisonWorkloadMatrix(1, 1, 1, 1, 1, 1, 6)
+        local missing_small_alloc = owner.inventoryAllocatorComparisonWorkloadMatrix(0, 1, 1, 1, 1, 1, 6)
+        local missing_small_free = owner.inventoryAllocatorComparisonWorkloadMatrix(1, 0, 1, 1, 1, 1, 6)
+        local missing_realloc = owner.inventoryAllocatorComparisonWorkloadMatrix(1, 1, 0, 1, 1, 1, 6)
+        local missing_huge = owner.inventoryAllocatorComparisonWorkloadMatrix(1, 1, 1, 0, 1, 1, 6)
+        local missing_throughput = owner.inventoryAllocatorComparisonWorkloadMatrix(1, 1, 1, 1, 0, 1, 6)
+        local missing_memory = owner.inventoryAllocatorComparisonWorkloadMatrix(1, 1, 1, 1, 1, 0, 6)
+        local invalid_count = owner.inventoryAllocatorComparisonWorkloadMatrix(1, 1, 1, 1, 1, 1, 0)
+
+        local ok = check "mimap430a allocator comparison workload matrix inventory" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "inventory present": accepted.workload_matrix_inventory_present == 1
+            "matrix ready": accepted.workload_matrix_ready == 1
+            "small alloc": accepted.small_allocation_workload_present == 1
+            "small free": accepted.small_free_workload_present == 1
+            "realloc": accepted.realloc_workload_present == 1
+            "huge": accepted.huge_allocation_workload_present == 1
+            "throughput": accepted.throughput_workload_present == 1
+            "memory": accepted.memory_usage_workload_present == 1
+            "family count": accepted.workload_family_count == 6
+            "owner count": owner.inventory_count == 8
+            "owner accepted": owner.accepted_count == 1
+            "owner rejected": owner.reject_count == 7
+            "owner small alloc": owner.missing_small_allocation_workload_reject_count == 1
+            "owner small free": owner.missing_small_free_workload_reject_count == 1
+            "owner realloc": owner.missing_realloc_workload_reject_count == 1
+            "owner huge": owner.missing_huge_allocation_workload_reject_count == 1
+            "owner throughput": owner.missing_throughput_workload_reject_count == 1
+            "owner memory": owner.missing_memory_usage_workload_reject_count == 1
+            "owner invalid": owner.invalid_workload_family_count_reject_count == 1
+            "last reason": owner.last_reason == 7
+            "missing small alloc reason": missing_small_alloc.reason == 1
+            "missing small free reason": missing_small_free.reason == 2
+            "missing realloc reason": missing_realloc.reason == 3
+            "missing huge reason": missing_huge.reason == 4
+            "missing throughput reason": missing_throughput.reason == 5
+            "missing memory reason": missing_memory.reason == 6
+            "invalid count reason": invalid_count.reason == 7
+            "benchmark": accepted.benchmark_executed == 0
+            "process replacement": accepted.process_replacement_executed == 0
+            "hook installed": accepted.hook_installed == 0
+            "matcher added": accepted.backend_matcher_added == 0
+            "global allocator": accepted.global_allocator_installed == 0
+            "would benchmark": accepted.would_run_benchmark == 0
+            "would replace": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-allocator-comparison-workload-matrix-inventory-proof")
+        print("matrix=" + accepted.accepted + "," + accepted.reason + "," + accepted.workload_matrix_inventory_present + "," + accepted.workload_matrix_ready + "," + accepted.small_allocation_workload_present + "," + accepted.small_free_workload_present + "," + accepted.realloc_workload_present + "," + accepted.huge_allocation_workload_present + "," + accepted.throughput_workload_present + "," + accepted.memory_usage_workload_present + "," + accepted.workload_family_count)
+        print("owner=" + owner.inventory_count + "," + owner.accepted_count + "," + owner.reject_count + "," + owner.missing_small_allocation_workload_reject_count + "," + owner.missing_small_free_workload_reject_count + "," + owner.missing_realloc_workload_reject_count + "," + owner.missing_huge_allocation_workload_reject_count + "," + owner.missing_throughput_workload_reject_count + "," + owner.missing_memory_usage_workload_reject_count + "," + owner.invalid_workload_family_count_reject_count + "," + owner.last_reason)
+        print("closed=" + accepted.benchmark_executed + "," + accepted.process_replacement_executed + "," + accepted.hook_installed + "," + accepted.backend_matcher_added + "," + accepted.global_allocator_installed + "," + accepted.would_run_benchmark + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing_small_alloc.reason + "," + missing_small_free.reason + "," + missing_realloc.reason + "," + missing_huge.reason + "," + missing_throughput.reason + "," + missing_memory.reason + "," + invalid_count.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

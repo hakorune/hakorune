@@ -80,6 +80,7 @@ Current modules
 - `aligned_small_meta_store_box.hako`
 - `allocator_comparison_baseline_inventory_box.hako`
 - `allocator_comparison_baseline_diagnostic_box.hako`
+- `allocator_comparison_workload_matrix_inventory_box.hako`
 - `allocator_metadata_records.hako`
 - `allocator_facade_box.hako`
 - `alloc_fast_path_heap_box.hako`

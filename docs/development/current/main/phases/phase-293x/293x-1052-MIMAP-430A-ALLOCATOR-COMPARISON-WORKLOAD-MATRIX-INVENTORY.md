@@ -1,6 +1,6 @@
 # 293x-1052 MIMAP-430A Allocator Comparison Workload Matrix Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -29,4 +29,28 @@ and memory usage.
 
 ## Validation
 
-Daily validation should be L0/L1 unless a proof app is added.
+Daily validation is L2:
+
+```text
+VM proof
+MIR JSON emit
+route preflight
+```
+
+## Required Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_allocator_comparison_workload_matrix_inventory_guard.sh --level L2
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Landed Evidence
+
+- Added the allocator comparison workload matrix inventory owner.
+- Added the proof app, design SSOT, guard, manifest row, and module export.
+- Inventoried small allocation, small free, realloc, huge allocation,
+  throughput, memory-usage, and workload-family count inputs.
+- Kept benchmark execution, hook installation, backend matcher additions,
+  process allocator replacement, worker/thread execution, and global allocator
+  install closed.

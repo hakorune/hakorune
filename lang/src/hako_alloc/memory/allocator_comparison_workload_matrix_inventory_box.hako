@@ -1,0 +1,249 @@
+// allocator_comparison_workload_matrix_inventory_box.hako -- MIMAP-430A
+// Responsibility:
+// - inventory workload families for hako_alloc vs C mimalloc comparison
+// Non-responsibility:
+// - benchmark execution, hook installation, process allocator replacement,
+//   backend matcher additions, global allocator install, or worker/thread execution
+
+record HakoAllocAllocatorComparisonWorkloadMatrixInventoryReportFields {
+    accepted: i64
+    reason: i64
+    workload_matrix_inventory_present: i64
+    workload_matrix_ready: i64
+    small_allocation_workload_present: i64
+    small_free_workload_present: i64
+    realloc_workload_present: i64
+    huge_allocation_workload_present: i64
+    throughput_workload_present: i64
+    memory_usage_workload_present: i64
+    workload_family_count: i64
+    inventory_count: i64
+    accepted_count: i64
+    reject_count: i64
+    missing_small_allocation_workload_reject_count: i64
+    missing_small_free_workload_reject_count: i64
+    missing_realloc_workload_reject_count: i64
+    missing_huge_allocation_workload_reject_count: i64
+    missing_throughput_workload_reject_count: i64
+    missing_memory_usage_workload_reject_count: i64
+    invalid_workload_family_count_reject_count: i64
+    last_reason: i64
+    benchmark_executed: i64
+    process_replacement_executed: i64
+    hook_installed: i64
+    backend_matcher_added: i64
+    global_allocator_installed: i64
+    would_run_benchmark: i64
+    would_replace_host_allocator: i64
+    would_install_hook: i64
+    would_add_backend_matcher: i64
+    would_run_thread: i64
+}
+
+box HakoAllocAllocatorComparisonWorkloadMatrixInventoryReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    workload_matrix_inventory_present: i64 = 0
+    workload_matrix_ready: i64 = 0
+    small_allocation_workload_present: i64 = 0
+    small_free_workload_present: i64 = 0
+    realloc_workload_present: i64 = 0
+    huge_allocation_workload_present: i64 = 0
+    throughput_workload_present: i64 = 0
+    memory_usage_workload_present: i64 = 0
+    workload_family_count: i64 = 0
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_small_allocation_workload_reject_count: i64 = 0
+    missing_small_free_workload_reject_count: i64 = 0
+    missing_realloc_workload_reject_count: i64 = 0
+    missing_huge_allocation_workload_reject_count: i64 = 0
+    missing_throughput_workload_reject_count: i64 = 0
+    missing_memory_usage_workload_reject_count: i64 = 0
+    invalid_workload_family_count_reject_count: i64 = 0
+    last_reason: i64 = 0
+    benchmark_executed: i64 = 0
+    process_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    would_run_benchmark: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
+}
+
+box HakoAllocAllocatorComparisonWorkloadMatrixInventory {
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_small_allocation_workload_reject_count: i64 = 0
+    missing_small_free_workload_reject_count: i64 = 0
+    missing_realloc_workload_reject_count: i64 = 0
+    missing_huge_allocation_workload_reject_count: i64 = 0
+    missing_throughput_workload_reject_count: i64 = 0
+    missing_memory_usage_workload_reject_count: i64 = 0
+    invalid_workload_family_count_reject_count: i64 = 0
+    last_reason: i64 = 0
+
+    makeAllocatorComparisonWorkloadMatrixInventoryReport(fields: HakoAllocAllocatorComparisonWorkloadMatrixInventoryReportFields): HakoAllocAllocatorComparisonWorkloadMatrixInventoryReport {
+        local result = new HakoAllocAllocatorComparisonWorkloadMatrixInventoryReport {
+            accepted: fields.accepted,
+            reason: fields.reason,
+            workload_matrix_inventory_present: fields.workload_matrix_inventory_present,
+            workload_matrix_ready: fields.workload_matrix_ready,
+            small_allocation_workload_present: fields.small_allocation_workload_present,
+            small_free_workload_present: fields.small_free_workload_present,
+            realloc_workload_present: fields.realloc_workload_present,
+            huge_allocation_workload_present: fields.huge_allocation_workload_present,
+            throughput_workload_present: fields.throughput_workload_present,
+            memory_usage_workload_present: fields.memory_usage_workload_present,
+            workload_family_count: fields.workload_family_count,
+            inventory_count: fields.inventory_count,
+            accepted_count: fields.accepted_count,
+            reject_count: fields.reject_count,
+            missing_small_allocation_workload_reject_count: fields.missing_small_allocation_workload_reject_count,
+            missing_small_free_workload_reject_count: fields.missing_small_free_workload_reject_count,
+            missing_realloc_workload_reject_count: fields.missing_realloc_workload_reject_count,
+            missing_huge_allocation_workload_reject_count: fields.missing_huge_allocation_workload_reject_count,
+            missing_throughput_workload_reject_count: fields.missing_throughput_workload_reject_count,
+            missing_memory_usage_workload_reject_count: fields.missing_memory_usage_workload_reject_count,
+            invalid_workload_family_count_reject_count: fields.invalid_workload_family_count_reject_count,
+            last_reason: fields.last_reason,
+            benchmark_executed: fields.benchmark_executed,
+            process_replacement_executed: fields.process_replacement_executed,
+            hook_installed: fields.hook_installed,
+            backend_matcher_added: fields.backend_matcher_added,
+            global_allocator_installed: fields.global_allocator_installed,
+            would_run_benchmark: fields.would_run_benchmark,
+            would_replace_host_allocator: fields.would_replace_host_allocator,
+            would_install_hook: fields.would_install_hook,
+            would_add_backend_matcher: fields.would_add_backend_matcher,
+            would_run_thread: fields.would_run_thread
+        }
+        return result
+    }
+
+    makeReport(
+        accepted: i64,
+        reason: i64,
+        small_allocation_workload_present: i64,
+        small_free_workload_present: i64,
+        realloc_workload_present: i64,
+        huge_allocation_workload_present: i64,
+        throughput_workload_present: i64,
+        memory_usage_workload_present: i64,
+        workload_family_count: i64
+    ): HakoAllocAllocatorComparisonWorkloadMatrixInventoryReport {
+        local fields = HakoAllocAllocatorComparisonWorkloadMatrixInventoryReportFields {
+            accepted: accepted,
+            reason: reason,
+            workload_matrix_inventory_present: accepted,
+            workload_matrix_ready: accepted,
+            small_allocation_workload_present: small_allocation_workload_present,
+            small_free_workload_present: small_free_workload_present,
+            realloc_workload_present: realloc_workload_present,
+            huge_allocation_workload_present: huge_allocation_workload_present,
+            throughput_workload_present: throughput_workload_present,
+            memory_usage_workload_present: memory_usage_workload_present,
+            workload_family_count: workload_family_count,
+            inventory_count: me.inventory_count,
+            accepted_count: me.accepted_count,
+            reject_count: me.reject_count,
+            missing_small_allocation_workload_reject_count: me.missing_small_allocation_workload_reject_count,
+            missing_small_free_workload_reject_count: me.missing_small_free_workload_reject_count,
+            missing_realloc_workload_reject_count: me.missing_realloc_workload_reject_count,
+            missing_huge_allocation_workload_reject_count: me.missing_huge_allocation_workload_reject_count,
+            missing_throughput_workload_reject_count: me.missing_throughput_workload_reject_count,
+            missing_memory_usage_workload_reject_count: me.missing_memory_usage_workload_reject_count,
+            invalid_workload_family_count_reject_count: me.invalid_workload_family_count_reject_count,
+            last_reason: me.last_reason,
+            benchmark_executed: 0,
+            process_replacement_executed: 0,
+            hook_installed: 0,
+            backend_matcher_added: 0,
+            global_allocator_installed: 0,
+            would_run_benchmark: 0,
+            would_replace_host_allocator: 0,
+            would_install_hook: 0,
+            would_add_backend_matcher: 0,
+            would_run_thread: 0
+        }
+        return me.makeAllocatorComparisonWorkloadMatrixInventoryReport(fields)
+    }
+
+    reject(
+        reason: i64,
+        small_allocation_workload_present: i64,
+        small_free_workload_present: i64,
+        realloc_workload_present: i64,
+        huge_allocation_workload_present: i64,
+        throughput_workload_present: i64,
+        memory_usage_workload_present: i64,
+        workload_family_count: i64
+    ): HakoAllocAllocatorComparisonWorkloadMatrixInventoryReport {
+        me.reject_count += 1
+        me.last_reason = reason
+        if reason == 1 {
+            me.missing_small_allocation_workload_reject_count += 1
+        }
+        if reason == 2 {
+            me.missing_small_free_workload_reject_count += 1
+        }
+        if reason == 3 {
+            me.missing_realloc_workload_reject_count += 1
+        }
+        if reason == 4 {
+            me.missing_huge_allocation_workload_reject_count += 1
+        }
+        if reason == 5 {
+            me.missing_throughput_workload_reject_count += 1
+        }
+        if reason == 6 {
+            me.missing_memory_usage_workload_reject_count += 1
+        }
+        if reason == 7 {
+            me.invalid_workload_family_count_reject_count += 1
+        }
+        return me.makeReport(0, reason, small_allocation_workload_present, small_free_workload_present, realloc_workload_present, huge_allocation_workload_present, throughput_workload_present, memory_usage_workload_present, workload_family_count)
+    }
+
+    inventoryAllocatorComparisonWorkloadMatrix(
+        small_allocation_workload_present: i64,
+        small_free_workload_present: i64,
+        realloc_workload_present: i64,
+        huge_allocation_workload_present: i64,
+        throughput_workload_present: i64,
+        memory_usage_workload_present: i64,
+        workload_family_count: i64
+    ): HakoAllocAllocatorComparisonWorkloadMatrixInventoryReport {
+        me.inventory_count += 1
+        if small_allocation_workload_present != 1 {
+            return me.reject(1, small_allocation_workload_present, small_free_workload_present, realloc_workload_present, huge_allocation_workload_present, throughput_workload_present, memory_usage_workload_present, workload_family_count)
+        }
+        if small_free_workload_present != 1 {
+            return me.reject(2, small_allocation_workload_present, small_free_workload_present, realloc_workload_present, huge_allocation_workload_present, throughput_workload_present, memory_usage_workload_present, workload_family_count)
+        }
+        if realloc_workload_present != 1 {
+            return me.reject(3, small_allocation_workload_present, small_free_workload_present, realloc_workload_present, huge_allocation_workload_present, throughput_workload_present, memory_usage_workload_present, workload_family_count)
+        }
+        if huge_allocation_workload_present != 1 {
+            return me.reject(4, small_allocation_workload_present, small_free_workload_present, realloc_workload_present, huge_allocation_workload_present, throughput_workload_present, memory_usage_workload_present, workload_family_count)
+        }
+        if throughput_workload_present != 1 {
+            return me.reject(5, small_allocation_workload_present, small_free_workload_present, realloc_workload_present, huge_allocation_workload_present, throughput_workload_present, memory_usage_workload_present, workload_family_count)
+        }
+        if memory_usage_workload_present != 1 {
+            return me.reject(6, small_allocation_workload_present, small_free_workload_present, realloc_workload_present, huge_allocation_workload_present, throughput_workload_present, memory_usage_workload_present, workload_family_count)
+        }
+        if workload_family_count < 1 {
+            return me.reject(7, small_allocation_workload_present, small_free_workload_present, realloc_workload_present, huge_allocation_workload_present, throughput_workload_present, memory_usage_workload_present, workload_family_count)
+        }
+
+        me.accepted_count += 1
+        me.last_reason = 0
+        return me.makeReport(1, 0, small_allocation_workload_present, small_free_workload_present, realloc_workload_present, huge_allocation_workload_present, throughput_workload_present, memory_usage_workload_present, workload_family_count)
+    }
+}
