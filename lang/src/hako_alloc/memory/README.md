@@ -425,6 +425,13 @@ Syntax/style contract
   behavior, release or recycle real arena backing, mutate segment-map state,
   execute atomic bitmap operations, call OSVM/page-source, run worker/TLS
   behavior, activate providers, or add backend matchers.
+- `segment_arena_backing_handle_pilot_box.hako` owns MIMAP-345A. It may record
+  a bounded arena backing handle token from an accepted no-escape pointer
+  residence report. It must not perform pointer-derived lookup, dereference,
+  execute release/recycle behavior, release or recycle real arena backing,
+  mutate segment-map state, execute atomic bitmap operations, call
+  OSVM/page-source, run worker/TLS behavior, activate providers, or add backend
+  matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known

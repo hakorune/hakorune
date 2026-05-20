@@ -818,7 +818,8 @@ FST:
 | `MIMAP-342A` | landed | Release/recycle remaining execution prerequisite ledger. | selected MIMAP-343A |
 | `MIMAP-343A` | landed | Remaining execution prerequisite ledger closeout. | selected MIMAP-344A |
 | `MIMAP-344A` | landed | No-escape pointer residence pilot. | selected MIMAP-345A |
-| `MIMAP-345A` | selected current | Arena backing handle pilot. | after MIMAP-344A |
+| `MIMAP-345A` | landed | Arena backing handle pilot. | selected MIMAP-346A |
+| `MIMAP-346A` | selected current | Pointer-derived lookup execution pilot. | after MIMAP-345A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -890,6 +891,7 @@ docs/development/current/main/phases/phase-293x/293x-957-MIMAP-342A-RELEASE-RECY
 docs/development/current/main/phases/phase-293x/293x-958-MIMAP-343A-REMAINING-EXECUTION-PREREQUISITE-LEDGER-CLOSEOUT.md
 docs/development/current/main/phases/phase-293x/293x-959-MIMAP-344A-NO-ESCAPE-POINTER-RESIDENCE-PILOT.md
 docs/development/current/main/phases/phase-293x/293x-960-MIMAP-345A-ARENA-BACKING-HANDLE-PILOT.md
+docs/development/current/main/phases/phase-293x/293x-961-MIMAP-346A-POINTER-DERIVED-LOOKUP-EXECUTION-PILOT.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-remaining-execution-prerequisite-ledger-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-ssot.md

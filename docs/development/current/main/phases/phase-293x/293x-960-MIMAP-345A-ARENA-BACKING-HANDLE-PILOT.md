@@ -1,6 +1,6 @@
 # 293x-960 MIMAP-345A Arena Backing Handle Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -46,3 +46,10 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_handle_pilot_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Landed the arena backing handle pilot with L2 VM/MIR evidence. MIMAP-346A is
+selected to open pointer-derived lookup execution as the next narrow seam while
+keeping dereference, arena release/recycle, segment-map mutation, atomic bitmap,
+OSVM, worker/TLS, provider activation, and backend matcher execution closed.
