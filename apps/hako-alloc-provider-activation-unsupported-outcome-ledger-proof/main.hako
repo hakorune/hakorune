@@ -1,0 +1,110 @@
+// hako-alloc-provider-activation-unsupported-outcome-ledger-proof
+// Purpose: prove MIMAP-370A provider activation unsupported outcome ledger.
+
+using selfhost.hako_alloc.memory.provider_selection_inventory_box as HakoAllocProviderSelectionInventory
+using selfhost.hako_alloc.memory.provider_activation_unsupported_outcome_ledger_box as HakoAllocProviderActivationUnsupportedOutcomeLedger
+
+static box Main {
+    makeSelection(): HakoAllocProviderSelectionInventoryReport {
+        local report = new HakoAllocProviderSelectionInventoryReport()
+        report.accepted = 1
+        report.reason = 0
+        report.selection_present = 1
+        report.readiness_present = 1
+        report.readiness_accepted = 1
+        report.provider_candidate_token = 99019005201
+        report.provider_candidate_token_valid = 1
+        report.provider_kind = 1
+        report.provider_kind_valid = 1
+        report.provider_activation_inactive = 1
+        report.host_replacement_inactive = 1
+        report.hooks_inactive = 1
+        report.backend_matcher_inactive = 1
+        report.would_select_provider = 1
+        report.would_activate_provider = 0
+        report.would_replace_host_allocator = 0
+        report.would_install_hook = 0
+        report.would_add_backend_matcher = 0
+        report.would_run_thread = 0
+        return report
+    }
+
+    main(args) {
+        local owner = new HakoAllocProviderActivationUnsupportedOutcomeLedger()
+        local selection = Main.makeSelection()
+        local accepted = owner.ledgerProviderUnsupportedOutcome(selection)
+
+        local missing_selection = new HakoAllocProviderSelectionInventoryReport()
+        local missing = owner.ledgerProviderUnsupportedOutcome(missing_selection)
+
+        local rejected_selection = Main.makeSelection()
+        rejected_selection.accepted = 0
+        rejected_selection.reason = 2
+        local rejected = owner.ledgerProviderUnsupportedOutcome(rejected_selection)
+
+        local invalid_candidate_selection = Main.makeSelection()
+        invalid_candidate_selection.provider_candidate_token_valid = 0
+        local invalid_candidate = owner.ledgerProviderUnsupportedOutcome(invalid_candidate_selection)
+
+        local invalid_kind_selection = Main.makeSelection()
+        invalid_kind_selection.provider_kind_valid = 0
+        local invalid_kind = owner.ledgerProviderUnsupportedOutcome(invalid_kind_selection)
+
+        local closed_selection = Main.makeSelection()
+        closed_selection.would_activate_provider = 1
+        local closed = owner.ledgerProviderUnsupportedOutcome(closed_selection)
+
+        local ok = check "mimap370a provider activation unsupported outcome ledger" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "outcome": accepted.outcome_present == 1
+            "selection": accepted.selection_present == 1
+            "selection accepted": accepted.selection_accepted == 1
+            "candidate": accepted.provider_candidate_token == 99019005201
+            "candidate valid": accepted.provider_candidate_token_valid == 1
+            "kind": accepted.provider_kind == 1
+            "kind valid": accepted.provider_kind_valid == 1
+            "unsupported": accepted.provider_activation_unsupported == 1
+            "activation inactive": accepted.provider_activation_inactive == 1
+            "host inactive": accepted.host_replacement_inactive == 1
+            "hooks inactive": accepted.hooks_inactive == 1
+            "matcher inactive": accepted.backend_matcher_inactive == 1
+            "owner count": owner.ledger_count == 6
+            "owner accepted": owner.accepted_count == 1
+            "owner rejected": owner.reject_count == 5
+            "owner missing": owner.missing_selection_reject_count == 1
+            "owner rejected selection": owner.rejected_selection_reject_count == 1
+            "owner invalid candidate": owner.invalid_candidate_reject_count == 1
+            "owner invalid kind": owner.invalid_kind_reject_count == 1
+            "owner closed": owner.closed_execution_reject_count == 1
+            "last reason": owner.last_reason == 5
+            "missing reason": missing.reason == 1
+            "rejected reason": rejected.reason == 2
+            "invalid candidate reason": invalid_candidate.reason == 3
+            "invalid kind reason": invalid_kind.reason == 4
+            "closed reason": closed.reason == 5
+            "would activate": accepted.would_activate_provider == 0
+            "would call provider": accepted.would_call_provider == 0
+            "would host": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-provider-activation-unsupported-outcome-ledger-proof")
+        print("outcome=" + accepted.accepted + "," + accepted.reason + "," + accepted.outcome_present + "," + accepted.provider_activation_unsupported)
+        print("selection=" + accepted.selection_present + "," + accepted.selection_accepted + "," + accepted.selection_reason + "," + accepted.provider_candidate_token + "," + accepted.provider_candidate_token_valid + "," + accepted.provider_kind + "," + accepted.provider_kind_valid)
+        print("owner=" + owner.ledger_count + "," + owner.accepted_count + "," + owner.reject_count + "," + owner.missing_selection_reject_count + "," + owner.rejected_selection_reject_count + "," + owner.invalid_candidate_reject_count + "," + owner.invalid_kind_reject_count + "," + owner.closed_execution_reject_count + "," + owner.last_reason)
+        print("inactive=" + accepted.provider_activation_inactive + "," + accepted.host_replacement_inactive + "," + accepted.hooks_inactive + "," + accepted.backend_matcher_inactive + "," + accepted.would_activate_provider + "," + accepted.would_call_provider + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + invalid_candidate.reason + "," + invalid_kind.reason + "," + closed.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

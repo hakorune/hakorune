@@ -1,6 +1,6 @@
 # 293x-985 MIMAP-369A Post Provider Activation First-Pattern Plan Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -29,3 +29,7 @@ provider activation behavior is opened.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Selected MIMAP-370A provider activation unsupported outcome ledger.

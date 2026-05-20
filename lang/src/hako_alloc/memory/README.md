@@ -479,6 +479,11 @@ Syntax/style contract
   provider candidate token and provider kind after accepted provider readiness
   preflight. It must not activate provider behavior, install hooks, replace the
   host allocator, or add backend matchers.
+- `provider_activation_unsupported_outcome_ledger_box.hako` owns MIMAP-370A.
+  It may ledger a provider activation request as an unsupported outcome after
+  accepted provider selection inventory. It must not activate provider
+  behavior, call provider APIs, install hooks, replace the host allocator, run
+  worker/TLS behavior, or add backend matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known

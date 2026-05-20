@@ -715,3 +715,16 @@ closeout_pack = "provider-facing-ladder"
 exe = "deferred-to-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_provider_selection_inventory_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_provider_selection_inventory_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-370A"
+app = "apps/hako-alloc-provider-activation-unsupported-outcome-ledger-proof"
+label = "provider activation unsupported outcome ledger proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "unsupported-outcome-ledger"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "provider-activation-unsupported-outcome"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_provider_activation_unsupported_outcome_ledger_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_provider_activation_unsupported_outcome_ledger_guard.sh", "--level", "L2"]
