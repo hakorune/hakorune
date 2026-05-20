@@ -33,7 +33,7 @@ require_no_grep() {
 }
 
 CARD="docs/development/current/main/phases/phase-293x/293x-993-BOX-INIT-002-PROVIDER-REPORT-NEW-BOX-FIELD-INITIALIZER.md"
-NEXT_CARD="docs/development/current/main/phases/phase-293x/293x-994-BOX-INIT-003-POST-PROVIDER-REPORT-INITIALIZER-ROW-SELECTION.md"
+NEXT_CARD="docs/development/current/main/phases/phase-293x/293x-994-BOX-INIT-003-SEGMENT-WORKER-REPORT-NEW-BOX-FIELD-INITIALIZER.md"
 INDEX="docs/tools/check-scripts-index.md"
 
 BOUNDARY="lang/src/hako_alloc/memory/provider_boundary_diagnostic_vocabulary_box.hako"
@@ -50,7 +50,7 @@ require_file "$SELECTION"
 require_file "$UNSUPPORTED"
 
 require_grep "Status: landed" "$CARD"
-require_grep "Status: current" "$NEXT_CARD"
+require_grep "Status: (current|landed)" "$NEXT_CARD"
 require_grep "k2_wide_box_new_field_initializer_provider_reports_guard.sh" "$INDEX"
 
 require_grep "new HakoAllocProviderBoundaryDiagnosticVocabularyReport \\{" "$BOUNDARY"
