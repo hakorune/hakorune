@@ -1,0 +1,95 @@
+// hako-alloc-allocator-comparison-baseline-diagnostics-proof
+// Purpose: prove MIMAP-428A allocator comparison baseline diagnostics.
+
+using selfhost.hako_alloc.memory.allocator_comparison_baseline_inventory_box as HakoAllocAllocatorComparisonBaselineInventory
+using selfhost.hako_alloc.memory.allocator_comparison_baseline_diagnostic_box as HakoAllocAllocatorComparisonBaselineDiagnostic
+
+static box Main {
+    main(args) {
+        local inventory_owner = new HakoAllocAllocatorComparisonBaselineInventory()
+        local diagnostic_owner = new HakoAllocAllocatorComparisonBaselineDiagnostic()
+
+        local accepted_inventory = inventory_owner.inventoryAllocatorComparisonBaseline(1, 1, 1, 1, 1, 3)
+        local accepted = diagnostic_owner.diagnoseAllocatorComparisonBaseline(accepted_inventory)
+
+        local missing_c_inventory = inventory_owner.inventoryAllocatorComparisonBaseline(0, 1, 1, 1, 1, 3)
+        local missing_c = diagnostic_owner.diagnoseAllocatorComparisonBaseline(missing_c_inventory)
+
+        local missing_hako_inventory = inventory_owner.inventoryAllocatorComparisonBaseline(1, 0, 1, 1, 1, 3)
+        local missing_hako = diagnostic_owner.diagnoseAllocatorComparisonBaseline(missing_hako_inventory)
+
+        local missing_throughput_inventory = inventory_owner.inventoryAllocatorComparisonBaseline(1, 1, 0, 1, 1, 3)
+        local missing_throughput = diagnostic_owner.diagnoseAllocatorComparisonBaseline(missing_throughput_inventory)
+
+        local missing_memory_inventory = inventory_owner.inventoryAllocatorComparisonBaseline(1, 1, 1, 0, 1, 3)
+        local missing_memory = diagnostic_owner.diagnoseAllocatorComparisonBaseline(missing_memory_inventory)
+
+        local missing_workload_inventory = inventory_owner.inventoryAllocatorComparisonBaseline(1, 1, 1, 1, 0, 3)
+        local missing_workload = diagnostic_owner.diagnoseAllocatorComparisonBaseline(missing_workload_inventory)
+
+        local invalid_repeat_inventory = inventory_owner.inventoryAllocatorComparisonBaseline(1, 1, 1, 1, 1, 0)
+        local invalid_repeat = diagnostic_owner.diagnoseAllocatorComparisonBaseline(invalid_repeat_inventory)
+
+        local leak_inventory = inventory_owner.inventoryAllocatorComparisonBaseline(1, 1, 1, 1, 1, 3)
+        leak_inventory.would_replace_host_allocator = 1
+        local leak = diagnostic_owner.diagnoseAllocatorComparisonBaseline(leak_inventory)
+
+        local ok = check "mimap428a allocator comparison baseline diagnostics" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "diagnostic present": accepted.diagnostic_present == 1
+            "baseline present": accepted.baseline_inventory_present == 1
+            "comparison ready": accepted.comparison_ready == 1
+            "not blocked": accepted.blocked_input_present == 0
+            "owner count": diagnostic_owner.diagnostic_count == 8
+            "owner ready": diagnostic_owner.ready_count == 1
+            "owner blocked": diagnostic_owner.blocked_count == 7
+            "owner missing c": diagnostic_owner.missing_c_mimalloc_baseline_blocked_count == 1
+            "owner missing hako": diagnostic_owner.missing_hako_alloc_baseline_blocked_count == 1
+            "owner missing throughput": diagnostic_owner.missing_throughput_target_blocked_count == 1
+            "owner missing memory": diagnostic_owner.missing_memory_usage_target_blocked_count == 1
+            "owner missing workload": diagnostic_owner.missing_workload_matrix_blocked_count == 1
+            "owner invalid repeat": diagnostic_owner.invalid_repeat_count_blocked_count == 1
+            "owner closed": diagnostic_owner.closed_seam_blocked_count == 1
+            "last reason": diagnostic_owner.last_reason == 7
+            "missing c reason": missing_c.reason == 1
+            "missing hako reason": missing_hako.reason == 2
+            "missing throughput reason": missing_throughput.reason == 3
+            "missing memory reason": missing_memory.reason == 4
+            "missing workload reason": missing_workload.reason == 5
+            "invalid repeat reason": invalid_repeat.reason == 6
+            "leak reason": leak.reason == 7
+            "missing c flag": missing_c.missing_c_mimalloc_baseline_blocked == 1
+            "missing hako flag": missing_hako.missing_hako_alloc_baseline_blocked == 1
+            "throughput flag": missing_throughput.missing_throughput_target_blocked == 1
+            "memory flag": missing_memory.missing_memory_usage_target_blocked == 1
+            "workload flag": missing_workload.missing_workload_matrix_blocked == 1
+            "repeat flag": invalid_repeat.invalid_repeat_count_blocked == 1
+            "closed flag": leak.closed_seam_blocked == 1
+            "process replacement": accepted.process_replacement_executed == 0
+            "hook installed": accepted.hook_installed == 0
+            "matcher added": accepted.backend_matcher_added == 0
+            "global allocator": accepted.global_allocator_installed == 0
+            "would replace": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-allocator-comparison-baseline-diagnostics-proof")
+        print("diag=" + accepted.accepted + "," + accepted.reason + "," + accepted.diagnostic_present + "," + accepted.baseline_inventory_present + "," + accepted.comparison_ready + "," + accepted.blocked_input_present)
+        print("owner=" + diagnostic_owner.diagnostic_count + "," + diagnostic_owner.ready_count + "," + diagnostic_owner.blocked_count + "," + diagnostic_owner.missing_c_mimalloc_baseline_blocked_count + "," + diagnostic_owner.missing_hako_alloc_baseline_blocked_count + "," + diagnostic_owner.missing_throughput_target_blocked_count + "," + diagnostic_owner.missing_memory_usage_target_blocked_count + "," + diagnostic_owner.missing_workload_matrix_blocked_count + "," + diagnostic_owner.invalid_repeat_count_blocked_count + "," + diagnostic_owner.closed_seam_blocked_count + "," + diagnostic_owner.last_reason)
+        print("blocked=" + missing_c.missing_c_mimalloc_baseline_blocked + "," + missing_hako.missing_hako_alloc_baseline_blocked + "," + missing_throughput.missing_throughput_target_blocked + "," + missing_memory.missing_memory_usage_target_blocked + "," + missing_workload.missing_workload_matrix_blocked + "," + invalid_repeat.invalid_repeat_count_blocked + "," + leak.closed_seam_blocked)
+        print("closed=" + accepted.process_replacement_executed + "," + accepted.hook_installed + "," + accepted.backend_matcher_added + "," + accepted.global_allocator_installed + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing_c.reason + "," + missing_hako.reason + "," + missing_throughput.reason + "," + missing_memory.reason + "," + missing_workload.reason + "," + invalid_repeat.reason + "," + leak.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

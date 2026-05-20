@@ -963,3 +963,16 @@ closeout_pack = "allocator-comparison-baseline"
 exe = "deferred-to-comparison-baseline-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_baseline_inventory_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_baseline_inventory_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-428A"
+app = "apps/hako-alloc-allocator-comparison-baseline-diagnostics-proof"
+label = "allocator comparison baseline diagnostics proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "allocator-comparison-baseline-diagnostics"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "allocator-comparison-baseline"
+exe = "deferred-to-comparison-baseline-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_baseline_diagnostics_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_baseline_diagnostics_guard.sh", "--level", "L2"]
