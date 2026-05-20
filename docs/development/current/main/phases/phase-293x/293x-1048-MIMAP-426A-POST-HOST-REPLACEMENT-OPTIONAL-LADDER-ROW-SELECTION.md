@@ -1,6 +1,6 @@
 # 293x-1048 MIMAP-426A Post Host Replacement Optional Ladder Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -35,3 +35,33 @@ Planning validation is L0:
 current state pointer guard
 git diff --check
 ```
+
+## Decision
+
+Select:
+
+```text
+MIMAP-427A Allocator Comparison Baseline Inventory
+```
+
+Reason:
+
+The optional host replacement ladder is now documented and parked. The active
+lane should return to the main goal: building a `.hako` / `hako_alloc`
+allocator whose performance and memory usage can be compared against C
+mimalloc.
+
+## Required Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_post_host_replacement_optional_ladder_row_selection_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Landed Evidence
+
+- Selected allocator comparison baseline inventory as the next row.
+- Kept optional process allocator replacement parked.
+- Kept hook installation, backend matcher additions, process allocator
+  replacement, worker/thread execution, and global allocator install closed.
