@@ -1,6 +1,6 @@
 # 293x-1021 MIMAP-399A Post Provider Call Real API Stub Execution Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -31,3 +31,15 @@ ladder row opens it.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Decision Result
+
+Selected:
+
+```text
+MIMAP-400A Provider Call External API Adapter Inventory
+```
+
+The next row inventories the external provider API adapter boundary without
+executing external calls, replacing the host allocator, installing hooks, adding
+backend matchers, or installing a global allocator.
