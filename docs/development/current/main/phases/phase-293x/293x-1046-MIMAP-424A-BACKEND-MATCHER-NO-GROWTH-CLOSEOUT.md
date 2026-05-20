@@ -1,6 +1,6 @@
 # 293x-1046 MIMAP-424A Backend Matcher No-Growth Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -30,3 +30,20 @@ matchers.
 
 Closeout validation should remain static/L0 unless a backend-facing route is
 changed.
+
+## Required Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_host_replacement_backend_matcher_no_growth_closeout_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Landed Evidence
+
+- Added the host replacement backend matcher no-growth closeout SSOT and guard.
+- Reconfirmed the host replacement / hook-install ladder has no `.inc`
+  app-name, owner-name, hook-name, replacement-name, or row-name matcher.
+- Selected optional process allocator replacement proposal as the next row.
+- Kept hook installation, backend matcher additions, process allocator
+  replacement, worker/thread execution, and global allocator install closed.
