@@ -418,6 +418,11 @@ local page = new Page(PageId(1)) { live: 1 }
 Unmentioned fields keep declaration defaults / birth behavior. Duplicate field
 entries and unknown user-defined box fields fail-fast.
 
+This is a field-set contract surface, not a source-size shortcut. Use
+same-owner `makeReport(fields)` helper scalarization to reduce repeated
+call-site boilerplate; use `new Report { field: fields.field }` inside the
+helper when grouping the initialization improves the boundary.
+
 Record with-update replaces selected fields without mutating the original
 record value:
 

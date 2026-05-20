@@ -43,5 +43,7 @@ source concurrency remain closed unless an explicit later row opens them.
 
 ## Recommendation
 
-Prefer Candidate B unless report-copy boilerplate remains the immediate
-development bottleneck.
+Prefer Candidate B unless duplicate/unknown-field diagnostics for same-name
+copy are the immediate bottleneck. Do not add Candidate A merely for line-count
+reduction; call-site size should be handled by the existing
+`ReportFields -> makeReport(fields)` helper-scalarization pattern.

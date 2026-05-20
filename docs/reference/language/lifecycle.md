@@ -42,6 +42,12 @@ local report = new Report {
 }
 ```
 
+This form is meant to make initialization a single checked boundary, not to
+reduce line count. Duplicate fields and unknown fields on a known user-defined
+box fail-fast. For repeated report construction, keep call sites small with a
+same-owner helper such as `makeReport(fields)` and use this initializer block
+inside that helper when it improves clarity.
+
 Construction order:
 
 ```text

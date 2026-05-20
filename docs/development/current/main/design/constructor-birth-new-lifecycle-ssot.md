@@ -117,6 +117,20 @@ birth:
 
 Decision: accepted for explicit field entries.
 
+This is not a line-count reduction feature. It is a boundary/contract feature:
+
+```text
+value:
+  group report construction into one initialization boundary
+  make duplicate fields fail-fast
+  make unknown user-defined box fields fail-fast
+  make record-local carrier -> ordinary box crossing visible
+  keep runtime/backend semantics unchanged
+
+non-goal:
+  reduce source line count by itself
+```
+
 The canonical object field-copy surface is:
 
 ```hako
@@ -181,6 +195,23 @@ publish the object as usable expression result
 This keeps declaration-site defaults / `birth` as the constructor lifecycle
 owner, while `new Box { field: expr }` remains an explicit post-construction
 field override at the construction site.
+
+For call-site line-count reduction, prefer the existing RecordFields helper
+pattern:
+
+```hako
+local fields = ReportFields {
+    accepted: accepted,
+    reason: reason
+}
+
+return me.makeReport(fields)
+```
+
+`makeReport(fields)` may use `new Report { field: fields.field }` internally,
+but the primary source-size win comes from centralizing repeated copy logic in
+one same-owner helper. The initializer block exists to make that helper body
+more contract-like, not to replace helper scalarization.
 
 ## Reuse is explicit
 
