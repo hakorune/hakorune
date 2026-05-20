@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-21"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-388A landed provider-call execution capability preflight and selected MIMAP-389A. Cross-function Result direct ABI remains closed. Provider API calls, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-389A landed provider-call no-op execution seam selection and selected MIMAP-390A. Cross-function Result direct ABI remains closed. Actual provider API calls, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-1011-MIMAP-389A-POST-PROVIDER-CALL-EXECUTION-PREFLIGHT-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-1012-MIMAP-390A-PROVIDER-CALL-NOOP-EXECUTION-SEAM-PILOT.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-1010-MIMAP-388A-PROVIDER-CALL-EXECUTION-CAPABILITY-PREFLIGHT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1010-MIMAP-388A-PROVIDER-CALL-EXECUTION-CAPABILITY-PREFLIGHT.md"
-latest_card_summary = "Recorded provider-call execution capability readiness after modeled-open report while keeping actual provider API calls closed."
+latest_card = "293x-1011-MIMAP-389A-POST-PROVIDER-CALL-EXECUTION-PREFLIGHT-ROW-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1011-MIMAP-389A-POST-PROVIDER-CALL-EXECUTION-PREFLIGHT-ROW-SELECTION.md"
+latest_card_summary = "Selected provider-call no-op execution seam pilot as the next explicit execution-boundary row."
 
-current_blocker_token = "MIMAP-389A"
+current_blocker_token = "MIMAP-390A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-1011 MIMAP-389A post provider-call execution preflight row selection landed; MIMAP-390A selected",
   "293x-1010 MIMAP-388A provider-call execution capability preflight landed; MIMAP-389A selected",
   "293x-1009 MIMAP-387A post provider-call modeled-open row selection landed; MIMAP-388A selected",
   "293x-1008 MIMAP-386A provider-call modeled-open pilot landed; MIMAP-387A selected",
