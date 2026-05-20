@@ -1,6 +1,6 @@
 # 293x-934 MIMAP-319A Post Release/Recycle Execution Intent Marker Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -44,3 +44,15 @@ release/recycle execution bridge without opening real execution implicitly.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Selected next:
+
+```text
+MIMAP-320A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Execution Unsupported Outcome Ledger
+```
+
+The selected row records a model-only blocked execution outcome from
+MIMAP-316A intent marker facts while keeping real release/recycle execution
+closed.

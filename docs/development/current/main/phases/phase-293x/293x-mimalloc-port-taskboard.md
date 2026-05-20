@@ -792,7 +792,8 @@ FST:
 | `MIMAP-316A` | landed | Segment arena backing modeled allocation-ledger release/recycle execution intent marker preflight. | selected MIMAP-317A |
 | `MIMAP-317A` | landed | Segment arena backing modeled allocation-ledger release/recycle execution intent marker diagnostics. | selected MIMAP-318A |
 | `MIMAP-318A` | landed | Segment arena backing modeled allocation-ledger release/recycle execution intent marker closeout pack. | selected MIMAP-319A |
-| `MIMAP-319A` | selected current | Post release/recycle execution intent marker closeout row selection. | after MIMAP-318A |
+| `MIMAP-319A` | landed | Post release/recycle execution intent marker closeout row selection. | selected MIMAP-320A |
+| `MIMAP-320A` | selected current | Segment arena backing modeled allocation-ledger release/recycle execution unsupported outcome ledger. | after MIMAP-319A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -801,8 +802,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-319A` selects the next narrow allocator row after the model-only
-release/recycle execution intent marker closeout.
+`MIMAP-320A` records a model-only unsupported release/recycle execution outcome
+from accepted intent marker facts while real execution remains closed.
 
 SSOT:
 
@@ -838,6 +839,7 @@ docs/development/current/main/phases/phase-293x/293x-931-MIMAP-316A-SEGMENT-AREN
 docs/development/current/main/phases/phase-293x/293x-932-MIMAP-317A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-INTENT-MARKER-DIAGNOSTICS.md
 docs/development/current/main/phases/phase-293x/293x-933-MIMAP-318A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-INTENT-MARKER-CLOSEOUT.md
 docs/development/current/main/phases/phase-293x/293x-934-MIMAP-319A-POST-RELEASE-RECYCLE-EXECUTION-INTENT-MARKER-CLOSEOUT-ROW-SELECTION.md
+docs/development/current/main/phases/phase-293x/293x-935-MIMAP-320A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-UNSUPPORTED-OUTCOME-LEDGER.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-diagnostics-ssot.md
