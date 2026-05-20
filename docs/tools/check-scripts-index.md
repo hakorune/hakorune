@@ -50,6 +50,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/array_string_push_get_metadata_fixture_guard.sh` | array-string boundary fixtures の `RuntimeDataBox.push/get(ArrayBox)` が MIR-owned CoreMethod metadata を持ち、pure-first route state に消費されることを fail-fast で検出する。 |
 | `tools/checks/stage1_emit_program_json_runtime_helper_guard.sh` | public `BuildBox.emit_program_json_v0(source, null)` が Stage1 Program(JSON v0) runtime helper route として pure-first で消費されることを fail-fast で検出する。 |
 | `tools/checks/stage0_shape_inventory_guard.sh` | `GlobalCallTargetShape` variants が Stage0 LLVM line shape inventory SSOT に全て棚卸しされていることを fail-fast で検出する。 |
+| `tools/checks/k2_wide_stage0_cleanup_catch_boundary_guard.sh` | Stage0 cleanup/catch boundary を固定し、cleanup は MIR-builder route で安定、catch は compatibility/future carrier、throw は source reserved/prohibited、JoinIR strict TryCatch は fail-fast のまま保たれることを検証する。 |
 | `tools/checks/program_json_dev_surface_guard.sh` | archived Program(JSON) diagnostics probes / empty dev capsule directory が active `tools/dev` surface に戻らないことを fail-fast で検出する。 |
 | `tools/checks/program_json_v0_compat_caller_guard.sh` | raw `Program(JSON v0)` compat emit helper の active shell caller を `stage1_contract.sh` / `stageb_helpers.sh` に限定する。 |
 | `tools/checks/program_json_mir_bridge_caller_guard.sh` | `Program(JSON)->MIR` bridge helper の active shell caller を `selfhost_exe_stageb.sh` / phase29cg proof に限定する。 |

@@ -1,9 +1,18 @@
 Exception Handling — Postfix catch / cleanup (Stage‑3)
 
+Stage0 boundary
+- Stage0 stabilizes `cleanup`; it does not open a full exception system.
+- `cleanup` is the supported deterministic finalization boundary.
+- `catch` is accepted as a parser/AST/MIR carrier for compatibility and future
+  exception lanes, but Stage0 does not promise typed exception dispatch.
+- `throw` remains reserved/prohibited in Stage0 source.
+- Legacy `try { ... } catch ... cleanup ...` is compatibility spelling only.
+  New examples should use postfix cleanup/catch.
+
 Summary
 - Nyash adopts a flatter, postfix-first exception style:
   - There is no `try` statement in the language spec. Use postfix `catch` and `cleanup` instead.
-  - `catch` = handle exceptions from the immediately preceding expression/call.
+  - `catch` = reserve a handler boundary for the immediately preceding expression/call.
   - `cleanup` = always-run finalization (formerly finally), regardless of success or failure.
 - Naming rule: `cleanup` is for lexical/block exit timing; object `fini()` is
   the object finalizer method.
@@ -29,18 +38,22 @@ Spec Clarifications (Stage‑3)
     still accepts them, treat that as an implementation gap rather than a
     language guarantee.
   - Nested cleanup follows lexical unwinding order (inner cleanup runs before outer cleanup).
-  - If no `catch` is present, thrown exceptions still trigger `cleanup`, then propagate outward.
+  - Future exception lanes may define throw propagation through cleanup. Stage0
+    keeps `throw` reserved/prohibited and does not guarantee propagation.
 - Diagnostics
   - Method‑postfix: duplicate postfix after a method body is a parse error: "duplicate postfix catch/cleanup after method".
   - Block‑postfix: a standalone postfix without a preceding block is a parse error: "catch/cleanup must follow a try block or standalone block".
   - Expression‑postfix: only one `catch` is accepted at expression level; a second `catch` triggers a parse error.
 
 Status
-- Phase 1: normalization sugar（既存）
-  - `NYASH_CATCH_NEW=1` でコア正規化パスが有効化。
+- Stage0 cleanup lane（current）
+  - Parser accepts postfix cleanup/catch carriers and legacy try compatibility.
+  - MIR builder lowers cleanup and deferred return.
+  - JoinIR strict does not lower TryCatch yet and must fail fast.
+- Legacy normalization sugar
+  - `NYASH_CATCH_NEW=1` は historical compatibility knob。
   - 後置フォームは内部 `TryCatch` AST に変換され、既存経路で降下。
-  - 実行時コストはゼロ（意味論不変）。
-- Phase 2（実装済み・Stage‑3ゲート）
+- Parser direct acceptance（Stage‑3）
   - パーサが式レベルの後置 `catch/cleanup` を直接受理。
   - ゲート: `NYASH_PARSER_STAGE3=1`
   - 糖衣正規化はそのまま併存（関数糖衣専用）。キーワード直受理と二重適用はしない設計。
@@ -82,14 +95,15 @@ Normalization (Phase 1)
 - With `NYASH_CATCH_NEW=1`, postfix sugar is transformed into legacy `TryCatch` AST:
   - `EXPR catch(T e){B}` → `TryCatch { try_body:[EXPR], catch:[(T,e,B)], finally:None }`
   - `EXPR cleanup {B}` → `TryCatch { try_body:[EXPR], catch:[], finally:Some(B) }`
-  - Multiple `catch` are ordered top-to-bottom; first matching type handles the error.
+  - Multiple `catch` matching is future exception-lane behavior; Stage0 keeps the
+    carrier narrow and examples should use at most one catch.
   - Combined `catch ... cleanup ...` expands to a single `TryCatch` with both blocks.
 - Lowering uses the existing builder (`cf_try_catch`) which already supports cleanup semantics.
 
 Semantics
-- catch handles exceptions from the immediately preceding expression only.
+- Stage0 cleanup always executes for the protected section on the MIR-builder route.
+- catch is a reserved handler boundary for the immediately preceding expression.
 - cleanup is always executed regardless of success/failure (formerly finally).
-- Multiple catch blocks match by type in order; the first match is taken.
 - In loops, `break/continue` in the protected section cooperate with cleanup:
   cleanup is run before leaving the scope.
 - Return deferral: A `return` in the protected section defers until after
@@ -103,6 +117,8 @@ Environment toggles
   canonical examples
 - `NYASH_CLEANUP_ALLOW_THROW=1`: legacy compatibility knob; do not use in
   canonical examples
+- `NYASH_FEATURES=no-try-compat`: reject legacy `try` compatibility spelling
+  with a freeze-style diagnostic
 
 Migration notes
 - try is deprecated: prefer postfix `catch/cleanup`.

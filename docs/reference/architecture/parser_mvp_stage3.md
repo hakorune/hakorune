@@ -3,10 +3,16 @@
 Scope
 - Extend Stage-2 parser emission to cover control flow constructs usually seen in routine code bases:
   - `break` / `continue`
-  - `throw expr`
-  - `try { ... } catch (Type err) { ... } cleanup { ... }`
+  - deterministic `cleanup`
+  - legacy `try { ... } catch (Type err) { ... } cleanup { ... }` compatibility
+    carrier
   - Alert: other Stage-3 ideas (switch/async) remain out of scope until after self-host parity.
 - Preserve existing Stage-2 behaviour (locals/loop/if/call/method/new/ternary) with no regressions.
+
+Stage0 boundary: `throw` remains reserved/prohibited in the source surface.
+`catch` is a parser/AST/MIR carrier for compatibility and future exception
+lanes; Stage0 does not open typed catch dispatch or backend exception ABI.
+See `docs/development/current/main/design/stage0-cleanup-catch-boundary-ssot.md`.
 
 Guiding Principles
 - JSON v0 must remain stable for the Stage-2 path; Stage-3 additions should be feature-flagged or degrade safely when disabled.
@@ -17,7 +23,10 @@ Current Status (Phase 15.3 – 2025-09-16)
 - ParserBox / Selfhost compiler expose `stage3_enable` and `--stage3` CLI flag, defaulting to the safe Stage-2 surface.
 - Rust core parser accepts Stage‑3 syntax behind env `NYASH_PARSER_STAGE3=1` (default OFF) to keep Stage‑2 stable.
 - Break/Continue JSON emission and Bridge lowering are implemented. Bridge now emits `Jump` to loop exit/continue_target (LoopFrame) and records instrumentation events.
-- Throw/Try nodes are emitted when the gate is on. When `NYASH_TRY_RESULT_MODE=1`, the Bridge lowers try/catch/cleanup into structured blocks and jumps (no MIR Throw/Catch). Nested throws route to a single catch via a thread‑local ThrowCtx. Policy: single catch per try (branch inside catch).
+- Try/Catch/Cleanup carriers are emitted when the compatibility gate is on.
+  Stage0 uses them for cleanup lowering only; user-surface `throw` is rejected.
+  Older Result-mode throw/catch notes are historical inventory, not the current
+  Stage0 contract.
 - Documentation for JSON v0 (Stage-3 nodes) is updated; remaining native unwind work is tracked in CURRENT_TASK.md.
 
 Runtime snapshot
@@ -59,10 +68,12 @@ Lowering Strategy (Bridge)
    - `Break` maps to `Jump { target: loop_exit }`, `Continue` to `Jump { target: loop_frame.continue_target }` (typically head).
    - MirBuilder already has `LoopBuilder`; expose helpers to fetch head/exit blocks.
 
-2. **Throw/Try (Result‑mode)**
-   - Enable `NYASH_TRY_RESULT_MODE=1` to lower try/catch/cleanup via structured blocks (no MIR Throw/Catch).
-   - A thread‑local ThrowCtx records all throw sites in the try region and routes them to the single catch block. Catch param is wired via PHI (PHI‑off uses edge‑copy). Cleanup always executes.
-   - Nested throws are supported; multiple catch is not (MVP policy: branch inside catch).
+2. **Cleanup/TryCatch carrier (Stage0)**
+   - Stage0 lowers cleanup through the MIR builder `TryCatch` carrier.
+   - Protected-section `return` is deferred until cleanup runs.
+   - User-surface `throw` stays reserved/prohibited.
+   - Older `NYASH_TRY_RESULT_MODE=1` / ThrowCtx notes are historical bridge
+     inventory and are not the current Stage0 contract.
 
 3. **Metadata Events**
    - Augment `crate::jit::observe` with `lower_shortcircuit`/`lower_try` stubs so instrumentation remains coherent when full support is wired.

@@ -15,9 +15,9 @@ phase_status = "docs/development/current/main/phases/phase-293x/293x-965-MIMAP-3
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-964-MIMAP-349A-OSVM-PAGE-SOURCE-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-964-MIMAP-349A-OSVM-PAGE-SOURCE-PILOT.md"
-latest_card_summary = "Landed OSVM/page-source pilot; MIMAP-350A selected."
+latest_card = "293x-966-STAGE0-CLEANUP-CATCH-BOUNDARY"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-966-STAGE0-CLEANUP-CATCH-BOUNDARY.md"
+latest_card_summary = "Landed Stage0 cleanup/catch boundary; MIMAP-350A remains current."
 
 current_blocker_token = "MIMAP-350A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-966 Stage0 cleanup/catch boundary landed; MIMAP-350A remains current",
   "293x-964 MIMAP-349A OSVM/page-source pilot landed; MIMAP-350A selected",
   "293x-963 MIMAP-348A atomic bitmap pilot landed; MIMAP-349A selected",
   "293x-962 MIMAP-347A segment-map mutation pilot landed; MIMAP-348A selected",

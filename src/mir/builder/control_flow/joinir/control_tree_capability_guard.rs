@@ -116,10 +116,10 @@ fn get_hint_for_cap(cap: &StepCapability) -> String {
             "1-level nested loops supported; for 2+ levels use depth check error hint".to_string()
         }
         StepCapability::TryCatch => {
-            "try/catch not supported in JoinIR yet, use HAKO_JOINIR_STRICT=0".to_string()
+            "TryCatch cleanup/catch is not supported by JoinIR strict yet; Stage0 cleanup uses the MIR builder route. Run without HAKO_JOINIR_STRICT=1 or remove catch/cleanup from strict JoinIR paths".to_string()
         }
         StepCapability::Throw => {
-            "throw not supported in JoinIR yet, use HAKO_JOINIR_STRICT=0".to_string()
+            "throw is reserved/prohibited in Stage0 source; use cleanup for deterministic finalization and keep full exception semantics for a future lane".to_string()
         }
         StepCapability::Lambda => {
             "lambda not supported in JoinIR yet, extract to named function".to_string()

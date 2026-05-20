@@ -117,7 +117,7 @@ Note:
 | `NYASH_FEATURES=stage3` | `stage3` (implicit) | Any | カンマ区切りの機能フラグ。`stage3` で Stage-3 構文を許可（既定ON）。 |
 | `NYASH_PARSER_STAGE3=1` | legacy | Any | Stage-3 旧エイリアス。将来削除予定。OFF にしたい場合のみ指定。 |
 | `HAKO_PARSER_STAGE3=1` | legacy | Any | `.hako` 向け Stage-3 legacy alias。将来削除予定。 |
-| `NYASH_TRY_RESULT_MODE=1` | OFF | JSON v0 | try/catch/cleanup を Result-mode（structured blocks + jumps）で lower する（MIR Throw/Catch を使わない） |
+| `NYASH_TRY_RESULT_MODE=1` | OFF | Historical JSON v0 bridge | Historical Result-mode try/catch lowering knob. Current Stage0 keeps `throw` reserved/prohibited and stabilizes cleanup through the MIR-builder route. Do not use for new canonical examples. |
 | `NYASH_ENABLE_USING=1` | ON | Any | using 文を有効化 |
 | `HAKO_ENABLE_USING=1` | ON | Any | using 文 alias (.hako) |
 | `NYASH_RESOLVE_TRACE=1` | OFF | Any | using/prelude 解決のトレース |
@@ -135,7 +135,7 @@ Note:
 Throw surface policy:
 - parser は `throw` を常時拒否する（`[freeze:contract][parser/throw_reserved]`）。
 - `throw-compat` フラグは撤去済み。
-- throw/catch/cleanup 実行経路の検証は `NYASH_TRY_RESULT_MODE=1` + JSON v0 canary を使用する。
+- cleanup 実行経路は Stage0 cleanup/catch boundary SSOT を優先する。`NYASH_TRY_RESULT_MODE=1` + JSON v0 canary は historical bridge inventory として扱い、新しい canonical 例には使わない。
 
 ---
 
