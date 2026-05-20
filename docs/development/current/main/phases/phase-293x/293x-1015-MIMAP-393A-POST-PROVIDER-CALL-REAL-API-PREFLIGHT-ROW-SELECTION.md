@@ -1,6 +1,6 @@
 # 293x-1015 MIMAP-393A Post Provider Call Real API Preflight Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -31,3 +31,16 @@ global allocator install remain closed.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Decision Result
+
+Selected:
+
+```text
+MIMAP-394A Provider Call Real API First-Pattern Plan
+```
+
+This row fixes the first-pattern boundary for opening a real provider API call
+seam. It is still planning-only: actual provider API calls, host replacement,
+hooks, backend matcher additions, worker/thread execution, and global allocator
+install remain closed.
