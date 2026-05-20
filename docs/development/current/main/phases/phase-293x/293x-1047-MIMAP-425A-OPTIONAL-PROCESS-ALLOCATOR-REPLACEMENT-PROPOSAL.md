@@ -1,6 +1,6 @@
 # 293x-1047 MIMAP-425A Optional Process Allocator Replacement Proposal
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -36,3 +36,20 @@ Planning validation is L0:
 current state pointer guard
 git diff --check
 ```
+
+## Required Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_optional_process_allocator_replacement_proposal_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Landed Evidence
+
+- Added the optional process allocator replacement proposal SSOT and guard.
+- Recorded process allocator replacement as optional and parked.
+- Reaffirmed the current goal: compare `.hako` / `hako_alloc` performance and
+  memory usage against C mimalloc before any replacement execution row.
+- Kept hook installation, backend matcher additions, process allocator
+  replacement, worker/thread execution, and global allocator install closed.
