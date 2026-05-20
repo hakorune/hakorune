@@ -1,6 +1,6 @@
 # 293x-1000 MIMAP-379A Post Provider Activation Dry-Run Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -31,3 +31,14 @@ row.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Decision Result
+
+Selected:
+
+```text
+MIMAP-380A Provider Activation Modeled Open Pilot
+```
+
+This row opens activation in model space only. Provider calls, host replacement,
+hooks, backend matcher additions, and global allocator install remain closed.

@@ -1,0 +1,142 @@
+// hako-alloc-provider-activation-modeled-open-pilot-proof
+// Purpose: prove MIMAP-380A provider activation modeled open pilot.
+
+using selfhost.hako_alloc.memory.provider_activation_dry_run_unsupported_behavior_box as HakoAllocProviderActivationDryRunUnsupportedBehavior
+using selfhost.hako_alloc.memory.provider_activation_modeled_open_pilot_box as HakoAllocProviderActivationModeledOpenPilot
+
+static box Main {
+    makeDryRun(): HakoAllocProviderActivationDryRunUnsupportedBehaviorReport {
+        local report = new HakoAllocProviderActivationDryRunUnsupportedBehaviorReport()
+        report.accepted = 1
+        report.reason = 0
+        report.dry_run_attempted = 1
+        report.unsupported_outcome_present = 1
+        report.bundle_present = 1
+        report.bundle_accepted = 1
+        report.bundle_reason = 0
+        report.provider_candidate_token = 99019005201
+        report.provider_candidate_token_valid = 1
+        report.provider_kind = 1
+        report.provider_kind_valid = 1
+        report.activation_request_token = 99019005301
+        report.activation_request_token_valid = 1
+        report.activation_mode = 1
+        report.activation_mode_valid = 1
+        report.explicit_input_present = 1
+        report.provider_activation_unsupported = 1
+        report.provider_activation_inactive = 1
+        report.host_replacement_inactive = 1
+        report.hooks_inactive = 1
+        report.backend_matcher_inactive = 1
+        report.would_activate_provider = 0
+        report.would_call_provider = 0
+        report.would_replace_host_allocator = 0
+        report.would_install_hook = 0
+        report.would_add_backend_matcher = 0
+        report.would_run_thread = 0
+        return report
+    }
+
+    main(args) {
+        local owner = new HakoAllocProviderActivationModeledOpenPilot()
+        local dry_run = Main.makeDryRun()
+        local opened = owner.openModeledProviderActivation(dry_run)
+
+        local missing_dry_run = new HakoAllocProviderActivationDryRunUnsupportedBehaviorReport()
+        local missing = owner.openModeledProviderActivation(missing_dry_run)
+
+        local rejected_dry_run = Main.makeDryRun()
+        rejected_dry_run.accepted = 0
+        rejected_dry_run.reason = 2
+        local rejected = owner.openModeledProviderActivation(rejected_dry_run)
+
+        local invalid_request = Main.makeDryRun()
+        invalid_request.activation_request_token_valid = 0
+        local invalid_request_result = owner.openModeledProviderActivation(invalid_request)
+
+        local invalid_mode = Main.makeDryRun()
+        invalid_mode.activation_mode_valid = 0
+        local invalid_mode_result = owner.openModeledProviderActivation(invalid_mode)
+
+        local call_leak = Main.makeDryRun()
+        call_leak.would_call_provider = 1
+        local call_rejected = owner.openModeledProviderActivation(call_leak)
+
+        local host_leak = Main.makeDryRun()
+        host_leak.would_replace_host_allocator = 1
+        local host_rejected = owner.openModeledProviderActivation(host_leak)
+
+        local hook_leak = Main.makeDryRun()
+        hook_leak.would_install_hook = 1
+        local hook_rejected = owner.openModeledProviderActivation(hook_leak)
+
+        local matcher_leak = Main.makeDryRun()
+        matcher_leak.would_add_backend_matcher = 1
+        local matcher_rejected = owner.openModeledProviderActivation(matcher_leak)
+
+        local ok = check "mimap380a provider activation modeled open pilot" {
+            "accepted": opened.accepted == 1
+            "reason": opened.reason == 0
+            "modeled present": opened.modeled_open_present == 1
+            "dry run present": opened.dry_run_present == 1
+            "dry run accepted": opened.dry_run_accepted == 1
+            "candidate": opened.provider_candidate_token == 99019005201
+            "candidate valid": opened.provider_candidate_token_valid == 1
+            "kind": opened.provider_kind == 1
+            "kind valid": opened.provider_kind_valid == 1
+            "request": opened.activation_request_token == 99019005301
+            "request valid": opened.activation_request_token_valid == 1
+            "mode valid": opened.activation_mode_valid == 1
+            "explicit input": opened.explicit_input_present == 1
+            "modeled open": opened.provider_activation_modeled_open == 1
+            "model active": opened.provider_activation_model_active == 1
+            "activation no longer inactive": opened.provider_activation_inactive == 0
+            "provider call inactive": opened.provider_call_inactive == 1
+            "host inactive": opened.host_replacement_inactive == 1
+            "hooks inactive": opened.hooks_inactive == 1
+            "matcher inactive": opened.backend_matcher_inactive == 1
+            "owner count": owner.modeled_open_count == 9
+            "owner accepted": owner.accepted_count == 1
+            "owner rejected": owner.reject_count == 8
+            "owner missing": owner.missing_dry_run_reject_count == 1
+            "owner rejected dryrun": owner.rejected_dry_run_reject_count == 1
+            "owner invalid request": owner.invalid_request_token_reject_count == 1
+            "owner invalid mode": owner.invalid_mode_reject_count == 1
+            "owner call closed": owner.closed_call_reject_count == 1
+            "owner host closed": owner.closed_host_replacement_reject_count == 1
+            "owner hook closed": owner.closed_hook_reject_count == 1
+            "owner matcher closed": owner.closed_backend_matcher_reject_count == 1
+            "last reason": owner.last_reason == 8
+            "missing reason": missing.reason == 1
+            "rejected reason": rejected.reason == 2
+            "invalid request reason": invalid_request_result.reason == 3
+            "invalid mode reason": invalid_mode_result.reason == 4
+            "call reason": call_rejected.reason == 5
+            "host reason": host_rejected.reason == 6
+            "hook reason": hook_rejected.reason == 7
+            "matcher reason": matcher_rejected.reason == 8
+            "would activate": opened.would_activate_provider == 1
+            "would call": opened.would_call_provider == 0
+            "would host": opened.would_replace_host_allocator == 0
+            "would hook": opened.would_install_hook == 0
+            "would matcher": opened.would_add_backend_matcher == 0
+            "would thread": opened.would_run_thread == 0
+        }
+
+        print("hako-alloc-provider-activation-modeled-open-pilot-proof")
+        print("opened=" + opened.accepted + "," + opened.reason + "," + opened.modeled_open_present + "," + opened.provider_activation_modeled_open + "," + opened.provider_activation_model_active + "," + opened.provider_activation_inactive)
+        print("dryrun=" + opened.dry_run_present + "," + opened.dry_run_accepted + "," + opened.dry_run_reason + "," + opened.activation_request_token + "," + opened.activation_request_token_valid + "," + opened.activation_mode_valid)
+        print("owner=" + owner.modeled_open_count + "," + owner.accepted_count + "," + owner.reject_count + "," + owner.missing_dry_run_reject_count + "," + owner.rejected_dry_run_reject_count + "," + owner.invalid_request_token_reject_count + "," + owner.invalid_mode_reject_count + "," + owner.closed_call_reject_count + "," + owner.closed_host_replacement_reject_count + "," + owner.closed_hook_reject_count + "," + owner.closed_backend_matcher_reject_count + "," + owner.last_reason)
+        print("closed=" + opened.provider_call_inactive + "," + opened.host_replacement_inactive + "," + opened.hooks_inactive + "," + opened.backend_matcher_inactive + "," + opened.would_activate_provider + "," + opened.would_call_provider + "," + opened.would_replace_host_allocator + "," + opened.would_install_hook + "," + opened.would_add_backend_matcher + "," + opened.would_run_thread)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + invalid_request_result.reason + "," + invalid_mode_result.reason + "," + call_rejected.reason + "," + host_rejected.reason + "," + hook_rejected.reason + "," + matcher_rejected.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

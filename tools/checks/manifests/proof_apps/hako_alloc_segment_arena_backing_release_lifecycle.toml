@@ -754,3 +754,16 @@ closeout_pack = "provider-activation-dry-run"
 exe = "deferred-to-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_provider_activation_dry_run_unsupported_behavior_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_provider_activation_dry_run_unsupported_behavior_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-380A"
+app = "apps/hako-alloc-provider-activation-modeled-open-pilot-proof"
+label = "provider activation modeled open pilot proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "modeled-open-pilot"
+validation_profile = "scalar-mir"
+first_pattern = true
+closeout_pack = "provider-activation-modeled-open"
+exe = "deferred-to-modeled-open-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_provider_activation_modeled_open_pilot_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_provider_activation_modeled_open_pilot_guard.sh", "--level", "L2"]

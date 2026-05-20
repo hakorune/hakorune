@@ -494,6 +494,10 @@ Syntax/style contract
   record an unsupported dry-run activation outcome. It must not activate
   provider behavior, call provider APIs, install hooks, replace the host
   allocator, run worker/TLS behavior, or add backend matchers.
+- `provider_activation_modeled_open_pilot_box.hako` owns MIMAP-380A. It may
+  consume an accepted dry-run unsupported outcome and record modeled provider
+  activation as open. It must not call provider APIs, install hooks, replace
+  the host allocator, run worker/TLS behavior, or add backend matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known
