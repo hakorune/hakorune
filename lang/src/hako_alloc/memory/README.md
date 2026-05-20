@@ -489,6 +489,11 @@ Syntax/style contract
   unsupported-outcome ledger report. It must not activate provider behavior,
   call provider APIs, install hooks, replace the host allocator, run worker/TLS
   behavior, or add backend matchers.
+- `provider_activation_dry_run_unsupported_behavior_box.hako` owns MIMAP-378A.
+  It may consume an accepted explicit provider activation input bundle and
+  record an unsupported dry-run activation outcome. It must not activate
+  provider behavior, call provider APIs, install hooks, replace the host
+  allocator, run worker/TLS behavior, or add backend matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known

@@ -1,6 +1,6 @@
 # 293x-998 MIMAP-377A Post Provider Activation Input Bundle Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -30,3 +30,14 @@ activation still remains closed until an explicit behavior row opens it.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Decision Result
+
+Selected:
+
+```text
+MIMAP-378A Provider Activation Dry-Run Unsupported Behavior
+```
+
+This row consumes the explicit input bundle but still does not activate a
+provider or call provider APIs.

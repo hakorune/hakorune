@@ -1,0 +1,128 @@
+// hako-alloc-provider-activation-dry-run-unsupported-behavior-proof
+// Purpose: prove MIMAP-378A provider activation dry-run unsupported behavior.
+
+using selfhost.hako_alloc.memory.provider_activation_input_bundle_inventory_box as HakoAllocProviderActivationInputBundleInventory
+using selfhost.hako_alloc.memory.provider_activation_dry_run_unsupported_behavior_box as HakoAllocProviderActivationDryRunUnsupportedBehavior
+
+static box Main {
+    makeBundle(): HakoAllocProviderActivationInputBundleInventoryReport {
+        local report = new HakoAllocProviderActivationInputBundleInventoryReport()
+        report.accepted = 1
+        report.reason = 0
+        report.bundle_present = 1
+        report.outcome_present = 1
+        report.outcome_accepted = 1
+        report.outcome_reason = 0
+        report.provider_candidate_token = 99019005201
+        report.provider_candidate_token_valid = 1
+        report.provider_kind = 1
+        report.provider_kind_valid = 1
+        report.activation_request_token = 99019005301
+        report.activation_request_token_valid = 1
+        report.activation_mode = 1
+        report.activation_mode_valid = 1
+        report.explicit_input_present = 1
+        report.provider_activation_unsupported = 1
+        report.provider_activation_inactive = 1
+        report.host_replacement_inactive = 1
+        report.hooks_inactive = 1
+        report.backend_matcher_inactive = 1
+        report.would_activate_provider = 0
+        report.would_call_provider = 0
+        report.would_replace_host_allocator = 0
+        report.would_install_hook = 0
+        report.would_add_backend_matcher = 0
+        report.would_run_thread = 0
+        return report
+    }
+
+    main(args) {
+        local owner = new HakoAllocProviderActivationDryRunUnsupportedBehavior()
+        local bundle = Main.makeBundle()
+        local accepted = owner.dryRunProviderActivationUnsupported(bundle)
+
+        local missing_bundle = new HakoAllocProviderActivationInputBundleInventoryReport()
+        local missing = owner.dryRunProviderActivationUnsupported(missing_bundle)
+
+        local rejected_bundle = Main.makeBundle()
+        rejected_bundle.accepted = 0
+        rejected_bundle.reason = 2
+        local rejected = owner.dryRunProviderActivationUnsupported(rejected_bundle)
+
+        local invalid_request_bundle = Main.makeBundle()
+        invalid_request_bundle.activation_request_token_valid = 0
+        local invalid_request = owner.dryRunProviderActivationUnsupported(invalid_request_bundle)
+
+        local invalid_mode_bundle = Main.makeBundle()
+        invalid_mode_bundle.activation_mode_valid = 0
+        local invalid_mode = owner.dryRunProviderActivationUnsupported(invalid_mode_bundle)
+
+        local unsupported_evidence_bundle = Main.makeBundle()
+        unsupported_evidence_bundle.provider_activation_unsupported = 0
+        local unsupported_evidence = owner.dryRunProviderActivationUnsupported(unsupported_evidence_bundle)
+
+        local closed_execution_bundle = Main.makeBundle()
+        closed_execution_bundle.would_call_provider = 1
+        local closed_execution = owner.dryRunProviderActivationUnsupported(closed_execution_bundle)
+
+        local ok = check "mimap378a provider activation dry-run unsupported behavior" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "dry run": accepted.dry_run_attempted == 1
+            "unsupported outcome": accepted.unsupported_outcome_present == 1
+            "bundle present": accepted.bundle_present == 1
+            "bundle accepted": accepted.bundle_accepted == 1
+            "candidate": accepted.provider_candidate_token == 99019005201
+            "candidate valid": accepted.provider_candidate_token_valid == 1
+            "kind": accepted.provider_kind == 1
+            "kind valid": accepted.provider_kind_valid == 1
+            "request token": accepted.activation_request_token == 99019005301
+            "request valid": accepted.activation_request_token_valid == 1
+            "mode valid": accepted.activation_mode_valid == 1
+            "explicit input": accepted.explicit_input_present == 1
+            "unsupported": accepted.provider_activation_unsupported == 1
+            "activation inactive": accepted.provider_activation_inactive == 1
+            "host inactive": accepted.host_replacement_inactive == 1
+            "hooks inactive": accepted.hooks_inactive == 1
+            "matcher inactive": accepted.backend_matcher_inactive == 1
+            "owner count": owner.dry_run_count == 7
+            "owner accepted": owner.accepted_count == 1
+            "owner rejected": owner.reject_count == 6
+            "owner missing": owner.missing_bundle_reject_count == 1
+            "owner rejected bundle": owner.rejected_bundle_reject_count == 1
+            "owner invalid request": owner.invalid_request_token_reject_count == 1
+            "owner invalid mode": owner.invalid_mode_reject_count == 1
+            "owner unsupported evidence": owner.unsupported_evidence_reject_count == 1
+            "owner closed execution": owner.closed_execution_reject_count == 1
+            "last reason": owner.last_reason == 6
+            "missing reason": missing.reason == 1
+            "rejected reason": rejected.reason == 2
+            "invalid request reason": invalid_request.reason == 3
+            "invalid mode reason": invalid_mode.reason == 4
+            "unsupported evidence reason": unsupported_evidence.reason == 5
+            "closed execution reason": closed_execution.reason == 6
+            "would activate": accepted.would_activate_provider == 0
+            "would call provider": accepted.would_call_provider == 0
+            "would host": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-provider-activation-dry-run-unsupported-behavior-proof")
+        print("dryrun=" + accepted.accepted + "," + accepted.reason + "," + accepted.dry_run_attempted + "," + accepted.unsupported_outcome_present)
+        print("bundle=" + accepted.bundle_present + "," + accepted.bundle_accepted + "," + accepted.bundle_reason + "," + accepted.activation_request_token + "," + accepted.activation_request_token_valid + "," + accepted.activation_mode_valid)
+        print("owner=" + owner.dry_run_count + "," + owner.accepted_count + "," + owner.reject_count + "," + owner.missing_bundle_reject_count + "," + owner.rejected_bundle_reject_count + "," + owner.invalid_request_token_reject_count + "," + owner.invalid_mode_reject_count + "," + owner.unsupported_evidence_reject_count + "," + owner.closed_execution_reject_count + "," + owner.last_reason)
+        print("inactive=" + accepted.provider_activation_unsupported + "," + accepted.provider_activation_inactive + "," + accepted.host_replacement_inactive + "," + accepted.hooks_inactive + "," + accepted.backend_matcher_inactive + "," + accepted.would_activate_provider + "," + accepted.would_call_provider + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + invalid_request.reason + "," + invalid_mode.reason + "," + unsupported_evidence.reason + "," + closed_execution.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
