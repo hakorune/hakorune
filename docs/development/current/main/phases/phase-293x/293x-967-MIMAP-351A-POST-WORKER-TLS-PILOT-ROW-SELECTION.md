@@ -1,6 +1,6 @@
 # 293x-967 MIMAP-351A Post Worker/TLS Pilot Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -37,3 +37,8 @@ provider/host integration ladder. That ladder remains closed by default.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Selected MIMAP-352A provider inactive boundary inventory as the next narrow
+allocator row after the worker/TLS pilot.

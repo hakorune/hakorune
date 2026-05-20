@@ -1,0 +1,152 @@
+// hako-alloc-provider-inactive-boundary-inventory-proof
+// Purpose: prove MIMAP-352A provider inactive boundary inventory.
+
+using selfhost.hako_alloc.memory.worker_tls_pilot_box as HakoAllocWorkerTlsPilot
+using selfhost.hako_alloc.memory.provider_inactive_boundary_inventory_box as HakoAllocProviderInactiveBoundaryInventory
+
+static box Main {
+    makeWorkerReport(): HakoAllocWorkerTlsPilotReport {
+        local report = new HakoAllocWorkerTlsPilotReport()
+        report.accepted = 1
+        report.reason = 0
+        report.worker_tls_present = 1
+        report.page_source_present = 1
+        report.page_source_accepted = 1
+        report.page_source_reason = 0
+        report.page_source_token = 99019005077
+        report.bitmap_token = 99019005066
+        report.mutation_token = 99019005055
+        report.lookup_result_token = 99019005044
+        report.arena_handle_token = 99019005033
+        report.private_pointer_token = 99019005022
+        report.worker_id = 0
+        report.worker_id_valid = 1
+        report.tls_slot = 7
+        report.tls_slot_valid = 1
+        report.tls_stored_value = 99019005088
+        report.tls_loaded_value = 99019005088
+        report.tls_cleared_value = 0
+        report.tls_store_rc = 0
+        report.tls_clear_rc = 0
+        report.tls_roundtrip_ok = 1
+        report.report_segment_id = 190
+        report.report_arena_id = 19
+        report.report_lifetime_generation = 3
+        report.report_release_applied_recycle_token = 97019005005
+        report.report_continuation_token = 98019005005
+        report.report_application_token = 99019005005
+        report.report_applied_backing_bytes = 4096
+        report.report_applied_committed_bytes = 4096
+        report.report_remaining_source_bytes = 8192
+        report.would_dereference = 0
+        report.would_release_arena_backing = 0
+        report.would_recycle_arena_backing = 0
+        report.would_mutate_segment_map = 1
+        report.would_execute_atomic_bitmap = 1
+        report.would_call_osvm = 1
+        report.would_use_worker_tls = 1
+        report.would_run_thread = 0
+        report.would_activate_provider = 0
+        report.would_add_backend_matcher = 0
+        return report
+    }
+
+    makeRejectedWorkerReport(): HakoAllocWorkerTlsPilotReport {
+        local report = Main.makeWorkerReport()
+        report.accepted = 0
+        report.reason = 2
+        return report
+    }
+
+    makeProviderRequestedReport(): HakoAllocWorkerTlsPilotReport {
+        local report = Main.makeWorkerReport()
+        report.would_activate_provider = 1
+        return report
+    }
+
+    makeBackendMatcherRequestedReport(): HakoAllocWorkerTlsPilotReport {
+        local report = Main.makeWorkerReport()
+        report.would_add_backend_matcher = 1
+        return report
+    }
+
+    makeWorkerThreadRequestedReport(): HakoAllocWorkerTlsPilotReport {
+        local report = Main.makeWorkerReport()
+        report.would_run_thread = 1
+        return report
+    }
+
+    main(args) {
+        local inventory = new HakoAllocProviderInactiveBoundaryInventory()
+        local worker = Main.makeWorkerReport()
+        local accepted = inventory.recordProviderInactiveBoundary(worker, 99019005099)
+
+        local missing_worker = new HakoAllocWorkerTlsPilotReport()
+        local missing = inventory.recordProviderInactiveBoundary(missing_worker, 99019005099)
+        local rejected = inventory.recordProviderInactiveBoundary(Main.makeRejectedWorkerReport(), 99019005099)
+        local provider = inventory.recordProviderInactiveBoundary(Main.makeProviderRequestedReport(), 99019005099)
+        local matcher = inventory.recordProviderInactiveBoundary(Main.makeBackendMatcherRequestedReport(), 99019005099)
+        local thread = inventory.recordProviderInactiveBoundary(Main.makeWorkerThreadRequestedReport(), 99019005099)
+        local invalid_token = inventory.recordProviderInactiveBoundary(worker, 0)
+
+        local ok = check "mimap352a provider inactive boundary inventory" {
+            "accepted": accepted.accepted == 1
+            "accepted reason": accepted.reason == 0
+            "provider boundary": accepted.provider_boundary_present == 1
+            "provider boundary token": accepted.provider_boundary_token == 99019005099
+            "provider token valid": accepted.provider_boundary_token_valid == 1
+            "worker tls present": accepted.worker_tls_present == 1
+            "worker tls accepted": accepted.worker_tls_accepted == 1
+            "worker id": accepted.worker_id == 0
+            "tls slot": accepted.tls_slot == 7
+            "page source token": accepted.page_source_token == 99019005077
+            "bitmap token": accepted.bitmap_token == 99019005066
+            "mutation token": accepted.mutation_token == 99019005055
+            "lookup token": accepted.lookup_result_token == 99019005044
+            "arena handle": accepted.arena_handle_token == 99019005033
+            "private pointer": accepted.private_pointer_token == 99019005022
+            "provider inactive": accepted.provider_activation_inactive == 1
+            "provider unsupported": accepted.provider_activation_supported == 0
+            "host inactive": accepted.host_replacement_inactive == 1
+            "hooks inactive": accepted.hooks_inactive == 1
+            "matcher inactive": accepted.backend_matcher_inactive == 1
+            "owner inventory": inventory.inventory_count == 7
+            "owner accepted": inventory.accepted_count == 1
+            "owner rejected": inventory.reject_count == 6
+            "owner missing": inventory.missing_worker_tls_reject_count == 1
+            "owner rejected worker": inventory.rejected_worker_tls_reject_count == 1
+            "owner provider": inventory.provider_request_reject_count == 1
+            "owner matcher": inventory.backend_matcher_reject_count == 1
+            "owner thread": inventory.worker_thread_reject_count == 1
+            "owner invalid token": inventory.invalid_boundary_token_reject_count == 1
+            "last reason": inventory.last_reason == 6
+            "missing reason": missing.reason == 1
+            "rejected reason": rejected.reason == 2
+            "provider reason": provider.reason == 3
+            "matcher reason": matcher.reason == 4
+            "thread reason": thread.reason == 5
+            "invalid reason": invalid_token.reason == 6
+            "closed provider": accepted.would_activate_provider == 0
+            "closed host": accepted.would_replace_host_allocator == 0
+            "closed hooks": accepted.would_install_hook == 0
+            "closed matcher": accepted.would_add_backend_matcher == 0
+            "no thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-provider-inactive-boundary-inventory-proof")
+        print("provider=" + accepted.accepted + "," + accepted.reason + "," + accepted.provider_boundary_present + "," + accepted.provider_boundary_token + "," + accepted.provider_boundary_token_valid + "," + accepted.provider_activation_supported + "," + accepted.provider_activation_inactive + "," + accepted.host_replacement_inactive + "," + accepted.hooks_inactive + "," + accepted.backend_matcher_inactive)
+        print("worker=" + accepted.worker_tls_present + "," + accepted.worker_tls_accepted + "," + accepted.worker_id + "," + accepted.tls_slot + "," + accepted.page_source_token + "," + accepted.bitmap_token + "," + accepted.mutation_token + "," + accepted.lookup_result_token)
+        print("owner=" + inventory.inventory_count + "," + inventory.accepted_count + "," + inventory.reject_count + "," + inventory.missing_worker_tls_reject_count + "," + inventory.rejected_worker_tls_reject_count + "," + inventory.provider_request_reject_count + "," + inventory.backend_matcher_reject_count + "," + inventory.worker_thread_reject_count + "," + inventory.invalid_boundary_token_reject_count + "," + inventory.last_reason)
+        print("closed=" + accepted.would_dereference + "," + accepted.would_release_arena_backing + "," + accepted.would_recycle_arena_backing + "," + accepted.would_mutate_segment_map + "," + accepted.would_execute_atomic_bitmap + "," + accepted.would_call_osvm + "," + accepted.would_use_worker_tls + "," + accepted.would_run_thread + "," + accepted.would_activate_provider + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + provider.reason + "," + matcher.reason + "," + thread.reason + "," + invalid_token.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
