@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-21"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-360A landed and selected MIMAP-361A; MIMAP-361A is current to choose the next narrow allocator row after provider boundary diagnostic vocabulary inventory. Cross-function Result direct ABI remains closed. Provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-362A landed and selected MIMAP-363A; MIMAP-363A is current to choose the next narrow allocator row after provider readiness preflight. Cross-function Result direct ABI remains closed. Provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-977-MIMAP-361A-POST-PROVIDER-BOUNDARY-DIAGNOSTIC-VOCABULARY-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-979-MIMAP-363A-POST-PROVIDER-READINESS-PREFLIGHT-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-976-MIMAP-360A-PROVIDER-BOUNDARY-DIAGNOSTIC-VOCABULARY"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-976-MIMAP-360A-PROVIDER-BOUNDARY-DIAGNOSTIC-VOCABULARY.md"
-latest_card_summary = "Landed provider boundary diagnostic vocabulary; MIMAP-361A selected."
+latest_card = "293x-978-MIMAP-362A-PROVIDER-READINESS-PREFLIGHT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-978-MIMAP-362A-PROVIDER-READINESS-PREFLIGHT.md"
+latest_card_summary = "Landed provider readiness preflight; MIMAP-363A selected."
 
-current_blocker_token = "MIMAP-361A"
+current_blocker_token = "MIMAP-363A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-978 MIMAP-362A provider readiness preflight landed; MIMAP-363A selected",
+  "293x-977 MIMAP-361A post provider boundary diagnostic vocabulary row selection landed; MIMAP-362A selected",
   "293x-976 MIMAP-360A provider boundary diagnostic vocabulary landed; MIMAP-361A selected",
   "293x-975 MIMAP-359A post provider-facing ladder plan row selection landed; MIMAP-360A selected",
   "293x-974 MIMAP-358A provider-facing ladder closed plan landed; MIMAP-359A selected",

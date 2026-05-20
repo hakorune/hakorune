@@ -689,3 +689,16 @@ closeout_pack = "provider-facing-ladder"
 exe = "deferred-to-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_provider_boundary_diagnostic_vocabulary_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_provider_boundary_diagnostic_vocabulary_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-362A"
+app = "apps/hako-alloc-provider-readiness-preflight-proof"
+label = "provider readiness preflight proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "preflight"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "provider-facing-ladder"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_provider_readiness_preflight_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_provider_readiness_preflight_guard.sh", "--level", "L2"]

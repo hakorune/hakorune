@@ -1,0 +1,122 @@
+// hako-alloc-provider-readiness-preflight-proof
+// Purpose: prove MIMAP-362A provider readiness preflight.
+
+using selfhost.hako_alloc.memory.provider_boundary_diagnostic_vocabulary_box as HakoAllocProviderBoundaryDiagnosticVocabulary
+using selfhost.hako_alloc.memory.provider_readiness_preflight_box as HakoAllocProviderReadinessPreflight
+
+static box Main {
+    makeVocabulary(): HakoAllocProviderBoundaryDiagnosticVocabularyReport {
+        local report = new HakoAllocProviderBoundaryDiagnosticVocabularyReport()
+        report.accepted = 1
+        report.reason = 0
+        report.vocabulary_present = 1
+        report.provider_boundary_present = 1
+        report.provider_boundary_accepted = 1
+        report.provider_boundary_token = 99019005099
+        report.reason_count = 8
+        report.accepted_reason_code = 0
+        report.missing_boundary_reason_code = 1
+        report.rejected_boundary_reason_code = 2
+        report.provider_request_reason_code = 3
+        report.host_replacement_reason_code = 4
+        report.hook_request_reason_code = 5
+        report.backend_matcher_reason_code = 6
+        report.worker_thread_reason_code = 7
+        report.provider_activation_inactive = 1
+        report.host_replacement_inactive = 1
+        report.hooks_inactive = 1
+        report.backend_matcher_inactive = 1
+        report.would_activate_provider = 0
+        report.would_replace_host_allocator = 0
+        report.would_install_hook = 0
+        report.would_add_backend_matcher = 0
+        report.would_run_thread = 0
+        return report
+    }
+
+    main(args) {
+        local owner = new HakoAllocProviderReadinessPreflight()
+        local vocab = Main.makeVocabulary()
+        local accepted = owner.preflightProviderReadiness(vocab, 99019005101)
+
+        local missing_vocab = new HakoAllocProviderBoundaryDiagnosticVocabularyReport()
+        local missing = owner.preflightProviderReadiness(missing_vocab, 99019005101)
+
+        local rejected_vocab = Main.makeVocabulary()
+        rejected_vocab.accepted = 0
+        rejected_vocab.reason = 2
+        local rejected = owner.preflightProviderReadiness(rejected_vocab, 99019005101)
+
+        local invalid_vocab = Main.makeVocabulary()
+        invalid_vocab.reason_count = 7
+        local invalid = owner.preflightProviderReadiness(invalid_vocab, 99019005101)
+
+        local provider_open = Main.makeVocabulary()
+        provider_open.provider_activation_inactive = 0
+        local provider = owner.preflightProviderReadiness(provider_open, 99019005101)
+
+        local host_open = Main.makeVocabulary()
+        host_open.host_replacement_inactive = 0
+        local host = owner.preflightProviderReadiness(host_open, 99019005101)
+
+        local closed_exec = Main.makeVocabulary()
+        closed_exec.would_activate_provider = 1
+        local closed = owner.preflightProviderReadiness(closed_exec, 99019005101)
+
+        local invalid_token = owner.preflightProviderReadiness(vocab, 0)
+
+        local ok = check "mimap362a provider readiness preflight" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "readiness": accepted.readiness_present == 1
+            "readiness token": accepted.readiness_token == 99019005101
+            "token valid": accepted.readiness_token_valid == 1
+            "vocab present": accepted.vocabulary_present == 1
+            "vocab accepted": accepted.vocabulary_accepted == 1
+            "reason count": accepted.reason_count == 8
+            "provider inactive": accepted.provider_activation_inactive == 1
+            "host inactive": accepted.host_replacement_inactive == 1
+            "hooks inactive": accepted.hooks_inactive == 1
+            "matcher inactive": accepted.backend_matcher_inactive == 1
+            "owner count": owner.preflight_count == 8
+            "owner accepted": owner.accepted_count == 1
+            "owner rejected": owner.reject_count == 7
+            "owner missing": owner.missing_vocabulary_reject_count == 1
+            "owner rejected vocab": owner.rejected_vocabulary_reject_count == 1
+            "owner invalid vocab": owner.invalid_vocabulary_reject_count == 1
+            "owner provider inactive": owner.provider_inactive_reject_count == 1
+            "owner host hook backend": owner.host_hook_backend_reject_count == 1
+            "owner closed": owner.closed_execution_reject_count == 1
+            "owner invalid token": owner.invalid_readiness_token_reject_count == 1
+            "last reason": owner.last_reason == 7
+            "missing reason": missing.reason == 1
+            "rejected reason": rejected.reason == 2
+            "invalid reason": invalid.reason == 3
+            "provider reason": provider.reason == 4
+            "host reason": host.reason == 5
+            "closed reason": closed.reason == 6
+            "invalid token reason": invalid_token.reason == 7
+            "would provider": accepted.would_activate_provider == 0
+            "would host": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-provider-readiness-preflight-proof")
+        print("ready=" + accepted.accepted + "," + accepted.reason + "," + accepted.readiness_present + "," + accepted.readiness_token + "," + accepted.readiness_token_valid)
+        print("vocab=" + accepted.vocabulary_present + "," + accepted.vocabulary_accepted + "," + accepted.vocabulary_reason + "," + accepted.reason_count)
+        print("owner=" + owner.preflight_count + "," + owner.accepted_count + "," + owner.reject_count + "," + owner.missing_vocabulary_reject_count + "," + owner.rejected_vocabulary_reject_count + "," + owner.invalid_vocabulary_reject_count + "," + owner.provider_inactive_reject_count + "," + owner.host_hook_backend_reject_count + "," + owner.closed_execution_reject_count + "," + owner.invalid_readiness_token_reject_count + "," + owner.last_reason)
+        print("inactive=" + accepted.provider_activation_inactive + "," + accepted.host_replacement_inactive + "," + accepted.hooks_inactive + "," + accepted.backend_matcher_inactive + "," + accepted.would_activate_provider + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + invalid.reason + "," + provider.reason + "," + host.reason + "," + closed.reason + "," + invalid_token.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

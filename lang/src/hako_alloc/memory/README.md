@@ -471,6 +471,10 @@ Syntax/style contract
   provider inactive boundary report. It must not select a provider, activate
   provider behavior, install hooks, replace the host allocator, or add backend
   matchers.
+- `provider_readiness_preflight_box.hako` owns MIMAP-362A. It may preflight
+  provider readiness from accepted provider boundary diagnostic vocabulary. It
+  must not select a provider, activate provider behavior, install hooks,
+  replace the host allocator, or add backend matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known
