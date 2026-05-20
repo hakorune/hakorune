@@ -924,3 +924,16 @@ exe = "required"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_real_external_provider_api_call_first_pattern_pilot_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_real_external_provider_api_call_first_pattern_pilot_guard.sh", "--level", "L2"]
 cmd_l3 = ["bash", "tools/checks/k2_wide_hako_alloc_real_external_provider_api_call_first_pattern_pilot_guard.sh", "--level", "L3"]
+
+[[proof_apps]]
+id = "MIMAP-420A"
+app = "apps/hako-alloc-host-replacement-explicit-preflight-inventory-proof"
+label = "host replacement explicit preflight inventory proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "host-replacement-explicit-preflight-inventory"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "host-replacement-explicit-preflight"
+exe = "deferred-to-host-replacement-preflight-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_host_replacement_explicit_preflight_inventory_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_host_replacement_explicit_preflight_inventory_guard.sh", "--level", "L2"]

@@ -1,0 +1,136 @@
+// hako-alloc-host-replacement-explicit-preflight-inventory-proof
+// Purpose: prove MIMAP-420A host replacement explicit preflight inventory.
+
+using selfhost.hako_alloc.memory.real_external_provider_api_call_first_pattern_pilot_box as HakoAllocRealExternalProviderApiCallFirstPatternPilot
+using selfhost.hako_alloc.memory.host_replacement_explicit_preflight_inventory_box as HakoAllocHostReplacementExplicitPreflightInventory
+
+static box Main {
+    makeRealCall(): HakoAllocRealExternalProviderApiCallFirstPatternPilotReport {
+        local report = new HakoAllocRealExternalProviderApiCallFirstPatternPilotReport {
+            accepted: 1,
+            reason: 0,
+            first_pattern_present: 1,
+            real_external_preflight_present: 1,
+            preflight_accepted: 1,
+            preflight_reason: 0,
+            real_external_provider_api_execution_ready: 1,
+            real_external_provider_api_call_executed: 1,
+            real_external_provider_api_result_present: 1,
+            real_external_provider_api_result_code: 0,
+            actual_external_provider_api_call_executed: 1,
+            host_replacement_inactive: 1,
+            hooks_inactive: 1,
+            backend_matcher_inactive: 1,
+            execution_count: 1,
+            accepted_count: 1,
+            reject_count: 0,
+            missing_preflight_reject_count: 0,
+            rejected_preflight_reject_count: 0,
+            not_ready_reject_count: 0,
+            already_executed_reject_count: 0,
+            closed_execution_reject_count: 0,
+            closed_host_replacement_reject_count: 0,
+            closed_hook_reject_count: 0,
+            closed_backend_matcher_reject_count: 0,
+            last_reason: 0,
+            would_activate_provider: 1,
+            would_call_provider: 1,
+            would_execute_provider_api: 1,
+            would_call_external_provider_api: 1,
+            would_execute_real_external_provider_api: 1,
+            would_replace_host_allocator: 0,
+            would_install_hook: 0,
+            would_add_backend_matcher: 0,
+            would_run_thread: 0
+        }
+        return report
+    }
+
+    main(args) {
+        local owner = new HakoAllocHostReplacementExplicitPreflightInventory()
+        local real_call = Main.makeRealCall()
+        local accepted = owner.inventoryHostReplacementExplicitPreflight(real_call, 1, 1, 1, 1)
+
+        local missing_real_call = new HakoAllocRealExternalProviderApiCallFirstPatternPilotReport()
+        local missing = owner.inventoryHostReplacementExplicitPreflight(missing_real_call, 1, 1, 1, 1)
+
+        local rejected_real_call = Main.makeRealCall()
+        rejected_real_call.accepted = 0
+        rejected_real_call.reason = 2
+        local rejected = owner.inventoryHostReplacementExplicitPreflight(rejected_real_call, 1, 1, 1, 1)
+
+        local not_ready = Main.makeRealCall()
+        not_ready.real_external_provider_api_result_present = 0
+        local not_ready_result = owner.inventoryHostReplacementExplicitPreflight(not_ready, 1, 1, 1, 1)
+
+        local missing_explicit = owner.inventoryHostReplacementExplicitPreflight(real_call, 0, 1, 1, 1)
+        local missing_hook = owner.inventoryHostReplacementExplicitPreflight(real_call, 1, 0, 1, 1)
+        local missing_rollback = owner.inventoryHostReplacementExplicitPreflight(real_call, 1, 1, 0, 1)
+        local missing_backend = owner.inventoryHostReplacementExplicitPreflight(real_call, 1, 1, 1, 0)
+
+        local leak = Main.makeRealCall()
+        leak.would_replace_host_allocator = 1
+        local leak_result = owner.inventoryHostReplacementExplicitPreflight(leak, 1, 1, 1, 1)
+
+        local ok = check "mimap420a host replacement explicit preflight inventory" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "inventory present": accepted.host_replacement_preflight_inventory_present == 1
+            "preflight ready": accepted.host_replacement_preflight_ready == 1
+            "not executed": accepted.host_replacement_executed == 0
+            "real call present": accepted.real_external_call_present == 1
+            "real call accepted": accepted.real_external_call_accepted == 1
+            "real call executed": accepted.real_external_call_executed == 1
+            "real call result": accepted.real_external_call_result_present == 1
+            "actual call": accepted.actual_external_provider_api_call_executed == 1
+            "explicit request": accepted.explicit_request_present == 1
+            "hook plan": accepted.hook_plan_present == 1
+            "rollback plan": accepted.rollback_plan_present == 1
+            "backend no growth": accepted.backend_no_growth_present == 1
+            "owner count": owner.inventory_count == 9
+            "owner accepted": owner.accepted_count == 1
+            "owner rejected": owner.reject_count == 8
+            "owner missing real": owner.missing_real_call_reject_count == 1
+            "owner rejected real": owner.rejected_real_call_reject_count == 1
+            "owner not ready": owner.not_ready_reject_count == 1
+            "owner explicit": owner.missing_explicit_request_reject_count == 1
+            "owner hook": owner.missing_hook_plan_reject_count == 1
+            "owner rollback": owner.missing_rollback_plan_reject_count == 1
+            "owner backend": owner.missing_backend_no_growth_reject_count == 1
+            "owner closed": owner.closed_seam_reject_count == 1
+            "last reason": owner.last_reason == 8
+            "missing reason": missing.reason == 1
+            "rejected reason": rejected.reason == 2
+            "not ready reason": not_ready_result.reason == 3
+            "missing explicit reason": missing_explicit.reason == 4
+            "missing hook reason": missing_hook.reason == 5
+            "missing rollback reason": missing_rollback.reason == 6
+            "missing backend reason": missing_backend.reason == 7
+            "leak reason": leak_result.reason == 8
+            "hook installed": accepted.hook_installed == 0
+            "matcher added": accepted.backend_matcher_added == 0
+            "global allocator": accepted.global_allocator_installed == 0
+            "would replace": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-host-replacement-explicit-preflight-inventory-proof")
+        print("hostpreflight=" + accepted.accepted + "," + accepted.reason + "," + accepted.host_replacement_preflight_inventory_present + "," + accepted.host_replacement_preflight_ready + "," + accepted.host_replacement_executed)
+        print("realcall=" + accepted.real_external_call_present + "," + accepted.real_external_call_accepted + "," + accepted.real_external_call_executed + "," + accepted.real_external_call_result_present + "," + accepted.actual_external_provider_api_call_executed)
+        print("inputs=" + accepted.explicit_request_present + "," + accepted.hook_plan_present + "," + accepted.rollback_plan_present + "," + accepted.backend_no_growth_present)
+        print("owner=" + owner.inventory_count + "," + owner.accepted_count + "," + owner.reject_count + "," + owner.missing_real_call_reject_count + "," + owner.rejected_real_call_reject_count + "," + owner.not_ready_reject_count + "," + owner.missing_explicit_request_reject_count + "," + owner.missing_hook_plan_reject_count + "," + owner.missing_rollback_plan_reject_count + "," + owner.missing_backend_no_growth_reject_count + "," + owner.closed_seam_reject_count + "," + owner.last_reason)
+        print("closed=" + accepted.host_replacement_executed + "," + accepted.hook_installed + "," + accepted.backend_matcher_added + "," + accepted.global_allocator_installed + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + not_ready_result.reason + "," + missing_explicit.reason + "," + missing_hook.reason + "," + missing_rollback.reason + "," + missing_backend.reason + "," + leak_result.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

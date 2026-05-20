@@ -95,6 +95,7 @@ Current modules
 - `page_map_realloc_failure_contract_box.hako`
 - `page_map_realloc_same_class_box.hako`
 - `heap_reuse_priority_box.hako`
+- `host_replacement_explicit_preflight_inventory_box.hako`
 - `lifecycle_stats_observer_box.hako`
 - `page_queue_box.hako`
 - `object_lifecycle_page_queue_box.hako`

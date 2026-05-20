@@ -1,6 +1,6 @@
 # 293x-1042 MIMAP-420A Host Replacement Explicit Preflight Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -44,3 +44,12 @@ bash tools/checks/k2_wide_hako_alloc_host_replacement_explicit_preflight_invento
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Evidence
+
+- Added the host replacement explicit preflight inventory owner.
+- Added the proof app, design SSOT, guard, manifest row, and module export.
+- Consumed real external provider API call first-pattern evidence and required
+  explicit request / hook plan / rollback plan / backend no-growth inputs.
+- Kept hook installation, backend matcher additions, process allocator
+  replacement, worker/thread execution, and global allocator install closed.
