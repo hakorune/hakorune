@@ -77,7 +77,7 @@ The current live surface is intentionally narrow.
 | `hako.intrin` | current-lane non-negative i64 bit-count rows exist: `clz_i64`, `ctz_i64`, `popcnt_i64`; backend optimization use is not live |
 | backend export attrs | consistency guard is live; only current weak attrs are allowed, runtime-decl `readonly` rows must carry `memory = "read"`, while `noalias`/`nonnull`/`dereferenceable`/alignment export remain blocked |
 | static readonly data | backend-private static-data manifest can emit a u16 size-class fixture; source `static const NAME: u16[] = [...]` declarations lower to MIR `static_data_plans`; `NAME[index]` reads lower to MIR `StaticDataLoad` and current-lane `i64` values; narrow integer const expressions in u16 table initializers are live |
-| inline planning | `@rune Hint(inline/noinline/hot/cold)` and substrate-only `@rune Lowering(inline_required)` preserve MIR InlinePlan metadata; `Hint(inline)` has a narrow best-effort same-module MIR leaf inline row; required inline verifier acceptance is live-narrow for contract-proven leaf bodies; verified required inline is consumed by the MIR optimizer for the M13 scalar allocator-fast EXE proof |
+| inline planning | canonical `@rune Inline(prefer/avoid/required)` rows preserve MIR InlinePlan metadata; compat `@rune Hint(inline/noinline)` and `@rune Lowering(inline_required)` map to equivalent inline requests during migration; `Hint(hot/cold)` remains advisory tuning metadata; `Inline(prefer)` has a narrow best-effort same-module MIR leaf inline row; required inline verifier acceptance is live-narrow for contract-proven leaf bodies; verified required inline is consumed by the MIR optimizer for the M13 scalar allocator-fast EXE proof |
 | profile/effect/capability planning | `EffectPlan` is live-narrow from `Contract(no_alloc/no_safepoint)` and reserved `Profile(...)` expansions; `CapabilityPlan` is emitted from reserved `Profile(...)` expansions and from metadata-only `uses osvm` / `uses atomic` / `uses rawbuf` / `uses random` / `uses alloc_reclaim` as canonical `hako.*` ids; `@rune Capability(...)` is not live parser surface |
 
 ## Pure-First / EXE Proof Chain
@@ -201,7 +201,8 @@ These names are reserved but not fully live as user-facing allocator substrate:
 - full unsigned-width runtime semantics for intrinsic rows
 - `noalias`, `nonnull`, `dereferenceable`, stronger alignment export
 - const fn table generation and references to other const declarations
-- backend-active required inline from `@rune Lowering(inline_required)`
+- backend-active required inline from source rune strings, including
+  `@rune Inline(required)` or compat `@rune Lowering(inline_required)`
 - backend-readable profile names
 - MIR EffectPlan / CapabilityPlan backend use
 - unrestricted `unsafe(...)` blocks
@@ -714,11 +715,12 @@ proof.
 
 ## Inline Planning
 
-Decision: M11c-preserve is live for advisory `Hint(...)` preservation into MIR
+Decision: M11c-preserve is live for canonical `Inline(...)` preservation into MIR
 `inline_plans`, M11c-soft-leaf is live for best-effort same-module MIR leaf
-inline, M11c-required-vocab is live for preserving substrate-only
-`Lowering(inline_required)` as MIR `request=required` metadata, and
-M11c-required-verify is live for verifier-backed required inline acceptance.
+inline, M11c-required-vocab is live for preserving canonical
+`Inline(required)` and compat `Lowering(inline_required)` as MIR
+`request=required` metadata, and M11c-required-verify is live for
+verifier-backed required inline acceptance.
 Backend-required inline use remains future.
 
 Inline is required for allocator-grade fast paths, but it is not a backend
@@ -727,11 +729,12 @@ keyword and not a `.inc` responsibility.
 Required future flow:
 
 ```text
-@rune Hint(inline/noinline/hot/cold)
+@rune Inline(prefer/avoid/required)
+@rune Hint(hot/cold)
 -> MIR InlinePlan / CallsiteInlinePlan
 -> M11c-preserve metadata row
 -> current M11c-soft-leaf best-effort same-module leaf inline where accepted
--> required-vocab metadata where Lowering(inline_required) is present
+-> required-vocab metadata where Inline(required) or compat Lowering(inline_required) is present
 -> required verifier where required
 -> MIR transform or intrinsic route
 -> backend emits the result
@@ -740,16 +743,17 @@ Required future flow:
 Strict allocator/substrate rows may later reserve:
 
 ```hako
-@rune Lowering(inline_required)
+@rune Inline(required)
 @rune Contract(no_alloc)
 @rune Contract(no_safepoint)
 ```
 
-`Lowering(inline_required)` is live vocabulary now and requires Rust parser /
-`.hako` parser parity because it widens rune metadata. Required plans are marked
-`verified=true` only after `Contract(no_alloc)`, `Contract(no_safepoint)`, and
-the narrow leaf-inline shape pass. Backends must not infer required inline from
-this row or from symbol names.
+`Inline(required)` is live vocabulary now and requires Rust parser / `.hako`
+parser parity because it widens rune metadata. Compat
+`Lowering(inline_required)` remains accepted during the migration window.
+Required plans are marked `verified=true` only after `Contract(no_alloc)`,
+`Contract(no_safepoint)`, and the narrow leaf-inline shape pass. Backends must
+not infer required inline from this row or from symbol names.
 
 ## Effect / Capability Planning
 
@@ -1119,9 +1123,10 @@ Fixture/gate:
 
 Decision: accepted for the M11c MIR verifier core only.
 
-New surface:
+Current surface:
 
-- `@rune Lowering(inline_required)` has a verifier check.
+- `@rune Inline(required)` has a verifier check.
+- `@rune Lowering(inline_required)` remains a compat spelling.
 - Required inline acceptance needs both `@rune Contract(no_alloc)` and
   `@rune Contract(no_safepoint)`.
 - Accepted plans are marked `verified=true` in MIR `inline_plans`.

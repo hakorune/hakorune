@@ -163,7 +163,7 @@ static box Main {
   @rune Symbol("main_sym")
   @rune CallConv("c")
   @rune Hint(inline)
-  @rune Lowering(inline_required)
+  @rune Inline(required)
   @rune Contract(no_alloc)
   @rune IntrinsicCandidate("Main.main/0")
   main() {
@@ -184,7 +184,7 @@ static box Main {
                 ("Symbol".to_string(), vec!["main_sym".to_string()]),
                 ("CallConv".to_string(), vec!["c".to_string()]),
                 ("Hint".to_string(), vec!["inline".to_string()]),
-                ("Lowering".to_string(), vec!["inline_required".to_string()]),
+                ("Inline".to_string(), vec!["required".to_string()]),
                 ("Contract".to_string(), vec!["no_alloc".to_string()]),
                 (
                     "IntrinsicCandidate".to_string(),
@@ -204,7 +204,7 @@ static box Main {
                 ("Symbol".to_string(), vec!["main_sym".to_string()]),
                 ("CallConv".to_string(), vec!["c".to_string()]),
                 ("Hint".to_string(), vec!["inline".to_string()]),
-                ("Lowering".to_string(), vec!["inline_required".to_string()]),
+                ("Inline".to_string(), vec!["required".to_string()]),
                 ("Contract".to_string(), vec!["no_alloc".to_string()]),
                 (
                     "IntrinsicCandidate".to_string(),
@@ -218,6 +218,52 @@ static box Main {
             find_box_and_method_runes(&roundtrip, "Main", "main");
         assert_eq!(roundtrip_box_runes, box_runes);
         assert_eq!(roundtrip_method_runes, method_runes);
+    });
+}
+
+#[test]
+fn parser_accepts_inline_rune_family_and_preserves_metadata() {
+    with_features(Some("rune"), || {
+        let src = r#"
+static box Main {
+  @rune Inline(required)
+  @rune Contract(no_alloc)
+  @rune Contract(no_safepoint)
+  main() {
+    return 0
+  }
+}
+"#;
+        let ast = NyashParser::parse_from_string(src).expect("parse Inline rune family");
+        let (_box_runes, method_runes) = find_box_and_method_runes(&ast, "Main", "main");
+        assert_eq!(
+            method_runes,
+            vec![
+                ("Inline".to_string(), vec!["required".to_string()]),
+                ("Contract".to_string(), vec!["no_alloc".to_string()]),
+                ("Contract".to_string(), vec!["no_safepoint".to_string()]),
+            ]
+        );
+    });
+}
+
+#[test]
+fn parser_keeps_lowering_inline_required_as_compat_spelling() {
+    with_features(Some("rune"), || {
+        let src = r#"
+static box Main {
+  @rune Lowering(inline_required)
+  main() {
+    return 0
+  }
+}
+"#;
+        let ast = NyashParser::parse_from_string(src).expect("parse compat Lowering rune");
+        let (_box_runes, method_runes) = find_box_and_method_runes(&ast, "Main", "main");
+        assert_eq!(
+            method_runes,
+            vec![("Lowering".to_string(), vec!["inline_required".to_string()])]
+        );
     });
 }
 

@@ -51,37 +51,41 @@ Lowering:
 Current public surface:
 
 ```hako
-@rune Hint(inline)
-@rune Hint(noinline)
+@rune Inline(prefer)
+@rune Inline(avoid)
+@rune Inline(required)
 @rune Hint(hot)
 @rune Hint(cold)
 ```
 
-Reserved substrate-only surface:
+Compatibility surface:
 
 ```hako
+@rune Hint(inline)
+@rune Hint(noinline)
 @rune Lowering(inline_required)
 ```
 
 M11c-required-vocab live surface:
 
 ```text
-@rune Lowering(inline_required)
+@rune Inline(required)
 -> MIR InlinePlan request=required
 -> requires=["no_alloc", "no_safepoint"]
 -> verified=false
 -> fallback=fail_fast
--> source=rune_lowering
+-> source=rune_inline_required
 ```
 
-This row was vocabulary and preservation only. `M11c-required-verify` now owns
-the verifier transition for the same metadata. Required inline still is not
+`Lowering(inline_required)` remains accepted as a compat spelling and still
+maps to the same required InlinePlan request. `M11c-required-verify` owns the
+verifier transition for this metadata. Required inline still is not
 backend-active.
 
 M11c-required-verify live surface:
 
 ```text
-@rune Lowering(inline_required)
+@rune Inline(required)
 @rune Contract(no_alloc)
 @rune Contract(no_safepoint)
 -> MIR InlinePlan request=required
@@ -103,16 +107,17 @@ no dynamic dispatch
 no recursive cycle
 ```
 
-`Hint(inline)` is not `inline_required`.
+`Hint(inline)` is not `Inline(required)`.
 
-Future `@rune Profile(...)` expansion may produce `Hint(...)`,
-`Lowering(inline_required)`, and `Contract(...)` facts, but Profile is not an
-InlinePlan truth source. The MIR facts produced by expansion are the only facts
-the optimizer and backend may consume.
+Future `@rune Profile(...)` expansion may produce `Hint(...)`, inline requests,
+and `Contract(...)` facts, but Profile is not an InlinePlan truth source. The
+MIR facts produced by expansion are the only facts the optimizer and backend
+may consume.
 
 `Hint(always_inline)` is also not `inline_required`; do not introduce it as a
 public guarantee. If an always-inline spelling is ever accepted, it remains an
-optimizer hint. Required inline belongs to the `Lowering(...)` family.
+optimizer hint. Required inline belongs to the canonical `Inline(required)`
+family.
 
 ## MIR Ownership
 
@@ -193,8 +198,11 @@ M11c-preserve live schema:
 Current hint mapping:
 
 ```text
-Hint(inline)   -> request=prefer
-Hint(noinline) -> request=avoid
+Inline(prefer) -> request=prefer
+Inline(avoid)  -> request=avoid
+Inline(required) -> request=required, fallback=fail_fast
+compat Hint(inline)   -> request=prefer
+compat Hint(noinline) -> request=avoid
 Hint(hot)      -> request=none, hotness=hot
 Hint(cold)     -> request=none, hotness=cold
 ```

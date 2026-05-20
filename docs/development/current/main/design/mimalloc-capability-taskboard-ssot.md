@@ -109,7 +109,7 @@ replacement.
 | `M10c LLVM export attrs widening` | `blocked` | optimization export | `noalias`, `nonnull`, `dereferenceable`, alignment, stronger `nocapture` only after pointer/native-ptr proof and verifier/export consistency proof |
 | `M11a static readonly data segment` | `live-narrow` | backend-private const data | backend-private static data manifest emits a readonly u16 size-class fixture as LLVM data; no source syntax or const eval |
 | `M11b const eval/static table syntax` | `live-narrow` | language + MIR const data | `M11b-decl` source `u16` static const table declarations, `M11b-load` static table reads, and `M11b-eval` narrow integer initializer expressions are live; const fn remains future |
-| `M11c InlinePlan rows` | `live-narrow` | rune metadata + MIR optimizer/verifier | `M11c-preserve` keeps `Hint(inline/noinline/hot/cold)` as MIR `inline_plans`; `M11c-soft-leaf` expands best-effort same-module pure leaf `Hint(inline)` calls in MIR; `M11c-required-vocab` preserves substrate-only `Lowering(inline_required)` as MIR `request=required`; `M11c-contract-repeat` permits distinct `Contract(...)` runes on one declaration; `M11c-required-verify` fail-fast verifies required contracts plus narrow leaf shape and sets accepted plans to `verified=true`; no backend use |
+| `M11c InlinePlan rows` | `live-narrow` | rune metadata + MIR optimizer/verifier | `M11c-preserve` keeps canonical `Inline(prefer/avoid/required)`, advisory `Hint(hot/cold)`, and compat `Hint(inline/noinline)` / `Lowering(inline_required)` as MIR `inline_plans`; `M11c-soft-leaf` expands best-effort same-module pure leaf `Inline(prefer)` calls in MIR; `M11c-required-vocab` preserves `Inline(required)` as MIR `request=required`; `M11c-contract-repeat` permits distinct `Contract(...)` runes on one declaration; `M11c-required-verify` fail-fast verifies required contracts plus narrow leaf shape and sets accepted plans to `verified=true`; no backend use |
 | `M11d EffectPlan/CapabilityPlan boundary` | `live-narrow` | MIR metadata + verifier | `Contract(no_alloc/no_safepoint)` now populates MIR `effect_plans`, the rune contract verifier consumes `EffectPlan`, and `capability_plans` exists as a metadata boundary; no backend use |
 | `M12 mimalloc raw-page proof` | `live-narrow` | allocator substrate consumer | `apps/mimalloc-raw-page-proof` proves a fixed raw page/free-list fixture over `RawBufCoreBox` + `RawArrayCoreBox`; fast-path acquire/release carry `Contract(no_alloc/no_safepoint)` and are MIR-verified, with no Profile/Capability parser surface or backend use in that fixture |
 | `M12b Profile registry docs` | `live-docs` | rune metadata + docs | `docs/reference/mir/rune-profile-registry.md` reserves `allocator.fast`, `allocator.slow`, `substrate.leaf`, `intrinsic.leaf`, and `raw.layout` expansion targets; no parser acceptance unless a later row explicitly owns parser parity |
@@ -230,7 +230,7 @@ replacement.
 26. `M10c-native-ptr-call-arg-emit`
 27. `M10c-hako-mem-free-void-row`
 28. `M10c LLVM export attrs widening` (blocked until an eligible native-pointer proof/export row exists)
-29. `M11c-required-vocab substrate-only Lowering(inline_required)`
+29. `M11c-required-vocab Inline(required) canonical surface`
 30. `M11c-contract-repeat distinct Contract(...) parser metadata`
 31. `M11c-required-verify verifier-backed required inline acceptance`
 32. `M11d EffectPlan/CapabilityPlan boundary`

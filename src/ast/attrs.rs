@@ -5,7 +5,7 @@ pub struct RuneAttr {
 }
 
 pub const RUNE_SUPPORTED_NAMES_MSG: &str =
-    "Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership|Hint|Contract|IntrinsicCandidate|Lowering|Profile";
+    "Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership|Hint|Inline|Contract|IntrinsicCandidate|Lowering|Profile";
 
 impl RuneAttr {
     pub fn supported_names_msg() -> &'static str {
@@ -24,6 +24,7 @@ impl RuneAttr {
                 | "FreeWith"
                 | "Ownership"
                 | "Hint"
+                | "Inline"
                 | "Contract"
                 | "IntrinsicCandidate"
                 | "Lowering"
@@ -43,6 +44,7 @@ impl RuneAttr {
                 | "FreeWith"
                 | "Ownership"
                 | "Hint"
+                | "Inline"
                 | "Contract"
                 | "IntrinsicCandidate"
                 | "Lowering"
@@ -61,6 +63,9 @@ impl RuneAttr {
             ),
             "Hint" if !matches!(arg0, "inline" | "noinline" | "hot" | "cold") => Some(
                 "[freeze:contract][parser/rune] Hint(inline|noinline|hot|cold)".to_string(),
+            ),
+            "Inline" if !matches!(arg0, "prefer" | "avoid" | "required") => Some(
+                "[freeze:contract][parser/rune] Inline(prefer|avoid|required)".to_string(),
             ),
             "Contract"
                 if !matches!(arg0, "pure" | "readonly" | "no_alloc" | "no_safepoint") =>

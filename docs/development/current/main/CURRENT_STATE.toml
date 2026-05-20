@@ -9,15 +9,15 @@ status = "Active"
 date = "2026-05-21"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-380A landed provider activation modeled-open pilot and selected MIMAP-381A. Cross-function Result direct ABI remains closed. Provider calls, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "RUNE-INLINE-001 landed canonical Inline(prefer|avoid|required) rune surface; MIMAP-381A remains current. Cross-function Result direct ABI remains closed. Provider calls, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
 phase_status = "docs/development/current/main/phases/phase-293x/293x-1002-MIMAP-381A-POST-PROVIDER-ACTIVATION-MODELED-OPEN-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-1001-MIMAP-380A-PROVIDER-ACTIVATION-MODELED-OPEN-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1001-MIMAP-380A-PROVIDER-ACTIVATION-MODELED-OPEN-PILOT.md"
-latest_card_summary = "Opened provider activation in model space only; provider calls and replacement remain closed; MIMAP-381A selected."
+latest_card = "293x-1003-RUNE-INLINE-001-INLINE-RUNE-CANONICAL-SURFACE"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1003-RUNE-INLINE-001-INLINE-RUNE-CANONICAL-SURFACE.md"
+latest_card_summary = "Accepted canonical Inline(prefer|avoid|required) rune surface while keeping compat Hint/Lowering spellings; MIMAP-381A remains current."
 
 current_blocker_token = "MIMAP-381A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-1003 RUNE-INLINE-001 canonical Inline(prefer|avoid|required) rune surface landed; MIMAP-381A remains current",
   "293x-1001 MIMAP-380A provider activation modeled-open pilot landed; MIMAP-381A selected",
   "293x-999 MIMAP-378A provider activation dry-run unsupported behavior landed; MIMAP-379A selected",
   "293x-997 MIMAP-376A provider activation input bundle inventory landed; MIMAP-377A selected",

@@ -107,11 +107,11 @@ Current accepted allocator-relevant rows include:
 ```hako
 @rune Contract(no_alloc)
 @rune Contract(no_safepoint)
-@rune Hint(inline)
-@rune Hint(noinline)
+@rune Inline(prefer)
+@rune Inline(avoid)
+@rune Inline(required)
 @rune Hint(hot)
 @rune Hint(cold)
-@rune Lowering(inline_required)
 @rune Profile(allocator.fast)
 @rune Profile(allocator.slow)
 @rune Profile(substrate.leaf)
@@ -123,7 +123,12 @@ Current rules:
 
 - `Contract(no_alloc)` and `Contract(no_safepoint)` are checked by the MIR
   verifier;
-- `Hint(...)` and `Lowering(inline_required)` produce MIR `InlinePlan` facts;
+- canonical `Inline(prefer|avoid|required)` rows produce MIR `InlinePlan`
+  facts;
+- compat `Hint(inline/noinline)` and `Lowering(inline_required)` remain
+  accepted during the migration window and map to the equivalent `Inline(...)`
+  request;
+- `Hint(hot|cold)` remains advisory tuning metadata;
 - verified required inline may be consumed by the MIR optimizer for narrow
   same-module leaf bodies;
 - `Profile(...)` is authoring sugar only and expands to primitive MIR plan

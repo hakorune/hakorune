@@ -379,7 +379,7 @@ Contract:
 | `string_direct_set_window_routes` | array | Source-window direct-set route plans |
 | `thin_entry_candidates` | array | Candidate sites for public-entry vs thin-entry selection |
 | `thin_entry_selections` | array | Manifest-bound thin-entry decisions |
-| `inline_plans` | array | InlinePlan rows derived from declaration-local `Hint(inline/noinline/hot/cold)` and `Lowering(inline_required)` runes; M11c-soft-leaf may consume `request=prefer` for narrow same-module MIR leaf inline, and M13 may consume verified `request=required` for narrow same-module scalar leaf inline before backend emission |
+| `inline_plans` | array | InlinePlan rows derived from declaration-local canonical `Inline(prefer/avoid/required)`, compat `Hint(inline/noinline/hot/cold)`, and compat `Lowering(inline_required)` runes; M11c-soft-leaf may consume `request=prefer` for narrow same-module MIR leaf inline, and M13 may consume verified `request=required` for narrow same-module scalar leaf inline before backend emission |
 | `effect_plans` | array | EffectPlan rows derived from live verifier-backed `Contract(no_alloc/no_safepoint)` runes and reserved `Profile(...)` expansions; consumed by the MIR verifier, not by backends |
 | `capability_plans` | array | CapabilityPlan rows derived from reserved `Profile(...)` expansions; metadata only until capability verification lands |
 | `generic_method_routes` | array | MIR-owned method route facts; backend shims consume these instead of reclassifying method strings |
@@ -593,11 +593,18 @@ Example:
 
 Current request mapping:
 
-- `Hint(inline)` -> `request = "prefer"`
-- `Hint(noinline)` -> `request = "avoid"`
+- `Inline(prefer)` -> `request = "prefer"`, `source = "rune_inline"`
+- `Inline(avoid)` -> `request = "avoid"`, `source = "rune_inline"`
+- `Inline(required)` -> `request = "required"`,
+  `requires = ["no_alloc", "no_safepoint"]`, `fallback = "fail_fast"`,
+  `source = "rune_inline_required"`; `verified` is true only after
+  required-inline verification accepts the required contracts and narrow leaf
+  shape
+- compat `Hint(inline)` -> `request = "prefer"`
+- compat `Hint(noinline)` -> `request = "avoid"`
 - `Hint(hot)` -> `request = "none"`, `hotness = "hot"`
 - `Hint(cold)` -> `request = "none"`, `hotness = "cold"`
-- `Lowering(inline_required)` -> `request = "required"`,
+- compat `Lowering(inline_required)` -> `request = "required"`,
   `requires = ["no_alloc", "no_safepoint"]`, `fallback = "fail_fast"`,
   `source = "rune_lowering"`; `verified` is true only after
   M11c-required-verify accepts the required contracts and narrow leaf shape

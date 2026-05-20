@@ -70,6 +70,31 @@ impl InlinePlan {
         })
     }
 
+    pub fn from_inline(function: &str, inline: &str) -> Option<Self> {
+        let (request, fallback, source) = match inline {
+            "prefer" => (InlineRequest::Prefer, "keep_call", "rune_inline"),
+            "avoid" => (InlineRequest::Avoid, "keep_call", "rune_inline"),
+            "required" => (InlineRequest::Required, "fail_fast", "rune_inline_required"),
+            _ => return None,
+        };
+        let requires = if request == InlineRequest::Required {
+            vec!["no_alloc".to_string(), "no_safepoint".to_string()]
+        } else {
+            Vec::new()
+        };
+
+        Some(Self {
+            function: function.to_string(),
+            request,
+            hotness: None,
+            max_ir: None,
+            requires,
+            verified: false,
+            fallback: fallback.to_string(),
+            source: source.to_string(),
+        })
+    }
+
     pub fn from_lowering(function: &str, lowering: &str) -> Option<Self> {
         if lowering != "inline_required" {
             return None;
@@ -128,6 +153,11 @@ pub fn inline_plans_from_runes(function: &str, runes: &[RuneAttr]) -> Vec<Inline
         match rune.name.as_str() {
             "Hint" => {
                 if let Some(plan) = InlinePlan::from_hint(function, value) {
+                    plans.push(plan);
+                }
+            }
+            "Inline" => {
+                if let Some(plan) = InlinePlan::from_inline(function, value) {
                     plans.push(plan);
                 }
             }
@@ -208,4 +238,50 @@ fn has_contract(runes: &[RuneAttr], contract: &str) -> bool {
             .unwrap_or(false),
         _ => false,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn rune(name: &str, arg: &str) -> RuneAttr {
+        RuneAttr {
+            name: name.to_string(),
+            args: vec![arg.to_string()],
+        }
+    }
+
+    #[test]
+    fn inline_rune_prefer_maps_to_keep_call_plan() {
+        let plans = inline_plans_from_runes("Main.fast/0", &[rune("Inline", "prefer")]);
+        assert_eq!(plans.len(), 1);
+        assert_eq!(plans[0].request, InlineRequest::Prefer);
+        assert_eq!(plans[0].fallback, "keep_call");
+        assert_eq!(plans[0].source, "rune_inline");
+    }
+
+    #[test]
+    fn inline_rune_required_maps_to_fail_fast_plan() {
+        let plans = inline_plans_from_runes("Main.fast/0", &[rune("Inline", "required")]);
+        assert_eq!(plans.len(), 1);
+        assert_eq!(plans[0].request, InlineRequest::Required);
+        assert_eq!(
+            plans[0].requires,
+            vec!["no_alloc".to_string(), "no_safepoint".to_string()]
+        );
+        assert_eq!(plans[0].fallback, "fail_fast");
+        assert_eq!(plans[0].source, "rune_inline_required");
+    }
+
+    #[test]
+    fn lowering_inline_required_remains_compat_plan() {
+        let plans = inline_plans_from_runes(
+            "Main.fast/0",
+            &[rune("Lowering", "inline_required")],
+        );
+        assert_eq!(plans.len(), 1);
+        assert_eq!(plans[0].request, InlineRequest::Required);
+        assert_eq!(plans[0].fallback, "fail_fast");
+        assert_eq!(plans[0].source, "rune_lowering");
+    }
 }

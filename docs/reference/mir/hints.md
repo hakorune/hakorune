@@ -36,8 +36,8 @@
 Canonical declaration metadata uses `@rune`:
 
 ```hako
-@rune Hint(inline)
-@rune Lowering(inline_required)
+@rune Inline(prefer)
+@rune Inline(required)
 @rune Contract(no_alloc)
 @rune Contract(no_safepoint)
 @rune IntrinsicCandidate("StringBox.length/0")
@@ -62,13 +62,21 @@ Current live verifier row:
 - `Profile(allocator.fast|allocator.slow|substrate.leaf|intrinsic.leaf|raw.layout)`
   is accepted as authoring sugar and expands to primitive MIR plan facts.
 - `Hint(inline/noinline/hot/cold)` is preserved into MIR-owned
-  `metadata.inline_plans`.
-- `Hint(inline)` may trigger the narrow M11c-soft-leaf MIR optimizer row:
+  `metadata.inline_plans` as compat advisory inline/profile spelling.
+- `Inline(prefer/avoid/required)` is the canonical source surface for inline
+  requests:
+  - `Inline(prefer)` maps to `request=prefer`, `fallback=keep_call`.
+  - `Inline(avoid)` maps to `request=avoid`, `fallback=keep_call`.
+  - `Inline(required)` maps to `request=required`, `fallback=fail_fast`, and
+    requires `Contract(no_alloc)` plus `Contract(no_safepoint)`.
+- `Hint(inline)` remains a compat alias for advisory inline preference and may
+  trigger the narrow M11c-soft-leaf MIR optimizer row:
   best-effort same-module pure leaf inline. Unsupported shapes keep the call.
-- `Lowering(inline_required)` is preserved into MIR-owned
-  `metadata.inline_plans` as `request=required` and `fallback=fail_fast`.
-  M11c-required-verify sets `verified=true` only when required contracts and
-  the narrow leaf-inline shape pass. It is still not backend-active.
+- `Lowering(inline_required)` remains accepted as a compat spelling for
+  `Inline(required)`. It is preserved as `request=required` and
+  `fallback=fail_fast`; M11c-required-verify sets `verified=true` only when
+  required contracts and the narrow leaf-inline shape pass. It is still not
+  backend-active.
 
 Fail-fast diagnostics use the stable tags:
 
@@ -90,7 +98,7 @@ Inline is not a backend-local keyword.
 Accepted flow:
 
 ```text
-@rune Hint(inline)
+@rune Inline(prefer)
 -> MIR InlinePlan request=prefer
 -> M11c-soft-leaf may inline same-module pure leaf calls
 -> unsupported shapes keep the call
@@ -100,7 +108,7 @@ Accepted flow:
 Substrate-only required inline flow:
 
 ```text
-@rune Lowering(inline_required)
+@rune Inline(required)
 @rune Contract(no_alloc)
 @rune Contract(no_safepoint)
 -> MIR InlinePlan request=required
@@ -110,3 +118,11 @@ Substrate-only required inline flow:
 
 Backends and `.inc` readers must not discover inline policy from function names,
 box names, or allocator-specific symbols.
+
+Compatibility:
+
+```text
+Hint(inline)              -> Inline(prefer)
+Hint(noinline)            -> Inline(avoid)
+Lowering(inline_required) -> Inline(required)
+```

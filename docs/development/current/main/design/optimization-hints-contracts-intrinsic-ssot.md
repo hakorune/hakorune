@@ -19,9 +19,13 @@ Related:
 helper 境界コストが支配するワークロードに対して、特別処理を散らさずに最小の注釈面を導入する。
 `@rune` は既存言語上の primitive control plane として使い、`inline` を含む最適化ヒントはここに統一する。
 
-## Current Syntax Truth (2026-03-30)
+## Current Syntax Truth (2026-05-21)
 
-- canonical surface is `@rune Hint(...)`, `@rune Contract(...)`, `@rune IntrinsicCandidate("...")`, and substrate-only `@rune Lowering(inline_required)`
+- canonical surface is `@rune Hint(...)`, `@rune Inline(...)`,
+  `@rune Contract(...)`, and `@rune IntrinsicCandidate("...")`
+- `@rune Inline(prefer|avoid|required)` is the canonical inline request family
+- `@rune Lowering(inline_required)` remains accepted as a compat spelling for
+  `Inline(required)` during the migration window
 - legacy `@hint(...)`, `@contract(...)`, `@intrinsic_candidate("...")` stay accepted as compat aliases during the migration window
 - declaration-leading legacy aliases normalize to declaration-local `attrs.runes`
 - statement-position legacy aliases remain parse/noop compat
@@ -31,11 +35,12 @@ helper 境界コストが支配するワークロードに対して、特別処�
 - distinct `Contract(...)` values are repeatable on one declaration so
   `Contract(no_alloc)` and `Contract(no_safepoint)` can coexist; exact duplicate
   values still fail-fast
-- inline planning is not backend-active; `Hint(inline/noinline/hot/cold)` is
-  preserved into MIR-owned InlinePlan metadata, and only the M11c-soft-leaf MIR
-  optimizer row may consume `Hint(inline)` for narrow same-module leaf calls
-- `Lowering(inline_required)` is preserved into MIR-owned InlinePlan metadata
-  as `request=required`; M11c-required-verify now sets `verified=true` only for
+- inline planning is not backend-active; `Inline(prefer/avoid/required)` and
+  compat `Hint(inline/noinline)` / `Lowering(inline_required)` are preserved
+  into MIR-owned InlinePlan metadata, and only the M11c-soft-leaf MIR optimizer
+  row may consume advisory inline preference for narrow same-module leaf calls
+- `Inline(required)` is preserved into MIR-owned InlinePlan metadata as
+  `request=required`; M11c-required-verify now sets `verified=true` only for
   required plans with `Contract(no_alloc)`, `Contract(no_safepoint)`, and the
   narrow leaf-inline shape; backend use is still disabled
 - `hako.intrin` bit-count substrate rows are live separately from
@@ -46,10 +51,11 @@ helper 境界コストが支配するワークロードに対して、特別処�
 
 | Item | Syntax Parse | Program(JSON) parity | Runtime Verifier | Registry Consistency Gate | Backend Optimization Use | Status |
 |---|---|---|---|---|---|---|
-| `Hint` (`@rune Hint` / `@hint`) | done | done (noop) | n/a | n/a | MIR soft-leaf only | MIR InlinePlan preserve + soft-leaf live |
+| `Hint` (`@rune Hint` / `@hint`) | done | done (noop) | n/a | n/a | MIR soft-leaf only | advisory tuning; `inline/noinline` retained as compat inline spelling |
+| `Inline` (`@rune Inline`) | done | done (noop) | live-narrow for `required` acceptance | n/a | soft same-module leaf inline only | canonical InlinePlan request surface |
 | `Contract` (`@rune Contract` / `@contract`) | done | done (noop) | live-narrow for `no_alloc` / `no_safepoint` | n/a | todo | provisional |
 | `IntrinsicCandidate` (`@rune IntrinsicCandidate` / `@intrinsic_candidate`) | done | done (noop) | n/a | todo | todo | provisional |
-| `InlinePlan` (MIR-owned metadata) | live for `Hint(inline/noinline/hot/cold)` and `Lowering(inline_required)` preserve | n/a | live-narrow for required inline acceptance | n/a | soft same-module leaf inline only | live-narrow |
+| `InlinePlan` (MIR-owned metadata) | live for `Inline(prefer/avoid/required)`, compat `Hint(inline/noinline/hot/cold)`, and compat `Lowering(inline_required)` preserve | n/a | live-narrow for required inline acceptance | n/a | soft same-module leaf inline only | live-narrow |
 | `EffectPlan` / `CapabilityPlan` (MIR-owned metadata) | `EffectPlan` from `Contract(no_alloc/no_safepoint)`, `CapabilityPlan=[]` | n/a | `EffectPlan` feeds rune contract verifier | n/a | no backend use | live-narrow |
 
 補足:
@@ -59,8 +65,9 @@ helper 境界コストが支配するワークロードに対して、特別処�
    backend 最適化/export にはまだ使わない。
    distinct `Contract(...)` values can be repeated on one declaration; exact
    duplicates remain a parser contract error.
-3. `Hint(...)` は MIR `inline_plans` に保存される。`Hint(inline)` は
-   M11c-soft-leaf の narrow MIR optimizer row だけが消費できる。
+3. `Inline(...)` は MIR `inline_plans` に保存される。`Inline(prefer)` と
+   compat `Hint(inline)` は M11c-soft-leaf の narrow MIR optimizer row だけが
+   消費できる。
    registry gate / backend 利用が揃うまでは backend-active ではない。
 4. active 化は docs-first で lane/task へ昇格したときのみ許可する。
 
@@ -74,9 +81,11 @@ helper 境界コストが支配するワークロードに対して、特別処�
 
 - canonical surface is now part of the shared Rune metadata lane:
   - `@rune Hint(...)`
+  - `@rune Inline(prefer|avoid|required)`
   - `@rune Contract(...)`
   - `@rune IntrinsicCandidate("...")`
-  - `@rune Lowering(inline_required)` for substrate inline requirements
+  - `@rune Lowering(inline_required)` as a compat spelling for
+    `Inline(required)`
 - legacy `@hint` / `@contract` / `@intrinsic_candidate` remain compat aliases, not the canonical docs surface
 - visibility / ownership / ABI-facing metadata still follow Rune v0 SSOT
 - gate/carrier/front-door unification follows Rune v1 SSOT
@@ -88,8 +97,6 @@ helper 境界コストが支配するワークロードに対して、特別処�
 ### 1) Hints（助言、意味は変えない）
 
 - canonical:
-  - `@rune Hint(inline)`
-  - `@rune Hint(noinline)`
   - `@rune Hint(hot)`
   - `@rune Hint(cold)`
 - compat aliases:
@@ -99,25 +106,24 @@ helper 境界コストが支配するワークロードに対して、特別処�
 
 1. hint は advisory（最適化ヒント）であり、無視されても意味は不変。
 2. hint の解釈は backend ごとに異なってよいが、意味論は変えてはいけない。
-3. `Hint(inline)` is not a guarantee. Required inline is reserved for
-   substrate-only `Lowering(inline_required)` rows described by
-   `inline-plan-ssot.md`.
+3. `Hint(inline/noinline)` remains accepted as a compat advisory spelling.
+   Canonical inline requests use `Inline(prefer|avoid|required)`.
 
 #### InlinePlan Relationship
 
 Inline uses the same rune surface, but the truth for transforms is MIR-owned:
 
 ```text
-@rune Hint(inline)
+@rune Inline(prefer)
 -> MIR InlinePlan request=prefer
 -> M11c-soft-leaf best-effort same-module leaf MIR transform
 -> unsupported shapes keep-call
 ```
 
-Reserved strict substrate flow:
+Strict required inline flow:
 
 ```text
-@rune Lowering(inline_required)
+@rune Inline(required)
 @rune Contract(no_alloc)
 @rune Contract(no_safepoint)
 -> MIR InlinePlan request=required

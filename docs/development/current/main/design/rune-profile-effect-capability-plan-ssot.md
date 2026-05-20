@@ -70,7 +70,7 @@ M12c expansion target:
 ```text
 Profile(allocator.fast)
 -> Hint(hot)
--> Lowering(inline_required)
+-> Inline(required)
 -> Contract(no_alloc)
 -> Contract(no_safepoint)
 -> CapabilityPlan allow=[hako.ptr, hako.mem, hako.tls]
@@ -99,9 +99,11 @@ Backend behavior is still not implied by the profile string.
 
 Owner: MIR metadata plus MIR optimizer/verifier.
 
-Purpose: represent advisory and required inline decisions. `Hint(inline)` is
-advisory. `Lowering(inline_required)` is strict only after verifier acceptance.
-Backends emit already-inlined MIR or already-selected routes.
+Purpose: represent advisory and required inline decisions. `Inline(prefer)` is
+advisory. `Inline(required)` is strict only after verifier acceptance. Compat
+`Hint(inline/noinline)` and `Lowering(inline_required)` remain accepted during
+the migration window. Backends emit already-inlined MIR or already-selected
+routes.
 
 SSOT: `docs/development/current/main/design/inline-plan-ssot.md`
 
