@@ -1,6 +1,6 @@
 # 293x-1057 MIMAP-435A Allocator Comparison Measurement Plan Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -30,3 +30,20 @@ pack before any benchmark execution row is selected.
 Closeout validation should include the L2 row guards. L3 remains optional and
 must stay representative-only unless a later row explicitly opens benchmark
 execution.
+
+## Required Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_allocator_comparison_measurement_plan_closeout_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Landed Evidence
+
+- Added the comparison measurement plan closeout SSOT and guard.
+- Re-ran the MIMAP-433A inventory L2 guard.
+- Re-ran the MIMAP-434A diagnostics L2 guard.
+- Kept benchmark execution, hook installation, backend matcher additions,
+  process allocator replacement, worker/thread execution, and global allocator
+  install closed.
