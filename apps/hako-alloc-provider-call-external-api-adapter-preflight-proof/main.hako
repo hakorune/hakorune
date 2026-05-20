@@ -1,0 +1,154 @@
+// hako-alloc-provider-call-external-api-adapter-preflight-proof
+// Purpose: prove MIMAP-402A provider-call external API adapter preflight.
+
+using selfhost.hako_alloc.memory.provider_call_external_api_adapter_inventory_box as HakoAllocProviderCallExternalApiAdapterInventory
+using selfhost.hako_alloc.memory.provider_call_external_api_adapter_preflight_box as HakoAllocProviderCallExternalApiAdapterPreflight
+
+static box Main {
+    makeInventory(): HakoAllocProviderCallExternalApiAdapterInventoryReport {
+        local report = new HakoAllocProviderCallExternalApiAdapterInventoryReport {
+            accepted: 1,
+            reason: 0,
+            adapter_inventory_present: 1,
+            stub_execution_present: 1,
+            stub_execution_accepted: 1,
+            stub_execution_reason: 0,
+            provider_api_stub_call_executed: 1,
+            provider_api_call_result_present: 1,
+            actual_provider_api_call_executed: 0,
+            external_provider_adapter_present: 1,
+            external_provider_adapter_valid: 1,
+            external_provider_api_call_ready: 1,
+            external_provider_api_call_executed: 0,
+            host_replacement_inactive: 1,
+            hooks_inactive: 1,
+            backend_matcher_inactive: 1,
+            inventory_count: 1,
+            accepted_count: 1,
+            reject_count: 0,
+            missing_stub_reject_count: 0,
+            rejected_stub_reject_count: 0,
+            missing_adapter_reject_count: 0,
+            invalid_adapter_reject_count: 0,
+            already_executed_reject_count: 0,
+            closed_execution_reject_count: 0,
+            closed_host_replacement_reject_count: 0,
+            closed_hook_reject_count: 0,
+            closed_backend_matcher_reject_count: 0,
+            last_reason: 0,
+            would_activate_provider: 1,
+            would_call_provider: 1,
+            would_execute_provider_api: 1,
+            would_call_external_provider_api: 1,
+            would_replace_host_allocator: 0,
+            would_install_hook: 0,
+            would_add_backend_matcher: 0,
+            would_run_thread: 0
+        }
+        return report
+    }
+
+    main(args) {
+        local owner = new HakoAllocProviderCallExternalApiAdapterPreflight()
+        local inventory = Main.makeInventory()
+        local accepted = owner.preflightProviderCallExternalApiAdapter(inventory)
+
+        local missing_inventory = new HakoAllocProviderCallExternalApiAdapterInventoryReport()
+        local missing = owner.preflightProviderCallExternalApiAdapter(missing_inventory)
+
+        local rejected_inventory = Main.makeInventory()
+        rejected_inventory.accepted = 0
+        rejected_inventory.reason = 2
+        local rejected = owner.preflightProviderCallExternalApiAdapter(rejected_inventory)
+
+        local missing_adapter = Main.makeInventory()
+        missing_adapter.external_provider_adapter_present = 0
+        local missing_adapter_result = owner.preflightProviderCallExternalApiAdapter(missing_adapter)
+
+        local invalid_adapter = Main.makeInventory()
+        invalid_adapter.external_provider_adapter_valid = 0
+        local invalid_adapter_result = owner.preflightProviderCallExternalApiAdapter(invalid_adapter)
+
+        local already_executed = Main.makeInventory()
+        already_executed.external_provider_api_call_executed = 1
+        local already_executed_result = owner.preflightProviderCallExternalApiAdapter(already_executed)
+
+        local execution_closed = Main.makeInventory()
+        execution_closed.would_call_external_provider_api = 0
+        local execution_closed_result = owner.preflightProviderCallExternalApiAdapter(execution_closed)
+
+        local host_leak = Main.makeInventory()
+        host_leak.would_replace_host_allocator = 1
+        local host_rejected = owner.preflightProviderCallExternalApiAdapter(host_leak)
+
+        local hook_leak = Main.makeInventory()
+        hook_leak.would_install_hook = 1
+        local hook_rejected = owner.preflightProviderCallExternalApiAdapter(hook_leak)
+
+        local matcher_leak = Main.makeInventory()
+        matcher_leak.would_add_backend_matcher = 1
+        local matcher_rejected = owner.preflightProviderCallExternalApiAdapter(matcher_leak)
+
+        local ok = check "mimap402a provider call external api adapter preflight" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "preflight present": accepted.adapter_preflight_present == 1
+            "inventory present": accepted.adapter_inventory_present == 1
+            "inventory accepted": accepted.adapter_inventory_accepted == 1
+            "adapter present": accepted.external_provider_adapter_present == 1
+            "adapter valid": accepted.external_provider_adapter_valid == 1
+            "external ready": accepted.external_provider_api_call_ready == 1
+            "preflight ready": accepted.external_provider_api_preflight_ready == 1
+            "external not executed": accepted.external_provider_api_call_executed == 0
+            "host inactive": accepted.host_replacement_inactive == 1
+            "hooks inactive": accepted.hooks_inactive == 1
+            "matcher inactive": accepted.backend_matcher_inactive == 1
+            "owner count": owner.preflight_count == 10
+            "owner accepted": owner.accepted_count == 1
+            "owner rejected": owner.reject_count == 9
+            "owner missing": owner.missing_inventory_reject_count == 1
+            "owner rejected inventory": owner.rejected_inventory_reject_count == 1
+            "owner missing adapter": owner.missing_adapter_reject_count == 1
+            "owner invalid adapter": owner.invalid_adapter_reject_count == 1
+            "owner already executed": owner.already_executed_reject_count == 1
+            "owner execution closed": owner.closed_execution_reject_count == 1
+            "owner host closed": owner.closed_host_replacement_reject_count == 1
+            "owner hook closed": owner.closed_hook_reject_count == 1
+            "owner matcher closed": owner.closed_backend_matcher_reject_count == 1
+            "last reason": owner.last_reason == 9
+            "missing reason": missing.reason == 1
+            "rejected reason": rejected.reason == 2
+            "missing adapter reason": missing_adapter_result.reason == 3
+            "invalid adapter reason": invalid_adapter_result.reason == 4
+            "already executed reason": already_executed_result.reason == 5
+            "execution reason": execution_closed_result.reason == 6
+            "host reason": host_rejected.reason == 7
+            "hook reason": hook_rejected.reason == 8
+            "matcher reason": matcher_rejected.reason == 9
+            "would activate": accepted.would_activate_provider == 1
+            "would call": accepted.would_call_provider == 1
+            "would api": accepted.would_execute_provider_api == 1
+            "would external": accepted.would_call_external_provider_api == 1
+            "would host": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-provider-call-external-api-adapter-preflight-proof")
+        print("preflight=" + accepted.accepted + "," + accepted.reason + "," + accepted.adapter_preflight_present + "," + accepted.external_provider_adapter_present + "," + accepted.external_provider_adapter_valid + "," + accepted.external_provider_api_call_ready + "," + accepted.external_provider_api_preflight_ready + "," + accepted.external_provider_api_call_executed)
+        print("inventory=" + accepted.adapter_inventory_present + "," + accepted.adapter_inventory_accepted + "," + accepted.adapter_inventory_reason)
+        print("owner=" + owner.preflight_count + "," + owner.accepted_count + "," + owner.reject_count + "," + owner.missing_inventory_reject_count + "," + owner.rejected_inventory_reject_count + "," + owner.missing_adapter_reject_count + "," + owner.invalid_adapter_reject_count + "," + owner.already_executed_reject_count + "," + owner.closed_execution_reject_count + "," + owner.closed_host_replacement_reject_count + "," + owner.closed_hook_reject_count + "," + owner.closed_backend_matcher_reject_count + "," + owner.last_reason)
+        print("closed=" + accepted.host_replacement_inactive + "," + accepted.hooks_inactive + "," + accepted.backend_matcher_inactive + "," + accepted.would_activate_provider + "," + accepted.would_call_provider + "," + accepted.would_execute_provider_api + "," + accepted.would_call_external_provider_api + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + missing_adapter_result.reason + "," + invalid_adapter_result.reason + "," + already_executed_result.reason + "," + execution_closed_result.reason + "," + host_rejected.reason + "," + hook_rejected.reason + "," + matcher_rejected.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

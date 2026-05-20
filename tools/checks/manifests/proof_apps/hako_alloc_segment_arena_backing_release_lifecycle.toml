@@ -871,3 +871,16 @@ closeout_pack = "provider-call-external-api-adapter"
 exe = "deferred-to-external-provider-api-call-pilot-or-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_provider_call_external_api_adapter_inventory_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_provider_call_external_api_adapter_inventory_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-402A"
+app = "apps/hako-alloc-provider-call-external-api-adapter-preflight-proof"
+label = "provider call external API adapter preflight proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "external-api-adapter-preflight"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "provider-call-external-api-adapter"
+exe = "deferred-to-external-provider-api-call-pilot-or-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_provider_call_external_api_adapter_preflight_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_provider_call_external_api_adapter_preflight_guard.sh", "--level", "L2"]
