@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-21"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-413A landed post real external provider API adapter execution preflight closeout row selection and selected MIMAP-414A. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-414A landed real external provider API call first-pattern plan and selected MIMAP-415A. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-1036-MIMAP-414A-REAL-EXTERNAL-PROVIDER-API-CALL-FIRST-PATTERN-PLAN.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-1037-MIMAP-415A-REAL-EXTERNAL-PROVIDER-API-CALL-FIRST-PATTERN-PILOT.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-1035-MIMAP-413A-POST-REAL-EXTERNAL-PROVIDER-API-ADAPTER-EXECUTION-PREFLIGHT-CLOSEOUT-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1035-MIMAP-413A-POST-REAL-EXTERNAL-PROVIDER-API-ADAPTER-EXECUTION-PREFLIGHT-CLOSEOUT-ROW-SELECTION.md"
-latest_card_summary = "Selected real external provider API call first-pattern plan as the next row."
+latest_card = "293x-1036-MIMAP-414A-REAL-EXTERNAL-PROVIDER-API-CALL-FIRST-PATTERN-PLAN"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1036-MIMAP-414A-REAL-EXTERNAL-PROVIDER-API-CALL-FIRST-PATTERN-PLAN.md"
+latest_card_summary = "Landed the real external provider API call first-pattern plan while actual call execution remains closed in the planning row."
 
-current_blocker_token = "MIMAP-414A"
+current_blocker_token = "MIMAP-415A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-1036 MIMAP-414A real external provider API call first-pattern plan landed; MIMAP-415A selected",
   "293x-1035 MIMAP-413A post real external provider API adapter execution preflight closeout row selection landed; MIMAP-414A selected",
   "293x-1034 MIMAP-412A real external provider API adapter execution preflight closeout landed; MIMAP-413A selected",
   "293x-1033 MIMAP-411A post real external provider API adapter execution preflight row selection landed; MIMAP-412A selected",

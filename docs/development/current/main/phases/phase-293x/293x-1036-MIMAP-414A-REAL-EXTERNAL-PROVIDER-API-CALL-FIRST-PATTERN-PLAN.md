@@ -1,6 +1,6 @@
 # 293x-1036 MIMAP-414A Real External Provider API Call First-Pattern Plan
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -40,6 +40,16 @@ git diff --check
 ## Required Evidence
 
 ```text
+bash tools/checks/k2_wide_hako_alloc_real_external_provider_api_call_first_pattern_plan_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Evidence
+
+- Added the real external provider API call first-pattern plan SSOT.
+- Added the planning guard.
+- Selected the first-pattern pilot as the next row.
+- Kept actual external provider API execution closed in this planning row.
+- Kept host allocator replacement, hooks, backend matcher additions,
+  worker/thread execution, and global allocator install closed.
