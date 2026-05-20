@@ -98,6 +98,67 @@ Recommended profiles:
 | `closeout` | family boundary freeze | L3/L4 |
 | `batch` | named multi-row regression pack | L4 |
 
+## Compressed Model-Only Prerequisite Cadence
+
+Decision: accepted.
+
+From MIMAP-341A onward, model-only prerequisite rows should stop using the old
+default three-row shape unless the row introduces a new backend/compiler/runtime
+contract.
+
+Use this compressed shape:
+
+```text
+model-only prerequisite family:
+  prerequisite inventory + observer diagnostics
+  -> closeout absorbed by the diagnostic/current row or one explicit closeout
+
+remaining related prerequisites:
+  one ledger row may group related requirements
+  -> one closeout row
+
+real execution:
+  open one seam at a time
+```
+
+Allowed compression:
+
+```text
+inventory + observer diagnostics:
+  may be one row when the diagnostic vocabulary is local to the owner
+
+arena release + arena recycle prerequisites:
+  may be one prerequisite pack
+
+segment-map + atomic + OSVM + worker/provider/backend matcher prerequisites:
+  may be tracked in a remaining-prerequisite ledger
+```
+
+Do not compress these boundaries:
+
+```text
+model-only prerequisite with real execution
+raw pointer residence with pointer-derived lookup execution
+arena backing with segment-map mutation
+segment-map mutation with atomic bitmap execution
+provider activation with host/global allocator replacement
+```
+
+Validation:
+
+```text
+model-only owner row:
+  L2
+
+compressed diagnostics+closeout row:
+  L2, with closeout-pack dry-run proving membership
+
+first real seam / backend route / compiler acceptance:
+  L3
+```
+
+Rationale: requirements may be bundled; execution must stay narrow.
+
 ## Active Segment Arena Backing Readiness Family
 
 The segment arena backing readiness rows use a scalar/model daily cadence until

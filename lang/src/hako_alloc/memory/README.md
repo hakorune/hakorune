@@ -403,6 +403,14 @@ Syntax/style contract
   release/recycle behavior, release or recycle real arena backing, mutate
   segment-map state, execute atomic bitmap operations, call OSVM/page-source,
   activate providers, or add backend matchers.
+- `segment_arena_backing_modeled_allocation_ledger_release_recycle_pointer_derived_lookup_prerequisite_diagnostic_box.hako`
+  owns MIMAP-341A. It may observe MIMAP-340A pointer-derived lookup prerequisite
+  facts and publish scalar diagnostic counters/reports. It also closes the
+  model-only pointer-derived lookup prerequisite pack. It must not record new
+  prerequisite rows, perform pointer-derived lookup, execute release/recycle
+  behavior, release or recycle real arena backing, mutate segment-map state,
+  execute atomic bitmap operations, call OSVM/page-source, activate providers,
+  or add backend matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known
