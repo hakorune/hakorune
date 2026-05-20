@@ -1,6 +1,6 @@
 # 293x-1007 MIMAP-385A Post Provider Call Dry-Run Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -31,3 +31,16 @@ additions, and global allocator install remain closed.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Decision Result
+
+Selected:
+
+```text
+MIMAP-386A Provider Call Modeled Open Pilot
+```
+
+This row opens provider-call readiness in model space only. It records that an
+accepted unsupported dry-run can advance to a modeled provider-call-open state,
+but actual provider API calls, host replacement, hooks, backend matcher
+additions, worker/thread execution, and global allocator install remain closed.
