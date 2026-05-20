@@ -1,6 +1,6 @@
 # 293x-971 MIMAP-355A Post Backend Matcher No-Growth Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -30,3 +30,8 @@ remains closed.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Selected MIMAP-356A allocator execution seam summary closeout before
+provider-facing work.

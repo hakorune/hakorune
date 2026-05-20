@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-21"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-354A landed and selected MIMAP-355A; MIMAP-355A is current to choose the next narrow allocator row after backend matcher no-growth closeout. Cross-function Result direct ABI remains closed. Provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-356A landed and selected MIMAP-357A; MIMAP-357A is current to choose the next narrow allocator row after allocator execution seam summary closeout. Cross-function Result direct ABI remains closed. Provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-971-MIMAP-355A-POST-BACKEND-MATCHER-NO-GROWTH-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-973-MIMAP-357A-POST-EXECUTION-SEAM-SUMMARY-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-970-MIMAP-354A-BACKEND-MATCHER-NO-GROWTH-CLOSEOUT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-970-MIMAP-354A-BACKEND-MATCHER-NO-GROWTH-CLOSEOUT.md"
-latest_card_summary = "Landed backend matcher no-growth closeout; MIMAP-355A selected."
+latest_card = "293x-972-MIMAP-356A-EXECUTION-SEAM-SUMMARY-CLOSEOUT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-972-MIMAP-356A-EXECUTION-SEAM-SUMMARY-CLOSEOUT.md"
+latest_card_summary = "Landed allocator execution seam summary closeout; MIMAP-357A selected."
 
-current_blocker_token = "MIMAP-355A"
+current_blocker_token = "MIMAP-357A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-972 MIMAP-356A allocator execution seam summary closeout landed; MIMAP-357A selected",
+  "293x-971 MIMAP-355A post backend matcher no-growth row selection landed; MIMAP-356A selected",
   "293x-970 MIMAP-354A backend matcher no-growth closeout landed; MIMAP-355A selected",
   "293x-969 MIMAP-353A post provider inactive boundary row selection landed; MIMAP-354A selected",
   "293x-968 MIMAP-352A provider inactive boundary inventory landed; MIMAP-353A selected",

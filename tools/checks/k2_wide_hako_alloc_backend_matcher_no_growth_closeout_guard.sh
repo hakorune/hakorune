@@ -23,7 +23,7 @@ guard_require_exec_files "$TAG" "$PROVIDER_GUARD" "$SELF_SCRIPT"
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD_352A" "MIMAP-352A provider inactive boundary must be landed"
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD_353A" "MIMAP-353A row-selection card must be landed"
 guard_expect_in_file "$TAG" 'Status: landed' "$CARD" "MIMAP-354A card must be landed"
-guard_expect_in_file "$TAG" 'Status: selected current' "$NEXT_CARD" "MIMAP-355A must be selected current"
+guard_expect_in_file "$TAG" 'Status: (selected current|landed)' "$NEXT_CARD" "MIMAP-355A must be selected current or landed"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-354A design must be accepted"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-354A guard"
 
