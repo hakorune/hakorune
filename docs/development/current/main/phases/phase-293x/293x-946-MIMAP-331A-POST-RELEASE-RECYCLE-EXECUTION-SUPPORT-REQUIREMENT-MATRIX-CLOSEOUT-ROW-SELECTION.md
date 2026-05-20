@@ -1,6 +1,6 @@
 # 293x-946 MIMAP-331A Post Release/Recycle Execution Support Requirement Matrix Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -44,4 +44,15 @@ a first-pattern execution capability.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Result
+
+MIMAP-331A selected the first model-only prerequisite row after the release /
+recycle execution support requirement matrix closeout.
+
+Selected next:
+
+```text
+MIMAP-332A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Lifecycle Generation Prerequisite Inventory
 ```
