@@ -1,6 +1,6 @@
 # 293x-926 MIMAP-311A Post Release/Recycle Applied-State Summary Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -44,3 +44,19 @@ provider seams closed.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Selected next:
+
+```text
+MIMAP-312A Segment arena backing modeled allocation-ledger release/recycle
+execution readiness matrix inventory
+```
+
+Rationale:
+
+- MIMAP-310A closed the scalar/model applied-state summary pack.
+- The next row should not open real arena backing release/recycle yet.
+- A model-only readiness matrix gives the future execution row a small,
+  explicit precondition surface.
