@@ -1,0 +1,220 @@
+// segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_unsupported_outcome_ledger_box.hako -- MIMAP-320A
+// Responsibility:
+// - record model-only unsupported release/recycle execution outcomes from
+//   accepted execution intent marker facts
+// - make blocked execution explicit before any real release/recycle execution
+//   row opens
+// Non-responsibility:
+// - executing real release/recycle behavior, lifecycle generation, pointer
+//   residence, segment-map mutation, atomic bitmap execution, OSVM calls,
+//   scheduling, providers, or backend shortcuts
+
+record HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionUnsupportedOutcomeLedgerReportFields {
+    accepted: i64
+    reason: i64
+    outcome_present: i64
+    marker_present: i64
+    marker_accepted: i64
+    marker_reason: i64
+    execution_intent_requested: i64
+    execution_supported: i64
+    unsupported_execution_requirement: i64
+    outcome_count: i64
+    accepted_count: i64
+    reject_count: i64
+    unsupported_outcome_count: i64
+    missing_marker_reject_count: i64
+    rejected_marker_reject_count: i64
+    supported_execution_reject_count: i64
+    last_reason: i64
+    report_segment_id: i64
+    report_arena_id: i64
+    report_lifetime_generation: i64
+    report_release_applied_recycle_token: i64
+    report_continuation_token: i64
+    report_application_token: i64
+    report_applied_backing_bytes: usize
+    report_applied_committed_bytes: usize
+    report_remaining_source_bytes: usize
+    would_create_lifecycle_generation: i64
+    would_create_pointer_residence: i64
+    would_lookup_by_pointer: i64
+    would_release_arena_backing: i64
+    would_recycle_arena_backing: i64
+    would_use_segment_map: i64
+    would_execute_atomic_bitmap: i64
+    would_call_osvm: i64
+    would_run_thread: i64
+    would_activate_provider: i64
+    would_add_backend_matcher: i64
+}
+
+box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionUnsupportedOutcomeLedgerReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    outcome_present: i64 = 0
+    marker_present: i64 = 0
+    marker_accepted: i64 = 0
+    marker_reason: i64 = 0
+    execution_intent_requested: i64 = 0
+    execution_supported: i64 = 0
+    unsupported_execution_requirement: i64 = 0
+    outcome_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    unsupported_outcome_count: i64 = 0
+    missing_marker_reject_count: i64 = 0
+    rejected_marker_reject_count: i64 = 0
+    supported_execution_reject_count: i64 = 0
+    last_reason: i64 = 0
+    report_segment_id: i64 = -1
+    report_arena_id: i64 = -1
+    report_lifetime_generation: i64 = 0
+    report_release_applied_recycle_token: i64 = 0
+    report_continuation_token: i64 = 0
+    report_application_token: i64 = 0
+    report_applied_backing_bytes: usize = 0
+    report_applied_committed_bytes: usize = 0
+    report_remaining_source_bytes: usize = 0
+    would_create_lifecycle_generation: i64 = 0
+    would_create_pointer_residence: i64 = 0
+    would_lookup_by_pointer: i64 = 0
+    would_release_arena_backing: i64 = 0
+    would_recycle_arena_backing: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionUnsupportedOutcomeLedger {
+    outcome_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    unsupported_outcome_count: i64 = 0
+    missing_marker_reject_count: i64 = 0
+    rejected_marker_reject_count: i64 = 0
+    supported_execution_reject_count: i64 = 0
+    last_reason: i64 = 0
+    last_segment_id: i64 = -1
+    last_arena_id: i64 = -1
+
+    makeUnsupportedOutcomeLedgerReport(fields: HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionUnsupportedOutcomeLedgerReportFields): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionUnsupportedOutcomeLedgerReport {
+        local result = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionUnsupportedOutcomeLedgerReport()
+        result.accepted = fields.accepted
+        result.reason = fields.reason
+        result.outcome_present = fields.outcome_present
+        result.marker_present = fields.marker_present
+        result.marker_accepted = fields.marker_accepted
+        result.marker_reason = fields.marker_reason
+        result.execution_intent_requested = fields.execution_intent_requested
+        result.execution_supported = fields.execution_supported
+        result.unsupported_execution_requirement = fields.unsupported_execution_requirement
+        result.outcome_count = fields.outcome_count
+        result.accepted_count = fields.accepted_count
+        result.reject_count = fields.reject_count
+        result.unsupported_outcome_count = fields.unsupported_outcome_count
+        result.missing_marker_reject_count = fields.missing_marker_reject_count
+        result.rejected_marker_reject_count = fields.rejected_marker_reject_count
+        result.supported_execution_reject_count = fields.supported_execution_reject_count
+        result.last_reason = fields.last_reason
+        result.report_segment_id = fields.report_segment_id
+        result.report_arena_id = fields.report_arena_id
+        result.report_lifetime_generation = fields.report_lifetime_generation
+        result.report_release_applied_recycle_token = fields.report_release_applied_recycle_token
+        result.report_continuation_token = fields.report_continuation_token
+        result.report_application_token = fields.report_application_token
+        result.report_applied_backing_bytes = fields.report_applied_backing_bytes
+        result.report_applied_committed_bytes = fields.report_applied_committed_bytes
+        result.report_remaining_source_bytes = fields.report_remaining_source_bytes
+        result.would_create_lifecycle_generation = fields.would_create_lifecycle_generation
+        result.would_create_pointer_residence = fields.would_create_pointer_residence
+        result.would_lookup_by_pointer = fields.would_lookup_by_pointer
+        result.would_release_arena_backing = fields.would_release_arena_backing
+        result.would_recycle_arena_backing = fields.would_recycle_arena_backing
+        result.would_use_segment_map = fields.would_use_segment_map
+        result.would_execute_atomic_bitmap = fields.would_execute_atomic_bitmap
+        result.would_call_osvm = fields.would_call_osvm
+        result.would_run_thread = fields.would_run_thread
+        result.would_activate_provider = fields.would_activate_provider
+        result.would_add_backend_matcher = fields.would_add_backend_matcher
+        return result
+    }
+
+    makeReport(accepted, reason, outcome_present, marker_report): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionUnsupportedOutcomeLedgerReport {
+        local fields = HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionUnsupportedOutcomeLedgerReportFields {
+            accepted: accepted,
+            reason: reason,
+            outcome_present: outcome_present,
+            marker_present: marker_report.intent_marker_present,
+            marker_accepted: marker_report.accepted,
+            marker_reason: marker_report.reason,
+            execution_intent_requested: marker_report.execution_intent_requested,
+            execution_supported: marker_report.execution_supported,
+            unsupported_execution_requirement: marker_report.unsupported_execution_requirement,
+            outcome_count: me.outcome_count,
+            accepted_count: me.accepted_count,
+            reject_count: me.reject_count,
+            unsupported_outcome_count: me.unsupported_outcome_count,
+            missing_marker_reject_count: me.missing_marker_reject_count,
+            rejected_marker_reject_count: me.rejected_marker_reject_count,
+            supported_execution_reject_count: me.supported_execution_reject_count,
+            last_reason: me.last_reason,
+            report_segment_id: marker_report.segment_id,
+            report_arena_id: marker_report.arena_id,
+            report_lifetime_generation: marker_report.lifetime_generation,
+            report_release_applied_recycle_token: marker_report.release_applied_recycle_token,
+            report_continuation_token: marker_report.continuation_token,
+            report_application_token: marker_report.application_token,
+            report_applied_backing_bytes: marker_report.applied_backing_bytes,
+            report_applied_committed_bytes: marker_report.applied_committed_bytes,
+            report_remaining_source_bytes: marker_report.remaining_source_bytes,
+            would_create_lifecycle_generation: 0,
+            would_create_pointer_residence: 0,
+            would_lookup_by_pointer: 0,
+            would_release_arena_backing: 0,
+            would_recycle_arena_backing: 0,
+            would_use_segment_map: 0,
+            would_execute_atomic_bitmap: 0,
+            would_call_osvm: 0,
+            would_run_thread: 0,
+            would_activate_provider: 0,
+            would_add_backend_matcher: 0,
+        }
+        return me.makeUnsupportedOutcomeLedgerReport(fields)
+    }
+
+    recordUnsupportedExecutionOutcome(marker_report): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionUnsupportedOutcomeLedgerReport {
+        me.outcome_count += 1
+        me.last_segment_id = marker_report.segment_id
+        me.last_arena_id = marker_report.arena_id
+
+        if marker_report.intent_marker_present != 1 {
+            me.reject_count += 1
+            me.missing_marker_reject_count += 1
+            me.last_reason = 1
+            return me.makeReport(0, 1, 0, marker_report)
+        }
+
+        if marker_report.accepted != 1 {
+            me.reject_count += 1
+            me.rejected_marker_reject_count += 1
+            me.last_reason = 2
+            return me.makeReport(0, 2, 0, marker_report)
+        }
+
+        if marker_report.execution_supported != 0 {
+            me.reject_count += 1
+            me.supported_execution_reject_count += 1
+            me.last_reason = 3
+            return me.makeReport(0, 3, 0, marker_report)
+        }
+
+        me.accepted_count += 1
+        me.unsupported_outcome_count += 1
+        me.last_reason = 0
+        return me.makeReport(1, 0, 1, marker_report)
+    }
+}

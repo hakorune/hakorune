@@ -1,6 +1,6 @@
 # 293x-935 MIMAP-320A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Execution Unsupported Outcome Ledger
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -53,4 +53,15 @@ was observed, execution remains unsupported, and no real substrate was touched.
 bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_unsupported_outcome_ledger_guard.sh --level L2
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Result
+
+MIMAP-320A landed a model-only unsupported release/recycle execution outcome
+ledger from accepted intent marker facts.
+
+Selected next:
+
+```text
+MIMAP-321A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Execution Unsupported Outcome Ledger Diagnostics
 ```
