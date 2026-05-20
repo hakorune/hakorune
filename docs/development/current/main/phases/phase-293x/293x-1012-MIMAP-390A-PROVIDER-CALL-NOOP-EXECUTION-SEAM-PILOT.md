@@ -1,6 +1,6 @@
 # 293x-1012 MIMAP-390A Provider Call No-Op Execution Seam Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -47,3 +47,7 @@ bash tools/checks/k2_wide_hako_alloc_provider_call_noop_execution_seam_pilot_gua
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Landed. MIMAP-391A is selected as the next row-selection card.
