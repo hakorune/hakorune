@@ -624,3 +624,16 @@ closeout_pack = "segment-map-mutation-pilot"
 exe = "deferred-to-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_mutation_pilot_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_map_mutation_pilot_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-348A"
+app = "apps/hako-alloc-atomic-bitmap-pilot-proof"
+label = "atomic bitmap pilot proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "first-real-seam"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "atomic-bitmap-pilot"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_atomic_bitmap_pilot_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_atomic_bitmap_pilot_guard.sh", "--level", "L2"]

@@ -1,0 +1,160 @@
+// hako-alloc-atomic-bitmap-pilot-proof
+// Purpose: prove MIMAP-348A bounded atomic bitmap pilot.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_requirement_matrix_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_remaining_execution_prerequisite_ledger_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleRemainingExecutionPrerequisiteLedger
+using selfhost.hako_alloc.memory.segment_arena_backing_no_escape_pointer_residence_pilot_box as HakoAllocSegmentArenaBackingNoEscapePointerResidencePilot
+using selfhost.hako_alloc.memory.segment_arena_backing_handle_pilot_box as HakoAllocSegmentArenaBackingHandlePilot
+using selfhost.hako_alloc.memory.segment_arena_backing_pointer_derived_lookup_execution_pilot_box as HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilot
+using selfhost.hako_alloc.memory.segment_map_mutation_pilot_box as HakoAllocSegmentMapMutationPilot
+using selfhost.hako_alloc.memory.atomic_bitmap_pilot_box as HakoAllocAtomicBitmapPilot
+
+static box Main {
+    makeMatrixReport(): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixReport()
+        report.accepted = 1
+        report.matrix_present = 1
+        report.gate_present = 1
+        report.gate_accepted = 1
+        report.blocked_by_unsupported_outcome = 1
+        report.requirement_count = 11
+        report.lifecycle_generation_required = 1
+        report.pointer_residence_required = 1
+        report.pointer_lookup_required = 1
+        report.arena_release_required = 1
+        report.arena_recycle_required = 1
+        report.segment_map_required = 1
+        report.atomic_bitmap_required = 1
+        report.osvm_required = 1
+        report.worker_tls_required = 1
+        report.provider_required = 1
+        report.backend_matcher_required = 1
+        report.report_segment_id = 190
+        report.report_arena_id = 19
+        report.report_lifetime_generation = 3
+        report.report_release_applied_recycle_token = 97019005005
+        report.report_continuation_token = 98019005005
+        report.report_application_token = 99019005005
+        report.report_applied_backing_bytes = 4096
+        report.report_applied_committed_bytes = 4096
+        report.report_remaining_source_bytes = 8192
+        return report
+    }
+
+    makeMutation(): HakoAllocSegmentMapMutationPilotReport {
+        local ledger = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleRemainingExecutionPrerequisiteLedger()
+        local ledger_report = ledger.recordRemainingExecutionPrerequisiteLedger(Main.makeMatrixReport())
+        local residence = new HakoAllocSegmentArenaBackingNoEscapePointerResidencePilot()
+        local residence_report = residence.recordNoEscapePointerResidence(ledger_report, 99019005022, 0, 0, 0)
+        local handle = new HakoAllocSegmentArenaBackingHandlePilot()
+        local handle_report = handle.recordArenaBackingHandle(residence_report, 99019005033)
+        local lookup = new HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilot()
+        local lookup_report = lookup.recordPointerDerivedLookup(handle_report, 99019005044)
+        local mutation = new HakoAllocSegmentMapMutationPilot()
+        return mutation.recordSegmentMapMutation(lookup_report, 99019005055)
+    }
+
+    main(args) {
+        local pilot = new HakoAllocAtomicBitmapPilot()
+        local mutation = Main.makeMutation()
+        local bitmap = pilot.recordAtomicBitmapFact(mutation, 99019005066)
+
+        local missing_mutation = new HakoAllocSegmentMapMutationPilotReport()
+        local missing = pilot.recordAtomicBitmapFact(missing_mutation, 99019005066)
+        local rejected_mutation = new HakoAllocSegmentMapMutationPilotReport()
+        rejected_mutation.mutation_present = 1
+        rejected_mutation.accepted = 0
+        rejected_mutation.reason = 2
+        local rejected = pilot.recordAtomicBitmapFact(rejected_mutation, 99019005066)
+        local deref_mutation = new HakoAllocSegmentMapMutationPilotReport()
+        deref_mutation.mutation_present = 1
+        deref_mutation.accepted = 1
+        deref_mutation.mutation_token = 99019005055
+        deref_mutation.mutation_token_valid = 1
+        deref_mutation.non_dereferenceable = 0
+        deref_mutation.would_dereference = 1
+        local deref = pilot.recordAtomicBitmapFact(deref_mutation, 99019005066)
+        local invalid_mutation = new HakoAllocSegmentMapMutationPilotReport()
+        invalid_mutation.mutation_present = 1
+        invalid_mutation.accepted = 1
+        invalid_mutation.non_dereferenceable = 1
+        invalid_mutation.mutation_token = 0
+        invalid_mutation.mutation_token_valid = 0
+        local invalid_m = pilot.recordAtomicBitmapFact(invalid_mutation, 99019005066)
+        local invalid_bitmap = pilot.recordAtomicBitmapFact(mutation, 0)
+        local closed_mutation = new HakoAllocSegmentMapMutationPilotReport()
+        closed_mutation.mutation_present = 1
+        closed_mutation.accepted = 1
+        closed_mutation.non_dereferenceable = 1
+        closed_mutation.mutation_token = 99019005055
+        closed_mutation.mutation_token_valid = 1
+        closed_mutation.would_call_osvm = 1
+        local closed = pilot.recordAtomicBitmapFact(closed_mutation, 99019005066)
+
+        local ok = check "mimap348a atomic bitmap pilot" {
+            "accepted": bitmap.accepted == 1
+            "reason": bitmap.reason == 0
+            "bitmap present": bitmap.bitmap_present == 1
+            "mutation present": bitmap.mutation_present == 1
+            "mutation accepted": bitmap.mutation_accepted == 1
+            "bitmap token": bitmap.bitmap_token == 99019005066
+            "bitmap token valid": bitmap.bitmap_token_valid == 1
+            "mutation token": bitmap.mutation_token == 99019005055
+            "lookup token": bitmap.lookup_result_token == 99019005044
+            "arena handle": bitmap.arena_handle_token == 99019005033
+            "pointer token": bitmap.private_pointer_token == 99019005022
+            "non dereferenceable": bitmap.non_dereferenceable == 1
+            "closed blockers": bitmap.closed_execution_blocker_count == 0
+            "owner count": pilot.bitmap_count == 7
+            "owner accepted": pilot.accepted_count == 1
+            "owner rejected": pilot.reject_count == 6
+            "owner missing": pilot.missing_mutation_reject_count == 1
+            "owner rejected mutation": pilot.rejected_mutation_reject_count == 1
+            "owner deref": pilot.dereference_request_reject_count == 1
+            "owner invalid mutation": pilot.invalid_mutation_reject_count == 1
+            "owner invalid bitmap": pilot.invalid_bitmap_reject_count == 1
+            "owner closed": pilot.closed_execution_reject_count == 1
+            "last reason": pilot.last_reason == 6
+            "segment": bitmap.report_segment_id == 190
+            "arena": bitmap.report_arena_id == 19
+            "recycle token": bitmap.report_release_applied_recycle_token == 97019005005
+            "continuation token": bitmap.report_continuation_token == 98019005005
+            "application token": bitmap.report_application_token == 99019005005
+            "backing bytes": bitmap.report_applied_backing_bytes == 4096
+            "committed bytes": bitmap.report_applied_committed_bytes == 4096
+            "remaining bytes": bitmap.report_remaining_source_bytes == 8192
+            "missing reason": missing.reason == 1
+            "rejected reason": rejected.reason == 2
+            "deref reason": deref.reason == 3
+            "invalid mutation reason": invalid_m.reason == 4
+            "invalid bitmap reason": invalid_bitmap.reason == 5
+            "closed reason": closed.reason == 6
+            "inactive deref": bitmap.would_dereference == 0
+            "inactive release": bitmap.would_release_arena_backing == 0
+            "inactive recycle": bitmap.would_recycle_arena_backing == 0
+            "active segment map": bitmap.would_mutate_segment_map == 1
+            "active atomic bitmap": bitmap.would_execute_atomic_bitmap == 1
+            "inactive osvm": bitmap.would_call_osvm == 0
+            "inactive thread": bitmap.would_run_thread == 0
+            "inactive provider": bitmap.would_activate_provider == 0
+            "inactive matcher": bitmap.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-atomic-bitmap-pilot-proof")
+        print("bitmap=" + bitmap.accepted + "," + bitmap.reason + "," + bitmap.bitmap_present + "," + bitmap.mutation_present + "," + bitmap.mutation_accepted + "," + bitmap.bitmap_token + "," + bitmap.bitmap_token_valid + "," + bitmap.mutation_token + "," + bitmap.lookup_result_token + "," + bitmap.arena_handle_token + "," + bitmap.private_pointer_token)
+        print("owner=" + pilot.bitmap_count + "," + pilot.accepted_count + "," + pilot.reject_count + "," + pilot.missing_mutation_reject_count + "," + pilot.rejected_mutation_reject_count + "," + pilot.dereference_request_reject_count + "," + pilot.invalid_mutation_reject_count + "," + pilot.invalid_bitmap_reject_count + "," + pilot.closed_execution_reject_count + "," + pilot.last_reason)
+        print("tokens=" + bitmap.report_release_applied_recycle_token + "," + bitmap.report_continuation_token + "," + bitmap.report_application_token)
+        print("bytes=" + bitmap.report_applied_backing_bytes + "," + bitmap.report_applied_committed_bytes + "," + bitmap.report_remaining_source_bytes)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + deref.reason + "," + invalid_m.reason + "," + invalid_bitmap.reason + "," + closed.reason)
+        print("closed=" + bitmap.would_dereference + "," + bitmap.would_release_arena_backing + "," + bitmap.would_recycle_arena_backing + "," + bitmap.would_mutate_segment_map + "," + bitmap.would_execute_atomic_bitmap + "," + bitmap.would_call_osvm + "," + bitmap.would_run_thread + "," + bitmap.would_activate_provider + "," + bitmap.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

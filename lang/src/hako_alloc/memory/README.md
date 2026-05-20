@@ -445,6 +445,11 @@ Syntax/style contract
   recycle real arena backing, execute atomic bitmap operations, call
   OSVM/page-source, run worker/TLS behavior, activate providers, or add backend
   matchers.
+- `atomic_bitmap_pilot_box.hako` owns MIMAP-348A. It may record one bounded
+  atomic bitmap fact from an accepted segment-map mutation report. It must not
+  use real atomic primitives, dereference, execute release/recycle behavior,
+  release or recycle real arena backing, call OSVM/page-source, run worker/TLS
+  behavior, activate providers, or add backend matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known

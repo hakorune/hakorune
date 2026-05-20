@@ -1,6 +1,6 @@
 # 293x-963 MIMAP-348A Atomic Bitmap Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -41,3 +41,10 @@ bash tools/checks/k2_wide_hako_alloc_atomic_bitmap_pilot_guard.sh --level L2
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Landed the atomic bitmap pilot with L2 VM/MIR evidence. MIMAP-349A is selected
+to open an OSVM/page-source pilot as the next narrow seam while keeping
+dereference, real arena backing release/recycle, worker/TLS, provider
+activation, and backend matcher execution closed.

@@ -821,7 +821,8 @@ FST:
 | `MIMAP-345A` | landed | Arena backing handle pilot. | selected MIMAP-346A |
 | `MIMAP-346A` | landed | Pointer-derived lookup execution pilot. | selected MIMAP-347A |
 | `MIMAP-347A` | landed | Segment-map mutation pilot. | selected MIMAP-348A |
-| `MIMAP-348A` | selected current | Atomic bitmap pilot. | after MIMAP-347A |
+| `MIMAP-348A` | landed | Atomic bitmap pilot. | selected MIMAP-349A |
+| `MIMAP-349A` | selected current | OSVM page-source pilot. | after MIMAP-348A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -830,8 +831,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-348A` opens atomic bitmap execution as the next narrow seam after
-segment-map mutation.
+`MIMAP-349A` opens OSVM/page-source execution as the next narrow seam after
+atomic bitmap.
 
 SSOT:
 
@@ -896,6 +897,7 @@ docs/development/current/main/phases/phase-293x/293x-960-MIMAP-345A-ARENA-BACKIN
 docs/development/current/main/phases/phase-293x/293x-961-MIMAP-346A-POINTER-DERIVED-LOOKUP-EXECUTION-PILOT.md
 docs/development/current/main/phases/phase-293x/293x-962-MIMAP-347A-SEGMENT-MAP-MUTATION-PILOT.md
 docs/development/current/main/phases/phase-293x/293x-963-MIMAP-348A-ATOMIC-BITMAP-PILOT.md
+docs/development/current/main/phases/phase-293x/293x-964-MIMAP-349A-OSVM-PAGE-SOURCE-PILOT.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-remaining-execution-prerequisite-ledger-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-ssot.md
