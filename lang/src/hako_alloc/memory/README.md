@@ -502,6 +502,11 @@ Syntax/style contract
   consume a modeled-open activation report and inventory the provider-call
   capability gate. It must not call provider APIs, install hooks, replace the
   host allocator, run worker/TLS behavior, or add backend matchers.
+- `provider_call_dry_run_unsupported_behavior_box.hako` owns MIMAP-384A. It
+  may consume an accepted provider-call capability gate and record an
+  unsupported provider-call dry-run outcome. It must not call provider APIs,
+  install hooks, replace the host allocator, run worker/TLS behavior, or add
+  backend matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known

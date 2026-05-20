@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-21"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-383A landed provider-call dry-run unsupported behavior selection and selected MIMAP-384A. Cross-function Result direct ABI remains closed. Provider calls, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-384A landed provider-call dry-run unsupported behavior and selected MIMAP-385A. Cross-function Result direct ABI remains closed. Provider calls, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-1006-MIMAP-384A-PROVIDER-CALL-DRY-RUN-UNSUPPORTED-BEHAVIOR.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-1007-MIMAP-385A-POST-PROVIDER-CALL-DRY-RUN-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-1005-MIMAP-383A-POST-PROVIDER-CALL-CAPABILITY-GATE-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1005-MIMAP-383A-POST-PROVIDER-CALL-CAPABILITY-GATE-ROW-SELECTION.md"
-latest_card_summary = "Selected MIMAP-384A provider-call dry-run unsupported behavior after capability gate inventory."
+latest_card = "293x-1006-MIMAP-384A-PROVIDER-CALL-DRY-RUN-UNSUPPORTED-BEHAVIOR"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1006-MIMAP-384A-PROVIDER-CALL-DRY-RUN-UNSUPPORTED-BEHAVIOR.md"
+latest_card_summary = "Recorded unsupported provider-call dry-run outcome after accepted provider-call capability gate while keeping provider API calls closed."
 
-current_blocker_token = "MIMAP-384A"
+current_blocker_token = "MIMAP-385A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-1006 MIMAP-384A provider-call dry-run unsupported behavior landed; MIMAP-385A selected",
   "293x-1005 MIMAP-383A provider-call dry-run unsupported behavior selection landed; MIMAP-384A selected",
   "293x-1004 MIMAP-382A provider-call capability gate inventory landed; MIMAP-383A selected",
   "293x-1002 MIMAP-381A provider-call capability gate inventory selection landed; MIMAP-382A selected",

@@ -1,6 +1,6 @@
 # 293x-1006 MIMAP-384A Provider Call Dry-Run Unsupported Behavior
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -47,3 +47,7 @@ bash tools/checks/k2_wide_hako_alloc_provider_call_dry_run_unsupported_behavior_
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Landed. MIMAP-385A is selected as the next row-selection card.

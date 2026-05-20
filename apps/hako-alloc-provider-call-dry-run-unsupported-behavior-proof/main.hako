@@ -1,0 +1,110 @@
+// hako-alloc-provider-call-dry-run-unsupported-behavior-proof
+// Purpose: prove MIMAP-384A provider-call dry-run unsupported behavior.
+
+using selfhost.hako_alloc.memory.provider_call_capability_gate_inventory_box as HakoAllocProviderCallCapabilityGateInventory
+using selfhost.hako_alloc.memory.provider_call_dry_run_unsupported_behavior_box as HakoAllocProviderCallDryRunUnsupportedBehavior
+
+static box Main {
+    makeGate(): HakoAllocProviderCallCapabilityGateInventoryReport {
+        local report = new HakoAllocProviderCallCapabilityGateInventoryReport {
+            accepted: 1,
+            reason: 0,
+            gate_present: 1,
+            modeled_open_present: 1,
+            modeled_open_accepted: 1,
+            provider_activation_modeled_open: 1,
+            provider_activation_model_active: 1,
+            provider_activation_inactive: 0,
+            provider_call_capability_present: 1,
+            provider_call_capability_valid: 1,
+            provider_call_execution_closed: 1,
+            provider_call_inactive: 1,
+            host_replacement_inactive: 1,
+            hooks_inactive: 1,
+            backend_matcher_inactive: 1,
+            inventory_count: 1,
+            accepted_count: 1,
+            reject_count: 0,
+            missing_model_reject_count: 0,
+            inactive_model_reject_count: 0,
+            missing_capability_reject_count: 0,
+            invalid_capability_reject_count: 0,
+            closed_execution_reject_count: 0,
+            last_reason: 0,
+            would_activate_provider: 1,
+            would_call_provider: 0,
+            would_replace_host_allocator: 0,
+            would_install_hook: 0,
+            would_add_backend_matcher: 0,
+            would_run_thread: 0
+        }
+        return report
+    }
+
+    main(args) {
+        local owner = new HakoAllocProviderCallDryRunUnsupportedBehavior()
+        local gate = Main.makeGate()
+        local accepted = owner.dryRunProviderCallUnsupported(gate)
+
+        local missing_gate = new HakoAllocProviderCallCapabilityGateInventoryReport()
+        local missing = owner.dryRunProviderCallUnsupported(missing_gate)
+
+        local rejected_gate = Main.makeGate()
+        rejected_gate.accepted = 0
+        rejected_gate.reason = 4
+        local rejected = owner.dryRunProviderCallUnsupported(rejected_gate)
+
+        local call_leak = Main.makeGate()
+        call_leak.would_call_provider = 1
+        local closed = owner.dryRunProviderCallUnsupported(call_leak)
+
+        local ok = check "mimap384a provider call dry-run unsupported behavior" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "attempted": accepted.dry_run_attempted == 1
+            "outcome": accepted.unsupported_outcome_present == 1
+            "gate present": accepted.gate_present == 1
+            "gate accepted": accepted.gate_accepted == 1
+            "capability present": accepted.provider_call_capability_present == 1
+            "capability valid": accepted.provider_call_capability_valid == 1
+            "unsupported": accepted.provider_call_unsupported == 1
+            "call inactive": accepted.provider_call_inactive == 1
+            "execution closed": accepted.provider_call_execution_closed == 1
+            "host inactive": accepted.host_replacement_inactive == 1
+            "hooks inactive": accepted.hooks_inactive == 1
+            "matcher inactive": accepted.backend_matcher_inactive == 1
+            "owner count": owner.dry_run_count == 4
+            "owner accepted": owner.accepted_count == 1
+            "owner rejected": owner.reject_count == 3
+            "owner missing": owner.missing_gate_reject_count == 1
+            "owner rejected gate": owner.rejected_gate_reject_count == 1
+            "owner closed": owner.closed_execution_reject_count == 1
+            "last reason": owner.last_reason == 3
+            "missing reason": missing.reason == 1
+            "rejected reason": rejected.reason == 2
+            "closed reason": closed.reason == 3
+            "would activate": accepted.would_activate_provider == 1
+            "would call": accepted.would_call_provider == 0
+            "would host": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-provider-call-dry-run-unsupported-behavior-proof")
+        print("dryrun=" + accepted.accepted + "," + accepted.reason + "," + accepted.dry_run_attempted + "," + accepted.unsupported_outcome_present + "," + accepted.provider_call_unsupported + "," + accepted.provider_call_inactive + "," + accepted.provider_call_execution_closed)
+        print("gate=" + accepted.gate_present + "," + accepted.gate_accepted + "," + accepted.gate_reason + "," + accepted.provider_call_capability_present + "," + accepted.provider_call_capability_valid)
+        print("owner=" + owner.dry_run_count + "," + owner.accepted_count + "," + owner.reject_count + "," + owner.missing_gate_reject_count + "," + owner.rejected_gate_reject_count + "," + owner.closed_execution_reject_count + "," + owner.last_reason)
+        print("closed=" + accepted.host_replacement_inactive + "," + accepted.hooks_inactive + "," + accepted.backend_matcher_inactive + "," + accepted.would_activate_provider + "," + accepted.would_call_provider + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + closed.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

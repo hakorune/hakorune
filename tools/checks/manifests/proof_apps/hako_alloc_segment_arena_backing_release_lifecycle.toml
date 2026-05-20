@@ -780,3 +780,16 @@ closeout_pack = "provider-call-capability-gate"
 exe = "deferred-to-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_provider_call_capability_gate_inventory_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_provider_call_capability_gate_inventory_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-384A"
+app = "apps/hako-alloc-provider-call-dry-run-unsupported-behavior-proof"
+label = "provider call dry-run unsupported behavior proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "dry-run-unsupported-behavior"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "provider-call-dry-run"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_provider_call_dry_run_unsupported_behavior_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_provider_call_dry_run_unsupported_behavior_guard.sh", "--level", "L2"]
