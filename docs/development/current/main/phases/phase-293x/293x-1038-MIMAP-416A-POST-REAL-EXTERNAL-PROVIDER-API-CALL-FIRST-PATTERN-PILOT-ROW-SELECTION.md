@@ -1,6 +1,6 @@
 # 293x-1038 MIMAP-416A Post Real External Provider API Call First-Pattern Pilot Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -41,3 +41,10 @@ MIMAP-417A Real External Provider API Call First-Pattern Closeout
 
 The next row should close out the first-pattern pilot before any host
 replacement, hook, backend matcher, or global allocator install row is opened.
+
+## Landed Evidence
+
+- Selected the real external provider API call first-pattern closeout as the
+  next row.
+- Kept host allocator replacement, hooks, backend matcher additions,
+  worker/thread execution, and global allocator install closed.
