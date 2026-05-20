@@ -1,6 +1,6 @@
 # 293x-954 MIMAP-339A Post Release/Recycle Pointer Residence Prerequisite Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -44,4 +44,15 @@ real release/recycle execution or pointer-derived lookup.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Result
+
+MIMAP-339A selected the next model-only prerequisite row after pointer residence
+prerequisite closeout.
+
+Selected next:
+
+```text
+MIMAP-340A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Pointer-Derived Lookup Prerequisite Inventory
 ```
