@@ -1,6 +1,6 @@
 # 293x-1016 MIMAP-394A Provider Call Real API First-Pattern Plan
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -32,3 +32,7 @@ backend matchers, run worker/TLS behavior, or install `#[global_allocator]`.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Landed. MIMAP-395A is selected as the next row-selection card.
