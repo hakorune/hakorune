@@ -1,6 +1,6 @@
 # 293x-911 MIMAP-308A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Applied-State Summary Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -54,3 +54,13 @@ bash tools/checks/run_proof_app.sh --only MIMAP-308A
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Landed with:
+
+- `HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummaryInventory`
+- MIMAP-308A proof app
+- L2 guard and proof manifest entry
+
+Selected next row: MIMAP-309A applied-state summary diagnostics.

@@ -325,3 +325,16 @@ closeout_pack = "segment-arena-backing-modeled-allocation-ledger-release-recycle
 exe = "deferred-to-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_continuation_application_bridge_diagnostics_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_continuation_application_bridge_diagnostics_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-308A"
+app = "apps/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-applied-state-summary-proof"
+label = "segment arena backing modeled allocation-ledger release/recycle applied-state summary proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "inventory"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "segment-arena-backing-modeled-allocation-ledger-release-recycle-applied-state-summary"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_applied_state_summary_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_applied_state_summary_guard.sh", "--level", "L2"]
