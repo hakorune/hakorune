@@ -293,7 +293,7 @@ hako.intrin.popcnt_i64
 hako.intrin.prefetch
 ```
 
-This remains separate from `@rune Hint(inline)`. Intrinsic route selection must
+This remains separate from `@rune Inline(prefer)`. Intrinsic route selection must
 flow through a registry/route fact, not through source-name matching in a
 backend.
 

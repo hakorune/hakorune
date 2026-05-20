@@ -10,6 +10,7 @@ Current canonical surface:
 - Practical syntax summary: reference/language/quick-reference.md
 - Type and enum surface: reference/language/types.md
 - Option / Result enum prelude: reference/language/option.md
+- Rune declaration metadata: reference/language/runes.md
 - Low-level language surface: reference/language/low-level-capabilities.md
 - Delegation and no-inheritance rule: reference/language/field-visibility-and-delegation.md
 
@@ -50,7 +51,7 @@ Type system (SSOT)
 - Static const table declarations, reads, and narrow integer initializer const expressions are live for the M11b `u16[]` row. Const fn remains reserved. See reference/language/types.md “Static Const Tables (M11b live)” and `docs/development/current/main/design/static-const-table-syntax-ssot.md`.
 - Low-level allocator-grade `.hako` code uses explicit capability modules,
   static tables, and Rune metadata rather than broad `unsafe` blocks. See:
-  reference/language/low-level-capabilities.md.
+  reference/language/low-level-capabilities.md and reference/language/runes.md.
 
 Grammar (EBNF)
 - See: reference/language/EBNF.md — living grammar reference used by parser

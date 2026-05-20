@@ -473,7 +473,7 @@ Hotspot は次の分類で読む。
 
 - env probe は leaf の形を変えずに固定費を落としやすい
 - dispatch / registry は多くの benchmark に横断で効く
-- language-level optimization metadata (`@rune Hint(inline)`, plus compat aliases) is not backend-active in the current wave; only leaf-local native hints count here
+- language-level optimization metadata (`@rune Inline(prefer)`, plus compat aliases) is not backend-active in the current wave; only leaf-local native hints count here
 
 ## Current Wave Snapshot
 

@@ -10,7 +10,7 @@ Design SSOT note (Scope Exit Semantics):
 - `throw` is prohibited in surface language design.
 - parser は `throw` を常時 reject する（`[freeze:contract][parser/throw_reserved]`）。
 - DropScope surface (`fini {}` / `local ... fini {}`) is part of Stage‑3 parser syntax.
-- Rune declaration metadata is active on both Rust and `.hako` parsers; canonical syntax is `@rune`, optimization families (`Hint` / `Contract` / `Lowering` / `Profile` / `IntrinsicCandidate`) are part of the same metadata lane, and legacy `@hint` / `@contract` / `@intrinsic_candidate` remain compat aliases. Program(JSON v0) is not widened for Rune metadata.
+- Rune declaration metadata is active on both Rust and `.hako` parsers; canonical syntax is `@rune`, optimization families (`Inline` / `Hint` / `Contract` / `Profile` / `IntrinsicCandidate`) are part of the same metadata lane, and legacy `@hint` / `@contract` / `@intrinsic_candidate` plus compat `Lowering(inline_required)` remain migration aliases. Program(JSON v0) is not widened for Rune metadata.
 - SSOT:
   - `docs/development/current/main/design/rune-v0-contract-rollout-ssot.md`
   - `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`
@@ -859,6 +859,8 @@ metadata_target    := box_decl
 
 Notes
 - canonical docs surface is `@rune`.
+- canonical inline request surface is `Inline(prefer|avoid|required)`;
+  `Hint(inline/noinline)` and `Lowering(inline_required)` are compat spellings.
 - dotted rune identifiers such as `allocator.fast` are accepted as a single
   metadata argument; profile names are still expanded to primitive MIR facts and
   must not become backend-readable route selectors.

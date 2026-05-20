@@ -83,6 +83,19 @@ Collections and failure values
 - `guard let Result::Ok(v) = res else { ... }` — narrow enum-variant guard sugar
 - `Result.Ok(v)` is not canonical; dot is object/member access
 
+Declaration metadata
+- `@rune ...` attaches declaration-local metadata. It is not statement syntax.
+- Canonical inline metadata:
+  - `@rune Inline(prefer)` — best-effort inline request.
+  - `@rune Inline(avoid)` — avoid soft inline.
+  - `@rune Inline(required)` — fail-fast required inline; pair with
+    `@rune Contract(no_alloc)` and `@rune Contract(no_safepoint)`.
+- `@rune Hint(hot)` / `@rune Hint(cold)` remain advisory tuning metadata.
+- Compat spellings such as `@hint(inline)` and
+  `@rune Lowering(inline_required)` are accepted during migration but are not
+  the preferred source surface.
+- See: reference/language/runes.md.
+
 Using / SSOT
 - Dev/CI: file‑based `using` allowed for convenience.
 - Prod: `nyash.toml` only. Duplicate imports or alias rebinding is an error.

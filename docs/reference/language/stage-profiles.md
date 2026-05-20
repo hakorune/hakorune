@@ -128,7 +128,7 @@ Stage1 support in the matrix means one of:
 | `Array<T>` and `[]` literals | type annotation and literal-shape transport | live typed-context arrays, method contract, direct element checks | `local xs = []` and unresolved generic contexts fail fast. |
 | `PackedArray<T>` | type metadata transport | guarded CorePlan facts and no-fallback contract | Source `PackedArray<Record>` rows are still narrow/metadata-first; no silent fallback to ordinary `ArrayBox`. |
 | fixed-width names `i8..u64`, `isize`, `usize` | annotation text transport and exact const metadata | guarded metadata/verifier rows; runtime remains current dynamic `Integer(i64)` lane | Backends must not infer exact unsigned runtime behavior from the spelling alone. |
-| `@rune ...` declaration metadata | live parser metadata transport | live for current verifier/inline/profile fact rows | Backend route selection must not read profile names directly. |
+| `@rune ...` declaration metadata | live parser metadata transport | live for current verifier/inline/profile fact rows | Canonical inline requests are `Inline(prefer|avoid|required)`. Backend route selection must not read profile names directly. |
 | `uses capability` | transport | pending broad capability checker; some substrate route guards are live | `uses` is the MVP capability declaration surface. `cap` blocks are deferred. |
 | `requires`, `ensures`, `invariant` | transport | pending runtime-check insertion / verifier discharge | Stage0 must not insert or discharge contracts. |
 | `transition Enum::A -> Enum::B by method` | transport | pending transition legality checker | `state` keyword is not canonical MVP syntax. |
