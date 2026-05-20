@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-20"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-327A landed and selected MIMAP-328A; MIMAP-328A is current to add a model-only release/recycle execution support requirement matrix inventory. Cross-function Result direct ABI remains closed. Real lifecycle generation, raw pointer residence, pointer-derived lookup, real arena backing release/recycle, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-328A landed and selected MIMAP-329A; MIMAP-329A is current to add observer-only diagnostics for the release/recycle execution support requirement matrix. Cross-function Result direct ABI remains closed. Real lifecycle generation, raw pointer residence, pointer-derived lookup, real arena backing release/recycle, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-943-MIMAP-328A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-SUPPORT-REQUIREMENT-MATRIX-INVENTORY.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-944-MIMAP-329A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-SUPPORT-REQUIREMENT-MATRIX-DIAGNOSTICS.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-942-MIMAP-327A-POST-RELEASE-RECYCLE-EXECUTION-SUPPORT-GATE-CLOSEOUT-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-942-MIMAP-327A-POST-RELEASE-RECYCLE-EXECUTION-SUPPORT-GATE-CLOSEOUT-ROW-SELECTION.md"
-latest_card_summary = "Landed post support gate closeout row selection; MIMAP-328A selected."
+latest_card = "293x-943-MIMAP-328A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-SUPPORT-REQUIREMENT-MATRIX-INVENTORY"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-943-MIMAP-328A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-SUPPORT-REQUIREMENT-MATRIX-INVENTORY.md"
+latest_card_summary = "Landed release/recycle execution support requirement matrix inventory; MIMAP-329A selected."
 
-current_blocker_token = "MIMAP-328A"
+current_blocker_token = "MIMAP-329A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-943 MIMAP-328A segment arena backing modeled allocation-ledger release/recycle execution support requirement matrix inventory landed; MIMAP-329A selected",
   "293x-942 MIMAP-327A post release/recycle execution support gate closeout row selection landed; MIMAP-328A selected",
   "293x-941 MIMAP-326A segment arena backing modeled allocation-ledger release/recycle execution support gate closeout landed; MIMAP-327A selected",
   "293x-940 MIMAP-325A segment arena backing modeled allocation-ledger release/recycle execution support gate diagnostics landed; MIMAP-326A selected",

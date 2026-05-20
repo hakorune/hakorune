@@ -1,0 +1,142 @@
+// hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-support-requirement-matrix-proof
+// Purpose: prove MIMAP-328A model-only support requirement matrix.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycle
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_lifecycle_continuation_bridge_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridge
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_continuation_application_bridge_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridge
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_applied_state_summary_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummary
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_readiness_matrix_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_intent_marker_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionIntentMarker
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_unsupported_outcome_ledger_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionUnsupportedOutcomeLedger
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_gate_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportGate
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_requirement_matrix_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrix
+
+static box Main {
+    makeRecycleReport(segment_id: i64, arena_id: i64, recycle_token: i64): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleReport()
+        report.accepted = 1
+        report.reason = 0
+        report.release_applied_recycle_present = 1
+        report.modeled_release_applied_recycle_present = 1
+        report.row_index = 1
+        report.segment_id = segment_id
+        report.arena_id = arena_id
+        report.lifetime_generation = 3
+        report.release_apply_token = 96019005005
+        report.release_applied_recycle_token = recycle_token
+        report.applied_backing_bytes = 4096
+        report.applied_committed_bytes = 4096
+        report.remaining_source_bytes = 8192
+        return report
+    }
+
+    main(args) {
+        local continuation_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridgeInventory()
+        local application_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridgeInventory()
+        local summary_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummaryInventory()
+        local matrix_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrixInventory()
+        local marker_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionIntentMarker()
+        local outcome_ledger = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionUnsupportedOutcomeLedger()
+        local gate_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportGateInventory()
+        local requirement_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixInventory()
+        local recycle_report = Main.makeRecycleReport(190, 19, 97019005005)
+
+        local continued = continuation_inventory.recordLifecycleContinuation(recycle_report, 98019005005)
+        local applied = application_inventory.recordContinuationApplication(continued, 99019005005)
+        local summary = summary_inventory.summarizeAppliedState(applied)
+        local readiness = matrix_inventory.recordExecutionReadinessMatrix(summary, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local marker = marker_inventory.recordExecutionIntentMarker(readiness, 1)
+        local outcome = outcome_ledger.recordUnsupportedExecutionOutcome(marker)
+        local gate = gate_inventory.recordExecutionSupportGate(outcome)
+        local requirements = requirement_inventory.recordExecutionSupportRequirementMatrix(gate)
+
+        local missing_gate = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportGateReport()
+        missing_gate.gate_present = 0
+        local missing = requirement_inventory.recordExecutionSupportRequirementMatrix(missing_gate)
+
+        local rejected_gate = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportGateReport()
+        rejected_gate.gate_present = 1
+        rejected_gate.accepted = 0
+        rejected_gate.reason = 2
+        local rejected = requirement_inventory.recordExecutionSupportRequirementMatrix(rejected_gate)
+
+        local open_gate = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportGateReport()
+        open_gate.gate_present = 1
+        open_gate.accepted = 1
+        open_gate.execution_gate_open = 1
+        local open = requirement_inventory.recordExecutionSupportRequirementMatrix(open_gate)
+
+        local ok = check "mimap328a segment arena backing modeled allocation ledger release recycle execution support requirement matrix" {
+            "accepted": requirements.accepted == 1
+            "reason": requirements.reason == 0
+            "present": requirements.matrix_present == 1
+            "gate present": requirements.gate_present == 1
+            "gate accepted": requirements.gate_accepted == 1
+            "gate closed": requirements.execution_gate_open == 0
+            "blocked": requirements.blocked_by_unsupported_outcome == 1
+            "requirements unsatisfied": requirements.requirements_satisfied == 0
+            "requirement count": requirements.requirement_count == 11
+            "lifecycle required": requirements.lifecycle_generation_required == 1
+            "residence required": requirements.pointer_residence_required == 1
+            "lookup required": requirements.pointer_lookup_required == 1
+            "arena release required": requirements.arena_release_required == 1
+            "arena recycle required": requirements.arena_recycle_required == 1
+            "segment map required": requirements.segment_map_required == 1
+            "atomic required": requirements.atomic_bitmap_required == 1
+            "osvm required": requirements.osvm_required == 1
+            "worker tls required": requirements.worker_tls_required == 1
+            "provider required": requirements.provider_required == 1
+            "backend matcher required": requirements.backend_matcher_required == 1
+            "segment": requirements.report_segment_id == 190
+            "arena": requirements.report_arena_id == 19
+            "recycle token": requirements.report_release_applied_recycle_token == 97019005005
+            "continuation token": requirements.report_continuation_token == 98019005005
+            "application token": requirements.report_application_token == 99019005005
+            "backing bytes": requirements.report_applied_backing_bytes == 4096
+            "committed bytes": requirements.report_applied_committed_bytes == 4096
+            "remaining bytes": requirements.report_remaining_source_bytes == 8192
+            "owner matrix count": requirement_inventory.matrix_count == 4
+            "owner accepted": requirement_inventory.accepted_count == 1
+            "owner rejected": requirement_inventory.reject_count == 3
+            "owner missing gate": requirement_inventory.missing_gate_reject_count == 1
+            "owner rejected gate": requirement_inventory.rejected_gate_reject_count == 1
+            "owner open gate": requirement_inventory.open_gate_reject_count == 1
+            "missing rejected": missing.accepted == 0
+            "missing reason": missing.reason == 1
+            "rejected gate": rejected.accepted == 0
+            "rejected reason": rejected.reason == 2
+            "open gate": open.accepted == 0
+            "open reason": open.reason == 3
+            "inactive lifecycle": requirements.would_create_lifecycle_generation == 0
+            "inactive residence": requirements.would_create_pointer_residence == 0
+            "inactive lookup": requirements.would_lookup_by_pointer == 0
+            "inactive release": requirements.would_release_arena_backing == 0
+            "inactive recycle": requirements.would_recycle_arena_backing == 0
+            "inactive segment map": requirements.would_use_segment_map == 0
+            "inactive atomic": requirements.would_execute_atomic_bitmap == 0
+            "inactive osvm": requirements.would_call_osvm == 0
+            "inactive thread": requirements.would_run_thread == 0
+            "inactive provider": requirements.would_activate_provider == 0
+            "inactive matcher": requirements.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-support-requirement-matrix-proof")
+        print("matrix=" + requirements.accepted + "," + requirements.reason + "," + requirements.matrix_present + "," + requirements.requirements_satisfied + "," + requirements.requirement_count)
+        print("gate=" + requirements.gate_present + "," + requirements.gate_accepted + "," + requirements.execution_gate_open + "," + requirements.blocked_by_unsupported_outcome)
+        print("requirements=" + requirements.lifecycle_generation_required + "," + requirements.pointer_residence_required + "," + requirements.pointer_lookup_required + "," + requirements.arena_release_required + "," + requirements.arena_recycle_required + "," + requirements.segment_map_required + "," + requirements.atomic_bitmap_required + "," + requirements.osvm_required + "," + requirements.worker_tls_required + "," + requirements.provider_required + "," + requirements.backend_matcher_required)
+        print("tokens=" + requirements.report_release_applied_recycle_token + "," + requirements.report_continuation_token + "," + requirements.report_application_token)
+        print("bytes=" + requirements.report_applied_backing_bytes + "," + requirements.report_applied_committed_bytes + "," + requirements.report_remaining_source_bytes)
+        print("owner=" + requirement_inventory.matrix_count + "," + requirement_inventory.accepted_count + "," + requirement_inventory.reject_count + "," + requirement_inventory.missing_gate_reject_count + "," + requirement_inventory.rejected_gate_reject_count + "," + requirement_inventory.open_gate_reject_count + "," + requirement_inventory.last_reason)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + open.reason)
+        print("inactive=" + requirements.would_create_lifecycle_generation + "," + requirements.would_create_pointer_residence + "," + requirements.would_lookup_by_pointer + "," + requirements.would_release_arena_backing + "," + requirements.would_recycle_arena_backing + "," + requirements.would_use_segment_map + "," + requirements.would_execute_atomic_bitmap + "," + requirements.would_call_osvm + "," + requirements.would_run_thread + "," + requirements.would_activate_provider + "," + requirements.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
