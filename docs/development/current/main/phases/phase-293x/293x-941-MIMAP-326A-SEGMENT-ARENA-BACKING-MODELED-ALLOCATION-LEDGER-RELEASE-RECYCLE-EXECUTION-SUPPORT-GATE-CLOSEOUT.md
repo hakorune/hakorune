@@ -1,6 +1,6 @@
 # 293x-941 MIMAP-326A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Execution Support Gate Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -46,4 +46,15 @@ execution support boundary.
 bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_gate_closeout_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Result
+
+MIMAP-326A landed the closeout pack for the model-only release/recycle
+execution support gate inventory/diagnostics pair.
+
+Selected next:
+
+```text
+MIMAP-327A Post Release/Recycle Execution Support Gate Closeout Row Selection
 ```

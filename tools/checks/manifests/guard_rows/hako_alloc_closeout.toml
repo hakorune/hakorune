@@ -511,6 +511,17 @@ cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_model
 cmd_l2 = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_unsupported_outcome_ledger_closeout_guard.sh"]
 
 [[rows]]
+id = "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-support-gate-closeout"
+label = "hako_alloc segment arena backing modeled allocation-ledger release/recycle execution support gate closeout guard"
+profiles = ["pilot", "hako-alloc-closeout"]
+row_kind = "closeout"
+validation_profile = "closeout"
+closeout_pack = "segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-support-gate"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_gate_closeout_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/impl/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_gate_closeout_guard.sh"]
+
+[[rows]]
 id = "hako-alloc-segment-allocation-modeled-consume-closeout"
 label = "hako_alloc segment allocation modeled consume closeout guard"
 profiles = ["pilot", "hako-alloc-closeout"]
