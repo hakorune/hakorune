@@ -1,6 +1,6 @@
 # 293x-1002 MIMAP-381A Post Provider Activation Modeled Open Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -31,3 +31,15 @@ remain closed.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Decision Result
+
+Selected:
+
+```text
+MIMAP-382A Provider Call Capability Gate Inventory
+```
+
+This row records the capability gate required before provider API calls can
+execute. It does not call a provider, replace the host allocator, install hooks,
+or add backend matchers.
