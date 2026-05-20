@@ -845,3 +845,16 @@ closeout_pack = "provider-call-real-api-execution-preflight"
 exe = "deferred-to-real-provider-api-call-pilot-or-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_provider_call_real_api_execution_preflight_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_provider_call_real_api_execution_preflight_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-396A"
+app = "apps/hako-alloc-provider-call-real-api-stub-execution-pilot-proof"
+label = "provider call real API stub execution pilot proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "real-api-stub-execution-pilot"
+validation_profile = "scalar-mir"
+first_pattern = true
+closeout_pack = "provider-call-real-api-stub-execution"
+exe = "deferred-to-provider-call-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_provider_call_real_api_stub_execution_pilot_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_provider_call_real_api_stub_execution_pilot_guard.sh", "--level", "L2"]

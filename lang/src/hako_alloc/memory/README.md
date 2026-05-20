@@ -525,6 +525,11 @@ Syntax/style contract
   future real provider API readiness. It must not call provider APIs, install
   hooks, replace the host allocator, run worker/TLS behavior, or add backend
   matchers.
+- `provider_call_real_api_stub_execution_pilot_box.hako` owns MIMAP-396A. It
+  may consume an accepted provider-call real API execution preflight report and
+  record model-space stub provider API call execution evidence. It must not
+  call actual provider APIs, install hooks, replace the host allocator, run
+  worker/TLS behavior, or add backend matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known

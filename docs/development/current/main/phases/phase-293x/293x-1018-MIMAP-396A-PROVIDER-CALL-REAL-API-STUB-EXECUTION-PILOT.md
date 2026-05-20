@@ -1,6 +1,6 @@
 # 293x-1018 MIMAP-396A Provider Call Real API Stub Execution Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -47,3 +47,11 @@ bash tools/checks/k2_wide_hako_alloc_provider_call_real_api_stub_execution_pilot
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Evidence
+
+- Added `provider_call_real_api_stub_execution_pilot_box.hako`.
+- Added the manifest-backed proof app and L2 guard.
+- Recorded stub/model-space provider API call execution evidence while actual
+  provider API calls, host replacement, hooks, backend matcher additions,
+  worker/thread execution, and global allocator install remain closed.
