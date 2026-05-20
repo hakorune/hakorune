@@ -1,6 +1,6 @@
 # 293x-1032 MIMAP-410A Real External Provider API Adapter Execution Preflight
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -46,3 +46,12 @@ bash tools/checks/k2_wide_hako_alloc_real_external_provider_api_adapter_executio
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Evidence
+
+- Added the real external provider API adapter execution preflight owner.
+- Added the preflight proof app and L2 guard.
+- Added the MIMAP-410A design SSOT and proof-app manifest row.
+- Kept actual external provider API execution, host allocator replacement,
+  hooks, backend matcher additions, worker/thread execution, and global
+  allocator install closed.

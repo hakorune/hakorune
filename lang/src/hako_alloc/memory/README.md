@@ -546,6 +546,12 @@ Syntax/style contract
   execution evidence. It must not call actual external provider APIs, install
   hooks, replace the host allocator, run worker/TLS behavior, or add backend
   matchers.
+- `real_external_provider_api_adapter_execution_preflight_box.hako` owns
+  MIMAP-410A. It may consume an accepted external provider API call stub
+  execution report and record readiness for a future real external provider API
+  adapter execution. It must not call actual external provider APIs, install
+  hooks, replace the host allocator, run worker/TLS behavior, or add backend
+  matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known
