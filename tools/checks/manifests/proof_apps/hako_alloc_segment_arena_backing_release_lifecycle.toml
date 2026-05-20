@@ -1015,3 +1015,16 @@ closeout_pack = "allocator-comparison-measurement-plan"
 exe = "deferred-to-comparison-measurement-plan-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_measurement_plan_inventory_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_measurement_plan_inventory_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-434A"
+app = "apps/hako-alloc-allocator-comparison-measurement-plan-diagnostics-proof"
+label = "allocator comparison measurement plan diagnostics proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "allocator-comparison-measurement-plan-diagnostics"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "allocator-comparison-measurement-plan"
+exe = "deferred-to-comparison-measurement-plan-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_measurement_plan_diagnostics_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_measurement_plan_diagnostics_guard.sh", "--level", "L2"]

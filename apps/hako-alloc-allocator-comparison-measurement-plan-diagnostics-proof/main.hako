@@ -1,0 +1,103 @@
+// hako-alloc-allocator-comparison-measurement-plan-diagnostics-proof
+// Purpose: prove MIMAP-434A allocator comparison measurement plan diagnostics.
+
+using selfhost.hako_alloc.memory.allocator_comparison_measurement_plan_inventory_box as HakoAllocAllocatorComparisonMeasurementPlanInventory
+using selfhost.hako_alloc.memory.allocator_comparison_measurement_plan_diagnostic_box as HakoAllocAllocatorComparisonMeasurementPlanDiagnostic
+
+static box Main {
+    main(args) {
+        local inventory_owner = new HakoAllocAllocatorComparisonMeasurementPlanInventory()
+        local diagnostic_owner = new HakoAllocAllocatorComparisonMeasurementPlanDiagnostic()
+
+        local accepted_plan = inventory_owner.inventoryAllocatorComparisonMeasurementPlan(1, 1, 1, 1, 1, 5, 1)
+        local accepted = diagnostic_owner.diagnoseAllocatorComparisonMeasurementPlan(accepted_plan)
+
+        local missing_run_plan = inventory_owner.inventoryAllocatorComparisonMeasurementPlan(0, 1, 1, 1, 1, 5, 1)
+        local missing_run = diagnostic_owner.diagnoseAllocatorComparisonMeasurementPlan(missing_run_plan)
+
+        local missing_warmup_plan = inventory_owner.inventoryAllocatorComparisonMeasurementPlan(1, 0, 1, 1, 1, 5, 1)
+        local missing_warmup = diagnostic_owner.diagnoseAllocatorComparisonMeasurementPlan(missing_warmup_plan)
+
+        local missing_output_plan = inventory_owner.inventoryAllocatorComparisonMeasurementPlan(1, 1, 0, 1, 1, 5, 1)
+        local missing_output = diagnostic_owner.diagnoseAllocatorComparisonMeasurementPlan(missing_output_plan)
+
+        local missing_throughput_plan = inventory_owner.inventoryAllocatorComparisonMeasurementPlan(1, 1, 1, 0, 1, 5, 1)
+        local missing_throughput = diagnostic_owner.diagnoseAllocatorComparisonMeasurementPlan(missing_throughput_plan)
+
+        local missing_memory_plan = inventory_owner.inventoryAllocatorComparisonMeasurementPlan(1, 1, 1, 1, 0, 5, 1)
+        local missing_memory = diagnostic_owner.diagnoseAllocatorComparisonMeasurementPlan(missing_memory_plan)
+
+        local invalid_run_plan = inventory_owner.inventoryAllocatorComparisonMeasurementPlan(1, 1, 1, 1, 1, 0, 1)
+        local invalid_run = diagnostic_owner.diagnoseAllocatorComparisonMeasurementPlan(invalid_run_plan)
+
+        local invalid_warmup_plan = inventory_owner.inventoryAllocatorComparisonMeasurementPlan(1, 1, 1, 1, 1, 5, -1)
+        local invalid_warmup = diagnostic_owner.diagnoseAllocatorComparisonMeasurementPlan(invalid_warmup_plan)
+
+        local leak_plan = inventory_owner.inventoryAllocatorComparisonMeasurementPlan(1, 1, 1, 1, 1, 5, 1)
+        leak_plan.would_run_benchmark = 1
+        local leak = diagnostic_owner.diagnoseAllocatorComparisonMeasurementPlan(leak_plan)
+
+        local ok = check "mimap434a allocator comparison measurement plan diagnostics" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "diagnostic present": accepted.diagnostic_present == 1
+            "measurement inventory": accepted.measurement_plan_inventory_present == 1
+            "measurement ready": accepted.measurement_plan_ready == 1
+            "not blocked": accepted.blocked_measurement_present == 0
+            "owner count": diagnostic_owner.diagnostic_count == 9
+            "owner ready": diagnostic_owner.ready_count == 1
+            "owner blocked": diagnostic_owner.blocked_count == 8
+            "owner missing run": diagnostic_owner.missing_run_count_blocked_count == 1
+            "owner missing warmup": diagnostic_owner.missing_warmup_plan_blocked_count == 1
+            "owner missing output": diagnostic_owner.missing_output_contract_blocked_count == 1
+            "owner missing throughput": diagnostic_owner.missing_throughput_measurement_blocked_count == 1
+            "owner missing memory": diagnostic_owner.missing_memory_usage_measurement_blocked_count == 1
+            "owner invalid run": diagnostic_owner.invalid_run_count_blocked_count == 1
+            "owner invalid warmup": diagnostic_owner.invalid_warmup_count_blocked_count == 1
+            "owner closed": diagnostic_owner.closed_seam_blocked_count == 1
+            "last reason": diagnostic_owner.last_reason == 8
+            "missing run reason": missing_run.reason == 1
+            "missing warmup reason": missing_warmup.reason == 2
+            "missing output reason": missing_output.reason == 3
+            "missing throughput reason": missing_throughput.reason == 4
+            "missing memory reason": missing_memory.reason == 5
+            "invalid run reason": invalid_run.reason == 6
+            "invalid warmup reason": invalid_warmup.reason == 7
+            "leak reason": leak.reason == 8
+            "missing run flag": missing_run.missing_run_count_blocked == 1
+            "missing warmup flag": missing_warmup.missing_warmup_plan_blocked == 1
+            "missing output flag": missing_output.missing_output_contract_blocked == 1
+            "missing throughput flag": missing_throughput.missing_throughput_measurement_blocked == 1
+            "missing memory flag": missing_memory.missing_memory_usage_measurement_blocked == 1
+            "invalid run flag": invalid_run.invalid_run_count_blocked == 1
+            "invalid warmup flag": invalid_warmup.invalid_warmup_count_blocked == 1
+            "closed flag": leak.closed_seam_blocked == 1
+            "benchmark": accepted.benchmark_executed == 0
+            "process replacement": accepted.process_replacement_executed == 0
+            "hook installed": accepted.hook_installed == 0
+            "matcher added": accepted.backend_matcher_added == 0
+            "global allocator": accepted.global_allocator_installed == 0
+            "would benchmark": accepted.would_run_benchmark == 0
+            "would replace": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-allocator-comparison-measurement-plan-diagnostics-proof")
+        print("diag=" + accepted.accepted + "," + accepted.reason + "," + accepted.diagnostic_present + "," + accepted.measurement_plan_inventory_present + "," + accepted.measurement_plan_ready + "," + accepted.blocked_measurement_present)
+        print("owner=" + diagnostic_owner.diagnostic_count + "," + diagnostic_owner.ready_count + "," + diagnostic_owner.blocked_count + "," + diagnostic_owner.missing_run_count_blocked_count + "," + diagnostic_owner.missing_warmup_plan_blocked_count + "," + diagnostic_owner.missing_output_contract_blocked_count + "," + diagnostic_owner.missing_throughput_measurement_blocked_count + "," + diagnostic_owner.missing_memory_usage_measurement_blocked_count + "," + diagnostic_owner.invalid_run_count_blocked_count + "," + diagnostic_owner.invalid_warmup_count_blocked_count + "," + diagnostic_owner.closed_seam_blocked_count + "," + diagnostic_owner.last_reason)
+        print("blocked=" + missing_run.missing_run_count_blocked + "," + missing_warmup.missing_warmup_plan_blocked + "," + missing_output.missing_output_contract_blocked + "," + missing_throughput.missing_throughput_measurement_blocked + "," + missing_memory.missing_memory_usage_measurement_blocked + "," + invalid_run.invalid_run_count_blocked + "," + invalid_warmup.invalid_warmup_count_blocked + "," + leak.closed_seam_blocked)
+        print("closed=" + accepted.benchmark_executed + "," + accepted.process_replacement_executed + "," + accepted.hook_installed + "," + accepted.backend_matcher_added + "," + accepted.global_allocator_installed + "," + accepted.would_run_benchmark + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing_run.reason + "," + missing_warmup.reason + "," + missing_output.reason + "," + missing_throughput.reason + "," + missing_memory.reason + "," + invalid_run.reason + "," + invalid_warmup.reason + "," + leak.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
