@@ -1,6 +1,6 @@
 # 293x-940 MIMAP-325A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Execution Support Gate Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -47,4 +47,15 @@ execution row opens.
 bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_gate_diagnostics_guard.sh --level L2
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Result
+
+MIMAP-325A landed observer-only diagnostics for the model-only release/recycle
+execution support gate.
+
+Selected next:
+
+```text
+MIMAP-326A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Execution Support Gate Closeout
 ```
