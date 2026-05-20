@@ -15,12 +15,14 @@ JOINT="docs/development/current/main/design/mimalloc-hakorune-joint-task-order-s
 INDEX="docs/tools/check-scripts-index.md"
 PROOF_MANIFEST="tools/checks/proof_apps.toml"
 GUARD_MANIFEST="tools/checks/guard_rows.toml"
+GUARD_MANIFEST_INCLUDE="tools/checks/manifests/guard_rows/hako_alloc_closeout.toml"
 MODULE="lang/src/hako_alloc/hako_module.toml"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
 CARD_097A="docs/development/current/main/phases/phase-293x/293x-594-MIMAP-097A-SEGMENT-ALLOCATION-MODELED-LEDGER-RELEASE-ROUTE.md"
 CARD_098A="docs/development/current/main/phases/phase-293x/293x-595-MIMAP-098A-SEGMENT-ALLOCATION-MODELED-LEDGER-RELEASE-CLOSEOUT-GUARD.md"
 CARD_099A="docs/development/current/main/phases/phase-293x/293x-596-MIMAP-099A-POST-SEGMENT-ALLOCATION-MODELED-RELEASE-ROW-SELECTION.md"
 OWNER="lang/src/hako_alloc/memory/segment_allocation_modeled_ledger_box.hako"
+HELPER="lang/src/hako_alloc/memory/segment_allocation_modeled_ledger_report_box.hako"
 APP="apps/hako-alloc-segment-allocation-modeled-ledger-release-proof/main.hako"
 APP_TEST="apps/hako-alloc-segment-allocation-modeled-ledger-release-proof/test.sh"
 GUARD_097A="tools/checks/k2_wide_hako_alloc_segment_allocation_modeled_ledger_release_guard.sh"
@@ -41,10 +43,12 @@ guard_require_files \
   "$GUARD_MANIFEST" \
   "$MODULE" \
   "$MEMORY_README" \
+  "$GUARD_MANIFEST_INCLUDE" \
   "$CARD_097A" \
   "$CARD_098A" \
   "$CARD_099A" \
   "$OWNER" \
+  "$HELPER" \
   "$APP" \
   "$APP_TEST" \
   "$GUARD_097A" \
@@ -71,20 +75,35 @@ guard_expect_in_file "$TAG" "MIMAP-099A post-segment-allocation-modeled-release 
 guard_expect_in_file "$TAG" "MIMAP-099A" "$TASKBOARD" "taskboard must name selected next row"
 
 guard_expect_in_file "$TAG" "id = \"MIMAP-097A\"" "$PROOF_MANIFEST" "proof manifest must include MIMAP-097A"
-guard_expect_in_file "$TAG" "id = \"hako-alloc-segment-allocation-modeled-ledger-release-closeout\"" "$GUARD_MANIFEST" "guard manifest must include MIMAP-098A closeout row"
+guard_expect_fixed_in_file "$TAG" "id = \"hako-alloc-segment-allocation-modeled-ledger-release-closeout\"" "$GUARD_MANIFEST_INCLUDE" "guard manifest must include MIMAP-098A closeout row"
 guard_expect_in_file "$TAG" "$GUARD_097A" "$INDEX" "check index must list MIMAP-097A guard"
 guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-098A closeout guard"
 guard_expect_in_file "$TAG" 'memory.segment_allocation_modeled_ledger_box = "memory/segment_allocation_modeled_ledger_box.hako"' "$MODULE" "modeled ledger owner must stay exported"
+guard_expect_in_file "$TAG" 'memory.segment_allocation_modeled_ledger_report_box = "memory/segment_allocation_modeled_ledger_report_box.hako"' "$MODULE" "modeled ledger report helper must stay exported"
 guard_expect_in_file "$TAG" 'segment_allocation_modeled_ledger_box.hako` owns MIMAP-097A' "$MEMORY_README" "memory README must name MIMAP-097A owner"
-guard_expect_in_file "$TAG" "box HakoAllocSegmentAllocationModeledLedgerReleaseReport" "$OWNER" "release report box must stay present"
+guard_expect_in_file "$TAG" 'segment_allocation_modeled_ledger_box.hako` owns MIMAP-094A' "$MEMORY_README" "memory README must name MIMAP-094A owner"
+guard_expect_in_file "$TAG" 'segment_allocation_modeled_ledger_report_box.hako' "$MEMORY_README" "memory README must name the report helper"
+guard_expect_fixed_in_file "$TAG" "report(accepted, reason, row_index, existing_index, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)" "$OWNER" "ledger owner must expose direct report builder"
+guard_expect_fixed_in_file "$TAG" "releaseReport(did_release, reason, row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, live_before, live_after)" "$OWNER" "ledger owner must expose direct release report builder"
+guard_expect_fixed_in_file "$TAG" "releaseRejectUnsupportedRequirement(requirement, modeled_allocation_token)" "$OWNER" "ledger owner must expose direct release reject helper"
+if rg -n 'report_surface|HakoAllocSegmentAllocationModeledLedgerReportSurface' "$OWNER" >/tmp/"$TAG".surface_leak 2>&1; then
+  cat /tmp/"$TAG".surface_leak >&2
+  rm -f /tmp/"$TAG".surface_leak
+  guard_fail "$TAG" "ledger owner must not keep report surface dispatch"
+fi
+rm -f /tmp/"$TAG".surface_leak
 guard_expect_in_file "$TAG" "releaseModeledToken" "$OWNER" "modeled release owner method must stay present"
 guard_expect_in_file "$TAG" "findAnyIndex" "$OWNER" "any-token lookup must stay present"
-guard_expect_in_file "$TAG" "would_execute_real_segment_free" "$OWNER" "owner must expose real-free inactive flag"
-guard_expect_in_file "$TAG" "would_use_raw_pointer" "$OWNER" "owner must expose raw pointer inactive flag"
-guard_expect_in_file "$TAG" "would_use_segment_map" "$OWNER" "owner must expose segment-map inactive flag"
-guard_expect_in_file "$TAG" "would_allocate_arena_backing" "$OWNER" "owner must expose arena inactive flag"
-guard_expect_in_file "$TAG" "would_execute_atomic_bitmap" "$OWNER" "owner must expose atomic bitmap inactive flag"
-guard_expect_in_file "$TAG" "would_call_osvm" "$OWNER" "owner must expose OSVM inactive flag"
+guard_expect_in_file "$TAG" "would_execute_real_segment_free" "$HELPER" "report helper must expose real-free inactive flag"
+guard_expect_in_file "$TAG" "would_use_raw_pointer" "$HELPER" "report helper must expose raw pointer inactive flag"
+guard_expect_in_file "$TAG" "would_use_segment_map" "$HELPER" "report helper must expose segment-map inactive flag"
+guard_expect_in_file "$TAG" "would_allocate_arena_backing" "$HELPER" "report helper must expose arena inactive flag"
+guard_expect_in_file "$TAG" "would_execute_atomic_bitmap" "$HELPER" "report helper must expose atomic bitmap inactive flag"
+guard_expect_in_file "$TAG" "would_call_osvm" "$HELPER" "report helper must expose OSVM inactive flag"
+guard_expect_in_file "$TAG" "box HakoAllocSegmentAllocationModeledLedgerReleaseReport" "$HELPER" "report helper must own release report box"
+guard_expect_in_file "$TAG" "box HakoAllocSegmentAllocationModeledLedgerReport" "$HELPER" "report helper must own report box"
+guard_expect_in_file "$TAG" "modeled_ledger_present" "$HELPER" "report helper must own report capsule fields"
+guard_expect_in_file "$TAG" "modeled_release_present" "$HELPER" "report helper must own release capsule fields"
 guard_expect_in_file "$TAG" "HakoAllocSegmentAllocationModeledLedger" "$APP" "proof must construct modeled ledger owner"
 
 if rg -n 'AtomicCoreBox|hako_atomic|cas_i64|fetch_add|spawn[[:space:]]*\(|thread::|worker_local|ChannelBox|TaskGroupBox|nowait|sync[[:space:]]+box|context[[:space:]]|wake|sleep|runQueue|run_queue|SegmentMap|lookupSegment|pointer_member|claimBitmap|unclaimBitmap|observeHeapPage[[:space:]]*\(|selectHeapPage[[:space:]]*\(|attemptHeapPage[[:space:]]*\(|allocateSegment[[:space:]]*\(|freeSegment[[:space:]]*\(|decommitPage[[:space:]]*\(|commitPage[[:space:]]*\(|reservePage[[:space:]]*\(|unreserve[[:space:]]*\(|releasePage[[:space:]]*\(|hako_osvm_(unreserve|release)' \

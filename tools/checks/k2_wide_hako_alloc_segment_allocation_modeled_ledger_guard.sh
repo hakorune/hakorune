@@ -18,6 +18,7 @@ INDEX="docs/tools/check-scripts-index.md"
 PROOF_MANIFEST="tools/checks/proof_apps.toml"
 MEMORY_README="lang/src/hako_alloc/memory/README.md"
 MODULE="lang/src/hako_alloc/hako_module.toml"
+HELPER="lang/src/hako_alloc/memory/segment_allocation_modeled_ledger_report_box.hako"
 OWNER="lang/src/hako_alloc/memory/segment_allocation_modeled_ledger_box.hako"
 CONSUME_OWNER="lang/src/hako_alloc/memory/segment_allocation_modeled_consume_box.hako"
 DEV_GATE="tools/checks/dev_gate.sh"
@@ -40,6 +41,7 @@ guard_require_files \
   "$PROOF_MANIFEST" \
   "$MEMORY_README" \
   "$MODULE" \
+  "$HELPER" \
   "$OWNER" \
   "$CONSUME_OWNER" \
   "$DEV_GATE" \
@@ -57,11 +59,25 @@ guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must lis
 guard_expect_in_file "$TAG" 'id = "MIMAP-094A"' "$PROOF_MANIFEST" "proof app manifest must list MIMAP-094A"
 guard_expect_in_file "$TAG" 'memory.segment_allocation_modeled_ledger_box = "memory/segment_allocation_modeled_ledger_box.hako"' "$MODULE" "hako module must export MIMAP-094A owner"
 guard_expect_in_file "$TAG" 'segment_allocation_modeled_ledger_box.hako` owns MIMAP-094A' "$MEMORY_README" "memory README must define MIMAP-094A owner"
-guard_expect_in_file "$TAG" 'box HakoAllocSegmentAllocationModeledLedgerReport' "$OWNER" "MIMAP-094A report box must exist"
+guard_expect_in_file "$TAG" 'memory.segment_allocation_modeled_ledger_report_box = "memory/segment_allocation_modeled_ledger_report_box.hako"' "$MODULE" "hako module must export MIMAP-094A report helper"
+guard_expect_in_file "$TAG" 'segment_allocation_modeled_ledger_report_box.hako` owns MIMAP-094A report capsules' "$MEMORY_README" "memory README must define MIMAP-094A report helper"
+guard_expect_in_file "$TAG" 'using selfhost.hako_alloc.memory.segment_allocation_modeled_ledger_report_box as HakoAllocSegmentAllocationModeledLedgerReportBox' "$OWNER" "MIMAP-094A owner must import report helper"
+guard_expect_fixed_in_file "$TAG" 'report(accepted, reason, row_index, existing_index, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)' "$OWNER" "MIMAP-094A owner must expose direct report builder"
+guard_expect_fixed_in_file "$TAG" 'rejectUnsupportedRequirement(requirement, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)' "$OWNER" "MIMAP-094A owner must expose direct reject helper"
+guard_expect_fixed_in_file "$TAG" 'releaseReport(did_release, reason, row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, live_before, live_after)' "$OWNER" "MIMAP-094A owner must expose direct release report builder"
+guard_expect_fixed_in_file "$TAG" 'releaseRejectUnsupportedRequirement(requirement, modeled_allocation_token)' "$OWNER" "MIMAP-094A owner must expose direct release reject helper"
+if rg -n 'report_surface|HakoAllocSegmentAllocationModeledLedgerReportSurface' "$OWNER" >/tmp/"$TAG".surface_leak 2>&1; then
+  echo "[$TAG] ERROR: report surface dispatch must stay removed" >&2
+  cat /tmp/"$TAG".surface_leak >&2
+  rm -f /tmp/"$TAG".surface_leak
+  exit 1
+fi
+rm -f /tmp/"$TAG".surface_leak
 guard_expect_in_file "$TAG" 'box HakoAllocSegmentAllocationModeledLedger' "$OWNER" "MIMAP-094A owner must exist"
 guard_expect_in_file "$TAG" 'recordModeledConsume' "$OWNER" "MIMAP-094A owner must expose recordModeledConsume"
 guard_expect_in_file "$TAG" 'findIndex' "$OWNER" "MIMAP-094A owner must expose token lookup"
 guard_expect_in_file "$TAG" 'makeModeledToken' "$OWNER" "MIMAP-094A owner must centralize token construction"
+guard_expect_in_file "$TAG" 'box HakoAllocSegmentAllocationModeledLedgerReport' "$HELPER" "MIMAP-094A report box must live in helper"
 guard_expect_in_file "$TAG" 'HakoAllocSegmentAllocationModeledLedger' "$APP" "MIMAP-094A proof must construct ledger owner"
 guard_expect_in_file "$TAG" 'check "mimap094a segment allocation modeled ledger route"' "$APP" "MIMAP-094A proof must use labelled check block"
 

@@ -23,6 +23,7 @@ Current modules
 - `segment_map_accepted_readiness_modeled_consume_ledger_box.hako`
 - `segment_allocation_modeled_consume_box.hako`
 - `segment_allocation_modeled_ledger_box.hako`
+- `segment_allocation_modeled_ledger_report_box.hako`
 - `segment_allocation_modeled_released_span_ledger_box.hako`
 - `segment_allocation_modeled_local_free_candidate_ledger_box.hako`
 - `segment_allocation_modeled_local_free_apply_plan_box.hako`
@@ -346,6 +347,30 @@ Syntax/style contract
   `modeled_block_end` and record successful segment-map release reports into
   the existing MIMAP-107A released-span ledger, while keeping real segment free
   execution and free-list mutation closed.
+- `segment_allocation_modeled_ledger_report_box.hako` owns MIMAP-094A report capsules. It may build the scalar modeled ledger reports and update the
+  ledger observer counters. It must not execute real segment allocation/free,
+  allocate arena backing, use raw pointer residence, perform segment-map
+  lookup, execute atomic bitmap claims, call page-source/OSVM seams, schedule
+  workers, activate provider hooks, replace the host allocator, or add backend
+  shortcuts.
+- `segment_allocation_modeled_ledger_report_box.hako` owns MIMAP-097A report capsules. It may build the scalar release reports and update the
+  release observer counters. It must not execute real segment free, allocate
+  arena backing, use raw pointer residence, perform segment-map lookup,
+  execute atomic bitmap claims, call page-source/OSVM seams, schedule workers,
+  activate provider hooks, replace the host allocator, or add backend
+  shortcuts.
+- `segment_allocation_modeled_ledger_report_box.hako` owns MIMAP-100A report capsules. It may report the released-token recycle ledger results while
+  keeping real segment allocation/free closed. It must not execute real
+  segment allocation/free, allocate arena backing, use raw pointer residence,
+  perform segment-map lookup, execute atomic bitmap claims, call page-source/
+  OSVM seams, schedule workers, activate provider hooks, replace the host
+  allocator, or add backend shortcuts.
+- `segment_allocation_modeled_ledger_report_box.hako` owns MIMAP-104A report capsules. It may enrich successful release span reports with scalar span
+  facts. It must not execute real segment free, mutate a free-list, mutate
+  page state outside the modeled ledger, allocate arena backing, use raw
+  pointer residence, perform segment-map lookup, execute atomic bitmap claims,
+  call page-source/OSVM seams, schedule workers, activate provider hooks,
+  replace the host allocator, or add backend shortcuts.
 - `segment_allocation_modeled_consume_box.hako` owns MIMAP-091A. It may consume
   accepted scalar segment allocation-readiness facts and model the resulting
   `page_used` / `remaining_blocks` values plus a stable scalar modeled

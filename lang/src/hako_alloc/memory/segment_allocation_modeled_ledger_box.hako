@@ -6,66 +6,7 @@
 // - allocating/freeing real segments, arena backing, raw pointer residence,
 //   segment-map lookup, atomic bitmap execution, OSVM/page-source calls,
 //   worker scheduling, provider activation, host replacement, or backend shortcuts
-
-box HakoAllocSegmentAllocationModeledLedgerReport {
-    accepted: i64 = 0
-    reason: i64 = 0
-    row_index: i64 = -1
-    existing_index: i64 = -1
-    segment_id: i64 = -1
-    page_id: i64 = -1
-    old_page_used: i64 = 0
-    page_capacity: i64 = 0
-    request_blocks: i64 = 0
-    new_page_used: i64 = 0
-    remaining_blocks: i64 = 0
-    modeled_block_start: i64 = -1
-    modeled_allocation_token: i64 = -1
-    ledger_count_after: i64 = 0
-    ledger_live_count_after: i64 = 0
-    modeled_ledger_present: i64 = 1
-    would_execute_real_segment_allocation: i64 = 0
-    would_use_raw_pointer: i64 = 0
-    would_use_segment_map: i64 = 0
-    would_allocate_arena_backing: i64 = 0
-    would_execute_atomic_bitmap: i64 = 0
-    would_call_osvm: i64 = 0
-    would_run_thread: i64 = 0
-    would_activate_provider: i64 = 0
-    would_add_backend_matcher: i64 = 0
-}
-
-box HakoAllocSegmentAllocationModeledLedgerReleaseReport {
-    did_release: i64 = 0
-    reason: i64 = 0
-    row_index: i64 = -1
-    modeled_allocation_token: i64 = -1
-    segment_id: i64 = -1
-    page_id: i64 = -1
-    modeled_block_start: i64 = -1
-    old_page_used_at_allocation: i64 = 0
-    page_capacity: i64 = 0
-    request_blocks: i64 = 0
-    new_page_used_at_allocation: i64 = 0
-    remaining_blocks_at_allocation: i64 = 0
-    modeled_block_end: i64 = -1
-    released_blocks: i64 = 0
-    release_span_present: i64 = 0
-    live_before: i64 = 0
-    live_after: i64 = 0
-    ledger_count_after: i64 = 0
-    ledger_live_count_after: i64 = 0
-    modeled_release_present: i64 = 1
-    would_execute_real_segment_free: i64 = 0
-    would_use_raw_pointer: i64 = 0
-    would_use_segment_map: i64 = 0
-    would_allocate_arena_backing: i64 = 0
-    would_execute_atomic_bitmap: i64 = 0
-    would_call_osvm: i64 = 0
-    would_run_thread: i64 = 0
-    would_activate_provider: i64 = 0
-    would_add_backend_matcher: i64 = 0
-}
+using selfhost.hako_alloc.memory.segment_allocation_modeled_ledger_report_box as HakoAllocSegmentAllocationModeledLedgerReportBox
 
 box HakoAllocSegmentAllocationModeledLedger {
     tokens: ArrayBox = new ArrayBox()
@@ -122,7 +63,7 @@ box HakoAllocSegmentAllocationModeledLedger {
         return (segment_id * 1000000) + (page_id * 1000) + modeled_block_start
     }
 
-    report(accepted, reason, row_index, existing_index, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token) {
+    report(accepted, reason, row_index, existing_index, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token): HakoAllocSegmentAllocationModeledLedgerReport {
         local result = new HakoAllocSegmentAllocationModeledLedgerReport()
         result.accepted = accepted
         result.reason = reason
@@ -145,7 +86,7 @@ box HakoAllocSegmentAllocationModeledLedger {
         return result
     }
 
-    releaseReport(did_release, reason, row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, live_before, live_after) {
+    releaseReport(did_release, reason, row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, live_before, live_after): HakoAllocSegmentAllocationModeledLedgerReleaseReport {
         local result = new HakoAllocSegmentAllocationModeledLedgerReleaseReport()
         result.did_release = did_release
         result.reason = reason
@@ -207,12 +148,12 @@ box HakoAllocSegmentAllocationModeledLedger {
         }
     }
 
-    reject(reason, existing_index, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token) {
+    reject(reason, existing_index, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token): HakoAllocSegmentAllocationModeledLedgerReport {
         me.rememberReject(reason)
         return me.report(0, reason, -1, existing_index, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
     }
 
-    rejectUnsupportedRequirement(requirement, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token) {
+    rejectUnsupportedRequirement(requirement, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token): HakoAllocSegmentAllocationModeledLedgerReport {
         if requirement == 1 {
             return me.reject(5, -1, segment_id, page_id, old_page_used, page_capacity, request_blocks, new_page_used, remaining_blocks, modeled_block_start, modeled_allocation_token)
         }
@@ -283,40 +224,40 @@ box HakoAllocSegmentAllocationModeledLedger {
         }
     }
 
-    rejectRelease(reason, row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, live_before, live_after) {
+    releaseReject(reason, row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, live_before, live_after): HakoAllocSegmentAllocationModeledLedgerReleaseReport {
         me.rememberReleaseReject(reason)
         return me.releaseReport(0, reason, row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, live_before, live_after)
     }
 
-    rejectReleaseUnsupportedRequirement(requirement, modeled_allocation_token) {
+    releaseRejectUnsupportedRequirement(requirement, modeled_allocation_token): HakoAllocSegmentAllocationModeledLedgerReleaseReport {
         if requirement == 1 {
-            return me.rejectRelease(4, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+            return me.releaseReject(4, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
         }
         if requirement == 2 {
-            return me.rejectRelease(5, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+            return me.releaseReject(5, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
         }
         if requirement == 3 {
-            return me.rejectRelease(6, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+            return me.releaseReject(6, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
         }
         if requirement == 4 {
-            return me.rejectRelease(7, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+            return me.releaseReject(7, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
         }
         if requirement == 5 {
-            return me.rejectRelease(8, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+            return me.releaseReject(8, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
         }
         if requirement == 6 {
-            return me.rejectRelease(9, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+            return me.releaseReject(9, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
         }
         if requirement == 7 {
-            return me.rejectRelease(10, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+            return me.releaseReject(10, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
         }
         if requirement == 8 {
-            return me.rejectRelease(11, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+            return me.releaseReject(11, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
         }
         if requirement == 9 {
-            return me.rejectRelease(12, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+            return me.releaseReject(12, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
         }
-        return me.rejectRelease(1, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+        return me.releaseReject(1, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
     }
 
     findAnyIndex(modeled_allocation_token): i64 {
@@ -347,22 +288,22 @@ box HakoAllocSegmentAllocationModeledLedger {
         me.release_attempt_count += 1
 
         if modeled_allocation_token < 0 {
-            return me.rejectRelease(1, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+            return me.releaseReject(1, 1, modeled_allocation_token, -1, -1, -1, 0, 0)
         }
         if unsupported_requirement != 0 {
-            return me.rejectReleaseUnsupportedRequirement(unsupported_requirement, modeled_allocation_token)
+            return me.releaseRejectUnsupportedRequirement(unsupported_requirement, modeled_allocation_token)
         }
 
         local row_index = me.findIndex(modeled_allocation_token)
         if row_index < 0 {
             local historical_index = me.findAnyIndex(modeled_allocation_token)
             if historical_index < 0 {
-                return me.rejectRelease(2, -1, modeled_allocation_token, -1, -1, -1, 0, 0)
+                return me.releaseReject(2, 2, modeled_allocation_token, -1, -1, -1, 0, 0)
             }
             local historical_segment_id: i64 = me.segment_ids.get(historical_index)
             local historical_page_id: i64 = me.page_ids.get(historical_index)
             local historical_block_start: i64 = me.block_starts.get(historical_index)
-            return me.rejectRelease(3, historical_index, modeled_allocation_token, historical_segment_id, historical_page_id, historical_block_start, 0, 0)
+            return me.releaseReject(3, historical_index, modeled_allocation_token, historical_segment_id, historical_page_id, historical_block_start, 0, 0)
         }
 
         local live_before: i64 = me.live_flags.get(row_index)
@@ -375,7 +316,7 @@ box HakoAllocSegmentAllocationModeledLedger {
         local new_page_used: i64 = me.new_page_useds.get(row_index)
         local remaining_blocks: i64 = me.remaining_blocks_list.get(row_index)
         if live_before == 0 {
-            return me.rejectRelease(3, row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, live_before, 0)
+            return me.releaseReject(3, row_index, modeled_allocation_token, segment_id, page_id, modeled_block_start, live_before, 0)
         }
 
         me.live_flags.set(row_index, 0)

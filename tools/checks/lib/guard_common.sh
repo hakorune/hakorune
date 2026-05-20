@@ -49,6 +49,16 @@ guard_expect_in_file() {
     fi
 }
 
+guard_expect_fixed_in_file() {
+    local tag="$1"
+    local pattern="$2"
+    local file="$3"
+    local msg="$4"
+    if ! rg -F -q -- "$pattern" "$file"; then
+        guard_fail "$tag" "$msg"
+    fi
+}
+
 guard_require_docs_slim_no_move_stop_line() {
     local tag="$1"
     local card="$2"
