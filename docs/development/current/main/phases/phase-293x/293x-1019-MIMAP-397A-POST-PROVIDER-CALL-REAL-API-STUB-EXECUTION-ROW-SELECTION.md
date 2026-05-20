@@ -1,6 +1,6 @@
 # 293x-1019 MIMAP-397A Post Provider Call Real API Stub Execution Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -31,3 +31,14 @@ install remain closed.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Decision Result
+
+Selected:
+
+```text
+MIMAP-398A Provider Call Real API Stub Execution Closeout
+```
+
+The next row closes out the stub execution seam before any external API adapter
+or host replacement optional ladder is opened.
