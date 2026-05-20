@@ -1,6 +1,6 @@
 # 293x-1020 MIMAP-398A Provider Call Real API Stub Execution Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -43,6 +43,16 @@ external API adapter or provider-call closeout pack.
 
 ```text
 bash tools/checks/k2_wide_hako_alloc_provider_call_real_api_stub_execution_pilot_guard.sh --level L2
+bash tools/checks/k2_wide_hako_alloc_provider_call_real_api_stub_execution_closeout_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Evidence
+
+- Added the provider-call real API stub execution closeout SSOT.
+- Added the closeout guard that reuses the MIMAP-396A L2 guard as
+  representative evidence.
+- Kept actual provider API calls, external provider adapters, host replacement,
+  hooks, backend matcher additions, worker/thread execution, and global
+  allocator install closed.
