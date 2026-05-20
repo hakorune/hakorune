@@ -411,6 +411,13 @@ Syntax/style contract
   behavior, release or recycle real arena backing, mutate segment-map state,
   execute atomic bitmap operations, call OSVM/page-source, activate providers,
   or add backend matchers.
+- `segment_arena_backing_modeled_allocation_ledger_release_recycle_remaining_execution_prerequisite_ledger_box.hako`
+  owns MIMAP-342A. It may record the remaining model-only release/recycle
+  execution requirements from the requirement matrix as one bundled ledger. It
+  must not execute release/recycle behavior, create raw pointer residence,
+  perform pointer-derived lookup, release or recycle real arena backing, mutate
+  segment-map state, execute atomic bitmap operations, call OSVM/page-source,
+  run worker/TLS behavior, activate providers, or add backend matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known

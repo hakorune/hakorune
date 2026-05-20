@@ -1,0 +1,146 @@
+// hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-remaining-execution-prerequisite-ledger-proof
+// Purpose: prove MIMAP-342A remaining execution prerequisite ledger stays model-only.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_requirement_matrix_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_remaining_execution_prerequisite_ledger_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleRemainingExecutionPrerequisiteLedger
+
+static box Main {
+    makeMatrixReport(present: i64, accepted: i64, opened: i64): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixReport()
+        report.accepted = accepted
+        report.reason = 0
+        report.matrix_present = present
+        report.gate_present = 1
+        report.gate_accepted = 1
+        report.gate_reason = 0
+        report.execution_gate_open = 0
+        report.blocked_by_unsupported_outcome = 1
+        report.requirements_satisfied = 0
+        report.requirement_count = 11
+        report.lifecycle_generation_required = 1
+        report.pointer_residence_required = 1
+        report.pointer_lookup_required = 1
+        report.arena_release_required = 1
+        report.arena_recycle_required = 1
+        report.segment_map_required = 1
+        report.atomic_bitmap_required = 1
+        report.osvm_required = 1
+        report.worker_tls_required = 1
+        report.provider_required = 1
+        report.backend_matcher_required = 1
+        report.report_segment_id = 190
+        report.report_arena_id = 19
+        report.report_lifetime_generation = 3
+        report.report_release_applied_recycle_token = 97019005005
+        report.report_continuation_token = 98019005005
+        report.report_application_token = 99019005005
+        report.report_applied_backing_bytes = 4096
+        report.report_applied_committed_bytes = 4096
+        report.report_remaining_source_bytes = 8192
+        report.would_create_lifecycle_generation = 0
+        report.would_create_pointer_residence = 0
+        report.would_lookup_by_pointer = 0
+        report.would_release_arena_backing = opened
+        report.would_recycle_arena_backing = 0
+        report.would_use_segment_map = 0
+        report.would_execute_atomic_bitmap = 0
+        report.would_call_osvm = 0
+        report.would_run_thread = 0
+        report.would_activate_provider = 0
+        report.would_add_backend_matcher = 0
+        return report
+    }
+
+    main(args) {
+        local ledger = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleRemainingExecutionPrerequisiteLedger()
+
+        local matrix = Main.makeMatrixReport(1, 1, 0)
+        local report = ledger.recordRemainingExecutionPrerequisiteLedger(matrix)
+
+        local missing_matrix = Main.makeMatrixReport(0, 1, 0)
+        local missing = ledger.recordRemainingExecutionPrerequisiteLedger(missing_matrix)
+        local rejected_matrix = Main.makeMatrixReport(1, 0, 0)
+        rejected_matrix.reason = 2
+        local rejected = ledger.recordRemainingExecutionPrerequisiteLedger(rejected_matrix)
+        local opened_matrix = Main.makeMatrixReport(1, 1, 1)
+        local opened = ledger.recordRemainingExecutionPrerequisiteLedger(opened_matrix)
+
+        local ok = check "mimap342a segment arena backing modeled allocation ledger release recycle remaining execution prerequisite ledger" {
+            "accepted": report.accepted == 1
+            "reason": report.reason == 0
+            "present": report.ledger_present == 1
+            "matrix present": report.matrix_present == 1
+            "matrix accepted": report.matrix_accepted == 1
+            "remaining count": report.remaining_requirement_count == 8
+            "remaining supported": report.remaining_supported_count == 0
+            "remaining unsupported": report.remaining_unsupported_count == 8
+            "arena release required": report.arena_release_required == 1
+            "arena recycle required": report.arena_recycle_required == 1
+            "segment map required": report.segment_map_required == 1
+            "atomic required": report.atomic_bitmap_required == 1
+            "osvm required": report.osvm_required == 1
+            "worker required": report.worker_tls_required == 1
+            "provider required": report.provider_required == 1
+            "matcher required": report.backend_matcher_required == 1
+            "arena release unsupported": report.arena_release_supported == 0
+            "arena recycle unsupported": report.arena_recycle_supported == 0
+            "segment map unsupported": report.segment_map_supported == 0
+            "atomic unsupported": report.atomic_bitmap_supported == 0
+            "osvm unsupported": report.osvm_supported == 0
+            "worker unsupported": report.worker_tls_supported == 0
+            "provider unsupported": report.provider_supported == 0
+            "matcher unsupported": report.backend_matcher_supported == 0
+            "owner ledger count": ledger.ledger_count == 4
+            "owner accepted count": ledger.accepted_count == 1
+            "owner reject count": ledger.reject_count == 3
+            "missing matrix count": ledger.missing_matrix_reject_count == 1
+            "rejected matrix count": ledger.rejected_matrix_reject_count == 1
+            "execution open count": ledger.execution_open_reject_count == 1
+            "last reason": ledger.last_reason == 3
+            "segment": report.report_segment_id == 190
+            "arena": report.report_arena_id == 19
+            "recycle token": report.report_release_applied_recycle_token == 97019005005
+            "continuation token": report.report_continuation_token == 98019005005
+            "application token": report.report_application_token == 99019005005
+            "backing bytes": report.report_applied_backing_bytes == 4096
+            "committed bytes": report.report_applied_committed_bytes == 4096
+            "remaining bytes": report.report_remaining_source_bytes == 8192
+            "missing rejected": missing.accepted == 0
+            "missing reason": missing.reason == 1
+            "rejected rejected": rejected.accepted == 0
+            "rejected reason": rejected.reason == 2
+            "opened rejected": opened.accepted == 0
+            "opened reason": opened.reason == 3
+            "inactive lifecycle": report.would_create_lifecycle_generation == 0
+            "inactive residence": report.would_create_pointer_residence == 0
+            "inactive lookup": report.would_lookup_by_pointer == 0
+            "inactive release": report.would_release_arena_backing == 0
+            "inactive recycle": report.would_recycle_arena_backing == 0
+            "inactive segment map": report.would_use_segment_map == 0
+            "inactive atomic": report.would_execute_atomic_bitmap == 0
+            "inactive osvm": report.would_call_osvm == 0
+            "inactive thread": report.would_run_thread == 0
+            "inactive provider": report.would_activate_provider == 0
+            "inactive matcher": report.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-remaining-execution-prerequisite-ledger-proof")
+        print("ledger=" + report.accepted + "," + report.reason + "," + report.ledger_present + "," + report.remaining_requirement_count + "," + report.remaining_supported_count + "," + report.remaining_unsupported_count)
+        print("requirements=" + report.arena_release_required + "," + report.arena_recycle_required + "," + report.segment_map_required + "," + report.atomic_bitmap_required + "," + report.osvm_required + "," + report.worker_tls_required + "," + report.provider_required + "," + report.backend_matcher_required)
+        print("supported=" + report.arena_release_supported + "," + report.arena_recycle_supported + "," + report.segment_map_supported + "," + report.atomic_bitmap_supported + "," + report.osvm_supported + "," + report.worker_tls_supported + "," + report.provider_supported + "," + report.backend_matcher_supported)
+        print("owner=" + ledger.ledger_count + "," + ledger.accepted_count + "," + ledger.reject_count + "," + ledger.missing_matrix_reject_count + "," + ledger.rejected_matrix_reject_count + "," + ledger.execution_open_reject_count + "," + ledger.last_reason)
+        print("tokens=" + report.report_release_applied_recycle_token + "," + report.report_continuation_token + "," + report.report_application_token)
+        print("bytes=" + report.report_applied_backing_bytes + "," + report.report_applied_committed_bytes + "," + report.report_remaining_source_bytes)
+        print("rejected=" + missing.accepted + "," + missing.reason + "," + rejected.accepted + "," + rejected.reason + "," + opened.accepted + "," + opened.reason)
+        print("inactive=" + report.would_create_lifecycle_generation + "," + report.would_create_pointer_residence + "," + report.would_lookup_by_pointer + "," + report.would_release_arena_backing + "," + report.would_recycle_arena_backing + "," + report.would_use_segment_map + "," + report.would_execute_atomic_bitmap + "," + report.would_call_osvm + "," + report.would_run_thread + "," + report.would_activate_provider + "," + report.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

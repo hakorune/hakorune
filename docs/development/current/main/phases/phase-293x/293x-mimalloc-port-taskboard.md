@@ -815,7 +815,8 @@ FST:
 | `MIMAP-339A` | landed | Post release/recycle pointer residence prerequisite closeout row selection. | selected MIMAP-340A |
 | `MIMAP-340A` | landed | Segment arena backing modeled allocation-ledger release/recycle pointer-derived lookup prerequisite inventory. | selected MIMAP-341A |
 | `MIMAP-341A` | landed | Segment arena backing modeled allocation-ledger release/recycle pointer-derived lookup prerequisite diagnostics and closeout. | selected MIMAP-342A |
-| `MIMAP-342A` | selected current | Release/recycle remaining execution prerequisite ledger. | after MIMAP-341A |
+| `MIMAP-342A` | landed | Release/recycle remaining execution prerequisite ledger. | selected MIMAP-343A |
+| `MIMAP-343A` | selected current | Remaining execution prerequisite ledger closeout. | after MIMAP-342A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -884,6 +885,8 @@ docs/development/current/main/phases/phase-293x/293x-954-MIMAP-339A-POST-RELEASE
 docs/development/current/main/phases/phase-293x/293x-955-MIMAP-340A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-POINTER-DERIVED-LOOKUP-PREREQUISITE-INVENTORY.md
 docs/development/current/main/phases/phase-293x/293x-956-MIMAP-341A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-POINTER-DERIVED-LOOKUP-PREREQUISITE-DIAGNOSTICS.md
 docs/development/current/main/phases/phase-293x/293x-957-MIMAP-342A-RELEASE-RECYCLE-REMAINING-EXECUTION-PREREQUISITE-LEDGER.md
+docs/development/current/main/phases/phase-293x/293x-958-MIMAP-343A-REMAINING-EXECUTION-PREREQUISITE-LEDGER-CLOSEOUT.md
+docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-remaining-execution-prerequisite-ledger-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-diagnostics-ssot.md

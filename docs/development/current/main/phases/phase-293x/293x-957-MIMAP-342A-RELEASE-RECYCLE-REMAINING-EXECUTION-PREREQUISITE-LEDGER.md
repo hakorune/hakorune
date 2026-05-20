@@ -1,6 +1,6 @@
 # 293x-957 MIMAP-342A Release/Recycle Remaining Execution Prerequisite Ledger
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -58,3 +58,9 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_le
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Landed the model-only remaining execution prerequisite ledger owner, proof app,
+manifest row, and L2 guard. MIMAP-343A is selected to close out this bundled
+remaining-prerequisite ledger before opening a first real seam.
