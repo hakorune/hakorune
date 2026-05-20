@@ -1,6 +1,6 @@
 # 293x-983 MIMAP-367A Post Provider-Facing Ladder Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -30,3 +30,8 @@ until an explicit first-pattern row opens them.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Selected MIMAP-368A provider activation first-pattern planning with activation
+still closed.

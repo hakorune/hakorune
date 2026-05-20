@@ -31,7 +31,7 @@ guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list
 for card in "$CARD_358A" "$CARD_360A" "$CARD_362A" "$CARD_364A" "$CARD_365A" "$CARD"; do
   guard_expect_in_file "$TAG" 'Status: landed' "$card" "$card must be landed"
 done
-guard_expect_in_file "$TAG" 'Status: selected current' "$NEXT_CARD" "MIMAP-367A must be selected current"
+guard_expect_in_file "$TAG" 'Status: (selected current|landed)' "$NEXT_CARD" "MIMAP-367A must be selected current or landed"
 
 for row in MIMAP-360A MIMAP-362A MIMAP-364A; do
   guard_expect_in_file "$TAG" "id = \"$row\"" "$PROOF_MANIFEST_INCLUDE" "proof manifest must list $row"
