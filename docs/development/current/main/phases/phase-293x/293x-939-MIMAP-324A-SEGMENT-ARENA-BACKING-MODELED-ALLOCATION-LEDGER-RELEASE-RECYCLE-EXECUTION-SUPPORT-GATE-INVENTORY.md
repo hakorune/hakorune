@@ -1,6 +1,6 @@
 # 293x-939 MIMAP-324A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Execution Support Gate Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -50,4 +50,16 @@ explicit support gate row:
 bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_gate_guard.sh --level L2
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Result
+
+MIMAP-324A landed the model-only release/recycle execution support gate
+inventory. The support gate remains closed and blocked by unsupported outcome
+facts.
+
+Selected next:
+
+```text
+MIMAP-325A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Execution Support Gate Diagnostics
 ```

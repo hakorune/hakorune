@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-20"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-323A landed and selected MIMAP-324A; MIMAP-324A is current to add a model-only release/recycle execution support gate inventory from unsupported outcome facts. Cross-function Result direct ABI remains closed. Real lifecycle generation, raw pointer residence, pointer-derived lookup, real arena backing release/recycle, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-324A landed and selected MIMAP-325A; MIMAP-325A is current to add observer-only diagnostics for the model-only release/recycle execution support gate. Cross-function Result direct ABI remains closed. Real lifecycle generation, raw pointer residence, pointer-derived lookup, real arena backing release/recycle, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-939-MIMAP-324A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-SUPPORT-GATE-INVENTORY.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-940-MIMAP-325A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-SUPPORT-GATE-DIAGNOSTICS.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-938-MIMAP-323A-POST-RELEASE-RECYCLE-UNSUPPORTED-OUTCOME-LEDGER-CLOSEOUT-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-938-MIMAP-323A-POST-RELEASE-RECYCLE-UNSUPPORTED-OUTCOME-LEDGER-CLOSEOUT-ROW-SELECTION.md"
-latest_card_summary = "Landed post unsupported outcome ledger closeout row selection; MIMAP-324A selected."
+latest_card = "293x-939-MIMAP-324A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-SUPPORT-GATE-INVENTORY"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-939-MIMAP-324A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-SUPPORT-GATE-INVENTORY.md"
+latest_card_summary = "Landed release/recycle execution support gate inventory; MIMAP-325A selected."
 
-current_blocker_token = "MIMAP-324A"
+current_blocker_token = "MIMAP-325A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-939 MIMAP-324A segment arena backing modeled allocation-ledger release/recycle execution support gate inventory landed; MIMAP-325A selected",
   "293x-938 MIMAP-323A post release/recycle unsupported outcome ledger closeout row selection landed; MIMAP-324A selected",
   "293x-937 MIMAP-322A segment arena backing modeled allocation-ledger release/recycle execution unsupported outcome ledger closeout landed; MIMAP-323A selected",
   "293x-936 MIMAP-321A segment arena backing modeled allocation-ledger release/recycle execution unsupported outcome ledger diagnostics landed; MIMAP-322A selected",

@@ -1,0 +1,130 @@
+// hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-support-gate-proof
+// Purpose: prove MIMAP-324A model-only release/recycle execution support gate.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycle
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_lifecycle_continuation_bridge_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridge
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_continuation_application_bridge_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridge
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_applied_state_summary_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummary
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_readiness_matrix_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_intent_marker_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionIntentMarker
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_unsupported_outcome_ledger_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionUnsupportedOutcomeLedger
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_gate_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportGate
+
+static box Main {
+    makeRecycleReport(segment_id: i64, arena_id: i64, recycle_token: i64): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleReport()
+        report.accepted = 1
+        report.reason = 0
+        report.release_applied_recycle_present = 1
+        report.modeled_release_applied_recycle_present = 1
+        report.row_index = 1
+        report.segment_id = segment_id
+        report.arena_id = arena_id
+        report.lifetime_generation = 3
+        report.release_apply_token = 96019005005
+        report.release_applied_recycle_token = recycle_token
+        report.applied_backing_bytes = 4096
+        report.applied_committed_bytes = 4096
+        report.remaining_source_bytes = 8192
+        return report
+    }
+
+    main(args) {
+        local continuation_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridgeInventory()
+        local application_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridgeInventory()
+        local summary_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummaryInventory()
+        local matrix_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrixInventory()
+        local marker_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionIntentMarker()
+        local outcome_ledger = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionUnsupportedOutcomeLedger()
+        local gate_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportGateInventory()
+        local recycle_report = Main.makeRecycleReport(190, 19, 97019005005)
+
+        local continued = continuation_inventory.recordLifecycleContinuation(recycle_report, 98019005005)
+        local applied = application_inventory.recordContinuationApplication(continued, 99019005005)
+        local summary = summary_inventory.summarizeAppliedState(applied)
+        local matrix = matrix_inventory.recordExecutionReadinessMatrix(summary, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local marker = marker_inventory.recordExecutionIntentMarker(matrix, 1)
+        local outcome = outcome_ledger.recordUnsupportedExecutionOutcome(marker)
+        local gate = gate_inventory.recordExecutionSupportGate(outcome)
+
+        local missing_outcome = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionUnsupportedOutcomeLedgerReport()
+        missing_outcome.outcome_present = 0
+        local missing = gate_inventory.recordExecutionSupportGate(missing_outcome)
+
+        local rejected_outcome = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionUnsupportedOutcomeLedgerReport()
+        rejected_outcome.outcome_present = 1
+        rejected_outcome.accepted = 0
+        rejected_outcome.reason = 2
+        local rejected = gate_inventory.recordExecutionSupportGate(rejected_outcome)
+
+        local supported_outcome = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionUnsupportedOutcomeLedgerReport()
+        supported_outcome.outcome_present = 1
+        supported_outcome.accepted = 1
+        supported_outcome.reason = 0
+        supported_outcome.execution_intent_requested = 1
+        supported_outcome.execution_supported = 1
+        local supported = gate_inventory.recordExecutionSupportGate(supported_outcome)
+
+        local ok = check "mimap324a segment arena backing modeled allocation ledger release recycle execution support gate" {
+            "accepted": gate.accepted == 1
+            "reason": gate.reason == 0
+            "present": gate.gate_present == 1
+            "outcome present": gate.outcome_present == 1
+            "outcome accepted": gate.outcome_accepted == 1
+            "outcome reason": gate.outcome_reason == 0
+            "intent requested": gate.execution_intent_requested == 1
+            "execution unsupported": gate.execution_supported == 0
+            "gate closed": gate.execution_gate_open == 0
+            "blocked unsupported": gate.blocked_by_unsupported_outcome == 1
+            "segment": gate.report_segment_id == 190
+            "arena": gate.report_arena_id == 19
+            "lifetime": gate.report_lifetime_generation == 3
+            "recycle token": gate.report_release_applied_recycle_token == 97019005005
+            "continuation token": gate.report_continuation_token == 98019005005
+            "application token": gate.report_application_token == 99019005005
+            "backing bytes": gate.report_applied_backing_bytes == 4096
+            "committed bytes": gate.report_applied_committed_bytes == 4096
+            "remaining bytes": gate.report_remaining_source_bytes == 8192
+            "owner gate count": gate_inventory.gate_count == 4
+            "owner accepted": gate_inventory.accepted_count == 1
+            "owner rejected": gate_inventory.reject_count == 3
+            "owner missing outcome": gate_inventory.missing_outcome_reject_count == 1
+            "owner rejected outcome": gate_inventory.rejected_outcome_reject_count == 1
+            "owner supported execution": gate_inventory.supported_execution_reject_count == 1
+            "missing rejected": missing.accepted == 0
+            "missing reason": missing.reason == 1
+            "rejected outcome": rejected.accepted == 0
+            "rejected reason": rejected.reason == 2
+            "supported rejected": supported.accepted == 0
+            "supported reason": supported.reason == 3
+            "inactive lifecycle": gate.would_create_lifecycle_generation == 0
+            "inactive residence": gate.would_create_pointer_residence == 0
+            "inactive lookup": gate.would_lookup_by_pointer == 0
+            "inactive release": gate.would_release_arena_backing == 0
+            "inactive recycle": gate.would_recycle_arena_backing == 0
+            "inactive segment map": gate.would_use_segment_map == 0
+            "inactive atomic": gate.would_execute_atomic_bitmap == 0
+            "inactive osvm": gate.would_call_osvm == 0
+            "inactive thread": gate.would_run_thread == 0
+            "inactive provider": gate.would_activate_provider == 0
+            "inactive matcher": gate.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-support-gate-proof")
+        print("gate=" + gate.accepted + "," + gate.reason + "," + gate.gate_present + "," + gate.execution_gate_open + "," + gate.blocked_by_unsupported_outcome)
+        print("tokens=" + gate.report_release_applied_recycle_token + "," + gate.report_continuation_token + "," + gate.report_application_token)
+        print("bytes=" + gate.report_applied_backing_bytes + "," + gate.report_applied_committed_bytes + "," + gate.report_remaining_source_bytes)
+        print("owner=" + gate_inventory.gate_count + "," + gate_inventory.accepted_count + "," + gate_inventory.reject_count + "," + gate_inventory.missing_outcome_reject_count + "," + gate_inventory.rejected_outcome_reject_count + "," + gate_inventory.supported_execution_reject_count + "," + gate_inventory.last_reason)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + supported.reason)
+        print("inactive=" + gate.would_create_lifecycle_generation + "," + gate.would_create_pointer_residence + "," + gate.would_lookup_by_pointer + "," + gate.would_release_arena_backing + "," + gate.would_recycle_arena_backing + "," + gate.would_use_segment_map + "," + gate.would_execute_atomic_bitmap + "," + gate.would_call_osvm + "," + gate.would_run_thread + "," + gate.would_activate_provider + "," + gate.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

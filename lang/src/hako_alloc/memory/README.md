@@ -338,6 +338,14 @@ Syntax/style contract
   open pointer residence, release or recycle real arena backing, mutate
   segment-map state, execute atomic bitmap operations, call OSVM/page-source,
   activate providers, or add backend matchers.
+- `segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_gate_box.hako`
+  owns MIMAP-324A. It may record a model-only release/recycle execution support
+  gate from accepted MIMAP-320A unsupported outcome facts. The gate remains
+  closed and blocked by the unsupported outcome. It must not execute
+  release/recycle behavior, create lifecycle generation, open pointer
+  residence, release or recycle real arena backing, mutate segment-map state,
+  execute atomic bitmap operations, call OSVM/page-source, activate providers,
+  or add backend matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known
