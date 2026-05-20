@@ -1,0 +1,134 @@
+// hako-alloc-segment-arena-backing-no-escape-pointer-residence-pilot-proof
+// Purpose: prove MIMAP-344A private no-escape pointer residence pilot.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_requirement_matrix_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_remaining_execution_prerequisite_ledger_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleRemainingExecutionPrerequisiteLedger
+using selfhost.hako_alloc.memory.segment_arena_backing_no_escape_pointer_residence_pilot_box as HakoAllocSegmentArenaBackingNoEscapePointerResidencePilot
+
+static box Main {
+    makeMatrixReport(present: i64, accepted: i64, opened: i64): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixReport()
+        report.accepted = accepted
+        report.reason = 0
+        report.matrix_present = present
+        report.gate_present = 1
+        report.gate_accepted = 1
+        report.gate_reason = 0
+        report.execution_gate_open = 0
+        report.blocked_by_unsupported_outcome = 1
+        report.requirements_satisfied = 0
+        report.requirement_count = 11
+        report.lifecycle_generation_required = 1
+        report.pointer_residence_required = 1
+        report.pointer_lookup_required = 1
+        report.arena_release_required = 1
+        report.arena_recycle_required = 1
+        report.segment_map_required = 1
+        report.atomic_bitmap_required = 1
+        report.osvm_required = 1
+        report.worker_tls_required = 1
+        report.provider_required = 1
+        report.backend_matcher_required = 1
+        report.report_segment_id = 190
+        report.report_arena_id = 19
+        report.report_lifetime_generation = 3
+        report.report_release_applied_recycle_token = 97019005005
+        report.report_continuation_token = 98019005005
+        report.report_application_token = 99019005005
+        report.report_applied_backing_bytes = 4096
+        report.report_applied_committed_bytes = 4096
+        report.report_remaining_source_bytes = 8192
+        report.would_release_arena_backing = opened
+        return report
+    }
+
+    makeLedgerReport(opened: i64): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleRemainingExecutionPrerequisiteLedgerReport {
+        local ledger = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleRemainingExecutionPrerequisiteLedger()
+        local matrix = Main.makeMatrixReport(1, 1, opened)
+        return ledger.recordRemainingExecutionPrerequisiteLedger(matrix)
+    }
+
+    main(args) {
+        local pilot = new HakoAllocSegmentArenaBackingNoEscapePointerResidencePilot()
+        local ledger_report = Main.makeLedgerReport(0)
+        local residence = pilot.recordNoEscapePointerResidence(ledger_report, 99019005022, 0, 0, 0)
+
+        local missing_ledger = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleRemainingExecutionPrerequisiteLedgerReport()
+        local missing = pilot.recordNoEscapePointerResidence(missing_ledger, 99019005022, 0, 0, 0)
+        local rejected_ledger = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleRemainingExecutionPrerequisiteLedgerReport()
+        rejected_ledger.ledger_present = 1
+        rejected_ledger.accepted = 0
+        rejected_ledger.reason = 2
+        local rejected = pilot.recordNoEscapePointerResidence(rejected_ledger, 99019005022, 0, 0, 0)
+        local invalid = pilot.recordNoEscapePointerResidence(ledger_report, 0, 0, 0, 0)
+        local escaped = pilot.recordNoEscapePointerResidence(ledger_report, 99019005022, 1, 0, 0)
+
+        local ok = check "mimap344a segment arena backing no escape pointer residence pilot" {
+            "accepted": residence.accepted == 1
+            "reason": residence.reason == 0
+            "present": residence.residence_present == 1
+            "ledger present": residence.ledger_present == 1
+            "ledger accepted": residence.ledger_accepted == 1
+            "token": residence.private_pointer_token == 99019005022
+            "token valid": residence.token_valid == 1
+            "scope id": residence.no_escape_scope_id == 190
+            "scope open": residence.no_escape_scope_open == 1
+            "non dereferenceable": residence.non_dereferenceable == 1
+            "no return escape": residence.escape_to_return == 0
+            "no storage escape": residence.escape_to_storage == 0
+            "no alias escape": residence.escape_to_alias == 0
+            "closed blockers": residence.closed_execution_blocker_count == 0
+            "owner residence count": pilot.residence_count == 5
+            "owner accepted": pilot.accepted_count == 1
+            "owner rejected": pilot.reject_count == 4
+            "owner missing": pilot.missing_ledger_reject_count == 1
+            "owner rejected ledger": pilot.rejected_ledger_reject_count == 1
+            "owner invalid token": pilot.invalid_token_reject_count == 1
+            "owner escape": pilot.escape_reject_count == 1
+            "owner closed execution": pilot.closed_execution_reject_count == 0
+            "owner last reason": pilot.last_reason == 4
+            "segment": residence.report_segment_id == 190
+            "arena": residence.report_arena_id == 19
+            "recycle token": residence.report_release_applied_recycle_token == 97019005005
+            "continuation token": residence.report_continuation_token == 98019005005
+            "application token": residence.report_application_token == 99019005005
+            "backing bytes": residence.report_applied_backing_bytes == 4096
+            "committed bytes": residence.report_applied_committed_bytes == 4096
+            "remaining bytes": residence.report_remaining_source_bytes == 8192
+            "missing rejected": missing.accepted == 0
+            "missing reason": missing.reason == 1
+            "rejected rejected": rejected.accepted == 0
+            "rejected reason": rejected.reason == 2
+            "invalid rejected": invalid.accepted == 0
+            "invalid reason": invalid.reason == 3
+            "escaped rejected": escaped.accepted == 0
+            "escaped reason": escaped.reason == 4
+            "inactive lookup": residence.would_lookup_by_pointer == 0
+            "inactive release": residence.would_release_arena_backing == 0
+            "inactive recycle": residence.would_recycle_arena_backing == 0
+            "inactive segment map": residence.would_use_segment_map == 0
+            "inactive atomic": residence.would_execute_atomic_bitmap == 0
+            "inactive osvm": residence.would_call_osvm == 0
+            "inactive thread": residence.would_run_thread == 0
+            "inactive provider": residence.would_activate_provider == 0
+            "inactive matcher": residence.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-no-escape-pointer-residence-pilot-proof")
+        print("residence=" + residence.accepted + "," + residence.reason + "," + residence.residence_present + "," + residence.ledger_present + "," + residence.ledger_accepted + "," + residence.private_pointer_token + "," + residence.token_valid + "," + residence.no_escape_scope_id + "," + residence.no_escape_scope_open + "," + residence.non_dereferenceable)
+        print("owner=" + pilot.residence_count + "," + pilot.accepted_count + "," + pilot.reject_count + "," + pilot.missing_ledger_reject_count + "," + pilot.rejected_ledger_reject_count + "," + pilot.invalid_token_reject_count + "," + pilot.escape_reject_count + "," + pilot.closed_execution_reject_count + "," + pilot.last_reason)
+        print("tokens=" + residence.report_release_applied_recycle_token + "," + residence.report_continuation_token + "," + residence.report_application_token)
+        print("bytes=" + residence.report_applied_backing_bytes + "," + residence.report_applied_committed_bytes + "," + residence.report_remaining_source_bytes)
+        print("rejected=" + missing.accepted + "," + missing.reason + "," + rejected.accepted + "," + rejected.reason + "," + invalid.accepted + "," + invalid.reason + "," + escaped.accepted + "," + escaped.reason)
+        print("closed=" + residence.would_lookup_by_pointer + "," + residence.would_release_arena_backing + "," + residence.would_recycle_arena_backing + "," + residence.would_use_segment_map + "," + residence.would_execute_atomic_bitmap + "," + residence.would_call_osvm + "," + residence.would_run_thread + "," + residence.would_activate_provider + "," + residence.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

@@ -1,6 +1,6 @@
 # 293x-959 MIMAP-344A No-Escape Pointer Residence Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -48,3 +48,11 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_no_escape_pointer_res
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Landed the no-escape pointer residence pilot with a private proof-scope token
+and L2 VM/MIR evidence. MIMAP-345A is selected to add the next narrow seam:
+an arena backing handle pilot that still keeps arena release/recycle,
+pointer-derived lookup, segment-map mutation, atomic bitmap, OSVM, worker/TLS,
+provider activation, and backend matcher execution closed.

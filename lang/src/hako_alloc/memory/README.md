@@ -418,6 +418,13 @@ Syntax/style contract
   perform pointer-derived lookup, release or recycle real arena backing, mutate
   segment-map state, execute atomic bitmap operations, call OSVM/page-source,
   run worker/TLS behavior, activate providers, or add backend matchers.
+- `segment_arena_backing_no_escape_pointer_residence_pilot_box.hako`
+  owns MIMAP-344A. It may record a private proof-scope no-escape pointer
+  residence token from the accepted remaining execution prerequisite ledger. It
+  must not perform pointer-derived lookup, dereference, execute release/recycle
+  behavior, release or recycle real arena backing, mutate segment-map state,
+  execute atomic bitmap operations, call OSVM/page-source, run worker/TLS
+  behavior, activate providers, or add backend matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known
