@@ -1,6 +1,6 @@
 # 293x-965 MIMAP-350A Worker/TLS Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -21,6 +21,20 @@ allocator, but it must not activate providers or replace the host allocator.
 - Publish bounded scalar worker/TLS facts for the allocator seam.
 - Keep provider activation, host allocator replacement, hooks, and backend
   matcher execution closed.
+
+## Landed Shape
+
+- Owner: `lang/src/hako_alloc/memory/worker_tls_pilot_box.hako`
+- Proof: `apps/hako-alloc-worker-tls-pilot-proof`
+- Design SSOT:
+  `docs/development/current/main/design/hako-alloc-worker-tls-pilot-ssot.md`
+- Guard: `tools/checks/k2_wide_hako_alloc_worker_tls_pilot_guard.sh`
+
+The row records a single accepted OSVM/page-source report into a bounded
+worker/TLS roundtrip through the existing `HakoAllocWorkerTlsCache` internal
+substrate seam. It marks worker/TLS as present while keeping worker scheduling,
+provider activation, host allocator replacement, hooks, and backend matchers
+closed.
 
 ## Stop Lines
 

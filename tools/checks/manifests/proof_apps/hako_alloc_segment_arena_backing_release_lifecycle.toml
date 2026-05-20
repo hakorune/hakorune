@@ -650,3 +650,16 @@ closeout_pack = "osvm-page-source-pilot"
 exe = "deferred-to-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_osvm_page_source_pilot_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_osvm_page_source_pilot_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-350A"
+app = "apps/hako-alloc-worker-tls-pilot-proof"
+label = "worker/TLS pilot proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "first-real-seam"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "worker-tls-pilot"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_worker_tls_pilot_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_worker_tls_pilot_guard.sh", "--level", "L2"]

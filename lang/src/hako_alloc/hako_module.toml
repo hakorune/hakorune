@@ -30,6 +30,7 @@ memory.segment_arena_backing_pointer_derived_lookup_execution_pilot_box = "memor
 memory.segment_map_mutation_pilot_box = "memory/segment_map_mutation_pilot_box.hako"
 memory.atomic_bitmap_pilot_box = "memory/atomic_bitmap_pilot_box.hako"
 memory.osvm_page_source_pilot_box = "memory/osvm_page_source_pilot_box.hako"
+memory.worker_tls_pilot_box = "memory/worker_tls_pilot_box.hako"
 memory.segment_arena_backing_modeled_no_escape_address_residence_box = "memory/segment_arena_backing_modeled_no_escape_address_residence_box.hako"
 memory.segment_arena_backing_modeled_no_escape_address_residence_diagnostic_box = "memory/segment_arena_backing_modeled_no_escape_address_residence_diagnostic_box.hako"
 memory.segment_arena_backing_modeled_residence_arena_binding_box = "memory/segment_arena_backing_modeled_residence_arena_binding_box.hako"

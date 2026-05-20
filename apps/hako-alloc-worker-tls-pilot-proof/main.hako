@@ -1,0 +1,150 @@
+// hako-alloc-worker-tls-pilot-proof
+// Purpose: prove MIMAP-350A bounded worker/TLS pilot.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_requirement_matrix_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_remaining_execution_prerequisite_ledger_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleRemainingExecutionPrerequisiteLedger
+using selfhost.hako_alloc.memory.segment_arena_backing_no_escape_pointer_residence_pilot_box as HakoAllocSegmentArenaBackingNoEscapePointerResidencePilot
+using selfhost.hako_alloc.memory.segment_arena_backing_handle_pilot_box as HakoAllocSegmentArenaBackingHandlePilot
+using selfhost.hako_alloc.memory.segment_arena_backing_pointer_derived_lookup_execution_pilot_box as HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilot
+using selfhost.hako_alloc.memory.segment_map_mutation_pilot_box as HakoAllocSegmentMapMutationPilot
+using selfhost.hako_alloc.memory.atomic_bitmap_pilot_box as HakoAllocAtomicBitmapPilot
+using selfhost.hako_alloc.memory.osvm_page_source_pilot_box as HakoAllocOSVMPageSourcePilot
+using selfhost.hako_alloc.memory.worker_tls_pilot_box as HakoAllocWorkerTlsPilot
+
+static box Main {
+    makeMatrixReport(): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixReport()
+        report.accepted = 1
+        report.matrix_present = 1
+        report.gate_present = 1
+        report.gate_accepted = 1
+        report.blocked_by_unsupported_outcome = 1
+        report.requirement_count = 11
+        report.lifecycle_generation_required = 1
+        report.pointer_residence_required = 1
+        report.pointer_lookup_required = 1
+        report.arena_release_required = 1
+        report.arena_recycle_required = 1
+        report.segment_map_required = 1
+        report.atomic_bitmap_required = 1
+        report.osvm_required = 1
+        report.worker_tls_required = 1
+        report.provider_required = 1
+        report.backend_matcher_required = 1
+        report.report_segment_id = 190
+        report.report_arena_id = 19
+        report.report_lifetime_generation = 3
+        report.report_release_applied_recycle_token = 97019005005
+        report.report_continuation_token = 98019005005
+        report.report_application_token = 99019005005
+        report.report_applied_backing_bytes = 4096
+        report.report_applied_committed_bytes = 4096
+        report.report_remaining_source_bytes = 8192
+        return report
+    }
+
+    makePage(): HakoAllocOSVMPageSourcePilotReport {
+        local ledger = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleRemainingExecutionPrerequisiteLedger()
+        local ledger_report = ledger.recordRemainingExecutionPrerequisiteLedger(Main.makeMatrixReport())
+        local residence = new HakoAllocSegmentArenaBackingNoEscapePointerResidencePilot()
+        local residence_report = residence.recordNoEscapePointerResidence(ledger_report, 99019005022, 0, 0, 0)
+        local handle = new HakoAllocSegmentArenaBackingHandlePilot()
+        local handle_report = handle.recordArenaBackingHandle(residence_report, 99019005033)
+        local lookup = new HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilot()
+        local lookup_report = lookup.recordPointerDerivedLookup(handle_report, 99019005044)
+        local mutation = new HakoAllocSegmentMapMutationPilot()
+        local mutation_report = mutation.recordSegmentMapMutation(lookup_report, 99019005055)
+        local bitmap = new HakoAllocAtomicBitmapPilot()
+        local bitmap_report = bitmap.recordAtomicBitmapFact(mutation_report, 99019005066)
+        local page_source = new HakoAllocOSVMPageSourcePilot()
+        return page_source.recordOSVMPageSourceFact(bitmap_report, 99019005077)
+    }
+
+    main(args) {
+        local pilot = new HakoAllocWorkerTlsPilot()
+        local page = Main.makePage()
+        local worker = pilot.recordWorkerTlsFact(page, 7, 99019005088)
+
+        local missing_page = new HakoAllocOSVMPageSourcePilotReport()
+        local missing = pilot.recordWorkerTlsFact(missing_page, 7, 99019005088)
+        local rejected_page = new HakoAllocOSVMPageSourcePilotReport()
+        rejected_page.page_source_present = 1
+        rejected_page.accepted = 0
+        rejected_page.reason = 2
+        local rejected = pilot.recordWorkerTlsFact(rejected_page, 7, 99019005088)
+        local invalid_slot = pilot.recordWorkerTlsFact(page, -1, 99019005088)
+        local closed_page = new HakoAllocOSVMPageSourcePilotReport()
+        closed_page.page_source_present = 1
+        closed_page.accepted = 1
+        closed_page.page_source_token = 99019005077
+        closed_page.would_run_thread = 1
+        local closed = pilot.recordWorkerTlsFact(closed_page, 7, 99019005088)
+
+        local ok = check "mimap350a worker tls pilot" {
+            "accepted": worker.accepted == 1
+            "reason": worker.reason == 0
+            "worker tls present": worker.worker_tls_present == 1
+            "page source": worker.page_source_present == 1
+            "page source accepted": worker.page_source_accepted == 1
+            "page source token": worker.page_source_token == 99019005077
+            "bitmap token": worker.bitmap_token == 99019005066
+            "mutation token": worker.mutation_token == 99019005055
+            "lookup token": worker.lookup_result_token == 99019005044
+            "arena handle": worker.arena_handle_token == 99019005033
+            "pointer token": worker.private_pointer_token == 99019005022
+            "worker id": worker.worker_id == 0
+            "worker id valid": worker.worker_id_valid == 1
+            "tls slot": worker.tls_slot == 7
+            "tls slot valid": worker.tls_slot_valid == 1
+            "tls stored": worker.tls_stored_value == 99019005088
+            "tls loaded": worker.tls_loaded_value == 99019005088
+            "tls cleared": worker.tls_cleared_value == 0
+            "tls store rc": worker.tls_store_rc == 0
+            "tls clear rc": worker.tls_clear_rc == 0
+            "tls roundtrip": worker.tls_roundtrip_ok == 1
+            "owner count": pilot.worker_tls_count == 5
+            "owner accepted": pilot.accepted_count == 1
+            "owner rejected": pilot.reject_count == 4
+            "owner missing": pilot.missing_page_source_reject_count == 1
+            "owner rejected page": pilot.rejected_page_source_reject_count == 1
+            "owner invalid slot": pilot.invalid_tls_slot_reject_count == 1
+            "owner closed": pilot.closed_execution_reject_count == 1
+            "last reason": pilot.last_reason == 6
+            "missing reason": missing.reason == 1
+            "rejected reason": rejected.reason == 2
+            "invalid slot reason": invalid_slot.reason == 4
+            "closed reason": closed.reason == 6
+            "segment": worker.report_segment_id == 190
+            "arena": worker.report_arena_id == 19
+            "backing bytes": worker.report_applied_backing_bytes == 4096
+            "committed bytes": worker.report_applied_committed_bytes == 4096
+            "remaining bytes": worker.report_remaining_source_bytes == 8192
+            "inactive deref": worker.would_dereference == 0
+            "active segment map": worker.would_mutate_segment_map == 1
+            "active atomic bitmap": worker.would_execute_atomic_bitmap == 1
+            "active osvm": worker.would_call_osvm == 1
+            "active worker tls": worker.would_use_worker_tls == 1
+            "inactive thread": worker.would_run_thread == 0
+            "inactive provider": worker.would_activate_provider == 0
+            "inactive matcher": worker.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-worker-tls-pilot-proof")
+        print("worker=" + worker.accepted + "," + worker.reason + "," + worker.worker_tls_present + "," + worker.worker_id + "," + worker.worker_id_valid + "," + worker.tls_slot + "," + worker.tls_slot_valid + "," + worker.tls_roundtrip_ok)
+        print("values=" + worker.tls_stored_value + "," + worker.tls_loaded_value + "," + worker.tls_cleared_value + "," + worker.tls_store_rc + "," + worker.tls_clear_rc)
+        print("page=" + worker.page_source_present + "," + worker.page_source_accepted + "," + worker.page_source_token + "," + worker.bitmap_token + "," + worker.mutation_token + "," + worker.lookup_result_token)
+        print("owner=" + pilot.worker_tls_count + "," + pilot.accepted_count + "," + pilot.reject_count + "," + pilot.missing_page_source_reject_count + "," + pilot.rejected_page_source_reject_count + "," + pilot.invalid_tls_slot_reject_count + "," + pilot.closed_execution_reject_count + "," + pilot.last_reason)
+        print("bytes=" + worker.report_applied_backing_bytes + "," + worker.report_applied_committed_bytes + "," + worker.report_remaining_source_bytes)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + invalid_slot.reason + "," + closed.reason)
+        print("closed=" + worker.would_dereference + "," + worker.would_release_arena_backing + "," + worker.would_recycle_arena_backing + "," + worker.would_mutate_segment_map + "," + worker.would_execute_atomic_bitmap + "," + worker.would_call_osvm + "," + worker.would_use_worker_tls + "," + worker.would_run_thread + "," + worker.would_activate_provider + "," + worker.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

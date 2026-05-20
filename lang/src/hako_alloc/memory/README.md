@@ -455,6 +455,12 @@ Syntax/style contract
   dereference, execute release/recycle behavior, release or recycle real arena
   backing, run worker/TLS behavior, activate providers, replace the host
   allocator, expose hooks, or add backend matchers.
+- `worker_tls_pilot_box.hako` owns MIMAP-350A. It may record one bounded
+  worker/TLS fact from an accepted OSVM/page-source report through the existing
+  internal `HakoAllocWorkerTlsCache` seam. It must not expose source-level
+  worker-local syntax, spawn or schedule workers, execute release/recycle
+  behavior, activate providers, replace the host allocator, expose hooks, or
+  add backend matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known
