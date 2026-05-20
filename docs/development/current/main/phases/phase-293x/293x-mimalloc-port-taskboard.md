@@ -808,7 +808,8 @@ FST:
 | `MIMAP-332A` | landed | Segment arena backing modeled allocation-ledger release/recycle lifecycle generation prerequisite inventory. | selected MIMAP-333A |
 | `MIMAP-333A` | landed | Segment arena backing modeled allocation-ledger release/recycle lifecycle generation prerequisite diagnostics. | selected MIMAP-334A |
 | `MIMAP-334A` | landed | Segment arena backing modeled allocation-ledger release/recycle lifecycle generation prerequisite closeout pack. | selected MIMAP-335A |
-| `MIMAP-335A` | selected current | Post release/recycle lifecycle generation prerequisite closeout row selection. | after MIMAP-334A |
+| `MIMAP-335A` | landed | Post release/recycle lifecycle generation prerequisite closeout row selection. | selected MIMAP-336A |
+| `MIMAP-336A` | selected current | Segment arena backing modeled allocation-ledger release/recycle pointer residence prerequisite inventory. | after MIMAP-335A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -817,8 +818,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-335A` selects the next narrow allocator row after the model-only
-lifecycle generation prerequisite closeout.
+`MIMAP-336A` adds a model-only pointer residence prerequisite inventory after
+the lifecycle generation prerequisite closeout.
 
 SSOT:
 
@@ -870,6 +871,7 @@ docs/development/current/main/phases/phase-293x/293x-947-MIMAP-332A-SEGMENT-AREN
 docs/development/current/main/phases/phase-293x/293x-948-MIMAP-333A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-LIFECYCLE-GENERATION-PREREQUISITE-DIAGNOSTICS.md
 docs/development/current/main/phases/phase-293x/293x-949-MIMAP-334A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-LIFECYCLE-GENERATION-PREREQUISITE-CLOSEOUT.md
 docs/development/current/main/phases/phase-293x/293x-950-MIMAP-335A-POST-RELEASE-RECYCLE-LIFECYCLE-GENERATION-PREREQUISITE-CLOSEOUT-ROW-SELECTION.md
+docs/development/current/main/phases/phase-293x/293x-951-MIMAP-336A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-POINTER-RESIDENCE-PREREQUISITE-INVENTORY.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-diagnostics-ssot.md

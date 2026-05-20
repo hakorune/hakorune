@@ -1,6 +1,6 @@
 # 293x-950 MIMAP-335A Post Release/Recycle Lifecycle Generation Prerequisite Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -44,4 +44,15 @@ real release/recycle execution.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Result
+
+MIMAP-335A selected the next model-only prerequisite row after lifecycle
+generation prerequisite closeout.
+
+Selected next:
+
+```text
+MIMAP-336A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Pointer Residence Prerequisite Inventory
 ```
