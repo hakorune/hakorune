@@ -1,6 +1,6 @@
 # 293x-937 MIMAP-322A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Execution Unsupported Outcome Ledger Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -48,4 +48,15 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_le
 bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_unsupported_outcome_ledger_diagnostics_guard.sh --level L2
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Result
+
+MIMAP-322A landed the closeout pack for the model-only unsupported
+release/recycle execution outcome ledger/diagnostics pair.
+
+Selected next:
+
+```text
+MIMAP-323A Post Release/Recycle Unsupported Outcome Ledger Closeout Row Selection
 ```
