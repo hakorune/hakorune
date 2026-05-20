@@ -1,6 +1,6 @@
 # 293x-931 MIMAP-316A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Execution Intent Marker Preflight
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -50,4 +50,17 @@ intent is explicit; execution stays closed.
 bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_intent_marker_guard.sh --level L2
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Result
+
+Landed the model-only release/recycle execution intent marker. The row accepts
+intent from accepted execution readiness matrix evidence and explicitly reports
+`execution_supported = 0`.
+
+Selected next:
+
+```text
+MIMAP-317A Segment arena backing modeled allocation-ledger release/recycle
+execution intent marker diagnostics
 ```

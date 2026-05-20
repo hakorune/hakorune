@@ -1,0 +1,114 @@
+// hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-intent-marker-proof
+// Purpose: prove MIMAP-316A model-only release/recycle execution intent marker.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycle
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_lifecycle_continuation_bridge_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridge
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_continuation_application_bridge_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridge
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_applied_state_summary_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummary
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_readiness_matrix_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_intent_marker_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionIntentMarker
+
+static box Main {
+    makeRecycleReport(segment_id: i64, arena_id: i64, recycle_token: i64): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleReport()
+        report.accepted = 1
+        report.reason = 0
+        report.release_applied_recycle_present = 1
+        report.modeled_release_applied_recycle_present = 1
+        report.row_index = 1
+        report.segment_id = segment_id
+        report.arena_id = arena_id
+        report.lifetime_generation = 3
+        report.release_apply_token = 96019005005
+        report.release_applied_recycle_token = recycle_token
+        report.applied_backing_bytes = 4096
+        report.applied_committed_bytes = 4096
+        report.remaining_source_bytes = 8192
+        return report
+    }
+
+    main(args) {
+        local continuation_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridgeInventory()
+        local application_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridgeInventory()
+        local summary_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummaryInventory()
+        local matrix_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrixInventory()
+        local intent_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionIntentMarker()
+        local recycle_report = Main.makeRecycleReport(190, 19, 97019005005)
+
+        local continued = continuation_inventory.recordLifecycleContinuation(recycle_report, 98019005005)
+        local applied = application_inventory.recordContinuationApplication(continued, 99019005005)
+        local summary = summary_inventory.summarizeAppliedState(applied)
+        local matrix = matrix_inventory.recordExecutionReadinessMatrix(summary, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+        local accepted = intent_inventory.recordExecutionIntentMarker(matrix, 1)
+        local missing_marker = intent_inventory.recordExecutionIntentMarker(matrix, 0)
+        local missing_matrix = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrixReport()
+        missing_matrix.matrix_present = 0
+        local missing_matrix_report = intent_inventory.recordExecutionIntentMarker(missing_matrix, 1)
+        local rejected_matrix = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrixReport()
+        rejected_matrix.matrix_present = 1
+        rejected_matrix.accepted = 0
+        rejected_matrix.reason = 8
+        local rejected_matrix_report = intent_inventory.recordExecutionIntentMarker(rejected_matrix, 1)
+        local blocked_matrix = matrix_inventory.recordExecutionReadinessMatrix(summary, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0)
+        local blocked_matrix_report = intent_inventory.recordExecutionIntentMarker(blocked_matrix, 1)
+
+        local ok = check "mimap316a segment arena backing modeled allocation ledger release recycle execution intent marker" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "marker present": accepted.intent_marker_present == 1
+            "matrix accepted": accepted.matrix_accepted == 1
+            "matrix reason": accepted.matrix_reason == 0
+            "blocked count": accepted.blocked_requirement_count == 0
+            "segment": accepted.segment_id == 190
+            "arena": accepted.arena_id == 19
+            "lifetime": accepted.lifetime_generation == 3
+            "recycle token": accepted.release_applied_recycle_token == 97019005005
+            "continuation token": accepted.continuation_token == 98019005005
+            "application token": accepted.application_token == 99019005005
+            "backing bytes": accepted.applied_backing_bytes == 4096
+            "committed bytes": accepted.applied_committed_bytes == 4096
+            "remaining bytes": accepted.remaining_source_bytes == 8192
+            "intent requested": accepted.execution_intent_requested == 1
+            "execution unsupported": accepted.execution_supported == 0
+            "unsupported requirement": accepted.unsupported_execution_requirement == 1
+            "owner count": intent_inventory.marker_count == 5
+            "owner accepted": intent_inventory.accepted_count == 1
+            "owner rejected": intent_inventory.reject_count == 4
+            "missing marker reason": missing_marker.reason == 1
+            "missing matrix reason": missing_matrix_report.reason == 2
+            "rejected matrix reason": rejected_matrix_report.reason == 3
+            "blocked matrix reason": blocked_matrix_report.reason == 4
+            "blocked source reason": blocked_matrix_report.matrix_reason == 8
+            "unsupported count": intent_inventory.unsupported_execution_count == 1
+            "inactive lifecycle": accepted.would_create_lifecycle_generation == 0
+            "inactive residence": accepted.would_create_pointer_residence == 0
+            "inactive lookup": accepted.would_lookup_by_pointer == 0
+            "inactive release": accepted.would_release_arena_backing == 0
+            "inactive recycle": accepted.would_recycle_arena_backing == 0
+            "inactive segment map": accepted.would_use_segment_map == 0
+            "inactive atomic": accepted.would_execute_atomic_bitmap == 0
+            "inactive osvm": accepted.would_call_osvm == 0
+            "inactive thread": accepted.would_run_thread == 0
+            "inactive provider": accepted.would_activate_provider == 0
+            "inactive matcher": accepted.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-intent-marker-proof")
+        print("intent=" + accepted.accepted + "," + accepted.reason + "," + accepted.intent_marker_present + "," + accepted.matrix_accepted + "," + accepted.execution_intent_requested + "," + accepted.execution_supported + "," + accepted.unsupported_execution_requirement)
+        print("tokens=" + accepted.release_applied_recycle_token + "," + accepted.continuation_token + "," + accepted.application_token)
+        print("bytes=" + accepted.applied_backing_bytes + "," + accepted.applied_committed_bytes + "," + accepted.remaining_source_bytes)
+        print("owner=" + intent_inventory.marker_count + "," + intent_inventory.accepted_count + "," + intent_inventory.reject_count + "," + intent_inventory.missing_marker_reject_count + "," + intent_inventory.missing_matrix_reject_count + "," + intent_inventory.rejected_matrix_reject_count + "," + intent_inventory.blocked_matrix_reject_count + "," + intent_inventory.unsupported_execution_count + "," + intent_inventory.last_reason)
+        print("rejected=" + missing_marker.reason + "," + missing_matrix_report.reason + "," + rejected_matrix_report.reason + "," + blocked_matrix_report.reason + "," + blocked_matrix_report.matrix_reason)
+        print("inactive=" + accepted.would_create_lifecycle_generation + "," + accepted.would_create_pointer_residence + "," + accepted.would_lookup_by_pointer + "," + accepted.would_release_arena_backing + "," + accepted.would_recycle_arena_backing + "," + accepted.would_use_segment_map + "," + accepted.would_execute_atomic_bitmap + "," + accepted.would_call_osvm + "," + accepted.would_run_thread + "," + accepted.would_activate_provider + "," + accepted.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

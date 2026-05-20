@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-20"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-315A landed and selected MIMAP-316A; MIMAP-316A is current to add an explicit model-only release/recycle execution intent marker before any real arena backing release/recycle behavior opens. Cross-function Result direct ABI remains closed. Real lifecycle generation, raw pointer residence, pointer-derived lookup, real arena backing release/recycle, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-316A landed and selected MIMAP-317A; MIMAP-317A is current to add observer-only diagnostics for the model-only release/recycle execution intent marker. Cross-function Result direct ABI remains closed. Real lifecycle generation, raw pointer residence, pointer-derived lookup, real arena backing release/recycle, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-931-MIMAP-316A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-INTENT-MARKER-PREFLIGHT.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-932-MIMAP-317A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-INTENT-MARKER-DIAGNOSTICS.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-930-MIMAP-315A-POST-RELEASE-RECYCLE-EXECUTION-READINESS-MATRIX-CLOSEOUT-ROW-SELECTION"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-930-MIMAP-315A-POST-RELEASE-RECYCLE-EXECUTION-READINESS-MATRIX-CLOSEOUT-ROW-SELECTION.md"
-latest_card_summary = "Selected MIMAP-316A release/recycle execution intent marker preflight after the readiness matrix closeout."
+latest_card = "293x-931-MIMAP-316A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-INTENT-MARKER-PREFLIGHT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-931-MIMAP-316A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-INTENT-MARKER-PREFLIGHT.md"
+latest_card_summary = "Landed model-only release/recycle execution intent marker preflight with execution_supported=0; MIMAP-317A selected."
 
-current_blocker_token = "MIMAP-316A"
+current_blocker_token = "MIMAP-317A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-931 MIMAP-316A segment arena backing modeled allocation-ledger release/recycle execution intent marker preflight landed; MIMAP-317A selected",
   "293x-930 MIMAP-315A post release/recycle execution readiness matrix closeout row selection landed; MIMAP-316A selected",
   "293x-929 MIMAP-314A segment arena backing modeled allocation-ledger release/recycle execution readiness matrix closeout landed; MIMAP-315A selected",
   "293x-928 MIMAP-313A segment arena backing modeled allocation-ledger release/recycle execution readiness matrix diagnostics landed; MIMAP-314A selected",
