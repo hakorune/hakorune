@@ -1,6 +1,6 @@
 # 293x-942 MIMAP-327A Post Release/Recycle Execution Support Gate Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -16,7 +16,13 @@ release/recycle execution by default.
 
 ## Selected Row
 
-To be selected by this planning row.
+```text
+MIMAP-328A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Execution Support Requirement Matrix Inventory
+```
+
+The selected row records the model-only requirements that must be satisfied
+before any real release/recycle execution support can open. It remains an
+inventory row and does not execute real release/recycle behavior.
 
 ## Stop Lines
 
@@ -40,4 +46,14 @@ To be selected by this planning row.
 ```text
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Result
+
+MIMAP-327A landed post-support-gate closeout row selection.
+
+Selected next:
+
+```text
+MIMAP-328A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Execution Support Requirement Matrix Inventory
 ```
