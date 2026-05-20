@@ -1,0 +1,69 @@
+// hako-alloc-allocator-comparison-baseline-inventory-proof
+// Purpose: prove MIMAP-427A allocator comparison baseline inventory.
+
+using selfhost.hako_alloc.memory.allocator_comparison_baseline_inventory_box as HakoAllocAllocatorComparisonBaselineInventory
+
+static box Main {
+    main(args) {
+        local owner = new HakoAllocAllocatorComparisonBaselineInventory()
+        local accepted = owner.inventoryAllocatorComparisonBaseline(1, 1, 1, 1, 1, 3)
+        local missing_c = owner.inventoryAllocatorComparisonBaseline(0, 1, 1, 1, 1, 3)
+        local missing_hako = owner.inventoryAllocatorComparisonBaseline(1, 0, 1, 1, 1, 3)
+        local missing_throughput = owner.inventoryAllocatorComparisonBaseline(1, 1, 0, 1, 1, 3)
+        local missing_memory = owner.inventoryAllocatorComparisonBaseline(1, 1, 1, 0, 1, 3)
+        local missing_workload = owner.inventoryAllocatorComparisonBaseline(1, 1, 1, 1, 0, 3)
+        local invalid_repeat = owner.inventoryAllocatorComparisonBaseline(1, 1, 1, 1, 1, 0)
+
+        local ok = check "mimap427a allocator comparison baseline inventory" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "inventory present": accepted.baseline_inventory_present == 1
+            "comparison ready": accepted.comparison_ready == 1
+            "c baseline": accepted.c_mimalloc_baseline_present == 1
+            "hako baseline": accepted.hako_alloc_baseline_present == 1
+            "throughput": accepted.throughput_target_present == 1
+            "memory": accepted.memory_usage_target_present == 1
+            "workload": accepted.workload_matrix_present == 1
+            "repeat": accepted.repeat_count == 3
+            "owner count": owner.inventory_count == 7
+            "owner accepted": owner.accepted_count == 1
+            "owner rejected": owner.reject_count == 6
+            "owner missing c": owner.missing_c_mimalloc_baseline_reject_count == 1
+            "owner missing hako": owner.missing_hako_alloc_baseline_reject_count == 1
+            "owner missing throughput": owner.missing_throughput_target_reject_count == 1
+            "owner missing memory": owner.missing_memory_usage_target_reject_count == 1
+            "owner missing workload": owner.missing_workload_matrix_reject_count == 1
+            "owner invalid repeat": owner.invalid_repeat_count_reject_count == 1
+            "last reason": owner.last_reason == 6
+            "missing c reason": missing_c.reason == 1
+            "missing hako reason": missing_hako.reason == 2
+            "missing throughput reason": missing_throughput.reason == 3
+            "missing memory reason": missing_memory.reason == 4
+            "missing workload reason": missing_workload.reason == 5
+            "invalid repeat reason": invalid_repeat.reason == 6
+            "process replacement": accepted.process_replacement_executed == 0
+            "hook installed": accepted.hook_installed == 0
+            "matcher added": accepted.backend_matcher_added == 0
+            "global allocator": accepted.global_allocator_installed == 0
+            "would replace": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-allocator-comparison-baseline-inventory-proof")
+        print("baseline=" + accepted.accepted + "," + accepted.reason + "," + accepted.baseline_inventory_present + "," + accepted.comparison_ready + "," + accepted.c_mimalloc_baseline_present + "," + accepted.hako_alloc_baseline_present + "," + accepted.throughput_target_present + "," + accepted.memory_usage_target_present + "," + accepted.workload_matrix_present + "," + accepted.repeat_count)
+        print("owner=" + owner.inventory_count + "," + owner.accepted_count + "," + owner.reject_count + "," + owner.missing_c_mimalloc_baseline_reject_count + "," + owner.missing_hako_alloc_baseline_reject_count + "," + owner.missing_throughput_target_reject_count + "," + owner.missing_memory_usage_target_reject_count + "," + owner.missing_workload_matrix_reject_count + "," + owner.invalid_repeat_count_reject_count + "," + owner.last_reason)
+        print("closed=" + accepted.process_replacement_executed + "," + accepted.hook_installed + "," + accepted.backend_matcher_added + "," + accepted.global_allocator_installed + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing_c.reason + "," + missing_hako.reason + "," + missing_throughput.reason + "," + missing_memory.reason + "," + missing_workload.reason + "," + invalid_repeat.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

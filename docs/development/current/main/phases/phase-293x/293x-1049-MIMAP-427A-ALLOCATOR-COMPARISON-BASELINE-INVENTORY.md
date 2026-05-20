@@ -1,6 +1,6 @@
 # 293x-1049 MIMAP-427A Allocator Comparison Baseline Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -29,4 +29,28 @@ changing allocator behavior or replacing the process allocator.
 
 ## Validation
 
-Daily validation should be L0/L1 unless a proof app is added.
+Daily validation is L2:
+
+```text
+VM proof
+MIR JSON emit
+route preflight
+```
+
+## Required Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_allocator_comparison_baseline_inventory_guard.sh --level L2
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Landed Evidence
+
+- Added the allocator comparison baseline inventory owner.
+- Added the proof app, design SSOT, guard, manifest row, and module export.
+- Inventoried C mimalloc baseline, hako_alloc baseline, throughput target,
+  memory-usage target, workload matrix, and repeat count inputs.
+- Kept benchmark execution, hook installation, backend matcher additions,
+  process allocator replacement, worker/thread execution, and global allocator
+  install closed.

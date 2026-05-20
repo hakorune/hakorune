@@ -950,3 +950,16 @@ closeout_pack = "host-replacement-explicit-preflight"
 exe = "deferred-to-host-replacement-preflight-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_host_replacement_blocked_state_diagnostics_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_host_replacement_blocked_state_diagnostics_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-427A"
+app = "apps/hako-alloc-allocator-comparison-baseline-inventory-proof"
+label = "allocator comparison baseline inventory proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "allocator-comparison-baseline-inventory"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "allocator-comparison-baseline"
+exe = "deferred-to-comparison-baseline-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_baseline_inventory_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_baseline_inventory_guard.sh", "--level", "L2"]

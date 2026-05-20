@@ -78,6 +78,7 @@ Current modules
 - `worker_tls_cache_box.hako`
 - `alignment_policy_box.hako`
 - `aligned_small_meta_store_box.hako`
+- `allocator_comparison_baseline_inventory_box.hako`
 - `allocator_metadata_records.hako`
 - `allocator_facade_box.hako`
 - `alloc_fast_path_heap_box.hako`
