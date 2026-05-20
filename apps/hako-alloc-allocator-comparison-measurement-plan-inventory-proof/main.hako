@@ -1,0 +1,75 @@
+// hako-alloc-allocator-comparison-measurement-plan-inventory-proof
+// Purpose: prove MIMAP-433A allocator comparison measurement plan inventory.
+
+using selfhost.hako_alloc.memory.allocator_comparison_measurement_plan_inventory_box as HakoAllocAllocatorComparisonMeasurementPlanInventory
+
+static box Main {
+    main(args) {
+        local owner = new HakoAllocAllocatorComparisonMeasurementPlanInventory()
+        local accepted = owner.inventoryAllocatorComparisonMeasurementPlan(1, 1, 1, 1, 1, 5, 1)
+        local missing_run = owner.inventoryAllocatorComparisonMeasurementPlan(0, 1, 1, 1, 1, 5, 1)
+        local missing_warmup = owner.inventoryAllocatorComparisonMeasurementPlan(1, 0, 1, 1, 1, 5, 1)
+        local missing_output = owner.inventoryAllocatorComparisonMeasurementPlan(1, 1, 0, 1, 1, 5, 1)
+        local missing_throughput = owner.inventoryAllocatorComparisonMeasurementPlan(1, 1, 1, 0, 1, 5, 1)
+        local missing_memory = owner.inventoryAllocatorComparisonMeasurementPlan(1, 1, 1, 1, 0, 5, 1)
+        local invalid_run = owner.inventoryAllocatorComparisonMeasurementPlan(1, 1, 1, 1, 1, 0, 1)
+        local invalid_warmup = owner.inventoryAllocatorComparisonMeasurementPlan(1, 1, 1, 1, 1, 5, -1)
+
+        local ok = check "mimap433a allocator comparison measurement plan inventory" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "inventory present": accepted.measurement_plan_inventory_present == 1
+            "plan ready": accepted.measurement_plan_ready == 1
+            "run count present": accepted.run_count_present == 1
+            "warmup present": accepted.warmup_plan_present == 1
+            "output contract present": accepted.output_contract_present == 1
+            "throughput present": accepted.throughput_measurement_present == 1
+            "memory present": accepted.memory_usage_measurement_present == 1
+            "run count": accepted.run_count == 5
+            "warmup count": accepted.warmup_count == 1
+            "owner count": owner.inventory_count == 8
+            "owner accepted": owner.accepted_count == 1
+            "owner rejected": owner.reject_count == 7
+            "owner missing run": owner.missing_run_count_reject_count == 1
+            "owner missing warmup": owner.missing_warmup_plan_reject_count == 1
+            "owner missing output": owner.missing_output_contract_reject_count == 1
+            "owner missing throughput": owner.missing_throughput_measurement_reject_count == 1
+            "owner missing memory": owner.missing_memory_usage_measurement_reject_count == 1
+            "owner invalid run": owner.invalid_run_count_reject_count == 1
+            "owner invalid warmup": owner.invalid_warmup_count_reject_count == 1
+            "last reason": owner.last_reason == 7
+            "missing run reason": missing_run.reason == 1
+            "missing warmup reason": missing_warmup.reason == 2
+            "missing output reason": missing_output.reason == 3
+            "missing throughput reason": missing_throughput.reason == 4
+            "missing memory reason": missing_memory.reason == 5
+            "invalid run reason": invalid_run.reason == 6
+            "invalid warmup reason": invalid_warmup.reason == 7
+            "benchmark": accepted.benchmark_executed == 0
+            "process replacement": accepted.process_replacement_executed == 0
+            "hook installed": accepted.hook_installed == 0
+            "matcher added": accepted.backend_matcher_added == 0
+            "global allocator": accepted.global_allocator_installed == 0
+            "would benchmark": accepted.would_run_benchmark == 0
+            "would replace": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-allocator-comparison-measurement-plan-inventory-proof")
+        print("plan=" + accepted.accepted + "," + accepted.reason + "," + accepted.measurement_plan_inventory_present + "," + accepted.measurement_plan_ready + "," + accepted.run_count_present + "," + accepted.warmup_plan_present + "," + accepted.output_contract_present + "," + accepted.throughput_measurement_present + "," + accepted.memory_usage_measurement_present + "," + accepted.run_count + "," + accepted.warmup_count)
+        print("owner=" + owner.inventory_count + "," + owner.accepted_count + "," + owner.reject_count + "," + owner.missing_run_count_reject_count + "," + owner.missing_warmup_plan_reject_count + "," + owner.missing_output_contract_reject_count + "," + owner.missing_throughput_measurement_reject_count + "," + owner.missing_memory_usage_measurement_reject_count + "," + owner.invalid_run_count_reject_count + "," + owner.invalid_warmup_count_reject_count + "," + owner.last_reason)
+        print("closed=" + accepted.benchmark_executed + "," + accepted.process_replacement_executed + "," + accepted.hook_installed + "," + accepted.backend_matcher_added + "," + accepted.global_allocator_installed + "," + accepted.would_run_benchmark + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing_run.reason + "," + missing_warmup.reason + "," + missing_output.reason + "," + missing_throughput.reason + "," + missing_memory.reason + "," + invalid_run.reason + "," + invalid_warmup.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

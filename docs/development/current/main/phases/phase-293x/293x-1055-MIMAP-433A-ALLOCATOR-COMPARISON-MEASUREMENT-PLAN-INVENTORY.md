@@ -1,6 +1,6 @@
 # 293x-1055 MIMAP-433A Allocator Comparison Measurement Plan Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -28,4 +28,17 @@ needed before benchmark execution opens.
 
 ## Validation
 
-Daily validation should be L0/L1 unless a proof app is added.
+```text
+bash tools/checks/k2_wide_hako_alloc_allocator_comparison_measurement_plan_inventory_guard.sh --level L2
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Landed Evidence
+
+- Added the measurement plan inventory owner and report.
+- Added a scalar proof app for run count, warmup, output-contract,
+  throughput, and memory-usage measurement readiness.
+- Kept benchmark execution, hook installation, backend matcher additions,
+  process allocator replacement, worker/thread execution, and global allocator
+  install closed.
