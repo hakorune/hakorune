@@ -1,6 +1,6 @@
 # 293x-969 MIMAP-353A Post Provider Inactive Boundary Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -37,3 +37,8 @@ atomic bitmap, OSVM/page-source, worker/TLS, and provider inactive boundary.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Selected MIMAP-354A backend matcher no-growth closeout after provider inactive
+boundary inventory.
