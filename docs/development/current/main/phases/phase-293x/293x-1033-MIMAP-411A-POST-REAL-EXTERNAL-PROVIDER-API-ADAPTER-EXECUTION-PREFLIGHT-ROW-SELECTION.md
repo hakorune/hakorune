@@ -1,6 +1,6 @@
 # 293x-1033 MIMAP-411A Post Real External Provider API Adapter Execution Preflight Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -44,3 +44,10 @@ MIMAP-412A Real External Provider API Adapter Execution Preflight Closeout
 
 The next row should close out the MIMAP-410A preflight pack with representative
 evidence before any later row considers a real external provider API call pilot.
+
+## Landed Evidence
+
+- Selected the MIMAP-410A preflight closeout as the next row.
+- Kept actual external provider API execution, host allocator replacement,
+  hooks, backend matcher additions, worker/thread execution, and global
+  allocator install closed.
