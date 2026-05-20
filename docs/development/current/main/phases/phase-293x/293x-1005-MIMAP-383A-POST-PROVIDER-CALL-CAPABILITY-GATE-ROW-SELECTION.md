@@ -1,6 +1,6 @@
 # 293x-1005 MIMAP-383A Post Provider Call Capability Gate Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -31,3 +31,15 @@ install remain closed.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Decision Result
+
+Selected:
+
+```text
+MIMAP-384A Provider Call Dry-Run Unsupported Behavior
+```
+
+The next row may consume the provider-call capability gate and produce a
+dry-run unsupported provider-call outcome. It still must not call a provider
+API, replace the host allocator, install hooks, or add backend matchers.
