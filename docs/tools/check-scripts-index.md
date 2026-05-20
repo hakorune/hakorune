@@ -142,6 +142,7 @@ tools/checks/dev_gate.sh quick
 | `tools/checks/k2_wide_generic_arity_checker_guard.sh` | GEN-002 の Stage1 generic arity checker を固定し、既知 generic type reference の型引数数 mismatch を fail-fast で検出する。 |
 | `tools/checks/k2_wide_language_surface_admission_guard.sh` | language minimal surface の入場審査を固定し、小さい surface / 強い semantics / fold-first rule が docs 入口から辿れることを検証する。 |
 | `tools/checks/k2_wide_box_new_field_initializer_guard.sh` | BOX-INIT-001 の `new Box { field: expr }` construction-site field initializer surface を固定し、AST transport / parser / MIR builder sugar lowering / duplicate-field diagnostics / CorePlan unsupported fail-fast を検証する。 |
+| `tools/checks/k2_wide_box_new_field_initializer_provider_reports_guard.sh` | BOX-INIT-002 の provider report-copy adoption を固定し、provider boundary/readiness/selection/unsupported-outcome report helpers が explicit `new Report { field: fields.field }` を使い、既存 L2 provider guards が緑のまま provider activation を閉じることを検証する。 |
 | `tools/checks/k2_wide_array_result_option_surface_guard.sh` | ARRAY-RESULT-SSOT の docs-only canonical surface を固定し、`Array<T>` / `PackedArray<T>` / `Result<T,E>` / `Option<T>` / `Type::Variant` と後続タスク分解を検証する。 |
 | `tools/checks/k2_wide_enum_variant_canonical_surface_guard.sh` | ENUMVAR-001 の canonical `Type::Variant` surface を固定し、transition metadata の `Enum::Value` transport と legacy dot normalization を検証する。 |
 | `tools/checks/k2_wide_localtype_metadata_capsule_guard.sh` | LOCALTYPE-001 の `local name: Type` metadata capsule を固定し、AST/AST JSON/Program JSON v0 transport と単一束縛制約を検証する。 |
