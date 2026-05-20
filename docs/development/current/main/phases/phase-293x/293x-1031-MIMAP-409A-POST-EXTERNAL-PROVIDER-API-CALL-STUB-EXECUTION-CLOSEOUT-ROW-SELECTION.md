@@ -1,6 +1,6 @@
 # 293x-1031 MIMAP-409A Post External Provider API Call Stub Execution Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -32,3 +32,15 @@ replacement remain closed.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Decision Result
+
+Selected:
+
+```text
+MIMAP-410A Real External Provider API Adapter Execution Preflight
+```
+
+The next row records the preflight for a future real external provider API
+adapter execution. It must not execute external provider APIs or open host
+allocator replacement.
