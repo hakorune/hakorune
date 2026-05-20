@@ -1,6 +1,6 @@
 # 293x-1026 MIMAP-404A Provider Call External API Adapter Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -47,3 +47,10 @@ bash tools/checks/k2_wide_hako_alloc_provider_call_external_api_adapter_closeout
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Evidence
+
+- Added the provider-call external API adapter closeout SSOT.
+- Added the closeout guard that reuses MIMAP-400A and MIMAP-402A L2 evidence.
+- Kept external provider API execution, host replacement, hooks, backend matcher
+  additions, worker/thread execution, and global allocator install closed.
