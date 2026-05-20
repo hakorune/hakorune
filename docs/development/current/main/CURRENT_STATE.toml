@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-21"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-394A landed provider-call real API first-pattern plan and selected MIMAP-395A. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-395A landed provider-call real API stub execution pilot selection and selected MIMAP-396A. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-1017-MIMAP-395A-POST-PROVIDER-CALL-REAL-API-FIRST-PATTERN-PLAN-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-1018-MIMAP-396A-PROVIDER-CALL-REAL-API-STUB-EXECUTION-PILOT.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-1016-MIMAP-394A-PROVIDER-CALL-REAL-API-FIRST-PATTERN-PLAN"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1016-MIMAP-394A-PROVIDER-CALL-REAL-API-FIRST-PATTERN-PLAN.md"
-latest_card_summary = "Planned provider-call real API first-pattern boundary while keeping host replacement, hooks, and global allocator install closed."
+latest_card = "293x-1017-MIMAP-395A-POST-PROVIDER-CALL-REAL-API-FIRST-PATTERN-PLAN-ROW-SELECTION"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1017-MIMAP-395A-POST-PROVIDER-CALL-REAL-API-FIRST-PATTERN-PLAN-ROW-SELECTION.md"
+latest_card_summary = "Selected provider-call real API stub execution pilot as the next behavior row."
 
-current_blocker_token = "MIMAP-395A"
+current_blocker_token = "MIMAP-396A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-1017 MIMAP-395A post provider-call real API first-pattern plan row selection landed; MIMAP-396A selected",
   "293x-1016 MIMAP-394A provider-call real API first-pattern plan landed; MIMAP-395A selected",
   "293x-1015 MIMAP-393A post provider-call real API preflight row selection landed; MIMAP-394A selected",
   "293x-1014 MIMAP-392A provider-call real API execution preflight landed; MIMAP-393A selected",

@@ -1,6 +1,6 @@
 # 293x-1017 MIMAP-395A Post Provider Call Real API First-Pattern Plan Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -30,3 +30,16 @@ replacement, hooks, backend matcher additions, or global allocator install.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Decision Result
+
+Selected:
+
+```text
+MIMAP-396A Provider Call Real API Stub Execution Pilot
+```
+
+This row opens a stubbed provider API call execution seam. It records an
+explicit provider API call result in model space, while host replacement, hooks,
+backend matcher additions, worker/thread execution, and global allocator install
+remain closed.
