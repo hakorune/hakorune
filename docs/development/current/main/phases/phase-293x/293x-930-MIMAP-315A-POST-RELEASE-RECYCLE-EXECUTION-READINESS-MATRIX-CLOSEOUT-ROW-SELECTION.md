@@ -1,6 +1,6 @@
 # 293x-930 MIMAP-315A Post Release/Recycle Execution Readiness Matrix Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -43,3 +43,20 @@ toward release/recycle execution without opening real arena backing behavior.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Selected next:
+
+```text
+MIMAP-316A Segment arena backing modeled allocation-ledger release/recycle
+execution intent marker preflight
+```
+
+Rationale:
+
+- MIMAP-314A closed the model-only execution readiness matrix pack.
+- The next step should make release/recycle execution intent explicit before
+  any real arena backing release/recycle behavior opens.
+- This mirrors the existing reclaim execution intent marker pattern while
+  keeping execution unsupported and fail-fast.
