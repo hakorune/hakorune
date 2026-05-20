@@ -1,6 +1,6 @@
 # 293x-1040 MIMAP-418A Post Real External Provider API Call First-Pattern Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -42,3 +42,9 @@ MIMAP-419A Host Replacement Optional Ladder Plan
 
 The next row should plan the optional host replacement ladder without installing
 hooks, adding backend matchers, or replacing the process allocator.
+
+## Landed Evidence
+
+- Selected the host replacement optional ladder plan as the next row.
+- Kept hook installation, backend matcher additions, process allocator
+  replacement, worker/thread execution, and global allocator install closed.
