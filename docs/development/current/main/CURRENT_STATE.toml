@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-21"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-364A landed and selected MIMAP-365A; MIMAP-365A is current to choose the next narrow allocator row after provider selection inventory. Cross-function Result direct ABI remains closed. Provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-366A landed and selected MIMAP-367A; MIMAP-367A is current to choose the next narrow allocator row after provider-facing ladder closeout. Cross-function Result direct ABI remains closed. Provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-981-MIMAP-365A-POST-PROVIDER-SELECTION-INVENTORY-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-983-MIMAP-367A-POST-PROVIDER-FACING-LADDER-CLOSEOUT-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-980-MIMAP-364A-PROVIDER-SELECTION-INVENTORY"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-980-MIMAP-364A-PROVIDER-SELECTION-INVENTORY.md"
-latest_card_summary = "Landed provider selection inventory; MIMAP-365A selected."
+latest_card = "293x-982-MIMAP-366A-PROVIDER-FACING-LADDER-CLOSEOUT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-982-MIMAP-366A-PROVIDER-FACING-LADDER-CLOSEOUT.md"
+latest_card_summary = "Landed provider-facing ladder closeout; MIMAP-367A selected."
 
-current_blocker_token = "MIMAP-365A"
+current_blocker_token = "MIMAP-367A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-982 MIMAP-366A provider-facing ladder closeout landed; MIMAP-367A selected",
+  "293x-981 MIMAP-365A post provider selection inventory row selection landed; MIMAP-366A selected",
   "293x-980 MIMAP-364A provider selection inventory landed; MIMAP-365A selected",
   "293x-979 MIMAP-363A post provider readiness preflight row selection landed; MIMAP-364A selected",
   "293x-978 MIMAP-362A provider readiness preflight landed; MIMAP-363A selected",

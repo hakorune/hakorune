@@ -1,19 +1,20 @@
-# 293x-981 MIMAP-365A Post Provider Selection Inventory Row Selection
+# 293x-983 MIMAP-367A Post Provider-Facing Ladder Closeout Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-21
 
 ## Decision
 
-Select the next narrow allocator row after provider selection inventory. The
-next row should close out the provider-facing ladder before any activation
-first-pattern row is considered.
+Select the next narrow allocator row after provider-facing ladder closeout.
+The next row may plan provider activation first-pattern, but activation itself,
+host allocator replacement, hooks, and `#[global_allocator]` remain closed
+until an explicit first-pattern row opens them.
 
 ## Candidate Next Rows
 
-- provider-facing ladder closeout before activation first-pattern
-- provider selection diagnostics
 - provider activation first-pattern planning with activation still closed
+- provider activation unsupported outcome ledger
+- host allocator replacement / hooks optional-ladder planning
 
 ## Stop Lines
 
@@ -29,8 +30,3 @@ first-pattern row is considered.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
-
-## Result
-
-Selected MIMAP-366A provider-facing ladder closeout before activation
-first-pattern planning.
