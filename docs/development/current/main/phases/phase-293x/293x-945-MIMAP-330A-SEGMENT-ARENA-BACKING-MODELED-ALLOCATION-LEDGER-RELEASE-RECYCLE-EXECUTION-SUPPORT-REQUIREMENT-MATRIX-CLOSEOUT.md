@@ -1,6 +1,6 @@
 # 293x-945 MIMAP-330A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Execution Support Requirement Matrix Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -48,4 +48,15 @@ allocator row.
 bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_requirement_matrix_closeout_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Result
+
+MIMAP-330A landed the release/recycle execution support requirement matrix
+closeout pack.
+
+Selected next:
+
+```text
+MIMAP-331A Post Release/Recycle Execution Support Requirement Matrix Closeout Row Selection
 ```
