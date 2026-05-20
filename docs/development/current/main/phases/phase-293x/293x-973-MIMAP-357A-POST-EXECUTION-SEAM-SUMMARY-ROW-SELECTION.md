@@ -1,6 +1,6 @@
 # 293x-973 MIMAP-357A Post Execution Seam Summary Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -30,3 +30,7 @@ explicit first-pattern row opens them.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Selected MIMAP-358A provider-facing ladder closed plan.
