@@ -1,6 +1,6 @@
 # 293x-1035 MIMAP-413A Post Real External Provider API Adapter Execution Preflight Closeout Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -43,3 +43,11 @@ MIMAP-414A Real External Provider API Call First-Pattern Plan
 
 The next row should plan the first real external provider API call seam without
 executing it or opening host allocator replacement.
+
+## Landed Evidence
+
+- Selected the real external provider API call first-pattern plan as the next
+  row.
+- Kept actual external provider API execution, host allocator replacement,
+  hooks, backend matcher additions, worker/thread execution, and global
+  allocator install closed.
