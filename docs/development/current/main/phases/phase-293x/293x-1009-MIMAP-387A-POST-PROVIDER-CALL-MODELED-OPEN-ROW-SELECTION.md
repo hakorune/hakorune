@@ -1,6 +1,6 @@
 # 293x-1009 MIMAP-387A Post Provider Call Modeled Open Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -31,3 +31,16 @@ remain closed.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Decision Result
+
+Selected:
+
+```text
+MIMAP-388A Provider Call Execution Capability Preflight
+```
+
+This row records the explicit execution capability preflight required before any
+provider API call seam can open. It remains model/preflight-only and keeps
+actual provider API calls, host replacement, hooks, backend matcher additions,
+worker/thread execution, and global allocator install closed.
