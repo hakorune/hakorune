@@ -805,7 +805,8 @@ FST:
 | `MIMAP-329A` | landed | Segment arena backing modeled allocation-ledger release/recycle execution support requirement matrix diagnostics. | selected MIMAP-330A |
 | `MIMAP-330A` | landed | Segment arena backing modeled allocation-ledger release/recycle execution support requirement matrix closeout pack. | selected MIMAP-331A |
 | `MIMAP-331A` | landed | Post release/recycle execution support requirement matrix closeout row selection. | selected MIMAP-332A |
-| `MIMAP-332A` | selected current | Segment arena backing modeled allocation-ledger release/recycle lifecycle generation prerequisite inventory. | after MIMAP-331A |
+| `MIMAP-332A` | landed | Segment arena backing modeled allocation-ledger release/recycle lifecycle generation prerequisite inventory. | selected MIMAP-333A |
+| `MIMAP-333A` | selected current | Segment arena backing modeled allocation-ledger release/recycle lifecycle generation prerequisite diagnostics. | after MIMAP-332A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -814,8 +815,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-332A` adds a model-only lifecycle generation prerequisite inventory
-after the release/recycle execution support requirement matrix closeout.
+`MIMAP-333A` adds observer-only diagnostics for the model-only lifecycle
+generation prerequisite inventory.
 
 SSOT:
 
@@ -864,6 +865,7 @@ docs/development/current/main/phases/phase-293x/293x-944-MIMAP-329A-SEGMENT-AREN
 docs/development/current/main/phases/phase-293x/293x-945-MIMAP-330A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-SUPPORT-REQUIREMENT-MATRIX-CLOSEOUT.md
 docs/development/current/main/phases/phase-293x/293x-946-MIMAP-331A-POST-RELEASE-RECYCLE-EXECUTION-SUPPORT-REQUIREMENT-MATRIX-CLOSEOUT-ROW-SELECTION.md
 docs/development/current/main/phases/phase-293x/293x-947-MIMAP-332A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-LIFECYCLE-GENERATION-PREREQUISITE-INVENTORY.md
+docs/development/current/main/phases/phase-293x/293x-948-MIMAP-333A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-LIFECYCLE-GENERATION-PREREQUISITE-DIAGNOSTICS.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-diagnostics-ssot.md
@@ -880,6 +882,7 @@ docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-al
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-support-requirement-matrix-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-support-requirement-matrix-diagnostics-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-support-requirement-matrix-closeout-ssot.md
+docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-lifecycle-generation-prerequisite-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-continuation-application-bridge-diagnostics-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-applied-state-summary-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-applied-state-summary-diagnostics-ssot.md
