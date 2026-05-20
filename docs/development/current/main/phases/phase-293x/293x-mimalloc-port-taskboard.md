@@ -819,7 +819,8 @@ FST:
 | `MIMAP-343A` | landed | Remaining execution prerequisite ledger closeout. | selected MIMAP-344A |
 | `MIMAP-344A` | landed | No-escape pointer residence pilot. | selected MIMAP-345A |
 | `MIMAP-345A` | landed | Arena backing handle pilot. | selected MIMAP-346A |
-| `MIMAP-346A` | selected current | Pointer-derived lookup execution pilot. | after MIMAP-345A |
+| `MIMAP-346A` | landed | Pointer-derived lookup execution pilot. | selected MIMAP-347A |
+| `MIMAP-347A` | selected current | Segment-map mutation pilot. | after MIMAP-346A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -828,8 +829,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-342A` bundles the remaining model-only release/recycle execution
-prerequisites before opening a first real seam.
+`MIMAP-347A` opens segment-map mutation as the next narrow seam after
+pointer-derived lookup execution.
 
 SSOT:
 
@@ -892,6 +893,7 @@ docs/development/current/main/phases/phase-293x/293x-958-MIMAP-343A-REMAINING-EX
 docs/development/current/main/phases/phase-293x/293x-959-MIMAP-344A-NO-ESCAPE-POINTER-RESIDENCE-PILOT.md
 docs/development/current/main/phases/phase-293x/293x-960-MIMAP-345A-ARENA-BACKING-HANDLE-PILOT.md
 docs/development/current/main/phases/phase-293x/293x-961-MIMAP-346A-POINTER-DERIVED-LOOKUP-EXECUTION-PILOT.md
+docs/development/current/main/phases/phase-293x/293x-962-MIMAP-347A-SEGMENT-MAP-MUTATION-PILOT.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-remaining-execution-prerequisite-ledger-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-ssot.md

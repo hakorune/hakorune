@@ -1,6 +1,6 @@
 # 293x-961 MIMAP-346A Pointer-Derived Lookup Execution Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -45,3 +45,11 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_pointer_derived_looku
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Landed the pointer-derived lookup execution pilot with L2 VM/MIR evidence.
+MIMAP-347A is selected to open a segment-map mutation pilot as the next narrow
+seam while keeping dereference, real arena backing release/recycle, atomic
+bitmap, OSVM/page-source, worker/TLS, provider activation, and backend matcher
+execution closed.

@@ -1,0 +1,154 @@
+// hako-alloc-segment-arena-backing-pointer-derived-lookup-execution-pilot-proof
+// Purpose: prove MIMAP-346A bounded pointer-derived lookup execution pilot.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_requirement_matrix_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_remaining_execution_prerequisite_ledger_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleRemainingExecutionPrerequisiteLedger
+using selfhost.hako_alloc.memory.segment_arena_backing_no_escape_pointer_residence_pilot_box as HakoAllocSegmentArenaBackingNoEscapePointerResidencePilot
+using selfhost.hako_alloc.memory.segment_arena_backing_handle_pilot_box as HakoAllocSegmentArenaBackingHandlePilot
+using selfhost.hako_alloc.memory.segment_arena_backing_pointer_derived_lookup_execution_pilot_box as HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilot
+
+static box Main {
+    makeMatrixReport(): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixReport()
+        report.accepted = 1
+        report.matrix_present = 1
+        report.gate_present = 1
+        report.gate_accepted = 1
+        report.blocked_by_unsupported_outcome = 1
+        report.requirement_count = 11
+        report.lifecycle_generation_required = 1
+        report.pointer_residence_required = 1
+        report.pointer_lookup_required = 1
+        report.arena_release_required = 1
+        report.arena_recycle_required = 1
+        report.segment_map_required = 1
+        report.atomic_bitmap_required = 1
+        report.osvm_required = 1
+        report.worker_tls_required = 1
+        report.provider_required = 1
+        report.backend_matcher_required = 1
+        report.report_segment_id = 190
+        report.report_arena_id = 19
+        report.report_lifetime_generation = 3
+        report.report_release_applied_recycle_token = 97019005005
+        report.report_continuation_token = 98019005005
+        report.report_application_token = 99019005005
+        report.report_applied_backing_bytes = 4096
+        report.report_applied_committed_bytes = 4096
+        report.report_remaining_source_bytes = 8192
+        return report
+    }
+
+    makeHandle(): HakoAllocSegmentArenaBackingHandlePilotReport {
+        local ledger = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleRemainingExecutionPrerequisiteLedger()
+        local ledger_report = ledger.recordRemainingExecutionPrerequisiteLedger(Main.makeMatrixReport())
+        local residence = new HakoAllocSegmentArenaBackingNoEscapePointerResidencePilot()
+        local residence_report = residence.recordNoEscapePointerResidence(ledger_report, 99019005022, 0, 0, 0)
+        local handle = new HakoAllocSegmentArenaBackingHandlePilot()
+        return handle.recordArenaBackingHandle(residence_report, 99019005033)
+    }
+
+    main(args) {
+        local pilot = new HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilot()
+        local handle = Main.makeHandle()
+        local lookup = pilot.recordPointerDerivedLookup(handle, 99019005044)
+
+        local missing_handle = new HakoAllocSegmentArenaBackingHandlePilotReport()
+        local missing = pilot.recordPointerDerivedLookup(missing_handle, 99019005044)
+        local rejected_handle = new HakoAllocSegmentArenaBackingHandlePilotReport()
+        rejected_handle.handle_present = 1
+        rejected_handle.accepted = 0
+        rejected_handle.reason = 2
+        local rejected = pilot.recordPointerDerivedLookup(rejected_handle, 99019005044)
+        local invalid_pointer = new HakoAllocSegmentArenaBackingHandlePilotReport()
+        invalid_pointer.handle_present = 1
+        invalid_pointer.accepted = 1
+        invalid_pointer.private_pointer_token = 0
+        invalid_pointer.pointer_token_valid = 0
+        invalid_pointer.arena_handle_token = 99019005033
+        invalid_pointer.handle_valid = 1
+        local invalid_ptr = pilot.recordPointerDerivedLookup(invalid_pointer, 99019005044)
+        local invalid_handle = new HakoAllocSegmentArenaBackingHandlePilotReport()
+        invalid_handle.handle_present = 1
+        invalid_handle.accepted = 1
+        invalid_handle.private_pointer_token = 99019005022
+        invalid_handle.pointer_token_valid = 1
+        invalid_handle.arena_handle_token = 0
+        invalid_handle.handle_valid = 0
+        local invalid_h = pilot.recordPointerDerivedLookup(invalid_handle, 99019005044)
+        local invalid_lookup = pilot.recordPointerDerivedLookup(handle, 0)
+        local closed_handle = new HakoAllocSegmentArenaBackingHandlePilotReport()
+        closed_handle.handle_present = 1
+        closed_handle.accepted = 1
+        closed_handle.private_pointer_token = 99019005022
+        closed_handle.pointer_token_valid = 1
+        closed_handle.arena_handle_token = 99019005033
+        closed_handle.handle_valid = 1
+        closed_handle.would_use_segment_map = 1
+        local closed = pilot.recordPointerDerivedLookup(closed_handle, 99019005044)
+
+        local ok = check "mimap346a segment arena backing pointer derived lookup execution pilot" {
+            "accepted": lookup.accepted == 1
+            "reason": lookup.reason == 0
+            "present": lookup.lookup_present == 1
+            "handle present": lookup.handle_present == 1
+            "handle accepted": lookup.handle_accepted == 1
+            "lookup token": lookup.lookup_result_token == 99019005044
+            "lookup valid": lookup.lookup_result_valid == 1
+            "handle token": lookup.arena_handle_token == 99019005033
+            "pointer token": lookup.private_pointer_token == 99019005022
+            "non dereferenceable": lookup.non_dereferenceable == 1
+            "closed blockers": lookup.closed_execution_blocker_count == 0
+            "owner count": pilot.lookup_count == 7
+            "owner accepted": pilot.accepted_count == 1
+            "owner rejected": pilot.reject_count == 6
+            "owner missing": pilot.missing_handle_reject_count == 1
+            "owner rejected handle": pilot.rejected_handle_reject_count == 1
+            "owner invalid pointer": pilot.invalid_pointer_token_reject_count == 1
+            "owner invalid handle": pilot.invalid_handle_reject_count == 1
+            "owner invalid lookup": pilot.invalid_lookup_reject_count == 1
+            "owner closed execution": pilot.closed_execution_reject_count == 1
+            "last reason": pilot.last_reason == 6
+            "segment": lookup.report_segment_id == 190
+            "arena": lookup.report_arena_id == 19
+            "recycle token": lookup.report_release_applied_recycle_token == 97019005005
+            "continuation token": lookup.report_continuation_token == 98019005005
+            "application token": lookup.report_application_token == 99019005005
+            "backing bytes": lookup.report_applied_backing_bytes == 4096
+            "committed bytes": lookup.report_applied_committed_bytes == 4096
+            "remaining bytes": lookup.report_remaining_source_bytes == 8192
+            "missing reason": missing.reason == 1
+            "rejected reason": rejected.reason == 2
+            "invalid pointer reason": invalid_ptr.reason == 3
+            "invalid handle reason": invalid_h.reason == 4
+            "invalid lookup reason": invalid_lookup.reason == 5
+            "closed reason": closed.reason == 6
+            "inactive deref": lookup.would_dereference == 0
+            "inactive release": lookup.would_release_arena_backing == 0
+            "inactive recycle": lookup.would_recycle_arena_backing == 0
+            "inactive segment map": lookup.would_use_segment_map == 0
+            "inactive atomic": lookup.would_execute_atomic_bitmap == 0
+            "inactive osvm": lookup.would_call_osvm == 0
+            "inactive thread": lookup.would_run_thread == 0
+            "inactive provider": lookup.would_activate_provider == 0
+            "inactive matcher": lookup.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-pointer-derived-lookup-execution-pilot-proof")
+        print("lookup=" + lookup.accepted + "," + lookup.reason + "," + lookup.lookup_present + "," + lookup.handle_present + "," + lookup.handle_accepted + "," + lookup.lookup_result_token + "," + lookup.lookup_result_valid + "," + lookup.arena_handle_token + "," + lookup.private_pointer_token)
+        print("owner=" + pilot.lookup_count + "," + pilot.accepted_count + "," + pilot.reject_count + "," + pilot.missing_handle_reject_count + "," + pilot.rejected_handle_reject_count + "," + pilot.invalid_pointer_token_reject_count + "," + pilot.invalid_handle_reject_count + "," + pilot.invalid_lookup_reject_count + "," + pilot.closed_execution_reject_count + "," + pilot.last_reason)
+        print("tokens=" + lookup.report_release_applied_recycle_token + "," + lookup.report_continuation_token + "," + lookup.report_application_token)
+        print("bytes=" + lookup.report_applied_backing_bytes + "," + lookup.report_applied_committed_bytes + "," + lookup.report_remaining_source_bytes)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + invalid_ptr.reason + "," + invalid_h.reason + "," + invalid_lookup.reason + "," + closed.reason)
+        print("closed=" + lookup.would_dereference + "," + lookup.would_release_arena_backing + "," + lookup.would_recycle_arena_backing + "," + lookup.would_use_segment_map + "," + lookup.would_execute_atomic_bitmap + "," + lookup.would_call_osvm + "," + lookup.would_run_thread + "," + lookup.would_activate_provider + "," + lookup.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

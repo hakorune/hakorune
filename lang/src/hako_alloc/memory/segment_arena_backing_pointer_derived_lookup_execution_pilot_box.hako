@@ -1,0 +1,294 @@
+// segment_arena_backing_pointer_derived_lookup_execution_pilot_box.hako -- MIMAP-346A
+// Responsibility:
+// - derive a bounded pointer lookup fact from an accepted arena backing handle
+// - keep lookup non-dereferenceable and keep downstream execution seams closed
+// Non-responsibility:
+// - dereference, arena release/recycle, segment-map mutation, atomic bitmap
+//   execution, OSVM, worker/TLS, providers, or backend matchers
+
+record HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReportFields {
+    accepted: i64
+    reason: i64
+    lookup_present: i64
+    handle_present: i64
+    handle_accepted: i64
+    handle_reason: i64
+    lookup_result_token: i64
+    lookup_result_valid: i64
+    arena_handle_token: i64
+    handle_valid: i64
+    private_pointer_token: i64
+    pointer_token_valid: i64
+    non_dereferenceable: i64
+    closed_execution_blocker_count: i64
+    lookup_count: i64
+    accepted_count: i64
+    reject_count: i64
+    missing_handle_reject_count: i64
+    rejected_handle_reject_count: i64
+    invalid_pointer_token_reject_count: i64
+    invalid_handle_reject_count: i64
+    invalid_lookup_reject_count: i64
+    closed_execution_reject_count: i64
+    last_reason: i64
+    report_segment_id: i64
+    report_arena_id: i64
+    report_lifetime_generation: i64
+    report_release_applied_recycle_token: i64
+    report_continuation_token: i64
+    report_application_token: i64
+    report_applied_backing_bytes: usize
+    report_applied_committed_bytes: usize
+    report_remaining_source_bytes: usize
+    would_dereference: i64
+    would_release_arena_backing: i64
+    would_recycle_arena_backing: i64
+    would_use_segment_map: i64
+    would_execute_atomic_bitmap: i64
+    would_call_osvm: i64
+    would_run_thread: i64
+    would_activate_provider: i64
+    would_add_backend_matcher: i64
+}
+
+box HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    lookup_present: i64 = 0
+    handle_present: i64 = 0
+    handle_accepted: i64 = 0
+    handle_reason: i64 = 0
+    lookup_result_token: i64 = 0
+    lookup_result_valid: i64 = 0
+    arena_handle_token: i64 = 0
+    handle_valid: i64 = 0
+    private_pointer_token: i64 = 0
+    pointer_token_valid: i64 = 0
+    non_dereferenceable: i64 = 1
+    closed_execution_blocker_count: i64 = 0
+    lookup_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_handle_reject_count: i64 = 0
+    rejected_handle_reject_count: i64 = 0
+    invalid_pointer_token_reject_count: i64 = 0
+    invalid_handle_reject_count: i64 = 0
+    invalid_lookup_reject_count: i64 = 0
+    closed_execution_reject_count: i64 = 0
+    last_reason: i64 = 0
+    report_segment_id: i64 = -1
+    report_arena_id: i64 = -1
+    report_lifetime_generation: i64 = 0
+    report_release_applied_recycle_token: i64 = 0
+    report_continuation_token: i64 = 0
+    report_application_token: i64 = 0
+    report_applied_backing_bytes: usize = 0
+    report_applied_committed_bytes: usize = 0
+    report_remaining_source_bytes: usize = 0
+    would_dereference: i64 = 0
+    would_release_arena_backing: i64 = 0
+    would_recycle_arena_backing: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilot {
+    lookup_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_handle_reject_count: i64 = 0
+    rejected_handle_reject_count: i64 = 0
+    invalid_pointer_token_reject_count: i64 = 0
+    invalid_handle_reject_count: i64 = 0
+    invalid_lookup_reject_count: i64 = 0
+    closed_execution_reject_count: i64 = 0
+    last_reason: i64 = 0
+
+    closedExecutionBlockerCount(handle_report): i64 {
+        local count = 0
+        if handle_report.would_release_arena_backing != 0 {
+            count += 1
+        }
+        if handle_report.would_recycle_arena_backing != 0 {
+            count += 1
+        }
+        if handle_report.would_use_segment_map != 0 {
+            count += 1
+        }
+        if handle_report.would_execute_atomic_bitmap != 0 {
+            count += 1
+        }
+        if handle_report.would_call_osvm != 0 {
+            count += 1
+        }
+        if handle_report.would_run_thread != 0 {
+            count += 1
+        }
+        if handle_report.would_activate_provider != 0 {
+            count += 1
+        }
+        if handle_report.would_add_backend_matcher != 0 {
+            count += 1
+        }
+        return count
+    }
+
+    makePointerDerivedLookupExecutionPilotReport(fields: HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReportFields): HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReport {
+        local result = new HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReport()
+        result.accepted = fields.accepted
+        result.reason = fields.reason
+        result.lookup_present = fields.lookup_present
+        result.handle_present = fields.handle_present
+        result.handle_accepted = fields.handle_accepted
+        result.handle_reason = fields.handle_reason
+        result.lookup_result_token = fields.lookup_result_token
+        result.lookup_result_valid = fields.lookup_result_valid
+        result.arena_handle_token = fields.arena_handle_token
+        result.handle_valid = fields.handle_valid
+        result.private_pointer_token = fields.private_pointer_token
+        result.pointer_token_valid = fields.pointer_token_valid
+        result.non_dereferenceable = fields.non_dereferenceable
+        result.closed_execution_blocker_count = fields.closed_execution_blocker_count
+        result.lookup_count = fields.lookup_count
+        result.accepted_count = fields.accepted_count
+        result.reject_count = fields.reject_count
+        result.missing_handle_reject_count = fields.missing_handle_reject_count
+        result.rejected_handle_reject_count = fields.rejected_handle_reject_count
+        result.invalid_pointer_token_reject_count = fields.invalid_pointer_token_reject_count
+        result.invalid_handle_reject_count = fields.invalid_handle_reject_count
+        result.invalid_lookup_reject_count = fields.invalid_lookup_reject_count
+        result.closed_execution_reject_count = fields.closed_execution_reject_count
+        result.last_reason = fields.last_reason
+        result.report_segment_id = fields.report_segment_id
+        result.report_arena_id = fields.report_arena_id
+        result.report_lifetime_generation = fields.report_lifetime_generation
+        result.report_release_applied_recycle_token = fields.report_release_applied_recycle_token
+        result.report_continuation_token = fields.report_continuation_token
+        result.report_application_token = fields.report_application_token
+        result.report_applied_backing_bytes = fields.report_applied_backing_bytes
+        result.report_applied_committed_bytes = fields.report_applied_committed_bytes
+        result.report_remaining_source_bytes = fields.report_remaining_source_bytes
+        result.would_dereference = fields.would_dereference
+        result.would_release_arena_backing = fields.would_release_arena_backing
+        result.would_recycle_arena_backing = fields.would_recycle_arena_backing
+        result.would_use_segment_map = fields.would_use_segment_map
+        result.would_execute_atomic_bitmap = fields.would_execute_atomic_bitmap
+        result.would_call_osvm = fields.would_call_osvm
+        result.would_run_thread = fields.would_run_thread
+        result.would_activate_provider = fields.would_activate_provider
+        result.would_add_backend_matcher = fields.would_add_backend_matcher
+        return result
+    }
+
+    makeReport(accepted, reason, lookup_present, handle_report, lookup_result_token): HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReport {
+        local lookup_result_valid = 0
+        if lookup_result_token > 0 {
+            lookup_result_valid = 1
+        }
+        local fields = HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReportFields {
+            accepted: accepted,
+            reason: reason,
+            lookup_present: lookup_present,
+            handle_present: handle_report.handle_present,
+            handle_accepted: handle_report.accepted,
+            handle_reason: handle_report.reason,
+            lookup_result_token: lookup_result_token,
+            lookup_result_valid: lookup_result_valid,
+            arena_handle_token: handle_report.arena_handle_token,
+            handle_valid: handle_report.handle_valid,
+            private_pointer_token: handle_report.private_pointer_token,
+            pointer_token_valid: handle_report.pointer_token_valid,
+            non_dereferenceable: handle_report.non_dereferenceable,
+            closed_execution_blocker_count: me.closedExecutionBlockerCount(handle_report),
+            lookup_count: me.lookup_count,
+            accepted_count: me.accepted_count,
+            reject_count: me.reject_count,
+            missing_handle_reject_count: me.missing_handle_reject_count,
+            rejected_handle_reject_count: me.rejected_handle_reject_count,
+            invalid_pointer_token_reject_count: me.invalid_pointer_token_reject_count,
+            invalid_handle_reject_count: me.invalid_handle_reject_count,
+            invalid_lookup_reject_count: me.invalid_lookup_reject_count,
+            closed_execution_reject_count: me.closed_execution_reject_count,
+            last_reason: me.last_reason,
+            report_segment_id: handle_report.report_segment_id,
+            report_arena_id: handle_report.report_arena_id,
+            report_lifetime_generation: handle_report.report_lifetime_generation,
+            report_release_applied_recycle_token: handle_report.report_release_applied_recycle_token,
+            report_continuation_token: handle_report.report_continuation_token,
+            report_application_token: handle_report.report_application_token,
+            report_applied_backing_bytes: handle_report.report_applied_backing_bytes,
+            report_applied_committed_bytes: handle_report.report_applied_committed_bytes,
+            report_remaining_source_bytes: handle_report.report_remaining_source_bytes,
+            would_dereference: 0,
+            would_release_arena_backing: handle_report.would_release_arena_backing,
+            would_recycle_arena_backing: handle_report.would_recycle_arena_backing,
+            would_use_segment_map: handle_report.would_use_segment_map,
+            would_execute_atomic_bitmap: handle_report.would_execute_atomic_bitmap,
+            would_call_osvm: handle_report.would_call_osvm,
+            would_run_thread: handle_report.would_run_thread,
+            would_activate_provider: handle_report.would_activate_provider,
+            would_add_backend_matcher: handle_report.would_add_backend_matcher
+        }
+        return me.makePointerDerivedLookupExecutionPilotReport(fields)
+    }
+
+    reject(reason, handle_report, lookup_result_token): HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReport {
+        me.reject_count += 1
+        me.last_reason = reason
+        if reason == 1 {
+            me.missing_handle_reject_count += 1
+        }
+        if reason == 2 {
+            me.rejected_handle_reject_count += 1
+        }
+        if reason == 3 {
+            me.invalid_pointer_token_reject_count += 1
+        }
+        if reason == 4 {
+            me.invalid_handle_reject_count += 1
+        }
+        if reason == 5 {
+            me.invalid_lookup_reject_count += 1
+        }
+        if reason == 6 {
+            me.closed_execution_reject_count += 1
+        }
+        return me.makeReport(0, reason, 0, handle_report, lookup_result_token)
+    }
+
+    recordPointerDerivedLookup(handle_report, lookup_result_token): HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReport {
+        me.lookup_count += 1
+        if handle_report.handle_present != 1 {
+            return me.reject(1, handle_report, lookup_result_token)
+        }
+        if handle_report.accepted != 1 {
+            return me.reject(2, handle_report, lookup_result_token)
+        }
+        if handle_report.private_pointer_token <= 0 {
+            return me.reject(3, handle_report, lookup_result_token)
+        }
+        if handle_report.pointer_token_valid != 1 {
+            return me.reject(3, handle_report, lookup_result_token)
+        }
+        if handle_report.arena_handle_token <= 0 {
+            return me.reject(4, handle_report, lookup_result_token)
+        }
+        if handle_report.handle_valid != 1 {
+            return me.reject(4, handle_report, lookup_result_token)
+        }
+        if lookup_result_token <= 0 {
+            return me.reject(5, handle_report, lookup_result_token)
+        }
+        if me.closedExecutionBlockerCount(handle_report) != 0 {
+            return me.reject(6, handle_report, lookup_result_token)
+        }
+
+        me.accepted_count += 1
+        me.last_reason = 0
+        return me.makeReport(1, 0, 1, handle_report, lookup_result_token)
+    }
+}

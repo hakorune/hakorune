@@ -598,3 +598,16 @@ closeout_pack = "segment-arena-backing-handle-pilot"
 exe = "deferred-to-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_handle_pilot_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_handle_pilot_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-346A"
+app = "apps/hako-alloc-segment-arena-backing-pointer-derived-lookup-execution-pilot-proof"
+label = "segment arena backing pointer-derived lookup execution pilot proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "first-real-seam"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "segment-arena-backing-pointer-derived-lookup-execution-pilot"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_pointer_derived_lookup_execution_pilot_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_segment_arena_backing_pointer_derived_lookup_execution_pilot_guard.sh", "--level", "L2"]
