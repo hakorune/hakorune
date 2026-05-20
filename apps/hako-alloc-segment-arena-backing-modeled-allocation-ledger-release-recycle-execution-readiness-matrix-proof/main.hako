@@ -1,0 +1,131 @@
+// hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-readiness-matrix-proof
+// Purpose: prove MIMAP-312A model-only release/recycle execution readiness matrix.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycle
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_lifecycle_continuation_bridge_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridge
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_continuation_application_bridge_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridge
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_applied_state_summary_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummary
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_readiness_matrix_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrix
+
+static box Main {
+    makeRecycleReport(segment_id: i64, arena_id: i64, recycle_token: i64): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleReport()
+        report.accepted = 1
+        report.reason = 0
+        report.release_applied_recycle_present = 1
+        report.modeled_release_applied_recycle_present = 1
+        report.row_index = 1
+        report.segment_id = segment_id
+        report.arena_id = arena_id
+        report.lifetime_generation = 3
+        report.release_apply_token = 96019005005
+        report.release_applied_recycle_token = recycle_token
+        report.applied_backing_bytes = 4096
+        report.applied_committed_bytes = 4096
+        report.remaining_source_bytes = 8192
+        return report
+    }
+
+    main(args) {
+        local continuation_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridgeInventory()
+        local application_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridgeInventory()
+        local summary_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummaryInventory()
+        local matrix_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrixInventory()
+        local recycle_report = Main.makeRecycleReport(190, 19, 97019005005)
+
+        local continued = continuation_inventory.recordLifecycleContinuation(recycle_report, 98019005005)
+        local applied = application_inventory.recordContinuationApplication(continued, 99019005005)
+        local summary = summary_inventory.summarizeAppliedState(applied)
+
+        local accepted = matrix_inventory.recordExecutionReadinessMatrix(summary, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local missing_summary = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummaryReport()
+        missing_summary.applied_state_summary_present = 0
+        local missing = matrix_inventory.recordExecutionReadinessMatrix(missing_summary, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local rejected_summary = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummaryReport()
+        rejected_summary.applied_state_summary_present = 1
+        rejected_summary.summarized = 0
+        rejected_summary.reason = 2
+        local rejected = matrix_inventory.recordExecutionReadinessMatrix(rejected_summary, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local not_ready = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummaryReport()
+        not_ready.applied_state_summary_present = 1
+        not_ready.summarized = 1
+        not_ready.reason = 0
+        not_ready.applied_state_ready = 0
+        not_ready.application_token = 99019005005
+        local not_ready_report = matrix_inventory.recordExecutionReadinessMatrix(not_ready, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local closed_summary = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummaryReport()
+        closed_summary.applied_state_summary_present = 1
+        closed_summary.summarized = 1
+        closed_summary.reason = 0
+        closed_summary.applied_state_ready = 1
+        closed_summary.application_token = 99019005005
+        closed_summary.closed_substrate_summary = 1
+        local closed = matrix_inventory.recordExecutionReadinessMatrix(closed_summary, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local lifecycle_blocked = matrix_inventory.recordExecutionReadinessMatrix(summary, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local release_blocked = matrix_inventory.recordExecutionReadinessMatrix(summary, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0)
+        local recycle_blocked = matrix_inventory.recordExecutionReadinessMatrix(summary, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0)
+        local backend_blocked = matrix_inventory.recordExecutionReadinessMatrix(summary, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+
+        local ok = check "mimap312a segment arena backing modeled allocation ledger release recycle execution readiness matrix inventory" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "matrix present": accepted.matrix_present == 1
+            "summary present": accepted.summary_present == 1
+            "summary summarized": accepted.summary_summarized == 1
+            "summary reason": accepted.summary_reason == 0
+            "row index": accepted.row_index == 1
+            "segment": accepted.segment_id == 190
+            "arena": accepted.arena_id == 19
+            "lifetime": accepted.lifetime_generation == 3
+            "recycle token": accepted.release_applied_recycle_token == 97019005005
+            "continuation token": accepted.continuation_token == 98019005005
+            "application token": accepted.application_token == 99019005005
+            "backing bytes": accepted.applied_backing_bytes == 4096
+            "committed bytes": accepted.applied_committed_bytes == 4096
+            "remaining bytes": accepted.remaining_source_bytes == 8192
+            "applied ready": accepted.applied_state_ready == 1
+            "closed substrate": accepted.closed_substrate_summary == 0
+            "blocked count": accepted.blocked_requirement_count == 0
+            "owner inventory": matrix_inventory.inventory_count == 9
+            "owner accepted": matrix_inventory.accepted_count == 1
+            "owner rejected": matrix_inventory.reject_count == 8
+            "missing reason": missing.reason == 1
+            "rejected reason": rejected.reason == 2
+            "not ready reason": not_ready_report.reason == 3
+            "closed reason": closed.reason == 4
+            "lifecycle reason": lifecycle_blocked.reason == 5
+            "release reason": release_blocked.reason == 8
+            "recycle reason": recycle_blocked.reason == 9
+            "backend reason": backend_blocked.reason == 15
+            "inactive lifecycle": accepted.would_create_lifecycle_generation == 0
+            "inactive residence": accepted.would_create_pointer_residence == 0
+            "inactive lookup": accepted.would_lookup_by_pointer == 0
+            "inactive release": accepted.would_release_arena_backing == 0
+            "inactive recycle": accepted.would_recycle_arena_backing == 0
+            "inactive segment map": accepted.would_use_segment_map == 0
+            "inactive atomic": accepted.would_execute_atomic_bitmap == 0
+            "inactive osvm": accepted.would_call_osvm == 0
+            "inactive thread": accepted.would_run_thread == 0
+            "inactive provider": accepted.would_activate_provider == 0
+            "inactive matcher": accepted.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-readiness-matrix-proof")
+        print("matrix=" + accepted.accepted + "," + accepted.reason + "," + accepted.summary_present + "," + accepted.summary_summarized + "," + accepted.applied_state_ready + "," + accepted.closed_substrate_summary)
+        print("tokens=" + accepted.release_applied_recycle_token + "," + accepted.continuation_token + "," + accepted.application_token)
+        print("bytes=" + accepted.applied_backing_bytes + "," + accepted.applied_committed_bytes + "," + accepted.remaining_source_bytes)
+        print("owner=" + matrix_inventory.inventory_count + "," + matrix_inventory.accepted_count + "," + matrix_inventory.reject_count + "," + matrix_inventory.missing_summary_reject_count + "," + matrix_inventory.rejected_summary_reject_count + "," + matrix_inventory.not_ready_reject_count + "," + matrix_inventory.closed_substrate_reject_count + "," + matrix_inventory.lifecycle_requirement_reject_count + "," + matrix_inventory.arena_release_requirement_reject_count + "," + matrix_inventory.arena_recycle_requirement_reject_count + "," + matrix_inventory.backend_matcher_requirement_reject_count + "," + matrix_inventory.last_reason)
+        print("blocked=" + lifecycle_blocked.blocked_requirement_count + "," + release_blocked.blocked_requirement_count + "," + recycle_blocked.blocked_requirement_count + "," + backend_blocked.blocked_requirement_count)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + not_ready_report.reason + "," + closed.reason + "," + lifecycle_blocked.reason + "," + release_blocked.reason + "," + recycle_blocked.reason + "," + backend_blocked.reason)
+        print("inactive=" + accepted.would_create_lifecycle_generation + "," + accepted.would_create_pointer_residence + "," + accepted.would_lookup_by_pointer + "," + accepted.would_release_arena_backing + "," + accepted.would_recycle_arena_backing + "," + accepted.would_use_segment_map + "," + accepted.would_execute_atomic_bitmap + "," + accepted.would_call_osvm + "," + accepted.would_run_thread + "," + accepted.would_activate_provider + "," + accepted.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

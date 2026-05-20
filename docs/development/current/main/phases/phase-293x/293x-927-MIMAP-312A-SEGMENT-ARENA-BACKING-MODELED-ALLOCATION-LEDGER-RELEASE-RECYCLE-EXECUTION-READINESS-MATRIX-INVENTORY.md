@@ -1,6 +1,6 @@
 # 293x-927 MIMAP-312A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Execution Readiness Matrix Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -47,4 +47,16 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_le
 bash tools/checks/run_proof_app.sh --only MIMAP-312A
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Result
+
+Landed the scalar/model release/recycle execution readiness matrix owner,
+proof app, SSOT, and L2 guard.
+
+Selected next:
+
+```text
+MIMAP-313A Segment arena backing modeled allocation-ledger release/recycle
+execution readiness matrix diagnostics
 ```
