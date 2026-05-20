@@ -989,3 +989,16 @@ closeout_pack = "allocator-comparison-workload-matrix"
 exe = "deferred-to-comparison-workload-matrix-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_workload_matrix_inventory_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_workload_matrix_inventory_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-431A"
+app = "apps/hako-alloc-allocator-comparison-workload-matrix-diagnostics-proof"
+label = "allocator comparison workload matrix diagnostics proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "allocator-comparison-workload-matrix-diagnostics"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "allocator-comparison-workload-matrix"
+exe = "deferred-to-comparison-workload-matrix-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_workload_matrix_diagnostics_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_allocator_comparison_workload_matrix_diagnostics_guard.sh", "--level", "L2"]

@@ -1,6 +1,6 @@
 # 293x-1053 MIMAP-431A Allocator Comparison Workload Matrix Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -36,3 +36,22 @@ VM proof
 MIR JSON emit
 route preflight
 ```
+
+## Required Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_allocator_comparison_workload_matrix_diagnostics_guard.sh --level L2
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Landed Evidence
+
+- Added the allocator comparison workload matrix diagnostic owner.
+- Added the proof app, design SSOT, guard, manifest row, and module export.
+- Classified missing small allocation, small free, realloc, huge allocation,
+  throughput, memory-usage, invalid workload-family count, and closed seam
+  leaks.
+- Kept benchmark execution, hook installation, backend matcher additions,
+  process allocator replacement, worker/thread execution, and global allocator
+  install closed.

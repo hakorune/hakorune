@@ -1,0 +1,103 @@
+// hako-alloc-allocator-comparison-workload-matrix-diagnostics-proof
+// Purpose: prove MIMAP-431A allocator comparison workload matrix diagnostics.
+
+using selfhost.hako_alloc.memory.allocator_comparison_workload_matrix_inventory_box as HakoAllocAllocatorComparisonWorkloadMatrixInventory
+using selfhost.hako_alloc.memory.allocator_comparison_workload_matrix_diagnostic_box as HakoAllocAllocatorComparisonWorkloadMatrixDiagnostic
+
+static box Main {
+    main(args) {
+        local inventory_owner = new HakoAllocAllocatorComparisonWorkloadMatrixInventory()
+        local diagnostic_owner = new HakoAllocAllocatorComparisonWorkloadMatrixDiagnostic()
+
+        local accepted_inventory = inventory_owner.inventoryAllocatorComparisonWorkloadMatrix(1, 1, 1, 1, 1, 1, 6)
+        local accepted = diagnostic_owner.diagnoseAllocatorComparisonWorkloadMatrix(accepted_inventory)
+
+        local missing_small_alloc_inventory = inventory_owner.inventoryAllocatorComparisonWorkloadMatrix(0, 1, 1, 1, 1, 1, 6)
+        local missing_small_alloc = diagnostic_owner.diagnoseAllocatorComparisonWorkloadMatrix(missing_small_alloc_inventory)
+
+        local missing_small_free_inventory = inventory_owner.inventoryAllocatorComparisonWorkloadMatrix(1, 0, 1, 1, 1, 1, 6)
+        local missing_small_free = diagnostic_owner.diagnoseAllocatorComparisonWorkloadMatrix(missing_small_free_inventory)
+
+        local missing_realloc_inventory = inventory_owner.inventoryAllocatorComparisonWorkloadMatrix(1, 1, 0, 1, 1, 1, 6)
+        local missing_realloc = diagnostic_owner.diagnoseAllocatorComparisonWorkloadMatrix(missing_realloc_inventory)
+
+        local missing_huge_inventory = inventory_owner.inventoryAllocatorComparisonWorkloadMatrix(1, 1, 1, 0, 1, 1, 6)
+        local missing_huge = diagnostic_owner.diagnoseAllocatorComparisonWorkloadMatrix(missing_huge_inventory)
+
+        local missing_throughput_inventory = inventory_owner.inventoryAllocatorComparisonWorkloadMatrix(1, 1, 1, 1, 0, 1, 6)
+        local missing_throughput = diagnostic_owner.diagnoseAllocatorComparisonWorkloadMatrix(missing_throughput_inventory)
+
+        local missing_memory_inventory = inventory_owner.inventoryAllocatorComparisonWorkloadMatrix(1, 1, 1, 1, 1, 0, 6)
+        local missing_memory = diagnostic_owner.diagnoseAllocatorComparisonWorkloadMatrix(missing_memory_inventory)
+
+        local invalid_count_inventory = inventory_owner.inventoryAllocatorComparisonWorkloadMatrix(1, 1, 1, 1, 1, 1, 0)
+        local invalid_count = diagnostic_owner.diagnoseAllocatorComparisonWorkloadMatrix(invalid_count_inventory)
+
+        local leak_inventory = inventory_owner.inventoryAllocatorComparisonWorkloadMatrix(1, 1, 1, 1, 1, 1, 6)
+        leak_inventory.would_run_benchmark = 1
+        local leak = diagnostic_owner.diagnoseAllocatorComparisonWorkloadMatrix(leak_inventory)
+
+        local ok = check "mimap431a allocator comparison workload matrix diagnostics" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "diagnostic present": accepted.diagnostic_present == 1
+            "matrix inventory": accepted.workload_matrix_inventory_present == 1
+            "matrix ready": accepted.workload_matrix_ready == 1
+            "not blocked": accepted.blocked_workload_present == 0
+            "owner count": diagnostic_owner.diagnostic_count == 9
+            "owner ready": diagnostic_owner.ready_count == 1
+            "owner blocked": diagnostic_owner.blocked_count == 8
+            "owner small alloc": diagnostic_owner.missing_small_allocation_workload_blocked_count == 1
+            "owner small free": diagnostic_owner.missing_small_free_workload_blocked_count == 1
+            "owner realloc": diagnostic_owner.missing_realloc_workload_blocked_count == 1
+            "owner huge": diagnostic_owner.missing_huge_allocation_workload_blocked_count == 1
+            "owner throughput": diagnostic_owner.missing_throughput_workload_blocked_count == 1
+            "owner memory": diagnostic_owner.missing_memory_usage_workload_blocked_count == 1
+            "owner invalid": diagnostic_owner.invalid_workload_family_count_blocked_count == 1
+            "owner closed": diagnostic_owner.closed_seam_blocked_count == 1
+            "last reason": diagnostic_owner.last_reason == 8
+            "missing small alloc reason": missing_small_alloc.reason == 1
+            "missing small free reason": missing_small_free.reason == 2
+            "missing realloc reason": missing_realloc.reason == 3
+            "missing huge reason": missing_huge.reason == 4
+            "missing throughput reason": missing_throughput.reason == 5
+            "missing memory reason": missing_memory.reason == 6
+            "invalid count reason": invalid_count.reason == 7
+            "leak reason": leak.reason == 8
+            "small alloc flag": missing_small_alloc.missing_small_allocation_workload_blocked == 1
+            "small free flag": missing_small_free.missing_small_free_workload_blocked == 1
+            "realloc flag": missing_realloc.missing_realloc_workload_blocked == 1
+            "huge flag": missing_huge.missing_huge_allocation_workload_blocked == 1
+            "throughput flag": missing_throughput.missing_throughput_workload_blocked == 1
+            "memory flag": missing_memory.missing_memory_usage_workload_blocked == 1
+            "invalid flag": invalid_count.invalid_workload_family_count_blocked == 1
+            "closed flag": leak.closed_seam_blocked == 1
+            "benchmark": accepted.benchmark_executed == 0
+            "process replacement": accepted.process_replacement_executed == 0
+            "hook installed": accepted.hook_installed == 0
+            "matcher added": accepted.backend_matcher_added == 0
+            "global allocator": accepted.global_allocator_installed == 0
+            "would benchmark": accepted.would_run_benchmark == 0
+            "would replace": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-allocator-comparison-workload-matrix-diagnostics-proof")
+        print("diag=" + accepted.accepted + "," + accepted.reason + "," + accepted.diagnostic_present + "," + accepted.workload_matrix_inventory_present + "," + accepted.workload_matrix_ready + "," + accepted.blocked_workload_present)
+        print("owner=" + diagnostic_owner.diagnostic_count + "," + diagnostic_owner.ready_count + "," + diagnostic_owner.blocked_count + "," + diagnostic_owner.missing_small_allocation_workload_blocked_count + "," + diagnostic_owner.missing_small_free_workload_blocked_count + "," + diagnostic_owner.missing_realloc_workload_blocked_count + "," + diagnostic_owner.missing_huge_allocation_workload_blocked_count + "," + diagnostic_owner.missing_throughput_workload_blocked_count + "," + diagnostic_owner.missing_memory_usage_workload_blocked_count + "," + diagnostic_owner.invalid_workload_family_count_blocked_count + "," + diagnostic_owner.closed_seam_blocked_count + "," + diagnostic_owner.last_reason)
+        print("blocked=" + missing_small_alloc.missing_small_allocation_workload_blocked + "," + missing_small_free.missing_small_free_workload_blocked + "," + missing_realloc.missing_realloc_workload_blocked + "," + missing_huge.missing_huge_allocation_workload_blocked + "," + missing_throughput.missing_throughput_workload_blocked + "," + missing_memory.missing_memory_usage_workload_blocked + "," + invalid_count.invalid_workload_family_count_blocked + "," + leak.closed_seam_blocked)
+        print("closed=" + accepted.benchmark_executed + "," + accepted.process_replacement_executed + "," + accepted.hook_installed + "," + accepted.backend_matcher_added + "," + accepted.global_allocator_installed + "," + accepted.would_run_benchmark + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing_small_alloc.reason + "," + missing_small_free.reason + "," + missing_realloc.reason + "," + missing_huge.reason + "," + missing_throughput.reason + "," + missing_memory.reason + "," + invalid_count.reason + "," + leak.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
