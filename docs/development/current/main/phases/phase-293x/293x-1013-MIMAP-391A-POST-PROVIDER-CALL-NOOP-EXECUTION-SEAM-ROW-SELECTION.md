@@ -1,6 +1,6 @@
 # 293x-1013 MIMAP-391A Post Provider Call No-Op Execution Seam Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -31,3 +31,16 @@ global allocator install remain closed.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Decision Result
+
+Selected:
+
+```text
+MIMAP-392A Provider Call Real API Execution Preflight
+```
+
+This row inventories the explicit real provider API execution preflight after
+the no-op execution seam. It remains preflight/model-only and keeps actual
+provider API calls, host replacement, hooks, backend matcher additions,
+worker/thread execution, and global allocator install closed.
