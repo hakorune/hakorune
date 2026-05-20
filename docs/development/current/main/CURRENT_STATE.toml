@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-21"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-348A landed and selected MIMAP-349A; MIMAP-349A is current to open OSVM/page-source execution as the next narrow seam after atomic bitmap. Cross-function Result direct ABI remains closed. Dereference, real arena backing release/recycle, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-349A landed and selected MIMAP-350A; MIMAP-350A is current to open worker/TLS behavior as the next narrow seam after OSVM/page-source. Cross-function Result direct ABI remains closed. Provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-964-MIMAP-349A-OSVM-PAGE-SOURCE-PILOT.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-965-MIMAP-350A-WORKER-TLS-PILOT.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-963-MIMAP-348A-ATOMIC-BITMAP-PILOT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-963-MIMAP-348A-ATOMIC-BITMAP-PILOT.md"
-latest_card_summary = "Landed atomic bitmap pilot; MIMAP-349A selected."
+latest_card = "293x-964-MIMAP-349A-OSVM-PAGE-SOURCE-PILOT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-964-MIMAP-349A-OSVM-PAGE-SOURCE-PILOT.md"
+latest_card_summary = "Landed OSVM/page-source pilot; MIMAP-350A selected."
 
-current_blocker_token = "MIMAP-349A"
+current_blocker_token = "MIMAP-350A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-964 MIMAP-349A OSVM/page-source pilot landed; MIMAP-350A selected",
   "293x-963 MIMAP-348A atomic bitmap pilot landed; MIMAP-349A selected",
   "293x-962 MIMAP-347A segment-map mutation pilot landed; MIMAP-348A selected",
   "293x-961 MIMAP-346A pointer-derived lookup execution pilot landed; MIMAP-347A selected",

@@ -450,6 +450,11 @@ Syntax/style contract
   use real atomic primitives, dereference, execute release/recycle behavior,
   release or recycle real arena backing, call OSVM/page-source, run worker/TLS
   behavior, activate providers, or add backend matchers.
+- `osvm_page_source_pilot_box.hako` owns MIMAP-349A. It may record one bounded
+  OSVM/page-source fact from an accepted atomic bitmap report. It must not
+  dereference, execute release/recycle behavior, release or recycle real arena
+  backing, run worker/TLS behavior, activate providers, replace the host
+  allocator, expose hooks, or add backend matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known

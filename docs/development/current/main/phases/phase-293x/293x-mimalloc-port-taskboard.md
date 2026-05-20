@@ -822,7 +822,8 @@ FST:
 | `MIMAP-346A` | landed | Pointer-derived lookup execution pilot. | selected MIMAP-347A |
 | `MIMAP-347A` | landed | Segment-map mutation pilot. | selected MIMAP-348A |
 | `MIMAP-348A` | landed | Atomic bitmap pilot. | selected MIMAP-349A |
-| `MIMAP-349A` | selected current | OSVM page-source pilot. | after MIMAP-348A |
+| `MIMAP-349A` | landed | OSVM page-source pilot. | selected MIMAP-350A |
+| `MIMAP-350A` | selected current | Worker/TLS pilot. | after MIMAP-349A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -831,8 +832,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-349A` opens OSVM/page-source execution as the next narrow seam after
-atomic bitmap.
+`MIMAP-350A` opens worker/TLS behavior as the next narrow seam after
+OSVM/page-source.
 
 SSOT:
 
@@ -898,6 +899,7 @@ docs/development/current/main/phases/phase-293x/293x-961-MIMAP-346A-POINTER-DERI
 docs/development/current/main/phases/phase-293x/293x-962-MIMAP-347A-SEGMENT-MAP-MUTATION-PILOT.md
 docs/development/current/main/phases/phase-293x/293x-963-MIMAP-348A-ATOMIC-BITMAP-PILOT.md
 docs/development/current/main/phases/phase-293x/293x-964-MIMAP-349A-OSVM-PAGE-SOURCE-PILOT.md
+docs/development/current/main/phases/phase-293x/293x-965-MIMAP-350A-WORKER-TLS-PILOT.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-remaining-execution-prerequisite-ledger-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-ssot.md

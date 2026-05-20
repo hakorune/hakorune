@@ -1,0 +1,164 @@
+// hako-alloc-osvm-page-source-pilot-proof
+// Purpose: prove MIMAP-349A bounded OSVM/page-source pilot.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_requirement_matrix_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_remaining_execution_prerequisite_ledger_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleRemainingExecutionPrerequisiteLedger
+using selfhost.hako_alloc.memory.segment_arena_backing_no_escape_pointer_residence_pilot_box as HakoAllocSegmentArenaBackingNoEscapePointerResidencePilot
+using selfhost.hako_alloc.memory.segment_arena_backing_handle_pilot_box as HakoAllocSegmentArenaBackingHandlePilot
+using selfhost.hako_alloc.memory.segment_arena_backing_pointer_derived_lookup_execution_pilot_box as HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilot
+using selfhost.hako_alloc.memory.segment_map_mutation_pilot_box as HakoAllocSegmentMapMutationPilot
+using selfhost.hako_alloc.memory.atomic_bitmap_pilot_box as HakoAllocAtomicBitmapPilot
+using selfhost.hako_alloc.memory.osvm_page_source_pilot_box as HakoAllocOSVMPageSourcePilot
+
+static box Main {
+    makeMatrixReport(): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixReport()
+        report.accepted = 1
+        report.matrix_present = 1
+        report.gate_present = 1
+        report.gate_accepted = 1
+        report.blocked_by_unsupported_outcome = 1
+        report.requirement_count = 11
+        report.lifecycle_generation_required = 1
+        report.pointer_residence_required = 1
+        report.pointer_lookup_required = 1
+        report.arena_release_required = 1
+        report.arena_recycle_required = 1
+        report.segment_map_required = 1
+        report.atomic_bitmap_required = 1
+        report.osvm_required = 1
+        report.worker_tls_required = 1
+        report.provider_required = 1
+        report.backend_matcher_required = 1
+        report.report_segment_id = 190
+        report.report_arena_id = 19
+        report.report_lifetime_generation = 3
+        report.report_release_applied_recycle_token = 97019005005
+        report.report_continuation_token = 98019005005
+        report.report_application_token = 99019005005
+        report.report_applied_backing_bytes = 4096
+        report.report_applied_committed_bytes = 4096
+        report.report_remaining_source_bytes = 8192
+        return report
+    }
+
+    makeBitmap(): HakoAllocAtomicBitmapPilotReport {
+        local ledger = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleRemainingExecutionPrerequisiteLedger()
+        local ledger_report = ledger.recordRemainingExecutionPrerequisiteLedger(Main.makeMatrixReport())
+        local residence = new HakoAllocSegmentArenaBackingNoEscapePointerResidencePilot()
+        local residence_report = residence.recordNoEscapePointerResidence(ledger_report, 99019005022, 0, 0, 0)
+        local handle = new HakoAllocSegmentArenaBackingHandlePilot()
+        local handle_report = handle.recordArenaBackingHandle(residence_report, 99019005033)
+        local lookup = new HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilot()
+        local lookup_report = lookup.recordPointerDerivedLookup(handle_report, 99019005044)
+        local mutation = new HakoAllocSegmentMapMutationPilot()
+        local mutation_report = mutation.recordSegmentMapMutation(lookup_report, 99019005055)
+        local bitmap = new HakoAllocAtomicBitmapPilot()
+        return bitmap.recordAtomicBitmapFact(mutation_report, 99019005066)
+    }
+
+    main(args) {
+        local pilot = new HakoAllocOSVMPageSourcePilot()
+        local bitmap = Main.makeBitmap()
+        local page = pilot.recordOSVMPageSourceFact(bitmap, 99019005077)
+
+        local missing_bitmap = new HakoAllocAtomicBitmapPilotReport()
+        local missing = pilot.recordOSVMPageSourceFact(missing_bitmap, 99019005077)
+        local rejected_bitmap = new HakoAllocAtomicBitmapPilotReport()
+        rejected_bitmap.bitmap_present = 1
+        rejected_bitmap.accepted = 0
+        rejected_bitmap.reason = 2
+        local rejected = pilot.recordOSVMPageSourceFact(rejected_bitmap, 99019005077)
+        local deref_bitmap = new HakoAllocAtomicBitmapPilotReport()
+        deref_bitmap.bitmap_present = 1
+        deref_bitmap.accepted = 1
+        deref_bitmap.bitmap_token = 99019005066
+        deref_bitmap.bitmap_token_valid = 1
+        deref_bitmap.non_dereferenceable = 0
+        deref_bitmap.would_dereference = 1
+        local deref = pilot.recordOSVMPageSourceFact(deref_bitmap, 99019005077)
+        local invalid_bitmap = new HakoAllocAtomicBitmapPilotReport()
+        invalid_bitmap.bitmap_present = 1
+        invalid_bitmap.accepted = 1
+        invalid_bitmap.non_dereferenceable = 1
+        invalid_bitmap.bitmap_token = 0
+        invalid_bitmap.bitmap_token_valid = 0
+        local invalid_b = pilot.recordOSVMPageSourceFact(invalid_bitmap, 99019005077)
+        local invalid_page = pilot.recordOSVMPageSourceFact(bitmap, 0)
+        local closed_bitmap = new HakoAllocAtomicBitmapPilotReport()
+        closed_bitmap.bitmap_present = 1
+        closed_bitmap.accepted = 1
+        closed_bitmap.non_dereferenceable = 1
+        closed_bitmap.bitmap_token = 99019005066
+        closed_bitmap.bitmap_token_valid = 1
+        closed_bitmap.would_activate_provider = 1
+        local closed = pilot.recordOSVMPageSourceFact(closed_bitmap, 99019005077)
+
+        local ok = check "mimap349a osvm page-source pilot" {
+            "accepted": page.accepted == 1
+            "reason": page.reason == 0
+            "page source present": page.page_source_present == 1
+            "bitmap present": page.bitmap_present == 1
+            "bitmap accepted": page.bitmap_accepted == 1
+            "page source token": page.page_source_token == 99019005077
+            "page source valid": page.page_source_token_valid == 1
+            "bitmap token": page.bitmap_token == 99019005066
+            "mutation token": page.mutation_token == 99019005055
+            "lookup token": page.lookup_result_token == 99019005044
+            "arena handle": page.arena_handle_token == 99019005033
+            "pointer token": page.private_pointer_token == 99019005022
+            "non dereferenceable": page.non_dereferenceable == 1
+            "closed blockers": page.closed_execution_blocker_count == 0
+            "owner count": pilot.page_source_count == 7
+            "owner accepted": pilot.accepted_count == 1
+            "owner rejected": pilot.reject_count == 6
+            "owner missing": pilot.missing_bitmap_reject_count == 1
+            "owner rejected bitmap": pilot.rejected_bitmap_reject_count == 1
+            "owner deref": pilot.dereference_request_reject_count == 1
+            "owner invalid bitmap": pilot.invalid_bitmap_reject_count == 1
+            "owner invalid page": pilot.invalid_page_source_reject_count == 1
+            "owner closed": pilot.closed_execution_reject_count == 1
+            "last reason": pilot.last_reason == 6
+            "segment": page.report_segment_id == 190
+            "arena": page.report_arena_id == 19
+            "recycle token": page.report_release_applied_recycle_token == 97019005005
+            "continuation token": page.report_continuation_token == 98019005005
+            "application token": page.report_application_token == 99019005005
+            "backing bytes": page.report_applied_backing_bytes == 4096
+            "committed bytes": page.report_applied_committed_bytes == 4096
+            "remaining bytes": page.report_remaining_source_bytes == 8192
+            "missing reason": missing.reason == 1
+            "rejected reason": rejected.reason == 2
+            "deref reason": deref.reason == 3
+            "invalid bitmap reason": invalid_b.reason == 4
+            "invalid page reason": invalid_page.reason == 5
+            "closed reason": closed.reason == 6
+            "inactive deref": page.would_dereference == 0
+            "inactive release": page.would_release_arena_backing == 0
+            "inactive recycle": page.would_recycle_arena_backing == 0
+            "active segment map": page.would_mutate_segment_map == 1
+            "active atomic bitmap": page.would_execute_atomic_bitmap == 1
+            "active osvm": page.would_call_osvm == 1
+            "inactive thread": page.would_run_thread == 0
+            "inactive provider": page.would_activate_provider == 0
+            "inactive matcher": page.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-osvm-page-source-pilot-proof")
+        print("page=" + page.accepted + "," + page.reason + "," + page.page_source_present + "," + page.bitmap_present + "," + page.bitmap_accepted + "," + page.page_source_token + "," + page.page_source_token_valid + "," + page.bitmap_token + "," + page.mutation_token + "," + page.lookup_result_token)
+        print("owner=" + pilot.page_source_count + "," + pilot.accepted_count + "," + pilot.reject_count + "," + pilot.missing_bitmap_reject_count + "," + pilot.rejected_bitmap_reject_count + "," + pilot.dereference_request_reject_count + "," + pilot.invalid_bitmap_reject_count + "," + pilot.invalid_page_source_reject_count + "," + pilot.closed_execution_reject_count + "," + pilot.last_reason)
+        print("tokens=" + page.report_release_applied_recycle_token + "," + page.report_continuation_token + "," + page.report_application_token)
+        print("bytes=" + page.report_applied_backing_bytes + "," + page.report_applied_committed_bytes + "," + page.report_remaining_source_bytes)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + deref.reason + "," + invalid_b.reason + "," + invalid_page.reason + "," + closed.reason)
+        print("closed=" + page.would_dereference + "," + page.would_release_arena_backing + "," + page.would_recycle_arena_backing + "," + page.would_mutate_segment_map + "," + page.would_execute_atomic_bitmap + "," + page.would_call_osvm + "," + page.would_run_thread + "," + page.would_activate_provider + "," + page.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

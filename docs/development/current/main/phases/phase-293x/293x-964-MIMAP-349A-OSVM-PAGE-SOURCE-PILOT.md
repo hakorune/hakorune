@@ -1,6 +1,6 @@
 # 293x-964 MIMAP-349A OSVM Page-Source Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -41,3 +41,10 @@ bash tools/checks/k2_wide_hako_alloc_osvm_page_source_pilot_guard.sh --level L2
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Landed the OSVM/page-source pilot with L2 VM/MIR evidence. MIMAP-350A is
+selected to open a worker/TLS pilot as the next narrow seam while keeping
+provider activation, host allocator replacement, hooks, and backend matcher
+execution closed.
