@@ -1,18 +1,19 @@
-# 293x-979 MIMAP-363A Post Provider Readiness Preflight Row Selection
+# 293x-981 MIMAP-365A Post Provider Selection Inventory Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-21
 
 ## Decision
 
-Select the next narrow allocator row after provider readiness preflight. The
-next row should add provider selection inventory with activation still closed.
+Select the next narrow allocator row after provider selection inventory. The
+next row should close out the provider-facing ladder before any activation
+first-pattern row is considered.
 
 ## Candidate Next Rows
 
-- provider selection inventory with activation still closed
-- provider readiness preflight diagnostics
 - provider-facing ladder closeout before activation first-pattern
+- provider selection diagnostics
+- provider activation first-pattern planning with activation still closed
 
 ## Stop Lines
 
@@ -28,7 +29,3 @@ next row should add provider selection inventory with activation still closed.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
-
-## Result
-
-Selected MIMAP-364A provider selection inventory.

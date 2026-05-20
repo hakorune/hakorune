@@ -475,6 +475,10 @@ Syntax/style contract
   provider readiness from accepted provider boundary diagnostic vocabulary. It
   must not select a provider, activate provider behavior, install hooks,
   replace the host allocator, or add backend matchers.
+- `provider_selection_inventory_box.hako` owns MIMAP-364A. It may record one
+  provider candidate token and provider kind after accepted provider readiness
+  preflight. It must not activate provider behavior, install hooks, replace the
+  host allocator, or add backend matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known

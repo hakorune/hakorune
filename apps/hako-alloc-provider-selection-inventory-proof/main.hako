@@ -1,0 +1,109 @@
+// hako-alloc-provider-selection-inventory-proof
+// Purpose: prove MIMAP-364A provider selection inventory.
+
+using selfhost.hako_alloc.memory.provider_readiness_preflight_box as HakoAllocProviderReadinessPreflight
+using selfhost.hako_alloc.memory.provider_selection_inventory_box as HakoAllocProviderSelectionInventory
+
+static box Main {
+    makeReady(): HakoAllocProviderReadinessPreflightReport {
+        local report = new HakoAllocProviderReadinessPreflightReport()
+        report.accepted = 1
+        report.reason = 0
+        report.readiness_present = 1
+        report.readiness_token = 99019005101
+        report.readiness_token_valid = 1
+        report.vocabulary_present = 1
+        report.vocabulary_accepted = 1
+        report.reason_count = 8
+        report.provider_activation_inactive = 1
+        report.host_replacement_inactive = 1
+        report.hooks_inactive = 1
+        report.backend_matcher_inactive = 1
+        report.would_activate_provider = 0
+        report.would_replace_host_allocator = 0
+        report.would_install_hook = 0
+        report.would_add_backend_matcher = 0
+        report.would_run_thread = 0
+        return report
+    }
+
+    main(args) {
+        local owner = new HakoAllocProviderSelectionInventory()
+        local ready = Main.makeReady()
+        local accepted = owner.inventoryProviderSelection(ready, 99019005111, 1)
+
+        local missing_ready = new HakoAllocProviderReadinessPreflightReport()
+        local missing = owner.inventoryProviderSelection(missing_ready, 99019005111, 1)
+
+        local rejected_ready = Main.makeReady()
+        rejected_ready.accepted = 0
+        rejected_ready.reason = 2
+        local rejected = owner.inventoryProviderSelection(rejected_ready, 99019005111, 1)
+
+        local invalid_ready = Main.makeReady()
+        invalid_ready.readiness_token_valid = 0
+        local invalid_readiness = owner.inventoryProviderSelection(invalid_ready, 99019005111, 1)
+
+        local invalid_candidate = owner.inventoryProviderSelection(ready, 0, 1)
+        local invalid_kind = owner.inventoryProviderSelection(ready, 99019005111, 0)
+
+        local closed_ready = Main.makeReady()
+        closed_ready.would_activate_provider = 1
+        local closed = owner.inventoryProviderSelection(closed_ready, 99019005111, 1)
+
+        local ok = check "mimap364a provider selection inventory" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "selection": accepted.selection_present == 1
+            "readiness": accepted.readiness_present == 1
+            "readiness accepted": accepted.readiness_accepted == 1
+            "readiness token": accepted.readiness_token == 99019005101
+            "candidate": accepted.provider_candidate_token == 99019005111
+            "candidate valid": accepted.provider_candidate_token_valid == 1
+            "kind": accepted.provider_kind == 1
+            "kind valid": accepted.provider_kind_valid == 1
+            "activation inactive": accepted.provider_activation_inactive == 1
+            "host inactive": accepted.host_replacement_inactive == 1
+            "hooks inactive": accepted.hooks_inactive == 1
+            "matcher inactive": accepted.backend_matcher_inactive == 1
+            "owner count": owner.selection_count == 7
+            "owner accepted": owner.accepted_count == 1
+            "owner rejected": owner.reject_count == 6
+            "owner missing": owner.missing_readiness_reject_count == 1
+            "owner rejected readiness": owner.rejected_readiness_reject_count == 1
+            "owner invalid readiness": owner.invalid_readiness_token_reject_count == 1
+            "owner invalid candidate": owner.invalid_candidate_token_reject_count == 1
+            "owner invalid kind": owner.invalid_provider_kind_reject_count == 1
+            "owner closed": owner.closed_execution_reject_count == 1
+            "last reason": owner.last_reason == 6
+            "missing reason": missing.reason == 1
+            "rejected reason": rejected.reason == 2
+            "invalid readiness reason": invalid_readiness.reason == 3
+            "invalid candidate reason": invalid_candidate.reason == 4
+            "invalid kind reason": invalid_kind.reason == 5
+            "closed reason": closed.reason == 6
+            "would select": accepted.would_select_provider == 1
+            "would activate": accepted.would_activate_provider == 0
+            "would host": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-provider-selection-inventory-proof")
+        print("selection=" + accepted.accepted + "," + accepted.reason + "," + accepted.selection_present + "," + accepted.provider_candidate_token + "," + accepted.provider_candidate_token_valid + "," + accepted.provider_kind + "," + accepted.provider_kind_valid)
+        print("ready=" + accepted.readiness_present + "," + accepted.readiness_accepted + "," + accepted.readiness_reason + "," + accepted.readiness_token + "," + accepted.readiness_token_valid)
+        print("owner=" + owner.selection_count + "," + owner.accepted_count + "," + owner.reject_count + "," + owner.missing_readiness_reject_count + "," + owner.rejected_readiness_reject_count + "," + owner.invalid_readiness_token_reject_count + "," + owner.invalid_candidate_token_reject_count + "," + owner.invalid_provider_kind_reject_count + "," + owner.closed_execution_reject_count + "," + owner.last_reason)
+        print("inactive=" + accepted.provider_activation_inactive + "," + accepted.host_replacement_inactive + "," + accepted.hooks_inactive + "," + accepted.backend_matcher_inactive + "," + accepted.would_select_provider + "," + accepted.would_activate_provider + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + invalid_readiness.reason + "," + invalid_candidate.reason + "," + invalid_kind.reason + "," + closed.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
