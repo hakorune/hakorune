@@ -832,3 +832,16 @@ closeout_pack = "provider-call-noop-execution-seam"
 exe = "deferred-to-real-provider-call-or-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_provider_call_noop_execution_seam_pilot_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_provider_call_noop_execution_seam_pilot_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-392A"
+app = "apps/hako-alloc-provider-call-real-api-execution-preflight-proof"
+label = "provider call real API execution preflight proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "real-api-execution-preflight"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "provider-call-real-api-execution-preflight"
+exe = "deferred-to-real-provider-api-call-pilot-or-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_provider_call_real_api_execution_preflight_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_provider_call_real_api_execution_preflight_guard.sh", "--level", "L2"]

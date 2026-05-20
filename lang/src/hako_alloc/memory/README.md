@@ -520,6 +520,11 @@ Syntax/style contract
   consume an accepted provider-call execution capability preflight and record a
   no-op execution seam crossing. It must not call provider APIs, install hooks,
   replace the host allocator, run worker/TLS behavior, or add backend matchers.
+- `provider_call_real_api_execution_preflight_box.hako` owns MIMAP-392A. It may
+  consume an accepted provider-call no-op execution seam report and inventory
+  future real provider API readiness. It must not call provider APIs, install
+  hooks, replace the host allocator, run worker/TLS behavior, or add backend
+  matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known
