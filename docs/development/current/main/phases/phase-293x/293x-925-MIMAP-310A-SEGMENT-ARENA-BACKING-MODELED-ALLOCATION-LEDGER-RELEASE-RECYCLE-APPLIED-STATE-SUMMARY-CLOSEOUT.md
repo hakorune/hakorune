@@ -1,6 +1,6 @@
 # 293x-925 MIMAP-310A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Applied-State Summary Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -42,8 +42,18 @@ narrow allocator row.
 ## Required Evidence
 
 ```text
-bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_applied_state_summary_guard.sh --level L2
-bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_applied_state_summary_diagnostics_guard.sh --level L2
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_applied_state_summary_closeout_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Result
+
+Landed the closeout guard and SSOT for the MIMAP-308A/MIMAP-309A
+release/recycle applied-state summary pack.
+
+Selected next:
+
+```text
+MIMAP-311A Post release/recycle applied-state summary closeout row selection
 ```
