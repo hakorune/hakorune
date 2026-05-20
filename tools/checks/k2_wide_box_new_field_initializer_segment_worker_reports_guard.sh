@@ -33,7 +33,7 @@ require_no_grep() {
 }
 
 CARD="docs/development/current/main/phases/phase-293x/293x-994-BOX-INIT-003-SEGMENT-WORKER-REPORT-NEW-BOX-FIELD-INITIALIZER.md"
-NEXT_CARD="docs/development/current/main/phases/phase-293x/293x-995-BOX-INIT-004-POST-SEGMENT-WORKER-REPORT-INITIALIZER-ROW-SELECTION.md"
+NEXT_CARD="docs/development/current/main/phases/phase-293x/293x-995-BOX-INIT-004-SUPPORT-PROVIDER-REPORT-NEW-BOX-FIELD-INITIALIZER.md"
 INDEX="docs/tools/check-scripts-index.md"
 
 REMAINING="lang/src/hako_alloc/memory/segment_arena_backing_modeled_allocation_ledger_release_recycle_remaining_execution_prerequisite_ledger_box.hako"
@@ -48,7 +48,7 @@ require_file "$WORKER_TLS"
 require_file "$READINESS_DIAG"
 
 require_grep "Status: landed" "$CARD"
-require_grep "Status: current" "$NEXT_CARD"
+require_grep "Status: (current|landed)" "$NEXT_CARD"
 require_grep "k2_wide_box_new_field_initializer_segment_worker_reports_guard.sh" "$INDEX"
 
 require_grep "new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleRemainingExecutionPrerequisiteLedgerReport \\{" "$REMAINING"
