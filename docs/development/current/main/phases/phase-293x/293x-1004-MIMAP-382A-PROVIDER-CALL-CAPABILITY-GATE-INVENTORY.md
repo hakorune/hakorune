@@ -1,6 +1,6 @@
 # 293x-1004 MIMAP-382A Provider Call Capability Gate Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -48,3 +48,7 @@ bash tools/checks/k2_wide_hako_alloc_provider_call_capability_gate_inventory_gua
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Landed. MIMAP-383A is selected as the next row-selection card.
