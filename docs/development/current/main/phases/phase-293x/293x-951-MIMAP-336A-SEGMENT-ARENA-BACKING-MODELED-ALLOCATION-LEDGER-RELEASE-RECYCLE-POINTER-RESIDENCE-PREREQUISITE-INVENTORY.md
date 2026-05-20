@@ -1,6 +1,6 @@
 # 293x-951 MIMAP-336A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Pointer Residence Prerequisite Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -48,4 +48,15 @@ residence, pointer-derived lookup, or real release/recycle execution.
 bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_pointer_residence_prerequisite_guard.sh --level L2
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Result
+
+MIMAP-336A landed the model-only pointer residence prerequisite inventory
+after the lifecycle generation prerequisite closeout.
+
+Selected next:
+
+```text
+MIMAP-337A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Pointer Residence Prerequisite Diagnostics
 ```
