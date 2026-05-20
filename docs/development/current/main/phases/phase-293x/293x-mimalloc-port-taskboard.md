@@ -811,7 +811,8 @@ FST:
 | `MIMAP-335A` | landed | Post release/recycle lifecycle generation prerequisite closeout row selection. | selected MIMAP-336A |
 | `MIMAP-336A` | landed | Segment arena backing modeled allocation-ledger release/recycle pointer residence prerequisite inventory. | selected MIMAP-337A |
 | `MIMAP-337A` | landed | Segment arena backing modeled allocation-ledger release/recycle pointer residence prerequisite diagnostics. | selected MIMAP-338A |
-| `MIMAP-338A` | selected current | Segment arena backing modeled allocation-ledger release/recycle pointer residence prerequisite closeout pack. | after MIMAP-337A |
+| `MIMAP-338A` | landed | Segment arena backing modeled allocation-ledger release/recycle pointer residence prerequisite closeout pack. | selected MIMAP-339A |
+| `MIMAP-339A` | selected current | Post release/recycle pointer residence prerequisite closeout row selection. | after MIMAP-338A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -820,8 +821,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-338A` closes out the pointer residence prerequisite inventory and
-diagnostics pack before the next release/recycle prerequisite row.
+`MIMAP-339A` selects the next narrow release/recycle prerequisite row after the
+pointer residence prerequisite closeout.
 
 SSOT:
 
@@ -876,6 +877,7 @@ docs/development/current/main/phases/phase-293x/293x-950-MIMAP-335A-POST-RELEASE
 docs/development/current/main/phases/phase-293x/293x-951-MIMAP-336A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-POINTER-RESIDENCE-PREREQUISITE-INVENTORY.md
 docs/development/current/main/phases/phase-293x/293x-952-MIMAP-337A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-POINTER-RESIDENCE-PREREQUISITE-DIAGNOSTICS.md
 docs/development/current/main/phases/phase-293x/293x-953-MIMAP-338A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-POINTER-RESIDENCE-PREREQUISITE-CLOSEOUT.md
+docs/development/current/main/phases/phase-293x/293x-954-MIMAP-339A-POST-RELEASE-RECYCLE-POINTER-RESIDENCE-PREREQUISITE-CLOSEOUT-ROW-SELECTION.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-diagnostics-ssot.md
@@ -897,6 +899,7 @@ docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-al
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-lifecycle-generation-prerequisite-closeout-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-pointer-residence-prerequisite-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-pointer-residence-prerequisite-diagnostics-ssot.md
+docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-pointer-residence-prerequisite-closeout-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-continuation-application-bridge-diagnostics-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-applied-state-summary-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-applied-state-summary-diagnostics-ssot.md

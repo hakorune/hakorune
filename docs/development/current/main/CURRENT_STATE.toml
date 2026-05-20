@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-20"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-337A landed and selected MIMAP-338A; MIMAP-338A is current to close out the pointer residence prerequisite inventory and diagnostics pack. Cross-function Result direct ABI remains closed. Real lifecycle generation, raw pointer residence, pointer-derived lookup, real arena backing release/recycle, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-338A landed and selected MIMAP-339A; MIMAP-339A is current to select the next narrow release/recycle prerequisite row after pointer residence prerequisite closeout. Cross-function Result direct ABI remains closed. Real lifecycle generation, raw pointer residence, pointer-derived lookup, real arena backing release/recycle, segment-map mutation, atomic bitmap execution, OSVM/page-source execution, provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-953-MIMAP-338A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-POINTER-RESIDENCE-PREREQUISITE-CLOSEOUT.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-954-MIMAP-339A-POST-RELEASE-RECYCLE-POINTER-RESIDENCE-PREREQUISITE-CLOSEOUT-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-952-MIMAP-337A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-POINTER-RESIDENCE-PREREQUISITE-DIAGNOSTICS"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-952-MIMAP-337A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-POINTER-RESIDENCE-PREREQUISITE-DIAGNOSTICS.md"
-latest_card_summary = "Landed observer-only pointer residence prerequisite diagnostics; MIMAP-338A selected."
+latest_card = "293x-953-MIMAP-338A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-POINTER-RESIDENCE-PREREQUISITE-CLOSEOUT"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-953-MIMAP-338A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-POINTER-RESIDENCE-PREREQUISITE-CLOSEOUT.md"
+latest_card_summary = "Closed out pointer residence prerequisite inventory and diagnostics pack; MIMAP-339A selected."
 
-current_blocker_token = "MIMAP-338A"
+current_blocker_token = "MIMAP-339A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-953 MIMAP-338A segment arena backing modeled allocation-ledger release/recycle pointer residence prerequisite closeout landed; MIMAP-339A selected",
   "293x-952 MIMAP-337A segment arena backing modeled allocation-ledger release/recycle pointer residence prerequisite diagnostics landed; MIMAP-338A selected",
   "293x-951 MIMAP-336A segment arena backing modeled allocation-ledger release/recycle pointer residence prerequisite inventory landed; MIMAP-337A selected",
   "293x-950 MIMAP-335A post release/recycle lifecycle generation prerequisite closeout row selection landed; MIMAP-336A selected",

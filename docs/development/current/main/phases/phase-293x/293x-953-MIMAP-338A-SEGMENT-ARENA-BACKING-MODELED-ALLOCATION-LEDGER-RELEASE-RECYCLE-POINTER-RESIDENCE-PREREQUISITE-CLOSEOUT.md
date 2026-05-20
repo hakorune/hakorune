@@ -1,6 +1,6 @@
 # 293x-953 MIMAP-338A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Pointer Residence Prerequisite Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -43,4 +43,15 @@ pointer residence, pointer-derived lookup, or real release/recycle execution.
 bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_pointer_residence_prerequisite_closeout_guard.sh --level L2
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Result
+
+MIMAP-338A closed out the pointer residence prerequisite inventory and
+diagnostics pack.
+
+Selected next:
+
+```text
+MIMAP-339A Post Release/Recycle Pointer Residence Prerequisite Closeout Row Selection
 ```
