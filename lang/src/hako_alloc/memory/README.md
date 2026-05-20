@@ -439,6 +439,12 @@ Syntax/style contract
   arena backing, mutate segment-map state, execute atomic bitmap operations,
   call OSVM/page-source, run worker/TLS behavior, activate providers, or add
   backend matchers.
+- `segment_map_mutation_pilot_box.hako` owns MIMAP-347A. It may record one
+  bounded segment-map mutation fact from an accepted pointer-derived lookup
+  report. It must not dereference, execute release/recycle behavior, release or
+  recycle real arena backing, execute atomic bitmap operations, call
+  OSVM/page-source, run worker/TLS behavior, activate providers, or add backend
+  matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known

@@ -820,7 +820,8 @@ FST:
 | `MIMAP-344A` | landed | No-escape pointer residence pilot. | selected MIMAP-345A |
 | `MIMAP-345A` | landed | Arena backing handle pilot. | selected MIMAP-346A |
 | `MIMAP-346A` | landed | Pointer-derived lookup execution pilot. | selected MIMAP-347A |
-| `MIMAP-347A` | selected current | Segment-map mutation pilot. | after MIMAP-346A |
+| `MIMAP-347A` | landed | Segment-map mutation pilot. | selected MIMAP-348A |
+| `MIMAP-348A` | selected current | Atomic bitmap pilot. | after MIMAP-347A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -829,8 +830,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-347A` opens segment-map mutation as the next narrow seam after
-pointer-derived lookup execution.
+`MIMAP-348A` opens atomic bitmap execution as the next narrow seam after
+segment-map mutation.
 
 SSOT:
 
@@ -894,6 +895,7 @@ docs/development/current/main/phases/phase-293x/293x-959-MIMAP-344A-NO-ESCAPE-PO
 docs/development/current/main/phases/phase-293x/293x-960-MIMAP-345A-ARENA-BACKING-HANDLE-PILOT.md
 docs/development/current/main/phases/phase-293x/293x-961-MIMAP-346A-POINTER-DERIVED-LOOKUP-EXECUTION-PILOT.md
 docs/development/current/main/phases/phase-293x/293x-962-MIMAP-347A-SEGMENT-MAP-MUTATION-PILOT.md
+docs/development/current/main/phases/phase-293x/293x-963-MIMAP-348A-ATOMIC-BITMAP-PILOT.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-remaining-execution-prerequisite-ledger-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-ssot.md

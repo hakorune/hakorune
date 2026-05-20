@@ -1,0 +1,156 @@
+// hako-alloc-segment-map-mutation-pilot-proof
+// Purpose: prove MIMAP-347A bounded segment-map mutation pilot.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_requirement_matrix_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_remaining_execution_prerequisite_ledger_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleRemainingExecutionPrerequisiteLedger
+using selfhost.hako_alloc.memory.segment_arena_backing_no_escape_pointer_residence_pilot_box as HakoAllocSegmentArenaBackingNoEscapePointerResidencePilot
+using selfhost.hako_alloc.memory.segment_arena_backing_handle_pilot_box as HakoAllocSegmentArenaBackingHandlePilot
+using selfhost.hako_alloc.memory.segment_arena_backing_pointer_derived_lookup_execution_pilot_box as HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilot
+using selfhost.hako_alloc.memory.segment_map_mutation_pilot_box as HakoAllocSegmentMapMutationPilot
+
+static box Main {
+    makeMatrixReport(): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixReport()
+        report.accepted = 1
+        report.matrix_present = 1
+        report.gate_present = 1
+        report.gate_accepted = 1
+        report.blocked_by_unsupported_outcome = 1
+        report.requirement_count = 11
+        report.lifecycle_generation_required = 1
+        report.pointer_residence_required = 1
+        report.pointer_lookup_required = 1
+        report.arena_release_required = 1
+        report.arena_recycle_required = 1
+        report.segment_map_required = 1
+        report.atomic_bitmap_required = 1
+        report.osvm_required = 1
+        report.worker_tls_required = 1
+        report.provider_required = 1
+        report.backend_matcher_required = 1
+        report.report_segment_id = 190
+        report.report_arena_id = 19
+        report.report_lifetime_generation = 3
+        report.report_release_applied_recycle_token = 97019005005
+        report.report_continuation_token = 98019005005
+        report.report_application_token = 99019005005
+        report.report_applied_backing_bytes = 4096
+        report.report_applied_committed_bytes = 4096
+        report.report_remaining_source_bytes = 8192
+        return report
+    }
+
+    makeLookup(): HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReport {
+        local ledger = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleRemainingExecutionPrerequisiteLedger()
+        local ledger_report = ledger.recordRemainingExecutionPrerequisiteLedger(Main.makeMatrixReport())
+        local residence = new HakoAllocSegmentArenaBackingNoEscapePointerResidencePilot()
+        local residence_report = residence.recordNoEscapePointerResidence(ledger_report, 99019005022, 0, 0, 0)
+        local handle = new HakoAllocSegmentArenaBackingHandlePilot()
+        local handle_report = handle.recordArenaBackingHandle(residence_report, 99019005033)
+        local lookup = new HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilot()
+        return lookup.recordPointerDerivedLookup(handle_report, 99019005044)
+    }
+
+    main(args) {
+        local pilot = new HakoAllocSegmentMapMutationPilot()
+        local lookup = Main.makeLookup()
+        local mutation = pilot.recordSegmentMapMutation(lookup, 99019005055)
+
+        local missing_lookup = new HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReport()
+        local missing = pilot.recordSegmentMapMutation(missing_lookup, 99019005055)
+        local rejected_lookup = new HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReport()
+        rejected_lookup.lookup_present = 1
+        rejected_lookup.accepted = 0
+        rejected_lookup.reason = 2
+        local rejected = pilot.recordSegmentMapMutation(rejected_lookup, 99019005055)
+        local deref_lookup = new HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReport()
+        deref_lookup.lookup_present = 1
+        deref_lookup.accepted = 1
+        deref_lookup.lookup_result_token = 99019005044
+        deref_lookup.lookup_result_valid = 1
+        deref_lookup.non_dereferenceable = 0
+        deref_lookup.would_dereference = 1
+        local deref = pilot.recordSegmentMapMutation(deref_lookup, 99019005055)
+        local invalid_lookup = new HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReport()
+        invalid_lookup.lookup_present = 1
+        invalid_lookup.accepted = 1
+        invalid_lookup.non_dereferenceable = 1
+        invalid_lookup.lookup_result_token = 0
+        invalid_lookup.lookup_result_valid = 0
+        local invalid_l = pilot.recordSegmentMapMutation(invalid_lookup, 99019005055)
+        local invalid_mutation = pilot.recordSegmentMapMutation(lookup, 0)
+        local closed_lookup = new HakoAllocSegmentArenaBackingPointerDerivedLookupExecutionPilotReport()
+        closed_lookup.lookup_present = 1
+        closed_lookup.accepted = 1
+        closed_lookup.non_dereferenceable = 1
+        closed_lookup.lookup_result_token = 99019005044
+        closed_lookup.lookup_result_valid = 1
+        closed_lookup.would_release_arena_backing = 1
+        local closed = pilot.recordSegmentMapMutation(closed_lookup, 99019005055)
+
+        local ok = check "mimap347a segment map mutation pilot" {
+            "accepted": mutation.accepted == 1
+            "reason": mutation.reason == 0
+            "mutation present": mutation.mutation_present == 1
+            "lookup present": mutation.lookup_present == 1
+            "lookup accepted": mutation.lookup_accepted == 1
+            "mutation token": mutation.mutation_token == 99019005055
+            "mutation token valid": mutation.mutation_token_valid == 1
+            "lookup token": mutation.lookup_result_token == 99019005044
+            "arena handle": mutation.arena_handle_token == 99019005033
+            "pointer token": mutation.private_pointer_token == 99019005022
+            "non dereferenceable": mutation.non_dereferenceable == 1
+            "closed blockers": mutation.closed_execution_blocker_count == 0
+            "owner count": pilot.mutation_count == 7
+            "owner accepted": pilot.accepted_count == 1
+            "owner rejected": pilot.reject_count == 6
+            "owner missing": pilot.missing_lookup_reject_count == 1
+            "owner rejected lookup": pilot.rejected_lookup_reject_count == 1
+            "owner deref": pilot.dereference_request_reject_count == 1
+            "owner invalid lookup": pilot.invalid_lookup_reject_count == 1
+            "owner invalid mutation": pilot.invalid_mutation_reject_count == 1
+            "owner closed": pilot.closed_execution_reject_count == 1
+            "last reason": pilot.last_reason == 6
+            "segment": mutation.report_segment_id == 190
+            "arena": mutation.report_arena_id == 19
+            "recycle token": mutation.report_release_applied_recycle_token == 97019005005
+            "continuation token": mutation.report_continuation_token == 98019005005
+            "application token": mutation.report_application_token == 99019005005
+            "backing bytes": mutation.report_applied_backing_bytes == 4096
+            "committed bytes": mutation.report_applied_committed_bytes == 4096
+            "remaining bytes": mutation.report_remaining_source_bytes == 8192
+            "missing reason": missing.reason == 1
+            "rejected reason": rejected.reason == 2
+            "deref reason": deref.reason == 3
+            "invalid lookup reason": invalid_l.reason == 4
+            "invalid mutation reason": invalid_mutation.reason == 5
+            "closed reason": closed.reason == 6
+            "inactive deref": mutation.would_dereference == 0
+            "inactive release": mutation.would_release_arena_backing == 0
+            "inactive recycle": mutation.would_recycle_arena_backing == 0
+            "active segment map": mutation.would_mutate_segment_map == 1
+            "inactive atomic": mutation.would_execute_atomic_bitmap == 0
+            "inactive osvm": mutation.would_call_osvm == 0
+            "inactive thread": mutation.would_run_thread == 0
+            "inactive provider": mutation.would_activate_provider == 0
+            "inactive matcher": mutation.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-map-mutation-pilot-proof")
+        print("mutation=" + mutation.accepted + "," + mutation.reason + "," + mutation.mutation_present + "," + mutation.lookup_present + "," + mutation.lookup_accepted + "," + mutation.mutation_token + "," + mutation.mutation_token_valid + "," + mutation.lookup_result_token + "," + mutation.arena_handle_token + "," + mutation.private_pointer_token)
+        print("owner=" + pilot.mutation_count + "," + pilot.accepted_count + "," + pilot.reject_count + "," + pilot.missing_lookup_reject_count + "," + pilot.rejected_lookup_reject_count + "," + pilot.dereference_request_reject_count + "," + pilot.invalid_lookup_reject_count + "," + pilot.invalid_mutation_reject_count + "," + pilot.closed_execution_reject_count + "," + pilot.last_reason)
+        print("tokens=" + mutation.report_release_applied_recycle_token + "," + mutation.report_continuation_token + "," + mutation.report_application_token)
+        print("bytes=" + mutation.report_applied_backing_bytes + "," + mutation.report_applied_committed_bytes + "," + mutation.report_remaining_source_bytes)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + deref.reason + "," + invalid_l.reason + "," + invalid_mutation.reason + "," + closed.reason)
+        print("closed=" + mutation.would_dereference + "," + mutation.would_release_arena_backing + "," + mutation.would_recycle_arena_backing + "," + mutation.would_mutate_segment_map + "," + mutation.would_execute_atomic_bitmap + "," + mutation.would_call_osvm + "," + mutation.would_run_thread + "," + mutation.would_activate_provider + "," + mutation.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

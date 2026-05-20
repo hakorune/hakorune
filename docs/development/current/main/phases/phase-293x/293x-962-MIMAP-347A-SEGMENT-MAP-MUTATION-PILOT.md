@@ -1,6 +1,6 @@
 # 293x-962 MIMAP-347A Segment-Map Mutation Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -45,3 +45,10 @@ bash tools/checks/k2_wide_hako_alloc_segment_map_mutation_pilot_guard.sh --level
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Landed the segment-map mutation pilot with L2 VM/MIR evidence. MIMAP-348A is
+selected to open an atomic bitmap pilot as the next narrow seam while keeping
+dereference, real arena backing release/recycle, OSVM/page-source, worker/TLS,
+provider activation, and backend matcher execution closed.
