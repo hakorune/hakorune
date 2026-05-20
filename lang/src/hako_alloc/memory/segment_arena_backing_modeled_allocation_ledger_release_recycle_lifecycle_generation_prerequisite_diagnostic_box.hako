@@ -1,0 +1,215 @@
+// segment_arena_backing_modeled_allocation_ledger_release_recycle_lifecycle_generation_prerequisite_diagnostic_box.hako -- MIMAP-333A
+// Responsibility:
+// - observe model-only lifecycle generation prerequisite reports and publish
+//   scalar diagnostics
+// Non-responsibility:
+// - recording prerequisite rows, generating lifecycle tokens, opening pointer
+//   residence, mutating segment maps, executing atomics, calling OSVM,
+//   scheduling workers, activating providers, or adding backend matchers
+
+record HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleGenerationPrerequisiteDiagnosticReportFields {
+    observed: i64
+    reason: i64
+    diagnostic_present: i64
+    prerequisite_accepted: i64
+    prerequisite_reason: i64
+    prerequisite_present: i64
+    lifecycle_generation_required: i64
+    lifecycle_generation_supported: i64
+    lifecycle_generation_ready: i64
+    lifecycle_generation_token_created: i64
+    observed_count: i64
+    accepted_prerequisite_count: i64
+    rejected_prerequisite_count: i64
+    unsupported_prerequisite_count: i64
+    missing_inventory_reject_count: i64
+    missing_report_reject_count: i64
+    last_reason: i64
+    report_segment_id: i64
+    report_arena_id: i64
+    report_lifetime_generation: i64
+    report_release_applied_recycle_token: i64
+    report_continuation_token: i64
+    report_application_token: i64
+    report_applied_backing_bytes: usize
+    report_applied_committed_bytes: usize
+    report_remaining_source_bytes: usize
+    would_create_lifecycle_generation: i64
+    would_create_pointer_residence: i64
+    would_lookup_by_pointer: i64
+    would_release_arena_backing: i64
+    would_recycle_arena_backing: i64
+    would_use_segment_map: i64
+    would_execute_atomic_bitmap: i64
+    would_call_osvm: i64
+    would_run_thread: i64
+    would_activate_provider: i64
+    would_add_backend_matcher: i64
+}
+
+box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleGenerationPrerequisiteDiagnosticReport {
+    observed: i64 = 0
+    reason: i64 = 0
+    diagnostic_present: i64 = 0
+    prerequisite_accepted: i64 = 0
+    prerequisite_reason: i64 = 0
+    prerequisite_present: i64 = 0
+    lifecycle_generation_required: i64 = 0
+    lifecycle_generation_supported: i64 = 0
+    lifecycle_generation_ready: i64 = 0
+    lifecycle_generation_token_created: i64 = 0
+    observed_count: i64 = 0
+    accepted_prerequisite_count: i64 = 0
+    rejected_prerequisite_count: i64 = 0
+    unsupported_prerequisite_count: i64 = 0
+    missing_inventory_reject_count: i64 = 0
+    missing_report_reject_count: i64 = 0
+    last_reason: i64 = 0
+    report_segment_id: i64 = -1
+    report_arena_id: i64 = -1
+    report_lifetime_generation: i64 = 0
+    report_release_applied_recycle_token: i64 = 0
+    report_continuation_token: i64 = 0
+    report_application_token: i64 = 0
+    report_applied_backing_bytes: usize = 0
+    report_applied_committed_bytes: usize = 0
+    report_remaining_source_bytes: usize = 0
+    would_create_lifecycle_generation: i64 = 0
+    would_create_pointer_residence: i64 = 0
+    would_lookup_by_pointer: i64 = 0
+    would_release_arena_backing: i64 = 0
+    would_recycle_arena_backing: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleGenerationPrerequisiteDiagnostic {
+    observed_count: i64 = 0
+    accepted_prerequisite_count: i64 = 0
+    rejected_prerequisite_count: i64 = 0
+    unsupported_prerequisite_count: i64 = 0
+    missing_inventory_reject_count: i64 = 0
+    missing_report_reject_count: i64 = 0
+    last_reason: i64 = 0
+
+    makeLifecycleGenerationPrerequisiteDiagnosticReport(fields: HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleGenerationPrerequisiteDiagnosticReportFields): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleGenerationPrerequisiteDiagnosticReport {
+        local result = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleGenerationPrerequisiteDiagnosticReport()
+        result.observed = fields.observed
+        result.reason = fields.reason
+        result.diagnostic_present = fields.diagnostic_present
+        result.prerequisite_accepted = fields.prerequisite_accepted
+        result.prerequisite_reason = fields.prerequisite_reason
+        result.prerequisite_present = fields.prerequisite_present
+        result.lifecycle_generation_required = fields.lifecycle_generation_required
+        result.lifecycle_generation_supported = fields.lifecycle_generation_supported
+        result.lifecycle_generation_ready = fields.lifecycle_generation_ready
+        result.lifecycle_generation_token_created = fields.lifecycle_generation_token_created
+        result.observed_count = fields.observed_count
+        result.accepted_prerequisite_count = fields.accepted_prerequisite_count
+        result.rejected_prerequisite_count = fields.rejected_prerequisite_count
+        result.unsupported_prerequisite_count = fields.unsupported_prerequisite_count
+        result.missing_inventory_reject_count = fields.missing_inventory_reject_count
+        result.missing_report_reject_count = fields.missing_report_reject_count
+        result.last_reason = fields.last_reason
+        result.report_segment_id = fields.report_segment_id
+        result.report_arena_id = fields.report_arena_id
+        result.report_lifetime_generation = fields.report_lifetime_generation
+        result.report_release_applied_recycle_token = fields.report_release_applied_recycle_token
+        result.report_continuation_token = fields.report_continuation_token
+        result.report_application_token = fields.report_application_token
+        result.report_applied_backing_bytes = fields.report_applied_backing_bytes
+        result.report_applied_committed_bytes = fields.report_applied_committed_bytes
+        result.report_remaining_source_bytes = fields.report_remaining_source_bytes
+        result.would_create_lifecycle_generation = fields.would_create_lifecycle_generation
+        result.would_create_pointer_residence = fields.would_create_pointer_residence
+        result.would_lookup_by_pointer = fields.would_lookup_by_pointer
+        result.would_release_arena_backing = fields.would_release_arena_backing
+        result.would_recycle_arena_backing = fields.would_recycle_arena_backing
+        result.would_use_segment_map = fields.would_use_segment_map
+        result.would_execute_atomic_bitmap = fields.would_execute_atomic_bitmap
+        result.would_call_osvm = fields.would_call_osvm
+        result.would_run_thread = fields.would_run_thread
+        result.would_activate_provider = fields.would_activate_provider
+        result.would_add_backend_matcher = fields.would_add_backend_matcher
+        return result
+    }
+
+    makeReport(observed, reason, prerequisite_report): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleGenerationPrerequisiteDiagnosticReport {
+        local fields = HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleGenerationPrerequisiteDiagnosticReportFields {
+            observed: observed,
+            reason: reason,
+            diagnostic_present: observed,
+            prerequisite_accepted: prerequisite_report.accepted,
+            prerequisite_reason: prerequisite_report.reason,
+            prerequisite_present: prerequisite_report.prerequisite_present,
+            lifecycle_generation_required: prerequisite_report.lifecycle_generation_required,
+            lifecycle_generation_supported: prerequisite_report.lifecycle_generation_supported,
+            lifecycle_generation_ready: prerequisite_report.lifecycle_generation_ready,
+            lifecycle_generation_token_created: prerequisite_report.lifecycle_generation_token_created,
+            observed_count: me.observed_count,
+            accepted_prerequisite_count: me.accepted_prerequisite_count,
+            rejected_prerequisite_count: me.rejected_prerequisite_count,
+            unsupported_prerequisite_count: me.unsupported_prerequisite_count,
+            missing_inventory_reject_count: me.missing_inventory_reject_count,
+            missing_report_reject_count: me.missing_report_reject_count,
+            last_reason: me.last_reason,
+            report_segment_id: prerequisite_report.report_segment_id,
+            report_arena_id: prerequisite_report.report_arena_id,
+            report_lifetime_generation: prerequisite_report.report_lifetime_generation,
+            report_release_applied_recycle_token: prerequisite_report.report_release_applied_recycle_token,
+            report_continuation_token: prerequisite_report.report_continuation_token,
+            report_application_token: prerequisite_report.report_application_token,
+            report_applied_backing_bytes: prerequisite_report.report_applied_backing_bytes,
+            report_applied_committed_bytes: prerequisite_report.report_applied_committed_bytes,
+            report_remaining_source_bytes: prerequisite_report.report_remaining_source_bytes,
+            would_create_lifecycle_generation: prerequisite_report.would_create_lifecycle_generation,
+            would_create_pointer_residence: prerequisite_report.would_create_pointer_residence,
+            would_lookup_by_pointer: prerequisite_report.would_lookup_by_pointer,
+            would_release_arena_backing: prerequisite_report.would_release_arena_backing,
+            would_recycle_arena_backing: prerequisite_report.would_recycle_arena_backing,
+            would_use_segment_map: prerequisite_report.would_use_segment_map,
+            would_execute_atomic_bitmap: prerequisite_report.would_execute_atomic_bitmap,
+            would_call_osvm: prerequisite_report.would_call_osvm,
+            would_run_thread: prerequisite_report.would_run_thread,
+            would_activate_provider: prerequisite_report.would_activate_provider,
+            would_add_backend_matcher: prerequisite_report.would_add_backend_matcher
+        }
+        return me.makeLifecycleGenerationPrerequisiteDiagnosticReport(fields)
+    }
+
+    reject(reason, prerequisite_report): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleGenerationPrerequisiteDiagnosticReport {
+        me.rejected_prerequisite_count += 1
+        me.last_reason = reason
+        if reason == 1 {
+            me.missing_inventory_reject_count += 1
+        }
+        if reason == 2 {
+            me.missing_report_reject_count += 1
+        }
+        return me.makeReport(0, reason, prerequisite_report)
+    }
+
+    observeLifecycleGenerationPrerequisite(prerequisite_inventory, prerequisite_report): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleGenerationPrerequisiteDiagnosticReport {
+        me.observed_count += 1
+        if prerequisite_inventory.prerequisite_count == 0 {
+            return me.reject(1, prerequisite_report)
+        }
+        if prerequisite_report.prerequisite_present != 1 {
+            return me.reject(2, prerequisite_report)
+        }
+        if prerequisite_report.accepted != 1 {
+            return me.reject(3, prerequisite_report)
+        }
+
+        me.accepted_prerequisite_count += 1
+        if prerequisite_report.lifecycle_generation_supported != 1 {
+            me.unsupported_prerequisite_count += 1
+        }
+        me.last_reason = 0
+        return me.makeReport(1, 0, prerequisite_report)
+    }
+}

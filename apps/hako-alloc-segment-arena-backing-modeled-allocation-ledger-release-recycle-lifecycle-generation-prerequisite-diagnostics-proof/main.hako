@@ -1,0 +1,120 @@
+// hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-lifecycle-generation-prerequisite-diagnostics-proof
+// Purpose: prove MIMAP-333A observer-only lifecycle generation prerequisite diagnostics.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_requirement_matrix_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_lifecycle_generation_prerequisite_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleGenerationPrerequisite
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_lifecycle_generation_prerequisite_diagnostic_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleGenerationPrerequisiteDiagnostic
+
+static box Main {
+    makeMatrixReport(required: i64, accepted: i64, present: i64): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixReport()
+        report.accepted = accepted
+        report.reason = 0
+        report.matrix_present = present
+        report.requirements_satisfied = 0
+        report.requirement_count = 11
+        report.lifecycle_generation_required = required
+        report.pointer_residence_required = 1
+        report.pointer_lookup_required = 1
+        report.arena_release_required = 1
+        report.arena_recycle_required = 1
+        report.segment_map_required = 1
+        report.atomic_bitmap_required = 1
+        report.osvm_required = 1
+        report.worker_tls_required = 1
+        report.provider_required = 1
+        report.backend_matcher_required = 1
+        report.report_segment_id = 190
+        report.report_arena_id = 19
+        report.report_lifetime_generation = 3
+        report.report_release_applied_recycle_token = 97019005005
+        report.report_continuation_token = 98019005005
+        report.report_application_token = 99019005005
+        report.report_applied_backing_bytes = 4096
+        report.report_applied_committed_bytes = 4096
+        report.report_remaining_source_bytes = 8192
+        return report
+    }
+
+    main(args) {
+        local inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleGenerationPrerequisiteInventory()
+        local diagnostics = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleGenerationPrerequisiteDiagnostic()
+
+        local matrix = Main.makeMatrixReport(1, 1, 1)
+        local prereq = inventory.recordLifecycleGenerationPrerequisite(matrix)
+        local diag = diagnostics.observeLifecycleGenerationPrerequisite(inventory, prereq)
+
+        local empty_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleGenerationPrerequisiteInventory()
+        local empty = diagnostics.observeLifecycleGenerationPrerequisite(empty_inventory, prereq)
+        local missing_report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleGenerationPrerequisiteReport()
+        missing_report.prerequisite_present = 0
+        local missing = diagnostics.observeLifecycleGenerationPrerequisite(inventory, missing_report)
+        local rejected_report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleGenerationPrerequisiteReport()
+        rejected_report.prerequisite_present = 1
+        rejected_report.accepted = 0
+        rejected_report.reason = 2
+        local rejected = diagnostics.observeLifecycleGenerationPrerequisite(inventory, rejected_report)
+
+        local ok = check "mimap333a segment arena backing modeled allocation ledger release recycle lifecycle generation prerequisite diagnostics" {
+            "observed": diag.observed == 1
+            "reason": diag.reason == 0
+            "present": diag.diagnostic_present == 1
+            "prereq accepted": diag.prerequisite_accepted == 1
+            "prereq reason": diag.prerequisite_reason == 0
+            "prereq present": diag.prerequisite_present == 1
+            "lifecycle required": diag.lifecycle_generation_required == 1
+            "lifecycle unsupported": diag.lifecycle_generation_supported == 0
+            "lifecycle not ready": diag.lifecycle_generation_ready == 0
+            "token not created": diag.lifecycle_generation_token_created == 0
+            "segment": diag.report_segment_id == 190
+            "arena": diag.report_arena_id == 19
+            "recycle token": diag.report_release_applied_recycle_token == 97019005005
+            "continuation token": diag.report_continuation_token == 98019005005
+            "application token": diag.report_application_token == 99019005005
+            "backing bytes": diag.report_applied_backing_bytes == 4096
+            "committed bytes": diag.report_applied_committed_bytes == 4096
+            "remaining bytes": diag.report_remaining_source_bytes == 8192
+            "owner observed": diagnostics.observed_count == 4
+            "owner accepted": diagnostics.accepted_prerequisite_count == 1
+            "owner rejected": diagnostics.rejected_prerequisite_count == 3
+            "owner unsupported": diagnostics.unsupported_prerequisite_count == 1
+            "missing inventory": diagnostics.missing_inventory_reject_count == 1
+            "missing report": diagnostics.missing_report_reject_count == 1
+            "empty rejected": empty.observed == 0
+            "empty reason": empty.reason == 1
+            "missing rejected": missing.observed == 0
+            "missing reason": missing.reason == 2
+            "rejected observed": rejected.observed == 0
+            "rejected reason": rejected.reason == 3
+            "rejected prereq reason": rejected.prerequisite_reason == 2
+            "inactive lifecycle": diag.would_create_lifecycle_generation == 0
+            "inactive residence": diag.would_create_pointer_residence == 0
+            "inactive lookup": diag.would_lookup_by_pointer == 0
+            "inactive release": diag.would_release_arena_backing == 0
+            "inactive recycle": diag.would_recycle_arena_backing == 0
+            "inactive segment map": diag.would_use_segment_map == 0
+            "inactive atomic": diag.would_execute_atomic_bitmap == 0
+            "inactive osvm": diag.would_call_osvm == 0
+            "inactive thread": diag.would_run_thread == 0
+            "inactive provider": diag.would_activate_provider == 0
+            "inactive matcher": diag.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-lifecycle-generation-prerequisite-diagnostics-proof")
+        print("diag=" + diag.observed + "," + diag.reason + "," + diag.prerequisite_accepted + "," + diag.prerequisite_reason + "," + diag.prerequisite_present + "," + diag.lifecycle_generation_required + "," + diag.lifecycle_generation_supported)
+        print("owner=" + diagnostics.observed_count + "," + diagnostics.accepted_prerequisite_count + "," + diagnostics.rejected_prerequisite_count + "," + diagnostics.unsupported_prerequisite_count + "," + diagnostics.missing_inventory_reject_count + "," + diagnostics.missing_report_reject_count + "," + diagnostics.last_reason)
+        print("tokens=" + diag.report_release_applied_recycle_token + "," + diag.report_continuation_token + "," + diag.report_application_token)
+        print("bytes=" + diag.report_applied_backing_bytes + "," + diag.report_applied_committed_bytes + "," + diag.report_remaining_source_bytes)
+        print("rejected=" + empty.observed + "," + empty.reason + "," + missing.observed + "," + missing.reason + "," + rejected.observed + "," + rejected.reason + "," + rejected.prerequisite_reason)
+        print("inactive=" + diag.would_create_lifecycle_generation + "," + diag.would_create_pointer_residence + "," + diag.would_lookup_by_pointer + "," + diag.would_release_arena_backing + "," + diag.would_recycle_arena_backing + "," + diag.would_use_segment_map + "," + diag.would_execute_atomic_bitmap + "," + diag.would_call_osvm + "," + diag.would_run_thread + "," + diag.would_activate_provider + "," + diag.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
