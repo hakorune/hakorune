@@ -1,6 +1,6 @@
 # 293x-955 MIMAP-340A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Pointer-Derived Lookup Prerequisite Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -50,4 +50,15 @@ execution.
 bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_pointer_derived_lookup_prerequisite_guard.sh --level L2
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Result
+
+MIMAP-340A landed the model-only pointer-derived lookup prerequisite inventory
+after pointer residence prerequisite closeout.
+
+Selected next:
+
+```text
+MIMAP-341A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Pointer-Derived Lookup Prerequisite Diagnostics
 ```

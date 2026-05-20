@@ -1,0 +1,129 @@
+// hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-pointer-derived-lookup-prerequisite-proof
+// Purpose: prove MIMAP-340A model-only pointer-derived lookup prerequisite inventory.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_requirement_matrix_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_lifecycle_generation_prerequisite_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleGenerationPrerequisite
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_pointer_residence_prerequisite_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecyclePointerResidencePrerequisite
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_pointer_derived_lookup_prerequisite_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecyclePointerDerivedLookupPrerequisite
+
+static box Main {
+    makeMatrixReport(required: i64, accepted: i64, present: i64): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixReport()
+        report.accepted = accepted
+        report.reason = 0
+        report.matrix_present = present
+        report.requirements_satisfied = 0
+        report.requirement_count = 11
+        report.lifecycle_generation_required = required
+        report.pointer_residence_required = 1
+        report.pointer_lookup_required = 1
+        report.arena_release_required = 1
+        report.arena_recycle_required = 1
+        report.segment_map_required = 1
+        report.atomic_bitmap_required = 1
+        report.osvm_required = 1
+        report.worker_tls_required = 1
+        report.provider_required = 1
+        report.backend_matcher_required = 1
+        report.report_segment_id = 190
+        report.report_arena_id = 19
+        report.report_lifetime_generation = 3
+        report.report_release_applied_recycle_token = 97019005005
+        report.report_continuation_token = 98019005005
+        report.report_application_token = 99019005005
+        report.report_applied_backing_bytes = 4096
+        report.report_applied_committed_bytes = 4096
+        report.report_remaining_source_bytes = 8192
+        return report
+    }
+
+    makeResidenceReport(): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecyclePointerResidencePrerequisiteReport {
+        local lifecycle_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleGenerationPrerequisiteInventory()
+        local matrix = Main.makeMatrixReport(1, 1, 1)
+        local lifecycle = lifecycle_inventory.recordLifecycleGenerationPrerequisite(matrix)
+        local residence_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecyclePointerResidencePrerequisiteInventory()
+        return residence_inventory.recordPointerResidencePrerequisite(lifecycle)
+    }
+
+    main(args) {
+        local inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecyclePointerDerivedLookupPrerequisiteInventory()
+        local residence = Main.makeResidenceReport()
+        local prereq = inventory.recordPointerDerivedLookupPrerequisite(residence)
+
+        local missing_residence = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecyclePointerResidencePrerequisiteReport()
+        local missing = inventory.recordPointerDerivedLookupPrerequisite(missing_residence)
+        local rejected_residence = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecyclePointerResidencePrerequisiteReport()
+        rejected_residence.prerequisite_present = 1
+        rejected_residence.accepted = 0
+        rejected_residence.reason = 2
+        local rejected = inventory.recordPointerDerivedLookupPrerequisite(rejected_residence)
+        local opened_residence = Main.makeResidenceReport()
+        opened_residence.would_lookup_by_pointer = 1
+        local opened = inventory.recordPointerDerivedLookupPrerequisite(opened_residence)
+
+        local ok = check "mimap340a segment arena backing modeled allocation ledger release recycle pointer derived lookup prerequisite" {
+            "accepted": prereq.accepted == 1
+            "reason": prereq.reason == 0
+            "present": prereq.prerequisite_present == 1
+            "residence present": prereq.pointer_residence_prerequisite_present == 1
+            "residence accepted": prereq.pointer_residence_prerequisite_accepted == 1
+            "residence reason": prereq.pointer_residence_prerequisite_reason == 0
+            "residence required": prereq.pointer_residence_required == 1
+            "residence unsupported": prereq.pointer_residence_supported == 0
+            "residence not created": prereq.pointer_residence_created == 0
+            "lookup required": prereq.pointer_lookup_required == 1
+            "lookup unsupported": prereq.pointer_lookup_supported == 0
+            "lookup not ready": prereq.pointer_lookup_ready == 0
+            "lookup not executed": prereq.pointer_lookup_executed == 0
+            "segment": prereq.report_segment_id == 190
+            "arena": prereq.report_arena_id == 19
+            "recycle token": prereq.report_release_applied_recycle_token == 97019005005
+            "continuation token": prereq.report_continuation_token == 98019005005
+            "application token": prereq.report_application_token == 99019005005
+            "backing bytes": prereq.report_applied_backing_bytes == 4096
+            "committed bytes": prereq.report_applied_committed_bytes == 4096
+            "remaining bytes": prereq.report_remaining_source_bytes == 8192
+            "owner count": inventory.prerequisite_count == 4
+            "owner accepted": inventory.accepted_count == 1
+            "owner rejected": inventory.reject_count == 3
+            "owner missing": inventory.missing_residence_reject_count == 1
+            "owner rejected residence": inventory.rejected_residence_reject_count == 1
+            "owner absent": inventory.requirement_absent_reject_count == 1
+            "missing rejected": missing.accepted == 0
+            "missing reason": missing.reason == 1
+            "rejected rejected": rejected.accepted == 0
+            "rejected reason": rejected.reason == 2
+            "opened rejected": opened.accepted == 0
+            "opened reason": opened.reason == 3
+            "inactive lifecycle": prereq.would_create_lifecycle_generation == 0
+            "inactive residence": prereq.would_create_pointer_residence == 0
+            "inactive lookup": prereq.would_lookup_by_pointer == 0
+            "inactive release": prereq.would_release_arena_backing == 0
+            "inactive recycle": prereq.would_recycle_arena_backing == 0
+            "inactive segment map": prereq.would_use_segment_map == 0
+            "inactive atomic": prereq.would_execute_atomic_bitmap == 0
+            "inactive osvm": prereq.would_call_osvm == 0
+            "inactive thread": prereq.would_run_thread == 0
+            "inactive provider": prereq.would_activate_provider == 0
+            "inactive matcher": prereq.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-pointer-derived-lookup-prerequisite-proof")
+        print("prereq=" + prereq.accepted + "," + prereq.reason + "," + prereq.prerequisite_present + "," + prereq.pointer_lookup_required + "," + prereq.pointer_lookup_supported + "," + prereq.pointer_lookup_executed)
+        print("residence=" + prereq.pointer_residence_prerequisite_present + "," + prereq.pointer_residence_prerequisite_accepted + "," + prereq.pointer_residence_prerequisite_reason)
+        print("owner=" + inventory.prerequisite_count + "," + inventory.accepted_count + "," + inventory.reject_count + "," + inventory.missing_residence_reject_count + "," + inventory.rejected_residence_reject_count + "," + inventory.requirement_absent_reject_count + "," + inventory.last_reason)
+        print("tokens=" + prereq.report_release_applied_recycle_token + "," + prereq.report_continuation_token + "," + prereq.report_application_token)
+        print("bytes=" + prereq.report_applied_backing_bytes + "," + prereq.report_applied_committed_bytes + "," + prereq.report_remaining_source_bytes)
+        print("rejected=" + missing.accepted + "," + missing.reason + "," + rejected.accepted + "," + rejected.reason + "," + opened.accepted + "," + opened.reason)
+        print("inactive=" + prereq.would_create_lifecycle_generation + "," + prereq.would_create_pointer_residence + "," + prereq.would_lookup_by_pointer + "," + prereq.would_release_arena_backing + "," + prereq.would_recycle_arena_backing + "," + prereq.would_use_segment_map + "," + prereq.would_execute_atomic_bitmap + "," + prereq.would_call_osvm + "," + prereq.would_run_thread + "," + prereq.would_activate_provider + "," + prereq.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
