@@ -1,6 +1,6 @@
 # 293x-1051 MIMAP-429A Allocator Comparison Baseline Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -32,3 +32,20 @@ execution or host allocator replacement is opened.
 Closeout validation should include the L2 row guards. L3 remains optional and
 must stay representative-only unless a later row explicitly opens benchmark
 execution.
+
+## Required Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_allocator_comparison_baseline_closeout_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Landed Evidence
+
+- Added the comparison baseline closeout SSOT and guard.
+- Re-ran the MIMAP-427A inventory L2 guard.
+- Re-ran the MIMAP-428A diagnostics L2 guard.
+- Kept benchmark execution, hook installation, backend matcher additions,
+  process allocator replacement, worker/thread execution, and global allocator
+  install closed.
