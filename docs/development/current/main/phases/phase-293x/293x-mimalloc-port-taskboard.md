@@ -786,7 +786,8 @@ FST:
 | `MIMAP-310A` | landed | Segment arena backing modeled allocation-ledger release/recycle applied-state summary closeout pack. | selected MIMAP-311A |
 | `MIMAP-311A` | landed | Post release/recycle applied-state summary closeout row selection. | selected MIMAP-312A |
 | `MIMAP-312A` | landed | Segment arena backing modeled allocation-ledger release/recycle execution readiness matrix inventory. | selected MIMAP-313A |
-| `MIMAP-313A` | selected current | Segment arena backing modeled allocation-ledger release/recycle execution readiness matrix diagnostics. | after MIMAP-312A |
+| `MIMAP-313A` | landed | Segment arena backing modeled allocation-ledger release/recycle execution readiness matrix diagnostics. | selected MIMAP-314A |
+| `MIMAP-314A` | selected current | Segment arena backing modeled allocation-ledger release/recycle execution readiness matrix closeout pack. | after MIMAP-313A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -795,8 +796,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-313A` adds observer-only diagnostics for the scalar/model
-release/recycle execution readiness matrix after MIMAP-312A.
+`MIMAP-314A` closes out the scalar/model release/recycle execution readiness
+matrix inventory and diagnostics pair after MIMAP-313A.
 
 SSOT:
 
@@ -826,6 +827,7 @@ docs/development/current/main/phases/phase-293x/293x-925-MIMAP-310A-SEGMENT-AREN
 docs/development/current/main/phases/phase-293x/293x-926-MIMAP-311A-POST-RELEASE-RECYCLE-APPLIED-STATE-SUMMARY-CLOSEOUT-ROW-SELECTION.md
 docs/development/current/main/phases/phase-293x/293x-927-MIMAP-312A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-READINESS-MATRIX-INVENTORY.md
 docs/development/current/main/phases/phase-293x/293x-928-MIMAP-313A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-READINESS-MATRIX-DIAGNOSTICS.md
+docs/development/current/main/phases/phase-293x/293x-929-MIMAP-314A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-READINESS-MATRIX-CLOSEOUT.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-diagnostics-ssot.md
@@ -841,6 +843,7 @@ docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-al
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-applied-state-summary-diagnostics-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-applied-state-summary-closeout-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-readiness-matrix-ssot.md
+docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-readiness-matrix-diagnostics-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-continuation-application-bridge-closeout-ssot.md
 ```
 

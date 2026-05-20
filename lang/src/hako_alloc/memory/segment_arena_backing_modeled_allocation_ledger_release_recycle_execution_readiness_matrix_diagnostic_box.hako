@@ -1,0 +1,271 @@
+// segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_readiness_matrix_diagnostic_box.hako -- MIMAP-313A
+// Responsibility:
+// - observe MIMAP-312A execution readiness matrix facts and publish
+//   scalar/model diagnostic facts
+// - keep diagnostics observer-only before any real arena backing release or
+//   recycle execution opens
+// Non-responsibility:
+// - recording readiness matrix rows, creating real lifecycle generation,
+//   pointer residence, pointer-derived lookup, arena backing release/recycle,
+//   segment-map mutation, atomic bitmap execution, OSVM calls, scheduling,
+//   providers, or backend shortcuts
+
+record HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrixDiagnosticReportFields {
+    observed: i64
+    reason: i64
+    diagnostic_present: i64
+    matrix_accepted: i64
+    matrix_reason: i64
+    matrix_present: i64
+    blocked_requirement_count: i64
+    inventory_count: i64
+    accepted_count: i64
+    reject_count: i64
+    observed_count: i64
+    accepted_matrix_count: i64
+    rejected_matrix_count: i64
+    blocked_matrix_count: i64
+    missing_inventory_reject_count: i64
+    missing_matrix_reject_count: i64
+    last_reason: i64
+    report_segment_id: i64
+    report_arena_id: i64
+    report_lifetime_generation: i64
+    report_release_applied_recycle_token: i64
+    report_continuation_token: i64
+    report_application_token: i64
+    report_applied_backing_bytes: usize
+    report_applied_committed_bytes: usize
+    report_remaining_source_bytes: usize
+    report_applied_state_ready: i64
+    report_closed_substrate_summary: i64
+    report_requires_lifecycle_generation: i64
+    report_requires_pointer_residence: i64
+    report_requires_pointer_lookup: i64
+    report_requires_arena_backing_release: i64
+    report_requires_arena_backing_recycle: i64
+    report_requires_segment_map: i64
+    report_requires_atomic_bitmap: i64
+    report_requires_osvm: i64
+    report_requires_worker: i64
+    report_requires_provider: i64
+    report_requires_backend_matcher: i64
+    would_create_lifecycle_generation: i64
+    would_create_pointer_residence: i64
+    would_lookup_by_pointer: i64
+    would_release_arena_backing: i64
+    would_recycle_arena_backing: i64
+    would_use_segment_map: i64
+    would_execute_atomic_bitmap: i64
+    would_call_osvm: i64
+    would_run_thread: i64
+    would_activate_provider: i64
+    would_add_backend_matcher: i64
+}
+
+box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrixDiagnosticReport {
+    observed: i64 = 0
+    reason: i64 = 0
+    diagnostic_present: i64 = 1
+    matrix_accepted: i64 = 0
+    matrix_reason: i64 = 0
+    matrix_present: i64 = 0
+    blocked_requirement_count: i64 = 0
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    observed_count: i64 = 0
+    accepted_matrix_count: i64 = 0
+    rejected_matrix_count: i64 = 0
+    blocked_matrix_count: i64 = 0
+    missing_inventory_reject_count: i64 = 0
+    missing_matrix_reject_count: i64 = 0
+    last_reason: i64 = 0
+    report_segment_id: i64 = -1
+    report_arena_id: i64 = -1
+    report_lifetime_generation: i64 = 0
+    report_release_applied_recycle_token: i64 = 0
+    report_continuation_token: i64 = 0
+    report_application_token: i64 = 0
+    report_applied_backing_bytes: usize = 0
+    report_applied_committed_bytes: usize = 0
+    report_remaining_source_bytes: usize = 0
+    report_applied_state_ready: i64 = 0
+    report_closed_substrate_summary: i64 = 0
+    report_requires_lifecycle_generation: i64 = 0
+    report_requires_pointer_residence: i64 = 0
+    report_requires_pointer_lookup: i64 = 0
+    report_requires_arena_backing_release: i64 = 0
+    report_requires_arena_backing_recycle: i64 = 0
+    report_requires_segment_map: i64 = 0
+    report_requires_atomic_bitmap: i64 = 0
+    report_requires_osvm: i64 = 0
+    report_requires_worker: i64 = 0
+    report_requires_provider: i64 = 0
+    report_requires_backend_matcher: i64 = 0
+    would_create_lifecycle_generation: i64 = 0
+    would_create_pointer_residence: i64 = 0
+    would_lookup_by_pointer: i64 = 0
+    would_release_arena_backing: i64 = 0
+    would_recycle_arena_backing: i64 = 0
+    would_use_segment_map: i64 = 0
+    would_execute_atomic_bitmap: i64 = 0
+    would_call_osvm: i64 = 0
+    would_run_thread: i64 = 0
+    would_activate_provider: i64 = 0
+    would_add_backend_matcher: i64 = 0
+}
+
+box HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrixDiagnostic {
+    observed_count: i64 = 0
+    accepted_matrix_count: i64 = 0
+    rejected_matrix_count: i64 = 0
+    blocked_matrix_count: i64 = 0
+    missing_inventory_reject_count: i64 = 0
+    missing_matrix_reject_count: i64 = 0
+    last_reason: i64 = 0
+
+    makeExecutionReadinessMatrixDiagnosticReport(fields: HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrixDiagnosticReportFields): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrixDiagnosticReport {
+        local result = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrixDiagnosticReport()
+        result.observed = fields.observed
+        result.reason = fields.reason
+        result.diagnostic_present = fields.diagnostic_present
+        result.matrix_accepted = fields.matrix_accepted
+        result.matrix_reason = fields.matrix_reason
+        result.matrix_present = fields.matrix_present
+        result.blocked_requirement_count = fields.blocked_requirement_count
+        result.inventory_count = fields.inventory_count
+        result.accepted_count = fields.accepted_count
+        result.reject_count = fields.reject_count
+        result.observed_count = fields.observed_count
+        result.accepted_matrix_count = fields.accepted_matrix_count
+        result.rejected_matrix_count = fields.rejected_matrix_count
+        result.blocked_matrix_count = fields.blocked_matrix_count
+        result.missing_inventory_reject_count = fields.missing_inventory_reject_count
+        result.missing_matrix_reject_count = fields.missing_matrix_reject_count
+        result.last_reason = fields.last_reason
+        result.report_segment_id = fields.report_segment_id
+        result.report_arena_id = fields.report_arena_id
+        result.report_lifetime_generation = fields.report_lifetime_generation
+        result.report_release_applied_recycle_token = fields.report_release_applied_recycle_token
+        result.report_continuation_token = fields.report_continuation_token
+        result.report_application_token = fields.report_application_token
+        result.report_applied_backing_bytes = fields.report_applied_backing_bytes
+        result.report_applied_committed_bytes = fields.report_applied_committed_bytes
+        result.report_remaining_source_bytes = fields.report_remaining_source_bytes
+        result.report_applied_state_ready = fields.report_applied_state_ready
+        result.report_closed_substrate_summary = fields.report_closed_substrate_summary
+        result.report_requires_lifecycle_generation = fields.report_requires_lifecycle_generation
+        result.report_requires_pointer_residence = fields.report_requires_pointer_residence
+        result.report_requires_pointer_lookup = fields.report_requires_pointer_lookup
+        result.report_requires_arena_backing_release = fields.report_requires_arena_backing_release
+        result.report_requires_arena_backing_recycle = fields.report_requires_arena_backing_recycle
+        result.report_requires_segment_map = fields.report_requires_segment_map
+        result.report_requires_atomic_bitmap = fields.report_requires_atomic_bitmap
+        result.report_requires_osvm = fields.report_requires_osvm
+        result.report_requires_worker = fields.report_requires_worker
+        result.report_requires_provider = fields.report_requires_provider
+        result.report_requires_backend_matcher = fields.report_requires_backend_matcher
+        result.would_create_lifecycle_generation = fields.would_create_lifecycle_generation
+        result.would_create_pointer_residence = fields.would_create_pointer_residence
+        result.would_lookup_by_pointer = fields.would_lookup_by_pointer
+        result.would_release_arena_backing = fields.would_release_arena_backing
+        result.would_recycle_arena_backing = fields.would_recycle_arena_backing
+        result.would_use_segment_map = fields.would_use_segment_map
+        result.would_execute_atomic_bitmap = fields.would_execute_atomic_bitmap
+        result.would_call_osvm = fields.would_call_osvm
+        result.would_run_thread = fields.would_run_thread
+        result.would_activate_provider = fields.would_activate_provider
+        result.would_add_backend_matcher = fields.would_add_backend_matcher
+        return result
+    }
+
+    makeReport(observed, reason, inventory, matrix_report): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrixDiagnosticReport {
+        local fields = HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrixDiagnosticReportFields {
+            observed: observed,
+            reason: reason,
+            diagnostic_present: 1,
+            matrix_accepted: matrix_report.accepted,
+            matrix_reason: matrix_report.reason,
+            matrix_present: matrix_report.matrix_present,
+            blocked_requirement_count: matrix_report.blocked_requirement_count,
+            inventory_count: inventory.inventory_count,
+            accepted_count: inventory.accepted_count,
+            reject_count: inventory.reject_count,
+            observed_count: me.observed_count,
+            accepted_matrix_count: me.accepted_matrix_count,
+            rejected_matrix_count: me.rejected_matrix_count,
+            blocked_matrix_count: me.blocked_matrix_count,
+            missing_inventory_reject_count: me.missing_inventory_reject_count,
+            missing_matrix_reject_count: me.missing_matrix_reject_count,
+            last_reason: me.last_reason,
+            report_segment_id: matrix_report.segment_id,
+            report_arena_id: matrix_report.arena_id,
+            report_lifetime_generation: matrix_report.lifetime_generation,
+            report_release_applied_recycle_token: matrix_report.release_applied_recycle_token,
+            report_continuation_token: matrix_report.continuation_token,
+            report_application_token: matrix_report.application_token,
+            report_applied_backing_bytes: matrix_report.applied_backing_bytes,
+            report_applied_committed_bytes: matrix_report.applied_committed_bytes,
+            report_remaining_source_bytes: matrix_report.remaining_source_bytes,
+            report_applied_state_ready: matrix_report.applied_state_ready,
+            report_closed_substrate_summary: matrix_report.closed_substrate_summary,
+            report_requires_lifecycle_generation: matrix_report.requires_lifecycle_generation,
+            report_requires_pointer_residence: matrix_report.requires_pointer_residence,
+            report_requires_pointer_lookup: matrix_report.requires_pointer_lookup,
+            report_requires_arena_backing_release: matrix_report.requires_arena_backing_release,
+            report_requires_arena_backing_recycle: matrix_report.requires_arena_backing_recycle,
+            report_requires_segment_map: matrix_report.requires_segment_map,
+            report_requires_atomic_bitmap: matrix_report.requires_atomic_bitmap,
+            report_requires_osvm: matrix_report.requires_osvm,
+            report_requires_worker: matrix_report.requires_worker,
+            report_requires_provider: matrix_report.requires_provider,
+            report_requires_backend_matcher: matrix_report.requires_backend_matcher,
+            would_create_lifecycle_generation: 0,
+            would_create_pointer_residence: 0,
+            would_lookup_by_pointer: 0,
+            would_release_arena_backing: 0,
+            would_recycle_arena_backing: 0,
+            would_use_segment_map: 0,
+            would_execute_atomic_bitmap: 0,
+            would_call_osvm: 0,
+            would_run_thread: 0,
+            would_activate_provider: 0,
+            would_add_backend_matcher: 0,
+        }
+        me.last_reason = reason
+        return me.makeExecutionReadinessMatrixDiagnosticReport(fields)
+    }
+
+    reject(reason, inventory, matrix_report): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrixDiagnosticReport {
+        me.rejected_matrix_count += 1
+        if reason == 1 {
+            me.missing_inventory_reject_count += 1
+        }
+        if reason == 2 {
+            me.missing_matrix_reject_count += 1
+        }
+        return me.makeReport(0, reason, inventory, matrix_report)
+    }
+
+    observeExecutionReadinessMatrix(inventory, matrix_report): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrixDiagnosticReport {
+        me.observed_count += 1
+
+        if inventory.inventory_count <= 0 {
+            return me.reject(1, inventory, matrix_report)
+        }
+        if matrix_report.matrix_present != 1 {
+            return me.reject(2, inventory, matrix_report)
+        }
+        if matrix_report.accepted != 1 {
+            me.rejected_matrix_count += 1
+            if matrix_report.blocked_requirement_count > 0 {
+                me.blocked_matrix_count += 1
+            }
+            return me.makeReport(1, 3, inventory, matrix_report)
+        }
+
+        me.accepted_matrix_count += 1
+        return me.makeReport(1, 0, inventory, matrix_report)
+    }
+}

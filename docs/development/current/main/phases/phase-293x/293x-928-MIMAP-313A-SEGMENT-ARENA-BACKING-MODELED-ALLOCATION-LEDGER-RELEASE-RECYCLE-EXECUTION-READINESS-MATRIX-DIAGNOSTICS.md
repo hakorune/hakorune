@@ -1,6 +1,6 @@
 # 293x-928 MIMAP-313A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Execution Readiness Matrix Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -45,4 +45,16 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_le
 bash tools/checks/run_proof_app.sh --only MIMAP-313A
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Result
+
+Landed the observer-only diagnostics owner, proof app, SSOT, and L2 guard for
+the MIMAP-312A release/recycle execution readiness matrix.
+
+Selected next:
+
+```text
+MIMAP-314A Segment arena backing modeled allocation-ledger release/recycle
+execution readiness matrix closeout pack
 ```
