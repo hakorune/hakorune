@@ -1,6 +1,6 @@
 # 293x-1029 MIMAP-407A Post Provider Call External API Call Stub Execution Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -30,3 +30,15 @@ actual external provider API calls and host allocator replacement remain closed.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Decision Result
+
+Selected:
+
+```text
+MIMAP-408A External Provider API Call Stub Execution Closeout
+```
+
+The next row closes out the model-space external provider API call stub
+execution seam before any real external provider API adapter execution
+preflight is opened.
