@@ -1,6 +1,6 @@
 # 293x-1044 MIMAP-422A Host Replacement Preflight Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -29,3 +29,19 @@ diagnostic pack before any hook-install preflight planning is considered.
 
 Closeout validation should provide representative evidence for the preflight
 pack before selecting hook-install preflight planning.
+
+## Required Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_host_replacement_preflight_closeout_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Landed Evidence
+
+- Added the host replacement preflight closeout SSOT and guard.
+- Reused MIMAP-420A and MIMAP-421A L2 evidence.
+- Selected hook-install preflight planning as the next row.
+- Kept hook installation, backend matcher additions, process allocator
+  replacement, worker/thread execution, and global allocator install closed.

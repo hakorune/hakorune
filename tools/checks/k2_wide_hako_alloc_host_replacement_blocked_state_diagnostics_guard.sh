@@ -44,7 +44,7 @@ guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT" "$RUN_PROOF"
 for card in "$CARD_420A" "$CARD"; do
   guard_expect_in_file "$TAG" 'Status: landed' "$card" "$card must be landed"
 done
-guard_expect_in_file "$TAG" 'Status: selected current' "$NEXT_CARD" "MIMAP-422A must be selected current"
+guard_expect_in_file "$TAG" 'Status: (selected current|landed)' "$NEXT_CARD" "MIMAP-422A must be selected current or landed"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$DESIGN" "MIMAP-421A design must be accepted"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$PREV_DESIGN" "MIMAP-420A design must remain accepted"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list MIMAP-421A guard"
