@@ -1,6 +1,6 @@
 # 293x-1028 MIMAP-406A Provider Call External API Call Stub Execution Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -45,3 +45,12 @@ bash tools/checks/k2_wide_hako_alloc_provider_call_external_api_call_stub_execut
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Evidence
+
+- Added `provider_call_external_api_call_stub_execution_pilot_box.hako`.
+- Added the manifest-backed proof app and L2 guard.
+- Recorded model-space external provider API call stub execution evidence while
+  actual external provider API calls, host replacement, hooks, backend matcher
+  additions, worker/thread execution, and global allocator install remain
+  closed.

@@ -1,0 +1,260 @@
+// provider_call_external_api_call_stub_execution_pilot_box.hako -- MIMAP-406A
+// Responsibility:
+// - consume a provider-call external API adapter preflight report
+// - record model-space external provider API call stub execution evidence
+// Non-responsibility:
+// - actual external provider API calls, host allocator replacement, hooks,
+//   global allocator install, backend matchers, worker/TLS, or thread execution
+
+using selfhost.hako_alloc.memory.provider_call_external_api_adapter_preflight_box as HakoAllocProviderCallExternalApiAdapterPreflight
+
+record HakoAllocProviderCallExternalApiCallStubExecutionPilotReportFields {
+    accepted: i64
+    reason: i64
+    external_stub_execution_present: i64
+    adapter_preflight_present: i64
+    adapter_preflight_accepted: i64
+    adapter_preflight_reason: i64
+    external_provider_adapter_present: i64
+    external_provider_adapter_valid: i64
+    external_provider_api_preflight_ready: i64
+    external_provider_api_stub_call_executed: i64
+    external_provider_api_stub_result_present: i64
+    external_provider_api_stub_result_code: i64
+    actual_external_provider_api_call_executed: i64
+    host_replacement_inactive: i64
+    hooks_inactive: i64
+    backend_matcher_inactive: i64
+    execution_count: i64
+    accepted_count: i64
+    reject_count: i64
+    missing_preflight_reject_count: i64
+    rejected_preflight_reject_count: i64
+    not_ready_reject_count: i64
+    already_executed_reject_count: i64
+    closed_execution_reject_count: i64
+    closed_host_replacement_reject_count: i64
+    closed_hook_reject_count: i64
+    closed_backend_matcher_reject_count: i64
+    last_reason: i64
+    would_activate_provider: i64
+    would_call_provider: i64
+    would_execute_provider_api: i64
+    would_call_external_provider_api: i64
+    would_replace_host_allocator: i64
+    would_install_hook: i64
+    would_add_backend_matcher: i64
+    would_run_thread: i64
+}
+
+box HakoAllocProviderCallExternalApiCallStubExecutionPilotReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    external_stub_execution_present: i64 = 0
+    adapter_preflight_present: i64 = 0
+    adapter_preflight_accepted: i64 = 0
+    adapter_preflight_reason: i64 = 0
+    external_provider_adapter_present: i64 = 0
+    external_provider_adapter_valid: i64 = 0
+    external_provider_api_preflight_ready: i64 = 0
+    external_provider_api_stub_call_executed: i64 = 0
+    external_provider_api_stub_result_present: i64 = 0
+    external_provider_api_stub_result_code: i64 = 0
+    actual_external_provider_api_call_executed: i64 = 0
+    host_replacement_inactive: i64 = 1
+    hooks_inactive: i64 = 1
+    backend_matcher_inactive: i64 = 1
+    execution_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_preflight_reject_count: i64 = 0
+    rejected_preflight_reject_count: i64 = 0
+    not_ready_reject_count: i64 = 0
+    already_executed_reject_count: i64 = 0
+    closed_execution_reject_count: i64 = 0
+    closed_host_replacement_reject_count: i64 = 0
+    closed_hook_reject_count: i64 = 0
+    closed_backend_matcher_reject_count: i64 = 0
+    last_reason: i64 = 0
+    would_activate_provider: i64 = 0
+    would_call_provider: i64 = 0
+    would_execute_provider_api: i64 = 0
+    would_call_external_provider_api: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
+}
+
+box HakoAllocProviderCallExternalApiCallStubExecutionPilot {
+    execution_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_preflight_reject_count: i64 = 0
+    rejected_preflight_reject_count: i64 = 0
+    not_ready_reject_count: i64 = 0
+    already_executed_reject_count: i64 = 0
+    closed_execution_reject_count: i64 = 0
+    closed_host_replacement_reject_count: i64 = 0
+    closed_hook_reject_count: i64 = 0
+    closed_backend_matcher_reject_count: i64 = 0
+    last_reason: i64 = 0
+
+    makeProviderCallExternalApiCallStubExecutionPilotReport(fields: HakoAllocProviderCallExternalApiCallStubExecutionPilotReportFields): HakoAllocProviderCallExternalApiCallStubExecutionPilotReport {
+        local result = new HakoAllocProviderCallExternalApiCallStubExecutionPilotReport {
+            accepted: fields.accepted,
+            reason: fields.reason,
+            external_stub_execution_present: fields.external_stub_execution_present,
+            adapter_preflight_present: fields.adapter_preflight_present,
+            adapter_preflight_accepted: fields.adapter_preflight_accepted,
+            adapter_preflight_reason: fields.adapter_preflight_reason,
+            external_provider_adapter_present: fields.external_provider_adapter_present,
+            external_provider_adapter_valid: fields.external_provider_adapter_valid,
+            external_provider_api_preflight_ready: fields.external_provider_api_preflight_ready,
+            external_provider_api_stub_call_executed: fields.external_provider_api_stub_call_executed,
+            external_provider_api_stub_result_present: fields.external_provider_api_stub_result_present,
+            external_provider_api_stub_result_code: fields.external_provider_api_stub_result_code,
+            actual_external_provider_api_call_executed: fields.actual_external_provider_api_call_executed,
+            host_replacement_inactive: fields.host_replacement_inactive,
+            hooks_inactive: fields.hooks_inactive,
+            backend_matcher_inactive: fields.backend_matcher_inactive,
+            execution_count: fields.execution_count,
+            accepted_count: fields.accepted_count,
+            reject_count: fields.reject_count,
+            missing_preflight_reject_count: fields.missing_preflight_reject_count,
+            rejected_preflight_reject_count: fields.rejected_preflight_reject_count,
+            not_ready_reject_count: fields.not_ready_reject_count,
+            already_executed_reject_count: fields.already_executed_reject_count,
+            closed_execution_reject_count: fields.closed_execution_reject_count,
+            closed_host_replacement_reject_count: fields.closed_host_replacement_reject_count,
+            closed_hook_reject_count: fields.closed_hook_reject_count,
+            closed_backend_matcher_reject_count: fields.closed_backend_matcher_reject_count,
+            last_reason: fields.last_reason,
+            would_activate_provider: fields.would_activate_provider,
+            would_call_provider: fields.would_call_provider,
+            would_execute_provider_api: fields.would_execute_provider_api,
+            would_call_external_provider_api: fields.would_call_external_provider_api,
+            would_replace_host_allocator: fields.would_replace_host_allocator,
+            would_install_hook: fields.would_install_hook,
+            would_add_backend_matcher: fields.would_add_backend_matcher,
+            would_run_thread: fields.would_run_thread
+        }
+        return result
+    }
+
+    makeReport(accepted, reason, preflight: HakoAllocProviderCallExternalApiAdapterPreflightReport): HakoAllocProviderCallExternalApiCallStubExecutionPilotReport {
+        local present = accepted
+        local executed = accepted
+        local result_present = accepted
+        local fields = HakoAllocProviderCallExternalApiCallStubExecutionPilotReportFields {
+            accepted: accepted,
+            reason: reason,
+            external_stub_execution_present: present,
+            adapter_preflight_present: preflight.adapter_preflight_present,
+            adapter_preflight_accepted: preflight.accepted,
+            adapter_preflight_reason: preflight.reason,
+            external_provider_adapter_present: preflight.external_provider_adapter_present,
+            external_provider_adapter_valid: preflight.external_provider_adapter_valid,
+            external_provider_api_preflight_ready: preflight.external_provider_api_preflight_ready,
+            external_provider_api_stub_call_executed: executed,
+            external_provider_api_stub_result_present: result_present,
+            external_provider_api_stub_result_code: 0,
+            actual_external_provider_api_call_executed: 0,
+            host_replacement_inactive: preflight.host_replacement_inactive,
+            hooks_inactive: preflight.hooks_inactive,
+            backend_matcher_inactive: preflight.backend_matcher_inactive,
+            execution_count: me.execution_count,
+            accepted_count: me.accepted_count,
+            reject_count: me.reject_count,
+            missing_preflight_reject_count: me.missing_preflight_reject_count,
+            rejected_preflight_reject_count: me.rejected_preflight_reject_count,
+            not_ready_reject_count: me.not_ready_reject_count,
+            already_executed_reject_count: me.already_executed_reject_count,
+            closed_execution_reject_count: me.closed_execution_reject_count,
+            closed_host_replacement_reject_count: me.closed_host_replacement_reject_count,
+            closed_hook_reject_count: me.closed_hook_reject_count,
+            closed_backend_matcher_reject_count: me.closed_backend_matcher_reject_count,
+            last_reason: me.last_reason,
+            would_activate_provider: preflight.would_activate_provider,
+            would_call_provider: preflight.would_call_provider,
+            would_execute_provider_api: preflight.would_execute_provider_api,
+            would_call_external_provider_api: preflight.would_call_external_provider_api,
+            would_replace_host_allocator: 0,
+            would_install_hook: 0,
+            would_add_backend_matcher: 0,
+            would_run_thread: 0
+        }
+        return me.makeProviderCallExternalApiCallStubExecutionPilotReport(fields)
+    }
+
+    reject(reason, preflight: HakoAllocProviderCallExternalApiAdapterPreflightReport): HakoAllocProviderCallExternalApiCallStubExecutionPilotReport {
+        me.reject_count += 1
+        me.last_reason = reason
+        if reason == 1 {
+            me.missing_preflight_reject_count += 1
+        }
+        if reason == 2 {
+            me.rejected_preflight_reject_count += 1
+        }
+        if reason == 3 {
+            me.not_ready_reject_count += 1
+        }
+        if reason == 4 {
+            me.already_executed_reject_count += 1
+        }
+        if reason == 5 {
+            me.closed_execution_reject_count += 1
+        }
+        if reason == 6 {
+            me.closed_host_replacement_reject_count += 1
+        }
+        if reason == 7 {
+            me.closed_hook_reject_count += 1
+        }
+        if reason == 8 {
+            me.closed_backend_matcher_reject_count += 1
+        }
+        return me.makeReport(0, reason, preflight)
+    }
+
+    executeProviderCallExternalApiStub(preflight: HakoAllocProviderCallExternalApiAdapterPreflightReport): HakoAllocProviderCallExternalApiCallStubExecutionPilotReport {
+        me.execution_count += 1
+        if preflight.adapter_preflight_present != 1 {
+            return me.reject(1, preflight)
+        }
+        if preflight.accepted != 1 {
+            return me.reject(2, preflight)
+        }
+        if preflight.external_provider_api_preflight_ready != 1 {
+            return me.reject(3, preflight)
+        }
+        if preflight.external_provider_adapter_present != 1 {
+            return me.reject(3, preflight)
+        }
+        if preflight.external_provider_adapter_valid != 1 {
+            return me.reject(3, preflight)
+        }
+        if preflight.external_provider_api_call_executed != 0 {
+            return me.reject(4, preflight)
+        }
+        if preflight.would_call_external_provider_api != 1 {
+            return me.reject(5, preflight)
+        }
+        if preflight.would_replace_host_allocator != 0 {
+            return me.reject(6, preflight)
+        }
+        if preflight.would_install_hook != 0 {
+            return me.reject(7, preflight)
+        }
+        if preflight.would_add_backend_matcher != 0 {
+            return me.reject(8, preflight)
+        }
+        if preflight.would_run_thread != 0 {
+            return me.reject(8, preflight)
+        }
+
+        me.accepted_count += 1
+        me.last_reason = 0
+        return me.makeReport(1, 0, preflight)
+    }
+}

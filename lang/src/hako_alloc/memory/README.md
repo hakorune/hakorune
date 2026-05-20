@@ -540,6 +540,12 @@ Syntax/style contract
   and record preflight readiness for a future external provider API call. It
   must not call external provider APIs, install hooks, replace the host
   allocator, run worker/TLS behavior, or add backend matchers.
+- `provider_call_external_api_call_stub_execution_pilot_box.hako` owns
+  MIMAP-406A. It may consume an accepted provider-call external API adapter
+  preflight report and record model-space external provider API call stub
+  execution evidence. It must not call actual external provider APIs, install
+  hooks, replace the host allocator, run worker/TLS behavior, or add backend
+  matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known
