@@ -1,6 +1,6 @@
 # 293x-958 MIMAP-343A Remaining Execution Prerequisite Ledger Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -56,3 +56,11 @@ bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_le
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Landed the remaining execution prerequisite ledger closeout. MIMAP-344A is
+selected as the first real-seam row: a no-escape pointer residence pilot that
+must not open pointer-derived lookup, arena backing release/recycle,
+segment-map mutation, atomic bitmap, OSVM, worker/TLS, provider activation, or
+backend matcher execution.
