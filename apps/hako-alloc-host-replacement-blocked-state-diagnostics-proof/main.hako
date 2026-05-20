@@ -1,0 +1,151 @@
+// hako-alloc-host-replacement-blocked-state-diagnostics-proof
+// Purpose: prove MIMAP-421A host replacement blocked-state diagnostics.
+
+using selfhost.hako_alloc.memory.real_external_provider_api_call_first_pattern_pilot_box as HakoAllocRealExternalProviderApiCallFirstPatternPilot
+using selfhost.hako_alloc.memory.host_replacement_explicit_preflight_inventory_box as HakoAllocHostReplacementExplicitPreflightInventory
+using selfhost.hako_alloc.memory.host_replacement_blocked_state_diagnostic_box as HakoAllocHostReplacementBlockedStateDiagnostic
+
+static box Main {
+    makeRealCall(): HakoAllocRealExternalProviderApiCallFirstPatternPilotReport {
+        local report = new HakoAllocRealExternalProviderApiCallFirstPatternPilotReport {
+            accepted: 1,
+            reason: 0,
+            first_pattern_present: 1,
+            real_external_preflight_present: 1,
+            preflight_accepted: 1,
+            preflight_reason: 0,
+            real_external_provider_api_execution_ready: 1,
+            real_external_provider_api_call_executed: 1,
+            real_external_provider_api_result_present: 1,
+            real_external_provider_api_result_code: 0,
+            actual_external_provider_api_call_executed: 1,
+            host_replacement_inactive: 1,
+            hooks_inactive: 1,
+            backend_matcher_inactive: 1,
+            execution_count: 1,
+            accepted_count: 1,
+            reject_count: 0,
+            missing_preflight_reject_count: 0,
+            rejected_preflight_reject_count: 0,
+            not_ready_reject_count: 0,
+            already_executed_reject_count: 0,
+            closed_execution_reject_count: 0,
+            closed_host_replacement_reject_count: 0,
+            closed_hook_reject_count: 0,
+            closed_backend_matcher_reject_count: 0,
+            last_reason: 0,
+            would_activate_provider: 1,
+            would_call_provider: 1,
+            would_execute_provider_api: 1,
+            would_call_external_provider_api: 1,
+            would_execute_real_external_provider_api: 1,
+            would_replace_host_allocator: 0,
+            would_install_hook: 0,
+            would_add_backend_matcher: 0,
+            would_run_thread: 0
+        }
+        return report
+    }
+
+    main(args) {
+        local preflight_owner = new HakoAllocHostReplacementExplicitPreflightInventory()
+        local diagnostic_owner = new HakoAllocHostReplacementBlockedStateDiagnostic()
+        local real_call = Main.makeRealCall()
+
+        local accepted_preflight = preflight_owner.inventoryHostReplacementExplicitPreflight(real_call, 1, 1, 1, 1)
+        local accepted = diagnostic_owner.diagnoseHostReplacementBlockedState(accepted_preflight)
+
+        local missing_real_call = new HakoAllocRealExternalProviderApiCallFirstPatternPilotReport()
+        local missing_preflight = preflight_owner.inventoryHostReplacementExplicitPreflight(missing_real_call, 1, 1, 1, 1)
+        local missing = diagnostic_owner.diagnoseHostReplacementBlockedState(missing_preflight)
+
+        local rejected_real_call = Main.makeRealCall()
+        rejected_real_call.accepted = 0
+        rejected_real_call.reason = 2
+        local rejected_preflight = preflight_owner.inventoryHostReplacementExplicitPreflight(rejected_real_call, 1, 1, 1, 1)
+        local rejected = diagnostic_owner.diagnoseHostReplacementBlockedState(rejected_preflight)
+
+        local not_ready_real_call = Main.makeRealCall()
+        not_ready_real_call.real_external_provider_api_result_present = 0
+        local not_ready_preflight = preflight_owner.inventoryHostReplacementExplicitPreflight(not_ready_real_call, 1, 1, 1, 1)
+        local not_ready = diagnostic_owner.diagnoseHostReplacementBlockedState(not_ready_preflight)
+
+        local missing_explicit_preflight = preflight_owner.inventoryHostReplacementExplicitPreflight(real_call, 0, 1, 1, 1)
+        local missing_explicit = diagnostic_owner.diagnoseHostReplacementBlockedState(missing_explicit_preflight)
+
+        local missing_hook_preflight = preflight_owner.inventoryHostReplacementExplicitPreflight(real_call, 1, 0, 1, 1)
+        local missing_hook = diagnostic_owner.diagnoseHostReplacementBlockedState(missing_hook_preflight)
+
+        local missing_rollback_preflight = preflight_owner.inventoryHostReplacementExplicitPreflight(real_call, 1, 1, 0, 1)
+        local missing_rollback = diagnostic_owner.diagnoseHostReplacementBlockedState(missing_rollback_preflight)
+
+        local missing_backend_preflight = preflight_owner.inventoryHostReplacementExplicitPreflight(real_call, 1, 1, 1, 0)
+        local missing_backend = diagnostic_owner.diagnoseHostReplacementBlockedState(missing_backend_preflight)
+
+        local leak_call = Main.makeRealCall()
+        leak_call.would_replace_host_allocator = 1
+        local leak_preflight = preflight_owner.inventoryHostReplacementExplicitPreflight(leak_call, 1, 1, 1, 1)
+        local leak = diagnostic_owner.diagnoseHostReplacementBlockedState(leak_preflight)
+
+        local ok = check "mimap421a host replacement blocked-state diagnostics" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "diagnostic present": accepted.diagnostic_present == 1
+            "preflight present": accepted.preflight_inventory_present == 1
+            "preflight ready": accepted.preflight_ready == 1
+            "not blocked": accepted.blocked_state_present == 0
+            "owner count": diagnostic_owner.diagnostic_count == 9
+            "owner ready": diagnostic_owner.ready_count == 1
+            "owner blocked": diagnostic_owner.blocked_count == 8
+            "owner missing real": diagnostic_owner.missing_real_call_blocked_count == 1
+            "owner rejected real": diagnostic_owner.rejected_real_call_blocked_count == 1
+            "owner not ready": diagnostic_owner.not_ready_blocked_count == 1
+            "owner explicit": diagnostic_owner.missing_explicit_request_blocked_count == 1
+            "owner hook": diagnostic_owner.missing_hook_plan_blocked_count == 1
+            "owner rollback": diagnostic_owner.missing_rollback_plan_blocked_count == 1
+            "owner backend": diagnostic_owner.missing_backend_no_growth_blocked_count == 1
+            "owner closed": diagnostic_owner.closed_seam_blocked_count == 1
+            "last reason": diagnostic_owner.last_reason == 8
+            "missing reason": missing.reason == 1
+            "rejected reason": rejected.reason == 2
+            "not ready reason": not_ready.reason == 3
+            "missing explicit reason": missing_explicit.reason == 4
+            "missing hook reason": missing_hook.reason == 5
+            "missing rollback reason": missing_rollback.reason == 6
+            "missing backend reason": missing_backend.reason == 7
+            "leak reason": leak.reason == 8
+            "missing flag": missing.missing_real_call_blocked == 1
+            "rejected flag": rejected.rejected_real_call_blocked == 1
+            "ready flag": not_ready.not_ready_blocked == 1
+            "explicit flag": missing_explicit.missing_explicit_request_blocked == 1
+            "hook flag": missing_hook.missing_hook_plan_blocked == 1
+            "rollback flag": missing_rollback.missing_rollback_plan_blocked == 1
+            "backend flag": missing_backend.missing_backend_no_growth_blocked == 1
+            "closed flag": leak.closed_seam_blocked == 1
+            "host replacement": accepted.host_replacement_executed == 0
+            "hook installed": accepted.hook_installed == 0
+            "matcher added": accepted.backend_matcher_added == 0
+            "global allocator": accepted.global_allocator_installed == 0
+            "would replace": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-host-replacement-blocked-state-diagnostics-proof")
+        print("diag=" + accepted.accepted + "," + accepted.reason + "," + accepted.diagnostic_present + "," + accepted.preflight_inventory_present + "," + accepted.preflight_ready + "," + accepted.blocked_state_present)
+        print("owner=" + diagnostic_owner.diagnostic_count + "," + diagnostic_owner.ready_count + "," + diagnostic_owner.blocked_count + "," + diagnostic_owner.missing_real_call_blocked_count + "," + diagnostic_owner.rejected_real_call_blocked_count + "," + diagnostic_owner.not_ready_blocked_count + "," + diagnostic_owner.missing_explicit_request_blocked_count + "," + diagnostic_owner.missing_hook_plan_blocked_count + "," + diagnostic_owner.missing_rollback_plan_blocked_count + "," + diagnostic_owner.missing_backend_no_growth_blocked_count + "," + diagnostic_owner.closed_seam_blocked_count + "," + diagnostic_owner.last_reason)
+        print("blocked=" + missing.missing_real_call_blocked + "," + rejected.rejected_real_call_blocked + "," + not_ready.not_ready_blocked + "," + missing_explicit.missing_explicit_request_blocked + "," + missing_hook.missing_hook_plan_blocked + "," + missing_rollback.missing_rollback_plan_blocked + "," + missing_backend.missing_backend_no_growth_blocked + "," + leak.closed_seam_blocked)
+        print("closed=" + accepted.host_replacement_executed + "," + accepted.hook_installed + "," + accepted.backend_matcher_added + "," + accepted.global_allocator_installed + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + not_ready.reason + "," + missing_explicit.reason + "," + missing_hook.reason + "," + missing_rollback.reason + "," + missing_backend.reason + "," + leak.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

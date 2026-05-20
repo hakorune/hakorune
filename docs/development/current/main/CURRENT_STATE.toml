@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-21"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-420A landed host replacement explicit preflight inventory and selected MIMAP-421A. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "MIMAP-421A landed host replacement blocked-state diagnostics and selected MIMAP-422A. Cross-function Result direct ABI remains closed. Host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-1043-MIMAP-421A-HOST-REPLACEMENT-BLOCKED-STATE-DIAGNOSTICS.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-1044-MIMAP-422A-HOST-REPLACEMENT-PREFLIGHT-CLOSEOUT.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-1042-MIMAP-420A-HOST-REPLACEMENT-EXPLICIT-PREFLIGHT-INVENTORY"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1042-MIMAP-420A-HOST-REPLACEMENT-EXPLICIT-PREFLIGHT-INVENTORY.md"
-latest_card_summary = "Landed host replacement explicit preflight inventory while hook install, backend matcher additions, process allocator replacement, worker/thread execution, and global allocator install remain closed."
+latest_card = "293x-1043-MIMAP-421A-HOST-REPLACEMENT-BLOCKED-STATE-DIAGNOSTICS"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-1043-MIMAP-421A-HOST-REPLACEMENT-BLOCKED-STATE-DIAGNOSTICS.md"
+latest_card_summary = "Landed host replacement blocked-state diagnostics while hook install, backend matcher additions, process allocator replacement, worker/thread execution, and global allocator install remain closed."
 
-current_blocker_token = "MIMAP-421A"
+current_blocker_token = "MIMAP-422A"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-1043 MIMAP-421A host replacement blocked-state diagnostics landed; MIMAP-422A selected",
   "293x-1042 MIMAP-420A host replacement explicit preflight inventory landed; MIMAP-421A selected",
   "293x-1041 MIMAP-419A host replacement optional ladder plan landed; MIMAP-420A selected",
   "293x-1040 MIMAP-418A post real external provider API call first-pattern closeout row selection landed; MIMAP-419A selected",

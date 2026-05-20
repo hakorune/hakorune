@@ -1,6 +1,6 @@
 # 293x-1043 MIMAP-421A Host Replacement Blocked-State Diagnostics
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -36,3 +36,20 @@ VM proof
 MIR JSON emit
 route preflight
 ```
+
+## Required Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_host_replacement_blocked_state_diagnostics_guard.sh --level L2
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Landed Evidence
+
+- Added the host replacement blocked-state diagnostic owner.
+- Added the proof app, design SSOT, guard, manifest row, and module export.
+- Classified MIMAP-420A missing/rejected/not-ready/closed-seam preflight
+  reasons without opening host replacement execution.
+- Kept hook installation, backend matcher additions, process allocator
+  replacement, worker/thread execution, and global allocator install closed.

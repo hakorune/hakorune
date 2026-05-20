@@ -1,0 +1,290 @@
+// host_replacement_blocked_state_diagnostic_box.hako -- MIMAP-421A
+// Responsibility:
+// - consume host replacement explicit preflight inventory reports
+// - summarize blocked-state reasons without opening host replacement execution
+// Non-responsibility:
+// - hook installation, backend matcher additions, process allocator
+//   replacement, global allocator install, worker/TLS, or thread execution
+
+using selfhost.hako_alloc.memory.host_replacement_explicit_preflight_inventory_box as HakoAllocHostReplacementExplicitPreflightInventory
+
+record HakoAllocHostReplacementBlockedStateDiagnosticReportFields {
+    accepted: i64
+    reason: i64
+    diagnostic_present: i64
+    preflight_inventory_present: i64
+    preflight_ready: i64
+    blocked_state_present: i64
+    missing_real_call_blocked: i64
+    rejected_real_call_blocked: i64
+    not_ready_blocked: i64
+    missing_explicit_request_blocked: i64
+    missing_hook_plan_blocked: i64
+    missing_rollback_plan_blocked: i64
+    missing_backend_no_growth_blocked: i64
+    closed_seam_blocked: i64
+    host_replacement_executed: i64
+    hook_installed: i64
+    backend_matcher_added: i64
+    global_allocator_installed: i64
+    diagnostic_count: i64
+    ready_count: i64
+    blocked_count: i64
+    missing_real_call_blocked_count: i64
+    rejected_real_call_blocked_count: i64
+    not_ready_blocked_count: i64
+    missing_explicit_request_blocked_count: i64
+    missing_hook_plan_blocked_count: i64
+    missing_rollback_plan_blocked_count: i64
+    missing_backend_no_growth_blocked_count: i64
+    closed_seam_blocked_count: i64
+    last_reason: i64
+    would_replace_host_allocator: i64
+    would_install_hook: i64
+    would_add_backend_matcher: i64
+    would_run_thread: i64
+}
+
+box HakoAllocHostReplacementBlockedStateDiagnosticReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    diagnostic_present: i64 = 0
+    preflight_inventory_present: i64 = 0
+    preflight_ready: i64 = 0
+    blocked_state_present: i64 = 0
+    missing_real_call_blocked: i64 = 0
+    rejected_real_call_blocked: i64 = 0
+    not_ready_blocked: i64 = 0
+    missing_explicit_request_blocked: i64 = 0
+    missing_hook_plan_blocked: i64 = 0
+    missing_rollback_plan_blocked: i64 = 0
+    missing_backend_no_growth_blocked: i64 = 0
+    closed_seam_blocked: i64 = 0
+    host_replacement_executed: i64 = 0
+    hook_installed: i64 = 0
+    backend_matcher_added: i64 = 0
+    global_allocator_installed: i64 = 0
+    diagnostic_count: i64 = 0
+    ready_count: i64 = 0
+    blocked_count: i64 = 0
+    missing_real_call_blocked_count: i64 = 0
+    rejected_real_call_blocked_count: i64 = 0
+    not_ready_blocked_count: i64 = 0
+    missing_explicit_request_blocked_count: i64 = 0
+    missing_hook_plan_blocked_count: i64 = 0
+    missing_rollback_plan_blocked_count: i64 = 0
+    missing_backend_no_growth_blocked_count: i64 = 0
+    closed_seam_blocked_count: i64 = 0
+    last_reason: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
+}
+
+box HakoAllocHostReplacementBlockedStateDiagnostic {
+    diagnostic_count: i64 = 0
+    ready_count: i64 = 0
+    blocked_count: i64 = 0
+    missing_real_call_blocked_count: i64 = 0
+    rejected_real_call_blocked_count: i64 = 0
+    not_ready_blocked_count: i64 = 0
+    missing_explicit_request_blocked_count: i64 = 0
+    missing_hook_plan_blocked_count: i64 = 0
+    missing_rollback_plan_blocked_count: i64 = 0
+    missing_backend_no_growth_blocked_count: i64 = 0
+    closed_seam_blocked_count: i64 = 0
+    last_reason: i64 = 0
+
+    makeHostReplacementBlockedStateDiagnosticReport(fields: HakoAllocHostReplacementBlockedStateDiagnosticReportFields): HakoAllocHostReplacementBlockedStateDiagnosticReport {
+        local result = new HakoAllocHostReplacementBlockedStateDiagnosticReport {
+            accepted: fields.accepted,
+            reason: fields.reason,
+            diagnostic_present: fields.diagnostic_present,
+            preflight_inventory_present: fields.preflight_inventory_present,
+            preflight_ready: fields.preflight_ready,
+            blocked_state_present: fields.blocked_state_present,
+            missing_real_call_blocked: fields.missing_real_call_blocked,
+            rejected_real_call_blocked: fields.rejected_real_call_blocked,
+            not_ready_blocked: fields.not_ready_blocked,
+            missing_explicit_request_blocked: fields.missing_explicit_request_blocked,
+            missing_hook_plan_blocked: fields.missing_hook_plan_blocked,
+            missing_rollback_plan_blocked: fields.missing_rollback_plan_blocked,
+            missing_backend_no_growth_blocked: fields.missing_backend_no_growth_blocked,
+            closed_seam_blocked: fields.closed_seam_blocked,
+            host_replacement_executed: fields.host_replacement_executed,
+            hook_installed: fields.hook_installed,
+            backend_matcher_added: fields.backend_matcher_added,
+            global_allocator_installed: fields.global_allocator_installed,
+            diagnostic_count: fields.diagnostic_count,
+            ready_count: fields.ready_count,
+            blocked_count: fields.blocked_count,
+            missing_real_call_blocked_count: fields.missing_real_call_blocked_count,
+            rejected_real_call_blocked_count: fields.rejected_real_call_blocked_count,
+            not_ready_blocked_count: fields.not_ready_blocked_count,
+            missing_explicit_request_blocked_count: fields.missing_explicit_request_blocked_count,
+            missing_hook_plan_blocked_count: fields.missing_hook_plan_blocked_count,
+            missing_rollback_plan_blocked_count: fields.missing_rollback_plan_blocked_count,
+            missing_backend_no_growth_blocked_count: fields.missing_backend_no_growth_blocked_count,
+            closed_seam_blocked_count: fields.closed_seam_blocked_count,
+            last_reason: fields.last_reason,
+            would_replace_host_allocator: fields.would_replace_host_allocator,
+            would_install_hook: fields.would_install_hook,
+            would_add_backend_matcher: fields.would_add_backend_matcher,
+            would_run_thread: fields.would_run_thread
+        }
+        return result
+    }
+
+    markBlocked(reason: i64) {
+        me.blocked_count += 1
+        me.last_reason = reason
+        if reason == 1 {
+            me.missing_real_call_blocked_count += 1
+        }
+        if reason == 2 {
+            me.rejected_real_call_blocked_count += 1
+        }
+        if reason == 3 {
+            me.not_ready_blocked_count += 1
+        }
+        if reason == 4 {
+            me.missing_explicit_request_blocked_count += 1
+        }
+        if reason == 5 {
+            me.missing_hook_plan_blocked_count += 1
+        }
+        if reason == 6 {
+            me.missing_rollback_plan_blocked_count += 1
+        }
+        if reason == 7 {
+            me.missing_backend_no_growth_blocked_count += 1
+        }
+        if reason == 8 {
+            me.closed_seam_blocked_count += 1
+        }
+    }
+
+    reasonFrom(preflight: HakoAllocHostReplacementExplicitPreflightInventoryReport): i64 {
+        if preflight.host_replacement_executed != 0 {
+            return 8
+        }
+        if preflight.hook_installed != 0 {
+            return 8
+        }
+        if preflight.backend_matcher_added != 0 {
+            return 8
+        }
+        if preflight.global_allocator_installed != 0 {
+            return 8
+        }
+        if preflight.would_replace_host_allocator != 0 {
+            return 8
+        }
+        if preflight.would_install_hook != 0 {
+            return 8
+        }
+        if preflight.would_add_backend_matcher != 0 {
+            return 8
+        }
+        if preflight.would_run_thread != 0 {
+            return 8
+        }
+        if preflight.host_replacement_preflight_ready == 1 {
+            return 0
+        }
+        if preflight.reason != 0 {
+            return preflight.reason
+        }
+        return 1
+    }
+
+    makeReport(reason: i64, preflight: HakoAllocHostReplacementExplicitPreflightInventoryReport): HakoAllocHostReplacementBlockedStateDiagnosticReport {
+        local blocked = 0
+        if reason != 0 {
+            blocked = 1
+        }
+        local missing_real_call_blocked = 0
+        local rejected_real_call_blocked = 0
+        local not_ready_blocked = 0
+        local missing_explicit_request_blocked = 0
+        local missing_hook_plan_blocked = 0
+        local missing_rollback_plan_blocked = 0
+        local missing_backend_no_growth_blocked = 0
+        local closed_seam_blocked = 0
+        if reason == 1 {
+            missing_real_call_blocked = 1
+        }
+        if reason == 2 {
+            rejected_real_call_blocked = 1
+        }
+        if reason == 3 {
+            not_ready_blocked = 1
+        }
+        if reason == 4 {
+            missing_explicit_request_blocked = 1
+        }
+        if reason == 5 {
+            missing_hook_plan_blocked = 1
+        }
+        if reason == 6 {
+            missing_rollback_plan_blocked = 1
+        }
+        if reason == 7 {
+            missing_backend_no_growth_blocked = 1
+        }
+        if reason == 8 {
+            closed_seam_blocked = 1
+        }
+        local fields = HakoAllocHostReplacementBlockedStateDiagnosticReportFields {
+            accepted: 1,
+            reason: reason,
+            diagnostic_present: 1,
+            preflight_inventory_present: preflight.host_replacement_preflight_inventory_present,
+            preflight_ready: preflight.host_replacement_preflight_ready,
+            blocked_state_present: blocked,
+            missing_real_call_blocked: missing_real_call_blocked,
+            rejected_real_call_blocked: rejected_real_call_blocked,
+            not_ready_blocked: not_ready_blocked,
+            missing_explicit_request_blocked: missing_explicit_request_blocked,
+            missing_hook_plan_blocked: missing_hook_plan_blocked,
+            missing_rollback_plan_blocked: missing_rollback_plan_blocked,
+            missing_backend_no_growth_blocked: missing_backend_no_growth_blocked,
+            closed_seam_blocked: closed_seam_blocked,
+            host_replacement_executed: 0,
+            hook_installed: 0,
+            backend_matcher_added: 0,
+            global_allocator_installed: 0,
+            diagnostic_count: me.diagnostic_count,
+            ready_count: me.ready_count,
+            blocked_count: me.blocked_count,
+            missing_real_call_blocked_count: me.missing_real_call_blocked_count,
+            rejected_real_call_blocked_count: me.rejected_real_call_blocked_count,
+            not_ready_blocked_count: me.not_ready_blocked_count,
+            missing_explicit_request_blocked_count: me.missing_explicit_request_blocked_count,
+            missing_hook_plan_blocked_count: me.missing_hook_plan_blocked_count,
+            missing_rollback_plan_blocked_count: me.missing_rollback_plan_blocked_count,
+            missing_backend_no_growth_blocked_count: me.missing_backend_no_growth_blocked_count,
+            closed_seam_blocked_count: me.closed_seam_blocked_count,
+            last_reason: me.last_reason,
+            would_replace_host_allocator: 0,
+            would_install_hook: 0,
+            would_add_backend_matcher: 0,
+            would_run_thread: 0
+        }
+        return me.makeHostReplacementBlockedStateDiagnosticReport(fields)
+    }
+
+    diagnoseHostReplacementBlockedState(preflight: HakoAllocHostReplacementExplicitPreflightInventoryReport): HakoAllocHostReplacementBlockedStateDiagnosticReport {
+        me.diagnostic_count += 1
+        local reason = me.reasonFrom(preflight)
+        if reason == 0 {
+            me.ready_count += 1
+            me.last_reason = 0
+            return me.makeReport(0, preflight)
+        }
+
+        me.markBlocked(reason)
+        return me.makeReport(reason, preflight)
+    }
+}

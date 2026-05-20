@@ -937,3 +937,16 @@ closeout_pack = "host-replacement-explicit-preflight"
 exe = "deferred-to-host-replacement-preflight-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_host_replacement_explicit_preflight_inventory_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_host_replacement_explicit_preflight_inventory_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-421A"
+app = "apps/hako-alloc-host-replacement-blocked-state-diagnostics-proof"
+label = "host replacement blocked-state diagnostics proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "host-replacement-blocked-state-diagnostics"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "host-replacement-explicit-preflight"
+exe = "deferred-to-host-replacement-preflight-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_host_replacement_blocked_state_diagnostics_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_host_replacement_blocked_state_diagnostics_guard.sh", "--level", "L2"]
