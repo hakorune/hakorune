@@ -1,19 +1,19 @@
-# 293x-975 MIMAP-359A Post Provider-Facing Ladder Plan Row Selection
+# 293x-977 MIMAP-361A Post Provider Boundary Diagnostic Vocabulary Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-21
 
 ## Decision
 
-Select the next narrow allocator row after the provider-facing ladder closed
-plan. The next row should inventory provider boundary diagnostic vocabulary
-while provider activation remains closed.
+Select the next narrow allocator row after provider boundary diagnostic
+vocabulary inventory. The next row should add provider readiness preflight with
+provider activation still closed.
 
 ## Candidate Next Rows
 
-- provider boundary diagnostic vocabulary inventory
 - provider readiness preflight with activation still closed
 - provider selection inventory with activation still closed
+- provider diagnostic vocabulary closeout
 
 ## Stop Lines
 
@@ -29,7 +29,3 @@ while provider activation remains closed.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
-
-## Result
-
-Selected MIMAP-360A provider boundary diagnostic vocabulary inventory.

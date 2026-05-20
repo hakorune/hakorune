@@ -676,3 +676,16 @@ closeout_pack = "provider-inactive-boundary"
 exe = "deferred-to-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_provider_inactive_boundary_inventory_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_provider_inactive_boundary_inventory_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-360A"
+app = "apps/hako-alloc-provider-boundary-diagnostic-vocabulary-proof"
+label = "provider boundary diagnostic vocabulary proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "diagnostic-vocabulary"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "provider-facing-ladder"
+exe = "deferred-to-closeout"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_provider_boundary_diagnostic_vocabulary_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_provider_boundary_diagnostic_vocabulary_guard.sh", "--level", "L2"]

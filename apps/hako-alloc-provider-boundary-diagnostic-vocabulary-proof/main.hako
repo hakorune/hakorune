@@ -1,0 +1,136 @@
+// hako-alloc-provider-boundary-diagnostic-vocabulary-proof
+// Purpose: prove MIMAP-360A provider boundary diagnostic vocabulary inventory.
+
+using selfhost.hako_alloc.memory.provider_inactive_boundary_inventory_box as HakoAllocProviderInactiveBoundaryInventory
+using selfhost.hako_alloc.memory.provider_boundary_diagnostic_vocabulary_box as HakoAllocProviderBoundaryDiagnosticVocabulary
+
+static box Main {
+    makeBoundaryReport(): HakoAllocProviderInactiveBoundaryInventoryReport {
+        local report = new HakoAllocProviderInactiveBoundaryInventoryReport()
+        report.accepted = 1
+        report.reason = 0
+        report.provider_boundary_present = 1
+        report.provider_boundary_token = 99019005099
+        report.provider_boundary_token_valid = 1
+        report.worker_tls_present = 1
+        report.worker_tls_accepted = 1
+        report.worker_id = 0
+        report.tls_slot = 7
+        report.page_source_token = 99019005077
+        report.bitmap_token = 99019005066
+        report.mutation_token = 99019005055
+        report.lookup_result_token = 99019005044
+        report.arena_handle_token = 99019005033
+        report.private_pointer_token = 99019005022
+        report.provider_activation_supported = 0
+        report.provider_activation_inactive = 1
+        report.host_replacement_inactive = 1
+        report.hooks_inactive = 1
+        report.backend_matcher_inactive = 1
+        report.would_mutate_segment_map = 1
+        report.would_execute_atomic_bitmap = 1
+        report.would_call_osvm = 1
+        report.would_use_worker_tls = 1
+        report.would_run_thread = 0
+        report.would_activate_provider = 0
+        report.would_replace_host_allocator = 0
+        report.would_install_hook = 0
+        report.would_add_backend_matcher = 0
+        return report
+    }
+
+    makeRejectedBoundaryReport(): HakoAllocProviderInactiveBoundaryInventoryReport {
+        local report = Main.makeBoundaryReport()
+        report.accepted = 0
+        report.reason = 2
+        return report
+    }
+
+    main(args) {
+        local owner = new HakoAllocProviderBoundaryDiagnosticVocabulary()
+        local boundary = Main.makeBoundaryReport()
+        local accepted = owner.inventoryProviderBoundaryDiagnostics(boundary)
+
+        local missing_boundary = new HakoAllocProviderInactiveBoundaryInventoryReport()
+        local missing = owner.inventoryProviderBoundaryDiagnostics(missing_boundary)
+        local rejected = owner.inventoryProviderBoundaryDiagnostics(Main.makeRejectedBoundaryReport())
+
+        local provider_report = Main.makeBoundaryReport()
+        provider_report.would_activate_provider = 1
+        local provider = owner.inventoryProviderBoundaryDiagnostics(provider_report)
+
+        local host_report = Main.makeBoundaryReport()
+        host_report.would_replace_host_allocator = 1
+        local host = owner.inventoryProviderBoundaryDiagnostics(host_report)
+
+        local hook_report = Main.makeBoundaryReport()
+        hook_report.would_install_hook = 1
+        local hook = owner.inventoryProviderBoundaryDiagnostics(hook_report)
+
+        local matcher_report = Main.makeBoundaryReport()
+        matcher_report.would_add_backend_matcher = 1
+        local matcher = owner.inventoryProviderBoundaryDiagnostics(matcher_report)
+
+        local thread_report = Main.makeBoundaryReport()
+        thread_report.would_run_thread = 1
+        local thread = owner.inventoryProviderBoundaryDiagnostics(thread_report)
+
+        local ok = check "mimap360a provider boundary diagnostic vocabulary" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "vocabulary": accepted.vocabulary_present == 1
+            "reason count": accepted.reason_count == 8
+            "accepted code": accepted.accepted_reason_code == 0
+            "missing code": accepted.missing_boundary_reason_code == 1
+            "rejected code": accepted.rejected_boundary_reason_code == 2
+            "provider code": accepted.provider_request_reason_code == 3
+            "host code": accepted.host_replacement_reason_code == 4
+            "hook code": accepted.hook_request_reason_code == 5
+            "matcher code": accepted.backend_matcher_reason_code == 6
+            "thread code": accepted.worker_thread_reason_code == 7
+            "owner count": owner.vocabulary_count == 8
+            "owner accepted": owner.accepted_count == 1
+            "owner rejected": owner.reject_count == 7
+            "owner missing": owner.missing_boundary_reject_count == 1
+            "owner rejected boundary": owner.rejected_boundary_reject_count == 1
+            "owner provider": owner.provider_request_reject_count == 1
+            "owner host": owner.host_replacement_reject_count == 1
+            "owner hook": owner.hook_request_reject_count == 1
+            "owner matcher": owner.backend_matcher_reject_count == 1
+            "owner thread": owner.worker_thread_reject_count == 1
+            "last reason": owner.last_reason == 7
+            "missing reason": missing.reason == 1
+            "rejected reason": rejected.reason == 2
+            "provider reason": provider.reason == 3
+            "host reason": host.reason == 4
+            "hook reason": hook.reason == 5
+            "matcher reason": matcher.reason == 6
+            "thread reason": thread.reason == 7
+            "provider inactive": accepted.provider_activation_inactive == 1
+            "host inactive": accepted.host_replacement_inactive == 1
+            "hooks inactive": accepted.hooks_inactive == 1
+            "matcher inactive": accepted.backend_matcher_inactive == 1
+            "would provider": accepted.would_activate_provider == 0
+            "would host": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-provider-boundary-diagnostic-vocabulary-proof")
+        print("vocab=" + accepted.accepted + "," + accepted.reason + "," + accepted.vocabulary_present + "," + accepted.reason_count + "," + accepted.provider_boundary_token)
+        print("codes=" + accepted.accepted_reason_code + "," + accepted.missing_boundary_reason_code + "," + accepted.rejected_boundary_reason_code + "," + accepted.provider_request_reason_code + "," + accepted.host_replacement_reason_code + "," + accepted.hook_request_reason_code + "," + accepted.backend_matcher_reason_code + "," + accepted.worker_thread_reason_code)
+        print("owner=" + owner.vocabulary_count + "," + owner.accepted_count + "," + owner.reject_count + "," + owner.missing_boundary_reject_count + "," + owner.rejected_boundary_reject_count + "," + owner.provider_request_reject_count + "," + owner.host_replacement_reject_count + "," + owner.hook_request_reject_count + "," + owner.backend_matcher_reject_count + "," + owner.worker_thread_reject_count + "," + owner.last_reason)
+        print("inactive=" + accepted.provider_activation_inactive + "," + accepted.host_replacement_inactive + "," + accepted.hooks_inactive + "," + accepted.backend_matcher_inactive + "," + accepted.would_activate_provider + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + provider.reason + "," + host.reason + "," + hook.reason + "," + matcher.reason + "," + thread.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
