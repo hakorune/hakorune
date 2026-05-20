@@ -1,6 +1,6 @@
 # 293x-1045 MIMAP-423A Hook-Install Preflight Plan
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -35,3 +35,19 @@ Planning validation is L0:
 current state pointer guard
 git diff --check
 ```
+
+## Required Evidence
+
+```text
+bash tools/checks/k2_wide_hako_alloc_hook_install_preflight_plan_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+## Landed Evidence
+
+- Added the hook-install preflight plan SSOT and guard.
+- Named the future hook-install preflight input boundary.
+- Selected backend matcher no-growth closeout as the next row.
+- Kept hook installation, backend matcher additions, process allocator
+  replacement, worker/thread execution, and global allocator install closed.
