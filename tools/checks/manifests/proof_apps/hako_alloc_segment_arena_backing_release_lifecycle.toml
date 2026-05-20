@@ -910,3 +910,17 @@ closeout_pack = "real-external-provider-api-adapter-execution"
 exe = "deferred-to-real-external-provider-api-call-pilot-or-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_real_external_provider_api_adapter_execution_preflight_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_real_external_provider_api_adapter_execution_preflight_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-415A"
+app = "apps/hako-alloc-real-external-provider-api-call-first-pattern-pilot-proof"
+label = "real external provider API call first-pattern pilot proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "real-external-provider-api-call-first-pattern-pilot"
+validation_profile = "first-pattern-exe"
+first_pattern = true
+closeout_pack = "real-external-provider-api-call"
+exe = "required"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_real_external_provider_api_call_first_pattern_pilot_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_real_external_provider_api_call_first_pattern_pilot_guard.sh", "--level", "L2"]
+cmd_l3 = ["bash", "tools/checks/k2_wide_hako_alloc_real_external_provider_api_call_first_pattern_pilot_guard.sh", "--level", "L3"]

@@ -1,6 +1,6 @@
 # 293x-1037 MIMAP-415A Real External Provider API Call First-Pattern Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -40,3 +40,13 @@ bash tools/checks/k2_wide_hako_alloc_real_external_provider_api_call_first_patte
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Evidence
+
+- Added the first-pattern real external provider API call pilot owner.
+- Added the proof app and L3 guard.
+- Added the MIMAP-415A design SSOT and proof-app manifest row.
+- Recorded real external provider API call pilot evidence through the
+  MIMAP-410A preflight report boundary.
+- Kept host allocator replacement, hooks, backend matcher additions,
+  worker/thread execution, and global allocator install closed.

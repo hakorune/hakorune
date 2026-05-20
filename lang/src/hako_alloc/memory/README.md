@@ -552,6 +552,11 @@ Syntax/style contract
   adapter execution. It must not call actual external provider APIs, install
   hooks, replace the host allocator, run worker/TLS behavior, or add backend
   matchers.
+- `real_external_provider_api_call_first_pattern_pilot_box.hako` owns
+  MIMAP-415A. It may consume an accepted real external provider API adapter
+  execution preflight report and record first-pattern real external provider API
+  call pilot evidence. It must not install hooks, replace the host allocator,
+  run worker/TLS behavior, add backend matchers, or install a global allocator.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known
