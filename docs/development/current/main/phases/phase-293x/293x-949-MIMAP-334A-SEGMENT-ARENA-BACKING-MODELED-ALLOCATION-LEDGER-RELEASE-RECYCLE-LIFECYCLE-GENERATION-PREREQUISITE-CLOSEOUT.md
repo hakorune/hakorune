@@ -1,6 +1,6 @@
 # 293x-949 MIMAP-334A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Lifecycle Generation Prerequisite Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -48,4 +48,14 @@ MIMAP-334A should close the pack before selecting the next prerequisite row.
 bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_lifecycle_generation_prerequisite_closeout_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Result
+
+MIMAP-334A landed the lifecycle generation prerequisite closeout pack.
+
+Selected next:
+
+```text
+MIMAP-335A Post Release/Recycle Lifecycle Generation Prerequisite Closeout Row Selection
 ```
