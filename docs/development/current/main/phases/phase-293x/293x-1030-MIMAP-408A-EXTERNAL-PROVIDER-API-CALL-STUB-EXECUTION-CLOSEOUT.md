@@ -1,6 +1,6 @@
 # 293x-1030 MIMAP-408A External Provider API Call Stub Execution Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -47,3 +47,11 @@ bash tools/checks/k2_wide_hako_alloc_provider_call_external_api_call_stub_execut
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Evidence
+
+- Added the external provider API call stub execution closeout SSOT.
+- Added the closeout guard that reuses MIMAP-406A L2 evidence.
+- Kept actual external provider API execution, host replacement, hooks, backend
+  matcher additions, worker/thread execution, and global allocator install
+  closed.
