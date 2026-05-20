@@ -1,6 +1,6 @@
 # 293x-1008 MIMAP-386A Provider Call Modeled Open Pilot
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -52,3 +52,7 @@ bash tools/checks/k2_wide_hako_alloc_provider_call_modeled_open_pilot_guard.sh -
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Landed. MIMAP-387A is selected as the next row-selection card.

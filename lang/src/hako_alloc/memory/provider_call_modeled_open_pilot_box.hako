@@ -1,0 +1,276 @@
+// provider_call_modeled_open_pilot_box.hako -- MIMAP-386A
+// Responsibility:
+// - consume a provider-call dry-run unsupported behavior report
+// - record the first modeled provider-call-open state
+// Non-responsibility:
+// - provider API calls, host allocator replacement, hooks, global allocator
+//   install, backend matchers, worker/TLS, or thread execution
+
+using selfhost.hako_alloc.memory.provider_call_dry_run_unsupported_behavior_box as HakoAllocProviderCallDryRunUnsupportedBehavior
+
+record HakoAllocProviderCallModeledOpenPilotReportFields {
+    accepted: i64
+    reason: i64
+    modeled_open_present: i64
+    dry_run_present: i64
+    dry_run_accepted: i64
+    dry_run_reason: i64
+    gate_present: i64
+    gate_accepted: i64
+    gate_reason: i64
+    provider_call_capability_present: i64
+    provider_call_capability_valid: i64
+    provider_call_unsupported: i64
+    provider_call_modeled_open: i64
+    provider_call_model_active: i64
+    provider_call_inactive: i64
+    provider_call_execution_closed: i64
+    host_replacement_inactive: i64
+    hooks_inactive: i64
+    backend_matcher_inactive: i64
+    modeled_open_count: i64
+    accepted_count: i64
+    reject_count: i64
+    missing_dry_run_reject_count: i64
+    rejected_dry_run_reject_count: i64
+    missing_capability_reject_count: i64
+    invalid_capability_reject_count: i64
+    unsupported_outcome_reject_count: i64
+    closed_call_reject_count: i64
+    closed_host_replacement_reject_count: i64
+    closed_hook_reject_count: i64
+    closed_backend_matcher_reject_count: i64
+    last_reason: i64
+    would_activate_provider: i64
+    would_call_provider: i64
+    would_replace_host_allocator: i64
+    would_install_hook: i64
+    would_add_backend_matcher: i64
+    would_run_thread: i64
+}
+
+box HakoAllocProviderCallModeledOpenPilotReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    modeled_open_present: i64 = 0
+    dry_run_present: i64 = 0
+    dry_run_accepted: i64 = 0
+    dry_run_reason: i64 = 0
+    gate_present: i64 = 0
+    gate_accepted: i64 = 0
+    gate_reason: i64 = 0
+    provider_call_capability_present: i64 = 0
+    provider_call_capability_valid: i64 = 0
+    provider_call_unsupported: i64 = 1
+    provider_call_modeled_open: i64 = 0
+    provider_call_model_active: i64 = 0
+    provider_call_inactive: i64 = 1
+    provider_call_execution_closed: i64 = 1
+    host_replacement_inactive: i64 = 1
+    hooks_inactive: i64 = 1
+    backend_matcher_inactive: i64 = 1
+    modeled_open_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_dry_run_reject_count: i64 = 0
+    rejected_dry_run_reject_count: i64 = 0
+    missing_capability_reject_count: i64 = 0
+    invalid_capability_reject_count: i64 = 0
+    unsupported_outcome_reject_count: i64 = 0
+    closed_call_reject_count: i64 = 0
+    closed_host_replacement_reject_count: i64 = 0
+    closed_hook_reject_count: i64 = 0
+    closed_backend_matcher_reject_count: i64 = 0
+    last_reason: i64 = 0
+    would_activate_provider: i64 = 0
+    would_call_provider: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
+}
+
+box HakoAllocProviderCallModeledOpenPilot {
+    modeled_open_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_dry_run_reject_count: i64 = 0
+    rejected_dry_run_reject_count: i64 = 0
+    missing_capability_reject_count: i64 = 0
+    invalid_capability_reject_count: i64 = 0
+    unsupported_outcome_reject_count: i64 = 0
+    closed_call_reject_count: i64 = 0
+    closed_host_replacement_reject_count: i64 = 0
+    closed_hook_reject_count: i64 = 0
+    closed_backend_matcher_reject_count: i64 = 0
+    last_reason: i64 = 0
+
+    makeProviderCallModeledOpenPilotReport(fields: HakoAllocProviderCallModeledOpenPilotReportFields): HakoAllocProviderCallModeledOpenPilotReport {
+        local result = new HakoAllocProviderCallModeledOpenPilotReport {
+            accepted: fields.accepted,
+            reason: fields.reason,
+            modeled_open_present: fields.modeled_open_present,
+            dry_run_present: fields.dry_run_present,
+            dry_run_accepted: fields.dry_run_accepted,
+            dry_run_reason: fields.dry_run_reason,
+            gate_present: fields.gate_present,
+            gate_accepted: fields.gate_accepted,
+            gate_reason: fields.gate_reason,
+            provider_call_capability_present: fields.provider_call_capability_present,
+            provider_call_capability_valid: fields.provider_call_capability_valid,
+            provider_call_unsupported: fields.provider_call_unsupported,
+            provider_call_modeled_open: fields.provider_call_modeled_open,
+            provider_call_model_active: fields.provider_call_model_active,
+            provider_call_inactive: fields.provider_call_inactive,
+            provider_call_execution_closed: fields.provider_call_execution_closed,
+            host_replacement_inactive: fields.host_replacement_inactive,
+            hooks_inactive: fields.hooks_inactive,
+            backend_matcher_inactive: fields.backend_matcher_inactive,
+            modeled_open_count: fields.modeled_open_count,
+            accepted_count: fields.accepted_count,
+            reject_count: fields.reject_count,
+            missing_dry_run_reject_count: fields.missing_dry_run_reject_count,
+            rejected_dry_run_reject_count: fields.rejected_dry_run_reject_count,
+            missing_capability_reject_count: fields.missing_capability_reject_count,
+            invalid_capability_reject_count: fields.invalid_capability_reject_count,
+            unsupported_outcome_reject_count: fields.unsupported_outcome_reject_count,
+            closed_call_reject_count: fields.closed_call_reject_count,
+            closed_host_replacement_reject_count: fields.closed_host_replacement_reject_count,
+            closed_hook_reject_count: fields.closed_hook_reject_count,
+            closed_backend_matcher_reject_count: fields.closed_backend_matcher_reject_count,
+            last_reason: fields.last_reason,
+            would_activate_provider: fields.would_activate_provider,
+            would_call_provider: fields.would_call_provider,
+            would_replace_host_allocator: fields.would_replace_host_allocator,
+            would_install_hook: fields.would_install_hook,
+            would_add_backend_matcher: fields.would_add_backend_matcher,
+            would_run_thread: fields.would_run_thread
+        }
+        return result
+    }
+
+    makeReport(accepted, reason, dry_run: HakoAllocProviderCallDryRunUnsupportedBehaviorReport): HakoAllocProviderCallModeledOpenPilotReport {
+        local modeled_open = accepted
+        local inactive = 1
+        local would_call = 0
+        if accepted == 1 {
+            inactive = 0
+            would_call = 1
+        }
+        local fields = HakoAllocProviderCallModeledOpenPilotReportFields {
+            accepted: accepted,
+            reason: reason,
+            modeled_open_present: accepted,
+            dry_run_present: dry_run.unsupported_outcome_present,
+            dry_run_accepted: dry_run.accepted,
+            dry_run_reason: dry_run.reason,
+            gate_present: dry_run.gate_present,
+            gate_accepted: dry_run.gate_accepted,
+            gate_reason: dry_run.gate_reason,
+            provider_call_capability_present: dry_run.provider_call_capability_present,
+            provider_call_capability_valid: dry_run.provider_call_capability_valid,
+            provider_call_unsupported: dry_run.provider_call_unsupported,
+            provider_call_modeled_open: modeled_open,
+            provider_call_model_active: modeled_open,
+            provider_call_inactive: inactive,
+            provider_call_execution_closed: dry_run.provider_call_execution_closed,
+            host_replacement_inactive: dry_run.host_replacement_inactive,
+            hooks_inactive: dry_run.hooks_inactive,
+            backend_matcher_inactive: dry_run.backend_matcher_inactive,
+            modeled_open_count: me.modeled_open_count,
+            accepted_count: me.accepted_count,
+            reject_count: me.reject_count,
+            missing_dry_run_reject_count: me.missing_dry_run_reject_count,
+            rejected_dry_run_reject_count: me.rejected_dry_run_reject_count,
+            missing_capability_reject_count: me.missing_capability_reject_count,
+            invalid_capability_reject_count: me.invalid_capability_reject_count,
+            unsupported_outcome_reject_count: me.unsupported_outcome_reject_count,
+            closed_call_reject_count: me.closed_call_reject_count,
+            closed_host_replacement_reject_count: me.closed_host_replacement_reject_count,
+            closed_hook_reject_count: me.closed_hook_reject_count,
+            closed_backend_matcher_reject_count: me.closed_backend_matcher_reject_count,
+            last_reason: me.last_reason,
+            would_activate_provider: dry_run.would_activate_provider,
+            would_call_provider: would_call,
+            would_replace_host_allocator: 0,
+            would_install_hook: 0,
+            would_add_backend_matcher: 0,
+            would_run_thread: 0
+        }
+        return me.makeProviderCallModeledOpenPilotReport(fields)
+    }
+
+    reject(reason, dry_run: HakoAllocProviderCallDryRunUnsupportedBehaviorReport): HakoAllocProviderCallModeledOpenPilotReport {
+        me.reject_count += 1
+        me.last_reason = reason
+        if reason == 1 {
+            me.missing_dry_run_reject_count += 1
+        }
+        if reason == 2 {
+            me.rejected_dry_run_reject_count += 1
+        }
+        if reason == 3 {
+            me.missing_capability_reject_count += 1
+        }
+        if reason == 4 {
+            me.invalid_capability_reject_count += 1
+        }
+        if reason == 5 {
+            me.unsupported_outcome_reject_count += 1
+        }
+        if reason == 6 {
+            me.closed_call_reject_count += 1
+        }
+        if reason == 7 {
+            me.closed_host_replacement_reject_count += 1
+        }
+        if reason == 8 {
+            me.closed_hook_reject_count += 1
+        }
+        if reason == 9 {
+            me.closed_backend_matcher_reject_count += 1
+        }
+        return me.makeReport(0, reason, dry_run)
+    }
+
+    openModeledProviderCall(dry_run: HakoAllocProviderCallDryRunUnsupportedBehaviorReport): HakoAllocProviderCallModeledOpenPilotReport {
+        me.modeled_open_count += 1
+        if dry_run.unsupported_outcome_present != 1 {
+            return me.reject(1, dry_run)
+        }
+        if dry_run.accepted != 1 {
+            return me.reject(2, dry_run)
+        }
+        if dry_run.provider_call_capability_present != 1 {
+            return me.reject(3, dry_run)
+        }
+        if dry_run.provider_call_capability_valid != 1 {
+            return me.reject(4, dry_run)
+        }
+        if dry_run.provider_call_unsupported != 1 {
+            return me.reject(5, dry_run)
+        }
+        if dry_run.provider_call_execution_closed != 1 {
+            return me.reject(6, dry_run)
+        }
+        if dry_run.would_call_provider != 0 {
+            return me.reject(6, dry_run)
+        }
+        if dry_run.would_replace_host_allocator != 0 {
+            return me.reject(7, dry_run)
+        }
+        if dry_run.would_install_hook != 0 {
+            return me.reject(8, dry_run)
+        }
+        if dry_run.would_add_backend_matcher != 0 {
+            return me.reject(9, dry_run)
+        }
+        if dry_run.would_run_thread != 0 {
+            return me.reject(9, dry_run)
+        }
+
+        me.accepted_count += 1
+        me.last_reason = 0
+        return me.makeReport(1, 0, dry_run)
+    }
+}
