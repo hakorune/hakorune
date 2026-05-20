@@ -1,0 +1,140 @@
+// hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-support-requirement-matrix-diagnostics-proof
+// Purpose: prove MIMAP-329A observer-only support requirement matrix diagnostics.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycle
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_lifecycle_continuation_bridge_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridge
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_continuation_application_bridge_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridge
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_applied_state_summary_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummary
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_readiness_matrix_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_intent_marker_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionIntentMarker
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_unsupported_outcome_ledger_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionUnsupportedOutcomeLedger
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_gate_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportGate
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_requirement_matrix_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrix
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_support_requirement_matrix_diagnostic_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixDiagnostic
+
+static box Main {
+    makeRecycleReport(segment_id: i64, arena_id: i64, recycle_token: i64): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleReport()
+        report.accepted = 1
+        report.reason = 0
+        report.release_applied_recycle_present = 1
+        report.modeled_release_applied_recycle_present = 1
+        report.row_index = 1
+        report.segment_id = segment_id
+        report.arena_id = arena_id
+        report.lifetime_generation = 3
+        report.release_apply_token = 96019005005
+        report.release_applied_recycle_token = recycle_token
+        report.applied_backing_bytes = 4096
+        report.applied_committed_bytes = 4096
+        report.remaining_source_bytes = 8192
+        return report
+    }
+
+    main(args) {
+        local continuation_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridgeInventory()
+        local application_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridgeInventory()
+        local summary_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummaryInventory()
+        local readiness_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionReadinessMatrixInventory()
+        local marker_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionIntentMarker()
+        local outcome_ledger = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionUnsupportedOutcomeLedger()
+        local gate_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportGateInventory()
+        local matrix_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixInventory()
+        local diagnostics = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixDiagnostic()
+        local recycle_report = Main.makeRecycleReport(190, 19, 97019005005)
+
+        local continued = continuation_inventory.recordLifecycleContinuation(recycle_report, 98019005005)
+        local applied = application_inventory.recordContinuationApplication(continued, 99019005005)
+        local summary = summary_inventory.summarizeAppliedState(applied)
+        local readiness = readiness_inventory.recordExecutionReadinessMatrix(summary, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        local marker = marker_inventory.recordExecutionIntentMarker(readiness, 1)
+        local outcome = outcome_ledger.recordUnsupportedExecutionOutcome(marker)
+        local gate = gate_inventory.recordExecutionSupportGate(outcome)
+        local matrix = matrix_inventory.recordExecutionSupportRequirementMatrix(gate)
+        local diag = diagnostics.observeExecutionSupportRequirementMatrix(matrix_inventory, matrix)
+
+        local empty_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixInventory()
+        local empty = diagnostics.observeExecutionSupportRequirementMatrix(empty_inventory, matrix)
+        local missing_report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixReport()
+        missing_report.matrix_present = 0
+        local missing = diagnostics.observeExecutionSupportRequirementMatrix(matrix_inventory, missing_report)
+        local rejected_report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleExecutionSupportRequirementMatrixReport()
+        rejected_report.matrix_present = 1
+        rejected_report.accepted = 0
+        rejected_report.reason = 2
+        local rejected = diagnostics.observeExecutionSupportRequirementMatrix(matrix_inventory, rejected_report)
+
+        local ok = check "mimap329a segment arena backing modeled allocation ledger release recycle execution support requirement matrix diagnostics" {
+            "observed": diag.observed == 1
+            "reason": diag.reason == 0
+            "present": diag.diagnostic_present == 1
+            "matrix accepted": diag.matrix_accepted == 1
+            "matrix reason": diag.matrix_reason == 0
+            "matrix present": diag.matrix_present == 1
+            "requirements unsatisfied": diag.requirements_satisfied == 0
+            "requirement count": diag.requirement_count == 11
+            "unsatisfied count": diag.unsatisfied_requirement_count == 11
+            "lifecycle required": diag.lifecycle_generation_required == 1
+            "residence required": diag.pointer_residence_required == 1
+            "lookup required": diag.pointer_lookup_required == 1
+            "arena release required": diag.arena_release_required == 1
+            "arena recycle required": diag.arena_recycle_required == 1
+            "segment map required": diag.segment_map_required == 1
+            "atomic required": diag.atomic_bitmap_required == 1
+            "osvm required": diag.osvm_required == 1
+            "worker tls required": diag.worker_tls_required == 1
+            "provider required": diag.provider_required == 1
+            "backend matcher required": diag.backend_matcher_required == 1
+            "segment": diag.report_segment_id == 190
+            "arena": diag.report_arena_id == 19
+            "recycle token": diag.report_release_applied_recycle_token == 97019005005
+            "continuation token": diag.report_continuation_token == 98019005005
+            "application token": diag.report_application_token == 99019005005
+            "backing bytes": diag.report_applied_backing_bytes == 4096
+            "committed bytes": diag.report_applied_committed_bytes == 4096
+            "remaining bytes": diag.report_remaining_source_bytes == 8192
+            "owner observed": diagnostics.observed_count == 4
+            "owner accepted": diagnostics.accepted_matrix_count == 1
+            "owner rejected": diagnostics.rejected_matrix_count == 3
+            "owner unsatisfied": diagnostics.unsatisfied_matrix_count == 1
+            "missing inventory": diagnostics.missing_inventory_reject_count == 1
+            "missing report": diagnostics.missing_report_reject_count == 1
+            "empty reject": empty.observed == 0
+            "empty reason": empty.reason == 1
+            "missing reject": missing.observed == 0
+            "missing reason": missing.reason == 2
+            "rejected observed": rejected.observed == 0
+            "rejected reason": rejected.reason == 3
+            "rejected matrix reason": rejected.matrix_reason == 2
+            "inactive lifecycle": diag.would_create_lifecycle_generation == 0
+            "inactive residence": diag.would_create_pointer_residence == 0
+            "inactive lookup": diag.would_lookup_by_pointer == 0
+            "inactive release": diag.would_release_arena_backing == 0
+            "inactive recycle": diag.would_recycle_arena_backing == 0
+            "inactive segment map": diag.would_use_segment_map == 0
+            "inactive atomic": diag.would_execute_atomic_bitmap == 0
+            "inactive osvm": diag.would_call_osvm == 0
+            "inactive thread": diag.would_run_thread == 0
+            "inactive provider": diag.would_activate_provider == 0
+            "inactive matcher": diag.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-support-requirement-matrix-diagnostics-proof")
+        print("diag=" + diag.observed + "," + diag.reason + "," + diag.matrix_accepted + "," + diag.matrix_reason + "," + diag.matrix_present + "," + diag.requirements_satisfied + "," + diag.unsatisfied_requirement_count)
+        print("requirements=" + diag.lifecycle_generation_required + "," + diag.pointer_residence_required + "," + diag.pointer_lookup_required + "," + diag.arena_release_required + "," + diag.arena_recycle_required + "," + diag.segment_map_required + "," + diag.atomic_bitmap_required + "," + diag.osvm_required + "," + diag.worker_tls_required + "," + diag.provider_required + "," + diag.backend_matcher_required)
+        print("tokens=" + diag.report_release_applied_recycle_token + "," + diag.report_continuation_token + "," + diag.report_application_token)
+        print("bytes=" + diag.report_applied_backing_bytes + "," + diag.report_applied_committed_bytes + "," + diag.report_remaining_source_bytes)
+        print("owner=" + diagnostics.observed_count + "," + diagnostics.accepted_matrix_count + "," + diagnostics.rejected_matrix_count + "," + diagnostics.unsatisfied_matrix_count + "," + diagnostics.missing_inventory_reject_count + "," + diagnostics.missing_report_reject_count + "," + diagnostics.last_reason)
+        print("rejected=" + empty.observed + "," + empty.reason + "," + missing.observed + "," + missing.reason + "," + rejected.observed + "," + rejected.reason + "," + rejected.matrix_reason)
+        print("inactive=" + diag.would_create_lifecycle_generation + "," + diag.would_create_pointer_residence + "," + diag.would_lookup_by_pointer + "," + diag.would_release_arena_backing + "," + diag.would_recycle_arena_backing + "," + diag.would_use_segment_map + "," + diag.would_execute_atomic_bitmap + "," + diag.would_call_osvm + "," + diag.would_run_thread + "," + diag.would_activate_provider + "," + diag.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
