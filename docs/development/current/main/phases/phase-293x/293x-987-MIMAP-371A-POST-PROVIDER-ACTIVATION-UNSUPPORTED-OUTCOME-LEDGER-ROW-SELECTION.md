@@ -1,6 +1,6 @@
 # 293x-987 MIMAP-371A Post Provider Activation Unsupported Outcome Ledger Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -30,3 +30,7 @@ add observer-only diagnostics if a separate summary is needed.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Result
+
+Selected MIMAP-372A provider activation unsupported outcome closeout.
