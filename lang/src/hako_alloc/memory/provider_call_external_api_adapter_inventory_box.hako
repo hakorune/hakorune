@@ -1,0 +1,274 @@
+// provider_call_external_api_adapter_inventory_box.hako -- MIMAP-400A
+// Responsibility:
+// - consume a provider-call real API stub execution report
+// - inventory the external provider API adapter boundary
+// Non-responsibility:
+// - external provider API calls, host allocator replacement, hooks, global
+//   allocator install, backend matchers, worker/TLS, or thread execution
+
+using selfhost.hako_alloc.memory.provider_call_real_api_stub_execution_pilot_box as HakoAllocProviderCallRealApiStubExecutionPilot
+
+record HakoAllocProviderCallExternalApiAdapterInventoryReportFields {
+    accepted: i64
+    reason: i64
+    adapter_inventory_present: i64
+    stub_execution_present: i64
+    stub_execution_accepted: i64
+    stub_execution_reason: i64
+    provider_api_stub_call_executed: i64
+    provider_api_call_result_present: i64
+    actual_provider_api_call_executed: i64
+    external_provider_adapter_present: i64
+    external_provider_adapter_valid: i64
+    external_provider_api_call_ready: i64
+    external_provider_api_call_executed: i64
+    host_replacement_inactive: i64
+    hooks_inactive: i64
+    backend_matcher_inactive: i64
+    inventory_count: i64
+    accepted_count: i64
+    reject_count: i64
+    missing_stub_reject_count: i64
+    rejected_stub_reject_count: i64
+    missing_adapter_reject_count: i64
+    invalid_adapter_reject_count: i64
+    already_executed_reject_count: i64
+    closed_execution_reject_count: i64
+    closed_host_replacement_reject_count: i64
+    closed_hook_reject_count: i64
+    closed_backend_matcher_reject_count: i64
+    last_reason: i64
+    would_activate_provider: i64
+    would_call_provider: i64
+    would_execute_provider_api: i64
+    would_call_external_provider_api: i64
+    would_replace_host_allocator: i64
+    would_install_hook: i64
+    would_add_backend_matcher: i64
+    would_run_thread: i64
+}
+
+box HakoAllocProviderCallExternalApiAdapterInventoryReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    adapter_inventory_present: i64 = 0
+    stub_execution_present: i64 = 0
+    stub_execution_accepted: i64 = 0
+    stub_execution_reason: i64 = 0
+    provider_api_stub_call_executed: i64 = 0
+    provider_api_call_result_present: i64 = 0
+    actual_provider_api_call_executed: i64 = 0
+    external_provider_adapter_present: i64 = 0
+    external_provider_adapter_valid: i64 = 0
+    external_provider_api_call_ready: i64 = 0
+    external_provider_api_call_executed: i64 = 0
+    host_replacement_inactive: i64 = 1
+    hooks_inactive: i64 = 1
+    backend_matcher_inactive: i64 = 1
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_stub_reject_count: i64 = 0
+    rejected_stub_reject_count: i64 = 0
+    missing_adapter_reject_count: i64 = 0
+    invalid_adapter_reject_count: i64 = 0
+    already_executed_reject_count: i64 = 0
+    closed_execution_reject_count: i64 = 0
+    closed_host_replacement_reject_count: i64 = 0
+    closed_hook_reject_count: i64 = 0
+    closed_backend_matcher_reject_count: i64 = 0
+    last_reason: i64 = 0
+    would_activate_provider: i64 = 0
+    would_call_provider: i64 = 0
+    would_execute_provider_api: i64 = 0
+    would_call_external_provider_api: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
+}
+
+box HakoAllocProviderCallExternalApiAdapterInventory {
+    inventory_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_stub_reject_count: i64 = 0
+    rejected_stub_reject_count: i64 = 0
+    missing_adapter_reject_count: i64 = 0
+    invalid_adapter_reject_count: i64 = 0
+    already_executed_reject_count: i64 = 0
+    closed_execution_reject_count: i64 = 0
+    closed_host_replacement_reject_count: i64 = 0
+    closed_hook_reject_count: i64 = 0
+    closed_backend_matcher_reject_count: i64 = 0
+    last_reason: i64 = 0
+
+    makeProviderCallExternalApiAdapterInventoryReport(fields: HakoAllocProviderCallExternalApiAdapterInventoryReportFields): HakoAllocProviderCallExternalApiAdapterInventoryReport {
+        local result = new HakoAllocProviderCallExternalApiAdapterInventoryReport {
+            accepted: fields.accepted,
+            reason: fields.reason,
+            adapter_inventory_present: fields.adapter_inventory_present,
+            stub_execution_present: fields.stub_execution_present,
+            stub_execution_accepted: fields.stub_execution_accepted,
+            stub_execution_reason: fields.stub_execution_reason,
+            provider_api_stub_call_executed: fields.provider_api_stub_call_executed,
+            provider_api_call_result_present: fields.provider_api_call_result_present,
+            actual_provider_api_call_executed: fields.actual_provider_api_call_executed,
+            external_provider_adapter_present: fields.external_provider_adapter_present,
+            external_provider_adapter_valid: fields.external_provider_adapter_valid,
+            external_provider_api_call_ready: fields.external_provider_api_call_ready,
+            external_provider_api_call_executed: fields.external_provider_api_call_executed,
+            host_replacement_inactive: fields.host_replacement_inactive,
+            hooks_inactive: fields.hooks_inactive,
+            backend_matcher_inactive: fields.backend_matcher_inactive,
+            inventory_count: fields.inventory_count,
+            accepted_count: fields.accepted_count,
+            reject_count: fields.reject_count,
+            missing_stub_reject_count: fields.missing_stub_reject_count,
+            rejected_stub_reject_count: fields.rejected_stub_reject_count,
+            missing_adapter_reject_count: fields.missing_adapter_reject_count,
+            invalid_adapter_reject_count: fields.invalid_adapter_reject_count,
+            already_executed_reject_count: fields.already_executed_reject_count,
+            closed_execution_reject_count: fields.closed_execution_reject_count,
+            closed_host_replacement_reject_count: fields.closed_host_replacement_reject_count,
+            closed_hook_reject_count: fields.closed_hook_reject_count,
+            closed_backend_matcher_reject_count: fields.closed_backend_matcher_reject_count,
+            last_reason: fields.last_reason,
+            would_activate_provider: fields.would_activate_provider,
+            would_call_provider: fields.would_call_provider,
+            would_execute_provider_api: fields.would_execute_provider_api,
+            would_call_external_provider_api: fields.would_call_external_provider_api,
+            would_replace_host_allocator: fields.would_replace_host_allocator,
+            would_install_hook: fields.would_install_hook,
+            would_add_backend_matcher: fields.would_add_backend_matcher,
+            would_run_thread: fields.would_run_thread
+        }
+        return result
+    }
+
+    makeReport(accepted, reason, stub: HakoAllocProviderCallRealApiStubExecutionPilotReport, adapter_present, adapter_valid): HakoAllocProviderCallExternalApiAdapterInventoryReport {
+        local present = accepted
+        local ready = accepted
+        local would_external = accepted
+        local fields = HakoAllocProviderCallExternalApiAdapterInventoryReportFields {
+            accepted: accepted,
+            reason: reason,
+            adapter_inventory_present: present,
+            stub_execution_present: stub.stub_execution_present,
+            stub_execution_accepted: stub.accepted,
+            stub_execution_reason: stub.reason,
+            provider_api_stub_call_executed: stub.provider_api_stub_call_executed,
+            provider_api_call_result_present: stub.provider_api_call_result_present,
+            actual_provider_api_call_executed: stub.actual_provider_api_call_executed,
+            external_provider_adapter_present: adapter_present,
+            external_provider_adapter_valid: adapter_valid,
+            external_provider_api_call_ready: ready,
+            external_provider_api_call_executed: 0,
+            host_replacement_inactive: stub.host_replacement_inactive,
+            hooks_inactive: stub.hooks_inactive,
+            backend_matcher_inactive: stub.backend_matcher_inactive,
+            inventory_count: me.inventory_count,
+            accepted_count: me.accepted_count,
+            reject_count: me.reject_count,
+            missing_stub_reject_count: me.missing_stub_reject_count,
+            rejected_stub_reject_count: me.rejected_stub_reject_count,
+            missing_adapter_reject_count: me.missing_adapter_reject_count,
+            invalid_adapter_reject_count: me.invalid_adapter_reject_count,
+            already_executed_reject_count: me.already_executed_reject_count,
+            closed_execution_reject_count: me.closed_execution_reject_count,
+            closed_host_replacement_reject_count: me.closed_host_replacement_reject_count,
+            closed_hook_reject_count: me.closed_hook_reject_count,
+            closed_backend_matcher_reject_count: me.closed_backend_matcher_reject_count,
+            last_reason: me.last_reason,
+            would_activate_provider: stub.would_activate_provider,
+            would_call_provider: stub.would_call_provider,
+            would_execute_provider_api: stub.would_execute_provider_api,
+            would_call_external_provider_api: would_external,
+            would_replace_host_allocator: 0,
+            would_install_hook: 0,
+            would_add_backend_matcher: 0,
+            would_run_thread: 0
+        }
+        return me.makeProviderCallExternalApiAdapterInventoryReport(fields)
+    }
+
+    reject(reason, stub: HakoAllocProviderCallRealApiStubExecutionPilotReport, adapter_present, adapter_valid): HakoAllocProviderCallExternalApiAdapterInventoryReport {
+        me.reject_count += 1
+        me.last_reason = reason
+        if reason == 1 {
+            me.missing_stub_reject_count += 1
+        }
+        if reason == 2 {
+            me.rejected_stub_reject_count += 1
+        }
+        if reason == 3 {
+            me.missing_adapter_reject_count += 1
+        }
+        if reason == 4 {
+            me.invalid_adapter_reject_count += 1
+        }
+        if reason == 5 {
+            me.already_executed_reject_count += 1
+        }
+        if reason == 6 {
+            me.closed_execution_reject_count += 1
+        }
+        if reason == 7 {
+            me.closed_host_replacement_reject_count += 1
+        }
+        if reason == 8 {
+            me.closed_hook_reject_count += 1
+        }
+        if reason == 9 {
+            me.closed_backend_matcher_reject_count += 1
+        }
+        return me.makeReport(0, reason, stub, adapter_present, adapter_valid)
+    }
+
+    inventoryProviderCallExternalApiAdapter(stub: HakoAllocProviderCallRealApiStubExecutionPilotReport, adapter_present, adapter_valid): HakoAllocProviderCallExternalApiAdapterInventoryReport {
+        me.inventory_count += 1
+        if stub.stub_execution_present != 1 {
+            return me.reject(1, stub, adapter_present, adapter_valid)
+        }
+        if stub.accepted != 1 {
+            return me.reject(2, stub, adapter_present, adapter_valid)
+        }
+        if adapter_present != 1 {
+            return me.reject(3, stub, adapter_present, adapter_valid)
+        }
+        if adapter_valid != 1 {
+            return me.reject(4, stub, adapter_present, adapter_valid)
+        }
+        if stub.actual_provider_api_call_executed != 0 {
+            return me.reject(5, stub, adapter_present, adapter_valid)
+        }
+        if stub.provider_api_stub_call_executed != 1 {
+            return me.reject(6, stub, adapter_present, adapter_valid)
+        }
+        if stub.provider_api_call_result_present != 1 {
+            return me.reject(6, stub, adapter_present, adapter_valid)
+        }
+        if stub.would_call_provider != 1 {
+            return me.reject(6, stub, adapter_present, adapter_valid)
+        }
+        if stub.would_execute_provider_api != 1 {
+            return me.reject(6, stub, adapter_present, adapter_valid)
+        }
+        if stub.would_replace_host_allocator != 0 {
+            return me.reject(7, stub, adapter_present, adapter_valid)
+        }
+        if stub.would_install_hook != 0 {
+            return me.reject(8, stub, adapter_present, adapter_valid)
+        }
+        if stub.would_add_backend_matcher != 0 {
+            return me.reject(9, stub, adapter_present, adapter_valid)
+        }
+        if stub.would_run_thread != 0 {
+            return me.reject(9, stub, adapter_present, adapter_valid)
+        }
+
+        me.accepted_count += 1
+        me.last_reason = 0
+        return me.makeReport(1, 0, stub, adapter_present, adapter_valid)
+    }
+}

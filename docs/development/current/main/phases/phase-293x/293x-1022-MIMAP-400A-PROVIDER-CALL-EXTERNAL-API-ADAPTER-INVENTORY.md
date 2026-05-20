@@ -1,6 +1,6 @@
 # 293x-1022 MIMAP-400A Provider Call External API Adapter Inventory
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -44,3 +44,11 @@ bash tools/checks/k2_wide_hako_alloc_provider_call_external_api_adapter_inventor
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Evidence
+
+- Added `provider_call_external_api_adapter_inventory_box.hako`.
+- Added the manifest-backed proof app and L2 guard.
+- Recorded external provider API adapter presence/readiness while external
+  provider API execution, host replacement, hooks, backend matcher additions,
+  worker/thread execution, and global allocator install remain closed.
