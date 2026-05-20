@@ -1,6 +1,6 @@
 # 293x-1061 MIMAP-439A Allocator Comparison Controlled Benchmark Execution Plan
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -31,3 +31,10 @@ opening process allocator replacement, hooks, backend matcher additions, or
 ## Validation
 
 Planning validation is L0 unless this row adds an executable proof.
+
+## Landed Evidence
+
+- Added the controlled benchmark execution plan SSOT.
+- Selected MIMAP-440A controlled benchmark execution inventory as the next row.
+- Kept process allocator replacement, hooks, backend matcher additions, and
+  `#[global_allocator]` closed.
