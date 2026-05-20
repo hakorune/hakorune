@@ -13,6 +13,7 @@ mod tests {
                 value: LiteralValue::String("Hello".into()),
                 span: Span::unknown(),
             }],
+            field_initializers: vec![],
             type_arguments: vec![],
             span: Span::unknown(),
         };

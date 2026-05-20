@@ -409,8 +409,15 @@ impl super::MirBuilder {
             }
 
             ASTNode::New {
-                class, arguments, ..
-            } => self.build_new_expression(class.clone(), arguments.clone()),
+                class,
+                arguments,
+                field_initializers,
+                ..
+            } => self.build_new_expression_with_field_initializers(
+                class.clone(),
+                arguments.clone(),
+                field_initializers.clone(),
+            ),
 
             ASTNode::ArrayLiteral { elements, .. } => self.build_array_literal(elements),
             ASTNode::MapLiteral { entries, .. } => self.build_map_literal(entries),

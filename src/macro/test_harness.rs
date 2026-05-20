@@ -177,6 +177,7 @@ pub fn maybe_inject_test_harness(ast: &ASTNode) -> ASTNode {
                         return Ok(A::New {
                             class: bx.to_string(),
                             arguments: args,
+                            field_initializers: vec![],
                             type_arguments: type_args,
                             span: Span::unknown(),
                         });
@@ -408,6 +409,7 @@ pub fn maybe_inject_test_harness(ast: &ASTNode) -> ASTNode {
                                     "new" => nyash_rust::ASTNode::New {
                                         class: box_name.clone(),
                                         arguments: spec.args,
+                                        field_initializers: vec![],
                                         type_arguments: spec.type_args,
                                         span: nyash_rust::ast::Span::unknown(),
                                     },
@@ -425,6 +427,7 @@ pub fn maybe_inject_test_harness(ast: &ASTNode) -> ASTNode {
                                         nyash_rust::ASTNode::New {
                                             class: box_name.clone(),
                                             arguments: vec![],
+                                            field_initializers: vec![],
                                             type_arguments: vec![],
                                             span: nyash_rust::ast::Span::unknown(),
                                         }
@@ -434,6 +437,7 @@ pub fn maybe_inject_test_harness(ast: &ASTNode) -> ASTNode {
                                 nyash_rust::ASTNode::New {
                                     class: box_name.clone(),
                                     arguments: vec![],
+                                    field_initializers: vec![],
                                     type_arguments: vec![],
                                     span: nyash_rust::ast::Span::unknown(),
                                 }

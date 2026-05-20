@@ -11,6 +11,7 @@ fn mir_lowering_of_qmark_propagate() {
                 value: crate::ast::LiteralValue::String("ok".to_string()),
                 span: Span::unknown(),
             }],
+            field_initializers: vec![],
             type_arguments: vec![],
             span: Span::unknown(),
         }),

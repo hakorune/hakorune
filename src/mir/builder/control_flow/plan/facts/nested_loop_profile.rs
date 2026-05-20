@@ -168,7 +168,16 @@ fn expr_contains_call(ast: &ASTNode) -> bool {
         ASTNode::Index { target, index, .. } => {
             expr_contains_call(target) || expr_contains_call(index)
         }
-        ASTNode::New { arguments, .. } => arguments.iter().any(|arg| expr_contains_call(arg)),
+        ASTNode::New {
+            arguments,
+            field_initializers,
+            ..
+        } => {
+            arguments.iter().any(|arg| expr_contains_call(arg))
+                || field_initializers
+                    .iter()
+                    .any(|(_, expr)| expr_contains_call(expr))
+        }
         ASTNode::This { .. }
         | ASTNode::Me { .. }
         | ASTNode::ThisField { .. }

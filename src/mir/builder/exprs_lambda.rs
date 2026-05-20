@@ -60,9 +60,16 @@ impl super::MirBuilder {
                 ASTNode::FieldAccess { object, .. } => {
                     collect_vars(object, used, locals);
                 }
-                ASTNode::New { arguments, .. } => {
+                ASTNode::New {
+                    arguments,
+                    field_initializers,
+                    ..
+                } => {
                     for a in arguments {
                         collect_vars(a, used, locals);
+                    }
+                    for (_, expr) in field_initializers {
+                        collect_vars(expr, used, locals);
                     }
                 }
                 ASTNode::If {

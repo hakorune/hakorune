@@ -140,9 +140,19 @@ impl ASTNode {
                 visitor(target);
                 visitor(index);
             }
-            ASTNode::New { arguments, .. }
-            | ASTNode::FromCall { arguments, .. }
-            | ASTNode::FunctionCall { arguments, .. } => {
+            ASTNode::New {
+                arguments,
+                field_initializers,
+                ..
+            } => {
+                for argument in arguments {
+                    visitor(argument);
+                }
+                for (_, initializer) in field_initializers {
+                    visitor(initializer);
+                }
+            }
+            ASTNode::FromCall { arguments, .. } | ASTNode::FunctionCall { arguments, .. } => {
                 for argument in arguments {
                     visitor(argument);
                 }
@@ -446,17 +456,24 @@ impl ASTNode {
             ASTNode::New {
                 class,
                 arguments,
+                field_initializers,
                 type_arguments,
                 ..
             } => {
                 if type_arguments.is_empty() {
-                    format!("New({}, {} args)", class, arguments.len())
+                    format!(
+                        "New({}, {} args, {} init)",
+                        class,
+                        arguments.len(),
+                        field_initializers.len()
+                    )
                 } else {
                     format!(
-                        "New({}<{}>, {} args)",
+                        "New({}<{}>, {} args, {} init)",
                         class,
                         type_arguments.join(", "),
-                        arguments.len()
+                        arguments.len(),
+                        field_initializers.len()
                     )
                 }
             }

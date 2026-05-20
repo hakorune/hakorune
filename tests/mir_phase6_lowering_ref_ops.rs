@@ -43,6 +43,7 @@ fn test_mir_phase6_lowering_ref_ops() {
             value: Box::new(ASTNode::New {
                 class: "Obj".to_string(),
                 arguments: vec![],
+                field_initializers: vec![],
                 type_arguments: vec![],
                 span: Span::unknown(),
             }),
@@ -218,6 +219,7 @@ fn test_mir_verification_phase6_ref_ops() {
             value: Box::new(ASTNode::New {
                 class: "TestObj".to_string(),
                 arguments: vec![],
+                field_initializers: vec![],
                 type_arguments: vec![],
                 span: Span::unknown(),
             }),

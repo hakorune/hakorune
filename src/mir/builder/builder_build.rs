@@ -380,6 +380,24 @@ impl MirBuilder {
         Ok(dst)
     }
 
+    pub(super) fn build_new_expression_with_field_initializers(
+        &mut self,
+        class: String,
+        arguments: Vec<ASTNode>,
+        field_initializers: Vec<(String, ASTNode)>,
+    ) -> Result<ValueId, String> {
+        if !field_initializers.is_empty() && self.is_record_constructor_class(&class) {
+            return Err(format!(
+                "[box-init/record-reject] record={} does not support new-box field initializers",
+                class
+            ));
+        }
+
+        let dst = self.build_new_expression(class.clone(), arguments)?;
+        self.build_box_field_initializers(dst, &class, field_initializers)?;
+        Ok(dst)
+    }
+
     /// Check if the current basic block is terminated
     pub(super) fn is_current_block_terminated(&self) -> bool {
         if let (Some(block_id), Some(ref function)) =

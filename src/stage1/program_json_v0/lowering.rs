@@ -561,11 +561,23 @@ fn expression_to_json_v0(
             field_access_expr_to_json_v0(expression, object, field, context, local_types)
         }
         ASTNode::New {
-            class, arguments, ..
+            class,
+            arguments,
+            field_initializers,
+            ..
         } => Ok(serde_json::json!({
             "type": "New",
             "class": class,
             "args": expressions_to_json_v0(arguments, context, local_types)?,
+            "field_initializers": field_initializers
+                .iter()
+                .map(|(name, expr)| {
+                    Ok(serde_json::json!({
+                        "field": name,
+                        "value": expression_to_json_v0(expr, context, local_types)?,
+                    }))
+                })
+                .collect::<Result<Vec<_>, String>>()?,
         })),
         ASTNode::ArrayLiteral { .. } => {
             Err("[array/literal-context] array literal requires local typed context".to_string())

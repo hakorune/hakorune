@@ -9,17 +9,17 @@ status = "Active"
 date = "2026-05-21"
 
 active_lane = "phase-293x mimalloc blueprint lane"
-active_lane_status = "MIMAP-374A landed and selected MIMAP-375A; MIMAP-375A is current to choose the next narrow allocator row after provider activation explicit-input contract. Cross-function Result direct ABI remains closed. Provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
+active_lane_status = "BOX-INIT-001 landed new-box field initializer surface as a language sidecar and selected BOX-INIT-002; MIMAP-375A remains parked for provider activation follow-up. Cross-function Result direct ABI remains closed. Provider activation, host allocator replacement, hooks, and #[global_allocator] remain inactive."
 active_phase = "docs/development/current/main/phases/phase-293x/README.md"
-phase_status = "docs/development/current/main/phases/phase-293x/293x-991-MIMAP-375A-POST-PROVIDER-ACTIVATION-EXPLICIT-INPUT-CONTRACT-ROW-SELECTION.md"
+phase_status = "docs/development/current/main/phases/phase-293x/293x-993-BOX-INIT-002-POST-NEW-BOX-FIELD-INITIALIZER-ROW-SELECTION.md"
 method_anchor = "docs/development/current/main/design/mimalloc-allocator-first-task-granularity-ssot.md"
 taskboard = "docs/development/current/main/phases/phase-293x/293x-mimalloc-port-taskboard.md"
 
-latest_card = "293x-990-MIMAP-374A-PROVIDER-ACTIVATION-EXPLICIT-INPUT-CONTRACT"
-latest_card_path = "docs/development/current/main/phases/phase-293x/293x-990-MIMAP-374A-PROVIDER-ACTIVATION-EXPLICIT-INPUT-CONTRACT.md"
-latest_card_summary = "Landed provider activation explicit-input contract with activation still closed; MIMAP-375A selected."
+latest_card = "293x-992-BOX-INIT-001-NEW-BOX-FIELD-INITIALIZER"
+latest_card_path = "docs/development/current/main/phases/phase-293x/293x-992-BOX-INIT-001-NEW-BOX-FIELD-INITIALIZER.md"
+latest_card_summary = "Landed explicit new-box field initializer sugar lowering as NewBox plus FieldSet; BOX-INIT-002 selected."
 
-current_blocker_token = "MIMAP-375A"
+current_blocker_token = "BOX-INIT-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE latest_card/latest_card_path/latest_card_summary plus the active card. Do not update CURRENT_TASK, 05-Restart, 10-Now, phase README, taskboards, or ledgers unless lane/blocker/restart-order/phase-status/durable-policy changes."
 
@@ -28,6 +28,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "293x-992 BOX-INIT-001 new-box field initializer landed; BOX-INIT-002 selected",
   "293x-990 MIMAP-374A provider activation explicit-input contract landed; MIMAP-375A selected",
   "293x-989 MIMAP-373A post provider activation unsupported outcome closeout row selection landed; MIMAP-374A selected",
   "293x-988 MIMAP-372A provider activation unsupported outcome closeout landed; MIMAP-373A selected",

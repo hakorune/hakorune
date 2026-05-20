@@ -138,9 +138,16 @@ impl<'a> FreeVarCollector<'a> {
                 self.walk(target, false);
                 self.walk(index, false);
             }
-            ASTNode::New { arguments, .. } => {
+            ASTNode::New {
+                arguments,
+                field_initializers,
+                ..
+            } => {
                 for a in arguments {
                     self.walk(a, false);
+                }
+                for (_, expr) in field_initializers {
+                    self.walk(expr, false);
                 }
             }
             ASTNode::If {

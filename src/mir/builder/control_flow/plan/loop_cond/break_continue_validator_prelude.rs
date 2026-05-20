@@ -441,13 +441,20 @@ fn is_supported_value_ast_for_then_only_return(ast: &ASTNode, allow_extended: bo
                 .iter()
                 .all(|arg| is_supported_value_ast_for_then_only_return(arg, allow_extended))
         }
-        ASTNode::New { arguments, .. } => {
+        ASTNode::New {
+            arguments,
+            field_initializers,
+            ..
+        } => {
             if !allow_extended {
                 return false;
             }
             arguments
                 .iter()
                 .all(|arg| is_supported_value_ast_for_then_only_return(arg, allow_extended))
+                && field_initializers.iter().all(|(_, initializer)| {
+                    is_supported_value_ast_for_then_only_return(initializer, allow_extended)
+                })
         }
         ASTNode::BlockExpr {
             prelude_stmts,

@@ -104,9 +104,19 @@ fn first_wait_like_in_node(node: &ASTNode) -> Option<&'static str> {
         ASTNode::Index { target, index, .. } => {
             first_wait_like_in_node(target).or_else(|| first_wait_like_in_node(index))
         }
-        ASTNode::New { arguments, .. }
-        | ASTNode::FromCall { arguments, .. }
-        | ASTNode::FunctionCall { arguments, .. } => {
+        ASTNode::New {
+            arguments,
+            field_initializers,
+            ..
+        } => arguments
+            .iter()
+            .find_map(first_wait_like_in_node)
+            .or_else(|| {
+                field_initializers
+                    .iter()
+                    .find_map(|(_, expr)| first_wait_like_in_node(expr))
+            }),
+        ASTNode::FromCall { arguments, .. } | ASTNode::FunctionCall { arguments, .. } => {
             arguments.iter().find_map(first_wait_like_in_node)
         }
         ASTNode::Call {

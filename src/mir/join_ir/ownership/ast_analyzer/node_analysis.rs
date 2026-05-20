@@ -321,9 +321,16 @@ impl AstOwnershipAnalyzer {
                 self.analyze_node(index, current_scope, is_condition)?;
             }
 
-            ASTNode::New { arguments, .. } => {
+            ASTNode::New {
+                arguments,
+                field_initializers,
+                ..
+            } => {
                 for a in arguments {
                     self.analyze_node(a, current_scope, is_condition)?;
+                }
+                for (_, initializer) in field_initializers {
+                    self.analyze_node(initializer, current_scope, is_condition)?;
                 }
             }
 

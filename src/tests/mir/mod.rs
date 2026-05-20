@@ -1,3 +1,5 @@
+#[path = "../mir_box_new_field_initializer.rs"]
+pub mod mir_box_new_field_initializer;
 #[path = "../mir_brand_constructor.rs"]
 pub mod mir_brand_constructor;
 #[path = "../mir_breakfinder_ssa.rs"]

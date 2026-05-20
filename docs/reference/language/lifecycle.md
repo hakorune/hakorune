@@ -33,18 +33,31 @@ Canonical construction surface:
 local obj = new SomeBox(arg0, arg1)
 ```
 
+Explicit construction-site field initializers are also canonical:
+
+```nyash
+local report = new Report {
+    accepted: fields.accepted
+    reason: fields.reason
+}
+```
+
 Construction order:
 
 ```text
 allocate object identity
 run declaration-site field initializers
 run matching birth(args...)
+run construction-site field initializer block assignments
 publish the object as usable
 ```
 
 Rules:
 
 - `new Box(args...)` is the canonical source surface for constructing a box.
+- `new Box { field: expr }` and `new Box(args...) { field: expr }` are
+  explicit field-initializer sugar for ordinary post-construction field
+  assignments.
 - `birth(...)` is a constructor hook, not an ordinary public method.
 - Direct source calls such as `obj.birth(...)` are forbidden.
 - Stored field initializers are per-instance values and run before `birth`.
@@ -53,11 +66,14 @@ Rules:
 - `birth` must not be reused as a reset or reactivation surface.
 - Named constructor arguments are reserved for a later row; current canonical
   construction uses positional arguments.
+- Shorthand field copy and wildcard copy are reserved for later rows; current
+  construction-site field initializers must use `field: expr`.
 
 Example:
 
 ```nyash
 local page = new HakoAllocPageModel(PageId(0), Bytes(32), 2, 2)
+local report = new Report { accepted: 1, reason: 0 }
 page.reactivate()
 page.resetForReuse(Bytes(64), 4)
 ```

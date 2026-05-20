@@ -468,12 +468,19 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
         }),
         // Phase 52: New → NewBox ノード（JoinIR Frontend 互換）
         ASTNode::New {
-            class, arguments, ..
+            class,
+            arguments,
+            field_initializers,
+            ..
         } => json!({
             "kind": "New",
             "type": "NewBox",  // JoinIR Frontend expects "type": "NewBox"
             "box_name": class,
-            "args": arguments.into_iter().map(|a| ast_to_json(&a)).collect::<Vec<_>>()
+            "args": arguments.into_iter().map(|a| ast_to_json(&a)).collect::<Vec<_>>(),
+            "field_initializers": field_initializers
+                .into_iter()
+                .map(|(name, expr)| json!({"field": name, "value": ast_to_json(&expr)}))
+                .collect::<Vec<_>>()
         }),
         other => json!({"kind":"Unsupported","debug": format!("{:?}", other)}),
     }

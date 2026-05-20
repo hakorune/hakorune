@@ -140,11 +140,16 @@ fn rewrite(ast: ASTNode) -> ASTNode {
         ASTNode::New {
             class,
             arguments,
+            field_initializers,
             type_arguments,
             span,
         } => ASTNode::New {
             class,
             arguments: arguments.into_iter().map(rewrite).collect(),
+            field_initializers: field_initializers
+                .into_iter()
+                .map(|(name, expr)| (name, rewrite(expr)))
+                .collect(),
             type_arguments,
             span,
         },

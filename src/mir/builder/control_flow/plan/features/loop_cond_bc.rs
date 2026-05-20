@@ -418,9 +418,16 @@ fn collect_vars_from_expr(ast: &crate::ast::ASTNode, vars: &mut BTreeSet<String>
             collect_vars_from_expr(target, vars);
             collect_vars_from_expr(index, vars);
         }
-        ASTNode::New { arguments, .. } => {
+        ASTNode::New {
+            arguments,
+            field_initializers,
+            ..
+        } => {
             for arg in arguments {
                 collect_vars_from_expr(arg, vars);
+            }
+            for (_, initializer) in field_initializers {
+                collect_vars_from_expr(initializer, vars);
             }
         }
         ASTNode::AwaitExpression { expression, .. } => collect_vars_from_expr(expression, vars),

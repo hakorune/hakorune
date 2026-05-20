@@ -476,19 +476,23 @@ impl ExprParserWithCursor {
                     }
                 }
 
-                cursor.consume(TokenType::LPAREN)?;
                 let mut arguments = Vec::new();
-                while !cursor.match_token(&TokenType::RPAREN) && !cursor.is_at_end() {
-                    let arg = Self::parse_expression(cursor)?;
-                    arguments.push(arg);
-                    if cursor.match_token(&TokenType::COMMA) {
-                        cursor.advance();
+                if cursor.match_token(&TokenType::LPAREN) {
+                    cursor.advance();
+                    while !cursor.match_token(&TokenType::RPAREN) && !cursor.is_at_end() {
+                        let arg = Self::parse_expression(cursor)?;
+                        arguments.push(arg);
+                        if cursor.match_token(&TokenType::COMMA) {
+                            cursor.advance();
+                        }
                     }
+                    cursor.consume(TokenType::RPAREN)?;
                 }
-                cursor.consume(TokenType::RPAREN)?;
+                let field_initializers = Self::parse_box_field_initializers(cursor)?;
                 Ok(ASTNode::New {
                     class,
                     arguments,
+                    field_initializers,
                     type_arguments,
                     span: Span::unknown(),
                 })
@@ -498,6 +502,37 @@ impl ExprParserWithCursor {
                 Err(ParseError::InvalidExpression { line })
             }
         }
+    }
+
+    fn parse_box_field_initializers(
+        cursor: &mut TokenCursor,
+    ) -> Result<Vec<(String, ASTNode)>, ParseError> {
+        let mut fields = Vec::new();
+        if !cursor.match_token(&TokenType::LBRACE) {
+            return Ok(fields);
+        }
+        cursor.advance();
+        while !cursor.match_token(&TokenType::RBRACE) && !cursor.is_at_end() {
+            let name = if let TokenType::IDENTIFIER(name) = &cursor.current().token_type {
+                let name = name.clone();
+                cursor.advance();
+                name
+            } else {
+                return Err(ParseError::UnexpectedToken {
+                    found: cursor.current().token_type.clone(),
+                    expected: "field name".to_string(),
+                    line: cursor.current().line,
+                });
+            };
+            cursor.consume(TokenType::COLON)?;
+            let expr = Self::parse_expression(cursor)?;
+            fields.push((name, expr));
+            if cursor.match_token(&TokenType::COMMA) {
+                cursor.advance();
+            }
+        }
+        cursor.consume(TokenType::RBRACE)?;
+        Ok(fields)
     }
 
     fn parse_check_or_variable(cursor: &mut TokenCursor) -> Result<ASTNode, ParseError> {

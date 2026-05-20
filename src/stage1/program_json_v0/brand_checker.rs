@@ -401,7 +401,20 @@ fn check_expr(
             }
             Ok(None)
         }
-        ASTNode::New { arguments, .. } | ASTNode::FromCall { arguments, .. } => {
+        ASTNode::New {
+            arguments,
+            field_initializers,
+            ..
+        } => {
+            for argument in arguments {
+                check_expr(argument, current_box, current_fn, env, sigs, brands)?;
+            }
+            for (_, initializer) in field_initializers {
+                check_expr(initializer, current_box, current_fn, env, sigs, brands)?;
+            }
+            Ok(None)
+        }
+        ASTNode::FromCall { arguments, .. } => {
             for argument in arguments {
                 check_expr(argument, current_box, current_fn, env, sigs, brands)?;
             }

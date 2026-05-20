@@ -221,9 +221,19 @@ fn ast_collect_me_fields(nodes: &[ASTNode]) -> std::collections::HashSet<String>
                 scan_node(target, out);
                 scan_node(index, out);
             }
-            ASTNode::New { arguments, .. }
-            | ASTNode::FromCall { arguments, .. }
-            | ASTNode::FunctionCall { arguments, .. } => {
+            ASTNode::New {
+                arguments,
+                field_initializers,
+                ..
+            } => {
+                for arg in arguments {
+                    scan_node(arg, out);
+                }
+                for (_, initializer) in field_initializers {
+                    scan_node(initializer, out);
+                }
+            }
+            ASTNode::FromCall { arguments, .. } | ASTNode::FunctionCall { arguments, .. } => {
                 for arg in arguments {
                     scan_node(arg, out);
                 }

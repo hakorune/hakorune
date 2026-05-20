@@ -431,8 +431,16 @@ impl super::PlanNormalizer {
                 Ok((result_id, arg_effects))
             }
             ASTNode::New {
-                class, arguments, ..
+                class,
+                arguments,
+                field_initializers,
+                ..
             } => {
+                if !field_initializers.is_empty() {
+                    return Err(
+                        "[box-init/coreplan-unsupported] new-box field initializers require ordinary MIR builder lowering".to_string()
+                    );
+                }
                 let mut effects = Vec::new();
                 let result_id = builder.next_value_id();
                 builder

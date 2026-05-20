@@ -74,9 +74,18 @@ pub(super) fn collect_vars_from_expr(ast: &ASTNode, vars: &mut BTreeSet<String>)
         ASTNode::Index { target, index, .. } => {
             collect_vars_from_expr(target, vars) && collect_vars_from_expr(index, vars)
         }
-        ASTNode::New { arguments, .. } => {
+        ASTNode::New {
+            arguments,
+            field_initializers,
+            ..
+        } => {
             for arg in arguments {
                 if !collect_vars_from_expr(arg, vars) {
+                    return false;
+                }
+            }
+            for (_, expr) in field_initializers {
+                if !collect_vars_from_expr(expr, vars) {
                     return false;
                 }
             }

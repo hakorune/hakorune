@@ -325,6 +325,7 @@ fn test_lowering_boxcall_array_push() {
         object: Box::new(ASTNode::New {
             class: "ArrayBox".to_string(),
             arguments: vec![],
+            field_initializers: vec![],
             type_arguments: vec![],
             span: crate::ast::Span::unknown(),
         }),
@@ -414,6 +415,7 @@ fn test_boxcall_method_id_on_universal_slot() {
         object: Box::new(ASTNode::New {
             class: "ArrayBox".to_string(),
             arguments: vec![],
+            field_initializers: vec![],
             type_arguments: vec![],
             span: crate::ast::Span::unknown(),
         }),

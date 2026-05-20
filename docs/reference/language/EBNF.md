@@ -134,7 +134,7 @@ unary_no_group := ( '-' | '!' | 'not' | '~' ) unary_no_group
                 | 'null'
                 | 'void'
                 | IDENT call_tail*
-                | 'new' IDENT '(' args? ')'
+                | new_expr
                 | '[' args? ']'           ; Array literal shape; Stage1 requires typed Array<T> context
                 | '%{' map_entries? '}'   ; Map literal (Stage‑2 sugar, gated)
                 | match_expr              ; Pattern matching (replaces legacy peek)
@@ -150,7 +150,7 @@ factor    := INT
            | check_expr
            | '(' expr ')'
            | '(' assignment_expr ')'  ; Stage‑3: grouped assignment as expression
-           | 'new' IDENT '(' args? ')'
+           | new_expr
            | record_literal
            | record_update
            | '[' args? ']'           ; Array literal shape; Stage1 requires typed Array<T> context
@@ -398,6 +398,25 @@ SSOT is:
 ```text
 docs/development/current/main/design/record-local-scalarization-ssot.md
 ```
+
+new_expr := 'new' IDENT type_args? ( '(' args? ')' )? box_init_block?
+box_init_block := '{' box_init_field (',' box_init_field)* ','? '}'
+box_init_field := IDENT ':' expr
+              ; BOX-INIT-001: explicit construction-site box field
+              ; initializers only. This is sugar for NewBox followed by
+              ; FieldSet in source order. It is not named constructor
+              ; arguments, record materialization, wildcard copy, or shorthand
+              ; field copy.
+
+Examples:
+
+```hako
+local report = new Report { accepted: 1, reason: 0 }
+local page = new Page(PageId(1)) { live: 1 }
+```
+
+Unmentioned fields keep declaration defaults / birth behavior. Duplicate field
+entries and unknown user-defined box fields fail-fast.
 
 Record with-update replaces selected fields without mutating the original
 record value:

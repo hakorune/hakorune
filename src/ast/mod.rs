@@ -671,6 +671,12 @@ pub enum ASTNode {
     New {
         class: String,
         arguments: Vec<ASTNode>,
+        /// Explicit box field initializers: `new Box { field: expr }`.
+        ///
+        /// This is source sugar for NewBox followed by explicit FieldSet
+        /// operations. It is not record materialization and does not create a
+        /// constructor overload.
+        field_initializers: Vec<(String, ASTNode)>,
         type_arguments: Vec<String>, // 🔥 ジェネリクス型引数 (例: ["IntegerBox", "StringBox"])
         span: Span,
     },

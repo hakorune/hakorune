@@ -241,19 +241,23 @@ impl NyashParser {
                             break;
                         }
                     }
-                    self.consume(TokenType::LPAREN)?;
                     let mut arguments = Vec::new();
-                    while !self.match_token(&TokenType::RPAREN) && !self.is_at_end() {
-                        crate::must_advance!(self, _unused, "new expression argument parsing");
-                        arguments.push(self.parse_expression()?);
-                        if self.match_token(&TokenType::COMMA) {
-                            self.advance();
+                    if self.match_token(&TokenType::LPAREN) {
+                        self.advance();
+                        while !self.match_token(&TokenType::RPAREN) && !self.is_at_end() {
+                            crate::must_advance!(self, _unused, "new expression argument parsing");
+                            arguments.push(self.parse_expression()?);
+                            if self.match_token(&TokenType::COMMA) {
+                                self.advance();
+                            }
                         }
+                        self.consume(TokenType::RPAREN)?;
                     }
-                    self.consume(TokenType::RPAREN)?;
+                    let field_initializers = self.parse_box_field_initializers()?;
                     Ok(ASTNode::New {
                         class,
                         arguments,
+                        field_initializers,
                         type_arguments,
                         span: Span::unknown(),
                     })
@@ -408,6 +412,35 @@ impl NyashParser {
                 Err(ParseError::InvalidExpression { line })
             }
         }
+    }
+
+    fn parse_box_field_initializers(&mut self) -> Result<Vec<(String, ASTNode)>, ParseError> {
+        let mut fields = Vec::new();
+        if !self.match_token(&TokenType::LBRACE) {
+            return Ok(fields);
+        }
+        self.advance();
+        while !self.match_token(&TokenType::RBRACE) && !self.is_at_end() {
+            let name = if let TokenType::IDENTIFIER(name) = &self.current_token().token_type {
+                let name = name.clone();
+                self.advance();
+                name
+            } else {
+                return Err(ParseError::UnexpectedToken {
+                    found: self.current_token().token_type.clone(),
+                    expected: "field name".to_string(),
+                    line: self.current_token().line,
+                });
+            };
+            self.consume(TokenType::COLON)?;
+            let expr = self.parse_expression()?;
+            fields.push((name, expr));
+            if self.match_token(&TokenType::COMMA) {
+                self.advance();
+            }
+        }
+        self.consume(TokenType::RBRACE)?;
+        Ok(fields)
     }
 
     fn parse_check_expr(&mut self) -> Result<ASTNode, ParseError> {

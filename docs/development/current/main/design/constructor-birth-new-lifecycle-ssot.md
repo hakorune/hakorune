@@ -23,6 +23,7 @@ birth:
 new:
   canonical construction surface
   positional args now
+  explicit per-construction field overrides now
   named args later
 
 reuse:
@@ -111,6 +112,75 @@ birth:
   owns fresh-object initialization only
   is not a reuse/reset surface
 ```
+
+## New-box field initializer block
+
+Decision: accepted for explicit field entries.
+
+The canonical object field-copy surface is:
+
+```hako
+local result = new Report {
+    accepted: fields.accepted
+    reason: fields.reason
+}
+
+return result
+```
+
+This is sugar for:
+
+```hako
+local result = new Report()
+result.accepted = fields.accepted
+result.reason = fields.reason
+return result
+```
+
+Rules:
+
+```text
+new Box { field: expr }:
+  constructs an ordinary box identity
+  then assigns the listed fields in source order
+  does not create a record value
+  does not call a named-argument constructor
+  does not open reflection or backend-specific lowering
+
+duplicate field:
+  fail-fast
+
+unknown field on a user-defined box:
+  fail-fast
+
+unmentioned fields:
+  keep declaration-site defaults / birth behavior
+```
+
+Stop lines:
+
+```text
+no wildcard copy (`fields.*`)
+no shorthand copy (`fields.accepted`) until BOX-INIT-002
+no named constructor arguments
+no constructor overload
+no record materialization
+no backend route or `.inc` owner-name matcher
+```
+
+Ordering with constructor lifecycle:
+
+```text
+allocate object identity
+run declaration-site field initializers
+run matching birth(args...)
+run new-box field initializer block assignments
+publish the object as usable expression result
+```
+
+This keeps declaration-site defaults / `birth` as the constructor lifecycle
+owner, while `new Box { field: expr }` remains an explicit post-construction
+field override at the construction site.
 
 ## Reuse is explicit
 
@@ -204,6 +274,8 @@ Current MVP:
 
 ```text
 new Box(positional_args...)
+new Box { field: expr }
+new Box(positional_args...) { field: expr }
 ```
 
 Later row:

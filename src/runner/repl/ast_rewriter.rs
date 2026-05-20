@@ -411,6 +411,7 @@ impl ReplAstRewriter {
             ASTNode::New {
                 class,
                 arguments,
+                field_initializers,
                 type_arguments,
                 span,
             } => ASTNode::New {
@@ -418,6 +419,10 @@ impl ReplAstRewriter {
                 arguments: arguments
                     .into_iter()
                     .map(|a| self.rewrite_node(a))
+                    .collect(),
+                field_initializers: field_initializers
+                    .into_iter()
+                    .map(|(name, expr)| (name, self.rewrite_node(expr)))
                     .collect(),
                 type_arguments,
                 span,

@@ -137,6 +137,48 @@ impl super::MirBuilder {
         self.fail_if_record_field_assignment_target(&object, &field)?;
         let object_value = self.build_expression(object)?;
         let object_value = self.local_field_base(object_value);
+        self.build_field_assignment_from_value(object_value, field, value)
+    }
+
+    pub(super) fn build_box_field_initializers(
+        &mut self,
+        object_value: ValueId,
+        class: &str,
+        field_initializers: Vec<(String, ASTNode)>,
+    ) -> Result<(), String> {
+        let mut seen = std::collections::BTreeSet::new();
+        for (field, value) in field_initializers {
+            if !seen.insert(field.clone()) {
+                return Err(format!(
+                    "[box-init/duplicate-field] class={} field={}",
+                    class, field
+                ));
+            }
+            if self.comp_ctx.user_defined_boxes.contains_key(class) {
+                let declared = self
+                    .comp_ctx
+                    .user_defined_boxes
+                    .get(class)
+                    .map(|fields| fields.iter().any(|name| name == &field))
+                    .unwrap_or(false);
+                if !declared {
+                    return Err(format!(
+                        "[box-init/unknown-field] class={} field={}",
+                        class, field
+                    ));
+                }
+            }
+            self.build_field_assignment_from_value(object_value, field, value)?;
+        }
+        Ok(())
+    }
+
+    fn build_field_assignment_from_value(
+        &mut self,
+        object_value: ValueId,
+        field: String,
+        value: ASTNode,
+    ) -> Result<ValueId, String> {
         let mut value_result = self.build_expression(value)?;
         // LocalSSA: argument in-block (optional safety)
         value_result = self.local_arg(value_result);
