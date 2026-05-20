@@ -1,0 +1,122 @@
+// hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-applied-state-summary-diagnostics-proof
+// Purpose: prove MIMAP-309A modeled release/recycle applied-state summary diagnostics.
+
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_applied_recycle_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycle
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_lifecycle_continuation_bridge_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridge
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_continuation_application_bridge_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridge
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_applied_state_summary_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummary
+using selfhost.hako_alloc.memory.segment_arena_backing_modeled_allocation_ledger_release_recycle_applied_state_summary_diagnostic_box as HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummaryDiagnostic
+
+static box Main {
+    makeRecycleReport(segment_id: i64, arena_id: i64, recycle_token: i64): HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleReport {
+        local report = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseAppliedRecycleReport()
+        report.accepted = 1
+        report.reason = 0
+        report.release_applied_recycle_present = 1
+        report.modeled_release_applied_recycle_present = 1
+        report.row_index = 1
+        report.segment_id = segment_id
+        report.arena_id = arena_id
+        report.lifetime_generation = 3
+        report.release_apply_token = 96019005005
+        report.release_applied_recycle_token = recycle_token
+        report.applied_backing_bytes = 4096
+        report.applied_committed_bytes = 4096
+        report.remaining_source_bytes = 8192
+        return report
+    }
+
+    main(args) {
+        local continuation_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleLifecycleContinuationBridgeInventory()
+        local application_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleContinuationApplicationBridgeInventory()
+        local summary_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummaryInventory()
+        local diagnostics = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummaryDiagnostic()
+        local recycle_report = Main.makeRecycleReport(190, 19, 97019005005)
+
+        local continued = continuation_inventory.recordLifecycleContinuation(recycle_report, 98019005005)
+        local applied = application_inventory.recordContinuationApplication(continued, 99019005005)
+        local summary = summary_inventory.summarizeAppliedState(applied)
+
+        local diag = diagnostics.observeAppliedStateSummary(summary_inventory, summary)
+        local empty_inventory = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummaryInventory()
+        local empty = diagnostics.observeAppliedStateSummary(empty_inventory, summary)
+        local missing_summary = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummaryReport()
+        missing_summary.applied_state_summary_present = 0
+        local missing = diagnostics.observeAppliedStateSummary(summary_inventory, missing_summary)
+        local rejected_application = application_inventory.recordContinuationApplication(continued, 0)
+        local rejected_summary = summary_inventory.summarizeAppliedState(rejected_application)
+        local rejected = diagnostics.observeAppliedStateSummary(summary_inventory, rejected_summary)
+        local invalid_token = new HakoAllocSegmentArenaBackingModeledAllocationLedgerReleaseRecycleAppliedStateSummaryReport()
+        invalid_token.applied_state_summary_present = 1
+        invalid_token.summarized = 1
+        invalid_token.reason = 0
+        invalid_token.application_token = 0
+        local invalid = diagnostics.observeAppliedStateSummary(summary_inventory, invalid_token)
+
+        local ok = check "mimap309a segment arena backing modeled allocation ledger release recycle applied state summary diagnostics" {
+            "observed": diag.observed == 1
+            "reason": diag.reason == 0
+            "diagnostic present": diag.diagnostic_present == 1
+            "summary summarized": diag.summary_summarized == 1
+            "summary reason": diag.summary_reason == 0
+            "existing index": diag.existing_index == 1
+            "report segment": diag.report_segment_id == 190
+            "report arena": diag.report_arena_id == 19
+            "report lifetime": diag.report_lifetime_generation == 3
+            "report recycle token": diag.report_release_applied_recycle_token == 97019005005
+            "report continuation token": diag.report_continuation_token == 98019005005
+            "report application token": diag.report_application_token == 99019005005
+            "report applied backing": diag.report_applied_backing_bytes == 4096
+            "report applied committed": diag.report_applied_committed_bytes == 4096
+            "report remaining source": diag.report_remaining_source_bytes == 8192
+            "ready": diag.report_applied_state_ready == 1
+            "summary inventory observe": diag.observe_count == 1
+            "summary inventory accepted": diag.accepted_summary_count == 1
+            "summary inventory rejected": diag.rejected_summary_count == 0
+            "owner observe": diagnostics.observe_count == 5
+            "owner accepted": diagnostics.accepted_summary_count == 1
+            "owner rejected": diagnostics.rejected_summary_count == 4
+            "owner missing inventory": diagnostics.missing_inventory_reject_count == 1
+            "owner missing summary": diagnostics.missing_summary_reject_count == 1
+            "owner rejected summary": diagnostics.rejected_summary_observe_count == 1
+            "owner missing token": diagnostics.missing_token_reject_count == 1
+            "empty reject": empty.observed == 0
+            "empty reason": empty.reason == 1
+            "missing reject": missing.observed == 0
+            "missing reason": missing.reason == 2
+            "rejected observed": rejected.observed == 1
+            "rejected reason": rejected.reason == 3
+            "rejected summary reason": rejected.summary_reason == 2
+            "invalid observed": invalid.observed == 0
+            "invalid reason": invalid.reason == 4
+            "inactive lifecycle": diag.would_create_lifecycle_generation == 0
+            "inactive residence": diag.would_create_pointer_residence == 0
+            "inactive lookup": diag.would_lookup_by_pointer == 0
+            "inactive release": diag.would_release_arena_backing == 0
+            "inactive recycle": diag.would_recycle_arena_backing == 0
+            "inactive segment map": diag.would_use_segment_map == 0
+            "inactive atomic": diag.would_execute_atomic_bitmap == 0
+            "inactive osvm": diag.would_call_osvm == 0
+            "inactive thread": diag.would_run_thread == 0
+            "inactive provider": diag.would_activate_provider == 0
+            "inactive matcher": diag.would_add_backend_matcher == 0
+        }
+
+        print("hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-applied-state-summary-diagnostics-proof")
+        print("diag=" + diag.observed + "," + diag.reason + "," + diag.summary_summarized + "," + diag.summary_reason + "," + diag.existing_index + "," + diag.report_continuation_token + "," + diag.report_application_token)
+        print("bytes=" + diag.report_applied_backing_bytes + "," + diag.report_applied_committed_bytes + "," + diag.report_remaining_source_bytes)
+        print("summary-counts=" + diag.observe_count + "," + diag.accepted_summary_count + "," + diag.rejected_summary_count + "," + diag.missing_application_reject_count + "," + diag.rejected_application_reject_count + "," + diag.invalid_token_reject_count + "," + diag.closed_substrate_reject_count)
+        print("owner=" + diagnostics.observe_count + "," + diagnostics.accepted_summary_count + "," + diagnostics.rejected_summary_count + "," + diagnostics.missing_inventory_reject_count + "," + diagnostics.missing_summary_reject_count + "," + diagnostics.rejected_summary_observe_count + "," + diagnostics.missing_token_reject_count + "," + diagnostics.last_reason)
+        print("rejected=" + empty.observed + "," + empty.reason + "," + missing.observed + "," + missing.reason + "," + rejected.observed + "," + rejected.reason + "," + rejected.summary_reason + "," + invalid.observed + "," + invalid.reason)
+        print("inactive=" + diag.would_create_lifecycle_generation + "," + diag.would_create_pointer_residence + "," + diag.would_lookup_by_pointer + "," + diag.would_release_arena_backing + "," + diag.would_recycle_arena_backing + "," + diag.would_use_segment_map + "," + diag.would_execute_atomic_bitmap + "," + diag.would_call_osvm + "," + diag.would_run_thread + "," + diag.would_activate_provider + "," + diag.would_add_backend_matcher)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

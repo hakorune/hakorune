@@ -1,24 +1,25 @@
-# 293x-924 MIMAP-309A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Applied-State Summary Diagnostics
+# 293x-925 MIMAP-310A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Applied-State Summary Closeout
 
-Status: landed
+Status: selected current
 Date: 2026-05-20
 
 ## Decision
 
-Select a scalar/model applied-state summary diagnostics row after MIMAP-308A.
+Select a closeout pack after MIMAP-308A applied-state summary inventory and
+MIMAP-309A applied-state summary diagnostics.
 
 ## Context
 
-MIMAP-308A publishes compact release/recycle applied-state summary facts from
-an accepted MIMAP-304A continuation application report. MIMAP-309A should
-observe those summary facts and publish diagnostic counters before any closeout
-pack or real arena backing release/recycle execution opens.
+MIMAP-308A publishes compact scalar/model release/recycle applied-state summary
+facts. MIMAP-309A observes those facts and publishes diagnostics. MIMAP-310A
+should close the pair with representative evidence before selecting the next
+narrow allocator row.
 
 ## Scope
 
-- Add one observer-only diagnostics owner, proof app, and L2 guard.
-- Consume MIMAP-308A summary report facts.
-- Publish accepted / rejected / missing summary diagnostic facts.
+- Re-run the MIMAP-308A inventory guard at L2.
+- Re-run the MIMAP-309A diagnostics guard at L2.
+- Add the representative closeout proof/guard evidence required by the row.
 - Keep all real execution and provider routes closed.
 
 ## Stop Lines
@@ -41,20 +42,8 @@ pack or real arena backing release/recycle execution opens.
 ## Required Evidence
 
 ```text
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_applied_state_summary_guard.sh --level L2
 bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_applied_state_summary_diagnostics_guard.sh --level L2
-bash tools/checks/run_proof_app.sh --only MIMAP-309A
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
-```
-
-## Result
-
-Landed the observer-only diagnostics owner, proof app, and L2 guard for the
-MIMAP-308A release/recycle applied-state summary.
-
-Selected next:
-
-```text
-MIMAP-310A Segment arena backing modeled allocation-ledger release/recycle
-applied-state summary closeout pack
 ```
