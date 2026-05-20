@@ -1,6 +1,6 @@
 # 293x-1034 MIMAP-412A Real External Provider API Adapter Execution Preflight Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -48,3 +48,11 @@ bash tools/checks/k2_wide_hako_alloc_real_external_provider_api_adapter_executio
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Landed Evidence
+
+- Added the MIMAP-412A closeout SSOT.
+- Added the closeout guard that reuses MIMAP-410A L2 evidence.
+- Kept actual external provider API execution, host replacement, hooks, backend
+  matcher additions, worker/thread execution, and global allocator install
+  closed.
