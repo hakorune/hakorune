@@ -1,23 +1,25 @@
-# 293x-989 MIMAP-373A Post Provider Activation Unsupported Outcome Closeout Row Selection
+# 293x-991 MIMAP-375A Post Provider Activation Explicit-Input Contract Row Selection
 
-Status: landed
+Status: selected current
 Date: 2026-05-21
 
 ## Decision
 
-Select the next narrow allocator row after provider activation unsupported
-outcome closeout. A provider activation first-pattern row may now be planned,
-but actual provider activation still requires explicit first-pattern evidence.
+Select the next narrow allocator row after provider activation explicit-input
+contract. The next row may plan activation first-pattern evidence, but provider
+activation still remains closed until an explicit first-pattern behavior row
+opens it.
 
 ## Candidate Next Rows
 
 - provider activation first-pattern evidence plan
-- provider activation explicit-input contract
+- provider activation input bundle inventory
 - host allocator replacement / hooks optional-ladder planning
 
 ## Stop Lines
 
 - No provider activation or provider calls until an explicit first-pattern row.
+- No hidden env, implicit discovery, or process-global activation config.
 - No host allocator replacement, hooks, or `#[global_allocator]`.
 - No backend `.inc` matcher by app, box, owner, or row name.
 - No source-level worker-local or concurrency surface.
@@ -29,7 +31,3 @@ but actual provider activation still requires explicit first-pattern evidence.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
-
-## Result
-
-Selected MIMAP-374A provider activation explicit-input contract.

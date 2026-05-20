@@ -29,7 +29,7 @@ guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list
 for card in "$CARD_368A" "$CARD_370A" "$CARD_371A" "$CARD"; do
   guard_expect_in_file "$TAG" 'Status: landed' "$card" "$card must be landed"
 done
-guard_expect_in_file "$TAG" 'Status: selected current' "$NEXT_CARD" "MIMAP-373A must be selected current"
+guard_expect_in_file "$TAG" 'Status: (selected current|landed)' "$NEXT_CARD" "MIMAP-373A must be selected current or landed"
 
 guard_expect_in_file "$TAG" 'id = "MIMAP-370A"' "$PROOF_MANIFEST_INCLUDE" "proof manifest must list MIMAP-370A"
 guard_expect_in_file "$TAG" 'closeout_pack = "provider-activation-unsupported-outcome"' "$PROOF_MANIFEST_INCLUDE" "MIMAP-370A must be assigned to unsupported outcome closeout pack"
