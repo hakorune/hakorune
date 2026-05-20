@@ -794,7 +794,8 @@ FST:
 | `MIMAP-318A` | landed | Segment arena backing modeled allocation-ledger release/recycle execution intent marker closeout pack. | selected MIMAP-319A |
 | `MIMAP-319A` | landed | Post release/recycle execution intent marker closeout row selection. | selected MIMAP-320A |
 | `MIMAP-320A` | landed | Segment arena backing modeled allocation-ledger release/recycle execution unsupported outcome ledger. | selected MIMAP-321A |
-| `MIMAP-321A` | selected current | Segment arena backing modeled allocation-ledger release/recycle execution unsupported outcome ledger diagnostics. | after MIMAP-320A |
+| `MIMAP-321A` | landed | Segment arena backing modeled allocation-ledger release/recycle execution unsupported outcome ledger diagnostics. | selected MIMAP-322A |
+| `MIMAP-322A` | selected current | Segment arena backing modeled allocation-ledger release/recycle execution unsupported outcome ledger closeout pack. | after MIMAP-321A |
 
 Joint Hakorune / mimalloc ordering:
 
@@ -803,8 +804,8 @@ docs/development/current/main/design/mimalloc-hakorune-joint-task-order-ssot.md
 ```
 
 Current row:
-`MIMAP-321A` adds observer-only diagnostics for the model-only unsupported
-release/recycle execution outcome ledger.
+`MIMAP-322A` closes out the model-only unsupported release/recycle execution
+outcome ledger and diagnostics pair.
 
 SSOT:
 
@@ -842,6 +843,7 @@ docs/development/current/main/phases/phase-293x/293x-933-MIMAP-318A-SEGMENT-AREN
 docs/development/current/main/phases/phase-293x/293x-934-MIMAP-319A-POST-RELEASE-RECYCLE-EXECUTION-INTENT-MARKER-CLOSEOUT-ROW-SELECTION.md
 docs/development/current/main/phases/phase-293x/293x-935-MIMAP-320A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-UNSUPPORTED-OUTCOME-LEDGER.md
 docs/development/current/main/phases/phase-293x/293x-936-MIMAP-321A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-UNSUPPORTED-OUTCOME-LEDGER-DIAGNOSTICS.md
+docs/development/current/main/phases/phase-293x/293x-937-MIMAP-322A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-EXECUTION-UNSUPPORTED-OUTCOME-LEDGER-CLOSEOUT.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-diagnostics-ssot.md
@@ -863,6 +865,7 @@ docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-al
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-intent-marker-diagnostics-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-intent-marker-closeout-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-unsupported-outcome-ledger-ssot.md
+docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-unsupported-outcome-ledger-diagnostics-ssot.md
 docs/development/current/main/design/hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-continuation-application-bridge-closeout-ssot.md
 ```
 
