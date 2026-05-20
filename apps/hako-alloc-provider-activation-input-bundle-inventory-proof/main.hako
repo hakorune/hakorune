@@ -1,0 +1,130 @@
+// hako-alloc-provider-activation-input-bundle-inventory-proof
+// Purpose: prove MIMAP-376A provider activation input bundle inventory.
+
+using selfhost.hako_alloc.memory.provider_activation_unsupported_outcome_ledger_box as HakoAllocProviderActivationUnsupportedOutcomeLedger
+using selfhost.hako_alloc.memory.provider_activation_input_bundle_inventory_box as HakoAllocProviderActivationInputBundleInventory
+
+static box Main {
+    makeOutcome(): HakoAllocProviderActivationUnsupportedOutcomeLedgerReport {
+        local report = new HakoAllocProviderActivationUnsupportedOutcomeLedgerReport()
+        report.accepted = 1
+        report.reason = 0
+        report.outcome_present = 1
+        report.selection_present = 1
+        report.selection_accepted = 1
+        report.selection_reason = 0
+        report.provider_candidate_token = 99019005201
+        report.provider_candidate_token_valid = 1
+        report.provider_kind = 1
+        report.provider_kind_valid = 1
+        report.provider_activation_unsupported = 1
+        report.provider_activation_inactive = 1
+        report.host_replacement_inactive = 1
+        report.hooks_inactive = 1
+        report.backend_matcher_inactive = 1
+        report.would_activate_provider = 0
+        report.would_call_provider = 0
+        report.would_replace_host_allocator = 0
+        report.would_install_hook = 0
+        report.would_add_backend_matcher = 0
+        report.would_run_thread = 0
+        return report
+    }
+
+    main(args) {
+        local owner = new HakoAllocProviderActivationInputBundleInventory()
+        local outcome = Main.makeOutcome()
+        local bundle = owner.inventoryProviderActivationInputBundle(outcome, 99019005301, 1)
+
+        local missing_outcome = new HakoAllocProviderActivationUnsupportedOutcomeLedgerReport()
+        local missing = owner.inventoryProviderActivationInputBundle(missing_outcome, 99019005302, 1)
+
+        local rejected_outcome = Main.makeOutcome()
+        rejected_outcome.accepted = 0
+        rejected_outcome.reason = 2
+        local rejected = owner.inventoryProviderActivationInputBundle(rejected_outcome, 99019005303, 1)
+
+        local invalid_candidate_outcome = Main.makeOutcome()
+        invalid_candidate_outcome.provider_candidate_token_valid = 0
+        local invalid_candidate = owner.inventoryProviderActivationInputBundle(invalid_candidate_outcome, 99019005304, 1)
+
+        local invalid_kind_outcome = Main.makeOutcome()
+        invalid_kind_outcome.provider_kind_valid = 0
+        local invalid_kind = owner.inventoryProviderActivationInputBundle(invalid_kind_outcome, 99019005305, 1)
+
+        local invalid_request = owner.inventoryProviderActivationInputBundle(outcome, 0, 1)
+        local invalid_mode = owner.inventoryProviderActivationInputBundle(outcome, 99019005306, 0)
+
+        local unsupported_evidence_outcome = Main.makeOutcome()
+        unsupported_evidence_outcome.provider_activation_unsupported = 0
+        local unsupported_evidence = owner.inventoryProviderActivationInputBundle(unsupported_evidence_outcome, 99019005307, 1)
+
+        local closed_execution_outcome = Main.makeOutcome()
+        closed_execution_outcome.would_activate_provider = 1
+        local closed_execution = owner.inventoryProviderActivationInputBundle(closed_execution_outcome, 99019005308, 1)
+
+        local ok = check "mimap376a provider activation input bundle inventory" {
+            "bundle accepted": bundle.accepted == 1
+            "bundle reason": bundle.reason == 0
+            "bundle present": bundle.bundle_present == 1
+            "explicit input": bundle.explicit_input_present == 1
+            "request token": bundle.activation_request_token == 99019005301
+            "request valid": bundle.activation_request_token_valid == 1
+            "mode valid": bundle.activation_mode_valid == 1
+            "outcome present": bundle.outcome_present == 1
+            "outcome accepted": bundle.outcome_accepted == 1
+            "outcome reason": bundle.outcome_reason == 0
+            "candidate": bundle.provider_candidate_token == 99019005201
+            "candidate valid": bundle.provider_candidate_token_valid == 1
+            "kind": bundle.provider_kind == 1
+            "kind valid": bundle.provider_kind_valid == 1
+            "unsupported": bundle.provider_activation_unsupported == 1
+            "activation inactive": bundle.provider_activation_inactive == 1
+            "host inactive": bundle.host_replacement_inactive == 1
+            "hooks inactive": bundle.hooks_inactive == 1
+            "matcher inactive": bundle.backend_matcher_inactive == 1
+            "owner count": owner.bundle_count == 9
+            "owner accepted": owner.accepted_count == 1
+            "owner rejected": owner.reject_count == 8
+            "owner missing": owner.missing_outcome_reject_count == 1
+            "owner rejected outcome": owner.rejected_outcome_reject_count == 1
+            "owner invalid candidate": owner.invalid_candidate_reject_count == 1
+            "owner invalid kind": owner.invalid_kind_reject_count == 1
+            "owner invalid request": owner.invalid_request_token_reject_count == 1
+            "owner invalid mode": owner.invalid_mode_reject_count == 1
+            "owner unsupported evidence": owner.unsupported_evidence_reject_count == 1
+            "owner closed execution": owner.closed_execution_reject_count == 1
+            "last reason": owner.last_reason == 8
+            "missing reason": missing.reason == 1
+            "rejected reason": rejected.reason == 2
+            "invalid candidate reason": invalid_candidate.reason == 3
+            "invalid kind reason": invalid_kind.reason == 4
+            "invalid request reason": invalid_request.reason == 5
+            "invalid mode reason": invalid_mode.reason == 6
+            "unsupported evidence reason": unsupported_evidence.reason == 7
+            "closed execution reason": closed_execution.reason == 8
+            "would activate": bundle.would_activate_provider == 0
+            "would call provider": bundle.would_call_provider == 0
+            "would host": bundle.would_replace_host_allocator == 0
+            "would hook": bundle.would_install_hook == 0
+            "would matcher": bundle.would_add_backend_matcher == 0
+            "would thread": bundle.would_run_thread == 0
+        }
+
+        print("hako-alloc-provider-activation-input-bundle-inventory-proof")
+        print("bundle=" + bundle.accepted + "," + bundle.reason + "," + bundle.bundle_present + "," + bundle.explicit_input_present + "," + bundle.activation_request_token + "," + bundle.activation_request_token_valid + "," + bundle.activation_mode_valid)
+        print("outcome=" + bundle.outcome_present + "," + bundle.outcome_accepted + "," + bundle.outcome_reason + "," + bundle.provider_candidate_token + "," + bundle.provider_candidate_token_valid + "," + bundle.provider_kind + "," + bundle.provider_kind_valid)
+        print("owner=" + owner.bundle_count + "," + owner.accepted_count + "," + owner.reject_count + "," + owner.missing_outcome_reject_count + "," + owner.rejected_outcome_reject_count + "," + owner.invalid_candidate_reject_count + "," + owner.invalid_kind_reject_count + "," + owner.invalid_request_token_reject_count + "," + owner.invalid_mode_reject_count + "," + owner.unsupported_evidence_reject_count + "," + owner.closed_execution_reject_count + "," + owner.last_reason)
+        print("inactive=" + bundle.provider_activation_unsupported + "," + bundle.provider_activation_inactive + "," + bundle.host_replacement_inactive + "," + bundle.hooks_inactive + "," + bundle.backend_matcher_inactive + "," + bundle.would_activate_provider + "," + bundle.would_call_provider + "," + bundle.would_replace_host_allocator + "," + bundle.would_install_hook + "," + bundle.would_add_backend_matcher + "," + bundle.would_run_thread)
+        print("rejected=" + missing.reason + "," + rejected.reason + "," + invalid_candidate.reason + "," + invalid_kind.reason + "," + invalid_request.reason + "," + invalid_mode.reason + "," + unsupported_evidence.reason + "," + closed_execution.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}

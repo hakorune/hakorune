@@ -1,6 +1,6 @@
 # 293x-996 BOX-INIT-005 Post Support/Provider Report Initializer Row Selection
 
-Status: current
+Status: landed
 Date: 2026-05-21
 
 ## Purpose
@@ -39,3 +39,19 @@ Prefer Candidate B unless there is an obvious low-risk cluster. Do not add
 same-name shorthand or wildcard copy for line-count reduction; explicit
 initializer blocks are here to make construction boundaries and field-set
 contracts visible.
+
+## Decision
+
+Park the syntax cleanup. Keep same-name shorthand, wildcard copy, spread copy,
+and constructor named arguments closed, and return to the allocator/provider
+lane.
+
+Next selected row:
+
+```text
+MIMAP-376A Provider Activation Input Bundle Inventory
+```
+
+Provider activation, provider calls, host allocator replacement, hooks,
+`#[global_allocator]`, backend matcher additions, worker scheduling, and source
+concurrency remain closed.

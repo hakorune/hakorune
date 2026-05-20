@@ -1,0 +1,293 @@
+// provider_activation_input_bundle_inventory_box.hako -- MIMAP-376A
+// Responsibility:
+// - inventory explicit provider activation input bundles after an accepted
+//   unsupported-outcome ledger report
+// - keep provider activation closed
+// Non-responsibility:
+// - provider activation, provider API calls, host allocator replacement, hooks,
+//   global allocator install, backend matchers, worker/TLS, or thread execution
+
+using selfhost.hako_alloc.memory.provider_activation_unsupported_outcome_ledger_box as HakoAllocProviderActivationUnsupportedOutcomeLedger
+
+record HakoAllocProviderActivationInputBundleInventoryReportFields {
+    accepted: i64
+    reason: i64
+    bundle_present: i64
+    outcome_present: i64
+    outcome_accepted: i64
+    outcome_reason: i64
+    provider_candidate_token: i64
+    provider_candidate_token_valid: i64
+    provider_kind: i64
+    provider_kind_valid: i64
+    activation_request_token: i64
+    activation_request_token_valid: i64
+    activation_mode: i64
+    activation_mode_valid: i64
+    explicit_input_present: i64
+    provider_activation_unsupported: i64
+    provider_activation_inactive: i64
+    host_replacement_inactive: i64
+    hooks_inactive: i64
+    backend_matcher_inactive: i64
+    bundle_count: i64
+    accepted_count: i64
+    reject_count: i64
+    missing_outcome_reject_count: i64
+    rejected_outcome_reject_count: i64
+    invalid_candidate_reject_count: i64
+    invalid_kind_reject_count: i64
+    invalid_request_token_reject_count: i64
+    invalid_mode_reject_count: i64
+    unsupported_evidence_reject_count: i64
+    closed_execution_reject_count: i64
+    last_reason: i64
+    would_activate_provider: i64
+    would_call_provider: i64
+    would_replace_host_allocator: i64
+    would_install_hook: i64
+    would_add_backend_matcher: i64
+    would_run_thread: i64
+}
+
+box HakoAllocProviderActivationInputBundleInventoryReport {
+    accepted: i64 = 0
+    reason: i64 = 0
+    bundle_present: i64 = 0
+    outcome_present: i64 = 0
+    outcome_accepted: i64 = 0
+    outcome_reason: i64 = 0
+    provider_candidate_token: i64 = 0
+    provider_candidate_token_valid: i64 = 0
+    provider_kind: i64 = 0
+    provider_kind_valid: i64 = 0
+    activation_request_token: i64 = 0
+    activation_request_token_valid: i64 = 0
+    activation_mode: i64 = 0
+    activation_mode_valid: i64 = 0
+    explicit_input_present: i64 = 0
+    provider_activation_unsupported: i64 = 1
+    provider_activation_inactive: i64 = 1
+    host_replacement_inactive: i64 = 1
+    hooks_inactive: i64 = 1
+    backend_matcher_inactive: i64 = 1
+    bundle_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_outcome_reject_count: i64 = 0
+    rejected_outcome_reject_count: i64 = 0
+    invalid_candidate_reject_count: i64 = 0
+    invalid_kind_reject_count: i64 = 0
+    invalid_request_token_reject_count: i64 = 0
+    invalid_mode_reject_count: i64 = 0
+    unsupported_evidence_reject_count: i64 = 0
+    closed_execution_reject_count: i64 = 0
+    last_reason: i64 = 0
+    would_activate_provider: i64 = 0
+    would_call_provider: i64 = 0
+    would_replace_host_allocator: i64 = 0
+    would_install_hook: i64 = 0
+    would_add_backend_matcher: i64 = 0
+    would_run_thread: i64 = 0
+}
+
+box HakoAllocProviderActivationInputBundleInventory {
+    bundle_count: i64 = 0
+    accepted_count: i64 = 0
+    reject_count: i64 = 0
+    missing_outcome_reject_count: i64 = 0
+    rejected_outcome_reject_count: i64 = 0
+    invalid_candidate_reject_count: i64 = 0
+    invalid_kind_reject_count: i64 = 0
+    invalid_request_token_reject_count: i64 = 0
+    invalid_mode_reject_count: i64 = 0
+    unsupported_evidence_reject_count: i64 = 0
+    closed_execution_reject_count: i64 = 0
+    last_reason: i64 = 0
+
+    makeProviderActivationInputBundleInventoryReport(fields: HakoAllocProviderActivationInputBundleInventoryReportFields): HakoAllocProviderActivationInputBundleInventoryReport {
+        local result = new HakoAllocProviderActivationInputBundleInventoryReport {
+            accepted: fields.accepted,
+            reason: fields.reason,
+            bundle_present: fields.bundle_present,
+            outcome_present: fields.outcome_present,
+            outcome_accepted: fields.outcome_accepted,
+            outcome_reason: fields.outcome_reason,
+            provider_candidate_token: fields.provider_candidate_token,
+            provider_candidate_token_valid: fields.provider_candidate_token_valid,
+            provider_kind: fields.provider_kind,
+            provider_kind_valid: fields.provider_kind_valid,
+            activation_request_token: fields.activation_request_token,
+            activation_request_token_valid: fields.activation_request_token_valid,
+            activation_mode: fields.activation_mode,
+            activation_mode_valid: fields.activation_mode_valid,
+            explicit_input_present: fields.explicit_input_present,
+            provider_activation_unsupported: fields.provider_activation_unsupported,
+            provider_activation_inactive: fields.provider_activation_inactive,
+            host_replacement_inactive: fields.host_replacement_inactive,
+            hooks_inactive: fields.hooks_inactive,
+            backend_matcher_inactive: fields.backend_matcher_inactive,
+            bundle_count: fields.bundle_count,
+            accepted_count: fields.accepted_count,
+            reject_count: fields.reject_count,
+            missing_outcome_reject_count: fields.missing_outcome_reject_count,
+            rejected_outcome_reject_count: fields.rejected_outcome_reject_count,
+            invalid_candidate_reject_count: fields.invalid_candidate_reject_count,
+            invalid_kind_reject_count: fields.invalid_kind_reject_count,
+            invalid_request_token_reject_count: fields.invalid_request_token_reject_count,
+            invalid_mode_reject_count: fields.invalid_mode_reject_count,
+            unsupported_evidence_reject_count: fields.unsupported_evidence_reject_count,
+            closed_execution_reject_count: fields.closed_execution_reject_count,
+            last_reason: fields.last_reason,
+            would_activate_provider: fields.would_activate_provider,
+            would_call_provider: fields.would_call_provider,
+            would_replace_host_allocator: fields.would_replace_host_allocator,
+            would_install_hook: fields.would_install_hook,
+            would_add_backend_matcher: fields.would_add_backend_matcher,
+            would_run_thread: fields.would_run_thread
+        }
+        return result
+    }
+
+    makeReport(accepted, reason, outcome: HakoAllocProviderActivationUnsupportedOutcomeLedgerReport, activation_request_token, activation_mode): HakoAllocProviderActivationInputBundleInventoryReport {
+        local request_valid = 0
+        if activation_request_token > 0 {
+            request_valid = 1
+        }
+        local mode_valid = 0
+        if activation_mode > 0 {
+            mode_valid = 1
+        }
+
+        local fields = HakoAllocProviderActivationInputBundleInventoryReportFields {
+            accepted: accepted,
+            reason: reason,
+            bundle_present: accepted,
+            outcome_present: outcome.outcome_present,
+            outcome_accepted: outcome.accepted,
+            outcome_reason: outcome.reason,
+            provider_candidate_token: outcome.provider_candidate_token,
+            provider_candidate_token_valid: outcome.provider_candidate_token_valid,
+            provider_kind: outcome.provider_kind,
+            provider_kind_valid: outcome.provider_kind_valid,
+            activation_request_token: activation_request_token,
+            activation_request_token_valid: request_valid,
+            activation_mode: activation_mode,
+            activation_mode_valid: mode_valid,
+            explicit_input_present: accepted,
+            provider_activation_unsupported: outcome.provider_activation_unsupported,
+            provider_activation_inactive: outcome.provider_activation_inactive,
+            host_replacement_inactive: outcome.host_replacement_inactive,
+            hooks_inactive: outcome.hooks_inactive,
+            backend_matcher_inactive: outcome.backend_matcher_inactive,
+            bundle_count: me.bundle_count,
+            accepted_count: me.accepted_count,
+            reject_count: me.reject_count,
+            missing_outcome_reject_count: me.missing_outcome_reject_count,
+            rejected_outcome_reject_count: me.rejected_outcome_reject_count,
+            invalid_candidate_reject_count: me.invalid_candidate_reject_count,
+            invalid_kind_reject_count: me.invalid_kind_reject_count,
+            invalid_request_token_reject_count: me.invalid_request_token_reject_count,
+            invalid_mode_reject_count: me.invalid_mode_reject_count,
+            unsupported_evidence_reject_count: me.unsupported_evidence_reject_count,
+            closed_execution_reject_count: me.closed_execution_reject_count,
+            last_reason: me.last_reason,
+            would_activate_provider: 0,
+            would_call_provider: 0,
+            would_replace_host_allocator: 0,
+            would_install_hook: 0,
+            would_add_backend_matcher: 0,
+            would_run_thread: 0
+        }
+        return me.makeProviderActivationInputBundleInventoryReport(fields)
+    }
+
+    reject(reason, outcome: HakoAllocProviderActivationUnsupportedOutcomeLedgerReport, activation_request_token, activation_mode): HakoAllocProviderActivationInputBundleInventoryReport {
+        me.reject_count += 1
+        me.last_reason = reason
+        if reason == 1 {
+            me.missing_outcome_reject_count += 1
+        }
+        if reason == 2 {
+            me.rejected_outcome_reject_count += 1
+        }
+        if reason == 3 {
+            me.invalid_candidate_reject_count += 1
+        }
+        if reason == 4 {
+            me.invalid_kind_reject_count += 1
+        }
+        if reason == 5 {
+            me.invalid_request_token_reject_count += 1
+        }
+        if reason == 6 {
+            me.invalid_mode_reject_count += 1
+        }
+        if reason == 7 {
+            me.unsupported_evidence_reject_count += 1
+        }
+        if reason == 8 {
+            me.closed_execution_reject_count += 1
+        }
+        return me.makeReport(0, reason, outcome, activation_request_token, activation_mode)
+    }
+
+    inventoryProviderActivationInputBundle(outcome: HakoAllocProviderActivationUnsupportedOutcomeLedgerReport, activation_request_token, activation_mode): HakoAllocProviderActivationInputBundleInventoryReport {
+        me.bundle_count += 1
+        if outcome.outcome_present != 1 {
+            return me.reject(1, outcome, activation_request_token, activation_mode)
+        }
+        if outcome.accepted != 1 {
+            return me.reject(2, outcome, activation_request_token, activation_mode)
+        }
+        if outcome.provider_candidate_token_valid != 1 {
+            return me.reject(3, outcome, activation_request_token, activation_mode)
+        }
+        if outcome.provider_kind_valid != 1 {
+            return me.reject(4, outcome, activation_request_token, activation_mode)
+        }
+        if activation_request_token <= 0 {
+            return me.reject(5, outcome, activation_request_token, activation_mode)
+        }
+        if activation_mode <= 0 {
+            return me.reject(6, outcome, activation_request_token, activation_mode)
+        }
+        if outcome.provider_activation_unsupported != 1 {
+            return me.reject(7, outcome, activation_request_token, activation_mode)
+        }
+        if outcome.provider_activation_inactive != 1 {
+            return me.reject(7, outcome, activation_request_token, activation_mode)
+        }
+        if outcome.host_replacement_inactive != 1 {
+            return me.reject(8, outcome, activation_request_token, activation_mode)
+        }
+        if outcome.hooks_inactive != 1 {
+            return me.reject(8, outcome, activation_request_token, activation_mode)
+        }
+        if outcome.backend_matcher_inactive != 1 {
+            return me.reject(8, outcome, activation_request_token, activation_mode)
+        }
+        if outcome.would_activate_provider != 0 {
+            return me.reject(8, outcome, activation_request_token, activation_mode)
+        }
+        if outcome.would_call_provider != 0 {
+            return me.reject(8, outcome, activation_request_token, activation_mode)
+        }
+        if outcome.would_replace_host_allocator != 0 {
+            return me.reject(8, outcome, activation_request_token, activation_mode)
+        }
+        if outcome.would_install_hook != 0 {
+            return me.reject(8, outcome, activation_request_token, activation_mode)
+        }
+        if outcome.would_add_backend_matcher != 0 {
+            return me.reject(8, outcome, activation_request_token, activation_mode)
+        }
+        if outcome.would_run_thread != 0 {
+            return me.reject(8, outcome, activation_request_token, activation_mode)
+        }
+
+        me.accepted_count += 1
+        me.last_reason = 0
+        return me.makeReport(1, 0, outcome, activation_request_token, activation_mode)
+    }
+}

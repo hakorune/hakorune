@@ -484,6 +484,11 @@ Syntax/style contract
   accepted provider selection inventory. It must not activate provider
   behavior, call provider APIs, install hooks, replace the host allocator, run
   worker/TLS behavior, or add backend matchers.
+- `provider_activation_input_bundle_inventory_box.hako` owns MIMAP-376A. It
+  may inventory an explicit provider activation input bundle after an accepted
+  unsupported-outcome ledger report. It must not activate provider behavior,
+  call provider APIs, install hooks, replace the host allocator, run worker/TLS
+  behavior, or add backend matchers.
 - `object_lifecycle_facade_purge_policy_box.hako` owns the MIMAP-019A
   read-only facade purge/reclaim/decommit policy route. It may adapt one
   facade stats snapshot and one scalar lifecycle view of a facade-known

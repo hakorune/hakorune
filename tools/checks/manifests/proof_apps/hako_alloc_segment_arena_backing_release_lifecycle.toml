@@ -728,3 +728,16 @@ closeout_pack = "provider-activation-unsupported-outcome"
 exe = "deferred-to-closeout"
 cmd = ["bash", "tools/checks/k2_wide_hako_alloc_provider_activation_unsupported_outcome_ledger_guard.sh"]
 cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_provider_activation_unsupported_outcome_ledger_guard.sh", "--level", "L2"]
+
+[[proof_apps]]
+id = "MIMAP-376A"
+app = "apps/hako-alloc-provider-activation-input-bundle-inventory-proof"
+label = "provider activation input bundle inventory proof"
+profiles = ["pilot", "hako-alloc-purge"]
+row_kind = "input-bundle-inventory"
+validation_profile = "scalar-mir"
+first_pattern = false
+closeout_pack = "provider-activation-input-bundle"
+exe = "deferred-to-first-pattern"
+cmd = ["bash", "tools/checks/k2_wide_hako_alloc_provider_activation_input_bundle_inventory_guard.sh"]
+cmd_l2 = ["bash", "tools/checks/k2_wide_hako_alloc_provider_activation_input_bundle_inventory_guard.sh", "--level", "L2"]
