@@ -1,6 +1,6 @@
 # 293x-929 MIMAP-314A Segment Arena Backing Modeled Allocation-Ledger Release/Recycle Execution Readiness Matrix Closeout
 
-Status: selected current
+Status: landed
 Date: 2026-05-20
 
 ## Decision
@@ -44,6 +44,19 @@ allocator row.
 ```text
 bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_readiness_matrix_guard.sh --level L2
 bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_readiness_matrix_diagnostics_guard.sh --level L2
+bash tools/checks/k2_wide_hako_alloc_segment_arena_backing_modeled_allocation_ledger_release_recycle_execution_readiness_matrix_closeout_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
+```
+
+## Result
+
+MIMAP-314A closes the execution readiness matrix pack with the MIMAP-312A
+inventory row, the MIMAP-313A diagnostics row, and representative exact-MIR
+L3 evidence through the diagnostics proof app.
+
+Selected next:
+
+```text
+MIMAP-315A Post release/recycle execution readiness matrix closeout row selection
 ```
