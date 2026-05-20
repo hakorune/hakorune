@@ -1,0 +1,87 @@
+// hako-alloc-allocator-comparison-benchmark-execution-preflight-inventory-proof
+// Purpose: prove MIMAP-436A allocator comparison benchmark execution preflight inventory.
+
+using selfhost.hako_alloc.memory.allocator_comparison_benchmark_execution_preflight_inventory_box as HakoAllocAllocatorComparisonBenchmarkExecutionPreflightInventory
+
+static box Main {
+    main(args) {
+        local owner = new HakoAllocAllocatorComparisonBenchmarkExecutionPreflightInventory()
+        local accepted = owner.inventoryAllocatorComparisonBenchmarkExecutionPreflight(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+        local missing_runner = owner.inventoryAllocatorComparisonBenchmarkExecutionPreflight(0, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+        local missing_output = owner.inventoryAllocatorComparisonBenchmarkExecutionPreflight(1, 0, 1, 1, 1, 1, 1, 1, 1, 1)
+        local missing_storage = owner.inventoryAllocatorComparisonBenchmarkExecutionPreflight(1, 1, 0, 1, 1, 1, 1, 1, 1, 1)
+        local missing_workload = owner.inventoryAllocatorComparisonBenchmarkExecutionPreflight(1, 1, 1, 0, 1, 1, 1, 1, 1, 1)
+        local missing_measurement = owner.inventoryAllocatorComparisonBenchmarkExecutionPreflight(1, 1, 1, 1, 0, 1, 1, 1, 1, 1)
+        local process_open = owner.inventoryAllocatorComparisonBenchmarkExecutionPreflight(1, 1, 1, 1, 1, 0, 1, 1, 1, 1)
+        local hook_open = owner.inventoryAllocatorComparisonBenchmarkExecutionPreflight(1, 1, 1, 1, 1, 1, 0, 1, 1, 1)
+        local backend_open = owner.inventoryAllocatorComparisonBenchmarkExecutionPreflight(1, 1, 1, 1, 1, 1, 1, 0, 1, 1)
+        local global_open = owner.inventoryAllocatorComparisonBenchmarkExecutionPreflight(1, 1, 1, 1, 1, 1, 1, 1, 0, 1)
+        local hidden_env_open = owner.inventoryAllocatorComparisonBenchmarkExecutionPreflight(1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+
+        local ok = check "mimap436a allocator comparison benchmark execution preflight inventory" {
+            "accepted": accepted.accepted == 1
+            "reason": accepted.reason == 0
+            "preflight present": accepted.benchmark_execution_preflight_present == 1
+            "ready": accepted.benchmark_execution_ready == 1
+            "runner": accepted.benchmark_runner_selected == 1
+            "output": accepted.output_capture_present == 1
+            "storage": accepted.measurement_storage_present == 1
+            "workload": accepted.workload_matrix_ready == 1
+            "measurement": accepted.measurement_plan_ready == 1
+            "process closed": accepted.process_replacement_closed == 1
+            "hook closed": accepted.hook_install_closed == 1
+            "backend closed": accepted.backend_matcher_closed == 1
+            "global closed": accepted.global_allocator_closed == 1
+            "hidden env closed": accepted.hidden_env_closed == 1
+            "owner count": owner.preflight_count == 11
+            "owner accepted": owner.accepted_count == 1
+            "owner rejected": owner.reject_count == 10
+            "owner runner": owner.missing_runner_reject_count == 1
+            "owner output": owner.missing_output_capture_reject_count == 1
+            "owner storage": owner.missing_measurement_storage_reject_count == 1
+            "owner workload": owner.workload_matrix_not_ready_reject_count == 1
+            "owner measurement": owner.measurement_plan_not_ready_reject_count == 1
+            "owner process": owner.process_replacement_open_reject_count == 1
+            "owner hook": owner.hook_open_reject_count == 1
+            "owner backend": owner.backend_matcher_open_reject_count == 1
+            "owner global": owner.global_allocator_open_reject_count == 1
+            "owner hidden": owner.hidden_env_open_reject_count == 1
+            "last reason": owner.last_reason == 10
+            "missing runner reason": missing_runner.reason == 1
+            "missing output reason": missing_output.reason == 2
+            "missing storage reason": missing_storage.reason == 3
+            "missing workload reason": missing_workload.reason == 4
+            "missing measurement reason": missing_measurement.reason == 5
+            "process open reason": process_open.reason == 6
+            "hook open reason": hook_open.reason == 7
+            "backend open reason": backend_open.reason == 8
+            "global open reason": global_open.reason == 9
+            "hidden env reason": hidden_env_open.reason == 10
+            "benchmark": accepted.benchmark_executed == 0
+            "process replacement": accepted.process_replacement_executed == 0
+            "hook installed": accepted.hook_installed == 0
+            "matcher added": accepted.backend_matcher_added == 0
+            "global allocator": accepted.global_allocator_installed == 0
+            "would benchmark": accepted.would_run_benchmark == 0
+            "would replace": accepted.would_replace_host_allocator == 0
+            "would hook": accepted.would_install_hook == 0
+            "would matcher": accepted.would_add_backend_matcher == 0
+            "would thread": accepted.would_run_thread == 0
+        }
+
+        print("hako-alloc-allocator-comparison-benchmark-execution-preflight-inventory-proof")
+        print("preflight=" + accepted.accepted + "," + accepted.reason + "," + accepted.benchmark_execution_preflight_present + "," + accepted.benchmark_execution_ready + "," + accepted.benchmark_runner_selected + "," + accepted.output_capture_present + "," + accepted.measurement_storage_present + "," + accepted.workload_matrix_ready + "," + accepted.measurement_plan_ready + "," + accepted.process_replacement_closed + "," + accepted.hook_install_closed + "," + accepted.backend_matcher_closed + "," + accepted.global_allocator_closed + "," + accepted.hidden_env_closed)
+        print("owner=" + owner.preflight_count + "," + owner.accepted_count + "," + owner.reject_count + "," + owner.missing_runner_reject_count + "," + owner.missing_output_capture_reject_count + "," + owner.missing_measurement_storage_reject_count + "," + owner.workload_matrix_not_ready_reject_count + "," + owner.measurement_plan_not_ready_reject_count + "," + owner.process_replacement_open_reject_count + "," + owner.hook_open_reject_count + "," + owner.backend_matcher_open_reject_count + "," + owner.global_allocator_open_reject_count + "," + owner.hidden_env_open_reject_count + "," + owner.last_reason)
+        print("closed=" + accepted.benchmark_executed + "," + accepted.process_replacement_executed + "," + accepted.hook_installed + "," + accepted.backend_matcher_added + "," + accepted.global_allocator_installed + "," + accepted.would_run_benchmark + "," + accepted.would_replace_host_allocator + "," + accepted.would_install_hook + "," + accepted.would_add_backend_matcher + "," + accepted.would_run_thread)
+        print("rejected=" + missing_runner.reason + "," + missing_output.reason + "," + missing_storage.reason + "," + missing_workload.reason + "," + missing_measurement.reason + "," + process_open.reason + "," + hook_open.reason + "," + backend_open.reason + "," + global_open.reason + "," + hidden_env_open.reason)
+        print("check=" + ok)
+
+        if ok == 1 {
+            print("summary=ok")
+            return 0
+        }
+
+        print("summary=fail")
+        return 1
+    }
+}
