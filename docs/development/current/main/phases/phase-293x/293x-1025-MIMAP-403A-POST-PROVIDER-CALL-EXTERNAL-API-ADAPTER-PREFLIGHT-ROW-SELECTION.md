@@ -1,6 +1,6 @@
 # 293x-1025 MIMAP-403A Post Provider Call External API Adapter Preflight Row Selection
 
-Status: selected current
+Status: landed
 Date: 2026-05-21
 
 ## Decision
@@ -30,3 +30,14 @@ execution and host allocator replacement remain closed.
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
+
+## Decision Result
+
+Selected:
+
+```text
+MIMAP-404A Provider Call External API Adapter Closeout
+```
+
+The next row closes out the external API adapter inventory/preflight pack before
+any external API call stub execution row opens.
